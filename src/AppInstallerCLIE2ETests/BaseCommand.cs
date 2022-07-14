@@ -20,6 +20,7 @@ namespace AppInstallerCLIE2ETests
         [OneTimeTearDown]
         public void BaseTeardown()
         {
+            TestCommon.RunAICLICommand("source remove", Constants.TestSourceName);
             TestCommon.RunAICLICommand("source reset", "--force");
         }
 
