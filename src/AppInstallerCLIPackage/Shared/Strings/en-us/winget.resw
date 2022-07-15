@@ -1370,4 +1370,10 @@ Please specify one of them using the `--source` option to proceed.</value>
   <data name="NestedInstallerNotFound" xml:space="preserve">
     <value>Nested installer file does not exist. Ensure the specified relative path of the nested installer matches: </value>
   </data>
+  <data name="InvalidRelativeFilePathToNestedInstaller" xml:space="preserve">
+    <value>Invalid relative file path to nested installer</value>
+  </data>
+  <data name="NestedInstallerNotSpecified" xml:space="preserve">
+    <value>No nested installers specified for this package</value>
+  </data>
 </root>

@@ -509,6 +509,12 @@
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_ZipWithExe.yaml">
       <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallFlowTest_Zip_InvalidRelativeFilePath.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallFlowTest_Zip_MissingNestedInstaller.yaml">
+      <Filter>TestData</Filter>
     </CopyFileToFolders>    
     <CopyFileToFolders Include="TestData\InstallerArgTest_Msi_WithSwitches.yaml">
       <Filter>TestData</Filter>

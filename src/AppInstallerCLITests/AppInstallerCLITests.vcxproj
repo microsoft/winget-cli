@@ -286,6 +286,12 @@
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_ZipWithExe.yaml">
       <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallFlowTest_Zip_InvalidRelativeFilePath.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallFlowTest_Zip_MissingNestedInstaller.yaml">
+      <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>    
     <CopyFileToFolders Include="TestData\ImportFile-Bad-Invalid.json">
       <DeploymentContent>true</DeploymentContent>
