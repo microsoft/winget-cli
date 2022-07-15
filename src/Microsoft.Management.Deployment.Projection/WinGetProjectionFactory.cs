@@ -15,6 +15,8 @@ namespace Microsoft.Management.Deployment.Projection
 
         private IInstanceInitializer InstanceInitializer { get; set; }
 
+        public ClsidContext Context => InstanceInitializer.Context;
+
         public PackageManager CreatePackageManager() => InstanceInitializer.CreateInstance<PackageManager>();
 
         public FindPackagesOptions CreateFindPackagesOptions() => InstanceInitializer.CreateInstance<FindPackagesOptions>();

@@ -318,8 +318,11 @@ namespace AppInstallerCLIE2ETests.Interop
         [Test]
         public async Task InstallPortableFailsWithCleanup()
         {
-            // FIXME Failing
-            Assert.Ignore();
+            if (TestFactory.Context == ClsidContext.InProc)
+            {
+                // TODO: This test fails when running in-process
+                Assert.Ignore();
+            }
 
             string winGetDir = Path.Combine(Environment.GetEnvironmentVariable(Constants.LocalAppData), "Microsoft", "WinGet");
             string installDir = Path.Combine(winGetDir, "Packages");
