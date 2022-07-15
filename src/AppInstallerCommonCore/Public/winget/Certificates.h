@@ -3,55 +3,138 @@
 #pragma once
 #include <wincrypt.h>
 
+#include <wil/resource.h>
+
+#include <functional>
+#include <vector>
+
 
 namespace AppInstaller::Certificates
 {
-#define WINGET_CERTIFICATES_DETAILS_PROPERTY(_name_,_type_) \
-    public: \
-        CertificateDetails& _name_(std::optional<_type_> value) { m_ ## _name_ = std::move(value); } \
-        const std::optional<_type_>& _name_() const { return m_ ## _name_; } \
-    private: \
-        std::optional<_type_> m_ ## _name_
-
-    // Contains the specific information about a certificate to check.
-    struct CertificateDetails
+    // Defines the types of certificate pinning to perform.
+    enum class PinningVerificationType : uint32_t
     {
-        // For public key pinning; provide all 4 pieces of information to ensure an exact match.
-        // The OID of the algorithm, as in CERT_PUBLIC_KEY_INFO
-        WINGET_CERTIFICATES_DETAILS_PROPERTY(PublicKeyAlgorithm, std::string);
-        // The parameters of the algorithm, as in CERT_PUBLIC_KEY_INFO
-        WINGET_CERTIFICATES_DETAILS_PROPERTY(PublicKeyAlgorithmParameters, std::vector<BYTE>);
-        // The number of bits in the public key, as in CERT_PUBLIC_KEY_INFO
-        WINGET_CERTIFICATES_DETAILS_PROPERTY(PublicKeyBitCount, size_t);
-        // The bytes of the public key, as in CERT_PUBLIC_KEY_INFO
-        WINGET_CERTIFICATES_DETAILS_PROPERTY(PublicKeyBytes, size_t);
-
-        // The full subject of the certificate, as in CERT_INFO
-        WINGET_CERTIFICATES_DETAILS_PROPERTY(Subject, std::vector<BYTE>);
-        // The full issuer of the certificate, as in CERT_INFO
-        WINGET_CERTIFICATES_DETAILS_PROPERTY(Issuer, std::vector<BYTE>);
+        None = 0x0,
+        PublicKey = 0x1,
+        Subject = 0x2,
+        Issuer = 0x4,
     };
 
-    // Contains the certificate details and information about how the chain is expected to look.
-    struct ChainDetails
+    DEFINE_ENUM_FLAG_OPERATORS(PinningVerificationType);
+
+    // Contains the specific information about a certificate to pin.
+    struct PinningDetails
     {
+        PinningDetails() = default;
 
+        PinningDetails(const PinningDetails&) = default;
+        PinningDetails& operator=(const PinningDetails&) = default;
 
-    private:
-        std::vector<CertificateDetails> m_chainDetails;
-    };
+        PinningDetails(PinningDetails&&) = default;
+        PinningDetails& operator=(PinningDetails&&) = default;
 
-    // Holds the details about how a certificate chain is to be validated (aka "pinned").
-    struct PinningConfiguration
-    {
-        PinningConfiguration() = default;
+        // Loads the certificate context.
+        PinningDetails& LoadCertificate(int resource);
+        PinningDetails& LoadCertificate(const std::vector<BYTE>& certificateBytes);
+        PinningDetails& LoadCertificate(const std::pair<const BYTE*,size_t> certificateBytes);
+        PCCERT_CONTEXT GetCertificate() const { return m_certificateContext.get(); }
 
-        // Validates the given certificate against the configuration.
+        PinningDetails& SetPinning(PinningVerificationType type);
+        PinningVerificationType GetPinning() const { return m_pinning; }
+
+        // Validates the given certificate against the pinning information.
         // Returns true to indicate that the certificate meets the pinning configuration criteria.
         // Returns false to indicate the it does not.
         bool Validate(PCCERT_CONTEXT certContext) const;
 
     private:
+        wil::shared_cert_context m_certificateContext;
+        PinningVerificationType m_pinning = PinningVerificationType::None;
+    };
 
+    // Contains the full chain of pinning details.
+    struct PinningChain
+    {
+        PinningChain() = default;
+
+        PinningChain(const PinningChain&) = default;
+        PinningChain& operator=(const PinningChain&) = default;
+
+        PinningChain(PinningChain&&) = default;
+        PinningChain& operator=(PinningChain&&) = default;
+
+        // A single entry in the chain.
+        struct Node
+        {
+            friend PinningChain;
+
+            // Access the value
+            PinningDetails* operator->() { return &m_chain.get()[m_index]; }
+
+            // Create/access the next node in the chain.
+            Node Next();
+            const Node Next() const;
+
+            // Drops the next node (and all subsequent nodes) from the chain.
+            void RemoveNext();
+
+            // Indicates if there is already an existing next node.
+            bool HasNext() const;
+
+        private:
+            Node(std::vector<PinningDetails>& chain, size_t index);
+
+            std::reference_wrapper<std::vector<PinningDetails>> m_chain;
+            size_t m_index = 0;
+        };
+
+        // Gets the root certificate pinning details in the chain.
+        // These will correspond to the root of the certificate chain being verified.
+        Node Root();
+        const Node Root() const;
+
+        // Validates the given certificate chain against the configuration.
+        // Returns true to indicate that the chain meets the pinning configuration criteria.
+        // Returns false to indicate the it does not.
+        bool Validate(PCCERT_CHAIN_CONTEXT chainContext) const;
+
+        // Gets a description of the pinning chain.
+        std::string GetDescription() const;
+
+    private:
+        std::vector<PinningDetails> m_chain;
+    };
+
+    // Holds the details about how a certificate chain is to be validated (aka "pinned").
+    struct PinningConfiguration
+    {
+        PinningConfiguration(std::string identifier = {});
+
+        PinningConfiguration(const PinningConfiguration&) = default;
+        PinningConfiguration& operator=(const PinningConfiguration&) = default;
+
+        PinningConfiguration(PinningConfiguration&&) = default;
+        PinningConfiguration& operator=(PinningConfiguration&&) = default;
+
+        // Adds a possible chain to the configuration.
+        // For a certificate to be valid, it must match only one of the configured chains.
+        void AddChain(PinningChain chain);
+
+        // Validates the given leaf certificate against the configuration.
+        // Returns true to indicate that the certificate meets the pinning configuration criteria.
+        // Returns false to indicate the it does not.
+        bool Validate(PCCERT_CONTEXT certContext) const;
+
+    private:
+        // The identifier used when logging.
+        std::string m_identifier;
+
+        // The configured chains.
+        std::vector<PinningChain> m_configuration;
+
+        // We store the last certificate that was successfully validated to speed up subsequent checks.
+        // Only cache a single certificate under the assumption that most of the time there will
+        // only be a single server certificate in use.
+        mutable std::vector<BYTE> m_cachedCertificate;
     };
 }

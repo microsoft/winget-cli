@@ -266,7 +266,7 @@ TEST_CASE("CommandComplete_Simple", "[complete]")
 
     CompletionTestCommand command;
     command.SubCommandNames = { "test1", "test2" };
-    command.Arguments = { Argument{ "arg1", 'a', Args::Type::Query, Resource::String::Done, ArgumentType::Standard } };
+    command.Arguments = { Argument{ "arg1", 'a', Args::Type::Query, CLI::Resource::String::Done, ArgumentType::Standard } };
     command.ArgumentValueCallback = [&](Context&, Execution::Args::Type) { FAIL("No argument value should be requested"); };
     command.Complete(ctc.context);
 
@@ -318,8 +318,8 @@ TEST_CASE("CommandComplete_Routing1", "[complete]")
     CompletionTestCommand command;
     command.SubCommandNames = { "car", "cart", "cartesian", "carpet" };
     command.Arguments = {
-        Argument{ "arg1", '1', Args::Type::Query, Resource::String::Done, ArgumentType::Standard },
-        Argument{ "arg2", '2', Args::Type::Channel, Resource::String::Done, ArgumentType::Standard },
+        Argument{ "arg1", '1', Args::Type::Query, CLI::Resource::String::Done, ArgumentType::Standard },
+        Argument{ "arg2", '2', Args::Type::Channel, CLI::Resource::String::Done, ArgumentType::Standard },
     };
     Args::Type argType = static_cast<Args::Type>(-1);
     command.ArgumentValueCallback = [&](Context&, Execution::Args::Type type) { argType = type; };
@@ -339,8 +339,8 @@ TEST_CASE("CommandComplete_Routing2", "[complete]")
     CompletionTestCommand command;
     command.SubCommandNames = { "car", "cart", "cartesian", "carpet" };
     command.Arguments = {
-        Argument{ "arg1", '1', Args::Type::Query, Resource::String::Done, ArgumentType::Standard },
-        Argument{ "arg2", '2', Args::Type::Channel, Resource::String::Done, ArgumentType::Standard },
+        Argument{ "arg1", '1', Args::Type::Query, CLI::Resource::String::Done, ArgumentType::Standard },
+        Argument{ "arg2", '2', Args::Type::Channel, CLI::Resource::String::Done, ArgumentType::Standard },
     };
     Args::Type argType = static_cast<Args::Type>(-1);
     command.ArgumentValueCallback = [&](Context&, Execution::Args::Type type) { argType = type; };
@@ -360,8 +360,8 @@ TEST_CASE("CommandComplete_PositionalRouting", "[complete]")
     CompletionTestCommand command;
     command.SubCommandNames = { "car", "cart", "cartesian", "carpet" };
     command.Arguments = {
-        Argument{ "arg1", '1', Args::Type::Query, Resource::String::Done, ArgumentType::Standard },
-        Argument{ "arg2", '2', Args::Type::Channel, Resource::String::Done, ArgumentType::Positional },
+        Argument{ "arg1", '1', Args::Type::Query, CLI::Resource::String::Done, ArgumentType::Standard },
+        Argument{ "arg2", '2', Args::Type::Channel, CLI::Resource::String::Done, ArgumentType::Positional },
     };
     Args::Type argType = static_cast<Args::Type>(-1);
     command.ArgumentValueCallback = [&](Context&, Execution::Args::Type type) { argType = type; };
@@ -383,8 +383,8 @@ TEST_CASE("CommandComplete_PositionalRoutingAfterArgs", "[complete]")
     CompletionTestCommand command;
     command.SubCommandNames = { "car", "cart", "cartesian", "carpet" };
     command.Arguments = {
-        Argument{ "arg1", '1', Args::Type::Query, Resource::String::Done, ArgumentType::Standard },
-        Argument{ "arg2", '2', Args::Type::Channel, Resource::String::Done, ArgumentType::Positional },
+        Argument{ "arg1", '1', Args::Type::Query, CLI::Resource::String::Done, ArgumentType::Standard },
+        Argument{ "arg2", '2', Args::Type::Channel, CLI::Resource::String::Done, ArgumentType::Positional },
     };
     Args::Type argType = static_cast<Args::Type>(-1);
     command.ArgumentValueCallback = [&](Context&, Execution::Args::Type type) { argType = type; };
@@ -405,8 +405,8 @@ TEST_CASE("CommandComplete_PositionalRoutingAfterDoubleDash", "[complete]")
     CompletionTestCommand command;
     command.SubCommandNames = { "car", "cart", "cartesian", "carpet" };
     command.Arguments = {
-        Argument{ "arg1", '1', Args::Type::Query, Resource::String::Done, ArgumentType::Standard },
-        Argument{ "arg2", '2', Args::Type::Channel, Resource::String::Done, ArgumentType::Positional },
+        Argument{ "arg1", '1', Args::Type::Query, CLI::Resource::String::Done, ArgumentType::Standard },
+        Argument{ "arg2", '2', Args::Type::Channel, CLI::Resource::String::Done, ArgumentType::Positional },
     };
     Args::Type argType = static_cast<Args::Type>(-1);
     command.ArgumentValueCallback = [&](Context&, Execution::Args::Type type) { argType = type; };
@@ -426,8 +426,8 @@ TEST_CASE("CommandComplete_ArgNamesAfterDash", "[complete]")
     CompletionTestCommand command;
     command.SubCommandNames = { "car", "cart", "cartesian", "carpet" };
     command.Arguments = {
-        Argument{ "arg1", '1', Args::Type::Query, Resource::String::Done, ArgumentType::Standard },
-        Argument{ "arg2", '2', Args::Type::Channel, Resource::String::Done, ArgumentType::Positional },
+        Argument{ "arg1", '1', Args::Type::Query, CLI::Resource::String::Done, ArgumentType::Standard },
+        Argument{ "arg2", '2', Args::Type::Channel, CLI::Resource::String::Done, ArgumentType::Positional },
     };
     command.ArgumentValueCallback = [&](Context&, Execution::Args::Type) { FAIL("No argument value should be requested"); };
     command.Complete(ctc.context);
@@ -446,8 +446,8 @@ TEST_CASE("CommandComplete_AliasNames", "[complete]")
     CompletionTestCommand command;
     command.SubCommandNames = { "car", "cart", "cartesian", "carpet" };
     command.Arguments = {
-        Argument{ "arg1", '1', Args::Type::Query, Resource::String::Done, ArgumentType::Standard },
-        Argument{ "arg2", '2', Args::Type::Channel, Resource::String::Done, ArgumentType::Positional },
+        Argument{ "arg1", '1', Args::Type::Query, CLI::Resource::String::Done, ArgumentType::Standard },
+        Argument{ "arg2", '2', Args::Type::Channel, CLI::Resource::String::Done, ArgumentType::Positional },
     };
     command.ArgumentValueCallback = [&](Context&, Execution::Args::Type) { FAIL("No argument value should be requested"); };
     command.Complete(ctc.context);
@@ -466,9 +466,9 @@ TEST_CASE("CommandComplete_ArgNamesFilter", "[complete]")
     CompletionTestCommand command;
     command.SubCommandNames = { "car", "cart", "cartesian", "carpet" };
     command.Arguments = {
-        Argument{ "arg1", '1', Args::Type::Query, Resource::String::Done, ArgumentType::Standard },
-        Argument{ "arg2", '2', Args::Type::Channel, Resource::String::Done, ArgumentType::Positional },
-        Argument{ "foo1", '2', Args::Type::Channel, Resource::String::Done, ArgumentType::Positional },
+        Argument{ "arg1", '1', Args::Type::Query, CLI::Resource::String::Done, ArgumentType::Standard },
+        Argument{ "arg2", '2', Args::Type::Channel, CLI::Resource::String::Done, ArgumentType::Positional },
+        Argument{ "foo1", '2', Args::Type::Channel, CLI::Resource::String::Done, ArgumentType::Positional },
     };
     command.ArgumentValueCallback = [&](Context&, Execution::Args::Type) { FAIL("No argument value should be requested"); };
     command.Complete(ctc.context);
@@ -487,8 +487,8 @@ TEST_CASE("CommandComplete_IgnoreBadArgs", "[complete]")
     CompletionTestCommand command;
     command.SubCommandNames = { "car", "cart", "cartesian", "carpet" };
     command.Arguments = {
-        Argument{ "arg1", '1', Args::Type::Query, Resource::String::Done, ArgumentType::Standard },
-        Argument{ "arg2", '2', Args::Type::Channel, Resource::String::Done, ArgumentType::Standard },
+        Argument{ "arg1", '1', Args::Type::Query, CLI::Resource::String::Done, ArgumentType::Standard },
+        Argument{ "arg2", '2', Args::Type::Channel, CLI::Resource::String::Done, ArgumentType::Standard },
     };
     Args::Type argType = static_cast<Args::Type>(-1);
     command.ArgumentValueCallback = [&](Context&, Execution::Args::Type type) { argType = type; };
@@ -508,8 +508,8 @@ TEST_CASE("CommandComplete_OtherArgsParsed", "[complete]")
     CompletionTestCommand command;
     command.SubCommandNames = { "car", "cart", "cartesian", "carpet" };
     command.Arguments = {
-        Argument{ "arg1", '1', Args::Type::Query, Resource::String::Done, ArgumentType::Standard },
-        Argument{ "arg2", '2', Args::Type::Channel, Resource::String::Done, ArgumentType::Standard },
+        Argument{ "arg1", '1', Args::Type::Query, CLI::Resource::String::Done, ArgumentType::Standard },
+        Argument{ "arg2", '2', Args::Type::Channel, CLI::Resource::String::Done, ArgumentType::Standard },
     };
     command.ArgumentValueCallback = [&](Context&, Execution::Args::Type) { FAIL("No argument value should be requested"); };
     command.Complete(ctc.context);
@@ -532,8 +532,8 @@ TEST_CASE("CommandComplete_Complex", "[complete]")
     CompletionTestCommand command;
     command.SubCommandNames = { "car", "cart", "cartesian", "carpet" };
     command.Arguments = {
-        Argument{ "arg1", '1', Args::Type::Query, Resource::String::Done, ArgumentType::Standard },
-        Argument{ "arg2", '2', Args::Type::Channel, Resource::String::Done, ArgumentType::Standard },
+        Argument{ "arg1", '1', Args::Type::Query, CLI::Resource::String::Done, ArgumentType::Standard },
+        Argument{ "arg2", '2', Args::Type::Channel, CLI::Resource::String::Done, ArgumentType::Standard },
     };
     Args::Type argType = static_cast<Args::Type>(-1);
     command.ArgumentValueCallback = [&](Context&, Execution::Args::Type type) { argType = type; };
