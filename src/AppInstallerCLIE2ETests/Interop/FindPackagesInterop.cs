@@ -23,14 +23,6 @@ namespace AppInstallerCLIE2ETests.Interop
             testSource = packageManager.GetPackageCatalogByName(Constants.TestSourceName);
         }
 
-        [TearDown]
-        public void TearDown()
-        {
-            packageManager = null;
-            testSource = null;
-            GarbageCollection();
-        }
-
         [Test]
         public void PackageDoesNotExist()
         {

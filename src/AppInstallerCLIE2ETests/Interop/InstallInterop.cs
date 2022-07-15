@@ -28,14 +28,6 @@ namespace AppInstallerCLIE2ETests.Interop
             installDir = TestCommon.GetRandomTestDir();
         }
 
-        [TearDown]
-        public void TearDown()
-        {
-            packageManager = null;
-            testSource = null;
-            GarbageCollection();
-        }
-
         [Test]
         public async Task InstallExe()
         {

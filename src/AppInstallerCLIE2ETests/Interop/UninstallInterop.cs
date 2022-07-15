@@ -35,14 +35,6 @@ namespace AppInstallerCLIE2ETests.Interop
             compositeSource = packageManager.CreateCompositePackageCatalog(options);
         }
 
-        [TearDown]
-        public void TearDown()
-        {
-            packageManager = null;
-            compositeSource = null;
-            GarbageCollection();
-        }
-
         [Test]
         public async Task UninstallTestExe()
         {

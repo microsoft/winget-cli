@@ -408,5 +408,20 @@ namespace AppInstallerCLIE2ETests
                 entry.SetValue(name, value);
             }
         }
+
+        public static void SetupTestSource()
+        {
+            RunAICLICommand("source reset", "--force");
+            RunAICLICommand("source remove", Constants.DefaultWingetSourceName);
+            RunAICLICommand("source remove", Constants.DefaultMSStoreSourceName);
+            RunAICLICommand("source add", $"{Constants.TestSourceName} {Constants.TestSourceUrl}");
+            Thread.Sleep(2000);
+        }
+
+        public static void TearDownTestSource()
+        {
+            RunAICLICommand("source remove", Constants.TestSourceName);
+            RunAICLICommand("source reset", "--force");
+        }
     }
 }

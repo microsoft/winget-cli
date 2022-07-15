@@ -20,12 +20,6 @@ namespace AppInstallerCLIE2ETests.Interop
 
         public UpgradeInterop(IInstanceInitializer initializer) : base(initializer) { }
 
-        [OneTimeSetUp]
-        public void OneTimeSetup()
-        {
-            ConfigureFeature("portableInstall", true);
-        }
-
         [SetUp]
         public void Init()
         {
@@ -38,14 +32,6 @@ namespace AppInstallerCLIE2ETests.Interop
             options.Catalogs.Add(testSource);
             options.CompositeSearchBehavior = CompositeSearchBehavior.AllCatalogs;
             compositeSource = packageManager.CreateCompositePackageCatalog(options);
-        }
-
-        [TearDown]
-        public void TearDown()
-        {
-            packageManager = null;
-            compositeSource = null;
-            GarbageCollection();
         }
 
         [Test]

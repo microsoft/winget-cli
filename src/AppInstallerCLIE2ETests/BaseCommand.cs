@@ -5,7 +5,6 @@ namespace AppInstallerCLIE2ETests
 {
     using System;
     using System.IO;
-    using System.Threading;
     using Newtonsoft.Json.Linq;
     using NUnit.Framework;
 
@@ -20,17 +19,12 @@ namespace AppInstallerCLIE2ETests
         [OneTimeTearDown]
         public void BaseTeardown()
         {
-            TestCommon.RunAICLICommand("source remove", Constants.TestSourceName);
-            TestCommon.RunAICLICommand("source reset", "--force");
+            TestCommon.TearDownTestSource();
         }
 
         public void ResetTestSource()
         {
-            TestCommon.RunAICLICommand("source reset", "--force");
-            TestCommon.RunAICLICommand("source remove", Constants.DefaultWingetSourceName);
-            TestCommon.RunAICLICommand("source remove", Constants.DefaultMSStoreSourceName);
-            TestCommon.RunAICLICommand("source add", $"{Constants.TestSourceName} {Constants.TestSourceUrl}");
-            Thread.Sleep(2000);
+            TestCommon.SetupTestSource();
         }
 
         public void ConfigureFeature(string featureName, bool status)

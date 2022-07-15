@@ -6,11 +6,10 @@ namespace AppInstallerCLIE2ETests.Interop
     using Microsoft.Management.Deployment;
     using Microsoft.Management.Deployment.Projection;
     using NUnit.Framework;
-    using System;
     using System.Collections.Generic;
     using System.Linq;
 
-    public class BaseInterop : BaseCommand
+    public class BaseInterop
     {
         public WinGetProjectionFactory TestFactory { get; }
 
@@ -19,20 +18,6 @@ namespace AppInstallerCLIE2ETests.Interop
             TestFactory = new(initializer);
         }
 
-        /// <summary>
-        /// Force garbage collection after each test class execution.
-        /// Note: Connecting to a package catalog reference without calling the
-        ///       garbage collector at the end of the test class, causes subsequent
-        ///       test classes to freeze and timeout when attempting to reset then
-        ///       add the TestSource to winget from the command line during the setup
-        ///       phase.
-        /// </summary>
-        public static void GarbageCollection()
-        {
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
-        }
-        
         /// <summary>
         /// Find all filtered package from a provided package catalog reference.
         /// </summary>
