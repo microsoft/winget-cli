@@ -28,6 +28,31 @@ namespace AppInstaller::Certificates
                 return "<unknown>";
             }
         }
+
+        std::string GetDescriptionOfCertChain(PCCERT_CHAIN_CONTEXT chainContext)
+        {
+            PCCERT_SIMPLE_CHAIN chain = chainContext->rgpChain[0];
+            std::ostringstream stream;
+            std::string indent;
+
+            for (DWORD i = 0; i < chain->cElement; ++i)
+            {
+                PCCERT_CHAIN_ELEMENT element = chain->rgpElement[(chain->cElement - 1) - i];
+
+                if (!indent.empty())
+                {
+                    stream << std::endl;
+                }
+
+                stream << indent;
+
+                stream << GetSimpleDisplayName(element->pCertContext);
+
+                indent.append("  ");
+            }
+
+            return std::move(stream).str();
+        }
     }
 
     PinningDetails& PinningDetails::LoadCertificate(int resource)
@@ -216,41 +241,42 @@ namespace AppInstaller::Certificates
 
             stream << indent;
 
+            if (details.GetCertificate())
+            {
+                stream << GetSimpleDisplayName(details.GetCertificate()) << " : ";
+            }
+
             if (details.GetPinning() == PinningVerificationType::None)
             {
                 stream << "<No verification>";
             }
-            else
+
+            bool prepend = false;
+
+            if (WI_IsFlagSet(details.GetPinning(), PinningVerificationType::PublicKey))
             {
-                stream << indent << GetSimpleDisplayName(details.GetCertificate()) << " : ";
+                stream << "PublicKey";
+                prepend = true;
+            }
 
-                bool prepend = false;
-
-                if (WI_IsFlagSet(details.GetPinning(), PinningVerificationType::PublicKey))
+            if (WI_IsFlagSet(details.GetPinning(), PinningVerificationType::Subject))
+            {
+                if (prepend)
                 {
-                    stream << "PublicKey";
-                    prepend = true;
+                    stream << " | ";
                 }
+                stream << "Subject";
+                prepend = true;
+            }
 
-                if (WI_IsFlagSet(details.GetPinning(), PinningVerificationType::Subject))
+            if (WI_IsFlagSet(details.GetPinning(), PinningVerificationType::Issuer))
+            {
+                if (prepend)
                 {
-                    if (prepend)
-                    {
-                        stream << " | ";
-                    }
-                    stream << "Subject";
-                    prepend = true;
+                    stream << " | ";
                 }
-
-                if (WI_IsFlagSet(details.GetPinning(), PinningVerificationType::Issuer))
-                {
-                    if (prepend)
-                    {
-                        stream << " | ";
-                    }
-                    stream << "Issuer";
-                    prepend = true;
-                }
+                stream << "Issuer";
+                prepend = true;
             }
 
             indent.append("  ");
@@ -328,7 +354,7 @@ namespace AppInstaller::Certificates
         }
         else
         {
-            AICLI_LOG(Core, Error, << "Rejecting certificate [" << GetSimpleDisplayName(certContext) << "] as it did not match anything in pinning configuration [" << m_identifier << "]");
+            AICLI_LOG(Core, Error, << "Rejecting certificate [" << GetSimpleDisplayName(certContext) << "] as it did not match anything in pinning configuration [" << m_identifier << "]:\n" << GetDescriptionOfCertChain(chainContext.get()));
         }
 
         return result;
