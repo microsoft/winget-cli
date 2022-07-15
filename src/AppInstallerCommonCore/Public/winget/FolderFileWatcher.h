@@ -5,11 +5,11 @@
 
 namespace AppInstaller::Utility
 {
-    // Watch for new/renamed files recursively in a given directory.
+    // Watch for new/renamed files recursively in a given directory with an optional extension.
     struct FolderFileWatcher
     {
-        FolderFileWatcher(const std::filesystem::path& path);
-        ~FolderFileWatcher();
+        FolderFileWatcher(const std::filesystem::path& path, const std::optional<std::string>& ext = std::nullopt);
+        ~FolderFileWatcher() {};
 
         FolderFileWatcher(const FolderFileWatcher&) = delete;
         FolderFileWatcher& operator=(const FolderFileWatcher&) = delete;
@@ -17,38 +17,15 @@ namespace AppInstaller::Utility
         FolderFileWatcher(FolderFileWatcher&&) = delete;
         FolderFileWatcher& operator=(FolderFileWatcher&&) = delete;
 
-        void start();
-        void stop();
+        void Start();
+        void Stop();
 
-        const std::unordered_set<std::string>& files() { return m_files; }
-
-    private:
-        std::filesystem::path m_path;
-        std::unordered_set<std::string> m_files;
-        wil::unique_folder_change_reader m_changeReader;
-    };
-
-    // Watch for new/renamed files recursively for a given extension in a given directory.
-    struct FolderFileExtensionWatcher
-    {
-        FolderFileExtensionWatcher(const std::filesystem::path& path, const std::string& ext);
-        ~FolderFileExtensionWatcher();
-
-        FolderFileExtensionWatcher(const FolderFileExtensionWatcher&) = delete;
-        FolderFileExtensionWatcher& operator=(const FolderFileExtensionWatcher&) = delete;
-
-        FolderFileExtensionWatcher(FolderFileExtensionWatcher&&) = delete;
-        FolderFileExtensionWatcher& operator=(FolderFileExtensionWatcher&&) = delete;
-
-        void start();
-        void stop();
-
-        const std::unordered_set<std::string>& files() { return m_files; }
+        const std::unordered_set<std::filesystem::path>& files() { return m_files; }
 
     private:
         std::filesystem::path m_path;
-        std::string m_ext;
-        std::unordered_set<std::string> m_files;
+        std::optional<std::string> m_ext;
+        std::unordered_set<std::filesystem::path> m_files;
         wil::unique_folder_change_reader m_changeReader;
     };
 }

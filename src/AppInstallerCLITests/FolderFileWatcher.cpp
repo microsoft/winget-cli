@@ -14,6 +14,43 @@ namespace
         std::ofstream fileStream{ path };
         fileStream << "text";
     }
+
+    std::filesystem::path RemoveRoot(const std::filesystem::path& prefix, const std::filesystem::path& source)
+    {
+        auto prefixItr = prefix.begin();
+        auto sourceItr = source.begin();
+
+        /*
+        while (prefixItr != prefix.end() && sourceItr != source.end())
+        {
+            if (*prefixItr != *sourceItr)
+            {
+                break;
+            }
+
+            ++prefixItr;
+            ++sourceItr;
+        }
+
+        std::filesystem::path result{};
+        if (prefixItr == prefix.end())
+        {
+            for (; sourceItr != source.end(); ++sourceItr)
+            {
+                if (result.empty())
+                {
+                    result = *sourceItr;
+                }
+                else
+                {
+                    result /= *sourceItr;
+                }
+            }
+        }
+        */
+
+        return {};
+    }
 }
 
 TEST_CASE("FolderFileWatcher_CreateNewFiles", "[FolderFileWatcher]")
@@ -21,34 +58,37 @@ TEST_CASE("FolderFileWatcher_CreateNewFiles", "[FolderFileWatcher]")
     TempDirectory dirToWatch("FolderFileWatcher_CreateNewFiles_", true);
 
     Utility::FolderFileWatcher folderFileWatcher(dirToWatch.GetPath());
-    folderFileWatcher.start();
+    folderFileWatcher.Start();
 
-    TempFile tmpFile1(dirToWatch.GetPath(), "file1_", ".txt");
-    WriteText(tmpFile1.GetPath());
+    TempFile tempFile1(dirToWatch.GetPath(), "file1_", ".txt");
+    WriteText(tempFile1.GetPath());
 
-    TempFile tmpFile2(dirToWatch.GetPath(), "file2_", ".txt");
-    WriteText(tmpFile2.GetPath());
+    TempFile tempFile2(dirToWatch.GetPath(), "file2_", ".txt");
+    WriteText(tempFile2.GetPath());
     
     std::filesystem::path newTestDir = dirToWatch.GetPath();
     newTestDir /= "testDir";
     std::filesystem::create_directories(newTestDir);
 
-    TempFile tmpFile3(newTestDir, "file3_", ".txt");
-    WriteText(tmpFile3.GetPath());
+    TempFile tempFile3(newTestDir, "file3_", ".txt");
+    WriteText(tempFile3.GetPath());
 
     std::this_thread::sleep_for(100ms);
-    folderFileWatcher.stop();
+    folderFileWatcher.Stop();
 
     auto& watchedFiles = folderFileWatcher.files();
 
-    auto foundTmpFile1 = watchedFiles.find(tmpFile1.GetPath().string());
-    REQUIRE(foundTmpFile1 != watchedFiles.cend());
+    auto tempFile1RelativePath = RemoveRoot(dirToWatch, tempFile1.GetPath());
+    auto foundTempFile1 = watchedFiles.find(tempFile1RelativePath);
+    REQUIRE(foundTempFile1 != watchedFiles.cend());
 
-    auto foundTmpFile2 = watchedFiles.find(tmpFile2.GetPath().string());
-    REQUIRE(foundTmpFile2 != watchedFiles.cend());
+    auto tempFile2RelativePath = RemoveRoot(dirToWatch, tempFile2.GetPath());
+    auto foundTempFile2 = watchedFiles.find(tempFile2RelativePath);
+    REQUIRE(foundTempFile2 != watchedFiles.cend());
 
-    auto foundTmpFile3 = watchedFiles.find(tmpFile3.GetPath().string());
-    REQUIRE(foundTmpFile3 != watchedFiles.cend());
+    auto tempFile3RelativePath = RemoveRoot(dirToWatch, tempFile3.GetPath());
+    auto foundTempFile3 = watchedFiles.find(tempFile3RelativePath);
+    REQUIRE(foundTempFile3 != watchedFiles.cend());
 }
 
 TEST_CASE("FolderFileWatcher_CreateAfterStop", "[FolderFileWatcher]")
@@ -56,24 +96,26 @@ TEST_CASE("FolderFileWatcher_CreateAfterStop", "[FolderFileWatcher]")
     TempDirectory dirToWatch("FolderFileWatcher_CreateAfterStop_", true);
 
     Utility::FolderFileWatcher folderFileWatcher(dirToWatch.GetPath());
-    folderFileWatcher.start();
+    folderFileWatcher.Start();
 
-    TempFile tmpFile1(dirToWatch.GetPath(), "file1_", ".txt");
-    WriteText(tmpFile1.GetPath());
+    TempFile tempFile1(dirToWatch.GetPath(), "file1_", ".txt");
+    WriteText(tempFile1.GetPath());
 
     std::this_thread::sleep_for(100ms);
-    folderFileWatcher.stop();
+    folderFileWatcher.Stop();
 
-    TempFile tmpFile2(dirToWatch.GetPath(), "file2_", ".txt");
-    WriteText(tmpFile2.GetPath());
+    TempFile tempFile2(dirToWatch.GetPath(), "file2_", ".txt");
+    WriteText(tempFile2.GetPath());
 
     auto& watchedFiles = folderFileWatcher.files();
 
-    auto foundTmpFile1 = watchedFiles.find(tmpFile1.GetPath().string());
-    REQUIRE(foundTmpFile1 != watchedFiles.cend());
+    auto tempFile1RelativePath = RemoveRoot(dirToWatch, tempFile1.GetPath());
+    auto foundTempFile1 = watchedFiles.find(tempFile1RelativePath);
+    REQUIRE(foundTempFile1 != watchedFiles.cend());
 
-    auto foundTmpFile2 = watchedFiles.find(tmpFile2.GetPath().string());
-    REQUIRE(foundTmpFile2 == watchedFiles.cend());
+    auto tempFile2RelativePath = RemoveRoot(dirToWatch, tempFile2.GetPath());
+    auto foundTempFile2 = watchedFiles.find(tempFile2RelativePath);
+    REQUIRE(foundTempFile2 == watchedFiles.cend());
 }
 
 TEST_CASE("FolderFileWatcher_CreateNewFilesAndRename", "[FolderFileWatcher]")
@@ -81,42 +123,46 @@ TEST_CASE("FolderFileWatcher_CreateNewFilesAndRename", "[FolderFileWatcher]")
     TempDirectory dirToWatch("FolderFileWatcher_CreateNewFilesAndRename_", true);
 
     Utility::FolderFileWatcher folderFileWatcher(dirToWatch.GetPath());
-    folderFileWatcher.start();
+    folderFileWatcher.Start();
 
-    std::filesystem::path tmpFile1Path = dirToWatch.GetPath() / "file1.txt";
-    TempFile tmpFile1(tmpFile1Path);
-    WriteText(tmpFile1Path);
+    std::filesystem::path tempFile1Path = dirToWatch.GetPath() / "file1.txt";
+    TempFile tempFile1(tempFile1Path);
+    WriteText(tempFile1Path);
 
     std::filesystem::path newTestDir = dirToWatch.GetPath();
     newTestDir /= "testDir";
     std::filesystem::create_directories(newTestDir);
 
-    std::filesystem::path tmpFile2Path = newTestDir / "file2.txt";
-    TempFile tmpFile2(tmpFile2Path);
-    WriteText(tmpFile2Path);
+    std::filesystem::path tempFile2Path = newTestDir / "file2.txt";
+    TempFile tempFile2(tempFile2Path);
+    WriteText(tempFile2Path);
 
-    std::filesystem::path tmpFile1PathRenamed = dirToWatch.GetPath() / "file1_renamed.txt";
-    std::filesystem::path tmpFile2PathRenamed = newTestDir / "file2_renamed.txt";
+    std::filesystem::path tempFile1PathRenamed = dirToWatch.GetPath() / "file1_renamed.txt";
+    std::filesystem::path tempFile2PathRenamed = newTestDir / "file2_renamed.txt";
 
-    tmpFile1.Rename(tmpFile1PathRenamed);
-    tmpFile2.Rename(tmpFile2PathRenamed);
+    tempFile1.Rename(tempFile1PathRenamed);
+    tempFile2.Rename(tempFile2PathRenamed);
 
     std::this_thread::sleep_for(100ms);
-    folderFileWatcher.stop();
+    folderFileWatcher.Stop();
 
     auto& watchedFiles = folderFileWatcher.files();
 
-    auto foundTmpFile1 = watchedFiles.find(tmpFile1Path.string());
-    REQUIRE(foundTmpFile1 == watchedFiles.cend());
+    auto tempFile1RelativePath = RemoveRoot(dirToWatch, tempFile1Path);
+    auto foundTempFile1 = watchedFiles.find(tempFile1RelativePath);
+    REQUIRE(foundTempFile1 == watchedFiles.cend());
 
-    auto foundTmpFile1Renamed = watchedFiles.find(tmpFile1PathRenamed.string());
-    REQUIRE(foundTmpFile1Renamed != watchedFiles.cend());
+    auto tempFile1RenamedRelativePath = RemoveRoot(dirToWatch, tempFile1PathRenamed);
+    auto foundTempFile1Renamed = watchedFiles.find(tempFile1RenamedRelativePath);
+    REQUIRE(foundTempFile1Renamed != watchedFiles.cend());
 
-    auto foundTmpFile2 = watchedFiles.find(tmpFile2Path.string());
-    REQUIRE(foundTmpFile2 == watchedFiles.cend());
+    auto tempFile2RelativePath = RemoveRoot(dirToWatch, tempFile2Path);
+    auto foundTempFile2 = watchedFiles.find(tempFile2RelativePath);
+    REQUIRE(foundTempFile2 == watchedFiles.cend());
 
-    auto foundTmpFile2Renamed = watchedFiles.find(tmpFile2PathRenamed.string());
-    REQUIRE(foundTmpFile2Renamed != watchedFiles.cend());
+    auto tempFile2RenamedRelativePath = RemoveRoot(dirToWatch, tempFile2PathRenamed);
+    auto foundTempFile2Renamed = watchedFiles.find(tempFile2RenamedRelativePath);
+    REQUIRE(foundTempFile2Renamed != watchedFiles.cend());
 }
 
 TEST_CASE("FolderFileWatcher_CreateNewFilesAndDelete", "[FolderFileWatcher]")
@@ -124,202 +170,220 @@ TEST_CASE("FolderFileWatcher_CreateNewFilesAndDelete", "[FolderFileWatcher]")
     TempDirectory dirToWatch("FolderFileWatcher_CreateNewFilesAndDelete_", true);
 
     Utility::FolderFileWatcher folderFileWatcher(dirToWatch.GetPath());
-    folderFileWatcher.start();
+    folderFileWatcher.Start();
 
-    TempFile tmpFile1(dirToWatch.GetPath(), "file1_", ".txt");
-    WriteText(tmpFile1.GetPath());
+    TempFile tempFile1(dirToWatch.GetPath(), "file1_", ".txt");
+    WriteText(tempFile1.GetPath());
 
     std::filesystem::path newTestDir = dirToWatch.GetPath();
     newTestDir /= "testDir";
     std::filesystem::create_directories(newTestDir);
 
-    TempFile tmpFile2(newTestDir, "file2_", ".txt");
-    WriteText(tmpFile2.GetPath());
+    TempFile tempFile2(newTestDir, "file2_", ".txt");
+    WriteText(tempFile2.GetPath());
 
     // Create files and delete them.
-    std::filesystem::path tmpFile3Path;
-    std::filesystem::path tmpFile4Path;
+    std::filesystem::path tempFile3Path;
+    std::filesystem::path tempFile4Path;
     {
-        TempFile tmpFile3(dirToWatch.GetPath(), "file3_", ".txt");
-        tmpFile3Path = tmpFile3.GetPath();
-        WriteText(tmpFile3Path);
+        TempFile tempFile3(dirToWatch.GetPath(), "file3_", ".txt");
+        tempFile3Path = tempFile3.GetPath();
+        WriteText(tempFile3Path);
 
-        TempFile tmpFile4(newTestDir, "file4_", ".txt");
-        tmpFile4Path = tmpFile4.GetPath();
-        WriteText(tmpFile4Path);
+        TempFile tempFile4(newTestDir, "file4_", ".txt");
+        tempFile4Path = tempFile4.GetPath();
+        WriteText(tempFile4Path);
     }
 
     std::this_thread::sleep_for(100ms);
-    folderFileWatcher.stop();
+    folderFileWatcher.Stop();
 
     auto& watchedFiles = folderFileWatcher.files();
 
-    auto foundTmpFile1 = watchedFiles.find(tmpFile1.GetPath().string());
-    REQUIRE(foundTmpFile1 != watchedFiles.cend());
+    auto tempFile1RelativePath = RemoveRoot(dirToWatch, tempFile1.GetPath());
+    auto foundTempFile1 = watchedFiles.find(tempFile1RelativePath);
+    REQUIRE(foundTempFile1 != watchedFiles.cend());
 
-    auto foundTmpFile2 = watchedFiles.find(tmpFile2.GetPath().string());
-    REQUIRE(foundTmpFile2 != watchedFiles.cend());
+    auto tempFile2RelativePath = RemoveRoot(dirToWatch, tempFile2.GetPath());
+    auto foundTempFile2 = watchedFiles.find(tempFile2RelativePath);
+    REQUIRE(foundTempFile2 != watchedFiles.cend());
 
-    auto foundTmpFile3 = watchedFiles.find(tmpFile3Path.string());
-    REQUIRE(foundTmpFile3 == watchedFiles.cend());
+    auto tempFile3RelativePath = RemoveRoot(dirToWatch, tempFile3Path);
+    auto foundTempFile3 = watchedFiles.find(tempFile3RelativePath);
+    REQUIRE(foundTempFile3 == watchedFiles.cend());
 
-    auto foundTmpFile4 = watchedFiles.find(tmpFile4Path.string());
-    REQUIRE(foundTmpFile4 == watchedFiles.cend());
+    auto tempFile4RelativePath = RemoveRoot(dirToWatch, tempFile4Path);
+    auto foundTempFile4 = watchedFiles.find(tempFile4RelativePath);
+    REQUIRE(foundTempFile4 == watchedFiles.cend());
 }
 
-TEST_CASE("FolderFileExtensionWatcher_CreateNewFiles", "[FolderFileWatcher]")
+TEST_CASE("FolderFileWatcher_Extension_CreateNewFiles", "[FolderFileWatcher]")
 {
-    TempDirectory dirToWatch("FolderFileExtensionWatcher_CreateNewFiles_", true);
+    TempDirectory dirToWatch("FolderFileWatcher_Extension_CreateNewFiles", true);
 
-    Utility::FolderFileExtensionWatcher folderFileExtensionWatcher(dirToWatch.GetPath(), ".yaml");
-    folderFileExtensionWatcher.start();
+    Utility::FolderFileWatcher folderFileExtensionWatcher(dirToWatch.GetPath(), ".yaml");
+    folderFileExtensionWatcher.Start();
 
-    TempFile tmpFile1(dirToWatch.GetPath(), "file1_", ".txt");
-    WriteText(tmpFile1.GetPath());
+    TempFile tempFile1(dirToWatch.GetPath(), "file1_", ".txt");
+    WriteText(tempFile1.GetPath());
 
-    TempFile tmpFile2(dirToWatch.GetPath(), "file2_", ".yaml");
-    WriteText(tmpFile2.GetPath());
+    TempFile tempFile2(dirToWatch.GetPath(), "file2_", ".yaml");
+    WriteText(tempFile2.GetPath());
 
     std::filesystem::path newTestDir = dirToWatch.GetPath();
     newTestDir /= "testDir";
     std::filesystem::create_directories(newTestDir);
 
-    TempFile tmpFile3(newTestDir, "file3_", ".txt");
-    WriteText(tmpFile3.GetPath());
+    TempFile tempFile3(newTestDir, "file3_", ".txt");
+    WriteText(tempFile3.GetPath());
 
-    TempFile tmpFile4(newTestDir, "file4_", ".yaml");
-    WriteText(tmpFile4.GetPath());
+    TempFile tempFile4(newTestDir, "file4_", ".yaml");
+    WriteText(tempFile4.GetPath());
 
     std::this_thread::sleep_for(100ms);
-    folderFileExtensionWatcher.stop();
+    folderFileExtensionWatcher.Stop();
 
     auto& watchedFiles = folderFileExtensionWatcher.files();
 
-    auto foundTmpFile1 = watchedFiles.find(tmpFile1.GetPath().string());
-    REQUIRE(foundTmpFile1 == watchedFiles.cend());
+    auto tempFile1RelativePath = RemoveRoot(dirToWatch, tempFile1.GetPath());
+    auto foundTempFile1 = watchedFiles.find(tempFile1RelativePath);
+    REQUIRE(foundTempFile1 == watchedFiles.cend());
 
-    auto foundTmpFile2 = watchedFiles.find(tmpFile2.GetPath().string());
-    REQUIRE(foundTmpFile2 != watchedFiles.cend());
+    auto tempFile2RelativePath = RemoveRoot(dirToWatch, tempFile2.GetPath());
+    auto foundTempFile2 = watchedFiles.find(tempFile2RelativePath);
+    REQUIRE(foundTempFile2 != watchedFiles.cend());
 
-    auto foundTmpFile3 = watchedFiles.find(tmpFile3.GetPath().string());
-    REQUIRE(foundTmpFile3 == watchedFiles.cend());
+    auto tempFile3RelativePath = RemoveRoot(dirToWatch, tempFile3.GetPath());
+    auto foundTempFile3 = watchedFiles.find(tempFile3RelativePath);
+    REQUIRE(foundTempFile3 == watchedFiles.cend());
 
-    auto foundTmpFile4 = watchedFiles.find(tmpFile4.GetPath().string());
-    REQUIRE(foundTmpFile4 != watchedFiles.cend());
+    auto tempFile4RelativePath = RemoveRoot(dirToWatch, tempFile4.GetPath());
+    auto foundTempFile4 = watchedFiles.find(tempFile4RelativePath);
+    REQUIRE(foundTempFile4 != watchedFiles.cend());
 }
 
-TEST_CASE("FolderFileExtensionWatcher_CreateAfterStop", "[FolderFileWatcher]")
+TEST_CASE("FolderFileWatcher_Extension_CreateAfterStop", "[FolderFileWatcher]")
 {
-    TempDirectory dirToWatch("FolderFileExtensionWatcher_CreateAfterStop_", true);
+    TempDirectory dirToWatch("FolderFileWatcher_Extension_CreateAfterStop", true);
 
-    Utility::FolderFileExtensionWatcher folderFileExtensionWatcher(dirToWatch.GetPath(), ".txt");
-    folderFileExtensionWatcher.start();
+    Utility::FolderFileWatcher folderFileExtensionWatcher(dirToWatch.GetPath(), ".txt");
+    folderFileExtensionWatcher.Start();
 
-    TempFile tmpFile1(dirToWatch.GetPath(), "file1_", ".txt");
-    WriteText(tmpFile1.GetPath());
+    TempFile tempFile1(dirToWatch.GetPath(), "file1_", ".txt");
+    WriteText(tempFile1.GetPath());
 
     std::this_thread::sleep_for(100ms);
-    folderFileExtensionWatcher.stop();
+    folderFileExtensionWatcher.Stop();
 
-    TempFile tmpFile2(dirToWatch.GetPath(), "file2_", ".txt");
-    WriteText(tmpFile2.GetPath());
+    TempFile tempFile2(dirToWatch.GetPath(), "file2_", ".txt");
+    WriteText(tempFile2.GetPath());
 
     auto& watchedFiles = folderFileExtensionWatcher.files();
 
-    auto foundTmpFile1 = watchedFiles.find(tmpFile1.GetPath().string());
-    REQUIRE(foundTmpFile1 != watchedFiles.cend());
+    auto tempFile1RelativePath = RemoveRoot(dirToWatch, tempFile1.GetPath());
+    auto foundTempFile1 = watchedFiles.find(tempFile1RelativePath);
+    REQUIRE(foundTempFile1 != watchedFiles.cend());
 
-    auto foundTmpFile2 = watchedFiles.find(tmpFile2.GetPath().string());
-    REQUIRE(foundTmpFile2 == watchedFiles.cend());
+    auto tempFile2RelativePath = RemoveRoot(dirToWatch, tempFile2.GetPath());
+    auto foundTempFile2 = watchedFiles.find(tempFile2RelativePath);
+    REQUIRE(foundTempFile2 == watchedFiles.cend());
 }
 
-TEST_CASE("FolderFileExtensionWatcher_CreateNewFilesAndRename", "[FolderFileWatcher]")
+TEST_CASE("FolderFileWatcher_Extension_CreateNewFilesAndRename", "[FolderFileWatcher]")
 {
-    TempDirectory dirToWatch("FolderFileExtensionWatcher_CreateNewFilesAndRename_", true);
+    TempDirectory dirToWatch("FolderFileWatcher_Extension_CreateNewFilesAndRename", true);
 
-    Utility::FolderFileExtensionWatcher folderFileExtensionWatcher(dirToWatch.GetPath(), ".txt");
-    folderFileExtensionWatcher.start();
+    Utility::FolderFileWatcher folderFileExtensionWatcher(dirToWatch.GetPath(), ".txt");
+    folderFileExtensionWatcher.Start();
 
-    std::filesystem::path tmpFile1Path = dirToWatch.GetPath() / "file1.txt";
-    TempFile tmpFile1(tmpFile1Path);
-    WriteText(tmpFile1Path);
+    std::filesystem::path tempFile1Path = dirToWatch.GetPath() / "file1.txt";
+    TempFile tempFile1(tempFile1Path);
+    WriteText(tempFile1Path);
 
     std::filesystem::path newTestDir = dirToWatch.GetPath();
     newTestDir /= "testDir";
     std::filesystem::create_directories(newTestDir);
 
-    std::filesystem::path tmpFile2Path = newTestDir / "file2.txt";
-    TempFile tmpFile2(tmpFile2Path);
-    WriteText(tmpFile2Path);
+    std::filesystem::path tempFile2Path = newTestDir / "file2.txt";
+    TempFile tempFile2(tempFile2Path);
+    WriteText(tempFile2Path);
 
-    std::filesystem::path tmpFile1PathRenamed = dirToWatch.GetPath() / "file1_renamed.txt";
-    std::filesystem::path tmpFile2PathRenamed = newTestDir / "file2_renamed.txt";
+    std::filesystem::path tempFile1PathRenamed = dirToWatch.GetPath() / "file1_renamed.txt";
+    std::filesystem::path tempFile2PathRenamed = newTestDir / "file2_renamed.txt";
 
-    tmpFile1.Rename(tmpFile1PathRenamed);
-    tmpFile2.Rename(tmpFile2PathRenamed);
+    tempFile1.Rename(tempFile1PathRenamed);
+    tempFile2.Rename(tempFile2PathRenamed);
 
     std::this_thread::sleep_for(100ms);
-    folderFileExtensionWatcher.stop();
+    folderFileExtensionWatcher.Stop();
 
     auto& watchedFiles = folderFileExtensionWatcher.files();
 
-    auto foundTmpFile1 = watchedFiles.find(tmpFile1Path.string());
-    REQUIRE(foundTmpFile1 == watchedFiles.cend());
+    auto tempFile1RelativePath = RemoveRoot(dirToWatch, tempFile1Path);
+    auto foundTempFile1 = watchedFiles.find(tempFile1RelativePath);
+    REQUIRE(foundTempFile1 == watchedFiles.cend());
 
-    auto foundTmpFile1Renamed = watchedFiles.find(tmpFile1PathRenamed.string());
-    REQUIRE(foundTmpFile1Renamed != watchedFiles.cend());
+    auto tempFile1RenamedRelativePath = RemoveRoot(dirToWatch, tempFile1PathRenamed);
+    auto foundTempFile1Renamed = watchedFiles.find(tempFile1RenamedRelativePath);
+    REQUIRE(foundTempFile1Renamed != watchedFiles.cend());
 
-    auto foundTmpFile2 = watchedFiles.find(tmpFile2Path.string());
-    REQUIRE(foundTmpFile2 == watchedFiles.cend());
+    auto tempFile2RelativePath = RemoveRoot(dirToWatch, tempFile2Path);
+    auto foundTempFile2 = watchedFiles.find(tempFile2RelativePath);
+    REQUIRE(foundTempFile2 == watchedFiles.cend());
 
-    auto foundTmpFile2Renamed = watchedFiles.find(tmpFile2PathRenamed.string());
-    REQUIRE(foundTmpFile2Renamed != watchedFiles.cend());
+    auto tempFile2RenamedRelativePath = RemoveRoot(dirToWatch, tempFile2PathRenamed);
+    auto foundTempFile2Renamed = watchedFiles.find(tempFile2RenamedRelativePath);
+    REQUIRE(foundTempFile2Renamed != watchedFiles.cend());
 }
 
-TEST_CASE("FolderFileExtensionWatcher_CreateNewFilesAndDelete", "[FolderFileWatcher]")
+TEST_CASE("FolderFileWatcher_Extension_CreateNewFilesAndDelete", "[FolderFileWatcher]")
 {
-    TempDirectory dirToWatch("FolderFileExtensionWatcher_CreateNewFilesAndDelete_", true);
+    TempDirectory dirToWatch("FolderFileWatcher_Extension_CreateNewFilesAndDelete", true);
 
-    Utility::FolderFileExtensionWatcher folderFileExtensionWatcher(dirToWatch.GetPath(), ".txt");
-    folderFileExtensionWatcher.start();
+    Utility::FolderFileWatcher folderFileExtensionWatcher(dirToWatch.GetPath(), ".txt");
+    folderFileExtensionWatcher.Start();
 
-    TempFile tmpFile1(dirToWatch.GetPath(), "file1_", ".txt");
-    WriteText(tmpFile1.GetPath());
+    TempFile tempFile1(dirToWatch.GetPath(), "file1_", ".txt");
+    WriteText(tempFile1.GetPath());
 
     std::filesystem::path newTestDir = dirToWatch.GetPath();
     newTestDir /= "testDir";
     std::filesystem::create_directories(newTestDir);
 
-    TempFile tmpFile2(newTestDir, "file2_", ".txt");
-    WriteText(tmpFile2.GetPath());
+    TempFile tempFile2(newTestDir, "file2_", ".txt");
+    WriteText(tempFile2.GetPath());
 
     // Create files and delete them.
-    std::filesystem::path tmpFile3Path;
-    std::filesystem::path tmpFile4Path;
+    std::filesystem::path tempFile3Path;
+    std::filesystem::path tempFile4Path;
     {
-        TempFile tmpFile3(dirToWatch.GetPath(), "file3_", ".txt");
-        tmpFile3Path = tmpFile3.GetPath();
-        WriteText(tmpFile3Path);
+        TempFile tempFile3(dirToWatch.GetPath(), "file3_", ".txt");
+        tempFile3Path = tempFile3.GetPath();
+        WriteText(tempFile3Path);
 
-        TempFile tmpFile4(newTestDir, "file4_", ".txt");
-        tmpFile4Path = tmpFile4.GetPath();
-        WriteText(tmpFile4Path);
+        TempFile tempFile4(newTestDir, "file4_", ".txt");
+        tempFile4Path = tempFile4.GetPath();
+        WriteText(tempFile4Path);
     }
 
     std::this_thread::sleep_for(100ms);
-    folderFileExtensionWatcher.stop();
+    folderFileExtensionWatcher.Stop();
 
     auto& watchedFiles = folderFileExtensionWatcher.files();
 
-    auto foundTmpFile1 = watchedFiles.find(tmpFile1.GetPath().string());
-    REQUIRE(foundTmpFile1 != watchedFiles.cend());
+    auto tempFile1RelativePath = RemoveRoot(dirToWatch, tempFile1.GetPath());
+    auto foundTempFile1 = watchedFiles.find(tempFile1RelativePath);
+    REQUIRE(foundTempFile1 != watchedFiles.cend());
 
-    auto foundTmpFile2 = watchedFiles.find(tmpFile2.GetPath().string());
-    REQUIRE(foundTmpFile2 != watchedFiles.cend());
+    auto tempFile2RelativePath = RemoveRoot(dirToWatch, tempFile2.GetPath());
+    auto foundTempFile2 = watchedFiles.find(tempFile2RelativePath);
+    REQUIRE(foundTempFile2 != watchedFiles.cend());
 
-    auto foundTmpFile3 = watchedFiles.find(tmpFile3Path.string());
-    REQUIRE(foundTmpFile3 == watchedFiles.cend());
+    auto tempFile3RelativePath = RemoveRoot(dirToWatch, tempFile3Path);
+    auto foundTempFile3 = watchedFiles.find(tempFile3RelativePath);
+    REQUIRE(foundTempFile3 == watchedFiles.cend());
 
-    auto foundTmpFile4 = watchedFiles.find(tmpFile4Path.string());
-    REQUIRE(foundTmpFile4 == watchedFiles.cend());
+    auto tempFile4RelativePath = RemoveRoot(dirToWatch, tempFile4Path);
+    auto foundTempFile4 = watchedFiles.find(tempFile4RelativePath);
+    REQUIRE(foundTempFile4 == watchedFiles.cend());
 }

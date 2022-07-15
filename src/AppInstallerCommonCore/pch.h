@@ -54,8 +54,8 @@
 #include <stack>
 #include <string_view>
 #include <type_traits>
-#include <vector>
 #include <unordered_set>
+#include <vector>
 
 #pragma warning( push )
 #pragma warning ( disable : 6001 6285 6287 6340 6388 )
