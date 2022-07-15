@@ -20,7 +20,6 @@ namespace
         auto prefixItr = prefix.begin();
         auto sourceItr = source.begin();
 
-        /*
         while (prefixItr != prefix.end() && sourceItr != source.end())
         {
             if (*prefixItr != *sourceItr)
@@ -47,9 +46,8 @@ namespace
                 }
             }
         }
-        */
 
-        return {};
+        return result;
     }
 }
 
