@@ -10,8 +10,8 @@ namespace AppInstallerCLIE2ETests.Interop
     using System.IO;
     using System.Threading.Tasks;
 
-    [TestFixtureSource(typeof(InitializersSource), nameof(InitializersSource.InProcess), Category = nameof(InitializersSource.InProcess))]
-    [TestFixtureSource(typeof(InitializersSource), nameof(InitializersSource.OutOfProcess), Category = nameof(InitializersSource.OutOfProcess))]
+    [TestFixtureSource(typeof(InstanceInitializersSource), nameof(InstanceInitializersSource.InProcess), Category = nameof(InstanceInitializersSource.InProcess))]
+    [TestFixtureSource(typeof(InstanceInitializersSource), nameof(InstanceInitializersSource.OutOfProcess), Category = nameof(InstanceInitializersSource.OutOfProcess))]
     public class UninstallInterop : BaseInterop
     {
         private string installDir;
@@ -33,7 +33,15 @@ namespace AppInstallerCLIE2ETests.Interop
             options.Catalogs.Add(testSource);
             options.CompositeSearchBehavior = CompositeSearchBehavior.AllCatalogs;
             compositeSource = packageManager.CreateCompositePackageCatalog(options);
-        }   
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            packageManager = null;
+            compositeSource = null;
+            GarbageCollection();
+        }
 
         [Test]
         public async Task UninstallTestExe()

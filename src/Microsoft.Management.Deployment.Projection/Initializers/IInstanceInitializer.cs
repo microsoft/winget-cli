@@ -1,4 +1,7 @@
-﻿namespace Microsoft.Management.Deployment.Projection
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+namespace Microsoft.Management.Deployment.Projection
 {
     public interface IInstanceInitializer
     {

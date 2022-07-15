@@ -1,4 +1,6 @@
-﻿
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 namespace Microsoft.Management.Deployment.Projection
 {
     using System;
@@ -41,12 +43,12 @@ namespace Microsoft.Management.Deployment.Projection
         /// <exception cref="InvalidOperationException"></exception>
         public Guid GetClsid(ClsidContext context)
         {
-            if (!Clsids.ContainsKey(context))
+            if (!Clsids.TryGetValue(context, out Guid clsid))
             {
                 throw new InvalidOperationException($"{ProjectedClassType.FullName} is not implemented in context {context}");
             }
 
-            return Clsids[context];
+            return clsid;
         }
 
         /// <summary>

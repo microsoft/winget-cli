@@ -1,4 +1,7 @@
-﻿namespace AppInstallerCLIE2ETests.Interop
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+namespace AppInstallerCLIE2ETests.Interop
 {
     using Microsoft.Management.Deployment;
     using Microsoft.Management.Deployment.Projection;
@@ -24,8 +27,7 @@
         ///       add the TestSource to winget from the command line during the setup
         ///       phase.
         /// </summary>
-        [OneTimeTearDown]
-        public void GarbageCollection()
+        public static void GarbageCollection()
         {
             GC.Collect();
             GC.WaitForPendingFinalizers();

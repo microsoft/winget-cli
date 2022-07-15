@@ -11,15 +11,14 @@ namespace AppInstallerCLIE2ETests.Interop
     using System.IO;
     using System.Threading.Tasks;
 
-    [TestFixtureSource(typeof(InitializersSource), nameof(InitializersSource.InProcess), Category = nameof(InitializersSource.InProcess))]
-    [TestFixtureSource(typeof(InitializersSource), nameof(InitializersSource.OutOfProcess), Category = nameof(InitializersSource.OutOfProcess))]
+    [TestFixtureSource(typeof(InstanceInitializersSource), nameof(InstanceInitializersSource.InProcess), Category = nameof(InstanceInitializersSource.InProcess))]
+    [TestFixtureSource(typeof(InstanceInitializersSource), nameof(InstanceInitializersSource.OutOfProcess), Category = nameof(InstanceInitializersSource.OutOfProcess))]
     public class UpgradeInterop : BaseInterop
     {
         private PackageManager packageManager;
         private PackageCatalogReference compositeSource;
 
         public UpgradeInterop(IInstanceInitializer initializer) : base(initializer) { }
-
 
         [OneTimeSetUp]
         public void OneTimeSetup()
@@ -39,7 +38,15 @@ namespace AppInstallerCLIE2ETests.Interop
             options.Catalogs.Add(testSource);
             options.CompositeSearchBehavior = CompositeSearchBehavior.AllCatalogs;
             compositeSource = packageManager.CreateCompositePackageCatalog(options);
-        }   
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            packageManager = null;
+            compositeSource = null;
+            GarbageCollection();
+        }
 
         [Test]
         public async Task UpgradePortable()
@@ -206,15 +213,15 @@ namespace AppInstallerCLIE2ETests.Interop
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
         }
 
-        public T First<T>(IReadOnlyList<T> list, Func<T, bool> condition)
+        // Cannot use foreach or Linq for out-of-process IVector
+        // Bug: https://github.com/microsoft/CsWinRT/issues/1205
+        public static T First<T>(IReadOnlyList<T> list, Func<T, bool> condition)
         {
             if (list == null || condition == null)
             {
                 throw new ArgumentNullException();
             }
 
-            // Cannot use foreach on out-of-process IVector
-            // Bug: https://github.com/microsoft/CsWinRT/issues/1205
             for (int i = 0; i < list.Count; ++i)
             {
                 var item = list[i];

@@ -7,8 +7,8 @@ namespace AppInstallerCLIE2ETests.Interop
     using Microsoft.Management.Deployment.Projection;
     using NUnit.Framework;
 
-    [TestFixtureSource(typeof(InitializersSource), nameof(InitializersSource.InProcess), Category = nameof(InitializersSource.InProcess))]
-    [TestFixtureSource(typeof(InitializersSource), nameof(InitializersSource.OutOfProcess), Category = nameof(InitializersSource.OutOfProcess))]
+    [TestFixtureSource(typeof(InstanceInitializersSource), nameof(InstanceInitializersSource.InProcess), Category = nameof(InstanceInitializersSource.InProcess))]
+    [TestFixtureSource(typeof(InstanceInitializersSource), nameof(InstanceInitializersSource.OutOfProcess), Category = nameof(InstanceInitializersSource.OutOfProcess))]
     public class FindPackagesInterop : BaseInterop
     {
         private PackageManager packageManager;
@@ -21,6 +21,14 @@ namespace AppInstallerCLIE2ETests.Interop
         {
             packageManager = TestFactory.CreatePackageManager();
             testSource = packageManager.GetPackageCatalogByName(Constants.TestSourceName);
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            packageManager = null;
+            testSource = null;
+            GarbageCollection();
         }
 
         [Test]

@@ -1,8 +1,13 @@
-﻿namespace Microsoft.Management.Deployment.Projection
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+namespace Microsoft.Management.Deployment.Projection
 {
+    /// <summary>
+    /// Factory class to created CsWinRT projected class instances for in-process or out-of-process objects.
+    /// </summary>
     public class WinGetProjectionFactory
     {
-
         public WinGetProjectionFactory(IInstanceInitializer instanceInitializer)
         {
             InstanceInitializer = instanceInitializer;

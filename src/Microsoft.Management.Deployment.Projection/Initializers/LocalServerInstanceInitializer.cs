@@ -1,9 +1,12 @@
-﻿namespace Microsoft.Management.Deployment.Projection
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+namespace Microsoft.Management.Deployment.Projection
 {
     using WinRT;
 
-    // Out-of-process COM client instance initializer.
-    public class LocalServerInitializer : IInstanceInitializer
+    // Out-of-process COM instance initializer.
+    public class LocalServerInstanceInitializer : IInstanceInitializer
     {
         /// <summary>
         /// Out-of-process context.
