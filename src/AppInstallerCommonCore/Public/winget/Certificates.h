@@ -3,6 +3,7 @@
 #pragma once
 #include <wincrypt.h>
 
+#include <json/json-forwards.h>
 #include <wil/resource.h>
 
 #include <functional>
@@ -46,6 +47,9 @@ namespace AppInstaller::Certificates
         // Returns true to indicate that the certificate meets the pinning configuration criteria.
         // Returns false to indicate the it does not.
         bool Validate(PCCERT_CONTEXT certContext) const;
+
+        // Loads the pinning details from the given JSON.
+        [[nodiscard]] bool LoadFrom(const Json::Value& configuration);
 
     private:
         wil::shared_cert_context m_certificateContext;
@@ -101,6 +105,9 @@ namespace AppInstaller::Certificates
         // Gets a description of the pinning chain.
         std::string GetDescription() const;
 
+        // Loads the pinning chain from the given JSON.
+        [[nodiscard]] bool LoadFrom(const Json::Value& configuration);
+
     private:
         std::vector<PinningDetails> m_chain;
     };
@@ -124,6 +131,12 @@ namespace AppInstaller::Certificates
         // Returns true to indicate that the certificate meets the pinning configuration criteria.
         // Returns false to indicate the it does not.
         bool Validate(PCCERT_CONTEXT certContext) const;
+
+        // True if no pinning is configured.
+        bool IsEmpty() const { return m_configuration.empty(); }
+
+        // Loads the pinning configuration from the given JSON.
+        [[nodiscard]] bool LoadFrom(const Json::Value& configuration);
 
     private:
         // The identifier used when logging.

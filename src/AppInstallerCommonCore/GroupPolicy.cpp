@@ -196,6 +196,19 @@ namespace AppInstaller::Settings
                 return std::nullopt;
             }
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
+            // Enable certificate pinning configuration through GP sources for testing
+            std::string pinningConfigurationName = "CertificatePinning";
+            if (sourceJson.isMember(pinningConfigurationName))
+            {
+                source.PinningConfiguration = Certificates::PinningConfiguration(source.Name);
+                if (!source.PinningConfiguration.LoadFrom(sourceJson[pinningConfigurationName]))
+                {
+                    return std::nullopt;
+                }
+            }
+#endif
+
             return source;
         }
     }

@@ -2,8 +2,10 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "winget/Certificates.h"
-#include "Public/AppInstallerLogging.h"
-#include "Public/AppInstallerStrings.h"
+#include "AppInstallerLogging.h"
+#include "AppInstallerSHA256.h"
+#include "AppInstallerStrings.h"
+#include "winget/JsonUtil.h"
 #include "winget/Resources.h"
 
 #include <CertificateResources.h>
@@ -53,6 +55,30 @@ namespace AppInstaller::Certificates
 
             return std::move(stream).str();
         }
+
+        std::optional<PinningVerificationType> GetTypeFromString(std::string_view value)
+        {
+            std::string lowerValue = Utility::ToLower(value);
+
+            if (lowerValue == "none")
+            {
+                return PinningVerificationType::None;
+            }
+            else if (lowerValue == "publickey")
+            {
+                return PinningVerificationType::PublicKey;
+            }
+            else if (lowerValue == "subject")
+            {
+                return PinningVerificationType::Subject;
+            }
+            else if (lowerValue == "issuer")
+            {
+                return PinningVerificationType::Issuer;
+            }
+
+            return {};
+        }
     }
 
     PinningDetails& PinningDetails::LoadCertificate(int resource)
@@ -76,6 +102,63 @@ namespace AppInstaller::Certificates
     {
         m_pinning = type;
         return *this;
+    }
+
+    bool PinningDetails::LoadFrom(const Json::Value& configuration)
+    {
+        std::string validationName = "Validation";
+
+        if (!configuration.isMember(validationName))
+        {
+            AICLI_LOG(Core, Warning, << "Details JSON item has no member " << validationName);
+            return false;
+        }
+
+        auto validationValue = JSON::GetValue<std::vector<std::string>>(configuration[validationName]);
+        if (!validationValue)
+        {
+            AICLI_LOG(Core, Warning, << "Details JSON item member " << validationName << " was not an array of strings");
+            return false;
+        }
+
+        for (const std::string& singleValidation : validationValue.value())
+        {
+            auto validationType = GetTypeFromString(singleValidation);
+
+            if (!validationType)
+            {
+                AICLI_LOG(Core, Warning, << "Details JSON validation is unknown: " << singleValidation);
+                return false;
+            }
+
+            m_pinning |= validationType.value();
+        }
+
+        if (m_pinning == PinningVerificationType::None)
+        {
+            // No need to load a certificate if not doing any pinning
+            return true;
+        }
+
+        std::string embeddedCertificateName = "EmbeddedCertificate";
+
+        if (!configuration.isMember(embeddedCertificateName))
+        {
+            AICLI_LOG(Core, Warning, << "Details JSON item has no member " << embeddedCertificateName);
+            return false;
+        }
+
+        auto embeddedCertificateValue = JSON::GetValue<std::string>(configuration[embeddedCertificateName]);
+        if (!validationValue)
+        {
+            AICLI_LOG(Core, Warning, << "Details JSON item member " << embeddedCertificateName << " was not a string");
+            return false;
+        }
+
+        auto embeddedCertificateBytes = Utility::SHA256::ConvertToBytes(embeddedCertificateValue.value());
+        LoadCertificate(embeddedCertificateBytes);
+
+        return true;
     }
 
     bool PinningDetails::Validate(PCCERT_CONTEXT certContext) const
@@ -285,6 +368,28 @@ namespace AppInstaller::Certificates
         return std::move(stream).str();
     }
 
+    bool PinningChain::LoadFrom(const Json::Value& configuration)
+    {
+        if (!configuration.isArray())
+        {
+            AICLI_LOG(Core, Warning, << "Chain JSON input is not an array");
+            return false;
+        }
+
+        for (const auto& configItem : configuration)
+        {
+            PinningDetails details;
+            if (!details.LoadFrom(configItem))
+            {
+                return false;
+            }
+
+            m_chain.emplace_back(std::move(details));
+        }
+
+        return true;
+    }
+
     PinningConfiguration::PinningConfiguration(std::string identifier) : m_identifier(identifier)
     {
         if (m_identifier.empty())
@@ -358,5 +463,42 @@ namespace AppInstaller::Certificates
         }
 
         return result;
+    }
+
+    bool PinningConfiguration::LoadFrom(const Json::Value& configuration)
+    {
+        if (!configuration.isArray())
+        {
+            AICLI_LOG(Core, Warning, << "PinningConfiguration JSON input is not an array");
+            return false;
+        }
+
+        std::string chainName = "Chain";
+        std::vector<PinningChain> resultCache;
+
+        for (const auto& configItem : configuration)
+        {
+            if (!configItem.isMember(chainName))
+            {
+                AICLI_LOG(Core, Warning, << "PinningConfiguration JSON item has no member " << chainName);
+                return false;
+            }
+
+            PinningChain chain;
+            if (!chain.LoadFrom(configItem[chainName]))
+            {
+                return false;
+            }
+
+            resultCache.emplace_back(std::move(chain));
+        }
+
+        // Move all chains into the config now that we have succeeded
+        for (auto& result : resultCache)
+        {
+            AddChain(std::move(result));
+        }
+
+        return true;
     }
 }

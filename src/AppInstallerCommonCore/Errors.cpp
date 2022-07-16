@@ -222,6 +222,8 @@ namespace AppInstaller
                 return "Failed to install package dependencies.";
             case APPINSTALLER_CLI_ERROR_BIND_WITH_EMBEDDED_NULL:
                 return "Embedded null characters are disallowed for SQLite";
+            case APPINSTALLER_CLI_ERROR_PINNED_CERTIFICATE_MISMATCH:
+                return "The server certificate did not match any of the expected values.";
             default:
                 return "Unknown Error Code";
             }

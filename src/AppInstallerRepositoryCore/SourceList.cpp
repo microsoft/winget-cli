@@ -6,6 +6,10 @@
 #include "Microsoft/PreIndexedPackageSourceFactory.h"
 #include "Rest/RestSourceFactory.h"
 
+#include <winget/AdminSettings.h>
+#include <winget/Certificates.h>
+#include <CertificateResources.h>
+
 using namespace AppInstaller::Settings;
 using namespace std::string_view_literals;
 
@@ -249,6 +253,26 @@ namespace AppInstaller::Repository
         return {};
     }
 
+    std::optional<WellKnownSource> CheckForWellKnownSourceMatch(std::string_view name, std::string_view arg, std::string_view type)
+    {
+        if (name == s_Source_WingetCommunityDefault_Name && arg == s_Source_WingetCommunityDefault_Arg && type == Microsoft::PreIndexedPackageSourceFactory::Type())
+        {
+            return WellKnownSource::WinGet;
+        }
+
+        if (name == s_Source_MSStoreDefault_Name && arg == s_Source_MSStoreDefault_Arg && type == Rest::RestSourceFactory::Type())
+        {
+            return WellKnownSource::MicrosoftStore;
+        }
+
+        if (name == s_Source_DesktopFrameworks_Name && arg == s_Source_DesktopFrameworks_Arg && type == Microsoft::PreIndexedPackageSourceFactory::Type())
+        {
+            return WellKnownSource::DesktopFrameworks;
+        }
+
+        return {};
+    }
+
     SourceDetailsInternal GetWellKnownSourceDetailsInternal(WellKnownSource source)
     {
         switch (source)
@@ -275,6 +299,23 @@ namespace AppInstaller::Repository
             details.Identifier = s_Source_MSStoreDefault_Identifier;
             details.TrustLevel = SourceTrustLevel::Trusted;
             details.SupportInstalledSearchCorrelation = false;
+
+            if (!Settings::IsAdminSettingEnabled(Settings::AdminSetting::BypassCertificatePinningForMicrosoftStore))
+            {
+                using namespace AppInstaller::Certificates;
+
+                PinningChain chain;
+                auto chainElement = chain.Root();
+                chainElement->LoadCertificate(IDX_CERTIFICATE_STORE_ROOT_1).SetPinning(PinningVerificationType::PublicKey);
+                chainElement = chainElement.Next();
+                chainElement->LoadCertificate(IDX_CERTIFICATE_STORE_INTERMEDIATE_1).SetPinning(PinningVerificationType::Subject | PinningVerificationType::Issuer);
+                chainElement = chainElement.Next();
+                chainElement->LoadCertificate(IDX_CERTIFICATE_STORE_LEAF_1).SetPinning(PinningVerificationType::Subject | PinningVerificationType::Issuer);
+
+                details.CertificatePinningConfiguration = PinningConfiguration("Microsoft Store Source");
+                details.CertificatePinningConfiguration.AddChain(std::move(chain));
+            }
+
             return details;
         }
         case WellKnownSource::DesktopFrameworks:

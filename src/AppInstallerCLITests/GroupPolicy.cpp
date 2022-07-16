@@ -11,10 +11,15 @@ using namespace std::string_view_literals;
 
 namespace
 {
-    std::wstring GetSourceJson(std::wstring_view name, std::wstring_view arg, std::wstring_view type, std::wstring_view data, std::wstring_view identifier)
+    std::wstring GetSourceJson(std::wstring_view name, std::wstring_view arg, std::wstring_view type, std::wstring_view data, std::wstring_view identifier, std::wstring_view pinningConfig = {})
     {
         std::wstringstream json;
-        json << L"{ \"Name\":\"" << name << L"\", \"Arg\":\"" << arg << L"\", \"Type\":\"" << type << L"\", \"Data\":\"" << data << L"\", \"Identifier\":\"" << identifier << L"\" }";
+        json << L"{ \"Name\":\"" << name << L"\", \"Arg\":\"" << arg << L"\", \"Type\":\"" << type << L"\", \"Data\":\"" << data << L"\", \"Identifier\":\"" << identifier << L"\"";
+        if (!pinningConfig.empty())
+        {
+            json << L"\", \"CertificatePinning\":\"" << pinningConfig << L"\"";
+        }
+        json << " }";
         return json.str();
     }
 }
@@ -265,6 +270,26 @@ TEST_CASE("GroupPolicy_Sources", "[groupPolicy]")
         REQUIRE(policy.value()[0].Type == source.Type);
         REQUIRE(policy.value()[0].Data == source.Data);
         REQUIRE(policy.value()[0].Identifier == source.Identifier);
+    }
+    SECTION("Source with PinningConfiguration")
+    {
+        auto additionalSourcesKey = RegCreateVolatileSubKey(policiesKey.get(), AdditionalSourcesPolicyKeyName);
+
+        std::wstring pinningConfig = LR"( TODO: FILL IN CONFIG )";
+
+        SetRegistryValue(additionalSourcesKey.get(), L"0", GetSourceJson(L"source-name", L"source-arg", L"source-type", L"source-data", L"source-identifier"), REG_SZ);
+        GroupPolicy groupPolicy{ policiesKey.get() };
+
+        auto policy = groupPolicy.GetValue<ValuePolicy::AdditionalSources>();
+        REQUIRE(policy.has_value());
+        REQUIRE(policy->size() == 1);
+        REQUIRE(policy.value()[0].Name == "source-name");
+        REQUIRE(policy.value()[0].Arg == "source-arg");
+        REQUIRE(policy.value()[0].Type == "source-type");
+        REQUIRE(policy.value()[0].Data == "source-data");
+        REQUIRE(policy.value()[0].Identifier == "source-identifier");
+
+        // TODO: Use loaded pinning config and validate against leaf certificate
     }
 }
 
