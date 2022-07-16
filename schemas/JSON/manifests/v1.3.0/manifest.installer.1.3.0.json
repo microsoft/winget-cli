@@ -514,30 +514,57 @@
       ],
       "description": "The installer's elevation requirement"
     },
-    "InstalledLocation": {
-      "type": [ "string", "null" ],
-      "minLength": 1,
-      "maxLength": 2048,
-      "description": "Represents an installed package location. Used for deeper installation detection."
-    },
-    "InstalledFile": {
+    "InstallationMetadata": {
       "type": "object",
-      "title": "InstalledFile",
+      "title": "InstallationMetadata",
       "properties": {
-        "RelativeFilePath": {
-          "type": "string",
+        "DefaultInstallLocation": {
+          "type": [ "string", "null" ],
           "minLength": 1,
           "maxLength": 2048,
-          "description": "The relative path to the installed file"
+          "description": "Represents the default installed package location. Used for deeper installation detection."
         },
-        "FileSha256": {
-          "type": [ "string", "null" ],
-          "pattern": "^[A-Fa-f0-9]{64}$",
-          "description": "Sha256 is optional. Sha256 of the installed file"
+        "Files": {
+          "type": [ "array", "null" ],
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "title": "InstalledFile",
+            "properties": {
+              "RelativeFilePath": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2048,
+                "description": "The relative path to the installed file."
+              },
+              "FileSha256": {
+                "type": [ "string", "null" ],
+                "pattern": "^[A-Fa-f0-9]{64}$",
+                "description": "Optional Sha256 of the installed file."
+              },
+              "FileType": {
+                "type": [ "string", "null" ],
+                "enum": [
+                  "launch",
+                  "uninstall",
+                  "other"
+                ],
+                "description": "The optional installed file type. If not specified, the file is treated as other."
+              },
+              "InvocationParameter": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2048,
+                "description": "Optional parameter for invocable files."
+              }
+            },
+            "required": [ "RelativeFilePath" ],
+            "description": "Represents an installed file."
+          },
+          "description": "List of installed files."
         }
       },
-      "required": [ "RelativeFilePath" ],
-      "description": "Represents an installed file. Used for deeper installation detection."
+      "description": "Details about the installation. Used for deeper installation detection."
     },
     "Installer": {
       "type": "object",
@@ -651,11 +678,8 @@
         "ElevationRequirement": {
           "$ref": "#/definitions/ElevationRequirement"
         },
-        "DefaultInstallLocation": {
-          "$ref": "#/definitions/InstalledLocation"
-        },
-        "PrimaryExecutableFile": {
-          "$ref": "#/definitions/InstalledFile"
+        "InstallationMetadata": {
+          "$ref": "#/definitions/InstallationMetadata"
         }
       },
       "required": [
@@ -766,11 +790,8 @@
     "ElevationRequirement": {
       "$ref": "#/definitions/ElevationRequirement"
     },
-    "DefaultInstallLocation": {
-      "$ref": "#/definitions/InstalledLocation"
-    },
-    "PrimaryExecutableFile": {
-      "$ref": "#/definitions/InstalledFile"
+    "InstallationMetadata": {
+      "$ref": "#/definitions/InstallationMetadata"
     },
     "Installers": {
       "type": "array",
