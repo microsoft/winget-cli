@@ -217,39 +217,17 @@ jobs:
       CleanTargetFolder: false
       OverWrite: true
 
-  - task: VSTest@2
-    displayName: Run E2E Tests Packaged
-    inputs:
-      testRunTitle: 'E2E Packaged'
-      testSelector: 'testAssemblies'
-      testAssemblyVer2: '$(buildOutDir)\AppInstallerCLIE2ETests\AppInstallerCLIE2ETests.dll'
-      testFiltercriteria: "TestCategory!=InProcess&TestCategory!=OutOfProcess"
-      runSettingsFile: '$(buildOutDir)\AppInstallerCLIE2ETests\Test.runsettings'
-      overrideTestrunParameters: '-PackagedContext true
-                                  -AICLIPackagePath $(System.DefaultWorkingDirectory)\src\AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration)
-                                  -AICLIPath AppInstallerCLI\winget.exe
-                                  -LooseFileRegistration true
-                                  -InvokeCommandInDesktopPackage true
-                                  -StaticFileRootPath $(Agent.TempDirectory)\TestLocalIndex
-                                  -MsixTestInstallerPath $(Build.ArtifactStagingDirectory)\AppInstallerTestMsixInstaller.msix
-                                  -ExeTestInstallerPath $(buildOutDir)\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe
-                                  -PackageCertificatePath $(AppInstallerTest.secureFilePath)'
+  - template: templates/e2e-test.template.yml
+    parameters:
+      title: "E2E Tests Packaged"
+      isPackaged: true
+      filter: "TestCategory!=InProcess&TestCategory!=OutOfProcess"
 
-  - task: VSTest@2
-    displayName: Run In-process E2E Tests Unpackaged
-    inputs:
-      testRunTitle: 'E2E Unpackaged'
-      testSelector: 'testAssemblies'
-      testAssemblyVer2: '$(buildOutDir)\AppInstallerCLIE2ETests\AppInstallerCLIE2ETests.dll'
-      testFiltercriteria: "TestCategory=InProcess"
-      runSettingsFile: '$(buildOutDir)\AppInstallerCLIE2ETests\Test.runsettings'
-      overrideTestrunParameters: '-PackagedContext false
-                                  -AICLIPath $(System.DefaultWorkingDirectory)\src\AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration)\AppInstallerCLI\winget.exe
-                                  -InvokeCommandInDesktopPackage false
-                                  -StaticFileRootPath $(Agent.TempDirectory)\TestLocalIndex
-                                  -MsixTestInstallerPath $(Build.ArtifactStagingDirectory)\AppInstallerTestMsixInstaller.msix
-                                  -ExeTestInstallerPath $(buildOutDir)\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe
-                                  -PackageCertificatePath $(AppInstallerTest.secureFilePath)'
+  - template: templates/e2e-test.template.yml
+    parameters:
+      title: "COM API E2E Tests (In-process)"
+      isPackaged: false
+      filter: "TestCategory=InProcess"
 
   - task: PowerShell@2
     displayName: 'Set program files directory'
@@ -262,6 +240,7 @@ jobs:
           Write-Host "##vso[task.setvariable variable=platformProgramFiles;]${env:ProgramFiles}"
         }
 
+  # Winmd accessed by test runner process (dotnet.exe)
   - task: CopyFiles@2
     displayName: 'Copy winmd to dotnet directory'
     inputs:
@@ -269,6 +248,7 @@ jobs:
       TargetFolder: '$(platformProgramFiles)\dotnet'
       Contents: Microsoft.Management.Deployment.winmd
 
+  # Winmd accessed by WinGetServer process (WindowsPackageManagerServer.exe)
   - task: CopyFiles@2
     displayName: 'Copy winmd to Package Output'
     inputs:
@@ -276,23 +256,11 @@ jobs:
       TargetFolder:  'src\AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration)'
       Contents: Microsoft.Management.Deployment.winmd
 
-  - task: VSTest@2
-    displayName: Run Out-of-process E2E Tests Packaged 
-    inputs:
-      testRunTitle: 'E2E Packaged'
-      testSelector: 'testAssemblies'
-      testAssemblyVer2: '$(buildOutDir)\AppInstallerCLIE2ETests\AppInstallerCLIE2ETests.dll'
-      testFiltercriteria: "TestCategory=OutOfProcess"
-      runSettingsFile: '$(buildOutDir)\AppInstallerCLIE2ETests\Test.runsettings'
-      overrideTestrunParameters: '-PackagedContext true
-                                  -AICLIPackagePath $(System.DefaultWorkingDirectory)\src\AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration)
-                                  -AICLIPath AppInstallerCLI\winget.exe
-                                  -LooseFileRegistration true
-                                  -InvokeCommandInDesktopPackage true
-                                  -StaticFileRootPath $(Agent.TempDirectory)\TestLocalIndex
-                                  -MsixTestInstallerPath $(Build.ArtifactStagingDirectory)\AppInstallerTestMsixInstaller.msix
-                                  -ExeTestInstallerPath $(buildOutDir)\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe
-                                  -PackageCertificatePath $(AppInstallerTest.secureFilePath)'
+  - template: templates/e2e-test.template.yml
+    parameters:
+      title: "COM API E2E Tests (Out-of-process)"
+      isPackaged: true
+      filter: "TestCategory=OutOfProcess"
 
   - task: CopyFiles@2
     displayName: 'Copy E2E Tests Package Log to artifacts folder'
