@@ -3,19 +3,12 @@
 #include "pch.h"
 #include "ArchiveFlow.h"
 #include "winget/Archive.h"
+#include "winget/Filesystem.h"
 
 using namespace AppInstaller::Manifest;
 
 namespace AppInstaller::CLI::Workflow
 {
-    namespace
-    {
-        bool RelativePathContainsEscapeString(const std::string& relativePath)
-        {
-            return relativePath.find("..") != std::string::npos;
-        }
-    }
-
     void ExtractFilesFromArchive(Execution::Context& context)
     {
         const auto& installerPath = context.Get<Execution::Data::InstallerPath>();
@@ -60,6 +53,12 @@ namespace AppInstaller::CLI::Workflow
             context.Reporter.Error() << Resource::String::NestedInstallerNotFound << ' ' << nestedInstallerPath << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NESTEDINSTALLER_NOT_FOUND);
         }
+        else if (!Filesystem::IsPathCanonical(nestedInstallerPath))
+        {
+            AICLI_LOG(CLI, Error, << "Path is not canonical: " << nestedInstallerPath);
+            context.Reporter.Error() << Resource::String::InvalidPathToNestedInstaller << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NESTEDINSTALLER_INVALID_PATH);
+        }
         else
         {
             AICLI_LOG(CLI, Info, << "Setting installerPath to: " << nestedInstallerPath);
@@ -71,7 +70,7 @@ namespace AppInstaller::CLI::Workflow
     {
         auto installer = context.Get<Execution::Data::Installer>().value();
 
-        if (installer.InstallerType == InstallerTypeEnum::Zip)
+        if (IsArchiveType(installer.InstallerType))
         {
             auto const& nestedInstallerFiles = installer.NestedInstallerFiles;
             if (nestedInstallerFiles.empty())
@@ -81,15 +80,11 @@ namespace AppInstaller::CLI::Workflow
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST);
             }
 
-            for (auto nestedInstallerFile : nestedInstallerFiles)
+            if (installer.NestedInstallerType != InstallerTypeEnum::Portable && nestedInstallerFiles.size() != 1)
             {
-                auto const& relativeFilePath = nestedInstallerFile.RelativeFilePath;
-                if (RelativePathContainsEscapeString(relativeFilePath))
-                {
-                    AICLI_LOG(CLI, Error, << "RelativeFilePath contains escape string: " << relativeFilePath);
-                    context.Reporter.Error() << Resource::String::InvalidRelativeFilePathToNestedInstaller << std::endl;
-                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NESTEDINSTALLER_INVALID_PATH);
-                }
+                AICLI_LOG(CLI, Error, << "Multiple nested installers specified for non-portable nested installerType");
+                context.Reporter.Error() << Resource::String::MultipleNonPortableNestedInstallersSpecified << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST);
             }
         }
     }

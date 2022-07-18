@@ -62,6 +62,12 @@ namespace AppInstaller::Filesystem
         return (GetVolumeInformationFlags(path) & FILE_SUPPORTS_REPARSE_POINTS) != 0;
     }
 
+    bool IsPathCanonical(const std::filesystem::path& path)
+    {
+        // Input must exist or this will throw a filesystem error.
+        return path == std::filesystem::canonical(path);
+    }
+
     // Complicated rename algorithm due to somewhat arbitrary failures.
     // 1. First, try to rename.
     // 2. Then, create an empty file for the target, and attempt to rename.

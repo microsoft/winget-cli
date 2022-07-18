@@ -159,7 +159,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidArgumentWithoutQueryError);
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidJsonFile);
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidNameError);
-        WINGET_DEFINE_RESOURCE_STRINGID(InvalidRelativeFilePathToNestedInstaller);
+        WINGET_DEFINE_RESOURCE_STRINGID(InvalidPathToNestedInstaller);
         WINGET_DEFINE_RESOURCE_STRINGID(LicenseAgreement);
         WINGET_DEFINE_RESOURCE_STRINGID(Links);
         WINGET_DEFINE_RESOURCE_STRINGID(ListCommandLongDescription);
@@ -188,6 +188,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(MSStoreInstallTryGetEntitlement);
         WINGET_DEFINE_RESOURCE_STRINGID(MSStoreStoreClientBlocked);
         WINGET_DEFINE_RESOURCE_STRINGID(MultipleInstalledPackagesFound);
+        WINGET_DEFINE_RESOURCE_STRINGID(MultipleNonPortableNestedInstallersSpecified);
         WINGET_DEFINE_RESOURCE_STRINGID(MultiplePackagesFound);
         WINGET_DEFINE_RESOURCE_STRINGID(NameArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(NestedInstallerNotFound);
