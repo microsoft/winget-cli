@@ -1,7 +1,6 @@
 abcd
 accepteula
 adjacents
-activatable
 adml
 admx
 affle
@@ -11,7 +10,6 @@ aicli
 AICLIC
 ajor
 alreadyinstalled
-amd
 amrutha
 anonymized
 APARTMENTTHREADED
@@ -20,7 +18,6 @@ apicontract
 apiset
 appinstallertest
 appname
-Archs
 arget
 argumentlist
 ARMNT
@@ -75,6 +72,8 @@ ci
 cinq
 CLIE
 cloudapp
+cls
+clsctx
 clsid
 COINIT
 COMGLB
@@ -103,15 +102,12 @@ diskfull
 dllimport
 dnld
 Dobbeleer
-dsc
 dustojnikhummer
 dvinns
 dw
 ecfr
 ecfrbrowse
-efgh
 endian
-enr
 enums
 EQU
 ERANGE
@@ -126,6 +122,8 @@ fd
 fdw
 fedorapeople
 fileinuse
+Filtercriteria
+Finalizers
 fintimes
 Fixfor
 flargle
@@ -140,7 +138,6 @@ FULLMUTEX
 FULLWIDTH
 fundraiser
 fuzzer
-FWW
 fzanollo
 gcpi
 GES
@@ -148,10 +145,8 @@ GESMBH
 GHS
 gitlab
 gity
-Globals
 Google
 guiddef
-hackathon
 hashtable
 helplib
 helplibrary
@@ -163,17 +158,20 @@ hmodule
 hre
 hresults
 htm
-IAttachment
 IARP
+IAttachment
 IConfiguration
+ICreate
 idx
 IEnum
 IFACEMETHODIMP
 IFile
+IFind
 IGlobal
 IHelp
 IHost
-IID
+IInstall
+IInstance
 IISOn
 img
 IMutable
@@ -195,6 +193,7 @@ ISQ
 issuecomment
 ISVs
 itr
+IUninstall
 IVector
 IWeb
 IZone
@@ -226,12 +225,10 @@ localhost
 localizationpriority
 LPBYTE
 LPDWORD
-LPITEMIDLIST
 LPWSTR
 LSTATUS
 LTDA
 lw
-lww
 lz
 malware
 maxvalue
@@ -241,8 +238,8 @@ megamorf
 memcpy
 middleware
 midl
-minidump
 minexample
+minidump
 minschema
 missingdependency
 MMmmbbbb
@@ -263,7 +260,7 @@ myinstalldir
 mylog
 mysilent
 mysilentwithprogress
-mytool
+nameof
 NESTEDINSTALLER
 NETFX
 netlify
@@ -285,12 +282,8 @@ objbase
 objidl
 ofile
 Outptr
-OSVERSION
-Packagedx
 packageinuse
-parametermap
 pathparts
-pathpaths
 Patil
 pb
 PCs
@@ -301,7 +294,6 @@ pfn
 pfxpath
 Pherson
 pidl
-PIDLIST
 pkgmgr
 pkindex
 PMS
@@ -381,7 +373,6 @@ SUSE
 swervy
 SYD
 SYG
-symlink
 sysrefcomp
 Tagit
 TCpp
@@ -400,6 +391,8 @@ TResult
 trimstart
 TState
 TStatus
+typeof
+typeparam
 UCase
 ucasemap
 UChars
@@ -408,7 +401,6 @@ uec
 uild
 uintptr
 ul
-Uninitialize
 uninstallation
 uninstaller
 uninstallprevious
@@ -437,13 +429,11 @@ vscode
 vstest
 vy
 wcslen
-WDAG
 webpages
 Webserver
 website
 WERSJA
 wesome
-whatif
 windir
 windowsdeveloper
 winerror
@@ -453,7 +443,6 @@ winreg
 withstarts
 wn
 Workflows
-wsb
 wsl
 wsv
 wto

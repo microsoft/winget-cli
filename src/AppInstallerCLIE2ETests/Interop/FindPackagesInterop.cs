@@ -24,7 +24,7 @@ namespace AppInstallerCLIE2ETests.Interop
         }
 
         [Test]
-        public void PackageDoesNotExist()
+        public void FindPackageDoesNotExist()
         {
             // Find package
             var searchResult = FindAllPackages(testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "DoesNotExist");
@@ -34,7 +34,7 @@ namespace AppInstallerCLIE2ETests.Interop
         }
 
         [Test]
-        public void MultiplePackagesMatchingQuery()
+        public void FindPackagesMultipleMatchingQuery()
         {
             // Find package
             var searchResult = FindAllPackages(testSource, PackageMatchField.Name, PackageFieldMatchOption.Equals, "TestExeInstaller");

@@ -14,7 +14,7 @@ namespace Microsoft.Management.Deployment.Projection
         /// Create an in-process or out-of process instance.
         /// </summary>
         /// <typeparam name="T">Projected class typ</typeparam>
-        /// <returns>Projected class intance</returns>
+        /// <returns>Projected class instance</returns>
         public T CreateInstance<T>() where T : new();
     }
 }

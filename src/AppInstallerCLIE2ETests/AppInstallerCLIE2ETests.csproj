@@ -17,10 +17,9 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0" />
   </ItemGroup>
 
-  <!-- CsWinRT -->
+  <!-- CsWinRT properties -->
   <PropertyGroup>
-    <!-- Local %WinDir%\System32\WinMetadata folder-->
-    <CsWinRTWindowsMetadata>local</CsWinRTWindowsMetadata>
+    <CsWinRTWindowsMetadata>10.0.19041.0</CsWinRTWindowsMetadata>
   </PropertyGroup>
 
   <ItemGroup>
