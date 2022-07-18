@@ -218,7 +218,8 @@ namespace AppInstallerCLIE2ETests
                 }
             };
 
-            // Run winget to init settings
+            // Run winget one time to initialize settings directory
+            // when running in unpackaged context
             TestCommon.RunAICLICommand(string.Empty, "-v");
 
             var serializedSettingsJson = JsonConvert.SerializeObject(settingsJson, Formatting.Indented);

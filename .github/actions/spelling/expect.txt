@@ -232,6 +232,7 @@ localhost
 localizationpriority
 LPBYTE
 LPDWORD
+lpitemidlist
 LPWCH
 LPWSTR
 LSTATUS
