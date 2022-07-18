@@ -45,7 +45,7 @@ namespace AppInstaller::CLI::Workflow
 
         const auto& relativeFilePath = ConvertToUTF16(installer.NestedInstallerFiles[0].RelativeFilePath);
 
-        std::filesystem::path nestedInstallerPath = installerParentPath / relativeFilePath;
+        std::filesystem::path nestedInstallerPath = (installerParentPath / relativeFilePath).make_preferred();
 
         if (!std::filesystem::exists(nestedInstallerPath))
         {
