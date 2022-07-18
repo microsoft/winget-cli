@@ -1,7 +1,6 @@
 abcd
 accepteula
 acl
-activatable
 adjacents
 adml
 admx
@@ -12,6 +11,7 @@ aicli
 AICLIC
 ajor
 alreadyinstalled
+Amd
 amrutha
 anonymized
 APARTMENTTHREADED
@@ -105,11 +105,13 @@ diskfull
 dllimport
 dnld
 Dobbeleer
+Dsc
 dustojnikhummer
 dvinns
 dw
 ecfr
 ecfrbrowse
+EFGH
 endian
 enums
 EQU
@@ -150,6 +152,7 @@ gitlab
 gity
 Google
 guiddef
+Hackathon
 hashtable
 helplib
 helplibrary
@@ -173,6 +176,7 @@ IFind
 IGlobal
 IHelp
 IHost
+iid
 IInstall
 IInstance
 IISOn
@@ -228,7 +232,6 @@ localhost
 localizationpriority
 LPBYTE
 LPDWORD
-LPITEMIDLIST
 LPWCH
 LPWSTR
 LSTATUS
@@ -287,10 +290,9 @@ objbase
 objidl
 ofile
 Outptr
-OSVERSION
-Packagedx
-PACL
 packageinuse
+PACL
+PARAMETERMAP
 pathparts
 Patil
 pb
@@ -302,6 +304,7 @@ pfn
 pfxpath
 Pherson
 pidl
+pidlist
 pkgmgr
 pkindex
 PMS
@@ -410,6 +413,7 @@ uec
 uild
 uintptr
 ul
+uninitialize
 uninstallation
 uninstaller
 uninstallprevious
@@ -443,6 +447,7 @@ Webserver
 website
 WERSJA
 wesome
+Whatif
 windir
 windowsdeveloper
 winerror
