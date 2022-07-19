@@ -351,6 +351,7 @@ sddl
 semver
 seof
 serializer
+servercert
 servercertificate
 setmetadatabymanifestid
 SETTINGMAPPING
