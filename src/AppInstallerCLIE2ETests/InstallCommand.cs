@@ -286,7 +286,7 @@ namespace AppInstallerCLIE2ETests
         {
             var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestZipInvalidRelativePath");
             Assert.AreNotEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Invalid path to the nested installer; check that the relative file path is absolute"));
+            Assert.True(result.StdOut.Contains("Invalid relative file path to the nested installer; path points to a location outside of the install directory"));
         }
 
         [Test]

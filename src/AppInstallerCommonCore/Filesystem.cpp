@@ -62,10 +62,12 @@ namespace AppInstaller::Filesystem
         return (GetVolumeInformationFlags(path) & FILE_SUPPORTS_REPARSE_POINTS) != 0;
     }
 
-    bool IsPathCanonical(const std::filesystem::path& path)
+    bool PathEscapesBaseDirectory(const std::filesystem::path& path, const std::filesystem::path& base)
     {
-        // Input must exist or this will throw a filesystem error.
-        return path == std::filesystem::canonical(path);
+        // Input for path must exist or this will throw a filesystem error.
+        const auto& pathString = std::filesystem::canonical(path).u8string();
+        const auto& baseString = base.lexically_normal().u8string();
+        return pathString.find(baseString) == std::string::npos;
     }
 
     // Complicated rename algorithm due to somewhat arbitrary failures.

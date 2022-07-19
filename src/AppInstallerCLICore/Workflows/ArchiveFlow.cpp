@@ -44,16 +44,17 @@ namespace AppInstaller::CLI::Workflow
         const auto& installerParentPath = installerPath.parent_path();
         const auto& relativeFilePath = ConvertToUTF16(installer.NestedInstallerFiles[0].RelativeFilePath);
 
-        const std::filesystem::path& nestedInstallerPath = (installerParentPath / relativeFilePath).make_preferred();
+        const std::filesystem::path& nestedInstallerPath = installerParentPath / relativeFilePath;
+
         if (!std::filesystem::exists(nestedInstallerPath))
         {
             AICLI_LOG(CLI, Error, << "Unable to locate nested installer at: " << nestedInstallerPath);
             context.Reporter.Error() << Resource::String::NestedInstallerNotFound << ' ' << nestedInstallerPath << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NESTEDINSTALLER_NOT_FOUND);
         }
-        else if (!Filesystem::IsPathCanonical(nestedInstallerPath))
+        else if (Filesystem::PathEscapesBaseDirectory(nestedInstallerPath, installerParentPath))
         {
-            AICLI_LOG(CLI, Error, << "Path is not canonical: " << nestedInstallerPath);
+            AICLI_LOG(CLI, Error, << "Path points to a location outside of the install directory: " << nestedInstallerPath);
             context.Reporter.Error() << Resource::String::InvalidPathToNestedInstaller << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NESTEDINSTALLER_INVALID_PATH);
         }

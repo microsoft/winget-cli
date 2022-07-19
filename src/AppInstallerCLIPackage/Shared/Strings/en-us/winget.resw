@@ -1371,7 +1371,7 @@ Please specify one of them using the `--source` option to proceed.</value>
     <value>Nested installer file does not exist. Ensure the specified relative path of the nested installer matches: </value>
   </data>
   <data name="InvalidPathToNestedInstaller" xml:space="preserve">
-    <value>Invalid path to the nested installer; check that the relative file path is absolute</value>
+    <value>Invalid relative file path to the nested installer; path points to a location outside of the install directory</value>
   </data>
   <data name="NestedInstallerNotSpecified" xml:space="preserve">
     <value>No nested installers specified for this package</value>
