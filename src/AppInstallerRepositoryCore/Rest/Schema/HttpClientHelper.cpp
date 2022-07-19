@@ -22,7 +22,7 @@ namespace AppInstaller::Repository::Rest::Schema
         {
             HINTERNET requestHandle = reinterpret_cast<HINTERNET>(handle);
 
-            // Get certificate and pass along to pinning cofig
+            // Get certificate and pass along to pinning config
             wil::unique_cert_context certContext;
             DWORD bufferSize = sizeof(&certContext);
             THROW_IF_WIN32_BOOL_FALSE(WinHttpQueryOption(requestHandle, WINHTTP_OPTION_SERVER_CERT_CONTEXT, &certContext, &bufferSize));

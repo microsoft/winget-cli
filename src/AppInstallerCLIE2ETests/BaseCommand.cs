@@ -23,12 +23,14 @@ namespace AppInstallerCLIE2ETests
             TestCommon.RunAICLICommand("source reset", "--force");
         }
 
-        public void ResetTestSource(bool useGroupPolicyForTestSource = true)
+        public void ResetTestSource(bool useGroupPolicyForTestSource = false)
         {
             TestCommon.RunAICLICommand("source reset", "--force");
             TestCommon.RunAICLICommand("source remove", Constants.DefaultWingetSourceName);
             TestCommon.RunAICLICommand("source remove", Constants.DefaultMSStoreSourceName);
 
+            // TODO: If/when cert pinning is implemented on the packaged index source, useGroupPolicyForTestSource should be set to default true
+            //       to enable testing it by default.  Until then, leaving this here...
             if (useGroupPolicyForTestSource)
             {
                 GroupPolicyHelper.EnableAdditionalSources.SetEnabledList(new GroupPolicySource[]
@@ -50,7 +52,7 @@ namespace AppInstallerCLIE2ETests
                                         new GroupPolicyCertificatePinningDetails
                                         {
                                             Validation = new string[] { "publickey" },
-                                            EmbeddedCertificate = 
+                                            EmbeddedCertificate = TestCommon.GetTestServerCertificateHexString()
                                         }
                                     }
                                 }

@@ -341,5 +341,13 @@ namespace AppInstallerCLIE2ETests
                 TestIndexSetup.CopyDirectory(testLogsSourcePath, testLogsDestPath);
             }
         }
+
+        /// <summary>
+        /// Gets the server certificate as a hex string.
+        /// </summary>
+        public static string GetTestServerCertificateHexString()
+        {
+            return Convert.ToHexString(File.ReadAllBytes(Path.Combine(StaticFileRootPath, Constants.TestSourceServerCertificateFileName)));
+        }
     }
 }

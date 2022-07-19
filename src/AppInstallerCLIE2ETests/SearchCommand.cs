@@ -91,11 +91,71 @@ namespace AppInstallerCLIE2ETests
         {
             TestCommon.RunAICLICommand("source add", "failSearch \"{ \"\"OpenHR\"\": \"\"0x80070002\"\" }\" Microsoft.Test.Configurable --header \"{}\"");
 
-            var result = TestCommon.RunAICLICommand("search", "--exact AppInstallerTest.TestExampleInstaller");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Failed when searching source; results will not be included: failSearch"));
-            Assert.True(result.StdOut.Contains("TestExampleInstaller"));
-            Assert.True(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
+            try
+            {
+                var result = TestCommon.RunAICLICommand("search", "--exact AppInstallerTest.TestExampleInstaller");
+                Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+                Assert.True(result.StdOut.Contains("Failed when searching source; results will not be included: failSearch"));
+                Assert.True(result.StdOut.Contains("TestExampleInstaller"));
+                Assert.True(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
+            }
+            finally
+            {
+                ResetTestSource();
+            }
+        }
+
+        [Test]
+        public void SearchStoreWithBadPin()
+        {
+            // Configure as close as possible to the real chain but use the test cert for everything
+            // This will at least force the public key to be checked rather than simply failing based on chain length
+            GroupPolicyHelper.EnableAdditionalSources.SetEnabledList(new GroupPolicySource[]
+            {
+                    new GroupPolicySource
+                    {
+                        Name = Constants.TestSourceName,
+                        Arg = Constants.DefaultMSStoreSourceUrl,
+                        Type = Constants.DefaultMSStoreSourceType,
+                        Identifier = Constants.DefaultMSStoreSourceIdentifier,
+                        CertificatePinning = new GroupPolicyCertificatePinning
+                        {
+                            Chains = new GroupPolicyCertificatePinningChain[] {
+                                new GroupPolicyCertificatePinningChain
+                                {
+                                    Chain = new GroupPolicyCertificatePinningDetails[]
+                                    {
+                                        new GroupPolicyCertificatePinningDetails
+                                        {
+                                            Validation = new string[] { "publickey" },
+                                            EmbeddedCertificate = TestCommon.GetTestServerCertificateHexString()
+                                        },
+                                        new GroupPolicyCertificatePinningDetails
+                                        {
+                                            Validation = new string[] { "subject", "issuer" },
+                                            EmbeddedCertificate = TestCommon.GetTestServerCertificateHexString()
+                                        },
+                                        new GroupPolicyCertificatePinningDetails
+                                        {
+                                            Validation = new string[] { "subject", "issuer" },
+                                            EmbeddedCertificate = TestCommon.GetTestServerCertificateHexString()
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+            });
+
+            try
+            {
+                var result = TestCommon.RunAICLICommand("search", $"-s {Constants.TestSourceName} foo");
+                Assert.AreEqual(Constants.ErrorCode.ERROR_PINNED_CERTIFICATE_MISMATCH, result.ExitCode);
+            }
+            finally
+            {
+                ResetTestSource();
+            }
         }
     }
 }
