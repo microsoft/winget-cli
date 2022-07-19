@@ -25,6 +25,9 @@ namespace UndockedRegFreeWinRT
     // Returned string is cached globally, and should not be freed by the caller.
     HRESULT GetProcessExeDir(PCWSTR* path);
 
+    // Returned string is cached globally, and should not be freed by the caller.
+    HRESULT GetProcessDllDir(PCWSTR* path);
+
     HRESULT FindTypeInMetaDataFile(
         _In_ IMetaDataDispenserEx* pMetaDataDispenser,
         _In_ PCWSTR pszFullName,
