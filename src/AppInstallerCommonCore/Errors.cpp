@@ -224,6 +224,8 @@ namespace AppInstaller
                 return "Embedded null characters are disallowed for SQLite";
             case APPINSTALLER_CLI_ERROR_PINNED_CERTIFICATE_MISMATCH:
                 return "The server certificate did not match any of the expected values.";
+            case APPINSTALLER_CLI_ERROR_NESTEDINSTALLER_NOT_FOUND:
+                return "Failed to find the nested installer in the archive.";
             default:
                 return "Unknown Error Code";
             }

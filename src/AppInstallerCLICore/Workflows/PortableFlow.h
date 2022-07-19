@@ -18,4 +18,6 @@ namespace AppInstaller::CLI::Workflow
     void PortableUninstallImpl(Execution::Context& context);
 
     void EnsureSupportForPortableInstall(Execution::Context& context);
+
+    void EnsureNonPortableTypeForArchiveInstall(Execution::Context& context);
 }

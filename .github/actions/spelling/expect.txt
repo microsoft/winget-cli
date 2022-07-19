@@ -1,7 +1,8 @@
 abcd
 accepteula
-adjacents
+acl
 activatable
+adjacents
 adml
 admx
 affle
@@ -93,6 +94,7 @@ ctc
 Ctx
 curated
 CYRL
+DACL
 Dbg
 debian
 deigh
@@ -130,6 +132,7 @@ fintimes
 Fixfor
 flargle
 flexera
+FOF
 foldc
 foldcase
 FOLDERID
@@ -166,7 +169,9 @@ IAttachment
 IARP
 IConfiguration
 idx
+IEnum
 IFACEMETHODIMP
+IFile
 IGlobal
 IHelp
 IHost
@@ -186,6 +191,7 @@ IPersist
 IRead
 IService
 ISettings
+IShell
 ishelp
 ISQ
 issuecomment
@@ -223,6 +229,8 @@ localhost
 localizationpriority
 LPBYTE
 LPDWORD
+LPITEMIDLIST
+LPWCH
 LPWSTR
 LSTATUS
 LTDA
@@ -261,11 +269,13 @@ mysilent
 mysilentwithprogress
 mytool
 nativehandle
+NESTEDINSTALLER
 NETFX
 netlify
 Newtonsoft
 NOEXPAND
 nonetwork
+NONFOLDERS
 nonterminated
 normer
 NOSEPARATOR
@@ -282,6 +292,7 @@ ofile
 Outptr
 OSVERSION
 Packagedx
+PACL
 packageinuse
 parametermap
 pathparts
@@ -296,6 +307,8 @@ PEGI
 pfn
 pfxpath
 Pherson
+pidl
+PIDLIST
 pkgmgr
 pkindex
 pkix
@@ -310,6 +323,7 @@ pscustomobject
 pseudocode
 psm
 psobject
+ptstr
 publickey
 pvk
 pvm
@@ -355,6 +369,8 @@ servercert
 servercertificate
 setmetadatabymanifestid
 SETTINGMAPPING
+SHCONTF
+SHGDN
 Shlobj
 sid
 SIGNATUREHASH
@@ -369,6 +385,7 @@ srs
 standalone
 startswith
 streambuf
+STRRET
 strtoull
 subdir
 subkey
@@ -462,4 +479,5 @@ yamlcreateps
 yao
 ype
 Zanollo
+ZIPHASH
 zy

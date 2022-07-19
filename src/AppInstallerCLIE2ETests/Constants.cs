@@ -41,6 +41,11 @@ namespace AppInstallerCLIE2ETests
         public const string ExeInstaller = "AppInstallerTestExeInstaller";
         public const string MsiInstaller = "AppInstallerTestMsiInstaller";
         public const string MsixInstaller = "AppInstallerTestMsixInstaller";
+        public const string ZipInstaller = "AppInstallerTestZipInstaller";
+        public const string ExeInstallerFileName = "AppInstallerTestExeInstaller.exe";
+        public const string MsiInstallerFileName = "AppInstallerTestMsiInstaller.msi";
+        public const string MsixInstallerFileName = "AppInstallerTestMsixInstaller.msix";
+        public const string ZipInstallerFileName = "AppInstallerTestZipInstaller.zip";
         public const string IndexPackage = "source.msix";
         public const string MakeAppx = "makeappx.exe";
         public const string SignTool = "signtool.exe";
@@ -163,7 +168,9 @@ namespace AppInstallerCLIE2ETests
             public const int ERROR_ARP_VERSION_VALIDATION_FAILED = unchecked((int)0x8A150058);
             public const int ERROR_UNSUPPORTED_ARGUMENT = unchecked((int)0x8A150059);
             public const int ERROR_BIND_WITH_EMBEDDED_NULL = unchecked((int)0x8A15005A);
-            public const int ERROR_PINNED_CERTIFICATE_MISMATCH = unchecked((int)0x8A15005B);
+            public const int ERROR_NESTEDINSTALLER_NOT_FOUND = unchecked((int)0x8A15005B);
+            public const int ERROR_EXTRACT_ARCHIVE_FAILED = unchecked((int)0x8A15005C);
+            public const int ERROR_PINNED_CERTIFICATE_MISMATCH = unchecked((int)0x8A15005D);
 
             public const int ERROR_INSTALL_PACKAGE_IN_USE = unchecked((int)0x8A150101);
             public const int ERROR_INSTALL_INSTALL_IN_PROGRESS = unchecked((int)0x8A150102);

@@ -3,6 +3,7 @@
 #pragma once
 #define NOMINMAX
 #include <Windows.h>
+#include <AclAPI.h>
 #include <WinInet.h>
 #include <shellapi.h>
 #include <objbase.h>
@@ -18,6 +19,7 @@
 
 #include <wil/resource.h>
 #include <wil/result_macros.h>
+#include <wil/token_helpers.h>
 
 #include <atomic>
 #include <filesystem>

@@ -20,6 +20,7 @@ namespace AppInstaller
     namespace Runtime
     {
         void TestHook_SetPathOverride(PathName target, const std::filesystem::path& path);
+        void TestHook_SetPathOverride(PathName target, const PathDetails& details);
         void TestHook_ClearPathOverrides();
     }
 
