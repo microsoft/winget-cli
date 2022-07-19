@@ -42,11 +42,9 @@ namespace AppInstaller::CLI::Workflow
 
         const auto& installerPath = context.Get<Execution::Data::InstallerPath>();
         const auto& installerParentPath = installerPath.parent_path();
-
         const auto& relativeFilePath = ConvertToUTF16(installer.NestedInstallerFiles[0].RelativeFilePath);
 
-        std::filesystem::path nestedInstallerPath = (installerParentPath / relativeFilePath).make_preferred();
-
+        const std::filesystem::path& nestedInstallerPath = (installerParentPath / relativeFilePath).make_preferred();
         if (!std::filesystem::exists(nestedInstallerPath))
         {
             AICLI_LOG(CLI, Error, << "Unable to locate nested installer at: " << nestedInstallerPath);
