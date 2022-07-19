@@ -3,7 +3,6 @@
 #include "pch.h"
 #include "winget/Certificates.h"
 #include "AppInstallerLogging.h"
-#include "AppInstallerSHA256.h"
 #include "AppInstallerStrings.h"
 #include "winget/JsonUtil.h"
 #include "winget/Resources.h"
@@ -155,7 +154,7 @@ namespace AppInstaller::Certificates
             return false;
         }
 
-        auto embeddedCertificateBytes = Utility::SHA256::ConvertToBytes(embeddedCertificateValue.value());
+        auto embeddedCertificateBytes = Utility::ParseFromHexString(embeddedCertificateValue.value());
         LoadCertificate(embeddedCertificateBytes);
 
         return true;
@@ -467,20 +466,28 @@ namespace AppInstaller::Certificates
 
     bool PinningConfiguration::LoadFrom(const Json::Value& configuration)
     {
-        if (!configuration.isArray())
+        std::string chainsName = "Chains";
+        if (!configuration.isMember(chainsName))
         {
-            AICLI_LOG(Core, Warning, << "PinningConfiguration JSON input is not an array");
+            AICLI_LOG(Core, Warning, << "PinningConfiguration JSON item has no member " << chainsName);
+            return false;
+        }
+        const auto& chains = configuration[chainsName];
+
+        if (!chains.isArray())
+        {
+            AICLI_LOG(Core, Warning, << "PinningConfiguration.Chains is not an array");
             return false;
         }
 
         std::string chainName = "Chain";
         std::vector<PinningChain> resultCache;
 
-        for (const auto& configItem : configuration)
+        for (const auto& configItem : chains)
         {
             if (!configItem.isMember(chainName))
             {
-                AICLI_LOG(Core, Warning, << "PinningConfiguration JSON item has no member " << chainName);
+                AICLI_LOG(Core, Warning, << "Chains JSON item has no member " << chainName);
                 return false;
             }
 

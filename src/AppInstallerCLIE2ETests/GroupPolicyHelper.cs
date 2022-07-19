@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 using Microsoft.Win32;
+using Newtonsoft.Json;
 
 namespace AppInstallerCLIE2ETests
 {
@@ -276,6 +277,17 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
+        /// Sets the list value of the policy when enabled.
+        /// This sets from the "elements" and also sets the enabled value as lists are also gated by a toggle.
+        /// This will fail if the value of the policy is not a list.
+        /// </summary>
+        /// <param name="values">Values to set in the list.</param>
+        public void SetEnabledList(IEnumerable<GroupPolicySource> values)
+        {
+            SetEnabledList(values.Select(source => JsonConvert.SerializeObject(source)));
+        }
+
+        /// <summary>
         /// Gets the value from a "decimal" child element.
         /// </summary>
         /// <param name="element">Element containing the decimal.</param>
@@ -299,4 +311,34 @@ namespace AppInstallerCLIE2ETests
             return Registry.LocalMachine.CreateSubKey(this.KeyPath);
         }
     }
+
+    /// <summary>
+    /// A group policy source object as used by AdditionalSources and AllowedSources.
+    /// </summary>
+    public class GroupPolicySource
+    {
+        public string Name { get; set; }
+        public string Arg { get; set; }
+        public string Type { get; set; }
+        public string Data { get; set; }
+        public string Identifier { get; set; }
+        public GroupPolicyCertificatePinning CertificatePinning { get; set; }
+    }
+
+    public class GroupPolicyCertificatePinning
+    {
+        public GroupPolicyCertificatePinningChain[] Chains { get; set; }
+    }
+
+    public class GroupPolicyCertificatePinningChain
+    {
+        public GroupPolicyCertificatePinningDetails[] Chain { get; set; }
+    }
+
+    public class GroupPolicyCertificatePinningDetails
+    {
+        public string[] Validation { get; set; }
+        public string EmbeddedCertificate { get; set; }
+    }
+
 }

@@ -23,12 +23,48 @@ namespace AppInstallerCLIE2ETests
             TestCommon.RunAICLICommand("source reset", "--force");
         }
 
-        public void ResetTestSource()
+        public void ResetTestSource(bool useGroupPolicyForTestSource = true)
         {
             TestCommon.RunAICLICommand("source reset", "--force");
             TestCommon.RunAICLICommand("source remove", Constants.DefaultWingetSourceName);
             TestCommon.RunAICLICommand("source remove", Constants.DefaultMSStoreSourceName);
-            TestCommon.RunAICLICommand("source add", $"{Constants.TestSourceName} {Constants.TestSourceUrl}");
+
+            if (useGroupPolicyForTestSource)
+            {
+                GroupPolicyHelper.EnableAdditionalSources.SetEnabledList(new GroupPolicySource[]
+                {
+                    new GroupPolicySource
+                    {
+                        Name = Constants.TestSourceName,
+                        Arg = Constants.TestSourceUrl,
+                        Type = Constants.TestSourceType,
+                        Data = Constants.TestSourceIdentifier,
+                        Identifier = Constants.TestSourceIdentifier,
+                        CertificatePinning = new GroupPolicyCertificatePinning
+                        {
+                            Chains = new GroupPolicyCertificatePinningChain[] {
+                                new GroupPolicyCertificatePinningChain
+                                {
+                                    Chain = new GroupPolicyCertificatePinningDetails[]
+                                    {
+                                        new GroupPolicyCertificatePinningDetails
+                                        {
+                                            Validation = new string[] { "publickey" },
+                                            EmbeddedCertificate = 
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            else
+            {
+                GroupPolicyHelper.EnableAdditionalSources.SetNotConfigured();
+                TestCommon.RunAICLICommand("source add", $"{Constants.TestSourceName} {Constants.TestSourceUrl}");
+            }
+
             Thread.Sleep(2000);
         }
 
