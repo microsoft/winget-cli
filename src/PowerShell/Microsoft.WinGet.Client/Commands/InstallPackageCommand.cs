@@ -12,7 +12,7 @@ namespace Microsoft.WinGet.Client.Commands
 {
     using System.Management.Automation;
     using Microsoft.Management.Deployment;
-    using Microsoft.WinGet.Client.Helpers;
+    using Microsoft.WinGet.Client.Common;
 
     /// <summary>
     /// Installs a package from the pipeline or from a configured source.
@@ -65,17 +65,16 @@ namespace Microsoft.WinGet.Client.Commands
             base.ProcessRecord();
             this.GetPackageAndExecute(CompositeSearchBehavior.RemotePackagesFromRemoteCatalogs, (package, version) =>
             {
-                var options = this.GetInstallOptions(version);
-                var results = this.InstallPackage(package, options);
-                this.WriteObject(results);
+                InstallOptions options = this.GetInstallOptions(version);
+                InstallResult result = this.InstallPackage(package, options);
+                this.WriteObject(result);
             });
         }
 
         /// <inheritdoc />
         protected override InstallOptions GetInstallOptions(PackageVersionId version)
         {
-            var options = base.GetInstallOptions(version);
-
+            InstallOptions options = base.GetInstallOptions(version);
             if (this.architectureGiven)
             {
                 options.AllowedArchitectures.Clear();

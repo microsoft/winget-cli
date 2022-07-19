@@ -4,10 +4,8 @@
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.WinGet.Client.Helpers
+namespace Microsoft.WinGet.Client.Common
 {
-    using System.Reflection;
-    using System.Resources;
     using Microsoft.Management.Deployment;
 
     /// <summary>
@@ -36,12 +34,13 @@ namespace Microsoft.WinGet.Client.Helpers
         public const uint CountUpperBound = 1000;
 
         /// <summary>
-        /// This is the name of the parameter set for when a package was supplied.
+        /// This parameter set indicates that a package was provided via a parameter or the pipeline and it can be acted on directly.
         /// </summary>
         public const string GivenSet = "GivenSet";
 
         /// <summary>
-        /// This is the name of the parameter set for when a package was not supplied.
+        /// This parameter set indicates that a package was not provided via a parameter or the pipeline and it
+        /// needs to be found by searching a package source.
         /// </summary>
         public const string FoundSet = "FoundSet";
 
@@ -49,17 +48,5 @@ namespace Microsoft.WinGet.Client.Helpers
         /// This is the path provided to the resource manager to access localized strings.
         /// </summary>
         public const string ResourcesPath = "Microsoft.WinGet.Client.Properties.Resources";
-
-        /// <summary>
-        /// Gets the <see cref="ResourceManager" /> instance for the executing assembly.
-        /// </summary>
-        public static ResourceManager ResourceManager
-        {
-            get
-            {
-                Assembly assembly = Assembly.GetExecutingAssembly();
-                return new ResourceManager(ResourcesPath, assembly);
-            }
-        }
     }
 }

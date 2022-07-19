@@ -10,7 +10,9 @@ namespace Microsoft.WinGet.Client.Attributes
     using Microsoft.Management.Deployment;
 
     /// <summary>
-    /// Marking a property with this attribute causes it to be added to the filters list when searching for packages.
+    /// A <see cref="FindPackagesOptions" /> is constructed by introspecting on the inheritance tree and
+    /// looking for parameters that are marked with this attribute. Properties that are marked with this
+    /// attribute are added to the <see cref="FindPackagesOptions" /> object.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class FilterAttribute : Attribute

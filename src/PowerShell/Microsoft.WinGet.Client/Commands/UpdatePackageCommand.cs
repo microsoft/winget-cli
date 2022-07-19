@@ -8,7 +8,7 @@ namespace Microsoft.WinGet.Client.Commands
 {
     using System.Management.Automation;
     using Microsoft.Management.Deployment;
-    using Microsoft.WinGet.Client.Helpers;
+    using Microsoft.WinGet.Client.Common;
 
     /// <summary>
     /// This commands updates a package from the pipeline or from the local system.
@@ -35,19 +35,17 @@ namespace Microsoft.WinGet.Client.Commands
             base.ProcessRecord();
             this.GetPackageAndExecute(CompositeSearchBehavior.LocalCatalogs, (package, version) =>
             {
-                var options = this.GetInstallOptions(version);
-                var results = this.UpgradePackage(package, options);
-                this.WriteObject(results);
+                InstallOptions options = this.GetInstallOptions(version);
+                InstallResult result = this.UpgradePackage(package, options);
+                this.WriteObject(result);
             });
         }
 
         /// <inheritdoc />
         protected override InstallOptions GetInstallOptions(PackageVersionId version)
         {
-            var options = base.GetInstallOptions(version);
-
+            InstallOptions options = base.GetInstallOptions(version);
             options.AllowUpgradeToUnknownVersion = this.IncludeUnknown.ToBool();
-
             return options;
         }
 

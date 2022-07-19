@@ -1,28 +1,32 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="BaseLifecycleCommand.cs" company="Microsoft Corporation">
+// <copyright file="BasePackageCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.WinGet.Client.Commands
+namespace Microsoft.WinGet.Client.Common
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Management.Automation;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Errors;
-    using Microsoft.WinGet.Client.Helpers;
 
     /// <summary>
-    /// This is the base class for commands which operate on a specific package version.
+    /// This is the base class for commands which operate on a specific package & version i.e.,
+    /// the "install", "uninstall", and "upgrade" commands.
     /// </summary>
-    public class BaseLifecycleCommand : BaseFinderCommand
+    public class BasePackageCommand : BaseFinderCommand
     {
         private string log;
 
         /// <summary>
         /// Gets or sets the package to directly install.
         /// </summary>
+        /// <remarks>
+        /// Must match the name of the <see cref="Deployment.CatalogPackage" /> field on the <see cref="MatchResult" /> class.
+        /// </remarks>
         [Alias("InputObject")]
         [ValidateNotNull]
         [Parameter(
@@ -47,11 +51,9 @@ namespace Microsoft.WinGet.Client.Commands
             get => this.log;
             set
             {
-                string prefix = Path.IsPathRooted(value)
-                    ? string.Empty
-                    : this.SessionState.Path.CurrentFileSystemLocation + @"\";
-
-                this.log = prefix + value;
+                this.log = Path.IsPathRooted(value)
+                    ? value
+                    : this.SessionState.Path.CurrentFileSystemLocation + @"\" + value;
             }
         }
 
@@ -72,10 +74,9 @@ namespace Microsoft.WinGet.Client.Commands
             CompositeSearchBehavior behavior,
             Action<CatalogPackage, PackageVersionId> callback)
         {
-            var package = this.GetCatalogPackage(behavior);
-            var version = this.GetPackageVersionId(package);
-            var confirm = this.ConfirmOperation(package, version);
-            if (confirm)
+            CatalogPackage package = this.GetCatalogPackage(behavior);
+            PackageVersionId version = this.GetPackageVersionId(package);
+            if (this.ShouldProcess(package.ToString(version)))
             {
                 callback(package, version);
             }
@@ -85,21 +86,25 @@ namespace Microsoft.WinGet.Client.Commands
         {
             if (this.ParameterSetName == Constants.GivenSet)
             {
+                // The package was already provided via a parameter or the pipeline.
                 return this.CatalogPackage;
             }
             else
             {
-                var results = this.FindPackages(behavior, 0);
+                IReadOnlyList<MatchResult> results = this.FindPackages(behavior, 0);
                 if (results.Count == 1)
                 {
+                    // Exactly one package matched, so we can just return it.
                     return results[0].CatalogPackage;
                 }
                 else if (results.Count == 0)
                 {
-                    throw new RuntimeException(Constants.ResourceManager.GetString("ExceptionMessages_NoPackagesFound"));
+                    // No packages matched, we need to throw an error.
+                    throw new RuntimeException(Utilities.ResourceManager.GetString("RuntimeExceptionNoPackagesFound"));
                 }
                 else
                 {
+                    // Too many packages matched! The user needs to refine their input.
                     throw new VagueCriteriaException(results);
                 }
             }
@@ -109,28 +114,20 @@ namespace Microsoft.WinGet.Client.Commands
         {
             if (this.Version != null)
             {
-                var versions = package.AvailableVersions;
-
-                for (var i = 0; i < versions.Count; i++)
+                for (var i = 0; i < package.AvailableVersions.Count; i++)
                 {
-                    if (versions[i].Version.CompareTo(this.Version) == 0)
+                    if (package.AvailableVersions[i].Version.CompareTo(this.Version) == 0)
                     {
-                        return versions[i];
+                        return package.AvailableVersions[i];
                     }
                 }
 
-                throw new ArgumentException(Constants.ResourceManager.GetString("ExceptionMessages_VersionNotFound"));
+                throw new ArgumentException(Utilities.ResourceManager.GetString("RuntimeExceptionInvalidVersion"));
             }
             else
             {
                 return null;
             }
-        }
-
-        private bool ConfirmOperation(CatalogPackage package, PackageVersionId version)
-        {
-            string target = package.ToString(version);
-            return this.ShouldProcess(target);
         }
     }
 }

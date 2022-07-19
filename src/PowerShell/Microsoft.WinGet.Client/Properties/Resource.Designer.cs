@@ -22,14 +22,14 @@ namespace Microsoft.WinGet.Client.Properties {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resources {
+    internal class Resource {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal Resources() {
+        internal Resource() {
         }
         
         /// <summary>
@@ -39,7 +39,7 @@ namespace Microsoft.WinGet.Client.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Microsoft.WinGet.Client.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Microsoft.WinGet.Client.Properties.Resource", typeof(Resource).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,65 +61,65 @@ namespace Microsoft.WinGet.Client.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to There was an error connecting to the source..
+        ///   Looks up a localized string similar to No source matches the given value: {0}.
         /// </summary>
-        internal static string ExceptionMessages_CatalogError {
+        internal static string ArgumentExceptionInvalidSource {
             get {
-                return ResourceManager.GetString("ExceptionMessages_CatalogError", resourceCulture);
+                return ResourceManager.GetString("ArgumentExceptionInvalidSource", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to This cmdlet is currently not available in an administrator context..
+        ///   Looks up a localized string similar to This cmdlet is currently disabled in an administrative context..
         /// </summary>
-        internal static string ExceptionMessages_NoAdmin {
+        internal static string ExceptionAdministratorDisabled {
             get {
-                return ResourceManager.GetString("ExceptionMessages_NoAdmin", resourceCulture);
+                return ResourceManager.GetString("ExceptionAdministratorDisabled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred while searching for packages: {0}.
+        /// </summary>
+        internal static string FindPackagesExceptionMessage {
+            get {
+                return ResourceManager.GetString("FindPackagesExceptionMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to An error occurred while connecting to the catalog..
+        /// </summary>
+        internal static string RuntimeExceptionCatalogError {
+            get {
+                return ResourceManager.GetString("RuntimeExceptionCatalogError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No versions matched the given value: {0}.
+        /// </summary>
+        internal static string RuntimeExceptionInvalidVersion {
+            get {
+                return ResourceManager.GetString("RuntimeExceptionInvalidVersion", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to No packages matched the given input criteria..
         /// </summary>
-        internal static string ExceptionMessages_NoPackagesFound {
+        internal static string RuntimeExceptionNoPackagesFound {
             get {
-                return ResourceManager.GetString("ExceptionMessages_NoPackagesFound", resourceCulture);
+                return ResourceManager.GetString("RuntimeExceptionNoPackagesFound", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to There was an error searching for packages..
+        ///   Looks up a localized string similar to {0}, {1}, and {2} other packages matched the input criteria. Please refine the input..
         /// </summary>
-        internal static string ExceptionMessages_SearchFailure {
+        internal static string VagueCriteriaExceptionMessage {
             get {
-                return ResourceManager.GetString("ExceptionMessages_SearchFailure", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to A source with the given name was not found..
-        /// </summary>
-        internal static string ExceptionMessages_SourceNotFound {
-            get {
-                return ResourceManager.GetString("ExceptionMessages_SourceNotFound", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &apos;{0}&apos;, &apos;{1}&apos;, and {2} other package(s) matched the input criteria. Please refine the input..
-        /// </summary>
-        internal static string ExceptionMessages_VagueSearch {
-            get {
-                return ResourceManager.GetString("ExceptionMessages_VagueSearch", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to No version matched the given input criteria..
-        /// </summary>
-        internal static string ExceptionMessages_VersionNotFound {
-            get {
-                return ResourceManager.GetString("ExceptionMessages_VersionNotFound", resourceCulture);
+                return ResourceManager.GetString("VagueCriteriaExceptionMessage", resourceCulture);
             }
         }
     }

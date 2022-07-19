@@ -6,7 +6,6 @@
 
 namespace Microsoft.WinGet.Client.Helpers
 {
-    using System;
     using System.Collections.Generic;
     using System.Management.Automation;
     using System.Threading;
@@ -16,8 +15,8 @@ namespace Microsoft.WinGet.Client.Helpers
     /// </summary>
     public class WriteProgressAdapter
     {
-        private readonly AutoResetEvent resetEvent = new AutoResetEvent(false);
-        private readonly Queue<ProgressRecord> records = new Queue<ProgressRecord>();
+        private readonly AutoResetEvent resetEvent = new (false);
+        private readonly Queue<ProgressRecord> records = new ();
         private readonly Cmdlet cmdlet;
         private volatile bool completed = false;
 
@@ -84,8 +83,7 @@ namespace Microsoft.WinGet.Client.Helpers
         {
             while (this.records.Count > 0)
             {
-                ProgressRecord record = this.records.Dequeue();
-                this.cmdlet.WriteProgress(record);
+                this.cmdlet.WriteProgress(this.records.Dequeue());
             }
         }
     }

@@ -8,16 +8,18 @@
 using Windows.Foundation;
 #pragma warning restore SA1200 // Using directives should be placed correctly
 
-namespace Microsoft.WinGet.Client.Commands
+namespace Microsoft.WinGet.Client.Common
 {
     using System.IO;
     using System.Management.Automation;
     using Microsoft.Management.Deployment;
+    using Microsoft.WinGet.Client.Helpers;
 
     /// <summary>
-    /// This is the base class for the install and upgrade commands.
+    /// This is the base class for all commands that parse a <see cref="FindPackagesOptions" /> result
+    /// from the provided parameters i.e., the "install" and "upgrade" commands.
     /// </summary>
-    public class BaseInstallCommand : BaseLifecycleCommand
+    public class BaseInstallCommand : BasePackageCommand
     {
         private string location;
 
@@ -42,11 +44,9 @@ namespace Microsoft.WinGet.Client.Commands
             get => this.location;
             set
             {
-                string prefix = Path.IsPathRooted(value)
-                    ? string.Empty
-                    : this.SessionState.Path.CurrentFileSystemLocation + @"\";
-
-                this.location = prefix + value;
+                this.location = Path.IsPathRooted(value)
+                    ? value
+                    : this.SessionState.Path.CurrentFileSystemLocation + @"\" + value;
             }
         }
 
@@ -69,11 +69,9 @@ namespace Microsoft.WinGet.Client.Commands
         /// <returns>An <see cref="InstallOptions" /> instance.</returns>
         protected virtual InstallOptions GetInstallOptions(PackageVersionId version)
         {
-            var options = ComObjectFactory.Value.CreateInstallOptions();
-
+            InstallOptions options = ComObjectFactory.Value.CreateInstallOptions();
             options.AllowHashMismatch = this.Force.ToBool();
             options.PackageInstallMode = this.Mode;
-
             if (version != null)
             {
                 options.PackageVersionId = version;
@@ -112,11 +110,10 @@ namespace Microsoft.WinGet.Client.Commands
             IAsyncOperationWithProgress<InstallResult, InstallProgress> operation,
             string activity)
         {
-            var adapter = new Helpers.WriteProgressAdapter(this);
-
+            WriteProgressAdapter adapter = new (this);
             operation.Progress = (context, progress) =>
             {
-                var record = new ProgressRecord(1, activity, progress.State.ToString())
+                ProgressRecord record = new (1, activity, progress.State.ToString())
                 {
                     RecordType = ProgressRecordType.Processing,
                 };
@@ -133,23 +130,18 @@ namespace Microsoft.WinGet.Client.Commands
 
                 adapter.WriteProgress(record);
             };
-
             operation.Completed = (context, status) =>
             {
-                var record = new ProgressRecord(1, activity, status.ToString())
+                adapter.WriteProgress(new ProgressRecord(1, activity, status.ToString())
                 {
                     RecordType = ProgressRecordType.Completed,
-                };
-
-                adapter.WriteProgress(record);
+                });
                 adapter.Completed = true;
             };
-
             System.Console.CancelKeyPress += (sender, e) =>
             {
                 operation.Cancel();
             };
-
             adapter.Wait();
             return operation.GetResults();
         }

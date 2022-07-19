@@ -19,19 +19,22 @@ namespace Microsoft.WinGet.Client.Factories
     /// </summary>
     public class ComObjectFactory
     {
-        private static readonly Guid PackageManagerCLSID = Guid.Parse("C53A4F16-787E-42A4-B304-29EFFB4BF597");
-        private static readonly Guid FindPackagesOptionsCLSID = Guid.Parse("572DED96-9C60-4526-8F92-EE7D91D38C1A");
-        private static readonly Guid CreateCompositePackageCatalogOptionsCLSID = Guid.Parse("526534B8-7E46-47C8-8416-B1685C327D37");
-        private static readonly Guid InstallOptionsCLSID = Guid.Parse("1095F097-EB96-453B-B4E6-1613637F3B14");
-        private static readonly Guid UninstallOptionsCLSID = Guid.Parse("E1D9A11E-9F85-4D87-9C17-2B93143ADB8D");
-        private static readonly Guid PackageMatchFilterCLSID = Guid.Parse("D02C9DAF-99DC-429C-B503-4E504E4AB000");
+#if USE_TEST_CLSIDS
+#else
+        private static readonly Guid PackageManagerClsid = Guid.Parse("C53A4F16-787E-42A4-B304-29EFFB4BF597");
+        private static readonly Guid FindPackagesOptionsClsid = Guid.Parse("572DED96-9C60-4526-8F92-EE7D91D38C1A");
+        private static readonly Guid CreateCompositePackageCatalogOptionsClsid = Guid.Parse("526534B8-7E46-47C8-8416-B1685C327D37");
+        private static readonly Guid InstallOptionsClsid = Guid.Parse("1095F097-EB96-453B-B4E6-1613637F3B14");
+        private static readonly Guid UninstallOptionsClsid = Guid.Parse("E1D9A11E-9F85-4D87-9C17-2B93143ADB8D");
+        private static readonly Guid PackageMatchFilterClsid = Guid.Parse("D02C9DAF-99DC-429C-B503-4E504E4AB000");
+#endif
 
-        private static readonly Type PackageManagerType = Type.GetTypeFromCLSID(PackageManagerCLSID);
-        private static readonly Type FindPackagesOptionsType = Type.GetTypeFromCLSID(FindPackagesOptionsCLSID);
-        private static readonly Type CreateCompositePackageCatalogOptionsType = Type.GetTypeFromCLSID(CreateCompositePackageCatalogOptionsCLSID);
-        private static readonly Type InstallOptionsType = Type.GetTypeFromCLSID(InstallOptionsCLSID);
-        private static readonly Type UninstallOptionsType = Type.GetTypeFromCLSID(UninstallOptionsCLSID);
-        private static readonly Type PackageMatchFilterType = Type.GetTypeFromCLSID(PackageMatchFilterCLSID);
+        private static readonly Type PackageManagerType = Type.GetTypeFromCLSID(PackageManagerClsid);
+        private static readonly Type FindPackagesOptionsType = Type.GetTypeFromCLSID(FindPackagesOptionsClsid);
+        private static readonly Type CreateCompositePackageCatalogOptionsType = Type.GetTypeFromCLSID(CreateCompositePackageCatalogOptionsClsid);
+        private static readonly Type InstallOptionsType = Type.GetTypeFromCLSID(InstallOptionsClsid);
+        private static readonly Type UninstallOptionsType = Type.GetTypeFromCLSID(UninstallOptionsClsid);
+        private static readonly Type PackageMatchFilterType = Type.GetTypeFromCLSID(PackageMatchFilterClsid);
 
         /// <summary>
         /// Creates an instance of the <see cref="PackageManager" /> class.

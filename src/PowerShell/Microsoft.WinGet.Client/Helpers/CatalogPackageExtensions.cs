@@ -12,7 +12,7 @@ namespace Microsoft.Management.Deployment
     public static class CatalogPackageExtensions
     {
         /// <summary>
-        /// Converts a <see cref="CatalogPackage" /> to a string with the specified version.
+        /// Converts a <see cref="CatalogPackage" /> to a string previewing the specified version.
         /// </summary>
         /// <param name="package">A <see cref="CatalogPackage" /> instance.</param>
         /// <param name="version">A <see cref="PackageVersionId" /> instance. If null, the latest available version is used.</param>
@@ -26,11 +26,11 @@ namespace Microsoft.Management.Deployment
                 string versionString = (version is null)
                     ? package.AvailableVersions[0].Version
                     : version.Version;
-
                 return $"{package.Name} [{package.Id}] Version {versionString}";
             }
             else
             {
+                // There were no available versions!
                 return $"{package.Name} [{package.Id}]";
             }
         }

@@ -8,7 +8,7 @@ namespace Microsoft.WinGet.Client.Commands
 {
     using System.Management.Automation;
     using Microsoft.Management.Deployment;
-    using Microsoft.WinGet.Client.Helpers;
+    using Microsoft.WinGet.Client.Common;
 
     /// <summary>
     /// Searches configured sources for packages.
