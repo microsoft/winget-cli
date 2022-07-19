@@ -43,7 +43,9 @@ namespace Microsoft.WinGet.Client.Commands
         /// </summary>
         protected static Lazy<PackageManager> PackageManager { get; } = new Lazy<PackageManager>(() => ComObjectFactory.Value.CreatePackageManager());
 
+#pragma warning disable IDE0051 // Remove unused private members
         private static bool InitializedUndockedRegFreeWinRT { get; set; } = InitializeUndockedRegFreeWinRT();
+#pragma warning restore IDE0051 // Remove unused private members
 
         /// <summary>
         /// Retrieves the specified source or all sources if <paramref name="source" /> is null.
