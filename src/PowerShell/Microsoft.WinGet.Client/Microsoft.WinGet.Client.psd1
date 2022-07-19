@@ -80,8 +80,8 @@
     FunctionsToExport    = @(
         'Get-WinGetVersion'
         'Get-WinGetVersion',
-        'Enable-WinGetLocalManifest',
-        'Disable-WinGetLocalManifest',
+        'Enable-WinGetSetting',
+        'Disable-WinGetSetting',
         'Add-WinGetSource',
         'Remove-WinGetSource',
         'Reset-WinGetSource'

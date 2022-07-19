@@ -14,28 +14,48 @@
         },
         {
             "Verb": "Enable",
-            "Noun": "WinGetLocalManifest",
+            "Noun": "WinGetSetting",
             "Platform": [
                 "Windows"
             ],
             "OriginalName": "winget.exe",
             "OriginalCommandElements": [
                 "settings",
-                "--enable",
-                "LocalManifestFiles"
+                "--enable"
+            ],
+            "Parameters": [
+                {
+                    "Mandatory": true,
+                    "Name": "Name",
+                    "OriginalPosition": 0,
+                    "Position": 0,
+                    "ValueFromPipeline": true,
+                    "ValueFromPipelineByPropertyName": true,
+                    "ParameterType": "string"
+                }
             ]
         },
         {
             "Verb": "Disable",
-            "Noun": "WinGetLocalManifest",
+            "Noun": "WinGetSetting",
             "Platform": [
                 "Windows"
             ],
             "OriginalName": "winget.exe",
             "OriginalCommandElements": [
                 "settings",
-                "--disable",
-                "LocalManifestFiles"
+                "--disable"
+            ],
+            "Parameters": [
+                {
+                    "Mandatory": true,
+                    "Name": "Name",
+                    "OriginalPosition": 0,
+                    "Position": 0,
+                    "ValueFromPipeline": true,
+                    "ValueFromPipelineByPropertyName": true,
+                    "ParameterType": "string"
+                }
             ]
         },
         {

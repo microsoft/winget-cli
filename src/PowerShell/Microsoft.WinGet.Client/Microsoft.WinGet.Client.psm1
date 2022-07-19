@@ -120,15 +120,28 @@ More help can be found at: https://aka.ms/winget-command-help
 
 
 
-function Enable-WinGetLocalManifest
+function Enable-WinGetSetting
 {
 [PowerShellCustomFunctionAttribute(RequiresElevation=$False)]
 [CmdletBinding()]
 
-param(    )
+param(
+[Parameter(Position=0,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,Mandatory=$true)]
+[string]$Name
+    )
 
 BEGIN {
-    $__PARAMETERMAP = @{}
+    $__PARAMETERMAP = @{
+         Name = @{
+               OriginalName = ''
+               OriginalPosition = '0'
+               Position = '0'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $False
+               }
+    }
+
     $__outputHandlers = @{ Default = @{ StreamOutput = $true; Handler = { $input } } }
 }
 
@@ -141,7 +154,6 @@ PROCESS {
     if ($__boundParameters["Debug"]){wait-debugger}
     $__commandArgs += 'settings'
     $__commandArgs += '--enable'
-    $__commandArgs += 'LocalManifestFiles'
     foreach ($paramName in $__boundParameters.Keys|
             Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
             Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
@@ -225,21 +237,39 @@ More help can be found at: https://aka.ms/winget-command-help
 
 .DESCRIPTION See help for winget.exe
 
+.PARAMETER Name
+
+
+
+
 #>
 }
 
 
 
 
-function Disable-WinGetLocalManifest
+function Disable-WinGetSetting
 {
 [PowerShellCustomFunctionAttribute(RequiresElevation=$False)]
 [CmdletBinding()]
 
-param(    )
+param(
+[Parameter(Position=0,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,Mandatory=$true)]
+[string]$Name
+    )
 
 BEGIN {
-    $__PARAMETERMAP = @{}
+    $__PARAMETERMAP = @{
+         Name = @{
+               OriginalName = ''
+               OriginalPosition = '0'
+               Position = '0'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $False
+               }
+    }
+
     $__outputHandlers = @{ Default = @{ StreamOutput = $true; Handler = { $input } } }
 }
 
@@ -252,7 +282,6 @@ PROCESS {
     if ($__boundParameters["Debug"]){wait-debugger}
     $__commandArgs += 'settings'
     $__commandArgs += '--disable'
-    $__commandArgs += 'LocalManifestFiles'
     foreach ($paramName in $__boundParameters.Keys|
             Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
             Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
@@ -335,6 +364,11 @@ The following options are available:
 More help can be found at: https://aka.ms/winget-command-help
 
 .DESCRIPTION See help for winget.exe
+
+.PARAMETER Name
+
+
+
 
 #>
 }

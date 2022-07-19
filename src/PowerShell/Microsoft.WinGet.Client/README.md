@@ -22,4 +22,4 @@ to make sure of the following steps.
 Once you've done all of the pre-requisite steps, you can build the PowerShell
 module folder by running the PowerShell build script. For example,
 
-- `.\BuildModule.ps1 -In bin -Out build\bin -Configuration Release`
+- `.\Build-Module.ps1 -In bin -Out build\bin -Configuration Release`

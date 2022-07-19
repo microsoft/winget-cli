@@ -48,7 +48,7 @@ namespace Microsoft.WinGet.Client.Helpers
         /// <summary>
         /// This is the path provided to the resource manager to access localized strings.
         /// </summary>
-        public const string ResourcesPath = "Microsoft.WinGet.Client.Resources.Resources";
+        public const string ResourcesPath = "Microsoft.WinGet.Client.Properties.Resources";
 
         /// <summary>
         /// Gets the <see cref="ResourceManager" /> instance for the executing assembly.
