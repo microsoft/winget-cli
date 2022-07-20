@@ -199,8 +199,8 @@ namespace AppInstaller::Manifest
                     }
                     else
                     {
-                        std::filesystem::path basePath = std::filesystem::current_path();
-                        std::filesystem::path fullPath = basePath / std::string{ nestedInstallerFile.RelativeFilePath };
+                        const std::filesystem::path& basePath = std::filesystem::current_path();
+                        const std::filesystem::path& fullPath = basePath / ConvertToUTF16(nestedInstallerFile.RelativeFilePath);
                         if (AppInstaller::Filesystem::PathEscapesBaseDirectory(fullPath, basePath))
                         {
                             resultErrors.emplace_back(ManifestError::RelativeFilePathEscapesDirectory, "RelativeFilePath");
