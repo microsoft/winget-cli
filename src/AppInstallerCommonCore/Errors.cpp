@@ -224,6 +224,8 @@ namespace AppInstaller
                 return "Embedded null characters are disallowed for SQLite";
             case APPINSTALLER_CLI_ERROR_NESTEDINSTALLER_NOT_FOUND:
                 return "Failed to find the nested installer in the archive.";
+            case APPINSTALLER_CLI_ERROR_NESTEDINSTALLER_INVALID_PATH:
+                return "Invalid relative file path to nested installer provided.";
             default:
                 return "Unknown Error Code";
             }

@@ -288,6 +288,14 @@ namespace AppInstallerCLIE2ETests
         }
 
         [Test]
+        public void InstallZipWithInvalidRelativeFilePath()
+        {
+            var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestZipInvalidRelativePath");
+            Assert.AreNotEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Invalid relative file path to the nested installer; path points to a location outside of the install directory"));
+        }
+
+        [Test]
         public void InstallZipWithMsi()
         {
             if (string.IsNullOrEmpty(TestCommon.MsiInstallerPath))

@@ -542,7 +542,8 @@ namespace AppInstaller::CLI::Workflow
     {
         context <<
             Workflow::EnsureSupportForPortableInstall <<
-            Workflow::EnsureNonPortableTypeForArchiveInstall;
+            Workflow::EnsureNonPortableTypeForArchiveInstall <<
+            Workflow::EnsureValidNestedInstallerMetadataForArchiveInstall;
     }
 
     void InstallMultiplePackages::operator()(Execution::Context& context) const

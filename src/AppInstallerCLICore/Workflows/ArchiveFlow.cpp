@@ -3,6 +3,9 @@
 #include "pch.h"
 #include "ArchiveFlow.h"
 #include "winget/Archive.h"
+#include "winget/Filesystem.h"
+
+using namespace AppInstaller::Manifest;
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -32,19 +35,24 @@ namespace AppInstaller::CLI::Workflow
         const auto& installer = context.Get<Execution::Data::Installer>().value();
         if (installer.NestedInstallerFiles.empty())
         {
-            // Manifest validation should prevent this from happening
+            // Pre-install validation should prevent this from happening
             AICLI_LOG(CLI, Error, << "No entries specified for NestedInstallerFiles");
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST);
         }
 
         const auto& installerPath = context.Get<Execution::Data::InstallerPath>();
         const auto& installerParentPath = installerPath.parent_path();
-
         const auto& relativeFilePath = ConvertToUTF16(installer.NestedInstallerFiles[0].RelativeFilePath);
 
-        std::filesystem::path nestedInstallerPath = installerParentPath / relativeFilePath;
+        const std::filesystem::path& nestedInstallerPath = installerParentPath / relativeFilePath;
 
-        if (!std::filesystem::exists(nestedInstallerPath))
+        if (Filesystem::PathEscapesBaseDirectory(nestedInstallerPath, installerParentPath))
+        {
+            AICLI_LOG(CLI, Error, << "Path points to a location outside of the install directory: " << nestedInstallerPath);
+            context.Reporter.Error() << Resource::String::InvalidPathToNestedInstaller << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NESTEDINSTALLER_INVALID_PATH);
+        }
+        else if (!std::filesystem::exists(nestedInstallerPath))
         {
             AICLI_LOG(CLI, Error, << "Unable to locate nested installer at: " << nestedInstallerPath);
             context.Reporter.Error() << Resource::String::NestedInstallerNotFound << ' ' << nestedInstallerPath << std::endl;
@@ -54,6 +62,29 @@ namespace AppInstaller::CLI::Workflow
         {
             AICLI_LOG(CLI, Info, << "Setting installerPath to: " << nestedInstallerPath);
             context.Add<Execution::Data::InstallerPath>(nestedInstallerPath);
+        }
+    }
+
+    void EnsureValidNestedInstallerMetadataForArchiveInstall(Execution::Context& context)
+    {
+        auto installer = context.Get<Execution::Data::Installer>().value();
+
+        if (IsArchiveType(installer.InstallerType))
+        {
+            auto const& nestedInstallerFiles = installer.NestedInstallerFiles;
+            if (nestedInstallerFiles.empty())
+            {
+                AICLI_LOG(CLI, Error, << "No entries specified for NestedInstallerFiles");
+                context.Reporter.Error() << Resource::String::NestedInstallerNotSpecified << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST);
+            }
+
+            if (installer.NestedInstallerType != InstallerTypeEnum::Portable && nestedInstallerFiles.size() != 1)
+            {
+                AICLI_LOG(CLI, Error, << "Multiple nested installers specified for non-portable nested installerType");
+                context.Reporter.Error() << Resource::String::MultipleNonPortableNestedInstallersSpecified << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST);
+            }
         }
     }
 }
