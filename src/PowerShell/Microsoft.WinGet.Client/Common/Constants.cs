@@ -43,10 +43,5 @@ namespace Microsoft.WinGet.Client.Common
         /// needs to be found by searching a package source.
         /// </summary>
         public const string FoundSet = "FoundSet";
-
-        /// <summary>
-        /// This is the path provided to the resource manager to access localized strings.
-        /// </summary>
-        public const string ResourcesPath = "Microsoft.WinGet.Client.Properties.Resources";
     }
 }

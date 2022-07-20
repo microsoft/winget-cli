@@ -6,7 +6,6 @@
 
 namespace Microsoft.WinGet.Client.Common
 {
-    using System.Reflection;
     using System.Resources;
     using System.Security.Principal;
 
@@ -22,8 +21,7 @@ namespace Microsoft.WinGet.Client.Common
         {
             get
             {
-                Assembly assembly = Assembly.GetExecutingAssembly();
-                return new ResourceManager(Constants.ResourcesPath, assembly);
+                return new ResourceManager(typeof(Properties.Resources));
             }
         }
 

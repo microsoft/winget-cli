@@ -9,6 +9,7 @@ namespace Microsoft.WinGet.Client.Common
     using System;
     using System.Collections.Generic;
     using System.Management.Automation;
+    using System.Runtime.InteropServices;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Factories;
 
@@ -17,6 +18,11 @@ namespace Microsoft.WinGet.Client.Common
     /// </summary>
     public class BaseClientCommand : PSCmdlet
     {
+        static BaseClientCommand()
+        {
+            InitializeUndockedRegFreeWinRT();
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="BaseClientCommand"/> class.
         /// </summary>
@@ -62,5 +68,8 @@ namespace Microsoft.WinGet.Client.Common
                 };
             }
         }
+
+        [DllImport("winrtact.dll", EntryPoint = "winrtact_Initialize", ExactSpelling = true, PreserveSig = false)]
+        private static extern void InitializeUndockedRegFreeWinRT();
     }
 }

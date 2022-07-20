@@ -15,7 +15,7 @@ RootModule = 'Microsoft.WinGet.Client.psm1'
 ModuleVersion = '0.0.1'
 
 # Supported PSEditions
-CompatiblePSEditions = 'Desktop', 'Core'
+CompatiblePSEditions = 'Core'
 
 # ID used to uniquely identify this module
 GUID = 'e11157e2-cd24-4250-83b8-c6654ea4926a'
