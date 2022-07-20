@@ -988,6 +988,8 @@ TEST_CASE("InstallFlowWithNonApplicableArchitecture", "[InstallFlow][workflow]")
 TEST_CASE("InstallFlow_ZipWithExe", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+    TestCommon::TestUserSettings testSettings;
+    testSettings.Set<Setting::EFZipInstall>(true);
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
@@ -1014,6 +1016,8 @@ TEST_CASE("InstallFlow_ZipWithExe", "[InstallFlow][workflow]")
 TEST_CASE("InstallFlow_Zip_BadRelativePath", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+    TestCommon::TestUserSettings testSettings;
+    testSettings.Set<Setting::EFZipInstall>(true);
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
@@ -1036,6 +1040,8 @@ TEST_CASE("InstallFlow_Zip_BadRelativePath", "[InstallFlow][workflow]")
 TEST_CASE("InstallFlow_Zip_MissingNestedInstaller", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+    TestCommon::TestUserSettings testSettings;
+    testSettings.Set<Setting::EFZipInstall>(true);
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
@@ -1056,6 +1062,8 @@ TEST_CASE("InstallFlow_Zip_MissingNestedInstaller", "[InstallFlow][workflow]")
 TEST_CASE("InstallFlow_Zip_MultipleNonPortableNestedInstallers", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+    TestCommon::TestUserSettings testSettings;
+    testSettings.Set<Setting::EFZipInstall>(true);
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
@@ -1194,8 +1202,6 @@ TEST_CASE("PortableInstallFlow", "[InstallFlow][workflow]")
 {
     TestCommon::TempDirectory tempDirectory("TestPortableInstallRoot", false);
     TestCommon::TempFile portableInstallResultPath("TestPortableInstalled.txt");
-
-    TestCommon::TestUserSettings testSettings;
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
