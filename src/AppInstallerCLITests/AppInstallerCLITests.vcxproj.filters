@@ -36,7 +36,7 @@
     </Filter>
     <Filter Include="Source Files\Repository">
       <UniqueIdentifier>{13d4d227-0f04-4e57-a663-c3c535438ab3}</UniqueIdentifier>
-    </Filter>     
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -209,8 +209,11 @@
     <ClCompile Include="YamlManifest.cpp">
       <Filter>Source Files\Common</Filter>
     </ClCompile>
+    <ClCompile Include="Runtime.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
     <ClCompile Include="Archive.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Common</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -602,7 +605,7 @@
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\ManifestV1_3-Singleton.yaml">
       <Filter>TestData</Filter>
-    </CopyFileToFolders>        
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\MultiFileManifestV1\ManifestV1-MultiFile-DefaultLocale.yaml">
       <Filter>TestData\MultiFileManifestV1</Filter>
     </CopyFileToFolders>
@@ -650,7 +653,7 @@
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\MultiFileManifestV1_3\ManifestV1_3-MultiFile-Version.yaml">
       <Filter>TestData\MultiFileManifestV1_3</Filter>
-    </CopyFileToFolders>        
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Installer_Exe_Dependencies.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
