@@ -15,7 +15,7 @@ namespace AppInstaller::Filesystem
     bool SupportsReparsePoints(const std::filesystem::path& path);
 
     // Checks if the canonical form of the path points to a location outside of the provided base path.
-    bool PathEscapesBaseDirectory(const std::filesystem::path& path, const std::filesystem::path& base);
+    bool PathEscapesBaseDirectory(const std::filesystem::path& target, const std::filesystem::path& base);
 
     // Renames the file to a new path.
     void RenameFile(const std::filesystem::path& from, const std::filesystem::path& to);

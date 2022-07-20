@@ -19,10 +19,11 @@ TEST_CASE("PathEscapesDirectory", "[filesystem]")
     std::string goodRelativePath = "target.exe";
     std::string goodRelativePath2 = "test/../test1/target.exe";
 
-    std::filesystem::path badPath = basePath / ConvertToUTF16(badRelativePath);
-    std::filesystem::path badPath2 = basePath / ConvertToUTF16(badRelativePath2);
-    std::filesystem::path goodPath = basePath / ConvertToUTF16(goodRelativePath);
-    std::filesystem::path goodPath2 = basePath / ConvertToUTF16(goodRelativePath2);
+    std::filesystem::path badPath = basePath / badRelativePath;
+    std::filesystem::path badPath2 = basePath / badRelativePath2;
+    std::filesystem::path goodPath = basePath / goodRelativePath;
+    std::filesystem::path goodPath2 = basePath / goodRelativePath2;
+
     REQUIRE(PathEscapesBaseDirectory(badPath, basePath));
     REQUIRE(PathEscapesBaseDirectory(badPath2, basePath));
     REQUIRE_FALSE(PathEscapesBaseDirectory(goodPath, basePath));

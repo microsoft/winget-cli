@@ -62,11 +62,12 @@ namespace AppInstaller::Filesystem
         return (GetVolumeInformationFlags(path) & FILE_SUPPORTS_REPARSE_POINTS) != 0;
     }
 
-    bool PathEscapesBaseDirectory(const std::filesystem::path& path, const std::filesystem::path& base)
+    bool PathEscapesBaseDirectory(const std::filesystem::path& target, const std::filesystem::path& base)
     {
-        const auto& canonicalPath = std::filesystem::weakly_canonical(path);
-        auto [a, b] = std::mismatch(canonicalPath.begin(), canonicalPath.end(), base.begin(), base.end());
-        return (b != base.end());
+        const auto& targetPath = std::filesystem::weakly_canonical(target);
+        const auto& basePath = std::filesystem::weakly_canonical(base);
+        auto [a, b] = std::mismatch(targetPath.begin(), targetPath.end(), basePath.begin(), basePath.end());
+        return (b != basePath.end());
     }
 
     // Complicated rename algorithm due to somewhat arbitrary failures.
