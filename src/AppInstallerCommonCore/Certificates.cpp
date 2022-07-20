@@ -403,7 +403,7 @@ namespace AppInstaller::Certificates
 
     void PinningConfiguration::AddChain(PinningChain chain)
     {
-        AICLI_LOG(Core, Info, << "Adding chain to pinning configuration [" << m_identifier << "]:\n" << chain.GetDescription());
+        AICLI_LOG(Core, Verbose, << "Adding chain to pinning configuration [" << m_identifier << "]:\n" << chain.GetDescription());
         m_configuration.emplace_back(std::move(chain));
     }
 
