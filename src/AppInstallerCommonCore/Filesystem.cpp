@@ -66,7 +66,7 @@ namespace AppInstaller::Filesystem
     {
         // Input for path must exist or this will throw a filesystem error.
         const auto& pathString = std::filesystem::canonical(path).u8string();
-        const auto& baseString = base.lexically_normal().u8string();
+        const auto& baseString = std::filesystem::absolute(base).u8string();
         return pathString.find(baseString) == std::string::npos;
     }
 
