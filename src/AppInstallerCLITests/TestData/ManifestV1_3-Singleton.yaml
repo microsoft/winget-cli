@@ -107,6 +107,13 @@ NestedInstallerType: msi
 NestedInstallerFiles:
   - RelativeFilePath: RelativeFilePath
     PortableCommandAlias: PortableCommandAlias
+InstallationMetadata:
+  DefaultInstallLocation: "%ProgramFiles%\\TestApp"
+  Files:
+    - RelativeFilePath: "main.exe"
+      FileSha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82
+      FileType: launch
+      InvocationParameter: "/arg"
 
 Installers:
   - Architecture: x86

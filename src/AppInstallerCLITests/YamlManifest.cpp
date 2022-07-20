@@ -482,6 +482,12 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
         REQUIRE(manifest.DefaultInstallerInfo.NestedInstallerFiles.size() == 1);
         REQUIRE(manifest.DefaultInstallerInfo.NestedInstallerFiles.at(0).RelativeFilePath == "RelativeFilePath");
         REQUIRE(manifest.DefaultInstallerInfo.NestedInstallerFiles.at(0).PortableCommandAlias == "PortableCommandAlias");
+        REQUIRE(manifest.DefaultInstallerInfo.InstallationMetadata.DefaultInstallLocation == "%ProgramFiles%\\TestApp");
+        REQUIRE(manifest.DefaultInstallerInfo.InstallationMetadata.Files.size() == 1);
+        REQUIRE(manifest.DefaultInstallerInfo.InstallationMetadata.Files.at(0).RelativeFilePath == "main.exe");
+        REQUIRE(manifest.DefaultInstallerInfo.InstallationMetadata.Files.at(0).FileType == InstalledFileTypeEnum::Launch);
+        REQUIRE(manifest.DefaultInstallerInfo.InstallationMetadata.Files.at(0).FileSha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
+        REQUIRE(manifest.DefaultInstallerInfo.InstallationMetadata.Files.at(0).InvocationParameter == "/arg");
     }
 
     if (isSingleton)
@@ -571,6 +577,13 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
         // NestedInstaller metadata should not be populated unless the InstallerType is zip.
         REQUIRE(installer1.NestedInstallerType == InstallerTypeEnum::Unknown);
         REQUIRE(installer1.NestedInstallerFiles.size() == 0);
+
+        REQUIRE(installer1.InstallationMetadata.DefaultInstallLocation == "%ProgramFiles%\\TestApp");
+        REQUIRE(installer1.InstallationMetadata.Files.size() == 1);
+        REQUIRE(installer1.InstallationMetadata.Files.at(0).RelativeFilePath == "main.exe");
+        REQUIRE(installer1.InstallationMetadata.Files.at(0).FileType == InstalledFileTypeEnum::Launch);
+        REQUIRE(installer1.InstallationMetadata.Files.at(0).FileSha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
+        REQUIRE(installer1.InstallationMetadata.Files.at(0).InvocationParameter == "/arg");
     }
 
     if (!isSingleton)
@@ -633,6 +646,12 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
             REQUIRE(installer4.NestedInstallerFiles.at(0).PortableCommandAlias == "portableAlias1");
             REQUIRE(installer4.NestedInstallerFiles.at(1).RelativeFilePath == "relativeFilePath2");
             REQUIRE(installer4.NestedInstallerFiles.at(1).PortableCommandAlias == "portableAlias2");
+            REQUIRE(installer4.InstallationMetadata.DefaultInstallLocation == "%ProgramFiles%\\TestApp2");
+            REQUIRE(installer4.InstallationMetadata.Files.size() == 1);
+            REQUIRE(installer4.InstallationMetadata.Files.at(0).RelativeFilePath == "main2.exe");
+            REQUIRE(installer4.InstallationMetadata.Files.at(0).FileType == InstalledFileTypeEnum::Other);
+            REQUIRE(installer4.InstallationMetadata.Files.at(0).FileSha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
+            REQUIRE(installer4.InstallationMetadata.Files.at(0).InvocationParameter == "/arg2");
         }
 
         // Localization
