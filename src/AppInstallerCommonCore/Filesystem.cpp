@@ -64,10 +64,9 @@ namespace AppInstaller::Filesystem
 
     bool PathEscapesBaseDirectory(const std::filesystem::path& path, const std::filesystem::path& base)
     {
-        // Input for path must exist or this will throw a filesystem error.
-        const auto& pathString = std::filesystem::canonical(path).u8string();
-        const auto& baseString = std::filesystem::absolute(base).u8string();
-        return pathString.find(baseString) == std::string::npos;
+        const auto& canonicalPath = std::filesystem::weakly_canonical(path);
+        auto [a, b] = std::mismatch(canonicalPath.begin(), canonicalPath.end(), base.begin(), base.end());
+        return (b != base.end());
     }
 
     // Complicated rename algorithm due to somewhat arbitrary failures.
