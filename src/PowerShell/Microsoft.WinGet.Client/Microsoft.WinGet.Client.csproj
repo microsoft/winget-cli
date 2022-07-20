@@ -9,6 +9,7 @@
   <PropertyGroup>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <LangVersion>9</LangVersion>
+    <OutputPath>$(SolutionDir)$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutputPath>
     <Platforms>x64;x86</Platforms>
     <TargetFrameworks>$(CoreFramework);$(DesktopFramework)</TargetFrameworks>
   </PropertyGroup>
