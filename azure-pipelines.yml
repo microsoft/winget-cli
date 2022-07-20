@@ -278,6 +278,12 @@ jobs:
       TargetFolder: '$(artifactsDir)'
     condition: succeededOrFailed()
 
+  - task: PowerShell@2
+    displayName: 'Copy PowerShell Module Binaries to Output'
+    inputs:
+      filePath: 'src\PowerShell\Microsoft.WinGet.Client\Copy-PlatformBinaries.ps1'
+      arguments: '-Platform $(buildPlatform) -Configuration $(buildConfiguration) -OutDir $(Build.ArtifactStagingDirectory)\Microsoft.WinGet.Client'
+
   - task: PublishPipelineArtifact@1
     displayName: Publish Pipeline Artifacts
     inputs:
@@ -299,3 +305,20 @@ jobs:
 
   - task: securedevelopmentteam.vss-secure-development-tools.build-task-publishsecurityanalysislogs.PublishSecurityAnalysisLogs@2
     displayName: 'Publish Security Analysis Logs'
+
+- job: 'BuildPowerShellModule'
+  timeoutInMinutes: 120
+  dependsOn: 'Build'
+  condition: always()
+
+  steps:
+  - task: PowerShell@2
+    displayName: 'Copy PowerShell Module Files to Output'
+    inputs:
+      filePath: 'src\PowerShell\Microsoft.WinGet.Client\Copy-ModuleFiles.ps1'
+      arguments: '-OutDir $(Build.ArtifactStagingDirectory)\Microsoft.WinGet.Client'
+  
+  - task: PublishPipelineArtifact@1
+    displayName: Publish PowerShell Module Artifacts
+    inputs:
+      targetPath: '$(Build.ArtifactStagingDirectory)\Microsoft.WinGet.Client'
