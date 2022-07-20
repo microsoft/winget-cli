@@ -71,6 +71,7 @@ cfr
 cgi
 cgmanifest
 chcp
+ci
 cinq
 CLIE
 cloudapp
@@ -104,10 +105,9 @@ dllimport
 dnld
 Dobbeleer
 Dsc
-Dst
 dustojnikhummer
 dvinns
-ebug
+dw
 ecfr
 ecfrbrowse
 EFGH
@@ -117,12 +117,12 @@ EQU
 ERANGE
 errno
 ESRB
-estination
 etest
 execustom
 EXEHASH
 experimentalfeatures
 fcb
+fd
 fdw
 fedorapeople
 fileinuse
@@ -199,12 +199,14 @@ IZone
 jdk
 jfearn
 JObject
+jp
 jpalardy
 JREs
 jrsoftware
 jsoncpp
 kayone
 Keivan
+KF
 KNOWNFOLDERID
 ktf
 langs
@@ -227,6 +229,8 @@ lpitemidlist
 LPWSTR
 LSTATUS
 LTDA
+lw
+lz
 malware
 maxvalue
 MBH
@@ -251,6 +255,7 @@ MSIXHASH
 msstore
 Multideclaration
 multimap
+mx
 mycustom
 myinstalldir
 mylog
@@ -272,6 +277,7 @@ npp
 nsis
 nuffing
 nullopt
+NX
 objbase
 objidl
 ofile
@@ -281,6 +287,7 @@ PARAMETERMAP
 paramref
 pathparts
 Patil
+pb
 PCs
 pcwsz
 pdp
@@ -309,6 +316,9 @@ pvm
 pwabuilder
 PWAs
 PWSTR
+px
+pz
+qb
 qword
 rbegin
 readonly
@@ -394,6 +404,7 @@ ucnv
 uec
 uild
 uintptr
+ul
 uninitialize
 uninstallation
 uninstaller
@@ -421,6 +432,7 @@ virtualization
 vns
 vscode
 vstest
+vy
 wcslen
 webpages
 Webserver
@@ -436,6 +448,7 @@ wingetdev
 winreg
 winrtact
 withstarts
+wn
 Workflows
 wsl
 wsv
@@ -450,3 +463,4 @@ yao
 ype
 Zanollo
 ZIPHASH
+zy
