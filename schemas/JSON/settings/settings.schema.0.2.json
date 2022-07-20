@@ -187,6 +187,11 @@
           "description": "Enable use of MSI APIs rather than msiexec for MSI installs",
           "type": "boolean",
           "default": false
+        },
+        "zipInstall": {
+          "description": "Enable support for installing zip packages.",
+          "type": "boolean",
+          "default": false
         }
       }
     }
