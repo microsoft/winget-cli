@@ -59,6 +59,7 @@ namespace AppInstaller::Manifest
         const char* const ArpVersionOverlapWithIndex = "DisplayVersion declared in the manifest has overlap with existing DisplayVersion range in the index. Existing DisplayVersion range in index: ";
         const char* const ArpVersionValidationInternalError = "Internal error while validating DisplayVersion against index.";
         const char* const ExceededNestedInstallerFilesLimit = "Only one entry for NestedInstallerFiles can be specified for non-portable InstallerTypes.";
+        const char* const RelativeFilePathEscapesDirectory = "Relative file path must not point to a location outside of archive directory";
     }
 
     struct ValidationError
