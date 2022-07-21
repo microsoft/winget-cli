@@ -28,6 +28,7 @@ namespace AppInstallerCLIE2ETests
         public const string DefaultMSStoreSourceType = "Microsoft.Rest";
         public const string DefaultMSStoreSourceIdentifier = "StoreEdgeFD";
         public const string TestSourceName = @"TestSource";
+        public const string TestAlternateSourceName = @"TestSource2";
         public const string TestSourceUrl = @"https://localhost:5001/TestKit";
         public const string TestSourceType = "Microsoft.PreIndexed.Package";
         public const string TestSourceIdentifier = @"WingetE2E.Tests_8wekyb3d8bbwe";

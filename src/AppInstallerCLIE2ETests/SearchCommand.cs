@@ -114,7 +114,7 @@ namespace AppInstallerCLIE2ETests
             {
                     new GroupPolicySource
                     {
-                        Name = Constants.TestSourceName,
+                        Name = Constants.TestAlternateSourceName,
                         Arg = Constants.DefaultMSStoreSourceUrl,
                         Type = Constants.DefaultMSStoreSourceType,
                         Identifier = Constants.DefaultMSStoreSourceIdentifier,
@@ -149,7 +149,7 @@ namespace AppInstallerCLIE2ETests
 
             try
             {
-                var result = TestCommon.RunAICLICommand("search", $"-s {Constants.TestSourceName} foo");
+                var result = TestCommon.RunAICLICommand("search", $"-s {Constants.TestAlternateSourceName} foo");
                 Assert.AreEqual(Constants.ErrorCode.ERROR_PINNED_CERTIFICATE_MISMATCH, result.ExitCode);
             }
             finally

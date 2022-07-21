@@ -8,6 +8,7 @@ using System.Linq;
 using System.Xml.Linq;
 using Microsoft.Win32;
 using Newtonsoft.Json;
+using NUnit.Framework;
 
 namespace AppInstallerCLIE2ETests
 {
@@ -270,6 +271,7 @@ namespace AppInstallerCLIE2ETests
             int index = 0;
             foreach (string value in values)
             {
+                TestContext.Out.WriteLine($"Setting {name} list value: {value}");
                 listKey.SetValue(index++.ToString(), value);
             }
 
