@@ -29,7 +29,7 @@ namespace AppInstaller::Utility
                     if (!m_ext.has_value() ||
                         (m_ext.has_value() && path.extension() == m_ext))
                     {
-                        m_files.emplace(path.string());
+                        m_files.emplace(path);
                     }
                     break;
                 }
@@ -43,7 +43,7 @@ namespace AppInstaller::Utility
                     if (!m_ext.has_value() ||
                         (m_ext.has_value() && path.extension() == m_ext))
                     {
-                        auto it = m_files.find(path.string());
+                        auto it = m_files.find(path);
                         if (it != m_files.cend())
                         {
                             m_files.erase(it);
