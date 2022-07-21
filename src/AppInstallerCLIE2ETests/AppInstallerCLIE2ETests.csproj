@@ -19,7 +19,7 @@
 
   <!-- CsWinRT properties -->
   <PropertyGroup>
-    <CsWinRTWindowsMetadata>10.0.17763.0</CsWinRTWindowsMetadata>
+    <CsWinRTWindowsMetadata>10.0.22000.0</CsWinRTWindowsMetadata>
   </PropertyGroup>
 
   <ItemGroup>
