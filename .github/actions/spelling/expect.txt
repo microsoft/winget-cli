@@ -117,6 +117,7 @@ enr
 enums
 EQU
 ERANGE
+errmsg
 errno
 ESRB
 etest
