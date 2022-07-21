@@ -300,6 +300,18 @@ TEST_CASE("SQLiteWrapper_BindWithEmbeddedNull", "[sqlitewrapper]")
     REQUIRE_THROWS_HR(InsertIntoSimpleTestTable(connection, firstVal, secondVal), APPINSTALLER_CLI_ERROR_BIND_WITH_EMBEDDED_NULL);
 }
 
+TEST_CASE("SQLiteWrapper_PrepareFailure", "[sqlitewrapper]")
+{
+    Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
+
+    CreateSimpleTestTable(connection);
+
+    Builder::StatementBuilder builder;
+    builder.Select({ s_firstColumn, s_secondColumn }).From(std::string{ s_tableName } + "2").Where(s_firstColumn).Equals(2);
+
+    REQUIRE_THROWS_HR(builder.Prepare(connection), MAKE_HRESULT(SEVERITY_ERROR, FACILITY_SQLITE, SQLITE_ERROR));
+}
+
 TEST_CASE("SQLBuilder_SimpleSelectBind", "[sqlbuilder]")
 {
     Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
