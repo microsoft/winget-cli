@@ -128,6 +128,18 @@
     <value>An error occurred while searching for packages: {0}</value>
     <comment>{0} - A string representation of the error status returned by the catalog.</comment>
   </data>
+  <data name="ProgressRecordActivityInstalling" xml:space="preserve">
+    <value>Installing '{0}'</value>
+    <comment>{0} - The name of the package being installed.</comment>
+  </data>
+  <data name="ProgressRecordActivityUninstalling" xml:space="preserve">
+    <value>Uninstalling '{0}'</value>
+    <comment>{0} - The name of the package being uninstalled.</comment>
+  </data>
+  <data name="ProgressRecordActivityUpdating" xml:space="preserve">
+    <value>Updating '{0}'</value>
+    <comment>{0} - The name of the package being updated.</comment>
+  </data>
   <data name="RuntimeExceptionCatalogError" xml:space="preserve">
     <value>An error occurred while connecting to the catalog.</value>
   </data>

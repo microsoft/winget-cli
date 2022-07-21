@@ -54,7 +54,9 @@ namespace Microsoft.WinGet.Client.Commands
             InstallOptions options)
         {
             var operation = PackageManager.Value.UpgradePackageAsync(package, options);
-            return this.RegisterCallbacksAndWait(operation, $"Updating '{package.Name}'");
+            return this.RegisterCallbacksAndWait(operation, string.Format(
+                Utilities.ResourceManager.GetString("ProgressRecordActivityUpdating"),
+                package.Name));
         }
     }
 }
