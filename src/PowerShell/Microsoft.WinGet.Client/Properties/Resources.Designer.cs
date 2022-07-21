@@ -88,6 +88,33 @@ namespace Microsoft.WinGet.Client.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Installing &apos;{0}&apos;.
+        /// </summary>
+        internal static string ProgressRecordActivityInstalling {
+            get {
+                return ResourceManager.GetString("ProgressRecordActivityInstalling", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Uninstalling &apos;{0}&apos;.
+        /// </summary>
+        internal static string ProgressRecordActivityUninstalling {
+            get {
+                return ResourceManager.GetString("ProgressRecordActivityUninstalling", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Updating &apos;{0}&apos;.
+        /// </summary>
+        internal static string ProgressRecordActivityUpdating {
+            get {
+                return ResourceManager.GetString("ProgressRecordActivityUpdating", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to An error occurred while connecting to the catalog..
         /// </summary>
         internal static string RuntimeExceptionCatalogError {

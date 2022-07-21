@@ -12,6 +12,12 @@ namespace AppInstallerCLIE2ETests
         private const string InstallTestMsiProductId = @"{A5D36CF1-1993-4F63-BFB4-3ACD910D36A1}";
         private const string InstallTestMsixName = @"6c6338fe-41b7-46ca-8ba6-b5ad5312bb0e";
 
+        [OneTimeSetUp]
+        public void OneTimeSetup()
+        {
+            ConfigureFeature("zipInstall", true);
+        }
+
         [Test]
         public void InstallAppDoesNotExist()
         {
@@ -279,6 +285,14 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
             Assert.True(VerifyTestExeInstalled(installDir, "/execustom"));
+        }
+
+        [Test]
+        public void InstallZipWithInvalidRelativeFilePath()
+        {
+            var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestZipInvalidRelativePath");
+            Assert.AreNotEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Invalid relative file path to the nested installer; path points to a location outside of the install directory"));
         }
 
         [Test]

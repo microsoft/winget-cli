@@ -11,6 +11,7 @@ namespace UndockedRegFreeWinRT
 {
     static const UINT32 g_uiMaxTypeName = 512;
     static wil::unique_process_heap_string g_cachedProcessExeDir;
+    static wil::unique_process_heap_string g_cachedProcessDllDir;
 
     BOOL CALLBACK GetProcessExeDirInitOnceCallback(
         _Inout_     PINIT_ONCE,
@@ -48,6 +49,57 @@ namespace UndockedRegFreeWinRT
 
         // The cache has been successfully populated by the InitOnce, so we can just use it directly.
         *path = g_cachedProcessExeDir.get();
+        return S_OK;
+    }
+
+    BOOL CALLBACK GetProcessDllDirInitOnceCallback(
+        _Inout_     PINIT_ONCE,
+        _Inout_opt_ PVOID,
+        _Out_opt_   PVOID*)
+    {
+        wil::unique_process_heap_string localDllPath;
+        HMODULE hm = NULL;
+
+        // Get handle to the module that contains this function (this one).
+        if (GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
+            GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+            (LPCWSTR)&GetProcessDllDirInitOnceCallback, &hm) == 0)
+        {
+            // Error has already been set (GetLastError).
+            return FALSE;
+        }
+
+        // Get the path for this module.
+        HRESULT hr = wil::GetModuleFileNameW(hm, localDllPath);
+        if (FAILED_LOG(hr))
+        {
+            SetLastError(hr);
+            return FALSE;
+        }
+
+        // Modify the retrieved string to truncate the actual dll name and leave the containing directory path. This API
+        // expects a buffer size including the terminating null, so add 1 to the string length.
+        hr = PathCchRemoveFileSpec(localDllPath.get(), wcslen(localDllPath.get()) + 1);
+        if (FAILED_LOG(hr))
+        {
+            SetLastError(hr);
+            return FALSE;
+        }
+
+        g_cachedProcessDllDir = std::move(localDllPath);
+        return TRUE;
+    }
+
+    // Returned string is cached globally, and should not be freed by the caller.
+    HRESULT GetProcessDllDir(PCWSTR* path)
+    {
+        *path = nullptr;
+        static INIT_ONCE ProcessDllDirInitOnce = INIT_ONCE_STATIC_INIT;
+
+        RETURN_IF_WIN32_BOOL_FALSE(InitOnceExecuteOnce(&ProcessDllDirInitOnce, GetProcessDllDirInitOnceCallback, nullptr, nullptr));
+
+        // The cache has been successfully populated by the InitOnce, so we can just use it directly.
+        *path = g_cachedProcessDllDir.get();
         return S_OK;
     }
 
@@ -446,10 +498,24 @@ namespace UndockedRegFreeWinRT
 
             if (hr == RO_E_METADATA_NAME_NOT_FOUND)
             {
-                // For compatibility purposes, if we fail to find the type in the unpackaged location, we should return
-                // HRESULT_FROM_WIN32(APPMODEL_ERROR_NO_PACKAGE) instead of a "not found" error. This preserves the
-                // behavior that existed before unpackaged type resolution was implemented.
-                hr = HRESULT_FROM_WIN32(APPMODEL_ERROR_NO_PACKAGE);
+                PCWSTR dllDir = nullptr;  // Never freed; owned by process global.
+                RETURN_IF_FAILED(GetProcessDllDir(&dllDir));
+
+                hr = FindTypeInDirectoryWithNormalization(
+                    pMetaDataDispenser,
+                    pszFullName,
+                    dllDir,
+                    phstrMetaDataFilePath,
+                    ppMetaDataImport,
+                    pmdTypeDef);
+
+                if (hr == RO_E_METADATA_NAME_NOT_FOUND)
+                {
+                    // For compatibility purposes, if we fail to find the type in the unpackaged location, we should return
+                    // HRESULT_FROM_WIN32(APPMODEL_ERROR_NO_PACKAGE) instead of a "not found" error. This preserves the
+                    // behavior that existed before unpackaged type resolution was implemented.
+                    hr = HRESULT_FROM_WIN32(APPMODEL_ERROR_NO_PACKAGE);
+                }
             }
             return hr;
         }

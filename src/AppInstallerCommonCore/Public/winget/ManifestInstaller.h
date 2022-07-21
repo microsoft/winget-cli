@@ -104,5 +104,7 @@ namespace AppInstaller::Manifest
         ElevationRequirementEnum ElevationRequirement = ElevationRequirementEnum::Unknown;
 
         MarketsInfo Markets;
+
+        InstallationMetadataInfo InstallationMetadata;
     };
 }
