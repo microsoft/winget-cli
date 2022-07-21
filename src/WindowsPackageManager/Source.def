@@ -8,3 +8,4 @@ EXPORTS
     WindowsPackageManagerInProcModuleInitialize
     WindowsPackageManagerInProcModuleTerminate
     WindowsPackageManagerInProcModuleGetClassObject
+    WindowsPackageManagerInProcModuleGetActivationFactory
