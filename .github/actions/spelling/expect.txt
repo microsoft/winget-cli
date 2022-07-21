@@ -1,7 +1,6 @@
 abcd
 accepteula
 acl
-activatable
 adjacents
 adml
 admx
@@ -12,7 +11,7 @@ aicli
 AICLIC
 ajor
 alreadyinstalled
-amd
+Amd
 amrutha
 anonymized
 APARTMENTTHREADED
@@ -77,6 +76,8 @@ ci
 cinq
 CLIE
 cloudapp
+cls
+clsctx
 clsid
 COINIT
 COMGLB
@@ -118,6 +119,7 @@ endian
 enums
 EQU
 ERANGE
+errmsg
 errno
 ESRB
 etest
@@ -129,6 +131,8 @@ fd
 fdw
 fedorapeople
 fileinuse
+Filtercriteria
+Finalizers
 fintimes
 Fixfor
 flargle
@@ -167,14 +171,18 @@ htm
 IARP
 IAttachment
 IConfiguration
+ICreate
 idx
 IEnum
 IFACEMETHODIMP
 IFile
+IFind
 IGlobal
 IHelp
 IHost
-IID
+iid
+IInstall
+IInstance
 IISOn
 img
 IMutable
@@ -196,6 +204,7 @@ ISQ
 issuecomment
 ISVs
 itr
+IUninstall
 IVector
 IWeb
 IZone
@@ -266,6 +275,7 @@ myinstalldir
 mylog
 mysilent
 mysilentwithprogress
+nameof
 NESTEDINSTALLER
 NETFX
 netlify
@@ -287,12 +297,10 @@ objbase
 objidl
 ofile
 Outptr
-OSVERSION
-Packagedx
-PACL
 packageinuse
 PARAMETERMAP
 paramref
+PACL
 pathparts
 Patil
 pb
@@ -406,6 +414,7 @@ trimstart
 TState
 TStatus
 typeof
+typeparam
 UCase
 ucasemap
 UChars

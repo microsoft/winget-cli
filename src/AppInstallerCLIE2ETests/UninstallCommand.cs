@@ -29,7 +29,7 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("uninstall", Constants.ExeInstallerPackageId);
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully uninstalled"));
-            Assert.True(VerifyTestExeUninstalled(installDir));
+            Assert.True(TestCommon.VerifyTestExeUninstalled(installDir));
         }
 
         [Test]
@@ -46,7 +46,7 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("uninstall", Constants.MsiInstallerPackageId);
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully uninstalled"));
-            Assert.True(VerifyTestMsiUninstalled(installDir));
+            Assert.True(TestCommon.VerifyTestMsiUninstalled(installDir));
         }
 
         [Test]
@@ -57,7 +57,7 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("uninstall", Constants.MsixInstallerPackageId);
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully uninstalled"));
-            Assert.True(VerifyTestMsixUninstalled());
+            Assert.True(TestCommon.VerifyTestMsixUninstalled());
         }
 
         [Test]
@@ -132,7 +132,7 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("uninstall", CustomProductCode);
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully uninstalled"));
-            Assert.True(VerifyTestExeUninstalled(installDir));
+            Assert.True(TestCommon.VerifyTestExeUninstalled(installDir));
         }
 
         [Test]
@@ -142,22 +142,6 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("uninstall", $"TestMsixInstaller");
             Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
             Assert.True(result.StdOut.Contains("No installed package found matching input criteria."));
-        }
-
-        private bool VerifyTestExeUninstalled(string installDir)
-        {
-            return File.Exists(Path.Combine(installDir, UninstallTestExeUninstalledFile));
-        }
-
-        private bool VerifyTestMsiUninstalled(string installDir)
-        {
-            return !File.Exists(Path.Combine(installDir, UninstallTestMsiInstalledFile));
-        }
-
-        private bool VerifyTestMsixUninstalled()
-        {
-            var result = TestCommon.RunCommandWithResult("powershell", $"Get-AppxPackage {UninstallTestMsixName}");
-            return string.IsNullOrWhiteSpace(result.StdOut);
         }
     }
 }
