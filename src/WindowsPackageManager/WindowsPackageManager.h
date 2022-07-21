@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include <hstring.h>
 
 extern "C"
 {
@@ -35,4 +36,7 @@ extern "C"
         REFCLSID rclsid,
         REFIID riid,
         LPVOID* ppv);
+
+    // DllGetActivationFactory for in-proc cpp winrt runtime classes.
+    WINDOWS_PACKAGE_MANAGER_API WindowsPackageManagerInProcModuleGetActivationFactory(HSTRING classId, void** factory);
 }

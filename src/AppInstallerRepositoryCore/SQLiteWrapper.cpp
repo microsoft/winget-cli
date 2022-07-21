@@ -15,18 +15,19 @@ using namespace std::string_view_literals;
 #include <stack>
 #endif
 
-#define THROW_SQLITE(_error_) \
+#define THROW_SQLITE(_error_,_connection_) \
     do { \
         int _ts_sqliteReturnValue = _error_; \
-        THROW_EXCEPTION_MSG(SQLiteException(_ts_sqliteReturnValue), sqlite3_errstr(_ts_sqliteReturnValue)); \
+        sqlite3* _ts_sqliteConnection = _connection_; \
+        THROW_EXCEPTION_MSG(SQLiteException(_ts_sqliteReturnValue), _ts_sqliteConnection ? sqlite3_errmsg(_ts_sqliteConnection) : sqlite3_errstr(_ts_sqliteReturnValue)); \
     } while (0,0)
 
-#define THROW_IF_SQLITE_FAILED(_statement_) \
+#define THROW_IF_SQLITE_FAILED(_statement_,_connection_) \
     do { \
         int _tisf_sqliteReturnValue = _statement_; \
         if (_tisf_sqliteReturnValue != SQLITE_OK) \
         { \
-            THROW_SQLITE(_tisf_sqliteReturnValue); \
+            THROW_SQLITE(_tisf_sqliteReturnValue,_connection_); \
         } \
     } while (0,0)
 
@@ -47,7 +48,7 @@ namespace AppInstaller::Repository::SQLite
     {
         void ParameterSpecificsImpl<nullptr_t>::Bind(sqlite3_stmt* stmt, int index, nullptr_t)
         {
-            THROW_IF_SQLITE_FAILED(sqlite3_bind_null(stmt, index));
+            THROW_IF_SQLITE_FAILED(sqlite3_bind_null(stmt, index), sqlite3_db_handle(stmt));
         }
 
         void ThrowIfContainsEmbeddedNullCharacter(std::string_view v)
@@ -58,7 +59,7 @@ namespace AppInstaller::Repository::SQLite
         void ParameterSpecificsImpl<std::string>::Bind(sqlite3_stmt* stmt, int index, const std::string& v)
         {
             ThrowIfContainsEmbeddedNullCharacter(v);
-            THROW_IF_SQLITE_FAILED(sqlite3_bind_text64(stmt, index, v.c_str(), v.size(), SQLITE_TRANSIENT, SQLITE_UTF8));
+            THROW_IF_SQLITE_FAILED(sqlite3_bind_text64(stmt, index, v.c_str(), v.size(), SQLITE_TRANSIENT, SQLITE_UTF8), sqlite3_db_handle(stmt));
         }
 
         std::string ParameterSpecificsImpl<std::string>::GetColumn(sqlite3_stmt* stmt, int column)
@@ -77,13 +78,13 @@ namespace AppInstaller::Repository::SQLite
             else
             {
                 ThrowIfContainsEmbeddedNullCharacter(v);
-                THROW_IF_SQLITE_FAILED(sqlite3_bind_text64(stmt, index, v.data(), v.size(), SQLITE_TRANSIENT, SQLITE_UTF8));
+                THROW_IF_SQLITE_FAILED(sqlite3_bind_text64(stmt, index, v.data(), v.size(), SQLITE_TRANSIENT, SQLITE_UTF8), sqlite3_db_handle(stmt));
             }
         }
 
         void ParameterSpecificsImpl<int>::Bind(sqlite3_stmt* stmt, int index, int v)
         {
-            THROW_IF_SQLITE_FAILED(sqlite3_bind_int(stmt, index, v));
+            THROW_IF_SQLITE_FAILED(sqlite3_bind_int(stmt, index, v), sqlite3_db_handle(stmt));
         }
 
         int ParameterSpecificsImpl<int>::GetColumn(sqlite3_stmt* stmt, int column)
@@ -93,7 +94,7 @@ namespace AppInstaller::Repository::SQLite
 
         void ParameterSpecificsImpl<int64_t>::Bind(sqlite3_stmt* stmt, int index, int64_t v)
         {
-            THROW_IF_SQLITE_FAILED(sqlite3_bind_int64(stmt, index, v));
+            THROW_IF_SQLITE_FAILED(sqlite3_bind_int64(stmt, index, v), sqlite3_db_handle(stmt));
         }
 
         int64_t ParameterSpecificsImpl<int64_t>::GetColumn(sqlite3_stmt* stmt, int column)
@@ -103,7 +104,7 @@ namespace AppInstaller::Repository::SQLite
 
         void ParameterSpecificsImpl<bool>::Bind(sqlite3_stmt* stmt, int index, bool v)
         {
-            THROW_IF_SQLITE_FAILED(sqlite3_bind_int(stmt, index, (v ? 1 : 0)));
+            THROW_IF_SQLITE_FAILED(sqlite3_bind_int(stmt, index, (v ? 1 : 0)), sqlite3_db_handle(stmt));
         }
 
         bool ParameterSpecificsImpl<bool>::GetColumn(sqlite3_stmt* stmt, int column)
@@ -120,7 +121,7 @@ namespace AppInstaller::Repository::SQLite
 
         void ParameterSpecificsImpl<blob_t>::Bind(sqlite3_stmt* stmt, int index, const blob_t& v)
         {
-            THROW_IF_SQLITE_FAILED(sqlite3_bind_blob64(stmt, index, v.data(), v.size(), SQLITE_TRANSIENT));
+            THROW_IF_SQLITE_FAILED(sqlite3_bind_blob64(stmt, index, v.data(), v.size(), SQLITE_TRANSIENT), sqlite3_db_handle(stmt));
         }
 
         blob_t ParameterSpecificsImpl<blob_t>::GetColumn(sqlite3_stmt* stmt, int column)
@@ -143,14 +144,14 @@ namespace AppInstaller::Repository::SQLite
         AICLI_LOG(SQL, Info, << "Opening SQLite connection: '" << target << "' [" << std::hex << static_cast<int>(disposition) << ", " << std::hex << static_cast<int>(flags) << "]");
         // Always force connection serialization until we determine that there are situations where it is not needed
         int resultingFlags = static_cast<int>(disposition) | static_cast<int>(flags) | SQLITE_OPEN_FULLMUTEX;
-        THROW_IF_SQLITE_FAILED(sqlite3_open_v2(target.c_str(), &m_dbconn, resultingFlags, nullptr));
+        THROW_IF_SQLITE_FAILED(sqlite3_open_v2(target.c_str(), &m_dbconn, resultingFlags, nullptr), nullptr);
     }
 
     Connection Connection::Create(const std::string& target, OpenDisposition disposition, OpenFlags flags)
     {
         Connection result{ target, disposition, flags };
         
-        THROW_IF_SQLITE_FAILED(sqlite3_extended_result_codes(result.m_dbconn.get(), 1));
+        THROW_IF_SQLITE_FAILED(sqlite3_extended_result_codes(result.m_dbconn.get(), 1), result.m_dbconn.get());
 
         return result;
     }
@@ -158,7 +159,7 @@ namespace AppInstaller::Repository::SQLite
     void Connection::EnableICU()
     {
         AICLI_LOG(SQL, Verbose, << "Enabling ICU");
-        THROW_IF_SQLITE_FAILED(sqlite3IcuInit(m_dbconn.get()));
+        THROW_IF_SQLITE_FAILED(sqlite3IcuInit(m_dbconn.get()), m_dbconn.get());
     }
 
     rowid_t Connection::GetLastInsertRowID()
@@ -177,7 +178,7 @@ namespace AppInstaller::Repository::SQLite
         AICLI_LOG(SQL, Verbose, << "Preparing statement #" << m_id << ": " << sql);
         // SQL string size should include the null terminator (https://www.sqlite.org/c3ref/prepare.html)
         assert(sql.data()[sql.size()] == '\0');
-        THROW_IF_SQLITE_FAILED(sqlite3_prepare_v2(connection, sql.data(), static_cast<int>(sql.size() + 1), &m_stmt, nullptr));
+        THROW_IF_SQLITE_FAILED(sqlite3_prepare_v2(connection, sql.data(), static_cast<int>(sql.size() + 1), &m_stmt, nullptr), connection);
     }
 
 #if WINGET_SQLITE_EXPLAIN_QUERY_PLAN_ENABLED
@@ -264,7 +265,7 @@ namespace AppInstaller::Repository::SQLite
             }
             else
             {
-                THROW_SQLITE(result);
+                THROW_SQLITE(result, sqlite3_db_handle(m_stmt.get()));
             }
         }
     }

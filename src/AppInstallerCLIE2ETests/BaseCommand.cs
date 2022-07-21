@@ -5,7 +5,6 @@ namespace AppInstallerCLIE2ETests
 {
     using System;
     using System.IO;
-    using System.Threading;
     using Newtonsoft.Json.Linq;
     using NUnit.Framework;
 
@@ -20,54 +19,14 @@ namespace AppInstallerCLIE2ETests
         [OneTimeTearDown]
         public void BaseTeardown()
         {
-            TestCommon.RunAICLICommand("source reset", "--force");
+            TestCommon.TearDownTestSource();
         }
 
+        // TODO: If/when cert pinning is implemented on the packaged index source, useGroupPolicyForTestSource should be set to default true
+        //       to enable testing it by default.  Until then, leaving this here...
         public void ResetTestSource(bool useGroupPolicyForTestSource = false)
         {
-            TestCommon.RunAICLICommand("source reset", "--force");
-            TestCommon.RunAICLICommand("source remove", Constants.DefaultWingetSourceName);
-            TestCommon.RunAICLICommand("source remove", Constants.DefaultMSStoreSourceName);
-
-            // TODO: If/when cert pinning is implemented on the packaged index source, useGroupPolicyForTestSource should be set to default true
-            //       to enable testing it by default.  Until then, leaving this here...
-            if (useGroupPolicyForTestSource)
-            {
-                GroupPolicyHelper.EnableAdditionalSources.SetEnabledList(new GroupPolicySource[]
-                {
-                    new GroupPolicySource
-                    {
-                        Name = Constants.TestSourceName,
-                        Arg = Constants.TestSourceUrl,
-                        Type = Constants.TestSourceType,
-                        Data = Constants.TestSourceIdentifier,
-                        Identifier = Constants.TestSourceIdentifier,
-                        CertificatePinning = new GroupPolicyCertificatePinning
-                        {
-                            Chains = new GroupPolicyCertificatePinningChain[] {
-                                new GroupPolicyCertificatePinningChain
-                                {
-                                    Chain = new GroupPolicyCertificatePinningDetails[]
-                                    {
-                                        new GroupPolicyCertificatePinningDetails
-                                        {
-                                            Validation = new string[] { "publickey" },
-                                            EmbeddedCertificate = TestCommon.GetTestServerCertificateHexString()
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-            else
-            {
-                GroupPolicyHelper.EnableAdditionalSources.SetNotConfigured();
-                TestCommon.RunAICLICommand("source add", $"{Constants.TestSourceName} {Constants.TestSourceUrl}");
-            }
-
-            Thread.Sleep(2000);
+            TestCommon.SetupTestSource(useGroupPolicyForTestSource);
         }
 
         public void ConfigureFeature(string featureName, bool status)

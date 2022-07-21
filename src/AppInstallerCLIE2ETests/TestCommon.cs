@@ -351,5 +351,122 @@ namespace AppInstallerCLIE2ETests
         {
             return Convert.ToHexString(File.ReadAllBytes(Path.Combine(StaticFileRootPath, Constants.TestSourceServerCertificateFileName)));
         }
+
+        public static bool VerifyTestExeInstalledAndCleanup(string installDir, string expectedContent = null)
+        {
+            if (!File.Exists(Path.Combine(installDir, Constants.TestExeInstalledFileName)))
+            {
+                return false;
+            }
+
+            if (!string.IsNullOrEmpty(expectedContent))
+            {
+                string content = File.ReadAllText(Path.Combine(installDir, Constants.TestExeInstalledFileName));
+                return content.Contains(expectedContent);
+            }
+
+            return RunCommand(Path.Combine(installDir, Constants.TestExeUninstallerFileName));
+        }
+
+        public static bool VerifyTestMsiInstalledAndCleanup(string installDir)
+        {
+            if (!File.Exists(Path.Combine(installDir, Constants.AppInstallerTestExeInstallerExe)))
+            {
+                return false;
+            }
+
+            return RunCommand("msiexec.exe", $"/qn /x {Constants.MsiInstallerProductCode}");
+        }
+
+        public static bool VerifyTestMsixInstalledAndCleanup()
+        {
+            var result = RunCommandWithResult("powershell", $"Get-AppxPackage {Constants.MsixInstallerName}");
+
+            if (!result.StdOut.Contains(Constants.MsixInstallerName))
+            {
+                return false;
+            }
+
+            return RemoveMsix(Constants.MsixInstallerName);
+        }
+
+        public static bool VerifyTestExeUninstalled(string installDir)
+        {
+            return File.Exists(Path.Combine(installDir, Constants.TestExeUninstalledFileName));
+        }
+
+        public static bool VerifyTestMsiUninstalled(string installDir)
+        {
+            return !File.Exists(Path.Combine(installDir, Constants.AppInstallerTestExeInstallerExe));
+        }
+
+        public static bool VerifyTestMsixUninstalled()
+        {
+            var result = RunCommandWithResult("powershell", $"Get-AppxPackage {Constants.MsixInstallerName}");
+            return string.IsNullOrWhiteSpace(result.StdOut);
+        }
+
+        public static void ModifyPortableARPEntryValue(string productCode, string name, string value)
+        {
+            const string uninstallSubKey = @"Software\Microsoft\Windows\CurrentVersion\Uninstall";
+            using (RegistryKey uninstallRegistryKey = Registry.CurrentUser.OpenSubKey(uninstallSubKey, true))
+            {
+                RegistryKey entry = uninstallRegistryKey.OpenSubKey(productCode, true);
+                entry.SetValue(name, value);
+            }
+        }
+
+        public static void SetupTestSource(bool useGroupPolicyForTestSource = false)
+        {
+            TestCommon.RunAICLICommand("source reset", "--force");
+            TestCommon.RunAICLICommand("source remove", Constants.DefaultWingetSourceName);
+            TestCommon.RunAICLICommand("source remove", Constants.DefaultMSStoreSourceName);
+
+            // TODO: If/when cert pinning is implemented on the packaged index source, useGroupPolicyForTestSource should be set to default true
+            //       to enable testing it by default.  Until then, leaving this here...
+            if (useGroupPolicyForTestSource)
+            {
+                GroupPolicyHelper.EnableAdditionalSources.SetEnabledList(new GroupPolicySource[]
+                {
+                    new GroupPolicySource
+                    {
+                        Name = Constants.TestSourceName,
+                        Arg = Constants.TestSourceUrl,
+                        Type = Constants.TestSourceType,
+                        Data = Constants.TestSourceIdentifier,
+                        Identifier = Constants.TestSourceIdentifier,
+                        CertificatePinning = new GroupPolicyCertificatePinning
+                        {
+                            Chains = new GroupPolicyCertificatePinningChain[] {
+                                new GroupPolicyCertificatePinningChain
+                                {
+                                    Chain = new GroupPolicyCertificatePinningDetails[]
+                                    {
+                                        new GroupPolicyCertificatePinningDetails
+                                        {
+                                            Validation = new string[] { "publickey" },
+                                            EmbeddedCertificate = TestCommon.GetTestServerCertificateHexString()
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            else
+            {
+                GroupPolicyHelper.EnableAdditionalSources.SetNotConfigured();
+                TestCommon.RunAICLICommand("source add", $"{Constants.TestSourceName} {Constants.TestSourceUrl}");
+            }
+
+            Thread.Sleep(2000);
+        }
+
+        public static void TearDownTestSource()
+        {
+            RunAICLICommand("source remove", Constants.TestSourceName);
+            RunAICLICommand("source reset", "--force");
+        }
     }
 }

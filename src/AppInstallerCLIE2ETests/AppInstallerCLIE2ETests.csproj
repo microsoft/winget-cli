@@ -11,10 +11,16 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Msix.Utils" Version="2.0.3" />
     <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="1.6.4" />
     <PackageReference Include="nunit" Version="3.12.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.15.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0" />
   </ItemGroup>
+
+  <!-- CsWinRT properties -->
+  <PropertyGroup>
+    <CsWinRTWindowsMetadata>10.0.17763.0</CsWinRTWindowsMetadata>
+  </PropertyGroup>
 
   <ItemGroup>
     <Content Include="TestData\**">
@@ -30,6 +36,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\IndexCreationTool\IndexCreationTool.csproj" />
+    <ProjectReference Include="..\Microsoft.Management.Deployment.Projection\Microsoft.Management.Deployment.Projection.csproj" />
+    <ProjectReference Include="..\Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.InProc.vcxproj">
+      <ReferenceOutputAssembly>False</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\WindowsPackageManager\WindowsPackageManager.vcxproj">
+      <ReferenceOutputAssembly>False</ReferenceOutputAssembly>
+    </ProjectReference>
   </ItemGroup>
 
   <ItemGroup>
@@ -38,4 +51,9 @@
     </None>
   </ItemGroup>
 
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+      <!-- Rename dll to align with the expected search pattern performed by CsWinRT -->
+    <Copy SourceFiles="$(TargetDir)..\Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.InProc.dll" DestinationFiles="$(TargetDir)Microsoft.Management.Deployment.dll" />
+    <Copy SourceFiles="$(TargetDir)..\WindowsPackageManager\WindowsPackageManager.dll" DestinationFiles="$(TargetDir)WindowsPackageManager.dll" />
+  </Target>
 </Project>
