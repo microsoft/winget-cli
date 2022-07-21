@@ -63,7 +63,10 @@ namespace Microsoft.WinGet.Client.Commands
             CatalogPackage package,
             UninstallOptions options)
         {
-            string activity = $"Uninstalling '{package.Name}'";
+            string activity = string.Format(
+                Utilities.ResourceManager.GetString("ProgressRecordActivityUninstalling"),
+                package.Name);
+
             var operation = PackageManager.Value.UninstallPackageAsync(package, options);
             WriteProgressAdapter adapter = new (this);
             operation.Progress = (context, progress) =>
