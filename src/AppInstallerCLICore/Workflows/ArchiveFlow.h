@@ -16,4 +16,10 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: Installer, InstallerPath
     // Outputs: None
     void VerifyAndSetNestedInstaller(Execution::Context& context);
+
+    // Verifies that the metadata related to the NestedInstaller is valid
+    // Required Args: None
+    // Inputs: Installer, InstallerPath
+    // Outputs: None
+    void EnsureValidNestedInstallerMetadataForArchiveInstall(Execution::Context& context);
 }

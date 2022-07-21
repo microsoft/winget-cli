@@ -8,6 +8,12 @@ namespace AppInstallerCLIE2ETests
 
     public class InstallCommand : BaseCommand
     {
+        [OneTimeSetUp]
+        public void OneTimeSetup()
+        {
+            ConfigureFeature("zipInstall", true);
+        }
+
         [Test]
         public void InstallAppDoesNotExist()
         {
@@ -275,6 +281,14 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
             Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/execustom"));
+        }
+
+        [Test]
+        public void InstallZipWithInvalidRelativeFilePath()
+        {
+            var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestZipInvalidRelativePath");
+            Assert.AreNotEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Invalid relative file path to the nested installer; path points to a location outside of the install directory"));
         }
 
         [Test]

@@ -314,6 +314,7 @@ namespace AppInstaller::Manifest
                 {
                     { "NestedInstallerType", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->NestedInstallerType = ConvertToInstallerTypeEnum(value.as<std::string>()); return {}; } },
                     { "NestedInstallerFiles", [this](const YAML::Node& value)->ValidationErrors { return ProcessNestedInstallerFilesNode(value); } },
+                    { "InstallationMetadata", [this](const YAML::Node& value)->ValidationErrors { m_p_installationMetadata = &(m_p_installer->InstallationMetadata); return ValidateAndProcessFields(value, InstallationMetadataFieldInfos); } },
                 };
 
                 std::move(fields_v1_3.begin(), fields_v1_3.end(), std::inserter(result, result.end()));
@@ -586,6 +587,40 @@ namespace AppInstaller::Manifest
         return result;
     }
 
+    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetInstallationMetadataFieldProcessInfo(const ManifestVer& manifestVersion)
+    {
+        std::vector<FieldProcessInfo> result = {};
+
+        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_3 })
+        {
+            result =
+            {
+                { "DefaultInstallLocation", [this](const YAML::Node& value)->ValidationErrors { m_p_installationMetadata->DefaultInstallLocation = Utility::Trim(value.as<std::string>()); return {}; } },
+                { "Files", [this](const YAML::Node& value)->ValidationErrors { return ProcessInstallationMetadataFilesNode(value); } },
+            };
+        }
+
+        return result;
+    }
+
+    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetInstallationMetadataFilesFieldProcessInfo(const ManifestVer& manifestVersion)
+    {
+        std::vector<FieldProcessInfo> result = {};
+
+        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_3 })
+        {
+            result =
+            {
+                { "RelativeFilePath", [this](const YAML::Node& value)->ValidationErrors { m_p_installedFile->RelativeFilePath = Utility::Trim(value.as<std::string>()); return {}; } },
+                { "FileSha256", [this](const YAML::Node& value)->ValidationErrors { m_p_installedFile->FileSha256 = Utility::SHA256::ConvertToBytes(value.as<std::string>()); return {}; } },
+                { "FileType", [this](const YAML::Node& value)->ValidationErrors { m_p_installedFile->FileType = ConvertToInstalledFileTypeEnum(value.as<std::string>()); return {}; } },
+                { "InvocationParameter", [this](const YAML::Node& value)->ValidationErrors { m_p_installedFile->InvocationParameter = Utility::Trim(value.as<std::string>()); return {}; } },
+            };
+        }
+
+        return result;
+    }
+
     ValidationErrors ManifestYamlPopulator::ValidateAndProcessFields(
         const YAML::Node& rootNode,
         const std::vector<FieldProcessInfo>& fieldInfos)
@@ -804,6 +839,30 @@ namespace AppInstaller::Manifest
         return resultErrors;
     }
 
+    std::vector<ValidationError> ManifestYamlPopulator::ProcessInstallationMetadataFilesNode(const YAML::Node& installedFilesNode)
+    {
+        THROW_HR_IF(E_INVALIDARG, !installedFilesNode.IsSequence());
+
+        ValidationErrors resultErrors;
+        std::vector<InstalledFile> installedFiles;
+
+        for (auto const& entry : installedFilesNode.Sequence())
+        {
+            InstalledFile installedFile;
+            m_p_installedFile = &installedFile;
+            auto errors = ValidateAndProcessFields(entry, InstallationMetadataFilesFieldInfos);
+            std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
+            installedFiles.emplace_back(std::move(installedFile));
+        }
+
+        if (!installedFiles.empty())
+        {
+            m_p_installationMetadata->Files = installedFiles;
+        }
+
+        return resultErrors;
+    }
+
     ValidationErrors ManifestYamlPopulator::PopulateManifestInternal(
         const YAML::Node& rootNode,
         Manifest& manifest,
@@ -829,6 +888,8 @@ namespace AppInstaller::Manifest
         AppsAndFeaturesEntryFieldInfos = GetAppsAndFeaturesEntryFieldProcessInfo(manifestVersion);
         DocumentationFieldInfos = GetDocumentationFieldProcessInfo(manifestVersion);
         NestedInstallerFileFieldInfos = GetNestedInstallerFileFieldProcessInfo(manifestVersion);
+        InstallationMetadataFieldInfos = GetInstallationMetadataFieldProcessInfo(manifestVersion);
+        InstallationMetadataFilesFieldInfos = GetInstallationMetadataFilesFieldProcessInfo(manifestVersion);
 
         // Populate root
         m_p_manifest = &manifest;

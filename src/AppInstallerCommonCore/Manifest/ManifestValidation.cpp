@@ -6,6 +6,7 @@
 #include "winget/MsixManifest.h"
 #include "winget/ManifestValidation.h"
 #include "winget/Locale.h"
+#include "winget/Filesystem.h"
 
 namespace AppInstaller::Manifest
 {
@@ -195,6 +196,15 @@ namespace AppInstaller::Manifest
                     if (nestedInstallerFile.RelativeFilePath.empty())
                     {
                         resultErrors.emplace_back(ManifestError::RequiredFieldMissing, "RelativeFilePath");
+                    }
+                    else
+                    {
+                        const std::filesystem::path& basePath = std::filesystem::current_path();
+                        const std::filesystem::path& fullPath = basePath / ConvertToUTF16(nestedInstallerFile.RelativeFilePath);
+                        if (AppInstaller::Filesystem::PathEscapesBaseDirectory(fullPath, basePath))
+                        {
+                            resultErrors.emplace_back(ManifestError::RelativeFilePathEscapesDirectory, "RelativeFilePath");
+                        }
                     }
                 }
             }
