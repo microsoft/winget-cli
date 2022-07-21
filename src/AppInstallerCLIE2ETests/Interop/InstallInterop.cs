@@ -62,7 +62,7 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Assert
             Assert.AreEqual(InstallResultStatus.NoApplicableInstallers, installResult.Status);
-            Assert.False(TestCommon.VerifyTestExeInstalled(installDir));
+            Assert.False(TestCommon.VerifyTestExeInstalledAndCleanup(installDir));
         }
 
         [Test]
@@ -81,7 +81,7 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Assert
             Assert.AreEqual(InstallResultStatus.DownloadError, installResult.Status);
-            Assert.False(TestCommon.VerifyTestExeInstalled(installDir));
+            Assert.False(TestCommon.VerifyTestExeInstalledAndCleanup(installDir));
         }
 
         [Test]
@@ -100,7 +100,7 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Assert
             Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
-            Assert.True(TestCommon.VerifyTestExeInstalled(installDir));
+            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir));
         }
 
         [Test]
@@ -119,7 +119,7 @@ namespace AppInstallerCLIE2ETests.Interop
             
             // Assert
             Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
-            Assert.True(TestCommon.VerifyTestExeInstalled(installDir));
+            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir));
         }
 
         [Test]
@@ -138,7 +138,7 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Assert
             Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
-            Assert.True(TestCommon.VerifyTestExeInstalled(installDir));
+            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir));
         }
 
         [Test]

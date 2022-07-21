@@ -31,7 +31,7 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller --silent -l {installDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
-            Assert.True(TestCommon.VerifyTestExeInstalled(installDir, "/execustom"));
+            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/execustom"));
         }
 
         [Test]
@@ -41,7 +41,7 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("install", $"InapplicableOsVersion --silent -l {installDir}");
             // MinOSVersion is moved to installer level, the check is performed during installer selection
             Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICABLE_INSTALLER, result.ExitCode);
-            Assert.False(TestCommon.VerifyTestExeInstalled(installDir));
+            Assert.False(TestCommon.VerifyTestExeInstalledAndCleanup(installDir));
         }
 
         [Test]
@@ -51,7 +51,7 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("install", $"TestExeSha256Mismatch --silent -l {installDir}");
             Assert.AreEqual(Constants.ErrorCode.ERROR_INSTALLER_HASH_MISMATCH, result.ExitCode);
             Assert.True(result.StdOut.Contains("Installer hash does not match"));
-            Assert.False(TestCommon.VerifyTestExeInstalled(installDir));
+            Assert.False(TestCommon.VerifyTestExeInstalledAndCleanup(installDir));
         }
 
         [Test]
@@ -62,7 +62,7 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("install", $"TestInnoInstaller --silent -l {installDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
-            Assert.True(TestCommon.VerifyTestExeInstalled(installDir, "/VERYSILENT"));
+            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/VERYSILENT"));
         }
 
         [Test]
@@ -73,7 +73,7 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("install", $"TestBurnInstaller --silent -l {installDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
-            Assert.True(TestCommon.VerifyTestExeInstalled(installDir, "/quiet"));
+            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/quiet"));
         }
 
         [Test]
@@ -84,7 +84,7 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("install", $"TestNullsoftInstaller --silent -l {installDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
-            Assert.True(TestCommon.VerifyTestExeInstalled(installDir, "/S"));
+            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/S"));
         }
 
         [Test]
@@ -143,7 +143,7 @@ namespace AppInstallerCLIE2ETests
                 Assert.True(result.StdOut.Contains("Failed when searching source: failSearch"));
                 Assert.True(result.StdOut.Contains("AppInstallerTest.TestExeInstaller"));
                 Assert.False(result.StdOut.Contains("Successfully installed"));
-                Assert.False(TestCommon.VerifyTestExeInstalled(installDir));
+                Assert.False(TestCommon.VerifyTestExeInstalledAndCleanup(installDir));
             }
             finally
             {
@@ -274,7 +274,7 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestZipInstallerWithExe --silent -l {installDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
-            Assert.True(TestCommon.VerifyTestExeInstalled(installDir, "/execustom"));
+            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/execustom"));
         }
 
         [Test]

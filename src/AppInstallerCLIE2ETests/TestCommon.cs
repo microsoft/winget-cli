@@ -344,7 +344,7 @@ namespace AppInstallerCLIE2ETests
             }
         }
 
-        public static bool VerifyTestExeInstalled(string installDir, string expectedContent = null)
+        public static bool VerifyTestExeInstalledAndCleanup(string installDir, string expectedContent = null)
         {
             if (!File.Exists(Path.Combine(installDir, Constants.TestExeInstalledFileName)))
             {
@@ -357,8 +357,7 @@ namespace AppInstallerCLIE2ETests
                 return content.Contains(expectedContent);
             }
 
-            RunCommand(Path.Combine(installDir, Constants.TestExeUninstallerFileName));
-            return true;
+            return RunCommand(Path.Combine(installDir, Constants.TestExeUninstallerFileName));
         }
 
         public static bool VerifyTestMsiInstalledAndCleanup(string installDir)

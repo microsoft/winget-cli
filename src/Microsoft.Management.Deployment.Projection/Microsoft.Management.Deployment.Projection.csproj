@@ -14,7 +14,7 @@
 
   <!-- CsWinRT properties -->
   <PropertyGroup>
-    <CsWinRTWindowsMetadata>10.0.19041.0</CsWinRTWindowsMetadata>
+    <CsWinRTWindowsMetadata>10.0.17763.0</CsWinRTWindowsMetadata>
     <CsWinRTIncludes>Microsoft.Management.Deployment;Windows.Foundation;Windows.System.ProcessorArchitecture</CsWinRTIncludes>
     <CsWinRTExcludes>Windows.Foundation.Diagnostics</CsWinRTExcludes>
   </PropertyGroup>
