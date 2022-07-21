@@ -629,12 +629,14 @@ namespace AppInstaller::Repository
         {
             if (GroupPolicies().GetState(TogglePolicy::Policy::AdditionalSources) == PolicyState::Enabled)
             {
+                AICLI_LOG(Repo, Verbose, << "Additional sources GP is enabled...");
                 auto additionalSourcesOpt = GroupPolicies().GetValueRef<ValuePolicy::AdditionalSources>();
                 if (additionalSourcesOpt.has_value())
                 {
                     const auto& additionalSources = additionalSourcesOpt->get();
                     for (const auto& additionalSource : additionalSources)
                     {
+                        AICLI_LOG(Repo, Verbose, << "... with configured source " << additionalSource.Name);
                         SourceDetailsInternal details;
                         details.Name = additionalSource.Name;
                         details.Type = additionalSource.Type;
@@ -642,9 +644,20 @@ namespace AppInstaller::Repository
                         details.Data = additionalSource.Data;
                         details.Identifier = additionalSource.Identifier;
                         details.Origin = SourceOrigin::GroupPolicy;
+#ifndef AICLI_DISABLE_TEST_HOOKS
+                        details.CertificatePinningConfiguration = additionalSource.PinningConfiguration;
+#endif
                         result.emplace_back(std::move(details));
                     }
                 }
+                else
+                {
+                    AICLI_LOG(Repo, Verbose, << "... but has no values.");
+                }
+            }
+            else
+            {
+                AICLI_LOG(Repo, Verbose, << "Additional sources GP is not enabled.");
             }
         }
         break;

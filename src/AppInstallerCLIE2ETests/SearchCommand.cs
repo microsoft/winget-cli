@@ -149,7 +149,7 @@ namespace AppInstallerCLIE2ETests
 
             try
             {
-                var result = TestCommon.RunAICLICommand("search", $"-s {Constants.TestAlternateSourceName} foo");
+                var result = TestCommon.RunAICLICommand("search", $"-s {Constants.TestAlternateSourceName} foo --verbose-logs");
                 Assert.AreEqual(Constants.ErrorCode.ERROR_PINNED_CERTIFICATE_MISMATCH, result.ExitCode);
             }
             finally

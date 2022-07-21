@@ -216,10 +216,6 @@ namespace AppInstallerCLIE2ETests
                 {
                     enableSelfInitiatedMinidump = true
                 },
-                logging = new
-                {
-                    level = "verbose"
-                },
             };
 
             var serializedSettingsJson = JsonConvert.SerializeObject(settingsJson, Formatting.Indented);
