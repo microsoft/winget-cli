@@ -14,3 +14,5 @@ Get-ChildItem -Path $PSScriptRoot\Library -Filter *.ps1 | foreach-object { . $_.
 class WinGetVersionMismatch : Exception {
 	WinGetVersionMismatch([string] $message) : base($message) {}
 }
+
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
