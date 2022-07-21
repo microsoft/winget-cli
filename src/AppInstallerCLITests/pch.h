@@ -17,6 +17,7 @@
 #include <winrt/Windows.Globalization.h>
 #include <winrt/Windows.Management.Deployment.h>
 
+#include <wil/filesystem.h>
 #include <wil/resource.h>
 #include <wil/result_macros.h>
 #include <wil/token_helpers.h>

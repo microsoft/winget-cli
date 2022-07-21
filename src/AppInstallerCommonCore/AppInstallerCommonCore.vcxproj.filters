@@ -201,9 +201,12 @@
     <ClInclude Include="Public\winget\MsixManifest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Public\winget\FolderFileWatcher.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
     <ClInclude Include="Public\winget\Archive.h">
       <Filter>Public\winget</Filter>
-    </ClInclude>    
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -353,9 +356,12 @@
     <ClCompile Include="MsixManifest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="FolderFileWatcher.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Archive.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>    
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />

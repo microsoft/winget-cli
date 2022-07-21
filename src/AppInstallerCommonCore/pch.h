@@ -56,6 +56,7 @@
 #include <stack>
 #include <string_view>
 #include <type_traits>
+#include <unordered_set>
 #include <vector>
 
 #pragma warning( push )
@@ -66,6 +67,7 @@
 #include <wil/safecast.h>
 #include <wil/token_helpers.h>
 #include <wil/com.h>
+#include <wil/filesystem.h>
 #pragma warning( pop )
 
 #ifndef WINGET_DISABLE_FOR_FUZZING

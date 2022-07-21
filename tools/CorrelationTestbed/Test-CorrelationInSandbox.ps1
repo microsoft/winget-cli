@@ -240,7 +240,7 @@ if (-not $UseDev)
   # Extract Microsoft.UI.Xaml from zip (if freshly downloaded).
   # This is a workaround until https://github.com/microsoft/winget-cli/issues/1861 is resolved.
 
-  if (-Not (Test-Path (Join-Path -Path $tampFolder -ChildPath \Microsoft.UI.Xaml.2.7\tools\AppX\x64\Release\Microsoft.UI.Xaml.2.7.appx)))
+  if (-Not (Test-Path (Join-Path -Path $tempFolder -ChildPath \Microsoft.UI.Xaml.2.7\tools\AppX\x64\Release\Microsoft.UI.Xaml.2.7.appx)))
   {
     Expand-Archive -Path $uiLibsUwp.file -DestinationPath ($tempFolder + "\Microsoft.UI.Xaml.2.7") -Force
   }

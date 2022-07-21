@@ -26,6 +26,7 @@ namespace TestCommon
     struct TempFile
     {
         TempFile(const std::string& baseName, const std::string& baseExt, bool deleteFileOnConstruction = true);
+        TempFile(const std::filesystem::path& parent, const std::string& baseName, const std::string& baseExt, bool deleteFileOnConstruction = true);
         TempFile(const std::filesystem::path& filePath, bool deleteFileOnConstruction = true);
 
         TempFile(const TempFile&) = delete;
@@ -39,6 +40,8 @@ namespace TestCommon
         const std::filesystem::path& GetPath() const { return _filepath; }
         operator const std::filesystem::path& () const { return _filepath; }
         operator const std::string() const { return _filepath.u8string(); }
+
+        void Rename(const std::filesystem::path& newFilePath);
 
         static void SetDestructorBehavior(TempFileDestructionBehavior behavior);
 
