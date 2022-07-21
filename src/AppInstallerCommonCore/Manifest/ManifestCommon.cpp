@@ -375,6 +375,27 @@ namespace AppInstaller::Manifest
         return result;
     }
 
+    InstalledFileTypeEnum ConvertToInstalledFileTypeEnum(const std::string& in)
+    {
+        std::string inStrLower = Utility::ToLower(in);
+        InstalledFileTypeEnum result = InstalledFileTypeEnum::Unknown;
+
+        if (inStrLower == "launch")
+        {
+            result = InstalledFileTypeEnum::Launch;
+        }
+        else if (inStrLower == "uninstall")
+        {
+            result = InstalledFileTypeEnum::Uninstall;
+        }
+        else if (inStrLower == "other")
+        {
+            result = InstalledFileTypeEnum::Other;
+        }
+
+        return result;
+    }
+
     std::string_view InstallerTypeToString(InstallerTypeEnum installerType)
     {
         switch (installerType)

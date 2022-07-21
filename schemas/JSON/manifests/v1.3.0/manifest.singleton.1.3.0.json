@@ -145,6 +145,7 @@
             "description": "The command alias to be used for calling the package. Only applies to the nested portable package"
           }
         },
+        "required": [ "RelativeFilePath" ],
         "description": "A nested installer file contained inside an archive"
       },
       "maxItems": 1024,
@@ -554,6 +555,58 @@
       ],
       "description": "The installer's elevation requirement"
     },
+    "InstallationMetadata": {
+      "type": "object",
+      "title": "InstallationMetadata",
+      "properties": {
+        "DefaultInstallLocation": {
+          "type": [ "string", "null" ],
+          "minLength": 1,
+          "maxLength": 2048,
+          "description": "Represents the default installed package location. Used for deeper installation detection."
+        },
+        "Files": {
+          "type": [ "array", "null" ],
+          "uniqueItems": true,
+          "items": {
+            "type": "object",
+            "title": "InstalledFile",
+            "properties": {
+              "RelativeFilePath": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2048,
+                "description": "The relative path to the installed file."
+              },
+              "FileSha256": {
+                "type": [ "string", "null" ],
+                "pattern": "^[A-Fa-f0-9]{64}$",
+                "description": "Optional Sha256 of the installed file."
+              },
+              "FileType": {
+                "type": [ "string", "null" ],
+                "enum": [
+                  "launch",
+                  "uninstall",
+                  "other"
+                ],
+                "description": "The optional installed file type. If not specified, the file is treated as other."
+              },
+              "InvocationParameter": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2048,
+                "description": "Optional parameter for invocable files."
+              }
+            },
+            "required": [ "RelativeFilePath" ],
+            "description": "Represents an installed file."
+          },
+          "description": "List of installed files."
+        }
+      },
+      "description": "Details about the installation. Used for deeper installation detection."
+    },
     "Installer": {
       "type": "object",
       "properties": {
@@ -651,6 +704,9 @@
         "RequireExplicitUpgrade": {
           "$ref": "#/definitions/RequireExplicitUpgrade"
         },
+        "DisplayInstallWarnings": {
+          "$ref": "#/definitions/DisplayInstallWarnings"
+        },
         "UnsupportedOSArchitectures": {
           "$ref": "#/definitions/UnsupportedOSArchitectures"
         },
@@ -662,6 +718,9 @@
         },
         "ElevationRequirement": {
           "$ref": "#/definitions/ElevationRequirement"
+        },
+        "InstallationMetadata": {
+          "$ref": "#/definitions/InstallationMetadata"
         }
       },
       "required": [
@@ -873,6 +932,9 @@
     "RequireExplicitUpgrade": {
       "$ref": "#/definitions/RequireExplicitUpgrade"
     },
+    "DisplayInstallWarnings": {
+      "$ref": "#/definitions/DisplayInstallWarnings"
+    },
     "UnsupportedOSArchitectures": {
       "$ref": "#/definitions/UnsupportedOSArchitectures"
     },
@@ -884,6 +946,9 @@
     },
     "ElevationRequirement": {
       "$ref": "#/definitions/ElevationRequirement"
+    },
+    "InstallationMetadata": {
+      "$ref": "#/definitions/InstallationMetadata"
     },
     "Installers": {
       "type": "array",
