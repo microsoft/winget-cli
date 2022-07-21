@@ -159,6 +159,14 @@ namespace AppInstaller::Manifest
         Location
     };
 
+    enum class InstalledFileTypeEnum
+    {
+        Unknown,
+        Launch,
+        Uninstall,
+        Other,
+    };
+
     enum class ManifestTypeEnum
     {
         Singleton,
@@ -253,6 +261,20 @@ namespace AppInstaller::Manifest
         string_t PortableCommandAlias;
     };
 
+    struct InstalledFile
+    {
+        string_t RelativeFilePath;
+        std::vector<BYTE> FileSha256;
+        InstalledFileTypeEnum FileType = InstalledFileTypeEnum::Other;
+        string_t InvocationParameter;
+    };
+
+    struct InstallationMetadataInfo
+    {
+        string_t DefaultInstallLocation;
+        std::vector<InstalledFile> Files;
+    };
+
     InstallerTypeEnum ConvertToInstallerTypeEnum(const std::string& in);
 
     UpdateBehaviorEnum ConvertToUpdateBehaviorEnum(const std::string& in);
@@ -270,6 +292,8 @@ namespace AppInstaller::Manifest
     ManifestTypeEnum ConvertToManifestTypeEnum(const std::string& in);
 
     ExpectedReturnCodeEnum ConvertToExpectedReturnCodeEnum(const std::string& in);
+
+    InstalledFileTypeEnum ConvertToInstalledFileTypeEnum(const std::string& in);
 
     std::string_view InstallerTypeToString(InstallerTypeEnum installerType);
 
