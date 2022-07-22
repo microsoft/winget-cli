@@ -187,10 +187,12 @@ TEST_CASE("FolderFileWatcher_CreateNewFilesAndDelete", "[FolderFileWatcher]")
         TempFile tempFile3(dirToWatch.GetPath(), "file3_", ".txt");
         tempFile3Path = tempFile3.GetPath();
         WriteText(tempFile3Path);
+        std::filesystem::remove(tempFile3Path);
 
         TempFile tempFile4(newTestDir, "file4_", ".txt");
         tempFile4Path = tempFile4.GetPath();
         WriteText(tempFile4Path);
+        std::filesystem::remove(tempFile4Path);
     }
 
     std::this_thread::sleep_for(100ms);
@@ -358,10 +360,12 @@ TEST_CASE("FolderFileWatcher_Extension_CreateNewFilesAndDelete", "[FolderFileWat
         TempFile tempFile3(dirToWatch.GetPath(), "file3_", ".txt");
         tempFile3Path = tempFile3.GetPath();
         WriteText(tempFile3Path);
+        std::filesystem::remove(tempFile3Path);
 
         TempFile tempFile4(newTestDir, "file4_", ".txt");
         tempFile4Path = tempFile4.GetPath();
         WriteText(tempFile4Path);
+        std::filesystem::remove(tempFile4Path);
     }
 
     std::this_thread::sleep_for(100ms);
