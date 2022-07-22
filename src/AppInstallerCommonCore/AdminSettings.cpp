@@ -201,7 +201,7 @@ namespace AppInstaller::Settings
             PolicyState localManifestFilesPolicy = GroupPolicies().GetState(TogglePolicy::Policy::LocalManifestFiles);
             if (localManifestFilesPolicy != PolicyState::NotConfigured)
             {
-                return (localManifestFilesPolicy == PolicyState::Enabled ? true : false);
+                return localManifestFilesPolicy == PolicyState::Enabled;
             }
         }
 

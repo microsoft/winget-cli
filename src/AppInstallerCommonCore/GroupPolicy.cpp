@@ -198,7 +198,7 @@ namespace AppInstaller::Settings
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
             // Enable certificate pinning configuration through GP sources for testing
-            std::string pinningConfigurationName = "CertificatePinning";
+            const std::string pinningConfigurationName = "CertificatePinning";
             if (sourceJson.isMember(pinningConfigurationName))
             {
                 source.PinningConfiguration = Certificates::PinningConfiguration(source.Name);

@@ -103,9 +103,14 @@ namespace AppInstaller::Certificates
         return *this;
     }
 
+    // The JSON is expected to look like:
+    // {
+    //     "Validation":["publickey"],
+    //     "EmbeddedCertificate":"<Hexadecimal string data for certificate>"
+    // }
     bool PinningDetails::LoadFrom(const Json::Value& configuration)
     {
-        std::string validationName = "Validation";
+        const std::string validationName = "Validation";
 
         if (!configuration.isMember(validationName))
         {
@@ -139,7 +144,7 @@ namespace AppInstaller::Certificates
             return true;
         }
 
-        std::string embeddedCertificateName = "EmbeddedCertificate";
+        const std::string embeddedCertificateName = "EmbeddedCertificate";
 
         if (!configuration.isMember(embeddedCertificateName))
         {
@@ -251,7 +256,7 @@ namespace AppInstaller::Certificates
         if (m_chain.empty())
         {
             // An empty chain rejects all inputs.
-            AICLI_LOG(Core, Verbose, << "Empty pinning chain blindly rejecting chain context");
+            AICLI_LOG(Core, Warning, << "Empty pinning chain blindly rejecting chain context");
             return false;
         }
 
@@ -367,15 +372,37 @@ namespace AppInstaller::Certificates
         return std::move(stream).str();
     }
 
+    // The JSON is expected to look like:
+    // {
+    //     "Chain":[
+    //         { <See PinningDetails::LoadFrom>
+    //             "Validation":["publickey"],
+    //             "EmbeddedCertificate":"<Hexadecimal string data for certificate>"
+    //         },
+    //         {
+    //             "Validation":["subject","issuer"],
+    //             "EmbeddedCertificate":"<Hexadecimal string data for certificate>"
+    //         },
+    //         ...
+    //     ]
+    // }
     bool PinningChain::LoadFrom(const Json::Value& configuration)
     {
-        if (!configuration.isArray())
+        const std::string chainName = "Chain";
+        if (!configuration.isMember(chainName))
+        {
+            AICLI_LOG(Core, Warning, << "Chains JSON item has no member " << chainName);
+            return false;
+        }
+
+        const auto& chain = configuration[chainName];
+        if (!chain.isArray())
         {
             AICLI_LOG(Core, Warning, << "Chain JSON input is not an array");
             return false;
         }
 
-        for (const auto& configItem : configuration)
+        for (const auto& configItem : chain)
         {
             PinningDetails details;
             if (!details.LoadFrom(configItem))
@@ -464,9 +491,27 @@ namespace AppInstaller::Certificates
         return result;
     }
 
+    // The JSON is expected to look like:
+    // {
+    //  "Chains":[
+    //      { <See PinningChain::LoadFrom>
+    //          "Chain":[
+    //              { <See PinningDetails::LoadFrom>
+    //                  "Validation":["publickey"],
+    //                  "EmbeddedCertificate":"<Hexadecimal string data for certificate>"
+    //              },
+    //              {
+    //                  "Validation":["subject","issuer"],
+    //                  "EmbeddedCertificate":"<Hexadecimal string data for certificate>"
+    //              },
+    //              ...
+    //          ]
+    //      }
+    //  ]
+    // }
     bool PinningConfiguration::LoadFrom(const Json::Value& configuration)
     {
-        std::string chainsName = "Chains";
+        const std::string chainsName = "Chains";
         if (!configuration.isMember(chainsName))
         {
             AICLI_LOG(Core, Warning, << "PinningConfiguration JSON item has no member " << chainsName);
@@ -480,19 +525,12 @@ namespace AppInstaller::Certificates
             return false;
         }
 
-        std::string chainName = "Chain";
         std::vector<PinningChain> resultCache;
 
         for (const auto& configItem : chains)
         {
-            if (!configItem.isMember(chainName))
-            {
-                AICLI_LOG(Core, Warning, << "Chains JSON item has no member " << chainName);
-                return false;
-            }
-
             PinningChain chain;
-            if (!chain.LoadFrom(configItem[chainName]))
+            if (!chain.LoadFrom(configItem))
             {
                 return false;
             }

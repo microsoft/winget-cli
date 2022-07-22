@@ -294,14 +294,15 @@ TEST_CASE("GroupPolicy_Sources", "[groupPolicy]")
         };
 
         std::wostringstream pinningConfig;
-        pinningConfig << LR"({
-"Chains": [{
-"Chain":[
-{ "Validation": ["publickey"], "EmbeddedCertificate": ")" << getBytesString(rootCert) << LR"(" },
-{ "Validation": ["subject","issuer"], "EmbeddedCertificate": ")" << getBytesString(intermediateCert) << LR"(" },
-{ "Validation": ["subject","issuer"], "EmbeddedCertificate": ")" << getBytesString(leafCert) << LR"(" }
-]
-}]
+        pinningConfig <<
+LR"({
+    "Chains": [{
+        "Chain":[
+            { "Validation": ["publickey"], "EmbeddedCertificate": ")" << getBytesString(rootCert) << LR"(" },
+            { "Validation": ["subject","issuer"], "EmbeddedCertificate": ")" << getBytesString(intermediateCert) << LR"(" },
+            { "Validation": ["subject","issuer"], "EmbeddedCertificate": ")" << getBytesString(leafCert) << LR"(" }
+        ]
+    }]
 })";
 
         SetRegistryValue(additionalSourcesKey.get(), L"0", GetSourceJson(L"source-name", L"source-arg", L"source-type", L"source-data", L"source-identifier", pinningConfig.str()), REG_SZ);
