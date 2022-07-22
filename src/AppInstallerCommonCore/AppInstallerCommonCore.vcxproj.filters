@@ -204,9 +204,12 @@
     <ClInclude Include="Public\winget\Certificates.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
+    <ClInclude Include="Public\winget\FolderFileWatcher.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
     <ClInclude Include="Public\winget\Archive.h">
       <Filter>Public\winget</Filter>
-    </ClInclude>    
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -362,9 +365,12 @@
     <ClCompile Include="Resources.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="FolderFileWatcher.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="Archive.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>    
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />

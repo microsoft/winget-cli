@@ -1054,12 +1054,6 @@ namespace AppInstaller::Repository
                 }
             }
 
-            // Do not attempt to correlate local packages against this source.
-            if (m_searchBehavior == CompositeSearchBehavior::Installed && !source.GetDetails().SupportInstalledSearchCorrelation)
-            {
-                continue;
-            }
-
             SearchResult availableResult = result.SearchAndHandleFailures(source, request);
 
             for (auto&& match : availableResult.Matches)

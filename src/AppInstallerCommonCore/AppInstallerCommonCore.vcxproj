@@ -280,6 +280,7 @@
   <ItemGroup>
     <ClInclude Include="DODownloader.h" />
     <ClInclude Include="Public\winget\Certificates.h" />
+    <ClInclude Include="Public\winget\FolderFileWatcher.h" />
     <ClInclude Include="Public\winget\MsixManifest.h" />
     <ClInclude Include="Public\winget\AdminSettings.h" />
     <ClInclude Include="Public\winget\Debugging.h" />
@@ -345,6 +346,7 @@
     <ClCompile Include="DependenciesGraph.cpp" />
     <ClCompile Include="DODownloader.cpp" />
     <ClCompile Include="Filesystem.cpp" />
+    <ClCompile Include="FolderFileWatcher.cpp" />
     <ClCompile Include="GroupPolicy.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)'=='Fuzzing'">true</ExcludedFromBuild>
     </ClCompile>
