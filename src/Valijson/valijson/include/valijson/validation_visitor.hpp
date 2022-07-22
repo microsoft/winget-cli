@@ -348,6 +348,64 @@ public:
     }
 
     /**
+    * @brief    Validate current node against a FormatConstraint
+    * 
+    * @param    constraint  Constraint that the target must validate against
+    * 
+    * @return   \c true if validation succeeds; \c false otherwise
+    */
+    bool visit(const FormatConstraint &constraint) override
+    {
+        const std::string s = m_target.asString();
+        const std::string format = constraint.getFormat();
+        if (format == "date") {
+            // Matches dates like: 2022-07-18
+            std::regex date_regex("^([0-9]+)-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$");
+            std::smatch matches;
+            if (std::regex_match(s, matches, date_regex)) {
+                const auto month = std::stoi(matches[2].str());
+                const auto day = std::stoi(matches[3].str());
+                return validate_date_range(month, day);
+            } else {
+                if (m_results) {
+                    m_results->pushError(m_context,
+                                         "String should be a valid date");
+                }
+                return false;
+            }
+        } else if (format == "time") {
+            // Matches times like: 16:52:45Z, 16:52:45+02:00
+            std::regex time_regex("^([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9]|60)(\\.[0-9]+)?(([Zz])|([\\+|\\-]([01][0-9]|2[0-3]):[0-5][0-9]))$");
+            if (std::regex_match(s, time_regex)) {
+                return true;
+            } else {
+                if (m_results) {
+                    m_results->pushError(m_context,
+                                         "String should be a valid time");
+                }
+                return false;
+            }
+        } else if (format == "date-time") {
+            // Matches data times like: 2022-07-18T16:52:45Z, 2022-07-18T16:52:45+02:00
+            std::regex datetime_regex("^([0-9]+)-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])[Tt]([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9]|60)(\\.[0-9]+)?(([Zz])|([\\+|\\-]([01][0-9]|2[0-3]):[0-5][0-9]))$");
+            std::smatch matches;
+            if (std::regex_match(s, matches, datetime_regex)) {
+                const auto month = std::stoi(matches[2].str());
+                const auto day = std::stoi(matches[3].str());
+                return validate_date_range(month, day);
+            } else {
+                if (m_results) {
+                    m_results->pushError(m_context,
+                                         "String should be a valid date-time");
+                }
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * @brief   Validate a value against a LinearItemsConstraint
      *
      * A LinearItemsConstraint represents an 'items' constraint that specifies,
@@ -1769,17 +1827,58 @@ private:
         return constraint.accept(visitor);
     }
 
+    /**
+    * @brief    Helper function to validate if day is valid for given month
+    * 
+    * @param    month   Month, 1-12
+    * @param    day     Day, 1-31
+    * 
+    * @return   true if day is valid for given month, false otherwise.
+    */
+    bool validate_date_range(int month, int day)
+    {
+        if (month == 2) {
+            if (day < 0 || day > 29) {
+                if (m_results) {
+                    m_results->pushError(m_context,
+                                         "String should be a valid date-time");
+                }
+                return false;
+            }
+        } else {
+            int limit = 31;
+            if (month <= 7) {
+                if (month % 2 == 0) {
+                    limit = 30;
+                }
+            } else {
+                if (month % 2 != 0) {
+                    limit = 30;
+                }
+            }
+            if (day < 0 || day > limit) {
+                if (m_results) {
+                    m_results->pushError(m_context,
+                                         "String should be a valid date-time");
+                }
+                return false;
+            }
+                
+        }
+        return true;
+    }
+
     /// The JSON value being validated
-    const AdapterType m_target;
+    AdapterType m_target;
 
     /// Vector of strings describing the current object context
-    const std::vector<std::string> m_context;
+    std::vector<std::string> m_context;
 
     /// Optional pointer to a ValidationResults object to be populated
     ValidationResults *m_results;
 
     /// Option to use strict type comparison
-    const bool m_strictTypes;
+    bool m_strictTypes;
 
     /// Cached regex objects for pattern constraint
     std::unordered_map<std::string, std::regex>& m_regexesCache;

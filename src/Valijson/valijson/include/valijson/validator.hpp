@@ -67,11 +67,10 @@ public:
 private:
 
     /// Flag indicating that strict type comparisons should be used
-    const bool strictTypes;
+    bool strictTypes;
 
     /// Cached regex objects for pattern constraint. Key - pattern.
     std::unordered_map<std::string, std::regex> regexesCache;
-
 };
 
 }  // namespace valijson

@@ -6,8 +6,8 @@
 #include <memory>
 #include <functional>
 
-#include <valijson/adapters/adapter.hpp>
 #include <valijson/constraints/concrete_constraints.hpp>
+#include <valijson/internal/adapter.hpp>
 #include <valijson/internal/debug.hpp>
 #include <valijson/internal/json_pointer.hpp>
 #include <valijson/internal/json_reference.hpp>
@@ -692,6 +692,10 @@ private:
 
         if ((itr = object.find("enum")) != object.end()) {
             rootSchema.addConstraintToSubschema(makeEnumConstraint(itr->second), &subschema);
+        }
+
+        if ((itr = object.find("format")) != object.end()) {
+            rootSchema.addConstraintToSubschema(makeFormatConstraint(itr->second), &subschema);
         }
 
         {
@@ -1419,6 +1423,29 @@ private:
         /// to avoid these copies without complicating the implementation of the
         /// EnumConstraint class.
         return constraint;
+    }
+
+    /**
+     * @brief   Make a new FormatConstraint object
+     *
+     * @param   node  JSON node containing the configuration for this constraint
+     *
+     * @return  pointer to a new FormatConstraint that belongs to the caller
+     */
+    template<typename AdapterType>
+    constraints::FormatConstraint makeFormatConstraint(
+        const AdapterType &node)
+    {
+        if (node.isString()) {
+            const std::string value = node.asString();
+            if (!value.empty()) {
+                constraints::FormatConstraint constraint;
+                constraint.setFormat(value);
+                return constraint;
+            }
+        }
+
+        throwRuntimeError("Expected a string value for 'format' constraint.");
     }
 
     /**
@@ -2291,7 +2318,7 @@ private:
 private:
 
     /// Version of JSON Schema that should be expected when parsing
-    const Version m_version;
+    Version m_version;
 };
 
 }  // namespace valijson
