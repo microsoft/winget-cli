@@ -117,6 +117,7 @@ namespace AppInstallerCLIE2ETests
                         Name = Constants.TestAlternateSourceName,
                         Arg = Constants.DefaultMSStoreSourceUrl,
                         Type = Constants.DefaultMSStoreSourceType,
+                        Data = "",
                         Identifier = Constants.DefaultMSStoreSourceIdentifier,
                         CertificatePinning = new GroupPolicyCertificatePinning
                         {
