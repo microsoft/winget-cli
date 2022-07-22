@@ -215,10 +215,10 @@
     <ClCompile Include="Archive.cpp">
       <Filter>Source Files\Common</Filter>
     </ClCompile>
-    <ClCompile Include="Filesystem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="FolderFileWatcher.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="Filesystem.cpp">
       <Filter>Source Files\Common</Filter>
     </ClCompile>
   </ItemGroup>
@@ -482,7 +482,7 @@
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\TestZip.zip">
       <Filter>TestData</Filter>
-    </CopyFileToFolders>    
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_NoApplicableArchitecture.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
@@ -527,7 +527,7 @@
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_Zip_MultipleNonPortableNestedInstallers.yaml">
       <Filter>TestData</Filter>
-    </CopyFileToFolders>    
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallerArgTest_Msi_WithSwitches.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
@@ -569,7 +569,7 @@
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\UpdateFlowTest_ZipWithExe.yaml">
       <Filter>TestData</Filter>
-    </CopyFileToFolders>    
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\ImportFile-Good.json">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
