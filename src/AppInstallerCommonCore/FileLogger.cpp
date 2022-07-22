@@ -15,6 +15,7 @@ namespace AppInstaller::Logging
 
     static constexpr std::string_view s_fileLoggerDefaultFilePrefix = "WinGet"sv;
     static constexpr std::string_view s_fileLoggerDefaultFileExt = ".log"sv;
+    static constexpr std::ios_base::openmode s_fileLoggerDefaultOpenMode = std::ios_base::out | std::ios_base::app;
 
     FileLogger::FileLogger() : FileLogger(s_fileLoggerDefaultFilePrefix) {}
 
@@ -23,7 +24,7 @@ namespace AppInstaller::Logging
         m_name = GetNameForPath(filePath);
         m_filePath = filePath;
 
-        m_stream.open(m_filePath);
+        m_stream.open(m_filePath, s_fileLoggerDefaultOpenMode);
     }
 
     FileLogger::FileLogger(const std::string_view fileNamePrefix)
@@ -32,7 +33,7 @@ namespace AppInstaller::Logging
         m_filePath = Runtime::GetPathTo(Runtime::PathName::DefaultLogLocation);
         m_filePath /= fileNamePrefix.data() + ('-' + Utility::GetCurrentTimeForFilename() + s_fileLoggerDefaultFileExt.data());
 
-        m_stream.open(m_filePath);
+        m_stream.open(m_filePath, s_fileLoggerDefaultOpenMode);
     }
 
     FileLogger::~FileLogger()
