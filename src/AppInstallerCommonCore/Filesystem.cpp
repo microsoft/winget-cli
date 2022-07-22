@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Public/AppInstallerStrings.h"
+#include "public/winget/FileSystem.h"
 
 namespace AppInstaller::Filesystem
 {
@@ -130,5 +131,12 @@ namespace AppInstaller::Filesystem
         // Create a copy of the file; the installer will be left in the temp directory afterward
         // but it is better to succeed the operation and leave a file around than to fail.
         std::filesystem::copy_file(from, to, std::filesystem::copy_options::overwrite_existing);
+    }
+
+    std::filesystem::path GetExpandedPath(const std::string& path)
+    {
+        std::wstring widePath = Utility::ConvertToUTF16(path);
+        WCHAR buffer[MAX_PATH];
+        return PathUnExpandEnvStrings(widePath.c_str(), buffer, ARRAYSIZE(buffer)) ? std::filesystem::path{ buffer } : std::filesystem::path{ path };
     }
 }

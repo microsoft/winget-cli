@@ -46,6 +46,14 @@ namespace AppInstaller::Manifest
             {
                 return in1.InstallerType < in2.InstallerType;
             }
+            else if (IsArchiveType(in1.InstallerType))
+            {
+                // Compare nested installer type if installer type is archive.
+                if (in1.NestedInstallerType != in2.NestedInstallerType)
+                {
+                    return in1.NestedInstallerType != in2.NestedInstallerType;
+                }
+            }
 
             if (in1.Arch != in2.Arch)
             {

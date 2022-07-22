@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "pch.h"
+#include <filesystem>
 
 namespace AppInstaller::Filesystem
 {
@@ -19,4 +19,6 @@ namespace AppInstaller::Filesystem
 
     // Renames the file to a new path.
     void RenameFile(const std::filesystem::path& from, const std::filesystem::path& to);
+
+    std::filesystem::path GetExpandedPath(const std::string& path);
 }
