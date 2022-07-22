@@ -15,10 +15,12 @@
 #include <valijson/adapters/jsoncpp_adapter.hpp>
 #include <valijson/adapters/rapidjson_adapter.hpp>
 #include <valijson/adapters/picojson_adapter.hpp>
+#include <valijson/adapters/nlohmann_json_adapter.hpp>
 #include <valijson/utils/json11_utils.hpp>
 #include <valijson/utils/jsoncpp_utils.hpp>
 #include <valijson/utils/picojson_utils.hpp>
 #include <valijson/utils/rapidjson_utils.hpp>
+#include <valijson/utils/nlohmann_json_utils.hpp>
 #include <valijson/schema.hpp>
 #include <valijson/schema_parser.hpp>
 #include <valijson/validation_results.hpp>
@@ -176,6 +178,7 @@ protected:
         processTestFile<valijson::adapters::JsonCppAdapter>(testFile, version);
         processTestFile<valijson::adapters::RapidJsonAdapter>(testFile, version);
         processTestFile<valijson::adapters::PicoJsonAdapter>(testFile, version);
+        processTestFile<valijson::adapters::NlohmannJsonAdapter>(testFile, version);
 
 #ifdef VALIJSON_BUILD_POCO_ADAPTER
         processTestFile<valijson::adapters::PocoJsonAdapter>(testFile, version);
@@ -604,4 +607,19 @@ TEST_F(TestValidator, Draft7_Type)
 TEST_F(TestValidator, Draft7_UniqueItems)
 {
     processDraft7TestFile(TEST_SUITE_DIR "draft7/uniqueItems.json");
+}
+
+TEST_F(TestValidator, Draft7_OptionalFormatDate)
+{
+    processDraft7TestFile(TEST_SUITE_DIR "draft7/optional/format/date.json");
+}
+
+TEST_F(TestValidator, Draft7_OptionalFormatTime)
+{
+    processDraft7TestFile(TEST_SUITE_DIR "draft7/optional/format/time.json");
+}
+
+TEST_F(TestValidator, Draft7_OptionalFormatDateTime)
+{
+    processDraft7TestFile(TEST_SUITE_DIR "draft7/optional/format/date-time.json");
 }
