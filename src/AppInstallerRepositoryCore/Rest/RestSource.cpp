@@ -85,6 +85,11 @@ namespace AppInstaller::Repository::Rest
                 return false;
             }
 
+            std::vector<InstallerInstalledStatus> CheckInstalledStatus(InstalledStatusType) const override
+            {
+                return {};
+            }
+
             bool IsSame(const IPackage* other) const override
             {
                 const AvailablePackage* otherAvailablePackage = dynamic_cast<const AvailablePackage*>(other);

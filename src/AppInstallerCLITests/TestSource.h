@@ -67,6 +67,7 @@ namespace TestCommon
         std::shared_ptr<AppInstaller::Repository::IPackageVersion> GetLatestAvailableVersion() const override;
         std::shared_ptr<AppInstaller::Repository::IPackageVersion> GetAvailableVersion(const AppInstaller::Repository::PackageVersionKey& versionKey) const override;
         bool IsUpdateAvailable() const override;
+        std::vector<AppInstaller::Repository::InstallerInstalledStatus> CheckInstalledStatus(AppInstaller::Repository::InstalledStatusType types) const override;
         bool IsSame(const IPackage* other) const override;
 
         std::shared_ptr<AppInstaller::Repository::IPackageVersion> InstalledVersion;

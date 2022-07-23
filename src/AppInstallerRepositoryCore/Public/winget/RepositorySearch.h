@@ -245,6 +245,47 @@ namespace AppInstaller::Repository
         Name,
     };
 
+    // Defines the installed status check type.
+    enum class InstalledStatusType : uint32_t
+    {
+        // None is checked.
+        None = 0x0,
+        // Check Apps and Features entry.
+        AppsAndFeaturesEntry = 0x0001,
+        // Check Apps and Features entry install location if applicable.
+        AppsAndFeaturesEntryInstallLocation = 0x0002,
+        // Check Apps and Features entry install location with installed files if applicable.
+        AppsAndFeaturesEntryInstallLocationFile = 0x0004,
+        // Check default install location if applicable.
+        DefaultInstallLocation = 0x0008,
+        // Check default install location with installed files if applicable.
+        DefaultInstallLocationFile = 0x0010,
+
+        // All
+        All = AppsAndFeaturesEntry | AppsAndFeaturesEntryInstallLocation | AppsAndFeaturesEntryInstallLocationFile |
+              DefaultInstallLocation | DefaultInstallLocationFile,
+    };
+
+    DEFINE_ENUM_FLAG_OPERATORS(InstalledStatusType);
+
+    // Struct representing an individual installed status.
+    struct InstalledStatus
+    {
+        // The installed status type.
+        InstalledStatusType Type = InstalledStatusType::None;
+        // The installed status path.
+        Utility::NormalizedString Path;
+        // The installed status result.
+        HRESULT Status;
+    };
+
+    // Struct representing installed status from an installer.
+    struct InstallerInstalledStatus
+    {
+        Manifest::ManifestInstaller Installer;
+        std::vector<InstalledStatus> InstalledStatus;
+    };
+
     // A package, potentially containing information about it's local state and the available versions.
     struct IPackage
     {
@@ -269,6 +310,9 @@ namespace AppInstaller::Repository
 
         // Gets a value indicating whether an available version is newer than the installed version.
         virtual bool IsUpdateAvailable() const = 0;
+
+        // Checks installed status of the package.
+        virtual std::vector<InstallerInstalledStatus> CheckInstalledStatus(InstalledStatusType types = InstalledStatusType::All) const = 0;
 
         // Determines if the given IPackage refers to the same package as this one.
         virtual bool IsSame(const IPackage*) const = 0;

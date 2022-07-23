@@ -400,6 +400,11 @@ namespace AppInstaller::Repository
                 return (latest && (GetVACFromVersion(installed.get()).IsUpdatedBy(GetVACFromVersion(latest.get()))));
             }
 
+            std::vector<InstallerInstalledStatus> CheckInstalledStatus(InstalledStatusType) const override
+            {
+                return {};
+            }
+
             bool IsSame(const IPackage* other) const override
             {
                 const CompositePackage* otherComposite = dynamic_cast<const CompositePackage*>(other);
