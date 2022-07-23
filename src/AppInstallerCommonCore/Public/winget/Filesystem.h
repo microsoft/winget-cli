@@ -20,5 +20,6 @@ namespace AppInstaller::Filesystem
     // Renames the file to a new path.
     void RenameFile(const std::filesystem::path& from, const std::filesystem::path& to);
 
+    // Get expanded file system path.
     std::filesystem::path GetExpandedPath(const std::string& path);
 }

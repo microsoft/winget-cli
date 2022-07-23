@@ -23,6 +23,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         winrt::Microsoft::Management::Deployment::PackageVersionInfo DefaultInstallVersion();
         winrt::Microsoft::Management::Deployment::PackageVersionInfo GetPackageVersionInfo(winrt::Microsoft::Management::Deployment::PackageVersionId const& versionKey);
         bool IsUpdateAvailable();
+        // Contract 5.0
+        winrt::Windows::Foundation::IAsyncOperation<winrt::Microsoft::Management::Deployment::PackageInstalledStatus> CheckInstalledStatusAsync(
+            winrt::Microsoft::Management::Deployment::InstalledStatusType types);
+        winrt::Microsoft::Management::Deployment::PackageInstalledStatus CheckInstalledStatus(
+            winrt::Microsoft::Management::Deployment::InstalledStatusType types);
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:

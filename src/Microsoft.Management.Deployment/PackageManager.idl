@@ -428,8 +428,8 @@ namespace Microsoft.Management.Deployment
         /// Check the installed status of the package. It's recommended to call this method from a composite package
         /// with installed source info for more accurate and complete installed status.
         /// This may require downloading information from a server.
-        Windows.Foundation.IAsyncOperation<PackageInstalledStatus> CheckInstalledStatusAsync();
-        PackageInstalledStatus CheckInstalledStatus();
+        Windows.Foundation.IAsyncOperation<PackageInstalledStatus> CheckInstalledStatusAsync(InstalledStatusType types);
+        PackageInstalledStatus CheckInstalledStatus(InstalledStatusType types);
 
         /// DESIGN NOTE:
         /// IsSame from IPackage in winget/RepositorySearch is not implemented in V1.
@@ -864,5 +864,13 @@ namespace Microsoft.Management.Deployment
         interface Windows.Foundation.Collections.IVectorView<PackageVersionId>;
         interface Windows.Foundation.Collections.IVector<PackageVersionInfo>;
         interface Windows.Foundation.Collections.IVectorView<PackageVersionInfo>;
+        interface Windows.Foundation.Collections.IVector<PackageInstallerInfo>;
+        interface Windows.Foundation.Collections.IVectorView<PackageInstallerInfo>;
+        interface Windows.Foundation.Collections.IVector<InstalledStatus>;
+        interface Windows.Foundation.Collections.IVectorView<InstalledStatus>;
+        interface Windows.Foundation.Collections.IVector<PackageInstallerInstalledStatus>;
+        interface Windows.Foundation.Collections.IVectorView<PackageInstallerInstalledStatus>;
+        interface Windows.Foundation.Collections.IVector<PackageInstalledStatus>;
+        interface Windows.Foundation.Collections.IVectorView<PackageInstalledStatus>;
     }
 }

@@ -96,6 +96,16 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         return m_package->IsUpdateAvailable();
     }
+    Windows::Foundation::IAsyncOperation<winrt::Microsoft::Management::Deployment::PackageInstalledStatus> CatalogPackage::CheckInstalledStatusAsync(
+        Microsoft::Management::Deployment::InstalledStatusType types)
+    {
+        co_return CheckInstalledStatus(types);
+    }
+    Microsoft::Management::Deployment::PackageInstalledStatus CatalogPackage::CheckInstalledStatus(
+        Microsoft::Management::Deployment::InstalledStatusType)
+    {
+        throw hresult_not_implemented();
+    }
     std::shared_ptr<::AppInstaller::Repository::IPackage> CatalogPackage::GetRepositoryPackage()
     {
         return m_package;
