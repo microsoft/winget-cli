@@ -392,10 +392,21 @@ namespace Microsoft.Management.Deployment
         Windows.Foundation.Collections.IVectorView<InstalledStatus> InstalledStatus { get; };
     };
 
+    /// Status of the check installed status call.
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 5)]
+    enum CheckInstalledStatusResultStatus
+    {
+        Ok,
+        InternalError,
+    };
+
     /// Interface for retrieving information about a package installer installed status.
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 5)]
-    runtimeclass PackageInstalledStatus
+    runtimeclass CheckInstalledStatusResult
     {
+        /// Status of the check installed status call.
+        CheckInstalledStatusResultStatus Status { get; };
+
         /// A list of package installer installed status.
         Windows.Foundation.Collections.IVectorView<PackageInstallerInstalledStatus> InstalledStatus { get; };
     };
@@ -428,8 +439,8 @@ namespace Microsoft.Management.Deployment
         /// Check the installed status of the package. It's required to call this method from a composite package
         /// with installed info for more accurate and complete installed status.
         /// This may require downloading information from a server.
-        Windows.Foundation.IAsyncOperation<PackageInstalledStatus> CheckInstalledStatusAsync(InstalledStatusType types);
-        PackageInstalledStatus CheckInstalledStatus(InstalledStatusType types);
+        Windows.Foundation.IAsyncOperation<CheckInstalledStatusResult> CheckInstalledStatusAsync(InstalledStatusType types);
+        CheckInstalledStatusResult CheckInstalledStatus(InstalledStatusType types);
 
         /// DESIGN NOTE:
         /// IsSame from IPackage in winget/RepositorySearch is not implemented in V1.
@@ -870,7 +881,7 @@ namespace Microsoft.Management.Deployment
         interface Windows.Foundation.Collections.IVectorView<InstalledStatus>;
         interface Windows.Foundation.Collections.IVector<PackageInstallerInstalledStatus>;
         interface Windows.Foundation.Collections.IVectorView<PackageInstallerInstalledStatus>;
-        interface Windows.Foundation.Collections.IVector<PackageInstalledStatus>;
-        interface Windows.Foundation.Collections.IVectorView<PackageInstalledStatus>;
+        interface Windows.Foundation.Collections.IVector<CheckInstalledStatusResult>;
+        interface Windows.Foundation.Collections.IVectorView<CheckInstalledStatusResult>;
     }
 }
