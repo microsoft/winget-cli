@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "PortableFlow.h"
+#include "WorkflowBase.h"
 #include "winget/Filesystem.h"
 #include "winget/PortableARPEntry.h"
 #include "AppInstallerStrings.h"
@@ -540,8 +541,23 @@ namespace AppInstaller::CLI::Workflow
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PORTABLE_REPARSE_POINT_NOT_SUPPORTED);
             }
         }
-    }
 
+        void EnsureSymlinkCreationPrivilege(Execution::Context& context)
+        {
+            if (!Runtime::IsDevModeEnabled())
+            {
+                AICLI_LOG(CLI, Info, << "Developer mode not enabled.");
+                context << Workflow::EnsureRunningAsAdmin;
+
+                // TODO: Remove once issue regarding symlink creation privilege has been resolved.
+                if (context.IsTerminated())
+                {
+                    context.Reporter.Error() << std::endl << "https://github.com/microsoft/winget-cli/issues/2368" << std::endl;
+                }
+            }
+        }
+    }
+    
     void PortableInstallImpl(Execution::Context& context)
     {
         PortableARPEntry uninstallEntry = PortableARPEntry(
@@ -617,6 +633,7 @@ namespace AppInstaller::CLI::Workflow
         if (installerType == InstallerTypeEnum::Portable)
         {
             context <<
+                EnsureSymlinkCreationPrivilege <<
                 EnsureValidArgsForPortableInstall <<
                 EnsureVolumeSupportsReparsePoints;
         }
