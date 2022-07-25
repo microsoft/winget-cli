@@ -299,11 +299,39 @@ namespace AppInstaller::Manifest
     std::vector<ValidationError> ValidateMsixManifest(
         const Msix::PackageVersion& packageVersion,
         const ManifestInstaller& installer,
-        Msix::MsixPackageManifestCache& msixManifestsCache,
+        std::map<std::string, Msix::MsixInfo> &msixInfoCache,
         bool treatErrorAsWarning)
     {
         std::vector<ValidationError> errors;
         std::optional<Msix::OSVersion> installerMinOSVersion;
+
+        std::vector<Msix::MsixPackageManifest> msixManifests;
+        Utility::SHA256::HashBuffer signature;
+        try
+        {
+            // Cache Msix info for new installer url
+            if (!msixInfoCache.count(installer.Url))
+            {
+                msixInfoCache.insert({ installer.Url, Msix::MsixInfo(installer.Url) });
+            }
+            auto &msixInfo = msixInfoCache.find(installer.Url)->second;
+            msixManifests = msixInfo.GetAppPackageManifests();
+            signature = msixInfo.GetSignature();
+        }
+        catch (...)
+        {
+            errors.emplace_back(ManifestError::InstallerFailedToProcess, "InstallerUrl", installer.Url);
+        }
+
+        if (!signature.empty() && !installer.SignatureSha256.empty())
+        {
+            auto signatureHash = Utility::SHA256::ComputeHash(signature.data(), static_cast<uint32_t>(signature.size()));
+            if (installer.SignatureSha256 != signatureHash)
+            {
+                auto computedSignatureHash = Utility::SHA256::ConvertToString(signatureHash);
+                errors.emplace_back(ManifestError::InstallerMsixInconsistencies, "SignatureSha256", computedSignatureHash);
+            }
+        }
 
         try
         {
@@ -315,16 +343,6 @@ namespace AppInstaller::Manifest
         catch (const std::exception&)
         {
             errors.emplace_back(ManifestError::InvalidFieldValue, "MinimumOSVersion", installer.MinOSVersion);
-        }
-
-        std::vector<Msix::MsixPackageManifest> msixManifests;
-        try
-        {
-            msixManifests = msixManifestsCache.GetAppPackageManifests(installer.Url);
-        }
-        catch (...)
-        {
-            errors.emplace_back(ManifestError::InstallerFailedToProcess, "InstallerUrl", installer.Url);
         }
 
         for (auto msixManifest : msixManifests)
@@ -385,13 +403,13 @@ namespace AppInstaller::Manifest
     std::vector<ValidationError> ValidateManifestInstallers(const Manifest& manifest, bool treatErrorAsWarning)
     {
         std::vector<ValidationError> errors;
-        Msix::MsixPackageManifestCache msixManifestsCache;
+        std::map<std::string, Msix::MsixInfo> msixInfoCache;
         for (const auto& installer : manifest.Installers)
         {
             // Installer msix or msixbundle
             if (installer.InstallerType == InstallerTypeEnum::Msix)
             {
-                auto installerErrors = ValidateMsixManifest(Msix::PackageVersion(manifest.Version), installer, msixManifestsCache, treatErrorAsWarning);
+                auto installerErrors = ValidateMsixManifest(Msix::PackageVersion(manifest.Version), installer, msixInfoCache, treatErrorAsWarning);
                 std::move(installerErrors.begin(), installerErrors.end(), std::inserter(errors, errors.end()));
             }
         }
