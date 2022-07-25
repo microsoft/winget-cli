@@ -68,4 +68,13 @@
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
 	</PropertyGroup>
 	
+	<Target Name="CopyWinRTAct" AfterTargets="Build" Condition="'$(TargetFramework)' != ''">
+		<ItemGroup>
+			<!-- Ensure Referenced Project Output is in Output Directory -->
+			<WinRTActDll Include="$(SolutionDir)**\$(Platform)\**\winrtact.dll" />
+		</ItemGroup>
+		<Message Importance="high" Text="Copying '@(WinRTActDll)' to '$(OutputPath)'" />
+		<Copy SourceFiles="@(WinRTActDll)" DestinationFolder="$(OutputPath)" />
+	</Target>
+	
 </Project>
