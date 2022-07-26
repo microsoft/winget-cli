@@ -220,6 +220,13 @@ namespace TestCommon
         THROW_IF_WIN32_ERROR(RegSetValueExW(key, name.c_str(), 0, REG_DWORD, reinterpret_cast<const BYTE*>(&value), sizeof(DWORD)));
     }
 
+    void EnableDevMode(bool enable)
+    {
+        wil::unique_hkey result;
+        THROW_IF_WIN32_ERROR(RegOpenKeyExW(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\AppModelUnlock", 0, KEY_ALL_ACCESS, &result));
+        SetRegistryValue(result.get(), L"AllowDevelopmentWithoutDevLicense", enable);
+    }
+
     TestUserSettings::TestUserSettings(bool keepFileSettings)
     {
         if (!keepFileSettings)
