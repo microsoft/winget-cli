@@ -160,7 +160,7 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void InstallPortableExe()
         {
-            string installDir = Path.Combine(System.Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet", "Packages");
+            string installDir = TestCommon.GetPortablePackagesDirectory();
             string packageId, commandAlias, fileName, packageDirName, productCode;
             packageId = "AppInstallerTest.TestPortableExe";
             packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
@@ -251,15 +251,15 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void InstallPortableFailsWithCleanup()
         {
-            string winGetDir = Path.Combine(System.Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet");
-            string installDir = Path.Combine(winGetDir, "Packages");
+            string installDir = TestCommon.GetPortablePackagesDirectory();
+            string winGetDir = Directory.GetParent(installDir).FullName;
             string packageId, commandAlias, fileName, packageDirName, productCode;
             packageId = "AppInstallerTest.TestPortableExe";
             packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
             commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
 
             // Create a directory with the same name as the symlink in order to cause install to fail.
-            string symlinkDirectory = Path.Combine(winGetDir, "Links");
+            string symlinkDirectory = TestCommon.GetPortableSymlinkDirectory();
             string conflictDirectory = Path.Combine(symlinkDirectory, commandAlias);
             Directory.CreateDirectory(conflictDirectory);
 
@@ -276,7 +276,7 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void ReinstallPortable()
         {
-            string installDir = Path.Combine(System.Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet", "Packages");
+            string installDir = TestCommon.GetPortablePackagesDirectory();
             string packageId, commandAlias, fileName, packageDirName, productCode;
             packageId = "AppInstallerTest.TestPortableExe";
             packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
@@ -285,7 +285,7 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("install", "AppInstallerTest.TestPortableExe");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
 
-            string symlinkDirectory = Path.Combine(System.Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet", "Links");
+            string symlinkDirectory = TestCommon.GetPortableSymlinkDirectory();
             string symlinkPath = Path.Combine(symlinkDirectory, commandAlias);
 
             // Clean first install should not display file overwrite message.
