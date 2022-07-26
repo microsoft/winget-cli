@@ -542,6 +542,7 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
+        // TODO: Remove entire task once issue regarding symlink creation privilege has been resolved.
         void EnsureSymlinkCreationPrivilege(Execution::Context& context)
         {
             if (!Runtime::IsDevModeEnabled())
@@ -549,7 +550,6 @@ namespace AppInstaller::CLI::Workflow
                 AICLI_LOG(CLI, Info, << "Developer mode not enabled.");
                 context << Workflow::EnsureRunningAsAdmin;
 
-                // TODO: Remove once issue regarding symlink creation privilege has been resolved.
                 if (context.IsTerminated())
                 {
                     context.Reporter.Error() << std::endl << "https://github.com/microsoft/winget-cli/issues/2368" << std::endl;
@@ -557,7 +557,7 @@ namespace AppInstaller::CLI::Workflow
             }
         }
     }
-    
+
     void PortableInstallImpl(Execution::Context& context)
     {
         PortableARPEntry uninstallEntry = PortableARPEntry(

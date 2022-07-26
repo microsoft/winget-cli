@@ -708,13 +708,14 @@ namespace AppInstaller::Runtime
     }
 
     // Determines whether developer mode is enabled.
+    // Does not account for the group policy value which takes precedence over this registry value.
     bool IsDevModeEnabled()
     {
         const auto& devModeSubKey = Registry::Key::OpenIfExists(HKEY_LOCAL_MACHINE, s_DevModeSubkey, 0, KEY_READ|KEY_WOW64_64KEY);
         const auto& devModeEnabled = devModeSubKey[s_AllowDevelopmentWithoutDevLicense];
         if (devModeEnabled.has_value())
         {
-            return devModeEnabled->GetValue<Registry::Value::Type::DWord>();
+            return devModeEnabled->GetValue<Registry::Value::Type::DWord>() == 1;
         }
         else
         {
