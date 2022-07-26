@@ -60,6 +60,7 @@ namespace AppInstaller::Manifest
         const char* const ArpVersionValidationInternalError = "Internal error while validating DisplayVersion against index.";
         const char* const ExceededNestedInstallerFilesLimit = "Only one entry for NestedInstallerFiles can be specified for non-portable InstallerTypes.";
         const char* const RelativeFilePathEscapesDirectory = "Relative file path must not point to a location outside of archive directory";
+        const char* const MsixSignatureHashFailed = "Failed to calculate MSIX signature hash. Please verify that the input file is a valid, signed MSIX.";
     }
 
     struct ValidationError

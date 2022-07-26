@@ -5,8 +5,10 @@
 #include "AppInstallerMsixInfo.h"
 #include "winget/MsixManifest.h"
 #include "winget/ManifestValidation.h"
+#include "winget/MsixManifestValidation.h"
 #include "winget/Locale.h"
 #include "winget/Filesystem.h"
+#include "winget/Resources.h"
 
 namespace AppInstaller::Manifest
 {
@@ -295,121 +297,17 @@ namespace AppInstaller::Manifest
         return resultErrors;
     }
 
-    // Validate msix and msixbundle installer manifest
-    std::vector<ValidationError> ValidateMsixManifest(
-        const Msix::PackageVersion& packageVersion,
-        const ManifestInstaller& installer,
-        std::map<std::string, Msix::MsixInfo> &msixInfoCache,
-        bool treatErrorAsWarning)
-    {
-        std::vector<ValidationError> errors;
-        std::optional<Msix::OSVersion> installerMinOSVersion;
-
-        std::vector<Msix::MsixPackageManifest> msixManifests;
-        Utility::SHA256::HashBuffer signature;
-        try
-        {
-            // Cache Msix info for new installer url
-            if (!msixInfoCache.count(installer.Url))
-            {
-                msixInfoCache.insert({ installer.Url, Msix::MsixInfo(installer.Url) });
-            }
-            auto &msixInfo = msixInfoCache.find(installer.Url)->second;
-            msixManifests = msixInfo.GetAppPackageManifests();
-            signature = msixInfo.GetSignature();
-        }
-        catch (...)
-        {
-            errors.emplace_back(ManifestError::InstallerFailedToProcess, "InstallerUrl", installer.Url);
-        }
-
-        if (!signature.empty() && !installer.SignatureSha256.empty())
-        {
-            auto signatureHash = Utility::SHA256::ComputeHash(signature.data(), static_cast<uint32_t>(signature.size()));
-            if (installer.SignatureSha256 != signatureHash)
-            {
-                auto computedSignatureHash = Utility::SHA256::ConvertToString(signatureHash);
-                errors.emplace_back(ManifestError::InstallerMsixInconsistencies, "SignatureSha256", computedSignatureHash);
-            }
-        }
-
-        try
-        {
-            if (!installer.MinOSVersion.empty())
-            {
-                installerMinOSVersion = std::make_optional<Msix::OSVersion>(installer.MinOSVersion);
-            }
-        }
-        catch (const std::exception&)
-        {
-            errors.emplace_back(ManifestError::InvalidFieldValue, "MinimumOSVersion", installer.MinOSVersion);
-        }
-
-        for (auto msixManifest : msixManifests)
-        {
-            // Validate package family name
-            auto msixManifestIdentity = msixManifest.GetIdentity();
-            auto msixPackageFamilyName = msixManifestIdentity.GetPackageFamilyName();
-            if (!installer.PackageFamilyName.empty())
-            {
-                if (installer.PackageFamilyName != msixPackageFamilyName)
-                {
-                    errors.emplace_back(ManifestError::InstallerMsixInconsistencies, "PackageFamilyName", msixPackageFamilyName);
-                }
-            }
-            // Yaml manifest missing package family name
-            else
-            {
-                errors.emplace_back(
-                    ManifestError::OptionalFieldMissing,
-                    "PackageFamilyName",
-                    msixPackageFamilyName,
-                    treatErrorAsWarning ? ValidationError::Level::Warning : ValidationError::Level::Error);
-            }
-
-            // Validate package version
-            auto msixVersion = msixManifestIdentity.GetVersion();
-            if (msixVersion != packageVersion)
-            {
-                errors.emplace_back(ManifestError::InstallerMsixInconsistencies, "PackageVersion", msixVersion.ToString());
-            }
-
-            // Validate min OS version
-            auto targetMinOSVersion = msixManifest.GetMinimumOSVersionForSupportedPlatforms();
-            if (!targetMinOSVersion.has_value())
-            {
-                errors.emplace_back(ManifestError::NoSupportedPlatforms, "InstallerUrl", installer.Url);
-            }
-            else if (installerMinOSVersion.has_value())
-            {
-                if (targetMinOSVersion.value() != installerMinOSVersion.value())
-                {
-                    errors.emplace_back(ManifestError::InstallerMsixInconsistencies, "MinimumOSVersion", targetMinOSVersion.value().ToString());
-                }
-            }
-            else
-            {
-                errors.emplace_back(
-                    ManifestError::OptionalFieldMissing,
-                    "MinimumOSVersion",
-                    targetMinOSVersion.value().ToString(),
-                    treatErrorAsWarning ? ValidationError::Level::Warning : ValidationError::Level::Error);
-            }
-        }
-
-        return errors;
-    }
-
     std::vector<ValidationError> ValidateManifestInstallers(const Manifest& manifest, bool treatErrorAsWarning)
     {
         std::vector<ValidationError> errors;
-        std::map<std::string, Msix::MsixInfo> msixInfoCache;
+        auto validationErrorLevel = treatErrorAsWarning ? ValidationError::Level::Warning : ValidationError::Level::Error;
+        MsixManifestValidation msixManifestValidation(validationErrorLevel);
         for (const auto& installer : manifest.Installers)
         {
             // Installer msix or msixbundle
             if (installer.InstallerType == InstallerTypeEnum::Msix)
             {
-                auto installerErrors = ValidateMsixManifest(Msix::PackageVersion(manifest.Version), installer, msixInfoCache, treatErrorAsWarning);
+                auto installerErrors = msixManifestValidation.Validate(manifest, installer);
                 std::move(installerErrors.begin(), installerErrors.end(), std::inserter(errors, errors.end()));
             }
         }
