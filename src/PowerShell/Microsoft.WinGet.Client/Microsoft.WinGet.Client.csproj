@@ -71,7 +71,7 @@
 	<Target Name="CopyWinRTAct" AfterTargets="Build" Condition="'$(TargetFramework)' != ''">
 		<ItemGroup>
 			<!-- Ensure Referenced Project Output is in Output Directory -->
-			<WinRTActDll Include="$(SolutionDir)**\$(Platform)\**\winrtact.dll" />
+			<WinRTActDll Include="$(SolutionDir)**\$(Platform)\$(Configuration)\**\winrtact.dll" />
 		</ItemGroup>
 		<Message Importance="high" Text="Copying '@(WinRTActDll)' to '$(OutputPath)'" />
 		<Copy SourceFiles="@(WinRTActDll)" DestinationFolder="$(OutputPath)" />
