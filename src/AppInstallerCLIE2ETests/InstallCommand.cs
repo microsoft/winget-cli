@@ -274,6 +274,34 @@ namespace AppInstallerCLIE2ETests
         }
 
         [Test]
+        public void ReinstallPortable()
+        {
+            string installDir = Path.Combine(System.Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet", "Packages");
+            string packageId, commandAlias, fileName, packageDirName, productCode;
+            packageId = "AppInstallerTest.TestPortableExe";
+            packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
+            commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
+
+            var result = TestCommon.RunAICLICommand("install", "AppInstallerTest.TestPortableExe");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+
+            string symlinkDirectory = Path.Combine(System.Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet", "Links");
+            string symlinkPath = Path.Combine(symlinkDirectory, commandAlias);
+
+            // Clean first install should not display file overwrite message.
+            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.False(result.StdOut.Contains($"Overwriting existing file: {symlinkPath}"));
+
+            // Perform second install and verify that file overwrite message is displayed.
+            var result2 = TestCommon.RunAICLICommand("install", "AppInstallerTest.TestPortableExe");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result2.ExitCode);
+            Assert.True(result2.StdOut.Contains("Successfully installed"));
+            Assert.True(result2.StdOut.Contains($"Overwriting existing file: {symlinkPath}"));
+
+            TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
+        }
+
+        [Test]
         public void InstallZipWithExe()
         {
             var installDir = TestCommon.GetRandomTestDir();
