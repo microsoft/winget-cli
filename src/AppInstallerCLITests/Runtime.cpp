@@ -81,7 +81,7 @@ TEST_CASE("ApplyACL_BothOwners", "[runtime]")
     REQUIRE_THROWS_HR(details.ApplyACL(), HRESULT_FROM_WIN32(ERROR_INVALID_STATE));
 }
 
-TEST_CASE("CheckDevModeIsEnabled", "[runtime]")
+TEST_CASE("VerifyDevModeEnabledCheck", "[runtime]")
 {
     if (!Runtime::IsRunningAsAdmin())
     {
@@ -91,13 +91,13 @@ TEST_CASE("CheckDevModeIsEnabled", "[runtime]")
 
     bool initialState = IsDevModeEnabled();
 
-    TestCommon::EnableDevMode(!initialState);
-    bool test = IsDevModeEnabled();
+    EnableDevMode(!initialState);
+    bool modifiedState = IsDevModeEnabled();
     
     // Revert to original state.
     EnableDevMode(initialState);
-    bool test2 = IsDevModeEnabled();
+    bool revertedState = IsDevModeEnabled();
 
-    REQUIRE(test != initialState);
-    REQUIRE(test2 == initialState);
+    REQUIRE(modifiedState != initialState);
+    REQUIRE(revertedState == initialState);
 }

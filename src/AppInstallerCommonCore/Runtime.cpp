@@ -30,8 +30,8 @@ namespace AppInstaller::Runtime
         constexpr std::string_view s_PortablePackageRoot = "WinGet"sv;
         constexpr std::string_view s_PortablePackagesDirectory = "Packages"sv;
         constexpr std::string_view s_LinksDirectory = "Links"sv;
-        constexpr std::wstring_view s_DevModeSubkey = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\AppModelUnlock";
-        constexpr std::wstring_view s_AllowDevelopmentWithoutDevLicense = L"AllowDevelopmentWithoutDevLicense";
+        constexpr std::string_view s_DevModeSubkey = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\AppModelUnlock"sv;
+        constexpr std::string_view s_AllowDevelopmentWithoutDevLicense = "AllowDevelopmentWithoutDevLicense"sv;
 #ifndef WINGET_DISABLE_FOR_FUZZING
         constexpr std::string_view s_SecureSettings_Relative_Packaged = "pkg"sv;
 #endif
@@ -710,8 +710,8 @@ namespace AppInstaller::Runtime
     // Determines whether developer mode is enabled.
     bool IsDevModeEnabled()
     {
-        const auto& devModeSubKey = Registry::Key::OpenIfExists(HKEY_LOCAL_MACHINE,  std::wstring{ s_DevModeSubkey });
-        const auto& devModeEnabled = devModeSubKey[std::wstring{ s_AllowDevelopmentWithoutDevLicense }];
+        const auto& devModeSubKey = Registry::Key::OpenIfExists(HKEY_LOCAL_MACHINE, s_DevModeSubkey, 0, KEY_READ|KEY_WOW64_64KEY);
+        const auto& devModeEnabled = devModeSubKey[s_AllowDevelopmentWithoutDevLicense];
         if (devModeEnabled.has_value())
         {
             return devModeEnabled->GetValue<Registry::Value::Type::DWord>();

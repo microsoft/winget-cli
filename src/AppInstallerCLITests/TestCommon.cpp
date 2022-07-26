@@ -223,7 +223,7 @@ namespace TestCommon
     void EnableDevMode(bool enable)
     {
         wil::unique_hkey result;
-        THROW_IF_WIN32_ERROR(RegOpenKeyExW(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\AppModelUnlock", 0, KEY_ALL_ACCESS, &result));
+        THROW_IF_WIN32_ERROR(RegOpenKeyExW(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\AppModelUnlock", 0, KEY_ALL_ACCESS|KEY_WOW64_64KEY, &result));
         SetRegistryValue(result.get(), L"AllowDevelopmentWithoutDevLicense", enable);
     }
 
