@@ -296,6 +296,7 @@ NX
 objbase
 objidl
 ofile
+openmode
 Outptr
 packageinuse
 PARAMETERMAP

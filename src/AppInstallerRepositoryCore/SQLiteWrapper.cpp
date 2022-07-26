@@ -37,6 +37,12 @@ namespace AppInstaller::Repository::SQLite
 
     namespace
     {
+        size_t GetNextConnectionId()
+        {
+            static std::atomic_size_t connectionId(0);
+            return ++connectionId;
+        }
+
         size_t GetNextStatementId()
         {
             static std::atomic_size_t statementId(0);
@@ -141,7 +147,8 @@ namespace AppInstaller::Repository::SQLite
 
     Connection::Connection(const std::string& target, OpenDisposition disposition, OpenFlags flags)
     {
-        AICLI_LOG(SQL, Info, << "Opening SQLite connection: '" << target << "' [" << std::hex << static_cast<int>(disposition) << ", " << std::hex << static_cast<int>(flags) << "]");
+        m_id = GetNextConnectionId();
+        AICLI_LOG(SQL, Info, << "Opening SQLite connection #" << m_id << ": '" << target << "' [" << std::hex << static_cast<int>(disposition) << ", " << std::hex << static_cast<int>(flags) << "]");
         // Always force connection serialization until we determine that there are situations where it is not needed
         int resultingFlags = static_cast<int>(disposition) | static_cast<int>(flags) | SQLITE_OPEN_FULLMUTEX;
         THROW_IF_SQLITE_FAILED(sqlite3_open_v2(target.c_str(), &m_dbconn, resultingFlags, nullptr), nullptr);
@@ -172,10 +179,16 @@ namespace AppInstaller::Repository::SQLite
         return sqlite3_changes(m_dbconn.get());
     }
 
+    size_t Connection::GetID() const
+    {
+        return m_id;
+    }
+
     Statement::Statement(const Connection& connection, std::string_view sql)
     {
+        m_connectionId = connection.GetID();
         m_id = GetNextStatementId();
-        AICLI_LOG(SQL, Verbose, << "Preparing statement #" << m_id << ": " << sql);
+        AICLI_LOG(SQL, Verbose, << "Preparing statement #" << m_connectionId << '-' << m_id << ": " << sql);
         // SQL string size should include the null terminator (https://www.sqlite.org/c3ref/prepare.html)
         assert(sql.data()[sql.size()] == '\0');
         THROW_IF_SQLITE_FAILED(sqlite3_prepare_v2(connection, sql.data(), static_cast<int>(sql.size() + 1), &m_stmt, nullptr), connection);
@@ -241,18 +254,18 @@ namespace AppInstaller::Repository::SQLite
 
     bool Statement::Step(bool failFastOnError)
     {
-        AICLI_LOG(SQL, Verbose, << "Stepping statement #" << m_id);
+        AICLI_LOG(SQL, Verbose, << "Stepping statement #" << m_connectionId << '-' << m_id);
         int result = sqlite3_step(m_stmt.get());
 
         if (result == SQLITE_ROW)
         {
-            AICLI_LOG(SQL, Verbose, << "Statement #" << m_id << " has data");
+            AICLI_LOG(SQL, Verbose, << "Statement #" << m_connectionId << '-' << m_id << " has data");
             m_state = State::HasRow;
             return true;
         }
         else if (result == SQLITE_DONE)
         {
-            AICLI_LOG(SQL, Verbose, << "Statement #" << m_id << " has completed");
+            AICLI_LOG(SQL, Verbose, << "Statement #" << m_connectionId << '-' << m_id << " has completed");
             m_state = State::Completed;
             return false;
         }
@@ -283,7 +296,7 @@ namespace AppInstaller::Repository::SQLite
 
     void Statement::Reset()
     {
-        AICLI_LOG(SQL, Verbose, << "Reset statement #" << m_id);
+        AICLI_LOG(SQL, Verbose, << "Reset statement #" << m_connectionId << '-' << m_id);
         // Ignore return value from reset, as if it is an error, it was the error from the last call to step.
         sqlite3_reset(m_stmt.get());
         m_state = State::Prepared;
