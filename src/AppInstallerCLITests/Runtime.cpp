@@ -30,7 +30,7 @@ TEST_CASE("ApplyACL_CurrentUserOwner", "[runtime]")
     TempDirectory directory("CurrentUserOwner");
     PathDetails details;
     details.Path = directory;
-    details.CurrentUser = ACEPermissions::Owner;
+    details.SetOwner(ACEPrincipal::CurrentUser);
 
     details.ApplyACL();
 
@@ -42,7 +42,7 @@ TEST_CASE("ApplyACL_RemoveWriteForUser", "[runtime]")
     TempDirectory directory("CurrentUserCantWrite");
     PathDetails details;
     details.Path = directory;
-    details.CurrentUser = ACEPermissions::ReadExecute;
+    details.ACL[ACEPrincipal::CurrentUser] = ACEPermissions::ReadExecute;
 
     details.ApplyACL();
 
@@ -54,7 +54,7 @@ TEST_CASE("ApplyACL_AdminOwner", "[runtime]")
     TempDirectory directory("AdminOwner");
     PathDetails details;
     details.Path = directory;
-    details.Admins = ACEPermissions::Owner;
+    details.SetOwner(ACEPrincipal::Admins);
 
     if (IsRunningAsAdmin())
     {
@@ -74,11 +74,24 @@ TEST_CASE("ApplyACL_BothOwners", "[runtime]")
     TempDirectory directory("AdminOwner");
     PathDetails details;
     details.Path = directory;
-    details.CurrentUser = ACEPermissions::Owner;
-    details.Admins = ACEPermissions::Owner;
+    details.ACL[ACEPrincipal::CurrentUser] = ACEPermissions::ReadExecute;
+    details.ACL[ACEPrincipal::System] = ACEPermissions::All;
 
     // Both cannot be owners
     REQUIRE_THROWS_HR(details.ApplyACL(), HRESULT_FROM_WIN32(ERROR_INVALID_STATE));
+}
+
+TEST_CASE("ApplyACL_CurrentUserOwner_SystemAll", "[runtime]")
+{
+    TempDirectory directory("UserAndSystem");
+    PathDetails details;
+    details.Path = directory;
+    details.SetOwner(ACEPrincipal::CurrentUser);
+    details.ACL[ACEPrincipal::System] = ACEPermissions::All;
+
+    details.ApplyACL();
+
+    REQUIRE(CanWriteToPath(directory));
 }
 
 TEST_CASE("VerifyDevModeEnabledCheck", "[runtime]")

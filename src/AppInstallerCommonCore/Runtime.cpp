@@ -201,7 +201,7 @@ namespace AppInstaller::Runtime
         {
             DWORD result = 0;
 
-            if (permissions == ACEPermissions::Owner)
+            if (permissions == ACEPermissions::All)
             {
                 result |= GENERIC_ALL;
             }
@@ -225,6 +225,14 @@ namespace AppInstaller::Runtime
 
             return result;
         }
+
+        // Contains the information about an ACE entry for a given principal.
+        struct ACEDetails
+        {
+            ACEPrincipal Principal;
+            PSID SID;
+            TRUSTEE_TYPE TrusteeType;
+        };
     }
 
     bool IsRunningInPackagedContext()
@@ -332,69 +340,86 @@ namespace AppInstaller::Runtime
         s_runtimePathStateName.emplace(std::move(suitablePathPart));
     }
 
+    void PathDetails::SetOwner(ACEPrincipal owner)
+    {
+        Owner = owner;
+        ACL[owner] = ACEPermissions::All;
+    }
+
     bool PathDetails::ShouldApplyACL() const
     {
         // Could be expanded to actually check the current owner/ACL on the path, but isn't worth it currently
-        return (CurrentUser != ACEPermissions::None || Admins != ACEPermissions::None);
+        return !ACL.empty();
     }
 
     void PathDetails::ApplyACL() const
     {
-        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), CurrentUser == ACEPermissions::Owner && Admins == ACEPermissions::Owner);
+        bool hasCurrentUser = ACL.count(ACEPrincipal::CurrentUser) != 0;
+        bool hasSystem = ACL.count(ACEPrincipal::System) != 0;
 
-        ULONG entriesCount = 0;
-        EXPLICIT_ACCESS_W explicitAccess[2];
-
-        decltype(wil::get_token_information<TOKEN_USER>()) userToken;
-        auto adminSID = wil::make_static_sid(SECURITY_NT_AUTHORITY, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS);
-        PSID ownerSID = nullptr;
-
-        if (CurrentUser != ACEPermissions::None)
+        // Configuring permissions for both CurrentUser and SYSTEM while not having owner set as one of them is not valid because
+        // below we use only the owner permissions in the case of running as SYSTEM.
+        if ((hasCurrentUser && hasSystem) &&
+            (!Owner || (Owner.value() != ACEPrincipal::CurrentUser && Owner.value() != ACEPrincipal::System)))
         {
-            userToken = wil::get_token_information<TOKEN_USER>();
-
-            if (CurrentUser == ACEPermissions::Owner)
-            {
-                ownerSID = userToken->User.Sid;
-            }
-
-            EXPLICIT_ACCESS_W& entry = explicitAccess[entriesCount++];
-            entry = {};
-
-            entry.grfAccessPermissions = AccessPermissionsFrom(CurrentUser);
-            entry.grfAccessMode = SET_ACCESS;
-            entry.grfInheritance = CONTAINER_INHERIT_ACE | OBJECT_INHERIT_ACE;
-
-            entry.Trustee.pMultipleTrustee = nullptr;
-            entry.Trustee.MultipleTrusteeOperation = NO_MULTIPLE_TRUSTEE;
-            entry.Trustee.TrusteeForm = TRUSTEE_IS_SID;
-            entry.Trustee.TrusteeType = TRUSTEE_IS_USER;
-            entry.Trustee.ptstrName = reinterpret_cast<LPWCH>(userToken->User.Sid);
+            THROW_HR(HRESULT_FROM_WIN32(ERROR_INVALID_STATE));
         }
 
-        if (Admins != ACEPermissions::None)
+        auto userToken = wil::get_token_information<TOKEN_USER>();
+        auto adminSID = wil::make_static_sid(SECURITY_NT_AUTHORITY, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS);
+        auto systemSID = wil::make_static_sid(SECURITY_NT_AUTHORITY, SECURITY_LOCAL_SYSTEM_RID);
+        PSID ownerSID = nullptr;
+
+        ACEDetails aceDetails[] =
         {
-            if (Admins == ACEPermissions::Owner)
+            { ACEPrincipal::CurrentUser, userToken->User.Sid, TRUSTEE_IS_USER },
+            { ACEPrincipal::Admins, adminSID.get(), TRUSTEE_IS_WELL_KNOWN_GROUP},
+            { ACEPrincipal::System, systemSID.get(), TRUSTEE_IS_USER},
+        };
+
+        ULONG entriesCount = 0;
+        std::array<EXPLICIT_ACCESS_W, ARRAYSIZE(aceDetails)> explicitAccess;
+
+        // If the current user is SYSTEM, we want to take either the owner or the only configured set of permissions.
+        // The check above should prevent us from getting into situations outside of the ones below.
+        std::optional<ACEPrincipal> principalToIgnore;
+        if (hasCurrentUser && hasSystem && EqualSid(userToken->User.Sid, systemSID.get()))
+        {
+            principalToIgnore = (Owner.value() == ACEPrincipal::CurrentUser ? ACEPrincipal::System : ACEPrincipal::CurrentUser);
+        }
+
+        for (const auto& ace : aceDetails)
+        {
+            if (principalToIgnore && principalToIgnore.value() == ace.Principal)
             {
-                ownerSID = adminSID.get();
+                continue;
             }
 
-            EXPLICIT_ACCESS_W& entry = explicitAccess[entriesCount++];
-            entry = {};
+            if (Owner && Owner.value() == ace.Principal)
+            {
+                ownerSID = ace.SID;
+            }
 
-            entry.grfAccessPermissions = AccessPermissionsFrom(Admins);
-            entry.grfAccessMode = SET_ACCESS;
-            entry.grfInheritance = CONTAINER_INHERIT_ACE | OBJECT_INHERIT_ACE;
+            auto itr = ACL.find(ace.Principal);
+            if (itr != ACL.end())
+            {
+                EXPLICIT_ACCESS_W& entry = explicitAccess[entriesCount++];
+                entry = {};
 
-            entry.Trustee.pMultipleTrustee = nullptr;
-            entry.Trustee.MultipleTrusteeOperation = NO_MULTIPLE_TRUSTEE;
-            entry.Trustee.TrusteeForm = TRUSTEE_IS_SID;
-            entry.Trustee.TrusteeType = TRUSTEE_IS_WELL_KNOWN_GROUP;
-            entry.Trustee.ptstrName = reinterpret_cast<LPWCH>(adminSID.get());
+                entry.grfAccessPermissions = AccessPermissionsFrom(itr->second);
+                entry.grfAccessMode = SET_ACCESS;
+                entry.grfInheritance = CONTAINER_INHERIT_ACE | OBJECT_INHERIT_ACE;
+
+                entry.Trustee.pMultipleTrustee = nullptr;
+                entry.Trustee.MultipleTrusteeOperation = NO_MULTIPLE_TRUSTEE;
+                entry.Trustee.TrusteeForm = TRUSTEE_IS_SID;
+                entry.Trustee.TrusteeType = ace.TrusteeType;
+                entry.Trustee.ptstrName = reinterpret_cast<LPWCH>(ace.SID);
+            }
         }
 
         wil::unique_any<PACL, decltype(&::LocalFree), ::LocalFree> acl;
-        THROW_IF_WIN32_ERROR(SetEntriesInAclW(entriesCount, explicitAccess, nullptr, &acl));
+        THROW_IF_WIN32_ERROR(SetEntriesInAclW(entriesCount, explicitAccess.data(), nullptr, &acl));
 
         std::wstring path = Path.wstring();
         SECURITY_INFORMATION securityInformation = DACL_SECURITY_INFORMATION | PROTECTED_DACL_SECURITY_INFORMATION;
@@ -475,7 +500,8 @@ namespace AppInstaller::Runtime
         {
         case PathName::Temp:
             result.Path = GetPathToUserTemp() / s_DefaultTempDirectory;
-            result.CurrentUser = ACEPermissions::Owner;
+            result.SetOwner(ACEPrincipal::CurrentUser);
+            result.ACL[ACEPrincipal::System] = ACEPermissions::All;
             break;
         case PathName::LocalState:
         case PathName::UserFileSettings:
@@ -505,8 +531,8 @@ namespace AppInstaller::Runtime
             result.Path /= GetPackageName();
             if (path == PathName::SecureSettingsForWrite)
             {
-                result.Admins = ACEPermissions::Owner;
-                result.CurrentUser = ACEPermissions::ReadExecute;
+                result.SetOwner(ACEPrincipal::Admins);
+                result.ACL[ACEPrincipal::CurrentUser] = ACEPermissions::ReadExecute;
             }
             else
             {
@@ -543,7 +569,8 @@ namespace AppInstaller::Runtime
             result.Path /= GetRuntimePathStateName();
             if (path == PathName::Temp)
             {
-                result.CurrentUser = ACEPermissions::Owner;
+                result.SetOwner(ACEPrincipal::CurrentUser);
+                result.ACL[ACEPrincipal::System] = ACEPermissions::All;
             }
         }
         break;
@@ -556,13 +583,13 @@ namespace AppInstaller::Runtime
         case PathName::LocalState:
             result.Path = GetPathToAppDataDir(s_AppDataDir_State);
             result.Path /= GetRuntimePathStateName();
-            result.CurrentUser = ACEPermissions::Owner;
+            result.SetOwner(ACEPrincipal::CurrentUser);
             break;
         case PathName::StandardSettings:
         case PathName::UserFileSettings:
             result.Path = GetPathToAppDataDir(s_AppDataDir_Settings);
             result.Path /= GetRuntimePathStateName();
-            result.CurrentUser = ACEPermissions::Owner;
+            result.SetOwner(ACEPrincipal::CurrentUser);
             break;
         case PathName::SecureSettingsForRead:
         case PathName::SecureSettingsForWrite:
@@ -574,8 +601,8 @@ namespace AppInstaller::Runtime
             result.Path /= GetRuntimePathStateName();
             if (path == PathName::SecureSettingsForWrite)
             {
-                result.Admins = ACEPermissions::Owner;
-                result.CurrentUser = ACEPermissions::ReadExecute;
+                result.SetOwner(ACEPrincipal::Admins);
+                result.ACL[ACEPrincipal::CurrentUser] = ACEPermissions::ReadExecute;
             }
             else
             {

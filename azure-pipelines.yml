@@ -306,6 +306,12 @@ jobs:
       TargetFolder: '$(artifactsDir)'
     condition: succeededOrFailed()
 
+  - task: PowerShell@2
+    displayName: 'Copy PowerShell Module Binaries to Output'
+    inputs:
+      filePath: 'src\PowerShell\Microsoft.WinGet.Client\Copy-PlatformBinaries.ps1'
+      arguments: '-Platform $(buildPlatform) -Configuration $(buildConfiguration) -OutDir $(artifactsDir)\PowerShell'
+
   - task: PublishPipelineArtifact@1
     displayName: Publish Pipeline Artifacts
     inputs:
@@ -327,3 +333,37 @@ jobs:
 
   - task: securedevelopmentteam.vss-secure-development-tools.build-task-publishsecurityanalysislogs.PublishSecurityAnalysisLogs@2
     displayName: 'Publish Security Analysis Logs'
+
+- job: 'BuildPowerShellModule'
+  timeoutInMinutes: 120
+  dependsOn: 'Build'
+  condition: always()
+
+  steps:
+  - task: DownloadPipelineArtifact@2
+    displayName: 'Download Build Artifacts'
+  
+  - task: CopyFiles@2
+    displayName: 'Copy x64 PowerShell Binaries to Output'
+    inputs:
+      SourceFolder: '$(Pipeline.Workspace)\Build.x64release\PowerShell'
+      Contents: '**\*'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+  - task: CopyFiles@2
+    displayName: 'Copy x86 PowerShell Binaries to Output'
+    inputs:
+      SourceFolder: '$(Pipeline.Workspace)\Build.x86release\PowerShell'
+      Contents: '**\*'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+  - task: PowerShell@2
+    displayName: 'Copy PowerShell Module Files to Output'
+    inputs:
+      filePath: 'src\PowerShell\Microsoft.WinGet.Client\Copy-ModuleFiles.ps1'
+      arguments: '-OutDir $(Build.ArtifactStagingDirectory)'
+  
+  - task: PublishPipelineArtifact@1
+    displayName: Publish PowerShell Module Artifacts
+    inputs:
+      targetPath: '$(Build.ArtifactStagingDirectory)'

@@ -429,10 +429,10 @@ namespace AppInstaller::CLI::Workflow
                 AICLI_LOG(CLI, Info, << "Unable to create symlink. '" << symlinkFullPath << "points to an existing directory.");
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PORTABLE_SYMLINK_PATH_IS_DIRECTORY);
             }
-            else
+            else if (std::filesystem::remove(symlinkFullPath))
             {
-                context.Reporter.Warn() << Resource::String::OverwritingExistingFileAtMessage << symlinkFullPath.u8string() << std::endl;
-                std::filesystem::remove(symlinkFullPath);
+                AICLI_LOG(CLI, Info, << "Removed existing file at " << symlinkFullPath);
+                context.Reporter.Warn() << Resource::String::OverwritingExistingFileAtMessage << ' ' << symlinkFullPath.u8string() << std::endl;
             }
 
             std::filesystem::create_symlink(targetFullPath, symlinkFullPath);
