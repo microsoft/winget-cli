@@ -414,15 +414,50 @@ TEST_CASE("SettingsExperimentalCmd", "[settings]")
     }
 }
 
-TEST_CASE("SettingsPortableAppRoot", "[settings]")
+TEST_CASE("SettingsPortableAppUserRoot", "[settings]")
 {
     SECTION("Relative path")
     {
+        DeleteUserSettingsFiles();
         std::string_view json = R"({ "installBehavior": { "portableAppUserRoot": %LOCALAPPDATA%/Portable/Root } })";
         SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
         
         REQUIRE(userSettingTest.Get<Setting::PortableAppUserRoot>().empty());
         REQUIRE(userSettingTest.GetWarnings().size() == 1);
+    }
+    SECTION("Valid path")
+    {
+        DeleteUserSettingsFiles();
+        std::string_view json = R"({ "installBehavior": { "portableAppUserRoot": "C:/Foo/Bar" } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::PortableAppMachineRoot>() == "C:/Foo/Bar");
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+}
+
+TEST_CASE("SettingsPortableAppMachineRoot", "[settings]")
+{
+    SECTION("Relative path")
+    {
+        DeleteUserSettingsFiles();
+        std::string_view json = R"({ "installBehavior": { "portableAppMachineRoot": %LOCALAPPDATA%/Portable/Root } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::PortableAppMachineRoot>().empty());
+        REQUIRE(userSettingTest.GetWarnings().size() == 1);
+    }
+    SECTION("Valid path")
+    {
+        DeleteUserSettingsFiles();
+        std::string_view json = R"({ "installBehavior": { "portableAppMachineRoot": "C:/Foo/Bar" } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::PortableAppMachineRoot>() == "C:/Foo/Bar");
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
     }
 }

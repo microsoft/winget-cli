@@ -481,6 +481,14 @@ namespace AppInstaller::Manifest
             );
     }
 
+    bool DoesInstallerTypeIgnoreScopeFromManifest(InstallerTypeEnum installerType)
+    {
+        return (
+            installerType == InstallerTypeEnum::Msix ||
+            installerType == InstallerTypeEnum::Portable
+            );
+    }
+
     bool IsArchiveType(InstallerTypeEnum installerType)
     {
         return (installerType == InstallerTypeEnum::Zip);

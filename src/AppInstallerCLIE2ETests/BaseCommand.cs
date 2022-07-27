@@ -37,6 +37,16 @@ namespace AppInstallerCLIE2ETests
             File.WriteAllText(Path.Combine(localAppDataPath, TestCommon.SettingsJsonFilePath), settingsJson.ToString());
         }
 
+        public void ConfigureInstallBehavior(string settingName, string value)
+        {
+            string localAppDataPath = Environment.GetEnvironmentVariable(Constants.LocalAppData);
+            JObject settingsJson = JObject.Parse(File.ReadAllText(Path.Combine(localAppDataPath, TestCommon.SettingsJsonFilePath)));
+            JObject installBehavior = (JObject)settingsJson["installBehavior"];
+            installBehavior[settingName] = value;
+
+            File.WriteAllText(Path.Combine(localAppDataPath, TestCommon.SettingsJsonFilePath), settingsJson.ToString());
+        }
+
         public void InitializeAllFeatures(bool status)
         {
             ConfigureFeature("experimentalArg", status);

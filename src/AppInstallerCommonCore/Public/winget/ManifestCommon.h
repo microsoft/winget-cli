@@ -311,6 +311,9 @@ namespace AppInstaller::Manifest
     // Gets a value indicating whether the given installer type supports ARP version range.
     bool DoesInstallerTypeSupportArpVersionRange(InstallerTypeEnum installerType);
 
+    // Gets a value indicating whether the given installer type ignores the Scope value from the manifest.
+    bool DoesInstallerTypeIgnoreScopeFromManifest(InstallerTypeEnum installerType);
+
     // Gets a value indicating whether the given installer type is an archive.
     bool IsArchiveType(InstallerTypeEnum installerType);
 

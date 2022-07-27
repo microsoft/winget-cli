@@ -443,7 +443,7 @@ namespace AppInstaller::Runtime
             result.Path = GetKnownFolderPath(FOLDERID_Profile);
             result.Create = false;
             break;
-        case PathName::PortablePackageUserRoot:
+        case PathName::PortableAppUserRoot:
             result.Path = Settings::User().Get<Setting::PortableAppUserRoot>();
             if (result.Path.empty())
             {
@@ -453,7 +453,7 @@ namespace AppInstaller::Runtime
                 result.Path /= s_PortablePackagesDirectory;
             }
             break;
-        case PathName::PortablePackageMachineRootX64:
+        case PathName::PortableAppMachineRootX64:
             result.Path = Settings::User().Get<Setting::PortableAppMachineRoot>();
             if (result.Path.empty())
             {
@@ -462,7 +462,7 @@ namespace AppInstaller::Runtime
                 result.Path /= s_PortablePackagesDirectory;
             }
             break;
-        case PathName::PortablePackageMachineRootX86:
+        case PathName::PortableAppMachineRootX86:
             result.Path = Settings::User().Get<Setting::PortableAppMachineRoot>();
             if (result.Path.empty())
             {
@@ -540,9 +540,9 @@ namespace AppInstaller::Runtime
             }
             break;
         case PathName::UserProfile:
-        case PathName::PortablePackageUserRoot:
-        case PathName::PortablePackageMachineRootX64:
-        case PathName::PortablePackageMachineRootX86:
+        case PathName::PortableAppUserRoot:
+        case PathName::PortableAppMachineRootX64:
+        case PathName::PortableAppMachineRootX86:
         case PathName::PortableLinksUserLocation:
         case PathName::PortableLinksMachineLocation:
             result = GetPathDetailsCommon(path);
@@ -610,9 +610,9 @@ namespace AppInstaller::Runtime
             }
             break;
         case PathName::UserProfile:
-        case PathName::PortablePackageUserRoot:
-        case PathName::PortablePackageMachineRootX64:
-        case PathName::PortablePackageMachineRootX86:
+        case PathName::PortableAppUserRoot:
+        case PathName::PortableAppMachineRootX64:
+        case PathName::PortableAppMachineRootX86:
         case PathName::PortableLinksUserLocation:
         case PathName::PortableLinksMachineLocation:
             result = GetPathDetailsCommon(path);

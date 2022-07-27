@@ -52,15 +52,15 @@ namespace AppInstaller::Runtime
         SecureSettingsForWrite,
         // The value of %USERPROFILE%.
         UserProfile,
-        // The location where portable packages are installed to with user scope.
-        PortablePackageUserRoot,
-        // The location where portable packages are installed to with machine scope (x64).
-        PortablePackageMachineRootX64,
-        // The location where portable packages are installed to with machine scope (x86).
-        PortablePackageMachineRootX86,
-        // The location where symlinks to portable packages are stored under user scope.
+        // The location where portable apps are installed to with user scope.
+        PortableAppUserRoot,
+        // The location where portable apps are installed to with machine scope (x64).
+        PortableAppMachineRootX64,
+        // The location where portable apps are installed to with machine scope (x86).
+        PortableAppMachineRootX86,
+        // The location where symlinks to portable apps are stored under user scope.
         PortableLinksUserLocation,
-        // The location where symlinks to portable packages are stored under machine scope.
+        // The location where symlinks to portable apps are stored under machine scope.
         PortableLinksMachineLocation,
     };
 

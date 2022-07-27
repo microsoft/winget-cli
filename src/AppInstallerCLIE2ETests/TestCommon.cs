@@ -8,7 +8,6 @@ namespace AppInstallerCLIE2ETests
     using System;
     using System.Diagnostics;
     using System.IO;
-    using System.Linq;
     using System.Threading;
 
     public class TestCommon
@@ -44,6 +43,12 @@ namespace AppInstallerCLIE2ETests
                     @"Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\settings.json" :
                     @"Microsoft\WinGet\Settings\settings.json";
             }
+        }
+
+        public enum Scope
+        {
+            User,
+            Machine
         }
 
         public struct RunCommandResult
@@ -280,9 +285,16 @@ namespace AppInstallerCLIE2ETests
             return RunCommand("powershell", $"Get-AppxPackage \"{name}\" | Remove-AppxPackage");
         }
 
-        public static string GetPortableSymlinkDirectory()
+        public static string GetPortableSymlinkDirectory(Scope scope)
         {
-            return Path.Combine(Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet", "Links");
+            if (scope == Scope.User)
+            {
+                return Path.Combine(Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet", "Links");
+            }
+            else
+            {
+                return Path.Combine(Environment.GetEnvironmentVariable("ProgramFiles"), "WinGet", "Links");
+            }
         }
 
         public static string GetPortablePackagesDirectory()
@@ -295,12 +307,13 @@ namespace AppInstallerCLIE2ETests
             string commandAlias,
             string filename,
             string productCode,
-            bool shouldExist)
+            bool shouldExist, 
+            Scope scope = Scope.User)
         {
             string exePath = Path.Combine(installDir, filename);
             bool exeExists = File.Exists(exePath);
 
-            string symlinkDirectory = GetPortableSymlinkDirectory();
+            string symlinkDirectory = GetPortableSymlinkDirectory(scope);
             string symlinkPath = Path.Combine(symlinkDirectory, commandAlias);
             bool symlinkExists = File.Exists(symlinkPath);
 

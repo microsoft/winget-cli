@@ -58,25 +58,25 @@ The `disableInstallNotes` behavior affects whether installation notes are shown 
     },
 ```
 
-### Portable Package User Root
-The `PortablePackageUserRoot` setting affects the default root directory where packages are installed to under `User` scope. This setting only applies to packages with the `portable` installer type. Defaults to `%LOCALAPPDATA%/Microsoft/WinGet/Packages/` if value is not set or is invalid.
+### Portable App User Root
+The `portableAppUserRoot` setting affects the default root directory where packages are installed to under `User` scope. This setting only applies to packages with the `portable` installer type. Defaults to `%LOCALAPPDATA%/Microsoft/WinGet/Packages/` if value is not set or is invalid.
 
 > Note: This setting value must be an absolute path.
 
 ```json
     "installBehavior": {
-        "PortablePackageUserRoot": "C:/Users/FooBar/Packages"
+        "portableAppUserRoot": "C:/Users/FooBar/Packages"
     },
 ```
 
-### Portable Package Machine Root
-The `PortablePackageMachineRoot` setting affects the default root directory where packages are installed to under `Machine` scope. This setting only applies to packages with the `portable` installer type. Defaults to `%PROGRAMFILES%/WinGet/Packages/` if value is not set or is invalid.
+### Portable App Machine Root
+The `portableAppMachineRoot` setting affects the default root directory where packages are installed to under `Machine` scope. This setting only applies to packages with the `portable` installer type. Defaults to `%PROGRAMFILES%/WinGet/Packages/` if value is not set or is invalid.
 
 > Note: This setting value must be an absolute path.
 
 ```json
     "installBehavior": {
-        "PortablePackageMachineRoot": "C:/Program Files/Packages/Portable"
+        "portableAppMachineRoot": "C:/Program Files/Packages/Portable"
     },
 ```
 

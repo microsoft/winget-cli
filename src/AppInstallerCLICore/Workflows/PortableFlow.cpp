@@ -54,16 +54,16 @@ namespace AppInstaller::CLI::Workflow
             {
                 if (arch == Utility::Architecture::X86)
                 {
-                    return Runtime::GetPathTo(Runtime::PathName::PortablePackageMachineRootX86);
+                    return Runtime::GetPathTo(Runtime::PathName::PortableAppMachineRootX86);
                 }
                 else
                 {
-                    return Runtime::GetPathTo(Runtime::PathName::PortablePackageMachineRootX64);
+                    return Runtime::GetPathTo(Runtime::PathName::PortableAppMachineRootX64);
                 }
             }
             else
             {
-                return Runtime::GetPathTo(Runtime::PathName::PortablePackageUserRoot);
+                return Runtime::GetPathTo(Runtime::PathName::PortableAppUserRoot);
             }
         }
 
@@ -556,6 +556,16 @@ namespace AppInstaller::CLI::Workflow
                 }
             }
         }
+
+        void EnsureRunningAsAdminForMachineScopeInstall(Execution::Context& context)
+        {
+            // Admin is required for machine scope install or else creating a symlink in the %programfiles% link location will fail.
+            Manifest::ScopeEnum scope = ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
+            if (scope == Manifest::ScopeEnum::Machine)
+            {
+                context << Workflow::EnsureRunningAsAdmin;
+            }
+        }
     }
 
     void PortableInstallImpl(Execution::Context& context)
@@ -634,6 +644,7 @@ namespace AppInstaller::CLI::Workflow
         {
             context <<
                 EnsureSymlinkCreationPrivilege <<
+                EnsureRunningAsAdminForMachineScopeInstall <<
                 EnsureValidArgsForPortableInstall <<
                 EnsureVolumeSupportsReparsePoints;
         }
