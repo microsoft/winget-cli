@@ -116,6 +116,9 @@ namespace TestCommon
     void SetRegistryValue(HKEY key, const std::wstring& name, const std::vector<BYTE>& value, DWORD type = REG_BINARY);
     void SetRegistryValue(HKEY key, const std::wstring& name, DWORD value);
 
+    // Enable or disable developer mode.
+    void EnableDevMode(bool enable);
+
     // Override UserSettings using this class.
     // Automatically overrides the user settings for the lifetime of this object.
     // DOES NOT SUPPORT NESTED USE

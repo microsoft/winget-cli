@@ -982,6 +982,40 @@ TEST_CASE("PortableInstallFlow", "[InstallFlow][workflow]")
     REQUIRE(std::filesystem::exists(portableInstallResultPath.GetPath()));
 }
 
+
+TEST_CASE("PortableInstallFlow_DevModeDisabled", "[InstallFlow][workflow]")
+{
+    if (!AppInstaller::Runtime::IsRunningAsAdmin())
+    {
+        WARN("Test requires admin privilege. Skipped.");
+        return;
+    }
+
+    TestCommon::TempDirectory tempDirectory("TestPortableInstallRoot", false);
+    TestCommon::TempFile portableInstallResultPath("TestPortableInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    TestCommon::EnableDevMode(false);
+
+    // Override admin check to report as false.
+    context.Override({ EnsureRunningAsAdmin, [](TestContext& testContext)
+    {
+        testContext.SetTerminationHR(APPINSTALLER_CLI_ERROR_COMMAND_REQUIRES_ADMIN);
+    } });
+
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Portable.yaml").GetPath().u8string());
+    InstallCommand install({});
+    install.Execute(context);
+    TestCommon::EnableDevMode(true);
+    INFO(installOutput.str());
+
+    // Verify proper message is printed for installing portable in non-developer mode and not running as admin. 
+    REQUIRE_FALSE(std::filesystem::exists(portableInstallResultPath.GetPath()));
+    REQUIRE(installOutput.str().find("https://github.com/microsoft/winget-cli/issues/2368") != std::string::npos);
+}
+
 TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow][workflow]")
 {
     {

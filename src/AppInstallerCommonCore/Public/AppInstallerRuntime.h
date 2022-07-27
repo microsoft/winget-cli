@@ -74,6 +74,9 @@ namespace AppInstaller::Runtime
     // Determines whether the process is running with administrator privileges.
     bool IsRunningAsAdmin();
 
+    // Determines whether developer mode is enabled.
+    bool IsDevModeEnabled();
+
     // Returns true if this is a release build; false if not.
     inline constexpr bool IsReleaseBuild();
 
