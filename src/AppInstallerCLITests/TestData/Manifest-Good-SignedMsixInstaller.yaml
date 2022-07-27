@@ -1,14 +1,14 @@
-PackageIdentifier: AppInstallerCliTest.InconsistentMsixSignatureHash
-PackageVersion: 1.0.0.0
+PackageIdentifier: AppInstallerCliTest.GoodMsixInstaller
+PackageVersion: 43690.48059.52428.56797
 PackageLocale: es-MX
 PackageName: es-MX package name
 Publisher: es-MX publisher
-PackageFamilyName: 20477fca-282d-49fb-b03e-371dca074f0f_8wekyb3d8bbwe
-MinimumOSVersion: 10.0.10586.0
+PackageFamilyName: FakeInstallerForTesting_125rzkzqaqjwj
+MinimumOSVersion: 10.0.0.0
 InstallerType: msix
 Installers: 
     - Architecture: x64
-      InstallerUrl: TestSignedApp.msix
-      SignatureSha256: 138781c3e6f635240353f3d14d1d57bdcb89413e49be63b375e6a5d7b93b0d07
+      InstallerUrl: Installer-Signed-Good.msix
+      SignatureSha256: 50562001202c8dad456474d3f20903138d0a15c44ee497c3d4f82e85edbf2f97
 ManifestType: merged
 ManifestVersion: 1.0.0

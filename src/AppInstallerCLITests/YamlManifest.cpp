@@ -1040,9 +1040,9 @@ TEST_CASE("ReadManifestAndValidateMsixInstallers_Signed_Success", "[ManifestVali
     REQUIRE(0 == errors.size());
 }
 
-TEST_CASE("ReadManifestAndValidateMsixInstallers_InconsistentSignatureHash", "[ManifestValidation]")
+TEST_CASE("ReadManifestAndValidateMsixInstallers_Signed_InconsistentFields", "[ManifestValidation]")
 {
-    TestDataFile testFile("Manifest-Bad-InconsistentMsixInstallerSignatureHash.yaml");
+    TestDataFile testFile("Manifest-Bad-InconsistentSignedMsixInstallerFields.yaml");
     Manifest manifest = YamlParser::CreateFromPath(testFile);
 
     // Update the installer path for testing
@@ -1050,17 +1050,32 @@ TEST_CASE("ReadManifestAndValidateMsixInstallers_InconsistentSignatureHash", "[M
     TestDataFile msixFile(manifest.Installers[0].Url.c_str());
     manifest.Installers[0].Url = msixFile.GetPath().u8string();
 
-    for (bool treatErrorAsWarning : { false, true })
-    {
-        auto errors = ValidateManifestInstallers(manifest, treatErrorAsWarning);
-        REQUIRE(1 == errors.size());
+    auto errors = ValidateManifestInstallers(manifest);
+    REQUIRE(4 == errors.size());
 
-        // Signature hash validation
-        REQUIRE(ValidationError::Level::Error == errors[0].ErrorLevel);
-        REQUIRE(ManifestError::InstallerMsixInconsistencies == errors[0].Message);
-        REQUIRE("SignatureSha256" == errors[0].Field);
-        REQUIRE("138781c3e6f635240353f3d14d1d57bdcb89413e49be63b375e6a5d7b93b0d07" == errors[0].Value);
-    }
+    // Unexpected signature hash
+    REQUIRE(ValidationError::Level::Error == errors[0].ErrorLevel);
+    REQUIRE(ManifestError::InstallerMsixInconsistencies == errors[0].Message);
+    REQUIRE("SignatureSha256" == errors[0].Field);
+    REQUIRE("50562001202c8dad456474d3f20903138d0a15c44ee497c3d4f82e85edbf2f97" == errors[0].Value);
+
+    // Package family name
+    REQUIRE(ValidationError::Level::Error == errors[1].ErrorLevel);
+    REQUIRE(ManifestError::InstallerMsixInconsistencies == errors[1].Message);
+    REQUIRE("PackageFamilyName" == errors[1].Field);
+    REQUIRE("FakeInstallerForTesting_125rzkzqaqjwj" == errors[1].Value);
+
+    // Package version
+    REQUIRE(ValidationError::Level::Error == errors[2].ErrorLevel);
+    REQUIRE(ManifestError::InstallerMsixInconsistencies == errors[2].Message);
+    REQUIRE("PackageVersion" == errors[2].Field);
+    REQUIRE("43690.48059.52428.56797" == errors[2].Value);
+
+    // Min OS version
+    REQUIRE(ValidationError::Level::Error == errors[3].ErrorLevel);
+    REQUIRE(ManifestError::InstallerMsixInconsistencies == errors[3].Message);
+    REQUIRE("MinimumOSVersion" == errors[3].Field);
+    REQUIRE("10.0.0.0" == errors[3].Value);
 }
 
 TEST_CASE("ManifestArpVersionRange", "[ManifestValidation]")
