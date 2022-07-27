@@ -1055,7 +1055,7 @@ Do you agree to the terms?</value>
     <value>Moniker:</value>
   </data>
   <data name="ShowLabelPackageUrl" xml:space="preserve">
-    <value>Package Url:</value>
+    <value>Homepage:</value>
   </data>
   <data name="ShowLabelPublisher" xml:space="preserve">
     <value>Publisher:</value>
