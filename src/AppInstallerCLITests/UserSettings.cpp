@@ -433,7 +433,7 @@ TEST_CASE("SettingsPortableAppUserRoot", "[settings]")
         SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
-        REQUIRE(userSettingTest.Get<Setting::PortableAppMachineRoot>() == "C:/Foo/Bar");
+        REQUIRE(userSettingTest.Get<Setting::PortableAppUserRoot>() == "C:/Foo/Bar");
         REQUIRE(userSettingTest.GetWarnings().size() == 0);
     }
 }
