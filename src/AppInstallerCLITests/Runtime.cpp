@@ -8,7 +8,6 @@ using namespace AppInstaller;
 using namespace AppInstaller::Runtime;
 using namespace TestCommon;
 
-
 bool CanWriteToPath(const std::filesystem::path& directory, const std::filesystem::path& file = "test.txt")
 {
     std::ofstream out{ directory / file };
@@ -93,4 +92,25 @@ TEST_CASE("ApplyACL_CurrentUserOwner_SystemAll", "[runtime]")
     details.ApplyACL();
 
     REQUIRE(CanWriteToPath(directory));
+}
+
+TEST_CASE("VerifyDevModeEnabledCheck", "[runtime]")
+{
+    if (!Runtime::IsRunningAsAdmin())
+    {
+        WARN("Test requires admin privilege. Skipped.");
+        return;
+    }
+
+    bool initialState = IsDevModeEnabled();
+
+    EnableDevMode(!initialState);
+    bool modifiedState = IsDevModeEnabled();
+    
+    // Revert to original state.
+    EnableDevMode(initialState);
+    bool revertedState = IsDevModeEnabled();
+
+    REQUIRE(modifiedState != initialState);
+    REQUIRE(revertedState == initialState);
 }

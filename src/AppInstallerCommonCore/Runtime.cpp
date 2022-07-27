@@ -7,6 +7,7 @@
 #include "Public/AppInstallerStrings.h"
 #include "Public/winget/Filesystem.h"
 #include "Public/winget/UserSettings.h"
+#include "Public/winget/Registry.h"
 
 
 #define WINGET_DEFAULT_LOG_DIRECTORY "DiagOutputDir"
@@ -29,6 +30,8 @@ namespace AppInstaller::Runtime
         constexpr std::string_view s_PortablePackageRoot = "WinGet"sv;
         constexpr std::string_view s_PortablePackagesDirectory = "Packages"sv;
         constexpr std::string_view s_LinksDirectory = "Links"sv;
+        constexpr std::string_view s_DevModeSubkey = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\AppModelUnlock"sv;
+        constexpr std::string_view s_AllowDevelopmentWithoutDevLicense = "AllowDevelopmentWithoutDevLicense"sv;
 #ifndef WINGET_DISABLE_FOR_FUZZING
         constexpr std::string_view s_SecureSettings_Relative_Packaged = "pkg"sv;
 #endif
@@ -729,6 +732,22 @@ namespace AppInstaller::Runtime
     bool IsRunningAsAdmin()
     {
         return wil::test_token_membership(nullptr, SECURITY_NT_AUTHORITY, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS);
+    }
+
+    // Determines whether developer mode is enabled.
+    // Does not account for the group policy value which takes precedence over this registry value.
+    bool IsDevModeEnabled()
+    {
+        const auto& devModeSubKey = Registry::Key::OpenIfExists(HKEY_LOCAL_MACHINE, s_DevModeSubkey, 0, KEY_READ|KEY_WOW64_64KEY);
+        const auto& devModeEnabled = devModeSubKey[s_AllowDevelopmentWithoutDevLicense];
+        if (devModeEnabled.has_value())
+        {
+            return devModeEnabled->GetValue<Registry::Value::Type::DWord>() == 1;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     constexpr bool IsReleaseBuild()
