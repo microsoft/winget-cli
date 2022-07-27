@@ -559,7 +559,7 @@ namespace AppInstaller::CLI::Workflow
 
         void EnsureRunningAsAdminForMachineScopeInstall(Execution::Context& context)
         {
-            // Admin is required for machine scope install or else creating a symlink in the %programfiles% link location will fail.
+            // Admin is required for machine scope install or else creating a symlink in the %PROGRAMFILES% link location will fail.
             Manifest::ScopeEnum scope = ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
             if (scope == Manifest::ScopeEnum::Machine)
             {
