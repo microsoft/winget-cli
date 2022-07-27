@@ -4,6 +4,7 @@
 #include "WorkflowBase.h"
 #include "ExecutionContext.h"
 #include "ManifestComparator.h"
+#include "PromptFlow.h"
 #include "TableOutput.h"
 #include <winget/ManifestYamlParser.h>
 
@@ -1126,38 +1127,6 @@ namespace AppInstaller::CLI::Workflow
     void ReportExecutionStage::operator()(Execution::Context& context) const
     {
         context.SetExecutionStage(m_stage);
-    }
-
-    void HandleSourceAgreements::operator()(Execution::Context& context) const
-    {
-        if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::AgreementsAcceptedByCaller))
-        {
-            AICLI_LOG(CLI, Info, << "Skipping source agreements acceptance check because AgreementsAcceptedByCaller flag is set.");
-            return;
-        }
-
-        bool allAccepted = true;
-
-        if (m_source.IsComposite())
-        {
-            for (auto const& source : m_source.GetAvailableSources())
-            {
-                if (!HandleSourceAgreementsForOneSource(context, source))
-                {
-                    allAccepted = false;
-                }
-            }
-        }
-        else
-        {
-            allAccepted = HandleSourceAgreementsForOneSource(context, m_source);
-        }
-
-        if (!allAccepted)
-        {
-            context.Reporter.Error() << Resource::String::SourceAgreementsNotAgreedTo << std::endl;
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SOURCE_AGREEMENTS_NOT_ACCEPTED);
-        }
     }
 }
 

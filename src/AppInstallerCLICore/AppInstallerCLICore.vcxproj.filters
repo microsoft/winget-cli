@@ -330,7 +330,7 @@
     </ClCompile>
     <ClCompile Include="Workflows\PortableFlow.cpp">
       <Filter>Workflows</Filter>
-    </ClInclude>
+    </ClCompile>
     <ClCompile Include="Workflows\PromptFlow.cpp">
       <Filter>Workflows</Filter>
     </ClCompile>

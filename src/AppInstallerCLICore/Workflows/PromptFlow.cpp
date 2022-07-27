@@ -40,7 +40,7 @@ namespace AppInstaller::CLI::Workflow
             return true;
         }
 
-        bool HandleSourceAgreementsForOneSource(Execution::Context& context, const Source& source)
+        bool HandleSourceAgreementsForOneSource(Execution::Context& context, const Repository::Source& source)
         {
             auto details = source.GetDetails();
             AICLI_LOG(CLI, Verbose, << "Checking Source agreements for source: " << details.Name);
@@ -78,7 +78,7 @@ namespace AppInstaller::CLI::Workflow
 
             // Show message for each individual implicit agreement field
             auto fields = source.GetAgreementFieldsFromSourceInformation();
-            if (WI_IsFlagSet(fields, ImplicitAgreementFieldEnum::Market))
+            if (WI_IsFlagSet(fields, Repository::ImplicitAgreementFieldEnum::Market))
             {
                 context.Reporter.Info() << Resource::String::SourceAgreementsMarketMessage << std::endl;
             }
