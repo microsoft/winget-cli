@@ -280,6 +280,16 @@ namespace AppInstallerCLIE2ETests
             return RunCommand("powershell", $"Get-AppxPackage \"{name}\" | Remove-AppxPackage");
         }
 
+        public static string GetPortableSymlinkDirectory()
+        {
+            return Path.Combine(Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet", "Links");
+        }
+
+        public static string GetPortablePackagesDirectory()
+        {
+            return Path.Combine(Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet", "Packages");
+        }
+
         public static void VerifyPortablePackage(
             string installDir,
             string commandAlias,
@@ -290,7 +300,7 @@ namespace AppInstallerCLIE2ETests
             string exePath = Path.Combine(installDir, filename);
             bool exeExists = File.Exists(exePath);
 
-            string symlinkDirectory = Path.Combine(System.Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet", "Links");
+            string symlinkDirectory = GetPortableSymlinkDirectory();
             string symlinkPath = Path.Combine(symlinkDirectory, commandAlias);
             bool symlinkExists = File.Exists(symlinkPath);
 

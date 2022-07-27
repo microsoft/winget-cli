@@ -64,6 +64,14 @@ namespace AppInstaller::Runtime
         PortableLinksMachineLocation,
     };
 
+    // The principal that an ACE applies to.
+    enum class ACEPrincipal : uint32_t
+    {
+        CurrentUser,
+        Admins,
+        System,
+    };
+
     // The permissions granted to a specific ACE.
     enum class ACEPermissions : uint32_t
     {
@@ -75,8 +83,8 @@ namespace AppInstaller::Runtime
         ReadWrite = Read | Write,
         ReadExecute = Read | Execute,
         ReadWriteExecute = Read | Write | Execute,
-        // Owner means that full control will be granted
-        Owner = 0xFFFFFFFF
+        // All means that full control will be granted
+        All = 0xFFFFFFFF
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(ACEPermissions);
@@ -85,10 +93,13 @@ namespace AppInstaller::Runtime
     struct PathDetails
     {
         std::filesystem::path Path;
-        // Default to creating the directory with inherited permissions
+        // Default to creating the directory with inherited ownership and permissions
         bool Create = true;
-        ACEPermissions CurrentUser = ACEPermissions::None;
-        ACEPermissions Admins = ACEPermissions::None;
+        std::optional<ACEPrincipal> Owner;
+        std::map<ACEPrincipal, ACEPermissions> ACL;
+
+        // Shorthand for setting Owner and giving them ACEPermissions::All
+        void SetOwner(ACEPrincipal owner);
 
         // Determines if the ACL should be applied.
         bool ShouldApplyACL() const;
@@ -113,6 +124,9 @@ namespace AppInstaller::Runtime
 
     // Determines whether the process is running with administrator privileges.
     bool IsRunningAsAdmin();
+
+    // Determines whether developer mode is enabled.
+    bool IsDevModeEnabled();
 
     // Returns true if this is a release build; false if not.
     inline constexpr bool IsReleaseBuild();

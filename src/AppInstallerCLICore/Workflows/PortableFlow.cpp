@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "PortableFlow.h"
+#include "WorkflowBase.h"
 #include "winget/Filesystem.h"
 #include "winget/PortableARPEntry.h"
 #include "AppInstallerStrings.h"
@@ -428,10 +429,10 @@ namespace AppInstaller::CLI::Workflow
                 AICLI_LOG(CLI, Info, << "Unable to create symlink. '" << symlinkFullPath << "points to an existing directory.");
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PORTABLE_SYMLINK_PATH_IS_DIRECTORY);
             }
-            else
+            else if (std::filesystem::remove(symlinkFullPath))
             {
-                context.Reporter.Warn() << Resource::String::OverwritingExistingFileAtMessage << symlinkFullPath.u8string() << std::endl;
-                std::filesystem::remove(symlinkFullPath);
+                AICLI_LOG(CLI, Info, << "Removed existing file at " << symlinkFullPath);
+                context.Reporter.Warn() << Resource::String::OverwritingExistingFileAtMessage << ' ' << symlinkFullPath.u8string() << std::endl;
             }
 
             std::filesystem::create_symlink(targetFullPath, symlinkFullPath);
@@ -540,6 +541,21 @@ namespace AppInstaller::CLI::Workflow
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PORTABLE_REPARSE_POINT_NOT_SUPPORTED);
             }
         }
+
+        // TODO: Remove entire task once issue regarding symlink creation privilege has been resolved.
+        void EnsureSymlinkCreationPrivilege(Execution::Context& context)
+        {
+            if (!Runtime::IsDevModeEnabled())
+            {
+                AICLI_LOG(CLI, Info, << "Developer mode not enabled.");
+                context << Workflow::EnsureRunningAsAdmin;
+
+                if (context.IsTerminated())
+                {
+                    context.Reporter.Error() << std::endl << "https://github.com/microsoft/winget-cli/issues/2368" << std::endl;
+                }
+            }
+        }
     }
 
     void PortableInstallImpl(Execution::Context& context)
@@ -617,6 +633,7 @@ namespace AppInstaller::CLI::Workflow
         if (installerType == InstallerTypeEnum::Portable)
         {
             context <<
+                EnsureSymlinkCreationPrivilege <<
                 EnsureValidArgsForPortableInstall <<
                 EnsureVolumeSupportsReparsePoints;
         }
