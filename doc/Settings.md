@@ -49,6 +49,37 @@ Color of the progress bar that WinGet displays when not specified by arguments.
 
 The `installBehavior` settings affect the default behavior of installing and upgrading (where applicable) packages.
 
+### Disable Install Notes
+The `disableInstallNotes` behavior affects whether installation notes are shown after a successful install. Defaults to `false` if value is not set or is invalid.
+
+```json
+    "installBehavior": {
+        "disableInstallNotes": true
+    },
+```
+
+### Portable Package User Root
+The `PortablePackageUserRoot` setting affects the default root directory where packages are installed to under `User` scope. This setting only applies to packages with the `portable` installer type. Defaults to `%LOCALAPPDATA%/Microsoft/WinGet/Packages/` if value is not set or is invalid.
+
+> Note: This setting value must be an absolute path.
+
+```json
+    "installBehavior": {
+        "PortablePackageUserRoot": "C:/Users/FooBar/Packages"
+    },
+```
+
+### Portable Package Machine Root
+The `PortablePackageMachineRoot` setting affects the default root directory where packages are installed to under `Machine` scope. This setting only applies to packages with the `portable` installer type. Defaults to `%PROGRAMFILES%/WinGet/Packages/` if value is not set or is invalid.
+
+> Note: This setting value must be an absolute path.
+
+```json
+    "installBehavior": {
+        "PortablePackageMachineRoot": "C:/Program Files/Packages/Portable"
+    },
+```
+
 ### Preferences and Requirements
 
 Some of the settings are duplicated under `preferences` and `requirements`. `preferences` affect how the various available options are sorted when choosing the one to act on.  For instance, the default scope of package installs is for the current user, but if that is not an option then a machine level installer will be chosen. `requirements` filter the options, potentially resulting in an empty list and a failure to install. In the previous example, a user scope requirement would result in no applicable installers and an error.
@@ -87,6 +118,20 @@ The `architectures` behavior affects what architectures will be selected when in
         "preferences": {
             "architectures": ["x64", "arm64"]
         }
+    },
+```
+
+## Uninstall Behavior
+
+The `uninstallBehavior` settings affect the default behavior of uninstalling (where applicable) packages.
+
+### Purge Portable Package
+
+The `purgePortablePackage` behavior affects the default behavior for uninstalling a portable package. If set to `true`, uninstall will remove all files and directories relevant to the `portable` package. This setting only applies to packages with the `portable` installer type. Defaults to `false` if value is not set or is invalid.
+
+```json
+    "uninstallBehavior": {
+        "purgePortablePackage": true
     },
 ```
 

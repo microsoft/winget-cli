@@ -54,7 +54,9 @@ bomgar
 BOMs
 boundparms
 brk
+Browsable
 Buf
+buildtransitive
 BUILTINS
 cancelledbyuser
 casemap
@@ -82,6 +84,7 @@ COMGLB
 commandline
 Concat
 contactsupport
+contentfiles
 contoso
 contractversion
 count'th
@@ -226,6 +229,7 @@ learnxinyminutes
 lhs
 libsolv
 libyaml
+Lifecycle
 Linq
 liv
 liwpx
@@ -235,6 +239,7 @@ localizationpriority
 LPBYTE
 LPDWORD
 lpitemidlist
+LPITEMIDLIST
 LPWCH
 LPWSTR
 LSTATUS
@@ -294,10 +299,12 @@ NX
 objbase
 objidl
 ofile
+openmode
 Outptr
 packageinuse
-PACL
 PARAMETERMAP
+paramref
+PACL
 pathparts
 Patil
 pb
@@ -322,6 +329,7 @@ pri
 processthreads
 productcode
 pscustomobject
+psd
 pseudocode
 psm
 psobject
@@ -389,6 +397,7 @@ startswith
 streambuf
 STRRET
 strtoull
+stylecop
 subdir
 subkey
 superstring
@@ -466,6 +475,7 @@ winerror
 wingetcreate
 wingetdev
 winreg
+winrtact
 withstarts
 wn
 Workflows
@@ -474,6 +484,7 @@ wsv
 wto
 wwinmain
 WZDNCRFJ
+XFile
 XPLATSTR
 xsi
 yamlcreateps
