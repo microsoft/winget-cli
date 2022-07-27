@@ -1,4 +1,4 @@
-PackageIdentifier: AppInstallerCliTest.GoodMsixInstaller
+PackageIdentifier: AppInstallerCliTest.GoodSignedMsixInstaller
 PackageVersion: 43690.48059.52428.56797
 PackageLocale: es-MX
 PackageName: es-MX package name

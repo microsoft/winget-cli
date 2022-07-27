@@ -8,7 +8,6 @@
 #include "winget/MsixManifestValidation.h"
 #include "winget/Locale.h"
 #include "winget/Filesystem.h"
-#include "winget/Resources.h"
 
 namespace AppInstaller::Manifest
 {

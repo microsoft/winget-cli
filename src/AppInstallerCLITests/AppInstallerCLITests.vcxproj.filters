@@ -696,6 +696,9 @@
     <CopyFileToFolders Include="TestData\Manifest-Bad-NoSupportedPlatforms.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Installer-Bad-NoSupportedPlatforms.msix">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Installer-Good.msix">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
@@ -708,7 +711,6 @@
     <CopyFileToFolders Include="TestData\Installer-Signed-Good.msixbundle">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Installer-Bad-NoSupportedPlatforms.msix" />
     <CopyFileToFolders Include="TestData\Manifest-Bad-InconsistentSignedMsixInstallerFields.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>

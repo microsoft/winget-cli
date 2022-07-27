@@ -1,4 +1,4 @@
-# Bad manifest: Inconsistent field values
+# Bad manifest: Inconsistent field values in unsigned MSIX
 PackageIdentifier: AppInstallerCliTest.InconsistentMsixInstallerFields
 PackageVersion: 1.2.3.4                           # Mismatching value with msix installer
 PackageLocale: es-MX
