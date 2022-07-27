@@ -1078,6 +1078,144 @@ TEST_CASE("ReadManifestAndValidateMsixInstallers_Signed_InconsistentFields", "[M
     REQUIRE("10.0.0.0" == errors[3].Value);
 }
 
+TEST_CASE("ReadManifestAndValidateMsixBundleInstallers_Success", "[ManifestValidation]")
+{
+    TestDataFile testFile("Manifest-Good-MsixBundleInstaller.yaml");
+    Manifest manifest = YamlParser::CreateFromPath(testFile);
+
+    // Update the installer path for testing
+    REQUIRE(1 == manifest.Installers.size());
+    TestDataFile msixFile(manifest.Installers[0].Url.c_str());
+    manifest.Installers[0].Url = msixFile.GetPath().u8string();
+
+    auto errors = ValidateManifestInstallers(manifest);
+    REQUIRE(0 == errors.size());
+}
+
+TEST_CASE("ReadManifestAndValidateMsixBundleInstallers_InconsistentFields", "[ManifestValidation]")
+{
+    TestDataFile testFile("Manifest-Bad-InconsistentMsixBundleInstallerFields.yaml");
+    Manifest manifest = YamlParser::CreateFromPath(testFile);
+
+    // Update the installer path for testing
+    REQUIRE(1 == manifest.Installers.size());
+    TestDataFile msixFile(manifest.Installers[0].Url.c_str());
+    manifest.Installers[0].Url = msixFile.GetPath().u8string();
+
+    auto errors = ValidateManifestInstallers(manifest);
+    REQUIRE(7 == errors.size());
+
+    // Unexpected signature hash
+    REQUIRE(ValidationError::Level::Error == errors[0].ErrorLevel);
+    REQUIRE(ManifestError::MsixSignatureHashFailed == errors[0].Message);
+
+    // Package family name for first msix in bundle
+    REQUIRE(ValidationError::Level::Error == errors[1].ErrorLevel);
+    REQUIRE(ManifestError::InstallerMsixInconsistencies == errors[1].Message);
+    REQUIRE("PackageFamilyName" == errors[1].Field);
+    REQUIRE("FakeInstallerForTesting_125rzkzqaqjwj" == errors[1].Value);
+
+    // Package version for first msix in bundle
+    REQUIRE(ValidationError::Level::Error == errors[2].ErrorLevel);
+    REQUIRE(ManifestError::InstallerMsixInconsistencies == errors[2].Message);
+    REQUIRE("PackageVersion" == errors[2].Field);
+    REQUIRE("43690.48059.52428.56797" == errors[2].Value);
+
+    // Min OS version for first msix in bundle
+    REQUIRE(ValidationError::Level::Error == errors[3].ErrorLevel);
+    REQUIRE(ManifestError::InstallerMsixInconsistencies == errors[3].Message);
+    REQUIRE("MinimumOSVersion" == errors[3].Field);
+    REQUIRE("10.0.16299.0" == errors[3].Value);
+
+    // Package family name for second msix in bundle
+    REQUIRE(ValidationError::Level::Error == errors[4].ErrorLevel);
+    REQUIRE(ManifestError::InstallerMsixInconsistencies == errors[4].Message);
+    REQUIRE("PackageFamilyName" == errors[4].Field);
+    REQUIRE("FakeInstallerForTesting_125rzkzqaqjwj" == errors[4].Value);
+
+    // Package version for second msix in bundle
+    REQUIRE(ValidationError::Level::Error == errors[5].ErrorLevel);
+    REQUIRE(ManifestError::InstallerMsixInconsistencies == errors[5].Message);
+    REQUIRE("PackageVersion" == errors[5].Field);
+    REQUIRE("43690.48059.52428.56797" == errors[5].Value);
+
+    // Min OS version for second msix in bundle
+    REQUIRE(ValidationError::Level::Error == errors[6].ErrorLevel);
+    REQUIRE(ManifestError::InstallerMsixInconsistencies == errors[6].Message);
+    REQUIRE("MinimumOSVersion" == errors[6].Field);
+    REQUIRE("10.0.16299.0" == errors[6].Value);
+}
+
+TEST_CASE("ReadManifestAndValidateMsixBundleInstallers_Signed_Success", "[ManifestValidation]")
+{
+    TestDataFile testFile("Manifest-Good-SignedMsixBundleInstaller.yaml");
+    Manifest manifest = YamlParser::CreateFromPath(testFile);
+
+    // Update the installer path for testing
+    REQUIRE(1 == manifest.Installers.size());
+    TestDataFile msixFile(manifest.Installers[0].Url.c_str());
+    manifest.Installers[0].Url = msixFile.GetPath().u8string();
+
+    auto errors = ValidateManifestInstallers(manifest);
+    REQUIRE(0 == errors.size());
+}
+
+TEST_CASE("ReadManifestAndValidateMsixBundleInstallers_Signed_InconsistentFields", "[ManifestValidation]")
+{
+    TestDataFile testFile("Manifest-Bad-InconsistentSignedMsixBundleInstallerFields.yaml");
+    Manifest manifest = YamlParser::CreateFromPath(testFile);
+
+    // Update the installer path for testing
+    REQUIRE(1 == manifest.Installers.size());
+    TestDataFile msixFile(manifest.Installers[0].Url.c_str());
+    manifest.Installers[0].Url = msixFile.GetPath().u8string();
+
+    auto errors = ValidateManifestInstallers(manifest);
+    REQUIRE(7 == errors.size());
+
+    // Unexpected signature hash
+    REQUIRE(ValidationError::Level::Error == errors[0].ErrorLevel);
+    REQUIRE(ManifestError::InstallerMsixInconsistencies == errors[0].Message);
+    REQUIRE("SignatureSha256" == errors[0].Field);
+    REQUIRE("d70bd623f87b6ce4ddba4506c6000cf43ef3af4ab1207f5579ec43400de1623f" == errors[0].Value);
+
+    // Package family name for first msix in bundle
+    REQUIRE(ValidationError::Level::Error == errors[1].ErrorLevel);
+    REQUIRE(ManifestError::InstallerMsixInconsistencies == errors[1].Message);
+    REQUIRE("PackageFamilyName" == errors[1].Field);
+    REQUIRE("FakeInstallerForTesting_125rzkzqaqjwj" == errors[1].Value);
+
+    // Package version for first msix in bundle
+    REQUIRE(ValidationError::Level::Error == errors[2].ErrorLevel);
+    REQUIRE(ManifestError::InstallerMsixInconsistencies == errors[2].Message);
+    REQUIRE("PackageVersion" == errors[2].Field);
+    REQUIRE("43690.48059.52428.56797" == errors[2].Value);
+
+    // Min OS version for first msix in bundle
+    REQUIRE(ValidationError::Level::Error == errors[3].ErrorLevel);
+    REQUIRE(ManifestError::InstallerMsixInconsistencies == errors[3].Message);
+    REQUIRE("MinimumOSVersion" == errors[3].Field);
+    REQUIRE("10.0.16299.0" == errors[3].Value);
+
+    // Package family name for second msix in bundle
+    REQUIRE(ValidationError::Level::Error == errors[4].ErrorLevel);
+    REQUIRE(ManifestError::InstallerMsixInconsistencies == errors[4].Message);
+    REQUIRE("PackageFamilyName" == errors[4].Field);
+    REQUIRE("FakeInstallerForTesting_125rzkzqaqjwj" == errors[4].Value);
+
+    // Package version for second msix in bundle
+    REQUIRE(ValidationError::Level::Error == errors[5].ErrorLevel);
+    REQUIRE(ManifestError::InstallerMsixInconsistencies == errors[5].Message);
+    REQUIRE("PackageVersion" == errors[5].Field);
+    REQUIRE("43690.48059.52428.56797" == errors[5].Value);
+
+    // Min OS version for second msix in bundle
+    REQUIRE(ValidationError::Level::Error == errors[6].ErrorLevel);
+    REQUIRE(ManifestError::InstallerMsixInconsistencies == errors[6].Message);
+    REQUIRE("MinimumOSVersion" == errors[6].Field);
+    REQUIRE("10.0.16299.0" == errors[6].Value);
+}
+
 TEST_CASE("ManifestArpVersionRange", "[ManifestValidation]")
 {
     Manifest manifestNoArp = YamlParser::CreateFromPath(TestDataFile("Manifest-Good-NoArpVersionDeclared.yaml"));

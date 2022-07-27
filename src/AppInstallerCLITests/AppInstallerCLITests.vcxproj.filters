@@ -715,5 +715,17 @@
     <CopyFileToFolders Include="TestData\Manifest-Good-SignedMsixInstaller.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Good-MsixBundleInstaller.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-InconsistentMsixBundleInstallerFields.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Good-SignedMsixBundleInstaller.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-InconsistentSignedMsixBundleInstallerFields.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>
