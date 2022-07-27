@@ -215,6 +215,11 @@ namespace AppInstallerCLIE2ETests
                 debugging = new
                 {
                     enableSelfInitiatedMinidump = true
+                },
+                installBehavior = new
+                {
+                    portableAppUserRoot = "",
+                    portableAppMachineRoot = "",
                 }
             };
 

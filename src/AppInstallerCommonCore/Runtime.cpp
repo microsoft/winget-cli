@@ -457,7 +457,7 @@ namespace AppInstaller::Runtime
             result.Path = Settings::User().Get<Setting::PortableAppMachineRoot>();
             if (result.Path.empty())
             {
-                result.Path = GetKnownFolderPath(FOLDERID_ProgramFilesX64);
+                result.Path = GetKnownFolderPath(FOLDERID_ProgramFiles);
                 result.Path /= s_PortablePackageRoot;
                 result.Path /= s_PortablePackagesDirectory;
             }
@@ -478,7 +478,7 @@ namespace AppInstaller::Runtime
             result.Path /= s_LinksDirectory;
             break;
         case PathName::PortableLinksMachineLocation:
-            result.Path = GetKnownFolderPath(FOLDERID_ProgramFilesX64);
+            result.Path = GetKnownFolderPath(FOLDERID_ProgramFiles);
             result.Path /= s_PortablePackageRoot;
             result.Path /= s_LinksDirectory;
             break;
