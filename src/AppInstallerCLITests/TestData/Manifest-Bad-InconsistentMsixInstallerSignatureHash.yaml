@@ -1,0 +1,15 @@
+# Bad manifest: Signature hash is inconsistent
+PackageIdentifier: AppInstallerCliTest.InconsistentMsixSignatureHash
+PackageVersion: 1.0.0.0
+PackageLocale: es-MX
+PackageName: es-MX package name
+Publisher: es-MX publisher
+PackageFamilyName: 20477fca-282d-49fb-b03e-371dca074f0f_8wekyb3d8bbwe
+MinimumOSVersion: 10.0.10586.0
+InstallerType: msix
+Installers: 
+    - Architecture: x64
+      InstallerUrl: TestSignedApp.msix
+      SignatureSha256: 0000000000000000000000000000000000000000000000000000000000000000 # Inconsistent signature hash
+ManifestType: merged
+ManifestVersion: 1.0.0

@@ -140,25 +140,20 @@ namespace AppInstaller::Manifest
     {
         try
         {
-            auto msixSignature = msixInfo->GetSignature();
-            auto msixSignatureHash = Utility::SHA256::ComputeHash(msixSignature.data(), static_cast<uint32_t>(msixSignature.size()));
-            auto msixSignatureHashString = Utility::SHA256::ConvertToString(msixSignatureHash);
             if (!manifestSignatureHash.empty())
             {
+                auto msixSignature = msixInfo->GetSignature();
+                auto msixSignatureHash = Utility::SHA256::ComputeHash(msixSignature.data(), static_cast<uint32_t>(msixSignature.size()));
                 if (msixSignatureHash != manifestSignatureHash)
                 {
+                    auto msixSignatureHashString = Utility::SHA256::ConvertToString(msixSignatureHash);
                     errors.emplace_back(ManifestError::InstallerMsixInconsistencies, "SignatureSha256", msixSignatureHashString);
                 }
             }
-            else
-            {
-                errors.emplace_back(ManifestError::OptionalFieldMissing, "SignatureSha256", msixSignatureHashString, m_validationErrorLevel);
-            }
         }
-        catch (const wil::ResultException& re)
+        catch (const wil::ResultException&)
         {
             errors.emplace_back(ManifestError::MsixSignatureHashFailed);
-            AICLI_LOG(Core, Error, << "Failed to compute the Msix signature hash. Error: " << re.GetErrorCode());
         }
     }
 }
