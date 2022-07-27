@@ -26,11 +26,12 @@ namespace AppInstaller::CLI
 
     Command::Command(
         std::string_view name,
+        std::vector<std::string_view> aliases,
         std::string_view parent,
         Command::Visibility visibility,
         Settings::ExperimentalFeature::Feature feature,
         Settings::TogglePolicy::Policy groupPolicy) :
-        m_name(name), m_visibility(visibility), m_feature(feature), m_groupPolicy(groupPolicy)
+        m_name(name), m_aliases(aliases), m_visibility(visibility), m_feature(feature), m_groupPolicy(groupPolicy)
     {
         if (!parent.empty())
         {
@@ -291,7 +292,10 @@ namespace AppInstaller::CLI
 
         for (auto& command : commands)
         {
-            if (Utility::CaseInsensitiveEquals(*itr, command->Name()))
+            if (
+                Utility::CaseInsensitiveEquals(*itr, command->Name()) ||
+                Utility::CaseInsensitiveContains(command->Aliases(), *itr)
+            )
             {
                 if (!ExperimentalFeature::IsEnabled(command->Feature()))
                 {

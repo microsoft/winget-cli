@@ -9,7 +9,7 @@ namespace AppInstaller::CLI
     // be context sensitive in their data output.
     struct CompleteCommand final : public Command
     {
-        CompleteCommand(std::string_view parent) : Command("complete", parent, Visibility::Hidden) {}
+        CompleteCommand(std::string_view parent) : Command("complete", {}, parent, Visibility::Hidden) {}
 
         std::vector<Argument> GetArguments() const override;
 

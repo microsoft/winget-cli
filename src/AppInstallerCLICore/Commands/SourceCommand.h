@@ -22,7 +22,7 @@ namespace AppInstaller::CLI
 
     struct SourceAddCommand final : public Command
     {
-        SourceAddCommand(std::string_view parent) : Command("add", parent, Settings::TogglePolicy::Policy::AllowedSources) {}
+        SourceAddCommand(std::string_view parent) : Command("add", {}, parent, Settings::TogglePolicy::Policy::AllowedSources) {}
 
         std::vector<Argument> GetArguments() const override;
 

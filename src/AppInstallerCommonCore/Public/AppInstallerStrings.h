@@ -104,6 +104,10 @@ namespace AppInstaller::Utility
     // Use this if one of the values is a known value, and thus ToLower is sufficient.
     bool CaseInsensitiveEquals(std::string_view a, std::string_view b);
 
+    // Compares the two UTF8 strings in a case insensitive manner.
+    // Use this if one of the values is a known value, and thus ToLower is sufficient.
+    bool CaseInsensitiveContains(std::vector<std::string_view> a, std::string_view b);
+
     // Determines if string a starts with string b.
     // Use this if one of the values is a known value, and thus ToLower is sufficient.
     bool CaseInsensitiveStartsWith(std::string_view a, std::string_view b);
