@@ -33,6 +33,7 @@ ignore$
 ^src/AppInstallerCLITests/TestData/InputNames.txt$
 ^src/AppInstallerCLITests/TestData/InputPublishers.txt$
 ^src/AppInstallerCLITests/TestData/NormalizationInitialIds.txt$
+^src/AppInstallerCLITests/TestData/AppInstallerTestMsiInstaller.msi$
 ^src/AppInstallerCommonCore/external/do.h$
 ^src/catch2/
 ^src/cpprestsdk/
