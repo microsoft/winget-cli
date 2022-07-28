@@ -18,6 +18,7 @@ ignore$
 \.msix$
 \.msixbundle$
 \.png$
+\.sln$
 \.vcxitems$
 \.vcxproj$
 \.vcxproj\.filters$
