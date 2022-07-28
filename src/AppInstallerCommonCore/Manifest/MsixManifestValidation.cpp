@@ -79,7 +79,7 @@ namespace AppInstaller::Manifest
 
     void MsixManifestValidation::ValidateMsixManifestPackageFamilyName(
         Utility::NormalizedString msixPackageFamilyName,
-        std::string manifestPackageFamilyName,
+        Utility::NormalizedString manifestPackageFamilyName,
         std::vector<ValidationError> &errors)
     {
         if (!manifestPackageFamilyName.empty())
@@ -142,8 +142,7 @@ namespace AppInstaller::Manifest
         {
             if (!manifestSignatureHash.empty())
             {
-                auto msixSignature = msixInfo->GetSignature();
-                auto msixSignatureHash = Utility::SHA256::ComputeHash(msixSignature.data(), static_cast<uint32_t>(msixSignature.size()));
+                auto msixSignatureHash = msixInfo->GetSignatureHash();
                 if (msixSignatureHash != manifestSignatureHash)
                 {
                     auto msixSignatureHashString = Utility::SHA256::ConvertToString(msixSignatureHash);

@@ -12,6 +12,7 @@ namespace AppInstaller::Manifest
     {
         MsixManifestValidation(ValidationError::Level validationErrorLevel) : m_validationErrorLevel(validationErrorLevel) {}
 
+        // Validate manifest for Msix packages and Msix bundles.
         std::vector<ValidationError> Validate(
             const Manifest &manifest,
             const ManifestInstaller &installer);
@@ -34,7 +35,7 @@ namespace AppInstaller::Manifest
         // Validate Msix package family name.
         void ValidateMsixManifestPackageFamilyName(
             Utility::NormalizedString msixPackageFamilyName,
-            std::string manifestPackageFamilyName,
+            Utility::NormalizedString manifestPackageFamilyName,
             std::vector<ValidationError>& errors);
 
         // Validate Msix package version.
