@@ -166,11 +166,12 @@ namespace AppInstaller::CLI::Execution
     std::filesystem::path Reporter::PromptForPath(Resource::LocString message, Level level)
     {
         auto out = GetOutputStream(level);
-        out << message << ' ';
 
         // Try prompting until we get a valid answer
         for (;;)
         {
+            out << message << ' ';
+
             // Read the response
             std::string response;
             if (!std::getline(m_in, response))
@@ -178,8 +179,12 @@ namespace AppInstaller::CLI::Execution
                 THROW_HR(APPINSTALLER_CLI_ERROR_PROMPT_INPUT_ERROR);
             }
 
-            // TODO: Check
-            return response;
+            // Validate the path
+            std::filesystem::path path{ response };
+            if (path.is_absolute())
+            {
+                return path;
+            }
         }
 
     }
