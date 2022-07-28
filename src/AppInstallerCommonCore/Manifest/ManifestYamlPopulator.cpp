@@ -806,17 +806,17 @@ namespace AppInstaller::Manifest
             std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
 
             // Copy in system reference strings from the root if not set in the installer and appropriate
-            if (installer.PackageFamilyName.empty() && DoesInstallerTypeUsePackageFamilyName(installer.InstallerType))
+            if (installer.PackageFamilyName.empty() && DoesInstallerUsePackageFamilyName(installer))
             {
                 installer.PackageFamilyName = manifest.DefaultInstallerInfo.PackageFamilyName;
             }
 
-            if (installer.ProductCode.empty() && DoesInstallerTypeUseProductCode(installer.InstallerType))
+            if (installer.ProductCode.empty() && DoesInstallerUseProductCode(installer))
             {
                 installer.ProductCode = manifest.DefaultInstallerInfo.ProductCode;
             }
 
-            if (installer.AppsAndFeaturesEntries.empty() && DoesInstallerTypeWriteAppsAndFeaturesEntry(installer.InstallerType))
+            if (installer.AppsAndFeaturesEntries.empty() && DoesInstallerWriteAppsAndFeaturesEntry(installer))
             {
                 installer.AppsAndFeaturesEntries = manifest.DefaultInstallerInfo.AppsAndFeaturesEntries;
             }

@@ -348,7 +348,7 @@ namespace AppInstaller::Runtime
                 create = false;
                 break;
             case PathName::PortablePackageUserRoot:
-                result = Settings::User().Get<Setting::PortableAppUserRoot>();
+                result = Settings::User().Get<Setting::PortablePackageUserRoot>();
                 if (result.empty())
                 {
                     result = GetKnownFolderPath(FOLDERID_LocalAppData);
@@ -359,7 +359,7 @@ namespace AppInstaller::Runtime
                 create = true;
                 break;
             case PathName::PortablePackageMachineRootX64:
-                result = Settings::User().Get<Setting::PortableAppMachineRoot>();
+                result = Settings::User().Get<Setting::PortablePackageMachineRoot>();
                 if (result.empty())
                 {
                     result = GetKnownFolderPath(FOLDERID_ProgramFilesX64);
@@ -369,7 +369,7 @@ namespace AppInstaller::Runtime
                 create = true;
                 break;
             case PathName::PortablePackageMachineRootX86:
-                result = Settings::User().Get<Setting::PortableAppMachineRoot>();
+                result = Settings::User().Get<Setting::PortablePackageMachineRoot>();
                 if (result.empty())
                 {
                     result = GetKnownFolderPath(FOLDERID_ProgramFilesX86);
@@ -386,7 +386,7 @@ namespace AppInstaller::Runtime
                 create = true;
                 break;
             case PathName::PortableLinksMachineLocation:
-                result = GetKnownFolderPath(FOLDERID_ProgramFilesX64);
+                result = GetKnownFolderPath(FOLDERID_ProgramFiles);
                 result /= s_PortablePackageRoot;
                 result /= s_LinksDirectory;
                 create = true;
@@ -437,7 +437,7 @@ namespace AppInstaller::Runtime
                 create = false;
                 break;
             case PathName::PortablePackageUserRoot:
-                result = Settings::User().Get<Setting::PortableAppUserRoot>();
+                result = Settings::User().Get<Setting::PortablePackageUserRoot>();
                 if (result.empty())
                 {
                     result = GetKnownFolderPath(FOLDERID_LocalAppData);
@@ -448,7 +448,7 @@ namespace AppInstaller::Runtime
                 create = true;
                 break;
             case PathName::PortablePackageMachineRootX64:
-                result = Settings::User().Get<Setting::PortableAppMachineRoot>();
+                result = Settings::User().Get<Setting::PortablePackageMachineRoot>();
                 if (result.empty())
                 {
                     result = GetKnownFolderPath(FOLDERID_ProgramFilesX64);
@@ -458,7 +458,7 @@ namespace AppInstaller::Runtime
                 create = true;
                 break;
             case PathName::PortablePackageMachineRootX86:
-                result = Settings::User().Get<Setting::PortableAppMachineRoot>();
+                result = Settings::User().Get<Setting::PortablePackageMachineRoot>();
                 if (result.empty())
                 {
                     result = GetKnownFolderPath(FOLDERID_ProgramFilesX86);
@@ -475,7 +475,7 @@ namespace AppInstaller::Runtime
                 create = true;
                 break;
             case PathName::PortableLinksMachineLocation:
-                result = GetKnownFolderPath(FOLDERID_ProgramFilesX64);
+                result = GetKnownFolderPath(FOLDERID_ProgramFiles);
                 result /= s_PortablePackageRoot;
                 result /= s_LinksDirectory;
                 create = true;

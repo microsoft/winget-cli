@@ -257,7 +257,7 @@ namespace AppInstallerCLIE2ETests
             commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
 
             // Create a directory with the same name as the symlink in order to cause install to fail.
-            string symlinkDirectory = TestCommon.GetPortableSymlinkDirectory();
+            string symlinkDirectory = TestCommon.GetPortableSymlinkDirectory(TestCommon.Scope.User);
             string conflictDirectory = Path.Combine(symlinkDirectory, commandAlias);
             Directory.CreateDirectory(conflictDirectory);
 
@@ -283,7 +283,7 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("install", "AppInstallerTest.TestPortableExe");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
 
-            string symlinkDirectory = TestCommon.GetPortableSymlinkDirectory();
+            string symlinkDirectory = TestCommon.GetPortableSymlinkDirectory(TestCommon.Scope.User);
             string symlinkPath = Path.Combine(symlinkDirectory, commandAlias);
 
             // Clean first install should not display file overwrite message.
@@ -297,6 +297,42 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result2.StdOut.Contains($"Overwriting existing file: {symlinkPath}"));
 
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
+        }
+
+        [Test]
+        public void InstallPortable_UserScope()
+        {
+            string installDir = TestCommon.GetRandomTestDir();
+            ConfigureInstallBehavior(Constants.PortablePackageUserRoot, installDir);
+
+            string packageId, commandAlias, fileName, packageDirName, productCode;
+            packageId = "AppInstallerTest.TestPortableExe";
+            packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
+            commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
+
+            var result = TestCommon.RunAICLICommand("install", "AppInstallerTest.TestPortableExe --scope user");
+            ConfigureInstallBehavior(Constants.PortablePackageUserRoot, string.Empty);
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully installed"));
+            TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
+        }
+
+        [Test]
+        public void InstallPortable_MachineScope()
+        {
+            string installDir = TestCommon.GetRandomTestDir();
+            ConfigureInstallBehavior(Constants.PortablePackageMachineRoot, installDir);
+
+            string packageId, commandAlias, fileName, packageDirName, productCode;
+            packageId = "AppInstallerTest.TestPortableExe";
+            packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
+            commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
+
+            var result = TestCommon.RunAICLICommand("install", "AppInstallerTest.TestPortableExe --scope machine");
+            ConfigureInstallBehavior(Constants.PortablePackageMachineRoot, string.Empty);
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully installed"));
+            TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true, TestCommon.Scope.Machine);
         }
 
         private bool VerifyTestExeInstalled(string installDir, string expectedContent = null)

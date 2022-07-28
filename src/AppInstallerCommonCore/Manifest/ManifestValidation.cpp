@@ -102,17 +102,17 @@ namespace AppInstaller::Manifest
 
             // Validate system reference strings if they are set at the installer level
             // Allow PackageFamilyName to be declared with non msix installers to support nested installer scenarios after manifest version 1.1
-            if (manifest.ManifestVersion <= ManifestVer{ s_ManifestVersionV1_1 } && !installer.PackageFamilyName.empty() && !DoesInstallerTypeUsePackageFamilyName(installer.InstallerType))
+            if (manifest.ManifestVersion <= ManifestVer{ s_ManifestVersionV1_1 } && !installer.PackageFamilyName.empty() && !DoesInstallerUsePackageFamilyName(installer))
             {
                 resultErrors.emplace_back(ManifestError::InstallerTypeDoesNotSupportPackageFamilyName, "InstallerType", InstallerTypeToString(installer.InstallerType));
             }
 
-            if (!installer.ProductCode.empty() && !DoesInstallerTypeUseProductCode(installer.InstallerType))
+            if (!installer.ProductCode.empty() && !DoesInstallerUseProductCode(installer))
             {
                 resultErrors.emplace_back(ManifestError::InstallerTypeDoesNotSupportProductCode, "InstallerType", InstallerTypeToString(installer.InstallerType));
             }
 
-            if (!installer.AppsAndFeaturesEntries.empty() && !DoesInstallerTypeWriteAppsAndFeaturesEntry(installer.InstallerType))
+            if (!installer.AppsAndFeaturesEntries.empty() && !DoesInstallerWriteAppsAndFeaturesEntry(installer))
             {
                 resultErrors.emplace_back(ManifestError::InstallerTypeDoesNotWriteAppsAndFeaturesEntry, "InstallerType", InstallerTypeToString(installer.InstallerType));
             }

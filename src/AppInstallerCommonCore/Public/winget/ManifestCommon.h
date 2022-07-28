@@ -10,6 +10,9 @@
 
 namespace AppInstaller::Manifest
 {
+    // Forward declaration
+    struct ManifestInstaller;
+
     using string_t = Utility::NormalizedString;
     using namespace std::string_view_literals;
 
@@ -265,17 +268,26 @@ bool HasExtension(std::string_view extension) const;
 
     std::string_view ScopeToString(ScopeEnum scope);
 
-    // Gets a value indicating whether the given installer type uses the PackageFamilyName system reference.
-    bool DoesInstallerTypeUsePackageFamilyName(InstallerTypeEnum installerType);
+    // Gets a value indicating whether the given installer uses the PackageFamilyName system reference.
+    bool DoesInstallerUsePackageFamilyName(ManifestInstaller installer);
 
-    // Gets a value indicating whether the given installer type uses the ProductCode system reference.
-    bool DoesInstallerTypeUseProductCode(InstallerTypeEnum installerType);
+    // Gets a value indicating whether the given installer uses the ProductCode system reference.
+    bool DoesInstallerUseProductCode(ManifestInstaller installer);
 
-    // Gets a value indicating whether the given installer type writes ARP entry.
-    bool DoesInstallerTypeWriteAppsAndFeaturesEntry(InstallerTypeEnum installerType);
+    // Gets a value indicating whether the given installer writes ARP entry.
+    bool DoesInstallerWriteAppsAndFeaturesEntry(ManifestInstaller installer);
+
+    // Gets a value indicating whether the given installer supports ARP version range.
+    bool DoesInstallerSupportArpVersionRange(ManifestInstaller installer);
 
     // Gets a value indicating whether the given installer type supports ARP version range.
-    bool DoesInstallerTypeSupportArpVersionRange(InstallerTypeEnum installerType);
+    bool DoesInstallerTypeSupportArpVersionRange(InstallerTypeEnum installer);
+
+    // Gets a value indicating whether the given installer ignores the Scope value from the manifest.
+    bool DoesInstallerIgnoreScopeFromManifest(ManifestInstaller installer);
+
+    // Gets a value indicating whether the given installer type is an archive.
+    bool IsArchiveType(InstallerTypeEnum installerType);
 
     // Checks whether 2 installer types are compatible. E.g. inno and exe are update compatible
     bool IsInstallerTypeCompatible(InstallerTypeEnum type1, InstallerTypeEnum type2);

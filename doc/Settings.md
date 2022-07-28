@@ -49,6 +49,37 @@ Color of the progress bar that WinGet displays when not specified by arguments.
 
 The `installBehavior` settings affect the default behavior of installing and upgrading (where applicable) packages.
 
+### Disable Install Notes
+The `disableInstallNotes` behavior affects whether installation notes are shown after a successful install. Defaults to `false` if value is not set or is invalid.
+
+```json
+    "installBehavior": {
+        "disableInstallNotes": true
+    },
+```
+
+### Portable Package User Root
+The `portablePackageUserRoot` setting affects the default root directory where packages are installed to under `User` scope. This setting only applies to packages with the `portable` installer type. Defaults to `%LOCALAPPDATA%/Microsoft/WinGet/Packages/` if value is not set or is invalid.
+
+> Note: This setting value must be an absolute path.
+
+```json
+    "installBehavior": {
+        "portablePackageUserRoot": "C:/Users/FooBar/Packages"
+    },
+```
+
+### Portable Package Machine Root
+The `portablePackageMachineRoot` setting affects the default root directory where packages are installed to under `Machine` scope. This setting only applies to packages with the `portable` installer type. Defaults to `%PROGRAMFILES%/WinGet/Packages/` if value is not set or is invalid.
+
+> Note: This setting value must be an absolute path.
+
+```json
+    "installBehavior": {
+        "portablePackageMachineRoot": "C:/Program Files/Packages/Portable"
+    },
+```
+
 ### Preferences and Requirements
 
 Some of the settings are duplicated under `preferences` and `requirements`. `preferences` affect how the various available options are sorted when choosing the one to act on.  For instance, the default scope of package installs is for the current user, but if that is not an option then a machine level installer will be chosen. `requirements` filter the options, potentially resulting in an empty list and a failure to install. In the previous example, a user scope requirement would result in no applicable installers and an error.

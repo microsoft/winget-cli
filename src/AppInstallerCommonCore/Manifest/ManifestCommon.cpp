@@ -35,6 +35,17 @@ namespace AppInstaller::Manifest
                 return CompatibilitySet::None;
             }
         }
+
+        InstallerTypeEnum GetInstallerTypeFromInstaller(ManifestInstaller installer)
+        {
+            InstallerTypeEnum installerType = installer.InstallerType;
+            if (IsArchiveType(installerType))
+            {
+                installerType = installer.NestedInstallerType;
+            }
+
+            return installerType;
+        }
     }
 
     ManifestVer::ManifestVer(std::string_view version)
@@ -417,13 +428,15 @@ namespace AppInstaller::Manifest
         return "Unknown"sv;
     }
 
-    bool DoesInstallerTypeUsePackageFamilyName(InstallerTypeEnum installerType)
+    bool DoesInstallerUsePackageFamilyName(ManifestInstaller installer)
     {
+        InstallerTypeEnum installerType = GetInstallerTypeFromInstaller(installer);
         return (installerType == InstallerTypeEnum::Msix || installerType == InstallerTypeEnum::MSStore);
     }
 
-    bool DoesInstallerTypeUseProductCode(InstallerTypeEnum installerType)
+    bool DoesInstallerUseProductCode(ManifestInstaller installer)
     {
+        InstallerTypeEnum installerType = GetInstallerTypeFromInstaller(installer);
         return (
             installerType == InstallerTypeEnum::Exe ||
             installerType == InstallerTypeEnum::Inno ||
@@ -435,8 +448,9 @@ namespace AppInstaller::Manifest
             );
     }
 
-    bool DoesInstallerTypeWriteAppsAndFeaturesEntry(InstallerTypeEnum installerType)
+    bool DoesInstallerWriteAppsAndFeaturesEntry(ManifestInstaller installer)
     {
+        InstallerTypeEnum installerType = GetInstallerTypeFromInstaller(installer);
         return (
             installerType == InstallerTypeEnum::Exe ||
             installerType == InstallerTypeEnum::Inno ||
@@ -446,6 +460,12 @@ namespace AppInstaller::Manifest
             installerType == InstallerTypeEnum::Burn ||
             installerType == InstallerTypeEnum::Portable
             );
+    }
+
+    bool DoesInstallerSupportArpVersionRange(ManifestInstaller installer)
+    {
+        InstallerTypeEnum installerType = GetInstallerTypeFromInstaller(installer);
+        return DoesInstallerTypeSupportArpVersionRange(installerType);
     }
 
     bool DoesInstallerTypeSupportArpVersionRange(InstallerTypeEnum installerType)
@@ -458,6 +478,19 @@ namespace AppInstaller::Manifest
             installerType == InstallerTypeEnum::Wix ||
             installerType == InstallerTypeEnum::Burn
             );
+    }
+
+    bool DoesInstallerIgnoreScopeFromManifest(ManifestInstaller installer)
+    {
+        InstallerTypeEnum installerType = GetInstallerTypeFromInstaller(installer);
+        return (
+            installerType == InstallerTypeEnum::Portable
+            );
+    }
+
+    bool IsArchiveType(InstallerTypeEnum installerType)
+    {
+        return (installerType == InstallerTypeEnum::Zip);
     }
 
     bool IsInstallerTypeCompatible(InstallerTypeEnum type1, InstallerTypeEnum type2)
