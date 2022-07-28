@@ -218,6 +218,44 @@ namespace AppInstaller::CLI::Workflow
 
             return accepted;
         }
+
+        // Data shown on a line of a table displaying installed packages
+        struct InstalledPackagesTableLine
+        {
+            InstalledPackagesTableLine(Utility::LocIndString name, Utility::LocIndString id, Utility::LocIndString installedVersion, Utility::LocIndString availableVersion, Utility::LocIndString source)
+                : Name(name), Id(id), InstalledVersion(installedVersion), AvailableVersion(availableVersion), Source(source) {}
+
+            Utility::LocIndString Name;
+            Utility::LocIndString Id;
+            Utility::LocIndString InstalledVersion;
+            Utility::LocIndString AvailableVersion;
+            Utility::LocIndString Source;
+        };
+
+        void OutputInstalledPackagesTable(Execution::Context& context, const std::vector<InstalledPackagesTableLine>& lines)
+        {
+            Execution::TableOutput<5> table(context.Reporter,
+                {
+                    Resource::String::SearchName,
+                    Resource::String::SearchId,
+                    Resource::String::SearchVersion,
+                    Resource::String::AvailableHeader,
+                    Resource::String::SearchSource
+                });
+
+            for (const auto& line : lines)
+            {
+                table.OutputLine({
+                    line.Name,
+                    line.Id,
+                    line.InstalledVersion,
+                    line.AvailableVersion,
+                    line.Source
+                    });
+            }
+
+            table.Complete();
+        }
     }
 
     bool WorkflowTask::operator==(const WorkflowTask& other) const
@@ -701,14 +739,8 @@ namespace AppInstaller::CLI::Workflow
     {
         auto& searchResult = context.Get<Execution::Data::SearchResult>();
 
-        Execution::TableOutput<5> table(context.Reporter,
-            {
-                Resource::String::SearchName,
-                Resource::String::SearchId,
-                Resource::String::SearchVersion,
-                Resource::String::AvailableHeader,
-                Resource::String::SearchSource
-            });
+        std::vector<InstalledPackagesTableLine> lines;
+        std::vector<InstalledPackagesTableLine> linesForExplicitUpgrade;
 
         int availableUpgradesCount = 0;
         int packagesWithUnknownVersionSkipped = 0;
@@ -751,22 +783,30 @@ namespace AppInstaller::CLI::Workflow
                     // Output using the local PackageName instead of the name in the manifest, to prevent confusion for packages that add multiple
                     // Add/Remove Programs entries.
                     // TODO: De-duplicate this list, and only show (by default) one entry per matched package.
-                    table.OutputLine({
+                    InstalledPackagesTableLine line(
                          installedVersion->GetProperty(PackageVersionProperty::Name),
                          match.Package->GetProperty(PackageProperty::Id),
                          installedVersion->GetProperty(PackageVersionProperty::Version),
                          availableVersion,
-                         shouldShowSource ? sourceName : ""s
-                    });
-                   
-                   
+                         shouldShowSource ? sourceName : Utility::LocIndString()
+                    );
+
+                    bool requiresExplicitUpgrade = m_onlyShowUpgrades && false;
+                    if (requiresExplicitUpgrade)
+                    {
+                        lines.push_back(std::move(line));
+                    }
+                    else
+                    {
+                        linesForExplicitUpgrade.push_back(std::move(line));
+                    }
                 }
             }
         }
 
-        table.Complete();
+        OutputInstalledPackagesTable(context, lines);
 
-        if (table.IsEmpty())
+        if (lines.empty())
         {
             context.Reporter.Info() << Resource::String::NoInstalledPackageFound << std::endl;
         }
@@ -781,6 +821,12 @@ namespace AppInstaller::CLI::Workflow
             {
                 context.Reporter.Info() << availableUpgradesCount << ' ' << Resource::String::AvailableUpgrades << std::endl;
             }
+        }
+
+        if (!linesForExplicitUpgrade.empty())
+        {
+            context.Reporter.Info() << std::endl << "The following packages have an upgrade available, but require explicit targeting for upgrade:"_liv << std::endl; /* TODO */
+            OutputInstalledPackagesTable(context, linesForExplicitUpgrade);
         }
 
         if (m_onlyShowUpgrades)

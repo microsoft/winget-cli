@@ -44,7 +44,7 @@ namespace AppInstaller::CLI::Workflow
         bool updateFound = false;
         bool installedTypeInapplicable = false;
 
-        if (installedVersion.IsUnknown() && !context.Args.Contains(Execution::Args::Type::IncludeUnknown)) 
+        if (installedVersion.IsUnknown() && !context.Args.Contains(Execution::Args::Type::IncludeUnknown))
         {
             // the package has an unknown version and the user did not request to upgrade it anyway.
             if (m_reportUpdateNotFound)
