@@ -178,6 +178,8 @@ namespace AppInstaller::Repository
         TrackingWriteTime,
         // The Architecture of an installed package
         InstalledArchitecture,
+        // Whether the package is pinned and should only be updated if explicitly targeted
+        IsPinned,
     };
 
     // Convert a PackageVersionMetadata to a string.

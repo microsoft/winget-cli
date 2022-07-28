@@ -180,15 +180,23 @@ namespace AppInstaller::CLI::Workflow
             }
 
             // Filter out packages that require explicit upgrades.
-            // Note that this is filtering based on the updated installer, not the installed version. So there
-            // is an edge case where if an app that does not require explicit update changes to require it
-            // (e.g. it adds auto-updates) we will need to do explicit update to that version.
-            if (!context.Args.Contains(Execution::Args::Type::IncludeExplicit) &&
-                updateContext.Get<Execution::Data::Installer>()->RequireExplicitUpgrade)
+            if (!context.Args.Contains(Execution::Args::Type::IncludePinned))
             {
-                AICLI_LOG(CLI, Info, << "Skipping " << match.Package->GetProperty(PackageProperty::Id) << " as it requires explicit upgrade");
-                ++packagesThatRequireExplicitSkipped;
-                continue;
+                // We require explicit upgrades only if the installed version is pinned,
+                // either because it was manually pinned or because the manifest indicated
+                // RequireExplicitUpgrade.
+                // Note that this does not consider whether the update to be installed has
+                // RequireExplicitUpgrade. While this has the downside of not working with
+                // packages installed from another source, it ensures consistency with the
+                // list of available updates (there we don't have the selected installer)
+                // and at most we will update each package like this once.
+                auto installedMetadata = updateContext.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata();
+                if (installedMetadata[PackageVersionMetadata::IsPinned] == "1")
+                {
+                    AICLI_LOG(CLI, Info, << "Skipping " << match.Package->GetProperty(PackageProperty::Id) << " as it requires explicit upgrade");
+                    ++packagesThatRequireExplicitSkipped;
+                    continue;
+                }
             }
 
             updateAllFoundUpdate = true;

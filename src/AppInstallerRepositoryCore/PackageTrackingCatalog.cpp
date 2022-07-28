@@ -215,7 +215,6 @@ namespace AppInstaller::Repository
         bool isUpgrade)
     {
         // TODO: Store additional information from these if needed
-        UNREFERENCED_PARAMETER(installer);
         UNREFERENCED_PARAMETER(isUpgrade);
 
         auto& index = m_implementation->Source->GetIndex();
@@ -238,6 +237,11 @@ namespace AppInstaller::Repository
         std::ostringstream strstr;
         strstr << Utility::GetCurrentUnixEpoch();
         index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::TrackingWriteTime, strstr.str());
+
+        if (installer.RequireExplicitUpgrade)
+        {
+            index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::IsPinned, "1"sv);
+        }
 
         std::shared_ptr<Version::implementation> result = std::make_shared<Version::implementation>();
         result->Id = manifestId;

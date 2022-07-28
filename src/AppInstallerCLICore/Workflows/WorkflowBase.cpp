@@ -791,7 +791,8 @@ namespace AppInstaller::CLI::Workflow
                          shouldShowSource ? sourceName : Utility::LocIndString()
                     );
 
-                    bool requiresExplicitUpgrade = m_onlyShowUpgrades && false;
+                    bool requiresExplicitUpgrade = m_onlyShowUpgrades &&
+                        installedVersion->GetMetadata()[PackageVersionMetadata::IsPinned] == "1";
                     if (requiresExplicitUpgrade)
                     {
                         lines.push_back(std::move(line));
