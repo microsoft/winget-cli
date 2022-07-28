@@ -319,7 +319,7 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("Invalid relative file path to the nested installer; path points to a location outside of the install directory"));
         }
 
-        [Test]
+        [Test, Ignore("Re-enable as part of fixing #2392")]
         public void InstallZipWithMsi()
         {
             if (string.IsNullOrEmpty(TestCommon.MsiInstallerPath))
