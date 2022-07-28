@@ -261,9 +261,13 @@ namespace AppInstaller::Repository
         // Check default install location with installed files if applicable.
         DefaultInstallLocationFile = 0x0010,
 
-        // All
-        All = AppsAndFeaturesEntry | AppsAndFeaturesEntryInstallLocation | AppsAndFeaturesEntryInstallLocationFile |
-              DefaultInstallLocation | DefaultInstallLocationFile,
+        // Below are helper values for calling CheckInstalledStatus as input.
+        // AppsAndFeaturesEntry related checks
+        AllAppsAndFeaturesEntryChecks = AppsAndFeaturesEntry | AppsAndFeaturesEntryInstallLocation | AppsAndFeaturesEntryInstallLocationFile,
+        // DefaultInstallLocation related checks
+        AllDefaultInstallLocationChecks = DefaultInstallLocation | DefaultInstallLocationFile,
+        // All checks
+        AllChecks = AllAppsAndFeaturesEntryChecks | AllDefaultInstallLocationChecks,
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(InstalledStatusType);
@@ -312,7 +316,7 @@ namespace AppInstaller::Repository
         virtual bool IsUpdateAvailable() const = 0;
 
         // Checks installed status of the package.
-        virtual std::vector<InstallerInstalledStatus> CheckInstalledStatus(InstalledStatusType types = InstalledStatusType::All) const = 0;
+        virtual std::vector<InstallerInstalledStatus> CheckInstalledStatus(InstalledStatusType types = InstalledStatusType::AllChecks) const = 0;
 
         // Determines if the given IPackage refers to the same package as this one.
         virtual bool IsSame(const IPackage*) const = 0;

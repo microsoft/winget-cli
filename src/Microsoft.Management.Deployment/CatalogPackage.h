@@ -25,9 +25,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         bool IsUpdateAvailable();
         // Contract 5.0
         winrt::Windows::Foundation::IAsyncOperation<winrt::Microsoft::Management::Deployment::CheckInstalledStatusResult> CheckInstalledStatusAsync(
-            winrt::Microsoft::Management::Deployment::InstalledStatusType types);
+            winrt::Microsoft::Management::Deployment::InstalledStatusType checkTypes);
         winrt::Microsoft::Management::Deployment::CheckInstalledStatusResult CheckInstalledStatus(
-            winrt::Microsoft::Management::Deployment::InstalledStatusType types);
+            winrt::Microsoft::Management::Deployment::InstalledStatusType checkTypes);
+        winrt::Windows::Foundation::IAsyncOperation<winrt::Microsoft::Management::Deployment::CheckInstalledStatusResult> CheckInstalledStatusAsync();
+        winrt::Microsoft::Management::Deployment::CheckInstalledStatusResult CheckInstalledStatus();
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:

@@ -351,7 +351,7 @@ namespace Microsoft.Management.Deployment
         String Locale{ get; };
     };
 
-    /// The installed status type.
+    /// The installed status type. The values need to match InstalledStatusType from winget/RepositorySearch.h.
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 5)]
     [flags]
     enum InstalledStatusType
@@ -368,6 +368,14 @@ namespace Microsoft.Management.Deployment
         DefaultInstallLocation = 0x0008,
         /// Check default install location with installed files if applicable.
         DefaultInstallLocationFile = 0x0010,
+
+        /// Below are helper values for calling CheckInstalledStatus as input.
+        /// AppsAndFeaturesEntry related checks
+        AllAppsAndFeaturesEntryChecks = AppsAndFeaturesEntry | AppsAndFeaturesEntryInstallLocation | AppsAndFeaturesEntryInstallLocationFile,
+        /// DefaultInstallLocation related checks
+        AllDefaultInstallLocationChecks = DefaultInstallLocation | DefaultInstallLocationFile,
+        /// All checks
+        AllChecks = AllAppsAndFeaturesEntryChecks | AllDefaultInstallLocationChecks,
     };
 
     /// Interface representing an individual installed status.
@@ -436,11 +444,16 @@ namespace Microsoft.Management.Deployment
         /// Gets a value indicating whether an available version is newer than the installed version.
         Boolean IsUpdateAvailable { get; };
 
-        /// Check the installed status of the package. It's required to call this method from a composite package
-        /// with installed info for more accurate and complete installed status.
-        /// This may require downloading information from a server.
-        Windows.Foundation.IAsyncOperation<CheckInstalledStatusResult> CheckInstalledStatusAsync(InstalledStatusType types);
-        CheckInstalledStatusResult CheckInstalledStatus(InstalledStatusType types);
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 5)]
+        {
+            /// Check the installed status of the package. It's required to call this method from a composite package
+            /// with installed info for more accurate and complete installed status.
+            /// This may require downloading information from a server.
+            Windows.Foundation.IAsyncOperation<CheckInstalledStatusResult> CheckInstalledStatusAsync(InstalledStatusType checkTypes);
+            CheckInstalledStatusResult CheckInstalledStatus(InstalledStatusType checkTypes);
+            Windows.Foundation.IAsyncOperation<CheckInstalledStatusResult> CheckInstalledStatusAsync();
+            CheckInstalledStatusResult CheckInstalledStatus();
+        }
 
         /// DESIGN NOTE:
         /// IsSame from IPackage in winget/RepositorySearch is not implemented in V1.
