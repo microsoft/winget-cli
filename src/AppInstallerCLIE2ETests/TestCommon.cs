@@ -354,6 +354,14 @@ namespace AppInstallerCLIE2ETests
             }
         }
 
+        /// <summary>
+        /// Gets the server certificate as a hex string.
+        /// </summary>
+        public static string GetTestServerCertificateHexString()
+        {
+            return Convert.ToHexString(File.ReadAllBytes(Path.Combine(StaticFileRootPath, Constants.TestSourceServerCertificateFileName)));
+        }
+
         public static bool VerifyTestExeInstalledAndCleanup(string installDir, string expectedContent = null)
         {
             if (!File.Exists(Path.Combine(installDir, Constants.TestExeInstalledFileName)))
@@ -418,12 +426,50 @@ namespace AppInstallerCLIE2ETests
             }
         }
 
-        public static void SetupTestSource()
+        public static void SetupTestSource(bool useGroupPolicyForTestSource = false)
         {
-            RunAICLICommand("source reset", "--force");
-            RunAICLICommand("source remove", Constants.DefaultWingetSourceName);
-            RunAICLICommand("source remove", Constants.DefaultMSStoreSourceName);
-            RunAICLICommand("source add", $"{Constants.TestSourceName} {Constants.TestSourceUrl}");
+            TestCommon.RunAICLICommand("source reset", "--force");
+            TestCommon.RunAICLICommand("source remove", Constants.DefaultWingetSourceName);
+            TestCommon.RunAICLICommand("source remove", Constants.DefaultMSStoreSourceName);
+
+            // TODO: If/when cert pinning is implemented on the packaged index source, useGroupPolicyForTestSource should be set to default true
+            //       to enable testing it by default.  Until then, leaving this here...
+            if (useGroupPolicyForTestSource)
+            {
+                GroupPolicyHelper.EnableAdditionalSources.SetEnabledList(new GroupPolicySource[]
+                {
+                    new GroupPolicySource
+                    {
+                        Name = Constants.TestSourceName,
+                        Arg = Constants.TestSourceUrl,
+                        Type = Constants.TestSourceType,
+                        Data = Constants.TestSourceIdentifier,
+                        Identifier = Constants.TestSourceIdentifier,
+                        CertificatePinning = new GroupPolicyCertificatePinning
+                        {
+                            Chains = new GroupPolicyCertificatePinningChain[] {
+                                new GroupPolicyCertificatePinningChain
+                                {
+                                    Chain = new GroupPolicyCertificatePinningDetails[]
+                                    {
+                                        new GroupPolicyCertificatePinningDetails
+                                        {
+                                            Validation = new string[] { "publickey" },
+                                            EmbeddedCertificate = TestCommon.GetTestServerCertificateHexString()
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            else
+            {
+                GroupPolicyHelper.EnableAdditionalSources.SetNotConfigured();
+                TestCommon.RunAICLICommand("source add", $"{Constants.TestSourceName} {Constants.TestSourceUrl}");
+            }
+
             Thread.Sleep(2000);
         }
 

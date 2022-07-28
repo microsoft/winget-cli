@@ -668,4 +668,43 @@ namespace AppInstaller::Utility
 
         return result;
     }
+
+    std::string ConvertToHexString(const std::vector<uint8_t>& buffer, size_t byteCount)
+    {
+        if (byteCount && buffer.size() != byteCount)
+        {
+            THROW_HR_MSG(E_INVALIDARG, "ConvertToHexString: Invalid buffer size");
+        }
+
+        std::string result(2 * buffer.size(), '\0');
+        static constexpr std::array<char, 16> hexChars = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
+
+        for (size_t i = 0; i < buffer.size(); ++i)
+        {
+            result[2 * i] = hexChars[(buffer[i] >> 4) & 0xF];
+            result[2 * i + 1] = hexChars[buffer[i] & 0xF];
+        }
+
+        return result;
+    }
+
+    std::vector<uint8_t> ParseFromHexString(const std::string& value, size_t byteCount)
+    {
+        if ((byteCount && value.size() != (2 * byteCount)) ||
+            (value.size() % 2))
+        {
+            THROW_HR_MSG(E_INVALIDARG, "ParseFromHexString: Invalid value size");
+        }
+
+        const char* valuePtr = value.c_str();
+        std::vector<uint8_t> result;
+        result.resize(value.size() / 2);
+
+        for (size_t i = 0; i < result.size(); i++)
+        {
+            sscanf_s(valuePtr + 2 * i, "%02hhx", &result[i]);
+        }
+
+        return result;
+    }
 }

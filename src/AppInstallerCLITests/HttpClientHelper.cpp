@@ -7,10 +7,13 @@
 #include <Rest/Schema/HttpClientHelper.h>
 #include <AppInstallerRuntime.h>
 #include <AppInstallerStrings.h>
+#include <winget/Certificates.h>
+#include <CertificateResources.h>
 
 using namespace AppInstaller::Repository::Rest::Schema;
 using namespace AppInstaller::Runtime;
 using namespace AppInstaller::Utility;
+using namespace AppInstaller::Certificates;
 
 TEST_CASE("ExtractJsonResponse_UnsupportedMimeType", "[RestSource][RestSearch]")
 {
@@ -55,4 +58,24 @@ TEST_CASE("EnsureDefaultUserAgent", "[RestSource]")
     {
         REQUIRE_NOTHROW(helper.HandlePost(L"https://testUri", {}));
     }
+}
+
+TEST_CASE("HttpClientHelper_PinningConfiguration", "[RestSource]")
+{
+    // Create the Store chain config
+    PinningChain chain;
+    auto chainElement = chain.Root();
+    chainElement->LoadCertificate(IDX_CERTIFICATE_STORE_ROOT_1).SetPinning(PinningVerificationType::PublicKey);
+    chainElement = chainElement.Next();
+    chainElement->LoadCertificate(IDX_CERTIFICATE_STORE_INTERMEDIATE_1).SetPinning(PinningVerificationType::Subject | PinningVerificationType::Issuer);
+    chainElement = chainElement.Next();
+    chainElement->LoadCertificate(IDX_CERTIFICATE_STORE_LEAF_1).SetPinning(PinningVerificationType::Subject | PinningVerificationType::Issuer);
+
+    PinningConfiguration config;
+    config.AddChain(chain);
+
+    HttpClientHelper helper;
+    helper.SetPinningConfiguration(config);
+
+    REQUIRE_THROWS_HR(helper.HandleGet(L"https://microsoft.com"), APPINSTALLER_CLI_ERROR_PINNED_CERTIFICATE_MISMATCH);
 }

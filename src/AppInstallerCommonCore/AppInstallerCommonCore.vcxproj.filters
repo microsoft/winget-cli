@@ -201,6 +201,9 @@
     <ClInclude Include="Public\winget\MsixManifest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Public\winget\Certificates.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
     <ClInclude Include="Public\winget\FolderFileWatcher.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
@@ -354,6 +357,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MsixManifest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Certificates.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Resources.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FolderFileWatcher.cpp">

@@ -215,7 +215,7 @@ namespace AppInstallerCLIE2ETests
                 debugging = new
                 {
                     enableSelfInitiatedMinidump = true
-                }
+                },
             };
 
             // Run winget one time to initialize settings directory

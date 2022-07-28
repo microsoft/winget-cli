@@ -1,10 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include <AppInstallerLanguageUtilities.h>
+#include <winget/Certificates.h>
+#include <winget/Registry.h>
+#include <winget/Resources.h>
 
-#include "AppInstallerLanguageUtilities.h"
-#include "winget/Registry.h"
-#include "winget/Resources.h"
 #include <string_view>
 
 using namespace std::string_view_literals;
@@ -77,6 +78,10 @@ namespace AppInstaller::Settings
         std::string Type;
         std::string Data;
         std::string Identifier;
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        Certificates::PinningConfiguration PinningConfiguration;
+#endif
 
         std::string ToJsonString() const;
     };
