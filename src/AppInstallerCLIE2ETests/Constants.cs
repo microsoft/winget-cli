@@ -79,6 +79,10 @@ namespace AppInstallerCLIE2ETests
         public const string WinGetPackageIdentifier = "WinGetPackageIdentifier";
         public const string WinGetSourceIdentifier = "WinGetSourceIdentifier";
 
+        // User settings
+        public const string PortablePackageUserRoot = "portablePackageUserRoot";
+        public const string PortablePackageMachineRoot = "portablePackageMachineRoot";
+
         public class ErrorCode
         {
             public const int S_OK = 0;

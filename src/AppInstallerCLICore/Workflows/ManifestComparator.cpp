@@ -287,7 +287,7 @@ namespace AppInstaller::CLI::Workflow
             InapplicabilityFlags IsApplicable(const Manifest::ManifestInstaller& installer) override
             {
                 // We have to assume the unknown scope will match our required scope, or the entire catalog would stop working for upgrade.
-                if (installer.Scope == Manifest::ScopeEnum::Unknown || installer.Scope == m_requirement)
+                if (installer.Scope == Manifest::ScopeEnum::Unknown || installer.Scope == m_requirement || DoesInstallerIgnoreScopeFromManifest(installer))
                 {
                     return InapplicabilityFlags::None;
                 }
@@ -342,7 +342,7 @@ namespace AppInstaller::CLI::Workflow
 
             InapplicabilityFlags IsApplicable(const Manifest::ManifestInstaller& installer) override
             {
-                if (m_requirement == Manifest::ScopeEnum::Unknown ||installer.Scope == m_requirement || DoesInstallerTypeIgnoreScopeFromManifest(installer.InstallerType))
+                if (m_requirement == Manifest::ScopeEnum::Unknown ||installer.Scope == m_requirement || DoesInstallerIgnoreScopeFromManifest(installer))
                 {
                     return InapplicabilityFlags::None;
                 }

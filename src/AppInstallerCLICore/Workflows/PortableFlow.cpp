@@ -54,16 +54,16 @@ namespace AppInstaller::CLI::Workflow
             {
                 if (arch == Utility::Architecture::X86)
                 {
-                    return Runtime::GetPathTo(Runtime::PathName::PortableAppMachineRootX86);
+                    return Runtime::GetPathTo(Runtime::PathName::PortablePackageMachineRootX86);
                 }
                 else
                 {
-                    return Runtime::GetPathTo(Runtime::PathName::PortableAppMachineRootX64);
+                    return Runtime::GetPathTo(Runtime::PathName::PortablePackageMachineRootX64);
                 }
             }
             else
             {
-                return Runtime::GetPathTo(Runtime::PathName::PortableAppUserRoot);
+                return Runtime::GetPathTo(Runtime::PathName::PortablePackageUserRoot);
             }
         }
 

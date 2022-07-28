@@ -305,7 +305,7 @@ namespace AppInstallerCLIE2ETests
         public void InstallPortable_UserScope()
         {
             string installDir = TestCommon.GetRandomTestDir();
-            ConfigureInstallBehavior("portableAppUserRoot", installDir);
+            ConfigureInstallBehavior(Constants.PortablePackageUserRoot, installDir);
 
             string packageId, commandAlias, fileName, packageDirName, productCode;
             packageId = "AppInstallerTest.TestPortableExe";
@@ -313,6 +313,7 @@ namespace AppInstallerCLIE2ETests
             commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
 
             var result = TestCommon.RunAICLICommand("install", "AppInstallerTest.TestPortableExe --scope user");
+            ConfigureInstallBehavior(Constants.PortablePackageUserRoot, string.Empty);
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
@@ -322,7 +323,7 @@ namespace AppInstallerCLIE2ETests
         public void InstallPortable_MachineScope()
         {
             string installDir = TestCommon.GetRandomTestDir();
-            ConfigureInstallBehavior("portableAppMachineRoot", installDir);
+            ConfigureInstallBehavior(Constants.PortablePackageMachineRoot, installDir);
 
             string packageId, commandAlias, fileName, packageDirName, productCode;
             packageId = "AppInstallerTest.TestPortableExe";
@@ -330,6 +331,7 @@ namespace AppInstallerCLIE2ETests
             commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
 
             var result = TestCommon.RunAICLICommand("install", "AppInstallerTest.TestPortableExe --scope machine");
+            ConfigureInstallBehavior(Constants.PortablePackageMachineRoot, string.Empty);
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true, TestCommon.Scope.Machine);

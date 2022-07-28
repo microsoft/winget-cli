@@ -318,15 +318,25 @@ namespace AppInstallerCLIE2ETests
             bool symlinkExists = File.Exists(symlinkPath);
 
             bool portableEntryExists;
+            RegistryKey baseKey;
             string subKey = @$"Software\Microsoft\Windows\CurrentVersion\Uninstall";
-            using (RegistryKey uninstallRegistryKey = Registry.CurrentUser.OpenSubKey(subKey, true))
+            if (scope == Scope.User)
+            {
+                baseKey = Registry.CurrentUser;
+            }
+            else
+            {
+                baseKey = Registry.LocalMachine;
+            }
+
+            using (RegistryKey uninstallRegistryKey = baseKey.OpenSubKey(subKey, true))
             {
                 RegistryKey portableEntry = uninstallRegistryKey.OpenSubKey(productCode, true);
                 portableEntryExists = portableEntry != null;
             }
 
             bool isAddedToPath;
-            using (RegistryKey environmentRegistryKey = Registry.CurrentUser.OpenSubKey(@"Environment", true))
+            using (RegistryKey environmentRegistryKey = baseKey.OpenSubKey(@"Environment", true))
             {
                 string pathName = "Path";
                 var currentPathValue = (string)environmentRegistryKey.GetValue(pathName);

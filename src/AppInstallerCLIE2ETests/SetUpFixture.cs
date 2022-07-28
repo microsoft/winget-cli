@@ -218,8 +218,8 @@ namespace AppInstallerCLIE2ETests
                 },
                 installBehavior = new
                 {
-                    portableAppUserRoot = "",
-                    portableAppMachineRoot = "",
+                    portablePackageUserRoot = "",
+                    portablePackageMachineRoot = "",
                 }
             };
 
