@@ -615,13 +615,6 @@ void OverrideForPortableUninstall(TestContext& context)
     } });
 }
 
-void OverrideForEnsureSupportForPortable(TestContext& context)
-{
-    context.Override({ EnsureSupportForPortableInstall, [](TestContext&)
-    {
-    } });
-}
-
 void OverrideForArchiveInstall(TestContext& context)
 {
     context.Override({ ExtractFilesFromArchive, [](TestContext&)
@@ -1217,6 +1210,50 @@ TEST_CASE("PortableInstallFlow", "[InstallFlow][workflow]")
     REQUIRE(std::filesystem::exists(portableInstallResultPath.GetPath()));
 }
 
+TEST_CASE("PortableInstallFlow_UserScope", "[InstallFlow][workflow]")
+{
+    TestCommon::TempDirectory tempDirectory("TestPortableInstallRoot", false);
+    TestCommon::TempFile portableInstallResultPath("TestPortableInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForPortableInstallFlow(context);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Portable.yaml").GetPath().u8string());
+    context.Args.AddArg(Execution::Args::Type::InstallLocation, tempDirectory);
+    context.Args.AddArg(Execution::Args::Type::InstallScope, "user"sv);
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    REQUIRE(std::filesystem::exists(portableInstallResultPath.GetPath()));
+}
+
+TEST_CASE("PortableInstallFlow_MachineScope", "[InstallFlow][workflow]")
+{
+    if (!AppInstaller::Runtime::IsRunningAsAdmin())
+    {
+        WARN("Test requires admin privilege. Skipped.");
+        return;
+    }
+
+    TestCommon::TempDirectory tempDirectory("TestPortableInstallRoot", false);
+    TestCommon::TempFile portableInstallResultPath("TestPortableInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForPortableInstallFlow(context);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Portable.yaml").GetPath().u8string());
+    context.Args.AddArg(Execution::Args::Type::InstallLocation, tempDirectory);
+    context.Args.AddArg(Execution::Args::Type::InstallScope, "machine"sv);
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+    REQUIRE(std::filesystem::exists(portableInstallResultPath.GetPath()));
+}
 
 TEST_CASE("PortableInstallFlow_DevModeDisabled", "[InstallFlow][workflow]")
 {
@@ -1863,7 +1900,6 @@ TEST_CASE("UpdateFlow_UpdatePortableWithManifest", "[UpdateFlow][workflow]")
     TestContext context{ updateOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForCompositeInstalledSource(context);
-    OverrideForEnsureSupportForPortable(context);
     OverrideForPortableInstallFlow(context);
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("UpdateFlowTest_Portable.yaml").GetPath().u8string());
 

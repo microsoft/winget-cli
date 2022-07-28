@@ -107,12 +107,12 @@
           "type": "boolean",
           "default":  false
         },
-        "PortablePackageUserRoot": {
+        "portablePackageUserRoot": {
           "description": "The default root directory where packages are installed to under User scope. Applies to the portable installer type.",
           "type": "string",
           "default": "%LOCALAPPDATA%/Microsoft/WinGet/Packages/"
         },
-        "PortablePackageMachineRoot": {
+        "portablePackageMachineRoot": {
           "description": "The default root directory where packages are installed to under Machine scope. Applies to the portable installer type.",
           "type": "string",
           "default": "%PROGRAMFILES%/WinGet/Packages/"

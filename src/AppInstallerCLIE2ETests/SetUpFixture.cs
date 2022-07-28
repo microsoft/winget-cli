@@ -216,6 +216,11 @@ namespace AppInstallerCLIE2ETests
                 {
                     enableSelfInitiatedMinidump = true
                 },
+                installBehavior = new
+                {
+                    portablePackageUserRoot = "",
+                    portablePackageMachineRoot = "",
+                }
             };
 
             // Run winget one time to initialize settings directory
