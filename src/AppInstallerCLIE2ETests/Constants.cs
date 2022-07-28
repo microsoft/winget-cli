@@ -83,6 +83,9 @@ namespace AppInstallerCLIE2ETests
         // Registry keys
         public const string WinGetPackageIdentifier = "WinGetPackageIdentifier";
         public const string WinGetSourceIdentifier = "WinGetSourceIdentifier";
+        public const string UninstallSubKey = @"Software\Microsoft\Windows\CurrentVersion\Uninstall";
+        public const string PathSubKey_User = @"Environment";
+        public const string PathSubKey_Machine = @"SYSTEM\CurrentControlSet\Control\Session Manager\Environment";
 
         // User settings
         public const string PortablePackageUserRoot = "portablePackageUserRoot";
