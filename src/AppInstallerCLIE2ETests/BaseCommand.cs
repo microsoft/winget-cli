@@ -22,9 +22,11 @@ namespace AppInstallerCLIE2ETests
             TestCommon.TearDownTestSource();
         }
 
-        public void ResetTestSource()
+        // TODO: If/when cert pinning is implemented on the packaged index source, useGroupPolicyForTestSource should be set to default true
+        //       to enable testing it by default.  Until then, leaving this here...
+        public void ResetTestSource(bool useGroupPolicyForTestSource = false)
         {
-            TestCommon.SetupTestSource();
+            TestCommon.SetupTestSource(useGroupPolicyForTestSource);
         }
 
         public void ConfigureFeature(string featureName, bool status)

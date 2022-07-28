@@ -191,7 +191,11 @@ namespace AppInstallerCLIE2ETests
         {
             foreach (FileInfo file in directory.GetFiles())
             {
-                file.Delete();
+                // Leave the server certificate file if present
+                if (file.Name.ToLower() != Constants.TestSourceServerCertificateFileName)
+                {
+                    file.Delete();
+                }
             }
 
             foreach (DirectoryInfo dir in directory.GetDirectories())

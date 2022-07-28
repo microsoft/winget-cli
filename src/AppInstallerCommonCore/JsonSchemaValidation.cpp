@@ -2,46 +2,18 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "winget/JsonSchemaValidation.h"
+#include "winget/Resources.h"
 
 namespace AppInstaller::JsonSchema
 {
-    std::string LoadResourceAsString(PCWSTR resourceName, PCWSTR resourceType)
-    {
-        HMODULE resourceModule = NULL;
-        GetModuleHandleEx(
-            GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS,
-            (PCWSTR)LoadResourceAsString,
-            &resourceModule);
-        THROW_LAST_ERROR_IF_NULL(resourceModule);
-
-        HRSRC resourceInfoHandle = FindResource(resourceModule, resourceName, resourceType);
-        THROW_LAST_ERROR_IF_NULL(resourceInfoHandle);
-
-        HGLOBAL resourceMemoryHandle = LoadResource(resourceModule, resourceInfoHandle);
-        THROW_LAST_ERROR_IF_NULL(resourceMemoryHandle);
-
-        ULONG resourceSize = 0;
-        char* resourceContent = NULL;
-        resourceSize = SizeofResource(resourceModule, resourceInfoHandle);
-        THROW_LAST_ERROR_IF(resourceSize == 0);
-
-        resourceContent = reinterpret_cast<char*>(LockResource(resourceMemoryHandle));
-        THROW_HR_IF_NULL(E_UNEXPECTED, resourceContent);
-
-        std::string resourceStr;
-        resourceStr.assign(resourceContent, resourceSize);
-
-        return resourceStr;
-    }
-
-    Json::Value LoadSchemaDoc(const std::string& schemaStr)
+    Json::Value LoadSchemaDoc(std::string_view schemaStr)
     {
         Json::Value schemaJson;
         int schemaLength = static_cast<int>(schemaStr.length());
         Json::CharReaderBuilder charReaderBuilder;
         const std::unique_ptr<Json::CharReader> jsonReader(charReaderBuilder.newCharReader());
         std::string errorMsg;
-        if (!jsonReader->parse(schemaStr.c_str(), schemaStr.c_str() + schemaLength, &schemaJson, &errorMsg))
+        if (!jsonReader->parse(schemaStr.data(), schemaStr.data() + schemaLength, &schemaJson, &errorMsg))
         {
             THROW_HR_MSG(E_UNEXPECTED, "Jsoncpp parser failed to parse the schema doc. Reason: %hs", errorMsg.c_str());
         }
@@ -51,7 +23,7 @@ namespace AppInstaller::JsonSchema
 
     Json::Value LoadResourceAsSchemaDoc(PCWSTR resourceName, PCWSTR resourceType)
     {
-        return LoadSchemaDoc(LoadResourceAsString(resourceName, resourceType));
+        return LoadSchemaDoc(Resource::GetResourceAsString(resourceName, resourceType));
     }
 
     void PopulateSchema(const Json::Value& schemaJson, valijson::Schema& schema)

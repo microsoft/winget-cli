@@ -11,6 +11,7 @@ namespace AppInstaller::Settings
     {
         Unknown,
         LocalManifestFiles,
+        BypassCertificatePinningForMicrosoftStore,
     };
 
     AdminSetting StringToAdminSetting(std::string_view in);

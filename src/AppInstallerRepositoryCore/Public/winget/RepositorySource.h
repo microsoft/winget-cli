@@ -1,9 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include <Public/winget/RepositorySearch.h>
-#include <Public/winget/PackageTrackingCatalog.h>
+#include <winget/RepositorySearch.h>
+#include <winget/PackageTrackingCatalog.h>
 #include <AppInstallerProgress.h>
+#include <winget/Certificates.h>
 
 #include <chrono>
 #include <filesystem>
@@ -112,6 +113,9 @@ namespace AppInstaller::Repository
 
         // Whether the source supports InstalledSource correlation.
         bool SupportInstalledSearchCorrelation = true;
+
+        // The configuration of how the server certificate will be validated.
+        Certificates::PinningConfiguration CertificatePinningConfiguration;
     };
 
     // Individual source agreement entry. Label will be highlighted in the display as the key of the agreement entry.

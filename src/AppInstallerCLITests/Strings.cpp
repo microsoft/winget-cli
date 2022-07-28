@@ -216,3 +216,12 @@ TEST_CASE("ReplaceEmbeddedNullCharacters", "[strings]")
     ReplaceEmbeddedNullCharacters(test);
     REQUIRE(test == "Test Parts");
 }
+
+TEST_CASE("HexStrings", "[strings]")
+{
+    std::vector<uint8_t> buffer{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    std::string value = "000102030405060708090a0b0c0d0e0f";
+
+    REQUIRE(value == ConvertToHexString(buffer));
+    REQUIRE(std::equal(buffer.begin(), buffer.end(), ParseFromHexString(value).begin()));
+}

@@ -221,4 +221,10 @@ namespace AppInstaller::Utility
             return {};
         }
     }
+
+    // Converts the given bytes into a hexadecimal string.
+    std::string ConvertToHexString(const std::vector<uint8_t>& buffer, size_t byteCount = 0);
+
+    // Converts the given hexadecimal string into bytes.
+    std::vector<uint8_t> ParseFromHexString(const std::string& value, size_t byteCount = 0);
 }
