@@ -210,6 +210,9 @@
     <ClInclude Include="Public\winget\Archive.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
+    <ClInclude Include="Public\winget\MsixManifestValidation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -369,6 +372,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Archive.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Manifest\MsixManifestValidation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

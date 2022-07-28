@@ -306,7 +306,7 @@
     <ClInclude Include="Public\AppInstallerLogging.h" />
     <ClInclude Include="Public\AppInstallerArchitecture.h" />
     <ClInclude Include="Public\AppInstallerVersions.h" />
-    <ClInclude Include="Public\winget\Archive.h" />    
+    <ClInclude Include="Public\winget\Archive.h" />
     <ClInclude Include="Public\winget\ExperimentalFeature.h" />
     <ClInclude Include="Public\winget\ExtensionCatalog.h" />
     <ClInclude Include="Public\winget\JsonSchemaValidation.h" />
@@ -322,6 +322,7 @@
     <ClInclude Include="Public\winget\ManifestYamlParser.h" />
     <ClInclude Include="Public\winget\ManifestYamlPopulator.h" />
     <ClInclude Include="Public\winget\MsiExecArguments.h" />
+    <ClInclude Include="Public\winget\MsixManifestValidation.h" />
     <ClInclude Include="Public\winget\NameNormalization.h" />
     <ClInclude Include="Public\winget\Filesystem.h" />
     <ClInclude Include="Public\winget\Regex.h" />
@@ -381,6 +382,7 @@
     <ClCompile Include="Manifest\ManifestValidation.cpp" />
     <ClCompile Include="Manifest\ManifestSchemaValidation.cpp" />
     <ClCompile Include="Manifest\ManifestYamlPopulator.cpp" />
+    <ClCompile Include="Manifest\MsixManifestValidation.cpp" />
     <ClCompile Include="Manifest\YamlParser.cpp" />
     <ClCompile Include="MsiExecArguments.cpp" />
     <ClCompile Include="MsixInfo.cpp">
@@ -396,7 +398,7 @@
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="AppInstallerTelemetry.cpp" />
-    <ClCompile Include="Archive.cpp" />    
+    <ClCompile Include="Archive.cpp" />
     <ClCompile Include="Settings.cpp" />
     <ClCompile Include="SHA256.cpp" />
     <ClCompile Include="PortableARPEntry.cpp" />

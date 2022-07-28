@@ -1,5 +1,5 @@
-# Bad manifest: Inconsistent field values in unsigned MSIX
-PackageIdentifier: AppInstallerCliTest.InconsistentMsixInstallerFields
+# Bad manifest: Inconsistent field values in signed MSIX bundle
+PackageIdentifier: AppInstallerCliTest.InconsistentMsixBundleInstallerFields
 PackageVersion: 1.2.3.4                           # Mismatching value with msix installer
 PackageLocale: es-MX
 PackageName: es-MX package name
@@ -9,7 +9,7 @@ MinimumOSVersion: 5.6.7.8                         # Mismatching value with msix 
 InstallerType: msix
 Installers: 
     - Architecture: x64
-      InstallerUrl: Installer-Good.msix
-      SignatureSha256: 0000000000000000000000000000000000000000000000000000000000000000 # Unexpected value for unsigned msix installer
+      InstallerUrl: Installer-Signed-Good.msixbundle
+      SignatureSha256: 0000000000000000000000000000000000000000000000000000000000000000 # Inconsistent signature hash
 ManifestType: merged
 ManifestVersion: 1.0.0
