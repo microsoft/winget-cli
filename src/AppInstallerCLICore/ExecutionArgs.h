@@ -82,7 +82,7 @@ namespace AppInstaller::CLI::Execution
             // Upgrade Command
             All, // Update all installed packages to latest
             IncludeUnknown, // Allow upgrades of packages with unknown versions
-            IncludeExplicit, // Allow upgrades of packages pinned by default
+            IncludePinned, // Allow upgrades of packages pinned by default
 
             // Other
             ListVersions, // Used in Show command to list all available versions of an app

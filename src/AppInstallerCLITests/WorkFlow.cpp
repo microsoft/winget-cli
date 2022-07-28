@@ -2333,7 +2333,7 @@ TEST_CASE("UpdateFlow_All_RequireExplicit", "[UpdateFlow][workflow]")
 
     SECTION("Include package with explicit upgrade")
     {
-        context.Args.AddArg(Args::Type::IncludeExplicit);
+        context.Args.AddArg(Args::Type::IncludePinned);
 
         SECTION("List available upgrades")
         {

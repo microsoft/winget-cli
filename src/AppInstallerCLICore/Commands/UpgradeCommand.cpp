@@ -45,7 +45,7 @@ namespace AppInstaller::CLI
         {
             return execArgs.Contains(Args::Type::All) ||
                 execArgs.Contains(Args::Type::IncludeUnknown) ||
-                execArgs.Contains(Args::Type::IncludeExplicit);
+                execArgs.Contains(Args::Type::IncludePinned);
         }
 
         // Determines whether there are any arguments only used as options during an upgrade,
@@ -105,7 +105,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Execution::Args::Type::CustomHeader),
             Argument{ "all", Argument::NoAlias, Args::Type::All, Resource::String::UpdateAllArgumentDescription, ArgumentType::Flag },
             Argument{ "include-unknown", Argument::NoAlias, Args::Type::IncludeUnknown, Resource::String::IncludeUnknownArgumentDescription, ArgumentType::Flag },
-            Argument{ "include-explicit", Argument::NoAlias, Args::Type::IncludeExplicit, Resource::String::IncludeExplicitArgumentDescription, ArgumentType::Flag },
+            Argument{ "include-pinned", Argument::NoAlias, Args::Type::IncludePinned, Resource::String::IncludePinnedArgumentDescription, ArgumentType::Flag },
         };
     }
 
