@@ -342,7 +342,7 @@ namespace AppInstaller::CLI::Workflow
 
             InapplicabilityFlags IsApplicable(const Manifest::ManifestInstaller& installer) override
             {
-                if (m_requirement == Manifest::ScopeEnum::Unknown ||installer.Scope == m_requirement || DoesInstallerIgnoreScopeFromManifest(installer))
+                if (m_requirement == Manifest::ScopeEnum::Unknown || installer.Scope == m_requirement || DoesInstallerIgnoreScopeFromManifest(installer))
                 {
                     return InapplicabilityFlags::None;
                 }

@@ -318,25 +318,17 @@ namespace AppInstallerCLIE2ETests
             bool symlinkExists = File.Exists(symlinkPath);
 
             bool portableEntryExists;
-            RegistryKey baseKey;
-            string subKey = @$"Software\Microsoft\Windows\CurrentVersion\Uninstall";
-            if (scope == Scope.User)
-            {
-                baseKey = Registry.CurrentUser;
-            }
-            else
-            {
-                baseKey = Registry.LocalMachine;
-            }
-
-            using (RegistryKey uninstallRegistryKey = baseKey.OpenSubKey(subKey, true))
+            RegistryKey baseKey = (scope == Scope.User) ? Registry.CurrentUser : Registry.LocalMachine;
+            string uninstallSubKey = Constants.UninstallSubKey;
+            using (RegistryKey uninstallRegistryKey = baseKey.OpenSubKey(uninstallSubKey, true))
             {
                 RegistryKey portableEntry = uninstallRegistryKey.OpenSubKey(productCode, true);
                 portableEntryExists = portableEntry != null;
             }
 
             bool isAddedToPath;
-            using (RegistryKey environmentRegistryKey = baseKey.OpenSubKey(@"Environment", true))
+            string pathSubKey = (scope == Scope.User) ? Constants.PathSubKey_User : Constants.PathSubKey_Machine;
+            using (RegistryKey environmentRegistryKey = baseKey.OpenSubKey(pathSubKey, true))
             {
                 string pathName = "Path";
                 var currentPathValue = (string)environmentRegistryKey.GetValue(pathName);
@@ -351,7 +343,7 @@ namespace AppInstallerCLIE2ETests
 
             Assert.AreEqual(shouldExist, exeExists, $"Expected portable exe path: {exePath}");
             Assert.AreEqual(shouldExist, symlinkExists, $"Expected portable symlink path: {symlinkPath}");
-            Assert.AreEqual(shouldExist, portableEntryExists, $"Expected {productCode} subkey in path: {subKey}");
+            Assert.AreEqual(shouldExist, portableEntryExists, $"Expected {productCode} subkey in path: {uninstallSubKey}");
             Assert.AreEqual(shouldExist, isAddedToPath, $"Expected path variable: {symlinkDirectory}");
         }
 
