@@ -54,7 +54,7 @@ namespace AppInstaller::CLI
 
     struct SourceUpdateCommand final : public Command
     {
-        SourceUpdateCommand(std::string_view parent) : Command("update", parent) {}
+        SourceUpdateCommand(std::string_view parent) : Command("update", { "refresh" }, parent) {}
 
         std::vector<Argument> GetArguments() const override;
 
