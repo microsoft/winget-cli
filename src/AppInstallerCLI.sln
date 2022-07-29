@@ -135,6 +135,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UndockedRegFreeWinRT", "Und
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Detours", "UndockedRegFreeWinRT\detours\detours.vcxproj", "{787EC629-C0FB-4BA9-9746-4A82CD06B73E}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{8E43F982-40D5-4DF1-9044-C08047B5F43B}"
+	ProjectSection(SolutionItems) = preProject
+		..\templates\e2e-test.template.yml = ..\templates\e2e-test.template.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -1044,6 +1049,7 @@ Global
 		{463C0EF3-DF38-4C3D-8E7E-D4901E0CDC6C} = {7C218A3E-9BC8-48FF-B91B-BCACD828C0C9}
 		{31ED69A8-5310-45A9-953F-56C351D2C3E1} = {60618CAC-2995-4DF9-9914-45C6FC02C995}
 		{787EC629-C0FB-4BA9-9746-4A82CD06B73E} = {60618CAC-2995-4DF9-9914-45C6FC02C995}
+		{8E43F982-40D5-4DF1-9044-C08047B5F43B} = {8D53D749-D51C-46F8-A162-9371AAA6C2E7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B6FDB70C-A751-422C-ACD1-E35419495857}

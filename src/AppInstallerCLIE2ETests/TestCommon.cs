@@ -209,11 +209,23 @@ namespace AppInstallerCLIE2ETests
 
         public static bool RunCommand(string fileName, string args = "", int timeOut = 60000)
         {
-            return RunCommandWithResult(fileName, args, timeOut).ExitCode == 0;
+            RunCommandResult result = RunCommandWithResult(fileName, args, timeOut);
+
+            if (result.ExitCode != 0)
+            {
+                TestContext.Out.WriteLine($"Command failed with: {result.ExitCode}");
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
 
         public static RunCommandResult RunCommandWithResult(string fileName, string args, int timeOut = 60000)
         {
+            TestContext.Out.WriteLine($"Running command: {fileName} {args}");
+
             Process p = new Process();
             p.StartInfo = new ProcessStartInfo(fileName, args);
             p.StartInfo.RedirectStandardOutput = true;
@@ -395,8 +407,10 @@ namespace AppInstallerCLIE2ETests
 
         public static bool VerifyTestMsiInstalledAndCleanup(string installDir)
         {
-            if (!File.Exists(Path.Combine(installDir, Constants.AppInstallerTestExeInstallerExe)))
+            string pathToCheck = Path.Combine(installDir, Constants.AppInstallerTestExeInstallerExe);
+            if (!File.Exists(pathToCheck))
             {
+                TestContext.Out.WriteLine($"File not found: {pathToCheck}");
                 return false;
             }
 
