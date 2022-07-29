@@ -208,15 +208,22 @@ namespace AppInstaller::CLI
             for (const auto& commandAlias : commandAliases)
             {
                 infoOut << Execution::HelpCommandEmphasis << commandAlias;
-                //infoOut << "  "_liv << Execution::HelpCommandEmphasis << commandAlias;
+                /*
+                *  Print up to 7 command aliases per line, comma separated for readability
+                *  This is intended to be future-looking so that in case common typos are
+                *  added to command aliases as scoop/chocolatey do, the list does not become
+                *  extremely long to the point where it makes the help page less usable.
+                */
                 if (i%7 != 0 && i!= commandAliases.size()) {
                     infoOut << ", "_liv;
                 }
                 else if (i != commandAliases.size()) {
+                    // Command aliases which are on new lines should be indented
                     infoOut << std::endl << "  "_liv;
                 }
                 else
                 {
+                    // Always add a newline after the last command alias
                     infoOut << std::endl;
                 }
                 i++;
