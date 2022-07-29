@@ -122,6 +122,32 @@ namespace AppInstallerCLIE2ETests
         }
 
         [Test]
+        public void UninstallPortable_MachineScope_NonAdminMode()
+        {
+            string installDir = TestCommon.GetRandomTestDir();
+            ConfigureInstallBehavior(Constants.PortablePackageMachineRoot, installDir);
+
+            string packageId, commandAlias, fileName, packageDirName, productCode;
+            packageId = "AppInstallerTest.TestPortableExe";
+            packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
+            commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
+
+            var result = TestCommon.RunAICLICommand("install", "AppInstallerTest.TestPortableExe --scope machine");
+            ConfigureInstallBehavior(Constants.PortablePackageMachineRoot, string.Empty);
+
+            var result2 = TestCommon.RunAICLICommand("uninstall", "AppInstallerTest.TestPortableExe", runAsUserProfile: true);
+            var result3 = TestCommon.RunAICLICommand("uninstall", "AppInstallerTest.TestPortableExe");
+
+            // Verify that uninstalling machine scope requires admin.
+            Assert.AreNotEqual(Constants.ErrorCode.S_OK, result2.ExitCode);
+            Assert.True(result2.StdOut.Contains("This command requires administrator privileges to execute."));
+
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result3.ExitCode);
+            Assert.True(result3.StdOut.Contains("Successfully uninstalled"));
+            TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, false);
+        }
+
+        [Test]
         public void UninstallPortable_NonDeveloper_UserProfile()
         {
             string installDir = TestCommon.GetPortablePackagesDirectory();
