@@ -131,6 +131,7 @@ namespace AppInstaller::CLI
         // Output the command preamble and command chain
         infoOut << Resource::String::Usage << ": winget"_liv << Utility::LocIndView{ commandChain };
 
+        auto commandAliases = Aliases();
         auto commands = GetVisibleCommands();
         auto arguments = GetVisibleArguments();
 
@@ -198,6 +199,30 @@ namespace AppInstaller::CLI
         infoOut <<
             std::endl <<
             std::endl;
+
+        if (!commandAliases.empty())
+        {
+            infoOut << Resource::String::AvailableCommandAliases << std::endl << "  "_liv;
+            
+            size_t i = 1;
+            for (const auto& commandAlias : commandAliases)
+            {
+                infoOut << Execution::HelpCommandEmphasis << commandAlias;
+                //infoOut << "  "_liv << Execution::HelpCommandEmphasis << commandAlias;
+                if (i%7 != 0 && i!= commandAliases.size()) {
+                    infoOut << ", "_liv;
+                }
+                else if (i != commandAliases.size()) {
+                    infoOut << std::endl << "  "_liv;
+                }
+                else
+                {
+                    infoOut << std::endl;
+                }
+                i++;
+            }
+            infoOut << std::endl;
+        }
 
         if (!commands.empty())
         {
