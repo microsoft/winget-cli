@@ -109,7 +109,7 @@ namespace
     {
         None = 0,
         UpgradeUsesAgreements,
-        UpgradeUsesRequireExplicit,
+        UpgradeRequiresExplicit,
     };
 
     struct WorkflowTestCompositeSource : public TestSource
@@ -146,10 +146,6 @@ namespace
                 case TestSourceSearchOptions::UpgradeUsesAgreements:
                     manifest3 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Exe_2_LicenseAgreement.yaml"));
                     break;
-                case TestSourceSearchOptions::UpgradeUsesRequireExplicit:
-                    manifest3 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Exe_2_RequireExplicit.yaml"));
-                    break;
-                case TestSourceSearchOptions::None:
                 default:
                     manifest3 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Exe_2.yaml"));
                     break;
@@ -204,11 +200,21 @@ namespace
                     break;
                 }
 
+                TestPackage::MetadataMap packageMetadata
+                {
+                    { PackageVersionMetadata::InstalledType, "Msix" },
+                };
+
+                if (m_searchOptions == TestSourceSearchOptions::UpgradeRequiresExplicit)
+                {
+                    packageMetadata[PackageVersionMetadata::PinnedState] = "PinnedByManifest";
+                }
+
                 result.Matches.emplace_back(
                     ResultMatch(
                         TestPackage::Make(
                             manifest,
-                            TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Msix" } },
+                            packageMetadata,
                             std::vector<Manifest>{ manifest2, manifest },
                             shared_from_this()
                         ),
@@ -2282,6 +2288,18 @@ TEST_CASE("UninstallFlow_UninstallPortable", "[UninstallFlow][workflow]")
     REQUIRE(std::filesystem::exists(uninstallResultPath.GetPath()));
 }
 
+TEST_CASE("UpdateFlow_RequireExplicit", "[UpdateFlow][workflow]")
+{
+    // Install a manifest with "RequiresExplicitUpgrade" and verify that the flag is respected.
+    std::ostringstream updateOutput;
+    TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+
+    // Exe package has an update that requires explicit upgrade.
+    // Msix is also listed with an available upgrade.
+    OverrideForOpenSource(context);
+}
+
 TEST_CASE("UpdateFlow_All_RequireExplicit", "[UpdateFlow][workflow]")
 {
     TestCommon::TempFile updateExeResultPath("TestExeInstalled.txt");
@@ -2291,80 +2309,71 @@ TEST_CASE("UpdateFlow_All_RequireExplicit", "[UpdateFlow][workflow]")
     TestContext context{ updateOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
 
-    // Exe package has an update that requires explicit upgrade.
-    // Msix is also listed with an available upgrade.
-    OverrideForCompositeInstalledSource(context, TestSourceSearchOptions::UpgradeUsesRequireExplicit);
+    // Msix package has an update that requires explicit upgrade.
+    // Exe, Portable, MSStore, Zip are also listed with an available upgrade.
+    OverrideForCompositeInstalledSource(context, TestSourceSearchOptions::UpgradeRequiresExplicit);
 
-    SECTION("Skip package with explicit upgrade")
+    SECTION("List available upgrades")
     {
-        SECTION("List available upgrades")
-        {
-            UpgradeCommand update({});
-            update.Execute(context);
-            INFO(updateOutput.str());
+        UpgradeCommand update({});
+        update.Execute(context);
+        INFO(updateOutput.str());
 
-            // The package that requires explicit upgrade is still listed, as we don't select
-            // the installer yet so we don't know if it will require it.
-            // TODO: Should we select the installer when listing so we can skip it?
-            REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::UpgradeRequireExplicitCount)) == std::string::npos);
-            REQUIRE(updateOutput.str().find("AppInstallerCliTest.TestExeInstaller") != std::string::npos);
-            REQUIRE(updateOutput.str().find("AppInstallerCliTest.TestMsixInstaller") != std::string::npos);
-        }
+        // The package that requires explicit upgrade is listed below the header for pinned packages
+        REQUIRE(updateOutput.str().find("AppInstallerCliTest.TestExeInstaller") != std::string::npos);
 
-        SECTION("Upgrade all")
-        {
-            context.Args.AddArg(Args::Type::All);
-            OverrideForMSIX(context);
-
-            UpgradeCommand update({});
-            update.Execute(context);
-            INFO(updateOutput.str());
-
-            auto s = updateOutput.str();
-
-            // Verify message is printed for skipped package
-            REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::UpgradeRequireExplicitCount)) != std::string::npos);
-
-            // Verify package is not installed, but all others are
-            REQUIRE(!std::filesystem::exists(updateExeResultPath.GetPath()));
-            REQUIRE(std::filesystem::exists(updateMsixResultPath.GetPath()));
-        }
+        auto pinnedPackagesHeaderPosition = updateOutput.str().find(Resource::LocString(Resource::String::UpgradeAvailableForPinned));
+        auto pinnedPackageLinePosition = updateOutput.str().find("AppInstallerCliTest.TestMsixInstaller");
+        REQUIRE(pinnedPackagesHeaderPosition != std::string::npos);
+        REQUIRE(pinnedPackageLinePosition != std::string::npos);
+        REQUIRE(pinnedPackagesHeaderPosition < pinnedPackageLinePosition);
+        REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::UpgradeRequireExplicitCount)) == std::string::npos);
     }
 
-    SECTION("Include package with explicit upgrade")
+    SECTION("Upgrade all except pinned")
+    {
+        context.Args.AddArg(Args::Type::All);
+        OverrideForMSStore(context, true);
+        OverrideForPortableInstall(context);
+        OverrideForShellExecute(context);
+        OverrideForExtractInstallerFromArchive(context);
+        OverrideForVerifyAndSetNestedInstaller(context);
+
+        UpgradeCommand update({});
+        update.Execute(context);
+        INFO(updateOutput.str());
+
+        auto s = updateOutput.str();
+
+        // Verify message is printed for skipped package
+        REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::UpgradeRequireExplicitCount)) != std::string::npos);
+
+        // Verify package is not installed, but all others are
+        REQUIRE(std::filesystem::exists(updateExeResultPath.GetPath()));
+        REQUIRE(!std::filesystem::exists(updateMsixResultPath.GetPath()));
+    }
+
+    SECTION("Upgrade all including pinned")
     {
         context.Args.AddArg(Args::Type::IncludePinned);
 
-        SECTION("List available upgrades")
-        {
-            UpgradeCommand update({});
-            update.Execute(context);
-            INFO(updateOutput.str());
+        context.Args.AddArg(Args::Type::All);
+        OverrideForShellExecute(context);
+        OverrideForMSIX(context);
+        OverrideForMSStore(context, true);
+        OverrideForPortableInstall(context);
+        OverrideForExtractInstallerFromArchive(context);
+        OverrideForVerifyAndSetNestedInstaller(context);
 
+        UpgradeCommand update({});
+        update.Execute(context);
+        INFO(updateOutput.str());
 
-            auto s = updateOutput.str();
+        auto s = updateOutput.str();
 
-            // Verify all packages with updates are listed.
-            REQUIRE(updateOutput.str().find("AppInstallerCliTest.TestExeInstaller") != std::string::npos);
-            REQUIRE(updateOutput.str().find("AppInstallerCliTest.TestMsixInstaller") != std::string::npos);
-        }
-
-        SECTION("Upgrade all")
-        {
-            context.Args.AddArg(Args::Type::All);
-            OverrideForShellExecute(context);
-            OverrideForMSIX(context);
-
-            UpgradeCommand update({});
-            update.Execute(context);
-            INFO(updateOutput.str());
-
-            auto s = updateOutput.str();
-
-            // Verify all packages are updated
-            REQUIRE(std::filesystem::exists(updateExeResultPath.GetPath()));
-            REQUIRE(std::filesystem::exists(updateMsixResultPath.GetPath()));
-        }
+        // Verify all packages are updated
+        REQUIRE(std::filesystem::exists(updateExeResultPath.GetPath()));
+        REQUIRE(std::filesystem::exists(updateMsixResultPath.GetPath()));
 
         // Verify that skipped package message is not printed
         REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::UpgradeRequireExplicitCount)) == std::string::npos);
