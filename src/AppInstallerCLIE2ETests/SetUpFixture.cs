@@ -127,7 +127,7 @@ namespace AppInstallerCLIE2ETests
         }
 
         // Returns whether there's a change to the dev mode state after execution
-        private bool EnableDevMode(bool enable)
+        public static bool EnableDevMode(bool enable)
         {
             var appModelUnlockKey = Registry.LocalMachine.CreateSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\AppModelUnlock");
 

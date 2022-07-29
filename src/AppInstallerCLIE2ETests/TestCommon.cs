@@ -58,7 +58,7 @@ namespace AppInstallerCLIE2ETests
             public string StdErr;
         }
 
-        public static RunCommandResult RunAICLICommand(string command, string parameters, string stdIn = null, int timeOut = 60000)
+        public static RunCommandResult RunAICLICommand(string command, string parameters, string stdIn = null, int timeOut = 60000, bool runAsUserProfile = false)
         {
             string inputMsg =
                     "AICLI path: " + AICLIPath +
@@ -71,7 +71,7 @@ namespace AppInstallerCLIE2ETests
 
             if (InvokeCommandInDesktopPackage)
             {
-                return RunAICLICommandViaInvokeCommandInDesktopPackage(command, parameters, stdIn, timeOut);
+                return RunAICLICommandViaInvokeCommandInDesktopPackage(command, parameters, stdIn, timeOut, runAsUserProfile);
             }
             else
             {
@@ -79,7 +79,7 @@ namespace AppInstallerCLIE2ETests
             }
         }
 
-        public static RunCommandResult RunAICLICommandViaDirectProcess(string command, string parameters, string stdIn = null, int timeOut = 60000)
+        public static RunCommandResult RunAICLICommandViaDirectProcess(string command, string parameters, string stdIn = null, int timeOut = 60000, bool runAsUserProfile = false)
         {
             RunCommandResult result = new RunCommandResult();
             Process p = new Process();
@@ -87,6 +87,7 @@ namespace AppInstallerCLIE2ETests
             p.StartInfo.UseShellExecute = false;
             p.StartInfo.RedirectStandardOutput = true;
             p.StartInfo.RedirectStandardError = true;
+            p.StartInfo.LoadUserProfile = runAsUserProfile;
 
             if (!string.IsNullOrEmpty(stdIn))
             {
@@ -134,7 +135,7 @@ namespace AppInstallerCLIE2ETests
         //   Invoke-CommandInDesktopPackage ...... -Command cmd.exe -Args '-c <cmd command>'
         //   where <cmd command> will look like: "echo stdIn | appinst.exe args > stdout.txt 2> stderr.txt & echo %ERRORLEVEL% > exitcode.txt"
         // Then this method will read the piped result and return as RunCommandResult.
-        public static RunCommandResult RunAICLICommandViaInvokeCommandInDesktopPackage(string command, string parameters, string stdIn = null, int timeOut = 60000)
+        public static RunCommandResult RunAICLICommandViaInvokeCommandInDesktopPackage(string command, string parameters, string stdIn = null, int timeOut = 60000, bool runAsUserProfile = false)
         {
             string cmdCommandPiped = "";
             if (!string.IsNullOrEmpty(stdIn))
@@ -154,7 +155,7 @@ namespace AppInstallerCLIE2ETests
 
             string psCommand = $"Invoke-CommandInDesktopPackage -PackageFamilyName {Constants.AICLIPackageFamilyName} -AppId {Constants.AICLIAppId} -PreventBreakaway -Command cmd.exe -Args '/c \"{tempBatchFile}\"'";
 
-            var psInvokeResult = RunCommandWithResult("powershell", psCommand);
+            var psInvokeResult = RunCommandWithResult("powershell", psCommand, runAsUserProfile:runAsUserProfile);
 
             if (psInvokeResult.ExitCode != 0)
             {
@@ -207,9 +208,9 @@ namespace AppInstallerCLIE2ETests
             return result;
         }
 
-        public static bool RunCommand(string fileName, string args = "", int timeOut = 60000)
+        public static bool RunCommand(string fileName, string args = "", int timeOut = 60000, bool runAsUserProfile = false)
         {
-            RunCommandResult result = RunCommandWithResult(fileName, args, timeOut);
+            RunCommandResult result = RunCommandWithResult(fileName, args, timeOut, runAsUserProfile);
 
             if (result.ExitCode != 0)
             {
@@ -222,7 +223,7 @@ namespace AppInstallerCLIE2ETests
             }
         }
 
-        public static RunCommandResult RunCommandWithResult(string fileName, string args, int timeOut = 60000)
+        public static RunCommandResult RunCommandWithResult(string fileName, string args, int timeOut = 60000, bool runAsUserProfile = false)
         {
             TestContext.Out.WriteLine($"Running command: {fileName} {args}");
 
@@ -230,6 +231,7 @@ namespace AppInstallerCLIE2ETests
             p.StartInfo = new ProcessStartInfo(fileName, args);
             p.StartInfo.RedirectStandardOutput = true;
             p.StartInfo.RedirectStandardError = true;
+            p.StartInfo.LoadUserProfile = runAsUserProfile;
             p.Start();
 
             RunCommandResult result = new RunCommandResult();
@@ -320,15 +322,14 @@ namespace AppInstallerCLIE2ETests
             string filename,
             string productCode,
             bool shouldExist, 
-            Scope scope = Scope.User)
+            Scope scope = Scope.User, 
+            bool isInstallDirAddedToPath = false)
         {
+            // Verifies the existence of the portable exe
             string exePath = Path.Combine(installDir, filename);
             bool exeExists = File.Exists(exePath);
 
-            string symlinkDirectory = GetPortableSymlinkDirectory(scope);
-            string symlinkPath = Path.Combine(symlinkDirectory, commandAlias);
-            bool symlinkExists = File.Exists(symlinkPath);
-
+            // Verifies the existence of the portable ARP entry.
             bool portableEntryExists;
             RegistryKey baseKey = (scope == Scope.User) ? Registry.CurrentUser : Registry.LocalMachine;
             string uninstallSubKey = Constants.UninstallSubKey;
@@ -338,13 +339,20 @@ namespace AppInstallerCLIE2ETests
                 portableEntryExists = portableEntry != null;
             }
 
+            // Verifies the existence of the portable symlink (if InstallDirectory is not added to path directly)
+            string symlinkDirectory = GetPortableSymlinkDirectory(scope);
+            string symlinkPath = Path.Combine(symlinkDirectory, commandAlias);
+            bool symlinkExists = File.Exists(symlinkPath);
+
+            // Verifies the existence of the appended path value.
             bool isAddedToPath;
+            string pathValueToAppend = isInstallDirAddedToPath ? installDir : symlinkDirectory;
             string pathSubKey = (scope == Scope.User) ? Constants.PathSubKey_User : Constants.PathSubKey_Machine;
             using (RegistryKey environmentRegistryKey = baseKey.OpenSubKey(pathSubKey, true))
             {
                 string pathName = "Path";
                 var currentPathValue = (string)environmentRegistryKey.GetValue(pathName);
-                var portablePathValue = symlinkDirectory + ';';
+                var portablePathValue = pathValueToAppend + ';';
                 isAddedToPath = currentPathValue.Contains(portablePathValue);
             }
 
@@ -354,9 +362,9 @@ namespace AppInstallerCLIE2ETests
             }
 
             Assert.AreEqual(shouldExist, exeExists, $"Expected portable exe path: {exePath}");
-            Assert.AreEqual(shouldExist, symlinkExists, $"Expected portable symlink path: {symlinkPath}");
             Assert.AreEqual(shouldExist, portableEntryExists, $"Expected {productCode} subkey in path: {uninstallSubKey}");
-            Assert.AreEqual(shouldExist, isAddedToPath, $"Expected path variable: {symlinkDirectory}");
+            Assert.AreEqual((isInstallDirAddedToPath ? false : shouldExist), symlinkExists, $"Expected portable symlink path: {symlinkPath}");
+            Assert.AreEqual(shouldExist, isAddedToPath, $"Expected path variable: {pathValueToAppend}");
         }
 
         /// <summary>

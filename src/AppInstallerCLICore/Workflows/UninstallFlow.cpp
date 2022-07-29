@@ -59,6 +59,7 @@ namespace AppInstaller::CLI::Workflow
     {
         context <<
             Workflow::GetInstalledPackageVersion <<
+            Workflow::EnsureSupportForPortableUninstall <<
             Workflow::GetUninstallInfo <<
             Workflow::GetDependenciesInfoForUninstall <<
             Workflow::ReportDependencies(Resource::String::UninstallCommandReportDependencies) <<

@@ -174,7 +174,7 @@ namespace AppInstaller::CLI::Workflow
             return appsAndFeaturesEntry;
         }
 
-        bool AddToPathRegistry(Manifest::ScopeEnum scope, const std::filesystem::path& value)
+        bool AddToPathRegistry(const std::filesystem::path& value, Manifest::ScopeEnum scope)
         {
             Key key;
             if (scope == Manifest::ScopeEnum::Machine)
@@ -209,10 +209,8 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        bool RemoveFromPathRegistry(Manifest::ScopeEnum scope)
+        bool RemoveFromPathRegistry(const std::filesystem::path& value, Manifest::ScopeEnum scope)
         {
-            const std::filesystem::path& linksDirectory = GetPortableLinksLocation(scope);
-
             Key key;
             if (scope == Manifest::ScopeEnum::Machine)
             {
@@ -224,15 +222,15 @@ namespace AppInstaller::CLI::Workflow
             }
 
             std::wstring pathName = std::wstring{ s_PathName };
-            std::string portableLinksDir = Normalize(linksDirectory.u8string());
-            std::string pathValue = Normalize(key[pathName]->GetValue<Value::Type::String>());
+            std::string valueString = Normalize(value.u8string());
+            std::string pathRegistryValue = Normalize(key[pathName]->GetValue<Value::Type::String>());
 
-            if (pathValue.find(portableLinksDir) != std::string::npos)
+            if (pathRegistryValue.find(valueString) != std::string::npos)
             {
-                FindAndReplace(pathValue, portableLinksDir, "");
-                FindAndReplace(pathValue, ";;", ";");
-                AICLI_LOG(CLI, Info, << "Removing from Path environment variable: " << portableLinksDir);
-                key.SetValue(pathName, ConvertToUTF16(pathValue), REG_EXPAND_SZ);
+                FindAndReplace(pathRegistryValue, valueString, "");
+                FindAndReplace(pathRegistryValue, ";;", ";");
+                AICLI_LOG(CLI, Info, << "Removing from Path environment variable: " << valueString);
+                key.SetValue(pathName, ConvertToUTF16(pathRegistryValue), REG_EXPAND_SZ);
                 return true;
             }
             else
@@ -442,13 +440,20 @@ namespace AppInstaller::CLI::Workflow
                 uninstallEntry.SetValue(PortableValueName::PortableSymlinkFullPath, symlinkFullPath.wstring());
                 pathValue = GetPortableLinksLocation(scope);
             }
-            catch (...)
+            catch (std::filesystem::filesystem_error& error)
             {
-                AICLI_LOG(CLI, Info, << "Portable install executed in user mode. Adding package directory to PATH.");
-                pathValue = targetFullPath.parent_path();
+                if (error.code().value() == ERROR_PRIVILEGE_NOT_HELD)
+                {
+                    AICLI_LOG(CLI, Info, << "Portable install executed in user mode. Adding package directory to PATH.");
+                    pathValue = targetFullPath.parent_path();
+                }
+                else
+                {
+                    throw;
+                }
             }
 
-            if (AddToPathRegistry(scope, pathValue))
+            if (AddToPathRegistry(pathValue, scope))
             {
                 context.Reporter.Warn() << Resource::String::ModifiedPathRequiresShellRestart << std::endl;
             }
@@ -458,6 +463,8 @@ namespace AppInstaller::CLI::Workflow
         {
             PortableARPEntry& uninstallEntry = context.Get<Execution::Data::PortableARPEntry>();
             const auto& symlinkPath = uninstallEntry[PortableValueName::PortableSymlinkFullPath];
+            Manifest::ScopeEnum scope = uninstallEntry.GetScope();
+            std::filesystem::path pathValue;
             if (symlinkPath.has_value())
             {
                 const std::filesystem::path& symlinkPathValue = symlinkPath->GetValue<Value::Type::UTF16String>();
@@ -483,18 +490,19 @@ namespace AppInstaller::CLI::Workflow
                     {
                         AICLI_LOG(CLI, Info, << "The registry value for [TargetFullPath] does not exist");
                     }
+
+                    const std::filesystem::path& portableLinksLocation = GetPortableLinksLocation(scope);
+                    if (std::filesystem::is_empty(portableLinksLocation))
+                    {
+                        RemoveFromPathRegistry(portableLinksLocation, scope);
+                    }
                 }
             }
             else
             {
                 AICLI_LOG(CLI, Info, << "The registry value for [SymlinkFullPath] does not exist");
-            }
-
-            Manifest::ScopeEnum scope = uninstallEntry.GetScope();
-
-            if (std::filesystem::is_empty(GetPortableLinksLocation(scope)))
-            {
-                RemoveFromPathRegistry(scope);
+                const std::filesystem::path& installLocation = uninstallEntry[PortableValueName::InstallLocation]->GetValue<Value::Type::UTF16String>();;
+                RemoveFromPathRegistry(installLocation, scope);
             }
         }
 
@@ -547,21 +555,6 @@ namespace AppInstaller::CLI::Workflow
             {
                 context.Reporter.Error() << Resource::String::ReparsePointsNotSupportedError << std::endl;
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PORTABLE_REPARSE_POINT_NOT_SUPPORTED);
-            }
-        }
-
-        // TODO: Remove entire task once issue regarding symlink creation privilege has been resolved.
-        void EnsureSymlinkCreationPrivilege(Execution::Context& context)
-        {
-            if (!Runtime::IsDevModeEnabled())
-            {
-                AICLI_LOG(CLI, Info, << "Developer mode not enabled.");
-                context << Workflow::EnsureRunningAsAdmin;
-
-                if (context.IsTerminated())
-                {
-                    context.Reporter.Error() << std::endl << "https://github.com/microsoft/winget-cli/issues/2368" << std::endl;
-                }
             }
         }
 
@@ -666,10 +659,23 @@ namespace AppInstaller::CLI::Workflow
         if (installerType == InstallerTypeEnum::Portable)
         {
             context <<
-                EnsureSymlinkCreationPrivilege <<
                 EnsureRunningAsAdminForMachineScopeInstall <<
                 EnsureValidArgsForPortableInstall <<
                 EnsureVolumeSupportsReparsePoints;
+        }
+    }
+
+    void EnsureSupportForPortableUninstall(Execution::Context& context)
+    {
+        auto installedPackageVersion = context.Get<Execution::Data::InstalledPackageVersion>();
+        const std::string installedTypeString = installedPackageVersion->GetMetadata()[PackageVersionMetadata::InstalledType];
+        if (ConvertToInstallerTypeEnum(installedTypeString) == InstallerTypeEnum::Portable)
+        {
+            const std::string installedScope = installedPackageVersion->GetMetadata()[Repository::PackageVersionMetadata::InstalledScope];
+            if (ConvertToScopeEnum(installedScope) == Manifest::ScopeEnum::Machine)
+            {
+                context << EnsureRunningAsAdmin;
+            }
         }
     }
 
