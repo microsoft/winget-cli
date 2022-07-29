@@ -174,10 +174,8 @@ namespace AppInstaller::CLI::Workflow
             return appsAndFeaturesEntry;
         }
 
-        bool AddToPathRegistry(Manifest::ScopeEnum scope)
+        bool AddToPathRegistry(Manifest::ScopeEnum scope, const std::filesystem::path& value)
         {
-            const std::filesystem::path& linksDirectory = GetPortableLinksLocation(scope);
-
             Key key;
             if (scope == Manifest::ScopeEnum::Machine)
             {
@@ -189,19 +187,19 @@ namespace AppInstaller::CLI::Workflow
             }
 
             std::wstring pathName = std::wstring{ s_PathName };
-            std::string portableLinksDir = Normalize(linksDirectory.u8string());
-            std::string pathValue = Normalize(key[pathName]->GetValue<Value::Type::String>());
+            std::string valueString = Normalize(value.u8string());
+            std::string pathRegistryValue = Normalize(key[pathName]->GetValue<Value::Type::String>());
             
-            if (pathValue.find(portableLinksDir) == std::string::npos)
+            if (pathRegistryValue.find(valueString) == std::string::npos)
             {
-                if (pathValue.back() != ';')
+                if (pathRegistryValue.back() != ';')
                 {
-                    pathValue += ";";
+                    pathRegistryValue += ";";
                 }
 
-                pathValue += portableLinksDir + ";";
-                AICLI_LOG(CLI, Info, << "Adding to Path environment variable: " << portableLinksDir);
-                key.SetValue(pathName, ConvertToUTF16(pathValue), REG_EXPAND_SZ);
+                pathRegistryValue += valueString + ";";
+                AICLI_LOG(CLI, Info, << "Adding to Path environment variable: " << valueString);
+                key.SetValue(pathName, ConvertToUTF16(pathRegistryValue), REG_EXPAND_SZ);
                 return true;
             }
             else
@@ -435,12 +433,22 @@ namespace AppInstaller::CLI::Workflow
                 context.Reporter.Warn() << Resource::String::OverwritingExistingFileAtMessage << ' ' << symlinkFullPath.u8string() << std::endl;
             }
 
-            std::filesystem::create_symlink(targetFullPath, symlinkFullPath);
-            AICLI_LOG(CLI, Info, << "Symlink created at: " << symlinkFullPath);
-            uninstallEntry.SetValue(PortableValueName::PortableSymlinkFullPath, symlinkFullPath.wstring());
-
             Manifest::ScopeEnum scope = ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
-            if (AddToPathRegistry(scope))
+            std::filesystem::path pathValue;
+            try
+            {
+                std::filesystem::create_symlink(targetFullPath, symlinkFullPath);
+                AICLI_LOG(CLI, Info, << "Symlink created at: " << symlinkFullPath);
+                uninstallEntry.SetValue(PortableValueName::PortableSymlinkFullPath, symlinkFullPath.wstring());
+                pathValue = GetPortableLinksLocation(scope);
+            }
+            catch (...)
+            {
+                AICLI_LOG(CLI, Info, << "Portable install executed in user mode. Adding package directory to PATH.");
+                pathValue = targetFullPath.parent_path();
+            }
+
+            if (AddToPathRegistry(scope, pathValue))
             {
                 context.Reporter.Warn() << Resource::String::ModifiedPathRequiresShellRestart << std::endl;
             }
