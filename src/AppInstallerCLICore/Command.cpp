@@ -44,6 +44,21 @@ namespace AppInstaller::CLI
         {
             m_fullName = name;
         }
+
+        if (!aliases.empty())
+        {
+            for (auto& alias : aliases)
+            {
+                std::string _aliasFullName;
+                if (!parent.empty())
+                {
+                    _aliasFullName = parent;
+                    _aliasFullName += ParentSplitChar;
+                }
+                _aliasFullName += alias;
+                m_aliasFullNames.emplace_back(_aliasFullName);
+            }
+        }
     }
 
     void Command::OutputIntroHeader(Execution::Reporter& reporter) const

@@ -13,9 +13,19 @@ using namespace AppInstaller;
 using namespace AppInstaller::CLI;
 using namespace AppInstaller::CLI::Execution;
 
-std::string GetCommandName(const std::unique_ptr<Command>& command)
+std::string GetCommandFullName(const std::unique_ptr<Command>& command)
 {
-    return std::string{ command->Name() };
+    return std::string{ command->FullName() };
+}
+
+std::vector<std::string> GetCommandAliasFullNames(const std::unique_ptr<Command>& command)
+{
+    return std::vector<std::string>{ command->AliasFullNames() };
+}
+
+std::string GetAliasFullName(const std::string& aliasFullName)
+{
+    return std::string{ aliasFullName };
 }
 
 std::string GetArgumentName(const Argument& arg)
@@ -47,6 +57,11 @@ std::string GetArgumentAlias(const Argument& arg)
     }
 }
 
+bool StringIsLowercase(std::string& s)
+{
+    return { Utility::ToLower(s) == s };
+}
+
 template <typename Enumerable, typename Op>
 void EnsureStringsAreLowercaseAndNoCollisions(const std::string& info, const Enumerable& e, Op& op, std::unordered_set<std::string>& values, bool requireLower = true)
 {
@@ -63,8 +78,7 @@ void EnsureStringsAreLowercaseAndNoCollisions(const std::string& info, const Enu
 
         if (requireLower)
         {
-            std::string lowerVal = Utility::ToLower(valString);
-            REQUIRE(valString == lowerVal);
+            REQUIRE(StringIsLowercase(valString));
         }
 
         REQUIRE(values.find(valString) == values.end());
@@ -80,9 +94,41 @@ void EnsureStringsAreLowercaseAndNoCollisions(const std::string& info, const Enu
     EnsureStringsAreLowercaseAndNoCollisions(info, e, op, values, requireLower);
 }
 
+template <typename Enumerable, typename Op>
+void EnsureVectorStringsAreLowercaseAndNoCollisions(const std::string& info, const Enumerable& e, Op& op, std::unordered_set<std::string>& values, bool requireLower = true)
+{
+    INFO(info);
+
+    for (const auto& val : e)
+    { 
+        std::vector<std::string> valVector = op(val);
+        if (valVector.empty())
+        {
+            continue;
+        }
+        // When op returns a vector, we need to ensure every value in the vector does not cause a collision
+        for (auto& valString : valVector)
+        {
+            INFO(valString);
+
+            if (requireLower)
+            {
+                REQUIRE(StringIsLowercase(valString));
+            }
+
+            REQUIRE(values.find(valString) == values.end());
+            values.emplace(std::move(valString));
+        }
+    }
+}
+
 void EnsureCommandConsistency(const Command& command)
 {
-    EnsureStringsAreLowercaseAndNoCollisions(command.FullName() + " commands", command.GetCommands(), GetCommandName);
+    // Command names and aliases exist in the same space, so both need to be checked as a set
+    // However, collisions do not occur between levels, so the full name must be used to check for collision
+    std::unordered_set<std::string> allCommandAliasFullNames; 
+    EnsureStringsAreLowercaseAndNoCollisions(command.FullName() + " commands", command.GetCommands(), GetCommandFullName, allCommandAliasFullNames);
+    EnsureVectorStringsAreLowercaseAndNoCollisions(command.FullName() + " aliases", command.GetCommands(), GetCommandAliasFullNames, allCommandAliasFullNames);
 
     auto args = command.GetArguments();
     Argument::GetCommon(args);
