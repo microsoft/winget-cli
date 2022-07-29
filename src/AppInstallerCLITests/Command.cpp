@@ -57,9 +57,9 @@ std::string GetArgumentAlias(const Argument& arg)
     }
 }
 
-bool StringIsLowercase(std::string& s)
+bool StringIsLowercase(const std::string& s)
 {
-    return { Utility::ToLower(s) == s };
+    return Utility::ToLower(s) == s;
 }
 
 template <typename Enumerable, typename Op>

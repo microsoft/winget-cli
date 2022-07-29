@@ -49,14 +49,14 @@ namespace AppInstaller::CLI
         {
             for (auto& alias : aliases)
             {
-                std::string _aliasFullName;
+                std::string aliasFullName;
                 if (!parent.empty())
                 {
-                    _aliasFullName = parent;
-                    _aliasFullName += ParentSplitChar;
+                    aliasFullName = parent;
+                    aliasFullName += ParentSplitChar;
                 }
-                _aliasFullName += alias;
-                m_aliasFullNames.emplace_back(_aliasFullName);
+                aliasFullName += alias;
+                m_aliasFullNames.emplace_back(std::move(aliasFullName));
             }
         }
     }
@@ -214,10 +214,12 @@ namespace AppInstaller::CLI
                 *  added to command aliases as scoop/chocolatey do, the list does not become
                 *  extremely long to the point where it makes the help page less usable.
                 */
-                if (i%7 != 0 && i!= commandAliases.size()) {
+                if (i%7 != 0 && i!= commandAliases.size())
+                {
                     infoOut << ", "_liv;
                 }
-                else if (i != commandAliases.size()) {
+                else if (i != commandAliases.size())
+                {
                     // Command aliases which are on new lines should be indented
                     infoOut << std::endl << "  "_liv;
                 }

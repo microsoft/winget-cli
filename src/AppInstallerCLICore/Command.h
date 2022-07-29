@@ -80,9 +80,9 @@ namespace AppInstaller::CLI
         constexpr static char ParentSplitChar = ':';
 
         std::string_view Name() const { return m_name; }
-        std::vector<std::string_view> Aliases() const { return m_aliases; }
+        std::vector<std::string_view> Aliases() const& { return m_aliases; }
         const std::string& FullName() const { return m_fullName; }
-        const std::vector<std::string> AliasFullNames() const { return m_aliasFullNames; }
+        const std::vector<std::string> AliasFullNames() const& { return m_aliasFullNames; }
         Command::Visibility GetVisibility() const;
         Settings::ExperimentalFeature::Feature Feature() const { return m_feature; }
         Settings::TogglePolicy::Policy GroupPolicy() const { return m_groupPolicy; }
