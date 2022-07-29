@@ -760,6 +760,17 @@ namespace AppInstaller::CLI
                 {
                     context.Reporter.Completion() << command->Name() << std::endl;
                 }
+                // Allow for command aliases to be auto-completed
+                if (!(command->Aliases()).empty())
+                {
+                    for (const auto& commandAlias : command->Aliases())
+                    {
+                        if (Utility::CaseInsensitiveStartsWith(commandAlias, word))
+                        {
+                            context.Reporter.Completion() << commandAlias << std::endl;
+                        }
+                    }
+                }
             }
         }
 
