@@ -2288,18 +2288,6 @@ TEST_CASE("UninstallFlow_UninstallPortable", "[UninstallFlow][workflow]")
     REQUIRE(std::filesystem::exists(uninstallResultPath.GetPath()));
 }
 
-TEST_CASE("UpdateFlow_RequireExplicit", "[UpdateFlow][workflow]")
-{
-    // Install a manifest with "RequiresExplicitUpgrade" and verify that the flag is respected.
-    std::ostringstream updateOutput;
-    TestContext context{ updateOutput, std::cin };
-    auto previousThreadGlobals = context.SetForCurrentThread();
-
-    // Exe package has an update that requires explicit upgrade.
-    // Msix is also listed with an available upgrade.
-    OverrideForOpenSource(context);
-}
-
 TEST_CASE("UpdateFlow_All_RequireExplicit", "[UpdateFlow][workflow]")
 {
     TestCommon::TempFile updateExeResultPath("TestExeInstalled.txt");

@@ -191,7 +191,8 @@ namespace AppInstaller::CLI::Workflow
                 // list of available updates (there we don't have the selected installer)
                 // and at most we will update each package like this once.
                 auto installedMetadata = updateContext.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata();
-                if (installedMetadata[PackageVersionMetadata::IsPinned] == "1")
+                auto pinnedState = ConvertToPackagePinnedStateEnum(installedMetadata[PackageVersionMetadata::PinnedState]);
+                if (pinnedState == PackagePinnedState::PinnedByManifest)
                 {
                     AICLI_LOG(CLI, Info, << "Skipping " << match.Package->GetProperty(PackageProperty::Id) << " as it requires explicit upgrade");
                     ++packagesThatRequireExplicitSkipped;

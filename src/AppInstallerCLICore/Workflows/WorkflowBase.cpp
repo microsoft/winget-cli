@@ -791,15 +791,16 @@ namespace AppInstaller::CLI::Workflow
                          shouldShowSource ? sourceName : Utility::LocIndString()
                     );
 
+                    auto pinnedState = ConvertToPackagePinnedStateEnum(installedVersion->GetMetadata()[PackageVersionMetadata::PinnedState]);
                     bool requiresExplicitUpgrade = m_onlyShowUpgrades &&
-                        installedVersion->GetMetadata()[PackageVersionMetadata::IsPinned] == "1";
+                        (pinnedState == PackagePinnedState::PinnedByManifest);
                     if (requiresExplicitUpgrade)
                     {
-                        lines.push_back(std::move(line));
+                        linesForExplicitUpgrade.push_back(std::move(line));
                     }
                     else
                     {
-                        linesForExplicitUpgrade.push_back(std::move(line));
+                        lines.push_back(std::move(line));
                     }
                 }
             }
@@ -826,7 +827,7 @@ namespace AppInstaller::CLI::Workflow
 
         if (!linesForExplicitUpgrade.empty())
         {
-            context.Reporter.Info() << std::endl << "The following packages have an upgrade available, but require explicit targeting for upgrade:"_liv << std::endl; /* TODO */
+            context.Reporter.Info() << std::endl << Resource::String::UpgradeAvailableForPinned << std::endl;
             OutputInstalledPackagesTable(context, linesForExplicitUpgrade);
         }
 

@@ -240,7 +240,7 @@ namespace AppInstaller::Repository
 
         if (installer.RequireExplicitUpgrade)
         {
-            index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::IsPinned, "1"sv);
+            index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::PinnedState, ToString(PackagePinnedState::PinnedByManifest));
         }
 
         std::shared_ptr<Version::implementation> result = std::make_shared<Version::implementation>();
