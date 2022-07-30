@@ -87,7 +87,7 @@ namespace AppInstaller::Repository::Rest
 
             std::vector<InstallerInstalledStatus> CheckInstalledStatus(InstalledStatusType) const override
             {
-                return {};
+                THROW_HR(E_NOTIMPL);
             }
 
             bool IsSame(const IPackage* other) const override

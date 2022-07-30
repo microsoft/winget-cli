@@ -135,6 +135,11 @@ namespace AppInstaller::Filesystem
 
     std::filesystem::path GetExpandedPath(const std::string& path)
     {
+        if (path.empty())
+        {
+            return {};
+        }
+
         std::wstring widePath = Utility::ConvertToUTF16(path);
         WCHAR buffer[MAX_PATH];
         return PathUnExpandEnvStrings(widePath.c_str(), buffer, ARRAYSIZE(buffer)) ? std::filesystem::path{ buffer } : std::filesystem::path{ path };

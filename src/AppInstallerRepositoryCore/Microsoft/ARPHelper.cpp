@@ -347,6 +347,9 @@ namespace AppInstaller::Repository::Microsoft
                 // Pick up Language to enable proper selection of language for upgrade.
                 AddMetadataIfPresent(arpKey, Language, index, manifestId, PackageVersionMetadata::InstalledLocale);
 
+                // Set installed architecture info.
+                index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::InstalledArchitecture, architecture);
+
                 // Pick up WindowsInstaller to determine if this is an MSI install.
                 // TODO: Could also determine Inno (and maybe other types) through detecting other keys here.
                 auto installedType = Manifest::InstallerTypeEnum::Exe;
@@ -358,8 +361,6 @@ namespace AppInstaller::Repository::Microsoft
 
                 if (Manifest::ConvertToInstallerTypeEnum(GetStringValue(arpKey, std::wstring{ ToString(PortableValueName::WinGetInstallerType) })) == Manifest::InstallerTypeEnum::Portable)
                 {
-                    // Portable uninstall requires the installed architecture for locating the entry in the registry.
-                    index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::InstalledArchitecture, architecture);
                     installedType = Manifest::InstallerTypeEnum::Portable;
                 }
 

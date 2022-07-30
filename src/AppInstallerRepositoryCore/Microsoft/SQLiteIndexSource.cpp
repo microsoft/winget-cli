@@ -284,7 +284,7 @@ namespace AppInstaller::Repository::Microsoft
 
             std::vector<InstallerInstalledStatus> CheckInstalledStatus(InstalledStatusType) const override
             {
-                return {};
+                THROW_HR(E_NOTIMPL);
             }
 
             bool IsSame(const IPackage* other) const override
@@ -338,7 +338,7 @@ namespace AppInstaller::Repository::Microsoft
 
             std::vector<InstallerInstalledStatus> CheckInstalledStatus(InstalledStatusType) const override
             {
-                return {};
+                THROW_HR(E_NOTIMPL);
             }
 
             bool IsSame(const IPackage* other) const override
