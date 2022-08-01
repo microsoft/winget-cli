@@ -31,7 +31,7 @@ namespace AppInstaller::CLI
         Command::Visibility visibility,
         Settings::ExperimentalFeature::Feature feature,
         Settings::TogglePolicy::Policy groupPolicy) :
-        m_name(name), m_aliases(aliases), m_visibility(visibility), m_feature(feature), m_groupPolicy(groupPolicy)
+        m_name(name), m_aliases(std::move(aliases)), m_visibility(visibility), m_feature(feature), m_groupPolicy(groupPolicy)
     {
         if (!parent.empty())
         {
@@ -43,21 +43,6 @@ namespace AppInstaller::CLI
         else
         {
             m_fullName = name;
-        }
-
-        if (!aliases.empty())
-        {
-            for (auto& alias : aliases)
-            {
-                std::string aliasFullName;
-                if (!parent.empty())
-                {
-                    aliasFullName = parent;
-                    aliasFullName += ParentSplitChar;
-                }
-                aliasFullName += alias;
-                m_aliasFullNames.emplace_back(std::move(aliasFullName));
-            }
         }
     }
 
@@ -202,33 +187,11 @@ namespace AppInstaller::CLI
 
         if (!commandAliases.empty())
         {
-            infoOut << Resource::String::AvailableCommandAliases << std::endl << "  "_liv;
+            infoOut << Resource::String::AvailableCommandAliases << std::endl;
             
-            size_t i = 1;
             for (const auto& commandAlias : commandAliases)
             {
-                infoOut << Execution::HelpCommandEmphasis << commandAlias;
-                /*
-                *  Print up to 7 command aliases per line, comma separated for readability
-                *  This is intended to be future-looking so that in case common typos are
-                *  added to command aliases as scoop/chocolatey do, the list does not become
-                *  extremely long to the point where it makes the help page less usable.
-                */
-                if (i%7 != 0 && i!= commandAliases.size())
-                {
-                    infoOut << ", "_liv;
-                }
-                else if (i != commandAliases.size())
-                {
-                    // Command aliases which are on new lines should be indented
-                    infoOut << std::endl << "  "_liv;
-                }
-                else
-                {
-                    // Always add a newline after the last command alias
-                    infoOut << std::endl;
-                }
-                i++;
+                infoOut << "  "_liv << Execution::HelpCommandEmphasis << commandAlias << std::endl;
             }
             infoOut << std::endl;
         }
@@ -763,7 +726,7 @@ namespace AppInstaller::CLI
                     context.Reporter.Completion() << command->Name() << std::endl;
                 }
                 // Allow for command aliases to be auto-completed
-                if (!(command->Aliases()).empty())
+                if (!(command->Aliases()).empty() && !word.empty())
                 {
                     for (const auto& commandAlias : command->Aliases())
                     {

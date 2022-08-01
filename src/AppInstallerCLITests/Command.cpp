@@ -13,19 +13,14 @@ using namespace AppInstaller;
 using namespace AppInstaller::CLI;
 using namespace AppInstaller::CLI::Execution;
 
-std::string GetCommandFullName(const std::unique_ptr<Command>& command)
+std::string GetCommandName(const std::unique_ptr<Command>& command)
 {
     return std::string{ command->FullName() };
 }
 
-std::vector<std::string> GetCommandAliasFullNames(const std::unique_ptr<Command>& command)
+std::vector<std::string_view> GetCommandAliases(const std::unique_ptr<Command>& command)
 {
-    return std::vector<std::string>{ command->AliasFullNames() };
-}
-
-std::string GetAliasFullName(const std::string& aliasFullName)
-{
-    return std::string{ aliasFullName };
+    return std::vector<std::string_view> { command->Aliases() };
 }
 
 std::string GetArgumentName(const Argument& arg)
@@ -126,9 +121,9 @@ void EnsureCommandConsistency(const Command& command)
 {
     // Command names and aliases exist in the same space, so both need to be checked as a set
     // However, collisions do not occur between levels, so the full name must be used to check for collision
-    std::unordered_set<std::string> allCommandAliasFullNames; 
-    EnsureStringsAreLowercaseAndNoCollisions(command.FullName() + " commands", command.GetCommands(), GetCommandFullName, allCommandAliasFullNames);
-    EnsureVectorStringsAreLowercaseAndNoCollisions(command.FullName() + " aliases", command.GetCommands(), GetCommandAliasFullNames, allCommandAliasFullNames);
+    std::unordered_set<std::string> allCommandAliasNames; 
+    EnsureStringsAreLowercaseAndNoCollisions(command.FullName() + " commands", command.GetCommands(), GetCommandName, allCommandAliasNames);
+    EnsureVectorStringsAreLowercaseAndNoCollisions(command.FullName() + " aliases", command.GetCommands(), GetCommandAliases, allCommandAliasNames);
 
     auto args = command.GetArguments();
     Argument::GetCommon(args);

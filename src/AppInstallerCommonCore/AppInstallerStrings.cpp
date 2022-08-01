@@ -105,9 +105,10 @@ namespace AppInstaller::Utility
         return ToLower(a) == ToLower(b);
     }
 
-    bool CaseInsensitiveContains(std::vector<std::string_view> a, std::string_view b)
+    bool CaseInsensitiveContains(const std::vector<std::string_view>& a, std::string_view b)
     {
-        return std::any_of(a.begin(), a.end(), [=](const std::string_view s) { return CaseInsensitiveEquals(s, b); });
+        auto B = ToLower(b);
+        return std::any_of(a.begin(), a.end(), [&](const std::string_view& s) { return ToLower(s) == B; });
     }
 
     bool CaseInsensitiveStartsWith(std::string_view a, std::string_view b)
