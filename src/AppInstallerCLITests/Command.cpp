@@ -90,13 +90,14 @@ void EnsureStringsAreLowercaseAndNoCollisions(const std::string& info, const Enu
 }
 
 template <typename Enumerable, typename Op>
-void EnsureVectorStringsAreLowercaseAndNoCollisions(const std::string& info, const Enumerable& e, Op& op, std::unordered_set<std::string>& values, bool requireLower = true)
+void EnsureVectorStringViewsAreLowercaseAndNoCollisions(const std::string& info, const Enumerable& e, Op& op, std::unordered_set<std::string>& values, bool requireLower = true)
 {
     INFO(info);
 
     for (const auto& val : e)
     { 
-        std::vector<std::string> valVector = op(val);
+        std::vector<std::string_view> aliasVector = op(val);
+        std::vector<std::string> valVector(aliasVector.begin(), aliasVector.end());
         if (valVector.empty())
         {
             continue;
@@ -123,7 +124,7 @@ void EnsureCommandConsistency(const Command& command)
     // However, collisions do not occur between levels, so the full name must be used to check for collision
     std::unordered_set<std::string> allCommandAliasNames; 
     EnsureStringsAreLowercaseAndNoCollisions(command.FullName() + " commands", command.GetCommands(), GetCommandName, allCommandAliasNames);
-    EnsureVectorStringsAreLowercaseAndNoCollisions(command.FullName() + " aliases", command.GetCommands(), GetCommandAliases, allCommandAliasNames);
+    EnsureVectorStringViewsAreLowercaseAndNoCollisions(command.FullName() + " aliases", command.GetCommands(), GetCommandAliases, allCommandAliasNames);
 
     auto args = command.GetArguments();
     Argument::GetCommon(args);
