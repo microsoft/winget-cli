@@ -192,7 +192,7 @@ namespace AppInstaller::CLI::Workflow
                 // and at most we will update each package like this once.
                 auto installedMetadata = updateContext.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata();
                 auto pinnedState = ConvertToPackagePinnedStateEnum(installedMetadata[PackageVersionMetadata::PinnedState]);
-                if (pinnedState == PackagePinnedState::PinnedByManifest)
+                if (pinnedState != PackagePinnedState::NotPinned)
                 {
                     AICLI_LOG(CLI, Info, << "Skipping " << match.Package->GetProperty(PackageProperty::Id) << " as it requires explicit upgrade");
                     ++packagesThatRequireExplicitSkipped;

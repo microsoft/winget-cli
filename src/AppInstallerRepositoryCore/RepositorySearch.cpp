@@ -93,7 +93,9 @@ namespace AppInstaller::Repository
         switch (state)
         {
         case PackagePinnedState::PinnedByManifest: return "PinnedByManifest"sv;
-        default: return "Unknown";
+        case PackagePinnedState::NotPinned:
+        default:
+            return "Unknown";
         }
     }
 
@@ -105,7 +107,7 @@ namespace AppInstaller::Repository
         }
         else
         {
-            return PackagePinnedState::Unknown;
+            return PackagePinnedState::NotPinned;
         }
     }
 

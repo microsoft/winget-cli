@@ -189,7 +189,7 @@ namespace AppInstaller::Repository
     // Pinned packages need to be explicitly updated (i.e., are not included in `upgrade --all`)
     enum class PackagePinnedState
     {
-        Unknown,
+        NotPinned,
         PinnedByManifest,
     };
 

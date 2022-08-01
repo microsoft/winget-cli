@@ -792,8 +792,7 @@ namespace AppInstaller::CLI::Workflow
                     );
 
                     auto pinnedState = ConvertToPackagePinnedStateEnum(installedVersion->GetMetadata()[PackageVersionMetadata::PinnedState]);
-                    bool requiresExplicitUpgrade = m_onlyShowUpgrades &&
-                        (pinnedState == PackagePinnedState::PinnedByManifest);
+                    bool requiresExplicitUpgrade = m_onlyShowUpgrades && pinnedState != PackagePinnedState::NotPinned;
                     if (requiresExplicitUpgrade)
                     {
                         linesForExplicitUpgrade.push_back(std::move(line));
