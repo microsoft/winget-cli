@@ -64,7 +64,7 @@ namespace AppInstallerCLIE2ETests
         public void UninstallPortable()
         {
             // Uninstall a Portable
-            string installDir = TestCommon.GetPortablePackagesDirectory();
+            string installDir = Path.Combine(System.Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet", "Packages");
             string packageId, commandAlias, fileName, packageDirName, productCode;
             packageId = "AppInstallerTest.TestPortableExe";
             packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
@@ -81,7 +81,7 @@ namespace AppInstallerCLIE2ETests
         public void UninstallPortableWithProductCode()
         {
             // Uninstall a Portable with ProductCode
-            string installDir = TestCommon.GetPortablePackagesDirectory();
+            string installDir = Path.Combine(System.Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet", "Packages");
             string packageId, commandAlias, fileName, packageDirName, productCode;
             packageId = "AppInstallerTest.TestPortableExe";
             packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
@@ -103,7 +103,7 @@ namespace AppInstallerCLIE2ETests
 
             TestCommon.RunAICLICommand("install", $"{packageId}");
 
-            string symlinkDirectory = TestCommon.GetPortableSymlinkDirectory(TestCommon.Scope.User);
+            string symlinkDirectory = Path.Combine(System.Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet", "Links");
             string symlinkPath = Path.Combine(symlinkDirectory, commandAlias);
 
             // Replace symlink with modified symlink
@@ -119,50 +119,6 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("Successfully uninstalled"));
             Assert.True(result.StdOut.Contains("Portable symlink not deleted as it was modified and points to a different target exe"));
             Assert.True(modifiedSymlinkExists, "Modified symlink should still exist");
-        }
-
-        [Test]
-        public void UninstallPortable_MachineScope_NonAdminMode()
-        {
-            string installDir = TestCommon.GetRandomTestDir();
-            ConfigureInstallBehavior(Constants.PortablePackageMachineRoot, installDir);
-
-            string packageId, commandAlias, fileName, packageDirName, productCode;
-            packageId = "AppInstallerTest.TestPortableExe";
-            packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
-            commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
-
-            var result = TestCommon.RunAICLICommand("install", "AppInstallerTest.TestPortableExe --scope machine");
-            ConfigureInstallBehavior(Constants.PortablePackageMachineRoot, string.Empty);
-
-            var result2 = TestCommon.RunAICLICommand("uninstall", "AppInstallerTest.TestPortableExe", runAsUserProfile: true);
-            var result3 = TestCommon.RunAICLICommand("uninstall", "AppInstallerTest.TestPortableExe");
-
-            // Verify that uninstalling machine scope requires admin.
-            Assert.AreNotEqual(Constants.ErrorCode.S_OK, result2.ExitCode);
-            Assert.True(result2.StdOut.Contains("This command requires administrator privileges to execute."));
-
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result3.ExitCode);
-            Assert.True(result3.StdOut.Contains("Successfully uninstalled"));
-            TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, false);
-        }
-
-        [Test]
-        public void UninstallPortable_NonDeveloper_UserProfile()
-        {
-            string installDir = TestCommon.GetPortablePackagesDirectory();
-            string packageId, commandAlias, fileName, packageDirName, productCode;
-            packageId = "AppInstallerTest.TestPortableExe";
-            packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
-            commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
-            SetUpFixture.EnableDevMode(false);
-            TestCommon.RunAICLICommand("install", $"{packageId}", runAsUserProfile:true);
-
-            SetUpFixture.EnableDevMode(true);
-            var result = TestCommon.RunAICLICommand("uninstall", $"{packageId}");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully uninstalled"));
-            TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, false, isInstallDirAddedToPath:true);
         }
 
         [Test]

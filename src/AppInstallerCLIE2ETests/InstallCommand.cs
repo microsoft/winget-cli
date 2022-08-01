@@ -338,26 +338,6 @@ namespace AppInstallerCLIE2ETests
         }
 
         [Test]
-        public void InstallPortable_NonDeveloperMode_UserMode()
-        {
-            string installDir = TestCommon.GetPortablePackagesDirectory();
-
-            // Turn off dev mode.
-            SetUpFixture.EnableDevMode(false);
-            string packageId, commandAlias, fileName, packageDirName, productCode;
-            packageId = "AppInstallerTest.TestPortableExe";
-            packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
-            commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
-
-            // Run as user profile.
-            var result = TestCommon.RunAICLICommand("install", "AppInstallerTest.TestPortableExe", runAsUserProfile:true);
-            SetUpFixture.EnableDevMode(true);
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Successfully installed"));
-            TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true, isInstallDirAddedToPath:true);
-        }
-
-        [Test]
         public void InstallZipWithExe()
         {
             var installDir = TestCommon.GetRandomTestDir();
