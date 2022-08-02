@@ -7,7 +7,7 @@ namespace AppInstaller::CLI
 {
     struct UninstallCommand final : public Command
     {
-        UninstallCommand(std::string_view parent) : Command("uninstall", parent) {}
+        UninstallCommand(std::string_view parent) : Command("uninstall", { "remove", "rm" }, parent) {}
 
         std::vector<Argument> GetArguments() const override;
 

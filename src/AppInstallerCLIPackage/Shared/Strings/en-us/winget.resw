@@ -126,6 +126,9 @@
   <data name="AvailableArguments" xml:space="preserve">
     <value>The following arguments are available:</value>
   </data>
+  <data name="AvailableCommandAliases" xml:space="preserve">
+    <value>The following command aliases are available:</value>
+  </data>
   <data name="AvailableCommands" xml:space="preserve">
     <value>The following commands are available:</value>
     <comment>Commands the tool supports</comment>
