@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 namespace Microsoft.Management.Deployment
 {
-    [contractversion(4)]
+    [contractversion(5)]
     apicontract WindowsPackageManagerContract{};
 
     /// State of the install
@@ -551,6 +551,13 @@ namespace Microsoft.Management.Deployment
         User,
         /// Only System installers will be valid
         System,
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 5)]
+        {
+            /// Both User and Unknown install scope installers are valid
+            UserOrUnknown,
+            /// Both System and Unknown install scope installers are valid
+            SystemOrUnknown,
+        }
     };
 
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
