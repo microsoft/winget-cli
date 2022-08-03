@@ -661,7 +661,7 @@ TEST_CASE("ManifestComparator_Scope_AllowUnknown", "[manifest_comparator]")
     {
         testContext.Add<Data::AllowUnknownScope>(true);
 
-        ManifestComparator mc(ManifestComparatorTestContext{}, {});
+        ManifestComparator mc(testContext, {});
         auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
 
         RequireInstaller(result, expected);
