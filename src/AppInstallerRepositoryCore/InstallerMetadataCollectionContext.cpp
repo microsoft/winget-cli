@@ -16,8 +16,20 @@ namespace AppInstaller::Repository::Metadata
 {
     namespace
     {
-        struct ProductMetadataFields_1_0
+        struct ProductMetadataFields_1_N
         {
+            ProductMetadataFields_1_N(const Version& version)
+            {
+                if (::AppInstaller::Utility::Version{ "1.1" } <= version)
+                {
+                    SchemaVersion = L"1.1";
+                    Scope = L"scope";
+                }
+            }
+
+            utility::string_t SchemaVersion = L"1.0";
+
+            // 1.0
             utility::string_t ProductVersionMin = L"productVersionMin";
             utility::string_t ProductVersionMax = L"productVersionMax";
             utility::string_t Metadata = L"metadata";
@@ -40,6 +52,9 @@ namespace AppInstaller::Repository::Metadata
             utility::string_t Publishers = L"publishers";
             utility::string_t ProductCodes = L"productCodes";
             utility::string_t UpgradeCodes = L"upgradeCodes";
+
+            // 1.1
+            utility::string_t Scope;
         };
 
         struct OutputFields_1_0
@@ -140,6 +155,24 @@ namespace AppInstaller::Repository::Metadata
                 entries.emplace_back(std::move(newEntry));
             }
         }
+
+        std::optional<std::string> GetStringFromFutureSchema(const web::json::value& value, const utility::string_t& field)
+        {
+            if (field.empty())
+            {
+                return {};
+            }
+
+            return AppInstaller::JSON::GetRawStringValueFromJsonNode(value, field);
+        }
+
+        void SetStringFromFutureSchema(web::json::value& json, const utility::string_t& field, std::string_view value)
+        {
+            if (!field.empty())
+            {
+                json[field] = AppInstaller::JSON::GetStringValue(value);
+            }
+        }
     }
 
     void ProductMetadata::Clear()
@@ -164,8 +197,7 @@ namespace AppInstaller::Repository::Metadata
 
         if (SchemaVersion.PartAt(0).Integer == 1)
         {
-            // We only have one version currently, so use that as long as the major version is 1
-            FromJson_1_0(json);
+            FromJson_1_N(json);
         }
         else
         {
@@ -182,19 +214,19 @@ namespace AppInstaller::Repository::Metadata
 
     web::json::value ProductMetadata::ToJson(const Utility::Version& schemaVersion, size_t maximumSizeInBytes)
     {
-        AICLI_LOG(Repo, Info, << "Creating metadata JSON version " << schemaVersion.ToString());
+        SchemaVersion = schemaVersion;
+        AICLI_LOG(Repo, Info, << "Creating metadata JSON version " << SchemaVersion.ToString());
 
         using ToJsonFunctionPointer = web::json::value(ProductMetadata::*)();
         ToJsonFunctionPointer toJsonFunction = nullptr;
 
-        if (schemaVersion.PartAt(0).Integer == 1)
+        if (SchemaVersion.PartAt(0).Integer == 1)
         {
-            // We only have one version currently, so use that as long as the major version is 1
-            toJsonFunction = &ProductMetadata::ToJson_1_0;
+            toJsonFunction = &ProductMetadata::ToJson_1_N;
         }
         else
         {
-            AICLI_LOG(Repo, Error, << "Don't know how to handle metadata version " << schemaVersion.ToString());
+            AICLI_LOG(Repo, Error, << "Don't know how to handle metadata version " << SchemaVersion.ToString());
             THROW_HR(HRESULT_FROM_WIN32(ERROR_UNSUPPORTED_TYPE));
         }
 
@@ -281,11 +313,11 @@ namespace AppInstaller::Repository::Metadata
         }
     }
 
-    void ProductMetadata::FromJson_1_0(const web::json::value& json)
+    void ProductMetadata::FromJson_1_N(const web::json::value& json)
     {
-        AICLI_LOG(Repo, Info, << "Parsing metadata JSON 1.0 fields");
+        AICLI_LOG(Repo, Info, << "Parsing metadata JSON " << SchemaVersion.ToString() << " fields");
 
-        ProductMetadataFields_1_0 fields;
+        ProductMetadataFields_1_N fields{ SchemaVersion };
 
         auto productVersionMinString = AppInstaller::JSON::GetRawStringValueFromJsonNode(json, fields.ProductVersionMin);
         if (productVersionMinString)
@@ -314,7 +346,7 @@ namespace AppInstaller::Repository::Metadata
 
                 InstallerMetadata installerMetadata;
 
-                installerMetadata.SubmissionIdentifier = GetRequiredString(item, fields.SubmissionIdentifier);
+                installerMetadata.SubmissionIdentifier = GetRequiredString(json, fields.SubmissionIdentifier);
                 if (submissionIdentifierVerification.empty())
                 {
                     submissionIdentifierVerification = installerMetadata.SubmissionIdentifier;
@@ -326,9 +358,15 @@ namespace AppInstaller::Repository::Metadata
                     THROW_HR(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE);
                 }
 
-                auto appsAndFeatures = AppInstaller::JSON::GetRawJsonArrayFromJsonNode(item, fields.AppsAndFeaturesEntries);
+                auto appsAndFeatures = AppInstaller::JSON::GetRawJsonArrayFromJsonNode(json, fields.AppsAndFeaturesEntries);
                 THROW_HR_IF(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, !appsAndFeatures);
                 installerMetadata.AppsAndFeaturesEntries = parser.DeserializeAppsAndFeaturesEntries(appsAndFeatures.value());
+
+                auto scopeValue = GetStringFromFutureSchema(item, fields.Scope);
+                if (scopeValue)
+                {
+                    installerMetadata.Scope = std::move(scopeValue).value();
+                }
 
                 InstallerMetadataMap[installerHashString] = std::move(installerMetadata);
             }
@@ -353,15 +391,15 @@ namespace AppInstaller::Repository::Metadata
         }
     }
 
-    web::json::value ProductMetadata::ToJson_1_0()
+    web::json::value ProductMetadata::ToJson_1_N()
     {
-        AICLI_LOG(Repo, Info, << "Creating metadata JSON 1.0 fields");
+        AICLI_LOG(Repo, Info, << "Creating metadata JSON " << SchemaVersion.ToString() << " fields");
 
-        ProductMetadataFields_1_0 fields;
+        ProductMetadataFields_1_N fields{ SchemaVersion };
 
         web::json::value result;
 
-        result[fields.Version] = web::json::value::string(L"1.0");
+        result[fields.Version] = web::json::value::string(fields.SchemaVersion);
         result[fields.ProductVersionMin] = AppInstaller::JSON::GetStringValue(ProductVersionMin.ToString());
         result[fields.ProductVersionMax] = AppInstaller::JSON::GetStringValue(ProductVersionMax.ToString());
 
@@ -373,6 +411,7 @@ namespace AppInstaller::Repository::Metadata
 
             itemValue[fields.InstallerHash] = AppInstaller::JSON::GetStringValue(item.first);
             itemValue[fields.SubmissionIdentifier] = AppInstaller::JSON::GetStringValue(item.second.SubmissionIdentifier);
+            SetStringFromFutureSchema(itemValue, fields.Scope, item.second.Scope);
 
             web::json::value appsAndFeaturesArray = web::json::value::array();
             size_t appsAndFeaturesEntryIndex = 0;
@@ -736,6 +775,8 @@ namespace AppInstaller::Repository::Metadata
             newEntry.Publisher = package->GetProperty(PackageVersionProperty::Publisher).get();
             // TODO: Support upgrade code throughout the code base...
 
+            Manifest::ScopeEnum scope = Manifest::ConvertToScopeEnum(packageMetadata[PackageVersionMetadata::InstalledScope]);
+
             // Add or update the metadata for the installer hash
             auto itr = m_outputMetadata.InstallerMetadataMap.find(m_installerHash);
 
@@ -747,10 +788,21 @@ namespace AppInstaller::Repository::Metadata
                 newMetadata.SubmissionIdentifier = m_submissionIdentifier;
                 newMetadata.AppsAndFeaturesEntries.emplace_back(std::move(newEntry));
 
+                if (scope != Manifest::ScopeEnum::Unknown)
+                {
+                    newMetadata.Scope = Manifest::ScopeToString(scope);
+                }
+
                 m_outputMetadata.InstallerMetadataMap[m_installerHash] = std::move(newMetadata);
             }
             else
             {
+                // If there is a conflicting scope already present, force it to Unknown
+                if (!itr->second.Scope.empty() && Manifest::ConvertToScopeEnum(itr->second.Scope) != scope)
+                {
+                    itr->second.Scope = Manifest::ScopeToString(Manifest::ScopeEnum::Unknown);
+                }
+
                 // Existing entry for installer hash, add/update the entry
                 FilterAndAddToEntries(std::move(newEntry), itr->second.AppsAndFeaturesEntries);
             }
@@ -996,6 +1048,12 @@ namespace AppInstaller::Repository::Metadata
                 }
                 else
                 {
+                    // If there is a conflicting scope already present, force it to Unknown
+                    if (!itr->second.Scope.empty() && Manifest::ConvertToScopeEnum(itr->second.Scope) != Manifest::ConvertToScopeEnum(installerMetadata.second.Scope))
+                    {
+                        itr->second.Scope = Manifest::ScopeToString(Manifest::ScopeEnum::Unknown);
+                    }
+
                     // Merge into existing installer data
                     for (const auto& targetEntry : installerMetadata.second.AppsAndFeaturesEntries)
                     {
