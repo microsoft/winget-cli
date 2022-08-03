@@ -346,7 +346,7 @@ namespace AppInstaller::Repository::Metadata
 
                 InstallerMetadata installerMetadata;
 
-                installerMetadata.SubmissionIdentifier = GetRequiredString(json, fields.SubmissionIdentifier);
+                installerMetadata.SubmissionIdentifier = GetRequiredString(item, fields.SubmissionIdentifier);
                 if (submissionIdentifierVerification.empty())
                 {
                     submissionIdentifierVerification = installerMetadata.SubmissionIdentifier;
@@ -358,15 +358,11 @@ namespace AppInstaller::Repository::Metadata
                     THROW_HR(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE);
                 }
 
-                auto appsAndFeatures = AppInstaller::JSON::GetRawJsonArrayFromJsonNode(json, fields.AppsAndFeaturesEntries);
+                auto appsAndFeatures = AppInstaller::JSON::GetRawJsonArrayFromJsonNode(item, fields.AppsAndFeaturesEntries);
                 THROW_HR_IF(APPINSTALLER_CLI_ERROR_JSON_INVALID_FILE, !appsAndFeatures);
                 installerMetadata.AppsAndFeaturesEntries = parser.DeserializeAppsAndFeaturesEntries(appsAndFeatures.value());
 
-                auto scopeValue = GetStringFromFutureSchema(item, fields.Scope);
-                if (scopeValue)
-                {
-                    installerMetadata.Scope = std::move(scopeValue).value();
-                }
+                installerMetadata.Scope = GetStringFromFutureSchema(item, fields.Scope).value_or(std::string{});
 
                 InstallerMetadataMap[installerHashString] = std::move(installerMetadata);
             }
@@ -797,8 +793,12 @@ namespace AppInstaller::Repository::Metadata
             }
             else
             {
+                if (itr->second.Scope.empty())
+                {
+                    itr->second.Scope = Manifest::ScopeToString(scope);
+                }
                 // If there is a conflicting scope already present, force it to Unknown
-                if (!itr->second.Scope.empty() && Manifest::ConvertToScopeEnum(itr->second.Scope) != scope)
+                else if (scope != Manifest::ScopeEnum::Unknown && Manifest::ConvertToScopeEnum(itr->second.Scope) != scope)
                 {
                     itr->second.Scope = Manifest::ScopeToString(Manifest::ScopeEnum::Unknown);
                 }
@@ -1048,10 +1048,17 @@ namespace AppInstaller::Repository::Metadata
                 }
                 else
                 {
-                    // If there is a conflicting scope already present, force it to Unknown
-                    if (!itr->second.Scope.empty() && Manifest::ConvertToScopeEnum(itr->second.Scope) != Manifest::ConvertToScopeEnum(installerMetadata.second.Scope))
+                    if (itr->second.Scope.empty())
                     {
-                        itr->second.Scope = Manifest::ScopeToString(Manifest::ScopeEnum::Unknown);
+                        itr->second.Scope = installerMetadata.second.Scope;
+                    }
+                    else if (!installerMetadata.second.Scope.empty())
+                    {
+                        // If there is a conflicting scope already present, force it to Unknown
+                        if (Manifest::ConvertToScopeEnum(itr->second.Scope) != Manifest::ConvertToScopeEnum(installerMetadata.second.Scope))
+                        {
+                            itr->second.Scope = Manifest::ScopeToString(Manifest::ScopeEnum::Unknown);
+                        }
                     }
 
                     // Merge into existing installer data

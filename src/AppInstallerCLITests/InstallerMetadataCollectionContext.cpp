@@ -75,7 +75,7 @@ namespace
 
             if (CurrentMetadata)
             {
-                json[L"currentMetadata"] = CurrentMetadata->ToJson(Utility::Version{ "1.0" }, 0);
+                json[L"currentMetadata"] = CurrentMetadata->ToJson(CurrentMetadata->SchemaVersion, 0);
             }
 
             if (SubmissionData)
@@ -412,6 +412,7 @@ TEST_CASE("MetadataCollection_NewPackage", "[metadata_collection]")
 
     IPackageVersion::Metadata metadata;
     metadata[PackageVersionMetadata::InstalledType] = Manifest::InstallerTypeToString(Manifest::InstallerTypeEnum::Msi);
+    metadata[PackageVersionMetadata::InstalledScope] = Manifest::ScopeToString(Manifest::ScopeEnum::User);
 
     correlationData->CorrelateForNewlyInstalledResult.Package = std::make_shared<TestPackageVersion>(manifest, metadata);
 
@@ -427,6 +428,7 @@ TEST_CASE("MetadataCollection_NewPackage", "[metadata_collection]")
     REQUIRE(output.Metadata->InstallerMetadataMap.count(input.InstallerHash.value()) == 1);
     const auto& entry = output.Metadata->InstallerMetadataMap[input.InstallerHash.value()];
     REQUIRE(entry.SubmissionIdentifier == input.SubmissionIdentifier.value());
+    REQUIRE(entry.Scope.empty());
     REQUIRE(entry.AppsAndFeaturesEntries.size() == 1);
     REQUIRE(entry.AppsAndFeaturesEntries[0].DisplayName == manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>());
     REQUIRE(entry.AppsAndFeaturesEntries[0].Publisher == manifest.DefaultLocalization.Get<Manifest::Localization::Publisher>());
@@ -673,5 +675,181 @@ TEST_CASE("MetadataCollection_Merge_SameInstaller", "[metadata_collection]")
         REQUIRE(!item.second.AppsAndFeaturesEntries[0].Publisher.empty());
         REQUIRE(!item.second.AppsAndFeaturesEntries[0].DisplayVersion.empty());
         REQUIRE(!item.second.AppsAndFeaturesEntries[0].ProductCode.empty());
+    }
+}
+
+TEST_CASE("MetadataCollection_NewPackage_1_1", "[metadata_collection]")
+{
+    TestInput input(MinimalDefaults);
+    input.SupportedMetadataVersion = "1.1";
+    auto correlationData = std::make_unique<TestARPCorrelationData>();
+
+    Manifest::Manifest manifest;
+    manifest.DefaultLocalization.Add<Manifest::Localization::PackageName>("Test Package Name");
+    manifest.DefaultLocalization.Add<Manifest::Localization::Publisher>("Test Publisher");
+    manifest.Version = "1.2.3";
+    manifest.Installers.push_back({});
+    manifest.Installers[0].ProductCode = "{guid}";
+
+    IPackageVersion::Metadata metadata;
+    metadata[PackageVersionMetadata::InstalledType] = Manifest::InstallerTypeToString(Manifest::InstallerTypeEnum::Msi);
+    metadata[PackageVersionMetadata::InstalledScope] = Manifest::ScopeToString(Manifest::ScopeEnum::User);
+
+    correlationData->CorrelateForNewlyInstalledResult.Package = std::make_shared<TestPackageVersion>(manifest, metadata);
+
+    InstallerMetadataCollectionContext context = CreateTestContext(std::move(correlationData), input);
+    TestOutput output = GetOutput(context);
+
+    REQUIRE(output.IsSuccess());
+    output.ValidateFieldPresence();
+
+    REQUIRE(output.Metadata->ProductVersionMin.ToString() == output.Metadata->ProductVersionMax.ToString());
+    REQUIRE(output.Metadata->ProductVersionMin.ToString() == manifest.Version);
+    REQUIRE(output.Metadata->InstallerMetadataMap.size() == 1);
+    REQUIRE(output.Metadata->InstallerMetadataMap.count(input.InstallerHash.value()) == 1);
+    const auto& entry = output.Metadata->InstallerMetadataMap[input.InstallerHash.value()];
+    REQUIRE(entry.SubmissionIdentifier == input.SubmissionIdentifier.value());
+    REQUIRE(entry.Scope == metadata[PackageVersionMetadata::InstalledScope]);
+    REQUIRE(entry.AppsAndFeaturesEntries.size() == 1);
+    REQUIRE(entry.AppsAndFeaturesEntries[0].DisplayName == manifest.DefaultLocalization.Get<Manifest::Localization::PackageName>());
+    REQUIRE(entry.AppsAndFeaturesEntries[0].Publisher == manifest.DefaultLocalization.Get<Manifest::Localization::Publisher>());
+    REQUIRE(entry.AppsAndFeaturesEntries[0].DisplayVersion == manifest.Version);
+    REQUIRE(entry.AppsAndFeaturesEntries[0].ProductCode == manifest.Installers[0].ProductCode);
+    REQUIRE(entry.AppsAndFeaturesEntries[0].InstallerType == Manifest::InstallerTypeEnum::Msi);
+    REQUIRE(output.Metadata->HistoricalMetadataList.empty());
+}
+
+TEST_CASE("MetadataCollection_NewPackage_NoScope", "[metadata_collection]")
+{
+    TestInput input(MinimalDefaults);
+    input.SupportedMetadataVersion = "1.1";
+    auto correlationData = std::make_unique<TestARPCorrelationData>();
+
+    Manifest::Manifest manifest;
+    manifest.DefaultLocalization.Add<Manifest::Localization::PackageName>("Test Package Name");
+    manifest.DefaultLocalization.Add<Manifest::Localization::Publisher>("Test Publisher");
+    manifest.Version = "1.2.3";
+    manifest.Installers.push_back({});
+    manifest.Installers[0].ProductCode = "{guid}";
+
+    IPackageVersion::Metadata metadata;
+    metadata[PackageVersionMetadata::InstalledType] = Manifest::InstallerTypeToString(Manifest::InstallerTypeEnum::Msi);
+
+    correlationData->CorrelateForNewlyInstalledResult.Package = std::make_shared<TestPackageVersion>(manifest, metadata);
+
+    InstallerMetadataCollectionContext context = CreateTestContext(std::move(correlationData), input);
+    TestOutput output = GetOutput(context);
+
+    REQUIRE(output.IsSuccess());
+    output.ValidateFieldPresence();
+
+    REQUIRE(output.Metadata->InstallerMetadataMap.size() == 1);
+    REQUIRE(output.Metadata->InstallerMetadataMap.count(input.InstallerHash.value()) == 1);
+    const auto& entry = output.Metadata->InstallerMetadataMap[input.InstallerHash.value()];
+    REQUIRE(entry.Scope.empty());
+}
+
+TEST_CASE("MetadataCollection_SameSubmission_SameInstaller_Scopes", "[metadata_collection]")
+{
+    std::string version = "1.3.5";
+    std::string productCode = "{guid}";
+    Manifest::InstallerTypeEnum installerType = Manifest::InstallerTypeEnum::Msi;
+    std::string currentScope = GENERATE(std::string{},
+        Manifest::ScopeToString(Manifest::ScopeEnum::Unknown),
+        Manifest::ScopeToString(Manifest::ScopeEnum::User),
+        Manifest::ScopeToString(Manifest::ScopeEnum::Machine));
+    std::string newScope{ Manifest::ScopeToString(Manifest::ScopeEnum::User) };
+
+    INFO(currentScope);
+
+    TestInput input(MinimalDefaults, version, productCode, installerType);
+    input.SupportedMetadataVersion = "1.1";
+    input.CurrentMetadata->SchemaVersion = { "1.1" };
+    input.CurrentMetadata->InstallerMetadataMap.begin()->second.Scope = currentScope;
+    auto correlationData = std::make_unique<TestARPCorrelationData>();
+
+    Manifest::Manifest manifest;
+    manifest.DefaultLocalization.Add<Manifest::Localization::PackageName>("Different Language Name");
+    // Same publisher
+    manifest.DefaultLocalization.Add<Manifest::Localization::Publisher>(input.CurrentMetadata->InstallerMetadataMap.begin()->second.AppsAndFeaturesEntries[0].Publisher);
+    manifest.Version = version;
+    manifest.Installers.push_back({});
+    manifest.Installers[0].ProductCode = productCode;
+
+    IPackageVersion::Metadata metadata;
+    metadata[PackageVersionMetadata::InstalledType] = Manifest::InstallerTypeToString(installerType);
+    metadata[PackageVersionMetadata::InstalledScope] = newScope;
+
+    correlationData->CorrelateForNewlyInstalledResult.Package = std::make_shared<TestPackageVersion>(manifest, metadata);
+
+    InstallerMetadataCollectionContext context = CreateTestContext(std::move(correlationData), input);
+    TestOutput output = GetOutput(context);
+
+    REQUIRE(output.IsSuccess());
+    output.ValidateFieldPresence();
+
+    REQUIRE(output.Metadata->InstallerMetadataMap.size() == 1);
+    REQUIRE(output.Metadata->InstallerMetadataMap.count(input.InstallerHash.value()) == 1);
+    const auto& entry = output.Metadata->InstallerMetadataMap[input.InstallerHash.value()];
+
+    if (currentScope.empty())
+    {
+        REQUIRE(entry.Scope == newScope);
+    }
+    else if (currentScope != newScope)
+    {
+        // If Unknown, should stay Unknown
+        // If different, should become Unknown
+        REQUIRE(entry.Scope == Manifest::ScopeToString(Manifest::ScopeEnum::Unknown));
+    }
+    else
+    {
+        // If same, should not change
+        REQUIRE(entry.Scope == currentScope);
+    }
+}
+
+TEST_CASE("MetadataCollection_Merge_SameInstaller_Scopes", "[metadata_collection]")
+{
+    TestMerge mergeData{ MinimalDefaults };
+    mergeData.Metadatas->emplace_back(MakeProductMetadata());
+
+    std::string currentScope = GENERATE(std::string{},
+        Manifest::ScopeToString(Manifest::ScopeEnum::Unknown),
+        Manifest::ScopeToString(Manifest::ScopeEnum::User),
+        Manifest::ScopeToString(Manifest::ScopeEnum::Machine));
+    std::string newScope{ Manifest::ScopeToString(Manifest::ScopeEnum::Machine) };
+
+    INFO(currentScope);
+
+    mergeData.Metadatas->at(0).SchemaVersion = { "1.1" };
+    mergeData.Metadatas->at(0).InstallerMetadataMap.begin()->second.Scope = currentScope;
+    mergeData.Metadatas->at(1).SchemaVersion = { "1.1" };
+    mergeData.Metadatas->at(1).InstallerMetadataMap.begin()->second.Scope = newScope;
+
+    std::wstring mergeResult = InstallerMetadataCollectionContext::Merge(mergeData.ToJSON(), 0, {});
+    REQUIRE(!mergeResult.empty());
+
+    ProductMetadata mergeMetadata;
+    mergeMetadata.FromJson(web::json::value::parse(mergeResult));
+
+    REQUIRE(mergeMetadata.InstallerMetadataMap.size() == 1);
+    for (const auto& item : mergeMetadata.InstallerMetadataMap)
+    {
+        if (currentScope.empty())
+        {
+            REQUIRE(item.second.Scope == newScope);
+        }
+        else if (currentScope != newScope)
+        {
+            // If Unknown, should stay Unknown
+            // If different, should become Unknown
+            REQUIRE(item.second.Scope == Manifest::ScopeToString(Manifest::ScopeEnum::Unknown));
+        }
+        else
+        {
+            // If same, should not change
+            REQUIRE(item.second.Scope == currentScope);
+        }
     }
 }
