@@ -180,24 +180,21 @@ namespace AppInstaller::CLI::Workflow
             }
 
             // Filter out packages that require explicit upgrades.
-            if (!context.Args.Contains(Execution::Args::Type::IncludePinned))
+            // We require explicit upgrades only if the installed version is pinned,
+            // either because it was manually pinned or because the manifest indicated
+            // RequireExplicitUpgrade.
+            // Note that this does not consider whether the update to be installed has
+            // RequireExplicitUpgrade. While this has the downside of not working with
+            // packages installed from another source, it ensures consistency with the
+            // list of available updates (there we don't have the selected installer)
+            // and at most we will update each package like this once.
+            auto installedMetadata = updateContext.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata();
+            auto pinnedState = ConvertToPackagePinnedStateEnum(installedMetadata[PackageVersionMetadata::PinnedState]);
+            if (pinnedState != PackagePinnedState::NotPinned)
             {
-                // We require explicit upgrades only if the installed version is pinned,
-                // either because it was manually pinned or because the manifest indicated
-                // RequireExplicitUpgrade.
-                // Note that this does not consider whether the update to be installed has
-                // RequireExplicitUpgrade. While this has the downside of not working with
-                // packages installed from another source, it ensures consistency with the
-                // list of available updates (there we don't have the selected installer)
-                // and at most we will update each package like this once.
-                auto installedMetadata = updateContext.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata();
-                auto pinnedState = ConvertToPackagePinnedStateEnum(installedMetadata[PackageVersionMetadata::PinnedState]);
-                if (pinnedState != PackagePinnedState::NotPinned)
-                {
-                    AICLI_LOG(CLI, Info, << "Skipping " << match.Package->GetProperty(PackageProperty::Id) << " as it requires explicit upgrade");
-                    ++packagesThatRequireExplicitSkipped;
-                    continue;
-                }
+                AICLI_LOG(CLI, Info, << "Skipping " << match.Package->GetProperty(PackageProperty::Id) << " as it requires explicit upgrade");
+                ++packagesThatRequireExplicitSkipped;
+                continue;
             }
 
             updateAllFoundUpdate = true;

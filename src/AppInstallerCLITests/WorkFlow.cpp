@@ -2288,7 +2288,7 @@ TEST_CASE("UninstallFlow_UninstallPortable", "[UninstallFlow][workflow]")
     REQUIRE(std::filesystem::exists(uninstallResultPath.GetPath()));
 }
 
-TEST_CASE("UpdateFlow_All_RequireExplicit", "[UpdateFlow][workflow]")
+TEST_CASE("UpdateFlow_RequireExplicit", "[UpdateFlow][workflow]")
 {
     TestCommon::TempFile updateExeResultPath("TestExeInstalled.txt");
     TestCommon::TempFile updateMsixResultPath("TestMsixInstalled.txt");
@@ -2341,30 +2341,16 @@ TEST_CASE("UpdateFlow_All_RequireExplicit", "[UpdateFlow][workflow]")
         REQUIRE(!std::filesystem::exists(updateMsixResultPath.GetPath()));
     }
 
-    SECTION("Upgrade all including pinned")
+    SECTION("Upgrade explicitly")
     {
-        context.Args.AddArg(Args::Type::IncludePinned);
-
-        context.Args.AddArg(Args::Type::All);
-        OverrideForShellExecute(context);
+        context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestMsixInstaller"sv);
         OverrideForMSIX(context);
-        OverrideForMSStore(context, true);
-        OverrideForPortableInstall(context);
-        OverrideForExtractInstallerFromArchive(context);
-        OverrideForVerifyAndSetNestedInstaller(context);
 
         UpgradeCommand update({});
         update.Execute(context);
         INFO(updateOutput.str());
 
-        auto s = updateOutput.str();
-
-        // Verify all packages are updated
-        REQUIRE(std::filesystem::exists(updateExeResultPath.GetPath()));
         REQUIRE(std::filesystem::exists(updateMsixResultPath.GetPath()));
-
-        // Verify that skipped package message is not printed
-        REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::UpgradeRequireExplicitCount)) == std::string::npos);
     }
 
     // Command should always succeed
