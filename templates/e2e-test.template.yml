@@ -22,6 +22,7 @@ steps:
                                   -LooseFileRegistration true
                                   -InvokeCommandInDesktopPackage true
                                   -StaticFileRootPath $(Agent.TempDirectory)\TestLocalIndex
+                                  -MsiTestInstallerPath $(System.DefaultWorkingDirectory)\src\AppInstallerCLIE2ETests\TestData\AppInstallerTestMsiInstaller.msi
                                   -MsixTestInstallerPath $(Build.ArtifactStagingDirectory)\AppInstallerTestMsixInstaller.msix
                                   -ExeTestInstallerPath $(buildOutDir)\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe
                                   -PackageCertificatePath $(AppInstallerTest.secureFilePath)'
@@ -30,6 +31,7 @@ steps:
                                   -AICLIPath $(System.DefaultWorkingDirectory)\src\AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration)\AppInstallerCLI\winget.exe
                                   -InvokeCommandInDesktopPackage false
                                   -StaticFileRootPath $(Agent.TempDirectory)\TestLocalIndex
+                                  -MsiTestInstallerPath $(System.DefaultWorkingDirectory)\src\AppInstallerCLIE2ETests\TestData\AppInstallerTestMsiInstaller.msi
                                   -MsixTestInstallerPath $(Build.ArtifactStagingDirectory)\AppInstallerTestMsixInstaller.msix
                                   -ExeTestInstallerPath $(buildOutDir)\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe
                                   -PackageCertificatePath $(AppInstallerTest.secureFilePath)'

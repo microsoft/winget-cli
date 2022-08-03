@@ -64,6 +64,7 @@ namespace AppInstaller::Manifest
         WINGET_DEFINE_RESOURCE_STRINGID(RelativeFilePathEscapesDirectory);
         WINGET_DEFINE_RESOURCE_STRINGID(ArpValidationError);
         WINGET_DEFINE_RESOURCE_STRINGID(SchemaError);
+        WINGET_DEFINE_RESOURCE_STRINGID(MsixSignatureHashFailed);
     }
 
     struct ValidationError

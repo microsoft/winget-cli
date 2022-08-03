@@ -104,6 +104,9 @@ namespace AppInstaller::Utility
     // Use this if one of the values is a known value, and thus ToLower is sufficient.
     bool CaseInsensitiveEquals(std::string_view a, std::string_view b);
 
+    // Returns if a UTF8 string is contained within a vector in a case insensitive manner.
+    bool CaseInsensitiveContains(const std::vector<std::string_view>& a, std::string_view b);
+
     // Determines if string a starts with string b.
     // Use this if one of the values is a known value, and thus ToLower is sufficient.
     bool CaseInsensitiveStartsWith(std::string_view a, std::string_view b);
@@ -221,4 +224,10 @@ namespace AppInstaller::Utility
             return {};
         }
     }
+
+    // Converts the given bytes into a hexadecimal string.
+    std::string ConvertToHexString(const std::vector<uint8_t>& buffer, size_t byteCount = 0);
+
+    // Converts the given hexadecimal string into bytes.
+    std::vector<uint8_t> ParseFromHexString(const std::string& value, size_t byteCount = 0);
 }

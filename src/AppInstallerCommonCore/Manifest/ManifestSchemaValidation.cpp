@@ -6,6 +6,7 @@
 #include "winget/ManifestCommon.h"
 #include "winget/ManifestSchemaValidation.h"
 #include "winget/ManifestYamlParser.h"
+#include "winget/Resources.h"
 
 #include <ManifestSchema.h>
 
@@ -159,7 +160,7 @@ namespace AppInstaller::Manifest::YamlParser
             THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
         }
 
-        std::string schemaStr = JsonSchema::LoadResourceAsString(MAKEINTRESOURCE(idx), MAKEINTRESOURCE(MANIFESTSCHEMA_RESOURCE_TYPE));
+        std::string_view schemaStr = Resource::GetResourceAsString(idx, MANIFESTSCHEMA_RESOURCE_TYPE);
         return JsonSchema::LoadSchemaDoc(schemaStr);
     }
 

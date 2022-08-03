@@ -4,6 +4,8 @@
 #include "TestCommon.h"
 #include "TestSettings.h"
 #include "winget/GroupPolicy.h"
+#include <AppInstallerStrings.h>
+#include <CertificateResources.h>
 
 using namespace TestCommon;
 using namespace AppInstaller::Settings;
@@ -11,10 +13,15 @@ using namespace std::string_view_literals;
 
 namespace
 {
-    std::wstring GetSourceJson(std::wstring_view name, std::wstring_view arg, std::wstring_view type, std::wstring_view data, std::wstring_view identifier)
+    std::wstring GetSourceJson(std::wstring_view name, std::wstring_view arg, std::wstring_view type, std::wstring_view data, std::wstring_view identifier, std::wstring_view pinningConfig = {})
     {
         std::wstringstream json;
-        json << L"{ \"Name\":\"" << name << L"\", \"Arg\":\"" << arg << L"\", \"Type\":\"" << type << L"\", \"Data\":\"" << data << L"\", \"Identifier\":\"" << identifier << L"\" }";
+        json << L"{ \"Name\":\"" << name << L"\", \"Arg\":\"" << arg << L"\", \"Type\":\"" << type << L"\", \"Data\":\"" << data << L"\", \"Identifier\":\"" << identifier << L"\"";
+        if (!pinningConfig.empty())
+        {
+            json << L", \"CertificatePinning\":" << pinningConfig;
+        }
+        json << " }";
         return json.str();
     }
 }
@@ -265,6 +272,55 @@ TEST_CASE("GroupPolicy_Sources", "[groupPolicy]")
         REQUIRE(policy.value()[0].Type == source.Type);
         REQUIRE(policy.value()[0].Data == source.Data);
         REQUIRE(policy.value()[0].Identifier == source.Identifier);
+    }
+    SECTION("Source with PinningConfiguration")
+    {
+        using namespace AppInstaller::Certificates;
+
+        auto additionalSourcesKey = RegCreateVolatileSubKey(policiesKey.get(), AdditionalSourcesPolicyKeyName);
+
+        PinningDetails rootCert;
+        rootCert.LoadCertificate(IDX_CERTIFICATE_STORE_ROOT_1);
+        PinningDetails intermediateCert;
+        intermediateCert.LoadCertificate(IDX_CERTIFICATE_STORE_INTERMEDIATE_1);
+        PinningDetails leafCert;
+        leafCert.LoadCertificate(IDX_CERTIFICATE_STORE_LEAF_1);
+
+        auto getBytesString = [](const PinningDetails& details)
+        {
+            std::vector<BYTE> bytes;
+            bytes.assign(details.GetCertificate()->pbCertEncoded, details.GetCertificate()->pbCertEncoded + details.GetCertificate()->cbCertEncoded);
+            return AppInstaller::Utility::ConvertToUTF16(AppInstaller::Utility::ConvertToHexString(bytes));
+        };
+
+        std::wostringstream pinningConfig;
+        pinningConfig <<
+LR"({
+    "Chains": [{
+        "Chain":[
+            { "Validation": ["publickey"], "EmbeddedCertificate": ")" << getBytesString(rootCert) << LR"(" },
+            { "Validation": ["subject","issuer"], "EmbeddedCertificate": ")" << getBytesString(intermediateCert) << LR"(" },
+            { "Validation": ["subject","issuer"], "EmbeddedCertificate": ")" << getBytesString(leafCert) << LR"(" }
+        ]
+    }]
+})";
+
+        SetRegistryValue(additionalSourcesKey.get(), L"0", GetSourceJson(L"source-name", L"source-arg", L"source-type", L"source-data", L"source-identifier", pinningConfig.str()), REG_SZ);
+        GroupPolicy groupPolicy{ policiesKey.get() };
+
+        auto policy = groupPolicy.GetValue<ValuePolicy::AdditionalSources>();
+        REQUIRE(policy.has_value());
+        REQUIRE(policy->size() == 1);
+        const auto& sourceInfo = policy.value()[0];
+        REQUIRE(sourceInfo.Name == "source-name");
+        REQUIRE(sourceInfo.Arg == "source-arg");
+        REQUIRE(sourceInfo.Type == "source-type");
+        REQUIRE(sourceInfo.Data == "source-data");
+        REQUIRE(sourceInfo.Identifier == "source-identifier");
+
+        // Use loaded pinning config and validate against leaf certificate
+        REQUIRE(!sourceInfo.PinningConfiguration.IsEmpty());
+        REQUIRE(sourceInfo.PinningConfiguration.Validate(leafCert.GetCertificate()));
     }
 }
 

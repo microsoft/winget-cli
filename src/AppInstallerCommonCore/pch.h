@@ -16,6 +16,7 @@
 #include <DbgHelp.h>
 #include <SoftPub.h>
 #include <WinTrust.h>
+#include <wincrypt.h>
 
 #include "TraceLogging.h"
 

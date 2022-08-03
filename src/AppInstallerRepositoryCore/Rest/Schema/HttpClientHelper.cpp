@@ -17,9 +17,21 @@ namespace AppInstaller::Repository::Rest::Schema
                 request.headers().add(web::http::header_names::user_agent, c_defaultUserAgent);
             }
         }
+
+        void NativeHandleServerCertificateValidation(web::http::client::native_handle handle, const Certificates::PinningConfiguration& pinningConfiguration)
+        {
+            HINTERNET requestHandle = reinterpret_cast<HINTERNET>(handle);
+
+            // Get certificate and pass along to pinning config
+            wil::unique_cert_context certContext;
+            DWORD bufferSize = sizeof(&certContext);
+            THROW_IF_WIN32_BOOL_FALSE(WinHttpQueryOption(requestHandle, WINHTTP_OPTION_SERVER_CERT_CONTEXT, &certContext, &bufferSize));
+
+            THROW_HR_IF(APPINSTALLER_CLI_ERROR_PINNED_CERTIFICATE_MISMATCH, !pinningConfiguration.Validate(certContext.get()));
+        }
     }
 
-    HttpClientHelper::HttpClientHelper(std::optional<std::shared_ptr<web::http::http_pipeline_stage>> stage) : m_defaultRequestHandlerStage(stage) {}
+    HttpClientHelper::HttpClientHelper(std::shared_ptr<web::http::http_pipeline_stage> stage) : m_defaultRequestHandlerStage(std::move(stage)) {}
 
     pplx::task<web::http::http_response> HttpClientHelper::Post(
         const utility::string_t& uri, const web::json::value& body, const std::unordered_map<utility::string_t, utility::string_t>& headers) const
@@ -86,14 +98,22 @@ namespace AppInstaller::Repository::Rest::Schema
         return ValidateAndExtractResponse(httpResponse);
     }
 
+    void HttpClientHelper::SetPinningConfiguration(const Certificates::PinningConfiguration& configuration)
+    {
+        m_clientConfig.set_nativehandle_servercertificate_validation([pinConfig = configuration](web::http::client::native_handle handle)
+            {
+                NativeHandleServerCertificateValidation(handle, pinConfig);
+            });
+    }
+
     web::http::client::http_client HttpClientHelper::GetClient(const utility::string_t& uri) const
     {
-        web::http::client::http_client client{ uri };
+        web::http::client::http_client client{ uri, m_clientConfig };
 
         // Add default custom handlers if any.
         if (m_defaultRequestHandlerStage)
         {
-            client.add_handler(m_defaultRequestHandlerStage.value());
+            client.add_handler(m_defaultRequestHandlerStage);
         }
 
         return client;

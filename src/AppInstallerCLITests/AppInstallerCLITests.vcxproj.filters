@@ -209,16 +209,19 @@
     <ClCompile Include="YamlManifest.cpp">
       <Filter>Source Files\Common</Filter>
     </ClCompile>
+    <ClCompile Include="Certificates.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
     <ClCompile Include="Runtime.cpp">
       <Filter>Source Files\Common</Filter>
     </ClCompile>
     <ClCompile Include="Archive.cpp">
       <Filter>Source Files\Common</Filter>
     </ClCompile>
-    <ClCompile Include="FolderFileWatcher.cpp">
-      <Filter>Source Files\Common</Filter>
-    </ClCompile>
     <ClCompile Include="Filesystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FolderFileWatcher.cpp">
       <Filter>Source Files\Common</Filter>
     </ClCompile>
     <ClCompile Include="PackageDependenciesValidationUtil.cpp">
@@ -699,12 +702,38 @@
     <CopyFileToFolders Include="TestData\Manifest-Bad-NoSupportedPlatforms.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Installer-Bad-NoSupportedPlatforms.msix">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Installer-Good.msix">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Installer-Good.msixbundle">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Installer-Bad-NoSupportedPlatforms.msix" />
+    <CopyFileToFolders Include="TestData\Installer-Signed-Good.msix">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Installer-Signed-Good.msixbundle">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-InconsistentSignedMsixInstallerFields.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Good-SignedMsixInstaller.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Good-MsixBundleInstaller.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-InconsistentMsixBundleInstallerFields.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Good-SignedMsixBundleInstaller.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-InconsistentSignedMsixBundleInstallerFields.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
   </ItemGroup>
 </Project>

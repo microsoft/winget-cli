@@ -16,6 +16,7 @@ namespace AppInstaller::Settings
     namespace
     {
         constexpr std::string_view s_AdminSettingsYaml_LocalManifestFiles = "LocalManifestFiles"sv;
+        constexpr std::string_view s_AdminSettingsYaml_BypassCertificatePinningForMicrosoftStore = "BypassCertificatePinningForMicrosoftStore"sv;
 
         // Attempts to read a single scalar value from the node.
         template<typename Value>
@@ -36,6 +37,7 @@ namespace AppInstaller::Settings
         struct AdminSettingValues
         {
             bool LocalManifestFiles = false;
+            bool BypassCertificatePinningForMicrosoftStore = false;
         };
 
         struct AdminSettingsInternal
@@ -68,6 +70,9 @@ namespace AppInstaller::Settings
                 case AdminSetting::LocalManifestFiles:
                     m_settingValues.LocalManifestFiles = enabled;
                     break;
+                case AdminSetting::BypassCertificatePinningForMicrosoftStore:
+                    m_settingValues.BypassCertificatePinningForMicrosoftStore = enabled;
+                    break;
                 default:
                     return;
                 }
@@ -90,6 +95,8 @@ namespace AppInstaller::Settings
             {
             case AdminSetting::LocalManifestFiles:
                 return m_settingValues.LocalManifestFiles;
+            case AdminSetting::BypassCertificatePinningForMicrosoftStore:
+                return m_settingValues.BypassCertificatePinningForMicrosoftStore;
             default:
                 return false;
             }
@@ -130,6 +137,7 @@ namespace AppInstaller::Settings
             }
 
             TryReadScalar<bool>(document, s_AdminSettingsYaml_LocalManifestFiles, m_settingValues.LocalManifestFiles);
+            TryReadScalar<bool>(document, s_AdminSettingsYaml_BypassCertificatePinningForMicrosoftStore, m_settingValues.BypassCertificatePinningForMicrosoftStore);
         }
 
         bool AdminSettingsInternal::SaveAdminSettings()
@@ -137,6 +145,7 @@ namespace AppInstaller::Settings
             YAML::Emitter out;
             out << YAML::BeginMap;
             out << YAML::Key << s_AdminSettingsYaml_LocalManifestFiles << YAML::Value << m_settingValues.LocalManifestFiles;
+            out << YAML::Key << s_AdminSettingsYaml_BypassCertificatePinningForMicrosoftStore << YAML::Value << m_settingValues.BypassCertificatePinningForMicrosoftStore;
             out << YAML::EndMap;
 
             return m_settingStream.Set(out.str());
@@ -151,6 +160,10 @@ namespace AppInstaller::Settings
         {
             result = AdminSetting::LocalManifestFiles;
         }
+        else if (Utility::CaseInsensitiveEquals(s_AdminSettingsYaml_BypassCertificatePinningForMicrosoftStore, in))
+        {
+            result = AdminSetting::BypassCertificatePinningForMicrosoftStore;
+        }
 
         return result;
     }
@@ -161,6 +174,8 @@ namespace AppInstaller::Settings
         {
         case AdminSetting::LocalManifestFiles:
             return s_AdminSettingsYaml_LocalManifestFiles;
+        case AdminSetting::BypassCertificatePinningForMicrosoftStore:
+            return s_AdminSettingsYaml_BypassCertificatePinningForMicrosoftStore;
         default:
             return "Unknown"sv;
         }
@@ -180,11 +195,14 @@ namespace AppInstaller::Settings
 
     bool IsAdminSettingEnabled(AdminSetting setting)
     {
-        // For some admin settings, even if it's disabled, if the corresponding policy is enabled then override it.
-        if (setting == AdminSetting::LocalManifestFiles &&
-            GroupPolicies().GetState(TogglePolicy::Policy::LocalManifestFiles) == PolicyState::Enabled)
+        // Check for a policy that overrides this setting.
+        if (setting == AdminSetting::LocalManifestFiles)
         {
-            return true;
+            PolicyState localManifestFilesPolicy = GroupPolicies().GetState(TogglePolicy::Policy::LocalManifestFiles);
+            if (localManifestFilesPolicy != PolicyState::NotConfigured)
+            {
+                return localManifestFilesPolicy == PolicyState::Enabled;
+            }
         }
 
         AdminSettingsInternal adminSettingsInternal;

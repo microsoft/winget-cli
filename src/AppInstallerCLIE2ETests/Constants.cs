@@ -25,9 +25,14 @@ namespace AppInstallerCLIE2ETests
         public const string DefaultWingetSourceUrl = @"https://winget.azureedge.net/cache";
         public const string DefaultMSStoreSourceName = @"msstore";
         public const string DefaultMSStoreSourceUrl = @"https://storeedgefd.dsx.mp.microsoft.com/v9.0";
+        public const string DefaultMSStoreSourceType = "Microsoft.Rest";
+        public const string DefaultMSStoreSourceIdentifier = "StoreEdgeFD";
         public const string TestSourceName = @"TestSource";
+        public const string TestAlternateSourceName = @"TestSource2";
         public const string TestSourceUrl = @"https://localhost:5001/TestKit";
+        public const string TestSourceType = "Microsoft.PreIndexed.Package";
         public const string TestSourceIdentifier = @"WingetE2E.Tests_8wekyb3d8bbwe";
+        public const string TestSourceServerCertificateFileName = "servercert.cer";
 
         public const string AICLIPackageFamilyName = "WinGetDevCLI_8wekyb3d8bbwe";
         public const string AICLIPackageName = "WinGetDevCLI";
@@ -78,6 +83,13 @@ namespace AppInstallerCLIE2ETests
         // Registry keys
         public const string WinGetPackageIdentifier = "WinGetPackageIdentifier";
         public const string WinGetSourceIdentifier = "WinGetSourceIdentifier";
+        public const string UninstallSubKey = @"Software\Microsoft\Windows\CurrentVersion\Uninstall";
+        public const string PathSubKey_User = @"Environment";
+        public const string PathSubKey_Machine = @"SYSTEM\CurrentControlSet\Control\Session Manager\Environment";
+
+        // User settings
+        public const string PortablePackageUserRoot = "portablePackageUserRoot";
+        public const string PortablePackageMachineRoot = "portablePackageMachineRoot";
 
         public class ErrorCode
         {
@@ -178,6 +190,12 @@ namespace AppInstallerCLIE2ETests
             public const int ERROR_INSTALLER_PROHIBITS_ELEVATION = unchecked((int)0x8A150056);
             public const int ERROR_PORTABLE_UNINSTALL_FAILED = unchecked((int)0x8A150057);
             public const int ERROR_ARP_VERSION_VALIDATION_FAILED = unchecked((int)0x8A150058);
+            public const int ERROR_UNSUPPORTED_ARGUMENT = unchecked((int)0x8A150059);
+            public const int ERROR_BIND_WITH_EMBEDDED_NULL = unchecked((int)0x8A15005A);
+            public const int ERROR_NESTEDINSTALLER_NOT_FOUND = unchecked((int)0x8A15005B);
+            public const int ERROR_EXTRACT_ARCHIVE_FAILED = unchecked((int)0x8A15005C);
+            public const int ERROR_NESTEDINSTALLER_INVALID_PATH = unchecked((int)0x8A15005D);
+            public const int ERROR_PINNED_CERTIFICATE_MISMATCH = unchecked((int)0x8A15005E);
 
             public const int ERROR_INSTALL_PACKAGE_IN_USE = unchecked((int)0x8A150101);
             public const int ERROR_INSTALL_INSTALL_IN_PROGRESS = unchecked((int)0x8A150102);

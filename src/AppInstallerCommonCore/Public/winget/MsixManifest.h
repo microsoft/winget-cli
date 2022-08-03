@@ -61,14 +61,4 @@ namespace AppInstaller::Msix
     private:
         Microsoft::WRL::ComPtr<IAppxManifestReader> m_manifestReader;
     };
-
-    // MSIX manifest cache
-    struct MsixPackageManifestCache
-    {
-        // Construct MSIX manifest or fetch it from cache
-        const std::vector<MsixPackageManifest>& GetAppPackageManifests(std::string url);
-    private:
-        // Map installer url to a vector of msix package manifests
-        std::map<std::string, std::vector<MsixPackageManifest>> m_msixManifests;
-    };
 }

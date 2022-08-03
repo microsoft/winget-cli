@@ -556,12 +556,38 @@ namespace AppInstaller::CLI::Workflow
                 }
             }
         }
+
+        void EnsureRunningAsAdminForMachineScopeInstall(Execution::Context& context)
+        {
+            // Admin is required for machine scope install or else creating a symlink in the %PROGRAMFILES% link location will fail.
+            Manifest::ScopeEnum scope = ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
+            if (scope == Manifest::ScopeEnum::Machine)
+            {
+                context << Workflow::EnsureRunningAsAdmin;
+            }
+        }
     }
 
     void PortableInstallImpl(Execution::Context& context)
     {
+        Manifest::ScopeEnum scope = Manifest::ScopeEnum::Unknown;
+        bool isUpdate = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
+        if (isUpdate)
+        {
+            IPackageVersion::Metadata installationMetadata = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata();
+            auto installerScopeItr = installationMetadata.find(Repository::PackageVersionMetadata::InstalledScope);
+            if (installerScopeItr != installationMetadata.end())
+            {
+                scope = Manifest::ConvertToScopeEnum(installerScopeItr->second);
+            }
+        }
+        else
+        {
+            scope = ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
+        }
+
         PortableARPEntry uninstallEntry = PortableARPEntry(
-            ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope)),
+            scope,
             context.Get<Execution::Data::Installer>()->Arch,
             GetPortableProductCode(context));
 
@@ -589,7 +615,6 @@ namespace AppInstaller::CLI::Workflow
 
         // Perform cleanup only if the install fails and is not an update.
         const auto& installReturnCode = context.Get<Execution::Data::OperationReturnCode>();
-        bool isUpdate = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
 
         if (installReturnCode != 0 && installReturnCode != APPINSTALLER_CLI_ERROR_PORTABLE_PACKAGE_ALREADY_EXISTS && !isUpdate)
         {
@@ -634,6 +659,7 @@ namespace AppInstaller::CLI::Workflow
         {
             context <<
                 EnsureSymlinkCreationPrivilege <<
+                EnsureRunningAsAdminForMachineScopeInstall <<
                 EnsureValidArgsForPortableInstall <<
                 EnsureVolumeSupportsReparsePoints;
         }

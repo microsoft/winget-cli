@@ -93,6 +93,8 @@ cref
 csproj
 CStr
 csv
+ctl
+ctls
 CURSORPOSITON
 CUSTOMHEADER
 cwctype
@@ -360,7 +362,7 @@ nuspec
 OAuth
 ODR
 ofstream
-Oid
+oid
 opencode
 opensource
 openxmlformats
@@ -432,6 +434,7 @@ refactor
 refactored
 refactoring
 REFCLSID
+REFCOUNT
 regex
 regexp
 removemanifest
@@ -646,8 +649,10 @@ WHOLECHAIN
 wil
 wildcards
 WINAPI
+wincrypt
 WINEVENT
 winget
+winhttp
 wininet
 winmd
 winmeta

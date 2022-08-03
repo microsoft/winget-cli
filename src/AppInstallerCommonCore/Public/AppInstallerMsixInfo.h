@@ -69,6 +69,9 @@ namespace AppInstaller::Msix
         // If skipP7xFileId is true, returns content of converted .p7s
         std::vector<byte> GetSignature(bool skipP7xFileId = false);
 
+        // Get the signature sha256 hash.
+        Utility::SHA256::HashBuffer GetSignatureHash();
+
         // Gets the package full name.
         std::wstring GetPackageFullNameWide();
         std::string GetPackageFullName();

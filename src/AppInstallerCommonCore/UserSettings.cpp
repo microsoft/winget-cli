@@ -243,7 +243,7 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_PASS_THROUGH(DisableInstallNotes)
         WINGET_VALIDATE_PASS_THROUGH(UninstallPurgePortablePackage)
 
-        WINGET_VALIDATE_SIGNATURE(PortableAppUserRoot)
+        WINGET_VALIDATE_SIGNATURE(PortablePackageUserRoot)
         {
             std::filesystem::path root = ConvertToUTF16(value);
             if (!root.is_absolute())
@@ -254,9 +254,9 @@ namespace AppInstaller::Settings
             return root;
         }
 
-        WINGET_VALIDATE_SIGNATURE(PortableAppMachineRoot)
+        WINGET_VALIDATE_SIGNATURE(PortablePackageMachineRoot)
         {
-            return SettingMapping<Setting::PortableAppUserRoot>::Validate(value);
+            return SettingMapping<Setting::PortablePackageUserRoot>::Validate(value);
         }
 
         WINGET_VALIDATE_SIGNATURE(InstallArchitecturePreference)
