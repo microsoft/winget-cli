@@ -18,7 +18,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         m_installerInfo = *installerInfo;
 
         // Initialize m_installedStatus
-        for (auto const& entry : installerInstalledStatus.InstalledStatus)
+        for (auto const& entry : installerInstalledStatus.Status)
         {
             auto status = winrt::make_self<wil::details::module_count_wrapper<
                 winrt::Microsoft::Management::Deployment::implementation::InstalledStatus>>();
@@ -31,7 +31,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         return m_installerInfo;
     }
-    winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::InstalledStatus> PackageInstallerInstalledStatus::InstalledStatus()
+    winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::InstalledStatus> PackageInstallerInstalledStatus::InstallerInstalledStatus()
     {
         return m_installedStatus.GetView();
     }

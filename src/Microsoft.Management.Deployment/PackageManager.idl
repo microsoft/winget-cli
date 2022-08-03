@@ -397,7 +397,7 @@ namespace Microsoft.Management.Deployment
         /// The package installer info.
         PackageInstallerInfo InstallerInfo { get; };
         /// A list of various types of installed status of the package installer.
-        Windows.Foundation.Collections.IVectorView<InstalledStatus> InstalledStatus { get; };
+        Windows.Foundation.Collections.IVectorView<InstalledStatus> InstallerInstalledStatus { get; };
     };
 
     /// Status of the check installed status call.
@@ -416,7 +416,7 @@ namespace Microsoft.Management.Deployment
         CheckInstalledStatusResultStatus Status { get; };
 
         /// A list of package installer installed status.
-        Windows.Foundation.Collections.IVectorView<PackageInstallerInstalledStatus> InstalledStatus { get; };
+        Windows.Foundation.Collections.IVectorView<PackageInstallerInstalledStatus> PackageInstalledStatus { get; };
     };
 
     /// IMPLEMENTATION NOTE: IPackage from winget/RepositorySearch.h

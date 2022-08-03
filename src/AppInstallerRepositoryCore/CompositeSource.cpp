@@ -265,16 +265,19 @@ namespace AppInstaller::Repository
         }
 
         // Map to cache already calculated file hashes.
-        auto filePathComparator = [](const std::filesystem::path& a, const std::filesystem::path& b)
+        struct FilePathComparator
         {
-            if (std::filesystem::equivalent(a, b))
+            bool operator()(const std::filesystem::path& a, const std::filesystem::path& b) const
             {
-                return false;
-            }
+                if (std::filesystem::equivalent(a, b))
+                {
+                    return false;
+                }
 
-            return a < b;
+                return a < b;
+            }
         };
-        using FileHashMap = std::map<std::filesystem::path, Utility::SHA256::HashBuffer, decltype(filePathComparator)>;
+        using FileHashMap = std::map<std::filesystem::path, Utility::SHA256::HashBuffer, FilePathComparator>;
 
         HRESULT CheckInstalledFileStatus(
             const std::filesystem::path& filePath,
@@ -397,7 +400,7 @@ namespace AppInstaller::Repository
                         // ARP entry status
                         if (WI_IsFlagSet(checkTypes, InstalledStatusType::AppsAndFeaturesEntry))
                         {
-                            installerStatus.InstalledStatus.emplace_back(
+                            installerStatus.Status.emplace_back(
                                 InstalledStatusType::AppsAndFeaturesEntry,
                                 "",
                                 isMatchingInstaller ? WINGET_INSTALLED_STATUS_ARP_ENTRY_FOUND : WINGET_INSTALLED_STATUS_ARP_ENTRY_NOT_FOUND);
@@ -406,9 +409,9 @@ namespace AppInstaller::Repository
                         // ARP install location status
                         if (isMatchingInstaller && WI_IsFlagSet(checkTypes, InstalledStatusType::AppsAndFeaturesEntryInstallLocation))
                         {
-                            installerStatus.InstalledStatus.emplace_back(
+                            installerStatus.Status.emplace_back(
                                 InstalledStatusType::AppsAndFeaturesEntryInstallLocation,
-                                installedLocation,
+                                installedLocation.string(),
                                 installedLocationStatus);
                         }
 
@@ -422,9 +425,9 @@ namespace AppInstaller::Repository
                                 std::filesystem::path filePath = installedLocation / std::filesystem::path{ static_cast<std::string>(file.RelativeFilePath) };
                                 auto fileStatus = CheckInstalledFileStatus(filePath, checkFileHash ? file.FileSha256 : Utility::SHA256::HashBuffer{}, fileHashes);
 
-                                installerStatus.InstalledStatus.emplace_back(
+                                installerStatus.Status.emplace_back(
                                     InstalledStatusType::AppsAndFeaturesEntryInstallLocationFile,
-                                    filePath,
+                                    filePath.string(),
                                     fileStatus);
                             }
                         }
@@ -439,9 +442,9 @@ namespace AppInstaller::Repository
                         // Default install location status
                         if (WI_IsFlagSet(checkTypes, InstalledStatusType::DefaultInstallLocation))
                         {
-                            installerStatus.InstalledStatus.emplace_back(
+                            installerStatus.Status.emplace_back(
                                 InstalledStatusType::DefaultInstallLocation,
-                                defaultInstalledLocation,
+                                defaultInstalledLocation.string(),
                                 defaultInstalledLocationStatus);
                         }
 
@@ -454,20 +457,22 @@ namespace AppInstaller::Repository
                                 std::filesystem::path filePath = defaultInstalledLocation / std::filesystem::path{ static_cast<std::string>(file.RelativeFilePath) };
                                 auto fileStatus = CheckInstalledFileStatus(filePath, checkFileHash ? file.FileSha256 : Utility::SHA256::HashBuffer{}, fileHashes);
 
-                                installerStatus.InstalledStatus.emplace_back(
+                                installerStatus.Status.emplace_back(
                                     InstalledStatusType::DefaultInstallLocationFile,
-                                    filePath,
+                                    filePath.string(),
                                     fileStatus);
                             }
                         }
                     }
 
-                    if (!installerStatus.InstalledStatus.empty())
+                    if (!installerStatus.Status.empty())
                     {
                         result.emplace_back(std::move(installerStatus));
                     }
                 }
             }
+
+            return result;
         }
 
         // A composite package installed version that allows us to override the source or the version.

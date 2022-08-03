@@ -281,13 +281,16 @@ namespace AppInstaller::Repository
         Utility::NormalizedString Path;
         // The installed status result.
         HRESULT Status;
+
+        InstalledStatus(InstalledStatusType type, Utility::NormalizedString path, HRESULT status) :
+            Type(type), Path(std::move(path)), Status(status) {}
     };
 
     // Struct representing installed status from an installer.
     struct InstallerInstalledStatus
     {
         Manifest::ManifestInstaller Installer;
-        std::vector<InstalledStatus> InstalledStatus;
+        std::vector<InstalledStatus> Status;
     };
 
     // A package, potentially containing information about it's local state and the available versions.

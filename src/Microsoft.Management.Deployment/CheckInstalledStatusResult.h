@@ -17,7 +17,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 #endif
 
         winrt::Microsoft::Management::Deployment::CheckInstalledStatusResultStatus Status();
-        winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::PackageInstallerInstalledStatus> InstalledStatus();
+        winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::PackageInstallerInstalledStatus> PackageInstalledStatus();
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:

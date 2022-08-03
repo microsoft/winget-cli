@@ -16,7 +16,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 #endif
 
         winrt::Microsoft::Management::Deployment::PackageInstallerInfo InstallerInfo();
-        winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::InstalledStatus> InstalledStatus();
+        winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::InstalledStatus> InstallerInstalledStatus();
         
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:

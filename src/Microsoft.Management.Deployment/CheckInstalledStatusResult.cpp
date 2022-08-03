@@ -18,7 +18,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         return m_status;
     }
-    winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::PackageInstallerInstalledStatus> CheckInstalledStatusResult::InstalledStatus()
+    winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::PackageInstallerInstalledStatus> CheckInstalledStatusResult::PackageInstalledStatus()
     {
         return m_installedStatus.GetView();
     }
