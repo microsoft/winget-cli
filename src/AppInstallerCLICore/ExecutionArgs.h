@@ -79,8 +79,11 @@ namespace AppInstaller::CLI::Execution
             AdminSettingEnable,
             AdminSettingDisable,
 
+            // Upgrade Command
+            All, // Update all installed packages to latest
+            IncludeUnknown, // Allow upgrades of packages with unknown versions
+
             // Other
-            All, // Used in Update command to update all installed packages to latest
             ListVersions, // Used in Show command to list all available versions of an app
             NoVT, // Disable VirtualTerminal outputs
             RetroStyle, // Makes progress display as retro
@@ -91,7 +94,6 @@ namespace AppInstaller::CLI::Execution
             DependencySource, // Index source to be queried against for finding dependencies
             CustomHeader, // Optional Rest source header
             AcceptSourceAgreements, // Accept all source agreements
-            IncludeUnknown, // Used in Upgrade command to allow upgrades of packages with unknown versions
             Wait, // Prompts the user to press any key before exiting
 
             // Used for demonstration purposes

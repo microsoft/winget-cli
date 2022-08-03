@@ -178,10 +178,23 @@ namespace AppInstaller::Repository
         TrackingWriteTime,
         // The Architecture of an installed package
         InstalledArchitecture,
+        // The PackagePinnedState of the installed package
+        PinnedState,
     };
 
     // Convert a PackageVersionMetadata to a string.
     std::string_view ToString(PackageVersionMetadata pvm);
+
+    // Possible pinned states for a package.
+    // Pinned packages need to be explicitly updated (i.e., are not included in `upgrade --all`)
+    enum class PackagePinnedState
+    {
+        NotPinned,
+        PinnedByManifest,
+    };
+
+    std::string_view ToString(PackagePinnedState state);
+    PackagePinnedState ConvertToPackagePinnedStateEnum(std::string_view in);
 
     // A single package version.
     struct IPackageVersion
