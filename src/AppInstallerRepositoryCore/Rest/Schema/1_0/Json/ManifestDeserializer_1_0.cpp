@@ -321,7 +321,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
             AICLI_LOG(Repo, Error, << "Missing installer type.");
             return {};
         }
-        installer.InstallerType = ConvertToInstallerType(installerType.value());
+        installer.BaseInstallerType = ConvertToInstallerType(installerType.value());
         installer.Locale = JSON::GetRawStringValueFromJsonNode(installerJsonObject, JSON::GetUtilityString(InstallerLocale)).value_or("");
 
         // platform
@@ -366,7 +366,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         }
 
         // Installer Switches
-        installer.Switches = Manifest::GetDefaultKnownSwitches(installer.InstallerType);
+        installer.Switches = Manifest::GetDefaultKnownSwitches(installer.BaseInstallerType);
         std::optional<std::reference_wrapper<const web::json::value>> switches =
             JSON::GetJsonValueFromNode(installerJsonObject, JSON::GetUtilityString(InstallerSwitches));
         if (switches)

@@ -36,7 +36,7 @@ const ManifestInstaller& AddInstaller(
 {
     ManifestInstaller toAdd;
     toAdd.Arch = architecture;
-    toAdd.InstallerType = installerType;
+    toAdd.BaseInstallerType = installerType;
     toAdd.Scope = scope;
     toAdd.MinOSVersion = minOSVersion;
     toAdd.Locale = locale;
@@ -63,7 +63,7 @@ void RequireInstaller(const std::optional<ManifestInstaller>& actual, const Mani
 {
     REQUIRE(actual);
     REQUIRE(actual->Arch == expected.Arch);
-    REQUIRE(actual->InstallerType == expected.InstallerType);
+    REQUIRE(actual->EffectiveInstallerType() == expected.EffectiveInstallerType());
     REQUIRE(actual->Scope == expected.Scope);
     REQUIRE(actual->MinOSVersion == expected.MinOSVersion);
     REQUIRE(actual->Locale == expected.Locale);

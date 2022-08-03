@@ -94,7 +94,7 @@ namespace AppInstaller::Manifest
 
         for (auto const& installer : Installers)
         {
-            if (DoesInstallerSupportArpVersionRange(installer))
+            if (DoesInstallerTypeSupportArpVersionRange(installer.EffectiveInstallerType()))
             {
                 for (auto const& entry : installer.AppsAndFeaturesEntries)
                 {

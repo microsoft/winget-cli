@@ -173,7 +173,7 @@ namespace AppInstaller::CLI::Workflow
         info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelInstaller << std::endl;
         if (installer)
         {
-            info << "  "_liv << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelInstallerType << ' ' << Manifest::InstallerTypeToString(installer->InstallerType) << std::endl;
+            info << "  "_liv << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelInstallerType << ' ' << Manifest::InstallerTypeToString(installer->BaseInstallerType) << std::endl;
             if (!installer->Locale.empty())
             {
                 info << "  "_liv << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelInstallerLocale << ' ' << installer->Locale << std::endl;

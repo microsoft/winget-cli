@@ -257,7 +257,7 @@ namespace
             REQUIRE(actualInstaller.Platform.size() == 1);
             REQUIRE(actualInstaller.Platform[0] == PlatformEnum::Desktop);
             REQUIRE(actualInstaller.MinOSVersion == "1078");
-            REQUIRE(actualInstaller.InstallerType == InstallerTypeEnum::Msi);
+            REQUIRE(actualInstaller.BaseInstallerType == InstallerTypeEnum::Msi);
             REQUIRE(actualInstaller.Scope == ScopeEnum::User);
             REQUIRE(actualInstaller.InstallModes.size() == 1);
             REQUIRE(actualInstaller.InstallModes.at(0) == InstallModeEnum::Interactive);

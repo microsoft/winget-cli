@@ -69,7 +69,7 @@ namespace AppInstaller::CLI::Workflow
     {
         auto installer = context.Get<Execution::Data::Installer>().value();
 
-        if (IsArchiveType(installer.InstallerType))
+        if (IsArchiveType(installer.BaseInstallerType))
         {
             auto const& nestedInstallerFiles = installer.NestedInstallerFiles;
             if (nestedInstallerFiles.empty())

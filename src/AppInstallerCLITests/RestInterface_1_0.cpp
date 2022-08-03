@@ -238,7 +238,7 @@ namespace
             REQUIRE(actualInstaller.Platform.size() == 1);
             REQUIRE(actualInstaller.Platform[0] == PlatformEnum::Desktop);
             REQUIRE(actualInstaller.MinOSVersion == "1078");
-            REQUIRE(actualInstaller.InstallerType == InstallerTypeEnum::Msix);
+            REQUIRE(actualInstaller.BaseInstallerType == InstallerTypeEnum::Msix);
             REQUIRE(actualInstaller.Scope == ScopeEnum::User);
             REQUIRE(actualInstaller.SignatureSha256 == AppInstaller::Utility::SHA256::ConvertToBytes("011048877dfaef109801b3f3ab2b60afc74f3fc4f7b3430e0c897f5da1df84b6"));
             REQUIRE(actualInstaller.InstallModes.size() == 1);
@@ -425,7 +425,7 @@ TEST_CASE("Search_Optimized_ManifestResponse", "[RestSource][Interface_1_0]")
     REQUIRE(manifest.Installers.size() == 1);
     REQUIRE(manifest.Installers[0].Arch == Architecture::X64);
     REQUIRE(manifest.Installers[0].Sha256 == AppInstaller::Utility::SHA256::ConvertToBytes("011048877dfaef109801b3f3ab2b60afc74f3fc4f7b3430e0c897f5da1df84b6"));
-    REQUIRE(manifest.Installers[0].InstallerType == InstallerTypeEnum::Exe);
+    REQUIRE(manifest.Installers[0].BaseInstallerType == InstallerTypeEnum::Exe);
     REQUIRE(manifest.Installers[0].Url == "https://installer.example.com/foobar.exe");
 }
 

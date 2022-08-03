@@ -303,22 +303,19 @@ namespace AppInstaller::Manifest
     std::string_view ScopeToString(ScopeEnum scope);
 
     // Gets a value indicating whether the given installer uses the PackageFamilyName system reference.
-    bool DoesInstallerUsePackageFamilyName(ManifestInstaller installer);
+    bool DoesInstallerTypeUsePackageFamilyName(InstallerTypeEnum installerType);
 
     // Gets a value indicating whether the given installer uses the ProductCode system reference.
-    bool DoesInstallerUseProductCode(ManifestInstaller installer);
+    bool DoesInstallerTypeUseProductCode(InstallerTypeEnum installerType);
 
     // Gets a value indicating whether the given installer writes ARP entry.
-    bool DoesInstallerWriteAppsAndFeaturesEntry(ManifestInstaller installer);
-
-    // Gets a value indicating whether the given installer supports ARP version range.
-    bool DoesInstallerSupportArpVersionRange(ManifestInstaller installer);
+    bool DoesInstallerTypeWriteAppsAndFeaturesEntry(InstallerTypeEnum installerType);
 
     // Gets a value indicating whether the given installer type supports ARP version range.
     bool DoesInstallerTypeSupportArpVersionRange(InstallerTypeEnum installer);
 
     // Gets a value indicating whether the given installer ignores the Scope value from the manifest.
-    bool DoesInstallerIgnoreScopeFromManifest(ManifestInstaller installer);
+    bool DoesInstallerTypeIgnoreScopeFromManifest(InstallerTypeEnum installerType);
 
     // Gets a value indicating whether the given installer type is an archive.
     bool IsArchiveType(InstallerTypeEnum installerType);
