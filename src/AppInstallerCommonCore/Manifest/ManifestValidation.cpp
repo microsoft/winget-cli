@@ -161,15 +161,20 @@ namespace AppInstaller::Manifest
                 resultErrors.emplace_back(ManifestError::ExeInstallerMissingSilentSwitches, ValidationError::Level::Warning);
             }
 
+            // The command field restriction only applies if the base installer type is Portable.
+            if (installer.BaseInstallerType == InstallerTypeEnum::Portable)
+            {
+                if (installer.Commands.size() > 1)
+                {
+                    resultErrors.emplace_back(ManifestError::ExceededCommandsLimit);
+                }
+            }
+
             if (installer.EffectiveInstallerType() == InstallerTypeEnum::Portable)
             {
                 if (installer.AppsAndFeaturesEntries.size() > 1)
                 {
                     resultErrors.emplace_back(ManifestError::ExceededAppsAndFeaturesEntryLimit);
-                }
-                if (installer.Commands.size() > 1)
-                {
-                    resultErrors.emplace_back(ManifestError::ExceededCommandsLimit);
                 }
                 if (installer.Scope != ScopeEnum::Unknown)
                 {

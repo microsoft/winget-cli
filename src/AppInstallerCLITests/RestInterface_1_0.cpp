@@ -520,6 +520,6 @@ TEST_CASE("GetManifests_GoodResponse_UnknownInstaller", "[RestSource][Interface_
     // Verify manifest is populated and manifest validation passed
     Manifest manifest = manifests[0];
     REQUIRE(manifest.Installers.size() == 1);
-    REQUIRE(manifest.Installers.at(0).InstallerType == InstallerTypeEnum::Unknown);
+    REQUIRE(manifest.Installers.at(0).BaseInstallerType == InstallerTypeEnum::Unknown);
     REQUIRE(manifest.Installers.at(0).ProductId.empty());
 }

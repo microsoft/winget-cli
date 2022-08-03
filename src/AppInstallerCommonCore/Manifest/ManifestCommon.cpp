@@ -481,7 +481,7 @@ namespace AppInstaller::Manifest
             );
     }
 
-    bool DoesInstallerIgnoreScopeFromManifest(InstallerTypeEnum installerType)
+    bool DoesInstallerTypeIgnoreScopeFromManifest(InstallerTypeEnum installerType)
     {
         return (
             installerType == InstallerTypeEnum::Portable

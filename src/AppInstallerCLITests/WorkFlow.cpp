@@ -191,7 +191,7 @@ namespace
                     ResultMatch(
                         TestPackage::Make(
                             manifest,
-                            TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Zip" } },
+                            TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Exe" } },
                             std::vector<Manifest>{ manifest2, manifest },
                             shared_from_this()
                         ),
