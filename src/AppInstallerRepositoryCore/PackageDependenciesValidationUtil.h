@@ -1,0 +1,23 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+#pragma once
+#include "pch.h"
+#include <winget/ManifestValidation.h>
+#include "PackageDependenciesValidationUtil.h"
+
+namespace AppInstaller::Repository::Util
+{
+    enum WinGetManifestDependenciesErrorResult
+    {
+        None = 0x0,
+
+        // Each validation step should have an enum for corresponding failure.
+        SingleManifestPackageHasDependencies = 0x10000,
+        MultiManifestPackageHasDependencies = 0x20000,
+        MissingManifestDependenciesNode = 0x40000,
+        NoSuitableMinVersion = 0x80000,
+        FoundLoop = 0x1000000,
+    };
+
+    WinGetManifestDependenciesErrorResult GetValidationResultFromException(const AppInstaller::Manifest::ManifestException& manifestException);
+}

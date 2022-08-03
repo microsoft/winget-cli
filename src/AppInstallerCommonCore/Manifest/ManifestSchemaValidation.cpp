@@ -186,7 +186,7 @@ namespace AppInstaller::Manifest::YamlParser
 
             if (!JsonSchema::Validate(schema, manifestJson, results))
             {
-                errors.emplace_back(ValidationError::MessageWithFile(JsonSchema::GetErrorStringFromResults(results), entry.FileName));
+                errors.emplace_back(ValidationError::MessageFieldWithFile(ManifestError::SchemaError, JsonSchema::GetErrorStringFromResults(results), entry.FileName));
             }
         }
 

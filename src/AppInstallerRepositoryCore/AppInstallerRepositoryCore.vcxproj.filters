@@ -288,6 +288,9 @@
     <ClInclude Include="Microsoft\Schema\1_0\VirtualTableBase.h">
       <Filter>Microsoft\Schema\1_0</Filter>
     </ClInclude>
+    <ClInclude Include="PackageDependenciesValidationUtil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -450,6 +453,9 @@
       <Filter>Microsoft\Schema\1_5</Filter>
     </ClCompile>
     <ClCompile Include="ArpVersionValidation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PackageDependenciesValidationUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

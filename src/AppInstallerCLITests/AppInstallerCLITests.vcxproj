@@ -209,6 +209,7 @@
     <ClCompile Include="MsixManifest.cpp" />
     <ClCompile Include="NameNormalization.cpp" />
     <ClCompile Include="PackageCollection.cpp" />
+    <ClCompile Include="PackageDependenciesValidationUtil.cpp" />
     <ClCompile Include="PackageTrackingCatalog.cpp" />
     <ClCompile Include="PredefinedInstalledSource.cpp" />
     <ClCompile Include="PreIndexedPackageSource.cpp" />
@@ -295,7 +296,7 @@
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_Zip_MultipleNonPortableNestedInstallers.yaml">
       <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>    
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\ImportFile-Bad-Invalid.json">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
@@ -622,7 +623,7 @@
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\UpdateFlowTest_ZipWithExe.yaml">
       <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>    
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InputNames.txt">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
