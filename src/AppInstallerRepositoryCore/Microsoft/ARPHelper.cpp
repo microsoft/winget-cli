@@ -25,7 +25,7 @@ namespace AppInstaller::Repository::Microsoft
             // Using the registry could potentially be faster, so we may consider using it if this proves to be too slow.
 
             // For some reason MsiOpenProduct pops up a dialog.
-            // Supress it by setting the UI level to None.
+            // Suppress it by setting the UI level to None.
             MsiSetInternalUI(INSTALLUILEVEL_NONE, nullptr);
 
             wil::unique_any<MSIHANDLE, decltype(MsiCloseHandle), MsiCloseHandle> msiProduct;

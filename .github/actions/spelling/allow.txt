@@ -3,6 +3,7 @@ ACCESSDENIED
 ACTIONDATA
 ACTIONSTART
 addmanifest
+addressof
 addstore
 admins
 alloc
@@ -318,6 +319,7 @@ msdata
 MSDN
 msi
 msiexec
+MSIHANDLE
 msix
 msixbundle
 msixinfo

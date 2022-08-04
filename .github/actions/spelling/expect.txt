@@ -302,9 +302,9 @@ ofile
 openmode
 Outptr
 packageinuse
+PACL
 PARAMETERMAP
 paramref
-PACL
 pathparts
 Patil
 pb
@@ -444,6 +444,7 @@ unparsable
 UNSCOPED
 unvirtualized
 UParse
+upgradecode
 UPSERT
 uris
 URLs
