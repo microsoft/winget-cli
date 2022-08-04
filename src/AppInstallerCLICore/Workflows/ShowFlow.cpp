@@ -14,7 +14,7 @@ using namespace AppInstaller::Utility::literals;
 namespace {
 
     template <class CharT, typename String>
-    void ShowSingleLineField(Execution::OutputStream& outputStream, CharT label, String value, bool indent = false, bool emphasis = false, bool eol = true)
+    void ShowSingleLineField(Execution::OutputStream& outputStream, CharT label, String value, bool indent = false)
     {
         if (value.empty())
         {
@@ -24,16 +24,7 @@ namespace {
         {
             outputStream << "  "_liv;
         }
-        outputStream << Execution::ManifestInfoEmphasis << label << ' ';
-        if (emphasis)
-        {
-            outputStream << Execution::ManifestInfoEmphasis;
-        }
-        outputStream << value;
-        if (eol)
-        {
-            outputStream << std::endl;
-        }
+        outputStream << Execution::ManifestInfoEmphasis << label << ' ' << value << std::endl;
     }
 
     template <class CharT, typename String>
