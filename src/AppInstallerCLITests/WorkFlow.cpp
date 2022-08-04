@@ -600,7 +600,6 @@ void OverrideForPortableInstallFlow(TestContext& context)
     } });
 
     OverrideForUpdateInstallerMotw(context);
-    OverrideForPortableInstall(context);
 }
 
 void OverrideForPortableUninstall(TestContext& context)
@@ -1204,11 +1203,11 @@ TEST_CASE("PortableInstallFlow", "[InstallFlow][workflow]")
     install.Execute(installContext);
     INFO(installOutput.str());
 
-    const auto& installLocation = AppInstaller::Runtime::GetPathTo(AppInstaller::Runtime::PathName::PortablePackageUserRoot) / "AppInstallerCliTest.TestPortableInstaller__DefaultSource" / "AppInstallerTestExeInstaller.exe";
+    const auto& portableTargetPath = AppInstaller::Runtime::GetPathTo(AppInstaller::Runtime::PathName::PortablePackageUserRoot) / "AppInstallerCliTest.TestPortableInstaller__DefaultSource" / "AppInstallerTestExeInstaller.exe";
     const auto& symlinkDirectory = AppInstaller::Runtime::GetPathTo(AppInstaller::Runtime::PathName::PortableLinksUserLocation);
     const auto& symlinkPath = symlinkDirectory / "AppInstallerTestExeInstaller.exe";
 
-    REQUIRE(std::filesystem::exists(installLocation));
+    REQUIRE(std::filesystem::exists(portableTargetPath));
     REQUIRE(std::filesystem::exists(symlinkPath));
     REQUIRE(AppInstaller::Registry::Environment::PathVariable(AppInstaller::Manifest::ScopeEnum::User).Contains(symlinkDirectory));
 
@@ -1223,7 +1222,7 @@ TEST_CASE("PortableInstallFlow", "[InstallFlow][workflow]")
     uninstall.Execute(uninstallContext);
     INFO(uninstallOutput.str());
 
-    REQUIRE_FALSE(std::filesystem::exists(installLocation));
+    REQUIRE_FALSE(std::filesystem::exists(portableTargetPath));
     REQUIRE_FALSE(std::filesystem::exists(symlinkPath));
     REQUIRE_FALSE(AppInstaller::Registry::Environment::PathVariable(AppInstaller::Manifest::ScopeEnum::User).Contains(symlinkDirectory));
 }
