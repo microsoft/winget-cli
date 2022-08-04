@@ -367,7 +367,7 @@ namespace Microsoft.Management.Deployment
         {
             PackageFamilyName,
             ProductCode,
-        },
+        }
         /// DESIGN NOTE: The following PackageFieldMatchOption from winget/RepositorySearch.h are not implemented in V1.
         /// NormalizedNameAndPublisher,
     };
