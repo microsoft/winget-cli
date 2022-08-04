@@ -5,12 +5,14 @@
 #include "WorkflowBase.h"
 #include "winget/Filesystem.h"
 #include "winget/PortableARPEntry.h"
+#include "winget/PathVariable.h"
 #include "AppInstallerStrings.h"
 
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Registry;
 using namespace AppInstaller::Registry::Portable;
+using namespace AppInstaller::Registry::Environment;
 using namespace AppInstaller::Repository;
 using namespace std::filesystem;
 
@@ -172,72 +174,6 @@ namespace AppInstaller::CLI::Workflow
             }
 
             return appsAndFeaturesEntry;
-        }
-
-        bool AddToPathRegistry(const std::filesystem::path& value, Manifest::ScopeEnum scope)
-        {
-            Key key;
-            if (scope == Manifest::ScopeEnum::Machine)
-            {
-                key = Registry::Key::Create(HKEY_LOCAL_MACHINE, std::wstring{ s_PathSubkey_Machine });
-            }
-            else
-            {
-                key = Registry::Key::Create(HKEY_CURRENT_USER, std::wstring{ s_PathSubkey_User });
-            }
-
-            std::wstring pathName = std::wstring{ s_PathName };
-            std::string valueString = Normalize(value.u8string());
-            std::string pathRegistryValue = Normalize(key[pathName]->GetValue<Value::Type::String>());
-            
-            if (pathRegistryValue.find(valueString) == std::string::npos)
-            {
-                if (pathRegistryValue.back() != ';')
-                {
-                    pathRegistryValue += ";";
-                }
-
-                pathRegistryValue += valueString + ";";
-                AICLI_LOG(CLI, Info, << "Adding to Path environment variable: " << valueString);
-                key.SetValue(pathName, ConvertToUTF16(pathRegistryValue), REG_EXPAND_SZ);
-                return true;
-            }
-            else
-            {
-                AICLI_LOG(CLI, Verbose, << "Path already existed in environment variable. Skipping...");
-                return false;
-            }
-        }
-
-        bool RemoveFromPathRegistry(const std::filesystem::path& value, Manifest::ScopeEnum scope)
-        {
-            Key key;
-            if (scope == Manifest::ScopeEnum::Machine)
-            {
-                key = Registry::Key::Create(HKEY_LOCAL_MACHINE, std::wstring{ s_PathSubkey_Machine });
-            }
-            else
-            {
-                key = Registry::Key::Create(HKEY_CURRENT_USER, std::wstring{ s_PathSubkey_User });
-            }
-
-            std::wstring pathName = std::wstring{ s_PathName };
-            std::string valueString = Normalize(value.u8string());
-            std::string pathRegistryValue = Normalize(key[pathName]->GetValue<Value::Type::String>());
-
-            if (pathRegistryValue.find(valueString) != std::string::npos)
-            {
-                FindAndReplace(pathRegistryValue, valueString, "");
-                FindAndReplace(pathRegistryValue, ";;", ";");
-                AICLI_LOG(CLI, Info, << "Removing from Path environment variable: " << valueString);
-                key.SetValue(pathName, ConvertToUTF16(pathRegistryValue), REG_EXPAND_SZ);
-                return true;
-            }
-            else
-            {
-                AICLI_LOG(CLI, Verbose, << "Path does not exist in environment variable.");
-                return false;
-            }
         }
 
         void InitializePortableARPEntry(Execution::Context& context)
@@ -453,19 +389,35 @@ namespace AppInstaller::CLI::Workflow
                 }
             }
 
-            if (AddToPathRegistry(pathValue, scope))
+            if (PathVariable(scope).Append(pathValue))
             {
+                AICLI_LOG(CLI, Info, << "Appended target directory to PATH registry: " << pathValue);
                 context.Reporter.Warn() << Resource::String::ModifiedPathRequiresShellRestart << std::endl;
+            }
+            else
+            {
+                AICLI_LOG(CLI, Info, << "Target directory already exists in PATH registry: " << pathValue);
             }
         }
 
         void RemovePortableSymlink(Execution::Context& context)
         {
             PortableARPEntry& uninstallEntry = context.Get<Execution::Data::PortableARPEntry>();
-            const auto& symlinkPath = uninstallEntry[PortableValueName::PortableSymlinkFullPath];
             Manifest::ScopeEnum scope = uninstallEntry.GetScope();
+
+            const auto& symlinkPath = uninstallEntry[PortableValueName::PortableSymlinkFullPath];
+            const auto& installDirectoryAddedToPath = uninstallEntry[PortableValueName::InstallDirectoryAddedToPath];
+            const auto& installDirectoryAddedToPathValue = installDirectoryAddedToPath.has_value() ? installDirectoryAddedToPath.value().GetValue<Value::Type::DWord>() : FALSE;
+
+            bool removeFromPath = true;
             std::filesystem::path pathValue;
-            if (symlinkPath.has_value())
+
+            if (installDirectoryAddedToPathValue)
+            {
+                pathValue = uninstallEntry[PortableValueName::InstallLocation]->GetValue<Value::Type::UTF16String>();
+                AICLI_LOG(CLI, Info, << "Install directory added to PATH during installation. Skipping symlink removal.");
+            }
+            else if (symlinkPath.has_value())
             {
                 const std::filesystem::path& symlinkPathValue = symlinkPath->GetValue<Value::Type::UTF16String>();
                 if (std::filesystem::is_symlink(std::filesystem::symlink_status(symlinkPathValue)))
@@ -491,18 +443,28 @@ namespace AppInstaller::CLI::Workflow
                         AICLI_LOG(CLI, Info, << "The registry value for [TargetFullPath] does not exist");
                     }
 
-                    const std::filesystem::path& portableLinksLocation = GetPortableLinksLocation(scope);
-                    if (std::filesystem::is_empty(portableLinksLocation))
+                    pathValue = GetPortableLinksLocation(scope);
+                    if (!std::filesystem::is_empty(pathValue))
                     {
-                        RemoveFromPathRegistry(portableLinksLocation, scope);
+                        removeFromPath = false;
                     }
                 }
             }
             else
             {
                 AICLI_LOG(CLI, Info, << "The registry value for [SymlinkFullPath] does not exist");
-                const std::filesystem::path& installLocation = uninstallEntry[PortableValueName::InstallLocation]->GetValue<Value::Type::UTF16String>();;
-                RemoveFromPathRegistry(installLocation, scope);
+            }
+
+            if (removeFromPath)
+            {
+                if (PathVariable(scope).Remove(pathValue))
+                {
+                    AICLI_LOG(CLI, Info, << "Removed target directory from PATH registry: " << pathValue);
+                }
+                else
+                {
+                    AICLI_LOG(CLI, Info, << "Target directory does not exist in PATH registry: " << pathValue);
+                }
             }
         }
 

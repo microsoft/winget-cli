@@ -213,6 +213,9 @@
     <ClInclude Include="Public\winget\MsixManifestValidation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Public\winget\PathVariable.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -377,6 +380,9 @@
     <ClCompile Include="Manifest\MsixManifestValidation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClInclude Include="PathVariable.cpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />
