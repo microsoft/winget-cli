@@ -24,6 +24,7 @@ namespace AppInstaller::Repository
             {
             case AppInstaller::Repository::PackageMatchField::PackageFamilyName:
             case AppInstaller::Repository::PackageMatchField::ProductCode:
+            case AppInstaller::Repository::PackageMatchField::UpgradeCode:
                 return true;
             }
 

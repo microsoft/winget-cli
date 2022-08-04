@@ -691,6 +691,14 @@ namespace AppInstaller::CLI::Workflow
                 entries.push_back(std::move(entry));
             }
 
+            auto upgradeCodes = correlationResult.Package->GetMultiProperty(PackageVersionMultiProperty::UpgradeCode);
+            for (auto&& upgradeCode : upgradeCodes)
+            {
+                AppsAndFeaturesEntry entry = baseEntry;
+                entry.UpgradeCode= std::move(upgradeCode).get();
+                entries.push_back(std::move(entry));
+            }
+
             context.Add<Data::CorrelatedAppsAndFeaturesEntries>(std::move(entries));
         }
 

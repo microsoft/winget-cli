@@ -29,24 +29,35 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
     {
         std::vector<Utility::NormalizedString> GetSystemReferenceStrings(
             const Manifest::Manifest& manifest,
-            std::function<const Utility::NormalizedString&(const Manifest::ManifestInstaller&)> func)
+            std::function<const Utility::NormalizedString&(const Manifest::ManifestInstaller&)> extractStringFromInstaller,
+            std::optional<std::function<const Utility::NormalizedString& (const Manifest::AppsAndFeaturesEntry&)>> extractStringFromAppsAndFeaturesEntry = {})
         {
             std::set<Utility::NormalizedString> set;
 
             for (const auto& installer : manifest.Installers)
             {
-                const Utility::NormalizedString& string = func(installer);
-                if (!string.empty())
+                const auto& installerString = extractStringFromInstaller(installer);
+                if (!installerString.empty())
                 {
-                    set.emplace(Utility::FoldCase(string));
+                    set.emplace(Utility::FoldCase(installerString));
+                }
+
+                if (extractStringFromAppsAndFeaturesEntry.has_value())
+                {
+                    for (const auto& entry : installer.AppsAndFeaturesEntries)
+                    {
+                        const auto& entryString = (*extractStringFromAppsAndFeaturesEntry)(entry);
+                        if (!entryString.empty())
+                        {
+                            set.emplace(Utility::FoldCase(entryString));
+                        }
+                    }
                 }
             }
 
-            std::vector<Utility::NormalizedString> result;
-            for (auto&& string : set)
-            {
-                result.emplace_back(string);
-            }
+            std::vector<Utility::NormalizedString> result(
+                std::make_move_iterator(set.begin()),
+                std::make_move_iterator(set.end()));
 
             return result;
         }
@@ -58,7 +69,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
 
         std::vector<Utility::NormalizedString> GetProductCodes(const Manifest::Manifest& manifest)
         {
-            return GetSystemReferenceStrings(manifest, [](const Manifest::ManifestInstaller& i) -> const Utility::NormalizedString& { return i.ProductCode; });
+            return GetSystemReferenceStrings(
+                manifest,
+                [](const Manifest::ManifestInstaller& i) -> const Utility::NormalizedString& { return i.ProductCode; },
+                [](const Manifest::AppsAndFeaturesEntry& e) -> const Utility::NormalizedString& { return e.ProductCode; });
         }
     }
 

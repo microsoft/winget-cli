@@ -64,6 +64,9 @@
     <Filter Include="Microsoft\Schema\1_5">
       <UniqueIdentifier>{e31c8e5b-ed2c-43c8-b91b-db8ec4c52f71}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Microsoft\Schema\1_6">
+      <UniqueIdentifier>{84a55def-9fb8-4c90-8d5a-2cedc171940b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -288,6 +291,12 @@
     <ClInclude Include="Microsoft\Schema\1_0\VirtualTableBase.h">
       <Filter>Microsoft\Schema\1_0</Filter>
     </ClInclude>
+    <ClInclude Include="Microsoft\Schema\1_6\Interface.h">
+      <Filter>Microsoft\Schema\1_6</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\1_6\UpgradeCodeTable.h">
+      <Filter>Microsoft\Schema\1_6</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -451,6 +460,9 @@
     </ClCompile>
     <ClCompile Include="ArpVersionValidation.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\Schema\1_6\Interface_1_6.cpp">
+      <Filter>Microsoft\Schema\1_6</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

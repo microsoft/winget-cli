@@ -3,10 +3,56 @@
 #include "pch.h"
 #include "ARPHelper.h"
 #include "winget/PortableARPEntry.h"
+#include <Msi.h>
 
 namespace AppInstaller::Repository::Microsoft
 {
     using namespace AppInstaller::Registry::Portable;
+
+    namespace
+    {
+        // Finds the UpgradeCode corresponding to a given ProductCode
+        std::optional<std::string> GetUpgradeCodeByProductCode(const std::string& productCode)
+        {
+            // The UpgradeCode is not stored in the ARP registry keys, so we use the MSI API to query it.
+            //
+            // The UpgradeCode is apparently also stored in the registry under
+            //   HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Installer\UpgradeCodes\<UpgradeCode>
+            // but:
+            //   * This key does not seem to be documented
+            //   * The format used to store the GUIDs is harder to parse
+            //   * We cannot look up by ProductCode; we need to take an UpgradeCode and then find the ProductCode
+            // Using the registry could potentially be faster, so we may consider using it if this proves to be too slow.
+
+            // For some reason MsiOpenProduct pops up a dialog.
+            // Supress it by setting the UI level to None.
+            MsiSetInternalUI(INSTALLUILEVEL_NONE, nullptr);
+
+            wil::unique_any<MSIHANDLE, decltype(MsiCloseHandle), MsiCloseHandle> msiProduct;
+            if (SUCCEEDED(MsiOpenProductA(productCode.c_str(), msiProduct.addressof())))
+            {
+                const auto UpgradeCodePropertyName = "UpgradeCode";
+
+                // This functions returns success and sets the length of the property value, excluding null terminator
+                DWORD upgradeCodeLength = 0;
+                if (SUCCEEDED(MsiGetProductPropertyA(msiProduct.get(), UpgradeCodePropertyName, nullptr, &upgradeCodeLength)))
+                {
+                    // Create a buffer of the appropriate size
+                    std::string upgradeCode(static_cast<size_t>(upgradeCodeLength), ' ');
+
+                    // +1 because the function expects us to count the null terminator
+                    upgradeCodeLength = static_cast<DWORD>(upgradeCode.size() + 1);
+                    if (SUCCEEDED(MsiGetProductPropertyA(msiProduct.get(), UpgradeCodePropertyName, upgradeCode.data(), &upgradeCodeLength)))
+                    {
+                        return upgradeCode;
+                    }
+                }
+            }
+
+            // UpgradeCode not found
+            return {};
+        }
+    }
 
     Registry::Key ARPHelper::GetARPKey(Manifest::ScopeEnum scope, Utility::Architecture architecture) const
     {
@@ -354,6 +400,14 @@ namespace AppInstaller::Repository::Microsoft
                 if (GetBoolValue(arpKey, WindowsInstaller))
                 {
                     installedType = Manifest::InstallerTypeEnum::Msi;
+
+                    // If this is an MSI, look up the UpgradeCode
+                    auto upgradeCode = GetUpgradeCodeByProductCode(productCode);
+                    if (upgradeCode)
+                    {
+                        manifest.Installers[0].AppsAndFeaturesEntries.emplace_back();
+                        manifest.Installers[0].AppsAndFeaturesEntries[0].UpgradeCode = *upgradeCode;
+                    }
                 }
 
                 if (Manifest::ConvertToInstallerTypeEnum(GetStringValue(arpKey, std::wstring{ ToString(PortableValueName::WinGetInstallerType) })) == Manifest::InstallerTypeEnum::Portable)
