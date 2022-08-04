@@ -105,7 +105,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_6
         // If the v1.5 index was consistent, or if full logging of inconsistency was requested, check the v1.6 data.
         if (result || log)
         {
-            result = V1_0::ManifestTable::CheckConsistency<UpgradeCodeTable>(connection, log) && result;
+            result = UpgradeCodeTable::CheckConsistency(connection, log) && result;
         }
 
         return result;
