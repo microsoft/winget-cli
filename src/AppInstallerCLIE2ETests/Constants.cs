@@ -213,6 +213,14 @@ namespace AppInstallerCLIE2ETests
             public const int ERROR_INSTALL_DOWNGRADE = unchecked((int)0x8A15010E);
             public const int ERROR_INSTALL_BLOCKED_BY_POLICY = unchecked((int)0x8A15010F);
             public const int ERROR_INSTALL_DEPENDENCIES = unchecked((int)0x8A150110);
+
+            public const int INSTALLED_STATUS_ARP_ENTRY_NOT_FOUND = unchecked((int)0x8A150201);
+            public const int INSTALLED_STATUS_INSTALL_LOCATION_NOT_APPLICABLE = unchecked((int)0x8A150202);
+            public const int INSTALLED_STATUS_INSTALL_LOCATION_NOT_FOUND = unchecked((int)0x8A150203);
+            public const int INSTALLED_STATUS_FILE_HASH_MISMATCH = unchecked((int)0x8A150204);
+            public const int INSTALLED_STATUS_FILE_NOT_FOUND = unchecked((int)0x8A150205);
+            public const int INSTALLED_STATUS_FILE_FOUND_WITHOUT_HASH_CHECK = unchecked((int)0x8A150206);
+            public const int INSTALLED_STATUS_FILE_ACCESS_ERROR = unchecked((int)0x8A150207);
         }
     }
 }

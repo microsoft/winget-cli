@@ -135,13 +135,26 @@ namespace AppInstaller::Filesystem
 
     std::filesystem::path GetExpandedPath(const std::string& path)
     {
-        if (path.empty())
+        std::string trimPath = path;
+        Utility::Trim(trimPath);
+
+        if (trimPath.empty())
         {
             return {};
         }
 
-        std::wstring widePath = Utility::ConvertToUTF16(path);
-        WCHAR buffer[MAX_PATH];
-        return PathUnExpandEnvStrings(widePath.c_str(), buffer, ARRAYSIZE(buffer)) ? std::filesystem::path{ buffer } : std::filesystem::path{ path };
+        std::wstring widePath = Utility::ConvertToUTF16(trimPath);
+        DWORD count = ExpandEnvironmentStrings(widePath.c_str(), nullptr, 0);
+        std::wstring buffer;
+        buffer.resize(count);
+        if (ExpandEnvironmentStrings(widePath.c_str(), buffer.data(), count) > 0)
+        {
+            buffer.resize(count - 1);
+            return buffer;
+        }
+        else
+        {
+            return trimPath;
+        }
     }
 }
