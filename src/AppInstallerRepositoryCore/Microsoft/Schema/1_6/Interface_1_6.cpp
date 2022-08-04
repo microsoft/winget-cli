@@ -166,10 +166,15 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_6
     {
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "prepareforpackaging_v1_6");
 
-        V1_5::Interface::PrepareForPackaging(connection, vacuum);
+        V1_5::Interface::PrepareForPackaging(connection, false);
 
         UpgradeCodeTable::PrepareForPackaging(connection, true, true);
 
         savepoint.Commit();
+
+        if (vacuum)
+        {
+            Vacuum(connection);
+        }
     }
 }

@@ -249,11 +249,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
 
         if (vacuum)
         {
-            // Force the database to actually shrink the file size.
-            // This *must* be done outside of an active transaction.
-            SQLite::Builder::StatementBuilder builder;
-            builder.Vacuum();
-            builder.Execute(connection);
+            Vacuum(connection);
         }
     }
 }
