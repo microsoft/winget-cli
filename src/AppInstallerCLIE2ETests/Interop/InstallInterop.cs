@@ -347,5 +347,45 @@ namespace AppInstallerCLIE2ETests.Interop
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, false);
             Directory.Delete(conflictDirectory, true);
         }
+
+
+        [Test]
+        public async Task InstallRequireUserScope()
+        {
+            // Find package
+            var searchResult = FindOnePackage(testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.TestExeInstaller");
+
+            // Configure installation
+            var installOptions = TestFactory.CreateInstallOptions();
+            installOptions.PackageInstallMode = PackageInstallMode.Silent;
+            installOptions.PreferredInstallLocation = installDir;
+            installOptions.PackageInstallScope = PackageInstallScope.User;
+
+            // Install
+            var installResult = await packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
+
+            // Assert
+            Assert.AreEqual(InstallResultStatus.NoApplicableInstallers, installResult.Status);
+        }
+
+
+        [Test]
+        public async Task InstallRequireUserScopeAndUnknown()
+        {
+            // Find package
+            var searchResult = FindOnePackage(testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.TestExeInstaller");
+
+            // Configure installation
+            var installOptions = TestFactory.CreateInstallOptions();
+            installOptions.PackageInstallMode = PackageInstallMode.Silent;
+            installOptions.PreferredInstallLocation = installDir;
+            installOptions.PackageInstallScope = PackageInstallScope.UserOrUnknown;
+
+            // Install
+            var installResult = await packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
+
+            // Assert
+            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
+        }
     }
 }

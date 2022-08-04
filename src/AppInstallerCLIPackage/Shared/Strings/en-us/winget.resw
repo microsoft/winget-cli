@@ -1275,6 +1275,14 @@ Please specify one of them using the `--source` option to proceed.</value>
     <value>package has a version number that cannot be determined. Using "--include-unknown" may show more results.</value>
     <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions.</comment>
   </data>
+  <data name="UpgradeUnknownVersionCount" xml:space="preserve">
+    <value>package(s) have version numbers that cannot be determined. Use "--include-unknown" to see all results.</value>
+    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions. </comment>
+  </data>
+  <data name="UpgradeRequireExplicitCount" xml:space="preserve">
+    <value>package(s) is pinned and needs to be explicitly upgraded.</value>
+    <comment>This string is preceded by a (integer) number of packages that require explicit upgrades.</comment>
+  </data>
   <data name="InvalidArgumentWithoutQueryError" xml:space="preserve">
     <value>The arguments provided can only be used with a query.</value>
   </data>
@@ -1381,5 +1389,12 @@ Please specify one of them using the `--source` option to proceed.</value>
   </data>
   <data name="MultipleNonPortableNestedInstallersSpecified" xml:space="preserve">
     <value>Only one non-portable nested installer can be specified for an archive installer</value>
+  </data>
+  <data name="IncompatibleArgumentsProvided" xml:space="preserve">
+    <value>Incompatible command line arguments provided</value>
+  </data>
+  <data name="UpgradeAvailableForPinned" xml:space="preserve">
+    <value>The following packages have an upgrade available, but require explicit targeting for upgrade:</value>
+    <comment>"require explicit targeting for upgrade" means that the package will not be upgraded with all others unless an extra flag is added, or the package is mentioned explicitly</comment>
   </data>
 </root>
