@@ -591,8 +591,18 @@ void OverrideForPortableInstallFlow(TestContext& context)
 {
     context.Override({ DownloadInstallerFile, [](TestContext& context)
     {
-        context.Add<Data::HashPair>({ {}, {} });
-        context.Add<Data::InstallerPath>(TestDataFile("AppInstallerTestExeInstaller.exe"));
+        std::filesystem::path tempDirectory = std::filesystem::temp_directory_path();
+        const auto& installerPath = TestDataFile("../AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe").GetPath();
+        // Copy installer to a temp directory to not interfere with other tests.
+        const auto& tempInstallerPath = tempDirectory / "AppInstallerTestExeInstaller.exe";
+        std::filesystem::copy(installerPath, tempInstallerPath);
+
+        std::ifstream inStream{ tempInstallerPath, std::ifstream::binary };
+        SHA256::HashBuffer fileHash = SHA256::ComputeHash(inStream);
+
+        // Manually insert hash of test exe installer.
+        context.Add<Data::HashPair>({ fileHash, fileHash });
+        context.Add<Data::InstallerPath>(tempInstallerPath);
     } });
 
     context.Override({ RenameDownloadedInstaller, [](TestContext&)
