@@ -367,27 +367,35 @@ namespace AppInstaller::CLI::Workflow
                 context.Reporter.Warn() << Resource::String::OverwritingExistingFileAtMessage << ' ' << symlinkFullPath.u8string() << std::endl;
             }
 
-            Manifest::ScopeEnum scope = ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
-            std::filesystem::path pathValue;
             try
             {
                 std::filesystem::create_symlink(targetFullPath, symlinkFullPath);
                 AICLI_LOG(CLI, Info, << "Symlink created at: " << symlinkFullPath);
                 uninstallEntry.SetValue(PortableValueName::PortableSymlinkFullPath, symlinkFullPath.wstring());
-                pathValue = GetPortableLinksLocation(scope);
             }
             catch (std::filesystem::filesystem_error& error)
             {
                 if (error.code().value() == ERROR_PRIVILEGE_NOT_HELD)
                 {
                     AICLI_LOG(CLI, Info, << "Portable install executed in user mode. Adding package directory to PATH.");
-                    pathValue = targetFullPath.parent_path();
+                    bool installDirectoryAddedToPath = true;
+                    uninstallEntry.SetValue(PortableValueName::InstallDirectoryAddedToPath, installDirectoryAddedToPath);
                 }
                 else
                 {
                     throw;
                 }
             }
+        }
+
+        void AddToPathVariable(Execution::Context& context)
+        {
+            PortableARPEntry& uninstallEntry = context.Get<Execution::Data::PortableARPEntry>();
+            Manifest::ScopeEnum scope = uninstallEntry.GetScope();
+            const auto& installDirectoryAddedToPath = uninstallEntry[PortableValueName::InstallDirectoryAddedToPath];
+            const auto& installDirectoryAddedToPathValue = installDirectoryAddedToPath.has_value() ? installDirectoryAddedToPath.value().GetValue<Value::Type::DWord>() : FALSE;
+            
+            std::filesystem::path pathValue = installDirectoryAddedToPathValue ? GetPortableTargetDirectory(context) : GetPortableLinksLocation(scope);
 
             if (PathVariable(scope).Append(pathValue))
             {
@@ -400,24 +408,47 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        void RemovePortableSymlink(Execution::Context& context)
+        void RemoveFromPathVariable(Execution::Context& context)
         {
             PortableARPEntry& uninstallEntry = context.Get<Execution::Data::PortableARPEntry>();
             Manifest::ScopeEnum scope = uninstallEntry.GetScope();
 
-            const auto& symlinkPath = uninstallEntry[PortableValueName::PortableSymlinkFullPath];
             const auto& installDirectoryAddedToPath = uninstallEntry[PortableValueName::InstallDirectoryAddedToPath];
             const auto& installDirectoryAddedToPathValue = installDirectoryAddedToPath.has_value() ? installDirectoryAddedToPath.value().GetValue<Value::Type::DWord>() : FALSE;
-
-            bool removeFromPath = true;
+            
             std::filesystem::path pathValue;
-
+            bool removeFromPath = true;
             if (installDirectoryAddedToPathValue)
             {
                 pathValue = uninstallEntry[PortableValueName::InstallLocation]->GetValue<Value::Type::UTF16String>();
-                AICLI_LOG(CLI, Info, << "Install directory added to PATH during installation. Skipping symlink removal.");
             }
-            else if (symlinkPath.has_value())
+            else
+            {
+                pathValue = GetPortableLinksLocation(scope);
+                if (!std::filesystem::is_empty(pathValue))
+                {
+                    removeFromPath = false;
+                }
+            }
+
+            if (removeFromPath)
+            {
+                if (PathVariable(scope).Remove(pathValue))
+                {
+                    AICLI_LOG(CLI, Info, << "Removed target directory from PATH registry: " << pathValue);
+                }
+                else
+                {
+                    AICLI_LOG(CLI, Info, << "Target directory does not exist in PATH registry: " << pathValue);
+                }
+            }
+        }
+
+        void RemovePortableSymlink(Execution::Context& context)
+        {
+            PortableARPEntry& uninstallEntry = context.Get<Execution::Data::PortableARPEntry>();
+            const auto& symlinkPath = uninstallEntry[PortableValueName::PortableSymlinkFullPath];
+            if (symlinkPath.has_value())
             {
                 const std::filesystem::path& symlinkPathValue = symlinkPath->GetValue<Value::Type::UTF16String>();
                 if (std::filesystem::is_symlink(std::filesystem::symlink_status(symlinkPathValue)))
@@ -442,29 +473,11 @@ namespace AppInstaller::CLI::Workflow
                     {
                         AICLI_LOG(CLI, Info, << "The registry value for [TargetFullPath] does not exist");
                     }
-
-                    pathValue = GetPortableLinksLocation(scope);
-                    if (!std::filesystem::is_empty(pathValue))
-                    {
-                        removeFromPath = false;
-                    }
                 }
             }
             else
             {
                 AICLI_LOG(CLI, Info, << "The registry value for [SymlinkFullPath] does not exist");
-            }
-
-            if (removeFromPath)
-            {
-                if (PathVariable(scope).Remove(pathValue))
-                {
-                    AICLI_LOG(CLI, Info, << "Removed target directory from PATH registry: " << pathValue);
-                }
-                else
-                {
-                    AICLI_LOG(CLI, Info, << "Target directory does not exist in PATH registry: " << pathValue);
-                }
             }
         }
 
@@ -564,6 +577,7 @@ namespace AppInstaller::CLI::Workflow
                 InitializePortableARPEntry <<
                 MovePortableExe <<
                 CreatePortableSymlink <<
+                AddToPathVariable <<
                 CommitPortableMetadataToRegistry;
 
             context.Add<Execution::Data::OperationReturnCode>(context.GetTerminationHR());
@@ -601,6 +615,7 @@ namespace AppInstaller::CLI::Workflow
                 RemovePortableExe <<
                 RemoveInstallDirectory <<
                 RemovePortableSymlink <<
+                RemoveFromPathVariable <<
                 RemovePortableARPEntry;
 
             context.Add<Execution::Data::OperationReturnCode>(context.GetTerminationHR());
