@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "Microsoft/Schema/1_6/Interface.h"
 #include "Microsoft/Schema/1_6/UpgradeCodeTable.h"
+#include "Microsoft/Schema/1_6/SearchResultsTable.h"
 #include "Microsoft/Schema/1_0/ManifestTable.h"
 #include "Microsoft/Schema/1_0/VersionTable.h"
 
@@ -26,11 +27,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_6
                 }
             }
 
-            std::vector<Utility::NormalizedString> result;
-            for (auto&& string : set)
-            {
-                result.emplace_back(string);
-            }
+            std::vector<Utility::NormalizedString> result(
+                std::make_move_iterator(set.begin()),
+                std::make_move_iterator(set.end()));
 
             return result;
         }
@@ -112,14 +111,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_6
         return result;
     }
 
-
-
-    ISQLiteIndex::SearchResult Interface::Search(const SQLite::Connection& connection, const SearchRequest& request) const
-    {
-        SearchRequest updatedRequest = request;
-        return SearchInternal(connection, updatedRequest);
-    }
-
     std::vector<std::string> Interface::GetMultiPropertyByManifestId(const SQLite::Connection& connection, SQLite::rowid_t manifestId, PackageVersionMultiProperty property) const
     {
         switch (property)
@@ -129,6 +120,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_6
         default:
             return V1_5::Interface::GetMultiPropertyByManifestId(connection, manifestId, property);
         }
+    }
+
+    std::unique_ptr<V1_0::SearchResultsTable> Interface::CreateSearchResultsTable(const SQLite::Connection& connection) const
+    {
+        return std::make_unique<V1_6::SearchResultsTable>(connection);
     }
 
     void Interface::PerformQuerySearch(V1_0::SearchResultsTable& resultsTable, const RequestMatch& query) const
@@ -163,7 +159,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_6
             foldIfNeeded(filter);
         }
 
-        return V1_5::Interface::Search(connection, request);
+        return V1_5::Interface::SearchInternal(connection, request);
     }
 
     void Interface::PrepareForPackaging(SQLite::Connection& connection, bool vacuum)

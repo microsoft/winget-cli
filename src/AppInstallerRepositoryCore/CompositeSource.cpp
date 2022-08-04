@@ -739,6 +739,12 @@ namespace AppInstaller::Repository
                     PackageMatchField::ProductCode,
                     data);
 
+                GetSystemReferenceStrings(
+                    version,
+                    PackageVersionMultiProperty::UpgradeCode,
+                    PackageMatchField::UpgradeCode,
+                    data);
+
                 GetNameAndPublisher(
                     version,
                     data);

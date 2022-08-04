@@ -230,7 +230,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
 
     std::unique_ptr<V1_0::SearchResultsTable> Interface::CreateSearchResultsTable(const SQLite::Connection& connection) const
     {
-        return std::make_unique<SearchResultsTable>(connection);
+        return std::make_unique<V1_1::SearchResultsTable>(connection);
     }
 
     void Interface::PerformQuerySearch(V1_0::SearchResultsTable& resultsTable, const RequestMatch& query) const

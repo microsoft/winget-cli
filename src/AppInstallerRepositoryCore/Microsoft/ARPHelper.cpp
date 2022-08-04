@@ -340,6 +340,23 @@ namespace AppInstaller::Repository::Microsoft
                     //manifest.Id = normalizedName.Publisher() + '.' + normalizedName.Name();
                 }
 
+                // Pick up WindowsInstaller to determine if this is an MSI install.
+                // TODO: Could also determine Inno (and maybe other types) through detecting other keys here.
+                auto installedType = Manifest::InstallerTypeEnum::Exe;
+
+                if (GetBoolValue(arpKey, WindowsInstaller))
+                {
+                    installedType = Manifest::InstallerTypeEnum::Msi;
+
+                    // If this is an MSI, look up the UpgradeCode
+                    auto upgradeCode = GetUpgradeCodeByProductCode(productCode);
+                    if (upgradeCode)
+                    {
+                        manifest.Installers[0].AppsAndFeaturesEntries.emplace_back();
+                        manifest.Installers[0].AppsAndFeaturesEntries[0].UpgradeCode = *upgradeCode;
+                    }
+                }
+
                 // TODO: If we want to keep the constructed manifest around to allow for `show` type commands
                 //       against installed packages, we should use URLInfoAbout/HelpLink for the Homepage.
 
@@ -392,23 +409,6 @@ namespace AppInstaller::Repository::Microsoft
 
                 // Pick up Language to enable proper selection of language for upgrade.
                 AddMetadataIfPresent(arpKey, Language, index, manifestId, PackageVersionMetadata::InstalledLocale);
-
-                // Pick up WindowsInstaller to determine if this is an MSI install.
-                // TODO: Could also determine Inno (and maybe other types) through detecting other keys here.
-                auto installedType = Manifest::InstallerTypeEnum::Exe;
-
-                if (GetBoolValue(arpKey, WindowsInstaller))
-                {
-                    installedType = Manifest::InstallerTypeEnum::Msi;
-
-                    // If this is an MSI, look up the UpgradeCode
-                    auto upgradeCode = GetUpgradeCodeByProductCode(productCode);
-                    if (upgradeCode)
-                    {
-                        manifest.Installers[0].AppsAndFeaturesEntries.emplace_back();
-                        manifest.Installers[0].AppsAndFeaturesEntries[0].UpgradeCode = *upgradeCode;
-                    }
-                }
 
                 if (Manifest::ConvertToInstallerTypeEnum(GetStringValue(arpKey, std::wstring{ ToString(PortableValueName::WinGetInstallerType) })) == Manifest::InstallerTypeEnum::Portable)
                 {

@@ -297,6 +297,9 @@
     <ClInclude Include="Microsoft\Schema\1_6\UpgradeCodeTable.h">
       <Filter>Microsoft\Schema\1_6</Filter>
     </ClInclude>
+    <ClInclude Include="Microsoft\Schema\1_6\SearchResultsTable.h">
+      <Filter>Microsoft\Schema\1_6</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -462,6 +465,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Microsoft\Schema\1_6\Interface_1_6.cpp">
+      <Filter>Microsoft\Schema\1_6</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\Schema\1_6\SearchResultsTable_1_6.cpp">
       <Filter>Microsoft\Schema\1_6</Filter>
     </ClCompile>
   </ItemGroup>
