@@ -13,7 +13,7 @@ using namespace AppInstaller::Utility::literals;
 
 namespace {
 
-    template <class CharT, typename String>
+    template <typename CharT, typename String>
     void ShowSingleLineField(Execution::OutputStream& outputStream, CharT label, String value, bool indent = false)
     {
         if (value.empty())
@@ -27,7 +27,7 @@ namespace {
         outputStream << Execution::ManifestInfoEmphasis << label << ' ' << value << std::endl;
     }
 
-    template <class CharT, typename String>
+    template <typename CharT, typename String>
     void ShowMultiLineField(Execution::OutputStream& outputStream, CharT label, String value)
     {
         if (value.empty())
