@@ -294,7 +294,7 @@ namespace AppInstaller::Repository
                     {
                         if (fileHashes.find(filePath) == fileHashes.end())
                         {
-                            // If not found in cache, computhe the hash.
+                            // If not found in cache, compute the hash.
                             std::ifstream in{ filePath, std::ifstream::binary };
                             fileHashes.emplace(filePath, Utility::SHA256::ComputeHash(in));
                         }
