@@ -109,6 +109,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ImportSearchFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportSourceNotInstalled);
         WINGET_DEFINE_RESOURCE_STRINGID(IncludeUnknownArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(IncompatibleArgumentsProvided);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallAndUpgradeCommandsReportDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallArchitectureArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallationAbandoned);
@@ -373,12 +374,13 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(UnsupportedArgument);
         WINGET_DEFINE_RESOURCE_STRINGID(UpdateAllArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(UpdateNotApplicable);
+        WINGET_DEFINE_RESOURCE_STRINGID(UpgradeAvailableForPinned);
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeDifferentInstallTechnology);
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeDifferentInstallTechnologyInNewerVersions);
-        WINGET_DEFINE_RESOURCE_STRINGID(UpgradeUnknownCount);
-        WINGET_DEFINE_RESOURCE_STRINGID(UpgradeUnknownCountSingle);
+        WINGET_DEFINE_RESOURCE_STRINGID(UpgradeRequireExplicitCount);
+        WINGET_DEFINE_RESOURCE_STRINGID(UpgradeUnknownVersionCount);
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeUnknownVersionExplanation);
         WINGET_DEFINE_RESOURCE_STRINGID(Usage);
         WINGET_DEFINE_RESOURCE_STRINGID(ValidateCommandLongDescription);
