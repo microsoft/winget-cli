@@ -367,24 +367,18 @@ namespace AppInstaller::CLI::Workflow
                 context.Reporter.Warn() << Resource::String::OverwritingExistingFileAtMessage << ' ' << symlinkFullPath.u8string() << std::endl;
             }
 
-            try
+            if (Filesystem::CreateSymlink(targetFullPath, symlinkFullPath))
             {
-                std::filesystem::create_symlink(targetFullPath, symlinkFullPath);
                 AICLI_LOG(CLI, Info, << "Symlink created at: " << symlinkFullPath);
                 uninstallEntry.SetValue(PortableValueName::PortableSymlinkFullPath, symlinkFullPath.wstring());
             }
-            catch (std::filesystem::filesystem_error& error)
+            else
             {
-                if (error.code().value() == ERROR_PRIVILEGE_NOT_HELD)
-                {
-                    AICLI_LOG(CLI, Info, << "Portable install executed in user mode. Adding package directory to PATH.");
-                    bool installDirectoryAddedToPath = true;
-                    uninstallEntry.SetValue(PortableValueName::InstallDirectoryAddedToPath, installDirectoryAddedToPath);
-                }
-                else
-                {
-                    throw;
-                }
+                // Symlink creation should only fail if the user executes in user mode and non-admin.
+                // Resort to adding install directory to PATH directly.
+                AICLI_LOG(CLI, Info, << "Portable install executed in user mode. Adding package directory to PATH.");
+                bool installDirectoryAddedToPath = true;
+                uninstallEntry.SetValue(PortableValueName::InstallDirectoryAddedToPath, installDirectoryAddedToPath);
             }
         }
 
