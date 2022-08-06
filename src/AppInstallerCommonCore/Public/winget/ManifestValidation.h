@@ -6,9 +6,7 @@
 #include <winget/Resources.h>
 
 #include <wil/result.h>
-#include <string>
 #include <functional>
-#include <string>
 
 namespace YAML { class Node; }
 
@@ -20,51 +18,51 @@ namespace AppInstaller::Manifest
         const char* const ErrorMessagePrefix = "Manifest Error: ";
         const char* const WarningMessagePrefix = "Manifest Warning: ";
 
-        WINGET_DEFINE_RESOURCE_STRINGID(InvalidRootNode);
-        WINGET_DEFINE_RESOURCE_STRINGID(FieldUnknown);
-        WINGET_DEFINE_RESOURCE_STRINGID(FieldIsNotPascalCase);
-        WINGET_DEFINE_RESOURCE_STRINGID(FieldDuplicate);
-        WINGET_DEFINE_RESOURCE_STRINGID(RequiredFieldEmpty);
-        WINGET_DEFINE_RESOURCE_STRINGID(RequiredFieldMissing);
-        WINGET_DEFINE_RESOURCE_STRINGID(InvalidFieldValue);
-        WINGET_DEFINE_RESOURCE_STRINGID(ExeInstallerMissingSilentSwitches);
-        WINGET_DEFINE_RESOURCE_STRINGID(FieldNotSupported);
-        WINGET_DEFINE_RESOURCE_STRINGID(FieldValueNotSupported);
+        WINGET_DEFINE_RESOURCE_STRINGID(ApproximateVersionNotAllowed);
+        WINGET_DEFINE_RESOURCE_STRINGID(ArpValidationError);
+        WINGET_DEFINE_RESOURCE_STRINGID(ArpVersionOverlapWithIndex);
+        WINGET_DEFINE_RESOURCE_STRINGID(ArpVersionValidationInternalError);
+        WINGET_DEFINE_RESOURCE_STRINGID(BothAllowedAndExcludedMarketsDefined);
+        WINGET_DEFINE_RESOURCE_STRINGID(DuplicateMultiFileManifestLocale);
+        WINGET_DEFINE_RESOURCE_STRINGID(DuplicateMultiFileManifestType);
         WINGET_DEFINE_RESOURCE_STRINGID(DuplicateInstallerEntry);
+        WINGET_DEFINE_RESOURCE_STRINGID(DuplicateReturnCodeEntry);
+        WINGET_DEFINE_RESOURCE_STRINGID(ExceededAppsAndFeaturesEntryLimit);
+        WINGET_DEFINE_RESOURCE_STRINGID(ExceededCommandsLimit);
+        WINGET_DEFINE_RESOURCE_STRINGID(ExceededNestedInstallerFilesLimit);
+        WINGET_DEFINE_RESOURCE_STRINGID(ExeInstallerMissingSilentSwitches);
+        WINGET_DEFINE_RESOURCE_STRINGID(FieldDuplicate);
+        WINGET_DEFINE_RESOURCE_STRINGID(FieldFailedToProcess);
+        WINGET_DEFINE_RESOURCE_STRINGID(FieldIsNotPascalCase);
+        WINGET_DEFINE_RESOURCE_STRINGID(FieldNotSupported);
+        WINGET_DEFINE_RESOURCE_STRINGID(FieldRequireVerifiedPublisher);
+        WINGET_DEFINE_RESOURCE_STRINGID(FieldUnknown);
+        WINGET_DEFINE_RESOURCE_STRINGID(FieldValueNotSupported);
+        WINGET_DEFINE_RESOURCE_STRINGID(FoundLoop);
+        WINGET_DEFINE_RESOURCE_STRINGID(IncompleteMultiFileManifest);
+        WINGET_DEFINE_RESOURCE_STRINGID(InconsistentMultiFileManifestDefaultLocale);
+        WINGET_DEFINE_RESOURCE_STRINGID(InconsistentMultiFileManifestFieldValue);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallerFailedToProcess);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallerMsixInconsistencies);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerTypeDoesNotSupportPackageFamilyName);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerTypeDoesNotSupportProductCode);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerTypeDoesNotWriteAppsAndFeaturesEntry);
-        WINGET_DEFINE_RESOURCE_STRINGID(IncompleteMultiFileManifest);
-        WINGET_DEFINE_RESOURCE_STRINGID(InconsistentMultiFileManifestFieldValue);
-        WINGET_DEFINE_RESOURCE_STRINGID(DuplicateMultiFileManifestType);
-        WINGET_DEFINE_RESOURCE_STRINGID(DuplicateMultiFileManifestLocale);
-        WINGET_DEFINE_RESOURCE_STRINGID(UnsupportedMultiFileManifestType);
-        WINGET_DEFINE_RESOURCE_STRINGID(InconsistentMultiFileManifestDefaultLocale);
-        WINGET_DEFINE_RESOURCE_STRINGID(FieldFailedToProcess);
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidBcp47Value);
-        WINGET_DEFINE_RESOURCE_STRINGID(BothAllowedAndExcludedMarketsDefined);
-        WINGET_DEFINE_RESOURCE_STRINGID(DuplicateReturnCodeEntry);
-        WINGET_DEFINE_RESOURCE_STRINGID(FieldRequireVerifiedPublisher);
-        WINGET_DEFINE_RESOURCE_STRINGID(SingleManifestPackageHasDependencies);
-        WINGET_DEFINE_RESOURCE_STRINGID(MultiManifestPackageHasDependencies);
+        WINGET_DEFINE_RESOURCE_STRINGID(InvalidFieldValue);
+        WINGET_DEFINE_RESOURCE_STRINGID(InvalidRootNode);
         WINGET_DEFINE_RESOURCE_STRINGID(MissingManifestDependenciesNode);
-        WINGET_DEFINE_RESOURCE_STRINGID(NoSuitableMinVersion);
-        WINGET_DEFINE_RESOURCE_STRINGID(FoundLoop);
-        WINGET_DEFINE_RESOURCE_STRINGID(ExceededAppsAndFeaturesEntryLimit);
-        WINGET_DEFINE_RESOURCE_STRINGID(ExceededCommandsLimit);
-        WINGET_DEFINE_RESOURCE_STRINGID(ScopeNotSupported);
-        WINGET_DEFINE_RESOURCE_STRINGID(InstallerMsixInconsistencies);
-        WINGET_DEFINE_RESOURCE_STRINGID(OptionalFieldMissing);
-        WINGET_DEFINE_RESOURCE_STRINGID(InstallerFailedToProcess);
-        WINGET_DEFINE_RESOURCE_STRINGID(NoSupportedPlatforms);
-        WINGET_DEFINE_RESOURCE_STRINGID(ApproximateVersionNotAllowed);
-        WINGET_DEFINE_RESOURCE_STRINGID(ArpVersionOverlapWithIndex);
-        WINGET_DEFINE_RESOURCE_STRINGID(ArpVersionValidationInternalError);
-        WINGET_DEFINE_RESOURCE_STRINGID(ExceededNestedInstallerFilesLimit);
-        WINGET_DEFINE_RESOURCE_STRINGID(RelativeFilePathEscapesDirectory);
-        WINGET_DEFINE_RESOURCE_STRINGID(ArpValidationError);
-        WINGET_DEFINE_RESOURCE_STRINGID(SchemaError);
         WINGET_DEFINE_RESOURCE_STRINGID(MsixSignatureHashFailed);
+        WINGET_DEFINE_RESOURCE_STRINGID(MultiManifestPackageHasDependencies);
+        WINGET_DEFINE_RESOURCE_STRINGID(NoSuitableMinVersion);
+        WINGET_DEFINE_RESOURCE_STRINGID(NoSupportedPlatforms);
+        WINGET_DEFINE_RESOURCE_STRINGID(OptionalFieldMissing);
+        WINGET_DEFINE_RESOURCE_STRINGID(RelativeFilePathEscapesDirectory);
+        WINGET_DEFINE_RESOURCE_STRINGID(RequiredFieldEmpty);
+        WINGET_DEFINE_RESOURCE_STRINGID(RequiredFieldMissing);
+        WINGET_DEFINE_RESOURCE_STRINGID(SchemaError);
+        WINGET_DEFINE_RESOURCE_STRINGID(ScopeNotSupported);
+        WINGET_DEFINE_RESOURCE_STRINGID(SingleManifestPackageHasDependencies);
+        WINGET_DEFINE_RESOURCE_STRINGID(UnsupportedMultiFileManifestType);  
     }
 
     struct ValidationError
