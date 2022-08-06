@@ -608,17 +608,14 @@ void OverridePortableInstaller(TestContext& context)
     context.Override({ DownloadInstallerFile, [](TestContext& context)
     {
         std::filesystem::path tempDirectory = std::filesystem::temp_directory_path();
-        const auto& installerPath = TestDataFile("../AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe").GetPath();
-        // Copy installer to a temp directory to not interfere with other tests.
+        const auto& installerPath = TestDataFile("AppInstallerTestExeInstaller.exe").GetPath();
         const auto& tempInstallerPath = tempDirectory / "AppInstallerTestExeInstaller.exe";
-        std::filesystem::copy(installerPath, tempInstallerPath);
+        std::filesystem::copy(installerPath, tempInstallerPath, std::filesystem::copy_options::overwrite_existing);
+        context.Add<Data::InstallerPath>(tempInstallerPath);
 
         std::ifstream inStream{ tempInstallerPath, std::ifstream::binary };
         SHA256::HashBuffer fileHash = SHA256::ComputeHash(inStream);
-
-        // Manually insert hash of test exe installer.
         context.Add<Data::HashPair>({ fileHash, fileHash });
-        context.Add<Data::InstallerPath>(tempInstallerPath);
     } });
 
     context.Override({ RenameDownloadedInstaller, [](TestContext&)
@@ -1217,7 +1214,7 @@ TEST_CASE("MsiInstallFlow_DirectMsi", "[InstallFlow][workflow]")
     REQUIRE(installResultStr.find("/quiet") != std::string::npos);
 }
 
-TEST_CASE("PortableInstallFlow", "[InstallFlow][workflow]")
+TEST_CASE("InstallFlow_Portable", "[InstallFlow][workflow]")
 {
     TestCommon::TempDirectory tempDirectory("TestPortableInstallRoot", false);
     TestCommon::TempFile portableInstallResultPath("TestPortableInstalled.txt");
@@ -1236,7 +1233,7 @@ TEST_CASE("PortableInstallFlow", "[InstallFlow][workflow]")
     REQUIRE(std::filesystem::exists(portableInstallResultPath.GetPath()));
 }
 
-TEST_CASE("PortableInstallFlow_SymlinkCreationFail", "[InstallFlow][workflow]")
+TEST_CASE("InstallFlow_Portable_SymlinkCreationFail", "[InstallFlow][workflow]")
 {
     std::ostringstream installOutput;
     TestContext installContext{ installOutput, std::cin };
@@ -1250,7 +1247,7 @@ TEST_CASE("PortableInstallFlow_SymlinkCreationFail", "[InstallFlow][workflow]")
     install.Execute(installContext);
     INFO(installOutput.str());
 
-    const auto& portableTargetDirectory = AppInstaller::Runtime::GetPathTo(AppInstaller::Runtime::PathName::PortablePackageUserRoot) / "AppInstallerCliTest.TestPortableInstaller__DefaultSource";
+    const auto& portableTargetDirectory = AppInstaller::Runtime::GetPathTo(AppInstaller::Runtime::PathName::PortablePackageUserRoot) / "AppInstallerCliTest.TestPortableInstaller__TestSource";
     const auto& portableTargetPath = portableTargetDirectory / "AppInstallerTestExeInstaller.exe";
     REQUIRE(std::filesystem::exists(portableTargetPath));
     REQUIRE(AppInstaller::Registry::Environment::PathVariable(AppInstaller::Manifest::ScopeEnum::User).Contains(portableTargetDirectory));
@@ -1895,7 +1892,7 @@ TEST_CASE("UpdateFlow_UpdatePortable", "[UpdateFlow][workflow]")
     REQUIRE(std::filesystem::exists(updateResultPath.GetPath()));
 }
 
-TEST_CASE("UpdateFlow_UpdatePortableWithFailedSymlinkCreation", "[UpdateFlow][workflow]")
+TEST_CASE("UpdateFlow_Portable_SymlinkCreationFail", "[UpdateFlow][workflow]")
 {
     // Update portable with symlink creation failure verify that it succeeds.
     std::ostringstream updateOutput;
@@ -1910,7 +1907,7 @@ TEST_CASE("UpdateFlow_UpdatePortableWithFailedSymlinkCreation", "[UpdateFlow][wo
     UpgradeCommand update({});
     update.Execute(context);
     INFO(updateOutput.str());
-    const auto& portableTargetDirectory = AppInstaller::Runtime::GetPathTo(AppInstaller::Runtime::PathName::PortablePackageUserRoot) / "AppInstallerCliTest.TestPortableInstaller__DefaultSource";
+    const auto& portableTargetDirectory = AppInstaller::Runtime::GetPathTo(AppInstaller::Runtime::PathName::PortablePackageUserRoot) / "AppInstallerCliTest.TestPortableInstaller__TestSource";
     const auto& portableTargetPath = portableTargetDirectory / "AppInstallerTestExeInstaller.exe";
     REQUIRE(std::filesystem::exists(portableTargetPath));
     REQUIRE(AppInstaller::Registry::Environment::PathVariable(AppInstaller::Manifest::ScopeEnum::User).Contains(portableTargetDirectory));
