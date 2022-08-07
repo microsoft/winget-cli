@@ -74,7 +74,7 @@ namespace AppInstaller::Manifest
         };
 
         AppInstaller::StringResource::StringId Message;
-        std::string Field = {};
+        std::string Context = {};
         std::string Value = {};
         // line and column are 1 based
         size_t Line = 0;
@@ -88,26 +88,26 @@ namespace AppInstaller::Manifest
         ValidationError(AppInstaller::StringResource::StringId message, Level level) :
             Message(std::move(message)), ErrorLevel(level) {}
 
-        ValidationError(AppInstaller::StringResource::StringId message, std::string field) :
-            Message(std::move(message)), Field(std::move(field)) {}
+        ValidationError(AppInstaller::StringResource::StringId message, std::string context) :
+            Message(std::move(message)), Context(std::move(context)) {}
 
-        ValidationError(AppInstaller::StringResource::StringId message, std::string field, Level level) :
-            Message(std::move(message)), Field(std::move(field)), ErrorLevel(level) {}
+        ValidationError(AppInstaller::StringResource::StringId message, std::string context, Level level) :
+            Message(std::move(message)), Context(std::move(context)), ErrorLevel(level) {}
 
-        ValidationError(AppInstaller::StringResource::StringId message, std::string field, std::string_view value) :
-            Message(std::move(message)), Field(std::move(field)), Value(value) {}
+        ValidationError(AppInstaller::StringResource::StringId message, std::string context, std::string_view value) :
+            Message(std::move(message)), Context(std::move(context)), Value(value) {}
 
-        ValidationError(AppInstaller::StringResource::StringId message, std::string field, std::string value) :
-            Message(std::move(message)), Field(std::move(field)), Value(std::move(value)) {}
+        ValidationError(AppInstaller::StringResource::StringId message, std::string context, std::string value) :
+            Message(std::move(message)), Context(std::move(context)), Value(std::move(value)) {}
 
-        ValidationError(AppInstaller::StringResource::StringId message, std::string field, std::string value, Level level) :
-            Message(std::move(message)), Field(std::move(field)), Value(std::move(value)), ErrorLevel(level) {}
+        ValidationError(AppInstaller::StringResource::StringId message, std::string context, std::string value, Level level) :
+            Message(std::move(message)), Context(std::move(context)), Value(std::move(value)), ErrorLevel(level) {}
 
-        ValidationError(AppInstaller::StringResource::StringId message, std::string field, std::string value, size_t line, size_t column) :
-            Message(std::move(message)), Field(std::move(field)), Value(std::move(value)), Line(line), Column(column) {}
+        ValidationError(AppInstaller::StringResource::StringId message, std::string context, std::string value, size_t line, size_t column) :
+            Message(std::move(message)), Context(std::move(context)), Value(std::move(value)), Line(line), Column(column) {}
 
-        ValidationError(AppInstaller::StringResource::StringId message, std::string field, std::string value, size_t line, size_t column, Level level) :
-            Message(std::move(message)), Field(std::move(field)), Value(std::move(value)), Line(line), Column(column), ErrorLevel(level) {}
+        ValidationError(AppInstaller::StringResource::StringId message, std::string context, std::string value, size_t line, size_t column, Level level) :
+            Message(std::move(message)), Context(std::move(context)), Value(std::move(value)), Line(line), Column(column), ErrorLevel(level) {}
 
         std::string GetErrorMessage() const;
 
@@ -118,16 +118,16 @@ namespace AppInstaller::Manifest
             return error;
         }
 
-        static ValidationError MessageFieldWithFile(AppInstaller::StringResource::StringId message, std::string field, std::string file)
+        static ValidationError MessageFieldWithFile(AppInstaller::StringResource::StringId message, std::string context, std::string file)
         {
-            ValidationError error{ message, field};
+            ValidationError error{ message, context };
             error.FileName = file;
             return error;
         }
 
-        static ValidationError MessageFieldValueWithFile(AppInstaller::StringResource::StringId message, std::string field, std::string value, std::string file)
+        static ValidationError MessageFieldValueWithFile(AppInstaller::StringResource::StringId message, std::string context, std::string value, std::string file)
         {
-            ValidationError error{ message, field, value };
+            ValidationError error{ message, context, value };
             error.FileName = file;
             return error;
         }
@@ -174,9 +174,9 @@ namespace AppInstaller::Manifest
                         }
                         m_manifestErrorMessage += error.GetErrorMessage();
 
-                        if (!error.Field.empty())
+                        if (!error.Context.empty())
                         {
-                            m_manifestErrorMessage += " Field: " + error.Field;
+                            m_manifestErrorMessage += " Field: " + error.Context;
                         }
                         if (!error.Value.empty())
                         {

@@ -40,7 +40,7 @@ void ValidateError(
 {
     REQUIRE(level == error.ErrorLevel);
     REQUIRE(message == error.Message);
-    REQUIRE(field == error.Field);
+    REQUIRE(field == error.Context);
     REQUIRE(value == error.Value);
 }
 
