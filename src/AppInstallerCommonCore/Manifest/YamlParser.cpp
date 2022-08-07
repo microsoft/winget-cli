@@ -24,7 +24,7 @@ namespace AppInstaller::Manifest::YamlParser
             if (!entry.Root["PackageIdentifier"])
             {
                 errors.emplace_back(ValidationError::MessageFieldWithFile(
-                    (ManifestError::RequiredFieldMissing), "PackageIdentifier", entry.FileName));
+                    ManifestError::RequiredFieldMissing, "PackageIdentifier", entry.FileName));
             }
 
             if (!entry.Root["PackageVersion"])

@@ -67,10 +67,12 @@ namespace AppInstaller::Repository
             {
                 if (manifestArpVersionRange.Overlaps(arpInIndex))
                 {
-                    std::string errorMsg = ("[" + arpInIndex.GetMinVersion().ToString() + ", " + arpInIndex.GetMaxVersion().ToString() + "]");
-                    AICLI_LOG(Repo, Error, << Utility::ConvertToUTF8(Manifest::ManifestError::ArpVersionOverlapWithIndex) << errorMsg);
+                    std::string context = (" [" + arpInIndex.GetMinVersion().ToString() + ", " + arpInIndex.GetMaxVersion().ToString() + "]");
+                    auto validationError = Manifest::ValidationError(Manifest::ManifestError::ArpVersionOverlapWithIndex, context);
+                    
+                    AICLI_LOG(Repo, Error, << validationError.GetErrorMessage());
                     THROW_EXCEPTION(Manifest::ManifestException(
-                        { Manifest::ValidationError(Manifest::ManifestError::ArpVersionOverlapWithIndex, errorMsg) },
+                        { validationError },
                         APPINSTALLER_CLI_ERROR_DEPENDENCIES_VALIDATION_FAILED));
                 }
             }

@@ -252,11 +252,11 @@ TEST_CASE("ReadBadManifests", "[ManifestValidation]")
 {
     ManifestTestCase TestCases[] =
     {
-        /*{ "Manifest-Bad-ArchInvalid.yaml", "Invalid field value. Field: Arch" },
+        { "Manifest-Bad-ArchInvalid.yaml", "Invalid field value. Field: Arch" },
         { "Manifest-Bad-ArchMissing.yaml", "Missing required property 'Arch'" },
-        { "Manifest-Bad-Channel-NotSupported.yaml", "Field is not supported. Field: Channel" },*/
+        { "Manifest-Bad-Channel-NotSupported.yaml", "Field is not supported. Field: Channel" },
         { "Manifest-Bad-DifferentCase-camelCase.yaml", "All field names should be PascalCased. Field: installerType" },
-       /* { "Manifest-Bad-DifferentCase-lower.yaml", "All field names should be PascalCased. Field: installertype" },
+        { "Manifest-Bad-DifferentCase-lower.yaml", "All field names should be PascalCased. Field: installertype" },
         { "Manifest-Bad-DifferentCase-UPPER.yaml", "All field names should be PascalCased. Field: INSTALLERTYPE" },
         { "Manifest-Bad-DuplicateKey.yaml", "Duplicate field found in the manifest." },
         { "Manifest-Bad-DuplicateKey-DifferentCase.yaml", "Duplicate field found in the manifest." },
@@ -306,7 +306,7 @@ TEST_CASE("ReadBadManifests", "[ManifestValidation]")
         { "InstallFlowTest_LicenseAgreement.yaml", "Field usage requires verified publishers.", true },
         { "InstallFlowTest_LicenseAgreement.yaml", "Field usage requires verified publishers.", false, GetTestManifestValidateOption(false, true) },
         { "Manifest-Bad-ApproximateVersionInPackageVersion.yaml", "Approximate version not allowed. Field: PackageVersion" },
-        { "Manifest-Bad-ApproximateVersionInArpVersion.yaml", "Approximate version not allowed. Field: DisplayVersion" },*/
+        { "Manifest-Bad-ApproximateVersionInArpVersion.yaml", "Approximate version not allowed. Field: DisplayVersion" },
     };
 
     for (auto const& testCase : TestCases)
