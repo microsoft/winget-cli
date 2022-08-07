@@ -109,7 +109,7 @@ namespace AppInstaller::Manifest
         ValidationError(AppInstaller::StringResource::StringId message, std::string field, std::string value, size_t line, size_t column, Level level) :
             Message(std::move(message)), Field(std::move(field)), Value(std::move(value)), Line(line), Column(column), ErrorLevel(level) {}
 
-        std::string_view GetErrorMessage() const;
+        std::string GetErrorMessage() const;
 
         static ValidationError MessageWithFile(AppInstaller::StringResource::StringId message, std::string file)
         {

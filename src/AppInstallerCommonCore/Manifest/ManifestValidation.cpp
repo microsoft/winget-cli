@@ -14,51 +14,51 @@ namespace AppInstaller::Manifest
     namespace
     {
         std::map<AppInstaller::StringResource::StringId, std::string_view> ErrorIdToMessageMap = {
-            { AppInstaller::Manifest::ManifestError::InvalidRootNode, "Encountered unexpected root node."},
-            { AppInstaller::Manifest::ManifestError::FieldUnknown, "Unknown field."},
-            { AppInstaller::Manifest::ManifestError::FieldIsNotPascalCase, "All field names should be PascalCased."},
-            { AppInstaller::Manifest::ManifestError::FieldDuplicate, "Duplicate field found in the manifest." },
-            { AppInstaller::Manifest::ManifestError::RequiredFieldEmpty, "Required field with empty value." },
-            { AppInstaller::Manifest::ManifestError::RequiredFieldMissing,  "Required field missing." },
-            { AppInstaller::Manifest::ManifestError::InvalidFieldValue, "Invalid field value." },
-            { AppInstaller::Manifest::ManifestError::ExeInstallerMissingSilentSwitches, "Silent and SilentWithProgress switches are not specified for InstallerType exe.Please make sure the installer can run unattended." },
-            { AppInstaller::Manifest::ManifestError::FieldNotSupported, "Field is not supported." },
-            { AppInstaller::Manifest::ManifestError::FieldValueNotSupported, "Field value is not supported." },
-            { AppInstaller::Manifest::ManifestError::DuplicateInstallerEntry, "Duplicate installer entry found." },
-            { AppInstaller::Manifest::ManifestError::InstallerTypeDoesNotSupportPackageFamilyName, "The specified installer type does not support PackageFamilyName." },
-            { AppInstaller::Manifest::ManifestError::InstallerTypeDoesNotSupportProductCode, "The specified installer type does not support ProductCode." },
-            { AppInstaller::Manifest::ManifestError::InstallerTypeDoesNotWriteAppsAndFeaturesEntry, "The specified installer type does not write to Apps and Features entry." },
-            { AppInstaller::Manifest::ManifestError::IncompleteMultiFileManifest, "The multi file manifest is incomplete.A multi file manifest must contain at least version, installer and defaultLocale manifest."},
-            { AppInstaller::Manifest::ManifestError::InconsistentMultiFileManifestFieldValue, "The multi file manifest has inconsistent field values." },
-            { AppInstaller::Manifest::ManifestError::DuplicateMultiFileManifestType, "The multi file manifest should contain only one file with the particular ManifestType." },
-            { AppInstaller::Manifest::ManifestError::DuplicateMultiFileManifestLocale, "The multi file manifest contains duplicate PackageLocale." },
-            { AppInstaller::Manifest::ManifestError::UnsupportedMultiFileManifestType, "The multi file manifest should not contain file with the particular ManifestType." },
-            { AppInstaller::Manifest::ManifestError::InconsistentMultiFileManifestDefaultLocale, "DefaultLocale value in version manifest does not match PackageLocale value in defaultLocale manifest." },
-            { AppInstaller::Manifest::ManifestError::FieldFailedToProcess, "Failed to process field." },
-            { AppInstaller::Manifest::ManifestError::InvalidBcp47Value, "The locale value is not a well formed bcp47 language tag." },
-            { AppInstaller::Manifest::ManifestError::BothAllowedAndExcludedMarketsDefined, "Both AllowedMarkets and ExcludedMarkets defined." },
-            { AppInstaller::Manifest::ManifestError::DuplicateReturnCodeEntry, "Duplicate installer return code found." },
-            { AppInstaller::Manifest::ManifestError::FieldRequireVerifiedPublisher, "Field usage requires verified publishers." },
-            { AppInstaller::Manifest::ManifestError::SingleManifestPackageHasDependencies, "Package has a single manifest and is a dependency of other manifests." },
-            { AppInstaller::Manifest::ManifestError::MultiManifestPackageHasDependencies, "Deleting the manifest will be break the following dependencies." },
-            { AppInstaller::Manifest::ManifestError::MissingManifestDependenciesNode, "Dependency not found: " },
-            { AppInstaller::Manifest::ManifestError::NoSuitableMinVersion,"No Suitable Minimum Version : " },
-            { AppInstaller::Manifest::ManifestError::FoundLoop, "Loop found." },
-            { AppInstaller::Manifest::ManifestError::ExceededAppsAndFeaturesEntryLimit, "Only zero or one entry for Apps and Features may be specified for InstallerType portable." },
-            { AppInstaller::Manifest::ManifestError::ExceededCommandsLimit, "Only zero or one value for Commands may be specified for InstallerType portable." },
-            { AppInstaller::Manifest::ManifestError::ScopeNotSupported, "Scope is not supported for InstallerType portable." },
-            { AppInstaller::Manifest::ManifestError::InstallerMsixInconsistencies, "Inconsistent value in the manifest." },
-            { AppInstaller::Manifest::ManifestError::OptionalFieldMissing, "Optional field missing." },
-            { AppInstaller::Manifest::ManifestError::InstallerFailedToProcess, "Failed to process installer." },
-            { AppInstaller::Manifest::ManifestError::NoSupportedPlatforms, "No supported platforms." },
-            { AppInstaller::Manifest::ManifestError::ApproximateVersionNotAllowed, "Approximate version not allowed." },
-            { AppInstaller::Manifest::ManifestError::ArpVersionOverlapWithIndex, "DisplayVersion declared in the manifest has overlap with existing DisplayVersion range in the index.Existing DisplayVersion range in index : " },
-            { AppInstaller::Manifest::ManifestError::ArpVersionValidationInternalError, "Internal error while validating DisplayVersion against index." },
-            { AppInstaller::Manifest::ManifestError::ExceededNestedInstallerFilesLimit, "Only one entry for NestedInstallerFiles can be specified for non-portable InstallerTypes." },
-            { AppInstaller::Manifest::ManifestError::RelativeFilePathEscapesDirectory, "Relative file path must not point to a location outside of archive directory" },
-            { AppInstaller::Manifest::ManifestError::ArpValidationError, "Arp Validation Error" },
-            { AppInstaller::Manifest::ManifestError::SchemaError, "Schema Error" },
-            { AppInstaller::Manifest::ManifestError::MsixSignatureHashFailed, "Failed to calculate MSIX signature hash.Please verify that the input file is a valid, signed MSIX."}
+            { AppInstaller::Manifest::ManifestError::InvalidRootNode, "Encountered unexpected root node."sv},
+            { AppInstaller::Manifest::ManifestError::FieldUnknown, "Unknown field."sv},
+            { AppInstaller::Manifest::ManifestError::FieldIsNotPascalCase, "All field names should be PascalCased."sv},
+            { AppInstaller::Manifest::ManifestError::FieldDuplicate, "Duplicate field found in the manifest."sv },
+            { AppInstaller::Manifest::ManifestError::RequiredFieldEmpty, "Required field with empty value."sv },
+            { AppInstaller::Manifest::ManifestError::RequiredFieldMissing,  "Required field missing."sv },
+            { AppInstaller::Manifest::ManifestError::InvalidFieldValue, "Invalid field value."sv },
+            { AppInstaller::Manifest::ManifestError::ExeInstallerMissingSilentSwitches, "Silent and SilentWithProgress switches are not specified for InstallerType exe.Please make sure the installer can run unattended."sv },
+            { AppInstaller::Manifest::ManifestError::FieldNotSupported, "Field is not supported."sv },
+            { AppInstaller::Manifest::ManifestError::FieldValueNotSupported, "Field value is not supported."sv },
+            { AppInstaller::Manifest::ManifestError::DuplicateInstallerEntry, "Duplicate installer entry found."sv },
+            { AppInstaller::Manifest::ManifestError::InstallerTypeDoesNotSupportPackageFamilyName, "The specified installer type does not support PackageFamilyName."sv },
+            { AppInstaller::Manifest::ManifestError::InstallerTypeDoesNotSupportProductCode, "The specified installer type does not support ProductCode."sv },
+            { AppInstaller::Manifest::ManifestError::InstallerTypeDoesNotWriteAppsAndFeaturesEntry, "The specified installer type does not write to Apps and Features entry."sv },
+            { AppInstaller::Manifest::ManifestError::IncompleteMultiFileManifest, "The multi file manifest is incomplete.A multi file manifest must contain at least version, installer and defaultLocale manifest."sv },
+            { AppInstaller::Manifest::ManifestError::InconsistentMultiFileManifestFieldValue, "The multi file manifest has inconsistent field values."sv },
+            { AppInstaller::Manifest::ManifestError::DuplicateMultiFileManifestType, "The multi file manifest should contain only one file with the particular ManifestType."sv },
+            { AppInstaller::Manifest::ManifestError::DuplicateMultiFileManifestLocale, "The multi file manifest contains duplicate PackageLocale."sv },
+            { AppInstaller::Manifest::ManifestError::UnsupportedMultiFileManifestType, "The multi file manifest should not contain file with the particular ManifestType."sv },
+            { AppInstaller::Manifest::ManifestError::InconsistentMultiFileManifestDefaultLocale, "DefaultLocale value in version manifest does not match PackageLocale value in defaultLocale manifest."sv },
+            { AppInstaller::Manifest::ManifestError::FieldFailedToProcess, "Failed to process field."sv },
+            { AppInstaller::Manifest::ManifestError::InvalidBcp47Value, "The locale value is not a well formed bcp47 language tag."sv },
+            { AppInstaller::Manifest::ManifestError::BothAllowedAndExcludedMarketsDefined, "Both AllowedMarkets and ExcludedMarkets defined."sv },
+            { AppInstaller::Manifest::ManifestError::DuplicateReturnCodeEntry, "Duplicate installer return code found."sv },
+            { AppInstaller::Manifest::ManifestError::FieldRequireVerifiedPublisher, "Field usage requires verified publishers."sv },
+            { AppInstaller::Manifest::ManifestError::SingleManifestPackageHasDependencies, "Package has a single manifest and is a dependency of other manifests."sv },
+            { AppInstaller::Manifest::ManifestError::MultiManifestPackageHasDependencies, "Deleting the manifest will be break the following dependencies."sv },
+            { AppInstaller::Manifest::ManifestError::MissingManifestDependenciesNode, "Dependency not found: "sv },
+            { AppInstaller::Manifest::ManifestError::NoSuitableMinVersion,"No Suitable Minimum Version : "sv },
+            { AppInstaller::Manifest::ManifestError::FoundLoop, "Loop found."sv },
+            { AppInstaller::Manifest::ManifestError::ExceededAppsAndFeaturesEntryLimit, "Only zero or one entry for Apps and Features may be specified for InstallerType portable."sv },
+            { AppInstaller::Manifest::ManifestError::ExceededCommandsLimit, "Only zero or one value for Commands may be specified for InstallerType portable."sv },
+            { AppInstaller::Manifest::ManifestError::ScopeNotSupported, "Scope is not supported for InstallerType portable."sv },
+            { AppInstaller::Manifest::ManifestError::InstallerMsixInconsistencies, "Inconsistent value in the manifest."sv },
+            { AppInstaller::Manifest::ManifestError::OptionalFieldMissing, "Optional field missing."sv },
+            { AppInstaller::Manifest::ManifestError::InstallerFailedToProcess, "Failed to process installer."sv },
+            { AppInstaller::Manifest::ManifestError::NoSupportedPlatforms, "No supported platforms."sv },
+            { AppInstaller::Manifest::ManifestError::ApproximateVersionNotAllowed, "Approximate version not allowed."sv },
+            { AppInstaller::Manifest::ManifestError::ArpVersionOverlapWithIndex, "DisplayVersion declared in the manifest has overlap with existing DisplayVersion range in the index.Existing DisplayVersion range in index : "sv },
+            { AppInstaller::Manifest::ManifestError::ArpVersionValidationInternalError, "Internal error while validating DisplayVersion against index."sv },
+            { AppInstaller::Manifest::ManifestError::ExceededNestedInstallerFilesLimit, "Only one entry for NestedInstallerFiles can be specified for non-portable InstallerTypes."sv },
+            { AppInstaller::Manifest::ManifestError::RelativeFilePathEscapesDirectory, "Relative file path must not point to a location outside of archive directory"sv },
+            { AppInstaller::Manifest::ManifestError::ArpValidationError, "Arp Validation Error"sv },
+            { AppInstaller::Manifest::ManifestError::SchemaError, "Schema Error"sv },
+            { AppInstaller::Manifest::ManifestError::MsixSignatureHashFailed, "Failed to calculate MSIX signature hash.Please verify that the input file is a valid, signed MSIX."sv }
         };
     }
     std::vector<ValidationError> ValidateManifest(const Manifest& manifest, bool fullValidation)
@@ -364,8 +364,13 @@ namespace AppInstaller::Manifest
         return errors;
     }
 
-    std::string_view ValidationError::GetErrorMessage() const
+    std::string ValidationError::GetErrorMessage() const
     {
-        return ErrorIdToMessageMap[Message];
+        if (ErrorIdToMessageMap.find(Message) != ErrorIdToMessageMap.end())
+        {
+            return std::string(ErrorIdToMessageMap[Message]).c_str();
+        }
+        
+        return Utility::ConvertToUTF8(Message);
     }
 }
