@@ -1247,7 +1247,9 @@ TEST_CASE("InstallFlow_Portable_SymlinkCreationFail", "[InstallFlow][workflow]")
     install.Execute(installContext);
     INFO(installOutput.str());
 
-    const auto& portableTargetDirectory = AppInstaller::Runtime::GetPathTo(AppInstaller::Runtime::PathName::PortablePackageUserRoot) / "AppInstallerCliTest.TestPortableInstaller__TestSource";
+    // 'DefaultSource' is expected because we are installing from a local manifest.
+    const auto& portableUserRoot = AppInstaller::Runtime::GetPathTo(AppInstaller::Runtime::PathName::PortablePackageUserRoot);
+    const auto& portableTargetDirectory = portableUserRoot / "AppInstallerCliTest.TestPortableInstaller__DefaultSource";
     const auto& portableTargetPath = portableTargetDirectory / "AppInstallerTestExeInstaller.exe";
     REQUIRE(std::filesystem::exists(portableTargetPath));
     REQUIRE(AppInstaller::Registry::Environment::PathVariable(AppInstaller::Manifest::ScopeEnum::User).Contains(portableTargetDirectory));
