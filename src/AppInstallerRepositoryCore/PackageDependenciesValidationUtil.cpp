@@ -7,6 +7,8 @@
 
 namespace AppInstaller::Repository::Util
 {
+    using namespace AppInstaller::Manifest;
+
     WinGetManifestDependenciesErrorResult GetValidationResultFromException(const AppInstaller::Manifest::ManifestException& manifestException)
 	{
         auto validationErrors = manifestException.Errors();
@@ -16,16 +18,18 @@ namespace AppInstaller::Repository::Util
 
             std::map<AppInstaller::StringResource::StringId, WinGetManifestDependenciesErrorResult> dependenciesErrorMessageMap =
             {
-                {AppInstaller::Manifest::ManifestError::SingleManifestPackageHasDependencies, WinGetManifestDependenciesErrorResult::SingleManifestPackageHasDependencies},
-                {AppInstaller::Manifest::ManifestError::MultiManifestPackageHasDependencies, WinGetManifestDependenciesErrorResult::MultiManifestPackageHasDependencies },
-                {AppInstaller::Manifest::ManifestError::MissingManifestDependenciesNode, WinGetManifestDependenciesErrorResult::MissingManifestDependenciesNode },
-                {AppInstaller::Manifest::ManifestError::NoSuitableMinVersionDependency, WinGetManifestDependenciesErrorResult::NoSuitableMinVersionDependency },
-                {AppInstaller::Manifest::ManifestError::FoundDependencyLoop, WinGetManifestDependenciesErrorResult::FoundDependencyLoop}
+                {ManifestError::SingleManifestPackageHasDependencies, WinGetManifestDependenciesErrorResult::SingleManifestPackageHasDependencies},
+                {ManifestError::MultiManifestPackageHasDependencies, WinGetManifestDependenciesErrorResult::MultiManifestPackageHasDependencies },
+                {ManifestError::MissingManifestDependenciesNode, WinGetManifestDependenciesErrorResult::MissingManifestDependenciesNode },
+                {ManifestError::NoSuitableMinVersionDependency, WinGetManifestDependenciesErrorResult::NoSuitableMinVersionDependency },
+                {ManifestError::FoundDependencyLoop, WinGetManifestDependenciesErrorResult::FoundDependencyLoop}
             };
 
-            if (dependenciesErrorMessageMap.find(message) != dependenciesErrorMessageMap.end())
+            auto itr = dependenciesErrorMessageMap.find(message);
+
+            if (itr != dependenciesErrorMessageMap.end())
             {
-                return dependenciesErrorMessageMap[message];
+                return itr->second;
             }
         }
 

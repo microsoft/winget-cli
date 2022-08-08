@@ -366,9 +366,10 @@ namespace AppInstaller::Manifest
 
     std::string ValidationError::GetErrorMessage() const
     {
-        if (ErrorIdToMessageMap.find(Message) != ErrorIdToMessageMap.end())
+        auto itr = ErrorIdToMessageMap.find(Message);
+        if (itr != ErrorIdToMessageMap.end())
         {
-            return std::string(ErrorIdToMessageMap[Message]).c_str();
+            return std::string(itr->second).c_str();
         }
         
         return Utility::ConvertToUTF8(Message);
