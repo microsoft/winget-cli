@@ -132,23 +132,20 @@ namespace AppInstaller::CLI::Workflow
         }
         case InstallerTypeEnum::Portable:
         {
-            const auto packageId = installedPackageVersion->GetProperty(PackageVersionProperty::Id).get();
-            const auto& sourceId = installedPackageVersion->GetSource().GetIdentifier();
-            const auto& productCode = Utility::MakeSuitablePathPart(packageId + "_" + sourceId);
+            auto productCodes = installedPackageVersion->GetMultiProperty(PackageVersionMultiProperty::ProductCode);
+            if (productCodes.empty())
+            {
+                context.Reporter.Error() << Resource::String::NoUninstallInfoFound << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_UNINSTALL_INFO_FOUND);
+            }
 
             const std::string installedScope = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata()[Repository::PackageVersionMetadata::InstalledScope];
             const std::string installedArch = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata()[Repository::PackageVersionMetadata::InstalledArchitecture];
             Portable::PortableARPEntry uninstallEntry = Portable::PortableARPEntry(
                 ConvertToScopeEnum(installedScope),
                 Utility::ConvertToArchitectureEnum(installedArch),
-                productCode);
+                productCodes[0]);
 
-            if (!uninstallEntry.Exists())
-            {
-                uninstallEntry.Delete();
-                context.Reporter.Error() << Resource::String::NoUninstallInfoFound << std::endl;
-                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_UNINSTALL_INFO_FOUND);
-            }
             context.Add<Execution::Data::PortableARPEntry>(uninstallEntry);
             break;
         }
