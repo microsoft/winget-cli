@@ -38,7 +38,7 @@ namespace AppInstaller::Manifest
         WINGET_DEFINE_RESOURCE_STRINGID(FieldRequireVerifiedPublisher);
         WINGET_DEFINE_RESOURCE_STRINGID(FieldUnknown);
         WINGET_DEFINE_RESOURCE_STRINGID(FieldValueNotSupported);
-        WINGET_DEFINE_RESOURCE_STRINGID(FoundLoop);
+        WINGET_DEFINE_RESOURCE_STRINGID(FoundDependencyLoop);
         WINGET_DEFINE_RESOURCE_STRINGID(IncompleteMultiFileManifest);
         WINGET_DEFINE_RESOURCE_STRINGID(InconsistentMultiFileManifestDefaultLocale);
         WINGET_DEFINE_RESOURCE_STRINGID(InconsistentMultiFileManifestFieldValue);
@@ -53,7 +53,7 @@ namespace AppInstaller::Manifest
         WINGET_DEFINE_RESOURCE_STRINGID(MissingManifestDependenciesNode);
         WINGET_DEFINE_RESOURCE_STRINGID(MsixSignatureHashFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(MultiManifestPackageHasDependencies);
-        WINGET_DEFINE_RESOURCE_STRINGID(NoSuitableMinVersion);
+        WINGET_DEFINE_RESOURCE_STRINGID(NoSuitableMinVersionDependency);
         WINGET_DEFINE_RESOURCE_STRINGID(NoSupportedPlatforms);
         WINGET_DEFINE_RESOURCE_STRINGID(OptionalFieldMissing);
         WINGET_DEFINE_RESOURCE_STRINGID(RelativeFilePathEscapesDirectory);

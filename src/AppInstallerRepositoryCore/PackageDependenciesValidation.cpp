@@ -132,7 +132,7 @@ namespace AppInstaller::Repository
 
                 if (node.MinVersion > packageLatest.value().second)
                 {
-                    dependenciesError.emplace_back(ValidationError(ManifestError::NoSuitableMinVersion, "PackageIdentifier", node.Id));
+                    dependenciesError.emplace_back(ValidationError(ManifestError::NoSuitableMinVersionDependency, "PackageIdentifier", node.Id));
                     foundErrors = true;
                     return depList;
                 }
@@ -162,7 +162,7 @@ namespace AppInstaller::Repository
 
         if (graph.HasLoop())
         {
-            dependenciesError.emplace_back(ManifestError::FoundLoop);
+            dependenciesError.emplace_back(ManifestError::FoundDependencyLoop);
             THROW_EXCEPTION(ManifestException(std::move(dependenciesError), APPINSTALLER_CLI_ERROR_DEPENDENCIES_VALIDATION_FAILED));
         }
 

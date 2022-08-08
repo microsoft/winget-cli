@@ -19,8 +19,8 @@ namespace AppInstaller::Repository::Util
                 {AppInstaller::Manifest::ManifestError::SingleManifestPackageHasDependencies, WinGetManifestDependenciesErrorResult::SingleManifestPackageHasDependencies},
                 {AppInstaller::Manifest::ManifestError::MultiManifestPackageHasDependencies, WinGetManifestDependenciesErrorResult::MultiManifestPackageHasDependencies },
                 {AppInstaller::Manifest::ManifestError::MissingManifestDependenciesNode, WinGetManifestDependenciesErrorResult::MissingManifestDependenciesNode },
-                {AppInstaller::Manifest::ManifestError::NoSuitableMinVersion, WinGetManifestDependenciesErrorResult::NoSuitableMinVersion },
-                {AppInstaller::Manifest::ManifestError::FoundLoop, WinGetManifestDependenciesErrorResult::FoundLoop}
+                {AppInstaller::Manifest::ManifestError::NoSuitableMinVersionDependency, WinGetManifestDependenciesErrorResult::NoSuitableMinVersionDependency },
+                {AppInstaller::Manifest::ManifestError::FoundDependencyLoop, WinGetManifestDependenciesErrorResult::FoundDependencyLoop}
             };
 
             if (dependenciesErrorMessageMap.find(message) != dependenciesErrorMessageMap.end())

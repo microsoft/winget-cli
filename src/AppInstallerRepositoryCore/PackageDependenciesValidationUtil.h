@@ -13,8 +13,8 @@ namespace AppInstaller::Repository::Util
         SingleManifestPackageHasDependencies = 0x10000,
         MultiManifestPackageHasDependencies = 0x20000,
         MissingManifestDependenciesNode = 0x40000,
-        NoSuitableMinVersion = 0x80000,
-        FoundLoop = 0x1000000,
+        NoSuitableMinVersionDependency = 0x80000,
+        FoundDependencyLoop = 0x1000000,
     };
 
     WinGetManifestDependenciesErrorResult GetValidationResultFromException(const AppInstaller::Manifest::ManifestException& manifestException);

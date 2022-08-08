@@ -12,8 +12,8 @@ TEST_CASE("GetValidationResultFromException", "[PackageDependenciesValidationUti
         {WinGetManifestDependenciesErrorResult::SingleManifestPackageHasDependencies, AppInstaller::Manifest::ManifestException {  { AppInstaller::Manifest::ManifestError::SingleManifestPackageHasDependencies }, APPINSTALLER_CLI_ERROR_MANIFEST_FAILED }},
         {WinGetManifestDependenciesErrorResult::MultiManifestPackageHasDependencies, AppInstaller::Manifest::ManifestException {  { AppInstaller::Manifest::ManifestError::MultiManifestPackageHasDependencies }, APPINSTALLER_CLI_ERROR_MANIFEST_FAILED } },
         {WinGetManifestDependenciesErrorResult::MissingManifestDependenciesNode, AppInstaller::Manifest::ManifestException {  { AppInstaller::Manifest::ManifestError::MissingManifestDependenciesNode }, APPINSTALLER_CLI_ERROR_MANIFEST_FAILED } },
-        {WinGetManifestDependenciesErrorResult::NoSuitableMinVersion, AppInstaller::Manifest::ManifestException {  { AppInstaller::Manifest::ManifestError::NoSuitableMinVersion }, APPINSTALLER_CLI_ERROR_MANIFEST_FAILED } },
-        {WinGetManifestDependenciesErrorResult::FoundLoop, AppInstaller::Manifest::ManifestException {  { AppInstaller::Manifest::ManifestError::FoundLoop }, APPINSTALLER_CLI_ERROR_MANIFEST_FAILED } },
+        {WinGetManifestDependenciesErrorResult::NoSuitableMinVersionDependency, AppInstaller::Manifest::ManifestException {  { AppInstaller::Manifest::ManifestError::NoSuitableMinVersionDependency }, APPINSTALLER_CLI_ERROR_MANIFEST_FAILED } },
+        {WinGetManifestDependenciesErrorResult::FoundDependencyLoop, AppInstaller::Manifest::ManifestException {  { AppInstaller::Manifest::ManifestError::FoundDependencyLoop }, APPINSTALLER_CLI_ERROR_MANIFEST_FAILED } },
     };
 
     for (auto current : dependenciesErrorMessageMap)
