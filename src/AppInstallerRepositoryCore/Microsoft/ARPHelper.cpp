@@ -11,46 +11,119 @@ namespace AppInstaller::Repository::Microsoft
 
     namespace
     {
-        // Finds the UpgradeCode corresponding to a given ProductCode
-        std::optional<std::string> GetUpgradeCodeByProductCode(const std::string& productCode)
+        // "Unpacks" a GUID in the format used by the UpgradesCode registry key into the usual format.
+        // Returns empty if it is not a valid GUID
+        std::optional<std::string> TryUnpackUpgradeCodeGuid(std::string_view packed)
         {
-            // The UpgradeCode is not stored in the ARP registry keys, so we use the MSI API to query it.
+            // A GUID is made up of 4 parts:
+            //   - Part 1 is made up of one 4 byte block
+            //   - Parts 2 and 3 are made up of one 2 byte block
+            //   - Part 4 is made up of eight 1 byte blocks
             //
-            // The UpgradeCode is apparently also stored in the registry under
-            //   HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Installer\UpgradeCodes\<UpgradeCode>
-            // but:
-            //   * This key does not seem to be documented
-            //   * The format used to store the GUIDs is harder to parse
-            //   * We cannot look up by ProductCode; we need to take an UpgradeCode and then find the ProductCode
-            // Using the registry could potentially be faster, so we may consider using it if this proves to be too slow.
+            // The GUID strings we have in the manifests represent all of this in hex in order,
+            // with dashes between each part, and after the second byte of Part 4.
+            // The "packed" GUIDs in the registry place the blocks in the same order,
+            // without dashes and with opposite endian-ness.
+            //
+            // For example
+            //   ARP:          {FECAFEB5-8D0E-4AE4-8FA0-745BAA835C35}
+            //                FECAFEB5 8D0E 4AE4 8F A0 74 5B AA 83 5C 35
+            //                 Part 1   P2   P3  <------ Part 4 ------->
+            //                5BEFACEF E0D8 4EA4 F8 0A 47 B5 AA 38 C5 53
+            //   UpgradeCode:     5BEFACEFE0D84EA4F80A47B5AA38C553
+            //
+            // To make the conversion:
+            //   1. Validate that the packed string is hexadecimal and has the expected length
+            //   2. Split the packed string into each part/block
+            //   3. Reverse each block
+            //   4. Concatenate them with the separators
 
-            // For some reason MsiOpenProduct pops up a dialog.
-            // Suppress it by setting the UI level to None.
-            MsiSetInternalUI(INSTALLUILEVEL_NONE, nullptr);
-
-            wil::unique_any<MSIHANDLE, decltype(MsiCloseHandle), MsiCloseHandle> msiProduct;
-            if (SUCCEEDED(MsiOpenProductA(productCode.c_str(), msiProduct.addressof())))
+            constexpr size_t Part1Length = 8;
+            constexpr size_t Part2Length = 4;
+            constexpr size_t Part3Length = 4;
+            constexpr size_t Part4Count = 8;
+            constexpr size_t Part4BlockLength = 2;
+            constexpr size_t Part4Length = Part4Count * Part4BlockLength;
+            constexpr size_t ExpectedLength = Part1Length + Part2Length + Part3Length + Part4Length;
+            if (packed.length() != ExpectedLength || !std::all_of(packed.begin(), packed.end(), isxdigit))
             {
-                const auto UpgradeCodePropertyName = "UpgradeCode";
+                return {};
+            }
 
-                // This functions returns success and sets the length of the property value, excluding null terminator
-                DWORD upgradeCodeLength = 0;
-                if (SUCCEEDED(MsiGetProductPropertyA(msiProduct.get(), UpgradeCodePropertyName, nullptr, &upgradeCodeLength)))
+            constexpr size_t Part1Start = 0;
+            constexpr size_t Part2Start = Part1Start + Part1Length;
+            constexpr size_t Part3Start = Part2Start + Part2Length;
+            constexpr size_t Part4Start = Part3Start + Part3Length;
+
+            std::string_view part1 = packed.substr(Part1Start, Part1Length);
+            std::string_view part2 = packed.substr(Part2Start, Part2Length);
+            std::string_view part3 = packed.substr(Part3Start, Part3Length);
+
+            std::string_view part4[Part4Count];
+            for (size_t i = 0; i < Part4Count; ++i)
+            {
+                part4[i] = packed.substr(Part4Start + i * Part4BlockLength, Part4BlockLength);
+            }
+
+            std::string unpacked;
+            unpacked
+                .append("{")
+                .append(part1.rbegin(), part1.rend())
+                .append("-")
+                .append(part2.rbegin(), part2.rend())
+                .append("-")
+                .append(part3.rbegin(), part3.rend())
+                .append("-")
+                .append(part4[0].rbegin(), part4[0].rend())
+                .append(part4[1].rbegin(), part4[1].rend())
+                .append("-");
+
+            for (size_t i = 2; i < Part4Count; ++i)
+            {
+                unpacked.append(part4[i].rbegin(), part4[i].rend());
+            }
+
+            unpacked.append("}");
+            return unpacked;
+        }
+
+        // Gets a mapping from ProductCode to UpgradeCode for MSI packages.
+        std::map<std::string, std::string> GetUpgradeCodes()
+        {
+            // The UpgradeCode is not stored in the ARP registry keys, so we have to get it separately.
+            // We could use MsiGetProductProperty or MsiGetProperty from the MSI API to query it,
+            // but it is very slow.
+            //
+            // The UpgradeCode is also stored in the registry under
+            //   HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Installer\UpgradeCodes
+            // (Note that this key is not documented, so it is possible that it will change but very unlikely...)
+            //
+            // Under 'UpgradeCodes' there is one key for each upgrade code, and each upgrade code key
+            // contains the product code as a value. All the upgrade codes and product codes are GUIDs,
+            // but represented in an unusual way - see TryUnpackUpgradeCodeGuid()
+
+            AICLI_LOG(Repo, Info, << "Reading MSI UpgradeCodes");
+            std::map<std::string, std::string> upgradeCodes;
+
+            Registry::Key upgradeCodesKey = Registry::Key::OpenIfExists(HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Installer\\UpgradeCodes");
+            for (const auto& upgradeCodeKeyRef : upgradeCodesKey)
+            {
+                auto upgradeCode = TryUnpackUpgradeCodeGuid(upgradeCodeKeyRef.Name());
+                if (upgradeCode)
                 {
-                    // Create a buffer of the appropriate size
-                    std::string upgradeCode(static_cast<size_t>(upgradeCodeLength), ' ');
-
-                    // +1 because the function expects us to count the null terminator
-                    upgradeCodeLength = static_cast<DWORD>(upgradeCode.size() + 1);
-                    if (SUCCEEDED(MsiGetProductPropertyA(msiProduct.get(), UpgradeCodePropertyName, upgradeCode.data(), &upgradeCodeLength)))
+                    auto upgradeCodeKey = upgradeCodeKeyRef.Open();
+                    for (const auto& productCodeValue : upgradeCodeKey.Values())
                     {
-                        return upgradeCode;
+                        auto productCode = TryUnpackUpgradeCodeGuid(productCodeValue.Name());
+                        if (productCode)
+                        {
+                            upgradeCodes[*productCode] = *upgradeCode;
+                        }
                     }
                 }
             }
 
-            // UpgradeCode not found
-            return {};
+            return upgradeCodes;
         }
     }
 
@@ -254,18 +327,20 @@ namespace AppInstaller::Repository::Microsoft
 
     void ARPHelper::PopulateIndexFromARP(SQLiteIndex& index, Manifest::ScopeEnum scope) const
     {
+        auto upgradeCodes = GetUpgradeCodes();
+
         for (auto architecture : Utility::GetApplicableArchitectures())
         {
             Registry::Key arpRootKey = GetARPKey(scope, architecture);
 
             if (arpRootKey)
             {
-                PopulateIndexFromKey(index, arpRootKey, Manifest::ScopeToString(scope), Utility::ToString(architecture));
+                PopulateIndexFromKey(index, arpRootKey, Manifest::ScopeToString(scope), Utility::ToString(architecture), upgradeCodes);
             }
         }
     }
 
-    void ARPHelper::PopulateIndexFromKey(SQLiteIndex& index, const Registry::Key& key, std::string_view scope, std::string_view architecture) const
+    void ARPHelper::PopulateIndexFromKey(SQLiteIndex& index, const Registry::Key& key, std::string_view scope, std::string_view architecture, std::map<std::string, std::string> upgradeCodes) const
     {
         AICLI_LOG(Repo, Info, << "Examining ARP entries for " << scope << " | " << architecture);
 
@@ -349,11 +424,11 @@ namespace AppInstaller::Repository::Microsoft
                     installedType = Manifest::InstallerTypeEnum::Msi;
 
                     // If this is an MSI, look up the UpgradeCode
-                    auto upgradeCode = GetUpgradeCodeByProductCode(productCode);
-                    if (upgradeCode)
+                    auto upgradeCodeItr = upgradeCodes.find(productCode);
+                    if (upgradeCodeItr != upgradeCodes.end())
                     {
                         manifest.Installers[0].AppsAndFeaturesEntries.emplace_back();
-                        manifest.Installers[0].AppsAndFeaturesEntries[0].UpgradeCode = *upgradeCode;
+                        manifest.Installers[0].AppsAndFeaturesEntries[0].UpgradeCode = upgradeCodeItr->second;
                     }
                 }
 
