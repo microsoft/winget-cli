@@ -11,6 +11,7 @@ aicli
 AICLIC
 ajor
 alreadyinstalled
+amd
 amrutha
 anonymized
 APARTMENTTHREADED
@@ -219,6 +220,7 @@ kayone
 Keivan
 KF
 KNOWNFOLDERID
+Kp
 ktf
 langs
 LATN
