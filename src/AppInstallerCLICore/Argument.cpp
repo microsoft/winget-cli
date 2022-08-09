@@ -110,7 +110,7 @@ namespace AppInstaller::CLI
         args.push_back(ForType(Args::Type::RainbowStyle));
         args.push_back(ForType(Args::Type::RetroStyle));
         args.push_back(ForType(Args::Type::VerboseLogs));
-        args.emplace_back("disable-interactivity", NoAlias, Args::Type::DisableInteractivity, Resource::String::DisableInteractivityArgumentDescription, ArgumentType::Standard, false);
+        args.emplace_back("disable-interactivity", NoAlias, Args::Type::DisableInteractivity, Resource::String::DisableInteractivityArgumentDescription, ArgumentType::Flag, false);
     }
 
     std::string Argument::GetUsageString() const
