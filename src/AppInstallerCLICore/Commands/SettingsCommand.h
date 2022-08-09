@@ -7,7 +7,7 @@ namespace AppInstaller::CLI
 {
     struct SettingsCommand final : public Command
     {
-        SettingsCommand(std::string_view parent) : Command("settings", parent, Settings::TogglePolicy::Policy::Settings) {}
+        SettingsCommand(std::string_view parent) : Command("settings", { "config" }, parent, Settings::TogglePolicy::Policy::Settings) {}
 
         std::vector<Argument> GetArguments() const override;
 

@@ -99,6 +99,7 @@ namespace AppInstaller::CLI::Execution
             DependencySource, // Index source to be queried against for finding dependencies
             CustomHeader, // Optional Rest source header
             AcceptSourceAgreements, // Accept all source agreements
+            Wait, // Prompts the user to press any key before exiting
 
             // Used for demonstration purposes
             ExperimentalArg,

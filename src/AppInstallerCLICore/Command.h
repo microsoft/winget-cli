@@ -56,16 +56,18 @@ namespace AppInstaller::CLI
         };
 
         Command(std::string_view name, std::string_view parent) :
-            Command(name, parent, Settings::ExperimentalFeature::Feature::None) {}
-        Command(std::string_view name, std::string_view parent, Command::Visibility visibility) :
-            Command(name, parent, visibility, Settings::ExperimentalFeature::Feature::None) {}
-        Command(std::string_view name, std::string_view parent, Settings::ExperimentalFeature::Feature feature) :
-            Command(name, parent, Command::Visibility::Show, feature) {}
-        Command(std::string_view name, std::string_view parent, Settings::TogglePolicy::Policy groupPolicy) :
-            Command(name, parent, Command::Visibility::Show, Settings::ExperimentalFeature::Feature::None, groupPolicy) {}
-        Command(std::string_view name, std::string_view parent, Command::Visibility visibility, Settings::ExperimentalFeature::Feature feature) :
-            Command(name, parent, visibility, feature, Settings::TogglePolicy::Policy::None) {}
-        Command(std::string_view name, std::string_view parent, Command::Visibility visibility, Settings::ExperimentalFeature::Feature feature, Settings::TogglePolicy::Policy groupPolicy);
+            Command(name, {}, parent) {}
+        Command(std::string_view name,std::vector<std::string_view> aliases, std::string_view parent) :
+            Command(name, aliases, parent, Settings::ExperimentalFeature::Feature::None) {}
+        Command(std::string_view name,std::vector<std::string_view> aliases, std::string_view parent, Command::Visibility visibility) :
+            Command(name, aliases, parent, visibility, Settings::ExperimentalFeature::Feature::None) {}
+        Command(std::string_view name,std::vector<std::string_view> aliases, std::string_view parent, Settings::ExperimentalFeature::Feature feature) :
+            Command(name, aliases, parent, Command::Visibility::Show, feature) {}
+        Command(std::string_view name,std::vector<std::string_view> aliases, std::string_view parent, Settings::TogglePolicy::Policy groupPolicy) :
+            Command(name, aliases, parent, Command::Visibility::Show, Settings::ExperimentalFeature::Feature::None, groupPolicy) {}
+        Command(std::string_view name,std::vector<std::string_view> aliases, std::string_view parent, Command::Visibility visibility, Settings::ExperimentalFeature::Feature feature) :
+            Command(name, aliases, parent, visibility, feature, Settings::TogglePolicy::Policy::None) {}
+        Command(std::string_view name,std::vector<std::string_view> aliases, std::string_view parent, Command::Visibility visibility, Settings::ExperimentalFeature::Feature feature, Settings::TogglePolicy::Policy groupPolicy);
         virtual ~Command() = default;
 
         Command(const Command&) = default;
@@ -78,6 +80,7 @@ namespace AppInstaller::CLI
         constexpr static char ParentSplitChar = ':';
 
         std::string_view Name() const { return m_name; }
+        const std::vector<std::string_view>& Aliases() const& { return m_aliases; }
         const std::string& FullName() const { return m_fullName; }
         Command::Visibility GetVisibility() const;
         Settings::ExperimentalFeature::Feature Feature() const { return m_feature; }
@@ -111,6 +114,7 @@ namespace AppInstaller::CLI
     private:
         std::string_view m_name;
         std::string m_fullName;
+        std::vector<std::string_view> m_aliases;
         Command::Visibility m_visibility;
         Settings::ExperimentalFeature::Feature m_feature;
         Settings::TogglePolicy::Policy m_groupPolicy;

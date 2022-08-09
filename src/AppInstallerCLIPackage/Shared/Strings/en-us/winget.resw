@@ -126,6 +126,9 @@
   <data name="AvailableArguments" xml:space="preserve">
     <value>The following arguments are available:</value>
   </data>
+  <data name="AvailableCommandAliases" xml:space="preserve">
+    <value>The following command aliases are available:</value>
+  </data>
   <data name="AvailableCommands" xml:space="preserve">
     <value>The following commands are available:</value>
     <comment>Commands the tool supports</comment>
@@ -1031,19 +1034,19 @@ Do you agree to the terms?</value>
     <value>Installer:</value>
   </data>
   <data name="ShowLabelInstallerLocale" xml:space="preserve">
-    <value>Locale:</value>
+    <value>Installer Locale:</value>
   </data>
   <data name="ShowLabelInstallerProductId" xml:space="preserve">
     <value>Store Product Id:</value>
   </data>
   <data name="ShowLabelInstallerSha256" xml:space="preserve">
-    <value>SHA256:</value>
+    <value>Installer SHA256:</value>
   </data>
   <data name="ShowLabelInstallerType" xml:space="preserve">
-    <value>Type:</value>
+    <value>Installer Type:</value>
   </data>
   <data name="ShowLabelInstallerUrl" xml:space="preserve">
-    <value>Download Url:</value>
+    <value>Installer Url:</value>
   </data>
   <data name="ShowLabelLicense" xml:space="preserve">
     <value>License:</value>
@@ -1272,6 +1275,14 @@ Please specify one of them using the `--source` option to proceed.</value>
     <value>package has a version number that cannot be determined. Using "--include-unknown" may show more results.</value>
     <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions.</comment>
   </data>
+  <data name="UpgradeUnknownVersionCount" xml:space="preserve">
+    <value>package(s) have version numbers that cannot be determined. Use "--include-unknown" to see all results.</value>
+    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions. </comment>
+  </data>
+  <data name="UpgradeRequireExplicitCount" xml:space="preserve">
+    <value>package(s) is pinned and needs to be explicitly upgraded.</value>
+    <comment>This string is preceded by a (integer) number of packages that require explicit upgrades.</comment>
+  </data>
   <data name="InvalidArgumentWithoutQueryError" xml:space="preserve">
     <value>The arguments provided can only be used with a query.</value>
   </data>
@@ -1353,7 +1364,7 @@ Please specify one of them using the `--source` option to proceed.</value>
     <value>Notes:</value>
   </data>
   <data name="ShowLabelInstallationNotes" xml:space="preserve">
-    <value>InstallationNotes:</value>
+    <value>Installation Notes:</value>
   </data>
   <data name="SymlinkModified" xml:space="preserve">
     <value>Portable symlink not deleted as it was modified and points to a different target exe</value>
@@ -1378,6 +1389,13 @@ Please specify one of them using the `--source` option to proceed.</value>
   </data>
   <data name="MultipleNonPortableNestedInstallersSpecified" xml:space="preserve">
     <value>Only one non-portable nested installer can be specified for an archive installer</value>
+  </data>
+  <data name="IncompatibleArgumentsProvided" xml:space="preserve">
+    <value>Incompatible command line arguments provided</value>
+  </data>
+  <data name="UpgradeAvailableForPinned" xml:space="preserve">
+    <value>The following packages have an upgrade available, but require explicit targeting for upgrade:</value>
+    <comment>"require explicit targeting for upgrade" means that the package will not be upgraded with all others unless an extra flag is added, or the package is mentioned explicitly</comment>
   </data>
   <data name="InstallerAbortsTerminal" xml:space="preserve">
     <value>This installer is known to restart the terminal or shell</value>

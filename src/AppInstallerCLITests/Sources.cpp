@@ -1224,3 +1224,44 @@ TEST_CASE("RepoSources_UpdateSettingsDuringAction_MetadataUpdate", "[sources]")
         REQUIRE(sources.size() == c_DefaultSourceCount);
     }
 }
+
+TEST_CASE("RepoSources_RestoringWellKnownSource", "[sources]")
+{
+    TestHook_ClearSourceFactoryOverrides();
+    RemoveSetting(Stream::UserSources);
+
+    Source storeSource{ WellKnownSource::MicrosoftStore };
+    SourceDetails details = storeSource.GetDetails();
+    REQUIRE(!details.CertificatePinningConfiguration.IsEmpty());
+
+    TestSourceFactory factory{ SourcesTestSource::Create };
+    TestHook_SetSourceFactoryOverride(details.Type, factory);
+
+    ProgressCallback progress;
+
+    REQUIRE(storeSource.Remove(progress));
+
+    Source storeAfterRemove{ details.Name };
+    REQUIRE(!storeAfterRemove);
+
+    SECTION("with well known name")
+    {
+        Source addStoreBack{ details.Name, details.Arg, details.Type };
+        REQUIRE(addStoreBack.Add(progress));
+
+        Source storeAfterAdd{ details.Name };
+        REQUIRE(storeAfterAdd);
+        REQUIRE(!storeAfterAdd.GetDetails().CertificatePinningConfiguration.IsEmpty());
+    }
+
+    SECTION("with different name")
+    {
+        std::string newName = details.Name + "_new";
+        Source addStoreBack{ newName, details.Arg, details.Type };
+        REQUIRE(addStoreBack.Add(progress));
+
+        Source storeAfterAdd{ newName };
+        REQUIRE(storeAfterAdd);
+        REQUIRE(storeAfterAdd.GetDetails().CertificatePinningConfiguration.IsEmpty());
+    }
+}

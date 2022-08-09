@@ -11,6 +11,7 @@ namespace AppInstaller::Repository
     std::string_view GetWellKnownSourceName(WellKnownSource source);
     std::string_view GetWellKnownSourceArg(WellKnownSource source);
     std::string_view GetWellKnownSourceIdentifier(WellKnownSource source);
+    std::optional<WellKnownSource> CheckForWellKnownSourceMatch(std::string_view name, std::string_view arg, std::string_view type);
 
     // SourceDetails with additional data used internally.
     struct SourceDetailsInternal : public SourceDetails

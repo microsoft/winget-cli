@@ -106,9 +106,16 @@ namespace
         }
     };
 
+    enum TestSourceSearchOptions
+    {
+        None = 0,
+        UpgradeUsesAgreements,
+        UpgradeRequiresExplicit,
+    };
+
     struct WorkflowTestCompositeSource : public TestSource
     {
-        WorkflowTestCompositeSource(bool upgradeUsesLicenses) : m_upgradeUsesLicenses(upgradeUsesLicenses) {}
+        WorkflowTestCompositeSource(TestSourceSearchOptions searchOptions = TestSourceSearchOptions::None) : m_searchOptions(searchOptions) {}
 
         SearchResult Search(const SearchRequest& request) const override
         {
@@ -134,7 +141,17 @@ namespace
             {
                 auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
                 auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Exe.yaml"));
-                auto manifest3 = YamlParser::CreateFromPath(TestDataFile(m_upgradeUsesLicenses ? "UpdateFlowTest_Exe_2_LicenseAgreement.yaml" : "UpdateFlowTest_Exe_2.yaml"));
+                Manifest manifest3;
+                switch (m_searchOptions)
+                {
+                case TestSourceSearchOptions::UpgradeUsesAgreements:
+                    manifest3 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Exe_2_LicenseAgreement.yaml"));
+                    break;
+                default:
+                    manifest3 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Exe_2.yaml"));
+                    break;
+                }
+
                 auto testPackage =
                     TestPackage::Make(
                         manifest,
@@ -172,12 +189,33 @@ namespace
             if (input.empty() || input == "AppInstallerCliTest.TestMsixInstaller")
             {
                 auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Msix_StreamingFlow.yaml"));
-                auto manifest2 = YamlParser::CreateFromPath(TestDataFile(m_upgradeUsesLicenses ? "UpdateFlowTest_Msix_LicenseAgreement.yaml" : "UpdateFlowTest_Msix.yaml"));
+                Manifest manifest2;
+                switch (m_searchOptions)
+                {
+                case TestSourceSearchOptions::UpgradeUsesAgreements:
+                    manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Msix_LicenseAgreement.yaml"));
+                    break;
+                case TestSourceSearchOptions::None:
+                default:
+                    manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Msix.yaml"));
+                    break;
+                }
+
+                TestPackage::MetadataMap packageMetadata
+                {
+                    { PackageVersionMetadata::InstalledType, "Msix" },
+                };
+
+                if (m_searchOptions == TestSourceSearchOptions::UpgradeRequiresExplicit)
+                {
+                    packageMetadata[PackageVersionMetadata::PinnedState] = "PinnedByManifest";
+                }
+
                 result.Matches.emplace_back(
                     ResultMatch(
                         TestPackage::Make(
                             manifest,
-                            TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Msix" } },
+                            packageMetadata,
                             std::vector<Manifest>{ manifest2, manifest },
                             shared_from_this()
                         ),
@@ -339,7 +377,7 @@ namespace
             {
                 auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
                 auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Exe.yaml"));
-                auto manifest3 = YamlParser::CreateFromPath(TestDataFile(m_upgradeUsesLicenses ? "UpdateFlowTest_Exe_2_LicenseAgreement.yaml" : "UpdateFlowTest_Exe_2.yaml"));
+                auto manifest3 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Exe_2.yaml"));
                 result.Matches.emplace_back(
                     ResultMatch(
                         TestPackage::Make(
@@ -374,7 +412,7 @@ namespace
         }
 
     private:
-        bool m_upgradeUsesLicenses;
+        TestSourceSearchOptions m_searchOptions;
     };
 
     struct TestContext;
@@ -480,7 +518,7 @@ void OverrideForOpenSource(TestContext& context)
     } });
 }
 
-void OverrideForCompositeInstalledSource(TestContext& context, bool upgradeUsesLicenses = false)
+void OverrideForCompositeInstalledSource(TestContext& context, TestSourceSearchOptions searchOptions = TestSourceSearchOptions::None)
 {
     context.Override({ "OpenSource", [](TestContext&)
     {
@@ -488,7 +526,7 @@ void OverrideForCompositeInstalledSource(TestContext& context, bool upgradeUsesL
 
     context.Override({ "OpenCompositeSource", [=](TestContext& context)
     {
-        context.Add<Execution::Data::Source>(Source{ std::make_shared<WorkflowTestCompositeSource>(upgradeUsesLicenses) });
+        context.Add<Execution::Data::Source>(Source{ std::make_shared<WorkflowTestCompositeSource>(searchOptions) });
     } });
 }
 
@@ -496,13 +534,13 @@ void OverrideForImportSource(TestContext& context, bool useTestCompositeSource =
 {
     context.Override({ "OpenPredefinedSource", [=](TestContext& context)
     {
-        auto installedSource = useTestCompositeSource? std::make_shared<WorkflowTestCompositeSource>(false) : std::make_shared<TestSource>();
+        auto installedSource = useTestCompositeSource ? std::make_shared<WorkflowTestCompositeSource>() : std::make_shared<TestSource>();
         context.Add<Execution::Data::Source>(Source{ installedSource });
     } });
 
     context.Override({ Workflow::OpenSourcesForImport, [](TestContext& context)
     {
-        context.Add<Execution::Data::Sources>(std::vector<Source>{ Source{ std::make_shared<WorkflowTestCompositeSource>(false) } });
+        context.Add<Execution::Data::Sources>(std::vector<Source>{ Source{ std::make_shared<WorkflowTestCompositeSource>() } });
     } });
 }
 
@@ -613,13 +651,6 @@ void OverrideForPortableUninstall(TestContext& context)
         file.close();
 
         context.Add<Execution::Data::OperationReturnCode>(0);
-    } });
-}
-
-void OverrideForEnsureSupportForPortable(TestContext& context)
-{
-    context.Override({ EnsureSupportForPortableInstall, [](TestContext&)
-    {
     } });
 }
 
@@ -1218,6 +1249,50 @@ TEST_CASE("PortableInstallFlow", "[InstallFlow][workflow]")
     REQUIRE(std::filesystem::exists(portableInstallResultPath.GetPath()));
 }
 
+TEST_CASE("PortableInstallFlow_UserScope", "[InstallFlow][workflow]")
+{
+    TestCommon::TempDirectory tempDirectory("TestPortableInstallRoot", false);
+    TestCommon::TempFile portableInstallResultPath("TestPortableInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForPortableInstallFlow(context);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Portable.yaml").GetPath().u8string());
+    context.Args.AddArg(Execution::Args::Type::InstallLocation, tempDirectory);
+    context.Args.AddArg(Execution::Args::Type::InstallScope, "user"sv);
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    REQUIRE(std::filesystem::exists(portableInstallResultPath.GetPath()));
+}
+
+TEST_CASE("PortableInstallFlow_MachineScope", "[InstallFlow][workflow]")
+{
+    if (!AppInstaller::Runtime::IsRunningAsAdmin())
+    {
+        WARN("Test requires admin privilege. Skipped.");
+        return;
+    }
+
+    TestCommon::TempDirectory tempDirectory("TestPortableInstallRoot", false);
+    TestCommon::TempFile portableInstallResultPath("TestPortableInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForPortableInstallFlow(context);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Portable.yaml").GetPath().u8string());
+    context.Args.AddArg(Execution::Args::Type::InstallLocation, tempDirectory);
+    context.Args.AddArg(Execution::Args::Type::InstallScope, "machine"sv);
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+    REQUIRE(std::filesystem::exists(portableInstallResultPath.GetPath()));
+}
 
 TEST_CASE("PortableInstallFlow_DevModeDisabled", "[InstallFlow][workflow]")
 {
@@ -1864,7 +1939,6 @@ TEST_CASE("UpdateFlow_UpdatePortableWithManifest", "[UpdateFlow][workflow]")
     TestContext context{ updateOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForCompositeInstalledSource(context);
-    OverrideForEnsureSupportForPortable(context);
     OverrideForPortableInstallFlow(context);
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("UpdateFlowTest_Portable.yaml").GetPath().u8string());
 
@@ -2177,7 +2251,7 @@ TEST_CASE("UpdateFlow_All_LicenseAgreement", "[UpdateFlow][workflow]")
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForCompositeInstalledSource(context, /* upgradeUsesLicenses */ true);
+    OverrideForCompositeInstalledSource(context, TestSourceSearchOptions::UpgradeUsesAgreements);
     OverrideForShellExecute(context);
     OverrideForMSIX(context);
     OverrideForMSStore(context, true);
@@ -2214,7 +2288,7 @@ TEST_CASE("UpdateFlow_All_LicenseAgreement_NotAccepted", "[UpdateFlow][workflow]
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, updateInput };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForCompositeInstalledSource(context, /* upgradeUsesLicenses */ true);
+    OverrideForCompositeInstalledSource(context, TestSourceSearchOptions::UpgradeUsesAgreements);
     context.Args.AddArg(Execution::Args::Type::All);
 
     UpgradeCommand update({});
@@ -2249,6 +2323,75 @@ TEST_CASE("UninstallFlow_UninstallPortable", "[UninstallFlow][workflow]")
     uninstall.Execute(context);
     INFO(uninstallOutput.str());
     REQUIRE(std::filesystem::exists(uninstallResultPath.GetPath()));
+}
+
+TEST_CASE("UpdateFlow_RequireExplicit", "[UpdateFlow][workflow]")
+{
+    TestCommon::TempFile updateExeResultPath("TestExeInstalled.txt");
+    TestCommon::TempFile updateMsixResultPath("TestMsixInstalled.txt");
+
+    std::ostringstream updateOutput;
+    TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+
+    // Msix package has an update that requires explicit upgrade.
+    // Exe, Portable, MSStore, Zip are also listed with an available upgrade.
+    OverrideForCompositeInstalledSource(context, TestSourceSearchOptions::UpgradeRequiresExplicit);
+
+    SECTION("List available upgrades")
+    {
+        UpgradeCommand update({});
+        update.Execute(context);
+        INFO(updateOutput.str());
+
+        // The package that requires explicit upgrade is listed below the header for pinned packages
+        REQUIRE(updateOutput.str().find("AppInstallerCliTest.TestExeInstaller") != std::string::npos);
+
+        auto pinnedPackagesHeaderPosition = updateOutput.str().find(Resource::LocString(Resource::String::UpgradeAvailableForPinned));
+        auto pinnedPackageLinePosition = updateOutput.str().find("AppInstallerCliTest.TestMsixInstaller");
+        REQUIRE(pinnedPackagesHeaderPosition != std::string::npos);
+        REQUIRE(pinnedPackageLinePosition != std::string::npos);
+        REQUIRE(pinnedPackagesHeaderPosition < pinnedPackageLinePosition);
+        REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::UpgradeRequireExplicitCount)) == std::string::npos);
+    }
+
+    SECTION("Upgrade all except pinned")
+    {
+        context.Args.AddArg(Args::Type::All);
+        OverrideForMSStore(context, true);
+        OverrideForPortableInstall(context);
+        OverrideForShellExecute(context);
+        OverrideForExtractInstallerFromArchive(context);
+        OverrideForVerifyAndSetNestedInstaller(context);
+
+        UpgradeCommand update({});
+        update.Execute(context);
+        INFO(updateOutput.str());
+
+        auto s = updateOutput.str();
+
+        // Verify message is printed for skipped package
+        REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::UpgradeRequireExplicitCount)) != std::string::npos);
+
+        // Verify package is not installed, but all others are
+        REQUIRE(std::filesystem::exists(updateExeResultPath.GetPath()));
+        REQUIRE(!std::filesystem::exists(updateMsixResultPath.GetPath()));
+    }
+
+    SECTION("Upgrade explicitly")
+    {
+        context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestMsixInstaller"sv);
+        OverrideForMSIX(context);
+
+        UpgradeCommand update({});
+        update.Execute(context);
+        INFO(updateOutput.str());
+
+        REQUIRE(std::filesystem::exists(updateMsixResultPath.GetPath()));
+    }
+
+    // Command should always succeed
+    REQUIRE(context.GetTerminationHR() == S_OK);
 }
 
 TEST_CASE("UninstallFlow_UninstallExe", "[UninstallFlow][workflow]")

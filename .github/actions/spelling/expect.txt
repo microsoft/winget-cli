@@ -220,6 +220,7 @@ kayone
 Keivan
 KF
 KNOWNFOLDERID
+kp
 ktf
 langs
 LATN
@@ -275,7 +276,9 @@ myinstalldir
 mylog
 mysilent
 mysilentwithprogress
+mytool
 nameof
+nativehandle
 NESTEDINSTALLER
 NETFX
 netlify
@@ -305,6 +308,7 @@ PACL
 pathparts
 Patil
 pb
+PCCERT
 PCs
 pcwsz
 pdp
@@ -316,6 +320,7 @@ pidl
 pidlist
 pkgmgr
 pkindex
+pkix
 PMS
 positionals
 powershellgallery
@@ -329,6 +334,7 @@ pseudocode
 psm
 psobject
 ptstr
+publickey
 pvk
 pvm
 pwabuilder
@@ -351,6 +357,8 @@ REGSAM
 reparse
 restsource
 rgex
+rgp
+rgpsz
 rhs
 riid
 roblox
@@ -367,6 +375,8 @@ sddl
 semver
 seof
 serializer
+servercert
+servercertificate
 setmetadatabymanifestid
 SETTINGMAPPING
 SHCONTF

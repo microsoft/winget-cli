@@ -18,6 +18,7 @@ ignore$
 \.msix$
 \.msixbundle$
 \.png$
+\.sln$
 \.vcxitems$
 \.vcxproj$
 \.vcxproj\.filters$
@@ -33,6 +34,7 @@ ignore$
 ^src/AppInstallerCLITests/TestData/InputNames.txt$
 ^src/AppInstallerCLITests/TestData/InputPublishers.txt$
 ^src/AppInstallerCLITests/TestData/NormalizationInitialIds.txt$
+^src/AppInstallerCLIE2ETests/TestData/AppInstallerTestMsiInstaller.msi$
 ^src/AppInstallerCommonCore/external/do.h$
 ^src/catch2/
 ^src/cpprestsdk/

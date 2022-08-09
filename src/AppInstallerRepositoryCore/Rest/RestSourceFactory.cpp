@@ -40,7 +40,7 @@ namespace AppInstaller::Repository::Rest
             std::shared_ptr<ISource> Open(IProgressCallback&) override
             {
                 Initialize();
-                RestClient restClient = RestClient::Create(m_details.Arg, m_customHeader);
+                RestClient restClient = RestClient::Create(m_details.Arg, m_customHeader, m_httpClientHelper);
                 return std::make_shared<RestSource>(m_details, m_information, std::move(restClient));
             }
 
@@ -50,7 +50,8 @@ namespace AppInstaller::Repository::Rest
                 std::call_once(m_initializeFlag,
                     [&]()
                     {
-                        RestClient restClient = RestClient::Create(m_details.Arg, m_customHeader);
+                        m_httpClientHelper.SetPinningConfiguration(m_details.CertificatePinningConfiguration);
+                        RestClient restClient = RestClient::Create(m_details.Arg, m_customHeader, m_httpClientHelper);
 
                         m_details.Identifier = restClient.GetSourceIdentifier();
 
@@ -69,6 +70,7 @@ namespace AppInstaller::Repository::Rest
             }
 
             SourceDetails m_details;
+            Schema::HttpClientHelper m_httpClientHelper;
             SourceInformation m_information;
             std::optional<std::string> m_customHeader;
             std::once_flag m_initializeFlag;

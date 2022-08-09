@@ -564,6 +564,12 @@ namespace AppInstaller::Msix
         return signatureContent;
     }
 
+    Utility::SHA256::HashBuffer MsixInfo::GetSignatureHash()
+    {
+        auto signature = GetSignature();
+        return Utility::SHA256::ComputeHash(signature.data(), static_cast<uint32_t>(signature.size()));
+    }
+
     std::wstring MsixInfo::GetPackageFullNameWide()
     {
         ComPtr<IAppxManifestPackageId> packageId;
