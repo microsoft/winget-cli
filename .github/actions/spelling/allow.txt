@@ -3,7 +3,6 @@ ACCESSDENIED
 ACTIONDATA
 ACTIONSTART
 addmanifest
-addressof
 addstore
 admins
 alloc
@@ -268,6 +267,7 @@ ISource
 isspace
 istream
 istringstream
+isxdigit
 ITest
 IUnknown
 json
@@ -319,7 +319,6 @@ msdata
 MSDN
 msi
 msiexec
-MSIHANDLE
 msix
 msixbundle
 msixinfo

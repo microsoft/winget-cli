@@ -11,7 +11,6 @@ aicli
 AICLIC
 ajor
 alreadyinstalled
-Amd
 amrutha
 anonymized
 APARTMENTTHREADED
@@ -40,6 +39,8 @@ azurewebsites
 badbit
 Baz
 bcp
+BEFACEF
+BEFACEFE
 Beigi
 bfd
 BFirst
@@ -67,10 +68,8 @@ cend
 centralus
 certmgr
 certs
-Cfg
 cfr
 cgi
-cgmanifest
 chcp
 ci
 cinq
@@ -91,7 +90,6 @@ count'th
 countof
 countryregion
 createmanifestmetadata
-CSharp
 cstdint
 ctc
 Ctx
@@ -127,6 +125,7 @@ execustom
 EXEHASH
 experimentalfeatures
 fcb
+FECAFEB
 fd
 fdw
 fedorapeople
@@ -220,7 +219,6 @@ kayone
 Keivan
 KF
 KNOWNFOLDERID
-kp
 ktf
 langs
 LATN
@@ -276,11 +274,9 @@ myinstalldir
 mylog
 mysilent
 mysilentwithprogress
-mytool
 nameof
 nativehandle
 NESTEDINSTALLER
-NETFX
 netlify
 Newtonsoft
 NOEXPAND
@@ -311,7 +307,6 @@ pb
 PCCERT
 PCs
 pcwsz
-pdp
 PEGI
 pfn
 pfxpath
@@ -461,7 +456,6 @@ VERSIE
 virtualization
 vns
 vscode
-vstest
 vy
 wcslen
 webpages
