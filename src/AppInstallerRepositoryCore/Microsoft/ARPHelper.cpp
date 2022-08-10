@@ -106,18 +106,21 @@ namespace AppInstaller::Repository::Microsoft
             std::map<std::string, std::string> upgradeCodes;
 
             Registry::Key upgradeCodesKey = Registry::Key::OpenIfExists(HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Installer\\UpgradeCodes");
-            for (const auto& upgradeCodeKeyRef : upgradeCodesKey)
+            if (upgradeCodesKey)
             {
-                auto upgradeCode = TryUnpackUpgradeCodeGuid(upgradeCodeKeyRef.Name());
-                if (upgradeCode)
+                for (const auto& upgradeCodeKeyRef : upgradeCodesKey)
                 {
-                    auto upgradeCodeKey = upgradeCodeKeyRef.Open();
-                    for (const auto& productCodeValue : upgradeCodeKey.Values())
+                    auto upgradeCode = TryUnpackUpgradeCodeGuid(upgradeCodeKeyRef.Name());
+                    if (upgradeCode)
                     {
-                        auto productCode = TryUnpackUpgradeCodeGuid(productCodeValue.Name());
-                        if (productCode)
+                        auto upgradeCodeKey = upgradeCodeKeyRef.Open();
+                        for (const auto& productCodeValue : upgradeCodeKey.Values())
                         {
-                            upgradeCodes[*productCode] = *upgradeCode;
+                            auto productCode = TryUnpackUpgradeCodeGuid(productCodeValue.Name());
+                            if (productCode)
+                            {
+                                upgradeCodes[*productCode] = *upgradeCode;
+                            }
                         }
                     }
                 }
