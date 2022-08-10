@@ -52,7 +52,8 @@ namespace AppInstallerCLIE2ETests
         public const string SignTool = "signtool.exe";
         public const string IndexCreationTool = "IndexCreationTool";
         public const string WinGetUtil = "WinGetUtil";
-        public const string E2ETestLogsPath = @"Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\DiagOutputDir";
+        public const string E2ETestLogsPathPackaged = @"Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\DiagOutputDir";
+        public const string E2ETestLogsPathUnpackaged = @"WinGet\defaultState";
 
         // Installer filename
         public const string TestCommandExe = "testCommand.exe";

@@ -366,8 +366,11 @@ namespace AppInstallerCLIE2ETests
         {
             string tempPath = Path.GetTempPath();
             string localAppDataPath = Environment.GetEnvironmentVariable("LocalAppData");
-            string testLogsSourcePath = Path.Combine(localAppDataPath, Constants.E2ETestLogsPath);
+            string testLogsPackagedSourcePath = Path.Combine(localAppDataPath, Constants.E2ETestLogsPathPackaged);
+            string testLogsUnpackagedSourcePath = Path.Combine(localAppDataPath, Constants.E2ETestLogsPathUnpackaged);
             string testLogsDestPath = Path.Combine(tempPath, "E2ETestLogs");
+            string testLogsPackagedDestPath = Path.Combine(testLogsDestPath, "Packaged");
+            string testLogsUnpackagedDestPath = Path.Combine(testLogsDestPath, "Unpackaged");
 
             if (Directory.Exists(testLogsDestPath))
             {
@@ -375,9 +378,14 @@ namespace AppInstallerCLIE2ETests
                 Directory.Delete(testLogsDestPath);
             }
 
-            if (Directory.Exists(testLogsSourcePath))
+            if (Directory.Exists(testLogsPackagedSourcePath))
             {
-                TestIndexSetup.CopyDirectory(testLogsSourcePath, testLogsDestPath);
+                TestIndexSetup.CopyDirectory(testLogsPackagedSourcePath, testLogsPackagedDestPath);
+            }
+
+            if (Directory.Exists(testLogsUnpackagedSourcePath))
+            {
+                TestIndexSetup.CopyDirectory(testLogsUnpackagedSourcePath, testLogsUnpackagedDestPath);
             }
         }
 
