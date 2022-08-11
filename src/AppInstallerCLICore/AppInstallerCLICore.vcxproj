@@ -260,7 +260,7 @@
     <ClInclude Include="Commands\SettingsCommand.h" />
     <ClInclude Include="CompletionData.h" />
     <ClInclude Include="ContextOrchestrator.h" />
-    <ClInclude Include="Public\COMContext.h" />
+    <ClInclude Include="COMContext.h" />
     <ClInclude Include="Workflows\DependenciesFlow.h" />
     <ClInclude Include="ExecutionArgs.h" />
     <ClInclude Include="ExecutionContextData.h" />
