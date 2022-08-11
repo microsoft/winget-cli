@@ -3,7 +3,6 @@
 #include "pch.h"
 #include "ARPHelper.h"
 #include "winget/PortableARPEntry.h"
-#include <Msi.h>
 
 namespace AppInstaller::Repository::Microsoft
 {
