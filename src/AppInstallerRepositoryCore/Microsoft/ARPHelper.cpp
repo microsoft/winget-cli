@@ -214,7 +214,7 @@ namespace AppInstaller::Repository::Microsoft
 
             if (arpRootKey)
             {
-                PopulateIndexFromKey(index, arpRootKey, Manifest::ScopeToString(scope), Utility::ToString(architecture));
+                PopulateIndexFromKey(index, arpRootKey, Manifest::ScopeToString(scope), Utility::ConvertFromArchitectureEnum(architecture));
             }
         }
     }

@@ -82,7 +82,7 @@ namespace AppInstaller::Manifest
             if (!duplicateInstallerFound && !installerSet.insert(installer).second)
             {
                 AICLI_LOG(Core, Error, << "Duplicate installer: Type[" << InstallerTypeToString(installer.InstallerType) <<
-                    "] Architecture[" << Utility::ToString(installer.Arch) << "] Locale[" << installer.Locale <<
+                    "] Architecture[" << Utility::ConvertFromArchitectureEnum(installer.Arch) << "] Locale[" << installer.Locale <<
                     "] Scope[" << ScopeToString(installer.Scope) << "]");
 
                 resultErrors.emplace_back(ManifestError::DuplicateInstallerEntry);

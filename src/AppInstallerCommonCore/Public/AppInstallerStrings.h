@@ -230,4 +230,38 @@ namespace AppInstaller::Utility
 
     // Converts the given hexadecimal string into bytes.
     std::vector<uint8_t> ParseFromHexString(const std::string& value, size_t byteCount = 0);
+
+    // Join an arbitrary number of values using the provided separator string.
+    template <typename T, typename ... TArgs>
+    std::string Join(std::string_view separator, T value, TArgs ... optValues)
+    {
+        std::ostringstream ssJoin;
+        ssJoin << value;
+        ((ssJoin << separator << optValues), ...);
+        return ssJoin.str();
+    }
+
+    // Superset of std::to_string supporting string convertibles as input.
+    template <typename T>
+    std::string ToString(T value)
+    {
+        if constexpr (std::is_convertible_v<T, std::string> || std::is_convertible_v<T, std::string_view>)
+        {
+            return value;
+        }
+        else
+        {
+            return std::to_string(value);
+        }
+    }
+
+    // Format an input string by replacing placeholders {index} with provided values at corresponding indices.
+    // Note: After upgrading to C++20, this function should be deprecated in favor of std::format.
+    template <typename ... T>
+    std::string Format(std::string inputStr, T ... args)
+    {
+        int index = 0;
+        (FindAndReplace(inputStr, "{" + std::to_string(index++) + "}", ToString(args)), ...);
+        return inputStr;
+    }
 }
