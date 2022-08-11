@@ -79,6 +79,6 @@ namespace AppInstaller::Repository::Microsoft
         // Populates the index with the ARP entries from the given key.
         // This entry point is primarily to allow unit tests to operate of arbitrary keys;
         // product code should use PopulateIndexFromARP.
-        void PopulateIndexFromKey(SQLiteIndex& index, const Registry::Key& key, std::string_view scope, std::string_view architecture, std::map<std::string, std::string> upgradeCodes = {}) const;
+        void PopulateIndexFromKey(SQLiteIndex& index, const Registry::Key& key, std::string_view scope, std::string_view architecture, const std::map<std::string, std::string>& upgradeCodes = {}) const;
     };
 }
