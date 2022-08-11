@@ -166,9 +166,7 @@ namespace AppInstaller::CLI::Workflow
             }
 
             // Show source agreements
-            std::string agreementsTitleMessage = Resource::LocString{ Resource::String::SourceAgreementsTitle };
-            context.Reporter.Info() << Execution::SourceInfoEmphasis <<
-                Utility::LocIndString{ Utility::FindAndReplaceMessageToken(agreementsTitleMessage, details.Name) } << std::endl;
+            context.Reporter.Info() << Execution::SourceInfoEmphasis << Resource::String::SourceAgreementsTitle(details.Name) << std::endl;
 
             const auto& agreements = source.GetInformation().SourceAgreements;
 

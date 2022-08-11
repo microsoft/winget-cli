@@ -29,7 +29,6 @@ namespace AppInstaller::CLI
 
     private:
         Resource::LocString m_message;
-        std::optional<Utility::LocIndString> m_replace;
         std::vector<Utility::LocIndString> m_params;
     };
 

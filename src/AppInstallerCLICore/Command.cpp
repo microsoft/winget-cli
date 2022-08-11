@@ -15,12 +15,6 @@ namespace AppInstaller::CLI
 
     const Utility::LocIndString CommandException::Message() const
     {
-        if (m_replace)
-        {
-            return Utility::LocIndString{ Utility::FindAndReplaceMessageToken(m_message, m_replace.value()) };
-        }
-
-        // Fall back to just using the message.
         return Utility::LocIndString{ m_message.get() };
     }
 
