@@ -31,6 +31,7 @@ namespace AppInstaller
             LocString() = default;
 
             LocString(StringResource::StringId id);
+            LocString(const LocIndString& lis) : Utility::LocIndString(lis) {}
 
             LocString(const LocString&) = default;
             LocString& operator=(const LocString&) = default;

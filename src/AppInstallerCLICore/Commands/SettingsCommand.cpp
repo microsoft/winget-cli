@@ -45,7 +45,7 @@ namespace AppInstaller::CLI
     {
         if (execArgs.Contains(Execution::Args::Type::AdminSettingEnable) && execArgs.Contains(Execution::Args::Type::AdminSettingDisable))
         {
-            throw CommandException(Resource::String::TooManyAdminSettingArgumentsError, s_ArgName_EnableAndDisable);
+            throw CommandException(Resource::String::TooManyAdminSettingArgumentsError(s_ArgName_EnableAndDisable));
         }
 
         if (execArgs.Contains(Execution::Args::Type::AdminSettingEnable) && AdminSetting::Unknown == StringToAdminSetting(execArgs.GetArg(Execution::Args::Type::AdminSettingEnable)))

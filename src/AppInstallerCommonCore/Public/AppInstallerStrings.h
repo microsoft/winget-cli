@@ -247,7 +247,7 @@ namespace AppInstaller::Utility
     {
         if constexpr (std::is_convertible_v<T, std::string> || std::is_convertible_v<T, std::string_view>)
         {
-            return value;
+            return std::string(value);
         }
         else
         {
