@@ -303,15 +303,16 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     struct ReportManifestIdentityWithVersion : public WorkflowTask
     {
-        ReportManifestIdentityWithVersion(Utility::LocIndView label, Execution::Reporter::Level level = Execution::Reporter::Level::Info) :
-            WorkflowTask("ReportManifestIdentityWithVersion"), m_label(label), m_level(level) {}
-        ReportManifestIdentityWithVersion(Resource::LocString label = Resource::String::ReportIdentityFound, Execution::Reporter::Level level = Execution::Reporter::Level::Info) :
+        ReportManifestIdentityWithVersion(Utility::LocIndView prefix, Execution::Reporter::Level level = Execution::Reporter::Level::Info) :
+            WorkflowTask("ReportManifestIdentityWithVersion"), m_prefix(prefix), m_level(level) {}
+        ReportManifestIdentityWithVersion(Resource::StringId label = Resource::String::ReportIdentityFound, Execution::Reporter::Level level = Execution::Reporter::Level::Info) :
             WorkflowTask("ReportManifestIdentityWithVersion"), m_label(label), m_level(level) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
-        Utility::LocIndString m_label;
+        Utility::LocIndView m_prefix;
+        std::optional<Resource::StringId> m_label;
         Execution::Reporter::Level m_level;
     };
 

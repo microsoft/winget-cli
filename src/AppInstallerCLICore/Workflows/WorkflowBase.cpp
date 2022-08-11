@@ -34,14 +34,20 @@ namespace AppInstaller::CLI::Workflow
 
         void ReportIdentity(
             Execution::Context& context,
-            Utility::LocIndString label,
+            Utility::LocIndView prefix,
+            std::optional<Resource::StringId> label,
             std::string_view name,
             std::string_view id,
             std::string_view version = {},
             Execution::Reporter::Level level = Execution::Reporter::Level::Info)
         {
             auto out = context.Reporter.GetOutputStream(level);
-            out << label << ' ' << Execution::NameEmphasis << name << " ["_liv << Execution::IdEmphasis << id << ']';
+            out << prefix;
+            if (label)
+            {
+                out << *label << ' ';
+            }
+            out << Execution::NameEmphasis << name << " ["_liv << Execution::IdEmphasis << id << ']';
 
             if (!version.empty())
             {
@@ -941,19 +947,19 @@ namespace AppInstaller::CLI::Workflow
     void ReportPackageIdentity(Execution::Context& context)
     {
         auto package = context.Get<Execution::Data::Package>();
-        ReportIdentity(context, Resource::LocString{ Resource::String::ReportIdentityFound }, package->GetProperty(PackageProperty::Name), package->GetProperty(PackageProperty::Id));
+        ReportIdentity(context, {}, Resource::String::ReportIdentityFound, package->GetProperty(PackageProperty::Name), package->GetProperty(PackageProperty::Id));
     }
 
     void ReportManifestIdentity(Execution::Context& context)
     {
         const auto& manifest = context.Get<Execution::Data::Manifest>();
-        ReportIdentity(context, Resource::LocString{ Resource::String::ReportIdentityFound }, manifest.CurrentLocalization.Get<Manifest::Localization::PackageName>(), manifest.Id);
+        ReportIdentity(context, {}, Resource::String::ReportIdentityFound, manifest.CurrentLocalization.Get<Manifest::Localization::PackageName>(), manifest.Id);
     }
 
     void ReportManifestIdentityWithVersion::operator()(Execution::Context& context) const
     {
         const auto& manifest = context.Get<Execution::Data::Manifest>();
-        ReportIdentity(context, m_label, manifest.CurrentLocalization.Get<Manifest::Localization::PackageName>(), manifest.Id, manifest.Version, m_level);
+        ReportIdentity(context, m_prefix, m_label, manifest.CurrentLocalization.Get<Manifest::Localization::PackageName>(), manifest.Id, manifest.Version, m_level);
     }
 
     void GetManifest(Execution::Context& context)

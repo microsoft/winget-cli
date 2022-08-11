@@ -272,7 +272,7 @@ namespace AppInstaller::CLI::Workflow
                 context.Reporter.Info() << Resource::String::InstallersRequireInstallLocation << std::endl;
                 for (auto packageContext : packagesToPrompt)
                 {
-                    *packageContext << ReportManifestIdentityWithVersion(" -"_liv,  Execution::Reporter::Level::Warning);
+                    *packageContext << ReportManifestIdentityWithVersion(" - "_liv,  Execution::Reporter::Level::Warning);
                     if (packageContext->IsTerminated())
                     {
                         AICLI_TERMINATE_CONTEXT(packageContext->GetTerminationHR());
@@ -340,7 +340,7 @@ namespace AppInstaller::CLI::Workflow
                 context.Reporter.Warn() << Resource::String::InstallersAbortTerminal << std::endl;
                 for (auto packageContext : packagesToPrompt)
                 {
-                    *packageContext << ReportManifestIdentityWithVersion(" -"_liv, Execution::Reporter::Level::Warning);
+                    *packageContext << ReportManifestIdentityWithVersion(" - "_liv, Execution::Reporter::Level::Warning);
                     if (packageContext->IsTerminated())
                     {
                         AICLI_TERMINATE_CONTEXT(packageContext->GetTerminationHR());
