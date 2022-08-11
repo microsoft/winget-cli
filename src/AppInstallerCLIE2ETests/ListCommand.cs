@@ -23,7 +23,7 @@ namespace AppInstallerCLIE2ETests
             var installDir = TestCommon.GetRandomTestDir();
 
             string localAppDataPath = System.Environment.GetEnvironmentVariable(Constants.LocalAppData);
-            string logFilePath = System.IO.Path.Combine(localAppDataPath, Constants.E2ETestLogsPath);
+            string logFilePath = System.IO.Path.Combine(localAppDataPath, Constants.E2ETestLogsPathPackaged);
             logFilePath = System.IO.Path.Combine(logFilePath, "ListAfterInstall-" + System.IO.Path.GetRandomFileName() + ".log");
 
             var result = TestCommon.RunAICLICommand("list", productCode);
