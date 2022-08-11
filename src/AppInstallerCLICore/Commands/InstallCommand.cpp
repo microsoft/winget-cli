@@ -113,7 +113,8 @@ namespace AppInstaller::CLI
         {
             if (ConvertToScopeEnum(execArgs.GetArg(Args::Type::InstallScope)) == Manifest::ScopeEnum::Unknown)
             {
-                throw CommandException(Resource::String::InvalidArgumentValueError, s_ArgumentName_Scope, { "user"_lis, "machine"_lis });
+                auto validOptions = Utility::Format("'{0}', '{1}'", "user"_lis, "machine"_lis);
+                throw CommandException(Resource::String::InvalidArgumentValueError(s_ArgumentName_Scope, validOptions));
             }
         }
         if (execArgs.Contains(Args::Type::InstallArchitecture))
@@ -124,9 +125,10 @@ namespace AppInstaller::CLI
                 std::vector<Utility::LocIndString> applicableArchitectures;
                 for (Utility::Architecture i : Utility::GetApplicableArchitectures())
                 {
-                    applicableArchitectures.emplace_back(Utility::ConvertFromArchitectureEnum(i));
+                    applicableArchitectures.emplace_back(Utility::Format("'{0}'", Utility::ConvertFromArchitectureEnum(i)));
                 }
-                throw CommandException(Resource::String::InvalidArgumentValueError, s_ArgumentName_Architecture, std::forward<std::vector<Utility::LocIndString>>((applicableArchitectures)));
+                auto validOptions = Utility::Join(", ", applicableArchitectures);
+                throw CommandException(Resource::String::InvalidArgumentValueError(s_ArgumentName_Architecture, validOptions));
             }
         }
 
@@ -134,7 +136,7 @@ namespace AppInstaller::CLI
         {
             if (!Locale::IsWellFormedBcp47Tag(execArgs.GetArg(Args::Type::Locale)))
             {
-                throw CommandException(Resource::String::InvalidArgumentValueErrorWithoutValidValues, Argument::ForType(Args::Type::Locale).Name(), {});
+                throw CommandException(Resource::String::InvalidArgumentValueErrorWithoutValidValues(Argument::ForType(Args::Type::Locale).Name()));
             }
         }
     }

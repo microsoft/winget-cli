@@ -656,7 +656,7 @@ namespace AppInstaller::CLI
             {
                 auto setting = Settings::AdminSettingToString(arg.AdminSetting());
                 AICLI_LOG(CLI, Error, << "Trying to use argument: " << arg.Name() << " disabled by admin setting " << setting);
-                throw CommandException(Resource::String::FeatureDisabledByAdminSettingMessage, Utility::LocIndView{ setting }, {});
+                throw CommandException(Resource::String::FeatureDisabledByAdminSettingMessage(Utility::LocIndView{ setting }));
             }
 
             if (!ExperimentalFeature::IsEnabled(arg.Feature()) && execArgs.Contains(arg.ExecArgType()))

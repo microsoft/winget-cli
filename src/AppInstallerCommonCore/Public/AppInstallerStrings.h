@@ -231,13 +231,22 @@ namespace AppInstaller::Utility
     // Converts the given hexadecimal string into bytes.
     std::vector<uint8_t> ParseFromHexString(const std::string& value, size_t byteCount = 0);
 
-    // Join an arbitrary number of values using the provided separator string.
-    template <typename T, typename ... TArgs>
-    std::string Join(std::string_view separator, T value, TArgs ... optValues)
+    // Join vector values using the provided separator.
+    template <typename T>
+    std::string Join(std::string_view separator, const std::vector<T>& vector)
     {
+        auto vectorSize = vector.size();
+        if (vectorSize == 0)
+        {
+            return {};
+        }
+
         std::ostringstream ssJoin;
-        ssJoin << value;
-        ((ssJoin << separator << optValues), ...);
+        ssJoin << vector[0];
+        for (int i = 1; i < vectorSize; ++i)
+        {
+            ssJoin << separator << vector[i];
+        }
         return ssJoin.str();
     }
 

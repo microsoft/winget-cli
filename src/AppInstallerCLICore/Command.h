@@ -24,11 +24,6 @@ namespace AppInstaller::CLI
     {
         CommandException(Resource::LocString message) : m_message(std::move(message)) {}
 
-        // The message should be a localized string, but the replacement and parameters are not.
-        // This supports replacing %1 in the message with the replace value.
-        CommandException(Resource::LocString message, Utility::LocIndView replace, std::vector<Utility::LocIndString>&& params) :
-            m_message(std::move(message)), m_replace(replace), m_params(std::move(params)) {}
-
         const Utility::LocIndString Message() const;
         const std::vector<Utility::LocIndString>& Params() const { return m_params; }
 
