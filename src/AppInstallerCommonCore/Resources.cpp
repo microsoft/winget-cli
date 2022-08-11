@@ -57,7 +57,7 @@ namespace AppInstaller::Resource
         return std::make_pair(reinterpret_cast<BYTE*>(resourceData.first), resourceData.second);
     }
 
-    LocString::LocString(StringResource::StringId id) : Utility::LocIndString(Loader::Instance().ResolveString(id)) {}
+    LocString::LocString(StringResource::StringId id) : Utility::LocIndString(id()) {}
 
     const Loader& Loader::Instance()
     {
