@@ -1029,7 +1029,7 @@ namespace AppInstaller::CLI::Workflow
             Logging::Telemetry().LogSelectedInstaller(
                 static_cast<int>(installer->Arch),
                 installer->Url,
-                Manifest::InstallerTypeToString(installer->InstallerType),
+                Manifest::InstallerTypeToString(installer->EffectiveInstallerType()),
                 Manifest::ScopeToString(installer->Scope),
                 installer->Locale);
         }
@@ -1074,7 +1074,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::ProductCode, MatchType::Exact, installer.ProductCode));
             }
-            else if (installer.InstallerType == Manifest::InstallerTypeEnum::Portable)
+            else if (installer.EffectiveInstallerType() == Manifest::InstallerTypeEnum::Portable)
             {
                 const auto& productCode = Utility::MakeSuitablePathPart(manifest.Id + "_" + source.GetIdentifier());
                 searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::ProductCode, MatchType::CaseInsensitive, Utility::Normalize(productCode)));

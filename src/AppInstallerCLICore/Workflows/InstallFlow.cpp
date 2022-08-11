@@ -79,7 +79,7 @@ namespace AppInstaller::CLI::Workflow
         {
             auto installer = context.Get<Execution::Data::Installer>().value();
 
-            if (IsArchiveType(installer.InstallerType))
+            if (IsArchiveType(installer.BaseInstallerType))
             {
                 context <<
                     Workflow::EnsureFeatureEnabled(Settings::ExperimentalFeature::Feature::ZipInstall);
@@ -219,7 +219,7 @@ namespace AppInstaller::CLI::Workflow
 
     void ShowInstallationDisclaimer(Execution::Context& context)
     {
-        auto installerType = context.Get<Execution::Data::Installer>().value().InstallerType;
+        auto installerType = context.Get<Execution::Data::Installer>().value().EffectiveInstallerType();
 
         if (installerType == InstallerTypeEnum::MSStore)
         {
@@ -304,7 +304,7 @@ namespace AppInstaller::CLI::Workflow
 
     void ExecuteInstaller(Execution::Context& context)
     {
-        context << Workflow::ExecuteInstallerForType(context.Get<Execution::Data::Installer>().value().InstallerType);
+        context << Workflow::ExecuteInstallerForType(context.Get<Execution::Data::Installer>().value().BaseInstallerType);
     }
 
     void ArchiveInstall(Execution::Context& context)
@@ -559,7 +559,7 @@ namespace AppInstaller::CLI::Workflow
         // Ensure that installer type might actually write to ARP, otherwise this is a waste of time
         auto installer = context.Get<Execution::Data::Installer>();
 
-        if (installer && MightWriteToARP(installer->InstallerType))
+        if (installer && MightWriteToARP(installer->EffectiveInstallerType()))
         {
             Repository::Correlation::ARPCorrelationData data;
             data.CapturePreInstallSnapshot();
