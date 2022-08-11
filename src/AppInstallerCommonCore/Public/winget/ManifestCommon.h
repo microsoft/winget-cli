@@ -320,6 +320,9 @@ namespace AppInstaller::Manifest
     // Gets a value indicating whether the given installer type is an archive.
     bool IsArchiveType(InstallerTypeEnum installerType);
 
+    // Gets a value indicating whether the given nested installer type is supported.
+    bool IsNestedInstallerTypeSupported(InstallerTypeEnum nestedInstallerType);
+
     // Checks whether 2 installer types are compatible. E.g. inno and exe are update compatible
     bool IsInstallerTypeCompatible(InstallerTypeEnum type1, InstallerTypeEnum type2);
 

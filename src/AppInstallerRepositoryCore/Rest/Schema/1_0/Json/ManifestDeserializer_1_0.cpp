@@ -366,7 +366,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         }
 
         // Installer Switches
-        installer.Switches = Manifest::GetDefaultKnownSwitches(installer.BaseInstallerType);
+        installer.Switches = Manifest::GetDefaultKnownSwitches(installer.EffectiveInstallerType());
         std::optional<std::reference_wrapper<const web::json::value>> switches =
             JSON::GetJsonValueFromNode(installerJsonObject, JSON::GetUtilityString(InstallerSwitches));
         if (switches)

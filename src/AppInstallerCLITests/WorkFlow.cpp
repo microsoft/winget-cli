@@ -1090,6 +1090,28 @@ TEST_CASE("InstallFlow_Zip_MissingNestedInstaller", "[InstallFlow][workflow]")
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::NestedInstallerNotSpecified).get()) != std::string::npos);
 }
 
+TEST_CASE("InstallFlow_Zip_UnsupportedNestedInstaller", "[InstallFlow][workflow]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+    TestCommon::TestUserSettings testSettings;
+    testSettings.Set<Setting::EFZipInstall>(true);
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Zip_UnsupportedNestedInstaller.yaml").GetPath().u8string());
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    REQUIRE_TERMINATED_WITH(context, ERROR_NOT_SUPPORTED);
+
+    // Verify Installer was not called
+    REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::NestedInstallerNotSupported).get()) != std::string::npos);
+}
+
 TEST_CASE("InstallFlow_Zip_MultipleNonPortableNestedInstallers", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
@@ -1655,6 +1677,41 @@ TEST_CASE("ShowFlow_Dependencies", "[ShowFlow][workflow][dependencies]")
     REQUIRE(showOutput.str().find("Package.Dep2-x64") != std::string::npos);
     REQUIRE(showOutput.str().find("Package.Dep2-x64 [") == std::string::npos);
     REQUIRE(showOutput.str().find("ExternalDep") != std::string::npos);
+}
+
+TEST_CASE("ShowFlow_InstallerType", "[ShowFlow][workflow]")
+{
+    std::ostringstream showOutput;
+    TestContext context{ showOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Exe.yaml").GetPath().u8string());
+
+    ShowCommand show({});
+    show.Execute(context);
+    INFO(showOutput.str());
+
+    // Verify that just the base installed type is shown;
+    REQUIRE(showOutput.str().find(Resource::LocString(Resource::String::ShowLabelInstallerType)) != std::string::npos);
+    REQUIRE(showOutput.str().find("exe") != std::string::npos);
+
+    // If the base installer is incorrectly shown, an open parenthesis would appear after the effective installer type
+    REQUIRE(showOutput.str().find("exe (") == std::string::npos);
+}
+
+TEST_CASE("ShowFlow_NestedInstallerType", "[ShowFlow][workflow]")
+{
+    std::ostringstream showOutput;
+    TestContext context{ showOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_ZipWithExe.yaml").GetPath().u8string());
+
+    ShowCommand show({});
+    show.Execute(context);
+    INFO(showOutput.str());
+
+    // Verify that both the effective and base installer types are shown
+    REQUIRE(showOutput.str().find(Resource::LocString(Resource::String::ShowLabelInstallerType)) != std::string::npos);
+    REQUIRE(showOutput.str().find("exe (zip)") != std::string::npos);
 }
 
 TEST_CASE("DependencyGraph_SkipInstalled", "[InstallFlow][workflow][dependencyGraph][dependencies]")

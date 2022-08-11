@@ -71,6 +71,13 @@ namespace AppInstaller::CLI::Workflow
 
         if (IsArchiveType(installer.BaseInstallerType))
         {
+            if (!IsNestedInstallerTypeSupported(installer.NestedInstallerType))
+            {
+                AICLI_LOG(CLI, Error, << "Nested installer type not supported: " << installer.NestedInstallerType);
+                context.Reporter.Error() << Resource::String::NestedInstallerNotSupported << std::endl;
+                AICLI_TERMINATE_CONTEXT(ERROR_NOT_SUPPORTED);
+            }
+
             auto const& nestedInstallerFiles = installer.NestedInstallerFiles;
             if (nestedInstallerFiles.empty())
             {

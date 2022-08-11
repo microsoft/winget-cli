@@ -493,6 +493,20 @@ namespace AppInstaller::Manifest
         return (installerType == InstallerTypeEnum::Zip);
     }
 
+    bool IsNestedInstallerTypeSupported(InstallerTypeEnum nestedInstallerType)
+    {
+        return (
+            nestedInstallerType == InstallerTypeEnum::Exe ||
+            nestedInstallerType == InstallerTypeEnum::Inno ||
+            nestedInstallerType == InstallerTypeEnum::Msi ||
+            nestedInstallerType == InstallerTypeEnum::Nullsoft ||
+            nestedInstallerType == InstallerTypeEnum::Wix ||
+            nestedInstallerType == InstallerTypeEnum::Burn ||
+            nestedInstallerType == InstallerTypeEnum::Portable ||
+            nestedInstallerType == InstallerTypeEnum::Msix
+            );
+    }
+
     bool IsInstallerTypeCompatible(InstallerTypeEnum type1, InstallerTypeEnum type2)
     {
         // Unknown type cannot be compatible with any other
