@@ -298,6 +298,9 @@
     <CopyFileToFolders Include="TestData\InstallFlowTest_Zip_MultipleNonPortableNestedInstallers.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallFlowTest_Zip_UnsupportedNestedInstaller.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\ImportFile-Bad-Invalid.json">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
