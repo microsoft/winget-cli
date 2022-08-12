@@ -33,7 +33,6 @@ namespace AppInstaller::Repository::Microsoft
             //
             // The conversion can be done by mapping each location in the packed string
             // to the appropriate location in the unpacked string.
-
             constexpr size_t PackedLength = 32;
             if (packed.length() != PackedLength || !std::all_of(packed.begin(), packed.end(), isxdigit))
             {
@@ -78,7 +77,9 @@ namespace AppInstaller::Repository::Microsoft
             AICLI_LOG(Repo, Info, << "Reading MSI UpgradeCodes");
             std::map<std::string, std::string> upgradeCodes;
 
-            Registry::Key upgradeCodesKey = Registry::Key::OpenIfExists(HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Installer\\UpgradeCodes");
+            // There is no UpgradeCodes key on the x86 view of the registry
+            Registry::Key upgradeCodesKey = Registry::Key::OpenIfExists(HKEY_LOCAL_MACHINE, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Installer\\UpgradeCodes", 0, KEY_READ | KEY_WOW64_64KEY);
+
             if (upgradeCodesKey)
             {
                 for (const auto& upgradeCodeKeyRef : upgradeCodesKey)
