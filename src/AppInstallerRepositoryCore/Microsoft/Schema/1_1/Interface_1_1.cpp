@@ -30,7 +30,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
         std::vector<Utility::NormalizedString> GetSystemReferenceStrings(
             const Manifest::Manifest& manifest,
             std::function<const Utility::NormalizedString&(const Manifest::ManifestInstaller&)> extractStringFromInstaller,
-            std::optional<std::function<const Utility::NormalizedString& (const Manifest::AppsAndFeaturesEntry&)>> extractStringFromAppsAndFeaturesEntry = {})
+            std::function<const Utility::NormalizedString& (const Manifest::AppsAndFeaturesEntry&)> extractStringFromAppsAndFeaturesEntry = {})
         {
             std::set<Utility::NormalizedString> set;
 
@@ -42,11 +42,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
                     set.emplace(Utility::FoldCase(installerString));
                 }
 
-                if (extractStringFromAppsAndFeaturesEntry.has_value())
+                if (extractStringFromAppsAndFeaturesEntry)
                 {
                     for (const auto& entry : installer.AppsAndFeaturesEntries)
                     {
-                        const auto& entryString = (*extractStringFromAppsAndFeaturesEntry)(entry);
+                        const auto& entryString = extractStringFromAppsAndFeaturesEntry(entry);
                         if (!entryString.empty())
                         {
                             set.emplace(Utility::FoldCase(entryString));
