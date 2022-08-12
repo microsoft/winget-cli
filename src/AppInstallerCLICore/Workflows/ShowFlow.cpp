@@ -13,8 +13,8 @@ using namespace AppInstaller::Utility::literals;
 
 namespace {
 
-    template <typename CharT, typename String>
-    void ShowSingleLineField(Execution::OutputStream& outputStream, CharT label, String value, bool indent = false)
+    template <typename String>
+    void ShowSingleLineField(Execution::OutputStream outputStream, const AppInstaller::StringResource::StringId& label, const String& value, bool indent = false)
     {
         if (value.empty())
         {
@@ -27,27 +27,33 @@ namespace {
         outputStream << Execution::ManifestInfoEmphasis << label << ' ' << value << std::endl;
     }
 
-    template <typename CharT, typename String>
-    void ShowMultiLineField(Execution::OutputStream& outputStream, CharT label, String value)
+    template <typename String>
+    void ShowMultiLineField(Execution::OutputStream outputStream, const AppInstaller::StringResource::StringId& label, const String& value)
     {
         if (value.empty())
         {
             return;
         }
-        bool isMultiLine = FindAndReplace(value, "\n", "\n  ");
+        /*
+            We need to be able to find and replace within the string.However, we don't want to own the original string
+            Therefore, a copy is created here so we can manipulate it. The memory should be freed again once this method
+            returns and the string is no longer in scope.
+        */
+        std::string m_value = value;
+        bool isMultiLine = FindAndReplace(m_value, "\n", "\n  ");
         outputStream << Execution::ManifestInfoEmphasis << label;
         if (isMultiLine)
         {
-            outputStream << std::endl << "  "_liv << value << std::endl;
+            outputStream << std::endl << "  "_liv << m_value << std::endl;
         }
         else
         {
-            outputStream << ' ' << value << std::endl;
+            outputStream << ' ' << m_value << std::endl;
         }
     }
 
     template <typename Enumerable>
-    void ShowMultiValueField(Execution::OutputStream& outputStream, AppInstaller::StringResource::StringId label, Enumerable values)
+    void ShowMultiValueField(Execution::OutputStream outputStream, const AppInstaller::StringResource::StringId& label, const Enumerable& values)
     {
         if (values.empty())
         {
@@ -96,7 +102,7 @@ namespace AppInstaller::CLI::Workflow
         const auto& documentations = manifest.CurrentLocalization.Get<Manifest::Localization::Documentations>();
         if (!documentations.empty())
         {
-            ShowSingleLineField(info, Resource::String::ShowLabelDocumentation, " "_liv);
+            context.Reporter.Info() << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelDocumentation << std::endl;
             for (const auto& documentation : documentations)
             {
                 if (!documentation.DocumentUrl.empty())
@@ -114,7 +120,7 @@ namespace AppInstaller::CLI::Workflow
         const auto& agreements = manifest.CurrentLocalization.Get<Manifest::Localization::Agreements>();
         if (!agreements.empty())
         {
-            ShowSingleLineField(info, Resource::String::ShowLabelAgreements, " "_liv);
+            context.Reporter.Info() << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelAgreements << std::endl;
             for (const auto& agreement : agreements)
             {
                 if (!agreement.Label.empty())
@@ -147,18 +153,16 @@ namespace AppInstaller::CLI::Workflow
         {
             Manifest::InstallerTypeEnum effectiveInstallerType = installer->EffectiveInstallerType();
             Manifest::InstallerTypeEnum baseInstallerType = installer->BaseInstallerType;
-            if (effectiveInstallerType == baseInstallerType)
+            std::stringstream shownInstallerType;
+            shownInstallerType << Manifest::InstallerTypeToString(effectiveInstallerType);
+            if (effectiveInstallerType != baseInstallerType)
             {
-                info << "  "_liv << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelInstallerType << ' ' << Manifest::InstallerTypeToString(effectiveInstallerType) << std::endl;
+                shownInstallerType << " (" << Manifest::InstallerTypeToString(baseInstallerType) << ')';
             }
-            else
-            {
-                info << "  "_liv << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelInstallerType << ' ' << Manifest::InstallerTypeToString(effectiveInstallerType) << " (" <<
-                    Manifest::InstallerTypeToString(baseInstallerType) << ')' << std::endl;
-            }
+            ShowSingleLineField(info, Resource::String::ShowLabelInstallerType, shownInstallerType.str(), true);
             ShowSingleLineField(info, Resource::String::ShowLabelInstallerLocale, installer->Locale, true);
             ShowSingleLineField(info, Resource::String::ShowLabelInstallerUrl, installer->Url, true);
-            ShowSingleLineField(info, Resource::String::ShowLabelInstallerSha256, (installer->InstallerType == Manifest::InstallerTypeEnum::MSStore) ? "" : Utility::SHA256::ConvertToString(installer->Sha256), true);
+            ShowSingleLineField(info, Resource::String::ShowLabelInstallerSha256, (installer->Sha256.empty()) ? "" : Utility::SHA256::ConvertToString(installer->Sha256), true);
             ShowSingleLineField(info, Resource::String::ShowLabelInstallerProductId, installer->ProductId, true);
             ShowSingleLineField(info, Resource::String::ShowLabelInstallerReleaseDate, installer->ReleaseDate, true);
 
