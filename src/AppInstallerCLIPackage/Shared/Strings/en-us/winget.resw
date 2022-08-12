@@ -1025,49 +1025,49 @@ Do you agree to the terms?</value>
     <value>Agreements:</value>
   </data>
   <data name="ShowLabelAuthor" xml:space="preserve">
-    <value>Author: {0}</value>
+    <value>Author:</value>
   </data>
   <data name="ShowLabelDescription" xml:space="preserve">
-    <value>Description: {0}</value>
+    <value>Description:</value>
   </data>
   <data name="ShowLabelInstaller" xml:space="preserve">
     <value>Installer:</value>
   </data>
   <data name="ShowLabelInstallerLocale" xml:space="preserve">
-    <value>Installer Locale: {0}</value>
+    <value>Installer Locale:</value>
   </data>
   <data name="ShowLabelInstallerProductId" xml:space="preserve">
-    <value>Store Product Id: {0}</value>
+    <value>Store Product Id:</value>
   </data>
   <data name="ShowLabelInstallerSha256" xml:space="preserve">
-    <value>Installer SHA256: {0}</value>
+    <value>Installer SHA256:</value>
   </data>
   <data name="ShowLabelInstallerType" xml:space="preserve">
-    <value>Installer Type: {0}</value>
+    <value>Installer Type:</value>
   </data>
   <data name="ShowLabelInstallerUrl" xml:space="preserve">
-    <value>Installer Url: {0}</value>
+    <value>Installer Url:</value>
   </data>
   <data name="ShowLabelLicense" xml:space="preserve">
-    <value>License: {0}</value>
+    <value>License:</value>
   </data>
   <data name="ShowLabelLicenseUrl" xml:space="preserve">
-    <value>License Url: {0}</value>
+    <value>License Url:</value>
   </data>
   <data name="ShowLabelMoniker" xml:space="preserve">
-    <value>Moniker: {0}</value>
+    <value>Moniker:</value>
   </data>
   <data name="ShowLabelPackageUrl" xml:space="preserve">
-    <value>Homepage: {0}</value>
+    <value>Homepage:</value>
   </data>
   <data name="ShowLabelPublisher" xml:space="preserve">
-    <value>Publisher: {0}</value>
+    <value>Publisher:</value>
   </data>
   <data name="ShowLabelTags" xml:space="preserve">
     <value>Tags:</value>
   </data>
   <data name="ShowLabelVersion" xml:space="preserve">
-    <value>Version: {0}</value>
+    <value>Version:</value>
   </data>
   <data name="ShowLabelDependencies" xml:space="preserve">
     <value>Dependencies:</value>
@@ -1122,28 +1122,28 @@ Do you agree to the terms?</value>
     <value>The optional header is not applicable without specifying a source: '{0}'</value>
   </data>
   <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
-    <value>Release Date: {0}</value>
+    <value>Release Date:</value>
   </data>
   <data name="ShowLabelPublisherUrl" xml:space="preserve">
-    <value>Publisher Url: {0}</value>
+    <value>Publisher Url:</value>
   </data>
   <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
-    <value>Publisher Support Url: {0}</value>
+    <value>Publisher Support Url:</value>
   </data>
   <data name="ShowLabelPrivacyUrl" xml:space="preserve">
-    <value>Privacy Url: {0}</value>
+    <value>Privacy Url:</value>
   </data>
   <data name="ShowLabelCopyright" xml:space="preserve">
-    <value>Copyright: {0}</value>
+    <value>Copyright:</value>
   </data>
   <data name="ShowLabelCopyrightUrl" xml:space="preserve">
-    <value>Copyright Url: {0}</value>
+    <value>Copyright Url:</value>
   </data>
   <data name="ShowLabelReleaseNotes" xml:space="preserve">
-    <value>Release Notes: {0}</value>
+    <value>Release Notes:</value>
   </data>
   <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
-    <value>Release Notes Url: {0}</value>
+    <value>Release Notes Url:</value>
   </data>
   <data name="SearchFailureWarning" xml:space="preserve">
     <value>Failed when searching source; results will not be included: {0}</value>
@@ -1364,7 +1364,7 @@ Please specify one of them using the `--source` option to proceed.</value>
     <value>Notes: {0}</value>
   </data>
   <data name="ShowLabelInstallationNotes" xml:space="preserve">
-    <value>Installation Notes: {0}</value>
+    <value>Installation Notes:</value>
   </data>
   <data name="SymlinkModified" xml:space="preserve">
     <value>Portable symlink not deleted as it was modified and points to a different target exe</value>
