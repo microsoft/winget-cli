@@ -12,10 +12,18 @@ using namespace AppInstaller::Utility;
 using namespace AppInstaller::Utility::literals;
 
 namespace {
-    std::string MultiLineFieldFormat(std::string& value)
+    void ShowMultiLineField(Execution::OutputStream& outputStream, AppInstaller::StringResource::StringId label, std::string& value)
     {
         bool isMultiLine = FindAndReplace(value, "\n", "\n  ");
-        return Format(isMultiLine ? "\n  {0}" : " {0}", value);
+        outputStream << Execution::ManifestInfoEmphasis << label;
+        if (isMultiLine)
+        {
+            outputStream << std::endl << "  "_liv << value << std::endl;
+        }
+        else
+        {
+            outputStream << ' ' << value << std::endl;
+        }
     }
 }
 
@@ -32,26 +40,26 @@ namespace AppInstaller::CLI::Workflow
         auto info = context.Reporter.Info();
 
         // TODO: Come up with a prettier format
-        info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelVersion(manifest.Version) << std::endl;
-        info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelPublisher(manifest.CurrentLocalization.Get<Manifest::Localization::Publisher>()) << std::endl;
+        info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelVersion << ' ' << manifest.Version << std::endl;
+        info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelPublisher << ' ' << manifest.CurrentLocalization.Get<Manifest::Localization::Publisher>() << std::endl;
         auto publisherUrl = manifest.CurrentLocalization.Get<Manifest::Localization::PublisherUrl>();
         if (!publisherUrl.empty())
         {
-            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelPublisherUrl(publisherUrl) << std::endl;
+            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelPublisherUrl << ' ' << publisherUrl << std::endl;
         }
         auto publisherSupportUrl = manifest.CurrentLocalization.Get<Manifest::Localization::PublisherSupportUrl>();
         if (!publisherSupportUrl.empty())
         {
-            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelPublisherSupportUrl(publisherSupportUrl) << std::endl;
+            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelPublisherSupportUrl << ' ' << publisherSupportUrl << std::endl;
         }
         auto author = manifest.CurrentLocalization.Get<Manifest::Localization::Author>();
         if (!author.empty())
         {
-            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelAuthor(author) << std::endl;
+            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelAuthor << ' ' << author << std::endl;
         }
         if (!manifest.Moniker.empty())
         {
-            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelMoniker(manifest.Moniker) << std::endl;
+            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelMoniker << ' ' << manifest.Moniker << std::endl;
         }
         auto description = manifest.CurrentLocalization.Get<Manifest::Localization::Description>();
         if (description.empty())
@@ -61,48 +69,48 @@ namespace AppInstaller::CLI::Workflow
         }
         if (!description.empty())
         {
-            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelDescription(MultiLineFieldFormat(description)) << std::endl;
+            ShowMultiLineField(info, Resource::String::ShowLabelDescription, description);
         }
         auto homepage = manifest.CurrentLocalization.Get<Manifest::Localization::PackageUrl>();
         if (!homepage.empty())
         {
-            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelPackageUrl(homepage) << std::endl;
+            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelPackageUrl << ' ' << homepage << std::endl;
         }
-        info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelLicense(manifest.CurrentLocalization.Get<Manifest::Localization::License>()) << std::endl;
+        info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelLicense << ' ' << manifest.CurrentLocalization.Get<Manifest::Localization::License>() << std::endl;
         auto licenseUrl = manifest.CurrentLocalization.Get<Manifest::Localization::LicenseUrl>();
         if (!licenseUrl.empty())
         {
-            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelLicenseUrl(licenseUrl) << std::endl;
+            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelLicenseUrl << ' ' << licenseUrl << std::endl;
         }
         auto privacyUrl = manifest.CurrentLocalization.Get<Manifest::Localization::PrivacyUrl>();
         if (!privacyUrl.empty())
         {
-            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelPrivacyUrl(privacyUrl) << std::endl;
+            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelPrivacyUrl << ' ' << privacyUrl << std::endl;
         }
         auto copyright = manifest.CurrentLocalization.Get<Manifest::Localization::Copyright>();
         if (!copyright.empty())
         {
-            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelCopyright(copyright) << std::endl;
+            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelCopyright << ' ' << copyright << std::endl;
         }
         auto copyrightUrl = manifest.CurrentLocalization.Get<Manifest::Localization::CopyrightUrl>();
         if (!copyrightUrl.empty())
         {
-            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelCopyrightUrl(copyrightUrl) << std::endl;
+            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelCopyrightUrl << ' ' << copyrightUrl << std::endl;
         }
         auto releaseNotes = manifest.CurrentLocalization.Get<Manifest::Localization::ReleaseNotes>();
         if (!releaseNotes.empty())
         {
-            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelReleaseNotes(MultiLineFieldFormat(releaseNotes)) << std::endl;
+            ShowMultiLineField(info, Resource::String::ShowLabelReleaseNotes, releaseNotes);
         }
         auto releaseNotesUrl = manifest.CurrentLocalization.Get<Manifest::Localization::ReleaseNotesUrl>();
         if (!releaseNotesUrl.empty())
         {
-            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelReleaseNotesUrl(releaseNotesUrl) << std::endl;
+            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelReleaseNotesUrl << ' ' << releaseNotesUrl << std::endl;
         }
         auto installationNotes = manifest.CurrentLocalization.Get<Manifest::Localization::InstallationNotes>();
         if (!installationNotes.empty())
         {
-            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelInstallationNotes(MultiLineFieldFormat(installationNotes)) << std::endl;
+            ShowMultiLineField(info, Resource::String::ShowLabelInstallationNotes, installationNotes);
         }
         const auto& documentations = manifest.CurrentLocalization.Get<Manifest::Localization::Documentations>();
         if (!documentations.empty())
@@ -165,26 +173,26 @@ namespace AppInstaller::CLI::Workflow
         info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelInstaller << std::endl;
         if (installer)
         {
-            info << "  "_liv << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelInstallerType(Manifest::InstallerTypeToString(installer->InstallerType)) << std::endl;
+            info << "  "_liv << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelInstallerType << ' ' << Manifest::InstallerTypeToString(installer->InstallerType) << std::endl;
             if (!installer->Locale.empty())
             {
-                info << "  "_liv << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelInstallerLocale(installer->Locale) << std::endl;
+                info << "  "_liv << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelInstallerLocale << ' ' << installer->Locale << std::endl;
             }
             if (!installer->Url.empty())
             {
-                info << "  "_liv << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelInstallerUrl(installer->Url) << std::endl;
+                info << "  "_liv << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelInstallerUrl << ' ' << installer->Url << std::endl;
             }
             if (!installer->Sha256.empty())
             {
-                info << "  "_liv << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelInstallerSha256(Utility::SHA256::ConvertToString(installer->Sha256)) << std::endl;
+                info << "  "_liv << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelInstallerSha256 << ' ' << Utility::SHA256::ConvertToString(installer->Sha256) << std::endl;
             }
             if (!installer->ProductId.empty())
             {
-                info << "  "_liv << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelInstallerProductId(installer->ProductId) << std::endl;
+                info << "  "_liv << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelInstallerProductId << ' ' << installer->ProductId << std::endl;
             }
             if (!installer->ReleaseDate.empty())
             {
-                info << "  "_liv << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelInstallerReleaseDate(installer->ReleaseDate) << std::endl;
+                info << "  "_liv << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelInstallerReleaseDate << ' ' << installer->ReleaseDate << std::endl;
             }
 
             if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
