@@ -883,7 +883,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Enable Windows App Installer Local Manifest Files</value>
   </data>
   <data name="SettingsWarningField" xml:space="preserve">
-    <value>Field:</value>
+    <value>Field: {0}</value>
   </data>
   <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
     <value>Invalid field format.</value>
@@ -901,7 +901,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Error parsing file:</value>
   </data>
   <data name="SettingsWarningValue" xml:space="preserve">
-    <value>Value:</value>
+    <value>Value: {0}</value>
   </data>
   <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
     <value>The following experimental features are in progress.
