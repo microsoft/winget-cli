@@ -110,8 +110,9 @@ namespace AppInstaller::CLI::Workflow
                     info << "  "_liv;
                     if (!documentation.DocumentLabel.empty())
                     {
-                       info << Execution::ManifestInfoEmphasis << documentation.DocumentLabel << ": "_liv;
+                        info << Execution::ManifestInfoEmphasis << documentation.DocumentLabel << ": "_liv;
                     }
+
                     info << documentation.DocumentUrl << std::endl;
                 }
             }
