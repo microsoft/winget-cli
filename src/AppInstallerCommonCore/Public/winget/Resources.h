@@ -12,30 +12,6 @@ using namespace std::string_view_literals;
 
 namespace AppInstaller
 {
-    namespace StringResource { struct StringId; }
-    namespace Resource
-    {
-        // Get an embedded resource from the binary and return as std::string_view.
-        // Resource data is valid as long as the binary is loaded.
-        std::string_view GetResourceAsString(int resourceName, int resourceType);
-        std::string_view GetResourceAsString(PCWSTR resourceName, PCWSTR resourceType);
-
-        // Get an embedded resource from the binary and return as std::pair<BYTE*, size_t>.
-        // Resource data is valid as long as the binary is loaded.
-        std::pair<const BYTE*, size_t> GetResourceAsBytes(int resourceName, int resourceType);
-        std::pair<const BYTE*, size_t> GetResourceAsBytes(PCWSTR resourceName, PCWSTR resourceType);
-
-        struct ResourceOpenException : std::exception
-        {
-            ResourceOpenException(const winrt::hresult_error& hre);
-
-            const char* what() const noexcept override { return m_message.c_str(); }
-
-        private:
-            std::string m_message;
-        };
-    }
-
     namespace StringResource
     {
 #define WINGET_WIDE_STRINGIFY_HELP(_id_) L ## _id_
@@ -75,6 +51,29 @@ namespace AppInstaller
             WINGET_DEFINE_RESOURCE_STRINGID(SettingsWarningInvalidValueFromPolicy);
             WINGET_DEFINE_RESOURCE_STRINGID(SettingsWarningLoadedBackupSettings);
             WINGET_DEFINE_RESOURCE_STRINGID(SettingsWarningParseError);
+        };
+    }
+
+    namespace Resource
+    {
+        // Get an embedded resource from the binary and return as std::string_view.
+        // Resource data is valid as long as the binary is loaded.
+        std::string_view GetResourceAsString(int resourceName, int resourceType);
+        std::string_view GetResourceAsString(PCWSTR resourceName, PCWSTR resourceType);
+
+        // Get an embedded resource from the binary and return as std::pair<BYTE*, size_t>.
+        // Resource data is valid as long as the binary is loaded.
+        std::pair<const BYTE*, size_t> GetResourceAsBytes(int resourceName, int resourceType);
+        std::pair<const BYTE*, size_t> GetResourceAsBytes(PCWSTR resourceName, PCWSTR resourceType);
+
+        struct ResourceOpenException : std::exception
+        {
+            ResourceOpenException(const winrt::hresult_error& hre);
+
+            const char* what() const noexcept override { return m_message.c_str(); }
+
+        private:
+            std::string m_message;
         };
     }
 }

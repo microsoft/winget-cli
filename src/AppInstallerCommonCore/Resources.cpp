@@ -37,6 +37,33 @@ namespace AppInstaller
             }
         }
 
+        std::string_view GetResourceAsString(int resourceName, int resourceType)
+        {
+            return GetResourceAsString(MAKEINTRESOURCE(resourceName), MAKEINTRESOURCE(resourceType));
+        }
+
+        std::string_view GetResourceAsString(PCWSTR resourceName, PCWSTR resourceType)
+        {
+            auto resourceData = GetResourceData(resourceName, resourceType);
+            return { reinterpret_cast<char*>(resourceData.first), resourceData.second };
+        }
+
+        std::pair<const BYTE*, size_t> GetResourceAsBytes(int resourceName, int resourceType)
+        {
+            return GetResourceAsBytes(MAKEINTRESOURCE(resourceName), MAKEINTRESOURCE(resourceType));
+        }
+
+        std::pair<const BYTE*, size_t> GetResourceAsBytes(PCWSTR resourceName, PCWSTR resourceType)
+        {
+            auto resourceData = GetResourceData(resourceName, resourceType);
+            return std::make_pair(reinterpret_cast<BYTE*>(resourceData.first), resourceData.second);
+        }
+
+        ResourceOpenException::ResourceOpenException(const winrt::hresult_error& hre)
+        {
+            m_message = "Could not open the resource file: " + GetUserPresentableMessage(hre);
+        }
+
         // Utility class to load resources
         class Loader
         {
@@ -78,33 +105,6 @@ namespace AppInstaller
                 }
             }
         };
-
-        std::string_view GetResourceAsString(int resourceName, int resourceType)
-        {
-            return GetResourceAsString(MAKEINTRESOURCE(resourceName), MAKEINTRESOURCE(resourceType));
-        }
-
-        std::string_view GetResourceAsString(PCWSTR resourceName, PCWSTR resourceType)
-        {
-            auto resourceData = GetResourceData(resourceName, resourceType);
-            return { reinterpret_cast<char*>(resourceData.first), resourceData.second };
-        }
-
-        std::pair<const BYTE*, size_t> GetResourceAsBytes(int resourceName, int resourceType)
-        {
-            return GetResourceAsBytes(MAKEINTRESOURCE(resourceName), MAKEINTRESOURCE(resourceType));
-        }
-
-        std::pair<const BYTE*, size_t> GetResourceAsBytes(PCWSTR resourceName, PCWSTR resourceType)
-        {
-            auto resourceData = GetResourceData(resourceName, resourceType);
-            return std::make_pair(reinterpret_cast<BYTE*>(resourceData.first), resourceData.second);
-        }
-
-        ResourceOpenException::ResourceOpenException(const winrt::hresult_error& hre)
-        {
-            m_message = "Could not open the resource file: " + GetUserPresentableMessage(hre);
-        }
     }
 
     namespace StringResource
