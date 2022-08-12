@@ -161,7 +161,7 @@ TEST_CASE("DependencyNodeProcessor_NoInstallers", "[dependencies]")
     Dependency rootAsDependency(DependencyType::Package, manifest.Id);
 
     DependencyNodeProcessorResult result = nodeProcessor.EvaluateDependencies(rootAsDependency);
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesFlowNoInstallerFound)) != std::string::npos);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesFlowNoInstallerFound("withoutInstallers"))) != std::string::npos);
     REQUIRE(result == DependencyNodeProcessorResult::Error);
 }
 
