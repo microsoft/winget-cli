@@ -25,37 +25,6 @@ namespace AppInstaller
         std::pair<const BYTE*, size_t> GetResourceAsBytes(int resourceName, int resourceType);
         std::pair<const BYTE*, size_t> GetResourceAsBytes(PCWSTR resourceName, PCWSTR resourceType);
 
-        // A localized string
-        struct LocString : public Utility::LocIndString
-        {
-            LocString() = default;
-
-            LocString(StringResource::StringId id);
-            LocString(const LocIndString& lis) : Utility::LocIndString(lis) {}
-
-            LocString(const LocString&) = default;
-            LocString& operator=(const LocString&) = default;
-
-            LocString(LocString&&) = default;
-            LocString& operator=(LocString&&) = default;
-        };
-
-        // Utility class to load resources
-        class Loader
-        {
-        public:
-            // Gets the singleton instance of the resource loader.
-            static const Loader& Instance();
-
-            // Gets the the string resource value.
-            std::string ResolveString(std::wstring_view resKey) const;
-
-        private:
-            winrt::Windows::ApplicationModel::Resources::ResourceLoader m_wingetLoader;
-
-            Loader();
-        };
-
         struct ResourceOpenException : std::exception
         {
             ResourceOpenException(const winrt::hresult_error& hre);
@@ -81,9 +50,10 @@ namespace AppInstaller
             template<typename ...T>
             Utility::LocIndString operator()(T ... args) const
             {
-                auto resolvedId = AppInstaller::Resource::Loader::Instance().ResolveString(*this);
-                return Utility::LocIndString(Utility::Format(resolvedId, std::forward<T>(args)...));
+                return Utility::LocIndString{ Utility::Format(Resolve(), std::forward<T>(args)...) };
             }
+        private:
+            std::string Resolve() const;
         };
 
         // Resource string identifiers.

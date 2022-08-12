@@ -6,94 +6,112 @@
 #include "Public/AppInstallerStrings.h"
 #include "Public//AppInstallerErrors.h"
 
-namespace AppInstaller::Resource
+namespace AppInstaller
 {
-    namespace
+    namespace Resource
     {
-        std::pair<void*, size_t> GetResourceData(PCWSTR resourceName, PCWSTR resourceType)
+        namespace
         {
-            HMODULE resourceModule = nullptr;
-            GetModuleHandleExW(
-                GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
-                reinterpret_cast<PCWSTR>(GetResourceData),
-                &resourceModule);
-            THROW_LAST_ERROR_IF_NULL(resourceModule);
+            std::pair<void*, size_t> GetResourceData(PCWSTR resourceName, PCWSTR resourceType)
+            {
+                HMODULE resourceModule = nullptr;
+                GetModuleHandleExW(
+                    GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                    reinterpret_cast<PCWSTR>(GetResourceData),
+                    &resourceModule);
+                THROW_LAST_ERROR_IF_NULL(resourceModule);
 
-            HRSRC resourceInfoHandle = FindResourceW(resourceModule, resourceName, resourceType);
-            THROW_LAST_ERROR_IF_NULL(resourceInfoHandle);
+                HRSRC resourceInfoHandle = FindResourceW(resourceModule, resourceName, resourceType);
+                THROW_LAST_ERROR_IF_NULL(resourceInfoHandle);
 
-            HGLOBAL resourceMemoryHandle = LoadResource(resourceModule, resourceInfoHandle);
-            THROW_LAST_ERROR_IF_NULL(resourceMemoryHandle);
+                HGLOBAL resourceMemoryHandle = LoadResource(resourceModule, resourceInfoHandle);
+                THROW_LAST_ERROR_IF_NULL(resourceMemoryHandle);
 
-            DWORD resourceSize = SizeofResource(resourceModule, resourceInfoHandle);
-            THROW_LAST_ERROR_IF(resourceSize == 0);
+                DWORD resourceSize = SizeofResource(resourceModule, resourceInfoHandle);
+                THROW_LAST_ERROR_IF(resourceSize == 0);
 
-            void* resourceContent = LockResource(resourceMemoryHandle);
-            THROW_HR_IF_NULL(E_UNEXPECTED, resourceContent);
+                void* resourceContent = LockResource(resourceMemoryHandle);
+                THROW_HR_IF_NULL(E_UNEXPECTED, resourceContent);
 
-            return std::make_pair(resourceContent, static_cast<size_t>(resourceSize));
+                return std::make_pair(resourceContent, static_cast<size_t>(resourceSize));
+            }
+        }
+
+        // Utility class to load resources
+        class Loader
+        {
+        public:
+            // Gets the singleton instance of the resource loader.
+            static const Loader& Instance()
+            {
+                static Loader instance;
+                return instance;
+            }
+
+            // Gets the the string resource value.
+            std::string ResolveString(std::wstring_view resKey) const
+            {
+                return Utility::ConvertToUTF8(m_wingetLoader.GetString(resKey));
+            }
+
+        private:
+            winrt::Windows::ApplicationModel::Resources::ResourceLoader m_wingetLoader;
+
+            Loader() : m_wingetLoader(nullptr)
+            {
+                try
+                {
+                    // The default constructor of ResourceLoader throws a winrt::hresult_error exception
+                    // when resource.pri is not found. ResourceLoader::GetForViewIndependentUse also throws
+                    // a winrt::hresult_error but for reasons unknown it only gets catch when running on the
+                    // debugger. Running without a debugger will result in a crash that not even adding a
+                    // catch all fix. To provide a good error message we call the default constructor
+                    // before calling GetForViewIndependentUse.
+                    m_wingetLoader = winrt::Windows::ApplicationModel::Resources::ResourceLoader();
+                    m_wingetLoader = winrt::Windows::ApplicationModel::Resources::ResourceLoader::GetForViewIndependentUse(L"winget");
+                }
+                catch (const winrt::hresult_error& hre)
+                {
+                    // This message cannot be localized.
+                    AICLI_LOG(CLI, Error, << "Failure loading resource file with error: " << hre.code());
+                    throw ResourceOpenException(hre);
+                }
+            }
+        };
+
+        std::string_view GetResourceAsString(int resourceName, int resourceType)
+        {
+            return GetResourceAsString(MAKEINTRESOURCE(resourceName), MAKEINTRESOURCE(resourceType));
+        }
+
+        std::string_view GetResourceAsString(PCWSTR resourceName, PCWSTR resourceType)
+        {
+            auto resourceData = GetResourceData(resourceName, resourceType);
+            return { reinterpret_cast<char*>(resourceData.first), resourceData.second };
+        }
+
+        std::pair<const BYTE*, size_t> GetResourceAsBytes(int resourceName, int resourceType)
+        {
+            return GetResourceAsBytes(MAKEINTRESOURCE(resourceName), MAKEINTRESOURCE(resourceType));
+        }
+
+        std::pair<const BYTE*, size_t> GetResourceAsBytes(PCWSTR resourceName, PCWSTR resourceType)
+        {
+            auto resourceData = GetResourceData(resourceName, resourceType);
+            return std::make_pair(reinterpret_cast<BYTE*>(resourceData.first), resourceData.second);
+        }
+
+        ResourceOpenException::ResourceOpenException(const winrt::hresult_error& hre)
+        {
+            m_message = "Could not open the resource file: " + GetUserPresentableMessage(hre);
         }
     }
 
-    std::string_view GetResourceAsString(int resourceName, int resourceType)
+    namespace StringResource
     {
-        return GetResourceAsString(MAKEINTRESOURCE(resourceName), MAKEINTRESOURCE(resourceType));
-    }
-
-    std::string_view GetResourceAsString(PCWSTR resourceName, PCWSTR resourceType)
-    {
-        auto resourceData = GetResourceData(resourceName, resourceType);
-        return { reinterpret_cast<char*>(resourceData.first), resourceData.second };
-    }
-
-    std::pair<const BYTE*, size_t> GetResourceAsBytes(int resourceName, int resourceType)
-    {
-        return GetResourceAsBytes(MAKEINTRESOURCE(resourceName), MAKEINTRESOURCE(resourceType));
-    }
-
-    std::pair<const BYTE*, size_t> GetResourceAsBytes(PCWSTR resourceName, PCWSTR resourceType)
-    {
-        auto resourceData = GetResourceData(resourceName, resourceType);
-        return std::make_pair(reinterpret_cast<BYTE*>(resourceData.first), resourceData.second);
-    }
-
-    LocString::LocString(StringResource::StringId id) : Utility::LocIndString(id()) {}
-
-    const Loader& Loader::Instance()
-    {
-        static Loader instance;
-        return instance;
-    }
-
-    Loader::Loader() : m_wingetLoader(nullptr)
-    {
-        try
+        std::string StringId::Resolve() const
         {
-            // The default constructor of ResourceLoader throws a winrt::hresult_error exception
-            // when resource.pri is not found. ResourceLoader::GetForViewIndependentUse also throws
-            // a winrt::hresult_error but for reasons unknown it only gets catch when running on the
-            // debugger. Running without a debugger will result in a crash that not even adding a
-            // catch all fix. To provide a good error message we call the default constructor
-            // before calling GetForViewIndependentUse.
-            m_wingetLoader = winrt::Windows::ApplicationModel::Resources::ResourceLoader();
-            m_wingetLoader = winrt::Windows::ApplicationModel::Resources::ResourceLoader::GetForViewIndependentUse(L"winget");
+            return Resource::Loader::Instance().ResolveString(*this);
         }
-        catch (const winrt::hresult_error& hre)
-        {
-            // This message cannot be localized.
-            AICLI_LOG(CLI, Error, << "Failure loading resource file with error: " << hre.code());
-            throw ResourceOpenException(hre);
-        }
-    }
-
-    std::string Loader::ResolveString(
-        std::wstring_view resKey) const
-    {
-        return Utility::ConvertToUTF8(m_wingetLoader.GetString(resKey));
-    }
-
-    ResourceOpenException::ResourceOpenException(const winrt::hresult_error& hre)
-    {
-        m_message = "Could not open the resource file: " + GetUserPresentableMessage(hre);
     }
 }

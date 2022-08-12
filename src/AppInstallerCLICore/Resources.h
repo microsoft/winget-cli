@@ -10,8 +10,6 @@
 namespace AppInstaller::CLI::Resource
 {
     using AppInstaller::StringResource::StringId;
-    using AppInstaller::Resource::LocString;
-    using AppInstaller::Resource::Loader;
     using AppInstaller::Resource::ResourceOpenException;
 
     // Resource string identifiers.
@@ -403,6 +401,21 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(WindowsPackageManager);
         WINGET_DEFINE_RESOURCE_STRINGID(WindowsPackageManagerPreview);
         WINGET_DEFINE_RESOURCE_STRINGID(WordArgumentDescription);
+    };
+
+    // A localized string
+    struct LocString : public Utility::LocIndString
+    {
+        LocString() = default;
+
+        LocString(StringId id) : Utility::LocIndString(id()) {}
+        LocString(const LocIndString& lis) : Utility::LocIndString(lis) {}
+
+        LocString(const LocString&) = default;
+        LocString& operator=(const LocString&) = default;
+
+        LocString(LocString&&) = default;
+        LocString& operator=(LocString&&) = default;
     };
 
     // Fixed strings are not localized, but we use a similar system to prevent duplication
