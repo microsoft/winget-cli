@@ -23,7 +23,7 @@ namespace AppInstaller::CLI
     struct CommandException
     {
         CommandException(Resource::LocString message) : m_message(std::move(message)) {}
-        const Utility::LocIndString Message() const;
+        const Utility::LocIndString Message() const { return m_message; }
 
     private:
         Resource::LocString m_message;

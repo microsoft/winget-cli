@@ -13,11 +13,6 @@ namespace AppInstaller::CLI
 {
     constexpr std::string_view s_Command_ArgName_SilentAndInteractive = "silent|interactive"sv;
 
-    const Utility::LocIndString CommandException::Message() const
-    {
-        return Utility::LocIndString{ m_message.get() };
-    }
-
     Command::Command(
         std::string_view name,
         std::vector<std::string_view> aliases,
