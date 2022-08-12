@@ -329,6 +329,7 @@
     <ClInclude Include="Public\winget\Registry.h" />
     <ClInclude Include="Public\winget\PathVariable.h" />
     <ClInclude Include="Public\winget\PortableARPEntry.h" />
+    <ClInclude Include="Public\winget\PortableEntry.h" />
     <ClInclude Include="Public\winget\ManifestSchemaValidation.h" />
     <ClInclude Include="Public\winget\Resources.h" />
     <ClInclude Include="Public\winget\Settings.h" />
@@ -404,6 +405,7 @@
     <ClCompile Include="SHA256.cpp" />
     <ClCompile Include="PathVariable.cpp" />
     <ClCompile Include="PortableARPEntry.cpp" />
+    <ClCompile Include="PortableEntry.cpp" />
     <ClCompile Include="Synchronization.cpp" />
     <ClCompile Include="Telemetry\TraceLogging.cpp" />
     <ClCompile Include="Architecture.cpp" />

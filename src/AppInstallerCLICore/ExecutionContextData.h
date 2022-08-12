@@ -54,6 +54,7 @@ namespace AppInstaller::CLI::Execution
         DependencySource,
         AllowedArchitectures,
         PortableARPEntry,
+        PortableEntry,
         Max
     };
 
@@ -221,6 +222,11 @@ namespace AppInstaller::CLI::Execution
         struct DataMapping<Data::PortableARPEntry>
         {
             using value_t = Registry::Portable::PortableARPEntry;
+        };
+        template <>
+        struct DataMapping<Data::PortableEntry>
+        {
+            using value_t = Registry::Portable::PortableEntry;
         };
     }
 }

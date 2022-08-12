@@ -5,6 +5,7 @@
 #include "WorkflowBase.h"
 #include "winget/Filesystem.h"
 #include "winget/PortableARPEntry.h"
+#include "winget/PortableEntry.h"
 #include "winget/PathVariable.h"
 #include "AppInstallerStrings.h"
 
@@ -191,6 +192,7 @@ namespace AppInstaller::CLI::Workflow
             }
 
             PortableARPEntry& uninstallEntry = context.Get<Execution::Data::PortableARPEntry>();
+            PortableEntry& portableEntry = context.Get<Execution::Data::PortableEntry>();
 
             if (uninstallEntry.Exists())
             {
@@ -561,7 +563,10 @@ namespace AppInstaller::CLI::Workflow
             context.Get<Execution::Data::Installer>()->Arch,
             GetPortableProductCode(context));
 
+        PortableEntry portableEntry = PortableEntry(uninstallEntry);
+
         context.Add<Execution::Data::PortableARPEntry>(std::move(uninstallEntry));
+        context.Add<Execution::Data::PortableEntry>(std::move(portableEntry));
 
         try
         {
