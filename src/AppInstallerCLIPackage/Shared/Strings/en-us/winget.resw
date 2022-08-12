@@ -118,10 +118,10 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AdjoinedNotFlagError" xml:space="preserve">
-    <value>Adjoined alias is not a flag</value>
+    <value>Adjoined alias is not a flag: '{0}'</value>
   </data>
   <data name="AdjoinedNotFoundError" xml:space="preserve">
-    <value>Adjoined flag alias not found</value>
+    <value>Adjoined flag alias not found: '{0}'</value>
   </data>
   <data name="AvailableArguments" xml:space="preserve">
     <value>The following arguments are available:</value>
@@ -189,10 +189,10 @@
     <value>Experimental feature example</value>
   </data>
   <data name="ExtraPositionalError" xml:space="preserve">
-    <value>Found a positional argument when none was expected</value>
+    <value>Found a positional argument when none was expected: '{0}'</value>
   </data>
   <data name="FeatureDisabledMessage" xml:space="preserve">
-    <value>This feature is a work in progress, and may be changed dramatically or removed altogether in the future. To enable it, edit your settings ('winget settings') to include the experimental feature</value>
+    <value>This feature is a work in progress, and may be changed dramatically or removed altogether in the future. To enable it, edit your settings ('winget settings') to include the experimental feature: '{0}'</value>
     <comment>{Locked="winget settings"}</comment>
   </data>
   <data name="FeaturesCommandLongDescription" xml:space="preserve">
@@ -229,7 +229,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>File to be hashed</value>
   </data>
   <data name="FlagContainAdjoinedError" xml:space="preserve">
-    <value>Flag argument cannot contain adjoined value</value>
+    <value>Flag argument cannot contain adjoined value: '{0}'</value>
   </data>
   <data name="HashCommandLongDescription" xml:space="preserve">
     <value>Computes the hash of a local file, appropriate for entry into a manifest.  It can also compute the hash of the signature file of an MSIX package to enable streaming installations.</value>
@@ -244,7 +244,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>For more details on a specific command, pass it the help argument.</value>
   </data>
   <data name="HelpLinkPreamble" xml:space="preserve">
-    <value>More help can be found at:</value>
+    <value>More help can be found at: {0}</value>
   </data>
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>Filter results by id</value>
@@ -296,13 +296,13 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Request interactive installation; user input may be needed</value>
   </data>
   <data name="InvalidAliasError" xml:space="preserve">
-    <value>Argument alias was not recognized for the current command</value>
+    <value>Argument alias was not recognized for the current command: '{0}'</value>
   </data>
   <data name="InvalidArgumentSpecifierError" xml:space="preserve">
-    <value>Invalid argument specifier</value>
+    <value>Invalid argument specifier: '{0}'</value>
   </data>
   <data name="InvalidNameError" xml:space="preserve">
-    <value>Argument name was not recognized for the current command</value>
+    <value>Argument name was not recognized for the current command: '{0}'</value>
   </data>
   <data name="LocaleArgumentDescription" xml:space="preserve">
     <value>Locale to use (BCP47 format)</value>
@@ -348,7 +348,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Manifest validation succeeded with warnings.</value>
   </data>
   <data name="MissingArgumentError" xml:space="preserve">
-    <value>Argument value required, but none found</value>
+    <value>Argument value required, but none found: '{0}'</value>
   </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
     <value>Filter results by moniker</value>
@@ -363,7 +363,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Failed to install or update Microsoft Store package because the specific app is blocked by policy</value>
   </data>
   <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
-    <value>Failed to install or update Microsoft Store package. Error code:</value>
+    <value>Failed to install or update Microsoft Store package. Error code: {0}</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>Verifying/Requesting package acquisition failed: network error</value>
@@ -416,7 +416,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Override arguments to be passed on to the installer</value>
   </data>
   <data name="Package" xml:space="preserve">
-    <value>Package</value>
+    <value>Package: {0}</value>
     <comment>A software package</comment>
   </data>
   <data name="PendingWorkError" xml:space="preserve">
@@ -435,7 +435,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Progress display a rainbow of colors</value>
   </data>
   <data name="RequiredArgError" xml:space="preserve">
-    <value>Required argument not provided</value>
+    <value>Required argument not provided: '{0}'</value>
   </data>
   <data name="RetroArgumentDescription" xml:space="preserve">
     <value>Progress display as the default color</value>
@@ -495,7 +495,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Request silent installation</value>
   </data>
   <data name="SingleCharAfterDashError" xml:space="preserve">
-    <value>Only the single character alias can occur after a single -</value>
+    <value>Only the single character alias can occur after a single -: '{0}'</value>
   </data>
   <data name="SourceAddAlreadyExistsDifferentArg" xml:space="preserve">
     <value>A source with the given name already exists and refers to a different location:</value>
@@ -554,7 +554,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <comment>The source's unique identifier.</comment>
   </data>
   <data name="SourceListNoneFound" xml:space="preserve">
-    <value>Did not find a source named:</value>
+    <value>Did not find a source named: {0}</value>
   </data>
   <data name="SourceListNoSources" xml:space="preserve">
     <value>There are no sources configured.</value>
@@ -596,7 +596,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Remove current sources</value>
   </data>
   <data name="SourceRemoveOne" xml:space="preserve">
-    <value>Removing source:</value>
+    <value>Removing source: {0}</value>
   </data>
   <data name="SourceResetAll" xml:space="preserve">
     <value>Resetting all sources...</value>
@@ -615,7 +615,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <comment>{Locked="--force"}</comment>
   </data>
   <data name="SourceResetOne" xml:space="preserve">
-    <value>Resetting source:</value>
+    <value>Resetting source: {0}</value>
   </data>
   <data name="SourceTypeArgumentDescription" xml:space="preserve">
     <value>Type of the source</value>
@@ -630,7 +630,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Update current sources</value>
   </data>
   <data name="SourceUpdateOne" xml:space="preserve">
-    <value>Updating source:</value>
+    <value>Updating source: {0}</value>
   </data>
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>Filter results by tag</value>
@@ -651,16 +651,16 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Display the version of the tool</value>
   </data>
   <data name="TooManyArgError" xml:space="preserve">
-    <value>Argument provided more times than allowed</value>
+    <value>Argument provided more times than allowed: '{0}'</value>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>More than one execution behavior argument provided</value>
+    <value>More than one execution behavior argument provided: '{0}'</value>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>An unexpected error occurred while executing the command:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
-    <value>Unrecognized command</value>
+    <value>Unrecognized command: '{0}'</value>
   </data>
   <data name="UpdateAllArgumentDescription" xml:space="preserve">
     <value>Update all installed packages to latest if available</value>
@@ -676,7 +676,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Shows and performs available upgrades</value>
   </data>
   <data name="Usage" xml:space="preserve">
-    <value>usage</value>
+    <value>usage: {0} {1}</value>
     <comment>The way to use the software</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
@@ -704,10 +704,10 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>The value provided before completion is requested</value>
   </data>
   <data name="GetManifestResultVersionNotFound" xml:space="preserve">
-    <value>No version found matching:</value>
+    <value>No version found matching: {0}</value>
   </data>
   <data name="OpenSourceFailedNoMatch" xml:space="preserve">
-    <value>No sources match the given value:</value>
+    <value>No sources match the given value: {0}</value>
   </data>
   <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
     <value>The configured sources are:</value>
@@ -720,16 +720,16 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Found</value>
   </data>
   <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
-    <value>Path is a directory:</value>
+    <value>Path is a directory: {0}</value>
   </data>
   <data name="VerifyFileFailedNotExist" xml:space="preserve">
-    <value>File does not exist:</value>
+    <value>File does not exist: {0}</value>
   </data>
   <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
     <value>Both local manifest and search query arguments are provided</value>
   </data>
   <data name="Logs" xml:space="preserve">
-    <value>Logs</value>
+    <value>Logs: {0}</value>
     <comment>Diagnostic files containing information about application use.</comment>
   </data>
   <data name="InstallerBlockedByPolicy" xml:space="preserve">
@@ -742,7 +742,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>An anti-virus product reports an infection in the installer</value>
   </data>
   <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
-    <value>Failed in attempting to update the source:</value>
+    <value>Failed in attempting to update the source: {0}</value>
   </data>
   <data name="UninstallCommandLongDescription" xml:space="preserve">
     <value>Uninstalls the selected package, either found by searching the installed packages list or directly from a manifest. By default, the query must case-insensitively match the id, name, or moniker of the package. Other fields can be used by passing their appropriate option.</value>
@@ -765,7 +765,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Uninstallation abandoned</value>
   </data>
   <data name="UninstallFailedWithCode" xml:space="preserve">
-    <value>Uninstall failed with exit code:</value>
+    <value>Uninstall failed with exit code: {0}</value>
   </data>
   <data name="ExportCommandShortDescription" xml:space="preserve">
     <value>Exports a list of the installed packages</value>
@@ -793,16 +793,16 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>One or more imported packages failed to install</value>
   </data>
   <data name="ImportSearchFailed" xml:space="preserve">
-    <value>Package not found for import:</value>
+    <value>Package not found for import: {0}</value>
   </data>
   <data name="ImportSourceNotInstalled" xml:space="preserve">
-    <value>Source required for import is not installed:</value>
+    <value>Source required for import is not installed: {0}</value>
   </data>
   <data name="InstalledPackageNotAvailable" xml:space="preserve">
-    <value>Installed package is not available from any source:</value>
+    <value>Installed package is not available from any source: {0}</value>
   </data>
   <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
-    <value>Installed version of package is not available from any source:</value>
+    <value>Installed version of package is not available from any source: {0}</value>
   </data>
   <data name="NoPackagesInImportFile" xml:space="preserve">
     <value>No packages found in import file</value>
@@ -811,7 +811,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>JSON file is not valid</value>
   </data>
   <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
-    <value>Package is already installed:</value>
+    <value>Package is already installed: {0}</value>
   </data>
   <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
     <value>Ignore unavailable packages</value>
@@ -823,7 +823,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Ignore package versions from import file</value>
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
-    <value>Path does not exist:</value>
+    <value>Path does not exist: {0}</value>
   </data>
   <data name="ImportFileHasInvalidSchema" xml:space="preserve">
     <value>The JSON file does not specify a recognized schema.</value>
@@ -833,11 +833,11 @@ They can be configured through the settings file 'winget settings'.</value>
     <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
   </data>
   <data name="InvalidArgumentValueError" xml:space="preserve">
-    <value>The value provided for the `%1` argument is invalid; valid values are</value>
+    <value>The value provided for the `{0}` argument is invalid; valid values are: {1}</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
   <data name="DisabledByGroupPolicy" xml:space="preserve">
-    <value>This operation is disabled by Group Policy</value>
+    <value>This operation is disabled by Group Policy: {0}</value>
   </data>
   <data name="PolicyAdditionalSources" xml:space="preserve">
     <value>Enable Additional Windows App Installer Sources</value>
@@ -928,7 +928,7 @@ Configuration is disabled due to Group Policy.</value>
     <comment>A source that the user is allowed to add.</comment>
   </data>
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
-    <value>The value provided for the `%1` argument is invalid</value>
+    <value>The value provided for the `{0}` argument is invalid</value>
     <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
   </data>
   <data name="Cancelled" xml:space="preserve">
@@ -952,18 +952,18 @@ Configuration is disabled due to Group Policy.</value>
     <value>Dependency source not found</value>
   </data>
   <data name="DependenciesFlowSourceTooManyMatches" xml:space="preserve">
-    <value>Package search yield more than one result.</value>
+    <value>Package search yield more than one result: {0}</value>
     <comment>When node package id search yield too many matches</comment>
   </data>
   <data name="DependenciesFlowPackageVersionNotFound" xml:space="preserve">
-    <value>Latest version not found for package</value>
+    <value>Latest version not found for package: {0}</value>
     <comment>When no suitable version found for the specific package.</comment>
   </data>
   <data name="DependenciesFlowNoInstallerFound" xml:space="preserve">
-    <value>No installers found</value>
+    <value>No installers found: {0}</value>
   </data>
   <data name="DependenciesFlowNoMinVersion" xml:space="preserve">
-    <value>Minimum required version not available for package</value>
+    <value>Minimum required version not available for package: {0}</value>
   </data>
   <data name="DependenciesFlowNoMatches" xml:space="preserve">
     <value>No matches</value>
@@ -974,7 +974,7 @@ Configuration is disabled due to Group Policy.</value>
     <comment>Dependency graph has loop</comment>
   </data>
   <data name="DependenciesFlowNoSuitableInstallerFound" xml:space="preserve">
-    <value>No suitable installer found for manifest</value>
+    <value>No suitable installer found for manifest: {0}</value>
     <comment>Attempt to get preferred installer for manifest failed.</comment>
   </data>
   <data name="DependenciesManagementError" xml:space="preserve">
@@ -1012,7 +1012,7 @@ Configuration is disabled due to Group Policy.</value>
     <value>Accept all license agreements for packages</value>
   </data>
   <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
-    <value>Exported package requires license agreement to install:</value>
+    <value>Exported package requires license agreement to install: {0}</value>
   </data>
   <data name="PackageAgreementsPrompt" xml:space="preserve">
     <value>The publisher requires that you view the above information and accept the agreements before installing.
@@ -1025,49 +1025,49 @@ Do you agree to the terms?</value>
     <value>Agreements:</value>
   </data>
   <data name="ShowLabelAuthor" xml:space="preserve">
-    <value>Author:</value>
+    <value>Author: {0}</value>
   </data>
   <data name="ShowLabelDescription" xml:space="preserve">
-    <value>Description:</value>
+    <value>Description: {0}</value>
   </data>
   <data name="ShowLabelInstaller" xml:space="preserve">
     <value>Installer:</value>
   </data>
   <data name="ShowLabelInstallerLocale" xml:space="preserve">
-    <value>Installer Locale:</value>
+    <value>Installer Locale: {0}</value>
   </data>
   <data name="ShowLabelInstallerProductId" xml:space="preserve">
-    <value>Store Product Id:</value>
+    <value>Store Product Id: {0}</value>
   </data>
   <data name="ShowLabelInstallerSha256" xml:space="preserve">
-    <value>Installer SHA256:</value>
+    <value>Installer SHA256: {0}</value>
   </data>
   <data name="ShowLabelInstallerType" xml:space="preserve">
-    <value>Installer Type:</value>
+    <value>Installer Type: {0}</value>
   </data>
   <data name="ShowLabelInstallerUrl" xml:space="preserve">
-    <value>Installer Url:</value>
+    <value>Installer Url: {0}</value>
   </data>
   <data name="ShowLabelLicense" xml:space="preserve">
-    <value>License:</value>
+    <value>License: {0}</value>
   </data>
   <data name="ShowLabelLicenseUrl" xml:space="preserve">
-    <value>License Url:</value>
+    <value>License Url: {0}</value>
   </data>
   <data name="ShowLabelMoniker" xml:space="preserve">
-    <value>Moniker:</value>
+    <value>Moniker: {0}</value>
   </data>
   <data name="ShowLabelPackageUrl" xml:space="preserve">
-    <value>Homepage:</value>
+    <value>Homepage: {0}</value>
   </data>
   <data name="ShowLabelPublisher" xml:space="preserve">
-    <value>Publisher:</value>
+    <value>Publisher: {0}</value>
   </data>
   <data name="ShowLabelTags" xml:space="preserve">
     <value>Tags:</value>
   </data>
   <data name="ShowLabelVersion" xml:space="preserve">
-    <value>Version:</value>
+    <value>Version: {0}</value>
   </data>
   <data name="ShowLabelDependencies" xml:space="preserve">
     <value>Dependencies:</value>
@@ -1097,7 +1097,7 @@ Do you agree to the terms?</value>
     <value>Accept all source agreements during source operations</value>
   </data>
   <data name="SourceAgreementsTitle" xml:space="preserve">
-    <value>The `%1` source requires that you view the following agreements before using.</value>
+    <value>The `{0}` source requires that you view the following agreements before using.</value>
     <comment>{Locked="%1"} The value will be replaced with the source name</comment>
   </data>
   <data name="SourceAgreementsPrompt" xml:space="preserve">
@@ -1119,40 +1119,40 @@ Do you agree to the terms?</value>
     <value>Ignoring the optional header as it is not applicable for this source.</value>
   </data>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
-    <value>The optional header is not applicable without specifying a source</value>
+    <value>The optional header is not applicable without specifying a source: '{0}'</value>
   </data>
   <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
-    <value>Release Date:</value>
+    <value>Release Date: {0}</value>
   </data>
   <data name="ShowLabelPublisherUrl" xml:space="preserve">
-    <value>Publisher Url:</value>
+    <value>Publisher Url: {0}</value>
   </data>
   <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
-    <value>Publisher Support Url:</value>
+    <value>Publisher Support Url: {0}</value>
   </data>
   <data name="ShowLabelPrivacyUrl" xml:space="preserve">
-    <value>Privacy Url:</value>
+    <value>Privacy Url: {0}</value>
   </data>
   <data name="ShowLabelCopyright" xml:space="preserve">
-    <value>Copyright:</value>
+    <value>Copyright: {0}</value>
   </data>
   <data name="ShowLabelCopyrightUrl" xml:space="preserve">
-    <value>Copyright Url:</value>
+    <value>Copyright Url: {0}</value>
   </data>
   <data name="ShowLabelReleaseNotes" xml:space="preserve">
-    <value>Release Notes:</value>
+    <value>Release Notes: {0}</value>
   </data>
   <data name="ShowLabelReleaseNotesUrl" xml:space="preserve">
-    <value>Release Notes Url:</value>
+    <value>Release Notes Url: {0}</value>
   </data>
   <data name="SearchFailureWarning" xml:space="preserve">
-    <value>Failed when searching source; results will not be included:</value>
+    <value>Failed when searching source; results will not be included: {0}</value>
   </data>
   <data name="SearchFailureError" xml:space="preserve">
-    <value>Failed when searching source:</value>
+    <value>Failed when searching source: {0}</value>
   </data>
   <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
-    <value>This feature needs to be enabled by administrators. To enable it, run 'winget settings --enable %1' as administrator.</value>
+    <value>This feature needs to be enabled by administrators. To enable it, run 'winget settings --enable {0}' as administrator.</value>
     <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
   </data>
   <data name="AdminSettingEnableDescription" xml:space="preserve">
@@ -1162,7 +1162,7 @@ Do you agree to the terms?</value>
     <value>Disables the specific administrator setting</value>
   </data>
   <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
-    <value>Too many admin setting arguments provided</value>
+    <value>Too many admin setting arguments provided: '{0}'</value>
   </data>
   <data name="AdminSettingEnabled" xml:space="preserve">
     <value>Admin setting enabled.</value>
@@ -1219,10 +1219,10 @@ Do you agree to the terms?</value>
     <value>Installation abandoned</value>
   </data>
   <data name="InstallerFailedWithCode" xml:space="preserve">
-    <value>Installer failed with exit code:</value>
+    <value>Installer failed with exit code: {0}</value>
   </data>
   <data name="InstallerLogAvailable" xml:space="preserve">
-    <value>Installer log is available at:</value>
+    <value>Installer log is available at: {0}</value>
   </data>
   <data name="SearchFailureErrorListMatches" xml:space="preserve">
     <value>The following packages were found among the working sources.
@@ -1287,7 +1287,7 @@ Please specify one of them using the `--source` option to proceed.</value>
     <value>The arguments provided can only be used with a query.</value>
   </data>
   <data name="SystemArchitecture" xml:space="preserve">
-    <value>System Architecture</value>
+    <value>System Architecture: {0}</value>
   </data>
   <data name="PreserveArgumentDescription" xml:space="preserve">
     <value>Retains all files and directories created by the package (portable)</value>
@@ -1326,7 +1326,7 @@ Please specify one of them using the `--source` option to proceed.</value>
     <value>The specified filename is not a valid filename</value>
   </data>
   <data name="OverwritingExistingFileAtMessage" xml:space="preserve">
-    <value>Overwriting existing file:</value>
+    <value>Overwriting existing file: {0}</value>
   </data>
   <data name="NoPackageSelectionArgumentProvided" xml:space="preserve">
     <value>No package selection argument was provided; see the help for details about finding a package.</value>
@@ -1346,7 +1346,7 @@ Please specify one of them using the `--source` option to proceed.</value>
     <comment>{Locked="--force"}</comment>
   </data>
   <data name="FilesRemainInInstallDirectory" xml:space="preserve">
-    <value>Files remain in install directory:</value>
+    <value>Files remain in install directory: {0}</value>
   </data>
   <data name="PurgeInstallDirectory" xml:space="preserve">
     <value>Purging install directory...</value>
@@ -1361,10 +1361,10 @@ Please specify one of them using the `--source` option to proceed.</value>
     <value>Documentation:</value>
   </data>
   <data name="Notes" xml:space="preserve">
-    <value>Notes:</value>
+    <value>Notes: {0}</value>
   </data>
   <data name="ShowLabelInstallationNotes" xml:space="preserve">
-    <value>Installation Notes:</value>
+    <value>Installation Notes: {0}</value>
   </data>
   <data name="SymlinkModified" xml:space="preserve">
     <value>Portable symlink not deleted as it was modified and points to a different target exe</value>
@@ -1379,7 +1379,7 @@ Please specify one of them using the `--source` option to proceed.</value>
     <value>Failed to extract the contents of the archive</value>
   </data>
   <data name="NestedInstallerNotFound" xml:space="preserve">
-    <value>Nested installer file does not exist. Ensure the specified relative path of the nested installer matches: </value>
+    <value>Nested installer file does not exist. Ensure the specified relative path of the nested installer matches: {0}</value>
   </data>
   <data name="InvalidPathToNestedInstaller" xml:space="preserve">
     <value>Invalid relative file path to the nested installer; path points to a location outside of the install directory</value>
