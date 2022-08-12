@@ -31,58 +31,32 @@ namespace AppInstaller::Repository::Microsoft
             //                5BEFACEF E0D8 4EA4 F8 0A 47 B5 AA 38 C5 53
             //   UpgradeCode:     5BEFACEFE0D84EA4F80A47B5AA38C553
             //
-            // To make the conversion:
-            //   1. Validate that the packed string is hexadecimal and has the expected length
-            //   2. Split the packed string into each part/block
-            //   3. Reverse each block
-            //   4. Concatenate them with the separators
+            // The conversion can be done by mapping each location in the packed string
+            // to the appropriate location in the unpacked string.
 
-            constexpr size_t Part1Length = 8;
-            constexpr size_t Part2Length = 4;
-            constexpr size_t Part3Length = 4;
-            constexpr size_t Part4Count = 8;
-            constexpr size_t Part4BlockLength = 2;
-            constexpr size_t Part4Length = Part4Count * Part4BlockLength;
-            constexpr size_t ExpectedLength = Part1Length + Part2Length + Part3Length + Part4Length;
-            if (packed.length() != ExpectedLength || !std::all_of(packed.begin(), packed.end(), isxdigit))
+            constexpr size_t PackedLength = 32;
+            if (packed.length() != PackedLength || !std::all_of(packed.begin(), packed.end(), isxdigit))
             {
                 return {};
             }
 
-            constexpr size_t Part1Start = 0;
-            constexpr size_t Part2Start = Part1Start + Part1Length;
-            constexpr size_t Part3Start = Part2Start + Part2Length;
-            constexpr size_t Part4Start = Part3Start + Part3Length;
-
-            std::string_view part1 = packed.substr(Part1Start, Part1Length);
-            std::string_view part2 = packed.substr(Part2Start, Part2Length);
-            std::string_view part3 = packed.substr(Part3Start, Part3Length);
-
-            std::string_view part4[Part4Count];
-            for (size_t i = 0; i < Part4Count; ++i)
+            // PositionMapping[i] is the position to which the i-th char is mapped
+            // I.e., unpacked[ PositionMapping[i] ] = packed[i]
+            constexpr size_t PositionMapping[PackedLength] =
             {
-                part4[i] = packed.substr(Part4Start + i * Part4BlockLength, Part4BlockLength);
+                8,7,6,5,4,3,2,1,
+                13,12,11,10,
+                18,17,16,15,
+                21,20, 23,22,
+                26,25, 28,27, 30,29, 32,31, 34,33, 36,35,
+            };
+
+            std::string unpacked("{00000000-0000-0000-0000-000000000000}");
+            for (size_t i = 0; i < PackedLength; ++i)
+            {
+                unpacked[PositionMapping[i]] = packed[i];
             }
 
-            std::string unpacked;
-            unpacked
-                .append("{")
-                .append(part1.rbegin(), part1.rend())
-                .append("-")
-                .append(part2.rbegin(), part2.rend())
-                .append("-")
-                .append(part3.rbegin(), part3.rend())
-                .append("-")
-                .append(part4[0].rbegin(), part4[0].rend())
-                .append(part4[1].rbegin(), part4[1].rend())
-                .append("-");
-
-            for (size_t i = 2; i < Part4Count; ++i)
-            {
-                unpacked.append(part4[i].rbegin(), part4[i].rend());
-            }
-
-            unpacked.append("}");
             return unpacked;
         }
 
