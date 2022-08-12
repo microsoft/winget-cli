@@ -3,6 +3,7 @@
 #pragma once
 #include "SQLiteWrapper.h"
 #include "Microsoft/Schema/ISQLiteIndex.h"
+#include "Microsoft/Schema/IPortableIndex.h"
 
 #include <limits>
 #include <memory>
@@ -11,6 +12,7 @@ namespace AppInstaller::Repository::Microsoft::Schema
 {
     // Forward declarations
     struct ISQLiteIndex;
+    struct IPortableIndex;
 
     // Represents the schema version of the index.
     struct Version
@@ -59,6 +61,9 @@ namespace AppInstaller::Repository::Microsoft::Schema
 
         // Creates the interface object for this version.
         std::unique_ptr<ISQLiteIndex> CreateISQLiteIndex() const;
+
+        // Creates the interface object for this version.
+        std::unique_ptr<IPortableIndex> CreateIPortableIndex() const;
     };
 
     // Output the version

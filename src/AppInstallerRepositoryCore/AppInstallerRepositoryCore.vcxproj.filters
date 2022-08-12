@@ -64,6 +64,9 @@
     <Filter Include="Microsoft\Schema\1_5">
       <UniqueIdentifier>{e31c8e5b-ed2c-43c8-b91b-db8ec4c52f71}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Microsoft\Schema\Portable_1_0">
+      <UniqueIdentifier>{edef5ff7-9bfe-48f8-a179-e343d1a8b57f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -288,6 +291,21 @@
     <ClInclude Include="Microsoft\Schema\1_0\VirtualTableBase.h">
       <Filter>Microsoft\Schema\1_0</Filter>
     </ClInclude>
+    <ClInclude Include="Microsoft\Schema\Portable_1_0\PortableIndexInterface.h">
+      <Filter>Microsoft\Schema\Portable_1_0</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\PortableMetadataTable.h">
+      <Filter>Microsoft\Schema\</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\IPortableIndex.h">
+      <Filter>Microsoft\Schema\</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\SQLiteStorageBase.h">
+      <Filter>Microsoft\Schema\</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\PortableIndex.h">
+      <Filter>Microsoft\Schema\</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -452,6 +470,18 @@
     <ClCompile Include="ArpVersionValidation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClInclude Include="Microsoft\Schema\Portable_1_0\PortableIndexInterface.cpp">
+      <Filter>Microsoft\Schema\Portable_1_0</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\PortableMetadataTable.cpp">
+      <Filter>Microsoft\Schema\</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\SQLiteStorageBase.cpp">
+      <Filter>Microsoft\Schema\</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\PortableIndex.cpp">
+      <Filter>Microsoft\Schema\</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />

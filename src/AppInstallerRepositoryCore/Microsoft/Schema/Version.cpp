@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "Version.h"
 #include "MetadataTable.h"
+#include "PortableMetadataTable.h"
 
 #include "1_0/Interface.h"
 #include "1_1/Interface.h"
@@ -10,6 +11,8 @@
 #include "1_3/Interface.h"
 #include "1_4/Interface.h"
 #include "1_5/Interface.h"
+
+#include "Portable_1_0/PortableIndexInterface.h"
 
 namespace AppInstaller::Repository::Microsoft::Schema
 {
@@ -62,6 +65,18 @@ namespace AppInstaller::Repository::Microsoft::Schema
         }
 
         // We do not have the capacity to operate on this schema version
+        THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
+    }
+
+    std::unique_ptr<IPortableIndex> Version::CreateIPortableIndex() const
+    {
+        if (*this == Version{ 1, 0 } ||
+            this->MajorVersion == 1 ||
+            this->IsLatest())
+        {
+            return std::make_unique<Portable_V1_0::PortableIndexInterface>();
+        }
+
         THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
     }
 
