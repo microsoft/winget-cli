@@ -141,12 +141,13 @@ namespace AppInstaller::CLI::Workflow
 
             const std::string installedScope = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata()[Repository::PackageVersionMetadata::InstalledScope];
             const std::string installedArch = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata()[Repository::PackageVersionMetadata::InstalledArchitecture];
-            Portable::PortableARPEntry uninstallEntry = Portable::PortableARPEntry(
+            Registry::Portable::PortableARPEntry uninstallEntry = Registry::Portable::PortableARPEntry(
                 ConvertToScopeEnum(installedScope),
                 Utility::ConvertToArchitectureEnum(installedArch),
                 productCodes[0]);
+            Portable::PortableEntry portableEntry = Portable::PortableEntry(uninstallEntry);
 
-            context.Add<Execution::Data::PortableARPEntry>(uninstallEntry);
+            context.Add<Execution::Data::PortableEntry>(portableEntry);
             break;
         }
         default:

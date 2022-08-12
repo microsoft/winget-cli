@@ -5,7 +5,12 @@
 #include "winget/PortableARPEntry.h"
 #include "winget/Manifest.h"
 
-namespace AppInstaller::Registry::Portable
+using namespace AppInstaller::Registry;
+using namespace AppInstaller::Registry::Portable;
+
+#define VALUENAMECASE(valueName) case PortableValueName::valueName: return ##valueName;
+
+namespace AppInstaller::Portable
 {
     void PortableEntry::RemoveARPEntry()
     {

@@ -6,7 +6,9 @@
 #include "PortableARPEntry.h"
 #include <filesystem>
 
-namespace AppInstaller::Registry::Portable
+using namespace AppInstaller::Registry::Portable;
+
+namespace AppInstaller::Portable
 {
     struct PortableEntry
     {
@@ -27,13 +29,17 @@ namespace AppInstaller::Registry::Portable
         std::string WinGetSourceIdentifier;
         bool InstallDirectoryAddedToPath = false;
 
+        // Assigns the value to the corresponding member and commits to the registry.
         template<typename T>
-        void CommitToRegistry(PortableValueName valueName, T value)
+        void Commit(PortableValueName valueName, T& member, const T& value)
         {
-            m_portableARPEntry.SetValue(valueName, value);
+            member = value;
+            m_portableARPEntry.SetValue(valueName, member);
         }
 
         void RemoveARPEntry();
+
+        Manifest::ScopeEnum GetScope() { return m_portableARPEntry.GetScope(); };
 
         PortableEntry(PortableARPEntry& portableARPEntry);
 
