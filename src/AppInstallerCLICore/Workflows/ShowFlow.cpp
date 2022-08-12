@@ -12,18 +12,10 @@ using namespace AppInstaller::Utility;
 using namespace AppInstaller::Utility::literals;
 
 namespace {
-    void ShowMultiLineField(Execution::OutputStream& outputStream, AppInstaller::StringResource::StringId label, std::string& value)
+    std::string MultiLineFieldFormat(std::string& value)
     {
         bool isMultiLine = FindAndReplace(value, "\n", "\n  ");
-        outputStream << Execution::ManifestInfoEmphasis << label;
-        if (isMultiLine)
-        {
-            outputStream << std::endl << "  "_liv << value << std::endl;
-        }
-        else
-        {
-            outputStream << ' ' << value << std::endl;
-        }
+        return Format(isMultiLine ? "\n  {0}" : " {0}", value);
     }
 }
 
@@ -69,7 +61,7 @@ namespace AppInstaller::CLI::Workflow
         }
         if (!description.empty())
         {
-            ShowMultiLineField(info, Resource::String::ShowLabelDescription, description);
+            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelDescription(MultiLineFieldFormat(description)) << std::endl;
         }
         auto homepage = manifest.CurrentLocalization.Get<Manifest::Localization::PackageUrl>();
         if (!homepage.empty())
@@ -100,7 +92,7 @@ namespace AppInstaller::CLI::Workflow
         auto releaseNotes = manifest.CurrentLocalization.Get<Manifest::Localization::ReleaseNotes>();
         if (!releaseNotes.empty())
         {
-            ShowMultiLineField(info, Resource::String::ShowLabelReleaseNotes, releaseNotes);
+            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelReleaseNotes(MultiLineFieldFormat(releaseNotes)) << std::endl;
         }
         auto releaseNotesUrl = manifest.CurrentLocalization.Get<Manifest::Localization::ReleaseNotesUrl>();
         if (!releaseNotesUrl.empty())
@@ -110,7 +102,7 @@ namespace AppInstaller::CLI::Workflow
         auto installationNotes = manifest.CurrentLocalization.Get<Manifest::Localization::InstallationNotes>();
         if (!installationNotes.empty())
         {
-            ShowMultiLineField(info, Resource::String::ShowLabelInstallationNotes, installationNotes);
+            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelInstallationNotes(MultiLineFieldFormat(installationNotes)) << std::endl;
         }
         const auto& documentations = manifest.CurrentLocalization.Get<Manifest::Localization::Documentations>();
         if (!documentations.empty())

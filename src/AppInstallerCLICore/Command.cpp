@@ -42,8 +42,9 @@ namespace AppInstaller::CLI
 
     void Command::OutputIntroHeader(Execution::Reporter& reporter) const
     {
-        auto headerStringId = Runtime::IsReleaseBuild() ? Resource::String::WindowsPackageManager : Resource::String::WindowsPackageManagerPreview;
-        reporter.Info() << headerStringId(Runtime::GetClientVersion()) << std::endl << Resource::String::MainCopyrightNotice << std::endl;
+        auto productName = Runtime::IsReleaseBuild() ? Resource::String::WindowsPackageManager : Resource::String::WindowsPackageManagerPreview;
+        auto productVersion = Utility::Format("v{0}", Runtime::GetClientVersion());
+        reporter.Info() << productName << " " << productVersion << std::endl << Resource::String::MainCopyrightNotice << std::endl;
     }
 
     void Command::OutputHelp(Execution::Reporter& reporter, const CommandException* exception) const
@@ -55,29 +56,7 @@ namespace AppInstaller::CLI
         // Error if given
         if (exception)
         {
-            auto error = reporter.Error();
-            error << exception->Message();
-
-            if (!exception->Params().empty())
-            {
-                error << " :"_liv;
-                bool first = true;
-                for (const auto& param : exception->Params())
-                {
-                    if (first)
-                    {
-                        first = false;
-                    }
-                    else
-                    {
-                        error << ',';
-                    }
-                    error << " '"_liv << param << '\'';
-                }
-            }
-
-            error << std::endl <<
-                std::endl;
+            reporter.Error() << exception->Message() << std::endl << std::endl;
         }
 
         // Description

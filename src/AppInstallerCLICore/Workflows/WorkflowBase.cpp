@@ -908,18 +908,8 @@ namespace AppInstaller::CLI::Workflow
 
         if (!manifest)
         {
-            auto errorStream = context.Reporter.Error();
-            errorStream << Resource::String::GetManifestResultVersionNotFound << ' ';
-            if (!m_version.empty())
-            {
-                errorStream << m_version;
-            }
-            if (!m_channel.empty())
-            {
-                errorStream << '[' << m_channel << ']';
-            }
-
-            errorStream << std::endl;
+            auto versionInfo = Utility::Format(m_channel.empty() ? "{0}{1}" : "{0}[{1}]", m_version, m_channel);
+            context.Reporter.Error() << Resource::String::GetManifestResultVersionNotFound(versionInfo) << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_MANIFEST_FOUND);
         }
 

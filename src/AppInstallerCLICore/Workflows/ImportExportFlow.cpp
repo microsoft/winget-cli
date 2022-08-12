@@ -81,12 +81,8 @@ namespace AppInstaller::CLI::Workflow
                         << "Installed package version is not available."
                         << " Package Id [" << availablePackageVersion->GetProperty(PackageVersionProperty::Id) << "], Version [" << version << "], Channel [" << channel << "]"
                         << ". Found Version [" << availablePackageVersion->GetProperty(PackageVersionProperty::Version) << "], Channel [" << availablePackageVersion->GetProperty(PackageVersionProperty::Version) << "]");
-                    context.Reporter.Warn()
-                        << Resource::String::InstalledPackageVersionNotAvailable(
-                            availablePackageVersion->GetProperty(PackageVersionProperty::Id),
-                            version,
-                            channel)
-                        << std::endl;
+                    auto packageInfo = Utility::Format("{0} {1} {2}", availablePackageVersion->GetProperty(PackageVersionProperty::Id), version, channel);
+                    context.Reporter.Warn() << Resource::String::InstalledPackageVersionNotAvailable(packageInfo) << std::endl;
                 }
             }
 

@@ -82,7 +82,7 @@ namespace AppInstaller
             Utility::LocIndString operator()(T ... args) const
             {
                 auto resolvedId = AppInstaller::Resource::Loader::Instance().ResolveString(*this);
-                return Utility::LocIndString(Utility::Format(resolvedId, args...));
+                return Utility::LocIndString(Utility::Format(resolvedId, std::forward<T>(args)...));
             }
         };
 

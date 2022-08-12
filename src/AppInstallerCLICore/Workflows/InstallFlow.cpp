@@ -240,7 +240,7 @@ namespace AppInstaller::CLI::Workflow
 
             if (!installationNotes.empty())
             {
-                context.Reporter.Info() << Resource::String::Notes << ' ' << installationNotes << std::endl;
+                context.Reporter.Info() << Resource::String::Notes(installationNotes) << std::endl;
             }
         }
     }
@@ -472,17 +472,17 @@ namespace AppInstaller::CLI::Workflow
 
             if (m_isHResult)
             {
-                context.Reporter.Error() << Resource::String::InstallerFailedWithCode << ' ' << GetUserPresentableMessage(installResult) << std::endl;
+                context.Reporter.Error() << Resource::String::InstallerFailedWithCode(GetUserPresentableMessage(installResult)) << std::endl;
             }
             else
             {
-                context.Reporter.Error() << Resource::String::InstallerFailedWithCode << ' ' << installResult << std::endl;
+                context.Reporter.Error() << Resource::String::InstallerFailedWithCode(installResult) << std::endl;
             }
 
             // Show installer log path if exists
             if (context.Contains(Execution::Data::LogPath) && std::filesystem::exists(context.Get<Execution::Data::LogPath>()))
             {
-                context.Reporter.Info() << Resource::String::InstallerLogAvailable << ' ' << context.Get<Execution::Data::LogPath>().u8string() << std::endl;
+                context.Reporter.Info() << Resource::String::InstallerLogAvailable(context.Get<Execution::Data::LogPath>().u8string()) << std::endl;
             }
 
             // Show a specific message if we can identify the return code
