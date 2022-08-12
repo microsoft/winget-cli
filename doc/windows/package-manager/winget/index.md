@@ -114,6 +114,6 @@ You can configure the **winget** command line experience by modifying the **sett
 
 The **winget** tool is open source software available on GitHub in the repo [https://github.com/microsoft/winget-cli/](https://github.com/microsoft/winget-cli/). The source for building the client is located in the [src folder](https://github.com/microsoft/winget-cli/tree/master/src).
 
-The source for **winget** is contained in a Visual Studio C++ solution. To build the solution correctly, install the latest [Visual Studio with the C++ workload](https://visualstudio.microsoft.com/downloads/).
+The source for **winget** is contained in a Visual Studio solution. To build the solution correctly, install the latest [Visual Studio with the C++ workload](https://visualstudio.microsoft.com/downloads/).
 
 We encourage you to contribute to the **winget** source on GitHub. You must first agree to and sign the Microsoft CLA.
