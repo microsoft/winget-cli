@@ -82,9 +82,11 @@ namespace AppInstaller::CLI::Workflow
                         << " Package Id [" << availablePackageVersion->GetProperty(PackageVersionProperty::Id) << "], Version [" << version << "], Channel [" << channel << "]"
                         << ". Found Version [" << availablePackageVersion->GetProperty(PackageVersionProperty::Version) << "], Channel [" << availablePackageVersion->GetProperty(PackageVersionProperty::Version) << "]");
                     context.Reporter.Warn()
-                        << Resource::String::InstalledPackageVersionNotAvailable
-                        << ' ' << availablePackageVersion->GetProperty(PackageVersionProperty::Id)
-                        << ' ' << version << ' ' << channel << std::endl;
+                        << Resource::String::InstalledPackageVersionNotAvailable(
+                            availablePackageVersion->GetProperty(PackageVersionProperty::Id),
+                            version,
+                            channel)
+                        << std::endl;
                 }
             }
 
@@ -111,7 +113,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 // Report package not found and move to next package.
                 AICLI_LOG(CLI, Warning, << "No available version of package [" << installedPackageVersion->GetProperty(PackageVersionProperty::Name) << "] was found to export");
-                context.Reporter.Warn() << Resource::String::InstalledPackageNotAvailable << ' ' << installedPackageVersion->GetProperty(PackageVersionProperty::Name) << std::endl;
+                context.Reporter.Warn() << Resource::String::InstalledPackageNotAvailable(installedPackageVersion->GetProperty(PackageVersionProperty::Name)) << std::endl;
                 continue;
             }
 
@@ -123,7 +125,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 // Report that the package requires accepting license terms
                 AICLI_LOG(CLI, Warning, << "Package [" << installedPackageVersion->GetProperty(PackageVersionProperty::Name) << "] requires license agreement to install");
-                context.Reporter.Warn() << Resource::String::ExportedPackageRequiresLicenseAgreement << ' ' << installedPackageVersion->GetProperty(PackageVersionProperty::Name) << std::endl;
+                context.Reporter.Warn() << Resource::String::ExportedPackageRequiresLicenseAgreement(installedPackageVersion->GetProperty(PackageVersionProperty::Name)) << std::endl;
             }
 
             // Find the exported source for this package
@@ -231,7 +233,7 @@ namespace AppInstaller::CLI::Workflow
             else
             {
                 AICLI_LOG(CLI, Error, << "Missing required source: " << requiredSource.Details.Name);
-                context.Reporter.Warn() << Resource::String::ImportSourceNotInstalled << ' ' << requiredSource.Details.Name << std::endl;
+                context.Reporter.Warn() << Resource::String::ImportSourceNotInstalled(requiredSource.Details.Name) << std::endl;
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST);
             }
 
@@ -307,13 +309,13 @@ namespace AppInstaller::CLI::Workflow
                     else if (searchContext.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE)
                     {
                         AICLI_LOG(CLI, Info, << "Package is already installed: [" << packageRequest.Id << "]");
-                        context.Reporter.Info() << Resource::String::ImportPackageAlreadyInstalled << ' ' << packageRequest.Id << std::endl;
+                        context.Reporter.Info() << Resource::String::ImportPackageAlreadyInstalled(packageRequest.Id) << std::endl;
                         continue;
                     }
                     else
                     {
                         AICLI_LOG(CLI, Info, << "Package not found for import: [" << packageRequest.Id << "], Version " << packageRequest.VersionAndChannel.ToString());
-                        context.Reporter.Info() << Resource::String::ImportSearchFailed << ' ' << packageRequest.Id << std::endl;
+                        context.Reporter.Info() << Resource::String::ImportSearchFailed(packageRequest.Id) << std::endl;
 
                         // Keep searching for the remaining packages and only fail at the end.
                         foundAll = false;

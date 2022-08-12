@@ -42,9 +42,8 @@ namespace AppInstaller::CLI
 
     void Command::OutputIntroHeader(Execution::Reporter& reporter) const
     {
-        reporter.Info() <<
-            (Runtime::IsReleaseBuild() ? Resource::String::WindowsPackageManager : Resource::String::WindowsPackageManagerPreview) << " v"_liv << Runtime::GetClientVersion() << std::endl <<
-            Resource::String::MainCopyrightNotice << std::endl;
+        auto headerStringId = Runtime::IsReleaseBuild() ? Resource::String::WindowsPackageManager : Resource::String::WindowsPackageManagerPreview;
+        reporter.Info() << headerStringId(Runtime::GetClientVersion()) << std::endl << Resource::String::MainCopyrightNotice << std::endl;
     }
 
     void Command::OutputHelp(Execution::Reporter& reporter, const CommandException* exception) const
@@ -108,7 +107,7 @@ namespace AppInstaller::CLI
         }
 
         // Output the command preamble and command chain
-        infoOut << Resource::String::Usage << ": winget"_liv << Utility::LocIndView{ commandChain };
+        infoOut << Resource::String::Usage("winget"_liv, Utility::LocIndView{ commandChain });
 
         auto commandAliases = Aliases();
         auto commands = GetVisibleCommands();
@@ -276,7 +275,7 @@ namespace AppInstaller::CLI
         std::string helpLink = HelpLink();
         if (!helpLink.empty())
         {
-            infoOut << std::endl << Resource::String::HelpLinkPreamble << ' ' << helpLink << std::endl;
+            infoOut << std::endl << Resource::String::HelpLinkPreamble(helpLink) << std::endl;
         }
     }
 

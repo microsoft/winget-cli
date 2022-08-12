@@ -31,7 +31,7 @@ namespace AppInstaller::CLI::Workflow
 
         if (matches.size() > 1)
         {
-            error << Resource::String::DependenciesFlowSourceTooManyMatches << " " << Utility::Normalize(dependencyNode.Id);
+            error << Resource::String::DependenciesFlowSourceTooManyMatches(Utility::Normalize(dependencyNode.Id));
             AICLI_LOG(CLI, Error, << "Too many matches for package " << dependencyNode.Id);
             return DependencyNodeProcessorResult::Error;
         }
@@ -52,14 +52,14 @@ namespace AppInstaller::CLI::Workflow
         
         if (!m_nodePackageLatestVersion)
         {
-            error << Resource::String::DependenciesFlowPackageVersionNotFound << " " << Utility::Normalize(packageId);
+            error << Resource::String::DependenciesFlowPackageVersionNotFound(Utility::Normalize(packageId));
             AICLI_LOG(CLI, Error, << "Latest available version not found for package " << packageId);
             return DependencyNodeProcessorResult::Error;
         }
 
         if (!dependencyNode.IsVersionOk(Utility::Version(m_nodePackageLatestVersion->GetProperty(PackageVersionProperty::Version))))
         {
-            error << Resource::String::DependenciesFlowNoMinVersion << " " << Utility::Normalize(packageId);
+            error << Resource::String::DependenciesFlowNoMinVersion(Utility::Normalize(packageId));
             AICLI_LOG(CLI, Error, << "No suitable min version found for package " << packageId);
             return DependencyNodeProcessorResult::Error;
         }
@@ -69,7 +69,7 @@ namespace AppInstaller::CLI::Workflow
 
         if (m_nodeManifest.Installers.empty())
         {
-            error << Resource::String::DependenciesFlowNoInstallerFound << " " << Utility::Normalize(m_nodeManifest.Id);
+            error << Resource::String::DependenciesFlowNoInstallerFound(Utility::Normalize(m_nodeManifest.Id));
             AICLI_LOG(CLI, Error, << "Installer not found for manifest " << m_nodeManifest.Id << " with version" << m_nodeManifest.Version);
             return DependencyNodeProcessorResult::Error;
         }
@@ -85,7 +85,7 @@ namespace AppInstaller::CLI::Workflow
 
         if (!installer.has_value())
         {
-            error << Resource::String::DependenciesFlowNoSuitableInstallerFound << " " << Utility::Normalize(m_nodeManifest.Id) << m_nodeManifest.Version;
+            error << Resource::String::DependenciesFlowNoSuitableInstallerFound(Utility::Normalize(m_nodeManifest.Id)) << m_nodeManifest.Version;
             AICLI_LOG(CLI, Error, << "No suitable installer found for manifest " << m_nodeManifest.Id << " with version " << m_nodeManifest.Version);
             return DependencyNodeProcessorResult::Error;
         }

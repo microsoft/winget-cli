@@ -180,7 +180,11 @@ namespace AppInstaller::CLI::Workflow
         }
         else
         {
-            context.Reporter.Info() << Resource::String::MSStoreInstallOrUpdateFailed << ' ' << WINGET_OSTREAM_FORMAT_HRESULT(errorCode) << std::endl;
+            // TODO: Replace with GetUserPresentableMessage?
+            std::ostringstream ssError;
+            ssError << WINGET_OSTREAM_FORMAT_HRESULT(errorCode);
+
+            context.Reporter.Info() << Resource::String::MSStoreInstallOrUpdateFailed(ssError.str()) << std::endl;
             AICLI_LOG(CLI, Error, << "MSStore execution failed. ProductId: " << Utility::ConvertToUTF8(productId) << " HResult: " << WINGET_OSTREAM_FORMAT_HRESULT(errorCode));
             AICLI_TERMINATE_CONTEXT(errorCode);
         }

@@ -35,7 +35,7 @@ namespace AppInstaller::CLI::Workflow
                 }
             }
 
-            context.Reporter.Error() << Resource::String::SourceListNoneFound << ' ' << name << std::endl;
+            context.Reporter.Error() << Resource::String::SourceListNoneFound(name) << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST);
         }
         else
@@ -144,24 +144,24 @@ namespace AppInstaller::CLI::Workflow
 
             Execution::TableOutput<2> table(context.Reporter, { Resource::String::SourceListField, Resource::String::SourceListValue });
 
-            table.OutputLine({ Resource::Loader::Instance().ResolveString(Resource::String::SourceListName), source.Name });
-            table.OutputLine({ Resource::Loader::Instance().ResolveString(Resource::String::SourceListType), source.Type });
-            table.OutputLine({ Resource::Loader::Instance().ResolveString(Resource::String::SourceListArg), source.Arg });
-            table.OutputLine({ Resource::Loader::Instance().ResolveString(Resource::String::SourceListData), source.Data });
-            table.OutputLine({ Resource::Loader::Instance().ResolveString(Resource::String::SourceListIdentifier), source.Identifier });
+            table.OutputLine({ Resource::LocString(Resource::String::SourceListName), source.Name });
+            table.OutputLine({ Resource::LocString(Resource::String::SourceListType), source.Type });
+            table.OutputLine({ Resource::LocString(Resource::String::SourceListArg), source.Arg });
+            table.OutputLine({ Resource::LocString(Resource::String::SourceListData), source.Data });
+            table.OutputLine({ Resource::LocString(Resource::String::SourceListIdentifier), source.Identifier });
 
             if (source.LastUpdateTime == Utility::ConvertUnixEpochToSystemClock(0))
             {
                 table.OutputLine({
-                    Resource::Loader::Instance().ResolveString(Resource::String::SourceListUpdated),
-                    Resource::Loader::Instance().ResolveString(Resource::String::SourceListUpdatedNever)
+                    Resource::LocString(Resource::String::SourceListUpdated),
+                    Resource::LocString(Resource::String::SourceListUpdatedNever)
                     });
             }
             else
             {
                 std::ostringstream strstr;
                 strstr << source.LastUpdateTime;
-                table.OutputLine({ Resource::Loader::Instance().ResolveString(Resource::String::SourceListUpdated), strstr.str() });
+                table.OutputLine({ Resource::LocString(Resource::String::SourceListUpdated), strstr.str() });
             }
 
             table.Complete();
@@ -195,7 +195,7 @@ namespace AppInstaller::CLI::Workflow
         for (const auto& sd : sources)
         {
             Repository::Source source{ sd.Name };
-            context.Reporter.Info() << Resource::String::SourceUpdateOne << ' ' << sd.Name << "..."_liv << std::endl;
+            context.Reporter.Info() << Resource::String::SourceUpdateOne(sd.Name) << std::endl;
             auto updateFunction = [&](IProgressCallback& progress)->std::vector<Repository::SourceDetails> { return source.Update(progress); };
             if (!context.Reporter.ExecuteWithProgress(updateFunction).empty())
             {
@@ -221,7 +221,7 @@ namespace AppInstaller::CLI::Workflow
         for (const auto& sd : sources)
         {
             Repository::Source source{ sd.Name };
-            context.Reporter.Info() << Resource::String::SourceRemoveOne << ' ' << sd.Name << "..."_liv << std::endl;
+            context.Reporter.Info() << Resource::String::SourceRemoveOne(sd.Name) << std::endl;
             auto removeFunction = [&](IProgressCallback& progress)->bool { return source.Remove(progress); };
             if (context.Reporter.ExecuteWithProgress(removeFunction))
             {
@@ -257,7 +257,7 @@ namespace AppInstaller::CLI::Workflow
 
         for (const auto& source : sources)
         {
-            context.Reporter.Info() << Resource::String::SourceResetOne << ' ' << source.Name << "..."_liv;
+            context.Reporter.Info() << Resource::String::SourceResetOne(source.Name);
             Repository::Source::DropSource(source.Name);
             context.Reporter.Info() << Resource::String::Done << std::endl;
         }

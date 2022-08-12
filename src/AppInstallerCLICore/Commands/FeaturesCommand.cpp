@@ -53,7 +53,7 @@ namespace AppInstaller::CLI
             {
                 table.OutputLine({
                     std::string{ feature.Name() },
-                    Resource::Loader::Instance().ResolveString(ExperimentalFeature::IsEnabled(feature.GetFeature()) ? Resource::String::FeaturesEnabled : Resource::String::FeaturesDisabled),
+                    Resource::LocString{ ExperimentalFeature::IsEnabled(feature.GetFeature()) ? Resource::String::FeaturesEnabled : Resource::String::FeaturesDisabled},
                     std::string { feature.JsonName() },
                     std::string{ feature.Link() } });
             }
