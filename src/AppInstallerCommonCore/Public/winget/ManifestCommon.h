@@ -270,6 +270,7 @@ namespace AppInstaller::Manifest
         std::vector<BYTE> FileSha256;
         InstalledFileTypeEnum FileType = InstalledFileTypeEnum::Other;
         string_t InvocationParameter;
+        string_t DisplayName;
     };
 
     struct InstallationMetadataInfo

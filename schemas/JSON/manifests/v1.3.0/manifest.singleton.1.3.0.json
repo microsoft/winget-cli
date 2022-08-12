@@ -568,6 +568,7 @@
         "Files": {
           "type": [ "array", "null" ],
           "uniqueItems": true,
+          "maxItems": 2048,
           "items": {
             "type": "object",
             "title": "InstalledFile",
@@ -593,10 +594,16 @@
                 "description": "The optional installed file type. If not specified, the file is treated as other."
               },
               "InvocationParameter": {
-                "type": "string",
+                "type": [ "string", "null" ],
                 "minLength": 1,
                 "maxLength": 2048,
                 "description": "Optional parameter for invocable files."
+              },
+              "DisplayName": {
+                "type": [ "string", "null" ],
+                "minLength": 1,
+                "maxLength": 256,
+                "description": "Optional display name for invocable files."
               }
             },
             "required": [ "RelativeFilePath" ],
