@@ -265,6 +265,12 @@
     <CopyFileToFolders Include="TestData\InstallFlowTest_MSStore.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallFlowTest_AbortsTerminal.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallFlowTest_InstallLocationRequired.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_NoApplicableArchitecture.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>

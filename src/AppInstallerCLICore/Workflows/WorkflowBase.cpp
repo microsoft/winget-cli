@@ -4,6 +4,7 @@
 #include "WorkflowBase.h"
 #include "ExecutionContext.h"
 #include "ManifestComparator.h"
+#include "PromptFlow.h"
 #include "TableOutput.h"
 #include <winget/ManifestYamlParser.h>
 
@@ -31,14 +32,29 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        void ReportIdentity(Execution::Context& context, std::string_view name, std::string_view id)
+        void ReportIdentity(
+            Execution::Context& context,
+            Utility::LocIndView prefix,
+            std::optional<Resource::StringId> label,
+            std::string_view name,
+            std::string_view id,
+            std::string_view version = {},
+            Execution::Reporter::Level level = Execution::Reporter::Level::Info)
         {
-            context.Reporter.Info() << Resource::String::ReportIdentityFound << ' ' << Execution::NameEmphasis << name << " [" << Execution::IdEmphasis << id << ']' << std::endl;
-        }
+            auto out = context.Reporter.GetOutputStream(level);
+            out << prefix;
+            if (label)
+            {
+                out << *label << ' ';
+            }
+            out << Execution::NameEmphasis << name << " ["_liv << Execution::IdEmphasis << id << ']';
 
-        void ReportIdentity(Execution::Context& context, std::string_view name, std::string_view id, std::string_view version)
-        {
-            context.Reporter.Info() << Resource::String::ReportIdentityFound << ' ' << Execution::NameEmphasis << name << " [" << Execution::IdEmphasis << id << "] " << Resource::String::ShowVersion << ' ' << version << std::endl;
+            if (!version.empty())
+            {
+                out << ' ' << Resource::String::ShowVersion << ' ' << version;
+            }
+
+            out << std::endl;
         }
 
         Repository::Source OpenNamedSource(Execution::Context& context, std::string_view sourceName)
@@ -152,71 +168,6 @@ namespace AppInstaller::CLI::Workflow
             {
                 searchRequest.MaximumResults = std::stoi(std::string(args.GetArg(Execution::Args::Type::Count)));
             }
-        }
-
-        bool HandleSourceAgreementsForOneSource(Execution::Context& context, const Source& source)
-        {
-            auto details = source.GetDetails();
-            AICLI_LOG(CLI, Verbose, << "Checking Source agreements for source: " << details.Name);
-
-            if (source.CheckSourceAgreements())
-            {
-                AICLI_LOG(CLI, Verbose, << "Source agreements satisfied. Source: " << details.Name);
-                return true;
-            }
-
-            // Show source agreements
-            std::string agreementsTitleMessage = Resource::LocString{ Resource::String::SourceAgreementsTitle };
-            context.Reporter.Info() << Execution::SourceInfoEmphasis <<
-                Utility::LocIndString{ Utility::FindAndReplaceMessageToken(agreementsTitleMessage, details.Name) } << std::endl;
-
-            const auto& agreements = source.GetInformation().SourceAgreements;
-
-            for (const auto& agreement : agreements)
-            {
-                if (!agreement.Label.empty())
-                {
-                    context.Reporter.Info() << Execution::SourceInfoEmphasis << Utility::LocIndString{ agreement.Label } << ": "_liv;
-                }
-
-                if (!agreement.Text.empty())
-                {
-                    context.Reporter.Info() << Utility::LocIndString{ agreement.Text } << std::endl;
-                }
-
-                if (!agreement.Url.empty())
-                {
-                    context.Reporter.Info() << Utility::LocIndString{ agreement.Url } << std::endl;
-                }
-            }
-
-            // Show message for each individual implicit agreement field
-            auto fields = source.GetAgreementFieldsFromSourceInformation();
-            if (WI_IsFlagSet(fields, ImplicitAgreementFieldEnum::Market))
-            {
-                context.Reporter.Info() << Resource::String::SourceAgreementsMarketMessage << std::endl;
-            }
-
-            context.Reporter.Info() << std::endl;
-
-            bool accepted = context.Args.Contains(Execution::Args::Type::AcceptSourceAgreements);
-
-            if (!accepted)
-            {
-                accepted = context.Reporter.PromptForBoolResponse(Resource::String::SourceAgreementsPrompt);
-            }
-
-            if (accepted)
-            {
-                AICLI_LOG(CLI, Verbose, << "Source agreements accepted. Source: " << details.Name);
-                source.SaveAcceptedSourceAgreements();
-            }
-            else
-            {
-                AICLI_LOG(CLI, Verbose, << "Source agreements rejected. Source: " << details.Name);
-            }
-
-            return accepted;
         }
 
         // Data shown on a line of a table displaying installed packages
@@ -996,19 +947,19 @@ namespace AppInstaller::CLI::Workflow
     void ReportPackageIdentity(Execution::Context& context)
     {
         auto package = context.Get<Execution::Data::Package>();
-        ReportIdentity(context, package->GetProperty(PackageProperty::Name), package->GetProperty(PackageProperty::Id));
+        ReportIdentity(context, {}, Resource::String::ReportIdentityFound, package->GetProperty(PackageProperty::Name), package->GetProperty(PackageProperty::Id));
     }
 
     void ReportManifestIdentity(Execution::Context& context)
     {
         const auto& manifest = context.Get<Execution::Data::Manifest>();
-        ReportIdentity(context, manifest.CurrentLocalization.Get<Manifest::Localization::PackageName>(), manifest.Id);
+        ReportIdentity(context, {}, Resource::String::ReportIdentityFound, manifest.CurrentLocalization.Get<Manifest::Localization::PackageName>(), manifest.Id);
     }
 
-    void ReportManifestIdentityWithVersion(Execution::Context& context)
+    void ReportManifestIdentityWithVersion::operator()(Execution::Context& context) const
     {
         const auto& manifest = context.Get<Execution::Data::Manifest>();
-        ReportIdentity(context, manifest.CurrentLocalization.Get<Manifest::Localization::PackageName>(), manifest.Id, manifest.Version);
+        ReportIdentity(context, m_prefix, m_label, manifest.CurrentLocalization.Get<Manifest::Localization::PackageName>(), manifest.Id, manifest.Version, m_level);
     }
 
     void GetManifest(Execution::Context& context)
@@ -1168,38 +1119,6 @@ namespace AppInstaller::CLI::Workflow
     void ReportExecutionStage::operator()(Execution::Context& context) const
     {
         context.SetExecutionStage(m_stage);
-    }
-
-    void HandleSourceAgreements::operator()(Execution::Context& context) const
-    {
-        if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::AgreementsAcceptedByCaller))
-        {
-            AICLI_LOG(CLI, Info, << "Skipping source agreements acceptance check because AgreementsAcceptedByCaller flag is set.");
-            return;
-        }
-
-        bool allAccepted = true;
-
-        if (m_source.IsComposite())
-        {
-            for (auto const& source : m_source.GetAvailableSources())
-            {
-                if (!HandleSourceAgreementsForOneSource(context, source))
-                {
-                    allAccepted = false;
-                }
-            }
-        }
-        else
-        {
-            allAccepted = HandleSourceAgreementsForOneSource(context, m_source);
-        }
-
-        if (!allAccepted)
-        {
-            context.Reporter.Error() << Resource::String::SourceAgreementsNotAgreedTo << std::endl;
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SOURCE_AGREEMENTS_NOT_ACCEPTED);
-        }
     }
 }
 
