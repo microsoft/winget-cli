@@ -5,6 +5,7 @@
 #include "Microsoft/Schema/IPortableIndex.h"
 #include <winget/ManagedFile.h>
 
+#include <mutex>
 #include <chrono>
 #include <filesystem>
 #include <limits>

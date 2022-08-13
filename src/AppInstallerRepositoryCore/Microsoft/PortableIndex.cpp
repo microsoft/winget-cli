@@ -8,14 +8,15 @@ namespace AppInstaller::Repository::Microsoft
 {
     PortableIndex PortableIndex::CreateNew(const std::string& filePath, Schema::Version version)
     {
-        AICLI_LOG(Repo, Info, << "Creating new SQLite Index [" << version << "] at '" << filePath << "'");
+        AICLI_LOG(Repo, Info, << "Creating new Portable Index [" << version << "] at '" << filePath << "'");
         PortableIndex result{ filePath, version };
 
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(result.m_dbconn, "sqliteindex_createnew");
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(result.m_dbconn, "portableindex_createnew");
 
-        //Schema::PortableMetadataTable::Create(result.m_dbconn);
+        Schema::PortableMetadataTable::Create(result.m_dbconn);
+
         // Use calculated version, as incoming version could be 'latest'
-        result.m_version.SetSchemaVersion(result.m_dbconn);
+        result.m_version.SetPortableSchemaVersion(result.m_dbconn);
 
         result.m_interface->CreateTable(result.m_dbconn);
 

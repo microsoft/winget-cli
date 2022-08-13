@@ -59,6 +59,12 @@ namespace AppInstaller::Repository::Microsoft::Schema
         // Writes the current version to the given index.
         void SetSchemaVersion(SQLite::Connection& connection);
 
+        // Determines the schema version of the opened index.
+        static Version GetPortableSchemaVersion(SQLite::Connection& connection);
+
+        // Writes the current version to the given index.
+        void SetPortableSchemaVersion(SQLite::Connection& connection);
+
         // Creates the interface object for this version.
         std::unique_ptr<ISQLiteIndex> CreateISQLiteIndex() const;
 

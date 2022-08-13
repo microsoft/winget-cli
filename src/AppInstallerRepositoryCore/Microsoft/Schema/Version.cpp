@@ -34,6 +34,16 @@ namespace AppInstaller::Repository::Microsoft::Schema
         savepoint.Commit();
     }
 
+    void Version::SetPortableSchemaVersion(SQLite::Connection& connection)
+    {
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "version_setschemaversion");
+
+        PortableMetadataTable::SetNamedValue(connection, Schema::s_PortableMetadataValueName_MajorVersion, static_cast<int>(MajorVersion));
+        PortableMetadataTable::SetNamedValue(connection, Schema::s_PortableMetadataValueName_MajorVersion, static_cast<int>(MinorVersion));
+
+        savepoint.Commit();
+    }
+
     // Creates the interface object for this version.
     std::unique_ptr<ISQLiteIndex> Version::CreateISQLiteIndex() const
     {
