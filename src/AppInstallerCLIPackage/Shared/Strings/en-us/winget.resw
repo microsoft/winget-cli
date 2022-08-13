@@ -135,7 +135,7 @@
   </data>
   <data name="AvailableCommands" xml:space="preserve">
     <value>The following commands are available:</value>
-    <comment>Message displayed to inform the user about the avialable command line command line command arguments.</comment>
+    <comment>Message displayed to inform the user about the avialable command line command arguments.</comment>
   </data>
   <data name="AvailableHeader" xml:space="preserve">
     <value>Available</value>
@@ -163,7 +163,7 @@
   </data>
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>Filter results by command</value>
-    <comment>Description message displayed to inform the user about filtering the search reuslts by a command line command.</comment>
+    <comment>Description message displayed to inform the user about filtering the search results by a command line command.</comment>
   </data>
   <data name="CommandLineArgumentDescription" xml:space="preserve">
     <value>The full command line for completion</value>
