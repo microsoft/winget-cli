@@ -1238,7 +1238,7 @@ Please specify one of them using the `--source` option to proceed.</value>
     <comment>{Locked="https://github.com/microsoft/winget-cli"}</comment>
   </data>
   <data name="WindowsPackageManager" xml:space="preserve">
-    <value>Windows Package Manager</value>
+    <value>Windows Package Manager v{0}</value>
     <comment>The product name.</comment>
   </data>
   <data name="ImportIgnorePackageVersionsArgumentDescription" xml:space="preserve">
@@ -1254,7 +1254,7 @@ Please specify one of them using the `--source` option to proceed.</value>
     <value>The install technology of the newer version specified is different from the current version installed. Please uninstall the package and install the newer version.</value>
   </data>
   <data name="WindowsPackageManagerPreview" xml:space="preserve">
-    <value>Windows Package Manager (Preview)</value>
+    <value>Windows Package Manager (Preview) v{0}</value>
     <comment>The product name plus an indicator that this is a pre-release version.</comment>
   </data>
   <data name="InstallArchitectureArgumentDescription" xml:space="preserve">

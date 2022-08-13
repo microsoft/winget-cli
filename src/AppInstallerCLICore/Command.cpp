@@ -38,8 +38,7 @@ namespace AppInstaller::CLI
     void Command::OutputIntroHeader(Execution::Reporter& reporter) const
     {
         auto productName = Runtime::IsReleaseBuild() ? Resource::String::WindowsPackageManager : Resource::String::WindowsPackageManagerPreview;
-        auto productVersion = Utility::Format("v{0}", Runtime::GetClientVersion());
-        reporter.Info() << productName << " " << productVersion << std::endl << Resource::String::MainCopyrightNotice << std::endl;
+        reporter.Info() << productName(Runtime::GetClientVersion()) << std::endl << Resource::String::MainCopyrightNotice << std::endl;
     }
 
     void Command::OutputHelp(Execution::Reporter& reporter, const CommandException* exception) const
