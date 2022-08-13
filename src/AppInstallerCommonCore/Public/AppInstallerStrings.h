@@ -6,6 +6,7 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include <winget/LocIndependent.h>
 
 namespace AppInstaller::Utility
 {
@@ -228,24 +229,8 @@ namespace AppInstaller::Utility
     // Converts the given hexadecimal string into bytes.
     std::vector<uint8_t> ParseFromHexString(const std::string& value, size_t byteCount = 0);
 
-    // Join vector values using the provided separator.
-    template <typename T>
-    std::string Join(std::string_view separator, const std::vector<T>& vector)
-    {
-        auto vectorSize = vector.size();
-        if (vectorSize == 0)
-        {
-            return {};
-        }
-
-        std::ostringstream ssJoin;
-        ssJoin << vector[0];
-        for (int i = 1; i < vectorSize; ++i)
-        {
-            ssJoin << separator << vector[i];
-        }
-        return ssJoin.str();
-    }
+    // Join a string vector using the provided separator.
+    LocIndString Join(LocIndView separator, const std::vector<LocIndString>& vector);
 
     // Superset of std::to_string supporting string convertibles as input.
     template <typename T>

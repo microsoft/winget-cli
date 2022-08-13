@@ -705,4 +705,21 @@ namespace AppInstaller::Utility
 
         return result;
     }
+
+    LocIndString Join(LocIndView separator, const std::vector<LocIndString>& vector)
+    {
+        auto vectorSize = vector.size();
+        if (vectorSize == 0)
+        {
+            return {};
+        }
+
+        std::ostringstream ssJoin;
+        ssJoin << vector[0];
+        for (int i = 1; i < vectorSize; ++i)
+        {
+            ssJoin << separator << vector[i];
+        }
+        return LocIndString{ ssJoin.str() };
+    }
 }

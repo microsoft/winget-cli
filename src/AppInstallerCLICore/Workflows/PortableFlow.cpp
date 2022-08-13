@@ -432,7 +432,9 @@ namespace AppInstaller::CLI::Workflow
             else if (std::filesystem::remove(symlinkFullPath))
             {
                 AICLI_LOG(CLI, Info, << "Removed existing file at " << symlinkFullPath);
-                context.Reporter.Warn() << Resource::String::OverwritingExistingFileAtMessage(symlinkFullPath.u8string()) << std::endl;
+                context.Reporter.Warn()
+                    << Resource::String::OverwritingExistingFileAtMessage(Utility::LocIndView{ symlinkFullPath.u8string() })
+                    << std::endl;
             }
 
             std::filesystem::create_symlink(targetFullPath, symlinkFullPath);

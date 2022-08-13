@@ -52,8 +52,7 @@ using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Settings;
 using namespace AppInstaller::Utility;
-using namespace AppInstaller::Settings;
-
+using namespace AppInstaller::Utility::literals;
 
 #define REQUIRE_TERMINATED_WITH(_context_,_hr_) \
     REQUIRE(_context_.IsTerminated()); \
@@ -1065,7 +1064,7 @@ TEST_CASE("InstallFlow_Zip_BadRelativePath", "[InstallFlow][workflow]")
 
     // Verify Installer was not called
     REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::NestedInstallerNotFound("")).get()) != std::string::npos);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::NestedInstallerNotFound(""_liv)).get()) != std::string::npos);
 }
 
 TEST_CASE("InstallFlow_Zip_MissingNestedInstaller", "[InstallFlow][workflow]")
@@ -2089,7 +2088,7 @@ TEST_CASE("UpdateFlow_UpdateExeSpecificVersionNotFound", "[UpdateFlow][workflow]
 
     // Verify Installer is not called.
     REQUIRE(!std::filesystem::exists(updateResultPath.GetPath()));
-    REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::GetManifestResultVersionNotFound("1.2.3.4")).get()) != std::string::npos);
+    REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::GetManifestResultVersionNotFound("1.2.3.4"_liv)).get()) != std::string::npos);
     REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_NO_MANIFEST_FOUND);
 }
 
@@ -2613,7 +2612,7 @@ TEST_CASE("ImportFlow_PackageAlreadyInstalled", "[ImportFlow][workflow]")
 
     // Exe should not have been installed again
     REQUIRE(!std::filesystem::exists(exeInstallResultPath.GetPath()));
-    REQUIRE(importOutput.str().find(Resource::LocString(Resource::String::ImportPackageAlreadyInstalled("AppInstallerCliTest.TestExeInstaller")).get()) != std::string::npos);
+    REQUIRE(importOutput.str().find(Resource::LocString(Resource::String::ImportPackageAlreadyInstalled("AppInstallerCliTest.TestExeInstaller"_liv)).get()) != std::string::npos);
 }
 
 TEST_CASE("ImportFlow_IgnoreVersions", "[ImportFlow][workflow]")
@@ -2651,7 +2650,7 @@ TEST_CASE("ImportFlow_MissingSource", "[ImportFlow][workflow]")
 
     // Installer should not be called
     REQUIRE(!std::filesystem::exists(exeInstallResultPath.GetPath()));
-    REQUIRE(importOutput.str().find(Resource::LocString(Resource::String::ImportSourceNotInstalled("TestSource")).get()) != std::string::npos);
+    REQUIRE(importOutput.str().find(Resource::LocString(Resource::String::ImportSourceNotInstalled("TestSource"_liv)).get()) != std::string::npos);
     REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST);
 }
 
@@ -2671,7 +2670,7 @@ TEST_CASE("ImportFlow_MissingPackage", "[ImportFlow][workflow]")
 
     // Installer should not be called
     REQUIRE(!std::filesystem::exists(exeInstallResultPath.GetPath()));
-    REQUIRE(importOutput.str().find(Resource::LocString(Resource::String::ImportSearchFailed("MissingPackage")).get()) != std::string::npos);
+    REQUIRE(importOutput.str().find(Resource::LocString(Resource::String::ImportSearchFailed("MissingPackage"_liv)).get()) != std::string::npos);
     REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_NOT_ALL_PACKAGES_FOUND);
 }
 
@@ -2693,7 +2692,7 @@ TEST_CASE("ImportFlow_IgnoreMissingPackage", "[ImportFlow][workflow]")
 
     // Verify installer was called for the package that was available.
     REQUIRE(std::filesystem::exists(exeInstallResultPath.GetPath()));
-    REQUIRE(importOutput.str().find(Resource::LocString(Resource::String::ImportSearchFailed("MissingPackage")).get()) != std::string::npos);
+    REQUIRE(importOutput.str().find(Resource::LocString(Resource::String::ImportSearchFailed("MissingPackage"_liv)).get()) != std::string::npos);
 }
 
 TEST_CASE("ImportFlow_MissingVersion", "[ImportFlow][workflow]")
@@ -2712,7 +2711,7 @@ TEST_CASE("ImportFlow_MissingVersion", "[ImportFlow][workflow]")
 
     // Installer should not be called
     REQUIRE(!std::filesystem::exists(exeInstallResultPath.GetPath()));
-    REQUIRE(importOutput.str().find(Resource::LocString(Resource::String::ImportSearchFailed("AppInstallerCliTest.TestExeInstaller")).get()) != std::string::npos);
+    REQUIRE(importOutput.str().find(Resource::LocString(Resource::String::ImportSearchFailed("AppInstallerCliTest.TestExeInstaller"_liv)).get()) != std::string::npos);
     REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_NOT_ALL_PACKAGES_FOUND);
 }
 

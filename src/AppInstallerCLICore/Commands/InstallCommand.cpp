@@ -113,7 +113,7 @@ namespace AppInstaller::CLI
         {
             if (ConvertToScopeEnum(execArgs.GetArg(Args::Type::InstallScope)) == Manifest::ScopeEnum::Unknown)
             {
-                auto validOptions = Utility::Format("'{0}', '{1}'", "user"_lis, "machine"_lis);
+                auto validOptions = Utility::LocIndString{ Utility::Format("'{0}', '{1}'", "user"_lis, "machine"_lis) };
                 throw CommandException(Resource::String::InvalidArgumentValueError(s_ArgumentName_Scope, validOptions));
             }
         }
@@ -127,7 +127,7 @@ namespace AppInstaller::CLI
                 {
                     applicableArchitectures.emplace_back(Utility::Format("'{0}'", Utility::ConvertFromArchitectureEnum(i)));
                 }
-                auto validOptions = Utility::Join(", ", applicableArchitectures);
+                auto validOptions = Utility::Join(", "_liv, applicableArchitectures);
                 throw CommandException(Resource::String::InvalidArgumentValueError(s_ArgumentName_Architecture, validOptions));
             }
         }

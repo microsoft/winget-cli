@@ -287,7 +287,7 @@ TEST_CASE("ParseArguments_TooManyPositional", "[command]")
     std::vector<std::string> values{ "val1", "--", "-std1" };
     Invocation inv{ std::vector<std::string>(values) };
 
-    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::ExtraPositionalError(values[2]));
+    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::ExtraPositionalError(Utility::LocIndView{ values[2] }));
 }
 
 TEST_CASE("ParseArguments_InvalidChar", "[command]")
@@ -302,7 +302,7 @@ TEST_CASE("ParseArguments_InvalidChar", "[command]")
     std::vector<std::string> values{ "val1", "-", "-std1" };
     Invocation inv{ std::vector<std::string>(values) };
 
-    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::InvalidArgumentSpecifierError(values[1]));
+    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::InvalidArgumentSpecifierError(Utility::LocIndView{ values[1] }));
 }
 
 TEST_CASE("ParseArguments_InvalidAlias", "[command]")
@@ -317,7 +317,7 @@ TEST_CASE("ParseArguments_InvalidAlias", "[command]")
     std::vector<std::string> values{ "val1", "-b", "-std1" };
     Invocation inv{ std::vector<std::string>(values) };
 
-    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::InvalidAliasError(values[1]));
+    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::InvalidAliasError(Utility::LocIndView{ values[1] }));
 }
 
 TEST_CASE("ParseArguments_MultiFlag", "[command]")
@@ -352,7 +352,7 @@ TEST_CASE("ParseArguments_FlagThenUnknown", "[command]")
     std::vector<std::string> values{ "val1", "-sr", "val2" };
     Invocation inv{ std::vector<std::string>(values) };
 
-    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::AdjoinedNotFoundError(values[1]));
+    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::AdjoinedNotFoundError(Utility::LocIndView{ values[1] }));
 }
 
 TEST_CASE("ParseArguments_FlagThenNonFlag", "[command]")
@@ -368,7 +368,7 @@ TEST_CASE("ParseArguments_FlagThenNonFlag", "[command]")
     std::vector<std::string> values{ "val1", "-sp", "val2" };
     Invocation inv{ std::vector<std::string>(values) };
 
-    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::AdjoinedNotFlagError(values[1]));
+    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::AdjoinedNotFlagError(Utility::LocIndView{ values[1] }));
 }
 
 TEST_CASE("ParseArguments_NameUsingAliasSpecifier", "[command]")
@@ -384,7 +384,7 @@ TEST_CASE("ParseArguments_NameUsingAliasSpecifier", "[command]")
     std::vector<std::string> values{ "another", "-flag1" };
     Invocation inv{ std::vector<std::string>(values) };
 
-    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::AdjoinedNotFoundError(values[1]));
+    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::AdjoinedNotFoundError(Utility::LocIndView{ values[1] }));
 }
 
 TEST_CASE("ParseArguments_AliasWithAdjoinedValue", "[command]")
@@ -433,7 +433,7 @@ TEST_CASE("ParseArguments_AliasWithSeparatedValueMissing", "[command]")
     std::vector<std::string> values{ "-s" };
     Invocation inv{ std::vector<std::string>(values) };
 
-    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::MissingArgumentError(values[0]));
+    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::MissingArgumentError(Utility::LocIndView{ values[0] }));
 }
 
 TEST_CASE("ParseArguments_NameWithAdjoinedValue", "[command]")
@@ -502,7 +502,7 @@ TEST_CASE("ParseArguments_NameFlagWithAdjoinedValue", "[command]")
     std::vector<std::string> values{ "another", "--flag1=arbitrary" };
     Invocation inv{ std::vector<std::string>(values) };
 
-    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::FlagContainAdjoinedError(values[1]));
+    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::FlagContainAdjoinedError(Utility::LocIndView{ values[1] }));
 }
 
 TEST_CASE("ParseArguments_NameWithSeparatedValue", "[command]")
@@ -536,7 +536,7 @@ TEST_CASE("ParseArguments_NameWithSeparatedValueMissing", "[command]")
     std::vector<std::string> values{ "--pos2" };
     Invocation inv{ std::vector<std::string>(values) };
 
-    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::MissingArgumentError(values[0]));
+    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::MissingArgumentError(Utility::LocIndView{ values[0] }));
 }
 
 TEST_CASE("ParseArguments_UnknownName", "[command]")
@@ -552,5 +552,5 @@ TEST_CASE("ParseArguments_UnknownName", "[command]")
     std::vector<std::string> values{ "another", "--nope" };
     Invocation inv{ std::vector<std::string>(values) };
 
-    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::InvalidNameError(values[1]));
+    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::InvalidNameError(Utility::LocIndView{ values[1] }));
 }

@@ -11,7 +11,7 @@ using namespace AppInstaller::Settings;
 
 namespace AppInstaller::CLI
 {
-    constexpr std::string_view s_Command_ArgName_SilentAndInteractive = "silent|interactive"sv;
+    constexpr Utility::LocIndView s_Command_ArgName_SilentAndInteractive = "silent|interactive"_liv;
 
     Command::Command(
         std::string_view name,
@@ -246,7 +246,7 @@ namespace AppInstaller::CLI
         }
 
         // Finally, the link to the documentation pages
-        std::string helpLink = HelpLink();
+        auto helpLink = Utility::LocIndString{ HelpLink() };
         if (!helpLink.empty())
         {
             infoOut << std::endl << Resource::String::HelpLinkPreamble(helpLink) << std::endl;
@@ -280,7 +280,7 @@ namespace AppInstaller::CLI
                 {
                     auto feature = ExperimentalFeature::GetFeature(command->Feature());
                     AICLI_LOG(CLI, Error, << "Trying to use command: " << *itr << " without enabling feature " << feature.JsonName());
-                    throw CommandException(Resource::String::FeatureDisabledMessage(feature.JsonName()));
+                    throw CommandException(Resource::String::FeatureDisabledMessage(Utility::LocIndView{ feature.JsonName() }));
                 }
 
                 if (!Settings::GroupPolicies().IsEnabled(command->GroupPolicy()))
@@ -297,7 +297,7 @@ namespace AppInstaller::CLI
         }
 
         // TODO: If we get to a large number of commands, do a fuzzy search much like git
-        throw CommandException(Resource::String::UnrecognizedCommand(*itr));
+        throw CommandException(Resource::String::UnrecognizedCommand(Utility::LocIndView{ *itr }));
     }
 
     // The argument parsing state machine.
@@ -398,7 +398,7 @@ namespace AppInstaller::CLI
         // If the next argument was to be a value, but none was provided, convert it to an exception.
         else if (m_state.Type() && m_invocationItr == m_invocation.end())
         {
-            throw CommandException(Resource::String::MissingArgumentError(m_state.Arg()));
+            throw CommandException(Resource::String::MissingArgumentError(Utility::LocIndView{ m_state.Arg() }));
         }
     }
 
@@ -454,7 +454,7 @@ namespace AppInstaller::CLI
             const CLI::Argument* nextPositional = NextPositional();
             if (!nextPositional)
             {
-                return CommandException(Resource::String::ExtraPositionalError(currArg));
+                return CommandException(Resource::String::ExtraPositionalError(Utility::LocIndView{ currArg }));
             }
 
             m_executionArgs.AddArg(nextPositional->ExecArgType(), currArg);
@@ -462,7 +462,7 @@ namespace AppInstaller::CLI
         // The currentArg must not be empty, and starts with a -
         else if (currArg.length() == 1)
         {
-            return CommandException(Resource::String::InvalidArgumentSpecifierError(currArg));
+            return CommandException(Resource::String::InvalidArgumentSpecifierError(Utility::LocIndView{ currArg }));
         }
         // Now it must be at least 2 chars
         else if (currArg[1] != APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR)
@@ -473,7 +473,7 @@ namespace AppInstaller::CLI
             auto itr = std::find_if(m_arguments.begin(), m_arguments.end(), [&](const Argument& arg) { return (currChar == arg.Alias()); });
             if (itr == m_arguments.end())
             {
-                return CommandException(Resource::String::InvalidAliasError(currArg));
+                return CommandException(Resource::String::InvalidAliasError(Utility::LocIndView{ currArg }));
             }
 
             if (itr->Type() == ArgumentType::Flag)
@@ -487,11 +487,11 @@ namespace AppInstaller::CLI
                     auto itr2 = std::find_if(m_arguments.begin(), m_arguments.end(), [&](const Argument& arg) { return (currChar == arg.Alias()); });
                     if (itr2 == m_arguments.end())
                     {
-                        return CommandException(Resource::String::AdjoinedNotFoundError(currArg));
+                        return CommandException(Resource::String::AdjoinedNotFoundError(Utility::LocIndView{ currArg }));
                     }
                     else if (itr2->Type() != ArgumentType::Flag)
                     {
-                        return CommandException(Resource::String::AdjoinedNotFlagError(currArg));
+                        return CommandException(Resource::String::AdjoinedNotFlagError(Utility::LocIndView{ currArg }));
                     }
                     else
                     {
@@ -507,7 +507,7 @@ namespace AppInstaller::CLI
                 }
                 else
                 {
-                    return CommandException(Resource::String::SingleCharAfterDashError(currArg));
+                    return CommandException(Resource::String::SingleCharAfterDashError(Utility::LocIndView{ currArg }));
                 }
             }
             else
@@ -550,7 +550,7 @@ namespace AppInstaller::CLI
                     {
                         if (hasValue)
                         {
-                            return CommandException(Resource::String::FlagContainAdjoinedError(currArg));
+                            return CommandException(Resource::String::FlagContainAdjoinedError(Utility::LocIndView{ currArg }));
                         }
 
                         m_executionArgs.AddArg(arg.ExecArgType());
@@ -570,7 +570,7 @@ namespace AppInstaller::CLI
 
             if (!argFound)
             {
-                return CommandException(Resource::String::InvalidNameError(currArg));
+                return CommandException(Resource::String::InvalidNameError(Utility::LocIndView{ currArg }));
             }
         }
 
@@ -630,7 +630,7 @@ namespace AppInstaller::CLI
             {
                 auto feature = ExperimentalFeature::GetFeature(arg.Feature());
                 AICLI_LOG(CLI, Error, << "Trying to use argument: " << arg.Name() << " without enabling feature " << feature.JsonName());
-                throw CommandException(Resource::String::FeatureDisabledMessage(feature.JsonName()));
+                throw CommandException(Resource::String::FeatureDisabledMessage(Utility::LocIndView{ feature.JsonName() }));
             }
 
             if (arg.Required() && !execArgs.Contains(arg.ExecArgType()))

@@ -10,6 +10,7 @@
 namespace AppInstaller::CLI::Resource
 {
     using AppInstaller::StringResource::StringId;
+    using AppInstaller::Resource::LocString;
     using AppInstaller::Resource::ResourceOpenException;
 
     // Resource string identifiers.
@@ -403,21 +404,6 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(WordArgumentDescription);
     };
 
-    // A localized string
-    struct LocString : public Utility::LocIndString
-    {
-        LocString() = default;
-
-        LocString(StringId id) : Utility::LocIndString(id()) {}
-        LocString(const LocIndString& lis) : Utility::LocIndString(lis) {}
-
-        LocString(const LocString&) = default;
-        LocString& operator=(const LocString&) = default;
-
-        LocString(LocString&&) = default;
-        LocString& operator=(LocString&&) = default;
-    };
-
     // Fixed strings are not localized, but we use a similar system to prevent duplication
     enum class FixedString
     {
@@ -425,11 +411,6 @@ namespace AppInstaller::CLI::Resource
     };
 
     Utility::LocIndView GetFixedString(FixedString fs);
-}
-
-inline std::ostream& operator<<(std::ostream& out, AppInstaller::CLI::Resource::StringId si)
-{
-    return (out << AppInstaller::CLI::Resource::LocString{ si });
 }
 
 inline std::ostream& operator<<(std::ostream& out, AppInstaller::CLI::Resource::FixedString fs)

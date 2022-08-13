@@ -185,7 +185,8 @@ namespace AppInstaller::CLI
                 info << Resource::String::Package(Runtime::GetPackageVersion()) << std::endl;
             };
 
-            info << std::endl << Resource::String::Logs(Runtime::GetPathTo(Runtime::PathName::DefaultLogLocationForDisplay).u8string()) << std::endl;
+            auto logPath = Utility::LocIndString{ Runtime::GetPathTo(Runtime::PathName::DefaultLogLocationForDisplay).u8string() };
+            info << std::endl << Resource::String::Logs(logPath) << std::endl;
 
             info << std::endl;
 

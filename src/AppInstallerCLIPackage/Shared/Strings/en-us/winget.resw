@@ -974,7 +974,7 @@ Configuration is disabled due to Group Policy.</value>
     <comment>Dependency graph has loop</comment>
   </data>
   <data name="DependenciesFlowNoSuitableInstallerFound" xml:space="preserve">
-    <value>No suitable installer found for manifest: {0}</value>
+    <value>No suitable installer found for manifest: {0}{1}</value>
     <comment>Attempt to get preferred installer for manifest failed.</comment>
   </data>
   <data name="DependenciesManagementError" xml:space="preserve">

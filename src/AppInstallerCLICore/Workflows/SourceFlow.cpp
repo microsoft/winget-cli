@@ -35,7 +35,7 @@ namespace AppInstaller::CLI::Workflow
                 }
             }
 
-            context.Reporter.Error() << Resource::String::SourceListNoneFound(name) << std::endl;
+            context.Reporter.Error() << Resource::String::SourceListNoneFound(Utility::LocIndView{ name }) << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST);
         }
         else
@@ -195,7 +195,7 @@ namespace AppInstaller::CLI::Workflow
         for (const auto& sd : sources)
         {
             Repository::Source source{ sd.Name };
-            context.Reporter.Info() << Resource::String::SourceUpdateOne(sd.Name) << std::endl;
+            context.Reporter.Info() << Resource::String::SourceUpdateOne(Utility::LocIndView{ sd.Name }) << std::endl;
             auto updateFunction = [&](IProgressCallback& progress)->std::vector<Repository::SourceDetails> { return source.Update(progress); };
             if (!context.Reporter.ExecuteWithProgress(updateFunction).empty())
             {
@@ -221,7 +221,7 @@ namespace AppInstaller::CLI::Workflow
         for (const auto& sd : sources)
         {
             Repository::Source source{ sd.Name };
-            context.Reporter.Info() << Resource::String::SourceRemoveOne(sd.Name) << std::endl;
+            context.Reporter.Info() << Resource::String::SourceRemoveOne(Utility::LocIndView{ sd.Name }) << std::endl;
             auto removeFunction = [&](IProgressCallback& progress)->bool { return source.Remove(progress); };
             if (context.Reporter.ExecuteWithProgress(removeFunction))
             {
@@ -257,7 +257,7 @@ namespace AppInstaller::CLI::Workflow
 
         for (const auto& source : sources)
         {
-            context.Reporter.Info() << Resource::String::SourceResetOne(source.Name);
+            context.Reporter.Info() << Resource::String::SourceResetOne(Utility::LocIndView{ source.Name });
             Repository::Source::DropSource(source.Name);
             context.Reporter.Info() << Resource::String::Done << std::endl;
         }
