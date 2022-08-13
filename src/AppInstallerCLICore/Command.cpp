@@ -80,7 +80,8 @@ namespace AppInstaller::CLI
         }
 
         // Output the command preamble and command chain
-        infoOut << Resource::String::Usage("winget"_liv, Utility::LocIndView{ commandChain });
+        auto commandUsage = Utility::LocIndString{ Utility::Format("{0} {1}", "winget", commandChain) };
+        infoOut << Resource::String::Usage(commandUsage);
 
         auto commandAliases = Aliases();
         auto commands = GetVisibleCommands();

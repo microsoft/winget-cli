@@ -403,7 +403,9 @@ namespace AppInstaller::CLI::Workflow
                     }
                     else
                     {
-                        context.Reporter.Warn() << Resource::String::FilesRemainInInstallDirectory << installDirectoryValue << std::endl;
+                        context.Reporter.Warn()
+                            << Resource::String::FilesRemainInInstallDirectory(Utility::LocIndView{ installDirectoryValue.u8string() })
+                            << std::endl;
                     }
                 }
                 else
