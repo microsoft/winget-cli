@@ -127,7 +127,7 @@
   </data>
   <data name="AvailableArguments" xml:space="preserve">
     <value>The following arguments are available:</value>
-    <<comment>Message displayed to infom the user about the available command line arguments.</comment>
+    <comment>Message displayed to infom the user about the available command line arguments.</comment>
   </data>
   <data name="AvailableCommandAliases" xml:space="preserve">
     <value>The following command aliases are available:</value>
@@ -271,9 +271,6 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="InstallationDisclaimerMSStore" xml:space="preserve">
     <value>This package is provided through Microsoft Store. winget may need to acquire the package from Microsoft Store on behalf of the current user.</value>
     <comment>{Locked="winget"}</comment>
-  </data>
-  <data name="InstallationRequiresHigherWindows" xml:space="preserve">
-    <value>Cannot install package, as it requires a higher version of Windows:</value>
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
     <value>Installs the selected package, either found by searching a configured source or directly from a manifest. By default, the query must case-insensitively match the id, name, or moniker of the package. Other fields can be used by passing their appropriate option.</value>
@@ -1452,5 +1449,9 @@ Please specify one of them using the `--source` option to proceed.</value>
   <data name="UpgradeAvailableForPinned" xml:space="preserve">
     <value>The following packages have an upgrade available, but require explicit targeting for upgrade:</value>
     <comment>"require explicit targeting for upgrade" means that the package will not be upgraded with all others unless an extra flag is added, or the package is mentioned explicitly</comment>
+  </data>
+  <data name="Downloading" xml:space="preserve">
+    <value>Downloading</value>
+    <comment>Label displayed while downloading an application installer.</comment>
   </data>
 </root>

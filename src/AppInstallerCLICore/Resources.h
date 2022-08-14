@@ -60,6 +60,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(CountOutOfBoundsError);
         WINGET_DEFINE_RESOURCE_STRINGID(DisabledByGroupPolicy);
         WINGET_DEFINE_RESOURCE_STRINGID(Done);
+        WINGET_DEFINE_RESOURCE_STRINGID(Downloading);
         WINGET_DEFINE_RESOURCE_STRINGID(ExactArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ExperimentalArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ExperimentalCommandLongDescription);
@@ -117,7 +118,6 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(InstallationDisclaimer1);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallationDisclaimer2);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallationDisclaimerMSStore);
-        WINGET_DEFINE_RESOURCE_STRINGID(InstallationRequiresHigherWindows);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(InstalledPackageNotAvailable);
