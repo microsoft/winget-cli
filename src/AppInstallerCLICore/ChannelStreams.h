@@ -4,6 +4,7 @@
 #include "Resources.h"
 #include "VTSupport.h"
 #include <winget/LocIndependent.h>
+#include <winget/ChannelStreams.h>
 
 #include <ostream>
 #include <string>
