@@ -294,17 +294,14 @@
     <ClInclude Include="Microsoft\Schema\Portable_1_0\PortableIndexInterface.h">
       <Filter>Microsoft\Schema\Portable_1_0</Filter>
     </ClInclude>
-    <ClInclude Include="Microsoft\Schema\PortableMetadataTable.h">
-      <Filter>Microsoft\Schema\</Filter>
+    <ClInclude Include="Microsoft\Schema\Portable_1_0\PortableTable.h">
+      <Filter>Microsoft\Schema\Portable_1_0</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\PortableIndex.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Microsoft\Schema\IPortableIndex.h">
-      <Filter>Microsoft\Schema\</Filter>
-    </ClInclude>
-    <ClInclude Include="Microsoft\Schema\SQLiteStorageBase.h">
-      <Filter>Microsoft\Schema\</Filter>
-    </ClInclude>
-    <ClInclude Include="Microsoft\Schema\PortableIndex.h">
-      <Filter>Microsoft\Schema\</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -470,18 +467,15 @@
     <ClCompile Include="ArpVersionValidation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClInclude Include="Microsoft\Schema\Portable_1_0\PortableIndexInterface.cpp">
+    <ClCompile Include="Microsoft\PortableIndex.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\Schema\Portable_1_0\PortableIndexInterface_1_0.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\Schema\Portable_1_0\PortableTable.cpp">
       <Filter>Microsoft\Schema\Portable_1_0</Filter>
-    </ClInclude>
-    <ClInclude Include="Microsoft\Schema\PortableMetadataTable.cpp">
-      <Filter>Microsoft\Schema\</Filter>
-    </ClInclude>
-    <ClInclude Include="Microsoft\Schema\SQLiteStorageBase.cpp">
-      <Filter>Microsoft\Schema\</Filter>
-    </ClInclude>
-    <ClInclude Include="Microsoft\Schema\PortableIndex.cpp">
-      <Filter>Microsoft\Schema\</Filter>
-    </ClInclude>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />

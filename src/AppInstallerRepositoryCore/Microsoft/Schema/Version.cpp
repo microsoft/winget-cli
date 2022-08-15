@@ -3,7 +3,6 @@
 #include "pch.h"
 #include "Version.h"
 #include "MetadataTable.h"
-#include "PortableMetadataTable.h"
 
 #include "1_0/Interface.h"
 #include "1_1/Interface.h"
@@ -30,16 +29,6 @@ namespace AppInstaller::Repository::Microsoft::Schema
 
         MetadataTable::SetNamedValue(connection, Schema::s_MetadataValueName_MajorVersion, static_cast<int>(MajorVersion));
         MetadataTable::SetNamedValue(connection, Schema::s_MetadataValueName_MinorVersion, static_cast<int>(MinorVersion));
-
-        savepoint.Commit();
-    }
-
-    void Version::SetPortableSchemaVersion(SQLite::Connection& connection)
-    {
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "version_setschemaversion");
-
-        PortableMetadataTable::SetNamedValue(connection, Schema::s_PortableMetadataValueName_MajorVersion, static_cast<int>(MajorVersion));
-        PortableMetadataTable::SetNamedValue(connection, Schema::s_PortableMetadataValueName_MajorVersion, static_cast<int>(MinorVersion));
 
         savepoint.Commit();
     }

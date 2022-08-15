@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "PortableIndex.h"
-#include "Schema/PortableMetadataTable.h"
+#include "Schema/MetadataTable.h"
 
 namespace AppInstaller::Repository::Microsoft
 {
@@ -13,10 +13,10 @@ namespace AppInstaller::Repository::Microsoft
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(result.m_dbconn, "portableindex_createnew");
 
-        Schema::PortableMetadataTable::Create(result.m_dbconn);
+        Schema::MetadataTable::Create(result.m_dbconn);
 
         // Use calculated version, as incoming version could be 'latest'
-        result.m_version.SetPortableSchemaVersion(result.m_dbconn);
+        result.m_version.SetSchemaVersion(result.m_dbconn);
 
         result.m_interface->CreateTable(result.m_dbconn);
 

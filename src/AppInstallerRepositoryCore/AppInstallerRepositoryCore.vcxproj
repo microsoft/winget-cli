@@ -273,12 +273,11 @@
     <ClInclude Include="Microsoft\Schema\IPortableIndex.h" />
     <ClInclude Include="Microsoft\Schema\ISQLiteIndex.h" />
     <ClInclude Include="Microsoft\Schema\Portable_1_0\PortableIndexInterface.h" />
+    <ClInclude Include="Microsoft\Schema\Portable_1_0\PortableTable.h" />
     <ClInclude Include="Microsoft\Schema\MetadataTable.h" />
-    <ClInclude Include="Microsoft\Schema\PortableMetadataTable.h" />
     <ClInclude Include="Microsoft\Schema\Version.h" />
     <ClInclude Include="Microsoft\SQLiteIndex.h" />
     <ClInclude Include="Microsoft\SQLiteIndexSource.h" />
-    <ClCompile Include="Microsoft\SQLiteStorageBase.h" />
     <ClInclude Include="Microsoft\ConfigurableTestSourceFactory.h" />
     <ClInclude Include="PackageDependenciesValidation.h" />
     <ClInclude Include="PackageTrackingCatalogSourceFactory.h" />
@@ -352,11 +351,10 @@
     <ClCompile Include="Microsoft\Schema\1_5\Interface_1_5.cpp" />
     <ClCompile Include="Microsoft\Schema\MetadataTable.cpp" />
     <ClCompile Include="Microsoft\Schema\Portable_1_0\PortableIndexInterface_1_0.cpp" />
-    <ClCompile Include="Microsoft\Schema\PortableMetadataTable.cpp" />
+    <ClCompile Include="Microsoft\Schema\Portable_1_0\PortableTable.cpp" />
     <ClCompile Include="Microsoft\Schema\Version.cpp" />
     <ClCompile Include="Microsoft\SQLiteIndex.cpp" />
     <ClCompile Include="Microsoft\SQLiteIndexSource.cpp" />
-    <ClCompile Include="Microsoft\SQLiteStorageBase.cpp" />
     <ClCompile Include="PackageDependenciesValidation.cpp" />
     <ClCompile Include="PackageTrackingCatalog.cpp" />
     <ClCompile Include="pch.cpp">

@@ -5,10 +5,6 @@
 #include "Microsoft/Schema/Version.h"
 #include <AppInstallerVersions.h>
 
-#include <filesystem>
-#include <optional>
-
-
 namespace AppInstaller::Repository::Microsoft::Schema
 {
     // Forward declarations
@@ -20,7 +16,7 @@ namespace AppInstaller::Repository::Microsoft::Schema
 
         // Version 1.0
 
-                // Gets the schema version that this index interface is built for.
+        // Gets the schema version that this index interface is built for.
         virtual Schema::Version GetVersion() const = 0;
 
         // Creates all of the version dependent tables within the database.
