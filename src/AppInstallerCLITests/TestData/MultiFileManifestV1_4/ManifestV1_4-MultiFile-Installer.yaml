@@ -188,4 +188,4 @@ Installers:
         InvocationParameter: "/arg2"
         DisplayName: "DisplayName2"
 ManifestType: installer
-ManifestVersion: 1.3.0
+ManifestVersion: 1.4.0

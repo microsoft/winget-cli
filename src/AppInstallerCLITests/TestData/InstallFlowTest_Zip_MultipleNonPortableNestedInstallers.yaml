@@ -16,4 +16,4 @@ Installers:
         - RelativeFilePath: installerOne.exe
         - RelativeFilePath: installerTwo.exe
 ManifestType: singleton
-ManifestVersion: 1.3.0
+ManifestVersion: 1.4.0

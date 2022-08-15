@@ -495,7 +495,7 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
         REQUIRE(manifest.DefaultInstallerInfo.UnsupportedArguments.at(0) == UnsupportedArgumentEnum::Log);
     }
 
-    if (manifestVer >= ManifestVer{ s_ManifestVersionV1_3 })
+    if (manifestVer >= ManifestVer{ s_ManifestVersionV1_4 })
     {
         REQUIRE(manifest.DefaultInstallerInfo.NestedInstallerType == InstallerTypeEnum::Msi);
         REQUIRE(manifest.DefaultInstallerInfo.NestedInstallerFiles.size() == 1);
@@ -515,7 +515,7 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
     }
     else
     {
-        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_3 })
+        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_4 })
         {
             REQUIRE(manifest.Installers.size() == 4);
         }
@@ -591,7 +591,7 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
         REQUIRE(installer1.UnsupportedArguments.at(0) == UnsupportedArgumentEnum::Location);
     }
 
-    if (manifestVer >= ManifestVer{ s_ManifestVersionV1_3 })
+    if (manifestVer >= ManifestVer{ s_ManifestVersionV1_4 })
     {
         // NestedInstaller metadata should not be populated unless the InstallerType is zip.
         REQUIRE(installer1.NestedInstallerType == InstallerTypeEnum::Unknown);
@@ -653,7 +653,7 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
             REQUIRE(installer3.UnsupportedArguments.at(0) == UnsupportedArgumentEnum::Log);
         }
 
-        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_3 })
+        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_4 })
         {
             ManifestInstaller installer4 = manifest.Installers.at(3);
             REQUIRE(installer4.BaseInstallerType == InstallerTypeEnum::Zip);
@@ -790,29 +790,29 @@ TEST_CASE("ValidateV1_2GoodManifestAndVerifyContents", "[ManifestValidation]")
     VerifyV1ManifestContent(mergedManifest, false, ManifestVer{ s_ManifestVersionV1_2 });
 }
 
-TEST_CASE("ValidateV1_3GoodManifestAndVerifyContents", "[ManifestValidation]")
+TEST_CASE("ValidateV1_4GoodManifestAndVerifyContents", "[ManifestValidation]")
 {
     ManifestValidateOption validateOption;
     validateOption.FullValidation = true;
     TempDirectory singletonDirectory{ "SingletonManifest" };
-    CopyTestDataFilesToFolder({ "ManifestV1_3-Singleton.yaml" }, singletonDirectory);
+    CopyTestDataFilesToFolder({ "ManifestV1_4-Singleton.yaml" }, singletonDirectory);
     Manifest singletonManifest = YamlParser::CreateFromPath(singletonDirectory, validateOption);
-    VerifyV1ManifestContent(singletonManifest, true, ManifestVer{ s_ManifestVersionV1_3 });
+    VerifyV1ManifestContent(singletonManifest, true, ManifestVer{ s_ManifestVersionV1_4 });
 
     TempDirectory multiFileDirectory{ "MultiFileManifest" };
     CopyTestDataFilesToFolder({
-        "ManifestV1_3-MultiFile-Version.yaml",
-        "ManifestV1_3-MultiFile-Installer.yaml",
-        "ManifestV1_3-MultiFile-DefaultLocale.yaml",
-        "ManifestV1_3-MultiFile-Locale.yaml" }, multiFileDirectory);
+        "ManifestV1_4-MultiFile-Version.yaml",
+        "ManifestV1_4-MultiFile-Installer.yaml",
+        "ManifestV1_4-MultiFile-DefaultLocale.yaml",
+        "ManifestV1_4-MultiFile-Locale.yaml" }, multiFileDirectory);
 
     TempFile mergedManifestFile{ "merged.yaml" };
     Manifest multiFileManifest = YamlParser::CreateFromPath(multiFileDirectory, validateOption, mergedManifestFile);
-    VerifyV1ManifestContent(multiFileManifest, false, ManifestVer{ s_ManifestVersionV1_3 });
+    VerifyV1ManifestContent(multiFileManifest, false, ManifestVer{ s_ManifestVersionV1_4 });
 
     // Read from merged manifest should have the same content as multi file manifest
     Manifest mergedManifest = YamlParser::CreateFromPath(mergedManifestFile);
-    VerifyV1ManifestContent(mergedManifest, false, ManifestVer{ s_ManifestVersionV1_3 });
+    VerifyV1ManifestContent(mergedManifest, false, ManifestVer{ s_ManifestVersionV1_4 });
 }
 
 YamlManifestInfo CreateYamlManifestInfo(std::string testDataFile)
