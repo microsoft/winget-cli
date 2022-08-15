@@ -309,7 +309,8 @@ namespace AppInstaller::CLI::Workflow
         catch (const Settings::GroupPolicyException& e)
         {
             auto policy = Settings::TogglePolicy::GetPolicy(e.Policy());
-            context.Reporter.Error() << Resource::String::DisabledByGroupPolicy(policy.PolicyName()()) << std::endl;
+            auto policyNameId = policy.PolicyName();
+            context.Reporter.Error() << Resource::String::DisabledByGroupPolicy(policyNameId()) << std::endl;
             return APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY;
         }
         catch (const Resource::ResourceOpenException& e)

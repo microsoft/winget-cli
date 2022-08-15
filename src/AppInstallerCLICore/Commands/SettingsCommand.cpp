@@ -16,6 +16,7 @@ namespace AppInstaller::CLI
         constexpr Utility::LocIndView s_ArgumentName_Enable = "enable"_liv;
         constexpr Utility::LocIndView s_ArgumentName_Disable = "disable"_liv;
         constexpr Utility::LocIndView s_ArgName_EnableAndDisable = "enable|disable"_liv;
+        constexpr Utility::LocIndView s_ArgValue_EnableAndDisable_LocalManifestFiles = "LocalManifestFiles"_liv;
     }
 
     std::vector<Argument> SettingsCommand::GetArguments() const
@@ -50,12 +51,12 @@ namespace AppInstaller::CLI
 
         if (execArgs.Contains(Execution::Args::Type::AdminSettingEnable) && AdminSetting::Unknown == StringToAdminSetting(execArgs.GetArg(Execution::Args::Type::AdminSettingEnable)))
         {
-            throw CommandException(Resource::String::InvalidArgumentValueError(s_ArgumentName_Enable, "LocalManifestFiles"_lis));
+            throw CommandException(Resource::String::InvalidArgumentValueError(s_ArgumentName_Enable, s_ArgValue_EnableAndDisable_LocalManifestFiles));
         }
 
         if (execArgs.Contains(Execution::Args::Type::AdminSettingDisable) && AdminSetting::Unknown == StringToAdminSetting(execArgs.GetArg(Execution::Args::Type::AdminSettingDisable)))
         {
-            throw CommandException(Resource::String::InvalidArgumentValueError(s_ArgumentName_Disable, "LocalManifestFiles"_lis));
+            throw CommandException(Resource::String::InvalidArgumentValueError(s_ArgumentName_Disable, s_ArgValue_EnableAndDisable_LocalManifestFiles));
         }
     }
 

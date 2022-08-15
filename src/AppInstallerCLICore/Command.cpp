@@ -80,7 +80,7 @@ namespace AppInstaller::CLI
         }
 
         // Output the command preamble and command chain
-        auto commandUsage = Utility::LocIndString{ Utility::Format("{0} {1}", "winget", commandChain) };
+        auto commandUsage = Utility::LocIndString{ Utility::Format("{0} {1}", "winget"_lis, commandChain) };
         infoOut << Resource::String::Usage(commandUsage);
 
         auto commandAliases = Aliases();
@@ -438,7 +438,7 @@ namespace AppInstaller::CLI
     //  4. If the argument is only a double --, all further arguments are only considered as positional.
     ParseArgumentsStateMachine::State ParseArgumentsStateMachine::StepInternal()
     {
-        std::string_view currArg = *m_invocationItr;
+        auto currArg = Utility::LocIndView{ *m_invocationItr };
         ++m_invocationItr;
 
         // If the previous step indicated a value was needed, set it and forget it.
@@ -454,7 +454,7 @@ namespace AppInstaller::CLI
             const CLI::Argument* nextPositional = NextPositional();
             if (!nextPositional)
             {
-                return CommandException(Resource::String::ExtraPositionalError(Utility::LocIndView{ currArg }));
+                return CommandException(Resource::String::ExtraPositionalError(currArg));
             }
 
             m_executionArgs.AddArg(nextPositional->ExecArgType(), currArg);
@@ -462,7 +462,7 @@ namespace AppInstaller::CLI
         // The currentArg must not be empty, and starts with a -
         else if (currArg.length() == 1)
         {
-            return CommandException(Resource::String::InvalidArgumentSpecifierError(Utility::LocIndView{ currArg }));
+            return CommandException(Resource::String::InvalidArgumentSpecifierError(currArg));
         }
         // Now it must be at least 2 chars
         else if (currArg[1] != APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR)
@@ -473,7 +473,7 @@ namespace AppInstaller::CLI
             auto itr = std::find_if(m_arguments.begin(), m_arguments.end(), [&](const Argument& arg) { return (currChar == arg.Alias()); });
             if (itr == m_arguments.end())
             {
-                return CommandException(Resource::String::InvalidAliasError(Utility::LocIndView{ currArg }));
+                return CommandException(Resource::String::InvalidAliasError(currArg));
             }
 
             if (itr->Type() == ArgumentType::Flag)
@@ -487,11 +487,11 @@ namespace AppInstaller::CLI
                     auto itr2 = std::find_if(m_arguments.begin(), m_arguments.end(), [&](const Argument& arg) { return (currChar == arg.Alias()); });
                     if (itr2 == m_arguments.end())
                     {
-                        return CommandException(Resource::String::AdjoinedNotFoundError(Utility::LocIndView{ currArg }));
+                        return CommandException(Resource::String::AdjoinedNotFoundError(currArg));
                     }
                     else if (itr2->Type() != ArgumentType::Flag)
                     {
-                        return CommandException(Resource::String::AdjoinedNotFlagError(Utility::LocIndView{ currArg }));
+                        return CommandException(Resource::String::AdjoinedNotFlagError(currArg));
                     }
                     else
                     {
@@ -507,7 +507,7 @@ namespace AppInstaller::CLI
                 }
                 else
                 {
-                    return CommandException(Resource::String::SingleCharAfterDashError(Utility::LocIndView{ currArg }));
+                    return CommandException(Resource::String::SingleCharAfterDashError(currArg));
                 }
             }
             else
@@ -550,7 +550,7 @@ namespace AppInstaller::CLI
                     {
                         if (hasValue)
                         {
-                            return CommandException(Resource::String::FlagContainAdjoinedError(Utility::LocIndView{ currArg }));
+                            return CommandException(Resource::String::FlagContainAdjoinedError(currArg));
                         }
 
                         m_executionArgs.AddArg(arg.ExecArgType());
@@ -570,7 +570,7 @@ namespace AppInstaller::CLI
 
             if (!argFound)
             {
-                return CommandException(Resource::String::InvalidNameError(Utility::LocIndView{ currArg }));
+                return CommandException(Resource::String::InvalidNameError(currArg));
             }
         }
 

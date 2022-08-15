@@ -479,7 +479,7 @@ namespace AppInstaller::CLI::Workflow
             else
             {
                 context.Reporter.Error()
-                    << Resource::String::InstallerFailedWithCode(Utility::LocIndView{ std::to_string(installResult) })
+                    << Resource::String::InstallerFailedWithCode(Utility::ToString(installResult))
                     << std::endl;
             }
 
