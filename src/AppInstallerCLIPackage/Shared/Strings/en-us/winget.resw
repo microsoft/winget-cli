@@ -835,8 +835,8 @@ They can be configured through the settings file 'winget settings'.</value>
     <comment>Warning message displayed when the user attempts to export an installed application package that is not available from any repository source. {0} is a placeholder replaced by the installed package name.</comment>
   </data>
   <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
-    <value>Installed version of package is not available from any source: {0}</value>
-    <comment>Warning message displayed when the user attempts to export an installed application package with a version that is not available from any repository source. {0} is a placeholder replaced by the installed package information.</comment>
+    <value>Installed version of package is not available from any source: {0} {1} {2}</value>
+    <comment>Warning message displayed when the user attempts to export an installed application package with a version that is not available from any repository source. {0} is a placeholder replaced by the installed package identifier. {1} is a placeholder replaced by the installed package version. {2} is a placeholder replaced by the installed package channel.</comment>
   </data>
   <data name="NoPackagesInImportFile" xml:space="preserve">
     <value>No packages found in import file</value>

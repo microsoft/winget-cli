@@ -140,9 +140,10 @@ namespace AppInstaller::CLI::Workflow
             // TODO: Replace with GetUserPresentableMessage?
             std::ostringstream ssError;
             ssError << WINGET_OSTREAM_FORMAT_HRESULT(errorCode);
+            auto errorCodeString = Utility::LocIndString{ ssError.str() };
 
-            context.Reporter.Info() << Resource::String::MSStoreInstallOrUpdateFailed(Utility::LocIndView{ ssError.str() }) << std::endl;
-            AICLI_LOG(CLI, Error, << "MSStore install failed. ProductId: " << Utility::ConvertToUTF8(productId) << " HResult: " << ssError.str());
+            context.Reporter.Info() << Resource::String::MSStoreInstallOrUpdateFailed(errorCodeString) << std::endl;
+            AICLI_LOG(CLI, Error, << "MSStore install failed. ProductId: " << Utility::ConvertToUTF8(productId) << " HResult: " << errorCodeString);
             AICLI_TERMINATE_CONTEXT(errorCode);
         }
     }
@@ -187,9 +188,10 @@ namespace AppInstaller::CLI::Workflow
             // TODO: Replace with GetUserPresentableMessage?
             std::ostringstream ssError;
             ssError << WINGET_OSTREAM_FORMAT_HRESULT(errorCode);
+            auto errorCodeString = Utility::LocIndString{ ssError.str() };
 
-            context.Reporter.Info() << Resource::String::MSStoreInstallOrUpdateFailed(Utility::LocIndView{ ssError.str() }) << std::endl;
-            AICLI_LOG(CLI, Error, << "MSStore execution failed. ProductId: " << Utility::ConvertToUTF8(productId) << " HResult: " << ssError.str());
+            context.Reporter.Info() << Resource::String::MSStoreInstallOrUpdateFailed(errorCodeString) << std::endl;
+            AICLI_LOG(CLI, Error, << "MSStore execution failed. ProductId: " << Utility::ConvertToUTF8(productId) << " HResult: " << errorCodeString);
             AICLI_TERMINATE_CONTEXT(errorCode);
         }
     }

@@ -59,8 +59,8 @@ namespace AppInstaller::CLI::Workflow
         std::shared_ptr<IPackageVersion> GetAvailableVersionForInstalledPackage(
             Execution::Context& context,
             std::shared_ptr<IPackage> package,
-            std::string_view version,
-            std::string_view channel,
+            Utility::LocIndView version,
+            Utility::LocIndView channel,
             bool checkVersion)
         {
             if (!checkVersion)
@@ -81,8 +81,7 @@ namespace AppInstaller::CLI::Workflow
                         << "Installed package version is not available."
                         << " Package Id [" << availablePackageVersion->GetProperty(PackageVersionProperty::Id) << "], Version [" << version << "], Channel [" << channel << "]"
                         << ". Found Version [" << availablePackageVersion->GetProperty(PackageVersionProperty::Version) << "], Channel [" << availablePackageVersion->GetProperty(PackageVersionProperty::Version) << "]");
-                    auto packageInfo = Utility::LocIndString{ Utility::Format("{0} {1} {2}", availablePackageVersion->GetProperty(PackageVersionProperty::Id), version, channel) };
-                    context.Reporter.Warn() << Resource::String::InstalledPackageVersionNotAvailable(packageInfo) << std::endl;
+                    context.Reporter.Warn() << Resource::String::InstalledPackageVersionNotAvailable(availablePackageVersion->GetProperty(PackageVersionProperty::Id), version, channel) << std::endl;
                 }
             }
 
@@ -104,7 +103,7 @@ namespace AppInstaller::CLI::Workflow
             auto channel = installedPackageVersion->GetProperty(PackageVersionProperty::Channel);
 
             // Find an available version of this package to determine its source.
-            auto availablePackageVersion = GetAvailableVersionForInstalledPackage(context, packageMatch.Package, version, channel, includeVersions);
+            auto availablePackageVersion = GetAvailableVersionForInstalledPackage(context, packageMatch.Package, Utility::LocIndView{ version }, Utility::LocIndView{ channel }, includeVersions);
             if (!availablePackageVersion)
             {
                 // Report package not found and move to next package.
