@@ -179,7 +179,7 @@ namespace AppInstaller::CLI
                 "Windows: "_liv << Runtime::GetOSVersion() << std::endl;
 
             // TODO https://task.ms/40934960 Maintain consistency for label definition
-            info << Resource::String::SystemArchitecture(Utility::ConvertFromArchitectureEnum(Utility::GetSystemArchitecture())) << std::endl;
+            info << Resource::String::SystemArchitecture(Utility::ToString(Utility::GetSystemArchitecture())) << std::endl;
 
             if (Runtime::IsRunningInPackagedContext())
             {

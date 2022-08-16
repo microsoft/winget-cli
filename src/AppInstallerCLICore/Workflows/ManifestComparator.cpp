@@ -12,7 +12,7 @@ using namespace AppInstaller::Manifest;
 std::ostream& operator<<(std::ostream& out, const AppInstaller::Manifest::ManifestInstaller& installer)
 {
     return out << '[' <<
-        AppInstaller::Utility::ConvertFromArchitectureEnum(installer.Arch) << ',' <<
+        AppInstaller::Utility::ToString(installer.Arch) << ',' <<
         AppInstaller::Manifest::InstallerTypeToString(installer.EffectiveInstallerType()) << ',' <<
         AppInstaller::Manifest::ScopeToString(installer.Scope) << ',' <<
         installer.Locale << ']';
@@ -74,7 +74,7 @@ namespace AppInstaller::CLI::Workflow
             MachineArchitectureComparator(std::vector<Utility::Architecture> allowedArchitectures) :
                 details::ComparisonField("Machine Architecture"), m_allowedArchitectures(std::move(allowedArchitectures))
             {
-                AICLI_LOG(CLI, Verbose, << "Architecture Comparator created with allowed architectures: " << Utility::ConvertContainerToString(m_allowedArchitectures, Utility::ConvertFromArchitectureEnum));
+                AICLI_LOG(CLI, Verbose, << "Architecture Comparator created with allowed architectures: " << Utility::ConvertContainerToString(m_allowedArchitectures, Utility::ToString));
             }
 
             // TODO: At some point we can do better about matching the currently installed architecture
@@ -142,7 +142,7 @@ namespace AppInstaller::CLI::Workflow
                 if (Utility::IsApplicableArchitecture(installer.Arch) == Utility::InapplicableArchitecture)
                 {
                     result = "Machine is not compatible with ";
-                    result += Utility::ConvertFromArchitectureEnum(installer.Arch);
+                    result += Utility::ToString(installer.Arch);
                 }
                 else if (IsSystemArchitectureUnsupportedByInstaller(installer))
                 {
@@ -151,7 +151,7 @@ namespace AppInstaller::CLI::Workflow
                 else
                 {
                     result = "Architecture was excluded by caller : ";
-                    result += Utility::ConvertFromArchitectureEnum(installer.Arch);
+                    result += Utility::ToString(installer.Arch);
                 }
 
                 return result;

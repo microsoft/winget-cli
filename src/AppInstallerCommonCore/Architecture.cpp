@@ -187,7 +187,7 @@ namespace AppInstaller::Utility
         return Architecture::Unknown;
     }
 
-    LocIndView ConvertFromArchitectureEnum(Architecture architecture)
+    LocIndView ToString(Architecture architecture)
     {
         switch (architecture)
         {

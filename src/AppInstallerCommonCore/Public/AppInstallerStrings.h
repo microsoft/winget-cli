@@ -232,22 +232,13 @@ namespace AppInstaller::Utility
     // Join a string vector using the provided separator.
     LocIndString Join(LocIndView separator, const std::vector<LocIndString>& vector);
 
-    // Superset of std::to_string supporting string convertibles as input.
-    template <typename T>
-    std::string ToString(T value)
-    {
-        std::ostringstream result;
-        result << value;
-        return result.str();
-    }
-
     // Format an input string by replacing placeholders {index} with provided values at corresponding indices.
     // Note: After upgrading to C++20, this function should be deprecated in favor of std::format.
     template <typename ... T>
     std::string Format(std::string inputStr, T ... args)
     {
         int index = 0;
-        (FindAndReplace(inputStr, "{" + std::to_string(index++) + "}", ToString(args)), ...);
+        (FindAndReplace(inputStr, "{" + std::to_string(index++) + "}", (std::ostringstream() << args).str()),...);
         return inputStr;
     }
 }
