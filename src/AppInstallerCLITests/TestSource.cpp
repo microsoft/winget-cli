@@ -76,7 +76,7 @@ namespace TestCommon
         case PackageVersionMultiProperty::ProductCode:
             for (const auto& installer : VersionManifest.Installers)
             {
-                bool shouldFoldCaseForNonPortable = installer.InstallerType != AppInstaller::Manifest::InstallerTypeEnum::Portable;
+                bool shouldFoldCaseForNonPortable = installer.EffectiveInstallerType() != AppInstaller::Manifest::InstallerTypeEnum::Portable;
                 AddIfHasValueAndNotPresent(installer.ProductCode, result, shouldFoldCaseForNonPortable);
             }
             break;
