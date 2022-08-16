@@ -125,7 +125,7 @@ namespace AppInstaller::CLI
                 std::vector<Utility::LocIndString> applicableArchitectures;
                 for (Utility::Architecture i : Utility::GetApplicableArchitectures())
                 {
-                    applicableArchitectures.emplace_back(Utility::Format("'{0}'", Utility::ConvertFromArchitectureEnum(i)));
+                    applicableArchitectures.emplace_back(Utility::ConvertFromArchitectureEnum(i));
                 }
                 auto validOptions = Utility::Join(", "_liv, applicableArchitectures);
                 throw CommandException(Resource::String::InvalidArgumentValueError(s_ArgumentName_Architecture, validOptions));

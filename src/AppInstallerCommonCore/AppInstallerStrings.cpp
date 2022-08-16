@@ -716,7 +716,7 @@ namespace AppInstaller::Utility
 
         std::ostringstream ssJoin;
         ssJoin << vector[0];
-        for (int i = 1; i < vectorSize; ++i)
+        for (size_t i = 1; i < vectorSize; ++i)
         {
             ssJoin << separator << vector[i];
         }

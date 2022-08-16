@@ -86,8 +86,9 @@ namespace AppInstaller::CLI::Workflow
 
         if (!installer.has_value())
         {
-            auto manifestInfo = Utility::LocIndString{ Utility::Format("{0}{1}",  Utility::Normalize(m_nodeManifest.Id),  m_nodeManifest.Version)};
-            error << Resource::String::DependenciesFlowNoSuitableInstallerFound(manifestInfo);
+            auto manifestId = Utility::LocIndString{ Utility::Normalize(m_nodeManifest.Id) };
+            auto manifestVersion = Utility::LocIndString{ m_nodeManifest.Version };
+            error << Resource::String::DependenciesFlowNoSuitableInstallerFound(manifestId, manifestVersion);
             AICLI_LOG(CLI, Error, << "No suitable installer found for manifest " << m_nodeManifest.Id << " with version " << m_nodeManifest.Version);
             return DependencyNodeProcessorResult::Error;
         }

@@ -236,9 +236,9 @@ namespace AppInstaller::Utility
     template <typename T>
     std::string ToString(T value)
     {
-        std::ostringstream oss;
-        oss << value;
-        return oss.str();
+        std::ostringstream result;
+        result << value;
+        return result.str();
     }
 
     // Format an input string by replacing placeholders {index} with provided values at corresponding indices.

@@ -14,7 +14,7 @@
         /* Strings explicitly declared as localization independent.*/ \
         _f_(AppInstaller::Utility::LocIndView) \
         _f_(AppInstaller::Utility::LocIndString) \
-        /* Normalized strings come from user dataand should therefore already by localized
+        /* Normalized strings come from user data and should therefore already by localized
            by how they are chosen (or there is no localized version).*/ \
         _f_(AppInstaller::Utility::NormalizedString)
 
