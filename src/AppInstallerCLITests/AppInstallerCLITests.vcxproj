@@ -656,7 +656,7 @@
     <CopyFileToFolders Include="TestData\ManifestV1_2-Singleton.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\ManifestV1_3-Singleton.yaml">
+    <CopyFileToFolders Include="TestData\ManifestV1_4-Singleton.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\MultiFileManifestV1\ManifestV1-MultiFile-DefaultLocale.yaml">
@@ -695,16 +695,16 @@
     <CopyFileToFolders Include="TestData\MultiFileManifestV1_2\ManifestV1_2-MultiFile-Version.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\MultiFileManifestV1_3\ManifestV1_3-MultiFile-DefaultLocale.yaml">
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_4\ManifestV1_4-MultiFile-DefaultLocale.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\MultiFileManifestV1_3\ManifestV1_3-MultiFile-Installer.yaml">
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_4\ManifestV1_4-MultiFile-Installer.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\MultiFileManifestV1_3\ManifestV1_3-MultiFile-Locale.yaml">
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_4\ManifestV1_4-MultiFile-Locale.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\MultiFileManifestV1_3\ManifestV1_3-MultiFile-Version.yaml">
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_4\ManifestV1_4-MultiFile-Version.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Installer_Exe_Dependencies.yaml">
