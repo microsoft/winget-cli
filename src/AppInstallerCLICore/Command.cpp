@@ -80,8 +80,7 @@ namespace AppInstaller::CLI
         }
 
         // Output the command preamble and command chain
-        auto commandUsage = Utility::LocIndString{ Utility::Format("{0} {1}", "winget"_lis, commandChain) };
-        infoOut << Resource::String::Usage(commandUsage);
+        infoOut << Resource::String::Usage("winget"_lis, Utility::LocIndView{ commandChain });
 
         auto commandAliases = Aliases();
         auto commands = GetVisibleCommands();
@@ -245,6 +244,7 @@ namespace AppInstaller::CLI
             }
         }
 
+        // TODO https://task.ms/40934960 Change HelpLink return value to LocIndString
         // Finally, the link to the documentation pages
         auto helpLink = Utility::LocIndString{ HelpLink() };
         if (!helpLink.empty())
@@ -280,7 +280,7 @@ namespace AppInstaller::CLI
                 {
                     auto feature = ExperimentalFeature::GetFeature(command->Feature());
                     AICLI_LOG(CLI, Error, << "Trying to use command: " << *itr << " without enabling feature " << feature.JsonName());
-                    throw CommandException(Resource::String::FeatureDisabledMessage(Utility::LocIndView{ feature.JsonName() }));
+                    throw CommandException(Resource::String::FeatureDisabledMessage(feature.JsonName()));
                 }
 
                 if (!Settings::GroupPolicies().IsEnabled(command->GroupPolicy()))
@@ -333,14 +333,14 @@ namespace AppInstaller::CLI
             const std::optional<Execution::Args::Type>& Type() const { return m_type; }
 
             // The actual argument string associated with Type.
-            const std::string& Arg() const { return m_arg; }
+            const Utility::LocIndString& Arg() const { return m_arg; }
 
             // If set, indicates that the last argument produced an error.
             const std::optional<CommandException>& Exception() const { return m_exception; }
 
         private:
             std::optional<Execution::Args::Type> m_type;
-            std::string m_arg;
+            Utility::LocIndString m_arg;
             std::optional<CommandException> m_exception;
         };
 
@@ -398,7 +398,7 @@ namespace AppInstaller::CLI
         // If the next argument was to be a value, but none was provided, convert it to an exception.
         else if (m_state.Type() && m_invocationItr == m_invocation.end())
         {
-            throw CommandException(Resource::String::MissingArgumentError(Utility::LocIndView{ m_state.Arg() }));
+            throw CommandException(Resource::String::MissingArgumentError(m_state.Arg()));
         }
     }
 
@@ -623,14 +623,14 @@ namespace AppInstaller::CLI
             {
                 auto setting = Settings::AdminSettingToString(arg.AdminSetting());
                 AICLI_LOG(CLI, Error, << "Trying to use argument: " << arg.Name() << " disabled by admin setting " << setting);
-                throw CommandException(Resource::String::FeatureDisabledByAdminSettingMessage(Utility::LocIndView{ setting }));
+                throw CommandException(Resource::String::FeatureDisabledByAdminSettingMessage(setting));
             }
 
             if (!ExperimentalFeature::IsEnabled(arg.Feature()) && execArgs.Contains(arg.ExecArgType()))
             {
                 auto feature = ExperimentalFeature::GetFeature(arg.Feature());
                 AICLI_LOG(CLI, Error, << "Trying to use argument: " << arg.Name() << " without enabling feature " << feature.JsonName());
-                throw CommandException(Resource::String::FeatureDisabledMessage(Utility::LocIndView{ feature.JsonName() }));
+                throw CommandException(Resource::String::FeatureDisabledMessage(feature.JsonName()));
             }
 
             if (arg.Required() && !execArgs.Contains(arg.ExecArgType()))

@@ -11,12 +11,12 @@
 namespace AppInstaller::Settings
 {
     using namespace std::string_view_literals;
-    using namespace Utility;
+    using namespace Utility::literals;
 
     namespace
     {
-        constexpr std::string_view s_AdminSettingsYaml_LocalManifestFiles = "LocalManifestFiles"sv;
-        constexpr std::string_view s_AdminSettingsYaml_BypassCertificatePinningForMicrosoftStore = "BypassCertificatePinningForMicrosoftStore"sv;
+        constexpr Utility::LocIndView s_AdminSettingsYaml_LocalManifestFiles = "LocalManifestFiles"_liv;
+        constexpr Utility::LocIndView s_AdminSettingsYaml_BypassCertificatePinningForMicrosoftStore = "BypassCertificatePinningForMicrosoftStore"_liv;
 
         // Attempts to read a single scalar value from the node.
         template<typename Value>
@@ -168,7 +168,7 @@ namespace AppInstaller::Settings
         return result;
     }
 
-    std::string_view AdminSettingToString(AdminSetting setting)
+    Utility::LocIndView AdminSettingToString(AdminSetting setting)
     {
         switch (setting)
         {
@@ -177,7 +177,7 @@ namespace AppInstaller::Settings
         case AdminSetting::BypassCertificatePinningForMicrosoftStore:
             return s_AdminSettingsYaml_BypassCertificatePinningForMicrosoftStore;
         default:
-            return "Unknown"sv;
+            return "Unknown"_liv;
         }
     }
 

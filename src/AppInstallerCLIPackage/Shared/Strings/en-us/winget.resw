@@ -700,7 +700,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Shows and performs available upgrades</value>
   </data>
   <data name="Usage" xml:space="preserve">
-    <value>usage: {0}</value>
+    <value>usage: {0} {1}</value>
     <comment>Message displayed to provide the user with instructions on how to use a command line command. {0} is a placeholder replaced by the command usage provided by the program.</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">

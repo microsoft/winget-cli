@@ -73,6 +73,7 @@ namespace AppInstaller
             std::string m_message;
         };
 
+        // TODO https://task.ms/40934960 Consider renaming or removing LocString
         // A localized string
         struct LocString : public Utility::LocIndString
         {
