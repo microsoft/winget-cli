@@ -360,7 +360,8 @@ namespace AppInstaller::CLI::Workflow
         {
             Portable::PortableEntry& portableEntry = context.Get<Execution::Data::PortableEntry>();
             const auto& symlinkPath = portableEntry.PortableSymlinkFullPath;
-            if (std::filesystem::is_symlink(std::filesystem::symlink_status(symlinkPath)))
+
+            if (!std::filesystem::is_symlink(std::filesystem::symlink_status(symlinkPath)))
             {
                 AICLI_LOG(Core, Info, << "The registry value for [PortableSymlinkFullPath] does not point to a valid symlink file.");
                 return;
