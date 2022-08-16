@@ -37,6 +37,7 @@
 #include <Commands/SourceCommand.h>
 #include <winget/LocIndependent.h>
 #include <winget/ManifestYamlParser.h>
+#include <winget/PathVariable.h>
 #include <Resources.h>
 #include <AppInstallerFileLogger.h>
 #include <Commands/ValidateCommand.h>
@@ -639,6 +640,28 @@ void OverrideForPortableInstallFlow(TestContext& context)
 
     OverrideForUpdateInstallerMotw(context);
     OverrideForPortableInstall(context);
+}
+
+void OverridePortableInstaller(TestContext& context)
+{
+    context.Override({ DownloadInstallerFile, [](TestContext& context)
+    {
+        std::filesystem::path tempDirectory = std::filesystem::temp_directory_path();
+        const auto& installerPath = TestDataFile("AppInstallerTestExeInstaller.exe").GetPath();
+        const auto& tempInstallerPath = tempDirectory / "AppInstallerTestExeInstaller.exe";
+        std::filesystem::copy(installerPath, tempInstallerPath, std::filesystem::copy_options::overwrite_existing);
+        context.Add<Data::InstallerPath>(tempInstallerPath);
+
+        std::ifstream inStream{ tempInstallerPath, std::ifstream::binary };
+        SHA256::HashBuffer fileHash = SHA256::ComputeHash(inStream);
+        context.Add<Data::HashPair>({ fileHash, fileHash });
+    } });
+
+    context.Override({ RenameDownloadedInstaller, [](TestContext&)
+    {
+    } });
+
+    OverrideForUpdateInstallerMotw(context);
 }
 
 void OverrideForPortableUninstall(TestContext& context)
@@ -1252,7 +1275,7 @@ TEST_CASE("MsiInstallFlow_DirectMsi", "[InstallFlow][workflow]")
     REQUIRE(installResultStr.find("/quiet") != std::string::npos);
 }
 
-TEST_CASE("PortableInstallFlow", "[InstallFlow][workflow]")
+TEST_CASE("InstallFlow_Portable", "[InstallFlow][workflow]")
 {
     TestCommon::TempDirectory tempDirectory("TestPortableInstallRoot", false);
     TestCommon::TempFile portableInstallResultPath("TestPortableInstalled.txt");
@@ -1269,6 +1292,28 @@ TEST_CASE("PortableInstallFlow", "[InstallFlow][workflow]")
     INFO(installOutput.str());
 
     REQUIRE(std::filesystem::exists(portableInstallResultPath.GetPath()));
+}
+
+TEST_CASE("InstallFlow_Portable_SymlinkCreationFail", "[InstallFlow][workflow]")
+{
+    std::ostringstream installOutput;
+    TestContext installContext{ installOutput, std::cin };
+    auto PreviousThreadGlobals = installContext.SetForCurrentThread();
+    OverridePortableInstaller(installContext);
+    bool overrideCreateSymlinkStatus = false;
+    AppInstaller::Filesystem::TestHook_SetCreateSymlinkResult_Override(&overrideCreateSymlinkStatus);
+    installContext.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Portable.yaml").GetPath().u8string());
+
+    InstallCommand install({});
+    install.Execute(installContext);
+    INFO(installOutput.str());
+
+    // 'DefaultSource' is expected because we are installing from a local manifest.
+    const auto& portableUserRoot = AppInstaller::Runtime::GetPathTo(AppInstaller::Runtime::PathName::PortablePackageUserRoot);
+    const auto& portableTargetDirectory = portableUserRoot / "AppInstallerCliTest.TestPortableInstaller__DefaultSource";
+    const auto& portableTargetPath = portableTargetDirectory / "AppInstallerTestExeInstaller.exe";
+    REQUIRE(std::filesystem::exists(portableTargetPath));
+    REQUIRE(AppInstaller::Registry::Environment::PathVariable(AppInstaller::Manifest::ScopeEnum::User).Contains(portableTargetDirectory));
 }
 
 TEST_CASE("PortableInstallFlow_UserScope", "[InstallFlow][workflow]")
@@ -1314,39 +1359,6 @@ TEST_CASE("PortableInstallFlow_MachineScope", "[InstallFlow][workflow]")
     install.Execute(context);
     INFO(installOutput.str());
     REQUIRE(std::filesystem::exists(portableInstallResultPath.GetPath()));
-}
-
-TEST_CASE("PortableInstallFlow_DevModeDisabled", "[InstallFlow][workflow]")
-{
-    if (!AppInstaller::Runtime::IsRunningAsAdmin())
-    {
-        WARN("Test requires admin privilege. Skipped.");
-        return;
-    }
-
-    TestCommon::TempDirectory tempDirectory("TestPortableInstallRoot", false);
-    TestCommon::TempFile portableInstallResultPath("TestPortableInstalled.txt");
-
-    std::ostringstream installOutput;
-    TestContext context{ installOutput, std::cin };
-    auto previousThreadGlobals = context.SetForCurrentThread();
-    TestCommon::EnableDevMode(false);
-
-    // Override admin check to report as false.
-    context.Override({ EnsureRunningAsAdmin, [](TestContext& testContext)
-    {
-        testContext.SetTerminationHR(APPINSTALLER_CLI_ERROR_COMMAND_REQUIRES_ADMIN);
-    } });
-
-    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Portable.yaml").GetPath().u8string());
-    InstallCommand install({});
-    install.Execute(context);
-    TestCommon::EnableDevMode(true);
-    INFO(installOutput.str());
-
-    // Verify proper message is printed for installing portable in non-developer mode and not running as admin. 
-    REQUIRE_FALSE(std::filesystem::exists(portableInstallResultPath.GetPath()));
-    REQUIRE(installOutput.str().find("https://github.com/microsoft/winget-cli/issues/2368") != std::string::npos);
 }
 
 TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow][workflow]")
@@ -1962,6 +1974,41 @@ TEST_CASE("UpdateFlow_UpdatePortable", "[UpdateFlow][workflow]")
     update.Execute(context);
     INFO(updateOutput.str());
     REQUIRE(std::filesystem::exists(updateResultPath.GetPath()));
+}
+
+TEST_CASE("UpdateFlow_Portable_SymlinkCreationFail", "[UpdateFlow][workflow]")
+{
+    // Update portable with symlink creation failure verify that it succeeds.
+    std::ostringstream updateOutput;
+    TestContext context{ updateOutput, std::cin };
+    auto PreviousThreadGlobals = context.SetForCurrentThread();
+    bool overrideCreateSymlinkStatus = false;
+    AppInstaller::Filesystem::TestHook_SetCreateSymlinkResult_Override(&overrideCreateSymlinkStatus);
+    OverridePortableInstaller(context);
+    OverrideForCompositeInstalledSource(context);
+    context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestPortableInstaller"sv);
+
+    UpgradeCommand update({});
+    update.Execute(context);
+    INFO(updateOutput.str());
+    const auto& portableTargetDirectory = AppInstaller::Runtime::GetPathTo(AppInstaller::Runtime::PathName::PortablePackageUserRoot) / "AppInstallerCliTest.TestPortableInstaller__TestSource";
+    const auto& portableTargetPath = portableTargetDirectory / "AppInstallerTestExeInstaller.exe";
+    REQUIRE(std::filesystem::exists(portableTargetPath));
+    REQUIRE(AppInstaller::Registry::Environment::PathVariable(AppInstaller::Manifest::ScopeEnum::User).Contains(portableTargetDirectory));
+
+    // Perform uninstall
+    std::ostringstream uninstallOutput;
+    TestContext uninstallContext{ uninstallOutput, std::cin };
+    auto previousThreadGlobals = uninstallContext.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(uninstallContext);
+    uninstallContext.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestPortableInstaller"sv);
+
+    UninstallCommand uninstall({});
+    uninstall.Execute(uninstallContext);
+    INFO(uninstallOutput.str());
+
+    REQUIRE_FALSE(std::filesystem::exists(portableTargetPath));
+    REQUIRE_FALSE(AppInstaller::Registry::Environment::PathVariable(AppInstaller::Manifest::ScopeEnum::User).Contains(portableTargetDirectory));
 }
 
 TEST_CASE("UpdateFlow_UpdateExeWithUnsupportedArgs", "[UpdateFlow][workflow]")
