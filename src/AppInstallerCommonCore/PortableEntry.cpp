@@ -60,7 +60,9 @@ namespace AppInstaller::Portable
         Filesystem::RenameFile(installerPath, PortableTargetFullPath);
         AICLI_LOG(Core, Info, << "Portable exe moved to: " << PortableTargetFullPath);
 
-        if (!InstallDirectoryCreated)
+        // Only assign this value if this is a new portable install or the install directory was actually created.
+        // Otherwise, we want to preserve the existing value from the prior install.
+        if (!Exists() || isDirectoryCreated)
         {
             Commit(PortableValueName::InstallDirectoryCreated, InstallDirectoryCreated = isDirectoryCreated);
         }
