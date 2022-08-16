@@ -4,65 +4,175 @@
 #include "winget/PortableEntry.h"
 #include "winget/PortableARPEntry.h"
 #include "winget/Manifest.h"
+#include "winget/Filesystem.h"
+#include "winget/PathVariable.h"
+#include "Public/AppInstallerLogging.h"
 
 using namespace AppInstaller::Registry;
 using namespace AppInstaller::Registry::Portable;
-
-#define VALUENAMECASE(valueName) case PortableValueName::valueName: return ##valueName;
+using namespace AppInstaller::Registry::Environment;
 
 namespace AppInstaller::Portable
 {
+    PortableEntry::PortableEntry(PortableARPEntry& portableARPEntry) :
+        m_portableARPEntry(portableARPEntry)
+    {
+        // Initialize all values if present
+        if (Exists())
+        {
+            DisplayName = GetStringValue(PortableValueName::DisplayName);
+            DisplayVersion = GetStringValue(PortableValueName::DisplayVersion);
+            HelpLink = GetStringValue(PortableValueName::HelpLink);
+            InstallDate = GetStringValue(PortableValueName::InstallDate);
+            Publisher = GetStringValue(PortableValueName::Publisher);
+            SHA256 = GetStringValue(PortableValueName::SHA256);
+            URLInfoAbout = GetStringValue(PortableValueName::URLInfoAbout);
+            UninstallString = GetStringValue(PortableValueName::UninstallString);
+            WinGetInstallerType = GetStringValue(PortableValueName::WinGetInstallerType);
+            WinGetPackageIdentifier = GetStringValue(PortableValueName::WinGetPackageIdentifier);
+            WinGetSourceIdentifier = GetStringValue(PortableValueName::WinGetSourceIdentifier);
+
+            InstallLocation = GetPathValue(PortableValueName::InstallLocation);
+            PortableSymlinkFullPath = GetPathValue(PortableValueName::PortableSymlinkFullPath);
+            PortableTargetFullPath = GetPathValue(PortableValueName::PortableTargetFullPath);
+            InstallLocation = GetPathValue(PortableValueName::InstallLocation);
+
+            InstallDirectoryCreated = GetBoolValue(PortableValueName::InstallDirectoryCreated);
+            InstallDirectoryAddedToPath = GetBoolValue(PortableValueName::InstallDirectoryAddedToPath);
+        }
+    }
+
+    void PortableEntry::MovePortableExe(const std::filesystem::path& installerPath)
+    {
+        bool isDirectoryCreated = false;
+        if (std::filesystem::create_directories(InstallLocation))
+        {
+            AICLI_LOG(Core, Info, << "Created target install directory: " << InstallLocation);
+            isDirectoryCreated = true;
+        }
+
+        if (std::filesystem::exists(PortableTargetFullPath))
+        {
+            std::filesystem::remove(PortableTargetFullPath);
+            AICLI_LOG(Core, Info, << "Removing existing portable exe at: " << PortableTargetFullPath);
+        }
+
+        Filesystem::RenameFile(installerPath, PortableTargetFullPath);
+        AICLI_LOG(Core, Info, << "Portable exe moved to: " << PortableTargetFullPath);
+
+        if (!InstallDirectoryCreated)
+        {
+            Commit(PortableValueName::InstallDirectoryCreated, InstallDirectoryCreated = isDirectoryCreated);
+        }
+    }
+
+    bool PortableEntry::VerifyPortableExeHash()
+    {
+        std::ifstream inStream{ PortableTargetFullPath, std::ifstream::binary };
+        const Utility::SHA256::HashBuffer& targetFileHash = Utility::SHA256::ComputeHash(inStream);
+        inStream.close();
+
+        return Utility::SHA256::AreEqual(Utility::SHA256::ConvertToBytes(SHA256), targetFileHash);
+    }
+
+    void PortableEntry::CreatePortableSymlink()
+    {
+        if (Filesystem::CreateSymlink(PortableTargetFullPath, PortableSymlinkFullPath))
+        {
+            AICLI_LOG(Core, Info, << "Symlink created at: " << PortableSymlinkFullPath);
+        }
+        else
+        {
+            // Symlink creation should only fail if the user executes in user mode and non-admin.
+            // Resort to adding install directory to PATH directly.
+            AICLI_LOG(Core, Info, << "Portable install executed in user mode. Adding package directory to PATH.");
+            Commit(PortableValueName::InstallDirectoryAddedToPath, InstallDirectoryAddedToPath = true);
+        }
+    }
+
+    bool PortableEntry::VerifySymlinkTarget()
+    {
+        AICLI_LOG(Core, Info, << "Expected portable target path: " << PortableTargetFullPath);
+        const std::filesystem::path& symlinkTargetPath = std::filesystem::read_symlink(PortableSymlinkFullPath);
+        
+        if (symlinkTargetPath == PortableTargetFullPath)
+        {
+            AICLI_LOG(Core, Info, << "Portable symlink target matches portable target path: " << symlinkTargetPath);
+            return true;
+        }
+        else
+        {
+            AICLI_LOG(Core, Info, << "Portable symlink does not match portable target path: " << symlinkTargetPath);
+            return false;
+        }
+    }
+
+    bool PortableEntry::AddToPathVariable()
+    {
+        return PathVariable(GetScope()).Append(GetPathValue());
+    }
+
+    bool PortableEntry::RemoveFromPathVariable()
+    {
+        bool removeFromPath = true;
+        std::filesystem::path pathValue = GetPathValue();
+        if (!InstallDirectoryAddedToPath)
+        {
+            // Default links directory must be empty before removing from PATH.
+            if (!std::filesystem::is_empty(pathValue))
+            {
+                AICLI_LOG(Core, Info, << "Install directory is not empty: " << pathValue);
+                removeFromPath = false;
+            }
+        }
+
+        if (removeFromPath)
+        {
+            return PathVariable(GetScope()).Remove(pathValue);
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     void PortableEntry::RemoveARPEntry()
     {
         m_portableARPEntry.Delete();
     }
 
-    void PortableEntry::GetEntryValue(PortableValueName valueName, std::string& value)
+    std::string PortableEntry::GetStringValue(PortableValueName valueName)
     {
         if (m_portableARPEntry[valueName].has_value())
         {
-            value = m_portableARPEntry[valueName]->GetValue<Value::Type::String>();
+            return m_portableARPEntry[valueName]->GetValue<Value::Type::String>();
         }
-    }    
-    
-    void PortableEntry::GetEntryValue(PortableValueName valueName, std::filesystem::path& value)
-    {
-        if (m_portableARPEntry[valueName].has_value())
+        else
         {
-            value = m_portableARPEntry[valueName]->GetValue<Value::Type::UTF16String>();
+            return {};
         }
     }
 
-    void PortableEntry::GetEntryValue(PortableValueName valueName, bool& value)
+    std::filesystem::path PortableEntry::GetPathValue(PortableValueName valueName)
     {
         if (m_portableARPEntry[valueName].has_value())
         {
-            value = m_portableARPEntry[valueName]->GetValue<Value::Type::DWord>();
+            return m_portableARPEntry[valueName]->GetValue<Value::Type::UTF16String>();
+        }
+        {
+            return {};
         }
     }
 
-    PortableEntry::PortableEntry(PortableARPEntry& portableARPEntry) :
-        m_portableARPEntry(portableARPEntry)
+    bool PortableEntry::GetBoolValue(PortableValueName valueName)
     {
-        // Initialize all values if present
-        if (m_portableARPEntry.Exists())
+        if (m_portableARPEntry[valueName].has_value())
         {
-            GetEntryValue(PortableValueName::DisplayName, DisplayName);
-            GetEntryValue(PortableValueName::DisplayVersion, DisplayVersion);
-            GetEntryValue(PortableValueName::HelpLink, HelpLink);
-            GetEntryValue(PortableValueName::InstallDate, InstallDate);
-            GetEntryValue(PortableValueName::InstallDirectoryCreated, InstallDirectoryCreated);
-            GetEntryValue(PortableValueName::InstallLocation, InstallLocation);
-            GetEntryValue(PortableValueName::PortableSymlinkFullPath, PortableSymlinkFullPath);
-            GetEntryValue(PortableValueName::PortableTargetFullPath, PortableTargetFullPath);
-            GetEntryValue(PortableValueName::Publisher, Publisher);
-            GetEntryValue(PortableValueName::SHA256, SHA256);
-            GetEntryValue(PortableValueName::URLInfoAbout, URLInfoAbout);
-            GetEntryValue(PortableValueName::UninstallString, UninstallString);
-            GetEntryValue(PortableValueName::WinGetInstallerType, WinGetInstallerType);
-            GetEntryValue(PortableValueName::WinGetPackageIdentifier, WinGetPackageIdentifier);
-            GetEntryValue(PortableValueName::WinGetSourceIdentifier, WinGetSourceIdentifier);
-            GetEntryValue(PortableValueName::InstallDirectoryAddedToPath, InstallDirectoryAddedToPath);
+            return m_portableARPEntry[valueName]->GetValue<Value::Type::DWord>();
+        }
+        else
+        {
+            return false;
         }
     }
 }

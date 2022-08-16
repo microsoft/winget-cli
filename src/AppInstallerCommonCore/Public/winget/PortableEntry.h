@@ -3,9 +3,11 @@
 #pragma once
 #include <AppInstallerStrings.h>
 #include <AppInstallerSHA256.h>
-#include "PortableARPEntry.h"
+#include "winget/PortableARPEntry.h"
 #include <filesystem>
+#include <optional>
 
+using namespace AppInstaller::Registry;
 using namespace AppInstaller::Registry::Portable;
 
 namespace AppInstaller::Portable
@@ -29,26 +31,41 @@ namespace AppInstaller::Portable
         std::string WinGetSourceIdentifier;
         bool InstallDirectoryAddedToPath = false;
 
-        // Assigns the value to the corresponding member and commits to the registry.
         template<typename T>
-        void Commit(PortableValueName valueName, T& member, const T& value)
+        void Commit(PortableValueName valueName, T value)
         {
-            member = value;
-            m_portableARPEntry.SetValue(valueName, member);
+            m_portableARPEntry.SetValue(valueName, value);
         }
-
-        void RemoveARPEntry();
 
         Manifest::ScopeEnum GetScope() { return m_portableARPEntry.GetScope(); };
 
+        bool Exists() { return m_portableARPEntry.Exists(); };
+
         PortableEntry(PortableARPEntry& portableARPEntry);
 
-        void GetEntryValue(PortableValueName valueName, std::string& value);
-        void GetEntryValue(PortableValueName valueName, std::filesystem::path& value);
-        void GetEntryValue(PortableValueName valueName, bool& value);
+        std::filesystem::path GetPathValue() const
+        {
+            return  InstallDirectoryAddedToPath ? InstallLocation : PortableSymlinkFullPath.parent_path();
+        }
+
+        bool VerifyPortableExeHash();
+
+        bool VerifySymlinkTarget();
+
+        void MovePortableExe(const std::filesystem::path& installerPath);
+
+        void CreatePortableSymlink();
+
+        bool AddToPathVariable();
+
+        bool RemoveFromPathVariable();
+
+        void RemoveARPEntry();
 
     private:
         PortableARPEntry m_portableARPEntry;
+        std::string GetStringValue(PortableValueName valueName);
+        std::filesystem::path GetPathValue(PortableValueName valueName);
+        bool GetBoolValue(PortableValueName valueName);
     };
-
 }

@@ -22,9 +22,6 @@ namespace AppInstaller::CLI::Workflow
 {
     namespace
     {
-        constexpr std::wstring_view s_PathName = L"Path";
-        constexpr std::wstring_view s_PathSubkey_User = L"Environment";
-        constexpr std::wstring_view s_PathSubkey_Machine = L"SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment";
         constexpr std::string_view s_DefaultSource = "*DefaultSource"sv;
 
         void AppendExeExtension(std::filesystem::path& value)
@@ -194,58 +191,38 @@ namespace AppInstaller::CLI::Workflow
 
             Portable::PortableEntry& portableEntry = context.Get<Execution::Data::PortableEntry>();
 
-            if (packageIdentifier != portableEntry.WinGetPackageIdentifier || sourceIdentifier != portableEntry.WinGetSourceIdentifier)
+            if (portableEntry.Exists())
             {
-                // TODO: Replace HashOverride with --Force when argument behavior gets updated.
-                if (!context.Args.Contains(Execution::Args::Type::HashOverride))
+                if (packageIdentifier != portableEntry.WinGetPackageIdentifier || sourceIdentifier != portableEntry.WinGetSourceIdentifier)
                 {
-                    AICLI_LOG(CLI, Error, << "Registry match failed, skipping write to uninstall registry");
-                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PORTABLE_PACKAGE_ALREADY_EXISTS);
-                }
-                else
-                {
-                    AICLI_LOG(CLI, Info, << "Overriding registry match check...");
-                    context.Reporter.Warn() << Resource::String::PortableRegistryCollisionOverridden << std::endl;
+                    // TODO: Replace HashOverride with --Force when argument behavior gets updated.
+                    if (!context.Args.Contains(Execution::Args::Type::HashOverride))
+                    {
+                        AICLI_LOG(CLI, Error, << "Registry match failed, skipping write to uninstall registry");
+                        AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PORTABLE_PACKAGE_ALREADY_EXISTS);
+                    }
+                    else
+                    {
+                        AICLI_LOG(CLI, Info, << "Overriding registry match check...");
+                        context.Reporter.Warn() << Resource::String::PortableRegistryCollisionOverridden << std::endl;
+                    }
                 }
             }
 
-            portableEntry.Commit(PortableValueName::WinGetPackageIdentifier, portableEntry.WinGetPackageIdentifier, packageIdentifier);
-            portableEntry.Commit(PortableValueName::WinGetSourceIdentifier, portableEntry.WinGetSourceIdentifier, sourceIdentifier);
-            portableEntry.Commit(PortableValueName::UninstallString, portableEntry.UninstallString, "winget uninstall --product-code " + GetPortableProductCode(context));
-            portableEntry.Commit(PortableValueName::WinGetInstallerType, portableEntry.WinGetInstallerType, std::string{ InstallerTypeToString(InstallerTypeEnum::Portable) });
+            portableEntry.Commit(PortableValueName::WinGetPackageIdentifier, portableEntry.WinGetPackageIdentifier = packageIdentifier);
+            portableEntry.Commit(PortableValueName::WinGetSourceIdentifier, portableEntry.WinGetSourceIdentifier = sourceIdentifier);
+            portableEntry.Commit(PortableValueName::UninstallString, portableEntry.UninstallString = "winget uninstall --product-code " + GetPortableProductCode(context));
+            portableEntry.Commit(PortableValueName::WinGetInstallerType, portableEntry.WinGetInstallerType = InstallerTypeToString(InstallerTypeEnum::Portable));
         }
         
         void MovePortableExe(Execution::Context& context)
         {
             Portable::PortableEntry& portableEntry = context.Get<Execution::Data::PortableEntry>();
             const std::filesystem::path& installerPath = context.Get<Execution::Data::InstallerPath>();
-            const std::filesystem::path& targetFullPath = GetPortableTargetFullPath(context);
-            const std::filesystem::path& targetDirectory = GetPortableTargetDirectory(context);
-
-            bool isDirectoryCreated = false;
-            if (std::filesystem::create_directories(targetDirectory))
-            {
-                AICLI_LOG(CLI, Info, << "Created target install directory: " << targetDirectory);
-                isDirectoryCreated = true;
-            }
-
-            if (std::filesystem::exists(targetFullPath))
-            {
-                std::filesystem::remove(targetFullPath);
-                AICLI_LOG(CLI, Info, << "Removing existing portable exe at: " << targetFullPath);
-            }
-
-            Filesystem::RenameFile(installerPath, targetFullPath);
-            AICLI_LOG(CLI, Info, << "Portable exe moved to: " << targetFullPath);
-
-            if (!portableEntry.InstallDirectoryCreated)
-            {
-                portableEntry.Commit(PortableValueName::InstallDirectoryCreated, portableEntry.InstallDirectoryCreated, isDirectoryCreated);
-            }
-
-            portableEntry.Commit(PortableValueName::PortableTargetFullPath, portableEntry.PortableTargetFullPath, targetFullPath);
-            portableEntry.Commit(PortableValueName::InstallLocation, portableEntry.InstallLocation, GetPortableTargetDirectory(context));
-            portableEntry.Commit(PortableValueName::SHA256, portableEntry.SHA256, Utility::SHA256::ConvertToString(context.Get<Execution::Data::HashPair>().second));
+            portableEntry.Commit(PortableValueName::PortableTargetFullPath, portableEntry.PortableTargetFullPath = GetPortableTargetFullPath(context));
+            portableEntry.Commit(PortableValueName::InstallLocation, portableEntry.InstallLocation = GetPortableTargetDirectory(context));
+            portableEntry.Commit(PortableValueName::SHA256, portableEntry.SHA256 = SHA256::ConvertToString(context.Get<Execution::Data::HashPair>().second));
+            portableEntry.MovePortableExe(installerPath);
         }
 
         void RemovePortableExe(Execution::Context& context)
@@ -253,40 +230,28 @@ namespace AppInstaller::CLI::Workflow
             Portable::PortableEntry& portableEntry = context.Get<Execution::Data::PortableEntry>();
             const auto& targetPath = portableEntry.PortableTargetFullPath;
 
-            if (!targetPath.empty())
+            if (std::filesystem::exists(targetPath))
             {
-                if (std::filesystem::exists(targetPath))
+                if (!portableEntry.VerifyPortableExeHash())
                 {
-                    std::ifstream inStream{ targetPath, std::ifstream::binary };
-                    const Utility::SHA256::HashBuffer& targetFileHash = SHA256::ComputeHash(inStream);
-                    inStream.close();
-
                     bool overrideHashMismatch = context.Args.Contains(Execution::Args::Type::HashOverride);
-
-                    if (!SHA256::AreEqual(SHA256::ConvertToBytes(portableEntry.SHA256), targetFileHash))
+                    if (overrideHashMismatch)
                     {
-                        if (overrideHashMismatch)
-                        {
-                            context.Reporter.Warn() << Resource::String::PortableHashMismatchOverridden << std::endl;
-                        }
-                        else
-                        {
-                            context.Reporter.Warn() << Resource::String::PortableHashMismatchOverrideRequired << std::endl;
-                            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PORTABLE_UNINSTALL_FAILED);
-                        }
+                        context.Reporter.Warn() << Resource::String::PortableHashMismatchOverridden << std::endl;
                     }
+                    else
+                    {
+                        context.Reporter.Warn() << Resource::String::PortableHashMismatchOverrideRequired << std::endl;
+                        AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PORTABLE_UNINSTALL_FAILED);
+                    }
+                }
 
-                    std::filesystem::remove(targetPath);
-                    AICLI_LOG(CLI, Info, << "Successfully deleted portable exe:" << targetPath);
-                }
-                else
-                {
-                    AICLI_LOG(CLI, Info, << "Portable exe not found; Unable to delete portable exe: " << targetPath);
-                }
+                std::filesystem::remove(targetPath);
+                AICLI_LOG(CLI, Info, << "Successfully deleted portable exe:" << targetPath);
             }
             else
             {
-                AICLI_LOG(CLI, Info, << "The registry value for [TargetFullPath] does not exist");
+                AICLI_LOG(CLI, Info, << "Portable exe not found; Unable to delete portable exe: " << targetPath);
             }
         }
 
@@ -295,57 +260,56 @@ namespace AppInstaller::CLI::Workflow
             Portable::PortableEntry& portableEntry = context.Get<Execution::Data::PortableEntry>();
             const auto& installDirectory = portableEntry.InstallLocation;
 
-            if (!installDirectory.empty())
+            if (std::filesystem::exists(installDirectory))
             {
-                if (std::filesystem::exists(installDirectory))
+                const auto& isCreated = portableEntry.InstallDirectoryCreated;
+                bool isUpdate = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
+
+                if (context.Args.Contains(Execution::Args::Type::Purge) ||
+                    (!isUpdate && Settings::User().Get<Settings::Setting::UninstallPurgePortablePackage>() && !context.Args.Contains(Execution::Args::Type::Preserve)))
                 {
-                    const auto& isCreated = portableEntry.InstallDirectoryCreated;
-                    bool isUpdate = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
-
-                    if (context.Args.Contains(Execution::Args::Type::Purge) ||
-                        (!isUpdate && Settings::User().Get<Settings::Setting::UninstallPurgePortablePackage>() && !context.Args.Contains(Execution::Args::Type::Preserve)))
+                    if (isCreated)
                     {
-                        if (isCreated)
-                        {
-                            context.Reporter.Warn() << Resource::String::PurgeInstallDirectory << std::endl;
-                            const auto& removedFilesCount = std::filesystem::remove_all(installDirectory);
-                            AICLI_LOG(CLI, Info, << "Purged install location directory. Deleted " << removedFilesCount << " files or directories");
-                        }
-                        else
-                        {
-                            context.Reporter.Warn() << Resource::String::UnableToPurgeInstallDirectory << std::endl;
-                        }
-
-                    }
-                    else if (std::filesystem::is_empty(installDirectory))
-                    {
-                        if (isCreated)
-                        {
-                            std::filesystem::remove(installDirectory);
-                            AICLI_LOG(CLI, Info, << "Install directory deleted: " << installDirectory);
-                        }
+                        context.Reporter.Warn() << Resource::String::PurgeInstallDirectory << std::endl;
+                        const auto& removedFilesCount = std::filesystem::remove_all(installDirectory);
+                        AICLI_LOG(CLI, Info, << "Purged install location directory. Deleted " << removedFilesCount << " files or directories");
                     }
                     else
                     {
-                        context.Reporter.Warn() << Resource::String::FilesRemainInInstallDirectory << installDirectory << std::endl;
+                        context.Reporter.Warn() << Resource::String::UnableToPurgeInstallDirectory << std::endl;
+                    }
+
+                }
+                else if (std::filesystem::is_empty(installDirectory))
+                {
+                    if (isCreated)
+                    {
+                        std::filesystem::remove(installDirectory);
+                        AICLI_LOG(CLI, Info, << "Install directory deleted: " << installDirectory);
                     }
                 }
                 else
                 {
-                    AICLI_LOG(CLI, Info, << "Install directory does not exist: " << installDirectory);
+                    context.Reporter.Warn() << Resource::String::FilesRemainInInstallDirectory << installDirectory << std::endl;
                 }
             }
             else
             {
-                AICLI_LOG(CLI, Info, << "The registry value for [InstallLocation] does not exist");
+                AICLI_LOG(CLI, Info, << "Install directory does not exist: " << installDirectory);
             }
         }
 
         void CreatePortableSymlink(Execution::Context& context)
         {
             Portable::PortableEntry& portableEntry = context.Get<Execution::Data::PortableEntry>();
-            const std::filesystem::path& targetFullPath = GetPortableTargetFullPath(context);
+            if (portableEntry.InstallDirectoryAddedToPath)
+            {
+                AICLI_LOG(CLI, Info, << "Package directory was previously added to PATH. Skipping symlink creation.");
+                return;
+            }
+
             const std::filesystem::path& symlinkFullPath = GetPortableSymlinkFullPath(context);
+            portableEntry.Commit(PortableValueName::PortableSymlinkFullPath, portableEntry.PortableSymlinkFullPath = symlinkFullPath);
 
             std::filesystem::file_status status = std::filesystem::status(symlinkFullPath);
             if (std::filesystem::is_directory(status))
@@ -353,35 +317,21 @@ namespace AppInstaller::CLI::Workflow
                 AICLI_LOG(CLI, Info, << "Unable to create symlink. '" << symlinkFullPath << "points to an existing directory.");
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PORTABLE_SYMLINK_PATH_IS_DIRECTORY);
             }
-            else if (std::filesystem::remove(symlinkFullPath))
+
+            if (std::filesystem::remove(symlinkFullPath))
             {
                 AICLI_LOG(CLI, Info, << "Removed existing file at " << symlinkFullPath);
                 context.Reporter.Warn() << Resource::String::OverwritingExistingFileAtMessage << ' ' << symlinkFullPath.u8string() << std::endl;
             }
 
-            portableEntry.Commit(PortableValueName::PortableSymlinkFullPath, portableEntry.PortableSymlinkFullPath, symlinkFullPath);
-            if (Filesystem::CreateSymlink(targetFullPath, symlinkFullPath))
-            {
-                AICLI_LOG(CLI, Info, << "Symlink created at: " << symlinkFullPath);
-            }
-            else
-            {
-                // Symlink creation should only fail if the user executes in user mode and non-admin.
-                // Resort to adding install directory to PATH directly.
-                AICLI_LOG(CLI, Info, << "Portable install executed in user mode. Adding package directory to PATH.");
-                bool installDirectoryAddedToPath = true;
-                portableEntry.Commit(PortableValueName::InstallDirectoryAddedToPath, portableEntry.InstallDirectoryAddedToPath, installDirectoryAddedToPath);
-            }
+            portableEntry.CreatePortableSymlink();
         }
 
         void AddToPathVariable(Execution::Context& context)
         {
             Portable::PortableEntry& portableEntry = context.Get<Execution::Data::PortableEntry>();
-            Manifest::ScopeEnum scope = portableEntry.GetScope();
-            const auto& installDirectoryAddedToPath = portableEntry.InstallDirectoryAddedToPath;
-            std::filesystem::path pathValue = installDirectoryAddedToPath ? GetPortableTargetDirectory(context) : GetPortableLinksLocation(scope);
-
-            if (PathVariable(scope).Append(pathValue))
+            const std::filesystem::path& pathValue = portableEntry.GetPathValue();
+            if (portableEntry.AddToPathVariable())
             {
                 AICLI_LOG(CLI, Info, << "Appended target directory to PATH registry: " << pathValue);
                 context.Reporter.Warn() << Resource::String::ModifiedPathRequiresShellRestart << std::endl;
@@ -395,35 +345,14 @@ namespace AppInstaller::CLI::Workflow
         void RemoveFromPathVariable(Execution::Context& context)
         {
             Portable::PortableEntry& portableEntry = context.Get<Execution::Data::PortableEntry>();
-            Manifest::ScopeEnum scope = portableEntry.GetScope();
-
-            const auto& installDirectoryAddedToPath = portableEntry.InstallDirectoryAddedToPath;
-            
-            std::filesystem::path pathValue;
-            bool removeFromPath = true;
-            if (installDirectoryAddedToPath)
+            const std::filesystem::path& pathValue = portableEntry.GetPathValue();
+            if (portableEntry.RemoveFromPathVariable())
             {
-                pathValue = portableEntry.InstallLocation;
+                AICLI_LOG(CLI, Info, << "Removed target directory from PATH registry: " << pathValue);
             }
             else
             {
-                pathValue = GetPortableLinksLocation(scope);
-                if (!std::filesystem::is_empty(pathValue))
-                {
-                    removeFromPath = false;
-                }
-            }
-
-            if (removeFromPath)
-            {
-                if (PathVariable(scope).Remove(pathValue))
-                {
-                    AICLI_LOG(CLI, Info, << "Removed target directory from PATH registry: " << pathValue);
-                }
-                else
-                {
-                    AICLI_LOG(CLI, Info, << "Target directory does not exist in PATH registry: " << pathValue);
-                }
+                AICLI_LOG(CLI, Info, << "Target directory not removed from PATH registry: " << pathValue);
             }
         }
 
@@ -431,34 +360,22 @@ namespace AppInstaller::CLI::Workflow
         {
             Portable::PortableEntry& portableEntry = context.Get<Execution::Data::PortableEntry>();
             const auto& symlinkPath = portableEntry.PortableSymlinkFullPath;
-            if (!symlinkPath.empty())
+            if (std::filesystem::is_symlink(std::filesystem::symlink_status(symlinkPath)))
             {
-                if (std::filesystem::is_symlink(std::filesystem::symlink_status(symlinkPath)))
+                AICLI_LOG(Core, Info, << "The registry value for [PortableSymlinkFullPath] does not point to a valid symlink file.");
+                return;
+            }
+
+            if (portableEntry.VerifySymlinkTarget())
+            {
+                if (!std::filesystem::remove(symlinkPath))
                 {
-                    const auto& targetPath = portableEntry.PortableTargetFullPath;
-                    if (!targetPath.empty())
-                    {
-                        const std::filesystem::path& symlinkTargetPath = std::filesystem::read_symlink(symlinkPath);
-                        if (symlinkTargetPath != targetPath)
-                        {
-                            AICLI_LOG(CLI, Warning, << "Portable symlink not deleted; Symlink points to a different target exe: " << symlinkTargetPath <<
-                                "; Expected target exe: " << targetPath);
-                            context.Reporter.Warn() << Resource::String::SymlinkModified << std::endl;
-                        }
-                        else if (!std::filesystem::remove(symlinkPath))
-                        {
-                            AICLI_LOG(CLI, Info, << "Portable symlink not found; Unable to delete portable symlink: " << symlinkPath);
-                        }
-                    }
-                    else
-                    {
-                        AICLI_LOG(CLI, Info, << "The registry value for [TargetFullPath] does not exist");
-                    }
+                    AICLI_LOG(CLI, Info, << "Portable symlink not found; Unable to delete portable symlink: " << symlinkPath);
                 }
             }
             else
             {
-                AICLI_LOG(CLI, Info, << "The registry value for [SymlinkFullPath] does not exist");
+                context.Reporter.Warn() << Resource::String::SymlinkModified << std::endl;
             }
         }
 
@@ -475,12 +392,12 @@ namespace AppInstaller::CLI::Workflow
             const AppInstaller::Manifest::Manifest& manifest = context.Get<Execution::Data::Manifest>();
             const Manifest::AppsAndFeaturesEntry& entry = GetAppsAndFeaturesEntryForPortableInstall(context.Get<Execution::Data::Installer>()->AppsAndFeaturesEntries, manifest);
 
-            portableEntry.Commit(PortableValueName::DisplayName, portableEntry.DisplayName, std::string{ entry.DisplayName });
-            portableEntry.Commit(PortableValueName::DisplayVersion, portableEntry.DisplayVersion, std::string{ entry.DisplayVersion });
-            portableEntry.Commit(PortableValueName::Publisher, portableEntry.Publisher, std::string{ entry.Publisher });
-            portableEntry.Commit(PortableValueName::InstallDate, portableEntry.InstallDate, Utility::GetCurrentDateForARP());
-            portableEntry.Commit(PortableValueName::URLInfoAbout, portableEntry.URLInfoAbout, std::string{ manifest.CurrentLocalization.Get<Manifest::Localization::PackageUrl>() });
-            portableEntry.Commit(PortableValueName::HelpLink, portableEntry.HelpLink, std::string{ manifest.CurrentLocalization.Get<Manifest::Localization::PublisherSupportUrl>() });
+            portableEntry.Commit(PortableValueName::DisplayName, portableEntry.DisplayName = entry.DisplayName);
+            portableEntry.Commit(PortableValueName::DisplayVersion, portableEntry.DisplayVersion = entry.DisplayVersion);
+            portableEntry.Commit(PortableValueName::Publisher, portableEntry.Publisher = entry.Publisher);
+            portableEntry.Commit(PortableValueName::InstallDate, portableEntry.InstallDate = Utility::GetCurrentDateForARP());
+            portableEntry.Commit(PortableValueName::URLInfoAbout, portableEntry.URLInfoAbout = manifest.CurrentLocalization.Get<Manifest::Localization::PackageUrl>());
+            portableEntry.Commit(PortableValueName::HelpLink, portableEntry.HelpLink = manifest.CurrentLocalization.Get < Manifest::Localization::PublisherSupportUrl>());
         }
 
         void EnsureValidArgsForPortableInstall(Execution::Context& context)
