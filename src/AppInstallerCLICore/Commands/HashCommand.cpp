@@ -44,7 +44,7 @@ namespace AppInstaller::CLI
             auto inputFile = context.Args.GetArg(Execution::Args::Type::HashFile);
             std::ifstream inStream{ Utility::ConvertToUTF16(inputFile), std::ifstream::binary };
 
-            context.Reporter.Info() << "Sha256: "_liv << Utility::LocIndString{ Utility::SHA256::ConvertToString(Utility::SHA256::ComputeHash(inStream)) } << std::endl;
+            context.Reporter.Info() << "InstallerSha256: "_liv << Utility::LocIndString{ Utility::SHA256::ConvertToString(Utility::SHA256::ComputeHash(inStream)) } << std::endl;
 
             if (context.Args.Contains(Execution::Args::Type::Msix))
             {

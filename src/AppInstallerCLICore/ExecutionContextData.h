@@ -55,6 +55,7 @@ namespace AppInstaller::CLI::Execution
         DependencySource,
         AllowedArchitectures,
         PortableEntry,
+        AllowUnknownScope,
         Max
     };
 
@@ -222,6 +223,12 @@ namespace AppInstaller::CLI::Execution
         struct DataMapping<Data::PortableEntry>
         {
             using value_t = Portable::PortableEntry;
+        };
+
+        template <>
+        struct DataMapping<Data::AllowUnknownScope>
+        {
+            using value_t = bool;
         };
     }
 }

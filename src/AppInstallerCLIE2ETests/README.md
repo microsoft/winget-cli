@@ -95,7 +95,8 @@ Make sure to replace **MSFT** with your own user name. Modifying this example wi
 
 
 #### Log Files
-After running the E2E Tests, the logs can be found in either the following two paths:
+After running the E2E Tests, the logs can be found in the following paths:
 
 - **%LOCALAPPDATA%\Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\DiagOutputDir**
 - **%LOCALAPPDATA%\E2ETestLogs**
+- **%TEMP%\WinGet\defaultState**

@@ -188,15 +188,16 @@ namespace AppInstaller::Repository::Correlation
             }
         }
 
-        std::vector<std::string> productCodes;
+        std::set<std::string> productCodes;
+        std::set<std::string> upgradeCodes;
         for (const auto& installer : manifest.Installers)
         {
             if (!installer.ProductCode.empty())
             {
-                if (std::find(productCodes.begin(), productCodes.end(), installer.ProductCode) == productCodes.end())
+                // Add each ProductCode only once
+                if (productCodes.insert(installer.ProductCode).second)
                 {
                     manifestSearchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::ProductCode, MatchType::Exact, installer.ProductCode));
-                    productCodes.emplace_back(installer.ProductCode);
                 }
             }
 
@@ -207,6 +208,16 @@ namespace AppInstaller::Repository::Correlation
                     manifestSearchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::NormalizedNameAndPublisher, MatchType::Exact,
                         appsAndFeaturesEntry.DisplayName,
                         appsAndFeaturesEntry.Publisher.empty() ? defaultPublisher : appsAndFeaturesEntry.Publisher));
+                }
+
+                // Add each ProductCode and UpgradeCode only once;
+                if (!appsAndFeaturesEntry.ProductCode.empty() && upgradeCodes.insert(appsAndFeaturesEntry.ProductCode).second)
+                {
+                    manifestSearchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::ProductCode, MatchType::Exact, appsAndFeaturesEntry.ProductCode));
+                }
+                if (!appsAndFeaturesEntry.UpgradeCode.empty() && upgradeCodes.insert(appsAndFeaturesEntry.UpgradeCode).second)
+                {
+                    manifestSearchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::UpgradeCode, MatchType::Exact, appsAndFeaturesEntry.UpgradeCode));
                 }
             }
         }

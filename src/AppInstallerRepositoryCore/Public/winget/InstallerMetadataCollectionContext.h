@@ -39,13 +39,20 @@ namespace AppInstaller::Repository::Metadata
         // The installer specific metadata that we collect.
         struct InstallerMetadata
         {
+            friend ProductMetadata;
+
+            // 1.0
             std::string SubmissionIdentifier;
             std::vector<Manifest::AppsAndFeaturesEntry> AppsAndFeaturesEntries;
+
+            // 1.1
+            std::string Scope;
         };
 
         // Metadata from previous product revisions.
         struct HistoricalMetadata
         {
+            // 1.0
             Utility::Version ProductVersionMin;
             Utility::Version ProductVersionMax;
             std::set<std::string> Names;
@@ -54,6 +61,7 @@ namespace AppInstaller::Repository::Metadata
             std::set<std::string> UpgradeCodes;
         };
 
+        // 1.0
         Utility::Version SchemaVersion;
         Utility::Version ProductVersionMin;
         Utility::Version ProductVersionMax;
@@ -62,8 +70,8 @@ namespace AppInstaller::Repository::Metadata
         std::vector<HistoricalMetadata> HistoricalMetadataList;
 
     private:
-        void FromJson_1_0(const web::json::value& json);
-        web::json::value ToJson_1_0();
+        void FromJson_1_N(const web::json::value& json);
+        web::json::value ToJson_1_N();
 
         // Removes the historical data with the oldest version.
         // Returns true if something was removed; false it not.

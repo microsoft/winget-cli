@@ -7,7 +7,7 @@ namespace AppInstaller::CLI
 {
     struct ShowCommand final : public Command
     {
-        ShowCommand(std::string_view parent) : Command("show", parent) {}
+        ShowCommand(std::string_view parent) : Command("show", { "view" }, parent) {}
 
         std::vector<Argument> GetArguments() const override;
 

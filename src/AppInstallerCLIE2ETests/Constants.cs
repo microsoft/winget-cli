@@ -52,7 +52,8 @@ namespace AppInstallerCLIE2ETests
         public const string SignTool = "signtool.exe";
         public const string IndexCreationTool = "IndexCreationTool";
         public const string WinGetUtil = "WinGetUtil";
-        public const string E2ETestLogsPath = @"Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\DiagOutputDir";
+        public const string E2ETestLogsPathPackaged = @"Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\DiagOutputDir";
+        public const string E2ETestLogsPathUnpackaged = @"WinGet\defaultState";
 
         // Installer filename
         public const string TestCommandExe = "testCommand.exe";
@@ -196,6 +197,7 @@ namespace AppInstallerCLIE2ETests
             public const int ERROR_EXTRACT_ARCHIVE_FAILED = unchecked((int)0x8A15005C);
             public const int ERROR_NESTEDINSTALLER_INVALID_PATH = unchecked((int)0x8A15005D);
             public const int ERROR_PINNED_CERTIFICATE_MISMATCH = unchecked((int)0x8A15005E);
+            public const int ERROR_INSTALL_LOCATION_REQUIRED = unchecked((int)0x8A15005F);
 
             public const int ERROR_INSTALL_PACKAGE_IN_USE = unchecked((int)0x8A150101);
             public const int ERROR_INSTALL_INSTALL_IN_PROGRESS = unchecked((int)0x8A150102);

@@ -126,6 +126,9 @@
   <data name="AvailableArguments" xml:space="preserve">
     <value>The following arguments are available:</value>
   </data>
+  <data name="AvailableCommandAliases" xml:space="preserve">
+    <value>The following command aliases are available:</value>
+  </data>
   <data name="AvailableCommands" xml:space="preserve">
     <value>The following commands are available:</value>
     <comment>Commands the tool supports</comment>
@@ -1272,6 +1275,14 @@ Please specify one of them using the `--source` option to proceed.</value>
     <value>package has a version number that cannot be determined. Using "--include-unknown" may show more results.</value>
     <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions.</comment>
   </data>
+  <data name="UpgradeUnknownVersionCount" xml:space="preserve">
+    <value>package(s) have version numbers that cannot be determined. Use "--include-unknown" to see all results.</value>
+    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions. </comment>
+  </data>
+  <data name="UpgradeRequireExplicitCount" xml:space="preserve">
+    <value>package(s) is pinned and needs to be explicitly upgraded.</value>
+    <comment>This string is preceded by a (integer) number of packages that require explicit upgrades.</comment>
+  </data>
   <data name="InvalidArgumentWithoutQueryError" xml:space="preserve">
     <value>The arguments provided can only be used with a query.</value>
   </data>
@@ -1378,5 +1389,44 @@ Please specify one of them using the `--source` option to proceed.</value>
   </data>
   <data name="MultipleNonPortableNestedInstallersSpecified" xml:space="preserve">
     <value>Only one non-portable nested installer can be specified for an archive installer</value>
+  </data>
+  <data name="IncompatibleArgumentsProvided" xml:space="preserve">
+    <value>Incompatible command line arguments provided</value>
+  </data>
+  <data name="UpgradeAvailableForPinned" xml:space="preserve">
+    <value>The following packages have an upgrade available, but require explicit targeting for upgrade:</value>
+    <comment>"require explicit targeting for upgrade" means that the package will not be upgraded with all others unless an extra flag is added, or the package is mentioned explicitly</comment>
+  </data>
+  <data name="NestedInstallerNotSupported" xml:space="preserve">
+    <value>The nested installer type is not supported</value>
+  </data>
+  <data name="InstallerAbortsTerminal" xml:space="preserve">
+    <value>This installer is known to restart the terminal or shell</value>
+  </data>
+  <data name="InstallerRequiresInstallLocation" xml:space="preserve">
+    <value>This package requires an install location</value>
+  </data>
+  <data name="InstallersAbortTerminal" xml:space="preserve">
+    <value>The following installers are known to restart the terminal or shell:</value>
+  </data>
+  <data name="InstallersRequireInstallLocation" xml:space="preserve">
+    <value>The following installers require an install location:</value>
+  </data>
+  <data name="PromptForInstallRoot" xml:space="preserve">
+    <value>Specify the install root:</value>
+  </data>
+  <data name="PromptToProceed" xml:space="preserve">
+    <value>Do you want to proceed?</value>
+  </data>
+  <data name="ReportIdentityForAgreements" xml:space="preserve">
+    <value>Agreements for</value>
+    <comment>This will be followed by a package name, and then a list of license agreements</comment>
+  </data>
+  <data name="InstallLocationNotProvided" xml:space="preserve">
+    <value>Install location is required by the package but it was not provided</value>
+  </data>
+  <data name="DisableInteractivityArgumentDescription" xml:space="preserve">
+    <value>Disable interactive prompts</value>
+    <comment>Description for a command line argument, shown next to it in the help</comment>
   </data>
 </root>

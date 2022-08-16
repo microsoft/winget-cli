@@ -217,7 +217,7 @@ namespace AppInstaller::CLI::Workflow
                 Logging::Telemetry().LogSelectedInstaller(
                     static_cast<int>(itr->second.Installer.Arch),
                     itr->second.Installer.Url,
-                    Manifest::InstallerTypeToString(itr->second.Installer.InstallerType),
+                    Manifest::InstallerTypeToString(itr->second.Installer.EffectiveInstallerType()),
                     Manifest::ScopeToString(itr->second.Installer.Scope),
                     itr->second.Installer.Locale);
 

@@ -156,6 +156,8 @@ namespace AppInstaller
                 return "Source agreements were not agreed to";
             case APPINSTALLER_CLI_ERROR_CUSTOMHEADER_EXCEEDS_MAXLENGTH:
                 return "Header size exceeds the allowable limit of 1024 characters. Please reduce the size and try again.";
+            case APPINSTALLER_CLI_ERROR_MISSING_RESOURCE_FILE:
+                return "Missing resource file";
             case APPINSTALLER_CLI_ERROR_MSI_INSTALL_FAILED:
                 return "Running MSI install failed";
             case APPINSTALLER_CLI_ERROR_INVALID_MSIEXEC_ARGUMENT:
@@ -188,6 +190,8 @@ namespace AppInstaller
                 return "Failed to uninstall portable package";
             case APPINSTALLER_CLI_ERROR_ARP_VERSION_VALIDATION_FAILED:
                 return "Failed to validate DisplayVersion values against index.";
+            case APPINSTALLER_CLI_ERROR_INSTALL_LOCATION_REQUIRED:
+                return "Install location required but not provided";
             case APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE:
                 return "Application is currently running.Exit the application then try again.";
             case APPINSTALLER_CLI_ERROR_INSTALL_INSTALL_IN_PROGRESS:

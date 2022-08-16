@@ -46,6 +46,7 @@ namespace AppInstaller::Repository
         Tag,
         PackageFamilyName,
         ProductCode,
+        UpgradeCode,
         NormalizedNameAndPublisher,
         Market,
         Unknown = 9999
@@ -146,6 +147,8 @@ namespace AppInstaller::Repository
         PackageFamilyName,
         // The product codes associated with the package version.
         ProductCode,
+        // The upgrade codes associated with the package version.
+        UpgradeCode,
         // TODO: Fully implement these 3; the data is not yet in the index source (name and publisher are hacks and locale is not present)
         //       For future usage of these, be aware of the limitations.
         // The package names for the version; ideally these would match in number and order with both Publisher and Locale.
@@ -178,10 +181,23 @@ namespace AppInstaller::Repository
         TrackingWriteTime,
         // The Architecture of an installed package
         InstalledArchitecture,
+        // The PackagePinnedState of the installed package
+        PinnedState,
     };
 
     // Convert a PackageVersionMetadata to a string.
     std::string_view ToString(PackageVersionMetadata pvm);
+
+    // Possible pinned states for a package.
+    // Pinned packages need to be explicitly updated (i.e., are not included in `upgrade --all`)
+    enum class PackagePinnedState
+    {
+        NotPinned,
+        PinnedByManifest,
+    };
+
+    std::string_view ToString(PackagePinnedState state);
+    PackagePinnedState ConvertToPackagePinnedStateEnum(std::string_view in);
 
     // A single package version.
     struct IPackageVersion

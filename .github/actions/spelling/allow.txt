@@ -267,6 +267,7 @@ ISource
 isspace
 istream
 istringstream
+isxdigit
 ITest
 IUnknown
 json

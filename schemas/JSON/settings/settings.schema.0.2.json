@@ -116,6 +116,11 @@
           "description": "The default root directory where packages are installed to under Machine scope. Applies to the portable installer type.",
           "type": "string",
           "default": "%PROGRAMFILES%/WinGet/Packages/"
+        },
+        "defaultInstallRoot": {
+          "description": "Default install location to use for packages that require it when not specified",
+          "type": "string",
+          "maxLength": "32767"
         }
       }
     },
@@ -161,6 +166,17 @@
           "default": 60,
           "minimum": 1,
           "maximum": 600
+        }
+      }
+    },
+    "Interactivity": {
+      "description": "Interactivity settings",
+      "type": "object",
+      "properties": {
+        "disable": {
+          "description": "Controls whether interactive prompts are shown by the Windows Package Manager client",
+          "type": "boolean",
+          "default": false
         }
       }
     },
@@ -230,6 +246,12 @@
     {
       "properties": {
         "network": { "$ref": "#/definitions/Network" }
+      },
+      "additionalItems": true
+    },
+    {
+      "properties": {
+        "interactivity": { "$ref": "#/definitions/Interactivity" }
       },
       "additionalItems": true
     },

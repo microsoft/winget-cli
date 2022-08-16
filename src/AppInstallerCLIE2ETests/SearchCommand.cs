@@ -23,6 +23,14 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
         }
 
+        public void SearchUsingAlias()
+        {
+            var result = TestCommon.RunAICLICommand("find", "TestExampleInstaller");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("TestExampleInstaller"));
+            Assert.True(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
+        }
+
         [Test]
         public void SearchWithName()
         {

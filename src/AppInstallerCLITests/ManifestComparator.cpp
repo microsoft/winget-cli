@@ -36,7 +36,7 @@ const ManifestInstaller& AddInstaller(
 {
     ManifestInstaller toAdd;
     toAdd.Arch = architecture;
-    toAdd.InstallerType = installerType;
+    toAdd.BaseInstallerType = installerType;
     toAdd.Scope = scope;
     toAdd.MinOSVersion = minOSVersion;
     toAdd.Locale = locale;
@@ -63,7 +63,7 @@ void RequireInstaller(const std::optional<ManifestInstaller>& actual, const Mani
 {
     REQUIRE(actual);
     REQUIRE(actual->Arch == expected.Arch);
-    REQUIRE(actual->InstallerType == expected.InstallerType);
+    REQUIRE(actual->EffectiveInstallerType() == expected.EffectiveInstallerType());
     REQUIRE(actual->Scope == expected.Scope);
     REQUIRE(actual->MinOSVersion == expected.MinOSVersion);
     REQUIRE(actual->Locale == expected.Locale);
@@ -638,5 +638,33 @@ TEST_CASE("ManifestComparator_MarketFilter", "[manifest_comparator]")
 
         REQUIRE(!result);
         RequireInapplicabilities(inapplicabilities, { InapplicabilityFlags::Market});
+    }
+}
+
+TEST_CASE("ManifestComparator_Scope_AllowUnknown", "[manifest_comparator]")
+{
+    Manifest manifest;
+    ManifestInstaller expected = AddInstaller(manifest, Architecture::Neutral, InstallerTypeEnum::Exe, ScopeEnum::Unknown);
+
+    ManifestComparatorTestContext testContext;
+    testContext.Args.AddArg(Args::Type::InstallScope, ScopeToString(ScopeEnum::User));
+
+    SECTION("Default")
+    {
+        ManifestComparator mc(testContext, {});
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
+
+        REQUIRE(!result);
+        RequireInapplicabilities(inapplicabilities, { InapplicabilityFlags::Scope });
+    }
+    SECTION("Allow Unknown")
+    {
+        testContext.Add<Data::AllowUnknownScope>(true);
+
+        ManifestComparator mc(testContext, {});
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
+
+        RequireInstaller(result, expected);
+        REQUIRE(inapplicabilities.size() == 0);
     }
 }

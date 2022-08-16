@@ -13,7 +13,7 @@ std::ostream& operator<<(std::ostream& out, const AppInstaller::Manifest::Manife
 {
     return out << '[' <<
         AppInstaller::Utility::ToString(installer.Arch) << ',' <<
-        AppInstaller::Manifest::InstallerTypeToString(installer.InstallerType) << ',' <<
+        AppInstaller::Manifest::InstallerTypeToString(installer.EffectiveInstallerType()) << ',' <<
         AppInstaller::Manifest::ScopeToString(installer.Scope) << ',' <<
         installer.Locale << ']';
 }
@@ -30,7 +30,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 // Unvirtualized resources restricted capability is only supported for >= 10.0.18362
                 // TODO: Add support for OS versions that don't support virtualization.
-                if (installer.InstallerType == InstallerTypeEnum::Portable && !Runtime::IsCurrentOSVersionGreaterThanOrEqual(Utility::Version("10.0.18362")))
+                if (installer.EffectiveInstallerType() == InstallerTypeEnum::Portable && !Runtime::IsCurrentOSVersionGreaterThanOrEqual(Utility::Version("10.0.18362")))
                 {
                     return InapplicabilityFlags::OSVersion;
                 }
@@ -218,7 +218,7 @@ namespace AppInstaller::CLI::Workflow
             InapplicabilityFlags IsApplicable(const Manifest::ManifestInstaller& installer) override
             {
                 // The installer is applicable if it's type or any of its ARP entries' type matches the installed type
-                if (Manifest::IsInstallerTypeCompatible(installer.InstallerType, m_installedType))
+                if (Manifest::IsInstallerTypeCompatible(installer.EffectiveInstallerType(), m_installedType))
                 {
                     return InapplicabilityFlags::None;
                 }
@@ -238,7 +238,7 @@ namespace AppInstaller::CLI::Workflow
             std::string ExplainInapplicable(const Manifest::ManifestInstaller& installer) override
             {
                 std::string result = "Installed package type '" + std::string{ Manifest::InstallerTypeToString(m_installedType) } +
-                    "' is not compatible with installer type " + std::string{ Manifest::InstallerTypeToString(installer.InstallerType) };
+                    "' is not compatible with installer type " + std::string{ Manifest::InstallerTypeToString(installer.EffectiveInstallerType()) };
 
                 std::string arpInstallerTypes;
                 for (const auto& entry : installer.AppsAndFeaturesEntries)
@@ -256,7 +256,7 @@ namespace AppInstaller::CLI::Workflow
 
             bool IsFirstBetter(const Manifest::ManifestInstaller& first, const Manifest::ManifestInstaller& second) override
             {
-                return (first.InstallerType == m_installedType && second.InstallerType != m_installedType);
+                return (first.EffectiveInstallerType() == m_installedType && second.EffectiveInstallerType() != m_installedType);
             }
 
         private:
@@ -287,7 +287,7 @@ namespace AppInstaller::CLI::Workflow
             InapplicabilityFlags IsApplicable(const Manifest::ManifestInstaller& installer) override
             {
                 // We have to assume the unknown scope will match our required scope, or the entire catalog would stop working for upgrade.
-                if (installer.Scope == Manifest::ScopeEnum::Unknown || installer.Scope == m_requirement || DoesInstallerIgnoreScopeFromManifest(installer))
+                if (installer.Scope == Manifest::ScopeEnum::Unknown || installer.Scope == m_requirement || DoesInstallerTypeIgnoreScopeFromManifest(installer.EffectiveInstallerType()))
                 {
                     return InapplicabilityFlags::None;
                 }
@@ -310,10 +310,10 @@ namespace AppInstaller::CLI::Workflow
 
         struct ScopeComparator : public details::ComparisonField
         {
-            ScopeComparator(Manifest::ScopeEnum preference, Manifest::ScopeEnum requirement) :
-                details::ComparisonField("Scope"), m_preference(preference), m_requirement(requirement) {}
+            ScopeComparator(Manifest::ScopeEnum preference, Manifest::ScopeEnum requirement, bool allowUnknownInAdditionToRequired) :
+                details::ComparisonField("Scope"), m_preference(preference), m_requirement(requirement), m_allowUnknownInAdditionToRequired(allowUnknownInAdditionToRequired) {}
 
-            static std::unique_ptr<ScopeComparator> Create(const Execution::Args& args)
+            static std::unique_ptr<ScopeComparator> Create(const Execution::Context& context)
             {
                 // Preference will always come from settings
                 Manifest::ScopeEnum preference = ConvertScope(Settings::User().Get<Settings::Setting::InstallScopePreference>());
@@ -321,6 +321,7 @@ namespace AppInstaller::CLI::Workflow
                 // Requirement may come from args or settings; args overrides settings.
                 Manifest::ScopeEnum requirement = Manifest::ScopeEnum::Unknown;
 
+                const auto& args = context.Args;
                 if (args.Contains(Execution::Args::Type::InstallScope))
                 {
                     requirement = Manifest::ConvertToScopeEnum(args.GetArg(Execution::Args::Type::InstallScope));
@@ -330,9 +331,21 @@ namespace AppInstaller::CLI::Workflow
                     requirement = ConvertScope(Settings::User().Get<Settings::Setting::InstallScopeRequirement>());
                 }
 
+                bool allowUnknownInAdditionToRequired = false;
+                if (context.Contains(Execution::Data::AllowUnknownScope))
+                {
+                    allowUnknownInAdditionToRequired = context.Get<Execution::Data::AllowUnknownScope>();
+
+                    // Force the required type to be preferred over Unknown
+                    if (requirement != Manifest::ScopeEnum::Unknown)
+                    {
+                        preference = requirement;
+                    }
+                }
+
                 if (preference != Manifest::ScopeEnum::Unknown || requirement != Manifest::ScopeEnum::Unknown)
                 {
-                    return std::make_unique<ScopeComparator>(preference, requirement);
+                    return std::make_unique<ScopeComparator>(preference, requirement, allowUnknownInAdditionToRequired);
                 }
                 else
                 {
@@ -342,7 +355,15 @@ namespace AppInstaller::CLI::Workflow
 
             InapplicabilityFlags IsApplicable(const Manifest::ManifestInstaller& installer) override
             {
-                if (m_requirement == Manifest::ScopeEnum::Unknown || installer.Scope == m_requirement || DoesInstallerIgnoreScopeFromManifest(installer))
+                // Applicable if one of:
+                //  1. No requirement (aka is Unknown)
+                //  2. Requirement met
+                //  3. Installer scope is Unknown and this has been explicitly allowed
+                //  4. The installer type is scope agnostic (we can control it)
+                if (m_requirement == Manifest::ScopeEnum::Unknown ||
+                    installer.Scope == m_requirement ||
+                    (installer.Scope == Manifest::ScopeEnum::Unknown && m_allowUnknownInAdditionToRequired) ||
+                    DoesInstallerTypeIgnoreScopeFromManifest(installer.EffectiveInstallerType()))
                 {
                     return InapplicabilityFlags::None;
                 }
@@ -379,6 +400,7 @@ namespace AppInstaller::CLI::Workflow
 
             Manifest::ScopeEnum m_preference;
             Manifest::ScopeEnum m_requirement;
+            bool m_allowUnknownInAdditionToRequired;
         };
 
         struct InstalledLocaleComparator : public details::ComparisonField
@@ -607,7 +629,7 @@ namespace AppInstaller::CLI::Workflow
             AddComparator(LocaleComparator::Create(context.Args));
         }
 
-        AddComparator(ScopeComparator::Create(context.Args));
+        AddComparator(ScopeComparator::Create(context));
         AddComparator(MachineArchitectureComparator::Create(context, installationMetadata));
     }
 
