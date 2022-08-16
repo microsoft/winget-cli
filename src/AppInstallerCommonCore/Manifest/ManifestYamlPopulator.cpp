@@ -187,7 +187,7 @@ namespace AppInstaller::Manifest
         // Common fields across versions
         std::vector<FieldProcessInfo> result =
         {
-            { "InstallerType", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->InstallerType = ConvertToInstallerTypeEnum(value.as<std::string>()); return {}; } },
+            { "InstallerType", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->BaseInstallerType = ConvertToInstallerTypeEnum(value.as<std::string>()); return {}; } },
             { "PackageFamilyName", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->PackageFamilyName = value.as<std::string>(); return {}; } },
             { "ProductCode", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->ProductCode = value.as<std::string>(); return {}; } },
         };
@@ -615,6 +615,7 @@ namespace AppInstaller::Manifest
                 { "FileSha256", [this](const YAML::Node& value)->ValidationErrors { m_p_installedFile->FileSha256 = Utility::SHA256::ConvertToBytes(value.as<std::string>()); return {}; } },
                 { "FileType", [this](const YAML::Node& value)->ValidationErrors { m_p_installedFile->FileType = ConvertToInstalledFileTypeEnum(value.as<std::string>()); return {}; } },
                 { "InvocationParameter", [this](const YAML::Node& value)->ValidationErrors { m_p_installedFile->InvocationParameter = Utility::Trim(value.as<std::string>()); return {}; } },
+                { "DisplayName", [this](const YAML::Node& value)->ValidationErrors { m_p_installedFile->DisplayName = Utility::Trim(value.as<std::string>()); return {}; } },
             };
         }
 
@@ -922,22 +923,22 @@ namespace AppInstaller::Manifest
             std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
 
             // Copy in system reference strings from the root if not set in the installer and appropriate
-            if (installer.PackageFamilyName.empty() && DoesInstallerUsePackageFamilyName(installer))
+            if (installer.PackageFamilyName.empty() && DoesInstallerTypeUsePackageFamilyName(installer.EffectiveInstallerType()))
             {
                 installer.PackageFamilyName = manifest.DefaultInstallerInfo.PackageFamilyName;
             }
 
-            if (installer.ProductCode.empty() && DoesInstallerUseProductCode(installer))
+            if (installer.ProductCode.empty() && DoesInstallerTypeUseProductCode(installer.EffectiveInstallerType()))
             {
                 installer.ProductCode = manifest.DefaultInstallerInfo.ProductCode;
             }
 
-            if (installer.AppsAndFeaturesEntries.empty() && DoesInstallerWriteAppsAndFeaturesEntry(installer))
+            if (installer.AppsAndFeaturesEntries.empty() && DoesInstallerTypeWriteAppsAndFeaturesEntry(installer.EffectiveInstallerType()))
             {
                 installer.AppsAndFeaturesEntries = manifest.DefaultInstallerInfo.AppsAndFeaturesEntries;
             }
 
-            if (IsArchiveType(installer.InstallerType))
+            if (IsArchiveType(installer.BaseInstallerType))
             {
                 if (installer.NestedInstallerFiles.empty())
                 {
@@ -957,7 +958,7 @@ namespace AppInstaller::Manifest
             }
 
             // Populate installer default switches if not exists
-            auto defaultSwitches = GetDefaultKnownSwitches(installer.InstallerType);
+            auto defaultSwitches = GetDefaultKnownSwitches(installer.EffectiveInstallerType());
             for (auto const& defaultSwitch : defaultSwitches)
             {
                 if (installer.Switches.find(defaultSwitch.first) == installer.Switches.end())
@@ -967,7 +968,7 @@ namespace AppInstaller::Manifest
             }
 
             // Populate installer default return codes if not present in ExpectedReturnCodes and InstallerSuccessCodes
-            auto defaultReturnCodes = GetDefaultKnownReturnCodes(installer.InstallerType);
+            auto defaultReturnCodes = GetDefaultKnownReturnCodes(installer.EffectiveInstallerType());
             for (auto const& defaultReturnCode : defaultReturnCodes)
             {
                 if (installer.ExpectedReturnCodes.find(defaultReturnCode.first) == installer.ExpectedReturnCodes.end() &&

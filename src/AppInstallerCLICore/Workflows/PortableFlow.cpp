@@ -657,7 +657,7 @@ namespace AppInstaller::CLI::Workflow
 
     void EnsureSupportForPortableInstall(Execution::Context& context)
     {
-        auto installerType = context.Get<Execution::Data::Installer>().value().InstallerType;
+        auto installerType = context.Get<Execution::Data::Installer>().value().EffectiveInstallerType();
 
         if (installerType == InstallerTypeEnum::Portable)
         {

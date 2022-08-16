@@ -46,6 +46,7 @@ namespace AppInstaller::Repository
         Tag,
         PackageFamilyName,
         ProductCode,
+        UpgradeCode,
         NormalizedNameAndPublisher,
         Market,
         Unknown = 9999
@@ -146,6 +147,8 @@ namespace AppInstaller::Repository
         PackageFamilyName,
         // The product codes associated with the package version.
         ProductCode,
+        // The upgrade codes associated with the package version.
+        UpgradeCode,
         // TODO: Fully implement these 3; the data is not yet in the index source (name and publisher are hacks and locale is not present)
         //       For future usage of these, be aware of the limitations.
         // The package names for the version; ideally these would match in number and order with both Publisher and Locale.
