@@ -22,7 +22,7 @@ namespace AppInstaller::CLI::Workflow
         auto currentSources = Repository::Source::GetCurrentSources();
         if (context.Args.Contains(Args::Type::SourceName))
         {
-            std::string_view name = context.Args.GetArg(Args::Type::SourceName);
+            auto name = Utility::LocIndString{ context.Args.GetArg(Args::Type::SourceName) };
 
             for (auto const& source : currentSources)
             {
@@ -35,7 +35,7 @@ namespace AppInstaller::CLI::Workflow
                 }
             }
 
-            context.Reporter.Error() << Resource::String::SourceListNoneFound(Utility::LocIndView{ name }) << std::endl;
+            context.Reporter.Error() << Resource::String::SourceListNoneFound(name) << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST);
         }
         else

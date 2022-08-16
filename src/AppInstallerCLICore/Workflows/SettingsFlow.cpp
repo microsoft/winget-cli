@@ -36,7 +36,7 @@ namespace AppInstaller::CLI::Workflow
                 {
                     if (warning.IsFieldWarning)
                     {
-                        warn << ' ' << Resource::String::SettingsWarningField(Utility::LocIndView{ warning.Path });
+                        warn << ' ' << Resource::String::SettingsWarningField(warning.Path);
                     }
                     else
                     {
@@ -48,7 +48,7 @@ namespace AppInstaller::CLI::Workflow
                 {
                     if (warning.IsFieldWarning)
                     {
-                        warn << ' ' << Resource::String::SettingsWarningValue(Utility::LocIndView{ warning.Data });
+                        warn << ' ' << Resource::String::SettingsWarningValue(warning.Data);
                     }
                     else
                     {

@@ -171,8 +171,8 @@ namespace AppInstaller::Settings
                 Message(message), Path(settingPath), Data(settingValue), IsFieldWarning(isField) {}
 
             StringResource::StringId Message;
-            std::string Path;
-            std::string Data;
+            Utility::LocIndString Path;
+            Utility::LocIndString Data;
             bool IsFieldWarning = true;
         };
 

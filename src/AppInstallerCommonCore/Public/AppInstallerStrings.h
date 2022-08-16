@@ -234,16 +234,11 @@ namespace AppInstaller::Utility
 
     // Superset of std::to_string supporting string convertibles as input.
     template <typename T>
-    Utility::LocIndString ToString(T value)
+    std::string ToString(T value)
     {
-        if constexpr (std::is_convertible_v<T, std::string> || std::is_convertible_v<T, std::string_view>)
-        {
-            return LocIndString{ value };
-        }
-        else
-        {
-            return LocIndString{ std::to_string(value) };
-        }
+        std::ostringstream oss;
+        oss << value;
+        return oss.str();
     }
 
     // Format an input string by replacing placeholders {index} with provided values at corresponding indices.
