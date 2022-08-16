@@ -5,6 +5,8 @@
 #include "Microsoft/Schema/IPortableIndex.h"
 #include <winget/ManagedFile.h>
 
+#include "Microsoft/Schema/Portable_1_0/PortableTable.h"
+
 #include <mutex>
 #include <chrono>
 #include <filesystem>
@@ -19,6 +21,9 @@ namespace AppInstaller::Repository::Microsoft
 {
     struct PortableIndex
     {
+        // An id that refers to a specific portable file.
+        using IdType = SQLite::rowid_t;
+
         PortableIndex(const PortableIndex&) = delete;
         PortableIndex& operator=(const PortableIndex&) = delete;
 
@@ -30,6 +35,24 @@ namespace AppInstaller::Repository::Microsoft
 
         // Gets the schema version of the index.
         Schema::Version GetVersion() const { return m_version; }
+
+        // The disposition for opening the index.
+        enum class OpenDisposition
+        {
+            // Open for read only.
+            Read,
+            // Open for read and write.
+            ReadWrite,
+            // The database will not change while in use; open for immutable read.
+            Immutable,
+        };
+
+        static PortableIndex Open(const std::string& filePath, OpenDisposition disposition, Utility::ManagedFile&& indexFile = {});
+
+        IdType AddPortableFile(const Schema::Portable_V1_0::PortableFile& file);
+
+        void RemovePortableFile(const Schema::Portable_V1_0::PortableFile& file);
+
 
     private:
         // Constructor used to open an existing index.

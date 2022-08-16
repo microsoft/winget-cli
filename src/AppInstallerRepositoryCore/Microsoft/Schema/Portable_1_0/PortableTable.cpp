@@ -11,6 +11,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
     static constexpr std::string_view s_PortableTable_Index_Separator = "_"sv;
     static constexpr std::string_view s_PortableTable_Index_Suffix = "_index"sv;
 
+    static constexpr std::string_view s_PortableTable_FilePath_Column = "filePath"sv;
+    static constexpr std::string_view s_PortableTable_FileType_Column = "fileType"sv;
+    static constexpr std::string_view s_PortableTable_SHA256_Column = "sha256"sv;
+    static constexpr std::string_view s_PortableTable_SymlinkTarget_Column = "symlinkTarget"sv;
+    static constexpr std::string_view s_PortableTable_IsCreated_Column = "isCreated"sv;
+
     std::string_view PortableTable::TableName()
     {
         return s_PortableTable_Table_Name;
@@ -29,40 +35,57 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
         createTableBuilder.Column(IntegerPrimaryKey());
 
         // Build each column for portable table
-        createTableBuilder.Column(ColumnBuilder("filepath", Type::Text).NotNull());
-        createTableBuilder.Column(ColumnBuilder("filetype", Type::Int64).NotNull());
-        createTableBuilder.Column(ColumnBuilder("sha256", Type::Blob).NotNull());
-        createTableBuilder.Column(ColumnBuilder("symlinktarget", Type::Text));
-        createTableBuilder.Column(ColumnBuilder("iscreated", Type::Bool).NotNull());
+        createTableBuilder.Column(ColumnBuilder(s_PortableTable_FilePath_Column, Type::Text).NotNull());
+        createTableBuilder.Column(ColumnBuilder(s_PortableTable_FileType_Column, Type::Int64).NotNull());
+        createTableBuilder.Column(ColumnBuilder(s_PortableTable_SHA256_Column, Type::Blob).NotNull());
+        createTableBuilder.Column(ColumnBuilder(s_PortableTable_SymlinkTarget_Column, Type::Text));
+        createTableBuilder.Column(ColumnBuilder(s_PortableTable_IsCreated_Column, Type::Bool).NotNull());
         createTableBuilder.EndColumns();
         createTableBuilder.Execute(connection);
 
         savepoint.Commit();
     }
 
-    //SQLite::rowid_t ManifestTable::Insert(SQLite::Connection& connection, std::initializer_list<ManifestOneToOneValue> values)
-    //{
-    //    SQLite::Builder::StatementBuilder builder;
-    //    builder.InsertInto(s_ManifestTable_Table_Name).BeginColumns();
+    std::optional<SQLite::rowid_t> PortableTable::SelectByFilePath(const SQLite::Connection& connection, const std::filesystem::path& path)
+    {
+        SQLite::Builder::StatementBuilder builder;
+        builder.Select(SQLite::RowIDName).From(s_PortableTable_Table_Name).Where(path.u8string());
+        builder.Equals(path.u8string());
 
-    //    for (const ManifestOneToOneValue& value : values)
-    //    {
-    //        builder.Column(value.Name);
-    //    }
+        SQLite::Statement select = builder.Prepare(connection);
 
-    //    builder.EndColumns().BeginValues();
+        if (select.Step())
+        {
+            return select.GetColumn<SQLite::rowid_t>(0);
+        }
+        else
+        {
+            return {};
+        }
+    }
 
-    //    for (const ManifestOneToOneValue& value : values)
-    //    {
-    //        builder.Value(value.Value);
-    //    }
+    void PortableTable::RemovePortableFileById(SQLite::Connection& connection, SQLite::rowid_t id)
+    {
+        SQLite::Builder::StatementBuilder builder;
+        builder.DeleteFrom(s_PortableTable_Table_Name).Where(SQLite::RowIDName).Equals(id);
 
-    //    builder.EndValues();
+        builder.Execute(connection);
+    }
 
-    //    builder.Execute(connection);
+    SQLite::rowid_t PortableTable::Insert(SQLite::Connection& connection, const PortableFile& file)
+    {
+        SQLite::Builder::StatementBuilder builder;
+        builder.InsertInto(s_PortableTable_Table_Name)
+            .Columns({ s_PortableTable_FilePath_Column,
+                s_PortableTable_FileType_Column,
+                s_PortableTable_SHA256_Column,
+                s_PortableTable_SymlinkTarget_Column,
+                s_PortableTable_IsCreated_Column })
+            .Values(file.FilePath, file.FileType, file.SHA256, file.SymlinkTarget, file.IsCreated);
 
-    //    return connection.GetLastInsertRowID();
-    //}
+        builder.Execute(connection);
+        return connection.GetLastInsertRowID();
+    }
 
     bool PortableTable::ExistsById(const SQLite::Connection& connection, SQLite::rowid_t id)
     {
