@@ -23,9 +23,12 @@ namespace AppInstaller
         {
             explicit constexpr StringId(std::wstring_view id) : std::wstring_view(id) {}
 
+            // Sets the placeholder values in the resolved string id.
             template<typename ...T>
             Utility::LocIndString operator()(T ... args) const;
         private:
+
+            // Resolve the string id.
             std::string Resolve() const;
         };
 
