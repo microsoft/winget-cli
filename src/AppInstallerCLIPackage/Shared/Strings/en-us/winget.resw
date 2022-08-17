@@ -135,11 +135,10 @@
   </data>
   <data name="AvailableCommands" xml:space="preserve">
     <value>The following commands are available:</value>
-    <comment>Message displayed to inform the user about the available command line command arguments.</comment>
+    <comment>Message displayed to inform the user about the available commands.</comment>
   </data>
   <data name="AvailableHeader" xml:space="preserve">
     <value>Available</value>
-    <comment>As in "a new version is available to update to".</comment>
     <comment>Label displayed when a new application package is available.</comment>
   </data>
   <data name="AvailableOptions" xml:space="preserve">
@@ -148,7 +147,7 @@
   </data>
   <data name="AvailableSubcommands" xml:space="preserve">
     <value>The following sub-commands are available:</value>
-    <comment>Message displayed to inform the user about the available nested command line command arguments that runs in context of the selected command.</comment>
+    <comment>Message displayed to inform the user about the available nested commands that run in context of the selected command.</comment>
   </data>
   <data name="AvailableUpgrades" xml:space="preserve">
     <value>upgrades available.</value>
@@ -163,7 +162,7 @@
   </data>
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>Filter results by command</value>
-    <comment>Description message displayed to inform the user about filtering the search results by a command line command.</comment>
+    <comment>Description message displayed to inform the user about filtering the search results by a command.</comment>
   </data>
   <data name="CommandLineArgumentDescription" xml:space="preserve">
     <value>The full command line for completion</value>
@@ -684,7 +683,7 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Unrecognized command: '{0}'</value>
-    <comment>Error message displayed when the user provides an unrecognized command line command. {0} is a placeholder replaced by the user input.</comment>
+    <comment>Error message displayed when the user provides an unrecognized command. {0} is a placeholder replaced by the user input.</comment>
   </data>
   <data name="UpdateAllArgumentDescription" xml:space="preserve">
     <value>Update all installed packages to latest if available</value>
@@ -701,7 +700,7 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>usage: {0} {1}</value>
-    <comment>Message displayed to provide the user with instructions on how to use a command line command. {0} is a placeholder replaced by the command usage provided by the program.</comment>
+    <comment>Message displayed to provide the user with instructions on how to use a command. {0} is a placeholder replaced by the program name (e.g. 'winget'). {1} is a placeholder replaced by the pattern for using the selected command.</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
     <value>Validates a manifest using a strict set of guidelines. This is intended to enable you to check your manifest before submitting to a repo.</value>

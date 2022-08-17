@@ -5,7 +5,6 @@
 
 #include <string>
 #include <vector>
-#include "LocIndependent.h"
 #include "AppInstallerStrings.h"
 
 using namespace std::string_view_literals;
