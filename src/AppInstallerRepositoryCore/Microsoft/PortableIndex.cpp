@@ -126,7 +126,7 @@ namespace AppInstaller::Repository::Microsoft
     {
         AICLI_LOG(Repo, Verbose, << "Removing portable file [" << file.FilePath << "]");
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "portableindex_removemanifest");
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "portableindex_removefile");
 
         m_interface->RemovePortableFile(m_dbconn, file);
 
@@ -135,6 +135,23 @@ namespace AppInstaller::Repository::Microsoft
         savepoint.Commit();
     }
 
+    bool PortableIndex::UpdatePortableFile(const Schema::Portable_V1_0::PortableFile& file)
+    {
+        AICLI_LOG(Repo, Verbose, << "Updating portable file [" << file.FilePath << "]");
+
+        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "portableindex_updatefile");
+
+        bool result = m_interface->UpdatePortableFile(m_dbconn, file).first;
+        
+        if (result)
+        {
+            //SetLastWriteTime();
+            savepoint.Commit();
+        }
+
+        return result;
+    }
 
     PortableIndex::PortableIndex(const std::string& target, SQLite::Connection::OpenDisposition disposition, SQLite::Connection::OpenFlags flags, Utility::ManagedFile&& indexFile) :
         m_dbconn(SQLite::Connection::Create(target, disposition, flags)), m_indexFile(std::move(indexFile))

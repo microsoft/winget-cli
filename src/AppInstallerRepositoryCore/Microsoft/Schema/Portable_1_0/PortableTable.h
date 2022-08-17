@@ -16,6 +16,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
 
     enum class FileTypeEnum
     {
+        Unknown,
         File,
         Directory,
         Symlink
@@ -24,7 +25,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
     struct PortableFile
     {
         std::string FilePath;
-        FileTypeEnum FileType;
+        FileTypeEnum FileType = FileTypeEnum::Unknown;
         std::string SHA256;
         std::string SymlinkTarget;
         bool IsCreated = false;
@@ -38,9 +39,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
         // Creates the table with named indices.
         static void Create(SQLite::Connection& connection);
 
-        // Insert the given values into the table.
-        static SQLite::rowid_t Insert(SQLite::Connection& connection, const PortableFile& file);
-
         static bool ExistsById(const SQLite::Connection& connection, SQLite::rowid_t id);
 
         static void DeleteById(SQLite::Connection& connection, SQLite::rowid_t id);
@@ -48,7 +46,13 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
         static bool IsEmpty(SQLite::Connection& connection);
 
         static std::optional<SQLite::rowid_t> SelectByFilePath(const SQLite::Connection& connection, const std::filesystem::path& path);
+
+        static std::optional<PortableFile> GetPortableFileById(const SQLite::Connection& connection, SQLite::rowid_t id);
         
+        static SQLite::rowid_t AddPortableFile(SQLite::Connection& connection, const PortableFile& file);
+
         static void RemovePortableFileById(SQLite::Connection& connection, SQLite::rowid_t id);
+
+        static bool UpdatePortableFileById(SQLite::Connection& conneciton, SQLite::rowid_t id, const PortableFile& file);
     };
 }

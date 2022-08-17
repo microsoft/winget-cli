@@ -41,7 +41,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
         THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS), portableEntryResult.has_value());
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "addportableentry_v1_0");
-        SQLite::rowid_t portableFileId = PortableTable::Insert(connection, file);
+        SQLite::rowid_t portableFileId = PortableTable::AddPortableFile(connection, file);
 
         savepoint.Commit();
         return portableFileId;
@@ -59,9 +59,15 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
         return portableEntryResult.value();
     }
 
-    //std::pair<bool, SQLite::rowid_t> PortableIndexInterface::UpdatePortableFile(SQLite::Connection& connection, const PortableFile& file)
-    //{
+    std::pair<bool, SQLite::rowid_t> PortableIndexInterface::UpdatePortableFile(SQLite::Connection& connection, const PortableFile& file)
+    {
+        auto portableEntryResult = GetExistingPortableEntryId(connection, file);
 
-    //}
+        // If the manifest doesn't actually exist, fail the update.
+        THROW_HR_IF(E_NOT_SET, !portableEntryResult);
+
+        bool status = PortableTable::UpdatePortableFileById(connection, portableEntryResult.value(), file);
+        return { status, portableEntryResult.value() };
+    }
 
 }

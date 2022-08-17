@@ -53,6 +53,10 @@ namespace AppInstaller::Repository::Microsoft
 
         void RemovePortableFile(const Schema::Portable_V1_0::PortableFile& file);
 
+        bool UpdatePortableFile(const Schema::Portable_V1_0::PortableFile& file);
+
+        
+
 
     private:
         // Constructor used to open an existing index.

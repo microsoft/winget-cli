@@ -31,6 +31,6 @@ namespace AppInstaller::Repository::Microsoft::Schema
 
         // Updates the entry with matching { FileType, SHA256 } in the index.
         // The return value indicates whether the index was modified by the function.
-        //virtual std::pair<bool, SQLite::rowid_t> UpdatePortableFile(SQLite::Connection& connection, const Portable_V1_0::PortableFile& file) = 0;
+        virtual std::pair<bool, SQLite::rowid_t> UpdatePortableFile(SQLite::Connection& connection, const Portable_V1_0::PortableFile& file) = 0;
     };
 }
