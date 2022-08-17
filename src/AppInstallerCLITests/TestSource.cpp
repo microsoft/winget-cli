@@ -224,11 +224,6 @@ namespace TestCommon
         return false;
     }
 
-    std::vector<InstallerInstalledStatus> TestPackage::CheckInstalledStatus(InstalledStatusType) const
-    {
-        return {};
-    }
-
     bool TestPackage::IsSame(const IPackage* other) const
     {
         if (IsSameOverride)

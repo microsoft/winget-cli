@@ -282,11 +282,6 @@ namespace AppInstaller::Repository::Microsoft
                 return false;
             }
 
-            std::vector<InstallerInstalledStatus> CheckInstalledStatus(InstalledStatusType) const override
-            {
-                THROW_HR(E_NOTIMPL);
-            }
-
             bool IsSame(const IPackage* other) const override
             {
                 const AvailablePackage* otherAvailable = dynamic_cast<const AvailablePackage*>(other);
@@ -334,11 +329,6 @@ namespace AppInstaller::Repository::Microsoft
             bool IsUpdateAvailable() const override
             {
                 return false;
-            }
-
-            std::vector<InstallerInstalledStatus> CheckInstalledStatus(InstalledStatusType) const override
-            {
-                THROW_HR(E_NOTIMPL);
             }
 
             bool IsSame(const IPackage* other) const override

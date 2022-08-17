@@ -446,8 +446,8 @@ namespace Microsoft.Management.Deployment
 
         [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 5)]
         {
-            /// Check the installed status of the package. It's required to call this method from a composite package
-            /// with installed info for more accurate and complete installed status.
+            /// Check the installed status of the package. For more accurate and complete installed status, it's required to
+            /// call this method from a composite package from a newly created package catalog with installed info.
             /// This may require downloading information from a server.
             Windows.Foundation.IAsyncOperation<CheckInstalledStatusResult> CheckInstalledStatusAsync(InstalledStatusType checkTypes);
             CheckInstalledStatusResult CheckInstalledStatus(InstalledStatusType checkTypes);

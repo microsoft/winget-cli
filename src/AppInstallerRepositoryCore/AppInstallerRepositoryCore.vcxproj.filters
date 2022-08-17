@@ -470,6 +470,9 @@
     <ClCompile Include="Microsoft\Schema\1_6\SearchResultsTable_1_6.cpp">
       <Filter>Microsoft\Schema\1_6</Filter>
     </ClCompile>
+    <ClCompile Include="PackageInstalledStatus.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />

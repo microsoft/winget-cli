@@ -112,7 +112,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
         try
         {
-            auto checkResult = m_package->CheckInstalledStatus(static_cast<::AppInstaller::Repository::InstalledStatusType>(checkTypes));
+            auto checkResult = ::AppInstaller::Repository::CheckPackageInstalledStatus(m_package, static_cast<::AppInstaller::Repository::InstalledStatusType>(checkTypes));
 
             // Build the result object from the checkResult
             for (auto const& entry : checkResult)

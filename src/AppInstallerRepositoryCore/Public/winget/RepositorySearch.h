@@ -321,9 +321,6 @@ namespace AppInstaller::Repository
         // Gets a value indicating whether an available version is newer than the installed version.
         virtual bool IsUpdateAvailable() const = 0;
 
-        // Checks installed status of the package.
-        virtual std::vector<InstallerInstalledStatus> CheckInstalledStatus(InstalledStatusType types = InstalledStatusType::AllChecks) const = 0;
-
         // Determines if the given IPackage refers to the same package as this one.
         virtual bool IsSame(const IPackage*) const = 0;
     };
@@ -383,4 +380,7 @@ namespace AppInstaller::Repository
     private:
         mutable std::string m_whatMessage;
     };
+
+    // Checks installed status of a package.
+    std::vector<InstallerInstalledStatus> CheckPackageInstalledStatus(const std::shared_ptr<IPackage>& package, InstalledStatusType checkTypes = InstalledStatusType::AllChecks);
 }

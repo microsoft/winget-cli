@@ -462,11 +462,10 @@ namespace AppInstaller::Repository::Microsoft
                 // Pick up Language to enable proper selection of language for upgrade.
                 AddMetadataIfPresent(arpKey, Language, index, manifestId, PackageVersionMetadata::InstalledLocale);
 
-                // Set installed architecture info.
-                index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::InstalledArchitecture, architecture);
-
                 if (Manifest::ConvertToInstallerTypeEnum(GetStringValue(arpKey, std::wstring{ ToString(PortableValueName::WinGetInstallerType) })) == Manifest::InstallerTypeEnum::Portable)
                 {
+                    // Portable uninstall requires the installed architecture for locating the entry in the registry.
+                    index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::InstalledArchitecture, architecture);
                     installedType = Manifest::InstallerTypeEnum::Portable;
                 }
 
