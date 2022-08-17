@@ -193,6 +193,7 @@ installinprogress
 installshield
 insufficientmemory
 Intelli
+IObject
 IPackage
 IPersist
 IRead
@@ -207,6 +208,7 @@ itr
 IUninstall
 IVector
 IWeb
+IWin
 IZone
 jdk
 jfearn
