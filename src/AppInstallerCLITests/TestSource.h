@@ -38,7 +38,7 @@ namespace TestCommon
         std::weak_ptr<const ISource> Source;
 
     protected:
-        static void AddFoldedIfHasValueAndNotPresent(const AppInstaller::Utility::NormalizedString& value, std::vector<LocIndString>& target);
+        static void AddIfHasValueAndNotPresent(const AppInstaller::Utility::NormalizedString& value, std::vector<LocIndString>& target, bool folded = false);
     };
 
     // IPackage for TestSource

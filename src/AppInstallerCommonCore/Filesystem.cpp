@@ -133,6 +133,41 @@ namespace AppInstaller::Filesystem
         std::filesystem::copy_file(from, to, std::filesystem::copy_options::overwrite_existing);
     }
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    static bool* s_CreateSymlinkResult_TestHook_Override = nullptr;
+
+    void TestHook_SetCreateSymlinkResult_Override(bool* status)
+    {
+        s_CreateSymlinkResult_TestHook_Override = status;
+    }
+#endif
+
+    bool CreateSymlink(const std::filesystem::path& to, const std::filesystem::path& target)
+    {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (s_CreateSymlinkResult_TestHook_Override)
+        {
+            return *s_CreateSymlinkResult_TestHook_Override;
+        }
+#endif
+        try
+        {
+            std::filesystem::create_symlink(to, target);
+            return true;
+        }
+        catch (std::filesystem::filesystem_error& error)
+        {
+            if (error.code().value() == ERROR_PRIVILEGE_NOT_HELD)
+            {
+                return false;
+            }
+            else
+            {
+                throw;
+            }
+        }
+    }
+
     std::filesystem::path GetExpandedPath(const std::string& path)
     {
         std::string trimPath = path;

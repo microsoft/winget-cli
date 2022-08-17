@@ -70,13 +70,14 @@ namespace TestCommon
         case PackageVersionMultiProperty::PackageFamilyName:
             for (const auto& installer : VersionManifest.Installers)
             {
-                AddFoldedIfHasValueAndNotPresent(installer.PackageFamilyName, result);
+                AddIfHasValueAndNotPresent(installer.PackageFamilyName, result, true);
             }
             break;
         case PackageVersionMultiProperty::ProductCode:
             for (const auto& installer : VersionManifest.Installers)
             {
-                AddFoldedIfHasValueAndNotPresent(installer.ProductCode, result);
+                bool shouldFoldCaseForNonPortable = installer.EffectiveInstallerType() != AppInstaller::Manifest::InstallerTypeEnum::Portable;
+                AddIfHasValueAndNotPresent(installer.ProductCode, result, shouldFoldCaseForNonPortable);
             }
             break;
         case PackageVersionMultiProperty::Name:
@@ -112,15 +113,15 @@ namespace TestCommon
         return Metadata;
     }
 
-    void TestPackageVersion::AddFoldedIfHasValueAndNotPresent(const Utility::NormalizedString& value, std::vector<LocIndString>& target)
+    void TestPackageVersion::AddIfHasValueAndNotPresent(const Utility::NormalizedString& value, std::vector<LocIndString>& target, bool folded)
     {
         if (!value.empty())
         {
-            std::string folded = FoldCase(value);
-            auto itr = std::find(target.begin(), target.end(), folded);
+            std::string valueString = folded ? FoldCase(value) : value;
+            auto itr = std::find(target.begin(), target.end(), valueString);
             if (itr == target.end())
             {
-                target.emplace_back(std::move(folded));
+                target.emplace_back(std::move(valueString));
             }
         }
     }

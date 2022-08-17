@@ -22,14 +22,16 @@ namespace AppInstallerCLIE2ETests
             string productCode = guid.ToString();
             var installDir = TestCommon.GetRandomTestDir();
 
+            // DisplayName must be set to avoid conflicts with other packages that use the same exe installer.
+            string displayName = "TestExeInstaller";
             string localAppDataPath = System.Environment.GetEnvironmentVariable(Constants.LocalAppData);
-            string logFilePath = System.IO.Path.Combine(localAppDataPath, Constants.E2ETestLogsPath);
+            string logFilePath = System.IO.Path.Combine(localAppDataPath, Constants.E2ETestLogsPathPackaged);
             logFilePath = System.IO.Path.Combine(logFilePath, "ListAfterInstall-" + System.IO.Path.GetRandomFileName() + ".log");
 
             var result = TestCommon.RunAICLICommand("list", productCode);
             Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
 
-            result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller --override \"/InstallDir {installDir} /ProductID {productCode} /LogFile {logFilePath}\"");
+            result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller --override \"/InstallDir {installDir} /ProductID {productCode} /LogFile {logFilePath} /DisplayName {displayName}\"");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
 
             result = TestCommon.RunAICLICommand("list", productCode);
@@ -55,6 +57,25 @@ namespace AppInstallerCLIE2ETests
             ArpVersionMappingTest("AppInstallerTest.TestArpVersionSameOrder", "TestArpVersionSameOrder", "10.7", "< 2.0", "10.7");
             ArpVersionMappingTest("AppInstallerTest.TestArpVersionSameOrder", "TestArpVersionSameOrder", "11.1", "2.0", "11.1");
             ArpVersionMappingTest("AppInstallerTest.TestArpVersionSameOrder", "TestArpVersionSameOrder", "12.0", "> 2.0", "12.0");
+        }
+
+        [Test]
+        public void ListWithUpgradeCode()
+        {
+            // Installs the MSI installer using the TestMsiInstaller package.
+            // Then tries listing the TestMsiInstallerUpgradeCode package, which should
+            // be correlated to it by the UpgradeCode.
+            if (string.IsNullOrEmpty(TestCommon.MsiInstallerPath))
+            {
+                Assert.Ignore("MSI installer not available");
+            }
+
+            var installDir = TestCommon.GetRandomTestDir();
+            Assert.AreEqual(Constants.ErrorCode.S_OK, TestCommon.RunAICLICommand("install", $"TestMsiInstaller --silent -l {installDir}").ExitCode);
+
+            var result = TestCommon.RunAICLICommand("list", "TestMsiInstallerUpgradeCode");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("AppInstallerTest.TestMsiInstallerUpgradeCode"));
         }
 
         private void ArpVersionMappingTest(string packageIdentifier, string displayNameOverride, string displayVersionOverride, string expectedListVersion, string notExpectedListVersion = "")

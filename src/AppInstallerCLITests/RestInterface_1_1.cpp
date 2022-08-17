@@ -257,7 +257,7 @@ namespace
             REQUIRE(actualInstaller.Platform.size() == 1);
             REQUIRE(actualInstaller.Platform[0] == PlatformEnum::Desktop);
             REQUIRE(actualInstaller.MinOSVersion == "1078");
-            REQUIRE(actualInstaller.InstallerType == InstallerTypeEnum::Msi);
+            REQUIRE(actualInstaller.BaseInstallerType == InstallerTypeEnum::Msi);
             REQUIRE(actualInstaller.Scope == ScopeEnum::User);
             REQUIRE(actualInstaller.InstallModes.size() == 1);
             REQUIRE(actualInstaller.InstallModes.at(0) == InstallModeEnum::Interactive);
@@ -494,7 +494,7 @@ TEST_CASE("GetManifests_GoodRequest_OnlyMarketRequired", "[RestSource][Interface
     REQUIRE(manifest.Installers.size() == 1);
     REQUIRE(manifest.Installers[0].Arch == Architecture::X64);
     REQUIRE(manifest.Installers[0].Sha256 == AppInstaller::Utility::SHA256::ConvertToBytes("011048877dfaef109801b3f3ab2b60afc74f3fc4f7b3430e0c897f5da1df84b6"));
-    REQUIRE(manifest.Installers[0].InstallerType == InstallerTypeEnum::Exe);
+    REQUIRE(manifest.Installers[0].BaseInstallerType == InstallerTypeEnum::Exe);
     REQUIRE(manifest.Installers[0].Url == "https://installer.example.com/foobar.exe");
 }
 
@@ -534,7 +534,7 @@ TEST_CASE("GetManifests_GoodResponse_MSStoreType", "[RestSource][Interface_1_1]"
     // Verify manifest is populated and manifest validation passed
     Manifest manifest = manifests[0];
     REQUIRE(manifest.Installers.size() == 1);
-    REQUIRE(manifest.Installers.at(0).InstallerType == InstallerTypeEnum::MSStore);
+    REQUIRE(manifest.Installers.at(0).BaseInstallerType == InstallerTypeEnum::MSStore);
     REQUIRE(manifest.Installers.at(0).ProductId == "9nblggh4nns1");
 }
 

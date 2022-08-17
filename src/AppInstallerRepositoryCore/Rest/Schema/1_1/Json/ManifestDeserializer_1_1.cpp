@@ -158,7 +158,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1::Json
             }
 
             // Populate installer default return codes if not present in ExpectedReturnCodes and InstallerSuccessCodes
-            auto defaultReturnCodes = GetDefaultKnownReturnCodes(installer.InstallerType);
+            auto defaultReturnCodes = GetDefaultKnownReturnCodes(installer.EffectiveInstallerType());
             for (auto const& defaultReturnCode : defaultReturnCodes)
             {
                 if (installer.ExpectedReturnCodes.find(defaultReturnCode.first) == installer.ExpectedReturnCodes.end() &&

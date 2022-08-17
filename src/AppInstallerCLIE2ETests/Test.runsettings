@@ -15,7 +15,8 @@
        InvokeCommandInDesktopPackage: Bool to indicate using Invoke-CommandInDesktopPackage for test execution.
                                       This is used when AppExecutionAlias is not available, or disabled.
        StaticFileRootPath: Path to the set of static test files that will be served as the source for testing purposes.
-	   MsixTestInstallerPath : The MSIX (or APPX) Installer executable under test.
+       MsiTestInstallerPath: The Msi Installer executable under test.
+	   MsixTestInstallerPath: The MSIX (or APPX) Installer executable under test.
 	   ExeTestInstallerPath: The Exe Installer executable under test.
 	   PackageCertificatePath: Signing Certificate Path used to certify Index Source Package
   -->
@@ -27,6 +28,7 @@
 	  <Parameter name="LooseFileRegistration" value="false" />
 	  <Parameter name="InvokeCommandInDesktopPackage" value="false" />
 	  <Parameter name="StaticFileRootPath" value="\TestLocalIndex" />
+	  <Parameter name="MsiTestInstallerPath" value="MsiTestInstaller.msi" />
 	  <Parameter name="MsixTestInstallerPath" value="MsixTestInstaller.msix" />
 	  <Parameter name="ExeTestInstallerPath" value="ExeTestInstaller.exe" />
 	  <Parameter name="PackageCertificatePath" value="certificate.pfx"/>

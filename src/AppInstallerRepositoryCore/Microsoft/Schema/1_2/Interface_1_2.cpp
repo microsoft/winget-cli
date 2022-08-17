@@ -207,7 +207,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
 
     std::unique_ptr<V1_0::SearchResultsTable> Interface::CreateSearchResultsTable(const SQLite::Connection& connection) const
     {
-        return std::make_unique<SearchResultsTable>(connection);
+        return std::make_unique<V1_2::SearchResultsTable>(connection);
     }
 
     ISQLiteIndex::SearchResult Interface::SearchInternal(const SQLite::Connection& connection, SearchRequest& request) const
@@ -249,11 +249,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
 
         if (vacuum)
         {
-            // Force the database to actually shrink the file size.
-            // This *must* be done outside of an active transaction.
-            SQLite::Builder::StatementBuilder builder;
-            builder.Vacuum();
-            builder.Execute(connection);
+            Vacuum(connection);
         }
     }
 }

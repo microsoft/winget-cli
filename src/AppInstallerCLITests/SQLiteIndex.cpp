@@ -2946,7 +2946,7 @@ TEST_CASE("SQLiteIndex_ManifestArpVersion_Present_Add", "[sqliteindex]")
     manifest.Id = "Foo";
     manifest.Version = "Bar";
     manifest.Installers.push_back({});
-    manifest.Installers[0].InstallerType = InstallerTypeEnum::Exe;
+    manifest.Installers[0].BaseInstallerType = InstallerTypeEnum::Exe;
     manifest.Installers[0].AppsAndFeaturesEntries.push_back({});
     manifest.Installers[0].AppsAndFeaturesEntries[0].DisplayVersion = "1.0";
     manifest.Installers[0].AppsAndFeaturesEntries.push_back({});
@@ -2987,7 +2987,7 @@ TEST_CASE("SQLiteIndex_ManifestArpVersion_Present_AddThenUpdate", "[sqliteindex]
     manifest.Id = "Foo";
     manifest.Version = "Bar";
     manifest.Installers.push_back({});
-    manifest.Installers[0].InstallerType = InstallerTypeEnum::Exe;
+    manifest.Installers[0].BaseInstallerType = InstallerTypeEnum::Exe;
     manifest.Installers[0].AppsAndFeaturesEntries.push_back({});
     manifest.Installers[0].AppsAndFeaturesEntries[0].DisplayVersion = "1.0";
     manifest.Installers[0].AppsAndFeaturesEntries.push_back({});
@@ -3066,7 +3066,7 @@ TEST_CASE("SQLiteIndex_RemoveManifestArpVersionKeepUsedDeleteUnused", "[sqlitein
     manifest.Id = "Foo";
     manifest.Version = "10.0";
     manifest.Installers.push_back({});
-    manifest.Installers[0].InstallerType = InstallerTypeEnum::Exe;
+    manifest.Installers[0].BaseInstallerType = InstallerTypeEnum::Exe;
     manifest.Installers[0].AppsAndFeaturesEntries.push_back({});
     manifest.Installers[0].AppsAndFeaturesEntries[0].DisplayVersion = "1.0";
     manifest.Installers[0].AppsAndFeaturesEntries.push_back({});
@@ -3078,7 +3078,7 @@ TEST_CASE("SQLiteIndex_RemoveManifestArpVersionKeepUsedDeleteUnused", "[sqlitein
     manifest2.Id = "Foo2";
     manifest2.Version = "1.0";
     manifest2.Installers.push_back({});
-    manifest2.Installers[0].InstallerType = InstallerTypeEnum::Exe;
+    manifest2.Installers[0].BaseInstallerType = InstallerTypeEnum::Exe;
     manifest2.Installers[0].AppsAndFeaturesEntries.push_back({});
     manifest2.Installers[0].AppsAndFeaturesEntries[0].DisplayVersion = "10.0";
 
@@ -3116,7 +3116,7 @@ TEST_CASE("SQLiteIndex_ManifestArpVersion_CheckConsistency", "[sqliteindex]")
     manifest.DefaultLocalization.Add<Localization::PackageName>("ArpVersionCheckConsistencyTest");
     manifest.Moniker = "testmoniker";
     manifest.Installers.push_back({});
-    manifest.Installers[0].InstallerType = InstallerTypeEnum::Exe;
+    manifest.Installers[0].BaseInstallerType = InstallerTypeEnum::Exe;
     manifest.Installers[0].AppsAndFeaturesEntries.push_back({});
     manifest.Installers[0].AppsAndFeaturesEntries[0].DisplayVersion = "1.0";
     manifest.Installers[0].AppsAndFeaturesEntries.push_back({});
@@ -3145,7 +3145,7 @@ TEST_CASE("SQLiteIndex_ManifestArpVersion_ValidateManifestAgainstIndex", "[sqlit
     manifest.Id = "Foo";
     manifest.Version = "10.0";
     manifest.Installers.push_back({});
-    manifest.Installers[0].InstallerType = InstallerTypeEnum::Exe;
+    manifest.Installers[0].BaseInstallerType = InstallerTypeEnum::Exe;
     manifest.Installers[0].AppsAndFeaturesEntries.push_back({});
     manifest.Installers[0].AppsAndFeaturesEntries[0].DisplayVersion = "1.0";
     manifest.Installers[0].AppsAndFeaturesEntries.push_back({});
@@ -3172,7 +3172,7 @@ TEST_CASE("SQLiteIndex_CheckConsistency_FindEmbeddedNull", "[sqliteindex]")
     manifest.Id = "Foo";
     manifest.Version = "10.0";
     manifest.Installers.push_back({});
-    manifest.Installers[0].InstallerType = InstallerTypeEnum::Exe;
+    manifest.Installers[0].BaseInstallerType = InstallerTypeEnum::Exe;
     manifest.Installers[0].AppsAndFeaturesEntries.push_back({});
     manifest.Installers[0].AppsAndFeaturesEntries[0].DisplayVersion = "1.0";
     manifest.Installers[0].AppsAndFeaturesEntries.push_back({});

@@ -21,4 +21,4 @@ Installers:
         Silent: /silence
         Update: /update 
 ManifestType: singleton
-ManifestVersion: 1.3.0
+ManifestVersion: 1.4.0

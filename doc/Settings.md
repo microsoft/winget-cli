@@ -135,6 +135,16 @@ The `purgePortablePackage` behavior affects the default behavior for uninstallin
     },
 ```
 
+### Default install root
+
+The `defaultInstallRoot` affects the install location when a package requires one. This can be overridden by the `--location` parameter. This setting is only used when a package manifest includes `InstallLocationRequired`, and the actual location is obtained by appending the package ID to the root.
+
+```json
+    "installBehavior": {
+        "defaultInstallRoot": "C:\installRoot"
+    },
+```
+
 ## Telemetry
 
 The `telemetry` settings control whether winget writes ETW events that may be sent to Microsoft on a default installation of Windows.
@@ -182,6 +192,20 @@ The `doProgressTimeoutInSeconds` setting updates the number of seconds to wait w
        "doProgressTimeoutInSeconds": 60
    }
 ```
+
+## Interactivity
+
+The `interactivity` settings control whether winget may show interactive prompts during execution. Note that this refers only to prompts shown by winget itself and not to those shown by package installers.
+
+### disable
+
+```json
+    "interactivity": {
+        "disable": true
+    },
+```
+
+If set to true, the `interactivity.disable` setting will prevent any interactive prompt from being shown.
 
 ## Experimental Features
 
