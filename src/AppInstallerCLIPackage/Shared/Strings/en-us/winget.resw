@@ -135,7 +135,7 @@
   </data>
   <data name="AvailableCommands" xml:space="preserve">
     <value>The following commands are available:</value>
-    <comment>Message displayed to inform the user about the available commands.</comment>
+    <comment>Title displayed to inform the user about the available commands.</comment>
   </data>
   <data name="AvailableHeader" xml:space="preserve">
     <value>Available</value>
@@ -162,7 +162,7 @@
   </data>
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>Filter results by command</value>
-    <comment>Description message displayed to inform the user about filtering the search results by a command.</comment>
+    <comment>Description message displayed to inform the user about filtering the search results by a package command.</comment>
   </data>
   <data name="CommandLineArgumentDescription" xml:space="preserve">
     <value>The full command line for completion</value>
@@ -430,8 +430,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Override arguments to be passed on to the installer</value>
   </data>
   <data name="Package" xml:space="preserve">
-    <value>Package: {0}</value>
-    <comment>Label displayed for an application/software package. {0} is a placeholder replaced by an application package version.</comment>
+    <value>Package</value>
   </data>
   <data name="PendingWorkError" xml:space="preserve">
     <value>Oops, we forgot to do this...</value>
@@ -756,8 +755,8 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Both local manifest and search query arguments are provided</value>
   </data>
   <data name="Logs" xml:space="preserve">
-    <value>Logs: {0}</value>
-    <comment>Label displayed for a diagnostic files containing information about the application use. {0} is a placeholder replaced by the diagnostic file path.</comment>
+    <value>Logs</value>
+    <comment>Label displayed for a diagnostic files containing information about the application use.</comment>
   </data>
   <data name="InstallerBlockedByPolicy" xml:space="preserve">
     <value>The installer is blocked by policy</value>
@@ -1334,8 +1333,7 @@ Please specify one of them using the `--source` option to proceed.</value>
     <value>The arguments provided can only be used with a query.</value>
   </data>
   <data name="SystemArchitecture" xml:space="preserve">
-    <value>System Architecture: {0}</value>
-    <comment>Label displayed for the system architecture. {0} is a placeholder replaced by the system architecture.</comment>
+    <value>System Architecture</value>
   </data>
   <data name="PreserveArgumentDescription" xml:space="preserve">
     <value>Retains all files and directories created by the package (portable)</value>
