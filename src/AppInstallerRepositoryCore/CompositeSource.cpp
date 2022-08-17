@@ -393,7 +393,7 @@ namespace AppInstaller::Repository
                     {
                         bool isMatchingInstaller =
                             installedVersion &&
-                            IsInstallerTypeCompatible(installedType, IsArchiveType(installer.InstallerType) ? installer.NestedInstallerType : installer.InstallerType) &&
+                            IsInstallerTypeCompatible(installedType, installer.EffectiveInstallerType()) &&
                             (installedScope == ScopeEnum::Unknown || installer.Scope == ScopeEnum::Unknown || installedScope == installer.Scope) &&  // Treat unknown scope as compatible
                             (installedArchitecture == Utility::Architecture::Unknown || installer.Arch == Utility::Architecture::Neutral || installedArchitecture == installer.Arch) &&  // Treat unknown installed architecture as compatible
                             (installedLocale.empty() || installer.Locale.empty() || !Locale::IsWellFormedBcp47Tag(installedLocale) || Locale::GetDistanceOfLanguage(installedLocale, installer.Locale) >= Locale::MinimumDistanceScoreAsCompatibleMatch);  // Treat invalid locale as compatible

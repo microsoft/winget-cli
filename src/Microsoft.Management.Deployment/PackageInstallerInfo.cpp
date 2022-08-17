@@ -14,7 +14,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     }
     winrt::Microsoft::Management::Deployment::PackageInstallerType PackageInstallerInfo::InstallerType()
     {
-        return GetDeploymentInstallerType(m_manifestInstaller.InstallerType);
+        return GetDeploymentInstallerType(m_manifestInstaller.BaseInstallerType);
     }
     winrt::Microsoft::Management::Deployment::PackageInstallerType PackageInstallerInfo::NestedInstallerType()
     {

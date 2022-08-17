@@ -42,16 +42,16 @@ namespace AppInstaller::Manifest
         // Todo: use the comparator from ManifestComparator when that one is fully implemented.
         auto installerCmp = [](const ManifestInstaller& in1, const ManifestInstaller& in2)
         {
-            if (in1.EffectiveInstallerType() != in2.EffectiveInstallerType())
+            if (in1.BaseInstallerType != in2.BaseInstallerType)
             {
-                return in1.EffectiveInstallerType() < in2.EffectiveInstallerType();
+                return in1.BaseInstallerType < in2.BaseInstallerType;
             }
-            else if (IsArchiveType(in1.InstallerType))
+            else if (IsArchiveType(in1.BaseInstallerType))
             {
-                // Compare nested installer type if installer type is archive.
+                // Compare nested installer type if base installer type is archive.
                 if (in1.NestedInstallerType != in2.NestedInstallerType)
                 {
-                    return in1.NestedInstallerType != in2.NestedInstallerType;
+                    return in1.NestedInstallerType < in2.NestedInstallerType;
                 }
             }
 

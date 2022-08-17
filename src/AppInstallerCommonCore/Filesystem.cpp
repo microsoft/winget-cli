@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Public/AppInstallerStrings.h"
-#include "public/winget/FileSystem.h"
+#include "public/winget/Filesystem.h"
 
 namespace AppInstaller::Filesystem
 {
