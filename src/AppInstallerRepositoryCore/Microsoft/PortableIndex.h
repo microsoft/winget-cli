@@ -3,20 +3,9 @@
 #pragma once
 #include "SQLiteWrapper.h"
 #include "Microsoft/Schema/IPortableIndex.h"
-#include "SQLiteStorageBase.h"
-#include <winget/ManagedFile.h>
-
 #include "Microsoft/Schema/Portable_1_0/PortableTable.h"
-
-#include <mutex>
-#include <chrono>
-#include <filesystem>
-#include <limits>
-#include <memory>
-#include <optional>
-#include <string>
-#include <utility>
-#include <vector>
+#include "Microsoft/SQLiteStorageBase.h"
+#include <winget/ManagedFile.h>
 
 namespace AppInstaller::Repository::Microsoft
 {
@@ -31,7 +20,7 @@ namespace AppInstaller::Repository::Microsoft
         PortableIndex(PortableIndex&&) = default;
         PortableIndex& operator=(PortableIndex&&) = default;
 
-        // Creates a new index database of the given version.
+        // Creates a new PortableIndex database of the given version.
         static PortableIndex CreateNew(const std::string& filePath, Schema::Version version = Schema::Version::Latest());
 
         IdType AddPortableFile(const Schema::Portable_V1_0::PortableFile& file);
@@ -48,7 +37,6 @@ namespace AppInstaller::Repository::Microsoft
         PortableIndex(const std::string& target, Schema::Version version);
 
         std::unique_ptr<Schema::IPortableIndex> m_interface;
-
         friend SQLiteStorageBase;
     };
 }

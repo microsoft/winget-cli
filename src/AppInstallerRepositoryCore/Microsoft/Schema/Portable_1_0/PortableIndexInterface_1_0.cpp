@@ -2,14 +2,13 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Microsoft/Schema/Portable_1_0/PortableIndexInterface.h"
-#include "PortableTable.h"
-
+#include "Microsoft/Schema/Portable_1_0/PortableTable.h"
 
 namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
 {
     namespace
     {
-        std::optional<SQLite::rowid_t> GetExistingPortableEntryId(const SQLite::Connection& connection, const PortableFile& file)
+        std::optional<SQLite::rowid_t> GetExistingPortableFileId(const SQLite::Connection& connection, const PortableFile& file)
         {
             auto result = PortableTable::SelectByFilePath(connection, file.FilePath);
 
@@ -36,7 +35,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
 
     SQLite::rowid_t PortableIndexInterface::AddPortableFile(SQLite::Connection& connection, const PortableFile& file)
     {
-        auto portableEntryResult = GetExistingPortableEntryId(connection, file);
+        auto portableEntryResult = GetExistingPortableFileId(connection, file);
 
         THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS), portableEntryResult.has_value());
 
@@ -49,9 +48,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
 
     SQLite::rowid_t PortableIndexInterface::RemovePortableFile(SQLite::Connection& connection, const PortableFile& file)
     {
-        auto portableEntryResult = GetExistingPortableEntryId(connection, file);
+        auto portableEntryResult = GetExistingPortableFileId(connection, file);
 
-        // If the manifest doesn't actually exist, fail the remove.
+        // If the portable file doesn't actually exist, fail the remove.
         THROW_HR_IF(E_NOT_SET, !portableEntryResult);
 
         PortableTable::RemovePortableFileById(connection, portableEntryResult.value());
@@ -61,13 +60,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
 
     std::pair<bool, SQLite::rowid_t> PortableIndexInterface::UpdatePortableFile(SQLite::Connection& connection, const PortableFile& file)
     {
-        auto portableEntryResult = GetExistingPortableEntryId(connection, file);
+        auto portableEntryResult = GetExistingPortableFileId(connection, file);
 
-        // If the manifest doesn't actually exist, fail the update.
+        // If the portable file doesn't actually exist, fail the remove.
         THROW_HR_IF(E_NOT_SET, !portableEntryResult);
 
         bool status = PortableTable::UpdatePortableFileById(connection, portableEntryResult.value(), file);
         return { status, portableEntryResult.value() };
     }
-
 }

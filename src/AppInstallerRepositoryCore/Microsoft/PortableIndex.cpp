@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "PortableIndex.h"
+#include "SQLiteStorageBase.h"
 #include "Schema/MetadataTable.h"
 
 namespace AppInstaller::Repository::Microsoft
@@ -14,7 +15,6 @@ namespace AppInstaller::Repository::Microsoft
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(result.m_dbconn, "portableindex_createnew");
 
         Schema::MetadataTable::Create(result.m_dbconn);
-
         // Use calculated version, as incoming version could be 'latest'
         result.m_version.SetSchemaVersion(result.m_dbconn);
 
@@ -47,6 +47,7 @@ namespace AppInstaller::Repository::Microsoft
     {
         AICLI_LOG(Repo, Verbose, << "Removing portable file [" << file.FilePath << "]");
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
+
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "portableindex_removefile");
 
         m_interface->RemovePortableFile(m_dbconn, file);
@@ -59,8 +60,8 @@ namespace AppInstaller::Repository::Microsoft
     bool PortableIndex::UpdatePortableFile(const Schema::Portable_V1_0::PortableFile& file)
     {
         AICLI_LOG(Repo, Verbose, << "Updating portable file [" << file.FilePath << "]");
-
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
+
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "portableindex_updatefile");
 
         bool result = m_interface->UpdatePortableFile(m_dbconn, file).first;

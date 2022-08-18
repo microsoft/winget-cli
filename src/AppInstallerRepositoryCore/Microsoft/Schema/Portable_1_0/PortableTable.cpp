@@ -31,15 +31,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
         StatementBuilder createTableBuilder;
         createTableBuilder.CreateTable(s_PortableTable_Table_Name).BeginColumns();
 
-        // Add an integer primary key to keep the manifest rowid consistent
-        createTableBuilder.Column(IntegerPrimaryKey());
-
-        // Build each column for portable table
         createTableBuilder.Column(ColumnBuilder(s_PortableTable_FilePath_Column, Type::Text).NotNull());
         createTableBuilder.Column(ColumnBuilder(s_PortableTable_FileType_Column, Type::Int64).NotNull());
         createTableBuilder.Column(ColumnBuilder(s_PortableTable_SHA256_Column, Type::Blob).NotNull());
         createTableBuilder.Column(ColumnBuilder(s_PortableTable_SymlinkTarget_Column, Type::Text));
         createTableBuilder.Column(ColumnBuilder(s_PortableTable_IsCreated_Column, Type::Bool).NotNull());
+
         createTableBuilder.EndColumns();
         createTableBuilder.Execute(connection);
 
@@ -68,7 +65,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
     {
         SQLite::Builder::StatementBuilder builder;
         builder.DeleteFrom(s_PortableTable_Table_Name).Where(SQLite::RowIDName).Equals(id);
-
         builder.Execute(connection);
     }
 
@@ -117,13 +113,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
         PortableFile portableFile;
         if (select.Step())
         {
-            // Change this so that it can be dynamically selected instead of hardcoded.
-            portableFile.FilePath = select.GetColumn<std::string>(0);
-            portableFile.FileType = select.GetColumn<FileTypeEnum>(1);
-            portableFile.SHA256 = select.GetColumn<std::string>(2);
-            portableFile.SymlinkTarget = select.GetColumn<std::string>(3);
-            portableFile.IsCreated = select.GetColumn<bool>(4);
-
+            portableFile.FilePath = select.GetColumn<std::string>(static_cast<int>(PortableColumnType::FilePath));
+            portableFile.FileType = select.GetColumn<PortableFileType>(static_cast<int>(PortableColumnType::FileType));
+            portableFile.SHA256 = select.GetColumn<std::string>(static_cast<int>(PortableColumnType::SHA256));
+            portableFile.SymlinkTarget = select.GetColumn<std::string>(static_cast<int>(PortableColumnType::SymlinkTarget));
+            portableFile.IsCreated = select.GetColumn<bool>(static_cast<int>(PortableColumnType::IsCreated));
             return portableFile;
         }
         else

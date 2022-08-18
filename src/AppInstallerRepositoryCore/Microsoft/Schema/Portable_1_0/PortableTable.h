@@ -4,17 +4,11 @@
 #include "SQLiteWrapper.h"
 #include "SQLiteStatementBuilder.h"
 #include <string_view>
-#include <vector>
 
 namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
 {
-    struct FileColumnInfo
-    {
-        std::string_view Name;
-        SQLite::rowid_t Value;
-    };
-
-    enum class FileTypeEnum
+    // File type enum of the portable file
+    enum class PortableFileType
     {
         Unknown,
         File,
@@ -22,15 +16,27 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
         Symlink
     };
 
+    // Column type enum of the portable table
+    enum class PortableColumnType
+    {
+        FilePath,
+        FileType,
+        SHA256,
+        SymlinkTarget,
+        IsCreated
+    };
+
+    // Metadata representation of a portable file placed down during installation
     struct PortableFile
     {
         std::string FilePath;
-        FileTypeEnum FileType = FileTypeEnum::Unknown;
+        PortableFileType FileType = PortableFileType::Unknown;
         std::string SHA256;
         std::string SymlinkTarget;
         bool IsCreated = false;
     };
 
+    // A table the represents a single portable file
     struct PortableTable
     {
         // Get the table name.
@@ -39,20 +45,28 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
         // Creates the table with named indices.
         static void Create(SQLite::Connection& connection);
 
+        // Gets a value indicating whether the portable file with rowid id exists.
         static bool ExistsById(const SQLite::Connection& connection, SQLite::rowid_t id);
 
+        // Deletes the portable file row with the given rowid
         static void DeleteById(SQLite::Connection& connection, SQLite::rowid_t id);
 
+        // Gets a value indicating whether the table is empty.
         static bool IsEmpty(SQLite::Connection& connection);
 
+        // Selects the portable file by filepath from the table, returning the rowid if it exists.
         static std::optional<SQLite::rowid_t> SelectByFilePath(const SQLite::Connection& connection, const std::filesystem::path& path);
 
+        // Selects the portable file by rowid from the table, returning the portable file object if it exists.
         static std::optional<PortableFile> GetPortableFileById(const SQLite::Connection& connection, SQLite::rowid_t id);
         
+        // Adds the portable file into the table.
         static SQLite::rowid_t AddPortableFile(SQLite::Connection& connection, const PortableFile& file);
 
+        // Removes the portable file from the table by id.
         static void RemovePortableFileById(SQLite::Connection& connection, SQLite::rowid_t id);
 
-        static bool UpdatePortableFileById(SQLite::Connection& conneciton, SQLite::rowid_t id, const PortableFile& file);
+        // Updates the portable file in the table by id.
+        static bool UpdatePortableFileById(SQLite::Connection& connection, SQLite::rowid_t id, const PortableFile& file);
     };
 }

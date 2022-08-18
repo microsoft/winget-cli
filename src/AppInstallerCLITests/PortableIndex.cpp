@@ -8,26 +8,21 @@
 #include <Microsoft/Schema/Portable_1_0/PortableTable.h>
 
 using namespace std::string_literals;
-using namespace std::string_view_literals;
 using namespace TestCommon;
-using namespace AppInstaller::Manifest;
-using namespace AppInstaller::Repository;
 using namespace AppInstaller::Repository::Microsoft;
 using namespace AppInstaller::Repository::SQLite;
-using namespace AppInstaller::Utility;
-
 using namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0;
 
 void CreateFakePortableFile(PortableFile& file)
 {
-    file.FilePath = "testFilePath.exe";
-    file.FileType = FileTypeEnum::File;
-    file.SHA256 = "91827349812739847928134";
+    file.FilePath = "testPortableFile.exe";
+    file.FileType = PortableFileType::File;
+    file.SHA256 = "f0e4c2f76c58916ec258f246851bea091d14d4247a2fc3e18694461b1816e13b";
     file.SymlinkTarget = "testSymlinkTarget.exe";
     file.IsCreated = true;
 }
 
-TEST_CASE("PortableIndexCreateLatestAndReopen", "[portableindex]")
+TEST_CASE("PortableIndexCreateLatestAndReopen", "[portableIndex]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
@@ -65,17 +60,13 @@ TEST_CASE("PortableIndexCreateLatestAndReopen", "[portableindex]")
     }
 }
 
-TEST_CASE("PortableIndexAddEntryToTable", "[portableindex]")
+TEST_CASE("PortableIndexAddEntryToTable", "[portableIndex]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
 
     PortableFile portableFile;
-    portableFile.FilePath = "testFilePath.exe";
-    portableFile.FileType = FileTypeEnum::File;
-    portableFile.SHA256 = "91827349812739847928134";
-    portableFile.SymlinkTarget = "testSymlinkTarget.exe";
-    portableFile.IsCreated = true;
+    CreateFakePortableFile(portableFile);
 
     {
         PortableIndex index = PortableIndex::CreateNew(tempFile, { 1, 0 });
@@ -100,24 +91,21 @@ TEST_CASE("PortableIndexAddEntryToTable", "[portableindex]")
     }
 }
 
-TEST_CASE("PortableIndex_AddUpdateRemove", "[portableindex]")
+TEST_CASE("PortableIndex_AddUpdateRemove", "[portableIndex]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
 
     PortableFile portableFile;
-    portableFile.FilePath = "testFilePath.exe";
-    portableFile.FileType = FileTypeEnum::File;
-    portableFile.SHA256 = "91827349812739847928134";
-    portableFile.SymlinkTarget = "testSymlinkTarget.exe";
-    portableFile.IsCreated = true;
+    CreateFakePortableFile(portableFile);
 
     PortableIndex index = PortableIndex::CreateNew(tempFile, { 1, 0 });
     index.AddPortableFile(portableFile);
 
-    // Apply changes
-    portableFile.FileType = FileTypeEnum::Symlink;
-    portableFile.SHA256 = "0928340928304982309";
+    // Apply changes to portable file
+    std::string updatedHash = "2db8ae7657c6622b04700137740002c51c36588e566651c9f67b4b096c8ad18b";
+    portableFile.FileType = PortableFileType::Symlink;
+    portableFile.SHA256 = updatedHash;
     portableFile.SymlinkTarget = "fakeSymlinkTarget.exe";
     portableFile.IsCreated = false;
 
@@ -127,9 +115,9 @@ TEST_CASE("PortableIndex_AddUpdateRemove", "[portableindex]")
         Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadOnly);
         auto fileFromIndex = Schema::Portable_V1_0::PortableTable::GetPortableFileById(connection, 1);
         REQUIRE(fileFromIndex.has_value());
-        REQUIRE(fileFromIndex->FilePath == "testFilePath.exe");
-        REQUIRE(fileFromIndex->FileType == FileTypeEnum::Symlink);
-        REQUIRE(fileFromIndex->SHA256 == "0928340928304982309");
+        REQUIRE(fileFromIndex->FilePath == "testPortableFile.exe");
+        REQUIRE(fileFromIndex->FileType == PortableFileType::Symlink);
+        REQUIRE(fileFromIndex->SHA256 == updatedHash);
         REQUIRE(fileFromIndex->SymlinkTarget == "fakeSymlinkTarget.exe");
         REQUIRE(fileFromIndex->IsCreated == false);
     }
@@ -143,5 +131,24 @@ TEST_CASE("PortableIndex_AddUpdateRemove", "[portableindex]")
         // Open it directly to directly test table state
         Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadWrite);
         REQUIRE(Schema::Portable_V1_0::PortableTable::IsEmpty(connection));
+    }
+}
+
+TEST_CASE("PortableIndex_RemoveWithId", "[portableIndex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    PortableFile portableFile;
+    CreateFakePortableFile(portableFile);
+
+    PortableIndex index = PortableIndex::CreateNew(tempFile, { 1, 0 });
+    index.AddPortableFile(portableFile);
+
+    {
+        Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadWrite);
+        REQUIRE(PortableTable::ExistsById(connection, 1));
+        PortableTable::DeleteById(connection, 1);
+        REQUIRE_FALSE(PortableTable::ExistsById(connection, 1));
     }
 }

@@ -3,8 +3,8 @@
 #pragma once
 #include "SQLiteWrapper.h"
 #include "Microsoft/Schema/ISQLiteIndex.h"
-#include "Microsoft//SQLiteStorageBase.h"
 #include "Microsoft/Schema/Version.h"
+#include "Microsoft/SQLiteStorageBase.h"
 #include "ISource.h"
 #include <AppInstallerLanguageUtilities.h>
 #include <AppInstallerVersions.h>
@@ -12,7 +12,6 @@
 #include <winget/NameNormalization.h>
 #include <winget/ManagedFile.h>
 
-#include <chrono>
 #include <filesystem>
 #include <limits>
 #include <memory>
@@ -142,12 +141,7 @@ namespace AppInstaller::Repository::Microsoft
         IdType AddManifestInternal(const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath);
         bool UpdateManifestInternal(const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath);
 
-        Utility::ManagedFile m_indexFile;
-        SQLite::Connection m_dbconn;
-        Schema::Version m_version;
         std::unique_ptr<Schema::ISQLiteIndex> m_interface;
-        std::unique_ptr<std::mutex> m_interfaceLock = std::make_unique<std::mutex>();
-
         friend SQLiteStorageBase;
     };
 }
