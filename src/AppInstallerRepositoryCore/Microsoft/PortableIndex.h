@@ -3,6 +3,7 @@
 #pragma once
 #include "SQLiteWrapper.h"
 #include "Microsoft/Schema/IPortableIndex.h"
+#include "SQLiteStorageBase.h"
 #include <winget/ManagedFile.h>
 
 #include "Microsoft/Schema/Portable_1_0/PortableTable.h"
@@ -19,7 +20,7 @@
 
 namespace AppInstaller::Repository::Microsoft
 {
-    struct PortableIndex
+    struct PortableIndex : SQLiteStorageBase
     {
         // An id that refers to a specific portable file.
         using IdType = SQLite::rowid_t;
@@ -33,30 +34,11 @@ namespace AppInstaller::Repository::Microsoft
         // Creates a new index database of the given version.
         static PortableIndex CreateNew(const std::string& filePath, Schema::Version version = Schema::Version::Latest());
 
-        // Gets the schema version of the index.
-        Schema::Version GetVersion() const { return m_version; }
-
-        // The disposition for opening the index.
-        enum class OpenDisposition
-        {
-            // Open for read only.
-            Read,
-            // Open for read and write.
-            ReadWrite,
-            // The database will not change while in use; open for immutable read.
-            Immutable,
-        };
-
-        static PortableIndex Open(const std::string& filePath, OpenDisposition disposition, Utility::ManagedFile&& indexFile = {});
-
         IdType AddPortableFile(const Schema::Portable_V1_0::PortableFile& file);
 
         void RemovePortableFile(const Schema::Portable_V1_0::PortableFile& file);
 
         bool UpdatePortableFile(const Schema::Portable_V1_0::PortableFile& file);
-
-        
-
 
     private:
         // Constructor used to open an existing index.
@@ -65,10 +47,8 @@ namespace AppInstaller::Repository::Microsoft
         // Constructor used to create a new index.
         PortableIndex(const std::string& target, Schema::Version version);
 
-        Utility::ManagedFile m_indexFile;
-        SQLite::Connection m_dbconn;
-        Schema::Version m_version;
         std::unique_ptr<Schema::IPortableIndex> m_interface;
-        std::unique_ptr<std::mutex> m_interfaceLock = std::make_unique<std::mutex>();
+
+        friend SQLiteStorageBase;
     };
 }

@@ -3,6 +3,7 @@
 #pragma once
 #include "SQLiteWrapper.h"
 #include "Microsoft/Schema/ISQLiteIndex.h"
+#include "Microsoft//SQLiteStorageBase.h"
 #include "Microsoft/Schema/Version.h"
 #include "ISource.h"
 #include <AppInstallerLanguageUtilities.h>
@@ -23,7 +24,7 @@
 namespace AppInstaller::Repository::Microsoft
 {
     // Holds the connection to the database, as well as the appropriate functionality to interface with it.
-    struct SQLiteIndex
+    struct SQLiteIndex : SQLiteStorageBase
     {
         // An id that refers to a specific application.
         using IdType = SQLite::rowid_t;
@@ -46,31 +47,11 @@ namespace AppInstaller::Repository::Microsoft
         // Creates a new index database of the given version.
         static SQLiteIndex CreateNew(const std::string& filePath, Schema::Version version = Schema::Version::Latest(), CreateOptions options = CreateOptions::None);
 
-        // The disposition for opening the index.
-        enum class OpenDisposition
-        {
-            // Open for read only.
-            Read,
-            // Open for read and write.
-            ReadWrite,
-            // The database will not change while in use; open for immutable read.
-            Immutable,
-        };
-
-        // Opens an existing index database.
-        static SQLiteIndex Open(const std::string& filePath, OpenDisposition disposition, Utility::ManagedFile&& indexFile = {});
-
-        // Gets the schema version of the index.
-        Schema::Version GetVersion() const { return m_version; }
-
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // Changes the version of the interface being used to operate on the database.
         // Should only be used for testing.
         void ForceVersion(const Schema::Version& version);
 #endif
-
-        // Gets the last write time for the index.
-        std::chrono::system_clock::time_point GetLastWriteTime();
 
         // Adds the manifest at the repository relative path to the index.
         // If the function succeeds, the manifest has been added.
@@ -161,13 +142,12 @@ namespace AppInstaller::Repository::Microsoft
         IdType AddManifestInternal(const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath);
         bool UpdateManifestInternal(const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath);
 
-        // Sets the last write time metadata value in the index.
-        void SetLastWriteTime();
-
         Utility::ManagedFile m_indexFile;
         SQLite::Connection m_dbconn;
         Schema::Version m_version;
         std::unique_ptr<Schema::ISQLiteIndex> m_interface;
         std::unique_ptr<std::mutex> m_interfaceLock = std::make_unique<std::mutex>();
+
+        friend SQLiteStorageBase;
     };
 }

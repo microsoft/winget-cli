@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Microsoft/PreIndexedPackageSourceFactory.h"
+#include "Microsoft/SQLiteStorageBase.h"
 #include "Microsoft/SQLiteIndex.h"
 #include "Microsoft/SQLiteIndexSource.h"
 
@@ -214,7 +215,7 @@ namespace AppInstaller::Repository::Microsoft
                 std::filesystem::path indexLocation = extension->GetPackagePath();
                 indexLocation /= s_PreIndexedPackageSourceFactory_IndexFilePath;
 
-                SQLiteIndex index = SQLiteIndex::Open(indexLocation.u8string(), SQLiteIndex::OpenDisposition::Immutable);
+                SQLiteIndex index = SQLiteStorageBase::Open<SQLiteIndex>(indexLocation.u8string(), SQLiteIndex::OpenDisposition::Immutable);
 
                 // We didn't use to store the source identifier, so we compute it here in case it's
                 // missing from the details.
@@ -389,7 +390,7 @@ namespace AppInstaller::Repository::Microsoft
                     return {};
                 }
 
-                SQLiteIndex index = SQLiteIndex::Open(tempIndexFile.GetFilePath().u8string(), SQLiteIndex::OpenDisposition::Immutable, std::move(tempIndexFile));
+                SQLiteIndex index = SQLiteStorageBase::Open<SQLiteIndex>(tempIndexFile.GetFilePath().u8string(), SQLiteIndex::OpenDisposition::Immutable, std::move(tempIndexFile));
 
                 // We didn't use to store the source identifier, so we compute it here in case it's
                 // missing from the details.

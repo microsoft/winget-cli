@@ -3,7 +3,9 @@
 #include "pch.h"
 #include "TestCommon.h"
 #include <SQLiteWrapper.h>
+#include <Microsoft/SQLiteStorageBase.h>
 #include <Microsoft/PortableIndex.h>
+#include <Microsoft/Schema/Portable_1_0/PortableTable.h>
 
 using namespace std::string_literals;
 using namespace std::string_view_literals;
@@ -41,7 +43,7 @@ TEST_CASE("PortableIndexCreateLatestAndReopen", "[portableindex]")
     // Reopen the index for read only
     {
         INFO("Trying with Read");
-        PortableIndex index = PortableIndex::Open(tempFile, PortableIndex::OpenDisposition::Read);
+        PortableIndex index = SQLiteStorageBase::Open<PortableIndex>(tempFile, SQLiteStorageBase::OpenDisposition::Read);
         Schema::Version versionRead = index.GetVersion();
         REQUIRE(versionRead == versionCreated);
     }
@@ -49,7 +51,7 @@ TEST_CASE("PortableIndexCreateLatestAndReopen", "[portableindex]")
     //// Reopen the index for read/write
     {
         INFO("Trying with ReadWrite");
-        PortableIndex index = PortableIndex::Open(tempFile, PortableIndex::OpenDisposition::ReadWrite);
+        PortableIndex index = SQLiteStorageBase::Open<PortableIndex>(tempFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
         Schema::Version versionRead = index.GetVersion();
         REQUIRE(versionRead == versionCreated);
     }
@@ -57,7 +59,7 @@ TEST_CASE("PortableIndexCreateLatestAndReopen", "[portableindex]")
     //// Reopen the index for immutable read
     {
         INFO("Trying with Immutable");
-        PortableIndex index = PortableIndex::Open(tempFile, PortableIndex::OpenDisposition::Immutable);
+        PortableIndex index = SQLiteStorageBase::Open<PortableIndex>(tempFile, SQLiteStorageBase::OpenDisposition::Immutable);
         Schema::Version versionRead = index.GetVersion();
         REQUIRE(versionRead == versionCreated);
     }
@@ -87,7 +89,7 @@ TEST_CASE("PortableIndexAddEntryToTable", "[portableindex]")
     }
 
     {
-        PortableIndex index = PortableIndex::Open(tempFile, PortableIndex::OpenDisposition::ReadWrite);
+        PortableIndex index = SQLiteStorageBase::Open<PortableIndex>(tempFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
         index.RemovePortableFile(portableFile);
     }
 
@@ -133,7 +135,7 @@ TEST_CASE("PortableIndex_AddUpdateRemove", "[portableindex]")
     }
 
     {
-        PortableIndex index2 = PortableIndex::Open(tempFile, PortableIndex::OpenDisposition::ReadWrite);
+        PortableIndex index2 = SQLiteStorageBase::Open<PortableIndex>(tempFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
         index2.RemovePortableFile(portableFile);
     }
 
