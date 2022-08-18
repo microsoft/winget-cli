@@ -213,7 +213,7 @@
   </data>
   <data name="FeaturesMessage" xml:space="preserve">
     <value>下列實驗性功能正在運行中。
-它們可以透過設定檔案的 [ winget settings] 來設定。</value>
+它們可以透過設定檔案的 [winget settings] 來設定。</value>
     <comment>{Locked="winget settings"}</comment>
   </data>
   <data name="FeaturesProperty" xml:space="preserve">
