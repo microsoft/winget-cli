@@ -59,7 +59,7 @@ struct TestContext : public Context
     {
         // Put installer in to control whether arp change code cares to run
         Manifest::ManifestInstaller installer;
-        installer.InstallerType = installerType;
+        installer.BaseInstallerType = installerType;
         Add<Data::Installer>(std::move(installer));
 
         // Put in an empty manifest by default

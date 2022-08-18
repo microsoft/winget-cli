@@ -5,6 +5,7 @@
 #include <winget/Manifest.h>
 #include <winget/ARPCorrelation.h>
 #include <winget/PortableARPEntry.h>
+#include <winget/PortableEntry.h>
 #include "CompletionData.h"
 #include "PackageCollection.h"
 #include "Workflows/WorkflowBase.h"
@@ -53,7 +54,7 @@ namespace AppInstaller::CLI::Execution
         Dependencies,
         DependencySource,
         AllowedArchitectures,
-        PortableARPEntry,
+        PortableEntry,
         AllowUnknownScope,
         Max
     };
@@ -219,9 +220,9 @@ namespace AppInstaller::CLI::Execution
         };
 
         template <>
-        struct DataMapping<Data::PortableARPEntry>
+        struct DataMapping<Data::PortableEntry>
         {
-            using value_t = Registry::Portable::PortableARPEntry;
+            using value_t = Portable::PortableEntry;
         };
 
         template <>

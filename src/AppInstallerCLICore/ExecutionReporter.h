@@ -102,6 +102,9 @@ namespace AppInstaller::CLI::Execution
         // Prompts the user, continues when Enter is pressed
         void PromptForEnter(Level level = Level::Info);
 
+        // Prompts the user for a path.
+        std::filesystem::path PromptForPath(Resource::LocString message, Level level = Level::Info);
+
         // Used to show indefinite progress. Currently an indefinite spinner is the form of
         // showing indefinite progress.
         // running: shows indefinite progress if set to true, stops indefinite progress if set to false

@@ -24,6 +24,7 @@ namespace AppInstaller::Repository
             {
             case AppInstaller::Repository::PackageMatchField::PackageFamilyName:
             case AppInstaller::Repository::PackageMatchField::ProductCode:
+            case AppInstaller::Repository::PackageMatchField::UpgradeCode:
                 return true;
             }
 
@@ -736,6 +737,12 @@ namespace AppInstaller::Repository
                     version,
                     PackageVersionMultiProperty::ProductCode,
                     PackageMatchField::ProductCode,
+                    data);
+
+                GetSystemReferenceStrings(
+                    version,
+                    PackageVersionMultiProperty::UpgradeCode,
+                    PackageMatchField::UpgradeCode,
                     data);
 
                 GetNameAndPublisher(

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include "ExecutionArgs.h"
+#include "ExecutionReporter.h"
 #include <winget/ExperimentalFeature.h>
 #include <winget/RepositorySearch.h>
 
@@ -300,7 +301,20 @@ namespace AppInstaller::CLI::Workflow
     // Required Args: None
     // Inputs: Manifest
     // Outputs: None
-    void ReportManifestIdentityWithVersion(Execution::Context& context);
+    struct ReportManifestIdentityWithVersion : public WorkflowTask
+    {
+        ReportManifestIdentityWithVersion(Utility::LocIndView prefix, Execution::Reporter::Level level = Execution::Reporter::Level::Info) :
+            WorkflowTask("ReportManifestIdentityWithVersion"), m_prefix(prefix), m_level(level) {}
+        ReportManifestIdentityWithVersion(Resource::StringId label = Resource::String::ReportIdentityFound, Execution::Reporter::Level level = Execution::Reporter::Level::Info) :
+            WorkflowTask("ReportManifestIdentityWithVersion"), m_label(label), m_level(level) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        Utility::LocIndView m_prefix;
+        std::optional<Resource::StringId> m_label;
+        Execution::Reporter::Level m_level;
+    };
 
     // Composite flow that produces a manifest; either from one given on the command line or by searching.
     // Required Args: None
@@ -358,20 +372,6 @@ namespace AppInstaller::CLI::Workflow
 
     private:
         ExecutionStage m_stage;
-    };
-
-    // Handles all opened source(s) agreements if needed.
-    // Required Args: The source to be checked for agreements
-    // Inputs: None
-    // Outputs: None
-    struct HandleSourceAgreements : public WorkflowTask
-    {
-        HandleSourceAgreements(Repository::Source source) : WorkflowTask("HandleSourceAgreements"), m_source(std::move(source)) {}
-
-        void operator()(Execution::Context& context) const override;
-
-    private:
-        Repository::Source m_source;
     };
 }
 

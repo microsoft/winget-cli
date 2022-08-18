@@ -10,6 +10,7 @@
 #include "1_3/Interface.h"
 #include "1_4/Interface.h"
 #include "1_5/Interface.h"
+#include "1_6/Interface.h"
 
 #include "Portable_1_0/PortableIndexInterface.h"
 
@@ -56,11 +57,15 @@ namespace AppInstaller::Repository::Microsoft::Schema
         {
             return std::make_unique<V1_4::Interface>();
         }
-        else if (*this == Version{ 1, 5 } ||
+        else if (*this == Version{ 1, 5 })
+        {
+            return std::make_unique<V1_5::Interface>();
+        }
+        else if (*this == Version{ 1, 6 } ||
             this->MajorVersion == 1 ||
             this->IsLatest())
         {
-            return std::make_unique<V1_5::Interface>();
+            return std::make_unique<V1_6::Interface>();
         }
 
         // We do not have the capacity to operate on this schema version

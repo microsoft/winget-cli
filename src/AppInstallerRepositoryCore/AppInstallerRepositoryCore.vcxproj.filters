@@ -64,6 +64,9 @@
     <Filter Include="Microsoft\Schema\1_5">
       <UniqueIdentifier>{e31c8e5b-ed2c-43c8-b91b-db8ec4c52f71}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Microsoft\Schema\1_6">
+      <UniqueIdentifier>{84a55def-9fb8-4c90-8d5a-2cedc171940b}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Microsoft\Schema\Portable_1_0">
       <UniqueIdentifier>{edef5ff7-9bfe-48f8-a179-e343d1a8b57f}</UniqueIdentifier>
     </Filter>
@@ -291,6 +294,15 @@
     <ClInclude Include="Microsoft\Schema\1_0\VirtualTableBase.h">
       <Filter>Microsoft\Schema\1_0</Filter>
     </ClInclude>
+    <ClInclude Include="Microsoft\Schema\1_6\Interface.h">
+      <Filter>Microsoft\Schema\1_6</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\1_6\UpgradeCodeTable.h">
+      <Filter>Microsoft\Schema\1_6</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\1_6\SearchResultsTable.h">
+      <Filter>Microsoft\Schema\1_6</Filter>
+    </ClInclude>
     <ClInclude Include="Microsoft\Schema\Portable_1_0\PortableIndexInterface.h">
       <Filter>Microsoft\Schema\Portable_1_0</Filter>
     </ClInclude>
@@ -469,6 +481,12 @@
     </ClCompile>
     <ClCompile Include="ArpVersionValidation.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\Schema\1_6\Interface_1_6.cpp">
+      <Filter>Microsoft\Schema\1_6</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\Schema\1_6\SearchResultsTable_1_6.cpp">
+      <Filter>Microsoft\Schema\1_6</Filter>
     </ClCompile>
     <ClCompile Include="Microsoft\PortableIndex.cpp">
       <Filter>Source Files</Filter>

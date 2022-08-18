@@ -12,7 +12,8 @@
 #include "ArchiveFlow.h"
 #include "PortableFlow.h"
 #include "WorkflowBase.h"
-#include "Workflows/DependenciesFlow.h"
+#include "DependenciesFlow.h"
+#include "PromptFlow.h"
 #include <AppInstallerDeployment.h>
 #include <winget/ARPCorrelation.h>
 #include <winget/Archive.h>
@@ -28,6 +29,7 @@ using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Settings;
 using namespace AppInstaller::Utility;
+using namespace AppInstaller::Utility::literals;
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -77,7 +79,7 @@ namespace AppInstaller::CLI::Workflow
         {
             auto installer = context.Get<Execution::Data::Installer>().value();
 
-            if (IsArchiveType(installer.InstallerType))
+            if (IsArchiveType(installer.BaseInstallerType))
             {
                 context <<
                     Workflow::EnsureFeatureEnabled(Settings::ExperimentalFeature::Feature::ZipInstall);
@@ -217,7 +219,7 @@ namespace AppInstaller::CLI::Workflow
 
     void ShowInstallationDisclaimer(Execution::Context& context)
     {
-        auto installerType = context.Get<Execution::Data::Installer>().value().InstallerType;
+        auto installerType = context.Get<Execution::Data::Installer>().value().EffectiveInstallerType();
 
         if (installerType == InstallerTypeEnum::MSStore)
         {
@@ -242,91 +244,6 @@ namespace AppInstaller::CLI::Workflow
             {
                 context.Reporter.Info() << Resource::String::Notes << ' ' << installationNotes << std::endl;
             }
-        }
-    }
-
-    void ShowPackageAgreements::operator()(Execution::Context& context) const
-    {
-        const auto& manifest = context.Get<Execution::Data::Manifest>();
-        auto agreements = manifest.CurrentLocalization.Get<AppInstaller::Manifest::Localization::Agreements>();
-
-        if (agreements.empty())
-        {
-            // Nothing to do
-            return;
-        }
-
-        context << Workflow::ShowPackageInfo;
-        context.Reporter.Info() << std::endl;
-
-        if (m_ensureAcceptance)
-        {
-            context << Workflow::EnsurePackageAgreementsAcceptance(/* showPrompt */ true);
-        }
-    }
-
-    void EnsurePackageAgreementsAcceptance::operator()(Execution::Context& context) const
-    {
-        if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::AgreementsAcceptedByCaller))
-        {
-            AICLI_LOG(CLI, Info, << "Skipping package agreements acceptance check because AgreementsAcceptedByCaller flag is set.");
-            return;
-        }
-
-        if (context.Args.Contains(Execution::Args::Type::AcceptPackageAgreements))
-        {
-            AICLI_LOG(CLI, Info, << "Package agreements accepted by CLI flag");
-            return;
-        }
-
-        if (m_showPrompt)
-        {
-            bool accepted = context.Reporter.PromptForBoolResponse(Resource::String::PackageAgreementsPrompt);
-            if (accepted)
-            {
-                AICLI_LOG(CLI, Info, << "Package agreements accepted in prompt");
-                return;
-            }
-            else
-            {
-                AICLI_LOG(CLI, Info, << "Package agreements not accepted in prompt");
-            }
-        }
-
-        AICLI_LOG(CLI, Error, << "Package agreements were not agreed to.");
-        context.Reporter.Error() << Resource::String::PackageAgreementsNotAgreedTo << std::endl;
-        AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PACKAGE_AGREEMENTS_NOT_ACCEPTED);
-    }
-
-    void EnsurePackageAgreementsAcceptanceForMultipleInstallers(Execution::Context& context)
-    {
-        bool hasPackageAgreements = false;
-        for (auto& packageContext : context.Get<Execution::Data::PackagesToInstall>())
-        {
-            // Show agreements for each package that has one
-            auto agreements = packageContext->Get<Execution::Data::Manifest>().CurrentLocalization.Get<AppInstaller::Manifest::Localization::Agreements>();
-            if (agreements.empty())
-            {
-                continue;
-            }
-            Execution::Context& showContext = *packageContext;
-            auto previousThreadGlobals = showContext.SetForCurrentThread();
-
-            showContext <<
-                Workflow::ReportManifestIdentityWithVersion <<
-                Workflow::ShowPackageAgreements(/* ensureAcceptance */ false);
-            if (showContext.IsTerminated())
-            {
-                AICLI_TERMINATE_CONTEXT(showContext.GetTerminationHR());
-            }
-
-            hasPackageAgreements |= true;
-        }
-
-        // If any package has agreements, ensure they are accepted
-        if (hasPackageAgreements)
-        {
-            context << Workflow::EnsurePackageAgreementsAcceptance(/* showPrompt */ false);
         }
     }
 
@@ -387,7 +304,7 @@ namespace AppInstaller::CLI::Workflow
 
     void ExecuteInstaller(Execution::Context& context)
     {
-        context << Workflow::ExecuteInstallerForType(context.Get<Execution::Data::Installer>().value().InstallerType);
+        context << Workflow::ExecuteInstallerForType(context.Get<Execution::Data::Installer>().value().BaseInstallerType);
     }
 
     void ArchiveInstall(Execution::Context& context)
@@ -513,7 +430,7 @@ namespace AppInstaller::CLI::Workflow
     void ReportIdentityAndInstallationDisclaimer(Execution::Context& context)
     {
         context <<
-            Workflow::ReportManifestIdentityWithVersion <<
+            Workflow::ReportManifestIdentityWithVersion() <<
             Workflow::ShowInstallationDisclaimer;
     }
 
@@ -535,7 +452,7 @@ namespace AppInstaller::CLI::Workflow
     {
         context <<
             Workflow::ReportIdentityAndInstallationDisclaimer <<
-            Workflow::ShowPackageAgreements(/* ensureAcceptance */ true) <<
+            Workflow::ShowPromptsForSinglePackage(/* ensureAcceptance */ true) <<
             Workflow::GetDependenciesFromInstaller <<
             Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
             Workflow::ManagePackageDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
@@ -561,11 +478,8 @@ namespace AppInstaller::CLI::Workflow
 
     void InstallMultiplePackages::operator()(Execution::Context& context) const
     {
-        if (m_ensurePackageAgreements)
-        {
-            // Show all license agreements before installing anything
-            context << Workflow::EnsurePackageAgreementsAcceptanceForMultipleInstallers;
-        }
+        // Show all prompts needed for every package before installing anything
+        context << Workflow::ShowPromptsForMultiplePackages(m_ensurePackageAgreements);
 
         if (context.IsTerminated())
         {
@@ -592,7 +506,7 @@ namespace AppInstaller::CLI::Workflow
         for (auto& packageContext : context.Get<Execution::Data::PackagesToInstall>())
         {
             packagesProgress++;
-            context.Reporter.Info() << "(" << packagesProgress << "/" << packagesCount << ") ";
+            context.Reporter.Info() << '(' << packagesProgress << '/' << packagesCount << ") "_liv;
 
             // We want to do best effort to install all packages regardless of previous failures
             Execution::Context& installContext = *packageContext;
@@ -645,7 +559,7 @@ namespace AppInstaller::CLI::Workflow
         // Ensure that installer type might actually write to ARP, otherwise this is a waste of time
         auto installer = context.Get<Execution::Data::Installer>();
 
-        if (installer && MightWriteToARP(installer->InstallerType))
+        if (installer && MightWriteToARP(installer->EffectiveInstallerType()))
         {
             Repository::Correlation::ARPCorrelationData data;
             data.CapturePreInstallSnapshot();
@@ -688,6 +602,14 @@ namespace AppInstaller::CLI::Workflow
             {
                 AppsAndFeaturesEntry entry = baseEntry;
                 entry.ProductCode = std::move(productCode).get();
+                entries.push_back(std::move(entry));
+            }
+
+            auto upgradeCodes = correlationResult.Package->GetMultiProperty(PackageVersionMultiProperty::UpgradeCode);
+            for (auto&& upgradeCode : upgradeCodes)
+            {
+                AppsAndFeaturesEntry entry = baseEntry;
+                entry.UpgradeCode= std::move(upgradeCode).get();
                 entries.push_back(std::move(entry));
             }
 

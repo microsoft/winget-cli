@@ -25,7 +25,7 @@
     <Filter Include="TestData\MultiFileManifestV1_2">
       <UniqueIdentifier>{0215df7f-7a73-4cc0-9589-adf401329e59}</UniqueIdentifier>
     </Filter>
-    <Filter Include="TestData\MultiFileManifestV1_3">
+    <Filter Include="TestData\MultiFileManifestV1_4">
       <UniqueIdentifier>{52b26063-ccff-40ae-a420-243327dcca25}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\CLI">
@@ -225,6 +225,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FolderFileWatcher.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="PortableEntry.cpp">
       <Filter>Source Files\Common</Filter>
     </ClCompile>
   </ItemGroup>
@@ -510,10 +513,16 @@
     <CopyFileToFolders Include="TestData\InstallFlowTest_MSStore.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallFlowTest_AbortsTerminal.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_ExpectedReturnCodes.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_InstallationNotes.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallFlowTest_InstallLocationRequired.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_Portable.yaml">
@@ -532,6 +541,9 @@
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_Zip_MultipleNonPortableNestedInstallers.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallFlowTest_Zip_UnsupportedNestedInstaller.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallerArgTest_Msi_WithSwitches.yaml">
@@ -624,7 +636,7 @@
     <CopyFileToFolders Include="TestData\ManifestV1_2-Singleton.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\ManifestV1_3-Singleton.yaml">
+    <CopyFileToFolders Include="TestData\ManifestV1_4-Singleton.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\MultiFileManifestV1\ManifestV1-MultiFile-DefaultLocale.yaml">
@@ -663,17 +675,17 @@
     <CopyFileToFolders Include="TestData\MultiFileManifestV1_2\ManifestV1_2-MultiFile-Version.yaml">
       <Filter>TestData\MultiFileManifestV1_2</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\MultiFileManifestV1_3\ManifestV1_3-MultiFile-DefaultLocale.yaml">
-      <Filter>TestData\MultiFileManifestV1_3</Filter>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_4\ManifestV1_4-MultiFile-DefaultLocale.yaml">
+      <Filter>TestData\MultiFileManifestV1_4</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\MultiFileManifestV1_3\ManifestV1_3-MultiFile-Installer.yaml">
-      <Filter>TestData\MultiFileManifestV1_3</Filter>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_4\ManifestV1_4-MultiFile-Installer.yaml">
+      <Filter>TestData\MultiFileManifestV1_4</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\MultiFileManifestV1_3\ManifestV1_3-MultiFile-Locale.yaml">
-      <Filter>TestData\MultiFileManifestV1_3</Filter>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_4\ManifestV1_4-MultiFile-Locale.yaml">
+      <Filter>TestData\MultiFileManifestV1_4</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\MultiFileManifestV1_3\ManifestV1_3-MultiFile-Version.yaml">
-      <Filter>TestData\MultiFileManifestV1_3</Filter>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_4\ManifestV1_4-MultiFile-Version.yaml">
+      <Filter>TestData\MultiFileManifestV1_4</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Installer_Exe_Dependencies.yaml">
       <Filter>TestData</Filter>

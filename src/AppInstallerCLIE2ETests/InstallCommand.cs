@@ -96,11 +96,6 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void InstallMSI()
         {
-            if (string.IsNullOrEmpty(TestCommon.MsiInstallerPath))
-            {
-                Assert.Ignore("MSI installer not available");
-            }
-
             var installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"TestMsiInstaller --silent -l {installDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
@@ -355,14 +350,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("Invalid relative file path to the nested installer; path points to a location outside of the install directory"));
         }
 
-        [Test, Ignore("Re-enable as part of fixing #2392")]
+        [Test]
         public void InstallZipWithMsi()
         {
-            if (string.IsNullOrEmpty(TestCommon.MsiInstallerPath))
-            {
-                Assert.Ignore("MSI installer not available");
-            }
-
             var installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestZipInstallerWithMsi --silent -l {installDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
