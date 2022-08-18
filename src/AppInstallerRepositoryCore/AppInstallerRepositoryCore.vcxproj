@@ -278,6 +278,7 @@
     <ClInclude Include="Microsoft\Schema\Version.h" />
     <ClInclude Include="Microsoft\SQLiteIndex.h" />
     <ClInclude Include="Microsoft\SQLiteIndexSource.h" />
+    <ClInclude Include="Microsoft\SQLiteStorageBase.h" />
     <ClInclude Include="Microsoft\ConfigurableTestSourceFactory.h" />
     <ClInclude Include="PackageDependenciesValidation.h" />
     <ClInclude Include="PackageTrackingCatalogSourceFactory.h" />
@@ -355,6 +356,7 @@
     <ClCompile Include="Microsoft\Schema\Version.cpp" />
     <ClCompile Include="Microsoft\SQLiteIndex.cpp" />
     <ClCompile Include="Microsoft\SQLiteIndexSource.cpp" />
+    <ClCompile Include="Microsoft\SQLiteStorageBase.cpp" />
     <ClCompile Include="PackageDependenciesValidation.cpp" />
     <ClCompile Include="PackageTrackingCatalog.cpp" />
     <ClCompile Include="pch.cpp">

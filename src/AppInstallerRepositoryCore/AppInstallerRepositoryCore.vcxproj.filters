@@ -303,6 +303,9 @@
     <ClInclude Include="Microsoft\Schema\IPortableIndex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Microsoft\SQLiteStorageBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -475,6 +478,9 @@
     </ClCompile>
     <ClCompile Include="Microsoft\Schema\Portable_1_0\PortableTable.cpp">
       <Filter>Microsoft\Schema\Portable_1_0</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\SQLiteStorageBase.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
