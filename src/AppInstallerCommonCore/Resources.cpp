@@ -113,5 +113,10 @@ namespace AppInstaller
         {
             return Resource::Loader::Instance().ResolveString(*this);
         }
+
+        std::ostream& operator<<(std::ostream& out, StringId si)
+        {
+            return (out << Resource::LocString{ si });
+        }
     }
 }

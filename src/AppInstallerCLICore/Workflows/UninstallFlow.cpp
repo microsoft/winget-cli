@@ -259,7 +259,7 @@ namespace AppInstaller::CLI::Workflow
             else
             {
                 context.Reporter.Error()
-                    << Resource::String::UninstallFailedWithCode(Utility::LocIndView{ std::to_string(uninstallResult) })
+                    << Resource::String::UninstallFailedWithCode(uninstallResult)
                     << std::endl;
             }
 

@@ -150,8 +150,8 @@
     <comment>Message displayed to inform the user about the available nested commands that run in context of the selected command.</comment>
   </data>
   <data name="AvailableUpgrades" xml:space="preserve">
-    <value>upgrades available.</value>
-    <comment>Message displayed to inform the user about available application package upgrades.</comment>
+    <value>{0} upgrades available.</value>
+    <comment>Message displayed to inform the user about available package upgrades. {0} is a placeholder replaced by the number of package upgrades.</comment>
   </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Use the specified channel; default is general audience</value>

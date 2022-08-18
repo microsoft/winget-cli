@@ -772,7 +772,7 @@ namespace AppInstaller::CLI::Workflow
 
             if (m_onlyShowUpgrades)
             {
-                context.Reporter.Info() << availableUpgradesCount << ' ' << Resource::String::AvailableUpgrades << std::endl;
+                context.Reporter.Info() << Resource::String::AvailableUpgrades(availableUpgradesCount) << std::endl;
             }
         }
 

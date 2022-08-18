@@ -25,6 +25,8 @@ namespace AppInstaller
             // Sets the placeholder values in the resolved string id.
             template<typename ...T>
             Utility::LocIndString operator()(T ... args) const;
+
+            friend std::ostream& operator<<(std::ostream& out, StringId si);
         private:
 
             // Resolve the string id.
@@ -93,7 +95,3 @@ namespace AppInstaller
     }
 }
 
-inline std::ostream& operator<<(std::ostream& out, AppInstaller::StringResource::StringId si)
-{
-    return (out << AppInstaller::Resource::LocString{ si });
-}

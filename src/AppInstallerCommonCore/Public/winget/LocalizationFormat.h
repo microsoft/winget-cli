@@ -11,7 +11,7 @@ namespace AppInstaller::StringResource
         template <typename T>
         struct IsApprovedForOutput
         {
-            static constexpr bool value = false;
+            static constexpr bool value = std::is_arithmetic<T>::value;
         };
 
 #define WINGET_CREATE_ISAPPROVEDFOROUTPUT_SPECIALIZATION(_t_) \
