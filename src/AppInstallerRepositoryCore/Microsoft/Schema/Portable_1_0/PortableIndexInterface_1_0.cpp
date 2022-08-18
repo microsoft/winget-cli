@@ -14,7 +14,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
 
             if (!result)
             {
-                AICLI_LOG(Repo, Verbose, << "Did not find a portable row for { " << file.FilePath << " }");
+                AICLI_LOG(Repo, Verbose, << "Did not find a portable file with the path  { " << file.FilePath << " }");
             }
 
             return result;
@@ -28,7 +28,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
 
     void PortableIndexInterface::CreateTable(SQLite::Connection& connection)
     {
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "createportableindextable_v1_0");
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "createPortableTable_v1_0");
         Portable_V1_0::PortableTable::Create(connection);
         savepoint.Commit();
     }
@@ -39,7 +39,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
 
         THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS), portableEntryResult.has_value());
 
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "addportableentry_v1_0");
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "addPortableFile_v1_0");
         SQLite::rowid_t portableFileId = PortableTable::AddPortableFile(connection, file);
 
         savepoint.Commit();
