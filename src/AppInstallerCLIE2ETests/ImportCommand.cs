@@ -74,7 +74,7 @@ namespace AppInstallerCLIE2ETests
         {
             // Verify success with message when trying to import a package that is already installed
             var installDir = TestCommon.GetRandomTestDir();
-            TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller -l {installDir}");
+            TestCommon.RunAICLICommand("install", $"App.Installer.Test.Test.Exe.Installer -l {installDir}");
             var result = TestCommon.RunAICLICommand("import", $"{GetTestImportFile("ImportFile-Good.1.0.json")}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Package is already installed"));

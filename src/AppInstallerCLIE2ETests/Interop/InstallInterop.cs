@@ -32,7 +32,7 @@ namespace AppInstallerCLIE2ETests.Interop
         public async Task InstallExe()
         {
             // Find package
-            var searchResult = FindOnePackage(testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.TestExeInstaller");
+            var searchResult = FindOnePackage(testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "App.Installer.Test.Test.Exe.Installer");
 
             // Configure installation
             var installOptions = TestFactory.CreateInstallOptions();
@@ -232,7 +232,7 @@ namespace AppInstallerCLIE2ETests.Interop
             var failSearchSource = packageManager.GetPackageCatalogByName("failSearch");
 
             // Find package
-            var searchResult = FindAllPackages(failSearchSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.TestExeInstaller");
+            var searchResult = FindAllPackages(failSearchSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "App.Installer.Test.Test.Exe.Installer");
 
             // Assert
             Assert.NotNull(failSearchSource);
@@ -353,7 +353,7 @@ namespace AppInstallerCLIE2ETests.Interop
         public async Task InstallRequireUserScope()
         {
             // Find package
-            var searchResult = FindOnePackage(testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.TestExeInstaller");
+            var searchResult = FindOnePackage(testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "App.Installer.Test.Test.Exe.Installer");
 
             // Configure installation
             var installOptions = TestFactory.CreateInstallOptions();
@@ -373,7 +373,7 @@ namespace AppInstallerCLIE2ETests.Interop
         public async Task InstallRequireUserScopeAndUnknown()
         {
             // Find package
-            var searchResult = FindOnePackage(testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.TestExeInstaller");
+            var searchResult = FindOnePackage(testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "App.Installer.Test.Test.Exe.Installer");
 
             // Configure installation
             var installOptions = TestFactory.CreateInstallOptions();

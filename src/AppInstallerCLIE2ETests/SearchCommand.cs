@@ -63,7 +63,7 @@ namespace AppInstallerCLIE2ETests
             // Search Microsoft should return multiple
             var result = TestCommon.RunAICLICommand("search", "AppInstallerTest");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("AppInstallerTest.TestExeInstaller"));
+            Assert.True(result.StdOut.Contains("App.Installer.Test.Test.Exe.Installer"));
             Assert.True(result.StdOut.Contains("AppInstallerTest.TestBurnInstaller"));
             Assert.True(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
         }
