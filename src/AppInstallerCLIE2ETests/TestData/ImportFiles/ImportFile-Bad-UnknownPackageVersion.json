@@ -5,7 +5,7 @@
     {
       "Packages": [
         {
-          "PackageIdentifier": "App.Installer.Test.Test.Exe.Installer",
+          "PackageIdentifier": "AppInstallerTest.TestExeInstaller",
           "Version": "4.3.2.1"
         }
       ],

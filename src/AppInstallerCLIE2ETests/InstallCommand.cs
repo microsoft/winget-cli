@@ -34,7 +34,7 @@ namespace AppInstallerCLIE2ETests
         public void InstallExe()
         {
             var installDir = TestCommon.GetRandomTestDir();
-            var result = TestCommon.RunAICLICommand("install", $"App.Installer.Test.Test.Exe.Installer --silent -l {installDir}");
+            var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller --silent -l {installDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
             Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/execustom"));
@@ -139,10 +139,10 @@ namespace AppInstallerCLIE2ETests
             try
             {
                 var installDir = TestCommon.GetRandomTestDir();
-                var result = TestCommon.RunAICLICommand("install", $"App.Installer.Test.Test.Exe.Installer --silent -l {installDir}");
+                var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller --silent -l {installDir}");
                 Assert.AreEqual(unchecked((int)0x80070002), result.ExitCode);
                 Assert.True(result.StdOut.Contains("Failed when searching source: failSearch"));
-                Assert.True(result.StdOut.Contains("App.Installer.Test.Test.Exe.Installer"));
+                Assert.True(result.StdOut.Contains("AppInstallerTest.TestExeInstaller"));
                 Assert.False(result.StdOut.Contains("Successfully installed"));
                 Assert.False(TestCommon.VerifyTestExeInstalledAndCleanup(installDir));
             }

@@ -60,7 +60,7 @@ namespace AppInstallerCLIE2ETests
         public const string AppInstallerTestExeInstallerExe = "AppInstallerTestExeInstaller.exe";
 
         // Test installers' package IDs
-        public const string ExeInstallerPackageId = "App.Installer.Test.Test.Exe.Installer";
+        public const string ExeInstallerPackageId = "AppInstallerTest.TestExeInstaller";
         public const string MsiInstallerPackageId = "AppInstallerTest.TestMsiInstaller";
         public const string MsixInstallerPackageId = "AppInstallerTest.TestMsixInstaller";
         public const string PortableExePackageId = "AppInstallerTest.TestPortableExe";

@@ -5,7 +5,7 @@
     {
       "Packages": [
         {
-          "Id": "App.Installer.Test.Test.Exe.Installer",
+          "Id": "AppInstallerTest.TestExeInstaller",
           "Version": "1.0.0.0"
         }
       ],

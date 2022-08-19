@@ -31,12 +31,12 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("list", productCode);
             Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
 
-            result = TestCommon.RunAICLICommand("install", $"App.Installer.Test.Test.Exe.Installer --override \"/InstallDir {installDir} /ProductID {productCode} /LogFile {logFilePath} /DisplayName {displayName}\"");
+            result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller --override \"/InstallDir {installDir} /ProductID {productCode} /LogFile {logFilePath} /DisplayName {displayName}\"");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
 
             result = TestCommon.RunAICLICommand("list", productCode);
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("App.Installer.Test.Test.Exe.Installer"));
+            Assert.True(result.StdOut.Contains("AppInstallerTest.TestExeInstaller"));
             Assert.True(result.StdOut.Contains("1.0.0.0"));
             Assert.True(result.StdOut.Contains("2.0.0.0"));
         }
