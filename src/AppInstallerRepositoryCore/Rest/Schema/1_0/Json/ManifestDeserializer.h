@@ -22,6 +22,9 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         // Deserializes the locale; requires that the PackageLocale be set to return an object.
         virtual std::optional<Manifest::ManifestLocalization> DeserializeLocale(const web::json::value& localeJsonObject) const;
 
+        // Deserializes the locale; requires that the PackageLocale be set to return an object.
+        virtual std::optional<Manifest::InstallationMetadataInfo> DeserializeInstallationMetadata(const web::json::value& installationMetadataJsonObject) const;
+
     protected:
 
         template <Manifest::Localization L>
