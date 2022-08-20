@@ -46,6 +46,13 @@ namespace AppInstaller::Repository::Microsoft
         // Creates a new index database of the given version.
         static SQLiteIndex CreateNew(const std::string& filePath, Schema::Version version = Schema::Version::Latest(), CreateOptions options = CreateOptions::None);
 
+        // Opens an existing SQLiteIndex database.
+        using SQLiteStorageBase::SQLiteStorageBase;
+        static SQLiteIndex Open(const std::string& filePath, OpenDisposition disposition, Utility::ManagedFile&& indexFile = {})
+        {
+            return { filePath, disposition, std::move(indexFile) };
+        }
+
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // Changes the version of the interface being used to operate on the database.
         // Should only be used for testing.
@@ -140,6 +147,9 @@ namespace AppInstaller::Repository::Microsoft
         // Internal functions to normalize on the relativePath being present.
         IdType AddManifestInternal(const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath);
         bool UpdateManifestInternal(const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath);
+
+        // Creates the ISQLiteIndex interface object for this version.
+        std::unique_ptr<Schema::ISQLiteIndex> CreateISQLiteIndex() const;
 
         std::unique_ptr<Schema::ISQLiteIndex> m_interface;
         friend SQLiteStorageBase;

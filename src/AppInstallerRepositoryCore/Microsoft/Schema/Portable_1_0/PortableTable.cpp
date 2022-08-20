@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "PortableTable.h"
 #include "SQLiteStatementBuilder.h"
+#include "Microsoft/Schema/IPortableIndex.h"
 
 namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
 {
@@ -15,7 +16,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
     static constexpr std::string_view s_PortableTable_FileType_Column = "fileType"sv;
     static constexpr std::string_view s_PortableTable_SHA256_Column = "sha256"sv;
     static constexpr std::string_view s_PortableTable_SymlinkTarget_Column = "symlinkTarget"sv;
-    static constexpr std::string_view s_PortableTable_IsCreated_Column = "isCreated"sv;
 
     std::string_view PortableTable::TableName()
     {
@@ -35,7 +35,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
         createTableBuilder.Column(ColumnBuilder(s_PortableTable_FileType_Column, Type::Int64).NotNull());
         createTableBuilder.Column(ColumnBuilder(s_PortableTable_SHA256_Column, Type::Blob).NotNull());
         createTableBuilder.Column(ColumnBuilder(s_PortableTable_SymlinkTarget_Column, Type::Text));
-        createTableBuilder.Column(ColumnBuilder(s_PortableTable_IsCreated_Column, Type::Bool).NotNull());
 
         createTableBuilder.EndColumns();
         createTableBuilder.Execute(connection);
@@ -68,56 +67,53 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
         builder.Execute(connection);
     }
 
-    SQLite::rowid_t PortableTable::AddPortableFile(SQLite::Connection& connection, const PortableFile& file)
+    SQLite::rowid_t PortableTable::AddPortableFile(SQLite::Connection& connection, const IPortableIndex::PortableFile& file)
     {
         SQLite::Builder::StatementBuilder builder;
         builder.InsertInto(s_PortableTable_Table_Name)
             .Columns({ s_PortableTable_FilePath_Column,
                 s_PortableTable_FileType_Column,
                 s_PortableTable_SHA256_Column,
-                s_PortableTable_SymlinkTarget_Column,
-                s_PortableTable_IsCreated_Column })
-            .Values(file.FilePath, file.FileType, file.SHA256, file.SymlinkTarget, file.IsCreated);
+                s_PortableTable_SymlinkTarget_Column })
+            .Values(file.GetFilePath(), file.FileType, file.SHA256, file.SymlinkTarget, file.IsCreated);
 
         builder.Execute(connection);
         return connection.GetLastInsertRowID();
     }
 
-    bool PortableTable::UpdatePortableFileById(SQLite::Connection& connection, SQLite::rowid_t id, const PortableFile& file)
+    bool PortableTable::UpdatePortableFileById(SQLite::Connection& connection, SQLite::rowid_t id, const IPortableIndex::PortableFile& file)
     {
         SQLite::Builder::StatementBuilder builder;
         builder.Update(s_PortableTable_Table_Name).Set()
-            .Column(s_PortableTable_FilePath_Column).Equals(file.FilePath)
+            .Column(s_PortableTable_FilePath_Column).Equals(file.GetFilePath())
             .Column(s_PortableTable_FileType_Column).Equals(file.FileType)
             .Column(s_PortableTable_SHA256_Column).Equals(file.SHA256)
             .Column(s_PortableTable_SymlinkTarget_Column).Equals(file.SymlinkTarget)
-            .Column(s_PortableTable_IsCreated_Column).Equals(file.IsCreated)
             .Where(SQLite::RowIDName).Equals(id);
 
         builder.Execute(connection);
         return connection.GetChanges() != 0;
     }
 
-    std::optional<PortableFile> PortableTable::GetPortableFileById(const SQLite::Connection& connection, SQLite::rowid_t id)
+    std::optional<IPortableIndex::PortableFile> PortableTable::GetPortableFileById(const SQLite::Connection& connection, SQLite::rowid_t id)
     {
         SQLite::Builder::StatementBuilder builder;
         builder.Select({ s_PortableTable_FilePath_Column,
             s_PortableTable_FileType_Column,
             s_PortableTable_SHA256_Column,
-            s_PortableTable_SymlinkTarget_Column,
-            s_PortableTable_IsCreated_Column })
+            s_PortableTable_SymlinkTarget_Column})
             .From(s_PortableTable_Table_Name).Where(SQLite::RowIDName).Equals(id);
 
         SQLite::Statement select = builder.Prepare(connection);
 
-        PortableFile portableFile;
+        IPortableIndex::PortableFile portableFile;
         if (select.Step())
         {
-            portableFile.FilePath = select.GetColumn<std::string>(static_cast<int>(PortableColumnType::FilePath));
-            portableFile.FileType = select.GetColumn<PortableFileType>(static_cast<int>(PortableColumnType::FileType));
-            portableFile.SHA256 = select.GetColumn<std::string>(static_cast<int>(PortableColumnType::SHA256));
-            portableFile.SymlinkTarget = select.GetColumn<std::string>(static_cast<int>(PortableColumnType::SymlinkTarget));
-            portableFile.IsCreated = select.GetColumn<bool>(static_cast<int>(PortableColumnType::IsCreated));
+            auto [filePath, fileType, sha256, symlinkTarget, isCreated] = select.GetRow<std::filesystem::path, IPortableIndex::PortableFileType, std::string, std::string, bool>();
+            portableFile.SetFilePath(filePath);
+            portableFile.FileType = fileType;
+            portableFile.SHA256 = sha256;
+            portableFile.SymlinkTarget = symlinkTarget;
             return portableFile;
         }
         else

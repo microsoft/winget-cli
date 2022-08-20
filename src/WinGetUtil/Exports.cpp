@@ -103,7 +103,7 @@ extern "C"
 
         std::string filePathUtf8 = ConvertToUTF8(filePath);
 
-        std::unique_ptr<SQLiteIndex> result = std::make_unique<SQLiteIndex>(SQLiteStorageBase::Open<SQLiteIndex>(filePathUtf8, SQLiteIndex::OpenDisposition::ReadWrite));
+        std::unique_ptr<SQLiteIndex> result = std::make_unique<SQLiteIndex>(SQLiteIndex::Open(filePathUtf8, SQLiteIndex::OpenDisposition::ReadWrite));
 
         *index = static_cast<WINGET_SQLITE_INDEX_HANDLE>(result.release());
 

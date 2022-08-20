@@ -8,13 +8,13 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
 {
     namespace
     {
-        std::optional<SQLite::rowid_t> GetExistingPortableFileId(const SQLite::Connection& connection, const PortableFile& file)
+        std::optional<SQLite::rowid_t> GetExistingPortableFileId(const SQLite::Connection& connection, const IPortableIndex::PortableFile& file)
         {
-            auto result = PortableTable::SelectByFilePath(connection, file.FilePath);
+            auto result = PortableTable::SelectByFilePath(connection, file.GetFilePath());
 
             if (!result)
             {
-                AICLI_LOG(Repo, Verbose, << "Did not find a portable file with the path  { " << file.FilePath << " }");
+                AICLI_LOG(Repo, Verbose, << "Did not find a portable file with the path  { " << file.GetFilePath() << " }");
             }
 
             return result;

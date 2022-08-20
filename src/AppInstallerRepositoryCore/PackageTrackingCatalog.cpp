@@ -64,7 +64,7 @@ namespace AppInstaller::Repository
 
                 auto lock = Synchronization::CrossProcessReaderWriteLock::LockShared(lockName);
 
-                SQLiteIndex index = SQLiteStorageBase::Open<SQLiteIndex>(trackingDB.u8string(), SQLiteIndex::OpenDisposition::ReadWrite);
+                SQLiteIndex index = SQLiteIndex::Open(trackingDB.u8string(), SQLiteIndex::OpenDisposition::ReadWrite);
 
                 // TODO: Check schema version and upgrade as necessary when there is a relevant new schema.
                 //       Could write this all now but it will be better tested when there is a new schema.

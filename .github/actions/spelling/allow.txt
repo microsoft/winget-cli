@@ -2,6 +2,7 @@ abi
 ACCESSDENIED
 ACTIONDATA
 ACTIONSTART
+addfile
 addmanifest
 addstore
 admins
@@ -258,6 +259,7 @@ IObservable
 iomanip
 iostream
 IOutput
+IPortable
 IProgress
 IRandom
 IRest
@@ -398,6 +400,7 @@ pipssource
 PKCS
 placeholders
 png
+portableindex
 posix
 powershell
 pplx
@@ -438,6 +441,7 @@ REFCLSID
 REFCOUNT
 regex
 regexp
+removefile
 removemanifest
 repolibtest
 requeue
@@ -610,6 +614,7 @@ uninstalling
 Unregister
 Unregisters
 untimes
+updatefile
 updatemanifest
 UPLEVEL
 upvote

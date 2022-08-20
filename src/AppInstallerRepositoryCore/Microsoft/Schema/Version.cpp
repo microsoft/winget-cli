@@ -34,56 +34,6 @@ namespace AppInstaller::Repository::Microsoft::Schema
         savepoint.Commit();
     }
 
-    // Creates the interface object for this version.
-    std::unique_ptr<ISQLiteIndex> Version::CreateISQLiteIndex() const
-    {
-        if (*this == Version{ 1, 0 })
-        {
-            return std::make_unique<V1_0::Interface>();
-        }
-        else if (*this == Version{ 1, 1 })
-        {
-            return std::make_unique<V1_1::Interface>();
-        }
-        else if (*this == Version{ 1, 2 })
-        {
-            return std::make_unique<V1_2::Interface>();
-        }
-        else if (*this == Version{ 1, 3 })
-        {
-            return std::make_unique<V1_3::Interface>();
-        }
-        else if (*this == Version{ 1, 4 })
-        {
-            return std::make_unique<V1_4::Interface>();
-        }
-        else if (*this == Version{ 1, 5 })
-        {
-            return std::make_unique<V1_5::Interface>();
-        }
-        else if (*this == Version{ 1, 6 } ||
-            this->MajorVersion == 1 ||
-            this->IsLatest())
-        {
-            return std::make_unique<V1_6::Interface>();
-        }
-
-        // We do not have the capacity to operate on this schema version
-        THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
-    }
-
-    std::unique_ptr<IPortableIndex> Version::CreateIPortableIndex() const
-    {
-        if (*this == Version{ 1, 0 } ||
-            this->MajorVersion == 1 ||
-            this->IsLatest())
-        {
-            return std::make_unique<Portable_V1_0::PortableIndexInterface>();
-        }
-
-        THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
-    }
-
     std::ostream& operator<<(std::ostream& out, const Version& version)
     {
         return (out << version.MajorVersion << '.' << version.MinorVersion);

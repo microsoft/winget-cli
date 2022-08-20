@@ -23,11 +23,18 @@ namespace AppInstaller::Repository::Microsoft
         // Creates a new PortableIndex database of the given version.
         static PortableIndex CreateNew(const std::string& filePath, Schema::Version version = Schema::Version::Latest());
 
-        IdType AddPortableFile(const Schema::Portable_V1_0::PortableFile& file);
+        // Opens an existing PortableIndex database.
+        using SQLiteStorageBase::SQLiteStorageBase;
+        static PortableIndex Open(const std::string& filePath, OpenDisposition disposition, Utility::ManagedFile&& indexFile = {})
+        {
+            return { filePath, disposition, std::move(indexFile) };
+        }
 
-        void RemovePortableFile(const Schema::Portable_V1_0::PortableFile& file);
+        IdType AddPortableFile(const Schema::IPortableIndex::PortableFile& file);
 
-        bool UpdatePortableFile(const Schema::Portable_V1_0::PortableFile& file);
+        void RemovePortableFile(const Schema::IPortableIndex::PortableFile& file);
+
+        bool UpdatePortableFile(const Schema::IPortableIndex::PortableFile& file);
 
     private:
         // Constructor used to open an existing index.
@@ -35,6 +42,9 @@ namespace AppInstaller::Repository::Microsoft
 
         // Constructor used to create a new index.
         PortableIndex(const std::string& target, Schema::Version version);
+
+        // Creates the IPortableIndex interface object for this version.
+        std::unique_ptr<Schema::IPortableIndex> CreateIPortableIndex() const;
 
         std::unique_ptr<Schema::IPortableIndex> m_interface;
         friend SQLiteStorageBase;

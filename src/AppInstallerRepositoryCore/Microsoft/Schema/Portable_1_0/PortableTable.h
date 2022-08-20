@@ -3,39 +3,11 @@
 #pragma once
 #include "SQLiteWrapper.h"
 #include "SQLiteStatementBuilder.h"
+#include "Microsoft/Schema/IPortableIndex.h"
 #include <string_view>
 
 namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
 {
-    // File type enum of the portable file
-    enum class PortableFileType
-    {
-        Unknown,
-        File,
-        Directory,
-        Symlink
-    };
-
-    // Column type enum of the portable table
-    enum class PortableColumnType
-    {
-        FilePath,
-        FileType,
-        SHA256,
-        SymlinkTarget,
-        IsCreated
-    };
-
-    // Metadata representation of a portable file placed down during installation
-    struct PortableFile
-    {
-        std::string FilePath;
-        PortableFileType FileType = PortableFileType::Unknown;
-        std::string SHA256;
-        std::string SymlinkTarget;
-        bool IsCreated = false;
-    };
-
     // A table the represents a single portable file
     struct PortableTable
     {
@@ -58,15 +30,15 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
         static std::optional<SQLite::rowid_t> SelectByFilePath(const SQLite::Connection& connection, const std::filesystem::path& path);
 
         // Selects the portable file by rowid from the table, returning the portable file object if it exists.
-        static std::optional<PortableFile> GetPortableFileById(const SQLite::Connection& connection, SQLite::rowid_t id);
+        static std::optional<IPortableIndex::PortableFile> GetPortableFileById(const SQLite::Connection& connection, SQLite::rowid_t id);
         
         // Adds the portable file into the table.
-        static SQLite::rowid_t AddPortableFile(SQLite::Connection& connection, const PortableFile& file);
+        static SQLite::rowid_t AddPortableFile(SQLite::Connection& connection, const IPortableIndex::PortableFile& file);
 
         // Removes the portable file from the table by id.
         static void RemovePortableFileById(SQLite::Connection& connection, SQLite::rowid_t id);
 
         // Updates the portable file in the table by id.
-        static bool UpdatePortableFileById(SQLite::Connection& connection, SQLite::rowid_t id, const PortableFile& file);
+        static bool UpdatePortableFileById(SQLite::Connection& connection, SQLite::rowid_t id, const IPortableIndex::PortableFile& file);
     };
 }
