@@ -19,7 +19,6 @@ namespace AppInstaller::Utility
     // Converts the given UTF8 string to UTF32
     std::u32string ConvertToUTF32(std::string_view input);
 
-    // TODO https://task.ms/40934960 Consider changing the return type to loc independent
     // Normalizes a UTF8 string to the given form.
     std::string Normalize(std::string_view input, NORM_FORM form = NORM_FORM::NormalizationKC);
 

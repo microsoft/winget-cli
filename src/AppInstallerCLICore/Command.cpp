@@ -244,7 +244,6 @@ namespace AppInstaller::CLI
             }
         }
 
-        // TODO https://task.ms/40934960 Change HelpLink return value to LocIndString
         // Finally, the link to the documentation pages
         auto helpLink = Utility::LocIndString{ HelpLink() };
         if (!helpLink.empty())

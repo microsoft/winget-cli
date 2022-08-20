@@ -203,7 +203,7 @@
   </data>
   <data name="FeatureDisabledMessage" xml:space="preserve">
     <value>This feature is a work in progress, and may be changed dramatically or removed altogether in the future. To enable it, edit your settings ('winget settings') to include the experimental feature: '{0}'</value>
-    <comment>Error message displayed when the user uses an experimental feature that is disabled. {0} is a placeholder replaced by the experimental feature name.</comment>
+    <comment>{Locked="winget settings"}. Error message displayed when the user uses an experimental feature that is disabled. {0} is a placeholder replaced by the experimental feature name.</comment>
   </data>
   <data name="FeaturesCommandLongDescription" xml:space="preserve">
     <value>Shows the status of experimental features. Experimental features can be turn on via 'winget settings'.</value>
@@ -1196,7 +1196,7 @@ Do you agree to the terms?</value>
   </data>
   <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
     <value>This feature needs to be enabled by administrators. To enable it, run 'winget settings --enable {0}' as administrator.</value>
-    <comment>Error message displayed when the user uses a feature that needs to be enabled by administrators. {0} is a placeholder replaced by the admin setting.</comment>
+    <comment>{Locked="winget settings --enable"}. Error message displayed when the user uses a feature that needs to be enabled by administrators. {0} is a placeholder replaced by the admin setting.</comment>
   </data>
   <data name="AdminSettingEnableDescription" xml:space="preserve">
     <value>Enables the specific administrator setting</value>

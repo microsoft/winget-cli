@@ -16,7 +16,6 @@ namespace AppInstaller::CLI
 
         void Complete(Execution::Context& context, Execution::Args::Type valueType) const override;
 
-        // TODO https://task.ms/40934960 Consider changing the return type to loc independent
         std::string HelpLink() const override;
 
     protected:
