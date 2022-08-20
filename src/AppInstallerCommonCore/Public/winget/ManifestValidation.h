@@ -176,7 +176,7 @@ namespace AppInstaller::Manifest
 
                         if (!error.Context.empty())
                         {
-                            m_manifestErrorMessage += " Field: " + error.Context;
+                            m_manifestErrorMessage += " [" + error.Context + "]";
                         }
                         if (!error.Value.empty())
                         {
