@@ -153,7 +153,7 @@ The author of this document firmly believes that `--plain` must be replaced with
 
 Currently, WinGet updates the source after 5 minutes. This setting will will enable users to set the timeout in minutes.
 
-Value must be integers with a minimum of 0. An arbitrary limit limit can be set but is not strictly necessary. A value of 0 indicates no update.
+Value must be integers with a minimum of 0. An arbitrary limit can be set but is not strictly necessary. A value of 0 indicates no update.
 
 ```
   "Source": {
