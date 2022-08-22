@@ -74,20 +74,20 @@ namespace AppInstaller::Repository::Microsoft
         THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
     }
 
-    SQLiteIndex::SQLiteIndex(const std::string& target, SQLite::Connection::OpenDisposition disposition, SQLite::Connection::OpenFlags flags, Utility::ManagedFile&& indexFile) :
-        SQLiteStorageBase(target, disposition, flags, std::move(indexFile))
-    {
-        m_dbconn.EnableICU();
-        AICLI_LOG(Repo, Info, << "Opened SQLite Index with version [" << m_version << "], last write [" << GetLastWriteTime() << "]");
-        m_interface = CreateISQLiteIndex();
-        THROW_HR_IF(APPINSTALLER_CLI_ERROR_CANNOT_WRITE_TO_UPLEVEL_INDEX, disposition == SQLite::Connection::OpenDisposition::ReadWrite && m_version != m_interface->GetVersion());
-    }
-
     SQLiteIndex::SQLiteIndex(const std::string& target, Schema::Version version) : SQLiteStorageBase(target, version)
     {
         m_dbconn.EnableICU();
         m_interface = CreateISQLiteIndex();
         m_version = m_interface->GetVersion();
+    }
+
+    SQLiteIndex::SQLiteIndex(const std::string& target, SQLiteStorageBase::OpenDisposition disposition, Utility::ManagedFile&& indexFile) :
+        SQLiteStorageBase(target, disposition, std::move(indexFile))
+    {
+        m_dbconn.EnableICU();
+        AICLI_LOG(Repo, Info, << "Opened SQLite Index with version [" << m_version << "], last write [" << GetLastWriteTime() << "]");
+        m_interface = CreateISQLiteIndex();
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_CANNOT_WRITE_TO_UPLEVEL_INDEX, disposition == SQLiteStorageBase::OpenDisposition::ReadWrite && m_version != m_interface->GetVersion());
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS

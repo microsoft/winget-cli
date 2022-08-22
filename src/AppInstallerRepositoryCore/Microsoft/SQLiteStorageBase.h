@@ -30,11 +30,8 @@ namespace AppInstaller::Repository::Microsoft
         Schema::Version GetVersion() const { return m_version; }
 
     protected:
-        SQLiteStorageBase(const std::string& target, SQLite::Connection::OpenDisposition disposition, SQLite::Connection::OpenFlags flags, Utility::ManagedFile&& indexFile);
-
         SQLiteStorageBase(const std::string& target, Schema::Version version);
 
-        // Open constructor
         SQLiteStorageBase(const std::string& filePath, OpenDisposition disposition, Utility::ManagedFile&& indexFile);
 
         // Sets the last write time metadata value in the index.

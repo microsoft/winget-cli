@@ -28,7 +28,6 @@ namespace AppInstaller::Repository::Microsoft::Schema
             PortableFileType FileType = PortableFileType::Unknown;
             std::string SHA256;
             std::string SymlinkTarget;
-            bool IsCreated = false;
 
             void SetFilePath(const std::filesystem::path& path) { m_filePath = std::filesystem::weakly_canonical(path); };
 

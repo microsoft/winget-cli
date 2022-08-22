@@ -24,7 +24,6 @@ namespace AppInstaller::Repository::Microsoft
         static PortableIndex CreateNew(const std::string& filePath, Schema::Version version = Schema::Version::Latest());
 
         // Opens an existing PortableIndex database.
-        using SQLiteStorageBase::SQLiteStorageBase;
         static PortableIndex Open(const std::string& filePath, OpenDisposition disposition, Utility::ManagedFile&& indexFile = {})
         {
             return { filePath, disposition, std::move(indexFile) };
@@ -38,7 +37,7 @@ namespace AppInstaller::Repository::Microsoft
 
     private:
         // Constructor used to open an existing index.
-        PortableIndex(const std::string& target, SQLite::Connection::OpenDisposition disposition, SQLite::Connection::OpenFlags flags, Utility::ManagedFile&& indexFile);
+        PortableIndex(const std::string& target, SQLiteStorageBase::OpenDisposition disposition, Utility::ManagedFile&& indexFile);
 
         // Constructor used to create a new index.
         PortableIndex(const std::string& target, Schema::Version version);

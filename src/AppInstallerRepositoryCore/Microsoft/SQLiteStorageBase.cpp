@@ -45,8 +45,10 @@ namespace AppInstaller::Repository::Microsoft
         {
         case OpenDisposition::Read:
             m_dbconn = SQLite::Connection::Create(filePath, SQLite::Connection::OpenDisposition::ReadOnly, SQLite::Connection::OpenFlags::None);
+            break;
         case OpenDisposition::ReadWrite:
             m_dbconn = SQLite::Connection::Create(filePath, SQLite::Connection::OpenDisposition::ReadWrite, SQLite::Connection::OpenFlags::None);
+            break;
         case OpenDisposition::Immutable:
         {
             // Following the algorithm set forth at https://sqlite.org/uri.html [3.1] to convert to a URI path
@@ -92,17 +94,13 @@ namespace AppInstaller::Repository::Microsoft
 
             target += "?immutable=1";
             m_dbconn = SQLite::Connection::Create(filePath, SQLite::Connection::OpenDisposition::ReadOnly, SQLite::Connection::OpenFlags::Uri);
+            break;
         }
         default:
             THROW_HR(E_UNEXPECTED);
         }
-    }
 
-    SQLiteStorageBase::SQLiteStorageBase(const std::string& target, SQLite::Connection::OpenDisposition disposition, SQLite::Connection::OpenFlags flags, Utility::ManagedFile&& indexFile) :
-        m_dbconn(SQLite::Connection::Create(target, disposition, flags)), m_indexFile(std::move(indexFile))
-    {
         m_version = Schema::Version::GetSchemaVersion(m_dbconn);
-        Schema::MetadataTable::Create(m_dbconn);
     }
 
     SQLiteStorageBase::SQLiteStorageBase(const std::string& target, Schema::Version version) :

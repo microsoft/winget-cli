@@ -75,7 +75,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
                 s_PortableTable_FileType_Column,
                 s_PortableTable_SHA256_Column,
                 s_PortableTable_SymlinkTarget_Column })
-            .Values(file.GetFilePath(), file.FileType, file.SHA256, file.SymlinkTarget, file.IsCreated);
+            .Values(file.GetFilePath().u8string(), file.FileType, file.SHA256, file.SymlinkTarget);
 
         builder.Execute(connection);
         return connection.GetLastInsertRowID();
@@ -85,7 +85,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
     {
         SQLite::Builder::StatementBuilder builder;
         builder.Update(s_PortableTable_Table_Name).Set()
-            .Column(s_PortableTable_FilePath_Column).Equals(file.GetFilePath())
+            .Column(s_PortableTable_FilePath_Column).Equals(file.GetFilePath().u8string())
             .Column(s_PortableTable_FileType_Column).Equals(file.FileType)
             .Column(s_PortableTable_SHA256_Column).Equals(file.SHA256)
             .Column(s_PortableTable_SymlinkTarget_Column).Equals(file.SymlinkTarget)
@@ -109,8 +109,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
         IPortableIndex::PortableFile portableFile;
         if (select.Step())
         {
-            auto [filePath, fileType, sha256, symlinkTarget, isCreated] = select.GetRow<std::filesystem::path, IPortableIndex::PortableFileType, std::string, std::string, bool>();
-            portableFile.SetFilePath(filePath);
+            auto [filePath, fileType, sha256, symlinkTarget] = select.GetRow<std::string, IPortableIndex::PortableFileType, std::string, std::string>();
+            portableFile.SetFilePath(std::filesystem::path{ filePath });
             portableFile.FileType = fileType;
             portableFile.SHA256 = sha256;
             portableFile.SymlinkTarget = symlinkTarget;

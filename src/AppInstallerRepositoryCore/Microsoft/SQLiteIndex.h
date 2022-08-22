@@ -47,7 +47,6 @@ namespace AppInstaller::Repository::Microsoft
         static SQLiteIndex CreateNew(const std::string& filePath, Schema::Version version = Schema::Version::Latest(), CreateOptions options = CreateOptions::None);
 
         // Opens an existing SQLiteIndex database.
-        using SQLiteStorageBase::SQLiteStorageBase;
         static SQLiteIndex Open(const std::string& filePath, OpenDisposition disposition, Utility::ManagedFile&& indexFile = {})
         {
             return { filePath, disposition, std::move(indexFile) };
@@ -138,11 +137,11 @@ namespace AppInstaller::Repository::Microsoft
         std::set<std::pair<SQLite::rowid_t, Utility::NormalizedString>> GetDependenciesByManifestRowId(SQLite::rowid_t manifestRowId) const;
         std::vector<std::pair<SQLite::rowid_t, Utility::NormalizedString>> GetDependentsById(AppInstaller::Manifest::string_t packageId) const;
     private:
-        // Constructor used to open an existing index.
-        SQLiteIndex(const std::string& target, SQLite::Connection::OpenDisposition disposition, SQLite::Connection::OpenFlags flags, Utility::ManagedFile&& indexFile);
-
         // Constructor used to create a new index.
         SQLiteIndex(const std::string& target, Schema::Version version);
+
+        // Constructor used to open an existing index.
+        SQLiteIndex(const std::string& target, SQLiteStorageBase::OpenDisposition disposition, Utility::ManagedFile&& indexFile);
 
         // Internal functions to normalize on the relativePath being present.
         IdType AddManifestInternal(const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath);

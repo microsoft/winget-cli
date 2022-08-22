@@ -107,7 +107,6 @@ TEST_CASE("PortableIndex_AddUpdateRemove", "[portableIndex]")
     portableFile.FileType = IPortableIndex::PortableFileType::Symlink;
     portableFile.SHA256 = updatedHash;
     portableFile.SymlinkTarget = "fakeSymlinkTarget.exe";
-    portableFile.IsCreated = false;
 
     REQUIRE(index.UpdatePortableFile(portableFile));
 
@@ -119,7 +118,6 @@ TEST_CASE("PortableIndex_AddUpdateRemove", "[portableIndex]")
         REQUIRE(fileFromIndex->FileType == IPortableIndex::PortableFileType::Symlink);
         REQUIRE(fileFromIndex->SHA256 == updatedHash);
         REQUIRE(fileFromIndex->SymlinkTarget == "fakeSymlinkTarget.exe");
-        REQUIRE(fileFromIndex->IsCreated == false);
     }
 
     {
