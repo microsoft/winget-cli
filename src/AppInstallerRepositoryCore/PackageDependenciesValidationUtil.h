@@ -17,5 +17,5 @@ namespace AppInstaller::Repository::Util
         FoundDependencyLoop = 0x1000000,
     };
 
-    WinGetManifestDependenciesErrorResult GetValidationResultFromException(const AppInstaller::Manifest::ManifestException& manifestException);
+    WinGetManifestDependenciesErrorResult GetDependenciesValidationResultFromException(const AppInstaller::Manifest::ManifestException& manifestException);
 }

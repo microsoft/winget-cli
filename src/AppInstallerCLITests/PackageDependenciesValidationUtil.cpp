@@ -18,6 +18,6 @@ TEST_CASE("GetValidationResultFromException", "[PackageDependenciesValidationUti
 
     for (auto current : dependenciesErrorMessageMap)
     {
-        REQUIRE(GetValidationResultFromException(current.second) == current.first);
+        REQUIRE(GetDependenciesValidationResultFromException(current.second) == current.first);
     }
 }

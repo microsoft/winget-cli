@@ -9,7 +9,7 @@ namespace AppInstaller::Repository::Util
 {
     using namespace AppInstaller::Manifest;
 
-    WinGetManifestDependenciesErrorResult GetValidationResultFromException(const AppInstaller::Manifest::ManifestException& manifestException)
+    WinGetManifestDependenciesErrorResult GetDependenciesValidationResultFromException(const AppInstaller::Manifest::ManifestException& manifestException)
 	{
         auto validationErrors = manifestException.Errors();
         for (auto validationError : validationErrors)
