@@ -79,22 +79,26 @@ namespace AppInstaller::CLI::Execution
             AdminSettingEnable,
             AdminSettingDisable,
 
-            // Upgrade Command
-            All, // Update all installed packages to latest
-            IncludeUnknown, // Allow upgrades of packages with unknown versions
+            // Upgrade command
+            All, // Used in Update command to update all installed packages to latest
+            IncludeUnknown, // Used in Upgrade command to allow upgrades of packages with unknown versions
 
-            // Other
+            // Show command
             ListVersions, // Used in Show command to list all available versions of an app
+
+            // Common arguments
             NoVT, // Disable VirtualTerminal outputs
             RetroStyle, // Makes progress display as retro
             RainbowStyle, // Makes progress display as a rainbow
             Help, // Show command usage
             Info, // Show general info about WinGet
             VerboseLogs, // Increases winget logging level to verbose
+            DisableInteractivity, // Disable interactive prompts
+            Wait, // Prompts the user to press any key before exiting
+
             DependencySource, // Index source to be queried against for finding dependencies
             CustomHeader, // Optional Rest source header
             AcceptSourceAgreements, // Accept all source agreements
-            Wait, // Prompts the user to press any key before exiting
 
             // Used for demonstration purposes
             ExperimentalArg,

@@ -70,7 +70,7 @@ TEST_CASE("ReadPreviewGoodManifestAndVerifyContents", "[ManifestValidation]")
     REQUIRE(manifest.DefaultInstallerInfo.Commands == MultiValue{ "makemsix", "makeappx" });
     REQUIRE(manifest.DefaultInstallerInfo.Protocols == MultiValue{ "protocol1", "protocol2" });
     REQUIRE(manifest.DefaultInstallerInfo.FileExtensions == MultiValue{ "appx", "appxbundle", "msix", "msixbundle" });
-    REQUIRE(manifest.DefaultInstallerInfo.InstallerType == InstallerTypeEnum::Zip);
+    REQUIRE(manifest.DefaultInstallerInfo.BaseInstallerType == InstallerTypeEnum::Zip);
     REQUIRE(manifest.DefaultInstallerInfo.PackageFamilyName == "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe");
     REQUIRE(manifest.DefaultInstallerInfo.ProductCode == "{Foo}");
     REQUIRE(manifest.DefaultInstallerInfo.UpdateBehavior == UpdateBehaviorEnum::UninstallPrevious);
@@ -93,7 +93,7 @@ TEST_CASE("ReadPreviewGoodManifestAndVerifyContents", "[ManifestValidation]")
     REQUIRE(installer1.Url == "https://rubengustorage.blob.core.windows.net/publiccontainer/msixsdkx86.zip");
     REQUIRE(installer1.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
     REQUIRE(installer1.Locale == "en-US");
-    REQUIRE(installer1.InstallerType == InstallerTypeEnum::Zip);
+    REQUIRE(installer1.BaseInstallerType == InstallerTypeEnum::Zip);
     REQUIRE(installer1.Scope == ScopeEnum::User);
     REQUIRE(installer1.PackageFamilyName == "");
     REQUIRE(installer1.ProductCode == "");
@@ -114,7 +114,7 @@ TEST_CASE("ReadPreviewGoodManifestAndVerifyContents", "[ManifestValidation]")
     REQUIRE(installer2.Url == "https://rubengustorage.blob.core.windows.net/publiccontainer/msixsdkx64.zip");
     REQUIRE(installer2.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF0000"));
     REQUIRE(installer2.Locale == "en-US");
-    REQUIRE(installer2.InstallerType == InstallerTypeEnum::Zip);
+    REQUIRE(installer2.BaseInstallerType == InstallerTypeEnum::Zip);
     REQUIRE(installer2.Scope == ScopeEnum::User);
     REQUIRE(installer2.PackageFamilyName == "");
     REQUIRE(installer2.ProductCode == "");
@@ -343,30 +343,30 @@ TEST_CASE("ComplexSystemReference", "[ManifestValidation]")
     REQUIRE(manifest.Installers.size() == 5);
 
     // Zip installer does not inherit
-    REQUIRE(manifest.Installers[0].InstallerType == InstallerTypeEnum::Zip);
+    REQUIRE(manifest.Installers[0].BaseInstallerType == InstallerTypeEnum::Zip);
     REQUIRE(manifest.Installers[0].PackageFamilyName == "");
     REQUIRE(manifest.Installers[0].ProductCode == "");
 
     // MSIX installer does inherit
-    REQUIRE(manifest.Installers[1].InstallerType == InstallerTypeEnum::Msix);
+    REQUIRE(manifest.Installers[1].BaseInstallerType == InstallerTypeEnum::Msix);
     REQUIRE(manifest.Installers[1].Arch == Architecture::X86);
     REQUIRE(manifest.Installers[1].PackageFamilyName == "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe");
     REQUIRE(manifest.Installers[1].ProductCode == "");
 
     // MSI installer does inherit
-    REQUIRE(manifest.Installers[2].InstallerType == InstallerTypeEnum::Msi);
+    REQUIRE(manifest.Installers[2].BaseInstallerType == InstallerTypeEnum::Msi);
     REQUIRE(manifest.Installers[2].Arch == Architecture::X86);
     REQUIRE(manifest.Installers[2].PackageFamilyName == "");
     REQUIRE(manifest.Installers[2].ProductCode == "{Foo}");
 
     // MSIX installer with override
-    REQUIRE(manifest.Installers[3].InstallerType == InstallerTypeEnum::Msix);
+    REQUIRE(manifest.Installers[3].BaseInstallerType == InstallerTypeEnum::Msix);
     REQUIRE(manifest.Installers[3].Arch == Architecture::X64);
     REQUIRE(manifest.Installers[3].PackageFamilyName == "Override_8wekyb3d8bbwe");
     REQUIRE(manifest.Installers[3].ProductCode == "");
 
     // MSI installer with override
-    REQUIRE(manifest.Installers[4].InstallerType == InstallerTypeEnum::Msi);
+    REQUIRE(manifest.Installers[4].BaseInstallerType == InstallerTypeEnum::Msi);
     REQUIRE(manifest.Installers[4].Arch == Architecture::X64);
     REQUIRE(manifest.Installers[4].PackageFamilyName == "");
     REQUIRE(manifest.Installers[4].ProductCode == "Override");
@@ -435,7 +435,7 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
     REQUIRE(manifest.DefaultInstallerInfo.Locale == "en-US");
     REQUIRE(manifest.DefaultInstallerInfo.Platform == std::vector<PlatformEnum>{ PlatformEnum::Desktop, PlatformEnum::Universal });
     REQUIRE(manifest.DefaultInstallerInfo.MinOSVersion == "10.0.0.0");
-    REQUIRE(manifest.DefaultInstallerInfo.InstallerType == InstallerTypeEnum::Zip);
+    REQUIRE(manifest.DefaultInstallerInfo.BaseInstallerType == InstallerTypeEnum::Zip);
     REQUIRE(manifest.DefaultInstallerInfo.Scope == ScopeEnum::Machine);
     REQUIRE(manifest.DefaultInstallerInfo.InstallModes == std::vector<InstallModeEnum>{ InstallModeEnum::Interactive, InstallModeEnum::Silent, InstallModeEnum::SilentWithProgress });
 
@@ -495,7 +495,7 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
         REQUIRE(manifest.DefaultInstallerInfo.UnsupportedArguments.at(0) == UnsupportedArgumentEnum::Log);
     }
 
-    if (manifestVer >= ManifestVer{ s_ManifestVersionV1_3 })
+    if (manifestVer >= ManifestVer{ s_ManifestVersionV1_4 })
     {
         REQUIRE(manifest.DefaultInstallerInfo.NestedInstallerType == InstallerTypeEnum::Msi);
         REQUIRE(manifest.DefaultInstallerInfo.NestedInstallerFiles.size() == 1);
@@ -515,7 +515,7 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
     }
     else
     {
-        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_3 })
+        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_4 })
         {
             REQUIRE(manifest.Installers.size() == 4);
         }
@@ -534,7 +534,7 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
     REQUIRE(installer1.Locale == "en-GB");
     REQUIRE(installer1.Platform == std::vector<PlatformEnum>{ PlatformEnum::Desktop });
     REQUIRE(installer1.MinOSVersion == "10.0.1.0");
-    REQUIRE(installer1.InstallerType == InstallerTypeEnum::Msix);
+    REQUIRE(installer1.BaseInstallerType == InstallerTypeEnum::Msix);
     REQUIRE(installer1.Url == "https://www.microsoft.com/msixsdk/msixsdkx86.msix");
     REQUIRE(installer1.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
     REQUIRE(installer1.SignatureSha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
@@ -591,7 +591,7 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
         REQUIRE(installer1.UnsupportedArguments.at(0) == UnsupportedArgumentEnum::Location);
     }
 
-    if (manifestVer >= ManifestVer{ s_ManifestVersionV1_3 })
+    if (manifestVer >= ManifestVer{ s_ManifestVersionV1_4 })
     {
         // NestedInstaller metadata should not be populated unless the InstallerType is zip.
         REQUIRE(installer1.NestedInstallerType == InstallerTypeEnum::Unknown);
@@ -603,12 +603,13 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
         REQUIRE(installer1.InstallationMetadata.Files.at(0).FileType == InstalledFileTypeEnum::Launch);
         REQUIRE(installer1.InstallationMetadata.Files.at(0).FileSha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
         REQUIRE(installer1.InstallationMetadata.Files.at(0).InvocationParameter == "/arg");
+        REQUIRE(installer1.InstallationMetadata.Files.at(0).DisplayName == "DisplayName");
     }
 
     if (!isSingleton)
     {
         ManifestInstaller installer2 = manifest.Installers.at(1);
-        REQUIRE(installer2.InstallerType == InstallerTypeEnum::Exe);
+        REQUIRE(installer2.BaseInstallerType == InstallerTypeEnum::Exe);
         REQUIRE(installer2.Arch == Architecture::X64);
         REQUIRE(installer2.Url == "https://www.microsoft.com/msixsdk/msixsdkx64.exe");
         REQUIRE(installer2.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
@@ -639,7 +640,7 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
         if (manifestVer >= ManifestVer{ s_ManifestVersionV1_2 })
         {
             ManifestInstaller installer3 = manifest.Installers.at(2);
-            REQUIRE(installer3.InstallerType == InstallerTypeEnum::Portable);
+            REQUIRE(installer3.BaseInstallerType == InstallerTypeEnum::Portable);
             REQUIRE(installer3.Arch == Architecture::X86);
             REQUIRE(installer3.Url == "https://www.microsoft.com/msixsdk/msixsdkx86.exe");
             REQUIRE(installer3.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
@@ -652,10 +653,10 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
             REQUIRE(installer3.UnsupportedArguments.at(0) == UnsupportedArgumentEnum::Log);
         }
 
-        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_3 })
+        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_4 })
         {
             ManifestInstaller installer4 = manifest.Installers.at(3);
-            REQUIRE(installer4.InstallerType == InstallerTypeEnum::Zip);
+            REQUIRE(installer4.BaseInstallerType == InstallerTypeEnum::Zip);
             REQUIRE(installer4.Arch == Architecture::X64);
             REQUIRE(installer4.Url == "https://www.microsoft.com/msixsdk/msixsdkx64.exe");
             REQUIRE(installer4.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
@@ -671,6 +672,7 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
             REQUIRE(installer4.InstallationMetadata.Files.at(0).FileType == InstalledFileTypeEnum::Other);
             REQUIRE(installer4.InstallationMetadata.Files.at(0).FileSha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
             REQUIRE(installer4.InstallationMetadata.Files.at(0).InvocationParameter == "/arg2");
+            REQUIRE(installer4.InstallationMetadata.Files.at(0).DisplayName == "DisplayName2");
         }
 
         // Localization
@@ -788,29 +790,29 @@ TEST_CASE("ValidateV1_2GoodManifestAndVerifyContents", "[ManifestValidation]")
     VerifyV1ManifestContent(mergedManifest, false, ManifestVer{ s_ManifestVersionV1_2 });
 }
 
-TEST_CASE("ValidateV1_3GoodManifestAndVerifyContents", "[ManifestValidation]")
+TEST_CASE("ValidateV1_4GoodManifestAndVerifyContents", "[ManifestValidation]")
 {
     ManifestValidateOption validateOption;
     validateOption.FullValidation = true;
     TempDirectory singletonDirectory{ "SingletonManifest" };
-    CopyTestDataFilesToFolder({ "ManifestV1_3-Singleton.yaml" }, singletonDirectory);
+    CopyTestDataFilesToFolder({ "ManifestV1_4-Singleton.yaml" }, singletonDirectory);
     Manifest singletonManifest = YamlParser::CreateFromPath(singletonDirectory, validateOption);
-    VerifyV1ManifestContent(singletonManifest, true, ManifestVer{ s_ManifestVersionV1_3 });
+    VerifyV1ManifestContent(singletonManifest, true, ManifestVer{ s_ManifestVersionV1_4 });
 
     TempDirectory multiFileDirectory{ "MultiFileManifest" };
     CopyTestDataFilesToFolder({
-        "ManifestV1_3-MultiFile-Version.yaml",
-        "ManifestV1_3-MultiFile-Installer.yaml",
-        "ManifestV1_3-MultiFile-DefaultLocale.yaml",
-        "ManifestV1_3-MultiFile-Locale.yaml" }, multiFileDirectory);
+        "ManifestV1_4-MultiFile-Version.yaml",
+        "ManifestV1_4-MultiFile-Installer.yaml",
+        "ManifestV1_4-MultiFile-DefaultLocale.yaml",
+        "ManifestV1_4-MultiFile-Locale.yaml" }, multiFileDirectory);
 
     TempFile mergedManifestFile{ "merged.yaml" };
     Manifest multiFileManifest = YamlParser::CreateFromPath(multiFileDirectory, validateOption, mergedManifestFile);
-    VerifyV1ManifestContent(multiFileManifest, false, ManifestVer{ s_ManifestVersionV1_3 });
+    VerifyV1ManifestContent(multiFileManifest, false, ManifestVer{ s_ManifestVersionV1_4 });
 
     // Read from merged manifest should have the same content as multi file manifest
     Manifest mergedManifest = YamlParser::CreateFromPath(mergedManifestFile);
-    VerifyV1ManifestContent(mergedManifest, false, ManifestVer{ s_ManifestVersionV1_3 });
+    VerifyV1ManifestContent(mergedManifest, false, ManifestVer{ s_ManifestVersionV1_4 });
 }
 
 YamlManifestInfo CreateYamlManifestInfo(std::string testDataFile)

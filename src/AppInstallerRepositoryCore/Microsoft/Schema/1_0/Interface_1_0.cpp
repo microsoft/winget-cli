@@ -382,11 +382,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         savepoint.Commit();
 
-        // Force the database to actually shrink the file size.
-        // This *must* be done outside of an active transaction.
-        SQLite::Builder::StatementBuilder builder;
-        builder.Vacuum();
-        builder.Execute(connection);
+        Vacuum(connection);
     }
 
     bool Interface::CheckConsistency(const SQLite::Connection& connection, bool log) const
@@ -643,5 +639,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         default:
             return {};
         }
+    }
+
+    void Interface::Vacuum(const SQLite::Connection& connection)
+    {
+        SQLite::Builder::StatementBuilder builder;
+        builder.Vacuum();
+        builder.Execute(connection);
     }
 }

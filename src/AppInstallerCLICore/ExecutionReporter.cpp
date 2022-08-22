@@ -163,6 +163,32 @@ namespace AppInstaller::CLI::Execution
         m_in.get();
     }
 
+    std::filesystem::path Reporter::PromptForPath(Resource::LocString message, Level level)
+    {
+        auto out = GetOutputStream(level);
+
+        // Try prompting until we get a valid answer
+        for (;;)
+        {
+            out << message << ' ';
+
+            // Read the response
+            std::string response;
+            if (!std::getline(m_in, response))
+            {
+                THROW_HR(APPINSTALLER_CLI_ERROR_PROMPT_INPUT_ERROR);
+            }
+
+            // Validate the path
+            std::filesystem::path path{ response };
+            if (path.is_absolute())
+            {
+                return path;
+            }
+        }
+
+    }
+
     void Reporter::ShowIndefiniteProgress(bool running)
     {
         if (m_spinner)
@@ -186,7 +212,7 @@ namespace AppInstaller::CLI::Execution
             m_progressBar->ShowProgress(current, maximum, type);
         }
     }
-    
+
     void Reporter::BeginProgress()
     {
         GetBasicOutputStream() << VirtualTerminal::Cursor::Visibility::DisableShow;

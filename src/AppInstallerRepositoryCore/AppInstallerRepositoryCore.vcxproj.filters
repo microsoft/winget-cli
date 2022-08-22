@@ -64,6 +64,9 @@
     <Filter Include="Microsoft\Schema\1_5">
       <UniqueIdentifier>{e31c8e5b-ed2c-43c8-b91b-db8ec4c52f71}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Microsoft\Schema\1_6">
+      <UniqueIdentifier>{84a55def-9fb8-4c90-8d5a-2cedc171940b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -288,6 +291,15 @@
     <ClInclude Include="Microsoft\Schema\1_0\VirtualTableBase.h">
       <Filter>Microsoft\Schema\1_0</Filter>
     </ClInclude>
+    <ClInclude Include="Microsoft\Schema\1_6\Interface.h">
+      <Filter>Microsoft\Schema\1_6</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\1_6\UpgradeCodeTable.h">
+      <Filter>Microsoft\Schema\1_6</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\1_6\SearchResultsTable.h">
+      <Filter>Microsoft\Schema\1_6</Filter>
+    </ClInclude>
     <ClInclude Include="PackageDependenciesValidationUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -453,9 +465,6 @@
       <Filter>Microsoft\Schema\1_5</Filter>
     </ClCompile>
     <ClCompile Include="ArpVersionValidation.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="PackageDependenciesValidationUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -23,6 +23,7 @@ namespace AppInstaller::Registry::Portable
         WinGetInstallerType,
         WinGetPackageIdentifier,
         WinGetSourceIdentifier,
+        InstallDirectoryAddedToPath,
     };
 
     std::wstring_view ToString(PortableValueName valueName);
