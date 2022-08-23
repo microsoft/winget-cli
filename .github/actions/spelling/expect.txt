@@ -155,6 +155,7 @@ gitlab
 gity
 Google
 guiddef
+gz
 Hackathon
 hashtable
 helplib
@@ -333,11 +334,13 @@ rgpsz
 rhs
 riid
 roblox
+ronomon
 rosoft
 rowids
 RRF
 rrr
 runtimeclass
+ryfu
 rzkzqaqjwj
 SARL
 schematab
