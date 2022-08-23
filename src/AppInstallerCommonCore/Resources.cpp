@@ -4,7 +4,8 @@
 #include "winget/Resources.h"
 #include "Public/AppInstallerLogging.h"
 #include "Public/AppInstallerStrings.h"
-#include "Public//AppInstallerErrors.h"
+#include "Public/AppInstallerErrors.h"
+#include "Public/AppInstallerTelemetry.h"
 
 namespace AppInstaller
 {
@@ -59,11 +60,6 @@ namespace AppInstaller
             return std::make_pair(reinterpret_cast<BYTE*>(resourceData.first), resourceData.second);
         }
 
-        ResourceOpenException::ResourceOpenException(const winrt::hresult_error& hre)
-        {
-            m_message = "Could not open the resource file: " + GetUserPresentableMessage(hre);
-        }
-
         // Utility class to load resources
         class Loader
         {
@@ -78,7 +74,13 @@ namespace AppInstaller
             // Gets the the string resource value.
             std::string ResolveString(std::wstring_view resKey) const
             {
-                return Utility::ConvertToUTF8(m_wingetLoader.GetString(resKey));
+                if (m_wingetLoader)
+                {
+                    return Utility::ConvertToUTF8(m_wingetLoader.GetString(resKey));
+                }
+
+                // Loader failed to load resource file, print the resource key instead.
+                return Utility::ConvertToUTF8(resKey);
             }
 
         private:
@@ -101,7 +103,7 @@ namespace AppInstaller
                 {
                     // This message cannot be localized.
                     AICLI_LOG(CLI, Error, << "Failure loading resource file with error: " << hre.code());
-                    throw ResourceOpenException(hre);
+                    m_wingetLoader = nullptr;
                 }
             }
         };

@@ -67,16 +67,6 @@ namespace AppInstaller
         std::pair<const BYTE*, size_t> GetResourceAsBytes(int resourceName, int resourceType);
         std::pair<const BYTE*, size_t> GetResourceAsBytes(PCWSTR resourceName, PCWSTR resourceType);
 
-        struct ResourceOpenException : std::exception
-        {
-            ResourceOpenException(const winrt::hresult_error& hre);
-
-            const char* what() const noexcept override { return m_message.c_str(); }
-
-        private:
-            std::string m_message;
-        };
-
         // A localized string
         struct LocString : public Utility::LocIndString
         {

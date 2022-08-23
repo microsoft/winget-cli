@@ -263,12 +263,6 @@ namespace AppInstaller::CLI::Workflow
             context.Reporter.Error() << Resource::String::DisabledByGroupPolicy(policyNameId()) << std::endl;
             return APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY;
         }
-        catch (const Resource::ResourceOpenException& e)
-        {
-            Logging::Telemetry().LogException(Logging::FailureTypeEnum::ResourceOpen, e.what());
-            context.Reporter.Error() << GetUserPresentableMessage(e) << std::endl;
-            return APPINSTALLER_CLI_ERROR_MISSING_RESOURCE_FILE;
-        }
         catch (const std::exception& e)
         {
             Logging::Telemetry().LogException(Logging::FailureTypeEnum::StdException, e.what());
