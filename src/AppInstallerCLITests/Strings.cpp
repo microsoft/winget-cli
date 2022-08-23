@@ -240,10 +240,11 @@ TEST_CASE("Join", "[strings]")
 
 TEST_CASE("Format", "[strings]")
 {
-    REQUIRE("Hello World" == Format("{0} {1}", "Hello", "World"));
-    REQUIRE("Hello World" == Format("{1} {0}", "World", "Hello"));
-    REQUIRE("Hello World" == Format("{0} {1}", "Hello", "World", "(Extra", "Input", "Ignored)"));
+    REQUIRE("First Second" == Format("{0} {1}", "First", "Second"));
+    REQUIRE("First Second" == Format("{1} {0}", "Second", "First"));
+    REQUIRE("First Second" == Format("{0} {1}", "First", "Second", "(Extra", "Input", "Ignored)"));
+    REQUIRE("First Second First Second" == Format("{0} {1} {0} {1}", "First", "Second"));
 
     // Note: C++20 std::format will throw an exception for this test case
-    REQUIRE("Hello {1}" == Format("{0} {1}", "Hello"));
+    REQUIRE("First {1}" == Format("{0} {1}", "First"));
 }
