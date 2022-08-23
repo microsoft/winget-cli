@@ -435,7 +435,7 @@ namespace AppInstaller::CLI::Resource
         // Gets the singleton instance of the resource loader.
         static const Loader& Instance();
 
-        // Gets the the string resource value.
+        // Gets the string resource value.
         std::string ResolveString(std::wstring_view resKey) const;
 
     private:

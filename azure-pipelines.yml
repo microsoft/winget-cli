@@ -11,6 +11,7 @@ pr:
     include:
     - azure-pipelines.yml
     - src/*
+    - schemas/JSON/manifests/*
 
 pool:
   vmImage: 'windows-latest'

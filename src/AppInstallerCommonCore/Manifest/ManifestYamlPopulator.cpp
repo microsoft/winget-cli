@@ -308,16 +308,16 @@ namespace AppInstaller::Manifest
                 std::move(fields_v1_2.begin(), fields_v1_2.end(), std::inserter(result, result.end()));
             }
 
-            if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_3 })
+            if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_4 })
             {
-                std::vector<FieldProcessInfo> fields_v1_3 =
+                std::vector<FieldProcessInfo> fields_v1_4 =
                 {
                     { "NestedInstallerType", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->NestedInstallerType = ConvertToInstallerTypeEnum(value.as<std::string>()); return {}; } },
                     { "NestedInstallerFiles", [this](const YAML::Node& value)->ValidationErrors { return ProcessNestedInstallerFilesNode(value); } },
                     { "InstallationMetadata", [this](const YAML::Node& value)->ValidationErrors { m_p_installationMetadata = &(m_p_installer->InstallationMetadata); return ValidateAndProcessFields(value, InstallationMetadataFieldInfos); } },
                 };
 
-                std::move(fields_v1_3.begin(), fields_v1_3.end(), std::inserter(result, result.end()));
+                std::move(fields_v1_4.begin(), fields_v1_4.end(), std::inserter(result, result.end()));
             }
         }
 
@@ -575,7 +575,7 @@ namespace AppInstaller::Manifest
     {
         std::vector<FieldProcessInfo> result = {};
 
-        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_3 })
+        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_4 })
         {
             result =
             {
@@ -591,7 +591,7 @@ namespace AppInstaller::Manifest
     {
         std::vector<FieldProcessInfo> result = {};
 
-        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_3 })
+        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_4 })
         {
             result =
             {
@@ -607,7 +607,7 @@ namespace AppInstaller::Manifest
     {
         std::vector<FieldProcessInfo> result = {};
 
-        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_3 })
+        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_4 })
         {
             result =
             {
@@ -615,6 +615,7 @@ namespace AppInstaller::Manifest
                 { "FileSha256", [this](const YAML::Node& value)->ValidationErrors { m_p_installedFile->FileSha256 = Utility::SHA256::ConvertToBytes(value.as<std::string>()); return {}; } },
                 { "FileType", [this](const YAML::Node& value)->ValidationErrors { m_p_installedFile->FileType = ConvertToInstalledFileTypeEnum(value.as<std::string>()); return {}; } },
                 { "InvocationParameter", [this](const YAML::Node& value)->ValidationErrors { m_p_installedFile->InvocationParameter = Utility::Trim(value.as<std::string>()); return {}; } },
+                { "DisplayName", [this](const YAML::Node& value)->ValidationErrors { m_p_installedFile->DisplayName = Utility::Trim(value.as<std::string>()); return {}; } },
             };
         }
 

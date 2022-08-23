@@ -32,7 +32,7 @@ namespace AppInstaller::Manifest
     constexpr std::string_view s_ManifestVersionV1_2 = "1.2.0"sv;
 
     // V1.3 manifest version
-    constexpr std::string_view s_ManifestVersionV1_3 = "1.3.0"sv;
+    constexpr std::string_view s_ManifestVersionV1_4 = "1.4.0"sv;
 
     // The manifest extension for the MS Store
     constexpr std::string_view s_MSStoreExtension = "msstore"sv;
@@ -270,6 +270,7 @@ namespace AppInstaller::Manifest
         std::vector<BYTE> FileSha256;
         InstalledFileTypeEnum FileType = InstalledFileTypeEnum::Other;
         string_t InvocationParameter;
+        string_t DisplayName;
     };
 
     struct InstallationMetadataInfo
