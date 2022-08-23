@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 namespace Microsoft.Management.Deployment
 {
-    [contractversion(4)]
+    [contractversion(5)]
     apicontract WindowsPackageManagerContract{};
 
     /// State of the install
@@ -551,6 +551,13 @@ namespace Microsoft.Management.Deployment
         User,
         /// Only System installers will be valid
         System,
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 5)]
+        {
+            /// Both User and Unknown install scope installers are valid
+            UserOrUnknown,
+            /// Both System and Unknown install scope installers are valid
+            SystemOrUnknown,
+        }
     };
 
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
@@ -582,7 +589,7 @@ namespace Microsoft.Management.Deployment
         PackageInstallScope PackageInstallScope;
         /// Silent, Interactive, or Default
         PackageInstallMode PackageInstallMode;
-        /// Directs the logging to a log file. If provided, the installer must have have write access to the file 
+        /// Directs the logging to a log file. If provided, the installer must have write access to the file 
         String LogOutputPath;
         /// Continues the install even if the hash in the catalog does not match the linked installer.
         Boolean AllowHashMismatch;
@@ -638,7 +645,7 @@ namespace Microsoft.Management.Deployment
 
         /// Silent, Interactive, or Default
         PackageUninstallMode PackageUninstallMode;
-        /// Directs the logging to a log file. If provided, the installer must have have write access to the file 
+        /// Directs the logging to a log file. If provided, the installer must have write access to the file 
         String LogOutputPath;
 
         /// Used by a caller to correlate the install with a caller's data.

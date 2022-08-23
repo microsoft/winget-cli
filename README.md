@@ -12,7 +12,7 @@ If you are new to the Windows Package Manager, you might want to [Explore the Wi
 
 ### Microsoft Store [Recommended]
 
-The client is distributed within the [App Installer](ms-windows-store://pdp/?productid=9nblggh4nns1) package. 
+The client is distributed within the [App Installer](https://www.microsoft.com/p/app-installer/9nblggh4nns1) package. 
 
 ### Development Releases
 
@@ -78,7 +78,7 @@ The client is built around the concept of sources; a set of packages effectively
 
 * Windows 10 1809 (17763) or later
 * [Developer Mode enabled](https://docs.microsoft.com/windows/uwp/get-started/enable-your-device-for-development)
-* [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/)
+* [Visual Studio 2022](https://visualstudio.microsoft.com/downloads/)
    * Or use winget to install it ;) (although you may need to adjust the workloads via Tools->Get Tools and Features...)
 * The following workloads:
    * .NET Desktop Development

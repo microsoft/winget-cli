@@ -571,6 +571,9 @@
         "UnsupportedOSArchitectures": {
           "$ref": "#/definitions/UnsupportedOSArchitectures"
         },
+        "UnsupportedArguments": {
+          "$ref": "#/definitions/UnsupportedArguments"
+        },
         "AppsAndFeaturesEntries": {
           "$ref": "#/definitions/AppsAndFeaturesEntries"
         },
@@ -667,6 +670,9 @@
     },
     "UnsupportedOSArchitectures": {
       "$ref": "#/definitions/UnsupportedOSArchitectures"
+    },
+    "UnsupportedArguments": {
+      "$ref": "#/definitions/UnsupportedArguments"
     },
     "AppsAndFeaturesEntries": {
       "$ref": "#/definitions/AppsAndFeaturesEntries"

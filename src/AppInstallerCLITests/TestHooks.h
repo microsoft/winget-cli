@@ -10,6 +10,7 @@
 #include <AppInstallerTelemetry.h>
 #include <AppInstallerRuntime.h>
 #include <winget/UserSettings.h>
+#include <winget/Filesystem.h>
 
 #ifdef AICLI_DISABLE_TEST_HOOKS
 static_assert(false, "Test hooks have been disabled");
@@ -20,6 +21,7 @@ namespace AppInstaller
     namespace Runtime
     {
         void TestHook_SetPathOverride(PathName target, const std::filesystem::path& path);
+        void TestHook_SetPathOverride(PathName target, const PathDetails& details);
         void TestHook_ClearPathOverrides();
     }
 
@@ -37,5 +39,10 @@ namespace AppInstaller
     namespace Settings
     {
         void SetUserSettingsOverride(UserSettings* value);
+    }
+
+    namespace Filesystem
+    {
+        void TestHook_SetCreateSymlinkResult_Override(bool* status);
     }
 }

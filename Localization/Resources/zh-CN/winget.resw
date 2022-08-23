@@ -665,6 +665,13 @@
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>找不到适用的更新。</value>
   </data>
+  <data name="UpgradeCommandLongDescription" xml:space="preserve">
+    <value>升级通过搜索已安装的包列表或直接从清单中找到的所选包。默认情况下，查询必须以不区分大小写方式匹配包的 ID、名称或名字对象。可通过传递相应的选项来使用其他字段。如果未提供参数，则显示具有可用升级的包</value>
+    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
+  </data>
+  <data name="UpgradeCommandShortDescription" xml:space="preserve">
+    <value>显示并执行可用升级</value>
+  </data>
   <data name="Usage" xml:space="preserve">
     <value>使用情况</value>
     <comment>The way to use the software</comment>
@@ -1267,5 +1274,79 @@
   </data>
   <data name="SystemArchitecture" xml:space="preserve">
     <value>系统体系结构</value>
+  </data>
+  <data name="PreserveArgumentDescription" xml:space="preserve">
+    <value>保留由包创建的所有文件和目录(可移植)</value>
+  </data>
+  <data name="PurgeArgumentDescription" xml:space="preserve">
+    <value>删除包目录中的所有文件和目录(可移植)</value>
+  </data>
+  <data name="RenameArgumentDescription" xml:space="preserve">
+    <value>要重命名可执行文件的值(可移植)</value>
+  </data>
+  <data name="WaitArgumentDescription" xml:space="preserve">
+    <value>提示用户在退出前按任意键</value>
+  </data>
+  <data name="InstallerElevationExpected" xml:space="preserve">
+    <value>安装程序将请求以管理员身份运行，需要提示。</value>
+  </data>
+  <data name="InstallerProhibitsElevation" xml:space="preserve">
+    <value>无法从管理员上下文运行安装程序。</value>
+  </data>
+  <data name="ModifiedPathRequiresShellRestart" xml:space="preserve">
+    <value>已修改路径环境变量；重启 shell 以使用新值。</value>
+  </data>
+  <data name="ProductCodeArgumentDescription" xml:space="preserve">
+    <value>使用产品代码进行筛选</value>
+  </data>
+  <data name="PortableRegistryCollisionOverridden" xml:space="preserve">
+    <value>具有相同名称但来自不同源的可移植包已存在；由于 --force 而继续</value>
+  </data>
+  <data name="ReparsePointsNotSupportedError" xml:space="preserve">
+    <value>卷不支持重新分析点</value>
+  </data>
+  <data name="ReservedFilenameError" xml:space="preserve">
+    <value>指定的文件名不是有效的文件名</value>
+  </data>
+  <data name="OverwritingExistingFileAtMessage" xml:space="preserve">
+    <value>正在覆盖现有文件:</value>
+  </data>
+  <data name="NoPackageSelectionArgumentProvided" xml:space="preserve">
+    <value>未提供包选择参数；有关查找包的详细信息，请参阅帮助。</value>
+  </data>
+  <data name="PortableInstallFailed" xml:space="preserve">
+    <value>可移植安装失败;正在清理...</value>
+  </data>
+  <data name="BothPurgeAndPreserveFlagsProvided" xml:space="preserve">
+    <value>同时提供了 `purge` 和 `preserve` 参数</value>
+  </data>
+  <data name="PortableHashMismatchOverridden" xml:space="preserve">
+    <value>已修改可移植 exe；由于 --force 而继续</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="PortableHashMismatchOverrideRequired" xml:space="preserve">
+    <value>无法删除可移植 exe，因为它已被修改；要替代此检查，请使用 --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="FilesRemainInInstallDirectory" xml:space="preserve">
+    <value>文件保留在安装目录中:</value>
+  </data>
+  <data name="PurgeInstallDirectory" xml:space="preserve">
+    <value>正在清除安装目录...</value>
+  </data>
+  <data name="UnableToPurgeInstallDirectory" xml:space="preserve">
+    <value>无法清除安装目录，因为它不是由 WinGet 创建的</value>
+  </data>
+  <data name="RelatedLink" xml:space="preserve">
+    <value>相关链接</value>
+  </data>
+  <data name="ShowLabelDocumentation" xml:space="preserve">
+    <value>文档:</value>
+  </data>
+  <data name="Notes" xml:space="preserve">
+    <value>注释:</value>
+  </data>
+  <data name="ShowLabelInstallationNotes" xml:space="preserve">
+    <value>InstallationNotes:</value>
   </data>
 </root>

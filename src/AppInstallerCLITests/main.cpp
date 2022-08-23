@@ -20,7 +20,7 @@ using namespace std::string_literals;
 using namespace AppInstaller;
 
 
-// Logs the the AppInstaller log target to break up individual tests
+// Logs the AppInstaller log target to break up individual tests
 struct LoggingBreakListener : public Catch::TestEventListenerBase
 {
     using TestEventListenerBase::TestEventListenerBase;
@@ -134,7 +134,7 @@ int main(int argc, char** argv)
 
     // Enable logging, to force log string building to run.
     // Disable SQL by default, as it generates 10s of MBs of log file and
-    // increases the the full test run time by 60% or more.
+    // increases the full test run time by 60% or more.
     // By not creating a log target, it will all be thrown away.
     Logging::Log().EnableChannel(Logging::Channel::All);
     if (!keepSQLLogging)
@@ -154,7 +154,8 @@ int main(int argc, char** argv)
     Runtime::TestHook_SetPathOverride(Runtime::PathName::LocalState, Runtime::GetPathTo(Runtime::PathName::LocalState) / "Tests");
     Runtime::TestHook_SetPathOverride(Runtime::PathName::UserFileSettings, Runtime::GetPathTo(Runtime::PathName::UserFileSettings) / "Tests");
     Runtime::TestHook_SetPathOverride(Runtime::PathName::StandardSettings, Runtime::GetPathTo(Runtime::PathName::StandardSettings) / "Tests");
-    Runtime::TestHook_SetPathOverride(Runtime::PathName::SecureSettings, Runtime::GetPathTo(Runtime::PathName::Temp) / "WinGet_SecureSettings_Tests");
+    Runtime::TestHook_SetPathOverride(Runtime::PathName::SecureSettingsForRead, Runtime::GetPathTo(Runtime::PathName::StandardSettings) / "WinGet_SecureSettings_Tests");
+    Runtime::TestHook_SetPathOverride(Runtime::PathName::SecureSettingsForWrite, Runtime::GetPathDetailsFor(Runtime::PathName::SecureSettingsForRead));
 
     int result = Catch::Session().run(static_cast<int>(args.size()), args.data());
 

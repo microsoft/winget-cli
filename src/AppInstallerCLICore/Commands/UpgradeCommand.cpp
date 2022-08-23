@@ -43,7 +43,8 @@ namespace AppInstaller::CLI
         // either for upgrading or for listing available upgrades.
         bool HasArgumentsForMultiplePackages(Execution::Args& execArgs)
         {
-            return execArgs.Contains(Args::Type::All);  
+            return execArgs.Contains(Args::Type::All) ||
+                execArgs.Contains(Args::Type::IncludeUnknown);
         }
 
         // Determines whether there are any arguments only used as options during an upgrade,
@@ -102,7 +103,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::AcceptSourceAgreements),
             Argument::ForType(Execution::Args::Type::CustomHeader),
             Argument{ "all", Argument::NoAlias, Args::Type::All, Resource::String::UpdateAllArgumentDescription, ArgumentType::Flag },
-            Argument{ "include-unknown", Argument::NoAlias, Args::Type::IncludeUnknown, Resource::String::IncludeUnknownArgumentDescription, ArgumentType::Flag }
+            Argument{ "include-unknown", Argument::NoAlias, Args::Type::IncludeUnknown, Resource::String::IncludeUnknownArgumentDescription, ArgumentType::Flag },
         };
     }
 
@@ -158,24 +159,28 @@ namespace AppInstaller::CLI
 
     void UpgradeCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
     {
-        if (execArgs.Contains(Execution::Args::Type::Manifest) &&
+        if (execArgs.Contains(Execution::Args::Type::Manifest) && 
             (HasSearchQueryArguments(execArgs) ||
-                HasArgumentsForMultiplePackages(execArgs) ||
-                HasArgumentsForSource(execArgs)))
+             HasArgumentsForMultiplePackages(execArgs) ||
+             HasArgumentsForSource(execArgs)))
         {
             throw CommandException(Resource::String::BothManifestAndSearchQueryProvided);
         }
 
-
-        else if (!ShouldListUpgrade(execArgs) 
-                && !HasSearchQueryArguments(execArgs) 
-                && (execArgs.Contains(Args::Type::Log) ||
-                    execArgs.Contains(Args::Type::Override) ||
-                    execArgs.Contains(Args::Type::InstallLocation) ||
-                    execArgs.Contains(Args::Type::HashOverride) ||
-                    execArgs.Contains(Args::Type::AcceptPackageAgreements)))
+        if (!ShouldListUpgrade(execArgs)
+            && !HasSearchQueryArguments(execArgs) 
+            && (execArgs.Contains(Args::Type::Log) ||
+                execArgs.Contains(Args::Type::Override) ||
+                execArgs.Contains(Args::Type::InstallLocation) ||
+                execArgs.Contains(Args::Type::HashOverride) ||
+                execArgs.Contains(Args::Type::AcceptPackageAgreements)))
         {
             throw CommandException(Resource::String::InvalidArgumentWithoutQueryError);
+        }
+
+        if (HasArgumentsForSinglePackage(execArgs) && HasArgumentsForMultiplePackages(execArgs))
+        {
+            throw CommandException(Resource::String::IncompatibleArgumentsProvided);
         }
     }
 
@@ -252,7 +257,8 @@ namespace AppInstaller::CLI
                 context << SelectLatestApplicableUpdate(true);
             }
 
-            context << InstallSinglePackage;
+            context <<
+                InstallSinglePackage;
         }
     }
 }

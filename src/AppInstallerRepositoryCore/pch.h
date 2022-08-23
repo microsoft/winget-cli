@@ -6,6 +6,7 @@
 #include <windows.h>
 #include <urlmon.h>
 #include <appmodel.h>
+#include <winhttp.h>
 
 #pragma warning( push )
 #pragma warning ( disable : 6001 6340 6388 )
@@ -58,6 +59,8 @@
 #include <tuple>
 #include <type_traits>
 #include <utility>
+
+#include <json/json.h>
 
 #pragma warning( push )
 #pragma warning ( disable : 26495 26439 )

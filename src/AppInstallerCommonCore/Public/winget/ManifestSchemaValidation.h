@@ -4,7 +4,7 @@
 #include "ManifestCommon.h"
 #include "ManifestValidation.h"
 
-#include <json.h>
+#include <json/json.h>
 
 namespace AppInstaller::Manifest::YamlParser
 {

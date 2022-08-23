@@ -102,15 +102,25 @@
           "type": "boolean",
           "default": false
         },
-        "PortablePackageUserRoot": {
+        "disableInstallNotes": {
+          "description": "Controls whether installation notes are shown after a successful install",
+          "type": "boolean",
+          "default":  false
+        },
+        "portablePackageUserRoot": {
           "description": "The default root directory where packages are installed to under User scope. Applies to the portable installer type.",
           "type": "string",
           "default": "%LOCALAPPDATA%/Microsoft/WinGet/Packages/"
         },
-        "PortablePackageMachineRoot": {
+        "portablePackageMachineRoot": {
           "description": "The default root directory where packages are installed to under Machine scope. Applies to the portable installer type.",
           "type": "string",
           "default": "%PROGRAMFILES%/WinGet/Packages/"
+        },
+        "defaultInstallRoot": {
+          "description": "Default install location to use for packages that require it when not specified",
+          "type": "string",
+          "maxLength": "32767"
         }
       }
     },
@@ -159,6 +169,17 @@
         }
       }
     },
+    "Interactivity": {
+      "description": "Interactivity settings",
+      "type": "object",
+      "properties": {
+        "disable": {
+          "description": "Controls whether interactive prompts are shown by the Windows Package Manager client",
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
     "Experimental": {
       "description": "Experimental Features",
       "type": "object",
@@ -183,10 +204,10 @@
           "type": "boolean",
           "default": false
         },
-        "portableInstall": {
-          "description": "Enable support for installing portable packages.",
+        "zipInstall": {
+          "description": "Enable support for installing zip packages.",
           "type": "boolean",
-          "default":  false
+          "default": false
         }
       }
     }
@@ -225,6 +246,12 @@
     {
       "properties": {
         "network": { "$ref": "#/definitions/Network" }
+      },
+      "additionalItems": true
+    },
+    {
+      "properties": {
+        "interactivity": { "$ref": "#/definitions/Interactivity" }
       },
       "additionalItems": true
     },

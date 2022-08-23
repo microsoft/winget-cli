@@ -11,6 +11,7 @@ pr:
     include:
     - azure-pipelines.yml
     - src/*
+    - schemas/JSON/manifests/*
 
 pool:
   vmImage: 'windows-latest'
@@ -78,11 +79,6 @@ jobs:
     displayName: Restore AppInstallerTestMsixInstaller
     inputs:
       restoreSolution: 'src\AppInstallerTestMsixInstaller\AppInstallerTestMsixInstaller.wapproj'
-
-  - task: NuGetCommand@2
-    displayName: Restore PackagedTests
-    inputs:
-      restoreSolution: 'src\PackagedTests\PackagedTests.csproj'
 
   # Restores only .NET core projects, but is still necessary, as without this the IndexCreationTool and LocalhostWebServer projects fail to build
   - task: DotNetCoreCLI@2
@@ -217,22 +213,50 @@ jobs:
       CleanTargetFolder: false
       OverWrite: true
 
-  - task: VSTest@2
-    displayName: Run E2E Tests Packaged
+  - template: templates/e2e-test.template.yml
+    parameters:
+      title: "E2E Tests Packaged"
+      isPackaged: true
+      filter: "TestCategory!=InProcess&TestCategory!=OutOfProcess"
+
+  - template: templates/e2e-test.template.yml
+    parameters:
+      title: "COM API E2E Tests (In-process)"
+      isPackaged: false
+      filter: "TestCategory=InProcess"
+
+  - task: PowerShell@2
+    displayName: 'Set program files directory'
     inputs:
-      testRunTitle: 'E2E Packaged'
-      testSelector: 'testAssemblies'
-      testAssemblyVer2: '$(buildOutDir)\AppInstallerCLIE2ETests\AppInstallerCLIE2ETests.dll'
-      runSettingsFile: '$(buildOutDir)\AppInstallerCLIE2ETests\Test.runsettings'
-      overrideTestrunParameters: '-PackagedContext true
-                                  -AICLIPackagePath $(System.DefaultWorkingDirectory)\src\AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration)
-                                  -AICLIPath AppInstallerCLI\winget.exe
-                                  -LooseFileRegistration true
-                                  -InvokeCommandInDesktopPackage true
-                                  -StaticFileRootPath $(Agent.TempDirectory)\TestLocalIndex
-                                  -MsixTestInstallerPath $(Build.ArtifactStagingDirectory)\AppInstallerTestMsixInstaller.msix
-                                  -ExeTestInstallerPath $(buildOutDir)\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe
-                                  -PackageCertificatePath $(AppInstallerTest.secureFilePath)'
+      targetType: 'inline'
+      script: |
+        if ("$(buildPlatform)" -eq "x86") {
+          Write-Host "##vso[task.setvariable variable=platformProgramFiles;]${env:ProgramFiles(x86)}"
+        } else {
+          Write-Host "##vso[task.setvariable variable=platformProgramFiles;]${env:ProgramFiles}"
+        }
+
+  # Winmd accessed by test runner process (dotnet.exe)
+  - task: CopyFiles@2
+    displayName: 'Copy winmd to dotnet directory'
+    inputs:
+      SourceFolder: '$(buildOutDir)\Microsoft.Management.Deployment'
+      TargetFolder: '$(platformProgramFiles)\dotnet'
+      Contents: Microsoft.Management.Deployment.winmd
+
+  # Winmd accessed by WinGetServer process (WindowsPackageManagerServer.exe)
+  - task: CopyFiles@2
+    displayName: 'Copy winmd to Package Output'
+    inputs:
+      SourceFolder: '$(buildOutDir)\Microsoft.Management.Deployment'
+      TargetFolder:  'src\AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration)'
+      Contents: Microsoft.Management.Deployment.winmd
+
+  - template: templates/e2e-test.template.yml
+    parameters:
+      title: "COM API E2E Tests (Out-of-process)"
+      isPackaged: true
+      filter: "TestCategory=OutOfProcess"
 
   - task: CopyFiles@2
     displayName: 'Copy E2E Tests Package Log to artifacts folder'
@@ -240,16 +264,6 @@ jobs:
       SourceFolder: '$(temp)\E2ETestLogs'
       TargetFolder: '$(artifactsDir)\E2ETestsPackagedLog'
     condition: succeededOrFailed()
-
-  - task: VSTest@2
-    displayName: Run Com Interface Tests
-    inputs:
-      testRunTitle: 'Com Interface Tests'
-      platform: '$(buildPlatform)'
-      testSelector: 'testAssemblies'
-      testAssemblyVer2: |
-        $(buildOutDir)\PackagedTests\PackagedTests.build.appxrecipe
-      runSettingsFile: '$(buildOutDir)\PackagedTests\Test.runsettings'
 
   - task: CopyFiles@2
     displayName: 'Copy Files: WinGetUtilInterop.UnitTests'
@@ -278,6 +292,12 @@ jobs:
       TargetFolder: '$(artifactsDir)'
     condition: succeededOrFailed()
 
+  - task: PowerShell@2
+    displayName: 'Copy PowerShell Module Binaries to Output'
+    inputs:
+      filePath: 'src\PowerShell\Microsoft.WinGet.Client\Copy-PlatformBinaries.ps1'
+      arguments: '-Platform $(buildPlatform) -Configuration $(buildConfiguration) -OutDir $(artifactsDir)\PowerShell'
+
   - task: PublishPipelineArtifact@1
     displayName: Publish Pipeline Artifacts
     inputs:
@@ -299,3 +319,37 @@ jobs:
 
   - task: securedevelopmentteam.vss-secure-development-tools.build-task-publishsecurityanalysislogs.PublishSecurityAnalysisLogs@2
     displayName: 'Publish Security Analysis Logs'
+
+- job: 'BuildPowerShellModule'
+  timeoutInMinutes: 120
+  dependsOn: 'Build'
+  condition: always()
+
+  steps:
+  - task: DownloadPipelineArtifact@2
+    displayName: 'Download Build Artifacts'
+  
+  - task: CopyFiles@2
+    displayName: 'Copy x64 PowerShell Binaries to Output'
+    inputs:
+      SourceFolder: '$(Pipeline.Workspace)\Build.x64release\PowerShell'
+      Contents: '**\*'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+  - task: CopyFiles@2
+    displayName: 'Copy x86 PowerShell Binaries to Output'
+    inputs:
+      SourceFolder: '$(Pipeline.Workspace)\Build.x86release\PowerShell'
+      Contents: '**\*'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+  - task: PowerShell@2
+    displayName: 'Copy PowerShell Module Files to Output'
+    inputs:
+      filePath: 'src\PowerShell\Microsoft.WinGet.Client\Copy-ModuleFiles.ps1'
+      arguments: '-OutDir $(Build.ArtifactStagingDirectory)'
+  
+  - task: PublishPipelineArtifact@1
+    displayName: Publish PowerShell Module Artifacts
+    inputs:
+      targetPath: '$(Build.ArtifactStagingDirectory)'

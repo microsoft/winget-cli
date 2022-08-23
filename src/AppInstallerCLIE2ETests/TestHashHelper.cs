@@ -15,6 +15,8 @@ namespace AppInstallerCLIE2ETests
 
         public static string MsixInstallerHashValue { get; set; }
 
+        public static string ZipInstallerHashValue { get; set; }
+
         public static string SignatureHashValue { get; set; }
 
         public static void HashInstallers()
@@ -33,6 +35,11 @@ namespace AppInstallerCLIE2ETests
             {
                 MsixInstallerHashValue = HashFile(TestCommon.MsixInstallerPath);
                 SignatureHashValue = HashSignatureFromMSIX(TestCommon.MsixInstallerPath);
+            }
+
+            if (!string.IsNullOrEmpty(TestCommon.ZipInstallerPath))
+            {
+                ZipInstallerHashValue = HashFile(TestCommon.ZipInstallerPath);
             }
         }
 
@@ -69,6 +76,11 @@ namespace AppInstallerCLIE2ETests
                         text = text.Replace("<SIGNATUREHASH>", SignatureHashValue);
                     }
 
+                    File.WriteAllText(file.FullName, text);
+                }
+                else if (text.Contains("<ZIPHASH>"))
+                {
+                    text = text.Replace("<ZIPHASH>", ZipInstallerHashValue);
                     File.WriteAllText(file.FullName, text);
                 }
             }

@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "Resources.h"
 #include "SourceFlow.h"
+#include "PromptFlow.h"
 #include "TableOutput.h"
 #include "WorkflowBase.h"
 

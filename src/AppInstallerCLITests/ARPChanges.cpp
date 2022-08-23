@@ -7,6 +7,7 @@
 #include <Workflows/WorkflowBase.h>
 #include <Workflows/InstallFlow.h>
 #include <winget/Manifest.h>
+#include <winget/ARPCorrelationAlgorithms.h>
 #include <Microsoft/PredefinedInstalledSourceFactory.h>
 
 using namespace TestCommon;
@@ -58,7 +59,7 @@ struct TestContext : public Context
     {
         // Put installer in to control whether arp change code cares to run
         Manifest::ManifestInstaller installer;
-        installer.InstallerType = installerType;
+        installer.BaseInstallerType = installerType;
         Add<Data::Installer>(std::move(installer));
 
         // Put in an empty manifest by default
@@ -230,7 +231,7 @@ TEST_CASE("ARPChanges_MSIX_Ignored", "[ARPChanges][workflow]")
 
     context << SnapshotARPEntries;
 
-    REQUIRE(!context.Contains(Data::ARPSnapshot));
+    REQUIRE(!context.Contains(Data::ARPCorrelationData));
 
     context << ReportARPChanges;
 
@@ -244,9 +245,9 @@ TEST_CASE("ARPChanges_CheckSnapshot", "[ARPChanges][workflow]")
 
     context << SnapshotARPEntries;
 
-    REQUIRE(context.Contains(Data::ARPSnapshot));
+    REQUIRE(context.Contains(Data::ARPCorrelationData));
 
-    auto snapshot = context.Get<Data::ARPSnapshot>();
+    auto snapshot = context.Get<Data::ARPCorrelationData>().GetPreInstallSnapshot();
 
     REQUIRE(context.EverythingResult.Matches.size() == snapshot.size());
 
@@ -278,7 +279,7 @@ TEST_CASE("ARPChanges_NoChange_NoMatch", "[ARPChanges][workflow]")
     TestContext context;
 
     context << SnapshotARPEntries;
-    REQUIRE(context.Contains(Data::ARPSnapshot));
+    REQUIRE(context.Contains(Data::ARPCorrelationData));
 
     context << ReportARPChanges;
     context.ExpectEvent(0, 0, 0);
@@ -290,7 +291,7 @@ TEST_CASE("ARPChanges_NoChange_SingleMatch", "[ARPChanges][workflow]")
     TestContext context;
 
     context << SnapshotARPEntries;
-    REQUIRE(context.Contains(Data::ARPSnapshot));
+    REQUIRE(context.Contains(Data::ARPCorrelationData));
 
     context.AddMatchResult("MatchId1", "MatchName1", "MatchPublisher1", "MatchVersion1");
 
@@ -304,7 +305,7 @@ TEST_CASE("ARPChanges_NoChange_MultiMatch", "[ARPChanges][workflow]")
     TestContext context;
 
     context << SnapshotARPEntries;
-    REQUIRE(context.Contains(Data::ARPSnapshot));
+    REQUIRE(context.Contains(Data::ARPCorrelationData));
 
     context.AddMatchResult("MatchId1", "MatchName1", "MatchPublisher1", "MatchVersion1");
     context.AddMatchResult("MatchId2", "MatchName2", "MatchPublisher2", "MatchVersion2");
@@ -319,7 +320,7 @@ TEST_CASE("ARPChanges_SingleChange_NoMatch", "[ARPChanges][workflow]")
     TestContext context;
 
     context << SnapshotARPEntries;
-    REQUIRE(context.Contains(Data::ARPSnapshot));
+    REQUIRE(context.Contains(Data::ARPCorrelationData));
 
     context.AddEverythingResult("EverythingId1", "EverythingName1", "EverythingPublisher1", "EverythingVersion1");
 
@@ -333,7 +334,7 @@ TEST_CASE("ARPChanges_SingleChange_SingleMatch", "[ARPChanges][workflow]")
     TestContext context;
 
     context << SnapshotARPEntries;
-    REQUIRE(context.Contains(Data::ARPSnapshot));
+    REQUIRE(context.Contains(Data::ARPCorrelationData));
 
     context.AddEverythingResult("EverythingId1", "EverythingName1", "EverythingPublisher1", "EverythingVersion1");
     context.AddMatchResult("MatchId1", "MatchName1", "MatchPublisher1", "MatchVersion1");
@@ -348,7 +349,7 @@ TEST_CASE("ARPChanges_SingleChange_MultiMatch", "[ARPChanges][workflow]")
     TestContext context;
 
     context << SnapshotARPEntries;
-    REQUIRE(context.Contains(Data::ARPSnapshot));
+    REQUIRE(context.Contains(Data::ARPCorrelationData));
 
     context.AddEverythingResult("EverythingId1", "EverythingName1", "EverythingPublisher1", "EverythingVersion1");
     context.AddMatchResult("MatchId1", "MatchName1", "MatchPublisher1", "MatchVersion1");
@@ -364,7 +365,7 @@ TEST_CASE("ARPChanges_MultiChange_NoMatch", "[ARPChanges][workflow]")
     TestContext context;
 
     context << SnapshotARPEntries;
-    REQUIRE(context.Contains(Data::ARPSnapshot));
+    REQUIRE(context.Contains(Data::ARPCorrelationData));
 
     context.AddEverythingResult("EverythingId1", "EverythingName1", "EverythingPublisher1", "EverythingVersion1");
     context.AddEverythingResult("EverythingId2", "EverythingName2", "EverythingPublisher2", "EverythingVersion2");
@@ -379,7 +380,7 @@ TEST_CASE("ARPChanges_MultiChange_SingleMatch_NoOverlap", "[ARPChanges][workflow
     TestContext context;
 
     context << SnapshotARPEntries;
-    REQUIRE(context.Contains(Data::ARPSnapshot));
+    REQUIRE(context.Contains(Data::ARPCorrelationData));
 
     context.AddEverythingResult("EverythingId1", "EverythingName1", "EverythingPublisher1", "EverythingVersion1");
     context.AddEverythingResult("EverythingId2", "EverythingName2", "EverythingPublisher2", "EverythingVersion2");
@@ -395,7 +396,7 @@ TEST_CASE("ARPChanges_MultiChange_SingleMatch_Overlap", "[ARPChanges][workflow]"
     TestContext context;
 
     context << SnapshotARPEntries;
-    REQUIRE(context.Contains(Data::ARPSnapshot));
+    REQUIRE(context.Contains(Data::ARPCorrelationData));
 
     context.AddEverythingResult("EverythingId1", "EverythingName1", "EverythingPublisher1", "EverythingVersion1");
     context.AddEverythingResult("EverythingId2", "EverythingName2", "EverythingPublisher2", "EverythingVersion2");
@@ -411,7 +412,7 @@ TEST_CASE("ARPChanges_MultiChange_MultiMatch_NoOverlap", "[ARPChanges][workflow]
     TestContext context;
 
     context << SnapshotARPEntries;
-    REQUIRE(context.Contains(Data::ARPSnapshot));
+    REQUIRE(context.Contains(Data::ARPCorrelationData));
 
     context.AddEverythingResult("EverythingId1", "EverythingName1", "EverythingPublisher1", "EverythingVersion1");
     context.AddEverythingResult("EverythingId2", "EverythingName2", "EverythingPublisher2", "EverythingVersion2");
@@ -428,7 +429,7 @@ TEST_CASE("ARPChanges_MultiChange_MultiMatch_SingleOverlap", "[ARPChanges][workf
     TestContext context;
 
     context << SnapshotARPEntries;
-    REQUIRE(context.Contains(Data::ARPSnapshot));
+    REQUIRE(context.Contains(Data::ARPCorrelationData));
 
     context.AddEverythingResult("EverythingId1", "EverythingName1", "EverythingPublisher1", "EverythingVersion1");
     context.AddEverythingResult("EverythingId2", "EverythingName2", "EverythingPublisher2", "EverythingVersion2");
@@ -445,7 +446,7 @@ TEST_CASE("ARPChanges_MultiChange_MultiMatch_MultiOverlap", "[ARPChanges][workfl
     TestContext context;
 
     context << SnapshotARPEntries;
-    REQUIRE(context.Contains(Data::ARPSnapshot));
+    REQUIRE(context.Contains(Data::ARPCorrelationData));
 
     context.AddEverythingResult("EverythingId1", "EverythingName1", "EverythingPublisher1", "EverythingVersion1");
     context.MatchResult.Matches.emplace_back(context.EverythingResult.Matches.back());

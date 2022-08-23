@@ -5,6 +5,7 @@
 #include <winget/Manifest.h>
 #include <winget/ARPCorrelation.h>
 #include <winget/PortableARPEntry.h>
+#include <winget/PortableEntry.h>
 #include "CompletionData.h"
 #include "PackageCollection.h"
 #include "Workflows/WorkflowBase.h"
@@ -48,12 +49,13 @@ namespace AppInstaller::CLI::Execution
         PackagesToInstall,
         // On import: Sources for the imported packages
         Sources,
-        ARPSnapshot,
+        ARPCorrelationData,
         CorrelatedAppsAndFeaturesEntries,
         Dependencies,
         DependencySource,
         AllowedArchitectures,
-        PortableARPEntry,
+        PortableEntry,
+        AllowUnknownScope,
         Max
     };
 
@@ -188,9 +190,9 @@ namespace AppInstaller::CLI::Execution
         };
 
         template <>
-        struct DataMapping<Data::ARPSnapshot>
+        struct DataMapping<Data::ARPCorrelationData>
         {
-            using value_t = std::vector<Repository::Correlation::ARPEntrySnapshot>;
+            using value_t = Repository::Correlation::ARPCorrelationData;
         };
 
         template <>
@@ -218,9 +220,15 @@ namespace AppInstaller::CLI::Execution
         };
 
         template <>
-        struct DataMapping<Data::PortableARPEntry>
+        struct DataMapping<Data::PortableEntry>
         {
-            using value_t = Registry::Portable::PortableARPEntry;
+            using value_t = Portable::PortableEntry;
+        };
+
+        template <>
+        struct DataMapping<Data::AllowUnknownScope>
+        {
+            using value_t = bool;
         };
     }
 }

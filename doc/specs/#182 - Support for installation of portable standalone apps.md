@@ -43,7 +43,7 @@ The corresponding settings are "PortablePackageUserRoot" and "PortablePackageMac
 
 >Note: The "packageIdentifier" will be used to generate subdirectories for these binaries to be installed to.
 
-Using Gitlab.gitlab runner as an example would result in the .exe being placed in "%LOCALAPPDATA%/Microsoft/WinGet/Packages/Gitlab.gitlab-runner/"
+Using GitLab.gitlab runner as an example would result in the .exe being placed in "%LOCALAPPDATA%/Microsoft/WinGet/Packages/GitLab.gitlab-runner/"
 If a user has configured a path to be used for portable applications, that path should be honored. The user should also be able to specify if they want all portable packages placed in the same directory, or in a directory per package.
 
 A related setting for the uninstall scenario will be able to specify the default behavior for either "--clean" or "--purge".
@@ -71,9 +71,9 @@ By default, portable apps will be installed with the "User" scope unless specifi
 
 #### Installation from multiple sources:
 
-If the user chooses to install the same package but from a secondary source, the Windows Package Manager will append the source name to subdirectory. For example, if GitLabRunner is installed a second time but from the msstore, then the full path would be "%LOCALAPPDATA%/Microsoft/WinGet/Packages/Gitlab.GitLabRunner_msstore/". 
+If the user chooses to install the same package but from a secondary source, the Windows Package Manager will append the source name to subdirectory. For example, if GitLabRunner is installed a second time but from the msstore, then the full path would be "%LOCALAPPDATA%/Microsoft/WinGet/Packages/GitLab.GitLabRunner_msstore/". 
 
-The same behavior will be applied when creating a symlink in order to avoid overwriting an existing symlink of the same package but from a different source. Using the same example, the generated symlink for GitLabRunner from the msstore will have a full path of "%LOCALAPPDATA%/Microsoft/WinGet/Links/Gitlab.GitLabRunner_msstore.exe/"
+The same behavior will be applied when creating a symlink in order to avoid overwriting an existing symlink of the same package but from a different source. Using the same example, the generated symlink for GitLabRunner from the msstore will have a full path of "%LOCALAPPDATA%/Microsoft/WinGet/Links/GitLab.GitLabRunner_msstore.exe/"
 
 ### Upgrade
 

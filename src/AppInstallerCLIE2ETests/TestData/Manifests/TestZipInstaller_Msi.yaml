@@ -1,0 +1,18 @@
+PackageIdentifier: AppInstallerTest.TestZipInstallerWithMsi
+PackageVersion: 1.0.0.0
+PackageName: TestZipInstallerWithMsi
+PackageLocale: en-US
+Publisher: AppInstallerTest
+License: Test
+ShortDescription: E2E test for installing a zip with msi.
+Installers:
+  - Architecture: x64
+    InstallerUrl: https://localhost:5001/TestKit/AppInstallerTestZipInstaller/AppInstallerTestZipInstaller.zip
+    InstallerType: zip
+    ProductCode: '{A5D36CF1-1993-4F63-BFB4-3ACD910D36A1}'
+    InstallerSha256: <ZIPHASH>
+    NestedInstallerType: msi
+    NestedInstallerFiles:
+      - RelativeFilePath: AppInstallerTestMsiInstaller.msi
+ManifestType: singleton
+ManifestVersion: 1.4.0

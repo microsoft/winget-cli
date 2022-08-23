@@ -3,6 +3,8 @@
 #pragma once
 #include "AppInstallerProgress.h"
 #include "winget/ManagedFile.h"
+#include "winget/Manifest.h"
+#include "winget/MsixManifest.h"
 
 #include <AppxPackaging.h>
 
@@ -67,6 +69,9 @@ namespace AppInstaller::Msix
         // If skipP7xFileId is true, returns content of converted .p7s
         std::vector<byte> GetSignature(bool skipP7xFileId = false);
 
+        // Get the signature sha256 hash.
+        Utility::SHA256::HashBuffer GetSignatureHash();
+
         // Gets the package full name.
         std::wstring GetPackageFullNameWide();
         std::string GetPackageFullName();
@@ -85,11 +90,17 @@ namespace AppInstaller::Msix
         // Writes the package file to the given file handle.
         void WriteToFileHandle(std::string_view packageFile, HANDLE target, IProgressCallback& progress);
 
+        // Get application package manifests from msix and msixbundle.
+        std::vector<MsixPackageManifest> GetAppPackageManifests() const;
+
     private:
         bool m_isBundle;
         Microsoft::WRL::ComPtr<IStream> m_stream;
         Microsoft::WRL::ComPtr<IAppxBundleReader> m_bundleReader;
         Microsoft::WRL::ComPtr<IAppxPackageReader> m_packageReader;
+
+        // Get application packages.
+        std::vector<Microsoft::WRL::ComPtr<IAppxPackageReader>> GetAppPackages() const;
     };
 
     struct GetCertContextResult

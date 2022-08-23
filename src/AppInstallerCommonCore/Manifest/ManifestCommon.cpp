@@ -375,6 +375,27 @@ namespace AppInstaller::Manifest
         return result;
     }
 
+    InstalledFileTypeEnum ConvertToInstalledFileTypeEnum(const std::string& in)
+    {
+        std::string inStrLower = Utility::ToLower(in);
+        InstalledFileTypeEnum result = InstalledFileTypeEnum::Unknown;
+
+        if (inStrLower == "launch")
+        {
+            result = InstalledFileTypeEnum::Launch;
+        }
+        else if (inStrLower == "uninstall")
+        {
+            result = InstalledFileTypeEnum::Uninstall;
+        }
+        else if (inStrLower == "other")
+        {
+            result = InstalledFileTypeEnum::Other;
+        }
+
+        return result;
+    }
+
     std::string_view InstallerTypeToString(InstallerTypeEnum installerType)
     {
         switch (installerType)
@@ -445,6 +466,44 @@ namespace AppInstaller::Manifest
             installerType == InstallerTypeEnum::Wix ||
             installerType == InstallerTypeEnum::Burn ||
             installerType == InstallerTypeEnum::Portable
+            );
+    }
+
+    bool DoesInstallerTypeSupportArpVersionRange(InstallerTypeEnum installerType)
+    {
+        return (
+            installerType == InstallerTypeEnum::Exe ||
+            installerType == InstallerTypeEnum::Inno ||
+            installerType == InstallerTypeEnum::Msi ||
+            installerType == InstallerTypeEnum::Nullsoft ||
+            installerType == InstallerTypeEnum::Wix ||
+            installerType == InstallerTypeEnum::Burn
+            );
+    }
+
+    bool DoesInstallerTypeIgnoreScopeFromManifest(InstallerTypeEnum installerType)
+    {
+        return (
+            installerType == InstallerTypeEnum::Portable
+            );
+    }
+
+    bool IsArchiveType(InstallerTypeEnum installerType)
+    {
+        return (installerType == InstallerTypeEnum::Zip);
+    }
+
+    bool IsNestedInstallerTypeSupported(InstallerTypeEnum nestedInstallerType)
+    {
+        return (
+            nestedInstallerType == InstallerTypeEnum::Exe ||
+            nestedInstallerType == InstallerTypeEnum::Inno ||
+            nestedInstallerType == InstallerTypeEnum::Msi ||
+            nestedInstallerType == InstallerTypeEnum::Nullsoft ||
+            nestedInstallerType == InstallerTypeEnum::Wix ||
+            nestedInstallerType == InstallerTypeEnum::Burn ||
+            nestedInstallerType == InstallerTypeEnum::Portable ||
+            nestedInstallerType == InstallerTypeEnum::Msix
             );
     }
 

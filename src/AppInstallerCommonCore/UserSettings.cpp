@@ -4,7 +4,7 @@
 #include "AppInstallerRuntime.h"
 #include "AppInstallerLanguageUtilities.h"
 #include "AppInstallerLogging.h"
-#include "JsonUtil.h"
+#include "winget/JsonUtil.h"
 #include "winget/Settings.h"
 #include "winget/UserSettings.h"
 
@@ -17,6 +17,7 @@ namespace AppInstaller::Settings
     using namespace Runtime;
     using namespace Utility;
     using namespace Logging;
+    using namespace JSON;
 
     static constexpr std::string_view s_SettingEmpty =
         R"({
@@ -188,6 +189,17 @@ namespace AppInstaller::Settings
             // Use folding to call each setting validate function.
             (FoldHelper{}, ..., Validate<static_cast<Setting>(S)>(root, settings, warnings));
         }
+
+        std::optional<std::filesystem::path> ValidatePathValue(std::string_view value)
+        {
+            std::filesystem::path path = ConvertToUTF16(value);
+            if (!path.is_absolute())
+            {
+                return {};
+            }
+
+            return path;
+        }
     }
 
     namespace details
@@ -234,27 +246,23 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_PASS_THROUGH(EFExperimentalCmd)
         WINGET_VALIDATE_PASS_THROUGH(EFExperimentalArg)
         WINGET_VALIDATE_PASS_THROUGH(EFDependencies)
-        WINGET_VALIDATE_PASS_THROUGH(EFPortableInstall)
-        WINGET_VALIDATE_PASS_THROUGH(TelemetryDisable)
         WINGET_VALIDATE_PASS_THROUGH(EFDirectMSI)
+        WINGET_VALIDATE_PASS_THROUGH(EFZipInstall)
+        WINGET_VALIDATE_PASS_THROUGH(TelemetryDisable)
+        WINGET_VALIDATE_PASS_THROUGH(InteractivityDisable)
         WINGET_VALIDATE_PASS_THROUGH(EnableSelfInitiatedMinidump)
         WINGET_VALIDATE_PASS_THROUGH(InstallIgnoreWarnings)
+        WINGET_VALIDATE_PASS_THROUGH(DisableInstallNotes)
         WINGET_VALIDATE_PASS_THROUGH(UninstallPurgePortablePackage)
 
-        WINGET_VALIDATE_SIGNATURE(PortableAppUserRoot)
+        WINGET_VALIDATE_SIGNATURE(PortablePackageUserRoot)
         {
-            std::filesystem::path root = ConvertToUTF16(value);
-            if (!root.is_absolute())
-            {
-                return {};
-            }
-
-            return root;
+            return ValidatePathValue(value);
         }
 
-        WINGET_VALIDATE_SIGNATURE(PortableAppMachineRoot)
+        WINGET_VALIDATE_SIGNATURE(PortablePackageMachineRoot)
         {
-            return SettingMapping<Setting::PortableAppUserRoot>::Validate(value);
+            return ValidatePathValue(value);
         }
 
         WINGET_VALIDATE_SIGNATURE(InstallArchitecturePreference)
@@ -314,6 +322,11 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_SIGNATURE(InstallLocaleRequirement)
         {
             return SettingMapping<Setting::InstallLocalePreference>::Validate(value);
+        }
+
+        WINGET_VALIDATE_SIGNATURE(InstallDefaultRoot)
+        {
+            return ValidatePathValue(value);
         }
 
         WINGET_VALIDATE_SIGNATURE(NetworkDownloader)

@@ -111,9 +111,6 @@
     <ClInclude Include="Public\winget\UserSettings.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
-    <ClInclude Include="JsonUtil.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Public\winget\ExperimentalFeature.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
@@ -195,7 +192,31 @@
     <ClInclude Include="Public\winget\PortableARPEntry.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
+    <ClInclude Include="Public\winget\PortableEntry.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\JsonUtil.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
     <ClInclude Include="Public\winget\ManagedFile.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\MsixManifest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\Certificates.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\FolderFileWatcher.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\Archive.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\MsixManifestValidation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\PathVariable.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
   </ItemGroup>
@@ -341,9 +362,33 @@
     <ClCompile Include="PortableARPEntry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PortableEntry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="ManagedFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MsixManifest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Certificates.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Resources.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FolderFileWatcher.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Archive.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Manifest\MsixManifestValidation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClInclude Include="PathVariable.cpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />

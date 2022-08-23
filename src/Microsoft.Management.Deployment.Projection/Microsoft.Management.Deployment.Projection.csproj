@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\Microsoft.Management.Deployment.Projection\</OutDir>
+    <IsPackable>false</IsPackable>
+    <Platforms>x64;x86</Platforms>
+    <OutputType>Library</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="1.6.4" />
+  </ItemGroup>
+
+  <!-- CsWinRT properties -->
+  <PropertyGroup>
+    <CsWinRTWindowsMetadata>10.0.22000.0</CsWinRTWindowsMetadata>
+    <CsWinRTIncludes>Microsoft.Management.Deployment;Windows.Foundation;Windows.System.ProcessorArchitecture</CsWinRTIncludes>
+    <CsWinRTExcludes>Windows.Foundation.Diagnostics</CsWinRTExcludes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.Management.Deployment\Microsoft.Management.Deployment.vcxproj">
+      <OutputItemType>Content</OutputItemType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ReferenceOutputAssembly>True</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+</Project>

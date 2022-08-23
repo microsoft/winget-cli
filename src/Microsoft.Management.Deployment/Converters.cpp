@@ -242,4 +242,23 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
         return {};
     }
+
+    std::pair<::AppInstaller::Manifest::ScopeEnum, bool> GetManifestScope(winrt::Microsoft::Management::Deployment::PackageInstallScope scope)
+    {
+        switch (scope)
+        {
+        case winrt::Microsoft::Management::Deployment::PackageInstallScope::Any:
+            return std::make_pair(::AppInstaller::Manifest::ScopeEnum::Unknown, false);
+        case winrt::Microsoft::Management::Deployment::PackageInstallScope::User:
+            return std::make_pair(::AppInstaller::Manifest::ScopeEnum::User, false);
+        case winrt::Microsoft::Management::Deployment::PackageInstallScope::System:
+            return std::make_pair(::AppInstaller::Manifest::ScopeEnum::Machine, false);
+        case winrt::Microsoft::Management::Deployment::PackageInstallScope::UserOrUnknown:
+            return std::make_pair(::AppInstaller::Manifest::ScopeEnum::User, true);
+        case winrt::Microsoft::Management::Deployment::PackageInstallScope::SystemOrUnknown:
+            return std::make_pair(::AppInstaller::Manifest::ScopeEnum::Machine, true);
+        }
+
+        return std::make_pair(::AppInstaller::Manifest::ScopeEnum::Unknown, false);
+    }
 }

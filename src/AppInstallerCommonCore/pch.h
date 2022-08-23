@@ -4,6 +4,7 @@
 
 #define NOMINMAX
 #include <Windows.h>
+#include <AclAPI.h>
 #include <appmodel.h>
 #include <WinInet.h>
 #include <sddl.h>
@@ -15,13 +16,16 @@
 #include <DbgHelp.h>
 #include <SoftPub.h>
 #include <WinTrust.h>
+#include <wincrypt.h>
 
 #include "TraceLogging.h"
 
 #define YAML_DECLARE_STATIC
 #include <yaml.h>
 
-#include <json.h>
+// TODO: See if we can get down to having just one JSON parser...
+#include <json/json.h>
+#include <cpprest/json.h>
 
 #pragma warning( push )
 #pragma warning ( disable : 4458 4100 4702 6031 )
@@ -44,6 +48,7 @@
 #include <limits>
 #include <memory>
 #include <mutex>
+#include <optional>
 #include <ostream>
 #include <regex>
 #include <set>
@@ -52,16 +57,18 @@
 #include <stack>
 #include <string_view>
 #include <type_traits>
+#include <unordered_set>
 #include <vector>
 
 #pragma warning( push )
-#pragma warning ( disable : 6001 6285 6287 6340 6388 )
+#pragma warning ( disable : 6001 6285 6287 6340 6387 6388 28196 )
 #include <wil/resource.h>
 #include <wil/result.h>
 #include <wil/result_macros.h>
 #include <wil/safecast.h>
 #include <wil/token_helpers.h>
 #include <wil/com.h>
+#include <wil/filesystem.h>
 #pragma warning( pop )
 
 #ifndef WINGET_DISABLE_FOR_FUZZING

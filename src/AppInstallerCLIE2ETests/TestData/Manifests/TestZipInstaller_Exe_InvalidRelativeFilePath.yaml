@@ -1,0 +1,18 @@
+PackageIdentifier: AppInstallerTest.TestZipInvalidRelativePath
+PackageVersion: 1.0.0.0
+PackageName: TestZipInvalidRelativePath
+PackageLocale: en-US
+Publisher: AppInstallerTest
+License: Test
+ShortDescription: E2E test for installing a zip with a bad relative file path.
+Installers:
+  - Architecture: x64
+    InstallerUrl: https://localhost:5001/TestKit/AppInstallerTestZipInstaller/AppInstallerTestZipInstaller.zip
+    InstallerType: zip
+    ProductCode: '{A499DD5E-8DC5-4AD2-911A-BCD0263295E9}'
+    InstallerSha256: <ZIPHASH>
+    NestedInstallerType: exe
+    NestedInstallerFiles:
+      - RelativeFilePath: ../../AppInstallerTestExeInstaller.exe
+ManifestType: singleton
+ManifestVersion: 1.4.0

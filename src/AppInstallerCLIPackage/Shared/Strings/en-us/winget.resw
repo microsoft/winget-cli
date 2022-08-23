@@ -126,6 +126,9 @@
   <data name="AvailableArguments" xml:space="preserve">
     <value>The following arguments are available:</value>
   </data>
+  <data name="AvailableCommandAliases" xml:space="preserve">
+    <value>The following command aliases are available:</value>
+  </data>
   <data name="AvailableCommands" xml:space="preserve">
     <value>The following commands are available:</value>
     <comment>Commands the tool supports</comment>
@@ -1031,19 +1034,19 @@ Do you agree to the terms?</value>
     <value>Installer:</value>
   </data>
   <data name="ShowLabelInstallerLocale" xml:space="preserve">
-    <value>Locale:</value>
+    <value>Installer Locale:</value>
   </data>
   <data name="ShowLabelInstallerProductId" xml:space="preserve">
     <value>Store Product Id:</value>
   </data>
   <data name="ShowLabelInstallerSha256" xml:space="preserve">
-    <value>SHA256:</value>
+    <value>Installer SHA256:</value>
   </data>
   <data name="ShowLabelInstallerType" xml:space="preserve">
-    <value>Type:</value>
+    <value>Installer Type:</value>
   </data>
   <data name="ShowLabelInstallerUrl" xml:space="preserve">
-    <value>Download Url:</value>
+    <value>Installer Url:</value>
   </data>
   <data name="ShowLabelLicense" xml:space="preserve">
     <value>License:</value>
@@ -1059,6 +1062,9 @@ Do you agree to the terms?</value>
   </data>
   <data name="ShowLabelPublisher" xml:space="preserve">
     <value>Publisher:</value>
+  </data>
+  <data name="ShowLabelTags" xml:space="preserve">
+    <value>Tags:</value>
   </data>
   <data name="ShowLabelVersion" xml:space="preserve">
     <value>Version:</value>
@@ -1269,6 +1275,14 @@ Please specify one of them using the `--source` option to proceed.</value>
     <value>package has a version number that cannot be determined. Using "--include-unknown" may show more results.</value>
     <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions.</comment>
   </data>
+  <data name="UpgradeUnknownVersionCount" xml:space="preserve">
+    <value>package(s) have version numbers that cannot be determined. Use "--include-unknown" to see all results.</value>
+    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions. </comment>
+  </data>
+  <data name="UpgradeRequireExplicitCount" xml:space="preserve">
+    <value>package(s) is pinned and needs to be explicitly upgraded.</value>
+    <comment>This string is preceded by a (integer) number of packages that require explicit upgrades.</comment>
+  </data>
   <data name="InvalidArgumentWithoutQueryError" xml:space="preserve">
     <value>The arguments provided can only be used with a query.</value>
   </data>
@@ -1280,6 +1294,9 @@ Please specify one of them using the `--source` option to proceed.</value>
   </data>
   <data name="PurgeArgumentDescription" xml:space="preserve">
     <value>Deletes all files and directories in the package directory (portable)</value>
+  </data>
+  <data name="PressEnterToContinue" xml:space="preserve">
+    <value>Press Enter to continue . . .</value>
   </data>
   <data name="RenameArgumentDescription" xml:space="preserve">
     <value>The value to rename the executable file (portable)</value>
@@ -1336,5 +1353,80 @@ Please specify one of them using the `--source` option to proceed.</value>
   </data>
   <data name="UnableToPurgeInstallDirectory" xml:space="preserve">
     <value>Cannot purge install directory, as it was not created by WinGet</value>
+  </data>
+  <data name="RelatedLink" xml:space="preserve">
+    <value>Related Link</value>
+  </data>
+  <data name="ShowLabelDocumentation" xml:space="preserve">
+    <value>Documentation:</value>
+  </data>
+  <data name="Notes" xml:space="preserve">
+    <value>Notes:</value>
+  </data>
+  <data name="ShowLabelInstallationNotes" xml:space="preserve">
+    <value>Installation Notes:</value>
+  </data>
+  <data name="SymlinkModified" xml:space="preserve">
+    <value>Portable symlink not deleted as it was modified and points to a different target exe</value>
+  </data>
+  <data name="UnsupportedArgument" xml:space="preserve">
+    <value>A provided argument is not supported for this package</value>
+  </data>
+  <data name="PortableInstallFromArchiveNotSupported" xml:space="preserve">
+    <value>Installing a portable package from an archive is not yet supported</value>
+  </data>
+  <data name="ExtractArchiveFailed" xml:space="preserve">
+    <value>Failed to extract the contents of the archive</value>
+  </data>
+  <data name="NestedInstallerNotFound" xml:space="preserve">
+    <value>Nested installer file does not exist. Ensure the specified relative path of the nested installer matches: </value>
+  </data>
+  <data name="InvalidPathToNestedInstaller" xml:space="preserve">
+    <value>Invalid relative file path to the nested installer; path points to a location outside of the install directory</value>
+  </data>
+  <data name="NestedInstallerNotSpecified" xml:space="preserve">
+    <value>No nested installers specified for this package</value>
+  </data>
+  <data name="MultipleNonPortableNestedInstallersSpecified" xml:space="preserve">
+    <value>Only one non-portable nested installer can be specified for an archive installer</value>
+  </data>
+  <data name="IncompatibleArgumentsProvided" xml:space="preserve">
+    <value>Incompatible command line arguments provided</value>
+  </data>
+  <data name="UpgradeAvailableForPinned" xml:space="preserve">
+    <value>The following packages have an upgrade available, but require explicit targeting for upgrade:</value>
+    <comment>"require explicit targeting for upgrade" means that the package will not be upgraded with all others unless an extra flag is added, or the package is mentioned explicitly</comment>
+  </data>
+  <data name="NestedInstallerNotSupported" xml:space="preserve">
+    <value>The nested installer type is not supported</value>
+  </data>
+  <data name="InstallerAbortsTerminal" xml:space="preserve">
+    <value>This installer is known to restart the terminal or shell</value>
+  </data>
+  <data name="InstallerRequiresInstallLocation" xml:space="preserve">
+    <value>This package requires an install location</value>
+  </data>
+  <data name="InstallersAbortTerminal" xml:space="preserve">
+    <value>The following installers are known to restart the terminal or shell:</value>
+  </data>
+  <data name="InstallersRequireInstallLocation" xml:space="preserve">
+    <value>The following installers require an install location:</value>
+  </data>
+  <data name="PromptForInstallRoot" xml:space="preserve">
+    <value>Specify the install root:</value>
+  </data>
+  <data name="PromptToProceed" xml:space="preserve">
+    <value>Do you want to proceed?</value>
+  </data>
+  <data name="ReportIdentityForAgreements" xml:space="preserve">
+    <value>Agreements for</value>
+    <comment>This will be followed by a package name, and then a list of license agreements</comment>
+  </data>
+  <data name="InstallLocationNotProvided" xml:space="preserve">
+    <value>Install location is required by the package but it was not provided</value>
+  </data>
+  <data name="DisableInteractivityArgumentDescription" xml:space="preserve">
+    <value>Disable interactive prompts</value>
+    <comment>Description for a command line argument, shown next to it in the help</comment>
   </data>
 </root>

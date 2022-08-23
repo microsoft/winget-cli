@@ -2,10 +2,10 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "TestCommon.h"
-#include "Rest/Schema/JsonHelper.h"
+#include <winget/JsonUtil.h>
 #include "cpprest/json.h"
 
-using namespace AppInstaller::Repository::Rest::Schema;
+using namespace AppInstaller;
 
 web::json::value GetTestJsonObject()
 {
@@ -25,41 +25,41 @@ web::json::value GetTestJsonObject()
 
 TEST_CASE("GetUtilityString", "[RestSource]")
 {
-    REQUIRE(JsonHelper::GetUtilityString("cpprest") == L"cpprest");
-    REQUIRE(JsonHelper::GetUtilityString("  ") == L"  ");
+    REQUIRE(JSON::GetUtilityString("cpprest") == L"cpprest");
+    REQUIRE(JSON::GetUtilityString("  ") == L"  ");
 }
 
 TEST_CASE("GetJsonValueFromNode", "[RestSource]")
 {
     web::json::value jsonObject = GetTestJsonObject();
-    std::optional<std::reference_wrapper<const web::json::value>> actual = JsonHelper::GetJsonValueFromNode(jsonObject, L"Key1");
+    std::optional<std::reference_wrapper<const web::json::value>> actual = JSON::GetJsonValueFromNode(jsonObject, L"Key1");
     REQUIRE(actual);
     REQUIRE(actual.value().get().as_string() == L"Value1");
 
-    std::optional<std::reference_wrapper<const web::json::value>> absentKey = JsonHelper::GetJsonValueFromNode(jsonObject, L"Key3");
+    std::optional<std::reference_wrapper<const web::json::value>> absentKey = JSON::GetJsonValueFromNode(jsonObject, L"Key3");
     REQUIRE(!absentKey);
 
     web::json::value emptyObject;
-    std::optional<std::reference_wrapper<const web::json::value>> empty = JsonHelper::GetJsonValueFromNode(emptyObject, L"Key1");
+    std::optional<std::reference_wrapper<const web::json::value>> empty = JSON::GetJsonValueFromNode(emptyObject, L"Key1");
     REQUIRE(!empty);
 }
 
 TEST_CASE("GetRawStringValueFromJsonValue", "[RestSource]")
 {
-    std::optional<std::string> stringTest = JsonHelper::GetRawStringValueFromJsonValue(web::json::value::string(L"cpprest "));
+    std::optional<std::string> stringTest = JSON::GetRawStringValueFromJsonValue(web::json::value::string(L"cpprest "));
     REQUIRE(stringTest);
     REQUIRE(stringTest.value() == "cpprest ");
 
-    std::optional<std::string> emptyTest = JsonHelper::GetRawStringValueFromJsonValue(web::json::value::string(L"   "));
+    std::optional<std::string> emptyTest = JSON::GetRawStringValueFromJsonValue(web::json::value::string(L"   "));
     REQUIRE(emptyTest);
     REQUIRE(emptyTest.value() == "   ");
 
     web::json::value obj;
-    std::optional<std::string> nullTest = JsonHelper::GetRawStringValueFromJsonValue(obj);
+    std::optional<std::string> nullTest = JSON::GetRawStringValueFromJsonValue(obj);
     REQUIRE(!nullTest);
 
     web::json::value integer = 100;
-    std::optional<std::string> mismatchFieldTest = JsonHelper::GetRawStringValueFromJsonValue(integer);
+    std::optional<std::string> mismatchFieldTest = JSON::GetRawStringValueFromJsonValue(integer);
     REQUIRE(!mismatchFieldTest);
 }
 
@@ -67,47 +67,47 @@ TEST_CASE("GetRawStringValueFromJsonNode", "[RestSource]")
 {
     web::json::value jsonObject = GetTestJsonObject();
 
-    std::optional<std::string> stringTest = JsonHelper::GetRawStringValueFromJsonNode(jsonObject, L"Key1");
+    std::optional<std::string> stringTest = JSON::GetRawStringValueFromJsonNode(jsonObject, L"Key1");
     REQUIRE(stringTest);
     REQUIRE(stringTest.value() == "Value1");
 
-    std::optional<std::string> emptyTest = JsonHelper::GetRawStringValueFromJsonNode(jsonObject, L"Key3");
+    std::optional<std::string> emptyTest = JSON::GetRawStringValueFromJsonNode(jsonObject, L"Key3");
     REQUIRE(!emptyTest);
 
-    std::optional<std::string> mismatchFieldTest = JsonHelper::GetRawStringValueFromJsonNode(jsonObject, L"IntKey");
+    std::optional<std::string> mismatchFieldTest = JSON::GetRawStringValueFromJsonNode(jsonObject, L"IntKey");
     REQUIRE(!mismatchFieldTest);
 }
 
 TEST_CASE("GetRawIntValueFromJsonValue", "[RestSource]")
 {
     web::json::value jsonObject = 100;
-    std::optional<int> expected = JsonHelper::GetRawIntValueFromJsonValue(jsonObject);
+    std::optional<int> expected = JSON::GetRawIntValueFromJsonValue(jsonObject);
     REQUIRE(expected);
     REQUIRE(expected.value() == 100);
 
-    std::optional<int> mismatchFieldTest = JsonHelper::GetRawIntValueFromJsonValue(web::json::value::string(L"cpprest"));
+    std::optional<int> mismatchFieldTest = JSON::GetRawIntValueFromJsonValue(web::json::value::string(L"cpprest"));
     REQUIRE(!mismatchFieldTest);
 }
 
 TEST_CASE("GetRawJsonArrayFromJsonNode", "[RestSource]")
 {
     web::json::value jsonObject = GetTestJsonObject();
-    std::optional<std::reference_wrapper<const web::json::array>> expected = JsonHelper::GetRawJsonArrayFromJsonNode(jsonObject, L"Array");
+    std::optional<std::reference_wrapper<const web::json::array>> expected = JSON::GetRawJsonArrayFromJsonNode(jsonObject, L"Array");
     REQUIRE(expected);
     REQUIRE(expected.value().get().size() == 3);
     REQUIRE(expected.value().get().at(0).as_string() == L"ArrayValue1");
 
-    std::optional<std::reference_wrapper<const web::json::array>> mismatchFieldTest = JsonHelper::GetRawJsonArrayFromJsonNode(jsonObject, L"Keyword");
+    std::optional<std::reference_wrapper<const web::json::array>> mismatchFieldTest = JSON::GetRawJsonArrayFromJsonNode(jsonObject, L"Keyword");
     REQUIRE(!mismatchFieldTest);
 }
 
 TEST_CASE("GetRawStringArrayFromJsonNode", "[RestSource]")
 {
     web::json::value jsonObject = GetTestJsonObject();
-    std::vector<std::string> expected = JsonHelper::GetRawStringArrayFromJsonNode(jsonObject, L"Array");
+    std::vector<std::string> expected = JSON::GetRawStringArrayFromJsonNode(jsonObject, L"Array");
     REQUIRE(expected.size() == 3);
     REQUIRE(expected[0] == "ArrayValue1");
 
-    std::vector<std::string> mismatchFieldTest = JsonHelper::GetRawStringArrayFromJsonNode(jsonObject, L"Keyword");
+    std::vector<std::string> mismatchFieldTest = JSON::GetRawStringArrayFromJsonNode(jsonObject, L"Keyword");
     REQUIRE(mismatchFieldTest.size() == 0);
 }

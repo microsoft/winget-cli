@@ -173,10 +173,16 @@
     <ClInclude Include="Workflows\DependencyNodeProcessor.h">
       <Filter>Workflows</Filter>
     </ClInclude>
-    <ClInclude Include="Public\COMContext.h">
+    <ClInclude Include="COMContext.h">
       <Filter>Public</Filter>
     </ClInclude>
     <ClInclude Include="Workflows\PortableFlow.h">
+      <Filter>Workflows</Filter>
+    </ClInclude>
+    <ClInclude Include="Workflows\ArchiveFlow.h">
+      <Filter>Workflows</Filter>
+    </ClInclude>
+    <ClInclude Include="Workflows\PromptFlow.h">
       <Filter>Workflows</Filter>
     </ClInclude>
   </ItemGroup>
@@ -323,6 +329,12 @@
       <Filter>Workflows</Filter>
     </ClCompile>
     <ClCompile Include="Workflows\PortableFlow.cpp">
+      <Filter>Workflows</Filter>
+    </ClCompile>
+    <ClCompile Include="Workflows\PromptFlow.cpp">
+      <Filter>Workflows</Filter>
+    </ClCompile>
+    <ClCompile Include="Workflows\ArchiveFlow.cpp">
       <Filter>Workflows</Filter>
     </ClCompile>
   </ItemGroup>

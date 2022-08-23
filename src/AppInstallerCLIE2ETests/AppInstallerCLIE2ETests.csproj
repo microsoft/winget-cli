@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0-windows</TargetFramework>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\AppInstallerCLIE2ETests\</OutDir>
     <IsPackable>false</IsPackable>
     <Platforms>x64;x86</Platforms>
@@ -11,26 +11,21 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Msix.Utils" Version="2.0.3" />
     <PackageReference Include="Microsoft.Win32.Registry" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="1.6.4" />
     <PackageReference Include="nunit" Version="3.12.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.15.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0" />
   </ItemGroup>
 
+  <!-- CsWinRT properties -->
+  <PropertyGroup>
+    <CsWinRTWindowsMetadata>10.0.22000.0</CsWinRTWindowsMetadata>
+  </PropertyGroup>
+
   <ItemGroup>
     <Content Include="TestData\**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="TestData\ImportFiles\ImportFile-Bad-Invalid.json" />
-    <None Remove="TestData\ImportFiles\ImportFile-Bad-UnknownPackage.json" />
-    <None Remove="TestData\ImportFiles\ImportFile-Bad-UnknownPackageVersion.json" />
-    <None Remove="TestData\ImportFiles\ImportFile-Bad-UnknownSource.json" />
-    <None Remove="TestData\ImportFiles\ImportFile-Good.1.0.json" />
-    <None Remove="TestData\ImportFiles\ImportFile-Good.2.0.json" />
-    <None Remove="TestData\Manifests\TestPortableInstaller.2.0.0.0.yaml" />
-    <None Remove="TestData\Manifests\TestPortableInstaller.3.0.0.0_UninstallPrevious.yaml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -41,6 +36,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\IndexCreationTool\IndexCreationTool.csproj" />
+    <ProjectReference Include="..\Microsoft.Management.Deployment.Projection\Microsoft.Management.Deployment.Projection.csproj" />
+    <ProjectReference Include="..\Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.InProc.vcxproj">
+      <ReferenceOutputAssembly>False</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\WindowsPackageManager\WindowsPackageManager.vcxproj">
+      <ReferenceOutputAssembly>False</ReferenceOutputAssembly>
+    </ProjectReference>
   </ItemGroup>
 
   <ItemGroup>
@@ -49,4 +51,9 @@
     </None>
   </ItemGroup>
 
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+      <!-- Rename dll to align with the expected search pattern performed by CsWinRT -->
+    <Copy SourceFiles="$(TargetDir)..\Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.InProc.dll" DestinationFiles="$(TargetDir)Microsoft.Management.Deployment.dll" />
+    <Copy SourceFiles="$(TargetDir)..\WindowsPackageManager\WindowsPackageManager.dll" DestinationFiles="$(TargetDir)WindowsPackageManager.dll" />
+  </Target>
 </Project>

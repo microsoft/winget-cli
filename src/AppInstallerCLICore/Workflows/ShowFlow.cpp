@@ -8,7 +8,24 @@
 
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::CLI;
+using namespace AppInstaller::Utility;
 using namespace AppInstaller::Utility::literals;
+
+namespace {
+    void ShowMultiLineField(Execution::OutputStream& outputStream, AppInstaller::StringResource::StringId label, std::string& value)
+    {
+        bool isMultiLine = FindAndReplace(value, "\n", "\n  ");
+        outputStream << Execution::ManifestInfoEmphasis << label;
+        if (isMultiLine)
+        {
+            outputStream << std::endl << "  "_liv << value << std::endl;
+        }
+        else
+        {
+            outputStream << ' ' << value << std::endl;
+        }
+    }
+}
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -52,7 +69,7 @@ namespace AppInstaller::CLI::Workflow
         }
         if (!description.empty())
         {
-            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelDescription << ' ' << description << std::endl;
+            ShowMultiLineField(info, Resource::String::ShowLabelDescription, description);
         }
         auto homepage = manifest.CurrentLocalization.Get<Manifest::Localization::PackageUrl>();
         if (!homepage.empty())
@@ -83,14 +100,46 @@ namespace AppInstaller::CLI::Workflow
         auto releaseNotes = manifest.CurrentLocalization.Get<Manifest::Localization::ReleaseNotes>();
         if (!releaseNotes.empty())
         {
-            info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelReleaseNotes << ' ' << releaseNotes << std::endl;
+            ShowMultiLineField(info, Resource::String::ShowLabelReleaseNotes, releaseNotes);
         }
         auto releaseNotesUrl = manifest.CurrentLocalization.Get<Manifest::Localization::ReleaseNotesUrl>();
         if (!releaseNotesUrl.empty())
         {
             info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelReleaseNotesUrl << ' ' << releaseNotesUrl << std::endl;
         }
-        auto agreements = manifest.CurrentLocalization.Get<Manifest::Localization::Agreements>();
+        auto installationNotes = manifest.CurrentLocalization.Get<Manifest::Localization::InstallationNotes>();
+        if (!installationNotes.empty())
+        {
+            ShowMultiLineField(info, Resource::String::ShowLabelInstallationNotes, installationNotes);
+        }
+        const auto& documentations = manifest.CurrentLocalization.Get<Manifest::Localization::Documentations>();
+        if (!documentations.empty())
+        {
+            context.Reporter.Info() << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelDocumentation << std::endl;
+            for (const auto& documentation : documentations)
+            {
+                if (!documentation.DocumentUrl.empty())
+                {
+                    info << "  "_liv;
+                    if (!documentation.DocumentLabel.empty())
+                    {
+                        info << Execution::ManifestInfoEmphasis << documentation.DocumentLabel << ": "_liv;
+                    }
+
+                    info << documentation.DocumentUrl << std::endl;
+                }
+            }
+        }
+        const auto& tags = manifest.CurrentLocalization.Get<Manifest::Localization::Tags>();
+        if (!tags.empty())
+        {
+            context.Reporter.Info() << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelTags << std::endl;
+            for (const auto& tag : tags)
+            {
+                info << "  "_liv << tag << std::endl;
+            }
+        }
+        const auto& agreements = manifest.CurrentLocalization.Get<Manifest::Localization::Agreements>();
         if (!agreements.empty())
         {
             context.Reporter.Info() << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelAgreements << std::endl;
@@ -124,7 +173,18 @@ namespace AppInstaller::CLI::Workflow
         info << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelInstaller << std::endl;
         if (installer)
         {
-            info << "  "_liv << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelInstallerType << ' ' << Manifest::InstallerTypeToString(installer->InstallerType) << std::endl;
+            Manifest::InstallerTypeEnum effectiveInstallerType = installer->EffectiveInstallerType();
+            Manifest::InstallerTypeEnum baseInstallerType = installer->BaseInstallerType;
+            if (effectiveInstallerType == baseInstallerType)
+            {
+                info << "  "_liv << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelInstallerType << ' ' << Manifest::InstallerTypeToString(effectiveInstallerType) << std::endl;
+            }
+            else
+            {
+                info << "  "_liv << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelInstallerType << ' ' << Manifest::InstallerTypeToString(effectiveInstallerType) << " (" <<
+                    Manifest::InstallerTypeToString(baseInstallerType) << ')' << std::endl;
+            }
+
             if (!installer->Locale.empty())
             {
                 info << "  "_liv << Execution::ManifestInfoEmphasis << Resource::String::ShowLabelInstallerLocale << ' ' << installer->Locale << std::endl;

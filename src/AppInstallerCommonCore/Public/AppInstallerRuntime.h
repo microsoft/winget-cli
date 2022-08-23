@@ -27,6 +27,9 @@ namespace AppInstaller::Runtime
     // This can be used as the current market.
     std::string GetOSRegion();
 
+    // Sets the runtime path state name globally.
+    void SetRuntimePathStateName(std::string name);
+
     // A path to be retrieved based on the runtime.
     enum class PathName
     {
@@ -43,8 +46,10 @@ namespace AppInstaller::Runtime
         StandardSettings,
         // The location that user file type settings are stored.
         UserFileSettings,
-        // The location where secure settings data is stored.
-        SecureSettings,
+        // The location where secure settings data is stored (for reading).
+        SecureSettingsForRead,
+        // The location where secure settings data is stored (for writing).
+        SecureSettingsForWrite,
         // The value of %USERPROFILE%.
         UserProfile,
         // The location where portable packages are installed to with user scope.
@@ -59,7 +64,53 @@ namespace AppInstaller::Runtime
         PortableLinksMachineLocation,
     };
 
-    void SetRuntimePathStateName(std::string name);
+    // The principal that an ACE applies to.
+    enum class ACEPrincipal : uint32_t
+    {
+        CurrentUser,
+        Admins,
+        System,
+    };
+
+    // The permissions granted to a specific ACE.
+    enum class ACEPermissions : uint32_t
+    {
+        // This is not "Deny All", but rather, "Not mentioned"
+        None = 0x0,
+        Read = 0x1,
+        Write = 0x2,
+        Execute = 0x4,
+        ReadWrite = Read | Write,
+        ReadExecute = Read | Execute,
+        ReadWriteExecute = Read | Write | Execute,
+        // All means that full control will be granted
+        All = 0xFFFFFFFF
+    };
+
+    DEFINE_ENUM_FLAG_OPERATORS(ACEPermissions);
+
+    // Information about a path that we use and how to set it up.
+    struct PathDetails
+    {
+        std::filesystem::path Path;
+        // Default to creating the directory with inherited ownership and permissions
+        bool Create = true;
+        std::optional<ACEPrincipal> Owner;
+        std::map<ACEPrincipal, ACEPermissions> ACL;
+
+        // Shorthand for setting Owner and giving them ACEPermissions::All
+        void SetOwner(ACEPrincipal owner);
+
+        // Determines if the ACL should be applied.
+        bool ShouldApplyACL() const;
+
+        // Applies the ACL unconditionally.
+        void ApplyACL() const;
+    };
+
+    // Gets the PathDetails used for the given path.
+    // This is exposed primarily to allow for testing, GetPathTo should be preferred.
+    PathDetails GetPathDetailsFor(PathName path);
 
     // Gets the path to the requested location.
     std::filesystem::path GetPathTo(PathName path);
@@ -73,6 +124,9 @@ namespace AppInstaller::Runtime
 
     // Determines whether the process is running with administrator privileges.
     bool IsRunningAsAdmin();
+
+    // Determines whether developer mode is enabled.
+    bool IsDevModeEnabled();
 
     // Returns true if this is a release build; false if not.
     inline constexpr bool IsReleaseBuild();

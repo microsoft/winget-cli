@@ -28,6 +28,7 @@ Installers:
             ReturnResponse: noNetwork
           - InstallerReturnCode: 8
             ReturnResponse: contactSupport
+            ReturnResponseUrl: https://TestReturnResponseUrl
           - InstallerReturnCode: 9
             ReturnResponse: rebootRequiredToFinish
           - InstallerReturnCode: 10
@@ -43,4 +44,4 @@ Installers:
           - InstallerReturnCode: 15
             ReturnResponse: blockedByPolicy
 ManifestType: singleton
-ManifestVersion: 1.1.0
+ManifestVersion: 1.2.0

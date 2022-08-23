@@ -99,6 +99,10 @@ TEST_CASE("NormalizedString", "[strings]")
     // Ligature fi => f + i
     std::string_view input2 = u8"\xFB01";
     REQUIRE(NormalizedString(input2) == u8"fi");
+
+    // Embedded null
+    std::string_view input3{ "Test\0Case", 9 };
+    REQUIRE(NormalizedString(input3) == "Test Case");
 }
 
 TEST_CASE("Trim", "[strings]")
@@ -193,4 +197,31 @@ TEST_CASE("GetFileNameFromURI", "[strings]")
     REQUIRE(GetFileNameFromURI("https://github.com/microsoft/winget-cli/pull/1722").u8string() == "1722");
     REQUIRE(GetFileNameFromURI("https://github.com/microsoft/winget-cli/README.md").u8string() == "README.md");
     REQUIRE(GetFileNameFromURI("https://microsoft.com/").u8string() == "");
+}
+
+TEST_CASE("SplitIntoWords", "[strings]")
+{
+    REQUIRE(SplitIntoWords("A B") == std::vector<std::string>{ "A", "B" });
+    REQUIRE(SplitIntoWords("Some-Thing") == std::vector<std::string>{ "Some", "Thing" });
+
+    // 私のテスト = "My test" according to an online translator
+    // Split as "私" "の" "テスト"
+    REQUIRE(SplitIntoWords("\xe7\xa7\x81\xe3\x81\xae\xe3\x83\x86\xe3\x82\xb9\xe3\x83\x88") == std::vector<std::string>{ "\xe7\xa7\x81", "\xe3\x81\xae", "\xe3\x83\x86\xe3\x82\xb9\xe3\x83\x88" });
+}
+
+TEST_CASE("ReplaceEmbeddedNullCharacters", "[strings]")
+{
+    std::string test = "Test Parts";
+    test[4] = '\0';
+    ReplaceEmbeddedNullCharacters(test);
+    REQUIRE(test == "Test Parts");
+}
+
+TEST_CASE("HexStrings", "[strings]")
+{
+    std::vector<uint8_t> buffer{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 };
+    std::string value = "000102030405060708090a0b0c0d0e0f";
+
+    REQUIRE(value == ConvertToHexString(buffer));
+    REQUIRE(std::equal(buffer.begin(), buffer.end(), ParseFromHexString(value).begin()));
 }

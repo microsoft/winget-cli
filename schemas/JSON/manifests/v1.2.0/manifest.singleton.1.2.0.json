@@ -606,8 +606,14 @@
         "RequireExplicitUpgrade": {
           "$ref": "#/definitions/RequireExplicitUpgrade"
         },
+        "DisplayInstallWarnings": {
+          "$ref": "#/definitions/DisplayInstallWarnings"
+        },
         "UnsupportedOSArchitectures": {
           "$ref": "#/definitions/UnsupportedOSArchitectures"
+        },
+        "UnsupportedArguments": {
+          "$ref": "#/definitions/UnsupportedArguments"
         },
         "AppsAndFeaturesEntries": {
           "$ref": "#/definitions/AppsAndFeaturesEntries"
@@ -819,8 +825,14 @@
     "RequireExplicitUpgrade": {
       "$ref": "#/definitions/RequireExplicitUpgrade"
     },
+    "DisplayInstallWarnings": {
+      "$ref": "#/definitions/DisplayInstallWarnings"
+    },
     "UnsupportedOSArchitectures": {
       "$ref": "#/definitions/UnsupportedOSArchitectures"
+    },
+    "UnsupportedArguments": {
+      "$ref": "#/definitions/UnsupportedArguments"
     },
     "AppsAndFeaturesEntries": {
       "$ref": "#/definitions/AppsAndFeaturesEntries"

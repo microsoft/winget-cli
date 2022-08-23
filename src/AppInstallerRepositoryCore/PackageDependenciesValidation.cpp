@@ -2,20 +2,12 @@
 // Licensed under the MIT License.
 #pragma once
 #include "pch.h"
-#include <AppInstallerVersions.h>
-#include <winget/Manifest.h>
+#include "PackageDependenciesValidation.h"
 #include <winget/ManifestValidation.h>
-#include <SQLiteWrapper.h>
-#include <PackageDependenciesValidation.h>
-#include <Microsoft/Schema/1_4/DependenciesTable.h>
-#include "Microsoft/Schema/1_0/ManifestTable.h"
 #include <winget/DependenciesGraph.h>
 
 namespace AppInstaller::Repository
 {
-    using namespace Microsoft::Schema::V1_4;
-    using namespace Microsoft::Schema::V1_0;
-
     namespace
     {
         struct DependentManifestInfo
@@ -110,7 +102,7 @@ namespace AppInstaller::Repository
         }
     };
 
-    bool PackageDependenciesValidation::ValidateManifestDependencies(SQLiteIndex* index, const Manifest::Manifest manifest)
+    bool PackageDependenciesValidation::ValidateManifestDependencies(SQLiteIndex* index, const Manifest::Manifest& manifest)
     {
         using namespace Manifest;
 
@@ -118,47 +110,51 @@ namespace AppInstaller::Repository
         std::vector<ValidationError> dependenciesError;
         bool foundErrors = false;
 
-        DependencyGraph graph(rootId, [&](const Dependency& node) {
-
-            DependencyList depList;
-            if (node.Id == rootId.Id)
+        DependencyGraph graph
+        {
+            rootId,
+            [&](const Dependency& node)
             {
-                return GetDependencies(manifest, DependencyType::Package);
-            }
-
-            auto packageLatest = GetPackageLatestVersion(index, node.Id);
-            if (!packageLatest.has_value())
-            {
-                std::string error = ManifestError::MissingManifestDependenciesNode;
-                error.append(" ").append(node.Id);
-                dependenciesError.emplace_back(ValidationError(error));
-                foundErrors = true;
-                return depList;
-            }
-
-            if (node.MinVersion > packageLatest.value().second)
-            {
-                std::string error = ManifestError::NoSuitableMinVersion;
-                error.append(" ").append(node.Id);
-                dependenciesError.emplace_back(ValidationError(error));
-                foundErrors = true;
-                return depList;
-            }
-
-            auto packageLatestDependencies = index->GetDependenciesByManifestRowId(packageLatest.value().first);
-            std::for_each(
-                packageLatestDependencies.begin(),
-                packageLatestDependencies.end(),
-                [&](std::pair<SQLite::rowid_t, Utility::NormalizedString> row)
+                DependencyList depList;
+                if (node.Id == rootId.Id)
                 {
-                    auto manifestRowId = index->GetManifestIdByKey(row.first, "", "");
-                    auto packageId = index->GetPropertyByManifestId(manifestRowId.value(), PackageVersionProperty::Id);
-                    Dependency dep(DependencyType::Package, packageId.value(), row.second);
-                    depList.Add(dep);
-                });
+                    return GetDependencies(manifest, DependencyType::Package);
+                }
 
-            return depList;
-            });
+                auto packageLatest = GetPackageLatestVersion(index, node.Id);
+                if (!packageLatest.has_value())
+                {
+                    std::string error = ManifestError::MissingManifestDependenciesNode;
+                    error.append(" ").append(node.Id);
+                    dependenciesError.emplace_back(ValidationError(error));
+                    foundErrors = true;
+                    return depList;
+                }
+
+                if (node.MinVersion > packageLatest.value().second)
+                {
+                    std::string error = ManifestError::NoSuitableMinVersion;
+                    error.append(" ").append(node.Id);
+                    dependenciesError.emplace_back(ValidationError(error));
+                    foundErrors = true;
+                    return depList;
+                }
+
+                auto packageLatestDependencies = index->GetDependenciesByManifestRowId(packageLatest.value().first);
+                std::for_each(
+                    packageLatestDependencies.begin(),
+                    packageLatestDependencies.end(),
+                    [&](std::pair<SQLite::rowid_t, Utility::NormalizedString> row)
+                    {
+                        auto manifestRowId = index->GetManifestIdByKey(row.first, "", "");
+                        auto packageId = index->GetPropertyByManifestId(manifestRowId.value(), PackageVersionProperty::Id);
+                        Dependency dep(DependencyType::Package, packageId.value(), row.second);
+                        depList.Add(dep);
+                    });
+
+                return depList;
+            }
+        };
 
         graph.BuildGraph();
 
@@ -177,7 +173,7 @@ namespace AppInstaller::Repository
         return true;
     }
 
-    bool PackageDependenciesValidation::VerifyDependenciesStructureForManifestDelete(SQLiteIndex* index, const Manifest::Manifest manifest)
+    bool PackageDependenciesValidation::VerifyDependenciesStructureForManifestDelete(SQLiteIndex* index, const Manifest::Manifest& manifest)
     {
         auto dependentsSet = index->GetDependentsById(manifest.Id);
 
@@ -236,7 +232,7 @@ namespace AppInstaller::Repository
             }
         );
 
-        if (breakingManifests.size())
+        if (!breakingManifests.empty())
         {
             ThrowOnManifestValidationFailed(
                 breakingManifests, Manifest::ManifestError::MultiManifestPackageHasDependencies);

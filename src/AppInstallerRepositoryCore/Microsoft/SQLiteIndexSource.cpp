@@ -49,7 +49,7 @@ namespace AppInstaller::Repository::Microsoft
                 default:
                     // Values coming from the index will always be localized/independent.
                     std::optional<std::string> optValue = GetReferenceSource()->GetIndex().GetPropertyByManifestId(m_manifestId, property);
-                    return LocIndString{ optValue ? optValue.value() :std::string{} };
+                    return LocIndString{ optValue ? optValue.value() : std::string{} };
                 }
             }
 
@@ -121,7 +121,6 @@ namespace AppInstaller::Repository::Microsoft
                     const int MaxRetryCount = 2;
                     for (int retryCount = 0; retryCount < MaxRetryCount; ++retryCount)
                     {
-                        bool success = false;
                         try
                         {
                             auto downloadHash = Utility::DownloadToStream(fullPath, manifestStream, Utility::DownloadType::Manifest, emptyCallback, !expectedHash.empty());
@@ -132,7 +131,7 @@ namespace AppInstaller::Repository::Microsoft
                                 THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE);
                             }
 
-                            success = true;
+                            break;
                         }
                         catch (...)
                         {
@@ -145,11 +144,6 @@ namespace AppInstaller::Repository::Microsoft
                             {
                                 throw;
                             }
-                        }
-
-                        if (success)
-                        {
-                            break;
                         }
                     }
 

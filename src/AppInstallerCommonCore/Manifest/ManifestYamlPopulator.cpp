@@ -187,7 +187,7 @@ namespace AppInstaller::Manifest
         // Common fields across versions
         std::vector<FieldProcessInfo> result =
         {
-            { "InstallerType", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->InstallerType = ConvertToInstallerTypeEnum(value.as<std::string>()); return {}; } },
+            { "InstallerType", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->BaseInstallerType = ConvertToInstallerTypeEnum(value.as<std::string>()); return {}; } },
             { "PackageFamilyName", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->PackageFamilyName = value.as<std::string>(); return {}; } },
             { "ProductCode", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->ProductCode = value.as<std::string>(); return {}; } },
         };
@@ -306,6 +306,18 @@ namespace AppInstaller::Manifest
                 };
 
                 std::move(fields_v1_2.begin(), fields_v1_2.end(), std::inserter(result, result.end()));
+            }
+
+            if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_4 })
+            {
+                std::vector<FieldProcessInfo> fields_v1_4 =
+                {
+                    { "NestedInstallerType", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->NestedInstallerType = ConvertToInstallerTypeEnum(value.as<std::string>()); return {}; } },
+                    { "NestedInstallerFiles", [this](const YAML::Node& value)->ValidationErrors { return ProcessNestedInstallerFilesNode(value); } },
+                    { "InstallationMetadata", [this](const YAML::Node& value)->ValidationErrors { m_p_installationMetadata = &(m_p_installer->InstallationMetadata); return ValidateAndProcessFields(value, InstallationMetadataFieldInfos); } },
+                };
+
+                std::move(fields_v1_4.begin(), fields_v1_4.end(), std::inserter(result, result.end()));
             }
         }
 
@@ -559,6 +571,57 @@ namespace AppInstaller::Manifest
         return result;
     }
 
+    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetNestedInstallerFileFieldProcessInfo(const ManifestVer& manifestVersion)
+    {
+        std::vector<FieldProcessInfo> result = {};
+
+        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_4 })
+        {
+            result =
+            {
+                { "RelativeFilePath", [this](const YAML::Node& value)->ValidationErrors { m_p_nestedInstallerFile->RelativeFilePath = Utility::Trim(value.as<std::string>()); return {}; } },
+                { "PortableCommandAlias", [this](const YAML::Node& value)->ValidationErrors { m_p_nestedInstallerFile->PortableCommandAlias = Utility::Trim(value.as<std::string>()); return {}; } },
+            };
+        }
+
+        return result;
+    }
+
+    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetInstallationMetadataFieldProcessInfo(const ManifestVer& manifestVersion)
+    {
+        std::vector<FieldProcessInfo> result = {};
+
+        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_4 })
+        {
+            result =
+            {
+                { "DefaultInstallLocation", [this](const YAML::Node& value)->ValidationErrors { m_p_installationMetadata->DefaultInstallLocation = Utility::Trim(value.as<std::string>()); return {}; } },
+                { "Files", [this](const YAML::Node& value)->ValidationErrors { return ProcessInstallationMetadataFilesNode(value); } },
+            };
+        }
+
+        return result;
+    }
+
+    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetInstallationMetadataFilesFieldProcessInfo(const ManifestVer& manifestVersion)
+    {
+        std::vector<FieldProcessInfo> result = {};
+
+        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_4 })
+        {
+            result =
+            {
+                { "RelativeFilePath", [this](const YAML::Node& value)->ValidationErrors { m_p_installedFile->RelativeFilePath = Utility::Trim(value.as<std::string>()); return {}; } },
+                { "FileSha256", [this](const YAML::Node& value)->ValidationErrors { m_p_installedFile->FileSha256 = Utility::SHA256::ConvertToBytes(value.as<std::string>()); return {}; } },
+                { "FileType", [this](const YAML::Node& value)->ValidationErrors { m_p_installedFile->FileType = ConvertToInstalledFileTypeEnum(value.as<std::string>()); return {}; } },
+                { "InvocationParameter", [this](const YAML::Node& value)->ValidationErrors { m_p_installedFile->InvocationParameter = Utility::Trim(value.as<std::string>()); return {}; } },
+                { "DisplayName", [this](const YAML::Node& value)->ValidationErrors { m_p_installedFile->DisplayName = Utility::Trim(value.as<std::string>()); return {}; } },
+            };
+        }
+
+        return result;
+    }
+
     ValidationErrors ManifestYamlPopulator::ValidateAndProcessFields(
         const YAML::Node& rootNode,
         const std::vector<FieldProcessInfo>& fieldInfos)
@@ -753,6 +816,54 @@ namespace AppInstaller::Manifest
         return resultErrors;
     }
 
+    ValidationErrors ManifestYamlPopulator::ProcessNestedInstallerFilesNode(const YAML::Node& nestedInstallerFilesNode)
+    {
+        THROW_HR_IF(E_INVALIDARG, !nestedInstallerFilesNode.IsSequence());
+
+        ValidationErrors resultErrors;
+        std::vector<NestedInstallerFile> nestedInstallerFiles;
+
+        for (auto const& entry : nestedInstallerFilesNode.Sequence())
+        {
+            NestedInstallerFile nestedInstallerFile;
+            m_p_nestedInstallerFile = &nestedInstallerFile;
+            auto errors = ValidateAndProcessFields(entry, NestedInstallerFileFieldInfos);
+            std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
+            nestedInstallerFiles.emplace_back(std::move(nestedInstallerFile));
+        }
+
+        if (!nestedInstallerFiles.empty())
+        {
+            m_p_installer->NestedInstallerFiles = nestedInstallerFiles;
+        }
+
+        return resultErrors;
+    }
+
+    std::vector<ValidationError> ManifestYamlPopulator::ProcessInstallationMetadataFilesNode(const YAML::Node& installedFilesNode)
+    {
+        THROW_HR_IF(E_INVALIDARG, !installedFilesNode.IsSequence());
+
+        ValidationErrors resultErrors;
+        std::vector<InstalledFile> installedFiles;
+
+        for (auto const& entry : installedFilesNode.Sequence())
+        {
+            InstalledFile installedFile;
+            m_p_installedFile = &installedFile;
+            auto errors = ValidateAndProcessFields(entry, InstallationMetadataFilesFieldInfos);
+            std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
+            installedFiles.emplace_back(std::move(installedFile));
+        }
+
+        if (!installedFiles.empty())
+        {
+            m_p_installationMetadata->Files = installedFiles;
+        }
+
+        return resultErrors;
+    }
+
     ValidationErrors ManifestYamlPopulator::PopulateManifestInternal(
         const YAML::Node& rootNode,
         Manifest& manifest,
@@ -777,6 +888,9 @@ namespace AppInstaller::Manifest
         MarketsFieldInfos = GetMarketsFieldProcessInfo(manifestVersion);
         AppsAndFeaturesEntryFieldInfos = GetAppsAndFeaturesEntryFieldProcessInfo(manifestVersion);
         DocumentationFieldInfos = GetDocumentationFieldProcessInfo(manifestVersion);
+        NestedInstallerFileFieldInfos = GetNestedInstallerFileFieldProcessInfo(manifestVersion);
+        InstallationMetadataFieldInfos = GetInstallationMetadataFieldProcessInfo(manifestVersion);
+        InstallationMetadataFilesFieldInfos = GetInstallationMetadataFilesFieldProcessInfo(manifestVersion);
 
         // Populate root
         m_p_manifest = &manifest;
@@ -800,25 +914,41 @@ namespace AppInstaller::Manifest
             installer.AppsAndFeaturesEntries.clear();
             // Clear dependencies as installer overrides root dependencies
             installer.Dependencies.Clear();
+            // Clear nested installers as it should only be copied for zip installerType.
+            installer.NestedInstallerType = InstallerTypeEnum::Unknown;
+            installer.NestedInstallerFiles.clear();
 
             m_p_installer = &installer;
             auto errors = ValidateAndProcessFields(entry, InstallerFieldInfos);
             std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
 
             // Copy in system reference strings from the root if not set in the installer and appropriate
-            if (installer.PackageFamilyName.empty() && DoesInstallerTypeUsePackageFamilyName(installer.InstallerType))
+            if (installer.PackageFamilyName.empty() && DoesInstallerTypeUsePackageFamilyName(installer.EffectiveInstallerType()))
             {
                 installer.PackageFamilyName = manifest.DefaultInstallerInfo.PackageFamilyName;
             }
 
-            if (installer.ProductCode.empty() && DoesInstallerTypeUseProductCode(installer.InstallerType))
+            if (installer.ProductCode.empty() && DoesInstallerTypeUseProductCode(installer.EffectiveInstallerType()))
             {
                 installer.ProductCode = manifest.DefaultInstallerInfo.ProductCode;
             }
 
-            if (installer.AppsAndFeaturesEntries.empty() && DoesInstallerTypeWriteAppsAndFeaturesEntry(installer.InstallerType))
+            if (installer.AppsAndFeaturesEntries.empty() && DoesInstallerTypeWriteAppsAndFeaturesEntry(installer.EffectiveInstallerType()))
             {
                 installer.AppsAndFeaturesEntries = manifest.DefaultInstallerInfo.AppsAndFeaturesEntries;
+            }
+
+            if (IsArchiveType(installer.BaseInstallerType))
+            {
+                if (installer.NestedInstallerFiles.empty())
+                {
+                    installer.NestedInstallerFiles = manifest.DefaultInstallerInfo.NestedInstallerFiles;
+                }
+
+                if (installer.NestedInstallerType == InstallerTypeEnum::Unknown)
+                {
+                    installer.NestedInstallerType = manifest.DefaultInstallerInfo.NestedInstallerType;
+                }
             }
 
             // If there are no dependencies on installer use default ones
@@ -828,7 +958,7 @@ namespace AppInstaller::Manifest
             }
 
             // Populate installer default switches if not exists
-            auto defaultSwitches = GetDefaultKnownSwitches(installer.InstallerType);
+            auto defaultSwitches = GetDefaultKnownSwitches(installer.EffectiveInstallerType());
             for (auto const& defaultSwitch : defaultSwitches)
             {
                 if (installer.Switches.find(defaultSwitch.first) == installer.Switches.end())
@@ -838,7 +968,7 @@ namespace AppInstaller::Manifest
             }
 
             // Populate installer default return codes if not present in ExpectedReturnCodes and InstallerSuccessCodes
-            auto defaultReturnCodes = GetDefaultKnownReturnCodes(installer.InstallerType);
+            auto defaultReturnCodes = GetDefaultKnownReturnCodes(installer.EffectiveInstallerType());
             for (auto const& defaultReturnCode : defaultReturnCodes)
             {
                 if (installer.ExpectedReturnCodes.find(defaultReturnCode.first) == installer.ExpectedReturnCodes.end() &&

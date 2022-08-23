@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Public/AppInstallerStrings.h"
+#include "winget/Filesystem.h"
 
 namespace AppInstaller::Filesystem
 {
@@ -60,6 +61,14 @@ namespace AppInstaller::Filesystem
     bool SupportsReparsePoints(const std::filesystem::path& path)
     {
         return (GetVolumeInformationFlags(path) & FILE_SUPPORTS_REPARSE_POINTS) != 0;
+    }
+
+    bool PathEscapesBaseDirectory(const std::filesystem::path& target, const std::filesystem::path& base)
+    {
+        const auto& targetPath = std::filesystem::weakly_canonical(target);
+        const auto& basePath = std::filesystem::weakly_canonical(base);
+        auto [a, b] = std::mismatch(targetPath.begin(), targetPath.end(), basePath.begin(), basePath.end());
+        return (b != basePath.end());
     }
 
     // Complicated rename algorithm due to somewhat arbitrary failures.
@@ -122,5 +131,40 @@ namespace AppInstaller::Filesystem
         // Create a copy of the file; the installer will be left in the temp directory afterward
         // but it is better to succeed the operation and leave a file around than to fail.
         std::filesystem::copy_file(from, to, std::filesystem::copy_options::overwrite_existing);
+    }
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    static bool* s_CreateSymlinkResult_TestHook_Override = nullptr;
+
+    void TestHook_SetCreateSymlinkResult_Override(bool* status)
+    {
+        s_CreateSymlinkResult_TestHook_Override = status;
+    }
+#endif
+
+    bool CreateSymlink(const std::filesystem::path& to, const std::filesystem::path& target)
+    {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (s_CreateSymlinkResult_TestHook_Override)
+        {
+            return *s_CreateSymlinkResult_TestHook_Override;
+        }
+#endif
+        try
+        {
+            std::filesystem::create_symlink(to, target);
+            return true;
+        }
+        catch (std::filesystem::filesystem_error& error)
+        {
+            if (error.code().value() == ERROR_PRIVILEGE_NOT_HELD)
+            {
+                return false;
+            }
+            else
+            {
+                throw;
+            }
+        }
     }
 }

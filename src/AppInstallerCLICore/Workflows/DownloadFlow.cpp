@@ -33,7 +33,7 @@ namespace AppInstaller::CLI::Workflow
         std::wstring_view GetInstallerFileExtension(Execution::Context& context)
         {
             const auto& installer = context.Get<Execution::Data::Installer>();
-            switch (installer->InstallerType)
+            switch (installer->BaseInstallerType)
             {
             case InstallerTypeEnum::Burn:
             case InstallerTypeEnum::Exe:
@@ -143,7 +143,7 @@ namespace AppInstaller::CLI::Workflow
         if (!context.Contains(Execution::Data::InstallerPath))
         {
             const auto& installer = context.Get<Execution::Data::Installer>().value();
-            switch (installer.InstallerType)
+            switch (installer.BaseInstallerType)
             {
             case InstallerTypeEnum::Exe:
             case InstallerTypeEnum::Burn:
@@ -152,6 +152,7 @@ namespace AppInstaller::CLI::Workflow
             case InstallerTypeEnum::Nullsoft:
             case InstallerTypeEnum::Portable: 
             case InstallerTypeEnum::Wix:
+            case InstallerTypeEnum::Zip:
                 context << DownloadInstallerFile;
                 break;
             case InstallerTypeEnum::Msix:
@@ -182,7 +183,7 @@ namespace AppInstaller::CLI::Workflow
     void CheckForExistingInstaller(Execution::Context& context)
     {
         const auto& installer = context.Get<Execution::Data::Installer>().value();
-        if (installer.InstallerType == InstallerTypeEnum::MSStore)
+        if (installer.EffectiveInstallerType() == InstallerTypeEnum::MSStore)
         {
             // No installer is downloaded in this case
             return;
@@ -292,9 +293,7 @@ namespace AppInstaller::CLI::Workflow
             const auto& installer = context.Get<Execution::Data::Installer>().value();
 
             Msix::MsixInfo msixInfo(installer.Url);
-            auto signature = msixInfo.GetSignature();
-
-            auto signatureHash = SHA256::ComputeHash(signature.data(), static_cast<uint32_t>(signature.size()));
+            auto signatureHash = msixInfo.GetSignatureHash();
 
             context.Add<Execution::Data::HashPair>(std::make_pair(installer.SignatureSha256, signatureHash));
         }
@@ -416,12 +415,12 @@ namespace AppInstaller::CLI::Workflow
             auto existingFileHash = SHA256::ComputeHash(inStream);
             context.Add<Execution::Data::HashPair>(std::make_pair(installer.Sha256, existingFileHash));
         }
-        else if (installer.InstallerType == InstallerTypeEnum::MSStore)
+        else if (installer.EffectiveInstallerType() == InstallerTypeEnum::MSStore)
         {
             // No installer file in this case
             return;
         }
-        else if (installer.InstallerType == InstallerTypeEnum::Msix && !installer.SignatureSha256.empty())
+        else if (installer.EffectiveInstallerType() == InstallerTypeEnum::Msix && !installer.SignatureSha256.empty())
         {
             // We didn't download the installer file before. Just verify the signature hash again.
             context << GetMsixSignatureHash;

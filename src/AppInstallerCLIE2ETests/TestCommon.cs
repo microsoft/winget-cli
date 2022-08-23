@@ -8,7 +8,6 @@ namespace AppInstallerCLIE2ETests
     using System;
     using System.Diagnostics;
     using System.IO;
-    using System.Linq;
     using System.Threading;
 
     public class TestCommon
@@ -32,6 +31,8 @@ namespace AppInstallerCLIE2ETests
         public static string MsiInstallerPath { get; set; }
 
         public static string MsixInstallerPath { get; set; }
+
+        public static string ZipInstallerPath { get; set; }
         
         public static string PackageCertificatePath { get; set; }
 
@@ -42,6 +43,12 @@ namespace AppInstallerCLIE2ETests
                     @"Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\settings.json" :
                     @"Microsoft\WinGet\Settings\settings.json";
             }
+        }
+
+        public enum Scope
+        {
+            User,
+            Machine
         }
 
         public struct RunCommandResult
@@ -202,11 +209,23 @@ namespace AppInstallerCLIE2ETests
 
         public static bool RunCommand(string fileName, string args = "", int timeOut = 60000)
         {
-            return RunCommandWithResult(fileName, args, timeOut).ExitCode == 0;
+            RunCommandResult result = RunCommandWithResult(fileName, args, timeOut);
+
+            if (result.ExitCode != 0)
+            {
+                TestContext.Out.WriteLine($"Command failed with: {result.ExitCode}");
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
 
         public static RunCommandResult RunCommandWithResult(string fileName, string args, int timeOut = 60000)
         {
+            TestContext.Out.WriteLine($"Running command: {fileName} {args}");
+
             Process p = new Process();
             p.StartInfo = new ProcessStartInfo(fileName, args);
             p.StartInfo.RedirectStandardOutput = true;
@@ -278,30 +297,50 @@ namespace AppInstallerCLIE2ETests
             return RunCommand("powershell", $"Get-AppxPackage \"{name}\" | Remove-AppxPackage");
         }
 
+        public static string GetPortableSymlinkDirectory(Scope scope)
+        {
+            if (scope == Scope.User)
+            {
+                return Path.Combine(Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet", "Links");
+            }
+            else
+            {
+                return Path.Combine(Environment.GetEnvironmentVariable("ProgramFiles"), "WinGet", "Links");
+            }
+        }
+
+        public static string GetPortablePackagesDirectory()
+        {
+            return Path.Combine(Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet", "Packages");
+        }
+
         public static void VerifyPortablePackage(
             string installDir,
             string commandAlias,
             string filename,
             string productCode,
-            bool shouldExist)
+            bool shouldExist, 
+            Scope scope = Scope.User)
         {
             string exePath = Path.Combine(installDir, filename);
             bool exeExists = File.Exists(exePath);
 
-            string symlinkDirectory = Path.Combine(System.Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet", "Links");
+            string symlinkDirectory = GetPortableSymlinkDirectory(scope);
             string symlinkPath = Path.Combine(symlinkDirectory, commandAlias);
             bool symlinkExists = File.Exists(symlinkPath);
 
             bool portableEntryExists;
-            string subKey = @$"Software\Microsoft\Windows\CurrentVersion\Uninstall";
-            using (RegistryKey uninstallRegistryKey = Registry.CurrentUser.OpenSubKey(subKey, true))
+            RegistryKey baseKey = (scope == Scope.User) ? Registry.CurrentUser : Registry.LocalMachine;
+            string uninstallSubKey = Constants.UninstallSubKey;
+            using (RegistryKey uninstallRegistryKey = baseKey.OpenSubKey(uninstallSubKey, true))
             {
                 RegistryKey portableEntry = uninstallRegistryKey.OpenSubKey(productCode, true);
                 portableEntryExists = portableEntry != null;
             }
 
             bool isAddedToPath;
-            using (RegistryKey environmentRegistryKey = Registry.CurrentUser.OpenSubKey(@"Environment", true))
+            string pathSubKey = (scope == Scope.User) ? Constants.PathSubKey_User : Constants.PathSubKey_Machine;
+            using (RegistryKey environmentRegistryKey = baseKey.OpenSubKey(pathSubKey, true))
             {
                 string pathName = "Path";
                 var currentPathValue = (string)environmentRegistryKey.GetValue(pathName);
@@ -316,7 +355,7 @@ namespace AppInstallerCLIE2ETests
 
             Assert.AreEqual(shouldExist, exeExists, $"Expected portable exe path: {exePath}");
             Assert.AreEqual(shouldExist, symlinkExists, $"Expected portable symlink path: {symlinkPath}");
-            Assert.AreEqual(shouldExist, portableEntryExists, $"Expected {productCode} subkey in path: {subKey}");
+            Assert.AreEqual(shouldExist, portableEntryExists, $"Expected {productCode} subkey in path: {uninstallSubKey}");
             Assert.AreEqual(shouldExist, isAddedToPath, $"Expected path variable: {symlinkDirectory}");
         }
 
@@ -327,8 +366,11 @@ namespace AppInstallerCLIE2ETests
         {
             string tempPath = Path.GetTempPath();
             string localAppDataPath = Environment.GetEnvironmentVariable("LocalAppData");
-            string testLogsSourcePath = Path.Combine(localAppDataPath, Constants.E2ETestLogsPath);
+            string testLogsPackagedSourcePath = Path.Combine(localAppDataPath, Constants.E2ETestLogsPathPackaged);
+            string testLogsUnpackagedSourcePath = Path.Combine(tempPath, Constants.E2ETestLogsPathUnpackaged);
             string testLogsDestPath = Path.Combine(tempPath, "E2ETestLogs");
+            string testLogsPackagedDestPath = Path.Combine(testLogsDestPath, "Packaged");
+            string testLogsUnpackagedDestPath = Path.Combine(testLogsDestPath, "Unpackaged");
 
             if (Directory.Exists(testLogsDestPath))
             {
@@ -336,10 +378,142 @@ namespace AppInstallerCLIE2ETests
                 Directory.Delete(testLogsDestPath);
             }
 
-            if (Directory.Exists(testLogsSourcePath))
+            if (Directory.Exists(testLogsPackagedSourcePath))
             {
-                TestIndexSetup.CopyDirectory(testLogsSourcePath, testLogsDestPath);
+                TestIndexSetup.CopyDirectory(testLogsPackagedSourcePath, testLogsPackagedDestPath);
             }
+
+            if (Directory.Exists(testLogsUnpackagedSourcePath))
+            {
+                TestIndexSetup.CopyDirectory(testLogsUnpackagedSourcePath, testLogsUnpackagedDestPath);
+            }
+        }
+
+        /// <summary>
+        /// Gets the server certificate as a hex string.
+        /// </summary>
+        public static string GetTestServerCertificateHexString()
+        {
+            return Convert.ToHexString(File.ReadAllBytes(Path.Combine(StaticFileRootPath, Constants.TestSourceServerCertificateFileName)));
+        }
+
+        public static bool VerifyTestExeInstalledAndCleanup(string installDir, string expectedContent = null)
+        {
+            if (!File.Exists(Path.Combine(installDir, Constants.TestExeInstalledFileName)))
+            {
+                return false;
+            }
+
+            if (!string.IsNullOrEmpty(expectedContent))
+            {
+                string content = File.ReadAllText(Path.Combine(installDir, Constants.TestExeInstalledFileName));
+                return content.Contains(expectedContent);
+            }
+
+            return RunCommand(Path.Combine(installDir, Constants.TestExeUninstallerFileName));
+        }
+
+        public static bool VerifyTestMsiInstalledAndCleanup(string installDir)
+        {
+            string pathToCheck = Path.Combine(installDir, Constants.AppInstallerTestExeInstallerExe);
+            if (!File.Exists(pathToCheck))
+            {
+                TestContext.Out.WriteLine($"File not found: {pathToCheck}");
+                return false;
+            }
+
+            return RunCommand("msiexec.exe", $"/qn /x {Constants.MsiInstallerProductCode}");
+        }
+
+        public static bool VerifyTestMsixInstalledAndCleanup()
+        {
+            var result = RunCommandWithResult("powershell", $"Get-AppxPackage {Constants.MsixInstallerName}");
+
+            if (!result.StdOut.Contains(Constants.MsixInstallerName))
+            {
+                return false;
+            }
+
+            return RemoveMsix(Constants.MsixInstallerName);
+        }
+
+        public static bool VerifyTestExeUninstalled(string installDir)
+        {
+            return File.Exists(Path.Combine(installDir, Constants.TestExeUninstalledFileName));
+        }
+
+        public static bool VerifyTestMsiUninstalled(string installDir)
+        {
+            return !File.Exists(Path.Combine(installDir, Constants.AppInstallerTestExeInstallerExe));
+        }
+
+        public static bool VerifyTestMsixUninstalled()
+        {
+            var result = RunCommandWithResult("powershell", $"Get-AppxPackage {Constants.MsixInstallerName}");
+            return string.IsNullOrWhiteSpace(result.StdOut);
+        }
+
+        public static void ModifyPortableARPEntryValue(string productCode, string name, string value)
+        {
+            const string uninstallSubKey = @"Software\Microsoft\Windows\CurrentVersion\Uninstall";
+            using (RegistryKey uninstallRegistryKey = Registry.CurrentUser.OpenSubKey(uninstallSubKey, true))
+            {
+                RegistryKey entry = uninstallRegistryKey.OpenSubKey(productCode, true);
+                entry.SetValue(name, value);
+            }
+        }
+
+        public static void SetupTestSource(bool useGroupPolicyForTestSource = false)
+        {
+            TestCommon.RunAICLICommand("source reset", "--force");
+            TestCommon.RunAICLICommand("source remove", Constants.DefaultWingetSourceName);
+            TestCommon.RunAICLICommand("source remove", Constants.DefaultMSStoreSourceName);
+
+            // TODO: If/when cert pinning is implemented on the packaged index source, useGroupPolicyForTestSource should be set to default true
+            //       to enable testing it by default.  Until then, leaving this here...
+            if (useGroupPolicyForTestSource)
+            {
+                GroupPolicyHelper.EnableAdditionalSources.SetEnabledList(new GroupPolicySource[]
+                {
+                    new GroupPolicySource
+                    {
+                        Name = Constants.TestSourceName,
+                        Arg = Constants.TestSourceUrl,
+                        Type = Constants.TestSourceType,
+                        Data = Constants.TestSourceIdentifier,
+                        Identifier = Constants.TestSourceIdentifier,
+                        CertificatePinning = new GroupPolicyCertificatePinning
+                        {
+                            Chains = new GroupPolicyCertificatePinningChain[] {
+                                new GroupPolicyCertificatePinningChain
+                                {
+                                    Chain = new GroupPolicyCertificatePinningDetails[]
+                                    {
+                                        new GroupPolicyCertificatePinningDetails
+                                        {
+                                            Validation = new string[] { "publickey" },
+                                            EmbeddedCertificate = TestCommon.GetTestServerCertificateHexString()
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            else
+            {
+                GroupPolicyHelper.EnableAdditionalSources.SetNotConfigured();
+                TestCommon.RunAICLICommand("source add", $"{Constants.TestSourceName} {Constants.TestSourceUrl}");
+            }
+
+            Thread.Sleep(2000);
+        }
+
+        public static void TearDownTestSource()
+        {
+            RunAICLICommand("source remove", Constants.TestSourceName);
+            RunAICLICommand("source reset", "--force");
         }
     }
 }

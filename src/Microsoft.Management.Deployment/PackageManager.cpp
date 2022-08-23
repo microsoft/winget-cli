@@ -351,13 +351,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             }
 
             // If the PackageInstallScope is anything other than ::Any then set it as a requirement.
-            if (options.PackageInstallScope() == PackageInstallScope::System)
+            auto manifestScope = GetManifestScope(options.PackageInstallScope());
+            if (manifestScope.first != ::AppInstaller::Manifest::ScopeEnum::Unknown)
             {
-                context->Args.AddArg(Execution::Args::Type::InstallScope, ScopeToString(::AppInstaller::Manifest::ScopeEnum::Machine));
-            }
-            else if (options.PackageInstallScope() == PackageInstallScope::User)
-            {
-                context->Args.AddArg(Execution::Args::Type::InstallScope, ScopeToString(::AppInstaller::Manifest::ScopeEnum::User));
+                context->Args.AddArg(Execution::Args::Type::InstallScope, ScopeToString(manifestScope.first));
+                context->Add<Execution::Data::AllowUnknownScope>(manifestScope.second);
             }
 
             if (options.PackageInstallMode() == PackageInstallMode::Interactive)

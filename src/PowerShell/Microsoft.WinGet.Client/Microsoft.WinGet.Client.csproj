@@ -1,0 +1,80 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetWindowsVersion>10.0.22000.0</TargetWindowsVersion>
+    <CoreFramework>net5.0-windows$(TargetWindowsVersion)</CoreFramework>
+    <DesktopFramework>net461</DesktopFramework>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <LangVersion>9</LangVersion>
+    <OutputPath>$(SolutionDir)$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutputPath>
+    <Platforms>x64;x86</Platforms>
+    <TargetFrameworks>$(CoreFramework);$(DesktopFramework)</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="stylecop.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="PowerShellStandard.Library" Version="5.1.1" PrivateAssets="all" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="System.Security.Principal.Windows" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Microsoft.Management.Deployment\Microsoft.Management.Deployment.vcxproj">
+      <OutputItemType>Content</OutputItemType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="..\..\UndockedRegFreeWinRT\UndockedRegFreeWinRT\UndockedRegFreeWinRT.vcxproj">
+      <OutputItemType>Content</OutputItemType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </ProjectReference>
+  </ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == '$(CoreFramework)'">
+		<PackageReference Include="Microsoft.Windows.CsWinRT" Version="1.6.4" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == '$(DesktopFramework)'">
+    <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.22000.196" PrivateAssets="all" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Update="Properties\Resources.Designer.cs">
+	    <DesignTime>True</DesignTime>
+	    <AutoGen>True</AutoGen>
+	    <DependentUpon>Resources.resx</DependentUpon>
+	  </Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Update="Properties\Resources.resx">
+	    <Generator>ResXFileCodeGenerator</Generator>
+	    <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+	  </EmbeddedResource>
+	</ItemGroup>
+
+	<PropertyGroup Condition="'$(TargetFramework)' == '$(CoreFramework)'">
+		<CsWinRTIncludes>Microsoft.Management.Deployment</CsWinRTIncludes>
+		<CsWinRTWindowsMetadata>$(TargetWindowsVersion)</CsWinRTWindowsMetadata>
+    <!-- Ensure Support for Windows 10, Version 1809 -->
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+	</PropertyGroup>
+	
+	<Target Name="CopyWinRTAct" AfterTargets="Build" Condition="'$(TargetFramework)' != ''">
+		<ItemGroup>
+			<!-- Ensure Referenced Project Output is in Output Directory -->
+			<WinRTActDll Include="$(SolutionDir)**\$(Platform)\$(Configuration)\**\winrtact.dll" />
+		</ItemGroup>
+		<Message Importance="high" Text="Copying '@(WinRTActDll)' to '$(OutputPath)'" />
+		<Copy SourceFiles="@(WinRTActDll)" DestinationFolder="$(OutputPath)" />
+	</Target>
+	
+</Project>

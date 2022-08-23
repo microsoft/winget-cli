@@ -44,15 +44,14 @@ namespace AppInstaller::CLI
             auto inputFile = context.Args.GetArg(Execution::Args::Type::HashFile);
             std::ifstream inStream{ Utility::ConvertToUTF16(inputFile), std::ifstream::binary };
 
-            context.Reporter.Info() << "Sha256: "_liv << Utility::LocIndString{ Utility::SHA256::ConvertToString(Utility::SHA256::ComputeHash(inStream)) } << std::endl;
+            context.Reporter.Info() << "InstallerSha256: "_liv << Utility::LocIndString{ Utility::SHA256::ConvertToString(Utility::SHA256::ComputeHash(inStream)) } << std::endl;
 
             if (context.Args.Contains(Execution::Args::Type::Msix))
             {
                 try
                 {
                     Msix::MsixInfo msixInfo{ inputFile };
-                    auto signature = msixInfo.GetSignature();
-                    auto signatureHash = Utility::SHA256::ComputeHash(signature.data(), static_cast<uint32_t>(signature.size()));
+                    auto signatureHash = msixInfo.GetSignatureHash();
 
                     context.Reporter.Info() << "SignatureSha256: "_liv << Utility::LocIndString{ Utility::SHA256::ConvertToString(signatureHash) } << std::endl;
                 }

@@ -63,7 +63,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
             std::optional<SQLite::rowid_t> channelIdOpt = ChannelTable::SelectIdByValue(connection, channel, true);
             if (!channelIdOpt && !channel.empty())
             {
-                // If an empty channel was given but none was found, we will just not filter on channel.
+                // If a non-empty channel was given but none was found, we will just not filter on channel.
                 AICLI_LOG(Repo, Info, << "Did not find a Channel { " << channel << " }");
                 return {};
             }
@@ -101,6 +101,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
                 // Get the last version in the list (the highest version) and its rowid
                 const std::string& latestVersion = versions.back().ToString();
                 versionIdOpt = VersionTable::SelectIdByValue(connection, latestVersion);
+
+                if (!versionIdOpt)
+                {
+                    AICLI_LOG(Repo, Warning, << "Did not find a Version row for the latest version { " << latestVersion << " }");
+                }
             }
             else
             {
@@ -109,7 +114,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
             if (!versionIdOpt)
             {
-                AICLI_LOG(Repo, Info, << "Did not find a Version { " << version << " }");
+                AICLI_LOG(Repo, Info, << "Did not find a Version for { " << version << " }");
                 return {};
             }
 
@@ -377,64 +382,42 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
 
         savepoint.Commit();
 
-        // Force the database to actually shrink the file size.
-        // This *must* be done outside of an active transaction.
-        SQLite::Builder::StatementBuilder builder;
-        builder.Vacuum();
-        builder.Execute(connection);
+        Vacuum(connection);
     }
 
     bool Interface::CheckConsistency(const SQLite::Connection& connection, bool log) const
     {
         bool result = true;
 
+#define AICLI_CHECK_CONSISTENCY(_check_) \
+        if (result || log) \
+        { \
+            result = _check_ && result; \
+        }
+
         // Check the manifest table references to it's 1:1 tables
-        if (result || log)
-        {
-            result = ManifestTable::CheckConsistency<IdTable>(connection, log) && result;
-        }
+        AICLI_CHECK_CONSISTENCY(ManifestTable::CheckConsistency<IdTable>(connection, log));
+        AICLI_CHECK_CONSISTENCY(ManifestTable::CheckConsistency<NameTable>(connection, log));
+        AICLI_CHECK_CONSISTENCY(ManifestTable::CheckConsistency<MonikerTable>(connection, log));
+        AICLI_CHECK_CONSISTENCY(ManifestTable::CheckConsistency<VersionTable>(connection, log));
+        AICLI_CHECK_CONSISTENCY(ManifestTable::CheckConsistency<ChannelTable>(connection, log));
+        AICLI_CHECK_CONSISTENCY(ManifestTable::CheckConsistency<PathPartTable>(connection, log));
 
-        if (result || log)
-        {
-            result = ManifestTable::CheckConsistency<NameTable>(connection, log) && result;
-        }
+        // Check the 1:1 tables' consistency
+        AICLI_CHECK_CONSISTENCY(IdTable::CheckConsistency(connection, log));
+        AICLI_CHECK_CONSISTENCY(NameTable::CheckConsistency(connection, log));
+        AICLI_CHECK_CONSISTENCY(MonikerTable::CheckConsistency(connection, log));
+        AICLI_CHECK_CONSISTENCY(VersionTable::CheckConsistency(connection, log));
+        AICLI_CHECK_CONSISTENCY(ChannelTable::CheckConsistency(connection, log));
 
-        if (result || log)
-        {
-            result = ManifestTable::CheckConsistency<MonikerTable>(connection, log) && result;
-        }
-
-        if (result || log)
-        {
-            result = ManifestTable::CheckConsistency<VersionTable>(connection, log) && result;
-        }
-
-        if (result || log)
-        {
-            result = ManifestTable::CheckConsistency<ChannelTable>(connection, log) && result;
-        }
-
-        if (result || log)
-        {
-            result = ManifestTable::CheckConsistency<PathPartTable>(connection, log) && result;
-        }
-
-        // Check the pathpaths table for consistency
-        if (result || log)
-        {
-            result = PathPartTable::CheckConsistency(connection, log) && result;
-        }
+        // Check the pathparts table for consistency
+        AICLI_CHECK_CONSISTENCY(PathPartTable::CheckConsistency(connection, log));
 
         // Check the 1:N map tables for consistency
-        if (result || log)
-        {
-            result = TagsTable::CheckConsistency(connection, log) && result;
-        }
+        AICLI_CHECK_CONSISTENCY(TagsTable::CheckConsistency(connection, log));
+        AICLI_CHECK_CONSISTENCY(CommandsTable::CheckConsistency(connection, log));
 
-        if (result || log)
-        {
-            result = CommandsTable::CheckConsistency(connection, log) && result;
-        }
+#undef AICLI_CHECK_CONSISTENCY
 
         return result;
     }
@@ -656,5 +639,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_0
         default:
             return {};
         }
+    }
+
+    void Interface::Vacuum(const SQLite::Connection& connection)
+    {
+        SQLite::Builder::StatementBuilder builder;
+        builder.Vacuum();
+        builder.Execute(connection);
     }
 }

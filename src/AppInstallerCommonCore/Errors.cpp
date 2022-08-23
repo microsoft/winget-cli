@@ -156,6 +156,8 @@ namespace AppInstaller
                 return "Source agreements were not agreed to";
             case APPINSTALLER_CLI_ERROR_CUSTOMHEADER_EXCEEDS_MAXLENGTH:
                 return "Header size exceeds the allowable limit of 1024 characters. Please reduce the size and try again.";
+            case APPINSTALLER_CLI_ERROR_MISSING_RESOURCE_FILE:
+                return "Missing resource file";
             case APPINSTALLER_CLI_ERROR_MSI_INSTALL_FAILED:
                 return "Running MSI install failed";
             case APPINSTALLER_CLI_ERROR_INVALID_MSIEXEC_ARGUMENT:
@@ -182,8 +184,14 @@ namespace AppInstaller
                 return "Portable package from a different source already exists.";
             case APPINSTALLER_CLI_ERROR_PORTABLE_SYMLINK_PATH_IS_DIRECTORY:
                 return "Unable to create symlink, path points to a directory.";
+            case APPINSTALLER_CLI_ERROR_INSTALLER_PROHIBITS_ELEVATION:
+                return "The installer cannot be run from an administrator context.";
             case APPINSTALLER_CLI_ERROR_PORTABLE_UNINSTALL_FAILED:
                 return "Failed to uninstall portable package";
+            case APPINSTALLER_CLI_ERROR_ARP_VERSION_VALIDATION_FAILED:
+                return "Failed to validate DisplayVersion values against index.";
+            case APPINSTALLER_CLI_ERROR_INSTALL_LOCATION_REQUIRED:
+                return "Install location required but not provided";
             case APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE:
                 return "Application is currently running.Exit the application then try again.";
             case APPINSTALLER_CLI_ERROR_INSTALL_INSTALL_IN_PROGRESS:
@@ -214,8 +222,16 @@ namespace AppInstaller
                 return "A higher version of this application is already installed.";
             case APPINSTALLER_CLI_ERROR_INSTALL_BLOCKED_BY_POLICY:
                 return "Organization policies are preventing installation. Contact your admin.";
-            case APPINSTALLER_CLI_ERROR_INSTALLER_PROHIBITS_ELEVATION:
-                return "The installer cannot be run from an administrator context.";
+            case APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES:
+                return "Failed to install package dependencies.";
+            case APPINSTALLER_CLI_ERROR_BIND_WITH_EMBEDDED_NULL:
+                return "Embedded null characters are disallowed for SQLite";
+            case APPINSTALLER_CLI_ERROR_PINNED_CERTIFICATE_MISMATCH:
+                return "The server certificate did not match any of the expected values.";
+            case APPINSTALLER_CLI_ERROR_NESTEDINSTALLER_NOT_FOUND:
+                return "Failed to find the nested installer in the archive.";
+            case APPINSTALLER_CLI_ERROR_NESTEDINSTALLER_INVALID_PATH:
+                return "Invalid relative file path to nested installer provided.";
             default:
                 return "Unknown Error Code";
             }

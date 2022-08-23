@@ -42,6 +42,9 @@ namespace AppInstaller::Manifest
         std::vector<FieldProcessInfo> MarketsFieldInfos;
         std::vector<FieldProcessInfo> AppsAndFeaturesEntryFieldInfos;
         std::vector<FieldProcessInfo> DocumentationFieldInfos;
+        std::vector<FieldProcessInfo> NestedInstallerFileFieldInfos;
+        std::vector<FieldProcessInfo> InstallationMetadataFieldInfos;
+        std::vector<FieldProcessInfo> InstallationMetadataFilesFieldInfos;
 
         // These pointers are referenced in the processing functions in manifest field process info table.
         AppInstaller::Manifest::Manifest* m_p_manifest = nullptr;
@@ -55,6 +58,9 @@ namespace AppInstaller::Manifest
         AppInstaller::Manifest::MarketsInfo* m_p_markets = nullptr;
         AppInstaller::Manifest::AppsAndFeaturesEntry* m_p_appsAndFeaturesEntry = nullptr;
         AppInstaller::Manifest::Documentation* m_p_documentation = nullptr;
+        AppInstaller::Manifest::NestedInstallerFile* m_p_nestedInstallerFile = nullptr;
+        AppInstaller::Manifest::InstallationMetadataInfo* m_p_installationMetadata = nullptr;
+        AppInstaller::Manifest::InstalledFile* m_p_installedFile = nullptr;
 
         // Cache of Installers node and Localization node
         YAML::Node const* m_p_installersNode = nullptr;
@@ -71,6 +77,9 @@ namespace AppInstaller::Manifest
         std::vector<FieldProcessInfo> GetMarketsFieldProcessInfo(const ManifestVer& manifestVersion);
         std::vector<FieldProcessInfo> GetAppsAndFeaturesEntryFieldProcessInfo(const ManifestVer& manifestVersion);
         std::vector<FieldProcessInfo> GetDocumentationFieldProcessInfo(const ManifestVer& manifestVersion);
+        std::vector<FieldProcessInfo> GetNestedInstallerFileFieldProcessInfo(const ManifestVer& manifestVersion);
+        std::vector<FieldProcessInfo> GetInstallationMetadataFieldProcessInfo(const ManifestVer& manifestVersion);
+        std::vector<FieldProcessInfo> GetInstallationMetadataFilesFieldProcessInfo(const ManifestVer& manifestVersion);
 
         // This method takes YAML root node and list of manifest field info.
         // Yaml lib does not support case insensitive search and it allows duplicate keys. If duplicate keys exist,
@@ -86,7 +95,9 @@ namespace AppInstaller::Manifest
         std::vector<ValidationError> ProcessMarketsNode(const YAML::Node& marketsNode);
         std::vector<ValidationError> ProcessAppsAndFeaturesEntriesNode(const YAML::Node& appsAndFeaturesEntriesNode);
         std::vector<ValidationError> ProcessExpectedReturnCodesNode(const YAML::Node& returnCodesNode);
-        std::vector<ValidationError> ProcessDocumentationsNode(const YAML::Node& documentations);
+        std::vector<ValidationError> ProcessDocumentationsNode(const YAML::Node& documentationsNode);
+        std::vector<ValidationError> ProcessNestedInstallerFilesNode(const YAML::Node& nestedInstallerFilesNode);
+        std::vector<ValidationError> ProcessInstallationMetadataFilesNode(const YAML::Node& installedFilesNode);
 
         std::vector<ValidationError> PopulateManifestInternal(
             const YAML::Node& rootNode,

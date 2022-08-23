@@ -2,8 +2,12 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "AppInstallerLogging.h"
+#include "AppInstallerMsixInfo.h"
+#include "winget/MsixManifest.h"
 #include "winget/ManifestValidation.h"
+#include "winget/MsixManifestValidation.h"
 #include "winget/Locale.h"
+#include "winget/Filesystem.h"
 
 namespace AppInstaller::Manifest
 {
@@ -20,23 +24,27 @@ namespace AppInstaller::Manifest
         try
         {
             // Version value should be successfully parsed
-            Utility::Version test{ manifest.Version };
+            Utility::Version testVersion{ manifest.Version };
+            if (testVersion.IsApproximate())
+            {
+                resultErrors.emplace_back(ManifestError::ApproximateVersionNotAllowed, "PackageVersion", manifest.Version);
+            }
         }
         catch (const std::exception&)
         {
             resultErrors.emplace_back(ManifestError::InvalidFieldValue, "PackageVersion", manifest.Version);
         }
 
-        auto defaultLocErrors = ValidateManifestLocalization(manifest.DefaultLocalization);
+        auto defaultLocErrors = ValidateManifestLocalization(manifest.DefaultLocalization, !fullValidation);
         std::move(defaultLocErrors.begin(), defaultLocErrors.end(), std::inserter(resultErrors, resultErrors.end()));
 
         // Comparison function to check duplicate installer entry. {installerType, arch, language and scope} combination is the key.
         // Todo: use the comparator from ManifestComparator when that one is fully implemented.
         auto installerCmp = [](const ManifestInstaller& in1, const ManifestInstaller& in2)
         {
-            if (in1.InstallerType != in2.InstallerType)
+            if (in1.EffectiveInstallerType() != in2.EffectiveInstallerType())
             {
-                return in1.InstallerType < in2.InstallerType;
+                return in1.EffectiveInstallerType() < in2.EffectiveInstallerType();
             }
 
             if (in1.Arch != in2.Arch)
@@ -66,14 +74,14 @@ namespace AppInstaller::Manifest
         for (auto const& installer : manifest.Installers)
         {
             // If not full validation, for future compatibility, skip validating unknown installers.
-            if (installer.InstallerType == InstallerTypeEnum::Unknown && !fullValidation)
+            if (installer.EffectiveInstallerType() == InstallerTypeEnum::Unknown && !fullValidation)
             {
                 continue;
             }
 
             if (!duplicateInstallerFound && !installerSet.insert(installer).second)
             {
-                AICLI_LOG(Core, Error, << "Duplicate installer: Type[" << InstallerTypeToString(installer.InstallerType) <<
+                AICLI_LOG(Core, Error, << "Duplicate installer: Type[" << InstallerTypeToString(installer.EffectiveInstallerType()) <<
                     "] Architecture[" << Utility::ToString(installer.Arch) << "] Locale[" << installer.Locale <<
                     "] Scope[" << ScopeToString(installer.Scope) << "]");
 
@@ -86,7 +94,7 @@ namespace AppInstaller::Manifest
                 resultErrors.emplace_back(ManifestError::InvalidFieldValue, "Architecture");
             }
 
-            if (installer.InstallerType == InstallerTypeEnum::Unknown)
+            if (installer.EffectiveInstallerType() == InstallerTypeEnum::Unknown)
             {
                 resultErrors.emplace_back(ManifestError::InvalidFieldValue, "InstallerType");
             }
@@ -98,29 +106,29 @@ namespace AppInstaller::Manifest
 
             // Validate system reference strings if they are set at the installer level
             // Allow PackageFamilyName to be declared with non msix installers to support nested installer scenarios after manifest version 1.1
-            if (manifest.ManifestVersion <= ManifestVer{ s_ManifestVersionV1_1 } && !installer.PackageFamilyName.empty() && !DoesInstallerTypeUsePackageFamilyName(installer.InstallerType))
+            if (manifest.ManifestVersion <= ManifestVer{ s_ManifestVersionV1_1 } && !installer.PackageFamilyName.empty() && !DoesInstallerTypeUsePackageFamilyName(installer.EffectiveInstallerType()))
             {
-                resultErrors.emplace_back(ManifestError::InstallerTypeDoesNotSupportPackageFamilyName, "InstallerType", InstallerTypeToString(installer.InstallerType));
+                resultErrors.emplace_back(ManifestError::InstallerTypeDoesNotSupportPackageFamilyName, "InstallerType", InstallerTypeToString(installer.EffectiveInstallerType()));
             }
 
-            if (!installer.ProductCode.empty() && !DoesInstallerTypeUseProductCode(installer.InstallerType))
+            if (!installer.ProductCode.empty() && !DoesInstallerTypeUseProductCode(installer.EffectiveInstallerType()))
             {
-                resultErrors.emplace_back(ManifestError::InstallerTypeDoesNotSupportProductCode, "InstallerType", InstallerTypeToString(installer.InstallerType));
+                resultErrors.emplace_back(ManifestError::InstallerTypeDoesNotSupportProductCode, "InstallerType", InstallerTypeToString(installer.EffectiveInstallerType()));
             }
 
-            if (!installer.AppsAndFeaturesEntries.empty() && !DoesInstallerTypeWriteAppsAndFeaturesEntry(installer.InstallerType))
+            if (!installer.AppsAndFeaturesEntries.empty() && !DoesInstallerTypeWriteAppsAndFeaturesEntry(installer.EffectiveInstallerType()))
             {
-                resultErrors.emplace_back(ManifestError::InstallerTypeDoesNotWriteAppsAndFeaturesEntry, "InstallerType", InstallerTypeToString(installer.InstallerType));
+                resultErrors.emplace_back(ManifestError::InstallerTypeDoesNotWriteAppsAndFeaturesEntry, "InstallerType", InstallerTypeToString(installer.EffectiveInstallerType()));
             }
 
-            if (installer.InstallerType == InstallerTypeEnum::MSStore)
+            if (installer.EffectiveInstallerType() == InstallerTypeEnum::MSStore)
             {
                 if (fullValidation)
                 {
                     // MSStore type is not supported in community repo
                     resultErrors.emplace_back(
                         ManifestError::FieldValueNotSupported, "InstallerType",
-                        InstallerTypeToString(installer.InstallerType));
+                        InstallerTypeToString(installer.EffectiveInstallerType()));
                 }
 
                 if (installer.ProductId.empty())
@@ -146,26 +154,64 @@ namespace AppInstaller::Manifest
                 }
             }
 
-            if (installer.InstallerType == InstallerTypeEnum::Exe &&
+            if (installer.EffectiveInstallerType() == InstallerTypeEnum::Exe &&
                 (installer.Switches.find(InstallerSwitchType::SilentWithProgress) == installer.Switches.end() ||
                  installer.Switches.find(InstallerSwitchType::Silent) == installer.Switches.end()))
             {
                 resultErrors.emplace_back(ManifestError::ExeInstallerMissingSilentSwitches, ValidationError::Level::Warning);
             }
 
-            if (installer.InstallerType == InstallerTypeEnum::Portable)
+            // The command field restriction only applies if the base installer type is Portable.
+            if (installer.BaseInstallerType == InstallerTypeEnum::Portable)
+            {
+                if (installer.Commands.size() > 1)
+                {
+                    resultErrors.emplace_back(ManifestError::ExceededCommandsLimit);
+                }
+            }
+
+            if (installer.EffectiveInstallerType() == InstallerTypeEnum::Portable)
             {
                 if (installer.AppsAndFeaturesEntries.size() > 1)
                 {
                     resultErrors.emplace_back(ManifestError::ExceededAppsAndFeaturesEntryLimit);
                 }
-                if (installer.Commands.size() > 1)
-                {
-                    resultErrors.emplace_back(ManifestError::ExceededCommandsLimit);
-                }
                 if (installer.Scope != ScopeEnum::Unknown)
                 {
                     resultErrors.emplace_back(ManifestError::ScopeNotSupported, ValidationError::Level::Warning);
+                }
+            }
+
+            if (IsArchiveType(installer.BaseInstallerType))
+            {
+                if (installer.NestedInstallerType == InstallerTypeEnum::Unknown)
+                {
+                    resultErrors.emplace_back(ManifestError::RequiredFieldMissing, "NestedInstallerType");
+                }
+                if (installer.NestedInstallerFiles.size() == 0)
+                {
+                    resultErrors.emplace_back(ManifestError::RequiredFieldMissing, "NestedInstallerFiles");
+                }
+                if (installer.NestedInstallerType != InstallerTypeEnum::Portable && installer.NestedInstallerFiles.size() != 1)
+                {
+                    resultErrors.emplace_back(ManifestError::ExceededNestedInstallerFilesLimit, "NestedInstallerFiles");
+                }
+
+                for (const auto& nestedInstallerFile : installer.NestedInstallerFiles)
+                {
+                    if (nestedInstallerFile.RelativeFilePath.empty())
+                    {
+                        resultErrors.emplace_back(ManifestError::RequiredFieldMissing, "RelativeFilePath");
+                    }
+                    else
+                    {
+                        const std::filesystem::path& basePath = std::filesystem::current_path();
+                        const std::filesystem::path& fullPath = basePath / ConvertToUTF16(nestedInstallerFile.RelativeFilePath);
+                        if (AppInstaller::Filesystem::PathEscapesBaseDirectory(fullPath, basePath))
+                        {
+                            resultErrors.emplace_back(ManifestError::RelativeFilePathEscapesDirectory, "RelativeFilePath");
+                        }
+                    }
                 }
             }
 
@@ -196,6 +242,26 @@ namespace AppInstaller::Manifest
 
                     // Stop checking to avoid repeated errors
                     break;
+                }
+            }
+
+            // Check no approximate version declared for DisplayVersion in AppsAndFeatureEntries
+            for (auto const& entry : installer.AppsAndFeaturesEntries)
+            {
+                if (!entry.DisplayVersion.empty())
+                {
+                    try
+                    {
+                        Utility::Version displayVersion{ entry.DisplayVersion };
+                        if (displayVersion.IsApproximate())
+                        {
+                            resultErrors.emplace_back(ManifestError::ApproximateVersionNotAllowed, "DisplayVersion", entry.DisplayVersion);
+                        }
+                    }
+                    catch (const std::exception&)
+                    {
+                        resultErrors.emplace_back(ManifestError::InvalidFieldValue, "DisplayVersion", entry.DisplayVersion);
+                    }
                 }
             }
         }
@@ -233,5 +299,23 @@ namespace AppInstaller::Manifest
         }
 
         return resultErrors;
+    }
+
+    std::vector<ValidationError> ValidateManifestInstallers(const Manifest& manifest, bool treatErrorAsWarning)
+    {
+        std::vector<ValidationError> errors;
+        auto validationErrorLevel = treatErrorAsWarning ? ValidationError::Level::Warning : ValidationError::Level::Error;
+        MsixManifestValidation msixManifestValidation(validationErrorLevel);
+        for (const auto& installer : manifest.Installers)
+        {
+            // Installer msix or msixbundle
+            if (installer.EffectiveInstallerType() == InstallerTypeEnum::Msix)
+            {
+                auto installerErrors = msixManifestValidation.Validate(manifest, installer);
+                std::move(installerErrors.begin(), installerErrors.end(), std::inserter(errors, errors.end()));
+            }
+        }
+
+        return errors;
     }
 }

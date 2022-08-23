@@ -8,14 +8,10 @@ namespace AppInstallerCLIE2ETests
 
     public class InstallCommand : BaseCommand
     {
-        private const string InstallTestMsiInstalledFile = @"AppInstallerTestExeInstaller.exe";
-        private const string InstallTestMsiProductId = @"{A5D36CF1-1993-4F63-BFB4-3ACD910D36A1}";
-        private const string InstallTestMsixName = @"6c6338fe-41b7-46ca-8ba6-b5ad5312bb0e";
-
         [OneTimeSetUp]
         public void OneTimeSetup()
         {
-            ConfigureFeature("portableInstall", true);
+            ConfigureFeature("zipInstall", true);
         }
 
         [Test]
@@ -41,7 +37,7 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller --silent -l {installDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
-            Assert.True(VerifyTestExeInstalled(installDir, "/execustom"));
+            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/execustom"));
         }
 
         [Test]
@@ -51,7 +47,7 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("install", $"InapplicableOsVersion --silent -l {installDir}");
             // MinOSVersion is moved to installer level, the check is performed during installer selection
             Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICABLE_INSTALLER, result.ExitCode);
-            Assert.False(VerifyTestExeInstalled(installDir));
+            Assert.False(TestCommon.VerifyTestExeInstalledAndCleanup(installDir));
         }
 
         [Test]
@@ -61,7 +57,7 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("install", $"TestExeSha256Mismatch --silent -l {installDir}");
             Assert.AreEqual(Constants.ErrorCode.ERROR_INSTALLER_HASH_MISMATCH, result.ExitCode);
             Assert.True(result.StdOut.Contains("Installer hash does not match"));
-            Assert.False(VerifyTestExeInstalled(installDir));
+            Assert.False(TestCommon.VerifyTestExeInstalledAndCleanup(installDir));
         }
 
         [Test]
@@ -72,7 +68,7 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("install", $"TestInnoInstaller --silent -l {installDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
-            Assert.True(VerifyTestExeInstalled(installDir, "/VERYSILENT"));
+            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/VERYSILENT"));
         }
 
         [Test]
@@ -83,7 +79,7 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("install", $"TestBurnInstaller --silent -l {installDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
-            Assert.True(VerifyTestExeInstalled(installDir, "/quiet"));
+            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/quiet"));
         }
 
         [Test]
@@ -94,22 +90,17 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("install", $"TestNullsoftInstaller --silent -l {installDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
-            Assert.True(VerifyTestExeInstalled(installDir, "/S"));
+            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/S"));
         }
 
         [Test]
         public void InstallMSI()
         {
-            if (string.IsNullOrEmpty(TestCommon.MsiInstallerPath))
-            {
-                Assert.Ignore("MSI installer not available");
-            }
-
             var installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"TestMsiInstaller --silent -l {installDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
-            Assert.True(VerifyTestMsiInstalledAndCleanup(installDir));
+            Assert.True(TestCommon.VerifyTestMsiInstalledAndCleanup(installDir));
         }
 
         [Test]
@@ -118,7 +109,7 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("install", $"TestMsixInstaller");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
-            Assert.True(VerifyTestMsixInstalledAndCleanup());
+            Assert.True(TestCommon.VerifyTestMsixInstalledAndCleanup());
         }
 
         [Test]
@@ -128,7 +119,7 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("install", $"TestMsixWithSignatureHash --silent -l {installDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
-            Assert.True(VerifyTestMsixInstalledAndCleanup());
+            Assert.True(TestCommon.VerifyTestMsixInstalledAndCleanup());
         }
 
         [Test]
@@ -137,7 +128,7 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("install", $"TestMsixSignatureHashMismatch");
             Assert.AreEqual(Constants.ErrorCode.ERROR_INSTALLER_HASH_MISMATCH, result.ExitCode);
             Assert.True(result.StdOut.Contains("Installer hash does not match"));
-            Assert.False(VerifyTestMsixInstalledAndCleanup());
+            Assert.False(TestCommon.VerifyTestMsixInstalledAndCleanup());
         }
 
         [Test]
@@ -153,7 +144,7 @@ namespace AppInstallerCLIE2ETests
                 Assert.True(result.StdOut.Contains("Failed when searching source: failSearch"));
                 Assert.True(result.StdOut.Contains("AppInstallerTest.TestExeInstaller"));
                 Assert.False(result.StdOut.Contains("Successfully installed"));
-                Assert.False(VerifyTestExeInstalled(installDir));
+                Assert.False(TestCommon.VerifyTestExeInstalledAndCleanup(installDir));
             }
             finally
             {
@@ -164,7 +155,7 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void InstallPortableExe()
         {
-            string installDir = Path.Combine(System.Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet", "Packages");
+            string installDir = TestCommon.GetPortablePackagesDirectory();
             string packageId, commandAlias, fileName, packageDirName, productCode;
             packageId = "AppInstallerTest.TestPortableExe";
             packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
@@ -255,15 +246,15 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void InstallPortableFailsWithCleanup()
         {
-            string winGetDir = Path.Combine(System.Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet");
-            string installDir = Path.Combine(winGetDir, "Packages");
+            string installDir = TestCommon.GetPortablePackagesDirectory();
+            string winGetDir = Directory.GetParent(installDir).FullName;
             string packageId, commandAlias, fileName, packageDirName, productCode;
             packageId = "AppInstallerTest.TestPortableExe";
             packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
             commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
 
             // Create a directory with the same name as the symlink in order to cause install to fail.
-            string symlinkDirectory = Path.Combine(winGetDir, "Links");
+            string symlinkDirectory = TestCommon.GetPortableSymlinkDirectory(TestCommon.Scope.User);
             string conflictDirectory = Path.Combine(symlinkDirectory, commandAlias);
             Directory.CreateDirectory(conflictDirectory);
 
@@ -277,43 +268,105 @@ namespace AppInstallerCLIE2ETests
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, false);
         }
 
-        private bool VerifyTestExeInstalled(string installDir, string expectedContent = null)
+        [Test]
+        public void ReinstallPortable()
         {
-            if (!File.Exists(Path.Combine(installDir, Constants.TestExeInstalledFileName)))
-            {
-                return false;
-            }
+            string installDir = TestCommon.GetPortablePackagesDirectory();
+            string packageId, commandAlias, fileName, packageDirName, productCode;
+            packageId = "AppInstallerTest.TestPortableExe";
+            packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
+            commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
 
-            if (!string.IsNullOrEmpty(expectedContent))
-            {
-                string content = File.ReadAllText(Path.Combine(installDir, Constants.TestExeInstalledFileName));
-                return content.Contains(expectedContent);
-            }
+            var result = TestCommon.RunAICLICommand("install", "AppInstallerTest.TestPortableExe");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
 
-            TestCommon.RunCommand(Path.Combine(installDir, Constants.TestExeUninstallerFileName));
-            return true;
+            string symlinkDirectory = TestCommon.GetPortableSymlinkDirectory(TestCommon.Scope.User);
+            string symlinkPath = Path.Combine(symlinkDirectory, commandAlias);
+
+            // Clean first install should not display file overwrite message.
+            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.False(result.StdOut.Contains($"Overwriting existing file: {symlinkPath}"));
+
+            // Perform second install and verify that file overwrite message is displayed.
+            var result2 = TestCommon.RunAICLICommand("install", "AppInstallerTest.TestPortableExe");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result2.ExitCode);
+            Assert.True(result2.StdOut.Contains("Successfully installed"));
+            Assert.True(result2.StdOut.Contains($"Overwriting existing file: {symlinkPath}"));
+
+            TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
         }
 
-        private bool VerifyTestMsiInstalledAndCleanup(string installDir)
+        [Test]
+        public void InstallPortable_UserScope()
         {
-            if (!File.Exists(Path.Combine(installDir, InstallTestMsiInstalledFile)))
-            {
-                return false;
-            }
+            string installDir = TestCommon.GetRandomTestDir();
+            ConfigureInstallBehavior(Constants.PortablePackageUserRoot, installDir);
 
-            return TestCommon.RunCommand("msiexec.exe", $"/qn /x {InstallTestMsiProductId}");
+            string packageId, commandAlias, fileName, packageDirName, productCode;
+            packageId = "AppInstallerTest.TestPortableExe";
+            packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
+            commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
+
+            var result = TestCommon.RunAICLICommand("install", "AppInstallerTest.TestPortableExe --scope user");
+            ConfigureInstallBehavior(Constants.PortablePackageUserRoot, string.Empty);
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully installed"));
+            TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
         }
 
-        private bool VerifyTestMsixInstalledAndCleanup()
+        [Test]
+        public void InstallPortable_MachineScope()
         {
-            var result = TestCommon.RunCommandWithResult("powershell", $"Get-AppxPackage {InstallTestMsixName}");
+            string installDir = TestCommon.GetRandomTestDir();
+            ConfigureInstallBehavior(Constants.PortablePackageMachineRoot, installDir);
 
-            if (!result.StdOut.Contains(InstallTestMsixName))
-            {
-                return false;
-            }
+            string packageId, commandAlias, fileName, packageDirName, productCode;
+            packageId = "AppInstallerTest.TestPortableExe";
+            packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
+            commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
 
-            return TestCommon.RemoveMsix(InstallTestMsixName);
+            var result = TestCommon.RunAICLICommand("install", "AppInstallerTest.TestPortableExe --scope machine");
+            ConfigureInstallBehavior(Constants.PortablePackageMachineRoot, string.Empty);
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully installed"));
+            TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true, TestCommon.Scope.Machine);
+        }
+
+        [Test]
+        public void InstallZipWithExe()
+        {
+            var installDir = TestCommon.GetRandomTestDir();
+            var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestZipInstallerWithExe --silent -l {installDir}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/execustom"));
+        }
+
+        [Test]
+        public void InstallZipWithInvalidRelativeFilePath()
+        {
+            var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestZipInvalidRelativePath");
+            Assert.AreNotEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Invalid relative file path to the nested installer; path points to a location outside of the install directory"));
+        }
+
+        [Test]
+        public void InstallZipWithMsi()
+        {
+            var installDir = TestCommon.GetRandomTestDir();
+            var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestZipInstallerWithMsi --silent -l {installDir}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.True(TestCommon.VerifyTestMsiInstalledAndCleanup(installDir));
+        }
+
+        [Test]
+        public void InstallZipWithMsix()
+        {
+            var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestZipInstallerWithMsix");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.True(TestCommon.VerifyTestMsixInstalledAndCleanup());
         }
     }
 }

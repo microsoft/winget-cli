@@ -15,7 +15,7 @@ constexpr std::string_view s_MsixFile_1 = "index.1.0.0.0.msix";
 constexpr std::string_view s_MsixFile_2 = "index.2.0.0.0.msix";
 constexpr std::string_view s_MsixFileSigned_1 = "index.1.0.0.0.signed.msix";
 
-TEST_CASE("MsixInfo_GetPackageFamilyName", "[msixinfo]")
+TEST_CASE("MsixInfo_GetPackageFullName", "[msixinfo]")
 {
     TestDataFile index(s_MsixFile_1);
     Msix::MsixInfo msix(index.GetPath());

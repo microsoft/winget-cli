@@ -15,12 +15,29 @@ using namespace AppInstaller::CLI::Execution;
 
 std::string GetCommandName(const std::unique_ptr<Command>& command)
 {
-    return std::string{ command->Name() };
+    return std::string{ command->FullName() };
+}
+
+std::vector<std::string_view> GetCommandAliases(const std::unique_ptr<Command>& command)
+{
+    return std::vector<std::string_view> { command->Aliases() };
 }
 
 std::string GetArgumentName(const Argument& arg)
 {
     return std::string{ arg.Name() };
+}
+
+std::string GetArgumentAlternateName(const Argument& arg)
+{
+    if (arg.AlternateName() == Argument::NoAlternateName)
+    {
+        return {};
+    }
+    else
+    {
+        return std::string{ arg.AlternateName() };
+    }
 }
 
 std::string GetArgumentAlias(const Argument& arg)
@@ -35,11 +52,15 @@ std::string GetArgumentAlias(const Argument& arg)
     }
 }
 
+bool StringIsLowercase(const std::string& s)
+{
+    return Utility::ToLower(s) == s;
+}
+
 template <typename Enumerable, typename Op>
-void EnsureStringsAreLowercaseAndNoCollisions(const std::string& info, const Enumerable& e, Op& op, bool requireLower = true)
+void EnsureStringsAreLowercaseAndNoCollisions(const std::string& info, const Enumerable& e, Op& op, std::unordered_set<std::string>& values, bool requireLower = true)
 {
     INFO(info);
-    std::unordered_set<std::string> values;
 
     for (const auto& val : e)
     {
@@ -52,8 +73,7 @@ void EnsureStringsAreLowercaseAndNoCollisions(const std::string& info, const Enu
 
         if (requireLower)
         {
-            std::string lowerVal = Utility::ToLower(valString);
-            REQUIRE(valString == lowerVal);
+            REQUIRE(StringIsLowercase(valString));
         }
 
         REQUIRE(values.find(valString) == values.end());
@@ -62,13 +82,58 @@ void EnsureStringsAreLowercaseAndNoCollisions(const std::string& info, const Enu
     }
 }
 
+template <typename Enumerable, typename Op>
+void EnsureStringsAreLowercaseAndNoCollisions(const std::string& info, const Enumerable& e, Op& op, bool requireLower = true)
+{
+    std::unordered_set<std::string> values;
+    EnsureStringsAreLowercaseAndNoCollisions(info, e, op, values, requireLower);
+}
+
+template <typename Enumerable, typename Op>
+void EnsureVectorStringViewsAreLowercaseAndNoCollisions(const std::string& info, const Enumerable& e, Op& op, std::unordered_set<std::string>& values, bool requireLower = true)
+{
+    INFO(info);
+
+    for (const auto& val : e)
+    { 
+        std::vector<std::string_view> aliasVector = op(val);
+        std::vector<std::string> valVector(aliasVector.begin(), aliasVector.end());
+        if (valVector.empty())
+        {
+            continue;
+        }
+        // When op returns a vector, we need to ensure every value in the vector does not cause a collision
+        for (auto& valString : valVector)
+        {
+            INFO(valString);
+
+            if (requireLower)
+            {
+                REQUIRE(StringIsLowercase(valString));
+            }
+
+            REQUIRE(values.find(valString) == values.end());
+            values.emplace(std::move(valString));
+        }
+    }
+}
+
 void EnsureCommandConsistency(const Command& command)
 {
-    EnsureStringsAreLowercaseAndNoCollisions(command.FullName() + " commands", command.GetCommands(), GetCommandName);
+    // Command names and aliases exist in the same space, so both need to be checked as a set
+    // However, collisions do not occur between levels, so the full name must be used to check for collision
+    std::unordered_set<std::string> allCommandAliasNames; 
+    EnsureStringsAreLowercaseAndNoCollisions(command.FullName() + " commands", command.GetCommands(), GetCommandName, allCommandAliasNames);
+    EnsureVectorStringViewsAreLowercaseAndNoCollisions(command.FullName() + " aliases", command.GetCommands(), GetCommandAliases, allCommandAliasNames);
 
     auto args = command.GetArguments();
     Argument::GetCommon(args);
-    EnsureStringsAreLowercaseAndNoCollisions(command.FullName() + " argument names", args, GetArgumentName);
+
+    // Argument names and alternate names exist in the same space, so both need to be checked as a set
+    std::unordered_set<std::string> allArgumentNames;
+    EnsureStringsAreLowercaseAndNoCollisions(command.FullName() + " argument names", args, GetArgumentName, allArgumentNames);
+    EnsureStringsAreLowercaseAndNoCollisions(command.FullName() + " argument alternate name", args, GetArgumentAlternateName, allArgumentNames);
+    // Argument aliases use a different space than the names and can be checked separately
     EnsureStringsAreLowercaseAndNoCollisions(command.FullName() + " argument alias", args, GetArgumentAlias, false);
 
     // No : allowed in commands
@@ -199,7 +264,7 @@ void RequireValueParsedToArg(const std::string& value, const Argument& arg, cons
 }
 
 // Description used for tests; doesn't need to be anything in particular.
-static constexpr Resource::StringId DefaultDesc{ L""sv };
+static constexpr CLI::Resource::StringId DefaultDesc{ L""sv };
 
 TEST_CASE("ParseArguments_MultiplePositional", "[command]")
 {
@@ -412,6 +477,23 @@ TEST_CASE("ParseArguments_NameWithAdjoinedValue", "[command]")
     command.ParseArguments(inv, args);
 
     RequireValueParsedToArg(values[0].substr(7), command.m_args[0], args);
+}
+
+TEST_CASE("ParseArguments_AlternateNameWithAdjoinedValue", "[command]")
+{
+    Args args;
+    TestCommand command({
+            Argument{ "pos1", 'p', "p1", Args::Type::Channel, DefaultDesc, ArgumentType::Positional},
+            Argument{ "std1", 's', Args::Type::Command, DefaultDesc, ArgumentType::Standard },
+            Argument{ "pos2", 'q', Args::Type::Count, DefaultDesc, ArgumentType::Positional },
+        });
+
+    std::vector<std::string> values{ "--p1=Val1" };
+    Invocation inv{ std::vector<std::string>(values) };
+
+    command.ParseArguments(inv, args);
+
+    RequireValueParsedToArg(values[0].substr(5), command.m_args[0], args);
 }
 
 TEST_CASE("ParseArguments_NameFlag", "[command]")

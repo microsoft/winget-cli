@@ -1,15 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include <json.h>
+#include <json/json.h>
 
 namespace AppInstaller::JsonSchema
 {
-    // Load an embedded resource from binary and return as std::string
-    std::string LoadResourceAsString(PCWSTR resourceName, PCWSTR resourceType);
-
     // Load schema as parsed json doc
-    Json::Value LoadSchemaDoc(const std::string& schemaStr);
+    Json::Value LoadSchemaDoc(std::string_view schemaStr);
 
     // Load an embedded resource from binary and return as Json::Value
     Json::Value LoadResourceAsSchemaDoc(PCWSTR resourceName, PCWSTR resourceType);

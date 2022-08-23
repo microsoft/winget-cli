@@ -85,4 +85,45 @@ namespace AppInstaller::Manifest
 
         return resultCommands;
     }
+
+    Utility::VersionRange Manifest::GetArpVersionRange() const
+    {
+        bool arpVersionFound = false;
+        Utility::Version minVersion;
+        Utility::Version maxVersion;
+
+        for (auto const& installer : Installers)
+        {
+            if (DoesInstallerTypeSupportArpVersionRange(installer.EffectiveInstallerType()))
+            {
+                for (auto const& entry : installer.AppsAndFeaturesEntries)
+                {
+                    if (!entry.DisplayVersion.empty())
+                    {
+                        Utility::Version arpVersion{ entry.DisplayVersion };
+
+                        if (!arpVersionFound)
+                        {
+                            // This is the first arp version found, populate both min and max version
+                            minVersion = arpVersion;
+                            maxVersion = arpVersion;
+                            arpVersionFound = true;
+                            continue;
+                        }
+
+                        if (arpVersion < minVersion)
+                        {
+                            minVersion = arpVersion;
+                        }
+                        else if (arpVersion > maxVersion)
+                        {
+                            maxVersion = arpVersion;
+                        }
+                    }
+                }
+            }
+        }
+
+        return arpVersionFound ? Utility::VersionRange{ minVersion, maxVersion } : Utility::VersionRange{};
+    }
 }

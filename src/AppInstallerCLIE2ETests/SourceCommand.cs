@@ -10,7 +10,7 @@ namespace AppInstallerCLIE2ETests
         [SetUp]
         public void Setup()
         {
-            ResetTestSource();
+            ResetTestSource(false);
         }
 
         [Test]
@@ -100,7 +100,7 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("source remove", $"-n {Constants.TestSourceName}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Done"));
-            ResetTestSource();
+            ResetTestSource(false);
         }
 
         [Test]

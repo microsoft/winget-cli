@@ -3,6 +3,7 @@
 #pragma once
 #include <AppInstallerLogging.h>
 #include <AppInstallerProgress.h>
+#include <AppxPackaging.h>
 #include <winget/UserSettings.h>
 #include <wil/result.h>
 
@@ -25,6 +26,7 @@ namespace TestCommon
     struct TempFile
     {
         TempFile(const std::string& baseName, const std::string& baseExt, bool deleteFileOnConstruction = true);
+        TempFile(const std::filesystem::path& parent, const std::string& baseName, const std::string& baseExt, bool deleteFileOnConstruction = true);
         TempFile(const std::filesystem::path& filePath, bool deleteFileOnConstruction = true);
 
         TempFile(const TempFile&) = delete;
@@ -38,6 +40,8 @@ namespace TestCommon
         const std::filesystem::path& GetPath() const { return _filepath; }
         operator const std::filesystem::path& () const { return _filepath; }
         operator const std::string() const { return _filepath.u8string(); }
+
+        void Rename(const std::filesystem::path& newFilePath);
 
         static void SetDestructorBehavior(TempFileDestructionBehavior behavior);
 
@@ -116,6 +120,9 @@ namespace TestCommon
     void SetRegistryValue(HKEY key, const std::wstring& name, const std::vector<BYTE>& value, DWORD type = REG_BINARY);
     void SetRegistryValue(HKEY key, const std::wstring& name, DWORD value);
 
+    // Enable or disable developer mode.
+    void EnableDevMode(bool enable);
+
     // Override UserSettings using this class.
     // Automatically overrides the user settings for the lifetime of this object.
     // DOES NOT SUPPORT NESTED USE
@@ -135,4 +142,7 @@ namespace TestCommon
     // tests calling these functions should skip when not running with admin.
     bool InstallCertFromSignedPackage(const std::filesystem::path& package);
     bool UninstallCertFromSignedPackage(const std::filesystem::path& package);
+
+    // Get manifest reader from a msix file path
+    bool GetMsixPackageManifestReader(std::string_view testFileName, IAppxManifestReader** manifestReader);
 }

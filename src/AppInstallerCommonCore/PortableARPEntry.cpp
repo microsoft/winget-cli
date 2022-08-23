@@ -29,6 +29,7 @@ namespace AppInstaller::Registry::Portable
         constexpr std::wstring_view s_WinGetPackageIdentifier = L"WinGetPackageIdentifier";
         constexpr std::wstring_view s_WinGetSourceIdentifier = L"WinGetSourceIdentifier";
         constexpr std::wstring_view s_InstallDirectoryCreated = L"InstallDirectoryCreated";
+        constexpr std::wstring_view s_InstallDirectoryAddedToPath = L"InstallDirectoryAddedToPath";
     }
 
     PortableARPEntry::PortableARPEntry(Manifest::ScopeEnum scope, Utility::Architecture arch, const std::string& productCode)
@@ -90,6 +91,7 @@ namespace AppInstaller::Registry::Portable
             VALUENAMECASE(WinGetPackageIdentifier);
             VALUENAMECASE(WinGetSourceIdentifier);
             VALUENAMECASE(InstallDirectoryCreated);
+            VALUENAMECASE(InstallDirectoryAddedToPath);
             default: return {};
         }
     }

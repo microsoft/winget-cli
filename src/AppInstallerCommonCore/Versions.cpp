@@ -11,27 +11,72 @@ namespace AppInstaller::Utility
     static constexpr std::string_view s_Version_Part_Latest = "Latest"sv;
     static constexpr std::string_view s_Version_Part_Unknown = "Unknown"sv;
 
+    static constexpr std::string_view s_Approximate_Less_Than = "< "sv;
+    static constexpr std::string_view s_Approximate_Greater_Than = "> "sv;
+
     Version::Version(std::string&& version, std::string_view splitChars)
     {
         Assign(std::move(version), splitChars);
     }
 
-    void Version::Assign(std::string&& version, std::string_view splitChars)
+    Version::Version(Version baseVersion, ApproximateComparator approximateComparator) : Version(std::move(baseVersion))
+    {
+        if (approximateComparator == ApproximateComparator::None)
+        {
+            return;
+        }
+
+        THROW_HR_IF(E_INVALIDARG, this->IsApproximate() || this->IsUnknown());
+
+        m_approximateComparator = approximateComparator;
+        if (approximateComparator == ApproximateComparator::LessThan)
+        {
+            m_version = std::string{ s_Approximate_Less_Than } + m_version;
+        }
+        else if (approximateComparator == ApproximateComparator::GreaterThan)
+        {
+            m_version = std::string{ s_Approximate_Greater_Than } + m_version;
+        }
+    }
+
+    void Version::Assign(std::string version, std::string_view splitChars)
     {
         m_version = std::move(version);
+
+        // Process approximate comparator if applicable
+        std::string baseVersion = m_version;
+        if (CaseInsensitiveStartsWith(m_version, s_Approximate_Less_Than))
+        {
+            m_approximateComparator = ApproximateComparator::LessThan;
+            baseVersion = m_version.substr(s_Approximate_Less_Than.length(), m_version.length() - s_Approximate_Less_Than.length());
+        }
+        else if (CaseInsensitiveStartsWith(m_version, s_Approximate_Greater_Than))
+        {
+            m_approximateComparator = ApproximateComparator::GreaterThan;
+            baseVersion = m_version.substr(s_Approximate_Greater_Than.length(), m_version.length() - s_Approximate_Greater_Than.length());
+        }
+
+        // Then parse the base version
         size_t pos = 0;
 
-        while (pos < m_version.length())
+        while (pos < baseVersion.length())
         {
-            size_t newPos = m_version.find_first_of(splitChars, pos);
+            size_t newPos = baseVersion.find_first_of(splitChars, pos);
 
-            size_t length = (newPos == std::string::npos ? m_version.length() : newPos) - pos;
-            m_parts.emplace_back(m_version.substr(pos, length));
+            size_t length = (newPos == std::string::npos ? baseVersion.length() : newPos) - pos;
+            m_parts.emplace_back(baseVersion.substr(pos, length));
 
             pos += length + 1;
         }
 
-        // Remove trailing empty versions (0 or empty)
+        // Trim version parts
+        Trim();
+
+        THROW_HR_IF(E_INVALIDARG, m_approximateComparator != ApproximateComparator::None && IsBaseVersionUnknown());
+    }
+
+    void Version::Trim()
+    {
         while (!m_parts.empty())
         {
             const Part& part = m_parts.back();
@@ -41,7 +86,7 @@ namespace AppInstaller::Utility
             }
             else
             {
-                break;
+                return;
             }
         }
     }
@@ -49,20 +94,29 @@ namespace AppInstaller::Utility
     bool Version::operator<(const Version& other) const
     {
         // Sort Latest higher than any other values
-        bool thisIsLatest = IsLatest();
-        bool otherIsLatest = other.IsLatest();
+        bool thisIsLatest = IsBaseVersionLatest();
+        bool otherIsLatest = other.IsBaseVersionLatest();
 
-        if (thisIsLatest || otherIsLatest)
+        if (thisIsLatest && otherIsLatest)
         {
-            // If at least one is latest, this can only be less than if the other is and this is not.
+            return ApproximateCompareLessThan(other);
+        }
+        else if (thisIsLatest || otherIsLatest)
+        {
+            // If only one is latest, this can only be less than if the other is and this is not.
             return (otherIsLatest && !thisIsLatest);
         }
 
         // Sort Unknown lower than any known values
-        bool thisIsUnknown = IsUnknown();
-        bool otherIsUnknown = other.IsUnknown();
+        bool thisIsUnknown = IsBaseVersionUnknown();
+        bool otherIsUnknown = other.IsBaseVersionUnknown();
 
-        if (thisIsUnknown || otherIsUnknown)
+        if (thisIsUnknown && otherIsUnknown)
+        {
+            // This code path should always return false as we disable approximate version for Unknown for now
+            return ApproximateCompareLessThan(other);
+        }
+        else if (thisIsUnknown || otherIsUnknown)
         {
             // If at least one is unknown, this can only be less than if it is and the other is not.
             return (thisIsUnknown && !otherIsUnknown);
@@ -90,8 +144,17 @@ namespace AppInstaller::Utility
             // else parts are equal, so continue to next part
         }
 
-        // All parts tested were equal, so this is only less if there are more parts in other.
-        return m_parts.size() < other.m_parts.size();
+        // All parts tested were equal
+        if (m_parts.size() == other.m_parts.size())
+        {
+            return ApproximateCompareLessThan(other);
+        }
+        else
+        {
+            // Else this is only less if there are more parts in other.
+            return m_parts.size() < other.m_parts.size();
+        }
+        
     }
 
     bool Version::operator>(const Version& other) const
@@ -111,8 +174,13 @@ namespace AppInstaller::Utility
 
     bool Version::operator==(const Version& other) const
     {
-        if ((IsLatest() && other.IsLatest()) ||
-            (IsUnknown() && other.IsUnknown()))
+        if (m_approximateComparator != other.m_approximateComparator)
+        {
+            return false;
+        }
+
+        if ((IsBaseVersionLatest() && other.IsBaseVersionLatest()) ||
+            (IsBaseVersionUnknown() && other.IsBaseVersionUnknown()))
         {
             return true;
         }
@@ -140,7 +208,7 @@ namespace AppInstaller::Utility
 
     bool Version::IsLatest() const
     {
-        return (m_parts.size() == 1 && m_parts[0].Integer == 0 && Utility::CaseInsensitiveEquals(m_parts[0].Other, s_Version_Part_Latest));
+        return (m_approximateComparator != ApproximateComparator::LessThan && IsBaseVersionLatest());
     }
 
     Version Version::CreateLatest()
@@ -153,7 +221,7 @@ namespace AppInstaller::Utility
 
     bool Version::IsUnknown() const
     {
-        return (m_parts.size() == 1 && m_parts[0].Integer == 0 && Utility::CaseInsensitiveEquals(m_parts[0].Other, s_Version_Part_Unknown));
+        return IsBaseVersionUnknown();
     }
 
     Version Version::CreateUnknown()
@@ -162,6 +230,37 @@ namespace AppInstaller::Utility
         result.m_version = s_Version_Part_Unknown;
         result.m_parts.emplace_back(0, std::string{ s_Version_Part_Unknown });
         return result;
+    }
+
+    const Version::Part& Version::PartAt(size_t index) const
+    {
+        static Part s_zero{};
+
+        if (index < m_parts.size())
+        {
+            return m_parts[index];
+        }
+        else
+        {
+            return s_zero;
+        }
+    }
+    
+    bool Version::IsBaseVersionLatest() const
+    {
+        return (m_parts.size() == 1 && m_parts[0].Integer == 0 && Utility::CaseInsensitiveEquals(m_parts[0].Other, s_Version_Part_Latest));
+    }
+
+    bool Version::IsBaseVersionUnknown() const
+    {
+        return (m_parts.size() == 1 && m_parts[0].Integer == 0 && Utility::CaseInsensitiveEquals(m_parts[0].Other, s_Version_Part_Unknown));
+    }
+
+    bool Version::ApproximateCompareLessThan(const Version& other) const
+    {
+        // Only true if this is less than, other is not, OR this is none, other is greater than
+        return (m_approximateComparator == ApproximateComparator::LessThan && other.m_approximateComparator != ApproximateComparator::LessThan) ||
+            (m_approximateComparator == ApproximateComparator::None && other.m_approximateComparator == ApproximateComparator::GreaterThan);
     }
 
     Version::Part::Part(const std::string& part)
@@ -274,5 +373,128 @@ namespace AppInstaller::Utility
         }
 
         return m_version < other.m_version;
+    }
+
+    UInt64Version::UInt64Version(UINT64 version)
+    {
+        Assign(version);
+    }
+
+    void UInt64Version::Assign(UINT64 version)
+    {
+        const UINT64 mask16 = (1 << 16) - 1;
+        UINT64 revision = version & mask16;
+        UINT64 build = (version >> 0x10) & mask16;
+        UINT64 minor = (version >> 0x20) & mask16;
+        UINT64 major = (version >> 0x30) & mask16;
+
+        // Construct a string representation of the provided version
+        std::stringstream ssVersion;
+        ssVersion << major
+            << Version::DefaultSplitChars << minor
+            << Version::DefaultSplitChars << build
+            << Version::DefaultSplitChars << revision;
+        m_version = ssVersion.str();
+
+        // Construct the 4 parts
+        m_parts = { major, minor, build, revision };
+
+        // Trim version parts
+        Trim();
+    }
+
+    UInt64Version::UInt64Version(std::string&& version, std::string_view splitChars)
+    {
+        Assign(std::move(version), splitChars);
+    }
+
+    void UInt64Version::Assign(std::string version, std::string_view splitChars)
+    {
+        Version::Assign(std::move(version), splitChars);
+
+        // After trimming trailing parts (0 or empty),
+        // at most 4 parts must be present
+        THROW_HR_IF(E_INVALIDARG, m_parts.size() > 4);
+        for (const auto& part : m_parts)
+        {
+            // Check for non-empty Other part
+            THROW_HR_IF(E_INVALIDARG, !part.Other.empty());
+
+            // Check for overflow Integer part
+            THROW_HR_IF(E_INVALIDARG, part.Integer >> 16 != 0);
+        }
+    }
+      
+    VersionRange::VersionRange(Version minVersion, Version maxVersion)
+    {
+        THROW_HR_IF(E_INVALIDARG, minVersion > maxVersion);
+        m_minVersion = std::move(minVersion);
+        m_maxVersion = std::move(maxVersion);
+    }
+
+    bool VersionRange::Overlaps(const VersionRange& other) const
+    {
+        // No overlap if either is an empty range.
+        if (IsEmpty() || other.IsEmpty())
+        {
+            return false;
+        }
+
+        return m_minVersion <= other.m_maxVersion && m_maxVersion >= other.m_minVersion;
+    }
+
+    bool VersionRange::IsSameAsSingleVersion(const Version& version) const
+    {
+        if (IsEmpty())
+        {
+            return false;
+        }
+    
+        return m_minVersion == version && m_maxVersion == version;
+    }
+
+    bool VersionRange::ContainsVersion(const Version& version) const
+    {
+        if (IsEmpty())
+        {
+            return false;
+        }
+
+        return version >= m_minVersion && version <= m_maxVersion;
+    }
+
+    bool VersionRange::operator<(const VersionRange& other) const
+    {
+        THROW_HR_IF(E_INVALIDARG, IsEmpty() || other.IsEmpty() || Overlaps(other));
+        
+        return m_minVersion < other.m_minVersion;
+    }
+
+    const Version& VersionRange::GetMinVersion() const
+    {
+        THROW_HR_IF(E_NOT_VALID_STATE, IsEmpty());
+        return m_minVersion;
+    }
+
+    const Version& VersionRange::GetMaxVersion() const
+    {
+        THROW_HR_IF(E_NOT_VALID_STATE, IsEmpty());
+        return m_maxVersion;
+    }
+
+    bool HasOverlapInVersionRanges(const std::vector<VersionRange>& ranges)
+    {
+        for (size_t i = 0; i < ranges.size(); i++)
+        {
+            for (size_t j = i + 1; j < ranges.size(); j++)
+            {
+                if (ranges[i].Overlaps(ranges[j]))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }
