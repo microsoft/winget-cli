@@ -263,7 +263,7 @@ The Product should have a age rating that would merit a rating of PEGI 12, ESRB 
 
 ### 2.11.1
 
-If the Product provides content (such as user-generated, retail or other web-based content) that might be appropriate for a higher age rating than its assigned rating, you must enable users to opt in to receiving such content by using a content filter or by signing in with a preexisting account.
+If the Product provides content (such as user-generated, retail or other web-based content) that might be appropriate for a higher age rating than its assigned rating, you must enable users to opt in to receiving such content by using a content filter or by signing in with a pre-existing account.
 
 ### 2.12 User Generated Content
 
