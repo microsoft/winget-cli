@@ -14,7 +14,7 @@ using namespace AppInstaller::Utility::literals;
 namespace {
 
     template <typename String>
-    void ShowSingleLineField(Execution::OutputStream outputStream, const AppInstaller::StringResource::StringId& label, const String& value, bool indent = false)
+    void ShowSingleLineField(Execution::OutputStream outputStream, AppInstaller::StringResource::StringId label, const String& value, bool indent = false)
     {
         if (value.empty())
         {
@@ -28,7 +28,7 @@ namespace {
     }
 
     template <typename String>
-    void ShowMultiLineField(Execution::OutputStream outputStream, const AppInstaller::StringResource::StringId& label, const String& value)
+    void ShowMultiLineField(Execution::OutputStream outputStream, AppInstaller::StringResource::StringId label, const String& value)
     {
         if (value.empty())
         {
@@ -39,21 +39,21 @@ namespace {
             Therefore, a copy is created here so we can manipulate it. The memory should be freed again once this method
             returns and the string is no longer in scope.
         */
-        std::string m_value = value;
-        bool isMultiLine = FindAndReplace(m_value, "\n", "\n  ");
+        std::string shownValue = value;
+        bool isMultiLine = FindAndReplace(shownValue, "\n", "\n  ");
         outputStream << Execution::ManifestInfoEmphasis << label;
         if (isMultiLine)
         {
-            outputStream << std::endl << "  "_liv << m_value << std::endl;
+            outputStream << std::endl << "  "_liv << shownValue << std::endl;
         }
         else
         {
-            outputStream << ' ' << m_value << std::endl;
+            outputStream << ' ' << shownValue << std::endl;
         }
     }
 
     template <typename Enumerable>
-    void ShowMultiValueField(Execution::OutputStream outputStream, const AppInstaller::StringResource::StringId& label, const Enumerable& values)
+    void ShowMultiValueField(Execution::OutputStream outputStream, AppInstaller::StringResource::StringId label, const Enumerable& values)
     {
         if (values.empty())
         {
@@ -154,13 +154,15 @@ namespace AppInstaller::CLI::Workflow
         {
             Manifest::InstallerTypeEnum effectiveInstallerType = installer->EffectiveInstallerType();
             Manifest::InstallerTypeEnum baseInstallerType = installer->BaseInstallerType;
-            std::stringstream shownInstallerType;
-            shownInstallerType << Manifest::InstallerTypeToString(effectiveInstallerType);
+            std::string shownInstallerType;
+            shownInstallerType = Manifest::InstallerTypeToString(effectiveInstallerType);
             if (effectiveInstallerType != baseInstallerType)
             {
-                shownInstallerType << " (" << Manifest::InstallerTypeToString(baseInstallerType) << ')';
+                shownInstallerType += " ("_liv;
+                shownInstallerType += Manifest::InstallerTypeToString(baseInstallerType);
+                shownInstallerType += ')';
             }
-            ShowSingleLineField(info, Resource::String::ShowLabelInstallerType, shownInstallerType.str(), true);
+            ShowSingleLineField(info, Resource::String::ShowLabelInstallerType, shownInstallerType, true);
             ShowSingleLineField(info, Resource::String::ShowLabelInstallerLocale, installer->Locale, true);
             ShowSingleLineField(info, Resource::String::ShowLabelInstallerUrl, installer->Url, true);
             ShowSingleLineField(info, Resource::String::ShowLabelInstallerSha256, (installer->Sha256.empty()) ? "" : Utility::SHA256::ConvertToString(installer->Sha256), true);
