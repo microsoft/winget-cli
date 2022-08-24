@@ -108,6 +108,8 @@ namespace AppInstaller::Repository::Rest::Schema::V1_4::Json
                 installationMetadata.Files.emplace_back(std::move(installedFile));
             }
         }
+
+        return installationMetadata;
     }
 
     std::optional<Manifest::ManifestInstaller> ManifestDeserializer::DeserializeInstaller(const web::json::value& installerJsonObject) const

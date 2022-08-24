@@ -182,39 +182,7 @@ namespace AppInstaller::Repository::Rest
         {
             PackageVersion(
                 const std::shared_ptr<RestSource>& source, std::shared_ptr<AvailablePackage>&& package, IRestClient::VersionInfo versionInfo)
-                : SourceReference(source), m_package(std::move(package)), m_versionInfo(std::move(versionInfo))
-            {
-                // Process the arp versions to populate arp version range.
-                Utility::Version minVersion;
-                Utility::Version maxVersion;
-                bool versionPopulated = false;
-
-                for (auto const& arpVersion : m_versionInfo.ArpVersions)
-                {
-                    if (!versionPopulated)
-                    {
-                        // This is the first arp version, populate both min and max version
-                        minVersion = arpVersion;
-                        maxVersion = arpVersion;
-                        versionPopulated = true;
-                        continue;
-                    }
-
-                    if (arpVersion < minVersion)
-                    {
-                        minVersion = arpVersion;
-                    }
-                    else if (arpVersion > maxVersion)
-                    {
-                        maxVersion = arpVersion;
-                    }
-                }
-
-                if (versionPopulated)
-                {
-                    m_arpVersionRange = Utility::VersionRange{ std::move(minVersion), std::move(maxVersion) };
-                }
-            }
+                : SourceReference(source), m_package(std::move(package)), m_versionInfo(std::move(versionInfo)) {}
 
             // Inherited via IPackageVersion
             Utility::LocIndString GetProperty(PackageVersionProperty property) const override
@@ -236,9 +204,9 @@ namespace AppInstaller::Repository::Rest
                 case PackageVersionProperty::Publisher:
                     return Utility::LocIndString{ m_package->PackageInfo().Publisher };
                 case PackageVersionProperty::ArpMinVersion:
-                    if (!m_arpVersionRange.IsEmpty())
+                    if (!m_versionInfo.ArpVersions.empty())
                     {
-                        return Utility::LocIndString{ m_arpVersionRange.GetMinVersion().ToString() };
+                        return Utility::LocIndString{ m_versionInfo.ArpVersions.front().ToString() };
                     }
                     else if (m_versionInfo.Manifest)
                     {
@@ -250,9 +218,9 @@ namespace AppInstaller::Repository::Rest
                         return {};
                     }
                 case PackageVersionProperty::ArpMaxVersion:
-                    if (!m_arpVersionRange.IsEmpty())
+                    if (!m_versionInfo.ArpVersions.empty())
                     {
-                        return Utility::LocIndString{ m_arpVersionRange.GetMaxVersion().ToString() };
+                        return Utility::LocIndString{ m_versionInfo.ArpVersions.back().ToString() };
                     }
                     else if (m_versionInfo.Manifest)
                     {
@@ -386,7 +354,6 @@ namespace AppInstaller::Repository::Rest
 
             std::shared_ptr<AvailablePackage> m_package;
             IRestClient::VersionInfo m_versionInfo;
-            Utility::VersionRange m_arpVersionRange;
         };
 
         std::shared_ptr<IPackageVersion> AvailablePackage::GetAvailableVersion(const PackageVersionKey& versionKey) const

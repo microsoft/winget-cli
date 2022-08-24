@@ -25,6 +25,8 @@ namespace AppInstaller::Repository::Rest::Schema::V1_4::Json
             {
                 result->ArpVersions.emplace_back(Utility::Version{ version });
             }
+            // Sort the arp versions for later querying
+            std::sort(result->ArpVersions.begin(), result->ArpVersions.end());
         }
 
         return result;
