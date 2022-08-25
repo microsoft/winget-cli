@@ -1127,6 +1127,9 @@ Do you agree to the terms?</value>
   <data name="ShowLabelPublisherUrl" xml:space="preserve">
     <value>Publisher Url:</value>
   </data>
+  <data name="ShowLabelPurchaseUrl" xml:space="preserve">
+    <value>Purchase Url:</value>
+  </data>
   <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
     <value>Publisher Support Url:</value>
   </data>
