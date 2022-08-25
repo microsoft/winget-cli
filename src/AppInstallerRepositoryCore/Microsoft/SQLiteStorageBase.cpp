@@ -37,17 +37,17 @@ namespace AppInstaller::Repository::Microsoft
         return Utility::ConvertUnixEpochToSystemClock(lastWriteTime);
     }
 
-    SQLiteStorageBase::SQLiteStorageBase(const std::string& filePath, OpenDisposition disposition, Utility::ManagedFile&& indexFile) :
+    SQLiteStorageBase::SQLiteStorageBase(const std::string& filePath, OpenDisposition disposition, SQLite::Connection::OpenFlags flags, Utility::ManagedFile&& indexFile) :
         m_indexFile(std::move(indexFile))
     {
         AICLI_LOG(Repo, Info, << "Opening SQLite Index for " << GetOpenDispositionString(disposition) << " at '" << filePath << "'");
         switch (disposition)
         {
         case OpenDisposition::Read:
-            m_dbconn = SQLite::Connection::Create(filePath, SQLite::Connection::OpenDisposition::ReadOnly, SQLite::Connection::OpenFlags::None);
+            m_dbconn = SQLite::Connection::Create(filePath, SQLite::Connection::OpenDisposition::ReadOnly, flags);
             break;
         case OpenDisposition::ReadWrite:
-            m_dbconn = SQLite::Connection::Create(filePath, SQLite::Connection::OpenDisposition::ReadWrite, SQLite::Connection::OpenFlags::None);
+            m_dbconn = SQLite::Connection::Create(filePath, SQLite::Connection::OpenDisposition::ReadWrite, flags);
             break;
         case OpenDisposition::Immutable:
         {
@@ -93,7 +93,7 @@ namespace AppInstaller::Repository::Microsoft
             }
 
             target += "?immutable=1";
-            m_dbconn = SQLite::Connection::Create(filePath, SQLite::Connection::OpenDisposition::ReadOnly, SQLite::Connection::OpenFlags::Uri);
+            m_dbconn = SQLite::Connection::Create(filePath, SQLite::Connection::OpenDisposition::ReadOnly, flags);
             break;
         }
         default:

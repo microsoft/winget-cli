@@ -384,7 +384,7 @@ TEST_CASE("SQLiteIndexCreateLatestAndReopen", "[sqliteindex]")
     // Reopen the index for immutable read
     {
         INFO("Trying with Immutable");
-        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteStorageBase::OpenDisposition::Immutable);
+        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteStorageBase::OpenDisposition::Immutable, SQLite::Connection::OpenFlags::Uri);
         Schema::Version versionRead = index.GetVersion();
         REQUIRE(versionRead == versionCreated);
     }

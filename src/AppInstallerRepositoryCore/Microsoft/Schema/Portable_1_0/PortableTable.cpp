@@ -110,10 +110,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
         if (select.Step())
         {
             auto [filePath, fileType, sha256, symlinkTarget] = select.GetRow<std::string, IPortableIndex::PortableFileType, std::string, std::string>();
-            portableFile.SetFilePath(std::filesystem::path{ filePath });
+            portableFile.SetFilePath(std::move(filePath));
             portableFile.FileType = fileType;
-            portableFile.SHA256 = sha256;
-            portableFile.SymlinkTarget = symlinkTarget;
+            portableFile.SHA256 = std::move(sha256);
+            portableFile.SymlinkTarget = std::move(symlinkTarget);
             return portableFile;
         }
         else

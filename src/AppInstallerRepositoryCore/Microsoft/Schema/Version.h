@@ -3,17 +3,12 @@
 #pragma once
 #include "SQLiteWrapper.h"
 #include "Microsoft/Schema/ISQLiteIndex.h"
-#include "Microsoft/Schema/IPortableIndex.h"
 
 #include <limits>
 #include <memory>
 
 namespace AppInstaller::Repository::Microsoft::Schema
 {
-    // Forward declarations
-    struct ISQLiteIndex;
-    struct IPortableIndex;
-
     // Represents the schema version of the index.
     struct Version
     {

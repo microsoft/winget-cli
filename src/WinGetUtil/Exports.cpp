@@ -8,7 +8,6 @@
 #include <AppInstallerLogging.h>
 #include <AppInstallerStrings.h>
 #include <AppInstallerTelemetry.h>
-#include <Microsoft/SQLiteStorageBase.h>
 #include <Microsoft/SQLiteIndex.h>
 #include <winget/ManifestYamlParser.h>
 #include <winget/ThreadGlobals.h>

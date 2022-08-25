@@ -12,8 +12,6 @@
 #include "1_5/Interface.h"
 #include "1_6/Interface.h"
 
-#include "Portable_1_0/PortableIndexInterface.h"
-
 namespace AppInstaller::Repository::Microsoft::Schema
 {
     Version Version::GetSchemaVersion(SQLite::Connection& connection)
