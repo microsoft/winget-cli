@@ -136,7 +136,7 @@ namespace AppInstaller::Repository::Microsoft
         // Get all the dependencies for a specific manifest.
         std::set<std::pair<SQLite::rowid_t, Utility::NormalizedString>> GetDependenciesByManifestRowId(SQLite::rowid_t manifestRowId) const;
         std::vector<std::pair<SQLite::rowid_t, Utility::NormalizedString>> GetDependentsById(AppInstaller::Manifest::string_t packageId) const;
-    private:
+    protected:
         // Constructor used to create a new index.
         SQLiteIndex(const std::string& target, Schema::Version version);
 
@@ -151,6 +151,5 @@ namespace AppInstaller::Repository::Microsoft
         std::unique_ptr<Schema::ISQLiteIndex> CreateISQLiteIndex() const;
 
         std::unique_ptr<Schema::ISQLiteIndex> m_interface;
-        friend SQLiteStorageBase;
     };
 }

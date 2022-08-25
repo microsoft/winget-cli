@@ -35,7 +35,7 @@ namespace AppInstaller::Repository::Microsoft
 
         bool UpdatePortableFile(const Schema::IPortableIndex::PortableFile& file);
 
-    private:
+    protected:
         // Constructor used to open an existing index.
         PortableIndex(const std::string& target, SQLiteStorageBase::OpenDisposition disposition, SQLite::Connection::OpenFlags flags, Utility::ManagedFile&& indexFile);
 
@@ -46,6 +46,5 @@ namespace AppInstaller::Repository::Microsoft
         std::unique_ptr<Schema::IPortableIndex> CreateIPortableIndex() const;
 
         std::unique_ptr<Schema::IPortableIndex> m_interface;
-        friend SQLiteStorageBase;
     };
 }
