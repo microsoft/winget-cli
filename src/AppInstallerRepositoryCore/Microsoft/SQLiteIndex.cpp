@@ -82,7 +82,7 @@ namespace AppInstaller::Repository::Microsoft
     }
 
     SQLiteIndex::SQLiteIndex(const std::string& target, SQLiteStorageBase::OpenDisposition disposition, Utility::ManagedFile&& indexFile) :
-        SQLiteStorageBase(target, disposition, GetOpenFlags(disposition), std::move(indexFile))
+        SQLiteStorageBase(target, disposition, std::move(indexFile))
     {
         m_dbconn.EnableICU();
         AICLI_LOG(Repo, Info, << "Opened SQLite Index with version [" << m_version << "], last write [" << GetLastWriteTime() << "]");

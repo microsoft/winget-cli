@@ -2,8 +2,6 @@
 // Licensed under the MIT License.
 #pragma once
 #include "SQLiteWrapper.h"
-#include "Microsoft/Schema/ISQLiteIndex.h"
-
 #include <limits>
 #include <memory>
 

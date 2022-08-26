@@ -3,7 +3,6 @@
 #pragma once
 #include "SQLiteWrapper.h"
 #include "Microsoft/Schema/Version.h"
-#include <AppInstallerVersions.h>
 #include <filesystem>
 
 namespace AppInstaller::Repository::Microsoft::Schema

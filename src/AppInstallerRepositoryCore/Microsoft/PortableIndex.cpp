@@ -87,7 +87,7 @@ namespace AppInstaller::Repository::Microsoft
     }
 
     PortableIndex::PortableIndex(const std::string& target, SQLiteStorageBase::OpenDisposition disposition, Utility::ManagedFile&& indexFile) :
-        SQLiteStorageBase(target, disposition, GetOpenFlags(disposition), std::move(indexFile))
+        SQLiteStorageBase(target, disposition, std::move(indexFile))
     {
         AICLI_LOG(Repo, Info, << "Opened Portable Index with version [" << m_version << "], last write [" << GetLastWriteTime() << "]");
         m_interface = CreateIPortableIndex();

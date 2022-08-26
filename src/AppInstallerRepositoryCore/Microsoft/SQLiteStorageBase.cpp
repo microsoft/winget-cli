@@ -22,8 +22,36 @@ namespace AppInstaller::Repository::Microsoft
                 return "Unknown";
             }
         }
+    }
 
-        static std::string ConvertToUri(const std::string& filePath)
+    // One method for converting open disposition to proper open disposition
+    // another method for obtaining the right flags
+    void SQLiteStorageBase::SetLastWriteTime()
+    {
+        Schema::MetadataTable::SetNamedValue(m_dbconn, Schema::s_MetadataValueName_LastWriteTime, Utility::GetCurrentUnixEpoch());
+    }
+
+    // Recording last write time based on MSDN documentation stating that time returns a POSIX epoch time and thus
+    // should be consistent across systems.
+    std::chrono::system_clock::time_point SQLiteStorageBase::GetLastWriteTime()
+    {
+        int64_t lastWriteTime = Schema::MetadataTable::GetNamedValue<int64_t>(m_dbconn, Schema::s_MetadataValueName_LastWriteTime);
+        return Utility::ConvertUnixEpochToSystemClock(lastWriteTime);
+    }
+
+    SQLiteStorageBase::SQLiteStorageBase(const std::string& filePath, OpenDisposition disposition, Utility::ManagedFile&& indexFile) :
+        m_indexFile(std::move(indexFile))
+    {
+        AICLI_LOG(Repo, Info, << "Opening SQLite Index for " << GetOpenDispositionString(disposition) << " at '" << filePath << "'");
+        switch (disposition)
+        {
+        case OpenDisposition::Read:
+            m_dbconn = SQLite::Connection::Create(filePath, SQLite::Connection::OpenDisposition::ReadOnly, SQLite::Connection::OpenFlags::None);
+            break;
+        case OpenDisposition::ReadWrite:
+            m_dbconn = SQLite::Connection::Create(filePath, SQLite::Connection::OpenDisposition::ReadWrite, SQLite::Connection::OpenFlags::None);
+            break;
+        case OpenDisposition::Immutable:
         {
             // Following the algorithm set forth at https://sqlite.org/uri.html [3.1] to convert to a URI path
             // The execution order builds out the string so that it shouldn't require any moves (other than growing)
@@ -67,57 +95,13 @@ namespace AppInstaller::Repository::Microsoft
             }
 
             target += "?immutable=1";
-            return target;
+            m_dbconn = SQLite::Connection::Create(filePath, SQLite::Connection::OpenDisposition::ReadOnly, SQLite::Connection::OpenFlags::Uri);
+            break;
         }
-
-        static SQLite::Connection::OpenDisposition GetOpenDisposition(SQLiteStorageBase::OpenDisposition disposition)
-        {
-            switch (disposition)
-            {
-            case AppInstaller::Repository::Microsoft::SQLiteStorageBase::OpenDisposition::ReadWrite:
-                return SQLite::Connection::OpenDisposition::ReadWrite;
-            case AppInstaller::Repository::Microsoft::SQLiteStorageBase::OpenDisposition::Read:
-            case AppInstaller::Repository::Microsoft::SQLiteStorageBase::OpenDisposition::Immutable:
-            default:
-                return SQLite::Connection::OpenDisposition::ReadOnly;
-            }
-        }
-    }
-
-    // One method for converting open disposition to proper open disposition
-    // another method for obtaining the right flags
-    void SQLiteStorageBase::SetLastWriteTime()
-    {
-        Schema::MetadataTable::SetNamedValue(m_dbconn, Schema::s_MetadataValueName_LastWriteTime, Utility::GetCurrentUnixEpoch());
-    }
-
-    SQLite::Connection::OpenFlags SQLiteStorageBase::GetOpenFlags(SQLiteStorageBase::OpenDisposition disposition)
-    {
-        switch (disposition)
-        {
-        case AppInstaller::Repository::Microsoft::SQLiteStorageBase::OpenDisposition::Immutable:
-            return SQLite::Connection::OpenFlags::Uri;
-        case AppInstaller::Repository::Microsoft::SQLiteStorageBase::OpenDisposition::Read:
-        case AppInstaller::Repository::Microsoft::SQLiteStorageBase::OpenDisposition::ReadWrite:
         default:
-            return SQLite::Connection::OpenFlags::None;
+            THROW_HR(E_UNEXPECTED);
         }
-    }
 
-    // Recording last write time based on MSDN documentation stating that time returns a POSIX epoch time and thus
-    // should be consistent across systems.
-    std::chrono::system_clock::time_point SQLiteStorageBase::GetLastWriteTime()
-    {
-        int64_t lastWriteTime = Schema::MetadataTable::GetNamedValue<int64_t>(m_dbconn, Schema::s_MetadataValueName_LastWriteTime);
-        return Utility::ConvertUnixEpochToSystemClock(lastWriteTime);
-    }
-
-    SQLiteStorageBase::SQLiteStorageBase(const std::string& target, OpenDisposition disposition, SQLite::Connection::OpenFlags flags, Utility::ManagedFile&& indexFile) :
-        m_indexFile(std::move(indexFile))
-    {
-        AICLI_LOG(Repo, Info, << "Opening SQLite Index for " << GetOpenDispositionString(disposition) << " at '" << target << "'");
-        const std::string& connectionTarget = (flags == SQLite::Connection::OpenFlags::Uri) ? ConvertToUri(target) : target;
-        m_dbconn = SQLite::Connection::Create(connectionTarget, GetOpenDisposition(disposition), flags);
         m_version = Schema::Version::GetSchemaVersion(m_dbconn);
     }
 

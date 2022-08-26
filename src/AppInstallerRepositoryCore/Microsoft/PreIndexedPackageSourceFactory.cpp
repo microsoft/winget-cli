@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Microsoft/PreIndexedPackageSourceFactory.h"
-#include "Microsoft/SQLiteStorageBase.h"
 #include "Microsoft/SQLiteIndex.h"
 #include "Microsoft/SQLiteIndexSource.h"
 

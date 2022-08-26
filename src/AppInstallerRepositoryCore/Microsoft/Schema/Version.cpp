@@ -4,14 +4,6 @@
 #include "Version.h"
 #include "MetadataTable.h"
 
-#include "1_0/Interface.h"
-#include "1_1/Interface.h"
-#include "1_2/Interface.h"
-#include "1_3/Interface.h"
-#include "1_4/Interface.h"
-#include "1_5/Interface.h"
-#include "1_6/Interface.h"
-
 namespace AppInstaller::Repository::Microsoft::Schema
 {
     Version Version::GetSchemaVersion(SQLite::Connection& connection)

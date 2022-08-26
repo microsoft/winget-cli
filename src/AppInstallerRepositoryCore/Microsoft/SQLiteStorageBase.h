@@ -32,7 +32,7 @@ namespace AppInstaller::Repository::Microsoft
     protected:
         SQLiteStorageBase(const std::string& target, Schema::Version version);
 
-        SQLiteStorageBase(const std::string& filePath, SQLiteStorageBase::OpenDisposition disposition, SQLite::Connection::OpenFlags flags, Utility::ManagedFile&& indexFile);
+        SQLiteStorageBase(const std::string& filePath, SQLiteStorageBase::OpenDisposition disposition, Utility::ManagedFile&& indexFile);
 
         // Sets the last write time metadata value in the index.
         void SetLastWriteTime();

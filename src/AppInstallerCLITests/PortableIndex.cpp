@@ -43,7 +43,7 @@ TEST_CASE("PortableIndexCreateLatestAndReopen", "[portableIndex]")
         REQUIRE(versionRead == versionCreated);
     }
 
-    //// Reopen the index for read/write
+    // Reopen the index for read/write
     {
         INFO("Trying with ReadWrite");
         PortableIndex index = PortableIndex::Open(tempFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
@@ -51,7 +51,7 @@ TEST_CASE("PortableIndexCreateLatestAndReopen", "[portableIndex]")
         REQUIRE(versionRead == versionCreated);
     }
 
-    //// Reopen the index for immutable read
+    // Reopen the index for immutable read
     {
         INFO("Trying with Immutable");
         PortableIndex index = PortableIndex::Open(tempFile, SQLiteStorageBase::OpenDisposition::Immutable);
