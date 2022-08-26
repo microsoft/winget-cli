@@ -2,6 +2,7 @@ abi
 ACCESSDENIED
 ACTIONDATA
 ACTIONSTART
+addfile
 addmanifest
 addportablefile
 addstore
@@ -421,6 +422,7 @@ REFCLSID
 REFCOUNT
 regex
 regexp
+removefile
 removemanifest
 removeportablefile
 repolibtest
@@ -595,6 +597,7 @@ uninstalling
 Unregister
 Unregisters
 untimes
+updatefile
 updatemanifest
 updateportablefile
 UPLEVEL
