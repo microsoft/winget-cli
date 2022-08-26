@@ -390,7 +390,7 @@ namespace AppInstaller::Repository::Microsoft
                     return {};
                 }
 
-                SQLiteIndex index = SQLiteIndex::Open(tempIndexFile.GetFilePath().u8string(), SQLiteIndex::OpenDisposition::Immutable, SQLite::Connection::OpenFlags::Uri, std::move(tempIndexFile));
+                SQLiteIndex index = SQLiteIndex::Open(tempIndexFile.GetFilePath().u8string(), SQLiteIndex::OpenDisposition::Immutable, std::move(tempIndexFile));
 
                 // We didn't use to store the source identifier, so we compute it here in case it's
                 // missing from the details.

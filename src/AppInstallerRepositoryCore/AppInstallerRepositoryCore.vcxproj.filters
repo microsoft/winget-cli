@@ -310,13 +310,13 @@
       <Filter>Microsoft\Schema\Portable_1_0</Filter>
     </ClInclude>
     <ClInclude Include="Microsoft\PortableIndex.h">
-      <Filter>Header Files</Filter>
+      <Filter>Microsoft</Filter>
     </ClInclude>
     <ClInclude Include="Microsoft\Schema\IPortableIndex.h">
-      <Filter>Header Files</Filter>
+      <Filter>Microsoft\Schema</Filter>
     </ClInclude>
     <ClInclude Include="Microsoft\SQLiteStorageBase.h">
-      <Filter>Header Files</Filter>
+      <Filter>Microsoft</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -489,16 +489,16 @@
       <Filter>Microsoft\Schema\1_6</Filter>
     </ClCompile>
     <ClCompile Include="Microsoft\PortableIndex.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Microsoft</Filter>
     </ClCompile>
     <ClCompile Include="Microsoft\Schema\Portable_1_0\PortableIndexInterface_1_0.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Microsoft\Schema\Portable_1_0</Filter>
     </ClCompile>
     <ClCompile Include="Microsoft\Schema\Portable_1_0\PortableTable.cpp">
       <Filter>Microsoft\Schema\Portable_1_0</Filter>
     </ClCompile>
     <ClCompile Include="Microsoft\SQLiteStorageBase.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Microsoft</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

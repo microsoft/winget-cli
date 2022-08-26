@@ -9,13 +9,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
 {
     using namespace std::string_view_literals;
     static constexpr std::string_view s_PortableTable_Table_Name = "portable"sv;
-    static constexpr std::string_view s_PortableTable_Index_Separator = "_"sv;
-    static constexpr std::string_view s_PortableTable_Index_Suffix = "_index"sv;
-
-    static constexpr std::string_view s_PortableTable_FilePath_Column = "filePath"sv;
-    static constexpr std::string_view s_PortableTable_FileType_Column = "fileType"sv;
+    static constexpr std::string_view s_PortableTable_FilePath_Column = "filepath"sv;
+    static constexpr std::string_view s_PortableTable_FileType_Column = "filetype"sv;
     static constexpr std::string_view s_PortableTable_SHA256_Column = "sha256"sv;
-    static constexpr std::string_view s_PortableTable_SymlinkTarget_Column = "symlinkTarget"sv;
+    static constexpr std::string_view s_PortableTable_SymlinkTarget_Column = "symlinktarget"sv;
 
     std::string_view PortableTable::TableName()
     {
@@ -33,7 +30,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
 
         createTableBuilder.Column(ColumnBuilder(s_PortableTable_FilePath_Column, Type::Text).NotNull());
         createTableBuilder.Column(ColumnBuilder(s_PortableTable_FileType_Column, Type::Int64).NotNull());
-        createTableBuilder.Column(ColumnBuilder(s_PortableTable_SHA256_Column, Type::Blob).NotNull());
+        createTableBuilder.Column(ColumnBuilder(s_PortableTable_SHA256_Column, Type::Blob));
         createTableBuilder.Column(ColumnBuilder(s_PortableTable_SymlinkTarget_Column, Type::Text));
 
         createTableBuilder.EndColumns();

@@ -28,7 +28,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
 
     void PortableIndexInterface::CreateTable(SQLite::Connection& connection)
     {
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "createPortableTable_v1_0");
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "createportabletable_v1_0");
         Portable_V1_0::PortableTable::Create(connection);
         savepoint.Commit();
     }
@@ -39,7 +39,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
 
         THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS), portableEntryResult.has_value());
 
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "addPortableFile_v1_0");
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "addportablefile_v1_0");
         SQLite::rowid_t portableFileId = PortableTable::AddPortableFile(connection, file);
 
         savepoint.Commit();
@@ -53,8 +53,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
         // If the portable file doesn't actually exist, fail the remove.
         THROW_HR_IF(E_NOT_SET, !portableEntryResult);
 
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "removeportablefile_v1_0");
         PortableTable::RemovePortableFileById(connection, portableEntryResult.value());
 
+        savepoint.Commit();
         return portableEntryResult.value();
     }
 
@@ -62,10 +64,13 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
     {
         auto portableEntryResult = GetExistingPortableFileId(connection, file);
 
-        // If the portable file doesn't actually exist, fail the remove.
+        // If the portable file doesn't actually exist, fail the update.
         THROW_HR_IF(E_NOT_SET, !portableEntryResult);
 
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "updateportablefile_v1_0");
         bool status = PortableTable::UpdatePortableFileById(connection, portableEntryResult.value(), file);
+
+        savepoint.Commit();
         return { status, portableEntryResult.value() };
     }
 }

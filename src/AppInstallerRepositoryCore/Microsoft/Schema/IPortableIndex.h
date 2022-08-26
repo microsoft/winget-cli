@@ -8,9 +8,6 @@
 
 namespace AppInstaller::Repository::Microsoft::Schema
 {
-    // Forward declarations
-    struct Version;
-
     struct IPortableIndex
     {
         // File type enum of the portable file

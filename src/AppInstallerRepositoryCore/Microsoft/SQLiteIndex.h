@@ -47,9 +47,9 @@ namespace AppInstaller::Repository::Microsoft
         static SQLiteIndex CreateNew(const std::string& filePath, Schema::Version version = Schema::Version::Latest(), CreateOptions options = CreateOptions::None);
 
         // Opens an existing SQLiteIndex database.
-        static SQLiteIndex Open(const std::string& filePath, OpenDisposition disposition, SQLite::Connection::OpenFlags flags = SQLite::Connection::OpenFlags::None, Utility::ManagedFile&& indexFile = {})
+        static SQLiteIndex Open(const std::string& filePath, OpenDisposition disposition, Utility::ManagedFile&& indexFile = {})
         {
-            return { filePath, disposition, flags, std::move(indexFile) };
+            return { filePath, disposition, std::move(indexFile) };
         }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
@@ -141,7 +141,7 @@ namespace AppInstaller::Repository::Microsoft
         SQLiteIndex(const std::string& target, Schema::Version version);
 
         // Constructor used to open an existing index.
-        SQLiteIndex(const std::string& target, SQLiteStorageBase::OpenDisposition disposition, SQLite::Connection::OpenFlags flags, Utility::ManagedFile&& indexFile);
+        SQLiteIndex(const std::string& target, SQLiteStorageBase::OpenDisposition disposition, Utility::ManagedFile&& indexFile);
 
         // Internal functions to normalize on the relativePath being present.
         IdType AddManifestInternal(const Manifest::Manifest& manifest, const std::optional<std::filesystem::path>& relativePath);
