@@ -132,6 +132,54 @@ TEST_CASE("PortableIndex_AddUpdateRemove", "[portableIndex]")
     }
 }
 
+TEST_CASE("PortableIndex_UpdateFile_CaseInsensitive", "[portableIndex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    IPortableIndex::PortableFile portableFile;
+    CreateFakePortableFile(portableFile);
+
+    PortableIndex index = PortableIndex::CreateNew(tempFile, { 1, 0 });
+    index.AddPortableFile(portableFile);
+
+    // By default, portable file path is set to "testPortableFile.exe"
+    // Change file path to all upper case should still successfully update.
+    portableFile.SetFilePath("TESTPORTABLEFILE.exe");
+    std::string updatedHash = "2db8ae7657c6622b04700137740002c51c36588e566651c9f67b4b096c8ad18b";
+    portableFile.FileType = IPortableIndex::PortableFileType::Symlink;
+    portableFile.SHA256 = updatedHash;
+    portableFile.SymlinkTarget = "fakeSymlinkTarget.exe";
+
+    REQUIRE(index.UpdatePortableFile(portableFile));
+
+    {
+        Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadOnly);
+        auto fileFromIndex = Schema::Portable_V1_0::PortableTable::GetPortableFileById(connection, 1);
+        REQUIRE(fileFromIndex.has_value());
+        REQUIRE(fileFromIndex->GetFilePath() == "TESTPORTABLEFILE.exe");
+        REQUIRE(fileFromIndex->FileType == IPortableIndex::PortableFileType::Symlink);
+        REQUIRE(fileFromIndex->SHA256 == updatedHash);
+        REQUIRE(fileFromIndex->SymlinkTarget == "fakeSymlinkTarget.exe");
+    }
+}
+
+TEST_CASE("PortableIndex_AddDuplicateFile", "[portableIndex]")
+{
+    TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
+    INFO("Using temporary file named: " << tempFile.GetPath());
+
+    IPortableIndex::PortableFile portableFile;
+    CreateFakePortableFile(portableFile);
+
+    PortableIndex index = PortableIndex::CreateNew(tempFile, { 1, 0 });
+    index.AddPortableFile(portableFile);
+
+    // Change file path to all upper case. Adding duplicate file should fail.
+    portableFile.SetFilePath("TESTPORTABLEFILE.exe");
+    REQUIRE_THROWS(index.AddPortableFile(portableFile), ERROR_ALREADY_EXISTS);
+}
+
 TEST_CASE("PortableIndex_RemoveWithId", "[portableIndex]")
 {
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };

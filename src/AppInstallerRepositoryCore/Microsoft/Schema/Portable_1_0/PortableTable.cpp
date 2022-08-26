@@ -28,7 +28,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
         StatementBuilder createTableBuilder;
         createTableBuilder.CreateTable(s_PortableTable_Table_Name).BeginColumns();
 
-        createTableBuilder.Column(ColumnBuilder(s_PortableTable_FilePath_Column, Type::Text).NotNull());
+        createTableBuilder.Column(ColumnBuilder(s_PortableTable_FilePath_Column, Type::Text).NotNull().Unique().PrimaryKey().CollateNoCase());
         createTableBuilder.Column(ColumnBuilder(s_PortableTable_FileType_Column, Type::Int64).NotNull());
         createTableBuilder.Column(ColumnBuilder(s_PortableTable_SHA256_Column, Type::Blob));
         createTableBuilder.Column(ColumnBuilder(s_PortableTable_SymlinkTarget_Column, Type::Text));
