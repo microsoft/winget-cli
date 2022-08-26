@@ -320,6 +320,7 @@ Nelon
 netcoreapp
 netstandard
 newid
+NOCASE
 NOCLOSEPROCESS
 nodiscard
 noexcept
@@ -547,6 +548,7 @@ tempdb
 terabyte
 testcontainer
 testmoniker
+TESTPORTABLEFILE
 Testrun
 testsettingname
 TEXTFORMAT
