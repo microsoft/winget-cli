@@ -2,8 +2,8 @@ abi
 ACCESSDENIED
 ACTIONDATA
 ACTIONSTART
-addfile
 addmanifest
+addportablefile
 addstore
 admins
 alloc
@@ -89,6 +89,7 @@ cpprestsdk
 cppwinrt
 CPRWL
 createnew
+createportabletable
 createtables
 cref
 csproj
@@ -180,6 +181,7 @@ FILESINUSE
 FILESUBTYPE
 filesystem
 FILETYPE
+filetype
 FILEVERSION
 FLUSHEACHLINE
 forcerestart
@@ -419,8 +421,8 @@ REFCLSID
 REFCOUNT
 regex
 regexp
-removefile
 removemanifest
+removeportablefile
 repolibtest
 requeue
 rescap
@@ -528,6 +530,7 @@ SWIPECONTROL
 SYMED
 symlink
 symlinks
+symlinktarget
 Sys
 sz
 TARG
@@ -592,8 +595,8 @@ uninstalling
 Unregister
 Unregisters
 untimes
-updatefile
 updatemanifest
+updateportablefile
 UPLEVEL
 upvote
 uregex

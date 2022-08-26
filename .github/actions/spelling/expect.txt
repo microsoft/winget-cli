@@ -1,7 +1,6 @@
 abcd
 accepteula
 acl
-addportablefile
 adjacents
 adml
 admx
@@ -91,7 +90,6 @@ count'th
 countof
 countryregion
 createmanifestmetadata
-createportabletable
 cstdint
 ctc
 Ctx
@@ -132,7 +130,6 @@ fdw
 FECAFEB
 fedorapeople
 fileinuse
-filetype
 Filtercriteria
 Finalizers
 fintimes
@@ -329,7 +326,6 @@ Redist
 REFIID
 regexes
 REGSAM
-removeportablefile
 reparse
 restsource
 rgex
@@ -384,7 +380,6 @@ SUSE
 swervy
 SYD
 SYG
-symlinktarget
 Syncy
 sysrefcomp
 Tagit
@@ -427,7 +422,6 @@ unparsable
 UNSCOPED
 unvirtualized
 UParse
-updateportablefile
 upgradecode
 UPSERT
 uris
