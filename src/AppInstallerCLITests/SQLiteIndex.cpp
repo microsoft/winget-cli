@@ -368,7 +368,7 @@ TEST_CASE("SQLiteIndexCreateLatestAndReopen", "[sqliteindex]")
     // Reopen the index for read only
     {
         INFO("Trying with Read");
-        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteIndex::OpenDisposition::Read);
+        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteStorageBase::OpenDisposition::Read);
         Schema::Version versionRead = index.GetVersion();
         REQUIRE(versionRead == versionCreated);
     }
@@ -376,7 +376,7 @@ TEST_CASE("SQLiteIndexCreateLatestAndReopen", "[sqliteindex]")
     // Reopen the index for read/write
     {
         INFO("Trying with ReadWrite");
-        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteIndex::OpenDisposition::ReadWrite);
+        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
         Schema::Version versionRead = index.GetVersion();
         REQUIRE(versionRead == versionCreated);
     }
@@ -384,7 +384,7 @@ TEST_CASE("SQLiteIndexCreateLatestAndReopen", "[sqliteindex]")
     // Reopen the index for immutable read
     {
         INFO("Trying with Immutable");
-        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteIndex::OpenDisposition::Immutable);
+        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteStorageBase::OpenDisposition::Immutable);
         Schema::Version versionRead = index.GetVersion();
         REQUIRE(versionRead == versionCreated);
     }
@@ -611,7 +611,7 @@ TEST_CASE("SQLiteIndex_DependenciesTable_CheckConsistency", "[sqliteindex][V1_4]
     }
 
     {
-        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteIndex::OpenDisposition::ReadWrite);
+        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
 
         REQUIRE(!index.CheckConsistency(true));
     }
@@ -729,7 +729,7 @@ TEST_CASE("SQLiteIndex_RemoveManifest", "[sqliteindex][V1_0]")
     }
 
     {
-        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteIndex::OpenDisposition::ReadWrite);
+        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
 
         // Now remove manifest2
         index.RemoveManifest(manifest2, manifest2Path);
@@ -1113,7 +1113,7 @@ TEST_CASE("SQLiteIndex_UpdateManifest", "[sqliteindex][V1_4]")
     }
 
     {
-        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteIndex::OpenDisposition::ReadWrite);
+        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
 
         // Update with no updates should return false
         REQUIRE(!index.UpdateManifest(manifest, manifestPath));
@@ -1149,7 +1149,7 @@ TEST_CASE("SQLiteIndex_UpdateManifest", "[sqliteindex][V1_4]")
     }
 
     {
-        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteIndex::OpenDisposition::ReadWrite);
+        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
 
         // Now remove manifest2
         index.RemoveManifest(manifest, manifestPath);
@@ -1267,7 +1267,7 @@ TEST_CASE("SQLiteIndex_UpdateManifestChangePath", "[sqliteindex][V1_0]")
     }
 
     {
-        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteIndex::OpenDisposition::ReadWrite);
+        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
 
         manifestPath = "test/newid/test.newid-1.0.0.yaml";
 
@@ -1291,7 +1291,7 @@ TEST_CASE("SQLiteIndex_UpdateManifestChangePath", "[sqliteindex][V1_0]")
     }
 
     {
-        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteIndex::OpenDisposition::ReadWrite);
+        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
 
         // Now remove manifest, with unknown path
         index.RemoveManifest(manifest, "");
@@ -1348,7 +1348,7 @@ TEST_CASE("SQLiteIndex_UpdateManifest_Pathless", "[sqliteindex][V1_0]")
     }
 
     {
-        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteIndex::OpenDisposition::ReadWrite);
+        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
 
         // Update with no updates should return false
         REQUIRE(!index.UpdateManifest(manifest));
@@ -1384,7 +1384,7 @@ TEST_CASE("SQLiteIndex_UpdateManifest_Pathless", "[sqliteindex][V1_0]")
     }
 
     {
-        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteIndex::OpenDisposition::ReadWrite);
+        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
 
         // Now remove manifest2
         index.RemoveManifest(manifest);
@@ -1426,7 +1426,7 @@ TEST_CASE("SQLiteIndex_UpdateManifestChangeCase", "[sqliteindex][V1_0]")
     }
 
     {
-        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteIndex::OpenDisposition::ReadWrite);
+        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
 
         manifest.Id = "Test.Id";
 
@@ -1435,7 +1435,7 @@ TEST_CASE("SQLiteIndex_UpdateManifestChangeCase", "[sqliteindex][V1_0]")
     }
 
     {
-        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteIndex::OpenDisposition::ReadWrite);
+        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
 
         manifest.Version = "1.0.0-Test";
 
@@ -1444,7 +1444,7 @@ TEST_CASE("SQLiteIndex_UpdateManifestChangeCase", "[sqliteindex][V1_0]")
     }
 
     {
-        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteIndex::OpenDisposition::ReadWrite);
+        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
 
         manifest.Channel = "Test";
 
@@ -1453,7 +1453,7 @@ TEST_CASE("SQLiteIndex_UpdateManifestChangeCase", "[sqliteindex][V1_0]")
     }
 
     {
-        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteIndex::OpenDisposition::ReadWrite);
+        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
 
         manifest.DefaultLocalization.Add<Localization::PackageName>("test name");
 
@@ -1462,7 +1462,7 @@ TEST_CASE("SQLiteIndex_UpdateManifestChangeCase", "[sqliteindex][V1_0]")
     }
 
     {
-        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteIndex::OpenDisposition::ReadWrite);
+        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
 
         // Now remove manifest, with unknown path
         index.RemoveManifest(manifest, "");
@@ -1513,7 +1513,7 @@ TEST_CASE("SQLiteIndex_IdCaseInsensitivity", "[sqliteindex][V1_0]")
     }
 
     {
-        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteIndex::OpenDisposition::ReadWrite);
+        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
 
         index.AddManifest(manifest2, manifest2Path);
 
@@ -1523,7 +1523,7 @@ TEST_CASE("SQLiteIndex_IdCaseInsensitivity", "[sqliteindex][V1_0]")
     }
 
     {
-        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteIndex::OpenDisposition::ReadWrite);
+        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
 
         manifest1.Id = "TEST.ID";
 
@@ -1535,7 +1535,7 @@ TEST_CASE("SQLiteIndex_IdCaseInsensitivity", "[sqliteindex][V1_0]")
     }
 
     {
-        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteIndex::OpenDisposition::ReadWrite);
+        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
 
         index.RemoveManifest(manifest1, manifest1Path);
 
@@ -1545,7 +1545,7 @@ TEST_CASE("SQLiteIndex_IdCaseInsensitivity", "[sqliteindex][V1_0]")
     }
 
     {
-        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteIndex::OpenDisposition::ReadWrite);
+        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
 
         index.RemoveManifest(manifest2, manifest2Path);
 
@@ -2648,7 +2648,7 @@ TEST_CASE("SQLiteIndex_CheckConsistency_Failure", "[sqliteindex][V1_1]")
     }
 
     {
-        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteIndex::OpenDisposition::ReadWrite);
+        SQLiteIndex index = SQLiteIndex::Open(tempFile, SQLiteStorageBase::OpenDisposition::ReadWrite);
 
         REQUIRE(!index.CheckConsistency(true));
     }

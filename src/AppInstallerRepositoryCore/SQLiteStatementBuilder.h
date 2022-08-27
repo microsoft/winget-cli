@@ -151,6 +151,10 @@ namespace AppInstaller::Repository::SQLite::Builder
         // Allow for data driven construction with input value.
         ColumnBuilder& NotNull(bool isTrue = true);
 
+        // Indicate that the column is case-insensitive.
+        // Allow for data driven construction with input value.
+        ColumnBuilder& CollateNoCase(bool isTrue = true);
+
         // Indicate the default value for the column.
         // Note that a default value is not considered constant if it is bound,
         // so this function directly places the incoming value into the SQL statement.

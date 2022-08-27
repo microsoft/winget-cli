@@ -174,6 +174,15 @@ namespace AppInstaller::Repository::SQLite::Builder
         return *this;
     }
 
+    ColumnBuilder& ColumnBuilder::CollateNoCase(bool isTrue)
+    {
+        if (isTrue)
+        {
+            m_stream << " COLLATE NOCASE";
+        }
+        return *this;
+    }
+
     ColumnBuilder& ColumnBuilder::Default(int64_t value)
     {
         m_stream << " DEFAULT " << value;

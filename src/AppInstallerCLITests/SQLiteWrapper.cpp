@@ -451,6 +451,40 @@ TEST_CASE("SQLBuilder_Update", "[sqlbuilder]")
     SelectFromSimpleTestTableOnlyOneRow(connection, firstVal, secondVal);
 }
 
+TEST_CASE("SQLBuilder_CaseInsensitive", "[sqlbuilder")
+{
+    Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
+
+    Builder::StatementBuilder createTable;
+    createTable.CreateTable(s_tableName).Columns({
+        Builder::ColumnBuilder(s_firstColumn, Builder::Type::Text).CollateNoCase()
+        });
+
+    createTable.Execute(connection);
+
+    std::string upperCaseVal = "TEST";
+    std::string lowerCaseVal = "test";
+
+    {
+        INFO("Insert initial value");
+        Builder::StatementBuilder builder;
+        builder.InsertInto(s_tableName)
+            .Columns({ s_firstColumn })
+            .Values(upperCaseVal);
+
+        builder.Execute(connection);
+    }
+
+    {
+        INFO("Retrieve using case-insensitive value");
+        Builder::StatementBuilder builder;
+        builder.Select({ s_firstColumn }).From(s_tableName).Where(s_firstColumn).Equals(lowerCaseVal);
+
+        auto statement = builder.Prepare(connection);
+        REQUIRE(statement.Step());
+    }
+}
+
 TEST_CASE("SQLBuilder_CreateTable", "[sqlbuilder]")
 {
     Connection connection = Connection::Create(SQLITE_MEMORY_DB_CONNECTION_TARGET, Connection::OpenDisposition::Create);
