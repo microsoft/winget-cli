@@ -10,7 +10,9 @@ namespace AppInstaller::Repository::Util
 
 	WinGetManifestDependenciesErrorResult GetDependenciesValidationResultFromException(const AppInstaller::Manifest::ManifestException& manifestException)
 	{
+		auto result = WinGetManifestDependenciesErrorResult::None;
 		auto validationErrors = manifestException.Errors();
+
 		for (const auto& validationError : validationErrors)
 		{
 			auto message = validationError.Message;
@@ -28,10 +30,10 @@ namespace AppInstaller::Repository::Util
 
 			if (itr != dependenciesErrorMessageMap.end())
 			{
-				return itr->second;
+				result = static_cast<WinGetManifestDependenciesErrorResult>(result | itr->second);
 			}
 		}
 
-		return WinGetManifestDependenciesErrorResult::None;
+		return result;
 	}
 }

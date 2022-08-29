@@ -86,14 +86,14 @@ namespace AppInstaller::Repository
         {
             auto itrStart = failedManifests.begin();
             std::vector<Manifest::ValidationError> validationErrors;
-            validationErrors.emplace_back(error, "PackageIdentifier.PackageVersion", itrStart->first.Id + "." + itrStart->first.Version );
+            validationErrors.emplace_back(error, "PackageIdentifier.PackageVersion", itrStart->first.Id + '.' + itrStart->first.Version );
 
             std::for_each(
                 itrStart + 1,
                 failedManifests.end(),
                 [&](std::pair<DependentManifestInfo, Utility::Version> current)
                 {
-                    validationErrors.emplace_back(error, "PackageIdentifier.PackageVersion", current.first.Id + "." + current.first.Version);
+                    validationErrors.emplace_back(error, "PackageIdentifier.PackageVersion", current.first.Id + '.' + current.first.Version);
                 });
 
             THROW_EXCEPTION(
