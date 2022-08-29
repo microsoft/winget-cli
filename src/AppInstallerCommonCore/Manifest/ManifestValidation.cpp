@@ -376,7 +376,7 @@ namespace AppInstaller::Manifest
 
     std::string ValidationError::GetErrorMessage() const
     {
-        auto ErrorIdToMessageMap = GetErrorIdToMessageMap();
+        auto& ErrorIdToMessageMap = GetErrorIdToMessageMap();
         auto itr = ErrorIdToMessageMap.find(Message);
 
         if (itr != ErrorIdToMessageMap.end())
