@@ -358,7 +358,7 @@ extern "C"
             catch (const ManifestException& e)
             {
                 validationResult |= WinGetValidateManifestResult::DependenciesValidationFailure;
-                validationResult |= static_cast<WinGetValidateManifestResult>( AppInstaller::Repository::Util::GetDependenciesValidationResultFromException(e));
+                validationResult |= static_cast<WinGetValidateManifestResult>( AppInstaller::Repository::Util::GetDependenciesValidationResultFromException(e) );
               
                 if (message)
                 {

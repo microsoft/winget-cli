@@ -1,38 +1,37 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-#pragma once
 #include "pch.h"
 #include "PackageDependenciesValidationUtil.h"
 #include <winget/ManifestValidation.h>
 
 namespace AppInstaller::Repository::Util
 {
-    using namespace AppInstaller::Manifest;
+	using namespace AppInstaller::Manifest;
 
-    WinGetManifestDependenciesErrorResult GetDependenciesValidationResultFromException(const AppInstaller::Manifest::ManifestException& manifestException)
+	WinGetManifestDependenciesErrorResult GetDependenciesValidationResultFromException(const AppInstaller::Manifest::ManifestException& manifestException)
 	{
-        auto validationErrors = manifestException.Errors();
-        for (auto validationError : validationErrors)
-        {
-            auto message = validationError.Message;
+		auto validationErrors = manifestException.Errors();
+		for (const auto& validationError : validationErrors)
+		{
+			auto message = validationError.Message;
 
-            std::map<AppInstaller::StringResource::StringId, WinGetManifestDependenciesErrorResult> dependenciesErrorMessageMap =
-            {
-                {ManifestError::SingleManifestPackageHasDependencies, WinGetManifestDependenciesErrorResult::SingleManifestPackageHasDependencies},
-                {ManifestError::MultiManifestPackageHasDependencies, WinGetManifestDependenciesErrorResult::MultiManifestPackageHasDependencies },
-                {ManifestError::MissingManifestDependenciesNode, WinGetManifestDependenciesErrorResult::MissingManifestDependenciesNode },
-                {ManifestError::NoSuitableMinVersionDependency, WinGetManifestDependenciesErrorResult::NoSuitableMinVersionDependency },
-                {ManifestError::FoundDependencyLoop, WinGetManifestDependenciesErrorResult::FoundDependencyLoop}
-            };
+			std::map<AppInstaller::StringResource::StringId, WinGetManifestDependenciesErrorResult> dependenciesErrorMessageMap =
+			{
+				{ManifestError::SingleManifestPackageHasDependencies, WinGetManifestDependenciesErrorResult::SingleManifestPackageHasDependencies},
+				{ManifestError::MultiManifestPackageHasDependencies, WinGetManifestDependenciesErrorResult::MultiManifestPackageHasDependencies },
+				{ManifestError::MissingManifestDependenciesNode, WinGetManifestDependenciesErrorResult::MissingManifestDependenciesNode },
+				{ManifestError::NoSuitableMinVersionDependency, WinGetManifestDependenciesErrorResult::NoSuitableMinVersionDependency },
+				{ManifestError::FoundDependencyLoop, WinGetManifestDependenciesErrorResult::FoundDependencyLoop }
+			};
 
-            auto itr = dependenciesErrorMessageMap.find(message);
+			auto itr = dependenciesErrorMessageMap.find(message);
 
-            if (itr != dependenciesErrorMessageMap.end())
-            {
-                return itr->second;
-            }
-        }
+			if (itr != dependenciesErrorMessageMap.end())
+			{
+				return itr->second;
+			}
+		}
 
-        return WinGetManifestDependenciesErrorResult::None;
+		return WinGetManifestDependenciesErrorResult::None;
 	}
 }

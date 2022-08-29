@@ -86,14 +86,14 @@ namespace AppInstaller::Repository
         {
             auto itrStart = failedManifests.begin();
             std::vector<Manifest::ValidationError> validationErrors;
-            validationErrors.emplace_back(Manifest::ValidationError{error, "PackageIdentifier.PackageVersion", itrStart->first.Id + "." + itrStart->first.Version });
+            validationErrors.emplace_back(error, "PackageIdentifier.PackageVersion", itrStart->first.Id + "." + itrStart->first.Version );
 
             std::for_each(
                 itrStart + 1,
                 failedManifests.end(),
                 [&](std::pair<DependentManifestInfo, Utility::Version> current)
                 {
-                    validationErrors.emplace_back(Manifest::ValidationError{ error, "PackageIdentifier.PackageVersion", current.first.Id + "." + current.first.Version });
+                    validationErrors.emplace_back(error, "PackageIdentifier.PackageVersion", current.first.Id + "." + current.first.Version);
                 });
 
             THROW_EXCEPTION(
@@ -125,14 +125,14 @@ namespace AppInstaller::Repository
                 if (!packageLatest.has_value())
                 {
                     dependenciesError.emplace_back(
-                        ValidationError(ManifestError::MissingManifestDependenciesNode, "PackageIdentifier", node.Id));
+                        ManifestError::MissingManifestDependenciesNode, "PackageIdentifier", node.Id);
                     foundErrors = true;
                     return depList;
                 }
 
                 if (node.MinVersion > packageLatest.value().second)
                 {
-                    dependenciesError.emplace_back(ValidationError(ManifestError::NoSuitableMinVersionDependency, "PackageIdentifier", node.Id));
+                    dependenciesError.emplace_back(ManifestError::NoSuitableMinVersionDependency, "PackageIdentifier", node.Id);
                     foundErrors = true;
                     return depList;
                 }

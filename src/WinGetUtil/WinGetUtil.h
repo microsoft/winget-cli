@@ -82,7 +82,7 @@ extern "C"
         MultiManifestPackageHasDependencies = 0x20000,
         MissingManifestDependenciesNode = 0x40000,
         NoSuitableMinVersionDependency = 0x80000,
-        FoundDependencyLoop = 0x1000000,
+        FoundDependencyLoop = 0x100000,
 
         // Internal error meaning validation does not complete as desired.
         InternalError = 0x1000,

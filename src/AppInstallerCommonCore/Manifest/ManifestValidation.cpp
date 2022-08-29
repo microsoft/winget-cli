@@ -16,9 +16,9 @@ namespace AppInstaller::Manifest
         auto& GetErrorIdToMessageMap()
         {
             static std::map<AppInstaller::StringResource::StringId, std::string_view> ErrorIdToMessageMap = {
-                { AppInstaller::Manifest::ManifestError::InvalidRootNode, "Encountered unexpected root node."sv},
-                { AppInstaller::Manifest::ManifestError::FieldUnknown, "Unknown field."sv},
-                { AppInstaller::Manifest::ManifestError::FieldIsNotPascalCase, "All field names should be PascalCased."sv},
+                { AppInstaller::Manifest::ManifestError::InvalidRootNode, "Encountered unexpected root node."sv },
+                { AppInstaller::Manifest::ManifestError::FieldUnknown, "Unknown field."sv },
+                { AppInstaller::Manifest::ManifestError::FieldIsNotPascalCase, "All field names should be PascalCased."sv },
                 { AppInstaller::Manifest::ManifestError::FieldDuplicate, "Duplicate field found in the manifest."sv },
                 { AppInstaller::Manifest::ManifestError::RequiredFieldEmpty, "Required field with empty value."sv },
                 { AppInstaller::Manifest::ManifestError::RequiredFieldMissing,  "Required field missing."sv },
