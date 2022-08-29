@@ -23,25 +23,25 @@ namespace AppInstaller::Manifest::YamlParser
 
             if (!entry.Root["PackageIdentifier"])
             {
-                errors.emplace_back(ValidationError::MessageFieldWithFile(
+                errors.emplace_back(ValidationError::MessageContextWithFile(
                     ManifestError::RequiredFieldMissing, "PackageIdentifier", entry.FileName));
             }
 
             if (!entry.Root["PackageVersion"])
             {
-                errors.emplace_back(ValidationError::MessageFieldWithFile(
+                errors.emplace_back(ValidationError::MessageContextWithFile(
                     ManifestError::RequiredFieldMissing, "PackageVersion", entry.FileName));
             }
 
             if (!entry.Root["ManifestVersion"])
             {
-                errors.emplace_back(ValidationError::MessageFieldWithFile(
+                errors.emplace_back(ValidationError::MessageContextWithFile(
                     ManifestError::RequiredFieldMissing, "ManifestVersion", entry.FileName));
             }
 
             if (!entry.Root["ManifestType"])
             {
-                errors.emplace_back(ValidationError::MessageFieldWithFile(
+                errors.emplace_back(ValidationError::MessageContextWithFile(
                     ManifestError::InconsistentMultiFileManifestFieldValue, "ManifestType", entry.FileName));
             }
             else
@@ -53,7 +53,7 @@ namespace AppInstaller::Manifest::YamlParser
                 case ManifestTypeEnum::Version:
                     if (!entry.Root["DefaultLocale"])
                     {
-                        errors.emplace_back(ValidationError::MessageFieldWithFile(
+                        errors.emplace_back(ValidationError::MessageContextWithFile(
                             ManifestError::RequiredFieldMissing, "DefaultLocale", entry.FileName));
                     }
                     break;
@@ -62,7 +62,7 @@ namespace AppInstaller::Manifest::YamlParser
                 case ManifestTypeEnum::DefaultLocale:
                     if (!entry.Root["PackageLocale"])
                     {
-                        errors.emplace_back(ValidationError::MessageFieldWithFile(
+                        errors.emplace_back(ValidationError::MessageContextWithFile(
                             ManifestError::RequiredFieldMissing, "PackageLocale", entry.FileName));
                     }
                     break;
