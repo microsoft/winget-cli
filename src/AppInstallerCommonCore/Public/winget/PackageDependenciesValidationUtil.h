@@ -3,7 +3,7 @@
 #pragma once
 #include <winget/ManifestValidation.h>
 
-namespace AppInstaller::Repository::Util
+namespace AppInstaller::Manifest
 {
     enum WinGetManifestDependenciesErrorResult
     {
@@ -17,5 +17,7 @@ namespace AppInstaller::Repository::Util
         FoundDependencyLoop = 0x100000,
     };
 
-    WinGetManifestDependenciesErrorResult GetDependenciesValidationResultFromException(const AppInstaller::Manifest::ManifestException& manifestException);
+    DEFINE_ENUM_FLAG_OPERATORS(WinGetManifestDependenciesErrorResult);
+
+    WinGetManifestDependenciesErrorResult GetDependenciesValidationResultFromException(const ManifestException& manifestException);
 }

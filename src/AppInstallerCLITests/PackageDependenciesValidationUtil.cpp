@@ -3,19 +3,19 @@
 #include "pch.h"
 #include "TestCommon.h"
 #include "TestSource.h"
-#include "PackageDependenciesValidationUtil.h"
+#include <public/winget/PackageDependenciesValidationUtil.h>
 
-using namespace AppInstaller::Repository::Util;
+using namespace AppInstaller::Manifest;
 
 TEST_CASE("GetValidationResultFromException", "[PackageDependenciesValidationUtil][dependencies]")
 {
-    std::map<WinGetManifestDependenciesErrorResult, const AppInstaller::Manifest::ManifestException> dependenciesErrorMessageMap =
+    std::map<WinGetManifestDependenciesErrorResult, const ManifestException> dependenciesErrorMessageMap =
     {
-        { WinGetManifestDependenciesErrorResult::SingleManifestPackageHasDependencies, AppInstaller::Manifest::ManifestException {  { AppInstaller::Manifest::ManifestError::SingleManifestPackageHasDependencies }, APPINSTALLER_CLI_ERROR_MANIFEST_FAILED } },
-        { WinGetManifestDependenciesErrorResult::MultiManifestPackageHasDependencies, AppInstaller::Manifest::ManifestException {  { AppInstaller::Manifest::ManifestError::MultiManifestPackageHasDependencies }, APPINSTALLER_CLI_ERROR_MANIFEST_FAILED } },
-        { WinGetManifestDependenciesErrorResult::MissingManifestDependenciesNode, AppInstaller::Manifest::ManifestException {  { AppInstaller::Manifest::ManifestError::MissingManifestDependenciesNode }, APPINSTALLER_CLI_ERROR_MANIFEST_FAILED } },
-        { WinGetManifestDependenciesErrorResult::NoSuitableMinVersionDependency, AppInstaller::Manifest::ManifestException {  { AppInstaller::Manifest::ManifestError::NoSuitableMinVersionDependency }, APPINSTALLER_CLI_ERROR_MANIFEST_FAILED } },
-        { WinGetManifestDependenciesErrorResult::FoundDependencyLoop, AppInstaller::Manifest::ManifestException {  { AppInstaller::Manifest::ManifestError::FoundDependencyLoop }, APPINSTALLER_CLI_ERROR_MANIFEST_FAILED } },
+        { WinGetManifestDependenciesErrorResult::SingleManifestPackageHasDependencies, ManifestException {  { ManifestError::SingleManifestPackageHasDependencies }, APPINSTALLER_CLI_ERROR_MANIFEST_FAILED } },
+        { WinGetManifestDependenciesErrorResult::MultiManifestPackageHasDependencies, ManifestException {  { ManifestError::MultiManifestPackageHasDependencies }, APPINSTALLER_CLI_ERROR_MANIFEST_FAILED } },
+        { WinGetManifestDependenciesErrorResult::MissingManifestDependenciesNode, ManifestException {  { ManifestError::MissingManifestDependenciesNode }, APPINSTALLER_CLI_ERROR_MANIFEST_FAILED } },
+        { WinGetManifestDependenciesErrorResult::NoSuitableMinVersionDependency, ManifestException {  { ManifestError::NoSuitableMinVersionDependency }, APPINSTALLER_CLI_ERROR_MANIFEST_FAILED } },
+        { WinGetManifestDependenciesErrorResult::FoundDependencyLoop, ManifestException {  { ManifestError::FoundDependencyLoop }, APPINSTALLER_CLI_ERROR_MANIFEST_FAILED } },
     };
 
     for (auto current : dependenciesErrorMessageMap)

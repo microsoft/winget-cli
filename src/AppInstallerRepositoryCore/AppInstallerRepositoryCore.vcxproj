@@ -284,7 +284,6 @@
     <ClInclude Include="Microsoft\SQLiteStorageBase.h" />
     <ClInclude Include="Microsoft\ConfigurableTestSourceFactory.h" />
     <ClInclude Include="PackageDependenciesValidation.h" />
-    <ClInclude Include="PackageDependenciesValidationUtil.h" />
     <ClInclude Include="PackageTrackingCatalogSourceFactory.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Public\winget\ARPCorrelation.h" />
@@ -364,7 +363,6 @@
     <ClCompile Include="Microsoft\SQLiteIndexSource.cpp" />
     <ClCompile Include="Microsoft\SQLiteStorageBase.cpp" />
     <ClCompile Include="PackageDependenciesValidation.cpp" />
-    <ClCompile Include="PackageDependenciesValidationUtil.cpp" />
     <ClCompile Include="PackageTrackingCatalog.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>

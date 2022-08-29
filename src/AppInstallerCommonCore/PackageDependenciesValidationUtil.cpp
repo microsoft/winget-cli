@@ -1,13 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "PackageDependenciesValidationUtil.h"
+#include <Public/winget/PackageDependenciesValidationUtil.h>
 #include <winget/ManifestValidation.h>
 
-namespace AppInstaller::Repository::Util
+namespace AppInstaller::Manifest
 {
-	using namespace AppInstaller::Manifest;
-
 	WinGetManifestDependenciesErrorResult GetDependenciesValidationResultFromException(const AppInstaller::Manifest::ManifestException& manifestException)
 	{
 		auto result = WinGetManifestDependenciesErrorResult::None;
@@ -30,7 +28,7 @@ namespace AppInstaller::Repository::Util
 
 			if (itr != dependenciesErrorMessageMap.end())
 			{
-				result = static_cast<WinGetManifestDependenciesErrorResult>(result | itr->second);
+				result |= itr->second;
 			}
 		}
 
