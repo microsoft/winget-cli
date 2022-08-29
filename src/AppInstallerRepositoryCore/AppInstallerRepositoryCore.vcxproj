@@ -237,6 +237,7 @@
     <ClInclude Include="ICU\SQLiteICU.h" />
     <ClInclude Include="ISource.h" />
     <ClInclude Include="Microsoft\ARPHelper.h" />
+    <ClInclude Include="Microsoft\PortableIndex.h" />
     <ClInclude Include="Microsoft\PredefinedInstalledSourceFactory.h" />
     <ClInclude Include="Microsoft\PredefinedWriteableSourceFactory.h" />
     <ClInclude Include="Microsoft\PreIndexedPackageSourceFactory.h" />
@@ -272,11 +273,15 @@
     <ClInclude Include="Microsoft\Schema\1_6\Interface.h" />
     <ClInclude Include="Microsoft\Schema\1_6\SearchResultsTable.h" />
     <ClInclude Include="Microsoft\Schema\1_6\UpgradeCodeTable.h" />
+    <ClInclude Include="Microsoft\Schema\IPortableIndex.h" />
     <ClInclude Include="Microsoft\Schema\ISQLiteIndex.h" />
+    <ClInclude Include="Microsoft\Schema\Portable_1_0\PortableIndexInterface.h" />
+    <ClInclude Include="Microsoft\Schema\Portable_1_0\PortableTable.h" />
     <ClInclude Include="Microsoft\Schema\MetadataTable.h" />
     <ClInclude Include="Microsoft\Schema\Version.h" />
     <ClInclude Include="Microsoft\SQLiteIndex.h" />
     <ClInclude Include="Microsoft\SQLiteIndexSource.h" />
+    <ClInclude Include="Microsoft\SQLiteStorageBase.h" />
     <ClInclude Include="Microsoft\ConfigurableTestSourceFactory.h" />
     <ClInclude Include="PackageDependenciesValidation.h" />
     <ClInclude Include="PackageDependenciesValidationUtil.h" />
@@ -330,6 +335,7 @@
     <ClCompile Include="ManifestJSONParser.cpp" />
     <ClCompile Include="Microsoft\ARPHelper.cpp" />
     <ClCompile Include="Microsoft\ConfigurableTestSourceFactory.cpp" />
+    <ClCompile Include="Microsoft\PortableIndex.cpp" />
     <ClCompile Include="Microsoft\PredefinedInstalledSourceFactory.cpp" />
     <ClCompile Include="Microsoft\PredefinedWriteableSourceFactory.cpp" />
     <ClCompile Include="Microsoft\PreIndexedPackageSourceFactory.cpp" />
@@ -351,9 +357,12 @@
     <ClCompile Include="Microsoft\Schema\1_6\Interface_1_6.cpp" />
     <ClCompile Include="Microsoft\Schema\1_6\SearchResultsTable_1_6.cpp" />
     <ClCompile Include="Microsoft\Schema\MetadataTable.cpp" />
+    <ClCompile Include="Microsoft\Schema\Portable_1_0\PortableIndexInterface_1_0.cpp" />
+    <ClCompile Include="Microsoft\Schema\Portable_1_0\PortableTable.cpp" />
     <ClCompile Include="Microsoft\Schema\Version.cpp" />
     <ClCompile Include="Microsoft\SQLiteIndex.cpp" />
     <ClCompile Include="Microsoft\SQLiteIndexSource.cpp" />
+    <ClCompile Include="Microsoft\SQLiteStorageBase.cpp" />
     <ClCompile Include="PackageDependenciesValidation.cpp" />
     <ClCompile Include="PackageDependenciesValidationUtil.cpp" />
     <ClCompile Include="PackageTrackingCatalog.cpp" />

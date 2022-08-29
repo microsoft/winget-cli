@@ -2,30 +2,20 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "SQLiteIndex.h"
-#include "Schema/MetadataTable.h"
+#include "SQLiteStorageBase.h"
 #include "ArpVersionValidation.h"
 #include <winget/ManifestYamlParser.h>
 
+#include "Schema/1_0/Interface.h"
+#include "Schema/1_1/Interface.h"
+#include "Schema/1_2/Interface.h"
+#include "Schema/1_3/Interface.h"
+#include "Schema/1_4/Interface.h"
+#include "Schema/1_5/Interface.h"
+#include "Schema/1_6/Interface.h"
+
 namespace AppInstaller::Repository::Microsoft
 {
-    namespace
-    {
-        char const* const GetOpenDispositionString(SQLiteIndex::OpenDisposition disposition)
-        {
-            switch (disposition)
-            {
-            case AppInstaller::Repository::Microsoft::SQLiteIndex::OpenDisposition::Read:
-                return "Read";
-            case AppInstaller::Repository::Microsoft::SQLiteIndex::OpenDisposition::ReadWrite:
-                return "ReadWrite";
-            case AppInstaller::Repository::Microsoft::SQLiteIndex::OpenDisposition::Immutable:
-                return "ImmutableRead";
-            default:
-                return "Unknown";
-            }
-        }
-    }
-
     SQLiteIndex SQLiteIndex::CreateNew(const std::string& filePath, Schema::Version version, CreateOptions options)
     {
         AICLI_LOG(Repo, Info, << "Creating new SQLite Index [" << version << "] at '" << filePath << "'");
@@ -33,7 +23,6 @@ namespace AppInstaller::Repository::Microsoft
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(result.m_dbconn, "sqliteindex_createnew");
 
-        Schema::MetadataTable::Create(result.m_dbconn);
         // Use calculated version, as incoming version could be 'latest'
         result.m_version.SetSchemaVersion(result.m_dbconn);
 
@@ -46,89 +35,66 @@ namespace AppInstaller::Repository::Microsoft
         return result;
     }
 
-    SQLiteIndex SQLiteIndex::Open(const std::string& filePath, OpenDisposition disposition, Utility::ManagedFile&& indexFile)
+    std::unique_ptr<Schema::ISQLiteIndex> SQLiteIndex::CreateISQLiteIndex() const
     {
-        AICLI_LOG(Repo, Info, << "Opening SQLite Index for " << GetOpenDispositionString(disposition) << " at '" << filePath << "'");
-        switch (disposition)
+        using namespace Schema;
+
+        if (m_version == Version{ 1, 0 })
         {
-        case AppInstaller::Repository::Microsoft::SQLiteIndex::OpenDisposition::Read:
-            return { filePath, SQLite::Connection::OpenDisposition::ReadOnly, SQLite::Connection::OpenFlags::None, std::move(indexFile) };
-        case AppInstaller::Repository::Microsoft::SQLiteIndex::OpenDisposition::ReadWrite:
-            return { filePath, SQLite::Connection::OpenDisposition::ReadWrite, SQLite::Connection::OpenFlags::None, std::move(indexFile) };
-        case AppInstaller::Repository::Microsoft::SQLiteIndex::OpenDisposition::Immutable:
+            return std::make_unique<V1_0::Interface>();
+        }
+        else if (m_version == Version{ 1, 1 })
         {
-            // Following the algorithm set forth at https://sqlite.org/uri.html [3.1] to convert to a URI path
-            // The execution order builds out the string so that it shouldn't require any moves (other than growing)
-            std::string target;
-            // Add an 'arbitrary' growth size to prevent the majority of needing to grow (adding 'file:/' and '?immutable=1')
-            target.reserve(filePath.size() + 20);
-
-            target += "file:";
-
-            bool wasLastCharSlash = false;
-
-            if (filePath.size() >= 2 && filePath[1] == ':' &&
-                ((filePath[0] >= 'a' && filePath[0] <= 'z') ||
-                 (filePath[0] >= 'A' && filePath[0] <= 'Z')))
-            {
-                target += '/';
-                wasLastCharSlash = true;
-            }
-
-            for (char c : filePath)
-            {
-                bool wasThisCharSlash = false;
-                switch (c)
-                {
-                case '?': target += "%3f"; break;
-                case '#': target += "%23"; break;
-                case '\\':
-                case '/':
-                {
-                    wasThisCharSlash = true;
-                    if (!wasLastCharSlash)
-                    {
-                        target += '/';
-                    }
-                    break;
-                }
-                default: target += c; break;
-                }
-
-                wasLastCharSlash = wasThisCharSlash;
-            }
-
-            target += "?immutable=1";
-
-            return { target, SQLite::Connection::OpenDisposition::ReadOnly, SQLite::Connection::OpenFlags::Uri, std::move(indexFile) };
+            return std::make_unique<V1_1::Interface>();
         }
-        default:
-            THROW_HR(E_UNEXPECTED);
+        else if (m_version == Version{ 1, 2 })
+        {
+            return std::make_unique<V1_2::Interface>();
         }
+        else if (m_version == Version{ 1, 3 })
+        {
+            return std::make_unique<V1_3::Interface>();
+        }
+        else if (m_version == Version{ 1, 4 })
+        {
+            return std::make_unique<V1_4::Interface>();
+        }
+        else if (m_version == Version{ 1, 5 })
+        {
+            return std::make_unique<V1_5::Interface>();
+        }
+        else if (m_version == Version{ 1, 6 } ||
+            m_version.MajorVersion == 1 ||
+            m_version.IsLatest())
+        {
+            return std::make_unique<V1_6::Interface>();
+        }
+
+        // We do not have the capacity to operate on this schema version
+        THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
     }
 
-    SQLiteIndex::SQLiteIndex(const std::string& target, SQLite::Connection::OpenDisposition disposition, SQLite::Connection::OpenFlags flags, Utility::ManagedFile&& indexFile) :
-        m_dbconn(SQLite::Connection::Create(target, disposition, flags)), m_indexFile(std::move(indexFile))
+    SQLiteIndex::SQLiteIndex(const std::string& target, Schema::Version version) : SQLiteStorageBase(target, version)
     {
         m_dbconn.EnableICU();
-        m_version = Schema::Version::GetSchemaVersion(m_dbconn);
-        AICLI_LOG(Repo, Info, << "Opened SQLite Index with version [" << m_version << "], last write [" << GetLastWriteTime() << "]");
-        m_interface = m_version.CreateISQLiteIndex();
-        THROW_HR_IF(APPINSTALLER_CLI_ERROR_CANNOT_WRITE_TO_UPLEVEL_INDEX, disposition == SQLite::Connection::OpenDisposition::ReadWrite && m_version != m_interface->GetVersion());
-    }
-
-    SQLiteIndex::SQLiteIndex(const std::string& target, Schema::Version version) :
-        m_dbconn(SQLite::Connection::Create(target, SQLite::Connection::OpenDisposition::Create))
-    {
-        m_dbconn.EnableICU();
-        m_interface = version.CreateISQLiteIndex();
+        m_interface = CreateISQLiteIndex();
         m_version = m_interface->GetVersion();
+    }
+
+    SQLiteIndex::SQLiteIndex(const std::string& target, SQLiteStorageBase::OpenDisposition disposition, Utility::ManagedFile&& indexFile) :
+        SQLiteStorageBase(target, disposition, std::move(indexFile))
+    {
+        m_dbconn.EnableICU();
+        AICLI_LOG(Repo, Info, << "Opened SQLite Index with version [" << m_version << "], last write [" << GetLastWriteTime() << "]");
+        m_interface = CreateISQLiteIndex();
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_CANNOT_WRITE_TO_UPLEVEL_INDEX, disposition == SQLiteStorageBase::OpenDisposition::ReadWrite && m_version != m_interface->GetVersion());
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
     void SQLiteIndex::ForceVersion(const Schema::Version& version)
     {
-        m_interface = version.CreateISQLiteIndex();
+        m_version = version;
+        m_interface = CreateISQLiteIndex();
     }
 #endif
 
@@ -323,18 +289,5 @@ namespace AppInstaller::Repository::Microsoft
     std::vector<std::pair<SQLite::rowid_t, Utility::NormalizedString>> SQLiteIndex::GetDependentsById(AppInstaller::Manifest::string_t packageId) const
     {
         return m_interface->GetDependentsById(m_dbconn, packageId);
-    }
-
-    // Recording last write time based on MSDN documentation stating that time returns a POSIX epoch time and thus
-    // should be consistent across systems.
-    void SQLiteIndex::SetLastWriteTime()
-    {
-        Schema::MetadataTable::SetNamedValue(m_dbconn, Schema::s_MetadataValueName_LastWriteTime, Utility::GetCurrentUnixEpoch());
-    }
-
-    std::chrono::system_clock::time_point SQLiteIndex::GetLastWriteTime()
-    {
-        int64_t lastWriteTime = Schema::MetadataTable::GetNamedValue<int64_t>(m_dbconn, Schema::s_MetadataValueName_LastWriteTime);
-        return Utility::ConvertUnixEpochToSystemClock(lastWriteTime);
     }
 }
