@@ -22,4 +22,14 @@ namespace AppInstaller::CLI::Workflow
     void EnsureSupportForPortableUninstall(Execution::Context& context);
 
     void EnsureNonPortableTypeForArchiveInstall(Execution::Context& context);
+
+    // Gets the portable install info from the context.
+    // Required Args: None
+    // Inputs: Manifest?, Installer, InstallerPath
+    // Outputs: InstallerArgs
+    void GetPortableInstallInfo(Execution::Context& context);
+
+    void VerifyPortableRegistryMatch(Execution::Context& context);
+
+    std::filesystem::path GetPortableTargetDirectory(Execution::Context& context);
 }

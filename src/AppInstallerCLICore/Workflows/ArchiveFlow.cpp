@@ -4,6 +4,7 @@
 #include "ArchiveFlow.h"
 #include "winget/Archive.h"
 #include "winget/Filesystem.h"
+#include "PortableFlow.h"
 
 using namespace AppInstaller::Manifest;
 
@@ -12,11 +13,24 @@ namespace AppInstaller::CLI::Workflow
     void ExtractFilesFromArchive(Execution::Context& context)
     {
         const auto& installerPath = context.Get<Execution::Data::InstallerPath>();
-        const auto& installerParentPath = installerPath.parent_path();
+        std::filesystem::path destinationFolder;
+        std::vector<std::filesystem::path> extractedItems;
 
-        // TODO: For portables, extract portables to final install location and log to local database.
-        HRESULT hr = AppInstaller::Archive::TryExtractArchive(installerPath, installerParentPath);
-        AICLI_LOG(CLI, Info, << "Extracting archive to: " << installerParentPath);
+        HRESULT hr;
+        if (context.Get<Execution::Data::Installer>()->NestedInstallerType == InstallerTypeEnum::Portable)
+        {
+            destinationFolder = GetPortableTargetDirectory(context);
+            hr = AppInstaller::Archive::TryExtractArchive(installerPath, destinationFolder, extractedItems);
+            context.Add<Execution::Data::ExtractedItems>(extractedItems);
+        }
+        else
+        {
+            destinationFolder = installerPath.parent_path();
+            hr = AppInstaller::Archive::TryExtractArchive(installerPath, destinationFolder, extractedItems);
+
+        }
+
+        AICLI_LOG(CLI, Info, << "Extracting archive to: " << destinationFolder);
 
         if (SUCCEEDED(hr))
         {

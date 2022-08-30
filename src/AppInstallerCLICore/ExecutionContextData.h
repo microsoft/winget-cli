@@ -56,6 +56,7 @@ namespace AppInstaller::CLI::Execution
         AllowedArchitectures,
         PortableEntry,
         AllowUnknownScope,
+        ExtractedItems,
         Max
     };
 
@@ -229,6 +230,12 @@ namespace AppInstaller::CLI::Execution
         struct DataMapping<Data::AllowUnknownScope>
         {
             using value_t = bool;
+        };
+
+        template <>
+        struct DataMapping<Data::ExtractedItems>
+        {
+            using value_t = std::vector<std::filesystem::path>;
         };
     }
 }

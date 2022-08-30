@@ -17,8 +17,10 @@ TEST_CASE("Extract_ZipArchive", "[archive]")
     const auto& testZipPath = testZip.GetPath();
     const auto& tempDirectoryPath = tempDirectory.GetPath();
 
-    HRESULT hr = TryExtractArchive(testZipPath, tempDirectoryPath);
+    std::vector<std::filesystem::path> extractedItems;
+    HRESULT hr = TryExtractArchive(testZipPath, tempDirectoryPath, extractedItems);
 
     REQUIRE(SUCCEEDED(hr));
     REQUIRE(std::filesystem::exists(tempDirectoryPath / "test.txt"));
+    REQUIRE(extractedItems[0] == "test.txt");
 }

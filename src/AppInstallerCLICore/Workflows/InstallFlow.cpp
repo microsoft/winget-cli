@@ -334,6 +334,8 @@ namespace AppInstaller::CLI::Workflow
     void PortableInstall(Execution::Context& context)
     {
         context <<
+            GetPortableInstallInfo <<
+            VerifyPortableRegistryMatch <<
             PortableInstallImpl <<
             ReportInstallerResult("Portable"sv, APPINSTALLER_CLI_ERROR_PORTABLE_INSTALL_FAILED, true);
     }

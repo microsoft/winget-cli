@@ -7,6 +7,8 @@
 #include "winget/Filesystem.h"
 #include "winget/PathVariable.h"
 #include "Public/AppInstallerLogging.h"
+#include <AppInstallerErrors.h>
+#include <AppInstallerDateTime.h>
 
 using namespace AppInstaller::Registry;
 using namespace AppInstaller::Registry::Portable;
@@ -14,10 +16,22 @@ using namespace AppInstaller::Registry::Environment;
 
 namespace AppInstaller::Portable
 {
-    PortableEntry::PortableEntry(PortableARPEntry& portableARPEntry) :
-        m_portableARPEntry(portableARPEntry)
+    namespace
     {
-        // Initialize all values if present
+        constexpr std::string_view c_PortableIndexFileName = "portable.db";
+
+        void AppendExeExtension(std::filesystem::path& value)
+        {
+            if (value.extension() != ".exe")
+            {
+                value += ".exe";
+            }
+        }
+    }
+
+    PortableEntry::PortableEntry(Manifest::ScopeEnum scope, Utility::Architecture arch, const std::string& productCode, bool isUpdate) :
+        m_productCode(productCode), m_portableARPEntry(PortableARPEntry(scope, arch, productCode)), m_isUpdate(isUpdate)
+    {
         if (Exists())
         {
             DisplayName = GetStringValue(PortableValueName::DisplayName);
@@ -40,6 +54,139 @@ namespace AppInstaller::Portable
             InstallDirectoryCreated = GetBoolValue(PortableValueName::InstallDirectoryCreated);
             InstallDirectoryAddedToPath = GetBoolValue(PortableValueName::InstallDirectoryAddedToPath);
         }
+    }
+
+    HRESULT PortableEntry::MultipleInstall(const std::vector<Manifest::NestedInstallerFile>& nestedInstallerFiles, const std::vector<std::filesystem::path>& extractedItems)
+    {
+        // Add each file/ directory to database.
+        if (extractedItems.size() == 0)
+        {
+
+        }
+
+        for (const auto& nestedInstallerFile : nestedInstallerFiles)
+        {
+            // This is supposed to be where the portable exe is located.
+            PortableTargetFullPath = InstallLocation / ConvertToUTF16(nestedInstallerFile.RelativeFilePath);
+
+            // Create symlink
+            if (!InstallDirectoryAddedToPath)
+            {
+                PortableSymlinkFullPath = GetPortableLinksLocation(GetScope()) / ConvertToUTF16(nestedInstallerFile.PortableCommandAlias);
+                Commit(PortableValueName::PortableSymlinkFullPath, PortableSymlinkFullPath);
+
+                std::filesystem::file_status status = std::filesystem::status(PortableSymlinkFullPath);
+                if (std::filesystem::is_directory(status))
+                {
+                    AICLI_LOG(CLI, Info, << "Unable to create symlink. '" << PortableSymlinkFullPath << "points to an existing directory.");
+                    return APPINSTALLER_CLI_ERROR_PORTABLE_SYMLINK_PATH_IS_DIRECTORY;
+                }
+
+                if (std::filesystem::remove(PortableSymlinkFullPath))
+                {
+                    AICLI_LOG(CLI, Info, << "Removed existing file at " << PortableSymlinkFullPath);
+                    //context.Reporter.Warn() << Resource::String::OverwritingExistingFileAtMessage << ' ' << PortableSymlinkFullPath.u8string() << std::endl;
+                }
+
+                CreatePortableSymlink();
+            }
+            else
+            {
+                AICLI_LOG(CLI, Info, << "Package directory was previously added to PATH. Skipping symlink creation.");
+            }
+        }
+
+        // Add to path
+        const std::filesystem::path& pathValue = GetPathValue();
+        if (PathVariable(GetScope()).Append(pathValue))
+        {
+            AICLI_LOG(Core, Info, << "Appended target directory to PATH registry: " << pathValue);
+            //context.Reporter.Warn() << Resource::String::ModifiedPathRequiresShellRestart << std::endl;
+            m_addedToPath = true;
+        }
+        else
+        {
+            AICLI_LOG(CLI, Info, << "Target directory already exists in PATH registry: " << pathValue);
+        }
+
+        return ERROR_SUCCESS;
+    }
+
+    HRESULT PortableEntry::SingleInstall(const std::filesystem::path& installerPath, const std::filesystem::path& commandAlias, bool rename)
+    {
+        // Initial registration.
+        Commit(PortableValueName::WinGetPackageIdentifier, WinGetPackageIdentifier);
+        Commit(PortableValueName::WinGetSourceIdentifier, WinGetSourceIdentifier);
+        Commit(PortableValueName::UninstallString, UninstallString = "winget uninstall --product-code " + m_productCode);
+        Commit(PortableValueName::WinGetInstallerType, WinGetInstallerType = InstallerTypeToString(Manifest::InstallerTypeEnum::Portable));
+        Commit(PortableValueName::SHA256, SHA256);
+
+        // Move portable exe.
+        if (rename)
+        {
+            PortableTargetFullPath = InstallLocation / commandAlias;
+        }
+        else
+        {
+            PortableTargetFullPath = InstallLocation / installerPath.filename();
+        }
+
+        AppendExeExtension(PortableTargetFullPath);
+        Commit(PortableValueName::PortableTargetFullPath, PortableTargetFullPath);
+        Commit(PortableValueName::InstallLocation, InstallLocation);
+        MovePortableExe(installerPath);
+
+        
+        // Create symlink
+        if (!InstallDirectoryAddedToPath)
+        {
+            PortableSymlinkFullPath = GetPortableLinksLocation(GetScope()) / commandAlias;
+            Commit(PortableValueName::PortableSymlinkFullPath, PortableSymlinkFullPath);
+
+            std::filesystem::file_status status = std::filesystem::status(PortableSymlinkFullPath);
+            if (std::filesystem::is_directory(status))
+            {
+                AICLI_LOG(CLI, Info, << "Unable to create symlink. '" << PortableSymlinkFullPath << "points to an existing directory.");
+                return APPINSTALLER_CLI_ERROR_PORTABLE_SYMLINK_PATH_IS_DIRECTORY;
+            }
+
+            if (std::filesystem::remove(PortableSymlinkFullPath))
+            {
+                AICLI_LOG(CLI, Info, << "Removed existing file at " << PortableSymlinkFullPath);
+                //context.Reporter.Warn() << Resource::String::OverwritingExistingFileAtMessage << ' ' << PortableSymlinkFullPath.u8string() << std::endl;
+            }
+
+            CreatePortableSymlink();
+        }
+        else
+        {
+            AICLI_LOG(CLI, Info, << "Package directory was previously added to PATH. Skipping symlink creation.");
+        }
+
+        // Add to path
+        const std::filesystem::path& pathValue = GetPathValue();
+        if (PathVariable(GetScope()).Append(pathValue))
+        {
+            AICLI_LOG(Core, Info, << "Appended target directory to PATH registry: " << pathValue);
+            //context.Reporter.Warn() << Resource::String::ModifiedPathRequiresShellRestart << std::endl;
+            m_addedToPath = true;
+        }
+        else
+        {
+            AICLI_LOG(CLI, Info, << "Target directory already exists in PATH registry: " << pathValue);
+        }
+    
+        return ERROR_SUCCESS;
+    }
+
+    void PortableEntry::SetAppsAndFeaturesMetadata(const Manifest::AppsAndFeaturesEntry& entry, const Manifest::Manifest& manifest)
+    {
+        Commit(PortableValueName::DisplayName, DisplayName = entry.DisplayName);
+        Commit(PortableValueName::DisplayVersion, DisplayVersion = entry.DisplayVersion);
+        Commit(PortableValueName::Publisher, Publisher = entry.Publisher);
+        Commit(PortableValueName::InstallDate, InstallDate = AppInstaller::Utility::GetCurrentDateForARP());
+        Commit(PortableValueName::URLInfoAbout, URLInfoAbout = manifest.CurrentLocalization.Get<Manifest::Localization::PackageUrl>());
+        Commit(PortableValueName::HelpLink, HelpLink = manifest.CurrentLocalization.Get < Manifest::Localization::PublisherSupportUrl>());
     }
 
     void PortableEntry::MovePortableExe(const std::filesystem::path& installerPath)
@@ -107,11 +254,6 @@ namespace AppInstaller::Portable
             AICLI_LOG(Core, Info, << "Portable symlink does not match portable target path: " << symlinkTargetPath);
             return false;
         }
-    }
-
-    bool PortableEntry::AddToPathVariable()
-    {
-        return PathVariable(GetScope()).Append(GetPathValue());
     }
 
     bool PortableEntry::RemoveFromPathVariable()
