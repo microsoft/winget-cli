@@ -141,12 +141,14 @@ namespace AppInstaller::CLI::Workflow
 
             const std::string installedScope = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata()[Repository::PackageVersionMetadata::InstalledScope];
             const std::string installedArch = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata()[Repository::PackageVersionMetadata::InstalledArchitecture];
+            bool isUpdate = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
             Portable::PortableEntry portableEntry = Portable::PortableEntry(
                 ConvertToScopeEnum(installedScope),
                 Utility::ConvertToArchitectureEnum(installedArch),
-                productCodes[0]);
+                productCodes[0],
+                isUpdate);
 
-            context.Add<Execution::Data::PortableEntry>(portableEntry);
+            context.Add<Execution::Data::PortableEntry>(std::move(portableEntry));
             break;
         }
         default:

@@ -21,5 +21,5 @@ namespace AppInstaller::Filesystem
     void RenameFile(const std::filesystem::path& from, const std::filesystem::path& to);
 
     // Creates a symlink that points to the target path.
-    bool CreateSymlink(const std::filesystem::path& path, const std::filesystem::path& target);
+    bool CreateSymlink(const std::filesystem::path& target, const std::filesystem::path& link);
 }

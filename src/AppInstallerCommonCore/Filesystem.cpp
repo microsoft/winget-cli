@@ -142,7 +142,7 @@ namespace AppInstaller::Filesystem
     }
 #endif
 
-    bool CreateSymlink(const std::filesystem::path& to, const std::filesystem::path& target)
+    bool CreateSymlink(const std::filesystem::path& target, const std::filesystem::path& link)
     {
 #ifndef AICLI_DISABLE_TEST_HOOKS
         if (s_CreateSymlinkResult_TestHook_Override)
@@ -152,7 +152,7 @@ namespace AppInstaller::Filesystem
 #endif
         try
         {
-            std::filesystem::create_symlink(to, target);
+            std::filesystem::create_symlink(target, link);
             return true;
         }
         catch (std::filesystem::filesystem_error& error)

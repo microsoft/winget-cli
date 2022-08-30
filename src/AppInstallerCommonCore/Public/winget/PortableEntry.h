@@ -36,6 +36,8 @@ namespace AppInstaller::Portable
 
         HRESULT MultipleInstall(const std::vector<Manifest::NestedInstallerFile>& nestedInstallerFiles, const std::vector<std::filesystem::path>& extractedItems);
 
+        HRESULT Uninstall(bool purge = false);
+
         template<typename T>
         void Commit(PortableValueName valueName, T value)
         {
@@ -48,7 +50,7 @@ namespace AppInstaller::Portable
 
         PortableEntry(Manifest::ScopeEnum scope, Utility::Architecture arch, const std::string& productCode, bool isUpdate = false);
 
-        std::filesystem::path GetPathValue() const
+        std::filesystem::path GetPathDirectory() const
         {
             return  InstallDirectoryAddedToPath ? InstallLocation : PortableSymlinkFullPath.parent_path();
         }
@@ -84,29 +86,31 @@ namespace AppInstaller::Portable
             }
         }
 
-
         void SetAppsAndFeaturesMetadata(const Manifest::AppsAndFeaturesEntry& entry, const Manifest::Manifest& manifest);
-
-        bool VerifyPortableExeHash();
-
-        bool VerifySymlinkTarget();
 
         void MovePortableExe(const std::filesystem::path& installerPath);
 
-        void CreatePortableSymlink();
-
-        bool RemoveFromPathVariable();
-
-        void RemoveARPEntry();
+        void CreatePortableSymlink(const std::filesystem::path& targetPath, const std::filesystem::path& symlinkPath);
 
         bool IsUpdate() { return m_isUpdate; };
 
     private:
-        //std::unique_ptr<PortableIndex> m_portableIndex;
         bool m_isUpdate = false;
         bool m_addedToPath = false;
         std::string m_productCode;
         PortableARPEntry m_portableARPEntry;
+
+        std::stringstream m_stream;
+
+        bool VerifySymlinkTarget(const std::filesystem::path& targetPath, const std::filesystem::path& symlinkPath);
+        bool VerifyPortableExeHash(const std::filesystem::path& targetPath, const std::string& hashValue);
+
+        void RemovePortableSymlink(const std::filesystem::path& targetPath, const std::filesystem::path& symlinkPath);
+        void RemovePortableDirectory(const std::filesystem::path& directoryPath, bool purge, bool isCreated);
+        void RemovePortableExe(const std::filesystem::path& targetPath, const std::string& hash);
+
+        void AddToPathVariable();
+        bool RemoveFromPathVariable();
 
         std::string GetStringValue(PortableValueName valueName);
         std::filesystem::path GetPathValue(PortableValueName valueName);
