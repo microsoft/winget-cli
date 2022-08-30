@@ -9,10 +9,11 @@
 #include <winhttp.h>
 
 #pragma warning( push )
-#pragma warning ( disable : 6001 6340 6388 )
+#pragma warning ( disable : 6001 6340 6387 6388 28196 )
 #include <wil/resource.h>
 #include <wil/result.h>
 #include <wil/result_macros.h>
+#include <wil/filesystem.h>
 #pragma warning( pop )
 
 #include <AppInstallerDateTime.h>
@@ -58,6 +59,7 @@
 #include <thread>
 #include <tuple>
 #include <type_traits>
+#include <unordered_set>
 #include <utility>
 
 #include <json/json.h>

@@ -198,6 +198,13 @@ namespace AppInstaller::Runtime
         };
     }
 
+    std::filesystem::path GetKnownFolderPath(const KNOWNFOLDERID& id)
+    {
+        wil::unique_cotaskmem_string knownFolder = nullptr;
+        THROW_IF_FAILED(SHGetKnownFolderPath(id, KF_FLAG_NO_ALIAS | KF_FLAG_DONT_VERIFY | KF_FLAG_NO_PACKAGE_REDIRECTION, NULL, &knownFolder));
+        return knownFolder.get();
+    }
+
     bool IsRunningInPackagedContext()
     {
         static bool result = DoesCurrentProcessHaveIdentity();

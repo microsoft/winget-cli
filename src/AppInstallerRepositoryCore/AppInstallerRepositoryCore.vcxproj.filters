@@ -354,6 +354,9 @@
     <ClInclude Include="Microsoft\Schema\Pinning_1_0\PinTable.h">
       <Filter>Microsoft\Schema\Pinning_1_0</Filter>
     </ClInclude>
+    <ClInclude Include="Public\winget\InstalledFilesCorrelation.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -562,6 +565,9 @@
     </ClCompile>
     <ClCompile Include="Microsoft\Schema\Pinning_1_0\PinTable.cpp">
       <Filter>Microsoft\Schema\Pinning_1_0</Filter>
+    </ClCompile>
+    <ClCompile Include="InstalledFilesCorrelation.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

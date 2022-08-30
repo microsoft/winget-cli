@@ -9,6 +9,8 @@
 #include <string>
 #include <string_view>
 
+#include <Shlobj.h>
+
 namespace AppInstaller::Runtime
 {
     // Determines whether the process is running in a packaged context or not.
@@ -136,4 +138,7 @@ namespace AppInstaller::Runtime
 
     // Gets the default user agent string for the Windows Package Manager.
     Utility::LocIndString GetDefaultUserAgent();
+
+    // Gets known folder as std::filesystem::path
+    std::filesystem::path GetKnownFolderPath(const KNOWNFOLDERID& folderId);
 }
