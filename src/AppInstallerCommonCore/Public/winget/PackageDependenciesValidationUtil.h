@@ -5,7 +5,7 @@
 
 namespace AppInstaller::Manifest
 {
-    enum WinGetManifestDependenciesErrorResult
+    enum WinGetManifestDependenciesErrorResult : uint32_t
     {
         None = 0x0,
 
