@@ -4,24 +4,32 @@
 #include "PortableFlow.h"
 #include "WorkflowBase.h"
 #include "winget/Filesystem.h"
-#include "winget/PortableARPEntry.h"
-#include "winget/PortableEntry.h"
+#include "PortableInstaller.h"
 #include "winget/PathVariable.h"
 
 using namespace AppInstaller::Manifest;
-using namespace AppInstaller::Portable;
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Registry;
 using namespace AppInstaller::Registry::Portable;
 using namespace AppInstaller::Registry::Environment;
 using namespace AppInstaller::Repository;
+using namespace AppInstaller::CLI::Portable;
 using namespace std::filesystem;
 
 namespace AppInstaller::CLI::Workflow
 {
     namespace
     {
+        constexpr std::string_view c_PortableIndexFileName = "portable.db";
         constexpr std::string_view s_DefaultSource = "*DefaultSource"sv;
+
+        void AppendExeExtension(std::filesystem::path& value)
+        {
+            if (value.extension() != ".exe")
+            {
+                value += ".exe";
+            }
+        }
 
         std::string GetPortableProductCode(Execution::Context& context)
         {
@@ -40,38 +48,53 @@ namespace AppInstaller::CLI::Workflow
             return MakeSuitablePathPart(packageId + "_" + source);
         }
 
-        std::filesystem::path GetPortableInstallRoot(Manifest::ScopeEnum scope, Utility::Architecture arch)
+        std::filesystem::path GetPortableTargetFullPath(Execution::Context& context)
         {
-            if (scope == Manifest::ScopeEnum::Machine)
+            const std::filesystem::path& installerPath = context.Get<Execution::Data::InstallerPath>();
+            const std::filesystem::path& targetInstallDirectory = GetPortableTargetDirectory(context);
+            std::string_view renameArg = context.Args.GetArg(Execution::Args::Type::Rename);
+
+            std::filesystem::path fileName;
+            if (!renameArg.empty())
             {
-                if (arch == Utility::Architecture::X86)
+                fileName = ConvertToUTF16(renameArg);
+            }
+            else
+            {
+                fileName = installerPath.filename();
+            }
+
+            AppendExeExtension(fileName);
+            return targetInstallDirectory / fileName;
+        }
+
+        std::filesystem::path GetPortableSymlinkFullPath(Execution::Context& context)
+        {
+            const std::filesystem::path& installerPath = context.Get<Execution::Data::InstallerPath>();
+            const std::vector<string_t>& commands = context.Get<Execution::Data::Installer>()->Commands;
+            Manifest::ScopeEnum scope = ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
+            std::string_view renameArg = context.Args.GetArg(Execution::Args::Type::Rename);
+
+            std::filesystem::path commandAlias;
+            if (!renameArg.empty())
+            {
+                commandAlias = ConvertToUTF16(renameArg);
+            }
+            else
+            {
+                if (!commands.empty())
                 {
-                    return Runtime::GetPathTo(Runtime::PathName::PortablePackageMachineRootX86);
+                    commandAlias = ConvertToUTF16(commands[0]);
                 }
                 else
                 {
-                    return Runtime::GetPathTo(Runtime::PathName::PortablePackageMachineRootX64);
+                    commandAlias = installerPath.filename();
                 }
             }
-            else
-            {
-                return Runtime::GetPathTo(Runtime::PathName::PortablePackageUserRoot);
-            }
+
+            AppendExeExtension(commandAlias);
+            return GetPortableLinksLocation(scope) / commandAlias;
         }
-
-        std::filesystem::path GetPortableLinksLocation(Manifest::ScopeEnum scope)
-        {
-            if (scope == Manifest::ScopeEnum::Machine)
-            {
-                return Runtime::GetPathTo(Runtime::PathName::PortableLinksMachineLocation);
-            }
-            else
-            {
-                return Runtime::GetPathTo(Runtime::PathName::PortableLinksUserLocation);
-            }
-        }
-
-
 
         Manifest::AppsAndFeaturesEntry GetAppsAndFeaturesEntryForPortableInstall(
             const std::vector<AppInstaller::Manifest::AppsAndFeaturesEntry>& appsAndFeaturesEntries,
@@ -162,46 +185,7 @@ namespace AppInstaller::CLI::Workflow
         return targetInstallDirectory;
     }
 
-    void VerifyPortableRegistryMatch(Execution::Context& context)
-    {
-        const std::string& packageIdentifier = context.Get<Execution::Data::Manifest>().Id;
-
-        std::string sourceIdentifier;
-        if (context.Contains(Execution::Data::PackageVersion))
-        {
-            sourceIdentifier = context.Get<Execution::Data::PackageVersion>()->GetSource().GetIdentifier();
-        }
-        else
-        {
-            sourceIdentifier = s_DefaultSource;
-        }
-
-        Portable::PortableEntry& portableEntry = context.Get<Execution::Data::PortableEntry>();
-
-        if (portableEntry.Exists())
-        {
-            if (packageIdentifier != portableEntry.WinGetPackageIdentifier || sourceIdentifier != portableEntry.WinGetSourceIdentifier)
-            {
-                // TODO: Replace HashOverride with --Force when argument behavior gets updated.
-                if (!context.Args.Contains(Execution::Args::Type::HashOverride))
-                {
-                    AICLI_LOG(CLI, Error, << "Registry match failed, skipping write to uninstall registry");
-                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PORTABLE_PACKAGE_ALREADY_EXISTS);
-                }
-                else
-                {
-                    AICLI_LOG(CLI, Info, << "Overriding registry match check...");
-                    context.Reporter.Warn() << Resource::String::PortableRegistryCollisionOverridden << std::endl;
-                }
-            }
-        }
-
-        portableEntry.WinGetPackageIdentifier = packageIdentifier;
-        portableEntry.WinGetSourceIdentifier = sourceIdentifier;
-    }
-
-
-    void GetPortableInstallInfo(Execution::Context& context)
+    void GetPortableEntryForInstall(Execution::Context& context)
     {
         Manifest::ScopeEnum scope = Manifest::ScopeEnum::Unknown;
         bool isUpdate = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
@@ -216,96 +200,84 @@ namespace AppInstaller::CLI::Workflow
         }
         else
         {
-            scope = ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
+            scope = Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
         }
 
-        PortableEntry portableEntry = PortableEntry(scope, context.Get<Execution::Data::Installer>()->Arch, GetPortableProductCode(context), isUpdate);
-        portableEntry.InstallLocation = GetPortableTargetDirectory(context);
-        portableEntry.SHA256 = SHA256::ConvertToString(context.Get<Execution::Data::HashPair>().second);
+        Utility::Architecture arch = context.Get<Execution::Data::Installer>()->Arch;
+        const std::string& productCode = GetPortableProductCode(context);
 
-        const AppInstaller::Manifest::Manifest& manifest = context.Get<Execution::Data::Manifest>();
-        const Manifest::AppsAndFeaturesEntry& entry = GetAppsAndFeaturesEntryForPortableInstall(context.Get<Execution::Data::Installer>()->AppsAndFeaturesEntries, manifest);
-        portableEntry.SetAppsAndFeaturesMetadata(entry, manifest);
-        context.Add<Execution::Data::PortableEntry>(std::move(portableEntry));
+        PortableInstaller portableInstaller = PortableInstaller(scope, arch, productCode);
+        portableInstaller.SHA256 = Utility::SHA256::ConvertToString(context.Get<Execution::Data::HashPair>().second);
+        portableInstaller.InstallLocation = GetPortableTargetDirectory(context);
+        portableInstaller.IsUpdate = isUpdate;
+
+        // These are not needed if installing from archive with multiple portables
+        // But we'll set them regardless for convenience.
+        portableInstaller.PortableTargetFullPath = GetPortableTargetFullPath(context);
+        portableInstaller.PortableSymlinkFullPath = GetPortableSymlinkFullPath(context);
+
+        context.Add<Execution::Data::PortableInstaller>(std::move(portableInstaller));
     }
 
     void PortableInstallImpl(Execution::Context& context)
     {
-        Portable::PortableEntry& portableEntry = context.Get<Execution::Data::PortableEntry>();
+        HRESULT result = ERROR_SUCCESS;
+        PortableInstaller& portableInstaller = context.Get<Execution::Data::PortableInstaller>();
 
         try
         {
             context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
 
-            HRESULT result;
-            const std::filesystem::path& installerPath = context.Get<Execution::Data::InstallerPath>();
-
             if (IsArchiveType(context.Get<Execution::Data::Installer>()->BaseInstallerType))
             {
                 const std::vector<std::filesystem::path>& extractedItems = context.Get<Execution::Data::ExtractedItems>();
                 const std::vector<Manifest::NestedInstallerFile>& nestedInstallerFiles = context.Get<Execution::Data::Installer>()->NestedInstallerFiles;
-                result = portableEntry.MultipleInstall(nestedInstallerFiles, extractedItems);
+                result = portableInstaller.MultipleInstall(nestedInstallerFiles, extractedItems);
             }
             else
             {
-                std::filesystem::path commandAlias;
-                bool rename = false;
-                std::string_view renameArg = context.Args.GetArg(Execution::Args::Type::Rename);
-                const std::vector<string_t>& commands = context.Get<Execution::Data::Installer>()->Commands;
-
-                if (!renameArg.empty())
-                {
-                    rename = true;
-                    commandAlias = ConvertToUTF16(renameArg);
-                }
-                else if (!commands.empty())
-                {
-                    commandAlias = ConvertToUTF16(commands[0]);
-                }
-                else
-                {
-                    commandAlias = installerPath.filename();
-                }
-
-                result = portableEntry.SingleInstall(installerPath, commandAlias, rename);
+                const std::filesystem::path& installerPath = context.Get<Execution::Data::InstallerPath>();
+                result = portableInstaller.SingleInstall(installerPath);
             }
 
             context.Add<Execution::Data::OperationReturnCode>(result);
+            context.Reporter.Warn() << portableInstaller.GetOutputMessage();
         }
         catch (...)
         {
-            // fix this to handle.
             context.Add<Execution::Data::OperationReturnCode>(Workflow::HandleException(context, std::current_exception()));
         }
 
         // Perform cleanup only if the install fails and is not an update.
-        const auto& installReturnCode = context.Get<Execution::Data::OperationReturnCode>();
-
-        if (installReturnCode != 0 && installReturnCode != APPINSTALLER_CLI_ERROR_PORTABLE_PACKAGE_ALREADY_EXISTS && !portableEntry.IsUpdate())
+        if (result != ERROR_SUCCESS && !portableInstaller.IsUpdate)
         {
             context.Reporter.Warn() << Resource::String::PortableInstallFailed << std::endl;
-            auto uninstallPortableContextPtr = context.CreateSubContext();
-            Execution::Context& uninstallPortableContext = *uninstallPortableContextPtr;
-            auto previousThreadGlobals = uninstallPortableContext.SetForCurrentThread();
-
-            uninstallPortableContext.Add<Execution::Data::PortableEntry>(context.Get<Execution::Data::PortableEntry>());
-            uninstallPortableContext << PortableUninstallImpl;
+            result = portableInstaller.Uninstall();
+            context.Add<Execution::Data::OperationReturnCode>(result);
         }
     }
 
     void PortableUninstallImpl(Execution::Context& context)
     {
         HRESULT result;
+        PortableInstaller& portableInstaller = context.Get<Execution::Data::PortableInstaller>();
 
         try
         {
             context.Reporter.Info() << Resource::String::UninstallFlowStartingPackageUninstall << std::endl;
 
-            PortableEntry& portableEntry = context.Get<Execution::Data::PortableEntry>();
-            bool shouldPurge = context.Args.Contains(Execution::Args::Type::Purge) ||
-                (!portableEntry.IsUpdate() && Settings::User().Get<Settings::Setting::UninstallPurgePortablePackage>() && !context.Args.Contains(Execution::Args::Type::Preserve));
+            bool purge = context.Args.Contains(Execution::Args::Type::Purge) ||
+                (!portableInstaller.IsUpdate && Settings::User().Get<Settings::Setting::UninstallPurgePortablePackage>() && !context.Args.Contains(Execution::Args::Type::Preserve));
 
-           result = portableEntry.Uninstall(shouldPurge);
+            const auto& indexPath = portableInstaller.GetPortableIndexPath();
+            if (std::filesystem::exists(indexPath))
+            {
+                result = portableInstaller.UninstallFromIndex(purge);
+            }
+            else
+            {
+                result = portableInstaller.Uninstall(purge);
+            }
         }
         catch (HRESULT error)
         {
@@ -313,6 +285,7 @@ namespace AppInstaller::CLI::Workflow
         }
 
         context.Add<Execution::Data::OperationReturnCode>(result);
+        context.Reporter.Warn() << portableInstaller.GetOutputMessage();
     }
 
     void EnsureSupportForPortableInstall(Execution::Context& context)
@@ -339,18 +312,6 @@ namespace AppInstaller::CLI::Workflow
             {
                 context << EnsureRunningAsAdmin;
             }
-        }
-    }
-
-    // TODO: remove this check once support for portable in archive has been implemented
-    void EnsureNonPortableTypeForArchiveInstall(Execution::Context& context)
-    {
-        auto nestedInstallerType = context.Get<Execution::Data::Installer>().value().NestedInstallerType;
-
-        if (nestedInstallerType == InstallerTypeEnum::Portable)
-        {
-            context.Reporter.Error() << Resource::String::PortableInstallFromArchiveNotSupported << std::endl;
-            AICLI_TERMINATE_CONTEXT(ERROR_NOT_SUPPORTED);
         }
     }
 }

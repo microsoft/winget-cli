@@ -185,6 +185,9 @@
     <ClInclude Include="Workflows\PromptFlow.h">
       <Filter>Workflows</Filter>
     </ClInclude>
+    <ClInclude Include="PortableInstaller.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -336,6 +339,12 @@
     </ClCompile>
     <ClCompile Include="Workflows\ArchiveFlow.cpp">
       <Filter>Workflows</Filter>
+    </ClCompile>
+    <ClInclude Include="PortableInstaller.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClCompile Include="PortableInstaller.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

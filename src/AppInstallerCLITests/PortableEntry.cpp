@@ -3,17 +3,17 @@
 #include "pch.h"
 #include "TestCommon.h"
 #include <winget/PathVariable.h>
-#include <winget/PortableEntry.h>
+#include <PortableInstaller.h>
 #include <winget/PortableARPEntry.h>
 #include <Public/AppInstallerArchitecture.h>
 
-using namespace AppInstaller::Portable;
 using namespace AppInstaller::Utility;
+using namespace AppInstaller::CLI::Portable;
 using namespace TestCommon;
 
 TEST_CASE("VerifyPortableMove", "[PortableEntry]")
 {
-    PortableEntry testEntry = PortableEntry(
+    PortableInstaller testEntry = PortableInstaller(
         AppInstaller::Manifest::ScopeEnum::User,
         Architecture::X64,
         "testProductCode");
@@ -31,7 +31,7 @@ TEST_CASE("VerifyPortableMove", "[PortableEntry]")
     REQUIRE(testEntry.InstallDirectoryCreated);
 
     // Create a second PortableEntry instance to emulate installing for a second time. (ARP entry should already exist)
-    PortableEntry testEntry2 = PortableEntry(
+    PortableInstaller testEntry2 = PortableInstaller(
         AppInstaller::Manifest::ScopeEnum::User,
         Architecture::X64,
         "testProductCode");
@@ -53,7 +53,7 @@ TEST_CASE("VerifyPortableMove", "[PortableEntry]")
 
 TEST_CASE("VerifySymlinkCheck", "[PortableEntry]")
 {
-    PortableEntry testEntry = PortableEntry(
+    PortableInstaller testEntry = PortableInstaller(
         AppInstaller::Manifest::ScopeEnum::User,
         Architecture::X64,
         "testProductCode");

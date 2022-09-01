@@ -35,6 +35,10 @@ namespace AppInstaller::Repository::Microsoft
 
         bool UpdatePortableFile(const Schema::IPortableIndex::PortableFile& file);
 
+        std::optional<Schema::IPortableIndex::PortableFile> GetPortableFileById(SQLite::rowid_t rowId);
+
+        bool Exists(const Schema::IPortableIndex::PortableFile& file);
+
     private:
         // Constructor used to open an existing index.
         PortableIndex(const std::string& target, SQLiteStorageBase::OpenDisposition disposition, Utility::ManagedFile&& indexFile);

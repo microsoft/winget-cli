@@ -5,6 +5,7 @@
 #include "winget/Archive.h"
 #include "winget/Filesystem.h"
 #include "PortableFlow.h"
+#include "PortableInstaller.h"
 
 using namespace AppInstaller::Manifest;
 
@@ -20,6 +21,10 @@ namespace AppInstaller::CLI::Workflow
         if (context.Get<Execution::Data::Installer>()->NestedInstallerType == InstallerTypeEnum::Portable)
         {
             destinationFolder = GetPortableTargetDirectory(context);
+
+            // temporarily creating directory now
+            std::filesystem::create_directory(destinationFolder);
+
             hr = AppInstaller::Archive::TryExtractArchive(installerPath, destinationFolder, extractedItems);
             context.Add<Execution::Data::ExtractedItems>(extractedItems);
         }
@@ -27,7 +32,6 @@ namespace AppInstaller::CLI::Workflow
         {
             destinationFolder = installerPath.parent_path();
             hr = AppInstaller::Archive::TryExtractArchive(installerPath, destinationFolder, extractedItems);
-
         }
 
         AICLI_LOG(CLI, Info, << "Extracting archive to: " << destinationFolder);
@@ -54,28 +58,40 @@ namespace AppInstaller::CLI::Workflow
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST);
         }
 
-        const auto& installerPath = context.Get<Execution::Data::InstallerPath>();
-        const auto& installerParentPath = installerPath.parent_path();
-        const auto& relativeFilePath = ConvertToUTF16(installer.NestedInstallerFiles[0].RelativeFilePath);
 
-        const std::filesystem::path& nestedInstallerPath = installerParentPath / relativeFilePath;
-
-        if (Filesystem::PathEscapesBaseDirectory(nestedInstallerPath, installerParentPath))
+        InstallerTypeEnum nestedInstallerType = installer.NestedInstallerType;
+        std::filesystem::path destinationFolder;
+        if (nestedInstallerType == InstallerTypeEnum::Portable)
         {
-            AICLI_LOG(CLI, Error, << "Path points to a location outside of the install directory: " << nestedInstallerPath);
-            context.Reporter.Error() << Resource::String::InvalidPathToNestedInstaller << std::endl;
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NESTEDINSTALLER_INVALID_PATH);
-        }
-        else if (!std::filesystem::exists(nestedInstallerPath))
-        {
-            AICLI_LOG(CLI, Error, << "Unable to locate nested installer at: " << nestedInstallerPath);
-            context.Reporter.Error() << Resource::String::NestedInstallerNotFound << ' ' << nestedInstallerPath << std::endl;
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NESTEDINSTALLER_NOT_FOUND);
+            destinationFolder = GetPortableTargetDirectory(context);
         }
         else
         {
-            AICLI_LOG(CLI, Info, << "Setting installerPath to: " << nestedInstallerPath);
-            context.Add<Execution::Data::InstallerPath>(nestedInstallerPath);
+            destinationFolder = context.Get<Execution::Data::InstallerPath>().parent_path();
+        }
+
+        for (const auto& nestedInstallerFile : installer.NestedInstallerFiles)
+        {
+            const std::filesystem::path& nestedInstallerPath = destinationFolder / ConvertToUTF16(nestedInstallerFile.RelativeFilePath);
+            
+            if (Filesystem::PathEscapesBaseDirectory(nestedInstallerPath, destinationFolder))
+            {
+                AICLI_LOG(CLI, Error, << "Path points to a location outside of the install directory: " << nestedInstallerPath);
+                context.Reporter.Error() << Resource::String::InvalidPathToNestedInstaller << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NESTEDINSTALLER_INVALID_PATH);
+            }
+            else if (!std::filesystem::exists(nestedInstallerPath))
+            {
+                AICLI_LOG(CLI, Error, << "Unable to locate nested installer at: " << nestedInstallerPath);
+                context.Reporter.Error() << Resource::String::NestedInstallerNotFound << ' ' << nestedInstallerPath << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NESTEDINSTALLER_NOT_FOUND);
+            }
+            else if (nestedInstallerType != InstallerTypeEnum::Portable)
+            {
+                // Only update the installerPath if it points to a non-portable installer.
+                AICLI_LOG(CLI, Info, << "Setting installerPath to: " << nestedInstallerPath);
+                context.Add<Execution::Data::InstallerPath>(nestedInstallerPath);
+            }
         }
     }
 

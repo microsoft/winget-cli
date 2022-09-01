@@ -192,9 +192,6 @@
     <ClInclude Include="Public\winget\PortableARPEntry.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
-    <ClInclude Include="Public\winget\PortableEntry.h">
-      <Filter>Public\winget</Filter>
-    </ClInclude>
     <ClInclude Include="Public\winget\JsonUtil.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
@@ -360,9 +357,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="PortableARPEntry.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="PortableEntry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ManagedFile.cpp">

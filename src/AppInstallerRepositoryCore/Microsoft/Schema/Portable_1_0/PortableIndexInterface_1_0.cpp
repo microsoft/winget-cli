@@ -73,4 +73,14 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
         savepoint.Commit();
         return { status, portableEntryResult.value() };
     }
+
+    std::optional<IPortableIndex::PortableFile> PortableIndexInterface::GetPortableFileById(SQLite::Connection& connection, SQLite::rowid_t id)
+    {
+        return PortableTable::GetPortableFileById(connection, id);
+    }
+
+    bool PortableIndexInterface::Exists(SQLite::Connection& connection, const PortableFile& file)
+    {
+        return GetExistingPortableFileId(connection, file).has_value();
+    }
 }

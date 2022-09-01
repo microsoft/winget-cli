@@ -230,7 +230,6 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(PortableHashMismatchOverridden);
         WINGET_DEFINE_RESOURCE_STRINGID(PortableHashMismatchOverrideRequired);
         WINGET_DEFINE_RESOURCE_STRINGID(PortableInstallFailed);
-        WINGET_DEFINE_RESOURCE_STRINGID(PortableInstallFromArchiveNotSupported);
         WINGET_DEFINE_RESOURCE_STRINGID(PortableRegistryCollisionOverridden);
         WINGET_DEFINE_RESOURCE_STRINGID(PositionArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PreserveArgumentDescription);

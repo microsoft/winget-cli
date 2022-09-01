@@ -26,7 +26,7 @@ namespace AppInstaller::Repository::Microsoft::Schema
             std::string SHA256;
             std::string SymlinkTarget;
 
-            void SetFilePath(const std::filesystem::path& path) { m_filePath = std::filesystem::weakly_canonical(path); };
+            void SetFilePath(const std::filesystem::path& path) { m_filePath = std::filesystem::absolute(path); };
 
             std::filesystem::path GetFilePath() const { return m_filePath; };
 
@@ -52,5 +52,11 @@ namespace AppInstaller::Repository::Microsoft::Schema
         // Updates the file with matching FilePath in the index.
         // The return value indicates whether the index was modified by the function.
         virtual std::pair<bool, SQLite::rowid_t> UpdatePortableFile(SQLite::Connection& connection, const PortableFile& file) = 0;
+
+        // Returns the next PortableFile entry in the index if available.
+        virtual std::optional<PortableFile> GetPortableFileById(SQLite::Connection& connection, SQLite::rowid_t id) = 0;
+
+        // Returns a bool value indicating whether the PortableFile already exists in the index.
+        virtual bool Exists(SQLite::Connection& connection, const PortableFile& file) = 0;
     };
 }

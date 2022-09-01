@@ -36,6 +36,7 @@ namespace AppInstaller::Registry::Portable
     {
         m_scope = scope;
         m_arch = arch;
+        m_productCode = productCode;
 
         if (m_scope == Manifest::ScopeEnum::Machine)
         {
@@ -59,7 +60,7 @@ namespace AppInstaller::Registry::Portable
             m_samDesired = KEY_WOW64_64KEY;
         }
 
-        m_subKey += L"\\" + ConvertToUTF16(productCode);
+        m_subKey += L"\\" + ConvertToUTF16(m_productCode);
         m_key = Key::OpenIfExists(m_root, m_subKey, 0, KEY_ALL_ACCESS);
         if (m_key != NULL)
         {
