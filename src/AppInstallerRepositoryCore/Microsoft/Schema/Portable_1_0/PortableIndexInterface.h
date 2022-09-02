@@ -16,7 +16,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
         SQLite::rowid_t AddPortableFile(SQLite::Connection& connection, const PortableFile& file) override;
         SQLite::rowid_t RemovePortableFile(SQLite::Connection& connection, const PortableFile& file) override;
         std::pair<bool, SQLite::rowid_t> UpdatePortableFile(SQLite::Connection& connection, const PortableFile& file) override;
-        std::optional<PortableFile> GetPortableFileById(SQLite::Connection& connection, SQLite::rowid_t id) override;
         bool Exists(SQLite::Connection& connection, const PortableFile& file) override;
+        bool IsEmpty(SQLite::Connection& connection) override;
+        std::vector<PortableFile> GetAllPortableFiles(SQLite::Connection& connection) override;
     };
 }

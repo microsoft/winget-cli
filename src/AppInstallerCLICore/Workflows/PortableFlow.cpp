@@ -20,16 +20,7 @@ namespace AppInstaller::CLI::Workflow
 {
     namespace
     {
-        constexpr std::string_view c_PortableIndexFileName = "portable.db";
         constexpr std::string_view s_DefaultSource = "*DefaultSource"sv;
-
-        void AppendExeExtension(std::filesystem::path& value)
-        {
-            if (value.extension() != ".exe")
-            {
-                value += ".exe";
-            }
-        }
 
         std::string GetPortableProductCode(Execution::Context& context)
         {
@@ -64,7 +55,7 @@ namespace AppInstaller::CLI::Workflow
                 fileName = installerPath.filename();
             }
 
-            AppendExeExtension(fileName);
+            AppInstaller::Filesystem::AppendExtension(fileName, ".exe");
             return targetInstallDirectory / fileName;
         }
 
@@ -92,34 +83,8 @@ namespace AppInstaller::CLI::Workflow
                 }
             }
 
-            AppendExeExtension(commandAlias);
+            AppInstaller::Filesystem::AppendExtension(commandAlias, ".exe");
             return GetPortableLinksLocation(scope) / commandAlias;
-        }
-
-        Manifest::AppsAndFeaturesEntry GetAppsAndFeaturesEntryForPortableInstall(
-            const std::vector<AppInstaller::Manifest::AppsAndFeaturesEntry>& appsAndFeaturesEntries,
-            const AppInstaller::Manifest::Manifest& manifest)
-        {
-            AppInstaller::Manifest::AppsAndFeaturesEntry appsAndFeaturesEntry;
-            if (!appsAndFeaturesEntries.empty())
-            {
-                appsAndFeaturesEntry = appsAndFeaturesEntries[0];
-            }
-
-            if (appsAndFeaturesEntry.DisplayName.empty())
-            {
-                appsAndFeaturesEntry.DisplayName = manifest.CurrentLocalization.Get<Manifest::Localization::PackageName>();
-            }
-            if (appsAndFeaturesEntry.DisplayVersion.empty())
-            {
-                appsAndFeaturesEntry.DisplayVersion = manifest.Version;
-            }
-            if (appsAndFeaturesEntry.Publisher.empty())
-            {
-                appsAndFeaturesEntry.Publisher = manifest.CurrentLocalization.Get<Manifest::Localization::Publisher>();
-            }
-
-            return appsAndFeaturesEntry;
         }
 
         void EnsureValidArgsForPortableInstall(Execution::Context& context)
@@ -177,12 +142,52 @@ namespace AppInstaller::CLI::Workflow
         }
         else
         {
-            const std::string& productCode = GetPortableProductCode(context);
+
             targetInstallDirectory = GetPortableInstallRoot(scope, arch);
-            targetInstallDirectory /= ConvertToUTF16(productCode);
         }
 
+        const std::string& productCode = GetPortableProductCode(context);
+        targetInstallDirectory /= ConvertToUTF16(productCode);
+
         return targetInstallDirectory;
+    }
+
+    void VerifyPackageAndSourceMatch(Execution::Context& context)
+    {
+        const std::string& packageIdentifier = context.Get<Execution::Data::Manifest>().Id;
+
+        std::string sourceIdentifier;
+        if (context.Contains(Execution::Data::PackageVersion))
+        {
+            sourceIdentifier = context.Get<Execution::Data::PackageVersion>()->GetSource().GetIdentifier();
+        }
+        else
+        {
+            sourceIdentifier = s_DefaultSource;
+        }
+
+        PortableInstaller& portableInstaller = context.Get<Execution::Data::PortableInstaller>();
+        if (portableInstaller.Exists())
+        {
+            if (packageIdentifier != portableInstaller.WinGetPackageIdentifier || sourceIdentifier != portableInstaller.WinGetSourceIdentifier)
+            {
+                // TODO: Replace HashOverride with --Force when argument behavior gets updated.
+                if (!context.Args.Contains(Execution::Args::Type::HashOverride))
+                {
+                    AICLI_LOG(CLI, Error, << "Registry match failed, skipping write to uninstall registry");
+                    context.Reporter.Error() << Resource::String::PortablePackageAlreadyExists << std::endl;
+                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PORTABLE_PACKAGE_ALREADY_EXISTS);
+                }
+                else
+                {
+                    AICLI_LOG(CLI, Info, << "Overriding registry match check...");
+                    context.Reporter.Warn() << Resource::String::PortableRegistryCollisionOverridden << std::endl;
+                }
+            }
+        }
+
+        portableInstaller.WinGetPackageIdentifier = packageIdentifier;
+        portableInstaller.WinGetSourceIdentifier = sourceIdentifier;
     }
 
     void GetPortableEntryForInstall(Execution::Context& context)
@@ -216,6 +221,7 @@ namespace AppInstaller::CLI::Workflow
         portableInstaller.PortableTargetFullPath = GetPortableTargetFullPath(context);
         portableInstaller.PortableSymlinkFullPath = GetPortableSymlinkFullPath(context);
 
+        portableInstaller.SetAppsAndFeaturesMetadata(context.Get<Execution::Data::Manifest>(), context.Get<Execution::Data::Installer>()->AppsAndFeaturesEntries);
         context.Add<Execution::Data::PortableInstaller>(std::move(portableInstaller));
     }
 
@@ -259,32 +265,38 @@ namespace AppInstaller::CLI::Workflow
 
     void PortableUninstallImpl(Execution::Context& context)
     {
-        HRESULT result;
         PortableInstaller& portableInstaller = context.Get<Execution::Data::PortableInstaller>();
 
         try
         {
             context.Reporter.Info() << Resource::String::UninstallFlowStartingPackageUninstall << std::endl;
 
+            if (!portableInstaller.VerifyPortableFilesForUninstall())
+            {
+                // TODO: replace with appropriate --force argument when available.
+                if (context.Args.Contains(Execution::Args::Type::HashOverride))
+                {
+                    context.Reporter.Warn() << Resource::String::PortableHashMismatchOverridden << std::endl;
+                }
+                else
+                {
+                    context.Reporter.Warn() << Resource::String::PortableHashMismatchOverrideRequired << std::endl;
+                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PORTABLE_UNINSTALL_FAILED);
+                }
+            }
+
             bool purge = context.Args.Contains(Execution::Args::Type::Purge) ||
                 (!portableInstaller.IsUpdate && Settings::User().Get<Settings::Setting::UninstallPurgePortablePackage>() && !context.Args.Contains(Execution::Args::Type::Preserve));
 
-            const auto& indexPath = portableInstaller.GetPortableIndexPath();
-            if (std::filesystem::exists(indexPath))
-            {
-                result = portableInstaller.UninstallFromIndex(purge);
-            }
-            else
-            {
-                result = portableInstaller.Uninstall(purge);
-            }
+            HRESULT result = portableInstaller.Uninstall(purge);
+            context.Add<Execution::Data::OperationReturnCode>(result);
+
         }
-        catch (HRESULT error)
+        catch (...)
         {
-            result = error;
+            context.Add<Execution::Data::OperationReturnCode>(Workflow::HandleException(context, std::current_exception()));
         }
 
-        context.Add<Execution::Data::OperationReturnCode>(result);
         context.Reporter.Warn() << portableInstaller.GetOutputMessage();
     }
 

@@ -53,10 +53,13 @@ namespace AppInstaller::Repository::Microsoft::Schema
         // The return value indicates whether the index was modified by the function.
         virtual std::pair<bool, SQLite::rowid_t> UpdatePortableFile(SQLite::Connection& connection, const PortableFile& file) = 0;
 
-        // Returns the next PortableFile entry in the index if available.
-        virtual std::optional<PortableFile> GetPortableFileById(SQLite::Connection& connection, SQLite::rowid_t id) = 0;
-
         // Returns a bool value indicating whether the PortableFile already exists in the index.
         virtual bool Exists(SQLite::Connection& connection, const PortableFile& file) = 0;
+
+        // Returns a bool value indicating whether the index is empty.
+        virtual bool IsEmpty(SQLite::Connection& connection) = 0;
+
+        // Returns a vector including all the portable files recorded in the index.
+        virtual std::vector<PortableFile> GetAllPortableFiles(SQLite::Connection& connection) = 0;
     };
 }

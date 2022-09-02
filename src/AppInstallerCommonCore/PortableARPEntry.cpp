@@ -97,27 +97,6 @@ namespace AppInstaller::Registry::Portable
         }
     }
 
-    bool PortableARPEntry::IsSamePortablePackageEntry(const std::string& packageId, const std::string& sourceId)
-    {
-        auto existingWinGetPackageId = m_key[std::wstring{ s_WinGetPackageIdentifier }];
-        auto existingWinGetSourceId = m_key[std::wstring{ s_WinGetSourceIdentifier }];
-
-        bool isSamePackageId = false;
-        bool isSamePackageSource = false;
-
-        if (existingWinGetPackageId.has_value())
-        {
-            isSamePackageId = existingWinGetPackageId.value().GetValue<Value::Type::String>() == packageId;
-        }
-
-        if (existingWinGetSourceId.has_value())
-        {
-            isSamePackageSource = existingWinGetSourceId.value().GetValue<Value::Type::String>() == sourceId;
-        }
-
-        return isSamePackageId && isSamePackageSource;
-    }
-
     std::optional<Value> PortableARPEntry::operator[](PortableValueName valueName) const
     {
         return m_key[std::wstring{ ToString(valueName) }];

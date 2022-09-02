@@ -150,4 +150,29 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
 
         return (countStatement.GetColumn<int>(0) == 0);
     }
+
+    std::vector<IPortableIndex::PortableFile> PortableTable::GetAllPortableFiles(SQLite::Connection& connection)
+    {
+        SQLite::Builder::StatementBuilder builder;
+        builder.Select({ s_PortableTable_FilePath_Column,
+            s_PortableTable_FileType_Column,
+            s_PortableTable_SHA256_Column,
+            s_PortableTable_SymlinkTarget_Column })
+            .From(s_PortableTable_Table_Name);
+
+        SQLite::Statement select = builder.Prepare(connection);
+        std::vector<IPortableIndex::PortableFile> result;
+        while (select.Step())
+        {
+            IPortableIndex::PortableFile portableFile;
+            auto [filePath, fileType, sha256, symlinkTarget] = select.GetRow<std::string, IPortableIndex::PortableFileType, std::string, std::string>();
+            portableFile.SetFilePath(std::move(filePath));
+            portableFile.FileType = fileType;
+            portableFile.SHA256 = std::move(sha256);
+            portableFile.SymlinkTarget = std::move(symlinkTarget);
+            result.emplace_back(portableFile);
+        }
+        
+        return result;
+    }
 }

@@ -23,6 +23,8 @@ namespace AppInstaller::CLI::Workflow
 
     void GetPortableEntryForInstall(Execution::Context& context);
 
+    void VerifyPackageAndSourceMatch(Execution::Context& context);
+
     // Returns the target install directory for the portable package.
     std::filesystem::path GetPortableTargetDirectory(Execution::Context& context);
 }

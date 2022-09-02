@@ -22,4 +22,10 @@ namespace AppInstaller::Filesystem
 
     // Creates a symlink that points to the target path.
     bool CreateSymlink(const std::filesystem::path& target, const std::filesystem::path& link);
+
+    // Verifies that a symlink points to the target path.
+    bool VerifySymlink(const std::filesystem::path& symlink, const std::filesystem::path& target);
+
+    // Appends the .exe extension to the path if not present.
+    void AppendExtension(std::filesystem::path& value, const std::string& extension);
 }

@@ -34,8 +34,6 @@ namespace AppInstaller::Registry::Portable
 
         std::optional<Value> operator[](PortableValueName valueName) const;
 
-        bool IsSamePortablePackageEntry(const std::string& packageId, const std::string& sourceId);
-
         bool Exists() { return m_exists; }
 
         void SetValue(PortableValueName valueName, const std::wstring& value);

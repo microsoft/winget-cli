@@ -28,14 +28,12 @@ TEST_CASE("VerifyPortableMove", "[PortableEntry]")
 
     testEntry.MovePortableExe(testFile.GetPath());
     REQUIRE(std::filesystem::exists(testEntry.PortableTargetFullPath));
-    REQUIRE(testEntry.InstallDirectoryCreated);
 
     // Create a second PortableEntry instance to emulate installing for a second time. (ARP entry should already exist)
     PortableInstaller testEntry2 = PortableInstaller(
         AppInstaller::Manifest::ScopeEnum::User,
         Architecture::X64,
         "testProductCode");
-    REQUIRE(testEntry2.InstallDirectoryCreated); // InstallDirectoryCreated should already be initialized as true.
 
     testEntry2.InstallLocation = tempDirectory.GetPath();
     testEntry2.PortableTargetFullPath = tempDirectory.GetPath() / "output2.txt";
@@ -47,7 +45,6 @@ TEST_CASE("VerifyPortableMove", "[PortableEntry]")
     testEntry2.MovePortableExe(testFile2.GetPath());
     REQUIRE(std::filesystem::exists(testEntry2.PortableTargetFullPath));
     // InstallDirectoryCreated value should be preserved even though the directory was not created; 
-    REQUIRE(testEntry2.InstallDirectoryCreated);
     //testEntry2.RemoveARPEntry();
 }
 

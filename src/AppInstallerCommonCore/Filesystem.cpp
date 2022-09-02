@@ -167,4 +167,18 @@ namespace AppInstaller::Filesystem
             }
         }
     }
+
+    bool VerifySymlink(const std::filesystem::path& symlink, const std::filesystem::path& target)
+    {
+        const std::filesystem::path& symlinkTargetPath = std::filesystem::read_symlink(symlink);
+        return symlinkTargetPath == target;
+    }
+
+    void AppendExtension(std::filesystem::path& target, const std::string& value)
+    {
+        if (target.extension() != value)
+        {
+            target += value;
+        }
+    }
 }

@@ -74,17 +74,32 @@ namespace AppInstaller::Repository::Microsoft
         return result;
     }
 
-    std::optional<Schema::IPortableIndex::PortableFile> PortableIndex::GetPortableFileById(SQLite::rowid_t rowId)
-    {
-        // change to using rowid number.
-        AICLI_LOG(Repo, Verbose, << "Retrieving portable file at row [" << rowId << "]");
-        return m_interface->GetPortableFileById(m_dbconn, rowId);
-    }
-
     bool PortableIndex::Exists(const Schema::IPortableIndex::PortableFile& file)
     {
         AICLI_LOG(Repo, Verbose, << "Checking if portable file exists [" << file.GetFilePath() << "]");
         return m_interface->Exists(m_dbconn, file);
+    }
+
+    bool PortableIndex::IsEmpty()
+    {
+        return m_interface->IsEmpty(m_dbconn);
+    }
+
+    void PortableIndex::AddOrUpdatePortableFile(const Schema::IPortableIndex::PortableFile& file)
+    {
+        if (Exists(file))
+        {
+            UpdatePortableFile(file);
+        }
+        else
+        {
+            AddPortableFile(file);
+        }
+    }
+
+    std::vector<Schema::IPortableIndex::PortableFile> PortableIndex::GetAllPortableFiles()
+    {
+        return m_interface->GetAllPortableFiles(m_dbconn);
     }
 
     std::unique_ptr<Schema::IPortableIndex> PortableIndex::CreateIPortableIndex() const

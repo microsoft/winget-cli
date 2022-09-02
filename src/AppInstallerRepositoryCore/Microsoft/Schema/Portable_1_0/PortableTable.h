@@ -40,5 +40,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
 
         // Updates the portable file in the table by id.
         static bool UpdatePortableFileById(SQLite::Connection& connection, SQLite::rowid_t id, const IPortableIndex::PortableFile& file);
+
+        // Gets all portable files recorded in the index.
+        static std::vector<IPortableIndex::PortableFile> GetAllPortableFiles(SQLite::Connection& connection);
     };
 }

@@ -16,17 +16,14 @@ namespace AppInstaller::CLI::Workflow
         const auto& installerPath = context.Get<Execution::Data::InstallerPath>();
         std::filesystem::path destinationFolder;
         std::vector<std::filesystem::path> extractedItems;
+        bool isDirectoryCreated = false;
 
         HRESULT hr;
         if (context.Get<Execution::Data::Installer>()->NestedInstallerType == InstallerTypeEnum::Portable)
         {
             destinationFolder = GetPortableTargetDirectory(context);
-
-            // temporarily creating directory now
-            std::filesystem::create_directory(destinationFolder);
-
+            isDirectoryCreated = std::filesystem::create_directory(destinationFolder);
             hr = AppInstaller::Archive::TryExtractArchive(installerPath, destinationFolder, extractedItems);
-            context.Add<Execution::Data::ExtractedItems>(extractedItems);
         }
         else
         {
@@ -39,9 +36,15 @@ namespace AppInstaller::CLI::Workflow
         if (SUCCEEDED(hr))
         {
             AICLI_LOG(CLI, Info, << "Successfully extracted archive");
+            context.Add<Execution::Data::ExtractedItems>(extractedItems);
         }
         else
         {
+            if (isDirectoryCreated)
+            {
+                std::filesystem::remove(destinationFolder);
+            }
+
             AICLI_LOG(CLI, Info, << "Failed to extract archive with code " << hr);
             context.Reporter.Error() << Resource::String::ExtractArchiveFailed << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_EXTRACT_ARCHIVE_FAILED);

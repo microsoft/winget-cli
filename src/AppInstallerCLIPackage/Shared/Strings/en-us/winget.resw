@@ -1341,11 +1341,11 @@ Please specify one of them using the `--source` option to proceed.</value>
     <value>Both `purge` and `preserve` arguments are provided</value>
   </data>
   <data name="PortableHashMismatchOverridden" xml:space="preserve">
-    <value>Portable exe has been modified; proceeding due to --force</value>
+    <value>Portable package has been modified; proceeding due to --force</value>
     <comment>{Locked="--force"}</comment>
   </data>
   <data name="PortableHashMismatchOverrideRequired" xml:space="preserve">
-    <value>Unable to remove Portable exe as it has been modified; to override this check use --force</value>
+    <value>Unable to remove Portable package as it has been modified; to override this check use --force</value>
     <comment>{Locked="--force"}</comment>
   </data>
   <data name="FilesRemainInInstallDirectory" xml:space="preserve">
@@ -1368,9 +1368,6 @@ Please specify one of them using the `--source` option to proceed.</value>
   </data>
   <data name="ShowLabelInstallationNotes" xml:space="preserve">
     <value>Installation Notes:</value>
-  </data>
-  <data name="SymlinkModified" xml:space="preserve">
-    <value>Portable symlink not deleted as it was modified and points to a different target exe</value>
   </data>
   <data name="UnsupportedArgument" xml:space="preserve">
     <value>A provided argument is not supported for this package</value>
@@ -1428,5 +1425,8 @@ Please specify one of them using the `--source` option to proceed.</value>
   <data name="DisableInteractivityArgumentDescription" xml:space="preserve">
     <value>Disable interactive prompts</value>
     <comment>Description for a command line argument, shown next to it in the help</comment>
+  </data>
+  <data name="PortablePackageAlreadyExists" xml:space="preserve">
+    <value>Portable package from a different source already exists</value>
   </data>
 </root>
