@@ -311,6 +311,10 @@ namespace AppInstaller::Manifest
         {
             result = ExpectedReturnCodeEnum::PackageInUse;
         }
+        if (inStrLower == "packageinusebyapplication")
+        {
+            result = ExpectedReturnCodeEnum::PackageInUseByApplication;
+        }
         else if (inStrLower == "installinprogress")
         {
             result = ExpectedReturnCodeEnum::InstallInProgress;

@@ -152,6 +152,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeMissingDependency);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeNoNetwork);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodePackageInUse);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodePackageInUseByApplication);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeRebootInitiated);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeRebootRequiredForInstall);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeRebootRequiredToFinish);
