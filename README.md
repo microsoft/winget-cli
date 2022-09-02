@@ -85,7 +85,7 @@ The client is built around the concept of sources; a set of packages effectively
    * Desktop Development with C++
    * Universal Windows Platform Development
 * The following extensions:
-   * [Microsoft Visual Studio Installer Projects](https://marketplace.visualstudio.com/items?itemName=VisualStudioClient.MicrosoftVisualStudio2017InstallerProjects)
+   * [Microsoft Visual Studio Installer Projects](https://marketplace.visualstudio.com/items?itemName=VisualStudioClient.MicrosoftVisualStudio2022InstallerProjects)
 
 ### Building
 
