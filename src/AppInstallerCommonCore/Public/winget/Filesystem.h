@@ -28,4 +28,7 @@ namespace AppInstaller::Filesystem
 
     // Appends the .exe extension to the path if not present.
     void AppendExtension(std::filesystem::path& value, const std::string& extension);
+
+    // Checks if the path is a symlink and exists.
+    bool SymlinkExists(const std::filesystem::path& symlinkPath);
 }

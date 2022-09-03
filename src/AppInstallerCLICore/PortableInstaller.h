@@ -1,25 +1,20 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include <AppInstallerStrings.h>
 #include "winget/PortableARPEntry.h"
 #include <filesystem>
-#include <optional>
 
-using namespace AppInstaller::Registry;
 using namespace AppInstaller::Registry::Portable;
 
 namespace AppInstaller::CLI::Portable
 {
-    // Helper methods for relevant locations.
     std::filesystem::path GetPortableLinksLocation(Manifest::ScopeEnum scope);
 
     std::filesystem::path GetPortableInstallRoot(Manifest::ScopeEnum scope, Utility::Architecture arch);
 
-    // Object representation of the arguments needed to install a portable. 
+    // Object representation of the metadata and functionality required for installing a Portable package. 
     struct PortableInstaller
     {
-        // Display Name
         std::string DisplayName;
         std::string DisplayVersion;
         std::string HelpLink;
@@ -34,10 +29,9 @@ namespace AppInstaller::CLI::Portable
         std::string WinGetInstallerType;
         std::string WinGetPackageIdentifier;
         std::string WinGetSourceIdentifier;
-
-        // If we fail to create a symlink, add install directory
-        bool InstallDirectoryAddedToPath = false;
         bool IsUpdate = false;
+        // If we fail to create a symlink, add install directory to PATH variable
+        bool InstallDirectoryAddedToPath = false;
 
         template<typename T>
         void Commit(PortableValueName valueName, T value)
@@ -50,6 +44,12 @@ namespace AppInstaller::CLI::Portable
             return  InstallDirectoryAddedToPath ? InstallLocation : GetPortableLinksLocation(GetScope());
         }
 
+        HRESULT SingleInstall(const std::filesystem::path& installerPath);
+
+        HRESULT MultipleInstall(
+            const std::vector<Manifest::NestedInstallerFile>& nestedInstallerFiles,
+            const std::vector<std::filesystem::path>& extractedItems);
+
         HRESULT Uninstall(bool purge = false)
         {
             if (std::filesystem::exists(GetPortableIndexPath()))
@@ -61,11 +61,6 @@ namespace AppInstaller::CLI::Portable
                 return UninstallSingle(purge);
             }
         }
-
-        HRESULT SingleInstall(const std::filesystem::path& installerPath);
-        HRESULT MultipleInstall(
-            const std::vector<Manifest::NestedInstallerFile>& nestedInstallerFiles,
-            const std::vector<std::filesystem::path>& extractedItems);
 
         bool VerifyPortableFilesForUninstall();
 
@@ -84,10 +79,6 @@ namespace AppInstaller::CLI::Portable
         PortableInstaller(Manifest::ScopeEnum scope, Utility::Architecture arch, const std::string& productCode);
 
         void SetAppsAndFeaturesMetadata(const Manifest::AppsAndFeaturesEntry& entry, const Manifest::Manifest& manifest);
-
-        void MovePortableExe(const std::filesystem::path& installerPath);
-
-        bool CreatePortableSymlink(const std::filesystem::path& targetPath, const std::filesystem::path& symlinkPath);
 
         std::string GetOutputMessage()
         {
@@ -113,6 +104,9 @@ namespace AppInstaller::CLI::Portable
 
         HRESULT UninstallSingle(bool purge = false);
         HRESULT UninstallFromIndex(bool purge = false);
+
+        void MovePortableExe(const std::filesystem::path& installerPath);
+        bool CreatePortableSymlink(const std::filesystem::path& targetPath, const std::filesystem::path& symlinkPath);
 
         void RemovePortableSymlink(const std::filesystem::path& targetPath, const std::filesystem::path& symlinkPath);
         void RemoveInstallDirectory(bool purge);

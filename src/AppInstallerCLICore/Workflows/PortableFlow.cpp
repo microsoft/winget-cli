@@ -2,19 +2,14 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "PortableFlow.h"
+#include "PortableInstaller.h"
 #include "WorkflowBase.h"
 #include "winget/Filesystem.h"
-#include "PortableInstaller.h"
-#include "winget/PathVariable.h"
 
 using namespace AppInstaller::Manifest;
-using namespace AppInstaller::Utility;
-using namespace AppInstaller::Registry;
-using namespace AppInstaller::Registry::Portable;
-using namespace AppInstaller::Registry::Environment;
 using namespace AppInstaller::Repository;
+using namespace AppInstaller::Utility;
 using namespace AppInstaller::CLI::Portable;
-using namespace std::filesystem;
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -216,10 +211,11 @@ namespace AppInstaller::CLI::Workflow
         portableInstaller.InstallLocation = GetPortableTargetDirectory(context);
         portableInstaller.IsUpdate = isUpdate;
 
-        // These are not needed if installing from archive with multiple portables
-        // But we'll set them regardless for convenience.
-        portableInstaller.PortableTargetFullPath = GetPortableTargetFullPath(context);
-        portableInstaller.PortableSymlinkFullPath = GetPortableSymlinkFullPath(context);
+        if (!IsArchiveType(context.Get<Execution::Data::Installer>()->BaseInstallerType))
+        {
+            portableInstaller.PortableTargetFullPath = GetPortableTargetFullPath(context);
+            portableInstaller.PortableSymlinkFullPath = GetPortableSymlinkFullPath(context);
+        }
 
         portableInstaller.SetAppsAndFeaturesMetadata(context.Get<Execution::Data::Manifest>(), context.Get<Execution::Data::Installer>()->AppsAndFeaturesEntries);
         context.Add<Execution::Data::PortableInstaller>(std::move(portableInstaller));
@@ -254,7 +250,6 @@ namespace AppInstaller::CLI::Workflow
             context.Add<Execution::Data::OperationReturnCode>(Workflow::HandleException(context, std::current_exception()));
         }
 
-        // Perform cleanup only if the install fails and is not an update.
         if (result != ERROR_SUCCESS && !portableInstaller.IsUpdate)
         {
             context.Reporter.Warn() << Resource::String::PortableInstallFailed << std::endl;

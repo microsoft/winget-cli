@@ -181,4 +181,9 @@ namespace AppInstaller::Filesystem
             target += value;
         }
     }
+
+    bool SymlinkExists(const std::filesystem::path& symlinkPath)
+    {
+        return std::filesystem::is_symlink(std::filesystem::symlink_status(symlinkPath));
+    }
 }

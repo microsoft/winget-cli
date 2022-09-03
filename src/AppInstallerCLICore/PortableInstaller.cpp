@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "PortableInstaller.h"
-#include "winget/PortableARPEntry.h"
 #include "winget/Manifest.h"
 #include "winget/ManifestCommon.h"
 #include "winget/Filesystem.h"
@@ -143,10 +142,19 @@ namespace AppInstaller::CLI::Portable
                 IPortableIndex::PortableFileType fileType = file.FileType;
                 const auto& filePath = file.GetFilePath();
 
-                if (fileType == IPortableIndex::PortableFileType::File && !VerifyPortableExeHash(filePath, file.SHA256) ||
-                    fileType == IPortableIndex::PortableFileType::Symlink && fs::is_symlink(fs::symlink_status(filePath)) && !Filesystem::VerifySymlink(filePath, file.SymlinkTarget))
+                if (fileType == IPortableIndex::PortableFileType::File)
                 {
-                    return false;
+                    if (std::filesystem::exists(filePath) && !VerifyPortableExeHash(filePath, file.SHA256))
+                    {
+                        return false;
+                    }
+                }
+                else if (fileType == IPortableIndex::PortableFileType::Symlink)
+                {
+                    if (Filesystem::SymlinkExists(filePath) && !Filesystem::VerifySymlink(filePath, file.SymlinkTarget))
+                    {
+                        return false;
+                    }
                 }
             }
 
@@ -154,9 +162,18 @@ namespace AppInstaller::CLI::Portable
         }
         else
         {
-            // symlink_status() will return false if symlink does not exist and does not follow symlink to target.
-            return VerifyPortableExeHash(PortableTargetFullPath, SHA256) &&
-                fs::is_symlink(fs::symlink_status(PortableSymlinkFullPath)) && Filesystem::VerifySymlink(PortableSymlinkFullPath, PortableTargetFullPath);
+            if (std::filesystem::exists(PortableTargetFullPath) && !VerifyPortableExeHash(PortableTargetFullPath, SHA256))
+            {
+                return false;
+            }
+            else if (Filesystem::SymlinkExists(PortableSymlinkFullPath) && !Filesystem::VerifySymlink(PortableSymlinkFullPath, PortableTargetFullPath))
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
     }
 
@@ -178,7 +195,9 @@ namespace AppInstaller::CLI::Portable
         }
 
         AddToPathVariable();
+
         FinalizeRegistryEntry();
+
         return ERROR_SUCCESS;
     }
 
@@ -230,7 +249,9 @@ namespace AppInstaller::CLI::Portable
         }
 
         AddToPathVariable();
+        
         FinalizeRegistryEntry();
+
         return ERROR_SUCCESS;
     }
 
@@ -255,8 +276,9 @@ namespace AppInstaller::CLI::Portable
 
         RemoveFromPathVariable();
 
-        m_portableARPEntry.Delete();
         AICLI_LOG(CLI, Info, << "PortableARPEntry deleted.");
+        m_portableARPEntry.Delete();
+        
         return ERROR_SUCCESS;
     }
 
@@ -269,16 +291,15 @@ namespace AppInstaller::CLI::Portable
 
         RemoveFromPathVariable();
 
-        m_portableARPEntry.Delete();
         AICLI_LOG(CLI, Info, << "PortableARPEntry deleted.");
+        m_portableARPEntry.Delete();
+
         return ERROR_SUCCESS;
     }
 
     void PortableInstaller::MovePortableExe(const std::filesystem::path& installerPath)
     {
         bool isDirectoryCreated = false;
-
-        Commit(PortableValueName::InstallLocation, InstallLocation);
 
         if (std::filesystem::create_directories(InstallLocation))
         {
@@ -321,7 +342,7 @@ namespace AppInstaller::CLI::Portable
         }
         else
         {
-            // Symlink creation should only fail if the user executes in user mode and non-admin.
+            // Symlink creation should only fail if the user executes without admin rights or developer mode.
             // Resort to adding install directory to PATH directly.
             AICLI_LOG(Core, Info, << "Portable install executed in user mode. Adding package directory to PATH.");
             Commit(PortableValueName::InstallDirectoryAddedToPath, InstallDirectoryAddedToPath = true);
@@ -373,7 +394,7 @@ namespace AppInstaller::CLI::Portable
     void PortableInstaller::RemoveFromPathVariable()
     {
         std::filesystem::path pathValue = GetInstallDirectoryForPathVariable();
-        if (!std::filesystem::is_empty(pathValue))
+        if (std::filesystem::exists(pathValue) && !std::filesystem::is_empty(pathValue))
         {
             AICLI_LOG(Core, Info, << "Install directory is not empty: " << pathValue);
         }
@@ -435,7 +456,6 @@ namespace AppInstaller::CLI::Portable
             WinGetInstallerType = GetStringValue(PortableValueName::WinGetInstallerType);
             WinGetPackageIdentifier = GetStringValue(PortableValueName::WinGetPackageIdentifier);
             WinGetSourceIdentifier = GetStringValue(PortableValueName::WinGetSourceIdentifier);
-
             InstallLocation = GetPathValue(PortableValueName::InstallLocation);
             PortableSymlinkFullPath = GetPathValue(PortableValueName::PortableSymlinkFullPath);
             PortableTargetFullPath = GetPathValue(PortableValueName::PortableTargetFullPath);
@@ -451,6 +471,7 @@ namespace AppInstaller::CLI::Portable
         Commit(PortableValueName::UninstallString, "winget uninstall --product-code " + GetProductCode());
         Commit(PortableValueName::WinGetInstallerType, InstallerTypeToString(Manifest::InstallerTypeEnum::Portable));
         Commit(PortableValueName::SHA256, SHA256);
+        Commit(PortableValueName::InstallLocation, InstallLocation);
     }
 
     void PortableInstaller::FinalizeRegistryEntry()
