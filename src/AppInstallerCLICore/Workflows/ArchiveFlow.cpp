@@ -5,7 +5,6 @@
 #include "winget/Archive.h"
 #include "winget/Filesystem.h"
 #include "PortableFlow.h"
-#include "PortableInstaller.h"
 
 using namespace AppInstaller::Manifest;
 
@@ -18,22 +17,20 @@ namespace AppInstaller::CLI::Workflow
         std::vector<std::filesystem::path> extractedItems;
         bool isDirectoryCreated = false;
 
-        HRESULT hr;
         if (context.Get<Execution::Data::Installer>()->NestedInstallerType == InstallerTypeEnum::Portable)
         {
             destinationFolder = GetPortableTargetDirectory(context);
             isDirectoryCreated = std::filesystem::create_directory(destinationFolder);
-            hr = AppInstaller::Archive::TryExtractArchive(installerPath, destinationFolder, extractedItems);
         }
         else
         {
             destinationFolder = installerPath.parent_path();
-            hr = AppInstaller::Archive::TryExtractArchive(installerPath, destinationFolder, extractedItems);
         }
 
         AICLI_LOG(CLI, Info, << "Extracting archive to: " << destinationFolder);
+        HRESULT result = AppInstaller::Archive::TryExtractArchive(installerPath, destinationFolder, extractedItems);
 
-        if (SUCCEEDED(hr))
+        if (SUCCEEDED(result))
         {
             AICLI_LOG(CLI, Info, << "Successfully extracted archive");
             context.Add<Execution::Data::ExtractedItems>(extractedItems);
@@ -45,7 +42,7 @@ namespace AppInstaller::CLI::Workflow
                 std::filesystem::remove(destinationFolder);
             }
 
-            AICLI_LOG(CLI, Info, << "Failed to extract archive with code " << hr);
+            AICLI_LOG(CLI, Info, << "Failed to extract archive with code " << result);
             context.Reporter.Error() << Resource::String::ExtractArchiveFailed << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_EXTRACT_ARCHIVE_FAILED);
         }
@@ -61,10 +58,8 @@ namespace AppInstaller::CLI::Workflow
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST);
         }
 
-
-        InstallerTypeEnum nestedInstallerType = installer.NestedInstallerType;
         std::filesystem::path destinationFolder;
-        if (nestedInstallerType == InstallerTypeEnum::Portable)
+        if (IsPortableType(installer.NestedInstallerType))
         {
             destinationFolder = GetPortableTargetDirectory(context);
         }
@@ -89,9 +84,9 @@ namespace AppInstaller::CLI::Workflow
                 context.Reporter.Error() << Resource::String::NestedInstallerNotFound << ' ' << nestedInstallerPath << std::endl;
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NESTEDINSTALLER_NOT_FOUND);
             }
-            else if (nestedInstallerType != InstallerTypeEnum::Portable)
+            else if (!IsPortableType(installer.NestedInstallerType))
             {
-                // Only update the installerPath if it points to a non-portable installer.
+                // Update the installerPath to the extracted non-portable installer. 
                 AICLI_LOG(CLI, Info, << "Setting installerPath to: " << nestedInstallerPath);
                 context.Add<Execution::Data::InstallerPath>(nestedInstallerPath);
             }

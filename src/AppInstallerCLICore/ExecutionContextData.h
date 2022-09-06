@@ -6,8 +6,8 @@
 #include <winget/ARPCorrelation.h>
 #include "CompletionData.h"
 #include "PackageCollection.h"
+#include "PortableInstaller.h"
 #include "Workflows/WorkflowBase.h"
-#include <PortableInstaller.h>
 
 #include <filesystem>
 #include <map>

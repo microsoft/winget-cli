@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include "ExecutionContext.h"
 #include "PortableInstaller.h"
 #include "winget/Manifest.h"
 #include "winget/ManifestCommon.h"
@@ -9,8 +10,6 @@
 #include "Microsoft/PortableIndex.h"
 #include "Microsoft/Schema/IPortableIndex.h"
 #include <AppInstallerErrors.h>
-#include <AppInstallerDateTime.h>
-#include "ExecutionContext.h"
 
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Registry;
@@ -27,33 +26,6 @@ namespace AppInstaller::CLI::Portable
     {
         constexpr std::wstring_view c_PortableIndexFileName = L"portable.db";
 
-        IPortableIndex::PortableFile CreatePortableFileFromPath(const std::filesystem::path& path)
-        {
-            IPortableIndex::PortableFile portableFile;
-            portableFile.SetFilePath(path);
-
-            if (std::filesystem::is_directory(path))
-            {
-                portableFile.FileType = IPortableIndex::PortableFileType::Directory;
-            }
-            else if (std::filesystem::is_symlink(path))
-            {
-                portableFile.FileType = IPortableIndex::PortableFileType::Symlink;
-                portableFile.SymlinkTarget = std::filesystem::read_symlink(path).u8string();
-            }
-            else
-            {
-                portableFile.FileType = IPortableIndex::PortableFileType::File;
-
-                std::ifstream inStream{ path, std::ifstream::binary };
-                const Utility::SHA256::HashBuffer& targetFileHash = Utility::SHA256::ComputeHash(inStream);
-                inStream.close();
-                portableFile.SHA256 = Utility::SHA256::ConvertToString(targetFileHash);
-            }
-
-            return portableFile;
-        }
-
         bool VerifyPortableExeHash(const std::filesystem::path& targetPath, const std::string& hashValue)
         {
             std::ifstream inStream{ targetPath, std::ifstream::binary };
@@ -63,7 +35,7 @@ namespace AppInstaller::CLI::Portable
             return Utility::SHA256::AreEqual(Utility::SHA256::ConvertToBytes(hashValue), targetFileHash);
         }
 
-        void RemoveItemsFromIndex(const std::filesystem::path& indexPath, bool purge)
+        void RemoveItemsFromIndex(const std::filesystem::path& indexPath)
         {
             bool deleteIndex = false;
             {
@@ -72,21 +44,19 @@ namespace AppInstaller::CLI::Portable
 
                 for (const auto& file : portableFiles)
                 {
-                    IPortableIndex::PortableFileType fileType = file.FileType;
                     const auto& filePath = file.GetFilePath();
 
-                    if (purge || (fileType == IPortableIndex::PortableFileType::File && VerifyPortableExeHash(filePath, file.SHA256)) ||
-                        (fileType == IPortableIndex::PortableFileType::Symlink && Filesystem::VerifySymlink(filePath, file.SymlinkTarget)))
+                    if (std::filesystem::exists(filePath))
                     {
                         std::filesystem::remove_all(filePath);
-                        portableIndex.RemovePortableFile(file);
                     }
+
+                    portableIndex.RemovePortableFile(file);
                 }
 
                 if (portableIndex.IsEmpty())
                 {
                     deleteIndex = true;
-
                 };
             }
 
@@ -131,9 +101,8 @@ namespace AppInstaller::CLI::Portable
 
     bool PortableInstaller::VerifyPortableFilesForUninstall()
     {
-        namespace fs = std::filesystem;
         const auto& indexPath = GetPortableIndexPath();
-        if (fs:: exists(indexPath))
+        if (std::filesystem::exists(indexPath))
         {
             PortableIndex portableIndex = PortableIndex::Open(indexPath.u8string(), SQLiteStorageBase::OpenDisposition::ReadWrite);
             std::vector<IPortableIndex::PortableFile> portableFiles = portableIndex.GetAllPortableFiles();
@@ -215,7 +184,7 @@ namespace AppInstaller::CLI::Portable
         for (auto& item : extractedItems)
         {
             const auto& itemPath = InstallLocation / item;
-            IPortableIndex::PortableFile portableFile = CreatePortableFileFromPath(itemPath);
+            IPortableIndex::PortableFile portableFile = PortableIndex::CreatePortableFileFromPath(itemPath);
             portableIndex.AddOrUpdatePortableFile(portableFile);
         }
 
@@ -238,13 +207,14 @@ namespace AppInstaller::CLI::Portable
                 const std::filesystem::path& symlinkFullPath = GetPortableLinksLocation(GetScope()) / commandAlias;
                 if (CreatePortableSymlink(portableTargetPath, symlinkFullPath))
                 {
-                    IPortableIndex::PortableFile symlinkPortableFile = CreatePortableFileFromPath(symlinkFullPath);
+                    IPortableIndex::PortableFile symlinkPortableFile = PortableIndex::CreatePortableFileFromPath(symlinkFullPath);
                     portableIndex.AddOrUpdatePortableFile(symlinkPortableFile);
                 }
             }
             else
             {
                 AICLI_LOG(CLI, Info, << "Package directory was previously added to PATH. Skipping symlink creation.");
+                break;
             }
         }
 
@@ -259,8 +229,8 @@ namespace AppInstaller::CLI::Portable
     {
         if (std::filesystem::exists(PortableTargetFullPath))
         {
-            std::filesystem::remove(PortableTargetFullPath);
             AICLI_LOG(CLI, Info, << "Successfully deleted portable exe:" << PortableTargetFullPath);
+            std::filesystem::remove(PortableTargetFullPath);
         }
         else
         {
@@ -285,7 +255,7 @@ namespace AppInstaller::CLI::Portable
     HRESULT PortableInstaller::UninstallFromIndex(bool purge)
     {
         const auto& indexPath = GetPortableIndexPath();
-        RemoveItemsFromIndex(indexPath, purge);
+        RemoveItemsFromIndex(indexPath);
 
         RemoveInstallDirectory(purge);
 

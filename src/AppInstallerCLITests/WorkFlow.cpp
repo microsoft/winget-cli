@@ -225,8 +225,8 @@ namespace
 
             if (input.empty() || input == "AppInstallerCliTest.TestZipInstaller")
             {
-                auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_ZipWithExe.yaml"));
-                auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_ZipWithExe.yaml"));
+                auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Zip_Exe.yaml"));
+                auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Zip_Exe.yaml"));
                 result.Matches.emplace_back(
                     ResultMatch(
                         TestPackage::Make(
@@ -1040,7 +1040,7 @@ TEST_CASE("InstallFlowWithNonApplicableArchitecture", "[InstallFlow][workflow]")
     REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
 }
 
-TEST_CASE("InstallFlow_ZipWithExe", "[InstallFlow][workflow]")
+TEST_CASE("InstallFlow_Zip_Exe", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
     TestCommon::TestUserSettings testSettings;
@@ -1052,7 +1052,7 @@ TEST_CASE("InstallFlow_ZipWithExe", "[InstallFlow][workflow]")
     OverrideForShellExecute(context);
     OverrideForExtractInstallerFromArchive(context);
     OverrideForVerifyAndSetNestedInstaller(context);
-    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_ZipWithExe.yaml").GetPath().u8string());
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Zip_Exe.yaml").GetPath().u8string());
 
     InstallCommand install({});
     install.Execute(context);

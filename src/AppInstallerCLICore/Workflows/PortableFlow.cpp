@@ -185,7 +185,7 @@ namespace AppInstaller::CLI::Workflow
         portableInstaller.WinGetSourceIdentifier = sourceIdentifier;
     }
 
-    void GetPortableEntryForInstall(Execution::Context& context)
+    void InitializePortableInstaller(Execution::Context& context)
     {
         Manifest::ScopeEnum scope = Manifest::ScopeEnum::Unknown;
         bool isUpdate = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
@@ -285,14 +285,12 @@ namespace AppInstaller::CLI::Workflow
 
             HRESULT result = portableInstaller.Uninstall(purge);
             context.Add<Execution::Data::OperationReturnCode>(result);
-
+            context.Reporter.Warn() << portableInstaller.GetOutputMessage();
         }
         catch (...)
         {
             context.Add<Execution::Data::OperationReturnCode>(Workflow::HandleException(context, std::current_exception()));
         }
-
-        context.Reporter.Warn() << portableInstaller.GetOutputMessage();
     }
 
     void EnsureSupportForPortableInstall(Execution::Context& context)

@@ -81,7 +81,7 @@ namespace AppInstallerCLIE2ETests
         public void UninstallPortableWithProductCode()
         {
             // Uninstall a Portable with ProductCode
-            string installDir = Path.Combine(System.Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet", "Packages");
+            string installDir = TestCommon.GetPortablePackagesDirectory();
             string packageId, commandAlias, fileName, packageDirName, productCode;
             packageId = "AppInstallerTest.TestPortableExe";
             packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
@@ -97,13 +97,15 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void UninstallPortableModifiedSymlink()
         {
-            string packageId, commandAlias;  
+            string installDir = TestCommon.GetPortablePackagesDirectory();
+            string packageId, commandAlias, fileName, packageDirName, productCode;
             packageId = "AppInstallerTest.TestPortableExe";
-            commandAlias = "AppInstallerTestExeInstaller.exe";
+            packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
+            commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
 
             TestCommon.RunAICLICommand("install", $"{packageId}");
 
-            string symlinkDirectory = Path.Combine(System.Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet", "Links");
+            string symlinkDirectory = TestCommon.GetPortableSymlinkDirectory(TestCommon.Scope.User);
             string symlinkPath = Path.Combine(symlinkDirectory, commandAlias);
 
             // Replace symlink with modified symlink
@@ -115,11 +117,36 @@ namespace AppInstallerCLIE2ETests
             bool modifiedSymlinkExists = modifiedSymlinkInfo.Exists;
             modifiedSymlinkInfo.Delete();
 
+            Assert.AreEqual(Constants.ErrorCode.ERROR_PORTABLE_UNINSTALL_FAILED, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Unable to remove Portable package as it has been modified; to override this check use --force"));
+            Assert.True(modifiedSymlinkExists, "Modified symlink should still exist");
+
+            // Try again with --force
+            var result2 = TestCommon.RunAICLICommand("uninstall", $"{packageId} --force");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result2.ExitCode);
+            Assert.True(result.StdOut.Contains("Portable package has been modified; proceeding due to --force"));
+            Assert.True(result.StdOut.Contains("Successfully uninstalled"));
+
+            TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, false);
+        }
+
+        [Test]
+        public void UninstallZip_Portable()
+        {
+            string installDir = TestCommon.GetPortablePackagesDirectory();
+            string packageId, commandAlias, fileName, packageDirName, productCode;
+            packageId = "AppInstallerTest.TestZipInstallerWithPortable";
+            packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
+            commandAlias = "TestPortable.exe";
+            fileName = "AppInstallerTestExeInstaller.exe";
+
+            TestCommon.RunAICLICommand("install", $"{packageId}");
+            var result = TestCommon.RunAICLICommand("uninstall", $"{packageId}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully uninstalled"));
-            Assert.True(result.StdOut.Contains("Portable symlink not deleted as it was modified and points to a different target exe"));
-            Assert.True(modifiedSymlinkExists, "Modified symlink should still exist");
+            TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, false);
         }
+
 
         [Test]
         public void UninstallNotIndexed()

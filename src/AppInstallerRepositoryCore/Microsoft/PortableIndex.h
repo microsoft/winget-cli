@@ -29,6 +29,8 @@ namespace AppInstaller::Repository::Microsoft
             return { filePath, disposition, std::move(indexFile) };
         }
 
+        static Schema::IPortableIndex::PortableFile CreatePortableFileFromPath(const std::filesystem::path& path);
+
         IdType AddPortableFile(const Schema::IPortableIndex::PortableFile& file);
 
         void RemovePortableFile(const Schema::IPortableIndex::PortableFile& file);

@@ -340,9 +340,6 @@
     <ClCompile Include="Workflows\ArchiveFlow.cpp">
       <Filter>Workflows</Filter>
     </ClCompile>
-    <ClInclude Include="PortableInstaller.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClCompile Include="PortableInstaller.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

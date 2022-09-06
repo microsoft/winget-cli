@@ -8,6 +8,7 @@ using namespace AppInstaller::Registry::Portable;
 
 namespace AppInstaller::CLI::Portable
 {
+
     std::filesystem::path GetPortableLinksLocation(Manifest::ScopeEnum scope);
 
     std::filesystem::path GetPortableInstallRoot(Manifest::ScopeEnum scope, Utility::Architecture arch);
@@ -33,16 +34,7 @@ namespace AppInstaller::CLI::Portable
         // If we fail to create a symlink, add install directory to PATH variable
         bool InstallDirectoryAddedToPath = false;
 
-        template<typename T>
-        void Commit(PortableValueName valueName, T value)
-        {
-            m_portableARPEntry.SetValue(valueName, value);
-        }
-
-        std::filesystem::path GetInstallDirectoryForPathVariable()
-        {
-            return  InstallDirectoryAddedToPath ? InstallLocation : GetPortableLinksLocation(GetScope());
-        }
+        PortableInstaller(Manifest::ScopeEnum scope, Utility::Architecture arch, const std::string& productCode);
 
         HRESULT SingleInstall(const std::filesystem::path& installerPath);
 
@@ -62,6 +54,19 @@ namespace AppInstaller::CLI::Portable
             }
         }
 
+        template<typename T>
+        void Commit(PortableValueName valueName, T value)
+        {
+            m_portableARPEntry.SetValue(valueName, value);
+        }
+
+        std::filesystem::path GetInstallDirectoryForPathVariable()
+        {
+            return  InstallDirectoryAddedToPath ? InstallLocation : GetPortableLinksLocation(GetScope());
+        }
+
+        std::filesystem::path GetPortableIndexPath();
+
         bool VerifyPortableFilesForUninstall();
 
         Manifest::ScopeEnum GetScope() { return m_portableARPEntry.GetScope(); };
@@ -70,29 +75,19 @@ namespace AppInstaller::CLI::Portable
 
         std::string GetProductCode() { return m_portableARPEntry.GetProductCode(); };
 
-        std::string GetPackageIdentifier() { return m_packageIdentifier; };
-
-        std::string GetSourceIdentifier() { return m_sourceIdentifier; };
-
         bool Exists() { return m_portableARPEntry.Exists(); };
-
-        PortableInstaller(Manifest::ScopeEnum scope, Utility::Architecture arch, const std::string& productCode);
-
-        void SetAppsAndFeaturesMetadata(const Manifest::AppsAndFeaturesEntry& entry, const Manifest::Manifest& manifest);
 
         std::string GetOutputMessage()
         {
             return m_stream.str();
         }
 
-        std::filesystem::path GetPortableIndexPath();
-
-        void SetAppsAndFeaturesMetadata(const Manifest::Manifest& manifest, const std::vector<AppInstaller::Manifest::AppsAndFeaturesEntry>& entries);
+        void SetAppsAndFeaturesMetadata(
+            const Manifest::Manifest& manifest,
+            const std::vector<AppInstaller::Manifest::AppsAndFeaturesEntry>& entries);
 
     private:
         PortableARPEntry m_portableARPEntry;
-        std::string m_packageIdentifier;
-        std::string m_sourceIdentifier;
         std::stringstream m_stream;
 
         std::string GetStringValue(PortableValueName valueName);
@@ -108,9 +103,9 @@ namespace AppInstaller::CLI::Portable
         void MovePortableExe(const std::filesystem::path& installerPath);
         bool CreatePortableSymlink(const std::filesystem::path& targetPath, const std::filesystem::path& symlinkPath);
 
+        void RemovePortableExe(const std::filesystem::path& targetPath, const std::string& hash);
         void RemovePortableSymlink(const std::filesystem::path& targetPath, const std::filesystem::path& symlinkPath);
         void RemoveInstallDirectory(bool purge);
-        void RemovePortableExe(const std::filesystem::path& targetPath, const std::string& hash);
 
         void AddToPathVariable();
         void RemoveFromPathVariable();

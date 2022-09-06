@@ -114,7 +114,7 @@ TEST_CASE("PortableIndex_AddUpdateRemove", "[portableIndex]")
         Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadOnly);
         auto fileFromIndex = Schema::Portable_V1_0::PortableTable::GetPortableFileById(connection, 1);
         REQUIRE(fileFromIndex.has_value());
-        REQUIRE(fileFromIndex->GetFilePath() == "testPortableFile.exe");
+        REQUIRE(fileFromIndex->GetFilePath() == portableFile.GetFilePath());
         REQUIRE(fileFromIndex->FileType == IPortableIndex::PortableFileType::Symlink);
         REQUIRE(fileFromIndex->SHA256 == updatedHash);
         REQUIRE(fileFromIndex->SymlinkTarget == "fakeSymlinkTarget.exe");
@@ -157,7 +157,7 @@ TEST_CASE("PortableIndex_UpdateFile_CaseInsensitive", "[portableIndex]")
         Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadOnly);
         auto fileFromIndex = Schema::Portable_V1_0::PortableTable::GetPortableFileById(connection, 1);
         REQUIRE(fileFromIndex.has_value());
-        REQUIRE(fileFromIndex->GetFilePath() == "TESTPORTABLEFILE.exe");
+        REQUIRE(fileFromIndex->GetFilePath() == portableFile.GetFilePath());
         REQUIRE(fileFromIndex->FileType == IPortableIndex::PortableFileType::Symlink);
         REQUIRE(fileFromIndex->SHA256 == updatedHash);
         REQUIRE(fileFromIndex->SymlinkTarget == "fakeSymlinkTarget.exe");

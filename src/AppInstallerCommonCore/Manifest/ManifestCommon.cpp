@@ -493,6 +493,11 @@ namespace AppInstaller::Manifest
         return (installerType == InstallerTypeEnum::Zip);
     }
 
+    bool IsPortableType(InstallerTypeEnum installerType)
+    {
+        return (installerType == InstallerTypeEnum::Portable);
+    }
+
     bool IsNestedInstallerTypeSupported(InstallerTypeEnum nestedInstallerType)
     {
         return (

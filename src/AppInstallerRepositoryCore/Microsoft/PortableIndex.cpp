@@ -26,6 +26,33 @@ namespace AppInstaller::Repository::Microsoft
         return result;
     }
 
+    Schema::IPortableIndex::PortableFile PortableIndex::CreatePortableFileFromPath(const std::filesystem::path& path)
+    {
+        Schema::IPortableIndex::PortableFile portableFile;
+        portableFile.SetFilePath(path);
+
+        if (std::filesystem::is_directory(path))
+        {
+            portableFile.FileType = Schema::IPortableIndex::PortableFileType::Directory;
+        }
+        else if (std::filesystem::is_symlink(path))
+        {
+            portableFile.FileType = Schema::IPortableIndex::PortableFileType::Symlink;
+            portableFile.SymlinkTarget = std::filesystem::read_symlink(path).u8string();
+        }
+        else
+        {
+            portableFile.FileType = Schema::IPortableIndex::PortableFileType::File;
+
+            std::ifstream inStream{ path, std::ifstream::binary };
+            const Utility::SHA256::HashBuffer& targetFileHash = Utility::SHA256::ComputeHash(inStream);
+            inStream.close();
+            portableFile.SHA256 = Utility::SHA256::ConvertToString(targetFileHash);
+        }
+
+        return portableFile;
+    }
+
     PortableIndex::IdType PortableIndex::AddPortableFile(const Schema::IPortableIndex::PortableFile& file)
     {
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };

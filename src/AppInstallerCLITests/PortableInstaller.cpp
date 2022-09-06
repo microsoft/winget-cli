@@ -12,6 +12,7 @@
 #include <Microsoft/Schema/IPortableIndex.h>
 #include <Microsoft/PortableIndex.h>
 
+using namespace std::string_literals;
 using namespace AppInstaller::CLI::Portable;
 using namespace AppInstaller::Filesystem;
 using namespace AppInstaller::Manifest;
@@ -206,4 +207,108 @@ TEST_CASE("PortableInstaller_MultipleInstall", "[PortableInstaller]")
 
     REQUIRE_FALSE(std::filesystem::exists(indexPath));
     REQUIRE_FALSE(std::filesystem::exists(portableInstaller.InstallLocation));
+}
+
+TEST_CASE("PortableInstaller_VerifyFilesFromIndex", "[PortableInstaller]")
+{
+    // Create installer and set install location to temp directory
+    // Create portable index and add files
+    PortableInstaller portableInstaller = PortableInstaller(
+        ScopeEnum::User,
+        Architecture::X64,
+        "testProductCode");
+
+    TempDirectory tempDirectory = TestCommon::TempDirectory("TempDirectory", true);
+    const auto& tempDirectoryPath = tempDirectory.GetPath();
+    portableInstaller.InstallLocation = tempDirectoryPath;
+    
+    std::filesystem::path indexPath = tempDirectoryPath / "portable.db";
+
+    PortableIndex index = PortableIndex::CreateNew(indexPath.u8string(), Schema::Version::Latest());
+    
+    std::filesystem::path symlinkPath = tempDirectoryPath / "symlink.exe";
+    std::filesystem::path exePath = tempDirectoryPath / "testExe.txt";
+
+    // Create exe and symlink
+    TestCommon::TempFile testFile(exePath);
+    std::ofstream file2(testFile, std::ofstream::out);
+    file2.close();
+
+    std::filesystem::create_symlink(exePath, symlinkPath);
+
+    // Add files to index
+    IPortableIndex::PortableFile exeFile = PortableIndex::CreatePortableFileFromPath(exePath);
+    IPortableIndex::PortableFile symlinkFile = PortableIndex::CreatePortableFileFromPath(symlinkPath);
+    
+    index.AddPortableFile(exeFile);
+    index.AddPortableFile(symlinkFile);
+
+    REQUIRE(portableInstaller.VerifyPortableFilesForUninstall());
+
+    // Modify symlink target
+    std::filesystem::remove(symlinkPath);
+    std::filesystem::create_symlink("badPath", symlinkPath);
+
+    REQUIRE_FALSE(portableInstaller.VerifyPortableFilesForUninstall());
+
+    std::filesystem::remove(symlinkPath);
+
+    // Modify exe hash in index
+    exeFile.SHA256 = "2413fb3709b05939f04cf2e92f7d0897fc2596f9ad0b8a9ea855c7bfebaae892";
+    index.UpdatePortableFile(exeFile);
+
+    REQUIRE_FALSE(portableInstaller.VerifyPortableFilesForUninstall());
+
+    std::filesystem::remove(exePath);
+
+    // Files that do not exist should still pass as they have already been removed.
+    REQUIRE(portableInstaller.VerifyPortableFilesForUninstall());
+}
+
+TEST_CASE("PortableInstaller_VerifyFiles", "[PortableInstaller]")
+{
+    PortableInstaller portableInstaller = PortableInstaller(
+        ScopeEnum::User,
+        Architecture::X64,
+        "testProductCode");
+
+    TempDirectory tempDirectory = TestCommon::TempDirectory("TempDirectory", true);
+    const auto& tempDirectoryPath = tempDirectory.GetPath();
+    portableInstaller.InstallLocation = tempDirectoryPath;
+
+    std::filesystem::path symlinkPath = tempDirectoryPath / "symlink.exe";
+    std::filesystem::path exePath = tempDirectoryPath / "testExe.txt";
+
+    // Create and set test file, symlink, and hash
+    TestCommon::TempFile testFile(exePath);
+    std::ofstream file(testFile, std::ofstream::out);
+    file.close();
+
+    std::filesystem::create_symlink(exePath, symlinkPath);
+
+    std::ifstream inStream{ exePath, std::ifstream::binary };
+    const SHA256::HashBuffer& targetFileHash = SHA256::ComputeHash(inStream);
+    inStream.close();
+    portableInstaller.SHA256 = SHA256::ConvertToString(targetFileHash);
+    portableInstaller.PortableTargetFullPath = exePath;
+    portableInstaller.PortableSymlinkFullPath = symlinkPath;
+
+    REQUIRE(portableInstaller.VerifyPortableFilesForUninstall());
+
+    // Modify symlink target
+    std::filesystem::remove(symlinkPath);
+    std::filesystem::create_symlink("badPath", symlinkPath);
+
+    REQUIRE_FALSE(portableInstaller.VerifyPortableFilesForUninstall());
+
+    // Modify exe hash
+    std::filesystem::remove(symlinkPath);
+    portableInstaller.SHA256 = "2413fb3709b05939f04cf2e92f7d0897fc2596f9ad0b8a9ea855c7bfebaae892";
+
+    REQUIRE_FALSE(portableInstaller.VerifyPortableFilesForUninstall());
+
+    std::filesystem::remove(exePath);
+
+    // Files that do not exist should still pass as they have already been removed.
+    REQUIRE(portableInstaller.VerifyPortableFilesForUninstall());
 }
