@@ -1079,7 +1079,7 @@ TEST_CASE("InstallFlow_Zip_BadRelativePath", "[InstallFlow][workflow]")
     auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForShellExecute(context);
     OverrideForExtractInstallerFromArchive(context);
-    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_ZipWithExe.yaml").GetPath().u8string());
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Zip_Exe.yaml").GetPath().u8string());
 
     InstallCommand install({});
     install.Execute(context);
@@ -1163,7 +1163,7 @@ TEST_CASE("ExtractInstallerFromArchive_InvalidZip", "[InstallFlow][workflow]")
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_ZipWithExe.yaml"));
+    auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Zip_Exe.yaml"));
     context.Add<Data::Manifest>(manifest);
     context.Add<Data::Installer>(manifest.Installers.at(0));
     // Provide an invalid zip file which should be handled appropriately.
@@ -1716,7 +1716,7 @@ TEST_CASE("ShowFlow_NestedInstallerType", "[ShowFlow][workflow]")
     std::ostringstream showOutput;
     TestContext context{ showOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_ZipWithExe.yaml").GetPath().u8string());
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Zip_Exe.yaml").GetPath().u8string());
 
     ShowCommand show({});
     show.Execute(context);
@@ -1930,7 +1930,7 @@ TEST_CASE("UpdateFlow_UpdateExe", "[UpdateFlow][workflow]")
     REQUIRE(updateResultStr.find("/ver3.0.0.0") != std::string::npos);
 }
 
-TEST_CASE("UpdateFlow_UpdateZipWithExe", "[UpdateFlow][workflow]")
+TEST_CASE("UpdateFlow_UpdateZip_Exe", "[UpdateFlow][workflow]")
 {
     TestCommon::TempFile updateResultPath("TestExeInstalled.txt");
 
