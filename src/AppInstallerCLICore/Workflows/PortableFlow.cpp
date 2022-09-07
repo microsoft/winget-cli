@@ -162,7 +162,7 @@ namespace AppInstaller::CLI::Workflow
         }
 
         PortableInstaller& portableInstaller = context.Get<Execution::Data::PortableInstaller>();
-        if (portableInstaller.Exists())
+        if (portableInstaller.ARPEntryExists())
         {
             if (packageIdentifier != portableInstaller.WinGetPackageIdentifier || sourceIdentifier != portableInstaller.WinGetSourceIdentifier)
             {
@@ -234,12 +234,12 @@ namespace AppInstaller::CLI::Workflow
             {
                 const std::vector<std::filesystem::path>& extractedItems = context.Get<Execution::Data::ExtractedItems>();
                 const std::vector<Manifest::NestedInstallerFile>& nestedInstallerFiles = context.Get<Execution::Data::Installer>()->NestedInstallerFiles;
-                result = portableInstaller.MultipleInstall(nestedInstallerFiles, extractedItems);
+                result = portableInstaller.InstallMultiple(nestedInstallerFiles, extractedItems);
             }
             else
             {
                 const std::filesystem::path& installerPath = context.Get<Execution::Data::InstallerPath>();
-                result = portableInstaller.SingleInstall(installerPath);
+                result = portableInstaller.InstallSingle(installerPath);
             }
 
             context.Add<Execution::Data::OperationReturnCode>(result);

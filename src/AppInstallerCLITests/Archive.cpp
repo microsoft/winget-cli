@@ -22,5 +22,5 @@ TEST_CASE("Extract_ZipArchive", "[archive]")
 
     REQUIRE(SUCCEEDED(hr));
     REQUIRE(std::filesystem::exists(tempDirectoryPath / "test.txt"));
-    REQUIRE(extractedItems[0] == "test.txt");
+    REQUIRE(extractedItems.size() == 1);
 }

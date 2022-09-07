@@ -43,11 +43,7 @@ namespace AppInstaller::Repository::Microsoft
         else
         {
             portableFile.FileType = Schema::IPortableIndex::PortableFileType::File;
-
-            std::ifstream inStream{ path, std::ifstream::binary };
-            const Utility::SHA256::HashBuffer& targetFileHash = Utility::SHA256::ComputeHash(inStream);
-            inStream.close();
-            portableFile.SHA256 = Utility::SHA256::ConvertToString(targetFileHash);
+            portableFile.SHA256 = Utility::SHA256::ConvertToString(Utility::SHA256::ComputeHashFromFile(path));
         }
 
         return portableFile;

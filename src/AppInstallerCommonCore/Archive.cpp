@@ -36,8 +36,7 @@ namespace AppInstaller::Archive
             RETURN_IF_FAILED(StrRetToBuf(&strFolderName, pidlChild.get(), szFolderName, MAX_PATH));
             RETURN_IF_FAILED(SHCreateItemWithParent(pidlFull.get(), pArchiveShellFolder.get(), pidlChild.get(), IID_PPV_ARGS(&pShellItemFrom)));
             RETURN_IF_FAILED(pFileOperation->CopyItem(pShellItemFrom.get(), pShellItemTo.get(), NULL, NULL));
-            // Append the full path location of the extracted item
-            extractedItems.emplace_back(szFolderName);
+            extractedItems.emplace_back(destPath / szFolderName);
         }
 
         RETURN_IF_FAILED(pFileOperation->PerformOperations());

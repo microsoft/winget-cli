@@ -148,6 +148,15 @@ namespace AppInstaller::Utility {
         }
     }
 
+
+    SHA256::HashBuffer SHA256::ComputeHashFromFile(const std::filesystem::path& path)
+    {
+        std::ifstream inStream{ path, std::ifstream::binary };
+        const Utility::SHA256::HashBuffer& targetFileHash = Utility::SHA256::ComputeHash(inStream);
+        inStream.close();
+        return targetFileHash;
+    }
+
     void SHA256::SHA256ContextDeleter::operator()(SHA256Context* context)
     {
         delete context;

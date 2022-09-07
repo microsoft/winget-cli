@@ -118,7 +118,7 @@ TEST_CASE("PortableInstaller_SingleInstall", "[PortableInstaller]")
         std::ofstream file2(testPortable, std::ofstream::out);
         file2.close();
 
-        HRESULT installResult = portableInstaller.SingleInstall(testPortable.GetPath());
+        HRESULT installResult = portableInstaller.InstallSingle(testPortable.GetPath());
         REQUIRE(SUCCEEDED(installResult));
     }
 
@@ -129,7 +129,7 @@ TEST_CASE("PortableInstaller_SingleInstall", "[PortableInstaller]")
         REQUIRE(std::filesystem::exists(portableInstaller.PortableTargetFullPath));
         REQUIRE(SymlinkExists(portableInstaller.PortableSymlinkFullPath));
         REQUIRE(VerifySymlink(portableInstaller.PortableSymlinkFullPath, portableInstaller.PortableTargetFullPath));
-        REQUIRE(portableInstaller.Exists());
+        REQUIRE(portableInstaller.ARPEntryExists());
 
         HRESULT uninstallResult = portableInstaller.Uninstall();
 
@@ -153,9 +153,9 @@ TEST_CASE("PortableInstaller_InstallDirectoryAddedToPath", "[PortableInstaller]"
 
         // This value is only set to true if we fail to create a symlink.
         // If true no symlink should be created and InstallDirectory is added to PATH variable.
-        portableInstaller.Commit(PortableValueName::InstallDirectoryAddedToPath, portableInstaller.InstallDirectoryAddedToPath = true);
+        portableInstaller.CommitToARPEntry(PortableValueName::InstallDirectoryAddedToPath, portableInstaller.InstallDirectoryAddedToPath = true);
 
-        HRESULT installResult = portableInstaller.SingleInstall(testPortable.GetPath());
+        HRESULT installResult = portableInstaller.InstallSingle(testPortable.GetPath());
         REQUIRE(SUCCEEDED(installResult));
     }
 
@@ -165,7 +165,7 @@ TEST_CASE("PortableInstaller_InstallDirectoryAddedToPath", "[PortableInstaller]"
         REQUIRE(std::filesystem::exists(portableInstaller.PortableTargetFullPath));
         REQUIRE_FALSE(SymlinkExists(portableInstaller.PortableSymlinkFullPath));
         REQUIRE(PathVariable(ScopeEnum::User).Contains(portableInstaller.InstallLocation));
-        REQUIRE(portableInstaller.Exists());
+        REQUIRE(portableInstaller.ARPEntryExists());
 
         HRESULT uninstallResult = portableInstaller.Uninstall();
 
@@ -191,7 +191,7 @@ TEST_CASE("PortableInstaller_MultipleInstall", "[PortableInstaller]")
     std::vector<NestedInstallerFile> nestedInstallerFiles = CreateTestNestedInstallerFiles();
     std::vector<std::filesystem::path> extractedItems = CreateExtractedItemsFromArchive(tempDirectoryPath);
 
-    HRESULT installResult = portableInstaller.MultipleInstall(nestedInstallerFiles, extractedItems);
+    HRESULT installResult = portableInstaller.InstallMultiple(nestedInstallerFiles, extractedItems);
     REQUIRE(SUCCEEDED(installResult));
 
     const auto& indexPath = portableInstaller.GetPortableIndexPath();

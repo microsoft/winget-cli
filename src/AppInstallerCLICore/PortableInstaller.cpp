@@ -26,15 +26,6 @@ namespace AppInstaller::CLI::Portable
     {
         constexpr std::wstring_view c_PortableIndexFileName = L"portable.db";
 
-        bool VerifyPortableExeHash(const std::filesystem::path& targetPath, const std::string& hashValue)
-        {
-            std::ifstream inStream{ targetPath, std::ifstream::binary };
-            const Utility::SHA256::HashBuffer& targetFileHash = Utility::SHA256::ComputeHash(inStream);
-            inStream.close();
-
-            return Utility::SHA256::AreEqual(Utility::SHA256::ConvertToBytes(hashValue), targetFileHash);
-        }
-
         void RemoveItemsFromIndex(const std::filesystem::path& indexPath)
         {
             bool deleteIndex = false;
@@ -113,7 +104,7 @@ namespace AppInstaller::CLI::Portable
 
                 if (fileType == IPortableIndex::PortableFileType::File)
                 {
-                    if (std::filesystem::exists(filePath) && !VerifyPortableExeHash(filePath, file.SHA256))
+                    if (std::filesystem::exists(filePath) && !SHA256::AreEqual(SHA256::ComputeHashFromFile(filePath), SHA256::ConvertToBytes(file.SHA256)))
                     {
                         return false;
                     }
@@ -131,7 +122,7 @@ namespace AppInstaller::CLI::Portable
         }
         else
         {
-            if (std::filesystem::exists(PortableTargetFullPath) && !VerifyPortableExeHash(PortableTargetFullPath, SHA256))
+            if (std::filesystem::exists(PortableTargetFullPath) && !SHA256::AreEqual(SHA256::ComputeHashFromFile(PortableTargetFullPath), SHA256::ConvertToBytes(SHA256)))
             {
                 return false;
             }
@@ -146,7 +137,7 @@ namespace AppInstaller::CLI::Portable
         }
     }
 
-    HRESULT PortableInstaller::SingleInstall(const std::filesystem::path& installerPath)
+    HRESULT PortableInstaller::InstallSingle(const std::filesystem::path& installerPath)
     {
         InitializeRegistryEntry();
 
@@ -155,7 +146,7 @@ namespace AppInstaller::CLI::Portable
         if (!InstallDirectoryAddedToPath)
         {
             const std::filesystem::path& symlinkPath = PortableSymlinkFullPath;
-            Commit(PortableValueName::PortableSymlinkFullPath, symlinkPath);
+            CommitToARPEntry(PortableValueName::PortableSymlinkFullPath, symlinkPath);
             CreatePortableSymlink(PortableTargetFullPath, PortableSymlinkFullPath);
         }
         else
@@ -170,7 +161,7 @@ namespace AppInstaller::CLI::Portable
         return ERROR_SUCCESS;
     }
 
-    HRESULT PortableInstaller::MultipleInstall(const std::vector<Manifest::NestedInstallerFile>& nestedInstallerFiles, const std::vector<std::filesystem::path>& extractedItems)
+    HRESULT PortableInstaller::InstallMultiple(const std::vector<Manifest::NestedInstallerFile>& nestedInstallerFiles, const std::vector<std::filesystem::path>& extractedItems)
     {
         InitializeRegistryEntry();
 
@@ -246,8 +237,8 @@ namespace AppInstaller::CLI::Portable
 
         RemoveFromPathVariable();
 
-        AICLI_LOG(CLI, Info, << "PortableARPEntry deleted.");
         m_portableARPEntry.Delete();
+        AICLI_LOG(CLI, Info, << "PortableARPEntry deleted.");
         
         return ERROR_SUCCESS;
     }
@@ -261,8 +252,8 @@ namespace AppInstaller::CLI::Portable
 
         RemoveFromPathVariable();
 
-        AICLI_LOG(CLI, Info, << "PortableARPEntry deleted.");
         m_portableARPEntry.Delete();
+        AICLI_LOG(CLI, Info, << "PortableARPEntry deleted.");
 
         return ERROR_SUCCESS;
     }
@@ -285,7 +276,7 @@ namespace AppInstaller::CLI::Portable
 
         AICLI_LOG(Core, Info, << "Portable exe moved to: " << PortableTargetFullPath);
 
-        Commit(PortableValueName::PortableTargetFullPath, PortableTargetFullPath);
+        CommitToARPEntry(PortableValueName::PortableTargetFullPath, PortableTargetFullPath);
 
         Filesystem::RenameFile(installerPath, PortableTargetFullPath);
     }
@@ -315,7 +306,7 @@ namespace AppInstaller::CLI::Portable
             // Symlink creation should only fail if the user executes without admin rights or developer mode.
             // Resort to adding install directory to PATH directly.
             AICLI_LOG(Core, Info, << "Portable install executed in user mode. Adding package directory to PATH.");
-            Commit(PortableValueName::InstallDirectoryAddedToPath, InstallDirectoryAddedToPath = true);
+            CommitToARPEntry(PortableValueName::InstallDirectoryAddedToPath, InstallDirectoryAddedToPath = true);
             return false;
         }
     }
@@ -413,7 +404,7 @@ namespace AppInstaller::CLI::Portable
     PortableInstaller::PortableInstaller(Manifest::ScopeEnum scope, Utility::Architecture arch, const std::string& productCode) :
         m_portableARPEntry(PortableARPEntry(scope, arch, productCode))
     {
-        if (Exists())
+        if (ARPEntryExists())
         {
             DisplayName = GetStringValue(PortableValueName::DisplayName);
             DisplayVersion = GetStringValue(PortableValueName::DisplayVersion);
@@ -436,22 +427,22 @@ namespace AppInstaller::CLI::Portable
 
     void PortableInstaller::InitializeRegistryEntry()
     {
-        Commit(PortableValueName::WinGetPackageIdentifier, WinGetPackageIdentifier);
-        Commit(PortableValueName::WinGetSourceIdentifier, WinGetSourceIdentifier);
-        Commit(PortableValueName::UninstallString, "winget uninstall --product-code " + GetProductCode());
-        Commit(PortableValueName::WinGetInstallerType, InstallerTypeToString(Manifest::InstallerTypeEnum::Portable));
-        Commit(PortableValueName::SHA256, SHA256);
-        Commit(PortableValueName::InstallLocation, InstallLocation);
+        CommitToARPEntry(PortableValueName::WinGetPackageIdentifier, WinGetPackageIdentifier);
+        CommitToARPEntry(PortableValueName::WinGetSourceIdentifier, WinGetSourceIdentifier);
+        CommitToARPEntry(PortableValueName::UninstallString, "winget uninstall --product-code " + GetProductCode());
+        CommitToARPEntry(PortableValueName::WinGetInstallerType, InstallerTypeToString(Manifest::InstallerTypeEnum::Portable));
+        CommitToARPEntry(PortableValueName::SHA256, SHA256);
+        CommitToARPEntry(PortableValueName::InstallLocation, InstallLocation);
     }
 
     void PortableInstaller::FinalizeRegistryEntry()
     {
-        Commit(PortableValueName::DisplayName, DisplayName);
-        Commit(PortableValueName::DisplayVersion, DisplayVersion);
-        Commit(PortableValueName::Publisher, Publisher);
-        Commit(PortableValueName::InstallDate, InstallDate);
-        Commit(PortableValueName::URLInfoAbout, URLInfoAbout);
-        Commit(PortableValueName::HelpLink, HelpLink);
+        CommitToARPEntry(PortableValueName::DisplayName, DisplayName);
+        CommitToARPEntry(PortableValueName::DisplayVersion, DisplayVersion);
+        CommitToARPEntry(PortableValueName::Publisher, Publisher);
+        CommitToARPEntry(PortableValueName::InstallDate, InstallDate);
+        CommitToARPEntry(PortableValueName::URLInfoAbout, URLInfoAbout);
+        CommitToARPEntry(PortableValueName::HelpLink, HelpLink);
     }
 
     std::filesystem::path PortableInstaller::GetPortableIndexPath()

@@ -36,9 +36,9 @@ namespace AppInstaller::CLI::Portable
 
         PortableInstaller(Manifest::ScopeEnum scope, Utility::Architecture arch, const std::string& productCode);
 
-        HRESULT SingleInstall(const std::filesystem::path& installerPath);
+        HRESULT InstallSingle(const std::filesystem::path& installerPath);
 
-        HRESULT MultipleInstall(
+        HRESULT InstallMultiple(
             const std::vector<Manifest::NestedInstallerFile>& nestedInstallerFiles,
             const std::vector<std::filesystem::path>& extractedItems);
 
@@ -55,7 +55,7 @@ namespace AppInstaller::CLI::Portable
         }
 
         template<typename T>
-        void Commit(PortableValueName valueName, T value)
+        void CommitToARPEntry(PortableValueName valueName, T value)
         {
             m_portableARPEntry.SetValue(valueName, value);
         }
@@ -75,7 +75,7 @@ namespace AppInstaller::CLI::Portable
 
         std::string GetProductCode() { return m_portableARPEntry.GetProductCode(); };
 
-        bool Exists() { return m_portableARPEntry.Exists(); };
+        bool ARPEntryExists() { return m_portableARPEntry.Exists(); };
 
         std::string GetOutputMessage()
         {
