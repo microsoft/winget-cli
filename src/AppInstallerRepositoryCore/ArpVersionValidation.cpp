@@ -70,7 +70,7 @@ namespace AppInstaller::Repository
                     std::string context = (" [" + arpInIndex.GetMinVersion().ToString() + ", " + arpInIndex.GetMaxVersion().ToString() + "]");
                     auto validationError = Manifest::ValidationError(Manifest::ManifestError::ArpVersionOverlapWithIndex, context);
                     
-                    AICLI_LOG(Repo, Error, << validationError.GetErrorMessage());
+                    AICLI_LOG(Repo, Error, << validationError.GetErrorMessage() << context);
                     THROW_EXCEPTION(Manifest::ManifestException(
                         { validationError },
                         APPINSTALLER_CLI_ERROR_DEPENDENCIES_VALIDATION_FAILED));
