@@ -184,8 +184,16 @@ namespace AppInstaller::CLI::Portable
         for (auto& item : extractedItems)
         {
             const auto& itemPath = InstallLocation / item;
-            IPortableIndex::PortableFile portableFile = PortableIndex::CreatePortableFileFromPath(itemPath);
-            portableIndex.AddOrUpdatePortableFile(portableFile);
+            AICLI_LOG(CLI, Info, << "Adding extracted item to index: " << itemPath);
+            if (std::filesystem::exists(itemPath))
+            {
+                IPortableIndex::PortableFile portableFile = PortableIndex::CreatePortableFileFromPath(itemPath);
+                portableIndex.AddOrUpdatePortableFile(portableFile);
+            }
+            else
+            {
+                AICLI_LOG(CLI, Info, << "Extracted item does not exist: " << itemPath);
+            }
         }
 
         for (const auto& nestedInstallerFile : nestedInstallerFiles)

@@ -4,6 +4,7 @@
 #include "PortableIndex.h"
 #include "SQLiteStorageBase.h"
 #include "Schema/Portable_1_0/PortableIndexInterface.h"
+#include "winget/Filesystem.h"
 
 namespace AppInstaller::Repository::Microsoft
 {
@@ -35,7 +36,7 @@ namespace AppInstaller::Repository::Microsoft
         {
             portableFile.FileType = Schema::IPortableIndex::PortableFileType::Directory;
         }
-        else if (std::filesystem::is_symlink(path))
+        else if (Filesystem::SymlinkExists(path))
         {
             portableFile.FileType = Schema::IPortableIndex::PortableFileType::Symlink;
             portableFile.SymlinkTarget = std::filesystem::read_symlink(path).u8string();
