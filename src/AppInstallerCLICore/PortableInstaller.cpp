@@ -37,8 +37,9 @@ namespace AppInstaller::CLI::Portable
                 {
                     const auto& filePath = file.GetFilePath();
 
-                    if (std::filesystem::exists(filePath))
+                    if (std::filesystem::exists(filePath) || Filesystem::SymlinkExists(filePath))
                     {
+                        std::cout << filePath << std::endl;
                         std::filesystem::remove_all(filePath);
                     }
 
@@ -147,6 +148,14 @@ namespace AppInstaller::CLI::Portable
         {
             const std::filesystem::path& symlinkPath = PortableSymlinkFullPath;
             CommitToARPEntry(PortableValueName::PortableSymlinkFullPath, symlinkPath);
+
+            std::filesystem::file_status status = std::filesystem::status(symlinkPath);
+            if (std::filesystem::is_directory(status))
+            {
+                AICLI_LOG(CLI, Info, << "Unable to create symlink. '" << symlinkPath << "points to an existing directory.");
+                return APPINSTALLER_CLI_ERROR_PORTABLE_SYMLINK_PATH_IS_DIRECTORY;
+            }
+
             CreatePortableSymlink(PortableTargetFullPath, PortableSymlinkFullPath);
         }
         else
@@ -230,7 +239,7 @@ namespace AppInstaller::CLI::Portable
 
         RemoveInstallDirectory(purge);
          
-        if (!std::filesystem::remove(PortableSymlinkFullPath))
+        if (Filesystem::SymlinkExists(PortableSymlinkFullPath) && !std::filesystem::remove(PortableSymlinkFullPath))
         {
             AICLI_LOG(CLI, Info, << "Portable symlink not found; Unable to delete portable symlink: " << PortableSymlinkFullPath);
         }
@@ -283,13 +292,6 @@ namespace AppInstaller::CLI::Portable
 
     bool PortableInstaller::CreatePortableSymlink(const std::filesystem::path& targetPath, const std::filesystem::path& symlinkPath)
     {
-        std::filesystem::file_status status = std::filesystem::status(symlinkPath);
-        if (std::filesystem::is_directory(status))
-        {
-            AICLI_LOG(CLI, Info, << "Unable to create symlink. '" << symlinkPath << "points to an existing directory.");
-            throw APPINSTALLER_CLI_ERROR_PORTABLE_SYMLINK_PATH_IS_DIRECTORY;
-        }
-
         if (std::filesystem::remove(symlinkPath))
         {
             AICLI_LOG(CLI, Info, << "Removed existing file at " << symlinkPath);

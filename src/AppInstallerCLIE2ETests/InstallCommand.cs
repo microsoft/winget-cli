@@ -174,14 +174,14 @@ namespace AppInstallerCLIE2ETests
             var installDir = TestCommon.GetRandomTestDir();
             string packageId, commandAlias, fileName, productCode;
             packageId = "AppInstallerTest.TestPortableExeWithCommand";
-             productCode = packageId + "_" + Constants.TestSourceIdentifier;
+            productCode = packageId + "_" + Constants.TestSourceIdentifier;
             fileName = "AppInstallerTestExeInstaller.exe";
             commandAlias = "testCommand.exe";
 
             var result = TestCommon.RunAICLICommand("install", $"{packageId} -l {installDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
-            TestCommon.VerifyPortablePackage(installDir, commandAlias, fileName, productCode, true);
+            TestCommon.VerifyPortablePackage(Path.Combine(installDir, productCode), commandAlias, fileName, productCode, true);
         }
 
         [Test]
@@ -196,7 +196,7 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("install", $"{packageId} -l {installDir} --rename {renameArgValue}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
-            TestCommon.VerifyPortablePackage(installDir, renameArgValue, renameArgValue, productCode, true);
+            TestCommon.VerifyPortablePackage(Path.Combine(installDir, productCode), renameArgValue, renameArgValue, productCode, true);
         }
 
         [Test]
@@ -240,18 +240,15 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("install", $"{packageId} -l {existingDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
-            TestCommon.VerifyPortablePackage(existingDir, commandAlias, fileName, productCode, true);
+            TestCommon.VerifyPortablePackage(Path.Combine(existingDir, productCode), commandAlias, fileName, productCode, true);
         }
 
         [Test]
         public void InstallPortableFailsWithCleanup()
         {
-            string installDir = TestCommon.GetPortablePackagesDirectory();
-            string winGetDir = Directory.GetParent(installDir).FullName;
-            string packageId, commandAlias, fileName, packageDirName, productCode;
+            string packageId, commandAlias;
             packageId = "AppInstallerTest.TestPortableExe";
-            packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
-            commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
+            commandAlias = "AppInstallerTestExeInstaller.exe";
 
             // Create a directory with the same name as the symlink in order to cause install to fail.
             string symlinkDirectory = TestCommon.GetPortableSymlinkDirectory(TestCommon.Scope.User);
@@ -265,7 +262,6 @@ namespace AppInstallerCLIE2ETests
 
             Assert.AreNotEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Unable to create symlink, path points to a directory."));
-            TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, false);
         }
 
         [Test]

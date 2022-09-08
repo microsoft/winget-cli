@@ -111,21 +111,17 @@ namespace AppInstallerCLIE2ETests
             // Replace symlink with modified symlink
             File.Delete(symlinkPath);
             FileSystemInfo modifiedSymlinkInfo = File.CreateSymbolicLink(symlinkPath, "fakeTargetExe");
+
             var result = TestCommon.RunAICLICommand("uninstall", $"{packageId}");
-
-            // Remove modified symlink as to not interfere with other tests
-            bool modifiedSymlinkExists = modifiedSymlinkInfo.Exists;
-            modifiedSymlinkInfo.Delete();
-
             Assert.AreEqual(Constants.ErrorCode.ERROR_PORTABLE_UNINSTALL_FAILED, result.ExitCode);
             Assert.True(result.StdOut.Contains("Unable to remove Portable package as it has been modified; to override this check use --force"));
-            Assert.True(modifiedSymlinkExists, "Modified symlink should still exist");
+            Assert.True(modifiedSymlinkInfo.Exists, "Modified symlink should still exist");
 
             // Try again with --force
             var result2 = TestCommon.RunAICLICommand("uninstall", $"{packageId} --force");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result2.ExitCode);
-            Assert.True(result.StdOut.Contains("Portable package has been modified; proceeding due to --force"));
-            Assert.True(result.StdOut.Contains("Successfully uninstalled"));
+            Assert.True(result2.StdOut.Contains("Portable package has been modified; proceeding due to --force"));
+            Assert.True(result2.StdOut.Contains("Successfully uninstalled"));
 
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, false);
         }
@@ -140,7 +136,7 @@ namespace AppInstallerCLIE2ETests
             commandAlias = "TestPortable.exe";
             fileName = "AppInstallerTestExeInstaller.exe";
 
-            TestCommon.RunAICLICommand("install", $"{packageId}");
+            var testreuslt = TestCommon.RunAICLICommand("install", $"{packageId}");
             var result = TestCommon.RunAICLICommand("uninstall", $"{packageId}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully uninstalled"));

@@ -253,8 +253,7 @@ namespace AppInstaller::CLI::Workflow
         if (result != ERROR_SUCCESS && !portableInstaller.IsUpdate)
         {
             context.Reporter.Warn() << Resource::String::PortableInstallFailed << std::endl;
-            result = portableInstaller.Uninstall();
-            context.Add<Execution::Data::OperationReturnCode>(result);
+            portableInstaller.Uninstall();
         }
     }
 
