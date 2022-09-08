@@ -13,7 +13,7 @@ namespace AppInstaller::Manifest
 {
     namespace
     {
-        auto& GetErrorIdToMessageMap()
+        const auto& GetErrorIdToMessageMap()
         {
             static std::map<AppInstaller::StringResource::StringId, std::string_view> ErrorIdToMessageMap = {
                 { AppInstaller::Manifest::ManifestError::InvalidRootNode, "Encountered unexpected root node."sv },

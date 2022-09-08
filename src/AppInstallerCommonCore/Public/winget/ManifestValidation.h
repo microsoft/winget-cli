@@ -125,7 +125,7 @@ namespace AppInstaller::Manifest
             return error;
         }
 
-        static ValidationError MessageFieldValueWithFile(AppInstaller::StringResource::StringId message, std::string context, std::string value, std::string file)
+        static ValidationError MessageContextValueWithFile(AppInstaller::StringResource::StringId message, std::string context, std::string value, std::string file)
         {
             ValidationError error{ message, context, value };
             error.FileName = file;

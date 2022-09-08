@@ -489,16 +489,16 @@
       <Filter>Microsoft\Schema\1_6</Filter>
     </ClCompile>
     <ClCompile Include="Microsoft\PortableIndex.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Microsoft</Filter>
     </ClCompile>
     <ClCompile Include="Microsoft\Schema\Portable_1_0\PortableIndexInterface_1_0.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Microsoft\Schema\Portable_1_0</Filter>
     </ClCompile>
     <ClCompile Include="Microsoft\Schema\Portable_1_0\PortableTable.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Microsoft\Schema\Portable_1_0</Filter>
     </ClCompile>
     <ClCompile Include="Microsoft\SQLiteStorageBase.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Microsoft</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

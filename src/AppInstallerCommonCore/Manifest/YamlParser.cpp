@@ -158,21 +158,21 @@ namespace AppInstaller::Manifest::YamlParser
                         std::string localPackageId = entry.Root["PackageIdentifier"].as<std::string>();
                         if (localPackageId != packageId)
                         {
-                            errors.emplace_back(ValidationError::MessageFieldValueWithFile(
+                            errors.emplace_back(ValidationError::MessageContextValueWithFile(
                                 ManifestError::InconsistentMultiFileManifestFieldValue, "PackageIdentifier", localPackageId, entry.FileName));
                         }
 
                         std::string localPackageVersion = entry.Root["PackageVersion"].as<std::string>();
                         if (localPackageVersion != packageVersion)
                         {
-                            errors.emplace_back(ValidationError::MessageFieldValueWithFile(
+                            errors.emplace_back(ValidationError::MessageContextValueWithFile(
                                 ManifestError::InconsistentMultiFileManifestFieldValue, "PackageVersion", localPackageVersion, entry.FileName));
                         }
 
                         std::string localManifestVersion = entry.Root["ManifestVersion"].as<std::string>();
                         if (localManifestVersion != manifestVersionStr)
                         {
-                            errors.emplace_back(ValidationError::MessageFieldValueWithFile(
+                            errors.emplace_back(ValidationError::MessageContextValueWithFile(
                                 ManifestError::InconsistentMultiFileManifestFieldValue, "ManifestVersion", localManifestVersion, entry.FileName));
                         }
 
@@ -185,7 +185,7 @@ namespace AppInstaller::Manifest::YamlParser
                         case ManifestTypeEnum::Version:
                             if (isVersionManifestFound)
                             {
-                                errors.emplace_back(ValidationError::MessageFieldValueWithFile(
+                                errors.emplace_back(ValidationError::MessageContextValueWithFile(
                                     ManifestError::DuplicateMultiFileManifestType, "ManifestType", manifestTypeStr, entry.FileName));
                             }
                             else
@@ -197,7 +197,7 @@ namespace AppInstaller::Manifest::YamlParser
                         case ManifestTypeEnum::Installer:
                             if (isInstallerManifestFound)
                             {
-                                errors.emplace_back(ValidationError::MessageFieldValueWithFile(
+                                errors.emplace_back(ValidationError::MessageContextValueWithFile(
                                     ManifestError::DuplicateMultiFileManifestType, "ManifestType", manifestTypeStr, entry.FileName));
                             }
                             else
@@ -208,7 +208,7 @@ namespace AppInstaller::Manifest::YamlParser
                         case ManifestTypeEnum::DefaultLocale:
                             if (isDefaultLocaleManifestFound)
                             {
-                                errors.emplace_back(ValidationError::MessageFieldValueWithFile(
+                                errors.emplace_back(ValidationError::MessageContextValueWithFile(
                                     ManifestError::DuplicateMultiFileManifestType, "ManifestType", manifestTypeStr, entry.FileName));
                             }
                             else
@@ -219,7 +219,7 @@ namespace AppInstaller::Manifest::YamlParser
 
                                 if (localesSet.find(packageLocale) != localesSet.end())
                                 {
-                                    errors.emplace_back(ValidationError::MessageFieldValueWithFile(
+                                    errors.emplace_back(ValidationError::MessageContextValueWithFile(
                                         ManifestError::DuplicateMultiFileManifestLocale, "PackageLocale", packageLocale, entry.FileName));
                                 }
                                 else
@@ -233,7 +233,7 @@ namespace AppInstaller::Manifest::YamlParser
                             auto packageLocale = entry.Root["PackageLocale"sv].as<std::string>();
                             if (localesSet.find(packageLocale) != localesSet.end())
                             {
-                                errors.emplace_back(ValidationError::MessageFieldValueWithFile(
+                                errors.emplace_back(ValidationError::MessageContextValueWithFile(
                                     ManifestError::DuplicateMultiFileManifestLocale, "PackageLocale", packageLocale, entry.FileName));
                             }
                             else
@@ -243,7 +243,7 @@ namespace AppInstaller::Manifest::YamlParser
                         }
                         break;
                         default:
-                            errors.emplace_back(ValidationError::MessageFieldValueWithFile(
+                            errors.emplace_back(ValidationError::MessageContextValueWithFile(
                                 ManifestError::UnsupportedMultiFileManifestType, "ManifestType", manifestTypeStr, entry.FileName));
                         }
                     }
@@ -266,7 +266,7 @@ namespace AppInstaller::Manifest::YamlParser
 
                     if (validateOption.FullValidation && manifestType == ManifestTypeEnum::Merged)
                     {
-                        errors.emplace_back(ValidationError::MessageFieldValueWithFile(ManifestError::FieldValueNotSupported, "ManifestType", manifestTypeStr, firstYamlManifest.FileName));
+                        errors.emplace_back(ValidationError::MessageContextValueWithFile(ManifestError::FieldValueNotSupported, "ManifestType", manifestTypeStr, firstYamlManifest.FileName));
                     }
 
                     if (!validateOption.SchemaValidationOnly && manifestType != ManifestTypeEnum::Merged && manifestType != ManifestTypeEnum::Singleton)
