@@ -183,17 +183,9 @@ namespace AppInstaller::CLI::Portable
         PortableIndex portableIndex = PortableIndex::Open(indexPath.u8string(), SQLiteStorageBase::OpenDisposition::ReadWrite);
         for (auto& item : extractedItems)
         {
-            const auto& itemPath = InstallLocation / item;
-            AICLI_LOG(CLI, Info, << "Adding extracted item to index: " << itemPath);
-            if (std::filesystem::exists(itemPath))
-            {
-                IPortableIndex::PortableFile portableFile = PortableIndex::CreatePortableFileFromPath(itemPath);
-                portableIndex.AddOrUpdatePortableFile(portableFile);
-            }
-            else
-            {
-                AICLI_LOG(CLI, Info, << "Extracted item does not exist: " << itemPath);
-            }
+            AICLI_LOG(CLI, Info, << "Adding extracted item to index: " << item);
+            IPortableIndex::PortableFile portableFile = PortableIndex::CreatePortableFileFromPath(item);
+            portableIndex.AddOrUpdatePortableFile(portableFile);
         }
 
         for (const auto& nestedInstallerFile : nestedInstallerFiles)
