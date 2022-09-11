@@ -7,13 +7,14 @@
 #include <urlmon.h>
 #include <appmodel.h>
 #include <winhttp.h>
+#include <Shlwapi.h>
 
 #pragma warning( push )
 #pragma warning ( disable : 6001 6340 6387 6388 28196 )
+#include <wil/filesystem.h>
 #include <wil/resource.h>
 #include <wil/result.h>
 #include <wil/result_macros.h>
-#include <wil/filesystem.h>
 #pragma warning( pop )
 
 #include <AppInstallerDateTime.h>
@@ -40,6 +41,7 @@
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.Management.Deployment.h>
 #include <winrt/Windows.Storage.h>
+#include <wrl/client.h>
 
 #include <algorithm>
 #include <chrono>

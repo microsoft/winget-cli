@@ -21,8 +21,7 @@ namespace AppInstaller::Repository::Correlation
         // Correlates the given manifest against the data previously collected with capture calls.
         std::optional<AppInstaller::Manifest::InstallationMetadataInfo> CorrelateForNewlyInstalled(
             const Manifest::Manifest& manifest,
-            const std::string& arpInstallLocation,
-            const std::string& arpUninstallString);
+            const std::string& arpInstallLocation);
 
     private:
         std::vector<AppInstaller::Utility::FolderFileWatcher> m_fileWatchers;
