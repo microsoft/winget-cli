@@ -1,4 +1,4 @@
-# Windows Package Manager Client 
+<h1>Windows Package Manager Client<img src=".github/images/Logo.png" align="left" width="50" height="39"></h1>
 
 This repository contains the source code for the Windows Package Manager Client.
 
