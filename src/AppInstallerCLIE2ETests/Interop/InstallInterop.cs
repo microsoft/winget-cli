@@ -283,7 +283,7 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Assert
             Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
-            TestCommon.VerifyPortablePackage(installDir, commandAlias, fileName, productCode, true);
+            TestCommon.VerifyPortablePackage(Path.Combine(installDir, Constants.PortableExePackageDirName), commandAlias, fileName, productCode, true);
         }
 
         [Test]
@@ -308,7 +308,7 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Assert
             Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
-            TestCommon.VerifyPortablePackage(existingDir, commandAlias, fileName, productCode, true);
+            TestCommon.VerifyPortablePackage(Path.Combine(existingDir, Constants.PortableExePackageDirName), commandAlias, fileName, productCode, true);
         }
 
         [Test]
