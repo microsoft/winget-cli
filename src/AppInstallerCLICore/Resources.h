@@ -369,6 +369,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ThirdPartSoftwareNotices);
         WINGET_DEFINE_RESOURCE_STRINGID(ToolDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ToolInfoArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ToolLogsArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ToolVersionArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(TooManyAdminSettingArgumentsError);
         WINGET_DEFINE_RESOURCE_STRINGID(TooManyArgError);

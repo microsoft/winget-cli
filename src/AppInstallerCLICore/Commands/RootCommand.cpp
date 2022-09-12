@@ -136,6 +136,7 @@ namespace AppInstaller::CLI
         {
             Argument{ "version", 'v', Execution::Args::Type::ListVersions, Resource::String::ToolVersionArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help },
             Argument{ "info", Argument::NoAlias, Execution::Args::Type::Info, Resource::String::ToolInfoArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help },
+            Argument{ "open-logs", Argument::NoAlias, "logs", Execution::Args::Type::Log, Resource::String::ToolLogsArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help},
         };
     }
 
@@ -204,6 +205,11 @@ namespace AppInstaller::CLI
         else if (context.Args.Contains(Execution::Args::Type::ListVersions))
         {
             context.Reporter.Info() << 'v' << Runtime::GetClientVersion() << std::endl;
+        }
+        else if (context.Args.Contains(Execution::Args::Type::Log))
+        {
+            auto filePathUTF16 = Runtime::GetPathTo(Runtime::PathName::DefaultLogLocation).wstring();
+            ShellExecute(NULL, NULL, filePathUTF16.c_str(), NULL, NULL, SW_SHOWNORMAL);
         }
         else
         {
