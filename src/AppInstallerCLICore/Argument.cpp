@@ -94,9 +94,11 @@ namespace AppInstaller::CLI
         case Args::Type::Preserve:
             return Argument{ "preserve", NoAlias, Args::Type::Preserve, Resource::String::PreserveArgumentDescription, ArgumentType::Flag, false };
         case Args::Type::Wait:
-            return Argument{ "wait", NoAlias, Args::Type::Wait, Resource::String::WaitArgumentDescription, ArgumentType::Flag, false };
+            return Argument{ "wait", NoAlias, Args::Type::Wait, Resource::String::WaitArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help, false };
         case Args::Type::ProductCode:
             return Argument{ "product-code", NoAlias, Args::Type::ProductCode, Resource::String::ProductCodeArgumentDescription, ArgumentType::Standard, false };
+        case Args::Type::OpenLogs:
+            return Argument{ "open-logs", NoAlias,"logs", Args::Type::OpenLogs, Resource::String::OpenLogsArgumentDescription, ArgumentType::Flag, false};
         default:
             THROW_HR(E_UNEXPECTED);
         }
@@ -106,6 +108,7 @@ namespace AppInstaller::CLI
     {
         args.push_back(ForType(Args::Type::Help));
         args.push_back(ForType(Args::Type::Wait));
+        args.push_back(ForType(Args::Type::OpenLogs));
         args.push_back(ForType(Args::Type::NoVT));
         args.push_back(ForType(Args::Type::RainbowStyle));
         args.push_back(ForType(Args::Type::RetroStyle));

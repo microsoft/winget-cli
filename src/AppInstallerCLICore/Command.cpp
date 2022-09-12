@@ -836,6 +836,13 @@ namespace AppInstaller::CLI
             ExecuteInternal(context);
         }
 
+        if (context.Args.Contains(Execution::Args::Type::OpenLogs))
+        {   
+            // TODO: If the context contains 'Execution::Args::Type::Log' open the path provided in the log
+            // The above was ommited initially as a security precaution to ensure that user input to '--log' wouldn't be passed directly to ShellExecute
+            ShellExecute(NULL, NULL, Runtime::GetPathTo(Runtime::PathName::DefaultLogLocation).wstring().c_str(), NULL, NULL, SW_SHOWNORMAL);
+        }
+
         if (context.Args.Contains(Execution::Args::Type::Wait))
         {
             context.Reporter.PromptForEnter();
@@ -885,6 +892,7 @@ namespace AppInstaller::CLI
     std::vector<Argument> Command::GetVisibleArguments() const
     {
         auto arguments = GetArguments();
+        Argument::GetCommon(arguments);
 
         arguments.erase(
             std::remove_if(

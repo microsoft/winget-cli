@@ -408,6 +408,9 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Disables VirtualTerminal display</value>
     <comment>{Locked="VirtualTerminal"}</comment>
   </data>
+  <data name="OpenLogsArgumentDescription" xml:space="preserve">
+    <value>Open the default logs location of the tool</value>
+  </data>
   <data name="Options" xml:space="preserve">
     <value>options</value>
     <comment>Options to change how a command works</comment>
@@ -646,9 +649,6 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="ToolInfoArgumentDescription" xml:space="preserve">
     <value>Display general info of the tool</value>
-  </data>
-  <data name="ToolLogsArgumentDescription" xml:space="preserve">
-    <value>Open the default logs location of the tool</value>
   </data>
   <data name="ToolVersionArgumentDescription" xml:space="preserve">
     <value>Display the version of the tool</value>
