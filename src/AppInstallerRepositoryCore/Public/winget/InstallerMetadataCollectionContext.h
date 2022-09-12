@@ -46,7 +46,10 @@ namespace AppInstaller::Repository::Metadata
             std::vector<Manifest::AppsAndFeaturesEntry> AppsAndFeaturesEntries;
 
             // 1.1
+            // If Scope value is empty, the value is not set before. If the value is Unknown, a conflicting value is encountered.
             std::string Scope;
+            // If std::nullopt, the value is not set before. If the value is empty(i.e. !HasData()), a conflicting value is encountered.
+            std::optional<Manifest::InstallationMetadataInfo> InstallationMetadata;
         };
 
         // Metadata from previous product revisions.

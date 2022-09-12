@@ -26,6 +26,14 @@ namespace AppInstaller::Repository::Metadata
                 {
                     SchemaVersion = L"1.1";
                     Scope = L"scope";
+                    InstallationMetadata = L"InstallationMetadata";
+                    DefaultInstallLocation = L"DefaultInstallLocation";
+                    InstallationMetadataFiles = L"Files";
+                    InstalledFileRelativeFilePath = L"RelativeFilePath";
+                    InstalledFileSha256 = L"FileSha256";
+                    InstalledFileType = L"FileType";
+                    InstalledFileInvocationParameter = L"InvocationParameter";
+                    InstalledFileDisplayName = L"DisplayName";
                 }
             }
 
@@ -41,6 +49,7 @@ namespace AppInstaller::Repository::Metadata
             utility::string_t AppsAndFeaturesEntries = L"AppsAndFeaturesEntries";
             utility::string_t Historical = L"historical";
 
+            // AppsAndFeaturesEntry fields.
             utility::string_t DisplayName = L"DisplayName";
             utility::string_t Publisher = L"Publisher";
             utility::string_t DisplayVersion = L"DisplayVersion";
@@ -57,6 +66,16 @@ namespace AppInstaller::Repository::Metadata
 
             // 1.1
             utility::string_t Scope;
+            utility::string_t InstallationMetadata;
+
+            // InstallationMetadata fields.
+            utility::string_t DefaultInstallLocation;
+            utility::string_t InstallationMetadataFiles;
+            utility::string_t InstalledFileRelativeFilePath;
+            utility::string_t InstalledFileSha256;
+            utility::string_t InstalledFileType;
+            utility::string_t InstalledFileInvocationParameter;
+            utility::string_t InstalledFileDisplayName;
         };
 
         struct OutputFields_1_0
@@ -347,8 +366,8 @@ namespace AppInstaller::Repository::Metadata
             ProductVersionMax = Version{ std::move(productVersionMaxString).value() };
         }
 
-        // The 1.0 version of metadata uses the 1.1 version of REST
-        JSON::ManifestJSONParser parser{ Version{ "1.1" } };
+        // The 1.0 version of metadata uses the 1.4 version of REST
+        JSON::ManifestJSONParser parser{ Version{ "1.4" } };
 
         std::string submissionIdentifierVerification;
 
@@ -379,6 +398,14 @@ namespace AppInstaller::Repository::Metadata
                 installerMetadata.AppsAndFeaturesEntries = parser.DeserializeAppsAndFeaturesEntries(appsAndFeatures.value());
 
                 installerMetadata.Scope = GetStringFromFutureSchema(item, fields.Scope).value_or(std::string{});
+                if (!fields.InstallationMetadata.empty())
+                {
+                    auto installationMetadata = AppInstaller::JSON::GetJsonValueFromNode(item, fields.InstallationMetadata);
+                    if (installationMetadata)
+                    {
+                        installerMetadata.InstallationMetadata = parser.DeserializeInstallationMetadata(installationMetadata->get());
+                    }
+                }
 
                 InstallerMetadataMap[installerHashString] = std::move(installerMetadata);
             }
@@ -424,6 +451,31 @@ namespace AppInstaller::Repository::Metadata
             itemValue[fields.InstallerHash] = AppInstaller::JSON::GetStringValue(item.first);
             itemValue[fields.SubmissionIdentifier] = AppInstaller::JSON::GetStringValue(item.second.SubmissionIdentifier);
             SetStringFromFutureSchema(itemValue, fields.Scope, item.second.Scope);
+            if (!fields.InstallationMetadata.empty() && item.second.InstallationMetadata.has_value())
+            {
+                web::json::value installationMetadta;
+
+                installationMetadta[fields.DefaultInstallLocation] = AppInstaller::JSON::GetStringValue(item.second.InstallationMetadata->DefaultInstallLocation);
+
+                web::json::value installedFilesArray = web::json::value::array();
+                size_t installedFileIndex = 0;
+                for (const auto& entry : item.second.InstallationMetadata->Files)
+                {
+                    web::json::value entryValue;
+                    AddFieldIfNotEmpty(entryValue, fields.InstalledFileRelativeFilePath, entry.RelativeFilePath);
+                    AddFieldIfNotEmpty(entryValue, fields.InstalledFileInvocationParameter, entry.InvocationParameter);
+                    AddFieldIfNotEmpty(entryValue, fields.InstalledFileDisplayName, entry.DisplayName);
+                    entryValue[fields.InstalledFileType] = AppInstaller::JSON::GetStringValue(Manifest::InstalledFileTypeToString(entry.FileType));
+                    if (!entry.FileSha256.empty())
+                    {
+                        entryValue[fields.InstalledFileSha256] = AppInstaller::JSON::GetStringValue(SHA256::ConvertToString(entry.FileSha256));
+                    }
+                    installedFilesArray[installedFileIndex++] = std::move(entryValue);
+                }
+                installationMetadta[fields.InstallationMetadataFiles] = std::move(installedFilesArray);
+
+                itemValue[fields.InstallationMetadata] = std::move(installationMetadta);
+            }
 
             web::json::value appsAndFeaturesArray = web::json::value::array();
             size_t appsAndFeaturesEntryIndex = 0;
