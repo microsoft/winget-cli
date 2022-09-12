@@ -643,7 +643,11 @@ namespace AppInstaller::CLI
             return;
         }
 
-        for (const auto& arg : GetArguments())
+        // Common arguments need to be validated with command arguments, as there may be common arguments blocked by Experimental Feature or Group Policy
+        auto allArgs = GetArguments();
+        Argument::GetCommon(allArgs);
+
+        for (const auto& arg : allArgs)
         {
             if (!Settings::GroupPolicies().IsEnabled(arg.GroupPolicy()) && execArgs.Contains(arg.ExecArgType()))
             {

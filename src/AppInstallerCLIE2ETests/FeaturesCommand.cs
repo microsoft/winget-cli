@@ -34,6 +34,7 @@ namespace AppInstallerCLIE2ETests
             ConfigureFeature("experimentalArg", true);
             ConfigureFeature("experimentalCmd", true);
             ConfigureFeature("directMSI", true);
+            ConfigureFeature("openLogsArgument", true);
             var result = TestCommon.RunAICLICommand("features", "");
             Assert.True(result.StdOut.Contains("Enabled"));
         }

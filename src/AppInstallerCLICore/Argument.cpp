@@ -98,7 +98,7 @@ namespace AppInstaller::CLI
         case Args::Type::ProductCode:
             return Argument{ "product-code", NoAlias, Args::Type::ProductCode, Resource::String::ProductCodeArgumentDescription, ArgumentType::Standard, false };
         case Args::Type::OpenLogs:
-            return Argument{ "open-logs", NoAlias,"logs", Args::Type::OpenLogs, Resource::String::OpenLogsArgumentDescription, ArgumentType::Flag, false};
+            return Argument{ "open-logs", NoAlias, "logs", Args::Type::OpenLogs, Resource::String::OpenLogsArgumentDescription, ArgumentType::Flag, ExperimentalFeature::Feature::OpenLogsArgument};
         default:
             THROW_HR(E_UNEXPECTED);
         }
