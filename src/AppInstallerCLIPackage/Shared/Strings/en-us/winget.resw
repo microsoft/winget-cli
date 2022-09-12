@@ -409,7 +409,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <comment>{Locked="VirtualTerminal"}</comment>
   </data>
   <data name="OpenLogsArgumentDescription" xml:space="preserve">
-    <value>Open the default logs location of the tool</value>
+    <value>Open the default logs location</value>
   </data>
   <data name="Options" xml:space="preserve">
     <value>options</value>
