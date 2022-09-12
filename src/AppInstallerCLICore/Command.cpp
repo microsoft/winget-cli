@@ -839,7 +839,7 @@ namespace AppInstaller::CLI
         if (context.Args.Contains(Execution::Args::Type::OpenLogs))
         {   
             // TODO: Consider possibly adding functionality that if the context contains 'Execution::Args::Type::Log' to open the path provided for the log
-            // The above was ommited initially as a security precaution to ensure that user input to '--log' wouldn't be passed directly to ShellExecute
+            // The above was omitted initially as a security precaution to ensure that user input to '--log' wouldn't be passed directly to ShellExecute
             ShellExecute(NULL, NULL, Runtime::GetPathTo(Runtime::PathName::DefaultLogLocation).wstring().c_str(), NULL, NULL, SW_SHOWNORMAL);
         }
 
