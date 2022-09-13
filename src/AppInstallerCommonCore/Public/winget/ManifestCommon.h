@@ -292,6 +292,8 @@ namespace AppInstaller::Manifest
 
         // Checks if there are any installation metadata available.
         bool HasData() const { return !DefaultInstallLocation.empty() || !Files.empty(); }
+
+        void Clear() { DefaultInstallLocation.clear(); Files.clear(); }
     };
 
     InstallerTypeEnum ConvertToInstallerTypeEnum(const std::string& in);

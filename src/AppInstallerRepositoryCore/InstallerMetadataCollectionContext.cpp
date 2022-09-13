@@ -208,6 +208,50 @@ namespace AppInstaller::Repository::Metadata
                 json[field] = AppInstaller::JSON::GetStringValue(value);
             }
         }
+
+        void MergeInstallationMetadata(Manifest::InstallationMetadataInfo& existing, const Manifest::InstallationMetadataInfo& incoming)
+        {
+            if (!Utility::CaseInsensitiveEquals(existing.DefaultInstallLocation, incoming.DefaultInstallLocation))
+            {
+                existing.Clear();
+                return;
+            }
+
+            auto existingItr = existing.Files.begin();
+            while (existingItr != existing.Files.end())
+            {
+                auto itr = std::find_if(incoming.Files.begin(), incoming.Files.end(), [&](const Manifest::InstalledFile& entry)
+                    {
+                        return Utility::CaseInsensitiveEquals(existingItr->RelativeFilePath, entry.RelativeFilePath);
+                    });
+
+                if (itr == incoming.Files.end())
+                {
+                    existingItr = existing.Files.erase(existingItr);
+                }
+                else
+                {
+                    if (existingItr->InvocationParameter != itr->InvocationParameter)
+                    {
+                        existingItr->InvocationParameter.clear();
+                    }
+                    if (!Utility::CaseInsensitiveEquals(existingItr->DisplayName, itr->DisplayName))
+                    {
+                        existingItr->DisplayName.clear();
+                    }
+                    if (!Utility::SHA256::AreEqual(existingItr->FileSha256, itr->FileSha256))
+                    {
+                        existingItr->FileSha256.clear();
+                    }
+                    if (existingItr->FileType != itr->FileType)
+                    {
+                        existingItr->FileType = Manifest::InstalledFileTypeEnum::Unknown;
+                    }
+
+                    ++existingItr;
+                }
+            }
+        }
     }
 
     void ProductMetadata::Clear()
@@ -536,11 +580,15 @@ namespace AppInstaller::Repository::Metadata
     }
 
     InstallerMetadataCollectionContext::InstallerMetadataCollectionContext() :
-        m_correlationData(std::make_unique<Correlation::ARPCorrelationData>())
+        m_correlationData(std::make_unique<Correlation::ARPCorrelationData>()),
+        m_installedFilesCorrelation(std::make_unique<Correlation::InstalledFilesCorrelation>())
     {}
 
-    InstallerMetadataCollectionContext::InstallerMetadataCollectionContext(std::unique_ptr<Correlation::ARPCorrelationData> correlationData, const std::wstring& json) :
-        m_correlationData(std::move(correlationData))
+    InstallerMetadataCollectionContext::InstallerMetadataCollectionContext(
+        std::unique_ptr<Correlation::ARPCorrelationData> correlationData,
+        std::unique_ptr<Correlation::InstalledFilesCorrelation> installedFilesCorrelation,
+        const std::wstring& json) :
+        m_correlationData(std::move(correlationData)), m_installedFilesCorrelation(std::move(installedFilesCorrelation))
     {
         auto threadGlobalsLifetime = InitializeLogging({});
         InitializePreinstallState(json);
@@ -697,6 +745,7 @@ namespace AppInstaller::Repository::Metadata
             {
                 // Collect post-install system state
                 m_correlationData->CapturePostInstallSnapshot();
+                m_installedFilesCorrelation->StopFileWatcher();
 
                 ComputeOutputData();
 
@@ -792,6 +841,7 @@ namespace AppInstaller::Repository::Metadata
 
             // Collect pre-install system state
             m_correlationData->CapturePreInstallSnapshot();
+            m_installedFilesCorrelation->StartFileWatcher();
         }
         catch (...)
         {
@@ -805,6 +855,7 @@ namespace AppInstaller::Repository::Metadata
         m_outputMetadata.CopyFrom(m_currentMetadata, m_submissionIdentifier);
 
         Correlation::ARPCorrelationSettings settings;
+        std::string arpInstallLocation;
         // As this code is typically run in a controlled environment, we can assume that a single value change is very likely the correct value.
         settings.AllowSingleChange = true;
 
@@ -812,7 +863,6 @@ namespace AppInstaller::Repository::Metadata
 
         if (correlationResult.Package)
         {
-            m_outputStatus = OutputStatus::Success;
             auto& package = correlationResult.Package;
 
             // Update min and max versions based on the version of the correlated package
@@ -831,6 +881,9 @@ namespace AppInstaller::Repository::Metadata
             // Create the AppsAndFeaturesEntry that we need to add
             Manifest::AppsAndFeaturesEntry newEntry;
             auto packageMetadata = package->GetMetadata();
+
+            // Arp installed location will be used in later installed files correlation.
+            arpInstallLocation = packageMetadata[PackageVersionMetadata::InstalledLocation];
 
             // TODO: Use some amount of normalization here to prevent things like versions being in the name from bloating the data
             newEntry.DisplayName = package->GetProperty(PackageVersionProperty::Name).get();
@@ -882,6 +935,41 @@ namespace AppInstaller::Repository::Metadata
                 // Existing entry for installer hash, add/update the entry
                 FilterAndAddToEntries(std::move(newEntry), itr->second.AppsAndFeaturesEntries);
             }
+        }
+
+        auto installedFilesResult = m_installedFilesCorrelation->CorrelateForNewlyInstalled(m_incomingManifest, arpInstallLocation);
+        if (installedFilesResult.has_value())
+        {
+            // Add or update the metadata for the installer hash
+            auto itr = m_outputMetadata.InstallerMetadataMap.find(m_installerHash);
+
+            if (itr == m_outputMetadata.InstallerMetadataMap.end())
+            {
+                // New entry needed
+                ProductMetadata::InstallerMetadata newMetadata;
+
+                newMetadata.SubmissionIdentifier = m_submissionIdentifier;
+
+                newMetadata.InstallationMetadata = std::move(installedFilesResult);
+
+                m_outputMetadata.InstallerMetadataMap[m_installerHash] = std::move(newMetadata);
+            }
+            else
+            {
+                if (!itr->second.InstallationMetadata.has_value())
+                {
+                    itr->second.InstallationMetadata = std::move(installedFilesResult);
+                }
+                else
+                {
+                    MergeInstallationMetadata(*(itr->second.InstallationMetadata), *installedFilesResult);
+                }
+            }
+        }
+
+        if (correlationResult.Package && installedFilesResult.has_value())
+        {
+            m_outputStatus = OutputStatus::Success;
         }
         else
         {
@@ -1158,6 +1246,15 @@ namespace AppInstaller::Repository::Metadata
                         {
                             itr->second.Scope = Manifest::ScopeToString(Manifest::ScopeEnum::Unknown);
                         }
+                    }
+
+                    if (!itr->second.InstallationMetadata.has_value())
+                    {
+                        itr->second.InstallationMetadata = installerMetadata.second.InstallationMetadata;
+                    }
+                    else if (installerMetadata.second.InstallationMetadata.has_value())
+                    {
+                        MergeInstallationMetadata(*(itr->second.InstallationMetadata), *(installerMetadata.second.InstallationMetadata));
                     }
 
                     // Merge into existing installer data

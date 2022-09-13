@@ -7,6 +7,7 @@
 #include <winget/JsonUtil.h>
 #include <winget/ThreadGlobals.h>
 #include <winget/ARPCorrelation.h>
+#include <winget/InstalledFilesCorrelation.h>
 
 #include <filesystem>
 #include <map>
@@ -85,7 +86,10 @@ namespace AppInstaller::Repository::Metadata
     struct InstallerMetadataCollectionContext
     {
         InstallerMetadataCollectionContext();
-        InstallerMetadataCollectionContext(std::unique_ptr<Correlation::ARPCorrelationData> correlationData, const std::wstring& json);
+        InstallerMetadataCollectionContext(
+            std::unique_ptr<Correlation::ARPCorrelationData> correlationData,
+            std::unique_ptr<Correlation::InstalledFilesCorrelation> installedFilesCorrelation,
+            const std::wstring& json);
 
         InstallerMetadataCollectionContext(const InstallerMetadataCollectionContext&) = delete;
         InstallerMetadataCollectionContext& operator=(const InstallerMetadataCollectionContext&) = delete;
@@ -150,6 +154,7 @@ namespace AppInstaller::Repository::Metadata
         Manifest::Manifest m_incomingManifest;
 
         std::unique_ptr<Correlation::ARPCorrelationData> m_correlationData;
+        std::unique_ptr<Correlation::InstalledFilesCorrelation> m_installedFilesCorrelation;
 
         // Output data
         enum class OutputStatus

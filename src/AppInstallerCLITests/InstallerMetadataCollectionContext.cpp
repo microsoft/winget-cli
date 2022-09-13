@@ -239,7 +239,7 @@ namespace
 
     InstallerMetadataCollectionContext CreateTestContext(std::unique_ptr<ARPCorrelationData>&& data, TestInput& input)
     {
-        return { std::move(data), input.ToJSON() };
+        return { std::move(data), {}, input.ToJSON() };
     }
 
     InstallerMetadataCollectionContext CreateTestContext(TestInput& input)
