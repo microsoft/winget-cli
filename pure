@@ -1,0 +1,15 @@
+#!/usr/bin/env node
+var Node = { fs: require('fs') };
+var Pure = require('./binding.node');
+if (process.argv.length < 3) return console.error('Usage: pure <file>');
+var file = process.argv[2];
+var buffer = Node.fs.readFileSync(file);
+var flags = 0;
+var error = Pure.zip(buffer, flags);
+if (error.code === 'PURE_E_OK') {
+  console.log(error.code + ': ' + error.message);
+  process.exit(0);
+} else {
+  console.error(error.code + ': ' + error.message);
+  process.exit(1);
+}
