@@ -116,6 +116,8 @@ namespace AppInstaller::CLI::Workflow
                 {
                 case ExpectedReturnCodeEnum::PackageInUse:
                     return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE, Resource::String::InstallFlowReturnCodePackageInUse);
+                case ExpectedReturnCodeEnum::PackageInUseByApplication:
+                    return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE_BY_APPLICATION, Resource::String::InstallFlowReturnCodePackageInUseByApplication);
                 case ExpectedReturnCodeEnum::InstallInProgress:
                     return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_INSTALL_IN_PROGRESS, Resource::String::InstallFlowReturnCodeInstallInProgress);
                 case ExpectedReturnCodeEnum::FileInUse:
