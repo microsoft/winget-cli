@@ -1037,8 +1037,8 @@ namespace AppInstaller::Repository::Metadata
 
         m_installerHash = GetRequiredString(packageDataValue.value(), installerHashFieldName);
 
-        // The 1.0 version of input uses the 1.1 version of REST
-        JSON::ManifestJSONParser parser{ Version{ "1.1" }};
+        // The 1.0 version of input uses the 1.4 version of REST
+        JSON::ManifestJSONParser parser{ Version{ "1.4" }};
 
         {
             auto defaultLocaleValue = AppInstaller::JSON::GetJsonValueFromNode(packageDataValue.value(), defaultLocaleFieldName);

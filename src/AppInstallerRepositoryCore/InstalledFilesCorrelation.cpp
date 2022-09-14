@@ -59,6 +59,7 @@ namespace AppInstaller::Repository::Correlation
 
                         if (SUCCEEDED(hr))
                         {
+                            buffer.erase(std::find(buffer.begin(), buffer.end(), L'\0'), buffer.end());
                             result.Path = buffer;
                             break;
                         }
@@ -86,6 +87,7 @@ namespace AppInstaller::Repository::Correlation
 
                         if (SUCCEEDED(hr))
                         {
+                            buffer.erase(std::find(buffer.begin(), buffer.end(), L'\0'), buffer.end());
                             result.Args = Utility::ConvertToUTF8(buffer);
                             break;
                         }
@@ -160,7 +162,7 @@ namespace AppInstaller::Repository::Correlation
 
         AppInstaller::Manifest::InstalledFileTypeEnum GetInstalledFileType(const ShellLinkFileInfo& linkInfo)
         {
-            Manifest::InstalledFileTypeEnum result = Manifest::InstalledFileTypeEnum::Launch;
+            Manifest::InstalledFileTypeEnum result = Manifest::InstalledFileTypeEnum::Other;
 
             if (Utility::CaseInsensitiveContainsSubstring(linkInfo.Path.string(), "uninstall") ||
                 Utility::CaseInsensitiveContainsSubstring(linkInfo.Path.string(), "unins000") ||
@@ -168,6 +170,10 @@ namespace AppInstaller::Repository::Correlation
                 Utility::CaseInsensitiveContainsSubstring(linkInfo.DisplayName, "uninstall"))
             {
                 result = Manifest::InstalledFileTypeEnum::Uninstall;
+            }
+            else if (Utility::CaseInsensitiveEquals(linkInfo.Path.extension().string(), ".exe"))
+            {
+                result = Manifest::InstalledFileTypeEnum::Launch;
             }
 
             return result;
@@ -221,7 +227,10 @@ namespace AppInstaller::Repository::Correlation
         for (auto& watcher : m_fileWatchers)
         {
             watcher.Stop();
-            m_files.insert(m_files.end(), watcher.Files().begin(), watcher.Files().end());
+            for (auto const& file : watcher.Files())
+            {
+                m_files.emplace_back(watcher.FolderPath() / file);
+            }
         }
     }
 

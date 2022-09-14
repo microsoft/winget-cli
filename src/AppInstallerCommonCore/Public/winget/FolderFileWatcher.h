@@ -25,6 +25,7 @@ namespace AppInstaller::Utility
         void Stop();
 
         const std::unordered_set<std::filesystem::path>& Files() { return m_files; }
+        const std::filesystem::path& FolderPath() { return m_path; }
 
     private:
         std::filesystem::path m_path;
