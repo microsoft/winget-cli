@@ -4,6 +4,7 @@
 #include "InstallCommand.h"
 #include "Workflows/CompletionFlow.h"
 #include "Workflows/InstallFlow.h"
+#include "Workflows/UpdateFlow.h"
 #include "Workflows/WorkflowBase.h"
 #include "Resources.h"
 
@@ -18,6 +19,7 @@ namespace AppInstaller::CLI
     {
         constexpr Utility::LocIndView s_ArgumentName_Scope = "scope"_liv;
         constexpr Utility::LocIndView s_ArgumentName_Architecture = "architecture"_liv;
+        constexpr Utility::LocIndView s_ArgumentName_DirectInstall = "direct-install"_liv;
     }
 
     std::vector<Argument> InstallCommand::GetArguments() const
@@ -46,6 +48,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::CustomHeader),
             Argument::ForType(Args::Type::AcceptSourceAgreements),
             Argument::ForType(Args::Type::Rename),
+            Argument{ s_ArgumentName_DirectInstall, Argument::NoAlias, Args::Type::DirectInstall, Resource::String::DirectInstallArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help },
         };
     }
 
@@ -143,12 +146,28 @@ namespace AppInstaller::CLI
     {
         context.SetFlags(ContextFlag::ShowSearchResultsOnPartialFailure);
 
-        context <<
-            Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
-            Workflow::GetManifest <<
-            Workflow::SelectInstaller <<
-            Workflow::EnsureApplicableInstaller <<
-            Workflow::CheckForUnsupportedArgs <<
-            Workflow::InstallSinglePackage;
+        if (context.Args.Contains(Execution::Args::Type::Manifest))
+        {
+            context <<
+                Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
+                Workflow::GetManifestFromArg <<
+                Workflow::SelectInstaller <<
+                Workflow::EnsureApplicableInstaller <<
+                Workflow::InstallSinglePackage;
+        }
+        else
+        {
+            context <<
+                Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
+                Workflow::OpenSource();
+
+            if (!context.Args.Contains(Execution::Args::Type::DirectInstall))
+            {
+                context << 
+                    Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed, false, Repository::CompositeSearchBehavior::AvailablePackages);
+            }
+
+            context << Workflow::InstallOrUpgradeSinglePackage(false);
+        }
     }
 }

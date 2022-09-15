@@ -1432,4 +1432,8 @@ Please specify one of them using the `--source` option to proceed.</value>
     <value>Disable interactive prompts</value>
     <comment>Description for a command line argument, shown next to it in the help</comment>
   </data>
+  <data name="DirectInstallArgumentDescription" xml:space="preserve">
+    <value>Perform a direct installation without checking package installed status</value>
+    <comment>Description for a command line argument, shown next to it in the help</comment>
+  </data>
 </root>
