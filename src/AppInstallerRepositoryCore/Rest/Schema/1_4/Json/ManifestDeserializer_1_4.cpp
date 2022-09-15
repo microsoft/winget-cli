@@ -55,6 +55,10 @@ namespace AppInstaller::Repository::Rest::Schema::V1_4::Json
         {
             return ExpectedReturnCodeEnum::Custom;
         }
+        else if (inStrLower == "packageinusebyapplication")
+        {
+            return ExpectedReturnCodeEnum::PackageInUseByApplication;
+        }
 
         return V1_1::Json::ManifestDeserializer::ConvertToExpectedReturnCodeEnum(inStrLower);
     }

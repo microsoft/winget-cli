@@ -521,7 +521,6 @@
     <ClCompile Include="Microsoft\SQLiteStorageBase.cpp">
       <Filter>Microsoft</Filter>
     </ClCompile>
-    </ClCompile>
     <ClCompile Include="Rest\Schema\1_4\Json\ManifestDeserializer_1_4.cpp">
       <Filter>Rest\Schema\1_4\Json</Filter>
     </ClCompile>
