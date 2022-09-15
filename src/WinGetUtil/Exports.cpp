@@ -13,6 +13,7 @@
 #include <winget/ThreadGlobals.h>
 #include <winget/InstallerMetadataCollectionContext.h>
 #include <PackageDependenciesValidation.h>
+#include <public/winget/PackageDependenciesValidationUtil.h>
 #include <ArpVersionValidation.h>
 
 using namespace AppInstaller::Utility;
@@ -356,7 +357,13 @@ extern "C"
             }
             catch (const ManifestException& e)
             {
-                WI_SetFlagIf(validationResult, WinGetValidateManifestResult::DependenciesValidationFailure, !e.IsWarningOnly());
+                if (!e.IsWarningOnly())
+                {
+                    validationResult |= WinGetValidateManifestResult::DependenciesValidationFailure;
+                }
+                
+                validationResult |= static_cast<WinGetValidateManifestResult>( AppInstaller::Manifest::GetDependenciesValidationResultFromException(e) );
+              
                 if (message)
                 {
                     validationMessage += e.GetManifestErrorMessage();

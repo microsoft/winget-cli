@@ -114,7 +114,7 @@ namespace Microsoft.WinGetUtil.Models.V1
         public string CopyrightUrl { get; set; }
 
         /// <summary>
-        /// Gets or sets the the package short description in default locale.
+        /// Gets or sets the package short description in default locale.
         /// </summary>
         public string ShortDescription { get; set; }
 

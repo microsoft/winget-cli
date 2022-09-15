@@ -77,6 +77,13 @@ extern "C"
         ArpVersionValidationFailure = 0x2,
         InstallerValidationFailure = 0x4,
 
+        // Dependencies validation result.
+        SingleManifestPackageHasDependencies = 0x10000,
+        MultiManifestPackageHasDependencies = 0x20000,
+        MissingManifestDependenciesNode = 0x40000,
+        NoSuitableMinVersionDependency = 0x80000,
+        FoundDependencyLoop = 0x100000,
+
         // Internal error meaning validation does not complete as desired.
         InternalError = 0x1000,
     };

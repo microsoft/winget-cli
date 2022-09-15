@@ -589,7 +589,7 @@ namespace Microsoft.Management.Deployment
         PackageInstallScope PackageInstallScope;
         /// Silent, Interactive, or Default
         PackageInstallMode PackageInstallMode;
-        /// Directs the logging to a log file. If provided, the installer must have have write access to the file 
+        /// Directs the logging to a log file. If provided, the installer must have write access to the file 
         String LogOutputPath;
         /// Continues the install even if the hash in the catalog does not match the linked installer.
         Boolean AllowHashMismatch;
@@ -645,7 +645,7 @@ namespace Microsoft.Management.Deployment
 
         /// Silent, Interactive, or Default
         PackageUninstallMode PackageUninstallMode;
-        /// Directs the logging to a log file. If provided, the installer must have have write access to the file 
+        /// Directs the logging to a log file. If provided, the installer must have write access to the file 
         String LogOutputPath;
 
         /// Used by a caller to correlate the install with a caller's data.

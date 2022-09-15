@@ -82,23 +82,23 @@ namespace AppInstaller::Repository
         }
     
         void ThrowOnManifestValidationFailed(
-            std::vector<std::pair<DependentManifestInfo, Utility::Version>> failedManifests, std::string error)
+            std::vector<std::pair<DependentManifestInfo, Utility::Version>> failedManifests, AppInstaller::StringResource::StringId error)
         {
             auto itrStart = failedManifests.begin();
-            std::string dependentPackages{ itrStart->first.Id + "." + itrStart->first.Version };
+            std::vector<Manifest::ValidationError> validationErrors;
+            validationErrors.emplace_back(error, "PackageIdentifier.PackageVersion", itrStart->first.Id + '.' + itrStart->first.Version );
 
             std::for_each(
                 itrStart + 1,
                 failedManifests.end(),
                 [&](std::pair<DependentManifestInfo, Utility::Version> current)
                 {
-                    dependentPackages.append(", " + current.first.Id + "." + current.first.Version);
+                    validationErrors.emplace_back(error, "PackageIdentifier.PackageVersion", current.first.Id + '.' + current.first.Version);
                 });
 
-            error.append("\n" + dependentPackages);
             THROW_EXCEPTION(
-                Manifest::ManifestException({ Manifest::ValidationError(error) },
-                    APPINSTALLER_CLI_ERROR_DEPENDENCIES_VALIDATION_FAILED));
+                Manifest::ManifestException(
+                    std::move(validationErrors), APPINSTALLER_CLI_ERROR_DEPENDENCIES_VALIDATION_FAILED));
         }
     };
 
@@ -124,18 +124,15 @@ namespace AppInstaller::Repository
                 auto packageLatest = GetPackageLatestVersion(index, node.Id);
                 if (!packageLatest.has_value())
                 {
-                    std::string error = ManifestError::MissingManifestDependenciesNode;
-                    error.append(" ").append(node.Id);
-                    dependenciesError.emplace_back(ValidationError(error));
+                    dependenciesError.emplace_back(
+                        ManifestError::MissingManifestDependenciesNode, "PackageIdentifier", node.Id);
                     foundErrors = true;
                     return depList;
                 }
 
                 if (node.MinVersion > packageLatest.value().second)
                 {
-                    std::string error = ManifestError::NoSuitableMinVersion;
-                    error.append(" ").append(node.Id);
-                    dependenciesError.emplace_back(ValidationError(error));
+                    dependenciesError.emplace_back(ManifestError::NoSuitableMinVersionDependency, "PackageIdentifier", node.Id);
                     foundErrors = true;
                     return depList;
                 }
@@ -165,8 +162,7 @@ namespace AppInstaller::Repository
 
         if (graph.HasLoop())
         {
-            std::string error = ManifestError::FoundLoop;
-            dependenciesError.emplace_back(error);
+            dependenciesError.emplace_back(ManifestError::FoundDependencyLoop);
             THROW_EXCEPTION(ManifestException(std::move(dependenciesError), APPINSTALLER_CLI_ERROR_DEPENDENCIES_VALIDATION_FAILED));
         }
 

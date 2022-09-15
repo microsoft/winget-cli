@@ -123,6 +123,7 @@ namespace AppInstaller::Manifest
     {
         Unknown,
         PackageInUse,
+        PackageInUseByApplication,
         InstallInProgress,
         FileInUse,
         MissingDependency,

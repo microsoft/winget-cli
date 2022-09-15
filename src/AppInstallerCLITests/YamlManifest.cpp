@@ -34,17 +34,17 @@ bool operator==(const MultiValue& a, const MultiValue& b)
 void ValidateError(
     const ValidationError& error,
     ValidationError::Level level,
-    std::string message,
+    AppInstaller::StringResource::StringId message,
     std::string field,
     std::string value)
 {
     REQUIRE(level == error.ErrorLevel);
     REQUIRE(message == error.Message);
-    REQUIRE(field == error.Field);
+    REQUIRE(field == error.Context);
     REQUIRE(value == error.Value);
 }
 
-void ValidateError(const ValidationError& error, ValidationError::Level level, std::string message)
+void ValidateError(const ValidationError& error, ValidationError::Level level, AppInstaller::StringResource::StringId message)
 {
     ValidateError(error, level, message, std::string(), std::string());
 }
@@ -252,12 +252,12 @@ TEST_CASE("ReadBadManifests", "[ManifestValidation]")
 {
     ManifestTestCase TestCases[] =
     {
-        { "Manifest-Bad-ArchInvalid.yaml", "Invalid field value. Field: Arch" },
+        { "Manifest-Bad-ArchInvalid.yaml", "Invalid field value. [Architecture]" },
         { "Manifest-Bad-ArchMissing.yaml", "Missing required property 'Arch'" },
-        { "Manifest-Bad-Channel-NotSupported.yaml", "Field is not supported. Field: Channel" },
-        { "Manifest-Bad-DifferentCase-camelCase.yaml", "All field names should be PascalCased. Field: installerType" },
-        { "Manifest-Bad-DifferentCase-lower.yaml", "All field names should be PascalCased. Field: installertype" },
-        { "Manifest-Bad-DifferentCase-UPPER.yaml", "All field names should be PascalCased. Field: INSTALLERTYPE" },
+        { "Manifest-Bad-Channel-NotSupported.yaml", "Field is not supported. [Channel]" },
+        { "Manifest-Bad-DifferentCase-camelCase.yaml", "All field names should be PascalCased. [installerType]" },
+        { "Manifest-Bad-DifferentCase-lower.yaml", "All field names should be PascalCased. [installertype]" },
+        { "Manifest-Bad-DifferentCase-UPPER.yaml", "All field names should be PascalCased. [INSTALLERTYPE]" },
         { "Manifest-Bad-DuplicateKey.yaml", "Duplicate field found in the manifest." },
         { "Manifest-Bad-DuplicateKey-DifferentCase.yaml", "Duplicate field found in the manifest." },
         { "Manifest-Bad-DuplicateKey-DifferentCase-lower.yaml", "Duplicate field found in the manifest." },
@@ -270,16 +270,16 @@ TEST_CASE("ReadBadManifests", "[ManifestValidation]")
         { "Manifest-Bad-InstallerTypeExe-NoSilentRoot.yaml", "Silent and SilentWithProgress switches are not specified for InstallerType exe.", true },
         { "Manifest-Bad-InstallerTypeExeRoot-NoSilent.yaml", "Silent and SilentWithProgress switches are not specified for InstallerType exe.", true },
         { "Manifest-Bad-InstallerTypeExeRoot-NoSilentRoot.yaml", "Silent and SilentWithProgress switches are not specified for InstallerType exe.", true },
-        { "Manifest-Bad-InstallerTypeInvalid.yaml", "Invalid field value. Field: InstallerType" },
-        { "Manifest-Bad-InstallerTypeMissing.yaml", "Invalid field value. Field: InstallerType" },
+        { "Manifest-Bad-InstallerTypeInvalid.yaml", "Invalid field value. [InstallerType]" },
+        { "Manifest-Bad-InstallerTypeMissing.yaml", "Invalid field value. [InstallerType]" },
         { "Manifest-Bad-InstallerTypePortable-InvalidAppsAndFeatures.yaml", "Only zero or one entry for Apps and Features may be specified for InstallerType portable." },
         { "Manifest-Bad-InstallerTypePortable-InvalidCommands.yaml", "Only zero or one value for Commands may be specified for InstallerType portable." },
         { "Manifest-Bad-InstallerTypePortable-InvalidScope.yaml", "Scope is not supported for InstallerType portable." },
         { "Manifest-Bad-InstallerTypeZip-InvalidRelativeFilePath.yaml", "Relative file path must not point to a location outside of archive directory" },
-        { "Manifest-Bad-InstallerTypeZip-MissingRelativeFilePath.yaml", "Required field missing. Field: RelativeFilePath" },
+        { "Manifest-Bad-InstallerTypeZip-MissingRelativeFilePath.yaml", "Required field missing. [RelativeFilePath]" },
         { "Manifest-Bad-InstallerTypeZip-MultipleNestedInstallers.yaml", "Only one entry for NestedInstallerFiles can be specified for non-portable InstallerTypes." },
-        { "Manifest-Bad-InstallerTypeZip-NoNestedInstallerFile.yaml", "Required field missing. Field: NestedInstallerFiles" },
-        { "Manifest-Bad-InstallerTypeZip-NoNestedInstallerType.yaml", "Required field missing. Field: NestedInstallerType" },
+        { "Manifest-Bad-InstallerTypeZip-NoNestedInstallerFile.yaml", "Required field missing. [NestedInstallerFiles]" },
+        { "Manifest-Bad-InstallerTypeZip-NoNestedInstallerType.yaml", "Required field missing. [NestedInstallerType]" },
         { "Manifest-Bad-InstallerUniqueness.yaml", "Duplicate installer entry found." },
         { "Manifest-Bad-InstallerUniqueness-DefaultScope.yaml", "Duplicate installer entry found." },
         { "Manifest-Bad-InstallerUniqueness-DefaultValues.yaml", "Duplicate installer entry found." },
@@ -288,25 +288,25 @@ TEST_CASE("ReadBadManifests", "[ManifestValidation]")
         { "Manifest-Bad-NameMissing.yaml", "Missing required property 'Name'" },
         { "Manifest-Bad-PublisherMissing.yaml", "Missing required property 'Publisher'" },
         { "Manifest-Bad-Sha256Invalid.yaml", "Failed to validate against schema associated with property name 'Sha256'" },
-        { "Manifest-Bad-Sha256Missing.yaml", "Required field missing. Field: InstallerSha256" },
-        { "Manifest-Bad-SwitchInvalid.yaml", "Unknown field. Field: NotASwitch", true },
-        { "Manifest-Bad-UnknownProperty.yaml", "Unknown field. Field: Fake", true },
+        { "Manifest-Bad-Sha256Missing.yaml", "Required field missing. [InstallerSha256]" },
+        { "Manifest-Bad-SwitchInvalid.yaml", "Unknown field. [NotASwitch]", true },
+        { "Manifest-Bad-UnknownProperty.yaml", "Unknown field. [Fake]", true },
         { "Manifest-Bad-UnsupportedVersion.yaml", "Unsupported ManifestVersion" },
-        { "Manifest-Bad-UrlInvalid.yaml", "Invalid field value. Field: InstallerUrl" },
-        { "Manifest-Bad-UrlMissing.yaml", "Required field missing. Field: InstallerUrl" },
+        { "Manifest-Bad-UrlInvalid.yaml", "Invalid field value. [InstallerUrl]" },
+        { "Manifest-Bad-UrlMissing.yaml", "Required field missing. [InstallerUrl]" },
         { "Manifest-Bad-VersionInvalid.yaml", "Failed to validate against schema associated with property name 'Version'" },
         { "Manifest-Bad-VersionMissing.yaml", "Missing required property 'Version'" },
         { "Manifest-Bad-InvalidManifestVersionValue.yaml", "Failed to validate against schema associated with property name 'ManifestVersion'" },
-        { "InstallFlowTest_MSStore.yaml", "Field value is not supported. Field: InstallerType Value: msstore" },
-        { "Manifest-Bad-PackageFamilyNameOnMSI.yaml", "The specified installer type does not support PackageFamilyName. Field: InstallerType Value: msi" },
-        { "Manifest-Bad-ProductCodeOnMSIX.yaml", "The specified installer type does not support ProductCode. Field: InstallerType Value: msix" },
-        { "Manifest-Bad-InvalidUpdateBehavior.yaml", "Invalid field value. Field: UpdateBehavior" },
+        { "InstallFlowTest_MSStore.yaml", "Field value is not supported. [InstallerType] Value: msstore" },
+        { "Manifest-Bad-PackageFamilyNameOnMSI.yaml", "The specified installer type does not support PackageFamilyName. [InstallerType] Value: msi" },
+        { "Manifest-Bad-ProductCodeOnMSIX.yaml", "The specified installer type does not support ProductCode. [InstallerType] Value: msix" },
+        { "Manifest-Bad-InvalidUpdateBehavior.yaml", "Invalid field value. [UpdateBehavior]" },
         { "Manifest-Bad-InvalidLocale.yaml", "The locale value is not a well formed bcp47 language tag." },
         { "Manifest-Bad-AppsAndFeaturesEntriesOnMSIX.yaml", "The specified installer type does not write to Apps and Features entry." },
         { "InstallFlowTest_LicenseAgreement.yaml", "Field usage requires verified publishers.", true },
         { "InstallFlowTest_LicenseAgreement.yaml", "Field usage requires verified publishers.", false, GetTestManifestValidateOption(false, true) },
-        { "Manifest-Bad-ApproximateVersionInPackageVersion.yaml", "Approximate version not allowed. Field: PackageVersion" },
-        { "Manifest-Bad-ApproximateVersionInArpVersion.yaml", "Approximate version not allowed. Field: DisplayVersion" },
+        { "Manifest-Bad-ApproximateVersionInPackageVersion.yaml", "Approximate version not allowed. [PackageVersion]" },
+        { "Manifest-Bad-ApproximateVersionInArpVersion.yaml", "Approximate version not allowed. [DisplayVersion]" },
     };
 
     for (auto const& testCase : TestCases)
@@ -841,31 +841,31 @@ TEST_CASE("MultifileManifestInputValidation", "[ManifestValidation]")
     {
         // Singleton and multi file manifest together
         std::vector<YamlManifestInfo> input = { v1SingletonManifest, v1VersionManifest, v1InstallerManifest, v1DefaultLocaleManifest };
-        REQUIRE_THROWS_MATCHES(YamlParser::ParseManifest(input), ManifestException, ManifestExceptionMatcher("The multi file manifest should not contain file with the particular ManifestType. Field: ManifestType Value: singleton"));
+        REQUIRE_THROWS_MATCHES(YamlParser::ParseManifest(input), ManifestException, ManifestExceptionMatcher("The multi file manifest should not contain file with the particular ManifestType. [ManifestType] Value: singleton"));
     }
 
     {
         // More than 1 version manifest
         std::vector<YamlManifestInfo> input = { v1VersionManifest, v1VersionManifest, v1InstallerManifest, v1DefaultLocaleManifest };
-        REQUIRE_THROWS_MATCHES(YamlParser::ParseManifest(input), ManifestException, ManifestExceptionMatcher("The multi file manifest should contain only one file with the particular ManifestType. Field: ManifestType Value: version"));
+        REQUIRE_THROWS_MATCHES(YamlParser::ParseManifest(input), ManifestException, ManifestExceptionMatcher("The multi file manifest should contain only one file with the particular ManifestType. [ManifestType] Value: version"));
     }
 
     {
         // More than 1 installer manifest
         std::vector<YamlManifestInfo> input = { v1VersionManifest, v1InstallerManifest, v1InstallerManifest, v1DefaultLocaleManifest };
-        REQUIRE_THROWS_MATCHES(YamlParser::ParseManifest(input), ManifestException, ManifestExceptionMatcher("The multi file manifest should contain only one file with the particular ManifestType. Field: ManifestType Value: installer"));
+        REQUIRE_THROWS_MATCHES(YamlParser::ParseManifest(input), ManifestException, ManifestExceptionMatcher("The multi file manifest should contain only one file with the particular ManifestType. [ManifestType] Value: installer"));
     }
 
     {
         // More than 1 default locale manifest
         std::vector<YamlManifestInfo> input = { v1VersionManifest, v1InstallerManifest, v1DefaultLocaleManifest, v1DefaultLocaleManifest };
-        REQUIRE_THROWS_MATCHES(YamlParser::ParseManifest(input), ManifestException, ManifestExceptionMatcher("The multi file manifest should contain only one file with the particular ManifestType. Field: ManifestType Value: defaultLocale"));
+        REQUIRE_THROWS_MATCHES(YamlParser::ParseManifest(input), ManifestException, ManifestExceptionMatcher("The multi file manifest should contain only one file with the particular ManifestType. [ManifestType] Value: defaultLocale"));
     }
 
     {
         // Duplicate locales
         std::vector<YamlManifestInfo> input = { v1VersionManifest, v1InstallerManifest, v1DefaultLocaleManifest, v1LocaleManifest, v1LocaleManifest };
-        REQUIRE_THROWS_MATCHES(YamlParser::ParseManifest(input), ManifestException, ManifestExceptionMatcher("The multi file manifest contains duplicate PackageLocale. Field: PackageLocale Value: en-GB"));
+        REQUIRE_THROWS_MATCHES(YamlParser::ParseManifest(input), ManifestException, ManifestExceptionMatcher("The multi file manifest contains duplicate PackageLocale. [PackageLocale] Value: en-GB"));
     }
 
     {
@@ -881,7 +881,7 @@ TEST_CASE("MultifileManifestInputValidation", "[ManifestValidation]")
         auto installerManifestCopy = v1InstallerManifest;
         installerManifestCopy.Root["PackageIdentifier"].SetScalar("Another.Identifier");
         std::vector<YamlManifestInfo> input = { v1VersionManifest, installerManifestCopy, v1DefaultLocaleManifest, v1LocaleManifest };
-        REQUIRE_THROWS_MATCHES(YamlParser::ParseManifest(input), ManifestException, ManifestExceptionMatcher("The multi file manifest has inconsistent field values. Field: PackageIdentifier Value: Another.Identifier"));
+        REQUIRE_THROWS_MATCHES(YamlParser::ParseManifest(input), ManifestException, ManifestExceptionMatcher("The multi file manifest has inconsistent field values. [PackageIdentifier] Value: Another.Identifier"));
     }
 
     {
@@ -889,7 +889,7 @@ TEST_CASE("MultifileManifestInputValidation", "[ManifestValidation]")
         auto installerManifestCopy = v1InstallerManifest;
         installerManifestCopy.Root["PackageVersion"].SetScalar("Another.Version");
         std::vector<YamlManifestInfo> input = { v1VersionManifest, installerManifestCopy, v1DefaultLocaleManifest, v1LocaleManifest };
-        REQUIRE_THROWS_MATCHES(YamlParser::ParseManifest(input), ManifestException, ManifestExceptionMatcher("The multi file manifest has inconsistent field values. Field: PackageVersion Value: Another.Version"));
+        REQUIRE_THROWS_MATCHES(YamlParser::ParseManifest(input), ManifestException, ManifestExceptionMatcher("The multi file manifest has inconsistent field values. [PackageVersion] Value: Another.Version"));
     }
 
     {

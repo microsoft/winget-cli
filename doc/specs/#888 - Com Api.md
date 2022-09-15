@@ -6,7 +6,7 @@ make use of that functionality. The API will be preferred by callers that want t
 and completion events, and UWP packages that do not have permission to launch command line processes.
 The goal for this api is to provide the full set of install functionality possible using the Windows
 Package Manager command line. The command line is documented at
-https://docs.microsoft.com/en-us/windows/package-manager/winget/
+https://docs.microsoft.com/windows/package-manager/winget/
 
 # 2. Description
 
@@ -323,13 +323,13 @@ Notes have been added inline throughout the api details.
 For this api there are multiple similar apis that are
 relevant with regard to naming and consistency. There is the Windows Package Manager command line which uses
 "source" to describe the various repositories that can host packages and "search" to describe looking up an app.
-https://docs.microsoft.com/en-us/windows/package-manager/winget/
+https://docs.microsoft.com/windows/package-manager/winget/
 There is the Windows::ApplicationModel::PackageCatalog which exists as a Windows API for installing packages
 and monitoring their installation progress.
-https://docs.microsoft.com/en-us/uwp/api/windows.applicationmodel.packagecatalog?view=winrt-19041
+https://docs.microsoft.com/uwp/api/windows.applicationmodel.packagecatalog?view=winrt-19041
 And there is Windows.Management.Deployment.PackageManager which allows packages with the packageManagement
 capability to install msix apps and uses "Find" to describe looking up an app
-https://docs.microsoft.com/en-us/uwp/api/windows.management.deployment.packagemanager?view=winrt-19041
+https://docs.microsoft.com/uwp/api/windows.management.deployment.packagemanager?view=winrt-19041
 
 This API has aligned with those Windows APIs in using \*Catalog and Find.
 
@@ -798,7 +798,7 @@ namespace Microsoft.Management.Deployment
         PackageInstallScope PackageInstallScope;
         /// Silent, Interactive, or Default
         PackageInstallMode PackageInstallMode;
-        /// Directs the logging to a log file. If provided, the installer must have have write access to the file 
+        /// Directs the logging to a log file. If provided, the installer must have write access to the file 
         String LogOutputPath;
         /// Continues the install even if the hash in the catalog does not match the linked installer.
         Boolean AllowHashMismatch;
