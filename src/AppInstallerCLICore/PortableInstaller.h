@@ -2,13 +2,13 @@
 // Licensed under the MIT License.
 #pragma once
 #include "winget/PortableARPEntry.h"
+#include "winget/PortableFileEntry.h"
 #include <filesystem>
 
 using namespace AppInstaller::Registry::Portable;
 
 namespace AppInstaller::CLI::Portable
 {
-
     std::filesystem::path GetPortableLinksLocation(Manifest::ScopeEnum scope);
 
     std::filesystem::path GetPortableInstallRoot(Manifest::ScopeEnum scope, Utility::Architecture arch);
@@ -31,28 +31,34 @@ namespace AppInstaller::CLI::Portable
         std::string WinGetPackageIdentifier;
         std::string WinGetSourceIdentifier;
         bool IsUpdate = false;
+        bool Purge = false;
+        bool InstallDirectoryCreated = false;
         // If we fail to create a symlink, add install directory to PATH variable
         bool InstallDirectoryAddedToPath = false;
+        bool RecordToIndex = false;
+
+        std::string Rename;
+        std::string CommandAlias;
+
+        std::filesystem::path installerPathDirectory;
+
+        void InstallFile(AppInstaller::Portable::PortableFileEntry& desiredState);
+
+        void RemoveFile(AppInstaller::Portable::PortableFileEntry& desiredState);
 
         PortableInstaller(Manifest::ScopeEnum scope, Utility::Architecture arch, const std::string& productCode);
 
-        HRESULT InstallSingle(const std::filesystem::path& installerPath);
+        std::vector<AppInstaller::Portable::PortableFileEntry> GetDesiredState(std::vector<std::filesystem::path> files);
 
-        HRESULT InstallMultiple(
-            const std::vector<Manifest::NestedInstallerFile>& nestedInstallerFiles,
-            const std::vector<std::filesystem::path>& extractedItems);
+        std::vector<AppInstaller::Portable::PortableFileEntry> GetExpectedState();
 
-        HRESULT Uninstall(bool purge = false)
-        {
-            if (std::filesystem::exists(GetPortableIndexPath()))
-            {
-                return UninstallFromIndex(purge);
-            }
-            else
-            {
-                return UninstallSingle(purge);
-            }
-        }
+        void ResolutionEngine(std::vector<AppInstaller::Portable::PortableFileEntry>& desiredState, std::vector<AppInstaller::Portable::PortableFileEntry>& expectedState);
+
+        bool VerifyResolution(std::vector<AppInstaller::Portable::PortableFileEntry>& expectedState);
+
+        HRESULT Install(const std::filesystem::path& installerPath);
+
+        HRESULT Uninstall();
 
         template<typename T>
         void CommitToARPEntry(PortableValueName valueName, T value)
@@ -66,8 +72,6 @@ namespace AppInstaller::CLI::Portable
         }
 
         std::filesystem::path GetPortableIndexPath();
-
-        bool VerifyPortableFilesForUninstall();
 
         Manifest::ScopeEnum GetScope() { return m_portableARPEntry.GetScope(); };
 
@@ -96,9 +100,6 @@ namespace AppInstaller::CLI::Portable
 
         void InitializeRegistryEntry();
         void FinalizeRegistryEntry();
-
-        HRESULT UninstallSingle(bool purge = false);
-        HRESULT UninstallFromIndex(bool purge = false);
 
         void MovePortableExe(const std::filesystem::path& installerPath);
         bool CreatePortableSymlink(const std::filesystem::path& targetPath, const std::filesystem::path& symlinkPath);

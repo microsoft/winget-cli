@@ -8,7 +8,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
 {
     namespace
     {
-        std::optional<SQLite::rowid_t> GetExistingPortableFileId(const SQLite::Connection& connection, const IPortableIndex::PortableFile& file)
+        std::optional<SQLite::rowid_t> GetExistingPortableFileId(const SQLite::Connection& connection, const Portable::PortableFileEntry& file)
         {
             auto result = PortableTable::SelectByFilePath(connection, file.GetFilePath());
 
@@ -33,7 +33,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
         savepoint.Commit();
     }
 
-    SQLite::rowid_t PortableIndexInterface::AddPortableFile(SQLite::Connection& connection, const PortableFile& file)
+    SQLite::rowid_t PortableIndexInterface::AddPortableFile(SQLite::Connection& connection, const Portable::PortableFileEntry& file)
     {
         auto portableEntryResult = GetExistingPortableFileId(connection, file);
 
@@ -46,7 +46,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
         return portableFileId;
     }
 
-    SQLite::rowid_t PortableIndexInterface::RemovePortableFile(SQLite::Connection& connection, const PortableFile& file)
+    SQLite::rowid_t PortableIndexInterface::RemovePortableFile(SQLite::Connection& connection, const Portable::PortableFileEntry& file)
     {
         auto portableEntryResult = GetExistingPortableFileId(connection, file);
 
@@ -60,7 +60,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
         return portableEntryResult.value();
     }
 
-    std::pair<bool, SQLite::rowid_t> PortableIndexInterface::UpdatePortableFile(SQLite::Connection& connection, const PortableFile& file)
+    std::pair<bool, SQLite::rowid_t> PortableIndexInterface::UpdatePortableFile(SQLite::Connection& connection, const Portable::PortableFileEntry& file)
     {
         auto portableEntryResult = GetExistingPortableFileId(connection, file);
 
@@ -74,7 +74,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
         return { status, portableEntryResult.value() };
     }
 
-    bool PortableIndexInterface::Exists(SQLite::Connection& connection, const PortableFile& file)
+    bool PortableIndexInterface::Exists(SQLite::Connection& connection, const Portable::PortableFileEntry& file)
     {
         return GetExistingPortableFileId(connection, file).has_value();
     }
@@ -84,7 +84,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
         return PortableTable::IsEmpty(connection);
     }
 
-    std::vector<IPortableIndex::PortableFile> PortableIndexInterface::GetAllPortableFiles(SQLite::Connection& connection)
+    std::vector<Portable::PortableFileEntry> PortableIndexInterface::GetAllPortableFiles(SQLite::Connection& connection)
     {
         return PortableTable::GetAllPortableFiles(connection);
     }

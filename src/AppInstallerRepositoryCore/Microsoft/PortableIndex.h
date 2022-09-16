@@ -5,7 +5,10 @@
 #include "Microsoft/Schema/IPortableIndex.h"
 #include "Microsoft/Schema/Portable_1_0/PortableTable.h"
 #include "Microsoft/SQLiteStorageBase.h"
+#include "winget/PortableFileEntry.h"
 #include <winget/ManagedFile.h>
+
+using namespace AppInstaller::Portable;
 
 namespace AppInstaller::Repository::Microsoft
 {
@@ -29,19 +32,19 @@ namespace AppInstaller::Repository::Microsoft
             return { filePath, disposition, std::move(indexFile) };
         }
 
-        static Schema::IPortableIndex::PortableFile CreatePortableFileFromPath(const std::filesystem::path& path);
+        static Portable::PortableFileEntry CreatePortableFileFromPath(const std::filesystem::path& path);
 
-        IdType AddPortableFile(const Schema::IPortableIndex::PortableFile& file);
+        IdType AddPortableFile(const Portable::PortableFileEntry& file);
 
-        void RemovePortableFile(const Schema::IPortableIndex::PortableFile& file);
+        void RemovePortableFile(const Portable::PortableFileEntry& file);
 
-        bool UpdatePortableFile(const Schema::IPortableIndex::PortableFile& file);
+        bool UpdatePortableFile(const Portable::PortableFileEntry& file);
 
-        void AddOrUpdatePortableFile(const Schema::IPortableIndex::PortableFile& file);
+        void AddOrUpdatePortableFile(const Portable::PortableFileEntry& file);
 
-        std::vector<Schema::IPortableIndex::PortableFile> GetAllPortableFiles();
+        std::vector<Portable::PortableFileEntry> GetAllPortableFiles();
 
-        bool Exists(const Schema::IPortableIndex::PortableFile& file);
+        bool Exists(const Portable::PortableFileEntry& file);
 
         bool IsEmpty();
 

@@ -329,6 +329,7 @@
     <ClInclude Include="Public\winget\Registry.h" />
     <ClInclude Include="Public\winget\PathVariable.h" />
     <ClInclude Include="Public\winget\PortableARPEntry.h" />
+    <ClInclude Include="Public\winget\PortableFileEntry.h" />
     <ClInclude Include="Public\winget\ManifestSchemaValidation.h" />
     <ClInclude Include="Public\winget\Resources.h" />
     <ClInclude Include="Public\winget\Settings.h" />

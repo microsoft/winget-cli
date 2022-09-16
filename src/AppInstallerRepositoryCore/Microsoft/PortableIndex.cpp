@@ -27,30 +27,7 @@ namespace AppInstaller::Repository::Microsoft
         return result;
     }
 
-    Schema::IPortableIndex::PortableFile PortableIndex::CreatePortableFileFromPath(const std::filesystem::path& path)
-    {
-        Schema::IPortableIndex::PortableFile portableFile;
-        portableFile.SetFilePath(path);
-
-        if (std::filesystem::is_directory(path))
-        {
-            portableFile.FileType = Schema::IPortableIndex::PortableFileType::Directory;
-        }
-        else if (Filesystem::SymlinkExists(path))
-        {
-            portableFile.FileType = Schema::IPortableIndex::PortableFileType::Symlink;
-            portableFile.SymlinkTarget = std::filesystem::read_symlink(path).u8string();
-        }
-        else
-        {
-            portableFile.FileType = Schema::IPortableIndex::PortableFileType::File;
-            portableFile.SHA256 = Utility::SHA256::ConvertToString(Utility::SHA256::ComputeHashFromFile(path));
-        }
-
-        return portableFile;
-    }
-
-    PortableIndex::IdType PortableIndex::AddPortableFile(const Schema::IPortableIndex::PortableFile& file)
+    PortableIndex::IdType PortableIndex::AddPortableFile(const Portable::PortableFileEntry& file)
     {
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
         AICLI_LOG(Repo, Verbose, << "Adding portable file for [" << file.GetFilePath() << "]");
@@ -66,7 +43,7 @@ namespace AppInstaller::Repository::Microsoft
         return result;
     }
 
-    void PortableIndex::RemovePortableFile(const Schema::IPortableIndex::PortableFile& file)
+    void PortableIndex::RemovePortableFile(const Portable::PortableFileEntry& file)
     {
         AICLI_LOG(Repo, Verbose, << "Removing portable file [" << file.GetFilePath() << "]");
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
@@ -80,7 +57,7 @@ namespace AppInstaller::Repository::Microsoft
         savepoint.Commit();
     }
 
-    bool PortableIndex::UpdatePortableFile(const Schema::IPortableIndex::PortableFile& file)
+    bool PortableIndex::UpdatePortableFile(const Portable::PortableFileEntry& file)
     {
         AICLI_LOG(Repo, Verbose, << "Updating portable file [" << file.GetFilePath() << "]");
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
@@ -98,7 +75,7 @@ namespace AppInstaller::Repository::Microsoft
         return result;
     }
 
-    bool PortableIndex::Exists(const Schema::IPortableIndex::PortableFile& file)
+    bool PortableIndex::Exists(const Portable::PortableFileEntry& file)
     {
         AICLI_LOG(Repo, Verbose, << "Checking if portable file exists [" << file.GetFilePath() << "]");
         return m_interface->Exists(m_dbconn, file);
@@ -109,7 +86,7 @@ namespace AppInstaller::Repository::Microsoft
         return m_interface->IsEmpty(m_dbconn);
     }
 
-    void PortableIndex::AddOrUpdatePortableFile(const Schema::IPortableIndex::PortableFile& file)
+    void PortableIndex::AddOrUpdatePortableFile(const Portable::PortableFileEntry& file)
     {
         if (Exists(file))
         {
@@ -121,7 +98,7 @@ namespace AppInstaller::Repository::Microsoft
         }
     }
 
-    std::vector<Schema::IPortableIndex::PortableFile> PortableIndex::GetAllPortableFiles()
+    std::vector<Portable::PortableFileEntry> PortableIndex::GetAllPortableFiles()
     {
         return m_interface->GetAllPortableFiles(m_dbconn);
     }

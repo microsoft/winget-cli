@@ -10,38 +10,26 @@ using namespace AppInstaller::Manifest;
 
 namespace AppInstaller::CLI::Workflow
 {
+    namespace
+    {
+        constexpr std::wstring_view s_Extracted = L"extracted";
+    }
+
     void ExtractFilesFromArchive(Execution::Context& context)
     {
         const auto& installerPath = context.Get<Execution::Data::InstallerPath>();
-        std::filesystem::path destinationFolder;
-        std::vector<std::filesystem::path> extractedItems;
-        bool isDirectoryCreated = false;
-
-        if (context.Get<Execution::Data::Installer>()->NestedInstallerType == InstallerTypeEnum::Portable)
-        {
-            destinationFolder = GetPortableTargetDirectory(context);
-            isDirectoryCreated = std::filesystem::create_directory(destinationFolder);
-        }
-        else
-        {
-            destinationFolder = installerPath.parent_path();
-        }
+        std::filesystem::path destinationFolder = installerPath.parent_path() / s_Extracted;
+        std::filesystem::create_directory(destinationFolder);
 
         AICLI_LOG(CLI, Info, << "Extracting archive to: " << destinationFolder);
-        HRESULT result = AppInstaller::Archive::TryExtractArchive(installerPath, destinationFolder, extractedItems);
+        HRESULT result = AppInstaller::Archive::TryExtractArchive(installerPath, destinationFolder);
 
         if (SUCCEEDED(result))
         {
             AICLI_LOG(CLI, Info, << "Successfully extracted archive");
-            context.Add<Execution::Data::ExtractedItems>(extractedItems);
         }
         else
         {
-            if (isDirectoryCreated)
-            {
-                std::filesystem::remove(destinationFolder);
-            }
-
             AICLI_LOG(CLI, Info, << "Failed to extract archive with code " << result);
             context.Reporter.Error() << Resource::String::ExtractArchiveFailed << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_EXTRACT_ARCHIVE_FAILED);
@@ -58,21 +46,13 @@ namespace AppInstaller::CLI::Workflow
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST);
         }
 
-        std::filesystem::path destinationFolder;
-        if (IsPortableType(installer.NestedInstallerType))
-        {
-            destinationFolder = GetPortableTargetDirectory(context);
-        }
-        else
-        {
-            destinationFolder = context.Get<Execution::Data::InstallerPath>().parent_path();
-        }
+        std::filesystem::path targetInstallerPath = context.Get<Execution::Data::InstallerPath>().parent_path() / s_Extracted;
 
         for (const auto& nestedInstallerFile : installer.NestedInstallerFiles)
         {
-            const std::filesystem::path& nestedInstallerPath = destinationFolder / ConvertToUTF16(nestedInstallerFile.RelativeFilePath);
+            const std::filesystem::path& nestedInstallerPath = targetInstallerPath / ConvertToUTF16(nestedInstallerFile.RelativeFilePath);
             
-            if (Filesystem::PathEscapesBaseDirectory(nestedInstallerPath, destinationFolder))
+            if (Filesystem::PathEscapesBaseDirectory(nestedInstallerPath, targetInstallerPath))
             {
                 AICLI_LOG(CLI, Error, << "Path points to a location outside of the install directory: " << nestedInstallerPath);
                 context.Reporter.Error() << Resource::String::InvalidPathToNestedInstaller << std::endl;
@@ -88,9 +68,11 @@ namespace AppInstaller::CLI::Workflow
             {
                 // Update the installerPath to the extracted non-portable installer. 
                 AICLI_LOG(CLI, Info, << "Setting installerPath to: " << nestedInstallerPath);
-                context.Add<Execution::Data::InstallerPath>(nestedInstallerPath);
+                targetInstallerPath = nestedInstallerPath;
             }
         }
+
+        context.Add<Execution::Data::InstallerPath>(targetInstallerPath);
     }
 
     void EnsureValidNestedInstallerMetadataForArchiveInstall(Execution::Context& context)

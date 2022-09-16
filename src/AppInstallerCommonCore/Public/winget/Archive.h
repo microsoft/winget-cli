@@ -5,5 +5,5 @@
 
 namespace AppInstaller::Archive
 {
-    HRESULT TryExtractArchive(const std::filesystem::path& archivePath, const std::filesystem::path& destPath, std::vector<std::filesystem::path>& extractedItems);
+    HRESULT TryExtractArchive(const std::filesystem::path& archivePath, const std::filesystem::path& destPath);
 }
