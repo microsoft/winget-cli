@@ -16,6 +16,7 @@ namespace AppInstaller::CLI::Portable
     // Object representation of the metadata and functionality required for installing a Portable package. 
     struct PortableInstaller
     {
+        // These values are initialized based on the values from the entry in ARP
         std::string DisplayName;
         std::string DisplayVersion;
         std::string HelpLink;
@@ -30,17 +31,15 @@ namespace AppInstaller::CLI::Portable
         std::string WinGetInstallerType;
         std::string WinGetPackageIdentifier;
         std::string WinGetSourceIdentifier;
-        bool IsUpdate = false;
-        bool Purge = false;
         bool InstallDirectoryCreated = false;
         // If we fail to create a symlink, add install directory to PATH variable
         bool InstallDirectoryAddedToPath = false;
+
+        bool IsUpdate = false;
+        bool Purge = false;
         bool RecordToIndex = false;
 
-        std::string Rename;
-        std::string CommandAlias;
-
-        std::filesystem::path installerPathDirectory;
+        std::filesystem::path TargetInstallDirectory;
 
         void InstallFile(AppInstaller::Portable::PortableFileEntry& desiredState);
 
@@ -48,15 +47,20 @@ namespace AppInstaller::CLI::Portable
 
         PortableInstaller(Manifest::ScopeEnum scope, Utility::Architecture arch, const std::string& productCode);
 
-        std::vector<AppInstaller::Portable::PortableFileEntry> GetDesiredState(std::vector<std::filesystem::path> files);
+        // Ensures no modifications have been made that conflict with the expected state.
+        bool VerifyExpectedState();
 
-        std::vector<AppInstaller::Portable::PortableFileEntry> GetExpectedState();
+        void SetDesiredState(std::vector<AppInstaller::Portable::PortableFileEntry>& desiredEntries)
+        {
+            m_desiredEntries = desiredEntries;
+        };
 
-        void ResolutionEngine(std::vector<AppInstaller::Portable::PortableFileEntry>& desiredState, std::vector<AppInstaller::Portable::PortableFileEntry>& expectedState);
+        void SetExpectedState(std::vector<AppInstaller::Portable::PortableFileEntry>& expectedEntries)
+        {
+            m_expectedEntries = expectedEntries;
+        };
 
-        bool VerifyResolution(std::vector<AppInstaller::Portable::PortableFileEntry>& expectedState);
-
-        HRESULT Install(const std::filesystem::path& installerPath);
+        HRESULT Install();
 
         HRESULT Uninstall();
 
@@ -92,6 +96,8 @@ namespace AppInstaller::CLI::Portable
 
     private:
         PortableARPEntry m_portableARPEntry;
+        std::vector<AppInstaller::Portable::PortableFileEntry> m_desiredEntries;
+        std::vector<AppInstaller::Portable::PortableFileEntry> m_expectedEntries;
         std::stringstream m_stream;
 
         std::string GetStringValue(PortableValueName valueName);
@@ -100,6 +106,8 @@ namespace AppInstaller::CLI::Portable
 
         void InitializeRegistryEntry();
         void FinalizeRegistryEntry();
+
+        void ApplyDesiredState();
 
         void MovePortableExe(const std::filesystem::path& installerPath);
         bool CreatePortableSymlink(const std::filesystem::path& targetPath, const std::filesystem::path& symlinkPath);

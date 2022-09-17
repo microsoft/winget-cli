@@ -24,6 +24,7 @@ namespace AppInstaller::Portable
         std::string SHA256;
         std::string SymlinkTarget;
         std::filesystem::path CurrentPath;
+        bool IsInstallDirectory = false;
 
         void SetFilePath(const std::filesystem::path& path) { m_filePath = std::filesystem::weakly_canonical(path); };
 
@@ -48,11 +49,12 @@ namespace AppInstaller::Portable
             return symlinkEntry;
         }
 
-        static PortableFileEntry CreateDirectoryEntry(const std::filesystem::path& directoryPath)
+        static PortableFileEntry CreateDirectoryEntry(const std::filesystem::path& directoryPath, bool isInstallDirectory = false)
         {
             PortableFileEntry directoryEntry;
             directoryEntry.SetFilePath(directoryPath);
             directoryEntry.FileType = PortableFileType::Directory;
+            directoryEntry.IsInstallDirectory = isInstallDirectory;
             return directoryEntry;
         }
 

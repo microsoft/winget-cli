@@ -40,10 +40,4 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: Manifest, PackageVersion, PortableInstaller
     // Outputs: None
     void VerifyPackageAndSourceMatch(Execution::Context& context);
-
-    // Returns the target install directory for portable installation.
-    // Required Args: None
-    // Inputs: Scope, Arch, InstallLocation
-    // Outputs: Path
-    std::filesystem::path GetPortableTargetDirectory(Execution::Context& context);
 }
