@@ -1436,4 +1436,7 @@ Please specify one of them using the `--source` option to proceed.</value>
     <value>Perform a direct installation without checking package installed status</value>
     <comment>Description for a command line argument, shown next to it in the help</comment>
   </data>
+  <data name="ConvertInstallFlowToUpgrade" xml:space="preserve">
+    <value>Found an existing package already installed. Trying to upgrade the installed package...</value>
+  </data>
 </root>
