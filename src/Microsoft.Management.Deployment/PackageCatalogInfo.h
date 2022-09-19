@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include "PackageCatalogInfo.g.h"
+#include <winget/RepositorySource.h>
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {

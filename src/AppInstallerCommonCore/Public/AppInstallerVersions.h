@@ -104,6 +104,9 @@ namespace AppInstaller::Utility
         // Returns if the version is an approximate version.
         bool IsApproximate() const { return m_approximateComparator != ApproximateComparator::None; }
 
+        // Get the base version from approximate version, or return a copy if the version is not approximate.
+        Version GetBaseVersion() const;
+
     protected:
 
         bool IsBaseVersionLatest() const;

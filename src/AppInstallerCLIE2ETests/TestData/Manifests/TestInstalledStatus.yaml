@@ -1,0 +1,24 @@
+PackageIdentifier: AppInstallerTest.TestCheckInstalledStatus
+PackageVersion: 1.0
+PackageName: TestCheckInstalledStatus
+PackageLocale: en-US
+Publisher: Microsoft
+License: Test
+ShortDescription: E2E test for check installed status test.
+Installers:
+  - Architecture: neutral
+    InstallerUrl: https://localhost:5001/TestKit/AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe
+    InstallerType: exe
+    InstallerSha256: <EXEHASH>
+    ProductCode: CheckInstalledStatusProductId
+    InstallationMetadata:
+      DefaultInstallLocation: "%TEMP%\\TestInstalledStatus"
+      Files:
+      - RelativeFilePath: "data.txt"
+        # Hash value is for a txt file with "Test" as content in utf8
+        FileSha256: 532eaabd9574880dbf76b9b8cc00832c20a6ec113d682299550d7a6e0f345e25
+        FileType: other
+      - RelativeFilePath: "TestExeInstalled.txt"
+        FileType: other
+ManifestType: singleton
+ManifestVersion: 1.4.0
