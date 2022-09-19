@@ -173,23 +173,13 @@ namespace AppInstaller::Filesystem
         std::string trimPath = path;
         Utility::Trim(trimPath);
 
-        if (trimPath.empty())
+        try
         {
-            return {};
+            return Utility::ExpandEnvironmentVariables(Utility::ConvertToUTF16(trimPath));
         }
-
-        std::wstring widePath = Utility::ConvertToUTF16(trimPath);
-        DWORD count = ExpandEnvironmentStrings(widePath.c_str(), nullptr, 0);
-        std::wstring buffer;
-        buffer.resize(count);
-        if (ExpandEnvironmentStrings(widePath.c_str(), buffer.data(), count) > 0)
+        catch (...)
         {
-            buffer.resize(count - 1);
-            return buffer;
-        }
-        else
-        {
-            return trimPath;
+            return path;
         }
     }
 }
