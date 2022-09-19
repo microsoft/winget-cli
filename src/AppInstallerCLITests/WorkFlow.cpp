@@ -511,12 +511,19 @@ namespace
     };
 }
 
-void OverrideForOpenSource(TestContext& context)
+void OverrideForOpenSource(TestContext& context, bool overrideOpenCompositeSource = false)
 {
     context.Override({ "OpenSource", [](TestContext& context)
     {
         context.Add<Execution::Data::Source>(Source{ std::make_shared<WorkflowTestSource>() });
     } });
+
+    if (overrideOpenCompositeSource)
+    {
+        context.Override({ "OpenCompositeSource", [](TestContext&)
+        {
+        } });
+    }
 }
 
 void OverrideForCompositeInstalledSource(TestContext& context, TestSourceSearchOptions searchOptions = TestSourceSearchOptions::None)
@@ -666,6 +673,10 @@ void OverridePortableInstaller(TestContext& context)
 
 void OverrideForPortableUninstall(TestContext& context)
 {
+    context.Override({ GetUninstallInfo, [](TestContext&)
+    {
+    } });
+
     context.Override({ PortableUninstallImpl, [](TestContext& context)
     {
         std::filesystem::path temp = std::filesystem::temp_directory_path();
@@ -1314,6 +1325,17 @@ TEST_CASE("InstallFlow_Portable_SymlinkCreationFail", "[InstallFlow][workflow]")
     const auto& portableTargetPath = portableTargetDirectory / "AppInstallerTestExeInstaller.exe";
     REQUIRE(std::filesystem::exists(portableTargetPath));
     REQUIRE(AppInstaller::Registry::Environment::PathVariable(AppInstaller::Manifest::ScopeEnum::User).Contains(portableTargetDirectory));
+
+    // Perform uninstall
+    std::ostringstream uninstallOutput;
+    TestContext uninstallContext{ uninstallOutput, std::cin };
+    auto previousThreadGlobals = uninstallContext.SetForCurrentThread();
+    uninstallContext.Args.AddArg(Execution::Args::Type::Name, "AppInstaller Test Portable Exe"sv);
+    uninstallContext.Args.AddArg(Execution::Args::Type::AcceptSourceAgreements);
+
+    UninstallCommand uninstall({});
+    uninstall.Execute(uninstallContext);
+    INFO(uninstallOutput.str());
 }
 
 TEST_CASE("PortableInstallFlow_UserScope", "[InstallFlow][workflow]")
@@ -1496,7 +1518,7 @@ TEST_CASE("InstallFlow_SearchAndInstall", "[InstallFlow][workflow]")
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForOpenSource(context);
+    OverrideForOpenSource(context, true);
     OverrideForShellExecute(context);
     context.Args.AddArg(Execution::Args::Type::Query, "TestQueryReturnOne"sv);
 
@@ -1519,7 +1541,7 @@ TEST_CASE("InstallFlow_SearchFoundNoApp", "[InstallFlow][workflow]")
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForOpenSource(context);
+    OverrideForOpenSource(context, true);
     context.Args.AddArg(Execution::Args::Type::Query, "TestQueryReturnZero"sv);
 
     InstallCommand install({});
@@ -1535,7 +1557,7 @@ TEST_CASE("InstallFlow_SearchFoundMultipleApp", "[InstallFlow][workflow]")
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForOpenSource(context);
+    OverrideForOpenSource(context, true);
     context.Args.AddArg(Execution::Args::Type::Query, "TestQueryReturnTwo"sv);
 
     InstallCommand install({});
@@ -1784,8 +1806,6 @@ TEST_CASE("DependencyGraph_validMinVersions", "[InstallFlow][workflow][dependenc
 
 TEST_CASE("DependencyGraph_PathNoLoop", "[InstallFlow][workflow][dependencyGraph][dependencies]", )
 {
-    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
-
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
@@ -2270,8 +2290,6 @@ TEST_CASE("UpdateFlow_UpgradeWithDuplicateUpgradeItemsFound", "[UpdateFlow][work
 
 TEST_CASE("UpdateFlow_Dependencies", "[UpdateFlow][workflow][dependencies]")
 {
-    TestCommon::TempFile updateResultPath("TestExeInstalled.txt");
-
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
@@ -2877,9 +2895,6 @@ TEST_CASE("ImportFlow_MachineScope", "[ImportFlow][workflow]")
 
 TEST_CASE("ImportFlow_Dependencies", "[ImportFlow][workflow][dependencies]")
 {
-    TestCommon::TempFile exeInstallResultPath("TestExeInstalled.txt");
-    TestCommon::TempFile msixInstallResultPath("TestMsixInstalled.txt");
-
     std::ostringstream importOutput;
     TestContext context{ importOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
@@ -3204,7 +3219,6 @@ TEST_CASE("ValidateCommand_Dependencies", "[workflow][dependencies]")
 
 TEST_CASE("DependencyGraph_StackOrderIsOk", "[InstallFlow][workflow][dependencyGraph][dependencies]")
 {
-    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
     std::vector<Dependency> installationOrder;
 
     std::ostringstream installOutput;
@@ -3233,8 +3247,6 @@ TEST_CASE("DependencyGraph_StackOrderIsOk", "[InstallFlow][workflow][dependencyG
 
 TEST_CASE("InstallerWithoutDependencies_RootDependenciesAreUsed", "[dependencies]")
 {
-    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
-
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
@@ -3257,8 +3269,6 @@ TEST_CASE("InstallerWithoutDependencies_RootDependenciesAreUsed", "[dependencies
 
 TEST_CASE("DependenciesMultideclaration_InstallerDependenciesPreference", "[dependencies]")
 {
-    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
-
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
@@ -3283,8 +3293,6 @@ TEST_CASE("DependenciesMultideclaration_InstallerDependenciesPreference", "[depe
 
 TEST_CASE("InstallFlow_Dependencies", "[InstallFlow][workflow][dependencies]")
 {
-    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
-
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();

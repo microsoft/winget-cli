@@ -245,7 +245,7 @@ namespace AppInstaller::CLI::Workflow
             EnsureOneMatchFromSearchResult(m_isUpgrade) <<
             GetInstalledPackageVersion;
 
-        if (!m_isUpgrade && context.Get<Execution::Data::InstalledPackageVersion>() != nullptr)
+        if (!m_isUpgrade && context.Contains(Execution::Data::InstalledPackageVersion) && context.Get<Execution::Data::InstalledPackageVersion>() != nullptr)
         {
             context.Reporter.Info() << Resource::String::ConvertInstallFlowToUpgrade << std::endl;
             context.SetFlags(Execution::ContextFlag::InstallerExecutionUseUpdate);
