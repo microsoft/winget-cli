@@ -55,11 +55,6 @@ namespace AppInstaller::CLI::Portable
             m_desiredEntries = desiredEntries;
         };
 
-        void SetExpectedState(std::vector<AppInstaller::Portable::PortableFileEntry>& expectedEntries)
-        {
-            m_expectedEntries = expectedEntries;
-        };
-
         HRESULT Install();
 
         HRESULT Uninstall();
@@ -72,7 +67,7 @@ namespace AppInstaller::CLI::Portable
 
         std::filesystem::path GetInstallDirectoryForPathVariable()
         {
-            return  InstallDirectoryAddedToPath ? InstallLocation : GetPortableLinksLocation(GetScope());
+            return  InstallDirectoryAddedToPath ? TargetInstallDirectory : GetPortableLinksLocation(GetScope());
         }
 
         std::filesystem::path GetPortableIndexPath();
@@ -104,17 +99,16 @@ namespace AppInstaller::CLI::Portable
         std::filesystem::path GetPathValue(PortableValueName valueName);
         bool GetBoolValue(PortableValueName valueName);
 
+        std::vector<AppInstaller::Portable::PortableFileEntry> GetExpectedState();
+
         void InitializeRegistryEntry();
-        void FinalizeRegistryEntry();
 
         void ApplyDesiredState();
 
-        void MovePortableExe(const std::filesystem::path& installerPath);
-        bool CreatePortableSymlink(const std::filesystem::path& targetPath, const std::filesystem::path& symlinkPath);
+        void CreateInstallDirectory();
+        void RemoveInstallDirectory();
 
-        void RemovePortableExe(const std::filesystem::path& targetPath, const std::string& hash);
-        void RemovePortableSymlink(const std::filesystem::path& targetPath, const std::filesystem::path& symlinkPath);
-        void RemoveInstallDirectory(bool purge);
+        bool CreatePortableSymlink(const std::filesystem::path& targetPath, const std::filesystem::path& symlinkPath);
 
         void AddToPathVariable();
         void RemoveFromPathVariable();

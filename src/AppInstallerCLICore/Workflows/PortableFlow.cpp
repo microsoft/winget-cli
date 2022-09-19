@@ -161,6 +161,7 @@ namespace AppInstaller::CLI::Workflow
         context.Add<Execution::Data::PortableInstaller>(std::move(portableInstaller));
     }
 
+
     std::vector<PortableFileEntry> GetDesiredStateForPortableInstall(Execution::Context& context)
     {
         std::filesystem::path& installerPath = context.Get<Execution::Data::InstallerPath>();
@@ -173,32 +174,30 @@ namespace AppInstaller::CLI::Workflow
         // 3. Symlinks
         // Uninstall should process these portable files in the reverse order for proper cleanup.
 
-        const std::filesystem::path& symlinkDirectory = GetPortableLinksLocation(portableInstaller.GetScope());
         const std::filesystem::path& targetInstallDirectory = portableInstaller.TargetInstallDirectory;
-        entries.emplace_back(std::move(PortableFileEntry::CreateDirectoryEntry(targetInstallDirectory, true)));
+        const std::filesystem::path& symlinkDirectory = GetPortableLinksLocation(portableInstaller.GetScope());
 
         // InstallerPath will point to a directory if it is extracted from an archive.
         if (std::filesystem::is_directory(installerPath))
         {
-            int entryCount = 0;
             for (const auto& entry : std::filesystem::directory_iterator(installerPath))
             {
                 std::filesystem::path entryPath = entry.path();
                 PortableFileEntry portableFile;
+                std::filesystem::path relativePath = std::filesystem::relative(entryPath, entryPath.parent_path());
+                std::filesystem::path targetPath = targetInstallDirectory / relativePath;
+
                 if (std::filesystem::is_directory(entryPath))
                 {
-                    entries.emplace_back(std::move(PortableFileEntry::CreateDirectoryEntry(entryPath)));
+                    entries.emplace_back(std::move(PortableFileEntry::CreateDirectoryEntry(entryPath, targetPath)));
                 }
                 else
                 {
-                    std::filesystem::path relativePath = std::filesystem::relative(entryPath, entryPath.parent_path());
-                    entries.emplace_back(std::move(PortableFileEntry::CreateFileEntry(entryPath, targetInstallDirectory / relativePath)));
+                    entries.emplace_back(std::move(PortableFileEntry::CreateFileEntry(entryPath, targetPath, {})));
                 }
-
-                entryCount++;
             }
 
-            if (entryCount > 1)
+            if (entries.size() > 1)
             {
                 portableInstaller.RecordToIndex = true;
             }
@@ -255,45 +254,8 @@ namespace AppInstaller::CLI::Workflow
 
             const std::filesystem::path& targetFullPath = targetInstallDirectory / fileName;
             const std::filesystem::path& symlinkFullPath = symlinkDirectory / commandAlias;
-            entries.emplace_back(std::move(PortableFileEntry::CreateFileEntry(installerPath, targetFullPath)));
+            entries.emplace_back(std::move(PortableFileEntry::CreateFileEntry(installerPath, targetFullPath, {})));
             entries.emplace_back(std::move(PortableFileEntry::CreateSymlinkEntry(symlinkFullPath, targetFullPath)));
-        }
-
-        return entries;
-    }
-
-    std::vector<PortableFileEntry> GetExpectedState(Execution::Context& context)
-    {
-        PortableInstaller& portableInstaller = context.Get<Execution::Data::PortableInstaller>();
-        std::vector<PortableFileEntry> entries;
-
-        const auto& indexPath = portableInstaller.GetPortableIndexPath();
-
-        if (std::filesystem::exists(indexPath))
-        {
-            PortableIndex portableIndex = PortableIndex::Open(indexPath.u8string(), SQLiteStorageBase::OpenDisposition::ReadWrite);
-            entries = portableIndex.GetAllPortableFiles();
-        }
-        else
-        {
-            std::filesystem::path targetFullPath = portableInstaller.PortableTargetFullPath;
-            std::filesystem::path symlinkFullPath = portableInstaller.PortableSymlinkFullPath;
-            std::filesystem::path installLocation = portableInstaller.InstallLocation;
-
-            if (!symlinkFullPath.empty())
-            {
-                entries.emplace_back(std::move(PortableFileEntry::CreateSymlinkEntry(symlinkFullPath, targetFullPath)));
-            }
-
-            if (!targetFullPath.empty())
-            {
-                entries.emplace_back(std::move(PortableFileEntry::CreateFileEntry({}, targetFullPath)));
-            }
-
-            if (!installLocation.empty() && portableInstaller.InstallDirectoryCreated)
-            {
-                entries.emplace_back(std::move(PortableFileEntry::CreateDirectoryEntry(installLocation)));
-            }
         }
 
         return entries;
@@ -308,12 +270,9 @@ namespace AppInstaller::CLI::Workflow
         {
             context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
 
-            // Use context to get desired state and pass it to the portable install resolution engine
             std::vector<AppInstaller::Portable::PortableFileEntry> desiredState = GetDesiredStateForPortableInstall(context);
-            std::vector<AppInstaller::Portable::PortableFileEntry> expectedState = GetExpectedState(context);
 
             portableInstaller.SetDesiredState(desiredState);
-            portableInstaller.SetExpectedState(expectedState);
 
             if (!portableInstaller.VerifyExpectedState())
             {

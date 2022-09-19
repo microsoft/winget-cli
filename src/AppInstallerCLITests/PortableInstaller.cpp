@@ -101,207 +101,88 @@ void VerifyPortableFilesTrackedByIndex(
     }
 }
 
-//TEST_CASE("PortableInstaller_SingleInstall", "[PortableInstaller]")
-//{
-//    TempDirectory tempDirectory = TestCommon::TempDirectory("TempDirectory", false);
-//
-//    {
-//        PortableInstaller portableInstaller = CreateTestPortableInstaller(tempDirectory.GetPath());
-//
-//        TestCommon::TempFile testPortable("testPortable.txt");
-//        std::ofstream file2(testPortable, std::ofstream::out);
-//        file2.close();
-//
-//        HRESULT installResult = portableInstaller.InstallSingle(testPortable.GetPath());
-//        REQUIRE(SUCCEEDED(installResult));
-//    }
-//
-//    {
-//        // Create a new portable installer instance and verify that values from ARP are loaded correctly.
-//        PortableInstaller portableInstaller = PortableInstaller(ScopeEnum::User, Architecture::X64, "testProductCode");
-//
-//        REQUIRE(std::filesystem::exists(portableInstaller.PortableTargetFullPath));
-//        REQUIRE(SymlinkExists(portableInstaller.PortableSymlinkFullPath));
-//        REQUIRE(VerifySymlink(portableInstaller.PortableSymlinkFullPath, portableInstaller.PortableTargetFullPath));
-//        REQUIRE(portableInstaller.ARPEntryExists());
-//
-//        HRESULT uninstallResult = portableInstaller.Uninstall();
-//
-//        REQUIRE(SUCCEEDED(uninstallResult));
-//        REQUIRE_FALSE(SymlinkExists(portableInstaller.PortableSymlinkFullPath));
-//        REQUIRE_FALSE(std::filesystem::exists(portableInstaller.PortableTargetFullPath));
-//        REQUIRE_FALSE(std::filesystem::exists(portableInstaller.InstallLocation));
-//    }
-//}
-//
-//TEST_CASE("PortableInstaller_InstallDirectoryAddedToPath", "[PortableInstaller]")
-//{
-//    TempDirectory tempDirectory = TestCommon::TempDirectory("TempDirectory", false);
-//
-//    {
-//        PortableInstaller portableInstaller = CreateTestPortableInstaller(tempDirectory.GetPath());
-//
-//        TestCommon::TempFile testPortable("testPortable.txt");
-//        std::ofstream file2(testPortable, std::ofstream::out);
-//        file2.close();
-//
-//        // This value is only set to true if we fail to create a symlink.
-//        // If true no symlink should be created and InstallDirectory is added to PATH variable.
-//        portableInstaller.CommitToARPEntry(PortableValueName::InstallDirectoryAddedToPath, portableInstaller.InstallDirectoryAddedToPath = true);
-//
-//        HRESULT installResult = portableInstaller.InstallSingle(testPortable.GetPath());
-//        REQUIRE(SUCCEEDED(installResult));
-//    }
-//
-//    {
-//        PortableInstaller portableInstaller = PortableInstaller(ScopeEnum::User, Architecture::X64, "testProductCode");
-//
-//        REQUIRE(std::filesystem::exists(portableInstaller.PortableTargetFullPath));
-//        REQUIRE_FALSE(SymlinkExists(portableInstaller.PortableSymlinkFullPath));
-//        REQUIRE(PathVariable(ScopeEnum::User).Contains(portableInstaller.InstallLocation));
-//        REQUIRE(portableInstaller.ARPEntryExists());
-//
-//        HRESULT uninstallResult = portableInstaller.Uninstall();
-//
-//        REQUIRE(SUCCEEDED(uninstallResult));
-//        REQUIRE(portableInstaller.InstallDirectoryAddedToPath);
-//        REQUIRE_FALSE(std::filesystem::exists(portableInstaller.PortableTargetFullPath));
-//        REQUIRE_FALSE(std::filesystem::exists(portableInstaller.InstallLocation));
-//        REQUIRE_FALSE(PathVariable(ScopeEnum::User).Contains(portableInstaller.InstallLocation));
-//    }
-//}
-//
-//TEST_CASE("PortableInstaller_MultipleInstall", "[PortableInstaller]")
-//{
-//    PortableInstaller portableInstaller = PortableInstaller(
-//        ScopeEnum::User,
-//        Architecture::X64,
-//        "testProductCode");
-//
-//    TempDirectory tempDirectory = TestCommon::TempDirectory("TempDirectory", true);
-//    const auto& tempDirectoryPath = tempDirectory.GetPath();
-//    portableInstaller.InstallLocation = tempDirectoryPath;
-//
-//    std::vector<NestedInstallerFile> nestedInstallerFiles = CreateTestNestedInstallerFiles();
-//
-//    HRESULT installResult = portableInstaller.InstallMultiple(nestedInstallerFiles);
-//    REQUIRE(SUCCEEDED(installResult));
-//
-//    const auto& indexPath = portableInstaller.GetPortableIndexPath();
-//    REQUIRE(std::filesystem::exists(indexPath));
-//
-//    VerifyPortableFilesTrackedByIndex(indexPath, nestedInstallerFiles);
-//
-//    REQUIRE(portableInstaller.VerifyPortableFilesForUninstall());
-//
-//    // Perform uninstall
-//    HRESULT uninstallResult = portableInstaller.Uninstall();
-//    REQUIRE(SUCCEEDED(uninstallResult));
-//
-//    REQUIRE_FALSE(std::filesystem::exists(indexPath));
-//    REQUIRE_FALSE(std::filesystem::exists(portableInstaller.InstallLocation));
-//}
-//
-//TEST_CASE("PortableInstaller_VerifyFilesFromIndex", "[PortableInstaller]")
-//{
-//    // Create installer and set install location to temp directory
-//    // Create portable index and add files
-//    PortableInstaller portableInstaller = PortableInstaller(
-//        ScopeEnum::User,
-//        Architecture::X64,
-//        "testProductCode");
-//
-//    TempDirectory tempDirectory = TestCommon::TempDirectory("TempDirectory", true);
-//    const auto& tempDirectoryPath = tempDirectory.GetPath();
-//    portableInstaller.InstallLocation = tempDirectoryPath;
-//    
-//    std::filesystem::path indexPath = tempDirectoryPath / "portable.db";
-//
-//    PortableIndex index = PortableIndex::CreateNew(indexPath.u8string(), Schema::Version::Latest());
-//    
-//    std::filesystem::path symlinkPath = tempDirectoryPath / "symlink.exe";
-//    std::filesystem::path exePath = tempDirectoryPath / "testExe.txt";
-//
-//    // Create exe and symlink
-//    TestCommon::TempFile testFile(exePath);
-//    std::ofstream file2(testFile, std::ofstream::out);
-//    file2.close();
-//
-//    std::filesystem::create_symlink(exePath, symlinkPath);
-//
-//    // Add files to index
-//    IPortableIndex::PortableFile exeFile = PortableIndex::CreatePortableFileFromPath(exePath);
-//    IPortableIndex::PortableFile symlinkFile = PortableIndex::CreatePortableFileFromPath(symlinkPath);
-//    
-//    index.AddPortableFile(exeFile);
-//    index.AddPortableFile(symlinkFile);
-//
-//    REQUIRE(portableInstaller.VerifyPortableFilesForUninstall());
-//
-//    // Modify symlink target
-//    std::filesystem::remove(symlinkPath);
-//    std::filesystem::create_symlink("badPath", symlinkPath);
-//
-//    REQUIRE_FALSE(portableInstaller.VerifyPortableFilesForUninstall());
-//
-//    std::filesystem::remove(symlinkPath);
-//
-//    // Modify exe hash in index
-//    exeFile.SHA256 = "2413fb3709b05939f04cf2e92f7d0897fc2596f9ad0b8a9ea855c7bfebaae892";
-//    index.UpdatePortableFile(exeFile);
-//
-//    REQUIRE_FALSE(portableInstaller.VerifyPortableFilesForUninstall());
-//
-//    std::filesystem::remove(exePath);
-//
-//    // Files that do not exist should still pass as they have already been removed.
-//    REQUIRE(portableInstaller.VerifyPortableFilesForUninstall());
-//}
-//
-//TEST_CASE("PortableInstaller_VerifyFiles", "[PortableInstaller]")
-//{
-//    PortableInstaller portableInstaller = PortableInstaller(
-//        ScopeEnum::User,
-//        Architecture::X64,
-//        "testProductCode");
-//
-//    TempDirectory tempDirectory = TestCommon::TempDirectory("TempDirectory", true);
-//    const auto& tempDirectoryPath = tempDirectory.GetPath();
-//    portableInstaller.InstallLocation = tempDirectoryPath;
-//
-//    std::filesystem::path symlinkPath = tempDirectoryPath / "symlink.exe";
-//    std::filesystem::path exePath = tempDirectoryPath / "testExe.txt";
-//
-//    // Create and set test file, symlink, and hash
-//    TestCommon::TempFile testFile(exePath);
-//    std::ofstream file(testFile, std::ofstream::out);
-//    file.close();
-//
-//    std::filesystem::create_symlink(exePath, symlinkPath);
-//
-//    std::ifstream inStream{ exePath, std::ifstream::binary };
-//    const SHA256::HashBuffer& targetFileHash = SHA256::ComputeHash(inStream);
-//    inStream.close();
-//    portableInstaller.SHA256 = SHA256::ConvertToString(targetFileHash);
-//    portableInstaller.PortableTargetFullPath = exePath;
-//    portableInstaller.PortableSymlinkFullPath = symlinkPath;
-//
-//    REQUIRE(portableInstaller.VerifyPortableFilesForUninstall());
-//
-//    // Modify symlink target
-//    std::filesystem::remove(symlinkPath);
-//    std::filesystem::create_symlink("badPath", symlinkPath);
-//
-//    REQUIRE_FALSE(portableInstaller.VerifyPortableFilesForUninstall());
-//
-//    // Modify exe hash
-//    std::filesystem::remove(symlinkPath);
-//    portableInstaller.SHA256 = "2413fb3709b05939f04cf2e92f7d0897fc2596f9ad0b8a9ea855c7bfebaae892";
-//
-//    REQUIRE_FALSE(portableInstaller.VerifyPortableFilesForUninstall());
-//
-//    std::filesystem::remove(exePath);
-//
-//    // Files that do not exist should still pass as they have already been removed.
-//    REQUIRE(portableInstaller.VerifyPortableFilesForUninstall());
-//}
+TEST_CASE("PortableInstaller_InstallToRegistry", "[PortableInstaller]")
+{
+    TempDirectory tempDirectory = TestCommon::TempDirectory("TempDirectory", false);
+
+    std::vector<PortableFileEntry> desiredTestState;
+
+    TestCommon::TempFile testPortable("testPortable.txt");
+    std::ofstream file(testPortable, std::ofstream::out);
+    file.close();
+
+    std::filesystem::path targetPath = tempDirectory.GetPath() / "testPortable.txt";
+    std::filesystem::path symlinkPath = tempDirectory.GetPath() / "testSymlink.exe";
+
+    desiredTestState.emplace_back(std::move(PortableFileEntry::CreateFileEntry(testPortable.GetPath(), targetPath, {})));
+    desiredTestState.emplace_back(std::move(PortableFileEntry::CreateSymlinkEntry(symlinkPath, targetPath)));
+
+    PortableInstaller portableInstaller = PortableInstaller(ScopeEnum::User, Architecture::X64, "testProductCode");
+    portableInstaller.TargetInstallDirectory = tempDirectory.GetPath();
+    portableInstaller.SetDesiredState(desiredTestState);
+    portableInstaller.Install();
+
+    PortableInstaller portableInstaller2 = PortableInstaller(ScopeEnum::User, Architecture::X64, "testProductCode");
+    REQUIRE(portableInstaller2.ARPEntryExists());
+    REQUIRE(std::filesystem::exists(portableInstaller2.PortableTargetFullPath));
+    REQUIRE(AppInstaller::Filesystem::SymlinkExists(portableInstaller2.PortableSymlinkFullPath));
+
+    portableInstaller2.Uninstall();
+    REQUIRE_FALSE(std::filesystem::exists(portableInstaller2.PortableTargetFullPath));
+    REQUIRE_FALSE(AppInstaller::Filesystem::SymlinkExists(portableInstaller2.PortableSymlinkFullPath));
+    REQUIRE_FALSE(std::filesystem::exists(portableInstaller2.InstallLocation));
+}
+
+TEST_CASE("PortableInstaller_InstallToIndex", "[PortableInstaller]")
+{
+    TempDirectory installRootDirectory = TestCommon::TempDirectory("PortableInstallRoot", false);
+
+    std::vector<PortableFileEntry> desiredTestState;
+
+    TestCommon::TempFile testPortable("testPortable.txt");
+    std::ofstream file1(testPortable, std::ofstream::out);
+    file1.close();
+
+    TestCommon::TempFile testPortable2("testPortable2.txt");
+    std::ofstream file2(testPortable2, std::ofstream::out);
+    file2.close();
+
+    TestCommon::TempDirectory testDirectoryFolder("testDirectory", true);
+
+    std::filesystem::path installRootPath = installRootDirectory.GetPath();
+    std::filesystem::path targetPath = installRootPath / "testPortable.txt";
+    std::filesystem::path targetPath2 = installRootPath / "testPortable2.txt";
+    std::filesystem::path symlinkPath = installRootPath / "testSymlink.exe";
+    std::filesystem::path symlinkPath2 = installRootPath / "testSymlink2.exe";
+    std::filesystem::path directoryPath = installRootPath / "testDirectory";
+
+    desiredTestState.emplace_back(std::move(PortableFileEntry::CreateFileEntry(testPortable.GetPath(), targetPath, {})));
+    desiredTestState.emplace_back(std::move(PortableFileEntry::CreateFileEntry(testPortable2.GetPath(), targetPath2, {})));
+    desiredTestState.emplace_back(std::move(PortableFileEntry::CreateSymlinkEntry(symlinkPath, targetPath)));
+    desiredTestState.emplace_back(std::move(PortableFileEntry::CreateSymlinkEntry(symlinkPath2, targetPath2)));
+    desiredTestState.emplace_back(std::move(PortableFileEntry::CreateDirectoryEntry(testDirectoryFolder.GetPath(), directoryPath)));
+
+    PortableInstaller portableInstaller = PortableInstaller(ScopeEnum::User, Architecture::X64, "testProductCode");
+    portableInstaller.TargetInstallDirectory = installRootDirectory.GetPath();
+    portableInstaller.RecordToIndex = true;
+    portableInstaller.SetDesiredState(desiredTestState);
+    portableInstaller.Install();
+
+    REQUIRE(std::filesystem::exists(targetPath));
+    REQUIRE(std::filesystem::exists(targetPath2));
+    REQUIRE(AppInstaller::Filesystem::SymlinkExists(symlinkPath));
+    REQUIRE(AppInstaller::Filesystem::SymlinkExists(symlinkPath2));
+    REQUIRE(std::filesystem::exists(directoryPath));
+
+    PortableInstaller portableInstaller2 = PortableInstaller(ScopeEnum::User, Architecture::X64, "testProductCode");
+    REQUIRE(portableInstaller2.ARPEntryExists());
+
+    portableInstaller2.Uninstall();
+    REQUIRE_FALSE(std::filesystem::exists(targetPath));
+    REQUIRE_FALSE(std::filesystem::exists(targetPath2));
+    REQUIRE_FALSE(AppInstaller::Filesystem::SymlinkExists(symlinkPath));
+    REQUIRE_FALSE(AppInstaller::Filesystem::SymlinkExists(symlinkPath2));
+    REQUIRE_FALSE(std::filesystem::exists(directoryPath));
+}
+
+

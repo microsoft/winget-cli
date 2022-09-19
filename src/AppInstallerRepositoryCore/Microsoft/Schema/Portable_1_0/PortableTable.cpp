@@ -13,7 +13,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
     static constexpr std::string_view s_PortableTable_FileType_Column = "filetype"sv;
     static constexpr std::string_view s_PortableTable_SHA256_Column = "sha256"sv;
     static constexpr std::string_view s_PortableTable_SymlinkTarget_Column = "symlinktarget"sv;
-    static constexpr std::string_view s_PortableTable_IsInstallDirectory_Column = "isinstalldirectory"sv;
 
     std::string_view PortableTable::TableName()
     {
@@ -33,7 +32,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
         createTableBuilder.Column(ColumnBuilder(s_PortableTable_FileType_Column, Type::Int64).NotNull());
         createTableBuilder.Column(ColumnBuilder(s_PortableTable_SHA256_Column, Type::Blob));
         createTableBuilder.Column(ColumnBuilder(s_PortableTable_SymlinkTarget_Column, Type::Text));
-        createTableBuilder.Column(ColumnBuilder(s_PortableTable_IsInstallDirectory_Column, Type::Bool));
 
         createTableBuilder.EndColumns();
         createTableBuilder.Execute(connection);
@@ -73,9 +71,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
             .Columns({ s_PortableTable_FilePath_Column,
                 s_PortableTable_FileType_Column,
                 s_PortableTable_SHA256_Column,
-                s_PortableTable_SymlinkTarget_Column,
-                s_PortableTable_IsInstallDirectory_Column})
-            .Values(file.GetFilePath().u8string(), file.FileType, file.SHA256, file.SymlinkTarget, file.IsInstallDirectory);
+                s_PortableTable_SymlinkTarget_Column })
+            .Values(file.GetFilePath().u8string(), file.FileType, file.SHA256, file.SymlinkTarget);
 
         builder.Execute(connection);
         return connection.GetLastInsertRowID();
@@ -89,7 +86,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
             .Column(s_PortableTable_FileType_Column).Equals(file.FileType)
             .Column(s_PortableTable_SHA256_Column).Equals(file.SHA256)
             .Column(s_PortableTable_SymlinkTarget_Column).Equals(file.SymlinkTarget)
-            .Column(s_PortableTable_IsInstallDirectory_Column).Equals(file.IsInstallDirectory)
             .Where(SQLite::RowIDName).Equals(id);
 
         builder.Execute(connection);
@@ -102,8 +98,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
         builder.Select({ s_PortableTable_FilePath_Column,
             s_PortableTable_FileType_Column,
             s_PortableTable_SHA256_Column,
-            s_PortableTable_SymlinkTarget_Column,
-            s_PortableTable_IsInstallDirectory_Column})
+            s_PortableTable_SymlinkTarget_Column})
             .From(s_PortableTable_Table_Name).Where(SQLite::RowIDName).Equals(id);
 
         SQLite::Statement select = builder.Prepare(connection);
@@ -111,12 +106,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
         Portable::PortableFileEntry portableFile;
         if (select.Step())
         {
-            auto [filePath, fileType, sha256, symlinkTarget, isInstallDirectory] = select.GetRow<std::string, Portable::PortableFileType, std::string, std::string, bool>();
-            portableFile.SetFilePath(std::move(filePath));
+            auto [filePath, fileType, sha256, symlinkTarget] = select.GetRow<std::string, Portable::PortableFileType, std::string, std::string>();
             portableFile.FileType = fileType;
+            portableFile.SetFilePath(std::move(filePath));
             portableFile.SHA256 = std::move(sha256);
             portableFile.SymlinkTarget = std::move(symlinkTarget);
-            portableFile.IsInstallDirectory = isInstallDirectory;
             return portableFile;
         }
         else
@@ -163,8 +157,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
         builder.Select({ s_PortableTable_FilePath_Column,
             s_PortableTable_FileType_Column,
             s_PortableTable_SHA256_Column,
-            s_PortableTable_SymlinkTarget_Column,
-            s_PortableTable_IsInstallDirectory_Column })
+            s_PortableTable_SymlinkTarget_Column })
             .From(s_PortableTable_Table_Name);
 
         SQLite::Statement select = builder.Prepare(connection);
@@ -172,12 +165,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
         while (select.Step())
         {
             Portable::PortableFileEntry portableFile;
-            auto [filePath, fileType, sha256, symlinkTarget, isInstallDirectory] = select.GetRow<std::string, Portable::PortableFileType, std::string, std::string, bool>();
-            portableFile.SetFilePath(std::move(filePath));
+            auto [filePath, fileType, sha256, symlinkTarget] = select.GetRow<std::string, Portable::PortableFileType, std::string, std::string>();
             portableFile.FileType = fileType;
+            portableFile.SetFilePath(std::move(filePath));
             portableFile.SHA256 = std::move(sha256);
             portableFile.SymlinkTarget = std::move(symlinkTarget);
-            portableFile.IsInstallDirectory = isInstallDirectory;
             result.emplace_back(std::move(portableFile));
         }
         

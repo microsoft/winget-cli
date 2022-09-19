@@ -24,37 +24,55 @@ namespace AppInstaller::Portable
         std::string SHA256;
         std::string SymlinkTarget;
         std::filesystem::path CurrentPath;
-        bool IsInstallDirectory = false;
 
-        void SetFilePath(const std::filesystem::path& path) { m_filePath = std::filesystem::weakly_canonical(path); };
+        void SetFilePath(const std::filesystem::path& path)
+        {
+            if (FileType == PortableFileType::Symlink)
+            {
+                // weakly_canonical will resolve the symlink path to its target, set path directly since we generate the full path.
+                m_filePath = path;
+            }
+            else
+            {
+                m_filePath = std::filesystem::weakly_canonical(path);
+            }
+        };
 
         std::filesystem::path GetFilePath() const { return m_filePath; };
 
-        static PortableFileEntry CreateFileEntry(const std::filesystem::path& currentPath, const std::filesystem::path& targetPath)
+        static PortableFileEntry CreateFileEntry(const std::filesystem::path& currentPath, const std::filesystem::path& targetPath, const std::string& sha256)
         {
             PortableFileEntry fileEntry;
+            fileEntry.FileType = PortableFileType::File;
             fileEntry.CurrentPath = currentPath;
             fileEntry.SetFilePath(targetPath);
-            fileEntry.FileType = PortableFileType::File;
-            fileEntry.SHA256 = Utility::SHA256::ConvertToString(Utility::SHA256::ComputeHashFromFile(currentPath));
+
+            if (sha256.empty())
+            {
+                fileEntry.SHA256 = Utility::SHA256::ConvertToString(Utility::SHA256::ComputeHashFromFile(currentPath));
+            }
+            else
+            {
+                fileEntry.SHA256 = sha256;
+            }
             return fileEntry;
         }
 
         static PortableFileEntry CreateSymlinkEntry(const std::filesystem::path& symlinkPath, const std::filesystem::path& targetPath)
         {
             PortableFileEntry symlinkEntry;
+            symlinkEntry.FileType = PortableFileType::Symlink;
             symlinkEntry.SetFilePath(symlinkPath);
             symlinkEntry.SymlinkTarget = targetPath.u8string();
-            symlinkEntry.FileType = PortableFileType::Symlink;
             return symlinkEntry;
         }
 
-        static PortableFileEntry CreateDirectoryEntry(const std::filesystem::path& directoryPath, bool isInstallDirectory = false)
+        static PortableFileEntry CreateDirectoryEntry(const std::filesystem::path& currentPath, const std::filesystem::path& directoryPath)
         {
             PortableFileEntry directoryEntry;
-            directoryEntry.SetFilePath(directoryPath);
             directoryEntry.FileType = PortableFileType::Directory;
-            directoryEntry.IsInstallDirectory = isInstallDirectory;
+            directoryEntry.CurrentPath = currentPath;
+            directoryEntry.SetFilePath(directoryPath);
             return directoryEntry;
         }
 

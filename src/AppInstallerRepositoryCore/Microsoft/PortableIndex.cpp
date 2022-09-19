@@ -20,6 +20,9 @@ namespace AppInstaller::Repository::Microsoft
 
         result.m_interface->CreateTable(result.m_dbconn);
 
+        const auto& filePathUTF16 = Utility::ConvertToUTF16(filePath);
+        SetFileAttributes(filePathUTF16.c_str(), GetFileAttributes(filePathUTF16.c_str()) | FILE_ATTRIBUTE_HIDDEN);
+
         result.SetLastWriteTime();
 
         savepoint.Commit();

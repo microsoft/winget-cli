@@ -26,6 +26,7 @@
 #include <Workflows/UpdateFlow.h>
 #include <Workflows/WorkflowBase.h>
 #include <Public/winget/RepositorySource.h>
+#include <PortableInstaller.h>
 #include <Commands/ExportCommand.h>
 #include <Commands/ImportCommand.h>
 #include <Commands/InstallCommand.h>
@@ -55,6 +56,7 @@ using namespace AppInstaller::Repository;
 using namespace AppInstaller::Settings;
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Settings;
+using namespace AppInstaller::CLI::Portable;
 
 
 #define REQUIRE_TERMINATED_WITH(_context_,_hr_) \

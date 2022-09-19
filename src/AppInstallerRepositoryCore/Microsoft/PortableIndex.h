@@ -32,8 +32,6 @@ namespace AppInstaller::Repository::Microsoft
             return { filePath, disposition, std::move(indexFile) };
         }
 
-        static Portable::PortableFileEntry CreatePortableFileFromPath(const std::filesystem::path& path);
-
         IdType AddPortableFile(const Portable::PortableFileEntry& file);
 
         void RemovePortableFile(const Portable::PortableFileEntry& file);
