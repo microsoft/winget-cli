@@ -211,8 +211,10 @@
     <ClCompile Include="MsixManifest.cpp" />
     <ClCompile Include="NameNormalization.cpp" />
     <ClCompile Include="PackageCollection.cpp" />
+    <ClCompile Include="PackageDependenciesValidationUtil.cpp" />
     <ClCompile Include="PackageTrackingCatalog.cpp" />
     <ClCompile Include="PortableEntry.cpp" />
+    <ClCompile Include="PortableIndex.cpp" />
     <ClCompile Include="PredefinedInstalledSource.cpp" />
     <ClCompile Include="PreIndexedPackageSource.cpp" />
     <ClCompile Include="Regex.cpp" />

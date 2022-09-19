@@ -152,6 +152,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeMissingDependency);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeNoNetwork);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodePackageInUse);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodePackageInUseByApplication);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeRebootInitiated);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeRebootRequiredForInstall);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeRebootRequiredToFinish);
@@ -299,6 +300,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelPublisher);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelPublisherSupportUrl);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelPublisherUrl);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelPurchaseUrl);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelReleaseNotes);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelReleaseNotesUrl);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelTags);
@@ -434,7 +436,7 @@ namespace AppInstaller::CLI::Resource
         // Gets the singleton instance of the resource loader.
         static const Loader& Instance();
 
-        // Gets the the string resource value.
+        // Gets the string resource value.
         std::string ResolveString(std::wstring_view resKey) const;
 
     private:

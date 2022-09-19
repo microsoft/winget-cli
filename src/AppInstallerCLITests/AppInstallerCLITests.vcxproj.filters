@@ -143,6 +143,9 @@
     <ClCompile Include="PackageTrackingCatalog.cpp">
       <Filter>Source Files\Repository</Filter>
     </ClCompile>
+    <ClCompile Include="PortableIndex.cpp">
+      <Filter>Source Files\Repository</Filter>
+    </ClCompile>
     <ClCompile Include="PredefinedInstalledSource.cpp">
       <Filter>Source Files\Repository</Filter>
     </ClCompile>
@@ -226,6 +229,9 @@
     </ClCompile>
     <ClCompile Include="PortableEntry.cpp">
       <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="PackageDependenciesValidationUtil.cpp">
+      <Filter>Source Files\Repository</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
