@@ -29,7 +29,7 @@ namespace AppInstaller::Portable
         {
             if (FileType == PortableFileType::Symlink)
             {
-                // weakly_canonical will resolve the symlink path to its target, set path directly since we generate the full path.
+                // weakly_canonical will resolve the symlink path to its target if it exists, set path directly.
                 m_filePath = path;
             }
             else

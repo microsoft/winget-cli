@@ -162,7 +162,7 @@ namespace AppInstaller::CLI::Portable
 
     void PortableInstaller::ApplyDesiredState()
     {
-        std::filesystem::path existingIndexPath = InstallLocation / c_PortableIndexFileName;
+        std::filesystem::path existingIndexPath = InstallLocation / GetPortableIndexFileName();
         if (std::filesystem::exists(existingIndexPath))
         {
             bool deleteIndex = false;
@@ -192,14 +192,14 @@ namespace AppInstaller::CLI::Portable
         }
 
         // Check if existing install location differs from the target install location for proper cleanup.
-        if (!InstallLocation.empty() && TargetInstallDirectory != InstallLocation)
+        if (!TargetInstallLocation.empty() && TargetInstallLocation != InstallLocation)
         {
             RemoveInstallDirectory();
         }
 
         if (RecordToIndex)
         {
-            std::filesystem::path targetIndexPath = TargetInstallDirectory / c_PortableIndexFileName;
+            std::filesystem::path targetIndexPath = TargetInstallLocation / GetPortableIndexFileName();
             PortableIndex index = CreateOrOpenPortableIndex(targetIndexPath);
             for (auto desiredEntry : m_desiredEntries)
             {
@@ -230,20 +230,18 @@ namespace AppInstaller::CLI::Portable
         return true;
     }
 
-    HRESULT PortableInstaller::Install()
+    void PortableInstaller::Install()
     {
         InitializeRegistryEntry();
 
-        CreateInstallDirectory();
-        
+        CreateTargetInstallDirectory();
+
         ApplyDesiredState();
 
         AddToPathVariable();
-
-        return ERROR_SUCCESS;
     }
 
-    HRESULT PortableInstaller::Uninstall()
+    void PortableInstaller::Uninstall()
     {
         ApplyDesiredState();
 
@@ -253,24 +251,22 @@ namespace AppInstaller::CLI::Portable
 
         m_portableARPEntry.Delete();
         AICLI_LOG(CLI, Info, << "PortableARPEntry deleted.");
-        
-        return ERROR_SUCCESS;
     }
 
-    void PortableInstaller::CreateInstallDirectory()
+    void PortableInstaller::CreateTargetInstallDirectory()
     {
-        if (std::filesystem::create_directories(TargetInstallDirectory))
+        if (std::filesystem::create_directories(TargetInstallLocation))
         {
-            AICLI_LOG(Core, Info, << "Created target install directory: " << TargetInstallDirectory);
+            AICLI_LOG(Core, Info, << "Created target install directory: " << TargetInstallLocation);
             CommitToARPEntry(PortableValueName::InstallDirectoryCreated, true);
         }
 
-        CommitToARPEntry(PortableValueName::InstallLocation, TargetInstallDirectory);
+        CommitToARPEntry(PortableValueName::InstallLocation, TargetInstallLocation);
     }
 
     void PortableInstaller::RemoveInstallDirectory()
     {
-        if (std::filesystem::exists(InstallLocation))
+        if (std::filesystem::exists(InstallLocation) && InstallDirectoryCreated)
         {
             if (Purge)
             {
@@ -319,7 +315,7 @@ namespace AppInstaller::CLI::Portable
 
     void PortableInstaller::AddToPathVariable()
     {
-        const std::filesystem::path& pathValue = GetInstallDirectoryForPathVariable();
+        const std::filesystem::path& pathValue = InstallDirectoryAddedToPath ? TargetInstallLocation : GetPortableLinksLocation(GetScope());
         if (PathVariable(GetScope()).Append(pathValue))
         {
             AICLI_LOG(Core, Info, << "Appended target directory to PATH registry: " << pathValue);
@@ -333,7 +329,7 @@ namespace AppInstaller::CLI::Portable
 
     void PortableInstaller::RemoveFromPathVariable()
     {
-        std::filesystem::path pathValue = GetInstallDirectoryForPathVariable();
+        const std::filesystem::path& pathValue = InstallDirectoryAddedToPath ? InstallLocation : GetPortableLinksLocation(GetScope());
         if (std::filesystem::exists(pathValue) && !std::filesystem::is_empty(pathValue))
         {
             AICLI_LOG(Core, Info, << "Install directory is not empty: " << pathValue);
@@ -384,7 +380,7 @@ namespace AppInstaller::CLI::Portable
     {
         std::vector<PortableFileEntry> entries;
 
-        const auto& indexPath = GetPortableIndexPath();
+        const auto& indexPath = InstallLocation / GetPortableIndexFileName();
 
         if (std::filesystem::exists(indexPath))
         {
@@ -448,11 +444,6 @@ namespace AppInstaller::CLI::Portable
         CommitToARPEntry(PortableValueName::InstallDate, InstallDate);
         CommitToARPEntry(PortableValueName::URLInfoAbout, URLInfoAbout);
         CommitToARPEntry(PortableValueName::HelpLink, HelpLink);
-    }
-
-    std::filesystem::path PortableInstaller::GetPortableIndexPath()
-    {
-        return InstallLocation / c_PortableIndexFileName;
     }
 
     std::string PortableInstaller::GetStringValue(PortableValueName valueName)

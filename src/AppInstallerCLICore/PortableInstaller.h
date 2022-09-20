@@ -39,7 +39,8 @@ namespace AppInstaller::CLI::Portable
         bool Purge = false;
         bool RecordToIndex = false;
 
-        std::filesystem::path TargetInstallDirectory;
+        // This is the incoming target install location determined from the context args.
+        std::filesystem::path TargetInstallLocation;
 
         void InstallFile(AppInstaller::Portable::PortableFileEntry& desiredState);
 
@@ -47,7 +48,6 @@ namespace AppInstaller::CLI::Portable
 
         PortableInstaller(Manifest::ScopeEnum scope, Utility::Architecture arch, const std::string& productCode);
 
-        // Ensures no modifications have been made that conflict with the expected state.
         bool VerifyExpectedState();
 
         void SetDesiredState(std::vector<AppInstaller::Portable::PortableFileEntry>& desiredEntries)
@@ -55,9 +55,9 @@ namespace AppInstaller::CLI::Portable
             m_desiredEntries = desiredEntries;
         };
 
-        HRESULT Install();
+        void Install();
 
-        HRESULT Uninstall();
+        void Uninstall();
 
         template<typename T>
         void CommitToARPEntry(PortableValueName valueName, T value)
@@ -67,10 +67,13 @@ namespace AppInstaller::CLI::Portable
 
         std::filesystem::path GetInstallDirectoryForPathVariable()
         {
-            return  InstallDirectoryAddedToPath ? TargetInstallDirectory : GetPortableLinksLocation(GetScope());
+            return  InstallDirectoryAddedToPath ? InstallLocation : GetPortableLinksLocation(GetScope());
         }
 
-        std::filesystem::path GetPortableIndexPath();
+        std::filesystem::path GetPortableIndexFileName()
+        {
+            return Utility::ConvertToUTF16(GetProductCode() + ".db");
+        }
 
         Manifest::ScopeEnum GetScope() { return m_portableARPEntry.GetScope(); };
 
@@ -105,7 +108,7 @@ namespace AppInstaller::CLI::Portable
 
         void ApplyDesiredState();
 
-        void CreateInstallDirectory();
+        void CreateTargetInstallDirectory();
         void RemoveInstallDirectory();
 
         bool CreatePortableSymlink(const std::filesystem::path& targetPath, const std::filesystem::path& symlinkPath);
