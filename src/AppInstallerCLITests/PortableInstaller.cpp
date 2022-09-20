@@ -2,12 +2,12 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "TestCommon.h"
-#include <winget/PathVariable.h>
-#include <winget/Manifest.h>
 #include <PortableInstaller.h>
 #include <Public/AppInstallerArchitecture.h>
-#include <winget/PortableARPEntry.h>
 #include <winget/Filesystem.h>
+#include <winget/Manifest.h>
+#include <winget/PathVariable.h>
+#include <winget/PortableARPEntry.h>
 #include <Microsoft/SQLiteStorageBase.h>
 #include <Microsoft/Schema/IPortableIndex.h>
 #include <Microsoft/PortableIndex.h>
@@ -172,11 +172,3 @@ TEST_CASE("PortableInstaller_InstallToIndex_ExistingInstallRoot", "[PortableInst
     REQUIRE_FALSE(AppInstaller::Filesystem::SymlinkExists(symlinkPath2));
     REQUIRE_FALSE(std::filesystem::exists(directoryPath));
 }
-
-
-
-// Tests
-// Add an extra file that has not been tracked and verify that target directory has not been removed
-// check verify portable files returns false if one of the files has been modified
-// 
-
