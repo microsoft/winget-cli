@@ -13,6 +13,7 @@
 #include <winget/ThreadGlobals.h>
 #include <winget/InstallerMetadataCollectionContext.h>
 #include <PackageDependenciesValidation.h>
+#include <public/winget/PackageDependenciesValidationUtil.h>
 #include <ArpVersionValidation.h>
 
 using namespace AppInstaller::Utility;
@@ -298,6 +299,11 @@ extern "C"
         catch (const ManifestException& e)
         {
             *succeeded = e.IsWarningOnly();
+            if (*succeeded)
+            {
+                std::unique_ptr<Manifest> result = std::make_unique<Manifest>(YamlParser::CreateFromPath(inputPath));
+                *manifest = static_cast<WINGET_MANIFEST_HANDLE>(result.release());
+            }
             if (message)
             {
                 *message = ::SysAllocString(ConvertToUTF16(e.GetManifestErrorMessage()).c_str());
@@ -356,7 +362,13 @@ extern "C"
             }
             catch (const ManifestException& e)
             {
-                WI_SetFlagIf(validationResult, WinGetValidateManifestResult::DependenciesValidationFailure, !e.IsWarningOnly());
+                if (!e.IsWarningOnly())
+                {
+                    validationResult |= WinGetValidateManifestResult::DependenciesValidationFailure;
+                }
+                
+                validationResult |= static_cast<WinGetValidateManifestResult>( AppInstaller::Manifest::GetDependenciesValidationResultFromException(e) );
+              
                 if (message)
                 {
                     validationMessage += e.GetManifestErrorMessage();

@@ -489,7 +489,11 @@ namespace AppInstaller::Repository::Metadata
         AICLI_LOG(Repo, Info, << "Opening InstallerMetadataCollectionContext input file: " << file);
         std::ifstream fileStream{ file };
 
-        result->InitializePreinstallState(ConvertToUTF16(ReadEntireStream(fileStream)));
+        auto content = ReadEntireStream(fileStream);
+        // CppRestSdk's implementation of json parsing does not work with '\0', so trimming them here
+        content.erase(std::find(content.begin(), content.end(), '\0'), content.end());
+
+        result->InitializePreinstallState(ConvertToUTF16(content));
 
         return result;
     }

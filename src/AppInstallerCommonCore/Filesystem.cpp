@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Public/AppInstallerStrings.h"
-#include "winget/Filesystem.h"
+#include "public/winget/Filesystem.h"
 
 namespace AppInstaller::Filesystem
 {
@@ -185,5 +185,20 @@ namespace AppInstaller::Filesystem
     bool SymlinkExists(const std::filesystem::path& symlinkPath)
     {
         return std::filesystem::is_symlink(std::filesystem::symlink_status(symlinkPath));
+    }
+
+    std::filesystem::path GetExpandedPath(const std::string& path)
+    {
+        std::string trimPath = path;
+        Utility::Trim(trimPath);
+
+        try
+        {
+            return Utility::ExpandEnvironmentVariables(Utility::ConvertToUTF16(trimPath));
+        }
+        catch (...)
+        {
+            return path;
+        }
     }
 }

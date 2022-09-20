@@ -24,6 +24,10 @@
     <ClCompile Include="UninstallResult.cpp" />
     <ClCompile Include="ComClsids.cpp" />
     <ClCompile Include="PackageManagerSettings.cpp" />
+    <ClCompile Include="PackageInstallerInfo.cpp" />
+    <ClCompile Include="InstalledStatus.cpp" />
+    <ClCompile Include="PackageInstallerInstalledStatus.cpp" />
+    <ClCompile Include="CheckInstalledStatusResult.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CatalogPackage.h" />
@@ -50,6 +54,10 @@
       <Filter>Public</Filter>
     </ClInclude>
     <ClInclude Include="PackageManagerSettings.h" />
+    <ClInclude Include="PackageInstallerInfo.h" />
+    <ClInclude Include="InstalledStatus.h" />
+    <ClInclude Include="PackageInstallerInstalledStatus.h" />
+    <ClInclude Include="CheckInstalledStatusResult.h" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="PackageManager.idl" />

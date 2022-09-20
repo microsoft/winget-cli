@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "pch.h"
+#include <filesystem>
 
 namespace AppInstaller::Filesystem
 {
@@ -31,4 +31,7 @@ namespace AppInstaller::Filesystem
 
     // Checks if the path is a symlink and exists.
     bool SymlinkExists(const std::filesystem::path& symlinkPath);
+
+    // Get expanded file system path.
+    std::filesystem::path GetExpandedPath(const std::string& path);
 }

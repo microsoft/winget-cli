@@ -241,7 +241,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
             {
                 if (error.ErrorLevel == Manifest::ValidationError::Level::Error)
                 {
-                    AICLI_LOG(Repo, Error, << "Received manifest contains validation error: " << error.Message);
+                    AICLI_LOG(Repo, Error, << "Received manifest contains validation error: " << error.GetErrorMessage());
                     errors++;
                 }
             }

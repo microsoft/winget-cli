@@ -45,13 +45,13 @@ The initial implementation of this feature will only support the following insta
 - Single or multiple portable exes bundled as a suite inside an archive file.
 
 ## ZIP Extraction
-The extraction of ZIPs will be done using Windows Shell APIs. ZIP files can be represented as a [ShellFolder](https://docs.microsoft.com/en-us/windows/win32/api/shobjidl_core/nn-shobjidl_core-ishellfolder) object that can be used to manage the contents of the ZIP file. File contents are represented as [ShellItems](https://docs.microsoft.com/en-us/windows/win32/api/shobjidl_core/nn-shobjidl_core-ishellitem), which can be handled using the methods exposed by the [IFileOperation interface](https://docs.microsoft.com/en-us/windows/win32/api/shobjidl_core/nn-shobjidl_core-ifileoperation). 
+The extraction of ZIPs will be done using Windows Shell APIs. ZIP files can be represented as a [ShellFolder](https://docs.microsoft.com/windows/win32/api/shobjidl_core/nn-shobjidl_core-ishellfolder) object that can be used to manage the contents of the ZIP file. File contents are represented as [ShellItems](https://docs.microsoft.com/windows/win32/api/shobjidl_core/nn-shobjidl_core-ishellitem), which can be handled using the methods exposed by the [IFileOperation interface](https://docs.microsoft.com/windows/win32/api/shobjidl_core/nn-shobjidl_core-ifileoperation). 
 
 In our initial implementation, we will only support extracting the top level archive to a temporary location. This means that the `NestedInstallerFile` must not be contained in any nested archives. The appropriate install flow will proceed based on the specified `NestedInstallerType`. 
 
 > If the community presents enough use cases that require decompressing additional layers, then we will consider extending this functionality and adding a separate manifest entry to override the default behavior of only unzipping the top level archive.
 
-> Since we are utilizing Windows Shell APIs, we need to ensure that we are not invoking a UI during the extraction. This can be done by [setting the operation flag to not display any UI](https://docs.microsoft.com/en-us/windows/win32/api/shobjidl_core/nf-shobjidl_core-ifileoperation-setoperationflags). 
+> Since we are utilizing Windows Shell APIs, we need to ensure that we are not invoking a UI during the extraction. This can be done by [setting the operation flag to not display any UI](https://docs.microsoft.com/windows/win32/api/shobjidl_core/nf-shobjidl_core-ifileoperation-setoperationflags). 
 
 > During implementation, we will also need to ensure that this process can work under SYSTEM context.
 

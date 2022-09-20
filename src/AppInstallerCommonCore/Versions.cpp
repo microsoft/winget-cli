@@ -245,6 +245,22 @@ namespace AppInstaller::Utility
             return s_zero;
         }
     }
+
+    Version Version::GetBaseVersion() const
+    {
+        Version baseVersion = *this;
+        baseVersion.m_approximateComparator = ApproximateComparator::None;
+        if (m_approximateComparator == ApproximateComparator::LessThan)
+        {
+            baseVersion.m_version = m_version.substr(s_Approximate_Less_Than.size());
+        }
+        else if (m_approximateComparator == ApproximateComparator::GreaterThan)
+        {
+            baseVersion.m_version = m_version.substr(s_Approximate_Greater_Than.size());
+        }
+        
+        return baseVersion;
+    }
     
     bool Version::IsBaseVersionLatest() const
     {

@@ -123,6 +123,7 @@ namespace AppInstaller::Manifest
     {
         Unknown,
         PackageInUse,
+        PackageInUseByApplication,
         InstallInProgress,
         FileInUse,
         MissingDependency,
@@ -277,6 +278,9 @@ namespace AppInstaller::Manifest
     {
         string_t DefaultInstallLocation;
         std::vector<InstalledFile> Files;
+
+        // Checks if there are any installation metadata available.
+        bool HasData() const { return !DefaultInstallLocation.empty() || !Files.empty(); }
     };
 
     InstallerTypeEnum ConvertToInstallerTypeEnum(const std::string& in);

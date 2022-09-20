@@ -219,6 +219,9 @@
     <ClInclude Include="Public\winget\PathVariable.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
+    <ClInclude Include="Public\winget\PackageDependenciesValidationUtil.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -383,9 +386,12 @@
     <ClCompile Include="Manifest\MsixManifestValidation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClInclude Include="PathVariable.cpp">
+    <ClCompile Include="PathVariable.cpp">
       <Filter>Source Files</Filter>
-    </ClInclude>
+    </ClCompile>
+    <ClCompile Include="PackageDependenciesValidationUtil.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />

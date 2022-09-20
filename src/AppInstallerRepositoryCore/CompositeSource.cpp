@@ -417,17 +417,17 @@ namespace AppInstaller::Repository
                 return true;
             }
 
-            const std::shared_ptr<IPackage>& GetInstalledPackage()
+            const std::shared_ptr<IPackage>& GetInstalledPackage() const
             {
                 return m_installedPackage;
             }
 
-            const std::shared_ptr<IPackage>& GetAvailablePackage()
+            const std::shared_ptr<IPackage>& GetAvailablePackage() const
             {
                 return m_availablePackage;
             }
 
-            const std::shared_ptr<IPackage>& GetTrackingPackage()
+            const std::shared_ptr<IPackage>& GetTrackingPackage() const
             {
                 return m_trackingPackage;
             }

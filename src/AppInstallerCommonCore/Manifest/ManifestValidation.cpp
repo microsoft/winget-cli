@@ -11,6 +11,61 @@
 
 namespace AppInstaller::Manifest
 {
+    namespace
+    {
+        const auto& GetErrorIdToMessageMap()
+        {
+            static std::map<AppInstaller::StringResource::StringId, std::string_view> ErrorIdToMessageMap = {
+                { AppInstaller::Manifest::ManifestError::InvalidRootNode, "Encountered unexpected root node."sv },
+                { AppInstaller::Manifest::ManifestError::FieldUnknown, "Unknown field."sv },
+                { AppInstaller::Manifest::ManifestError::FieldIsNotPascalCase, "All field names should be PascalCased."sv },
+                { AppInstaller::Manifest::ManifestError::FieldDuplicate, "Duplicate field found in the manifest."sv },
+                { AppInstaller::Manifest::ManifestError::RequiredFieldEmpty, "Required field with empty value."sv },
+                { AppInstaller::Manifest::ManifestError::RequiredFieldMissing,  "Required field missing."sv },
+                { AppInstaller::Manifest::ManifestError::InvalidFieldValue, "Invalid field value."sv },
+                { AppInstaller::Manifest::ManifestError::ExeInstallerMissingSilentSwitches, "Silent and SilentWithProgress switches are not specified for InstallerType exe.Please make sure the installer can run unattended."sv },
+                { AppInstaller::Manifest::ManifestError::FieldNotSupported, "Field is not supported."sv },
+                { AppInstaller::Manifest::ManifestError::FieldValueNotSupported, "Field value is not supported."sv },
+                { AppInstaller::Manifest::ManifestError::DuplicateInstallerEntry, "Duplicate installer entry found."sv },
+                { AppInstaller::Manifest::ManifestError::InstallerTypeDoesNotSupportPackageFamilyName, "The specified installer type does not support PackageFamilyName."sv },
+                { AppInstaller::Manifest::ManifestError::InstallerTypeDoesNotSupportProductCode, "The specified installer type does not support ProductCode."sv },
+                { AppInstaller::Manifest::ManifestError::InstallerTypeDoesNotWriteAppsAndFeaturesEntry, "The specified installer type does not write to Apps and Features entry."sv },
+                { AppInstaller::Manifest::ManifestError::IncompleteMultiFileManifest, "The multi file manifest is incomplete.A multi file manifest must contain at least version, installer and defaultLocale manifest."sv },
+                { AppInstaller::Manifest::ManifestError::InconsistentMultiFileManifestFieldValue, "The multi file manifest has inconsistent field values."sv },
+                { AppInstaller::Manifest::ManifestError::DuplicateMultiFileManifestType, "The multi file manifest should contain only one file with the particular ManifestType."sv },
+                { AppInstaller::Manifest::ManifestError::DuplicateMultiFileManifestLocale, "The multi file manifest contains duplicate PackageLocale."sv },
+                { AppInstaller::Manifest::ManifestError::UnsupportedMultiFileManifestType, "The multi file manifest should not contain file with the particular ManifestType."sv },
+                { AppInstaller::Manifest::ManifestError::InconsistentMultiFileManifestDefaultLocale, "DefaultLocale value in version manifest does not match PackageLocale value in defaultLocale manifest."sv },
+                { AppInstaller::Manifest::ManifestError::FieldFailedToProcess, "Failed to process field."sv },
+                { AppInstaller::Manifest::ManifestError::InvalidBcp47Value, "The locale value is not a well formed bcp47 language tag."sv },
+                { AppInstaller::Manifest::ManifestError::BothAllowedAndExcludedMarketsDefined, "Both AllowedMarkets and ExcludedMarkets defined."sv },
+                { AppInstaller::Manifest::ManifestError::DuplicateReturnCodeEntry, "Duplicate installer return code found."sv },
+                { AppInstaller::Manifest::ManifestError::FieldRequireVerifiedPublisher, "Field usage requires verified publishers."sv },
+                { AppInstaller::Manifest::ManifestError::SingleManifestPackageHasDependencies, "Package has a single manifest and is a dependency of other manifests."sv },
+                { AppInstaller::Manifest::ManifestError::MultiManifestPackageHasDependencies, "Deleting the manifest will be break the following dependencies."sv },
+                { AppInstaller::Manifest::ManifestError::MissingManifestDependenciesNode, "Dependency not found: "sv },
+                { AppInstaller::Manifest::ManifestError::NoSuitableMinVersionDependency,"No Suitable Minimum Version : "sv },
+                { AppInstaller::Manifest::ManifestError::FoundDependencyLoop, "Loop found."sv },
+                { AppInstaller::Manifest::ManifestError::ExceededAppsAndFeaturesEntryLimit, "Only zero or one entry for Apps and Features may be specified for InstallerType portable."sv },
+                { AppInstaller::Manifest::ManifestError::ExceededCommandsLimit, "Only zero or one value for Commands may be specified for InstallerType portable."sv },
+                { AppInstaller::Manifest::ManifestError::ScopeNotSupported, "Scope is not supported for InstallerType portable."sv },
+                { AppInstaller::Manifest::ManifestError::InstallerMsixInconsistencies, "Inconsistent value in the manifest."sv },
+                { AppInstaller::Manifest::ManifestError::OptionalFieldMissing, "Optional field missing."sv },
+                { AppInstaller::Manifest::ManifestError::InstallerFailedToProcess, "Failed to process installer."sv },
+                { AppInstaller::Manifest::ManifestError::NoSupportedPlatforms, "No supported platforms."sv },
+                { AppInstaller::Manifest::ManifestError::ApproximateVersionNotAllowed, "Approximate version not allowed."sv },
+                { AppInstaller::Manifest::ManifestError::ArpVersionOverlapWithIndex, "DisplayVersion declared in the manifest has overlap with existing DisplayVersion range in the index.Existing DisplayVersion range in index : "sv },
+                { AppInstaller::Manifest::ManifestError::ArpVersionValidationInternalError, "Internal error while validating DisplayVersion against index."sv },
+                { AppInstaller::Manifest::ManifestError::ExceededNestedInstallerFilesLimit, "Only one entry for NestedInstallerFiles can be specified for non-portable InstallerTypes."sv },
+                { AppInstaller::Manifest::ManifestError::RelativeFilePathEscapesDirectory, "Relative file path must not point to a location outside of archive directory"sv },
+                { AppInstaller::Manifest::ManifestError::ArpValidationError, "Arp Validation Error"sv },
+                { AppInstaller::Manifest::ManifestError::SchemaError, "Schema Error"sv },
+                { AppInstaller::Manifest::ManifestError::MsixSignatureHashFailed, "Failed to calculate MSIX signature hash.Please verify that the input file is a valid, signed MSIX."sv }
+            };
+
+            return ErrorIdToMessageMap;
+        }
+    }
     std::vector<ValidationError> ValidateManifest(const Manifest& manifest, bool fullValidation)
     {
         std::vector<ValidationError> resultErrors;
@@ -42,9 +97,17 @@ namespace AppInstaller::Manifest
         // Todo: use the comparator from ManifestComparator when that one is fully implemented.
         auto installerCmp = [](const ManifestInstaller& in1, const ManifestInstaller& in2)
         {
-            if (in1.EffectiveInstallerType() != in2.EffectiveInstallerType())
+            if (in1.BaseInstallerType != in2.BaseInstallerType)
             {
-                return in1.EffectiveInstallerType() < in2.EffectiveInstallerType();
+                return in1.BaseInstallerType < in2.BaseInstallerType;
+            }
+            else if (IsArchiveType(in1.BaseInstallerType))
+            {
+                // Compare nested installer type if base installer type is archive.
+                if (in1.NestedInstallerType != in2.NestedInstallerType)
+                {
+                    return in1.NestedInstallerType < in2.NestedInstallerType;
+                }
             }
 
             if (in1.Arch != in2.Arch)
@@ -317,5 +380,18 @@ namespace AppInstaller::Manifest
         }
 
         return errors;
+    }
+
+    std::string ValidationError::GetErrorMessage() const
+    {
+        const auto& ErrorIdToMessageMap = GetErrorIdToMessageMap();
+        const auto itr = ErrorIdToMessageMap.find(Message);
+
+        if (itr != ErrorIdToMessageMap.end())
+        {
+            return std::string(itr->second);
+        }
+        
+        return Utility::ConvertToUTF8(Message);
     }
 }
