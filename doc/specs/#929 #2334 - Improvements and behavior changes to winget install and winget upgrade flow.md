@@ -21,6 +21,22 @@ This is a mini spec for describing upcoming beahvior changes and improvements to
 
 **New Behavior**: By default, `winget install` will check for installed package after a package is found in a source. If an installed package is found, `winget install` will inform user in bold text and try to do a `winget upgrade` workflow instead. User will get `No applicable upgrade` if upgradable version not available. If an installed package is not found, `winget install` will try to search through all available package versions and find the latest that's applicable, in hope that installation success will be higher with less `No applicable installer`.
 
-**Note**: To better accommodate various user needs, the existing behavior will be preserved and can be invoked with `--force` flag.
+**Note**: To better accommodate various user needs, the existing behavior will be preserved and can be invoked with `--force` argument.
 
-### Winget Upgrade flow will
+### Winget Upgrade flow will try to select installer that better matches installed package
+
+**Existing Behavior**: `winget upgrade` does not try to select installer by installed package's architecture, locale.
+
+**New Behavior**:
+
+- First, winget will try to record selected installer's architecture and locale for installation through winget
+- winget will record architecture or locale from command as user intent. i.e. `winget install foo --architecture x86 --locale en-US`
+- During upgrade flow installer selection, installer architecture or locale from previous installation will be treated as preference. Installer architecture or locale from user intent will be treated as requirement(i.e. the upgrade will fail if architecture or locale requirement cannot be met).
+
+**Note**: This improvement only works for installations through winget. Due to current limitations of winget tracking implementation, winget will only honor metadata from last installation for the same package.
+
+### `--force` argument separation from Override Hash Mismatch
+
+**Existing Behavior**: Currently, the `--force` argument is overloaded with overriding installer hash mismatch, overriding conflicting portable package, and potentially overriding the new `winget install` behavior.
+
+**New Behavior**: Since hash mismatch overriding is security related, it warrants a dedicated argument. `--ignore-security-hash`(name suggested in [#715](https://github.com/microsoft/winget-cli/issues/715)) will be introduced to represent installer hash mismatch overriding. `--force` argument will be kept for generic workflow behavior overriding.
