@@ -54,7 +54,7 @@ namespace AppInstaller::CLI
         case Args::Type::InstallLocation:
             return Argument{ "location", 'l', Args::Type::InstallLocation, Resource::String::LocationArgumentDescription, ArgumentType::Standard };
         case Args::Type::HashOverride:
-            return Argument{ "force", NoAlias, Args::Type::HashOverride, Resource::String::InstallForceArgumentDescription, ArgumentType::Flag, Settings::TogglePolicy::Policy::HashOverride };
+            return Argument{ "ignore-security-hash", NoAlias, Args::Type::HashOverride, Resource::String::HashOverrideArgumentDescription, ArgumentType::Flag, Settings::TogglePolicy::Policy::HashOverride };
         case Args::Type::AcceptPackageAgreements:
             return Argument{ "accept-package-agreements", NoAlias, Args::Type::AcceptPackageAgreements, Resource::String::AcceptPackageAgreementsArgumentDescription, ArgumentType::Flag };
         case Args::Type::HashFile:
@@ -97,6 +97,8 @@ namespace AppInstaller::CLI
             return Argument{ "wait", NoAlias, Args::Type::Wait, Resource::String::WaitArgumentDescription, ArgumentType::Flag, false };
         case Args::Type::ProductCode:
             return Argument{ "product-code", NoAlias, Args::Type::ProductCode, Resource::String::ProductCodeArgumentDescription, ArgumentType::Standard, false };
+        case Args::Type::Force:
+            return Argument{ "force", NoAlias, Args::Type::Force, Resource::String::ForceArgumentDescription, ArgumentType::Flag, false };
         default:
             THROW_HR(E_UNEXPECTED);
         }

@@ -273,12 +273,12 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Installer hash does not match; this cannot be overridden when running as admin</value>
   </data>
   <data name="InstallerHashMismatchOverridden" xml:space="preserve">
-    <value>Installer hash does not match; proceeding due to --force</value>
-    <comment>{Locked="--force"}</comment>
+    <value>Installer hash does not match; proceeding due to --ignore-security-hash</value>
+    <comment>{Locked="--ignore-security-hash"}</comment>
   </data>
   <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
-    <value>Installer hash does not match; to override this check use --force</value>
-    <comment>{Locked="--force"}</comment>
+    <value>Installer hash does not match; to override this check use --ignore-security-hash</value>
+    <comment>{Locked="--ignore-security-hash"}</comment>
   </data>
   <data name="InstallerHashVerified" xml:space="preserve">
     <value>Successfully verified installer hash</value>
@@ -289,8 +289,8 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="InstallFlowStartingPackageInstall" xml:space="preserve">
     <value>Starting package install...</value>
   </data>
-  <data name="InstallForceArgumentDescription" xml:space="preserve">
-    <value>Override the installer hash check</value>
+  <data name="HashOverrideArgumentDescription" xml:space="preserve">
+    <value>Ignore the installer hash check failure</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>Request interactive installation; user input may be needed</value>
@@ -1321,6 +1321,7 @@ Please specify one of them using the `--source` option to proceed.</value>
   </data>
   <data name="PortableRegistryCollisionOverridden" xml:space="preserve">
     <value>A portable package with the same name but from a different source already exists; proceeding due to --force</value>
+    <comment>{Locked="--force"}</comment>
   </data>
   <data name="ReparsePointsNotSupportedError" xml:space="preserve">
     <value>The volume does not support reparse points</value>
@@ -1432,11 +1433,11 @@ Please specify one of them using the `--source` option to proceed.</value>
     <value>Disable interactive prompts</value>
     <comment>Description for a command line argument, shown next to it in the help</comment>
   </data>
-  <data name="DirectInstallArgumentDescription" xml:space="preserve">
-    <value>Perform a direct installation without checking package installed status</value>
-    <comment>Description for a command line argument, shown next to it in the help</comment>
-  </data>
   <data name="ConvertInstallFlowToUpgrade" xml:space="preserve">
     <value>Found an existing package already installed. Trying to upgrade the installed package...</value>
+  </data>
+  <data name="ForceArgumentDescription" xml:space="preserve">
+    <value>Direct run the command and continue with non security related issues</value>
+    <comment>Description for a command line argument, shown next to it in the help</comment>
   </data>
 </root>

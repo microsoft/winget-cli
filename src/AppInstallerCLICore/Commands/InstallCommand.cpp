@@ -48,7 +48,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::CustomHeader),
             Argument::ForType(Args::Type::AcceptSourceAgreements),
             Argument::ForType(Args::Type::Rename),
-            Argument{ s_ArgumentName_DirectInstall, Argument::NoAlias, Args::Type::DirectInstall, Resource::String::DirectInstallArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help },
+            Argument::ForType(Args::Type::Force),
         };
     }
 
