@@ -401,12 +401,14 @@ namespace AppInstallerCLIE2ETests
         {
             if (!File.Exists(Path.Combine(installDir, Constants.TestExeInstalledFileName)))
             {
+                TestContext.Out.WriteLine($"TestExeInstalled.exe not found at {installDir}");
                 return false;
             }
 
             if (!string.IsNullOrEmpty(expectedContent))
             {
                 string content = File.ReadAllText(Path.Combine(installDir, Constants.TestExeInstalledFileName));
+                TestContext.Out.WriteLine($"TestExeInstalled.exe content: {content}");
                 return content.Contains(expectedContent);
             }
 
