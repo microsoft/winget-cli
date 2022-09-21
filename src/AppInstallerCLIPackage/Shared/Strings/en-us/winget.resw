@@ -135,7 +135,7 @@
   </data>
   <data name="AvailableHeader" xml:space="preserve">
     <value>Available</value>
-    <comment>As in "a new version is available to update to".</comment>
+    <comment>As in "a new version is available to upgrade to".</comment>
   </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>The following options are available:</value>
@@ -316,7 +316,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <comment>Links to different webpages</comment>
   </data>
   <data name="ListCommandLongDescription" xml:space="preserve">
-    <value>The list command displays the packages installed on the system, as well as whether an update is available. Additional options can be provided to filter the output, much like the search command.</value>
+    <value>The list command displays the packages installed on the system, as well as whether an upgrade is available. Additional options can be provided to filter the output, much like the search command.</value>
     <comment>{Locked="list","search"}</comment>
   </data>
   <data name="ListCommandShortDescription" xml:space="preserve">
@@ -360,10 +360,10 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Failed to calculate MSIX signature hash.</value>
   </data>
   <data name="MSStoreAppBlocked" xml:space="preserve">
-    <value>Failed to install or update Microsoft Store package because the specific app is blocked by policy</value>
+    <value>Failed to install or upgrade Microsoft Store package because the specific app is blocked by policy</value>
   </data>
   <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
-    <value>Failed to install or update Microsoft Store package. Error code:</value>
+    <value>Failed to install or upgrade Microsoft Store package. Error code:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>Verifying/Requesting package acquisition failed: network error</value>
@@ -378,7 +378,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Verifying/Requesting package acquisition success</value>
   </data>
   <data name="MSStoreStoreClientBlocked" xml:space="preserve">
-    <value>Failed to install or update Microsoft Store package because Microsoft Store client is blocked by policy</value>
+    <value>Failed to install or upgrade Microsoft Store package because Microsoft Store client is blocked by policy</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>Verifying/Requesting package acquisition...</value>
@@ -663,10 +663,10 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Unrecognized command</value>
   </data>
   <data name="UpdateAllArgumentDescription" xml:space="preserve">
-    <value>Update all installed packages to latest if available</value>
+    <value>Upgrade all installed packages to latest if available</value>
   </data>
   <data name="UpdateNotApplicable" xml:space="preserve">
-    <value>No applicable update found.</value>
+    <value>No applicable upgrade found.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
     <value>Upgrades the selected package, either found by searching the installed packages list or directly from a manifest. By default, the query must case-insensitively match the id, name, or moniker of the package. Other fields can be used by passing their appropriate option. When no arguments are given, shows the packages with upgrades available</value>

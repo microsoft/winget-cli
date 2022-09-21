@@ -19,7 +19,6 @@ namespace AppInstaller::CLI
     {
         constexpr Utility::LocIndView s_ArgumentName_Scope = "scope"_liv;
         constexpr Utility::LocIndView s_ArgumentName_Architecture = "architecture"_liv;
-        constexpr Utility::LocIndView s_ArgumentName_DirectInstall = "direct-install"_liv;
     }
 
     std::vector<Argument> InstallCommand::GetArguments() const
@@ -161,7 +160,7 @@ namespace AppInstaller::CLI
                 Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
                 Workflow::OpenSource();
 
-            if (!context.Args.Contains(Execution::Args::Type::DirectInstall))
+            if (!context.Args.Contains(Execution::Args::Type::Force))
             {
                 context << 
                     Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed, false, Repository::CompositeSearchBehavior::AvailablePackages);

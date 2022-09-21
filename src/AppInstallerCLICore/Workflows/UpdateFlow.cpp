@@ -247,7 +247,8 @@ namespace AppInstaller::CLI::Workflow
 
         if (!m_isUpgrade && context.Contains(Execution::Data::InstalledPackageVersion) && context.Get<Execution::Data::InstalledPackageVersion>() != nullptr)
         {
-            context.Reporter.Info() << Resource::String::ConvertInstallFlowToUpgrade << std::endl;
+            AICLI_LOG(CLI, Info, << "Found installed package, converting to upgrade flow");
+            context.Reporter.Info() << Execution::ConvertToUpgradeFlowEmphasis << Resource::String::ConvertInstallFlowToUpgrade << std::endl;
             context.SetFlags(Execution::ContextFlag::InstallerExecutionUseUpdate);
             m_isUpgrade = true;
         }
