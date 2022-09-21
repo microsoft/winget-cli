@@ -3,7 +3,6 @@
 
 namespace AppInstallerCLIE2ETests
 {
-    using Microsoft.VisualBasic;
     using NUnit.Framework;
     using System.IO;
 

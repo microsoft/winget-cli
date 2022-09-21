@@ -164,7 +164,7 @@ namespace AppInstaller::CLI::Workflow
             context.Reporter.Error() << Resource::String::NoApplicableInstallers << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_APPLICABLE_INSTALLER);
         }
-        
+
         // This installer cannot be run elevated, but we are running elevated.
         // Implementation of de-elevation is complex; simply block for now.
         if (installer->ElevationRequirement == ElevationRequirementEnum::ElevationProhibited && Runtime::IsRunningAsAdmin())

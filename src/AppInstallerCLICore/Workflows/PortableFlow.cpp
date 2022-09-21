@@ -233,6 +233,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 if (!portableEntry.VerifyPortableExeHash())
                 {
+                    // This is to override removing hash mismatched portables, so use force here.
                     bool overrideHashMismatch = context.Args.Contains(Execution::Args::Type::Force);
                     if (overrideHashMismatch)
                     {

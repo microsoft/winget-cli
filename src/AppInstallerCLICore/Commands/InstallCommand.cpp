@@ -162,7 +162,7 @@ namespace AppInstaller::CLI
 
             if (!context.Args.Contains(Execution::Args::Type::Force))
             {
-                context << 
+                context <<
                     Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed, false, Repository::CompositeSearchBehavior::AvailablePackages);
             }
 
