@@ -27,7 +27,7 @@ namespace AppInstaller::Portable
 
         void SetFilePath(const std::filesystem::path& path)
         {
-            if (FileType == PortableFileType::Symlink)
+            if (FileType != PortableFileType::Symlink)
             {
                 m_filePath = std::filesystem::weakly_canonical(path);
             }
