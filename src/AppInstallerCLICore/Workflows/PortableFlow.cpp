@@ -161,7 +161,6 @@ namespace AppInstaller::CLI::Workflow
         context.Add<Execution::Data::PortableInstaller>(std::move(portableInstaller));
     }
 
-
     std::vector<PortableFileEntry> GetDesiredStateForPortableInstall(Execution::Context& context)
     {
         std::filesystem::path& installerPath = context.Get<Execution::Data::InstallerPath>();
@@ -278,7 +277,6 @@ namespace AppInstaller::CLI::Workflow
             }
 
             portableInstaller.Install();
-
             context.Add<Execution::Data::OperationReturnCode>(ERROR_SUCCESS);
             context.Reporter.Warn() << portableInstaller.GetOutputMessage();
         }
@@ -289,7 +287,9 @@ namespace AppInstaller::CLI::Workflow
             if (!portableInstaller.IsUpdate)
             {
                 context.Reporter.Warn() << Resource::String::PortableInstallFailed << std::endl;
-                portableInstaller.Uninstall();
+                portableInstaller.PrepareForCleanUp();
+;               portableInstaller.Uninstall();
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PORTABLE_UNINSTALL_FAILED);
             }
         }
     }

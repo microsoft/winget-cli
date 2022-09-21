@@ -29,12 +29,11 @@ namespace AppInstaller::Portable
         {
             if (FileType == PortableFileType::Symlink)
             {
-                // weakly_canonical will resolve the symlink path to its target if it exists, set path directly.
-                m_filePath = path;
+                m_filePath = std::filesystem::weakly_canonical(path);
             }
             else
             {
-                m_filePath = std::filesystem::weakly_canonical(path);
+                m_filePath = path;
             }
         };
 

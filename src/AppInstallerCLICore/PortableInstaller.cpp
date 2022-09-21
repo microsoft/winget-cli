@@ -22,20 +22,6 @@ using namespace AppInstaller::Repository::Microsoft::Schema;
 
 namespace AppInstaller::CLI::Portable
 {
-    namespace
-    {
-        constexpr std::wstring_view c_PortableIndexFileName = L"portable.db";
-
-        PortableIndex CreateOrOpenPortableIndex(const std::filesystem::path& indexPath)
-        {
-            PortableIndex index = std::filesystem::exists(indexPath) ?
-                PortableIndex::Open(indexPath.u8string(), SQLiteStorageBase::OpenDisposition::ReadWrite) :
-                PortableIndex::CreateNew(indexPath.u8string());
-
-            return index;
-        }
-    }
-
     std::filesystem::path GetPortableLinksLocation(Manifest::ScopeEnum scope)
     {
         if (scope == Manifest::ScopeEnum::Machine)
@@ -120,13 +106,11 @@ namespace AppInstaller::CLI::Portable
         }
         else if (entry.FileType == PortableFileType::Symlink && !InstallDirectoryAddedToPath)
         {
-            const std::filesystem::path& symlinkPath = entry.SymlinkTarget;
-
-            std::filesystem::file_status status = std::filesystem::status(symlinkPath);
+            std::filesystem::file_status status = std::filesystem::status(filePath);
             if (std::filesystem::is_directory(status))
             {
-                AICLI_LOG(CLI, Info, << "Unable to create symlink. '" << symlinkPath << "points to an existing directory.");
-                throw APPINSTALLER_CLI_ERROR_PORTABLE_SYMLINK_PATH_IS_DIRECTORY;
+                AICLI_LOG(CLI, Info, << "Unable to create symlink. '" << filePath << "points to an existing directory.");
+                THROW_HR(APPINSTALLER_CLI_ERROR_PORTABLE_SYMLINK_PATH_IS_DIRECTORY);
             }
 
             if (!RecordToIndex)
@@ -134,7 +118,23 @@ namespace AppInstaller::CLI::Portable
                 CommitToARPEntry(PortableValueName::PortableSymlinkFullPath, filePath);
             }
 
-            PortableInstaller::CreatePortableSymlink(entry.SymlinkTarget, filePath);
+            if (std::filesystem::remove(filePath))
+            {
+                AICLI_LOG(CLI, Info, << "Removed existing file at " << filePath);
+                m_stream << Resource::String::OverwritingExistingFileAtMessage << ' ' << filePath << std::endl;
+            }
+
+            if (Filesystem::CreateSymlink(entry.SymlinkTarget, filePath))
+            {
+                AICLI_LOG(Core, Info, << "Symlink created at: " << filePath);
+            }
+            else
+            {
+                // Symlink creation should only fail if the user executes without admin rights or developer mode.
+                // Resort to adding install directory to PATH directly.
+                AICLI_LOG(Core, Info, << "Portable install executed in user mode. Adding package directory to PATH.");
+                CommitToARPEntry(PortableValueName::InstallDirectoryAddedToPath, InstallDirectoryAddedToPath = true);
+            }
         }
     }
 
@@ -167,7 +167,8 @@ namespace AppInstaller::CLI::Portable
         {
             bool deleteIndex = false;
             {
-                PortableIndex existingIndex = CreateOrOpenPortableIndex(existingIndexPath);
+                PortableIndex existingIndex = PortableIndex::Open(existingIndexPath.u8string(), SQLiteStorageBase::OpenDisposition::ReadWrite);
+                
                 for (auto expectedEntry : m_expectedEntries)
                 {
                     RemoveFile(expectedEntry);
@@ -200,10 +201,13 @@ namespace AppInstaller::CLI::Portable
         if (RecordToIndex)
         {
             std::filesystem::path targetIndexPath = TargetInstallLocation / GetPortableIndexFileName();
-            PortableIndex index = CreateOrOpenPortableIndex(targetIndexPath);
+            PortableIndex targetIndex = std::filesystem::exists(targetIndexPath) ?
+                PortableIndex::Open(targetIndexPath.u8string(), SQLiteStorageBase::OpenDisposition::ReadWrite) :
+                PortableIndex::CreateNew(targetIndexPath.u8string());
+
             for (auto desiredEntry : m_desiredEntries)
             {
-                index.AddOrUpdatePortableFile(desiredEntry);
+                targetIndex.AddOrUpdatePortableFile(desiredEntry);
                 InstallFile(desiredEntry);
             }
         }
@@ -232,7 +236,7 @@ namespace AppInstaller::CLI::Portable
 
     void PortableInstaller::Install()
     {
-        InitializeRegistryEntry();
+        RegisterARPEntry();
 
         CreateTargetInstallDirectory();
 
@@ -287,29 +291,6 @@ namespace AppInstaller::CLI::Portable
                     m_stream << Resource::String::FilesRemainInInstallDirectory << InstallLocation << std::endl;
                 }
             }
-        }
-    }
-
-    bool PortableInstaller::CreatePortableSymlink(const std::filesystem::path& targetPath, const std::filesystem::path& symlinkPath)
-    {
-        if (std::filesystem::remove(symlinkPath))
-        {
-            AICLI_LOG(CLI, Info, << "Removed existing file at " << symlinkPath);
-            m_stream << Resource::String::OverwritingExistingFileAtMessage << ' ' << symlinkPath.u8string() << std::endl;
-        }
-
-        if (Filesystem::CreateSymlink(targetPath, symlinkPath))
-        {
-            AICLI_LOG(Core, Info, << "Symlink created at: " << symlinkPath);
-            return true;
-        }
-        else
-        {
-            // Symlink creation should only fail if the user executes without admin rights or developer mode.
-            // Resort to adding install directory to PATH directly.
-            AICLI_LOG(Core, Info, << "Portable install executed in user mode. Adding package directory to PATH.");
-            CommitToARPEntry(PortableValueName::InstallDirectoryAddedToPath, InstallDirectoryAddedToPath = true);
-            return false;
         }
     }
 
@@ -376,16 +357,14 @@ namespace AppInstaller::CLI::Portable
         HelpLink = manifest.CurrentLocalization.Get<Manifest::Localization::PublisherSupportUrl>();
     }
 
-    std::vector<PortableFileEntry> PortableInstaller::GetExpectedState()
+    void PortableInstaller::SetExpectedState()
     {
-        std::vector<PortableFileEntry> entries;
-
         const auto& indexPath = InstallLocation / GetPortableIndexFileName();
 
         if (std::filesystem::exists(indexPath))
         {
             PortableIndex portableIndex = PortableIndex::Open(indexPath.u8string(), SQLiteStorageBase::OpenDisposition::ReadWrite);
-            entries = portableIndex.GetAllPortableFiles();
+            m_expectedEntries = portableIndex.GetAllPortableFiles();
         }
         else
         {
@@ -394,16 +373,14 @@ namespace AppInstaller::CLI::Portable
 
             if (!symlinkFullPath.empty())
             {
-                entries.emplace_back(std::move(PortableFileEntry::CreateSymlinkEntry(symlinkFullPath, targetFullPath)));
+                m_expectedEntries.emplace_back(std::move(PortableFileEntry::CreateSymlinkEntry(symlinkFullPath, targetFullPath)));
             }
 
             if (!targetFullPath.empty())
             {
-                entries.emplace_back(std::move(PortableFileEntry::CreateFileEntry({}, targetFullPath, SHA256)));
+                m_expectedEntries.emplace_back(std::move(PortableFileEntry::CreateFileEntry({}, targetFullPath, SHA256)));
             }
         }
-
-        return entries;
     }
 
     PortableInstaller::PortableInstaller(Manifest::ScopeEnum scope, Utility::Architecture arch, const std::string& productCode) :
@@ -429,10 +406,10 @@ namespace AppInstaller::CLI::Portable
             InstallDirectoryCreated = GetBoolValue(PortableValueName::InstallDirectoryCreated);
         }
         
-        m_expectedEntries = GetExpectedState();
+        SetExpectedState();
     }
 
-    void PortableInstaller::InitializeRegistryEntry()
+    void PortableInstaller::RegisterARPEntry()
     {
         CommitToARPEntry(PortableValueName::WinGetPackageIdentifier, WinGetPackageIdentifier);
         CommitToARPEntry(PortableValueName::WinGetSourceIdentifier, WinGetSourceIdentifier);

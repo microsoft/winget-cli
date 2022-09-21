@@ -31,6 +31,7 @@ namespace AppInstaller::Filesystem
 
     // Checks if the path is a symlink and exists.
     bool SymlinkExists(const std::filesystem::path& symlinkPath);
+    bool CreateSymlink(const std::filesystem::path& path, const std::filesystem::path& target);
 
     // Get expanded file system path.
     std::filesystem::path GetExpandedPath(const std::string& path);

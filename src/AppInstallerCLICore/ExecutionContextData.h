@@ -55,7 +55,6 @@ namespace AppInstaller::CLI::Execution
         AllowedArchitectures,
         AllowUnknownScope,
         PortableInstaller,
-        ExtractedItems,
         Max
     };
 
@@ -229,12 +228,6 @@ namespace AppInstaller::CLI::Execution
         struct DataMapping<Data::PortableInstaller>
         {
             using value_t = CLI::Portable::PortableInstaller;
-        };
-
-        template <>
-        struct DataMapping<Data::ExtractedItems>
-        {
-            using value_t = std::vector<std::filesystem::path>;
         };
     }
 }

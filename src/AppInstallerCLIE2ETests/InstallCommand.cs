@@ -181,7 +181,7 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("install", $"{packageId} -l {installDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
-            TestCommon.VerifyPortablePackage(Path.Combine(installDir, productCode), commandAlias, fileName, productCode, true);
+            TestCommon.VerifyPortablePackage(installDir, commandAlias, fileName, productCode, true);
         }
 
         [Test]
@@ -196,7 +196,7 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("install", $"{packageId} -l {installDir} --rename {renameArgValue}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
-            TestCommon.VerifyPortablePackage(Path.Combine(installDir, productCode), renameArgValue, renameArgValue, productCode, true);
+            TestCommon.VerifyPortablePackage(installDir, renameArgValue, renameArgValue, productCode, true);
         }
 
         [Test]
@@ -240,7 +240,7 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("install", $"{packageId} -l {existingDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
-            TestCommon.VerifyPortablePackage(Path.Combine(existingDir, productCode), commandAlias, fileName, productCode, true);
+            TestCommon.VerifyPortablePackage(existingDir, commandAlias, fileName, productCode, true);
         }
 
         [Test]
@@ -253,6 +253,7 @@ namespace AppInstallerCLIE2ETests
             // Create a directory with the same name as the symlink in order to cause install to fail.
             string symlinkDirectory = TestCommon.GetPortableSymlinkDirectory(TestCommon.Scope.User);
             string conflictDirectory = Path.Combine(symlinkDirectory, commandAlias);
+
             Directory.CreateDirectory(conflictDirectory);
 
             var result = TestCommon.RunAICLICommand("install", $"{packageId}");
@@ -287,7 +288,6 @@ namespace AppInstallerCLIE2ETests
             var result2 = TestCommon.RunAICLICommand("install", $"{packageId}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result2.ExitCode);
             Assert.True(result2.StdOut.Contains("Successfully installed"));
-            Assert.True(result2.StdOut.Contains($"Overwriting existing file: {symlinkPath}"));
 
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
         }

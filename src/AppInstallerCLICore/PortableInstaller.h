@@ -42,10 +42,6 @@ namespace AppInstaller::CLI::Portable
         // This is the incoming target install location determined from the context args.
         std::filesystem::path TargetInstallLocation;
 
-        void InstallFile(AppInstaller::Portable::PortableFileEntry& desiredState);
-
-        void RemoveFile(AppInstaller::Portable::PortableFileEntry& desiredState);
-
         PortableInstaller(Manifest::ScopeEnum scope, Utility::Architecture arch, const std::string& productCode);
 
         bool VerifyExpectedState();
@@ -54,6 +50,12 @@ namespace AppInstaller::CLI::Portable
         {
             m_desiredEntries = desiredEntries;
         };
+
+        void PrepareForCleanUp()
+        {
+            m_expectedEntries = m_desiredEntries;
+            m_desiredEntries = {};
+        }
 
         void Install();
 
@@ -102,16 +104,15 @@ namespace AppInstaller::CLI::Portable
         std::filesystem::path GetPathValue(PortableValueName valueName);
         bool GetBoolValue(PortableValueName valueName);
 
-        std::vector<AppInstaller::Portable::PortableFileEntry> GetExpectedState();
-
-        void InitializeRegistryEntry();
+        void SetExpectedState();
+        void RegisterARPEntry();
 
         void ApplyDesiredState();
+        void InstallFile(AppInstaller::Portable::PortableFileEntry& desiredState);
+        void RemoveFile(AppInstaller::Portable::PortableFileEntry& desiredState);
 
         void CreateTargetInstallDirectory();
         void RemoveInstallDirectory();
-
-        bool CreatePortableSymlink(const std::filesystem::path& targetPath, const std::filesystem::path& symlinkPath);
 
         void AddToPathVariable();
         void RemoveFromPathVariable();
