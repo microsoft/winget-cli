@@ -500,6 +500,9 @@
     <ClCompile Include="Microsoft\SQLiteStorageBase.cpp">
       <Filter>Microsoft</Filter>
     </ClCompile>
+    <ClCompile Include="PackageInstalledStatus.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />

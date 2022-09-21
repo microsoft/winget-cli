@@ -299,6 +299,11 @@ extern "C"
         catch (const ManifestException& e)
         {
             *succeeded = e.IsWarningOnly();
+            if (*succeeded)
+            {
+                std::unique_ptr<Manifest> result = std::make_unique<Manifest>(YamlParser::CreateFromPath(inputPath));
+                *manifest = static_cast<WINGET_MANIFEST_HANDLE>(result.release());
+            }
             if (message)
             {
                 *message = ::SysAllocString(ConvertToUTF16(e.GetManifestErrorMessage()).c_str());

@@ -8,6 +8,8 @@
 #include "PackageCatalog.h"
 #include "PackageVersionInfo.h"
 #include "PackageVersionId.h"
+#include "PackageInstallerInstalledStatus.h"
+#include "CheckInstalledStatusResult.h"
 #include <wil\cppwinrt_wrl.h>
 
 namespace winrt::Microsoft::Management::Deployment::implementation
@@ -95,6 +97,50 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     bool CatalogPackage::IsUpdateAvailable()
     {
         return m_package->IsUpdateAvailable();
+    }
+    Windows::Foundation::IAsyncOperation<winrt::Microsoft::Management::Deployment::CheckInstalledStatusResult> CatalogPackage::CheckInstalledStatusAsync(
+        Microsoft::Management::Deployment::InstalledStatusType checkTypes)
+    {
+        co_return CheckInstalledStatus(checkTypes);
+    }
+    Microsoft::Management::Deployment::CheckInstalledStatusResult CatalogPackage::CheckInstalledStatus(
+        Microsoft::Management::Deployment::InstalledStatusType checkTypes)
+    {
+        Microsoft::Management::Deployment::CheckInstalledStatusResultStatus status = winrt::Microsoft::Management::Deployment::CheckInstalledStatusResultStatus::Ok;
+        Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::PackageInstallerInstalledStatus> installedStatus{
+            winrt::single_threaded_vector<Microsoft::Management::Deployment::PackageInstallerInstalledStatus>() };
+
+        try
+        {
+            auto checkResult = ::AppInstaller::Repository::CheckPackageInstalledStatus(m_package, static_cast<::AppInstaller::Repository::InstalledStatusType>(checkTypes));
+
+            // Build the result object from the checkResult
+            for (auto const& entry : checkResult)
+            {
+                auto checkInstallerResult = winrt::make_self<wil::details::module_count_wrapper<
+                    winrt::Microsoft::Management::Deployment::implementation::PackageInstallerInstalledStatus>>();
+                checkInstallerResult->Initialize(entry);
+
+                installedStatus.Append(*checkInstallerResult);
+            }
+        }
+        catch (...)
+        {
+            status = winrt::Microsoft::Management::Deployment::CheckInstalledStatusResultStatus::InternalError;
+        }
+
+        auto checkInstalledStatusResult = winrt::make_self<wil::details::module_count_wrapper<
+            winrt::Microsoft::Management::Deployment::implementation::CheckInstalledStatusResult>>();
+        checkInstalledStatusResult->Initialize(status, installedStatus);
+        return *checkInstalledStatusResult;
+    }
+    winrt::Windows::Foundation::IAsyncOperation<winrt::Microsoft::Management::Deployment::CheckInstalledStatusResult> CatalogPackage::CheckInstalledStatusAsync()
+    {
+        co_return CheckInstalledStatus(InstalledStatusType::AllChecks);
+    }
+    winrt::Microsoft::Management::Deployment::CheckInstalledStatusResult CatalogPackage::CheckInstalledStatus()
+    {
+        return CheckInstalledStatus(InstalledStatusType::AllChecks);
     }
     std::shared_ptr<::AppInstaller::Repository::IPackage> CatalogPackage::GetRepositoryPackage()
     {

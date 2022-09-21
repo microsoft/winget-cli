@@ -83,27 +83,27 @@ namespace AppInstaller::CLI
     std::vector<Argument> UpgradeCommand::GetArguments() const
     {
         return {
-            Argument::ForType(Args::Type::Query),
-            Argument::ForType(Args::Type::Manifest),
+            Argument::ForType(Args::Type::Query),           // -q
+            Argument::ForType(Args::Type::Manifest),        // -m
             Argument::ForType(Args::Type::Id),
             Argument::ForType(Args::Type::Name),
             Argument::ForType(Args::Type::Moniker),
-            Argument::ForType(Args::Type::Version),
+            Argument::ForType(Args::Type::Version),         // -v
             Argument::ForType(Args::Type::Channel),
-            Argument::ForType(Args::Type::Source),
-            Argument::ForType(Args::Type::Exact),
-            Argument::ForType(Args::Type::Interactive),
-            Argument::ForType(Args::Type::Silent),
+            Argument::ForType(Args::Type::Source),          // -s
+            Argument::ForType(Args::Type::Exact),           // -e
+            Argument::ForType(Args::Type::Interactive),     // -i
+            Argument::ForType(Args::Type::Silent),          // -h
             Argument::ForType(Args::Type::Purge),
-            Argument::ForType(Args::Type::Log),
+            Argument::ForType(Args::Type::Log),             // -o
             Argument::ForType(Args::Type::Override),
-            Argument::ForType(Args::Type::InstallLocation),
+            Argument::ForType(Args::Type::InstallLocation), // -l
             Argument::ForType(Args::Type::HashOverride),
             Argument::ForType(Args::Type::AcceptPackageAgreements),
             Argument::ForType(Args::Type::AcceptSourceAgreements),
             Argument::ForType(Execution::Args::Type::CustomHeader),
-            Argument{ "all", Argument::NoAlias, Args::Type::All, Resource::String::UpdateAllArgumentDescription, ArgumentType::Flag },
-            Argument{ "include-unknown", Argument::NoAlias, Args::Type::IncludeUnknown, Resource::String::IncludeUnknownArgumentDescription, ArgumentType::Flag },
+            Argument{ "all", 'a', Args::Type::All, Resource::String::UpdateAllArgumentDescription, ArgumentType::Flag},
+            Argument{ "include-unknown", 'u', Args::Type::IncludeUnknown, Resource::String::IncludeUnknownArgumentDescription, ArgumentType::Flag},
             Argument::ForType(Args::Type::Force),
         };
     }

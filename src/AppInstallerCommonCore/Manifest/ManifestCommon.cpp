@@ -311,6 +311,10 @@ namespace AppInstaller::Manifest
         {
             result = ExpectedReturnCodeEnum::PackageInUse;
         }
+        if (inStrLower == "packageinusebyapplication")
+        {
+            result = ExpectedReturnCodeEnum::PackageInUseByApplication;
+        }
         else if (inStrLower == "installinprogress")
         {
             result = ExpectedReturnCodeEnum::InstallInProgress;
@@ -542,8 +546,8 @@ namespace AppInstaller::Manifest
         case InstallerTypeEnum::Msi:
             return
             {
-                {InstallerSwitchType::Silent, ManifestInstaller::string_t("/quiet")},
-                {InstallerSwitchType::SilentWithProgress, ManifestInstaller::string_t("/passive")},
+                {InstallerSwitchType::Silent, ManifestInstaller::string_t("/quiet /norestart")},
+                {InstallerSwitchType::SilentWithProgress, ManifestInstaller::string_t("/passive /norestart")},
                 {InstallerSwitchType::Log, ManifestInstaller::string_t("/log \"" + std::string(ARG_TOKEN_LOGPATH) + "\"")},
                 {InstallerSwitchType::InstallLocation, ManifestInstaller::string_t("TARGETDIR=\"" + std::string(ARG_TOKEN_INSTALLPATH) + "\"")}
             };
@@ -557,8 +561,8 @@ namespace AppInstaller::Manifest
         case InstallerTypeEnum::Inno:
             return
             {
-                {InstallerSwitchType::Silent, ManifestInstaller::string_t("/VERYSILENT")},
-                {InstallerSwitchType::SilentWithProgress, ManifestInstaller::string_t("/SILENT")},
+                {InstallerSwitchType::Silent, ManifestInstaller::string_t("/VERYSILENT /NORESTART")},
+                {InstallerSwitchType::SilentWithProgress, ManifestInstaller::string_t("/SILENT /NORESTART")},
                 {InstallerSwitchType::Log, ManifestInstaller::string_t("/LOG=\"" + std::string(ARG_TOKEN_LOGPATH) + "\"")},
                 {InstallerSwitchType::InstallLocation, ManifestInstaller::string_t("/DIR=\"" + std::string(ARG_TOKEN_INSTALLPATH) + "\"")}
             };

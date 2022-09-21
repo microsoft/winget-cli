@@ -18,6 +18,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     std::optional<::AppInstaller::Utility::Architecture> GetUtilityArchitecture(winrt::Windows::System::ProcessorArchitecture architecture);
     std::optional<winrt::Windows::System::ProcessorArchitecture> GetWindowsSystemProcessorArchitecture(::AppInstaller::Utility::Architecture architecture);
     std::pair<::AppInstaller::Manifest::ScopeEnum, bool> GetManifestScope(winrt::Microsoft::Management::Deployment::PackageInstallScope scope);
+    winrt::Microsoft::Management::Deployment::PackageInstallerType GetDeploymentInstallerType(::AppInstaller::Manifest::InstallerTypeEnum installerType);
+    winrt::Microsoft::Management::Deployment::PackageInstallerScope GetDeploymentInstallerScope(::AppInstaller::Manifest::ScopeEnum installerScope);
 
 #define WINGET_GET_OPERATION_RESULT_STATUS(_installResultStatus_, _uninstallResultStatus_) \
     if constexpr (std::is_same_v<TStatus, winrt::Microsoft::Management::Deployment::InstallResultStatus>) \
