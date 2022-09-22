@@ -399,20 +399,29 @@ namespace AppInstallerCLIE2ETests
 
         public static bool VerifyTestExeInstalledAndCleanup(string installDir, string expectedContent = null)
         {
+            bool verifyInstallSuccess = true;
+
             if (!File.Exists(Path.Combine(installDir, Constants.TestExeInstalledFileName)))
             {
                 TestContext.Out.WriteLine($"TestExeInstalled.exe not found at {installDir}");
-                return false;
+                verifyInstallSuccess = false;
             }
 
-            if (!string.IsNullOrEmpty(expectedContent))
+            if (verifyInstallSuccess && !string.IsNullOrEmpty(expectedContent))
             {
                 string content = File.ReadAllText(Path.Combine(installDir, Constants.TestExeInstalledFileName));
                 TestContext.Out.WriteLine($"TestExeInstalled.exe content: {content}");
-                return content.Contains(expectedContent);
+                verifyInstallSuccess = content.Contains(expectedContent);
             }
 
-            return RunCommand(Path.Combine(installDir, Constants.TestExeUninstallerFileName));
+            // Always try clean up and ignore clean up failure
+            var uninstallerPath = Path.Combine(installDir, Constants.TestExeUninstallerFileName);
+            if (File.Exists(uninstallerPath))
+            {
+                RunCommand(Path.Combine(installDir, Constants.TestExeUninstallerFileName));
+            }
+
+            return verifyInstallSuccess;
         }
 
         public static bool VerifyTestMsiInstalledAndCleanup(string installDir)
