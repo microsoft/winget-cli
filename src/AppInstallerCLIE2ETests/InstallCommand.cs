@@ -422,13 +422,13 @@ namespace AppInstallerCLIE2ETests
             Assert.True(baseResult.StdOut.Contains("Successfully installed"));
 
             // Install will not convert to upgrade
-            var upgradeDir = TestCommon.GetRandomTestDir();
-            var upgradeResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller -v 1.0.0.0 --silent -l {upgradeDir} --force");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, upgradeResult.ExitCode);
-            Assert.True(upgradeResult.StdOut.Contains("Successfully installed"));
+            var installDir = TestCommon.GetRandomTestDir();
+            var installResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller -v 1.0.0.0 --silent -l {installDir} --force");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, installResult.ExitCode);
+            Assert.True(installResult.StdOut.Contains("Successfully installed"));
 
             Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(baseDir));
-            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(upgradeDir));
+            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/execustom"));
         }
     }
 }
