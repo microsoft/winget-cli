@@ -14,6 +14,13 @@ namespace AppInstallerCLIE2ETests
             ConfigureFeature("zipInstall", true);
         }
 
+        [SetUp]
+        public void Setup()
+        {
+            // Try clean up TestExeInstaller for failure cases where cleanup is not successful
+            TestCommon.RunAICLICommand("uninstall", "AppInstallerTest.TestExeInstaller");
+        }
+
         [Test]
         public void InstallAppDoesNotExist()
         {
@@ -288,7 +295,7 @@ namespace AppInstallerCLIE2ETests
             Assert.False(result.StdOut.Contains($"Overwriting existing file: {symlinkPath}"));
 
             // Perform second install and verify that file overwrite message is displayed.
-            var result2 = TestCommon.RunAICLICommand("install", "AppInstallerTest.TestPortableExe");
+            var result2 = TestCommon.RunAICLICommand("install", "AppInstallerTest.TestPortableExe --force");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result2.ExitCode);
             Assert.True(result2.StdOut.Contains("Successfully installed"));
             Assert.True(result2.StdOut.Contains($"Overwriting existing file: {symlinkPath}"));
