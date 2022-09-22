@@ -265,8 +265,7 @@ namespace AppInstaller::CLI::Workflow
             }
             
             context <<
-                SelectInstaller <<
-                EnsureApplicableInstaller;
+                SelectInstaller;
         }
         else
         {
@@ -276,6 +275,7 @@ namespace AppInstaller::CLI::Workflow
         }
 
         context <<
+            EnsureApplicableInstaller;
             InstallSinglePackage;
     }
 }

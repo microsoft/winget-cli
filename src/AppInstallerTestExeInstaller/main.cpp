@@ -180,6 +180,7 @@ int wmain(int argc, const wchar_t** argv)
             if (++i < argc)
             {
                 productCode = argv[i];
+                outContent << argv[i] << ' ';
             }
         }
 
@@ -189,6 +190,7 @@ int wmain(int argc, const wchar_t** argv)
             if (++i < argc)
             {
                 displayName = argv[i];
+                outContent << argv[i] << ' ';
             }
         }
 
@@ -198,6 +200,7 @@ int wmain(int argc, const wchar_t** argv)
             if (++i < argc)
             {
                 displayVersion = argv[i];
+                outContent << argv[i] << ' ';
             }
         }
 
@@ -208,6 +211,7 @@ int wmain(int argc, const wchar_t** argv)
             {
                 logFile = std::wofstream(argv[i], std::wofstream::out | std::wofstream::trunc);
                 out = &logFile;
+                outContent << argv[i] << ' ';
             }
         }
     }

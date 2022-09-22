@@ -424,7 +424,7 @@ namespace AppInstallerCLIE2ETests
             // Install will not convert to upgrade
             var upgradeDir = TestCommon.GetRandomTestDir();
             var upgradeResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller -v 1.0.0.0 --silent -l {upgradeDir} --force");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_UPDATE_NOT_APPLICABLE, upgradeResult.ExitCode);
+            Assert.AreEqual(Constants.ErrorCode.S_OK, upgradeResult.ExitCode);
             Assert.True(upgradeResult.StdOut.Contains("Successfully installed"));
 
             Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(baseDir));
