@@ -1,8 +1,11 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
 namespace AppInstallerCLIE2ETests.WinGetUtil
 {
+    using System;
+    using System.Runtime.InteropServices;
+
     internal class WinGetUtilWrapper
     {
         private const string DllName = @"WinGetUtil.dll";
@@ -32,7 +35,6 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
         {
             Add = 0,
         }
-
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
         public static extern IntPtr WinGetCompareVersions(string version1, string version2, [MarshalAs(UnmanagedType.U4)] out int comparisonResult);
