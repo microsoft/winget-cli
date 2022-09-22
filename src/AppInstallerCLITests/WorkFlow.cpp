@@ -1953,6 +1953,8 @@ TEST_CASE("UpdateFlow_UpdateExe", "[UpdateFlow][workflow]")
 TEST_CASE("UpdateFlow_UpdateZipWithExe", "[UpdateFlow][workflow]")
 {
     TestCommon::TempFile updateResultPath("TestExeInstalled.txt");
+    TestCommon::TestUserSettings testSettings;
+    testSettings.Set<Setting::EFZipInstall>(true);
 
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
