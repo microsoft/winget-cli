@@ -263,7 +263,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 context << EnsureUpdateVersionApplicable;
             }
-            
+
             context <<
                 SelectInstaller;
         }
@@ -275,7 +275,7 @@ namespace AppInstaller::CLI::Workflow
         }
 
         context <<
-            EnsureApplicableInstaller;
+            EnsureApplicableInstaller <<
             InstallSinglePackage;
     }
 }
