@@ -350,7 +350,7 @@ namespace AppInstallerCLIE2ETests
 
             if (shouldExist)
             {
-                RunAICLICommand("uninstall", $"--product-code {productCode}");
+                RunAICLICommand("uninstall", $"--product-code {productCode} --force");
             }
 
             Assert.AreEqual(shouldExist, exeExists, $"Expected portable exe path: {exePath}");
