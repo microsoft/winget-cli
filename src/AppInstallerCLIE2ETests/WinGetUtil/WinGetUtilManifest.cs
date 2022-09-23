@@ -27,7 +27,7 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
         }
 
         [Test]
-        public void ValidateManifest()
+        public void WinGetUtil_ValidateManifest()
         {
             string manifestsDir = TestCommon.GetTestDataFile(@"WinGetUtil\Manifests\Unmerged\ValidateManifest");
             string mergedManifestPath = TestCommon.GetRandomTestFile(".yaml");

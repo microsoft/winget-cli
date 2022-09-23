@@ -11,7 +11,7 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
     public class WinGetUtilDownload
     {
         [Test]
-        public void WinGetDownload()
+        public void WinGetUtil_Download()
         {
             uint hashSize = 32;
             byte[] sha256Hash = new byte[hashSize];

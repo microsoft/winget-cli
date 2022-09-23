@@ -24,7 +24,7 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
         [TestCase("1.0.0.0", "1.0.1.0", -1)]
         [TestCase("1.0.0.0", "1.1.0.0", -1)]
         [TestCase("1.0.0.0", "2.0.0.0", -1)]
-        public void WinGetCompareVersions(string version1, string version2, int expectedResult)
+        public void WinGetUtil_CompareVersions(string version1, string version2, int expectedResult)
         {
             // Compare versions
             IntPtr hresult = WinGetUtilWrapper.WinGetCompareVersions(version1, version2, out int result);

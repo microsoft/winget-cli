@@ -26,7 +26,7 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
         }
 
         [Test]
-        public void SQLiteIndex_AddManifest()
+        public void WinGetUtil_SQLiteIndex_AddManifest()
         {
             SQLiteIndex((indexHandle) =>
             {
@@ -37,7 +37,7 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
         }
 
         [Test]
-        public void SQLiteIndex_UpdateManifest_Success()
+        public void WinGetUtil_SQLiteIndex_UpdateManifest_Success()
         {
             SQLiteIndex((indexHandle) =>
             {
@@ -52,7 +52,7 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
         }
 
         [Test]
-        public void SQLiteIndex_UpdateManifest_Fail_NotFound()
+        public void WinGetUtil_SQLiteIndex_UpdateManifest_Fail_NotFound()
         {
             SQLiteIndex((indexHandle) =>
             {
@@ -65,7 +65,7 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
         }
 
         [Test]
-        public void SQLiteIndex_RemoveManifest_Success()
+        public void WinGetUtil_SQLiteIndex_RemoveManifest_Success()
         {
             SQLiteIndex((indexHandle) =>
             {
@@ -79,7 +79,7 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
         }
 
         [Test]
-        public void SQLiteIndex_RemoveManifest_Fail_NotFound()
+        public void WinGetUtil_SQLiteIndex_RemoveManifest_Fail_NotFound()
         {
             SQLiteIndex((indexHandle) =>
             {
@@ -92,7 +92,7 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
         }
 
         [Test]
-        public void SQLiteIndex_OpenClose()
+        public void WinGetUtil_SQLiteIndex_OpenClose()
         {
             SQLiteIndex((_) =>
             {
@@ -110,7 +110,7 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
         }
 
         [Test]
-        public void SQLiteIndex_CheckConsistency()
+        public void WinGetUtil_SQLiteIndex_CheckConsistency()
         {
             SQLiteIndex((indexHandle) =>
             {
