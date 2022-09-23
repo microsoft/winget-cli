@@ -148,7 +148,7 @@ namespace AppInstallerCLIE2ETests.Interop
             // Configure upgrade options
             var upgradeOptions = TestFactory.CreateInstallOptions();
             upgradeOptions.PackageVersionId = First(searchResult.CatalogPackage.AvailableVersions, (i => i.Version == "2.0.0.0"));
-            upgradeOptions.AllowHashMismatch = true;
+            upgradeOptions.Force = true;
 
             // Upgrade
             var upgradeResult = await packageManager.UpgradePackageAsync(searchResult.CatalogPackage, upgradeOptions);

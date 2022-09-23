@@ -32,6 +32,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         winrt::Windows::Foundation::Collections::IVector<winrt::Windows::System::ProcessorArchitecture> AllowedArchitectures();
         bool AllowUpgradeToUnknownVersion();
         void AllowUpgradeToUnknownVersion(bool value);
+        bool Force();
+        void Force(bool value);
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
@@ -47,6 +49,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         Windows::Foundation::Collections::IVector<Windows::System::ProcessorArchitecture> m_allowedArchitectures{
             winrt::single_threaded_vector<winrt::Windows::System::ProcessorArchitecture>() };
         bool m_allowUpgradeToUnknownVersion = false;
+        bool m_force = false;
 #endif
     };
 }

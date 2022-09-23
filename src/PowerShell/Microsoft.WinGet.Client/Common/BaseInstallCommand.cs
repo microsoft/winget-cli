@@ -57,6 +57,12 @@ namespace Microsoft.WinGet.Client.Common
         public SwitchParameter AllowHashMismatch { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether to continue upon non security related failures.
+        /// </summary>
+        [Parameter(ValueFromPipelineByPropertyName = true)]
+        public SwitchParameter Force { get; set; }
+
+        /// <summary>
         /// Gets or sets the optional HTTP Header to pass on to the REST Source.
         /// </summary>
         [Parameter(ValueFromPipelineByPropertyName = true)]
@@ -71,6 +77,7 @@ namespace Microsoft.WinGet.Client.Common
         {
             InstallOptions options = ComObjectFactory.Value.CreateInstallOptions();
             options.AllowHashMismatch = this.AllowHashMismatch.ToBool();
+            options.Force = this.Force.ToBool();
             options.PackageInstallMode = this.Mode;
             if (version != null)
             {
