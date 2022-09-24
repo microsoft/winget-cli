@@ -183,10 +183,12 @@ installinprogress
 installshield
 insufficientmemory
 Intelli
+IObject
 ishelp
 ISQ
 ISVs
 itr
+IWin
 jdk
 jfearn
 JObject

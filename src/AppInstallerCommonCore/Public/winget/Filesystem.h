@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "pch.h"
+#include <filesystem>
 
 namespace AppInstaller::Filesystem
 {
@@ -22,4 +22,7 @@ namespace AppInstaller::Filesystem
 
     // Creates a symlink that points to the target path.
     bool CreateSymlink(const std::filesystem::path& path, const std::filesystem::path& target);
+
+    // Get expanded file system path.
+    std::filesystem::path GetExpandedPath(const std::string& path);
 }

@@ -536,6 +536,9 @@
     <ClCompile Include="Rest\Schema\SearchResponseParser.cpp">
       <Filter>Rest\Schema</Filter>
     </ClCompile>
+    <ClCompile Include="PackageInstalledStatus.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />
