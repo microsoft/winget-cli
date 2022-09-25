@@ -8,6 +8,7 @@ namespace AppInstaller::Repository::Rest::Schema
     // Winget supported contract versions
     const Utility::Version Version_1_0_0{ "1.0.0" };
     const Utility::Version Version_1_1_0{ "1.1.0" };
+    const Utility::Version Version_1_4_0{ "1.4.0" };
 
     // General API response constants
     constexpr std::string_view Data = "Data"sv;

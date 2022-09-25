@@ -204,7 +204,11 @@ namespace AppInstaller::Repository::Rest
                 case PackageVersionProperty::Publisher:
                     return Utility::LocIndString{ m_package->PackageInfo().Publisher };
                 case PackageVersionProperty::ArpMinVersion:
-                    if (m_versionInfo.Manifest)
+                    if (!m_versionInfo.ArpVersions.empty())
+                    {
+                        return Utility::LocIndString{ m_versionInfo.ArpVersions.front().ToString() };
+                    }
+                    else if (m_versionInfo.Manifest)
                     {
                         auto arpVersionRange = m_versionInfo.Manifest->GetArpVersionRange();
                         return arpVersionRange.IsEmpty() ? Utility::LocIndString{} : Utility::LocIndString{ arpVersionRange.GetMinVersion().ToString() };
@@ -214,7 +218,11 @@ namespace AppInstaller::Repository::Rest
                         return {};
                     }
                 case PackageVersionProperty::ArpMaxVersion:
-                    if (m_versionInfo.Manifest)
+                    if (!m_versionInfo.ArpVersions.empty())
+                    {
+                        return Utility::LocIndString{ m_versionInfo.ArpVersions.back().ToString() };
+                    }
+                    else if (m_versionInfo.Manifest)
                     {
                         auto arpVersionRange = m_versionInfo.Manifest->GetArpVersionRange();
                         return arpVersionRange.IsEmpty() ? Utility::LocIndString{} : Utility::LocIndString{ arpVersionRange.GetMaxVersion().ToString() };
@@ -243,6 +251,12 @@ namespace AppInstaller::Repository::Rest
                     for (std::string productCode : m_versionInfo.ProductCodes)
                     {
                         result.emplace_back(Utility::LocIndString{ productCode });
+                    }
+                    break;
+                case PackageVersionMultiProperty::UpgradeCode:
+                    for (std::string upgradeCode : m_versionInfo.UpgradeCodes)
+                    {
+                        result.emplace_back(Utility::LocIndString{ upgradeCode });
                     }
                     break;
                 case PackageVersionMultiProperty::Name:

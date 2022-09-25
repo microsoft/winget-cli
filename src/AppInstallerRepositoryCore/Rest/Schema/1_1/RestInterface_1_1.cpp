@@ -7,11 +7,8 @@
 #include <winget/JsonUtil.h>
 #include "Rest/Schema/RestHelper.h"
 #include "Rest/Schema/CommonRestConstants.h"
-#include "Rest/Schema/1_1/Json/ManifestDeserializer.h"
-#include "Rest/Schema/1_1/Json/SearchRequestSerializer.h"
 
 using namespace std::string_view_literals;
-using namespace AppInstaller::Repository::Rest::Schema::V1_1::Json;
 
 namespace AppInstaller::Repository::Rest::Schema::V1_1
 {
@@ -130,8 +127,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1
             }
         }
 
-        SearchRequestSerializer serializer;
-        return serializer.Serialize(resultSearchRequest);
+        return V1_0::Interface::GetValidatedSearchBody(resultSearchRequest);
     }
 
     IRestClient::SearchResult Interface::GetSearchResult(const web::json::value& searchResponseObject) const
@@ -155,8 +151,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1
 
     std::vector<Manifest::Manifest> Interface::GetParsedManifests(const web::json::value& manifestsResponseObject) const
     {
-        ManifestDeserializer manifestDeserializer;
-        auto result = manifestDeserializer.Deserialize(manifestsResponseObject);
+        auto result = V1_0::Interface::GetParsedManifests(manifestsResponseObject);
 
         if (result.size() == 0)
         {
