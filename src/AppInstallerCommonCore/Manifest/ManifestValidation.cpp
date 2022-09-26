@@ -32,6 +32,7 @@ namespace AppInstaller::Manifest
                 { AppInstaller::Manifest::ManifestError::InstallerTypeDoesNotWriteAppsAndFeaturesEntry, "The specified installer type does not write to Apps and Features entry."sv },
                 { AppInstaller::Manifest::ManifestError::IncompleteMultiFileManifest, "The multi file manifest is incomplete.A multi file manifest must contain at least version, installer and defaultLocale manifest."sv },
                 { AppInstaller::Manifest::ManifestError::InconsistentMultiFileManifestFieldValue, "The multi file manifest has inconsistent field values."sv },
+                { AppInstaller::Manifest::ManifestError::DuplicatePortableCommandAlias, "Duplicate portable command alias found."sv },
                 { AppInstaller::Manifest::ManifestError::DuplicateMultiFileManifestType, "The multi file manifest should contain only one file with the particular ManifestType."sv },
                 { AppInstaller::Manifest::ManifestError::DuplicateMultiFileManifestLocale, "The multi file manifest contains duplicate PackageLocale."sv },
                 { AppInstaller::Manifest::ManifestError::UnsupportedMultiFileManifestType, "The multi file manifest should not contain file with the particular ManifestType."sv },
@@ -260,6 +261,8 @@ namespace AppInstaller::Manifest
                     resultErrors.emplace_back(ManifestError::ExceededNestedInstallerFilesLimit, "NestedInstallerFiles");
                 }
 
+                std::unordered_set<std::string> commandAliasSet;
+
                 for (const auto& nestedInstallerFile : installer.NestedInstallerFiles)
                 {
                     if (nestedInstallerFile.RelativeFilePath.empty())
@@ -273,6 +276,19 @@ namespace AppInstaller::Manifest
                         if (AppInstaller::Filesystem::PathEscapesBaseDirectory(fullPath, basePath))
                         {
                             resultErrors.emplace_back(ManifestError::RelativeFilePathEscapesDirectory, "RelativeFilePath");
+                        }
+                    }
+
+                    const std::string& alias = nestedInstallerFile.PortableCommandAlias;
+                    if (!alias.empty())
+                    {
+                        if (commandAliasSet.find(alias) == commandAliasSet.end())
+                        {
+                            commandAliasSet.insert(alias);
+                        }
+                        else
+                        {
+                            resultErrors.emplace_back(ManifestError::DuplicatePortableCommandAlias, "PortableCommandAlias");
                         }
                     }
                 }

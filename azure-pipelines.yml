@@ -252,6 +252,14 @@ jobs:
       TargetFolder:  'src\AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration)'
       Contents: Microsoft.Management.Deployment.winmd
 
+  # Resolves resource strings utilized by InProc E2E tests.
+  - task: CopyFiles@2
+    displayName: 'Copy resources.pri to dotnet directory'
+    inputs:
+      SourceFolder: '$(buildOutDir)\AppInstallerCLI'
+      TargetFolder:  '$(platformProgramFiles)\dotnet'
+      Contents: resources.pri
+
   - template: templates/e2e-test.template.yml
     parameters:
       title: "COM API E2E Tests (Out-of-process)"

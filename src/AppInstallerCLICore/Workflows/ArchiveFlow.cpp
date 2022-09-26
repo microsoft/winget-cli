@@ -22,11 +22,13 @@ namespace AppInstaller::CLI::Workflow
         std::filesystem::create_directory(destinationFolder);
 
         AICLI_LOG(CLI, Info, << "Extracting archive to: " << destinationFolder);
+        context.Reporter.Info() << Resource::String::ExtractingArchive << std::endl;
         HRESULT result = AppInstaller::Archive::TryExtractArchive(installerPath, destinationFolder);
 
         if (SUCCEEDED(result))
         {
             AICLI_LOG(CLI, Info, << "Successfully extracted archive");
+            context.Reporter.Info() << Resource::String::ExtractArchiveSucceeded << std::endl;
         }
         else
         {

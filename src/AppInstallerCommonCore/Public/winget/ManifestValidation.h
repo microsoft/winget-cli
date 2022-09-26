@@ -23,6 +23,7 @@ namespace AppInstaller::Manifest
         WINGET_DEFINE_RESOURCE_STRINGID(ArpVersionOverlapWithIndex);
         WINGET_DEFINE_RESOURCE_STRINGID(ArpVersionValidationInternalError);
         WINGET_DEFINE_RESOURCE_STRINGID(BothAllowedAndExcludedMarketsDefined);
+        WINGET_DEFINE_RESOURCE_STRINGID(DuplicatePortableCommandAlias);
         WINGET_DEFINE_RESOURCE_STRINGID(DuplicateMultiFileManifestLocale);
         WINGET_DEFINE_RESOURCE_STRINGID(DuplicateMultiFileManifestType);
         WINGET_DEFINE_RESOURCE_STRINGID(DuplicateInstallerEntry);

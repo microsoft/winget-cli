@@ -1432,4 +1432,10 @@ Please specify one of them using the `--source` option to proceed.</value>
   <data name="PortablePackageAlreadyExists" xml:space="preserve">
     <value>Portable package from a different source already exists</value>
   </data>
+  <data name="ExtractArchiveSucceeded" xml:space="preserve">
+    <value>Successfully extracted archive</value>
+  </data>
+  <data name="ExtractingArchive" xml:space="preserve">
+    <value>Extracting archive...</value>
+  </data>
 </root>

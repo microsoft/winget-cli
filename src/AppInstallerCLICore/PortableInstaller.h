@@ -46,7 +46,7 @@ namespace AppInstaller::CLI::Portable
 
         bool VerifyExpectedState();
 
-        void SetDesiredState(std::vector<AppInstaller::Portable::PortableFileEntry>& desiredEntries)
+        void SetDesiredState(const std::vector<AppInstaller::Portable::PortableFileEntry>& desiredEntries)
         {
             m_desiredEntries = desiredEntries;
         };
