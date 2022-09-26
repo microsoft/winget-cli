@@ -279,7 +279,7 @@ namespace AppInstaller::Manifest
                         }
                     }
 
-                    const std::string& alias = nestedInstallerFile.PortableCommandAlias;
+                    const auto& alias = Utility::ToLower(nestedInstallerFile.PortableCommandAlias);
                     if (!alias.empty())
                     {
                         if (commandAliasSet.find(alias) == commandAliasSet.end())

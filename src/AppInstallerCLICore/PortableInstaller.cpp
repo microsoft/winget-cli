@@ -160,6 +160,7 @@ namespace AppInstaller::CLI::Portable
         }
     }
 
+    // TODO: Optimize by applying the difference between expected and desired state.
     void PortableInstaller::ApplyDesiredState()
     {
         std::filesystem::path existingIndexPath = InstallLocation / GetPortableIndexFileName();
