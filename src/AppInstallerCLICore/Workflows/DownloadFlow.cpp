@@ -69,7 +69,7 @@ namespace AppInstaller::CLI::Workflow
 
             // Assuming that we find a safe stem value in the URI, use it.
             // This should be extremely common, but just in case fall back to the older name style.
-            if (filename.has_stem() && ((filename.string().size() + installerExtension.size()) < MAX_PATH))
+            if (filename.has_stem() && ((filename.wstring().size() + installerExtension.size()) < MAX_PATH))
             {
                 filename = filename.stem();
             }
