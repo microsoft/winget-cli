@@ -276,6 +276,7 @@ TEST_CASE("ReadBadManifests", "[ManifestValidation]")
         { "Manifest-Bad-InstallerTypePortable-InvalidCommands.yaml", "Only zero or one value for Commands may be specified for InstallerType portable." },
         { "Manifest-Bad-InstallerTypePortable-InvalidScope.yaml", "Scope is not supported for InstallerType portable." },
         { "Manifest-Bad-InstallerTypeZip-DuplicateCommandAlias.yaml", "Duplicate portable command alias found." },
+        { "Manifest-Bad-InstallerTypeZip-DuplicateRelativeFilePath.yaml", "Duplicate relative file path found." },
         { "Manifest-Bad-InstallerTypeZip-InvalidRelativeFilePath.yaml", "Relative file path must not point to a location outside of archive directory" },
         { "Manifest-Bad-InstallerTypeZip-MissingRelativeFilePath.yaml", "Required field missing. [RelativeFilePath]" },
         { "Manifest-Bad-InstallerTypeZip-MultipleNestedInstallers.yaml", "Only one entry for NestedInstallerFiles can be specified for non-portable InstallerTypes." },

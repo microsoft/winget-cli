@@ -219,6 +219,17 @@ jobs:
       isPackaged: true
       filter: "TestCategory!=InProcess&TestCategory!=OutOfProcess"
 
+  - task: PowerShell@2
+    displayName: 'Set program files directory'
+    inputs:
+      targetType: 'inline'
+      script: |
+        if ("$(buildPlatform)" -eq "x86") {
+          Write-Host "##vso[task.setvariable variable=platformProgramFiles;]${env:ProgramFiles(x86)}"
+        } else {
+          Write-Host "##vso[task.setvariable variable=platformProgramFiles;]${env:ProgramFiles}"
+        }
+
   # Resolves resource strings utilized by InProc E2E tests.
   - task: CopyFiles@2
     displayName: 'Copy resources.pri to dotnet directory'
@@ -232,17 +243,6 @@ jobs:
       title: "COM API E2E Tests (In-process)"
       isPackaged: false
       filter: "TestCategory=InProcess"
-
-  - task: PowerShell@2
-    displayName: 'Set program files directory'
-    inputs:
-      targetType: 'inline'
-      script: |
-        if ("$(buildPlatform)" -eq "x86") {
-          Write-Host "##vso[task.setvariable variable=platformProgramFiles;]${env:ProgramFiles(x86)}"
-        } else {
-          Write-Host "##vso[task.setvariable variable=platformProgramFiles;]${env:ProgramFiles}"
-        }
 
   # Winmd accessed by test runner process (dotnet.exe)
   - task: CopyFiles@2
