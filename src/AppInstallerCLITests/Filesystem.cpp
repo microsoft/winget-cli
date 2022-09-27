@@ -29,3 +29,31 @@ TEST_CASE("PathEscapesDirectory", "[filesystem]")
     REQUIRE_FALSE(PathEscapesBaseDirectory(goodPath, basePath));
     REQUIRE_FALSE(PathEscapesBaseDirectory(goodPath2, basePath));
 }
+
+TEST_CASE("VerifySymlink", "[filesystem]")
+{
+    TestCommon::TempDirectory tempDirectory("TempDirectory");
+    const std::filesystem::path& basePath = tempDirectory.GetPath();
+
+    std::filesystem::path testFilePath = basePath / "testFile.txt";
+    std::filesystem::path symlinkPath = basePath / "symlink.exe";
+
+    TestCommon::TempFile testFile(testFilePath);
+    std::ofstream file2(testFile, std::ofstream::out);
+    file2.close();
+
+    std::filesystem::create_symlink(testFile.GetPath(), symlinkPath);
+
+    REQUIRE(SymlinkExists(symlinkPath));
+    REQUIRE(VerifySymlink(symlinkPath, testFilePath));
+    REQUIRE_FALSE(VerifySymlink(symlinkPath, "badPath"));
+
+    std::filesystem::remove(testFilePath);
+
+    // Ensure that symlink existence does not check the target
+    REQUIRE(SymlinkExists(symlinkPath));
+
+    std::filesystem::remove(symlinkPath);
+
+    REQUIRE_FALSE(SymlinkExists(symlinkPath));
+}

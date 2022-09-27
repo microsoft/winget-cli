@@ -5,7 +5,10 @@
 #include "Microsoft/Schema/IPortableIndex.h"
 #include "Microsoft/Schema/Portable_1_0/PortableTable.h"
 #include "Microsoft/SQLiteStorageBase.h"
+#include "winget/PortableFileEntry.h"
 #include <winget/ManagedFile.h>
+
+using namespace AppInstaller::Portable;
 
 namespace AppInstaller::Repository::Microsoft
 {
@@ -29,11 +32,19 @@ namespace AppInstaller::Repository::Microsoft
             return { filePath, disposition, std::move(indexFile) };
         }
 
-        IdType AddPortableFile(const Schema::IPortableIndex::PortableFile& file);
+        IdType AddPortableFile(const Portable::PortableFileEntry& file);
 
-        void RemovePortableFile(const Schema::IPortableIndex::PortableFile& file);
+        void RemovePortableFile(const Portable::PortableFileEntry& file);
 
-        bool UpdatePortableFile(const Schema::IPortableIndex::PortableFile& file);
+        bool UpdatePortableFile(const Portable::PortableFileEntry& file);
+
+        void AddOrUpdatePortableFile(const Portable::PortableFileEntry& file);
+
+        std::vector<Portable::PortableFileEntry> GetAllPortableFiles();
+
+        bool Exists(const Portable::PortableFileEntry& file);
+
+        bool IsEmpty();
 
     private:
         // Constructor used to open an existing index.

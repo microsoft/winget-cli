@@ -19,6 +19,7 @@ TEST_CASE("Extract_ZipArchive", "[archive]")
 
     HRESULT hr = TryExtractArchive(testZipPath, tempDirectoryPath);
 
+    std::filesystem::path expectedPath = tempDirectoryPath / "test.txt";
     REQUIRE(SUCCEEDED(hr));
-    REQUIRE(std::filesystem::exists(tempDirectoryPath / "test.txt"));
+    REQUIRE(std::filesystem::exists(expectedPath));
 }

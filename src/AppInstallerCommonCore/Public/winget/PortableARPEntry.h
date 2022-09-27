@@ -34,8 +34,6 @@ namespace AppInstaller::Registry::Portable
 
         std::optional<Value> operator[](PortableValueName valueName) const;
 
-        bool IsSamePortablePackageEntry(const std::string& packageId, const std::string& sourceId);
-
         bool Exists() { return m_exists; }
 
         void SetValue(PortableValueName valueName, const std::wstring& value);
@@ -47,9 +45,11 @@ namespace AppInstaller::Registry::Portable
         Registry::Key GetKey() { return m_key; };
         Manifest::ScopeEnum GetScope() { return m_scope; };
         Utility::Architecture GetArchitecture() { return m_arch; };
+        std::string GetProductCode() { return m_productCode; };
 
     private:
         bool m_exists = false;
+        std::string m_productCode;
         Key m_key;
         HKEY m_root;
         std::wstring m_subKey;

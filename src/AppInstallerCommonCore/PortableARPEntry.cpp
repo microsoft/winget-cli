@@ -36,6 +36,7 @@ namespace AppInstaller::Registry::Portable
     {
         m_scope = scope;
         m_arch = arch;
+        m_productCode = productCode;
 
         if (m_scope == Manifest::ScopeEnum::Machine)
         {
@@ -59,7 +60,7 @@ namespace AppInstaller::Registry::Portable
             m_samDesired = KEY_WOW64_64KEY;
         }
 
-        m_subKey += L"\\" + ConvertToUTF16(productCode);
+        m_subKey += L"\\" + ConvertToUTF16(m_productCode);
         m_key = Key::OpenIfExists(m_root, m_subKey, 0, KEY_ALL_ACCESS);
         if (m_key != NULL)
         {
@@ -94,27 +95,6 @@ namespace AppInstaller::Registry::Portable
             VALUENAMECASE(InstallDirectoryAddedToPath);
             default: return {};
         }
-    }
-
-    bool PortableARPEntry::IsSamePortablePackageEntry(const std::string& packageId, const std::string& sourceId)
-    {
-        auto existingWinGetPackageId = m_key[std::wstring{ s_WinGetPackageIdentifier }];
-        auto existingWinGetSourceId = m_key[std::wstring{ s_WinGetSourceIdentifier }];
-
-        bool isSamePackageId = false;
-        bool isSamePackageSource = false;
-
-        if (existingWinGetPackageId.has_value())
-        {
-            isSamePackageId = existingWinGetPackageId.value().GetValue<Value::Type::String>() == packageId;
-        }
-
-        if (existingWinGetSourceId.has_value())
-        {
-            isSamePackageSource = existingWinGetSourceId.value().GetValue<Value::Type::String>() == sourceId;
-        }
-
-        return isSamePackageId && isSamePackageSource;
     }
 
     std::optional<Value> PortableARPEntry::operator[](PortableValueName valueName) const

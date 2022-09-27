@@ -4,6 +4,7 @@
 #include "PortableIndex.h"
 #include "SQLiteStorageBase.h"
 #include "Schema/Portable_1_0/PortableIndexInterface.h"
+#include "winget/Filesystem.h"
 
 namespace AppInstaller::Repository::Microsoft
 {
@@ -19,6 +20,9 @@ namespace AppInstaller::Repository::Microsoft
 
         result.m_interface->CreateTable(result.m_dbconn);
 
+        const auto& filePathUTF16 = Utility::ConvertToUTF16(filePath);
+        SetFileAttributes(filePathUTF16.c_str(), GetFileAttributes(filePathUTF16.c_str()) | FILE_ATTRIBUTE_HIDDEN);
+
         result.SetLastWriteTime();
 
         savepoint.Commit();
@@ -26,7 +30,7 @@ namespace AppInstaller::Repository::Microsoft
         return result;
     }
 
-    PortableIndex::IdType PortableIndex::AddPortableFile(const Schema::IPortableIndex::PortableFile& file)
+    PortableIndex::IdType PortableIndex::AddPortableFile(const Portable::PortableFileEntry& file)
     {
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
         AICLI_LOG(Repo, Verbose, << "Adding portable file for [" << file.GetFilePath() << "]");
@@ -42,7 +46,7 @@ namespace AppInstaller::Repository::Microsoft
         return result;
     }
 
-    void PortableIndex::RemovePortableFile(const Schema::IPortableIndex::PortableFile& file)
+    void PortableIndex::RemovePortableFile(const Portable::PortableFileEntry& file)
     {
         AICLI_LOG(Repo, Verbose, << "Removing portable file [" << file.GetFilePath() << "]");
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
@@ -56,7 +60,7 @@ namespace AppInstaller::Repository::Microsoft
         savepoint.Commit();
     }
 
-    bool PortableIndex::UpdatePortableFile(const Schema::IPortableIndex::PortableFile& file)
+    bool PortableIndex::UpdatePortableFile(const Portable::PortableFileEntry& file)
     {
         AICLI_LOG(Repo, Verbose, << "Updating portable file [" << file.GetFilePath() << "]");
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
@@ -72,6 +76,34 @@ namespace AppInstaller::Repository::Microsoft
         }
 
         return result;
+    }
+
+    bool PortableIndex::Exists(const Portable::PortableFileEntry& file)
+    {
+        AICLI_LOG(Repo, Verbose, << "Checking if portable file exists [" << file.GetFilePath() << "]");
+        return m_interface->Exists(m_dbconn, file);
+    }
+
+    bool PortableIndex::IsEmpty()
+    {
+        return m_interface->IsEmpty(m_dbconn);
+    }
+
+    void PortableIndex::AddOrUpdatePortableFile(const Portable::PortableFileEntry& file)
+    {
+        if (Exists(file))
+        {
+            UpdatePortableFile(file);
+        }
+        else
+        {
+            AddPortableFile(file);
+        }
+    }
+
+    std::vector<Portable::PortableFileEntry> PortableIndex::GetAllPortableFiles()
+    {
+        return m_interface->GetAllPortableFiles(m_dbconn);
     }
 
     std::unique_ptr<Schema::IPortableIndex> PortableIndex::CreateIPortableIndex() const

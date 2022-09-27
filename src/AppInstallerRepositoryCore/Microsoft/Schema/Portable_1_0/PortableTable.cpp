@@ -64,7 +64,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
         builder.Execute(connection);
     }
 
-    SQLite::rowid_t PortableTable::AddPortableFile(SQLite::Connection& connection, const IPortableIndex::PortableFile& file)
+    SQLite::rowid_t PortableTable::AddPortableFile(SQLite::Connection& connection, const Portable::PortableFileEntry& file)
     {
         SQLite::Builder::StatementBuilder builder;
         builder.InsertInto(s_PortableTable_Table_Name)
@@ -78,7 +78,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
         return connection.GetLastInsertRowID();
     }
 
-    bool PortableTable::UpdatePortableFileById(SQLite::Connection& connection, SQLite::rowid_t id, const IPortableIndex::PortableFile& file)
+    bool PortableTable::UpdatePortableFileById(SQLite::Connection& connection, SQLite::rowid_t id, const Portable::PortableFileEntry& file)
     {
         SQLite::Builder::StatementBuilder builder;
         builder.Update(s_PortableTable_Table_Name).Set()
@@ -92,7 +92,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
         return connection.GetChanges() != 0;
     }
 
-    std::optional<IPortableIndex::PortableFile> PortableTable::GetPortableFileById(const SQLite::Connection& connection, SQLite::rowid_t id)
+    std::optional<Portable::PortableFileEntry> PortableTable::GetPortableFileById(const SQLite::Connection& connection, SQLite::rowid_t id)
     {
         SQLite::Builder::StatementBuilder builder;
         builder.Select({ s_PortableTable_FilePath_Column,
@@ -103,12 +103,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
 
         SQLite::Statement select = builder.Prepare(connection);
 
-        IPortableIndex::PortableFile portableFile;
+        Portable::PortableFileEntry portableFile;
         if (select.Step())
         {
-            auto [filePath, fileType, sha256, symlinkTarget] = select.GetRow<std::string, IPortableIndex::PortableFileType, std::string, std::string>();
-            portableFile.SetFilePath(std::move(filePath));
+            auto [filePath, fileType, sha256, symlinkTarget] = select.GetRow<std::string, Portable::PortableFileType, std::string, std::string>();
             portableFile.FileType = fileType;
+            portableFile.SetFilePath(std::move(filePath));
             portableFile.SHA256 = std::move(sha256);
             portableFile.SymlinkTarget = std::move(symlinkTarget);
             return portableFile;
@@ -149,5 +149,30 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
         THROW_HR_IF(E_UNEXPECTED, !countStatement.Step());
 
         return (countStatement.GetColumn<int>(0) == 0);
+    }
+
+    std::vector<Portable::PortableFileEntry> PortableTable::GetAllPortableFiles(SQLite::Connection& connection)
+    {
+        SQLite::Builder::StatementBuilder builder;
+        builder.Select({ s_PortableTable_FilePath_Column,
+            s_PortableTable_FileType_Column,
+            s_PortableTable_SHA256_Column,
+            s_PortableTable_SymlinkTarget_Column })
+            .From(s_PortableTable_Table_Name);
+
+        SQLite::Statement select = builder.Prepare(connection);
+        std::vector<Portable::PortableFileEntry> result;
+        while (select.Step())
+        {
+            Portable::PortableFileEntry portableFile;
+            auto [filePath, fileType, sha256, symlinkTarget] = select.GetRow<std::string, Portable::PortableFileType, std::string, std::string>();
+            portableFile.FileType = fileType;
+            portableFile.SetFilePath(std::move(filePath));
+            portableFile.SHA256 = std::move(sha256);
+            portableFile.SymlinkTarget = std::move(symlinkTarget);
+            result.emplace_back(std::move(portableFile));
+        }
+        
+        return result;
     }
 }

@@ -7,8 +7,6 @@
 #include "ShellExecuteInstallerHandler.h"
 #include "AppInstallerMsixInfo.h"
 #include "PortableFlow.h"
-#include "winget/PortableARPEntry.h"
-
 #include <AppInstallerDeployment.h>
 
 using namespace AppInstaller::CLI::Execution;
@@ -16,6 +14,7 @@ using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Msix;
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Registry;
+using namespace AppInstaller::CLI::Portable;
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -141,13 +140,12 @@ namespace AppInstaller::CLI::Workflow
 
             const std::string installedScope = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata()[Repository::PackageVersionMetadata::InstalledScope];
             const std::string installedArch = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata()[Repository::PackageVersionMetadata::InstalledArchitecture];
-            Registry::Portable::PortableARPEntry uninstallEntry = Registry::Portable::PortableARPEntry(
-                ConvertToScopeEnum(installedScope),
+            
+            PortableInstaller portableInstaller = PortableInstaller(
+                Manifest::ConvertToScopeEnum(installedScope),
                 Utility::ConvertToArchitectureEnum(installedArch),
                 productCodes[0]);
-            Portable::PortableEntry portableEntry = Portable::PortableEntry(uninstallEntry);
-
-            context.Add<Execution::Data::PortableEntry>(portableEntry);
+            context.Add<Execution::Data::PortableInstaller>(std::move(portableInstaller));
             break;
         }
         default:
