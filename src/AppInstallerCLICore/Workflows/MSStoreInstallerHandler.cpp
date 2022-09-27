@@ -3,7 +3,6 @@
 #include "pch.h"
 #include "MSStoreInstallerHandler.h"
 
-
 namespace AppInstaller::CLI::Workflow
 {
     using namespace std::string_view_literals;
@@ -138,6 +137,7 @@ namespace AppInstaller::CLI::Workflow
         else
         {
             context.Reporter.Info() << Resource::String::MSStoreInstallOrUpdateFailed << ' ' << WINGET_OSTREAM_FORMAT_HRESULT(errorCode) << std::endl;
+            context.Add<Execution::Data::OperationReturnCode>(errorCode);
             AICLI_LOG(CLI, Error, << "MSStore install failed. ProductId: " << Utility::ConvertToUTF8(productId) << " HResult: " << WINGET_OSTREAM_FORMAT_HRESULT(errorCode));
             AICLI_TERMINATE_CONTEXT(errorCode);
         }
@@ -181,6 +181,7 @@ namespace AppInstaller::CLI::Workflow
         else
         {
             context.Reporter.Info() << Resource::String::MSStoreInstallOrUpdateFailed << ' ' << WINGET_OSTREAM_FORMAT_HRESULT(errorCode) << std::endl;
+            context.Add<Execution::Data::OperationReturnCode>(errorCode);
             AICLI_LOG(CLI, Error, << "MSStore execution failed. ProductId: " << Utility::ConvertToUTF8(productId) << " HResult: " << WINGET_OSTREAM_FORMAT_HRESULT(errorCode));
             AICLI_TERMINATE_CONTEXT(errorCode);
         }
