@@ -95,6 +95,7 @@ namespace AppInstaller::CLI::Execution
             VerboseLogs, // Increases winget logging level to verbose
             DisableInteractivity, // Disable interactive prompts
             Wait, // Prompts the user to press any key before exiting
+            OpenLogs, // Opens the default logs directory after executing the command
 
             DependencySource, // Index source to be queried against for finding dependencies
             CustomHeader, // Optional Rest source header

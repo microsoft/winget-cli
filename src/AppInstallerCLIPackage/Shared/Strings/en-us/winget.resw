@@ -408,6 +408,9 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Disables VirtualTerminal display</value>
     <comment>{Locked="VirtualTerminal"}</comment>
   </data>
+  <data name="OpenLogsArgumentDescription" xml:space="preserve">
+    <value>Open the default logs location</value>
+  </data>
   <data name="Options" xml:space="preserve">
     <value>options</value>
     <comment>Options to change how a command works</comment>

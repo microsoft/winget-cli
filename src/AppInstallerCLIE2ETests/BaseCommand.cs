@@ -56,6 +56,7 @@ namespace AppInstallerCLIE2ETests
             ConfigureFeature("dependencies", status);
             ConfigureFeature("directMSI", status);
             ConfigureFeature("zipInstall", status);
+            ConfigureFeature("openLogsArgument", status);
         }
     }
 }

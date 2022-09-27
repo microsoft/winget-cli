@@ -208,6 +208,11 @@
           "description": "Enable support for installing zip packages.",
           "type": "boolean",
           "default": false
+        },
+        "openLogsArgument": {
+          "description": "Enable argument to open default logs location",
+          "type": "boolean",
+          "default": false
         }
       }
     }

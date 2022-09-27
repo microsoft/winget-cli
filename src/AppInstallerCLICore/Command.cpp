@@ -643,7 +643,11 @@ namespace AppInstaller::CLI
             return;
         }
 
-        for (const auto& arg : GetArguments())
+        // Common arguments need to be validated with command arguments, as there may be common arguments blocked by Experimental Feature or Group Policy
+        auto allArgs = GetArguments();
+        Argument::GetCommon(allArgs);
+
+        for (const auto& arg : allArgs)
         {
             if (!Settings::GroupPolicies().IsEnabled(arg.GroupPolicy()) && execArgs.Contains(arg.ExecArgType()))
             {
@@ -836,6 +840,13 @@ namespace AppInstaller::CLI
             ExecuteInternal(context);
         }
 
+        if (context.Args.Contains(Execution::Args::Type::OpenLogs))
+        {   
+            // TODO: Consider possibly adding functionality that if the context contains 'Execution::Args::Type::Log' to open the path provided for the log
+            // The above was omitted initially as a security precaution to ensure that user input to '--log' wouldn't be passed directly to ShellExecute
+            ShellExecute(NULL, NULL, Runtime::GetPathTo(Runtime::PathName::DefaultLogLocation).wstring().c_str(), NULL, NULL, SW_SHOWNORMAL);
+        }
+
         if (context.Args.Contains(Execution::Args::Type::Wait))
         {
             context.Reporter.PromptForEnter();
@@ -885,6 +896,7 @@ namespace AppInstaller::CLI
     std::vector<Argument> Command::GetVisibleArguments() const
     {
         auto arguments = GetArguments();
+        Argument::GetCommon(arguments);
 
         arguments.erase(
             std::remove_if(
