@@ -14,27 +14,42 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
         [SetUp]
         public void SetUp()
         {
+            this.indexHandle = IntPtr.Zero;
             var sqliteFile = TestCommon.GetRandomTestFile(".db");
             uint majorVersion = 1;
             uint minorVersion = 2;
             WinGetUtilWrapper.WinGetSQLiteIndexCreate(sqliteFile, majorVersion, minorVersion, out this.indexHandle); ;
         }
 
-        [TearDown]
-        public void TearDown()
-        {
-            WinGetUtilWrapper.WinGetSQLiteIndexClose(this.indexHandle);
-        }
-
         [Test]
-        public void WinGetUtil_ValidateManifest()
+        public void WinGetUtil_ValidateManifest_Fail_SchemaAndSemanticValidation()
         {
             string manifestsDir = TestCommon.GetTestDataFile(@"WinGetUtil\Manifests\Unmerged\ValidateManifest");
             string mergedManifestPath = TestCommon.GetRandomTestFile(".yaml");
-            IntPtr hresult;
 
             // Create manifest
-            hresult = WinGetUtilWrapper.WinGetCreateManifest(
+            WinGetUtilWrapper.WinGetCreateManifest(
+                manifestsDir,
+                out bool succeeded,
+                out IntPtr manifestHandle,
+                out string createFailureMessage,
+                mergedManifestPath,
+                WinGetUtilWrapper.CreateManifestOption.SchemaAndSemanticValidation);
+
+            Assert.False(succeeded);
+            Assert.AreEqual(IntPtr.Zero, manifestHandle);
+            Assert.IsNotEmpty(createFailureMessage);
+            Assert.True(File.Exists(mergedManifestPath));
+        }
+
+        [Test]
+        public void WinGetUtil_ValidateManifest_Success_NoValidation()
+        {
+            string manifestsDir = TestCommon.GetTestDataFile(@"WinGetUtil\Manifests\Unmerged\ValidateManifest");
+            string mergedManifestPath = TestCommon.GetRandomTestFile(".yaml");
+
+            // Create manifest
+            WinGetUtilWrapper.WinGetCreateManifest(
                 manifestsDir,
                 out bool succeeded,
                 out IntPtr manifestHandle,
@@ -42,14 +57,13 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
                 mergedManifestPath,
                 WinGetUtilWrapper.CreateManifestOption.NoValidation);
 
-            Assert.AreEqual(IntPtr.Zero, hresult);
             Assert.True(succeeded);
             Assert.AreNotEqual(IntPtr.Zero, manifestHandle);
             Assert.IsNull(createFailureMessage);
             Assert.True(File.Exists(mergedManifestPath));
 
             // Validate manifest
-            hresult = WinGetUtilWrapper.WinGetValidateManifestV3(
+            WinGetUtilWrapper.WinGetValidateManifestV3(
                 manifestHandle,
                 indexHandle,
                 out WinGetUtilWrapper.ValidateManifestResultCode resultCode,
@@ -57,14 +71,11 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
                 WinGetUtilWrapper.ValidateManifestOptionV2.ArpVersionValidation,
                 WinGetUtilWrapper.ValidateManifestOperationType.Add);
 
-            Assert.AreEqual(IntPtr.Zero, hresult);
             Assert.AreEqual(WinGetUtilWrapper.ValidateManifestResultCode.Success, resultCode);
             Assert.IsEmpty(validateFailureMessage);
 
             // Close manifest
-            hresult = WinGetUtilWrapper.WinGetCloseManifest(manifestHandle);
-
-            Assert.AreEqual(IntPtr.Zero, hresult);
+            WinGetUtilWrapper.WinGetCloseManifest(manifestHandle);
         }
     }
 }

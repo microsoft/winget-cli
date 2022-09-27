@@ -3,7 +3,6 @@
 
 namespace AppInstallerCLIE2ETests.WinGetUtil
 {
-    using System;
     using NUnit.Framework;
 
     public class WinGetUtilCompareVersions
@@ -27,9 +26,7 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
         public void WinGetUtil_CompareVersions(string version1, string version2, int expectedResult)
         {
             // Compare versions
-            IntPtr hresult = WinGetUtilWrapper.WinGetCompareVersions(version1, version2, out int result);
-
-            Assert.AreEqual(IntPtr.Zero, hresult);
+            WinGetUtilWrapper.WinGetCompareVersions(version1, version2, out int result);
             Assert.AreEqual(expectedResult, result);
         }
     }

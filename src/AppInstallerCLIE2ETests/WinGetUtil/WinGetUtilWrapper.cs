@@ -18,12 +18,24 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
         public enum CreateManifestOption
         {
             NoValidation = 0,
+            SchemaValidation = 0x1,
+            SchemaAndSemanticValidation = 0x2,
+            ReturnErrorOnVerifiedPublisherFields = 0x1000,
         }
 
         [Flags]
         public enum ValidateManifestResultCode
         {
             Success = 0,
+            DependenciesValidationFailure = 0x1,
+            ArpVersionValidationFailure = 0x2,
+            InstallerValidationFailure = 0x4,
+            SingleManifestPackageHasDependencies = 0x10000,
+            MultiManifestPackageHasDependencies = 0x20000,
+            MissingManifestDependenciesNode = 0x40000,
+            NoSuitableMinVersionDependency = 0x80000,
+            FoundDependencyLoop = 0x100000,
+            InternalError = 0x1000,
         }
 
         [Flags]
@@ -38,22 +50,24 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
         public enum ValidateManifestOperationType
         {
             Add = 0,
+            Update = 1,
+            Delete = 2,
         }
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
-        public static extern IntPtr WinGetCompareVersions(string version1, string version2, [MarshalAs(UnmanagedType.U4)] out int comparisonResult);
+        public static extern void WinGetCompareVersions(string version1, string version2, [MarshalAs(UnmanagedType.U4)] out int comparisonResult);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
-        public static extern IntPtr WinGetDownload(string url, string filePath, [MarshalAs(UnmanagedType.LPArray)] byte[] sha26Hash, uint sha256HashLength);
+        public static extern void WinGetDownload(string url, string filePath, [MarshalAs(UnmanagedType.LPArray)] byte[] sha26Hash, uint sha256HashLength);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
-        public static extern IntPtr WinGetLoggingInit(string logPath);
+        public static extern void WinGetLoggingInit(string logPath);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
-        public static extern IntPtr WinGetLoggingTerm(string logPath);
+        public static extern void WinGetLoggingTerm(string logPath);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
-        public static extern IntPtr WinGetCreateManifest(
+        public static extern void WinGetCreateManifest(
             string inputPath,
             [MarshalAs(UnmanagedType.U1)] out bool succeeded,
             out IntPtr manifestHandle,
@@ -62,10 +76,10 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
             CreateManifestOption option);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
-        public static extern IntPtr WinGetCloseManifest(IntPtr manifest);
+        public static extern void WinGetCloseManifest(IntPtr manifest);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
-        public static extern IntPtr WinGetValidateManifestV3(
+        public static extern void WinGetValidateManifestV3(
             IntPtr manifestHandle,
             IntPtr indexHandle,
             out ValidateManifestResultCode result,
@@ -74,31 +88,31 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
             ValidateManifestOperationType operationType);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
-        public static extern IntPtr WinGetSQLiteIndexCreate(string filePath, uint majorVersion, uint minorVersion, out IntPtr index);
+        public static extern void WinGetSQLiteIndexCreate(string filePath, uint majorVersion, uint minorVersion, out IntPtr index);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
-        public static extern IntPtr WinGetSQLiteIndexOpen(string filePath, out IntPtr index);
+        public static extern void WinGetSQLiteIndexOpen(string filePath, out IntPtr index);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
-        public static extern IntPtr WinGetSQLiteIndexClose(IntPtr index);
+        public static extern void WinGetSQLiteIndexClose(IntPtr index);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
-        public static extern IntPtr WinGetSQLiteIndexAddManifest(IntPtr index, string manifestPath, string relativePath);
+        public static extern void WinGetSQLiteIndexAddManifest(IntPtr index, string manifestPath, string relativePath);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
-        public static extern IntPtr WinGetSQLiteIndexUpdateManifest(
+        public static extern void WinGetSQLiteIndexUpdateManifest(
             IntPtr index,
             string manifestPath,
             string relativePath,
             [MarshalAs(UnmanagedType.U1)] out bool indexModified);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
-        public static extern IntPtr WinGetSQLiteIndexRemoveManifest(IntPtr index, string manifestPath, string relativePath);
+        public static extern void WinGetSQLiteIndexRemoveManifest(IntPtr index, string manifestPath, string relativePath);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
-        public static extern IntPtr WinGetSQLiteIndexPrepareForPackaging(IntPtr index);
+        public static extern void WinGetSQLiteIndexPrepareForPackaging(IntPtr index);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
-        public static extern IntPtr WinGetSQLiteIndexCheckConsistency(IntPtr index, [MarshalAs(UnmanagedType.U1)] out bool succeeded);
+        public static extern void WinGetSQLiteIndexCheckConsistency(IntPtr index, [MarshalAs(UnmanagedType.U1)] out bool succeeded);
     }
 }

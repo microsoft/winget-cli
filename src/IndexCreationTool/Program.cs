@@ -22,7 +22,7 @@ namespace IndexCreationTool
             string certPath = string.Empty;
 
             // List of directories to include. By default, include all directories.
-            List<string> includeDirList = new() { "" };
+            List<string> includeDirList = new() { string.Empty };
 
             for (int i = 0; i < args.Length; i++)
             {

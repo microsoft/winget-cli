@@ -31,8 +31,7 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
             SQLiteIndex((indexHandle) =>
             {
                 // Add manifest
-                IntPtr hresult = WinGetUtilWrapper.WinGetSQLiteIndexAddManifest(indexHandle, addManifestsFile_1, relativePath_1);
-                Assert.AreEqual(IntPtr.Zero, hresult);
+                WinGetUtilWrapper.WinGetSQLiteIndexAddManifest(indexHandle, addManifestsFile_1, relativePath_1);
             });
         }
 
@@ -45,8 +44,7 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
                 WinGetUtilWrapper.WinGetSQLiteIndexAddManifest(indexHandle, addManifestsFile_1, relativePath_1);
                 
                 // Update manifest
-                IntPtr hresult = WinGetUtilWrapper.WinGetSQLiteIndexUpdateManifest(indexHandle, updateManifestsFile_1, relativePath_1, out bool indexModified);
-                Assert.AreEqual(IntPtr.Zero, hresult);
+                WinGetUtilWrapper.WinGetSQLiteIndexUpdateManifest(indexHandle, updateManifestsFile_1, relativePath_1, out bool indexModified);
                 Assert.True(indexModified);
             });
         }
@@ -73,8 +71,7 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
                 WinGetUtilWrapper.WinGetSQLiteIndexAddManifest(indexHandle, addManifestsFile_1, relativePath_1);
                 
                 // Remove manifest
-                IntPtr hresult = WinGetUtilWrapper.WinGetSQLiteIndexRemoveManifest(indexHandle, addManifestsFile_1, relativePath_1);
-                Assert.AreEqual(IntPtr.Zero, hresult);
+                WinGetUtilWrapper.WinGetSQLiteIndexRemoveManifest(indexHandle, addManifestsFile_1, relativePath_1);
             });
         }
 
@@ -97,15 +94,13 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
             SQLiteIndex((_) =>
             {
                 // Open
-                IntPtr hresult = WinGetUtilWrapper.WinGetSQLiteIndexOpen(sqlitePath, out IntPtr indexHandle);
-                Assert.AreEqual(IntPtr.Zero, hresult);
+                WinGetUtilWrapper.WinGetSQLiteIndexOpen(sqlitePath, out IntPtr indexHandle);
 
                 // Add manifest
                 WinGetUtilWrapper.WinGetSQLiteIndexAddManifest(indexHandle, addManifestsFile_1, relativePath_1);
 
                 // Close
-                hresult = WinGetUtilWrapper.WinGetSQLiteIndexClose(indexHandle);
-                Assert.AreEqual(IntPtr.Zero, hresult);
+                WinGetUtilWrapper.WinGetSQLiteIndexClose(indexHandle);
             });
         }
 
@@ -118,12 +113,10 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
                 WinGetUtilWrapper.WinGetSQLiteIndexAddManifest(indexHandle, addManifestsFile_1, relativePath_1);
 
                 // Prepare for packaging
-                IntPtr hresult = WinGetUtilWrapper.WinGetSQLiteIndexPrepareForPackaging(indexHandle);
-                Assert.AreEqual(IntPtr.Zero, hresult);
+                WinGetUtilWrapper.WinGetSQLiteIndexPrepareForPackaging(indexHandle);
 
                 // Check consistency
-                hresult = WinGetUtilWrapper.WinGetSQLiteIndexCheckConsistency(indexHandle, out bool succeeded);
-                Assert.AreEqual(IntPtr.Zero, hresult);
+                WinGetUtilWrapper.WinGetSQLiteIndexCheckConsistency(indexHandle, out bool succeeded);
                 Assert.True(succeeded);
             });
         }
@@ -134,12 +127,8 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
         /// <param name="Execute">Function to execute.</param>
         private void SQLiteIndex(Action<IntPtr> Execute)
         {
-            IntPtr hresult;
-
             // Create
-            hresult = WinGetUtilWrapper.WinGetSQLiteIndexCreate(sqlitePath, majorVersion, minorVersion, out IntPtr indexHandle);
-
-            Assert.AreEqual(IntPtr.Zero, hresult);
+            WinGetUtilWrapper.WinGetSQLiteIndexCreate(sqlitePath, majorVersion, minorVersion, out IntPtr indexHandle);
             Assert.True(File.Exists(sqlitePath));
             Assert.AreNotEqual(IntPtr.Zero, indexHandle);
             
@@ -147,9 +136,7 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
             Execute(indexHandle);
 
             // Close
-            hresult = WinGetUtilWrapper.WinGetSQLiteIndexClose(indexHandle);
-
-            Assert.AreEqual(IntPtr.Zero, hresult);
+            WinGetUtilWrapper.WinGetSQLiteIndexClose(indexHandle);
         }
     }
 }

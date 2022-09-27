@@ -3,7 +3,6 @@
 
 namespace AppInstallerCLIE2ETests.WinGetUtil
 {
-    using System;
     using System.IO;
     using NUnit.Framework;
 
@@ -12,19 +11,14 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
         [Test]
         public void WinGetUtil_Logging()
         {
-            IntPtr hresult;
             string filePath = TestCommon.GetRandomTestFile(".log");
 
             // Init logging
-            hresult = WinGetUtilWrapper.WinGetLoggingInit(filePath);
-
-            Assert.AreEqual(IntPtr.Zero, hresult);
+            WinGetUtilWrapper.WinGetLoggingInit(filePath);
             Assert.True(File.Exists(filePath));
 
             // Terminate logging
-            hresult = WinGetUtilWrapper.WinGetLoggingTerm(filePath);
-
-            Assert.AreEqual(IntPtr.Zero, hresult);
+            WinGetUtilWrapper.WinGetLoggingTerm(filePath);
         }
     }
 }
