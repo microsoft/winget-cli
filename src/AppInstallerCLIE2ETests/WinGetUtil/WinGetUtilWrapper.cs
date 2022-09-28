@@ -54,6 +54,24 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
             Delete = 2,
         }
 
+        public enum WinGetBeginInstallerMetadataCollectionOptions
+        {
+            WinGetBeginInstallerMetadataCollectionOption_None = 0,
+            WinGetBeginInstallerMetadataCollectionOption_InputIsFilePath = 0x1,
+            WinGetBeginInstallerMetadataCollectionOption_InputIsURI = 0x2,
+        };
+
+        public enum WinGetCompleteInstallerMetadataCollectionOptions
+        {
+            WinGetCompleteInstallerMetadataCollectionOption_None = 0,
+            WinGetCompleteInstallerMetadataCollectionOption_Abandon = 0x1,
+        };
+
+        public enum WinGetMergeInstallerMetadataOptions
+        {
+            WinGetMergeInstallerMetadataOptions_None = 0,
+        };
+
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
         public static extern void WinGetCompareVersions(string version1, string version2, [MarshalAs(UnmanagedType.U4)] out int comparisonResult);
 
@@ -114,5 +132,26 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
         public static extern void WinGetSQLiteIndexCheckConsistency(IntPtr index, [MarshalAs(UnmanagedType.U1)] out bool succeeded);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
+        public static extern void WinGetBeginInstallerMetadataCollection(
+            string inputJSON,
+            string logFilePath,
+            WinGetBeginInstallerMetadataCollectionOptions options,
+            out IntPtr collectionHandle);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
+        public static extern void WinGetCompleteInstallerMetadataCollection(
+            IntPtr collectionHandle,
+            string outputFilePath,
+            WinGetCompleteInstallerMetadataCollectionOptions options);
+
+        [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
+        public static extern void WinGetMergeInstallerMetadata(
+            string inputJSON,
+            [MarshalAs(UnmanagedType.BStr)] out string outputJSON,
+            uint maximumOutputSizeInBytes,
+            string logFilePath,
+            WinGetMergeInstallerMetadataOptions options);
     }
 }
