@@ -45,7 +45,16 @@
           "commitHash": "122d09549201da5383321d870bed45ecb9e168c5"
         }
       }
-    }
+    },
+    {
+      "component": {
+        "type": "git",
+        "git": {
+          "repositoryUrl": "https://github.com/ronomon/pure.git",
+          "commitHash": "fd54913e65338e678440ae66b3b5022ab23b761b"
+        }
+      }
+    }   
   ],
   "Version": 1
 }
