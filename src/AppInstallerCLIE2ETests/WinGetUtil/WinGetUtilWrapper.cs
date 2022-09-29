@@ -10,7 +10,7 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
     /// Wrapper class for WinGetUtil exports.
     /// For more details about methods in this class visit WinGetUtil.h file.
     /// </summary>
-    internal class WinGetUtilWrapper
+    public class WinGetUtilWrapper
     {
         private const string DllName = @"WinGetUtil.dll";
 

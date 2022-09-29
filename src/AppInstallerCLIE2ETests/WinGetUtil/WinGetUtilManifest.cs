@@ -9,7 +9,7 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
 
     public class WinGetUtilManifest
     {
-        IntPtr indexHandle;
+        private IntPtr indexHandle;
 
         [SetUp]
         public void SetUp()
@@ -21,29 +21,16 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
             WinGetUtilWrapper.WinGetSQLiteIndexCreate(sqliteFile, majorVersion, minorVersion, out this.indexHandle); ;
         }
 
-        [Test]
-        public void WinGetUtil_ValidateManifest_Fail_SchemaAndSemanticValidation()
+        [TearDown]
+        public void TearDown()
         {
-            string manifestsDir = TestCommon.GetTestDataFile(@"WinGetUtil\Manifests\Unmerged\ValidateManifest");
-            string mergedManifestPath = TestCommon.GetRandomTestFile(".yaml");
-
-            // Create manifest
-            WinGetUtilWrapper.WinGetCreateManifest(
-                manifestsDir,
-                out bool succeeded,
-                out IntPtr manifestHandle,
-                out string createFailureMessage,
-                mergedManifestPath,
-                WinGetUtilWrapper.CreateManifestOption.SchemaAndSemanticValidation);
-
-            Assert.False(succeeded);
-            Assert.AreEqual(IntPtr.Zero, manifestHandle);
-            Assert.IsNotEmpty(createFailureMessage);
-            Assert.True(File.Exists(mergedManifestPath));
+            WinGetUtilWrapper.WinGetSQLiteIndexClose(this.indexHandle);
         }
 
         [Test]
-        public void WinGetUtil_ValidateManifest_Success_NoValidation()
+        [TestCase(WinGetUtilWrapper.CreateManifestOption.NoValidation)]
+        [TestCase(WinGetUtilWrapper.CreateManifestOption.SchemaAndSemanticValidation)]
+        public void WinGetUtil_ValidateManifest_Success(WinGetUtilWrapper.CreateManifestOption createManifestOption)
         {
             string manifestsDir = TestCommon.GetTestDataFile(@"WinGetUtil\Manifests\Unmerged\ValidateManifest");
             string mergedManifestPath = TestCommon.GetRandomTestFile(".yaml");
@@ -55,7 +42,7 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
                 out IntPtr manifestHandle,
                 out string createFailureMessage,
                 mergedManifestPath,
-                WinGetUtilWrapper.CreateManifestOption.NoValidation);
+                createManifestOption);
 
             Assert.True(succeeded);
             Assert.AreNotEqual(IntPtr.Zero, manifestHandle);
