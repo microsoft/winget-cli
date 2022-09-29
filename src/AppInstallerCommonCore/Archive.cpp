@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include "winget/Archive.h"
+#include "pure.h"
 
 namespace AppInstaller::Archive
 {
@@ -40,5 +42,17 @@ namespace AppInstaller::Archive
 
         RETURN_IF_FAILED(pFileOperation->PerformOperations());
         return S_OK;
+    }
+
+    bool ScanZipFile(const std::filesystem::path& zipPath)
+    {
+        std::ifstream instream(zipPath, std::ios::in | std::ios::binary);
+        std::vector<uint8_t> data((std::istreambuf_iterator<char>(instream)), std::istreambuf_iterator<char>());
+
+        uint8_t* buffer = &data[0];
+        uint64_t flag = 0;
+        int scanResult = pure_zip(buffer, data.size(), flag);
+
+        return scanResult == 0;
     }
 }

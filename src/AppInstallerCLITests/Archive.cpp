@@ -23,3 +23,12 @@ TEST_CASE("Extract_ZipArchive", "[archive]")
     REQUIRE(SUCCEEDED(hr));
     REQUIRE(std::filesystem::exists(expectedPath));
 }
+
+TEST_CASE("Scan_ZipArchive", "[archive]")
+{
+    TestDataFile testZip(s_ZipFile);
+
+    const auto& testZipPath = testZip.GetPath();
+    bool result = ScanZipFile(testZipPath);
+    REQUIRE(result);
+}
