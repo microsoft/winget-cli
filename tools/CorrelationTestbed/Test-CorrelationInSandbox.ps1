@@ -16,10 +16,15 @@ Param(
   [String] $ResultsPath,
   [Parameter(HelpMessage = "The path to registry files that should be injected before the test.")]
   [String] $RegFileDirectory,
+<<<<<<< HEAD
   [Parameter(HelpMessage = "Indicates that the metadata collection process should be run.")]
   [Switch] $MetadataCollection,
   [Parameter(HelpMessage = "The path to WinGetUtil.dll; only the release build works.")]
   [String] $WingetUtilPath
+=======
+  [Parameter(HelpMessage = "Wait for user input before tearing down each sandbox.")]
+  [Switch] $Wait
+>>>>>>> corrwait
 )
 
 $ErrorActionPreference = "Stop"
@@ -408,6 +413,11 @@ foreach ($packageIdentifier in $PackageIdentifiers)
           break
         }
         Start-Sleep 1
+    }
+
+    if ($Wait)
+    {
+        Read-Host "Press Enter to close sandbox and continue..."
     }
 
     Close-WindowsSandbox
