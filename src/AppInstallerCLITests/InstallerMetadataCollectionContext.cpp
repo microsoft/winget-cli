@@ -229,7 +229,7 @@ namespace
 
     struct TestARPCorrelationData : public ARPCorrelationData
     {
-        ARPCorrelationResult CorrelateForNewlyInstalled(const Manifest::Manifest&) override
+        ARPCorrelationResult CorrelateForNewlyInstalled(const Manifest::Manifest&, const ARPCorrelationSettings&) override
         {
             return CorrelateForNewlyInstalledResult;
         }

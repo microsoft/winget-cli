@@ -15,7 +15,11 @@ Param(
   [Parameter(HelpMessage = "The results output path.")]
   [String] $ResultsPath,
   [Parameter(HelpMessage = "The path to registry files that should be injected before the test.")]
-  [String] $RegFileDirectory
+  [String] $RegFileDirectory,
+  [Parameter(HelpMessage = "Indicates that the metadata collection process should be run.")]
+  [Switch] $MetadataCollection,
+  [Parameter(HelpMessage = "The path to WinGetUtil.dll; only the release build works.")]
+  [String] $WingetUtilPath
 )
 
 $ErrorActionPreference = "Stop"
@@ -61,6 +65,34 @@ Use the Release build or figure out how to make debug work and fix the scripts.
     Write-Error -Category InvalidArgument -Message @"
 AppxManifest.xml does not exist in the path $DevPackagePath
 Either build the local dev package, or provide the location using -DevPackagePath
+"@
+  }
+}
+
+# Validate that WinGetUtil.dll exists if metadata collection is requested
+
+if ($MetadataCollection)
+{
+  if (-not $WingetUtilPath)
+  {
+    $WingetUtilPath = Join-Path $PSScriptRoot "..\..\src\x64\Release\WinGetUtil\WinGetUtil.dll"
+  }
+
+  $WingetUtilPath = [System.IO.Path]::GetFullPath($WingetUtilPath)
+
+  if ($WingetUtilPath.ToLower().Contains("debug"))
+  {
+    Write-Error -Category InvalidArgument -Message @"
+The Debug WinGetUtil does not work because only the Release VC Runtime is installed in the sandbox.
+Use the Release build or implement support for Debug.
+"@
+  }
+
+  if (-not (Test-Path $WingetUtilPath))
+  {
+    Write-Error -Category InvalidArgument -Message @"
+WinGetUtil.dll does not exist in the path $WingetUtilPath
+Either build the release binary, or provide the location using -WingetUtilPath
 "@
   }
 }
@@ -247,6 +279,11 @@ if (-not $UseDev)
   $uiLibsUwp.file = (Join-Path -Path $tempFolder -ChildPath \Microsoft.UI.Xaml.2.7\tools\AppX\x64\Release\Microsoft.UI.Xaml.2.7.appx)
   $uiLibsUwp.pathInSandbox = Join-Path -Path $desktopInSandbox -ChildPath (Join-Path -Path $tempFolderName -ChildPath \Microsoft.UI.Xaml.2.7\tools\AppX\x64\Release\Microsoft.UI.Xaml.2.7.appx)
   Write-Host
+}
+
+if ($MetadataCollection)
+{ 
+  Copy-Item -Path $WingetUtilPath -Destination $tempFolder -Force
 }
 
 # Copy main script
