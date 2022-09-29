@@ -71,7 +71,7 @@ namespace AppInstallerCLIE2ETests
                 }
 
                 // Generate Index.db file using IndexCreationTool.exe
-                RunCommand(Path.Combine(indexCreationToolPath, "IndexCreationTool.exe"), $"-d {TestCommon.StaticFileRootPath}", indexDestPath);
+                RunCommand(Path.Combine(indexCreationToolPath, "IndexCreationTool.exe"), $"-d {TestCommon.StaticFileRootPath} -i {ManifestsName}", indexDestPath);
 
                 string packageDir = Path.Combine(TestCommon.StaticFileRootPath, PackageName);
                 string indexPackageDestPath = Path.Combine(TestCommon.StaticFileRootPath, Constants.IndexPackage);
