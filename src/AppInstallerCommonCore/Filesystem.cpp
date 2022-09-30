@@ -170,8 +170,8 @@ namespace AppInstaller::Filesystem
 
     bool VerifySymlink(const std::filesystem::path& symlink, const std::filesystem::path& target)
     {
-        const std::filesystem::path& symlinkTargetPath = std::filesystem::read_symlink(symlink);
-        return symlinkTargetPath == target;
+        const std::filesystem::path& symlinkTargetPath = std::filesystem::weakly_canonical(symlink);
+        return symlinkTargetPath == std::filesystem::weakly_canonical(target);
     }
 
     void AppendExtension(std::filesystem::path& target, const std::string& value)
