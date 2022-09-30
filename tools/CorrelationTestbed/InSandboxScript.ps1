@@ -4,7 +4,9 @@ Param(
   [String] $PackageIdentifier,
   [String] $SourceName,
   [String] $OutputPath,
-  [Switch] $UseDev
+  [Switch] $UseDev,
+  [Switch] $MetadataCollection,
+  [String] $System32Path
 )
 
 function Get-ARPTable {
@@ -79,6 +81,12 @@ $installAndCorrelationExpression = -join($installAndCorrelationExpression, ' -id
 if ($UseDev)
 {
   $installAndCorrelationExpression = -join($installAndCorrelationExpression, ' -dev')
+}
+
+if ($MetadataCollection)
+{
+  $wingetUtilPath = Join-Path $PSScriptRoot "WinGetUtil.dll"
+  $installAndCorrelationExpression = -join($installAndCorrelationExpression, ' -meta "', $wingetUtilPath, '" -sys32 "', $System32Path,'"')
 }
 
 Invoke-Expression $installAndCorrelationExpression

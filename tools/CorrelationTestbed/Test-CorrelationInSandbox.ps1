@@ -77,24 +77,16 @@ if ($MetadataCollection)
 {
   if (-not $WingetUtilPath)
   {
-    $WingetUtilPath = Join-Path $PSScriptRoot "..\..\src\x64\Release\WinGetUtil\WinGetUtil.dll"
+    $WingetUtilPath = Join-Path $PSScriptRoot "..\..\src\x64\Debug\WinGetUtil\WinGetUtil.dll"
   }
 
   $WingetUtilPath = [System.IO.Path]::GetFullPath($WingetUtilPath)
-
-  if ($WingetUtilPath.ToLower().Contains("debug"))
-  {
-    Write-Error -Category InvalidArgument -Message @"
-The Debug WinGetUtil does not work because only the Release VC Runtime is installed in the sandbox.
-Use the Release build or implement support for Debug.
-"@
-  }
 
   if (-not (Test-Path $WingetUtilPath))
   {
     Write-Error -Category InvalidArgument -Message @"
 WinGetUtil.dll does not exist in the path $WingetUtilPath
-Either build the release binary, or provide the location using -WingetUtilPath
+Either build the binary, or provide the location using -WingetUtilPath
 "@
   }
 }
@@ -301,6 +293,7 @@ foreach ($packageIdentifier in $PackageIdentifiers)
     New-Item -ItemType Directory $outPath  | Out-Null
 
     $outPathInSandbox = Join-Path -Path $desktopInSandbox -ChildPath (Split-Path -Path $outPath -Leaf)
+    $system32PathInSandbox = Join-Path -Path $desktopInSandbox -ChildPath "hostSystem32"
 
     if ($UseDev)
     {
@@ -311,7 +304,7 @@ foreach ($packageIdentifier in $PackageIdentifiers)
       $dependenciesPathsInSandbox = "@('$($vcLibsUwp.pathInSandbox)', '$($uiLibsUwp.pathInSandbox)')"
     }
 
-    $bootstrapPs1Content = ".\$mainPs1FileName -DesktopAppInstallerDependencyPath @($dependenciesPathsInSandbox) -PackageIdentifier '$packageIdentifier' -SourceName '$Source' -OutputPath '$outPathInSandbox'"
+    $bootstrapPs1Content = ".\$mainPs1FileName -DesktopAppInstallerDependencyPath @($dependenciesPathsInSandbox) -PackageIdentifier '$packageIdentifier' -SourceName '$Source' -OutputPath '$outPathInSandbox' -System32Path '$system32PathInSandbox'"
 
     if ($UseDev)
     {
@@ -320,6 +313,11 @@ foreach ($packageIdentifier in $PackageIdentifiers)
     else
     {
       $bootstrapPs1Content += " -DesktopAppInstallerPath '$($desktopAppInstaller.pathInSandbox)'"
+    }
+    
+    if ($MetadataCollection)
+    {
+      $bootstrapPs1Content += " -MetadataCollection"
     }
 
     $bootstrapPs1FileName = 'Bootstrap.ps1'
@@ -368,6 +366,11 @@ foreach ($packageIdentifier in $PackageIdentifiers)
     <MappedFolder>
         <HostFolder>$ExePath</HostFolder>
         <SandboxFolder>$exePathInSandbox</SandboxFolder>
+        <ReadOnly>true</ReadOnly>
+    </MappedFolder>
+    <MappedFolder>
+        <HostFolder>C:\Windows\System32</HostFolder>
+        <SandboxFolder>$system32PathInSandbox</SandboxFolder>
         <ReadOnly>true</ReadOnly>
     </MappedFolder>
     $devPackageXMLFragment
