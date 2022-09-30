@@ -60,18 +60,22 @@ namespace AppInstaller::CLI::Portable
 
         if (fileType == PortableFileType::File)
         {
-            SHA256::HashBuffer fileHash = SHA256::ComputeHashFromFile(filePath);
-            if (std::filesystem::exists(filePath) && !SHA256::AreEqual(fileHash, SHA256::ConvertToBytes(entry.SHA256)))
+            
+            if (std::filesystem::exists(filePath))
             {
-                AICLI_LOG(CLI, Info, << "File hash does not match ARP Entry. Expected: " << entry.SHA256 << " Actual: " << SHA256::ConvertToString(fileHash));
-                return false;
+                SHA256::HashBuffer fileHash = SHA256::ComputeHashFromFile(filePath);
+                if (!SHA256::AreEqual(fileHash, SHA256::ConvertToBytes(entry.SHA256)))
+                {
+                    AICLI_LOG(CLI, Warning, << "File hash does not match ARP Entry. Expected: " << entry.SHA256 << " Actual: " << SHA256::ConvertToString(fileHash));
+                    return false;
+                }
             }
         }
         else if (fileType == PortableFileType::Symlink)
         {
             if (Filesystem::SymlinkExists(filePath) && !Filesystem::VerifySymlink(filePath, entry.SymlinkTarget))
             {
-                AICLI_LOG(CLI, Info, << "Symlink target does not match ARP Entry. Expected: " << entry.SymlinkTarget << " Actual: " << std::filesystem::read_symlink(filePath).string());
+                AICLI_LOG(CLI, Warning, << "Symlink target does not match ARP Entry. Expected: " << entry.SymlinkTarget << " Actual: " << std::filesystem::read_symlink(filePath).string());
                 return false;
             }
         }
