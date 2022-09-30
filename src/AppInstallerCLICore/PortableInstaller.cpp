@@ -60,15 +60,22 @@ namespace AppInstaller::CLI::Portable
 
         if (fileType == PortableFileType::File)
         {
-            if (std::filesystem::exists(filePath) && !SHA256::AreEqual(SHA256::ComputeHashFromFile(filePath), SHA256::ConvertToBytes(entry.SHA256)))
+            
+            if (std::filesystem::exists(filePath))
             {
-                return false;
+                SHA256::HashBuffer fileHash = SHA256::ComputeHashFromFile(filePath);
+                if (!SHA256::AreEqual(fileHash, SHA256::ConvertToBytes(entry.SHA256)))
+                {
+                    AICLI_LOG(CLI, Warning, << "File hash does not match ARP Entry. Expected: " << entry.SHA256 << " Actual: " << SHA256::ConvertToString(fileHash));
+                    return false;
+                }
             }
         }
         else if (fileType == PortableFileType::Symlink)
         {
             if (Filesystem::SymlinkExists(filePath) && !Filesystem::VerifySymlink(filePath, entry.SymlinkTarget))
             {
+                AICLI_LOG(CLI, Warning, << "Symlink target does not match ARP Entry. Expected: " << entry.SymlinkTarget << " Actual: " << std::filesystem::read_symlink(filePath));
                 return false;
             }
         }
@@ -121,7 +128,7 @@ namespace AppInstaller::CLI::Portable
             if (std::filesystem::remove(filePath))
             {
                 AICLI_LOG(CLI, Info, << "Removed existing file at " << filePath);
-                m_stream << Resource::String::OverwritingExistingFileAtMessage << ' ' << filePath << std::endl;
+                m_stream << Resource::String::OverwritingExistingFileAtMessage << ' ' << filePath.u8string() << std::endl;
             }
 
             if (Filesystem::CreateSymlink(entry.SymlinkTarget, filePath))
