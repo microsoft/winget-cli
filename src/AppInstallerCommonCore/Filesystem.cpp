@@ -152,7 +152,7 @@ namespace AppInstaller::Filesystem
 #endif
         try
         {
-            std::filesystem::create_symlink(target.lexically_normal(), link);
+            std::filesystem::create_symlink(target.weakly_canonical(), link);
             return true;
         }
         catch (std::filesystem::filesystem_error& error)
@@ -170,7 +170,7 @@ namespace AppInstaller::Filesystem
 
     bool VerifySymlink(const std::filesystem::path& symlink, const std::filesystem::path& target)
     {
-        const std::filesystem::path& symlinkTargetPath = std::filesystem::read_symlink(symlink).lexically_normal();
+        const std::filesystem::path& symlinkTargetPath = std::filesystem::read_symlink(symlink).weakly_canonical();
         return symlinkTargetPath == target;
     }
 
