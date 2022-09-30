@@ -62,6 +62,7 @@ namespace AppInstaller::CLI::Portable
         {
             if (std::filesystem::exists(filePath) && !SHA256::AreEqual(SHA256::ComputeHashFromFile(filePath), SHA256::ConvertToBytes(entry.SHA256)))
             {
+                AICLI_LOG(CLI, Info, << "File Hash: " << SHA256::ComputeHashFromFile(filePath).data() << " Expected: " << entry.SHA256);
                 return false;
             }
         }
@@ -69,6 +70,7 @@ namespace AppInstaller::CLI::Portable
         {
             if (Filesystem::SymlinkExists(filePath) && !Filesystem::VerifySymlink(filePath, entry.SymlinkTarget))
             {
+                AICLI_LOG(CLI, Info, << "Symlink: " << std::filesystem::read_symlink(filePath).string() << " Expected: " << entry.SymlinkTarget);
                 return false;
             }
         }
