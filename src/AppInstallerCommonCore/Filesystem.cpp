@@ -152,7 +152,7 @@ namespace AppInstaller::Filesystem
 #endif
         try
         {
-            std::filesystem::create_symlink(std::filesystem::weakly_canonical(target), link);
+            std::filesystem::create_symlink(target, link);
             return true;
         }
         catch (std::filesystem::filesystem_error& error)
@@ -171,7 +171,7 @@ namespace AppInstaller::Filesystem
     bool VerifySymlink(const std::filesystem::path& symlink, const std::filesystem::path& target)
     {
         const std::filesystem::path& symlinkTargetPath = std::filesystem::weakly_canonical(symlink);
-        return symlinkTargetPath == target;
+        return symlinkTargetPath == std::filesystem::weakly_canonical(target);
     }
 
     void AppendExtension(std::filesystem::path& target, const std::string& value)
