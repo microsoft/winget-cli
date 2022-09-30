@@ -60,9 +60,10 @@ namespace AppInstaller::CLI::Portable
 
         if (fileType == PortableFileType::File)
         {
-            if (std::filesystem::exists(filePath) && !SHA256::AreEqual(SHA256::ComputeHashFromFile(filePath), SHA256::ConvertToBytes(entry.SHA256)))
+            SHA256::HashBuffer fileHash = SHA256::ComputeHashFromFile(filePath);
+            if (std::filesystem::exists(filePath) && !SHA256::AreEqual(fileHash, SHA256::ConvertToBytes(entry.SHA256)))
             {
-                AICLI_LOG(CLI, Info, << "File Hash: " << SHA256::ComputeHashFromFile(filePath).data() << " Expected: " << entry.SHA256);
+                AICLI_LOG(CLI, Info, << "File Hash: " << fileHash.data() << " Expected: " << entry.SHA256);
                 return false;
             }
         }
