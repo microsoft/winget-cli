@@ -170,7 +170,7 @@ namespace AppInstaller::Filesystem
 
     bool VerifySymlink(const std::filesystem::path& symlink, const std::filesystem::path& target)
     {
-        const std::filesystem::path& symlinkTargetPath = std::filesystem::read_symlink(symlink).weakly_canonical();
+        const std::filesystem::path& symlinkTargetPath = std::filesystem::weakly_canonical(symlink);
         return symlinkTargetPath == target;
     }
 
