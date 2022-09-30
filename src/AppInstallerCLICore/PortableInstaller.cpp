@@ -63,7 +63,7 @@ namespace AppInstaller::CLI::Portable
             SHA256::HashBuffer fileHash = SHA256::ComputeHashFromFile(filePath);
             if (std::filesystem::exists(filePath) && !SHA256::AreEqual(fileHash, SHA256::ConvertToBytes(entry.SHA256)))
             {
-                AICLI_LOG(CLI, Info, << "File hash does not match ARP Entry. Expected: " << entry.SHA256 << " Actual: " << fileHash.data());
+                AICLI_LOG(CLI, Info, << "File hash does not match ARP Entry. Expected: " << entry.SHA256 << " Actual: " << SHA256::ConvertToString(fileHash));
                 return false;
             }
         }
