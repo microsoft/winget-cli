@@ -1441,4 +1441,12 @@ Please specify one of them using the `--source` option to proceed.</value>
   <data name="ExtractingArchive" xml:space="preserve">
     <value>Extracting archive...</value>
   </data>
+  <data name="ArchiveFailedMalwareScan" xml:space="preserve">
+    <value>Archive scan detected malware; to override this check use --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="ArchiveFailedMalwareScanOverridden" xml:space="preserve">
+    <value>Archive scan detected malware; proceeding due to --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
 </root>

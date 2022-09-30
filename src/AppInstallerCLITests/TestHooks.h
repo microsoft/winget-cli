@@ -45,4 +45,9 @@ namespace AppInstaller
     {
         void TestHook_SetCreateSymlinkResult_Override(bool* status);
     }
+
+    namespace Archive
+    {
+        void TestHook_SetScanArchiveResult_Override(bool* status);
+    }
 }

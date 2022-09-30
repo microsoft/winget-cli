@@ -39,6 +39,7 @@
 #include <winget/LocIndependent.h>
 #include <winget/ManifestYamlParser.h>
 #include <winget/PathVariable.h>
+#include <winget/Archive.h>
 #include <Resources.h>
 #include <AppInstallerFileLogger.h>
 #include <Commands/ValidateCommand.h>
@@ -1190,6 +1191,67 @@ TEST_CASE("InstallFlow_Zip_MultipleNonPortableNestedInstallers", "[InstallFlow][
     // Verify Installer was not called
     REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::MultipleNonPortableNestedInstallersSpecified).get()) != std::string::npos);
+}
+
+TEST_CASE("InstallFlow_Zip_ArchiveScanFailed", "[InstallFlow][workflow]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+    TestCommon::TestUserSettings testSettings;
+    testSettings.Set<Setting::EFZipInstall>(true);
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForShellExecute(context);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Zip_Exe.yaml").GetPath().u8string());
+
+    bool overrideArchiveScanResult = false;
+    AppInstaller::Archive::TestHook_SetScanArchiveResult_Override(&overrideArchiveScanResult);
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_ARCHIVE_SCAN_FAILED);
+
+    // Verify Installer was not called
+    REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::ArchiveFailedMalwareScan).get()) != std::string::npos);
+}
+
+TEST_CASE("InstallFlow_Zip_ArchiveScanOverride", "[InstallFlow][workflow]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+    TestCommon::TestUserSettings testSettings;
+    testSettings.Set<Setting::EFZipInstall>(true);
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForShellExecute(context);
+    OverrideForExtractInstallerFromArchive(context);
+    OverrideForVerifyAndSetNestedInstaller(context);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Zip_Exe.yaml").GetPath().u8string());
+    context.Args.AddArg(Execution::Args::Type::HashOverride);
+
+    bool overrideArchiveScanResult = false;
+    AppInstaller::Archive::TestHook_SetScanArchiveResult_Override(&overrideArchiveScanResult);
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify override message is displayed to the user.
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::ArchiveFailedMalwareScanOverridden).get()) != std::string::npos);
+
+    // Verify Installer is called and parameters are passed in.
+    REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
+    std::ifstream installResultFile(installResultPath.GetPath());
+    REQUIRE(installResultFile.is_open());
+    std::string installResultStr;
+    std::getline(installResultFile, installResultStr);
+    REQUIRE(installResultStr.find("/custom") != std::string::npos);
+    REQUIRE(installResultStr.find("/silentwithprogress") != std::string::npos);
 }
 
 TEST_CASE("ExtractInstallerFromArchive_InvalidZip", "[InstallFlow][workflow]")

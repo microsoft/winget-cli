@@ -15,6 +15,34 @@ namespace AppInstaller::CLI::Workflow
         constexpr std::wstring_view s_Extracted = L"extracted";
     }
 
+    void ScanArchiveFromLocalManifest(Execution::Context& context)
+    {
+        if (context.Args.Contains(Execution::Args::Type::Manifest))
+        {
+            bool scanResult = Archive::ScanZipFile(context.Get<Execution::Data::InstallerPath>());
+
+            if (scanResult)
+            {
+                AICLI_LOG(CLI, Info, << "Archive malware scan passed");
+            }
+            else
+            {
+                // TODO: replace with proper --force argument when available.
+                if (context.Args.Contains(Execution::Args::Type::HashOverride))
+                {
+                    AICLI_LOG(CLI, Info, << "Archive malware scan failed; proceeding due to --force override");
+                    context.Reporter.Error() << Resource::String::ArchiveFailedMalwareScanOverridden << std::endl;
+                }
+                else
+                {
+                    AICLI_LOG(CLI, Info, << "Archive malware scan failed");
+                    context.Reporter.Error() << Resource::String::ArchiveFailedMalwareScan << std::endl;
+                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_ARCHIVE_SCAN_FAILED);
+                }
+            }
+        }
+    }
+
     void ExtractFilesFromArchive(Execution::Context& context)
     {
         const auto& installerPath = context.Get<Execution::Data::InstallerPath>();
