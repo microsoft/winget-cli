@@ -152,7 +152,7 @@ namespace AppInstaller::Filesystem
 #endif
         try
         {
-            std::filesystem::create_symlink(target.weakly_canonical(), link);
+            std::filesystem::create_symlink(std::filesystem::weakly_canonical(target), link);
             return true;
         }
         catch (std::filesystem::filesystem_error& error)
