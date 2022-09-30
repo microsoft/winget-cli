@@ -75,7 +75,7 @@ namespace AppInstaller::CLI::Portable
         {
             if (Filesystem::SymlinkExists(filePath) && !Filesystem::VerifySymlink(filePath, entry.SymlinkTarget))
             {
-                AICLI_LOG(CLI, Warning, << "Symlink target does not match ARP Entry. Expected: " << entry.SymlinkTarget << " Actual: " << std::filesystem::read_symlink(filePath).string());
+                AICLI_LOG(CLI, Warning, << "Symlink target does not match ARP Entry. Expected: " << entry.SymlinkTarget << " Actual: " << std::filesystem::read_symlink(filePath));
                 return false;
             }
         }
