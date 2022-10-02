@@ -17,7 +17,6 @@ namespace AppInstaller::CLI
     namespace
     {
         constexpr Utility::LocIndView s_ArgumentName_Scope = "scope"_liv;
-        constexpr Utility::LocIndView s_ArgumentName_Architecture = "architecture"_liv;
     }
 
     std::vector<Argument> InstallCommand::GetArguments() const
@@ -114,27 +113,6 @@ namespace AppInstaller::CLI
             if (ConvertToScopeEnum(execArgs.GetArg(Args::Type::InstallScope)) == Manifest::ScopeEnum::Unknown)
             {
                 throw CommandException(Resource::String::InvalidArgumentValueError, s_ArgumentName_Scope, { "user"_lis, "machine"_lis });
-            }
-        }
-        if (execArgs.Contains(Args::Type::InstallArchitecture))
-        {
-            Utility::Architecture selectedArch = Utility::ConvertToArchitectureEnum(std::string(execArgs.GetArg(Args::Type::InstallArchitecture)));
-            if ((selectedArch == Utility::Architecture::Unknown) || (Utility::IsApplicableArchitecture(selectedArch) == Utility::InapplicableArchitecture))
-            {
-                std::vector<Utility::LocIndString> applicableArchitectures;
-                for (Utility::Architecture i : Utility::GetApplicableArchitectures())
-                {
-                    applicableArchitectures.emplace_back(Utility::ToString(i));
-                }
-                throw CommandException(Resource::String::InvalidArgumentValueError, s_ArgumentName_Architecture, std::forward<std::vector<Utility::LocIndString>>((applicableArchitectures)));
-            }
-        }
-
-        if (execArgs.Contains(Args::Type::Locale))
-        {
-            if (!Locale::IsWellFormedBcp47Tag(execArgs.GetArg(Args::Type::Locale)))
-            {
-                throw CommandException(Resource::String::InvalidArgumentValueErrorWithoutValidValues, Argument::ForType(Args::Type::Locale).Name(), {});
             }
         }
     }

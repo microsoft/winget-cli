@@ -192,21 +192,19 @@ namespace AppInstaller::Repository
         SQLiteIndex::IdType Id;
     };
 
-    PackageTrackingCatalog::Version::Version() = default;
     PackageTrackingCatalog::Version::Version(const Version&) = default;
     PackageTrackingCatalog::Version& PackageTrackingCatalog::Version::operator=(const Version&) = default;
     PackageTrackingCatalog::Version::Version(Version&&) noexcept = default;
     PackageTrackingCatalog::Version& PackageTrackingCatalog::Version::operator=(Version&&) noexcept = default;
     PackageTrackingCatalog::Version::~Version() = default;
 
-    PackageTrackingCatalog::Version::Version(std::shared_ptr<implementation>&& value) :
-        m_implementation(std::move(value)) {}
+    PackageTrackingCatalog::Version::Version(PackageTrackingCatalog& catalog, std::shared_ptr<implementation>&& value) :
+        m_catalog(catalog), m_implementation(std::move(value)) {}
 
     void PackageTrackingCatalog::Version::SetMetadata(PackageVersionMetadata metadata, const Utility::NormalizedString& value)
     {
-        UNREFERENCED_PARAMETER(metadata);
-        UNREFERENCED_PARAMETER(value);
-        THROW_HR(E_NOTIMPL);
+        auto& index = m_catalog.m_implementation->Source->GetIndex();
+        index.SetMetadataByManifestId(m_implementation->Id, metadata, value);
     }
 
     PackageTrackingCatalog::Version PackageTrackingCatalog::RecordInstall(
@@ -243,9 +241,16 @@ namespace AppInstaller::Repository
             index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::PinnedState, ToString(PackagePinnedState::PinnedByManifest));
         }
 
+        // Record installed architecture and locale if applicable
+        index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::InstalledArchitecture, ToString(installer.Arch));
+        if (!installer.Locale.empty())
+        {
+            index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::InstalledLocale, installer.Locale);
+        }
+
         std::shared_ptr<Version::implementation> result = std::make_shared<Version::implementation>();
         result->Id = manifestId;
-        return { std::move(result) };
+        return { *this, std::move(result) };
     }
 
     void PackageTrackingCatalog::RecordUninstall(const Utility::LocIndString& packageIdentifier)

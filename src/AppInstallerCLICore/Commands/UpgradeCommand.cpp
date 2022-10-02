@@ -98,6 +98,9 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Log),             // -o
             Argument::ForType(Args::Type::Override),
             Argument::ForType(Args::Type::InstallLocation), // -l
+            // Alias 'a' already used by --all, so use alternative name "ua" here
+            Argument{ s_ArgumentName_Architecture, Argument::NoAlias, "ua", Args::Type::InstallArchitecture, Resource::String::InstallArchitectureArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help},
+            Argument::ForType(Args::Type::Locale),
             Argument::ForType(Args::Type::HashOverride),
             Argument::ForType(Args::Type::AcceptPackageAgreements),
             Argument::ForType(Args::Type::AcceptSourceAgreements),
