@@ -2,7 +2,10 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "winget/Archive.h"
+#pragma warning( push )
+#pragma warning ( disable : 4189 )
 #include "pure.h"
+#pragma warning ( pop )
 
 namespace AppInstaller::Archive
 {
