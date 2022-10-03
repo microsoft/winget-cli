@@ -334,7 +334,7 @@ TEST_CASE("ManifestComparator_ScopeCompare", "[manifest_comparator]")
     }
 }
 
-TEST_CASE("ManifestComparator_InstalledLocaleComparator_Uknown", "[manifest_comparator]")
+TEST_CASE("ManifestComparator_LocaleComparator_InstalledUknown", "[manifest_comparator]")
 {
     Manifest manifest;
     ManifestInstaller unknown = AddInstaller(manifest, Architecture::Neutral, InstallerTypeEnum::Msi, ScopeEnum::User, "", "");
@@ -376,7 +376,7 @@ TEST_CASE("ManifestComparator_InstalledLocaleComparator_Uknown", "[manifest_comp
     }
 }
 
-TEST_CASE("ManifestComparator_InstalledLocaleComparator", "[manifest_comparator]")
+TEST_CASE("ManifestComparator_LocaleComparator_Installed", "[manifest_comparator]")
 {
     Manifest manifest;
     ManifestInstaller frFR = AddInstaller(manifest, Architecture::Neutral, InstallerTypeEnum::Msi, ScopeEnum::User, "", "fr-FR");
