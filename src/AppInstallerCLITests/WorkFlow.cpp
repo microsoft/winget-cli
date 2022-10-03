@@ -1089,6 +1089,9 @@ TEST_CASE("InstallFlow_Zip_Exe", "[InstallFlow][workflow]")
     OverrideForVerifyAndSetNestedInstaller(context);
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Zip_Exe.yaml").GetPath().u8string());
 
+    bool overrideArchiveScanResult = true;
+    AppInstaller::Archive::TestHook_SetScanArchiveResult_Override(&overrideArchiveScanResult);
+
     InstallCommand install({});
     install.Execute(context);
     INFO(installOutput.str());
@@ -1115,6 +1118,9 @@ TEST_CASE("InstallFlow_Zip_BadRelativePath", "[InstallFlow][workflow]")
     OverrideForShellExecute(context);
     OverrideForExtractInstallerFromArchive(context);
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Zip_Exe.yaml").GetPath().u8string());
+
+    bool overrideArchiveScanResult = true;
+    AppInstaller::Archive::TestHook_SetScanArchiveResult_Override(&overrideArchiveScanResult);
 
     InstallCommand install({});
     install.Execute(context);
