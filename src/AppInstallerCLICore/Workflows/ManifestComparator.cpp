@@ -544,7 +544,7 @@ namespace AppInstaller::CLI::Workflow
                     {
                         // We have to assume an unknown installer locale will match our installed locale, or the entire catalog would stop working for upgrade.
                         if (installer.Locale.empty() ||
-                            Locale::GetDistanceOfLanguage(preferredLocale, installer.Locale) >= Locale::MinimumDistanceScoreAsPerfectMatch)
+                            Locale::GetDistanceOfLanguage(preferredLocale, installer.Locale) >= Locale::MinimumDistanceScoreAsCompatibleMatch)
                         {
                             return InapplicabilityFlags::None;
                         }
