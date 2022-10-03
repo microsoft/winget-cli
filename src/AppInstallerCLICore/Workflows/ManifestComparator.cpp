@@ -77,52 +77,100 @@ namespace AppInstaller::CLI::Workflow
                 AICLI_LOG(CLI, Verbose, << "Architecture Comparator created with allowed architectures: " << Utility::ConvertContainerToString(m_allowedArchitectures, Utility::ToString));
             }
 
-            // TODO: At some point we can do better about matching the currently installed architecture
-            static std::unique_ptr<MachineArchitectureComparator> Create(const Execution::Context& context, const Repository::IPackageVersion::Metadata&)
+            static std::unique_ptr<MachineArchitectureComparator> Create(const Execution::Context& context, const Repository::IPackageVersion::Metadata& metadata)
             {
+                std::vector<Utility::Architecture> allowedArchitectures;
+
                 if (context.Contains(Execution::Data::AllowedArchitectures))
                 {
-                    const std::vector<Utility::Architecture>& allowedArchitectures = context.Get<Execution::Data::AllowedArchitectures>();
-                    if (!allowedArchitectures.empty())
+                    // Com caller can directly set allowed architectures
+                    allowedArchitectures = context.Get<Execution::Data::AllowedArchitectures>();
+                }
+                else if (context.Args.Contains(Execution::Args::Type::InstallArchitecture))
+                {
+                    // Arguments provided in command line
+                    allowedArchitectures.emplace_back(Utility::ConvertToArchitectureEnum(context.Args.GetArg(Execution::Args::Type::InstallArchitecture)));
+                }
+                else
+                {
+                    auto userIntentItr = metadata.find(Repository::PackageVersionMetadata::UserIntentArchitecture);
+                    auto installedItr = metadata.find(Repository::PackageVersionMetadata::InstalledArchitecture);
+                    if (userIntentItr != metadata.end())
                     {
-                        // If the incoming data contains elements, we will use them to construct a final allowed list.
-                        // The algorithm is to take elements until we find Unknown, which indicates that any architecture is
-                        // acceptable at this point. The system supported set of architectures will then be placed at the end.
-                        std::vector<Utility::Architecture> result;
-                        bool addRemainingApplicableArchitectures = false;
-
-                        for (Utility::Architecture architecture : allowedArchitectures)
+                        // For upgrade, user intent from previous install is considered requirement
+                        allowedArchitectures.emplace_back(Utility::ConvertToArchitectureEnum(userIntentItr->second));
+                    }
+                    else
+                    {
+                        if (installedItr != metadata.end())
                         {
-                            if (architecture == Utility::Architecture::Unknown)
+                            // For upgrade, previous installed architecture should be considered first preference and is always allowed.
+                            // Then check settings requirements and preferences.
+                            allowedArchitectures.emplace_back(Utility::ConvertToArchitectureEnum(installedItr->second));
+                        }
+
+                        std::vector<Utility::Architecture> requiredArchitectures = Settings::User().Get<Settings::Setting::InstallArchitectureRequirement>();
+                        std::vector<Utility::Architecture> optionalArchitectures = Settings::User().Get<Settings::Setting::InstallArchitecturePreference>();
+
+                        if (!requiredArchitectures.empty())
+                        {
+                            // Required architecture list from settings if applicable
+                            allowedArchitectures.insert(allowedArchitectures.end(), requiredArchitectures.begin(), requiredArchitectures.end());
+                        }
+                        else
+                        {
+                            // Preferred architecture list from settings if applicable, add Unknown to indicate allowing remaining applicable
+                            if (!optionalArchitectures.empty())
                             {
-                                addRemainingApplicableArchitectures = true;
-                                break;
+                                allowedArchitectures.insert(allowedArchitectures.end(), optionalArchitectures.begin(), optionalArchitectures.end());
                             }
 
-                            // If the architecture is applicable and not already in our result set...
-                            if (Utility::IsApplicableArchitecture(architecture) != Utility::InapplicableArchitecture &&
-                                Utility::IsApplicableArchitecture(architecture, result) == Utility::InapplicableArchitecture)
+                            allowedArchitectures.emplace_back(Utility::Architecture::Unknown);
+                        }
+                    }
+                }
+
+                if (!allowedArchitectures.empty())
+                {
+                    // If the incoming data contains elements, we will use them to construct a final allowed list.
+                    // The algorithm is to take elements until we find Unknown, which indicates that any architecture is
+                    // acceptable at this point. The system supported set of architectures will then be placed at the end.
+                    std::vector<Utility::Architecture> result;
+                    bool addRemainingApplicableArchitectures = false;
+
+                    for (Utility::Architecture architecture : allowedArchitectures)
+                    {
+                        if (architecture == Utility::Architecture::Unknown)
+                        {
+                            addRemainingApplicableArchitectures = true;
+                            break;
+                        }
+
+                        // If the architecture is applicable and not already in our result set...
+                        if (Utility::IsApplicableArchitecture(architecture) != Utility::InapplicableArchitecture &&
+                            Utility::IsApplicableArchitecture(architecture, result) == Utility::InapplicableArchitecture)
+                        {
+                            result.push_back(architecture);
+                        }
+                    }
+
+                    if (addRemainingApplicableArchitectures)
+                    {
+                        for (Utility::Architecture architecture : Utility::GetApplicableArchitectures())
+                        {
+                            if (Utility::IsApplicableArchitecture(architecture, result) == Utility::InapplicableArchitecture)
                             {
                                 result.push_back(architecture);
                             }
                         }
-
-                        if (addRemainingApplicableArchitectures)
-                        {
-                            for (Utility::Architecture architecture : Utility::GetApplicableArchitectures())
-                            {
-                                if (Utility::IsApplicableArchitecture(architecture, result) == Utility::InapplicableArchitecture)
-                                {
-                                    result.push_back(architecture);
-                                }
-                            }
-                        }
-
-                        return std::make_unique<MachineArchitectureComparator>(std::move(result));
                     }
-                }
 
-                return std::make_unique<MachineArchitectureComparator>();
+                    return std::make_unique<MachineArchitectureComparator>(std::move(result));
+                }
+                else
+                {
+                    return std::make_unique<MachineArchitectureComparator>();
+                }
             }
 
             InapplicabilityFlags IsApplicable(const Manifest::ManifestInstaller& installer) override

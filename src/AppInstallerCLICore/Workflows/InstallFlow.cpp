@@ -700,7 +700,7 @@ namespace AppInstaller::CLI::Workflow
 
         if (context.Args.Contains(Execution::Args::Type::Locale))
         {
-            version.SetMetadata(Repository::PackageVersionMetadata::UserIntentLocale, context.Args.GetArg(Execution::Args::Type::InstallArchitecture));
+            version.SetMetadata(Repository::PackageVersionMetadata::UserIntentLocale, context.Args.GetArg(Execution::Args::Type::Locale));
         }
         else
         {

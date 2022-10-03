@@ -990,26 +990,6 @@ namespace AppInstaller::CLI::Workflow
         {
             installationMetadata = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata();
         }
-        if (context.Args.Contains(Execution::Args::Type::InstallArchitecture))
-        {
-            // arguments override settings.
-            context.Add<Execution::Data::AllowedArchitectures>({ Utility::ConvertToArchitectureEnum(std::string(context.Args.GetArg(Execution::Args::Type::InstallArchitecture))) });
-        }
-        else 
-        {
-            std::vector<Utility::Architecture> requiredArchitectures = Settings::User().Get<Settings::Setting::InstallArchitectureRequirement>();
-            std::vector<Utility::Architecture> optionalArchitectures = Settings::User().Get<Settings::Setting::InstallArchitecturePreference>();
-
-            if (!requiredArchitectures.empty())
-            {
-                context.Add<Execution::Data::AllowedArchitectures>({ requiredArchitectures.begin(), requiredArchitectures.end() });
-            }
-            else if (!optionalArchitectures.empty())
-            {
-                optionalArchitectures.emplace_back(Utility::Architecture::Unknown);
-                context.Add<Execution::Data::AllowedArchitectures>({ optionalArchitectures.begin(), optionalArchitectures.end() });
-            }
-        }
 
         ManifestComparator manifestComparator(context, installationMetadata);
         auto [installer, inapplicabilities] = manifestComparator.GetPreferredInstaller(context.Get<Execution::Data::Manifest>());
