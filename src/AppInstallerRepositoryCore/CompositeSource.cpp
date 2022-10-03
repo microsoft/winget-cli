@@ -464,6 +464,7 @@ namespace AppInstaller::Repository
             {
                 m_trackingSource = std::move(trackingSource);
                 m_trackingPackage = std::move(trackingPackage);
+                m_trackingPackageVersion = std::move(trackingPackageVersion);
             }
 
         private:
