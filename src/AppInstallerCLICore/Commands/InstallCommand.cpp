@@ -73,6 +73,7 @@ namespace AppInstaller::CLI
             context <<
                 Workflow::CompleteWithSingleSemanticsForValue(valueType);
             break;
+        case Args::Type::InstallArchitecture:
         case Args::Type::Locale:
             // May well move to CompleteWithSingleSemanticsForValue,
             // but for now output nothing.
