@@ -6,13 +6,8 @@
 #include <map>
 #include <vector>
 
-#include <winget/LocIndependent.h>
-
 namespace AppInstaller::CLI::Execution
 {
-    using namespace std::string_view_literals;
-    constexpr Utility::LocIndView s_ArgumentName_Architecture = Utility::LocIndView{ "architecture"sv };
-
     struct Args
     {
         enum class Type

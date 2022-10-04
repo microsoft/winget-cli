@@ -31,7 +31,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Channel),
             Argument::ForType(Args::Type::Source),
             Argument{ s_ArgumentName_Scope, Argument::NoAlias, Args::Type::InstallScope, Resource::String::InstallScopeDescription, ArgumentType::Standard, Argument::Visibility::Help },
-            Argument{ s_ArgumentName_Architecture, 'a', Args::Type::InstallArchitecture, Resource::String::InstallArchitectureArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help},
+            Argument::ForType(Args::Type::InstallArchitecture),
             Argument::ForType(Args::Type::Exact),
             Argument::ForType(Args::Type::Interactive),
             Argument::ForType(Args::Type::Silent),

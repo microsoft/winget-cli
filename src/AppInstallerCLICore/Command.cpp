@@ -718,7 +718,7 @@ namespace AppInstaller::CLI
                 {
                     applicableArchitectures.emplace_back(Utility::ToString(i));
                 }
-                throw CommandException(Resource::String::InvalidArgumentValueError, Execution::s_ArgumentName_Architecture, std::forward<std::vector<Utility::LocIndString>>((applicableArchitectures)));
+                throw CommandException(Resource::String::InvalidArgumentValueError, Argument::ForType(Execution::Args::Type::InstallArchitecture).Name(), std::forward<std::vector<Utility::LocIndString>>((applicableArchitectures)));
             }
         }
 
