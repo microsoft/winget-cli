@@ -416,6 +416,30 @@ TEST_CASE("ManifestComparator_LocaleComparator_Installed", "[manifest_comparator
         REQUIRE(!result);
         RequireInapplicabilities(inapplicabilities, { InapplicabilityFlags::InstalledLocale, InapplicabilityFlags::InstalledLocale });
     }
+    SECTION("en-US installed but fr-fr as user intent")
+    {
+        IPackageVersion::Metadata metadata;
+        metadata[PackageVersionMetadata::InstalledLocale] = "en-US";
+        metadata[PackageVersionMetadata::UserIntentLocale] = "fr-FR";
+
+        ManifestComparator mc(ManifestComparatorTestContext{}, metadata);
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
+
+        RequireInstaller(result, frFR);
+        RequireInapplicabilities(inapplicabilities, { InapplicabilityFlags::InstalledLocale }); // en-US inapplicable
+    }
+    SECTION("en-US installed but zh-CN as user intent")
+    {
+        IPackageVersion::Metadata metadata;
+        metadata[PackageVersionMetadata::InstalledLocale] = "en-US";
+        metadata[PackageVersionMetadata::UserIntentLocale] = "zh-CN";
+
+        ManifestComparator mc(ManifestComparatorTestContext{}, metadata);
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
+
+        REQUIRE(!result);
+        RequireInapplicabilities(inapplicabilities, { InapplicabilityFlags::InstalledLocale, InapplicabilityFlags::InstalledLocale });
+    }
 }
 
 TEST_CASE("ManifestComparator_LocaleComparator", "[manifest_comparator]")
@@ -527,6 +551,52 @@ TEST_CASE("ManifestComparator_AllowedArchitecture", "[manifest_comparator]")
 
         RequireInstaller(result, x86);
         RequireInapplicabilities(inapplicabilities, { InapplicabilityFlags::MachineArchitecture, InapplicabilityFlags::MachineArchitecture });
+    }
+}
+
+TEST_CASE("ManifestComparator_Architectures_WithUserIntent", "[manifest_comparator]")
+{
+    Manifest manifest;
+    ManifestInstaller x86 = AddInstaller(manifest, Architecture::X86, InstallerTypeEnum::Msi, ScopeEnum::User, "", "");
+    ManifestInstaller x64 = AddInstaller(manifest, Architecture::X64, InstallerTypeEnum::Msi, ScopeEnum::User, "", "");
+
+    SECTION("x86 installed")
+    {
+        IPackageVersion::Metadata metadata;
+        metadata[PackageVersionMetadata::InstalledArchitecture] = "x86";
+
+        ManifestComparator mc(ManifestComparatorTestContext{}, metadata);
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
+
+        RequireInstaller(result, x86);
+        REQUIRE(inapplicabilities.size() == 0);
+    }
+    SECTION("x86 installed but x64 as user intent")
+    {
+        IPackageVersion::Metadata metadata;
+        metadata[PackageVersionMetadata::InstalledArchitecture] = "x86";
+        metadata[PackageVersionMetadata::UserIntentArchitecture] = "x64";
+
+        ManifestComparator mc(ManifestComparatorTestContext{}, metadata);
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
+
+        RequireInstaller(result, x64);
+        RequireInapplicabilities(inapplicabilities, { InapplicabilityFlags::MachineArchitecture });
+    }
+    SECTION("x86 installed but x64 as user intent")
+    {
+        Manifest x86OnlyManifest;
+        AddInstaller(x86OnlyManifest, Architecture::X86, InstallerTypeEnum::Msi, ScopeEnum::User, "", "");
+
+        IPackageVersion::Metadata metadata;
+        metadata[PackageVersionMetadata::InstalledArchitecture] = "x86";
+        metadata[PackageVersionMetadata::UserIntentArchitecture] = "x64";
+
+        ManifestComparator mc(ManifestComparatorTestContext{}, metadata);
+        auto [result, inapplicabilities] = mc.GetPreferredInstaller(x86OnlyManifest);
+
+        REQUIRE(!result);
+        RequireInapplicabilities(inapplicabilities, { InapplicabilityFlags::MachineArchitecture });
     }
 }
 
