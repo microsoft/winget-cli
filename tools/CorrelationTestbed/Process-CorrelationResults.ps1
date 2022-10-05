@@ -25,7 +25,7 @@ $stats = @{
     CorrelatePackageKnown = 0
     CorrelateArchive = 0
     CorrelateMetadata = 0
-    CorrelationAgreement = 0
+    CorrelationDisagreement = 0
 }
 
 # Aggregate results in a single CSV file
@@ -64,9 +64,9 @@ foreach ($result in (Get-ChildItem $ResultsPath -Directory))
             Add-Member -InputObject $resultObj -MemberType NoteProperty -Name "MetadataName" -Value $metadataObj.metadata[0].metadata[0].AppsAndFeaturesEntries[0].DisplayName -Force
             Add-Member -InputObject $resultObj -MemberType NoteProperty -Name "MetadataPublisher" -Value $metadataObj.metadata[0].metadata[0].AppsAndFeaturesEntries[0].Publisher -Force
 
-            if ($resultObj.PackageKnownName -eq $resultObj.MetadataName)
+            if ($resultObj.PackageKnownName -ne "" -and $resultObj.MetadataName -ne "" -and $resultObj.PackageKnownName -ne $resultObj.MetadataName)
             {
-                $stats.CorrelationAgreement += 1
+                $stats.CorrelationDisagreement += 1
             }
         }
         Export-Csv -InputObject ($resultObj | Select-Object -Property * -ExcludeProperty @("Error", "Phase", "Action", "HRESULT") ) -Path $resultFile -Append -Encoding UTF8BOM
@@ -83,5 +83,5 @@ $stats.CompletedRatio = $stats.Completed / $stats.Total
 $stats.CorrelateArchiveRatio = $stats.CorrelateArchive / $stats.Completed
 $stats.CorrelatePackageKnownRatio = $stats.CorrelatePackageKnown / $stats.Completed
 $stats.CorrelateMetadataRatio = $stats.CorrelateMetadata / $stats.Completed
-$stats.CorrelationAgreementRatio = $stats.CorrelationAgreement / $stats.Completed
+$stats.CorrelationDisagreementRatio = $stats.CorrelationDisagreement / $stats.Completed
 $stats | ConvertTo-Json | Out-File $statsFile -Force
