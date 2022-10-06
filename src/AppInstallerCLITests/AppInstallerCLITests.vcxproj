@@ -797,7 +797,7 @@
       <Project>{8bb94bb8-374f-4294-bca1-c7811514a6b7}</Project>
     </ProjectReference>
     <ProjectReference Include="..\PureLib\PureLib.vcxproj">
-      <Project>{af2f39c5-3c3a-4344-bd38-3ac32478dcaa}</Project>
+      <Project>{bb14d603-f44e-4415-8770-bf3e13f4c17f}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

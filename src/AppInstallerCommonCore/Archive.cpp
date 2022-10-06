@@ -1,13 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+#define PURE_H
 #include "pch.h"
-#include "winget/Archive.h"
-#pragma warning( push )
-#pragma warning ( disable : 4189 )
-#pragma warning ( disable : 4244 )
-#pragma warning ( disable : 26451 )
-#include "pure.h"
-#pragma warning ( pop )
+#include "Public/winget/Archive.h"
 
 namespace AppInstaller::Archive
 {
@@ -68,8 +63,8 @@ namespace AppInstaller::Archive
         }
 #endif
 
-        std::ifstream instream(zipPath, std::ios::in | std::ios::binary);
-        std::vector<uint8_t> data((std::istreambuf_iterator<char>(instream)), std::istreambuf_iterator<char>());
+        std::ifstream instream{ zipPath, std::ios::in | std::ios::binary };
+        std::vector<uint8_t> data{ { std::istreambuf_iterator<char>{ instream } }, std::istreambuf_iterator<char>{} };
 
         uint8_t* buffer = &data[0];
         uint64_t flag = 0;
