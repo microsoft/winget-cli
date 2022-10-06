@@ -28,11 +28,6 @@
 #include <cpprest/json.h>
 
 #pragma warning( push )
-#pragma warning ( disable : 4189 4244 26451 )
-#include <pure.h>
-#pragma warning ( pop )
-
-#pragma warning( push )
 #pragma warning ( disable : 4458 4100 4702 6031 )
 #include <valijson/schema.hpp>
 #include <valijson/schema_parser.hpp>

@@ -1,8 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-#define PURE_H
+
 #include "pch.h"
 #include "Public/winget/Archive.h"
+
+#pragma warning( push )
+#pragma warning ( disable : 4189 4244 26451 )
+#include <pure.h>
+#pragma warning ( pop )
 
 namespace AppInstaller::Archive
 {
