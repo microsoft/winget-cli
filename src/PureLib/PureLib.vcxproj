@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Label="Globals">
-    <VCProjectVersion>16.0</VCProjectVersion>
+    <VCProjectVersion>15.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{BB14D603-F44E-4415-8770-BF3E13F4C17F}</ProjectGuid>
     <WindowsSDKDesktopARMSupport>true</WindowsSDKDesktopARMSupport>
