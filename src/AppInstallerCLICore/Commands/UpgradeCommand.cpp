@@ -106,8 +106,8 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::AcceptPackageAgreements),
             Argument::ForType(Args::Type::AcceptSourceAgreements),
             Argument::ForType(Execution::Args::Type::CustomHeader),
-            Argument{ "all"_liv, 'r', "recurse"_liv, Args::Type::All, Resource::String::UpdateAllArgumentDescription, ArgumentType::Flag},
-            Argument{ "include-unknown"_liv, 'u', "unknown"_liv, Args::Type::IncludeUnknown, Resource::String::IncludeUnknownArgumentDescription, ArgumentType::Flag},
+            Argument{ "all"_liv, 'r', "recurse"_liv, Args::Type::All, Resource::String::UpdateAllArgumentDescription, ArgumentType::Flag },
+            Argument{ "include-unknown"_liv, 'u', "unknown"_liv, Args::Type::IncludeUnknown, Resource::String::IncludeUnknownArgumentDescription, ArgumentType::Flag },
         };
     }
 
