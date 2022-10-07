@@ -855,6 +855,67 @@ TEST_CASE("CompositeSource_TrackingPackageFound", "[CompositeSource]")
     REQUIRE(result.Matches[0].Package->GetLatestAvailableVersion());
 }
 
+TEST_CASE("CompositeSource_TrackingPackageFound_MetadataPopulatedFromTracking", "[CompositeSource]")
+{
+    std::string availableID = "Available.ID";
+    std::string pfn = "sortof_apfn";
+
+    auto installedPackage = MakeInstalled().WithPFN(pfn);
+    auto availablePackage = MakeAvailable().WithPFN(pfn).WithId(availableID).WithDefaultName(s_Everything_Query);
+
+    CompositeWithTrackingTestSetup setup;
+    setup.Installed->Everything.Matches.emplace_back(installedPackage, Criteria());
+    setup.Installed->SearchFunction = [&](const SearchRequest& request)
+    {
+        RequireIncludes(request.Inclusions, PackageMatchField::PackageFamilyName, MatchType::Exact, pfn);
+
+        SearchResult result;
+        result.Matches.emplace_back(installedPackage, Criteria());
+        return result;
+    };
+
+    setup.Available->Everything.Matches.emplace_back(availablePackage, Criteria());
+    setup.Available->SearchFunction = [&](const SearchRequest& request)
+    {
+        if (request.Filters.empty())
+        {
+            RequireIncludes(request.Inclusions, PackageMatchField::PackageFamilyName, MatchType::Exact, pfn);
+        }
+        else
+        {
+            REQUIRE(request.Filters.size() == 1);
+            RequireIncludes(request.Filters, PackageMatchField::Id, MatchType::CaseInsensitive, availableID);
+        }
+
+        SearchResult result;
+        result.Matches.emplace_back(availablePackage, Criteria());
+        return result;
+    };
+
+    auto manifestId = setup.Tracking->GetIndex().AddManifest(availablePackage);
+
+    // Add test PackageVersionMetadata to be populated to InstalledVersion metadata
+    setup.Tracking->GetIndex().SetMetadataByManifestId(manifestId, Repository::PackageVersionMetadata::TrackingWriteTime, "100");
+    setup.Tracking->GetIndex().SetMetadataByManifestId(manifestId, Repository::PackageVersionMetadata::UserIntentArchitecture, "X86");
+    setup.Tracking->GetIndex().SetMetadataByManifestId(manifestId, Repository::PackageVersionMetadata::UserIntentLocale, "en-US");
+    setup.Tracking->GetIndex().SetMetadataByManifestId(manifestId, Repository::PackageVersionMetadata::InstalledArchitecture, "X86");
+    setup.Tracking->GetIndex().SetMetadataByManifestId(manifestId, Repository::PackageVersionMetadata::InstalledLocale, "en-US");
+    setup.Tracking->GetIndex().SetMetadataByManifestId(manifestId, Repository::PackageVersionMetadata::PinnedState, "PinnedByManifest");
+
+    SearchResult result = setup.Search();
+
+    REQUIRE(result.Matches.size() == 1);
+    REQUIRE(result.Matches[0].Package);
+    REQUIRE(result.Matches[0].Package->GetInstalledVersion());
+
+    auto metadata = result.Matches[0].Package->GetInstalledVersion()->GetMetadata();
+    REQUIRE(metadata[Repository::PackageVersionMetadata::UserIntentArchitecture] == "X86");
+    REQUIRE(metadata[Repository::PackageVersionMetadata::UserIntentLocale] == "en-US");
+    REQUIRE(metadata[Repository::PackageVersionMetadata::InstalledArchitecture] == "X86");
+    REQUIRE(metadata[Repository::PackageVersionMetadata::InstalledLocale] == "en-US");
+    REQUIRE(metadata[Repository::PackageVersionMetadata::PinnedState] == "PinnedByManifest");
+}
+
 TEST_CASE("CompositeSource_TrackingFound_AvailableNot", "[CompositeSource]")
 {
     std::string availableID = "Available.ID";

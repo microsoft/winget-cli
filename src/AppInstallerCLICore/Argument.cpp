@@ -5,100 +5,104 @@
 #include "Command.h"
 #include "Resources.h"
 #include <winget/UserSettings.h>
+#include <winget/LocIndependent.h>
 
 namespace AppInstaller::CLI
 {
     using namespace AppInstaller::CLI::Execution;
     using namespace Settings;
+    using namespace AppInstaller::Utility::literals;
 
     Argument Argument::ForType(Execution::Args::Type type)
     {
         switch (type)
         {
         case Args::Type::Query:
-            return Argument{ "query", 'q', Args::Type::Query, Resource::String::QueryArgumentDescription, ArgumentType::Positional};
+            return Argument{ "query"_liv, 'q', Args::Type::Query, Resource::String::QueryArgumentDescription, ArgumentType::Positional};
         case Args::Type::Manifest:
-            return Argument{ "manifest", 'm', Args::Type::Manifest, Resource::String::ManifestArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help, Settings::TogglePolicy::Policy::LocalManifestFiles, Settings::AdminSetting::LocalManifestFiles };
+            return Argument{ "manifest"_liv, 'm', Args::Type::Manifest, Resource::String::ManifestArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help, Settings::TogglePolicy::Policy::LocalManifestFiles, Settings::AdminSetting::LocalManifestFiles };
         case Args::Type::Id:
-            return Argument{ "id", NoAlias, Args::Type::Id,Resource::String::IdArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
+            return Argument{ "id"_liv, NoAlias, Args::Type::Id,Resource::String::IdArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         case Args::Type::Name:
-            return Argument{ "name", NoAlias, Args::Type::Name, Resource::String::NameArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
+            return Argument{ "name"_liv, NoAlias, Args::Type::Name, Resource::String::NameArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         case Args::Type::Moniker:
-            return Argument{ "moniker", NoAlias, Args::Type::Moniker, Resource::String::MonikerArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
+            return Argument{ "moniker"_liv, NoAlias, Args::Type::Moniker, Resource::String::MonikerArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         case Args::Type::Tag:
-            return Argument{ "tag", NoAlias, Args::Type::Tag, Resource::String::TagArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
+            return Argument{ "tag"_liv, NoAlias, Args::Type::Tag, Resource::String::TagArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         case Args::Type::Command:
-            return Argument{ "command", NoAlias, "cmd", Args::Type::Command, Resource::String::CommandArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
+            return Argument{ "command"_liv, NoAlias, "cmd"_liv, Args::Type::Command, Resource::String::CommandArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         case Args::Type::Source:
-            return Argument{ "source", 's', Args::Type::Source, Resource::String::SourceArgumentDescription, ArgumentType::Standard };
+            return Argument{ "source"_liv, 's', Args::Type::Source, Resource::String::SourceArgumentDescription, ArgumentType::Standard };
         case Args::Type::DependencySource:
-            return Argument{ "dependency-source", NoAlias, Args::Type::DependencySource, Resource::String::DependencySourceArgumentDescription, ArgumentType::Standard };
+            return Argument{ "dependency-source"_liv, NoAlias, Args::Type::DependencySource, Resource::String::DependencySourceArgumentDescription, ArgumentType::Standard };
         case Args::Type::Count:
-            return Argument{ "count", 'n', Args::Type::Count, Resource::String::CountArgumentDescription, ArgumentType::Standard };
+            return Argument{ "count"_liv, 'n', Args::Type::Count, Resource::String::CountArgumentDescription, ArgumentType::Standard };
         case Args::Type::Exact:
-            return Argument{ "exact", 'e', Args::Type::Exact, Resource::String::ExactArgumentDescription, ArgumentType::Flag };
+            return Argument{ "exact"_liv, 'e', Args::Type::Exact, Resource::String::ExactArgumentDescription, ArgumentType::Flag };
         case Args::Type::Version:
-            return Argument{ "version", 'v', Args::Type::Version, Resource::String::VersionArgumentDescription, ArgumentType::Standard };
+            return Argument{ "version"_liv, 'v', Args::Type::Version, Resource::String::VersionArgumentDescription, ArgumentType::Standard };
         case Args::Type::Channel:
-            return Argument{ "channel", 'c', Args::Type::Channel, Resource::String::ChannelArgumentDescription, ArgumentType::Standard, Argument::Visibility::Hidden };
+            return Argument{ "channel"_liv, 'c', Args::Type::Channel, Resource::String::ChannelArgumentDescription, ArgumentType::Standard, Argument::Visibility::Hidden };
         case Args::Type::Interactive:
-            return Argument{ "interactive", 'i', Args::Type::Interactive, Resource::String::InteractiveArgumentDescription, ArgumentType::Flag };
+            return Argument{ "interactive"_liv, 'i', Args::Type::Interactive, Resource::String::InteractiveArgumentDescription, ArgumentType::Flag };
         case Args::Type::Silent:
-            return Argument{ "silent", 'h', Args::Type::Silent, Resource::String::SilentArgumentDescription, ArgumentType::Flag };
+            return Argument{ "silent"_liv, 'h', Args::Type::Silent, Resource::String::SilentArgumentDescription, ArgumentType::Flag };
         case Args::Type::Locale:
-            return Argument{ "locale", NoAlias, Args::Type::Locale, Resource::String::LocaleArgumentDescription, ArgumentType::Standard };
+            return Argument{ "locale"_liv, NoAlias, Args::Type::Locale, Resource::String::LocaleArgumentDescription, ArgumentType::Standard };
+        case Args::Type::InstallArchitecture:
+            return Argument{ "architecture"_liv, 'a', Args::Type::InstallArchitecture, Resource::String::InstallArchitectureArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         case Args::Type::Log:
-            return Argument{ "log", 'o', Args::Type::Log, Resource::String::LogArgumentDescription, ArgumentType::Standard };
+            return Argument{ "log"_liv, 'o', Args::Type::Log, Resource::String::LogArgumentDescription, ArgumentType::Standard };
         case Args::Type::Override:
-            return Argument{ "override", NoAlias, Args::Type::Override, Resource::String::OverrideArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
+            return Argument{ "override"_liv, NoAlias, Args::Type::Override, Resource::String::OverrideArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         case Args::Type::InstallLocation:
-            return Argument{ "location", 'l', Args::Type::InstallLocation, Resource::String::LocationArgumentDescription, ArgumentType::Standard };
+            return Argument{ "location"_liv, 'l', Args::Type::InstallLocation, Resource::String::LocationArgumentDescription, ArgumentType::Standard };
         case Args::Type::HashOverride:
-            return Argument{ "force", NoAlias, Args::Type::HashOverride, Resource::String::InstallForceArgumentDescription, ArgumentType::Flag, Settings::TogglePolicy::Policy::HashOverride };
+            return Argument{ "force"_liv, NoAlias, Args::Type::HashOverride, Resource::String::InstallForceArgumentDescription, ArgumentType::Flag, Settings::TogglePolicy::Policy::HashOverride };
         case Args::Type::AcceptPackageAgreements:
-            return Argument{ "accept-package-agreements", NoAlias, Args::Type::AcceptPackageAgreements, Resource::String::AcceptPackageAgreementsArgumentDescription, ArgumentType::Flag };
+            return Argument{ "accept-package-agreements"_liv, NoAlias, Args::Type::AcceptPackageAgreements, Resource::String::AcceptPackageAgreementsArgumentDescription, ArgumentType::Flag };
         case Args::Type::HashFile:
-            return Argument{ "file", 'f', Args::Type::HashFile, Resource::String::FileArgumentDescription, ArgumentType::Positional, true };
+            return Argument{ "file"_liv, 'f', Args::Type::HashFile, Resource::String::FileArgumentDescription, ArgumentType::Positional, true };
         case Args::Type::Msix:
-            return Argument{ "msix", 'm', Args::Type::Msix, Resource::String::MsixArgumentDescription, ArgumentType::Flag };
+            return Argument{ "msix"_liv, 'm', Args::Type::Msix, Resource::String::MsixArgumentDescription, ArgumentType::Flag };
         case Args::Type::ListVersions:
-            return Argument{ "versions", NoAlias, Args::Type::ListVersions, Resource::String::VersionsArgumentDescription, ArgumentType::Flag };
+            return Argument{ "versions"_liv, NoAlias, Args::Type::ListVersions, Resource::String::VersionsArgumentDescription, ArgumentType::Flag };
         case Args::Type::Help:
-            return Argument{ "help", APPINSTALLER_CLI_HELP_ARGUMENT_TEXT_CHAR, Args::Type::Help, Resource::String::HelpArgumentDescription, ArgumentType::Flag };
+            return Argument{ "help"_liv, APPINSTALLER_CLI_HELP_ARGUMENT_TEXT_CHAR, Args::Type::Help, Resource::String::HelpArgumentDescription, ArgumentType::Flag };
         case Args::Type::SourceName:
-            return Argument{ "name", 'n', Args::Type::SourceName,Resource::String::SourceNameArgumentDescription, ArgumentType::Positional, false };
+            return Argument{ "name"_liv, 'n', Args::Type::SourceName,Resource::String::SourceNameArgumentDescription, ArgumentType::Positional, false };
         case Args::Type::SourceArg:
-            return Argument{ "arg", 'a', Args::Type::SourceArg, Resource::String::SourceArgArgumentDescription, ArgumentType::Positional, true };
+            return Argument{ "arg"_liv, 'a', Args::Type::SourceArg, Resource::String::SourceArgArgumentDescription, ArgumentType::Positional, true };
         case Args::Type::SourceType:
-            return Argument{ "type", 't', Args::Type::SourceType, Resource::String::SourceTypeArgumentDescription, ArgumentType::Positional };
+            return Argument{ "type"_liv, 't', Args::Type::SourceType, Resource::String::SourceTypeArgumentDescription, ArgumentType::Positional };
         case Args::Type::ValidateManifest:
-            return Argument{ "manifest", NoAlias, Args::Type::ValidateManifest, Resource::String::ValidateManifestArgumentDescription, ArgumentType::Positional, true };
+            return Argument{ "manifest"_liv, NoAlias, Args::Type::ValidateManifest, Resource::String::ValidateManifestArgumentDescription, ArgumentType::Positional, true };
         case Args::Type::NoVT:
-            return Argument{ "no-vt", NoAlias, Args::Type::NoVT, Resource::String::NoVTArgumentDescription, ArgumentType::Flag, Argument::Visibility::Hidden };
+            return Argument{ "no-vt"_liv, NoAlias, Args::Type::NoVT, Resource::String::NoVTArgumentDescription, ArgumentType::Flag, Argument::Visibility::Hidden };
         case Args::Type::RainbowStyle:
-            return Argument{ "rainbow", NoAlias, Args::Type::RainbowStyle, Resource::String::RainbowArgumentDescription, ArgumentType::Flag, Argument::Visibility::Hidden };
+            return Argument{ "rainbow"_liv, NoAlias, Args::Type::RainbowStyle, Resource::String::RainbowArgumentDescription, ArgumentType::Flag, Argument::Visibility::Hidden };
         case Args::Type::RetroStyle:
-            return Argument{ "retro", NoAlias, Args::Type::RetroStyle, Resource::String::RetroArgumentDescription, ArgumentType::Flag, Argument::Visibility::Hidden };
+            return Argument{ "retro"_liv, NoAlias, Args::Type::RetroStyle, Resource::String::RetroArgumentDescription, ArgumentType::Flag, Argument::Visibility::Hidden };
         case Args::Type::VerboseLogs:
-            return Argument{ "verbose-logs", NoAlias, "verbose", Args::Type::VerboseLogs, Resource::String::VerboseLogsArgumentDescription, ArgumentType::Flag};
+            return Argument{ "verbose-logs"_liv, NoAlias, "verbose"_liv, Args::Type::VerboseLogs, Resource::String::VerboseLogsArgumentDescription, ArgumentType::Flag};
         case Args::Type::CustomHeader:
-            return Argument{ "header", NoAlias, Args::Type::CustomHeader, Resource::String::HeaderArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
+            return Argument{ "header"_liv, NoAlias, Args::Type::CustomHeader, Resource::String::HeaderArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         case Args::Type::AcceptSourceAgreements:
-            return Argument{ "accept-source-agreements", NoAlias, Args::Type::AcceptSourceAgreements, Resource::String::AcceptSourceAgreementsArgumentDescription, ArgumentType::Flag };
+            return Argument{ "accept-source-agreements"_liv, NoAlias, Args::Type::AcceptSourceAgreements, Resource::String::AcceptSourceAgreementsArgumentDescription, ArgumentType::Flag };
         case Args::Type::ExperimentalArg:
-            return Argument{ "arg", NoAlias, Args::Type::ExperimentalArg, Resource::String::ExperimentalArgumentDescription, ArgumentType::Flag, ExperimentalFeature::Feature::ExperimentalArg };
+            return Argument{ "arg"_liv, NoAlias, Args::Type::ExperimentalArg, Resource::String::ExperimentalArgumentDescription, ArgumentType::Flag, ExperimentalFeature::Feature::ExperimentalArg };
         case Args::Type::Rename:
-            return Argument{ "rename", 'r', Args::Type::Rename, Resource::String::RenameArgumentDescription, ArgumentType::Standard, false };
+            return Argument{ "rename"_liv, 'r', Args::Type::Rename, Resource::String::RenameArgumentDescription, ArgumentType::Standard, false };
         case Args::Type::Purge:
-            return Argument{ "purge", NoAlias, Args::Type::Purge, Resource::String::PurgeArgumentDescription, ArgumentType::Flag, false };
+            return Argument{ "purge"_liv, NoAlias, Args::Type::Purge, Resource::String::PurgeArgumentDescription, ArgumentType::Flag, false };
         case Args::Type::Preserve:
-            return Argument{ "preserve", NoAlias, Args::Type::Preserve, Resource::String::PreserveArgumentDescription, ArgumentType::Flag, false };
+            return Argument{ "preserve"_liv, NoAlias, Args::Type::Preserve, Resource::String::PreserveArgumentDescription, ArgumentType::Flag, false };
         case Args::Type::Wait:
-            return Argument{ "wait", NoAlias, Args::Type::Wait, Resource::String::WaitArgumentDescription, ArgumentType::Flag, false };
+            return Argument{ "wait"_liv, NoAlias, Args::Type::Wait, Resource::String::WaitArgumentDescription, ArgumentType::Flag, false };
         case Args::Type::ProductCode:
-            return Argument{ "product-code", NoAlias, Args::Type::ProductCode, Resource::String::ProductCodeArgumentDescription, ArgumentType::Standard, false };
+            return Argument{ "product-code"_liv, NoAlias, Args::Type::ProductCode, Resource::String::ProductCodeArgumentDescription, ArgumentType::Standard, false };
         case Args::Type::OpenLogs:
-            return Argument{ "open-logs", NoAlias, "logs", Args::Type::OpenLogs, Resource::String::OpenLogsArgumentDescription, ArgumentType::Flag, ExperimentalFeature::Feature::OpenLogsArgument};
+            return Argument{ "open-logs"_liv, NoAlias, "logs"_liv, Args::Type::OpenLogs, Resource::String::OpenLogsArgumentDescription, ArgumentType::Flag, ExperimentalFeature::Feature::OpenLogsArgument};
         default:
             THROW_HR(E_UNEXPECTED);
         }

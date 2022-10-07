@@ -8,10 +8,12 @@
 #include "Workflows/WorkflowBase.h"
 #include "Workflows/DependenciesFlow.h"
 #include "Resources.h"
+#include <winget/LocIndependent.h>
 
 using namespace AppInstaller::CLI::Execution;
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::CLI::Workflow;
+using namespace AppInstaller::Utility::literals;
 
 namespace AppInstaller::CLI
 {
@@ -98,12 +100,14 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Log),             // -o
             Argument::ForType(Args::Type::Override),
             Argument::ForType(Args::Type::InstallLocation), // -l
+            Argument::ForType(Args::Type::InstallArchitecture), // -a
+            Argument::ForType(Args::Type::Locale),
             Argument::ForType(Args::Type::HashOverride),
             Argument::ForType(Args::Type::AcceptPackageAgreements),
             Argument::ForType(Args::Type::AcceptSourceAgreements),
             Argument::ForType(Execution::Args::Type::CustomHeader),
-            Argument{ "all", 'a', Args::Type::All, Resource::String::UpdateAllArgumentDescription, ArgumentType::Flag},
-            Argument{ "include-unknown", 'u', Args::Type::IncludeUnknown, Resource::String::IncludeUnknownArgumentDescription, ArgumentType::Flag},
+            Argument{ "all"_liv, 'r', "recurse"_liv, Args::Type::All, Resource::String::UpdateAllArgumentDescription, ArgumentType::Flag },
+            Argument{ "include-unknown"_liv, 'u', "unknown"_liv, Args::Type::IncludeUnknown, Resource::String::IncludeUnknownArgumentDescription, ArgumentType::Flag },
         };
     }
 
@@ -148,6 +152,13 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::Source:
             context <<
                 CompleteWithSingleSemanticsForValueUsingExistingSource(valueType);
+            break;
+        case Args::Type::InstallArchitecture:
+        case Args::Type::Locale:
+            // May well move to CompleteWithSingleSemanticsForValue,
+            // but for now output nothing.
+            context <<
+                Workflow::CompleteWithEmptySet;
             break;
         }
     }

@@ -674,9 +674,42 @@ namespace AppInstaller::CLI::Workflow
 
         auto trackingCatalog = context.Get<Data::PackageVersion>()->GetSource().GetTrackingCatalog();
 
-        trackingCatalog.RecordInstall(
+        auto version = trackingCatalog.RecordInstall(
             manifest,
             context.Get<Data::Installer>().value(),
             WI_IsFlagSet(context.GetFlags(), ContextFlag::InstallerExecutionUseUpdate));
+
+        // Record user intent values. Command args takes precedence. Then previous user intent values.
+        Repository::IPackageVersion::Metadata installedMetadata;
+        if (context.Contains(Data::InstalledPackageVersion) && context.Get<Execution::Data::InstalledPackageVersion>())
+        {
+            installedMetadata = context.Get<Data::InstalledPackageVersion>()->GetMetadata();
+        }
+
+        if (context.Args.Contains(Execution::Args::Type::InstallArchitecture))
+        {
+            version.SetMetadata(Repository::PackageVersionMetadata::UserIntentArchitecture, context.Args.GetArg(Execution::Args::Type::InstallArchitecture));
+        }
+        else
+        {
+            auto itr = installedMetadata.find(Repository::PackageVersionMetadata::UserIntentArchitecture);
+            if (itr != installedMetadata.end())
+            {
+                version.SetMetadata(Repository::PackageVersionMetadata::UserIntentArchitecture, itr->second);
+            }
+        }
+
+        if (context.Args.Contains(Execution::Args::Type::Locale))
+        {
+            version.SetMetadata(Repository::PackageVersionMetadata::UserIntentLocale, context.Args.GetArg(Execution::Args::Type::Locale));
+        }
+        else
+        {
+            auto itr = installedMetadata.find(Repository::PackageVersionMetadata::UserIntentLocale);
+            if (itr != installedMetadata.end())
+            {
+                version.SetMetadata(Repository::PackageVersionMetadata::UserIntentLocale, itr->second);
+            }
+        }
     }
 }

@@ -183,6 +183,10 @@ namespace AppInstaller::Repository
         InstalledArchitecture,
         // The PackagePinnedState of the installed package
         PinnedState,
+        // The Architecture of user intent
+        UserIntentArchitecture,
+        // The locale of user intent
+        UserIntentLocale,
     };
 
     // Convert a PackageVersionMetadata to a string.
