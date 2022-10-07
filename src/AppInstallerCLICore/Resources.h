@@ -27,6 +27,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(AdminSettingDisableDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(AdminSettingEnabled);
         WINGET_DEFINE_RESOURCE_STRINGID(AdminSettingEnableDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ArchiveFailedMalwareScan);
+        WINGET_DEFINE_RESOURCE_STRINGID(ArchiveFailedMalwareScanOverridden);
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableArguments);
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableCommandAliases);
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableCommands);

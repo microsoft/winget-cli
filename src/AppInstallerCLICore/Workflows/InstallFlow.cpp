@@ -312,6 +312,7 @@ namespace AppInstaller::CLI::Workflow
     void ArchiveInstall(Execution::Context& context)
     {
         context <<
+            ScanArchiveFromLocalManifest <<
             ExtractFilesFromArchive <<
             VerifyAndSetNestedInstaller <<
             ExecuteInstallerForType(context.Get<Execution::Data::Installer>().value().NestedInstallerType);
