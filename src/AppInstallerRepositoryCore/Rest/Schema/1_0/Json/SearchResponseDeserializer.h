@@ -14,5 +14,6 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
 
     protected:
         virtual std::optional<IRestClient::SearchResult> DeserializeSearchResult(const web::json::value& searchResultJsonObject) const;
+        virtual std::optional<IRestClient::VersionInfo> DeserializeVersionInfo(const web::json::value& versionInfoJsonObject) const;
     };
 }

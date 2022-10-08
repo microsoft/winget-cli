@@ -325,6 +325,9 @@ namespace AppInstaller::Manifest
     // Gets a value indicating whether the given installer type is an archive.
     bool IsArchiveType(InstallerTypeEnum installerType);
 
+    // Gets a value indicating whether the given installer type is a portable.
+    bool IsPortableType(InstallerTypeEnum installerType);
+
     // Gets a value indicating whether the given nested installer type is supported.
     bool IsNestedInstallerTypeSupported(InstallerTypeEnum nestedInstallerType);
 

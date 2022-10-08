@@ -211,6 +211,7 @@ namespace AppInstallerCLIE2ETests
                     experimentalCmd = false,
                     dependencies = false,
                     directMSI = false,
+                    openLogsArgument = false,
                 },
                 debugging = new
                 {

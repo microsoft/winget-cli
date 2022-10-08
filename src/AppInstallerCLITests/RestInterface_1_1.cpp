@@ -190,7 +190,7 @@ namespace
         })delimiter");
         }
 
-        void VerifyLocalizations_AllFields(Manifest manifest)
+        void VerifyLocalizations_AllFields(const Manifest& manifest)
         {
             REQUIRE(manifest.DefaultLocalization.Locale == "en-US");
             REQUIRE(manifest.DefaultLocalization.Get<Localization::Publisher>() == "Foo");
@@ -245,7 +245,7 @@ namespace
             REQUIRE(frenchLocalization.Get<Localization::Agreements>().at(0).AgreementUrl == "https://AgreementUrl.net");
         }
 
-        void VerifyInstallers_AllFields(Manifest manifest)
+        void VerifyInstallers_AllFields(const Manifest& manifest)
         {
             REQUIRE(manifest.Installers.size() == 1);
 
@@ -538,7 +538,7 @@ TEST_CASE("GetManifests_GoodResponse_MSStoreType", "[RestSource][Interface_1_1]"
     REQUIRE(manifest.Installers.at(0).ProductId == "9nblggh4nns1");
 }
 
-TEST_CASE("GetManifests_GoodResponse_V1_1", "[RestSource][Interface_1_0]")
+TEST_CASE("GetManifests_GoodResponse_V1_1", "[RestSource][Interface_1_1]")
 {
     GoodManifest_AllFields sampleManifest;
     utility::string_t sample = sampleManifest.GetSampleManifest_AllFields();
@@ -548,7 +548,7 @@ TEST_CASE("GetManifests_GoodResponse_V1_1", "[RestSource][Interface_1_0]")
     REQUIRE(manifests.size() == 1);
 
     // Verify manifest is populated
-    Manifest manifest = manifests[0];
+    Manifest& manifest = manifests[0];
     REQUIRE(manifest.Id == "Foo.Bar");
     REQUIRE(manifest.Version == "3.0.0abc");
     REQUIRE(manifest.Moniker == "FooBarMoniker");

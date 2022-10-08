@@ -70,6 +70,12 @@
     <Filter Include="Microsoft\Schema\Portable_1_0">
       <UniqueIdentifier>{edef5ff7-9bfe-48f8-a179-e343d1a8b57f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Rest\Schema\1_4">
+      <UniqueIdentifier>{4f5950e2-1713-4c1e-84ce-f868cfcb3a68}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rest\Schema\1_4\Json">
+      <UniqueIdentifier>{d9d70cf5-ce04-4db2-a0ec-970dd0ad22b6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -318,6 +324,21 @@
     <ClInclude Include="Microsoft\SQLiteStorageBase.h">
       <Filter>Microsoft</Filter>
     </ClInclude>
+    <ClInclude Include="Rest\Schema\1_4\Json\ManifestDeserializer.h">
+      <Filter>Rest\Schema\1_4\Json</Filter>
+    </ClInclude>
+    <ClInclude Include="Rest\Schema\1_4\Interface.h">
+      <Filter>Rest\Schema\1_4</Filter>
+    </ClInclude>
+    <ClInclude Include="Rest\Schema\1_4\Json\SearchResponseDeserializer.h">
+      <Filter>Rest\Schema\1_4\Json</Filter>
+    </ClInclude>
+    <ClInclude Include="Rest\Schema\SearchRequestComposer.h">
+      <Filter>Rest\Schema</Filter>
+    </ClInclude>
+    <ClInclude Include="Rest\Schema\SearchResponseParser.h">
+      <Filter>Rest\Schema</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -499,6 +520,21 @@
     </ClCompile>
     <ClCompile Include="Microsoft\SQLiteStorageBase.cpp">
       <Filter>Microsoft</Filter>
+    </ClCompile>
+    <ClCompile Include="Rest\Schema\1_4\Json\ManifestDeserializer_1_4.cpp">
+      <Filter>Rest\Schema\1_4\Json</Filter>
+    </ClCompile>
+    <ClCompile Include="Rest\Schema\1_4\RestInterface_1_4.cpp">
+      <Filter>Rest\Schema\1_4</Filter>
+    </ClCompile>
+    <ClCompile Include="Rest\Schema\1_4\Json\SearchResponseDeserializer_1_4.cpp">
+      <Filter>Rest\Schema\1_4\Json</Filter>
+    </ClCompile>
+    <ClCompile Include="Rest\Schema\SearchRequestComposer.cpp">
+      <Filter>Rest\Schema</Filter>
+    </ClCompile>
+    <ClCompile Include="Rest\Schema\SearchResponseParser.cpp">
+      <Filter>Rest\Schema</Filter>
     </ClCompile>
     <ClCompile Include="PackageInstalledStatus.cpp">
       <Filter>Source Files</Filter>

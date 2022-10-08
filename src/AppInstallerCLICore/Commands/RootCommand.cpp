@@ -161,6 +161,11 @@ namespace AppInstaller::CLI
             ExecuteInternal(context);
         }
 
+        if (context.Args.Contains(Execution::Args::Type::OpenLogs))
+        {
+            ShellExecute(NULL, NULL, Runtime::GetPathTo(Runtime::PathName::DefaultLogLocation).wstring().c_str(), NULL, NULL, SW_SHOWNORMAL);
+        }
+
         if (context.Args.Contains(Execution::Args::Type::Wait))
         {
             context.Reporter.PromptForEnter();

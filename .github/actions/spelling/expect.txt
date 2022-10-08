@@ -277,6 +277,7 @@ ofile
 openmode
 Outptr
 packageinuse
+packageinusebyapplication
 PACL
 PARAMETERMAP
 paramref
@@ -358,6 +359,7 @@ SETTINGMAPPING
 SHCONTF
 SHGDN
 Shlobj
+SHOWNORMAL
 sid
 SIGNATUREHASH
 Sku

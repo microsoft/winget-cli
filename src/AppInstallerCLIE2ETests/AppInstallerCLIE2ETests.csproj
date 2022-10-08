@@ -43,6 +43,9 @@
     <ProjectReference Include="..\WindowsPackageManager\WindowsPackageManager.vcxproj">
       <ReferenceOutputAssembly>False</ReferenceOutputAssembly>
     </ProjectReference>
+    <ProjectReference Include="..\WinGetUtil\WinGetUtil.vcxproj">
+      <ReferenceOutputAssembly>False</ReferenceOutputAssembly>
+    </ProjectReference>
   </ItemGroup>
 
   <ItemGroup>
@@ -55,5 +58,6 @@
       <!-- Rename dll to align with the expected search pattern performed by CsWinRT -->
     <Copy SourceFiles="$(TargetDir)..\Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.InProc.dll" DestinationFiles="$(TargetDir)Microsoft.Management.Deployment.dll" />
     <Copy SourceFiles="$(TargetDir)..\WindowsPackageManager\WindowsPackageManager.dll" DestinationFiles="$(TargetDir)WindowsPackageManager.dll" />
+    <Copy SourceFiles="$(TargetDir)..\WinGetUtil\WinGetUtil.dll" DestinationFiles="$(TargetDir)WinGetUtil.dll" />
   </Target>
 </Project>

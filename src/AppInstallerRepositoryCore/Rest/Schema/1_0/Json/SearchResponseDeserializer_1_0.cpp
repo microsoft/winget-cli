@@ -69,19 +69,14 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
                 {
                     for (auto& versionItem : versionValue.value().get())
                     {
-                        std::optional<std::string> version = JSON::GetRawStringValueFromJsonNode(versionItem, JSON::GetUtilityString(PackageVersion));
-                        if (!JSON::IsValidNonEmptyStringValue(version))
+                        auto versionInfo = DeserializeVersionInfo(versionItem);
+                        if (!versionInfo.has_value())
                         {
                             AICLI_LOG(Repo, Error, << "Received incomplete package version in package: " << packageId.value());
                             return {};
                         }
 
-                        std::string channel = JSON::GetRawStringValueFromJsonNode(versionItem, JSON::GetUtilityString(Channel)).value_or("");
-                        std::vector<std::string> packageFamilyNames = RestHelper::GetUniqueItems(JSON::GetRawStringArrayFromJsonNode(versionItem, JSON::GetUtilityString(PackageFamilyNames)));
-                        std::vector<std::string> productCodes = RestHelper::GetUniqueItems(JSON::GetRawStringArrayFromJsonNode(versionItem, JSON::GetUtilityString(ProductCodes)));
-
-                        versionList.emplace_back(IRestClient::VersionInfo{
-                                AppInstaller::Utility::VersionAndChannel{std::move(version.value()), std::move(channel)}, {}, std::move(packageFamilyNames), std::move(productCodes)});
+                        versionList.emplace_back(std::move(*versionInfo));
                     }
                 }
 
@@ -109,5 +104,25 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         }
 
         return {};
+    }
+
+    std::optional<IRestClient::VersionInfo> SearchResponseDeserializer::DeserializeVersionInfo(const web::json::value& versionInfoJsonObject) const
+    {
+        std::optional<std::string> version = JSON::GetRawStringValueFromJsonNode(versionInfoJsonObject, JSON::GetUtilityString(PackageVersion));
+        if (!JSON::IsValidNonEmptyStringValue(version))
+        {
+            AICLI_LOG(Repo, Error, << "Received incomplete package version");
+            return {};
+        }
+
+        std::string channel = JSON::GetRawStringValueFromJsonNode(versionInfoJsonObject, JSON::GetUtilityString(Channel)).value_or("");
+        std::vector<std::string> packageFamilyNames = RestHelper::GetUniqueItems(JSON::GetRawStringArrayFromJsonNode(versionInfoJsonObject, JSON::GetUtilityString(PackageFamilyNames)));
+        std::vector<std::string> productCodes = RestHelper::GetUniqueItems(JSON::GetRawStringArrayFromJsonNode(versionInfoJsonObject, JSON::GetUtilityString(ProductCodes)));
+
+        return IRestClient::VersionInfo{
+            AppInstaller::Utility::VersionAndChannel{std::move(version.value()), std::move(channel)},
+            {},
+            std::move(packageFamilyNames),
+            std::move(productCodes) };
     }
 }

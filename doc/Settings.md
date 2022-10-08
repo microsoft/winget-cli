@@ -231,6 +231,17 @@ You can enable the feature as shown below.
        "directMSI": true
    },
 ```
+
+### openLogsArgument
+
+This feature enables the Windows Package Manager to open the default logs folder after execution by passing the `--open-logs` argument with any command. 
+You can enable the feature as shown below.
+
+```json
+   "experimentalFeatures": {
+       "openLogsArgument": true
+   },
+```
 ### Dependencies
 
 Experimental feature with the aim of managing dependencies, as of now it only shows package dependency information. You can enable the feature as shown below.

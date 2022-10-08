@@ -1,0 +1,45 @@
+{
+    "version": "1.0",
+    "metadatas": [
+        {
+            "version": "1.0",
+            "productVersionMin": "1.0",
+            "productVersionMax": "1.0",
+            "metadata": [
+                {
+                    "installerHash": "ABCD",
+                    "submissionIdentifier": "1",
+                    "AppsAndFeaturesEntries": [
+                        {
+                            "DisplayName": "Name",
+                            "Publisher": "Publisher",
+                            "DisplayVersion": "1.0",
+                            "ProductCode": "{46210E3D-EBB3-43D4-B9BB-48A7DB0F9B93}",
+                            "InstallerType": 3
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "version": "1.0",
+            "productVersionMin": "1.0",
+            "productVersionMax": "1.0",
+            "metadata": [
+                {
+                    "installerHash": "EFGH",
+                    "submissionIdentifier": "1",
+                    "AppsAndFeaturesEntries": [
+                        {
+                            "DisplayName": "Name",
+                            "Publisher": "Publisher",
+                            "DisplayVersion": "1.0",
+                            "ProductCode": "{46210E3D-EBB3-43D4-B9BB-48A7DB0F9B93}",
+                            "InstallerType": 3
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

@@ -32,6 +32,8 @@ namespace AppInstaller::Manifest
                 { AppInstaller::Manifest::ManifestError::InstallerTypeDoesNotWriteAppsAndFeaturesEntry, "The specified installer type does not write to Apps and Features entry."sv },
                 { AppInstaller::Manifest::ManifestError::IncompleteMultiFileManifest, "The multi file manifest is incomplete.A multi file manifest must contain at least version, installer and defaultLocale manifest."sv },
                 { AppInstaller::Manifest::ManifestError::InconsistentMultiFileManifestFieldValue, "The multi file manifest has inconsistent field values."sv },
+                { AppInstaller::Manifest::ManifestError::DuplicatePortableCommandAlias, "Duplicate portable command alias found."sv },
+                { AppInstaller::Manifest::ManifestError::DuplicateRelativeFilePath, "Duplicate relative file path found."sv },
                 { AppInstaller::Manifest::ManifestError::DuplicateMultiFileManifestType, "The multi file manifest should contain only one file with the particular ManifestType."sv },
                 { AppInstaller::Manifest::ManifestError::DuplicateMultiFileManifestLocale, "The multi file manifest contains duplicate PackageLocale."sv },
                 { AppInstaller::Manifest::ManifestError::UnsupportedMultiFileManifestType, "The multi file manifest should not contain file with the particular ManifestType."sv },
@@ -260,20 +262,37 @@ namespace AppInstaller::Manifest
                     resultErrors.emplace_back(ManifestError::ExceededNestedInstallerFilesLimit, "NestedInstallerFiles");
                 }
 
+                std::set<std::string> commandAliasSet;
+                std::set<std::string> relativeFilePathSet;
+
                 for (const auto& nestedInstallerFile : installer.NestedInstallerFiles)
                 {
                     if (nestedInstallerFile.RelativeFilePath.empty())
                     {
                         resultErrors.emplace_back(ManifestError::RequiredFieldMissing, "RelativeFilePath");
+                        break;
                     }
-                    else
+
+                    // Check that the relative file path does not escape base directory.
+                    const std::filesystem::path& basePath = std::filesystem::current_path();
+                    const std::filesystem::path& fullPath = basePath / ConvertToUTF16(nestedInstallerFile.RelativeFilePath);
+                    if (AppInstaller::Filesystem::PathEscapesBaseDirectory(fullPath, basePath))
                     {
-                        const std::filesystem::path& basePath = std::filesystem::current_path();
-                        const std::filesystem::path& fullPath = basePath / ConvertToUTF16(nestedInstallerFile.RelativeFilePath);
-                        if (AppInstaller::Filesystem::PathEscapesBaseDirectory(fullPath, basePath))
-                        {
-                            resultErrors.emplace_back(ManifestError::RelativeFilePathEscapesDirectory, "RelativeFilePath");
-                        }
+                        resultErrors.emplace_back(ManifestError::RelativeFilePathEscapesDirectory, "RelativeFilePath");
+                    }
+
+                    // Check for duplicate relative filepath values.
+                    if (!relativeFilePathSet.insert(Utility::ToLower(nestedInstallerFile.RelativeFilePath)).second)
+                    {
+                        resultErrors.emplace_back(ManifestError::DuplicateRelativeFilePath, "RelativeFilePath");
+                    }
+
+                    // Check for duplicate portable command alias values.
+                    const auto& alias = Utility::ToLower(nestedInstallerFile.PortableCommandAlias);
+                    if (!alias.empty() && !commandAliasSet.insert(alias).second)
+                    {
+                        resultErrors.emplace_back(ManifestError::DuplicatePortableCommandAlias, "PortableCommandAlias");
+                        break;
                     }
                 }
             }

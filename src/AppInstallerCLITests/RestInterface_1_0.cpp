@@ -183,7 +183,7 @@ namespace
         })delimiter");
         }
 
-        void VerifyLocalizations_AllFields(Manifest manifest)
+        void VerifyLocalizations_AllFields(const Manifest& manifest)
         {
             REQUIRE(manifest.DefaultLocalization.Locale == "en-US");
             REQUIRE(manifest.DefaultLocalization.Get<Localization::Publisher>() == "Foo");
@@ -226,7 +226,7 @@ namespace
             REQUIRE(frenchLocalization.Get<Localization::Tags>().at(2) == "BarFr");
         }
 
-        void VerifyInstallers_AllFields(Manifest manifest)
+        void VerifyInstallers_AllFields(const Manifest& manifest)
         {
             REQUIRE(manifest.Installers.size() == 1);
 
@@ -518,7 +518,7 @@ TEST_CASE("GetManifests_GoodResponse_UnknownInstaller", "[RestSource][Interface_
     REQUIRE(manifests.size() == 1);
 
     // Verify manifest is populated and manifest validation passed
-    Manifest manifest = manifests[0];
+    Manifest& manifest = manifests[0];
     REQUIRE(manifest.Installers.size() == 1);
     REQUIRE(manifest.Installers.at(0).BaseInstallerType == InstallerTypeEnum::Unknown);
     REQUIRE(manifest.Installers.at(0).ProductId.empty());

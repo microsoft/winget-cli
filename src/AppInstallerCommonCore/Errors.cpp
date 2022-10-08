@@ -180,8 +180,6 @@ namespace AppInstaller
                 return "Failed to install portable package";
             case APPINSTALLER_CLI_ERROR_PORTABLE_REPARSE_POINT_NOT_SUPPORTED:
                 return "Volume does not support reparse points.";
-            case APPINSTALLER_CLI_ERROR_PORTABLE_PACKAGE_ALREADY_EXISTS:
-                return "Portable package from a different source already exists.";
             case APPINSTALLER_CLI_ERROR_PORTABLE_SYMLINK_PATH_IS_DIRECTORY:
                 return "Unable to create symlink, path points to a directory.";
             case APPINSTALLER_CLI_ERROR_INSTALLER_PROHIBITS_ELEVATION:
