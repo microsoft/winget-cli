@@ -33,6 +33,21 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void UpdateAllApplicable(Execution::Context& context);
 
+    // Select single package version for install or upgrade
+    // Required Args: bool indicating whether the flow is for upgrade
+    // Inputs: Source, SearchResult
+    // Outputs: None
+    struct SelectSinglePackageVersionForInstallOrUpgrade : public WorkflowTask
+    {
+        SelectSinglePackageVersionForInstallOrUpgrade(bool isUpgrade) :
+            WorkflowTask("SelectSinglePackageVersionForInstallOrUpgrade"), m_isUpgrade(isUpgrade) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        mutable bool m_isUpgrade;
+    };
+
     // Install or upgrade a single package
     // Required Args: bool indicating whether the flow is for upgrade
     // Inputs: Source

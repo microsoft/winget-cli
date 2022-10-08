@@ -40,7 +40,7 @@ namespace AppInstaller::CLI::Workflow
         auto package = context.Get<Execution::Data::Package>();
         auto installedPackage = context.Get<Execution::Data::InstalledPackageVersion>();
 
-        bool isUpgrade = installedPackage != nullptr;
+        bool isUpgrade = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);;
         Utility::Version installedVersion;
         if (isUpgrade)
         {
@@ -237,10 +237,9 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void InstallOrUpgradeSinglePackage::operator()(Execution::Context& context) const
+    void SelectSinglePackageVersionForInstallOrUpgrade::operator()(Execution::Context& context) const
     {
         context <<
-            SearchSourceForSingle <<
             HandleSearchResultFailures <<
             EnsureOneMatchFromSearchResult(m_isUpgrade) <<
             GetInstalledPackageVersion;
@@ -273,8 +272,13 @@ namespace AppInstaller::CLI::Workflow
             // This step also populates Manifest and Installer in context data.
             context << SelectLatestApplicableVersion(true);
         }
+    }
 
+    void InstallOrUpgradeSinglePackage::operator()(Execution::Context& context) const
+    {
         context <<
+            SearchSourceForSingle <<
+            SelectSinglePackageVersionForInstallOrUpgrade(m_isUpgrade) <<
             EnsureApplicableInstaller <<
             InstallSinglePackage;
     }

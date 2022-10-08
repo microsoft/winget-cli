@@ -279,22 +279,28 @@ namespace AppInstaller::CLI::Workflow
                 searchContext.Add<Execution::Data::Source>(source);
                 searchContext.Add<Execution::Data::SearchResult>(source.Search(searchRequest));
 
-                // TODO: In the future, it would be better to not have to convert back and forth from a string
-                searchContext.Args.AddArg(Execution::Args::Type::InstallScope, ScopeToString(packageRequest.Scope));
+                if (packageRequest.Scope != Manifest::ScopeEnum::Unknown)
+                {
+                    // TODO: In the future, it would be better to not have to convert back and forth from a string
+                    searchContext.Args.AddArg(Execution::Args::Type::InstallScope, ScopeToString(packageRequest.Scope));
+                }
+
+                auto versionString = packageRequest.VersionAndChannel.GetVersion().ToString();
+                if (!versionString.empty())
+                {
+                    searchContext.Args.AddArg(Execution::Args::Type::Version, versionString);
+                }
+
+                auto channelString = packageRequest.VersionAndChannel.GetChannel().ToString();
+                if (!channelString.empty())
+                {
+                    searchContext.Args.AddArg(Execution::Args::Type::Channel, channelString);
+                }
 
                 // Find the single version we want is available
                 searchContext <<
-                    Workflow::HandleSearchResultFailures <<
-                    Workflow::EnsureOneMatchFromSearchResult(false) <<
-                    Workflow::GetManifestWithVersionFromPackage(packageRequest.VersionAndChannel) <<
-                    Workflow::GetInstalledPackageVersion <<
-                    Workflow::SelectInstaller <<
+                    Workflow::SelectSinglePackageVersionForInstallOrUpgrade(false) <<
                     Workflow::EnsureApplicableInstaller;
-
-                if (searchContext.Contains(Execution::Data::InstalledPackageVersion) && searchContext.Get<Execution::Data::InstalledPackageVersion>())
-                {
-                    searchContext << Workflow::EnsureUpdateVersionApplicable;
-                }
 
                 if (searchContext.IsTerminated())
                 {
