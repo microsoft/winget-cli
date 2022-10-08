@@ -122,7 +122,6 @@ namespace AppInstaller::CLI::Workflow
         Manifest::ScopeEnum scope = Manifest::ScopeEnum::Unknown;
         bool isUpdate = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
         if (isUpdate)
-
         {
             IPackageVersion::Metadata installationMetadata = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata();
             auto installerScopeItr = installationMetadata.find(Repository::PackageVersionMetadata::InstalledScope);
@@ -265,7 +264,7 @@ namespace AppInstaller::CLI::Workflow
 
             if (!portableInstaller.VerifyExpectedState())
             {
-                if (context.Args.Contains(Execution::Args::Type::HashOverride))
+                if (context.Args.Contains(Execution::Args::Type::Force))
                 {
                     context.Reporter.Warn() << Resource::String::PortableHashMismatchOverridden << std::endl;
                 }
@@ -304,8 +303,7 @@ namespace AppInstaller::CLI::Workflow
 
             if (!portableInstaller.VerifyExpectedState())
             {
-                // TODO: replace with appropriate --force argument when available.
-                if (context.Args.Contains(Execution::Args::Type::HashOverride))
+                if (context.Args.Contains(Execution::Args::Type::Force))
                 {
                     context.Reporter.Warn() << Resource::String::PortableHashMismatchOverridden << std::endl;
                 }

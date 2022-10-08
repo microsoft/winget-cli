@@ -60,7 +60,6 @@ namespace AppInstaller::CLI::Portable
 
         if (fileType == PortableFileType::File)
         {
-            
             if (std::filesystem::exists(filePath))
             {
                 SHA256::HashBuffer fileHash = SHA256::ComputeHashFromFile(filePath);
@@ -296,7 +295,7 @@ namespace AppInstaller::CLI::Portable
                 else
                 {
                     AICLI_LOG(CLI, Info, << "Unable to remove install directory as there are remaining files in: " << InstallLocation);
-                    m_stream << Resource::String::FilesRemainInInstallDirectory << ' ' << InstallLocation << std::endl;
+                    m_stream << Resource::String::FilesRemainInInstallDirectory << ' ' << InstallLocation.u8string() << std::endl;
                 }
             }
         }
