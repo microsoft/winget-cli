@@ -272,6 +272,8 @@ namespace AppInstaller::CLI::Workflow
             // This step also populates Manifest and Installer in context data.
             context << SelectLatestApplicableVersion(true);
         }
+
+        context << EnsureApplicableInstaller;
     }
 
     void InstallOrUpgradeSinglePackage::operator()(Execution::Context& context) const
@@ -279,7 +281,6 @@ namespace AppInstaller::CLI::Workflow
         context <<
             SearchSourceForSingle <<
             SelectSinglePackageVersionForInstallOrUpgrade(m_isUpgrade) <<
-            EnsureApplicableInstaller <<
             InstallSinglePackage;
     }
 }

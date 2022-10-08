@@ -299,8 +299,7 @@ namespace AppInstaller::CLI::Workflow
 
                 // Find the single version we want is available
                 searchContext <<
-                    Workflow::SelectSinglePackageVersionForInstallOrUpgrade(false) <<
-                    Workflow::EnsureApplicableInstaller;
+                    Workflow::SelectSinglePackageVersionForInstallOrUpgrade(false);
 
                 if (searchContext.IsTerminated())
                 {
