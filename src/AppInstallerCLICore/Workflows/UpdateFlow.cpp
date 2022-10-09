@@ -35,19 +35,26 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void SelectLatestApplicableUpdate::operator()(Execution::Context& context) const
+    void SelectLatestApplicableVersion::operator()(Execution::Context& context) const
     {
         auto package = context.Get<Execution::Data::Package>();
         auto installedPackage = context.Get<Execution::Data::InstalledPackageVersion>();
-        Utility::Version installedVersion = Utility::Version(installedPackage->GetProperty(PackageVersionProperty::Version));
-        ManifestComparator manifestComparator(context, installedPackage->GetMetadata());
-        bool updateFound = false;
+
+        bool isUpgrade = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);;
+        Utility::Version installedVersion;
+        if (isUpgrade)
+        {
+            installedVersion = Utility::Version(installedPackage->GetProperty(PackageVersionProperty::Version));
+        }
+
+        ManifestComparator manifestComparator(context, isUpgrade ? installedPackage->GetMetadata() : IPackageVersion::Metadata{});
+        bool versionFound = false;
         bool installedTypeInapplicable = false;
 
-        if (installedVersion.IsUnknown() && !context.Args.Contains(Execution::Args::Type::IncludeUnknown))
+        if (isUpgrade && installedVersion.IsUnknown() && !context.Args.Contains(Execution::Args::Type::IncludeUnknown))
         {
             // the package has an unknown version and the user did not request to upgrade it anyway.
-            if (m_reportUpdateNotFound)
+            if (m_reportVersionNotFound)
             {
                 context.Reporter.Info() << Resource::String::UpgradeUnknownVersionExplanation << std::endl;
             }
@@ -59,8 +66,8 @@ namespace AppInstaller::CLI::Workflow
         const auto& versionKeys = package->GetAvailableVersionKeys();
         for (const auto& key : versionKeys)
         {
-            // Check Update Version
-            if (IsUpdateVersionApplicable(installedVersion, Utility::Version(key.Version)))
+            // Check Applicable Version
+            if (!isUpgrade || IsUpdateVersionApplicable(installedVersion, Utility::Version(key.Version)))
             {
                 auto packageVersion = package->GetAvailableVersion(key);
                 auto manifest = packageVersion->GetManifest();
@@ -97,7 +104,7 @@ namespace AppInstaller::CLI::Workflow
                 context.Add<Execution::Data::PackageVersion>(std::move(packageVersion));
                 context.Add<Execution::Data::Installer>(std::move(installer));
 
-                updateFound = true;
+                versionFound = true;
                 break;
             }
             else
@@ -107,21 +114,25 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        if (!updateFound)
+        if (!versionFound)
         {
-            if (m_reportUpdateNotFound)
+            if (m_reportVersionNotFound)
             {
                 if (installedTypeInapplicable)
                 {
                     context.Reporter.Info() << Resource::String::UpgradeDifferentInstallTechnologyInNewerVersions << std::endl;
                 }
-                else
+                else if (isUpgrade)
                 {
                     context.Reporter.Info() << Resource::String::UpdateNotApplicable << std::endl;
                 }
+                else
+                {
+                    context.Reporter.Error() << Resource::String::NoApplicableInstallers << std::endl;
+                }
             }
 
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
+            AICLI_TERMINATE_CONTEXT(isUpgrade ? APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE : APPINSTALLER_CLI_ERROR_NO_APPLICABLE_INSTALLER);
         }
     }
 
@@ -172,7 +183,7 @@ namespace AppInstaller::CLI::Workflow
             updateContext <<
                 Workflow::GetInstalledPackageVersion <<
                 Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
-                SelectLatestApplicableUpdate(false);
+                SelectLatestApplicableVersion(false);
 
             if (updateContext.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE)
             {
@@ -224,5 +235,52 @@ namespace AppInstaller::CLI::Workflow
             AICLI_LOG(CLI, Info, << packagesThatRequireExplicitSkipped << " package(s) skipped due to requiring explicit upgrade");
             context.Reporter.Info() << packagesThatRequireExplicitSkipped << " " << Resource::String::UpgradeRequireExplicitCount << std::endl;
         }
+    }
+
+    void SelectSinglePackageVersionForInstallOrUpgrade::operator()(Execution::Context& context) const
+    {
+        context <<
+            HandleSearchResultFailures <<
+            EnsureOneMatchFromSearchResult(m_isUpgrade) <<
+            GetInstalledPackageVersion;
+
+        if (!m_isUpgrade && context.Contains(Execution::Data::InstalledPackageVersion) && context.Get<Execution::Data::InstalledPackageVersion>() != nullptr)
+        {
+            AICLI_LOG(CLI, Info, << "Found installed package, converting to upgrade flow");
+            context.Reporter.Info() << Execution::ConvertToUpgradeFlowEmphasis << Resource::String::ConvertInstallFlowToUpgrade << std::endl;
+            context.SetFlags(Execution::ContextFlag::InstallerExecutionUseUpdate);
+            m_isUpgrade = true;
+        }
+
+        if (context.Args.Contains(Execution::Args::Type::Version))
+        {
+            // If version specified, use the version and verify applicability
+            context <<
+                GetManifestFromPackage;
+
+            if (m_isUpgrade)
+            {
+                context << EnsureUpdateVersionApplicable;
+            }
+
+            context <<
+                SelectInstaller;
+        }
+        else
+        {
+            // Iterate through available versions to find latest applicable version.
+            // This step also populates Manifest and Installer in context data.
+            context << SelectLatestApplicableVersion(true);
+        }
+
+        context << EnsureApplicableInstaller;
+    }
+
+    void InstallOrUpgradeSinglePackage::operator()(Execution::Context& context) const
+    {
+        context <<
+            SearchSourceForSingle <<
+            SelectSinglePackageVersionForInstallOrUpgrade(m_isUpgrade) <<
+            InstallSinglePackage;
     }
 }

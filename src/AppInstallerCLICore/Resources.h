@@ -46,6 +46,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(CommandRequiresAdmin);
         WINGET_DEFINE_RESOURCE_STRINGID(CompleteCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(CompleteCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConvertInstallFlowToUpgrade);
         WINGET_DEFINE_RESOURCE_STRINGID(CountArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(CountOutOfBoundsError);
         WINGET_DEFINE_RESOURCE_STRINGID(DependenciesFlowInstall);
@@ -92,9 +93,11 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(FileArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(FilesRemainInInstallDirectory);
         WINGET_DEFINE_RESOURCE_STRINGID(FlagContainAdjoinedError);
+        WINGET_DEFINE_RESOURCE_STRINGID(ForceArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(GetManifestResultVersionNotFound);
         WINGET_DEFINE_RESOURCE_STRINGID(HashCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(HashCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(HashOverrideArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(HeaderArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(HeaderArgumentNotApplicableForNonRestSourceWarning);
         WINGET_DEFINE_RESOURCE_STRINGID(HeaderArgumentNotApplicableWithoutSource);
@@ -161,7 +164,6 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeRebootRequiredForInstall);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeRebootRequiredToFinish);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowStartingPackageInstall);
-        WINGET_DEFINE_RESOURCE_STRINGID(InstallForceArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallLocationNotProvided);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallScopeDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(InteractiveArgumentDescription);

@@ -109,13 +109,18 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: Source
     struct OpenCompositeSource : public WorkflowTask
     {
-        OpenCompositeSource(Repository::PredefinedSource source, bool forDependencies = false) : WorkflowTask("OpenCompositeSource"), m_predefinedSource(source), m_forDependencies(forDependencies) {}
+        OpenCompositeSource(
+            Repository::PredefinedSource source,
+            bool forDependencies = false,
+            Repository::CompositeSearchBehavior searchBehavior = Repository::CompositeSearchBehavior::Installed) :
+            WorkflowTask("OpenCompositeSource"), m_predefinedSource(source), m_forDependencies(forDependencies), m_searchBehavior(searchBehavior) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
         Repository::PredefinedSource m_predefinedSource;
         bool m_forDependencies;
+        Repository::CompositeSearchBehavior m_searchBehavior;
     };
 
     // Performs a search on the source.

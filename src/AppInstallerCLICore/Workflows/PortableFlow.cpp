@@ -99,8 +99,7 @@ namespace AppInstaller::CLI::Workflow
         {
             if (packageIdentifier != portableInstaller.WinGetPackageIdentifier || sourceIdentifier != portableInstaller.WinGetSourceIdentifier)
             {
-                // TODO: Replace HashOverride with --Force when argument behavior gets updated.
-                if (!context.Args.Contains(Execution::Args::Type::HashOverride))
+                if (!context.Args.Contains(Execution::Args::Type::Force))
                 {
                     AICLI_LOG(CLI, Error, << "Registry match failed, skipping write to uninstall registry");
                     context.Reporter.Error() << Resource::String::PortablePackageAlreadyExists << std::endl;
@@ -265,7 +264,7 @@ namespace AppInstaller::CLI::Workflow
 
             if (!portableInstaller.VerifyExpectedState())
             {
-                if (context.Args.Contains(Execution::Args::Type::HashOverride))
+                if (context.Args.Contains(Execution::Args::Type::Force))
                 {
                     context.Reporter.Warn() << Resource::String::PortableHashMismatchOverridden << std::endl;
                 }
@@ -304,8 +303,7 @@ namespace AppInstaller::CLI::Workflow
 
             if (!portableInstaller.VerifyExpectedState())
             {
-                // TODO: replace with appropriate --force argument when available.
-                if (context.Args.Contains(Execution::Args::Type::HashOverride))
+                if (context.Args.Contains(Execution::Args::Type::Force))
                 {
                     context.Reporter.Warn() << Resource::String::PortableHashMismatchOverridden << std::endl;
                 }

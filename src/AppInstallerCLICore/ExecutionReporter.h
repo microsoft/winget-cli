@@ -171,4 +171,5 @@ namespace AppInstaller::CLI::Execution
     extern const VirtualTerminal::Sequence& IdEmphasis;
     extern const VirtualTerminal::Sequence& UrlEmphasis;
     extern const VirtualTerminal::Sequence& PromptEmphasis;
+    extern const VirtualTerminal::Sequence& ConvertToUpgradeFlowEmphasis;
 }

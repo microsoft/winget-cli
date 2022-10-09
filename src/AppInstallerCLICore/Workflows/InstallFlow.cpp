@@ -167,8 +167,6 @@ namespace AppInstaller::CLI::Workflow
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_APPLICABLE_INSTALLER);
         }
 
-        context << EnsureSupportForInstall;
-        
         // This installer cannot be run elevated, but we are running elevated.
         // Implementation of de-elevation is complex; simply block for now.
         if (installer->ElevationRequirement == ElevationRequirementEnum::ElevationProhibited && Runtime::IsRunningAsAdmin())
@@ -176,6 +174,8 @@ namespace AppInstaller::CLI::Workflow
             context.Reporter.Error() << Resource::String::InstallerProhibitsElevation << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALLER_PROHIBITS_ELEVATION);
         }
+
+        context << EnsureSupportForInstall;
     }
 
     void CheckForUnsupportedArgs(Execution::Context& context)

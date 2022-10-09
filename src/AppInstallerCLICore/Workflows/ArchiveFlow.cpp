@@ -27,8 +27,7 @@ namespace AppInstaller::CLI::Workflow
             }
             else
             {
-                // TODO: replace with proper --force argument when available.
-                if (context.Args.Contains(Execution::Args::Type::HashOverride))
+                if (context.Args.Contains(Execution::Args::Type::Force))
                 {
                     AICLI_LOG(CLI, Warning, << "Archive malware scan failed; proceeding due to --force override");
                     context.Reporter.Warn() << Resource::String::ArchiveFailedMalwareScanOverridden << std::endl;

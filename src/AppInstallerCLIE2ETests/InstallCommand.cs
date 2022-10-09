@@ -14,6 +14,13 @@ namespace AppInstallerCLIE2ETests
             ConfigureFeature("zipInstall", true);
         }
 
+        [SetUp]
+        public void Setup()
+        {
+            // Try clean up TestExeInstaller for failure cases where cleanup is not successful
+            TestCommon.RunAICLICommand("uninstall", "AppInstallerTest.TestExeInstaller");
+        }
+
         [Test]
         public void InstallAppDoesNotExist()
         {
@@ -285,7 +292,7 @@ namespace AppInstallerCLIE2ETests
             Assert.False(result.StdOut.Contains($"Overwriting existing file: {symlinkPath}"));
 
             // Perform second install and verify that file overwrite message is displayed.
-            var result2 = TestCommon.RunAICLICommand("install", $"{packageId}");
+            var result2 = TestCommon.RunAICLICommand("install", $"{packageId} --force");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result2.ExitCode);
             Assert.True(result2.StdOut.Contains("Successfully installed"));
 
@@ -379,6 +386,61 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
             Assert.True(TestCommon.VerifyTestMsixInstalledAndCleanup());
+        }
+
+        [Test]
+        public void InstallExeFoundExistingConvertToUpgrade()
+        {
+            var baseDir = TestCommon.GetRandomTestDir();
+            var baseResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller -v 1.0.0.0 --silent -l {baseDir}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, baseResult.ExitCode);
+            Assert.True(baseResult.StdOut.Contains("Successfully installed"));
+
+            // Install will convert to upgrade
+            var upgradeDir = TestCommon.GetRandomTestDir();
+            var upgradeResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller --silent -l {upgradeDir}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, upgradeResult.ExitCode);
+            Assert.True(upgradeResult.StdOut.Contains("Trying to upgrade the installed package..."));
+            Assert.True(upgradeResult.StdOut.Contains("Successfully installed"));
+
+            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(baseDir));
+            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(upgradeDir, "/Version 2.0.0.0"));
+        }
+
+        [Test]
+        public void InstallExeFoundExistingConvertToUpgradeNoAvailableUpgrade()
+        {
+            var baseDir = TestCommon.GetRandomTestDir();
+            var baseResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller -v 2.0.0.0 --silent -l {baseDir}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, baseResult.ExitCode);
+            Assert.True(baseResult.StdOut.Contains("Successfully installed"));
+
+            // Install will convert to upgrade
+            var upgradeDir = TestCommon.GetRandomTestDir();
+            var upgradeResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller --silent -l {upgradeDir}");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_UPDATE_NOT_APPLICABLE, upgradeResult.ExitCode);
+            Assert.True(upgradeResult.StdOut.Contains("Trying to upgrade the installed package..."));
+            Assert.True(upgradeResult.StdOut.Contains("No applicable upgrade"));
+
+            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(baseDir));
+        }
+
+        [Test]
+        public void InstallExeWithLatestInstalledWithForce()
+        {
+            var baseDir = TestCommon.GetRandomTestDir();
+            var baseResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller -v 2.0.0.0 --silent -l {baseDir}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, baseResult.ExitCode);
+            Assert.True(baseResult.StdOut.Contains("Successfully installed"));
+
+            // Install will not convert to upgrade
+            var installDir = TestCommon.GetRandomTestDir();
+            var installResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller -v 1.0.0.0 --silent -l {installDir} --force");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, installResult.ExitCode);
+            Assert.True(installResult.StdOut.Contains("Successfully installed"));
+
+            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(baseDir));
+            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/execustom"));
         }
     }
 }

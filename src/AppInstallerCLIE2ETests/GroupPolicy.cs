@@ -67,7 +67,7 @@ namespace AppInstallerCLIE2ETests
         public void EnableHashOverride()
         {
             GroupPolicyHelper.EnableHashOverride.Disable();
-            var result = TestCommon.RunAICLICommand("install", "AnyPackage --force");
+            var result = TestCommon.RunAICLICommand("install", "AnyPackage --ignore-security-hash");
             Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
         }
 

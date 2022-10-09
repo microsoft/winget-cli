@@ -54,6 +54,12 @@ namespace Microsoft.WinGet.Client.Common
         /// Gets or sets a value indicating whether to skip the installer hash validation check.
         /// </summary>
         [Parameter(ValueFromPipelineByPropertyName = true)]
+        public SwitchParameter AllowHashMismatch { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether to continue upon non security related failures.
+        /// </summary>
+        [Parameter(ValueFromPipelineByPropertyName = true)]
         public SwitchParameter Force { get; set; }
 
         /// <summary>
@@ -70,7 +76,8 @@ namespace Microsoft.WinGet.Client.Common
         protected virtual InstallOptions GetInstallOptions(PackageVersionId version)
         {
             InstallOptions options = ComObjectFactory.Value.CreateInstallOptions();
-            options.AllowHashMismatch = this.Force.ToBool();
+            options.AllowHashMismatch = this.AllowHashMismatch.ToBool();
+            options.Force = this.Force.ToBool();
             options.PackageInstallMode = this.Mode;
             if (version != null)
             {

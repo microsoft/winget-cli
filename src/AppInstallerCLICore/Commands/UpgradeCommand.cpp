@@ -108,6 +108,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Execution::Args::Type::CustomHeader),
             Argument{ "all"_liv, 'r', "recurse"_liv, Args::Type::All, Resource::String::UpdateAllArgumentDescription, ArgumentType::Flag },
             Argument{ "include-unknown"_liv, 'u', "unknown"_liv, Args::Type::IncludeUnknown, Resource::String::IncludeUnknownArgumentDescription, ArgumentType::Flag },
+            Argument::ForType(Args::Type::Force),
         };
     }
 
@@ -246,30 +247,7 @@ namespace AppInstaller::CLI
         else
         {
             // The remaining case: search for single installed package to update
-            context <<
-                SearchSourceForSingle <<
-                HandleSearchResultFailures <<
-                EnsureOneMatchFromSearchResult(true) <<
-                GetInstalledPackageVersion;
-
-            if (context.Args.Contains(Execution::Args::Type::Version))
-            {
-                // If version specified, use the version and verify applicability
-                context <<
-                    GetManifestFromPackage <<
-                    EnsureUpdateVersionApplicable <<
-                    SelectInstaller <<
-                    EnsureApplicableInstaller;
-            }
-            else
-            {
-                // iterate through available versions to find latest applicable update
-                // This step also populates Manifest and Installer in context data
-                context << SelectLatestApplicableUpdate(true);
-            }
-
-            context <<
-                InstallSinglePackage;
+            context << InstallOrUpgradeSinglePackage(true);
         }
     }
 }

@@ -125,8 +125,7 @@ namespace AppInstaller::CLI::Workflow
             }
 
             // Construct install location arg if necessary.
-            if (!isUpdate &&
-                context.Args.Contains(Execution::Args::Type::InstallLocation) &&
+            if (context.Args.Contains(Execution::Args::Type::InstallLocation) &&
                 installerSwitches.find(InstallerSwitchType::InstallLocation) != installerSwitches.end())
             {
                 installerArgs += ' ' + installerSwitches.at(InstallerSwitchType::InstallLocation);

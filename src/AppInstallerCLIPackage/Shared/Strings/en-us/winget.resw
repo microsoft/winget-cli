@@ -135,7 +135,7 @@
   </data>
   <data name="AvailableHeader" xml:space="preserve">
     <value>Available</value>
-    <comment>As in "a new version is available to update to".</comment>
+    <comment>As in "a new version is available to upgrade to".</comment>
   </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>The following options are available:</value>
@@ -263,8 +263,8 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Cannot install package, as it requires a higher version of Windows:</value>
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
-    <value>Installs the selected package, either found by searching a configured source or directly from a manifest. By default, the query must case-insensitively match the id, name, or moniker of the package. Other fields can be used by passing their appropriate option.</value>
-    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
+    <value>Installs the selected package, either found by searching a configured source or directly from a manifest. By default, the query must case-insensitively match the id, name, or moniker of the package. Other fields can be used by passing their appropriate option. By default, install command will check package installed status and try to perform an upgrade if applicable. Override with --force to perform a direct install.</value>
+    <comment>{Locked="--force","id","name","moniker"}; id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>Installs the given package</value>
@@ -273,12 +273,12 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Installer hash does not match; this cannot be overridden when running as admin</value>
   </data>
   <data name="InstallerHashMismatchOverridden" xml:space="preserve">
-    <value>Installer hash does not match; proceeding due to --force</value>
-    <comment>{Locked="--force"}</comment>
+    <value>Installer hash does not match; proceeding due to --ignore-security-hash</value>
+    <comment>{Locked="--ignore-security-hash"}</comment>
   </data>
   <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
-    <value>Installer hash does not match; to override this check use --force</value>
-    <comment>{Locked="--force"}</comment>
+    <value>Installer hash does not match; to override this check use --ignore-security-hash</value>
+    <comment>{Locked="--ignore-security-hash"}</comment>
   </data>
   <data name="InstallerHashVerified" xml:space="preserve">
     <value>Successfully verified installer hash</value>
@@ -289,8 +289,8 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="InstallFlowStartingPackageInstall" xml:space="preserve">
     <value>Starting package install...</value>
   </data>
-  <data name="InstallForceArgumentDescription" xml:space="preserve">
-    <value>Override the installer hash check</value>
+  <data name="HashOverrideArgumentDescription" xml:space="preserve">
+    <value>Ignore the installer hash check failure</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>Request interactive installation; user input may be needed</value>
@@ -316,7 +316,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <comment>Links to different webpages</comment>
   </data>
   <data name="ListCommandLongDescription" xml:space="preserve">
-    <value>The list command displays the packages installed on the system, as well as whether an update is available. Additional options can be provided to filter the output, much like the search command.</value>
+    <value>The list command displays the packages installed on the system, as well as whether an upgrade is available. Additional options can be provided to filter the output, much like the search command.</value>
     <comment>{Locked="list","search"}</comment>
   </data>
   <data name="ListCommandShortDescription" xml:space="preserve">
@@ -360,10 +360,10 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Failed to calculate MSIX signature hash.</value>
   </data>
   <data name="MSStoreAppBlocked" xml:space="preserve">
-    <value>Failed to install or update Microsoft Store package because the specific app is blocked by policy</value>
+    <value>Failed to install or upgrade Microsoft Store package because the specific app is blocked by policy</value>
   </data>
   <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
-    <value>Failed to install or update Microsoft Store package. Error code:</value>
+    <value>Failed to install or upgrade Microsoft Store package. Error code:</value>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>Verifying/Requesting package acquisition failed: network error</value>
@@ -378,7 +378,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Verifying/Requesting package acquisition success</value>
   </data>
   <data name="MSStoreStoreClientBlocked" xml:space="preserve">
-    <value>Failed to install or update Microsoft Store package because Microsoft Store client is blocked by policy</value>
+    <value>Failed to install or upgrade Microsoft Store package because Microsoft Store client is blocked by policy</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>Verifying/Requesting package acquisition...</value>
@@ -666,10 +666,10 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Unrecognized command</value>
   </data>
   <data name="UpdateAllArgumentDescription" xml:space="preserve">
-    <value>Update all installed packages to latest if available</value>
+    <value>Upgrade all installed packages to latest if available</value>
   </data>
   <data name="UpdateNotApplicable" xml:space="preserve">
-    <value>No applicable update found.</value>
+    <value>No applicable upgrade found.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
     <value>Upgrades the selected package, either found by searching the installed packages list or directly from a manifest. By default, the query must case-insensitively match the id, name, or moniker of the package. Other fields can be used by passing their appropriate option. When no arguments are given, shows the packages with upgrades available</value>
@@ -1327,6 +1327,7 @@ Please specify one of them using the `--source` option to proceed.</value>
   </data>
   <data name="PortableRegistryCollisionOverridden" xml:space="preserve">
     <value>A portable package with the same name but from a different source already exists; proceeding due to --force</value>
+    <comment>{Locked="--force"}</comment>
   </data>
   <data name="ReparsePointsNotSupportedError" xml:space="preserve">
     <value>The volume does not support reparse points</value>
@@ -1430,6 +1431,13 @@ Please specify one of them using the `--source` option to proceed.</value>
   </data>
   <data name="DisableInteractivityArgumentDescription" xml:space="preserve">
     <value>Disable interactive prompts</value>
+    <comment>Description for a command line argument, shown next to it in the help</comment>
+  </data>
+  <data name="ConvertInstallFlowToUpgrade" xml:space="preserve">
+    <value>Found an existing package already installed. Trying to upgrade the installed package...</value>
+  </data>
+  <data name="ForceArgumentDescription" xml:space="preserve">
+    <value>Direct run the command and continue with non security related issues</value>
     <comment>Description for a command line argument, shown next to it in the help</comment>
   </data>
   <data name="PortablePackageAlreadyExists" xml:space="preserve">

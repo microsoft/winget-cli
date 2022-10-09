@@ -753,6 +753,12 @@ namespace Microsoft.Management.Deployment
             /// Allow the upgrade to continue for upgrade packages with manifest versions Unknown.
             Boolean AllowUpgradeToUnknownVersion;
         }
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 5)]
+        {
+            /// Force the operation to continue upon non security related failures.
+            Boolean Force;
+        }
     }
 
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 4)]
@@ -786,6 +792,12 @@ namespace Microsoft.Management.Deployment
         /// Used by a caller to correlate the install with a caller's data.
         /// The string must be JSON encoded.
         String CorrelationData;
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 5)]
+        {
+            /// Force the operation to continue upon non security related failures.
+            Boolean Force;
+        }
     }
 
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]

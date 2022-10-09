@@ -6,19 +6,19 @@
 
 namespace AppInstaller::CLI::Workflow
 {
-    // Iterates through all available versions from a package and find latest applicable update
+    // Iterates through all available versions from a package and find latest applicable version
     // Required Args: bool indicating whether to report update not found
-    // Inputs: InstalledPackageVersion, Package
+    // Inputs: InstalledPackageVersion?, Package
     // Outputs: Manifest?, Installer?
-    struct SelectLatestApplicableUpdate : public WorkflowTask
+    struct SelectLatestApplicableVersion : public WorkflowTask
     {
-        SelectLatestApplicableUpdate(bool reportUpdateNotFound) :
-            WorkflowTask("SelectLatestApplicableUpdate"), m_reportUpdateNotFound(reportUpdateNotFound) {}
+        SelectLatestApplicableVersion(bool reportVersionNotFound) :
+            WorkflowTask("SelectLatestApplicableUpdate"), m_reportVersionNotFound(reportVersionNotFound) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
-        bool m_reportUpdateNotFound;
+        bool m_reportVersionNotFound;
     };
 
     // Ensures the update package has higher version than installed
@@ -32,4 +32,34 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: SearchResult
     // Outputs: None
     void UpdateAllApplicable(Execution::Context& context);
+
+    // Select single package version for install or upgrade
+    // Required Args: bool indicating whether the flow is for upgrade
+    // Inputs: Source, SearchResult
+    // Outputs: None
+    struct SelectSinglePackageVersionForInstallOrUpgrade : public WorkflowTask
+    {
+        SelectSinglePackageVersionForInstallOrUpgrade(bool isUpgrade) :
+            WorkflowTask("SelectSinglePackageVersionForInstallOrUpgrade"), m_isUpgrade(isUpgrade) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        mutable bool m_isUpgrade;
+    };
+
+    // Install or upgrade a single package
+    // Required Args: bool indicating whether the flow is for upgrade
+    // Inputs: Source
+    // Outputs: None
+    struct InstallOrUpgradeSinglePackage : public WorkflowTask
+    {
+        InstallOrUpgradeSinglePackage(bool isUpgrade) :
+            WorkflowTask("InstallOrUpgradeSinglePackage"), m_isUpgrade(isUpgrade) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        mutable bool m_isUpgrade;
+    };
 }
