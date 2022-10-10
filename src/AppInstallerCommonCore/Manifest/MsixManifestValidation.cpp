@@ -14,7 +14,7 @@ namespace AppInstaller::Manifest
     {
         std::vector<ValidationError> errors;
         Msix::PackageVersion packageVersion(manifest.Version);
-        auto msixInfo = GetMsixInfo(installer.Url, errors);
+        auto msixInfo = GetMsixInfo(installer.Url);
         if (msixInfo)
         {
             ValidateMsixManifestSignatureHash(msixInfo, installer.SignatureSha256, errors);
@@ -27,6 +27,10 @@ namespace AppInstaller::Manifest
                 ValidateMsixManifestPackageVersion(msixManifestIdentity.GetVersion(), packageVersion, errors);
                 ValidateMsixManifestMinOSVersion(msixManifest.GetMinimumOSVersionForSupportedPlatforms(), installerMinOSVersion, installer.Url, errors);
             }
+        }
+        else
+        {
+            errors.emplace_back(ManifestError::InstallerFailedToProcess, "InstallerUrl", installer.Url);
         }
 
         return errors;
@@ -81,9 +85,7 @@ namespace AppInstaller::Manifest
         }
     }
 
-    std::shared_ptr<Msix::MsixInfo> MsixManifestValidation::GetMsixInfo(
-        std::string installerUrl,
-        std::vector<ValidationError>& errors)
+    std::shared_ptr<Msix::MsixInfo> MsixManifestValidation::GetMsixInfo(std::string installerUrl)
     {
         std::shared_ptr<Msix::MsixInfo> msixInfo;
         // Cache Msix info for new installer url
@@ -102,7 +104,7 @@ namespace AppInstaller::Manifest
                 }
                 else
                 {
-                    AICLI_LOG(Core, Error, << "Failed to download installer. Msix info could not be obtained.");
+                    AICLI_LOG(Core, Error, << "Failed to download installer.");
                 }
             }
 
@@ -112,7 +114,7 @@ namespace AppInstaller::Manifest
             }
             else
             {
-                errors.emplace_back(ManifestError::InstallerFailedToProcess, "InstallerUrl", installerUrl);
+                AICLI_LOG(Core, Error, << "Msix info could not be obtained.");
             }
         }
         else

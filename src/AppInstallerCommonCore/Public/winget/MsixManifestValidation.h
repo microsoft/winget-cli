@@ -22,9 +22,7 @@ namespace AppInstaller::Manifest
 
         // Get Msix info from url/local path, or load it from cache.
         // Return null pointer if operation failed.
-        std::shared_ptr<Msix::MsixInfo> GetMsixInfo(
-            std::string installerUrl,
-            std::vector<ValidationError>& errors);
+        std::shared_ptr<Msix::MsixInfo> GetMsixInfo(std::string installerUrl);
 
         // Get Msix info from installer url.
         // Return null pointer if operation failed.
