@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "AppInstallerLogging.h"
+#include "AppInstallerRuntime.h"
+#include "AppInstallerDownloader.h"
 #include "winget/MsixManifestValidation.h"
 
 namespace AppInstaller::Manifest
@@ -30,33 +32,95 @@ namespace AppInstaller::Manifest
         return errors;
     }
 
-    std::shared_ptr<Msix::MsixInfo> MsixManifestValidation::GetMsixInfo(
-        std::string installerUrl,
-        std::vector<ValidationError> &errors)
+    std::optional<std::filesystem::path> MsixManifestValidation::DownloadInstaller(std::string installerUrl, int retryCount)
     {
-        std::shared_ptr<Msix::MsixInfo> msixInfo;
+        while (retryCount-- > 0)
+        {
+            try
+            {
+                AICLI_LOG(Core, Info, << "Start downloading installer");
+                auto tempFile = Runtime::GetNewTempFilePath();
+                ProgressCallback callback;
+                Utility::Download(installerUrl, tempFile, Utility::DownloadType::Installer, callback);
+                return tempFile;
+            }
+            catch (...)
+            {
+                AICLI_LOG(Core, Error, << "Downloading installer failed. Remaining attempts: " << retryCount);
+            }
+        }
+
+        return std::nullopt;
+    }
+
+    std::shared_ptr<Msix::MsixInfo> MsixManifestValidation::GetMsixInfoFromUrl(std::string installerUrl)
+    {
         try
         {
-            // Cache Msix info for new installer url
-            auto findMsixInfo = m_msixInfoCache.find(installerUrl);
-            if (findMsixInfo == m_msixInfoCache.end())
+            AICLI_LOG(Core, Info, << "Fetching Msix info from installer url");
+            return std::make_shared<Msix::MsixInfo>(installerUrl);
+        }
+        catch (...)
+        {
+            AICLI_LOG(Core, Error, << "Error fetching Msix info from the installer url.");
+            return nullptr;
+        }
+    }
+
+    std::shared_ptr<Msix::MsixInfo> MsixManifestValidation::GetMsixInfoFromLocalPath(std::filesystem::path installerPath)
+    {
+        try
+        {
+            AICLI_LOG(Core, Info, << "Fetching Msix info from installer local path");
+            return std::make_shared<Msix::MsixInfo>(installerPath);
+        }
+        catch (...)
+        {
+            AICLI_LOG(Core, Error, << "Error fetching Msix info from the installer local path.");
+            return nullptr;
+        }
+    }
+
+    std::shared_ptr<Msix::MsixInfo> MsixManifestValidation::GetMsixInfo(
+        std::string installerUrl,
+        std::vector<ValidationError>& errors)
+    {
+        std::shared_ptr<Msix::MsixInfo> msixInfo;
+        // Cache Msix info for new installer url
+        auto findMsixInfo = m_msixInfoCache.find(installerUrl);
+        if (findMsixInfo == m_msixInfoCache.end())
+        {
+            msixInfo = GetMsixInfoFromUrl(installerUrl);
+            if (!msixInfo)
             {
-                msixInfo = std::make_shared<Msix::MsixInfo>(installerUrl);
+                AICLI_LOG(Core, Warning, << "Failed to get Msix info directly from the installer url. "
+                    << "Downloading installer instead.");
+                auto installerPath = DownloadInstaller(installerUrl, 3);
+                if (installerPath.has_value())
+                {
+                    msixInfo = GetMsixInfoFromLocalPath(installerPath.value());
+                }
+                else
+                {
+                    AICLI_LOG(Core, Error, << "Failed to download installer. Msix info could not be obtained.");
+                }
+            }
+
+            if (msixInfo)
+            {
                 m_msixInfoCache.insert({ installerUrl, msixInfo });
             }
             else
             {
-                msixInfo = findMsixInfo->second;
+                errors.emplace_back(ManifestError::InstallerFailedToProcess, "InstallerUrl", installerUrl);
             }
-
-            return msixInfo;
         }
-        catch (...)
+        else
         {
-            errors.emplace_back(ManifestError::InstallerFailedToProcess, "InstallerUrl", installerUrl);
+            msixInfo = findMsixInfo->second;
         }
 
-        return nullptr;
+        return msixInfo;
     }
 
     std::optional<Msix::OSVersion> MsixManifestValidation::GetManifestInstallerMinOSVersion(
