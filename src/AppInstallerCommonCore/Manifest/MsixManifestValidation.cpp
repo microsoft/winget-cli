@@ -71,18 +71,35 @@ namespace AppInstaller::Manifest
         }
     }
 
-    std::shared_ptr<Msix::MsixInfo> MsixManifestValidation::GetMsixInfoFromLocalPath(std::filesystem::path installerPath)
+    std::shared_ptr<Msix::MsixInfo> MsixManifestValidation::GetMsixInfoFromLocalPath(std::string installerUrl)
     {
-        try
+        int maxRetry = 3;
+        std::shared_ptr<Msix::MsixInfo> msixInfo;
+        auto installerPath = DownloadInstaller(installerUrl, maxRetry);
+        if (installerPath.has_value())
         {
-            AICLI_LOG(Core, Info, << "Fetching Msix info from installer local path");
-            return std::make_shared<Msix::MsixInfo>(installerPath);
+            try
+            {
+                AICLI_LOG(Core, Info, << "Fetching Msix info from installer local path");
+                msixInfo = std::make_shared<Msix::MsixInfo>(installerPath.value());
+            }
+            catch (...)
+            {
+                AICLI_LOG(Core, Error, << "Error fetching Msix info from the installer local path.");
+            }
+
+            AICLI_LOG(Core, Info, << "Removing downloaded installer");
+            if (!std::filesystem::remove(installerPath.value()))
+            {
+                AICLI_LOG(Core, Warning, << "Failed to remove downloaded installer");
+            }
         }
-        catch (...)
+        else
         {
-            AICLI_LOG(Core, Error, << "Error fetching Msix info from the installer local path.");
-            return nullptr;
+            AICLI_LOG(Core, Error, << "Failed to download installer.");
         }
+
+        return msixInfo;
     }
 
     std::shared_ptr<Msix::MsixInfo> MsixManifestValidation::GetMsixInfo(std::string installerUrl)
@@ -97,15 +114,7 @@ namespace AppInstaller::Manifest
             {
                 AICLI_LOG(Core, Warning, << "Failed to get Msix info directly from the installer url. "
                     << "Downloading installer instead.");
-                auto installerPath = DownloadInstaller(installerUrl, 3);
-                if (installerPath.has_value())
-                {
-                    msixInfo = GetMsixInfoFromLocalPath(installerPath.value());
-                }
-                else
-                {
-                    AICLI_LOG(Core, Error, << "Failed to download installer.");
-                }
+                msixInfo = GetMsixInfoFromLocalPath(installerUrl);
             }
 
             if (msixInfo)

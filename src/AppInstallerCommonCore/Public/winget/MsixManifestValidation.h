@@ -28,9 +28,9 @@ namespace AppInstaller::Manifest
         // Return null pointer if operation failed.
         std::shared_ptr<Msix::MsixInfo> GetMsixInfoFromUrl(std::string installerUrl);
 
-        // Get msix info from installer local path.
+        // Download and get msix info from installer local path.
         // Return null pointer if operation failed.
-        std::shared_ptr<Msix::MsixInfo> GetMsixInfoFromLocalPath(std::filesystem::path installerPath);
+        std::shared_ptr<Msix::MsixInfo> GetMsixInfoFromLocalPath(std::string installerUrl);
 
         // Download the installer.
         // If the download was successful, return the destination path.
