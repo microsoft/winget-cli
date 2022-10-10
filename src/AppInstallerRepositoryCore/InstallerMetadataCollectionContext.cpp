@@ -65,9 +65,23 @@ namespace AppInstaller::Repository::Metadata
             utility::string_t Status = L"status";
             utility::string_t Metadata = L"metadata";
             utility::string_t Diagnostics = L"diagnostics";
-
+        };
+        
+        struct DiagnosticFields
+        {
+            // Eerror case
             utility::string_t ErrorHR = L"errorHR";
             utility::string_t ErrorText = L"errorText";
+
+            // Non-error case
+            utility::string_t Reason = L"reason";
+            utility::string_t ChangedEntryCount = L"changedEntryCount";
+            utility::string_t MatchedEntryCount = L"matchedEntryCount";
+            utility::string_t IntersectionCount = L"intersectionCount";
+            utility::string_t CorrelationMeasures = L"correlationMeasures";
+            utility::string_t Value = L"value";
+            utility::string_t Name = L"name";
+            utility::string_t Publisher = L"publisher";
         };
 
         std::string GetRequiredString(const web::json::value& value, const utility::string_t& field)
@@ -736,7 +750,11 @@ namespace AppInstaller::Repository::Metadata
         // Copy the metadata from the current; this function takes care of moving data to historical if the submission is new.
         m_outputMetadata.CopyFrom(m_currentMetadata, m_submissionIdentifier);
 
-        Correlation::ARPCorrelationResult correlationResult = m_correlationData->CorrelateForNewlyInstalled(m_incomingManifest);
+        Correlation::ARPCorrelationSettings settings;
+        // As this code is typically run in a controlled environment, we can assume that a single value change is very likely the correct value.
+        settings.AllowSingleChange = true;
+
+        Correlation::ARPCorrelationResult correlationResult = m_correlationData->CorrelateForNewlyInstalled(m_incomingManifest, settings);
 
         if (correlationResult.Package)
         {
@@ -814,9 +832,31 @@ namespace AppInstaller::Repository::Metadata
         else
         {
             m_outputStatus = OutputStatus::LowConfidence;
-
-            // TODO: Output diagnostics such as the top 10 entries by confidence.
         }
+
+        // Create the diagnostics data, based on the other values from the correlation result.
+        DiagnosticFields fields;
+
+        m_outputDiagnostics[fields.Reason] = AppInstaller::JSON::GetStringValue(correlationResult.Reason);
+        m_outputDiagnostics[fields.ChangedEntryCount] = web::json::value::number(static_cast<int64_t>(correlationResult.ChangesToARP));
+        m_outputDiagnostics[fields.MatchedEntryCount] = web::json::value::number(static_cast<int64_t>(correlationResult.MatchesInARP));
+        m_outputDiagnostics[fields.IntersectionCount] = web::json::value::number(static_cast<int64_t>(correlationResult.CountOfIntersectionOfChangesAndMatches));
+
+        constexpr size_t MaximumDiagnosticMeasures = 10;
+        web::json::value measuresArray = web::json::value::array();
+        for (size_t i = 0; i < correlationResult.Measures.size() && i < MaximumDiagnosticMeasures; ++i)
+        {
+            web::json::value measureValue;
+            const auto& measure = correlationResult.Measures[i];
+
+            measureValue[fields.Value] = web::json::value::number(measure.Measure);
+            measureValue[fields.Name] = AppInstaller::JSON::GetStringValue(measure.Package->GetProperty(PackageVersionProperty::Name));
+            measureValue[fields.Publisher] = AppInstaller::JSON::GetStringValue(measure.Package->GetProperty(PackageVersionProperty::Publisher));
+
+            measuresArray[i] = std::move(measureValue);
+        }
+
+        m_outputDiagnostics[fields.CorrelationMeasures] = std::move(measuresArray);
     }
 
     void InstallerMetadataCollectionContext::ParseInputJson_1_0(web::json::value& input)
@@ -968,6 +1008,7 @@ namespace AppInstaller::Repository::Metadata
         AICLI_LOG(Repo, Info, << "Setting error JSON 1.0 fields");
 
         OutputFields_1_0 fields;
+        DiagnosticFields diagnosticFields;
 
         web::json::value result;
 
@@ -979,8 +1020,8 @@ namespace AppInstaller::Repository::Metadata
 
         web::json::value error;
 
-        error[fields.ErrorHR] = web::json::value::number(static_cast<int64_t>(m_errorHR));
-        error[fields.ErrorText] = AppInstaller::JSON::GetStringValue(m_errorText);
+        error[diagnosticFields.ErrorHR] = web::json::value::number(static_cast<int64_t>(m_errorHR));
+        error[diagnosticFields.ErrorText] = AppInstaller::JSON::GetStringValue(m_errorText);
 
         result[fields.Diagnostics] = std::move(error);
 

@@ -15,7 +15,13 @@ Param(
   [Parameter(HelpMessage = "The results output path.")]
   [String] $ResultsPath,
   [Parameter(HelpMessage = "The path to registry files that should be injected before the test.")]
-  [String] $RegFileDirectory
+  [String] $RegFileDirectory,
+  [Parameter(HelpMessage = "Indicates that the metadata collection process should be run.")]
+  [Switch] $MetadataCollection,
+  [Parameter(HelpMessage = "The path to WinGetUtil.dll; only the release build works.")]
+  [String] $WingetUtilPath,
+  [Parameter(HelpMessage = "Wait for user input before tearing down each sandbox.")]
+  [Switch] $Wait
 )
 
 $ErrorActionPreference = "Stop"
@@ -61,6 +67,26 @@ Use the Release build or figure out how to make debug work and fix the scripts.
     Write-Error -Category InvalidArgument -Message @"
 AppxManifest.xml does not exist in the path $DevPackagePath
 Either build the local dev package, or provide the location using -DevPackagePath
+"@
+  }
+}
+
+# Validate that WinGetUtil.dll exists if metadata collection is requested
+
+if ($MetadataCollection)
+{
+  if (-not $WingetUtilPath)
+  {
+    $WingetUtilPath = Join-Path $PSScriptRoot "..\..\src\x64\Debug\WinGetUtil\WinGetUtil.dll"
+  }
+
+  $WingetUtilPath = [System.IO.Path]::GetFullPath($WingetUtilPath)
+
+  if (-not (Test-Path $WingetUtilPath))
+  {
+    Write-Error -Category InvalidArgument -Message @"
+WinGetUtil.dll does not exist in the path $WingetUtilPath
+Either build the binary, or provide the location using -WingetUtilPath
 "@
   }
 }
@@ -249,6 +275,11 @@ if (-not $UseDev)
   Write-Host
 }
 
+if ($MetadataCollection)
+{ 
+  Copy-Item -Path $WingetUtilPath -Destination $tempFolder -Force
+}
+
 # Copy main script
 
 $mainPs1FileName = 'InSandboxScript.ps1'
@@ -262,6 +293,7 @@ foreach ($packageIdentifier in $PackageIdentifiers)
     New-Item -ItemType Directory $outPath  | Out-Null
 
     $outPathInSandbox = Join-Path -Path $desktopInSandbox -ChildPath (Split-Path -Path $outPath -Leaf)
+    $system32PathInSandbox = Join-Path -Path $desktopInSandbox -ChildPath "hostSystem32"
 
     if ($UseDev)
     {
@@ -272,7 +304,7 @@ foreach ($packageIdentifier in $PackageIdentifiers)
       $dependenciesPathsInSandbox = "@('$($vcLibsUwp.pathInSandbox)', '$($uiLibsUwp.pathInSandbox)')"
     }
 
-    $bootstrapPs1Content = ".\$mainPs1FileName -DesktopAppInstallerDependencyPath @($dependenciesPathsInSandbox) -PackageIdentifier '$packageIdentifier' -SourceName '$Source' -OutputPath '$outPathInSandbox'"
+    $bootstrapPs1Content = ".\$mainPs1FileName -DesktopAppInstallerDependencyPath @($dependenciesPathsInSandbox) -PackageIdentifier '$packageIdentifier' -SourceName '$Source' -OutputPath '$outPathInSandbox' -System32Path '$system32PathInSandbox'"
 
     if ($UseDev)
     {
@@ -281,6 +313,11 @@ foreach ($packageIdentifier in $PackageIdentifiers)
     else
     {
       $bootstrapPs1Content += " -DesktopAppInstallerPath '$($desktopAppInstaller.pathInSandbox)'"
+    }
+    
+    if ($MetadataCollection)
+    {
+      $bootstrapPs1Content += " -MetadataCollection"
     }
 
     $bootstrapPs1FileName = 'Bootstrap.ps1'
@@ -331,6 +368,11 @@ foreach ($packageIdentifier in $PackageIdentifiers)
         <SandboxFolder>$exePathInSandbox</SandboxFolder>
         <ReadOnly>true</ReadOnly>
     </MappedFolder>
+    <MappedFolder>
+        <HostFolder>C:\Windows\System32</HostFolder>
+        <SandboxFolder>$system32PathInSandbox</SandboxFolder>
+        <ReadOnly>true</ReadOnly>
+    </MappedFolder>
     $devPackageXMLFragment
     $regFileDirXMLFragment
     <MappedFolder>
@@ -371,6 +413,11 @@ foreach ($packageIdentifier in $PackageIdentifiers)
           break
         }
         Start-Sleep 1
+    }
+
+    if ($Wait)
+    {
+        Read-Host "Press Enter to close sandbox and continue..."
     }
 
     Close-WindowsSandbox
