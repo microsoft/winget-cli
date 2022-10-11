@@ -297,18 +297,10 @@ namespace AppInstaller::CLI::Workflow
 
             context.Add<Execution::Data::HashPair>(std::make_pair(installer.SignatureSha256, signatureHash));
         }
-        catch (const winrt::hresult_error& e)
+        catch (...)
         {
-            if (static_cast<HRESULT>(e.code()) == HRESULT_FROM_WIN32(ERROR_NO_RANGES_PROCESSED) ||
-                HRESULT_FACILITY(e.code()) == FACILITY_HTTP)
-            {
-                // Failed to get signature hash through HttpStream, use download
-                downloadInstead = true;
-            }
-            else
-            {
-                throw;
-            }
+            AICLI_LOG(CLI, Info, << "Failed to get msix signature hash, fall back to direct download.");
+            downloadInstead = true;
         }
 
         if (downloadInstead)
