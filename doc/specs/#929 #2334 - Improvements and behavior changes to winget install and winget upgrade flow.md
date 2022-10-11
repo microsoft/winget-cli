@@ -29,11 +29,12 @@ This is a mini spec for describing upcoming beahvior changes and improvements to
 
 **New Behavior**:
 
-- First, winget will try to record selected installer's architecture and locale for installation through winget
-- winget will record architecture or locale from command as user intent. i.e. `winget install foo --architecture x86 --locale en-US`
-- During upgrade flow installer selection, installer architecture or locale from previous installation will be treated as preference. Installer architecture or locale from user intent will be treated as requirement(i.e. the upgrade will fail if architecture or locale requirement cannot be met).
+- `architecture` and `locale` arguments will be added to `winget upgrade` command
+- winget will try to record selected installer's architecture and locale for installation through winget
+- winget will record architecture or locale from command line arguments as user intent. i.e. `winget install foo --architecture x86 --locale en-US`
+- During upgrade flow installer selection, installer architecture or locale from previous installation will be treated as preference. Installer architecture or locale from user intent will be treated as requirement (i.e. the upgrade will fail if architecture or locale requirement cannot be met).
 
-**Note**: This improvement only works for installations through winget. Due to current limitations of winget tracking implementation, winget will only honor metadata from last installation for the same package.
+**Note**: This improvement only works for installations through winget. Due to current limitations of winget tracking implementation, side by side installations may not work perfectly, as winget will only honor metadata from last installation for the same package. User would need to provide `--architecture` or `--locale` to override the last installation metadata when side by side scenarios fail to work as expected.
 
 ### `--force` argument separation from Override Hash Mismatch
 
