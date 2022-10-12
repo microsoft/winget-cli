@@ -26,6 +26,10 @@ $stats = @{
     CorrelateArchive = 0
     CorrelateMetadata = 0
     CorrelationDisagreement = 0
+    CorrelateArchiveRatio = 0
+    CorrelatePackageKnownRatio = 0
+    CorrelateMetadataRatio = 0
+    CorrelationDisagreementRatio = 0
 }
 
 # Aggregate results in a single CSV file
@@ -80,8 +84,11 @@ foreach ($result in (Get-ChildItem $ResultsPath -Directory))
 
 # Write some stats to a file for quick evaluation
 $stats.CompletedRatio = $stats.Completed / $stats.Total
-$stats.CorrelateArchiveRatio = $stats.CorrelateArchive / $stats.Completed
-$stats.CorrelatePackageKnownRatio = $stats.CorrelatePackageKnown / $stats.Completed
-$stats.CorrelateMetadataRatio = $stats.CorrelateMetadata / $stats.Completed
-$stats.CorrelationDisagreementRatio = $stats.CorrelationDisagreement / $stats.Completed
+if ($stats.Completed -ne 0)
+{
+    $stats.CorrelateArchiveRatio = $stats.CorrelateArchive / $stats.Completed
+    $stats.CorrelatePackageKnownRatio = $stats.CorrelatePackageKnown / $stats.Completed
+    $stats.CorrelateMetadataRatio = $stats.CorrelateMetadata / $stats.Completed
+    $stats.CorrelationDisagreementRatio = $stats.CorrelationDisagreement / $stats.Completed
+}
 $stats | ConvertTo-Json | Out-File $statsFile -Force
