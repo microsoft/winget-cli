@@ -38,7 +38,7 @@ namespace AppInstaller::Manifest
 
     void MsixManifestValidation::Cleanup()
     {
-        // Clean cache
+        // Clear cache
         AICLI_LOG(Core, Info, << "Clearing Msix info cache");
         m_msixInfoCache.clear();
 
@@ -55,6 +55,7 @@ namespace AppInstaller::Manifest
                 AICLI_LOG(Core, Warning, << "Failed to remove downloaded installer");
             }
         }
+        m_downloadedInstallers.clear();
     }
 
     std::optional<std::filesystem::path> MsixManifestValidation::DownloadInstaller(std::string installerUrl, int retryCount)
