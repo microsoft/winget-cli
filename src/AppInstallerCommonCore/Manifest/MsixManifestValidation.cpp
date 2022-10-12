@@ -38,6 +38,10 @@ namespace AppInstaller::Manifest
 
     void MsixManifestValidation::Cleanup()
     {
+        // Clean cache
+        AICLI_LOG(Core, Info, << "Clearing Msix info cache");
+        m_msixInfoCache.clear();
+
         // Remove all downloaded files (if any)
         AICLI_LOG(Core, Info, << "Removing downloaded installers");
         for (const auto& installerPath : m_downloadedInstallers)
