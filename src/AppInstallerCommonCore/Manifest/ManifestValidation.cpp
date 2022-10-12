@@ -397,6 +397,7 @@ namespace AppInstaller::Manifest
                 std::move(installerErrors.begin(), installerErrors.end(), std::inserter(errors, errors.end()));
             }
         }
+        msixManifestValidation.Cleanup();
 
         return errors;
     }
