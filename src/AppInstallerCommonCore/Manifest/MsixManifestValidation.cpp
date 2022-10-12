@@ -36,6 +36,22 @@ namespace AppInstaller::Manifest
         return errors;
     }
 
+    MsixManifestValidation::~MsixManifestValidation()
+    {
+        AICLI_LOG(Core, Info, << "Removing downloaded installers");
+        for (const auto& installerPath : m_downloadedInstallers)
+        {
+            try
+            {
+                std::filesystem::remove(installerPath);
+            }
+            catch (...)
+            {
+                AICLI_LOG(Core, Warning, << "Failed to remove downloaded installer: " << installerPath);
+            }
+        }
+    }
+
     std::optional<std::filesystem::path> MsixManifestValidation::DownloadInstaller(std::string installerUrl, int retryCount)
     {
         while (retryCount-- > 0)
@@ -46,6 +62,7 @@ namespace AppInstaller::Manifest
                 auto tempFile = Runtime::GetNewTempFilePath();
                 ProgressCallback callback;
                 Utility::Download(installerUrl, tempFile, Utility::DownloadType::Installer, callback);
+                m_downloadedInstallers.push_back(tempFile);
                 return tempFile;
             }
             catch (...)
@@ -86,12 +103,6 @@ namespace AppInstaller::Manifest
             catch (...)
             {
                 AICLI_LOG(Core, Error, << "Error fetching Msix info from the installer local path.");
-            }
-
-            AICLI_LOG(Core, Info, << "Removing downloaded installer");
-            if (!std::filesystem::remove(installerPath.value()))
-            {
-                AICLI_LOG(Core, Warning, << "Failed to remove downloaded installer");
             }
         }
         else

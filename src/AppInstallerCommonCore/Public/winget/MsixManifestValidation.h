@@ -12,12 +12,15 @@ namespace AppInstaller::Manifest
     {
         MsixManifestValidation(ValidationError::Level validationErrorLevel) : m_validationErrorLevel(validationErrorLevel) {}
 
+        ~MsixManifestValidation();
+
         // Validate manifest for Msix packages and Msix bundles.
         std::vector<ValidationError> Validate(
             const Manifest &manifest,
             const ManifestInstaller &installer);
     private:
         std::map<std::string, std::shared_ptr<Msix::MsixInfo>> m_msixInfoCache;
+        std::vector<std::filesystem::path> m_downloadedInstallers;
         ValidationError::Level m_validationErrorLevel;
 
         // Get Msix info from url/local path, or load it from cache.
