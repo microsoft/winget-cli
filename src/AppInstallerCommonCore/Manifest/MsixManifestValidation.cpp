@@ -63,6 +63,7 @@ namespace AppInstaller::Manifest
                 auto tempFile = Runtime::GetNewTempFilePath();
                 ProgressCallback callback;
                 Utility::Download(installerUrl, tempFile, Utility::DownloadType::Installer, callback);
+                m_downloadedInstallers.push_back(tempFile);
                 return tempFile;
             }
             catch (...)
@@ -98,7 +99,6 @@ namespace AppInstaller::Manifest
             try
             {
                 AICLI_LOG(Core, Info, << "Fetching Msix info from installer local path");
-                m_downloadedInstallers.push_back(installerPath.value());
                 msixInfo = std::make_shared<Msix::MsixInfo>(installerPath.value());
             }
             catch (...)
