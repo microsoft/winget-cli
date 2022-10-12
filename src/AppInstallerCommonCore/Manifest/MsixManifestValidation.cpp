@@ -36,13 +36,8 @@ namespace AppInstaller::Manifest
         return errors;
     }
 
-    void MsixManifestValidation::Cleanup()
+    MsixManifestValidation::~MsixManifestValidation()
     {
-        // Clear cache
-        AICLI_LOG(Core, Info, << "Clearing Msix info cache");
-        m_msixInfoCache.clear();
-
-        // Remove all downloaded files (if any)
         AICLI_LOG(Core, Info, << "Removing downloaded installers");
         for (const auto& installerPath : m_downloadedInstallers)
         {
@@ -52,10 +47,9 @@ namespace AppInstaller::Manifest
             }
             catch (...)
             {
-                AICLI_LOG(Core, Warning, << "Failed to remove downloaded installer");
+                AICLI_LOG(Core, Warning, << "Failed to remove downloaded installer: " << installerPath.u8string());
             }
         }
-        m_downloadedInstallers.clear();
     }
 
     std::optional<std::filesystem::path> MsixManifestValidation::DownloadInstaller(std::string installerUrl, int retryCount)
