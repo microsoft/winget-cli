@@ -47,7 +47,7 @@ namespace AppInstaller::Manifest
             }
             catch (...)
             {
-                AICLI_LOG(Core, Warning, << "Failed to remove downloaded installer: " << installerPath.u8string());
+                AICLI_LOG(Core, Warning, << "Failed to remove downloaded installer: " << installerPath);
             }
         }
     }
