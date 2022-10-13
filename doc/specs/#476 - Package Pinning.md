@@ -1,21 +1,25 @@
 ---
-author: Yao Sun yao-msft
+author: Yao Sun @yao-msft
 created on: 2022-10-12
 last updated: 2022-10-12
 issue id: 476
 ---
 
-# Spec Title
+# Package Pinning
 
-[comment]: # Link to issue: "For [#1](https://github.com/microsoft/winget-cli/issues/1)"
+For [#476](https://github.com/microsoft/winget-cli/issues/476)
 
 ## Abstract
 
-[comment]: # Outline what this spec describes
+This spec describes the functionality and high level implementation design of Package Pinning feature.
 
 ## Inspiration
 
-[comment]: # What were the drivers/inspiration behind the creation of this spec.
+This is inspired by functionalities in other package managers, as well as community feedback.
+- Packages may introduce breaking changes that users may not want integrate into their workflow quite yet.
+- Packages may update themselves so that it will be duplicate effort for winget to try to update them.
+- User may want to maintain some of the packages through other channels outside of winget, or prefer one source over others within winget.
+- User may want some of the packages to stay in some major versions but allow minor version changes during upgrade.
 
 ## Solution Design
 
