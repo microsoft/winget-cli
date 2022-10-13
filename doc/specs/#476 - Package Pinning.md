@@ -23,7 +23,14 @@ This is inspired by functionalities in other package managers, as well as commun
 
 ## Solution Design
 
-[comment]: # Outline the design of the solution. Feel free to include ASCII-art diagrams, etc.
+To achieve goals listed above, winget will support 3 types of Package Pinning:
+- **Blocking:** The package is blocked from `winget upgrade --all` or `winget upgrade <specific package>`, user has to unblock the package to let winget perform upgrade.
+- **Pinning:** The package is excluded from `winget upgrade --all` but allowed in `winget upgrade <specific package>`, a new argument `--include-pinned` will be introduced to let `winget upgrade --all` to include pinned packages.
+- **Gating:** The package is pinned to specific version(s). For example, if a package is pinned to version `1.2.*`, any version between `1.2.0` to `1.2.<anything>` is considered valid.
+
+To allow user override, `--force` can be used with `winget upgrade <specific package>` to override some of the pinning created above.
+
+
 
 ## UI/UX Design
 
