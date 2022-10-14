@@ -9,9 +9,9 @@
   <PropertyGroup>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <LangVersion>9</LangVersion>
-    <OutputDirectory>$(SolutionDir)$(Platform)\$(Configuration)\</OutputDirectory>
-    <OutputPath>$(OutputDirectory)\$(MSBuildProjectName)\</OutputPath>
-    <PowerShellModuleOutputDirectory>$(OutputPath)\PowerShell</PowerShellModuleOutputDirectory>
+    <BuildOutputDirectory>$(SolutionDir)$(Platform)\$(Configuration)\</BuildOutputDirectory>
+    <OutputPath>$(BuildOutputDirectory)$(MSBuildProjectName)</OutputPath>
+    <PowerShellModuleOutputDirectory>$(BuildOutputDirectory)PowerShell</PowerShellModuleOutputDirectory>
     <Platforms>x64;x86</Platforms>
     <TargetFrameworks>$(CoreFramework);$(DesktopFramework)</TargetFrameworks>
   </PropertyGroup>
@@ -80,27 +80,27 @@
 	</Target>
 
     <!-- Build Microsoft.Winget.Client PowerShell Module -->
-    <Target Name="Create Powershell module" AfterTargets="AfterBuild">
-        <Message Importance="high" Text="Copying PS1XMl file to to '$(OutputDirectory)/PowerShell'" />
-        <Copy SourceFiles="Format.ps1xml" DestinationFolder="$(OutputDirectory)/PowerShell" />
-        <Copy SourceFiles="Microsoft.WinGet.Client.psd1" DestinationFolder="$(OutputDirectory)/PowerShell" />
-        <Copy SourceFiles="Microsoft.WinGet.Client.psm1" DestinationFolder="$(OutputDirectory)/PowerShell" />
+    <Target Name="CopyModuleFiles" AfterTargets="AfterBuild">
+        <Message Importance="high" Text="Copying PowerShell module files to '$(PowerShellModuleOutputDirectory)'" />
+        <Copy SourceFiles="Format.ps1xml" DestinationFolder="$(PowerShellModuleOutputDirectory)" />
+        <Copy SourceFiles="Microsoft.WinGet.Client.psd1" DestinationFolder="$(PowerShellModuleOutputDirectory)" />
+        <Copy SourceFiles="Microsoft.WinGet.Client.psm1" DestinationFolder="$(PowerShellModuleOutputDirectory)" />
     </Target>
     
     <Target Name="CopyCoreBinaries" AfterTargets="AfterBuild" Condition="'$(TargetFramework)' == '$(CoreFramework)'">
         <ItemGroup>
             <CoreBinaries Include="$(OutputPath)*" />
         </ItemGroup>
-        <Message Importance="high" Text="Copying @(CoreBinaries) to to '$(OutputDirectory)/PowerShell/$(Platform)/Core'" />
-        <Copy SourceFiles="@(CoreBinaries)" DestinationFolder="$(OutputDirectory)/PowerShell/$(Platform)/Core" />
+        <Message Importance="high" Text="Copying @(CoreBinaries) to '$(PowerShellModuleOutputDirectory)\$(Platform)\Core'" />
+        <Copy SourceFiles="@(CoreBinaries)" DestinationFolder="$(PowerShellModuleOutputDirectory)\$(Platform)\Core" />
     </Target>
 
     <Target Name="CopyDesktopBinaries" AfterTargets="AfterBuild" Condition="'$(TargetFramework)' == '$(DesktopFramework)'">
         <ItemGroup>
             <DesktopBinaries Include="$(OutputPath)*" />
         </ItemGroup>
-        <Message Importance="high" Text="Copying @(CoreBinaries) to to '$(OutputDirectory)/PowerShell/$(Platform)/Desktop'" />
-        <Copy SourceFiles="@(CoreBinaries)" DestinationFolder="$(OutputDirectory)/PowerShell/$(Platform)/Desktop" />
+        <Message Importance="high" Text="Copying @(DesktopBinaries) to '$(PowerShellModuleOutputDirectory)\$(Platform)\Desktop'" />
+        <Copy SourceFiles="@(DesktopBinaries)" DestinationFolder="$(PowerShellModuleOutputDirectory)\$(Platform)\Desktop" />
     </Target>
     
 </Project>
