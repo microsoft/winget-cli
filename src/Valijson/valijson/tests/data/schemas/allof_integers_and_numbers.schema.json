@@ -1,0 +1,20 @@
+{
+  "comment": "Document must contain an array of integers, all unique.",
+  "allOf": [
+    {
+      "items": {
+        "type": "integer"
+      },
+      "additionalItems": false,
+      "type": "array"
+    },
+    {
+      "items": {
+        "type": "number"
+      },
+      "additionalItems": false,
+      "type": "array",
+      "uniqueItems": true
+    }
+  ]
+}
