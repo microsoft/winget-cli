@@ -16,7 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.VCRTForwarders.140" Version="1.0.5" />
+    <PackageReference Include="Microsoft.VCRTForwarders.140" Version="1.0.7" />
   </ItemGroup>
 
   <ItemGroup>
