@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <Platforms>x64;x86</Platforms>
     <NoWin32Manifest>true</NoWin32Manifest>
   </PropertyGroup>
