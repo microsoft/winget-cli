@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetWindowsVersion>10.0.22000.0</TargetWindowsVersion>
+    <TargetWindowsVersion>10.0.22621.0</TargetWindowsVersion>
     <CoreFramework>net6.0-windows$(TargetWindowsVersion)</CoreFramework>
     <DesktopFramework>net481</DesktopFramework>
   </PropertyGroup>

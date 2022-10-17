@@ -31,12 +31,12 @@ param (
 )
 
 # src\x64\Release\Project\net481\Library.Desktop.dll
-# src\x64\Release\Project\net6.0-windows10.0.22000.0\Library.Core.dll
+# src\x64\Release\Project\net6.0-windows10.0.22621.0\Library.Core.dll
 
 # build\Module\x64\Desktop\Library.Desktop.dll
 # build\Module\x64\Core\Library.Core.dll
 
-$CoreFramework = 'net6.0-windows10.0.22000.0'
+$CoreFramework = 'net6.0-windows10.0.22621.0'
 $CoreFolderName = 'Core'
 $DesktopFramework = 'net481'
 $DesktopFolderName = 'Desktop'
