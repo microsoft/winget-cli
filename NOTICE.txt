@@ -1474,7 +1474,7 @@ Copyright (c) .NET Foundation and Contributors
 
 ---------------------------------------------------------
 
-Microsoft.Windows.ImplementationLibrary 1.0.200519.2 - MIT
+Microsoft.Windows.ImplementationLibrary 1.0.220914.1 - MIT
 
 
 Copyright (c) Microsoft.
