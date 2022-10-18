@@ -140,7 +140,7 @@ Success
 **Note:** Regarding gated version syntax, it will be mostly same as what current winget version supports, except with special `.*` in the end as wild card matching any remaining version parts if there are any.
 
 Example:  
-When `.*` in the end is detected  
+When `.*` in the end is detected:  
 Gate version `1.0.*` matches Version `1.0.1`  
 Gate version `1.0.*` matches Version `1.0`  
 Gate version `1.0.*` matches Version `1`  
@@ -154,7 +154,7 @@ Gate version `1.*.*` matches Version `1.*.1`
 Gate version `1.*.*` matches Version `1.*.*`  
 Gate version `1.*.*` does not match Version `1.1.1`  
 
-If no `.*` in the end is detected, the gate version gates to the specific version
+If no `.*` in the end is detected, the gate version gates to the specific version:  
 Gate version `1.0.1` matches Version `1.0.1`  
 Gate version `1.0.1` does not match Version `1.1.1`  
 
@@ -184,6 +184,7 @@ There should not be any notable performance changes.
 
 - Installation/Upgrades from Com Apis may be impacted by user's package pinning configuration. It could be mitigated by returning a specific error code and the caller  retrying with Force option.
 - Package dependencies resolution may be impacted by user's package pinning configuration.
+- Package imports may be impacted by user's package pinning configuration.
 
 ## Future considerations
 
@@ -191,4 +192,9 @@ There should not be any notable performance changes.
 
 ## Resources
 
-[comment]: # Be sure to add links to references, resources, footnotes, etc.
+- [Brew - How do I stop certain formulae from being upgraded?](https://docs.brew.sh/FAQ#how-do-i-stop-certain-formulae-from-being-updated)
+- [NPM - package.json dependencies](https://docs.npmjs.com/cli/v7/configuring-npm/package-json#dependencies)
+- [APT - Introduction to Holding Packages](https://help.ubuntu.com/community/PinningHowto#Introduction_to_Holding_Packages)
+- [Chocolatey - pin a package](https://docs.chocolatey.org/en-us/choco/commands/pin)
+
+Special thanks to [@jedieaston](https://github.com/jedieaston) for coming up with the initial draft of Package Pinning spec at [#1894](https://github.com/microsoft/winget-cli/pull/1894/). A lot has been discussed and this spec is much inspired from the draft.
