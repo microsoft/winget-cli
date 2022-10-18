@@ -33,37 +33,46 @@ To allow user override, `--force` can be used with `winget upgrade <specific pac
 
 #### Package Pinning Configuration Storage
 
+A separate sqlite db (other than the existing tracking catalog) will be created to store the package pinning configurations from user.
+```text
+PackageIdentifier       SourceIdentifier       Version        PinningType
+----------------------------------------------------------------------------
+Microsoft.TestApp       winget                 1.2.*          Gating
+```
 
+**Notes:** For this iteration, winget will only support pinning packages that are locally installed and correlatable with at least one of the remote sources. Winget will record a pinned package by the PackageIdentifier and SourceIdentifier. There can only be one pinning configuration for a specific package. In the future, winget may consider pinning packages from installed packages (upon improving the installed package's PackageIdentifier logic).
 
 ## UI/UX Design
 
-[comment]: # What will this fix/feature look like? How will it affect the end user?
+#### winget pin commands
+
 
 ## Capabilities
 
-[comment]: # Discuss how the proposed fixes/features impact the following key considerations:
-
 ### Accessibility
 
-[comment]: # How will the proposed change impact accessibility for users of screen readers, assistive input devices, etc.
+Accessibility should not be impacted by this change. There will be a few more tables printed to the terminal in certain cases, but they should use the current table implementation used by `winget upgrade` and `winget list`.
 
 ### Security
 
-[comment]: # How will the proposed change impact security?
+Security of the Windows Package Manager should not be impacted by this change. However, security of user's software may be, as if they pin a insecure version of a package, it will not be upgraded by Winget unless explicitly requested by user.
 
 ### Reliability
 
-[comment]: # Will the proposed change improve reliability? If not, why make the change?
+The change will improve reliability, as users will be able to have fine grained control of the Windows Package Manager's upgrade functionality to ensure their workflow is not disrupted. 
 
 ### Compatibility
 
-[comment]: # Will the proposed change break existing code/behaviors? If so, how, and is the breaking change "worth it"?
+There should not be any breaking changes to the code. Although there could be a mild breaking change to the behavior of `upgrade --all` (not all packages are upgraded anymore since pinned ones are skipped), this is purely opt-in from the user's perspective at this time (if they do not pin software, there should not be a change).
 
 ### Performance, Power, and Efficiency
 
+There should not be any notable performance changes.
+
 ## Potential Issues
 
-[comment]: # What are some of the things that might cause problems with the fixes/features proposed? Consider how the user might be negatively impacted.
+- Installation/Upgrades from Com Apis may be impacted by user's package pinning configuration. It could be mitigated by returning a specific error code and the caller to retry with Force option.
+- Package dependencies resolution may be impacted by user's package pinning configuration.
 
 ## Future considerations
 
