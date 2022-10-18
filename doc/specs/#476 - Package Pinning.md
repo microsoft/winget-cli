@@ -139,13 +139,24 @@ Success
 
 **Note:** Regarding gated version syntax, it will be mostly same as what current winget version supports, except with special `.*` in the end as wild card matching any remaining version parts if there are any.
 
-Example:
-`1.0.*` matches `1.0.1`
-`1.0.*` matches `1.0`
-`1.0.*` matches `1`
-`1.0.*` matches `1.0.alpha`
-`1.0.*` matches `1.0.1.2.3`
-`1.0.*` does not match `1.1.1`
+Example:  
+When `.*` in the end is detected  
+Gate version `1.0.*` matches Version `1.0.1`  
+Gate version `1.0.*` matches Version `1.0`  
+Gate version `1.0.*` matches Version `1`  
+Gate version `1.0.*` matches Version `1.0.alpha`  
+Gate version `1.0.*` matches Version `1.0.1.2.3`  
+Gate version `1.0.*` matches Version `1.0.*`
+Gate version `1.0.*` does not match Version `1.1.1` 
+
+In rare cases where `*` is actually part of a version, only the last `.*` is considered wild card:  
+Gate version `1.*.*` matches Version `1.*.1`  
+Gate version `1.*.*` matches Version `1.*.*`  
+Gate version `1.*.*` does not match Version `1.1.1`  
+
+If no `.*` in the end is detected, the gate version gates to the specific version
+Gate version `1.0.1` matches Version `1.0.1`  
+Gate version `1.0.1` does not match Version `1.1.1`  
 
 ## Capabilities
 
