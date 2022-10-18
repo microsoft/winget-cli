@@ -46,6 +46,106 @@ Microsoft.TestApp       winget                 1.2.*          Gating
 
 #### winget pin commands
 
+A new `winget pin` command with 3 sub-commands will be introduced.
+- Add package pinning configuration:
+  
+  `winget pin add <package> [--version <optional gated version>] [--source <source>] [--force] [--blocking]`
+  
+- Remove package pinning configuration:
+
+  `winget pin remove <package> [--source <source>] [--force]`
+  
+- List package pinning configuration: 
+  
+  `winget pin list <package> [--source <source>]` for a specific package or `winget pin list` to list all
+
+#### Blocking
+To block a package from upgrade, use `winget pin add <package> --blocking`
+```text
+cmd> winget pin Microsoft.TestApp --blocking
+```
+Now the pinning configuration is recorded as
+```text
+PackageIdentifier       SourceIdentifier       Version        PinningType
+----------------------------------------------------------------------------
+Microsoft.TestApp       winget                                Blocking
+Microsoft.TestAppStore  msstore                               Blocking
+```
+**Note:** by default packages correlated from all sources are blocked, user can pass in `--source` to block for a specific source
+
+Corresponding upgrade behavior
+```text
+cmd> winget upgrade -all
+Microsoft TestApp is blocked from upgrade and skipped
+
+cmd> winget upgrade Microsoft.TestApp
+Microsoft TestApp is blocked from upgrade
+
+cmd> winget upgrade Microsoft.TestApp --force
+Success
+```
+
+#### Pinning
+To pin a package from `winget upgrade --all`, use `winget pin add <package>`
+```text
+cmd> winget pin Microsoft.TestApp
+```
+Now the pinning configuration is recorded as
+```text
+PackageIdentifier       SourceIdentifier       Version        PinningType
+----------------------------------------------------------------------------
+Microsoft.TestApp       winget                                Pinning
+Microsoft.TestAppStore  msstore                               Pinning
+```
+**Note:** by default packages correlated from all sources are pinned, user can pass in `--source` to pin for a specific source
+
+Corresponding upgrade behavior
+```text
+cmd> winget upgrade -all
+Microsoft TestApp is pinned from upgrade and skipped
+
+cmd> winget upgrade Microsoft.TestApp
+Success
+```
+
+#### Gating
+To gate a package to some specific version, use `winget pin add <package> --version <gated version>`
+```text
+cmd> winget pin Microsoft.TestApp --version 1.2.*
+```
+Now the pinning configuration is recorded as
+```text
+PackageIdentifier       SourceIdentifier       Version        PinningType
+----------------------------------------------------------------------------
+Microsoft.TestApp       winget                 1.2.*          Gating
+Microsoft.TestAppStore  msstore                1.2.*          Gating
+```
+**Note:** by default packages correlated from all sources are gated, user can pass in `--source` to gate for a specific source
+
+Corresponding upgrade behavior
+```text
+cmd> winget upgrade -all
+Success  // If the available versions for upgrade are: 1.2.3 and 1.3.0, the selected version for upgrade is 1.2.3
+
+cmd> winget upgrade Microsoft.TestApp
+Success  // If the available versions for upgrade are: 1.2.3 and 1.3.0, the selected version for upgrade is 1.2.3
+
+cmd> winget upgrade Microsoft.TestApp --version 1.3.0
+Microsoft TestApp is gated to version 1.2.* Override with --force
+
+cmd> winget upgrade Microsoft.TestApp --version 1.3.0 --force
+Success
+```
+
+**Note:** Regarding gated version syntax, it will be mostly same as what current winget version supports, except with special `.*` in the end as wild card matching any remaining version parts if there are any.
+
+Example:
+`1.0.*` matches `1.0.1`
+`1.0.*` matches `1.0`
+`1.0.*` matches `1`
+`1.0.*` matches `1.0.alpha`
+`1.0.*` matches `1.0.1.2.3`
+`1.0.*` does not match `1.1.1`
 
 ## Capabilities
 
@@ -71,7 +171,7 @@ There should not be any notable performance changes.
 
 ## Potential Issues
 
-- Installation/Upgrades from Com Apis may be impacted by user's package pinning configuration. It could be mitigated by returning a specific error code and the caller to retry with Force option.
+- Installation/Upgrades from Com Apis may be impacted by user's package pinning configuration. It could be mitigated by returning a specific error code and the caller  retrying with Force option.
 - Package dependencies resolution may be impacted by user's package pinning configuration.
 
 ## Future considerations
