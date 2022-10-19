@@ -188,7 +188,8 @@ There should not be any notable performance changes.
 
 ## Future considerations
 
-[comment]: # What are some of the things that the fixes/features might unlock in the future? Does the implementation of this spec enable scenarios?
+- Implementation in this spec only supports pinning from remote sources, so all installed versions from same package share the same pinning configuration. Winget could better support side by side installations by introducing package pinning from installed source.
+- Package pinning from user and from manifest are stored separately, we may integrate the `winget pin` commands to control package pinning from manifests.
 
 ## Resources
 
