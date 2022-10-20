@@ -25,6 +25,9 @@ extern "C"
     // Unregisters the server module class factories.
     WINDOWS_PACKAGE_MANAGER_API WindowsPackageManagerServerModuleUnregister();
 
+    // Creates an out-of-proc instance for manual activation scenarios.
+    WINDOWS_PACKAGE_MANAGER_API WindowsPackageManagerServerCreateInstance(const CLSID* clsid, const IID* iid, void** out);
+
     // Creates module for in-proc COM invocation.
     WINDOWS_PACKAGE_MANAGER_API WindowsPackageManagerInProcModuleInitialize();
 

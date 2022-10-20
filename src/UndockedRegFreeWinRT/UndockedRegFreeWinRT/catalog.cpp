@@ -14,6 +14,7 @@
 #include <codecvt>
 #include <locale>
 #include <RoMetadataApi.h>
+#include <RoMetadata.h>
 #include <algorithm>
 #include "catalog.h"
 #include "TypeResolution.h"
@@ -376,9 +377,7 @@ HRESULT WinRTGetMetadataFile(
     // will create an instance of the metadata reader to dispense metadata files.
     if (metaDataDispenser == nullptr)
     {
-        RETURN_IF_FAILED(CoCreateInstance(CLSID_CorMetaDataDispenser,
-            nullptr,
-            CLSCTX_INPROC,
+        RETURN_IF_FAILED(MetaDataGetDispenser(CLSID_CorMetaDataDispenser,
             IID_IMetaDataDispenser,
             &spMetaDataDispenser));
         {

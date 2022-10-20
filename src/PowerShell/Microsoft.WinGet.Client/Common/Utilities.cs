@@ -32,9 +32,10 @@ namespace Microsoft.WinGet.Client.Common
         {
             get
             {
-                WindowsIdentity identity = WindowsIdentity.GetCurrent();
-                WindowsPrincipal principal = new (identity);
-                return principal.IsInRole(WindowsBuiltInRole.Administrator);
+                //WindowsIdentity identity = WindowsIdentity.GetCurrent();
+                //WindowsPrincipal principal = new (identity);
+                //return principal.IsInRole(WindowsBuiltInRole.Administrator);
+                return false;
             }
         }
     }

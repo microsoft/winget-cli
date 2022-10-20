@@ -29,6 +29,7 @@ namespace Microsoft.WinGet.Client.Common
         public BaseClientCommand()
             : base()
         {
+            // this error should be removed if it is running as admin and call the correct activation path.
             if (Utilities.ExecutingAsAdministrator)
             {
                 throw new Exception(Utilities.ResourceManager.GetString("ExceptionAdministratorDisabled"));

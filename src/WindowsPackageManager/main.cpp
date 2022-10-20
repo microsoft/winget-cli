@@ -58,6 +58,17 @@ extern "C"
     }
     CATCH_RETURN();
 
+    WINDOWS_PACKAGE_MANAGER_API WindowsPackageManagerServerCreateInstance(const CLSID* clsid, const IID* iid, void** out) try
+    {
+        RETURN_HR_IF_NULL(E_POINTER, clsid);
+        RETURN_HR_IF_NULL(E_POINTER, iid);
+        RETURN_HR_IF_NULL(E_POINTER, out);
+        ::Microsoft::WRL::ComPtr<IClassFactory> factory;
+        RETURN_IF_FAILED(::Microsoft::WRL::Module<::Microsoft::WRL::ModuleType::OutOfProc>::GetModule().GetClassObject(*clsid, IID_PPV_ARGS(&factory)));
+        RETURN_HR(factory->CreateInstance(nullptr, *iid, out));
+    }
+    CATCH_RETURN();
+
     WINDOWS_PACKAGE_MANAGER_API WindowsPackageManagerInProcModuleInitialize() try
     {
         ::Microsoft::WRL::Module<::Microsoft::WRL::ModuleType::InProc>::Create();
