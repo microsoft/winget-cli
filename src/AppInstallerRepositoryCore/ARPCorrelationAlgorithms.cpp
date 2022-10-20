@@ -95,7 +95,7 @@ namespace AppInstaller::Repository::Correlation
             // We use that to scale to [0,1].
             // A smaller distance represents a higher match, so we subtract from 1 for the final score
             double editDistance = distance.At(s1.size() - 1, s2.size() - 1);
-            return 1 - editDistance / (s1.size() + s2.size());
+            return 1 - editDistance / (static_cast<uint64_t>(s1.size()) + static_cast<uint64_t>(s2.size()));
         }
     }
 
