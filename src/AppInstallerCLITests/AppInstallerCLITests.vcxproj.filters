@@ -504,6 +504,9 @@
     <CopyFileToFolders Include="TestData\TestZip.zip">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallFlowTest_AdvancedInstallerExe.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_NoApplicableArchitecture.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
@@ -571,6 +574,9 @@
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallerArgTest_Inno_NoSwitches.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\UpdateFlowTest_AdvancedInstallerExe.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\UpdateFlowTest_Exe.yaml">

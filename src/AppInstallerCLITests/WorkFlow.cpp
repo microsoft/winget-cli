@@ -175,6 +175,21 @@ namespace
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
             }
 
+            if (input.empty() || input == "AppInstallerCliTest.TestAdvancedInstallerExeInstaller")
+            {
+                auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_AdvancedInstallerExe.yaml"));
+                auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Portable.yaml"));
+                result.Matches.emplace_back(
+                    ResultMatch(
+                        TestPackage::Make(
+                            manifest,
+                            TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "AdvancedInstaller" } },
+                            std::vector<Manifest>{ manifest2, manifest },
+                            shared_from_this()
+                        ),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestAdvancedInstallerExeInstaller")));
+            }
+
             if (input.empty() || input == "AppInstallerCliTest.TestPortableInstaller")
             {
                 auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Portable.yaml"));
@@ -1286,6 +1301,29 @@ TEST_CASE("ExtractInstallerFromArchive_InvalidZip", "[InstallFlow][workflow]")
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::ExtractArchiveFailed).get()) != std::string::npos);
 }
 
+TEST_CASE("InstallFlow_AdvancedInstaller_Exe", "[InstallFlow][workflow]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForShellExecute(context);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_AdvancedInstallerExe.yaml").GetPath().u8string());
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify Installer is called and parameters are passed in.
+    REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
+    std::ifstream installResultFile(installResultPath.GetPath());
+    REQUIRE(installResultFile.is_open());
+    std::string installResultStr;
+    std::getline(installResultFile, installResultStr);
+    REQUIRE(installResultStr.find("/exenoui /passive /norestart") != std::string::npos); // Make sure default silent with progress switch is passed in
+}
+
 TEST_CASE("MSStoreInstallFlowWithTestManifest", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestMSStoreInstalled.txt");
@@ -2052,6 +2090,33 @@ TEST_CASE("UpdateFlow_UpdateExe", "[UpdateFlow][workflow]")
     REQUIRE(updateResultStr.find("/ver3.0.0.0") != std::string::npos);
 }
 
+TEST_CASE("UpdateFlow_UpdateAdvanced_Installer_Exe", "[UpdateFlow][workflow]")
+{
+    TestCommon::TempFile updateResultPath("TestExeInstalled.txt");
+
+    std::ostringstream updateOutput;
+    TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context);
+    OverrideForShellExecute(context);
+    context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestAdvancedInstallerExeInstaller"sv);
+    context.Args.AddArg(Execution::Args::Type::Silent);
+
+    UpgradeCommand update({});
+    update.Execute(context);
+    INFO(updateOutput.str());
+
+    // Verify Installer is called and parameters are passed in.
+    REQUIRE(std::filesystem::exists(updateResultPath.GetPath()));
+    std::ifstream updateResultFile(updateResultPath.GetPath());
+    REQUIRE(updateResultFile.is_open());
+    std::string updateResultStr;
+    std::getline(updateResultFile, updateResultStr);
+    REQUIRE(updateResultStr.find("/update") != std::string::npos); // This should be passed in from the Manifest
+    REQUIRE(updateResultStr.find("/exenoui /passive /norestart") != std::string::npos); // These should be the default passed in from the CLI
+    REQUIRE(updateResultStr.find("/ver2.0.0.0") != std::string::npos);
+}
+
 TEST_CASE("UpdateFlow_UpdateZip_Exe", "[UpdateFlow][workflow]")
 {
     TestCommon::TempFile updateResultPath("TestExeInstalled.txt");
@@ -2630,6 +2695,32 @@ TEST_CASE("UninstallFlow_UninstallExe", "[UninstallFlow][workflow]")
     OverrideForCompositeInstalledSource(context);
     OverrideForExeUninstall(context);
     context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestExeInstaller"sv);
+    context.Args.AddArg(Execution::Args::Type::Silent);
+
+    UninstallCommand uninstall({});
+    uninstall.Execute(context);
+    INFO(uninstallOutput.str());
+
+    // Verify Uninstaller is called and parameters are passed in.
+    REQUIRE(std::filesystem::exists(uninstallResultPath.GetPath()));
+    std::ifstream uninstallResultFile(uninstallResultPath.GetPath());
+    REQUIRE(uninstallResultFile.is_open());
+    std::string uninstallResultStr;
+    std::getline(uninstallResultFile, uninstallResultStr);
+    REQUIRE(uninstallResultStr.find("uninstall.exe") != std::string::npos);
+    REQUIRE(uninstallResultStr.find("/silence") != std::string::npos);
+}
+
+TEST_CASE("UninstallFlow_UninstallAdvancedInstaller_Exe", "[UninstallFlow][workflow]")
+{
+    TestCommon::TempFile uninstallResultPath("TestExeUninstalled.txt");
+
+    std::ostringstream uninstallOutput;
+    TestContext context{ uninstallOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context);
+    OverrideForExeUninstall(context);
+    context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestAdvancedInstallerExeInstaller"sv);
     context.Args.AddArg(Execution::Args::Type::Silent);
 
     UninstallCommand uninstall({});
