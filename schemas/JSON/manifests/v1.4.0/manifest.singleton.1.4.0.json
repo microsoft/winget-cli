@@ -108,7 +108,7 @@
         "burn",
         "pwa",
         "portable",
-        "advancedinstaller"
+        "advancedInstaller"
       ],
       "description": "Enumeration of supported installer types. InstallerType is required in either root level or individual Installer level"
     },
@@ -124,7 +124,7 @@
         "wix",
         "burn",
         "portable",
-        "advancedinstaller"
+        "advancedInstaller"
       ],
       "description": "Enumeration of supported nested installer types contained inside an archive file"
     },
