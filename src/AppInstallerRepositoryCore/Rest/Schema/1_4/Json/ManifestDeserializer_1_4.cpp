@@ -43,6 +43,10 @@ namespace AppInstaller::Repository::Rest::Schema::V1_4::Json
         {
             return InstallerTypeEnum::Portable;
         }
+        else if (inStrLower == "advancedinstaller")
+        {
+            return InstallerTypeEnum::AdvancedInstaller;
+        }
 
         return V1_1::Json::ManifestDeserializer::ConvertToInstallerType(inStrLower);
     }

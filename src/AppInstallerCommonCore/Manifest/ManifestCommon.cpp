@@ -24,6 +24,7 @@ namespace AppInstaller::Manifest
             case InstallerTypeEnum::Nullsoft:
             case InstallerTypeEnum::Exe:
             case InstallerTypeEnum::Burn:
+            case InstallerTypeEnum::AdvancedInstaller:
                 return CompatibilitySet::Exe;
             case InstallerTypeEnum::Wix:
             case InstallerTypeEnum::Msi:
@@ -161,6 +162,10 @@ namespace AppInstaller::Manifest
         else if (inStrLower == "portable") 
         {
             result = InstallerTypeEnum::Portable;
+        }
+        else if (inStrLower == "advancedinstaller")
+        {
+            result = InstallerTypeEnum::AdvancedInstaller;
         }
 
         return result;
@@ -432,6 +437,8 @@ namespace AppInstaller::Manifest
             return "msstore"sv;
         case InstallerTypeEnum::Portable:
             return "portable"sv;
+        case InstallerTypeEnum::AdvancedInstaller:
+            return "advancedinstaller"sv;
         }
 
         return "unknown"sv;
@@ -464,7 +471,8 @@ namespace AppInstaller::Manifest
             installerType == InstallerTypeEnum::Nullsoft ||
             installerType == InstallerTypeEnum::Wix ||
             installerType == InstallerTypeEnum::Burn ||
-            installerType == InstallerTypeEnum::Portable
+            installerType == InstallerTypeEnum::Portable ||
+            installerType == InstallerTypeEnum::AdvancedInstaller
             );
     }
 
@@ -477,7 +485,8 @@ namespace AppInstaller::Manifest
             installerType == InstallerTypeEnum::Nullsoft ||
             installerType == InstallerTypeEnum::Wix ||
             installerType == InstallerTypeEnum::Burn ||
-            installerType == InstallerTypeEnum::Portable
+            installerType == InstallerTypeEnum::Portable ||
+            installerType == InstallerTypeEnum::AdvancedInstaller
             );
     }
 
@@ -489,7 +498,8 @@ namespace AppInstaller::Manifest
             installerType == InstallerTypeEnum::Msi ||
             installerType == InstallerTypeEnum::Nullsoft ||
             installerType == InstallerTypeEnum::Wix ||
-            installerType == InstallerTypeEnum::Burn
+            installerType == InstallerTypeEnum::Burn ||
+            installerType == InstallerTypeEnum::AdvancedInstaller
             );
     }
 
@@ -520,7 +530,8 @@ namespace AppInstaller::Manifest
             nestedInstallerType == InstallerTypeEnum::Wix ||
             nestedInstallerType == InstallerTypeEnum::Burn ||
             nestedInstallerType == InstallerTypeEnum::Portable ||
-            nestedInstallerType == InstallerTypeEnum::Msix
+            nestedInstallerType == InstallerTypeEnum::Msix ||
+            nestedInstallerType == InstallerTypeEnum::AdvancedInstaller
             );
     }
 
@@ -579,6 +590,14 @@ namespace AppInstaller::Manifest
                 {InstallerSwitchType::Log, ManifestInstaller::string_t("/LOG=\"" + std::string(ARG_TOKEN_LOGPATH) + "\"")},
                 {InstallerSwitchType::InstallLocation, ManifestInstaller::string_t("/DIR=\"" + std::string(ARG_TOKEN_INSTALLPATH) + "\"")}
             };
+        case InstallerTypeEnum::AdvancedInstaller:
+            return
+            {
+                {InstallerSwitchType::Silent, ManifestInstaller::string_t("/exenoui /quiet /norestart")},
+                {InstallerSwitchType::SilentWithProgress, ManifestInstaller::string_t("/exenoui /passive /norestart")},
+                {InstallerSwitchType::Log, ManifestInstaller::string_t("/log \"" + std::string(ARG_TOKEN_LOGPATH) + "\"")},
+                {InstallerSwitchType::InstallLocation, ManifestInstaller::string_t("APPDIR=\"" + std::string(ARG_TOKEN_INSTALLPATH) + "\"")}
+            };
         default:
             return {};
         }
@@ -589,6 +608,7 @@ namespace AppInstaller::Manifest
         switch (installerType)
         {
         case InstallerTypeEnum::Burn:
+        case InstallerTypeEnum::AdvancedInstaller:
         case InstallerTypeEnum::Wix:
         case InstallerTypeEnum::Msi:
             // See https://docs.microsoft.com/windows/win32/msi/error-codes

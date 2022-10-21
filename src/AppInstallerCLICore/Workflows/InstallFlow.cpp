@@ -45,6 +45,7 @@ namespace AppInstaller::CLI::Workflow
             case InstallerTypeEnum::Msi:
             case InstallerTypeEnum::Nullsoft:
             case InstallerTypeEnum::Wix:
+            case InstallerTypeEnum::AdvancedInstaller:
                 return true;
             default:
                 return false;
@@ -266,6 +267,7 @@ namespace AppInstaller::CLI::Workflow
         case InstallerTypeEnum::Msi:
         case InstallerTypeEnum::Nullsoft:
         case InstallerTypeEnum::Wix:
+        case InstallerTypeEnum::AdvancedInstaller:
             if (isUpdate && updateBehavior == UpdateBehaviorEnum::UninstallPrevious)
             {
                 context <<

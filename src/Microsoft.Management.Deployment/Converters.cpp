@@ -286,6 +286,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             return Microsoft::Management::Deployment::PackageInstallerType::Wix;
         case ::AppInstaller::Manifest::InstallerTypeEnum::Zip:
             return Microsoft::Management::Deployment::PackageInstallerType::Zip;
+        case ::AppInstaller::Manifest::InstallerTypeEnum::AdvancedInstaller:
+            return Microsoft::Management::Deployment::PackageInstallerType::AdvancedInstaller;
         case ::AppInstaller::Manifest::InstallerTypeEnum::Unknown:
             return Microsoft::Management::Deployment::PackageInstallerType::Unknown;
         }

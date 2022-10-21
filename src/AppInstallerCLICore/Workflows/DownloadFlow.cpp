@@ -40,6 +40,7 @@ namespace AppInstaller::CLI::Workflow
             case InstallerTypeEnum::Inno:
             case InstallerTypeEnum::Nullsoft:
             case InstallerTypeEnum::Portable:
+            case InstallerTypeEnum::AdvancedInstaller:
                 return L".exe"sv;
             case InstallerTypeEnum::Msi:
             case InstallerTypeEnum::Wix:
@@ -153,6 +154,7 @@ namespace AppInstaller::CLI::Workflow
             case InstallerTypeEnum::Portable: 
             case InstallerTypeEnum::Wix:
             case InstallerTypeEnum::Zip:
+            case InstallerTypeEnum::AdvancedInstaller:
                 context << DownloadInstallerFile;
                 break;
             case InstallerTypeEnum::Msix:
