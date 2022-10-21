@@ -73,17 +73,21 @@ extern "C" HRESULT WinGetServerManualActivation_CreateInstance(const CLSID* clsi
     RETURN_HR_IF_NULL(E_POINTER, iid);
     RETURN_HR_IF_NULL(E_POINTER, out);
 
+    STARTUPINFO info = { sizeof(info) };
+    PROCESS_INFORMATION processInfo;
+
     static std::once_flag rpcBindingOnce;
     try
     {
         std::call_once(rpcBindingOnce, InitializeRpcBinding);
     }
     CATCH_RETURN();
-
+    
     UINT32 bufferByteCount = 0;
     BYTE* buffer = nullptr;
     UniqueMidl bufferPtr;
 
+    // Relaunch server if this fails
     RETURN_IF_FAILED(CallCreateInstance(clsid, iid, flags, &bufferByteCount, &buffer));
     bufferPtr.reset(buffer);
 

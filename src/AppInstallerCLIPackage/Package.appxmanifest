@@ -8,7 +8,7 @@
   xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
   xmlns:desktop6="http://schemas.microsoft.com/appx/manifest/desktop/windows10/6"
   IgnorableNamespaces="uap uap3 uap5 rescap">
-  <Identity Name="WinGetDevCLI" Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US" Version="0.0.3.0" />
+  <Identity Name="WinGetDevCLI" Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US" Version="0.0.4.0" />
   <Properties>
     <DisplayName>WinGet Dev CLI</DisplayName>
     <PublisherDisplayName>Microsoft Corporation</PublisherDisplayName>

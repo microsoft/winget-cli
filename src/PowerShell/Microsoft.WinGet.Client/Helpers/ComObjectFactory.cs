@@ -7,6 +7,7 @@
 namespace Microsoft.WinGet.Client.Factories
 {
     using System;
+    using System.Diagnostics;
     using System.Runtime.InteropServices;
     using Microsoft.Management.Deployment;
 
@@ -108,6 +109,7 @@ namespace Microsoft.WinGet.Client.Factories
             //object instance = Activator.CreateInstance(type);
 
             object instance = null;
+
             int hr = WinGetServerManualActivation_CreateInstance(type.GUID, iid, 0, out instance);
             if (hr != 0)
             {

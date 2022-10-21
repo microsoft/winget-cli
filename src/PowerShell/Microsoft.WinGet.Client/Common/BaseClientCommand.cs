@@ -8,6 +8,7 @@ namespace Microsoft.WinGet.Client.Common
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Management.Automation;
     using System.Runtime.InteropServices;
     using Microsoft.Management.Deployment;
@@ -29,10 +30,16 @@ namespace Microsoft.WinGet.Client.Common
         public BaseClientCommand()
             : base()
         {
-            // this error should be removed if it is running as admin and call the correct activation path.
+            if (Utilities.ExecutingAsSystem)
+            {
+                throw new Exception(Utilities.ResourceManager.GetString("ExceptionSystemDisabled"));
+            }
+
             if (Utilities.ExecutingAsAdministrator)
             {
-                throw new Exception(Utilities.ResourceManager.GetString("ExceptionAdministratorDisabled"));
+                // Start COM server when running in admin mode.
+                Process.Start("WindowsPackageManagerServerDev.exe");
+                System.Threading.Thread.Sleep(1000); // wait for com server to activate after running it.
             }
         }
 

@@ -70,11 +70,11 @@ namespace Microsoft.WinGet.Client.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to This cmdlet is currently disabled in an administrative context..
+        ///   Looks up a localized string similar to This cmdlet is currently disabled for SYSTEM users..
         /// </summary>
-        internal static string ExceptionAdministratorDisabled {
+        internal static string ExceptionSystemDisabled {
             get {
-                return ResourceManager.GetString("ExceptionAdministratorDisabled", resourceCulture);
+                return ResourceManager.GetString("ExceptionSystemDisabled", resourceCulture);
             }
         }
         

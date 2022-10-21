@@ -121,8 +121,8 @@
     <value>No source matches the given value: {0}</value>
     <comment>{0} - The name of the source that was not found.</comment>
   </data>
-  <data name="ExceptionAdministratorDisabled" xml:space="preserve">
-    <value>This cmdlet is currently disabled in an administrative context.</value>
+  <data name="ExceptionSystemDisabled" xml:space="preserve">
+    <value>This cmdlet is currently disabled for SYSTEM users.</value>
   </data>
   <data name="FindPackagesExceptionMessage" xml:space="preserve">
     <value>An error occurred while searching for packages: {0}</value>
