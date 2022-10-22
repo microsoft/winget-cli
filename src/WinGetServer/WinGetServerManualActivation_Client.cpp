@@ -73,8 +73,51 @@ extern "C" HRESULT WinGetServerManualActivation_CreateInstance(const CLSID* clsi
     RETURN_HR_IF_NULL(E_POINTER, iid);
     RETURN_HR_IF_NULL(E_POINTER, out);
 
+
+    //If binding or activation fails, start RPC server, wait and try again. 
     STARTUPINFO info = { sizeof(info) };
     PROCESS_INFORMATION processInfo;
+
+    //LPCWSTR serverExePath = TEXT("%LOCALAPPDATA%\\Microsoft\\WindowsApps\\WinGetDevCLI_8wekyb3d8bbwe\\WindowsPackageManagerServerDev.exe");
+
+#if PROD
+    std::wstring serverExePath = L"C:\\Users\\ryfu\\AppData\\Local\\Microsoft\\WindowsApps\\WinGetCLI_8wekyb3d8bbwe\\WindowsPackageManagerServer.exe --manualActivation";
+#else
+    std::wstring serverExePath = L"C:\\Users\\ryfu\\AppData\\Local\\Microsoft\\WindowsApps\\WinGetDevCLI_8wekyb3d8bbwe\\WindowsPackageManagerServerDev.exe";
+#endif
+
+    // If running in admin mode, include '--manualActivation' 
+    // TODO:: Check token membership here.
+    if (true)
+    {
+        serverExePath = serverExePath + L" --manualActivation";
+    }
+
+    if (!CreateProcessW(
+        NULL,   // No module name (use command line)
+        &serverExePath[0],        // Command line
+        NULL,           // Process handle not inheritable
+        NULL,           // Thread handle not inheritable
+        FALSE,          // Set handle inheritance to FALSE
+        CREATE_NEW_CONSOLE,              // No creation flags
+        NULL,           // Use parent's environment block
+        NULL,           // Use parent's starting directory 
+        &info,            // Pointer to STARTUPINFO structure
+        &processInfo)           // Pointer to PROCESS_INFORMATION structure
+        )
+    {
+        printf("hello");
+        printf("CreateProcess failed (%d).\n", GetLastError());
+    }
+    else
+    {
+        printf("Successfully started process");
+        CloseHandle(processInfo.hProcess);
+        CloseHandle(processInfo.hThread);
+    }
+
+    // Sleep to wait for server to start.
+    Sleep(1000);
 
     static std::once_flag rpcBindingOnce;
     try
@@ -82,7 +125,7 @@ extern "C" HRESULT WinGetServerManualActivation_CreateInstance(const CLSID* clsi
         std::call_once(rpcBindingOnce, InitializeRpcBinding);
     }
     CATCH_RETURN();
-    
+
     UINT32 bufferByteCount = 0;
     BYTE* buffer = nullptr;
     UniqueMidl bufferPtr;

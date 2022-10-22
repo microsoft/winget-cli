@@ -14,6 +14,7 @@
     <PowerShellModuleOutputDirectory>$(BuildOutputDirectory)PowerShell</PowerShellModuleOutputDirectory>
     <Platforms>x64;x86</Platforms>
     <TargetFrameworks>$(CoreFramework);$(DesktopFramework)</TargetFrameworks>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
   </PropertyGroup>
 
   <ItemGroup>
@@ -73,7 +74,7 @@
 	<Target Name="CopyWinRTAct" AfterTargets="Build" Condition="'$(TargetFramework)' != ''">
 		<ItemGroup>
 			<!-- Ensure Referenced Project Output is in Output Directory -->
-			<WinRTActDll Include="$(SolutionDir)**\$(Platform)\$(Configuration)\**\winrtact.dll" />
+			<WinRTActDll Include="$(SolutionDir)**\$(Platform)\$(Configuration)\UndockedRegFreeWinRT\winrtact.dll" />
 		</ItemGroup>
 		<Message Importance="high" Text="Copying '@(WinRTActDll)' to '$(OutputPath)'" />
 		<Copy SourceFiles="@(WinRTActDll)" DestinationFolder="$(OutputPath)" />

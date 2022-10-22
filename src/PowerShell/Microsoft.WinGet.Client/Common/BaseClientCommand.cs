@@ -35,12 +35,7 @@ namespace Microsoft.WinGet.Client.Common
                 throw new Exception(Utilities.ResourceManager.GetString("ExceptionSystemDisabled"));
             }
 
-            if (Utilities.ExecutingAsAdministrator)
-            {
-                // Start COM server when running in admin mode.
-                Process.Start("WindowsPackageManagerServerDev.exe");
-                System.Threading.Thread.Sleep(1000); // wait for com server to activate after running it.
-            }
+            //
         }
 
         /// <summary>
