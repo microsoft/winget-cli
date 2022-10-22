@@ -608,7 +608,6 @@ namespace AppInstaller::Manifest
         switch (installerType)
         {
         case InstallerTypeEnum::Burn:
-        case InstallerTypeEnum::AdvancedInstaller:
         case InstallerTypeEnum::Wix:
         case InstallerTypeEnum::Msi:
             // See https://docs.microsoft.com/windows/win32/msi/error-codes
@@ -620,6 +619,9 @@ namespace AppInstaller::Manifest
                 { ERROR_SUCCESS_REBOOT_REQUIRED, ExpectedReturnCodeEnum::RebootRequiredToFinish },
                 { ERROR_SUCCESS_REBOOT_INITIATED, ExpectedReturnCodeEnum::RebootInitiated },
                 { ERROR_INSTALL_USEREXIT, ExpectedReturnCodeEnum::CancelledByUser },
+                { ERROR_BAD_CONFIGURATION, ExpectedReturnCodeEnum::ContactSupport },
+                { ERROR_INSTALL_UI_FAILURE, ExpectedReturnCodeEnum::ContactSupport },
+                { ERROR_CREATE_FAILED, ExpectedReturnCodeEnum::ContactSupport },
                 { ERROR_PRODUCT_VERSION, ExpectedReturnCodeEnum::AlreadyInstalled },
                 { ERROR_INSTALL_REJECTED, ExpectedReturnCodeEnum::SystemNotSupported },
                 { ERROR_INSTALL_PACKAGE_REJECTED, ExpectedReturnCodeEnum::BlockedByPolicy },
@@ -633,6 +635,24 @@ namespace AppInstaller::Manifest
                 { ERROR_INVALID_PATCH_XML, ExpectedReturnCodeEnum::InvalidParameter },
                 { ERROR_INSTALL_LANGUAGE_UNSUPPORTED, ExpectedReturnCodeEnum::SystemNotSupported },
                 { ERROR_INSTALL_PLATFORM_UNSUPPORTED, ExpectedReturnCodeEnum::SystemNotSupported },
+            };
+        case InstallerTypeEnum::AdvancedInstaller:
+            // See https://www.advancedinstaller.com/user-guide/exe-setup-file.html
+            return
+            {
+                { ERROR_INSTALL_ALREADY_RUNNING, ExpectedReturnCodeEnum::InstallInProgress },
+                { ERROR_DISK_FULL, ExpectedReturnCodeEnum::DiskFull },
+                { ERROR_INSTALL_SERVICE_FAILURE, ExpectedReturnCodeEnum::ContactSupport },
+                { ERROR_SUCCESS_REBOOT_REQUIRED, ExpectedReturnCodeEnum::RebootRequiredToFinish },
+                { ERROR_SUCCESS_REBOOT_INITIATED, ExpectedReturnCodeEnum::RebootInitiated },
+                { ERROR_INSTALL_USEREXIT, ExpectedReturnCodeEnum::CancelledByUser },
+                { ERROR_BAD_CONFIGURATION, ExpectedReturnCodeEnum::ContactSupport },
+                { ERROR_INSTALL_UI_FAILURE, ExpectedReturnCodeEnum::ContactSupport },
+                { ERROR_CREATE_FAILED, ExpectedReturnCodeEnum::ContactSupport },
+                { ERROR_PRODUCT_VERSION, ExpectedReturnCodeEnum::AlreadyInstalled },
+                { ERROR_INSTALL_REJECTED, ExpectedReturnCodeEnum::BlockedByPolicy },
+                { -1, ExpectedReturnCodeEnum::CancelledByUser },
+                // 1 when EXE bootstrapper is launched with wrong value for /aespassword parameter
             };
         case InstallerTypeEnum::Inno:
             // See https://jrsoftware.org/ishelp/index.php?topic=setupexitcodes
