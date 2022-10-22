@@ -27,9 +27,9 @@ namespace AppInstaller::CLI::Workflow
             }
             else
             {
-                if (context.Args.Contains(Execution::Args::Type::Force))
+                if (context.Args.Contains(Execution::Args::Type::SecurityOverride))
                 {
-                    AICLI_LOG(CLI, Warning, << "Archive malware scan failed; proceeding due to --force override");
+                    AICLI_LOG(CLI, Warning, << "Archive malware scan failed; proceeding due to --ignore-security-checks override");
                     context.Reporter.Warn() << Resource::String::ArchiveFailedMalwareScanOverridden << std::endl;
                 }
                 else

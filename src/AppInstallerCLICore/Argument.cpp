@@ -71,6 +71,9 @@ namespace AppInstaller::CLI
             return Argument{ "versions"_liv, NoAlias, Args::Type::ListVersions, Resource::String::VersionsArgumentDescription, ArgumentType::Flag };
         case Args::Type::Help:
             return Argument{ "help"_liv, APPINSTALLER_CLI_HELP_ARGUMENT_TEXT_CHAR, Args::Type::Help, Resource::String::HelpArgumentDescription, ArgumentType::Flag };
+        // TODO: Consider adding a group policy around this
+        case Args::Type::SecurityOverride:
+            return Argument{ "ignore-security-checks"_liv, NoAlias, Args::Type::SecurityOverride, Resource::String::SecurityOverrideArgumentDescription, ArgumentType::Flag, false};
         case Args::Type::SourceName:
             return Argument{ "name"_liv, 'n', Args::Type::SourceName,Resource::String::SourceNameArgumentDescription, ArgumentType::Positional, false };
         case Args::Type::SourceArg:

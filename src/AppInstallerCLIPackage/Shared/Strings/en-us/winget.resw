@@ -292,6 +292,9 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="HashOverrideArgumentDescription" xml:space="preserve">
     <value>Ignore the installer hash check failure</value>
   </data>
+  <data name="SecurityOverrideArgumentDescription" xml:space="preserve">
+    <value>Ignore security checks, excluding the installer hash check</value>
+  </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>Request interactive installation; user input may be needed</value>
   </data>
@@ -1464,12 +1467,12 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Extracting archive...</value>
   </data>
   <data name="ArchiveFailedMalwareScan" xml:space="preserve">
-    <value>Archive scan detected malware; to override this check use --force</value>
-    <comment>{Locked="--force"}</comment>
+    <value>Archive scan detected malware; to override this check use --ignore-security-checks</value>
+    <comment>{Locked="--ignore-security-checks"}</comment>
   </data>
   <data name="ArchiveFailedMalwareScanOverridden" xml:space="preserve">
-    <value>Archive scan detected malware; proceeding due to --force</value>
-    <comment>{Locked="--force"}</comment>
+    <value>Archive scan detected malware; proceeding due to --ignore-security-checks</value>
+    <comment>{Locked="--ignore-security-checks"}</comment>
   </data>
   <data name="NoUpgradeArgumentDescription" xml:space="preserve">
     <value>Skips upgrade if an installed version already exists</value>
