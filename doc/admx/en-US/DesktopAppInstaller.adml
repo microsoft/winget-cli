@@ -31,6 +31,8 @@ If you disable this setting, users will not be able to enable experimental featu
 If you enable or do not configure this setting, users will be able to install packages with local manifests using the Windows Package Manager.
 
 If you disable this setting, users will not be able to install packages with local manifests using the Windows Package Manager.</string>
+      <string id="EnableBypassCertificatePinningForMicrosoftStore">Enable Bypass Certificate Pinning For Microsoft Store</string>
+      <string id="EnableBypassCertificatePinningForMicrosoftStoreExplanation">TODO</string>
       <string id="EnableHashOverride">Enable App Installer Hash Override</string>
       <string id="EnableHashOverrideExplanation">This policy controls whether or not the Windows Package Manager can be configured to enable the ability override the SHA256 security validation in settings.
 

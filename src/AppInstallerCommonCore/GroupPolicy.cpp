@@ -281,6 +281,8 @@ namespace AppInstaller::Settings
             return TogglePolicy(policy, "EnableAdditionalSources"sv, String::PolicyAdditionalSources);
         case TogglePolicy::Policy::AllowedSources:
             return TogglePolicy(policy, "EnableAllowedSources"sv, String::PolicyAllowedSources);
+        case TogglePolicy::Policy::BypassCertificatePinningForMicrosoftStore:
+            return TogglePolicy(policy, "EnableBypassCertificatePinningForMicrosoftStore"sv, String::PolicyEnableBypassCertificatePinningForMicrosoftStore);
         default:
             THROW_HR(E_UNEXPECTED);
         }

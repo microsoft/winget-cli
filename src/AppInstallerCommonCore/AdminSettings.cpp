@@ -193,16 +193,27 @@ namespace AppInstaller::Settings
         adminSettingsInternal.SetAdminSetting(setting, false);
     }
 
+    TogglePolicy::Policy GetAdminSettingPolicy(AdminSetting setting)
+    {
+        switch (setting)
+        {
+        case AdminSetting::LocalManifestFiles:
+            return TogglePolicy::Policy::LocalManifestFiles;
+        case AdminSetting::BypassCertificatePinningForMicrosoftStore:
+            return TogglePolicy::Policy::BypassCertificatePinningForMicrosoftStore;
+        default:
+            return TogglePolicy::Policy::None;
+        }
+    }
+
     bool IsAdminSettingEnabled(AdminSetting setting)
     {
         // Check for a policy that overrides this setting.
-        if (setting == AdminSetting::LocalManifestFiles)
+        auto policy = GetAdminSettingPolicy(setting);
+        auto policyState = GroupPolicies().GetState(policy);
+        if (policyState != PolicyState::NotConfigured)
         {
-            PolicyState localManifestFilesPolicy = GroupPolicies().GetState(TogglePolicy::Policy::LocalManifestFiles);
-            if (localManifestFilesPolicy != PolicyState::NotConfigured)
-            {
-                return localManifestFilesPolicy == PolicyState::Enabled;
-            }
+            return policyState == PolicyState::Enabled;
         }
 
         AdminSettingsInternal adminSettingsInternal;

@@ -41,6 +41,7 @@ namespace AppInstaller::Settings
             MSStoreSource,
             AdditionalSources,
             AllowedSources,
+            BypassCertificatePinningForMicrosoftStore,
             Max,
         };
 
