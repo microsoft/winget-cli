@@ -1197,6 +1197,9 @@ Do you agree to the terms?</value>
   <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
     <value>There's not enough memory available to install. Close other applications then try again.</value>
   </data>
+  <data name="InstallFlowReturnCodeInvalidParameter" xml:space="preserve">
+    <value>One of the installation parameters is invalid. The package installation log may have additional details.</value>
+  </data>
   <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
     <value>This application requires internet connectivity. Connect to a network then try again.</value>
   </data>

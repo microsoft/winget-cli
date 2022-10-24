@@ -129,6 +129,7 @@ namespace AppInstaller::Manifest
         MissingDependency,
         DiskFull,
         InsufficientMemory,
+        InvalidParameter,
         NoNetwork,
         ContactSupport,
         RebootRequiredToFinish,

@@ -59,6 +59,10 @@ namespace AppInstaller::Repository::Rest::Schema::V1_4::Json
         {
             return ExpectedReturnCodeEnum::PackageInUseByApplication;
         }
+        else if (inStrLower == "invalidparameter")
+        {
+            return ExpectedReturnCodeEnum::InvalidParameter;
+        }
 
         return V1_1::Json::ManifestDeserializer::ConvertToExpectedReturnCodeEnum(inStrLower);
     }

@@ -311,7 +311,7 @@ namespace AppInstaller::Manifest
         {
             result = ExpectedReturnCodeEnum::PackageInUse;
         }
-        if (inStrLower == "packageinusebyapplication")
+        else if (inStrLower == "packageinusebyapplication")
         {
             result = ExpectedReturnCodeEnum::PackageInUseByApplication;
         }
@@ -334,6 +334,10 @@ namespace AppInstaller::Manifest
         else if (inStrLower == "insufficientmemory")
         {
             result = ExpectedReturnCodeEnum::InsufficientMemory;
+        }
+        else if (inStrLower == "invalidparameter")
+        {
+            result = ExpectedReturnCodeEnum::InvalidParameter;
         }
         else if (inStrLower == "nonetwork")
         {
@@ -594,6 +598,10 @@ namespace AppInstaller::Manifest
                 { ERROR_INSTALL_USEREXIT, ExpectedReturnCodeEnum::CancelledByUser },
                 { ERROR_PRODUCT_VERSION, ExpectedReturnCodeEnum::AlreadyInstalled },
                 { ERROR_INSTALL_REJECTED, ExpectedReturnCodeEnum::BlockedByPolicy },
+                { ERROR_INVALID_PARAMETER, ExpectedReturnCodeEnum::InvalidParameter },
+                { ERROR_INVALID_TABLE, ExpectedReturnCodeEnum::InvalidParameter },
+                { ERROR_INVALID_COMMAND_LINE, ExpectedReturnCodeEnum::InvalidParameter },
+                { ERROR_INVALID_PATCH_XML, ExpectedReturnCodeEnum::InvalidParameter },
             };
         case InstallerTypeEnum::Inno:
             // See https://jrsoftware.org/ishelp/index.php?topic=setupexitcodes
@@ -614,6 +622,17 @@ namespace AppInstaller::Manifest
                 { HRESULT_FROM_WIN32(ERROR_INSTALL_CANCEL), ExpectedReturnCodeEnum::CancelledByUser },
                 { HRESULT_FROM_WIN32(ERROR_PACKAGE_ALREADY_EXISTS), ExpectedReturnCodeEnum::AlreadyInstalled },
                 { HRESULT_FROM_WIN32(ERROR_INSTALL_PACKAGE_DOWNGRADE), ExpectedReturnCodeEnum::Downgrade },
+                { HRESULT_FROM_WIN32(ERROR_DEPLOYMENT_BLOCKED_BY_POLICY), ExpectedReturnCodeEnum::BlockedByPolicy},
+                { HRESULT_FROM_WIN32(ERROR_PACKAGES_IN_USE), ExpectedReturnCodeEnum::PackageInUse },
+                { HRESULT_FROM_WIN32(APPX_E_INVALID_PACKAGING_LAYOUT), ExpectedReturnCodeEnum::InvalidParameter },
+                { HRESULT_FROM_WIN32(APPX_E_INVALID_PACKAGESIGNCONFIG), ExpectedReturnCodeEnum::InvalidParameter },
+                { HRESULT_FROM_WIN32(APPX_E_INVALID_ENCRYPTION_EXCLUSION_FILE_LIST), ExpectedReturnCodeEnum::InvalidParameter },
+                { HRESULT_FROM_WIN32(APPX_E_INVALID_DELTA_PACKAGE), ExpectedReturnCodeEnum::InvalidParameter },
+                { HRESULT_FROM_WIN32(APPX_E_INVALID_APPINSTALLER), ExpectedReturnCodeEnum::InvalidParameter },
+                { HRESULT_FROM_WIN32(APPX_E_INVALID_CONTENTGROUPMAP), ExpectedReturnCodeEnum::InvalidParameter },
+                { HRESULT_FROM_WIN32(APPX_E_INVALID_KEY_INFO), ExpectedReturnCodeEnum::InvalidParameter },
+                { HRESULT_FROM_WIN32(APPX_E_INVALID_BLOCKMAP), ExpectedReturnCodeEnum::InvalidParameter },
+                { HRESULT_FROM_WIN32(APPX_E_INVALID_MANIFEST), ExpectedReturnCodeEnum::InvalidParameter },
             };
         default:
             return {};

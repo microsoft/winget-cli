@@ -270,6 +270,7 @@
               "missingDependency",
               "diskFull",
               "insufficientMemory",
+              "invalidParameter",
               "noNetwork",
               "contactSupport",
               "rebootRequiredToFinish",
