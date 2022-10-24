@@ -1227,6 +1227,9 @@ Do you agree to the terms?</value>
   <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
     <value>Organization policies are preventing installation. Contact your admin.</value>
   </data>
+  <data name="InstallFlowReturnCodeSystemNotSupported" xml:space="preserve">
+    <value>Your system configuration does not support the installation of this package.</value>
+  </data>
   <data name="InstallAbandoned" xml:space="preserve">
     <value>Installation abandoned</value>
   </data>

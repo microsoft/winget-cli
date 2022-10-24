@@ -148,6 +148,8 @@ namespace AppInstaller::CLI::Workflow
                     return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_DOWNGRADE, Resource::String::InstallFlowReturnCodeDowngrade);
                 case ExpectedReturnCodeEnum::BlockedByPolicy:
                     return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_BLOCKED_BY_POLICY, Resource::String::InstallFlowReturnCodeBlockedByPolicy);
+                case ExpectedReturnCodeEnum::SystemNotSupported:
+                    return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED, Resource::String::InstallFlowReturnCodeSystemNotSupported);
                 default:
                     THROW_HR(E_UNEXPECTED);
                 }

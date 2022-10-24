@@ -164,6 +164,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeRebootInitiated);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeRebootRequiredForInstall);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeRebootRequiredToFinish);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeSystemNotSupported);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowStartingPackageInstall);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallLocationNotProvided);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallScopeDescription);

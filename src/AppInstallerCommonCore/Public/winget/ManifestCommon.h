@@ -139,6 +139,7 @@ namespace AppInstaller::Manifest
         AlreadyInstalled,
         Downgrade,
         BlockedByPolicy,
+        SystemNotSupported,
         Custom,
     };
 

@@ -280,6 +280,7 @@
               "alreadyInstalled",
               "downgrade",
               "blockedByPolicy",
+              "systemNotSupported",
               "custom"
             ]
           },
