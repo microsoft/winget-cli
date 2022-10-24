@@ -141,7 +141,7 @@ namespace AppInstaller::CLI::Portable
                 AICLI_LOG(Core, Info, << "Portable install executed in user mode. Adding package directory to PATH.");
                 CommitToARPEntry(PortableValueName::InstallDirectoryAddedToPath, InstallDirectoryAddedToPath = true);
             }
-            m_stream << Resource::String::PortableAliasAdded << filePath.stem() << std::endl;
+            m_stream << Resource::String::PortableAliasAdded << ' ' << filePath.stem() << std::endl;
         }
     }
 
