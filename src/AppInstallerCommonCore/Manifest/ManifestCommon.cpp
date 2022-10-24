@@ -636,6 +636,9 @@ namespace AppInstaller::Manifest
                 { HRESULT_FROM_WIN32(ERROR_DEPLOYMENT_BLOCKED_BY_POLICY), ExpectedReturnCodeEnum::BlockedByPolicy},
                 { HRESULT_FROM_WIN32(ERROR_INSTALL_POLICY_FAILURE), ExpectedReturnCodeEnum::BlockedByPolicy},
                 { HRESULT_FROM_WIN32(ERROR_PACKAGES_IN_USE), ExpectedReturnCodeEnum::PackageInUse },
+                /*
+                * For the below return codes, 'argument': conversion from 'HRESULT' to 'unsigned long', signed/unsigned mismatch
+                * 
                 { HRESULT_FROM_WIN32(APPX_E_INVALID_PACKAGING_LAYOUT), ExpectedReturnCodeEnum::InvalidParameter },
                 { HRESULT_FROM_WIN32(APPX_E_INVALID_PACKAGESIGNCONFIG), ExpectedReturnCodeEnum::InvalidParameter },
                 { HRESULT_FROM_WIN32(APPX_E_INVALID_ENCRYPTION_EXCLUSION_FILE_LIST), ExpectedReturnCodeEnum::InvalidParameter },
@@ -646,6 +649,8 @@ namespace AppInstaller::Manifest
                 { HRESULT_FROM_WIN32(APPX_E_INVALID_BLOCKMAP), ExpectedReturnCodeEnum::InvalidParameter },
                 { HRESULT_FROM_WIN32(APPX_E_INVALID_MANIFEST), ExpectedReturnCodeEnum::InvalidParameter },
                 { HRESULT_FROM_WIN32(E_INVALIDARG), ExpectedReturnCodeEnum::InvalidParameter },
+                *
+                */
                 { HRESULT_FROM_WIN32(ERROR_INSTALL_WRONG_PROCESSOR_ARCHITECTURE), ExpectedReturnCodeEnum::SystemNotSupported },
                 { HRESULT_FROM_WIN32(ERROR_PACKAGE_NOT_SUPPORTED_ON_FILESYSTEM), ExpectedReturnCodeEnum::SystemNotSupported },
                 { HRESULT_FROM_WIN32(ERROR_DEPLOYMENT_OPTION_NOT_SUPPORTED), ExpectedReturnCodeEnum::SystemNotSupported },
