@@ -110,37 +110,41 @@ namespace AppInstaller::CLI::Portable
             AICLI_LOG(Core, Info, << "Moving directory to: " << filePath);
             Filesystem::RenameFile(entry.CurrentPath, filePath);
         }
-        else if (entry.FileType == PortableFileType::Symlink && !InstallDirectoryAddedToPath)
+        else if (entry.FileType == PortableFileType::Symlink)
         {
-            std::filesystem::file_status status = std::filesystem::status(filePath);
-            if (std::filesystem::is_directory(status))
+            if (!InstallDirectoryAddedToPath)
             {
-                AICLI_LOG(CLI, Info, << "Unable to create symlink. '" << filePath << "points to an existing directory.");
-                THROW_HR(APPINSTALLER_CLI_ERROR_PORTABLE_SYMLINK_PATH_IS_DIRECTORY);
-            }
+                std::filesystem::file_status status = std::filesystem::status(filePath);
+                if (std::filesystem::is_directory(status))
+                {
+                    AICLI_LOG(CLI, Info, << "Unable to create symlink. '" << filePath << "points to an existing directory.");
+                    THROW_HR(APPINSTALLER_CLI_ERROR_PORTABLE_SYMLINK_PATH_IS_DIRECTORY);
+                }
 
-            if (!RecordToIndex)
-            {
-                CommitToARPEntry(PortableValueName::PortableSymlinkFullPath, filePath);
-            }
+                if (!RecordToIndex)
+                {
+                    CommitToARPEntry(PortableValueName::PortableSymlinkFullPath, filePath);
+                }
 
-            if (std::filesystem::remove(filePath))
-            {
-                AICLI_LOG(CLI, Info, << "Removed existing file at " << filePath);
-                m_stream << Resource::String::OverwritingExistingFileAtMessage << ' ' << filePath.u8string() << std::endl;
-            }
+                if (std::filesystem::remove(filePath))
+                {
+                    AICLI_LOG(CLI, Info, << "Removed existing file at " << filePath);
+                    m_stream << Resource::String::OverwritingExistingFileAtMessage << ' ' << filePath.u8string() << std::endl;
+                }
 
-            if (Filesystem::CreateSymlink(entry.SymlinkTarget, filePath))
-            {
-                AICLI_LOG(Core, Info, << "Symlink created at: " << filePath);
+                if (Filesystem::CreateSymlink(entry.SymlinkTarget, filePath))
+                {
+                    AICLI_LOG(Core, Info, << "Symlink created at: " << filePath);
+                }
+                else
+                {
+                    // Symlink creation should only fail if the user executes without admin rights or developer mode.
+                    // Resort to adding install directory to PATH directly.
+                    AICLI_LOG(Core, Info, << "Portable install executed in user mode. Adding package directory to PATH.");
+                    CommitToARPEntry(PortableValueName::InstallDirectoryAddedToPath, InstallDirectoryAddedToPath = true);
+                }
             }
-            else
-            {
-                // Symlink creation should only fail if the user executes without admin rights or developer mode.
-                // Resort to adding install directory to PATH directly.
-                AICLI_LOG(Core, Info, << "Portable install executed in user mode. Adding package directory to PATH.");
-                CommitToARPEntry(PortableValueName::InstallDirectoryAddedToPath, InstallDirectoryAddedToPath = true);
-            }
+            m_stream << Resource::String::PortableAliasAdded << ' ' << filePath.stem() << std::endl;
         }
     }
 

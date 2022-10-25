@@ -1341,6 +1341,10 @@ Please specify one of them using the `--source` option to proceed.</value>
   <data name="NoPackageSelectionArgumentProvided" xml:space="preserve">
     <value>No package selection argument was provided; see the help for details about finding a package.</value>
   </data>
+  <data name="PortableAliasAdded" xml:space="preserve">
+    <value>Command line alias added:</value>
+
+  </data>
   <data name="PortableInstallFailed" xml:space="preserve">
     <value>Portable install failed; Cleaning up...</value>
   </data>
