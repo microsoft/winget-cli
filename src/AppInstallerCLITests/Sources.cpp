@@ -1268,6 +1268,8 @@ TEST_CASE("RepoSources_RestoringWellKnownSource", "[sources]")
 
 TEST_CASE("RepoSources_GroupPolicy_BypassCertificatePinningForMicrosoftStore", "[sources][groupPolicy]")
 {
+    TestHook_ClearSourceFactoryOverrides();
+
     SECTION("Not configured")
     {
         GroupPolicyTestOverride policies;
