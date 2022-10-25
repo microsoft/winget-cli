@@ -45,7 +45,7 @@
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == '$(DesktopFramework)'">
-    <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.22000.196" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.22621.2" PrivateAssets="all" />
 	</ItemGroup>
 
 	<ItemGroup>
