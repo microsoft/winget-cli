@@ -886,7 +886,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Enable Windows App Installer Local Manifest Files</value>
   </data>
   <data name="PolicyEnableBypassCertificatePinningForMicrosoftStore" xml:space="preserve">
-    <value>Enable Windows App Installer Bypass Certificate Pinning for Microsoft Store</value>
+    <value>Enable Windows App Installer Microsoft Store Source Pinned Certificate Bypass</value>
   </data>
   <data name="SettingsWarningField" xml:space="preserve">
     <value>Field:</value>
