@@ -43,5 +43,11 @@ Installers:
             ReturnResponse: downgrade
           - InstallerReturnCode: 15
             ReturnResponse: blockedByPolicy
+          - InstallerReturnCode: 16
+            ReturnResponse: packageInUseByApplication
+          - InstallerReturnCode: 17
+            ReturnResponse: invalidParameter
+          - InstallerReturnCode: 18
+            ReturnResponse: systemNotSupported
 ManifestType: singleton
 ManifestVersion: 1.2.0
