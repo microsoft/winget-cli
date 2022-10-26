@@ -650,9 +650,20 @@ namespace AppInstaller::Manifest
                 { ERROR_INSTALL_UI_FAILURE, ExpectedReturnCodeEnum::ContactSupport },
                 { ERROR_CREATE_FAILED, ExpectedReturnCodeEnum::ContactSupport },
                 { ERROR_PRODUCT_VERSION, ExpectedReturnCodeEnum::AlreadyInstalled },
-                { ERROR_INSTALL_REJECTED, ExpectedReturnCodeEnum::BlockedByPolicy },
+                { ERROR_INSTALL_REJECTED, ExpectedReturnCodeEnum::SystemNotSupported },
+                { ERROR_INSTALL_PACKAGE_REJECTED, ExpectedReturnCodeEnum::BlockedByPolicy },
+                { ERROR_INSTALL_TRANSFORM_REJECTED, ExpectedReturnCodeEnum::BlockedByPolicy },
+                { ERROR_PATCH_PACKAGE_REJECTED, ExpectedReturnCodeEnum::BlockedByPolicy },
+                { ERROR_PATCH_REMOVAL_DISALLOWED, ExpectedReturnCodeEnum::BlockedByPolicy },
+                { ERROR_INSTALL_REMOTE_DISALLOWED, ExpectedReturnCodeEnum::BlockedByPolicy },
+                { ERROR_INVALID_PARAMETER, ExpectedReturnCodeEnum::InvalidParameter },
+                { ERROR_INVALID_TABLE, ExpectedReturnCodeEnum::InvalidParameter },
+                { ERROR_INVALID_COMMAND_LINE, ExpectedReturnCodeEnum::InvalidParameter },
+                { ERROR_INVALID_PATCH_XML, ExpectedReturnCodeEnum::InvalidParameter },
+                { ERROR_INSTALL_LANGUAGE_UNSUPPORTED, ExpectedReturnCodeEnum::SystemNotSupported },
+                { ERROR_INSTALL_PLATFORM_UNSUPPORTED, ExpectedReturnCodeEnum::SystemNotSupported },
                 { -1, ExpectedReturnCodeEnum::CancelledByUser },
-                // 1 when EXE bootstrapper is launched with wrong value for /aespassword parameter
+                { 1, ExpectedReturnCodeEnum::InvalidParameter },
             };
         case InstallerTypeEnum::Inno:
             // See https://jrsoftware.org/ishelp/index.php?topic=setupexitcodes
