@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #define NOMINMAX
 #pragma warning( push )
-#pragma warning ( disable : 6001 6553)
+#pragma warning ( disable : 6001 6388 6553)
 #include <wil/resource.h>
 #include <wil/com.h>
 #pragma warning( pop )
@@ -102,7 +102,7 @@ extern "C" HRESULT CreateInstance(
 
 int __stdcall wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR cmdLine, _In_ int)
 {
-    // Create/open mutex and attempt to take ownership.
+    // Create mutex and attempt to take ownership.
     HANDLE hMutex = NULL;
     hMutex = CreateMutex(NULL, FALSE, TEXT("WinGetServerMutex"));
 

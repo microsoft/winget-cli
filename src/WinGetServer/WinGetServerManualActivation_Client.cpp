@@ -3,6 +3,7 @@
 #include "WinGetServer.h"
 
 #include <wil/com.h>
+#include <wil/result.h>
 #include <wil/safecast.h>
 
 #include <memory>
