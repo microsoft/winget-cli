@@ -158,8 +158,8 @@ int __stdcall wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR cmdLine, 
         }
         _comServerExitEvent.wait();
 
-        ReleaseMutex(hMutex);
         RETURN_IF_FAILED(WindowsPackageManagerServerModuleUnregister());
+        ReleaseMutex(hMutex);
     }
     CATCH_RETURN()
 

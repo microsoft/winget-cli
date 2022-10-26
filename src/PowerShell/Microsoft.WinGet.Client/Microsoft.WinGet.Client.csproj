@@ -14,7 +14,6 @@
     <PowerShellModuleOutputDirectory>$(BuildOutputDirectory)PowerShell</PowerShellModuleOutputDirectory>
     <Platforms>x64;x86</Platforms>
     <TargetFrameworks>$(CoreFramework);$(DesktopFramework)</TargetFrameworks>
-    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
   </PropertyGroup>
 
   <ItemGroup>
