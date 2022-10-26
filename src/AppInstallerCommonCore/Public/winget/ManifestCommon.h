@@ -129,6 +129,7 @@ namespace AppInstaller::Manifest
         MissingDependency,
         DiskFull,
         InsufficientMemory,
+        InvalidParameter,
         NoNetwork,
         ContactSupport,
         RebootRequiredToFinish,
@@ -138,6 +139,7 @@ namespace AppInstaller::Manifest
         AlreadyInstalled,
         Downgrade,
         BlockedByPolicy,
+        SystemNotSupported,
         Custom,
     };
 

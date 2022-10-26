@@ -228,6 +228,7 @@
               "missingDependency",
               "diskFull",
               "insufficientMemory",
+              "invalidParameter",
               "noNetwork",
               "contactSupport",
               "rebootRequiredToFinish",
@@ -237,6 +238,7 @@
               "alreadyInstalled",
               "downgrade",
               "blockedByPolicy",
+              "systemNotSupported",
               "custom"
             ]
           },

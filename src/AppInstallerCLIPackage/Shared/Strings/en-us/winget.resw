@@ -1197,6 +1197,9 @@ Do you agree to the terms?</value>
   <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
     <value>There's not enough memory available to install. Close other applications then try again.</value>
   </data>
+  <data name="InstallFlowReturnCodeInvalidParameter" xml:space="preserve">
+    <value>One of the installation parameters is invalid. The package installation log may have additional details.</value>
+  </data>
   <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
     <value>This application requires internet connectivity. Connect to a network then try again.</value>
   </data>
@@ -1223,6 +1226,9 @@ Do you agree to the terms?</value>
   </data>
   <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
     <value>Organization policies are preventing installation. Contact your admin.</value>
+  </data>
+  <data name="InstallFlowReturnCodeSystemNotSupported" xml:space="preserve">
+    <value>The current system configuration does not support the installation of this package.</value>
   </data>
   <data name="InstallAbandoned" xml:space="preserve">
     <value>Installation abandoned</value>

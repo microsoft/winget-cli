@@ -156,6 +156,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeFileInUse);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeInstallInProgress);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeInsufficientMemory);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeInvalidParameter);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeMissingDependency);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeNoNetwork);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodePackageInUse);
@@ -163,6 +164,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeRebootInitiated);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeRebootRequiredForInstall);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeRebootRequiredToFinish);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeSystemNotSupported);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowStartingPackageInstall);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallLocationNotProvided);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallScopeDescription);
