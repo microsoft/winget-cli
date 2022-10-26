@@ -4,25 +4,88 @@
 namespace AppInstallerCLIE2ETests
 {
     using NUnit.Framework;
-    using System.IO;
 
+    /// <summary>
+    /// Basic E2E tests for verifying that behavior of the PowerShell module cmdlets.
+    /// </summary>
     public class PowerShellModule
     {
-        // TODO: change this to either be an input or dynamically generated path.
-        private const string moduleManifestPath = @"C:\Users\ryfu\git\ryfu-msft\winget-cli\src\x64\Debug\PowerShell\Microsoft.WinGet.Client.psd1";
-
-        [SetUp]
+        [OneTimeSetUp]
         public void Setup()
         {
+            // Add-WinGetPackage is a function and not a cmdlet that uses COM. Add source to WinGetDev directly to ensure test source exists.
+            TestCommon.RunAICLICommand("source add", $"-n {Constants.TestSourceName} {Constants.TestSourceUrl}");
         }
 
-        // Repeat e2e tests for all commandlets for a basic sanity check.
+        [OneTimeTearDown]
+        public void TearDown()
+        {
+            // Remove-WinGetPackage is a function and not a cmdlet that uses COM. Remove source from WinGetDev directory to ensure clean state.
+            TestCommon.RunAICLICommand("source remove", $"-n {Constants.TestSourceName}");
+        }
+
+        [Test]
+        public void GetWinGetSource()
+        {
+            var getSourceResult = TestCommon.RunPowerShellCommandWithResult(Constants.GetSourceCmdlet, $"-Name {Constants.TestSourceName}");
+            Assert.IsTrue(getSourceResult.ExitCode == 0);
+            Assert.IsTrue(getSourceResult.StdOut.Contains($"{Constants.TestSourceName}"));
+        }
 
         [Test]
         public void FindWinGetPackage()
         {
-            var result = TestCommon.RunCommandWithResult("pwsh", $"-Command ipmo {moduleManifestPath}; Find-WinGetPackage -Id Microsoft.WingetCreate");
-            Assert.IsTrue(result.ExitCode == 0, "Powershell commandlet should succeed in admin mode.");
+            var result = TestCommon.RunPowerShellCommandWithResult(Constants.FindCmdlet, $"-Id {Constants.ExeInstallerPackageId}");
+            Assert.IsTrue(result.ExitCode == 0);
+            Assert.IsTrue(result.StdOut.Contains("TestExeInstaller"));
+        }
+
+        [Test]
+        public void GetWinGetPackage()
+        {
+            var installResult = TestCommon.RunPowerShellCommandWithResult(Constants.InstallCmdlet, $"-Id {Constants.MsiInstallerPackageId}");
+            var getResult = TestCommon.RunPowerShellCommandWithResult(Constants.GetCmdlet, $"-Id {Constants.MsiInstallerPackageId}");
+            var uninstallResult = TestCommon.RunPowerShellCommandWithResult(Constants.UninstallCmdlet, $"-Id {Constants.MsiInstallerPackageId}");
+
+            Assert.IsTrue(installResult.ExitCode == 0);
+            Assert.IsTrue(getResult.ExitCode == 0);
+            Assert.IsTrue(uninstallResult.ExitCode == 0);
+
+            Assert.IsTrue(!string.IsNullOrEmpty(installResult.StdOut));
+            Assert.IsTrue(getResult.StdOut.Contains("TestMsiInstaller"));
+            Assert.IsTrue(!string.IsNullOrEmpty(uninstallResult.StdOut));
+        }
+
+        [Test]
+        public void InstallWinGetPackage()
+        {
+            var installResult = TestCommon.RunPowerShellCommandWithResult(Constants.InstallCmdlet, $"-Id {Constants.ExeInstallerPackageId}");
+            var uninstallResult = TestCommon.RunPowerShellCommandWithResult(Constants.UninstallCmdlet, $"-Id {Constants.ExeInstallerPackageId}");
+
+            Assert.IsTrue(installResult.ExitCode == 0);
+            Assert.IsTrue(uninstallResult.ExitCode == 0);
+
+            Assert.IsTrue(!string.IsNullOrEmpty(installResult.StdOut));
+            Assert.IsTrue(!string.IsNullOrEmpty(uninstallResult.StdOut));
+        }
+
+        [Test]
+        public void UpdateWinGetPackage()
+        {
+            var installResult = TestCommon.RunPowerShellCommandWithResult(Constants.InstallCmdlet, $"-Id {Constants.ExeInstallerPackageId} -Version 1.0.0.0");
+            var updateResult = TestCommon.RunPowerShellCommandWithResult(Constants.UpdateCmdlet, $"-Id {Constants.ExeInstallerPackageId}");
+            var getResult = TestCommon.RunPowerShellCommandWithResult(Constants.GetCmdlet, $"-Id {Constants.ExeInstallerPackageId}");
+            var uninstallResult = TestCommon.RunPowerShellCommandWithResult(Constants.UninstallCmdlet, $"-Id {Constants.ExeInstallerPackageId}");
+
+            Assert.IsTrue(installResult.ExitCode == 0);
+            Assert.IsTrue(updateResult.ExitCode == 0);
+            Assert.IsTrue(getResult.ExitCode == 0);
+            Assert.IsTrue(uninstallResult.ExitCode == 0);
+
+            Assert.IsTrue(!string.IsNullOrEmpty(installResult.StdOut));
+            Assert.IsTrue(!string.IsNullOrEmpty(updateResult.StdOut));
+            Assert.IsTrue(getResult.StdOut.Contains("2.0.0.0"));
+            Assert.IsTrue(!string.IsNullOrEmpty(uninstallResult.StdOut));
         }
     }
 }

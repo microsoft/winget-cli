@@ -96,6 +96,11 @@ namespace AppInstallerCLIE2ETests
                 TestCommon.PackageCertificatePath = TestContext.Parameters.Get(Constants.PackageCertificatePathParameter);
             }
 
+            if (TestContext.Parameters.Exists(Constants.PowerShellModulePathParameter))
+            {
+                TestCommon.PowerShellModulePath = TestContext.Parameters.Get(Constants.PowerShellModulePathParameter);
+            }
+
             ReadTestInstallerPaths();
 
             TestIndexSetup.GenerateTestDirectory();

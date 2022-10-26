@@ -17,6 +17,7 @@ namespace AppInstallerCLIE2ETests
         public const string MsiInstallerPathParameter = "MsiTestInstallerPath";
         public const string MsixInstallerPathParameter = "MsixTestInstallerPath";
         public const string PackageCertificatePathParameter = "PackageCertificatePath";
+        public const string PowerShellModulePathParameter = "PowerShellModulePath";
         public const string AppInstallerTestCert = "AppInstallerTest.cer";
         public const string AppInstallerTestCertThumbprint = "d03e7a688b388b1edde8476a627531c49db88017";
 
@@ -73,6 +74,14 @@ namespace AppInstallerCLIE2ETests
         public const string TestExeInstalledFileName = "TestExeInstalled.txt";
         public const string TestExeUninstallerFileName = "UninstallTestExe.bat";
         public const string TestExeUninstalledFileName = "TestExeUninstalled.txt";
+
+        // PowerShell Cmdlets
+        public const string FindCmdlet = "Find-WinGetPackage";
+        public const string GetCmdlet = "Get-WinGetPackage";
+        public const string GetSourceCmdlet = "Get-WinGetSource";
+        public const string InstallCmdlet = "Install-WinGetPackage";
+        public const string UninstallCmdlet = "Uninstall-WinGetPackage";
+        public const string UpdateCmdlet = "Update-WinGetPackage";
 
         // Locations
         public const string LocalAppData = "LocalAppData";

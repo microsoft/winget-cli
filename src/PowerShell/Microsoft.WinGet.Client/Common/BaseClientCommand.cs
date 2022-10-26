@@ -8,7 +8,6 @@ namespace Microsoft.WinGet.Client.Common
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Management.Automation;
     using System.Runtime.InteropServices;
     using Microsoft.Management.Deployment;
@@ -34,8 +33,6 @@ namespace Microsoft.WinGet.Client.Common
             {
                 throw new Exception(Utilities.ResourceManager.GetString("ExceptionSystemDisabled"));
             }
-
-            //
         }
 
         /// <summary>

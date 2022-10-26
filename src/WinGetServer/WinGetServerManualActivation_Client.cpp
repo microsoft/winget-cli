@@ -4,11 +4,17 @@
 
 #include <wil/com.h>
 #include <wil/result.h>
+#include <wil/safecast.h>
 
 #include <memory>
 #include <mutex>
 #include <string>
 
+#if PROD
+const std::wstring& s_ServerExePath = L"\\Microsoft\\WindowsApps\\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\\WindowsPackageManagerServer.exe";
+#else
+const std::wstring& s_ServerExePath = L"\\Microsoft\\WindowsApps\\WinGetDevCLI_8wekyb3d8bbwe\\WindowsPackageManagerServerDev.exe";
+#endif
 
 _Must_inspect_result_
 _Ret_maybenull_ _Post_writable_byte_size_(size)
@@ -28,6 +34,29 @@ void __RPC_USER MIDL_user_free(_Pre_maybenull_ _Post_invalid_ void* ptr)
 unsigned char* GetUCharString(const std::string& str)
 {
     return reinterpret_cast<unsigned char*>(const_cast<char*>(str.c_str()));
+}
+
+std::wstring ExpandEnvironmentVariables(const std::wstring& input)
+{
+    if (input.empty())
+    {
+        return {};
+    }
+
+    DWORD charCount = ExpandEnvironmentStringsW(input.c_str(), nullptr, 0);
+    THROW_LAST_ERROR_IF(charCount == 0);
+
+    std::wstring result(wil::safe_cast<size_t>(charCount), L'\0');
+
+    DWORD charCountWritten = ExpandEnvironmentStringsW(input.c_str(), &result[0], charCount);
+    THROW_HR_IF(E_UNEXPECTED, charCount != charCountWritten);
+
+    if (result.back() == L'\0')
+    {
+        result.resize(result.size() - 1);
+    }
+
+    return result;
 }
 
 struct FreeWithRpcStringFree { void operator()(RPC_CSTR* in) { RpcStringFreeA(in); } };
@@ -52,6 +81,20 @@ void InitializeRpcBinding()
     THROW_HR_IF(HRESULT_FROM_WIN32(status), status != RPC_S_OK);
 }
 
+void LaunchWinGetServerWithManualActivation()
+{
+    const std::wstring& localAppDataPath = ExpandEnvironmentVariables(L"%LOCALAPPDATA%");
+    std::wstring serverExePath = localAppDataPath + s_ServerExePath + L" --manualActivation";
+
+    STARTUPINFO info = { sizeof(info) };
+    PROCESS_INFORMATION processInfo;
+    CreateProcessW(NULL, &serverExePath[0], NULL, NULL, FALSE, 0, NULL, NULL, &info, &processInfo);
+
+    CloseHandle(processInfo.hProcess);
+    CloseHandle(processInfo.hThread);
+    Sleep(1000);
+}
+
 HRESULT CallCreateInstance(const CLSID* clsid, const IID* iid, UINT32 flags, UINT32* bufferByteCount, BYTE** buffer)
 {
     RpcTryExcept
@@ -73,52 +116,6 @@ extern "C" HRESULT WinGetServerManualActivation_CreateInstance(const CLSID* clsi
     RETURN_HR_IF_NULL(E_POINTER, iid);
     RETURN_HR_IF_NULL(E_POINTER, out);
 
-
-    //If binding or activation fails, start RPC server, wait and try again. 
-    STARTUPINFO info = { sizeof(info) };
-    PROCESS_INFORMATION processInfo;
-
-    //LPCWSTR serverExePath = TEXT("%LOCALAPPDATA%\\Microsoft\\WindowsApps\\WinGetDevCLI_8wekyb3d8bbwe\\WindowsPackageManagerServerDev.exe");
-
-#if PROD
-    std::wstring serverExePath = L"C:\\Users\\ryfu\\AppData\\Local\\Microsoft\\WindowsApps\\WinGetCLI_8wekyb3d8bbwe\\WindowsPackageManagerServer.exe --manualActivation";
-#else
-    std::wstring serverExePath = L"C:\\Users\\ryfu\\AppData\\Local\\Microsoft\\WindowsApps\\WinGetDevCLI_8wekyb3d8bbwe\\WindowsPackageManagerServerDev.exe";
-#endif
-
-    // If running in admin mode, include '--manualActivation' 
-    // TODO:: Check token membership here.
-    if (true)
-    {
-        serverExePath = serverExePath + L" --manualActivation";
-    }
-
-    if (!CreateProcessW(
-        NULL,   // No module name (use command line)
-        &serverExePath[0],        // Command line
-        NULL,           // Process handle not inheritable
-        NULL,           // Thread handle not inheritable
-        FALSE,          // Set handle inheritance to FALSE
-        CREATE_NEW_CONSOLE,              // No creation flags
-        NULL,           // Use parent's environment block
-        NULL,           // Use parent's starting directory 
-        &info,            // Pointer to STARTUPINFO structure
-        &processInfo)           // Pointer to PROCESS_INFORMATION structure
-        )
-    {
-        printf("hello");
-        printf("CreateProcess failed (%d).\n", GetLastError());
-    }
-    else
-    {
-        printf("Successfully started process");
-        CloseHandle(processInfo.hProcess);
-        CloseHandle(processInfo.hThread);
-    }
-
-    // Sleep to wait for server to start.
-    Sleep(1000);
-
     static std::once_flag rpcBindingOnce;
     try
     {
@@ -130,8 +127,12 @@ extern "C" HRESULT WinGetServerManualActivation_CreateInstance(const CLSID* clsi
     BYTE* buffer = nullptr;
     UniqueMidl bufferPtr;
 
-    // Relaunch server if this fails
-    RETURN_IF_FAILED(CallCreateInstance(clsid, iid, flags, &bufferByteCount, &buffer));
+    if (FAILED(CallCreateInstance(clsid, iid, flags, &bufferByteCount, &buffer)))
+    {
+        LaunchWinGetServerWithManualActivation();
+        RETURN_IF_FAILED(CallCreateInstance(clsid, iid, flags, &bufferByteCount, &buffer));
+    }
+
     bufferPtr.reset(buffer);
 
     wil::com_ptr<IStream> stream;
