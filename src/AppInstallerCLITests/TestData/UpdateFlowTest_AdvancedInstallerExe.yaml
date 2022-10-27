@@ -1,15 +1,19 @@
 # Same content with InstallFlowTest_AdvancedInstallerExe.yaml but with higher version
-Id: AppInstallerCliTest.TestAdvancedInstallerExeInstaller
-Version: 2.0.0.0
-Name: AppInstaller Test AdvancedInstaller Exe Installer
+PackageIdentifier: AppInstallerCliTest.TestAdvancedInstallerExeInstaller
+PackageVersion: 2.0.0.0
+PackageLocale: en-US
+PackageName: AppInstaller Test AdvancedInstaller Exe Installer
 Publisher: Microsoft Corporation
-AppMoniker: AICLITestAdvancedInstallerExe
+Moniker: AICLITestAdvancedInstallerExe
+ShortDescription: AppInstaller Test Installer
 License: Test
 Installers: 
-    - Arch: x64
-      Url: https://ThisIsNotUsed
-      InstallerType: advancedInstaller
-      Sha256: 65DB2F2AC2686C7F2FD69D4A4C6683B888DC55BFA20A0E32CA9F838B51689A3B
-      InstallerSwitches:
-          - Update: /update
-ManifestVersion: 0.1.0
+- Architecture: x64
+  InstallerUrl: https://ThisIsNotUsed
+  InstallerType: advancedInstaller
+  InstallerSha256: 65DB2F2AC2686C7F2FD69D4A4C6683B888DC55BFA20A0E32CA9F838B51689A3B
+  InstallerSwitches:
+    Upgrade: /update
+    Custom: /ver2.0.0.0
+ManifestType: singleton
+ManifestVersion: 1.4.0

@@ -178,12 +178,17 @@ namespace
             if (input.empty() || input == "AppInstallerCliTest.TestAdvancedInstallerExeInstaller")
             {
                 auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_AdvancedInstallerExe.yaml"));
-                auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Portable.yaml"));
+                auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_AdvancedInstallerExe.yaml"));
                 result.Matches.emplace_back(
                     ResultMatch(
                         TestPackage::Make(
                             manifest,
-                            TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "AdvancedInstaller" } },
+                            TestPackage::MetadataMap
+                            {
+                                { PackageVersionMetadata::InstalledType, "AdvancedInstaller" },
+                                { PackageVersionMetadata::StandardUninstallCommand, "C:\\uninstall.exe" },
+                                { PackageVersionMetadata::SilentUninstallCommand, "C:\\uninstall.exe /silence" },
+                            },
                             std::vector<Manifest>{ manifest2, manifest },
                             shared_from_this()
                         ),
@@ -2090,7 +2095,7 @@ TEST_CASE("UpdateFlow_UpdateExe", "[UpdateFlow][workflow]")
     REQUIRE(updateResultStr.find("/ver3.0.0.0") != std::string::npos);
 }
 
-TEST_CASE("UpdateFlow_UpdateAdvanced_Installer_Exe", "[UpdateFlow][workflow]")
+TEST_CASE("UpdateFlow_UpdateAdvancedInstaller_Exe", "[UpdateFlow][workflow]")
 {
     TestCommon::TempFile updateResultPath("TestExeInstalled.txt");
 
@@ -2113,7 +2118,7 @@ TEST_CASE("UpdateFlow_UpdateAdvanced_Installer_Exe", "[UpdateFlow][workflow]")
     std::string updateResultStr;
     std::getline(updateResultFile, updateResultStr);
     REQUIRE(updateResultStr.find("/update") != std::string::npos); // This should be passed in from the Manifest
-    REQUIRE(updateResultStr.find("/exenoui /passive /norestart") != std::string::npos); // These should be the default passed in from the CLI
+    REQUIRE(updateResultStr.find("/exenoui /quiet /norestart") != std::string::npos); // These should be the default passed in from the CLI
     REQUIRE(updateResultStr.find("/ver2.0.0.0") != std::string::npos);
 }
 
@@ -2826,7 +2831,7 @@ TEST_CASE("ExportFlow_ExportAll", "[ExportFlow][workflow]")
     REQUIRE(exportedCollection.Sources[0].Details.Identifier == "*TestSource");
 
     const auto& exportedPackages = exportedCollection.Sources[0].Packages;
-    REQUIRE(exportedPackages.size() == 5);
+    REQUIRE(exportedPackages.size() == 6);
     REQUIRE(exportedPackages.end() != std::find_if(exportedPackages.begin(), exportedPackages.end(), [](const auto& p)
         {
             return p.Id == "AppInstallerCliTest.TestExeInstaller" && p.VersionAndChannel.GetVersion().ToString().empty();
@@ -2846,6 +2851,10 @@ TEST_CASE("ExportFlow_ExportAll", "[ExportFlow][workflow]")
     REQUIRE(exportedPackages.end() != std::find_if(exportedPackages.begin(), exportedPackages.end(), [](const auto& p)
         {
             return p.Id == "AppInstallerCliTest.TestZipInstaller" && p.VersionAndChannel.GetVersion().ToString().empty();
+        }));
+    REQUIRE(exportedPackages.end() != std::find_if(exportedPackages.begin(), exportedPackages.end(), [](const auto& p)
+        {
+            return p.Id == "AppInstallerCliTest.TestAdvancedInstallerExeInstaller" && p.VersionAndChannel.GetVersion().ToString().empty();
         }));
 }
 
@@ -2870,7 +2879,7 @@ TEST_CASE("ExportFlow_ExportAll_WithVersions", "[ExportFlow][workflow]")
     REQUIRE(exportedCollection.Sources[0].Details.Identifier == "*TestSource");
 
     const auto& exportedPackages = exportedCollection.Sources[0].Packages;
-    REQUIRE(exportedPackages.size() == 5);
+    REQUIRE(exportedPackages.size() == 6);
     REQUIRE(exportedPackages.end() != std::find_if(exportedPackages.begin(), exportedPackages.end(), [](const auto& p)
         {
             return p.Id == "AppInstallerCliTest.TestExeInstaller" && p.VersionAndChannel.GetVersion().ToString() == "1.0.0.0";
@@ -2890,6 +2899,10 @@ TEST_CASE("ExportFlow_ExportAll_WithVersions", "[ExportFlow][workflow]")
     REQUIRE(exportedPackages.end() != std::find_if(exportedPackages.begin(), exportedPackages.end(), [](const auto& p)
         {
             return p.Id == "AppInstallerCliTest.TestZipInstaller" && p.VersionAndChannel.GetVersion().ToString() == "1.0.0.0";
+        }));
+    REQUIRE(exportedPackages.end() != std::find_if(exportedPackages.begin(), exportedPackages.end(), [](const auto& p)
+        {
+            return p.Id == "AppInstallerCliTest.TestAdvancedInstallerExeInstaller" && p.VersionAndChannel.GetVersion().ToString() == "1.0.0.0";
         }));
 }
 
