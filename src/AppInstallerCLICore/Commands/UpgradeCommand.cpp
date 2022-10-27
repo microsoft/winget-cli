@@ -102,6 +102,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::InstallArchitecture), // -a
             Argument::ForType(Args::Type::Locale),
             Argument::ForType(Args::Type::HashOverride),
+            Argument::ForType(Args::Type::IgnoreMalwareScan),
             Argument::ForType(Args::Type::AcceptPackageAgreements),
             Argument::ForType(Args::Type::AcceptSourceAgreements),
             Argument::ForType(Execution::Args::Type::CustomHeader),

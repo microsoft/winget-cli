@@ -292,8 +292,8 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="HashOverrideArgumentDescription" xml:space="preserve">
     <value>Ignore the installer hash check failure</value>
   </data>
-  <data name="SecurityOverrideArgumentDescription" xml:space="preserve">
-    <value>Ignore security checks, excluding the installer hash check</value>
+  <data name="IgnoreMalwareScanArgumentDescription" xml:space="preserve">
+    <value>Ignore the malware scan performed as part of installing an archive type package</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>Request interactive installation; user input may be needed</value>
@@ -1467,12 +1467,12 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Extracting archive...</value>
   </data>
   <data name="ArchiveFailedMalwareScan" xml:space="preserve">
-    <value>Archive scan detected malware; to override this check use --ignore-security-checks</value>
-    <comment>{Locked="--ignore-security-checks"}</comment>
+    <value>Archive scan detected malware. To override this check use --ignore-malware-scan</value>
+    <comment>{Locked="--ignore-malware-scan"}</comment>
   </data>
   <data name="ArchiveFailedMalwareScanOverridden" xml:space="preserve">
-    <value>Archive scan detected malware; proceeding due to --ignore-security-checks</value>
-    <comment>{Locked="--ignore-security-checks"}</comment>
+    <value>Archive scan detected malware. Proceeding due to --ignore-malware-scan</value>
+    <comment>{Locked="--ignore-malware-scan"}</comment>
   </data>
   <data name="NoUpgradeArgumentDescription" xml:space="preserve">
     <value>Skips upgrade if an installed version already exists</value>

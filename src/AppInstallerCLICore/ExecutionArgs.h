@@ -40,7 +40,7 @@ namespace AppInstaller::CLI::Execution
             InstallScope,
             InstallArchitecture,
             HashOverride, // Ignore hash mismatches
-            SecurityOverride, //Ignore general security warnings
+            IgnoreMalwareScan, // Ignore malware scan on archive files
             AcceptPackageAgreements, // Accept all license agreements for packages
             Rename, // Renames the file of the executable. Only applies to the portable installerType
             NoUpgrade, // Install flow should not try to convert to upgrade flow upon finding existing installed version

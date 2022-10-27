@@ -27,9 +27,9 @@ namespace AppInstaller::CLI::Workflow
             }
             else
             {
-                if (context.Args.Contains(Execution::Args::Type::SecurityOverride))
+                if (context.Args.Contains(Execution::Args::Type::IgnoreMalwareScan))
                 {
-                    AICLI_LOG(CLI, Warning, << "Archive malware scan failed; proceeding due to --ignore-security-checks override");
+                    AICLI_LOG(CLI, Warning, << "Archive malware scan failed; proceeding due to --ignore-malware-scan override");
                     context.Reporter.Warn() << Resource::String::ArchiveFailedMalwareScanOverridden << std::endl;
                 }
                 else
