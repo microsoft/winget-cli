@@ -892,6 +892,9 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="PolicyEnableBypassCertificatePinningForMicrosoftStore" xml:space="preserve">
     <value>Enable Windows App Installer Microsoft Store Source Pinned Certificate Bypass</value>
   </data>
+  <data name="PolicyEnableIgnoreMalwareScan" xml:space="preserve">
+    <value>Enable Windows App Installer Malware Scan Bypass</value>
+  </data>
   <data name="SettingsWarningField" xml:space="preserve">
     <value>Field:</value>
   </data>

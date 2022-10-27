@@ -57,6 +57,12 @@ namespace Microsoft.WinGet.Client.Common
         public SwitchParameter AllowHashMismatch { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether to continue when potential malware is detected.
+        /// </summary>
+        [Parameter(ValueFromPipelineByPropertyName = true)]
+        public SwitchParameter IgnoreMalwareScan { get; set; }
+
+        /// <summary>
         /// Gets or sets a value indicating whether to continue upon non security related failures.
         /// </summary>
         [Parameter(ValueFromPipelineByPropertyName = true)]
@@ -77,6 +83,7 @@ namespace Microsoft.WinGet.Client.Common
         {
             InstallOptions options = ComObjectFactory.Value.CreateInstallOptions();
             options.AllowHashMismatch = this.AllowHashMismatch.ToBool();
+            options.IgnoreMalwareScan = this.IgnoreMalwareScan.ToBool();
             options.Force = this.Force.ToBool();
             options.PackageInstallMode = this.Mode;
             if (version != null)

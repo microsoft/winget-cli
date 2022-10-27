@@ -58,6 +58,7 @@ namespace AppInstaller::CLI
                 execArgs.Contains(Args::Type::Override) ||
                 execArgs.Contains(Args::Type::InstallLocation) ||
                 execArgs.Contains(Args::Type::HashOverride) ||
+                execArgs.Contains(Args::Type::IgnoreMalwareScan) ||
                 execArgs.Contains(Args::Type::AcceptPackageAgreements);
         }
 
@@ -185,6 +186,7 @@ namespace AppInstaller::CLI
                 execArgs.Contains(Args::Type::Override) ||
                 execArgs.Contains(Args::Type::InstallLocation) ||
                 execArgs.Contains(Args::Type::HashOverride) ||
+                execArgs.Contains(Args::Type::IgnoreMalwareScan) ||
                 execArgs.Contains(Args::Type::AcceptPackageAgreements)))
         {
             throw CommandException(Resource::String::InvalidArgumentWithoutQueryError);

@@ -99,6 +99,14 @@ namespace AppInstallerCLIE2ETests
         /// Test winget source is enabled by policy.
         /// </summary>
         [Test]
+        public void EnableIgnoreMalwareScan()
+        {
+            GroupPolicyHelper.EnableIgnoreMalwareScan.Disable();
+            var result = TestCommon.RunAICLICommand("install", "AnyPackage --ignore-malware-scan");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
+        }
+
+        [Test]
         public void EnableDefaultSource()
         {
             // Default sources are disabled during setup so they are missing.
