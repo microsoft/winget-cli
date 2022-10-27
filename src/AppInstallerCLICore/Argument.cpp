@@ -71,7 +71,6 @@ namespace AppInstaller::CLI
             return Argument{ "versions"_liv, NoAlias, Args::Type::ListVersions, Resource::String::VersionsArgumentDescription, ArgumentType::Flag };
         case Args::Type::Help:
             return Argument{ "help"_liv, APPINSTALLER_CLI_HELP_ARGUMENT_TEXT_CHAR, Args::Type::Help, Resource::String::HelpArgumentDescription, ArgumentType::Flag };
-        // TODO: Consider adding a group policy around this
         case Args::Type::IgnoreMalwareScan:
             return Argument{ "ignore-malware-scan"_liv, NoAlias, Args::Type::IgnoreMalwareScan, Resource::String::IgnoreMalwareScanArgumentDescription, ArgumentType::Flag, Settings::TogglePolicy::Policy::IgnoreMalwareScan};
         case Args::Type::SourceName:
