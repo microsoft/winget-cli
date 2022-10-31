@@ -14,11 +14,19 @@ namespace AppInstaller::CLI::Workflow
     {
         HRESULT WaitForMSStoreOperation(Execution::Context& context, IVectorView<AppInstallItem>& installItems)
         {
+            bool isSilentMode = context.Args.Contains(Execution::Args::Type::Silent);
+
             for (auto const& installItem : installItems)
             {
                 AICLI_LOG(CLI, Info, <<
                     "Started MSStore package execution. ProductId: " << Utility::ConvertToUTF8(installItem.ProductId()) <<
                     " PackageFamilyName: " << Utility::ConvertToUTF8(installItem.PackageFamilyName()));
+
+                if (isSilentMode)
+                {
+                    installItem.InstallInProgressToastNotificationMode(AppInstallationToastNotificationMode::NoToast);
+                    installItem.CompletedInstallToastNotificationMode(AppInstallationToastNotificationMode::NoToast);
+                }
             }
 
             HRESULT errorCode = S_OK;
