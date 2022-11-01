@@ -48,7 +48,10 @@ If you disable this policy, users will not be able to enable the ability overrid
       <string id="EnableIgnoreMalwareScanExplanation">
         This policy controls whether or not the Windows Package Manager can be configured to enable the ability to ignore the result of the malware scan perfomed on archive type packages
 
-        If you enable or do not configure this policy, users will be able to bypass the Archive Malware Scan security validation using command line arguments.
+        If you enable or do not configure this policy, users will be able to enable the ability to override the Archive Malware Scan security validation using command line arguments.
+        
+        If you disable this policy, users will not be able to enable the ability to override the Archive Malware Scan security validation using command line arguments.
+
 
         If you disable this policy, users will not be able to bypass the Archive Malware Scan security validation using command line arguments.
       </string>
