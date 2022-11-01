@@ -309,7 +309,8 @@ namespace AppInstaller::CLI::Workflow
                         context.Reporter.Info() << Resource::String::Cancelled << std::endl;
                         return;
                     }
-                    else if (searchContext.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE)
+                    else if (searchContext.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE ||
+                        searchContext.GetTerminationHR() == APPINSTALLER_CLI_ERROR_PACKAGE_ALREADY_INSTALLED)
                     {
                         AICLI_LOG(CLI, Info, << "Package is already installed: [" << packageRequest.Id << "]");
                         context.Reporter.Info() << Resource::String::ImportPackageAlreadyInstalled << ' ' << packageRequest.Id << std::endl;
