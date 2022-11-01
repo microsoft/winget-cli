@@ -23,8 +23,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         void LogOutputPath(hstring const& value);
         bool AllowHashMismatch();
         void AllowHashMismatch(bool value);
-        bool IgnoreMalwareScan();
-        void IgnoreMalwareScan(bool value);
         hstring ReplacementInstallerArguments();
         void ReplacementInstallerArguments(hstring const& value);
         hstring CorrelationData();
@@ -45,7 +43,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         winrt::Microsoft::Management::Deployment::PackageInstallMode m_packageInstallMode = winrt::Microsoft::Management::Deployment::PackageInstallMode::Default;
         std::wstring m_logOutputPath = L"";
         bool m_allowHashMismatch = false;
-        bool m_ignoreMalwareScan = false;
         std::wstring m_replacementInstallerArguments = L"";
         std::wstring m_correlationData = L"";
         std::wstring m_additionalPackageCatalogArguments = L"";

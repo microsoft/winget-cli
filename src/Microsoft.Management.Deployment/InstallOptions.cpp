@@ -76,14 +76,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         m_allowHashMismatch = value;
     }
-    bool InstallOptions::IgnoreMalwareScan()
-    {
-        return m_ignoreMalwareScan;
-    }
-    void InstallOptions::IgnoreMalwareScan(bool value)
-    {
-        m_ignoreMalwareScan = value;
-    }
     hstring InstallOptions::ReplacementInstallerArguments()
     {
         return hstring(m_replacementInstallerArguments);

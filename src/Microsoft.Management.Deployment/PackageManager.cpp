@@ -349,10 +349,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             {
                 context->Args.AddArg(Execution::Args::Type::HashOverride);
             }
-            if (options.IgnoreMalwareScan())
-            {
-                context->Args.AddArg(Execution::Args::Type::IgnoreMalwareScan);
-            }
             if (options.Force())
             {
                 context->Args.AddArg(Execution::Args::Type::Force);
