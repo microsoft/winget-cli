@@ -336,6 +336,7 @@
     <ClInclude Include="Public\winget\Settings.h" />
     <ClInclude Include="Public\winget\ThreadGlobals.h" />
     <ClInclude Include="Public\winget\TraceLogger.h" />
+    <ClInclude Include="Public\winget\TrustedRemoteSettings.h" />
     <ClInclude Include="Public\winget\UserSettings.h" />
     <ClInclude Include="Public\winget\Yaml.h" />
     <ClInclude Include="Telemetry\MicrosoftTelemetry.h" />
@@ -412,6 +413,7 @@
     <ClCompile Include="Architecture.cpp" />
     <ClCompile Include="ThreadGlobals.cpp" />
     <ClCompile Include="TraceLogger.cpp" />
+    <ClCompile Include="TrustedRemoteSettings.cpp" />
     <ClCompile Include="UserSettings.cpp" />
     <ClCompile Include="Versions.cpp" />
     <ClCompile Include="Yaml.cpp" />

@@ -46,6 +46,8 @@ namespace AppInstaller::Settings
                 return userSettings.Get<Setting::EFZipInstall>();
             case ExperimentalFeature::Feature::OpenLogsArgument:
                 return userSettings.Get<Setting::EFOpenLogsArgument>();
+            case ExperimentalFeature::Feature::TrustedRemoteSettings:
+                return userSettings.Get<Setting::EFTrustedRemoteSettings>();
             default:
                 THROW_HR(E_UNEXPECTED);
             }
@@ -81,6 +83,8 @@ namespace AppInstaller::Settings
             return ExperimentalFeature{ "Zip Installation", "zipInstall", "https://aka.ms/winget-settings", Feature::ZipInstall };
         case Feature::OpenLogsArgument:
             return ExperimentalFeature{ "Open Logs Argument", "openLogsArgument", "https://aka.ms/winget-settings", Feature::OpenLogsArgument };
+        case Feature::TrustedRemoteSettings:
+            return ExperimentalFeature{ "Trusted Remote Settings", "trustedRemoteSettings", "https://aka.ms/winget-settings", Feature::TrustedRemoteSettings };
         default:
             THROW_HR(E_UNEXPECTED);
         }

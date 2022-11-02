@@ -31,6 +31,7 @@ namespace AppInstaller::Settings
             // This can be used to hide highly experimental features (or these example ones)
             ExperimentalCmd = 0x10000,
             ExperimentalArg = 0x20000,
+            TrustedRemoteSettings = 0x40000,
         };
 
         using Feature_t = std::underlying_type_t<ExperimentalFeature::Feature>;
