@@ -7,7 +7,7 @@ issue id: 1620
 
 # Spec Title
 
-For [#1620](https://github.com/microsoft/winget-cli/issues/1620)"
+For [#1620](https://github.com/microsoft/winget-cli/issues/1620)
 
 ## Abstract
 
@@ -72,7 +72,7 @@ The user might not be negatively impacted by this, as it is geared towards simpl
 
 ## Future considerations
 
-As far as I know currently (v1.3.2691) widget doesn't support installing multiple packages in a single command.
+Currently Winget does not support installing multiple packages in a single command.
 
 For Example -
 
@@ -82,7 +82,7 @@ winget install Powershell Git
 
 The above command will not install anything.
 
-If will ever support this then we might consider having _multiple_, _range_ and _not_ selectors.
+If this is ever supported, potential considerations include having _multiple_, _range_ and _not_ selectors.
 
 - multiple selector (1 3): A **space** separated number should install packages of that number.
 - range selector (1-3): A **hyphen** separated number should install all the packages including the start and end numbers.
