@@ -74,10 +74,10 @@
                 <ScriptBlock>$_.Info.Name</ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>$_.Info.Type</ScriptBlock>
+                <ScriptBlock>$_.Info.Argument</ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>$_.Info.Argument</ScriptBlock>
+                <ScriptBlock>$_.Info.Type</ScriptBlock>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>

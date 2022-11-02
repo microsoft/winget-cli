@@ -109,7 +109,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>comsuppw.lib;shlwapi.lib;xmllite.lib;runtimeobject.lib;Pathcch.lib;Rometadata.lib;Rpcrt4.lib</AdditionalDependencies>
+      <AdditionalDependencies>comsuppw.lib;shlwapi.lib;xmllite.lib;runtimeobject.lib;Pathcch.lib;Rometadata.lib;Rpcrt4.lib;Shell32.lib;Advapi32.lib</AdditionalDependencies>
       <ModuleDefinitionFile>winrtact.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
@@ -130,7 +130,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>comsuppw.lib;shlwapi.lib;xmllite.lib;runtimeobject.lib;Pathcch.lib;Rometadata.lib;Rpcrt4.lib;</AdditionalDependencies>
+      <AdditionalDependencies>comsuppw.lib;shlwapi.lib;xmllite.lib;runtimeobject.lib;Pathcch.lib;Rometadata.lib;Rpcrt4.lib;Shell32.lib;Advapi32.lib</AdditionalDependencies>
       <ModuleDefinitionFile>winrtact.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
@@ -153,7 +153,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>comsuppw.lib;shlwapi.lib;xmllite.lib;runtimeobject.lib;Pathcch.lib;Rometadata.lib;Rpcrt4.lib</AdditionalDependencies>
+      <AdditionalDependencies>comsuppw.lib;shlwapi.lib;xmllite.lib;runtimeobject.lib;Pathcch.lib;Rometadata.lib;Rpcrt4.lib;Shell32.lib;Advapi32.lib</AdditionalDependencies>
       <ModuleDefinitionFile>winrtact.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
@@ -176,7 +176,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>comsuppw.lib;shlwapi.lib;xmllite.lib;runtimeobject.lib;Pathcch.lib;Rometadata.lib;Rpcrt4.lib</AdditionalDependencies>
+      <AdditionalDependencies>comsuppw.lib;shlwapi.lib;xmllite.lib;runtimeobject.lib;Pathcch.lib;Rometadata.lib;Rpcrt4.lib;Shell32.lib;Advapi32.lib</AdditionalDependencies>
       <ModuleDefinitionFile>winrtact.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
@@ -188,6 +188,8 @@
   <ItemGroup>
     <ClCompile Include="..\..\WinGetServer\WinGetServerManualActivation_Client.cpp" />
     <ClCompile Include="..\..\WinGetServer\WinGetServer_c.c" />
+    <ClCompile Include="..\..\WinGetServer\Utils.h" />
+    <ClCompile Include="..\..\WinGetServer\Utils.cpp" />
     <ClCompile Include="catalog.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="typeresolution.cpp" />

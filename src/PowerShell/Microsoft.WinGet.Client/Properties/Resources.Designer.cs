@@ -70,7 +70,7 @@ namespace Microsoft.WinGet.Client.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to This cmdlet is currently disabled for SYSTEM users..
+        ///   Looks up a localized string similar to This cmdlet is currently disabled for SYSTEM..
         /// </summary>
         internal static string ExceptionSystemDisabled {
             get {
@@ -147,6 +147,15 @@ namespace Microsoft.WinGet.Client.Properties {
         internal static string VagueCriteriaExceptionMessage {
             get {
                 return ResourceManager.GetString("VagueCriteriaExceptionMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to execute command; WinGet package not installed..
+        /// </summary>
+        internal static string WinGetPackageNotInstalled {
+            get {
+                return ResourceManager.GetString("WinGetPackageNotInstalled", resourceCulture);
             }
         }
     }

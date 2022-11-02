@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "WinGetServer.h"
+#include "Utils.h"
 
 #include <wil/com.h>
 #include <wil/result.h>
@@ -9,11 +10,14 @@
 #include <memory>
 #include <mutex>
 #include <string>
+#include <shtypes.h>
+#include <filesystem>
+#include <shlobj_core.h>
 
-#if PROD
-const std::wstring& s_ServerExePath = L"\\Microsoft\\WindowsApps\\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\\WindowsPackageManagerServer.exe";
+#if USE_PROD_WINGET_SERVER
+const std::wstring_view s_ServerExePath = L"\\Microsoft\\WindowsApps\\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\\WindowsPackageManagerServer.exe";
 #else
-const std::wstring& s_ServerExePath = L"\\Microsoft\\WindowsApps\\WinGetDevCLI_8wekyb3d8bbwe\\WindowsPackageManagerServerDev.exe";
+const std::wstring_view s_ServerExePath = L"\\Microsoft\\WindowsApps\\WinGetDevCLI_8wekyb3d8bbwe\\WindowsPackageManagerServerDev.exe";
 #endif
 
 _Must_inspect_result_
@@ -31,32 +35,11 @@ void __RPC_USER MIDL_user_free(_Pre_maybenull_ _Post_invalid_ void* ptr)
     }
 }
 
-unsigned char* GetUCharString(const std::string& str)
+std::filesystem::path GetKnownFolderPath(const KNOWNFOLDERID& id)
 {
-    return reinterpret_cast<unsigned char*>(const_cast<char*>(str.c_str()));
-}
-
-std::wstring ExpandEnvironmentVariables(const std::wstring& input)
-{
-    if (input.empty())
-    {
-        return {};
-    }
-
-    DWORD charCount = ExpandEnvironmentStringsW(input.c_str(), nullptr, 0);
-    THROW_LAST_ERROR_IF(charCount == 0);
-
-    std::wstring result(wil::safe_cast<size_t>(charCount), L'\0');
-
-    DWORD charCountWritten = ExpandEnvironmentStringsW(input.c_str(), &result[0], charCount);
-    THROW_HR_IF(E_UNEXPECTED, charCount != charCountWritten);
-
-    if (result.back() == L'\0')
-    {
-        result.resize(result.size() - 1);
-    }
-
-    return result;
+    wil::unique_cotaskmem_string knownFolder = nullptr;
+    THROW_IF_FAILED(SHGetKnownFolderPath(id, KF_FLAG_NO_ALIAS | KF_FLAG_DONT_VERIFY | KF_FLAG_NO_PACKAGE_REDIRECTION, NULL, &knownFolder));
+    return knownFolder.get();
 }
 
 struct FreeWithRpcStringFree { void operator()(RPC_CSTR* in) { RpcStringFreeA(in); } };
@@ -68,7 +51,7 @@ using UniqueMidl = std::unique_ptr<BYTE, DeleteWithMidlFree>;
 void InitializeRpcBinding()
 {
     std::string protocol = "ncacn_np";
-    std::string endpoint = "\\pipe\\WinGetServerManualActivation_SID";
+    std::string endpoint = "\\pipe\\WinGetServerManualActivation_" + GetUserSID();
 
     unsigned char* binding = nullptr;
     UniqueRpcString bindingPtr;
@@ -81,18 +64,24 @@ void InitializeRpcBinding()
     THROW_HR_IF(HRESULT_FROM_WIN32(status), status != RPC_S_OK);
 }
 
-void LaunchWinGetServerWithManualActivation()
+HRESULT LaunchWinGetServerWithManualActivation()
 {
-    const std::wstring& localAppDataPath = ExpandEnvironmentVariables(L"%LOCALAPPDATA%");
-    std::wstring serverExePath = localAppDataPath + s_ServerExePath + L" --manualActivation";
+    const std::filesystem::path& localAppDataPath = GetKnownFolderPath(FOLDERID_LocalAppData);
+    std::wstring serverExePath = std::wstring{ localAppDataPath } + std::wstring{ s_ServerExePath } + L" --manualActivation";
 
     STARTUPINFO info = { sizeof(info) };
     PROCESS_INFORMATION processInfo;
-    CreateProcessW(NULL, &serverExePath[0], NULL, NULL, FALSE, 0, NULL, NULL, &info, &processInfo);
-
-    CloseHandle(processInfo.hProcess);
-    CloseHandle(processInfo.hThread);
-    Sleep(1000);
+    if (CreateProcessW(NULL, &serverExePath[0], NULL, NULL, FALSE, 0, NULL, NULL, &info, &processInfo))
+    {
+        WaitForSingleObject(processInfo.hThread, 500);
+        CloseHandle(processInfo.hProcess);
+        CloseHandle(processInfo.hThread);
+        return S_OK;
+    }
+    else
+    {
+        return HRESULT_FROM_WIN32(GetLastError());
+    }
 }
 
 HRESULT CallCreateInstance(const CLSID* clsid, const IID* iid, UINT32 flags, UINT32* bufferByteCount, BYTE** buffer)
@@ -110,28 +99,14 @@ HRESULT CallCreateInstance(const CLSID* clsid, const IID* iid, UINT32 flags, UIN
     return S_OK;
 }
 
-extern "C" HRESULT WinGetServerManualActivation_CreateInstance(const CLSID* clsid, const IID* iid, UINT32 flags, void** out)
+HRESULT LaunchServerAndCreateInstance(const CLSID* clsid, const IID* iid, UINT32 flags, void** out)
 {
-    RETURN_HR_IF_NULL(E_POINTER, clsid);
-    RETURN_HR_IF_NULL(E_POINTER, iid);
-    RETURN_HR_IF_NULL(E_POINTER, out);
-
-    static std::once_flag rpcBindingOnce;
-    try
-    {
-        std::call_once(rpcBindingOnce, InitializeRpcBinding);
-    }
-    CATCH_RETURN();
-
     UINT32 bufferByteCount = 0;
     BYTE* buffer = nullptr;
     UniqueMidl bufferPtr;
 
-    if (FAILED(CallCreateInstance(clsid, iid, flags, &bufferByteCount, &buffer)))
-    {
-        LaunchWinGetServerWithManualActivation();
-        RETURN_IF_FAILED(CallCreateInstance(clsid, iid, flags, &bufferByteCount, &buffer));
-    }
+    RETURN_IF_FAILED(LaunchWinGetServerWithManualActivation());
+    RETURN_IF_FAILED(CallCreateInstance(clsid, iid, flags, &bufferByteCount, &buffer));
 
     bufferPtr.reset(buffer);
 
@@ -142,7 +117,36 @@ extern "C" HRESULT WinGetServerManualActivation_CreateInstance(const CLSID* clsi
 
     wil::com_ptr<IUnknown> output;
     RETURN_IF_FAILED(CoUnmarshalInterface(stream.get(), *iid, reinterpret_cast<void**>(&output)));
-
     *out = output.detach();
     return S_OK;
+}
+
+extern "C" HRESULT WinGetServerManualActivation_CreateInstance(const CLSID* clsid, const IID* iid, UINT32 flags, void** out)
+{
+    RETURN_HR_IF_NULL(E_POINTER, clsid);
+    RETURN_HR_IF_NULL(E_POINTER, iid);
+    RETURN_HR_IF_NULL(E_POINTER, out);
+
+    if (WinGetServerManualActivation_IfHandle == NULL)
+    {
+        static std::once_flag rpcBindingOnce;
+        try
+        {
+            std::call_once(rpcBindingOnce, InitializeRpcBinding);
+        }
+        CATCH_RETURN();
+    }
+
+    HRESULT result;
+
+    for (int i = 0; i < 3; i++)
+    {
+        result = LaunchServerAndCreateInstance(clsid, iid, flags, out);
+        if (SUCCEEDED(result) || result == HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND))
+        {
+            break;
+        }
+    }
+
+    return result;
 }

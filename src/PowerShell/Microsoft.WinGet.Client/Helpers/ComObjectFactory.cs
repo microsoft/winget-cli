@@ -8,7 +8,6 @@ namespace Microsoft.WinGet.Client.Factories
 {
     using System;
     using System.Runtime.InteropServices;
-    using System.Threading;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Common;
 
@@ -115,14 +114,11 @@ namespace Microsoft.WinGet.Client.Factories
 
                 int hr = WinGetServerManualActivation_CreateInstance(type.GUID, iid, 0, out instance);
 
-                // If create instance fails, wait and retry.
-                if (hr != 0)
+                if (hr == ErrorCode.ERROR_FILE_NOT_FOUND)
                 {
-                    Thread.Sleep(2000);
-                    hr = WinGetServerManualActivation_CreateInstance(type.GUID, iid, 0, out instance);
+                    throw new Exception(Utilities.ResourceManager.GetString("WinGetPackageNotInstalled"));
                 }
-
-                if (hr != 0)
+                else if (hr != 0)
                 {
                     throw new COMException("Failed to create instance.", hr);
                 }

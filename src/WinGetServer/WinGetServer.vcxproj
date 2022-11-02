@@ -144,6 +144,11 @@
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/debug:full /debugtype:cv,fixup /incremental:no %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(WingetEnableReleaseBuild)'=='true'">
+    <ClCompile>
+      <PreprocessorDefinitions>USE_PROD_WINGET_SERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="resource.h" />
     <ClCompile Include="WinGetServerManualActivation_Client.cpp">
@@ -162,6 +167,8 @@
     <Manifest Include="WinGetServer.exe.manifest" />
     <None Include="packages.config" />
     <None Include="PropertySheet.props" />
+    <ClInclude Include="Utils.h" />
+    <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WindowsPackageManager\WindowsPackageManager.vcxproj">

@@ -11,6 +11,7 @@
 #include <sddl.h>
 #include <WindowsPackageManager.h>
 #include "WinGetServer.h"
+#include "Utils.h"
 
 #include <memory>
 #include <string>
@@ -26,20 +27,17 @@ static void _releaseNotifier() noexcept
     _comServerExitEvent.SetEvent();
 }
 
-unsigned char* GetUCharString(const char* in)
-{
-    return reinterpret_cast<unsigned char*>(const_cast<char*>(in));
-}
-
 HRESULT WindowsPackageManagerServerInitializeRPCServer()
 {
-    RPC_STATUS status = RpcServerUseProtseqEpA(GetUCharString("ncacn_np"), RPC_C_PROTSEQ_MAX_REQS_DEFAULT, GetUCharString("\\pipe\\WinGetServerManualActivation_SID"), nullptr);
+    std::string userSID = GetUserSID();
+    std::string endpoint = "\\pipe\\WinGetServerManualActivation_" + userSID;
+    RPC_STATUS status = RpcServerUseProtseqEpA(GetUCharString("ncacn_np"), RPC_C_PROTSEQ_MAX_REQS_DEFAULT, GetUCharString(endpoint), nullptr);
     RETURN_HR_IF(HRESULT_FROM_WIN32(status), status != RPC_S_OK);
 
     wil::unique_hlocal_security_descriptor securityDescriptor;
-    RETURN_LAST_ERROR_IF(!ConvertStringSecurityDescriptorToSecurityDescriptorA("D:(A;;GA;;;BA)", SDDL_REVISION_1, &securityDescriptor, nullptr));
+    RETURN_LAST_ERROR_IF(!ConvertStringSecurityDescriptorToSecurityDescriptorA("S:(ML;;NW;;;HI)D:(A;;GA;;;PS)", SDDL_REVISION_1, &securityDescriptor, nullptr));
 
-    status = RpcServerRegisterIf3(WinGetServerManualActivation_v1_0_s_ifspec, nullptr, nullptr, RPC_IF_ALLOW_SECURE_ONLY, RPC_C_LISTEN_MAX_CALLS_DEFAULT, 0, nullptr, securityDescriptor.get());
+    status = RpcServerRegisterIf3(WinGetServerManualActivation_v1_0_s_ifspec, nullptr, nullptr, RPC_IF_ALLOW_LOCAL_ONLY | RPC_IF_AUTOLISTEN, RPC_C_LISTEN_MAX_CALLS_DEFAULT, 0, nullptr, securityDescriptor.get());
     RETURN_HR_IF(HRESULT_FROM_WIN32(status), status != RPC_S_OK);
 
     return S_OK;
@@ -102,25 +100,6 @@ extern "C" HRESULT CreateInstance(
 
 int __stdcall wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR cmdLine, _In_ int)
 {
-    // Create mutex and attempt to take ownership.
-    HANDLE hMutex = NULL;
-    hMutex = CreateMutex(NULL, FALSE, TEXT("WinGetServerMutex"));
-
-    if (hMutex == NULL)
-    {
-        return 1;
-    }
-    else
-    {
-        // Attempt to take ownership of mutex with 0 timeout.
-        DWORD waitResult = WaitForSingleObject(hMutex, 0);
-        if (waitResult != 0)
-        {
-            // Immediate ownership of mutex failed, terminate as another server is running.
-            return 1;
-        }
-    }
-
     RETURN_IF_FAILED(CoInitializeEx(nullptr, COINIT_MULTITHREADED));
 
     // Enable fast rundown of objects so that the server exits faster when clients go away.
@@ -153,13 +132,22 @@ int __stdcall wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR cmdLine, 
         RETURN_IF_FAILED(WindowsPackageManagerServerModuleRegister());
 
         if (manualActivation)
-        {
+        {   
+            HANDLE hMutex = NULL;
+            hMutex = CreateMutex(NULL, FALSE, TEXT("WinGetServerMutex"));
+            RETURN_HR_IF_NULL(OSS_MUTEX_NOT_CREATED, hMutex);
+
+            DWORD waitResult = WaitForSingleObject(hMutex, 0);
+            if (waitResult != 0 && waitResult != WAIT_ABANDONED)
+            {
+                return ERROR_SERVICE_ALREADY_RUNNING;
+            }
+
             RETURN_IF_FAILED(WindowsPackageManagerServerInitializeRPCServer());
         }
         _comServerExitEvent.wait();
 
         RETURN_IF_FAILED(WindowsPackageManagerServerModuleUnregister());
-        ReleaseMutex(hMutex);
     }
     CATCH_RETURN()
 

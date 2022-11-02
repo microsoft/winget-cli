@@ -40,6 +40,12 @@
     <ClCompile Include="..\..\WinGetServer\WinGetServer_c.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\WinGetServer\Utils.h">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\WinGetServer\Utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="catalog.h">

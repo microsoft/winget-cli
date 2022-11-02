@@ -16,6 +16,10 @@
     <TargetFrameworks>$(CoreFramework);$(DesktopFramework)</TargetFrameworks>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(WingetUseProdClsids)' == 'true'">
+    <DefineConstants>USE_PROD_CLSIDS</DefineConstants>
+  </PropertyGroup>
+    
   <ItemGroup>
     <AdditionalFiles Include="stylecop.json" />
   </ItemGroup>
@@ -48,7 +52,7 @@
     <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.22000.196" PrivateAssets="all" />
 	</ItemGroup>
 
-	<ItemGroup>
+    <ItemGroup>
 	  <Compile Update="Properties\Resources.Designer.cs">
 	    <DesignTime>True</DesignTime>
 	    <AutoGen>True</AutoGen>
