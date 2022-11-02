@@ -1,5 +1,8 @@
 blank_issues_enabled: true
 contact_links:  
+  - name: Package issues
+    url: https://github.com/microsoft/winget-pkgs/issues
+    about: Please create issues related to the packages here.
   - name: General Question
     url: https://github.com/microsoft/winget-cli/discussions/new
     about: Have a question on something? Start a new discussion thread.
