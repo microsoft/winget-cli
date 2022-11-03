@@ -23,6 +23,7 @@ namespace AppInstaller::Utility
         WinGetUtil,
         Installer,
         InstallerMetadataCollectionInput,
+        RemoteSettings,
     };
 
     // Extra metadata about a download for use by certain downloaders (Delivery Optimization for instance).

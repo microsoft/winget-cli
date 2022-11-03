@@ -2,6 +2,9 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Public/winget/Settings.h"
+#include "Public/AppInstallerDownloader.h"
+#include "Public/AppInstallerErrors.h"
+#include "Public/AppInstallerMsixInfo.h"
 #include "Public/AppInstallerLogging.h"
 #include "Public/AppInstallerRuntime.h"
 #include "Public/AppInstallerStrings.h"
@@ -146,7 +149,7 @@ namespace AppInstaller::Settings
         // Only allows Set to succeed if the hash value of the setting is the same as the last time it was read.
         struct ExchangeSettingsContainer : public details::ISettingsContainer
         {
-            ExchangeSettingsContainer(std::unique_ptr<ISettingsContainer>&& container, const std::string_view& name) :
+            ExchangeSettingsContainer(std::unique_ptr<ISettingsContainer>&& container, std::string_view name) :
                 m_container(std::move(container)), m_name(name) {}
 
             std::unique_ptr<std::istream> Get() override
@@ -230,7 +233,7 @@ namespace AppInstaller::Settings
         {
             constexpr static std::string_view NodeName_Sha256 = "SHA256"sv;
 
-            SecureSettingsContainer(std::unique_ptr<ISettingsContainer>&& container, const std::string_view& name) :
+            SecureSettingsContainer(std::unique_ptr<ISettingsContainer>&& container, std::string_view name) :
                 ExchangeSettingsContainer(std::move(container), name), m_secure(GetPathTo(PathName::SecureSettingsForRead), name) {}
 
         private:
@@ -347,7 +350,129 @@ namespace AppInstaller::Settings
             FileSettingsContainer m_secure;
         };
 
-        std::unique_ptr<details::ISettingsContainer> GetRawSettingsContainer(Type type, const std::string_view& name)
+        // A settings container wrapper that reads remote settings and verifies trust before loading.
+        struct TrustedRemoteSettingsContainer : public details::ISettingsContainer
+        {
+            // TODO: Values may need to be updated after server side work is done.
+            constexpr static std::string_view s_RemoteSettings_Url = "https://cdn.winget.microsoft.com/settings/settings.msix"sv;
+            constexpr static std::string_view s_RemoteSettings_PackageFamilyName = "Microsoft.Winget.Settings_8wekyb3d8bbwe"sv;
+
+            TrustedRemoteSettingsContainer(std::string_view name)
+            {
+                m_settingsFile = GetPathTo(PathName::RemoteSettings) / name;
+
+                if (!TryLockCachedSettingsFile())
+                {
+                    AICLI_LOG(Core, Info, << "Failed to open cached remote settings file, try downloading new.");
+                    m_fileLock.reset();
+
+                    std::filesystem::path tempSettingsPath = GetPathTo(PathName::Temp) / (std::string{ name } + ".dnld.msix");
+                    ProgressCallback progress;
+                    AppInstaller::Utility::Download(std::string{ s_RemoteSettings_Url }, tempSettingsPath, AppInstaller::Utility::DownloadType::RemoteSettings, progress);
+
+                    bool tempSettingsTrusted = false;
+                    {
+                        // Extra scope to release the file lock right after trust validation.
+                        std::unique_ptr<Msix::WriteLockedMsixFile> tempFileLock;
+                        tempSettingsTrusted = LockSettingsFile(tempSettingsPath, tempFileLock);
+                    }
+
+                    if (!tempSettingsTrusted)
+                    {
+                        AICLI_LOG(Core, Error, << "Failed to open remote settings, downloaded temp remote settings not trusted.");
+                        THROW_HR(APPINSTALLER_CLI_ERROR_INDEX_INTEGRITY_COMPROMISED);
+                    }
+
+                    std::filesystem::rename(tempSettingsPath, m_settingsFile);
+                    if (!LockSettingsFile(m_settingsFile, m_fileLock))
+                    {
+                        AICLI_LOG(Core, Error, << "Failed to open remote settings, downloaded remote settings not trusted.");
+                        THROW_HR(APPINSTALLER_CLI_ERROR_INDEX_INTEGRITY_COMPROMISED);
+                    }
+                }
+
+                AICLI_LOG(Repo, Info, << "Opened trusted remote settings.");
+            }
+
+            std::unique_ptr<std::istream> Get() override
+            {
+                if (std::filesystem::exists(m_settingsFile))
+                {
+                    auto result = std::make_unique<std::ifstream>(m_settingsFile);
+                    THROW_LAST_ERROR_IF(result->fail());
+                    return result;
+                }
+                else
+                {
+                    return {};
+                }
+            }
+
+            bool Set(std::string_view value) override
+            {
+                THROW_HR(E_UNEXPECTED);
+            }
+
+            void Remove() override
+            {
+                THROW_HR(E_UNEXPECTED);
+            }
+
+            std::filesystem::path PathTo() override
+            {
+                THROW_HR(E_UNEXPECTED);
+            }
+
+        private:
+            // Try to use cached copy of the settings file if applicable.
+            // Returns true if the settings file is trusted, up to date and successfully locked. Otherwise false.
+            bool TryLockCachedSettingsFile()
+            {
+                if (!std::filesystem::exists(m_settingsFile))
+                {
+                    AICLI_LOG(Core, Info, << "Cached remote settings file does not exist.");
+                    return false;
+                }
+
+                if (!LockSettingsFile(m_settingsFile, m_fileLock))
+                {
+                    return false;
+                }
+
+                Msix::MsixInfo remoteInfo{ s_RemoteSettings_Url };
+                if (remoteInfo.IsNewerThan(m_settingsFile))
+                {
+                    AICLI_LOG(Core, Info, << "Cached remote settings file is not up to date.");
+                    return false;
+                }
+
+                return true;
+            }
+
+            bool LockSettingsFile(const std::filesystem::path& settingsFile, std::unique_ptr<Msix::WriteLockedMsixFile>& lock)
+            {
+                lock = std::make_unique<Msix::WriteLockedMsixFile>(settingsFile);
+                if (!lock->ValidateTrustInfo(true))
+                {
+                    AICLI_LOG(Core, Error, << "Cached remote settings file failed trust validation.");
+                    return false;
+                }
+
+                Msix::MsixInfo packageInfo{ settingsFile };
+                if (s_RemoteSettings_PackageFamilyName != Msix::GetPackageFamilyNameFromFullName(packageInfo.GetPackageFullName()))
+                {
+                    AICLI_LOG(Core, Error, << "Cached remote settings file has unexpected Package Family Name.");
+                    return false;
+                }
+
+                return true;
+            }
+
+            std::filesystem::path m_settingsFile;
+            std::unique_ptr<Msix::WriteLockedMsixFile> m_fileLock;
+        };
+
+        std::unique_ptr<details::ISettingsContainer> GetRawSettingsContainer(Type type, std::string_view name)
         {
 #ifndef WINGET_DISABLE_FOR_FUZZING
             if (IsRunningInPackagedContext())
@@ -377,7 +502,7 @@ namespace AppInstaller::Settings
         }
 
         // The default is not a raw container, so we wrap some of the underlying containers to enable higher order behaviors.
-        std::unique_ptr<details::ISettingsContainer> GetSettingsContainer(Type type, const std::string_view& name)
+        std::unique_ptr<details::ISettingsContainer> GetSettingsContainer(Type type, std::string_view name)
         {
             switch (type)
             {
@@ -392,6 +517,10 @@ namespace AppInstaller::Settings
             case Type::Secure:
                 // Secure settings add hash verification on reads on top of exchange semantics
                 return std::make_unique<SecureSettingsContainer>(GetRawSettingsContainer(Type::Standard, name), name);
+
+            case Type::TrustedRemote:
+                // Remote settings is read only, hosted on winget cdn and trust verified before loading
+                return std::make_unique<TrustedRemoteSettingsContainer>(name);
 
             default:
                 THROW_HR(E_UNEXPECTED);

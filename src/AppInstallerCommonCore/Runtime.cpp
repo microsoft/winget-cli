@@ -505,6 +505,7 @@ namespace AppInstaller::Runtime
             break;
         case PathName::LocalState:
         case PathName::UserFileSettings:
+        case PathName::RemoteSettings:
             result.Path.assign(appStorage.LocalFolder().Path().c_str());
             break;
         case PathName::DefaultLogLocation:
@@ -587,6 +588,7 @@ namespace AppInstaller::Runtime
             break;
         case PathName::StandardSettings:
         case PathName::UserFileSettings:
+        case PathName::RemoteSettings:
             result.Path = GetPathToAppDataDir(s_AppDataDir_Settings);
             result.Path /= GetRuntimePathStateName();
             result.SetOwner(ACEPrincipal::CurrentUser);

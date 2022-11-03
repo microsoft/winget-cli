@@ -43,7 +43,7 @@ namespace AppInstaller::Settings
         // A Secure settings stream that should not be modified except by admin privileges.
         Secure,
         // A Remote read only settings stream hosted by winget cdn and trust verified before loading.
-        Remote,
+        TrustedRemote,
     };
 
     // Converts the Type enum to a string.
