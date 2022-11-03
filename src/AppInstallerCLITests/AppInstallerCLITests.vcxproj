@@ -311,6 +311,9 @@
     <CopyFileToFolders Include="TestData\InstallFlowTest_Zip_MultipleNonPortableNestedInstallers.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallFlowTest_Zip_Nullsoft.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_Zip_UnsupportedNestedInstaller.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>

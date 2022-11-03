@@ -1117,6 +1117,36 @@ TEST_CASE("InstallFlow_Zip_Exe", "[InstallFlow][workflow]")
     REQUIRE(installResultStr.find("/silentwithprogress") != std::string::npos);
 }
 
+TEST_CASE("InstallFlow_Zip_Nullsoft", "[InstallFlow][workflow]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+    TestCommon::TestUserSettings testSettings;
+    testSettings.Set<Setting::EFZipInstall>(true);
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForShellExecute(context);
+    OverrideForExtractInstallerFromArchive(context);
+    OverrideForVerifyAndSetNestedInstaller(context);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Zip_Nullsoft.yaml").GetPath().u8string());
+
+    bool overrideArchiveScanResult = true;
+    AppInstaller::Archive::TestHook_SetScanArchiveResult_Override(&overrideArchiveScanResult);
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify Installer is called and parameters are passed in.
+    REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
+    std::ifstream installResultFile(installResultPath.GetPath());
+    REQUIRE(installResultFile.is_open());
+    std::string installResultStr;
+    std::getline(installResultFile, installResultStr);
+    REQUIRE(installResultStr.find("/S") != std::string::npos); // Default args for nullsoft
+}
+
 TEST_CASE("InstallFlow_Zip_BadRelativePath", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");

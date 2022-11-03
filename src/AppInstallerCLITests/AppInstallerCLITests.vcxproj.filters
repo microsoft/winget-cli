@@ -558,6 +558,9 @@
     <CopyFileToFolders Include="TestData\InstallFlowTest_Zip_MultipleNonPortableNestedInstallers.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallFlowTest_Zip_Nullsoft.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_Zip_UnsupportedNestedInstaller.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
