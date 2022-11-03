@@ -188,7 +188,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\WinGetServer\WinGetServerManualActivation_Client.cpp" />
     <ClCompile Include="..\..\WinGetServer\WinGetServer_c.c" />
-    <ClCompile Include="..\..\WinGetServer\Utils.h" />
+    <ClInclude Include="..\..\WinGetServer\Utils.h" />
     <ClCompile Include="..\..\WinGetServer\Utils.cpp" />
     <ClCompile Include="catalog.cpp" />
     <ClCompile Include="dllmain.cpp" />

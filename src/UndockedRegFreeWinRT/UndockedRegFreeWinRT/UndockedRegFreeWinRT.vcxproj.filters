@@ -40,9 +40,6 @@
     <ClCompile Include="..\..\WinGetServer\WinGetServer_c.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\WinGetServer\Utils.h">
-      <Filter>Header Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\WinGetServer\Utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -52,6 +49,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="extwinrt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\WinGetServer\Utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
