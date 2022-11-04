@@ -1349,7 +1349,6 @@ Please specify one of them using the `--source` option to proceed.</value>
   </data>
   <data name="PortableAliasAdded" xml:space="preserve">
     <value>Command line alias added:</value>
-
   </data>
   <data name="PortableInstallFailed" xml:space="preserve">
     <value>Portable install failed; Cleaning up...</value>
@@ -1466,5 +1465,11 @@ Please specify one of them using the `--source` option to proceed.</value>
   <data name="ArchiveFailedMalwareScanOverridden" xml:space="preserve">
     <value>Archive scan detected malware; proceeding due to --force</value>
     <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="NoUpgradeArgumentDescription" xml:space="preserve">
+    <value>Skips upgrade if an installed version already exists</value>
+  </data>
+  <data name="PackageAlreadyInstalled" xml:space="preserve">
+    <value>A package version is already installed. Installation cancelled.</value>
   </data>
 </root>

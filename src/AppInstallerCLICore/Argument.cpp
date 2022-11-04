@@ -61,6 +61,8 @@ namespace AppInstaller::CLI
             return Argument{ "ignore-security-hash"_liv, NoAlias, Args::Type::HashOverride, Resource::String::HashOverrideArgumentDescription, ArgumentType::Flag, Settings::TogglePolicy::Policy::HashOverride };
         case Args::Type::AcceptPackageAgreements:
             return Argument{ "accept-package-agreements"_liv, NoAlias, Args::Type::AcceptPackageAgreements, Resource::String::AcceptPackageAgreementsArgumentDescription, ArgumentType::Flag };
+        case Args::Type::NoUpgrade:
+            return Argument{ "no-upgrade"_liv, NoAlias, Args::Type::NoUpgrade, Resource::String::NoUpgradeArgumentDescription, ArgumentType::Flag };
         case Args::Type::HashFile:
             return Argument{ "file"_liv, 'f', Args::Type::HashFile, Resource::String::FileArgumentDescription, ArgumentType::Positional, true };
         case Args::Type::Msix:

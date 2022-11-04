@@ -198,6 +198,8 @@ namespace AppInstallerCLIE2ETests
             public const int ERROR_NESTEDINSTALLER_INVALID_PATH = unchecked((int)0x8A15005D);
             public const int ERROR_PINNED_CERTIFICATE_MISMATCH = unchecked((int)0x8A15005E);
             public const int ERROR_INSTALL_LOCATION_REQUIRED = unchecked((int)0x8A15005F);
+            public const int ERROR_ARCHIVE_SCAN_FAILED = unchecked((int)0x8A150060);
+            public const int ERROR_PACKAGE_ALREADY_INSTALLED = unchecked((int)0x8A150061);
 
             public const int ERROR_INSTALL_PACKAGE_IN_USE = unchecked((int)0x8A150101);
             public const int ERROR_INSTALL_INSTALL_IN_PROGRESS = unchecked((int)0x8A150102);
@@ -215,6 +217,9 @@ namespace AppInstallerCLIE2ETests
             public const int ERROR_INSTALL_DOWNGRADE = unchecked((int)0x8A15010E);
             public const int ERROR_INSTALL_BLOCKED_BY_POLICY = unchecked((int)0x8A15010F);
             public const int ERROR_INSTALL_DEPENDENCIES = unchecked((int)0x8A150110);
+            public const int ERROR_INSTALL_PACKAGE_IN_USE_BY_APPLICATION = unchecked((int)0x8A150111);
+            public const int ERROR_INSTALL_INVALID_PARAMETER = unchecked((int)0x8A150112);
+            public const int ERROR_INSTALL_SYSTEM_NOT_SUPPORTED = unchecked((int)0x8A150113);
 
             public const int INSTALLED_STATUS_ARP_ENTRY_NOT_FOUND = unchecked((int)0x8A150201);
             public const int INSTALLED_STATUS_INSTALL_LOCATION_NOT_APPLICABLE = unchecked((int)0x0A150202);

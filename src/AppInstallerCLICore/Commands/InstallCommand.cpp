@@ -43,6 +43,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::HashOverride),
             Argument::ForType(Args::Type::DependencySource),
             Argument::ForType(Args::Type::AcceptPackageAgreements),
+            Argument::ForType(Args::Type::NoUpgrade),
             Argument::ForType(Args::Type::CustomHeader),
             Argument::ForType(Args::Type::AcceptSourceAgreements),
             Argument::ForType(Args::Type::Rename),
