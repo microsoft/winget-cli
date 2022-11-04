@@ -256,7 +256,7 @@ namespace AppInstallerCLIE2ETests
 
         public static RunCommandResult RunPowerShellCommandWithResult(string cmdlet, string args, int timeOut = 60000)
         {
-            return RunCommandWithResult("pwsh", $"-Command ipmo {PowerShellModulePath}; {cmdlet} {args}", timeOut);
+            return RunCommandWithResult("pwsh", $"-Command Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass; ipmo {PowerShellModulePath}; {cmdlet} {args}", timeOut);
         }
 
         public static string GetTestFile(string fileName)

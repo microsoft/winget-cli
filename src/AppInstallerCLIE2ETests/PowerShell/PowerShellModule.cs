@@ -28,7 +28,7 @@ namespace AppInstallerCLIE2ETests
         public void GetWinGetSource()
         {
             var getSourceResult = TestCommon.RunPowerShellCommandWithResult(Constants.GetSourceCmdlet, $"-Name {Constants.TestSourceName}");
-            Assert.IsTrue(getSourceResult.ExitCode == 0);
+            Assert.IsTrue(getSourceResult.ExitCode == 0, $"Failed with the following output: {getSourceResult.StdOut}");
             Assert.IsTrue(getSourceResult.StdOut.Contains($"{Constants.TestSourceName}"));
         }
 
@@ -36,7 +36,7 @@ namespace AppInstallerCLIE2ETests
         public void FindWinGetPackage()
         {
             var result = TestCommon.RunPowerShellCommandWithResult(Constants.FindCmdlet, $"-Id {Constants.ExeInstallerPackageId}");
-            Assert.IsTrue(result.ExitCode == 0);
+            Assert.IsTrue(result.ExitCode == 0, $"Failed with the following output: {result.StdOut}");
             Assert.IsTrue(result.StdOut.Contains("TestExeInstaller"));
         }
 
@@ -47,9 +47,9 @@ namespace AppInstallerCLIE2ETests
             var getResult = TestCommon.RunPowerShellCommandWithResult(Constants.GetCmdlet, $"-Id {Constants.MsiInstallerPackageId}");
             var uninstallResult = TestCommon.RunPowerShellCommandWithResult(Constants.UninstallCmdlet, $"-Id {Constants.MsiInstallerPackageId}");
 
-            Assert.IsTrue(installResult.ExitCode == 0);
-            Assert.IsTrue(getResult.ExitCode == 0);
-            Assert.IsTrue(uninstallResult.ExitCode == 0);
+            Assert.IsTrue(installResult.ExitCode == 0, $"Failed with the following output: {installResult.StdOut}");
+            Assert.IsTrue(getResult.ExitCode == 0, $"Failed with the following output: {getResult.StdOut}");
+            Assert.IsTrue(uninstallResult.ExitCode == 0, $"Failed with the following output: {uninstallResult.StdOut}");
 
             Assert.IsTrue(!string.IsNullOrEmpty(installResult.StdOut));
             Assert.IsTrue(getResult.StdOut.Contains("TestMsiInstaller"));
@@ -62,8 +62,8 @@ namespace AppInstallerCLIE2ETests
             var installResult = TestCommon.RunPowerShellCommandWithResult(Constants.InstallCmdlet, $"-Id {Constants.ExeInstallerPackageId}");
             var uninstallResult = TestCommon.RunPowerShellCommandWithResult(Constants.UninstallCmdlet, $"-Id {Constants.ExeInstallerPackageId}");
 
-            Assert.IsTrue(installResult.ExitCode == 0);
-            Assert.IsTrue(uninstallResult.ExitCode == 0);
+            Assert.IsTrue(installResult.ExitCode == 0, $"Failed with the following output: {installResult.StdOut}");
+            Assert.IsTrue(uninstallResult.ExitCode == 0, $"Failed with the following output: {uninstallResult.StdOut}");
 
             Assert.IsTrue(!string.IsNullOrEmpty(installResult.StdOut));
             Assert.IsTrue(!string.IsNullOrEmpty(uninstallResult.StdOut));
@@ -77,10 +77,10 @@ namespace AppInstallerCLIE2ETests
             var getResult = TestCommon.RunPowerShellCommandWithResult(Constants.GetCmdlet, $"-Id {Constants.ExeInstallerPackageId}");
             var uninstallResult = TestCommon.RunPowerShellCommandWithResult(Constants.UninstallCmdlet, $"-Id {Constants.ExeInstallerPackageId}");
 
-            Assert.IsTrue(installResult.ExitCode == 0);
-            Assert.IsTrue(updateResult.ExitCode == 0);
-            Assert.IsTrue(getResult.ExitCode == 0);
-            Assert.IsTrue(uninstallResult.ExitCode == 0);
+            Assert.IsTrue(installResult.ExitCode == 0, $"Failed with the following output: {installResult.StdOut}");
+            Assert.IsTrue(updateResult.ExitCode == 0, $"Failed with the following output: {updateResult.StdOut}");
+            Assert.IsTrue(getResult.ExitCode == 0, $"Failed with the following output: {getResult.StdOut}");
+            Assert.IsTrue(uninstallResult.ExitCode == 0, $"Failed with the following output: {uninstallResult.StdOut}");
 
             Assert.IsTrue(!string.IsNullOrEmpty(installResult.StdOut));
             Assert.IsTrue(!string.IsNullOrEmpty(updateResult.StdOut));
