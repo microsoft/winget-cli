@@ -174,9 +174,14 @@ jobs:
     inputs:
       targetType: 'inline'
       script: |
-        # Checking PowerShell version
-        pwsh
-        $env:path -split ';'
+        # Import PowerShell Module
+        ipmo 'D:\a\1\s\src\x64\Release\PowerShell\Microsoft.WinGet.Client.psd1'
+        # Run Basic powershell commands
+        Get-WinGetVersion
+        Get-WinGetSource
+        Find-WinGetPackage
+      pwsh: true
+
 
   - task: DownloadSecureFile@1
     name: AppInstallerTest
