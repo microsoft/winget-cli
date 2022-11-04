@@ -35,7 +35,8 @@ HRESULT WindowsPackageManagerServerInitializeRPCServer()
     RETURN_HR_IF(HRESULT_FROM_WIN32(status), status != RPC_S_OK);
 
     wil::unique_hlocal_security_descriptor securityDescriptor;
-    RETURN_LAST_ERROR_IF(!ConvertStringSecurityDescriptorToSecurityDescriptorA("S:(ML;;NW;;;HI)D:(A;;GA;;;PS)", SDDL_REVISION_1, &securityDescriptor, nullptr));
+    std::string securityDescriptorString = "S:(ML;;NW;;;HI)D:(A;;GA;;;" + userSID + ")";
+    RETURN_LAST_ERROR_IF(!ConvertStringSecurityDescriptorToSecurityDescriptorA(securityDescriptorString.c_str(), SDDL_REVISION_1, &securityDescriptor, nullptr));
 
     status = RpcServerRegisterIf3(WinGetServerManualActivation_v1_0_s_ifspec, nullptr, nullptr, RPC_IF_ALLOW_LOCAL_ONLY | RPC_IF_AUTOLISTEN, RPC_C_LISTEN_MAX_CALLS_DEFAULT, 0, nullptr, securityDescriptor.get());
     RETURN_HR_IF(HRESULT_FROM_WIN32(status), status != RPC_S_OK);

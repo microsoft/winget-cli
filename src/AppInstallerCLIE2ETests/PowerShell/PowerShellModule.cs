@@ -13,6 +13,9 @@ namespace AppInstallerCLIE2ETests
         [OneTimeSetUp]
         public void Setup()
         {
+            // install powershell prior to running module tests.
+            TestCommon.RunAICLICommand("install", $"--id Microsoft.PowerShell");
+
             // Add-WinGetPackage is a function and not a cmdlet that uses COM. Add source to WinGetDev directly to ensure test source exists.
             TestCommon.RunAICLICommand("source add", $"-n {Constants.TestSourceName} {Constants.TestSourceUrl}");
         }
