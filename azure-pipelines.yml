@@ -168,6 +168,13 @@ jobs:
   #     testResultsFormat: 'JUnit'
   #     testResultsFiles: '$(artifactsDir)\TEST-*.xml'
   #     failTaskOnFailedTests: true
+  - task: PowerShell@2
+    displayName: Install Winget Test Package for Powershell Module tests
+    inputs:
+      targetType: 'inline'
+      script: |
+        Add-AppxPackage AppInstallerCLIPackage_0.0.2.0_Test\AppInstallerCLIPackage_0.0.2.0_$(buildPlatform).msixbundle
+      workingDirectory: $(appxPackageDir)
 
   - task: PowerShell@2
     displayName: Check PowerShell Core version
@@ -181,7 +188,6 @@ jobs:
         Get-WinGetSource
         Find-WinGetPackage
       pwsh: true
-
 
   - task: DownloadSecureFile@1
     name: AppInstallerTest
