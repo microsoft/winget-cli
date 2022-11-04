@@ -168,15 +168,15 @@ jobs:
   #     testResultsFormat: 'JUnit'
   #     testResultsFiles: '$(artifactsDir)\TEST-*.xml'
   #     failTaskOnFailedTests: true
-  
+
   - task: PowerShell@2
     displayName: Check PowerShell Core version
     inputs:
-    targetType: 'inline'
-    script: |
-      # Checking PowerShell version
-      pwsh
-      $env:path -split ';'
+      targetType: 'inline'
+      script: |
+        # Checking PowerShell version
+        pwsh
+        $env:path -split ';'
 
   - task: DownloadSecureFile@1
     name: AppInstallerTest
