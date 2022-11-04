@@ -1467,7 +1467,7 @@ Please specify one of them using the `--source` option to proceed.</value>
     <comment>{Locked="--force"}</comment>
   </data>
   <data name="NoUpgradeArgumentDescription" xml:space="preserve">
-    <value>Do not try to upgrade any installed version during install operation</value>
+    <value>Skips upgrade if an installed version already exists</value>
   </data>
   <data name="PackageAlreadyInstalled" xml:space="preserve">
     <value>A package version is already installed. Installation cancelled.</value>

@@ -309,21 +309,25 @@ namespace AppInstaller::CLI::Workflow
                         context.Reporter.Info() << Resource::String::Cancelled << std::endl;
                         return;
                     }
-                    else if (searchContext.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE ||
-                        searchContext.GetTerminationHR() == APPINSTALLER_CLI_ERROR_PACKAGE_ALREADY_INSTALLED)
-                    {
-                        AICLI_LOG(CLI, Info, << "Package is already installed: [" << packageRequest.Id << "]");
-                        context.Reporter.Info() << Resource::String::ImportPackageAlreadyInstalled << ' ' << packageRequest.Id << std::endl;
-                        continue;
-                    }
                     else
                     {
-                        AICLI_LOG(CLI, Info, << "Package not found for import: [" << packageRequest.Id << "], Version " << packageRequest.VersionAndChannel.ToString());
-                        context.Reporter.Info() << Resource::String::ImportSearchFailed << ' ' << packageRequest.Id << std::endl;
+                        auto searchTerminationHR = searchContext.GetTerminationHR();
+                        if (searchTerminationHR == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE ||
+                            searchTerminationHR == APPINSTALLER_CLI_ERROR_PACKAGE_ALREADY_INSTALLED)
+                        {
+                            AICLI_LOG(CLI, Info, << "Package is already installed: [" << packageRequest.Id << "]");
+                            context.Reporter.Info() << Resource::String::ImportPackageAlreadyInstalled << ' ' << packageRequest.Id << std::endl;
+                            continue;
+                        }
+                        else
+                        {
+                            AICLI_LOG(CLI, Info, << "Package not found for import: [" << packageRequest.Id << "], Version " << packageRequest.VersionAndChannel.ToString());
+                            context.Reporter.Info() << Resource::String::ImportSearchFailed << ' ' << packageRequest.Id << std::endl;
 
-                        // Keep searching for the remaining packages and only fail at the end.
-                        foundAll = false;
-                        continue;
+                            // Keep searching for the remaining packages and only fail at the end.
+                            foundAll = false;
+                            continue;
+                        }
                     }
                 }
 

@@ -213,7 +213,7 @@ namespace AppInstaller
             case APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE:
                 return "Application is currently running. Exit the application then try again.";
             case APPINSTALLER_CLI_ERROR_INSTALL_INSTALL_IN_PROGRESS:
-                return "Another installation is already in progress.Try again later.";
+                return "Another installation is already in progress. Try again later.";
             case APPINSTALLER_CLI_ERROR_INSTALL_FILE_IN_USE:
                 return "One or more file is being used. Exit the application then try again.";
             case APPINSTALLER_CLI_ERROR_INSTALL_MISSING_DEPENDENCY:
