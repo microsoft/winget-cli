@@ -14,11 +14,19 @@ namespace AppInstaller::CLI::Workflow
     {
         HRESULT WaitForMSStoreOperation(Execution::Context& context, IVectorView<AppInstallItem>& installItems)
         {
+            bool isSilentMode = context.Args.Contains(Execution::Args::Type::Silent);
+
             for (auto const& installItem : installItems)
             {
                 AICLI_LOG(CLI, Info, <<
                     "Started MSStore package execution. ProductId: " << Utility::ConvertToUTF8(installItem.ProductId()) <<
                     " PackageFamilyName: " << Utility::ConvertToUTF8(installItem.PackageFamilyName()));
+
+                if (isSilentMode)
+                {
+                    installItem.InstallInProgressToastNotificationMode(AppInstallationToastNotificationMode::NoToast);
+                    installItem.CompletedInstallToastNotificationMode(AppInstallationToastNotificationMode::NoToast);
+                }
             }
 
             HRESULT errorCode = S_OK;
@@ -108,25 +116,29 @@ namespace AppInstaller::CLI::Workflow
     {
         auto productId = Utility::ConvertToUTF16(context.Get<Execution::Data::Installer>()->ProductId);
 
-        AppInstallManager installManager;
-
         // Verifying/Acquiring product ownership
         if (!GetFreeEntitlement(context, productId))
         {
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_MSSTORE_INSTALL_FAILED);
         }
 
+        AppInstallManager installManager;
+        AppInstallOptions installOptions;
+
         context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
+
+        if (context.Args.Contains(Execution::Args::Type::Silent))
+        {
+            installOptions.InstallInProgressToastNotificationMode(AppInstallationToastNotificationMode::NoToast);
+            installOptions.CompletedInstallToastNotificationMode(AppInstallationToastNotificationMode::NoToast);
+        }
 
         IVectorView<AppInstallItem> installItems = installManager.StartProductInstallAsync(
             productId,              // ProductId
-            winrt::hstring(),       // CatalogId
             winrt::hstring(),       // FlightId
             L"WinGetCli",           // ClientId
-            false,                  // repair
-            false,
             winrt::hstring(),
-            nullptr).get();
+            installOptions).get();
 
         HRESULT errorCode = WaitForMSStoreOperation(context, installItems);
 
@@ -147,20 +159,24 @@ namespace AppInstaller::CLI::Workflow
     {
         auto productId = Utility::ConvertToUTF16(context.Get<Execution::Data::Installer>()->ProductId);
 
-        AppInstallManager installManager;
-
         // Verifying/Acquiring product ownership
         if (!GetFreeEntitlement(context, productId))
         {
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_MSSTORE_INSTALL_FAILED);
         }
 
+        AppInstallManager installManager;
+        AppUpdateOptions updateOptions;
+
         context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
 
         // SearchForUpdateAsync will automatically trigger update if found.
         AppInstallItem installItem = installManager.SearchForUpdatesAsync(
             productId,          // ProductId
-            winrt::hstring()    // SkuId
+            winrt::hstring(),   // SkuId
+            winrt::hstring(),
+            winrt::hstring(),   // ClientId
+            updateOptions
         ).get();
 
         if (!installItem)
