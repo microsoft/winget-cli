@@ -75,11 +75,27 @@ namespace AppInstaller::CLI::Workflow
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST);
         }
 
+        // Since multiple files might be checked, we need a way to understand whether any files had a hash mismatch.
+        int hashMismatchCount = 0;
+        // If none of the installers have a FileSha256, we don't need to print that the hashses were verified
+        bool hashMismatchChecked = false;
+
+        // Check if any of the Nested Installer Files have a FileSha256 specified
+        if (std::any_of(installer.NestedInstallerFiles.begin(), installer.NestedInstallerFiles.end(), [](auto& v) {
+            return !v.FileSha256.empty();
+            })) 
+        {
+            // Since the flag of the installer hash was set when downloading the archive file, it should be cleared here
+            context.ClearFlags(Execution::ContextFlag::InstallerHashMatched);
+            hashMismatchChecked = true;
+        }
+
         std::filesystem::path targetInstallerPath = context.Get<Execution::Data::InstallerPath>().parent_path() / s_Extracted;
 
         for (const auto& nestedInstallerFile : installer.NestedInstallerFiles)
         {
             const std::filesystem::path& nestedInstallerPath = targetInstallerPath / ConvertToUTF16(nestedInstallerFile.RelativeFilePath);
+            const Utility::SHA256::HashBuffer& nestedInstallerSha256 = nestedInstallerFile.FileSha256;
             
             if (Filesystem::PathEscapesBaseDirectory(nestedInstallerPath, targetInstallerPath))
             {
@@ -99,8 +115,49 @@ namespace AppInstaller::CLI::Workflow
                 AICLI_LOG(CLI, Info, << "Setting installerPath to: " << nestedInstallerPath);
                 targetInstallerPath = nestedInstallerPath;
             }
+
+            if (!nestedInstallerSha256.empty()) {
+                const auto& fileSha256 = Utility::SHA256::ComputeHashFromFile(nestedInstallerPath);
+                if (!std::equal(
+                    nestedInstallerSha256.begin(),
+                    nestedInstallerSha256.end(),
+                    fileSha256.begin()))
+                {
+                    hashMismatchCount++;
+                }
+            }
         }
 
+        bool overrideHashMismatch = context.Args.Contains(Execution::Args::Type::HashOverride);
+       
+        if (hashMismatchCount == 0)
+        {
+            AICLI_LOG(CLI, Info, << "Installer hash verified");
+            context.Reporter.Info() << Resource::String::NestedInstallerHashVerified << std::endl;
+
+            context.SetFlags(Execution::ContextFlag::InstallerHashMatched);
+        }
+        else if (overrideHashMismatch && !Runtime::IsRunningAsAdmin())
+        {
+            context.Reporter.Warn() << Resource::String::NestedInstallerHashMismatchOverridden << std::endl;
+        }
+        else
+        {
+            // // If running as admin, do not allow the user to override the hash failure. 
+            if (Runtime::IsRunningAsAdmin())
+            {
+                context.Reporter.Error() << Resource::String::NestedInstallerHashMismatchAdminBlock << std::endl;
+            }
+            else if (Settings::GroupPolicies().IsEnabled(Settings::TogglePolicy::Policy::HashOverride))
+            {
+                context.Reporter.Error() << Resource::String::NestedInstallerHashMismatchOverrideRequired << std::endl;
+            }
+            else
+            {
+                context.Reporter.Error() << Resource::String::NestedInstallerHashMismatchError << std::endl;
+            }
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NESTED_INSTALLER_HASH_MISMATCH);
+        }
         context.Add<Execution::Data::InstallerPath>(targetInstallerPath);
     }
 

@@ -580,6 +580,7 @@ namespace AppInstaller::Manifest
             result =
             {
                 { "RelativeFilePath", [this](const YAML::Node& value)->ValidationErrors { m_p_nestedInstallerFile->RelativeFilePath = Utility::Trim(value.as<std::string>()); return {}; } },
+                { "FileSha256", [this](const YAML::Node& value)->ValidationErrors { m_p_nestedInstallerFile->FileSha256 = Utility::SHA256::ConvertToBytes(value.as<std::string>()); return {}; } },
                 { "PortableCommandAlias", [this](const YAML::Node& value)->ValidationErrors { m_p_nestedInstallerFile->PortableCommandAlias = Utility::Trim(value.as<std::string>()); return {}; } },
             };
         }

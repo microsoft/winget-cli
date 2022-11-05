@@ -294,6 +294,8 @@ namespace AppInstaller::Manifest
                         resultErrors.emplace_back(ManifestError::DuplicatePortableCommandAlias, "PortableCommandAlias");
                         break;
                     }
+
+                    // TODO: Check for duplicate FileSha256 values
                 }
             }
 

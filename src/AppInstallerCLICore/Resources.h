@@ -208,6 +208,11 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(MultipleNonPortableNestedInstallersSpecified);
         WINGET_DEFINE_RESOURCE_STRINGID(MultiplePackagesFound);
         WINGET_DEFINE_RESOURCE_STRINGID(NameArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(NestedInstallerHashMismatchAdminBlock);
+        WINGET_DEFINE_RESOURCE_STRINGID(NestedInstallerHashMismatchError);
+        WINGET_DEFINE_RESOURCE_STRINGID(NestedInstallerHashMismatchOverridden);
+        WINGET_DEFINE_RESOURCE_STRINGID(NestedInstallerHashMismatchOverrideRequired);
+        WINGET_DEFINE_RESOURCE_STRINGID(NestedInstallerHashVerified);;
         WINGET_DEFINE_RESOURCE_STRINGID(NestedInstallerNotFound);
         WINGET_DEFINE_RESOURCE_STRINGID(NestedInstallerNotSpecified);
         WINGET_DEFINE_RESOURCE_STRINGID(NestedInstallerNotSupported);

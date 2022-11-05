@@ -392,6 +392,23 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="NameArgumentDescription" xml:space="preserve">
     <value>Filter results by name</value>
   </data>
+  <data name="NestedInstallerHashMismatchAdminBlock" xml:space="preserve">
+    <value>Hash of extracted files does not match; this cannot be overridden when running as admin</value>
+  </data>
+  <data name="NestedInstallerHashMismatchError" xml:space="preserve">
+    <value>Hash of extracted files does not match.</value>
+  </data>
+  <data name="NestedInstallerHashMismatchOverridden" xml:space="preserve">
+    <value>Hash of extracted files does not match; proceeding due to --ignore-security-hash</value>
+    <comment>{Locked="--ignore-security-hash"}</comment>
+  </data>
+  <data name="NestedInstallerHashMismatchOverrideRequired" xml:space="preserve">
+    <value>Hash of extracted files does not match; to override this check use --ignore-security-hash</value>
+    <comment>{Locked="--ignore-security-hash"}</comment>
+  </data>
+  <data name="NestedInstallerHashVerified" xml:space="preserve">
+    <value>Successfully verified hash of extracted files</value>
+  </data>
   <data name="NoApplicableInstallers" xml:space="preserve">
     <value>No applicable installer found; see logs for more details.</value>
   </data>

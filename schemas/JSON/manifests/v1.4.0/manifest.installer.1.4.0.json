@@ -96,6 +96,11 @@
             "maxLength": 512,
             "description": "The relative path to the nested installer file"
           },
+          "FileSha256": {
+            "type": [ "string", "null" ],
+            "pattern": "^[A-Fa-f0-9]{64}$",
+            "description": "Optional Sha256 of the nested installer file."
+          },
           "PortableCommandAlias": {
             "type": [ "string", "null" ],
             "minLength": 1,

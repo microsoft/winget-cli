@@ -166,6 +166,13 @@ namespace AppInstaller::Repository::Rest::Schema::V1_4::Json
 
                     Manifest::NestedInstallerFile nestedInstallerFile;
                     nestedInstallerFile.RelativeFilePath = std::move(*relativeFilePath);
+                    
+                    std::optional<std::string> sha256 = JSON::GetRawStringValueFromJsonNode(nestedInstallerFileNode, JSON::GetUtilityString(FileSha256));
+                    if (JSON::IsValidNonEmptyStringValue(sha256))
+                    {
+                        nestedInstallerFile.FileSha256 = Utility::SHA256::ConvertToBytes(*sha256);
+                    }
+
                     nestedInstallerFile.PortableCommandAlias = JSON::GetRawStringValueFromJsonNode(nestedInstallerFileNode, JSON::GetUtilityString(PortableCommandAlias)).value_or("");
 
                     installer.NestedInstallerFiles.emplace_back(std::move(nestedInstallerFile));

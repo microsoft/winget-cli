@@ -264,6 +264,7 @@ namespace AppInstaller::Manifest
     struct NestedInstallerFile
     {
         string_t RelativeFilePath;
+        std::vector<BYTE> FileSha256;
         string_t PortableCommandAlias;
     };
 
