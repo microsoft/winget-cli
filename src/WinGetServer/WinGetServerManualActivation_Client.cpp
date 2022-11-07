@@ -17,7 +17,7 @@
 #if USE_PROD_WINGET_SERVER
 const std::wstring_view s_ServerExePath = L"\\Microsoft\\WindowsApps\\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\\WindowsPackageManagerServer.exe";
 #else
-const std::wstring_view s_ServerExePath = L"\\Microsoft\\WindowsApps\\WinGetDevCLI_8wekyb3d8bbwe\\WindowsPackageManagerServerDev.exe";
+const std::wstring_view s_ServerExePath = L"\\Microsoft\\WindowsApps\\WinGetDevCLI_8wekyb3d8bbwe\\asdf\\WindowsPackageManagerServerDev.exe";
 #endif
 
 _Must_inspect_result_
