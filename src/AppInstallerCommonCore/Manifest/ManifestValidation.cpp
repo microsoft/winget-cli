@@ -32,6 +32,7 @@ namespace AppInstaller::Manifest
                 { AppInstaller::Manifest::ManifestError::InstallerTypeDoesNotWriteAppsAndFeaturesEntry, "The specified installer type does not write to Apps and Features entry."sv },
                 { AppInstaller::Manifest::ManifestError::IncompleteMultiFileManifest, "The multi file manifest is incomplete.A multi file manifest must contain at least version, installer and defaultLocale manifest."sv },
                 { AppInstaller::Manifest::ManifestError::InconsistentMultiFileManifestFieldValue, "The multi file manifest has inconsistent field values."sv },
+                { AppInstaller::Manifest::ManifestError::DuplicateFileSha256, "Duplicate file hash found."sv },
                 { AppInstaller::Manifest::ManifestError::DuplicatePortableCommandAlias, "Duplicate portable command alias found."sv },
                 { AppInstaller::Manifest::ManifestError::DuplicateRelativeFilePath, "Duplicate relative file path found."sv },
                 { AppInstaller::Manifest::ManifestError::DuplicateMultiFileManifestType, "The multi file manifest should contain only one file with the particular ManifestType."sv },
@@ -264,6 +265,7 @@ namespace AppInstaller::Manifest
 
                 std::set<std::string> commandAliasSet;
                 std::set<std::string> relativeFilePathSet;
+                std::set<std::string> fileSha256Set;
 
                 for (const auto& nestedInstallerFile : installer.NestedInstallerFiles)
                 {
@@ -285,6 +287,12 @@ namespace AppInstaller::Manifest
                     if (!relativeFilePathSet.insert(Utility::ToLower(nestedInstallerFile.RelativeFilePath)).second)
                     {
                         resultErrors.emplace_back(ManifestError::DuplicateRelativeFilePath, "RelativeFilePath");
+                    }
+
+                    // Check for duplicate file hash values.
+                    if (!relativeFilePathSet.insert(Utility::ToLower(Utility::SHA256::ConvertToString(nestedInstallerFile.FileSha256))).second)
+                    {
+                        resultErrors.emplace_back(ManifestError::DuplicateFileSha256, "FileSha256");
                     }
 
                     // Check for duplicate portable command alias values.

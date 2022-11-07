@@ -149,7 +149,7 @@ namespace AppInstaller::CLI::Workflow
         }
         else
         {
-            // // If running as admin, do not allow the user to override the hash failure. 
+            // If running as admin, do not allow the user to override the hash failure. 
             if (Runtime::IsRunningAsAdmin())
             {
                 context.Reporter.Error() << Resource::String::NestedInstallerHashMismatchAdminBlock << std::endl;
