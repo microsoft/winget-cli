@@ -79,9 +79,11 @@
 			<!-- Ensure Referenced Project Output is in Output Directory -->
 			<WinRTActDll Include="$(SolutionDir)**\$(Platform)\$(Configuration)\UndockedRegFreeWinRT\winrtact.dll" />
 		</ItemGroup>
-		<Message Importance="high" Text="Copying '@(WinRTActDll)' to '$(OutputPath)'" />
-		<Copy SourceFiles="@(WinRTActDll)" DestinationFolder="$(OutputPath)" />
-	</Target>
+		<Message Importance="high" Text="Copying '@(WinRTActDll)'" />
+        <Copy SourceFiles="@(WinRTActDll)" DestinationFolder="$(OutputPath)" />
+        <Copy SourceFiles="@(WinRTActDll)" DestinationFolder="$(PowerShellModuleOutputDirectory)\$(Platform)\Core" />
+        <Copy SourceFiles="@(WinRTActDll)" DestinationFolder="$(PowerShellModuleOutputDirectory)\$(Platform)\Desktop" />
+    </Target>
 
     <!-- Build Microsoft.Winget.Client PowerShell Module -->
     <Target Name="CopyModuleFiles" AfterTargets="AfterBuild">
@@ -94,7 +96,7 @@
     <!-- Copy manifest to specifically target x86 module -->
     <Target Name="CopyX86ModuleManifest" AfterTargets="AfterBuild" Condition = "'$(Platform)' == 'x86' ">
         <Message Importance="high" Text="Copying x86 module manifest file" />
-        <Copy SourceFiles="x86\Microsoft.WinGet.Client.psd1" DestinationFolder="$(PowerShellModuleOutputDirectory)" />
+        <Copy SourceFiles="ModuleManifest-x86\Microsoft.WinGet.Client.psd1" DestinationFolder="$(PowerShellModuleOutputDirectory)" />
     </Target>
     
     <Target Name="CopyCoreBinaries" AfterTargets="AfterBuild" Condition="'$(TargetFramework)' == '$(CoreFramework)'">
