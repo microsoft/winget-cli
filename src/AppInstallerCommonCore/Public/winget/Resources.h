@@ -35,6 +35,7 @@ namespace AppInstaller
             WINGET_DEFINE_RESOURCE_STRINGID(PolicyAdditionalSources);
             WINGET_DEFINE_RESOURCE_STRINGID(PolicyAllowedSources);
             WINGET_DEFINE_RESOURCE_STRINGID(PolicySourceAutoUpdateInterval);
+            WINGET_DEFINE_RESOURCE_STRINGID(PolicyEnableBypassCertificatePinningForMicrosoftStore);
 
             WINGET_DEFINE_RESOURCE_STRINGID(SettingsWarningInvalidFieldFormat);
             WINGET_DEFINE_RESOURCE_STRINGID(SettingsWarningInvalidFieldValue);

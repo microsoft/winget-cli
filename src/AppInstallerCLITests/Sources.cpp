@@ -1265,3 +1265,32 @@ TEST_CASE("RepoSources_RestoringWellKnownSource", "[sources]")
         REQUIRE(storeAfterAdd.GetDetails().CertificatePinningConfiguration.IsEmpty());
     }
 }
+
+TEST_CASE("RepoSources_GroupPolicy_BypassCertificatePinningForMicrosoftStore", "[sources][groupPolicy]")
+{
+    TestHook_ClearSourceFactoryOverrides();
+
+    SECTION("Not configured")
+    {
+        GroupPolicyTestOverride policies;
+        policies.SetState(TogglePolicy::Policy::BypassCertificatePinningForMicrosoftStore, PolicyState::NotConfigured);
+        Source source(WellKnownSource::MicrosoftStore);
+        REQUIRE_FALSE(source.GetDetails().CertificatePinningConfiguration.IsEmpty());
+    }
+
+    SECTION("Enabled")
+    {
+        GroupPolicyTestOverride policies;
+        policies.SetState(TogglePolicy::Policy::BypassCertificatePinningForMicrosoftStore, PolicyState::Enabled);
+        Source source(WellKnownSource::MicrosoftStore);
+        REQUIRE(source.GetDetails().CertificatePinningConfiguration.IsEmpty());
+    }
+
+    SECTION("Disabled")
+    {
+        GroupPolicyTestOverride policies;
+        policies.SetState(TogglePolicy::Policy::BypassCertificatePinningForMicrosoftStore, PolicyState::Disabled);
+        Source source(WellKnownSource::MicrosoftStore);
+        REQUIRE_FALSE(source.GetDetails().CertificatePinningConfiguration.IsEmpty());
+    }
+}
