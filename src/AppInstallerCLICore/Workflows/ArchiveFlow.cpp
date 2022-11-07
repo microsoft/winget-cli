@@ -124,6 +124,11 @@ namespace AppInstaller::CLI::Workflow
                     fileSha256.begin()))
                 {
                     hashMismatchCount++;
+                    AICLI_LOG(CLI, Warning, << "Nested installer file hash does not match."
+                        << " Expected: " << Utility::SHA256::ConvertToString(nestedInstallerSha256)
+                        << " Found: " << Utility::SHA256::ConvertToString(fileSha256)
+                        << " at " << nestedInstallerPath
+                    );
                 }
             }
         }
@@ -132,13 +137,14 @@ namespace AppInstaller::CLI::Workflow
        
         if (hashMismatchCount == 0)
         {
-            AICLI_LOG(CLI, Info, << "Installer hash verified");
+            AICLI_LOG(CLI, Info, << "Nested installer file hashes verified");
             context.Reporter.Info() << Resource::String::NestedInstallerHashVerified << std::endl;
 
             context.SetFlags(Execution::ContextFlag::InstallerHashMatched);
         }
         else if (overrideHashMismatch && !Runtime::IsRunningAsAdmin())
         {
+            AICLI_LOG(CLI, Warning, << "Nested installer files contain hash mismatches. Proceeding due to --ignore-security-hash.");
             context.Reporter.Warn() << Resource::String::NestedInstallerHashMismatchOverridden << std::endl;
         }
         else
@@ -156,6 +162,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 context.Reporter.Error() << Resource::String::NestedInstallerHashMismatchError << std::endl;
             }
+            AICLI_LOG(CLI, Error, << "Nested installer files contain hash mismatches.");
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NESTED_INSTALLER_HASH_MISMATCH);
         }
         context.Add<Execution::Data::InstallerPath>(targetInstallerPath);
