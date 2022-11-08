@@ -213,8 +213,20 @@ jobs:
       CleanTargetFolder: false
       OverWrite: true
 
+  - task: PowerShell@2
+    displayName: Run wpf for com trace logging
+    inputs:
+      targetType: 'inline'
+      script: |
+        wpr -start $(Build.SourcesDirectory)\src\PowerShell\ComTrace.wprp -filemode
+        ipmo $(buildOutDir)\PowerShell\Microsoft.WinGet.Client.psd1
+        Find-WinGetPackage
+        wpr -stop .\comtrace.etl
+      pwsh: true
+      workingDirectory: '$(buildOutDir)\PowerShell\'
+
   - task: PublishPipelineArtifact@1
-    displayName: Publish Pipeline Artifacts
+    displayName: Publish powershell artifacts
     inputs:
       targetPath: '$(buildOutDir)\PowerShell\'
     condition: always()
