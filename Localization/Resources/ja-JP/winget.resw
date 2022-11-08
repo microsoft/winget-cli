@@ -132,7 +132,7 @@
   </data>
   <data name="AvailableHeader" xml:space="preserve">
     <value>利用可能</value>
-    <comment>As in "a new version is available to update to".</comment>
+    <comment>As in "a new version is available to upgrade to".</comment>
   </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>次のオプションを使用できます。</value>
@@ -259,23 +259,11 @@
   <data name="InstallationRequiresHigherWindows" xml:space="preserve">
     <value>パッケージをインストールできません。新しいバージョンの Windows が必要です：</value>
   </data>
-  <data name="InstallCommandLongDescription" xml:space="preserve">
-    <value>構成されたソースを検索するか、マニフェストから直接検索して見つけた選択されたパッケージをインストールします。既定では、クエリはパッケージの ID、名前、モニカーに大文字小文字の区別なく一致する必要があります。その他のフィールドは、適切なオプションを渡すことで使用することができます。</value>
-    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
-  </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>指定されたパッケージをインストール</value>
   </data>
   <data name="InstallerHashMismatchAdminBlock" xml:space="preserve">
     <value>インストーラーのハッシュが一致しません; これは、管理者として実行している場合は上書きできません</value>
-  </data>
-  <data name="InstallerHashMismatchOverridden" xml:space="preserve">
-    <value>インストーラーハッシュが一致しません。--forceのため処理しています</value>
-    <comment>{Locked="--force"}</comment>
-  </data>
-  <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
-    <value>インストーラーのハッシュが一致しません; このチェックを無効にするには、--force を使用します</value>
-    <comment>{Locked="--force"}</comment>
   </data>
   <data name="InstallerHashVerified" xml:space="preserve">
     <value>インストーラーハッシュが正常に検証されました</value>
@@ -285,9 +273,6 @@
   </data>
   <data name="InstallFlowStartingPackageInstall" xml:space="preserve">
     <value>パッケージのインストールを開始しています...</value>
-  </data>
-  <data name="InstallForceArgumentDescription" xml:space="preserve">
-    <value>インストーラーのハッシュのチェックを上書きする</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>対話式のインストールが要求されます。ユーザーの入力が必要になる場合があります</value>
@@ -311,10 +296,6 @@
   <data name="Links" xml:space="preserve">
     <value>リンク</value>
     <comment>Links to different webpages</comment>
-  </data>
-  <data name="ListCommandLongDescription" xml:space="preserve">
-    <value>list コマンドは、システムにインストール済みのパッケージ、および更新プログラムが利用可能かどうかを表示します。また search コマンドと同様に、出力をフィルタリングするための追加オプションを提供できます。</value>
-    <comment>{Locked="list","search"}</comment>
   </data>
   <data name="ListCommandShortDescription" xml:space="preserve">
     <value>インストール済みパッケージを表示する</value>
@@ -356,12 +337,6 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>MSIX 署名ハッシュを計算できませんでした。</value>
   </data>
-  <data name="MSStoreAppBlocked" xml:space="preserve">
-    <value>特定のアプリがポリシーによってブロックされているため、Microsoft Store パッケージのインストールまたは更新に失敗しました</value>
-  </data>
-  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
-    <value>Microsoft Store パッケージのインストールまたは更新に失敗しました。エラー コード:</value>
-  </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>パッケージ取得の成功の確認/要求に失敗しました: ネットワーク エラー</value>
   </data>
@@ -373,9 +348,6 @@
   </data>
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>パッケージ取得の成功の確認/要求</value>
-  </data>
-  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
-    <value>Microsoft Store クライアントがポリシーによってブロックされているため、Microsoft Store パッケージのインストールまたは更新に失敗しました</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>パッケージ取得の確認/要求...</value>
@@ -658,12 +630,6 @@
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>認識されないコマンド</value>
-  </data>
-  <data name="UpdateAllArgumentDescription" xml:space="preserve">
-    <value>インストールされているすべてのパッケージが利用可能であれば最新のものに更新する</value>
-  </data>
-  <data name="UpdateNotApplicable" xml:space="preserve">
-    <value>適用可能な更新は見つかりませんでした。</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
     <value>インストールされたパッケージ リスト、またはマニフェストから直接検索し、選択されたパッケージをアップグレードします。既定では、クエリはパッケージの ID、名前、モニカーに大文字小文字の区別なく一致する必要があります。その他のフィールドは、適切なオプションを渡すことで使用することができます。引数が指定されていない場合は、利用可能なアップグレードを含むパッケージが表示されます</value>
@@ -1030,20 +996,8 @@
   <data name="ShowLabelInstaller" xml:space="preserve">
     <value>インストーラー:</value>
   </data>
-  <data name="ShowLabelInstallerLocale" xml:space="preserve">
-    <value>ロケール:</value>
-  </data>
   <data name="ShowLabelInstallerProductId" xml:space="preserve">
     <value>ストア製品 ID:</value>
-  </data>
-  <data name="ShowLabelInstallerSha256" xml:space="preserve">
-    <value>SHA256:</value>
-  </data>
-  <data name="ShowLabelInstallerType" xml:space="preserve">
-    <value>種類:</value>
-  </data>
-  <data name="ShowLabelInstallerUrl" xml:space="preserve">
-    <value>ダウンロード URL:</value>
   </data>
   <data name="ShowLabelLicense" xml:space="preserve">
     <value>ライセンス:</value>
@@ -1301,6 +1255,7 @@
   </data>
   <data name="PortableRegistryCollisionOverridden" xml:space="preserve">
     <value>同じ名前で、別のソースからのポータブル パッケージが既に存在します; --force が原因で続行しています</value>
+    <comment>{Locked="--force"}</comment>
   </data>
   <data name="ReparsePointsNotSupportedError" xml:space="preserve">
     <value>ボリュームは再パース ポイントをサポートしていません</value>
@@ -1320,14 +1275,6 @@
   <data name="BothPurgeAndPreserveFlagsProvided" xml:space="preserve">
     <value>'purge' と 'preserve' 引数の両方が指定されています</value>
   </data>
-  <data name="PortableHashMismatchOverridden" xml:space="preserve">
-    <value>ポータブル exe ファイルが変更されました; --force が原因で続行しています</value>
-    <comment>{Locked="--force"}</comment>
-  </data>
-  <data name="PortableHashMismatchOverrideRequired" xml:space="preserve">
-    <value>これまでに変更されているため、ポータブル exe ファイルは削除できません; このチェックをオーバーライドするには、--force を使用してください</value>
-    <comment>{Locked="--force"}</comment>
-  </data>
   <data name="FilesRemainInInstallDirectory" xml:space="preserve">
     <value>ファイルはインストール ディレクトリに残ります:</value>
   </data>
@@ -1345,8 +1292,5 @@
   </data>
   <data name="Notes" xml:space="preserve">
     <value>メモ:</value>
-  </data>
-  <data name="ShowLabelInstallationNotes" xml:space="preserve">
-    <value>InstallationNotes:</value>
   </data>
 </root>
