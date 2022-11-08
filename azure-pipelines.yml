@@ -213,6 +213,12 @@ jobs:
       CleanTargetFolder: false
       OverWrite: true
 
+  - task: PublishPipelineArtifact@1
+    displayName: Publish Pipeline Artifacts
+    inputs:
+      targetPath: '$(buildOutDir)\PowerShell\'
+    condition: always()
+
   - template: templates/e2e-test.template.yml
     parameters:
       title: "E2E Tests Packaged"

@@ -74,12 +74,21 @@
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
 	</PropertyGroup>
 	
-	<Target Name="CopyWinRTAct" AfterTargets="Build" Condition="'$(TargetFramework)' != ''">
+	<Target Name="CopyWinRTAct-X64" AfterTargets="Build" Condition="'$(Platform)' == 'x64'">
 		<ItemGroup>
-			<!-- Ensure Referenced Project Output is in Output Directory -->
-			<WinRTActDll Include="$(SolutionDir)**\$(Platform)\$(Configuration)\UndockedRegFreeWinRT\winrtact.dll" />
+			<WinRTActDll Include="$(SolutionDir)**\x64\$(Configuration)\UndockedRegFreeWinRT\winrtact.dll" />
 		</ItemGroup>
 		<Message Importance="high" Text="Copying '@(WinRTActDll)'" />
+        <Copy SourceFiles="@(WinRTActDll)" DestinationFolder="$(OutputPath)" />
+        <Copy SourceFiles="@(WinRTActDll)" DestinationFolder="$(PowerShellModuleOutputDirectory)\$(Platform)\Core" />
+        <Copy SourceFiles="@(WinRTActDll)" DestinationFolder="$(PowerShellModuleOutputDirectory)\$(Platform)\Desktop" />
+    </Target>
+
+    <Target Name="CopyWinRTAct-x86" AfterTargets="Build" Condition="'$(Platform)' == 'x86'">
+        <ItemGroup>
+            <WinRTActDll Include="$(SolutionDir)**\Win32\$(Configuration)\UndockedRegFreeWinRT\winrtact.dll" />
+        </ItemGroup>
+        <Message Importance="high" Text="Copying '@(WinRTActDll)'" />
         <Copy SourceFiles="@(WinRTActDll)" DestinationFolder="$(OutputPath)" />
         <Copy SourceFiles="@(WinRTActDll)" DestinationFolder="$(PowerShellModuleOutputDirectory)\$(Platform)\Core" />
         <Copy SourceFiles="@(WinRTActDll)" DestinationFolder="$(PowerShellModuleOutputDirectory)\$(Platform)\Desktop" />
@@ -94,7 +103,7 @@
     </Target>
     
     <!-- Copy manifest to specifically target x86 module -->
-    <Target Name="CopyX86ModuleManifest" AfterTargets="AfterBuild" Condition = "'$(Platform)' == 'x86' ">
+    <Target Name="CopyX86ModuleManifest" AfterTargets="AfterBuild" Condition = "'$(Platform)' == 'x86'">
         <Message Importance="high" Text="Copying x86 module manifest file" />
         <Copy SourceFiles="ModuleManifest-x86\Microsoft.WinGet.Client.psd1" DestinationFolder="$(PowerShellModuleOutputDirectory)" />
     </Target>

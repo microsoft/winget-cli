@@ -8,7 +8,7 @@ namespace AppInstallerCLIE2ETests
     /// <summary>
     /// Basic E2E tests for verifying that behavior of the PowerShell module cmdlets.
     /// </summary>
-    public class PowerShellModule
+    public class APowerShellModule
     {
         [OneTimeSetUp]
         public void Setup()
