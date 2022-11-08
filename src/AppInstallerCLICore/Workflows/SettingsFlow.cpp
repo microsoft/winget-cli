@@ -12,14 +12,28 @@ namespace AppInstaller::CLI::Workflow
 
     void EnableAdminSetting(Execution::Context& context)
     {
-        Settings::EnableAdminSetting(Settings::StringToAdminSetting(context.Args.GetArg(Execution::Args::Type::AdminSettingEnable)));
-        context.Reporter.Info() << Resource::String::AdminSettingEnabled;
+        AdminSetting adminSetting = Settings::StringToAdminSetting(context.Args.GetArg(Execution::Args::Type::AdminSettingEnable));
+        if (Settings::EnableAdminSetting(adminSetting))
+        {
+            context.Reporter.Info() << Resource::String::AdminSettingEnabled;
+        }
+        else
+        {
+            // TODO context.Reporter.Error() << ;
+        }
     }
 
     void DisableAdminSetting(Execution::Context& context)
     {
-        Settings::DisableAdminSetting(Settings::StringToAdminSetting(context.Args.GetArg(Execution::Args::Type::AdminSettingDisable)));
-        context.Reporter.Info() << Resource::String::AdminSettingDisabled;
+        AdminSetting adminSetting = Settings::StringToAdminSetting(context.Args.GetArg(Execution::Args::Type::AdminSettingDisable));
+        if (Settings::DisableAdminSetting(adminSetting))
+        {
+            context.Reporter.Info() << Resource::String::AdminSettingDisabled;
+        }
+        else
+        {
+            // TODO context.Reporter.Error() << ;
+        }
     }
 
     void OpenUserSetting(Execution::Context& context)
