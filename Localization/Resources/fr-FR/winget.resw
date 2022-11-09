@@ -132,7 +132,7 @@
   </data>
   <data name="AvailableHeader" xml:space="preserve">
     <value>Disponible</value>
-    <comment>As in "a new version is available to update to".</comment>
+    <comment>As in "a new version is available to upgrade to".</comment>
   </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>Les options suivantes sont disponibles :</value>
@@ -259,23 +259,11 @@ Elles peuvent être configurées par le biais du fichier de paramètres « wing
   <data name="InstallationRequiresHigherWindows" xml:space="preserve">
     <value>Impossible d’installer le package, car il nécessite une version plus récente de Windows :</value>
   </data>
-  <data name="InstallCommandLongDescription" xml:space="preserve">
-    <value>Installe le package sélectionné, trouvé en recherchant une source configurée ou directement à partir d'un manifeste. Par défaut, la requête doit correspondre, sans respect de la casse, à l’id, au nom ou au moniker du package. D’autres champs peuvent être utilisés en transmettant leur option appropriée.</value>
-    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
-  </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>Installe le package donné</value>
   </data>
   <data name="InstallerHashMismatchAdminBlock" xml:space="preserve">
     <value>Le code de hachage de l’installation ne correspond pas ; ceci ne peut pas être contourné lors d’une exécution en tant qu’administrateur</value>
-  </data>
-  <data name="InstallerHashMismatchOverridden" xml:space="preserve">
-    <value>Le code de hachage de l’installation ne correspond pas ; procédure pour des raisons de --force</value>
-    <comment>{Locked="--force"}</comment>
-  </data>
-  <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
-    <value>Le code de hachage de l’installation ne correspond pas ; pour contourner cette vérification, utiliser --force</value>
-    <comment>{Locked="--force"}</comment>
   </data>
   <data name="InstallerHashVerified" xml:space="preserve">
     <value>Le code de hachage de l’installation a été vérifié avec succès</value>
@@ -285,9 +273,6 @@ Elles peuvent être configurées par le biais du fichier de paramètres « wing
   </data>
   <data name="InstallFlowStartingPackageInstall" xml:space="preserve">
     <value>Démarrage du package d’installation... Merci de patienter.</value>
-  </data>
-  <data name="InstallForceArgumentDescription" xml:space="preserve">
-    <value>Remplacer la vérification du code de hachage de l’installation</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>Demander une installation interactive; l’intervention de l’utilisateur peut être nécessaire</value>
@@ -311,10 +296,6 @@ Elles peuvent être configurées par le biais du fichier de paramètres « wing
   <data name="Links" xml:space="preserve">
     <value>Liens</value>
     <comment>Links to different webpages</comment>
-  </data>
-  <data name="ListCommandLongDescription" xml:space="preserve">
-    <value>La commande list affiche les packages installés sur le système, et indique si une mise à jour est disponible. Des options supplémentaires peuvent être proposées pour filtrer la sortie, comme pour la commande search.</value>
-    <comment>{Locked="list","search"}</comment>
   </data>
   <data name="ListCommandShortDescription" xml:space="preserve">
     <value>Afficher les packages installés</value>
@@ -356,12 +337,6 @@ Elles peuvent être configurées par le biais du fichier de paramètres « wing
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Impossible de calculer le hachage de la signature MSIX.</value>
   </data>
-  <data name="MSStoreAppBlocked" xml:space="preserve">
-    <value>Échec de l’installation ou de la mise à jour du package Microsoft Store en raison du blocage de l’application en question par une stratégie</value>
-  </data>
-  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
-    <value>Échec de l’installation ou de la mise à jour du package Microsoft Store. Code d’erreur :</value>
-  </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>Nous n’avons pas pu effectuer la vérification/demande d’acquisition du package : erreur réseau</value>
   </data>
@@ -373,9 +348,6 @@ Elles peuvent être configurées par le biais du fichier de paramètres « wing
   </data>
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>Vérification/demande relative à la réussite de l’acquisition du package</value>
-  </data>
-  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
-    <value>Échec de l’installation ou de la mise à jour du package Microsoft Store en raison du blocage du client Microsoft Store par une stratégie</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>Vérification/demande en cours relative à l’acquisition du package...</value>
@@ -658,12 +630,6 @@ Elles peuvent être configurées par le biais du fichier de paramètres « wing
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Commande non reconnue</value>
-  </data>
-  <data name="UpdateAllArgumentDescription" xml:space="preserve">
-    <value>Mettre à jour tous les paquets installés vers la dernière version si disponible</value>
-  </data>
-  <data name="UpdateNotApplicable" xml:space="preserve">
-    <value>Aucune mise à jour applicable trouvée.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
     <value>Mises à niveau du paquet sélectionné, trouvé en recherchant les paquets installés ou directement à partir d'un manifeste. Par défaut, la requête doit correspondre, sans respect de la casse, à l’identification, au nom ou au moniker du paquet. D’autres champs peuvent être utilisés en passant leur option appropriée. Si aucun argument n'est fourni, affiche les paquets avec des mises à jour disponibles.</value>
@@ -1030,20 +996,8 @@ Acceptez-vous les conditions ?</value>
   <data name="ShowLabelInstaller" xml:space="preserve">
     <value>Programme d'installation :</value>
   </data>
-  <data name="ShowLabelInstallerLocale" xml:space="preserve">
-    <value>Paramètres régionaux :</value>
-  </data>
   <data name="ShowLabelInstallerProductId" xml:space="preserve">
     <value>ID de produit du Store :</value>
-  </data>
-  <data name="ShowLabelInstallerSha256" xml:space="preserve">
-    <value>SHA256 :</value>
-  </data>
-  <data name="ShowLabelInstallerType" xml:space="preserve">
-    <value>Type :</value>
-  </data>
-  <data name="ShowLabelInstallerUrl" xml:space="preserve">
-    <value>URL de téléchargement :</value>
   </data>
   <data name="ShowLabelLicense" xml:space="preserve">
     <value>Licence :</value>
@@ -1301,6 +1255,7 @@ Spécifiez l’un d’entre eux à l’aide de l’option '--source' pour contin
   </data>
   <data name="PortableRegistryCollisionOverridden" xml:space="preserve">
     <value>Un package portable portant le même nom mais provenant d’une source différente existe déjà ; poursuite en raison de --force</value>
+    <comment>{Locked="--force"}</comment>
   </data>
   <data name="ReparsePointsNotSupportedError" xml:space="preserve">
     <value>Le volume ne prend pas en charge les points d’analyse</value>
@@ -1320,14 +1275,6 @@ Spécifiez l’un d’entre eux à l’aide de l’option '--source' pour contin
   <data name="BothPurgeAndPreserveFlagsProvided" xml:space="preserve">
     <value>Les arguments 'purger' et 'préserver' sont fournis</value>
   </data>
-  <data name="PortableHashMismatchOverridden" xml:space="preserve">
-    <value>L’exe portable a été modifié ; continuer en raison de --force</value>
-    <comment>{Locked="--force"}</comment>
-  </data>
-  <data name="PortableHashMismatchOverrideRequired" xml:space="preserve">
-    <value>Impossible de supprimer l’exe portable, car il a été modifié ; pour remplacer cette vérification, utilisez : --force</value>
-    <comment>{Locked="--force"}</comment>
-  </data>
   <data name="FilesRemainInInstallDirectory" xml:space="preserve">
     <value>Les fichiers restent dans le répertoire d’installation :</value>
   </data>
@@ -1345,8 +1292,5 @@ Spécifiez l’un d’entre eux à l’aide de l’option '--source' pour contin
   </data>
   <data name="Notes" xml:space="preserve">
     <value>Remarques :</value>
-  </data>
-  <data name="ShowLabelInstallationNotes" xml:space="preserve">
-    <value>Notes d’installation :</value>
   </data>
 </root>

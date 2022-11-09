@@ -132,7 +132,7 @@
   </data>
   <data name="AvailableHeader" xml:space="preserve">
     <value>Disponible</value>
-    <comment>As in "a new version is available to update to".</comment>
+    <comment>As in "a new version is available to upgrade to".</comment>
   </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>Están disponibles las siguientes opciones:</value>
@@ -259,23 +259,11 @@ Se pueden configurar mediante el archivo de configuración "winget settings".</v
   <data name="InstallationRequiresHigherWindows" xml:space="preserve">
     <value>No se puede instalar el paquete porque requiere una versión superior de Windows:</value>
   </data>
-  <data name="InstallCommandLongDescription" xml:space="preserve">
-    <value>Instala el paquete seleccionado, encontrado al buscar en un origen configurado o bien, directamente desde un manifiesto. De forma predeterminada, la consulta debe coincidir con el id, nombre o el moniker del paquete sin distinguir entre mayúsculas y minúsculas. Se pueden usar otros campos usando su opción apropiada.</value>
-    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
-  </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>Instala el paquete proporcionado</value>
   </data>
   <data name="InstallerHashMismatchAdminBlock" xml:space="preserve">
     <value>El hash del instalador no coincide; esto no se puede sobreescribir al ejecutarse como administrador</value>
-  </data>
-  <data name="InstallerHashMismatchOverridden" xml:space="preserve">
-    <value>El hash del instalador no coincide, continuando debido a --force</value>
-    <comment>{Locked="--force"}</comment>
-  </data>
-  <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
-    <value>El hash del instalador no coincide, para sobreescribir esta verificación, use --force</value>
-    <comment>{Locked="--force"}</comment>
   </data>
   <data name="InstallerHashVerified" xml:space="preserve">
     <value>El hash del instalador se verificó correctamente</value>
@@ -285,9 +273,6 @@ Se pueden configurar mediante el archivo de configuración "winget settings".</v
   </data>
   <data name="InstallFlowStartingPackageInstall" xml:space="preserve">
     <value>Iniciando instalación de paquete...</value>
-  </data>
-  <data name="InstallForceArgumentDescription" xml:space="preserve">
-    <value>Sobreescribir la comprobación hash del instalador</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>Solicitar instalación interactiva; es posible que se necesite la participación del usuario</value>
@@ -311,10 +296,6 @@ Se pueden configurar mediante el archivo de configuración "winget settings".</v
   <data name="Links" xml:space="preserve">
     <value>Vínculos</value>
     <comment>Links to different webpages</comment>
-  </data>
-  <data name="ListCommandLongDescription" xml:space="preserve">
-    <value>El comando "list" muestra los paquetes instalados en el sistema, así como si existe una actualización disponible. Se pueden proporcionar opciones adicionales para filtrar el resultado, como con el comando “search”.</value>
-    <comment>{Locked="list","search"}</comment>
   </data>
   <data name="ListCommandShortDescription" xml:space="preserve">
     <value>Mostrar paquetes instalados</value>
@@ -356,12 +337,6 @@ Se pueden configurar mediante el archivo de configuración "winget settings".</v
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>No se pudo calcular el hash de firma MSIX.</value>
   </data>
-  <data name="MSStoreAppBlocked" xml:space="preserve">
-    <value>Error al instalar o actualizar el paquete de Microsoft Store porque la aplicación específica está bloqueada por la directiva</value>
-  </data>
-  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
-    <value>Error al instalar o actualizar el paquete de Microsoft Store. Código de error:</value>
-  </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>Error en la comprobación o solicitud de la adquisición del paquete: error de conectividad</value>
   </data>
@@ -373,9 +348,6 @@ Se pueden configurar mediante el archivo de configuración "winget settings".</v
   </data>
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>Comprobación o solicitud de adquisición de paquetes completada con éxito</value>
-  </data>
-  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
-    <value>Error al instalar o actualizar el paquete de Microsoft Store porque el cliente de Microsoft Store está bloqueado por la directiva</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>Comprobando o solicitando la adquisición del paquete...</value>
@@ -658,12 +630,6 @@ Se pueden configurar mediante el archivo de configuración "winget settings".</v
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Comando no reconocido</value>
-  </data>
-  <data name="UpdateAllArgumentDescription" xml:space="preserve">
-    <value>Actualiza todos los paquetes instalados a la versión más reciente si está disponible</value>
-  </data>
-  <data name="UpdateNotApplicable" xml:space="preserve">
-    <value>No se encontraron actualizaciones aplicables.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
     <value>Actualiza el paquete seleccionado, ya sea buscando en la lista de paquetes instalados o directamente desde un manifiesto. De forma predeterminada, la consulta debe coincidir sin distinción entre mayúsculas y minúsculas con el identificador, el nombre o el moniker del paquete. Se pueden usar otros campos pasando su opción adecuada. Cuando no se proporciona ningún argumento, muestra los paquetes con actualizaciones disponibles</value>
@@ -1030,20 +996,8 @@ La configuración está deshabilitada debido a la Directiva de grupo.</value>
   <data name="ShowLabelInstaller" xml:space="preserve">
     <value>Instalador:</value>
   </data>
-  <data name="ShowLabelInstallerLocale" xml:space="preserve">
-    <value>Configuración regional:</value>
-  </data>
   <data name="ShowLabelInstallerProductId" xml:space="preserve">
     <value>Id. de producto de Store:</value>
-  </data>
-  <data name="ShowLabelInstallerSha256" xml:space="preserve">
-    <value>SHA256:</value>
-  </data>
-  <data name="ShowLabelInstallerType" xml:space="preserve">
-    <value>Tipo:</value>
-  </data>
-  <data name="ShowLabelInstallerUrl" xml:space="preserve">
-    <value>Dirección URL de descarga:</value>
   </data>
   <data name="ShowLabelLicense" xml:space="preserve">
     <value>Licencia:</value>
@@ -1276,19 +1230,19 @@ Especifique uno de ellos con la opción '--source' para continuar.</value>
     <value>Arquitectura del sistema</value>
   </data>
   <data name="PreserveArgumentDescription" xml:space="preserve">
-    <value>Conserva todos los archivos y directorios creados por el paquete (archivo portátil)</value>
+    <value>Conserva todos los archivos y directorios creados por el paquete (portable)</value>
   </data>
   <data name="PurgeArgumentDescription" xml:space="preserve">
-    <value>Elimina todos los archivos y directorios del directorio del paquete (archivo portátil)</value>
+    <value>Elimina todos los archivos y directorios del directorio del paquete (portable)</value>
   </data>
   <data name="RenameArgumentDescription" xml:space="preserve">
-    <value>Valor para cambiar el nombre del archivo ejecutable (archivo portátil)</value>
+    <value>Valor para cambiar el nombre del archivo ejecutable (portable)</value>
   </data>
   <data name="WaitArgumentDescription" xml:space="preserve">
     <value>Pide al usuario que presione cualquier tecla antes de salir</value>
   </data>
   <data name="InstallerElevationExpected" xml:space="preserve">
-    <value>El instalador solicitará que se ejecute como administrador; se espera un mensaje.</value>
+    <value>El instalador solicitará que se ejecute como administrador; espere un mensaje.</value>
   </data>
   <data name="InstallerProhibitsElevation" xml:space="preserve">
     <value>El instalador no se puede ejecutar desde un contexto de administrador.</value>
@@ -1297,10 +1251,11 @@ Especifique uno de ellos con la opción '--source' para continuar.</value>
     <value>Variable de entorno PATH modificada; reinicie el shell para usar el nuevo valor.</value>
   </data>
   <data name="ProductCodeArgumentDescription" xml:space="preserve">
-    <value>Filtros con el código de producto</value>
+    <value>Filtra con el código de producto</value>
   </data>
   <data name="PortableRegistryCollisionOverridden" xml:space="preserve">
-    <value>Ya existe un paquete portátil con el mismo nombre pero de otro origen; continuar debido a --force</value>
+    <value>Ya existe un paquete portable con el mismo nombre pero de otro origen; continuando debido a --force</value>
+    <comment>{Locked="--force"}</comment>
   </data>
   <data name="ReparsePointsNotSupportedError" xml:space="preserve">
     <value>El volumen no admite puntos de análisis</value>
@@ -1315,21 +1270,13 @@ Especifique uno de ellos con la opción '--source' para continuar.</value>
     <value>No se ha proporcionado ningún argumento de selección de paquete; vea la ayuda para obtener más información sobre cómo buscar un paquete.</value>
   </data>
   <data name="PortableInstallFailed" xml:space="preserve">
-    <value>Error en la instalación del archivo portátil; Limpiando...</value>
+    <value>Error en la instalación portable. Limpiando...</value>
   </data>
   <data name="BothPurgeAndPreserveFlagsProvided" xml:space="preserve">
     <value>Se proporcionan los argumentos "purge" y "preserve"</value>
   </data>
-  <data name="PortableHashMismatchOverridden" xml:space="preserve">
-    <value>Se ha modificado el archivo EXE portátil; continuar debido a --force</value>
-    <comment>{Locked="--force"}</comment>
-  </data>
-  <data name="PortableHashMismatchOverrideRequired" xml:space="preserve">
-    <value>No se puede quitar el archivo EXE portátil porque se ha modificado; para invalidar esta comprobación, use --force</value>
-    <comment>{Locked="--force"}</comment>
-  </data>
   <data name="FilesRemainInInstallDirectory" xml:space="preserve">
-    <value>Los archivos permanecen en el directorio de instalación:</value>
+    <value>Quedan archivos en el directorio de instalación:</value>
   </data>
   <data name="PurgeInstallDirectory" xml:space="preserve">
     <value>Purgando directorio de instalación...</value>
@@ -1345,8 +1292,5 @@ Especifique uno de ellos con la opción '--source' para continuar.</value>
   </data>
   <data name="Notes" xml:space="preserve">
     <value>Notas:</value>
-  </data>
-  <data name="ShowLabelInstallationNotes" xml:space="preserve">
-    <value>InstallationNotes:</value>
   </data>
 </root>

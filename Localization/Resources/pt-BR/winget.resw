@@ -132,7 +132,7 @@
   </data>
   <data name="AvailableHeader" xml:space="preserve">
     <value>Disponível</value>
-    <comment>As in "a new version is available to update to".</comment>
+    <comment>As in "a new version is available to upgrade to".</comment>
   </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>As seguintes opções estão disponíveis:</value>
@@ -259,23 +259,11 @@ Eles podem ser configurados por meio do arquivo de configurações ' winget sett
   <data name="InstallationRequiresHigherWindows" xml:space="preserve">
     <value>Não é possível instalar o pacote, pois ele requer uma versão superior do Windows:</value>
   </data>
-  <data name="InstallCommandLongDescription" xml:space="preserve">
-    <value>Instala o pacote selecionado, localizado ao pesquisar uma fonte configurada ou diretamente de um manifesto. Por padrão, a consulta deve diferenciar maiúsculas e minúsculas na identificação, no nome ou no moniker do pacote. Outros campos podem ser usados ​​passando a opção apropriada.</value>
-    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
-  </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>Instalar um determinado pacote</value>
   </data>
   <data name="InstallerHashMismatchAdminBlock" xml:space="preserve">
     <value>O hash do instalador não corresponde; Isto não pode ser substituído durante a execução como administrador</value>
-  </data>
-  <data name="InstallerHashMismatchOverridden" xml:space="preserve">
-    <value>O hash do instalador não corresponde; prosseguir devido à --force</value>
-    <comment>{Locked="--force"}</comment>
-  </data>
-  <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
-    <value>O hash do instalador não corresponde; para substituir este uso de verificação --force</value>
-    <comment>{Locked="--force"}</comment>
   </data>
   <data name="InstallerHashVerified" xml:space="preserve">
     <value>Hash do instalador verificado com êxito</value>
@@ -285,9 +273,6 @@ Eles podem ser configurados por meio do arquivo de configurações ' winget sett
   </data>
   <data name="InstallFlowStartingPackageInstall" xml:space="preserve">
     <value>Iniciando a instalação do pacote...</value>
-  </data>
-  <data name="InstallForceArgumentDescription" xml:space="preserve">
-    <value>Substituir verificação de hash do instalador</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>Solicitar instalação interativa; a entrada do usuário pode ser necessária</value>
@@ -311,10 +296,6 @@ Eles podem ser configurados por meio do arquivo de configurações ' winget sett
   <data name="Links" xml:space="preserve">
     <value>Links</value>
     <comment>Links to different webpages</comment>
-  </data>
-  <data name="ListCommandLongDescription" xml:space="preserve">
-    <value>O comando list exibe os pacotes instalados no sistema, bem como se uma atualização está disponível. Opções adicionais podem ser fornecidas para filtrar a saída, assim como o comando de search.</value>
-    <comment>{Locked="list","search"}</comment>
   </data>
   <data name="ListCommandShortDescription" xml:space="preserve">
     <value>Exibir os pacotes instalados</value>
@@ -356,12 +337,6 @@ Eles podem ser configurados por meio do arquivo de configurações ' winget sett
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Falha ao calcular o hash de assinatura MSIX.</value>
   </data>
-  <data name="MSStoreAppBlocked" xml:space="preserve">
-    <value>Falha ao instalar ou atualizar o pacote da Microsoft Store porque o aplicativo específico está bloqueado pela política</value>
-  </data>
-  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
-    <value>Falha ao instalar ou atualizar o pacote da Microsoft Store. Código de erro:</value>
-  </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>Falha ao verificar/solicitar aquisição de pacote: erro de rede</value>
   </data>
@@ -373,9 +348,6 @@ Eles podem ser configurados por meio do arquivo de configurações ' winget sett
   </data>
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>Exito ao verificar/solicitar aquisição de pacote</value>
-  </data>
-  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
-    <value>Falha ao instalar ou atualizar o pacote da Microsoft Store porque o cliente da Microsoft Store está bloqueado pela política</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>Verificando/solicitando aquisição de pacote...</value>
@@ -658,12 +630,6 @@ Eles podem ser configurados por meio do arquivo de configurações ' winget sett
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Comando não reconhecido</value>
-  </data>
-  <data name="UpdateAllArgumentDescription" xml:space="preserve">
-    <value>Atualizar todos os pacotes instalados para o mais recente, se disponível</value>
-  </data>
-  <data name="UpdateNotApplicable" xml:space="preserve">
-    <value>Nenhuma atualização aplicável foi encontrada.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
     <value>Atualiza o pacote selecionado, encontrado pesquisando a lista de pacotes instalados ou diretamente de um manifesto. Por padrão, a consulta deve corresponder, sem diferenciação entre maiúsculas e minúsculas, à id, name ou ao moniker do pacote. Outros campos podem ser usados passando a opção apropriada. Quando nenhum argumento é fornecido, mostra os pacotes com atualizações disponíveis</value>
@@ -1030,20 +996,8 @@ Você concorda com os termos?</value>
   <data name="ShowLabelInstaller" xml:space="preserve">
     <value>Instaladora:</value>
   </data>
-  <data name="ShowLabelInstallerLocale" xml:space="preserve">
-    <value>Localidade:</value>
-  </data>
   <data name="ShowLabelInstallerProductId" xml:space="preserve">
     <value>Id do Produto da Microsoft Store:</value>
-  </data>
-  <data name="ShowLabelInstallerSha256" xml:space="preserve">
-    <value>SHA256:</value>
-  </data>
-  <data name="ShowLabelInstallerType" xml:space="preserve">
-    <value>Tipo:</value>
-  </data>
-  <data name="ShowLabelInstallerUrl" xml:space="preserve">
-    <value>Url de download:</value>
   </data>
   <data name="ShowLabelLicense" xml:space="preserve">
     <value>Licença:</value>
@@ -1301,6 +1255,7 @@ Especifique um deles usando a opção '--source' para continuar.</value>
   </data>
   <data name="PortableRegistryCollisionOverridden" xml:space="preserve">
     <value>Já existe um pacote portátil com o mesmo nome, mas de uma fonte diferente; prosseguir devido a --force</value>
+    <comment>{Locked="--force"}</comment>
   </data>
   <data name="ReparsePointsNotSupportedError" xml:space="preserve">
     <value>O volume não suporta pontos de nova análise</value>
@@ -1320,14 +1275,6 @@ Especifique um deles usando a opção '--source' para continuar.</value>
   <data name="BothPurgeAndPreserveFlagsProvided" xml:space="preserve">
     <value>Ambos os argumentos `purge` e `preserve` são fornecidos</value>
   </data>
-  <data name="PortableHashMismatchOverridden" xml:space="preserve">
-    <value>Exe portátil foi modificado; processo devido a --force</value>
-    <comment>{Locked="--force"}</comment>
-  </data>
-  <data name="PortableHashMismatchOverrideRequired" xml:space="preserve">
-    <value>Não é possível remover o exe portátil, pois foi modificado; para substituir esta verificação use --force</value>
-    <comment>{Locked="--force"}</comment>
-  </data>
   <data name="FilesRemainInInstallDirectory" xml:space="preserve">
     <value>Os arquivos permanecem no diretório de instalação:</value>
   </data>
@@ -1345,8 +1292,5 @@ Especifique um deles usando a opção '--source' para continuar.</value>
   </data>
   <data name="Notes" xml:space="preserve">
     <value>Notas:</value>
-  </data>
-  <data name="ShowLabelInstallationNotes" xml:space="preserve">
-    <value>InstallationNotes:</value>
   </data>
 </root>

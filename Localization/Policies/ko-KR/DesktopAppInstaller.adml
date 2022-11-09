@@ -31,6 +31,12 @@
 이 설정을 사용하거나 구성하지 않으면 사용자는 Windows 패키지 관리자를 사용하여 로컬 매니페스트와 함께 패키지를 설치할 수 있습니다.
 
 이 설정을 사용하지 않으면 사용자는 Windows 패키지 관리자를 사용하여 로컬 매니페스트를 통해 패키지를 설치할 수 없습니다.</string>
+      <string id="EnableBypassCertificatePinningForMicrosoftStore">Enable App Installer Microsoft Store Source Pinned Certificate Bypass</string>
+      <string id="EnableBypassCertificatePinningForMicrosoftStoreExplanation">This policy controls whether the Windows Package Manager can be configured to disable the requirement to use a pinned certificate for the Microsoft Store source.
+
+If you enable or do not configure this setting, users will be able to bypass the pinned certificate used to validate the Microsoft Store source.
+
+If you disable this setting, users will not be able to bypass the pinned certificate used to validate the Microsoft Store source.</string>
       <string id="EnableHashOverride">앱 설치 관리자 해시 재정의 사용</string>
       <string id="EnableHashOverrideExplanation">이 정책은 설정에서 SHA256 보안 유효성 검사를 재정의하도록 Windows 패키지 관리자를 구성할 수 있는지 여부를 제어합니다.
 
