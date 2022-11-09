@@ -222,6 +222,7 @@ jobs:
       pwsh: true
       errorActionPreference: continue
       workingDirectory: '$(buildOutDir)\PowerShell\'
+    condition: always()
 
   - template: templates/e2e-test.template.yml
     parameters:
@@ -238,6 +239,7 @@ jobs:
       pwsh: true
       errorActionPreference: continue
       workingDirectory: '$(buildOutDir)\PowerShell\'
+    condition: always()
 
   - task: PublishPipelineArtifact@1
     displayName: Publish powershell artifacts
