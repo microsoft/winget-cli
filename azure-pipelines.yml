@@ -135,6 +135,12 @@ jobs:
         Add-AppxPackage AppInstallerCLIPackage_0.0.2.0_Test\Dependencies\$(buildPlatform)\Microsoft.VCLibs.$(buildPlatform).14.00.Desktop.appx
       workingDirectory: $(appxPackageDir)
 
+  - task: PublishPipelineArtifact@1
+    displayName: Publish powershell artifacts
+    inputs:
+      targetPath: '$(appxPackageDir)'
+    condition: always()
+
   - task: VisualStudioTestPlatformInstaller@1
     displayName: Prepare VSTest for E2E Tests
     inputs:
