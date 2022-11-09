@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include "AppInstallerStrings.h"
 #include "SettingsFlow.h"
 #include <winget/UserSettings.h>
 #include <winget/AdminSettings.h>
@@ -9,30 +10,37 @@
 namespace AppInstaller::CLI::Workflow
 {
     using namespace AppInstaller::Settings;
+    using namespace AppInstaller::Utility;
 
     void EnableAdminSetting(Execution::Context& context)
     {
-        AdminSetting adminSetting = Settings::StringToAdminSetting(context.Args.GetArg(Execution::Args::Type::AdminSettingEnable));
+        std::string_view adminSettingString = context.Args.GetArg(Execution::Args::Type::AdminSettingEnable);
+        AdminSetting adminSetting = Settings::StringToAdminSetting(adminSettingString);
         if (Settings::EnableAdminSetting(adminSetting))
         {
             context.Reporter.Info() << Resource::String::AdminSettingEnabled;
         }
         else
         {
-            // TODO context.Reporter.Error() << ;
+            std::string adminSettingErrorMessage = Resource::LocString{ Resource::String::EnableAdminSettingFailed };
+            context.Reporter.Error() <<
+                Utility::LocIndString{ FindAndReplaceMessageToken(adminSettingErrorMessage, adminSettingString) };
         }
     }
 
     void DisableAdminSetting(Execution::Context& context)
     {
-        AdminSetting adminSetting = Settings::StringToAdminSetting(context.Args.GetArg(Execution::Args::Type::AdminSettingDisable));
+        std::string_view adminSettingString = context.Args.GetArg(Execution::Args::Type::AdminSettingDisable);
+        AdminSetting adminSetting = Settings::StringToAdminSetting(adminSettingString);
         if (Settings::DisableAdminSetting(adminSetting))
         {
             context.Reporter.Info() << Resource::String::AdminSettingDisabled;
         }
         else
         {
-            // TODO context.Reporter.Error() << ;
+            std::string adminSettingErrorMessage = Resource::LocString{ Resource::String::DisableAdminSettingFailed };
+            context.Reporter.Error() <<
+                Utility::LocIndString{ FindAndReplaceMessageToken(adminSettingErrorMessage, adminSettingString) };
         }
     }
 
