@@ -32,7 +32,7 @@ namespace AppInstallerCLIE2ETests
             Assert.IsTrue(getSourceResult.StdOut.Contains($"{Constants.TestSourceName}"));
         }
 
-        [Test]
+        //[Test]
         public void FindWinGetPackage()
         {
             var result = TestCommon.RunPowerShellCommandWithResult(Constants.FindCmdlet, $"-Id {Constants.ExeInstallerPackageId}");
@@ -40,7 +40,7 @@ namespace AppInstallerCLIE2ETests
             Assert.IsTrue(result.StdOut.Contains("TestExeInstaller"));
         }
 
-        [Test]
+        //[Test]
         public void GetWinGetPackage()
         {
             var installResult = TestCommon.RunPowerShellCommandWithResult(Constants.InstallCmdlet, $"-Id {Constants.MsiInstallerPackageId}");
@@ -56,7 +56,7 @@ namespace AppInstallerCLIE2ETests
             Assert.IsTrue(!string.IsNullOrEmpty(uninstallResult.StdOut));
         }
 
-        [Test]
+        //[Test]
         public void InstallWinGetPackage()
         {
             var installResult = TestCommon.RunPowerShellCommandWithResult(Constants.InstallCmdlet, $"-Id {Constants.ExeInstallerPackageId}");
@@ -69,7 +69,7 @@ namespace AppInstallerCLIE2ETests
             Assert.IsTrue(!string.IsNullOrEmpty(uninstallResult.StdOut));
         }
 
-        [Test]
+        //[Test]
         public void UpdateWinGetPackage()
         {
             var installResult = TestCommon.RunPowerShellCommandWithResult(Constants.InstallCmdlet, $"-Id {Constants.ExeInstallerPackageId} -Version 1.0.0.0");

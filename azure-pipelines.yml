@@ -219,8 +219,21 @@ jobs:
       targetType: 'inline'
       script: |
         wpr -start $(Build.SourcesDirectory)\src\PowerShell\ComTrace.wprp -filemode
-        ipmo $(buildOutDir)\PowerShell\Microsoft.WinGet.Client.psd1
-        Find-WinGetPackage
+      pwsh: true
+      errorActionPreference: continue
+      workingDirectory: '$(buildOutDir)\PowerShell\'
+
+  - template: templates/e2e-test.template.yml
+    parameters:
+      title: "E2E Tests Packaged"
+      isPackaged: true
+      filter: "TestCategory!=InProcess&TestCategory!=OutOfProcess"
+
+  - task: PowerShell@2
+    displayName: Run wpf for com trace logging
+    inputs:
+      targetType: 'inline'
+      script: |
         wpr -stop .\comtrace.etl
       pwsh: true
       errorActionPreference: continue
@@ -231,12 +244,6 @@ jobs:
     inputs:
       targetPath: '$(buildOutDir)\PowerShell\'
     condition: always()
-
-  - template: templates/e2e-test.template.yml
-    parameters:
-      title: "E2E Tests Packaged"
-      isPackaged: true
-      filter: "TestCategory!=InProcess&TestCategory!=OutOfProcess"
 
   - task: PowerShell@2
     displayName: 'Set program files directory'

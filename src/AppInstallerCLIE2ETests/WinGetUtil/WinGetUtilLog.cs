@@ -8,7 +8,7 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
 
     public class WinGetUtilLog
     {
-        [Test]
+        //[Test]
         public void WinGetUtil_Logging()
         {
             string filePath = TestCommon.GetRandomTestFile(".log");
