@@ -223,6 +223,7 @@ jobs:
         Find-WinGetPackage
         wpr -stop .\comtrace.etl
       pwsh: true
+      errorActionPreference: continue
       workingDirectory: '$(buildOutDir)\PowerShell\'
 
   - task: PublishPipelineArtifact@1
