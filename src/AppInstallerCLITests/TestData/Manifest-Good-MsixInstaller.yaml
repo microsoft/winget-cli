@@ -10,4 +10,4 @@ Installers:
     - Architecture: x64
       InstallerUrl: Installer-Good.msix
 ManifestType: merged
-ManifestVersion: 1.2.0
+ManifestVersion: 1.0.0
