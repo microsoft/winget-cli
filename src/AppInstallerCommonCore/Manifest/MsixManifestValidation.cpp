@@ -188,9 +188,9 @@ namespace AppInstaller::Manifest
     {
         // Manifest package version:
         // 1. If DisplayVersion is defined, then use it as the manifest package
-        //    version if it can be parse to UINT64, otherwsie report an error
+        //    version if it can be parsed to UINT64, otherwise report an error
         // 2. If DisplayVersion is not defined, then use PackageVersion as the
-        //    manifest package version if it can be parse to UINT64, otherwise
+        //    manifest package version if it can be parsed to UINT64, otherwise
         //    report an error
         std::optional<Msix::PackageVersion> manifestPackageVersion;
 
