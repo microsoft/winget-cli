@@ -13,7 +13,6 @@ namespace AppInstaller::Manifest
         const ManifestInstaller &installer)
     {
         std::vector<ValidationError> errors;
-        Msix::PackageVersion packageVersion(manifest.Version);
         auto msixInfo = GetMsixInfo(installer.Url);
         if (msixInfo)
         {
@@ -24,7 +23,7 @@ namespace AppInstaller::Manifest
             {
                 auto msixManifestIdentity = msixManifest.GetIdentity();
                 ValidateMsixManifestPackageFamilyName(msixManifestIdentity.GetPackageFamilyName(), installer.PackageFamilyName, errors);
-                ValidateMsixManifestPackageVersion(msixManifestIdentity.GetVersion(), packageVersion, errors);
+                ValidateMsixManifestPackageVersion(msixManifestIdentity.GetVersion(), manifest.Version, installer.AppsAndFeaturesEntries, errors);
                 ValidateMsixManifestMinOSVersion(msixManifest.GetMinimumOSVersionForSupportedPlatforms(), installerMinOSVersion, installer.Url, errors);
             }
         }
@@ -182,11 +181,40 @@ namespace AppInstaller::Manifest
     }
 
     void MsixManifestValidation::ValidateMsixManifestPackageVersion(
-        const Msix::PackageVersion &msixPackageVersion,
-        const Msix::PackageVersion &manifestPackageVersion,
-        std::vector<ValidationError> &errors)
+        const Msix::PackageVersion& msixPackageVersion,
+        const string_t& manifestPackageVersionStr,
+        const std::vector<AppsAndFeaturesEntry>& appsAndFeaturesEntries,
+        std::vector<ValidationError>& errors)
     {
-        if (msixPackageVersion != manifestPackageVersion)
+        std::optional<Msix::PackageVersion> manifestPackageVersion;
+        try
+        {
+            // Parse package version to UINT64 version
+            manifestPackageVersion = { manifestPackageVersionStr };
+        }
+        catch(...)
+        {
+            AICLI_LOG(Core, Warning, << "Cannot parse manifest package version");
+        }
+
+        // Find the first parsable UINT64 display version in AppsAndFeaturesEntries
+        for (int eId = 0; !manifestPackageVersion.has_value() && eId < appsAndFeaturesEntries.size(); ++eId)
+        {
+            const auto& entry = appsAndFeaturesEntries[eId];
+            if (!entry.DisplayVersion.empty())
+            {
+                try
+                {
+                    manifestPackageVersion = { entry.DisplayVersion };
+                }
+                catch (...)
+                {
+                    AICLI_LOG(Core, Warning, << "Cannot parse manifest AppsAndFeaturesEntries[" << eId << "] display version");
+                }
+            }
+        }
+
+        if (!manifestPackageVersion.has_value() || msixPackageVersion != manifestPackageVersion.value())
         {
             errors.emplace_back(ManifestError::InstallerMsixInconsistencies, "PackageVersion", msixPackageVersion.ToString());
         }

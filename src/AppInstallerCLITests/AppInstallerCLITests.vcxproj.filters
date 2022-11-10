@@ -726,6 +726,12 @@
     <CopyFileToFolders Include="TestData\Manifest-Bad-MissingMsixInstallerFields.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Good-MsixInstaller-DisplayVersion.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-MsixInstaller-InconsistentVersion.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-NoSupportedPlatforms.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>

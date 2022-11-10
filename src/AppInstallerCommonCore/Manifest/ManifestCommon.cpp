@@ -477,7 +477,8 @@ namespace AppInstaller::Manifest
             installerType == InstallerTypeEnum::Nullsoft ||
             installerType == InstallerTypeEnum::Wix ||
             installerType == InstallerTypeEnum::Burn ||
-            installerType == InstallerTypeEnum::Portable
+            installerType == InstallerTypeEnum::Portable ||
+            installerType == InstallerTypeEnum::Msix
             );
     }
 

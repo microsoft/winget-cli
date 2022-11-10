@@ -1147,3 +1147,36 @@ TEST_CASE("ManifestArpVersionRange", "[ManifestValidation]")
     REQUIRE(arpRangeMultiArp.GetMinVersion().ToString() == "12.0");
     REQUIRE(arpRangeMultiArp.GetMaxVersion().ToString() == "13.0");
 }
+
+TEST_CASE("MsixManifestValidation_UseDisplayVersion", "[ManifestValidation]")
+{
+    Manifest manifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Good-MsixInstaller-DisplayVersion.yaml"));
+
+    // Update the installer path for testing
+    REQUIRE(1 == manifest.Installers.size());
+    TestDataFile msixFile(manifest.Installers[0].Url.c_str());
+    manifest.Installers[0].Url = msixFile.GetPath().u8string();
+
+    REQUIRE("test.version" == manifest.Version);
+
+    auto errors = ValidateManifestInstallers(manifest);
+    REQUIRE(0 == errors.size());
+}
+
+TEST_CASE("MsixManifestValidation_InconsistentVersion", "[ManifestValidation]")
+{
+    Manifest manifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Bad-MsixInstaller-InconsistentVersion.yaml"));
+
+    // Update the installer path for testing
+    REQUIRE(1 == manifest.Installers.size());
+    TestDataFile msixFile(manifest.Installers[0].Url.c_str());
+    manifest.Installers[0].Url = msixFile.GetPath().u8string();
+
+    REQUIRE("test.version.1" == manifest.Version);
+    REQUIRE(1 == manifest.Installers[0].AppsAndFeaturesEntries.size());
+    REQUIRE("test.version.2" == manifest.Installers[0].AppsAndFeaturesEntries[0].DisplayVersion);
+
+    auto errors = ValidateManifestInstallers(manifest);
+    REQUIRE(1 == errors.size());
+    ValidateError(errors[0], ValidationError::Level::Error, ManifestError::InstallerMsixInconsistencies, "PackageVersion", "43690.48059.52428.56797");
+}
