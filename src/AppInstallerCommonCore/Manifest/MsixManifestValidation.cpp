@@ -186,7 +186,14 @@ namespace AppInstaller::Manifest
         const std::vector<AppsAndFeaturesEntry>& appsAndFeaturesEntries,
         std::vector<ValidationError>& errors)
     {
+        // Manifest package version:
+        // 1. If DisplayVersion is defined, then use it as the manifest package
+        //    version if it can be parse to UINT64, otherwsie report an error
+        // 2. If DisplayVersion is not defined, then use PackageVersion as the
+        //    manifest package version if it can be parse to UINT64, otherwise
+        //    report an error
         std::optional<Msix::PackageVersion> manifestPackageVersion;
+
         try
         {
             // Parse package version to UINT64 version
@@ -198,13 +205,15 @@ namespace AppInstaller::Manifest
         }
 
         // Find the first parsable UINT64 display version in AppsAndFeaturesEntries
-        for (int eId = 0; !manifestPackageVersion.has_value() && eId < appsAndFeaturesEntries.size(); ++eId)
+        for (int eId = 0; eId < appsAndFeaturesEntries.size(); ++eId)
         {
             const auto& entry = appsAndFeaturesEntries[eId];
             if (!entry.DisplayVersion.empty())
             {
                 try
                 {
+                    // Reset package version to prioritize DisplayVersion
+                    manifestPackageVersion.reset();
                     manifestPackageVersion = { entry.DisplayVersion };
                 }
                 catch (...)

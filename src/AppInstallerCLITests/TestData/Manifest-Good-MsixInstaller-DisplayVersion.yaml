@@ -1,5 +1,5 @@
 PackageIdentifier: AppInstallerCliTest.GoodMsixInstaller-DisplayVersion
-PackageVersion: test.version # Version not compatibe with UINT64 msix version
+PackageVersion: 1.0.0.0 # Version ignored in favor of DisplayVersion
 PackageLocale: es-MX
 PackageName: es-MX package name
 Publisher: es-MX publisher

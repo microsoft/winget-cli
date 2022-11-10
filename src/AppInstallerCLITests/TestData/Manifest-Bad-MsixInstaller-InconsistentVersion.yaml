@@ -1,5 +1,5 @@
 PackageIdentifier: AppInstallerCliTest.GoodMsixInstaller-DisplayVersion
-PackageVersion: test.version.1 # Version not compatibe with UINT64 msix version
+PackageVersion: 43690.48059.52428.56797
 PackageLocale: es-MX
 PackageName: es-MX package name
 Publisher: es-MX publisher
@@ -10,6 +10,6 @@ Installers:
     - Architecture: x64
       InstallerUrl: Installer-Good.msix
       AppsAndFeaturesEntries:
-      - DisplayVersion: test.version.2 # Version not compatibe with UINT64 msix version
+      - DisplayVersion: test.version # Version not compatibe with UINT64 msix version
 ManifestType: merged
 ManifestVersion: 1.2.0

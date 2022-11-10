@@ -9,7 +9,5 @@ InstallerType: msix
 Installers: 
     - Architecture: x64
       InstallerUrl: Installer-Good.msix
-      AppsAndFeaturesEntries:
-      - DisplayVersion: 1.0.0.0 # Ignored
 ManifestType: merged
 ManifestVersion: 1.2.0

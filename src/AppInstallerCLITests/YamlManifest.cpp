@@ -1157,8 +1157,6 @@ TEST_CASE("MsixManifestValidation_UseDisplayVersion", "[ManifestValidation]")
     TestDataFile msixFile(manifest.Installers[0].Url.c_str());
     manifest.Installers[0].Url = msixFile.GetPath().u8string();
 
-    REQUIRE("test.version" == manifest.Version);
-
     auto errors = ValidateManifestInstallers(manifest);
     REQUIRE(0 == errors.size());
 }
@@ -1172,9 +1170,8 @@ TEST_CASE("MsixManifestValidation_InconsistentVersion", "[ManifestValidation]")
     TestDataFile msixFile(manifest.Installers[0].Url.c_str());
     manifest.Installers[0].Url = msixFile.GetPath().u8string();
 
-    REQUIRE("test.version.1" == manifest.Version);
     REQUIRE(1 == manifest.Installers[0].AppsAndFeaturesEntries.size());
-    REQUIRE("test.version.2" == manifest.Installers[0].AppsAndFeaturesEntries[0].DisplayVersion);
+    REQUIRE("test.version" == manifest.Installers[0].AppsAndFeaturesEntries[0].DisplayVersion);
 
     auto errors = ValidateManifestInstallers(manifest);
     REQUIRE(1 == errors.size());
