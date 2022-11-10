@@ -408,7 +408,7 @@ namespace AppInstaller::Settings
                 }
             }
 
-            bool Set(std::string_view value) override
+            bool Set(std::string_view) override
             {
                 THROW_HR(E_UNEXPECTED);
             }

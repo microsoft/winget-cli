@@ -187,6 +187,37 @@ namespace AppInstaller::Msix
             WriteStreamToFileHandle(stream.Get(), size, target, progress);
         }
 
+        // Get file content as byte array.
+        std::vector<std::uint8_t> GetAppxFileContent(IAppxFile* appxFile)
+        {
+            UINT64 size = 0;
+            THROW_IF_FAILED(appxFile->GetSize(&size));
+            // Don't allow use of this API for reading very large streams.
+            THROW_HR_IF(E_OUTOFMEMORY, size > static_cast<UINT64>(std::numeric_limits<uint32_t>::max()));
+
+            ComPtr<IStream> stream;
+            THROW_IF_FAILED(appxFile->GetStream(&stream));
+
+            std::vector<std::uint8_t> result;
+            result.resize(size);
+
+            ULONG bytesRead = 0;
+            HRESULT hr = stream->Read(result.data(), static_cast<ULONG>(size), &bytesRead);
+
+            if (bytesRead)
+            {
+                // If we got bytes, just accept them and keep going.
+                LOG_IF_FAILED(hr);
+                THROW_HR_IF_MSG(E_UNEXPECTED, bytesRead != size, "Read unexpected size.");
+            }
+            else
+            {
+                THROW_IF_FAILED(hr);
+            }
+
+            return result;
+        }
+
         bool ValidateMsixTrustInfo(const std::filesystem::path& msixPath, bool verifyMicrosoftOrigin)
         {
             bool result = false;
@@ -502,21 +533,44 @@ namespace AppInstaller::Msix
         return { std::move(certContext), std::move(certStore) };
     }
 
-    MsixInfo::MsixInfo(std::string_view uriStr)
+    bool MsixInfo::Initialize()
     {
-        m_stream = Utility::GetReadOnlyStreamFromURI(uriStr);
         if (GetBundleReader(m_stream.Get(), &m_bundleReader))
         {
             m_isBundle = true;
+            return true;
         }
         else if (GetPackageReader(m_stream.Get(), &m_packageReader))
         {
             m_isBundle = false;
+            return true;
         }
         else
         {
+            return false;
+        }
+    }
+
+    MsixInfo::MsixInfo(std::string_view uriStr)
+    {
+        m_stream = Utility::GetReadOnlyStreamFromURI(uriStr);
+
+        if (!Initialize())
+        {
             THROW_HR_MSG(HRESULT_FROM_WIN32(ERROR_INSTALL_OPEN_PACKAGE_FAILED),
                 "Failed to open uri as msix package or bundle. Uri: %hs", uriStr.data());
+        }
+    }
+
+    MsixInfo::MsixInfo(const std::vector<std::uint8_t>& content)
+    {
+        m_stream.Attach(SHCreateMemStream(content.data(), static_cast<UINT>(content.size())));
+        THROW_HR_IF(E_OUTOFMEMORY, m_stream == nullptr);
+
+        if (!Initialize())
+        {
+            THROW_HR_MSG(HRESULT_FROM_WIN32(ERROR_INSTALL_OPEN_PACKAGE_FAILED),
+                "Failed to open msix package or bundle from given package content.");
         }
     }
 
@@ -742,6 +796,23 @@ namespace AppInstaller::Msix
         }
 
         WriteAppxFileToFileHandle(appxFile.Get(), target, progress);
+    }
+
+    std::vector<std::uint8_t> MsixInfo::GetFileContent(std::string_view packageFile)
+    {
+        std::wstring fileUTF16 = Utility::ConvertToUTF16(packageFile);
+
+        ComPtr<IAppxFile> appxFile;
+        if (m_isBundle)
+        {
+            THROW_IF_FAILED(m_bundleReader->GetPayloadPackage(fileUTF16.c_str(), &appxFile));
+        }
+        else
+        {
+            THROW_IF_FAILED(m_packageReader->GetPayloadFile(fileUTF16.c_str(), &appxFile));
+        }
+
+        return GetAppxFileContent(appxFile.Get());
     }
 
     WriteLockedMsixFile::WriteLockedMsixFile(const std::filesystem::path& path)

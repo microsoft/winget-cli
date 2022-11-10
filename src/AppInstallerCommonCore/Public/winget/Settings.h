@@ -79,7 +79,7 @@ namespace AppInstaller::Settings
         // The admin settings.
         constexpr static StreamDefinition AdminSettings{ Type::Secure, "admin_settings"sv };
         // Trusted remote settings.
-        constexpr static StreamDefinition TrustedRemoteSettings{ Type::Remote, "trusted_remote_settings.msix"sv };
+        constexpr static StreamDefinition TrustedRemoteSettings{ Type::TrustedRemote, "trusted_remote_settings.msix"sv };
 
         // Gets a Stream for the StreamDefinition.
         // If the stream is synchronized, attempts to Set the value can fail due to another writer

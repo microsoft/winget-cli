@@ -50,6 +50,7 @@ namespace AppInstaller::Msix
     struct MsixInfo
     {
         MsixInfo(std::string_view uriStr);
+        MsixInfo(const std::vector<std::uint8_t>& content);
 
         template<typename T, std::enable_if_t<std::is_same_v<T, std::filesystem::path>, int> = 0>
         MsixInfo(const T& path) : MsixInfo(path.u8string()) {}
@@ -90,6 +91,9 @@ namespace AppInstaller::Msix
         // Writes the package file to the given file handle.
         void WriteToFileHandle(std::string_view packageFile, HANDLE target, IProgressCallback& progress);
 
+        // Gets file content as byte array.
+        std::vector<std::uint8_t> GetFileContent(std::string_view packageFile);
+
         // Get application package manifests from msix and msixbundle.
         std::vector<MsixPackageManifest> GetAppPackageManifests() const;
 
@@ -101,6 +105,8 @@ namespace AppInstaller::Msix
 
         // Get application packages.
         std::vector<Microsoft::WRL::ComPtr<IAppxPackageReader>> GetAppPackages() const;
+
+        bool Initialize();
     };
 
     struct GetCertContextResult
