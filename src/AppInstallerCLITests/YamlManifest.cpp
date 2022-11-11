@@ -1000,9 +1000,7 @@ TEST_CASE("ReadManifestAndValidateMsixInstallers_NoSupportedPlatforms", "[Manife
 
 TEST_CASE("ReadManifestAndValidateMsixInstallers_PackageVersionNotUINT64", "[ManifestValidation]")
 {
-    auto testFileName = "Manifest-Bad-MsixInstaller-PackageVersion.yaml";
-    TestDataFile testFile(testFileName);
-    Manifest manifest = YamlParser::CreateFromPath(testFile);
+    Manifest manifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Bad-MsixInstaller-PackageVersion.yaml"));
 
     // Update the installer path for testing
     REQUIRE(1 == manifest.Installers.size());
