@@ -200,6 +200,7 @@ namespace AppInstallerCLIE2ETests
             public const int ERROR_INSTALL_LOCATION_REQUIRED = unchecked((int)0x8A15005F);
             public const int ERROR_ARCHIVE_SCAN_FAILED = unchecked((int)0x8A150060);
             public const int ERROR_PACKAGE_ALREADY_INSTALLED = unchecked((int)0x8A150061);
+            public const int ERROR_REMOTE_SETTINGS_NOT_TRUSTED = unchecked((int)0x8A150062);
 
             public const int ERROR_INSTALL_PACKAGE_IN_USE = unchecked((int)0x8A150101);
             public const int ERROR_INSTALL_INSTALL_IN_PROGRESS = unchecked((int)0x8A150102);

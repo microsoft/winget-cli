@@ -28,12 +28,20 @@ namespace AppInstaller::Settings
             return;
         }
 
-        auto stream = Stream{ Stream::TrustedRemoteSettings }.Get();
-        if (stream)
+        try
         {
-            auto content = Utility::ReadEntireStreamAsByteArray(*stream);
-            m_msixInfo = std::make_unique<Msix::MsixInfo>(content);
-            THROW_HR_IF_MSG(E_UNEXPECTED, m_msixInfo->GetIsBundle(), "Trusted remote settings should be an msix package.");
+            auto stream = Stream{ Stream::TrustedRemoteSettings }.Get();
+            if (stream)
+            {
+                auto content = Utility::ReadEntireStreamAsByteArray(*stream);
+                m_msixInfo = std::make_unique<Msix::MsixInfo>(content);
+                THROW_HR_IF_MSG(E_UNEXPECTED, m_msixInfo->GetIsBundle(), "Trusted remote settings should be an msix package.");
+            }
+        }
+        catch (...)
+        {
+            m_msixInfo.reset();
+            AICLI_LOG(Core, Error, << "Failed to initialize trusted remote settings. Settings will be empty.");
         }
     }
 

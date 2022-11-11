@@ -380,14 +380,14 @@ namespace AppInstaller::Settings
                     if (!tempSettingsTrusted)
                     {
                         AICLI_LOG(Core, Error, << "Failed to open remote settings, downloaded temp remote settings not trusted.");
-                        THROW_HR(APPINSTALLER_CLI_ERROR_INDEX_INTEGRITY_COMPROMISED);
+                        THROW_HR(APPINSTALLER_CLI_ERROR_REMOTE_SETTINGS_NOT_TRUSTED);
                     }
 
                     std::filesystem::rename(tempSettingsPath, m_settingsFile);
                     if (!LockSettingsFile(m_settingsFile, m_fileLock))
                     {
                         AICLI_LOG(Core, Error, << "Failed to open remote settings, downloaded remote settings not trusted.");
-                        THROW_HR(APPINSTALLER_CLI_ERROR_INDEX_INTEGRITY_COMPROMISED);
+                        THROW_HR(APPINSTALLER_CLI_ERROR_REMOTE_SETTINGS_NOT_TRUSTED);
                     }
                 }
 

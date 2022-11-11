@@ -6,6 +6,7 @@
 #include "AppInstallerStrings.h"
 #include "winget/JsonUtil.h"
 #include "winget/Resources.h"
+#include "winget/TrustedRemoteSettings.h"
 
 #include <CertificateResources.h>
 
@@ -104,9 +105,11 @@ namespace AppInstaller::Certificates
     }
 
     // The JSON is expected to look like:
+    // Either EmbeddedCertificate or RemoteSettingFileCertificate should be defined
     // {
     //     "Validation":["publickey"],
-    //     "EmbeddedCertificate":"<Hexadecimal string data for certificate>"
+    //     "EmbeddedCertificate":"<Hexadecimal string data for certificate>",
+    //     "RemoteSettingFileCertificate":"cert.cer"
     // }
     bool PinningDetails::LoadFrom(const Json::Value& configuration)
     {
@@ -145,22 +148,44 @@ namespace AppInstaller::Certificates
         }
 
         const std::string embeddedCertificateName = "EmbeddedCertificate";
+        const std::string remoteSettingFileCertificateName = "RemoteSettingFileCertificate";
+        std::vector<uint8_t> certificateBytes;
 
-        if (!configuration.isMember(embeddedCertificateName))
+        if (configuration.isMember(embeddedCertificateName))
         {
-            AICLI_LOG(Core, Warning, << "Details JSON item has no member " << embeddedCertificateName);
+            auto embeddedCertificateValue = JSON::GetValue<std::string>(configuration[embeddedCertificateName]);
+            if (!embeddedCertificateValue)
+            {
+                AICLI_LOG(Core, Warning, << "Details JSON item member " << embeddedCertificateName << " was not a string");
+                return false;
+            }
+
+            certificateBytes = Utility::ParseFromHexString(embeddedCertificateValue.value());
+        }
+        else if (configuration.isMember(remoteSettingFileCertificateName))
+        {
+            auto remoteSettingFileCertificateValue = JSON::GetValue<std::string>(configuration[remoteSettingFileCertificateName]);
+            if (!remoteSettingFileCertificateValue)
+            {
+                AICLI_LOG(Core, Warning, << "Details JSON item member " << remoteSettingFileCertificateName << " was not a string");
+                return false;
+            }
+
+            certificateBytes = Settings::TrustedRemote().GetFileContent(Settings::TrustedRemoteSettingFile::PackageFile, remoteSettingFileCertificateValue.value());
+        }
+        else
+        {
+            AICLI_LOG(Core, Warning, << "Details JSON item has no member " << embeddedCertificateName << " Or " << remoteSettingFileCertificateName);
             return false;
         }
 
-        auto embeddedCertificateValue = JSON::GetValue<std::string>(configuration[embeddedCertificateName]);
-        if (!validationValue)
+        if (certificateBytes.empty())
         {
-            AICLI_LOG(Core, Warning, << "Details JSON item member " << embeddedCertificateName << " was not a string");
+            AICLI_LOG(Core, Warning, << "Encountered empty certificate.");
             return false;
         }
 
-        auto embeddedCertificateBytes = Utility::ParseFromHexString(embeddedCertificateValue.value());
-        LoadCertificate(embeddedCertificateBytes);
+        LoadCertificate(certificateBytes);
 
         return true;
     }
@@ -377,11 +402,13 @@ namespace AppInstaller::Certificates
     //     "Chain":[
     //         { <See PinningDetails::LoadFrom>
     //             "Validation":["publickey"],
-    //             "EmbeddedCertificate":"<Hexadecimal string data for certificate>"
+    //             "EmbeddedCertificate":"<Hexadecimal string data for certificate>",
+    //             "RemoteSettingFileCertificate":"cert1.cer"
     //         },
     //         {
     //             "Validation":["subject","issuer"],
-    //             "EmbeddedCertificate":"<Hexadecimal string data for certificate>"
+    //             "EmbeddedCertificate":"<Hexadecimal string data for certificate>",
+    //             "RemoteSettingFileCertificate":"cert2.cer"
     //         },
     //         ...
     //     ]
@@ -493,21 +520,23 @@ namespace AppInstaller::Certificates
 
     // The JSON is expected to look like:
     // {
-    //  "Chains":[
+    //   "Chains":[
     //      { <See PinningChain::LoadFrom>
     //          "Chain":[
     //              { <See PinningDetails::LoadFrom>
     //                  "Validation":["publickey"],
-    //                  "EmbeddedCertificate":"<Hexadecimal string data for certificate>"
+    //                  "EmbeddedCertificate":"<Hexadecimal string data for certificate>",
+    //                  "RemoteSettingFileCertificate":"cert1.cer"
     //              },
     //              {
     //                  "Validation":["subject","issuer"],
-    //                  "EmbeddedCertificate":"<Hexadecimal string data for certificate>"
+    //                  "EmbeddedCertificate":"<Hexadecimal string data for certificate>",
+    //                  "RemoteSettingFileCertificate":"cert2.cer"
     //              },
     //              ...
     //          ]
     //      }
-    //  ]
+    //   ]
     // }
     bool PinningConfiguration::LoadFrom(const Json::Value& configuration)
     {
@@ -545,5 +574,28 @@ namespace AppInstaller::Certificates
         }
 
         return true;
+    }
+
+    bool PinningConfiguration::LoadFromTrustedRemoteSettings()
+    {
+        auto content = Settings::TrustedRemote().GetFileContent(Settings::TrustedRemoteSettingFile::StoreSourceCertPinningConfig);
+        if (content.empty())
+        {
+            AICLI_LOG(Core, Warning, << "Empty pinning configuration from remote settings.");
+            return false;
+        }
+
+        Json::Value configuration;
+        Json::CharReaderBuilder builder;
+        const std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
+        std::string error;
+
+        if (!reader->parse(reinterpret_cast<const char*>(content.data()), reinterpret_cast<const char*>(content.data() + content.size()), &configuration, &error))
+        {
+            AICLI_LOG(Core, Error, << "Error parsing pinning configuration from remote settings. Error: " << error);
+            return false;
+        }
+
+        return LoadFrom(configuration);
     }
 }

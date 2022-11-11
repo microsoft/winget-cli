@@ -138,6 +138,9 @@ namespace AppInstaller::Certificates
         // Loads the pinning configuration from the given JSON.
         [[nodiscard]] bool LoadFrom(const Json::Value& configuration);
 
+        // Loads the pinning configuration from trusted remote settings.
+        [[nodiscard]] bool LoadFromTrustedRemoteSettings();
+
     private:
         // The identifier used when logging.
         std::string m_identifier;
