@@ -10,6 +10,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="YamlDotNet" Version="12.0.2" />
+    <PackageReference Include="YamlDotNet" Version="8.1.2" />
   </ItemGroup>
 </Project>
