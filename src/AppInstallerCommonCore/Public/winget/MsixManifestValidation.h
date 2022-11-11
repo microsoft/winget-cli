@@ -54,7 +54,7 @@ namespace AppInstaller::Manifest
         // Validate Msix package version.
         void ValidateMsixManifestPackageVersion(
             const Msix::PackageVersion& msixPackageVersion,
-            const Msix::PackageVersion& manifestPackageVersion,
+            const string_t& manifestPackageVersionStr,
             std::vector<ValidationError>& errors);
 
         // Validate Msix minimum OS version for supported platforms.
