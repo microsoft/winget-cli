@@ -304,16 +304,22 @@ namespace AppInstaller::Repository
             {
                 using namespace AppInstaller::Certificates;
 
-                PinningChain chain;
-                auto chainElement = chain.Root();
-                chainElement->LoadCertificate(IDX_CERTIFICATE_STORE_ROOT_1).SetPinning(PinningVerificationType::PublicKey);
-                chainElement = chainElement.Next();
-                chainElement->LoadCertificate(IDX_CERTIFICATE_STORE_INTERMEDIATE_1).SetPinning(PinningVerificationType::Subject | PinningVerificationType::Issuer);
-                chainElement = chainElement.Next();
-                chainElement->LoadCertificate(IDX_CERTIFICATE_STORE_LEAF_1).SetPinning(PinningVerificationType::Subject | PinningVerificationType::Issuer);
-
                 details.CertificatePinningConfiguration = PinningConfiguration("Microsoft Store Source");
-                details.CertificatePinningConfiguration.AddChain(std::move(chain));
+
+                if (!details.CertificatePinningConfiguration.LoadFromTrustedRemoteSettings())
+                {
+                    AICLI_LOG(Repo, Warning, << "Failed to load cert pinning configuration from trusted remote settings. Use embedded certificates.");
+
+                    PinningChain chain;
+                    auto chainElement = chain.Root();
+                    chainElement->LoadCertificate(IDX_CERTIFICATE_STORE_ROOT_1).SetPinning(PinningVerificationType::PublicKey);
+                    chainElement = chainElement.Next();
+                    chainElement->LoadCertificate(IDX_CERTIFICATE_STORE_INTERMEDIATE_1).SetPinning(PinningVerificationType::Subject | PinningVerificationType::Issuer);
+                    chainElement = chainElement.Next();
+                    chainElement->LoadCertificate(IDX_CERTIFICATE_STORE_LEAF_1).SetPinning(PinningVerificationType::Subject | PinningVerificationType::Issuer);
+
+                    details.CertificatePinningConfiguration.AddChain(std::move(chain));
+                }
             }
 
             return details;
