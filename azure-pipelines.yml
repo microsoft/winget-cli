@@ -135,12 +135,6 @@ jobs:
         Add-AppxPackage AppInstallerCLIPackage_0.0.2.0_Test\Dependencies\$(buildPlatform)\Microsoft.VCLibs.$(buildPlatform).14.00.Desktop.appx
       workingDirectory: $(appxPackageDir)
 
-  - task: PublishPipelineArtifact@1
-    displayName: Publish powershell artifacts
-    inputs:
-      targetPath: '$(appxPackageDir)'
-    condition: always()
-
   - task: VisualStudioTestPlatformInstaller@1
     displayName: Prepare VSTest for E2E Tests
     inputs:
@@ -220,40 +214,6 @@ jobs:
       OverWrite: true
 
   - task: PowerShell@2
-    displayName: Run wpf for com trace logging
-    inputs:
-      targetType: 'inline'
-      script: |
-        wpr -start $(Build.SourcesDirectory)\src\PowerShell\ComTrace.wprp -filemode
-      pwsh: true
-      errorActionPreference: continue
-      workingDirectory: '$(buildOutDir)\PowerShell\'
-    condition: always()
-
-  - template: templates/e2e-test.template.yml
-    parameters:
-      title: "E2E Tests Packaged"
-      isPackaged: true
-      filter: "TestCategory!=InProcess&TestCategory!=OutOfProcess"
-
-  - task: PowerShell@2
-    displayName: Run wpf for com trace logging
-    inputs:
-      targetType: 'inline'
-      script: |
-        wpr -stop .\comtrace.etl
-      pwsh: true
-      errorActionPreference: continue
-      workingDirectory: '$(buildOutDir)\PowerShell\'
-    condition: always()
-
-  - task: PublishPipelineArtifact@1
-    displayName: Publish powershell artifacts
-    inputs:
-      targetPath: '$(buildOutDir)\PowerShell\'
-    condition: always()
-
-  - task: PowerShell@2
     displayName: 'Set program files directory'
     inputs:
       targetType: 'inline'
@@ -271,12 +231,6 @@ jobs:
       SourceFolder: '$(buildOutDir)\AppInstallerCLI'
       TargetFolder:  '$(platformProgramFiles)\dotnet'
       Contents: resources.pri
-
-  - template: templates/e2e-test.template.yml
-    parameters:
-      title: "COM API E2E Tests (In-process)"
-      isPackaged: false
-      filter: "TestCategory=InProcess"
 
   # Winmd accessed by test runner process (dotnet.exe)
   - task: CopyFiles@2
@@ -296,6 +250,31 @@ jobs:
 
   - template: templates/e2e-test.template.yml
     parameters:
+      title: "E2E Tests Packaged"
+      isPackaged: true
+      filter: "TestCategory!=InProcess&TestCategory!=OutOfProcess"
+
+  - task: PowerShell@2
+    displayName: 'Run powershell module'
+    inputs:
+      targetType: 'inline'
+      script: |
+        # Import PowerShell Module
+        ipmo 'D:\a\1\s\src\x64\Release\PowerShell\Microsoft.WinGet.Client.psd1'
+        # Run Basic powershell commands
+        Get-WinGetSource
+        Find-WinGetPackage
+      pwsh: true
+    condition: always()
+
+  - template: templates/e2e-test.template.yml
+    parameters:
+      title: "COM API E2E Tests (In-process)"
+      isPackaged: false
+      filter: "TestCategory=InProcess"
+
+  - template: templates/e2e-test.template.yml
+    parameters:
       title: "COM API E2E Tests (Out-of-process)"
       isPackaged: true
       filter: "TestCategory=OutOfProcess"
@@ -306,19 +285,6 @@ jobs:
       SourceFolder: '$(temp)\E2ETestLogs'
       TargetFolder: '$(artifactsDir)\E2ETestsPackagedLog'
     condition: succeededOrFailed()
-
-  - task: PowerShell@2
-    displayName: 'Run powershell module'
-    inputs:
-      targetType: 'inline'
-      script: |
-        # Import PowerShell Module
-        ipmo 'D:\a\1\s\src\x64\Release\PowerShell\Microsoft.WinGet.Client.psd1'
-        # Run Basic powershell commands
-        Get-WinGetVersion
-        Get-WinGetSource
-        Find-WinGetPackage
-      pwsh: true
 
   - task: CopyFiles@2
     displayName: 'Copy Files: WinGetUtilInterop.UnitTests'
