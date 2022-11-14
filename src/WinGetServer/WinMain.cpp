@@ -29,6 +29,11 @@ static void _releaseNotifier() noexcept
 
 HRESULT WindowsPackageManagerServerInitializeRPCServer()
 {
+    if (true)
+    {
+        RETURN_HR(E_FAIL);
+    }
+
     std::string userSID = GetUserSID();
     std::string endpoint = "\\pipe\\WinGetServerManualActivation_" + userSID;
     RPC_STATUS status = RpcServerUseProtseqEpA(GetUCharString("ncacn_np"), RPC_C_PROTSEQ_MAX_REQS_DEFAULT, GetUCharString(endpoint), nullptr);
@@ -101,6 +106,8 @@ extern "C" HRESULT CreateInstance(
 
 int __stdcall wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR cmdLine, _In_ int)
 {
+    wil::SetResultLoggingCallback(&WindowsPackageManagerServerLogWilResult);
+
     RETURN_IF_FAILED(CoInitializeEx(nullptr, COINIT_MULTITHREADED));
 
     // Enable fast rundown of objects so that the server exits faster when clients go away.
@@ -111,6 +118,11 @@ int __stdcall wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR cmdLine, 
     }
 
     RETURN_IF_FAILED(WindowsPackageManagerServerInitialize());
+
+    if (true)
+    {
+        RETURN_HR(E_FAIL);
+    }
 
     // Command line parsing
     int argc = 0;

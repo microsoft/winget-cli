@@ -10,6 +10,8 @@
 #include "WindowsPackageManager.h"
 
 #include <AppInstallerCLICore.h>
+#include <AppInstallerFileLogger.h>
+#include <AppInstallerStrings.h>
 #include <ComClsids.h>
 
 using namespace winrt::Microsoft::Management::Deployment;
@@ -57,6 +59,16 @@ extern "C"
         RETURN_HR(::Microsoft::WRL::Module<::Microsoft::WRL::ModuleType::OutOfProc>::GetModule().UnregisterObjects());
     }
     CATCH_RETURN();
+
+    void WINDOWS_PACKAGE_MANAGER_API_CALLING_CONVENTION WindowsPackageManagerServerLogWilResult(const wil::FailureInfo& failure) noexcept try
+    {
+        AICLI_LOG(Fail, Error, << [&]() {
+            wchar_t message[2048];
+            wil::GetFailureLogString(message, ARRAYSIZE(message), failure);
+            return AppInstaller::Utility::ConvertToUTF8(message);
+            }());
+    }
+    CATCH_LOG();
 
     WINDOWS_PACKAGE_MANAGER_API WindowsPackageManagerServerCreateInstance(const CLSID* clsid, const IID* iid, void** out) try
     {

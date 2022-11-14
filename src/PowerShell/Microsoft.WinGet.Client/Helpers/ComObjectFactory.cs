@@ -118,7 +118,6 @@ namespace Microsoft.WinGet.Client.Factories
                 {
                     throw new COMException($"Failed with error code {hr}.", hr);
                 }
-
                 //if (hr == ErrorCode.ERROR_FILE_NOT_FOUND)
                 //{
                 //    throw new Exception(Utilities.ResourceManager.GetString("WinGetPackageNotInstalled"));
