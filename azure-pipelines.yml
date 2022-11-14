@@ -11,6 +11,7 @@ pr:
     include:
     - azure-pipelines.yml
     - src/*
+    - schemas/JSON/manifests/*
 
 pool:
   vmImage: 'windows-latest'
@@ -218,12 +219,6 @@ jobs:
       isPackaged: true
       filter: "TestCategory!=InProcess&TestCategory!=OutOfProcess"
 
-  - template: templates/e2e-test.template.yml
-    parameters:
-      title: "COM API E2E Tests (In-process)"
-      isPackaged: false
-      filter: "TestCategory=InProcess"
-
   - task: PowerShell@2
     displayName: 'Set program files directory'
     inputs:
@@ -234,6 +229,20 @@ jobs:
         } else {
           Write-Host "##vso[task.setvariable variable=platformProgramFiles;]${env:ProgramFiles}"
         }
+
+  # Resolves resource strings utilized by InProc E2E tests.
+  - task: CopyFiles@2
+    displayName: 'Copy resources.pri to dotnet directory'
+    inputs:
+      SourceFolder: '$(buildOutDir)\AppInstallerCLI'
+      TargetFolder:  '$(platformProgramFiles)\dotnet'
+      Contents: resources.pri
+
+  - template: templates/e2e-test.template.yml
+    parameters:
+      title: "COM API E2E Tests (In-process)"
+      isPackaged: false
+      filter: "TestCategory=InProcess"
 
   # Winmd accessed by test runner process (dotnet.exe)
   - task: CopyFiles@2

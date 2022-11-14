@@ -108,7 +108,7 @@ namespace AppInstallerCLIE2ETests.Interop
             // Upgrade
             var upgradeResult = await packageManager.UpgradePackageAsync(searchResult.CatalogPackage, upgradeOptions);
             Assert.AreEqual(InstallResultStatus.InstallError, upgradeResult.Status);
-            Assert.AreEqual(Constants.ErrorCode.ERROR_PORTABLE_PACKAGE_ALREADY_EXISTS, (int)upgradeResult.InstallerErrorCode);
+            Assert.AreEqual(Constants.ErrorCode.ERROR_PORTABLE_PACKAGE_ALREADY_EXISTS, upgradeResult.ExtendedErrorCode.HResult);
 
             // Find package again, it should have not been upgraded
             searchResult = FindOnePackage(compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, packageId);
@@ -148,7 +148,7 @@ namespace AppInstallerCLIE2ETests.Interop
             // Configure upgrade options
             var upgradeOptions = TestFactory.CreateInstallOptions();
             upgradeOptions.PackageVersionId = First(searchResult.CatalogPackage.AvailableVersions, (i => i.Version == "2.0.0.0"));
-            upgradeOptions.AllowHashMismatch = true;
+            upgradeOptions.Force = true;
 
             // Upgrade
             var upgradeResult = await packageManager.UpgradePackageAsync(searchResult.CatalogPackage, upgradeOptions);

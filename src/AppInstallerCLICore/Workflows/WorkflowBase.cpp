@@ -394,17 +394,16 @@ namespace AppInstaller::CLI::Workflow
 
         // Create the composite source from the two.
         Repository::Source source;
-        Repository::Source compositeSource;
         if (m_forDependencies)
         {
             source = context.Get<Execution::Data::DependencySource>();
-            compositeSource = Repository::Source{ source, availableSource, CompositeSearchBehavior::AvailablePackages };
         }
         else
         {
             source = context.Get<Execution::Data::Source>();
-            compositeSource = Repository::Source{ source, availableSource };
         }
+
+        Repository::Source compositeSource{ source, availableSource, m_searchBehavior };
 
         // Overwrite the source with the composite.
         if (m_forDependencies)
@@ -975,26 +974,7 @@ namespace AppInstaller::CLI::Workflow
         {
             installationMetadata = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata();
         }
-        if (context.Args.Contains(Execution::Args::Type::InstallArchitecture))
-        {
-            // arguments override settings.
-            context.Add<Execution::Data::AllowedArchitectures>({ Utility::ConvertToArchitectureEnum(std::string(context.Args.GetArg(Execution::Args::Type::InstallArchitecture))) });
-        }
-        else 
-        {
-            std::vector<Utility::Architecture> requiredArchitectures = Settings::User().Get<Settings::Setting::InstallArchitectureRequirement>();
-            std::vector<Utility::Architecture> optionalArchitectures = Settings::User().Get<Settings::Setting::InstallArchitecturePreference>();
 
-            if (!requiredArchitectures.empty())
-            {
-                context.Add<Execution::Data::AllowedArchitectures>({ requiredArchitectures.begin(), requiredArchitectures.end() });
-            }
-            else if (!optionalArchitectures.empty())
-            {
-                optionalArchitectures.emplace_back(Utility::Architecture::Unknown);
-                context.Add<Execution::Data::AllowedArchitectures>({ optionalArchitectures.begin(), optionalArchitectures.end() });
-            }
-        }
 
         ManifestComparator manifestComparator(context, installationMetadata);
         auto [installer, inapplicabilities] = manifestComparator.GetPreferredInstaller(context.Get<Execution::Data::Manifest>());
@@ -1062,7 +1042,7 @@ namespace AppInstaller::CLI::Workflow
             }
             else if (installer.EffectiveInstallerType() == Manifest::InstallerTypeEnum::Portable)
             {
-                const auto& productCode = Utility::MakeSuitablePathPart(manifest.Id + "_" + source.GetIdentifier());
+                const auto& productCode = Utility::MakeSuitablePathPart(manifest.Id + '_' + source.GetIdentifier());
                 searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::ProductCode, MatchType::CaseInsensitive, Utility::Normalize(productCode)));
             }
 

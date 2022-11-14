@@ -192,6 +192,9 @@
     <ClInclude Include="Public\winget\PortableARPEntry.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
+    <ClInclude Include="Public\winget\PortableFileEntry.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
     <ClInclude Include="Public\winget\JsonUtil.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
@@ -212,6 +215,12 @@
     </ClInclude>
     <ClInclude Include="Public\winget\MsixManifestValidation.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\PathVariable.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\PackageDependenciesValidationUtil.h">
+      <Filter>Public\winget</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -375,6 +384,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Manifest\MsixManifestValidation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PathVariable.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PackageDependenciesValidationUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

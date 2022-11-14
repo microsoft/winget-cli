@@ -1,0 +1,10 @@
+PackageIdentifier: AppInstallerTest.WinGetUtilTest
+PackageVersion: "1.0.0.0"
+MinimumOSVersion: 10.0.0.0
+Installers:
+  - Architecture: x86
+    InstallerUrl: https://localhost:5001/TestKit/AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe
+    InstallerType: nullsoft
+    InstallerSha256: 0000000000000000000000000000000000000000000000000000000000000000
+ManifestType: installer
+ManifestVersion: 1.1.0

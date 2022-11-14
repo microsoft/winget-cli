@@ -32,7 +32,7 @@ namespace AppInstaller::Manifest
     constexpr std::string_view s_ManifestVersionV1_2 = "1.2.0"sv;
 
     // V1.3 manifest version
-    constexpr std::string_view s_ManifestVersionV1_3 = "1.3.0"sv;
+    constexpr std::string_view s_ManifestVersionV1_4 = "1.4.0"sv;
 
     // The manifest extension for the MS Store
     constexpr std::string_view s_MSStoreExtension = "msstore"sv;
@@ -123,11 +123,13 @@ namespace AppInstaller::Manifest
     {
         Unknown,
         PackageInUse,
+        PackageInUseByApplication,
         InstallInProgress,
         FileInUse,
         MissingDependency,
         DiskFull,
         InsufficientMemory,
+        InvalidParameter,
         NoNetwork,
         ContactSupport,
         RebootRequiredToFinish,
@@ -137,6 +139,7 @@ namespace AppInstaller::Manifest
         AlreadyInstalled,
         Downgrade,
         BlockedByPolicy,
+        SystemNotSupported,
         Custom,
     };
 
@@ -277,6 +280,9 @@ namespace AppInstaller::Manifest
     {
         string_t DefaultInstallLocation;
         std::vector<InstalledFile> Files;
+
+        // Checks if there are any installation metadata available.
+        bool HasData() const { return !DefaultInstallLocation.empty() || !Files.empty(); }
     };
 
     InstallerTypeEnum ConvertToInstallerTypeEnum(const std::string& in);
@@ -320,6 +326,9 @@ namespace AppInstaller::Manifest
 
     // Gets a value indicating whether the given installer type is an archive.
     bool IsArchiveType(InstallerTypeEnum installerType);
+
+    // Gets a value indicating whether the given installer type is a portable.
+    bool IsPortableType(InstallerTypeEnum installerType);
 
     // Gets a value indicating whether the given nested installer type is supported.
     bool IsNestedInstallerTypeSupported(InstallerTypeEnum nestedInstallerType);

@@ -1,4 +1,4 @@
-# Windows Package Manager Client 
+<h1>Windows Package Manager Client<img src=".github/images/Logo.png" align="left" width="50" height="39"></h1>
 
 This repository contains the source code for the Windows Package Manager Client.
 
@@ -78,14 +78,14 @@ The client is built around the concept of sources; a set of packages effectively
 
 * Windows 10 1809 (17763) or later
 * [Developer Mode enabled](https://docs.microsoft.com/windows/uwp/get-started/enable-your-device-for-development)
-* [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/)
+* [Visual Studio 2022](https://visualstudio.microsoft.com/downloads/)
    * Or use winget to install it ;) (although you may need to adjust the workloads via Tools->Get Tools and Features...)
 * The following workloads:
    * .NET Desktop Development
    * Desktop Development with C++
    * Universal Windows Platform Development
 * The following extensions:
-   * [Microsoft Visual Studio Installer Projects](https://marketplace.visualstudio.com/items?itemName=VisualStudioClient.MicrosoftVisualStudio2017InstallerProjects)
+   * [Microsoft Visual Studio Installer Projects](https://marketplace.visualstudio.com/items?itemName=VisualStudioClient.MicrosoftVisualStudio2022InstallerProjects)
 
 ### Building
 
@@ -116,7 +116,7 @@ The winget.exe client is instrumented to collect usage and diagnostic (error) da
 
 If you build the client yourself the instrumentation will not be enabled and no data will be sent to Microsoft.
 
-The winget.exe client respects machine wide privacy settings and users can opt-out on their device, as documented in the Microsoft Windows privacy statement [here](https://support.microsoft.com/help/4468236/diagnostics-feedback-and-privacy-in-windows-10-microsoft-privacy). In addition, you may also explicitly block telemetry using [settings](https://docs.microsoft.com/en-us/windows/package-manager/winget/settings)
+The winget.exe client respects machine wide privacy settings and users can opt-out on their device, as documented in the Microsoft Windows privacy statement [here](https://support.microsoft.com/help/4468236/diagnostics-feedback-and-privacy-in-windows-10-microsoft-privacy). In addition, you may also explicitly block telemetry using [settings](https://docs.microsoft.com/windows/package-manager/winget/settings)
 
 In short to opt-out, go to `Start`, then select `Settings` > `Privacy` > `Diagnostics & feedback`, and select `Basic`. 
 

@@ -78,6 +78,7 @@ namespace AppInstaller::Settings
         EFDependencies,
         EFDirectMSI,
         EFZipInstall,
+        EFOpenLogsArgument,
         // Telemetry
         TelemetryDisable,
         // Install behavior
@@ -146,6 +147,7 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::EFDependencies, bool, bool, false, ".experimentalFeatures.dependencies"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFDirectMSI, bool, bool, false, ".experimentalFeatures.directMSI"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFZipInstall, bool, bool, false, ".experimentalFeatures.zipInstall"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::EFOpenLogsArgument, bool, bool, false, ".experimentalFeatures.openLogsArgument"sv);
         // Telemetry
         SETTINGMAPPING_SPECIALIZATION(Setting::TelemetryDisable, bool, bool, false, ".telemetry.disable"sv);
         // Install behavior

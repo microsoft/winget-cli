@@ -69,7 +69,7 @@ namespace AppInstaller::CLI::Workflow
 
             // Assuming that we find a safe stem value in the URI, use it.
             // This should be extremely common, but just in case fall back to the older name style.
-            if (filename.has_stem() && ((filename.string().size() + installerExtension.size()) < MAX_PATH))
+            if (filename.has_stem() && ((filename.wstring().size() + installerExtension.size()) < MAX_PATH))
             {
                 filename = filename.stem();
             }
@@ -297,18 +297,10 @@ namespace AppInstaller::CLI::Workflow
 
             context.Add<Execution::Data::HashPair>(std::make_pair(installer.SignatureSha256, signatureHash));
         }
-        catch (const winrt::hresult_error& e)
+        catch (...)
         {
-            if (static_cast<HRESULT>(e.code()) == HRESULT_FROM_WIN32(ERROR_NO_RANGES_PROCESSED) ||
-                HRESULT_FACILITY(e.code()) == FACILITY_HTTP)
-            {
-                // Failed to get signature hash through HttpStream, use download
-                downloadInstead = true;
-            }
-            else
-            {
-                throw;
-            }
+            AICLI_LOG(CLI, Info, << "Failed to get msix signature hash, fall back to direct download.");
+            downloadInstead = true;
         }
 
         if (downloadInstead)

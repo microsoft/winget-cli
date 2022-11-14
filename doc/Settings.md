@@ -220,6 +220,17 @@ The `experimentalFeatures` settings involve the configuration of these "experime
    },
 ```
 
+### zipInstall
+
+This feature enables the Windows Package Manager to install from a zip file.
+You can enable the feature as shown below.
+
+```json
+   "experimentalFeatures": {
+       "zipInstall": true
+   },
+```
+
 ### directMSI
 
 This feature enables the Windows Package Manager to directly install MSI packages with the MSI APIs rather than through msiexec. 
@@ -229,6 +240,17 @@ You can enable the feature as shown below.
 ```json
    "experimentalFeatures": {
        "directMSI": true
+   },
+```
+
+### openLogsArgument
+
+This feature enables the Windows Package Manager to open the default logs folder after execution by passing the `--open-logs` argument with any command. 
+You can enable the feature as shown below.
+
+```json
+   "experimentalFeatures": {
+       "openLogsArgument": true
    },
 ```
 ### Dependencies

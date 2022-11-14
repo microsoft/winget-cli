@@ -25,7 +25,7 @@
     <Filter Include="TestData\MultiFileManifestV1_2">
       <UniqueIdentifier>{0215df7f-7a73-4cc0-9589-adf401329e59}</UniqueIdentifier>
     </Filter>
-    <Filter Include="TestData\MultiFileManifestV1_3">
+    <Filter Include="TestData\MultiFileManifestV1_4">
       <UniqueIdentifier>{52b26063-ccff-40ae-a420-243327dcca25}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\CLI">
@@ -143,6 +143,9 @@
     <ClCompile Include="PackageTrackingCatalog.cpp">
       <Filter>Source Files\Repository</Filter>
     </ClCompile>
+    <ClCompile Include="PortableIndex.cpp">
+      <Filter>Source Files\Repository</Filter>
+    </ClCompile>
     <ClCompile Include="PredefinedInstalledSource.cpp">
       <Filter>Source Files\Repository</Filter>
     </ClCompile>
@@ -227,6 +230,15 @@
     <ClCompile Include="Resources.cpp">
       <Filter>Source Files\Common</Filter>
     </ClCompile>
+    <ClCompile Include="PortableInstaller.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="PackageDependenciesValidationUtil.cpp">
+      <Filter>Source Files\Repository</Filter>
+    </ClCompile>
+    <ClCompile Include="RestInterface_1_4.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />
@@ -310,6 +322,12 @@
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypePortable-InvalidCommands.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypeZip-DuplicateCommandAlias.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypeZip-DuplicateRelativeFilePath.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypeZip-InvalidRelativeFilePath.yaml">
@@ -501,6 +519,9 @@
     <CopyFileToFolders Include="TestData\InstallFlowTest_Msix_DownloadFlow.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallFlowTest_EncodedUrl.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_Exe.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
@@ -531,7 +552,7 @@
     <CopyFileToFolders Include="TestData\InstallFlowTest_UnsupportedArguments.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\InstallFlowTest_ZipWithExe.yaml">
+    <CopyFileToFolders Include="TestData\InstallFlowTest_Zip_Exe.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_Zip_MissingNestedInstaller.yaml">
@@ -582,7 +603,7 @@
     <CopyFileToFolders Include="TestData\UpdateFlowTest_Portable.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\UpdateFlowTest_ZipWithExe.yaml">
+    <CopyFileToFolders Include="TestData\UpdateFlowTest_Zip_Exe.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\ImportFile-Good.json">
@@ -633,7 +654,7 @@
     <CopyFileToFolders Include="TestData\ManifestV1_2-Singleton.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\ManifestV1_3-Singleton.yaml">
+    <CopyFileToFolders Include="TestData\ManifestV1_4-Singleton.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\MultiFileManifestV1\ManifestV1-MultiFile-DefaultLocale.yaml">
@@ -672,17 +693,17 @@
     <CopyFileToFolders Include="TestData\MultiFileManifestV1_2\ManifestV1_2-MultiFile-Version.yaml">
       <Filter>TestData\MultiFileManifestV1_2</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\MultiFileManifestV1_3\ManifestV1_3-MultiFile-DefaultLocale.yaml">
-      <Filter>TestData\MultiFileManifestV1_3</Filter>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_4\ManifestV1_4-MultiFile-DefaultLocale.yaml">
+      <Filter>TestData\MultiFileManifestV1_4</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\MultiFileManifestV1_3\ManifestV1_3-MultiFile-Installer.yaml">
-      <Filter>TestData\MultiFileManifestV1_3</Filter>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_4\ManifestV1_4-MultiFile-Installer.yaml">
+      <Filter>TestData\MultiFileManifestV1_4</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\MultiFileManifestV1_3\ManifestV1_3-MultiFile-Locale.yaml">
-      <Filter>TestData\MultiFileManifestV1_3</Filter>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_4\ManifestV1_4-MultiFile-Locale.yaml">
+      <Filter>TestData\MultiFileManifestV1_4</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\MultiFileManifestV1_3\ManifestV1_3-MultiFile-Version.yaml">
-      <Filter>TestData\MultiFileManifestV1_3</Filter>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_4\ManifestV1_4-MultiFile-Version.yaml">
+      <Filter>TestData\MultiFileManifestV1_4</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Installer_Exe_Dependencies.yaml">
       <Filter>TestData</Filter>

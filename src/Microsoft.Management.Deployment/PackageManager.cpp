@@ -349,6 +349,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             {
                 context->Args.AddArg(Execution::Args::Type::HashOverride);
             }
+            if (options.Force())
+            {
+                context->Args.AddArg(Execution::Args::Type::Force);
+            }
 
             // If the PackageInstallScope is anything other than ::Any then set it as a requirement.
             auto manifestScope = GetManifestScope(options.PackageInstallScope());
@@ -405,6 +409,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             {
                 context->Args.AddArg(Execution::Args::Type::Log, ::AppInstaller::Utility::ConvertToUTF8(options.LogOutputPath()));
                 context->Args.AddArg(Execution::Args::Type::VerboseLogs);
+            }
+            if (options.Force())
+            {
+                context->Args.AddArg(Execution::Args::Type::Force);
             }
 
             if (options.PackageUninstallMode() == PackageUninstallMode::Interactive)

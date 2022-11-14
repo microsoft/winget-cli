@@ -159,7 +159,7 @@ namespace AppInstaller::Utility
         }
     }
 
-    Architecture ConvertToArchitectureEnum(const std::string& archStr)
+    Architecture ConvertToArchitectureEnum(std::string_view archStr)
     {
         std::string arch = ToLower(archStr);
         if (arch == "x86")
@@ -183,7 +183,7 @@ namespace AppInstaller::Utility
             return Architecture::Neutral;
         }
 
-        AICLI_LOG(YAML, Info, << "ConvertToArchitectureEnum: Unknown architecture: " << archStr);
+        AICLI_LOG(Core, Info, << "ConvertToArchitectureEnum: Unknown architecture: " << archStr);
         return Architecture::Unknown;
     }
 

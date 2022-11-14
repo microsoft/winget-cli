@@ -69,7 +69,7 @@ namespace Microsoft.WinGet.Client.Common
             }
         }
 
-        [DllImport("winrtact.dll", EntryPoint = "winrtact_Initialize", ExactSpelling = true, PreserveSig = false)]
+        [DllImport("winrtact.dll", EntryPoint = "winrtact_Initialize", ExactSpelling = true, PreserveSig = true)]
         private static extern void InitializeUndockedRegFreeWinRT();
     }
 }

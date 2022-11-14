@@ -139,7 +139,7 @@
   </data>
   <data name="AvailableHeader" xml:space="preserve">
     <value>Available</value>
-    <comment>Label displayed when a new application package is available.</comment>
+    <comment>As in "a new version is available to upgrade to".</comment>
   </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>The following options are available:</value>
@@ -272,8 +272,8 @@ They can be configured through the settings file 'winget settings'.</value>
     <comment>{Locked="winget"}</comment>
   </data>
   <data name="InstallCommandLongDescription" xml:space="preserve">
-    <value>Installs the selected package, either found by searching a configured source or directly from a manifest. By default, the query must case-insensitively match the id, name, or moniker of the package. Other fields can be used by passing their appropriate option.</value>
-    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
+    <value>Installs the selected package, either found by searching a configured source or directly from a manifest. By default, the query must case-insensitively match the id, name, or moniker of the package. Other fields can be used by passing their appropriate option. By default, install command will check package installed status and try to perform an upgrade if applicable. Override with --force to perform a direct install.</value>
+    <comment>{Locked="--force","id","name","moniker"}; id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>Installs the given package</value>
@@ -282,12 +282,12 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Installer hash does not match; this cannot be overridden when running as admin</value>
   </data>
   <data name="InstallerHashMismatchOverridden" xml:space="preserve">
-    <value>Installer hash does not match; proceeding due to --force</value>
-    <comment>{Locked="--force"}</comment>
+    <value>Installer hash does not match; proceeding due to --ignore-security-hash</value>
+    <comment>{Locked="--ignore-security-hash"}</comment>
   </data>
   <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
-    <value>Installer hash does not match; to override this check use --force</value>
-    <comment>{Locked="--force"}</comment>
+    <value>Installer hash does not match; to override this check use --ignore-security-hash</value>
+    <comment>{Locked="--ignore-security-hash"}</comment>
   </data>
   <data name="InstallerHashVerified" xml:space="preserve">
     <value>Successfully verified installer hash</value>
@@ -298,8 +298,8 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="InstallFlowStartingPackageInstall" xml:space="preserve">
     <value>Starting package install...</value>
   </data>
-  <data name="InstallForceArgumentDescription" xml:space="preserve">
-    <value>Override the installer hash check</value>
+  <data name="HashOverrideArgumentDescription" xml:space="preserve">
+    <value>Ignore the installer hash check failure</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>Request interactive installation; user input may be needed</value>
@@ -328,7 +328,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <comment>Links to different webpages</comment>
   </data>
   <data name="ListCommandLongDescription" xml:space="preserve">
-    <value>The list command displays the packages installed on the system, as well as whether an update is available. Additional options can be provided to filter the output, much like the search command.</value>
+    <value>The list command displays the packages installed on the system, as well as whether an upgrade is available. Additional options can be provided to filter the output, much like the search command.</value>
     <comment>{Locked="list","search"}</comment>
   </data>
   <data name="ListCommandShortDescription" xml:space="preserve">
@@ -373,11 +373,11 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Failed to calculate MSIX signature hash.</value>
   </data>
   <data name="MSStoreAppBlocked" xml:space="preserve">
-    <value>Failed to install or update Microsoft Store package because the specific app is blocked by policy</value>
+    <value>Failed to install or upgrade Microsoft Store package because the specific app is blocked by policy</value>
   </data>
   <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
-    <value>Failed to install or update Microsoft Store package. Error code: {0}</value>
-    <comment>Error message displayed when a Microsoft Store application package fails to install or update. {0} is a placeholder replaced by an error code.</comment>
+    <value>Failed to install or upgrade Microsoft Store package. Error code: {0}</value>
+    <comment>Error message displayed when a Microsoft Store application package fails to install or upgrade. {0} is a placeholder replaced by an error code.</comment>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>Verifying/Requesting package acquisition failed: network error</value>
@@ -392,7 +392,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Verifying/Requesting package acquisition success</value>
   </data>
   <data name="MSStoreStoreClientBlocked" xml:space="preserve">
-    <value>Failed to install or update Microsoft Store package because Microsoft Store client is blocked by policy</value>
+    <value>Failed to install or upgrade Microsoft Store package because Microsoft Store client is blocked by policy</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>Verifying/Requesting package acquisition...</value>
@@ -421,6 +421,9 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="NoVTArgumentDescription" xml:space="preserve">
     <value>Disables VirtualTerminal display</value>
     <comment>{Locked="VirtualTerminal"}</comment>
+  </data>
+  <data name="OpenLogsArgumentDescription" xml:space="preserve">
+    <value>Open the default logs location</value>
   </data>
   <data name="Options" xml:space="preserve">
     <value>options</value>
@@ -685,10 +688,10 @@ They can be configured through the settings file 'winget settings'.</value>
     <comment>Error message displayed when the user provides an unrecognized command. {0} is a placeholder replaced by the user input.</comment>
   </data>
   <data name="UpdateAllArgumentDescription" xml:space="preserve">
-    <value>Update all installed packages to latest if available</value>
+    <value>Upgrade all installed packages to latest if available</value>
   </data>
   <data name="UpdateNotApplicable" xml:space="preserve">
-    <value>No applicable update found.</value>
+    <value>No applicable upgrade found.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
     <value>Upgrades the selected package, either found by searching the installed packages list or directly from a manifest. By default, the query must case-insensitively match the id, name, or moniker of the package. Other fields can be used by passing their appropriate option. When no arguments are given, shows the packages with upgrades available</value>
@@ -916,6 +919,9 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="PolicyEnableLocalManifests" xml:space="preserve">
     <value>Enable Windows App Installer Local Manifest Files</value>
+  </data>
+  <data name="PolicyEnableBypassCertificatePinningForMicrosoftStore" xml:space="preserve">
+    <value>Enable Windows App Installer Microsoft Store Source Pinned Certificate Bypass</value>
   </data>
   <data name="SettingsWarningField" xml:space="preserve">
     <value>Field: {0}</value>
@@ -1168,6 +1174,9 @@ Do you agree to the terms?</value>
   <data name="ShowLabelPublisherUrl" xml:space="preserve">
     <value>Publisher Url:</value>
   </data>
+  <data name="ShowLabelPurchaseUrl" xml:space="preserve">
+    <value>Purchase Url:</value>
+  </data>
   <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
     <value>Publisher Support Url:</value>
   </data>
@@ -1217,6 +1226,9 @@ Do you agree to the terms?</value>
   <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
     <value>Application is currently running. Exit the application then try again.</value>
   </data>
+  <data name="InstallFlowReturnCodePackageInUseByApplication" xml:space="preserve">
+    <value>Files modified by the installer are currently in use by a different application. Exit the applications then try again.</value>
+  </data>
   <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
     <value>Another installation is already in progress. Try again later.</value>
   </data>
@@ -1231,6 +1243,9 @@ Do you agree to the terms?</value>
   </data>
   <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
     <value>There's not enough memory available to install. Close other applications then try again.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInvalidParameter" xml:space="preserve">
+    <value>One of the installation parameters is invalid. The package installation log may have additional details.</value>
   </data>
   <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
     <value>This application requires internet connectivity. Connect to a network then try again.</value>
@@ -1258,6 +1273,9 @@ Do you agree to the terms?</value>
   </data>
   <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
     <value>Organization policies are preventing installation. Contact your admin.</value>
+  </data>
+  <data name="InstallFlowReturnCodeSystemNotSupported" xml:space="preserve">
+    <value>The current system configuration does not support the installation of this package.</value>
   </data>
   <data name="InstallAbandoned" xml:space="preserve">
     <value>Installation abandoned</value>
@@ -1364,6 +1382,7 @@ Please specify one of them using the `--source` option to proceed.</value>
   </data>
   <data name="PortableRegistryCollisionOverridden" xml:space="preserve">
     <value>A portable package with the same name but from a different source already exists; proceeding due to --force</value>
+    <comment>{Locked="--force"}</comment>
   </data>
   <data name="ReparsePointsNotSupportedError" xml:space="preserve">
     <value>The volume does not support reparse points</value>
@@ -1378,6 +1397,9 @@ Please specify one of them using the `--source` option to proceed.</value>
   <data name="NoPackageSelectionArgumentProvided" xml:space="preserve">
     <value>No package selection argument was provided; see the help for details about finding a package.</value>
   </data>
+  <data name="PortableAliasAdded" xml:space="preserve">
+    <value>Command line alias added:</value>
+  </data>
   <data name="PortableInstallFailed" xml:space="preserve">
     <value>Portable install failed; Cleaning up...</value>
   </data>
@@ -1385,11 +1407,11 @@ Please specify one of them using the `--source` option to proceed.</value>
     <value>Both `purge` and `preserve` arguments are provided</value>
   </data>
   <data name="PortableHashMismatchOverridden" xml:space="preserve">
-    <value>Portable exe has been modified; proceeding due to --force</value>
+    <value>Portable package has been modified; proceeding due to --force</value>
     <comment>{Locked="--force"}</comment>
   </data>
   <data name="PortableHashMismatchOverrideRequired" xml:space="preserve">
-    <value>Unable to remove Portable exe as it has been modified; to override this check use --force</value>
+    <value>Unable to remove Portable package as it has been modified; to override this check use --force</value>
     <comment>{Locked="--force"}</comment>
   </data>
   <data name="FilesRemainInInstallDirectory" xml:space="preserve">
@@ -1415,14 +1437,8 @@ Please specify one of them using the `--source` option to proceed.</value>
   <data name="ShowLabelInstallationNotes" xml:space="preserve">
     <value>Installation Notes:</value>
   </data>
-  <data name="SymlinkModified" xml:space="preserve">
-    <value>Portable symlink not deleted as it was modified and points to a different target exe</value>
-  </data>
   <data name="UnsupportedArgument" xml:space="preserve">
     <value>A provided argument is not supported for this package</value>
-  </data>
-  <data name="PortableInstallFromArchiveNotSupported" xml:space="preserve">
-    <value>Installing a portable package from an archive is not yet supported</value>
   </data>
   <data name="ExtractArchiveFailed" xml:space="preserve">
     <value>Failed to extract the contents of the archive</value>
@@ -1482,5 +1498,35 @@ Please specify one of them using the `--source` option to proceed.</value>
   <data name="DisableInteractivityArgumentDescription" xml:space="preserve">
     <value>Disable interactive prompts</value>
     <comment>Description for a command line argument, shown next to it in the help</comment>
+  </data>
+  <data name="ConvertInstallFlowToUpgrade" xml:space="preserve">
+    <value>Found an existing package already installed. Trying to upgrade the installed package...</value>
+  </data>
+  <data name="ForceArgumentDescription" xml:space="preserve">
+    <value>Direct run the command and continue with non security related issues</value>
+    <comment>Description for a command line argument, shown next to it in the help</comment>
+  </data>
+  <data name="PortablePackageAlreadyExists" xml:space="preserve">
+    <value>Portable package from a different source already exists</value>
+  </data>
+  <data name="ExtractArchiveSucceeded" xml:space="preserve">
+    <value>Successfully extracted archive</value>
+  </data>
+  <data name="ExtractingArchive" xml:space="preserve">
+    <value>Extracting archive...</value>
+  </data>
+  <data name="ArchiveFailedMalwareScan" xml:space="preserve">
+    <value>Archive scan detected malware; to override this check use --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="ArchiveFailedMalwareScanOverridden" xml:space="preserve">
+    <value>Archive scan detected malware; proceeding due to --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="NoUpgradeArgumentDescription" xml:space="preserve">
+    <value>Skips upgrade if an installed version already exists</value>
+  </data>
+  <data name="PackageAlreadyInstalled" xml:space="preserve">
+    <value>A package version is already installed. Installation cancelled.</value>
   </data>
 </root>

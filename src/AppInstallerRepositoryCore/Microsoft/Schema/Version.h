@@ -2,16 +2,11 @@
 // Licensed under the MIT License.
 #pragma once
 #include "SQLiteWrapper.h"
-#include "Microsoft/Schema/ISQLiteIndex.h"
-
 #include <limits>
 #include <memory>
 
 namespace AppInstaller::Repository::Microsoft::Schema
 {
-    // Forward declarations
-    struct ISQLiteIndex;
-
     // Represents the schema version of the index.
     struct Version
     {
@@ -56,9 +51,6 @@ namespace AppInstaller::Repository::Microsoft::Schema
 
         // Writes the current version to the given index.
         void SetSchemaVersion(SQLite::Connection& connection);
-
-        // Creates the interface object for this version.
-        std::unique_ptr<ISQLiteIndex> CreateISQLiteIndex() const;
     };
 
     // Output the version

@@ -26,6 +26,7 @@
 #include <Workflows/UpdateFlow.h>
 #include <Workflows/WorkflowBase.h>
 #include <Public/winget/RepositorySource.h>
+#include <PortableInstaller.h>
 #include <Commands/ExportCommand.h>
 #include <Commands/ImportCommand.h>
 #include <Commands/InstallCommand.h>
@@ -37,6 +38,8 @@
 #include <Commands/SourceCommand.h>
 #include <winget/LocIndependent.h>
 #include <winget/ManifestYamlParser.h>
+#include <winget/PathVariable.h>
+#include <winget/Archive.h>
 #include <Resources.h>
 #include <AppInstallerFileLogger.h>
 #include <Commands/ValidateCommand.h>
@@ -54,6 +57,9 @@ using namespace AppInstaller::Repository;
 using namespace AppInstaller::Settings;
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Utility::literals;
+using namespace AppInstaller::Settings;
+using namespace AppInstaller::CLI::Portable;
+
 
 #define REQUIRE_TERMINATED_WITH(_context_,_hr_) \
     REQUIRE(_context_.IsTerminated()); \
@@ -223,8 +229,8 @@ namespace
 
             if (input.empty() || input == "AppInstallerCliTest.TestZipInstaller")
             {
-                auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_ZipWithExe.yaml"));
-                auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_ZipWithExe.yaml"));
+                auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Zip_Exe.yaml"));
+                auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Zip_Exe.yaml"));
                 result.Matches.emplace_back(
                     ResultMatch(
                         TestPackage::Make(
@@ -509,12 +515,19 @@ namespace
     };
 }
 
-void OverrideForOpenSource(TestContext& context)
+void OverrideForOpenSource(TestContext& context, bool overrideOpenCompositeSource = false)
 {
     context.Override({ "OpenSource", [](TestContext& context)
     {
         context.Add<Execution::Data::Source>(Source{ std::make_shared<WorkflowTestSource>() });
     } });
+
+    if (overrideOpenCompositeSource)
+    {
+        context.Override({ "OpenCompositeSource", [](TestContext&)
+        {
+        } });
+    }
 }
 
 void OverrideForCompositeInstalledSource(TestContext& context, TestSourceSearchOptions searchOptions = TestSourceSearchOptions::None)
@@ -640,8 +653,34 @@ void OverrideForPortableInstallFlow(TestContext& context)
     OverrideForPortableInstall(context);
 }
 
+void OverridePortableInstaller(TestContext& context)
+{
+    context.Override({ DownloadInstallerFile, [](TestContext& context)
+    {
+        std::filesystem::path tempDirectory = std::filesystem::temp_directory_path();
+        const auto& installerPath = TestDataFile("AppInstallerTestExeInstaller.exe").GetPath();
+        const auto& tempInstallerPath = tempDirectory / "AppInstallerTestExeInstaller.exe";
+        std::filesystem::copy(installerPath, tempInstallerPath, std::filesystem::copy_options::overwrite_existing);
+        context.Add<Data::InstallerPath>(tempInstallerPath);
+
+        std::ifstream inStream{ tempInstallerPath, std::ifstream::binary };
+        SHA256::HashBuffer fileHash = SHA256::ComputeHash(inStream);
+        context.Add<Data::HashPair>({ fileHash, fileHash });
+    } });
+
+    context.Override({ RenameDownloadedInstaller, [](TestContext&)
+    {
+    } });
+
+    OverrideForUpdateInstallerMotw(context);
+}
+
 void OverrideForPortableUninstall(TestContext& context)
 {
+    context.Override({ GetUninstallInfo, [](TestContext&)
+    {
+    } });
+
     context.Override({ PortableUninstallImpl, [](TestContext& context)
     {
         std::filesystem::path temp = std::filesystem::temp_directory_path();
@@ -860,6 +899,38 @@ TEST_CASE("ExeInstallFlowWithTestManifest", "[InstallFlow][workflow]")
     REQUIRE(installResultStr.find("/silentwithprogress") != std::string::npos);
 }
 
+TEST_CASE("InstallFlow_RenameFromEncodedUrl", "[InstallFlow][workflow]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCheckExistingInstaller(context);
+    context.Override({ DownloadInstallerFile, [](TestContext& context)
+    {
+        context.Add<Data::HashPair>({ {}, {} });
+        auto installerPath = std::filesystem::temp_directory_path();
+        installerPath /= "EncodedUrlTest.exe";
+        std::filesystem::copy(TestDataFile("AppInstallerTestExeInstaller.exe"), installerPath, std::filesystem::copy_options::overwrite_existing);
+        context.Add<Data::InstallerPath>(installerPath);
+    } });
+    OverrideForUpdateInstallerMotw(context);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_EncodedUrl.yaml").GetPath().u8string());
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify Installer is called and parameters are passed in.
+    REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
+    std::ifstream installResultFile(installResultPath.GetPath());
+    REQUIRE(installResultFile.is_open());
+    std::string installResultStr;
+    std::getline(installResultFile, installResultStr);
+    REQUIRE(installResultStr.find("/encodedUrl") != std::string::npos);
+}
+
 TEST_CASE("InstallFlowNonZeroExitCode", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
@@ -1016,7 +1087,7 @@ TEST_CASE("InstallFlowWithNonApplicableArchitecture", "[InstallFlow][workflow]")
     REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
 }
 
-TEST_CASE("InstallFlow_ZipWithExe", "[InstallFlow][workflow]")
+TEST_CASE("InstallFlow_Zip_Exe", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
     TestCommon::TestUserSettings testSettings;
@@ -1028,7 +1099,10 @@ TEST_CASE("InstallFlow_ZipWithExe", "[InstallFlow][workflow]")
     OverrideForShellExecute(context);
     OverrideForExtractInstallerFromArchive(context);
     OverrideForVerifyAndSetNestedInstaller(context);
-    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_ZipWithExe.yaml").GetPath().u8string());
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Zip_Exe.yaml").GetPath().u8string());
+
+    bool overrideArchiveScanResult = true;
+    AppInstaller::Archive::TestHook_SetScanArchiveResult_Override(&overrideArchiveScanResult);
 
     InstallCommand install({});
     install.Execute(context);
@@ -1055,7 +1129,10 @@ TEST_CASE("InstallFlow_Zip_BadRelativePath", "[InstallFlow][workflow]")
     auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForShellExecute(context);
     OverrideForExtractInstallerFromArchive(context);
-    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_ZipWithExe.yaml").GetPath().u8string());
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Zip_Exe.yaml").GetPath().u8string());
+
+    bool overrideArchiveScanResult = true;
+    AppInstaller::Archive::TestHook_SetScanArchiveResult_Override(&overrideArchiveScanResult);
 
     InstallCommand install({});
     install.Execute(context);
@@ -1134,12 +1211,73 @@ TEST_CASE("InstallFlow_Zip_MultipleNonPortableNestedInstallers", "[InstallFlow][
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::MultipleNonPortableNestedInstallersSpecified).get()) != std::string::npos);
 }
 
+TEST_CASE("InstallFlow_Zip_ArchiveScanFailed", "[InstallFlow][workflow]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+    TestCommon::TestUserSettings testSettings;
+    testSettings.Set<Setting::EFZipInstall>(true);
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForShellExecute(context);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Zip_Exe.yaml").GetPath().u8string());
+
+    bool overrideArchiveScanResult = false;
+    AppInstaller::Archive::TestHook_SetScanArchiveResult_Override(&overrideArchiveScanResult);
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_ARCHIVE_SCAN_FAILED);
+
+    // Verify Installer was not called
+    REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::ArchiveFailedMalwareScan).get()) != std::string::npos);
+}
+
+TEST_CASE("InstallFlow_Zip_ArchiveScanOverride", "[InstallFlow][workflow]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+    TestCommon::TestUserSettings testSettings;
+    testSettings.Set<Setting::EFZipInstall>(true);
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForShellExecute(context);
+    OverrideForExtractInstallerFromArchive(context);
+    OverrideForVerifyAndSetNestedInstaller(context);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Zip_Exe.yaml").GetPath().u8string());
+    context.Args.AddArg(Execution::Args::Type::Force);
+
+    bool overrideArchiveScanResult = false;
+    AppInstaller::Archive::TestHook_SetScanArchiveResult_Override(&overrideArchiveScanResult);
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify override message is displayed to the user.
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::ArchiveFailedMalwareScanOverridden).get()) != std::string::npos);
+
+    // Verify Installer is called and parameters are passed in.
+    REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
+    std::ifstream installResultFile(installResultPath.GetPath());
+    REQUIRE(installResultFile.is_open());
+    std::string installResultStr;
+    std::getline(installResultFile, installResultStr);
+    REQUIRE(installResultStr.find("/custom") != std::string::npos);
+    REQUIRE(installResultStr.find("/silentwithprogress") != std::string::npos);
+}
+
 TEST_CASE("ExtractInstallerFromArchive_InvalidZip", "[InstallFlow][workflow]")
 {
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_ZipWithExe.yaml"));
+    auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Zip_Exe.yaml"));
     context.Add<Data::Manifest>(manifest);
     context.Add<Data::Installer>(manifest.Installers.at(0));
     // Provide an invalid zip file which should be handled appropriately.
@@ -1251,7 +1389,7 @@ TEST_CASE("MsiInstallFlow_DirectMsi", "[InstallFlow][workflow]")
     REQUIRE(installResultStr.find("/quiet") != std::string::npos);
 }
 
-TEST_CASE("PortableInstallFlow", "[InstallFlow][workflow]")
+TEST_CASE("InstallFlow_Portable", "[InstallFlow][workflow]")
 {
     TestCommon::TempDirectory tempDirectory("TestPortableInstallRoot", false);
     TestCommon::TempFile portableInstallResultPath("TestPortableInstalled.txt");
@@ -1268,6 +1406,39 @@ TEST_CASE("PortableInstallFlow", "[InstallFlow][workflow]")
     INFO(installOutput.str());
 
     REQUIRE(std::filesystem::exists(portableInstallResultPath.GetPath()));
+}
+
+TEST_CASE("InstallFlow_Portable_SymlinkCreationFail", "[InstallFlow][workflow]")
+{
+    std::ostringstream installOutput;
+    TestContext installContext{ installOutput, std::cin };
+    auto PreviousThreadGlobals = installContext.SetForCurrentThread();
+    OverridePortableInstaller(installContext);
+    bool overrideCreateSymlinkStatus = false;
+    AppInstaller::Filesystem::TestHook_SetCreateSymlinkResult_Override(&overrideCreateSymlinkStatus);
+    installContext.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Portable.yaml").GetPath().u8string());
+
+    InstallCommand install({});
+    install.Execute(installContext);
+    INFO(installOutput.str());
+
+    // 'DefaultSource' is expected because we are installing from a local manifest.
+    const auto& portableUserRoot = AppInstaller::Runtime::GetPathTo(AppInstaller::Runtime::PathName::PortablePackageUserRoot);
+    const auto& portableTargetDirectory = portableUserRoot / "AppInstallerCliTest.TestPortableInstaller__DefaultSource";
+    const auto& portableTargetPath = portableTargetDirectory / "AppInstallerTestExeInstaller.exe";
+    REQUIRE(std::filesystem::exists(portableTargetPath));
+    REQUIRE(AppInstaller::Registry::Environment::PathVariable(AppInstaller::Manifest::ScopeEnum::User).Contains(portableTargetDirectory));
+
+    // Perform uninstall
+    std::ostringstream uninstallOutput;
+    TestContext uninstallContext{ uninstallOutput, std::cin };
+    auto previousThreadGlobals = uninstallContext.SetForCurrentThread();
+    uninstallContext.Args.AddArg(Execution::Args::Type::Name, "AppInstaller Test Portable Exe"sv);
+    uninstallContext.Args.AddArg(Execution::Args::Type::AcceptSourceAgreements);
+
+    UninstallCommand uninstall({});
+    uninstall.Execute(uninstallContext);
+    INFO(uninstallOutput.str());
 }
 
 TEST_CASE("PortableInstallFlow_UserScope", "[InstallFlow][workflow]")
@@ -1313,39 +1484,6 @@ TEST_CASE("PortableInstallFlow_MachineScope", "[InstallFlow][workflow]")
     install.Execute(context);
     INFO(installOutput.str());
     REQUIRE(std::filesystem::exists(portableInstallResultPath.GetPath()));
-}
-
-TEST_CASE("PortableInstallFlow_DevModeDisabled", "[InstallFlow][workflow]")
-{
-    if (!AppInstaller::Runtime::IsRunningAsAdmin())
-    {
-        WARN("Test requires admin privilege. Skipped.");
-        return;
-    }
-
-    TestCommon::TempDirectory tempDirectory("TestPortableInstallRoot", false);
-    TestCommon::TempFile portableInstallResultPath("TestPortableInstalled.txt");
-
-    std::ostringstream installOutput;
-    TestContext context{ installOutput, std::cin };
-    auto previousThreadGlobals = context.SetForCurrentThread();
-    TestCommon::EnableDevMode(false);
-
-    // Override admin check to report as false.
-    context.Override({ EnsureRunningAsAdmin, [](TestContext& testContext)
-    {
-        testContext.SetTerminationHR(APPINSTALLER_CLI_ERROR_COMMAND_REQUIRES_ADMIN);
-    } });
-
-    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Portable.yaml").GetPath().u8string());
-    InstallCommand install({});
-    install.Execute(context);
-    TestCommon::EnableDevMode(true);
-    INFO(installOutput.str());
-
-    // Verify proper message is printed for installing portable in non-developer mode and not running as admin. 
-    REQUIRE_FALSE(std::filesystem::exists(portableInstallResultPath.GetPath()));
-    REQUIRE(installOutput.str().find("https://github.com/microsoft/winget-cli/issues/2368") != std::string::npos);
 }
 
 TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow][workflow]")
@@ -1483,7 +1621,7 @@ TEST_CASE("InstallFlow_SearchAndInstall", "[InstallFlow][workflow]")
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForOpenSource(context);
+    OverrideForOpenSource(context, true);
     OverrideForShellExecute(context);
     context.Args.AddArg(Execution::Args::Type::Query, "TestQueryReturnOne"sv);
 
@@ -1506,7 +1644,7 @@ TEST_CASE("InstallFlow_SearchFoundNoApp", "[InstallFlow][workflow]")
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForOpenSource(context);
+    OverrideForOpenSource(context, true);
     context.Args.AddArg(Execution::Args::Type::Query, "TestQueryReturnZero"sv);
 
     InstallCommand install({});
@@ -1522,7 +1660,7 @@ TEST_CASE("InstallFlow_SearchFoundMultipleApp", "[InstallFlow][workflow]")
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForOpenSource(context);
+    OverrideForOpenSource(context, true);
     context.Args.AddArg(Execution::Args::Type::Query, "TestQueryReturnTwo"sv);
 
     InstallCommand install({});
@@ -1703,7 +1841,7 @@ TEST_CASE("ShowFlow_NestedInstallerType", "[ShowFlow][workflow]")
     std::ostringstream showOutput;
     TestContext context{ showOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_ZipWithExe.yaml").GetPath().u8string());
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Zip_Exe.yaml").GetPath().u8string());
 
     ShowCommand show({});
     show.Execute(context);
@@ -1771,8 +1909,6 @@ TEST_CASE("DependencyGraph_validMinVersions", "[InstallFlow][workflow][dependenc
 
 TEST_CASE("DependencyGraph_PathNoLoop", "[InstallFlow][workflow][dependencyGraph][dependencies]", )
 {
-    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
-
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
@@ -1917,9 +2053,11 @@ TEST_CASE("UpdateFlow_UpdateExe", "[UpdateFlow][workflow]")
     REQUIRE(updateResultStr.find("/ver3.0.0.0") != std::string::npos);
 }
 
-TEST_CASE("UpdateFlow_UpdateZipWithExe", "[UpdateFlow][workflow]")
+TEST_CASE("UpdateFlow_UpdateZip_Exe", "[UpdateFlow][workflow]")
 {
     TestCommon::TempFile updateResultPath("TestExeInstalled.txt");
+    TestCommon::TestUserSettings testSettings;
+    testSettings.Set<Setting::EFZipInstall>(true);
 
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
@@ -1961,6 +2099,41 @@ TEST_CASE("UpdateFlow_UpdatePortable", "[UpdateFlow][workflow]")
     update.Execute(context);
     INFO(updateOutput.str());
     REQUIRE(std::filesystem::exists(updateResultPath.GetPath()));
+}
+
+TEST_CASE("UpdateFlow_Portable_SymlinkCreationFail", "[UpdateFlow][workflow]")
+{
+    // Update portable with symlink creation failure verify that it succeeds.
+    std::ostringstream updateOutput;
+    TestContext context{ updateOutput, std::cin };
+    auto PreviousThreadGlobals = context.SetForCurrentThread();
+    bool overrideCreateSymlinkStatus = false;
+    AppInstaller::Filesystem::TestHook_SetCreateSymlinkResult_Override(&overrideCreateSymlinkStatus);
+    OverridePortableInstaller(context);
+    OverrideForCompositeInstalledSource(context);
+    context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestPortableInstaller"sv);
+
+    UpgradeCommand update({});
+    update.Execute(context);
+    INFO(updateOutput.str());
+    const auto& portableTargetDirectory = AppInstaller::Runtime::GetPathTo(AppInstaller::Runtime::PathName::PortablePackageUserRoot) / "AppInstallerCliTest.TestPortableInstaller__TestSource";
+    const auto& portableTargetPath = portableTargetDirectory / "AppInstallerTestExeInstaller.exe";
+    REQUIRE(std::filesystem::exists(portableTargetPath));
+    REQUIRE(AppInstaller::Registry::Environment::PathVariable(AppInstaller::Manifest::ScopeEnum::User).Contains(portableTargetDirectory));
+
+    // Perform uninstall
+    std::ostringstream uninstallOutput;
+    TestContext uninstallContext{ uninstallOutput, std::cin };
+    auto previousThreadGlobals = uninstallContext.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(uninstallContext);
+    uninstallContext.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestPortableInstaller"sv);
+
+    UninstallCommand uninstall({});
+    uninstall.Execute(uninstallContext);
+    INFO(uninstallOutput.str());
+
+    REQUIRE_FALSE(std::filesystem::exists(portableTargetPath));
+    REQUIRE_FALSE(AppInstaller::Registry::Environment::PathVariable(AppInstaller::Manifest::ScopeEnum::User).Contains(portableTargetDirectory));
 }
 
 TEST_CASE("UpdateFlow_UpdateExeWithUnsupportedArgs", "[UpdateFlow][workflow]")
@@ -2222,8 +2395,6 @@ TEST_CASE("UpdateFlow_UpgradeWithDuplicateUpgradeItemsFound", "[UpdateFlow][work
 
 TEST_CASE("UpdateFlow_Dependencies", "[UpdateFlow][workflow][dependencies]")
 {
-    TestCommon::TempFile updateResultPath("TestExeInstalled.txt");
-
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
@@ -2829,9 +3000,6 @@ TEST_CASE("ImportFlow_MachineScope", "[ImportFlow][workflow]")
 
 TEST_CASE("ImportFlow_Dependencies", "[ImportFlow][workflow][dependencies]")
 {
-    TestCommon::TempFile exeInstallResultPath("TestExeInstalled.txt");
-    TestCommon::TempFile msixInstallResultPath("TestMsixInstalled.txt");
-
     std::ostringstream importOutput;
     TestContext context{ importOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
@@ -3156,7 +3324,6 @@ TEST_CASE("ValidateCommand_Dependencies", "[workflow][dependencies]")
 
 TEST_CASE("DependencyGraph_StackOrderIsOk", "[InstallFlow][workflow][dependencyGraph][dependencies]")
 {
-    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
     std::vector<Dependency> installationOrder;
 
     std::ostringstream installOutput;
@@ -3185,8 +3352,6 @@ TEST_CASE("DependencyGraph_StackOrderIsOk", "[InstallFlow][workflow][dependencyG
 
 TEST_CASE("InstallerWithoutDependencies_RootDependenciesAreUsed", "[dependencies]")
 {
-    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
-
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
@@ -3209,8 +3374,6 @@ TEST_CASE("InstallerWithoutDependencies_RootDependenciesAreUsed", "[dependencies
 
 TEST_CASE("DependenciesMultideclaration_InstallerDependenciesPreference", "[dependencies]")
 {
-    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
-
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
@@ -3235,8 +3398,6 @@ TEST_CASE("DependenciesMultideclaration_InstallerDependenciesPreference", "[depe
 
 TEST_CASE("InstallFlow_Dependencies", "[InstallFlow][workflow][dependencies]")
 {
-    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
-
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
@@ -3497,4 +3658,71 @@ TEST_CASE("PromptFlow_InstallLocationRequired_Missing", "[PromptFlow][workflow]"
     // Verify installation failed
     REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_INSTALL_LOCATION_REQUIRED);
     REQUIRE_FALSE(std::filesystem::exists(installResultPath.GetPath()));
+}
+
+TEST_CASE("InstallFlow_FoundInstalledAndUpgradeAvailable", "[UpdateFlow][workflow]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context);
+    OverrideForShellExecute(context);
+    context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestExeInstaller"sv);
+    context.Args.AddArg(Execution::Args::Type::Silent);
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify Installer is called and parameters are passed in.
+    REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
+    std::ifstream installResultFile(installResultPath.GetPath());
+    REQUIRE(installResultFile.is_open());
+    std::string installResultStr;
+    std::getline(installResultFile, installResultStr);
+    REQUIRE(installResultStr.find("/update") != std::string::npos);
+    REQUIRE(installResultStr.find("/ver3.0.0.0") != std::string::npos);
+}
+
+TEST_CASE("InstallFlow_FoundInstalledAndUpgradeAvailable_WithNoUpgrade", "[UpdateFlow][workflow]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context);
+    context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestExeInstaller"sv);
+    context.Args.AddArg(Execution::Args::Type::NoUpgrade);
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify Installer is not called.
+    REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::PackageAlreadyInstalled).get()) != std::string::npos);
+    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_PACKAGE_ALREADY_INSTALLED);
+}
+
+TEST_CASE("InstallFlow_FoundInstalledAndUpgradeNotAvailable", "[UpdateFlow][workflow]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context);
+    context.Args.AddArg(Execution::Args::Type::Query, "TestExeInstallerWithLatestInstalled"sv);
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify Installer is not called.
+    REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::UpdateNotApplicable).get()) != std::string::npos);
+    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
 }

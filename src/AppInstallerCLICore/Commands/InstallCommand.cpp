@@ -4,6 +4,7 @@
 #include "InstallCommand.h"
 #include "Workflows/CompletionFlow.h"
 #include "Workflows/InstallFlow.h"
+#include "Workflows/UpdateFlow.h"
 #include "Workflows/WorkflowBase.h"
 #include "Resources.h"
 
@@ -17,7 +18,6 @@ namespace AppInstaller::CLI
     namespace
     {
         constexpr Utility::LocIndView s_ArgumentName_Scope = "scope"_liv;
-        constexpr Utility::LocIndView s_ArgumentName_Architecture = "architecture"_liv;
     }
 
     std::vector<Argument> InstallCommand::GetArguments() const
@@ -32,7 +32,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Channel),
             Argument::ForType(Args::Type::Source),
             Argument{ s_ArgumentName_Scope, Argument::NoAlias, Args::Type::InstallScope, Resource::String::InstallScopeDescription, ArgumentType::Standard, Argument::Visibility::Help },
-            Argument{ s_ArgumentName_Architecture, 'a', Args::Type::InstallArchitecture, Resource::String::InstallArchitectureArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help},
+            Argument::ForType(Args::Type::InstallArchitecture),
             Argument::ForType(Args::Type::Exact),
             Argument::ForType(Args::Type::Interactive),
             Argument::ForType(Args::Type::Silent),
@@ -43,9 +43,11 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::HashOverride),
             Argument::ForType(Args::Type::DependencySource),
             Argument::ForType(Args::Type::AcceptPackageAgreements),
+            Argument::ForType(Args::Type::NoUpgrade),
             Argument::ForType(Args::Type::CustomHeader),
             Argument::ForType(Args::Type::AcceptSourceAgreements),
             Argument::ForType(Args::Type::Rename),
+            Argument::ForType(Args::Type::Force),
         };
     }
 
@@ -74,6 +76,7 @@ namespace AppInstaller::CLI
             context <<
                 Workflow::CompleteWithSingleSemanticsForValue(valueType);
             break;
+        case Args::Type::InstallArchitecture:
         case Args::Type::Locale:
             // May well move to CompleteWithSingleSemanticsForValue,
             // but for now output nothing.
@@ -117,40 +120,34 @@ namespace AppInstaller::CLI
                 throw CommandException(Resource::String::InvalidArgumentValueError(s_ArgumentName_Scope, validOptions));
             }
         }
-        if (execArgs.Contains(Args::Type::InstallArchitecture))
-        {
-            Utility::Architecture selectedArch = Utility::ConvertToArchitectureEnum(std::string(execArgs.GetArg(Args::Type::InstallArchitecture)));
-            if ((selectedArch == Utility::Architecture::Unknown) || (Utility::IsApplicableArchitecture(selectedArch) == Utility::InapplicableArchitecture))
-            {
-                std::vector<Utility::LocIndString> applicableArchitectures;
-                for (Utility::Architecture i : Utility::GetApplicableArchitectures())
-                {
-                    applicableArchitectures.emplace_back(Utility::ToString(i));
-                }
-                auto validOptions = Utility::Join(", "_liv, applicableArchitectures);
-                throw CommandException(Resource::String::InvalidArgumentValueError(s_ArgumentName_Architecture, validOptions));
-            }
-        }
-
-        if (execArgs.Contains(Args::Type::Locale))
-        {
-            if (!Locale::IsWellFormedBcp47Tag(execArgs.GetArg(Args::Type::Locale)))
-            {
-                throw CommandException(Resource::String::InvalidArgumentValueErrorWithoutValidValues(Argument::ForType(Args::Type::Locale).Name()));
-            }
-        }
     }
 
     void InstallCommand::ExecuteInternal(Context& context) const
     {
         context.SetFlags(ContextFlag::ShowSearchResultsOnPartialFailure);
 
-        context <<
-            Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
-            Workflow::GetManifest <<
-            Workflow::SelectInstaller <<
-            Workflow::EnsureApplicableInstaller <<
-            Workflow::CheckForUnsupportedArgs <<
-            Workflow::InstallSinglePackage;
+        if (context.Args.Contains(Execution::Args::Type::Manifest))
+        {
+            context <<
+                Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
+                Workflow::GetManifestFromArg <<
+                Workflow::SelectInstaller <<
+                Workflow::EnsureApplicableInstaller <<
+                Workflow::InstallSinglePackage;
+        }
+        else
+        {
+            context <<
+                Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
+                Workflow::OpenSource();
+
+            if (!context.Args.Contains(Execution::Args::Type::Force))
+            {
+                context <<
+                    Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed, false, Repository::CompositeSearchBehavior::AvailablePackages);
+            }
+
+            context << Workflow::InstallOrUpgradeSinglePackage(false);
+        }
     }
 }

@@ -190,12 +190,30 @@ namespace AppInstaller
                 return "Failed to uninstall portable package";
             case APPINSTALLER_CLI_ERROR_ARP_VERSION_VALIDATION_FAILED:
                 return "Failed to validate DisplayVersion values against index.";
+            case APPINSTALLER_CLI_ERROR_UNSUPPORTED_ARGUMENT:
+                return "One or more arguments are not supported.";
+            case APPINSTALLER_CLI_ERROR_BIND_WITH_EMBEDDED_NULL:
+                return "Embedded null characters are disallowed for SQLite";
+            case APPINSTALLER_CLI_ERROR_NESTEDINSTALLER_NOT_FOUND:
+                return "Failed to find the nested installer in the archive.";
+            case APPINSTALLER_CLI_ERROR_EXTRACT_ARCHIVE_FAILED:
+                return "Failed to extract archive.";
+            case APPINSTALLER_CLI_ERROR_NESTEDINSTALLER_INVALID_PATH:
+                return "Invalid relative file path to nested installer provided.";
+            case APPINSTALLER_CLI_ERROR_PINNED_CERTIFICATE_MISMATCH:
+                return "The server certificate did not match any of the expected values.";
             case APPINSTALLER_CLI_ERROR_INSTALL_LOCATION_REQUIRED:
-                return "Install location required but not provided";
+                return "Install location must be provided.";
+            case APPINSTALLER_CLI_ERROR_ARCHIVE_SCAN_FAILED:
+                return "Archive malware scan failed.";
+            case APPINSTALLER_CLI_ERROR_PACKAGE_ALREADY_INSTALLED:
+                return "Found at least one version of the package installed.";
+
+            // Install errors
             case APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE:
-                return "Application is currently running.Exit the application then try again.";
+                return "Application is currently running. Exit the application then try again.";
             case APPINSTALLER_CLI_ERROR_INSTALL_INSTALL_IN_PROGRESS:
-                return "Another installation is already in progress.Try again later.";
+                return "Another installation is already in progress. Try again later.";
             case APPINSTALLER_CLI_ERROR_INSTALL_FILE_IN_USE:
                 return "One or more file is being used. Exit the application then try again.";
             case APPINSTALLER_CLI_ERROR_INSTALL_MISSING_DEPENDENCY:
@@ -224,14 +242,12 @@ namespace AppInstaller
                 return "Organization policies are preventing installation. Contact your admin.";
             case APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES:
                 return "Failed to install package dependencies.";
-            case APPINSTALLER_CLI_ERROR_BIND_WITH_EMBEDDED_NULL:
-                return "Embedded null characters are disallowed for SQLite";
-            case APPINSTALLER_CLI_ERROR_PINNED_CERTIFICATE_MISMATCH:
-                return "The server certificate did not match any of the expected values.";
-            case APPINSTALLER_CLI_ERROR_NESTEDINSTALLER_NOT_FOUND:
-                return "Failed to find the nested installer in the archive.";
-            case APPINSTALLER_CLI_ERROR_NESTEDINSTALLER_INVALID_PATH:
-                return "Invalid relative file path to nested installer provided.";
+            case APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE_BY_APPLICATION:
+                return "Application is currently in use by another application.";
+            case APPINSTALLER_CLI_ERROR_INSTALL_INVALID_PARAMETER:
+                return "Invalid parameter.";
+            case APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED:
+                return "Package not supported by the system.";
             default:
                 return "Unknown Error Code";
             }

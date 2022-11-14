@@ -4,6 +4,7 @@
 namespace AppInstallerCLIE2ETests
 {
     using NUnit.Framework;
+    using System.IO;
 
     public class ListCommand : BaseCommand
     {
@@ -98,6 +99,12 @@ namespace AppInstallerCLIE2ETests
             if (!string.IsNullOrEmpty(notExpectedListVersion))
             {
                 Assert.False(result.StdOut.Contains(notExpectedListVersion));
+            }
+
+            // Try clean up
+            if (File.Exists(Path.Combine(installDir, Constants.TestExeInstalledFileName)))
+            {
+                TestCommon.RunCommand(Path.Combine(installDir, Constants.TestExeUninstallerFileName));
             }
         }
     }

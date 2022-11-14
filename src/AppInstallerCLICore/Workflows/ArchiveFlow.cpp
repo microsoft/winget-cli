@@ -4,27 +4,62 @@
 #include "ArchiveFlow.h"
 #include "winget/Archive.h"
 #include "winget/Filesystem.h"
+#include "PortableFlow.h"
 
 using namespace AppInstaller::Manifest;
 
 namespace AppInstaller::CLI::Workflow
 {
+    namespace
+    {
+        constexpr std::wstring_view s_Extracted = L"extracted";
+    }
+
+    void ScanArchiveFromLocalManifest(Execution::Context& context)
+    {
+        if (context.Args.Contains(Execution::Args::Type::Manifest))
+        {
+            bool scanResult = Archive::ScanZipFile(context.Get<Execution::Data::InstallerPath>());
+
+            if (scanResult)
+            {
+                AICLI_LOG(CLI, Info, << "Archive malware scan passed");
+            }
+            else
+            {
+                if (context.Args.Contains(Execution::Args::Type::Force))
+                {
+                    AICLI_LOG(CLI, Warning, << "Archive malware scan failed; proceeding due to --force override");
+                    context.Reporter.Warn() << Resource::String::ArchiveFailedMalwareScanOverridden << std::endl;
+                }
+                else
+                {
+                    AICLI_LOG(CLI, Error, << "Archive malware scan failed");
+                    context.Reporter.Error() << Resource::String::ArchiveFailedMalwareScan << std::endl;
+                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_ARCHIVE_SCAN_FAILED);
+                }
+            }
+        }
+    }
+
     void ExtractFilesFromArchive(Execution::Context& context)
     {
         const auto& installerPath = context.Get<Execution::Data::InstallerPath>();
-        const auto& installerParentPath = installerPath.parent_path();
+        std::filesystem::path destinationFolder = installerPath.parent_path() / s_Extracted;
+        std::filesystem::create_directory(destinationFolder);
 
-        // TODO: For portables, extract portables to final install location and log to local database.
-        HRESULT hr = AppInstaller::Archive::TryExtractArchive(installerPath, installerParentPath);
-        AICLI_LOG(CLI, Info, << "Extracting archive to: " << installerParentPath);
+        AICLI_LOG(CLI, Info, << "Extracting archive to: " << destinationFolder);
+        context.Reporter.Info() << Resource::String::ExtractingArchive << std::endl;
+        HRESULT result = AppInstaller::Archive::TryExtractArchive(installerPath, destinationFolder);
 
-        if (SUCCEEDED(hr))
+        if (SUCCEEDED(result))
         {
             AICLI_LOG(CLI, Info, << "Successfully extracted archive");
+            context.Reporter.Info() << Resource::String::ExtractArchiveSucceeded << std::endl;
         }
         else
         {
-            AICLI_LOG(CLI, Info, << "Failed to extract archive with code " << hr);
+            AICLI_LOG(CLI, Info, << "Failed to extract archive with code " << result);
             context.Reporter.Error() << Resource::String::ExtractArchiveFailed << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_EXTRACT_ARCHIVE_FAILED);
         }
@@ -40,31 +75,33 @@ namespace AppInstaller::CLI::Workflow
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INVALID_MANIFEST);
         }
 
-        const auto& installerPath = context.Get<Execution::Data::InstallerPath>();
-        const auto& installerParentPath = installerPath.parent_path();
-        const auto& relativeFilePath = ConvertToUTF16(installer.NestedInstallerFiles[0].RelativeFilePath);
+        std::filesystem::path targetInstallerPath = context.Get<Execution::Data::InstallerPath>().parent_path() / s_Extracted;
 
-        const std::filesystem::path& nestedInstallerPath = installerParentPath / relativeFilePath;
+        for (const auto& nestedInstallerFile : installer.NestedInstallerFiles)
+        {
+            const std::filesystem::path& nestedInstallerPath = targetInstallerPath / ConvertToUTF16(nestedInstallerFile.RelativeFilePath);
+            
+            if (Filesystem::PathEscapesBaseDirectory(nestedInstallerPath, targetInstallerPath))
+            {
+                AICLI_LOG(CLI, Error, << "Path points to a location outside of the install directory: " << nestedInstallerPath);
+                context.Reporter.Error() << Resource::String::InvalidPathToNestedInstaller << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NESTEDINSTALLER_INVALID_PATH);
+            }
+            else if (!std::filesystem::exists(nestedInstallerPath))
+            {
+                AICLI_LOG(CLI, Error, << "Unable to locate nested installer at: " << nestedInstallerPath);
+                context.Reporter.Error() << Resource::String::NestedInstallerNotFound << ' ' << nestedInstallerPath << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NESTEDINSTALLER_NOT_FOUND);
+            }
+            else if (!IsPortableType(installer.NestedInstallerType))
+            {
+                // Update the installerPath to the extracted non-portable installer. 
+                AICLI_LOG(CLI, Info, << "Setting installerPath to: " << nestedInstallerPath);
+                targetInstallerPath = nestedInstallerPath;
+            }
+        }
 
-        if (Filesystem::PathEscapesBaseDirectory(nestedInstallerPath, installerParentPath))
-        {
-            AICLI_LOG(CLI, Error, << "Path points to a location outside of the install directory: " << nestedInstallerPath);
-            context.Reporter.Error() << Resource::String::InvalidPathToNestedInstaller << std::endl;
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NESTEDINSTALLER_INVALID_PATH);
-        }
-        else if (!std::filesystem::exists(nestedInstallerPath))
-        {
-            AICLI_LOG(CLI, Error, << "Unable to locate nested installer at: " << nestedInstallerPath);
-            context.Reporter.Error()
-                << Resource::String::NestedInstallerNotFound(Utility::LocIndView{ nestedInstallerPath.u8string() })
-                << std::endl;
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NESTEDINSTALLER_NOT_FOUND);
-        }
-        else
-        {
-            AICLI_LOG(CLI, Info, << "Setting installerPath to: " << nestedInstallerPath);
-            context.Add<Execution::Data::InstallerPath>(nestedInstallerPath);
-        }
+        context.Add<Execution::Data::InstallerPath>(targetInstallerPath);
     }
 
     void EnsureValidNestedInstallerMetadataForArchiveInstall(Execution::Context& context)

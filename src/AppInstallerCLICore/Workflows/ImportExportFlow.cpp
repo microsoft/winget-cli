@@ -278,22 +278,27 @@ namespace AppInstaller::CLI::Workflow
                 searchContext.Add<Execution::Data::Source>(source);
                 searchContext.Add<Execution::Data::SearchResult>(source.Search(searchRequest));
 
-                // TODO: In the future, it would be better to not have to convert back and forth from a string
-                searchContext.Args.AddArg(Execution::Args::Type::InstallScope, ScopeToString(packageRequest.Scope));
+                if (packageRequest.Scope != Manifest::ScopeEnum::Unknown)
+                {
+                    // TODO: In the future, it would be better to not have to convert back and forth from a string
+                    searchContext.Args.AddArg(Execution::Args::Type::InstallScope, ScopeToString(packageRequest.Scope));
+                }
+
+                auto versionString = packageRequest.VersionAndChannel.GetVersion().ToString();
+                if (!versionString.empty())
+                {
+                    searchContext.Args.AddArg(Execution::Args::Type::Version, versionString);
+                }
+
+                auto channelString = packageRequest.VersionAndChannel.GetChannel().ToString();
+                if (!channelString.empty())
+                {
+                    searchContext.Args.AddArg(Execution::Args::Type::Channel, channelString);
+                }
 
                 // Find the single version we want is available
                 searchContext <<
-                    Workflow::HandleSearchResultFailures <<
-                    Workflow::EnsureOneMatchFromSearchResult(false) <<
-                    Workflow::GetManifestWithVersionFromPackage(packageRequest.VersionAndChannel) <<
-                    Workflow::GetInstalledPackageVersion <<
-                    Workflow::SelectInstaller <<
-                    Workflow::EnsureApplicableInstaller;
-
-                if (searchContext.Contains(Execution::Data::InstalledPackageVersion) && searchContext.Get<Execution::Data::InstalledPackageVersion>())
-                {
-                    searchContext << Workflow::EnsureUpdateVersionApplicable;
-                }
+                    Workflow::SelectSinglePackageVersionForInstallOrUpgrade(false);
 
                 if (searchContext.IsTerminated())
                 {
@@ -303,20 +308,25 @@ namespace AppInstaller::CLI::Workflow
                         context.Reporter.Info() << Resource::String::Cancelled << std::endl;
                         return;
                     }
-                    else if (searchContext.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE)
-                    {
-                        AICLI_LOG(CLI, Info, << "Package is already installed: [" << packageRequest.Id << "]");
-                        context.Reporter.Info() << Resource::String::ImportPackageAlreadyInstalled(packageRequest.Id) << std::endl;
-                        continue;
-                    }
                     else
                     {
-                        AICLI_LOG(CLI, Info, << "Package not found for import: [" << packageRequest.Id << "], Version " << packageRequest.VersionAndChannel.ToString());
-                        context.Reporter.Info() << Resource::String::ImportSearchFailed(packageRequest.Id) << std::endl;
+                        auto searchTerminationHR = searchContext.GetTerminationHR();
+                        if (searchTerminationHR == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE ||
+                            searchTerminationHR == APPINSTALLER_CLI_ERROR_PACKAGE_ALREADY_INSTALLED)
+                        {
+                            AICLI_LOG(CLI, Info, << "Package is already installed: [" << packageRequest.Id << "]");
+                            context.Reporter.Info() << Resource::String::ImportPackageAlreadyInstalled(packageRequest.Id) << std::endl;
+                            continue;
+                        }
+                        else
+                        {
+                            AICLI_LOG(CLI, Info, << "Package not found for import: [" << packageRequest.Id << "], Version " << packageRequest.VersionAndChannel.ToString());
+                            context.Reporter.Info() << Resource::String::ImportSearchFailed(packageRequest.Id) << std::endl;
 
-                        // Keep searching for the remaining packages and only fail at the end.
-                        foundAll = false;
-                        continue;
+                            // Keep searching for the remaining packages and only fail at the end.
+                            foundAll = false;
+                            continue;
+                        }
                     }
                 }
 

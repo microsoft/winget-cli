@@ -1,0 +1,32 @@
+PackageIdentifier: microsoft.msixsdk
+PackageVersion: 1.7.32
+PackageLocale: en-GB
+Publisher: Microsoft UK
+PublisherUrl: https://www.microsoft.com/UK
+PublisherSupportUrl: https://www.microsoft.com/support/UK
+PrivacyUrl: https://www.microsoft.com/privacy/UK
+Author: Microsoft UK
+PackageName: MSIX SDK UK
+PackageUrl: https://www.microsoft.com/msixsdk/home/UK
+License: MIT License UK
+LicenseUrl: https://www.microsoft.com/msixsdk/license/UK
+Copyright: Copyright Microsoft Corporation UK
+CopyrightUrl: https://www.microsoft.com/msixsdk/copyright/UK
+ShortDescription: This is MSIX SDK UK
+Description: The MSIX SDK project is an effort to enable developers UK
+Tags:
+  - "appxsdkUK"
+  - "msixsdkUK"
+ReleaseNotes: Release notes
+ReleaseNotesUrl: https://ReleaseNotes.net
+PurchaseUrl: https://DefaultPurchaseUrl.com
+InstallationNotes: Default installation notes
+Agreements:
+  - AgreementLabel: Label
+    Agreement: Text
+    AgreementUrl: https://AgreementUrl.net
+Documentations:
+  - DocumentLabel: Default document label
+    DocumentUrl: https://DefaultDocumentUrl.com 
+ManifestType: locale
+ManifestVersion: 1.4.0

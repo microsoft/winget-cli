@@ -85,11 +85,13 @@ namespace AppInstaller::Repository
             }
         }
 
-        // For a given package from a tracking catalog, get the latest write time.
+        // For a given package from a tracking catalog, get the latest write time and its corresponding package version.
         // Look at all versions rather than just the latest to account for the potential of downgrading.
-        std::chrono::system_clock::time_point GetLatestTrackingPackageWriteTime(const std::shared_ptr<IPackage>& trackingPackage)
+        std::pair<std::chrono::system_clock::time_point, std::shared_ptr<IPackageVersion>> GetLatestTrackingWriteTimeAndPackageVersion(
+            const std::shared_ptr<IPackage>& trackingPackage)
         {
-            std::chrono::system_clock::time_point result{};
+            std::chrono::system_clock::time_point resultTime{};
+            std::shared_ptr<IPackageVersion> resultVersion;
 
             for (const auto& key : trackingPackage->GetAvailableVersionKeys())
             {
@@ -109,15 +111,16 @@ namespace AppInstaller::Repository
 
                         std::chrono::system_clock::time_point versionTime = Utility::ConvertUnixEpochToSystemClock(unixEpoch);
 
-                        if (versionTime > result)
+                        if (versionTime > resultTime)
                         {
-                            result = versionTime;
+                            resultTime = versionTime;
+                            resultVersion = version;
                         }
                     }
                 }
             }
 
-            return result;
+            return { resultTime, std::move(resultVersion) };
         }
 
         // TODO: Note: Currently this function assumes the all versions in the available package is from one source.
@@ -251,8 +254,8 @@ namespace AppInstaller::Repository
         // A composite package installed version that allows us to override the source or the version.
         struct CompositeInstalledVersion : public IPackageVersion
         {
-            CompositeInstalledVersion(std::shared_ptr<IPackageVersion> baseInstalledVersion, Source trackingSource, std::string overrideVersion = {}) :
-                m_baseInstalledVersion(std::move(baseInstalledVersion)), m_trackingSource(std::move(trackingSource)), m_overrideVersion(std::move(overrideVersion))
+            CompositeInstalledVersion(std::shared_ptr<IPackageVersion> baseInstalledVersion, Source trackingSource, std::shared_ptr<IPackageVersion> trackingPackageVersion, std::string overrideVersion = {}) :
+                m_baseInstalledVersion(std::move(baseInstalledVersion)), m_trackingSource(std::move(trackingSource)), m_trackingPackageVersion(std::move(trackingPackageVersion)), m_overrideVersion(std::move(overrideVersion))
             {}
 
             Utility::LocIndString GetProperty(PackageVersionProperty property) const override
@@ -289,13 +292,32 @@ namespace AppInstaller::Repository
 
             Metadata GetMetadata() const override
             {
-                return m_baseInstalledVersion->GetMetadata();
+                auto result = m_baseInstalledVersion->GetMetadata();
+
+                // Populate metadata from tracking package version if not present in base installed version.
+                if (m_trackingPackageVersion)
+                {
+                    auto trackingMetadata = m_trackingPackageVersion->GetMetadata();
+                    for (auto metadataItem : { PackageVersionMetadata::InstalledArchitecture, PackageVersionMetadata::InstalledLocale,
+                        PackageVersionMetadata::UserIntentArchitecture, PackageVersionMetadata::UserIntentLocale, PackageVersionMetadata::PinnedState })
+                    {
+                        auto itr = trackingMetadata.find(metadataItem);
+                        auto existingItr = result.find(metadataItem);
+                        if (itr != trackingMetadata.end() && existingItr == result.end())
+                        {
+                            result[metadataItem] = itr->second;
+                        }
+                    }
+                }
+
+                return result;
             }
 
         private:
             std::shared_ptr<IPackageVersion> m_baseInstalledVersion;
             Source m_trackingSource;
             std::string m_overrideVersion;
+            std::shared_ptr<IPackageVersion> m_trackingPackageVersion;
         };
 
         // A composite package for the CompositeSource.
@@ -320,9 +342,9 @@ namespace AppInstaller::Repository
             Utility::LocIndString GetProperty(PackageProperty property) const override
             {
                 std::shared_ptr<IPackageVersion> truth = GetLatestAvailableVersion();
-                if (!truth && m_trackingPackage)
+                if (!truth)
                 {
-                    truth = m_trackingPackage->GetLatestAvailableVersion();
+                    truth = m_trackingPackageVersion;
                 }
                 if (!truth)
                 {
@@ -347,7 +369,7 @@ namespace AppInstaller::Repository
                     auto installedVersion = m_installedPackage->GetInstalledVersion();
                     if (installedVersion)
                     {
-                        return std::make_shared<CompositeInstalledVersion>(std::move(installedVersion), m_trackingSource, m_overrideInstalledVersion);
+                        return std::make_shared<CompositeInstalledVersion>(std::move(installedVersion), m_trackingSource, m_trackingPackageVersion, m_overrideInstalledVersion);
                     }
                 }
 
@@ -417,17 +439,17 @@ namespace AppInstaller::Repository
                 return true;
             }
 
-            const std::shared_ptr<IPackage>& GetInstalledPackage()
+            const std::shared_ptr<IPackage>& GetInstalledPackage() const
             {
                 return m_installedPackage;
             }
 
-            const std::shared_ptr<IPackage>& GetAvailablePackage()
+            const std::shared_ptr<IPackage>& GetAvailablePackage() const
             {
                 return m_availablePackage;
             }
 
-            const std::shared_ptr<IPackage>& GetTrackingPackage()
+            const std::shared_ptr<IPackage>& GetTrackingPackage() const
             {
                 return m_trackingPackage;
             }
@@ -438,10 +460,11 @@ namespace AppInstaller::Repository
                 TrySetOverrideInstalledVersion();
             }
 
-            void SetTracking(Source trackingSource, std::shared_ptr<IPackage> trackingPackage)
+            void SetTracking(Source trackingSource, std::shared_ptr<IPackage> trackingPackage, std::shared_ptr<IPackageVersion> trackingPackageVersion)
             {
                 m_trackingSource = std::move(trackingSource);
                 m_trackingPackage = std::move(trackingPackage);
+                m_trackingPackageVersion = std::move(trackingPackageVersion);
             }
 
         private:
@@ -466,6 +489,7 @@ namespace AppInstaller::Repository
             std::shared_ptr<IPackage> m_availablePackage;
             Source m_trackingSource;
             std::shared_ptr<IPackage> m_trackingPackage;
+            std::shared_ptr<IPackageVersion> m_trackingPackageVersion;
             std::string m_overrideInstalledVersion;
         };
 
@@ -924,6 +948,7 @@ namespace AppInstaller::Repository
 
                     Source trackedSource;
                     std::shared_ptr<IPackage> trackingPackage;
+                    std::shared_ptr<IPackageVersion> trackingPackageVersion;
                     std::chrono::system_clock::time_point trackingPackageTime;
                     std::shared_ptr<IPackage> availablePackage;
 
@@ -947,12 +972,13 @@ namespace AppInstaller::Repository
                         // Determine the candidate package with the latest install time
                         if (candidatePackage)
                         {
-                            std::chrono::system_clock::time_point candidateTime = GetLatestTrackingPackageWriteTime(candidatePackage);
+                            auto [candidateTime, candidateVersion] = GetLatestTrackingWriteTimeAndPackageVersion(candidatePackage);
 
                             if (!trackingPackage || candidateTime > trackingPackageTime)
                             {
                                 trackedSource = source;
                                 trackingPackage = std::move(candidatePackage);
+                                trackingPackageVersion = std::move(candidateVersion);
                                 trackingPackageTime = candidateTime;
                             }
                         }
@@ -997,7 +1023,7 @@ namespace AppInstaller::Repository
                     }
 
                     compositePackage->SetAvailablePackage(std::move(availablePackage));
-                    compositePackage->SetTracking(std::move(trackedSource), std::move(trackingPackage));
+                    compositePackage->SetTracking(std::move(trackedSource), std::move(trackingPackage), std::move(trackingPackageVersion));
                 }
 
                 // Move the installed result into the composite result
@@ -1054,7 +1080,9 @@ namespace AppInstaller::Repository
                             std::move(installedPackage),
                             GetTrackedPackageFromAvailableSource(result, source, match.Package->GetProperty(PackageProperty::Id)));
 
-                        compositePackage->SetTracking(source, std::move(match.Package));
+                        auto [writeTime, trackingPackageVersion] = GetLatestTrackingWriteTimeAndPackageVersion(match.Package);
+
+                        compositePackage->SetTracking(source, std::move(match.Package), std::move(trackingPackageVersion));
 
                         result.Matches.emplace_back(std::move(compositePackage), match.MatchCriteria);
                     }

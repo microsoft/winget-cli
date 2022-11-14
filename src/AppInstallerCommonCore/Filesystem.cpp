@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Public/AppInstallerStrings.h"
+#include "public/winget/Filesystem.h"
 
 namespace AppInstaller::Filesystem
 {
@@ -130,5 +131,74 @@ namespace AppInstaller::Filesystem
         // Create a copy of the file; the installer will be left in the temp directory afterward
         // but it is better to succeed the operation and leave a file around than to fail.
         std::filesystem::copy_file(from, to, std::filesystem::copy_options::overwrite_existing);
+    }
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    static bool* s_CreateSymlinkResult_TestHook_Override = nullptr;
+
+    void TestHook_SetCreateSymlinkResult_Override(bool* status)
+    {
+        s_CreateSymlinkResult_TestHook_Override = status;
+    }
+#endif
+
+    bool CreateSymlink(const std::filesystem::path& target, const std::filesystem::path& link)
+    {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (s_CreateSymlinkResult_TestHook_Override)
+        {
+            return *s_CreateSymlinkResult_TestHook_Override;
+        }
+#endif
+        try
+        {
+            std::filesystem::create_symlink(target, link);
+            return true;
+        }
+        catch (std::filesystem::filesystem_error& error)
+        {
+            if (error.code().value() == ERROR_PRIVILEGE_NOT_HELD)
+            {
+                return false;
+            }
+            else
+            {
+                throw;
+            }
+        }
+    }
+
+    bool VerifySymlink(const std::filesystem::path& symlink, const std::filesystem::path& target)
+    {
+        const std::filesystem::path& symlinkTargetPath = std::filesystem::weakly_canonical(symlink);
+        return symlinkTargetPath == std::filesystem::weakly_canonical(target);
+    }
+
+    void AppendExtension(std::filesystem::path& target, const std::string& value)
+    {
+        if (target.extension() != value)
+        {
+            target += value;
+        }
+    }
+
+    bool SymlinkExists(const std::filesystem::path& symlinkPath)
+    {
+        return std::filesystem::is_symlink(std::filesystem::symlink_status(symlinkPath));
+    }
+
+    std::filesystem::path GetExpandedPath(const std::string& path)
+    {
+        std::string trimPath = path;
+        Utility::Trim(trimPath);
+
+        try
+        {
+            return Utility::ExpandEnvironmentVariables(Utility::ConvertToUTF16(trimPath));
+        }
+        catch (...)
+        {
+            return path;
+        }
     }
 }

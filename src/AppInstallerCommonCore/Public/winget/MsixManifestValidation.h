@@ -12,19 +12,32 @@ namespace AppInstaller::Manifest
     {
         MsixManifestValidation(ValidationError::Level validationErrorLevel) : m_validationErrorLevel(validationErrorLevel) {}
 
+        ~MsixManifestValidation();
+
         // Validate manifest for Msix packages and Msix bundles.
         std::vector<ValidationError> Validate(
             const Manifest &manifest,
             const ManifestInstaller &installer);
     private:
         std::map<std::string, std::shared_ptr<Msix::MsixInfo>> m_msixInfoCache;
+        std::vector<std::filesystem::path> m_downloadedInstallers;
         ValidationError::Level m_validationErrorLevel;
 
-        // Get Msix info from installer url, or load it from cache. Return null
-        // pointer if failed to process installer url.
-        std::shared_ptr<Msix::MsixInfo> GetMsixInfo(
-            std::string installerUrl,
-            std::vector<ValidationError>& errors);
+        // Get Msix info from url/local path, or load it from cache.
+        // Return null pointer if operation failed.
+        std::shared_ptr<Msix::MsixInfo> GetMsixInfo(std::string installerUrl);
+
+        // Get Msix info from installer url.
+        // Return null pointer if operation failed.
+        std::shared_ptr<Msix::MsixInfo> GetMsixInfoFromUrl(std::string installerUrl);
+
+        // Download and get msix info from installer local path.
+        // Return null pointer if operation failed.
+        std::shared_ptr<Msix::MsixInfo> GetMsixInfoFromLocalPath(std::string installerUrl);
+
+        // Download the installer.
+        // If the download was successful, return the destination path.
+        std::optional<std::filesystem::path> DownloadInstaller(std::string installerUrl, int retryCount);
 
         // Get manifest installer minimum OS version or nullopt if failed to
         // parse input.

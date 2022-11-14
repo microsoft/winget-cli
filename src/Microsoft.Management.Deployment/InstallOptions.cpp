@@ -112,6 +112,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         m_allowUpgradeToUnknownVersion = value;
     }
+    bool InstallOptions::Force()
+    {
+        return m_force;
+    }
+    void InstallOptions::Force(bool value)
+    {
+        m_force = value;
+    }
 
     CoCreatableMicrosoftManagementDeploymentClass(InstallOptions);
 }

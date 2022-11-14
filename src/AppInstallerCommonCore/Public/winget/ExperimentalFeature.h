@@ -25,6 +25,7 @@ namespace AppInstaller::Settings
             // Before making DirectMSI non-experimental, it should be part of manifest validation.
             DirectMSI = 0x2,
             ZipInstall = 0x4,
+            OpenLogsArgument = 0x8,
             Max, // This MUST always be after all experimental features
 
             // Features listed after Max will not be shown with the features command

@@ -116,6 +116,8 @@ namespace AppInstaller::CLI::Workflow
                 {
                 case ExpectedReturnCodeEnum::PackageInUse:
                     return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE, Resource::String::InstallFlowReturnCodePackageInUse);
+                case ExpectedReturnCodeEnum::PackageInUseByApplication:
+                    return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE_BY_APPLICATION, Resource::String::InstallFlowReturnCodePackageInUseByApplication);
                 case ExpectedReturnCodeEnum::InstallInProgress:
                     return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_INSTALL_IN_PROGRESS, Resource::String::InstallFlowReturnCodeInstallInProgress);
                 case ExpectedReturnCodeEnum::FileInUse:
@@ -126,6 +128,8 @@ namespace AppInstaller::CLI::Workflow
                     return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_DISK_FULL, Resource::String::InstallFlowReturnCodeDiskFull);
                 case ExpectedReturnCodeEnum::InsufficientMemory:
                     return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_INSUFFICIENT_MEMORY, Resource::String::InstallFlowReturnCodeInsufficientMemory);
+                case ExpectedReturnCodeEnum::InvalidParameter:
+                    return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_INVALID_PARAMETER, Resource::String::InstallFlowReturnCodeInvalidParameter);
                 case ExpectedReturnCodeEnum::NoNetwork:
                     return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_NO_NETWORK, Resource::String::InstallFlowReturnCodeNoNetwork);
                 case ExpectedReturnCodeEnum::ContactSupport:
@@ -144,6 +148,8 @@ namespace AppInstaller::CLI::Workflow
                     return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_DOWNGRADE, Resource::String::InstallFlowReturnCodeDowngrade);
                 case ExpectedReturnCodeEnum::BlockedByPolicy:
                     return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_BLOCKED_BY_POLICY, Resource::String::InstallFlowReturnCodeBlockedByPolicy);
+                case ExpectedReturnCodeEnum::SystemNotSupported:
+                    return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED, Resource::String::InstallFlowReturnCodeSystemNotSupported);
                 default:
                     THROW_HR(E_UNEXPECTED);
                 }
@@ -165,8 +171,6 @@ namespace AppInstaller::CLI::Workflow
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_APPLICABLE_INSTALLER);
         }
 
-        context << EnsureSupportForInstall;
-        
         // This installer cannot be run elevated, but we are running elevated.
         // Implementation of de-elevation is complex; simply block for now.
         if (installer->ElevationRequirement == ElevationRequirementEnum::ElevationProhibited && Runtime::IsRunningAsAdmin())
@@ -174,6 +178,8 @@ namespace AppInstaller::CLI::Workflow
             context.Reporter.Error() << Resource::String::InstallerProhibitsElevation << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALLER_PROHIBITS_ELEVATION);
         }
+
+        context << EnsureSupportForInstall;
     }
 
     void CheckForUnsupportedArgs(Execution::Context& context)
@@ -310,6 +316,7 @@ namespace AppInstaller::CLI::Workflow
     void ArchiveInstall(Execution::Context& context)
     {
         context <<
+            ScanArchiveFromLocalManifest <<
             ExtractFilesFromArchive <<
             VerifyAndSetNestedInstaller <<
             ExecuteInstallerForType(context.Get<Execution::Data::Installer>().value().NestedInstallerType);
@@ -334,6 +341,8 @@ namespace AppInstaller::CLI::Workflow
     void PortableInstall(Execution::Context& context)
     {
         context <<
+            InitializePortableInstaller <<
+            VerifyPackageAndSourceMatch <<
             PortableInstallImpl <<
             ReportInstallerResult("Portable"sv, APPINSTALLER_CLI_ERROR_PORTABLE_INSTALL_FAILED, true);
     }
@@ -477,7 +486,6 @@ namespace AppInstaller::CLI::Workflow
         context <<
             Workflow::EnsureFeatureEnabledForArchiveInstall <<
             Workflow::EnsureSupportForPortableInstall <<
-            Workflow::EnsureNonPortableTypeForArchiveInstall <<
             Workflow::EnsureValidNestedInstallerMetadataForArchiveInstall;
     }
 
@@ -675,9 +683,42 @@ namespace AppInstaller::CLI::Workflow
 
         auto trackingCatalog = context.Get<Data::PackageVersion>()->GetSource().GetTrackingCatalog();
 
-        trackingCatalog.RecordInstall(
+        auto version = trackingCatalog.RecordInstall(
             manifest,
             context.Get<Data::Installer>().value(),
             WI_IsFlagSet(context.GetFlags(), ContextFlag::InstallerExecutionUseUpdate));
+
+        // Record user intent values. Command args takes precedence. Then previous user intent values.
+        Repository::IPackageVersion::Metadata installedMetadata;
+        if (context.Contains(Data::InstalledPackageVersion) && context.Get<Execution::Data::InstalledPackageVersion>())
+        {
+            installedMetadata = context.Get<Data::InstalledPackageVersion>()->GetMetadata();
+        }
+
+        if (context.Args.Contains(Execution::Args::Type::InstallArchitecture))
+        {
+            version.SetMetadata(Repository::PackageVersionMetadata::UserIntentArchitecture, context.Args.GetArg(Execution::Args::Type::InstallArchitecture));
+        }
+        else
+        {
+            auto itr = installedMetadata.find(Repository::PackageVersionMetadata::UserIntentArchitecture);
+            if (itr != installedMetadata.end())
+            {
+                version.SetMetadata(Repository::PackageVersionMetadata::UserIntentArchitecture, itr->second);
+            }
+        }
+
+        if (context.Args.Contains(Execution::Args::Type::Locale))
+        {
+            version.SetMetadata(Repository::PackageVersionMetadata::UserIntentLocale, context.Args.GetArg(Execution::Args::Type::Locale));
+        }
+        else
+        {
+            auto itr = installedMetadata.find(Repository::PackageVersionMetadata::UserIntentLocale);
+            if (itr != installedMetadata.end())
+            {
+                version.SetMetadata(Repository::PackageVersionMetadata::UserIntentLocale, itr->second);
+            }
+        }
     }
 }

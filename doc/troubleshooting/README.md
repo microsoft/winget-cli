@@ -34,7 +34,7 @@ Only the Windows Insider DEV channel will continue receiving pre-release builds 
 
 ### Machine-wide Provisioning
 
-The Windows Package Manager can be provisioned machine-wide or for each new user. The following PowerShell cmdlet can be used to provision the package machine-wide. The latest Windows Package Manager release and license can be downloaded directly from the GitHub repository. It is dependent on the [Microsoft.VCLibs](https://docs.microsoft.com/en-us/troubleshoot/cpp/c-runtime-packages-desktop-bridge) desktop framework package, which needs to be downloaded and specified in the dependency path option in the cmdlet.
+The Windows Package Manager can be provisioned machine-wide or for each new user. The following PowerShell cmdlet can be used to provision the package machine-wide. The latest Windows Package Manager release and license can be downloaded directly from the GitHub repository. It is dependent on the [Microsoft.VCLibs](https://docs.microsoft.com/troubleshoot/cpp/c-runtime-packages-desktop-bridge) desktop framework package, which needs to be downloaded and specified in the dependency path option in the cmdlet.
 
   >`Add-AppxProvisionedPackage -online -PackagePath <desktop AppInstaller msixbundle package path> -LicensePath <license path> -DependencyPackagePath <Microsoft.VCLibs package path>`
 
@@ -96,7 +96,10 @@ These errors most commonly occur for one of following reasons. Please try out th
 
 2. The App Execution Alias for the Windows Package Manager is disabled. You should enable the App Execution Alias for the Windows Package Manager. Go to `App execution aliases` option in `Apps & features Settings` to enable it.
 3. The App Installer did not automatically add the PATH environment variable. You should add the path environment variable. The value to add is "%userprofile%\AppData\Local\Microsoft\WindowsApps". You can verify this by running `%LOCALAPPDATA%\Microsoft\WindowsApps\winget` from a command-prompt or  `& "$env:LOCALAPPDATA\Microsoft\WindowsApps\winget"` from a powershell. If the command runs then, but not before, then you very likely have a missing PATH environment component.
-4. Apps deployed on the machine are registered per user by default. If App Installer was installed on a different user account than the one you are trying to run it on, you will have to reinstall it again on this account and try again.
+4. Apps deployed on the machine are registered per user by default. If App Installer was installed on a different user account than the one you are trying to run it on, you will have to reinstall it again on this account and try again:
+   1. Get the `PackageFullName` of your installed `App Installer` package (PowerShell): `Get-AppxPackage Microsoft.DesktopAppInstaller | Select Name, PackageFullName`.
+   2. `Add-AppxPackage -register "C:\Program Files\WindowsApps\{PackageFullName}\appxmanifest.xml" -DisableDevelopmentMode` (where `{PackageFullName}` is the info from the previous point).
+   3. Toggle the App Execution Alias for winget, again (see above).
 
 If the above guidelines do not resolve the problem, please open an issue with details of the Windows version and App Installer version you are using.
 
@@ -124,7 +127,7 @@ Install failed: error 0x80070490: Opening the package from location appxbundle_N
 0x80070490 : Element not found.
 ```
 
-A possible troubleshooting step is to install the [KB5005565](https://support.microsoft.com/en-us/topic/september-14-2021-kb5005565-os-builds-19041-1237-19042-1237-and-19043-1237-292cf8ed-f97b-4cd8-9883-32b71e3e6b44) update, reboot your machine and try installing the appxbundle again.
+A possible troubleshooting step is to install the [KB5005565](https://support.microsoft.com/topic/september-14-2021-kb5005565-os-builds-19041-1237-19042-1237-and-19043-1237-292cf8ed-f97b-4cd8-9883-32b71e3e6b44) update, reboot your machine and try installing the appxbundle again.
 
 #### Updating Microsoft.DesktopAppInstaller from version 1.0.42251.0 doesn't render package name on Windows 11 Pro image in Azure
 

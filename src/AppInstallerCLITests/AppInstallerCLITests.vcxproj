@@ -211,7 +211,10 @@
     <ClCompile Include="MsixManifest.cpp" />
     <ClCompile Include="NameNormalization.cpp" />
     <ClCompile Include="PackageCollection.cpp" />
+    <ClCompile Include="PackageDependenciesValidationUtil.cpp" />
     <ClCompile Include="PackageTrackingCatalog.cpp" />
+    <ClCompile Include="PortableInstaller.cpp" />
+    <ClCompile Include="PortableIndex.cpp" />
     <ClCompile Include="PredefinedInstalledSource.cpp" />
     <ClCompile Include="PreIndexedPackageSource.cpp" />
     <ClCompile Include="Regex.cpp" />
@@ -221,6 +224,7 @@
     <ClCompile Include="RestHelper.cpp" />
     <ClCompile Include="RestInterface_1_0.cpp" />
     <ClCompile Include="RestInterface_1_1.cpp" />
+    <ClCompile Include="RestInterface_1_4.cpp" />
     <ClCompile Include="Runtime.cpp" />
     <ClCompile Include="SearchRequestSerializer.cpp" />
     <ClCompile Include="SQLiteIndexSource.cpp" />
@@ -252,6 +256,9 @@
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="TestData\Manifest-Good.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallFlowTest_EncodedUrl.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_Exe.yaml">
@@ -296,7 +303,7 @@
     <CopyFileToFolders Include="TestData\InstallFlowTest_UnsupportedArguments.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\InstallFlowTest_ZipWithExe.yaml">
+    <CopyFileToFolders Include="TestData\InstallFlowTest_Zip_Exe.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_Zip_MissingNestedInstaller.yaml">
@@ -435,6 +442,12 @@
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypePortable-InvalidCommands.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypeZip-DuplicateCommandAlias.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypeZip-DuplicateRelativeFilePath.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-InstallerTypeZip-InvalidRelativeFilePath.yaml">
@@ -632,7 +645,7 @@
     <CopyFileToFolders Include="TestData\UpdateFlowTest_Portable.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\UpdateFlowTest_ZipWithExe.yaml">
+    <CopyFileToFolders Include="TestData\UpdateFlowTest_Zip_Exe.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InputNames.txt">
@@ -656,7 +669,7 @@
     <CopyFileToFolders Include="TestData\ManifestV1_2-Singleton.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\ManifestV1_3-Singleton.yaml">
+    <CopyFileToFolders Include="TestData\ManifestV1_4-Singleton.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\MultiFileManifestV1\ManifestV1-MultiFile-DefaultLocale.yaml">
@@ -695,16 +708,16 @@
     <CopyFileToFolders Include="TestData\MultiFileManifestV1_2\ManifestV1_2-MultiFile-Version.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\MultiFileManifestV1_3\ManifestV1_3-MultiFile-DefaultLocale.yaml">
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_4\ManifestV1_4-MultiFile-DefaultLocale.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\MultiFileManifestV1_3\ManifestV1_3-MultiFile-Installer.yaml">
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_4\ManifestV1_4-MultiFile-Installer.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\MultiFileManifestV1_3\ManifestV1_3-MultiFile-Locale.yaml">
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_4\ManifestV1_4-MultiFile-Locale.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\MultiFileManifestV1_3\ManifestV1_3-MultiFile-Version.yaml">
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_4\ManifestV1_4-MultiFile-Version.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Installer_Exe_Dependencies.yaml">
@@ -783,6 +796,9 @@
     </ProjectReference>
     <ProjectReference Include="..\YamlCppLib\YamlCppLib.vcxproj">
       <Project>{8bb94bb8-374f-4294-bca1-c7811514a6b7}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\PureLib\PureLib.vcxproj">
+      <Project>{bb14d603-f44e-4415-8770-bf3e13f4c17f}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

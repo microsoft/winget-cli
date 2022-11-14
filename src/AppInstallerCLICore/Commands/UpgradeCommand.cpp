@@ -8,10 +8,12 @@
 #include "Workflows/WorkflowBase.h"
 #include "Workflows/DependenciesFlow.h"
 #include "Resources.h"
+#include <winget/LocIndependent.h>
 
 using namespace AppInstaller::CLI::Execution;
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::CLI::Workflow;
+using namespace AppInstaller::Utility::literals;
 
 namespace AppInstaller::CLI
 {
@@ -83,27 +85,30 @@ namespace AppInstaller::CLI
     std::vector<Argument> UpgradeCommand::GetArguments() const
     {
         return {
-            Argument::ForType(Args::Type::Query),
-            Argument::ForType(Args::Type::Manifest),
+            Argument::ForType(Args::Type::Query),           // -q
+            Argument::ForType(Args::Type::Manifest),        // -m
             Argument::ForType(Args::Type::Id),
             Argument::ForType(Args::Type::Name),
             Argument::ForType(Args::Type::Moniker),
-            Argument::ForType(Args::Type::Version),
+            Argument::ForType(Args::Type::Version),         // -v
             Argument::ForType(Args::Type::Channel),
-            Argument::ForType(Args::Type::Source),
-            Argument::ForType(Args::Type::Exact),
-            Argument::ForType(Args::Type::Interactive),
-            Argument::ForType(Args::Type::Silent),
+            Argument::ForType(Args::Type::Source),          // -s
+            Argument::ForType(Args::Type::Exact),           // -e
+            Argument::ForType(Args::Type::Interactive),     // -i
+            Argument::ForType(Args::Type::Silent),          // -h
             Argument::ForType(Args::Type::Purge),
-            Argument::ForType(Args::Type::Log),
+            Argument::ForType(Args::Type::Log),             // -o
             Argument::ForType(Args::Type::Override),
-            Argument::ForType(Args::Type::InstallLocation),
+            Argument::ForType(Args::Type::InstallLocation), // -l
+            Argument::ForType(Args::Type::InstallArchitecture), // -a
+            Argument::ForType(Args::Type::Locale),
             Argument::ForType(Args::Type::HashOverride),
             Argument::ForType(Args::Type::AcceptPackageAgreements),
             Argument::ForType(Args::Type::AcceptSourceAgreements),
             Argument::ForType(Execution::Args::Type::CustomHeader),
-            Argument{ "all", Argument::NoAlias, Args::Type::All, Resource::String::UpdateAllArgumentDescription, ArgumentType::Flag },
-            Argument{ "include-unknown", Argument::NoAlias, Args::Type::IncludeUnknown, Resource::String::IncludeUnknownArgumentDescription, ArgumentType::Flag },
+            Argument{ "all"_liv, 'r', "recurse"_liv, Args::Type::All, Resource::String::UpdateAllArgumentDescription, ArgumentType::Flag },
+            Argument{ "include-unknown"_liv, 'u', "unknown"_liv, Args::Type::IncludeUnknown, Resource::String::IncludeUnknownArgumentDescription, ArgumentType::Flag },
+            Argument::ForType(Args::Type::Force),
         };
     }
 
@@ -148,6 +153,13 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::Source:
             context <<
                 CompleteWithSingleSemanticsForValueUsingExistingSource(valueType);
+            break;
+        case Args::Type::InstallArchitecture:
+        case Args::Type::Locale:
+            // May well move to CompleteWithSingleSemanticsForValue,
+            // but for now output nothing.
+            context <<
+                Workflow::CompleteWithEmptySet;
             break;
         }
     }
@@ -235,30 +247,7 @@ namespace AppInstaller::CLI
         else
         {
             // The remaining case: search for single installed package to update
-            context <<
-                SearchSourceForSingle <<
-                HandleSearchResultFailures <<
-                EnsureOneMatchFromSearchResult(true) <<
-                GetInstalledPackageVersion;
-
-            if (context.Args.Contains(Execution::Args::Type::Version))
-            {
-                // If version specified, use the version and verify applicability
-                context <<
-                    GetManifestFromPackage <<
-                    EnsureUpdateVersionApplicable <<
-                    SelectInstaller <<
-                    EnsureApplicableInstaller;
-            }
-            else
-            {
-                // iterate through available versions to find latest applicable update
-                // This step also populates Manifest and Installer in context data
-                context << SelectLatestApplicableUpdate(true);
-            }
-
-            context <<
-                InstallSinglePackage;
+            context << InstallOrUpgradeSinglePackage(true);
         }
     }
 }

@@ -5,6 +5,12 @@
 
 namespace AppInstaller::CLI::Workflow
 {
+    // Scans the archive file if downloaded from a local manifest
+    // Required Args: None
+    // Inputs: InstallerPath
+    // Outputs: None
+    void ScanArchiveFromLocalManifest(Execution::Context& context);
+
     // Extracts the files from an archive
     // Required Args: None
     // Inputs: InstallerPath

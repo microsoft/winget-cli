@@ -609,7 +609,11 @@ namespace AppInstaller::CLI
             return;
         }
 
-        for (const auto& arg : GetArguments())
+        // Common arguments need to be validated with command arguments, as there may be common arguments blocked by Experimental Feature or Group Policy
+        auto allArgs = GetArguments();
+        Argument::GetCommon(allArgs);
+
+        for (const auto& arg : allArgs)
         {
             if (!Settings::GroupPolicies().IsEnabled(arg.GroupPolicy()) && execArgs.Contains(arg.ExecArgType()))
             {
@@ -667,6 +671,30 @@ namespace AppInstaller::CLI
             catch (...)
             {
                 throw CommandException(Resource::String::CountOutOfBoundsError);
+            }
+        }
+
+        if (execArgs.Contains(Execution::Args::Type::InstallArchitecture))
+        {
+            Utility::Architecture selectedArch = Utility::ConvertToArchitectureEnum(std::string(execArgs.GetArg(Execution::Args::Type::InstallArchitecture)));
+            if ((selectedArch == Utility::Architecture::Unknown) || (Utility::IsApplicableArchitecture(selectedArch) == Utility::InapplicableArchitecture))
+            {
+                std::vector<Utility::LocIndString> applicableArchitectures;
+                for (Utility::Architecture i : Utility::GetApplicableArchitectures())
+                {
+                    applicableArchitectures.emplace_back(Utility::ToString(i));
+                }
+
+                auto validOptions = Utility::Join(", "_liv, applicableArchitectures);
+                throw CommandException(Resource::String::InvalidArgumentValueError(Argument::ForType(Execution::Args::Type::InstallArchitecture).Name(), validOptions));
+            }
+        }
+
+        if (execArgs.Contains(Execution::Args::Type::Locale))
+        {
+            if (!Locale::IsWellFormedBcp47Tag(execArgs.GetArg(Execution::Args::Type::Locale)))
+            {
+                throw CommandException(Resource::String::InvalidArgumentValueErrorWithoutValidValues(Argument::ForType(Execution::Args::Type::Locale).Name()));
             }
         }
 
@@ -802,6 +830,13 @@ namespace AppInstaller::CLI
             ExecuteInternal(context);
         }
 
+        if (context.Args.Contains(Execution::Args::Type::OpenLogs))
+        {   
+            // TODO: Consider possibly adding functionality that if the context contains 'Execution::Args::Type::Log' to open the path provided for the log
+            // The above was omitted initially as a security precaution to ensure that user input to '--log' wouldn't be passed directly to ShellExecute
+            ShellExecute(NULL, NULL, Runtime::GetPathTo(Runtime::PathName::DefaultLogLocation).wstring().c_str(), NULL, NULL, SW_SHOWNORMAL);
+        }
+
         if (context.Args.Contains(Execution::Args::Type::Wait))
         {
             context.Reporter.PromptForEnter();
@@ -851,6 +886,7 @@ namespace AppInstaller::CLI
     std::vector<Argument> Command::GetVisibleArguments() const
     {
         auto arguments = GetArguments();
+        Argument::GetCommon(arguments);
 
         arguments.erase(
             std::remove_if(

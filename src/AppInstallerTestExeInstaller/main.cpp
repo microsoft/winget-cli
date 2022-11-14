@@ -47,7 +47,13 @@ path GenerateUninstaller(std::wostream& out, const path& installDirectory, const
     return uninstallerPath;
 }
 
-void WriteToUninstallRegistry(std::wostream& out, const std::wstring& productID, const path& uninstallerPath, const std::wstring& displayName, const std::wstring& displayVersion)
+void WriteToUninstallRegistry(
+    std::wostream& out,
+    const std::wstring& productID,
+    const path& uninstallerPath,
+    const std::wstring& displayName,
+    const std::wstring& displayVersion,
+    const std::wstring& installLocation)
 {
     HKEY hkey;
     LONG lReg;
@@ -115,6 +121,12 @@ void WriteToUninstallRegistry(std::wostream& out, const std::wstring& productID,
             out << "Failed to write Version value. Error Code: " << res << std::endl;
         }
 
+        // Set InstallLocation Property Value
+        if (LONG res = RegSetValueEx(hkey, L"InstallLocation", NULL, REG_SZ, (LPBYTE)installLocation.c_str(), (DWORD)(installLocation.length() + 1) * sizeof(wchar_t)) != ERROR_SUCCESS)
+        {
+            out << "Failed to write InstallLocation value. Error Code: " << res << std::endl;
+        }
+
         out << "Write to registry key completed" << std::endl;
     }
     else {
@@ -168,6 +180,7 @@ int wmain(int argc, const wchar_t** argv)
             if (++i < argc)
             {
                 productCode = argv[i];
+                outContent << argv[i] << ' ';
             }
         }
 
@@ -177,6 +190,7 @@ int wmain(int argc, const wchar_t** argv)
             if (++i < argc)
             {
                 displayName = argv[i];
+                outContent << argv[i] << ' ';
             }
         }
 
@@ -186,6 +200,7 @@ int wmain(int argc, const wchar_t** argv)
             if (++i < argc)
             {
                 displayVersion = argv[i];
+                outContent << argv[i] << ' ';
             }
         }
 
@@ -196,6 +211,7 @@ int wmain(int argc, const wchar_t** argv)
             {
                 logFile = std::wofstream(argv[i], std::wofstream::out | std::wofstream::trunc);
                 out = &logFile;
+                outContent << argv[i] << ' ';
             }
         }
     }
@@ -220,7 +236,7 @@ int wmain(int argc, const wchar_t** argv)
 
     path uninstallerPath = GenerateUninstaller(*out, installDirectory, productCode);
 
-    WriteToUninstallRegistry(*out, productCode, uninstallerPath, displayName, displayVersion);
+    WriteToUninstallRegistry(*out, productCode, uninstallerPath, displayName, displayVersion, installDirectory.wstring());
 
     return exitCode;
 }

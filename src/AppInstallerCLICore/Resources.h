@@ -27,6 +27,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(AdminSettingDisableDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(AdminSettingEnabled);
         WINGET_DEFINE_RESOURCE_STRINGID(AdminSettingEnableDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ArchiveFailedMalwareScan);
+        WINGET_DEFINE_RESOURCE_STRINGID(ArchiveFailedMalwareScanOverridden);
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableArguments);
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableCommandAliases);
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableCommands);
@@ -44,6 +46,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(CommandRequiresAdmin);
         WINGET_DEFINE_RESOURCE_STRINGID(CompleteCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(CompleteCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConvertInstallFlowToUpgrade);
         WINGET_DEFINE_RESOURCE_STRINGID(CountArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(CountOutOfBoundsError);
         WINGET_DEFINE_RESOURCE_STRINGID(DependenciesFlowInstall);
@@ -72,6 +75,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ExportSourceArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ExternalDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(ExtractArchiveFailed);
+        WINGET_DEFINE_RESOURCE_STRINGID(ExtractArchiveSucceeded);
+        WINGET_DEFINE_RESOURCE_STRINGID(ExtractingArchive);
         WINGET_DEFINE_RESOURCE_STRINGID(ExtraPositionalError);
         WINGET_DEFINE_RESOURCE_STRINGID(FeatureDisabledByAdminSettingMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(FeatureDisabledMessage);
@@ -89,9 +94,11 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(FileArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(FilesRemainInInstallDirectory);
         WINGET_DEFINE_RESOURCE_STRINGID(FlagContainAdjoinedError);
+        WINGET_DEFINE_RESOURCE_STRINGID(ForceArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(GetManifestResultVersionNotFound);
         WINGET_DEFINE_RESOURCE_STRINGID(HashCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(HashCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(HashOverrideArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(HeaderArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(HeaderArgumentNotApplicableForNonRestSourceWarning);
         WINGET_DEFINE_RESOURCE_STRINGID(HeaderArgumentNotApplicableWithoutSource);
@@ -149,14 +156,16 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeFileInUse);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeInstallInProgress);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeInsufficientMemory);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeInvalidParameter);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeMissingDependency);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeNoNetwork);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodePackageInUse);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodePackageInUseByApplication);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeRebootInitiated);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeRebootRequiredForInstall);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeRebootRequiredToFinish);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeSystemNotSupported);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowStartingPackageInstall);
-        WINGET_DEFINE_RESOURCE_STRINGID(InstallForceArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallLocationNotProvided);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallScopeDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(InteractiveArgumentDescription);
@@ -210,7 +219,9 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(NoPackagesFoundInImportFile);
         WINGET_DEFINE_RESOURCE_STRINGID(Notes);
         WINGET_DEFINE_RESOURCE_STRINGID(NoUninstallInfoFound);
+        WINGET_DEFINE_RESOURCE_STRINGID(NoUpgradeArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(NoVTArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(OpenLogsArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(OpenSourceFailedNoMatch);
         WINGET_DEFINE_RESOURCE_STRINGID(OpenSourceFailedNoMatchHelp);
         WINGET_DEFINE_RESOURCE_STRINGID(OpenSourceFailedNoSourceDefined);
@@ -221,6 +232,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(Package);
         WINGET_DEFINE_RESOURCE_STRINGID(PackageAgreementsNotAgreedTo);
         WINGET_DEFINE_RESOURCE_STRINGID(PackageAgreementsPrompt);
+        WINGET_DEFINE_RESOURCE_STRINGID(PackageAlreadyInstalled);
         WINGET_DEFINE_RESOURCE_STRINGID(PackageDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(PendingWorkError);
         WINGET_DEFINE_RESOURCE_STRINGID(PoliciesDisabled);
@@ -229,8 +241,9 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(PoliciesState);
         WINGET_DEFINE_RESOURCE_STRINGID(PortableHashMismatchOverridden);
         WINGET_DEFINE_RESOURCE_STRINGID(PortableHashMismatchOverrideRequired);
+        WINGET_DEFINE_RESOURCE_STRINGID(PortableAliasAdded);
         WINGET_DEFINE_RESOURCE_STRINGID(PortableInstallFailed);
-        WINGET_DEFINE_RESOURCE_STRINGID(PortableInstallFromArchiveNotSupported);
+        WINGET_DEFINE_RESOURCE_STRINGID(PortablePackageAlreadyExists);
         WINGET_DEFINE_RESOURCE_STRINGID(PortableRegistryCollisionOverridden);
         WINGET_DEFINE_RESOURCE_STRINGID(PositionArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PreserveArgumentDescription);
@@ -299,6 +312,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelPublisher);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelPublisherSupportUrl);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelPublisherUrl);
+        WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelPurchaseUrl);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelReleaseNotes);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelReleaseNotesUrl);
         WINGET_DEFINE_RESOURCE_STRINGID(ShowLabelTags);
@@ -361,7 +375,6 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(SourceUpdateCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceUpdateOne);
         WINGET_DEFINE_RESOURCE_STRINGID(SystemArchitecture);
-        WINGET_DEFINE_RESOURCE_STRINGID(SymlinkModified);
         WINGET_DEFINE_RESOURCE_STRINGID(TagArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ThankYou);
         WINGET_DEFINE_RESOURCE_STRINGID(ThirdPartSoftwareNotices);

@@ -35,13 +35,14 @@ namespace AppInstaller::CLI::Execution
             Silent,
             Locale,
             Log,
-            Override, //Override args are (and the only args) directly passed to installer
+            Override, // Override args are (and the only args) directly passed to installer
             InstallLocation,
             InstallScope,
             InstallArchitecture,
             HashOverride, // Ignore hash mismatches
             AcceptPackageAgreements, // Accept all license agreements for packages
             Rename, // Renames the file of the executable. Only applies to the portable installerType
+            NoUpgrade, // Install flow should not try to convert to upgrade flow upon finding existing installed version
 
             // Uninstall behavior
             Purge, // Removes all files and directories related to a package during an uninstall. Only applies to the portable installerType.
@@ -95,6 +96,8 @@ namespace AppInstaller::CLI::Execution
             VerboseLogs, // Increases winget logging level to verbose
             DisableInteractivity, // Disable interactive prompts
             Wait, // Prompts the user to press any key before exiting
+            OpenLogs, // Opens the default logs directory after executing the command
+            Force, // Forces the execution of the workflow with non security related issues
 
             DependencySource, // Index source to be queried against for finding dependencies
             CustomHeader, // Optional Rest source header

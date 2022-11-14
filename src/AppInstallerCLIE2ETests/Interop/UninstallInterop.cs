@@ -198,7 +198,7 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Uninstall
             var uninstallResult = await packageManager.UninstallPackageAsync(searchResult.CatalogPackage, TestFactory.CreateUninstallOptions());
-            Assert.AreEqual(UninstallResultStatus.Ok, uninstallResult.Status);
+            Assert.AreEqual(UninstallResultStatus.UninstallError, uninstallResult.Status);
             Assert.True(modifiedSymlinkInfo.Exists, "Modified symlink should still exist");
 
             // Remove modified symlink as to not interfere with other tests

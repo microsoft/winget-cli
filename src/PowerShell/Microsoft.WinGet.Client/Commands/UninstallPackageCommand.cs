@@ -30,6 +30,12 @@ namespace Microsoft.WinGet.Client.Commands
         public PackageUninstallMode Mode { get; set; } = PackageUninstallMode.Default;
 
         /// <summary>
+        /// Gets or sets a value indicating whether to continue upon non security related failures.
+        /// </summary>
+        [Parameter(ValueFromPipelineByPropertyName = true)]
+        public SwitchParameter Force { get; set; }
+
+        /// <summary>
         /// Uninstalls a package from the local system.
         /// </summary>
         protected override void ProcessRecord()
@@ -45,6 +51,7 @@ namespace Microsoft.WinGet.Client.Commands
         private UninstallOptions GetUninstallOptions(PackageVersionId version)
         {
             var options = ComObjectFactory.Value.CreateUninstallOptions();
+            options.Force = this.Force.ToBool();
             if (this.Log != null)
             {
                 options.LogOutputPath = this.Log;

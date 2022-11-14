@@ -53,6 +53,9 @@ namespace AppInstaller::Utility {
         // Computes the hash from a given stream.
         static HashBuffer ComputeHash(std::istream& in);
 
+        // Computes the hash from a given file path.
+        static HashBuffer ComputeHashFromFile(const std::filesystem::path& path);
+
         static std::string ConvertToString(const HashBuffer& hashBuffer);
 
         static std::wstring ConvertToWideString(const HashBuffer& hashBuffer);
