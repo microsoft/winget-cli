@@ -18,13 +18,6 @@ namespace AppInstallerCLIE2ETests
             TestCommon.RunAICLICommand("source add", $"-n {Constants.TestSourceName} {Constants.TestSourceUrl}");
         }
 
-        [OneTimeTearDown]
-        public void TearDown()
-        {
-            // Remove-WinGetPackage is a function and not a cmdlet that uses COM. Remove source from WinGetDev directory to ensure clean state.
-            TestCommon.RunAICLICommand("source remove", $"-n {Constants.TestSourceName}");
-        }
-
         [Test]
         public void GetWinGetSource()
         {
