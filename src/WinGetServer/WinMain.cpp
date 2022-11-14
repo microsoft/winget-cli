@@ -29,11 +29,6 @@ static void _releaseNotifier() noexcept
 
 HRESULT WindowsPackageManagerServerInitializeRPCServer()
 {
-    if (true)
-    {
-        RETURN_HR(E_FAIL);
-    }
-
     std::string userSID = GetUserSID();
     std::string endpoint = "\\pipe\\WinGetServerManualActivation_" + userSID;
     RPC_STATUS status = RpcServerUseProtseqEpA(GetUCharString("ncacn_np"), RPC_C_PROTSEQ_MAX_REQS_DEFAULT, GetUCharString(endpoint), nullptr);
