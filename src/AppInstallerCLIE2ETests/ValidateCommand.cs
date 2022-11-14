@@ -7,7 +7,7 @@ namespace AppInstallerCLIE2ETests
 
     public class ValidateCommand : BaseCommand
     {
-        [Test]
+        [Test] 
         public void ValidateManifest()
         {
             var result = TestCommon.RunAICLICommand("validate", TestCommon.GetTestDataFile("Manifests\\TestValidManifest.yaml"));

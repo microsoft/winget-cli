@@ -44,7 +44,7 @@ namespace AppInstallerCLIE2ETests
 
         [Test]
         public void ShowWithIDMatch()
-        {
+        { 
             var result = TestCommon.RunAICLICommand("show", $"--id appinstallertest.testexampleinstaller");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Found TestExampleInstaller [AppInstallerTest.TestExampleInstaller]"));

@@ -22,7 +22,7 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
         [SetUp]
         public void SetUp()
         {
-            this.sqlitePath = TestCommon.GetRandomTestFile(".sql");
+             this.sqlitePath = TestCommon.GetRandomTestFile(".sql");
         }
 
         [Test]
@@ -42,7 +42,7 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
             {
                 // Add manifest
                 WinGetUtilWrapper.WinGetSQLiteIndexAddManifest(indexHandle, addManifestsFile_1, relativePath_1);
-
+                
                 // Update manifest
                 WinGetUtilWrapper.WinGetSQLiteIndexUpdateManifest(indexHandle, updateManifestsFile_1, relativePath_1, out bool indexModified);
                 Assert.True(indexModified);
@@ -69,7 +69,7 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
             {
                 // Add manifest
                 WinGetUtilWrapper.WinGetSQLiteIndexAddManifest(indexHandle, addManifestsFile_1, relativePath_1);
-
+                
                 // Remove manifest
                 WinGetUtilWrapper.WinGetSQLiteIndexRemoveManifest(indexHandle, addManifestsFile_1, relativePath_1);
             });
@@ -131,7 +131,7 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
             WinGetUtilWrapper.WinGetSQLiteIndexCreate(sqlitePath, majorVersion, minorVersion, out IntPtr indexHandle);
             Assert.True(File.Exists(sqlitePath));
             Assert.AreNotEqual(IntPtr.Zero, indexHandle);
-
+            
             // Execute provided function
             Execute(indexHandle);
 
