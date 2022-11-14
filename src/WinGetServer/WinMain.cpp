@@ -101,7 +101,7 @@ extern "C" HRESULT CreateInstance(
 
 int __stdcall wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR cmdLine, _In_ int)
 {
-    wil::SetResultLoggingCallback(&WindowsPackageManagerServerLogWilResult);
+    wil::SetResultLoggingCallback(&WindowsPackageManagerServerWilResultCallback);
 
     RETURN_IF_FAILED(CoInitializeEx(nullptr, COINIT_MULTITHREADED));
 

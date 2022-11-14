@@ -4,11 +4,12 @@
 namespace AppInstallerCLIE2ETests
 {
     using NUnit.Framework;
+    using System;
 
     /// <summary>
     /// Basic E2E tests for verifying that behavior of the PowerShell module cmdlets.
     /// </summary>
-    public class APowerShellModule
+    public class PowerShellModule
     {
         [OneTimeSetUp]
         public void Setup()
@@ -27,22 +28,38 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void GetWinGetSource()
         {
+            // Running the x86 PowerShell Module requires PowerShell Core (x86). The tests currently only target PowerShell Core (x64)
+            if (!Environment.Is64BitProcess)
+            {
+                return;
+            }
+
             var getSourceResult = TestCommon.RunPowerShellCommandWithResult(Constants.GetSourceCmdlet, $"-Name {Constants.TestSourceName}");
             Assert.IsTrue(getSourceResult.ExitCode == 0, $"ExitCode: {getSourceResult.ExitCode} Failed with the following output: {getSourceResult.StdOut}, {getSourceResult.StdErr}");
             Assert.IsTrue(getSourceResult.StdOut.Contains($"{Constants.TestSourceName}"));
         }
 
-        //[Test]
+        [Test]
         public void FindWinGetPackage()
         {
+            if (!Environment.Is64BitProcess)
+            {
+                return;
+            }
+
             var result = TestCommon.RunPowerShellCommandWithResult(Constants.FindCmdlet, $"-Id {Constants.ExeInstallerPackageId}");
             Assert.IsTrue(result.ExitCode == 0, $"ExitCode: {result.ExitCode} Failed with the following output: {result.StdOut}; {result.StdErr}");
             Assert.IsTrue(result.StdOut.Contains("TestExeInstaller"));
         }
 
-        //[Test]
+        [Test]
         public void GetWinGetPackage()
         {
+            if (!Environment.Is64BitProcess)
+            {
+                return;
+            }
+
             var installResult = TestCommon.RunPowerShellCommandWithResult(Constants.InstallCmdlet, $"-Id {Constants.MsiInstallerPackageId}");
             var getResult = TestCommon.RunPowerShellCommandWithResult(Constants.GetCmdlet, $"-Id {Constants.MsiInstallerPackageId}");
             var uninstallResult = TestCommon.RunPowerShellCommandWithResult(Constants.UninstallCmdlet, $"-Id {Constants.MsiInstallerPackageId}");
@@ -56,9 +73,14 @@ namespace AppInstallerCLIE2ETests
             Assert.IsTrue(!string.IsNullOrEmpty(uninstallResult.StdOut));
         }
 
-        //[Test]
+        [Test]
         public void InstallWinGetPackage()
         {
+            if (!Environment.Is64BitProcess)
+            {
+                return;
+            }
+
             var installResult = TestCommon.RunPowerShellCommandWithResult(Constants.InstallCmdlet, $"-Id {Constants.ExeInstallerPackageId}");
             var uninstallResult = TestCommon.RunPowerShellCommandWithResult(Constants.UninstallCmdlet, $"-Id {Constants.ExeInstallerPackageId}");
 
@@ -69,9 +91,14 @@ namespace AppInstallerCLIE2ETests
             Assert.IsTrue(!string.IsNullOrEmpty(uninstallResult.StdOut));
         }
 
-        //[Test]
+        [Test]
         public void UpdateWinGetPackage()
         {
+            if (!Environment.Is64BitProcess)
+            {
+                return;
+            }
+
             var installResult = TestCommon.RunPowerShellCommandWithResult(Constants.InstallCmdlet, $"-Id {Constants.ExeInstallerPackageId} -Version 1.0.0.0");
             var updateResult = TestCommon.RunPowerShellCommandWithResult(Constants.UpdateCmdlet, $"-Id {Constants.ExeInstallerPackageId}");
             var getResult = TestCommon.RunPowerShellCommandWithResult(Constants.GetCmdlet, $"-Id {Constants.ExeInstallerPackageId}");

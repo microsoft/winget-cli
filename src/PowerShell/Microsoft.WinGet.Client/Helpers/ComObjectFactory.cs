@@ -114,19 +114,14 @@ namespace Microsoft.WinGet.Client.Factories
 
                 int hr = WinGetServerManualActivation_CreateInstance(type.GUID, iid, 0, out instance);
 
-                if (hr != 0)
+                if (hr == ErrorCode.ERROR_FILE_NOT_FOUND)
                 {
-                    throw new COMException($"Failed with error code {hr}.", hr);
+                    throw new Exception(Utilities.ResourceManager.GetString("WinGetPackageNotInstalled"));
                 }
-                //if (hr == ErrorCode.ERROR_FILE_NOT_FOUND)
-                //{
-                //    throw new Exception(Utilities.ResourceManager.GetString("WinGetPackageNotInstalled"));
-                //}
-                //else if (hr != 0)
-                //{
-                //    Console.WriteLine($"Error code: {hr}");
-                //    throw new COMException("Failed to create instance.", hr);
-                //}
+                else if (hr != 0)
+                {
+                    throw new COMException($"Failed to create instance: {hr}", hr);
+                }
             }
             else
             {

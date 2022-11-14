@@ -19,7 +19,7 @@ namespace AppInstallerCLIE2ETests
             InitializeAllFeatures(false);
         }
 
-        //[Test]
+        [Test]
         public void DisplayFeatures()
         {
             var result = TestCommon.RunAICLICommand("features", "");
@@ -28,7 +28,7 @@ namespace AppInstallerCLIE2ETests
             Assert.False(result.StdOut.Contains("Enabled"));
         }
 
-        //[Test]
+        [Test]
         public void EnableExperimentalFeatures()
         {
             ConfigureFeature("experimentalArg", true);

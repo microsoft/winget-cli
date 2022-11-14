@@ -19,7 +19,6 @@ steps:
       overrideTestrunParameters: '-PackagedContext true
                                   -AICLIPackagePath $(System.DefaultWorkingDirectory)\src\AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration)
                                   -AICLIPath AppInstallerCLI\winget.exe
-                                  -VerboseLogging true
                                   -LooseFileRegistration true
                                   -InvokeCommandInDesktopPackage true
                                   -StaticFileRootPath $(Agent.TempDirectory)\TestLocalIndex
@@ -31,7 +30,6 @@ steps:
     ${{ else }}:
       overrideTestrunParameters: '-PackagedContext false
                                   -AICLIPath $(System.DefaultWorkingDirectory)\src\AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration)\AppInstallerCLI\winget.exe
-                                  -VerboseLogging true
                                   -InvokeCommandInDesktopPackage false
                                   -StaticFileRootPath $(Agent.TempDirectory)\TestLocalIndex
                                   -MsiTestInstallerPath $(System.DefaultWorkingDirectory)\src\AppInstallerCLIE2ETests\TestData\AppInstallerTestMsiInstaller.msi

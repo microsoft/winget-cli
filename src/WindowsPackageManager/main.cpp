@@ -60,7 +60,7 @@ extern "C"
     }
     CATCH_RETURN();
 
-    void WINDOWS_PACKAGE_MANAGER_API_CALLING_CONVENTION WindowsPackageManagerServerLogWilResult(const wil::FailureInfo& failure) noexcept try
+    void WINDOWS_PACKAGE_MANAGER_API_CALLING_CONVENTION WindowsPackageManagerServerWilResultCallback(const wil::FailureInfo& failure) noexcept try
     {
         AICLI_LOG(Fail, Error, << [&]() {
             wchar_t message[2048];

@@ -102,12 +102,6 @@
         <Copy SourceFiles="Microsoft.WinGet.Client.psm1" DestinationFolder="$(PowerShellModuleOutputDirectory)" />
     </Target>
     
-    <!-- Copy manifest to specifically target x86 module -->
-    <Target Name="CopyX86ModuleManifest" AfterTargets="AfterBuild" Condition = "'$(Platform)' == 'x86'">
-        <Message Importance="high" Text="Copying x86 module manifest file" />
-        <Copy SourceFiles="ModuleManifest-x86\Microsoft.WinGet.Client.psd1" DestinationFolder="$(PowerShellModuleOutputDirectory)" />
-    </Target>
-    
     <Target Name="CopyCoreBinaries" AfterTargets="AfterBuild" Condition="'$(TargetFramework)' == '$(CoreFramework)'">
         <ItemGroup>
             <CoreBinaries Include="$(OutputPath)*" />

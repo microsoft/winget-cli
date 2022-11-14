@@ -25,7 +25,7 @@ namespace AppInstallerCLIE2ETests
             GroupPolicyHelper.DeleteExistingPolicies();
         }
 
-        //[Test]
+        [Test]
         public void PolicyEnableWinget()
         {
             GroupPolicyHelper.EnableWinget.Disable();
@@ -33,7 +33,7 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
         }
 
-        //[Test]
+        [Test]
         public void EnableSettings()
         {
             GroupPolicyHelper.EnableSettings.Disable();
@@ -41,7 +41,7 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
         }
 
-        //[Test]
+        [Test]
         public void EnableExperimentalFeatures()
         {
             ConfigureFeature("experimentalCmd", true);
@@ -55,7 +55,7 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.ERROR_INVALID_CL_ARGUMENTS, result.ExitCode);
         }
 
-        //[Test]
+        [Test]
         public void EnableLocalManifests()
         {
             GroupPolicyHelper.EnableLocalManifests.Disable();
@@ -63,7 +63,7 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
         }
 
-        //[Test]
+        [Test]
         public void EnableHashOverride()
         {
             GroupPolicyHelper.EnableHashOverride.Disable();
@@ -71,7 +71,7 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
         }
 
-        //[Test]
+        [Test]
         public void EnableDefaultSource()
         {
             // Default sources are disabled during setup so they are missing.
@@ -83,7 +83,7 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
         }
 
-        //[Test]
+        [Test]
         public void EnableMicrosoftStoreSource()
         {
             // Default sources are disabled during setup so they are missing.
@@ -95,7 +95,7 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
         }
 
-        //[Test]
+        [Test]
         public void EnableAdditionalSources()
         {
             // Remove the test source, then add it with policy.
@@ -112,7 +112,7 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
         }
 
-        //[Test]
+        [Test]
         public void EnableAllowedSources()
         {
             // Try listing the test source. We should only see it if it is allowed.
@@ -140,7 +140,7 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
         }
 
-        //[Test]
+        [Test]
         public void SourceAutoUpdateInterval()
         {
             // Test this policy by inspecting the result of --info
