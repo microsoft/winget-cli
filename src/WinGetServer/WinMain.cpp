@@ -119,11 +119,6 @@ int __stdcall wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR cmdLine, 
 
     RETURN_IF_FAILED(WindowsPackageManagerServerInitialize());
 
-    if (true)
-    {
-        RETURN_HR(E_FAIL);
-    }
-
     // Command line parsing
     int argc = 0;
     LPWSTR* argv = CommandLineToArgvW(cmdLine, &argc);
