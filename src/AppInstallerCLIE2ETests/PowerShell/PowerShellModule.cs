@@ -5,6 +5,9 @@ namespace AppInstallerCLIE2ETests.PowerShell
 {
     using NUnit.Framework;
     using System;
+    using System.Diagnostics;
+    using System.Linq;
+    using System.Threading;
 
     /// <summary>
     /// Basic E2E tests for verifying that behavior of the PowerShell module cmdlets.
@@ -16,6 +19,36 @@ namespace AppInstallerCLIE2ETests.PowerShell
         public void Setup()
         {
             TestCommon.RunAICLICommand("source add", $"-n {Constants.TestSourceName} {Constants.TestSourceUrl}");
+        }
+
+        [OneTimeTearDown]
+        public void TearDown()
+        {
+            // TODO: This is a workaround to an issue where the server takes longer than expected to terminate when
+            // running from the E2E tests. This can cause other E2E tests to fail when attempting to reset the test source.
+            if (IsRunning(Constants.WinGetServerExeName))
+            {
+                // There should only be one WinGetServer process running at a time.
+                Process serverProcess = Process.GetProcessesByName(Constants.WinGetServerExeName).First();
+                serverProcess.Kill();
+            }
+
+            TestCommon.RunAICLICommand("source remove", $"{Constants.TestSourceName}");
+        }
+
+        [Test]
+        public void AssertServerShutdownAfterExecution()
+        {
+            if (!Environment.Is64BitProcess)
+            {
+                return;
+            }
+
+            TestCommon.RunPowerShellCommandWithResult(Constants.GetSourceCmdlet, $"-Name {Constants.TestSourceName}");
+            
+            // Wait for 15 seconds and verify that WingetServer process is no longer running.
+            Thread.Sleep(15000);
+            Assert.IsTrue(!IsRunning(Constants.WinGetServerExeName), $"{Constants.WinGetServerExeName} failed to terminate after creating COM object.");
         }
 
         [Test]
@@ -106,6 +139,11 @@ namespace AppInstallerCLIE2ETests.PowerShell
             Assert.IsTrue(!string.IsNullOrEmpty(updateResult.StdOut));
             Assert.IsTrue(getResult.StdOut.Contains("2.0.0.0"));
             Assert.IsTrue(!string.IsNullOrEmpty(uninstallResult.StdOut));
+        }
+
+        private bool IsRunning(string processName)
+        {
+            return Process.GetProcessesByName(processName).Length > 0;
         }
     }
 }

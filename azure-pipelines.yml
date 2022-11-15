@@ -311,6 +311,7 @@ jobs:
     inputs:
       filePath: 'src\PowerShell\Microsoft.WinGet.Client\Copy-PlatformBinaries.ps1'
       arguments: '-Platform $(buildPlatform) -Configuration $(buildConfiguration) -OutDir $(artifactsDir)\PowerShell'
+    condition: always()
 
   - task: PublishPipelineArtifact@1
     displayName: Publish Pipeline Artifacts

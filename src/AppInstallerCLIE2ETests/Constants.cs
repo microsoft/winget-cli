@@ -83,6 +83,8 @@ namespace AppInstallerCLIE2ETests
         public const string UninstallCmdlet = "Uninstall-WinGetPackage";
         public const string UpdateCmdlet = "Update-WinGetPackage";
 
+        public const string WinGetServerExeName = "WindowsPackageManagerServer";
+
         // Locations
         public const string LocalAppData = "LocalAppData";
 
