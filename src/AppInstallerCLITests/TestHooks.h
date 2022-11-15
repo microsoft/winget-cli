@@ -10,6 +10,7 @@
 #include <AppInstallerTelemetry.h>
 #include <AppInstallerRuntime.h>
 #include <winget/UserSettings.h>
+#include <winget/TrustedRemoteSettings.h>
 #include <winget/Filesystem.h>
 
 #ifdef AICLI_DISABLE_TEST_HOOKS
@@ -39,6 +40,7 @@ namespace AppInstaller
     namespace Settings
     {
         void SetUserSettingsOverride(UserSettings* value);
+        void SetTrustedRemoteSettingsOverride(TrustedRemoteSettings* value);
     }
 
     namespace Filesystem

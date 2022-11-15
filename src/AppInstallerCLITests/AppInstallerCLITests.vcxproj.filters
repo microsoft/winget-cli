@@ -236,6 +236,9 @@
     <ClCompile Include="RestInterface_1_4.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TrustedRemoteSettings.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />
@@ -726,41 +729,44 @@
     <CopyFileToFolders Include="TestData\Manifest-Bad-MissingMsixInstallerFields.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Manifest-Bad-NoSupportedPlatforms.yaml">
-      <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Installer-Bad-NoSupportedPlatforms.msix">
-      <DeploymentContent>true</DeploymentContent>
+      <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Installer-Good.msix">
-      <DeploymentContent>true</DeploymentContent>
+      <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Installer-Good.msixbundle">
-      <DeploymentContent>true</DeploymentContent>
+      <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Installer-Signed-Good.msix">
-      <DeploymentContent>true</DeploymentContent>
+      <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Installer-Signed-Good.msixbundle">
-      <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Manifest-Bad-InconsistentSignedMsixInstallerFields.yaml">
-      <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Manifest-Good-SignedMsixInstaller.yaml">
-      <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Manifest-Good-MsixBundleInstaller.yaml">
-      <DeploymentContent>true</DeploymentContent>
+      <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-InconsistentMsixBundleInstallerFields.yaml">
-      <DeploymentContent>true</DeploymentContent>
-    </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Manifest-Good-SignedMsixBundleInstaller.yaml">
-      <DeploymentContent>true</DeploymentContent>
+      <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-InconsistentSignedMsixBundleInstallerFields.yaml">
-      <DeploymentContent>true</DeploymentContent>
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-InconsistentSignedMsixInstallerFields.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-NoSupportedPlatforms.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Good-MsixBundleInstaller.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Good-SignedMsixBundleInstaller.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Good-SignedMsixInstaller.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\TestTrustedRemoteSettings.msix">
+      <Filter>TestData</Filter>
     </CopyFileToFolders>
   </ItemGroup>
 </Project>

@@ -15,7 +15,7 @@
 #include "TestHooks.h"
 
 using namespace winrt;
-using namespace Windows::Foundation;
+using namespace winrt::Windows::Foundation;
 using namespace std::string_literals;
 using namespace AppInstaller;
 

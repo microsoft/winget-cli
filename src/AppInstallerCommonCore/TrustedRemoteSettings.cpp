@@ -75,8 +75,24 @@ namespace AppInstaller::Settings
         return m_msixInfo->GetFileContent(filePath);
     }
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    static TrustedRemoteSettings* s_TrustedRemoteSettings_Override = nullptr;
+
+    void SetTrustedRemoteSettingsOverride(TrustedRemoteSettings* value)
+    {
+        s_TrustedRemoteSettings_Override = value;
+    }
+#endif
+
     TrustedRemoteSettings const& TrustedRemote()
     {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (s_TrustedRemoteSettings_Override)
+        {
+            return *s_TrustedRemoteSettings_Override;
+        }
+#endif
+
         return TrustedRemoteSettings::Instance();
     }
 }

@@ -231,6 +231,7 @@
     <ClCompile Include="TestRestRequestHandler.cpp" />
     <ClCompile Include="TestSettings.cpp" />
     <ClCompile Include="TestSource.cpp" />
+    <ClCompile Include="TrustedRemoteSettings.cpp" />
     <ClCompile Include="UserSettings.cpp" />
     <ClCompile Include="Versions.cpp" />
     <ClCompile Include="WorkFlow.cpp" />
@@ -774,6 +775,9 @@
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-InconsistentSignedMsixBundleInstallerFields.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\TestTrustedRemoteSettings.msix">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
   </ItemGroup>

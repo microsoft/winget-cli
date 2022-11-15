@@ -27,7 +27,7 @@ namespace AppInstaller::Settings
 
         std::vector<uint8_t> GetFileContent(TrustedRemoteSettingFile setting, std::string_view packageFile = {}) const;
 
-    private:
+    protected:
         TrustedRemoteSettings();
         ~TrustedRemoteSettings() = default;
 
