@@ -252,7 +252,7 @@ jobs:
     parameters:
       title: "E2E Tests Packaged"
       isPackaged: true
-      filter: "TestCategory!=InProcess&TestCategory!=OutOfProcess&TestCategory!=PowerShell"
+      filter: "TestCategory!=InProcess&TestCategory!=OutOfProcess"
 
   - template: templates/e2e-test.template.yml
     parameters:
@@ -265,12 +265,6 @@ jobs:
       title: "COM API E2E Tests (Out-of-process)"
       isPackaged: true
       filter: "TestCategory=OutOfProcess"
-
-  - template: templates/e2e-test.template.yml
-    parameters:
-      title: "PowerShell Module E2E Tests"
-      isPackaged: false 
-      filter: "TestCategory=PowerShell"
 
   - task: CopyFiles@2
     displayName: 'Copy E2E Tests Package Log to artifacts folder'
