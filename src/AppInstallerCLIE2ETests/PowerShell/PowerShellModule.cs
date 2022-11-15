@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace AppInstallerCLIE2ETests
+namespace AppInstallerCLIE2ETests.PowerShell
 {
     using NUnit.Framework;
     using System;
@@ -14,7 +14,6 @@ namespace AppInstallerCLIE2ETests
         [OneTimeSetUp]
         public void Setup()
         {
-            // Add-WinGetPackage is a function and not a cmdlet that uses COM. Add source to WinGetDev directly to ensure test source exists.
             TestCommon.RunAICLICommand("source add", $"-n {Constants.TestSourceName} {Constants.TestSourceUrl}");
         }
 
