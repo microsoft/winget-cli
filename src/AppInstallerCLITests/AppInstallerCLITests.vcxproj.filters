@@ -236,6 +236,9 @@
     <ClCompile Include="RestInterface_1_4.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="AdminSettings.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />
