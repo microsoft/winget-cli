@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "AppInstallerStrings.h"
+#include "Resources.h"
 #include "SettingsFlow.h"
+#include <AppInstallerStrings.h>
 #include <winget/UserSettings.h>
 #include <winget/AdminSettings.h>
-#include "Resources.h"
 
 namespace AppInstaller::CLI::Workflow
 {
