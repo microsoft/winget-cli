@@ -31,6 +31,12 @@ Se si disabilita questa impostazione, gli utenti non saranno in grado di abilita
 Se si Abilita o non si configura questa impostazione, gli utenti potranno installare pacchetti con manifesti locali tramite Windows Gestione pacchetti.
 
 Se si disabilita questa impostazione, gli utenti non saranno in grado di installare pacchetti con manifesti locali tramite Windows Gestione pacchetti.</string>
+      <string id="EnableBypassCertificatePinningForMicrosoftStore">Enable App Installer Microsoft Store Source Pinned Certificate Bypass</string>
+      <string id="EnableBypassCertificatePinningForMicrosoftStoreExplanation">This policy controls whether the Windows Package Manager can be configured to disable the requirement to use a pinned certificate for the Microsoft Store source.
+
+If you enable or do not configure this setting, users will be able to bypass the pinned certificate used to validate the Microsoft Store source.
+
+If you disable this setting, users will not be able to bypass the pinned certificate used to validate the Microsoft Store source.</string>
       <string id="EnableHashOverride">Abilita sostituzione hash del programma di installazione app</string>
       <string id="EnableHashOverrideExplanation">Questa impostazione dei criteri consente di specificare se Windows Gestione pacchetti può essere configurato per abilitare la possibilità di ignorare la convalida di sicurezza SHA256 nelle impostazioni.
 

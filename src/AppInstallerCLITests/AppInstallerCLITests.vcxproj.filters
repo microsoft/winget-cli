@@ -236,6 +236,9 @@
     <ClCompile Include="RestInterface_1_4.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="AdminSettings.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
     <ClCompile Include="TrustedRemoteSettings.cpp">
       <Filter>Source Files\Common</Filter>
     </ClCompile>
@@ -727,6 +730,9 @@
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-MissingMsixInstallerFields.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Manifest-Bad-MsixInstaller-PackageVersion.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Installer-Bad-NoSupportedPlatforms.msix">
