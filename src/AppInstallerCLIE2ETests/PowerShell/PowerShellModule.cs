@@ -45,10 +45,13 @@ namespace AppInstallerCLIE2ETests.PowerShell
             }
 
             TestCommon.RunPowerShellCommandWithResult(Constants.GetSourceCmdlet, $"-Name {Constants.TestSourceName}");
-            
-            // Wait for 15 seconds and verify that WingetServer process is no longer running.
-            Thread.Sleep(15000);
-            Assert.IsTrue(!IsRunning(Constants.WinGetServerExeName), $"{Constants.WinGetServerExeName} failed to terminate after creating COM object.");
+
+            Assert.IsTrue(IsRunning(Constants.WinGetServerExeName), $"{Constants.WinGetServerExeName} is not running.");
+            Process serverProcess = Process.GetProcessesByName(Constants.WinGetServerExeName).First();
+
+            // Wait a maximum of 30 seconds for the server process to exit.
+            bool serverProcessExit = serverProcess.WaitForExit(30000);
+            Assert.IsTrue(serverProcessExit, $"{Constants.WinGetServerExeName} failed to terminate after creating COM object.");
         }
 
         [Test]
@@ -139,6 +142,29 @@ namespace AppInstallerCLIE2ETests.PowerShell
             Assert.IsTrue(!string.IsNullOrEmpty(updateResult.StdOut));
             Assert.IsTrue(getResult.StdOut.Contains("2.0.0.0"));
             Assert.IsTrue(!string.IsNullOrEmpty(uninstallResult.StdOut));
+        }
+
+        /// <summary>
+        /// There is a known issue where the server takes an abnormally long time to terminate after the E2E test pwsh processes finish execution.
+        /// This test verifies that the server does indeed terminate within 5 minutes after running all of the cmdlets.
+        /// Commented out to reduce the overall duration of the build pipeline.
+        /// </summary>
+        // [Test]
+        public void VerifyServerTermination()
+        {
+            TestCommon.RunPowerShellCommandWithResult(Constants.GetSourceCmdlet, $"-Name {Constants.TestSourceName}");
+            TestCommon.RunPowerShellCommandWithResult(Constants.FindCmdlet, $"-Id {Constants.ExeInstallerPackageId}");
+            TestCommon.RunPowerShellCommandWithResult(Constants.InstallCmdlet, $"-Id {Constants.ExeInstallerPackageId} -Version 1.0.0.0");
+            TestCommon.RunPowerShellCommandWithResult(Constants.UpdateCmdlet, $"-Id {Constants.ExeInstallerPackageId}");
+            TestCommon.RunPowerShellCommandWithResult(Constants.GetCmdlet, $"-Id {Constants.ExeInstallerPackageId}");
+            TestCommon.RunPowerShellCommandWithResult(Constants.UninstallCmdlet, $"-Id {Constants.ExeInstallerPackageId}");
+
+            Assert.IsTrue(IsRunning(Constants.WinGetServerExeName), $"{Constants.WinGetServerExeName} is not running.");
+            Process serverProcess = Process.GetProcessesByName(Constants.WinGetServerExeName).First();
+
+            // Wait a maximum of 5 minutes for the server process to exit.
+            bool serverProcessExit = serverProcess.WaitForExit(300000);
+            Assert.IsTrue(serverProcessExit, $"{Constants.WinGetServerExeName} failed to terminate after creating COM object.");
         }
 
         private bool IsRunning(string processName)
