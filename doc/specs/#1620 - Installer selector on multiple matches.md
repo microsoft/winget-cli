@@ -49,7 +49,17 @@ and disable it by -
 
 - Number - It should match with a _row number_ (0 will exit the selector)
 - Text - It should match either the package _Name_ or _Id_
-- `--source` flag - It refines the search with a specific package source. It can only be used if a user enters text or standalone.
+
+#### Flags
+
+- `--more` or `-m` flag - It should be used to show more n number of results.
+- `--id` - Filter results by id
+- `--name` - Filter results by name
+- `--moniker` - Filter results by the moniker
+- `--tag` - Filter results by tag
+- `--cmd` or `--command` - Filter results by command
+- `-s` or `--source` - Find the package using the specified source
+- `-e` or `--exact` - Find the package using exact match
 
 ### Invalid inputs
 
@@ -71,7 +81,7 @@ Please enter row number which are present in entries above.
 
 ### Number of results
 
-We should add a `--list-count` flag to customize the number of packages listed in the prompt. By default, the user will see a list of 20 packages.
+We can use `-n` or `--number` flags to customize the number of packages listed in the prompt. As there is already a user setting for it, we don't need to add any special settings for it.
 
 If the number of packages is more than allowed it should show a text saying how many more packages are available
 
@@ -79,14 +89,30 @@ If the number of packages is more than allowed it should show a text saying how 
 ...
  20  Example Example.Example20 winget
 
-There are 6 more packages available.
+There are 6 more packages available. Use -m or --more to see more.
 Please select a row number or refine the search by package name or ID.
 >
 ```
 
 If a user enters the package name or ID then we should scan the whole list including the ones which are not shown to the user.
 
-If they enter a number then it should be in the range of the list shown to the user else it should be considered invalid input.
+If the user enters a number then it should be in the range of the list shown to the user and the user cannot use `-m` or `--more` flags with other queries or flags.
+
+The `--more` flag will show the user the hidden items and increases the range of input they can have.
+
+```pwsh
+...
+ 20  Example Example.Example20 winget
+
+There are 6 more packages available. Use -m or --more to see more.
+Please select a row number or refine the search by package name or ID.
+> -m
+ 21  Example Example.Example21 winget
+ ...
+ 26  Example Example.Example26 winget
+Please select a row number or refine the search by package name or ID.
+>
+```
 
 ### Refine the search
 
@@ -98,6 +124,12 @@ The text input is said to be invalid only if it doesn't match any of the names o
 
 If the user enters the name/ID and source or only source and there isn't any source then the user will see an error message which says that cannot find the package with the source.
 
+The first query will fetch package details from the indexed database and further refinements will be made to the result from the initial query.
+
+### Tab completion
+
+The Tab completion would complete the package name/ID and cycle through the package ID on `Tab` press and reverse cycle through it on `Tab` + `Shift`.
+
 ## UI/UX Design
 
 This is how the prompt should look like...
@@ -105,12 +137,12 @@ This is how the prompt should look like...
 ```pwsh
 > winget install Example
 Multiple packages found matching.
-No. Name       Id                   Source
+ Number Name       Id                   Source
 -------------------------------------------
- 1  Example    Example.Example1     msstore
- 2  Example    Example.Example2     winget
- ...
- 20 Example20  Example.Example20    msstore
+   1    Example    Example.Example1     msstore
+   2    Example    Example.Example2     winget
+...
+   20   Example20  Example.Example20    msstore
 There are 8 more packages.
 
 Please select a row number, or enter package name or ID to refine search...
@@ -142,48 +174,47 @@ Please select a row number, or enter package name or ID to refine search...
 > Example
 
 Refined the search to Name/ID with `Example` in it.
-No. Name       Id                   Source
+Number Name       Id                   Source
 -------------------------------------------
- 1  Example    Example.Example1     msstore
- 2  Example    Example.Example2     winget
- 3  Example    Example.Example22    msstore
+   1   Example    Example.Example1     msstore
+   2   Example    Example.Example2     winget
+   3   Example    Example.Example22    msstore
 
 Please select a row number, or enter package name or ID to refine search...
 > _
 ```
 
-A user can use `--source` flag
+A user can use flags (example `--source`)
 
 Now we only have a package with ID `Example.Example2` in the list because of the queries the user wrote.
 
 ```pwsh
 Refined the search to Name/ID with `Example` in it.
-No. Name       Id                   Source
+Number Name       Id                   Source
 -------------------------------------------
- 1  Example    Example.Example1     msstore
- 2  Example    Example.Example2     winget
- 3  Example    Example.Example22    msstore
+   1   Example    Example.Example1     msstore
+   2   Example    Example.Example2     winget
+   3   Example    Example.Example22    msstore
 
 Please select a row number, or enter package name or ID to refine search...
 > --source winget
 Downloading Example (Example.Example2)...
 ```
 
-If the `--source` query matches nothing then ask the user to retry.
+If a query matches nothing then exit the CLI with the message that the query couldn't find any result.
 
 ```pwsh
-No. Name       Id                   Source
+Number Name       Id                   Source
 -------------------------------------------
- 1  Example    Example.Example1     msstore
- 2  Example2   Example.Example2     winget
+   1   Example    Example.Example1     msstore
+   2   Example2   Example.Example2     winget
 ...
- 20 Example20  Example.Example20    msstore
+   20  Example20  Example.Example20    msstore
 There are 8 more packages.
 
 Please select a row number, or enter package name or ID to refine search...
 > Example --source winget
-Cannot find 'Example' in 'winget', please try again.
-> _
+No package found matching input criteria
 ```
 
 ## Capabilities
@@ -211,6 +242,10 @@ This won't work in MinQTTY. It's a [known issue](https://github.com/git-for-wind
 It should not be shown if `--diable-interactivity` is set.
 
 There should be no effect of the `--silent` flag on the selector.
+
+Having the `upgrade` command included in this would conflict with [#2627](https://github.com/microsoft/winget-cli/issues/2627)
+
+For example - `winget upgrade Microsoft` might have a match with hundreds of packages and use might not want to see this prompt. Tho this is an opt-in feature but there might be a clash if a user has opted in from settings.
 
 ## Future considerations
 
