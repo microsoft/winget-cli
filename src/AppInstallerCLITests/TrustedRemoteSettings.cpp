@@ -26,7 +26,7 @@ namespace
         {
             if (!settingsFile.empty())
             {
-                std::ifstream file{ settingsFile };
+                std::ifstream file{ settingsFile, std::ios::binary };
                 auto content = ReadEntireStreamAsByteArray(file);
                 m_msixInfo = std::make_unique<MsixInfo>(content);
             }
@@ -61,7 +61,7 @@ TEST_CASE("TrustedRemoteSettings_Certificates_StoreChain", "[certificates]")
         TestTrustedRemoteSettings testRemoteSettings{ testRemoteSettingsFile };
 
         PinningConfiguration config;
-        REQUIRE_FALSE(config.LoadFromTrustedRemoteSettings());
+        REQUIRE(config.LoadFromTrustedRemoteSettings());
         REQUIRE_FALSE(config.IsEmpty());
 
         PinningDetails details;

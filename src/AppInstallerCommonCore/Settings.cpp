@@ -398,7 +398,7 @@ namespace AppInstaller::Settings
             {
                 if (std::filesystem::exists(m_settingsFile))
                 {
-                    auto result = std::make_unique<std::ifstream>(m_settingsFile);
+                    auto result = std::make_unique<std::ifstream>(m_settingsFile, std::ios::binary);
                     THROW_LAST_ERROR_IF(result->fail());
                     return result;
                 }
