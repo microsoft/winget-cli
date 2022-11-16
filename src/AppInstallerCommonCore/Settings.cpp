@@ -361,11 +361,13 @@ namespace AppInstaller::Settings
             {
                 m_settingsFile = GetPathTo(PathName::RemoteSettings) / name;
 
+                // Try to look for cached settings file first.
                 if (!TryLockCachedSettingsFile())
                 {
                     AICLI_LOG(Core, Info, << "Failed to open cached remote settings file, try downloading new.");
                     m_fileLock.reset();
 
+                    // Try to download new remote settings file.
                     std::filesystem::path tempSettingsPath = GetPathTo(PathName::Temp) / (std::string{ name } + ".dnld.msix");
                     ProgressCallback progress;
                     AppInstaller::Utility::Download(std::string{ s_RemoteSettings_Url }, tempSettingsPath, AppInstaller::Utility::DownloadType::RemoteSettings, progress);
@@ -383,6 +385,7 @@ namespace AppInstaller::Settings
                         THROW_HR(APPINSTALLER_CLI_ERROR_REMOTE_SETTINGS_NOT_TRUSTED);
                     }
 
+                    // Move and lock the newly downloaded settings file.
                     std::filesystem::rename(tempSettingsPath, m_settingsFile);
                     if (!LockSettingsFile(m_settingsFile, m_fileLock))
                     {
