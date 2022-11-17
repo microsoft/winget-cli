@@ -1483,4 +1483,10 @@ Please specify one of them using the `--source` option to proceed.</value>
     <value>Cannot disable %1. This setting is controlled by policy. For more information contact your system administrator.</value>
     <comment>{Locked="%1"} The value will be replaced with the feature name</comment>
   </data>
+  <data name="SettingsExportCommandLongDescription" xml:space="preserve">
+    <value>Export administrator settings as JSON</value>
+  </data>
+  <data name="SettingsExportCommandShortDescription" xml:space="preserve">
+    <value>Export administrator settings</value>
+  </data>
 </root>

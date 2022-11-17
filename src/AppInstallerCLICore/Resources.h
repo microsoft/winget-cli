@@ -283,6 +283,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(SettingLoadFailure);
         WINGET_DEFINE_RESOURCE_STRINGID(SettingsCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SettingsCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(SettingsExportCommandLongDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(SettingsExportCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SettingsWarningField);
         WINGET_DEFINE_RESOURCE_STRINGID(SettingsWarnings);
         WINGET_DEFINE_RESOURCE_STRINGID(SettingsWarningValue);

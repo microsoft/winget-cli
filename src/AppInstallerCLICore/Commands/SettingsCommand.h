@@ -9,6 +9,7 @@ namespace AppInstaller::CLI
     {
         SettingsCommand(std::string_view parent) : Command("settings", { "config" }, parent, Settings::TogglePolicy::Policy::Settings) {}
 
+        std::vector<std::unique_ptr<Command>> GetCommands() const override;
         std::vector<Argument> GetArguments() const override;
 
         virtual Resource::LocString ShortDescription() const override;
@@ -18,6 +19,19 @@ namespace AppInstaller::CLI
 
     protected:
         void ValidateArgumentsInternal(Execution::Args& execArgs) const override;
+        void ExecuteInternal(Execution::Context& context) const override;
+    };
+
+    struct SettingsExportCommand final : public Command
+    {
+        SettingsExportCommand(std::string_view parent) : Command("export", parent) {}
+
+        Resource::LocString ShortDescription() const override;
+        Resource::LocString LongDescription() const override;
+
+        std::string HelpLink() const override;
+
+    protected:
         void ExecuteInternal(Execution::Context& context) const override;
     };
 }
