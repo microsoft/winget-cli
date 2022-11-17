@@ -127,17 +127,6 @@ jobs:
       TargetFolder: '$(artifactsDir)'
     condition: succeededOrFailed()
 
-  # Run BimSkim for all the binaries
-  - task: BinSkim@3
-    displayName: 'Run BinSkim '
-    inputs:
-      arguments: 'analyze
-        "$(buildOutDir)\AppInstallerCLI\winget.exe"
-        "$(buildOutDir)\WinGetUtil\WinGetUtil.dll"
-        "$(buildOutDir)\WindowsPackageManager\WindowsPackageManager.dll"
-        "$(buildOutDir)\Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.InProc.dll"
-        "$(buildOutDir)\Microsoft.WinGet.Client\Microsoft.WinGet.*Client.dll" --config default --recurse'
-
   - task: PowerShell@2
     displayName: Install Tests Dependencies
     inputs:
@@ -339,6 +328,7 @@ jobs:
         "$(buildOutDir)\WinGetUtil\WinGetUtil.dll"
         "$(buildOutDir)\WindowsPackageManager\WindowsPackageManager.dll"
         "$(buildOutDir)\Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.InProc.dll"
+        "$(System.DefaultWorkingDirectory)\src\WinGetUtilInterop\bin\$(buildConfiguration)\netstandard2.0\WinGetUtilInterop.dll"
         "$(buildOutDir)\Microsoft.WinGet.Client\Microsoft.WinGet.*Client.dll" --config default --recurse'
 
   # Run BimSkim for all the binaries
