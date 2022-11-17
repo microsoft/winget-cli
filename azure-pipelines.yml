@@ -331,12 +331,6 @@ jobs:
         "$(System.DefaultWorkingDirectory)\src\WinGetUtilInterop\bin\$(buildConfiguration)\netstandard2.0\WinGetUtilInterop.dll"
         "$(buildOutDir)\Microsoft.WinGet.Client\Microsoft.WinGet.*Client.dll" --config default --recurse'
 
-  # Run BimSkim for all the binaries
-  - task: BinSkim@3
-    displayName: 'Run BinSkim '
-    inputs:
-      arguments: 'analyze "$(System.DefaultWorkingDirectory)\src\win*get.exe" "$(System.DefaultWorkingDirectory)\src\WinGet*Util.dll" "$(System.DefaultWorkingDirectory)\src\Windows*PackageManager.dll" "$(System.DefaultWorkingDirectory)\src\Microsoft.Management.Deployment.*InProc.dll" --config default --recurse'
-
   - task: securedevelopmentteam.vss-secure-development-tools.build-task-publishsecurityanalysislogs.PublishSecurityAnalysisLogs@2
     displayName: 'Publish Security Analysis Logs'
 
