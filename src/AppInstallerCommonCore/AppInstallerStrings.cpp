@@ -555,7 +555,7 @@ namespace AppInstaller::Utility
         // Don't allow use of this API for reading very large streams.
         THROW_HR_IF(E_OUTOFMEMORY, offset > static_cast<std::streamoff>(std::numeric_limits<uint32_t>::max()));
         std::vector<std::uint8_t> result;
-        result.resize(offset);
+        result.resize(static_cast<size_t>(offset));
         stream.read(reinterpret_cast<char*>(result.data()), offset);
 
         return result;
