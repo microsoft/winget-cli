@@ -199,7 +199,7 @@ namespace AppInstaller::Msix
             THROW_IF_FAILED(appxFile->GetStream(&stream));
 
             std::vector<std::uint8_t> result;
-            result.resize(size);
+            result.resize(static_cast<size_t>(size));
 
             ULONG bytesRead = 0;
             HRESULT hr = stream->Read(result.data(), static_cast<ULONG>(size), &bytesRead);
