@@ -18,9 +18,9 @@ namespace AppInstaller::Settings
 
     Utility::LocIndView AdminSettingToString(AdminSetting setting);
 
-    void EnableAdminSetting(AdminSetting setting);
+    bool EnableAdminSetting(AdminSetting setting);
 
-    void DisableAdminSetting(AdminSetting setting);
+    bool DisableAdminSetting(AdminSetting setting);
 
     bool IsAdminSettingEnabled(AdminSetting setting);
 }

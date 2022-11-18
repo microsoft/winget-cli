@@ -1,25 +1,43 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include "Resources.h"
 #include "SettingsFlow.h"
+#include <AppInstallerStrings.h>
 #include <winget/UserSettings.h>
 #include <winget/AdminSettings.h>
-#include "Resources.h"
 
 namespace AppInstaller::CLI::Workflow
 {
     using namespace AppInstaller::Settings;
+    using namespace AppInstaller::Utility;
 
     void EnableAdminSetting(Execution::Context& context)
     {
-        Settings::EnableAdminSetting(Settings::StringToAdminSetting(context.Args.GetArg(Execution::Args::Type::AdminSettingEnable)));
-        context.Reporter.Info() << Resource::String::AdminSettingEnabled;
+        auto adminSettingString = LocIndString{ context.Args.GetArg(Execution::Args::Type::AdminSettingEnable) };
+        AdminSetting adminSetting = Settings::StringToAdminSetting(adminSettingString);
+        if (Settings::EnableAdminSetting(adminSetting))
+        {
+            context.Reporter.Info() << Resource::String::AdminSettingEnabled;
+        }
+        else
+        {
+            context.Reporter.Error() << Resource::String::EnableAdminSettingFailed(adminSettingString);
+        }
     }
 
     void DisableAdminSetting(Execution::Context& context)
     {
-        Settings::DisableAdminSetting(Settings::StringToAdminSetting(context.Args.GetArg(Execution::Args::Type::AdminSettingDisable)));
-        context.Reporter.Info() << Resource::String::AdminSettingDisabled;
+        auto adminSettingString = LocIndString{ context.Args.GetArg(Execution::Args::Type::AdminSettingDisable) };
+        AdminSetting adminSetting = Settings::StringToAdminSetting(adminSettingString);
+        if (Settings::DisableAdminSetting(adminSetting))
+        {
+            context.Reporter.Info() << Resource::String::AdminSettingDisabled;
+        }
+        else
+        {
+            context.Reporter.Error() << Resource::String::DisableAdminSettingFailed(adminSettingString);
+        }
     }
 
     void OpenUserSetting(Execution::Context& context)

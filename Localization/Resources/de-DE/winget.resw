@@ -132,7 +132,7 @@
   </data>
   <data name="AvailableHeader" xml:space="preserve">
     <value>Verfügbar</value>
-    <comment>As in "a new version is available to update to".</comment>
+    <comment>As in "a new version is available to upgrade to".</comment>
   </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>Die folgenden Optionen stehen zur Verfügung:</value>
@@ -259,23 +259,11 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
   <data name="InstallationRequiresHigherWindows" xml:space="preserve">
     <value>Das Paket kann nicht installiert werden, da eine höhere Version von Windows erforderlich ist:</value>
   </data>
-  <data name="InstallCommandLongDescription" xml:space="preserve">
-    <value>Installiert das ausgewählte Paket. Es wird entweder durch die Suche nach einer konfigurierten Quelle gefunden, oder direkt aus dem Manifest abgerufen. Standardmäßig muss die Abfrage ohne Berücksichtigung der Groß/Kleinschreibung mit der ID, dem Namen oder dem Moniker des Pakets übereinstimmen. Andere Felder können verwendet werden, indem die entsprechende Option übergeben wird.</value>
-    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
-  </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>Installiert das angegebene Paket</value>
   </data>
   <data name="InstallerHashMismatchAdminBlock" xml:space="preserve">
     <value>Der Installer-Hash stimmt nicht überein. Dies kann nicht außer Kraft gesetzt werden, wenn Sie ihn als Administrator ausführen.</value>
-  </data>
-  <data name="InstallerHashMismatchOverridden" xml:space="preserve">
-    <value>Installer-Hash stimmt nicht überein; fortfahren wegen --force</value>
-    <comment>{Locked="--force"}</comment>
-  </data>
-  <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
-    <value>Installer-Hash stimmt nicht überein; zum Aufheben der Überprüfung --force</value>
-    <comment>{Locked="--force"}</comment>
   </data>
   <data name="InstallerHashVerified" xml:space="preserve">
     <value>Der Installer-Hash wurde erfolgreich überprüft</value>
@@ -285,9 +273,6 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
   </data>
   <data name="InstallFlowStartingPackageInstall" xml:space="preserve">
     <value>Paketinstallation wird gestartet...</value>
-  </data>
-  <data name="InstallForceArgumentDescription" xml:space="preserve">
-    <value>Hashüberprüfung des Installers außer Kraft setzen</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>Interaktive Installation anfordern; möglicherweise sind Benutzereingaben erforderlich.</value>
@@ -311,10 +296,6 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
   <data name="Links" xml:space="preserve">
     <value>Links</value>
     <comment>Links to different webpages</comment>
-  </data>
-  <data name="ListCommandLongDescription" xml:space="preserve">
-    <value>Der Befehl "list" zeigt sowie die auf dem System installierten Pakete an, als auch ob ein Update verfügbar ist. Weitere Optionen können zum Filtern der Ausgabe angegeben werden, ähnlich wie der Befehl „search“.</value>
-    <comment>{Locked="list","search"}</comment>
   </data>
   <data name="ListCommandShortDescription" xml:space="preserve">
     <value>Installierte Pakete anzeigen</value>
@@ -356,12 +337,6 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Fehler beim Berechnen des MSIX-Signaturhashs.</value>
   </data>
-  <data name="MSStoreAppBlocked" xml:space="preserve">
-    <value>Microsoft Store-Paket konnte nicht installiert oder aktualisiert werden, da diese App von einer Richtlinie blockiert wird.</value>
-  </data>
-  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
-    <value>Microsoft Store-Paket konnte nicht installiert oder aktualisiert werden. Fehlercode:</value>
-  </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>Fehler beim Überprüfen/Anfordern der Paketübernahme: Netzwerkfehler.</value>
   </data>
@@ -373,9 +348,6 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
   </data>
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>Überprüfen/anfordern der erfolgreichen Paketübernahme</value>
-  </data>
-  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
-    <value>Microsoft Store-Paket konnte nicht installiert oder aktualisiert werden, da der Microsoft Store-Client von einer Richtlinie blockiert wird.</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>Überprüfen/anfordern der Paketübernahme</value>
@@ -658,12 +630,6 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Nicht erkannter Befehl</value>
-  </data>
-  <data name="UpdateAllArgumentDescription" xml:space="preserve">
-    <value>Aktualisieren aller installierten Pakete auf den neuesten Stand, falls verfügbar</value>
-  </data>
-  <data name="UpdateNotApplicable" xml:space="preserve">
-    <value>Es wurden keine anwendbaren Aktualisierungen gefunden.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
     <value>Aktualisiert das ausgewählte Paket, entweder durch Durchsuchen der Liste der installierten Pakete oder direkt aus einem Manifest. Standardmäßig muss die Abfrage ohne Berücksichtigung der Groß-/Kleinschreibung mit der ID, dem Namen oder dem Linkpfad des Pakets übereinstimmen. Andere Felder können verwendet werden, indem sie die entsprechende Option übergeben. Wenn keine Argumente angegeben werden, werden die Pakete mit verfügbaren Upgrades angezeigt.</value>
@@ -1030,20 +996,8 @@ Stimmen Sie den Bedingungen zu?</value>
   <data name="ShowLabelInstaller" xml:space="preserve">
     <value>Installationsprogramm:</value>
   </data>
-  <data name="ShowLabelInstallerLocale" xml:space="preserve">
-    <value>Gebietsschema:</value>
-  </data>
   <data name="ShowLabelInstallerProductId" xml:space="preserve">
     <value>Store-Produkt-ID:</value>
-  </data>
-  <data name="ShowLabelInstallerSha256" xml:space="preserve">
-    <value>SHA256:</value>
-  </data>
-  <data name="ShowLabelInstallerType" xml:space="preserve">
-    <value>Typ:</value>
-  </data>
-  <data name="ShowLabelInstallerUrl" xml:space="preserve">
-    <value>Download-URL:</value>
   </data>
   <data name="ShowLabelLicense" xml:space="preserve">
     <value>Lizenz:</value>
@@ -1301,6 +1255,7 @@ Geben Sie eine option "--source" an, um den Vorgang fortzusetzen.</value>
   </data>
   <data name="PortableRegistryCollisionOverridden" xml:space="preserve">
     <value>Es existiert bereits ein portables Paket mit demselben Namen, aber aus einer anderen Quelle; Fortfahren wegen --force</value>
+    <comment>{Locked="--force"}</comment>
   </data>
   <data name="ReparsePointsNotSupportedError" xml:space="preserve">
     <value>Das Volume unterstützt keine Analysepunkte</value>
@@ -1320,14 +1275,6 @@ Geben Sie eine option "--source" an, um den Vorgang fortzusetzen.</value>
   <data name="BothPurgeAndPreserveFlagsProvided" xml:space="preserve">
     <value>Es werden sowohl "Purge"- als auch "Preserve"-Argumente bereitgestellt</value>
   </data>
-  <data name="PortableHashMismatchOverridden" xml:space="preserve">
-    <value>Portable exe wurde geändert; Fortfahren wegen --force</value>
-    <comment>{Locked="--force"}</comment>
-  </data>
-  <data name="PortableHashMismatchOverrideRequired" xml:space="preserve">
-    <value>Portable exe kann nicht entfernt werden, da es geändert wurde; Um diese Prüfung außer Kraft zu setzen, verwenden Sie --force</value>
-    <comment>{Locked="--force"}</comment>
-  </data>
   <data name="FilesRemainInInstallDirectory" xml:space="preserve">
     <value>Dateien verbleiben im Installationsverzeichnis:</value>
   </data>
@@ -1345,8 +1292,5 @@ Geben Sie eine option "--source" an, um den Vorgang fortzusetzen.</value>
   </data>
   <data name="Notes" xml:space="preserve">
     <value>Notizen:</value>
-  </data>
-  <data name="ShowLabelInstallationNotes" xml:space="preserve">
-    <value>Installationshinweise:</value>
   </data>
 </root>

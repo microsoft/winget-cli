@@ -181,18 +181,6 @@ namespace AppInstaller::Settings
         }
     }
 
-    void EnableAdminSetting(AdminSetting setting)
-    {
-        AdminSettingsInternal adminSettingsInternal;
-        adminSettingsInternal.SetAdminSetting(setting, true);
-    }
-
-    void DisableAdminSetting(AdminSetting setting)
-    {
-        AdminSettingsInternal adminSettingsInternal;
-        adminSettingsInternal.SetAdminSetting(setting, false);
-    }
-
     TogglePolicy::Policy GetAdminSettingPolicy(AdminSetting setting)
     {
         switch (setting)
@@ -204,6 +192,32 @@ namespace AppInstaller::Settings
         default:
             return TogglePolicy::Policy::None;
         }
+    }
+
+    bool EnableAdminSetting(AdminSetting setting)
+    {
+        auto policy = GetAdminSettingPolicy(setting);
+        if (GroupPolicies().GetState(policy) == PolicyState::Disabled)
+        {
+            return false;
+        }
+
+        AdminSettingsInternal adminSettingsInternal;
+        adminSettingsInternal.SetAdminSetting(setting, true);
+        return true;
+    }
+
+    bool DisableAdminSetting(AdminSetting setting)
+    {
+        auto policy = GetAdminSettingPolicy(setting);
+        if (GroupPolicies().GetState(policy) == PolicyState::Enabled)
+        {
+            return false;
+        }
+
+        AdminSettingsInternal adminSettingsInternal;
+        adminSettingsInternal.SetAdminSetting(setting, false);
+        return true;
     }
 
     bool IsAdminSettingEnabled(AdminSetting setting)

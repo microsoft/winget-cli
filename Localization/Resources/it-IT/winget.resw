@@ -132,7 +132,7 @@
   </data>
   <data name="AvailableHeader" xml:space="preserve">
     <value>Disponibile</value>
-    <comment>As in "a new version is available to update to".</comment>
+    <comment>As in "a new version is available to upgrade to".</comment>
   </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>Sono disponibili le seguenti opzioni:</value>
@@ -259,23 +259,11 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
   <data name="InstallationRequiresHigherWindows" xml:space="preserve">
     <value>Non è possibile installare il pacchetto perché richiede una versione più recente di Windows:</value>
   </data>
-  <data name="InstallCommandLongDescription" xml:space="preserve">
-    <value>Installa il pacchetto selezionato, trovato cercando una fonte configurata o direttamente da un manifesto. Per impostazione predefinita, la query deve essere non sensibile alle maiuscole e minuscole, corrispondere all'ID, al nome o al moniker del pacchetto. Gli altri campi possono essere utilizzati passando all'opzione appropriata.</value>
-    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
-  </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>Installa il pacchetto specificato</value>
   </data>
   <data name="InstallerHashMismatchAdminBlock" xml:space="preserve">
     <value>Hash di installazione non corrispondente. Questo non può essere ignorato durante l'esecuzione come amministratore</value>
-  </data>
-  <data name="InstallerHashMismatchOverridden" xml:space="preserve">
-    <value>L’hash di installazione non corrisponde. Procedendo a causa di --force</value>
-    <comment>{Locked="--force"}</comment>
-  </data>
-  <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
-    <value>Hash di installazione non corrispondente; Per eseguire l’override, seleziona use --force</value>
-    <comment>{Locked="--force"}</comment>
   </data>
   <data name="InstallerHashVerified" xml:space="preserve">
     <value>Verifica dell'hash di installazione completata</value>
@@ -285,9 +273,6 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
   </data>
   <data name="InstallFlowStartingPackageInstall" xml:space="preserve">
     <value>Avvio installazione pacchetto in corso...</value>
-  </data>
-  <data name="InstallForceArgumentDescription" xml:space="preserve">
-    <value>Esegui l’override del controllo hash del programma di installazione</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>Richiedi l'installazione interattiva; l'input dell'utente potrebbe essere necessario</value>
@@ -311,10 +296,6 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
   <data name="Links" xml:space="preserve">
     <value>Collegamenti</value>
     <comment>Links to different webpages</comment>
-  </data>
-  <data name="ListCommandLongDescription" xml:space="preserve">
-    <value>Il comando list mostra i pacchetti installati nel sistema nonché la disponibilità di un aggiornamento. È possibile fornire opzioni aggiuntive per filtrare l'output, molto simili al comando search.</value>
-    <comment>{Locked="list","search"}</comment>
   </data>
   <data name="ListCommandShortDescription" xml:space="preserve">
     <value>Visualizza pacchetti installati</value>
@@ -356,12 +337,6 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Non è possibile calcolare l'hash della firma MSIX.</value>
   </data>
-  <data name="MSStoreAppBlocked" xml:space="preserve">
-    <value>Non è stato possibile installare o aggiornare il pacchetto di Microsoft Store perché l'app specifica è bloccata dai criteri</value>
-  </data>
-  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
-    <value>Non è stato possibile installare o aggiornare il pacchetto di Microsoft Store. Codice di errore:</value>
-  </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>Verifica/richiesta di acquisizione pacchetto non riuscita: errore di rete</value>
   </data>
@@ -373,9 +348,6 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
   </data>
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>Verifica/richiesta di acquisizione pacchetto riuscita</value>
-  </data>
-  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
-    <value>Non è stato possibile installare o aggiornare il pacchetto Microsoft Store perché il client Microsoft Store è bloccato dai criteri</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>Verifica/richiesta di acquisizione pacchetti...</value>
@@ -658,12 +630,6 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Comando non riconosciuto</value>
-  </data>
-  <data name="UpdateAllArgumentDescription" xml:space="preserve">
-    <value>Aggiorna tutti i pacchetti installati alla versione più recente se disponibile</value>
-  </data>
-  <data name="UpdateNotApplicable" xml:space="preserve">
-    <value>Non è stato trovato alcun aggiornamento applicabile.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
     <value>Aggiorna il pacchetto selezionato, trovato eseguendo la ricerca nell'elenco dei pacchetti installati o direttamente da un manifesto. Per impostazione predefinita, la query deve essere insensitively con l'ID, il nome o il moniker del pacchetto. Altri campi possono essere utilizzati passando l'opzione appropriata. Quando non vengono forniti argomenti, mostra i pacchetti con aggiornamenti disponibili</value>
@@ -1030,20 +996,8 @@ Accetti le condizioni?</value>
   <data name="ShowLabelInstaller" xml:space="preserve">
     <value>Programma di installazione:</value>
   </data>
-  <data name="ShowLabelInstallerLocale" xml:space="preserve">
-    <value>Impostazioni locali:</value>
-  </data>
   <data name="ShowLabelInstallerProductId" xml:space="preserve">
     <value>ID prodotto dello Store:</value>
-  </data>
-  <data name="ShowLabelInstallerSha256" xml:space="preserve">
-    <value>SHA256:</value>
-  </data>
-  <data name="ShowLabelInstallerType" xml:space="preserve">
-    <value>Tipo:</value>
-  </data>
-  <data name="ShowLabelInstallerUrl" xml:space="preserve">
-    <value>URL di download:</value>
   </data>
   <data name="ShowLabelLicense" xml:space="preserve">
     <value>Licenza:</value>
@@ -1301,6 +1255,7 @@ Specificare uno di questi valori usando l'opzione '--source' per continuare.</va
   </data>
   <data name="PortableRegistryCollisionOverridden" xml:space="preserve">
     <value>Esiste già un pacchetto portabile con lo stesso nome ma proveniente da un'origine diversa; procedi a causa di --force</value>
+    <comment>{Locked="--force"}</comment>
   </data>
   <data name="ReparsePointsNotSupportedError" xml:space="preserve">
     <value>Il volume non supporta i dati reparse point</value>
@@ -1320,14 +1275,6 @@ Specificare uno di questi valori usando l'opzione '--source' per continuare.</va
   <data name="BothPurgeAndPreserveFlagsProvided" xml:space="preserve">
     <value>Sono stati specificati entrambi gli argomenti 'purge' e 'preserve'</value>
   </data>
-  <data name="PortableHashMismatchOverridden" xml:space="preserve">
-    <value>L'exe portatile è stato modificato; in corso a causa di --force</value>
-    <comment>{Locked="--force"}</comment>
-  </data>
-  <data name="PortableHashMismatchOverrideRequired" xml:space="preserve">
-    <value>Impossibile rimuovere Portable exe perché è stato modificato; per eseguire l’override di questo controllo usare --force</value>
-    <comment>{Locked="--force"}</comment>
-  </data>
   <data name="FilesRemainInInstallDirectory" xml:space="preserve">
     <value>I file rimangono nella directory di installazione:</value>
   </data>
@@ -1345,8 +1292,5 @@ Specificare uno di questi valori usando l'opzione '--source' per continuare.</va
   </data>
   <data name="Notes" xml:space="preserve">
     <value>Note:</value>
-  </data>
-  <data name="ShowLabelInstallationNotes" xml:space="preserve">
-    <value>Note di installazione:</value>
   </data>
 </root>
