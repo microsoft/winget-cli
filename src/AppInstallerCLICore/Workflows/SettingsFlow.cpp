@@ -16,10 +16,15 @@ namespace AppInstaller::CLI::Workflow
     {
         struct AdminSettings
         {
+            AdminSettings()
+            {
+                root["adminSettings"] = Json::ValueType::objectValue;
+            }
+
             void Add(AdminSetting setting)
             {
                 auto str = std::string{ Settings::AdminSettingToString(setting) };
-                root[str] = Settings::IsAdminSettingEnabled(setting);
+                root["adminSettings"][str] = Settings::IsAdminSettingEnabled(setting);
             }
 
             std::string ToJsonString() const
