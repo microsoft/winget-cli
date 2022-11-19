@@ -32,17 +32,19 @@ namespace AppInstaller::Utility
 
         AICLI_LOG(Core, Info, << "WinINet downloading from url: " << url);
 
-        wil::unique_hinternet session(InternetOpenA(
-            Runtime::GetDefaultUserAgent().get().c_str(),
+        auto agentWide = Utility::ConvertToUTF16(Runtime::GetDefaultUserAgent().get());
+        wil::unique_hinternet session(InternetOpen(
+            agentWide.c_str(),
             INTERNET_OPEN_TYPE_PRECONFIG,
             NULL,
             NULL,
             0));
         THROW_LAST_ERROR_IF_NULL_MSG(session, "InternetOpen() failed.");
 
-        wil::unique_hinternet urlFile(InternetOpenUrlA(
+        auto urlWide = Utility::ConvertToUTF16(url);
+        wil::unique_hinternet urlFile(InternetOpenUrl(
             session.get(),
-            url.c_str(),
+            urlWide.c_str(),
             NULL,
             0,
             INTERNET_FLAG_IGNORE_REDIRECT_TO_HTTPS, // This allows http->https redirection
@@ -53,7 +55,7 @@ namespace AppInstaller::Utility
         DWORD requestStatus = 0;
         DWORD cbRequestStatus = sizeof(requestStatus);
 
-        THROW_LAST_ERROR_IF_MSG(!HttpQueryInfoA(urlFile.get(),
+        THROW_LAST_ERROR_IF_MSG(!HttpQueryInfo(urlFile.get(),
             HTTP_QUERY_STATUS_CODE | HTTP_QUERY_FLAG_NUMBER,
             &requestStatus,
             &cbRequestStatus,
@@ -71,7 +73,7 @@ namespace AppInstaller::Utility
         LONGLONG contentLength = 0;
         DWORD cbContentLength = sizeof(contentLength);
 
-        HttpQueryInfoA(
+        HttpQueryInfo(
             urlFile.get(),
             HTTP_QUERY_CONTENT_LENGTH | HTTP_QUERY_FLAG_NUMBER64,
             &contentLength,
