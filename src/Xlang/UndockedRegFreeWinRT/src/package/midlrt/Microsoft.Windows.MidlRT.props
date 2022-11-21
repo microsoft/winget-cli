@@ -1,0 +1,37 @@
+<!--
+***********************************************************************************************
+Copyright (C) Microsoft Corporation.
+***********************************************************************************************
+-->
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <PropertyGroup>
+        <!-- Only do this for MSBuild versions below 16.0
+             as it is since done automatically, see https://github.com/microsoft/msbuild/pull/3605-->
+        <MSBuildAllProjects Condition="'$(MSBuildToolsVersion)'  &lt;= '15'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+        <UsingMidlRTPackage>true</UsingMidlRTPackage>
+    </PropertyGroup>
+
+     <PropertyGroup>
+        <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+        <CanReferenceWinRT>true</CanReferenceWinRT>
+        <!-- This causes VS to add the platform WinMD references for the target SDK -->
+        <WinMDAssembly>true</WinMDAssembly>
+    </PropertyGroup>
+
+    <ItemDefinitionGroup>
+        <Midl Condition="'$(ModernMidlRT)' != 'false'">
+            <EnableWindowsRuntime>true</EnableWindowsRuntime>
+            <MetadataFileName>$(IntDir)Unmerged\%(Filename).winmd</MetadataFileName>
+            <GenerateClientFiles Condition="'%(Midl.GenerateClientFiles)'==''">None</GenerateClientFiles>
+            <GenerateServerFiles Condition="'%(Midl.GenerateServerFiles)'==''">None</GenerateServerFiles>
+            <GenerateStublessProxies Condition="'%(Midl.GenerateStublessProxies)'==''">false</GenerateStublessProxies>
+            <GenerateTypeLibrary Condition="'%(Midl.GenerateTypeLibrary)'==''">false</GenerateTypeLibrary>
+            <HeaderFileName Condition="'%(Midl.HeaderFileName)'==''">nul</HeaderFileName>
+            <DllDataFileName Condition="'%(Midl.DllDataFileName)'==''">nul</DllDataFileName>
+            <InterfaceIdentifierFileName Condition="'%(Midl.InterfaceIdentifierFileName)'==''">nul</InterfaceIdentifierFileName>
+            <ProxyFileName Condition="'%(Midl.ProxyFileName)'==''">nul</ProxyFileName>
+            <TypeLibraryName Condition="'%(Midl.TypeLibraryName)'==''"></TypeLibraryName>
+        </Midl>
+    </ItemDefinitionGroup>
+</Project>

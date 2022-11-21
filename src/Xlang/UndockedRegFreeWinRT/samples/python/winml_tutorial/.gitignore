@@ -1,0 +1,4 @@
+/pywinrt_output/build/
+/pywinrt_output/vc140.pdb
+/pywinrt_output/_pyrt.*.pyd
+/__pycache__/

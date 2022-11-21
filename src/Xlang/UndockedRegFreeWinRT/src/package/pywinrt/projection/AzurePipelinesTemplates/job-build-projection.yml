@@ -1,0 +1,46 @@
+jobs:
+- job: build_projection
+  dependsOn: build_pywinrt
+  pool:
+    vmImage: 'windows-2019'
+  timeoutInMinutes: 120
+  strategy:
+    maxParallel: 10
+    matrix:
+      Release_x86_py37:
+        buildArchitecture: 'x86'
+        buildConfiguration: 'Release'
+        pythonVersion: '3.7'
+        pythonArchitecture: 'x86'
+      Release_x64_py37:
+        buildArchitecture: 'amd64'
+        buildConfiguration: 'Release'
+        pythonVersion: '3.7'
+        pythonArchitecture: 'x64'
+      Release_x86_py38:
+        buildArchitecture: 'x86'
+        buildConfiguration: 'Release'
+        pythonVersion: '3.8'
+        pythonArchitecture: 'x86'
+      Release_x64_py38:
+        buildArchitecture: 'amd64'
+        buildConfiguration: 'Release'
+        pythonVersion: '3.8'
+        pythonArchitecture: 'x64'
+      Release_x86_py39:
+        buildArchitecture: 'x86'
+        buildConfiguration: 'Release'
+        pythonVersion: '3.9'
+        pythonArchitecture: 'x86'
+      Release_x64_py39:
+        buildArchitecture: 'amd64'
+        buildConfiguration: 'Release'
+        pythonVersion: '3.9'
+        pythonArchitecture: 'x64'
+  steps:
+  - template: steps-build-projection.yml
+    parameters:
+      architecture: $(buildArchitecture)  
+      pythonVersionSpec: $(pythonVersion)
+      projectionType: $(ProjectionType)
+      pythonArchSpec: $(pythonArchitecture)

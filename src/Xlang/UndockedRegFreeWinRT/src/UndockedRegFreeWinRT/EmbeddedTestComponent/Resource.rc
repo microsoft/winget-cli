@@ -1,0 +1,3 @@
+#define MANIFEST_RESOURCE_ID 2
+#define RT_MANIFEST 24
+MANIFEST_RESOURCE_ID RT_MANIFEST "EmbeddedTestComponent.manifest"

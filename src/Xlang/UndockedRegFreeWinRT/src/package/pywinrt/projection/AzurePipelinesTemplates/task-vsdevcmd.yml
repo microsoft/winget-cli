@@ -1,0 +1,29 @@
+parameters:
+  buildArchitecture: 'x86'  # defaults for any parameters that aren't specified
+  hostArchitecture: 'x86'
+
+steps:
+- script: |
+    @echo off
+    
+    set vswherepath="%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe"
+    for /f "usebackq delims=" %%i in (`%vswherepath% -latest -property installationPath`) do (
+      set vslatest="%%i"
+      if exist "%%i\Common7\Tools\vsdevcmd.bat" (
+        set vsdevcmd="%%i\Common7\Tools\vsdevcmd.bat"
+      )
+    )
+    
+    @echo vslatest %vslatest%
+    @echo vsdevcmd %vsdevcmd%
+    
+    @echo ##vso[task.setvariable variable=vslatest]%vslatest%
+    @echo ##vso[task.setvariable variable=vsdevcmd]%vsdevcmd%
+  displayName: 'locate vsdevcmd via vswhere'
+
+- task: BatchScript@1
+  displayName: 'Configure environment with VSDevCmd (build arch ${{ parameters.buildArchitecture }}/host arch ${{ parameters.hostArchitecture }})'
+  inputs:
+    filename: $(vsdevcmd)
+    arguments: -host_arch=${{ parameters.hostArchitecture }} -arch=${{ parameters.buildArchitecture }}
+    modifyEnvironment: true

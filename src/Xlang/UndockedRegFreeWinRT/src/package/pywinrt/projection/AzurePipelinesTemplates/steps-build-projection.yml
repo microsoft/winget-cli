@@ -1,0 +1,83 @@
+parameters: # defaults for any parameters that aren't specified
+  architecture: 'x86'
+  pythonVersionSpec: '3.9'
+  projectionType: 'partial'
+  pythonArchSpec: 'x86'
+
+# Diagnostics logging - enable as needed on private runs.
+steps:
+# - script: echo "=== Parameters - steps-build-projection.yml ==="
+# - ${{ each parameter in parameters }}:
+#   - script: echo ${{ parameter.Key }} 
+#   - script: echo ${{ parameter.Value }}
+- task: DownloadBuildArtifacts@0 
+  inputs: 
+    buildType: 'current'
+    downloadType: single
+    artifactName: 'pywinrt'
+    downloadPath: '$(Build.ArtifactStagingDirectory)'
+
+# I have been completely unable to wire up queue-time variables to template parameters so that they work with conditional insertion
+# so instead, I'm passing the projectionType value into the script and switching between full/partial via a script if statement
+- script: |
+    echo %ProjectionType%
+    IF %ProjectionType%==full (
+        $(Build.ArtifactStagingDirectory)/pywinrt/pywinrt.exe -input 10.0.18362.0 -output src/package/pywinrt/projection/pywinrt -verbose -include Windows. -exclude Windows.UI.Composition -exclude Windows.UI.Xaml
+    ) ELSE (
+        $(Build.ArtifactStagingDirectory)/pywinrt/pywinrt.exe -input 10.0.18362.0 -output src/package/pywinrt/projection/pywinrt -verbose -include Windows.Foundation -include Windows.Data.Json -include Windows.Devices.Geolocation -include Windows.Graphics.DirectX -exclude Windows.UI.Composition -exclude Windows.UI.Xaml
+    )
+  displayName: 'Generate $(ProjectionType) Python/WinRT Projection'
+  env:
+    ProjectionType: ${{ parameters.projectionType }}
+
+# 333b11bd-d341-40d9-afcf-b32d5ce6f23b is the task guid for NuGetCommand (https://github.com/Microsoft/azure-pipelines-tasks/tree/master/Tasks/NuGetCommandV2)
+# microsoft.visualstudio.com has a conflicting "NuGetCommand", so use task guid to disambiguate
+- task: 333b11bd-d341-40d9-afcf-b32d5ce6f23b@2
+  displayName: 'NuGet install Microsoft.Windows.CppWinRT'
+  inputs:
+    command: custom
+    arguments: 'install Microsoft.Windows.CppWinRT -ExcludeVersion -OutputDirectory _tools'
+
+- script: _tools\Microsoft.Windows.CppWinRT\bin\cppwinrt.exe -input 10.0.18362.0 -output src/package/pywinrt/projection/cppwinrt -verbose
+  displayName: 'Generate C++/WinRT Projection'
+
+- template: task-vsdevcmd.yml
+  parameters:
+    buildArchitecture: $(buildArchitecture)  
+    hostArchitecture: 'amd64'
+
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: ${{ parameters.pythonVersionSpec }}.x
+    addToPath: true 
+    architecture: ${{ parameters.pythonArchSpec }}
+
+- task: CMake@1
+  displayName: 'Generate python projection build files via cmake'
+  inputs:
+    cwd: '.'
+    cmakeArgs: '-S src/package/pywinrt/projection/ -B_build -GNinja -DCMAKE_BUILD_TYPE=$(buildConfiguration) -DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER=cl -DPYTHON_VERSION=${{parameters.pythonVersionSpec}}'
+
+- task: CMake@1
+  displayName: 'build python projection'
+  inputs:
+    cwd: '.'
+    cmakeArgs: '--build .\_build -- -v'
+
+- task: CopyFiles@2
+  inputs:
+    sourceFolder: _build
+    contents: '*.pyd'
+    targetFolder: src/package/pywinrt/projection/pywinrt/winrt
+
+- task: CopyFiles@2
+  inputs:
+    sourceFolder: src/package/pywinrt/projection/pywinrt/
+    contents: '**'
+    targetFolder: $(Build.ArtifactStagingDirectory)/projection/${{ parameters.pythonVersionSpec }}.x/$(buildArchitecture)
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish artifact: projection'
+  inputs:
+    PathtoPublish: $(Build.ArtifactStagingDirectory)/projection
+    artifactName: projection

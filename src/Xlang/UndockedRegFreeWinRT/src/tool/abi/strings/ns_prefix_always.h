@@ -1,0 +1,1 @@
+#define CHECK_NS_PREFIX_STATE "always"

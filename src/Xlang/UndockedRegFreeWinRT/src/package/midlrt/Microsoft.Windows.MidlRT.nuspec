@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata minClientVersion="2.5">
+    <id>Microsoft.Windows.MidlRT</id>
+    <version>1.0.0.0</version>
+    <title>MidlRT Build Support</title>
+    <authors>Microsoft</authors>
+    <owners>Microsoft</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Provides targets for invoking MidlRT to support projects using MIDL2 and MIDL3</description>
+    <releaseNotes></releaseNotes>
+    <tags>native midl winrt nativepackage</tags>
+    <copyright>© Microsoft Corporation. All rights reserved.</copyright>
+    <license type="file">LICENSE</license>
+    <projectUrl>https://github.com/microsoft/xlang/tree/master/src/package/midlrt</projectUrl>
+  </metadata>
+  <files>
+    <file src="LICENSE"/>
+    <file src="Microsoft.Windows.MidlRT.targets" target="build\native"/>
+    <file src="Microsoft.Windows.MidlRT.IdlGen.targets" target="build\native"/>
+    <file src="Microsoft.Windows.MidlRT.props" target="build\native"/>
+    <file src="readme.txt"/>
+  </files>
+</package>

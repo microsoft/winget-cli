@@ -1,0 +1,22 @@
+﻿<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata minClientVersion="2.5">
+    <id>Microsoft.Windows.PyWinRT</id>
+    <version>1.0.0.0</version>
+    <title>Py/WinRT tool</title>
+    <authors>Microsoft</authors>
+    <owners>Microsoft</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Py/WinRT is a tool for generating a Python projection of any Windows Runtime library. Py/WinRT is designed to provide Python developers with first-class access to the modern Windows API.</description>
+    <releaseNotes></releaseNotes>
+    <tags>Python, WinRT</tags>
+    <copyright>© Microsoft Corporation. All rights reserved.</copyright>
+    <license type="file">LICENSE</license>
+    <projectUrl>https://github.com/Microsoft/xlang/tree/master/src/package/pywinrt/tool</projectUrl>
+  </metadata>
+  <files>
+    <file src="..\LICENSE"/>
+    <file src="$pywinrt_exe$" target="bin"/>
+    <file src="readme.txt" target="" />
+  </files>
+</package>

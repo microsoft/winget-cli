@@ -1,0 +1,169 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+
+  <Type Name="xlang::meta::reader::byte_view">
+    <Intrinsic Name="i_seek" Expression="m_first + offset">
+      <Parameter Name="offset" Type="uint32_t" />
+    </Intrinsic>
+  </Type>
+
+  <Type Name="xlang::meta::reader::database">
+    <Intrinsic Name="i_get_string" Expression="m_strings.i_seek(index)">
+      <Parameter Name="index" Type="uint32_t" />
+    </Intrinsic>
+  </Type>
+
+  <Type Name="xlang::meta::reader::table_base">
+    <Intrinsic Name="i_get_database" Expression="m_database" />
+    <Intrinsic Name="i_column_size" Expression="m_columns[column].size">
+      <Parameter Name="column" Type="uint32_t" />
+    </Intrinsic>
+    <Intrinsic Name="i_get_data" Expression="m_data + row * m_row_size + m_columns[column].offset">
+      <Parameter Name="row" Type="uint32_t" />
+      <Parameter Name="column" Type="uint32_t" />
+    </Intrinsic>
+    <Intrinsic Name="i_get_value" Expression="int(i_column_size(column) == 1 ? *(uint8_t*)i_get_data(row, column) : i_column_size(column) == 2 ? *(uint16_t*)i_get_data(row, column) : i_column_size(column) == 4 ? *(uint32_t*)i_get_data(row, column) : *(uint64_t*)i_get_data(row, column))">
+      <Parameter Name="row" Type="uint32_t" />
+      <Parameter Name="column" Type="uint32_t" />
+    </Intrinsic>
+    <Intrinsic Name="i_get_string" Expression="m_database->i_get_string(i_get_value(row, column))">
+      <Parameter Name="row" Type="uint32_t" />
+      <Parameter Name="column" Type="uint32_t" />
+    </Intrinsic>
+  </Type>
+
+  <Type Name="xlang::meta::reader::table&lt;*&gt;">
+    <Intrinsic Name="i_TypeName" Expression="i_get_string(row, 1)">
+      <Parameter Name="row" Type="uint32_t" />
+    </Intrinsic>
+    <Intrinsic Name="i_TypeNamespace" Expression="i_get_string(row, 2)">
+      <Parameter Name="row" Type="uint32_t" />
+    </Intrinsic>
+  </Type>
+
+  <Type Name="xlang::meta::reader::row_base&lt;*&gt;">
+    <Intrinsic Name="i_get_database" Expression="m_table->i_get_database()" />
+    <Intrinsic Name="i_get_string" Expression="m_table->i_get_string(m_index, column)">
+      <Parameter Name="column" Type="uint32_t" />
+    </Intrinsic>
+  </Type>
+
+  <Type Name="xlang::meta::reader::TypeRef">
+    <Intrinsic Name="i_TypeName" Expression="i_get_string(1)" />
+    <Intrinsic Name="i_TypeNamespace" Expression="i_get_string(2)" />
+    <DisplayString>{i_TypeNamespace(),sb}.{i_TypeName(),sb}</DisplayString>
+    <Expand>
+      <Item Name="TypeNamespace">i_TypeNamespace()</Item>
+      <Item Name="TypeName">i_TypeName()</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="xlang::meta::reader::TypeDef">
+    <Intrinsic Name="i_TypeName" Expression="i_get_string(1)" />
+    <Intrinsic Name="i_TypeNamespace" Expression="i_get_string(2)" />
+    <DisplayString>{i_TypeNamespace(),sb}.{i_TypeName(),sb}</DisplayString>
+    <Expand>
+      <Item Name="TypeNamespace">i_TypeNamespace()</Item>
+      <Item Name="TypeName">i_TypeName()</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="xlang::meta::reader::index_base&lt;*&gt;">
+    <Intrinsic Name="i_type" Expression="m_value &amp; ((1 &lt;&lt; coded_index_bits) - 1)">
+      <Parameter Name="coded_index_bits" Type="uint32_t" />
+    </Intrinsic>
+    <Intrinsic Name="i_index" Expression="(m_value &gt;&gt; coded_index_bits) - 1">
+      <Parameter Name="coded_index_bits" Type="uint32_t" />
+    </Intrinsic>
+    <Intrinsic Name="i_get_database" Expression="m_table->i_get_database()" />
+  </Type>
+
+  <Type Name="xlang::meta::reader::coded_index&lt;enum xlang::meta::reader::TypeDefOrRef&gt;">
+    <Intrinsic Name="i_type" Expression="i_type(2)"/>
+    <Intrinsic Name="i_index" Expression="i_index(2)"/>
+    <Intrinsic Name="i_TypeDef" Expression="&amp;i_get_database()->TypeDef" />
+    <Intrinsic Name="i_TypeRef" Expression="&amp;i_get_database()->TypeRef" />
+    <Intrinsic Name="i_TypeSpec" Expression="&amp;i_get_database()->TypeSpec" />
+    <Intrinsic Name="i_TypeName" Expression="i_type() == 0 ? i_TypeDef()->i_TypeName(i_index()) : i_type() == 1 ? i_TypeRef()->i_TypeName(i_index()) : i_TypeSpec()->i_TypeName(i_index())" />
+    <Intrinsic Name="i_TypeNamespace" Expression="i_type() == 0 ? i_TypeDef()->i_TypeNamespace(i_index()) : i_type() == 1 ? i_TypeRef()->i_TypeNamespace(i_index()) : i_TypeSpec()->i_TypeNamespace(i_index())" />
+    <DisplayString>{i_TypeNamespace(),sb}.{i_TypeName(),sb}</DisplayString>
+    <Expand>
+      <Synthetic Name="Type" Condition="i_type() == 0">
+        <DisplayString>TypeDef</DisplayString>
+      </Synthetic>
+      <Synthetic Name="Type" Condition="i_type() == 1">
+        <DisplayString>TypeRef</DisplayString>
+      </Synthetic>
+      <Synthetic Name="Type" Condition="i_type() == 2">
+        <DisplayString>TypeSpec</DisplayString>
+      </Synthetic>
+      <Item Name="TypeNamespace">i_TypeNamespace()</Item>
+      <Item Name="TypeName">i_TypeName()</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="xlang::meta::reader::MethodDef">
+    <Intrinsic Name="i_Name" Expression="i_get_string(3)" />
+    <DisplayString>{i_Name(),sb}</DisplayString>
+    <Expand>
+      <Item Name="Name">i_Name()</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="xlang::meta::reader::MemberRef">
+    <Intrinsic Name="i_Name" Expression="i_get_string(1)" />
+    <DisplayString>{i_Name(),sb}</DisplayString>
+    <Expand>
+      <Item Name="Name">i_Name()</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="xlang::meta::reader::Module">
+    <Intrinsic Name="i_Name" Expression="i_get_string(1)" />
+    <DisplayString>{i_Name(),sb}</DisplayString>
+    <Expand>
+      <Item Name="Name">i_Name()</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="xlang::meta::reader::Field">
+    <Intrinsic Name="i_Name" Expression="i_get_string(1)" />
+    <DisplayString>{i_Name(),sb}</DisplayString>
+    <Expand>
+      <Item Name="Name">i_Name()</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="xlang::meta::reader::Param">
+    <Intrinsic Name="i_Name" Expression="i_get_string(2)" />
+    <DisplayString>{i_Name(),sb}</DisplayString>
+    <Expand>
+      <Item Name="Name">i_Name()</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="xlang::meta::reader::Event">
+    <Intrinsic Name="i_Name" Expression="i_get_string(1)" />
+    <DisplayString>{i_Name(),sb}</DisplayString>
+    <Expand>
+      <Item Name="Name">i_Name()</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="xlang::meta::reader::Property">
+    <Intrinsic Name="i_Name" Expression="i_get_string(1)" />
+    <DisplayString>{i_Name(),sb}</DisplayString>
+    <Expand>
+      <Item Name="Name">i_Name()</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="xlang::meta::reader::GenericParam">
+    <Intrinsic Name="i_Name" Expression="i_get_string(3)" />
+    <DisplayString>{i_Name(),sb}</DisplayString>
+    <Expand>
+      <Item Name="Name">i_Name()</Item>
+    </Expand>
+  </Type>
+
+</AutoVisualizer>
