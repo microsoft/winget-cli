@@ -1,0 +1,53 @@
+jobs:
+- job: build_pywinrt
+  pool:
+    vmImage: 'windows-2019'
+
+  steps:
+  - script: |
+      @echo off
+      @echo Build.BuildNumber $(Build.BuildNumber)
+      @echo buildFullProjection $(buildFullProjection)
+
+  - template: task-vsdevcmd.yml
+    parameters:
+      buildArchitecture: 'x86'  
+      hostArchitecture: 'x86'
+
+    # Extract the build revision information from Build.BuildNumber. This is needed to pass to various build steps.
+    # This relies on the format of the pipeline name being of the format: <build text>.$(Date:yy).$(Date:MMdd).$(DayOfYear).$(Rev:r)
+    # We can't use those variables here (they only work in the *name* of the top level Yaml), so
+    # pull them out here and set the variables for use later build steps
+  - powershell: |
+      $a = $env:BUILD_BUILDNUMBER.split('.')
+      $yy = $a[1]
+      $mmdd = $a[2]
+      $rev = $a[4]
+      $pywinrtVersion = "0.9.$yy$mmdd.$rev"
+      Write-Host "##vso[task.setvariable variable=pywinrtVersion]$pywinrtVersion"
+      Write-Host pywinrtVersion=$pywinrtVersion
+    displayName: 'Get pywinrt version number from build number'
+
+  - task: CMake@1
+    displayName: 'Generate xlang build files via cmake'
+    inputs:
+      cwd: '.'
+      cmakeArgs: -S src -B_build -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER=cl -DXLANG_BUILD_VERSION=$(pywinrtVersion)
+
+  - task: CMake@1
+    displayName: 'build pywinrt'
+    inputs:
+      cwd: '.'
+      cmakeArgs: --build .\_build -- -v pywinrt
+
+  - task: CopyFiles@2
+    inputs:
+      sourceFolder: _build\tool\python\
+      contents: pywinrt.exe
+      targetFolder: '$(Build.ArtifactStagingDirectory)'
+
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish artifact: pywinrt'
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      artifactName: 'pywinrt'

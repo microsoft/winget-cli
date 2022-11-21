@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" ?> 
+<SignConfigXML> 
+  <job configuration="Release" dest="__OUTPATHROOT__" jobname="MidlRT NuGet" approvers=""> 
+    <file src="__INPATHROOT__\Microsoft.Windows.MidlRT.*.nupkg" signType="CP-401405" dest="__OUTPATHROOT__\Microsoft.Windows.MidlRT.*.nupkg" /> 
+  </job> 
+</SignConfigXML> 

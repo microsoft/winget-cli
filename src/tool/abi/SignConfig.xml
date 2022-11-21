@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8" ?> 
+<SignConfigXML> 
+  <job platform="" configuration="" dest="__OUTPATHROOT__" jobname="AbiWinRT Tool" approvers=""> 
+    <file src="__INPATHROOT__\abi.exe" signType="400" dest="__OUTPATHROOT__\abi.exe" /> 
+  </job> 
+</SignConfigXML> 

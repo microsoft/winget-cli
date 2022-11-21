@@ -1,0 +1,309 @@
+
+trigger:
+  branches:
+    include:
+    - refs/heads/master
+  batch: True
+
+schedules:
+- cron: 0 2 * * *
+  branches:
+    include:
+    - refs/heads/master
+
+name: $(MajorVersion).$(MinorVersion).$(date:yyMMdd)$(rev:.r)
+
+jobs:
+- job: Build_ABI_Tool
+  displayName: Build Binaries
+  pool:
+    name: Hosted Windows 2019 with VS2019
+  steps:
+
+  - checkout: self
+    clean: true
+    persistCredentials: True
+
+  - task: ComponentGovernanceComponentDetection@0
+    displayName: Component Detection
+    condition: eq(variables['BuildPlatform'], 'x64')
+
+  - task: NuGetToolInstaller@1
+    displayName: Use NuGet 5.3
+    condition: and(eq(variables['BuildPlatform'], 'x86'), eq(variables['BuildConfiguration'], 'release'), in(variables['Build.Reason'], 'Manual'))
+    continueOnError: True
+    inputs:
+      versionSpec: 5.3
+
+  - task: CmdLine@2
+    displayName: Build Tools
+    inputs:
+      script: >
+        if "%VSCMD_VER%"=="" (
+            pushd c:
+            call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\VsDevCmd.bat" >nul 2>&1
+            popd
+        )
+
+
+        build.cmd -v -b $(BuildConfiguration) -f --build-version "$(Build.BuildNumber)" abi make_abiwinrt_nupkg
+      workingDirectory: src/scripts/windows
+      failOnStderr: true
+
+  - task: CopyFiles@2
+    displayName: Stage abi.*
+    condition: and(eq(variables['BuildPlatform'], 'x86'), eq(variables['BuildConfiguration'], 'release'), in(variables['Build.Reason'], 'Manual'))
+    inputs:
+      SourceFolder: $(Build.SourcesDirectory)\_build\Windows\$(BuildPlatform)\$(BuildConfiguration)\tool\abi
+      Contents: >-
+        abi.exe
+
+        abi.pdb
+      TargetFolder: $(Build.ArtifactStagingDirectory)\abi
+
+  - task: EsrpCodeSigning@1
+    displayName: Sign Tools
+    inputs:
+      ConnectedServiceName: 81cc6790-027c-4ef3-928d-65e8b96a691a
+      FolderPath: $(Build.ArtifactStagingDirectory)\abi
+      signConfigType: inlineSignParams
+      inlineOperation: >-
+        [
+          {
+            "keyCode": "CP-230012",
+            "operationSetCode": "SigntoolSign",
+            "parameters": [
+              {
+                "parameterName": "OpusName",
+                "parameterValue": "Microsoft"
+              },
+              {
+                "parameterName": "OpusInfo",
+                "parameterValue": "http://www.microsoft.com"
+              },
+              {
+                "parameterName": "PageHash",
+                "parameterValue": "/NPH"
+              },
+              {
+                "parameterName": "FileDigest",
+                "parameterValue": "/fd sha256"
+              },
+              {
+                "parameterName": "TimeStamp",
+                "parameterValue": "/tr \"http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer\" /td sha256"
+              }
+            ],
+            "toolName": "signtool.exe",
+            "toolVersion": "6.2.9304.0"
+          }
+        ]
+
+
+  - task: PublishPipelineArtifact@0
+    displayName: Publish Artifacts
+    condition: and(eq(variables['BuildConfiguration'], 'release'), in(variables['Build.Reason'], 'Manual'))
+    inputs:
+      artifactName: $(BuildConfiguration)_$(BuildPlatform)
+      targetPath: $(Build.ArtifactStagingDirectory)
+
+- job: Build_Internal_Packages
+  displayName: Build Internal Packages (VPacks)
+  dependsOn: Build_ABI_Tool
+  pool:
+    vmImage: windows-2019
+
+  steps:
+
+  - checkout: self
+    clean: true
+    persistCredentials: True
+
+  - task: PkgESSetupBuild@12
+    displayName: Package ES - Setup Build
+    condition: and(eq(variables['BuildPlatform'], 'x86'), eq(variables['BuildConfiguration'], 'release'), in(variables['Build.Reason'], 'Manual'))
+    inputs:
+      branchVersionExcludeBranch: master
+      disableWorkspace: true
+      disableMsbuildVersion: true
+      disableBuildTools: true
+
+  - task: DownloadPipelineArtifact@1
+    displayName: Download x86 Artifacts
+    condition: and(eq(variables['BuildPlatform'], 'x86'), eq(variables['BuildConfiguration'], 'release'), in(variables['Build.Reason'], 'Manual'))
+    inputs:
+      artifactName: $(BuildConfiguration)_x86
+      downloadPath: $(Build.SourcesDirectory)\x86
+
+  - task: CmdLine@2
+    displayName: Parse PatchVersion
+    condition: and(eq(variables['BuildPlatform'], 'x86'), eq(variables['BuildConfiguration'], 'release'), in(variables['Build.Reason'], 'Manual'))
+    inputs:
+      script: 'for /f "tokens=3,4 delims=." %%i in ("$(Build.BuildNumber)") do @echo ##vso[task.setvariable variable=PatchVersion;]%%i%%j '
+      failOnStderr: true
+
+  - task: PkgESVPack@12
+    displayName: Publish ABI VPack
+    condition: and(eq(variables['BuildPlatform'], 'x86'), eq(variables['BuildConfiguration'], 'release'), in(variables['Build.Reason'], 'Manual'))
+    continueOnError: True
+    inputs:
+      serviceType: drop
+      versionAs: parts
+      sourceDirectory: $(Build.SourcesDirectory)\x86\abi
+      description: WinRT ABI Tool
+      pushPkgName: WinrtAbiTool
+      target: $(OSBuildToolsRoot)\abi
+      majorVer: $(MajorVersion)
+      minorVer: $(MinorVersion)
+      patchVer: $(PatchVersion)
+      prereleaseVer: $(Build.SourceBranchName).$(BuildPlatform).$(BuildConfiguration).$(Build.BuildNumber).$(Build.SourceVersion)
+
+- job: Build_External_Packages
+  displayName: Build External Packages (NuGet)
+  cancelTimeoutInMinutes: 1
+  dependsOn: Build_ABI_Tool
+  pool:
+    vmImage: windows-2019
+  steps:
+
+  - checkout: self
+    clean: true
+    persistCredentials: True
+
+  - task: NuGetToolInstaller@1
+    displayName: Use NuGet 5.3
+    condition: and(eq(variables['BuildPlatform'], 'x86'), eq(variables['BuildConfiguration'], 'release'), in(variables['Build.Reason'], 'Manual'))
+    continueOnError: True
+    inputs:
+      versionSpec: 5.3
+
+  - task: DownloadPipelineArtifact@1
+    displayName: Download x86 Artifacts
+    condition: and(eq(variables['BuildPlatform'], 'x86'), eq(variables['BuildConfiguration'], 'release'), in(variables['Build.Reason'], 'Manual'))
+    inputs:
+      artifactName: $(BuildConfiguration)_x86
+      downloadPath: $(Build.SourcesDirectory)\x86
+
+  - task: CmdLine@2
+    displayName: Touch Tools
+    condition: and(eq(variables['BuildPlatform'], 'x86'), eq(variables['BuildConfiguration'], 'release'), in(variables['Build.Reason'], 'Manual'))
+    inputs:
+      script: >
+        rem Signing service stamps binary with a future (GMT) timestamp, breaking build dependencies
+
+        copy /b $(Build.SourcesDirectory)\x86\abi\abi.exe+,, abi.exe
+      workingDirectory: $(Build.ArtifactStagingDirectory)
+      failOnStderr: true
+
+  - task: NuGetCommand@2
+    displayName: Build NuGet
+    condition: and(eq(variables['BuildPlatform'], 'x86'), eq(variables['BuildConfiguration'], 'release'), in(variables['Build.Reason'], 'Manual'))
+    inputs:
+      command: pack
+      searchPatternPack: src/package/abi/Microsoft.Windows.AbiWinRT.nuspec
+      versioningScheme: byBuildNumber
+      buildProperties: abiwinrt_exe=$(Build.ArtifactStagingDirectory)\abi.exe
+
+  - task: EsrpCodeSigning@1
+    displayName: Sign NuGetPackage
+    inputs:
+      ConnectedServiceName: 81cc6790-027c-4ef3-928d-65e8b96a691a
+      FolderPath: $(Build.ArtifactStagingDirectory)
+      Pattern: '*.nupkg'
+      signConfigType: inlineSignParams
+      inlineOperation: >-
+        [
+          {
+             "KeyCode" : "CP-401405",
+             "OperationCode" : "NuGetSign",
+             "Parameters" : {},
+             "ToolName" : "sign",
+             "ToolVersion" : "1.0"
+          },
+          {
+              "KeyCode" : "CP-401405",
+              "OperationCode" : "NuGetVerify",
+              "Parameters" : {},
+              "ToolName" : "sign",
+              "ToolVersion" : "1.0"
+          }
+        ]
+
+  - task: PkgESNuGetPublisher@0
+    displayName: Publish NuGet Package
+    condition: and(eq(variables['BuildPlatform'], 'x86'), eq(variables['BuildConfiguration'], 'release'), in(variables['Build.Reason'], 'Manual'))
+    continueOnError: True
+    inputs:
+      searchPattern: $(System.ArtifactsDirectory)\Microsoft.Windows.AbiWinRT.$(Build.BuildNumber).nupkg
+      nuGetFeedType: internal
+      feedName: https://microsoft.pkgs.visualstudio.com/_packaging/xlang/nuget/v3/index.json
+
+- job: Build_MidlRT_Nuget
+  displayName: Build MidlRT Package (Nuget)
+  pool:
+    vmImage: windows-2019
+
+  steps:
+
+  - checkout: self
+    clean: true
+
+  - task: NuGetToolInstaller@1
+    displayName: Use NuGet 5.3
+    condition: and(eq(variables['BuildPlatform'], 'x86'), eq(variables['BuildConfiguration'], 'release'), in(variables['Build.Reason'], 'Manual'))
+    continueOnError: True
+    inputs:
+      versionSpec: 5.3
+
+  - task: NuGetCommand@2
+    displayName: Build NuGet
+    condition: and(eq(variables['BuildPlatform'], 'x86'), eq(variables['BuildConfiguration'], 'release'), in(variables['Build.Reason'], 'Manual'))
+    inputs:
+      command: pack
+      searchPatternPack: src/package/midlrt/Microsoft.Windows.MidlRT.nuspec
+      versioningScheme: byBuildNumber
+
+  - task: PkgESCodeSign@10
+    displayName: Sign NuGet Package
+    condition: and(eq(variables['BuildPlatform'], 'x86'), eq(variables['BuildConfiguration'], 'release'), in(variables['Build.Reason'], 'Manual'))
+    continueOnError: True
+    enabled: False
+    inputs:
+      signConfigXml: $(Build.SourcesDirectory)\src\package\midlrt\SignConfig.xml
+      inPathRoot: $(Build.ArtifactStagingDirectory)
+      outPathRoot: $(Build.ArtifactStagingDirectory)
+
+  - task: EsrpCodeSigning@1
+    displayName: Sign NuGet Package
+    inputs:
+      ConnectedServiceName: 81cc6790-027c-4ef3-928d-65e8b96a691a
+      FolderPath: $(Build.ArtifactStagingDirectory)
+      Pattern: '*.nupkg'
+      signConfigType: inlineSignParams
+      inlineOperation: >-
+        [
+          {
+             "KeyCode" : "CP-401405",
+             "OperationCode" : "NuGetSign",
+             "Parameters" : {},
+             "ToolName" : "sign",
+             "ToolVersion" : "1.0"
+          },
+          {
+              "KeyCode" : "CP-401405",
+              "OperationCode" : "NuGetVerify",
+              "Parameters" : {},
+              "ToolName" : "sign",
+              "ToolVersion" : "1.0"
+          }
+        ]
+
+  - task: PkgESNuGetPublisher@0
+    displayName: Publish NuGet Package copy
+    condition: and(eq(variables['BuildPlatform'], 'x86'), eq(variables['BuildConfiguration'], 'release'), in(variables['Build.Reason'], 'Manual'))
+    continueOnError: True
+    inputs:
+      searchPattern: $(System.ArtifactsDirectory)\Microsoft.Windows.MidlRT.$(Build.BuildNumber).nupkg
+      nuGetFeedType: internal
+      feedName: https://microsoft.pkgs.visualstudio.com/_packaging/xlang/nuget/v3/index.json
+...

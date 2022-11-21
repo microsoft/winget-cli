@@ -1,0 +1,279 @@
+﻿<!--
+***********************************************************************************************
+Copyright (C) Microsoft Corporation.
+***********************************************************************************************
+-->
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <PropertyGroup>
+        <!-- Only do this for MSBuild versions below 16.0
+             as it is since done automatically, see https://github.com/microsoft/msbuild/pull/3605-->
+        <MSBuildAllProjects Condition="'$(MSBuildToolsVersion)'  &lt;= '15'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <MidlRTProjectWinMD>$(OutDir)$(RootNamespace).winmd</MidlRTProjectWinMD>
+        <MidlRTMergedDir>$(IntDir)Merged\</MidlRTMergedDir>
+        <MidlRTUnmergedDir>$(IntDir)Unmerged\</MidlRTUnmergedDir>
+
+        <ModernMidlRT Condition="'$(ModernMidlRT)'==''">true</ModernMidlRT>
+        <ModernMidlRT Condition="'$(ModernMidlRT)'!='true'">false</ModernMidlRT>
+
+        <GeneratedFilesDir Condition="'$(GeneratedFilesDir)' == ''">$(IntDir)Generated Files\</GeneratedFilesDir>
+        <!--TEMP: Override NuGet SDK's erroneous setting in uap.props -->
+        <WindowsSDK_MetadataFoundationPath Condition="('$(WindowsSDK_MetadataFoundationPath)'!='') And !Exists($(WindowsSDK_MetadataFoundationPath))">$(WindowsSDK_MetadataPathVersioned)</WindowsSDK_MetadataFoundationPath>
+        <!-- CAExcludePath is used to set an environment variable, so make sure this is defined on a single line. -->
+        <CAExcludePath>$(GeneratedFilesDir);$(CAExcludePath)</CAExcludePath>
+
+        <!-- Note: Before* targets run before Compute* targets. -->
+        <ComputeMidlInputsTargets>
+            $(ComputeMidlInputsTargets);MidlRTSetMidlReferences;
+        </ComputeMidlInputsTargets>
+        <AfterMidlTargets>
+            $(AfterMidlTargets);
+            GetMidlRTMdMergeInputs;
+            MidlRTMergeProjectWinMDInputs;
+            GetResolvedWinMD;
+            MidlRTCopyWinMDToOutputDirectory;
+        </AfterMidlTargets>
+        <ResolveAssemblyReferencesDependsOn>
+            $(ResolveAssemblyReferencesDependsOn);GetMidlRTProjectWinMDReferences;MidlRTMarkStaticLibrariesPrivate;
+        </ResolveAssemblyReferencesDependsOn>
+        <CleanDependsOn>
+            $(CleanDependsOn);MidlRTClean
+        </CleanDependsOn>
+
+    </PropertyGroup>
+
+    <!-- For a static library we don't want the winmd/lib/pdb to be packaged -->
+    <PropertyGroup Condition="'$(ConfigurationType)' == 'StaticLibrary'">
+        <IncludeCopyWinMDArtifactsOutputGroup>false</IncludeCopyWinMDArtifactsOutputGroup>
+    </PropertyGroup>
+
+    <Target Name="MidlRTClean">
+        <ItemGroup>
+            <_FilesToDelete Remove="@(_FilesToDelete)"/>
+            <_FilesToDelete Include="$(OutDir)*.winmd"/>
+            <_FilesToDelete Include="$(IntDir)*.winmd"/>
+            <_FilesToDelete Include="$(IntDir)*.rsp"/>
+            <_FilesToDelete Include="$(MidlRTMergedDir)**"/>
+            <_FilesToDelete Include="$(MidlRTUnmergedDir)**"/>
+        </ItemGroup>
+        <Delete Files="@(_FilesToDelete)"/>
+    </Target>
+
+    <!-- This target overrides the GetResolvedWinMD target used to resolve the WinMD for native projects
+         so it is aware of the MidlRT generated WinMD. -->
+    <Target Name="GetResolvedWinMD" Returns="@(WinMDFullPath)">
+        <ItemGroup>
+            <WinMDFullPath Include="$(MidlRTProjectWinMD)">
+                <TargetPath>$([System.IO.Path]::GetFileName('$(MidlRTProjectWinMD)'))</TargetPath>
+                <Primary>true</Primary>
+                <Implementation Condition="'$(TargetExt)' == '.dll'">$(WinMDImplementationPath)$(TargetName)$(TargetExt)</Implementation>
+                <FileType>winmd</FileType>
+                <WinMDFile>true</WinMDFile>
+                <ProjectName>$(MSBuildProjectName)</ProjectName>
+                <ProjectType>$(ConfigurationType)</ProjectType>
+            </WinMDFullPath>
+        </ItemGroup>
+
+        <Message Text="GetResolvedWinMD: @(WinMDFullPath->'%(FullPath)')" Importance="$(MidlRTVerbosity)"/>
+    </Target>
+
+    <!-- Static library reference WinMDs are merged into the project WinMD that
+         references it and might have the same name because they often share namespace. 
+         Therefore they shouldn't be copied to the output folder
+         because they might override files in the output folder with the
+         same name, causing missing types. -->
+    <Target Name="MidlRTMarkStaticLibrariesPrivate"
+            DependsOnTargets="ResolveProjectReferences"
+            Returns="@(_ResolvedProjectReferencePaths)">
+        <ItemGroup>
+            <_ResolvedProjectReferencePaths Condition="'%(_ResolvedProjectReferencePaths.ProjectType)' == 'StaticLibrary'">
+                <Private>false</Private>
+            </_ResolvedProjectReferencePaths>
+        </ItemGroup>
+    </Target>
+
+    <!--Define platform WinMD references for modern IDL compilation-->
+    <Target Name="GetMidlRTPlatformWinMDReferences"
+            DependsOnTargets="ResolveAssemblyReferences;$(GetMidlRTPlatformWinMDReferencesDependsOn)"
+            Returns="@(MidlRTPlatformWinMDReferences)">
+        <ItemGroup>
+            <_MidlRTPlatformWinMDReferences Remove="@(_MidlRTPlatformWinMDReferences)" />
+            <_MidlRTPlatformWinMDReferences Include="@(ReferencePath)" Condition="'%(ReferencePath.IsSystemReference)' == 'true' and '%(ReferencePath.WinMDFile)' == 'true' and '%(ReferencePath.ReferenceSourceTarget)' == 'ResolveAssemblyReference'" />
+            <_MidlRTPlatformWinMDReferences Condition="'$(MidlRTOverrideSDKReferences)' != 'true'" Include="$(WindowsSDK_MetadataPathVersioned)\**\Windows.Foundation.FoundationContract.winmd" />
+            <_MidlRTPlatformWinMDReferences Condition="'$(MidlRTOverrideSDKReferences)' != 'true'" Include="$(WindowsSDK_MetadataPathVersioned)\**\Windows.Foundation.UniversalApiContract.winmd" />
+            <_MidlRTPlatformWinMDReferences Condition="'$(MidlRTOverrideSDKReferences)' != 'true'" Include="$(WindowsSDK_MetadataPathVersioned)\**\Windows.Networking.Connectivity.WwanContract.winmd" />
+            <_MidlRTPlatformWinMDReferences Include="$(MidlRTSDKReferences)" />
+            <MidlRTPlatformWinMDReferences Remove="@(MidlRTPlatformWinMDReferences)"/>
+            <MidlRTPlatformWinMDReferences Include="@(_MidlRTPlatformWinMDReferences->'%(FullPath)'->Distinct())">
+                <WinMDPath>%(FullPath)</WinMDPath>
+            </MidlRTPlatformWinMDReferences>
+        </ItemGroup>
+        <Message Text="MidlRTPlatformWinMDReferences: @(MidlRTPlatformWinMDReferences->'%(WinMDPath)')" Importance="$(MidlRTVerbosity)"/>
+    </Target>
+
+    <!--Get direct WinMD references (including Nuget packages) for projections, IDL processing, and AppX packaging-->
+    <Target Name="GetMidlRTDirectWinMDReferences"
+            DependsOnTargets="ResolveAssemblyReferences;$(GetMidlRTDirectWinMDReferencesDependsOn)"
+            Returns="@(MidlRTDirectWinMDReferences)">
+        <ItemGroup>
+            <_MidlRTDirectWinMDReferences Remove="@(_MidlRTDirectWinMDReferences)" />
+            <_MidlRTDirectWinMDReferences Include="@(ReferencePath)" Condition="'%(ReferencePath.IsSystemReference)' != 'true' and '%(ReferencePath.WinMDFile)' == 'true' and '%(ReferencePath.ReferenceSourceTarget)' == 'ResolveAssemblyReference'" />
+            <MidlRTDirectWinMDReferences Remove="@(MidlRTDirectWinMDReferences)"/>
+            <MidlRTDirectWinMDReferences Include="@(_MidlRTDirectWinMDReferences)">
+                <WinMDPath>%(FullPath)</WinMDPath>
+            </MidlRTDirectWinMDReferences>
+        </ItemGroup>
+        <Message Text="MidlRTDirectWinMDReferences: @(MidlRTDirectWinMDReferences->'%(WinMDPath)')" Importance="$(MidlRTVerbosity)"/>
+    </Target>
+
+    <!--Get direct WinMD project references for projections, IDL processing, and AppX packaging-->
+    <Target Name="GetMidlRTProjectWinMDReferences"
+            DependsOnTargets="ResolveProjectReferences;$(GetMidlRTProjectWinMDReferencesDependsOn)"
+            Returns="@(MidlRTStaticProjectWinMDReferences);@(MidlRTDynamicProjectWinMDReferences)">
+        <ItemGroup>
+            <!-- Get static library project references -->
+            <_MidlRTStaticProjectReferences Remove="@(_MidlRTStaticProjectReferences)"/>
+            <_MidlRTStaticProjectReferences Include="@(_ResolvedProjectReferencePaths)"
+                Condition= "'%(_ResolvedProjectReferencePaths.ProjectType)'=='StaticLibrary' AND 
+                    '%(_ResolvedProjectReferencePaths.WinMDFile)' == 'true'"/>
+            <!--Get dynamic library project references-->
+            <_MidlRTDynamicProjectReferences Remove="@(_MidlRTDynamicProjectReferences)"/>
+            <_MidlRTDynamicProjectReferences Include="@(_ResolvedProjectReferencePaths)"
+                Condition= "'%(_ResolvedProjectReferencePaths.ProjectType)'!='StaticLibrary' AND 
+                ('%(_ResolvedProjectReferencePaths.WinMDFile)' == 'true' OR
+                    ('%(_ResolvedProjectReferencePaths.WinMDFile)' == '' AND '%(_ResolvedProjectReferencePaths.Extension)' == '.winmd'))"/>
+        </ItemGroup>
+        <ItemGroup>
+            <MidlRTStaticProjectWinMDReferences Remove="@(MidlRTStaticProjectWinMDReferences)" />
+            <MidlRTStaticProjectWinMDReferences Include="@(_MidlRTStaticProjectReferences)">
+                <WinMDPath>%(FullPath)</WinMDPath>
+            </MidlRTStaticProjectWinMDReferences>
+            <MidlRTDynamicProjectWinMDReferences Remove="@(MidlRTDynamicProjectWinMDReferences)" />
+            <MidlRTDynamicProjectWinMDReferences Include="@(_MidlRTDynamicProjectReferences)">
+                <WinMDPath>%(FullPath)</WinMDPath>
+            </MidlRTDynamicProjectWinMDReferences>
+        </ItemGroup>
+        <Message Text="MidlRTStaticProjectWinMDReferences: @(MidlRTStaticProjectWinMDReferences->'%(WinMDPath)')" Importance="$(MidlRTVerbosity)"/>
+        <Message Text="MidlRTDynamicProjectWinMDReferences: @(MidlRTDynamicProjectWinMDReferences->'%(WinMDPath)')" Importance="$(MidlRTVerbosity)"/>
+    </Target>
+
+    <Target Name="MidlRTResolveReferences" DependsOnTargets="GetMidlRTPlatformWinMDReferences;GetMidlRTDirectWinMDReferences;GetMidlRTProjectWinMDReferences;$(MidlRTResolveReferencesDependsOn)" />
+
+    <!-- Calculates the input files and metadata directories to be passed to MdMerge -->
+    <Target Name="GetMidlRTMdMergeInputs"
+                DependsOnTargets="MidlRTResolveReferences;"
+                Returns="@(MidlRTMdMergeMetadataDirectories);@(MidlRTMdMergeInputs)">
+        <ItemGroup>
+            <_MdMergeInputs Remove="@(_MdMergeInputs)"/>
+            <_MdMergeInputs Include="@(Midl)">
+                <WinMDPath>%(Midl.OutputDirectory)%(Midl.MetadataFileName)</WinMDPath>
+                <MdMergeOutputFile>$(MidlRTProjectWinMD)</MdMergeOutputFile>
+            </_MdMergeInputs>
+            <!-- Static libraries don't mdmerge other static libraries. 
+                 They are however used as references so idl can reference classes from other libs. -->
+            <_MdMergeInputs Include="@(MidlRTStaticProjectWinMDReferences)" Condition="'$(ConfigurationType)' != 'StaticLibrary'">
+                <MdMergeOutputFile>$(MidlRTProjectWinMD)</MdMergeOutputFile>
+            </_MdMergeInputs>
+            <_MdMergeReferences Remove="@(_MdMergeReferences)" />
+            <!-- Static libraries don't mdmerge other static libraries.
+                 They are however used as references so idl can reference classes from other libs. -->
+            <_MdMergeReferences Include="@(MidlRTStaticProjectWinMDReferences)" Condition="'$(ConfigurationType)' == 'StaticLibrary'" />
+            <_MdMergeReferences Include="@(MidlRTDirectWinMDReferences)" />
+            <_MdMergeReferences Include="@(MidlRTDynamicProjectWinMDReferences)" />
+            <_MdMergeReferences Include="@(MidlRTPlatformWinMDReferences)" />
+            <MidlRTMdMergeMetadataDirectories Remove="@(MidlRTMdMergeMetadataDirectories)" />
+            <MidlRTMdMergeMetadataDirectories Include="@(_MdMergeReferences->'%(RelativeDir)'->Distinct())" />
+            <MidlRTMdMergeInputs Remove="@(MidlRTMdMergeInputs)" />
+            <MidlRTMdMergeInputs Include="@(_MdMergeInputs->'%(WinMDPath)'->Distinct())" />
+        </ItemGroup>
+        <Message Text="MidlRTMdMergeInputs: @(MidlRTMdMergeInputs)" Importance="$(MidlRTVerbosity)"/>
+        <Message Text="MidlRTMdMergeMetadataDirectories: @(MidlRTMdMergeMetadataDirectories)" Importance="$(MidlRTVerbosity)"/>
+    </Target>
+
+    <!--Insert Midl /references to Platform WinMDs, library reference WinMDs, and direct reference WinMDs-->
+    <Target Name="MidlRTSetMidlReferences"
+            Condition="'$(ModernMidlRT)' != 'false'"
+            DependsOnTargets="GetMidlRTPlatformWinMDReferences;GetMidlRTDirectWinMDReferences;GetMidlRTProjectWinMDReferences;$(MidlRTSetMidlReferencesDependsOn)"
+            Inputs="$(MSBuildAllProjects);@(MidlRTDirectWinMDReferences);@(MidlRTStaticProjectWinMDReferences);@(MidlRTDynamicProjectWinMDReferences);@(MidlRTPlatformWinMDReferences)"
+            Outputs="$(IntDir)midlrt.rsp">
+        <ItemGroup>
+            <_MidlReferences Remove="@(_MidlReferences)"/>
+            <_MidlReferences Include="@(MidlRTDirectWinMDReferences)"/>
+            <_MidlReferences Include="@(MidlRTStaticProjectWinMDReferences)"/>
+            <_MidlReferences Include="@(MidlRTDynamicProjectWinMDReferences)"/>
+            <_MidlReferences Include="@(MidlRTPlatformWinMDReferences)"/>
+            <_MidlReferencesDistinct Remove="@(_MidlReferencesDistinct)" />
+            <_MidlReferencesDistinct Include="@(_MidlReferences->'%(WinMDPath)'->Distinct())" />
+            <Midl Condition="'%(Midl.DisableReferences)'==''">
+                <AdditionalOptions>%(Midl.AdditionalOptions) %40"$(IntDir)midlrt.rsp"</AdditionalOptions>
+            </Midl>
+        </ItemGroup>
+        <PropertyGroup>
+            <_MidlrtParameters>@(_MidlReferencesDistinct->'/reference &quot;%(WinMDPath)&quot;','&#x0d;&#x0a;')</_MidlrtParameters>
+        </PropertyGroup>
+        <!-- Always write the midlrt.rsp file when the target runs, because the file is used as the output of this target. -->
+        <WriteLinesToFile
+            File="$(IntDir)midlrt.rsp" Lines="$(_MidlrtParameters)"
+            ContinueOnError="true" Overwrite="true" />
+        <Message Text="MidlRTMidlReferences: @(_MidlReferences->'%(WinMDPath)')" Importance="$(MidlRTVerbosity)"/>
+    </Target>
+
+    <!--Ctrl+F7 (selected file) midl compilation support-->
+    <Target Name="MidlRTSetSelectMidlReferences" BeforeTargets="SelectMidl" DependsOnTargets="MidlRTSetMidlReferences" />
+
+    <!--Merge project-generated WinMDs and project-referenced static library WinMDs into project WinMD-->
+    <Target Name="MidlRTMergeProjectWinMDInputs"
+            DependsOnTargets="Midl;GetMidlRTMdMergeInputs;$(MidlRTMergeProjectWinMDInputsDependsOn)"
+            Inputs="$(MSBuildAllProjects);@(MidlRTMdMergeInputs)"
+            Outputs="@(_MdMergedOutput);$(IntDir)mdmerge.rsp">
+        <PropertyGroup>
+            <_MdMergeDepth Condition="'$(MidlRTNamespaceMergeDepth)' != ''">-n:$(MidlRTNamespaceMergeDepth)</_MdMergeDepth>
+            <_MdMergeDepth Condition="'$(_MdMergeDepth)' == '' And '$(MidlRTRootNamespaceAutoMerge)' == 'true'">-n:$(RootNamespace.Split('.').length)</_MdMergeDepth>
+            <_MdMergeDepth Condition="'$(_MdMergeDepth)' == '' And ('@(Page)' != '' Or '@(ApplicationDefinition)' != '')">-n:1</_MdMergeDepth>
+            <_MdMergeCommand>$(MdMergePath)mdmerge %40"$(IntDir)mdmerge.rsp"</_MdMergeCommand>
+        </PropertyGroup>
+        <PropertyGroup>
+            <!-- mdmerge.exe wants the folders to not have a trailing \ -->
+            <_MdMergeParameters>-v @(MidlRTMdMergeMetadataDirectories->'-metadata_dir &quot;%(RelativeDir).&quot;', '&#x0d;&#x0a;')</_MdMergeParameters>
+            <_MdMergeParameters>$(_MdMergeParameters) @(MidlRTMdMergeInputs->'-i &quot;%(Identity)&quot;', '&#x0d;&#x0a;')</_MdMergeParameters>
+            <_MdMergeParameters>$(_MdMergeParameters) -o &quot;$(MidlRTMergedDir.TrimEnd('\'))&quot; -partial $(_MdMergeDepth)</_MdMergeParameters>
+        </PropertyGroup>
+        <!-- Always write the mdmerge.rsp file when the target runs, because the file is used as the output of this target. -->
+        <WriteLinesToFile
+            File="$(IntDir)mdmerge.rsp" Lines="$(_MdMergeParameters)"
+            ContinueOnError="true" Overwrite="true" />
+        <MakeDir Directories="$(MidlRTUnmergedDir);$(MidlRTMergedDir)" />
+        <Message Text="$(_MdMergeCommand)" Importance="$(MidlRTVerbosity)" Condition="'@(MidlRTMdMergeInputs)' != ''" />
+        <!-- Only run mdmerge.exe when we actually have inputs -->
+        <Exec Command="$(_MdMergeCommand)" Condition="'@(MidlRTMdMergeInputs)' != ''" />
+        <ItemGroup>
+            <_MdMergedOutput Remove="@(_MdMergedOutput)"/>
+            <_MdMergedOutput Include="$(MidlRTMergedDir)*.winmd"/>
+        </ItemGroup>
+        <Message Text="MidlRTMdMerge output: @(MdMergeOutput)" Importance="$(MidlRTVerbosity)"/>
+    </Target>
+
+    <Target Name="MidlRTCopyWinMDToOutputDirectory"
+            DependsOnTargets="MidlRTMergeProjectWinMDInputs;$(MidlRTCopyWinMDToOutputDirectoryDependsOn)"
+            Inputs="@(_MdMergedOutput)"
+            Outputs="$(MidlRTProjectWinMD)">
+        <Copy UseHardlinksIfPossible="$(MidlRTUseHardlinksIfPossible)"
+            SkipUnchangedFiles="$(MidlRTSkipUnchangedFiles)"
+            SourceFiles="@(_MdMergedOutput)"
+            DestinationFiles="@(_MdMergedOutput->'$(OutDir)%(Filename)%(Extension)')" />
+    </Target>
+
+    <!--Append any additional item metadata after all default and project settings have been applied-->
+    <ItemDefinitionGroup>
+      <Midl Condition="'$(ModernMidlRT)' != 'false'">
+        <AdditionalMetadataDirectories Condition="'%(AdditionalMetadataDirectories)' == '' And '$(WindowsSDK_MetadataFoundationPath)' != ''">$(WindowsSDK_MetadataFoundationPath);%(AdditionalMetadataDirectories)</AdditionalMetadataDirectories>
+        <AdditionalMetadataDirectories Condition="'%(AdditionalMetadataDirectories)' == '' And '$(WindowsSDK_MetadataFoundationPath)' == ''">$(WindowsSDK_MetadataPath);%(AdditionalMetadataDirectories)</AdditionalMetadataDirectories>
+        <AdditionalOptions>%(AdditionalOptions) /nomidl</AdditionalOptions>
+      </Midl>
+    </ItemDefinitionGroup>
+  
+    <Import Project="Microsoft.Windows.MidlRT.IdlGen.targets" Condition="'$(ModernMidlRT)' == 'false'"/>
+</Project>

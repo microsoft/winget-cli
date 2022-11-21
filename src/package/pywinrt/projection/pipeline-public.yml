@@ -1,0 +1,9 @@
+name: $(System.TeamProject)_$(BuildID).$(Date:yy).$(Date:MMdd).$(DayOfYear).$(Rev:r)
+jobs:
+- template: AzurePipelinesTemplates/job-build-pywinrt.yml
+
+- template: AzurePipelinesTemplates/job-build-projection.yml
+
+- template: AzurePipelinesTemplates/job-package-projection.yml
+  parameters:
+    dependsOn: build_projection
