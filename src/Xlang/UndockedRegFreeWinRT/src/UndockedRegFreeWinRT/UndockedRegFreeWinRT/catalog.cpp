@@ -153,7 +153,7 @@ HRESULT WinRTLoadComponentFromFilePath(PCWSTR manifestPath)
 HRESULT WinRTLoadComponentFromString(std::string_view xmlStringValue)
 {
     ComPtr<IStream> xmlStream = nullptr;
-    xmlStream.Attach(SHCreateMemStream(reinterpret_cast<const BYTE*>(xmlStringValue.data()), strlen(xmlStringValue.data()) * sizeof(CHAR)));
+    xmlStream.Attach(SHCreateMemStream(reinterpret_cast<const BYTE*>(xmlStringValue.data()), static_cast<UINT>(strlen(xmlStringValue.data()) * sizeof(CHAR))));
     RETURN_HR_IF_NULL(E_OUTOFMEMORY, xmlStream);
     ComPtr<IXmlReaderInput> xmlReaderInput;
     RETURN_IF_FAILED(CreateXmlReaderInputWithEncodingName(xmlStream.Get(), nullptr, L"utf-8", FALSE, nullptr, &xmlReaderInput));
