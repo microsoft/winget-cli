@@ -1,2 +1,0 @@
-#define UNDOCKEDREGFREEWINRT_API __declspec(dllexport)
-#define UNDOCKEDREGFREEWINRT_API __declspec(dllimport)
