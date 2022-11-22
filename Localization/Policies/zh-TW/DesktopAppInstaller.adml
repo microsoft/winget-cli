@@ -31,6 +31,12 @@
 如果您啟用或未設定這個設定，使用者將可以使用 Windows 套件管理員來安裝具有本機資訊清單的套件。
 
 若停用此設定，使用者將無法使用 Windows 套件管理員來安裝具有本機資訊清單的套件。</string>
+      <string id="EnableBypassCertificatePinningForMicrosoftStore">Enable App Installer Microsoft Store Source Pinned Certificate Bypass</string>
+      <string id="EnableBypassCertificatePinningForMicrosoftStoreExplanation">This policy controls whether the Windows Package Manager can be configured to disable the requirement to use a pinned certificate for the Microsoft Store source.
+
+If you enable or do not configure this setting, users will be able to bypass the pinned certificate used to validate the Microsoft Store source.
+
+If you disable this setting, users will not be able to bypass the pinned certificate used to validate the Microsoft Store source.</string>
       <string id="EnableHashOverride">啟用應用程式安裝程式雜湊覆寫</string>
       <string id="EnableHashOverrideExplanation">此原則會控制 Windows 封裝管理員是否可以設定以便啟用在設定中覆寫 SHA256 安全性驗證的能力。
 

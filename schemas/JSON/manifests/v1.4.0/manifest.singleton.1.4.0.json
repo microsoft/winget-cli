@@ -270,6 +270,7 @@
               "missingDependency",
               "diskFull",
               "insufficientMemory",
+              "invalidParameter",
               "noNetwork",
               "contactSupport",
               "rebootRequiredToFinish",
@@ -279,6 +280,7 @@
               "alreadyInstalled",
               "downgrade",
               "blockedByPolicy",
+              "systemNotSupported",
               "custom"
             ]
           },
@@ -316,7 +318,7 @@
         "type": "string",
         "maxLength": 2048
       },
-      "maxItems": 16,
+      "maxItems": 64,
       "uniqueItems": true,
       "description": "List of protocols the package provides a handler for"
     },

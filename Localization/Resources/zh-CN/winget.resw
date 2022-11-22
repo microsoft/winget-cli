@@ -132,7 +132,7 @@
   </data>
   <data name="AvailableHeader" xml:space="preserve">
     <value>可用</value>
-    <comment>As in "a new version is available to update to".</comment>
+    <comment>As in "a new version is available to upgrade to".</comment>
   </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>下列选项可用：</value>
@@ -259,23 +259,11 @@
   <data name="InstallationRequiresHigherWindows" xml:space="preserve">
     <value>无法安装程序包，因为它需要更高版本的 Windows：</value>
   </data>
-  <data name="InstallCommandLongDescription" xml:space="preserve">
-    <value>安装选定的程序包，该程序包可以通过搜索配置的源找到，也可以直接从清单中找到。默认情况下，查询必须以不区分大小写的方式匹配程序包的 ID、名称或名字对象。可通过传递相应的选项来使用其他字段。</value>
-    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
-  </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>安装给定的程序包</value>
   </data>
   <data name="InstallerHashMismatchAdminBlock" xml:space="preserve">
     <value>安装程序哈希不匹配；以管理员身份运行时不能覆盖此内容</value>
-  </data>
-  <data name="InstallerHashMismatchOverridden" xml:space="preserve">
-    <value>安装程序哈希不匹配；因 --force 而继续进行</value>
-    <comment>{Locked="--force"}</comment>
-  </data>
-  <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
-    <value>安装程序哈希不匹配；若要覆盖此检查，请使用 --force</value>
-    <comment>{Locked="--force"}</comment>
   </data>
   <data name="InstallerHashVerified" xml:space="preserve">
     <value>已成功验证安装程序哈希</value>
@@ -285,9 +273,6 @@
   </data>
   <data name="InstallFlowStartingPackageInstall" xml:space="preserve">
     <value>正在启动程序包安装...</value>
-  </data>
-  <data name="InstallForceArgumentDescription" xml:space="preserve">
-    <value>覆盖安装程序哈希检查</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>请求交互式安装；可能需要用户输入</value>
@@ -311,10 +296,6 @@
   <data name="Links" xml:space="preserve">
     <value>链接</value>
     <comment>Links to different webpages</comment>
-  </data>
-  <data name="ListCommandLongDescription" xml:space="preserve">
-    <value>list 命令显示系统上安装的程序包，以及是否有可用的更新。可以提供其他选项来筛选输出，这与 search 命令非常相似。</value>
-    <comment>{Locked="list","search"}</comment>
   </data>
   <data name="ListCommandShortDescription" xml:space="preserve">
     <value>显示已安装的程序包</value>
@@ -356,12 +337,6 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>无法计算 MSIX 签名哈希。</value>
   </data>
-  <data name="MSStoreAppBlocked" xml:space="preserve">
-    <value>无法安装或更新 Microsoft Store 程序包，因为策略阻止了特定应用</value>
-  </data>
-  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
-    <value>无法安装或更新 Microsoft Store 程序包。错误代码：</value>
-  </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>验证/请求程序包获取失败: 网络错误</value>
   </data>
@@ -373,9 +348,6 @@
   </data>
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>验证/请求程序包获取成功</value>
-  </data>
-  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
-    <value>无法安装或更新 Microsoft Store 程序包，因为策略阻止了 Microsoft Store 客户端</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>验证/请求程序包获取成功...</value>
@@ -658,12 +630,6 @@
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>无法识别的命令</value>
-  </data>
-  <data name="UpdateAllArgumentDescription" xml:space="preserve">
-    <value>如果可用，将所有已安装的程序包更新为最新版本</value>
-  </data>
-  <data name="UpdateNotApplicable" xml:space="preserve">
-    <value>找不到适用的更新。</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
     <value>升级通过搜索已安装的包列表或直接从清单中找到的所选包。默认情况下，查询必须以不区分大小写方式匹配包的 ID、名称或名字对象。可通过传递相应的选项来使用其他字段。如果未提供参数，则显示具有可用升级的包</value>
@@ -1030,20 +996,8 @@
   <data name="ShowLabelInstaller" xml:space="preserve">
     <value>安装：</value>
   </data>
-  <data name="ShowLabelInstallerLocale" xml:space="preserve">
-    <value>区域设置:</value>
-  </data>
   <data name="ShowLabelInstallerProductId" xml:space="preserve">
     <value>应用商店产品 ID：</value>
-  </data>
-  <data name="ShowLabelInstallerSha256" xml:space="preserve">
-    <value>SHA256:</value>
-  </data>
-  <data name="ShowLabelInstallerType" xml:space="preserve">
-    <value>类型:</value>
-  </data>
-  <data name="ShowLabelInstallerUrl" xml:space="preserve">
-    <value>下载 URL：</value>
   </data>
   <data name="ShowLabelLicense" xml:space="preserve">
     <value>许可证:</value>
@@ -1301,6 +1255,7 @@
   </data>
   <data name="PortableRegistryCollisionOverridden" xml:space="preserve">
     <value>具有相同名称但来自不同源的可移植包已存在；由于 --force 而继续</value>
+    <comment>{Locked="--force"}</comment>
   </data>
   <data name="ReparsePointsNotSupportedError" xml:space="preserve">
     <value>卷不支持重新分析点</value>
@@ -1320,14 +1275,6 @@
   <data name="BothPurgeAndPreserveFlagsProvided" xml:space="preserve">
     <value>同时提供了 `purge` 和 `preserve` 参数</value>
   </data>
-  <data name="PortableHashMismatchOverridden" xml:space="preserve">
-    <value>已修改可移植 exe；由于 --force 而继续</value>
-    <comment>{Locked="--force"}</comment>
-  </data>
-  <data name="PortableHashMismatchOverrideRequired" xml:space="preserve">
-    <value>无法删除可移植 exe，因为它已被修改；要替代此检查，请使用 --force</value>
-    <comment>{Locked="--force"}</comment>
-  </data>
   <data name="FilesRemainInInstallDirectory" xml:space="preserve">
     <value>文件保留在安装目录中:</value>
   </data>
@@ -1345,8 +1292,5 @@
   </data>
   <data name="Notes" xml:space="preserve">
     <value>注释:</value>
-  </data>
-  <data name="ShowLabelInstallationNotes" xml:space="preserve">
-    <value>InstallationNotes:</value>
   </data>
 </root>

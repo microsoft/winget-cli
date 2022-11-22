@@ -930,6 +930,38 @@ TEST_CASE("InstallFlow_RenameFromEncodedUrl", "[InstallFlow][workflow]")
     REQUIRE(installResultStr.find("/encodedUrl") != std::string::npos);
 }
 
+TEST_CASE("InstallFlow_RenameFromInvalidFileCharacterUrl", "[InstallFlow][workflow]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCheckExistingInstaller(context);
+    context.Override({ DownloadInstallerFile, [](TestContext& context)
+    {
+        context.Add<Data::HashPair>({ {}, {} });
+        auto installerPath = std::filesystem::temp_directory_path();
+        installerPath /= "InvalidFileCharacterUrlTest.exe";
+        std::filesystem::copy(TestDataFile("AppInstallerTestExeInstaller.exe"), installerPath, std::filesystem::copy_options::overwrite_existing);
+        context.Add<Data::InstallerPath>(installerPath);
+    } });
+    OverrideForUpdateInstallerMotw(context);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_InvalidFileCharacterUrl.yaml").GetPath().u8string());
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify Installer is called and parameters are passed in.
+    REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
+    std::ifstream installResultFile(installResultPath.GetPath());
+    REQUIRE(installResultFile.is_open());
+    std::string installResultStr;
+    std::getline(installResultFile, installResultStr);
+    REQUIRE(installResultStr.find("/invalidFileCharacterUrl") != std::string::npos);
+}
+
 TEST_CASE("InstallFlowNonZeroExitCode", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
@@ -3683,6 +3715,27 @@ TEST_CASE("InstallFlow_FoundInstalledAndUpgradeAvailable", "[UpdateFlow][workflo
     std::getline(installResultFile, installResultStr);
     REQUIRE(installResultStr.find("/update") != std::string::npos);
     REQUIRE(installResultStr.find("/ver3.0.0.0") != std::string::npos);
+}
+
+TEST_CASE("InstallFlow_FoundInstalledAndUpgradeAvailable_WithNoUpgrade", "[UpdateFlow][workflow]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context);
+    context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestExeInstaller"sv);
+    context.Args.AddArg(Execution::Args::Type::NoUpgrade);
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify Installer is not called.
+    REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::PackageAlreadyInstalled).get()) != std::string::npos);
+    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_PACKAGE_ALREADY_INSTALLED);
 }
 
 TEST_CASE("InstallFlow_FoundInstalledAndUpgradeNotAvailable", "[UpdateFlow][workflow]")

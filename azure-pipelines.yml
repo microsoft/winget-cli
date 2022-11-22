@@ -324,7 +324,13 @@ jobs:
   - task: BinSkim@3
     displayName: 'Run BinSkim '
     inputs:
-      arguments: 'analyze "$(System.DefaultWorkingDirectory)\src\win*get.exe" "$(System.DefaultWorkingDirectory)\src\WinGet*Util.dll" "$(System.DefaultWorkingDirectory)\src\Windows*PackageManager.dll" "$(System.DefaultWorkingDirectory)\src\Microsoft.Management.Deployment.*InProc.dll" --config default --recurse'
+      arguments: 'analyze
+        "$(buildOutDir)\AppInstallerCLI\winget.exe"
+        "$(buildOutDir)\WinGetUtil\WinGetUtil.dll"
+        "$(buildOutDir)\WindowsPackageManager\WindowsPackageManager.dll"
+        "$(buildOutDir)\Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.InProc.dll"
+        "$(Build.SourcesDirectory)\src\WinGetUtilInterop\bin\WinGetUtil*Interop.dll"
+        "$(buildOutDir)\Microsoft.WinGet.Client\Microsoft.WinGet.*Client.dll" --config default --recurse'
 
   - task: securedevelopmentteam.vss-secure-development-tools.build-task-publishsecurityanalysislogs.PublishSecurityAnalysisLogs@2
     displayName: 'Publish Security Analysis Logs'

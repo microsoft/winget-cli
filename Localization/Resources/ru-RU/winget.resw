@@ -132,7 +132,7 @@
   </data>
   <data name="AvailableHeader" xml:space="preserve">
     <value>Доступно</value>
-    <comment>As in "a new version is available to update to".</comment>
+    <comment>As in "a new version is available to upgrade to".</comment>
   </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>Доступны следующие опции:</value>
@@ -259,23 +259,11 @@
   <data name="InstallationRequiresHigherWindows" xml:space="preserve">
     <value>Не удается установить пакет, так как для него требуется более поздняя версия Windows:</value>
   </data>
-  <data name="InstallCommandLongDescription" xml:space="preserve">
-    <value>Устанавливает выбранный пакет, обнаруженный либо путем поиска в настроенном источнике, либо непосредственно из манифеста. По умолчанию запрос должен сравнить идентификатор, имя или моникер пакета (без учета регистра). Можно использовать и другие поля, указав соответствующий параметр.</value>
-    <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
-  </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>Установка указанного пакета</value>
   </data>
   <data name="InstallerHashMismatchAdminBlock" xml:space="preserve">
     <value>Хэш установщика не совпадает. Невозможно переопределить этот параметр при запуске от имени администратора.</value>
-  </data>
-  <data name="InstallerHashMismatchOverridden" xml:space="preserve">
-    <value>Хеш установщика не совпадает. Продолжение работы, поскольку указан параметр --force</value>
-    <comment>{Locked="--force"}</comment>
-  </data>
-  <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
-    <value>Хэш установщика не совпадает. Чтобы переопределить это ограничение, используйте параметр --force</value>
-    <comment>{Locked="--force"}</comment>
   </data>
   <data name="InstallerHashVerified" xml:space="preserve">
     <value>Хэш установщика успешно проверен</value>
@@ -285,9 +273,6 @@
   </data>
   <data name="InstallFlowStartingPackageInstall" xml:space="preserve">
     <value>Запуск установки пакета...</value>
-  </data>
-  <data name="InstallForceArgumentDescription" xml:space="preserve">
-    <value>Переопределить проверку хэша установщика</value>
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>Запросить интерактивную установку; может потребоваться ввод данных пользователем</value>
@@ -311,10 +296,6 @@
   <data name="Links" xml:space="preserve">
     <value>Ссылки</value>
     <comment>Links to different webpages</comment>
-  </data>
-  <data name="ListCommandLongDescription" xml:space="preserve">
-    <value>Команда list отображает пакеты, установленные в системе, а также доступность обновления. Для фильтрации выходных данных можно указать дополнительные параметры по аналогии с командой search.</value>
-    <comment>{Locked="list","search"}</comment>
   </data>
   <data name="ListCommandShortDescription" xml:space="preserve">
     <value>Отображать установленные пакеты</value>
@@ -356,12 +337,6 @@
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Не удалось вычислить хэш подписи MSIX.</value>
   </data>
-  <data name="MSStoreAppBlocked" xml:space="preserve">
-    <value>Не удалось установить или обновить пакет Microsoft Store, поскольку конкретное приложение заблокировано политикой</value>
-  </data>
-  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
-    <value>Не удалось установить или обновить пакет Microsoft Store. Код ошибки:</value>
-  </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>Проверка/запрос ошибки при получении пакета: ошибка сети</value>
   </data>
@@ -373,9 +348,6 @@
   </data>
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>Проверка/запрос успешного состояния получения пакета</value>
-  </data>
-  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
-    <value>Не удалось установить или обновить пакет Microsoft Store, поскольку клиент Microsoft Store заблокирован политикой</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>Проверка/запрос сведений о получении пакета...</value>
@@ -658,12 +630,6 @@
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Нераспознанная команда</value>
-  </data>
-  <data name="UpdateAllArgumentDescription" xml:space="preserve">
-    <value>Обновить все установленные пакеты до последней версии, если она доступна</value>
-  </data>
-  <data name="UpdateNotApplicable" xml:space="preserve">
-    <value>Применимые обновления не найдены.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
     <value>Обновляет выбранный пакет, обнаруженный путем поиска в списке установленных пакетов или непосредственно из манифеста приложения. По умолчанию запрос должен соответствовать идентификатору, имени или пути ссылки пакета (без учета регистра). Можно использовать и другие поля, указав соответствующий параметр. Если аргументы не указаны, показывает пакеты с доступными обновлениями</value>
@@ -1030,20 +996,8 @@
   <data name="ShowLabelInstaller" xml:space="preserve">
     <value>Установщик:</value>
   </data>
-  <data name="ShowLabelInstallerLocale" xml:space="preserve">
-    <value>Языковой стандарт:</value>
-  </data>
   <data name="ShowLabelInstallerProductId" xml:space="preserve">
     <value>Идентификатор продукта в Store:</value>
-  </data>
-  <data name="ShowLabelInstallerSha256" xml:space="preserve">
-    <value>SHA256:</value>
-  </data>
-  <data name="ShowLabelInstallerType" xml:space="preserve">
-    <value>Тип:</value>
-  </data>
-  <data name="ShowLabelInstallerUrl" xml:space="preserve">
-    <value>URL-адрес для скачивания:</value>
   </data>
   <data name="ShowLabelLicense" xml:space="preserve">
     <value>Лицензия:</value>
@@ -1301,6 +1255,7 @@
   </data>
   <data name="PortableRegistryCollisionOverridden" xml:space="preserve">
     <value>Переносной пакет с таким именем, но из другого источника уже существует; выполняется из-за параметра --force</value>
+    <comment>{Locked="--force"}</comment>
   </data>
   <data name="ReparsePointsNotSupportedError" xml:space="preserve">
     <value>Том не поддерживает точки повторного анализа</value>
@@ -1320,14 +1275,6 @@
   <data name="BothPurgeAndPreserveFlagsProvided" xml:space="preserve">
     <value>Предоставляются аргументы "очистить" и "сохранить"</value>
   </data>
-  <data name="PortableHashMismatchOverridden" xml:space="preserve">
-    <value>Portable exe был изменен; выполняется из-за параметра --force</value>
-    <comment>{Locked="--force"}</comment>
-  </data>
-  <data name="PortableHashMismatchOverrideRequired" xml:space="preserve">
-    <value>Не удалось удалить Portable exe, так как он был изменен; чтобы переопределить эту проверку, используйте параметр --force</value>
-    <comment>{Locked="--force"}</comment>
-  </data>
   <data name="FilesRemainInInstallDirectory" xml:space="preserve">
     <value>Файлы, остающиеся в каталоге установки:</value>
   </data>
@@ -1345,8 +1292,5 @@
   </data>
   <data name="Notes" xml:space="preserve">
     <value>Примечания:</value>
-  </data>
-  <data name="ShowLabelInstallationNotes" xml:space="preserve">
-    <value>InstallationNotes:</value>
   </data>
 </root>

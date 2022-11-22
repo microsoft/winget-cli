@@ -45,7 +45,7 @@
   </ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == '$(CoreFramework)'">
-		<PackageReference Include="Microsoft.Windows.CsWinRT" Version="1.6.4" />
+		<PackageReference Include="Microsoft.Windows.CsWinRT" Version="1.6.5" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == '$(DesktopFramework)'">

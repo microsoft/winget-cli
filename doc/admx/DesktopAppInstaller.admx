@@ -53,6 +53,16 @@
         <decimal value="0" />
       </disabledValue>
     </policy>
+    <policy name="EnableBypassCertificatePinningForMicrosoftStore" class="Machine" displayName="$(string.EnableBypassCertificatePinningForMicrosoftStore)" explainText="$(string.EnableBypassCertificatePinningForMicrosoftStoreExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableBypassCertificatePinningForMicrosoftStore">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+    </policy>
     <policy name="EnableHashOverride" class="Machine" displayName="$(string.EnableHashOverride)" explainText="$(string.EnableHashOverrideExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableHashOverride">
       <parentCategory ref="AppInstaller" />
       <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />

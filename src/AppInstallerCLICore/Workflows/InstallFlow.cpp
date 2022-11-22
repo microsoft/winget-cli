@@ -128,6 +128,8 @@ namespace AppInstaller::CLI::Workflow
                     return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_DISK_FULL, Resource::String::InstallFlowReturnCodeDiskFull);
                 case ExpectedReturnCodeEnum::InsufficientMemory:
                     return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_INSUFFICIENT_MEMORY, Resource::String::InstallFlowReturnCodeInsufficientMemory);
+                case ExpectedReturnCodeEnum::InvalidParameter:
+                    return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_INVALID_PARAMETER, Resource::String::InstallFlowReturnCodeInvalidParameter);
                 case ExpectedReturnCodeEnum::NoNetwork:
                     return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_NO_NETWORK, Resource::String::InstallFlowReturnCodeNoNetwork);
                 case ExpectedReturnCodeEnum::ContactSupport:
@@ -146,6 +148,8 @@ namespace AppInstaller::CLI::Workflow
                     return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_DOWNGRADE, Resource::String::InstallFlowReturnCodeDowngrade);
                 case ExpectedReturnCodeEnum::BlockedByPolicy:
                     return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_BLOCKED_BY_POLICY, Resource::String::InstallFlowReturnCodeBlockedByPolicy);
+                case ExpectedReturnCodeEnum::SystemNotSupported:
+                    return ExpectedReturnCode(returnCode, APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED, Resource::String::InstallFlowReturnCodeSystemNotSupported);
                 default:
                     THROW_HR(E_UNEXPECTED);
                 }

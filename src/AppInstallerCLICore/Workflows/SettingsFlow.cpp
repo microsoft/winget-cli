@@ -1,25 +1,47 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include "Resources.h"
 #include "SettingsFlow.h"
+#include <AppInstallerStrings.h>
 #include <winget/UserSettings.h>
 #include <winget/AdminSettings.h>
-#include "Resources.h"
 
 namespace AppInstaller::CLI::Workflow
 {
     using namespace AppInstaller::Settings;
+    using namespace AppInstaller::Utility;
 
     void EnableAdminSetting(Execution::Context& context)
     {
-        Settings::EnableAdminSetting(Settings::StringToAdminSetting(context.Args.GetArg(Execution::Args::Type::AdminSettingEnable)));
-        context.Reporter.Info() << Resource::String::AdminSettingEnabled;
+        std::string_view adminSettingString = context.Args.GetArg(Execution::Args::Type::AdminSettingEnable);
+        AdminSetting adminSetting = Settings::StringToAdminSetting(adminSettingString);
+        if (Settings::EnableAdminSetting(adminSetting))
+        {
+            context.Reporter.Info() << Resource::String::AdminSettingEnabled;
+        }
+        else
+        {
+            std::string adminSettingErrorMessage = Resource::LocString{ Resource::String::EnableAdminSettingFailed };
+            context.Reporter.Error() <<
+                Utility::LocIndString{ FindAndReplaceMessageToken(adminSettingErrorMessage, adminSettingString) };
+        }
     }
 
     void DisableAdminSetting(Execution::Context& context)
     {
-        Settings::DisableAdminSetting(Settings::StringToAdminSetting(context.Args.GetArg(Execution::Args::Type::AdminSettingDisable)));
-        context.Reporter.Info() << Resource::String::AdminSettingDisabled;
+        std::string_view adminSettingString = context.Args.GetArg(Execution::Args::Type::AdminSettingDisable);
+        AdminSetting adminSetting = Settings::StringToAdminSetting(adminSettingString);
+        if (Settings::DisableAdminSetting(adminSetting))
+        {
+            context.Reporter.Info() << Resource::String::AdminSettingDisabled;
+        }
+        else
+        {
+            std::string adminSettingErrorMessage = Resource::LocString{ Resource::String::DisableAdminSettingFailed };
+            context.Reporter.Error() <<
+                Utility::LocIndString{ FindAndReplaceMessageToken(adminSettingErrorMessage, adminSettingString) };
+        }
     }
 
     void OpenUserSetting(Execution::Context& context)

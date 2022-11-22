@@ -885,6 +885,9 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="PolicyEnableLocalManifests" xml:space="preserve">
     <value>Enable Windows App Installer Local Manifest Files</value>
   </data>
+  <data name="PolicyEnableBypassCertificatePinningForMicrosoftStore" xml:space="preserve">
+    <value>Enable Windows App Installer Microsoft Store Source Pinned Certificate Bypass</value>
+  </data>
   <data name="SettingsWarningField" xml:space="preserve">
     <value>Field:</value>
   </data>
@@ -1197,6 +1200,9 @@ Do you agree to the terms?</value>
   <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
     <value>There's not enough memory available to install. Close other applications then try again.</value>
   </data>
+  <data name="InstallFlowReturnCodeInvalidParameter" xml:space="preserve">
+    <value>One of the installation parameters is invalid. The package installation log may have additional details.</value>
+  </data>
   <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
     <value>This application requires internet connectivity. Connect to a network then try again.</value>
   </data>
@@ -1223,6 +1229,9 @@ Do you agree to the terms?</value>
   </data>
   <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
     <value>Organization policies are preventing installation. Contact your admin.</value>
+  </data>
+  <data name="InstallFlowReturnCodeSystemNotSupported" xml:space="preserve">
+    <value>The current system configuration does not support the installation of this package.</value>
   </data>
   <data name="InstallAbandoned" xml:space="preserve">
     <value>Installation abandoned</value>
@@ -1341,6 +1350,9 @@ Please specify one of them using the `--source` option to proceed.</value>
   <data name="NoPackageSelectionArgumentProvided" xml:space="preserve">
     <value>No package selection argument was provided; see the help for details about finding a package.</value>
   </data>
+  <data name="PortableAliasAdded" xml:space="preserve">
+    <value>Command line alias added:</value>
+  </data>
   <data name="PortableInstallFailed" xml:space="preserve">
     <value>Portable install failed; Cleaning up...</value>
   </data>
@@ -1456,5 +1468,19 @@ Please specify one of them using the `--source` option to proceed.</value>
   <data name="ArchiveFailedMalwareScanOverridden" xml:space="preserve">
     <value>Archive scan detected malware; proceeding due to --force</value>
     <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="NoUpgradeArgumentDescription" xml:space="preserve">
+    <value>Skips upgrade if an installed version already exists</value>
+  </data>
+  <data name="PackageAlreadyInstalled" xml:space="preserve">
+    <value>A package version is already installed. Installation cancelled.</value>
+  </data>
+  <data name="EnableAdminSettingFailed" xml:space="preserve">
+    <value>Cannot enable %1. This setting is controlled by policy. For more information contact your system administrator.</value>
+    <comment>{Locked="%1"} The value will be replaced with the feature name</comment>
+  </data>
+  <data name="DisableAdminSettingFailed" xml:space="preserve">
+    <value>Cannot disable %1. This setting is controlled by policy. For more information contact your system administrator.</value>
+    <comment>{Locked="%1"} The value will be replaced with the feature name</comment>
   </data>
 </root>

@@ -181,28 +181,53 @@ namespace AppInstaller::Settings
         }
     }
 
-    void EnableAdminSetting(AdminSetting setting)
+    TogglePolicy::Policy GetAdminSettingPolicy(AdminSetting setting)
     {
-        AdminSettingsInternal adminSettingsInternal;
-        adminSettingsInternal.SetAdminSetting(setting, true);
+        switch (setting)
+        {
+        case AdminSetting::LocalManifestFiles:
+            return TogglePolicy::Policy::LocalManifestFiles;
+        case AdminSetting::BypassCertificatePinningForMicrosoftStore:
+            return TogglePolicy::Policy::BypassCertificatePinningForMicrosoftStore;
+        default:
+            return TogglePolicy::Policy::None;
+        }
     }
 
-    void DisableAdminSetting(AdminSetting setting)
+    bool EnableAdminSetting(AdminSetting setting)
     {
+        auto policy = GetAdminSettingPolicy(setting);
+        if (GroupPolicies().GetState(policy) == PolicyState::Disabled)
+        {
+            return false;
+        }
+
+        AdminSettingsInternal adminSettingsInternal;
+        adminSettingsInternal.SetAdminSetting(setting, true);
+        return true;
+    }
+
+    bool DisableAdminSetting(AdminSetting setting)
+    {
+        auto policy = GetAdminSettingPolicy(setting);
+        if (GroupPolicies().GetState(policy) == PolicyState::Enabled)
+        {
+            return false;
+        }
+
         AdminSettingsInternal adminSettingsInternal;
         adminSettingsInternal.SetAdminSetting(setting, false);
+        return true;
     }
 
     bool IsAdminSettingEnabled(AdminSetting setting)
     {
         // Check for a policy that overrides this setting.
-        if (setting == AdminSetting::LocalManifestFiles)
+        auto policy = GetAdminSettingPolicy(setting);
+        auto policyState = GroupPolicies().GetState(policy);
+        if (policyState != PolicyState::NotConfigured)
         {
-            PolicyState localManifestFilesPolicy = GroupPolicies().GetState(TogglePolicy::Policy::LocalManifestFiles);
-            if (localManifestFilesPolicy != PolicyState::NotConfigured)
-            {
-                return localManifestFilesPolicy == PolicyState::Enabled;
-            }
+            return policyState == PolicyState::Enabled;
         }
 
         AdminSettingsInternal adminSettingsInternal;

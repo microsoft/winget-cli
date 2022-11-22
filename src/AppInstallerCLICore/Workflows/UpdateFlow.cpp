@@ -246,10 +246,19 @@ namespace AppInstaller::CLI::Workflow
 
         if (!m_isUpgrade && context.Contains(Execution::Data::InstalledPackageVersion) && context.Get<Execution::Data::InstalledPackageVersion>() != nullptr)
         {
-            AICLI_LOG(CLI, Info, << "Found installed package, converting to upgrade flow");
-            context.Reporter.Info() << Execution::ConvertToUpgradeFlowEmphasis << Resource::String::ConvertInstallFlowToUpgrade << std::endl;
-            context.SetFlags(Execution::ContextFlag::InstallerExecutionUseUpdate);
-            m_isUpgrade = true;
+            if (context.Args.Contains(Execution::Args::Type::NoUpgrade))
+            {
+                AICLI_LOG(CLI, Warning, << "Found installed package, exiting installation.");
+                context.Reporter.Warn() << Resource::String::PackageAlreadyInstalled << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PACKAGE_ALREADY_INSTALLED);
+            }
+            else
+            {
+                AICLI_LOG(CLI, Info, << "Found installed package, converting to upgrade flow");
+                context.Reporter.Info() << Execution::ConvertToUpgradeFlowEmphasis << Resource::String::ConvertInstallFlowToUpgrade << std::endl;
+                context.SetFlags(Execution::ContextFlag::InstallerExecutionUseUpdate);
+                m_isUpgrade = true;
+            }
         }
 
         if (context.Args.Contains(Execution::Args::Type::Version))

@@ -998,6 +998,21 @@ TEST_CASE("ReadManifestAndValidateMsixInstallers_NoSupportedPlatforms", "[Manife
     ValidateError(errors[0], ValidationError::Level::Error, ManifestError::NoSupportedPlatforms, "InstallerUrl", manifest.Installers.front().Url);
 }
 
+TEST_CASE("ReadManifestAndValidateMsixInstallers_PackageVersionNotUINT64", "[ManifestValidation]")
+{
+    Manifest manifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Bad-MsixInstaller-PackageVersion.yaml"));
+
+    // Update the installer path for testing
+    REQUIRE(1 == manifest.Installers.size());
+    TestDataFile msixFile(manifest.Installers[0].Url.c_str());
+    manifest.Installers[0].Url = msixFile.GetPath().u8string();
+
+    auto errors = ValidateManifestInstallers(manifest);
+    REQUIRE(1 == errors.size());
+
+    ValidateError(errors[0], ValidationError::Level::Error, ManifestError::InstallerMsixInconsistencies, "PackageVersion", "43690.48059.52428.56797");
+}
+
 TEST_CASE("ReadManifestAndValidateMsixInstallers_MissingFields", "[ManifestValidation]")
 {
     TestDataFile testFile("Manifest-Bad-MissingMsixInstallerFields.yaml");

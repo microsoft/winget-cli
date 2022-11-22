@@ -81,6 +81,9 @@ namespace AppInstaller::CLI::Workflow
 
             filename += installerExtension;
 
+            // Make file name suitable for file system path
+            filename = Utility::ConvertToUTF16(Utility::MakeSuitablePathPart(filename.u8string()));
+
             return filename;
         }
 
