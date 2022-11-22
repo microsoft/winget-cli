@@ -326,4 +326,37 @@ namespace TestCommon
         return  AppInstaller::Msix::GetPackageReader(stream.Get(), &packageReader)
             && SUCCEEDED(packageReader->GetManifest(manifestReader));
     }
+
+    std::string RemoveConsoleFormat(const std::string& str)
+    {
+        // We are looking something in the lines of "\x1b[0mthisisastring"
+        if (!str.empty() && str[0] == '\x1b')
+        {
+            // Find first m
+            auto pos = str.find("m");
+            if (pos != std::string::npos)
+            {
+                return str.substr(pos + 1);
+            }
+        }
+
+        return str;
+    }
+
+    Json::Value ConvertToJson(const std::string& content)
+    {
+        auto contentClean = RemoveConsoleFormat(content);
+
+        Json::Value root;
+        Json::CharReaderBuilder builder;
+        const std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
+        std::string error;
+
+        if (!reader->parse(contentClean.c_str(), contentClean.c_str() + contentClean.size(), &root, &error))
+        {
+            throw error;
+        }
+
+        return root;
+    }
 }

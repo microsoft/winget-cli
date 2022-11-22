@@ -145,4 +145,10 @@ namespace TestCommon
 
     // Get manifest reader from a msix file path
     bool GetMsixPackageManifestReader(std::string_view testFileName, IAppxManifestReader** manifestReader);
+
+    // Removes console format
+    std::string RemoveConsoleFormat(const std::string& str);
+
+    // Convert to Json::Value
+    Json::Value ConvertToJson(const std::string& content);
 }

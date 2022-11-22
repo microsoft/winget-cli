@@ -107,6 +107,6 @@ namespace AppInstaller::CLI
     {
         context <<
             Workflow::EnsureRunningAsAdmin <<
-            Workflow::ExportAdminSettings; 
+            Workflow::ExportAdminSettings;
     }
 }
