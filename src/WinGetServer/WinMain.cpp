@@ -34,6 +34,9 @@ HRESULT WindowsPackageManagerServerInitializeRPCServer()
     RPC_STATUS status = RpcServerUseProtseqEpA(GetUCharString("ncacn_np"), RPC_C_PROTSEQ_MAX_REQS_DEFAULT, GetUCharString(endpoint), nullptr);
     RETURN_HR_IF(HRESULT_FROM_WIN32(status), status != RPC_S_OK);
 
+    // The goal of this security descriptor is to restrict RPC server access only to the user in admin mode. 
+    // (ML;;NW;;;HI) specifies a high mandatory integrity level (requires admin).
+    // (A;;GA;;;UserSID) specifies access only for the user with the user SID (i.e. self).
     wil::unique_hlocal_security_descriptor securityDescriptor;
     std::string securityDescriptorString = "S:(ML;;NW;;;HI)D:(A;;GA;;;" + userSID + ")";
     RETURN_LAST_ERROR_IF(!ConvertStringSecurityDescriptorToSecurityDescriptorA(securityDescriptorString.c_str(), SDDL_REVISION_1, &securityDescriptor, nullptr));
@@ -148,9 +151,15 @@ int __stdcall wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR cmdLine, 
 
             RETURN_IF_FAILED(WindowsPackageManagerServerInitializeRPCServer());
         }
-        _comServerExitEvent.wait();
 
+        // Manual reset event to notify the client that the server is available.
+        HANDLE eventHandle = CreateEventW(NULL, TRUE, FALSE, L"WinGetServerStartEvent");
+        RETURN_HR_IF_NULL(PEER_E_EVENT_HANDLE_NOT_FOUND, eventHandle);
+        SetEvent(eventHandle);
+
+        _comServerExitEvent.wait();
         RETURN_IF_FAILED(WindowsPackageManagerServerModuleUnregister());
+        ResetEvent(eventHandle);
     }
     CATCH_RETURN()
 

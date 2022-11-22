@@ -10,11 +10,13 @@ namespace AppInstallerCLIE2ETests.PowerShell
     using System.Threading;
 
     /// <summary>
-    /// Basic E2E tests for verifying that behavior of the PowerShell module cmdlets.
+    /// Basic E2E smoke tests for verifying the behavior of the PowerShell module cmdlets.
     /// </summary>
     [Category("PowerShell")]
     public class PowerShellModule
     {
+        // TODO: Consider using Pester framework for conducting more extensive PowerShell module tests.
+
         [OneTimeSetUp]
         public void Setup()
         {

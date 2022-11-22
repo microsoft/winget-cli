@@ -15,9 +15,9 @@
 #include <shlobj_core.h>
 
 #if USE_PROD_WINGET_SERVER
-const std::wstring_view s_ServerExePath = L"\\Microsoft\\WindowsApps\\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\\WindowsPackageManagerServer.exe";
+const std::wstring_view s_ServerExePath = L"Microsoft\\WindowsApps\\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\\WindowsPackageManagerServer.exe";
 #else
-const std::wstring_view s_ServerExePath = L"\\Microsoft\\WindowsApps\\WinGetDevCLI_8wekyb3d8bbwe\\WindowsPackageManagerServerDev.exe";
+const std::wstring_view s_ServerExePath = L"Microsoft\\WindowsApps\\WinGetDevCLI_8wekyb3d8bbwe\\WindowsPackageManagerServerDev.exe";
 #endif
 
 _Must_inspect_result_
@@ -67,21 +67,29 @@ void InitializeRpcBinding()
 HRESULT LaunchWinGetServerWithManualActivation()
 {
     const std::filesystem::path& localAppDataPath = GetKnownFolderPath(FOLDERID_LocalAppData);
-    std::wstring serverExePath = std::wstring{ localAppDataPath } + std::wstring{ s_ServerExePath } + L" --manualActivation";
+    const std::filesystem::path& serverExePath = localAppDataPath / s_ServerExePath;
+    std::wstring commandLineInput = std::wstring{ serverExePath } + L" --manualActivation";
 
     STARTUPINFO info = { sizeof(info) };
     PROCESS_INFORMATION processInfo;
-    if (CreateProcessW(NULL, &serverExePath[0], NULL, NULL, FALSE, 0, NULL, NULL, &info, &processInfo))
-    {
-        WaitForSingleObject(processInfo.hThread, 500);
-        CloseHandle(processInfo.hProcess);
-        CloseHandle(processInfo.hThread);
-        return S_OK;
-    }
-    else
+    if (!CreateProcessW(NULL, &commandLineInput[0], NULL, NULL, FALSE, 0, NULL, NULL, &info, &processInfo))
     {
         return HRESULT_FROM_WIN32(GetLastError());
     }
+
+    // Wait for manual reset event from server before proceeding with COM activation.
+    HANDLE eventHandle = CreateEventW(NULL, TRUE, FALSE, L"WinGetServerStartEvent");
+    RETURN_HR_IF_NULL(PEER_E_EVENT_HANDLE_NOT_FOUND, eventHandle);
+
+    DWORD waitResult = WaitForSingleObject(eventHandle, INFINITE);
+    if (waitResult != 0)
+    {
+        return ERROR_SERVICE_NEVER_STARTED;
+    }
+
+    CloseHandle(processInfo.hProcess);
+    CloseHandle(processInfo.hThread);
+    return S_OK;
 }
 
 HRESULT CallCreateInstance(const CLSID* clsid, const IID* iid, UINT32 flags, UINT32* bufferByteCount, BYTE** buffer)
@@ -99,13 +107,12 @@ HRESULT CallCreateInstance(const CLSID* clsid, const IID* iid, UINT32 flags, UIN
     return S_OK;
 }
 
-HRESULT LaunchServerAndCreateInstance(const CLSID* clsid, const IID* iid, UINT32 flags, void** out)
+HRESULT CreateComInstance(const CLSID* clsid, const IID* iid, UINT32 flags, void** out)
 {
     UINT32 bufferByteCount = 0;
     BYTE* buffer = nullptr;
     UniqueMidl bufferPtr;
 
-    RETURN_IF_FAILED(LaunchWinGetServerWithManualActivation());
     RETURN_IF_FAILED(CallCreateInstance(clsid, iid, flags, &bufferByteCount, &buffer));
 
     bufferPtr.reset(buffer);
@@ -127,24 +134,31 @@ extern "C" HRESULT WinGetServerManualActivation_CreateInstance(const CLSID* clsi
     RETURN_HR_IF_NULL(E_POINTER, iid);
     RETURN_HR_IF_NULL(E_POINTER, out);
 
-    if (WinGetServerManualActivation_IfHandle == NULL)
+    static std::once_flag rpcBindingOnce;
+    try
     {
-        static std::once_flag rpcBindingOnce;
-        try
-        {
-            std::call_once(rpcBindingOnce, InitializeRpcBinding);
-        }
-        CATCH_RETURN();
+        std::call_once(rpcBindingOnce, InitializeRpcBinding);
     }
+    CATCH_RETURN();
 
-    HRESULT result;
-
-    for (int i = 0; i < 3; i++)
+    HRESULT result = CreateComInstance(clsid, iid, flags, out);
+    if (FAILED(result))
     {
-        result = LaunchServerAndCreateInstance(clsid, iid, flags, out);
-        if (SUCCEEDED(result) || result == HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND))
+        for (int i = 0; i < 3; i++)
         {
-            break;
+            result = LaunchWinGetServerWithManualActivation();
+            if (result == HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND))
+            {
+                break;
+            }
+
+            result = CreateComInstance(clsid, iid, flags, out);
+            if (SUCCEEDED(result))
+            {
+                break;
+            }
+
+            Sleep(200);
         }
     }
 
