@@ -111,4 +111,25 @@ TEST_CASE("Manifest Parser")
         std::wstring manifest = std::wstring(exeFilePath) + L"\\basicParse.negative.missingFileName.manifest";
         REQUIRE(LoadManifestFromPath(manifest.c_str()) == HRESULT_FROM_WIN32(ERROR_SXS_MANIFEST_PARSE_ERROR));
     }
+
+    SECTION("Large file")
+    {
+        std::wstring manifest = std::wstring(exeFilePath) + L"\\basicParse.largefile.manifest";
+        REQUIRE(LoadManifestFromPath(manifest.c_str()) == S_OK);
+
+        // We had a bug where we were using a variable after an XML buffer had been invalidated by another call
+        // to Read(), but it didn't manifest until the node count was high enough.  The result was that the values
+        // we got for "module_name" were pointing to the wrong string data, so here we validate that the entries
+        // do actually look like DLLs -- they end with ".dll", they are short, and they don't contain spaces.
+        for (auto type : g_types)
+        {
+            const std::wstring& name = type.second->module_name;
+            
+            REQUIRE(wcscmp(L".dll", name.substr(name.size() - 4).c_str()) == 0);
+            REQUIRE(name.size() < 50);
+            REQUIRE(name.find(' ') == wstring::npos);
+
+        }
+
+    }
 }

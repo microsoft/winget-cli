@@ -14,6 +14,7 @@
 #include <codecvt>
 #include <locale>
 #include <RoMetadataApi.h>
+#include <RoMetadata.h>
 #include <algorithm>
 #include "catalog.h"
 #include "TypeResolution.h"
@@ -196,11 +197,18 @@ HRESULT ParseFileTag(ComPtr<IXmlReader> xmlReader)
     HRESULT hr = S_OK;
     XmlNodeType nodeType;
     PCWSTR localName = nullptr;
-    PCWSTR fileName = nullptr;
-    hr = xmlReader->MoveToAttributeByName(L"name", nullptr);
-    RETURN_HR_IF(HRESULT_FROM_WIN32(ERROR_SXS_MANIFEST_PARSE_ERROR), hr != S_OK);
-    RETURN_IF_FAILED(xmlReader->GetValue(&fileName, nullptr));
-    RETURN_HR_IF(HRESULT_FROM_WIN32(ERROR_SXS_MANIFEST_PARSE_ERROR), fileName == nullptr || !fileName[0]);
+    wstring fileName;
+
+    {
+        PCWSTR fileNameStr = nullptr;
+        hr = xmlReader->MoveToAttributeByName(L"name", nullptr);
+        RETURN_HR_IF(HRESULT_FROM_WIN32(ERROR_SXS_MANIFEST_PARSE_ERROR), hr != S_OK);
+        RETURN_IF_FAILED(xmlReader->GetValue(&fileNameStr, nullptr));
+        RETURN_HR_IF(HRESULT_FROM_WIN32(ERROR_SXS_MANIFEST_PARSE_ERROR), fileNameStr == nullptr || !fileNameStr[0]);
+        
+        fileName = fileNameStr;
+    }
+    
     auto locale = _create_locale(LC_ALL, "C");
     while (S_OK == xmlReader->Read(&nodeType))
     {
@@ -209,7 +217,7 @@ HRESULT ParseFileTag(ComPtr<IXmlReader> xmlReader)
             RETURN_IF_FAILED(xmlReader->GetLocalName(&localName, nullptr));
             if (localName != nullptr && _wcsicmp_l(localName, L"activatableClass", locale) == 0)
             {
-                RETURN_IF_FAILED(ParseActivatableClassTag(xmlReader, fileName));
+                RETURN_IF_FAILED(ParseActivatableClassTag(xmlReader, fileName.c_str()));
             }
         }
         else if (nodeType == XmlNodeType_EndElement)
@@ -376,9 +384,7 @@ HRESULT WinRTGetMetadataFile(
     // will create an instance of the metadata reader to dispense metadata files.
     if (metaDataDispenser == nullptr)
     {
-        RETURN_IF_FAILED(CoCreateInstance(CLSID_CorMetaDataDispenser,
-            nullptr,
-            CLSCTX_INPROC,
+        RETURN_IF_FAILED(MetaDataGetDispenser(CLSID_CorMetaDataDispenser,
             IID_IMetaDataDispenser,
             &spMetaDataDispenser));
         {
