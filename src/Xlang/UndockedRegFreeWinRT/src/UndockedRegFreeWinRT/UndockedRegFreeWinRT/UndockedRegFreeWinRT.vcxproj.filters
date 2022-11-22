@@ -34,13 +34,13 @@
     <ClCompile Include="typeresolution.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\WinGetServer\WinGetServerManualActivation_Client.cpp">
+    <ClCompile Include="..\..\..\..\..\WinGetServer\WinGetServerManualActivation_Client.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\WinGetServer\WinGetServer_c.c">
+    <ClCompile Include="..\..\..\..\..\WinGetServer\WinGetServer_c.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\WinGetServer\Utils.cpp">
+    <ClCompile Include="..\..\..\..\..\WinGetServer\Utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -51,7 +51,7 @@
     <ClInclude Include="extwinrt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\WinGetServer\Utils.h">
+    <ClInclude Include="..\..\..\..\..\WinGetServer\Utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
