@@ -11,6 +11,7 @@
 #include <Synchapi.h>
 #include <unordered_map>
 #include <Appmodel.h>
+#include <string>
 
 namespace UndockedRegFreeWinRT
 {
