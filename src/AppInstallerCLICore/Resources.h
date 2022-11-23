@@ -61,8 +61,10 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(DependenciesManagementError);
         WINGET_DEFINE_RESOURCE_STRINGID(DependenciesManagementExitMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(DisabledByGroupPolicy);
+        WINGET_DEFINE_RESOURCE_STRINGID(DisableAdminSettingFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(DisableInteractivityArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(Done);
+        WINGET_DEFINE_RESOURCE_STRINGID(EnableAdminSettingFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(ExactArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ExperimentalArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ExperimentalCommandLongDescription);

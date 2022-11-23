@@ -508,7 +508,7 @@ namespace UndockedRegFreeWinRT
                     phstrMetaDataFilePath,
                     ppMetaDataImport,
                     pmdTypeDef);
-
+                
                 if (hr == RO_E_METADATA_NAME_NOT_FOUND)
                 {
                     // For compatibility purposes, if we fail to find the type in the unpackaged location, we should return

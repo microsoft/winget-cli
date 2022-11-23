@@ -133,9 +133,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.WinGet.Client", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Management.Deployment.Projection", "Microsoft.Management.Deployment.Projection\Microsoft.Management.Deployment.Projection.csproj", "{0B104762-5CD8-47EE-A904-71C1C3F84DCD}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UndockedRegFreeWinRT", "UndockedRegFreeWinRT\UndockedRegFreeWinRT\UndockedRegFreeWinRT.vcxproj", "{31ED69A8-5310-45A9-953F-56C351D2C3E1}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UndockedRegFreeWinRT", "Xlang\UndockedRegFreeWinRT\src\UndockedRegFreeWinRT\UndockedRegFreeWinRT\UndockedRegFreeWinRT.vcxproj", "{31ED69A8-5310-45A9-953F-56C351D2C3E1}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Detours", "UndockedRegFreeWinRT\detours\detours.vcxproj", "{787EC629-C0FB-4BA9-9746-4A82CD06B73E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Detours", "Xlang\UndockedRegFreeWinRT\src\UndockedRegFreeWinRT\detours\detours.vcxproj", "{787EC629-C0FB-4BA9-9746-4A82CD06B73E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{8E43F982-40D5-4DF1-9044-C08047B5F43B}"
 	ProjectSection(SolutionItems) = preProject

@@ -1475,4 +1475,12 @@ Please specify one of them using the `--source` option to proceed.</value>
   <data name="PackageAlreadyInstalled" xml:space="preserve">
     <value>A package version is already installed. Installation cancelled.</value>
   </data>
+  <data name="EnableAdminSettingFailed" xml:space="preserve">
+    <value>Cannot enable %1. This setting is controlled by policy. For more information contact your system administrator.</value>
+    <comment>{Locked="%1"} The value will be replaced with the feature name</comment>
+  </data>
+  <data name="DisableAdminSettingFailed" xml:space="preserve">
+    <value>Cannot disable %1. This setting is controlled by policy. For more information contact your system administrator.</value>
+    <comment>{Locked="%1"} The value will be replaced with the feature name</comment>
+  </data>
 </root>

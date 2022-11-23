@@ -187,6 +187,7 @@
     <ClInclude Include="TestSource.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AdminSettings.cpp" />
     <ClCompile Include="Archive.cpp" />
     <ClCompile Include="ARPChanges.cpp" />
     <ClCompile Include="Certificates.cpp" />
@@ -261,6 +262,9 @@
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_Exe.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallFlowTest_InvalidFileCharacterUrl.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_Msix_DownloadFlow.yaml">
