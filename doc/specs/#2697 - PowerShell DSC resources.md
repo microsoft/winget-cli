@@ -165,7 +165,7 @@ This resource will be in charge of adding or removing winget sources. It wraps c
 WinGetSources [String] #ResourceName
 {
     SID = [string]
-    Sources = [WinGetSource[]]
+    Sources = [Hashtable[]]
     [DependsOn = [string[]]]
     [Ensure = [string]]
     [Reset = [bool]]
@@ -178,7 +178,7 @@ WinGetSources [String] #ResourceName
 See SID property of UserSettings
 
 *Sources*
-This is an array of a new PowerShell WinGetSource class. It contains the name, type and argument of the source. Type is optional as it default as "Microsoft.PreIndexed.Package". Think about it as the deserialized form of the result of `winget sources export` without the Identifier and Data properties.
+A list of Hashtables that contains the name, type and argument of the source, but also other things as identifier and data. If a type key is not set the default is "Microsoft.PreIndexed.Package". Think about it as the deserialized form of the result of `winget sources export`. Another option is to be only a Hashtable and use the name as the key.
 
 It might seem natural to use the type "Microsoft.Management.Deployment.PackageCatalogReference" returned by Get-WinGetSource, but PackageCatalogReference is not what we really want.
 
