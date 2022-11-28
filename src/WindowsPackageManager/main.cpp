@@ -61,20 +61,18 @@ extern "C"
     }
     CATCH_RETURN();
 
-    void WINDOWS_PACKAGE_MANAGER_API_CALLING_CONVENTION WindowsPackageManagerServerWilResultCallback(const wil::FailureInfo& failure) noexcept try
+    void WINDOWS_PACKAGE_MANAGER_API_CALLING_CONVENTION WindowsPackageManagerServerWilResultLoggingCallback(const wil::FailureInfo& failure) noexcept try
     {
         AppInstaller::Logging::Telemetry().LogFailure(failure);
     }
     CATCH_LOG();
 
-    WINDOWS_PACKAGE_MANAGER_API WindowsPackageManagerServerCreateInstance(const CLSID* clsid, const IID* iid, void** out) try
+    WINDOWS_PACKAGE_MANAGER_API WindowsPackageManagerServerCreateInstance(REFCLSID rclsid, REFIID riid, void** out) try
     {
-        RETURN_HR_IF_NULL(E_POINTER, clsid);
-        RETURN_HR_IF_NULL(E_POINTER, iid);
         RETURN_HR_IF_NULL(E_POINTER, out);
         ::Microsoft::WRL::ComPtr<IClassFactory> factory;
-        RETURN_IF_FAILED(::Microsoft::WRL::Module<::Microsoft::WRL::ModuleType::OutOfProc>::GetModule().GetClassObject(*clsid, IID_PPV_ARGS(&factory)));
-        RETURN_HR(factory->CreateInstance(nullptr, *iid, out));
+        RETURN_IF_FAILED(::Microsoft::WRL::Module<::Microsoft::WRL::ModuleType::OutOfProc>::GetModule().GetClassObject(rclsid, IID_PPV_ARGS(&factory)));
+        RETURN_HR(factory->CreateInstance(nullptr, riid, out));
     }
     CATCH_RETURN();
 

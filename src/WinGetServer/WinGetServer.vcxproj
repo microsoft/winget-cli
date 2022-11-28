@@ -152,14 +152,7 @@
   <ItemGroup>
     <ClInclude Include="resource.h" />
     <ClCompile Include="WinGetServerManualActivation_Client.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild>true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="WinGetServer_s.c" />
     <ClCompile Include="WinMain.cpp" />
@@ -177,102 +170,9 @@
   </ItemGroup>
   <ItemGroup>
     <Midl Include="WinGetServer.idl">
-      <EnableWindowsRuntime Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</EnableWindowsRuntime>
-      <EnableWindowsRuntime Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</EnableWindowsRuntime>
-      <EnableWindowsRuntime Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">false</EnableWindowsRuntime>
-      <EnableWindowsRuntime Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">false</EnableWindowsRuntime>
-      <EnableWindowsRuntime Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">false</EnableWindowsRuntime>
-      <EnableWindowsRuntime Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">false</EnableWindowsRuntime>
-      <EnableWindowsRuntime Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</EnableWindowsRuntime>
-      <EnableWindowsRuntime Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</EnableWindowsRuntime>
-      <GenerateClientFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Stub</GenerateClientFiles>
-      <GenerateServerFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Stub</GenerateServerFiles>
-      <GenerateClientFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Stub</GenerateClientFiles>
-      <GenerateServerFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Stub</GenerateServerFiles>
-      <GenerateClientFiles Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">Stub</GenerateClientFiles>
-      <GenerateServerFiles Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">Stub</GenerateServerFiles>
-      <GenerateClientFiles Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">Stub</GenerateClientFiles>
-      <GenerateServerFiles Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">Stub</GenerateServerFiles>
-      <GenerateClientFiles Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">Stub</GenerateClientFiles>
-      <GenerateServerFiles Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">Stub</GenerateServerFiles>
-      <GenerateClientFiles Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">Stub</GenerateClientFiles>
-      <GenerateServerFiles Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">Stub</GenerateServerFiles>
-      <GenerateClientFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Stub</GenerateClientFiles>
-      <GenerateServerFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Stub</GenerateServerFiles>
-      <GenerateClientFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Stub</GenerateClientFiles>
-      <GenerateServerFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Stub</GenerateServerFiles>
-      <AdditionalMetadataDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </AdditionalMetadataDirectories>
-      <AdditionalMetadataDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </AdditionalMetadataDirectories>
-      <AdditionalMetadataDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
-      </AdditionalMetadataDirectories>
-      <AdditionalMetadataDirectories Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
-      </AdditionalMetadataDirectories>
-      <AdditionalMetadataDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
-      </AdditionalMetadataDirectories>
-      <AdditionalMetadataDirectories Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
-      </AdditionalMetadataDirectories>
-      <AdditionalMetadataDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </AdditionalMetadataDirectories>
-      <AdditionalMetadataDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </AdditionalMetadataDirectories>
-      <MetadataFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </MetadataFileName>
-      <MetadataFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </MetadataFileName>
-      <MetadataFileName Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
-      </MetadataFileName>
-      <MetadataFileName Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
-      </MetadataFileName>
-      <MetadataFileName Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
-      </MetadataFileName>
-      <MetadataFileName Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
-      </MetadataFileName>
-      <MetadataFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </MetadataFileName>
-      <MetadataFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </MetadataFileName>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </AdditionalOptions>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </AdditionalOptions>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
-      </AdditionalOptions>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
-      </AdditionalOptions>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
-      </AdditionalOptions>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
-      </AdditionalOptions>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </AdditionalOptions>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </AdditionalOptions>
-      <HeaderFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </HeaderFileName>
-      <HeaderFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </HeaderFileName>
-      <HeaderFileName Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
-      </HeaderFileName>
-      <HeaderFileName Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
-      </HeaderFileName>
-      <HeaderFileName Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
-      </HeaderFileName>
-      <HeaderFileName Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
-      </HeaderFileName>
-      <HeaderFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </HeaderFileName>
-      <HeaderFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </HeaderFileName>
-      <ApplicationConfigurationMode Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ApplicationConfigurationMode>
-      <ApplicationConfigurationMode Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ApplicationConfigurationMode>
-      <ApplicationConfigurationMode Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</ApplicationConfigurationMode>
-      <ApplicationConfigurationMode Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">true</ApplicationConfigurationMode>
-      <ApplicationConfigurationMode Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">true</ApplicationConfigurationMode>
-      <ApplicationConfigurationMode Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">true</ApplicationConfigurationMode>
-      <ApplicationConfigurationMode Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ApplicationConfigurationMode>
-      <ApplicationConfigurationMode Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ApplicationConfigurationMode>
+      <EnableWindowsRuntime>false</EnableWindowsRuntime>
+      <GenerateClientFiles>Stub</GenerateClientFiles>
+      <ApplicationConfigurationMode>true</ApplicationConfigurationMode>
     </Midl>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

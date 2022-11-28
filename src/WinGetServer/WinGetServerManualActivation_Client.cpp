@@ -72,33 +72,24 @@ HRESULT LaunchWinGetServerWithManualActivation()
 
     STARTUPINFO info = { sizeof(info) };
     PROCESS_INFORMATION processInfo;
-    if (!CreateProcessW(NULL, &commandLineInput[0], NULL, NULL, FALSE, 0, NULL, NULL, &info, &processInfo))
-    {
-        return HRESULT_FROM_WIN32(GetLastError());
-    }
+    RETURN_LAST_ERROR_IF(!CreateProcessW(NULL, &commandLineInput[0], NULL, NULL, FALSE, 0, NULL, NULL, &info, &processInfo));
 
     // Wait for manual reset event from server before proceeding with COM activation.
-    HANDLE eventHandle = CreateEventW(NULL, TRUE, FALSE, L"WinGetServerStartEvent");
-    RETURN_HR_IF_NULL(PEER_E_EVENT_HANDLE_NOT_FOUND, eventHandle);
+    wil::unique_event_watcher eventWatcher;
+    wil::unique_event manualResetEvent;
+    manualResetEvent.open(L"WinGetServerStartEvent");
+    manualResetEvent.wait();
 
-    DWORD waitResult = WaitForSingleObject(eventHandle, INFINITE);
-    if (waitResult != 0)
-    {
-        return ERROR_SERVICE_NEVER_STARTED;
-    }
-
-    CloseHandle(processInfo.hProcess);
-    CloseHandle(processInfo.hThread);
     return S_OK;
 }
 
-HRESULT CallCreateInstance(const CLSID* clsid, const IID* iid, UINT32 flags, UINT32* bufferByteCount, BYTE** buffer)
+HRESULT CallCreateInstance(REFCLSID rclsid, REFIID riid, UINT32* bufferByteCount, BYTE** buffer)
 {
     RpcTryExcept
     {
-        RETURN_IF_FAILED(CreateInstance(*clsid, *iid, flags, bufferByteCount, buffer));
+        RETURN_IF_FAILED(CreateInstance(rclsid, riid, bufferByteCount, buffer));
     }
-        RpcExcept(1)
+    RpcExcept(1)
     {
         return HRESULT_FROM_WIN32(RpcExceptionCode());
     }
@@ -107,13 +98,13 @@ HRESULT CallCreateInstance(const CLSID* clsid, const IID* iid, UINT32 flags, UIN
     return S_OK;
 }
 
-HRESULT CreateComInstance(const CLSID* clsid, const IID* iid, UINT32 flags, void** out)
+HRESULT CreateComInstance(REFCLSID rclsid, REFIID riid, void** out)
 {
     UINT32 bufferByteCount = 0;
     BYTE* buffer = nullptr;
     UniqueMidl bufferPtr;
 
-    RETURN_IF_FAILED(CallCreateInstance(clsid, iid, flags, &bufferByteCount, &buffer));
+    RETURN_IF_FAILED(CallCreateInstance(rclsid, riid, &bufferByteCount, &buffer));
 
     bufferPtr.reset(buffer);
 
@@ -123,15 +114,13 @@ HRESULT CreateComInstance(const CLSID* clsid, const IID* iid, UINT32 flags, void
     RETURN_IF_FAILED(stream->Seek({}, STREAM_SEEK_SET, nullptr));
 
     wil::com_ptr<IUnknown> output;
-    RETURN_IF_FAILED(CoUnmarshalInterface(stream.get(), *iid, reinterpret_cast<void**>(&output)));
+    RETURN_IF_FAILED(CoUnmarshalInterface(stream.get(), riid, reinterpret_cast<void**>(&output)));
     *out = output.detach();
     return S_OK;
 }
 
-extern "C" HRESULT WinGetServerManualActivation_CreateInstance(const CLSID* clsid, const IID* iid, UINT32 flags, void** out)
+extern "C" HRESULT WinGetServerManualActivation_CreateInstance(REFCLSID rclsid, REFIID riid, void** out)
 {
-    RETURN_HR_IF_NULL(E_POINTER, clsid);
-    RETURN_HR_IF_NULL(E_POINTER, iid);
     RETURN_HR_IF_NULL(E_POINTER, out);
 
     static std::once_flag rpcBindingOnce;
@@ -141,7 +130,7 @@ extern "C" HRESULT WinGetServerManualActivation_CreateInstance(const CLSID* clsi
     }
     CATCH_RETURN();
 
-    HRESULT result = CreateComInstance(clsid, iid, flags, out);
+    HRESULT result = CreateComInstance(rclsid, riid, out);
     if (FAILED(result))
     {
         for (int i = 0; i < 3; i++)
@@ -152,7 +141,7 @@ extern "C" HRESULT WinGetServerManualActivation_CreateInstance(const CLSID* clsi
                 break;
             }
 
-            result = CreateComInstance(clsid, iid, flags, out);
+            result = CreateComInstance(rclsid, riid, out);
             if (SUCCEEDED(result))
             {
                 break;

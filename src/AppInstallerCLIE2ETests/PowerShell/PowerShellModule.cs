@@ -11,6 +11,7 @@ namespace AppInstallerCLIE2ETests.PowerShell
 
     /// <summary>
     /// Basic E2E smoke tests for verifying the behavior of the PowerShell module cmdlets.
+    /// Running the x86 PowerShell Module requires PowerShell Core (x86). These tests currently only target PowerShell Core (x64)
     /// </summary>
     [Category("PowerShell")]
     public class PowerShellModule
@@ -28,10 +29,10 @@ namespace AppInstallerCLIE2ETests.PowerShell
         {
             // TODO: This is a workaround to an issue where the server takes longer than expected to terminate when
             // running from the E2E tests. This can cause other E2E tests to fail when attempting to reset the test source.
-            if (IsRunning(Constants.WinGetServerExeName))
+            if (IsRunning(Constants.WindowsPackageManagerServer))
             {
                 // There should only be one WinGetServer process running at a time.
-                Process serverProcess = Process.GetProcessesByName(Constants.WinGetServerExeName).First();
+                Process serverProcess = Process.GetProcessesByName(Constants.WindowsPackageManagerServer).First();
                 serverProcess.Kill();
             }
 
@@ -48,25 +49,24 @@ namespace AppInstallerCLIE2ETests.PowerShell
 
             TestCommon.RunPowerShellCommandWithResult(Constants.GetSourceCmdlet, $"-Name {Constants.TestSourceName}");
 
-            Assert.IsTrue(IsRunning(Constants.WinGetServerExeName), $"{Constants.WinGetServerExeName} is not running.");
-            Process serverProcess = Process.GetProcessesByName(Constants.WinGetServerExeName).First();
+            Assert.IsTrue(IsRunning(Constants.WindowsPackageManagerServer), $"{Constants.WindowsPackageManagerServer} is not running.");
+            Process serverProcess = Process.GetProcessesByName(Constants.WindowsPackageManagerServer).First();
 
             // Wait a maximum of 30 seconds for the server process to exit.
             bool serverProcessExit = serverProcess.WaitForExit(30000);
-            Assert.IsTrue(serverProcessExit, $"{Constants.WinGetServerExeName} failed to terminate after creating COM object.");
+            Assert.IsTrue(serverProcessExit, $"{Constants.WindowsPackageManagerServer} failed to terminate after creating COM object.");
         }
 
         [Test]
         public void GetWinGetSource()
         {
-            // Running the x86 PowerShell Module requires PowerShell Core (x86). The tests currently only target PowerShell Core (x64)
             if (!Environment.Is64BitProcess)
             {
                 return;
             }
 
             var getSourceResult = TestCommon.RunPowerShellCommandWithResult(Constants.GetSourceCmdlet, $"-Name {Constants.TestSourceName}");
-            Assert.IsTrue(getSourceResult.ExitCode == 0, $"ExitCode: {getSourceResult.ExitCode} Failed with the following output: {getSourceResult.StdOut}, {getSourceResult.StdErr}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, getSourceResult.ExitCode, $"ExitCode: {getSourceResult.ExitCode} Failed with the following output: {getSourceResult.StdOut}, {getSourceResult.StdErr}");
             Assert.IsTrue(getSourceResult.StdOut.Contains($"{Constants.TestSourceName}"));
         }
 
@@ -79,7 +79,7 @@ namespace AppInstallerCLIE2ETests.PowerShell
             }
 
             var result = TestCommon.RunPowerShellCommandWithResult(Constants.FindCmdlet, $"-Id {Constants.ExeInstallerPackageId}");
-            Assert.IsTrue(result.ExitCode == 0, $"ExitCode: {result.ExitCode} Failed with the following output: {result.StdOut}; {result.StdErr}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode, $"ExitCode: {result.ExitCode} Failed with the following output: {result.StdOut}; {result.StdErr}");
             Assert.IsTrue(result.StdOut.Contains("TestExeInstaller"));
         }
 
@@ -95,9 +95,9 @@ namespace AppInstallerCLIE2ETests.PowerShell
             var getResult = TestCommon.RunPowerShellCommandWithResult(Constants.GetCmdlet, $"-Id {Constants.MsiInstallerPackageId}");
             var uninstallResult = TestCommon.RunPowerShellCommandWithResult(Constants.UninstallCmdlet, $"-Id {Constants.MsiInstallerPackageId}");
 
-            Assert.IsTrue(installResult.ExitCode == 0, $"ExitCode: {installResult.ExitCode}; Failed with the following output: {installResult.StdOut}; {installResult.StdErr}");
-            Assert.IsTrue(getResult.ExitCode == 0, $"Failed with the following output: {getResult.StdOut}");
-            Assert.IsTrue(uninstallResult.ExitCode == 0, $"Failed with the following output: {uninstallResult.StdOut}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, installResult.ExitCode, $"ExitCode: {installResult.ExitCode}; Failed with the following output: {installResult.StdOut}; {installResult.StdErr}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, getResult.ExitCode, $"Failed with the following output: {getResult.StdOut}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, uninstallResult.ExitCode, $"Failed with the following output: {uninstallResult.StdOut}");
 
             Assert.IsTrue(!string.IsNullOrEmpty(installResult.StdOut));
             Assert.IsTrue(getResult.StdOut.Contains("TestMsiInstaller"));
@@ -115,8 +115,8 @@ namespace AppInstallerCLIE2ETests.PowerShell
             var installResult = TestCommon.RunPowerShellCommandWithResult(Constants.InstallCmdlet, $"-Id {Constants.ExeInstallerPackageId}");
             var uninstallResult = TestCommon.RunPowerShellCommandWithResult(Constants.UninstallCmdlet, $"-Id {Constants.ExeInstallerPackageId}");
 
-            Assert.IsTrue(installResult.ExitCode == 0, $"ExitCode: {installResult.ExitCode}; Failed with the following output: {installResult.StdOut}; {installResult.StdErr}");
-            Assert.IsTrue(uninstallResult.ExitCode == 0, $"Failed with the following output: {uninstallResult.StdOut}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, installResult.ExitCode, $"ExitCode: {installResult.ExitCode}; Failed with the following output: {installResult.StdOut}; {installResult.StdErr}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, uninstallResult.ExitCode, $"Failed with the following output: {uninstallResult.StdOut}");
 
             Assert.IsTrue(!string.IsNullOrEmpty(installResult.StdOut));
             Assert.IsTrue(!string.IsNullOrEmpty(uninstallResult.StdOut));
@@ -135,10 +135,10 @@ namespace AppInstallerCLIE2ETests.PowerShell
             var getResult = TestCommon.RunPowerShellCommandWithResult(Constants.GetCmdlet, $"-Id {Constants.ExeInstallerPackageId}");
             var uninstallResult = TestCommon.RunPowerShellCommandWithResult(Constants.UninstallCmdlet, $"-Id {Constants.ExeInstallerPackageId}");
 
-            Assert.IsTrue(installResult.ExitCode == 0, $"Failed with the following output: {installResult.StdOut}");
-            Assert.IsTrue(updateResult.ExitCode == 0, $"Failed with the following output: {updateResult.StdOut}");
-            Assert.IsTrue(getResult.ExitCode == 0, $"Failed with the following output: {getResult.StdOut}");
-            Assert.IsTrue(uninstallResult.ExitCode == 0, $"Failed with the following output: {uninstallResult.StdOut}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, installResult.ExitCode, $"Failed with the following output: {installResult.StdOut}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, updateResult.ExitCode, $"Failed with the following output: {updateResult.StdOut}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, getResult.ExitCode, $"Failed with the following output: {getResult.StdOut}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, uninstallResult.ExitCode, $"Failed with the following output: {uninstallResult.StdOut}");
 
             Assert.IsTrue(!string.IsNullOrEmpty(installResult.StdOut));
             Assert.IsTrue(!string.IsNullOrEmpty(updateResult.StdOut));
@@ -161,12 +161,12 @@ namespace AppInstallerCLIE2ETests.PowerShell
             TestCommon.RunPowerShellCommandWithResult(Constants.GetCmdlet, $"-Id {Constants.ExeInstallerPackageId}");
             TestCommon.RunPowerShellCommandWithResult(Constants.UninstallCmdlet, $"-Id {Constants.ExeInstallerPackageId}");
 
-            Assert.IsTrue(IsRunning(Constants.WinGetServerExeName), $"{Constants.WinGetServerExeName} is not running.");
-            Process serverProcess = Process.GetProcessesByName(Constants.WinGetServerExeName).First();
+            Assert.IsTrue(IsRunning(Constants.WindowsPackageManagerServer), $"{Constants.WindowsPackageManagerServer} is not running.");
+            Process serverProcess = Process.GetProcessesByName(Constants.WindowsPackageManagerServer).First();
 
             // Wait a maximum of 5 minutes for the server process to exit.
             bool serverProcessExit = serverProcess.WaitForExit(300000);
-            Assert.IsTrue(serverProcessExit, $"{Constants.WinGetServerExeName} failed to terminate after creating COM object.");
+            Assert.IsTrue(serverProcessExit, $"{Constants.WindowsPackageManagerServer} failed to terminate after creating COM object.");
         }
 
         private bool IsRunning(string processName)

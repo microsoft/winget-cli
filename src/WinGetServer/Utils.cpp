@@ -27,9 +27,9 @@ std::string GetUserSID()
     PTOKEN_USER pTokenUser = reinterpret_cast<PTOKEN_USER>(&buffer[0]);
 
     THROW_LAST_ERROR_IF(!GetTokenInformation(hToken, TokenUser, pTokenUser, dwBufferSize, &dwBufferSize));
-    THROW_LAST_ERROR_IF(!IsValidSid(pTokenUser->User.Sid));
+    THROW_HR_IF(CO_E_INVALIDSID, !IsValidSid(pTokenUser->User.Sid));
 
     LPSTR pszSID = NULL;
-    ConvertSidToStringSidA(pTokenUser->User.Sid, &pszSID);
+    THROW_LAST_ERROR_IF(!ConvertSidToStringSidA(pTokenUser->User.Sid, &pszSID));
     return std::string{ pszSID };
 }

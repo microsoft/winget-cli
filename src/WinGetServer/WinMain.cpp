@@ -65,12 +65,9 @@ void __RPC_USER MIDL_user_free(_Pre_maybenull_ _Post_invalid_ void* ptr)
 extern "C" HRESULT CreateInstance(
     /* [in] */ GUID clsid,
     /* [in] */ GUID iid,
-    /* [in] */ UINT32 flags,
     /* [ref][out] */ UINT32 * pcbBuffer,
     /* [size_is][size_is][ref][out] */ BYTE * *ppBuffer)
 {
-    UNREFERENCED_PARAMETER(flags);
-
     RETURN_HR_IF_NULL(E_POINTER, pcbBuffer);
     RETURN_HR_IF_NULL(E_POINTER, ppBuffer);
 
@@ -78,7 +75,7 @@ extern "C" HRESULT CreateInstance(
     RETURN_IF_FAILED(CreateStreamOnHGlobal(nullptr, TRUE, &stream));
 
     wil::com_ptr<IUnknown> instance;
-    RETURN_IF_FAILED(WindowsPackageManagerServerCreateInstance(&clsid, &iid, reinterpret_cast<void**>(&instance)));
+    RETURN_IF_FAILED(WindowsPackageManagerServerCreateInstance(clsid, iid, reinterpret_cast<void**>(&instance)));
 
     RETURN_IF_FAILED(CoMarshalInterface(stream.get(), iid, instance.get(), MSHCTX_LOCAL, nullptr, MSHLFLAGS_NORMAL));
 
@@ -104,7 +101,7 @@ extern "C" HRESULT CreateInstance(
 
 int __stdcall wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR cmdLine, _In_ int)
 {
-    wil::SetResultLoggingCallback(&WindowsPackageManagerServerWilResultCallback);
+    wil::SetResultLoggingCallback(&WindowsPackageManagerServerWilResultLoggingCallback);
 
     RETURN_IF_FAILED(CoInitializeEx(nullptr, COINIT_MULTITHREADED));
 
@@ -141,25 +138,25 @@ int __stdcall wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR cmdLine, 
         {   
             HANDLE hMutex = NULL;
             hMutex = CreateMutex(NULL, FALSE, TEXT("WinGetServerMutex"));
-            RETURN_HR_IF_NULL(OSS_MUTEX_NOT_CREATED, hMutex);
+            RETURN_LAST_ERROR_IF_NULL(hMutex);
 
             DWORD waitResult = WaitForSingleObject(hMutex, 0);
-            if (waitResult != 0 && waitResult != WAIT_ABANDONED)
+            if (waitResult != WAIT_OBJECT_0 && waitResult != WAIT_ABANDONED)
             {
-                return ERROR_SERVICE_ALREADY_RUNNING;
+                return HRESULT_FROM_WIN32(ERROR_SERVICE_ALREADY_RUNNING);
             }
 
             RETURN_IF_FAILED(WindowsPackageManagerServerInitializeRPCServer());
         }
 
         // Manual reset event to notify the client that the server is available.
-        HANDLE eventHandle = CreateEventW(NULL, TRUE, FALSE, L"WinGetServerStartEvent");
-        RETURN_HR_IF_NULL(PEER_E_EVENT_HANDLE_NOT_FOUND, eventHandle);
-        SetEvent(eventHandle);
+        wil::unique_event manualResetEvent;
+        manualResetEvent.create(wil::EventOptions::ManualReset, L"WinGetServerStartEvent");
+        manualResetEvent.SetEvent();
 
         _comServerExitEvent.wait();
+        manualResetEvent.ResetEvent();
         RETURN_IF_FAILED(WindowsPackageManagerServerModuleUnregister());
-        ResetEvent(eventHandle);
     }
     CATCH_RETURN()
 

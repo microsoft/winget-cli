@@ -5,7 +5,7 @@ EXPORTS
     WindowsPackageManagerServerModuleCreate
     WindowsPackageManagerServerModuleRegister
     WindowsPackageManagerServerModuleUnregister
-    WindowsPackageManagerServerWilResultCallback
+    WindowsPackageManagerServerWilResultLoggingCallback
     WindowsPackageManagerServerCreateInstance
     WindowsPackageManagerInProcModuleInitialize
     WindowsPackageManagerInProcModuleTerminate

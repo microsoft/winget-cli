@@ -106,15 +106,13 @@ namespace Microsoft.WinGet.Client.Factories
 
         private static T Create<T>(Type type, in Guid iid)
         {
-            object instance;
+            object instance = null;
 
             if (Utilities.ExecutingAsAdministrator)
             {
-                instance = null;
-
                 int hr = WinGetServerManualActivation_CreateInstance(type.GUID, iid, 0, out instance);
 
-                if (hr == ErrorCode.ERROR_FILE_NOT_FOUND)
+                if (hr == ErrorCode.FILE_NOT_FOUND)
                 {
                     throw new Exception(Utilities.ResourceManager.GetString("WinGetPackageNotInstalled"));
                 }

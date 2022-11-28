@@ -29,10 +29,10 @@ extern "C"
     WINDOWS_PACKAGE_MANAGER_API WindowsPackageManagerServerModuleUnregister();
 
     // Callback for logging the WIL result reported from the server.
-    void WINDOWS_PACKAGE_MANAGER_API_CALLING_CONVENTION WindowsPackageManagerServerWilResultCallback(const wil::FailureInfo& info) noexcept;
+    void WINDOWS_PACKAGE_MANAGER_API_CALLING_CONVENTION WindowsPackageManagerServerWilResultLoggingCallback(const wil::FailureInfo& info) noexcept;
 
     // Creates an out-of-proc instance for manual activation scenarios.
-    WINDOWS_PACKAGE_MANAGER_API WindowsPackageManagerServerCreateInstance(const CLSID* clsid, const IID* iid, void** out);
+    WINDOWS_PACKAGE_MANAGER_API WindowsPackageManagerServerCreateInstance(REFCLSID rclsid, REFIID riid, void** out);
 
     // Creates module for in-proc COM invocation.
     WINDOWS_PACKAGE_MANAGER_API WindowsPackageManagerInProcModuleInitialize();
