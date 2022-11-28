@@ -1,58 +1,69 @@
 ---
-author: Darshan Rander @SirusCodes
+author: Darshan Rander @SirusCodes and Kaleb Luedtke @Trenly
 created on: 2022-10-29
-last updated: 2022-11-11
+last updated: 2022-11-28
 issue id: 1620
 ---
 
-# Spec Title
+# Query Refinement for Disambiguation
 
 For [#1620](https://github.com/microsoft/winget-cli/issues/1620)
 
 ## Abstract
 
-Currently, the winget.exe client simply lists all the matches and if the user wants to install the app they need to re-run the command with Id.
+When the user runs the install command and the winget client cannot disambiguate the query down to a single package, the client will list potential matches. The user then needs to re-run the install command with the package identifier to install the package.
 
-The UX can be improved here by giving users an option to select the package instead of asking them to re-run the command with Id.
-
-This can be extended to `upgrade`, `show` and `uninstall` commands.
+The UX can be improved by giving users an option to select the package instead of forcing the command to be re-run with the package identifier.
+This selection option can also be extended to the `upgrade`, `show` and `uninstall` commands.
 
 ## Inspiration
 
-Whenever I use Winget to install any application there are high chances that there are name collisions with other names and I get multiple suggestions in the table and it's annoying to copy the ID and rerun the command. I guess this is the case for a lot of others as well.
+There are many similarly-named packages in winget. When users try to install any application, there is a high chance of a collision causing multiple suggestions in the returned table. It is an annoyance to copy the package identifier and re-run the command.
 
 ## Solution Design
 
-If we find multiple packages then the user should get a selector.
+When the query for `install`, `upgrade`, `show`, or `uninstall` cannot be disambiguated to a single package, the user should be given the opportunity to continuously refine their query.
 
-> It should not be shown if `--diable-interactivity` is set.
+> Query refinement should not occur if `--diable-interactivity` is used or if interactivity has been disabled through settings. Query refinement is not required for COM callers.
 
 ### Settings
 
-The user needs to **opt-in** to this feature.
+This shall be an **opt-in** only feature. The setting for this feature shall be placed uder the `interactivity` object. 
 
-Winget can use `--prompt` and `--no-prompt` flags to enable and disable it respectively.
-
-The user can change the default setting to always show the prompt by -
-
-```pwsh
-"packageDisambiguation": "prompt"
+In order to enable the query refinement feature -
+> Note: The setting could also be called `packageDisambiguation`
+```json
+"interactivity" : {
+   "refineAmbiguousQueries": true
+}
+```
+In order to disable the query refinement feature -
+```json
+"interactivity" : {
+   "refineAmbiguousQueries": false // This is the default behavior
+}
 ```
 
-and disable it by -
+From the command line, users should be able to use `--refine-query` to override the user setting and show the query refinement, and `--no-refinement` to override the user setting and not show the query refinement.
 
-```pwsh
-"packageDisambiguation": "no-prompt"
-```
+### Refinement Source
+The results from the query needing refinement should be placed into a temporary database to be used for further refinement. This database should be treated as a new temporary source to be queried. Upon completion of the command, this temporary database shall be removed. If the database is already existing and a new command is run, the database shall be overwritten.
 
-### Valid inputs
+### Refinement queries
+Input to the package refinement should be treated as a query by default. This should match the behavior of the parent command. Each entry should also be assigned an index number which can be used to reference the package. The index number shall be treated as a fully qualified reference, and entry of an exact match to the number as a query shall take precedent.
 
-- Number - It should match with a _row number_ (0 will exit the selector)
-- Text - It should match either the package _Name_ or _Id_
-
-#### Flags
-
-- `--more` or `-m` flag - It should be used to show more n number of results.
+> Example: A user runs `winget install Example` and receives the result:
+> ```
+> Multiple packages found matching input criteria.
+> Number Name       Id                   Source
+> -----------------------------------------------
+>   1    Example 3  Example.Example3     msstore
+>   2    Example 2  Example.Example2     winget
+> ```
+> If the user were to input `'Example 2'`, it would be treated as `winget install -q 'Example 2'` using only the results in the table above as the source
+ 
+Users should be able to refine their query using any of the standard or shared flags. 
+This includes, but is not limited to -
 - `--id` - Filter results by id
 - `--name` - Filter results by name
 - `--moniker` - Filter results by the moniker
@@ -61,144 +72,78 @@ and disable it by -
 - `-s` or `--source` - Find the package using the specified source
 - `-e` or `--exact` - Find the package using exact match
 
-### Invalid inputs
-
-If a user enters an invalid value it should show an error asking the user for input again,
-
-Example: `1ab`
-
-```pwsh
-Invalid input, please enter row number, or package name or id.
-```
-
-If a user enters a number that is out of the shown list then they get an error to enter numbers that are in the list.
-
-Example: `23` in the list of `20`` entries
-
-```pwsh
-Please enter row number which are present in entries above.
-```
-
 ### Number of results
 
-We can use `-n` or `--number` flags to customize the number of packages listed in the prompt. As there is already a user setting for it, we don't need to add any special settings for it.
+The `-n` or `--number` flag should be available for the `install`, `upgrade`, `show`, and `uninstall` commands to limit the number of packages returned for refinement.
 
-If the number of packages is more than allowed it should show a text saying how many more packages are available
+If the number of packages is more than allowed it should show the message that additional entries have been truncated due to the result limit. Packages truncated from the results should be included in the database for refinement queries.
 
-```pwsh
-...
- 20  Example Example.Example20 winget
+### Tab Completion
+Tab completion shall complete the package identifier just as it would for the parent command of the refinement. The behavior of forward cycling with <kbd>Tab</kbd> and reverse cycling with <kbd>Shift</kbd>+<kbd>Tab</kbd> shall be retained.
 
-There are 6 more packages available. Use -m or --more to see more.
-Please select a row number or refine the search by package name or ID.
->
-```
-
-If a user enters the package name or ID then we should scan the whole list including the ones which are not shown to the user.
-
-If the user enters a number then it should be in the range of the list shown to the user and the user cannot use `-m` or `--more` flags with other queries or flags.
-
-The `--more` flag will show the user the hidden items and increases the range of input they can have.
-
-```pwsh
-...
- 20  Example Example.Example20 winget
-
-There are 6 more packages available. Use -m or --more to see more.
-Please select a row number or refine the search by package name or ID.
-> -m
- 21  Example Example.Example21 winget
- ...
- 26  Example Example.Example26 winget
-Please select a row number or refine the search by package name or ID.
->
-```
-
-### Refine the search
-
-A user can search results by entering text input. The text input should be compared with the Name and ID in the result.
-
-If a user enters a Name or ID and we found only an exact match then start installing the package else we should show the new refined list to the user.
-
-The text input is said to be invalid only if it doesn't match any of the names or IDs. The user will see an error for invalid input and will be asked to retry.
-
-If the user enters the name/ID and source or only source and there isn't any source then the user will see an error message which says that cannot find the package with the source.
-
-The first query will fetch package details from the indexed database and further refinements will be made to the result from the initial query.
-
-### Tab completion
-
-The Tab completion would complete the package name/ID and cycle through the package ID on `Tab` press and reverse cycle through it on `Tab` + `Shift`.
+### Invalid Entries
+Since all entries are treated as a refinement, no entry is considered to be invalid. If a refinement query returns no results from the temporary database source, the user shall be shown the message that no packages match the input criteria.
 
 ## UI/UX Design
 
-This is how the prompt should look like...
+The table output to the user shall include, at minimum, the index number, package name, package identifier, and the source of the package
 
 ```pwsh
 > winget install Example
-Multiple packages found matching.
- Number Name       Id                   Source
+Multiple packages found matching input criteria.
+ Number Name      Id                Source
 -------------------------------------------
-   1    Example    Example.Example1     msstore
-   2    Example    Example.Example2     winget
-...
-   20   Example20  Example.Example20    msstore
-There are 8 more packages.
+   1    ExampleA  Example.Example1 msstore
+   2    ExampleA  Example.Example2 winget
+   ...
+   27   Example27 Example.Example27 msstore
 
-Please select a row number, or enter package name or ID to refine search...
+Please enter a row number, package name, ID, or query to refine search...
 > _
 ```
 
-If a user enters a row number between 1-20 then install the package
+If a user enters a number exactly matching the index number then install the package
 
 ```pwsh
-Please select a row number, or enter package name or ID to refine search...
+Please enter a row number, package name, ID, or query to refine search...
 > 2
-Downloading Example (Example.Example2)...
+Found ExampleA [Example.Example2] Version 1.0.0
+This application is licensed to you by its owner.
+...
 ```
 
-If a user enters an invalid input.
-
-```pwsh
-Please select a row number, or enter package name or ID to refine search...
-> 23
-Please enter row number which are present in entries above.
->
-```
-
-If the user enters a name or ID then we should refine the list.
+If the user enters a name or ID then the query should be refined. If the package is not fully disambiguated, the refinement should continue using the refined results as the new source.
 
 ```pwsh
 ...
-Please select a row number, or enter package name or ID to refine search...
-> Example
+Please enter a row number, package name, ID, or query to refine search...
+> ExampleA
 
 Refined the search to Name/ID with `Example` in it.
 Number Name       Id                   Source
 -------------------------------------------
-   1   Example    Example.Example1     msstore
-   2   Example    Example.Example2     winget
-   3   Example    Example.Example22    msstore
+   1   ExampleA    Example.Example1     msstore
+   2   ExampleA    Example.Example2     winget
+   3   ExampleA    Example.Example22    msstore
 
-Please select a row number, or enter package name or ID to refine search...
+Please enter a row number, package name, ID, or query to refine search...
 > _
 ```
 
-A user can use flags (example `--source`)
-
-Now we only have a package with ID `Example.Example2` in the list because of the queries the user wrote.
-
+If the user enters a query, the flags should be honored.
 ```pwsh
-Refined the search to Name/ID with `Example` in it.
+# Refined the search to Name/ID with `ExampleA` in it.
 Number Name       Id                   Source
 -------------------------------------------
-   1   Example    Example.Example1     msstore
-   2   Example    Example.Example2     winget
-   3   Example    Example.Example22    msstore
+   1   ExampleA    Example.Example1     msstore
+   2   ExampleA    Example.Example2     winget
+   3   ExampleA    Example.Example22    msstore
 
-Please select a row number, or enter package name or ID to refine search...
+Please enter a row number, package name, ID, or query to refine search...
 > --source winget
-Downloading Example (Example.Example2)...
+Found ExampleA [Example.Example2] Version 1.0.0
+This application is licensed to you by its owner.
+...
 ```
 
 If a query matches nothing then exit the CLI with the message that the query couldn't find any result.
@@ -210,14 +155,21 @@ Number Name       Id                   Source
    2   Example2   Example.Example2     winget
 ...
    20  Example20  Example.Example20    msstore
-There are 8 more packages.
 
-Please select a row number, or enter package name or ID to refine search...
-> Example --source winget
+Please enter a row number, package name, ID, or query to refine search...
+> Example.Example1 --source winget
 No package found matching input criteria
 ```
 
 ## Capabilities
+
+### Telemetry
+Telemetry data should be sent around the following items
+* When a disambiguation list is shown
+* What query caused the disambiguation to be shown
+  
+The current telemetry will need to be adjusted to reflect the following case
+* If a user was able to disambiguate the package, the command result should be treated as a success
 
 ### Accessibility
 
@@ -233,38 +185,36 @@ The user might enter the number incorrectly in rush and might need to kill the r
 
 ### Compatibility
 
-This won't work in MinQTTY. It's a [known issue](https://github.com/git-for-windows/build-extra/blob/main/ReleaseNotes.md?rgh-link-date=2022-10-21T03%3A13%3A26Z#known-issues) in Git-for-windows.
+This won't work in MinTTY. It's a [known issue](https://github.com/git-for-windows/build-extra/blob/main/ReleaseNotes.md?rgh-link-date=2022-10-21T03%3A13%3A26Z#known-issues) in Git-for-windows.
 
 ### Performance, Power, and Efficiency
 
 ## Potential Issues
-
-It should not be shown if `--diable-interactivity` is set.
-
-There should be no effect of the `--silent` flag on the selector.
-
-Having the `upgrade` command included in this would conflict with [#2627](https://github.com/microsoft/winget-cli/issues/2627)
-
-For example - `winget upgrade Microsoft` might have a match with hundreds of packages and use might not want to see this prompt. Tho this is an opt-in feature but there might be a clash if a user has opted in from settings.
+* There should be no effect of the `--silent` flag on the selector.
+* Having the `upgrade` command included in this would conflict with [#2627](https://github.com/microsoft/winget-cli/issues/2627)
+  
+  For example - `winget upgrade Microsoft` might have a match with hundreds of packages and use might not want to see this prompt. Although this is an opt-in feature, there might be a clash if both features are enabled.
 
 ## Future considerations
+* Keyboard interactivity using <kbd>↑</kbd>, <kbd>↓</kbd>, and <kbd>Ener</kbd>
 
-Currently, Winget does not support installing multiple packages in a single command.
+* Currently, Winget does not support installing multiple packages in a single command.
 
-For Example -
+   For Example -
 
-```pswh
-winget install Powershell Git
-```
+   ```pswh
+   winget install Powershell Git
+   ```
 
-The above command will not install anything.
+   The above command will not install anything.
 
-If this is ever supported, potential considerations include having _multiple_, _range_ and _not_ selectors.
+   If this is ever supported, potential considerations include having _multiple_, _range_ and _not_ selectors.
 
-- multiple selector (1 3): A **space** separated number should install packages of that number.
-- range selector (1-3): A **hyphen** separated number should install all the packages including the start and end numbers.
-- not selector (^2): A number with a **carat** symbol should install all packages except the number marked with a carat symbol.
+   - multiple selector (1 3): A **space** separated number should install packages of that number.
+   - range selector (1-3): A **hyphen** separated number should install all the packages including the start and end numbers.
+   - not selector (^2): A number with a **carat** symbol should install all packages except the number marked with a carat symbol.
+* Protection against mistyping the numeric identifier
 
 ## Resources
 
-- [winget#301 (comment)](https://github.com/microsoft/winget-cli/issues/301#issuecomment-940172239) a snapshot from the [yay](https://github.com/Jguer/yay).
+- [winget#301 (comment)](https://github.com/microsoft/winget-cli/issues/301#issuecomment-940172239) a snapshot from [yay](https://github.com/Jguer/yay).
