@@ -110,7 +110,7 @@ namespace Microsoft.WinGet.Client.Factories
 
             if (Utilities.ExecutingAsAdministrator)
             {
-                int hr = WinGetServerManualActivation_CreateInstance(type.GUID, iid, 0, out instance);
+                int hr = WinGetServerManualActivation_CreateInstance(type.GUID, iid, out instance);
 
                 if (hr == ErrorCode.FILE_NOT_FOUND)
                 {
@@ -138,7 +138,6 @@ namespace Microsoft.WinGet.Client.Factories
         private static extern int WinGetServerManualActivation_CreateInstance(
             [In, MarshalAs(UnmanagedType.LPStruct)] Guid clsid,
             [In, MarshalAs(UnmanagedType.LPStruct)] Guid iid,
-            uint flags,
             [Out, MarshalAs(UnmanagedType.IUnknown)] out object instance);
     }
 }

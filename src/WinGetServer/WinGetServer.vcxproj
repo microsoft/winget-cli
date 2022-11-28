@@ -172,7 +172,9 @@
     <Midl Include="WinGetServer.idl">
       <EnableWindowsRuntime>false</EnableWindowsRuntime>
       <GenerateClientFiles>Stub</GenerateClientFiles>
+      <GenerateServerFiles>Stub</GenerateServerFiles>
       <ApplicationConfigurationMode>true</ApplicationConfigurationMode>
+      <HeaderFileName></HeaderFileName>
     </Midl>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
