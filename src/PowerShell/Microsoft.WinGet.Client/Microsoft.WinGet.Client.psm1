@@ -14,7 +14,7 @@ class PowerShellCustomFunctionAttribute : System.Attribute {
 function Get-WinGetVersion
 {
 [PowerShellCustomFunctionAttribute(RequiresElevation=$False)]
-[CmdletBinding()]
+[CmdletBinding(SupportsShouldProcess)]
 
 param(    )
 
@@ -81,49 +81,27 @@ PROCESS {
   } # end PROCESS
 
 <#
-.SYNOPSIS
-Windows Package Manager (Preview) v1.3.1391-preview
-Copyright (c) Microsoft Corporation. All rights reserved.
+  .SYNOPSIS
+  Displays the version of the tool.
 
-The winget command line utility enables installing applications and other packages from the command line.
+  .DESCRIPTION
+  Displays the version of the winget.exe tool.
 
-usage: winget [<command>] [<options>]
+  .INPUTS
+  None.
 
-The following commands are available:
-  install    Installs the given package
-  show       Shows information about a package
-  source     Manage sources of packages
-  search     Find and show basic info of packages
-  list       Display installed packages
-  upgrade    Shows and performs available upgrades
-  uninstall  Uninstalls the given package
-  hash       Helper to hash installer files
-  validate   Validates a manifest file
-  settings   Open settings or set administrator settings
-  features   Shows the status of experimental features
-  export     Exports a list of the installed packages
-  import     Installs all the packages in a file
+  .OUTPUTS
+  None
 
-For more details on a specific command, pass it the help argument. [-?]
-
-The following options are available:
-  -v,--version  Display the version of the tool
-  --info        Display general info of the tool
-
-More help can be found at: https://aka.ms/winget-command-help
-
-.DESCRIPTION See help for winget.exe
-
+  .EXAMPLE
+  PS> Get-WinGetVersion
 #>
 }
-
-
-
 
 function Enable-WinGetSetting
 {
 [PowerShellCustomFunctionAttribute(RequiresElevation=$False)]
-[CmdletBinding()]
+[CmdletBinding(SupportsShouldProcess)]
 
 param(
 [Parameter(Position=0,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,Mandatory=$true)]
@@ -204,44 +182,24 @@ PROCESS {
   } # end PROCESS
 
 <#
-.SYNOPSIS
-Windows Package Manager (Preview) v1.3.1391-preview
-Copyright (c) Microsoft Corporation. All rights reserved.
+  .SYNOPSIS
+  Enables the WinGet setting specified by the `Name` parameter.
 
-The winget command line utility enables installing applications and other packages from the command line.
+  .DESCRIPTION
+  Enables the WinGet setting specified by the `Name` parameter.
+  Supported settings: `LocalManifestFiles`
 
-usage: winget [<command>] [<options>]
+  .PARAMETER Name
+  Specifies the name of the setting to be enabled.
 
-The following commands are available:
-  install    Installs the given package
-  show       Shows information about a package
-  source     Manage sources of packages
-  search     Find and show basic info of packages
-  list       Display installed packages
-  upgrade    Shows and performs available upgrades
-  uninstall  Uninstalls the given package
-  hash       Helper to hash installer files
-  validate   Validates a manifest file
-  settings   Open settings or set administrator settings
-  features   Shows the status of experimental features
-  export     Exports a list of the installed packages
-  import     Installs all the packages in a file
+  .INPUTS
+  None.
 
-For more details on a specific command, pass it the help argument. [-?]
+  .OUTPUTS
+  None
 
-The following options are available:
-  -v,--version  Display the version of the tool
-  --info        Display general info of the tool
-
-More help can be found at: https://aka.ms/winget-command-help
-
-.DESCRIPTION See help for winget.exe
-
-.PARAMETER Name
-
-
-
-
+  .EXAMPLE
+  PS> Enable-WinGetSetting -name LocalManifestFiles 
 #>
 }
 
@@ -251,7 +209,7 @@ More help can be found at: https://aka.ms/winget-command-help
 function Disable-WinGetSetting
 {
 [PowerShellCustomFunctionAttribute(RequiresElevation=$False)]
-[CmdletBinding()]
+[CmdletBinding(SupportsShouldProcess)]
 
 param(
 [Parameter(Position=0,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,Mandatory=$true)]
@@ -332,54 +290,31 @@ PROCESS {
   } # end PROCESS
 
 <#
-.SYNOPSIS
-Windows Package Manager (Preview) v1.3.1391-preview
-Copyright (c) Microsoft Corporation. All rights reserved.
+  .SYNOPSIS
+  Disables the WinGet setting specified by the `Name` parameter.
 
-The winget command line utility enables installing applications and other packages from the command line.
+  .DESCRIPTION
+  Disables the WinGet setting specified by the `Name` parameter.
+  Supported settings: `LocalManifestFiles`
 
-usage: winget [<command>] [<options>]
+  .PARAMETER Name
+  Specifies the name of the setting to be disabled.
 
-The following commands are available:
-  install    Installs the given package
-  show       Shows information about a package
-  source     Manage sources of packages
-  search     Find and show basic info of packages
-  list       Display installed packages
-  upgrade    Shows and performs available upgrades
-  uninstall  Uninstalls the given package
-  hash       Helper to hash installer files
-  validate   Validates a manifest file
-  settings   Open settings or set administrator settings
-  features   Shows the status of experimental features
-  export     Exports a list of the installed packages
-  import     Installs all the packages in a file
+  .INPUTS
+  None.
 
-For more details on a specific command, pass it the help argument. [-?]
+  .OUTPUTS
+  None
 
-The following options are available:
-  -v,--version  Display the version of the tool
-  --info        Display general info of the tool
-
-More help can be found at: https://aka.ms/winget-command-help
-
-.DESCRIPTION See help for winget.exe
-
-.PARAMETER Name
-
-
-
-
+  .EXAMPLE
+  PS> Disable-WinGetSetting -name LocalManifestFiles 
 #>
 }
-
-
-
 
 function Add-WinGetSource
 {
 [PowerShellCustomFunctionAttribute(RequiresElevation=$False)]
-[CmdletBinding()]
+[CmdletBinding(SupportsShouldProcess)]
 
 param(
 [Parameter(Position=0,ValueFromPipelineByPropertyName=$true,Mandatory=$true)]
@@ -480,62 +415,39 @@ PROCESS {
   } # end PROCESS
 
 <#
-.SYNOPSIS
-Windows Package Manager (Preview) v1.3.1391-preview
-Copyright (c) Microsoft Corporation. All rights reserved.
+  .SYNOPSIS
+  Add a new source.
 
-The winget command line utility enables installing applications and other packages from the command line.
+  .DESCRIPTION
+  Add a new source. A source provides the data for you to discover and install packages.
+  Only add a new source if you trust it as a secure location.
 
-usage: winget [<command>] [<options>]
+  .PARAMETER Name
+  Name of the source.
 
-The following commands are available:
-  install    Installs the given package
-  show       Shows information about a package
-  source     Manage sources of packages
-  search     Find and show basic info of packages
-  list       Display installed packages
-  upgrade    Shows and performs available upgrades
-  uninstall  Uninstalls the given package
-  hash       Helper to hash installer files
-  validate   Validates a manifest file
-  settings   Open settings or set administrator settings
-  features   Shows the status of experimental features
-  export     Exports a list of the installed packages
-  import     Installs all the packages in a file
+  .PARAMETER Argument
+  Argument to be given to the source.
 
-For more details on a specific command, pass it the help argument. [-?]
+  .PARAMETER Type
+  Type of the source.
 
-The following options are available:
-  -v,--version  Display the version of the tool
-  --info        Display general info of the tool
+  .INPUTS
+  None.
 
-More help can be found at: https://aka.ms/winget-command-help
+  .OUTPUTS
+  None.
 
-.DESCRIPTION See help for winget.exe
-
-.PARAMETER Name
-
-
-
-.PARAMETER Argument
-
-
-
-.PARAMETER Type
-
-
-
+  .EXAMPLE
+  PS> Add-WinGetSource -Name Contoso -Argument https://www.contoso.com/cache
 
 #>
 }
 
 
-
-
 function Remove-WinGetSource
 {
 [PowerShellCustomFunctionAttribute(RequiresElevation=$False)]
-[CmdletBinding()]
+[CmdletBinding(SupportsShouldProcess)]
 
 param(
 [Parameter(Position=0,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,Mandatory=$true)]
@@ -616,54 +528,31 @@ PROCESS {
   } # end PROCESS
 
 <#
-.SYNOPSIS
-Windows Package Manager (Preview) v1.3.1391-preview
-Copyright (c) Microsoft Corporation. All rights reserved.
+  .SYNOPSIS
+  Remove a specific source.
 
-The winget command line utility enables installing applications and other packages from the command line.
+  .DESCRIPTION
+  Remove a specific source. The source must already exist to be removed.
 
-usage: winget [<command>] [<options>]
+  .PARAMETER Name
+  Name of the source.
 
-The following commands are available:
-  install    Installs the given package
-  show       Shows information about a package
-  source     Manage sources of packages
-  search     Find and show basic info of packages
-  list       Display installed packages
-  upgrade    Shows and performs available upgrades
-  uninstall  Uninstalls the given package
-  hash       Helper to hash installer files
-  validate   Validates a manifest file
-  settings   Open settings or set administrator settings
-  features   Shows the status of experimental features
-  export     Exports a list of the installed packages
-  import     Installs all the packages in a file
+  .INPUTS
+  None.
 
-For more details on a specific command, pass it the help argument. [-?]
+  .OUTPUTS
+  None.
 
-The following options are available:
-  -v,--version  Display the version of the tool
-  --info        Display general info of the tool
-
-More help can be found at: https://aka.ms/winget-command-help
-
-.DESCRIPTION See help for winget.exe
-
-.PARAMETER Name
-
-
-
+  .EXAMPLE
+  PS> Remove-WinGetSource -Name Contoso
 
 #>
 }
 
-
-
-
 function Reset-WinGetSource
 {
 [PowerShellCustomFunctionAttribute(RequiresElevation=$False)]
-[CmdletBinding()]
+[CmdletBinding(SupportsShouldProcess)]
 
 param(
 [Parameter(Position=0,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
@@ -745,43 +634,27 @@ PROCESS {
   } # end PROCESS
 
 <#
-.SYNOPSIS
-Windows Package Manager (Preview) v1.3.1391-preview
-Copyright (c) Microsoft Corporation. All rights reserved.
+  .SYNOPSIS
+  Drops existing sources. Without any argument, this command will drop all sources and add the defaults.
 
-The winget command line utility enables installing applications and other packages from the command line.
+  .DESCRIPTION
+  Drops existing sources, potentially leaving any local data behind. Without any argument, it will drop all sources and add the defaults.
+  If a named source is provided, only that source will be dropped.
 
-usage: winget [<command>] [<options>]
+  .PARAMETER Name
+  Name of the source.
 
-The following commands are available:
-  install    Installs the given package
-  show       Shows information about a package
-  source     Manage sources of packages
-  search     Find and show basic info of packages
-  list       Display installed packages
-  upgrade    Shows and performs available upgrades
-  uninstall  Uninstalls the given package
-  hash       Helper to hash installer files
-  validate   Validates a manifest file
-  settings   Open settings or set administrator settings
-  features   Shows the status of experimental features
-  export     Exports a list of the installed packages
-  import     Installs all the packages in a file
+  .INPUTS
+  None.
 
-For more details on a specific command, pass it the help argument. [-?]
+  .OUTPUTS
+  None.
 
-The following options are available:
-  -v,--version  Display the version of the tool
-  --info        Display general info of the tool
+  .EXAMPLE
+  PS> Reset-WinGetSource
 
-More help can be found at: https://aka.ms/winget-command-help
-
-.DESCRIPTION See help for winget.exe
-
-.PARAMETER Name
-
-
-
+  .EXAMPLE
+  PS> Reset-WinGetSource -Name Contoso
 
 #>
 }
