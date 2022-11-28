@@ -26,8 +26,10 @@ The proposed DSC resources are (names TBD):
 2. WinGetAdminSettings
 3. WinGetSources
 4. WinGetIntegrity
+5. WinGetPackages
+6. WinGetPackage
 
-### WinGetUserSettings
+### 1. WinGetUserSettings
 This resource will be in charge of editing the settings.json with the specified settings.
 
 Enable-WinGetSetting and Disable-WinGetSetting functions already exists in Microsoft.WinGet.Client, but those in reality refer to administrator settings. User settings are not necessarily something that you can just enable or disable. Because of that we need new cmdlets that are specific to user settings. We should also take in consideration that some settings are temporal, for example experimental features. We cannot add a new/remove new parameters every time one of them is implemented. Also, there won't be any validation other than converting the Hashtable into a JSON. This is similar on how `winget settings` will just open the preferred text editor to let the user modify the file and will only inform of malformations on the next winget command.
@@ -40,11 +42,11 @@ Returns the Hashtable representation of winget's settings.json file.
 
 *Set-WinGetUserSettings*
 
-Writes the input settings into winget's settings.json file. Default behavior must be additive and there must be an option to overwrite content.
+Writes the input settings into winget's settings.json file. Default behavior is overwrite. Optionally do an additive set.
 
 *Test-WinGetUserSettings*
 
-Returns true is the inputs settings values match the current settings. By default, compares only the settings specified, optionally make a full comparison.
+Returns true is the inputs settings values match the current settings. By default, makes a full comparison, optionally compares only the settings specified.
 This could live inside the DSC resource, but in order to keep the code contained and easy to manage and test is better to expose it.
 
 #### DSC Resource
@@ -66,7 +68,7 @@ A Hashtable with the user settings to be set.
 
 *SID (Key)*
 
-DSC resources require a key that is a string, a signed/unsigned integer, or Enum types. The key must be unique per resource, but we only expect to have one winget user settings resource in a session. To resolve this, we can use the SID of the current user as the key. This will also allow a future implementation where an administrator sets different user settings for different users. For now, we won't expect people to set this, we will do it internally.
+DSC resources require a key that is a string, a signed/unsigned integer, or Enum types. The key must be unique per resource, but we only expect to have one winget user settings resource in a session. To resolve this, we can use the SID of the current user as the key. This will also allow a future implementation where an administrator sets different user settings for different users. For now, we won't expect people to set this and we will use an empty string as the current user's SID.
 
 *Action*
 
@@ -98,7 +100,7 @@ if (-not $testResult.InDesiredState)
 
 ```
 
-### WinGetAdminSettings
+### 2. WinGetAdminSettings
 This resource will be in charge of enabling and disabling winget administrator settings and is a wrapper around Enable-WinGetSetting and Disable-WinGetSetting.
 
 #### winget-cli
@@ -153,7 +155,7 @@ if (-not $testResult.InDesiredState)
 
 ```
 
-### WinGetSources
+### 3. WinGetSources
 This resource will be in charge of adding or removing winget sources. It wraps calls to Add-WinGetSource, Remove-WinGetSource and Get-WinGetSource.
 
 #### DSC Resource
@@ -164,6 +166,7 @@ WinGetSources [String] #ResourceName
     Sources = [WinGetSource[]]
     [DependsOn = [string[]]]
     [Ensure = [string]]
+    [Reset = [bool]]
     [PsDscRunAsCredential = [PSCredential]]
 }
 ```
@@ -181,7 +184,11 @@ Existing PowerShell DSC property Ensure will tell if the sources need to be adde
 
 *Ensure*
 
-This is a enum with two values: Absent and Present. Defaults to present. For Set, Absent means call Remove-WinGetSource and Ensure means if not there call Add-WinGetSource otherwise call Reset-WinGetSource to repair it.
+This is a enum with two values: Absent and Present. Defaults to present. For Set, Absent means call Remove-WinGetSource and Ensure means if not there call Add-WinGetSource.
+
+*Reset*
+
+Calls Reset-WinGetSource to repair the sources.
 
 #### Example of usage
 ```
@@ -203,7 +210,7 @@ $resource = @{
 Invoke-DscResource @resource -Method Set
 ```
 
-### WinGetIntegrity
+### 4. WinGetIntegrity
 This resource checks the general integrity of winget. It will be in charge of installing/updating winget as well as fixing the common issues described in [Troubleshooting](https://github.com/microsoft/winget-cli/tree/master/doc/troubleshooting). This name is the the most TBD of the resources names, please help proposing new ones.
 
 #### Repair
@@ -251,6 +258,80 @@ If the version is empty, then we will assume that the current version installed 
 
 #### Notes
 I'm kind of hesitant on leaving this as one DSC resource. We might need to split it into the integrity and the installation resources. Feedback is appreciated.
+
+### 5. WinGetPackages
+This resource is basically a wrapper around `winget import`. It takes an input file that describes the packages to install.
+
+#### DSC Resource
+```
+WinGetPackages [String] #ResourceName
+{
+    SID = [string]
+    PackagesFile = [string]
+    [IgnoreUnavailable = [bool]]
+    [IgnoreVersions = [bool]]
+    [NoUpgrade = [bool]]
+    [DependsOn = [string[]]]
+    [PsDscRunAsCredential = [PSCredential]]
+    [Version = [string]]
+}
+```
+*SID (Key)*
+
+See SID property of UserSettings.
+
+*PackagesFile*
+
+A local file with the packages to install. Follows the [winget install schema](https://raw.githubusercontent.com/microsoft/winget-cli/master/schemas/JSON/packages/packages.schema.1.0.json).
+
+*IgnoreUnavailable*
+
+Uses the `--ignore-unavailable` option to ignore unavailable packages. Default false.
+
+*IgnoreVersions*
+
+Uses the `--ignore-versions` option to ignore package versions in the impo[NoUpgrade = [bool]]rt file. Default false.
+
+*NoUpgrade*
+
+Uses the `--no-upgrade` option to skip upgrade if an installed version already exists.
+
+### 6. WinGetPackage
+This resource installs a single package via winget with the specified information. Acts as a wrapper around `winget install`. We will always use the silent option.
+
+#### DSC Resource
+```
+WinGetPackages [String] #ResourceName
+{
+    PackageIdentifier = [string]
+    [Version = [string]]
+    [Source = [string]]
+    [WinGetOverride = [string]]
+    [InstallerOverride = [string]]
+    [DependsOn = [string[]]]
+    [PsDscRunAsCredential = [PSCredential]]
+    [Version = [string]]
+}
+```
+*PackageIdentifier (Key)*
+
+The package identifier of the package to be installed. Required.
+
+*Version*
+
+Optional version of the package to be installer. If empty it will use latests.
+
+*Source*
+
+Optional source of the package. If empty, use winget.
+
+*WinGetOverride*
+
+Optional parameter to allow any other winget options that will be passed to `winget install`. Allow us to keep this resource open for different configurations without adding new parameters.
+
+*InstallerOverride*
+
+Optional value for the `--override` option. We can make this a parameter in the resource or remove it and make users use WinGetOverride with a value of `--override something`.
 
 ## Potential Issues
 We are taking a dependency on PowerShell DSC 3.0.0 which is still in an alpha release. I expect us to find problems on the way, but hopefully nothing that will block us.
