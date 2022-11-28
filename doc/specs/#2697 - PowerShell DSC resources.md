@@ -108,9 +108,11 @@ Currently, there's no way to expose if the administrator settings are enabled or
 
 ```
 {
-    "LocalManifestFiles": true,
-    "BypassCertificatePinningForMicrosoftStore": false,
-    "FutureAdminSetting": true
+    "adminSettings": {
+        "BypassCertificatePinningForMicrosoftStore": false,
+        "LocalManifestFiles": true,
+        "FutureAdminSetting": "setting"
+    }
 }
 ```
 We could technically read the registry and avoid this, but that doesn't sound like the right thing to do.
