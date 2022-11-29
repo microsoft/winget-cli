@@ -69,7 +69,7 @@ namespace AppInstaller::Repository::Metadata
         
         struct DiagnosticFields
         {
-            // Eerror case
+            // Error case
             utility::string_t ErrorHR = L"errorHR";
             utility::string_t ErrorText = L"errorText";
 
