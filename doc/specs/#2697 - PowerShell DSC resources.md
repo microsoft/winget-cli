@@ -275,7 +275,6 @@ WinGetPackages [String] #ResourceName
     [NoUpgrade = [bool]]
     [DependsOn = [string[]]]
     [PsDscRunAsCredential = [PSCredential]]
-    [Version = [string]]
 }
 ```
 *SID (Key)*
@@ -292,14 +291,14 @@ Uses the `--ignore-unavailable` option to ignore unavailable packages. Default f
 
 *IgnoreVersions*
 
-Uses the `--ignore-versions` option to ignore package versions in the impo[NoUpgrade = [bool]]rt file. Default false.
+Uses the `--ignore-versions` option to ignore package versions in the import file. Default false.
 
 *NoUpgrade*
 
 Uses the `--no-upgrade` option to skip upgrade if an installed version already exists.
 
 ### 6. WinGetPackage
-This resource installs a single package via winget with the specified information. Acts as a wrapper around `winget install`. We will always use the silent option.
+This resource installs a single package via winget with the specified information. Acts as a wrapper around `Install-WinGetPackage`.
 
 #### DSC Resource
 ```
@@ -307,12 +306,9 @@ WinGetPackages [String] #ResourceName
 {
     PackageIdentifier = [string]
     [Version = [string]]
-    [Source = [string]]
-    [WinGetOverride = [string]]
-    [InstallerOverride = [string]]
+    [Parameters = [Hashtable]]
     [DependsOn = [string[]]]
     [PsDscRunAsCredential = [PSCredential]]
-    [Version = [string]]
 }
 ```
 *PackageIdentifier (Key)*
@@ -323,17 +319,9 @@ The package identifier of the package to be installed. Required.
 
 Optional version of the package to be installer. If empty it will use latests.
 
-*Source*
+*Parameters*
 
-Optional source of the package. If empty, use winget.
-
-*WinGetOverride*
-
-Optional parameter to allow any other winget options that will be passed to `winget install`. Allow us to keep this resource open for different configurations without adding new parameters.
-
-*InstallerOverride*
-
-Optional value for the `--override` option. We can make this a parameter in the resource or remove it and make users use WinGetOverride with a value of `--override something`.
+An optional Hashtable with additional parameters that need to be passed to `Install-WinGetPackage`.
 
 ## Potential Issues
 We are taking a dependency on PowerShell DSC 3.0.0 which is still in an alpha release. I expect us to find problems on the way, but hopefully nothing that will block us.
