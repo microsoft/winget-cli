@@ -174,7 +174,7 @@
       <GenerateClientFiles>Stub</GenerateClientFiles>
       <GenerateServerFiles>Stub</GenerateServerFiles>
       <ApplicationConfigurationMode>true</ApplicationConfigurationMode>
-      <HeaderFileName></HeaderFileName>
+      <HeaderFileName>WinGetServer.h</HeaderFileName>
     </Midl>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -155,7 +155,8 @@ int __stdcall wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR cmdLine, 
         manualResetEvent.SetEvent();
 
         _comServerExitEvent.wait();
-        manualResetEvent.ResetEvent();
+
+        manualResetEvent.reset();
         RETURN_IF_FAILED(WindowsPackageManagerServerModuleUnregister());
     }
     CATCH_RETURN()
