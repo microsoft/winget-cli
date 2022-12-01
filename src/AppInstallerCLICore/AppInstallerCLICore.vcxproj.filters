@@ -188,6 +188,12 @@
     <ClInclude Include="PortableInstaller.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Commands\PinCommand.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="Workflows\PinFlow.h">
+      <Filter>Workflows</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -341,6 +347,9 @@
       <Filter>Workflows</Filter>
     </ClCompile>
     <ClCompile Include="PortableInstaller.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\PinCommand.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

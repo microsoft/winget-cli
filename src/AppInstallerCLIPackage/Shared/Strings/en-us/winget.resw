@@ -1485,4 +1485,44 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Cannot disable %1. This setting is controlled by policy. For more information contact your system administrator.</value>
     <comment>{Locked="%1"} The value will be replaced with the feature name</comment>
   </data>
+  <data name="PinAddCommandLongDescription" xml:space="preserve">
+    <value />
+    <comment>TODO</comment>
+  </data>
+  <data name="PinAddCommandShortDescription" xml:space="preserve">
+    <value />
+    <comment>TODO</comment>
+  </data>
+  <data name="PinCommandLongDescription" xml:space="preserve">
+    <value />
+    <comment>TODO</comment>
+  </data>
+  <data name="PinCommandShortDescription" xml:space="preserve">
+    <value />
+    <comment>TODO</comment>
+  </data>
+  <data name="PinListCommandLongDescription" xml:space="preserve">
+    <value />
+    <comment>TODO</comment>
+  </data>
+  <data name="PinListCommandShortDescription" xml:space="preserve">
+    <value />
+    <comment>TODO</comment>
+  </data>
+  <data name="PinRemoveCommandLongDescription" xml:space="preserve">
+    <value />
+    <comment>TODO</comment>
+  </data>
+  <data name="PinRemoveCommandShortDescription" xml:space="preserve">
+    <value />
+    <comment>TODO</comment>
+  </data>
+  <data name="PinResetCommandLongDescription" xml:space="preserve">
+    <value />
+    <comment>TODO</comment>
+  </data>
+  <data name="PinResetCommandShortDescription" xml:space="preserve">
+    <value />
+    <comment>TODO</comment>
+  </data>
 </root>

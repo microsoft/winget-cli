@@ -237,6 +237,16 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(PackageAlreadyInstalled);
         WINGET_DEFINE_RESOURCE_STRINGID(PackageDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(PendingWorkError);
+        WINGET_DEFINE_RESOURCE_STRINGID(PinAddCommandLongDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(PinAddCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(PinCommandLongDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(PinCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(PinListCommandLongDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(PinListCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(PinRemoveCommandLongDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(PinRemoveCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(PinResetCommandLongDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(PinResetCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PoliciesDisabled);
         WINGET_DEFINE_RESOURCE_STRINGID(PoliciesEnabled);
         WINGET_DEFINE_RESOURCE_STRINGID(PoliciesPolicy);
