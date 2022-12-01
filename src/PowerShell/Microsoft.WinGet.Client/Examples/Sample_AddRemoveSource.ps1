@@ -1,6 +1,7 @@
 <#
     .SYNOPSIS
-        Imports the Microsoft.WinGet.Client powershell module and demonstrates how to add, remove, and reset the sources.
+        Example for 'Get-WinGetSource', 'Add-WinGetSource', 'Remove-WinGetSource', and 'Reset-WinGetSource' cmdlet.
+        Cmdlets to allow you to manage sources for the Windows Package Manager.
 #>
 
 # TODO: Replace parameter with actual module name from PSGallery once module is released. 
@@ -11,16 +12,14 @@ Param (
 
 Import-Module -Name $ModulePath
 
+# List current sources.
 Get-WinGetSource
 
-Remove-WinGetSource -Name winget
+# Add REST source
+Add-WinGetSource -Name 'Contoso' -Argument 'https://www.contoso.com/cache' -Type 'Microsoft.Rest'
 
-Add-WinGetSource -Name 'winget' -Argument 'https://cdn.winget.microsoft.com/cache'
+# Remove source by name
+Remove-WinGetSource -Name 'Contoso'
 
-Remove-WinGetSource -Name winget
-
+# Reset to default sources
 Reset-WinGetSource
-
-$sources = Get-WinGetSource
-
-Write-Host($sources)

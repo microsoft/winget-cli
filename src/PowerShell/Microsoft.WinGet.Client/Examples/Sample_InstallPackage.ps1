@@ -22,4 +22,4 @@ Install-WinGetPackage -Id Microsoft.PowerToys -Version 0.15.2
 Install-WinGetPackage -Id Microsoft.PowerToys -Source winget
 
 # Install a package with a specific architecture and scope.
-Install-WinGetPAckage -Id Microsoft.PowerToys -Architecture X64 -Scope User
+Install-WinGetPackage -Id Microsoft.PowerToys -Architecture X64 -Scope User
