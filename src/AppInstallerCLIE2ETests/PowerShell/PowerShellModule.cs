@@ -7,7 +7,6 @@ namespace AppInstallerCLIE2ETests.PowerShell
     using System;
     using System.Diagnostics;
     using System.Linq;
-    using System.Threading;
 
     /// <summary>
     /// Basic E2E smoke tests for verifying the behavior of the PowerShell module cmdlets.
@@ -47,7 +46,8 @@ namespace AppInstallerCLIE2ETests.PowerShell
                 return;
             }
 
-            TestCommon.RunPowerShellCommandWithResult(Constants.GetSourceCmdlet, $"-Name {Constants.TestSourceName}");
+            var result = TestCommon.RunPowerShellCommandWithResult(Constants.GetSourceCmdlet, $"-Name {Constants.TestSourceName}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode, $"ExitCode: {result.ExitCode} Failed with the following output: {result.StdOut}, {result.StdErr}");
 
             Assert.IsTrue(IsRunning(Constants.WindowsPackageManagerServer), $"{Constants.WindowsPackageManagerServer} is not running.");
             Process serverProcess = Process.GetProcessesByName(Constants.WindowsPackageManagerServer).First();

@@ -151,7 +151,11 @@ int __stdcall wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR cmdLine, 
 
         // Manual reset event to notify the client that the server is available.
         wil::unique_event manualResetEvent;
-        manualResetEvent.create(wil::EventOptions::ManualReset, L"WinGetServerStartEvent");
+        if (!manualResetEvent.try_create(wil::EventOptions::ManualReset, L"WinGetServerStartEvent"))
+        {
+            manualResetEvent.open(L"WinGetServerStartEvent");
+        }
+
         manualResetEvent.SetEvent();
 
         _comServerExitEvent.wait();

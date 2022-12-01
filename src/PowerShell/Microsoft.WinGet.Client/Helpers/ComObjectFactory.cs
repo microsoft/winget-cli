@@ -114,7 +114,7 @@ namespace Microsoft.WinGet.Client.Factories
 
                 if (hr < 0)
                 {
-                    if (hr == ErrorCode.FILE_NOT_FOUND)
+                    if (hr == ErrorCode.FILENOTFOUND)
                     {
                         throw new Exception(Utilities.ResourceManager.GetString("WinGetPackageNotInstalled"));
                     }
