@@ -87,6 +87,10 @@ namespace AppInstaller::CLI::Execution
             // Show command
             ListVersions, // Used in Show command to list all available versions of an app
 
+            // Pin command
+            GatedVersion, // Differs from Version in that this supports wildcards
+            BlockingPin,
+
             // Common arguments
             NoVT, // Disable VirtualTerminal outputs
             RetroStyle, // Makes progress display as retro

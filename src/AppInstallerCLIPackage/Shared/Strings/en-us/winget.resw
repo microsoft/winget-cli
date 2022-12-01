@@ -1525,4 +1525,16 @@ Please specify one of them using the --source option to proceed.</value>
     <value />
     <comment>TODO</comment>
   </data>
+  <data name="BothGatedVersionAndBlockingFlagProvided" xml:space="preserve">
+    <value />
+    <comment>TODO</comment>
+  </data>
+  <data name="GatedVersionArgumentDescription" xml:space="preserve">
+    <value />
+    <comment>TODO</comment>
+  </data>
+  <data name="PinAddBlockingArgumentDescription" xml:space="preserve">
+    <value />
+    <comment>TODO</comment>
+  </data>
 </root>
