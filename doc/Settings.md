@@ -271,6 +271,6 @@ You can enable the feature as shown below.
 
 ```json
    "experimentalFeatures": {
-       "openLogsArgument": true
+       "pinning": true
    },
 ```

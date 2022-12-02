@@ -22,6 +22,7 @@ namespace AppInstaller::CLI
             std::make_unique<PinAddCommand>(FullName()),
             std::make_unique<PinRemoveCommand>(FullName()),
             std::make_unique<PinListCommand>(FullName()),
+            std::make_unique<PinResetCommand>(FullName()),
         });
     }
 
