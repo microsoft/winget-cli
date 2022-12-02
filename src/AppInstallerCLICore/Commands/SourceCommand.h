@@ -37,7 +37,7 @@ namespace AppInstaller::CLI
 
     struct SourceListCommand final : public Command
     {
-        SourceListCommand(std::string_view parent) : Command("list", parent) {}
+        SourceListCommand(std::string_view parent) : Command("list", { "ls" }, parent) {}
 
         std::vector<Argument> GetArguments() const override;
 
