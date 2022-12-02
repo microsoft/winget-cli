@@ -1503,8 +1503,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>List all current pins, or full details of a specific pin.</value>
   </data>
   <data name="PinListCommandShortDescription" xml:space="preserve">
-    <value></value>
-    <comment>List current pins</comment>
+    <value>List current pins</value>
   </data>
   <data name="PinRemoveCommandLongDescription" xml:space="preserve">
     <value>Remove a specific package pin.</value>
