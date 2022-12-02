@@ -65,6 +65,7 @@ void __RPC_USER MIDL_user_free(_Pre_maybenull_ _Post_invalid_ void* ptr)
 extern "C" HRESULT CreateInstance(
     /* [in] */ GUID clsid,
     /* [in] */ GUID iid,
+    /* [in] */ UINT32,
     /* [ref][out] */ UINT32 * pcbBuffer,
     /* [size_is][size_is][ref][out] */ BYTE * *ppBuffer)
 {

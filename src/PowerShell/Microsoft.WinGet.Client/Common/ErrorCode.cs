@@ -12,8 +12,8 @@ namespace Microsoft.WinGet.Client.Common
     public class ErrorCode
     {
         /// <summary>
-        /// Error code for FILENOTFOUND.
+        /// Error code for ERROR_FILE_NOT_FOUND.
         /// </summary>
-        public const int FILENOTFOUND = unchecked((int)0x80070002);
+        public const int FileNotFound = unchecked((int)0x80070002);
     }
 }

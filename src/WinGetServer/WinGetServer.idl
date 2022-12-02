@@ -10,6 +10,7 @@ interface WinGetServerManualActivation
     HRESULT CreateInstance(
         [in] GUID clsid,
         [in] GUID iid,
+        [in] UINT32 flags,
         [out, ref] UINT32* pcbBuffer,
         [out, ref, size_is(, *pcbBuffer)] BYTE** ppBuffer
     );

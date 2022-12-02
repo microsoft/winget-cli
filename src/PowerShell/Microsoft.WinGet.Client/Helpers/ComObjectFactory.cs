@@ -110,11 +110,11 @@ namespace Microsoft.WinGet.Client.Factories
 
             if (Utilities.ExecutingAsAdministrator)
             {
-                int hr = WinGetServerManualActivation_CreateInstance(type.GUID, iid, out instance);
+                int hr = WinGetServerManualActivation_CreateInstance(type.GUID, iid, 0, out instance);
 
                 if (hr < 0)
                 {
-                    if (hr == ErrorCode.FILENOTFOUND)
+                    if (hr == ErrorCode.FileNotFound)
                     {
                         throw new Exception(Utilities.ResourceManager.GetString("WinGetPackageNotInstalled"));
                     }
@@ -141,6 +141,7 @@ namespace Microsoft.WinGet.Client.Factories
         private static extern int WinGetServerManualActivation_CreateInstance(
             [In, MarshalAs(UnmanagedType.LPStruct)] Guid clsid,
             [In, MarshalAs(UnmanagedType.LPStruct)] Guid iid,
+            uint flags,
             [Out, MarshalAs(UnmanagedType.IUnknown)] out object instance);
     }
 }

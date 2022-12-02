@@ -86,11 +86,11 @@ HRESULT LaunchWinGetServerWithManualActivation()
     return S_OK;
 }
 
-HRESULT CallCreateInstance(REFCLSID rclsid, REFIID riid, UINT32* bufferByteCount, BYTE** buffer)
+HRESULT CallCreateInstance(REFCLSID rclsid, REFIID riid, UINT32 flags, UINT32* bufferByteCount, BYTE** buffer)
 {
     RpcTryExcept
     {
-        RETURN_IF_FAILED(CreateInstance(rclsid, riid, bufferByteCount, buffer));
+        RETURN_IF_FAILED(CreateInstance(rclsid, riid, flags, bufferByteCount, buffer));
     }
     RpcExcept(1)
     {
@@ -101,13 +101,13 @@ HRESULT CallCreateInstance(REFCLSID rclsid, REFIID riid, UINT32* bufferByteCount
     return S_OK;
 }
 
-HRESULT CreateComInstance(REFCLSID rclsid, REFIID riid, void** out)
+HRESULT CreateComInstance(REFCLSID rclsid, REFIID riid, UINT32 flags, void** out)
 {
     UINT32 bufferByteCount = 0;
     BYTE* buffer = nullptr;
     UniqueMidl bufferPtr;
 
-    RETURN_IF_FAILED(CallCreateInstance(rclsid, riid, &bufferByteCount, &buffer));
+    RETURN_IF_FAILED(CallCreateInstance(rclsid, riid, flags, &bufferByteCount, &buffer));
 
     bufferPtr.reset(buffer);
 
@@ -122,7 +122,7 @@ HRESULT CreateComInstance(REFCLSID rclsid, REFIID riid, void** out)
     return S_OK;
 }
 
-extern "C" HRESULT WinGetServerManualActivation_CreateInstance(REFCLSID rclsid, REFIID riid, void** out)
+extern "C" HRESULT WinGetServerManualActivation_CreateInstance(REFCLSID rclsid, REFIID riid, UINT32 flags, void** out)
 {
     RETURN_HR_IF_NULL(E_POINTER, out);
 
@@ -133,7 +133,7 @@ extern "C" HRESULT WinGetServerManualActivation_CreateInstance(REFCLSID rclsid, 
     }
     CATCH_RETURN();
 
-    HRESULT result = CreateComInstance(rclsid, riid, out);
+    HRESULT result = CreateComInstance(rclsid, riid, flags, out);
     if (FAILED(result))
     {
         for (int i = 0; i < 3; i++)
@@ -144,7 +144,7 @@ extern "C" HRESULT WinGetServerManualActivation_CreateInstance(REFCLSID rclsid, 
                 break;
             }
 
-            result = CreateComInstance(rclsid, riid, out);
+            result = CreateComInstance(rclsid, riid, flags, out);
             if (SUCCEEDED(result))
             {
                 break;
