@@ -136,7 +136,7 @@ namespace AppInstallerCLIE2ETests
             commandAlias = "TestPortable.exe";
             fileName = "AppInstallerTestExeInstaller.exe";
 
-            var testreuslt = TestCommon.RunAICLICommand("install", $"{packageId}");
+            var testResult = TestCommon.RunAICLICommand("install", $"{packageId}");
             var result = TestCommon.RunAICLICommand("uninstall", $"{packageId}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully uninstalled"));
