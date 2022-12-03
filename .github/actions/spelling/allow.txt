@@ -37,6 +37,7 @@ aspnet
 authn
 authz
 autocomplete
+AUTOLISTEN
 auxdata
 azureedge
 backend
@@ -229,6 +230,7 @@ IDX
 IFACEMETHOD
 ifdef
 ifndef
+ifspec
 ifstream
 IIS
 impl
@@ -314,6 +316,8 @@ msixmgr
 msixsdk
 msixsdkx
 msixtest
+MSHCTX
+MSHLFLAGS
 msrc
 Multifile
 Multimatch
@@ -406,6 +410,8 @@ PROGRAMFILES
 PROGRESSONLY
 promptrestart
 PROPERTYDUMP
+PROTSEQ
+Protseq
 psz
 PTOKEN
 ptr
@@ -445,6 +451,7 @@ RESTSOURCE
 resw
 resx
 rethrowing
+REQS
 roadmap
 robuffer
 rowcount
@@ -599,6 +606,7 @@ UIA
 UIF
 uint
 Uknown
+ULARGE
 ulong
 ULONGLONG
 uncomment
