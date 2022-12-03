@@ -29,9 +29,9 @@ namespace Microsoft.WinGet.Client.Common
         public BaseClientCommand()
             : base()
         {
-            if (Utilities.ExecutingAsAdministrator)
+            if (Utilities.ExecutingAsSystem)
             {
-                throw new Exception(Utilities.ResourceManager.GetString("ExceptionAdministratorDisabled"));
+                throw new Exception(Utilities.ResourceManager.GetString("ExceptionSystemDisabled"));
             }
         }
 

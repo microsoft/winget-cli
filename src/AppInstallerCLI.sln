@@ -134,6 +134,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Management.Deployment.Projection", "Microsoft.Management.Deployment.Projection\Microsoft.Management.Deployment.Projection.csproj", "{0B104762-5CD8-47EE-A904-71C1C3F84DCD}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UndockedRegFreeWinRT", "Xlang\UndockedRegFreeWinRT\src\UndockedRegFreeWinRT\UndockedRegFreeWinRT\UndockedRegFreeWinRT.vcxproj", "{31ED69A8-5310-45A9-953F-56C351D2C3E1}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2B00D362-AC92-41F3-A8D2-5B1599BDCA01} = {2B00D362-AC92-41F3-A8D2-5B1599BDCA01}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Detours", "Xlang\UndockedRegFreeWinRT\src\UndockedRegFreeWinRT\detours\detours.vcxproj", "{787EC629-C0FB-4BA9-9746-4A82CD06B73E}"
 EndProject
@@ -992,8 +995,8 @@ Global
 		{31ED69A8-5310-45A9-953F-56C351D2C3E1}.Release|ARM64.ActiveCfg = Debug|Win32
 		{31ED69A8-5310-45A9-953F-56C351D2C3E1}.Release|x64.ActiveCfg = Release|x64
 		{31ED69A8-5310-45A9-953F-56C351D2C3E1}.Release|x64.Build.0 = Release|x64
-		{31ED69A8-5310-45A9-953F-56C351D2C3E1}.Release|x86.ActiveCfg = Debug|Win32
-		{31ED69A8-5310-45A9-953F-56C351D2C3E1}.Release|x86.Build.0 = Debug|Win32
+		{31ED69A8-5310-45A9-953F-56C351D2C3E1}.Release|x86.ActiveCfg = Release|Win32
+		{31ED69A8-5310-45A9-953F-56C351D2C3E1}.Release|x86.Build.0 = Release|Win32
 		{31ED69A8-5310-45A9-953F-56C351D2C3E1}.TestRelease|Any CPU.ActiveCfg = Debug|Win32
 		{31ED69A8-5310-45A9-953F-56C351D2C3E1}.TestRelease|Any CPU.Build.0 = Debug|Win32
 		{31ED69A8-5310-45A9-953F-56C351D2C3E1}.TestRelease|ARM.ActiveCfg = Debug|Win32

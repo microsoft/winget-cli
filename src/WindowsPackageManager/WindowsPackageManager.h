@@ -3,6 +3,9 @@
 #pragma once
 #include <hstring.h>
 
+// Forward declaration
+namespace wil { struct FailureInfo; }
+
 extern "C"
 {
 #define WINDOWS_PACKAGE_MANAGER_API_CALLING_CONVENTION  __stdcall
@@ -24,6 +27,12 @@ extern "C"
 
     // Unregisters the server module class factories.
     WINDOWS_PACKAGE_MANAGER_API WindowsPackageManagerServerModuleUnregister();
+
+    // Callback for logging the WIL result reported from the server.
+    void WINDOWS_PACKAGE_MANAGER_API_CALLING_CONVENTION WindowsPackageManagerServerWilResultLoggingCallback(const wil::FailureInfo& info) noexcept;
+
+    // Creates an out-of-proc instance for manual activation scenarios.
+    WINDOWS_PACKAGE_MANAGER_API WindowsPackageManagerServerCreateInstance(REFCLSID rclsid, REFIID riid, void** out);
 
     // Creates module for in-proc COM invocation.
     WINDOWS_PACKAGE_MANAGER_API WindowsPackageManagerInProcModuleInitialize();

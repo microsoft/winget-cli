@@ -213,12 +213,6 @@ jobs:
       CleanTargetFolder: false
       OverWrite: true
 
-  - template: templates/e2e-test.template.yml
-    parameters:
-      title: "E2E Tests Packaged"
-      isPackaged: true
-      filter: "TestCategory!=InProcess&TestCategory!=OutOfProcess"
-
   - task: PowerShell@2
     displayName: 'Set program files directory'
     inputs:
@@ -238,12 +232,6 @@ jobs:
       TargetFolder:  '$(platformProgramFiles)\dotnet'
       Contents: resources.pri
 
-  - template: templates/e2e-test.template.yml
-    parameters:
-      title: "COM API E2E Tests (In-process)"
-      isPackaged: false
-      filter: "TestCategory=InProcess"
-
   # Winmd accessed by test runner process (dotnet.exe)
   - task: CopyFiles@2
     displayName: 'Copy winmd to dotnet directory'
@@ -259,6 +247,18 @@ jobs:
       SourceFolder: '$(buildOutDir)\Microsoft.Management.Deployment'
       TargetFolder:  'src\AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration)'
       Contents: Microsoft.Management.Deployment.winmd
+
+  - template: templates/e2e-test.template.yml
+    parameters:
+      title: "E2E Tests Packaged"
+      isPackaged: true
+      filter: "TestCategory!=InProcess&TestCategory!=OutOfProcess"
+
+  - template: templates/e2e-test.template.yml
+    parameters:
+      title: "COM API E2E Tests (In-process)"
+      isPackaged: false
+      filter: "TestCategory=InProcess"
 
   - template: templates/e2e-test.template.yml
     parameters:
@@ -305,6 +305,7 @@ jobs:
     inputs:
       filePath: 'src\PowerShell\Microsoft.WinGet.Client\Copy-PlatformBinaries.ps1'
       arguments: '-Platform $(buildPlatform) -Configuration $(buildConfiguration) -OutDir $(artifactsDir)\PowerShell'
+    condition: always()
 
   - task: PublishPipelineArtifact@1
     displayName: Publish Pipeline Artifacts

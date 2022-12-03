@@ -56,7 +56,8 @@ Therefore to run the executable in the command line, simply change into the dire
 | StaticFileRootPath | Path to the set of static test files that will be served as the source for testing purposes. This path should be identical to the one provided to the LocalHostWebServer|
 | MsixTestInstallerPath | The MSIX (or APPX) Installer executable under test. |
 | ExeTestInstallerPath |The Exe Installer executable under test. |
-| PackageCertificatePath |Signing Certificate Path used to certify test index source package|
+| PackageCertificatePath | Signing Certificate Path used to certify test index source package |
+| PowerShellModulePath | Path to the PowerShell module manifest file under test |
 
 #### Example of Test.runsettings format:
 
@@ -72,6 +73,7 @@ Therefore to run the executable in the command line, simply change into the dire
 			<Parameter name="MsixTestInstallerPath" value="MsixTestInstaller.msix" />
 			<Parameter name="ExeTestInstallerPath" value="ExeTestInstaller.exe" />
 			<Parameter name="PackageCertificatePath" value="certificate.pfx"/>
+			<Parameter name="PowerShellModulePath" value="TestPowerShellModule.psd1" />
 		</TestRunParameters>
 	</RunSettings>
   
@@ -90,6 +92,7 @@ Make sure to replace **MSFT** with your own user name. Modifying this example wi
 			<Parameter name="MsixTestInstallerPath" value="C:\Users\MSFT\Temp\MsixTestInstaller.msix" />
 			<Parameter name="ExeTestInstallerPath" value="C:\Users\MSFT\source\repos\winget-cli\src\x64\Debug\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe" />
 			<Parameter name="PackageCertificatePath" value="C:\Users\MSFT\Temp\packageCertificate.pfx"/>
+			<Parameter name="PowerShellModulePath" value="C:\Users\MSFT\source\repos\winget-cli\src\x64\Debug\PowerShell\Microsoft.WinGet.Client.psd1" />
 		</TestRunParameters>
 	</RunSettings>
 

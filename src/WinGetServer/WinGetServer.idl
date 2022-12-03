@@ -1,0 +1,17 @@
+import "wtypesbase.idl";
+
+[
+    uuid(0ca09dda-857f-479f-ba4b-da875d90051e),
+    version(1.0),
+    implicit_handle(handle_t WinGetServerManualActivation_IfHandle)
+]
+interface WinGetServerManualActivation
+{
+    HRESULT CreateInstance(
+        [in] GUID clsid,
+        [in] GUID iid,
+        [in] UINT32 flags,
+        [out, ref] UINT32* pcbBuffer,
+        [out, ref, size_is(, *pcbBuffer)] BYTE** ppBuffer
+    );
+}

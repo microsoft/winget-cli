@@ -16,6 +16,10 @@
     <TargetFrameworks>$(CoreFramework);$(DesktopFramework)</TargetFrameworks>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(WingetUseProdClsids)' == 'true'">
+    <DefineConstants>USE_PROD_CLSIDS</DefineConstants>
+  </PropertyGroup>
+    
   <ItemGroup>
     <AdditionalFiles Include="stylecop.json" />
   </ItemGroup>
@@ -34,7 +38,7 @@
       <OutputItemType>Content</OutputItemType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </ProjectReference>
-    <ProjectReference Include="..\..\UndockedRegFreeWinRT\UndockedRegFreeWinRT\UndockedRegFreeWinRT.vcxproj">
+    <ProjectReference Include="..\..\Xlang\UndockedRegFreeWinRT\src\UndockedRegFreeWinRT\UndockedRegFreeWinRT\UndockedRegFreeWinRT.vcxproj">
       <OutputItemType>Content</OutputItemType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </ProjectReference>
@@ -48,7 +52,7 @@
     <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.22000.196" PrivateAssets="all" />
 	</ItemGroup>
 
-	<ItemGroup>
+    <ItemGroup>
 	  <Compile Update="Properties\Resources.Designer.cs">
 	    <DesignTime>True</DesignTime>
 	    <AutoGen>True</AutoGen>
@@ -70,14 +74,25 @@
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
 	</PropertyGroup>
 	
-	<Target Name="CopyWinRTAct" AfterTargets="Build" Condition="'$(TargetFramework)' != ''">
+	<Target Name="CopyWinRTAct-X64" AfterTargets="Build" Condition="'$(Platform)' == 'x64'">
 		<ItemGroup>
-			<!-- Ensure Referenced Project Output is in Output Directory -->
-			<WinRTActDll Include="$(SolutionDir)**\$(Platform)\$(Configuration)\**\winrtact.dll" />
+			<WinRTActDll Include="$(SolutionDir)**\x64\$(Configuration)\UndockedRegFreeWinRT\winrtact.dll" />
 		</ItemGroup>
-		<Message Importance="high" Text="Copying '@(WinRTActDll)' to '$(OutputPath)'" />
-		<Copy SourceFiles="@(WinRTActDll)" DestinationFolder="$(OutputPath)" />
-	</Target>
+		<Message Importance="high" Text="Copying '@(WinRTActDll)'" />
+        <Copy SourceFiles="@(WinRTActDll)" DestinationFolder="$(OutputPath)" />
+        <Copy SourceFiles="@(WinRTActDll)" DestinationFolder="$(PowerShellModuleOutputDirectory)\$(Platform)\Core" />
+        <Copy SourceFiles="@(WinRTActDll)" DestinationFolder="$(PowerShellModuleOutputDirectory)\$(Platform)\Desktop" />
+    </Target>
+
+    <Target Name="CopyWinRTAct-x86" AfterTargets="Build" Condition="'$(Platform)' == 'x86'">
+        <ItemGroup>
+            <WinRTActDll Include="$(SolutionDir)**\Win32\$(Configuration)\UndockedRegFreeWinRT\winrtact.dll" />
+        </ItemGroup>
+        <Message Importance="high" Text="Copying '@(WinRTActDll)'" />
+        <Copy SourceFiles="@(WinRTActDll)" DestinationFolder="$(OutputPath)" />
+        <Copy SourceFiles="@(WinRTActDll)" DestinationFolder="$(PowerShellModuleOutputDirectory)\$(Platform)\Core" />
+        <Copy SourceFiles="@(WinRTActDll)" DestinationFolder="$(PowerShellModuleOutputDirectory)\$(Platform)\Desktop" />
+    </Target>
 
     <!-- Build Microsoft.Winget.Client PowerShell Module -->
     <Target Name="CopyModuleFiles" AfterTargets="AfterBuild">

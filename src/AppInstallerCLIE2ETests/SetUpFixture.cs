@@ -5,7 +5,6 @@ namespace AppInstallerCLIE2ETests
 {
     using Microsoft.Win32;
     using Newtonsoft.Json;
-    using Newtonsoft.Json.Linq;
     using NUnit.Framework;
     using System;
     using System.IO;
@@ -94,6 +93,11 @@ namespace AppInstallerCLIE2ETests
             if (TestContext.Parameters.Exists(Constants.PackageCertificatePathParameter))
             {
                 TestCommon.PackageCertificatePath = TestContext.Parameters.Get(Constants.PackageCertificatePathParameter);
+            }
+
+            if (TestContext.Parameters.Exists(Constants.PowerShellModulePathParameter))
+            {
+                TestCommon.PowerShellModulePath = TestContext.Parameters.Get(Constants.PowerShellModulePathParameter);
             }
 
             ReadTestInstallerPaths();

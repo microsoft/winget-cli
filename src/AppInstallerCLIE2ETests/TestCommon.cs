@@ -36,6 +36,8 @@ namespace AppInstallerCLIE2ETests
         
         public static string PackageCertificatePath { get; set; }
 
+        public static string PowerShellModulePath { get; set; }
+
         public static string SettingsJsonFilePath {
             get
             {
@@ -250,6 +252,11 @@ namespace AppInstallerCLIE2ETests
             }
 
             return result;
+        }
+
+        public static RunCommandResult RunPowerShellCommandWithResult(string cmdlet, string args, int timeOut = 60000)
+        {
+            return RunCommandWithResult("pwsh.exe", $"-Command ipmo {PowerShellModulePath}; {cmdlet} {args}", timeOut);
         }
 
         public static string GetTestFile(string fileName)

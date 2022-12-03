@@ -19,6 +19,7 @@
 	   MsixTestInstallerPath: The MSIX (or APPX) Installer executable under test.
 	   ExeTestInstallerPath: The Exe Installer executable under test.
 	   PackageCertificatePath: Signing Certificate Path used to certify Index Source Package
+	   PowerShellModulePath: Path to the PowerShell module manifest file under test
   -->
   <TestRunParameters>
 	  <Parameter name="PackagedContext" value="true" />
@@ -32,5 +33,6 @@
 	  <Parameter name="MsixTestInstallerPath" value="MsixTestInstaller.msix" />
 	  <Parameter name="ExeTestInstallerPath" value="ExeTestInstaller.exe" />
 	  <Parameter name="PackageCertificatePath" value="certificate.pfx"/>
+      <Parameter name="PowerShellModulePath" value="TestPowerShellModule.psd1" />
   </TestRunParameters>
 </RunSettings>
