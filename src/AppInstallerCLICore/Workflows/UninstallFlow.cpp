@@ -203,7 +203,13 @@ namespace AppInstaller::CLI::Workflow
             AICLI_LOG(CLI, Info, << "Removing MSIX package: " << packageFullName.value());
             try
             {
-                context.Reporter.ExecuteWithProgress(std::bind(Deployment::RemovePackage, packageFullName.value(), std::placeholders::_1));
+                winrt::Windows::Management::Deployment::RemovalOptions options = winrt::Windows::Management::Deployment::RemovalOptions::None;
+                if (context.Args.Contains(Execution::Args::Type::InstallScope) &&
+                    Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope)) == Manifest::ScopeEnum::Machine)
+                {
+                    options = winrt::Windows::Management::Deployment::RemovalOptions::RemoveForAllUsers;
+                }
+                context.Reporter.ExecuteWithProgress(std::bind(Deployment::RemovePackage, packageFullName.value(), options, std::placeholders::_1));
             }
             catch (const wil::ResultException& re)
             {

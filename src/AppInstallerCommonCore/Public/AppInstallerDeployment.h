@@ -28,5 +28,16 @@ namespace AppInstaller::Deployment
     // Calls winrt::Windows::Management::Deployment::PackageManager::RemovePackageAsync
     void RemovePackage(
         std::string_view packageFullName,
+        winrt::Windows::Management::Deployment::RemovalOptions options,
+        IProgressCallback& callback);
+
+    // Calls winrt::Windows::Management::Deployment::PackageManager::ProvisionPackageForAllUsersAsync
+    void ProvisionPackage(
+        std::string_view packageFamilyName,
+        IProgressCallback& callback);
+
+    // Calls winrt::Windows::Management::Deployment::PackageManager::DeprovisionPackageForAllUsersAsync
+    void DeprovisionPackage(
+        std::string_view packageFamilyName,
         IProgressCallback& callback);
 }

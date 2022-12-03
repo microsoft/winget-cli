@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include <winget/ManifestCommon.h>
 #include "MSStoreInstallerHandler.h"
 
 namespace AppInstaller::CLI::Workflow
@@ -131,6 +132,12 @@ namespace AppInstaller::CLI::Workflow
         {
             installOptions.InstallInProgressToastNotificationMode(AppInstallationToastNotificationMode::NoToast);
             installOptions.CompletedInstallToastNotificationMode(AppInstallationToastNotificationMode::NoToast);
+        }
+
+        if (context.Args.Contains(Execution::Args::Type::InstallScope) &&
+            Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope)) == Manifest::ScopeEnum::Machine)
+        {
+            installOptions.InstallForAllUsers(true);
         }
 
         IVectorView<AppInstallItem> installItems = installManager.StartProductInstallAsync(
