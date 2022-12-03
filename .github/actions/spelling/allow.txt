@@ -249,6 +249,7 @@ INVALIDARG
 iomanip
 iostream
 IPortable
+ipmo
 ISAPPROVEDFOROUTPUT
 isspace
 istream
@@ -407,6 +408,7 @@ publiccontainer
 PUCHAR
 PVOID
 pwa
+pwsh
 QCol
 RAII
 rclsid
