@@ -131,7 +131,7 @@ extern "C" HRESULT WinGetServerManualActivation_CreateInstance(REFCLSID rclsid, 
         std::call_once(rpcBindingOnce, InitializeRpcBinding);
     }
     CATCH_RETURN();
-     
+
     HRESULT result = CreateComInstance(rclsid, riid, flags, out);
     if (FAILED(result))
     {
