@@ -1,7 +1,7 @@
 <#
     .SYNOPSIS
         Example for 'Find-WinGetPackage' cmdlet.
-        Displays all applications available for instasllation.
+        Displays all applications available for installation.
 #>
 
 # TODO: Replace parameter with actual module name from PSGallery once module is released. 
