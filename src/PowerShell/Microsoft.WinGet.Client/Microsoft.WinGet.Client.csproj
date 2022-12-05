@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetWindowsVersion>10.0.22000.0</TargetWindowsVersion>
     <CoreFramework>net6.0-windows$(TargetWindowsVersion)</CoreFramework>
-    <DesktopFramework>net461</DesktopFramework>
+    <DesktopFramework>net48</DesktopFramework>
   </PropertyGroup>
   
   <PropertyGroup>
