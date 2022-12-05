@@ -1496,7 +1496,6 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Manage package pins with the sub-commands. A pin can limit the Windows Package Manager from updating a package to specific ranges of versions, or it can prevent it from updating the package altogether. A pinned package may still update on its own and be updated from outside the Windows Package Manager.</value>
   </data>
   <data name="PinCommandShortDescription" xml:space="preserve">
-    <!-- TODO: We need to add "package pin[ning]" to the dictionary of terms for the loc team to know before sending this for localization -->
     <value>Manage package pins</value>
   </data>
   <data name="PinListCommandLongDescription" xml:space="preserve">
