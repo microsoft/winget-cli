@@ -12,7 +12,7 @@
     <BuildOutputDirectory>$(SolutionDir)$(Platform)\$(Configuration)\</BuildOutputDirectory>
     <OutputPath>$(BuildOutputDirectory)$(MSBuildProjectName)</OutputPath>
     <PowerShellModuleOutputDirectory>$(BuildOutputDirectory)PowerShell</PowerShellModuleOutputDirectory>
-    <Platforms>x64;x86</Platforms>
+    <Platforms>x64;x86;ARM64</Platforms>
     <TargetFrameworks>$(CoreFramework);$(DesktopFramework)</TargetFrameworks>
   </PropertyGroup>
 
@@ -73,20 +73,24 @@
     <!-- Ensure Support for Windows 10, Version 1809 -->
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
 	</PropertyGroup>
-	
-	<Target Name="CopyWinRTAct-X64" AfterTargets="Build" Condition="'$(Platform)' == 'x64'">
-		<ItemGroup>
-			<WinRTActDll Include="$(SolutionDir)**\x64\$(Configuration)\UndockedRegFreeWinRT\winrtact.dll" />
-		</ItemGroup>
-		<Message Importance="high" Text="Copying '@(WinRTActDll)'" />
-        <Copy SourceFiles="@(WinRTActDll)" DestinationFolder="$(OutputPath)" />
-        <Copy SourceFiles="@(WinRTActDll)" DestinationFolder="$(PowerShellModuleOutputDirectory)\$(Platform)\Core" />
-        <Copy SourceFiles="@(WinRTActDll)" DestinationFolder="$(PowerShellModuleOutputDirectory)\$(Platform)\Desktop" />
-    </Target>
 
-    <Target Name="CopyWinRTAct-x86" AfterTargets="Build" Condition="'$(Platform)' == 'x86'">
+
+    <!-- Copy WinRTAct.dll based on platform -->
+    <PropertyGroup Condition="'$(Platform)' == 'x64'">
+        <TargetPlatform>x64</TargetPlatform>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Platform)' == 'x86'">
+        <TargetPlatform>Win32</TargetPlatform>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Platform)' == 'ARM64'">
+        <TargetPlatform>Arm64</TargetPlatform>
+    </PropertyGroup>
+
+    <Target Name="CopyWinRTAct" AfterTargets="Build" Condition="'$(Platform)' != 'ARM'">
         <ItemGroup>
-            <WinRTActDll Include="$(SolutionDir)**\Win32\$(Configuration)\UndockedRegFreeWinRT\winrtact.dll" />
+            <WinRTActDll Include="$(SolutionDir)**\$(TargetPlatform)\$(Configuration)\UndockedRegFreeWinRT\winrtact.dll" />
         </ItemGroup>
         <Message Importance="high" Text="Copying '@(WinRTActDll)'" />
         <Copy SourceFiles="@(WinRTActDll)" DestinationFolder="$(OutputPath)" />
