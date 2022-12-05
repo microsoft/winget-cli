@@ -1,13 +1,22 @@
-﻿// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
+﻿// -----------------------------------------------------------------------------
+// <copyright file="ListCommand.cs" company="Microsoft Corporation">
+//     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
+// </copyright>
+// -----------------------------------------------------------------------------
 
 namespace AppInstallerCLIE2ETests
 {
-    using NUnit.Framework;
     using System.IO;
+    using NUnit.Framework;
 
+    /// <summary>
+    /// List command tests.
+    /// </summary>
     public class ListCommand : BaseCommand
     {
+        /// <summary>
+        /// Test list winget.
+        /// </summary>
         [Test]
         public void ListSelf()
         {
@@ -16,6 +25,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains(Constants.AICLIPackageFamilyName));
         }
 
+        /// <summary>
+        /// Test list after installing a package.
+        /// </summary>
         [Test]
         public void ListAfterInstall()
         {
@@ -42,24 +54,30 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("2.0.0.0"));
         }
 
+        /// <summary>
+        /// Test expected entries after list.
+        /// </summary>
         [Test]
         public void ListWithArpVersionMapping()
         {
             // No mapping performed
-            ArpVersionMappingTest("AppInstallerTest.TestArpVersionSameVersion", "TestArpVersionSameVersion", "0.5", "0.5", "< 1.0");
+            this.ArpVersionMappingTest("AppInstallerTest.TestArpVersionSameVersion", "TestArpVersionSameVersion", "0.5", "0.5", "< 1.0");
 
             // Partial mapping performed(i.e. only if version falls within arp version range)
-            ArpVersionMappingTest("AppInstallerTest.TestArpVersionOppositeOrder", "TestArpVersionOppositeOrder", "10.1", "1.0", "10.1");
-            ArpVersionMappingTest("AppInstallerTest.TestArpVersionOppositeOrder", "TestArpVersionOppositeOrder", "9.9", "9.9", "> 2.0");
+            this.ArpVersionMappingTest("AppInstallerTest.TestArpVersionOppositeOrder", "TestArpVersionOppositeOrder", "10.1", "1.0", "10.1");
+            this.ArpVersionMappingTest("AppInstallerTest.TestArpVersionOppositeOrder", "TestArpVersionOppositeOrder", "9.9", "9.9", "> 2.0");
 
             // Full mapping performed
-            ArpVersionMappingTest("AppInstallerTest.TestArpVersionSameOrder", "TestArpVersionSameOrder", "7.0", "< 1.0", "7.0");
-            ArpVersionMappingTest("AppInstallerTest.TestArpVersionSameOrder", "TestArpVersionSameOrder", "10.1", "1.0", "10.1");
-            ArpVersionMappingTest("AppInstallerTest.TestArpVersionSameOrder", "TestArpVersionSameOrder", "10.7", "< 2.0", "10.7");
-            ArpVersionMappingTest("AppInstallerTest.TestArpVersionSameOrder", "TestArpVersionSameOrder", "11.1", "2.0", "11.1");
-            ArpVersionMappingTest("AppInstallerTest.TestArpVersionSameOrder", "TestArpVersionSameOrder", "12.0", "> 2.0", "12.0");
+            this.ArpVersionMappingTest("AppInstallerTest.TestArpVersionSameOrder", "TestArpVersionSameOrder", "7.0", "< 1.0", "7.0");
+            this.ArpVersionMappingTest("AppInstallerTest.TestArpVersionSameOrder", "TestArpVersionSameOrder", "10.1", "1.0", "10.1");
+            this.ArpVersionMappingTest("AppInstallerTest.TestArpVersionSameOrder", "TestArpVersionSameOrder", "10.7", "< 2.0", "10.7");
+            this.ArpVersionMappingTest("AppInstallerTest.TestArpVersionSameOrder", "TestArpVersionSameOrder", "11.1", "2.0", "11.1");
+            this.ArpVersionMappingTest("AppInstallerTest.TestArpVersionSameOrder", "TestArpVersionSameOrder", "12.0", "> 2.0", "12.0");
         }
 
+        /// <summary>
+        /// Test list with upgrade code.
+        /// </summary>
         [Test]
         public void ListWithUpgradeCode()
         {

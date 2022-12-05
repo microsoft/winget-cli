@@ -300,11 +300,11 @@ jobs:
       TargetFolder: '$(artifactsDir)'
     condition: succeededOrFailed()
 
-  - task: PowerShell@2
-    displayName: 'Copy PowerShell Module Binaries to Output'
+  - task: CopyFiles@2
+    displayName: 'Copy PowerShell Module Files'
     inputs:
-      filePath: 'src\PowerShell\Microsoft.WinGet.Client\Copy-PlatformBinaries.ps1'
-      arguments: '-Platform $(buildPlatform) -Configuration $(buildConfiguration) -OutDir $(artifactsDir)\PowerShell'
+      SourceFolder: '$(buildOutDir)\PowerShell'
+      TargetFolder: '$(artifactsDir)\PowerShell'
     condition: always()
 
   - task: PublishPipelineArtifact@1
@@ -358,12 +358,6 @@ jobs:
       Contents: '**\*'
       TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
-  - task: PowerShell@2
-    displayName: 'Copy PowerShell Module Files to Output'
-    inputs:
-      filePath: 'src\PowerShell\Microsoft.WinGet.Client\Copy-ModuleFiles.ps1'
-      arguments: '-OutDir $(Build.ArtifactStagingDirectory)'
-  
   - task: PublishPipelineArtifact@1
     displayName: Publish PowerShell Module Artifacts
     inputs:

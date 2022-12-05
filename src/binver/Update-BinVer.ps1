@@ -91,3 +91,5 @@ if (![String]::IsNullOrEmpty($TargetFile))
         Write-Error "Did not find target file: $TargetFile"
     }
 }
+
+exit 0
