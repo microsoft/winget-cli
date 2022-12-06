@@ -1,4 +1,4 @@
-# Same content with InstallFlowTest_Exe.yaml but with higher version
+# Test manifest for upgrading a package with an unknown version.
 PackageIdentifier: AppInstallerCliTest.TestExeUnknownVersion
 PackageVersion: 1.0.0.0
 PackageLocale: en-US
