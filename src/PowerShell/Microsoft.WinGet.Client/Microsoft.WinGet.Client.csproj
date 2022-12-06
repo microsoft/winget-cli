@@ -75,7 +75,7 @@
 	</PropertyGroup>
 
 
-    <!-- Copy WinRTAct.dll based on platform -->
+    <!-- Copy WinRTAct.dll to PowerShell module directory -->
     <PropertyGroup Condition="'$(Platform)' == 'x64'">
         <TargetPlatform>x64</TargetPlatform>
     </PropertyGroup>
