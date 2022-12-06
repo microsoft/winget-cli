@@ -68,7 +68,7 @@ foreach($module in $modules)
         xcopy "$PSScriptRoot\..\..\$Platform\$Configuration\PowerShell\$($module.Name)\" "$moduleRootOutput\$($module.Name)\" /d /s /f /y
     }
 
-    # Copy PowerShell files even for modules with binaray resoures.
+    # Copy PowerShell files even for modules with binary resources.
     # VS won't update the files if there's nothing to build...
     Write-Host "Coping module $($module.Name)" -ForegroundColor Green
     xcopy $module.ModuleRoot "$moduleRootOutput\$($module.Name)\" /d /s /f /y

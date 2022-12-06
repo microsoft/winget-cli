@@ -147,7 +147,7 @@ namespace AppInstallerCLIE2ETests.PowerShell
         }
 
         /// <summary>
-        /// Tests Update-WinGetPacakge.
+        /// Tests Update-WinGetPackage.
         /// </summary>
         [Test]
         public void UpdateWinGetPackage()

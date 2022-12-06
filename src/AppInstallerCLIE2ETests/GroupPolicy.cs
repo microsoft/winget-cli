@@ -46,7 +46,7 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
-        /// Test winget settings is disable by policty.
+        /// Test winget settings is disable by policy.
         /// </summary>
         [Test]
         public void EnableSettings()
