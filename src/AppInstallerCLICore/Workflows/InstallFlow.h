@@ -35,6 +35,12 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void CheckForUnsupportedArgs(Execution::Context& context);
 
+    // Admin is required for machine scope install for installer types like portable, msix and msstore.
+    // Required Args: None
+    // Inputs: Installer
+    // Outputs: None
+    void EnsureRunningAsAdminForMachineScopeInstall(Execution::Context& context);
+
     // Composite flow that chooses what to do based on the installer type.
     // Required Args: None
     // Inputs: Installer, InstallerPath

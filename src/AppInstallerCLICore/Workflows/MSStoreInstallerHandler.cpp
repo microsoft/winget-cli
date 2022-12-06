@@ -134,8 +134,7 @@ namespace AppInstaller::CLI::Workflow
             installOptions.CompletedInstallToastNotificationMode(AppInstallationToastNotificationMode::NoToast);
         }
 
-        if (context.Args.Contains(Execution::Args::Type::InstallScope) &&
-            Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope)) == Manifest::ScopeEnum::Machine)
+        if (Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope)) == Manifest::ScopeEnum::Machine)
         {
             installOptions.InstallForAllUsers(true);
         }

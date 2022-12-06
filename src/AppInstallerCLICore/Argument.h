@@ -7,6 +7,7 @@
 #include <winget/ExperimentalFeature.h>
 #include <winget/GroupPolicy.h>
 #include <winget/AdminSettings.h>
+#include <winget/LocIndependent.h>
 
 #include <string>
 #include <string_view>
@@ -21,6 +22,9 @@
 
 namespace AppInstaller::CLI
 {
+    using namespace AppInstaller::Utility::literals;
+    constexpr Utility::LocIndView s_ArgumentName_Scope = "scope"_liv;
+
     // The type of argument.
     enum class ArgumentType
     {

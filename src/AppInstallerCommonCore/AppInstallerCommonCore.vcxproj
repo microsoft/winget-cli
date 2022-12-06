@@ -394,6 +394,7 @@
     <ClCompile Include="MsixManifest.cpp" />
     <ClCompile Include="NameNormalization.cpp" />
     <ClCompile Include="PackageDependenciesValidationUtil.cpp" />
+    <ClCompile Include="Progress.cpp" />
     <ClCompile Include="Regex.cpp" />
     <ClCompile Include="Registry.cpp" />
     <ClCompile Include="Resources.cpp" />

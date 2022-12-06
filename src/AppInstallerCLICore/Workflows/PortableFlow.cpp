@@ -68,16 +68,6 @@ namespace AppInstaller::CLI::Workflow
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PORTABLE_REPARSE_POINT_NOT_SUPPORTED);
             }
         }
-
-        void EnsureRunningAsAdminForMachineScopeInstall(Execution::Context& context)
-        {
-            // Admin is required for machine scope install or else creating a symlink in the %PROGRAMFILES% link location will fail.
-            Manifest::ScopeEnum scope = ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
-            if (scope == Manifest::ScopeEnum::Machine)
-            {
-                context << Workflow::EnsureRunningAsAdmin;
-            }
-        }
     }
 
     void VerifyPackageAndSourceMatch(Execution::Context& context)
@@ -334,7 +324,6 @@ namespace AppInstaller::CLI::Workflow
         if (installerType == InstallerTypeEnum::Portable)
         {
             context <<
-                EnsureRunningAsAdminForMachineScopeInstall <<
                 EnsureValidArgsForPortableInstall <<
                 EnsureVolumeSupportsReparsePoints;
         }

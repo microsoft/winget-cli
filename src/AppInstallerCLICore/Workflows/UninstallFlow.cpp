@@ -188,6 +188,8 @@ namespace AppInstaller::CLI::Workflow
 
     void MsixUninstall(Execution::Context& context)
     {
+        //bool isMachineScope = Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope)) == Manifest::ScopeEnum::Machine;
+
         const auto& packageFamilyNames = context.Get<Execution::Data::PackageFamilyNames>();
         context.Reporter.Info() << Resource::String::UninstallFlowStartingPackageUninstall << std::endl;
 
@@ -203,13 +205,8 @@ namespace AppInstaller::CLI::Workflow
             AICLI_LOG(CLI, Info, << "Removing MSIX package: " << packageFullName.value());
             try
             {
-                winrt::Windows::Management::Deployment::RemovalOptions options = winrt::Windows::Management::Deployment::RemovalOptions::None;
-                if (context.Args.Contains(Execution::Args::Type::InstallScope) &&
-                    Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope)) == Manifest::ScopeEnum::Machine)
-                {
-                    options = winrt::Windows::Management::Deployment::RemovalOptions::RemoveForAllUsers;
-                }
-                context.Reporter.ExecuteWithProgress(std::bind(Deployment::RemovePackage, packageFullName.value(), options, std::placeholders::_1));
+                //if (is)
+                context.Reporter.ExecuteWithProgress(std::bind(Deployment::RemovePackage, packageFullName.value(), winrt::Windows::Management::Deployment::RemovalOptions::None, std::placeholders::_1));
             }
             catch (const wil::ResultException& re)
             {

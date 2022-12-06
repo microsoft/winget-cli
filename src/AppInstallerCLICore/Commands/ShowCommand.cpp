@@ -24,6 +24,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Execution::Args::Type::Channel),
             Argument::ForType(Execution::Args::Type::Source),
             Argument::ForType(Execution::Args::Type::Exact),
+            Argument{ s_ArgumentName_Scope, Argument::NoAlias, Args::Type::InstallScope, Resource::String::InstallScopeDescription, ArgumentType::Standard, Argument::Visibility::Help },
             Argument::ForType(Execution::Args::Type::InstallArchitecture),
             Argument::ForType(Execution::Args::Type::Locale),
             Argument::ForType(Execution::Args::Type::ListVersions),

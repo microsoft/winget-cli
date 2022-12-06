@@ -231,6 +231,22 @@ namespace AppInstaller::CLI::Workflow
         m_func(context);
     }
 
+    Repository::PredefinedSource DetermineInstalledSource(const Execution::Context& context)
+    {
+        Repository::PredefinedSource installedSource = Repository::PredefinedSource::Installed;
+        Manifest::ScopeEnum scope = Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
+        if (scope == Manifest::ScopeEnum::Machine)
+        {
+            installedSource = Repository::PredefinedSource::InstalledMachine;
+        }
+        else if (scope == Manifest::ScopeEnum::User)
+        {
+            installedSource = Repository::PredefinedSource::InstalledUser;
+        }
+
+        return installedSource;
+    }
+
     HRESULT HandleException(Execution::Context& context, std::exception_ptr exception)
     {
         try

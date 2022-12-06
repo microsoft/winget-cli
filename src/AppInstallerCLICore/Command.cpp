@@ -730,6 +730,14 @@ namespace AppInstaller::CLI
             }
         }
 
+        if (execArgs.Contains(Execution::Args::Type::InstallScope))
+        {
+            if (Manifest::ConvertToScopeEnum(execArgs.GetArg(Execution::Args::Type::InstallScope)) == Manifest::ScopeEnum::Unknown)
+            {
+                throw CommandException(Resource::String::InvalidArgumentValueError, s_ArgumentName_Scope, { "user"_lis, "machine"_lis });
+            }
+        }
+
         ValidateArgumentsInternal(execArgs);
     }
 

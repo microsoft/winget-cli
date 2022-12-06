@@ -56,7 +56,12 @@ namespace AppInstaller::Repository
     // These sources are not under the direct control of the user, such as packages installed on the system.
     enum class PredefinedSource
     {
+        // Default behavior. Contains ARP packages installed as for user and for machine, MSIX packages for current user.
         Installed,
+        // Only contains packages installed as for user
+        InstalledUser,
+        // Only contains packages installed as for machine
+        InstalledMachine,
         ARP,
         MSIX,
         Installing,

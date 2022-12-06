@@ -119,7 +119,7 @@ namespace AppInstaller::Deployment
         auto removePackage = wil::scope_exit([&]() {
             try
             {
-                RemovePackage(Utility::ConvertToUTF8(packageFullName), callback);
+                RemovePackage(Utility::ConvertToUTF8(packageFullName), winrt::Windows::Management::Deployment::RemovalOptions::None, callback);
             }
             CATCH_LOG();
         });
@@ -194,6 +194,7 @@ namespace AppInstaller::Deployment
 
     void RemovePackage(
         std::string_view packageFullName,
+        RemovalOptions options,
         IProgressCallback& callback)
     {
         size_t id = GetDeploymentOperationId();
@@ -201,7 +202,36 @@ namespace AppInstaller::Deployment
 
         PackageManager packageManager;
         winrt::hstring fullName = Utility::ConvertToUTF16(packageFullName).c_str();
-        auto deployOperation = packageManager.RemovePackageAsync(fullName, RemovalOptions::None);
+        auto deployOperation = packageManager.RemovePackageAsync(fullName, options);
+
+        WaitForDeployment(deployOperation, id, callback);
+    }
+
+    void ProvisionPackage(
+        std::string_view packageFamilyName,
+        IProgressCallback& callback)
+    {
+        size_t id = GetDeploymentOperationId();
+        AICLI_LOG(Core, Info, << "Starting ProvisionPackage operation #" << id << ": " << packageFamilyName);
+
+        PackageManager packageManager;
+        winrt::hstring familyName = Utility::ConvertToUTF16(packageFamilyName).c_str();
+        auto deployOperation = packageManager.ProvisionPackageForAllUsersAsync(familyName);
+
+        WaitForDeployment(deployOperation, id, callback);
+    }
+
+    // Calls winrt::Windows::Management::Deployment::PackageManager::DeprovisionPackageForAllUsersAsync
+    void DeprovisionPackage(
+        std::string_view packageFamilyName,
+        IProgressCallback& callback)
+    {
+        size_t id = GetDeploymentOperationId();
+        AICLI_LOG(Core, Info, << "Starting DeprovisionPackage operation #" << id << ": " << packageFamilyName);
+
+        PackageManager packageManager;
+        winrt::hstring familyName = Utility::ConvertToUTF16(packageFamilyName).c_str();
+        auto deployOperation = packageManager.DeprovisionPackageForAllUsersAsync(familyName);
 
         WaitForDeployment(deployOperation, id, callback);
     }
