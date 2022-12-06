@@ -1,29 +1,19 @@
-Id: AppInstallerCliTest.TestExeUnknownVersion
-Version: 1.0.0.0
-Name: AppInstaller Test Exe Unknown Version
+# Same content with InstallFlowTest_Exe.yaml but with higher version
+PackageIdentifier: AppInstallerCliTest.TestExeUnknownVersion
+PackageVersion: 1.0.0.0
+PackageLocale: en-US
+PackageName: AppInstaller Test Exe Unknown Version
 Publisher: Microsoft Corporation
 AppMoniker: AICLITestExe
 License: Test
-ProductCode: AppInstallerCliTest.TestExeUnknownVersion
+Switches:
+  SilentWithProgress: /silentwithprogress
+  Silent: /silence
+  Update: /update
 Installers: 
-    - Arch: x64
-      Url: https://ThisIsNotUsed
+    - Architecture: x64
+      InstallerUrl: https://ThisIsNotUsed
       InstallerType: exe
-      Sha256: 65DB2F2AC2686C7F2FD69D4A4C6683B888DC55BFA20A0E32CA9F838B51689A3B
-      Scope: user
-      Switches:
-        Custom: /custom /scope=user
-        SilentWithProgress: /silentwithprogress
-        Silent: /silence
-        Update: /update
-    - Arch: x64
-      Url: https://ThisIsNotUsed
-      InstallerType: exe
-      Sha256: 65DB2F2AC2686C7F2FD69D4A4C6683B888DC55BFA20A0E32CA9F838B51689A3B
-      Scope: machine
-      Switches:
-        Custom: /custom /scope=machine
-        SilentWithProgress: /silentwithprogress
-        Silent: /silence
-        Update: /update
-ManifestVersion: 0.1.0
+      InstallerSha256: 65DB2F2AC2686C7F2FD69D4A4C6683B888DC55BFA20A0E32CA9F838B51689A3B
+ManifestType: singleton
+ManifestVersion: 1.3.0
