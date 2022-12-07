@@ -330,6 +330,7 @@ jobs:
         "$(buildOutDir)\WindowsPackageManager\WindowsPackageManager.dll"
         "$(buildOutDir)\Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.InProc.dll"
         "$(Build.SourcesDirectory)\src\WinGetUtilInterop\bin\WinGetUtil*Interop.dll"
+        "$(buildOutDir)\UndockedRegFreeWinRT\winrtact.dll"
         "$(buildOutDir)\Microsoft.WinGet.Client\Microsoft.WinGet.*Client.dll" --config default --recurse'
 
   - task: securedevelopmentteam.vss-secure-development-tools.build-task-publishsecurityanalysislogs.PublishSecurityAnalysisLogs@2

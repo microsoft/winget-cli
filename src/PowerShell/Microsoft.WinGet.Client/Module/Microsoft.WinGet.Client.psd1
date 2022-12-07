@@ -66,8 +66,11 @@ PowerShellVersion = '5.1.0'
 FormatsToProcess = 'Format.ps1xml'
 
 # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
-NestedModules = if ($env:PROCESSOR_ARCHITECTURE -like 'amd64') {
+NestedModules = if ($env:PROCESSOR_ARCHITECTURE -like 'AMD64' -OR $env:PROCESSOR_ARCHITECTURE -like 'IA64') {
     "x64\$PSEdition\Microsoft.WinGet.Client.dll"
+}
+elseif ($env:PROCESSOR_ARCHITECTURE -like 'ARM64') {
+    "ARM64\$PSEdition\Microsoft.WinGet.Client.dll"
 }
 else {
     "x86\$PSEdition\Microsoft.WinGet.Client.dll"
