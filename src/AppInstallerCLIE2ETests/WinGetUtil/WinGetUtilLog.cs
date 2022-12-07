@@ -1,13 +1,22 @@
-﻿// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
+﻿// -----------------------------------------------------------------------------
+// <copyright file="WinGetUtilLog.cs" company="Microsoft Corporation">
+//     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
+// </copyright>
+// -----------------------------------------------------------------------------
 
 namespace AppInstallerCLIE2ETests.WinGetUtil
 {
     using System.IO;
     using NUnit.Framework;
 
+    /// <summary>
+    /// Test winget util log.
+    /// </summary>
     public class WinGetUtilLog
     {
+        /// <summary>
+        /// Test logging functions.
+        /// </summary>
         [Test]
         public void WinGetUtil_Logging()
         {

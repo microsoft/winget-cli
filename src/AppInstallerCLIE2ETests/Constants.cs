@@ -1,10 +1,19 @@
-﻿// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
+﻿// -----------------------------------------------------------------------------
+// <copyright file="Constants.cs" company="Microsoft Corporation">
+//     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
+// </copyright>
+// -----------------------------------------------------------------------------
 
 namespace AppInstallerCLIE2ETests
 {
+    /// <summary>
+    /// Constants.
+    /// </summary>
     public class Constants
     {
+#pragma warning disable SA1600 // ElementsMustBeDocumented
+#pragma warning disable SA1310 // Field names should not contain underscore
+
         // Runtime test parameters
         public const string PackagedContextParameter = "PackagedContext";
         public const string AICLIPathParameter = "AICLIPath";
@@ -90,7 +99,7 @@ namespace AppInstallerCLIE2ETests
 
         // Package dir
         public const string PortableExePackageDirName = $"{PortableExePackageId}_{TestSourceIdentifier}";
-        public const string PortableExeWithCommandPackageDirName =  $"{PortableExeWithCommandPackageId}_{TestSourceIdentifier}";
+        public const string PortableExeWithCommandPackageDirName = $"{PortableExeWithCommandPackageId}_{TestSourceIdentifier}";
 
         // Registry keys
         public const string WinGetPackageIdentifier = "WinGetPackageIdentifier";
@@ -103,6 +112,9 @@ namespace AppInstallerCLIE2ETests
         public const string PortablePackageUserRoot = "portablePackageUserRoot";
         public const string PortablePackageMachineRoot = "portablePackageMachineRoot";
 
+        /// <summary>
+        /// Error codes.
+        /// </summary>
         public class ErrorCode
         {
             public const int S_OK = 0;
@@ -240,5 +252,8 @@ namespace AppInstallerCLIE2ETests
             public const int INSTALLED_STATUS_FILE_FOUND_WITHOUT_HASH_CHECK = unchecked((int)0x0A150206);
             public const int INSTALLED_STATUS_FILE_ACCESS_ERROR = unchecked((int)0x8A150207);
         }
+
+#pragma warning restore SA1310 // Field names should not contain underscore
+#pragma warning restore SA1600 // ElementsMustBeDocumented
     }
 }

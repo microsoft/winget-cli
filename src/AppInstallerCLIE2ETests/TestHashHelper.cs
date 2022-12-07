@@ -1,24 +1,49 @@
-﻿// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-using System;
-using System.IO;
-using System.Security.Cryptography;
-using Microsoft.Msix.Utils.ProcessRunner;
+﻿// -----------------------------------------------------------------------------
+// <copyright file="TestHashHelper.cs" company="Microsoft Corporation">
+//     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
+// </copyright>
+// -----------------------------------------------------------------------------
 
 namespace AppInstallerCLIE2ETests
 {
+    using System;
+    using System.IO;
+    using System.Security.Cryptography;
+    using Microsoft.Msix.Utils.ProcessRunner;
+
+    /// <summary>
+    /// TestHashHelper.
+    /// </summary>
     public class TestHashHelper
     {
+        /// <summary>
+        /// Gets or sets the exe installer hash value.
+        /// </summary>
         public static string ExeInstallerHashValue { get; set; }
 
+        /// <summary>
+        /// Gets or sets the msi installer hash value.
+        /// </summary>
         public static string MsiInstallerHashValue { get; set; }
 
+        /// <summary>
+        /// Gets or sets the msix installer hash value.
+        /// </summary>
         public static string MsixInstallerHashValue { get; set; }
 
+        /// <summary>
+        /// Gets or sets the zip installer hash value.
+        /// </summary>
         public static string ZipInstallerHashValue { get; set; }
 
+        /// <summary>
+        /// Gets or sets the signature hash value.
+        /// </summary>
         public static string SignatureHashValue { get; set; }
 
+        /// <summary>
+        /// Sets the hash of the installers.
+        /// </summary>
         public static void HashInstallers()
         {
             if (!string.IsNullOrEmpty(TestCommon.ExeInstallerPath))
@@ -44,10 +69,10 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
-        /// Iterates through all manifest files in a directory and replaces the hash <token> with the
+        /// Iterates through all manifest files in a directory and replaces the hash token with the
         /// corresponding installer hash token.
         /// </summary>
-        /// <param name="pathToManifestDir"></param>        
+        /// <param name="pathToManifestDir">Path to manifest directory.</param>
         public static void ReplaceManifestHashToken(string pathToManifestDir)
         {
             var dir = new DirectoryInfo(pathToManifestDir);
@@ -86,6 +111,11 @@ namespace AppInstallerCLIE2ETests
             }
         }
 
+        /// <summary>
+        /// Gets hash of the AppxSignature.p7x file in the msix.
+        /// </summary>
+        /// <param name="packageFilePath">Package file path.</param>
+        /// <returns>Hash of signature file.</returns>
         public static string HashSignatureFromMSIX(string packageFilePath)
         {
             // Obtain MakeAppX Executable Path
@@ -111,6 +141,11 @@ namespace AppInstallerCLIE2ETests
             return HashFile(packageSignaturePath);
         }
 
+        /// <summary>
+        /// Gets the hash of the specified file.
+        /// </summary>
+        /// <param name="filePath">File path.</param>
+        /// <returns>Hash of file.</returns>
         public static string HashFile(string filePath)
         {
             FileInfo file;
@@ -152,6 +187,11 @@ namespace AppInstallerCLIE2ETests
             return hash;
         }
 
+        /// <summary>
+        /// Converts the byte hash into its string format.
+        /// </summary>
+        /// <param name="array">Hash.</param>
+        /// <returns>Hash as string.</returns>
         public static string ConvertHashByteToString(byte[] array)
         {
             string hashValue = string.Empty;

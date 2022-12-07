@@ -1,19 +1,31 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
+// -----------------------------------------------------------------------------
+// <copyright file="InstallCommand.cs" company="Microsoft Corporation">
+//     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
+// </copyright>
+// -----------------------------------------------------------------------------
 
 namespace AppInstallerCLIE2ETests
 {
-    using NUnit.Framework;
     using System.IO;
+    using NUnit.Framework;
 
+    /// <summary>
+    /// Test install command.
+    /// </summary>
     public class InstallCommand : BaseCommand
     {
+        /// <summary>
+        /// One time setup.
+        /// </summary>
         [OneTimeSetUp]
         public void OneTimeSetup()
         {
-            ConfigureFeature("zipInstall", true);
+            this.ConfigureFeature("zipInstall", true);
         }
 
+        /// <summary>
+        /// Set up.
+        /// </summary>
         [SetUp]
         public void Setup()
         {
@@ -21,6 +33,9 @@ namespace AppInstallerCLIE2ETests
             TestCommon.RunAICLICommand("uninstall", "AppInstallerTest.TestExeInstaller");
         }
 
+        /// <summary>
+        /// Test package doesn't exist.
+        /// </summary>
         [Test]
         public void InstallAppDoesNotExist()
         {
@@ -29,6 +44,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("No package found matching input criteria."));
         }
 
+        /// <summary>
+        /// Test multiple matches found.
+        /// </summary>
         [Test]
         public void InstallWithMultipleAppsMatchingQuery()
         {
@@ -37,6 +55,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("Multiple packages found matching input criteria. Please refine the input."));
         }
 
+        /// <summary>
+        /// Test install exe.
+        /// </summary>
         [Test]
         public void InstallExe()
         {
@@ -47,16 +68,23 @@ namespace AppInstallerCLIE2ETests
             Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/execustom"));
         }
 
+        /// <summary>
+        /// Test inapplicable os version.
+        /// </summary>
         [Test]
         public void InstallExeWithInsufficientMinOsVersion()
         {
             var installDir = TestCommon.GetRandomTestDir();
             var result = TestCommon.RunAICLICommand("install", $"InapplicableOsVersion --silent -l {installDir}");
+
             // MinOSVersion is moved to installer level, the check is performed during installer selection
             Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICABLE_INSTALLER, result.ExitCode);
             Assert.False(TestCommon.VerifyTestExeInstalledAndCleanup(installDir));
         }
 
+        /// <summary>
+        /// Test install exe hash mismatch.
+        /// </summary>
         [Test]
         public void InstallExeWithHashMismatch()
         {
@@ -67,6 +95,9 @@ namespace AppInstallerCLIE2ETests
             Assert.False(TestCommon.VerifyTestExeInstalledAndCleanup(installDir));
         }
 
+        /// <summary>
+        /// Test install inno.
+        /// </summary>
         [Test]
         public void InstallWithInno()
         {
@@ -78,6 +109,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/VERYSILENT"));
         }
 
+        /// <summary>
+        /// Test install burn.
+        /// </summary>
         [Test]
         public void InstallBurn()
         {
@@ -89,6 +123,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/quiet"));
         }
 
+        /// <summary>
+        /// Test install nullsoft.
+        /// </summary>
         [Test]
         public void InstallNullSoft()
         {
@@ -100,6 +137,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/S"));
         }
 
+        /// <summary>
+        /// Test install msi.
+        /// </summary>
         [Test]
         public void InstallMSI()
         {
@@ -110,6 +150,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(TestCommon.VerifyTestMsiInstalledAndCleanup(installDir));
         }
 
+        /// <summary>
+        /// Test install msix.
+        /// </summary>
         [Test]
         public void InstallMSIX()
         {
@@ -119,6 +162,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(TestCommon.VerifyTestMsixInstalledAndCleanup());
         }
 
+        /// <summary>
+        /// Test install msix with signature hash.
+        /// </summary>
         [Test]
         public void InstallMSIXWithSignature()
         {
@@ -129,6 +175,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(TestCommon.VerifyTestMsixInstalledAndCleanup());
         }
 
+        /// <summary>
+        /// Test msix hash mismatch.
+        /// </summary>
         [Test]
         public void InstallMSIXWithSignatureHashMismatch()
         {
@@ -138,6 +187,9 @@ namespace AppInstallerCLIE2ETests
             Assert.False(TestCommon.VerifyTestMsixInstalledAndCleanup());
         }
 
+        /// <summary>
+        /// Test install with alternate source failure.
+        /// </summary>
         [Test]
         public void InstallExeWithAlternateSourceFailure()
         {
@@ -155,10 +207,13 @@ namespace AppInstallerCLIE2ETests
             }
             finally
             {
-                ResetTestSource();
+                this.ResetTestSource();
             }
         }
 
+        /// <summary>
+        /// Test install portable package.
+        /// </summary>
         [Test]
         public void InstallPortableExe()
         {
@@ -171,10 +226,14 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("install", $"{packageId}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
+
             // If no location specified, default behavior is to create a package directory with the name "{packageId}_{sourceId}"
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
         }
 
+        /// <summary>
+        /// Test install portable package with command.
+        /// </summary>
         [Test]
         public void InstallPortableExeWithCommand()
         {
@@ -191,6 +250,9 @@ namespace AppInstallerCLIE2ETests
             TestCommon.VerifyPortablePackage(installDir, commandAlias, fileName, productCode, true);
         }
 
+        /// <summary>
+        /// Test install portable package with rename.
+        /// </summary>
         [Test]
         public void InstallPortableExeWithRename()
         {
@@ -206,6 +268,9 @@ namespace AppInstallerCLIE2ETests
             TestCommon.VerifyPortablePackage(installDir, renameArgValue, renameArgValue, productCode, true);
         }
 
+        /// <summary>
+        /// Test install portable package invalid rename.
+        /// </summary>
         [Test]
         public void InstallPortableInvalidRename()
         {
@@ -219,6 +284,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("The specified filename is not a valid filename"));
         }
 
+        /// <summary>
+        /// Test install portable package with reserve names.
+        /// </summary>
         [Test]
         public void InstallPortableReservedNames()
         {
@@ -232,6 +300,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("The specified filename is not a valid filename"));
         }
 
+        /// <summary>
+        /// Test install portable package to an existing directory.
+        /// </summary>
         [Test]
         public void InstallPortableToExistingDirectory()
         {
@@ -250,6 +321,9 @@ namespace AppInstallerCLIE2ETests
             TestCommon.VerifyPortablePackage(existingDir, commandAlias, fileName, productCode, true);
         }
 
+        /// <summary>
+        /// Test install portable package. Symlink is a directory.
+        /// </summary>
         [Test]
         public void InstallPortableFailsWithCleanup()
         {
@@ -272,6 +346,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("Unable to create symlink, path points to a directory."));
         }
 
+        /// <summary>
+        /// Test reinstalling portable package.
+        /// </summary>
         [Test]
         public void ReinstallPortable()
         {
@@ -299,11 +376,14 @@ namespace AppInstallerCLIE2ETests
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
         }
 
+        /// <summary>
+        /// Test installing portable package user scope.
+        /// </summary>
         [Test]
         public void InstallPortable_UserScope()
         {
             string installDir = TestCommon.GetRandomTestDir();
-            ConfigureInstallBehavior(Constants.PortablePackageUserRoot, installDir);
+            this.ConfigureInstallBehavior(Constants.PortablePackageUserRoot, installDir);
 
             string packageId, commandAlias, fileName, packageDirName, productCode;
             packageId = "AppInstallerTest.TestPortableExe";
@@ -311,17 +391,20 @@ namespace AppInstallerCLIE2ETests
             commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
 
             var result = TestCommon.RunAICLICommand("install", $"{packageId} --scope user");
-            ConfigureInstallBehavior(Constants.PortablePackageUserRoot, string.Empty);
+            this.ConfigureInstallBehavior(Constants.PortablePackageUserRoot, string.Empty);
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
         }
 
+        /// <summary>
+        /// Test install portable package machine scope.
+        /// </summary>
         [Test]
         public void InstallPortable_MachineScope()
         {
             string installDir = TestCommon.GetRandomTestDir();
-            ConfigureInstallBehavior(Constants.PortablePackageMachineRoot, installDir);
+            this.ConfigureInstallBehavior(Constants.PortablePackageMachineRoot, installDir);
 
             string packageId, commandAlias, fileName, packageDirName, productCode;
             packageId = "AppInstallerTest.TestPortableExe";
@@ -329,12 +412,15 @@ namespace AppInstallerCLIE2ETests
             commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
 
             var result = TestCommon.RunAICLICommand("install", $"{packageId} --scope machine");
-            ConfigureInstallBehavior(Constants.PortablePackageMachineRoot, string.Empty);
+            this.ConfigureInstallBehavior(Constants.PortablePackageMachineRoot, string.Empty);
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true, TestCommon.Scope.Machine);
         }
 
+        /// <summary>
+        /// Test install zip exe.
+        /// </summary>
         [Test]
         public void InstallZip_Exe()
         {
@@ -345,6 +431,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/execustom"));
         }
 
+        /// <summary>
+        /// Test install zip portable.
+        /// </summary>
         [Test]
         public void InstallZip_Portable()
         {
@@ -361,6 +450,9 @@ namespace AppInstallerCLIE2ETests
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true, TestCommon.Scope.User);
         }
 
+        /// <summary>
+        /// Test install zip with invalid relative file path.
+        /// </summary>
         [Test]
         public void InstallZipWithInvalidRelativeFilePath()
         {
@@ -369,6 +461,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("Invalid relative file path to the nested installer; path points to a location outside of the install directory"));
         }
 
+        /// <summary>
+        /// Test install zip msi.
+        /// </summary>
         [Test]
         public void InstallZipWithMsi()
         {
@@ -379,6 +474,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(TestCommon.VerifyTestMsiInstalledAndCleanup(installDir));
         }
 
+        /// <summary>
+        /// Test install zip msix.
+        /// </summary>
         [Test]
         public void InstallZipWithMsix()
         {
@@ -388,6 +486,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(TestCommon.VerifyTestMsixInstalledAndCleanup());
         }
 
+        /// <summary>
+        /// Test install an installed package and convert to upgrade.
+        /// </summary>
         [Test]
         public void InstallExeFoundExistingConvertToUpgrade()
         {
@@ -407,6 +508,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(upgradeDir, "/Version 2.0.0.0"));
         }
 
+        /// <summary>
+        /// Test install an installed package without an available upgrade.
+        /// </summary>
         [Test]
         public void InstallExeFoundExistingConvertToUpgradeNoAvailableUpgrade()
         {
@@ -425,6 +529,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(baseDir));
         }
 
+        /// <summary>
+        /// Test force installing a package.
+        /// </summary>
         [Test]
         public void InstallExeWithLatestInstalledWithForce()
         {

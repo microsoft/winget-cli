@@ -389,6 +389,7 @@ wsv
 wto
 wwinmain
 WZDNCRFJ
+xcopy
 XFile
 XPLATSTR
 xsi

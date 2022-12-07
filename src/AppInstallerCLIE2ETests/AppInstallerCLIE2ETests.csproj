@@ -6,6 +6,18 @@
     <IsPackable>false</IsPackable>
     <Platforms>x64;x86</Platforms>
     <OutputType>Library</OutputType>
+    <DocumentationFile>$(OutDir)\AppInstallerCLIE2ETests.xml</DocumentationFile>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- Disable warning for CS1591 because auto generated Microsoft.Management.Deployment -->
+    <!-- For our code, we still have stylecops acting on it. -->
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,6 +28,10 @@
     <PackageReference Include="nunit" Version="3.12.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.15.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <!-- CsWinRT properties -->
@@ -33,6 +49,7 @@
     <Content Include="..\..\doc\admx\DesktopAppInstaller.admx" Link="TestData\DesktopAppInstaller.admx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <AdditionalFiles Include="..\stylecop.json" Link="stylecop.json" />
   </ItemGroup>
 
   <ItemGroup>

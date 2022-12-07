@@ -1,30 +1,42 @@
-﻿// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-
-using NUnit.Framework;
+﻿// -----------------------------------------------------------------------------
+// <copyright file="GroupPolicy.cs" company="Microsoft Corporation">
+//     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
+// </copyright>
+// -----------------------------------------------------------------------------
 
 namespace AppInstallerCLIE2ETests
 {
+    using NUnit.Framework;
+
     /// <summary>
     /// Tests for enforcement of Group Policy.
     /// Behavior is better tested in the unit tests; these tests mostly ensure match between the code and the definition.
     /// </summary>
     public class GroupPolicy : BaseCommand
     {
+        /// <summary>
+        /// Set up.
+        /// </summary>
         [SetUp]
         public void Setup()
         {
-            InitializeAllFeatures(false);
+            this.InitializeAllFeatures(false);
             GroupPolicyHelper.DeleteExistingPolicies();
         }
 
+        /// <summary>
+        /// Tear down.
+        /// </summary>
         [TearDown]
         public void TearDown()
         {
-            InitializeAllFeatures(false);
+            this.InitializeAllFeatures(false);
             GroupPolicyHelper.DeleteExistingPolicies();
         }
 
+        /// <summary>
+        /// Test winget search is disabled by policy.
+        /// </summary>
         [Test]
         public void PolicyEnableWinget()
         {
@@ -33,6 +45,9 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
         }
 
+        /// <summary>
+        /// Test winget settings is disable by policy.
+        /// </summary>
         [Test]
         public void EnableSettings()
         {
@@ -41,10 +56,13 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
         }
 
+        /// <summary>
+        /// Test experimental features policy.
+        /// </summary>
         [Test]
         public void EnableExperimentalFeatures()
         {
-            ConfigureFeature("experimentalCmd", true);
+            this.ConfigureFeature("experimentalCmd", true);
             var result = TestCommon.RunAICLICommand("experimental", string.Empty);
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
 
@@ -55,6 +73,9 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.ERROR_INVALID_CL_ARGUMENTS, result.ExitCode);
         }
 
+        /// <summary>
+        /// Test install via manifest is disabled by policy.
+        /// </summary>
         [Test]
         public void EnableLocalManifests()
         {
@@ -63,6 +84,9 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
         }
 
+        /// <summary>
+        /// Test install without checking the hash is disabled by policy.
+        /// </summary>
         [Test]
         public void EnableHashOverride()
         {
@@ -71,6 +95,9 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
         }
 
+        /// <summary>
+        /// Test winget source is enabled by policy.
+        /// </summary>
         [Test]
         public void EnableDefaultSource()
         {
@@ -83,6 +110,9 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
         }
 
+        /// <summary>
+        /// Test store source is enabled by policy.
+        /// </summary>
         [Test]
         public void EnableMicrosoftStoreSource()
         {
@@ -95,6 +125,9 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
         }
 
+        /// <summary>
+        /// Test additional sources are enabled by policy.
+        /// </summary>
         [Test]
         public void EnableAdditionalSources()
         {
@@ -112,6 +145,9 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
         }
 
+        /// <summary>
+        /// Test enable allowed sources.
+        /// </summary>
         [Test]
         public void EnableAllowedSources()
         {
@@ -140,6 +176,9 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
         }
 
+        /// <summary>
+        /// Tests source auto update policy.
+        /// </summary>
         [Test]
         public void SourceAutoUpdateInterval()
         {

@@ -1,44 +1,109 @@
-﻿// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
+﻿// -----------------------------------------------------------------------------
+// <copyright file="TestCommon.cs" company="Microsoft Corporation">
+//     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
+// </copyright>
+// -----------------------------------------------------------------------------
 
 namespace AppInstallerCLIE2ETests
 {
-    using Microsoft.Win32;
-    using NUnit.Framework;
     using System;
     using System.Diagnostics;
     using System.IO;
     using System.Threading;
+    using Microsoft.Win32;
+    using NUnit.Framework;
 
+    /// <summary>
+    /// Test common.
+    /// </summary>
     public class TestCommon
     {
+        /// <summary>
+        /// Scope.
+        /// </summary>
+        public enum Scope
+        {
+            /// <summary>
+            /// User.
+            /// </summary>
+            User,
+
+            /// <summary>
+            /// Machine.
+            /// </summary>
+            Machine,
+        }
+
+        /// <summary>
+        /// Gets or sets the cli path.
+        /// </summary>
         public static string AICLIPath { get; set; }
 
+        /// <summary>
+        /// Gets or sets the package path.
+        /// </summary>
         public static string AICLIPackagePath { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether the test runs in package context.
+        /// </summary>
         public static bool PackagedContext { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether the test uses verbose logging.
+        /// </summary>
         public static bool VerboseLogging { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether to use loose file registration.
+        /// </summary>
         public static bool LooseFileRegistration { get; set; }
 
+        /// <summary>
+        /// Gets or sets a value indicating whether to invoke command in desktop package.
+        /// </summary>
         public static bool InvokeCommandInDesktopPackage { get; set; }
 
+        /// <summary>
+        /// Gets or sets the static file root path.
+        /// </summary>
         public static string StaticFileRootPath { get; set; }
 
+        /// <summary>
+        /// Gets or sets the exe installer path.
+        /// </summary>
         public static string ExeInstallerPath { get; set; }
 
+        /// <summary>
+        /// Gets or sets the msi installer path.
+        /// </summary>
         public static string MsiInstallerPath { get; set; }
 
+        /// <summary>
+        /// Gets or sets the msix installer path.
+        /// </summary>
         public static string MsixInstallerPath { get; set; }
 
+        /// <summary>
+        /// Gets or sets the zip installer path.
+        /// </summary>
         public static string ZipInstallerPath { get; set; }
-        
+
+        /// <summary>
+        /// Gets or sets the package cert path.
+        /// </summary>
         public static string PackageCertificatePath { get; set; }
 
+        /// <summary>
+        /// Gets or sets the PowerShell module path.
+        /// </summary>
         public static string PowerShellModulePath { get; set; }
 
-        public static string SettingsJsonFilePath {
+        /// <summary>
+        /// Gets the settings json path.
+        /// </summary>
+        public static string SettingsJsonFilePath
+        {
             get
             {
                 return PackagedContext ?
@@ -47,26 +112,21 @@ namespace AppInstallerCLIE2ETests
             }
         }
 
-        public enum Scope
-        {
-            User,
-            Machine
-        }
-
-        public struct RunCommandResult
-        {
-            public int ExitCode;
-            public string StdOut;
-            public string StdErr;
-        }
-
+        /// <summary>
+        /// Run winget command.
+        /// </summary>
+        /// <param name="command">Command to run.</param>
+        /// <param name="parameters">Parameters.</param>
+        /// <param name="stdIn">Optional std in.</param>
+        /// <param name="timeOut">Optional timeout.</param>
+        /// <returns>The result of the command.</returns>
         public static RunCommandResult RunAICLICommand(string command, string parameters, string stdIn = null, int timeOut = 60000)
         {
             string inputMsg =
                     "AICLI path: " + AICLIPath +
                     " Command: " + command +
                     " Parameters: " + parameters +
-                    (string.IsNullOrEmpty(stdIn) ? "" : " StdIn: " + stdIn) +
+                    (string.IsNullOrEmpty(stdIn) ? string.Empty : " StdIn: " + stdIn) +
                     " Timeout: " + timeOut;
 
             TestContext.Out.WriteLine($"Starting command run. {inputMsg} InvokeCommandInDesktopPackage: {InvokeCommandInDesktopPackage}");
@@ -81,9 +141,17 @@ namespace AppInstallerCLIE2ETests
             }
         }
 
+        /// <summary>
+        /// Run winget command via direct process.
+        /// </summary>
+        /// <param name="command">Command to run.</param>
+        /// <param name="parameters">Parameters.</param>
+        /// <param name="stdIn">Optional std in.</param>
+        /// <param name="timeOut">Optional timeout.</param>
+        /// <returns>The result of the command.</returns>
         public static RunCommandResult RunAICLICommandViaDirectProcess(string command, string parameters, string stdIn = null, int timeOut = 60000)
         {
-            RunCommandResult result = new RunCommandResult();
+            RunCommandResult result = new ();
             Process p = new Process();
             p.StartInfo = new ProcessStartInfo(AICLIPath, command + ' ' + parameters);
             p.StartInfo.UseShellExecute = false;
@@ -128,17 +196,24 @@ namespace AppInstallerCLIE2ETests
             return result;
         }
 
-        // This method is used when the test is run in an OS that does not support AppExecutionAlias. E,g, our build machine.
-        // There is not any existing API that'll activate a packaged app and wait for result, and not possible to capture the stdIn and stdOut.
-        // This method tries to call Invoke-CommandInDesktopPackage PS command to make test executable run in packaged context.
-        // Since Invoke-CommandInDesktopPackage just launches the executable and return, we use cmd pipe to get execution results.
-        // The final constructed command will look like:
-        //   Invoke-CommandInDesktopPackage ...... -Command cmd.exe -Args '-c <cmd command>'
-        //   where <cmd command> will look like: "echo stdIn | appinst.exe args > stdout.txt 2> stderr.txt & echo %ERRORLEVEL% > exitcode.txt"
-        // Then this method will read the piped result and return as RunCommandResult.
+        /// <summary>
+        /// This method is used when the test is run in an OS that does not support AppExecutionAlias. E,g, our build machine.
+        /// There is not any existing API that'll activate a packaged app and wait for result, and not possible to capture the stdIn and stdOut.
+        /// This method tries to call Invoke-CommandInDesktopPackage PS command to make test executable run in packaged context.
+        /// Since Invoke-CommandInDesktopPackage just launches the executable and return, we use cmd pipe to get execution results.
+        /// The final constructed command will look like:
+        ///   Invoke-CommandInDesktopPackage ...... -Command cmd.exe -Args '-c [cmd command]'
+        ///   where [cmd command] will look like: "echo stdIn | appinst.exe args > stdout.txt 2> stderr.txt &amp;amp; echo %ERRORLEVEL% > exitcode.txt"
+        /// Then this method will read the piped result and return as RunCommandResult.
+        /// </summary>
+        /// <param name="command">Command to run.</param>
+        /// <param name="parameters">Parameters.</param>
+        /// <param name="stdIn">Optional std in.</param>
+        /// <param name="timeOut">Optional timeout.</param>
+        /// <returns>The result of the command.</returns>
         public static RunCommandResult RunAICLICommandViaInvokeCommandInDesktopPackage(string command, string parameters, string stdIn = null, int timeOut = 60000)
         {
-            string cmdCommandPiped = "";
+            string cmdCommandPiped = string.Empty;
             if (!string.IsNullOrEmpty(stdIn))
             {
                 cmdCommandPiped += $"echo {stdIn} | ";
@@ -177,7 +252,7 @@ namespace AppInstallerCLIE2ETests
                 throw new TimeoutException($"Packaged winget command run timed out: {command} {parameters}");
             }
 
-            RunCommandResult result = new RunCommandResult();
+            RunCommandResult result = new ();
 
             // Sometimes the files are still in use; allow for this with a wait and retry loop.
             for (int retryCount = 0; retryCount < 4; ++retryCount)
@@ -187,8 +262,8 @@ namespace AppInstallerCLIE2ETests
                 try
                 {
                     result.ExitCode = File.Exists(exitCodeFile) ? int.Parse(File.ReadAllText(exitCodeFile).Trim()) : unchecked((int)0x80004005);
-                    result.StdOut = File.Exists(stdOutFile) ? File.ReadAllText(stdOutFile) : "";
-                    result.StdErr = File.Exists(stdErrFile) ? File.ReadAllText(stdErrFile) : "";
+                    result.StdOut = File.Exists(stdOutFile) ? File.ReadAllText(stdOutFile) : string.Empty;
+                    result.StdErr = File.Exists(stdErrFile) ? File.ReadAllText(stdErrFile) : string.Empty;
                     success = true;
                 }
                 catch (Exception e)
@@ -209,6 +284,13 @@ namespace AppInstallerCLIE2ETests
             return result;
         }
 
+        /// <summary>
+        /// Run command.
+        /// </summary>
+        /// <param name="fileName">File name.</param>
+        /// <param name="args">Args.</param>
+        /// <param name="timeOut">Time out.</param>
+        /// <returns>True if exit code is 0.</returns>
         public static bool RunCommand(string fileName, string args = "", int timeOut = 60000)
         {
             RunCommandResult result = RunCommandWithResult(fileName, args, timeOut);
@@ -224,6 +306,13 @@ namespace AppInstallerCLIE2ETests
             }
         }
 
+        /// <summary>
+        /// Run command with result.
+        /// </summary>
+        /// <param name="fileName">File name.</param>
+        /// <param name="args">Args.</param>
+        /// <param name="timeOut">Optional timeout.</param>
+        /// <returns>Command result.</returns>
         public static RunCommandResult RunCommandWithResult(string fileName, string args, int timeOut = 60000)
         {
             TestContext.Out.WriteLine($"Running command: {fileName} {args}");
@@ -234,7 +323,7 @@ namespace AppInstallerCLIE2ETests
             p.StartInfo.RedirectStandardError = true;
             p.Start();
 
-            RunCommandResult result = new RunCommandResult();
+            RunCommandResult result = new ();
             if (p.WaitForExit(timeOut))
             {
                 result.ExitCode = p.ExitCode;
@@ -254,21 +343,42 @@ namespace AppInstallerCLIE2ETests
             return result;
         }
 
-        public static RunCommandResult RunPowerShellCommandWithResult(string cmdlet, string args, int timeOut = 60000)
+        /// <summary>
+        /// Run PowerShell Core command with result.
+        /// </summary>
+        /// <param name="cmdlet">Cmdlet to run.</param>
+        /// <param name="args">Args.</param>
+        /// <param name="timeOut">Optional timeout.</param>
+        /// <returns>Command result.</returns>
+        public static RunCommandResult RunPowerShellCoreCommandWithResult(string cmdlet, string args, int timeOut = 60000)
         {
             return RunCommandWithResult("pwsh.exe", $"-Command ipmo {PowerShellModulePath}; {cmdlet} {args}", timeOut);
         }
 
+        /// <summary>
+        /// Get test file path.
+        /// </summary>
+        /// <param name="fileName">Test file name.</param>
+        /// <returns>Path of test file.</returns>
         public static string GetTestFile(string fileName)
         {
             return Path.Combine(TestContext.CurrentContext.TestDirectory, fileName);
         }
 
+        /// <summary>
+        /// Get test data file path.
+        /// </summary>
+        /// <param name="fileName">File name.</param>
+        /// <returns>Test file data path.</returns>
         public static string GetTestDataFile(string fileName)
         {
             return GetTestFile(Path.Combine("TestData", fileName));
         }
 
+        /// <summary>
+        /// Get test work directory. Creates if not exists.
+        /// </summary>
+        /// <returns>The work directory.</returns>
         public static string GetTestWorkDir()
         {
             string workDir = Path.Combine(TestContext.CurrentContext.TestDirectory, "WorkDirectory");
@@ -276,6 +386,10 @@ namespace AppInstallerCLIE2ETests
             return workDir;
         }
 
+        /// <summary>
+        /// Create random test directory.
+        /// </summary>
+        /// <returns>Path of new test directory.</returns>
         public static string GetRandomTestDir()
         {
             string randDir = Path.Combine(GetTestWorkDir(), Path.GetRandomFileName());
@@ -283,27 +397,52 @@ namespace AppInstallerCLIE2ETests
             return randDir;
         }
 
+        /// <summary>
+        /// Creates new random file name. File is not created.
+        /// </summary>
+        /// <param name="extension">Extension of random file.</param>
+        /// <returns>Path of random file.</returns>
         public static string GetRandomTestFile(string extension)
         {
             return Path.Combine(GetTestWorkDir(), Path.GetRandomFileName() + extension);
         }
 
+        /// <summary>
+        /// Install msix package via PowerShell.
+        /// </summary>
+        /// <param name="file">Msix file.</param>
+        /// <returns>True if installed.</returns>
         public static bool InstallMsix(string file)
         {
             return RunCommand("powershell", $"Add-AppxPackage \"{file}\"");
         }
 
+        /// <summary>
+        /// Install and register msix package via appx manifest.
+        /// </summary>
+        /// <param name="packagePath">Path to package.</param>
+        /// <returns>True if installed correctly.</returns>
         public static bool InstallMsixRegister(string packagePath)
         {
             string manifestFile = Path.Combine(packagePath, "AppxManifest.xml");
             return RunCommand("powershell", $"Add-AppxPackage -Register \"{manifestFile}\"");
         }
 
+        /// <summary>
+        /// Remove msix package.
+        /// </summary>
+        /// <param name="name">Package to remove.</param>
+        /// <returns>True if removed correctly.</returns>
         public static bool RemoveMsix(string name)
         {
             return RunCommand("powershell", $"Get-AppxPackage \"{name}\" | Remove-AppxPackage");
         }
 
+        /// <summary>
+        /// Get portable symlink dir.
+        /// </summary>
+        /// <param name="scope">Scope.</param>
+        /// <returns>The path of the symlinks.</returns>
         public static string GetPortableSymlinkDirectory(Scope scope)
         {
             if (scope == Scope.User)
@@ -316,17 +455,30 @@ namespace AppInstallerCLIE2ETests
             }
         }
 
+        /// <summary>
+        /// Get portable package directory.
+        /// </summary>
+        /// <returns>The portable package directory.</returns>
         public static string GetPortablePackagesDirectory()
         {
             return Path.Combine(Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet", "Packages");
         }
 
+        /// <summary>
+        /// Verify portable package.
+        /// </summary>
+        /// <param name="installDir">Install dir.</param>
+        /// <param name="commandAlias">Command alias.</param>
+        /// <param name="filename">File name.</param>
+        /// <param name="productCode">Product code.</param>
+        /// <param name="shouldExist">Should exists.</param>
+        /// <param name="scope">Scope.</param>
         public static void VerifyPortablePackage(
             string installDir,
             string commandAlias,
             string filename,
             string productCode,
-            bool shouldExist, 
+            bool shouldExist,
             Scope scope = Scope.User)
         {
             string exePath = Path.Combine(installDir, filename);
@@ -367,7 +519,7 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
-        /// Copies log files to the path %TEMP%\E2ETestLogs
+        /// Copies log files to the path %TEMP%\E2ETestLogs.
         /// </summary>
         public static void PublishE2ETestLogs()
         {
@@ -399,11 +551,18 @@ namespace AppInstallerCLIE2ETests
         /// <summary>
         /// Gets the server certificate as a hex string.
         /// </summary>
+        /// <returns>Hex string.</returns>
         public static string GetTestServerCertificateHexString()
         {
             return Convert.ToHexString(File.ReadAllBytes(Path.Combine(StaticFileRootPath, Constants.TestSourceServerCertificateFileName)));
         }
 
+        /// <summary>
+        /// Verify exe installer correctly.
+        /// </summary>
+        /// <param name="installDir">Install directory.</param>
+        /// <param name="expectedContent">Optional expected content.</param>
+        /// <returns>True if success.</returns>
         public static bool VerifyTestExeInstalledAndCleanup(string installDir, string expectedContent = null)
         {
             bool verifyInstallSuccess = true;
@@ -431,6 +590,11 @@ namespace AppInstallerCLIE2ETests
             return verifyInstallSuccess;
         }
 
+        /// <summary>
+        /// Verify msi installed correctly.
+        /// </summary>
+        /// <param name="installDir">Installed directory.</param>
+        /// <returns>True if success.</returns>
         public static bool VerifyTestMsiInstalledAndCleanup(string installDir)
         {
             string pathToCheck = Path.Combine(installDir, Constants.AppInstallerTestExeInstallerExe);
@@ -443,6 +607,10 @@ namespace AppInstallerCLIE2ETests
             return RunCommand("msiexec.exe", $"/qn /x {Constants.MsiInstallerProductCode}");
         }
 
+        /// <summary>
+        /// Verify msix installed correctly.
+        /// </summary>
+        /// <returns>True if success.</returns>
         public static bool VerifyTestMsixInstalledAndCleanup()
         {
             var result = RunCommandWithResult("powershell", $"Get-AppxPackage {Constants.MsixInstallerName}");
@@ -455,22 +623,42 @@ namespace AppInstallerCLIE2ETests
             return RemoveMsix(Constants.MsixInstallerName);
         }
 
+        /// <summary>
+        /// Verify test exe uninstalled.
+        /// </summary>
+        /// <param name="installDir">Installed directory.</param>
+        /// <returns>True if success.</returns>
         public static bool VerifyTestExeUninstalled(string installDir)
         {
             return File.Exists(Path.Combine(installDir, Constants.TestExeUninstalledFileName));
         }
 
+        /// <summary>
+        /// Verify msi uninstalled.
+        /// </summary>
+        /// <param name="installDir">Install directory.</param>
+        /// <returns>True if success.</returns>
         public static bool VerifyTestMsiUninstalled(string installDir)
         {
             return !File.Exists(Path.Combine(installDir, Constants.AppInstallerTestExeInstallerExe));
         }
 
+        /// <summary>
+        /// Verify msix uninstalled.
+        /// </summary>
+        /// <returns>True if success.</returns>
         public static bool VerifyTestMsixUninstalled()
         {
             var result = RunCommandWithResult("powershell", $"Get-AppxPackage {Constants.MsixInstallerName}");
             return string.IsNullOrWhiteSpace(result.StdOut);
         }
 
+        /// <summary>
+        /// Modify uninstalled registry key.
+        /// </summary>
+        /// <param name="productCode">Product code.</param>
+        /// <param name="name">Name.</param>
+        /// <param name="value">Value.</param>
         public static void ModifyPortableARPEntryValue(string productCode, string name, string value)
         {
             const string uninstallSubKey = @"Software\Microsoft\Windows\CurrentVersion\Uninstall";
@@ -481,6 +669,10 @@ namespace AppInstallerCLIE2ETests
             }
         }
 
+        /// <summary>
+        /// Set up test source.
+        /// </summary>
+        /// <param name="useGroupPolicyForTestSource">Use group policy.</param>
         public static void SetupTestSource(bool useGroupPolicyForTestSource = false)
         {
             TestCommon.RunAICLICommand("source reset", "--force");
@@ -491,32 +683,33 @@ namespace AppInstallerCLIE2ETests
             //       to enable testing it by default.  Until then, leaving this here...
             if (useGroupPolicyForTestSource)
             {
-                GroupPolicyHelper.EnableAdditionalSources.SetEnabledList(new GroupPolicySource[]
+                GroupPolicyHelper.EnableAdditionalSources.SetEnabledList(new GroupPolicyHelper.GroupPolicySource[]
                 {
-                    new GroupPolicySource
+                    new GroupPolicyHelper.GroupPolicySource
                     {
                         Name = Constants.TestSourceName,
                         Arg = Constants.TestSourceUrl,
                         Type = Constants.TestSourceType,
                         Data = Constants.TestSourceIdentifier,
                         Identifier = Constants.TestSourceIdentifier,
-                        CertificatePinning = new GroupPolicyCertificatePinning
+                        CertificatePinning = new GroupPolicyHelper.GroupPolicyCertificatePinning
                         {
-                            Chains = new GroupPolicyCertificatePinningChain[] {
-                                new GroupPolicyCertificatePinningChain
+                            Chains = new GroupPolicyHelper.GroupPolicyCertificatePinningChain[]
+                            {
+                                new GroupPolicyHelper.GroupPolicyCertificatePinningChain
                                 {
-                                    Chain = new GroupPolicyCertificatePinningDetails[]
+                                    Chain = new GroupPolicyHelper.GroupPolicyCertificatePinningDetails[]
                                     {
-                                        new GroupPolicyCertificatePinningDetails
+                                        new GroupPolicyHelper.GroupPolicyCertificatePinningDetails
                                         {
                                             Validation = new string[] { "publickey" },
-                                            EmbeddedCertificate = TestCommon.GetTestServerCertificateHexString()
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                                            EmbeddedCertificate = TestCommon.GetTestServerCertificateHexString(),
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
                 });
             }
             else
@@ -528,10 +721,34 @@ namespace AppInstallerCLIE2ETests
             Thread.Sleep(2000);
         }
 
+        /// <summary>
+        /// Tear down test source.
+        /// </summary>
         public static void TearDownTestSource()
         {
             RunAICLICommand("source remove", Constants.TestSourceName);
             RunAICLICommand("source reset", "--force");
+        }
+
+        /// <summary>
+        /// Run command result.
+        /// </summary>
+        public struct RunCommandResult
+        {
+            /// <summary>
+            /// Exit code.
+            /// </summary>
+            public int ExitCode;
+
+            /// <summary>
+            /// StdOut.
+            /// </summary>
+            public string StdOut;
+
+            /// <summary>
+            /// StdErr.
+            /// </summary>
+            public string StdErr;
         }
     }
 }
