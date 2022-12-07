@@ -78,6 +78,7 @@
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
     <SpectreMitigation>Spectre</SpectreMitigation>
+    <ControlFlowGuard>Guard</ControlFlowGuard>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
