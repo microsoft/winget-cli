@@ -663,6 +663,9 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>An unexpected error occurred while executing the command:</value>
   </data>
+  <data name="UninstallPreviousArgumentDescription" xml:space="preserve">
+    <value>Uninstall the previous version of the package during upgrade</value>
+  </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Unrecognized command</value>
   </data>

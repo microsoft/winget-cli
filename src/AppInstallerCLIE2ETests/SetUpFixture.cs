@@ -158,6 +158,7 @@ namespace AppInstallerCLIE2ETests
                     dependencies = false,
                     directMSI = false,
                     openLogsArgument = false,
+                    uninstallPreviousArgument = false,
                 },
                 debugging = new
                 {

@@ -87,6 +87,7 @@ namespace AppInstallerCLIE2ETests
             this.ConfigureFeature("directMSI", status);
             this.ConfigureFeature("zipInstall", status);
             this.ConfigureFeature("openLogsArgument", status);
+            this.ConfigureFeature("uninstallPreviousArgument", status);
         }
     }
 }

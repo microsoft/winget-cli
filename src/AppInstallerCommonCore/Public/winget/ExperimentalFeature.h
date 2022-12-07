@@ -26,6 +26,7 @@ namespace AppInstaller::Settings
             ZipInstall = 0x4,
             OpenLogsArgument = 0x8,
             Pinning = 0x10,
+            UninstallPreviousArgument = 0x20,
             Max, // This MUST always be after all experimental features
 
             // Features listed after Max will not be shown with the features command

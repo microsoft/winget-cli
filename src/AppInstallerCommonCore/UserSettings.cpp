@@ -250,6 +250,7 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_PASS_THROUGH(EFZipInstall)
         WINGET_VALIDATE_PASS_THROUGH(EFOpenLogsArgument)
         WINGET_VALIDATE_PASS_THROUGH(EFPinning)
+        WINGET_VALIDATE_PASS_THROUGH(EFUninstallPreviousArgument)
         WINGET_VALIDATE_PASS_THROUGH(TelemetryDisable)
         WINGET_VALIDATE_PASS_THROUGH(InteractivityDisable)
         WINGET_VALIDATE_PASS_THROUGH(EnableSelfInitiatedMinidump)

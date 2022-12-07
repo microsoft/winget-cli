@@ -83,6 +83,7 @@ namespace AppInstaller::CLI::Execution
             // Upgrade command
             All, // Used in Update command to update all installed packages to latest
             IncludeUnknown, // Used in Upgrade command to allow upgrades of packages with unknown versions
+            UninstallPrevious, // Used in Upgrade command to override the default manifest behavior to UninstallPrevious
 
             // Show command
             ListVersions, // Used in Show command to list all available versions of an app

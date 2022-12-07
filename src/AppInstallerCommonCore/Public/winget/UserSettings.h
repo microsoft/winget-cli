@@ -80,6 +80,7 @@ namespace AppInstaller::Settings
         EFZipInstall,
         EFOpenLogsArgument,
         EFPinning,
+        EFUninstallPreviousArgument,
         // Telemetry
         TelemetryDisable,
         // Install behavior
@@ -150,6 +151,7 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::EFZipInstall, bool, bool, false, ".experimentalFeatures.zipInstall"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFOpenLogsArgument, bool, bool, false, ".experimentalFeatures.openLogsArgument"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFPinning, bool, bool, false, ".experimentalFeatures.pinning"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::EFUninstallPreviousArgument, bool, bool, false, ".experimentalFeatures.uninstallPreviousArgument"sv);
         // Telemetry
         SETTINGMAPPING_SPECIALIZATION(Setting::TelemetryDisable, bool, bool, false, ".telemetry.disable"sv);
         // Install behavior

@@ -53,6 +53,7 @@ namespace AppInstallerCLIE2ETests
             this.ConfigureFeature("experimentalCmd", true);
             this.ConfigureFeature("directMSI", true);
             this.ConfigureFeature("openLogsArgument", true);
+            this.ConfigureFeature("uninstallPreviousArgument", true);
             var result = TestCommon.RunAICLICommand("features", string.Empty);
             Assert.True(result.StdOut.Contains("Enabled"));
         }
