@@ -74,7 +74,6 @@
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
 	</PropertyGroup>
 
-
     <!-- Copy WinRTAct.dll to PowerShell module directory -->
     <PropertyGroup Condition="'$(Platform)' == 'x64'">
         <TargetPlatform>x64</TargetPlatform>

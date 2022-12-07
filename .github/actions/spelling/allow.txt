@@ -11,7 +11,7 @@ AFX
 afx
 alloc
 altform
-Amd
+amd
 anonymize
 api
 APIENTRY
