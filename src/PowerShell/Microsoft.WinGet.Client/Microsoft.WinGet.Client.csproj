@@ -21,10 +21,6 @@
     <DefineConstants>USE_PROD_CLSIDS</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(WingetUseProdClsids)' == 'true'">
-    <DefineConstants>USE_PROD_CLSIDS</DefineConstants>
-  </PropertyGroup>
-    
   <ItemGroup>
     <AdditionalFiles Include="..\..\stylecop.json" Link="stylecop.json" />
   </ItemGroup>
@@ -56,7 +52,6 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <WarningsAsErrors />
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
