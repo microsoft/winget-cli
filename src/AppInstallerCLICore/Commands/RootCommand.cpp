@@ -18,6 +18,7 @@
 #include "CompleteCommand.h"
 #include "ExportCommand.h"
 #include "ImportCommand.h"
+#include "PinCommand.h"
 
 #include "Resources.h"
 #include "TableOutput.h"
@@ -127,6 +128,7 @@ namespace AppInstaller::CLI
             std::make_unique<CompleteCommand>(FullName()),
             std::make_unique<ExportCommand>(FullName()),
             std::make_unique<ImportCommand>(FullName()),
+            std::make_unique<PinCommand>(FullName()),
         });
     }
 
