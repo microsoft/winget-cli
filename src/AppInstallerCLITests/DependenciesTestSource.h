@@ -157,7 +157,7 @@ namespace TestCommon
             else if (!request.Filters.empty())
             {
                 input = request.Filters[0].Value;
-            }// else: default?
+            }
 
             bool installed = false;
             if (input == "installed1")
@@ -170,7 +170,15 @@ namespace TestCommon
                 return result;
             }
 
-            Manifest manifest = CreateFakeManifestWithDependencies(input);
+            Manifest manifest;
+            if (input == "MultipleDependenciesFromManifest")
+            {
+                manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_MultipleDependencies.yaml"));
+            }
+            else
+            {
+                manifest = CreateFakeManifestWithDependencies(input);
+            }
 
             //TODO:
             // test for installed packages and packages that need upgrades

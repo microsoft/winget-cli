@@ -3521,6 +3521,34 @@ TEST_CASE("DependencyGraph_StackOrderIsOk", "[InstallFlow][workflow][dependencyG
     REQUIRE(installationOrder.at(2).Id() == "StackOrderIsOk");
 }
 
+TEST_CASE("DependencyGraph_MultipleDependenciesFromManifest", "[InstallFlow][workflow][dependencyGraph][dependencies]")
+{
+    std::vector<Dependency> installationOrder;
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideOpenSourceForDependencies(context);
+    OverrideForShellExecute(context, installationOrder);
+
+    context.Args.AddArg(Execution::Args::Type::Query, "MultipleDependenciesFromManifest"sv);
+
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesFlowContainsLoop)) == std::string::npos);
+
+    // Verify installers are called in order
+    REQUIRE(installationOrder.size() == 3);
+    REQUIRE(installationOrder.at(0).Id() == "Dependency1");
+    REQUIRE(installationOrder.at(1).Id() == "Dependency2");
+    REQUIRE(installationOrder.at(2).Id() == "AppInstallerCliTest.TestExeInstaller.MultipleDependencies");
+}
+
 TEST_CASE("InstallerWithoutDependencies_RootDependenciesAreUsed", "[dependencies]")
 {
     std::ostringstream installOutput;
