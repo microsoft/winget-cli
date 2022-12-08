@@ -486,7 +486,8 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>The following failures were found validating the settings:</value>
   </data>
   <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Open settings in the default json text editor. If no editor is configured, opens settings in notepad. For available settings see https://aka.ms/winget-settings This command can also be used to set administrator settings by providing 'enable' or 'disable' argument</value>
+    <value>Open settings in the default json text editor. If no editor is configured, opens settings in notepad. For available settings see https://aka.ms/winget-settings This command can also be used to set administrator settings by providing the --enable or --disable arguments</value>
+    <comment>{Locked="--enable"} {Locked="--disable"}</comment>
   </data>
   <data name="SettingsCommandShortDescription" xml:space="preserve">
     <value>Open settings or set administrator settings</value>
@@ -1290,7 +1291,7 @@ Do you agree to the terms?</value>
   </data>
   <data name="SearchFailureErrorListMatches" xml:space="preserve">
     <value>The following packages were found among the working sources.
-Please specify one of them using the `--source` option to proceed.</value>
+Please specify one of them using the --source option to proceed.</value>
     <comment>{Locked="--source"} "working sources" as in "sources that are working correctly"</comment>
   </data>
   <data name="SearchFailureErrorNoMatches" xml:space="preserve">
@@ -1332,15 +1333,15 @@ Please specify one of them using the `--source` option to proceed.</value>
     <comment>{Locked="--include-unknown"}</comment>
   </data>
   <data name="UpgradeUnknownCount" xml:space="preserve">
-    <value>packages have version numbers that cannot be determined. Using "--include-unknown" may show more results.</value>
+    <value>packages have version numbers that cannot be determined. Using --include-unknown may show more results.</value>
     <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions. </comment>
   </data>
   <data name="UpgradeUnknownCountSingle" xml:space="preserve">
-    <value>package has a version number that cannot be determined. Using "--include-unknown" may show more results.</value>
+    <value>package has a version number that cannot be determined. Using --include-unknown may show more results.</value>
     <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions.</comment>
   </data>
   <data name="UpgradeUnknownVersionCount" xml:space="preserve">
-    <value>package(s) have version numbers that cannot be determined. Use "--include-unknown" to see all results.</value>
+    <value>package(s) have version numbers that cannot be determined. Use --include-unknown to see all results.</value>
     <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions. </comment>
   </data>
   <data name="UpgradeRequireExplicitCount" xml:space="preserve">
@@ -1404,7 +1405,8 @@ Please specify one of them using the `--source` option to proceed.</value>
     <value>Portable install failed; Cleaning up...</value>
   </data>
   <data name="BothPurgeAndPreserveFlagsProvided" xml:space="preserve">
-    <value>Both `purge` and `preserve` arguments are provided</value>
+    <value>Both --purge and --preserve arguments are provided</value>
+    <comment>{Locked="--purge"} {Locked="--preserve"}</comment>
   </data>
   <data name="PortableHashMismatchOverridden" xml:space="preserve">
     <value>Portable package has been modified; proceeding due to --force</value>

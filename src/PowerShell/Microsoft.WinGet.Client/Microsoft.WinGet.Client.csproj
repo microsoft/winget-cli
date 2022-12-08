@@ -3,21 +3,26 @@
   <PropertyGroup>
     <TargetWindowsVersion>10.0.22000.0</TargetWindowsVersion>
     <CoreFramework>net6.0-windows$(TargetWindowsVersion)</CoreFramework>
-    <DesktopFramework>net461</DesktopFramework>
+    <DesktopFramework>net48</DesktopFramework>
   </PropertyGroup>
-  
+
   <PropertyGroup>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <LangVersion>9</LangVersion>
+    <LangVersion>10</LangVersion>
     <BuildOutputDirectory>$(SolutionDir)$(Platform)\$(Configuration)\</BuildOutputDirectory>
     <OutputPath>$(BuildOutputDirectory)$(MSBuildProjectName)</OutputPath>
-    <PowerShellModuleOutputDirectory>$(BuildOutputDirectory)PowerShell</PowerShellModuleOutputDirectory>
-    <Platforms>x64;x86</Platforms>
+    <PowerShellModuleOutputDirectory>$(BuildOutputDirectory)PowerShell\Microsoft.WinGet.Client</PowerShellModuleOutputDirectory>
+    <Platforms>x64;x86;ARM64</Platforms>
     <TargetFrameworks>$(CoreFramework);$(DesktopFramework)</TargetFrameworks>
+    <DocumentationFile>$(OutputPath)\Microsoft.WinGet.Client.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(WingetUseProdClsids)' == 'true'">
+    <DefineConstants>USE_PROD_CLSIDS</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="stylecop.json" />
+    <AdditionalFiles Include="..\..\stylecop.json" Link="stylecop.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -34,73 +39,98 @@
       <OutputItemType>Content</OutputItemType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </ProjectReference>
-    <ProjectReference Include="..\..\UndockedRegFreeWinRT\UndockedRegFreeWinRT\UndockedRegFreeWinRT.vcxproj">
+    <ProjectReference Include="..\..\Xlang\UndockedRegFreeWinRT\src\UndockedRegFreeWinRT\UndockedRegFreeWinRT\UndockedRegFreeWinRT.vcxproj">
       <OutputItemType>Content</OutputItemType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </ProjectReference>
   </ItemGroup>
 
-	<ItemGroup Condition="'$(TargetFramework)' == '$(CoreFramework)'">
-		<PackageReference Include="Microsoft.Windows.CsWinRT" Version="1.6.5" />
-	</ItemGroup>
+  <PropertyGroup>
+    <!-- Disable warning for CS1591 because auto generated Microsoft.Management.Deployment -->
+    <!-- For our code, we still have stylecops acting on it. -->
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
 
-	<ItemGroup Condition="'$(TargetFramework)' == '$(DesktopFramework)'">
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == '$(CoreFramework)'">
+    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="1.6.5" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == '$(DesktopFramework)'">
     <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.22000.196" PrivateAssets="all" />
-	</ItemGroup>
+  </ItemGroup>
 
-	<ItemGroup>
-	  <Compile Update="Properties\Resources.Designer.cs">
-	    <DesignTime>True</DesignTime>
-	    <AutoGen>True</AutoGen>
-	    <DependentUpon>Resources.resx</DependentUpon>
-	  </Compile>
-	</ItemGroup>
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
 
-	<ItemGroup>
-	  <EmbeddedResource Update="Properties\Resources.resx">
-	    <Generator>ResXFileCodeGenerator</Generator>
-	    <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-	  </EmbeddedResource>
-	</ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
 
-	<PropertyGroup Condition="'$(TargetFramework)' == '$(CoreFramework)'">
-		<CsWinRTIncludes>Microsoft.Management.Deployment</CsWinRTIncludes>
-		<CsWinRTWindowsMetadata>$(TargetWindowsVersion)</CsWinRTWindowsMetadata>
+  <PropertyGroup Condition="'$(TargetFramework)' == '$(CoreFramework)'">
+    <CsWinRTIncludes>Microsoft.Management.Deployment</CsWinRTIncludes>
+    <CsWinRTWindowsMetadata>$(TargetWindowsVersion)</CsWinRTWindowsMetadata>
     <!-- Ensure Support for Windows 10, Version 1809 -->
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
-	</PropertyGroup>
-	
-	<Target Name="CopyWinRTAct" AfterTargets="Build" Condition="'$(TargetFramework)' != ''">
-		<ItemGroup>
-			<!-- Ensure Referenced Project Output is in Output Directory -->
-			<WinRTActDll Include="$(SolutionDir)**\$(Platform)\$(Configuration)\**\winrtact.dll" />
-		</ItemGroup>
-		<Message Importance="high" Text="Copying '@(WinRTActDll)' to '$(OutputPath)'" />
-		<Copy SourceFiles="@(WinRTActDll)" DestinationFolder="$(OutputPath)" />
-	</Target>
+  </PropertyGroup>
 
-    <!-- Build Microsoft.Winget.Client PowerShell Module -->
-    <Target Name="CopyModuleFiles" AfterTargets="AfterBuild">
-        <Message Importance="high" Text="Copying PowerShell module files to '$(PowerShellModuleOutputDirectory)'" />
-        <Copy SourceFiles="Format.ps1xml" DestinationFolder="$(PowerShellModuleOutputDirectory)" />
-        <Copy SourceFiles="Microsoft.WinGet.Client.psd1" DestinationFolder="$(PowerShellModuleOutputDirectory)" />
-        <Copy SourceFiles="Microsoft.WinGet.Client.psm1" DestinationFolder="$(PowerShellModuleOutputDirectory)" />
-    </Target>
-    
-    <Target Name="CopyCoreBinaries" AfterTargets="AfterBuild" Condition="'$(TargetFramework)' == '$(CoreFramework)'">
-        <ItemGroup>
-            <CoreBinaries Include="$(OutputPath)*" />
-        </ItemGroup>
-        <Message Importance="high" Text="Copying @(CoreBinaries) to '$(PowerShellModuleOutputDirectory)\$(Platform)\Core'" />
-        <Copy SourceFiles="@(CoreBinaries)" DestinationFolder="$(PowerShellModuleOutputDirectory)\$(Platform)\Core" />
-    </Target>
+  <!-- Copy WinRTAct.dll to PowerShell module directory -->
+  <PropertyGroup Condition="'$(Platform)' == 'x64'">
+      <TargetPlatform>x64</TargetPlatform>
+  </PropertyGroup>
 
-    <Target Name="CopyDesktopBinaries" AfterTargets="AfterBuild" Condition="'$(TargetFramework)' == '$(DesktopFramework)'">
-        <ItemGroup>
-            <DesktopBinaries Include="$(OutputPath)*" />
-        </ItemGroup>
-        <Message Importance="high" Text="Copying @(DesktopBinaries) to '$(PowerShellModuleOutputDirectory)\$(Platform)\Desktop'" />
-        <Copy SourceFiles="@(DesktopBinaries)" DestinationFolder="$(PowerShellModuleOutputDirectory)\$(Platform)\Desktop" />
-    </Target>
-    
+  <PropertyGroup Condition="'$(Platform)' == 'x86'">
+      <TargetPlatform>Win32</TargetPlatform>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Platform)' == 'ARM64'">
+      <TargetPlatform>Arm64</TargetPlatform>
+  </PropertyGroup>
+
+  <Target Name="CopyWinRTAct" AfterTargets="Build" Condition="'$(Platform)' != 'ARM'">
+      <ItemGroup>
+          <WinRTActDll Include="$(SolutionDir)**\$(TargetPlatform)\$(Configuration)\UndockedRegFreeWinRT\winrtact.dll" />
+      </ItemGroup>
+      <Message Importance="high" Text="Copying '@(WinRTActDll)'" />
+      <Copy SourceFiles="@(WinRTActDll)" DestinationFolder="$(OutputPath)" />
+      <Copy SourceFiles="@(WinRTActDll)" DestinationFolder="$(PowerShellModuleOutputDirectory)\$(Platform)\Core" />
+      <Copy SourceFiles="@(WinRTActDll)" DestinationFolder="$(PowerShellModuleOutputDirectory)\$(Platform)\Desktop" />
+  </Target>
+
+  <!-- Build Microsoft.Winget.Client PowerShell Module -->
+  <Target Name="CopyModuleFiles" AfterTargets="AfterBuild">
+    <ItemGroup>
+      <ModuleFiles Include="$(ProjectDir)\Module\**\*.*" />
+    </ItemGroup>
+    <Message Importance="high" Text="Copying PowerShell module files to '$(PowerShellModuleOutputDirectory)'" />
+    <Copy SourceFiles="@(ModuleFiles)" DestinationFiles="$(PowerShellModuleOutputDirectory)\%(RecursiveDir)%(Filename)%(Extension)" />
+  </Target>
+
+  <Target Name="CopyCoreBinaries" AfterTargets="AfterBuild" Condition="'$(TargetFramework)' == '$(CoreFramework)'">
+    <ItemGroup>
+      <CoreBinaries Include="$(OutputPath)*" />
+    </ItemGroup>
+    <Message Importance="high" Text="Copying @(CoreBinaries) to '$(PowerShellModuleOutputDirectory)\$(Platform)\Core'" />
+    <Copy SourceFiles="@(CoreBinaries)" DestinationFolder="$(PowerShellModuleOutputDirectory)\$(Platform)\Core" />
+  </Target>
+
+  <Target Name="CopyDesktopBinaries" AfterTargets="AfterBuild" Condition="'$(TargetFramework)' == '$(DesktopFramework)'">
+    <ItemGroup>
+      <DesktopBinaries Include="$(OutputPath)*" />
+    </ItemGroup>
+    <Message Importance="high" Text="Copying @(DesktopBinaries) to '$(PowerShellModuleOutputDirectory)\$(Platform)\Desktop'" />
+    <Copy SourceFiles="@(DesktopBinaries)" DestinationFolder="$(PowerShellModuleOutputDirectory)\$(Platform)\Desktop" />
+  </Target>
+
 </Project>

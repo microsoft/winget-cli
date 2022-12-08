@@ -86,7 +86,7 @@ namespace AppInstaller::CLI::Workflow
 
         // Some versions of windows will fail if no file extension association exists, other will pop up the dialog
         // to make the user pick their default.
-        // Kudos to the terminal team for this work around.
+        // Kudos to the terminal team for this workaround.
         HINSTANCE res = ShellExecuteW(nullptr, nullptr, filePathUTF16.c_str(), nullptr, nullptr, SW_SHOW);
         if (static_cast<int>(reinterpret_cast<uintptr_t>(res)) <= 32)
         {

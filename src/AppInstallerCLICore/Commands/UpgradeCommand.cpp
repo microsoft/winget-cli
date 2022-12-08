@@ -45,8 +45,7 @@ namespace AppInstaller::CLI
         // either for upgrading or for listing available upgrades.
         bool HasArgumentsForMultiplePackages(Execution::Args& execArgs)
         {
-            return execArgs.Contains(Args::Type::All) ||
-                execArgs.Contains(Args::Type::IncludeUnknown);
+            return execArgs.Contains(Args::Type::All);
         }
 
         // Determines whether there are any arguments only used as options during an upgrade,

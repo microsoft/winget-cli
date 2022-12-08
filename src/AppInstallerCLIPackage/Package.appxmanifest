@@ -37,6 +37,16 @@
             <uap5:ExecutionAlias Alias="WinGetDev.exe" />
           </uap5:AppExecutionAlias>
         </uap5:Extension>
+      </Extensions>
+    </Application>
+    <Application Id="WinGetComServer" Executable="WinGetServer\WindowsPackageManagerServer.exe" EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements DisplayName="WinGet Dev COM Server" Square150x150Logo="Images\Square150x150Logo.png" Square44x44Logo="Images\Square44x44Logo.png" Description="The WinGet COM server." BackgroundColor="#0078d7" AppListEntry="none" />
+      <Extensions>
+        <uap5:Extension Category="windows.appExecutionAlias">
+          <uap5:AppExecutionAlias>
+            <uap5:ExecutionAlias Alias="WindowsPackageManagerServerDev.exe" />
+          </uap5:AppExecutionAlias>
+        </uap5:Extension>          
         <com:Extension Category="windows.comServer">
           <com:ComServer>
             <com:ExeServer Executable="WinGetServer\WindowsPackageManagerServer.exe" DisplayName="Windows Package Manager Server" LaunchAndActivationPermission="O:SYG:SYD:(A;;11;;;WD)(A;;11;;;RC)(A;;11;;;AC)(A;;11;;;AN)S:P(ML;;NX;;;S-1-16-0)">

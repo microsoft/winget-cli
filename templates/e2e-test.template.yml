@@ -25,7 +25,8 @@ steps:
                                   -MsiTestInstallerPath $(System.DefaultWorkingDirectory)\src\AppInstallerCLIE2ETests\TestData\AppInstallerTestMsiInstaller.msi
                                   -MsixTestInstallerPath $(Build.ArtifactStagingDirectory)\AppInstallerTestMsixInstaller.msix
                                   -ExeTestInstallerPath $(buildOutDir)\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe
-                                  -PackageCertificatePath $(AppInstallerTest.secureFilePath)'
+                                  -PackageCertificatePath $(AppInstallerTest.secureFilePath)
+                                  -PowerShellModulePath $(buildOutDir)\PowerShell\Microsoft.WinGet.Client\Microsoft.WinGet.Client.psd1'
     ${{ else }}:
       overrideTestrunParameters: '-PackagedContext false
                                   -AICLIPath $(System.DefaultWorkingDirectory)\src\AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration)\AppInstallerCLI\winget.exe
@@ -34,4 +35,5 @@ steps:
                                   -MsiTestInstallerPath $(System.DefaultWorkingDirectory)\src\AppInstallerCLIE2ETests\TestData\AppInstallerTestMsiInstaller.msi
                                   -MsixTestInstallerPath $(Build.ArtifactStagingDirectory)\AppInstallerTestMsixInstaller.msix
                                   -ExeTestInstallerPath $(buildOutDir)\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe
-                                  -PackageCertificatePath $(AppInstallerTest.secureFilePath)'
+                                  -PackageCertificatePath $(AppInstallerTest.secureFilePath)
+                                  -PowerShellModulePath $(buildOutDir)\PowerShell\Microsoft.WinGet.Client\Microsoft.WinGet.Client.psd1'

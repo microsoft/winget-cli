@@ -7,8 +7,11 @@ addmanifest
 addportablefile
 addstore
 admins
+AFX
+afx
 alloc
 altform
+amd
 anonymize
 api
 APIENTRY
@@ -35,6 +38,7 @@ aspnet
 authn
 authz
 autocomplete
+AUTOLISTEN
 auxdata
 azureedge
 backend
@@ -200,6 +204,7 @@ hcertstore
 HCRYPTMSG
 hfile
 HGLOBAL
+HGlobal
 HIDECANCEL
 hinternet
 HKCU
@@ -226,6 +231,7 @@ IDX
 IFACEMETHOD
 ifdef
 ifndef
+ifspec
 ifstream
 IIS
 impl
@@ -244,9 +250,11 @@ INSTALLPATH
 INSTALLUILEVEL
 interop
 INVALIDARG
+INVALIDSID
 iomanip
 iostream
 IPortable
+ipmo
 ISAPPROVEDFOROUTPUT
 isspace
 istream
@@ -309,6 +317,8 @@ msixmgr
 msixsdk
 msixsdkx
 msixtest
+MSHCTX
+MSHLFLAGS
 msrc
 Multifile
 Multimatch
@@ -316,6 +326,7 @@ mutex
 mutexes
 namespace
 namespaces
+ncacn
 Nelon
 netcoreapp
 netstandard
@@ -393,18 +404,23 @@ preindexed
 prepareforpackaging
 PRIMARYKEY
 prioritization
+processthreadsapi
 PRODUCTNAME
 PRODUCTVERSION
 PROGRAMFILES
 PROGRESSONLY
 promptrestart
 PROPERTYDUMP
+PROTSEQ
+Protseq
 psz
+PTOKEN
 ptr
 publiccontainer
 PUCHAR
 PVOID
 pwa
+pwsh
 QCol
 RAII
 rclsid
@@ -436,6 +452,7 @@ RESTSOURCE
 resw
 resx
 rethrowing
+REQS
 roadmap
 robuffer
 rowcount
@@ -471,7 +488,9 @@ SHELLEXEC
 SHELLEXECUTEINFO
 SHELLEXECUTEINFOA
 SHELLEXECUTEINFOW
+shlobj
 Shlwapi
+shtypes
 signtool
 silentwithprogress
 simplesave
@@ -495,6 +514,7 @@ src
 srwlock
 sscanf
 sstream
+STARTUPINFO
 STATEACTION
 STATFLAG
 STATSTG
@@ -587,6 +607,7 @@ UIA
 UIF
 uint
 Uknown
+ULARGE
 ulong
 ULONGLONG
 uncomment
@@ -596,6 +617,7 @@ unicode
 UNICODESTRING
 uninstall
 uninstalling
+Unmarshal
 Unregister
 Unregisters
 untimes
@@ -667,6 +689,7 @@ WStr
 wstring
 wstringstream
 WTD
+wtypesbase
 www
 xamarin
 xaml

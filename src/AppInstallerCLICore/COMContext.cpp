@@ -5,7 +5,7 @@
 
 namespace AppInstaller::CLI::Execution
 {
-    static constexpr std::string_view s_comLogFileNamePrefix = "WPM"sv;
+    static constexpr std::string_view s_comLogFileNamePrefix = "WinGetCOM"sv;
 
     NullStream::NullStream()
     {

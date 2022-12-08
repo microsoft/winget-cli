@@ -1,5 +1,8 @@
-﻿// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
+﻿// -----------------------------------------------------------------------------
+// <copyright file="WinGetUtilDownload.cs" company="Microsoft Corporation">
+//     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
+// </copyright>
+// -----------------------------------------------------------------------------
 
 namespace AppInstallerCLIE2ETests.WinGetUtil
 {
@@ -7,8 +10,14 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
     using System.Linq;
     using NUnit.Framework;
 
+    /// <summary>
+    /// Test winget util download.
+    /// </summary>
     public class WinGetUtilDownload
     {
+        /// <summary>
+        /// Test download.
+        /// </summary>
         [Test]
         public void WinGetUtil_Download()
         {

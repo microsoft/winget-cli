@@ -329,3 +329,15 @@ ASALocalRun/
 
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
+
+# Generated files from WinGetServer.idl
+**/WinGetServer/WinGetServer.h
+**/WinGetServer/WinGetServer_c.c
+**/WinGetServer/WinGetServer_s.c
+
+# Crescendo generated module files
+src/PowerShell/Microsoft.WinGet.Client/Crescendo/*.psd1
+src/PowerShell/Microsoft.WinGet.Client/Crescendo/*.psm1
+
+# Dev PowerShell module path
+src/PowerShell/scripts/Module

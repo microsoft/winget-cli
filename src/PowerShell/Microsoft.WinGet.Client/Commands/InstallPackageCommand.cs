@@ -4,15 +4,12 @@
 // </copyright>
 // -----------------------------------------------------------------------------
 
-#pragma warning disable SA1200 // Using directives should be placed correctly
-using Windows.System;
-#pragma warning restore SA1200 // Using directives should be placed correctly
-
 namespace Microsoft.WinGet.Client.Commands
 {
     using System.Management.Automation;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Common;
+    using Windows.System;
 
     /// <summary>
     /// Installs a package from the pipeline or from a configured source.

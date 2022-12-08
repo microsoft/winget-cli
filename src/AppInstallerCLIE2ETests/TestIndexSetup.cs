@@ -1,13 +1,20 @@
-﻿// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-using System;
-using System.Diagnostics;
-using System.IO;
-using System.IO.Compression;
-using Microsoft.Msix.Utils.ProcessRunner;
+﻿// -----------------------------------------------------------------------------
+// <copyright file="TestIndexSetup.cs" company="Microsoft Corporation">
+//     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
+// </copyright>
+// -----------------------------------------------------------------------------
 
 namespace AppInstallerCLIE2ETests
 {
+    using System;
+    using System.Diagnostics;
+    using System.IO;
+    using System.IO.Compression;
+    using Microsoft.Msix.Utils.ProcessRunner;
+
+    /// <summary>
+    /// Test index setup.
+    /// </summary>
     public class TestIndexSetup
     {
         private const string TestDataName = "TestData";
@@ -21,7 +28,7 @@ namespace AppInstallerCLIE2ETests
         /// 2. Copies and signs installer files (EXE or MSIX)
         /// 3. Hashes installer Files
         /// 4. Replaces manifests with corresponding hash values
-        /// 5. Generates a source package for TestData using makeappx/signtool
+        /// 5. Generates a source package for TestData using makeappx/signtool.
         /// </summary>
         public static void GenerateTestDirectory()
         {
@@ -52,6 +59,95 @@ namespace AppInstallerCLIE2ETests
             SetupSourcePackage();
         }
 
+        /// <summary>
+        /// Sign a file using signtool.exe .
+        /// </summary>
+        /// <param name="filePath">File to sign.</param>
+        public static void SignFile(string filePath)
+        {
+            string pathToSDK = SDKDetector.Instance.LatestSDKBinPath;
+            string signtoolExecutable = Path.Combine(pathToSDK, "signtool.exe");
+            RunCommand(signtoolExecutable, $"sign /a /fd sha256 /f {TestCommon.PackageCertificatePath} {filePath}");
+        }
+
+        /// <summary>
+        /// Deletes the contents of a given directory.
+        /// </summary>
+        /// <param name="directory">Directory info.</param>
+        public static void DeleteDirectoryContents(DirectoryInfo directory)
+        {
+            foreach (FileInfo file in directory.GetFiles())
+            {
+                // Leave the server certificate file if present
+                if (file.Name.ToLower() != Constants.TestSourceServerCertificateFileName)
+                {
+                    file.Delete();
+                }
+            }
+
+            foreach (DirectoryInfo dir in directory.GetDirectories())
+            {
+                dir.Delete(true);
+            }
+        }
+
+        /// <summary>
+        /// Copies the contents of a given directory from a source path to a destination path.
+        /// </summary>
+        /// <param name="sourceDirName">Source directory name.</param>
+        /// <param name="destDirName">Destination directory name.</param>
+        public static void CopyDirectory(string sourceDirName, string destDirName)
+        {
+            DirectoryInfo dir = new DirectoryInfo(sourceDirName);
+            DirectoryInfo[] dirs = dir.GetDirectories();
+
+            if (!Directory.Exists(destDirName))
+            {
+                Directory.CreateDirectory(destDirName);
+            }
+
+            FileInfo[] files = dir.GetFiles();
+            foreach (FileInfo file in files)
+            {
+                string temppath = Path.Combine(destDirName, file.Name);
+                file.CopyTo(temppath, false);
+            }
+
+            foreach (DirectoryInfo subdir in dirs)
+            {
+                string temppath = Path.Combine(destDirName, subdir.Name);
+                CopyDirectory(subdir.FullName, temppath);
+            }
+        }
+
+        /// <summary>
+        /// Run a command.
+        /// </summary>
+        /// <param name="command">Command.</param>
+        /// <param name="args">Arguments.</param>
+        public static void RunCommand(string command, string args)
+        {
+            Process p = new Process();
+            p.StartInfo = new ProcessStartInfo(command, args);
+            p.Start();
+            p.WaitForExit();
+        }
+
+        /// <summary>
+        /// Run a command from a working directory.
+        /// </summary>
+        /// <param name="command">Command.</param>
+        /// <param name="args">Arguments.</param>
+        /// <param name="workingDirectory">Working directory.</param>
+        public static void RunCommand(string command, string args, string workingDirectory)
+        {
+            Process p = new Process();
+            p.StartInfo = new ProcessStartInfo(command, args);
+            p.StartInfo.WorkingDirectory = workingDirectory;
+            p.Start();
+            p.WaitForExit();
+        }
+
         private static void SetupSourcePackage()
         {
             string indexDestPath = Path.Combine(TestCommon.StaticFileRootPath, PackageName, PublicName);
@@ -67,7 +163,7 @@ namespace AppInstallerCLIE2ETests
             {
                 if (!Directory.Exists(indexDestPath))
                 {
-                   Directory.CreateDirectory(indexDestPath);
+                    Directory.CreateDirectory(indexDestPath);
                 }
 
                 // Generate Index.db file using IndexCreationTool.exe
@@ -159,7 +255,7 @@ namespace AppInstallerCLIE2ETests
                 File.Copy(TestCommon.MsixInstallerPath, msixInstallerSourceDestPath, true);
             }
 
-            string destArchiveFullPath = Path.Combine(zipInstallerDir.FullName, Constants.ZipInstallerFileName); ;
+            string destArchiveFullPath = Path.Combine(zipInstallerDir.FullName, Constants.ZipInstallerFileName);
             ZipFile.CreateFromDirectory(zipSourceDirFullPath, destArchiveFullPath);
             TestCommon.ZipInstallerPath = destArchiveFullPath;
         }
@@ -174,80 +270,6 @@ namespace AppInstallerCLIE2ETests
             string sourcePath = Path.Combine(currentDirectory, TestDataName);
 
             CopyDirectory(sourcePath, TestCommon.StaticFileRootPath);
-        }
-
-        public static void SignFile(string filePath)
-        {
-            string pathToSDK = SDKDetector.Instance.LatestSDKBinPath;
-            string signtoolExecutable = Path.Combine(pathToSDK, "signtool.exe");
-            RunCommand(signtoolExecutable, $"sign /a /fd sha256 /f {TestCommon.PackageCertificatePath} {filePath}");
-        }
-
-        /// <summary>
-        /// Deletes the contents of a given directory
-        /// </summary>
-        /// <param name="directory"></param>
-        public static void DeleteDirectoryContents(DirectoryInfo directory)
-        {
-            foreach (FileInfo file in directory.GetFiles())
-            {
-                // Leave the server certificate file if present
-                if (file.Name.ToLower() != Constants.TestSourceServerCertificateFileName)
-                {
-                    file.Delete();
-                }
-            }
-
-            foreach (DirectoryInfo dir in directory.GetDirectories())
-            {
-                dir.Delete(true);
-            }
-        }
-
-        /// <summary>
-        /// Copies the contents of a given directory from a source path to a destination path
-        /// </summary>
-        /// <param name="sourceDirName"></param>
-        /// <param name="destDirName"></param>
-        public static void CopyDirectory(string sourceDirName, string destDirName)
-        {
-            DirectoryInfo dir = new DirectoryInfo(sourceDirName);
-            DirectoryInfo[] dirs = dir.GetDirectories();
-
-            if (!Directory.Exists(destDirName))
-            {
-                Directory.CreateDirectory(destDirName);
-            }
-
-            FileInfo[] files = dir.GetFiles();
-            foreach (FileInfo file in files)
-            {
-                string temppath = Path.Combine(destDirName, file.Name);
-                file.CopyTo(temppath, false);
-            }
-
-            foreach (DirectoryInfo subdir in dirs)
-            {
-                string temppath = Path.Combine(destDirName, subdir.Name);
-                CopyDirectory(subdir.FullName, temppath);
-            }
-        }
-
-        public static void RunCommand(string command, string args)
-        {
-            Process p = new Process();
-            p.StartInfo = new ProcessStartInfo(command, args);
-            p.Start();
-            p.WaitForExit();
-        }
-
-        public static void RunCommand (string command, string args, string workingDirectory)
-        {
-            Process p = new Process();
-            p.StartInfo = new ProcessStartInfo(command, args);
-            p.StartInfo.WorkingDirectory = workingDirectory;
-            p.Start();
-            p.WaitForExit();
         }
     }
 }

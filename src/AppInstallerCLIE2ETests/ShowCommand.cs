@@ -1,19 +1,31 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
+// -----------------------------------------------------------------------------
+// <copyright file="ShowCommand.cs" company="Microsoft Corporation">
+//     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
+// </copyright>
+// -----------------------------------------------------------------------------
 
 namespace AppInstallerCLIE2ETests
 {
     using NUnit.Framework;
 
+    /// <summary>
+    /// Test show command.
+    /// </summary>
     public class ShowCommand : BaseCommand
     {
+        /// <summary>
+        /// Test show with no args.
+        /// </summary>
         [Test]
         public void ShowWithNoArgs()
         {
-            var result = TestCommon.RunAICLICommand("show", "");
+            var result = TestCommon.RunAICLICommand("show", string.Empty);
             Assert.AreEqual(Constants.ErrorCode.ERROR_INVALID_CL_ARGUMENTS, result.ExitCode);
         }
 
+        /// <summary>
+        /// Test show no match.
+        /// </summary>
         [Test]
         public void ShowWithNoMatches()
         {
@@ -23,6 +35,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("No package found matching input criteria."));
         }
 
+        /// <summary>
+        /// Test show with substring match.
+        /// </summary>
         [Test]
         public void ShowWithSubstringMatch()
         {
@@ -32,6 +47,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("No package found matching input criteria."));
         }
 
+        /// <summary>
+        /// Test show with name match.
+        /// </summary>
         [Test]
         public void ShowWithNameMatch()
         {
@@ -42,9 +60,12 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
         }
 
+        /// <summary>
+        /// Test show with id match.
+        /// </summary>
         [Test]
         public void ShowWithIDMatch()
-        { 
+        {
             var result = TestCommon.RunAICLICommand("show", $"--id appinstallertest.testexampleinstaller");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Found TestExampleInstaller [AppInstallerTest.TestExampleInstaller]"));
@@ -52,6 +73,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
         }
 
+        /// <summary>
+        /// Test show versions.
+        /// </summary>
         [Test]
         public void ShowWithVersions()
         {
@@ -63,6 +87,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("1.2.3.4"));
         }
 
+        /// <summary>
+        /// Test show with exact match name.
+        /// </summary>
         [Test]
         public void ShowWithExactName()
         {
@@ -73,6 +100,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
         }
 
+        /// <summary>
+        /// Test show with exact id.
+        /// </summary>
         [Test]
         public void ShowWithExactID()
         {
@@ -83,6 +113,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
         }
 
+        /// <summary>
+        /// Test show with exact args.
+        /// </summary>
         [Test]
         public void ShowWithExactArgCaseSensitivity()
         {

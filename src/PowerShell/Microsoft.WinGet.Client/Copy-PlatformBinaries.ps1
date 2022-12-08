@@ -30,7 +30,7 @@ param (
     $OutDir
 )
 
-# src\x64\Release\Project\net461\Library.Desktop.dll
+# src\x64\Release\Project\net48\Library.Desktop.dll
 # src\x64\Release\Project\net6.0-windows10.0.22000.0\Library.Core.dll
 
 # build\Module\x64\Desktop\Library.Desktop.dll
@@ -38,7 +38,7 @@ param (
 
 $CoreFramework = 'net6.0-windows10.0.22000.0'
 $CoreFolderName = 'Core'
-$DesktopFramework = 'net461'
+$DesktopFramework = 'net48'
 $DesktopFolderName = 'Desktop'
 $ProjectName = 'Microsoft.WinGet.Client'
 

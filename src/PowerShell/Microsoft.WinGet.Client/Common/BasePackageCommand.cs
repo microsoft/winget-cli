@@ -14,7 +14,7 @@ namespace Microsoft.WinGet.Client.Common
     using Microsoft.WinGet.Client.Errors;
 
     /// <summary>
-    /// This is the base class for commands which operate on a specific package & version i.e.,
+    /// This is the base class for commands which operate on a specific package and version i.e.,
     /// the "install", "uninstall", and "upgrade" commands.
     /// </summary>
     public class BasePackageCommand : BaseFinderCommand
@@ -25,7 +25,7 @@ namespace Microsoft.WinGet.Client.Common
         /// Gets or sets the package to directly install.
         /// </summary>
         /// <remarks>
-        /// Must match the name of the <see cref="Deployment.CatalogPackage" /> field on the <see cref="MatchResult" /> class.
+        /// Must match the name of the <see cref="CatalogPackage" /> field on the <see cref="MatchResult" /> class.
         /// </remarks>
         [Alias("InputObject")]
         [ValidateNotNull]

@@ -1,5 +1,8 @@
-﻿// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
+﻿// -----------------------------------------------------------------------------
+// <copyright file="BaseCommand.cs" company="Microsoft Corporation">
+//     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
+// </copyright>
+// -----------------------------------------------------------------------------
 
 namespace AppInstallerCLIE2ETests
 {
@@ -8,27 +11,45 @@ namespace AppInstallerCLIE2ETests
     using Newtonsoft.Json.Linq;
     using NUnit.Framework;
 
+    /// <summary>
+    /// Base command.
+    /// </summary>
     public class BaseCommand
     {
+        /// <summary>
+        /// Set up.
+        /// </summary>
         [OneTimeSetUp]
         public void BaseSetup()
         {
-            ResetTestSource();
+            this.ResetTestSource();
         }
 
+        /// <summary>
+        /// Tear down.
+        /// </summary>
         [OneTimeTearDown]
         public void BaseTeardown()
         {
             TestCommon.TearDownTestSource();
         }
 
-        // TODO: If/when cert pinning is implemented on the packaged index source, useGroupPolicyForTestSource should be set to default true
-        //       to enable testing it by default.  Until then, leaving this here...
+        /// <summary>
+        /// Reset test source.
+        /// </summary>
+        /// <param name="useGroupPolicyForTestSource">Use group policy from test source.</param>
         public void ResetTestSource(bool useGroupPolicyForTestSource = false)
         {
+            // TODO: If/when cert pinning is implemented on the packaged index source, useGroupPolicyForTestSource should be set to default true
+            //       to enable testing it by default.  Until then, leaving this here...
             TestCommon.SetupTestSource(useGroupPolicyForTestSource);
         }
 
+        /// <summary>
+        /// Configure experimental features.
+        /// </summary>
+        /// <param name="featureName">Feature name.</param>
+        /// <param name="status">Status.</param>
         public void ConfigureFeature(string featureName, bool status)
         {
             string localAppDataPath = Environment.GetEnvironmentVariable(Constants.LocalAppData);
@@ -39,6 +60,11 @@ namespace AppInstallerCLIE2ETests
             File.WriteAllText(Path.Combine(localAppDataPath, TestCommon.SettingsJsonFilePath), settingsJson.ToString());
         }
 
+        /// <summary>
+        /// Configure the install behavior.
+        /// </summary>
+        /// <param name="settingName">Setting name.</param>
+        /// <param name="value">Setting value.</param>
         public void ConfigureInstallBehavior(string settingName, string value)
         {
             string localAppDataPath = Environment.GetEnvironmentVariable(Constants.LocalAppData);
@@ -49,14 +75,18 @@ namespace AppInstallerCLIE2ETests
             File.WriteAllText(Path.Combine(localAppDataPath, TestCommon.SettingsJsonFilePath), settingsJson.ToString());
         }
 
+        /// <summary>
+        /// Initialize all features.
+        /// </summary>
+        /// <param name="status">Initialized feature value.</param>
         public void InitializeAllFeatures(bool status)
         {
-            ConfigureFeature("experimentalArg", status);
-            ConfigureFeature("experimentalCmd", status);
-            ConfigureFeature("dependencies", status);
-            ConfigureFeature("directMSI", status);
-            ConfigureFeature("zipInstall", status);
-            ConfigureFeature("openLogsArgument", status);
+            this.ConfigureFeature("experimentalArg", status);
+            this.ConfigureFeature("experimentalCmd", status);
+            this.ConfigureFeature("dependencies", status);
+            this.ConfigureFeature("directMSI", status);
+            this.ConfigureFeature("zipInstall", status);
+            this.ConfigureFeature("openLogsArgument", status);
         }
     }
 }
