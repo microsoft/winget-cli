@@ -232,8 +232,8 @@ namespace AppInstaller::Manifest
         }
 
     private:
-        std::string m_foldedId;
         string_t m_id;
+        std::string m_foldedId;
     };
 
     struct DependencyList
