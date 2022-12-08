@@ -410,6 +410,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeUnknownVersionCount);
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeUnknownVersionExplanation);
         WINGET_DEFINE_RESOURCE_STRINGID(Usage);
+        WINGET_DEFINE_RESOURCE_STRINGID(UserSettings);
         WINGET_DEFINE_RESOURCE_STRINGID(ValidateCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ValidateCommandReportDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(ValidateCommandShortDescription);

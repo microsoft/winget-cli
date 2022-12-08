@@ -23,7 +23,7 @@ namespace AppInstaller::Runtime
         constexpr std::string_view s_DefaultTempDirectory = "WinGet"sv;
         constexpr std::string_view s_AppDataDir_Settings = "Settings"sv;
         constexpr std::string_view s_AppDataDir_State = "State"sv;
-        constexpr std::string_view s_SecureSettings_Base = "Microsoft/WinGet"sv;
+        constexpr std::string_view s_SecureSettings_Base = "Microsoft\\WinGet"sv;
         constexpr std::string_view s_SecureSettings_UserRelative = "settings"sv;
         constexpr std::string_view s_SecureSettings_Relative_Unpackaged = "win"sv;
         constexpr std::string_view s_PortablePackageUserRoot_Base = "Microsoft"sv;
@@ -547,6 +547,10 @@ namespace AppInstaller::Runtime
         case PathName::PortableLinksMachineLocation:
             result = GetPathDetailsCommon(path);
             break;
+        case PathName::UserSettingsFileLocation:
+            result.Path = UserSettings::SettingsFilePath();
+            ReplaceCommonPathPrefix(result.Path, GetKnownFolderPath(FOLDERID_LocalAppData), "%LOCALAPPDATA%");
+            break;
         default:
             THROW_HR(E_UNEXPECTED);
         }
@@ -616,6 +620,10 @@ namespace AppInstaller::Runtime
         case PathName::PortableLinksUserLocation:
         case PathName::PortableLinksMachineLocation:
             result = GetPathDetailsCommon(path);
+            break;
+        case PathName::UserSettingsFileLocation:
+            result.Path = UserSettings::SettingsFilePath();
+            ReplaceCommonPathPrefix(result.Path, GetKnownFolderPath(FOLDERID_LocalAppData), "%LOCALAPPDATA%");
             break;
         default:
             THROW_HR(E_UNEXPECTED);

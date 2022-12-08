@@ -14,14 +14,16 @@ namespace AppInstaller::CLI::Workflow
 
     namespace
     {
-        struct AdminSettings
+        struct ExportSettingsJson
         {
-            AdminSettings()
+            ExportSettingsJson()
             {
+                // TODO: add schema
                 root["adminSettings"] = Json::ValueType::objectValue;
+                root["userSettingsFile"] = Runtime::GetPathTo(Runtime::PathName::UserSettingsFileLocation).u8string();
             }
 
-            void Add(AdminSetting setting)
+            void AddAdminSetting(AdminSetting setting)
             {
                 auto str = std::string{ Settings::AdminSettingToString(setting) };
                 root["adminSettings"][str] = Settings::IsAdminSettingEnabled(setting);
@@ -127,21 +129,17 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void ExportAdminSettings(Execution::Context& context)
+    void ExportSettings(Execution::Context& context)
     {
-        AdminSetting settings[] =
-        {
-            AdminSetting::LocalManifestFiles,
-            AdminSetting::BypassCertificatePinningForMicrosoftStore
-        };
+        ExportSettingsJson exportSettingsJson;
+        using AdminSetting_t = std::underlying_type_t<AdminSetting>;
 
-        AdminSettings adminSettings;
-
-        for (auto& setting : settings)
+        // Skip Unknown.
+        for (AdminSetting_t i = 1 + static_cast<AdminSetting_t>(AdminSetting::Unknown); i < static_cast<AdminSetting_t>(AdminSetting::Max); ++i)
         {
-            adminSettings.Add(setting);
+            exportSettingsJson.AddAdminSetting(static_cast<AdminSetting>(i));
         }
 
-        context.Reporter.Info() << adminSettings.ToJsonString() << std::endl;
+        context.Reporter.Info() << exportSettingsJson.ToJsonString() << std::endl;
     }
 }

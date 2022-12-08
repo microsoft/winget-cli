@@ -23,9 +23,9 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void OpenUserSetting(Execution::Context& context);
 
-    // Lists the state of admin settings.
+    // Lists the state of settings.
     // Required Args: None
     // Inputs: None
     // Outputs: None
-    void ExportAdminSettings(Execution::Context& context);
+    void ExportSettings(Execution::Context& context);
 }

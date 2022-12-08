@@ -106,7 +106,6 @@ namespace AppInstaller::CLI
     void SettingsExportCommand::ExecuteInternal(Execution::Context& context) const
     {
         context <<
-            Workflow::EnsureRunningAsAdmin <<
-            Workflow::ExportAdminSettings;
+            Workflow::ExportSettings;
     }
 }

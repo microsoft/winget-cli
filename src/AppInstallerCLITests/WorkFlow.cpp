@@ -3735,13 +3735,16 @@ TEST_CASE("Export_Settings", "[Settings][workflow]")
         std::ostringstream exportOutput;
         TestContext context{ exportOutput, std::cin };
         auto previousThreadGlobals = context.SetForCurrentThread();
-        context.Override({ EnsureRunningAsAdmin, [](TestContext&) {} });
         SettingsExportCommand settingsExportCommand({});
         settingsExportCommand.Execute(context);
 
         auto json = ConvertToJson(exportOutput.str());
         REQUIRE(!json.isNull());
         REQUIRE_FALSE(json["adminSettings"]["LocalManifestFiles"].asBool());
+
+        auto userSettingsFileValue = std::string(json["userSettingsFile"].asCString());
+        REQUIRE(userSettingsFileValue.find("%LOCALAPPDATA%") != std::string::npos);
+        REQUIRE(userSettingsFileValue.find("settings.json") != std::string::npos);
     }
 
     {
@@ -3757,11 +3760,14 @@ TEST_CASE("Export_Settings", "[Settings][workflow]")
         std::ostringstream exportOutput;
         TestContext context2{ exportOutput, std::cin };
         auto previousThreadGlobals2 = context2.SetForCurrentThread();
-        context2.Override({ EnsureRunningAsAdmin, [](TestContext&) {} });
         SettingsExportCommand settingsExportCommand({});
         settingsExportCommand.Execute(context2);
         auto json = ConvertToJson(exportOutput.str());
         REQUIRE(!json.isNull());
         REQUIRE(json["adminSettings"]["LocalManifestFiles"].asBool());
+
+        auto userSettingsFileValue = std::string(json["userSettingsFile"].asCString());
+        REQUIRE(userSettingsFileValue.find("%LOCALAPPDATA%") != std::string::npos);
+        REQUIRE(userSettingsFileValue.find("settings.json") != std::string::npos);
     }
 }

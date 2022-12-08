@@ -7,12 +7,12 @@
 namespace AppInstaller::Settings
 {
     // Enum of admin settings.
-    // When a new one is added, it should be also added to SettingsCommand::ExportAdminSettings
     enum class AdminSetting
     {
-        Unknown,
+        Unknown = 0,
         LocalManifestFiles,
         BypassCertificatePinningForMicrosoftStore,
+        Max,
     };
 
     AdminSetting StringToAdminSetting(std::string_view in);
