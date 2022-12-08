@@ -3516,9 +3516,9 @@ TEST_CASE("DependencyGraph_StackOrderIsOk", "[InstallFlow][workflow][dependencyG
 
     // Verify installers are called in order
     REQUIRE(installationOrder.size() == 3);
-    REQUIRE(installationOrder.at(0).Id == "B");
-    REQUIRE(installationOrder.at(1).Id == "C");
-    REQUIRE(installationOrder.at(2).Id == "StackOrderIsOk");
+    REQUIRE(installationOrder.at(0).Id() == "B");
+    REQUIRE(installationOrder.at(1).Id() == "C");
+    REQUIRE(installationOrder.at(2).Id() == "StackOrderIsOk");
 }
 
 TEST_CASE("InstallerWithoutDependencies_RootDependenciesAreUsed", "[dependencies]")

@@ -202,14 +202,15 @@ namespace AppInstaller::Manifest
     struct Dependency
     {
         DependencyType Type;
-        string_t Id;
+        string_t Id() const { return m_id; };
         std::optional<Utility::Version> MinVersion;
 
-        Dependency(DependencyType type, string_t id, string_t minVersion) : Type(type), Id(std::move(id)), MinVersion(Utility::Version(minVersion)), m_foldedId(FoldCase(Id)) {}
-        Dependency(DependencyType type, string_t id) : Type(type), Id(std::move(id)), m_foldedId(FoldCase(Id)){}
+        Dependency(DependencyType type, string_t id, string_t minVersion) : Type(type), m_id(std::move(id)), MinVersion(Utility::Version(minVersion)), m_foldedId(FoldCase(m_id)) {}
+        Dependency(DependencyType type, string_t id) : Type(type), m_id(std::move(id)), m_foldedId(FoldCase(m_id)){}
         Dependency(DependencyType type) : Type(type) {}
 
-        bool operator==(const Dependency& rhs) const {
+        bool operator ==(const Dependency& rhs) const
+        {
             return Type == rhs.Type && m_foldedId == rhs.m_foldedId && MinVersion == rhs.MinVersion;
         }
 
@@ -223,8 +224,16 @@ namespace AppInstaller::Manifest
             return MinVersion <= Utility::Version(version);
         }
 
+        // m_foldedId should be set whenever Id is set
+        void SetId(string_t id)
+        {
+            m_id = std::move(id);
+            m_foldedId = FoldCase(m_id);
+        }
+
     private:
         std::string m_foldedId;
+        string_t m_id;
     };
 
     struct DependencyList
