@@ -47,7 +47,7 @@ namespace AppInstaller::Utility::HttpStream
 
         void VacateStaleEntriesFromCache();
 
-        std::future<void> DownloadAndSaveToCacheAysnc(
+        std::future<void> DownloadAndSaveToCacheAsync(
             const std::vector<ULONG64> unsatisfiablePages,
             HttpClientWrapper* httpClientWrapper,
             const winrt::Windows::Storage::Streams::InputStreamOptions httpInputStreamOptions);

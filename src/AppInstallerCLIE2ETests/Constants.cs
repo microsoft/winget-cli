@@ -1,10 +1,19 @@
-﻿// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
+﻿// -----------------------------------------------------------------------------
+// <copyright file="Constants.cs" company="Microsoft Corporation">
+//     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
+// </copyright>
+// -----------------------------------------------------------------------------
 
 namespace AppInstallerCLIE2ETests
 {
+    /// <summary>
+    /// Constants.
+    /// </summary>
     public class Constants
     {
+#pragma warning disable SA1600 // ElementsMustBeDocumented
+#pragma warning disable SA1310 // Field names should not contain underscore
+
         // Runtime test parameters
         public const string PackagedContextParameter = "PackagedContext";
         public const string AICLIPathParameter = "AICLIPath";
@@ -17,6 +26,7 @@ namespace AppInstallerCLIE2ETests
         public const string MsiInstallerPathParameter = "MsiTestInstallerPath";
         public const string MsixInstallerPathParameter = "MsixTestInstallerPath";
         public const string PackageCertificatePathParameter = "PackageCertificatePath";
+        public const string PowerShellModulePathParameter = "PowerShellModulePath";
         public const string AppInstallerTestCert = "AppInstallerTest.cer";
         public const string AppInstallerTestCertThumbprint = "d03e7a688b388b1edde8476a627531c49db88017";
 
@@ -74,12 +84,22 @@ namespace AppInstallerCLIE2ETests
         public const string TestExeUninstallerFileName = "UninstallTestExe.bat";
         public const string TestExeUninstalledFileName = "TestExeUninstalled.txt";
 
+        // PowerShell Cmdlets
+        public const string FindCmdlet = "Find-WinGetPackage";
+        public const string GetCmdlet = "Get-WinGetPackage";
+        public const string GetSourceCmdlet = "Get-WinGetSource";
+        public const string InstallCmdlet = "Install-WinGetPackage";
+        public const string UninstallCmdlet = "Uninstall-WinGetPackage";
+        public const string UpdateCmdlet = "Update-WinGetPackage";
+
+        public const string WindowsPackageManagerServer = "WindowsPackageManagerServer";
+
         // Locations
         public const string LocalAppData = "LocalAppData";
 
         // Package dir
         public const string PortableExePackageDirName = $"{PortableExePackageId}_{TestSourceIdentifier}";
-        public const string PortableExeWithCommandPackageDirName =  $"{PortableExeWithCommandPackageId}_{TestSourceIdentifier}";
+        public const string PortableExeWithCommandPackageDirName = $"{PortableExeWithCommandPackageId}_{TestSourceIdentifier}";
 
         // Registry keys
         public const string WinGetPackageIdentifier = "WinGetPackageIdentifier";
@@ -92,6 +112,9 @@ namespace AppInstallerCLIE2ETests
         public const string PortablePackageUserRoot = "portablePackageUserRoot";
         public const string PortablePackageMachineRoot = "portablePackageMachineRoot";
 
+        /// <summary>
+        /// Error codes.
+        /// </summary>
         public class ErrorCode
         {
             public const int S_OK = 0;
@@ -229,5 +252,8 @@ namespace AppInstallerCLIE2ETests
             public const int INSTALLED_STATUS_FILE_FOUND_WITHOUT_HASH_CHECK = unchecked((int)0x0A150206);
             public const int INSTALLED_STATUS_FILE_ACCESS_ERROR = unchecked((int)0x8A150207);
         }
+
+#pragma warning restore SA1310 // Field names should not contain underscore
+#pragma warning restore SA1600 // ElementsMustBeDocumented
     }
 }

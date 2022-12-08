@@ -1,16 +1,25 @@
-﻿// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
+﻿// -----------------------------------------------------------------------------
+// <copyright file="WinGetUtilInstallerMetadataCollection.cs" company="Microsoft Corporation">
+//     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
+// </copyright>
+// -----------------------------------------------------------------------------
 
 namespace AppInstallerCLIE2ETests.WinGetUtil
 {
-    using Newtonsoft.Json;
-    using NUnit.Framework;
     using System;
     using System.IO;
     using System.Runtime.InteropServices;
+    using Newtonsoft.Json;
+    using NUnit.Framework;
 
+    /// <summary>
+    /// Test winget util installer metadata.
+    /// </summary>
     public class WinGetUtilInstallerMetadataCollection
     {
+        /// <summary>
+        /// Test begin complete installer metadata.
+        /// </summary>
         [Test]
         public void WinGetUtil_BeginCompleteInstallerMetadataCollection()
         {
@@ -36,6 +45,9 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
             Assert.IsNotEmpty(JsonConvert.DeserializeObject(outputJson).ToString());
         }
 
+        /// <summary>
+        /// Test merge installer metadata.
+        /// </summary>
         [Test]
         public void WinGetUtil_MergeInstallerMetadata_Success()
         {
@@ -54,6 +66,9 @@ namespace AppInstallerCLIE2ETests.WinGetUtil
             Assert.IsNotEmpty(JsonConvert.DeserializeObject(outputJson).ToString());
         }
 
+        /// <summary>
+        /// Test merge installer metadata failed.
+        /// </summary>
         [Test]
         public void WinGetUtil_MergeInstallerMetadata_Fail_SubmissionMismatch()
         {

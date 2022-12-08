@@ -10,6 +10,9 @@
 #include "WindowsPackageManager.h"
 
 #include <AppInstallerCLICore.h>
+#include <AppInstallerFileLogger.h>
+#include <AppInstallerStrings.h>
+#include <AppInstallerTelemetry.h>
 #include <ComClsids.h>
 
 using namespace winrt::Microsoft::Management::Deployment;
@@ -55,6 +58,21 @@ extern "C"
     WINDOWS_PACKAGE_MANAGER_API WindowsPackageManagerServerModuleUnregister() try
     {
         RETURN_HR(::Microsoft::WRL::Module<::Microsoft::WRL::ModuleType::OutOfProc>::GetModule().UnregisterObjects());
+    }
+    CATCH_RETURN();
+
+    void WINDOWS_PACKAGE_MANAGER_API_CALLING_CONVENTION WindowsPackageManagerServerWilResultLoggingCallback(const wil::FailureInfo& failure) noexcept try
+    {
+        AppInstaller::Logging::Telemetry().LogFailure(failure);
+    }
+    CATCH_LOG();
+
+    WINDOWS_PACKAGE_MANAGER_API WindowsPackageManagerServerCreateInstance(REFCLSID rclsid, REFIID riid, void** out) try
+    {
+        RETURN_HR_IF_NULL(E_POINTER, out);
+        ::Microsoft::WRL::ComPtr<IClassFactory> factory;
+        RETURN_IF_FAILED(::Microsoft::WRL::Module<::Microsoft::WRL::ModuleType::OutOfProc>::GetModule().GetClassObject(rclsid, IID_PPV_ARGS(&factory)));
+        RETURN_HR(factory->CreateInstance(nullptr, riid, out));
     }
     CATCH_RETURN();
 

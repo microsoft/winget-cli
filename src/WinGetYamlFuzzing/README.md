@@ -2,7 +2,7 @@
 The goal of this project is to create a [libFuzzer](http://llvm.org/docs/LibFuzzer.html) based fuzzer for our YAML manifest parsing.
 
 ## Issues
-There is a known issue that is fixed in LLVM 12 for running on Windows, and the only known method to build a successful fuzzer is to manually build a local copy of libFuzzer and link it in to this project.
+There is a known issue that is fixed in LLVM 12 for running on Windows, and the only known method to build a successful fuzzer is to manually build a local copy of libFuzzer and link it into this project.
 
 ## Building
 

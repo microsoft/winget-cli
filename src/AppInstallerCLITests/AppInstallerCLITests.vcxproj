@@ -264,6 +264,9 @@
     <CopyFileToFolders Include="TestData\InstallFlowTest_Exe.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallFlowTest_InvalidFileCharacterUrl.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_Msix_DownloadFlow.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
@@ -298,6 +301,9 @@
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_Portable_WithCommand.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallFlowTest_UnknownVersion.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_UnsupportedArguments.yaml">

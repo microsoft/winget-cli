@@ -213,12 +213,6 @@ jobs:
       CleanTargetFolder: false
       OverWrite: true
 
-  - template: templates/e2e-test.template.yml
-    parameters:
-      title: "E2E Tests Packaged"
-      isPackaged: true
-      filter: "TestCategory!=InProcess&TestCategory!=OutOfProcess"
-
   - task: PowerShell@2
     displayName: 'Set program files directory'
     inputs:
@@ -238,12 +232,6 @@ jobs:
       TargetFolder:  '$(platformProgramFiles)\dotnet'
       Contents: resources.pri
 
-  - template: templates/e2e-test.template.yml
-    parameters:
-      title: "COM API E2E Tests (In-process)"
-      isPackaged: false
-      filter: "TestCategory=InProcess"
-
   # Winmd accessed by test runner process (dotnet.exe)
   - task: CopyFiles@2
     displayName: 'Copy winmd to dotnet directory'
@@ -259,6 +247,18 @@ jobs:
       SourceFolder: '$(buildOutDir)\Microsoft.Management.Deployment'
       TargetFolder:  'src\AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration)'
       Contents: Microsoft.Management.Deployment.winmd
+
+  - template: templates/e2e-test.template.yml
+    parameters:
+      title: "E2E Tests Packaged"
+      isPackaged: true
+      filter: "TestCategory!=InProcess&TestCategory!=OutOfProcess"
+
+  - template: templates/e2e-test.template.yml
+    parameters:
+      title: "COM API E2E Tests (In-process)"
+      isPackaged: false
+      filter: "TestCategory=InProcess"
 
   - template: templates/e2e-test.template.yml
     parameters:
@@ -300,11 +300,12 @@ jobs:
       TargetFolder: '$(artifactsDir)'
     condition: succeededOrFailed()
 
-  - task: PowerShell@2
-    displayName: 'Copy PowerShell Module Binaries to Output'
+  - task: CopyFiles@2
+    displayName: 'Copy PowerShell Module Files'
     inputs:
-      filePath: 'src\PowerShell\Microsoft.WinGet.Client\Copy-PlatformBinaries.ps1'
-      arguments: '-Platform $(buildPlatform) -Configuration $(buildConfiguration) -OutDir $(artifactsDir)\PowerShell'
+      SourceFolder: '$(buildOutDir)\PowerShell'
+      TargetFolder: '$(artifactsDir)\PowerShell'
+    condition: always()
 
   - task: PublishPipelineArtifact@1
     displayName: Publish Pipeline Artifacts
@@ -323,7 +324,14 @@ jobs:
   - task: BinSkim@3
     displayName: 'Run BinSkim '
     inputs:
-      arguments: 'analyze "$(System.DefaultWorkingDirectory)\src\win*get.exe" "$(System.DefaultWorkingDirectory)\src\WinGet*Util.dll" "$(System.DefaultWorkingDirectory)\src\Windows*PackageManager.dll" "$(System.DefaultWorkingDirectory)\src\Microsoft.Management.Deployment.*InProc.dll" --config default --recurse'
+      arguments: 'analyze
+        "$(buildOutDir)\AppInstallerCLI\winget.exe"
+        "$(buildOutDir)\WinGetUtil\WinGetUtil.dll"
+        "$(buildOutDir)\WindowsPackageManager\WindowsPackageManager.dll"
+        "$(buildOutDir)\Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.InProc.dll"
+        "$(Build.SourcesDirectory)\src\WinGetUtilInterop\bin\WinGetUtil*Interop.dll"
+        "$(buildOutDir)\UndockedRegFreeWinRT\winrtact.dll"
+        "$(buildOutDir)\Microsoft.WinGet.Client\Microsoft.WinGet.*Client.dll" --config default --recurse'
 
   - task: securedevelopmentteam.vss-secure-development-tools.build-task-publishsecurityanalysislogs.PublishSecurityAnalysisLogs@2
     displayName: 'Publish Security Analysis Logs'
@@ -351,12 +359,6 @@ jobs:
       Contents: '**\*'
       TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
-  - task: PowerShell@2
-    displayName: 'Copy PowerShell Module Files to Output'
-    inputs:
-      filePath: 'src\PowerShell\Microsoft.WinGet.Client\Copy-ModuleFiles.ps1'
-      arguments: '-OutDir $(Build.ArtifactStagingDirectory)'
-  
   - task: PublishPipelineArtifact@1
     displayName: Publish PowerShell Module Artifacts
     inputs:

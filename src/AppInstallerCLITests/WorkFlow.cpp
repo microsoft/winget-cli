@@ -258,6 +258,23 @@ namespace
                         PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestMSStoreInstaller")));
             }
 
+            if (input.empty() || input == "TestExeInstallerWithUnknownVersion")
+            {
+                auto installed = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_UnknownVersion.yaml"));
+                auto available = installed;
+                // Override the installed version to be unknown.
+                installed.Version = "unknown";
+                result.Matches.emplace_back(
+                    ResultMatch(
+                        TestPackage::Make(
+                            installed,
+                            TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Exe" } },
+                            std::vector<Manifest>{ available },
+                            shared_from_this()
+                        ),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeUnknownVersion")));
+            }
+
             if (input == "TestExeInstallerWithLatestInstalled")
             {
                 auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
@@ -928,6 +945,38 @@ TEST_CASE("InstallFlow_RenameFromEncodedUrl", "[InstallFlow][workflow]")
     std::string installResultStr;
     std::getline(installResultFile, installResultStr);
     REQUIRE(installResultStr.find("/encodedUrl") != std::string::npos);
+}
+
+TEST_CASE("InstallFlow_RenameFromInvalidFileCharacterUrl", "[InstallFlow][workflow]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCheckExistingInstaller(context);
+    context.Override({ DownloadInstallerFile, [](TestContext& context)
+    {
+        context.Add<Data::HashPair>({ {}, {} });
+        auto installerPath = std::filesystem::temp_directory_path();
+        installerPath /= "InvalidFileCharacterUrlTest.exe";
+        std::filesystem::copy(TestDataFile("AppInstallerTestExeInstaller.exe"), installerPath, std::filesystem::copy_options::overwrite_existing);
+        context.Add<Data::InstallerPath>(installerPath);
+    } });
+    OverrideForUpdateInstallerMotw(context);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_InvalidFileCharacterUrl.yaml").GetPath().u8string());
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify Installer is called and parameters are passed in.
+    REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
+    std::ifstream installResultFile(installResultPath.GetPath());
+    REQUIRE(installResultFile.is_open());
+    std::string installResultStr;
+    std::getline(installResultFile, installResultStr);
+    REQUIRE(installResultStr.find("/invalidFileCharacterUrl") != std::string::npos);
 }
 
 TEST_CASE("InstallFlowNonZeroExitCode", "[InstallFlow][workflow]")
@@ -2159,6 +2208,84 @@ TEST_CASE("UpdateFlow_UpdateExeWithUnsupportedArgs", "[UpdateFlow][workflow]")
     REQUIRE(updateOutput.str().find("-l,--location") != std::string::npos);
 }
 
+TEST_CASE("UpdateFlow_UnknownVersion", "[UpdateFlow][workflow]")
+{
+    TestCommon::TempFile updateResultPath("TestExeInstalled.txt");
+    TestCommon::TempDirectory tempDirectory("TempDirectory", false);
+
+    std::ostringstream updateOutput;
+    TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context);
+    context.Args.AddArg(Execution::Args::Type::Query, "TestExeInstallerWithUnknownVersion"sv);
+    context.Args.AddArg(Execution::Args::Type::InstallLocation, tempDirectory);
+
+    UpgradeCommand update({});
+    context.SetExecutingCommand(&update);
+    update.Execute(context);
+    INFO(updateOutput.str());
+
+    // Verify help message is shown the user to use --include-unknown
+    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
+    REQUIRE(!std::filesystem::exists(updateResultPath.GetPath()));
+    REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::UpgradeUnknownVersionExplanation).get()) != std::string::npos);
+}
+
+TEST_CASE("UpdateFlow_UnknownVersion_IncludeUnknownArg", "[UpdateFlow][workflow]")
+{
+    TestCommon::TempFile updateResultPath("TestExeInstalled.txt");
+    TestCommon::TempDirectory tempDirectory("TempDirectory", false);
+
+    std::ostringstream updateOutput;
+    TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context);
+    OverrideForShellExecute(context);
+    context.Args.AddArg(Execution::Args::Type::Query, "TestExeInstallerWithUnknownVersion"sv);
+    context.Args.AddArg(Execution::Args::Type::InstallLocation, tempDirectory);
+    context.Args.AddArg(Execution::Args::Type::IncludeUnknown);
+
+    UpgradeCommand update({});
+    context.SetExecutingCommand(&update);
+    update.Execute(context);
+    INFO(updateOutput.str());
+    REQUIRE(std::filesystem::exists(updateResultPath.GetPath()));
+}
+
+TEST_CASE("UpdateFlow_NoArgs_UnknownVersion", "[UpdateFlow][workflow]")
+{
+    std::ostringstream updateOutput;
+    TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context);
+
+    UpgradeCommand update({});
+    context.SetExecutingCommand(&update);
+    update.Execute(context);
+    INFO(updateOutput.str());
+
+    // Verify --include-unknown help text is displayed if update is executed with no args and an unknown version package is available for upgrade.
+    REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::UpgradeUnknownVersionCount).get()) != std::string::npos);
+}
+
+TEST_CASE("UpdateFlow_IncludeUnknown", "[UpdateFlow][workflow]")
+{
+    std::ostringstream updateOutput;
+    TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context);
+    context.Args.AddArg(Execution::Args::Type::IncludeUnknown);
+
+    UpgradeCommand update({});
+    context.SetExecutingCommand(&update);
+    update.Execute(context);
+    INFO(updateOutput.str());
+
+    // Verify unknown version package is displayed available for upgrade.
+    REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::UpgradeUnknownVersionCount).get()) == std::string::npos);
+    REQUIRE(updateOutput.str().find("unknown") != std::string::npos);
+}
+
 TEST_CASE("UpdateFlow_UpdatePortableWithManifest", "[UpdateFlow][workflow]")
 {
     TestCommon::TempFile updateResultPath("TestPortableInstalled.txt");
@@ -2363,6 +2490,43 @@ TEST_CASE("UpdateFlow_UpdateAllApplicable", "[UpdateFlow][workflow]")
     UpgradeCommand update({});
     update.Execute(context);
     INFO(updateOutput.str());
+
+    // Verify that --include-unknown help message is displayed.
+    REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::UpgradeUnknownVersionCount).get()) != std::string::npos);
+    REQUIRE(updateOutput.str().find("AppInstallerCliTest.TestExeUnknownVersion") == std::string::npos);
+
+    // Verify installers are called.
+    REQUIRE(std::filesystem::exists(updateExeResultPath.GetPath()));
+    REQUIRE(std::filesystem::exists(updateMsixResultPath.GetPath()));
+    REQUIRE(std::filesystem::exists(updateMSStoreResultPath.GetPath()));
+    REQUIRE(std::filesystem::exists(updatePortableResultPath.GetPath()));
+}
+
+TEST_CASE("UpdateFlow_UpdateAll_IncludeUnknown", "[UpdateFlow][workflow]")
+{
+    TestCommon::TempFile updateExeResultPath("TestExeInstalled.txt");
+    TestCommon::TempFile updateMsixResultPath("TestMsixInstalled.txt");
+    TestCommon::TempFile updateMSStoreResultPath("TestMSStoreUpdated.txt");
+    TestCommon::TempFile updatePortableResultPath("TestPortableInstalled.txt");
+
+    std::ostringstream updateOutput;
+    TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context);
+    OverrideForShellExecute(context);
+    OverrideForMSIX(context);
+    OverrideForMSStore(context, true);
+    OverrideForPortableInstall(context);
+    context.Args.AddArg(Execution::Args::Type::All);
+    context.Args.AddArg(Execution::Args::Type::IncludeUnknown);
+
+    UpgradeCommand update({});
+    update.Execute(context);
+    INFO(updateOutput.str());
+
+    // Verify that --include-unknown help message is NOT displayed and unknown version package is upgraded.
+    REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::UpgradeUnknownVersionCount).get()) == std::string::npos);
+    REQUIRE(updateOutput.str().find("AppInstallerCliTest.TestExeUnknownVersion") != std::string::npos);
 
     // Verify installers are called.
     REQUIRE(std::filesystem::exists(updateExeResultPath.GetPath()));
@@ -2735,7 +2899,7 @@ TEST_CASE("ExportFlow_ExportAll", "[ExportFlow][workflow]")
     REQUIRE(exportedCollection.Sources[0].Details.Identifier == "*TestSource");
 
     const auto& exportedPackages = exportedCollection.Sources[0].Packages;
-    REQUIRE(exportedPackages.size() == 5);
+    REQUIRE(exportedPackages.size() == 6);
     REQUIRE(exportedPackages.end() != std::find_if(exportedPackages.begin(), exportedPackages.end(), [](const auto& p)
         {
             return p.Id == "AppInstallerCliTest.TestExeInstaller" && p.VersionAndChannel.GetVersion().ToString().empty();
@@ -2755,6 +2919,10 @@ TEST_CASE("ExportFlow_ExportAll", "[ExportFlow][workflow]")
     REQUIRE(exportedPackages.end() != std::find_if(exportedPackages.begin(), exportedPackages.end(), [](const auto& p)
         {
             return p.Id == "AppInstallerCliTest.TestZipInstaller" && p.VersionAndChannel.GetVersion().ToString().empty();
+        }));
+    REQUIRE(exportedPackages.end() != std::find_if(exportedPackages.begin(), exportedPackages.end(), [](const auto& p)
+        {
+            return p.Id == "AppInstallerCliTest.TestExeUnknownVersion" && p.VersionAndChannel.GetVersion().ToString().empty();
         }));
 }
 
@@ -2779,7 +2947,7 @@ TEST_CASE("ExportFlow_ExportAll_WithVersions", "[ExportFlow][workflow]")
     REQUIRE(exportedCollection.Sources[0].Details.Identifier == "*TestSource");
 
     const auto& exportedPackages = exportedCollection.Sources[0].Packages;
-    REQUIRE(exportedPackages.size() == 5);
+    REQUIRE(exportedPackages.size() == 6);
     REQUIRE(exportedPackages.end() != std::find_if(exportedPackages.begin(), exportedPackages.end(), [](const auto& p)
         {
             return p.Id == "AppInstallerCliTest.TestExeInstaller" && p.VersionAndChannel.GetVersion().ToString() == "1.0.0.0";
@@ -2799,6 +2967,10 @@ TEST_CASE("ExportFlow_ExportAll_WithVersions", "[ExportFlow][workflow]")
     REQUIRE(exportedPackages.end() != std::find_if(exportedPackages.begin(), exportedPackages.end(), [](const auto& p)
         {
             return p.Id == "AppInstallerCliTest.TestZipInstaller" && p.VersionAndChannel.GetVersion().ToString() == "1.0.0.0";
+        }));
+    REQUIRE(exportedPackages.end() != std::find_if(exportedPackages.begin(), exportedPackages.end(), [](const auto& p)
+        {
+            return p.Id == "AppInstallerCliTest.TestExeUnknownVersion" && p.VersionAndChannel.GetVersion().ToString() == "unknown";
         }));
 }
 

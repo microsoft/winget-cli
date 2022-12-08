@@ -37,5 +37,18 @@ namespace Microsoft.WinGet.Client.Common
                 return principal.IsInRole(WindowsBuiltInRole.Administrator);
             }
         }
+
+        /// <summary>
+        /// Gets a value indicating whether the current assembly is executing as a SYSTEM user.
+        /// </summary>
+        public static bool ExecutingAsSystem
+        {
+            get
+            {
+                WindowsIdentity identity = WindowsIdentity.GetCurrent();
+                WindowsPrincipal principal = new (identity);
+                return principal.IsInRole(WindowsBuiltInRole.SystemOperator);
+            }
+        }
     }
 }
