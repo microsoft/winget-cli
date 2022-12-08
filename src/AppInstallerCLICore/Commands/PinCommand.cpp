@@ -13,7 +13,6 @@ namespace AppInstaller::CLI
     using namespace AppInstaller::Utility::literals;
     using namespace std::string_view_literals;
 
-    // TODO: Create this link with the docs!
     static constexpr std::string_view s_PinCommand_HelpLink = "https://aka.ms/winget-command-pin"sv;
 
     std::vector<std::unique_ptr<Command>> PinCommand::GetCommands() const
@@ -123,7 +122,6 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Exact),
             Argument::ForType(Args::Type::CustomHeader),
             Argument::ForType(Args::Type::AcceptSourceAgreements),
-            Argument::ForType(Args::Type::Force),
         };
     }
 

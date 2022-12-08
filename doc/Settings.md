@@ -266,7 +266,7 @@ Experimental feature with the aim of managing dependencies, as of now it only sh
 
 ### pinning
 
-This feature enables the ability to pin packages to a specific version to prevent the Windows Package Manager from updating them.
+This feature enables the ability to pin packages to prevent the Windows Package Manager from updating them.
 You can enable the feature as shown below.
 
 ```json
