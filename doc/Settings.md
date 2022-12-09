@@ -253,12 +253,24 @@ You can enable the feature as shown below.
        "openLogsArgument": true
    },
 ```
-### Dependencies
+
+### dependencies
 
 Experimental feature with the aim of managing dependencies, as of now it only shows package dependency information. You can enable the feature as shown below.
 
 ```json
    "experimentalFeatures": {
        "dependencies": true
+   },
+```
+
+### pinning
+
+This feature enables the ability to pin packages to prevent the Windows Package Manager from updating them.
+You can enable the feature as shown below.
+
+```json
+   "experimentalFeatures": {
+       "pinning": true
    },
 ```

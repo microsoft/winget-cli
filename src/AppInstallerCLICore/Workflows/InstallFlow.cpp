@@ -515,7 +515,7 @@ namespace AppInstaller::CLI::Workflow
         bool allSucceeded = true;
         size_t packagesCount = context.Get<Execution::Data::PackagesToInstall>().size();
         size_t packagesProgress = 0;
-        
+
         for (auto& packageContext : context.Get<Execution::Data::PackagesToInstall>())
         {
             packagesProgress++;
@@ -557,6 +557,10 @@ namespace AppInstaller::CLI::Workflow
                 if (m_ignorableInstallResults.end() == std::find(m_ignorableInstallResults.begin(), m_ignorableInstallResults.end(), installContext.GetTerminationHR()))
                 {
                     allSucceeded = false;
+                    if (m_stopOnFailure)
+                    {
+                        break;
+                    }
                 }
             }
         }

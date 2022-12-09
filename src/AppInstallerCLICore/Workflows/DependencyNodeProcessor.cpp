@@ -19,7 +19,7 @@ namespace AppInstaller::CLI::Workflow
         auto error = m_context.Reporter.Error();
         auto info = m_context.Reporter.Info();
 
-        searchRequest.Filters.emplace_back(PackageMatchFilter(PackageMatchField::Id, MatchType::CaseInsensitive, dependencyNode.Id));
+        searchRequest.Filters.emplace_back(PackageMatchFilter(PackageMatchField::Id, MatchType::CaseInsensitive, dependencyNode.Id()));
 
         const auto& matches = source.Search(searchRequest).Matches;
 
@@ -31,9 +31,9 @@ namespace AppInstaller::CLI::Workflow
 
         if (matches.size() > 1)
         {
-            auto dependencyNodeId = Utility::LocIndString{ Utility::Normalize(dependencyNode.Id) };
+            auto dependencyNodeId = Utility::LocIndString{ Utility::Normalize(dependencyNode.Id()) };
             error << Resource::String::DependenciesFlowSourceTooManyMatches(dependencyNodeId);
-            AICLI_LOG(CLI, Error, << "Too many matches for package " << dependencyNode.Id);
+            AICLI_LOG(CLI, Error, << "Too many matches for package " << dependencyNode.Id());
             return DependencyNodeProcessorResult::Error;
         }
 

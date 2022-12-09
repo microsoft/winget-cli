@@ -36,6 +36,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableOptions);
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableSubcommands);
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableUpgrades);
+        WINGET_DEFINE_RESOURCE_STRINGID(BothGatedVersionAndBlockingFlagProvided);
         WINGET_DEFINE_RESOURCE_STRINGID(BothManifestAndSearchQueryProvided);
         WINGET_DEFINE_RESOURCE_STRINGID(BothPurgeAndPreserveFlagsProvided);
         WINGET_DEFINE_RESOURCE_STRINGID(Cancelled);
@@ -97,6 +98,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(FilesRemainInInstallDirectory);
         WINGET_DEFINE_RESOURCE_STRINGID(FlagContainAdjoinedError);
         WINGET_DEFINE_RESOURCE_STRINGID(ForceArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(GatedVersionArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(GetManifestResultVersionNotFound);
         WINGET_DEFINE_RESOURCE_STRINGID(HashCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(HashCommandShortDescription);
@@ -237,6 +239,17 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(PackageAlreadyInstalled);
         WINGET_DEFINE_RESOURCE_STRINGID(PackageDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(PendingWorkError);
+        WINGET_DEFINE_RESOURCE_STRINGID(PinAddBlockingArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(PinAddCommandLongDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(PinAddCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(PinCommandLongDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(PinCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(PinListCommandLongDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(PinListCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(PinRemoveCommandLongDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(PinRemoveCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(PinResetCommandLongDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(PinResetCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PoliciesDisabled);
         WINGET_DEFINE_RESOURCE_STRINGID(PoliciesEnabled);
         WINGET_DEFINE_RESOURCE_STRINGID(PoliciesPolicy);

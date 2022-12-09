@@ -1539,4 +1539,45 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Cannot disable {0}. This setting is controlled by policy. For more information contact your system administrator.</value>
     <comment>{Locked="{0}"} The value will be replaced with the feature name</comment>
   </data>
+  <data name="PinAddCommandLongDescription" xml:space="preserve">
+    <value>Add a new pin. A pin can limit the Windows Package Manager from updating a package to specific ranges of versions, or it can prevent it from updating the package altogether. A pinned package may still update on its own and be updated from outside the Windows Package Manager. By default, a pinned package can be updated by mentioning it explicitly in the 'upgrade' command or by adding the '--include-pinned' flag to 'winget upgrade --all'.</value>
+    <comment>{Locked{"'upgrade'"} Locked{"--include-pinned"} Locked{"winget upgrade --all"}</comment>
+  </data>
+  <data name="PinAddCommandShortDescription" xml:space="preserve">
+    <value>Add a new pin</value>
+  </data>
+  <data name="PinCommandLongDescription" xml:space="preserve">
+    <value>Manage package pins with the sub-commands. A pin can limit the Windows Package Manager from updating a package to specific ranges of versions, or it can prevent it from updating the package altogether. A pinned package may still update on its own and be updated from outside the Windows Package Manager.</value>
+  </data>
+  <data name="PinCommandShortDescription" xml:space="preserve">
+    <value>Manage package pins</value>
+  </data>
+  <data name="PinListCommandLongDescription" xml:space="preserve">
+    <value>List all current pins, or full details of a specific pin.</value>
+  </data>
+  <data name="PinListCommandShortDescription" xml:space="preserve">
+    <value>List current pins</value>
+  </data>
+  <data name="PinRemoveCommandLongDescription" xml:space="preserve">
+    <value>Remove a specific package pin.</value>
+  </data>
+  <data name="PinRemoveCommandShortDescription" xml:space="preserve">
+    <value>Remove a package pin</value>
+  </data>
+  <data name="PinResetCommandLongDescription" xml:space="preserve">
+    <value>Reset all existing pins.</value>
+  </data>
+  <data name="PinResetCommandShortDescription" xml:space="preserve">
+    <value>Reset pins</value>
+  </data>
+  <data name="BothGatedVersionAndBlockingFlagProvided" xml:space="preserve">
+    <value>Both version and '--blocking' arguments provided</value>
+    <comment>{Locked="--blocking"}</comment>
+  </data>
+  <data name="GatedVersionArgumentDescription" xml:space="preserve">
+    <value>Version to which to pin the package. The wildcard '*' can be used as the last version part</value>
+  </data>
+  <data name="PinAddBlockingArgumentDescription" xml:space="preserve">
+    <value>Block from updating until the pin is removed, preventing override arguments</value>
+  </data>
 </root>

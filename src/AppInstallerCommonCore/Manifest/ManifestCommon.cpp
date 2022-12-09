@@ -694,8 +694,9 @@ namespace AppInstaller::Manifest
 
     Dependency* DependencyList::HasDependency(const Dependency& dependencyToSearch)
     {
-        for (auto& dependency : m_dependencies) {
-            if (dependency.Type == dependencyToSearch.Type && ICUCaseInsensitiveEquals(dependency.Id, dependencyToSearch.Id))
+        for (auto& dependency : m_dependencies)
+        {
+            if (dependency.Type == dependencyToSearch.Type && ICUCaseInsensitiveEquals(dependency.Id(), dependencyToSearch.Id()))
             {
                 return &dependency;
             }
@@ -708,7 +709,7 @@ namespace AppInstaller::Manifest
     {
         for (const auto& dependency : m_dependencies)
         {
-            if (dependency.Type == type && Utility::ICUCaseInsensitiveEquals(dependency.Id, id))
+            if (dependency.Type == type && Utility::ICUCaseInsensitiveEquals(dependency.Id(), id))
             {
                 if (dependency.MinVersion) {
                     if (dependency.MinVersion.value() == minVersion)
