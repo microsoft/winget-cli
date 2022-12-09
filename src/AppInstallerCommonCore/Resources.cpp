@@ -71,7 +71,7 @@ namespace AppInstaller
                 return instance;
             }
 
-            // Gets the the string resource value.
+            // Gets the string resource value.
             std::string ResolveString(std::wstring_view resKey) const
             {
                 if (m_wingetLoader)
