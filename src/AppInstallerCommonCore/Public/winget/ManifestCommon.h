@@ -202,7 +202,7 @@ namespace AppInstaller::Manifest
     struct Dependency
     {
         DependencyType Type;
-        string_t Id() const { return m_id; };
+        const string_t& Id() const { return m_id; };
         std::optional<Utility::Version> MinVersion;
 
         Dependency(DependencyType type, string_t id, string_t minVersion) : Type(type), m_id(std::move(id)), MinVersion(Utility::Version(minVersion)), m_foldedId(FoldCase(m_id)) {}
