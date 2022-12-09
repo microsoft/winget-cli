@@ -1534,4 +1534,5 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="UserSettings" xml:space="preserve">
     <value>User Settings</value>
+  </data>
 </root>
