@@ -329,7 +329,7 @@ namespace TestCommon
 
     std::string RemoveConsoleFormat(const std::string& str)
     {
-        // We are looking something in the lines of "\x1b[0mthisisastring"
+        // We are looking something that starts with "\x1b[0m"
         if (!str.empty() && str[0] == '\x1b')
         {
             // Find first m
