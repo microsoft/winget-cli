@@ -18,7 +18,7 @@ namespace AppInstaller::CLI::Workflow
         {
             ExportSettingsJson()
             {
-                // TODO: add schema
+                root["$schema"] = "https://aka.ms/winget-settings-export.schema.json";
                 root["adminSettings"] = Json::ValueType::objectValue;
                 root["userSettingsFile"] = Runtime::GetPathTo(Runtime::PathName::UserSettingsFileLocation).u8string();
             }
