@@ -534,6 +534,9 @@
     <CopyFileToFolders Include="TestData\InstallFlowTest_MSStore.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallFlowTest_MultipleDependencies.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_AbortsTerminal.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
@@ -739,40 +742,40 @@
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-NoSupportedPlatforms.yaml">
-      <DeploymentContent>true</DeploymentContent>
+      <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Installer-Bad-NoSupportedPlatforms.msix">
-      <DeploymentContent>true</DeploymentContent>
+      <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Installer-Good.msix">
-      <DeploymentContent>true</DeploymentContent>
+      <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Installer-Good.msixbundle">
-      <DeploymentContent>true</DeploymentContent>
+      <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Installer-Signed-Good.msix">
-      <DeploymentContent>true</DeploymentContent>
+      <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Installer-Signed-Good.msixbundle">
-      <DeploymentContent>true</DeploymentContent>
+      <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-InconsistentSignedMsixInstallerFields.yaml">
-      <DeploymentContent>true</DeploymentContent>
+      <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Good-SignedMsixInstaller.yaml">
-      <DeploymentContent>true</DeploymentContent>
+      <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Good-MsixBundleInstaller.yaml">
-      <DeploymentContent>true</DeploymentContent>
+      <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-InconsistentMsixBundleInstallerFields.yaml">
-      <DeploymentContent>true</DeploymentContent>
+      <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Good-SignedMsixBundleInstaller.yaml">
-      <DeploymentContent>true</DeploymentContent>
+      <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-InconsistentSignedMsixBundleInstallerFields.yaml">
-      <DeploymentContent>true</DeploymentContent>
+      <Filter>TestData</Filter>
     </CopyFileToFolders>
   </ItemGroup>
 </Project>

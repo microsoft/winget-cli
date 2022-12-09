@@ -116,23 +116,23 @@ namespace AppInstaller::Repository
             [&](const Dependency& node)
             {
                 DependencyList depList;
-                if (node.Id == rootId.Id)
+                if (node.Id() == rootId.Id())
                 {
                     return GetDependencies(manifest, DependencyType::Package);
                 }
 
-                auto packageLatest = GetPackageLatestVersion(index, node.Id);
+                auto packageLatest = GetPackageLatestVersion(index, node.Id());
                 if (!packageLatest.has_value())
                 {
                     dependenciesError.emplace_back(
-                        ManifestError::MissingManifestDependenciesNode, "PackageIdentifier", node.Id);
+                        ManifestError::MissingManifestDependenciesNode, "PackageIdentifier", node.Id());
                     foundErrors = true;
                     return depList;
                 }
 
                 if (node.MinVersion > packageLatest.value().second)
                 {
-                    dependenciesError.emplace_back(ManifestError::NoSuitableMinVersionDependency, "PackageIdentifier", node.Id);
+                    dependenciesError.emplace_back(ManifestError::NoSuitableMinVersionDependency, "PackageIdentifier", node.Id());
                     foundErrors = true;
                     return depList;
                 }
