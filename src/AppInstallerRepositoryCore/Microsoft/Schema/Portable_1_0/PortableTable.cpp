@@ -172,7 +172,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Portable_V1_0
             portableFile.SymlinkTarget = std::move(symlinkTarget);
             result.emplace_back(std::move(portableFile));
         }
-        
+
         return result;
     }
 }

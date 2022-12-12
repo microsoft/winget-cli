@@ -169,6 +169,16 @@ namespace AppInstaller::Utility
         bool m_isEmpty = false;
     };
 
+    // A range of versions indicated by a version and optionally a wildcard at the end.
+    struct GatedVersion
+    {
+        GatedVersion();
+        GatedVersion(std::string_view s);
+        std::string ToString() const;
+    private:
+
+    };
+
     // A channel string; existing solely to give a type.
     //
     // Compared lexicographically.

@@ -1,0 +1,96 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+#include "pch.h"
+#include "PinningIndex.h"
+#include "SQLiteStorageBase.h"
+#include "Schema/Pinning_1_0/PinningIndexInterface.h"
+
+namespace AppInstaller::Repository::Microsoft
+{
+    PinningIndex PinningIndex::CreateNew(const std::string& filePath, Schema::Version version)
+    {
+        AICLI_LOG(Repo, Info, << "Creating new Pinning Index [" << version << "] at '" << filePath << "'");
+        PinningIndex result{ filePath, version };
+
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(result.m_dbconn, "pinningIndex_createNew");
+
+        // Use calculated version, as incoming version could be 'latest'
+        result.m_version.SetSchemaVersion(result.m_dbconn);
+
+        result.m_interface->CreateTables(result.m_dbconn);
+
+        result.SetLastWriteTime();
+
+        savepoint.Commit();
+
+        return result;
+    }
+
+    PinningIndex::IdType PinningIndex::AddPin(const Pinning::Pin& pin)
+    {
+        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
+        AICLI_LOG(Repo, Verbose, << "Adding Pin for package [" << pin.GetPackageId() << "] from source [" << pin.GetSourceId() << "] with pin type " << Pinning::ToString(pin.GetType()));
+
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "pinningIndex_addPin");
+
+        IdType result = m_interface->AddPin(m_dbconn, pin);
+
+        SetLastWriteTime();
+
+        savepoint.Commit();
+
+        return result;
+    }
+
+    void PinningIndex::RemovePin(const Pinning::PinKey& pinKey)
+    {
+        AICLI_LOG(Repo, Verbose, << "Removing Pin for package [" << pinKey.PackageId << "] from source [" << pinKey.SourceId << "]");
+        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
+
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "pinningIndex_removePin");
+
+        m_interface->RemovePin(m_dbconn, pinKey);
+
+        SetLastWriteTime();
+
+        savepoint.Commit();
+    }
+
+    std::optional<Pinning::Pin> PinningIndex::GetPin(const Pinning::PinKey& pinKey)
+    {
+        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
+        return m_interface->GetPin(m_dbconn, pinKey);
+    }
+
+    std::vector<Pinning::Pin> PinningIndex::GetAllPins(SQLite::Connection& connection)
+    {
+        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
+        return m_interface->GetAllPins(connection);
+    }
+
+    std::unique_ptr<Schema::IPinningIndex> PinningIndex::CreateIPinningIndex() const
+    {
+        if (m_version == Schema::Version{ 1, 0 } ||
+            m_version.MajorVersion == 1 ||
+            m_version.IsLatest())
+        {
+            return std::make_unique<Schema::Pinning_V1_0::PinningIndexInterface>();
+        }
+
+        THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
+    }
+
+    PinningIndex::PinningIndex(const std::string& target, SQLiteStorageBase::OpenDisposition disposition, Utility::ManagedFile&& indexFile) :
+        SQLiteStorageBase(target, disposition, std::move(indexFile))
+    {
+        AICLI_LOG(Repo, Info, << "Opened Pinning Index with version [" << m_version << "], last write [" << GetLastWriteTime() << "]");
+        m_interface = CreateIPinningIndex();
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_CANNOT_WRITE_TO_UPLEVEL_INDEX, disposition == SQLiteStorageBase::OpenDisposition::ReadWrite && m_version != m_interface->GetVersion());
+    }
+
+    PinningIndex::PinningIndex(const std::string& target, Schema::Version version) : SQLiteStorageBase(target, version)
+    {
+        m_interface = CreateIPinningIndex();
+        m_version = m_interface->GetVersion();
+    }
+}
