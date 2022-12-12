@@ -549,6 +549,9 @@ namespace AppInstaller::Runtime
             break;
         case PathName::UserSettingsFileLocation:
             result.Path = UserSettings::SettingsFilePath();
+            break;
+        case PathName::UserSettingsFileLocationForDisplay:
+            result.Path = UserSettings::SettingsFilePath();
             ReplaceCommonPathPrefix(result.Path, GetKnownFolderPath(FOLDERID_LocalAppData), "%LOCALAPPDATA%");
             break;
         default:
@@ -622,6 +625,9 @@ namespace AppInstaller::Runtime
             result = GetPathDetailsCommon(path);
             break;
         case PathName::UserSettingsFileLocation:
+            result.Path = UserSettings::SettingsFilePath();
+            break;
+        case PathName::UserSettingsFileLocationForDisplay:
             result.Path = UserSettings::SettingsFilePath();
             ReplaceCommonPathPrefix(result.Path, GetKnownFolderPath(FOLDERID_LocalAppData), "%LOCALAPPDATA%");
             break;

@@ -193,7 +193,7 @@ namespace AppInstaller::CLI
             };
 
             info << std::endl << Resource::String::Logs << ": "_liv << Runtime::GetPathTo(Runtime::PathName::DefaultLogLocationForDisplay).u8string() << std::endl;
-            info << std::endl << Resource::String::UserSettings << ": "_liv << Runtime::GetPathTo(Runtime::PathName::UserSettingsFileLocation).u8string() << std::endl;
+            info << std::endl << Resource::String::UserSettings << ": "_liv << Runtime::GetPathTo(Runtime::PathName::UserSettingsFileLocationForDisplay).u8string() << std::endl;
 
             info << std::endl;
 

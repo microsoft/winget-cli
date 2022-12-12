@@ -1527,10 +1527,10 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Block from updating until the pin is removed, preventing override arguments</value>
   </data>
   <data name="SettingsExportCommandLongDescription" xml:space="preserve">
-    <value>Export administrator settings as JSON</value>
+    <value>Export settings as JSON</value>
   </data>
   <data name="SettingsExportCommandShortDescription" xml:space="preserve">
-    <value>Export administrator settings</value>
+    <value>Export settings</value>
   </data>
   <data name="UserSettings" xml:space="preserve">
     <value>User Settings</value>

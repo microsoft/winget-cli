@@ -64,6 +64,8 @@ namespace AppInstaller::Runtime
         PortableLinksMachineLocation,
         // The location of the user settings json file.
         UserSettingsFileLocation,
+        // The location of the user settings json file, anonymized using environment variables.
+        UserSettingsFileLocationForDisplay,
     };
 
     // The principal that an ACE applies to.
