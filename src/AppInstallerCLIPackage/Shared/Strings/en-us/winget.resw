@@ -293,7 +293,8 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Ignore the installer hash check failure</value>
   </data>
   <data name="IgnoreMalwareScanArgumentDescription" xml:space="preserve">
-    <value>Ignore the malware scan performed as part of installing an archive type package</value>
+    <value>Ignore the malware scan performed as part of installing an archive type package from local manifest</value>
+
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>Request interactive installation; user input may be needed</value>
@@ -893,7 +894,8 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Enable Windows App Installer Microsoft Store Source Pinned Certificate Bypass</value>
   </data>
   <data name="PolicyEnableIgnoreMalwareScan" xml:space="preserve">
-    <value>Enable Windows App Installer Malware Scan Override</value>
+    <value>Enable Windows App Installer Local Archive Malware Scan Override</value>
+
 
   </data>
   <data name="SettingsWarningField" xml:space="preserve">

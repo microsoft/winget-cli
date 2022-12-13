@@ -83,7 +83,7 @@ namespace AppInstallerCLIE2ETests
         public static GroupPolicyHelper EnableHashOverride { get; private set; } = new GroupPolicyHelper("EnableHashOverride");
 
         /// <summary>
-        /// Gets the Enable hash override policy.
+        /// Gets the Enable ignore malware scan policy.
         /// </summary>
         public static GroupPolicyHelper EnableIgnoreMalwareScan { get; private set; } = new GroupPolicyHelper("EnableIgnoreMalwareScan");
 
@@ -119,7 +119,8 @@ namespace AppInstallerCLIE2ETests
             EnableExperimentalFeatures,
             EnableLocalManifests,
             EnableHashOverride,
-            EnableIgnoreMalwareScan,
+            EnableLocalArchiveMalwareScanOverride,
+
             EnableDefaultSource,
             EnableMicrosoftStoreSource,
             EnableAdditionalSources,

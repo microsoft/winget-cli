@@ -73,7 +73,8 @@
         <decimal value="0" />
       </disabledValue>
     </policy>
-    <policy name="EnableIgnoreMalwareScan" class="Machine" displayName="$(string.EnableIgnoreMalwareScan)" explainText="$(string.EnableIgnoreMalwareScanExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableIgnoreMalwareScan">
+    <policy name="EnableLocalArchiveMalwareScanOverride" class="Machine" displayName="$(string.EnableLocalArchiveMalwareScanOverride)" explainText="$(string.EnableLocalArchiveMalwareScanOverrideExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableLocalArchiveMalwareScanOverride">
+
       <parentCategory ref="AppInstaller" />
       <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
       <enabledValue>

@@ -37,7 +37,8 @@ namespace AppInstaller::Settings
             ExperimentalFeatures,
             LocalManifestFiles,
             HashOverride,
-            IgnoreMalwareScan,
+            LocalArchiveMalwareScanOverride,
+
             DefaultSource,
             MSStoreSource,
             AdditionalSources,

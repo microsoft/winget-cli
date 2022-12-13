@@ -29,7 +29,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 if (context.Args.Contains(Execution::Args::Type::IgnoreMalwareScan))
                 {
-                    AICLI_LOG(CLI, Warning, << "Archive malware scan failed; proceeding due to --ignore-malware-scan override");
+                    AICLI_LOG(CLI, Warning, << "Archive malware scan failed; proceeding due to --ignore-local-archive-malware-scan override");
                     context.Reporter.Warn() << Resource::String::ArchiveFailedMalwareScanOverridden << std::endl;
                 }
                 else

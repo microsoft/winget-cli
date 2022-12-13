@@ -41,7 +41,8 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Override),
             Argument::ForType(Args::Type::InstallLocation),
             Argument::ForType(Args::Type::HashOverride),
-            Argument::ForType(Args::Type::IgnoreMalwareScan),
+            Argument::ForType(Args::Type::IgnoreLocalArchiveMalwareScan),
+
             Argument::ForType(Args::Type::DependencySource),
             Argument::ForType(Args::Type::AcceptPackageAgreements),
             Argument::ForType(Args::Type::NoUpgrade),

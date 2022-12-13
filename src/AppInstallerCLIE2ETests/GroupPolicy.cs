@@ -102,7 +102,8 @@ namespace AppInstallerCLIE2ETests
         public void EnableIgnoreMalwareScan()
         {
             GroupPolicyHelper.EnableIgnoreMalwareScan.Disable();
-            var result = TestCommon.RunAICLICommand("install", "AnyPackage --ignore-malware-scan");
+            var result = TestCommon.RunAICLICommand("install", "AnyPackage --ignore-local-archive-malware-scan");
+
             Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
         }
 
