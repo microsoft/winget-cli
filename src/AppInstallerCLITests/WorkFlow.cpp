@@ -3915,7 +3915,6 @@ TEST_CASE("Export_Settings", "[Settings][workflow]")
         REQUIRE_FALSE(json["adminSettings"]["LocalManifestFiles"].asBool());
 
         auto userSettingsFileValue = std::string(json["userSettingsFile"].asCString());
-        REQUIRE(userSettingsFileValue.find("%LOCALAPPDATA%") != std::string::npos);
         REQUIRE(userSettingsFileValue.find("settings.json") != std::string::npos);
     }
 
@@ -3939,7 +3938,6 @@ TEST_CASE("Export_Settings", "[Settings][workflow]")
         REQUIRE(json["adminSettings"]["LocalManifestFiles"].asBool());
 
         auto userSettingsFileValue = std::string(json["userSettingsFile"].asCString());
-        REQUIRE(userSettingsFileValue.find("%LOCALAPPDATA%") != std::string::npos);
         REQUIRE(userSettingsFileValue.find("settings.json") != std::string::npos);
     }
 }
