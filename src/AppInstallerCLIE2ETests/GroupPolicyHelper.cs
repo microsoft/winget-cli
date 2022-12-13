@@ -85,7 +85,7 @@ namespace AppInstallerCLIE2ETests
         /// <summary>
         /// Gets the Enable ignore malware scan policy.
         /// </summary>
-        public static GroupPolicyHelper EnableIgnoreLocalArchiveMalwareScan { get; private set; } = new GroupPolicyHelper("EnableIgnoreLocalArchiveMalwareScan");
+        public static GroupPolicyHelper EnableLocalArchiveMalwareScanOverride { get; private set; } = new GroupPolicyHelper("EnableLocalArchiveMalwareScanOverride", "EnableIgnoreLocalArchiveMalwareScan");
 
         /// <summary>
         /// Gets the Enable default source policy.
