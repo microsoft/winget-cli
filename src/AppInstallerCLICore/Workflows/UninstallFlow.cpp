@@ -58,7 +58,7 @@ namespace AppInstaller::CLI::Workflow
     {
         context <<
             Workflow::GetInstalledPackageVersion <<
-            Workflow::EnsureSupportForPortableUninstall <<
+            Workflow::EnsureSupportForUninstall <<
             Workflow::GetUninstallInfo <<
             Workflow::GetDependenciesInfoForUninstall <<
             Workflow::ReportDependencies(Resource::String::UninstallCommandReportDependencies) <<
@@ -188,8 +188,6 @@ namespace AppInstaller::CLI::Workflow
 
     void MsixUninstall(Execution::Context& context)
     {
-        //bool isMachineScope = Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope)) == Manifest::ScopeEnum::Machine;
-
         const auto& packageFamilyNames = context.Get<Execution::Data::PackageFamilyNames>();
         context.Reporter.Info() << Resource::String::UninstallFlowStartingPackageUninstall << std::endl;
 
@@ -205,8 +203,14 @@ namespace AppInstaller::CLI::Workflow
             AICLI_LOG(CLI, Info, << "Removing MSIX package: " << packageFullName.value());
             try
             {
-                //if (is)
-                context.Reporter.ExecuteWithProgress(std::bind(Deployment::RemovePackage, packageFullName.value(), winrt::Windows::Management::Deployment::RemovalOptions::None, std::placeholders::_1));
+                if (Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope)) == Manifest::ScopeEnum::Machine)
+                {
+                    context.Reporter.ExecuteWithProgress(std::bind(Deployment::RemovePackageMachineScope, packageFullName.value(), std::placeholders::_1));
+                }
+                else
+                {
+                    context.Reporter.ExecuteWithProgress(std::bind(Deployment::RemovePackage, packageFullName.value(), winrt::Windows::Management::Deployment::RemovalOptions::None, std::placeholders::_1));
+                }
             }
             catch (const wil::ResultException& re)
             {
@@ -274,6 +278,28 @@ namespace AppInstaller::CLI::Workflow
         else
         {
             context.Reporter.Info() << Resource::String::UninstallFlowUninstallSuccess << std::endl;
+        }
+    }
+
+    void EnsureSupportForUninstall(Execution::Context& context)
+    {
+        auto installedPackageVersion = context.Get<Execution::Data::InstalledPackageVersion>();
+        const std::string installedTypeString = installedPackageVersion->GetMetadata()[PackageVersionMetadata::InstalledType];
+        auto installedType = ConvertToInstallerTypeEnum(installedTypeString);
+        if (installedType == InstallerTypeEnum::Portable)
+        {
+            const std::string installedScope = installedPackageVersion->GetMetadata()[Repository::PackageVersionMetadata::InstalledScope];
+            if (ConvertToScopeEnum(installedScope) == Manifest::ScopeEnum::Machine)
+            {
+                context << EnsureRunningAsAdmin;
+            }
+        }
+        else if (installedType == InstallerTypeEnum::Msix)
+        {
+            if (Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope)) == Manifest::ScopeEnum::Machine)
+            {
+                context << EnsureRunningAsAdmin;
+            }
         }
     }
 }

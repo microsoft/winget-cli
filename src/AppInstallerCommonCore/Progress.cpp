@@ -68,10 +68,9 @@ namespace AppInstaller
         return m_sink.load();
     }
 
-    PartialPercentProgressCallback::PartialPercentProgressCallback(IProgressCallback& baseCallback, uint64_t rangeMin, uint64_t rangeMax, uint64_t globalMax) :
-        m_baseCallback(baseCallback), m_rangeMin(rangeMin), m_rangeMax(rangeMax), m_globalMax(globalMax)
+    PartialPercentProgressCallback::PartialPercentProgressCallback(IProgressCallback& baseCallback, uint64_t globalMax) :
+        m_baseCallback(baseCallback), m_globalMax(globalMax)
     {
-        THROW_HR_IF(E_UNEXPECTED, rangeMin > rangeMax || rangeMax > globalMax);
     }
 
     void PartialPercentProgressCallback::BeginProgress()
@@ -94,5 +93,12 @@ namespace AppInstaller
     IProgressCallback::CancelFunctionRemoval PartialPercentProgressCallback::SetCancellationFunction(std::function<void()>&& f)
     {
         return m_baseCallback.SetCancellationFunction(std::move(f));
+    }
+
+    void PartialPercentProgressCallback::SetRange(uint64_t rangeMin, uint64_t rangeMax)
+    {
+        THROW_HR_IF(E_INVALIDARG, rangeMin > rangeMax || rangeMax > m_globalMax);
+        m_rangeMin = rangeMin;
+        m_rangeMax = rangeMax;
     }
 }

@@ -23,12 +23,6 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void EnsureSupportForPortableInstall(Execution::Context& context);
 
-    // Verifies that the portable uninstall operation is supported.
-    // Required Args: None
-    // Inputs: Scope
-    // Outputs: None
-    void EnsureSupportForPortableUninstall(Execution::Context& context);
-
     // Initializes the portable installer.
     // Required Args: None
     // Inputs: Scope, Architecture, Manifest, Installer

@@ -328,18 +328,4 @@ namespace AppInstaller::CLI::Workflow
                 EnsureVolumeSupportsReparsePoints;
         }
     }
-
-    void EnsureSupportForPortableUninstall(Execution::Context& context)
-    {
-        auto installedPackageVersion = context.Get<Execution::Data::InstalledPackageVersion>();
-        const std::string installedTypeString = installedPackageVersion->GetMetadata()[PackageVersionMetadata::InstalledType];
-        if (ConvertToInstallerTypeEnum(installedTypeString) == InstallerTypeEnum::Portable)
-        {
-            const std::string installedScope = installedPackageVersion->GetMetadata()[Repository::PackageVersionMetadata::InstalledScope];
-            if (ConvertToScopeEnum(installedScope) == Manifest::ScopeEnum::Machine)
-            {
-                context << EnsureRunningAsAdmin;
-            }
-        }
-    }
 }

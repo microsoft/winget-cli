@@ -367,8 +367,6 @@ namespace AppInstaller::CLI::Workflow
 
     void MsixInstall(Execution::Context& context)
     {
-        bool isMachineScope = Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope)) == Manifest::ScopeEnum::Machine;
-
         std::string uri;
         if (context.Contains(Execution::Data::InstallerPath))
         {
@@ -387,23 +385,9 @@ namespace AppInstaller::CLI::Workflow
         {
             registrationDeferred = context.Reporter.ExecuteWithProgress([&](IProgressCallback& callback)
                 {
-                    if (isMachineScope)
+                    if (Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope)) == Manifest::ScopeEnum::Machine)
                     {
-                        context << EnsureRunningAsAdmin;
-
-                        PartialPercentProgressCallback partialProgress1{ callback, 0, 90, 100 };
-                        bool deferred = Deployment::AddPackageWithDeferredFallback(
-                            uri,
-                            WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerTrusted),
-                            partialProgress1);
-
-                        Msix::MsixInfo msixInfo(uri);
-                        auto packageFamilyName = Msix::GetPackageFamilyNameFromFullName(msixInfo.GetPackageFullName());
-
-                        PartialPercentProgressCallback partialProgress2{ callback, 90, 100, 100 };
-                        Deployment::ProvisionPackage(packageFamilyName, partialProgress2);
-
-                        return deferred;
+                        return Deployment::AddPackageMachineScope(uri, callback);
                     }
                     else
                     {

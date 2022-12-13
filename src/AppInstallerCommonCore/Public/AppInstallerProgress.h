@@ -84,7 +84,7 @@ namespace AppInstaller
     // A progress callback that reports its progress as a partial range of percentage to its base progress callback
     struct PartialPercentProgressCallback : public ProgressCallback
     {
-        PartialPercentProgressCallback(IProgressCallback& baseCallback, uint64_t rangeMin, uint64_t rangeMax, uint64_t globalMax);
+        PartialPercentProgressCallback(IProgressCallback& baseCallback, uint64_t globalMax);
 
         void BeginProgress() override;
 
@@ -93,6 +93,8 @@ namespace AppInstaller
         void EndProgress(bool hideProgressWhenDone) override;
 
         [[nodiscard]] IProgressCallback::CancelFunctionRemoval SetCancellationFunction(std::function<void()>&& f) override;
+
+        void SetRange(uint64_t rangeMin, uint64_t rangeMax);
 
     private:
         IProgressCallback& m_baseCallback;
