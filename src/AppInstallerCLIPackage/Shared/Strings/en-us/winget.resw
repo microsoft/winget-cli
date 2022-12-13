@@ -1473,12 +1473,12 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Extracting archive...</value>
   </data>
   <data name="ArchiveFailedMalwareScan" xml:space="preserve">
-    <value>Archive scan detected malware. To override this check use --ignore-malware-scan</value>
-    <comment>{Locked="--ignore-malware-scan"}</comment>
+    <value>Archive scan detected malware. To override this check use --ignore-local-archive-malware-scan</value>
+    <comment>{Locked="--ignore-local-archive-malware-scan"}</comment>
   </data>
   <data name="ArchiveFailedMalwareScanOverridden" xml:space="preserve">
-    <value>Archive scan detected malware. Proceeding due to --ignore-malware-scan</value>
-    <comment>{Locked="--ignore-malware-scan"}</comment>
+    <value>Archive scan detected malware. Proceeding due to --ignore-local-archive-malware-scan</value>
+    <comment>{Locked="--ignore-local-archive-malware-scan"}</comment>
   </data>
   <data name="NoUpgradeArgumentDescription" xml:space="preserve">
     <value>Skips upgrade if an installed version already exists</value>
