@@ -673,6 +673,12 @@ namespace Microsoft.Management.Deployment
         IVector<PackageCatalogReference> Catalogs { get; };
         /// Sets the default search behavior if the catalog is a composite catalog.
         CompositeSearchBehavior CompositeSearchBehavior;
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 5)]
+        {
+            /// Create installed package catalog with required installed scope.
+            PackageInstallScope InstalledScope;
+        }
     }
 
     /// Required install scope for the package. If the package does not have an installer that
