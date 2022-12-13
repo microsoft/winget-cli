@@ -205,7 +205,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 if (Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope)) == Manifest::ScopeEnum::Machine)
                 {
-                    context.Reporter.ExecuteWithProgress(std::bind(Deployment::RemovePackageMachineScope, packageFullName.value(), std::placeholders::_1));
+                    context.Reporter.ExecuteWithProgress(std::bind(Deployment::RemovePackageMachineScope, packageFamilyName, packageFullName.value(), std::placeholders::_1));
                 }
                 else
                 {

@@ -41,6 +41,7 @@ namespace AppInstaller::Deployment
     // Calls winrt::Windows::Management::Deployment::PackageManager::DeprovisionPackageForAllUsersAsync
     //       winrt::Windows::Management::Deployment::PackageManager::RemovePackageAsync with RemoveForAllUsers
     void RemovePackageMachineScope(
+        std::string_view packageFamilyName,
         std::string_view packageFullName,
         IProgressCallback& callback);
 }

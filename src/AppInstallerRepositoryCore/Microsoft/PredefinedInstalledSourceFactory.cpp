@@ -66,23 +66,26 @@ namespace AppInstaller::Repository::Microsoft
                 bool isPackageNameSet = false;
                 // Attempt to get the DisplayName. Since this will retrieve the localized value, it has a chance to fail.
                 // Rather than completely skip this package in that case, we will simply fall back to using the package name below.
-                try
+                if (!Runtime::IsRunningAsSystem())
                 {
-                    auto displayName = Utility::ConvertToUTF8(package.DisplayName());
-                    if (!displayName.empty())
+                    try
                     {
-                        manifest.DefaultLocalization.Add<Manifest::Localization::PackageName>(displayName);
-                        isPackageNameSet = true;
+                        auto displayName = Utility::ConvertToUTF8(package.DisplayName());
+                        if (!displayName.empty())
+                        {
+                            manifest.DefaultLocalization.Add<Manifest::Localization::PackageName>(displayName);
+                            isPackageNameSet = true;
+                        }
                     }
-                }
-                catch (const winrt::hresult_error& hre)
-                {
-                    AICLI_LOG(Repo, Info, << "winrt::hresult_error[0x" << Logging::SetHRFormat << hre.code() << ": " <<
-                        Utility::ConvertToUTF8(hre.message()) << "] exception thrown when getting DisplayName for " << familyName);
-                }
-                catch (...)
-                {
-                    AICLI_LOG(Repo, Info, << "Unknown exception thrown when getting DisplayName for " << familyName);
+                    catch (const winrt::hresult_error& hre)
+                    {
+                        AICLI_LOG(Repo, Info, << "winrt::hresult_error[0x" << Logging::SetHRFormat << hre.code() << ": " <<
+                            Utility::ConvertToUTF8(hre.message()) << "] exception thrown when getting DisplayName for " << familyName);
+                    }
+                    catch (...)
+                    {
+                        AICLI_LOG(Repo, Info, << "Unknown exception thrown when getting DisplayName for " << familyName);
+                    }
                 }
 
                 if (!isPackageNameSet)

@@ -287,10 +287,10 @@ namespace AppInstaller::Deployment
     }
 
     void RemovePackageMachineScope(
+        std::string_view packageFamilyName,
         std::string_view packageFullName,
         IProgressCallback& callback)
     {
-        std::string packageFamilyName = Msix::GetPackageFamilyNameFromFullName(packageFullName);
         PartialPercentProgressCallback progress{ callback, 100 };
 
         // Deprovision first
