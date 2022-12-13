@@ -3925,3 +3925,47 @@ TEST_CASE("InstallFlow_FoundInstalledAndUpgradeNotAvailable", "[UpdateFlow][work
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::UpdateNotApplicable).get()) != std::string::npos);
     REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
 }
+
+TEST_CASE("Export_Settings", "[Settings][workflow]")
+{
+    RemoveSetting(Stream::AdminSettings);
+
+    {
+        // No admin settings, local manifest should be false.
+        std::ostringstream exportOutput;
+        TestContext context{ exportOutput, std::cin };
+        auto previousThreadGlobals = context.SetForCurrentThread();
+        SettingsExportCommand settingsExportCommand({});
+        settingsExportCommand.Execute(context);
+
+        auto json = ConvertToJson(exportOutput.str());
+        REQUIRE(!json.isNull());
+        REQUIRE_FALSE(json["adminSettings"]["LocalManifestFiles"].asBool());
+
+        auto userSettingsFileValue = std::string(json["userSettingsFile"].asCString());
+        REQUIRE(userSettingsFileValue.find("settings.json") != std::string::npos);
+    }
+
+    {
+        // Enable local manifest and verify export works.
+        std::ostringstream settingsOutput;
+        TestContext context{ settingsOutput, std::cin };
+        auto previousThreadGlobals = context.SetForCurrentThread();
+        context.Args.AddArg(Execution::Args::Type::AdminSettingEnable, "LocalManifestFiles"sv);
+        context.Override({ EnsureRunningAsAdmin, [](TestContext&) {} });
+        SettingsCommand settings({});
+        settings.Execute(context);
+
+        std::ostringstream exportOutput;
+        TestContext context2{ exportOutput, std::cin };
+        auto previousThreadGlobals2 = context2.SetForCurrentThread();
+        SettingsExportCommand settingsExportCommand({});
+        settingsExportCommand.Execute(context2);
+        auto json = ConvertToJson(exportOutput.str());
+        REQUIRE(!json.isNull());
+        REQUIRE(json["adminSettings"]["LocalManifestFiles"].asBool());
+
+        auto userSettingsFileValue = std::string(json["userSettingsFile"].asCString());
+        REQUIRE(userSettingsFileValue.find("settings.json") != std::string::npos);
+    }
+}
