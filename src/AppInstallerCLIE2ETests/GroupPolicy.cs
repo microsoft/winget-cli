@@ -96,7 +96,7 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
-        /// Test winget source is enabled by policy.
+        /// Test install ignoring the malware scan is disabled by policy.
         /// </summary>
         [Test]
         public void EnableIgnoreLocalArchiveMalwareScann()
