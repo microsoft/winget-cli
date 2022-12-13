@@ -107,6 +107,9 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
         }
 
+        /// <summary>
+        /// Test winget source is enabled by policy.
+        /// </summary>
         [Test]
         public void EnableDefaultSource()
         {
