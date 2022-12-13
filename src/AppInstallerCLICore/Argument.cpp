@@ -71,7 +71,7 @@ namespace AppInstaller::CLI
             return Argument{ "versions"_liv, NoAlias, Args::Type::ListVersions, Resource::String::VersionsArgumentDescription, ArgumentType::Flag };
         case Args::Type::Help:
             return Argument{ "help"_liv, APPINSTALLER_CLI_HELP_ARGUMENT_TEXT_CHAR, Args::Type::Help, Resource::String::HelpArgumentDescription, ArgumentType::Flag };
-        case Args::Type::IgnoreMalwareScan:
+        case Args::Type::IgnoreLocalArchiveMalwareScan:
             return Argument{ "ignore-local-archive-malware-scan"_liv, NoAlias, Args::Type::IgnoreLocalArchiveMalwareScan, Resource::String::IgnoreLocalArchiveMalwareScanArgumentDescription, ArgumentType::Flag, Settings::TogglePolicy::Policy::IgnoreLocalArchiveMalwareScan};
 
         case Args::Type::SourceName:

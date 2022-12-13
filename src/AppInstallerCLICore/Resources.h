@@ -293,7 +293,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(SearchSource);
         WINGET_DEFINE_RESOURCE_STRINGID(SearchTruncated);
         WINGET_DEFINE_RESOURCE_STRINGID(SearchVersion);
-        WINGET_DEFINE_RESOURCE_STRINGID(IgnoreMalwareScanArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(IgnoreLocalArchiveMalwareScanArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SettingLoadFailure);
         WINGET_DEFINE_RESOURCE_STRINGID(SettingsCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SettingsCommandShortDescription);

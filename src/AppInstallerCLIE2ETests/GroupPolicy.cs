@@ -99,9 +99,9 @@ namespace AppInstallerCLIE2ETests
         /// Test winget source is enabled by policy.
         /// </summary>
         [Test]
-        public void EnableIgnoreMalwareScan()
+        public void EnableIgnoreLocalArchiveMalwareScann()
         {
-            GroupPolicyHelper.EnableIgnoreMalwareScan.Disable();
+            GroupPolicyHelper.EnableIgnoreLocalArchiveMalwareScan.Disable();
             var result = TestCommon.RunAICLICommand("install", "AnyPackage --ignore-local-archive-malware-scan");
 
             Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);

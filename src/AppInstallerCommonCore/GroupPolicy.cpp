@@ -273,8 +273,8 @@ namespace AppInstaller::Settings
             return TogglePolicy(policy, "EnableLocalManifestFiles"sv, String::PolicyEnableLocalManifests);
         case TogglePolicy::Policy::HashOverride:
             return TogglePolicy(policy, "EnableHashOverride"sv, String::PolicyEnableHashOverride);
-        case TogglePolicy::Policy::IgnoreMalwareScan:
-            return TogglePolicy(policy, "EnableIgnoreMalwareScan"sv, String::PolicyEnableIgnoreMalwareScan);
+        case TogglePolicy::Policy::LocalArchiveMalwareScanOverride:
+            return TogglePolicy(policy, "EnableLocalArchiveMalwareScanOverride"sv, String::PolicyEnableLocalArchiveMalwareScanOverride);
         case TogglePolicy::Policy::DefaultSource:
             return TogglePolicy(policy, "EnableDefaultSource"sv, String::PolicyEnableDefaultSource);
         case TogglePolicy::Policy::MSStoreSource:

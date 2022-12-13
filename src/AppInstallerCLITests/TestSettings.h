@@ -14,7 +14,7 @@ namespace TestCommon
     const std::wstring ExperimentalFeaturesPolicyValueName = L"EnableExperimentalFeatures";
     const std::wstring LocalManifestsPolicyValueName = L"EnableLocalManifestFiles";
     const std::wstring EnableHashOverridePolicyValueName = L"EnableHashOverride";
-    const std::wstring EnableIgnoreMalwareScanPolicyValueName = L"EnableIgnoreMalwareScan";
+    const std::wstring EnableIgnoreLocalArchiveMalwareScanPolicyValueName = L"EnableIgnoreLocalArchiveMalwareScan";
     const std::wstring DefaultSourcePolicyValueName = L"EnableDefaultSource";
     const std::wstring MSStoreSourcePolicyValueName = L"EnableMicrosoftStoreSource";
     const std::wstring AdditionalSourcesPolicyValueName = L"EnableAdditionalSources";
