@@ -99,9 +99,9 @@ namespace AppInstallerCLIE2ETests
         /// Test install ignoring the malware scan is disabled by policy.
         /// </summary>
         [Test]
-        public void EnableIgnoreLocalArchiveMalwareScann()
+        public void EnableIgnoreLocalArchiveMalwareScan()
         {
-            GroupPolicyHelper.EnableIgnoreLocalArchiveMalwareScan.Disable();
+            GroupPolicyHelper.EnableLocalArchiveMalwareScanOverride.Disable();
             var result = TestCommon.RunAICLICommand("install", "AnyPackage --ignore-local-archive-malware-scan");
 
             Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
