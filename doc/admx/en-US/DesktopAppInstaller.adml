@@ -47,14 +47,13 @@ If you disable this policy, users will not be able to enable the ability overrid
       <string id="EnableIgnoreMalwareScan">Enable App Installer Local Archive Malware Scan Override</string>
 
       <string id="EnableIgnoreMalwareScanExplanation">
-        This policy controls whether or not the Windows Package Manager can be configured to enable the ability to ignore the result of the malware scan perfomed on archive type packages
+        This policy controls the ability to override malware vulnerability scans when installing an archive file using a local manifest using the command line arguments.
 
-        If you enable or do not configure this policy, users will be able to enable the ability to override the Archive Malware Scan security validation using command line arguments.
-        
-        If you disable this policy, users will not be able to enable the ability to override the Archive Malware Scan security validation using command line arguments.
+        If you enable this policy, users can override the malware scan when performing a local manifest install of an archive file.
 
+        If you disable this policy, users will be unable to override the malware scan of an archive file when installing using a local manifest.
 
-        If you disable this policy, users will not be able to bypass the Archive Malware Scan security validation using command line arguments.
+        If you do not configure this policy, the Windows Package Manager administrator settings will be adhered to.
       </string>
       <string id="EnableDefaultSource">Enable App Installer Default Source</string>
       <string id="EnableDefaultSourceExplanation">This policy controls the default source included with the Windows Package Manager.
