@@ -120,7 +120,6 @@ namespace AppInstallerCLIE2ETests
             EnableLocalManifests,
             EnableHashOverride,
             EnableLocalArchiveMalwareScanOverride,
-
             EnableDefaultSource,
             EnableMicrosoftStoreSource,
             EnableAdditionalSources,
