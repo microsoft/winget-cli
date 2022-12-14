@@ -100,7 +100,7 @@
 
   <Target Name="CopyWinRTAct" AfterTargets="Build" Condition="'$(Platform)' != 'ARM'">
       <ItemGroup>
-          <WinRTActDll Include="$(SolutionDir)**\$(TargetPlatform)\$(Configuration)\UndockedRegFreeWinRT\winrtact.dll" />
+          <WinRTActDll Include="$(BuildOutputDirectory)UndockedRegFreeWinRT\winrtact.dll" />
       </ItemGroup>
       <Message Importance="high" Text="Copying '@(WinRTActDll)'" />
       <Copy SourceFiles="@(WinRTActDll)" DestinationFolder="$(OutputPath)" />
