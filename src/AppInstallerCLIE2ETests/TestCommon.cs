@@ -11,7 +11,6 @@ namespace AppInstallerCLIE2ETests
     using System.IO;
     using System.Threading;
     using Microsoft.Win32;
-    using System.Xml.Linq;
     using NUnit.Framework;
 
     /// <summary>

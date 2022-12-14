@@ -97,6 +97,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("AppInstallerTest.TestMsiInstallerUpgradeCode"));
         }
 
+        /// <summary>
+        /// Test list with exe installed with machine scope.
+        /// </summary>
         [Test]
         public void ListWithScopeExeInstalledAsMachine()
         {
@@ -119,6 +122,9 @@ namespace AppInstallerCLIE2ETests
             TestCommon.RunCommand(Path.Combine(installDir, Constants.TestExeUninstallerFileName));
         }
 
+        /// <summary>
+        /// Test list with exe installed with user scope.
+        /// </summary>
         [Test]
         public void ListWithScopeExeInstalledAsUser()
         {
@@ -141,6 +147,9 @@ namespace AppInstallerCLIE2ETests
             TestCommon.RunCommand(Path.Combine(installDir, Constants.TestExeUninstallerFileName));
         }
 
+        /// <summary>
+        /// Test list with msix installed with machine scope.
+        /// </summary>
         [Test]
         public void ListWithScopeMsixInstalledAsMachine()
         {
@@ -160,6 +169,9 @@ namespace AppInstallerCLIE2ETests
             TestCommon.RemoveMsix(Constants.MsixInstallerName, true);
         }
 
+        /// <summary>
+        /// Test list with msix installed with user scope.
+        /// </summary>
         [Test]
         public void ListWithScopeMsixInstalledAsUser()
         {

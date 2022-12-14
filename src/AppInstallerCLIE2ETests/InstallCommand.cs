@@ -163,7 +163,7 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
-        /// Test install msix with signature hash.
+        /// Test install msix machine scope.
         /// </summary>
         [Test]
         public void InstallMSIXMachineScope()
@@ -174,6 +174,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(TestCommon.VerifyTestMsixInstalledAndCleanup(true));
         }
 
+        /// <summary>
+        /// Test install msix with signature hash.
+        /// </summary>
         [Test]
         public void InstallMSIXWithSignature()
         {
@@ -184,7 +187,7 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
-        /// Test msix hash mismatch.
+        /// Test install msix with signature hash machine scope.
         /// </summary>
         [Test]
         public void InstallMSIXWithSignatureMachineScope()
@@ -195,6 +198,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(TestCommon.VerifyTestMsixInstalledAndCleanup(true));
         }
 
+        /// <summary>
+        /// Test msix hash mismatch.
+        /// </summary>
         [Test]
         public void InstallMSIXWithSignatureHashMismatch()
         {

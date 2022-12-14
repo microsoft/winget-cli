@@ -76,7 +76,7 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
-        /// Test uninstall portable package.
+        /// Test uninstall msix package with machine scope.
         /// </summary>
         [Test]
         public void UninstallTestMsixMachineScope()
@@ -89,6 +89,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(TestCommon.VerifyTestMsixUninstalled(true));
         }
 
+        /// <summary>
+        /// Test uninstall portable package.
+        /// </summary>
         [Test]
         public void UninstallPortable()
         {

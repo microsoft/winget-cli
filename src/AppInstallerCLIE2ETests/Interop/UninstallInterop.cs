@@ -141,36 +141,40 @@ namespace AppInstallerCLIE2ETests.Interop
         }
 
         /// <summary>
-        /// Test uninstall portable package.
+        /// Test uninstall msix with machine scope.
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Test]
         public async Task UninstallTestMsixMachineScope()
         {
             // Find package
-            var searchResult = FindOnePackage(compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, Constants.MsixInstallerPackageId);
+            var searchResult = this.FindOnePackage(this.compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, Constants.MsixInstallerPackageId);
 
             // Configure installation
-            var installOptions = TestFactory.CreateInstallOptions();
+            var installOptions = this.TestFactory.CreateInstallOptions();
             installOptions.PackageInstallScope = PackageInstallScope.System;
 
             // Install
-            var installResult = await packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
+            var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
             Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
 
             // Find package again, but this time it should detect the installed version
-            searchResult = FindOnePackage(compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, Constants.MsixInstallerPackageId);
+            searchResult = this.FindOnePackage(this.compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, Constants.MsixInstallerPackageId);
             Assert.NotNull(searchResult.CatalogPackage.InstalledVersion);
 
             // Uninstall
-            var uninstallOptions = TestFactory.CreateUninstallOptions();
+            var uninstallOptions = this.TestFactory.CreateUninstallOptions();
             uninstallOptions.PackageUninstallScope = PackageUninstallScope.System;
 
-            var uninstallResult = await packageManager.UninstallPackageAsync(searchResult.CatalogPackage, uninstallOptions);
+            var uninstallResult = await this.packageManager.UninstallPackageAsync(searchResult.CatalogPackage, uninstallOptions);
             Assert.AreEqual(UninstallResultStatus.Ok, uninstallResult.Status);
             Assert.True(TestCommon.VerifyTestMsixUninstalled(true));
         }
 
+        /// <summary>
+        /// Test uninstall portable package.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Test]
         public async Task UninstallPortable()
         {
