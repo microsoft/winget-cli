@@ -297,6 +297,7 @@ jobs:
       Contents: |
           $(buildOutDir)\WinGetUtil\WinGetUtil.dll
           $(buildOutDir)\WinGetUtil\WinGetUtil.pdb
+          $(Build.ArtifactStagingDirectory)\AppInstallerTestMsixInstaller.msix
       TargetFolder: '$(artifactsDir)'
     condition: succeededOrFailed()
 

@@ -112,12 +112,12 @@ namespace AppInstallerCLIE2ETests
             // List with user scope will not find the package
             result = TestCommon.RunAICLICommand("list", $"{productCode} --scope user");
             Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
-            Assert.False(result.StdOut.Contains("AppInstallerTest.TestExeInstaller"));
+            Assert.False(result.StdOut.Contains(productCode));
 
             // List with machine scope will find the package
             result = TestCommon.RunAICLICommand("list", $"{productCode} --scope machine");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("AppInstallerTest.TestExeInstaller"));
+            Assert.True(result.StdOut.Contains(productCode));
 
             TestCommon.RunCommand(Path.Combine(installDir, Constants.TestExeUninstallerFileName));
         }
@@ -137,12 +137,12 @@ namespace AppInstallerCLIE2ETests
             // List with user scope will find the package
             result = TestCommon.RunAICLICommand("list", $"{productCode} --scope user");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(result.StdOut.Contains("AppInstallerTest.TestExeInstaller"));
+            Assert.True(result.StdOut.Contains(productCode));
 
             // List with machine scope will not find the package
             result = TestCommon.RunAICLICommand("list", $"{productCode} --scope machine");
             Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
-            Assert.False(result.StdOut.Contains("AppInstallerTest.TestExeInstaller"));
+            Assert.False(result.StdOut.Contains(productCode));
 
             TestCommon.RunCommand(Path.Combine(installDir, Constants.TestExeUninstallerFileName));
         }
