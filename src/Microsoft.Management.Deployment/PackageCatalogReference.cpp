@@ -79,12 +79,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 if (m_compositePackageCatalogOptions.CompositeSearchBehavior() != Microsoft::Management::Deployment::CompositeSearchBehavior::RemotePackagesFromRemoteCatalogs)
                 {
                     ::AppInstaller::Repository::Source installedSource;
-                    PackageInstallScope installedScope = m_compositePackageCatalogOptions.InstalledScope();
-                    if (installedScope == PackageInstallScope::User || installedScope == PackageInstallScope::UserOrUnknown)
+                    auto manifestInstalledScope = GetManifestScope(m_compositePackageCatalogOptions.InstalledScope());
+                    if (manifestInstalledScope.first == ::AppInstaller::Manifest::ScopeEnum::User)
                     {
                         installedSource = ::AppInstaller::Repository::Source{ ::AppInstaller::Repository::PredefinedSource::InstalledUser };
                     }
-                    else if (installedScope == PackageInstallScope::System || installedScope == PackageInstallScope::SystemOrUnknown)
+                    else if (manifestInstalledScope.first == ::AppInstaller::Manifest::ScopeEnum::Machine)
                     {
                         installedSource = ::AppInstaller::Repository::Source{ ::AppInstaller::Repository::PredefinedSource::InstalledMachine };
                     }

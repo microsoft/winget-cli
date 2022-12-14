@@ -235,6 +235,24 @@ namespace AppInstallerCLIE2ETests.Interop
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Test]
+        public async Task InstallMSIXMachineScope()
+        {
+            // Find package
+            var searchResult = FindOnePackage(testSource, PackageMatchField.Name, PackageFieldMatchOption.Equals, "TestMsixInstaller");
+
+            // Configure installation
+            var installOptions = TestFactory.CreateInstallOptions();
+            installOptions.PackageInstallScope = PackageInstallScope.System;
+
+            // Install
+            var installResult = await packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
+
+            // Assert
+            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
+            Assert.True(TestCommon.VerifyTestMsixInstalledAndCleanup(true));
+        }
+
+        [Test]
         public async Task InstallMSIXWithSignature()
         {
             // Task to investigate installation error
@@ -246,8 +264,6 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Configure installation
             var installOptions = this.TestFactory.CreateInstallOptions();
-            installOptions.PackageInstallMode = PackageInstallMode.Silent;
-            installOptions.PreferredInstallLocation = this.installDir;
 
             // Install
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
@@ -261,6 +277,28 @@ namespace AppInstallerCLIE2ETests.Interop
         /// Test installing msix with signature hash mismatch.
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task InstallMSIXWithSignatureMachineScope()
+        {
+            // Task to investigate installation error
+            // TODO: https://task.ms/40489822
+            Assert.Ignore();
+
+            // Find package
+            var searchResult = FindOnePackage(testSource, PackageMatchField.Name, PackageFieldMatchOption.Equals, "TestMsixWithSignatureHash");
+
+            // Configure installation
+            var installOptions = TestFactory.CreateInstallOptions();
+            installOptions.PackageInstallScope = PackageInstallScope.System;
+
+            // Install
+            var installResult = await packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
+
+            // Assert
+            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
+            Assert.True(TestCommon.VerifyTestMsixInstalledAndCleanup(true));
+        }
+
         [Test]
         public async Task InstallMSIXWithSignatureHashMismatch()
         {
