@@ -1,7 +1,7 @@
 ---
 author: Ryan Fu @ryfu-msft
 created on: 2022-05-24
-last updated: 2022-06-23
+last updated: 2022-12-13
 issue id: 140
 ---
 
@@ -68,7 +68,8 @@ In order to protect our users from these possible threats, we will need to scan 
 
 > Pure is licensed under the [MIT license](https://github.com/ronomon/pure/blob/master/LICENSE).
 
-If the Pure library functions that are called on a given ZIP file detect malware, the process will terminate and a warning will be displayed to the user. The user can include `--override-archive-malware-checks` to bypass this check and continue installation at their own risk.
+If the Pure library functions that are called on a given ZIP file detect malware, the process will terminate and a warning will be displayed to the user. The user can include `--ignore-local-archive-malware-scan` to bypass this check and continue installation at their own risk.
+
 
 To minimize unnecessary costs on performance during installation, these checks will only be applied when any of the following conditions are met:
 -  Hash mismatch was overridden
