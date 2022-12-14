@@ -251,7 +251,7 @@
       <ModuleDefinitionFile>winrtact.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(WingetEnableReleaseBuild)'=='true'">
+  <ItemDefinitionGroup Condition="'$(UseProdWingetServer)'=='true'">
     <ClCompile>
       <PreprocessorDefinitions>USE_PROD_WINGET_SERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
