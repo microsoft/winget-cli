@@ -7,6 +7,7 @@
 #include "winget/JsonUtil.h"
 #include "winget/Settings.h"
 #include "winget/UserSettings.h"
+#include "winget/filesystem.h"
 
 #include "AppInstallerArchitecture.h"
 #include "winget/Locale.h"
@@ -18,6 +19,7 @@ namespace AppInstaller::Settings
     using namespace Utility;
     using namespace Logging;
     using namespace JSON;
+    using namespace Filesystem;
 
     static constexpr std::string_view s_SettingEmpty =
         R"({
@@ -543,8 +545,15 @@ namespace AppInstaller::Settings
         }
     }
 
-    std::filesystem::path UserSettings::SettingsFilePath()
+    std::filesystem::path UserSettings::SettingsFilePath(bool forDisplay)
     {
-        return Stream{ Stream::PrimaryUserSettings }.GetPath();
+        auto path = Stream{ Stream::PrimaryUserSettings }.GetPath();
+
+        if (forDisplay)
+        {
+            ReplaceCommonPathPrefix(path, GetKnownFolderPath(FOLDERID_LocalAppData), "%LOCALAPPDATA%");
+        }
+
+        return path;
     }
 }
