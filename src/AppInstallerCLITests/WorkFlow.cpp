@@ -1298,7 +1298,7 @@ TEST_CASE("InstallFlow_Zip_ArchiveScanOverride", "[InstallFlow][workflow]")
     OverrideForExtractInstallerFromArchive(context);
     OverrideForVerifyAndSetNestedInstaller(context);
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Zip_Exe.yaml").GetPath().u8string());
-    context.Args.AddArg(Execution::Args::Type::Force);
+    context.Args.AddArg(Execution::Args::Type::IgnoreLocalArchiveMalwareScan);
 
     bool overrideArchiveScanResult = false;
     AppInstaller::Archive::TestHook_SetScanArchiveResult_Override(&overrideArchiveScanResult);
