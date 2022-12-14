@@ -106,11 +106,11 @@ namespace AppInstaller::Settings
             }
             catch (const std::exception& e)
             {
-                AICLI_LOG(Core, Error, << "Failed to read settings.json file. Reason: " << e.what());
+                AICLI_LOG(Core, Error, << "Failed to read " << setting.Name << "Reason: " << e.what());
             }
             catch (...)
             {
-                AICLI_LOG(Core, Error, << "Failed to read settings.json file.. Reason unknown.");
+                AICLI_LOG(Core, Error, << "Failed to read " << setting.Name << " Reason unknown.");
             }
 
             return {};
@@ -517,6 +517,10 @@ namespace AppInstaller::Settings
                     m_warnings.emplace_back(StringResource::String::SettingsWarningLoadedBackupSettings);
                     m_type = UserSettingsType::Backup;
                     settingsRoot = settingsBackupJson.value();
+                }
+                else
+                {
+                    AICLI_LOG(Core, Warning, << "Failed loading settings files.");
                 }
             }
         }
