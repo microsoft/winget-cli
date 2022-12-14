@@ -22,4 +22,10 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: None
     // Outputs: None
     void OpenUserSetting(Execution::Context& context);
+
+    // Lists the state of settings.
+    // Required Args: None
+    // Inputs: None
+    // Outputs: None
+    void ExportSettings(Execution::Context& context);
 }

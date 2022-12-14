@@ -35,12 +35,17 @@ namespace Microsoft.WinGet.Client.Factories
         private static readonly Guid UninstallOptionsClsid = Guid.Parse("AA2A5C04-1AD9-46C4-B74F-6B334AD7EB8C");
         private static readonly Guid PackageMatchFilterClsid = Guid.Parse("3F85B9F4-487A-4C48-9035-2903F8A6D9E8");
 #endif
-
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "COM only usage.")]
         private static readonly Type PackageManagerType = Type.GetTypeFromCLSID(PackageManagerClsid);
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "COM only usage.")]
         private static readonly Type FindPackagesOptionsType = Type.GetTypeFromCLSID(FindPackagesOptionsClsid);
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "COM only usage.")]
         private static readonly Type CreateCompositePackageCatalogOptionsType = Type.GetTypeFromCLSID(CreateCompositePackageCatalogOptionsClsid);
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "COM only usage.")]
         private static readonly Type InstallOptionsType = Type.GetTypeFromCLSID(InstallOptionsClsid);
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "COM only usage.")]
         private static readonly Type UninstallOptionsType = Type.GetTypeFromCLSID(UninstallOptionsClsid);
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "COM only usage.")]
         private static readonly Type PackageMatchFilterType = Type.GetTypeFromCLSID(PackageMatchFilterClsid);
 
         private static readonly Guid PackageManagerIid = Guid.Parse("B375E3B9-F2E0-5C93-87A7-B67497F7E593");

@@ -69,6 +69,7 @@ namespace Microsoft.WinGet.Client.Commands
         }
 
         /// <inheritdoc />
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "Targets Windows 10.0.17763.0")]
         protected override InstallOptions GetInstallOptions(PackageVersionId version)
         {
             InstallOptions options = base.GetInstallOptions(version);
