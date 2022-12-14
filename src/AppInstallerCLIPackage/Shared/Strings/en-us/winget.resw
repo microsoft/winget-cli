@@ -760,7 +760,7 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="Logs" xml:space="preserve">
     <value>Logs</value>
-    <comment>Label displayed for a diagnostic files containing information about the application use.</comment>
+    <comment>Label displayed for diagnostic files containing information about the application use.</comment>
   </data>
   <data name="InstallerBlockedByPolicy" xml:space="preserve">
     <value>The installer is blocked by policy</value>
@@ -1167,7 +1167,7 @@ Do you agree to the terms?</value>
   </data>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
     <value>The optional header is not applicable without specifying a source: '{0}'</value>
-    <comment>Error message displayed when the user performs an operation (e.g install) and provide the 'header' argument without specifying the repository source. {0} is a placeholder replaced by the header argument name.</comment>
+    <comment>Error message displayed when the user performs an operation (e.g install) and provides the HTTP 'header' argument without specifying the repository source. {0} is a placeholder replaced by the header argument name.</comment>
   </data>
   <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
     <value>Release Date:</value>

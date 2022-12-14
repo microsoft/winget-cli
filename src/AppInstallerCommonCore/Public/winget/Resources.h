@@ -27,9 +27,10 @@ namespace AppInstaller
             Utility::LocIndString operator()(T ... args) const;
 
             friend std::ostream& operator<<(std::ostream& out, StringId si);
-        private:
 
-            // Resolve the string id.
+        private:
+            // Resolve the string ID to its corresponding localized string
+            // without replacing placeholders.
             std::string Resolve() const;
         };
 
