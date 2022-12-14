@@ -106,11 +106,11 @@ namespace AppInstaller::Settings
             }
             catch (const std::exception& e)
             {
-                AICLI_LOG(CLI, Error, << "Failed to read settings.json file. Reason: " << e.what());
+                AICLI_LOG(Core, Error, << "Failed to read settings.json file. Reason: " << e.what());
             }
             catch (...)
             {
-                AICLI_LOG(CLI, Error, << "Failed to read settings.json file.. Reason unknown.");
+                AICLI_LOG(Core, Error, << "Failed to read settings.json file.. Reason unknown.");
             }
 
             return {};
