@@ -45,16 +45,12 @@ If you enable or do not configure this policy, users will be able to enable the 
 
 If you disable this policy, users will not be able to enable the ability override the SHA256 security validation in the Windows Package Manager settings.</string>
       <string id="EnableLocalArchiveMalwareScanOverride">Enable App Installer Local Archive Malware Scan Override</string>
+      <string id="EnableLocalArchiveMalwareScanOverrideExplanation">This policy controls the ability to override malware vulnerability scans when installing an archive file using a local manifest using the command line arguments.
+If you enable this policy, users can override the malware scan when performing a local manifest install of an archive file.
 
-      <string id="EnableLocalArchiveMalwareScanOverrideExplanation">
-        This policy controls the ability to override malware vulnerability scans when installing an archive file using a local manifest using the command line arguments.
+If you disable this policy, users will be unable to override the malware scan of an archive file when installing using a local manifest.
 
-        If you enable this policy, users can override the malware scan when performing a local manifest install of an archive file.
-
-        If you disable this policy, users will be unable to override the malware scan of an archive file when installing using a local manifest.
-
-        If you do not configure this policy, the Windows Package Manager administrator settings will be adhered to.
-      </string>
+If you do not configure this policy, the Windows Package Manager administrator settings will be adhered to.</string>
       <string id="EnableDefaultSource">Enable App Installer Default Source</string>
       <string id="EnableDefaultSourceExplanation">This policy controls the default source included with the Windows Package Manager.
 
