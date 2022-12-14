@@ -440,7 +440,7 @@ namespace AppInstallerCLIE2ETests
             if (isProvisioned)
             {
                 return RunCommand("powershell", $"Get-AppxProvisionedPackage -Online | Where-Object {{$_.PackageName -like \"*{name}*\"}} | Remove-AppxProvisionedPackage -Online -AllUsers") &&
-                    RunCommand("powershell", $"Get-AppxPackage \"{name}\" | Remove-AppxPackage -Allusers");
+                    RunCommand("powershell", $"Get-AppxPackage \"{name}\" | Remove-AppxPackage -AllUsers");
             }
             else
             {
