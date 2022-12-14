@@ -111,7 +111,7 @@ namespace AppInstallerCLIE2ETests
 
             // List with user scope will not find the package
             result = TestCommon.RunAICLICommand("list", $"{productCode} --scope user");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
             Assert.False(result.StdOut.Contains("AppInstallerTest.TestExeInstaller"));
 
             // List with machine scope will find the package
@@ -141,7 +141,7 @@ namespace AppInstallerCLIE2ETests
 
             // List with machine scope will not find the package
             result = TestCommon.RunAICLICommand("list", $"{productCode} --scope machine");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
             Assert.False(result.StdOut.Contains("AppInstallerTest.TestExeInstaller"));
 
             TestCommon.RunCommand(Path.Combine(installDir, Constants.TestExeUninstallerFileName));
@@ -178,14 +178,14 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("install", $"{Constants.MsixInstallerPackageId} --scope user");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
 
-            // List with user scope will not find the package
+            // List with user scope will find the package
             result = TestCommon.RunAICLICommand("list", $"{Constants.MsixInstallerPackageId} --scope user");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains(Constants.MsixInstallerPackageId));
 
             // List with machine scope will not find the package
             result = TestCommon.RunAICLICommand("list", $"{Constants.MsixInstallerPackageId} --scope machine");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
             Assert.False(result.StdOut.Contains(Constants.MsixInstallerPackageId));
 
             TestCommon.RemoveMsix(Constants.MsixInstallerName);
