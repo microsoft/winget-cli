@@ -233,7 +233,7 @@ struct CompletionTestCommand : public Command
 
     using Command::Complete;
 
-    void Complete(CLI::Execution::Context& context, CLI::Execution::Args::Type valueType) const override
+    void Complete(Execution::Context& context, Execution::Args::Type valueType) const override
     {
         if (ArgumentValueCallback)
         {
@@ -243,7 +243,7 @@ struct CompletionTestCommand : public Command
 
     std::vector<std::string> SubCommandNames;
     std::vector<Argument> Arguments;
-    std::function<void(Context&, CLI::Execution::Args::Type)> ArgumentValueCallback;
+    std::function<void(Context&, Execution::Args::Type)> ArgumentValueCallback;
 };
 
 struct CompletionTestContext
@@ -251,7 +251,7 @@ struct CompletionTestContext
     CompletionTestContext(std::string_view word, std::string_view commandLine, std::string_view position) :
         context(out, in)
     {
-        context.Reporter.SetChannel(CLI::Execution::Reporter::Channel::Completion);
+        context.Reporter.SetChannel(Execution::Reporter::Channel::Completion);
         context.Add<Data::CompletionData>(CompletionData{ word, commandLine, position });
     }
 
@@ -267,7 +267,7 @@ TEST_CASE("CommandComplete_Simple", "[complete]")
     CompletionTestCommand command;
     command.SubCommandNames = { "test1", "test2" };
     command.Arguments = { Argument{ "arg1", 'a', Args::Type::Query, CLI::Resource::String::Done, ArgumentType::Standard } };
-    command.ArgumentValueCallback = [&](Context&, CLI::Execution::Args::Type) { FAIL("No argument value should be requested"); };
+    command.ArgumentValueCallback = [&](Context&, Execution::Args::Type) { FAIL("No argument value should be requested"); };
     command.Complete(ctc.context);
 
     // Create expected values
@@ -284,7 +284,7 @@ TEST_CASE("CommandComplete_PartialCommandMatch", "[complete]")
 
     CompletionTestCommand command;
     command.SubCommandNames = { "car", "cart", "cartesian", "carpet" };
-    command.ArgumentValueCallback = [&](Context&, CLI::Execution::Args::Type) { FAIL("No argument value should be requested"); };
+    command.ArgumentValueCallback = [&](Context&, Execution::Args::Type) { FAIL("No argument value should be requested"); };
     command.Complete(ctc.context);
 
     // Create expected values
@@ -301,7 +301,7 @@ TEST_CASE("CommandComplete_CommandsNotAllowed", "[complete]")
 
     CompletionTestCommand command;
     command.SubCommandNames = { "car", "cart", "cartesian", "carpet" };
-    command.ArgumentValueCallback = [&](Context&, CLI::Execution::Args::Type) { FAIL("No argument value should be requested"); };
+    command.ArgumentValueCallback = [&](Context&, Execution::Args::Type) { FAIL("No argument value should be requested"); };
     command.Complete(ctc.context);
 
     // Create expected values
@@ -322,7 +322,7 @@ TEST_CASE("CommandComplete_Routing1", "[complete]")
         Argument{ "arg2", '2', Args::Type::Channel, CLI::Resource::String::Done, ArgumentType::Standard },
     };
     Args::Type argType = static_cast<Args::Type>(-1);
-    command.ArgumentValueCallback = [&](Context&, CLI::Execution::Args::Type type) { argType = type; };
+    command.ArgumentValueCallback = [&](Context&, Execution::Args::Type type) { argType = type; };
     command.Complete(ctc.context);
 
     // Create expected values
@@ -343,7 +343,7 @@ TEST_CASE("CommandComplete_Routing2", "[complete]")
         Argument{ "arg2", '2', Args::Type::Channel, CLI::Resource::String::Done, ArgumentType::Standard },
     };
     Args::Type argType = static_cast<Args::Type>(-1);
-    command.ArgumentValueCallback = [&](Context&, CLI::Execution::Args::Type type) { argType = type; };
+    command.ArgumentValueCallback = [&](Context&, Execution::Args::Type type) { argType = type; };
     command.Complete(ctc.context);
 
     // Create expected values
@@ -364,7 +364,7 @@ TEST_CASE("CommandComplete_PositionalRouting", "[complete]")
         Argument{ "arg2", '2', Args::Type::Channel, CLI::Resource::String::Done, ArgumentType::Positional },
     };
     Args::Type argType = static_cast<Args::Type>(-1);
-    command.ArgumentValueCallback = [&](Context&, CLI::Execution::Args::Type type) { argType = type; };
+    command.ArgumentValueCallback = [&](Context&, Execution::Args::Type type) { argType = type; };
     command.Complete(ctc.context);
 
     // Create expected values
@@ -387,7 +387,7 @@ TEST_CASE("CommandComplete_PositionalRoutingAfterArgs", "[complete]")
         Argument{ "arg2", '2', Args::Type::Channel, CLI::Resource::String::Done, ArgumentType::Positional },
     };
     Args::Type argType = static_cast<Args::Type>(-1);
-    command.ArgumentValueCallback = [&](Context&, CLI::Execution::Args::Type type) { argType = type; };
+    command.ArgumentValueCallback = [&](Context&, Execution::Args::Type type) { argType = type; };
     command.Complete(ctc.context);
 
     // Create expected values
@@ -409,7 +409,7 @@ TEST_CASE("CommandComplete_PositionalRoutingAfterDoubleDash", "[complete]")
         Argument{ "arg2", '2', Args::Type::Channel, CLI::Resource::String::Done, ArgumentType::Positional },
     };
     Args::Type argType = static_cast<Args::Type>(-1);
-    command.ArgumentValueCallback = [&](Context&, CLI::Execution::Args::Type type) { argType = type; };
+    command.ArgumentValueCallback = [&](Context&, Execution::Args::Type type) { argType = type; };
     command.Complete(ctc.context);
 
     // Create expected values
@@ -429,7 +429,7 @@ TEST_CASE("CommandComplete_ArgNamesAfterDash", "[complete]")
         Argument{ "arg1", '1', Args::Type::Query, CLI::Resource::String::Done, ArgumentType::Standard },
         Argument{ "arg2", '2', Args::Type::Channel, CLI::Resource::String::Done, ArgumentType::Positional },
     };
-    command.ArgumentValueCallback = [&](Context&, CLI::Execution::Args::Type) { FAIL("No argument value should be requested"); };
+    command.ArgumentValueCallback = [&](Context&, Execution::Args::Type) { FAIL("No argument value should be requested"); };
     command.Complete(ctc.context);
 
     // Create expected values
@@ -449,7 +449,7 @@ TEST_CASE("CommandComplete_AliasNames", "[complete]")
         Argument{ "arg1", '1', Args::Type::Query, CLI::Resource::String::Done, ArgumentType::Standard },
         Argument{ "arg2", '2', Args::Type::Channel, CLI::Resource::String::Done, ArgumentType::Positional },
     };
-    command.ArgumentValueCallback = [&](Context&, CLI::Execution::Args::Type) { FAIL("No argument value should be requested"); };
+    command.ArgumentValueCallback = [&](Context&, Execution::Args::Type) { FAIL("No argument value should be requested"); };
     command.Complete(ctc.context);
 
     // Create expected values
@@ -470,7 +470,7 @@ TEST_CASE("CommandComplete_ArgNamesFilter", "[complete]")
         Argument{ "arg2", '2', Args::Type::Channel, CLI::Resource::String::Done, ArgumentType::Positional },
         Argument{ "foo1", '2', Args::Type::Channel, CLI::Resource::String::Done, ArgumentType::Positional },
     };
-    command.ArgumentValueCallback = [&](Context&, CLI::Execution::Args::Type) { FAIL("No argument value should be requested"); };
+    command.ArgumentValueCallback = [&](Context&, Execution::Args::Type) { FAIL("No argument value should be requested"); };
     command.Complete(ctc.context);
 
     // Create expected values
@@ -491,7 +491,7 @@ TEST_CASE("CommandComplete_IgnoreBadArgs", "[complete]")
         Argument{ "arg2", '2', Args::Type::Channel, CLI::Resource::String::Done, ArgumentType::Standard },
     };
     Args::Type argType = static_cast<Args::Type>(-1);
-    command.ArgumentValueCallback = [&](Context&, CLI::Execution::Args::Type type) { argType = type; };
+    command.ArgumentValueCallback = [&](Context&, Execution::Args::Type type) { argType = type; };
     command.Complete(ctc.context);
 
     // Create expected values
@@ -511,7 +511,7 @@ TEST_CASE("CommandComplete_OtherArgsParsed", "[complete]")
         Argument{ "arg1", '1', Args::Type::Query, CLI::Resource::String::Done, ArgumentType::Standard },
         Argument{ "arg2", '2', Args::Type::Channel, CLI::Resource::String::Done, ArgumentType::Standard },
     };
-    command.ArgumentValueCallback = [&](Context&, CLI::Execution::Args::Type) { FAIL("No argument value should be requested"); };
+    command.ArgumentValueCallback = [&](Context&, Execution::Args::Type) { FAIL("No argument value should be requested"); };
     command.Complete(ctc.context);
 
     // Create expected values
@@ -536,7 +536,7 @@ TEST_CASE("CommandComplete_Complex", "[complete]")
         Argument{ "arg2", '2', Args::Type::Channel, CLI::Resource::String::Done, ArgumentType::Standard },
     };
     Args::Type argType = static_cast<Args::Type>(-1);
-    command.ArgumentValueCallback = [&](Context&, CLI::Execution::Args::Type type) { argType = type; };
+    command.ArgumentValueCallback = [&](Context&, Execution::Args::Type type) { argType = type; };
     command.Complete(ctc.context);
 
     // Create expected values
