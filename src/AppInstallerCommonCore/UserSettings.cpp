@@ -95,11 +95,22 @@ namespace AppInstaller::Settings
 
         std::optional<Json::Value> ParseFile(const StreamDefinition& setting, std::vector<UserSettings::Warning>& warnings)
         {
-            auto stream = Stream{ setting }.Get();
-            if (stream)
+            try
             {
-                std::string settingsContentStr = Utility::ReadEntireStream(*stream);
-                return ParseSettingsContent(settingsContentStr, setting.Name, warnings);
+                auto stream = Stream{ setting }.Get();
+                if (stream)
+                {
+                    std::string settingsContentStr = Utility::ReadEntireStream(*stream);
+                    return ParseSettingsContent(settingsContentStr, setting.Name, warnings);
+                }
+            }
+            catch (const std::exception& e)
+            {
+                AICLI_LOG(CLI, Error, << "Failed to read settings.json file. Reason: " << e.what());
+            }
+            catch (...)
+            {
+                AICLI_LOG(CLI, Error, << "Failed to read settings.json file.. Reason unknown.");
             }
 
             return {};
