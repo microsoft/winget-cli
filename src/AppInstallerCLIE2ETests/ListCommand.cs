@@ -97,6 +97,25 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("AppInstallerTest.TestMsiInstallerUpgradeCode"));
         }
 
+        [Test]
+        public void ListWithUserScope()
+        {
+            // Installs the MSI installer using the TestMsiInstaller package.
+            // Then tries listing the TestMsiInstallerUpgradeCode package, which should
+            // be correlated to it by the UpgradeCode.
+            if (string.IsNullOrEmpty(TestCommon.MsiInstallerPath))
+            {
+                Assert.Ignore("MSI installer not available");
+            }
+
+            var installDir = TestCommon.GetRandomTestDir();
+            Assert.AreEqual(Constants.ErrorCode.S_OK, TestCommon.RunAICLICommand("install", $"TestMsiInstaller --silent -l {installDir}").ExitCode);
+
+            var result = TestCommon.RunAICLICommand("list", "TestMsiInstallerUpgradeCode");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("AppInstallerTest.TestMsiInstallerUpgradeCode"));
+        }
+
         private void ArpVersionMappingTest(string packageIdentifier, string displayNameOverride, string displayVersionOverride, string expectedListVersion, string notExpectedListVersion = "")
         {
             System.Guid guid = System.Guid.NewGuid();

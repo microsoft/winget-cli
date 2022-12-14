@@ -166,10 +166,18 @@ namespace AppInstallerCLIE2ETests
         /// Test install msix with signature hash.
         /// </summary>
         [Test]
+        public void InstallMSIXMachineScope()
+        {
+            var result = TestCommon.RunAICLICommand("install", $"TestMsixInstaller --scope machine");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.True(TestCommon.VerifyTestMsixInstalledAndCleanup(true));
+        }
+
+        [Test]
         public void InstallMSIXWithSignature()
         {
-            var installDir = TestCommon.GetRandomTestDir();
-            var result = TestCommon.RunAICLICommand("install", $"TestMsixWithSignatureHash --silent -l {installDir}");
+            var result = TestCommon.RunAICLICommand("install", $"TestMsixWithSignatureHash");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
             Assert.True(TestCommon.VerifyTestMsixInstalledAndCleanup());
@@ -178,6 +186,15 @@ namespace AppInstallerCLIE2ETests
         /// <summary>
         /// Test msix hash mismatch.
         /// </summary>
+        [Test]
+        public void InstallMSIXWithSignatureMachineScope()
+        {
+            var result = TestCommon.RunAICLICommand("install", $"TestMsixWithSignatureHash --scope machine");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.True(TestCommon.VerifyTestMsixInstalledAndCleanup(true));
+        }
+
         [Test]
         public void InstallMSIXWithSignatureHashMismatch()
         {

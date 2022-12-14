@@ -79,6 +79,17 @@ namespace AppInstallerCLIE2ETests
         /// Test uninstall portable package.
         /// </summary>
         [Test]
+        public void UninstallTestMsixMachineScope()
+        {
+            // Uninstall an MSIX
+            TestCommon.RunAICLICommand("install", $"{Constants.MsixInstallerPackageId} --scope machine");
+            var result = TestCommon.RunAICLICommand("uninstall", $"{Constants.MsixInstallerPackageId} --scope machine");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully uninstalled"));
+            Assert.True(TestCommon.VerifyTestMsixUninstalled(true));
+        }
+
+        [Test]
         public void UninstallPortable()
         {
             // Uninstall a Portable

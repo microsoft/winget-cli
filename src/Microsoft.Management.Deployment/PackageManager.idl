@@ -779,6 +779,17 @@ namespace Microsoft.Management.Deployment
         Interactive,
     };
 
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 5)]
+    enum PackageUninstallScope
+    {
+        /// Use default uninstall behavior.
+        Any,
+        /// Uninstall for current user. Currently only applicable to msix.
+        User,
+        /// Uninstall for all users. Currently only applicable to msix.
+        System,
+    };
+
     /// Options when uninstalling a package.
     /// Intended to allow full compatibility with the "winget uninstall" command line interface.
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 4)]
@@ -803,6 +814,8 @@ namespace Microsoft.Management.Deployment
         {
             /// Force the operation to continue upon non security related failures.
             Boolean Force;
+            // The scope the uninstall will perform. Currently only applicable to msix.
+            PackageUninstallScope PackageUninstallScope;
         }
     }
 
