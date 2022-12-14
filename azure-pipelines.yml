@@ -195,9 +195,11 @@ jobs:
   - task: CopyFiles@2
     displayName: 'Copy test msix to artifacts folder'
     inputs:
-      Contents: |
-          $(Build.ArtifactStagingDirectory)\AppInstallerTestMsixInstaller.msix
+      SourceFolder: '$(Build.ArtifactStagingDirectory)'
       TargetFolder: '$(artifactsDir)'
+      Contents: AppInstallerTestMsixInstaller.msix
+      CleanTargetFolder: false
+      OverWrite: true
     condition: succeededOrFailed()
 
   - task: PowerShell@2
