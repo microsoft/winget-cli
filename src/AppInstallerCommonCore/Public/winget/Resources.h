@@ -23,16 +23,18 @@ namespace AppInstaller
             explicit constexpr StringId(std::wstring_view id) : std::wstring_view(id) {}
 
             // Sets the placeholder values in the resolved string id.
+            // Example: out << myStringId(placeholderVal1, placeholderVal2, ...)
             template<typename ...T>
             Utility::LocIndString operator()(T ... args) const;
-
-            friend std::ostream& operator<<(std::ostream& out, StringId si);
 
         private:
             // Resolve the string ID to its corresponding localized string
             // without replacing placeholders.
             std::string Resolve() const;
         };
+
+        // Output resource identifier as localized string.
+        std::ostream& operator<<(std::ostream& out, StringId si);
 
         // Resource string identifiers.
         struct String

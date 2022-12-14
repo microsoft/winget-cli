@@ -92,9 +92,9 @@ namespace AppInstaller
                 {
                     // The default constructor of ResourceLoader throws a winrt::hresult_error exception
                     // when resource.pri is not found. ResourceLoader::GetForViewIndependentUse also throws
-                    // a winrt::hresult_error but for reasons unknown it only gets catch when running on the
+                    // a winrt::hresult_error but for reasons unknown it only gets caught when running on the
                     // debugger. Running without a debugger will result in a crash that not even adding a
-                    // catch all fix. To provide a good error message we call the default constructor
+                    // catch all will fix. To provide a good error message we call the default constructor
                     // before calling GetForViewIndependentUse.
                     m_wingetLoader = winrt::Windows::ApplicationModel::Resources::ResourceLoader();
                     m_wingetLoader = winrt::Windows::ApplicationModel::Resources::ResourceLoader::GetForViewIndependentUse(L"winget");

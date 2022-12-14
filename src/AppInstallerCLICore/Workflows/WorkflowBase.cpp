@@ -57,7 +57,7 @@ namespace AppInstaller::CLI::Workflow
             out << std::endl;
         }
 
-        Repository::Source OpenNamedSource(Execution::Context& context, std::string_view sourceName)
+        Repository::Source OpenNamedSource(Execution::Context& context, Utility::LocIndView sourceName)
         {
             Repository::Source source;
 
@@ -72,7 +72,7 @@ namespace AppInstaller::CLI::Workflow
                     if (!sourceName.empty() && !sources.empty())
                     {
                         // A bad name was given, try to help.
-                        context.Reporter.Error() << Resource::String::OpenSourceFailedNoMatch(Utility::LocIndView{ sourceName }) << std::endl;
+                        context.Reporter.Error() << Resource::String::OpenSourceFailedNoMatch(sourceName) << std::endl;
                         context.Reporter.Info() << Resource::String::OpenSourceFailedNoMatchHelp << std::endl;
                         for (const auto& details : sources)
                         {
@@ -260,7 +260,7 @@ namespace AppInstaller::CLI::Workflow
         {
             auto policy = Settings::TogglePolicy::GetPolicy(e.Policy());
             auto policyNameId = policy.PolicyName();
-            context.Reporter.Error() << Resource::String::DisabledByGroupPolicy(policyNameId()) << std::endl;
+            context.Reporter.Error() << Resource::String::DisabledByGroupPolicy(policyNameId) << std::endl;
             return APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY;
         }
         catch (const std::exception& e)
@@ -301,7 +301,7 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        auto source = OpenNamedSource(context, sourceName);
+        auto source = OpenNamedSource(context, Utility::LocIndView{ sourceName });
         if (context.IsTerminated())
         {
             return;
