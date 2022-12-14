@@ -28,6 +28,7 @@ namespace Microsoft.WinGet.Client.Common
         /// <summary>
         /// Gets a value indicating whether the current assembly is executing in an administrative context.
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "Windows only API")]
         public static bool ExecutingAsAdministrator
         {
             get
@@ -41,6 +42,7 @@ namespace Microsoft.WinGet.Client.Common
         /// <summary>
         /// Gets a value indicating whether the current assembly is executing as a SYSTEM user.
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "Windows only API")]
         public static bool ExecutingAsSystem
         {
             get
