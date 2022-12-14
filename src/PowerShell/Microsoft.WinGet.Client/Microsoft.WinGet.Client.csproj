@@ -17,7 +17,7 @@
     <DocumentationFile>$(OutputPath)\Microsoft.WinGet.Client.xml</DocumentationFile>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(WingetUseProdClsids)' == 'true'">
+  <PropertyGroup Condition="'$(UseProdCLSIDs)' == 'true'">
     <DefineConstants>USE_PROD_CLSIDS</DefineConstants>
   </PropertyGroup>
 
