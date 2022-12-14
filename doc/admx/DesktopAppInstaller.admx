@@ -74,7 +74,6 @@
       </disabledValue>
     </policy>
     <policy name="EnableLocalArchiveMalwareScanOverride" class="Machine" displayName="$(string.EnableLocalArchiveMalwareScanOverride)" explainText="$(string.EnableLocalArchiveMalwareScanOverrideExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableLocalArchiveMalwareScanOverride">
-
       <parentCategory ref="AppInstaller" />
       <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
       <enabledValue>
