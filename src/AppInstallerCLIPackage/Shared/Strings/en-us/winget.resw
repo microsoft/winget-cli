@@ -294,7 +294,6 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="IgnoreLocalArchiveMalwareScanArgumentDescription" xml:space="preserve">
     <value>Ignore the malware scan performed as part of installing an archive type package from local manifest</value>
-
   </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>Request interactive installation; user input may be needed</value>
@@ -895,8 +894,6 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="PolicyEnableLocalArchiveMalwareScanOverride" xml:space="preserve">
     <value>Enable Windows App Installer Local Archive Malware Scan Override</value>
-
-
   </data>
   <data name="SettingsWarningField" xml:space="preserve">
     <value>Field:</value>
