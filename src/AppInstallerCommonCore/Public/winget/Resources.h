@@ -31,7 +31,6 @@ namespace AppInstaller
             WINGET_DEFINE_RESOURCE_STRINGID(PolicyEnableLocalManifests);
             WINGET_DEFINE_RESOURCE_STRINGID(PolicyEnableHashOverride);
             WINGET_DEFINE_RESOURCE_STRINGID(PolicyEnableLocalArchiveMalwareScanOverride);
-
             WINGET_DEFINE_RESOURCE_STRINGID(PolicyEnableDefaultSource);
             WINGET_DEFINE_RESOURCE_STRINGID(PolicyEnableMSStoreSource);
             WINGET_DEFINE_RESOURCE_STRINGID(PolicyAdditionalSources);
