@@ -3,6 +3,20 @@
 #include "pch.h"
 #include "WorkflowCommon.h"
 
+void OverrideForImportSource(TestContext& context, bool useTestCompositeSource = false)
+{
+    context.Override({ "OpenPredefinedSource", [=](TestContext& context)
+    {
+        auto installedSource = useTestCompositeSource ? std::make_shared<WorkflowTestCompositeSource>() : std::make_shared<TestSource>();
+        context.Add<Execution::Data::Source>(Source{ installedSource });
+    } });
+
+    context.Override({ Workflow::OpenSourcesForImport, [](TestContext& context)
+    {
+        context.Add<Execution::Data::Sources>(std::vector<Source>{ Source{ std::make_shared<WorkflowTestCompositeSource>() } });
+    } });
+}
+
 TEST_CASE("ImportFlow_Successful", "[ImportFlow][workflow]")
 {
     TestCommon::TempFile exeInstallResultPath("TestExeInstalled.txt");

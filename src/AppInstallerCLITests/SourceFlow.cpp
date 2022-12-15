@@ -3,6 +3,30 @@
 #include "pch.h"
 #include "WorkflowCommon.h"
 
+void OverrideForSourceAddWithAgreements(TestContext& context, bool isAddExpected = true)
+{
+    context.Override({ EnsureRunningAsAdmin, [](TestContext&)
+    {
+    } });
+
+    if (isAddExpected)
+    {
+        context.Override({ AddSource, [](TestContext&)
+        {
+        } });
+    }
+
+    context.Override({ CreateSourceForSourceAdd, [](TestContext& context)
+    {
+        auto testSource = std::make_shared<TestSource>();
+        testSource->Information.SourceAgreementsIdentifier = "AgreementsIdentifier";
+        testSource->Information.SourceAgreements.emplace_back("Agreement Label", "Agreement Text", "https://test");
+        testSource->Information.RequiredPackageMatchFields.emplace_back("Market");
+        testSource->Information.RequiredQueryParameters.emplace_back("Market");
+        context << Workflow::HandleSourceAgreements(Source{ testSource });
+    } });
+}
+
 TEST_CASE("SourceAddFlow_Agreement", "[SourceAddFlow][workflow]")
 {
     std::ostringstream sourceAddOutput;

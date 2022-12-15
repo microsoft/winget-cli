@@ -3,6 +3,35 @@
 #include "pch.h"
 #include "WorkflowCommon.h"
 
+void OverrideForDirectMsi(TestContext& context)
+{
+    OverrideForCheckExistingInstaller(context);
+
+    context.Override({ DownloadInstallerFile, [](TestContext& context)
+    {
+        context.Add<Data::HashPair>({ {}, {} });
+        // We don't have an msi installer for tests, but we won't execute it anyway
+        context.Add<Data::InstallerPath>(TestDataFile("AppInstallerTestExeInstaller.exe"));
+    } });
+
+    context.Override({ RenameDownloadedInstaller, [](TestContext&)
+    {
+    } });
+
+    OverrideForUpdateInstallerMotw(context);
+
+    context.Override({ DirectMSIInstallImpl, [](TestContext& context)
+    {
+            // Write out the install command
+            std::filesystem::path temp = std::filesystem::temp_directory_path();
+            temp /= "TestMsiInstalled.txt";
+            std::ofstream file(temp, std::ofstream::out);
+            file << context.Get<Execution::Data::InstallerArgs>();
+            file.close();
+
+            context.Add<Execution::Data::OperationReturnCode>(0);
+        } });
+}
 
 TEST_CASE("ExeInstallFlowWithTestManifest", "[InstallFlow][workflow]")
 {

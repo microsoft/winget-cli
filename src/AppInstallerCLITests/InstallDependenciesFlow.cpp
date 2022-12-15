@@ -3,6 +3,48 @@
 #include "pch.h"
 #include "WorkflowCommon.h"
 
+void OverrideOpenSourceForDependencies(TestContext& context)
+{
+    context.Override({ "OpenSource", [](TestContext& context)
+    {
+        context.Add<Execution::Data::Source>(Source{ std::make_shared<DependenciesTestSource>() });
+    } });
+
+    context.Override({ Workflow::OpenDependencySource, [](TestContext& context)
+    {
+        context.Add<Execution::Data::DependencySource>(Source{ std::make_shared<DependenciesTestSource>() });
+    } });
+}
+
+void OverrideDependencySource(TestContext& context)
+{
+    context.Override({ Workflow::OpenDependencySource, [](TestContext& context)
+    {
+        context.Add<Execution::Data::DependencySource>(Source{ std::make_shared<DependenciesTestSource>() });
+    } });
+}
+
+void OverrideOpenDependencySource(TestContext& context)
+{
+    context.Override({ Workflow::OpenDependencySource, [](TestContext& context)
+    {
+        context.Add<Execution::Data::DependencySource>(Source{ std::make_shared<DependenciesTestSource>() });
+    } });
+}
+
+void OverrideForInstallMultiplePackages(TestContext& context)
+{
+    context.Override({ Workflow::InstallMultiplePackages(
+        Resource::String::InstallAndUpgradeCommandsReportDependencies,
+        APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES,
+        {},
+        false,
+        true), [](TestContext&)
+    {
+
+    } });
+}
+
 TEST_CASE("DependencyGraph_SkipInstalled", "[InstallFlow][workflow][dependencyGraph][dependencies]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");

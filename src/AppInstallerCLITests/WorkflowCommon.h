@@ -129,12 +129,6 @@ void OverrideForOpenSource(TestContext& context, bool overrideOpenCompositeSourc
 
 void OverrideForCompositeInstalledSource(TestContext& context, TestSourceSearchOptions searchOptions = TestSourceSearchOptions::None);
 
-void OverrideForImportSource(TestContext& context, bool useTestCompositeSource = false);
-
-void OverrideOpenSourceForDependencies(TestContext& context);
-
-void OverrideDependencySource(TestContext& context);
-
 void OverrideForUpdateInstallerMotw(TestContext& context);
 
 void OverrideForCheckExistingInstaller(TestContext& context);
@@ -149,26 +143,10 @@ void OverrideForPortableInstallFlow(TestContext& context);
 
 void OverridePortableInstaller(TestContext& context);
 
-void OverrideForPortableUninstall(TestContext& context);
-
-void OverrideForArchiveInstall(TestContext& context);
-
 void OverrideForExtractInstallerFromArchive(TestContext& context);
 
 void OverrideForVerifyAndSetNestedInstaller(TestContext& context);
 
-void OverrideForDirectMsi(TestContext& context);
-
-void OverrideForExeUninstall(TestContext& context);
-
 void OverrideForMSIX(TestContext& context);
 
-void OverrideForMSIXUninstall(TestContext& context);
-
 void OverrideForMSStore(TestContext& context, bool isUpdate);
-
-void OverrideForSourceAddWithAgreements(TestContext& context, bool isAddExpected = true);
-
-void OverrideOpenDependencySource(TestContext& context);
-
-void OverrideForInstallMultiplePackages(TestContext& context);

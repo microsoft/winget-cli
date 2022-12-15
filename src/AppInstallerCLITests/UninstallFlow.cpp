@@ -3,6 +3,55 @@
 #include "pch.h"
 #include "WorkflowCommon.h"
 
+void OverrideForPortableUninstall(TestContext& context)
+{
+    context.Override({ GetUninstallInfo, [](TestContext&)
+    {
+    } });
+
+    context.Override({ PortableUninstallImpl, [](TestContext& context)
+    {
+        std::filesystem::path temp = std::filesystem::temp_directory_path();
+        temp /= "TestPortableUninstalled.txt";
+        std::ofstream file(temp, std::ofstream::out);
+        file.close();
+
+        context.Add<Execution::Data::OperationReturnCode>(0);
+    } });
+}
+
+void OverrideForExeUninstall(TestContext& context)
+{
+    context.Override({ ShellExecuteUninstallImpl, [](TestContext& context)
+    {
+            // Write out the uninstall command
+            std::filesystem::path temp = std::filesystem::temp_directory_path();
+            temp /= "TestExeUninstalled.txt";
+            std::ofstream file(temp, std::ofstream::out);
+            file << context.Get<Execution::Data::UninstallString>();
+            file.close();
+
+            context.Add<Execution::Data::OperationReturnCode>(0);
+        } });
+}
+
+void OverrideForMSIXUninstall(TestContext& context)
+{
+    context.Override({ MsixUninstall, [](TestContext& context)
+    {
+            // Write out the package full name
+            std::filesystem::path temp = std::filesystem::temp_directory_path();
+            temp /= "TestMsixUninstalled.txt";
+            std::ofstream file(temp, std::ofstream::out);
+            for (const auto& packageFamilyName : context.Get<Execution::Data::PackageFamilyNames>())
+            {
+                file << packageFamilyName << std::endl;
+            }
+
+            file.close();
+        } });
+}
+
 TEST_CASE("UninstallFlow_UninstallPortable", "[UninstallFlow][workflow]")
 {
     TestCommon::TempFile uninstallResultPath("TestPortableUninstalled.txt");

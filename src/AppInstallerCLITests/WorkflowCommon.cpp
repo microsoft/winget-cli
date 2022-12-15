@@ -446,41 +446,6 @@ void OverrideForCompositeInstalledSource(TestContext& context, TestSourceSearchO
     } });
 }
 
-void OverrideForImportSource(TestContext& context, bool useTestCompositeSource = false)
-{
-    context.Override({ "OpenPredefinedSource", [=](TestContext& context)
-    {
-        auto installedSource = useTestCompositeSource ? std::make_shared<WorkflowTestCompositeSource>() : std::make_shared<TestSource>();
-        context.Add<Execution::Data::Source>(Source{ installedSource });
-    } });
-
-    context.Override({ Workflow::OpenSourcesForImport, [](TestContext& context)
-    {
-        context.Add<Execution::Data::Sources>(std::vector<Source>{ Source{ std::make_shared<WorkflowTestCompositeSource>() } });
-    } });
-}
-
-void OverrideOpenSourceForDependencies(TestContext& context)
-{
-    context.Override({ "OpenSource", [](TestContext& context)
-    {
-        context.Add<Execution::Data::Source>(Source{ std::make_shared<DependenciesTestSource>() });
-    } });
-
-    context.Override({ Workflow::OpenDependencySource, [](TestContext& context)
-    {
-        context.Add<Execution::Data::DependencySource>(Source{ std::make_shared<DependenciesTestSource>() });
-    } });
-}
-
-void OverrideDependencySource(TestContext& context)
-{
-    context.Override({ Workflow::OpenDependencySource, [](TestContext& context)
-    {
-        context.Add<Execution::Data::DependencySource>(Source{ std::make_shared<DependenciesTestSource>() });
-    } });
-}
-
 void OverrideForUpdateInstallerMotw(TestContext& context)
 {
     context.Override({ UpdateInstallerFileMotwIfApplicable, [](TestContext&)
@@ -579,34 +544,6 @@ void OverridePortableInstaller(TestContext& context)
     OverrideForUpdateInstallerMotw(context);
 }
 
-void OverrideForPortableUninstall(TestContext& context)
-{
-    context.Override({ GetUninstallInfo, [](TestContext&)
-    {
-    } });
-
-    context.Override({ PortableUninstallImpl, [](TestContext& context)
-    {
-        std::filesystem::path temp = std::filesystem::temp_directory_path();
-        temp /= "TestPortableUninstalled.txt";
-        std::ofstream file(temp, std::ofstream::out);
-        file.close();
-
-        context.Add<Execution::Data::OperationReturnCode>(0);
-    } });
-}
-
-void OverrideForArchiveInstall(TestContext& context)
-{
-    context.Override({ ExtractFilesFromArchive, [](TestContext&)
-    {
-    } });
-
-    context.Override({ VerifyAndSetNestedInstaller, [](TestContext&)
-    {
-    } });
-}
-
 void OverrideForExtractInstallerFromArchive(TestContext& context)
 {
     context.Override({ ExtractFilesFromArchive, [](TestContext&)
@@ -619,51 +556,6 @@ void OverrideForVerifyAndSetNestedInstaller(TestContext& context)
     context.Override({ VerifyAndSetNestedInstaller, [](TestContext&)
     {
     } });
-}
-
-void OverrideForDirectMsi(TestContext& context)
-{
-    OverrideForCheckExistingInstaller(context);
-
-    context.Override({ DownloadInstallerFile, [](TestContext& context)
-    {
-        context.Add<Data::HashPair>({ {}, {} });
-        // We don't have an msi installer for tests, but we won't execute it anyway
-        context.Add<Data::InstallerPath>(TestDataFile("AppInstallerTestExeInstaller.exe"));
-    } });
-
-    context.Override({ RenameDownloadedInstaller, [](TestContext&)
-    {
-    } });
-
-    OverrideForUpdateInstallerMotw(context);
-
-    context.Override({ DirectMSIInstallImpl, [](TestContext& context)
-    {
-            // Write out the install command
-            std::filesystem::path temp = std::filesystem::temp_directory_path();
-            temp /= "TestMsiInstalled.txt";
-            std::ofstream file(temp, std::ofstream::out);
-            file << context.Get<Execution::Data::InstallerArgs>();
-            file.close();
-
-            context.Add<Execution::Data::OperationReturnCode>(0);
-        } });
-}
-
-void OverrideForExeUninstall(TestContext& context)
-{
-    context.Override({ ShellExecuteUninstallImpl, [](TestContext& context)
-    {
-            // Write out the uninstall command
-            std::filesystem::path temp = std::filesystem::temp_directory_path();
-            temp /= "TestExeUninstalled.txt";
-            std::ofstream file(temp, std::ofstream::out);
-            file << context.Get<Execution::Data::UninstallString>();
-            file.close();
-
-            context.Add<Execution::Data::OperationReturnCode>(0);
-        } });
 }
 
 void OverrideForMSIX(TestContext& context)
@@ -685,23 +577,6 @@ void OverrideForMSIX(TestContext& context)
 
         file.close();
     } });
-}
-
-void OverrideForMSIXUninstall(TestContext& context)
-{
-    context.Override({ MsixUninstall, [](TestContext& context)
-    {
-            // Write out the package full name
-            std::filesystem::path temp = std::filesystem::temp_directory_path();
-            temp /= "TestMsixUninstalled.txt";
-            std::ofstream file(temp, std::ofstream::out);
-            for (const auto& packageFamilyName : context.Get<Execution::Data::PackageFamilyNames>())
-            {
-                file << packageFamilyName << std::endl;
-            }
-
-            file.close();
-        } });
 }
 
 void OverrideForMSStore(TestContext& context, bool isUpdate)
@@ -731,50 +606,5 @@ void OverrideForMSStore(TestContext& context, bool isUpdate)
 
     context.Override({ Workflow::EnsureStorePolicySatisfied, [](TestContext&)
     {
-    } });
-}
-
-void OverrideForSourceAddWithAgreements(TestContext& context, bool isAddExpected = true)
-{
-    context.Override({ EnsureRunningAsAdmin, [](TestContext&)
-    {
-    } });
-
-    if (isAddExpected)
-    {
-        context.Override({ AddSource, [](TestContext&)
-        {
-        } });
-    }
-
-    context.Override({ CreateSourceForSourceAdd, [](TestContext& context)
-    {
-        auto testSource = std::make_shared<TestSource>();
-        testSource->Information.SourceAgreementsIdentifier = "AgreementsIdentifier";
-        testSource->Information.SourceAgreements.emplace_back("Agreement Label", "Agreement Text", "https://test");
-        testSource->Information.RequiredPackageMatchFields.emplace_back("Market");
-        testSource->Information.RequiredQueryParameters.emplace_back("Market");
-        context << Workflow::HandleSourceAgreements(Source{ testSource });
-    } });
-}
-
-void OverrideOpenDependencySource(TestContext& context)
-{
-    context.Override({ Workflow::OpenDependencySource, [](TestContext& context)
-    {
-        context.Add<Execution::Data::DependencySource>(Source{ std::make_shared<DependenciesTestSource>() });
-    } });
-}
-
-void OverrideForInstallMultiplePackages(TestContext& context)
-{
-    context.Override({ Workflow::InstallMultiplePackages(
-        Resource::String::InstallAndUpgradeCommandsReportDependencies,
-        APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES,
-        {},
-        false,
-        true), [](TestContext&)
-    {
-
     } });
 }
