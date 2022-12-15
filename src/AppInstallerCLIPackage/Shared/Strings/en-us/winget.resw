@@ -119,11 +119,11 @@
   </resheader>
   <data name="AdjoinedNotFlagError" xml:space="preserve">
     <value>Adjoined alias is not a flag: '{0}'</value>
-    <comment>Error message displayed when the user provides an adjoined alias that is not a flag argument. {0} is a placeholder replaced by the user input argument (e.g. '-ab').</comment>
+    <comment>{Locked="{0}"} Error message displayed when the user provides an adjoined alias that is not a flag argument. {0} is a placeholder replaced by the user input argument (e.g. '-ab').</comment>
   </data>
   <data name="AdjoinedNotFoundError" xml:space="preserve">
     <value>Adjoined flag alias not found: '{0}'</value>
-    <comment>Error message displayed when the user provides an adjoined flag alias argument that was not found. {0} is a placeholder replaced by the user input argument (e.g. '-ab').</comment>
+    <comment>{Locked="{0}"} Error message displayed when the user provides an adjoined flag alias argument that was not found. {0} is a placeholder replaced by the user input argument (e.g. '-ab').</comment>
   </data>
   <data name="AvailableArguments" xml:space="preserve">
     <value>The following arguments are available:</value>
@@ -151,7 +151,7 @@
   </data>
   <data name="AvailableUpgrades" xml:space="preserve">
     <value>{0} upgrades available.</value>
-    <comment>Message displayed to inform the user about available package upgrades. {0} is a placeholder replaced by the number of package upgrades.</comment>
+    <comment>{Locked="{0}"} Message displayed to inform the user about available package upgrades. {0} is a placeholder replaced by the number of package upgrades.</comment>
   </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Use the specified channel; default is general audience</value>
@@ -199,11 +199,11 @@
   </data>
   <data name="ExtraPositionalError" xml:space="preserve">
     <value>Found a positional argument when none was expected: '{0}'</value>
-    <comment>Error message displayed when the user provides an extra positional argument when none was expected. {0} is a placeholder replaced by the user's extra argument input.</comment>
+    <comment>{Locked="{0}"} Error message displayed when the user provides an extra positional argument when none was expected. {0} is a placeholder replaced by the user's extra argument input.</comment>
   </data>
   <data name="FeatureDisabledMessage" xml:space="preserve">
     <value>This feature is a work in progress, and may be changed dramatically or removed altogether in the future. To enable it, edit your settings ('winget settings') to include the experimental feature: '{0}'</value>
-    <comment>{Locked="winget settings"}. Error message displayed when the user uses an experimental feature that is disabled. {0} is a placeholder replaced by the experimental feature name.</comment>
+    <comment>{Locked="winget settings","{0}"}. Error message displayed when the user uses an experimental feature that is disabled. {0} is a placeholder replaced by the experimental feature name.</comment>
   </data>
   <data name="FeaturesCommandLongDescription" xml:space="preserve">
     <value>Shows the status of experimental features. Experimental features can be turn on via 'winget settings'.</value>
@@ -240,7 +240,7 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="FlagContainAdjoinedError" xml:space="preserve">
     <value>Flag argument cannot contain adjoined value: '{0}'</value>
-    <comment>Error message displayed when the user provides a flag argument containing an unexpected adjoined value. {0} is a placeholder replaced by the user input.</comment>
+    <comment>{Locked="{0}"} Error message displayed when the user provides a flag argument containing an unexpected adjoined value. {0} is a placeholder replaced by the user input.</comment>
   </data>
   <data name="HashCommandLongDescription" xml:space="preserve">
     <value>Computes the hash of a local file, appropriate for entry into a manifest.  It can also compute the hash of the signature file of an MSIX package to enable streaming installations.</value>
@@ -256,7 +256,7 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="HelpLinkPreamble" xml:space="preserve">
     <value>More help can be found at: {0}</value>
-    <comment>Message displayed to inform the user about a link where they can learn more about the subject context. {0} is a placeholder replaced by a website address.</comment>
+    <comment>{Locked="{0}"} Message displayed to inform the user about a link where they can learn more about the subject context. {0} is a placeholder replaced by a website address.</comment>
   </data>
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>Filter results by id</value>
@@ -306,15 +306,15 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="InvalidAliasError" xml:space="preserve">
     <value>Argument alias was not recognized for the current command: '{0}'</value>
-    <comment>Error message displayed when the user provides a command line argument alias that was not recognized for a selected command. {0} is a placeholder replaced by the user's argument alias input (e.g. '-a').</comment>
+    <comment>{Locked="{0}"} Error message displayed when the user provides a command line argument alias that was not recognized for a selected command. {0} is a placeholder replaced by the user's argument alias input (e.g. '-a').</comment>
   </data>
   <data name="InvalidArgumentSpecifierError" xml:space="preserve">
     <value>Invalid argument specifier: '{0}'</value>
-    <comment>Error message displayed when the user provides an invalid argument specifier. {0} is a placeholder replaced by an argument specifier (e.g. '-').</comment>
+    <comment>{Locked="{0}"} Error message displayed when the user provides an invalid argument specifier. {0} is a placeholder replaced by an argument specifier (e.g. '-').</comment>
   </data>
   <data name="InvalidNameError" xml:space="preserve">
     <value>Argument name was not recognized for the current command: '{0}'</value>
-    <comment>Error message displayed when the user provides an unrecognized command line argument name for the selected command. {0} is a placeholder replaced by the user's argument name input (e.g. '--example').</comment>
+    <comment>{Locked="{0}"} Error message displayed when the user provides an unrecognized command line argument name for the selected command. {0} is a placeholder replaced by the user's argument name input (e.g. '--example').</comment>
   </data>
   <data name="LocaleArgumentDescription" xml:space="preserve">
     <value>Locale to use (BCP47 format)</value>
@@ -361,7 +361,7 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="MissingArgumentError" xml:space="preserve">
     <value>Argument value required, but none found: '{0}'</value>
-    <comment>Error message displayed when the user does not provide a required command line argument value. {0} is a placeholder replaced by the argument name.</comment>
+    <comment>{Locked="{0}"} Error message displayed when the user does not provide a required command line argument value. {0} is a placeholder replaced by the argument name.</comment>
   </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
     <value>Filter results by moniker</value>
@@ -377,7 +377,7 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
     <value>Failed to install or upgrade Microsoft Store package. Error code: {0}</value>
-    <comment>Error message displayed when a Microsoft Store application package fails to install or upgrade. {0} is a placeholder replaced by an error code.</comment>
+    <comment>{Locked="{0}"} Error message displayed when a Microsoft Store application package fails to install or upgrade. {0} is a placeholder replaced by an error code.</comment>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>Verifying/Requesting package acquisition failed: network error</value>
@@ -434,6 +434,7 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="Package" xml:space="preserve">
     <value>Package</value>
+    <comment>A software package</comment>
   </data>
   <data name="PendingWorkError" xml:space="preserve">
     <value>Oops, we forgot to do this...</value>
@@ -452,7 +453,7 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="RequiredArgError" xml:space="preserve">
     <value>Required argument not provided: '{0}'</value>
-    <comment>Error message displayed when the user does not provide a required command line argument. {0} is a placeholder replaced by an argument name.</comment>
+    <comment>{Locked="{0}"} Error message displayed when the user does not provide a required command line argument. {0} is a placeholder replaced by an argument name.</comment>
   </data>
   <data name="RetroArgumentDescription" xml:space="preserve">
     <value>Progress display as the default color</value>
@@ -514,7 +515,7 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="SingleCharAfterDashError" xml:space="preserve">
     <value>Only the single character alias can occur after a single -: '{0}'</value>
-    <comment>Error message displayed when the user provides more than a single character command line alias argument after an alias argument specifier '-'. {0} is a placeholder replaced by the user's argument input.</comment>
+    <comment>{Locked="{0}"} Error message displayed when the user provides more than a single character command line alias argument after an alias argument specifier '-'. {0} is a placeholder replaced by the user's argument input.</comment>
   </data>
   <data name="SourceAddAlreadyExistsDifferentArg" xml:space="preserve">
     <value>A source with the given name already exists and refers to a different location:</value>
@@ -617,7 +618,7 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="SourceRemoveOne" xml:space="preserve">
     <value>Removing source: {0}...</value>
-    <comment>Message displayed to inform the user about a registered repository source that is currently being removed. {0} is a placeholder replaced by the repository source name.</comment>
+    <comment>{Locked="{0}"} Message displayed to inform the user about a registered repository source that is currently being removed. {0} is a placeholder replaced by the repository source name.</comment>
   </data>
   <data name="SourceResetAll" xml:space="preserve">
     <value>Resetting all sources...</value>
@@ -637,7 +638,7 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="SourceResetOne" xml:space="preserve">
     <value>Resetting source: {0}...</value>
-    <comment>Message displayed to inform the user about a repository source that is currently being reset. {0} is a placeholder replaced by the repository source name.</comment>
+    <comment>{Locked="{0}"} Message displayed to inform the user about a repository source that is currently being reset. {0} is a placeholder replaced by the repository source name.</comment>
   </data>
   <data name="SourceTypeArgumentDescription" xml:space="preserve">
     <value>Type of the source</value>
@@ -653,7 +654,7 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="SourceUpdateOne" xml:space="preserve">
     <value>Updating source: {0}...</value>
-    <comment>Message displayed to inform the user about a registered repository source that is currently being updated. {0} is a placeholder replaced by the repository source name.</comment>
+    <comment>{Locked="{0}"} Message displayed to inform the user about a registered repository source that is currently being updated. {0} is a placeholder replaced by the repository source name.</comment>
   </data>
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>Filter results by tag</value>
@@ -675,18 +676,18 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="TooManyArgError" xml:space="preserve">
     <value>Argument provided more times than allowed: '{0}'</value>
-    <comment>Error message displayed when the user provides a command line argument more times than it is allowed. {0} is a placeholder replaced by the user's argument name input.</comment>
+    <comment>{Locked="{0}"} Error message displayed when the user provides a command line argument more times than it is allowed. {0} is a placeholder replaced by the user's argument name input.</comment>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
     <value>More than one execution behavior argument provided: '{0}'</value>
-    <comment>Error message displayed when the user provides more than one execution behavior argument when installing an application package. {0} is a placeholder replaced by the user specified execution behaviors (e.g. 'silent|interactive').</comment>
+    <comment>{Locked="{0}"} Error message displayed when the user provides more than one execution behavior argument when installing an application package. {0} is a placeholder replaced by the user specified execution behaviors (e.g. 'silent|interactive').</comment>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>An unexpected error occurred while executing the command:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Unrecognized command: '{0}'</value>
-    <comment>Error message displayed when the user provides an unrecognized command. {0} is a placeholder replaced by the user input.</comment>
+    <comment>{Locked="{0}"} Error message displayed when the user provides an unrecognized command. {0} is a placeholder replaced by the user input.</comment>
   </data>
   <data name="UpdateAllArgumentDescription" xml:space="preserve">
     <value>Upgrade all installed packages to latest if available</value>
@@ -703,7 +704,7 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>usage: {0} {1}</value>
-    <comment>Message displayed to provide the user with instructions on how to use a command. {0} is a placeholder replaced by the program name (e.g. 'winget'). {1} is a placeholder replaced by the pattern for using the selected command.</comment>
+    <comment>{Locked="{0}","{1}"} Message displayed to provide the user with instructions on how to use a command. {0} is a placeholder replaced by the program name (e.g. 'winget'). {1} is a placeholder replaced by the pattern for using the selected command.</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
     <value>Validates a manifest using a strict set of guidelines. This is intended to enable you to check your manifest before submitting to a repo.</value>
@@ -731,11 +732,11 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="GetManifestResultVersionNotFound" xml:space="preserve">
     <value>No version found matching: {0}</value>
-    <comment>Error message displayed when the user attempts to upgrade an application package to a version that was not found. {0} is a placeholder replaced by the user's provided upgrade package version.</comment>
+    <comment>{Locked="{0}"} Error message displayed when the user attempts to upgrade an application package to a version that was not found. {0} is a placeholder replaced by the user's provided upgrade package version.</comment>
   </data>
   <data name="OpenSourceFailedNoMatch" xml:space="preserve">
     <value>No sources match the given value: {0}</value>
-    <comment>Error message displayed when the user attempts to install or upgrade an application package from a repository source that was not found. {0} is a placeholder replaced by the user's repository source name input.</comment>
+    <comment>{Locked="{0}"} Error message displayed when the user attempts to install or upgrade an application package from a repository source that was not found. {0} is a placeholder replaced by the user's repository source name input.</comment>
   </data>
   <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
     <value>The configured sources are:</value>
@@ -749,11 +750,11 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
     <value>Path is a directory: {0}</value>
-    <comment>Error message displayed when the user provides a system path that is a directory. {0} is a placeholder replaced by the provided directory path.</comment>
+    <comment>{Locked="{0}"} Error message displayed when the user provides a system path that is a directory. {0} is a placeholder replaced by the provided directory path.</comment>
   </data>
   <data name="VerifyFileFailedNotExist" xml:space="preserve">
     <value>File does not exist: {0}</value>
-    <comment>Error message displayed when the user provides a system file that does not exist. {0} is a placeholder replaced by the provided file path.</comment>
+    <comment>{Locked="{0}"} Error message displayed when the user provides a system file that does not exist. {0} is a placeholder replaced by the provided file path.</comment>
   </data>
   <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
     <value>Both local manifest and search query arguments are provided</value>
@@ -773,7 +774,7 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
     <value>Failed in attempting to update the source: {0}</value>
-    <comment>Error message displayed when an attempt to update the repository source fails. {0} is a placeholder replaced by the repository source name.</comment>
+    <comment>{Locked="{0}"} Error message displayed when an attempt to update the repository source fails. {0} is a placeholder replaced by the repository source name.</comment>
   </data>
   <data name="UninstallCommandLongDescription" xml:space="preserve">
     <value>Uninstalls the selected package, either found by searching the installed packages list or directly from a manifest. By default, the query must case-insensitively match the id, name, or moniker of the package. Other fields can be used by passing their appropriate option.</value>
@@ -797,7 +798,7 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="UninstallFailedWithCode" xml:space="preserve">
     <value>Uninstall failed with exit code: {0}</value>
-    <comment>Error message displayed when an attempt to uninstall an application package fails. {0} is a placeholder replaced by an error code.</comment>
+    <comment>{Locked="{0}"} Error message displayed when an attempt to uninstall an application package fails. {0} is a placeholder replaced by an error code.</comment>
   </data>
   <data name="ExportCommandShortDescription" xml:space="preserve">
     <value>Exports a list of the installed packages</value>
@@ -826,19 +827,19 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="ImportSearchFailed" xml:space="preserve">
     <value>Package not found for import: {0}</value>
-    <comment>Error message displayed when the user attempts to import an application package that was not found. {0} is a placeholder replaced by the import package name .</comment>
+    <comment>{Locked="{0}"} Error message displayed when the user attempts to import an application package that was not found. {0} is a placeholder replaced by the import package name .</comment>
   </data>
   <data name="ImportSourceNotInstalled" xml:space="preserve">
     <value>Source required for import is not installed: {0}</value>
-    <comment>Error message displayed when the user attempts to import application package(s) from a repository source that is not installed. {0} is a placeholder replaced by the repository source name.</comment>
+    <comment>{Locked="{0}"} Error message displayed when the user attempts to import application package(s) from a repository source that is not installed. {0} is a placeholder replaced by the repository source name.</comment>
   </data>
   <data name="InstalledPackageNotAvailable" xml:space="preserve">
     <value>Installed package is not available from any source: {0}</value>
-    <comment>Warning message displayed when the user attempts to export an installed application package that is not available from any repository source. {0} is a placeholder replaced by the installed package name.</comment>
+    <comment>{Locked="{0}"} Warning message displayed when the user attempts to export an installed application package that is not available from any repository source. {0} is a placeholder replaced by the installed package name.</comment>
   </data>
   <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
     <value>Installed version of package is not available from any source: {0} {1} {2}</value>
-    <comment>Warning message displayed when the user attempts to export an installed application package with a version that is not available from any repository source. {0} is a placeholder replaced by the installed package identifier. {1} is a placeholder replaced by the installed package version. {2} is a placeholder replaced by the installed package channel.</comment>
+    <comment>{Locked="{0}","{1}","{2}"} Warning message displayed when the user attempts to export an installed application package with a version that is not available from any repository source. {0} is a placeholder replaced by the installed package identifier. {1} is a placeholder replaced by the installed package version. {2} is a placeholder replaced by the installed package channel.</comment>
   </data>
   <data name="NoPackagesInImportFile" xml:space="preserve">
     <value>No packages found in import file</value>
@@ -848,7 +849,7 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
     <value>Package is already installed: {0}</value>
-    <comment>Message displayed to inform the user that an import application package is already installed. {0} is a placeholder replaced by the package identifier.</comment>
+    <comment>{Locked="{0}"} Message displayed to inform the user that an import application package is already installed. {0} is a placeholder replaced by the package identifier.</comment>
   </data>
   <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
     <value>Ignore unavailable packages</value>
@@ -861,7 +862,7 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
     <value>Path does not exist: {0}</value>
-    <comment>Error message displayed when the user provides a system path argument value that does not exist. {0} is a placeholder replaced by the user's provided path.</comment>
+    <comment>{Locked="{0}"} Error message displayed when the user provides a system path argument value that does not exist. {0} is a placeholder replaced by the user's provided path.</comment>
   </data>
   <data name="ImportFileHasInvalidSchema" xml:space="preserve">
     <value>The JSON file does not specify a recognized schema.</value>
@@ -872,11 +873,11 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="InvalidArgumentValueError" xml:space="preserve">
     <value>The value provided for the `{0}` argument is invalid; valid values are: {1}</value>
-    <comment>Error message displayed when the user provides an invalid command line argument value. {0} is a placeholder replaced by the argument name. {1} is a placeholder replaced by a list of valid options.</comment>
+    <comment>{Locked="{0}","{1}"} Error message displayed when the user provides an invalid command line argument value. {0} is a placeholder replaced by the argument name. {1} is a placeholder replaced by a list of valid options.</comment>
   </data>
   <data name="DisabledByGroupPolicy" xml:space="preserve">
     <value>This operation is disabled by Group Policy: {0}</value>
-    <comment>Error message displayed when the user performs a command operation that is disabled by a group policy. {0} is a placeholder replaced by a group policy description.</comment>
+    <comment>{Locked="{0}"} Error message displayed when the user performs a command operation that is disabled by a group policy. {0} is a placeholder replaced by a group policy description.</comment>
   </data>
   <data name="PolicyAdditionalSources" xml:space="preserve">
     <value>Enable Additional Windows App Installer Sources</value>
@@ -926,7 +927,7 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="SettingsWarningField" xml:space="preserve">
     <value>Field: {0}</value>
-    <comment>Warning message displayed when a user setting field has invalid syntax or semantics. {0} is a placeholder replaced by the setting field path.</comment>
+    <comment>{Locked="{0}"} Warning message displayed when a user setting field has invalid syntax or semantics. {0} is a placeholder replaced by the setting field path.</comment>
   </data>
   <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
     <value>Invalid field format.</value>
@@ -945,7 +946,7 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="SettingsWarningValue" xml:space="preserve">
     <value>Value: {0}</value>
-    <comment>Warning message displayed when a user setting value has invalid syntax or semantics. {0} is a placeholder replaced by the setting data value.</comment>
+    <comment>{Locked="{0}"} Warning message displayed when a user setting value has invalid syntax or semantics. {0} is a placeholder replaced by the setting data value.</comment>
   </data>
   <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
     <value>The following experimental features are in progress.
@@ -973,7 +974,7 @@ Configuration is disabled due to Group Policy.</value>
   </data>
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
     <value>The value provided for the `{0}` argument is invalid</value>
-    <comment>Error message displayed when the user provides an invalid command line argument value. {0} is a placeholder replaced by the argument name.</comment>
+    <comment>{Locked="{0}"} Error message displayed when the user provides an invalid command line argument value. {0} is a placeholder replaced by the argument name.</comment>
   </data>
   <data name="Cancelled" xml:space="preserve">
     <value>Cancelled</value>
@@ -997,19 +998,19 @@ Configuration is disabled due to Group Policy.</value>
   </data>
   <data name="DependenciesFlowSourceTooManyMatches" xml:space="preserve">
     <value>Package search yield more than one result: {0}</value>
-    <comment>Error message displayed when application packages search yield more than one result. {0} is a placeholder replaced by the dependency package identifier.</comment>
+    <comment>{Locked="{0}"} Error message displayed when application packages search yield more than one result. {0} is a placeholder replaced by the dependency package identifier.</comment>
   </data>
   <data name="DependenciesFlowPackageVersionNotFound" xml:space="preserve">
     <value>Latest version not found for package: {0}</value>
-    <comment>Error message displayed when no suitable version found for the specific application package. {0} is a placeholder replaced by the package identifier.</comment>
+    <comment>{Locked="{0}"} Error message displayed when no suitable version found for the specific application package. {0} is a placeholder replaced by the package identifier.</comment>
   </data>
   <data name="DependenciesFlowNoInstallerFound" xml:space="preserve">
     <value>No installers found: {0}</value>
-    <comment>Error message displayed when no installer found for a manifest. {0} is a placeholder replaced by the manifest identifier.</comment>
+    <comment>{Locked="{0}"} Error message displayed when no installer found for a manifest. {0} is a placeholder replaced by the manifest identifier.</comment>
   </data>
   <data name="DependenciesFlowNoMinVersion" xml:space="preserve">
     <value>Minimum required version not available for package: {0}</value>
-    <comment>Error message displayed when the minimum required version is not available for an application package. {0} is a placeholder replaced by the package identifier.</comment>
+    <comment>{Locked="{0}"} Error message displayed when the minimum required version is not available for an application package. {0} is a placeholder replaced by the package identifier.</comment>
   </data>
   <data name="DependenciesFlowNoMatches" xml:space="preserve">
     <value>No matches</value>
@@ -1021,7 +1022,7 @@ Configuration is disabled due to Group Policy.</value>
   </data>
   <data name="DependenciesFlowNoSuitableInstallerFound" xml:space="preserve">
     <value>No suitable installer found for manifest: {0} {1}</value>
-    <comment>Error message displayed when an attempt to get a preferred installer for a manifest fails. {0} is a placeholder replaced by the manifest identifier. {1} is a placeholder replaced by the manifest version.</comment>
+    <comment>{Locked="{0}","{1}"} Error message displayed when an attempt to get a preferred installer for a manifest fails. {0} is a placeholder replaced by the manifest identifier. {1} is a placeholder replaced by the manifest version.</comment>
   </data>
   <data name="DependenciesManagementError" xml:space="preserve">
     <value>Error processing package dependencies, do you wish to continue installation?</value>
@@ -1059,7 +1060,7 @@ Configuration is disabled due to Group Policy.</value>
   </data>
   <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
     <value>Exported package requires license agreement to install: {0}</value>
-    <comment>Warning message displayed when an exported application package requires license agreement to install. {0} is a placeholder replaced by the package name.</comment>
+    <comment>{Locked="{0}"} Warning message displayed when an exported application package requires license agreement to install. {0} is a placeholder replaced by the package name.</comment>
   </data>
   <data name="PackageAgreementsPrompt" xml:space="preserve">
     <value>The publisher requires that you view the above information and accept the agreements before installing.
@@ -1145,7 +1146,7 @@ Do you agree to the terms?</value>
   </data>
   <data name="SourceAgreementsTitle" xml:space="preserve">
     <value>The `{0}` source requires that you view the following agreements before using.</value>
-    <comment>Message displayed to inform the user that a repository source requires viewing agreements before using. {0} is a placeholder replaced by the repository source name.</comment>
+    <comment>{Locked="{0}"} Message displayed to inform the user that a repository source requires viewing agreements before using. {0} is a placeholder replaced by the repository source name.</comment>
   </data>
   <data name="SourceAgreementsPrompt" xml:space="preserve">
     <value>Do you agree to all the source agreements terms?</value>
@@ -1167,7 +1168,7 @@ Do you agree to the terms?</value>
   </data>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
     <value>The optional header is not applicable without specifying a source: '{0}'</value>
-    <comment>Error message displayed when the user performs an operation (e.g install) and provides the HTTP 'header' argument without specifying the repository source. {0} is a placeholder replaced by the header argument name.</comment>
+    <comment>{Locked="{0}"} Error message displayed when the user performs an operation (e.g install) and provides the HTTP 'header' argument without specifying the repository source. {0} is a placeholder replaced by the header argument name.</comment>
   </data>
   <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
     <value>Release Date:</value>
@@ -1198,15 +1199,15 @@ Do you agree to the terms?</value>
   </data>
   <data name="SearchFailureWarning" xml:space="preserve">
     <value>Failed when searching source; results will not be included: {0}</value>
-    <comment>Warning message displayed when searching a repository source fails. {0} is a placeholder replaced by the repository source name.</comment>
+    <comment>{Locked="{0}"} Warning message displayed when searching a repository source fails. {0} is a placeholder replaced by the repository source name.</comment>
   </data>
   <data name="SearchFailureError" xml:space="preserve">
     <value>Failed when searching source: {0}</value>
-    <comment>Error message displayed when searching a repository source fails. {0} is a placeholder replaced by the repository source name.</comment>
+    <comment>{Locked="{0}"} Error message displayed when searching a repository source fails. {0} is a placeholder replaced by the repository source name.</comment>
   </data>
   <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
     <value>This feature needs to be enabled by administrators. To enable it, run 'winget settings --enable {0}' as administrator.</value>
-    <comment>{Locked="winget settings --enable"}. Error message displayed when the user uses a feature that needs to be enabled by administrators. {0} is a placeholder replaced by the admin setting.</comment>
+    <comment>{Locked="winget settings --enable", "{0}"}. Error message displayed when the user uses a feature that needs to be enabled by administrators. {0} is a placeholder replaced by the admin setting.</comment>
   </data>
   <data name="AdminSettingEnableDescription" xml:space="preserve">
     <value>Enables the specific administrator setting</value>
@@ -1216,7 +1217,7 @@ Do you agree to the terms?</value>
   </data>
   <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
     <value>Too many admin setting arguments provided: '{0}'</value>
-    <comment>Error message displayed when the user provides too many admin setting arguments. {0} is a placeholder replaced by the admin setting arguments (e.g. 'enable|disable').</comment>
+    <comment>{Locked="{0}"} Error message displayed when the user provides too many admin setting arguments. {0} is a placeholder replaced by the admin setting arguments (e.g. 'enable|disable').</comment>
   </data>
   <data name="AdminSettingEnabled" xml:space="preserve">
     <value>Admin setting enabled.</value>
@@ -1283,11 +1284,11 @@ Do you agree to the terms?</value>
   </data>
   <data name="InstallerFailedWithCode" xml:space="preserve">
     <value>Installer failed with exit code: {0}</value>
-    <comment>Error message displayed when the application installer fails. {0} is a placeholder replaced by an error code.</comment>
+    <comment>{Locked="{0}"} Error message displayed when the application installer fails. {0} is a placeholder replaced by an error code.</comment>
   </data>
   <data name="InstallerLogAvailable" xml:space="preserve">
     <value>Installer log is available at: {0}</value>
-    <comment>Message displayed to inform the user about the system path of a diagnostic files containing information about the installer. {0} is a placeholder replaced by the diagnostic file system path.</comment>
+    <comment>{Locked="{0}"} Message displayed to inform the user about the system path of a diagnostic files containing information about the installer. {0} is a placeholder replaced by the diagnostic file system path.</comment>
   </data>
   <data name="SearchFailureErrorListMatches" xml:space="preserve">
     <value>The following packages were found among the working sources.
@@ -1304,7 +1305,7 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="WindowsPackageManager" xml:space="preserve">
     <value>Windows Package Manager v{0}</value>
-    <comment>Label displaying the product name and version. {0} is a placeholder replaced by the product version.</comment>
+    <comment>{Locked="{0}"} Label displaying the product name and version. {0} is a placeholder replaced by the product version.</comment>
   </data>
   <data name="ImportIgnorePackageVersionsArgumentDescription" xml:space="preserve">
     <value>Ignore package versions in import file</value>
@@ -1320,7 +1321,7 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="WindowsPackageManagerPreview" xml:space="preserve">
     <value>Windows Package Manager (Preview) v{0}</value>
-    <comment>Label displaying the preview product name and pre-release version. {0} is a placeholder replaced by the product version.</comment>
+    <comment>{Locked="{0}"} Label displaying the preview product name and pre-release version. {0} is a placeholder replaced by the product version.</comment>
   </data>
   <data name="InstallArchitectureArgumentDescription" xml:space="preserve">
     <value>Select the architecture to install</value>
@@ -1393,7 +1394,7 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="OverwritingExistingFileAtMessage" xml:space="preserve">
     <value>Overwriting existing file: {0}</value>
-    <comment>Warning message displayed to inform the user that an existing file is being overwritten. {0} is a placeholder replaced by the file system path.</comment>
+    <comment>{Locked="{0}"} Warning message displayed to inform the user that an existing file is being overwritten. {0} is a placeholder replaced by the file system path.</comment>
   </data>
   <data name="NoPackageSelectionArgumentProvided" xml:space="preserve">
     <value>No package selection argument was provided; see the help for details about finding a package.</value>
@@ -1418,7 +1419,7 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="FilesRemainInInstallDirectory" xml:space="preserve">
     <value>Files remain in install directory: {0}</value>
-    <comment>Warning message displayed when files remain in install directory. {0} is a placeholder replaced by the directory path.</comment>
+    <comment>{Locked="{0}"} Warning message displayed when files remain in install directory. {0} is a placeholder replaced by the directory path.</comment>
   </data>
   <data name="PurgeInstallDirectory" xml:space="preserve">
     <value>Purging install directory...</value>
@@ -1434,7 +1435,7 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="Notes" xml:space="preserve">
     <value>Notes: {0}</value>
-    <comment>Label displayed for installation notes. {0} is a placeholder replaced by installation notes.</comment>
+    <comment>{Locked="{0}"} Label displayed for installation notes. {0} is a placeholder replaced by installation notes.</comment>
   </data>
   <data name="ShowLabelInstallationNotes" xml:space="preserve">
     <value>Installation Notes:</value>
@@ -1447,7 +1448,7 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="NestedInstallerNotFound" xml:space="preserve">
     <value>Nested installer file does not exist. Ensure the specified relative path of the nested installer matches: {0}</value>
-    <comment>Error message displayed when nested installer file does not exist. {0} is a placeholder replaced by the nested installer file path.</comment>
+    <comment>{Locked="{0}"} Error message displayed when nested installer file does not exist. {0} is a placeholder replaced by the nested installer file path.</comment>
   </data>
   <data name="InvalidPathToNestedInstaller" xml:space="preserve">
     <value>Invalid relative file path to the nested installer; path points to a location outside of the install directory</value>

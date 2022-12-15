@@ -72,7 +72,7 @@ namespace AppInstaller::CLI::Execution
             // * If your string came from outside of the source code, it is best to store it in a
             //      Utility::NormalizedString so that it has a normalized representation. This also
             //      informs the output that there is no localized version to use.
-            // TODO: This assertion is currently only applied to placceholders in localized strings.
+            // TODO: This assertion is currently only applied to placeholders in localized strings.
             //       Convert the rest of the code base and uncomment to enforce localization.
             //static_assert(details::IsApprovedForOutput<std::decay_t<T>>::value, "This type may not be localized, see comment for more information");
             if (m_enabled)
