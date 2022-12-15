@@ -85,12 +85,11 @@
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
   </PropertyGroup>
 
-  <!-- Copy WinRTAct.dll to PowerShell module directory -->
-  <PropertyGroup>
-      <WinRTActDir>$(OutputPath)..\..\UndockedRegFreeWinRT\</WinRTActDir>
-  </PropertyGroup>
-
-  <Target Name="CopyWinRTAct" AfterTargets="Build" Condition="'$(Platform)' != 'ARM'">
+  <!-- Copy WinRTAct.dll to PowerShell module directory. Relative path to $(OutputPath) used to support AppInstaller build. -->
+  <Target Name="CopyWinRTAct" AfterTargets="AfterBuild" Condition="'$(Platform)' != 'ARM' AND '$(TargetFramework)' == '$(CoreFramework)'">
+      <PropertyGroup>
+          <WinRTActDir>$(OutputPath)..\..\UndockedRegFreeWinRT\</WinRTActDir>
+      </PropertyGroup>
       <ItemGroup>
           <WinRTActDll Include="$(WinRTActDir)winrtact.dll" />
       </ItemGroup>
