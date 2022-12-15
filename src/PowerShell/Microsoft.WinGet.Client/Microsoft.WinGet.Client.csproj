@@ -86,21 +86,13 @@
   </PropertyGroup>
 
   <!-- Copy WinRTAct.dll to PowerShell module directory -->
-  <PropertyGroup Condition="'$(Platform)' == 'x64'">
-      <TargetPlatform>x64</TargetPlatform>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Platform)' == 'x86'">
-      <TargetPlatform>Win32</TargetPlatform>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Platform)' == 'ARM64'">
-      <TargetPlatform>Arm64</TargetPlatform>
+  <PropertyGroup>
+      <WinRTActDir>$(OutputPath)..\..\UndockedRegFreeWinRT\</WinRTActDir>
   </PropertyGroup>
 
   <Target Name="CopyWinRTAct" AfterTargets="Build" Condition="'$(Platform)' != 'ARM'">
       <ItemGroup>
-          <WinRTActDll Include="$(BuildOutputDirectory)UndockedRegFreeWinRT\winrtact.dll" />
+          <WinRTActDll Include= "$(WinRTActDir)winrtact.dll" />
       </ItemGroup>
       <Message Importance="high" Text="Copying '@(WinRTActDll)'" />
       <Copy SourceFiles="@(WinRTActDll)" DestinationFolder="$(OutputPath)" />
