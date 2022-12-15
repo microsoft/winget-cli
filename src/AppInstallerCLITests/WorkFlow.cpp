@@ -1298,7 +1298,7 @@ TEST_CASE("InstallFlow_Zip_ArchiveScanOverride", "[InstallFlow][workflow]")
     OverrideForExtractInstallerFromArchive(context);
     OverrideForVerifyAndSetNestedInstaller(context);
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Zip_Exe.yaml").GetPath().u8string());
-    context.Args.AddArg(Execution::Args::Type::Force);
+    context.Args.AddArg(Execution::Args::Type::IgnoreLocalArchiveMalwareScan);
 
     bool overrideArchiveScanResult = false;
     AppInstaller::Archive::TestHook_SetScanArchiveResult_Override(&overrideArchiveScanResult);
@@ -3516,9 +3516,37 @@ TEST_CASE("DependencyGraph_StackOrderIsOk", "[InstallFlow][workflow][dependencyG
 
     // Verify installers are called in order
     REQUIRE(installationOrder.size() == 3);
-    REQUIRE(installationOrder.at(0).Id == "B");
-    REQUIRE(installationOrder.at(1).Id == "C");
-    REQUIRE(installationOrder.at(2).Id == "StackOrderIsOk");
+    REQUIRE(installationOrder.at(0).Id() == "B");
+    REQUIRE(installationOrder.at(1).Id() == "C");
+    REQUIRE(installationOrder.at(2).Id() == "StackOrderIsOk");
+}
+
+TEST_CASE("DependencyGraph_MultipleDependenciesFromManifest", "[InstallFlow][workflow][dependencyGraph][dependencies]")
+{
+    std::vector<Dependency> installationOrder;
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideOpenSourceForDependencies(context);
+    OverrideForShellExecute(context, installationOrder);
+
+    context.Args.AddArg(Execution::Args::Type::Query, "MultipleDependenciesFromManifest"sv);
+
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesFlowContainsLoop)) == std::string::npos);
+
+    // Verify installers are called in order
+    REQUIRE(installationOrder.size() == 3);
+    REQUIRE(installationOrder.at(0).Id() == "Dependency1");
+    REQUIRE(installationOrder.at(1).Id() == "Dependency2");
+    REQUIRE(installationOrder.at(2).Id() == "AppInstallerCliTest.TestExeInstaller.MultipleDependencies");
 }
 
 TEST_CASE("InstallerWithoutDependencies_RootDependenciesAreUsed", "[dependencies]")
@@ -3896,4 +3924,48 @@ TEST_CASE("InstallFlow_FoundInstalledAndUpgradeNotAvailable", "[UpdateFlow][work
     REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::UpdateNotApplicable).get()) != std::string::npos);
     REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
+}
+
+TEST_CASE("Export_Settings", "[Settings][workflow]")
+{
+    RemoveSetting(Stream::AdminSettings);
+
+    {
+        // No admin settings, local manifest should be false.
+        std::ostringstream exportOutput;
+        TestContext context{ exportOutput, std::cin };
+        auto previousThreadGlobals = context.SetForCurrentThread();
+        SettingsExportCommand settingsExportCommand({});
+        settingsExportCommand.Execute(context);
+
+        auto json = ConvertToJson(exportOutput.str());
+        REQUIRE(!json.isNull());
+        REQUIRE_FALSE(json["adminSettings"]["LocalManifestFiles"].asBool());
+
+        auto userSettingsFileValue = std::string(json["userSettingsFile"].asCString());
+        REQUIRE(userSettingsFileValue.find("settings.json") != std::string::npos);
+    }
+
+    {
+        // Enable local manifest and verify export works.
+        std::ostringstream settingsOutput;
+        TestContext context{ settingsOutput, std::cin };
+        auto previousThreadGlobals = context.SetForCurrentThread();
+        context.Args.AddArg(Execution::Args::Type::AdminSettingEnable, "LocalManifestFiles"sv);
+        context.Override({ EnsureRunningAsAdmin, [](TestContext&) {} });
+        SettingsCommand settings({});
+        settings.Execute(context);
+
+        std::ostringstream exportOutput;
+        TestContext context2{ exportOutput, std::cin };
+        auto previousThreadGlobals2 = context2.SetForCurrentThread();
+        SettingsExportCommand settingsExportCommand({});
+        settingsExportCommand.Execute(context2);
+        auto json = ConvertToJson(exportOutput.str());
+        REQUIRE(!json.isNull());
+        REQUIRE(json["adminSettings"]["LocalManifestFiles"].asBool());
+
+        auto userSettingsFileValue = std::string(json["userSettingsFile"].asCString());
+        REQUIRE(userSettingsFileValue.find("settings.json") != std::string::npos);
+    }
 }

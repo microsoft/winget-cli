@@ -12,6 +12,35 @@ namespace AppInstaller::CLI::Workflow
     using namespace AppInstaller::Settings;
     using namespace AppInstaller::Utility;
 
+    namespace
+    {
+        struct ExportSettingsJson
+        {
+            ExportSettingsJson()
+            {
+                root["$schema"] = "https://aka.ms/winget-settings-export.schema.json";
+                root["adminSettings"] = Json::ValueType::objectValue;
+                root["userSettingsFile"] = Runtime::GetPathTo(Runtime::PathName::UserSettingsFileLocation).u8string();
+            }
+
+            void AddAdminSetting(AdminSetting setting)
+            {
+                auto str = std::string{ Settings::AdminSettingToString(setting) };
+                root["adminSettings"][str] = Settings::IsAdminSettingEnabled(setting);
+            }
+
+            std::string ToJsonString() const
+            {
+                Json::StreamWriterBuilder writerBuilder;
+                writerBuilder.settings_["indentation"] = "";
+                return Json::writeString(writerBuilder, root);
+            }
+
+        private:
+            Json::Value root{ Json::ValueType::objectValue };
+        };
+    }
+
     void EnableAdminSetting(Execution::Context& context)
     {
         std::string_view adminSettingString = context.Args.GetArg(Execution::Args::Type::AdminSettingEnable);
@@ -98,5 +127,19 @@ namespace AppInstaller::CLI::Workflow
             AICLI_LOG(CLI, Info, << "Json file type association not found, using notepad.exe");
             ShellExecuteW(nullptr, nullptr, L"notepad", filePathUTF16.c_str(), nullptr, SW_SHOW);
         }
+    }
+
+    void ExportSettings(Execution::Context& context)
+    {
+        ExportSettingsJson exportSettingsJson;
+        using AdminSetting_t = std::underlying_type_t<AdminSetting>;
+
+        // Skip Unknown.
+        for (AdminSetting_t i = 1 + static_cast<AdminSetting_t>(AdminSetting::Unknown); i < static_cast<AdminSetting_t>(AdminSetting::Max); ++i)
+        {
+            exportSettingsJson.AddAdminSetting(static_cast<AdminSetting>(i));
+        }
+
+        context.Reporter.Info() << exportSettingsJson.ToJsonString() << std::endl;
     }
 }

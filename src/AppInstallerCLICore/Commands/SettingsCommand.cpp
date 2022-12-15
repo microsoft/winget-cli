@@ -16,6 +16,14 @@ namespace AppInstaller::CLI
         constexpr Utility::LocIndView s_ArgumentName_Enable = "enable"_liv;
         constexpr Utility::LocIndView s_ArgumentName_Disable = "disable"_liv;
         constexpr Utility::LocIndView s_ArgName_EnableAndDisable = "enable|disable"_liv;
+        static constexpr std::string_view s_SettingsCommand_HelpLink = "https://aka.ms/winget-settings"sv;
+    }
+
+    std::vector<std::unique_ptr<Command>> SettingsCommand::GetCommands() const
+    {
+        return InitializeFromMoveOnly<std::vector<std::unique_ptr<Command>>>({
+            std::make_unique<SettingsExportCommand>(FullName()),
+            });
     }
 
     std::vector<Argument> SettingsCommand::GetArguments() const
@@ -38,7 +46,7 @@ namespace AppInstaller::CLI
 
     std::string SettingsCommand::HelpLink() const
     {
-        return "https://aka.ms/winget-settings";
+        return std::string{ s_SettingsCommand_HelpLink };
     }
 
     void SettingsCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
@@ -78,5 +86,26 @@ namespace AppInstaller::CLI
         {
             context << Workflow::OpenUserSetting;
         }
+    }
+
+    Resource::LocString SettingsExportCommand::ShortDescription() const
+    {
+        return { Resource::String::SettingsExportCommandShortDescription };
+    }
+
+    Resource::LocString SettingsExportCommand::LongDescription() const
+    {
+        return { Resource::String::SettingsExportCommandLongDescription };
+    }
+
+    std::string SettingsExportCommand::HelpLink() const
+    {
+        return std::string{ s_SettingsCommand_HelpLink };
+    }
+
+    void SettingsExportCommand::ExecuteInternal(Execution::Context& context) const
+    {
+        context <<
+            Workflow::ExportSettings;
     }
 }

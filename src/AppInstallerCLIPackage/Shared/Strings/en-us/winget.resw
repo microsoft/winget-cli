@@ -292,6 +292,9 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="HashOverrideArgumentDescription" xml:space="preserve">
     <value>Ignore the installer hash check failure</value>
   </data>
+  <data name="IgnoreLocalArchiveMalwareScanArgumentDescription" xml:space="preserve">
+    <value>Ignore the malware scan performed as part of installing an archive type package from local manifest</value>
+  </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>Request interactive installation; user input may be needed</value>
   </data>
@@ -889,6 +892,9 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="PolicyEnableBypassCertificatePinningForMicrosoftStore" xml:space="preserve">
     <value>Enable Windows App Installer Microsoft Store Source Pinned Certificate Bypass</value>
   </data>
+  <data name="PolicyEnableLocalArchiveMalwareScanOverride" xml:space="preserve">
+    <value>Enable Windows App Installer Local Archive Malware Scan Override</value>
+  </data>
   <data name="SettingsWarningField" xml:space="preserve">
     <value>Field:</value>
   </data>
@@ -1464,12 +1470,12 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Extracting archive...</value>
   </data>
   <data name="ArchiveFailedMalwareScan" xml:space="preserve">
-    <value>Archive scan detected malware; to override this check use --force</value>
-    <comment>{Locked="--force"}</comment>
+    <value>Archive scan detected malware. To override this check use --ignore-local-archive-malware-scan</value>
+    <comment>{Locked="--ignore-local-archive-malware-scan"}</comment>
   </data>
   <data name="ArchiveFailedMalwareScanOverridden" xml:space="preserve">
-    <value>Archive scan detected malware; proceeding due to --force</value>
-    <comment>{Locked="--force"}</comment>
+    <value>Archive scan detected malware. Proceeding due to --ignore-local-archive-malware-scan</value>
+    <comment>{Locked="--ignore-local-archive-malware-scan"}</comment>
   </data>
   <data name="NoUpgradeArgumentDescription" xml:space="preserve">
     <value>Skips upgrade if an installed version already exists</value>
@@ -1525,6 +1531,15 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="PinAddBlockingArgumentDescription" xml:space="preserve">
     <value>Block from updating until the pin is removed, preventing override arguments</value>
+  </data>
+  <data name="SettingsExportCommandLongDescription" xml:space="preserve">
+    <value>Export settings as JSON</value>
+  </data>
+  <data name="SettingsExportCommandShortDescription" xml:space="preserve">
+    <value>Export settings</value>
+  </data>
+  <data name="UserSettings" xml:space="preserve">
+    <value>User Settings</value>
   </data>
   <data name="GatedVersion" xml:space="preserve">
     <value>Gated version</value>

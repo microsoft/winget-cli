@@ -62,7 +62,10 @@ namespace AppInstaller::Runtime
         PortableLinksUserLocation,
         // The location where symlinks to portable packages are stored under machine scope.
         PortableLinksMachineLocation,
-
+        // The location of the user settings json file.
+        UserSettingsFileLocation,
+        // The location of the user settings json file, anonymized using environment variables.
+        UserSettingsFileLocationForDisplay,
         PinningIndex,
     };
 

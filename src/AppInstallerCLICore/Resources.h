@@ -110,6 +110,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(HelpForDetails);
         WINGET_DEFINE_RESOURCE_STRINGID(HelpLinkPreamble);
         WINGET_DEFINE_RESOURCE_STRINGID(IdArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(IgnoreLocalArchiveMalwareScanArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportCommandReportDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportCommandShortDescription);
@@ -304,6 +305,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(SettingLoadFailure);
         WINGET_DEFINE_RESOURCE_STRINGID(SettingsCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SettingsCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(SettingsExportCommandLongDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(SettingsExportCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SettingsWarningField);
         WINGET_DEFINE_RESOURCE_STRINGID(SettingsWarnings);
         WINGET_DEFINE_RESOURCE_STRINGID(SettingsWarningValue);
@@ -429,6 +432,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeUnknownVersionCount);
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeUnknownVersionExplanation);
         WINGET_DEFINE_RESOURCE_STRINGID(Usage);
+        WINGET_DEFINE_RESOURCE_STRINGID(UserSettings);
         WINGET_DEFINE_RESOURCE_STRINGID(ValidateCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ValidateCommandReportDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(ValidateCommandShortDescription);
