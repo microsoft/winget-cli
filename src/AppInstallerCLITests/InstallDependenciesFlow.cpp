@@ -2,6 +2,15 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "WorkflowCommon.h"
+#include "DependenciesTestSource.h"
+#include <Commands/InstallCommand.h>
+#include <Workflows/DependenciesFlow.h>
+#include <Workflows/InstallFlow.h>
+
+using namespace TestCommon;
+using namespace AppInstaller::CLI;
+using namespace AppInstaller::CLI::Workflow;
+using namespace AppInstaller::Repository;
 
 void OverrideOpenSourceForDependencies(TestContext& context)
 {

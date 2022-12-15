@@ -2,6 +2,22 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "WorkflowCommon.h"
+#include "TestSettings.h"
+#include <AppInstallerDownloader.h>
+#include <winget/Settings.h>
+#include <Workflows/DownloadFlow.h>
+#include <Commands/InstallCommand.h>
+#include <Commands/SettingsCommand.h>
+#include <Commands/ValidateCommand.h>
+
+using namespace TestCommon;
+using namespace AppInstaller::CLI;
+using namespace AppInstaller::CLI::Execution;
+using namespace AppInstaller::CLI::Workflow;
+using namespace AppInstaller::Manifest;
+using namespace AppInstaller::Repository;
+using namespace AppInstaller::Settings;
+using namespace AppInstaller::Utility;
 
 void VerifyMotw(const std::filesystem::path& testFile, DWORD zone)
 {
@@ -58,7 +74,7 @@ TEST_CASE("ValidateCommand_Dependencies", "[workflow][dependencies]")
     std::ostringstream validateOutput;
     TestContext context{ validateOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    context.Args.AddArg(Execution::Args::Type::ValidateManifest, TestDataFile("Manifest-Good-AllDependencyTypes.yaml").GetPath().u8string());
+    context.Args.AddArg(Args::Type::ValidateManifest, TestDataFile("Manifest-Good-AllDependencyTypes.yaml").GetPath().u8string());
 
     TestUserSettings settings;
     settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });

@@ -2,6 +2,12 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "WorkflowCommon.h"
+#include <Commands/InstallCommand.h>
+#include <Workflows/PromptFlow.h>
+
+using namespace TestCommon;
+using namespace AppInstaller::CLI;
+using namespace AppInstaller::Settings;
 
 TEST_CASE("PromptFlow_InteractivityDisabled", "[PromptFlow][workflow]")
 {

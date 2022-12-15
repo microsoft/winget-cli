@@ -2,6 +2,17 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "WorkflowCommon.h"
+#include "TestHooks.h"
+#include "TestSettings.h"
+#include <Commands/SourceCommand.h>
+#include <Workflows/PromptFlow.h>
+#include <Workflows/SourceFlow.h>
+
+using namespace TestCommon;
+using namespace AppInstaller::CLI;
+using namespace AppInstaller::CLI::Workflow;
+using namespace AppInstaller::Repository;
+using namespace AppInstaller::Settings;
 
 void OverrideForSourceAddWithAgreements(TestContext& context, bool isAddExpected = true)
 {

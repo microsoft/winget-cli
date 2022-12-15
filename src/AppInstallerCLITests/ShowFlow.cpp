@@ -2,6 +2,11 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "WorkflowCommon.h"
+#include <Commands/ShowCommand.h>
+#include <Workflows/ShowFlow.h>
+
+using namespace TestCommon;
+using namespace AppInstaller::CLI;
 
 TEST_CASE("ShowFlow_SearchAndShowAppInfo", "[ShowFlow][workflow]")
 {

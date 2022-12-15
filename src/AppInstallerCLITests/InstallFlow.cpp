@@ -2,6 +2,29 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "WorkflowCommon.h"
+#include "TestHooks.h"
+#include <AppInstallerFileLogger.h>
+#include <AppInstallerStrings.h>
+#include <Commands/InstallCommand.h>
+#include <Commands/UninstallCommand.h>
+#include <winget/PathVariable.h>
+#include <winget/Settings.h>
+#include <winget/ManifestYamlParser.h>
+#include <Workflows/ArchiveFlow.h>
+#include <Workflows/DownloadFlow.h>
+#include <Workflows/MsiInstallFlow.h>
+#include <Workflows/ShellExecuteInstallerHandler.h>
+
+using namespace winrt::Windows::Foundation;
+using namespace TestCommon;
+using namespace AppInstaller::CLI;
+using namespace AppInstaller::CLI::Execution;
+using namespace AppInstaller::CLI::Workflow;
+using namespace AppInstaller::Logging;
+using namespace AppInstaller::Manifest;
+using namespace AppInstaller::Settings;
+using namespace AppInstaller::Utility;
+
 
 void OverrideForDirectMsi(TestContext& context)
 {

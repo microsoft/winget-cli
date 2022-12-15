@@ -2,6 +2,16 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "WorkflowCommon.h"
+#include "TestHooks.h"
+#include <Commands/InstallCommand.h>
+#include <Commands/UninstallCommand.h>
+#include <Commands/UpgradeCommand.h>
+#include <winget/PathVariable.h>
+
+using namespace TestCommon;
+using namespace AppInstaller::CLI;
+using namespace AppInstaller::CLI::Execution;
+using namespace AppInstaller::Settings;
 
 TEST_CASE("UpdateFlow_UpdateWithManifest", "[UpdateFlow][workflow]")
 {

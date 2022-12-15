@@ -2,6 +2,14 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "WorkflowCommon.h"
+#include <Commands/ImportCommand.h>
+#include <Workflows/ImportExportFlow.h>
+
+using namespace TestCommon;
+using namespace AppInstaller::CLI;
+using namespace AppInstaller::Repository;
+
+using namespace TestCommon;
 
 void OverrideForImportSource(TestContext& context, bool useTestCompositeSource = false)
 {
