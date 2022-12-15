@@ -206,7 +206,7 @@ namespace AppInstaller::Settings
 
         static UserSettings const& Instance(const std::optional<std::string>& content = std::nullopt);
 
-        static std::filesystem::path SettingsFilePath();
+        static std::filesystem::path SettingsFilePath(bool forDisplay = false);
 
         UserSettings(const UserSettings&) = delete;
         UserSettings& operator=(const UserSettings&) = delete;

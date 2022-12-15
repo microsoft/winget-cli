@@ -1541,4 +1541,7 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="UserSettings" xml:space="preserve">
     <value>User Settings</value>
   </data>
+  <data name="SettingsWarningUsingDefault" xml:space="preserve">
+    <value>Settings file couldn't load. Using default values.</value>
+  </data>
 </root>
