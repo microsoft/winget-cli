@@ -15,7 +15,7 @@ namespace Microsoft.WinGet.Client.Commands
     /// </summary>
     [Cmdlet(
         VerbsData.Update,
-        Constants.PackageNoun,
+        Constants.WinGetNouns.Package,
         DefaultParameterSetName = Constants.FoundSet,
         SupportsShouldProcess = true)]
     [OutputType(typeof(InstallResult))]

@@ -13,7 +13,7 @@ namespace Microsoft.WinGet.Client.Commands
     /// <summary>
     /// Retrieves the list of configured sources.
     /// </summary>
-    [Cmdlet(VerbsCommon.Get, Constants.SourceNoun)]
+    [Cmdlet(VerbsCommon.Get, Constants.WinGetNouns.Source)]
     [OutputType(typeof(PackageCatalogReference))]
     public sealed class GetSourceCommand : BaseClientCommand
     {

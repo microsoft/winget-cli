@@ -16,7 +16,7 @@ namespace Microsoft.WinGet.Client.Common
     /// the "search" and "list" commands. This class contains an extended set of parameters suited for
     /// that purpose.
     /// </summary>
-    public class BaseFinderExtendedCommand : BaseFinderCommand
+    public abstract class BaseFinderExtendedCommand : BaseFinderCommand
     {
         /// <summary>
         /// Gets or sets the filter that is matched against the tags of the package.

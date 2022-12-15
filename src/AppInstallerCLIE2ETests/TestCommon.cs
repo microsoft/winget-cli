@@ -100,17 +100,9 @@ namespace AppInstallerCLIE2ETests
         public static string PowerShellModulePath { get; set; }
 
         /// <summary>
-        /// Gets the settings json path.
+        /// Gets or sets the settings json path.
         /// </summary>
-        public static string SettingsJsonFilePath
-        {
-            get
-            {
-                return PackagedContext ?
-                    @"Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\settings.json" :
-                    @"Microsoft\WinGet\Settings\settings.json";
-            }
-        }
+        public static string SettingsJsonFilePath { get; set; }
 
         /// <summary>
         /// Run winget command.

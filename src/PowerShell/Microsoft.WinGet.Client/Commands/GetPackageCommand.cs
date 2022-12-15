@@ -13,7 +13,7 @@ namespace Microsoft.WinGet.Client.Commands
     /// <summary>
     /// Searches configured sources for packages.
     /// </summary>
-    [Cmdlet(VerbsCommon.Get, Constants.PackageNoun)]
+    [Cmdlet(VerbsCommon.Get, Constants.WinGetNouns.Package)]
     [OutputType(typeof(CatalogPackage))]
     public sealed class GetPackageCommand : BaseFinderExtendedCommand
     {

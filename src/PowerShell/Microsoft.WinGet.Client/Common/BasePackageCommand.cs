@@ -17,7 +17,7 @@ namespace Microsoft.WinGet.Client.Common
     /// This is the base class for commands which operate on a specific package and version i.e.,
     /// the "install", "uninstall", and "upgrade" commands.
     /// </summary>
-    public class BasePackageCommand : BaseFinderCommand
+    public abstract class BasePackageCommand : BaseFinderCommand
     {
         private string log;
 

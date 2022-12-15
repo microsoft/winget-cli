@@ -7,18 +7,21 @@
 namespace AppInstallerCLIE2ETests.PowerShell
 {
     using System;
+    using System.Collections;
     using System.Diagnostics;
     using System.Linq;
+    using Microsoft.Management.Deployment;
     using NUnit.Framework;
 
     /// <summary>
     /// Basic E2E smoke tests for verifying the behavior of the PowerShell Microsoft.WinGet.Client module cmdlets.
-    /// Running the x86 PowerShell Module requires PowerShell Core (x86). These tests currently only target PowerShell Core (x64).
+    /// Running the x86 PowerShell Module requires PowerShell Core (x86). These tests currently only target PowerShell Core (x64)
+    /// in the CI/CD pipeline.
     /// </summary>
     [Category("PowerShell")]
     public class WinGetClientModule
     {
-        // TODO: Consider using Pester framework for conducting more extensive PowerShell module tests.
+        // TODO: Consider using Pester framework for conducting more extensive PowerShell module tests or move to Powershell Host.
 
         /// <summary>
         /// Set setup.
@@ -30,10 +33,10 @@ namespace AppInstallerCLIE2ETests.PowerShell
         }
 
         /// <summary>
-        /// Tear down.
+        /// One time tear down.
         /// </summary>
         [OneTimeTearDown]
-        public void TearDown()
+        public void OneTimeTearDown()
         {
             // TODO: This is a workaround to an issue where the server takes longer than expected to terminate when
             // running from the E2E tests. This can cause other E2E tests to fail when attempting to reset the test source.
@@ -45,6 +48,15 @@ namespace AppInstallerCLIE2ETests.PowerShell
             }
 
             TestCommon.RunAICLICommand("source remove", $"{Constants.TestSourceName}");
+        }
+
+        /// <summary>
+        /// Tear down.
+        /// </summary>
+        [TearDown]
+        public void TearDown()
+        {
+            WinGetSettingsHelper.InitializeWingetSettings();
         }
 
         /// <summary>
@@ -195,6 +207,615 @@ namespace AppInstallerCLIE2ETests.PowerShell
             // Wait a maximum of 5 minutes for the server process to exit.
             bool serverProcessExit = serverProcess.WaitForExit(300000);
             Assert.IsTrue(serverProcessExit, $"{Constants.WindowsPackageManagerServer} failed to terminate after creating COM object.");
+        }
+
+        /// <summary>
+        /// Test Get-WinGetUserSettings.
+        /// </summary>
+        [Test]
+        public void GetWinGetUserSettings()
+        {
+            var ogSettings = @"{
+  ""visual"": {
+    ""progressBar"": ""rainbow""
+  },
+  ""experimentalFeatures"": {
+    ""experimentalArg"": false,
+    ""experimentalCmd"": true
+  }
+}";
+
+            WinGetSettingsHelper.SetWingetSettings(ogSettings);
+
+            using var powerShellHost = new PowerShellHost();
+            var result = powerShellHost.PowerShell
+                .AddCommand("Get-WinGetUserSettings")
+                .Invoke();
+
+            Assert.That(result, Has.Exactly(1).Items);
+            Assert.IsInstanceOf<string>(result[0].BaseObject);
+            var settingsResult = result[0].BaseObject as string;
+
+            Assert.AreEqual(ogSettings, settingsResult);
+        }
+
+        /// <summary>
+        /// Test Test-WinGetUserSettings. Settings are equal.
+        /// </summary>
+        [Test]
+        public void TestWinGetUserSettings_Equal()
+        {
+            var ogSettings = new Hashtable()
+            {
+                {
+                    "visual",
+                    new Hashtable()
+                    {
+                        { "progressBar", "retro" },
+                    }
+                },
+                {
+                    "experimentalFeatures",
+                    new Hashtable()
+                    {
+                        { "experimentalArg", false },
+                        { "experimentalCmd", true },
+                    }
+                },
+            };
+
+            WinGetSettingsHelper.SetWingetSettings(ogSettings);
+
+            using var powerShellHost = new PowerShellHost();
+            var result = powerShellHost.PowerShell
+                .AddCommand("Test-WinGetUserSettings")
+                .AddParameter("UserSettings", ogSettings)
+                .Invoke();
+
+            Assert.That(result, Has.Exactly(1).Items);
+            Assert.IsInstanceOf<bool>(result[0].BaseObject);
+            Assert.IsTrue((bool)result[0].BaseObject);
+        }
+
+        /// <summary>
+        /// Test Test-WinGetUserSettings. Settings are equal. Ignore schema.
+        /// </summary>
+        [Test]
+        public void TestWinGetUserSettings_Equal_Schema()
+        {
+            var ogSettings = new Hashtable()
+            {
+                {
+                    "$schema",
+                    "https://aka.ms/winget-settings.schema.json"
+                },
+                {
+                    "visual",
+                    new Hashtable()
+                    {
+                        { "progressBar", "retro" },
+                    }
+                },
+                {
+                    "experimentalFeatures",
+                    new Hashtable()
+                    {
+                        { "experimentalArg", false },
+                        { "experimentalCmd", true },
+                    }
+                },
+            };
+
+            WinGetSettingsHelper.SetWingetSettings(ogSettings);
+
+            var inputSettings = new Hashtable()
+            {
+                {
+                    "visual",
+                    new Hashtable()
+                    {
+                        { "progressBar", "retro" },
+                    }
+                },
+                {
+                    "experimentalFeatures",
+                    new Hashtable()
+                    {
+                        { "experimentalArg", false },
+                        { "experimentalCmd", true },
+                    }
+                },
+            };
+
+            using var powerShellHost = new PowerShellHost();
+            var result = powerShellHost.PowerShell
+                .AddCommand("Test-WinGetUserSettings")
+                .AddParameter("UserSettings", inputSettings)
+                .Invoke();
+
+            Assert.That(result, Has.Exactly(1).Items);
+            Assert.IsInstanceOf<bool>(result[0].BaseObject);
+            Assert.IsTrue((bool)result[0].BaseObject);
+        }
+
+        /// <summary>
+        /// Test Test-WinGetUserSettings. Settings are not equal.
+        /// </summary>
+        [Test]
+        public void TestWinGetUserSettings_NotEqual()
+        {
+            var ogSettings = new Hashtable()
+            {
+                {
+                    "visual",
+                    new Hashtable()
+                    {
+                        { "progressBar", "retro" },
+                    }
+                },
+                {
+                    "experimentalFeatures",
+                    new Hashtable()
+                    {
+                        { "experimentalArg", false },
+                        { "experimentalCmd", true },
+                    }
+                },
+            };
+
+            WinGetSettingsHelper.SetWingetSettings(ogSettings);
+
+            var inputSettings = new Hashtable()
+            {
+                {
+                    "visual",
+                    new Hashtable()
+                    {
+                        { "progressBar", "rainbow" },
+                    }
+                },
+                {
+                    "experimentalFeatures",
+                    new Hashtable()
+                    {
+                        { "experimentalArg", false },
+                        { "experimentalCmd", true },
+                    }
+                },
+            };
+
+            using var powerShellHost = new PowerShellHost();
+            var result = powerShellHost.PowerShell
+                .AddCommand("Test-WinGetUserSettings")
+                .AddParameter("UserSettings", inputSettings)
+                .Invoke();
+
+            Assert.That(result, Has.Exactly(1).Items);
+            Assert.IsInstanceOf<bool>(result[0].BaseObject);
+            Assert.IsFalse((bool)result[0].BaseObject);
+        }
+
+        /// <summary>
+        /// Test Test-WinGetUserSettings. Local settings has more properties.
+        /// </summary>
+        [Test]
+        public void TestWinGetUserSettings_MoreSettingsLocal()
+        {
+            var ogSettings = new Hashtable()
+            {
+                {
+                    "visual",
+                    new Hashtable()
+                    {
+                        { "progressBar", "retro" },
+                    }
+                },
+                {
+                    "experimentalFeatures",
+                    new Hashtable()
+                    {
+                        { "experimentalArg", false },
+                        { "experimentalCmd", true },
+                    }
+                },
+            };
+
+            WinGetSettingsHelper.SetWingetSettings(ogSettings);
+
+            var inputSettings = new Hashtable()
+            {
+                {
+                    "visual",
+                    new Hashtable()
+                    {
+                        { "progressBar", "retro" },
+                    }
+                },
+                {
+                    "experimentalFeatures",
+                    new Hashtable()
+                    {
+                        { "experimentalArg", false },
+                    }
+                },
+            };
+
+            using var powerShellHost = new PowerShellHost();
+            var result = powerShellHost.PowerShell
+                .AddCommand("Test-WinGetUserSettings")
+                .AddParameter("UserSettings", inputSettings)
+                .Invoke();
+
+            Assert.That(result, Has.Exactly(1).Items);
+            Assert.IsInstanceOf<bool>(result[0].BaseObject);
+            Assert.IsFalse((bool)result[0].BaseObject);
+        }
+
+        /// <summary>
+        /// Test Test-WinGetUserSettings. Input has more properties.
+        /// </summary>
+        [Test]
+        public void TestWinGetUserSettings_MoreSettingsInput()
+        {
+            var ogSettings = new Hashtable()
+            {
+                {
+                    "visual",
+                    new Hashtable()
+                    {
+                        { "progressBar", "retro" },
+                    }
+                },
+                {
+                    "experimentalFeatures",
+                    new Hashtable()
+                    {
+                        { "experimentalArg", false },
+                    }
+                },
+            };
+
+            WinGetSettingsHelper.SetWingetSettings(ogSettings);
+
+            var inputSettings = new Hashtable()
+            {
+                {
+                    "visual",
+                    new Hashtable()
+                    {
+                        { "progressBar", "retro" },
+                    }
+                },
+                {
+                    "experimentalFeatures",
+                    new Hashtable()
+                    {
+                        { "experimentalArg", false },
+                        { "experimentalCmd", true },
+                    }
+                },
+            };
+
+            using var powerShellHost = new PowerShellHost();
+            var result = powerShellHost.PowerShell.AddCommand("Test-WinGetUserSettings")
+                .AddParameter("UserSettings", inputSettings)
+                .Invoke();
+
+            Assert.That(result, Has.Exactly(1).Items);
+            Assert.IsInstanceOf<bool>(result[0].BaseObject);
+            Assert.IsFalse((bool)result[0].BaseObject);
+        }
+
+        /// <summary>
+        /// Test Test-WinGetUserSettings. Ignore comparing properties that are not set in the input.
+        /// Local settings has more properties.
+        /// </summary>
+        [Test]
+        public void TestWinGetUserSettings_MoreSettingsLocal_IgnoreNotSet()
+        {
+            var ogSettings = new Hashtable()
+            {
+                {
+                    "visual",
+                    new Hashtable()
+                    {
+                        { "progressBar", "retro" },
+                    }
+                },
+                {
+                    "experimentalFeatures",
+                    new Hashtable()
+                    {
+                        { "experimentalArg", false },
+                        { "experimentalCmd", true },
+                    }
+                },
+            };
+
+            WinGetSettingsHelper.SetWingetSettings(ogSettings);
+
+            var inputSettings = new Hashtable()
+            {
+                {
+                    "visual",
+                    new Hashtable()
+                    {
+                        { "progressBar", "retro" },
+                    }
+                },
+                {
+                    "experimentalFeatures",
+                    new Hashtable()
+                    {
+                        { "experimentalArg", false },
+                    }
+                },
+            };
+
+            using var powerShellHost = new PowerShellHost();
+            var result = powerShellHost.PowerShell
+                .AddCommand("Test-WinGetUserSettings")
+                .AddParameter("UserSettings", inputSettings)
+                .AddParameter("IgnoreNotSet")
+                .Invoke();
+
+            Assert.That(result, Has.Exactly(1).Items);
+            Assert.IsInstanceOf<bool>(result[0].BaseObject);
+            Assert.IsTrue((bool)result[0].BaseObject);
+        }
+
+        /// <summary>
+        /// Test Test-WinGetUserSettings. Ignore comparing properties that are not set in the input.
+        /// Input has more properties.
+        /// </summary>
+        [Test]
+        public void TestWinGetUserSettings_MoreSettingsInput_IgnoreNotSet()
+        {
+            var ogSettings = new Hashtable()
+            {
+                {
+                    "visual",
+                    new Hashtable()
+                    {
+                        { "progressBar", "retro" },
+                    }
+                },
+                {
+                    "experimentalFeatures",
+                    new Hashtable()
+                    {
+                        { "experimentalArg", false },
+                    }
+                },
+            };
+
+            WinGetSettingsHelper.SetWingetSettings(ogSettings);
+
+            var inputSettings = new Hashtable()
+            {
+                {
+                    "visual",
+                    new Hashtable()
+                    {
+                        { "progressBar", "retro" },
+                    }
+                },
+                {
+                    "experimentalFeatures",
+                    new Hashtable()
+                    {
+                        { "experimentalArg", false },
+                        { "experimentalCmd", true },
+                    }
+                },
+            };
+
+            using var powerShellHost = new PowerShellHost();
+            var result = powerShellHost.PowerShell
+                .AddCommand("Test-WinGetUserSettings")
+                .AddParameter("UserSettings", inputSettings)
+                .AddParameter("IgnoreNotSet")
+                .Invoke();
+
+            Assert.That(result, Has.Exactly(1).Items);
+            Assert.IsInstanceOf<bool>(result[0].BaseObject);
+            Assert.IsFalse((bool)result[0].BaseObject);
+        }
+
+        /// <summary>
+        /// Test Set-WinGetUserSettings.
+        /// </summary>
+        [Test]
+        public void SetWinGetUserSettings_Overwrite()
+        {
+            var ogSettings = new Hashtable()
+            {
+                {
+                    "$schema",
+                    "https://aka.ms/winget-settings.schema.json"
+                },
+                {
+                    "source",
+                    new Hashtable()
+                    {
+                        { "autoUpdateIntervalInMinutes", 3 },
+                    }
+                },
+            };
+
+            WinGetSettingsHelper.SetWingetSettings(ogSettings);
+
+            var inputSettings = new Hashtable()
+            {
+                {
+                    "visual",
+                    new Hashtable()
+                    {
+                        { "progressBar", "retro" },
+                    }
+                },
+                {
+                    "experimentalFeatures",
+                    new Hashtable()
+                    {
+                        { "experimentalArg", false },
+                        { "experimentalCmd", true },
+                    }
+                },
+            };
+
+            using var powerShellHost = new PowerShellHost();
+            var result = powerShellHost.PowerShell
+                .AddCommand("Set-WinGetUserSettings")
+                .AddParameter("UserSettings", inputSettings)
+                .Invoke();
+
+            Assert.That(result, Has.Exactly(1).Items);
+            Assert.IsInstanceOf<string>(result[0].BaseObject);
+            var settingsResult = result[0].BaseObject as string;
+
+            var expectedResult = @"{
+  ""$schema"": ""https://aka.ms/winget-settings.schema.json"",
+  ""experimentalFeatures"": {
+    ""experimentalArg"": false,
+    ""experimentalCmd"": true
+  },
+  ""visual"": {
+    ""progressBar"": ""retro""
+  }
+}";
+            Assert.AreEqual(expectedResult, settingsResult);
+        }
+
+        /// <summary>
+        /// Test Set-WinGetUserSettings. Merge local settings with input.
+        /// </summary>
+        [Test]
+        public void SetWinGetUserSettings_Merge()
+        {
+            var ogSettings = new Hashtable()
+            {
+                {
+                    "source",
+                    new Hashtable()
+                    {
+                        { "autoUpdateIntervalInMinutes", 3 },
+                    }
+                },
+            };
+
+            WinGetSettingsHelper.SetWingetSettings(ogSettings);
+
+            var inputSettings = new Hashtable()
+            {
+                {
+                    "visual",
+                    new Hashtable()
+                    {
+                        { "progressBar", "retro" },
+                    }
+                },
+                {
+                    "experimentalFeatures",
+                    new Hashtable()
+                    {
+                        { "experimentalArg", false },
+                        { "experimentalCmd", true },
+                    }
+                },
+            };
+
+            using var powerShellHost = new PowerShellHost();
+            var result = powerShellHost.PowerShell
+                .AddCommand("Set-WinGetUserSettings")
+                .AddParameter("UserSettings", inputSettings)
+                .AddParameter("Merge")
+                .Invoke();
+
+            Assert.That(result, Has.Exactly(1).Items);
+            Assert.IsInstanceOf<string>(result[0].BaseObject);
+            var settingsResult = result[0].BaseObject as string;
+
+            var expectedResult = @"{
+  ""$schema"": ""https://aka.ms/winget-settings.schema.json"",
+  ""experimentalFeatures"": {
+    ""experimentalArg"": false,
+    ""experimentalCmd"": true
+  },
+  ""source"": {
+    ""autoUpdateIntervalInMinutes"": 3
+  },
+  ""visual"": {
+    ""progressBar"": ""retro""
+  }
+}";
+            Assert.AreEqual(expectedResult, settingsResult);
+        }
+
+        /// <summary>
+        /// Test Set-WinGetUserSettings when the local settings file already have the schmema property. It shouldn't
+        /// be added twice.
+        /// </summary>
+        [Test]
+        public void SetWinGetUserSettings_Schema()
+        {
+            var ogSettings = new Hashtable()
+            {
+                {
+                    "$schema",
+                    "https://aka.ms/winget-settings.schema.json"
+                },
+                {
+                    "source",
+                    new Hashtable()
+                    {
+                        { "autoUpdateIntervalInMinutes", 3 },
+                    }
+                },
+            };
+
+            WinGetSettingsHelper.SetWingetSettings(ogSettings);
+
+            var inputSettings = new Hashtable()
+            {
+                {
+                    "visual",
+                    new Hashtable()
+                    {
+                        { "progressBar", "retro" },
+                    }
+                },
+                {
+                    "experimentalFeatures",
+                    new Hashtable()
+                    {
+                        { "experimentalArg", false },
+                        { "experimentalCmd", true },
+                    }
+                },
+            };
+
+            using var powerShellHost = new PowerShellHost();
+            var result = powerShellHost.PowerShell
+                .AddCommand("Set-WinGetUserSettings")
+                .AddParameter("UserSettings", inputSettings)
+                .Invoke();
+
+            Assert.That(result, Has.Exactly(1).Items);
+            Assert.IsInstanceOf<string>(result[0].BaseObject);
+            var settingsResult = result[0].BaseObject as string;
+
+            var expectedResult = @"{
+  ""$schema"": ""https://aka.ms/winget-settings.schema.json"",
+  ""experimentalFeatures"": {
+    ""experimentalArg"": false,
+    ""experimentalCmd"": true
+  },
+  ""visual"": {
+    ""progressBar"": ""retro""
+  }
+}";
+            Assert.AreEqual(expectedResult, settingsResult);
         }
 
         private bool IsRunning(string processName)
