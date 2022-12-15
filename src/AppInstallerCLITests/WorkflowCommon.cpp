@@ -389,7 +389,7 @@ TestContext::TestContext(std::ostream& out, std::istream& in, bool isClone, std:
     };
 }
 
-~TestContext::TestContext()
+TestContext::~TestContext()
 {
     if (!m_isClone)
     {
@@ -419,7 +419,7 @@ std::unique_ptr<Context> TestContext::CreateSubContext()
     return clone;
 }
 
-void OverrideForOpenSource(TestContext& context, bool overrideOpenCompositeSource = false)
+void OverrideForOpenSource(TestContext& context, bool overrideOpenCompositeSource)
 {
     context.Override({ "OpenSource", [](TestContext& context)
     {
@@ -434,7 +434,7 @@ void OverrideForOpenSource(TestContext& context, bool overrideOpenCompositeSourc
     }
 }
 
-void OverrideForCompositeInstalledSource(TestContext& context, TestSourceSearchOptions searchOptions = TestSourceSearchOptions::None)
+void OverrideForCompositeInstalledSource(TestContext& context, TestSourceSearchOptions searchOptions)
 {
     context.Override({ "OpenSource", [](TestContext&)
     {
