@@ -20,7 +20,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
             case Pinning::PinType::Gating:
                 return Pinning::Pin::CreateGatingPin({ packageId, sourceId }, Utility::GatedVersion{ gatedVersion });
             default:
-                return {}
+                return {};
             }
         }
     }
@@ -65,10 +65,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
 
     std::optional<SQLite::rowid_t> PinTable::SelectByPinKey(SQLite::Connection& connection, const Pinning::PinKey& pinKey)
     {
+        // TODO: The statement builder requires that the bound parameters can be converted to T&&,
+        //       but the package/source IDs go as const T&. Find a way to avoid the weird casting.
         SQLite::Builder::StatementBuilder builder;
         builder.Select(SQLite::RowIDName).From(s_PinTable_Table_Name)
-            .Where(s_PinTable_PackageId_Column).Equals(pinKey.PackageId)
-            .And(s_PinTable_SourceId_Column).Equals(pinKey.SourceId);
+            .Where(s_PinTable_PackageId_Column).Equals((std::string_view)pinKey.PackageId)
+            .And(s_PinTable_SourceId_Column).Equals((std::string_view)pinKey.SourceId);
 
         SQLite::Statement select = builder.Prepare(connection);
 
@@ -84,6 +86,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
 
     SQLite::rowid_t PinTable::AddPin(SQLite::Connection& connection, const Pinning::Pin& pin)
     {
+        // TODO: The statement builder requires that the bound parameters can be converted to T&&,
+        //       but the package/source IDs go as const T&. Find a way to avoid the weird casting.
         SQLite::Builder::StatementBuilder builder;
         builder.InsertInto(s_PinTable_Table_Name)
             .Columns({
@@ -92,17 +96,32 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
                 s_PinTable_Type_Column,
                 s_PinTable_GatedVersion_Column })
             .Values(
-                pin.GetPackageId(),
-                pin.GetSourceId(),
+                (std::string_view)pin.GetPackageId(),
+                (std::string_view)pin.GetSourceId(),
                 pin.GetType(),
                 pin.GetType() == Pinning::PinType::Gating ? pin.GetGatedVersion().ToString() : "");
 
         builder.Execute(connection);
         return connection.GetLastInsertRowID();
-
     }
 
-    SQLite::rowid_t PinTable::RemovePinById(SQLite::Connection& connection, SQLite::rowid_t pinId)
+    bool PinTable::UpdatePin(SQLite::Connection& connection, SQLite::rowid_t pinId, const Pinning::Pin& pin)
+    {
+        // TODO: The statement builder requires that the bound parameters can be converted to T&&,
+        //       but the package/source IDs go as const T&. Find a way to avoid the weird casting.
+        SQLite::Builder::StatementBuilder builder;
+        builder.Update(s_PinTable_Table_Name).Set()
+            .Column(s_PinTable_PackageId_Column).Equals((std::string_view)pin.GetPackageId())
+            .Column(s_PinTable_SourceId_Column).Equals((std::string_view)pin.GetSourceId())
+            .Column(s_PinTable_Type_Column).Equals(pin.GetType())
+            .Column(s_PinTable_GatedVersion_Column).Equals(pin.GetType() == Pinning::PinType::Gating ? pin.GetGatedVersion().ToString() : "")
+            .Where(SQLite::RowIDName).Equals(pinId);
+
+        builder.Execute(connection);
+        return connection.GetChanges() != 0;
+    }
+
+    void PinTable::RemovePinById(SQLite::Connection& connection, SQLite::rowid_t pinId)
     {
         SQLite::Builder::StatementBuilder builder;
         builder.DeleteFrom(s_PinTable_Table_Name).Where(SQLite::RowIDName).Equals(pinId);
@@ -153,5 +172,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
         }
 
         return pins;
+    }
+
+    void PinTable::ResetAllPins(SQLite::Connection& connection)
+    {
+        SQLite::Builder::StatementBuilder builder;
+        builder.DeleteFrom(s_PinTable_Table_Name);
+        builder.Execute(connection);
     }
 }

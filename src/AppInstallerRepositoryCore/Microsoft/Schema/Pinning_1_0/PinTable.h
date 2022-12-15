@@ -19,8 +19,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
 
         static std::optional<SQLite::rowid_t> SelectByPinKey(SQLite::Connection& connection, const Pinning::PinKey& pinKey);
         static SQLite::rowid_t AddPin(SQLite::Connection& connection, const Pinning::Pin& pin);
-        static SQLite::rowid_t RemovePinById(SQLite::Connection& connection, SQLite::rowid_t pinId);
+        static bool UpdatePin(SQLite::Connection& connection, SQLite::rowid_t pinId, const Pinning::Pin& pin);
+        static void RemovePinById(SQLite::Connection& connection, SQLite::rowid_t pinId);
         static std::optional<Pinning::Pin> GetPinById(SQLite::Connection& connection, const SQLite::rowid_t pinId);
         static std::vector<Pinning::Pin> GetAllPins(SQLite::Connection& connection);
+        static void ResetAllPins(SQLite::Connection& connection);
     };
 }

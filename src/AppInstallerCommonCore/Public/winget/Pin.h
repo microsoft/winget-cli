@@ -28,6 +28,15 @@ namespace AppInstaller::Pinning
         PinKey(const Manifest::Manifest::string_t& packageId, std::string_view sourceId)
             : PackageId(packageId), SourceId(sourceId) {}
 
+        bool operator==(const PinKey& other) const
+        {
+            return PackageId == other.PackageId && SourceId == other.SourceId;
+        }
+        bool operator!=(const PinKey& other) const
+        {
+            return !(*this == other);
+        }
+
         Manifest::Manifest::string_t PackageId;
         std::string SourceId;
     };
@@ -46,12 +55,14 @@ namespace AppInstaller::Pinning
         // Only available for PinType Gating
         Utility::GatedVersion GetGatedVersion() const;
 
+        bool operator==(const Pin& other) const;
+
     private:
         Pin(PinType type, PinKey&& pinKey, std::optional<Utility::GatedVersion> gatedVersion = {})
-            : m_type(type), m_id(std::move(pinKey)), m_gatedVersion(gatedVersion) {}
+            : m_type(type), m_key(std::move(pinKey)), m_gatedVersion(gatedVersion) {}
 
         PinType m_type = PinType::Unknown;
-        PinKey m_id;
+        PinKey m_key;
         std::optional<Utility::GatedVersion> m_gatedVersion;
     };
 }

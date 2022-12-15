@@ -21,6 +21,10 @@ namespace AppInstaller::Repository::Microsoft::Schema
         // Adds a pin to the index.
         virtual SQLite::rowid_t AddPin(SQLite::Connection& connection, const Pinning::Pin& pin) = 0;
 
+        // Updates an existing pin in the index.
+        // The return value indicates whether the index was modified by the function.
+        virtual std::pair<bool, SQLite::rowid_t> UpdatePin(SQLite::Connection& connection, const Pinning::Pin& pin) = 0;
+
         // Removes a pin from the index.
         virtual SQLite::rowid_t RemovePin(SQLite::Connection& connection, const Pinning::PinKey& pinKey) = 0;
 
@@ -29,5 +33,8 @@ namespace AppInstaller::Repository::Microsoft::Schema
 
         // Returns a vector containing all the existing pins.
         virtual std::vector<Pinning::Pin> GetAllPins(SQLite::Connection& connection) = 0;
+
+        // Removes all the pins from the index
+        virtual void ResetAllPins(SQLite::Connection& connection) = 0;
     };
 }

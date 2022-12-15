@@ -62,6 +62,8 @@ namespace AppInstaller::Runtime
         PortableLinksUserLocation,
         // The location where symlinks to portable packages are stored under machine scope.
         PortableLinksMachineLocation,
+
+        PinningIndex,
     };
 
     // The principal that an ACE applies to.

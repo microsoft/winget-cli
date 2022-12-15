@@ -208,6 +208,8 @@ namespace AppInstaller
                 return "Archive malware scan failed.";
             case APPINSTALLER_CLI_ERROR_PACKAGE_ALREADY_INSTALLED:
                 return "Found at least one version of the package installed.";
+            case APPINSTALLER_CLI_ERROR_PIN_ALREADY_EXISTS:
+                return "A pin already exists for the package.";
 
             // Install errors
             case APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE:

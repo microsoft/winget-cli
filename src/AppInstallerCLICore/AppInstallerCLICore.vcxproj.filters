@@ -349,8 +349,11 @@
     <ClCompile Include="PortableInstaller.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Workflows\PinFlow.cpp">
+      <Filter>Workflows</Filter>
+    </ClCompile>
     <ClCompile Include="Commands\PinCommand.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Commands</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

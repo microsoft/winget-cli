@@ -13,14 +13,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
 
     private:
         SQLite::rowid_t AddPin(SQLite::Connection& connection, const Pinning::Pin& pin) override;
-
-        // Removes a pin from the index.
+        std::pair<bool, SQLite::rowid_t> UpdatePin(SQLite::Connection& connection, const Pinning::Pin& pin) override;
         SQLite::rowid_t RemovePin(SQLite::Connection& connection, const Pinning::PinKey& pinKey) override;
-
-        // Returns the current pin for a given package if it exists.
         std::optional<Pinning::Pin> GetPin(SQLite::Connection& connection, const Pinning::PinKey& pinKey) override;
-
-        // Returns a vector containing all the existing pins.
         std::vector<Pinning::Pin> GetAllPins(SQLite::Connection& connection) override;
+        void ResetAllPins(SQLite::Connection& connection) override;
     };
 }

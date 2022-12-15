@@ -28,9 +28,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
         return { 1, 0 };
     }
 
-    void CreateTables(SQLite::Connection& connection)
+    void PinningIndexInterface::CreateTables(SQLite::Connection& connection)
     {
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "createpinningtables_v1_0");
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "createPinningTables");
         Pinning_V1_0::PinTable::Create(connection);
         savepoint.Commit();
     }
@@ -41,11 +41,25 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
 
         THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS), existingPin.has_value());
 
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "addpin_v1_0");
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "addPin_v1_0");
         SQLite::rowid_t pinId = PinTable::AddPin(connection, pin);
 
         savepoint.Commit();
         return pinId;
+    }
+
+    std::pair<bool, SQLite::rowid_t> PinningIndexInterface::UpdatePin(SQLite::Connection& connection, const Pinning::Pin& pin)
+    {
+        auto existingPinId = GetExistingPinId(connection, pin.GetKey());
+
+        // If the pin doesn't exist, fail the update
+        THROW_HR_IF(E_NOT_SET, !existingPinId);
+
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "addPin_v1_0");
+        bool status = PinTable::UpdatePin(connection, existingPinId.value(), pin);
+
+        savepoint.Commit();
+        return { status, existingPinId.value() };
     }
 
     SQLite::rowid_t PinningIndexInterface::RemovePin(SQLite::Connection& connection, const Pinning::PinKey& pinKey)
@@ -55,7 +69,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
         // If the pin doesn't exist, fail the remove
         THROW_HR_IF(E_NOT_SET, !existingPinId);
 
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "removepin_v1_0");
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "removePin_v1_0");
         PinTable::RemovePinById(connection, existingPinId.value());
 
         savepoint.Commit();
@@ -77,5 +91,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
     std::vector<Pinning::Pin> PinningIndexInterface::GetAllPins(SQLite::Connection& connection)
     {
         return PinTable::GetAllPins(connection);
+    }
+
+    void PinningIndexInterface::ResetAllPins(SQLite::Connection& connection)
+    {
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "resetPins_v1_0");
+        PinTable::ResetAllPins(connection);
+        savepoint.Commit();
     }
 }

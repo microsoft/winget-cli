@@ -30,6 +30,9 @@ namespace AppInstaller::Repository::Microsoft
         // Adds a pin to the index.
         IdType AddPin(const Pinning::Pin& pin);
 
+        // Updates a pin type, and gated version if needed
+        bool UpdatePin(const Pinning::Pin& pin);
+
         // Removes a pin from the index.
         void RemovePin(const Pinning::PinKey& pinKey);
 
@@ -37,7 +40,9 @@ namespace AppInstaller::Repository::Microsoft
         std::optional<Pinning::Pin> GetPin(const Pinning::PinKey& pinKey);
 
         // Returns a vector containing all the existing pins.
-        std::vector<Pinning::Pin> GetAllPins(SQLite::Connection& connection);
+        std::vector<Pinning::Pin> GetAllPins();
+
+        void ResetAllPins();
 
     private:
         // Constructor used to open an existing index.

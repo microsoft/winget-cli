@@ -120,9 +120,11 @@ namespace AppInstaller::CLI
         context <<
             Workflow::OpenSource() <<
             Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
-            Workflow::SearchSourceForMany <<
+            Workflow::SearchSourceForSingle <<
             Workflow::HandleSearchResultFailures <<
-            Workflow::EnsureMatchesFromSearchResult(true) <<
+            Workflow::EnsureOneMatchFromSearchResult(false) <<
+            Workflow::ReportPackageIdentity <<
+            Workflow::OpenPinningIndex <<
             Workflow::SearchPin <<
             Workflow::AddPin;
     }
@@ -189,9 +191,11 @@ namespace AppInstaller::CLI
         context <<
             Workflow::OpenSource() <<
             Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
-            Workflow::SearchSourceForMany <<
+            Workflow::SearchSourceForSingle <<
             Workflow::HandleSearchResultFailures <<
-            Workflow::EnsureMatchesFromSearchResult(true) <<
+            Workflow::EnsureOneMatchFromSearchResult(false) <<
+            Workflow::ReportPackageIdentity <<
+            Workflow::OpenPinningIndex <<
             Workflow::SearchPin <<
             Workflow::RemovePin;
     }
@@ -257,11 +261,11 @@ namespace AppInstaller::CLI
     {
         // TODO
         context <<
+            Workflow::OpenPinningIndex <<
+            Workflow::GetAllPins <<
             Workflow::OpenSource() <<
             Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
-            Workflow::SearchSourceForMany <<
-            Workflow::HandleSearchResultFailures <<
-            Workflow::SearchPins <<
+            Workflow::CrossReferencePinsWithSource <<
             Workflow::ReportPins;
     }
 
@@ -289,6 +293,8 @@ namespace AppInstaller::CLI
 
     void PinResetCommand::ExecuteInternal(Execution::Context& context) const
     {
-        context << Workflow::ResetAllPins;
+        context <<
+            Workflow::OpenPinningIndex <<
+            Workflow::ResetAllPins;
     }
 }

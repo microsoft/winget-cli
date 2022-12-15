@@ -1526,4 +1526,30 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="PinAddBlockingArgumentDescription" xml:space="preserve">
     <value>Block from updating until the pin is removed, preventing override arguments</value>
   </data>
+  <data name="GatedVersion" xml:space="preserve">
+    <value>Gated version</value>
+  </data>
+  <data name="PinAdded" xml:space="preserve">
+    <value>Pin added successfully</value>
+  </data>
+  <data name="PinAlreadyExists" xml:space="preserve">
+    <value>The pin already exists</value>
+  </data>
+  <data name="PinExistsOverwriting" xml:space="preserve">
+    <value>A pin already exists for this package. Overwriting due to the --force argument.</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="PinExistsUseForceArg" xml:space="preserve">
+    <value>A pin already exists for this package. Use the --force argument to overwrite it.</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="PinResettingAll" xml:space="preserve">
+    <value>Resetting all current pins.</value>
+  </data>
+  <data name="PinResetUseForceArg" xml:space="preserve">
+    <value>Use the --force argument to reset all pins.</value>
+  </data>
+  <data name="PinType" xml:space="preserve">
+    <value>Pin type</value>
+  </data>
 </root>

@@ -45,22 +45,37 @@ namespace AppInstaller::Pinning
 
     const PinKey& Pin::GetKey() const
     {
-        return m_id;
+        return m_key;
     }
 
     const AppInstaller::Manifest::Manifest::string_t& Pin::GetPackageId() const 
     {
-        return m_id.PackageId;
+        return m_key.PackageId;
     }
 
     std::string_view Pin::GetSourceId() const
     {
-        return m_id.SourceId;
+        return m_key.SourceId;
     }
 
     AppInstaller::Utility::GatedVersion Pin::GetGatedVersion() const
     {
         THROW_HR_IF(E_NOT_VALID_STATE, m_type != PinType::Gating);
         return m_gatedVersion.value();
+    }
+
+    bool Pin::operator==(const Pin& other) const
+    {
+        if (m_type != other.m_type || m_key != other.m_key)
+        {
+            return false;
+        }
+
+        if (m_type != PinType::Gating)
+        {
+            return false;
+        }
+
+        return m_gatedVersion == other.m_gatedVersion;
     }
 }

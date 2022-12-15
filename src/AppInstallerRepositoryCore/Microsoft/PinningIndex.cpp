@@ -42,6 +42,24 @@ namespace AppInstaller::Repository::Microsoft
         return result;
     }
 
+    bool PinningIndex::UpdatePin(const Pinning::Pin& pin)
+    {
+        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
+        AICLI_LOG(Repo, Verbose, << "Updating Pin for package [" << pin.GetPackageId() << "] from source [" << pin.GetSourceId() << "] with pin type " << Pinning::ToString(pin.GetType()));
+
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "pinningIndex_updatePin");
+
+        bool result = m_interface->UpdatePin(m_dbconn, pin).first;
+
+        if (result)
+        {
+            SetLastWriteTime();
+            savepoint.Commit();
+        }
+
+        return result;
+    }
+
     void PinningIndex::RemovePin(const Pinning::PinKey& pinKey)
     {
         AICLI_LOG(Repo, Verbose, << "Removing Pin for package [" << pinKey.PackageId << "] from source [" << pinKey.SourceId << "]");
@@ -62,10 +80,16 @@ namespace AppInstaller::Repository::Microsoft
         return m_interface->GetPin(m_dbconn, pinKey);
     }
 
-    std::vector<Pinning::Pin> PinningIndex::GetAllPins(SQLite::Connection& connection)
+    std::vector<Pinning::Pin> PinningIndex::GetAllPins()
     {
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
-        return m_interface->GetAllPins(connection);
+        return m_interface->GetAllPins(m_dbconn);
+    }
+
+    void PinningIndex::ResetAllPins()
+    {
+        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
+        m_interface->ResetAllPins(m_dbconn);
     }
 
     std::unique_ptr<Schema::IPinningIndex> PinningIndex::CreateIPinningIndex() const
