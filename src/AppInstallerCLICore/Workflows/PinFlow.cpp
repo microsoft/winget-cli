@@ -37,7 +37,8 @@ namespace AppInstaller::CLI::Workflow
     {
         auto indexPath = Runtime::GetPathTo(Runtime::PathName::LocalState) / "pinning.db";
 
-        AICLI_LOG(CLI, Info, << "Openning pinning index");
+        AICLI_LOG(CLI, Info, << "Opening pinning index");
+
         auto pinningIndex = std::filesystem::exists(indexPath) ?
             PinningIndex::Open(indexPath.u8string(), SQLiteStorageBase::OpenDisposition::ReadWrite) :
             PinningIndex::CreateNew(indexPath.u8string());
@@ -89,7 +90,8 @@ namespace AppInstaller::CLI::Workflow
             availableVersion->GetProperty(PackageVersionProperty::Id).get(),
             availableVersion->GetProperty(PackageVersionProperty::SourceIdentifier).get() };
         auto pin = CreatePin(context, pinKey.PackageId, pinKey.SourceId);
-        AICLI_LOG(CLI, Info, << "Adding pin with type " << ToString(pin.GetType()) << " for package[" << pin.GetPackageId() << "] from source [" << pin.GetSourceId() << "]");
+        AICLI_LOG(CLI, Info, << "Adding pin with type " << ToString(pin.GetType()) << " for package [" << pin.GetPackageId() << "] from source [" << pin.GetSourceId() << "]");
+
 
         auto pinningIndex = context.Get<Execution::Data::PinningIndex>();
         auto existingPin = pinningIndex->GetPin(pinKey);
