@@ -106,11 +106,11 @@ namespace AppInstaller::Settings
             }
             catch (const std::exception& e)
             {
-                AICLI_LOG(Core, Error, << "Failed to read " << setting.Name << "Reason: " << e.what());
+                AICLI_LOG(Core, Error, << "Failed to read " << setting.Name << "; Reason: " << e.what());
             }
             catch (...)
             {
-                AICLI_LOG(Core, Error, << "Failed to read " << setting.Name << " Reason unknown.");
+                AICLI_LOG(Core, Error, << "Failed to read " << setting.Name << "; Reason unknown.");
             }
 
             return {};
