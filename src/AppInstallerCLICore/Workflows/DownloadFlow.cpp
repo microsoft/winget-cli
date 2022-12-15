@@ -5,6 +5,7 @@
 #include "winget/Filesystem.h"
 
 #include <AppInstallerMsixInfo.h>
+#include <winget/AdminSettings.h>
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -331,18 +332,18 @@ namespace AppInstaller::CLI::Workflow
             {
                 context.Reporter.Error() << Resource::String::InstallerHashMismatchAdminBlock << std::endl;
             }
+            else if (!Settings::IsAdminSettingEnabled(Settings::AdminSetting::InstallerHashOverride))
+            {
+                context.Reporter.Error() << Resource::String::InstallerHashMismatchError << std::endl;
+            }
             else if (overrideHashMismatch)
             {
                 context.Reporter.Warn() << Resource::String::InstallerHashMismatchOverridden << std::endl;
                 return;
             }
-            else if (Settings::GroupPolicies().IsEnabled(Settings::TogglePolicy::Policy::HashOverride))
-            {
-                context.Reporter.Error() << Resource::String::InstallerHashMismatchOverrideRequired << std::endl;
-            }
             else
             {
-                context.Reporter.Error() << Resource::String::InstallerHashMismatchError << std::endl;
+                context.Reporter.Error() << Resource::String::InstallerHashMismatchOverrideRequired << std::endl;
             }
 
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALLER_HASH_MISMATCH);
