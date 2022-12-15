@@ -153,6 +153,9 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void ListWithScopeMsixInstalledAsMachine()
         {
+            // TODO: Provision and Deprovision api not supported in build server.
+            Assert.Ignore();
+
             var result = TestCommon.RunAICLICommand("install", $"{Constants.MsixInstallerPackageId} --scope machine");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
 
