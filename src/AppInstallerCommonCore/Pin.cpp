@@ -73,7 +73,7 @@ namespace AppInstaller::Pinning
 
         if (m_type != PinType::Gating)
         {
-            return false;
+            return true;
         }
 
         return m_gatedVersion == other.m_gatedVersion;

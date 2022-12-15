@@ -63,7 +63,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
         savepoint.Commit();
     }
 
-    std::optional<SQLite::rowid_t> PinTable::SelectByPinKey(SQLite::Connection& connection, const Pinning::PinKey& pinKey)
+    std::optional<SQLite::rowid_t> PinTable::GetByPinKey(SQLite::Connection& connection, const Pinning::PinKey& pinKey)
     {
         // TODO: The statement builder requires that the bound parameters can be converted to T&&,
         //       but the package/source IDs go as const T&. Find a way to avoid the weird casting.

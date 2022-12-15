@@ -10,7 +10,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
     {
         std::optional<SQLite::rowid_t> GetExistingPinId(SQLite::Connection& connection, const Pinning::PinKey& pinKey)
         {
-            auto result = PinTable::SelectByPinKey(connection, pinKey);
+            auto result = PinTable::GetByPinKey(connection, pinKey);
 
             if (!result)
             {
