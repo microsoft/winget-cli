@@ -27,6 +27,8 @@ using namespace AppInstaller::Utility::literals;
 
 namespace AppInstaller::CLI
 {
+    using namespace Settings;
+
     namespace
     {
         void OutputGroupPolicySourceList(Execution::Context& context, const std::vector<Settings::SourceFromPolicy>& sources, Resource::StringId header)
@@ -193,7 +195,7 @@ namespace AppInstaller::CLI
             };
 
             info << std::endl << Resource::String::Logs(Utility::LocIndView{ Runtime::GetPathTo(Runtime::PathName::DefaultLogLocationForDisplay).u8string() }) << std::endl;
-            info << std::endl << Resource::String::UserSettings(Utility::LocIndView{ Runtime::GetPathTo(Runtime::PathName::UserSettingsFileLocationForDisplay).u8string() }) << std::endl;
+            info << std::endl << Resource::String::UserSettings(Utility::LocIndView{ UserSettings::SettingsFilePath(true).u8string() }) << std::endl;
 
             info << std::endl;
 

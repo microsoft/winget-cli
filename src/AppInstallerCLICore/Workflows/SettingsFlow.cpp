@@ -20,7 +20,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 root["$schema"] = "https://aka.ms/winget-settings-export.schema.json";
                 root["adminSettings"] = Json::ValueType::objectValue;
-                root["userSettingsFile"] = Runtime::GetPathTo(Runtime::PathName::UserSettingsFileLocation).u8string();
+                root["userSettingsFile"] = UserSettings::SettingsFilePath().u8string();
             }
 
             void AddAdminSetting(AdminSetting setting)
