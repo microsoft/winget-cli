@@ -8,45 +8,6 @@
 #include <Workflows/WorkflowBase.h>
 #include <Public/winget/RepositorySource.h>
 
-//#include "TestHooks.h"
-//#include "TestSettings.h"
-//#include "DependenciesTestSource.h"
-//#include <AppInstallerDownloader.h>
-//#include <AppInstallerErrors.h>
-//#include <AppInstallerFileLogger.h>
-//#include <AppInstallerLogging.h>
-//#include <AppInstallerStrings.h>
-//#include <winget/Archive.h>
-//#include <winget/LocIndependent.h>
-//#include <winget/PathVariable.h>
-//#include <winget/Settings.h>
-//#include <Workflows/ArchiveFlow.h>
-//#include <Workflows/DependenciesFlow.h>
-//#include <Workflows/DownloadFlow.h>
-//#include <Workflows/ImportExportFlow.h>
-//#include <Workflows/InstallFlow.h>
-//#include <Workflows/MsiInstallFlow.h>
-//#include <Workflows/MSStoreInstallerHandler.h>
-//#include <Workflows/PortableFlow.h>
-//#include <Workflows/PromptFlow.h>
-//#include <Workflows/ShellExecuteInstallerHandler.h>
-//#include <Workflows/ShowFlow.h>
-//#include <Workflows/SourceFlow.h>
-//#include <Workflows/UninstallFlow.h>
-//#include <Workflows/UpdateFlow.h>
-//#include <Commands/ExportCommand.h>
-//#include <Commands/ImportCommand.h>
-//#include <Commands/InstallCommand.h>
-//#include <Commands/SearchCommand.h>
-//#include <Commands/SettingsCommand.h>
-//#include <Commands/ShowCommand.h>
-//#include <Commands/SourceCommand.h>
-//#include <Commands/UninstallCommand.h>
-//#include <Commands/UpgradeCommand.h>
-//#include <Commands/ValidateCommand.h>
-//#include <PortableInstaller.h>
-//#include <Resources.h>
-
 #define REQUIRE_TERMINATED_WITH(_context_,_hr_) \
     REQUIRE(_context_.IsTerminated()); \
     REQUIRE(_hr_ == _context_.GetTerminationHR())
