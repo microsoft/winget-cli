@@ -433,8 +433,8 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Override arguments to be passed on to the installer</value>
   </data>
   <data name="Package" xml:space="preserve">
-    <value>Package</value>
-    <comment>A software package</comment>
+    <value>Package: {0}</value>
+    <comment>{Locked="{0}"} Label displayed for a software package. {0} is a placeholder replaced by the software package name.</comment>
   </data>
   <data name="PendingWorkError" xml:space="preserve">
     <value>Oops, we forgot to do this...</value>
@@ -760,8 +760,8 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Both local manifest and search query arguments are provided</value>
   </data>
   <data name="Logs" xml:space="preserve">
-    <value>Logs</value>
-    <comment>Label displayed for diagnostic files containing information about the application use.</comment>
+    <value>Logs: {0}</value>
+    <comment>{Locked="{0}"} Label displayed for diagnostic files containing information about the application use. {0} is a placeholder replaced by the logs directory path.</comment>
   </data>
   <data name="InstallerBlockedByPolicy" xml:space="preserve">
     <value>The installer is blocked by policy</value>
@@ -1353,7 +1353,8 @@ Please specify one of them using the --source option to proceed.</value>
     <value>The arguments provided can only be used with a query.</value>
   </data>
   <data name="SystemArchitecture" xml:space="preserve">
-    <value>System Architecture</value>
+    <value>System Architecture: {0}</value>
+    <comment>{Locked="{0}"} Label displayed for the system architecture. {0} is a placeholder replaced by the value of the system architecture (e.g. X64).</comment>
   </data>
   <data name="PreserveArgumentDescription" xml:space="preserve">
     <value>Retains all files and directories created by the package (portable)</value>
@@ -1588,6 +1589,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Export settings</value>
   </data>
   <data name="UserSettings" xml:space="preserve">
-    <value>User Settings</value>
+    <value>User Settings: {0}</value>
+    <comment>{Locked="{0}"} Label displayed for the file containing the user settings. {0} is a placeholder replaced by the user settings file path.</comment>
   </data>
 </root>
