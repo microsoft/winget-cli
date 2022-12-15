@@ -253,6 +253,7 @@ INVALIDARG
 INVALIDSID
 iomanip
 iostream
+IPinning
 IPortable
 ipmo
 ISAPPROVEDFOROUTPUT
