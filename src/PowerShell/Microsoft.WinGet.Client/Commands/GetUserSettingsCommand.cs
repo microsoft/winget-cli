@@ -11,7 +11,7 @@ namespace Microsoft.WinGet.Client.Commands
     using Microsoft.WinGet.Client.Common;
 
     /// <summary>
-    /// Gets winget's user settings as a Hashtable.
+    /// Gets winget's user settings.
     /// </summary>
     [Cmdlet(VerbsCommon.Get, Constants.WinGetNouns.UserSettings)]
     [OutputType(typeof(Hashtable))]

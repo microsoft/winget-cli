@@ -6,7 +6,6 @@
 
 namespace AppInstallerCLIE2ETests
 {
-    using System;
     using System.Collections;
     using System.IO;
     using Newtonsoft.Json;
@@ -85,6 +84,60 @@ namespace AppInstallerCLIE2ETests
         public static void SetWingetSettings(string settings)
         {
             File.WriteAllText(TestCommon.SettingsJsonFilePath, settings);
+        }
+
+        /// <summary>
+        /// Configure experimental features.
+        /// </summary>
+        /// <param name="featureName">Feature name.</param>
+        /// <param name="status">Status.</param>
+        public static void ConfigureFeature(string featureName, bool status)
+        {
+            JObject settingsJson = JObject.Parse(File.ReadAllText(TestCommon.SettingsJsonFilePath));
+
+            if (!settingsJson.ContainsKey("experimentalFeatures"))
+            {
+                settingsJson["experimentalFeatures"] = new JObject();
+            }
+
+            var experimentalFeatures = settingsJson["experimentalFeatures"];
+            experimentalFeatures[featureName] = status;
+
+            File.WriteAllText(TestCommon.SettingsJsonFilePath, settingsJson.ToString());
+        }
+
+        /// <summary>
+        /// Configure the install behavior.
+        /// </summary>
+        /// <param name="settingName">Setting name.</param>
+        /// <param name="value">Setting value.</param>
+        public static void ConfigureInstallBehavior(string settingName, string value)
+        {
+            JObject settingsJson = JObject.Parse(File.ReadAllText(TestCommon.SettingsJsonFilePath));
+
+            if (!settingsJson.ContainsKey("installBehavior"))
+            {
+                settingsJson["installBehavior"] = new JObject();
+            }
+
+            var installBehavior = settingsJson["installBehavior"];
+            installBehavior[settingName] = value;
+
+            File.WriteAllText(TestCommon.SettingsJsonFilePath, settingsJson.ToString());
+        }
+
+        /// <summary>
+        /// Initialize all features.
+        /// </summary>
+        /// <param name="status">Initialized feature value.</param>
+        public static void InitializeAllFeatures(bool status)
+        {
+            ConfigureFeature("experimentalArg", status);
+            ConfigureFeature("experimentalCmd", status);
+            ConfigureFeature("dependencies", status);
+            ConfigureFeature("directMSI", status);
+            ConfigureFeature("zipInstall", status);
+            ConfigureFeature("openLogsArgument", status);
         }
     }
 }
