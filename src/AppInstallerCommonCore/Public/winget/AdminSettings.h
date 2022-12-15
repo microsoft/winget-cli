@@ -12,6 +12,8 @@ namespace AppInstaller::Settings
         Unknown = 0,
         LocalManifestFiles,
         BypassCertificatePinningForMicrosoftStore,
+        InstallerHashOverride,
+        LocalArchiveMalwareScanOverride,
         Max,
     };
 
