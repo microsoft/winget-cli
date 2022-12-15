@@ -520,7 +520,13 @@ namespace AppInstaller::Settings
                 }
                 else
                 {
-                    AICLI_LOG(Core, Warning, << "Failed loading settings files.");
+                    // Settings and back up didn't parse or exist. If they exist then warn the user.
+                    auto settingsPath = Stream{ Stream::PrimaryUserSettings }.GetPath();
+                    auto backupPath = Stream{ Stream::BackupUserSettings }.GetPath();
+                    if (std::filesystem::exists(settingsPath) || std::filesystem::exists(backupPath))
+                    {
+                        m_warnings.emplace_back(StringResource::String::SettingsWarningUsingDefault);
+                    }
                 }
             }
         }

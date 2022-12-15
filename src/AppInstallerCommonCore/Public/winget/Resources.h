@@ -42,6 +42,7 @@ namespace AppInstaller
             WINGET_DEFINE_RESOURCE_STRINGID(SettingsWarningInvalidValueFromPolicy);
             WINGET_DEFINE_RESOURCE_STRINGID(SettingsWarningLoadedBackupSettings);
             WINGET_DEFINE_RESOURCE_STRINGID(SettingsWarningParseError);
+            WINGET_DEFINE_RESOURCE_STRINGID(SettingsWarningUsingDefault);
         };
     }
 
