@@ -58,6 +58,7 @@ namespace AppInstaller::CLI
                 execArgs.Contains(Args::Type::Override) ||
                 execArgs.Contains(Args::Type::InstallLocation) ||
                 execArgs.Contains(Args::Type::HashOverride) ||
+                execArgs.Contains(Args::Type::IgnoreLocalArchiveMalwareScan) ||
                 execArgs.Contains(Args::Type::AcceptPackageAgreements);
         }
 
@@ -103,6 +104,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::InstallArchitecture), // -a
             Argument::ForType(Args::Type::Locale),
             Argument::ForType(Args::Type::HashOverride),
+            Argument::ForType(Args::Type::IgnoreLocalArchiveMalwareScan),
             Argument::ForType(Args::Type::AcceptPackageAgreements),
             Argument::ForType(Args::Type::AcceptSourceAgreements),
             Argument::ForType(Execution::Args::Type::CustomHeader),
@@ -185,6 +187,7 @@ namespace AppInstaller::CLI
                 execArgs.Contains(Args::Type::Override) ||
                 execArgs.Contains(Args::Type::InstallLocation) ||
                 execArgs.Contains(Args::Type::HashOverride) ||
+                execArgs.Contains(Args::Type::IgnoreLocalArchiveMalwareScan) ||
                 execArgs.Contains(Args::Type::AcceptPackageAgreements)))
         {
             throw CommandException(Resource::String::InvalidArgumentWithoutQueryError);
