@@ -92,7 +92,7 @@
 
   <Target Name="CopyWinRTAct" AfterTargets="Build" Condition="'$(Platform)' != 'ARM'">
       <ItemGroup>
-          <WinRTActDll Include= "$(WinRTActDir)winrtact.dll" />
+          <WinRTActDll Include="$(WinRTActDir)winrtact.dll" />
       </ItemGroup>
       <Message Importance="high" Text="Copying '@(WinRTActDll)'" />
       <Copy SourceFiles="@(WinRTActDll)" DestinationFolder="$(OutputPath)" />
