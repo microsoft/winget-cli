@@ -44,6 +44,15 @@ namespace AppInstaller::CLI
         std::vector<Utility::LocIndString> m_params;
     };
 
+    // Flags to control the behavior of the command output.
+    enum class CommandOutputFlags : int
+    {
+        None = 0x0,
+        IgnoreSettingsWarnings = 0x1,
+    };
+
+    DEFINE_ENUM_FLAG_OPERATORS(CommandOutputFlags);
+
     struct Command
     {
         // Controls the visibility of the field.
@@ -57,17 +66,27 @@ namespace AppInstaller::CLI
 
         Command(std::string_view name, std::string_view parent) :
             Command(name, {}, parent) {}
-        Command(std::string_view name,std::vector<std::string_view> aliases, std::string_view parent) :
+        Command(std::string_view name, std::vector<std::string_view> aliases, std::string_view parent) :
             Command(name, aliases, parent, Settings::ExperimentalFeature::Feature::None) {}
-        Command(std::string_view name,std::vector<std::string_view> aliases, std::string_view parent, Command::Visibility visibility) :
+        Command(std::string_view name, std::string_view parent, CommandOutputFlags outputFlags) :
+            Command(name, {}, parent, Command::Visibility::Show, Settings::ExperimentalFeature::Feature::None, Settings::TogglePolicy::Policy::None, outputFlags) {}
+        Command(std::string_view name, std::vector<std::string_view> aliases, std::string_view parent, Command::Visibility visibility) :
             Command(name, aliases, parent, visibility, Settings::ExperimentalFeature::Feature::None) {}
-        Command(std::string_view name,std::vector<std::string_view> aliases, std::string_view parent, Settings::ExperimentalFeature::Feature feature) :
+        Command(std::string_view name, std::vector<std::string_view> aliases, std::string_view parent, Settings::ExperimentalFeature::Feature feature) :
             Command(name, aliases, parent, Command::Visibility::Show, feature) {}
-        Command(std::string_view name,std::vector<std::string_view> aliases, std::string_view parent, Settings::TogglePolicy::Policy groupPolicy) :
-            Command(name, aliases, parent, Command::Visibility::Show, Settings::ExperimentalFeature::Feature::None, groupPolicy) {}
-        Command(std::string_view name,std::vector<std::string_view> aliases, std::string_view parent, Command::Visibility visibility, Settings::ExperimentalFeature::Feature feature) :
-            Command(name, aliases, parent, visibility, feature, Settings::TogglePolicy::Policy::None) {}
-        Command(std::string_view name,std::vector<std::string_view> aliases, std::string_view parent, Command::Visibility visibility, Settings::ExperimentalFeature::Feature feature, Settings::TogglePolicy::Policy groupPolicy);
+        Command(std::string_view name, std::vector<std::string_view> aliases, std::string_view parent, Settings::TogglePolicy::Policy groupPolicy) :
+            Command(name, aliases, parent, Command::Visibility::Show, Settings::ExperimentalFeature::Feature::None, groupPolicy, CommandOutputFlags::None) {}
+        Command(std::string_view name, std::vector<std::string_view> aliases, std::string_view parent, Command::Visibility visibility, Settings::ExperimentalFeature::Feature feature) :
+            Command(name, aliases, parent, visibility, feature, Settings::TogglePolicy::Policy::None, CommandOutputFlags::None) {}
+
+        Command(std::string_view name,
+            std::vector<std::string_view> aliases,
+            std::string_view parent,
+            Command::Visibility visibility,
+            Settings::ExperimentalFeature::Feature feature,
+            Settings::TogglePolicy::Policy groupPolicy,
+            CommandOutputFlags outputFlags);
+
         virtual ~Command() = default;
 
         Command(const Command&) = default;
@@ -85,6 +104,7 @@ namespace AppInstaller::CLI
         Command::Visibility GetVisibility() const;
         Settings::ExperimentalFeature::Feature Feature() const { return m_feature; }
         Settings::TogglePolicy::Policy GroupPolicy() const { return m_groupPolicy; }
+        CommandOutputFlags GetOutputFlags() const { return m_outputFlags; }
 
         virtual std::vector<std::unique_ptr<Command>> GetCommands() const { return {}; }
         virtual std::vector<Argument> GetArguments() const { return {}; }
@@ -118,6 +138,7 @@ namespace AppInstaller::CLI
         Command::Visibility m_visibility;
         Settings::ExperimentalFeature::Feature m_feature;
         Settings::TogglePolicy::Policy m_groupPolicy;
+        CommandOutputFlags m_outputFlags;
     };
 
     template <typename Container>

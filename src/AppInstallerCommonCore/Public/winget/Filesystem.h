@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include <filesystem>
+#include <shtypes.h>
 
 namespace AppInstaller::Filesystem
 {
@@ -35,4 +36,10 @@ namespace AppInstaller::Filesystem
 
     // Get expanded file system path.
     std::filesystem::path GetExpandedPath(const std::string& path);
+
+    // If `source` begins with all of `prefix`, replace that with `replacement`.
+    void ReplaceCommonPathPrefix(std::filesystem::path& source, const std::filesystem::path& prefix, std::string_view replacement);
+
+    // Gets the path of a known folder.
+    std::filesystem::path GetKnownFolderPath(const KNOWNFOLDERID& id);
 }

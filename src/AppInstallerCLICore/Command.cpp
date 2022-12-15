@@ -30,8 +30,9 @@ namespace AppInstaller::CLI
         std::string_view parent,
         Command::Visibility visibility,
         Settings::ExperimentalFeature::Feature feature,
-        Settings::TogglePolicy::Policy groupPolicy) :
-        m_name(name), m_aliases(std::move(aliases)), m_visibility(visibility), m_feature(feature), m_groupPolicy(groupPolicy)
+        Settings::TogglePolicy::Policy groupPolicy,
+        CommandOutputFlags outputFlags) :
+        m_name(name), m_aliases(std::move(aliases)), m_visibility(visibility), m_feature(feature), m_groupPolicy(groupPolicy), m_outputFlags(outputFlags)
     {
         if (!parent.empty())
         {
@@ -941,7 +942,8 @@ namespace AppInstaller::CLI
     {
         try
         {
-            if (!Settings::User().GetWarnings().empty())
+            if (!Settings::User().GetWarnings().empty() &&
+                !WI_IsFlagSet(command->GetOutputFlags(), CommandOutputFlags::IgnoreSettingsWarnings))
             {
                 context.Reporter.Warn() << Resource::String::SettingsWarnings << std::endl;
             }
