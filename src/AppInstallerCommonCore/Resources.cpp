@@ -61,9 +61,8 @@ namespace AppInstaller
         }
 
         // Utility class to load resources
-        class Loader
+        struct Loader
         {
-        public:
             // Gets the singleton instance of the resource loader.
             static const Loader& Instance()
             {

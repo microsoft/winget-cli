@@ -16,7 +16,6 @@ namespace AppInstaller::CLI
         constexpr Utility::LocIndView s_ArgumentName_Enable = "enable"_liv;
         constexpr Utility::LocIndView s_ArgumentName_Disable = "disable"_liv;
         constexpr Utility::LocIndView s_ArgName_EnableAndDisable = "enable|disable"_liv;
-        constexpr Utility::LocIndView s_ArgValue_EnableAndDisable_LocalManifestFiles = "LocalManifestFiles"_liv;
         static constexpr std::string_view s_SettingsCommand_HelpLink = "https://aka.ms/winget-settings"sv;
     }
 
@@ -57,14 +56,24 @@ namespace AppInstaller::CLI
             throw CommandException(Resource::String::TooManyAdminSettingArgumentsError(s_ArgName_EnableAndDisable));
         }
 
+        // Get admin setting string for all available options except Unknown
+        using AdminSetting_t = std::underlying_type_t<AdminSetting>;
+        std::vector<Utility::LocIndString> adminSettingList;
+        for (AdminSetting_t i = 1 + static_cast<AdminSetting_t>(AdminSetting::Unknown); i < static_cast<AdminSetting_t>(AdminSetting::Max); ++i)
+        {
+            adminSettingList.emplace_back(AdminSettingToString(static_cast<AdminSetting>(i)));
+        }
+
+        Utility::LocIndString validOptions = Join(", "_liv, adminSettingList);
+
         if (execArgs.Contains(Execution::Args::Type::AdminSettingEnable) && AdminSetting::Unknown == StringToAdminSetting(execArgs.GetArg(Execution::Args::Type::AdminSettingEnable)))
         {
-            throw CommandException(Resource::String::InvalidArgumentValueError(s_ArgumentName_Enable, s_ArgValue_EnableAndDisable_LocalManifestFiles));
+            throw CommandException(Resource::String::InvalidArgumentValueError(s_ArgumentName_Enable, validOptions));
         }
 
         if (execArgs.Contains(Execution::Args::Type::AdminSettingDisable) && AdminSetting::Unknown == StringToAdminSetting(execArgs.GetArg(Execution::Args::Type::AdminSettingDisable)))
         {
-            throw CommandException(Resource::String::InvalidArgumentValueError(s_ArgumentName_Disable, s_ArgValue_EnableAndDisable_LocalManifestFiles));
+            throw CommandException(Resource::String::InvalidArgumentValueError(s_ArgumentName_Disable, validOptions));
         }
     }
 
