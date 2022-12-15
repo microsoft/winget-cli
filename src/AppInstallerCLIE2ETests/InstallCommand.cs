@@ -168,6 +168,9 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void InstallMSIXMachineScope()
         {
+            // TODO: Provision and Deprovision api not supported in build server.
+            Assert.Ignore();
+
             var result = TestCommon.RunAICLICommand("install", $"TestMsixInstaller --scope machine");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
@@ -192,6 +195,9 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void InstallMSIXWithSignatureMachineScope()
         {
+            // TODO: Provision and Deprovision api not supported in build server.
+            Assert.Ignore();
+
             var result = TestCommon.RunAICLICommand("install", $"TestMsixWithSignatureHash --scope machine");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));

@@ -81,6 +81,9 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void UninstallTestMsixMachineScope()
         {
+            // TODO: Provision and Deprovision api not supported in build server.
+            Assert.Ignore();
+
             // Uninstall an MSIX
             TestCommon.RunAICLICommand("install", $"{Constants.MsixInstallerPackageId} --scope machine");
             var result = TestCommon.RunAICLICommand("uninstall", $"{Constants.MsixInstallerPackageId} --scope machine");

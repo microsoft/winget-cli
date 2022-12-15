@@ -147,6 +147,9 @@ namespace AppInstallerCLIE2ETests.Interop
         [Test]
         public async Task UninstallTestMsixMachineScope()
         {
+            // TODO: Provision and Deprovision api not supported in build server.
+            Assert.Ignore();
+
             // Find package
             var searchResult = this.FindOnePackage(this.compositeSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, Constants.MsixInstallerPackageId);
 

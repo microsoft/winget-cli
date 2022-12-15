@@ -192,16 +192,6 @@ jobs:
                          /p:UapAppxPackageBuildMode=SideLoadOnly
                          /p:AppxPackageSigningEnabled=false'
 
-  - task: CopyFiles@2
-    displayName: 'Copy test msix to artifacts folder'
-    inputs:
-      SourceFolder: '$(Build.ArtifactStagingDirectory)'
-      TargetFolder: '$(artifactsDir)'
-      Contents: AppInstallerTestMsixInstaller.msix
-      CleanTargetFolder: false
-      OverWrite: true
-    condition: succeededOrFailed()
-
   - task: PowerShell@2
     displayName: Install Root Certificate
     inputs:
