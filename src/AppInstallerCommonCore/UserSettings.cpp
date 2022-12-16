@@ -260,7 +260,6 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_PASS_THROUGH(EFExperimentalArg)
         WINGET_VALIDATE_PASS_THROUGH(EFDependencies)
         WINGET_VALIDATE_PASS_THROUGH(EFDirectMSI)
-        WINGET_VALIDATE_PASS_THROUGH(EFZipInstall)
         WINGET_VALIDATE_PASS_THROUGH(EFOpenLogsArgument)
         WINGET_VALIDATE_PASS_THROUGH(EFPinning)
         WINGET_VALIDATE_PASS_THROUGH(TelemetryDisable)

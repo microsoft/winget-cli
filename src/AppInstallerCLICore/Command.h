@@ -23,25 +23,10 @@ namespace AppInstaller::CLI
     struct CommandException
     {
         CommandException(Resource::LocString message) : m_message(std::move(message)) {}
-
-        // The message should be a localized string.
-        // The parameters can be either localized or not.
-        // We 'convert' the param to a localization independent view here if needed.
-        CommandException(Resource::LocString message, Resource::LocString param) : m_message(std::move(message)), m_params({ param }) {}
-        CommandException(Resource::LocString message, std::string_view param) : m_message(std::move(message)), m_params({ Utility::LocIndString{ param } }) {}
-
-        // The message should be a localized string, but the replacement and parameters are not.
-        // This supports replacing %1 in the message with the replace value.
-        CommandException(Resource::LocString message, Utility::LocIndView replace, std::vector<Utility::LocIndString>&& params) :
-            m_message(std::move(message)), m_replace(replace), m_params(std::move(params)) {}
-
-        const Utility::LocIndString Message() const;
-        const std::vector<Utility::LocIndString>& Params() const { return m_params; }
+        const Utility::LocIndString Message() const { return m_message; }
 
     private:
         Resource::LocString m_message;
-        std::optional<Utility::LocIndString> m_replace;
-        std::vector<Utility::LocIndString> m_params;
     };
 
     // Flags to control the behavior of the command output.

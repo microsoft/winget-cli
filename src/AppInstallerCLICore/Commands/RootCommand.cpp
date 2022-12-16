@@ -187,15 +187,15 @@ namespace AppInstaller::CLI
             info << std::endl <<
                 "Windows: "_liv << Runtime::GetOSVersion() << std::endl;
 
-            info << Resource::String::SystemArchitecture << ": "_liv << Utility::ToString(Utility::GetSystemArchitecture()) << std::endl;
+            info << Resource::String::SystemArchitecture(Utility::ToString(Utility::GetSystemArchitecture())) << std::endl;
 
             if (Runtime::IsRunningInPackagedContext())
             {
-                info << Resource::String::Package << ": "_liv << Runtime::GetPackageVersion() << std::endl;
+                info << Resource::String::Package(Runtime::GetPackageVersion()) << std::endl;
             };
 
-            info << std::endl << Resource::String::Logs << ": "_liv << Runtime::GetPathTo(Runtime::PathName::DefaultLogLocationForDisplay).u8string() << std::endl;
-            info << std::endl << Resource::String::UserSettings << ": "_liv << UserSettings::SettingsFilePath(true).u8string() << std::endl;
+            info << std::endl << Resource::String::Logs(Utility::LocIndView{ Runtime::GetPathTo(Runtime::PathName::DefaultLogLocationForDisplay).u8string() }) << std::endl;
+            info << std::endl << Resource::String::UserSettings(Utility::LocIndView{ UserSettings::SettingsFilePath(true).u8string() }) << std::endl;
 
             info << std::endl;
 

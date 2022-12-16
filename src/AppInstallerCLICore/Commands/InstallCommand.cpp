@@ -107,6 +107,7 @@ namespace AppInstaller::CLI
         {
             throw CommandException(Resource::String::BothManifestAndSearchQueryProvided);
         }
+
     }
 
     void InstallCommand::ExecuteInternal(Context& context) const

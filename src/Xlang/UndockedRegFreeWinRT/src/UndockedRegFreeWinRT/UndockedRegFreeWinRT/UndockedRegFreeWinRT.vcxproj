@@ -40,6 +40,8 @@
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>UndockedRegFreeWinRT</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.22000.0</WindowsTargetPlatformVersion>
+    <BuildPlatform>$(Platform)</BuildPlatform>
+    <BuildPlatform Condition="'$(Platform)'=='Win32'">x86</BuildPlatform>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
@@ -70,13 +72,13 @@
     <TargetName>winrtact</TargetName>
     <LinkIncremental>true</LinkIncremental>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
+    <OutDir>$(SolutionDir)$(BuildPlatform)\$(Configuration)\$(ProjectName)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <TargetName>winrtact</TargetName>
     <LinkIncremental>false</LinkIncremental>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
+    <OutDir>$(SolutionDir)$(BuildPlatform)\$(Configuration)\$(ProjectName)\</OutDir>
     <SpectreMitigation>Spectre</SpectreMitigation>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -250,6 +252,11 @@
       <AdditionalDependencies>comsuppw.lib;shlwapi.lib;xmllite.lib;runtimeobject.lib;Pathcch.lib;Rometadata.lib;Rpcrt4.lib;Shell32.lib;Advapi32.lib</AdditionalDependencies>
       <ModuleDefinitionFile>winrtact.def</ModuleDefinitionFile>
     </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(UseProdWingetServer)'=='true'">
+    <ClCompile>
+      <PreprocessorDefinitions>USE_PROD_WINGET_SERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

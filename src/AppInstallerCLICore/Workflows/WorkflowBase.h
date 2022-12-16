@@ -88,7 +88,7 @@ namespace AppInstaller::CLI::Workflow
         void operator()(Execution::Context& context) const override;
 
     private:
-        std::string_view m_sourceName;
+        Utility::LocIndView m_sourceName;
     };
 
     // Creates a source object for a predefined source.

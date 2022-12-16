@@ -75,18 +75,6 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        // TODO: Remove check once feature becomes stable
-        void EnsureFeatureEnabledForArchiveInstall(Execution::Context& context)
-        {
-            auto installer = context.Get<Execution::Data::Installer>().value();
-
-            if (IsArchiveType(installer.BaseInstallerType))
-            {
-                context <<
-                    Workflow::EnsureFeatureEnabled(Settings::ExperimentalFeature::Feature::ZipInstall);
-            }
-        }
-
         Execution::Args::Type GetUnsupportedArgumentType(UnsupportedArgumentEnum unsupportedArgument)
         {
             Execution::Args::Type execArg;
@@ -249,7 +237,7 @@ namespace AppInstaller::CLI::Workflow
 
             if (!installationNotes.empty())
             {
-                context.Reporter.Info() << Resource::String::Notes << ' ' << installationNotes << std::endl;
+                context.Reporter.Info() << Resource::String::Notes(installationNotes) << std::endl;
             }
         }
     }
@@ -421,17 +409,22 @@ namespace AppInstaller::CLI::Workflow
 
             if (m_isHResult)
             {
-                context.Reporter.Error() << Resource::String::InstallerFailedWithCode << ' ' << GetUserPresentableMessage(installResult) << std::endl;
+                context.Reporter.Error()
+                    << Resource::String::InstallerFailedWithCode(Utility::LocIndView{ GetUserPresentableMessage(installResult) })
+                    << std::endl;
             }
             else
             {
-                context.Reporter.Error() << Resource::String::InstallerFailedWithCode << ' ' << installResult << std::endl;
+                context.Reporter.Error()
+                    << Resource::String::InstallerFailedWithCode(installResult)
+                    << std::endl;
             }
 
             // Show installer log path if exists
             if (context.Contains(Execution::Data::LogPath) && std::filesystem::exists(context.Get<Execution::Data::LogPath>()))
             {
-                context.Reporter.Info() << Resource::String::InstallerLogAvailable << ' ' << context.Get<Execution::Data::LogPath>().u8string() << std::endl;
+                auto installerLogPath = Utility::LocIndString{ context.Get<Execution::Data::LogPath>().u8string() };
+                context.Reporter.Info() << Resource::String::InstallerLogAvailable(installerLogPath) << std::endl;
             }
 
             // Show a specific message if we can identify the return code
@@ -503,7 +496,6 @@ namespace AppInstaller::CLI::Workflow
     {
         context <<
             Workflow::EnsureRunningAsAdminForMachineScopeInstall <<
-            Workflow::EnsureFeatureEnabledForArchiveInstall <<
             Workflow::EnsureSupportForPortableInstall <<
             Workflow::EnsureValidNestedInstallerMetadataForArchiveInstall;
     }

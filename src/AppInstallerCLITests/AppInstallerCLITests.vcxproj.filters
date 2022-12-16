@@ -227,6 +227,9 @@
     <ClCompile Include="FolderFileWatcher.cpp">
       <Filter>Source Files\Common</Filter>
     </ClCompile>
+    <ClCompile Include="Resources.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
     <ClCompile Include="PortableInstaller.cpp">
       <Filter>Source Files\Common</Filter>
     </ClCompile>

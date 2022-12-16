@@ -12,12 +12,14 @@ namespace AppInstaller::Settings
         Unknown = 0,
         LocalManifestFiles,
         BypassCertificatePinningForMicrosoftStore,
+        InstallerHashOverride,
+        LocalArchiveMalwareScanOverride,
         Max,
     };
 
     AdminSetting StringToAdminSetting(std::string_view in);
 
-    std::string_view AdminSettingToString(AdminSetting setting);
+    Utility::LocIndView AdminSettingToString(AdminSetting setting);
 
     bool EnableAdminSetting(AdminSetting setting);
 
