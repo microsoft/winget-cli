@@ -7,6 +7,7 @@
 #include <AppInstallerStrings.h>
 #include <Commands/InstallCommand.h>
 #include <Commands/UninstallCommand.h>
+#include <winget/AdminSettings.h>
 #include <winget/PathVariable.h>
 #include <winget/Settings.h>
 #include <winget/ManifestYamlParser.h>
@@ -450,7 +451,36 @@ TEST_CASE("InstallFlow_Zip_ArchiveScanFailed", "[InstallFlow][workflow]")
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::ArchiveFailedMalwareScan).get()) != std::string::npos);
 }
 
-TEST_CASE("InstallFlow_Zip_ArchiveScanOverride", "[InstallFlow][workflow]")
+TEST_CASE("InstallFlow_Zip_ArchiveScanOverride_AdminSettingDisabled", "[InstallFlow][workflow]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+    TestCommon::TestUserSettings testSettings;
+    testSettings.Set<Setting::EFZipInstall>(true);
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForShellExecute(context);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Zip_Exe.yaml").GetPath().u8string());
+    context.Args.AddArg(Execution::Args::Type::IgnoreLocalArchiveMalwareScan);
+
+    DisableAdminSetting(AppInstaller::Settings::AdminSetting::LocalArchiveMalwareScanOverride);
+
+    bool overrideArchiveScanResult = false;
+    AppInstaller::Archive::TestHook_SetScanArchiveResult_Override(&overrideArchiveScanResult);
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_ARCHIVE_SCAN_FAILED);
+
+    // Verify Installer was not called
+    REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::ArchiveFailedMalwareScan).get()) != std::string::npos);
+}
+
+TEST_CASE("InstallFlow_Zip_ArchiveScanOverride_AdminSettingEnabled", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
     TestCommon::TestUserSettings testSettings;
@@ -464,6 +494,8 @@ TEST_CASE("InstallFlow_Zip_ArchiveScanOverride", "[InstallFlow][workflow]")
     OverrideForVerifyAndSetNestedInstaller(context);
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Zip_Exe.yaml").GetPath().u8string());
     context.Args.AddArg(Execution::Args::Type::IgnoreLocalArchiveMalwareScan);
+
+    EnableAdminSetting(AppInstaller::Settings::AdminSetting::LocalArchiveMalwareScanOverride);
 
     bool overrideArchiveScanResult = false;
     AppInstaller::Archive::TestHook_SetScanArchiveResult_Override(&overrideArchiveScanResult);
