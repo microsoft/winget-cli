@@ -25,7 +25,7 @@ using namespace AppInstaller::Logging;
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Settings;
 using namespace AppInstaller::Utility;
-
+using namespace AppInstaller::Utility::literals;
 
 void OverrideForDirectMsi(TestContext& context)
 {
@@ -356,7 +356,9 @@ TEST_CASE("InstallFlow_Zip_BadRelativePath", "[InstallFlow][workflow]")
 
     // Verify Installer was not called
     REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::NestedInstallerNotFound).get()) != std::string::npos);
+    auto relativePath = context.Get<Execution::Data::InstallerPath>().parent_path() / "extracted" / "relativeFilePath";
+    auto expectedMessage = Resource::String::NestedInstallerNotFound(AppInstaller::Utility::LocIndString{ relativePath.u8string()});
+    REQUIRE(installOutput.str().find(Resource::LocString(expectedMessage).get()) != std::string::npos);
 }
 
 TEST_CASE("InstallFlow_Zip_MissingNestedInstaller", "[InstallFlow][workflow]")

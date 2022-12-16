@@ -12,6 +12,7 @@ using namespace TestCommon;
 using namespace AppInstaller::CLI;
 using namespace AppInstaller::CLI::Execution;
 using namespace AppInstaller::Settings;
+using namespace AppInstaller::Utility::literals;
 
 TEST_CASE("UpdateFlow_UpdateWithManifest", "[UpdateFlow][workflow]")
 {
@@ -473,7 +474,7 @@ TEST_CASE("UpdateFlow_UpdateExeSpecificVersionNotFound", "[UpdateFlow][workflow]
 
     // Verify Installer is not called.
     REQUIRE(!std::filesystem::exists(updateResultPath.GetPath()));
-    REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::GetManifestResultVersionNotFound).get()) != std::string::npos);
+    REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::GetManifestResultVersionNotFound("1.2.3.4"_liv)).get()) != std::string::npos);
     REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_NO_MANIFEST_FOUND);
 }
 
