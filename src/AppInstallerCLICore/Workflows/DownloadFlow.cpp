@@ -239,7 +239,7 @@ namespace AppInstaller::CLI::Workflow
         // Use the SHA256 hash of the installer as the identifier for the download
         downloadInfo.ContentId = SHA256::ConvertToString(installer.Sha256);
 
-        context.Reporter.Info() << "Downloading " << Execution::UrlEmphasis << installer.Url << std::endl;
+        context.Reporter.Info() << Resource::String::Downloading << ' ' << Execution::UrlEmphasis << installer.Url << std::endl;
 
         std::optional<std::vector<BYTE>> hash;
 

@@ -57,7 +57,7 @@ namespace AppInstaller::CLI::Workflow
             out << std::endl;
         }
 
-        Repository::Source OpenNamedSource(Execution::Context& context, std::string_view sourceName)
+        Repository::Source OpenNamedSource(Execution::Context& context, Utility::LocIndView sourceName)
         {
             Repository::Source source;
 
@@ -72,7 +72,7 @@ namespace AppInstaller::CLI::Workflow
                     if (!sourceName.empty() && !sources.empty())
                     {
                         // A bad name was given, try to help.
-                        context.Reporter.Error() << Resource::String::OpenSourceFailedNoMatch << ' ' << sourceName << std::endl;
+                        context.Reporter.Error() << Resource::String::OpenSourceFailedNoMatch(sourceName) << std::endl;
                         context.Reporter.Info() << Resource::String::OpenSourceFailedNoMatchHelp << std::endl;
                         for (const auto& details : sources)
                         {
@@ -104,7 +104,7 @@ namespace AppInstaller::CLI::Workflow
                 // We'll only report the source update failure as warning and continue
                 for (const auto& s : updateFailures)
                 {
-                    context.Reporter.Warn() << Resource::String::SourceOpenWithFailedUpdate << ' ' << s.Name << std::endl;
+                    context.Reporter.Warn() << Resource::String::SourceOpenWithFailedUpdate(Utility::LocIndView{ s.Name }) << std::endl;
                 }
             }
             catch (const wil::ResultException& re)
@@ -259,14 +259,9 @@ namespace AppInstaller::CLI::Workflow
         catch (const Settings::GroupPolicyException& e)
         {
             auto policy = Settings::TogglePolicy::GetPolicy(e.Policy());
-            context.Reporter.Error() << Resource::String::DisabledByGroupPolicy << ": "_liv << policy.PolicyName() << std::endl;
+            auto policyNameId = policy.PolicyName();
+            context.Reporter.Error() << Resource::String::DisabledByGroupPolicy(policyNameId) << std::endl;
             return APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY;
-        }
-        catch (const Resource::ResourceOpenException& e)
-        {
-            Logging::Telemetry().LogException(Logging::FailureTypeEnum::ResourceOpen, e.what());
-            context.Reporter.Error() << GetUserPresentableMessage(e) << std::endl;
-            return APPINSTALLER_CLI_ERROR_MISSING_RESOURCE_FILE;
         }
         catch (const std::exception& e)
         {
@@ -306,7 +301,7 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        auto source = OpenNamedSource(context, sourceName);
+        auto source = OpenNamedSource(context, Utility::LocIndView{ sourceName });
         if (context.IsTerminated())
         {
             return;
@@ -579,7 +574,7 @@ namespace AppInstaller::CLI::Workflow
                 auto warn = context.Reporter.Warn();
                 for (const auto& failure : searchResult.Failures)
                 {
-                    warn << Resource::String::SearchFailureWarning << ' ' << failure.SourceName << std::endl;
+                    warn << Resource::String::SearchFailureWarning(Utility::LocIndView{ failure.SourceName }) << std::endl;
                 }
             }
             else
@@ -588,7 +583,7 @@ namespace AppInstaller::CLI::Workflow
                 auto error = context.Reporter.Error();
                 for (const auto& failure : searchResult.Failures)
                 {
-                    error << Resource::String::SearchFailureError << ' ' << failure.SourceName << std::endl;
+                    error << Resource::String::SearchFailureError(Utility::LocIndView{ failure.SourceName }) << std::endl;
                     HRESULT failureHR = HandleException(context, failure.Exception);
 
                     // Just take first failure for now
@@ -770,7 +765,7 @@ namespace AppInstaller::CLI::Workflow
 
             if (m_onlyShowUpgrades)
             {
-                context.Reporter.Info() << availableUpgradesCount << ' ' << Resource::String::AvailableUpgrades << std::endl;
+                context.Reporter.Info() << Resource::String::AvailableUpgrades(availableUpgradesCount) << std::endl;
             }
         }
 
@@ -860,18 +855,17 @@ namespace AppInstaller::CLI::Workflow
 
         if (!manifest)
         {
-            auto errorStream = context.Reporter.Error();
-            errorStream << Resource::String::GetManifestResultVersionNotFound << ' ';
+            std::ostringstream ssVersionInfo;
             if (!m_version.empty())
             {
-                errorStream << m_version;
+                ssVersionInfo << m_version;
             }
             if (!m_channel.empty())
             {
-                errorStream << '[' << m_channel << ']';
+                ssVersionInfo << '[' << m_channel << ']';
             }
 
-            errorStream << std::endl;
+            context.Reporter.Error() << Resource::String::GetManifestResultVersionNotFound(Utility::LocIndView{ ssVersionInfo.str()}) << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_MANIFEST_FOUND);
         }
 
@@ -899,13 +893,13 @@ namespace AppInstaller::CLI::Workflow
 
         if (!std::filesystem::exists(path))
         {
-            context.Reporter.Error() << Resource::String::VerifyFileFailedNotExist << ' ' << path.u8string() << std::endl;
+            context.Reporter.Error() << Resource::String::VerifyFileFailedNotExist(Utility::LocIndView{ path.u8string() }) << std::endl;
             AICLI_TERMINATE_CONTEXT(HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND));
         }
 
         if (std::filesystem::is_directory(path))
         {
-            context.Reporter.Error() << Resource::String::VerifyFileFailedIsDirectory << ' ' << path.u8string() << std::endl;
+            context.Reporter.Error() << Resource::String::VerifyFileFailedIsDirectory(Utility::LocIndView{ path.u8string() }) << std::endl;
             AICLI_TERMINATE_CONTEXT(HRESULT_FROM_WIN32(ERROR_DIRECTORY_NOT_SUPPORTED));
         }
     }
@@ -916,7 +910,7 @@ namespace AppInstaller::CLI::Workflow
 
         if (!std::filesystem::exists(path))
         {
-            context.Reporter.Error() << Resource::String::VerifyPathFailedNotExist << ' ' << path.u8string() << std::endl;
+            context.Reporter.Error() << Resource::String::VerifyPathFailedNotExist(Utility::LocIndView{ path.u8string() }) << std::endl;
             AICLI_TERMINATE_CONTEXT(HRESULT_FROM_WIN32(ERROR_PATH_NOT_FOUND));
         }
     }
@@ -1030,8 +1024,9 @@ namespace AppInstaller::CLI::Workflow
     {
         if (!Settings::ExperimentalFeature::IsEnabled(m_feature))
         {
-            context.Reporter.Error() << Resource::String::FeatureDisabledMessage << " : '" <<
-                Settings::ExperimentalFeature::GetFeature(m_feature).JsonName() << '\'' << std::endl;
+            context.Reporter.Error()
+                << Resource::String::FeatureDisabledMessage(Utility::LocIndView{ Settings::ExperimentalFeature::GetFeature(m_feature).JsonName() })
+                << std::endl;
             AICLI_LOG(CLI, Error, << Settings::ExperimentalFeature::GetFeature(m_feature).Name() << " feature is disabled. Execution cancelled.");
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED);
         }

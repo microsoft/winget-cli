@@ -136,7 +136,7 @@ namespace AppInstaller::CLI
             // Report any action blocked by Group Policy.
             auto policy = Settings::TogglePolicy::GetPolicy(e.Policy());
             AICLI_LOG(CLI, Error, << "Operation blocked by Group Policy: " << policy.RegValueName());
-            context.Reporter.Error() << Resource::String::DisabledByGroupPolicy << " : "_liv << policy.PolicyName() << std::endl;
+            context.Reporter.Error() << Resource::String::DisabledByGroupPolicy(policy.PolicyName()) << std::endl;
             return APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY;
         }
 

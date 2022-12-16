@@ -101,12 +101,12 @@ namespace AppInstaller::CLI
              execArgs.Contains(Execution::Args::Type::Source) ||
              execArgs.Contains(Execution::Args::Type::Exact)))
         {
-            throw CommandException(Resource::String::BothManifestAndSearchQueryProvided, "");
+            throw CommandException(Resource::String::BothManifestAndSearchQueryProvided);
         }
 
         if (execArgs.Contains(Execution::Args::Type::Purge) && execArgs.Contains(Execution::Args::Type::Preserve))
         {
-            throw CommandException(Resource::String::BothPurgeAndPreserveFlagsProvided, "");
+            throw CommandException(Resource::String::BothPurgeAndPreserveFlagsProvided);
         }
     }
 

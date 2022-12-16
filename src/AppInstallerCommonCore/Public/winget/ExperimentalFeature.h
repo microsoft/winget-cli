@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <type_traits>
+#include "AppInstallerStrings.h"
 
 namespace AppInstaller::Settings
 {
@@ -57,13 +58,13 @@ namespace AppInstaller::Settings
         static std::vector<ExperimentalFeature> GetAllFeatures();
 
         std::string_view Name() const { return m_name; }
-        std::string_view JsonName() const { return m_jsonName; }
+        Utility::LocIndView JsonName() const { return m_jsonName; }
         std::string_view Link() const { return m_link; }
         Feature GetFeature() const { return m_feature; }
 
     private:
         std::string_view m_name;
-        std::string_view m_jsonName;
+        Utility::LocIndView m_jsonName;
         std::string_view m_link;
         Feature m_feature;
     };

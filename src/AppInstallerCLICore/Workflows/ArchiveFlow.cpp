@@ -92,7 +92,9 @@ namespace AppInstaller::CLI::Workflow
             else if (!std::filesystem::exists(nestedInstallerPath))
             {
                 AICLI_LOG(CLI, Error, << "Unable to locate nested installer at: " << nestedInstallerPath);
-                context.Reporter.Error() << Resource::String::NestedInstallerNotFound << ' ' << nestedInstallerPath << std::endl;
+                context.Reporter.Error()
+                    << Resource::String::NestedInstallerNotFound(Utility::LocIndView{ nestedInstallerPath.u8string() })
+                    << std::endl;
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NESTEDINSTALLER_NOT_FOUND);
             }
             else if (!IsPortableType(installer.NestedInstallerType))

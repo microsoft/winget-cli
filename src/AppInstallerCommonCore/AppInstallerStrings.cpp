@@ -14,7 +14,6 @@ namespace AppInstaller::Utility
     using namespace std::string_view_literals;
     constexpr std::string_view s_SpaceChars = AICLI_SPACE_CHARS;
     constexpr std::wstring_view s_WideSpaceChars = L"" AICLI_SPACE_CHARS;
-    constexpr std::string_view s_MessageReplacementToken = "%1"sv;
 
     namespace
     {
@@ -567,13 +566,6 @@ namespace AppInstaller::Utility
         return result;
     }
 
-    std::string FindAndReplaceMessageToken(std::string_view message, std::string_view value)
-    {
-        std::string result{ message };
-        FindAndReplace(result, s_MessageReplacementToken, value);
-        return result;
-    }
-
     // Follow the rules at https://docs.microsoft.com/en-us/windows/win32/fileio/naming-a-file to replace
     // invalid characters in a candidate path part.
     // Additionally, based on https://docs.microsoft.com/en-us/windows/win32/fileio/filesystem-functionality-comparison#limits
@@ -712,5 +704,22 @@ namespace AppInstaller::Utility
         }
 
         return result;
+    }
+
+    LocIndString Join(LocIndView separator, const std::vector<LocIndString>& vector)
+    {
+        auto vectorSize = vector.size();
+        if (vectorSize == 0)
+        {
+            return {};
+        }
+
+        std::ostringstream ssJoin;
+        ssJoin << vector[0];
+        for (size_t i = 1; i < vectorSize; ++i)
+        {
+            ssJoin << separator << vector[i];
+        }
+        return LocIndString{ ssJoin.str() };
     }
 }

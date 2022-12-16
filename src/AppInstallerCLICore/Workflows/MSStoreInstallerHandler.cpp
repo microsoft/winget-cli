@@ -112,6 +112,13 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+    Utility::LocIndString GetErrorCodeString(const HRESULT errorCode)
+    {
+        std::ostringstream ssError;
+        ssError << WINGET_OSTREAM_FORMAT_HRESULT(errorCode);
+        return Utility::LocIndString{ ssError.str() };
+    }
+
     void MSStoreInstall(Execution::Context& context)
     {
         auto productId = Utility::ConvertToUTF16(context.Get<Execution::Data::Installer>()->ProductId);
@@ -148,9 +155,10 @@ namespace AppInstaller::CLI::Workflow
         }
         else
         {
-            context.Reporter.Info() << Resource::String::MSStoreInstallOrUpdateFailed << ' ' << WINGET_OSTREAM_FORMAT_HRESULT(errorCode) << std::endl;
+            auto errorCodeString = GetErrorCodeString(errorCode);
+            context.Reporter.Info() << Resource::String::MSStoreInstallOrUpdateFailed(errorCodeString) << std::endl;
             context.Add<Execution::Data::OperationReturnCode>(errorCode);
-            AICLI_LOG(CLI, Error, << "MSStore install failed. ProductId: " << Utility::ConvertToUTF8(productId) << " HResult: " << WINGET_OSTREAM_FORMAT_HRESULT(errorCode));
+            AICLI_LOG(CLI, Error, << "MSStore install failed. ProductId: " << Utility::ConvertToUTF8(productId) << " HResult: " << errorCodeString);
             AICLI_TERMINATE_CONTEXT(errorCode);
         }
     }
@@ -196,9 +204,10 @@ namespace AppInstaller::CLI::Workflow
         }
         else
         {
-            context.Reporter.Info() << Resource::String::MSStoreInstallOrUpdateFailed << ' ' << WINGET_OSTREAM_FORMAT_HRESULT(errorCode) << std::endl;
+            auto errorCodeString = GetErrorCodeString(errorCode);
+            context.Reporter.Info() << Resource::String::MSStoreInstallOrUpdateFailed(errorCodeString) << std::endl;
             context.Add<Execution::Data::OperationReturnCode>(errorCode);
-            AICLI_LOG(CLI, Error, << "MSStore execution failed. ProductId: " << Utility::ConvertToUTF8(productId) << " HResult: " << WINGET_OSTREAM_FORMAT_HRESULT(errorCode));
+            AICLI_LOG(CLI, Error, << "MSStore execution failed. ProductId: " << Utility::ConvertToUTF8(productId) << " HResult: " << errorCodeString);
             AICLI_TERMINATE_CONTEXT(errorCode);
         }
     }
