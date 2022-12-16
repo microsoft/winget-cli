@@ -27,9 +27,12 @@ namespace Microsoft.Management.Configuration
         ApplicationSucceeded,
         SkippedManually,
         SkippedDueToDependencies,
+        TestBegun,
+        TestFailed,
+        TestSucceeded,
     };
 
-    // Defines the level of detail that is desired about a configuration unit.
+    // Defines the level of detail probing that is allowed about a configuration unit.
     [contract(Microsoft.Management.Configuration.Contract, 1)]
     enum ConfigurationUnitDetailLevel
     {
@@ -43,9 +46,9 @@ namespace Microsoft.Management.Configuration
         Load,
     };
 
-    // Information on a failure for a single unit of configuration.
+    // Information on a result for a single unit of configuration.
     [contract(Microsoft.Management.Configuration.Contract, 1)]
-    runtimeclass ConfigurationUnitFailureInformation
+    runtimeclass ConfigurationUnitResultInformation
     {
         // The error code of the failure.
         HRESULT ResultCode{ get; };
@@ -54,7 +57,7 @@ namespace Microsoft.Management.Configuration
         String Description{ get; };
     }
         
-    // This interface provides information and access for a specific configuration unit within the runtime.
+    // Provides information for a specific configuration unit setting.
     [contract(Microsoft.Management.Configuration.Contract, 1)]
     interface IConfigurationUnitSettingDetails
     {
@@ -77,7 +80,7 @@ namespace Microsoft.Management.Configuration
         String Semantics{ get; };
     }
 
-    // This interface provides information about a specific configuration unit processor within the runtime.
+    // Provides information for a specific configuration unit within the runtime.
     [contract(Microsoft.Management.Configuration.Contract, 1)]
     interface IConfigurationUnitProcessorDetails
     {
@@ -153,14 +156,14 @@ namespace Microsoft.Management.Configuration
         // The current state of the configuration unit.
         ConfigurationUnitState State{ get; };
 
-        // If the State is ApplicationFailed, this object should exist with additional details on the latest failure.
-        ConfigurationUnitFailureInformation FailureInformation{ get; };
+        // Contains information on the result of the latest attempt to apply the configuration unit.
+        ConfigurationUnitResultInformation ResultInformation{ get; };
 
         // Allows for control over whether this unit should be applied when the set containing it is applied.
         Boolean ShouldApply;
     }
 
-    // The change event type that has occurred.
+    // The change event type that has occurred for a configuration set change.
     [contract(Microsoft.Management.Configuration.Contract, 1)]
     enum ConfigurationSetChangeEventType
     {
@@ -182,8 +185,8 @@ namespace Microsoft.Management.Configuration
         // The state of the configuration unit for this event (the ConfigurationUnit can be used to get the current state, which may be different).
         ConfigurationUnitState UnitState{ get; };
 
-        // If the UnitState is ApplicationFailed, this object should exist with additional details on the failure.
-        ConfigurationUnitFailureInformation FailureInformation{ get; };
+        // Contains information on the result of the attempt to apply the configuration unit.
+        ConfigurationUnitResultInformation ResultInformation{ get; };
 
         // The configuration unit whose state changed.
         ConfigurationUnit Unit{ get; };
@@ -229,11 +232,11 @@ namespace Microsoft.Management.Configuration
         // Writes the configuration set to the given stream.
         void Serialize(Windows.Storage.Streams.IOutputStream stream);
 
-        // Removes a configuration set from the system history. Only usable on a set that came from `Statics.GetConfigurationHistory`.
+        // Removes the configuration set from the recorded history, if present.
         void Remove();
     }
 
-    // This interface provides information and access for a specific configuration unit within the runtime.
+    // Provides access to a specific configuration unit within the runtime.
     [contract(Microsoft.Management.Configuration.Contract, 1)]
     interface IConfigurationUnitProcessor
     {
@@ -253,12 +256,12 @@ namespace Microsoft.Management.Configuration
         void ApplySettings();
     }
 
-    // This interface allows different runtimes to provide specialized handling of configuration processing.
+    // Allows different runtimes to provide specialized handling of configuration processing.
     [contract(Microsoft.Management.Configuration.Contract, 1)]
     interface IConfigurationProcessorFactory
     {
         // Gets the configuration unit processor details for the given unit.
-        IConfigurationUnitProcessorDetails GetUnitProcessorGetails(ConfigurationUnit unit);
+        IConfigurationUnitProcessorDetails GetUnitProcessorDetails(ConfigurationUnit unit);
 
         // Creates a configuration unit processor for the given unit.
         // The optional `directivesOverlay` parameter allows for the `ConfigurationProcessor` to alter behavior without needing to change the unit itself.
@@ -266,7 +269,7 @@ namespace Microsoft.Management.Configuration
         IConfigurationUnitProcessor CreateUnitProcessor(ConfigurationUnit unit, Windows.Foundation.Collections.ValueSet directivesOverlay);
     }
 
-    // The type of conflict that occurred.
+    // The type of conflict between configuration sets that was detected.
     [contract(Microsoft.Management.Configuration.Contract, 1)]
     enum ConfigurationConflictType
     {
@@ -274,7 +277,7 @@ namespace Microsoft.Management.Configuration
         // Indicates that the first configuration set has a matching name and origin to the second, which has already been applied.
         // This is likely an update to the existing set, and should be applied as such, rather than an entirely new set.
         MatchingOrigin,
-        // Indicates that the first configuration set is identical to the second, that has already been applied.
+        // Indicates that the first configuration set is identical to the second, which has already been applied.
         // This is based solely on the configuration unit settings.
         IdenticalSetApplied,
         // Indicates a conflict between the settings of two configuration units.
@@ -289,15 +292,15 @@ namespace Microsoft.Management.Configuration
         String Name{ get; };
 
         // The value from the first configuration unit.
-        // These are the values from a `ValueSet`, and are thus required to be a `PopertyValue` or a 'ValueSet`.
+        // These are the values from a `ValueSet`, and are thus required to be a `PropertyValue` or a 'ValueSet`.
         Object FirstValue{ get; };
 
         // The value from the second configuration unit.
-        // These are the values from a `ValueSet`, and are thus required to be a `PopertyValue` or a 'ValueSet`.
+        // These are the values from a `ValueSet`, and are thus required to be a `PropertyValue` or a 'ValueSet`.
         Object SecondValue{ get; };
     }
 
-    // Describes a conflict between two configurations.
+    // Describes a conflict between two configuration sets.
     [contract(Microsoft.Management.Configuration.Contract, 1)]
     runtimeclass ConfigurationConflict
     {
@@ -334,8 +337,11 @@ namespace Microsoft.Management.Configuration
     [contract(Microsoft.Management.Configuration.Contract, 1)]
     runtimeclass ApplyConfigurationUnitResult
     {
-        // The result from applying the configuration unit.
-        HRESULT ResultCode{ get; };
+        // The configuration unit that was applied.
+        ConfigurationUnit Unit{ get; };
+
+        // The result of applying the configuration unit.
+        ConfigurationUnitResultInformation ResultInformation{ get; };
     }
 
     // The result of applying the settings for a configuration set.
@@ -356,6 +362,10 @@ namespace Microsoft.Management.Configuration
         // The configuration unit that was tested.
         ConfigurationUnit Unit{ get; };
 
+        // The result of testing the configuration unit.
+        // This is not the response for the test, but rather contains information about the actual attempt to run the test.
+        ConfigurationUnitResultInformation ResultInformation{ get; };
+
         // Will be true if the system is in the state described by the configuration unit; false otherwise.
         Boolean TestResult{ get; };
     }
@@ -375,6 +385,10 @@ namespace Microsoft.Management.Configuration
     [contract(Microsoft.Management.Configuration.Contract, 1)]
     runtimeclass GetConfigurationUnitSettingsResult
     {
+        // The result of getting the configuration unit settings.
+        // This is not the response for the retrieval, but rather contains information about the actual attempt to retrieve the settings.
+        ConfigurationUnitResultInformation ResultInformation{ get; };
+
         // The current state of the system for the configuration unit.
         Windows.Foundation.Collections.ValueSet Settings { get; };
     }
@@ -394,10 +408,10 @@ namespace Microsoft.Management.Configuration
         // Gets the details for a configuration unit.
         Windows.Foundation.IAsyncAction GetUnitDetailsAsync(ConfigurationUnit unit, ConfigurationUnitDetailLevel detailLevel);
 
-        // Applies the configuration set state; to get progress, attach a delegate to the ConfigurationSetChange before calling this method.
+        // Applies the configuration set state; to get progress, subscribe to the ConfigurationSetChange before calling this method.
         Windows.Foundation.IAsyncOperation<ApplyConfigurationSetResult> ApplyAsync(ConfigurationSet configurationSet, ApplyConfigurationSetFlags flags);
 
-        // Tests the configuration set state; to get progress, attach a delegate to the ConfigurationSetChange before calling this method.
+        // Tests the configuration set state; to get progress, subscribe to the ConfigurationSetChange before calling this method.
         Windows.Foundation.IAsyncOperation<TestConfigurationSetResult> TestAsync(ConfigurationSet configurationSet);
 
         // Gets the current configuration unit settings.
