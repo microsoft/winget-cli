@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.WinGet.Client.Common
+namespace Microsoft.WinGet.Client.Commands.Common
 {
     using System;
     using System.Collections.Generic;
@@ -13,6 +13,7 @@ namespace Microsoft.WinGet.Client.Common
     using System.Reflection;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Attributes;
+    using Microsoft.WinGet.Client.Common;
     using Microsoft.WinGet.Client.Exceptions;
 
     /// <summary>
@@ -78,7 +79,7 @@ namespace Microsoft.WinGet.Client.Common
         {
             get
             {
-                return (this.Query is null)
+                return this.Query is null
                     ? null
                     : string.Join(" ", this.Query);
             }
@@ -193,8 +194,7 @@ namespace Microsoft.WinGet.Client.Common
             ref FindPackagesOptions options,
             PackageFieldMatchOption match)
         {
-            IEnumerable<PropertyInfo> properties = this
-                .GetType()
+            IEnumerable<PropertyInfo> properties = this.GetType()
                 .GetProperties()
                 .Where(property => Attribute.IsDefined(property, typeof(FilterAttribute)));
 

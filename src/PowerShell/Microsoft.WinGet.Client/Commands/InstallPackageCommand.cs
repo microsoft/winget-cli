@@ -8,6 +8,7 @@ namespace Microsoft.WinGet.Client.Commands
 {
     using System.Management.Automation;
     using Microsoft.Management.Deployment;
+    using Microsoft.WinGet.Client.Commands.Common;
     using Microsoft.WinGet.Client.Common;
     using Microsoft.WinGet.Client.Properties;
     using Windows.System;

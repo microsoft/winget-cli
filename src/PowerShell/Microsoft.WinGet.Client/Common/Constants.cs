@@ -11,7 +11,7 @@ namespace Microsoft.WinGet.Client.Common
     /// <summary>
     /// This class contains all of the configurable constants for this project.
     /// </summary>
-    public static class Constants
+    internal static class Constants
     {
         /// <summary>
         /// If a command allows the specification of the maximum number of results to return, this is the lower bound for that value.

@@ -4,12 +4,13 @@
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.WinGet.Client.Common
+namespace Microsoft.WinGet.Client.Commands.Common
 {
     using System.Collections.Generic;
     using System.Management.Automation;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Attributes;
+    using Microsoft.WinGet.Client.Common;
 
     /// <summary>
     /// This is the base class for the commands whose sole purpose is to filter a list of packages i.e.,

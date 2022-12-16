@@ -12,7 +12,7 @@ namespace Microsoft.WinGet.Client.Common
     /// <summary>
     /// This class contains various helper methods for this project.
     /// </summary>
-    public static class Utilities
+    internal static class Utilities
     {
         /// <summary>
         /// Gets a value indicating whether the current assembly is executing in an administrative context.

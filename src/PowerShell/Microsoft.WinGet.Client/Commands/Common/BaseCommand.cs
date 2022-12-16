@@ -4,9 +4,10 @@
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.WinGet.Client.Common
+namespace Microsoft.WinGet.Client.Commands.Common
 {
     using System.Management.Automation;
+    using Microsoft.WinGet.Client.Common;
     using Microsoft.WinGet.Client.Exceptions;
 
     /// <summary>

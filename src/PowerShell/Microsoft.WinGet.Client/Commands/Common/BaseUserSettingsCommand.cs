@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.WinGet.Client.Common
+namespace Microsoft.WinGet.Client.Commands.Common
 {
     using System.Collections;
     using System.IO;
