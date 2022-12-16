@@ -313,8 +313,7 @@ TEST_CASE("InstallFlow_Zip_Exe", "[InstallFlow][workflow]")
     OverrideForVerifyAndSetNestedInstaller(context);
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Zip_Exe.yaml").GetPath().u8string());
 
-    bool overrideArchiveScanResult = true;
-    AppInstaller::Archive::TestHook_SetScanArchiveResult_Override(&overrideArchiveScanResult);
+    TestHook::SetScanArchiveResult_Override scanArchiveResultOverride(true);
 
     InstallCommand install({});
     install.Execute(context);
@@ -341,8 +340,7 @@ TEST_CASE("InstallFlow_Zip_BadRelativePath", "[InstallFlow][workflow]")
     OverrideForExtractInstallerFromArchive(context);
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Zip_Exe.yaml").GetPath().u8string());
 
-    bool overrideArchiveScanResult = true;
-    AppInstaller::Archive::TestHook_SetScanArchiveResult_Override(&overrideArchiveScanResult);
+    TestHook::SetScanArchiveResult_Override scanArchiveResultOverride(true);
 
     InstallCommand install({});
     install.Execute(context);
@@ -427,8 +425,7 @@ TEST_CASE("InstallFlow_Zip_ArchiveScanFailed", "[InstallFlow][workflow]")
     OverrideForShellExecute(context);
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Zip_Exe.yaml").GetPath().u8string());
 
-    bool overrideArchiveScanResult = false;
-    AppInstaller::Archive::TestHook_SetScanArchiveResult_Override(&overrideArchiveScanResult);
+    TestHook::SetScanArchiveResult_Override scanArchiveResultOverride(false);
 
     InstallCommand install({});
     install.Execute(context);
@@ -454,8 +451,7 @@ TEST_CASE("InstallFlow_Zip_ArchiveScanOverride_AdminSettingDisabled", "[InstallF
 
     DisableAdminSetting(AppInstaller::Settings::AdminSetting::LocalArchiveMalwareScanOverride);
 
-    bool overrideArchiveScanResult = false;
-    AppInstaller::Archive::TestHook_SetScanArchiveResult_Override(&overrideArchiveScanResult);
+    TestHook::SetScanArchiveResult_Override scanArchiveResultOverride(false);
 
     InstallCommand install({});
     install.Execute(context);
@@ -483,8 +479,7 @@ TEST_CASE("InstallFlow_Zip_ArchiveScanOverride_AdminSettingEnabled", "[InstallFl
 
     EnableAdminSetting(AppInstaller::Settings::AdminSetting::LocalArchiveMalwareScanOverride);
 
-    bool overrideArchiveScanResult = false;
-    AppInstaller::Archive::TestHook_SetScanArchiveResult_Override(&overrideArchiveScanResult);
+    TestHook::SetScanArchiveResult_Override scanArchiveResultOverride(false);
 
     InstallCommand install({});
     install.Execute(context);
@@ -645,8 +640,7 @@ TEST_CASE("InstallFlow_Portable_SymlinkCreationFail", "[InstallFlow][workflow]")
     TestContext installContext{ installOutput, std::cin };
     auto PreviousThreadGlobals = installContext.SetForCurrentThread();
     OverridePortableInstaller(installContext);
-    bool overrideCreateSymlinkStatus = false;
-    AppInstaller::Filesystem::TestHook_SetCreateSymlinkResult_Override(&overrideCreateSymlinkStatus);
+    TestHook::SetCreateSymlinkResult_Override createSymlinkResultOverride(false);
     installContext.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Portable.yaml").GetPath().u8string());
 
     InstallCommand install({});
