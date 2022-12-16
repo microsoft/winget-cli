@@ -74,18 +74,6 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        // TODO: Remove check once feature becomes stable
-        void EnsureFeatureEnabledForArchiveInstall(Execution::Context& context)
-        {
-            auto installer = context.Get<Execution::Data::Installer>().value();
-
-            if (IsArchiveType(installer.BaseInstallerType))
-            {
-                context <<
-                    Workflow::EnsureFeatureEnabled(Settings::ExperimentalFeature::Feature::ZipInstall);
-            }
-        }
-
         Execution::Args::Type GetUnsupportedArgumentType(UnsupportedArgumentEnum unsupportedArgument)
         {
             Execution::Args::Type execArg;
@@ -479,7 +467,6 @@ namespace AppInstaller::CLI::Workflow
     void EnsureSupportForInstall(Execution::Context& context)
     {
         context <<
-            Workflow::EnsureFeatureEnabledForArchiveInstall <<
             Workflow::EnsureSupportForPortableInstall <<
             Workflow::EnsureValidNestedInstallerMetadataForArchiveInstall;
     }
