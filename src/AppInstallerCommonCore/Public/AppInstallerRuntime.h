@@ -62,10 +62,6 @@ namespace AppInstaller::Runtime
         PortableLinksUserLocation,
         // The location where symlinks to portable packages are stored under machine scope.
         PortableLinksMachineLocation,
-        // The location of the user settings json file.
-        UserSettingsFileLocation,
-        // The location of the user settings json file, anonymized using environment variables.
-        UserSettingsFileLocationForDisplay,
     };
 
     // The principal that an ACE applies to.
@@ -128,6 +124,9 @@ namespace AppInstaller::Runtime
 
     // Determines whether the process is running with administrator privileges.
     bool IsRunningAsAdmin();
+
+    // Determines whether the process is running with local system context.
+    bool IsRunningAsSystem();
 
     // Determines whether developer mode is enabled.
     bool IsDevModeEnabled();

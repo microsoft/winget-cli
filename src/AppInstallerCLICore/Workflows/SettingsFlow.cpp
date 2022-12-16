@@ -20,7 +20,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 root["$schema"] = "https://aka.ms/winget-settings-export.schema.json";
                 root["adminSettings"] = Json::ValueType::objectValue;
-                root["userSettingsFile"] = Runtime::GetPathTo(Runtime::PathName::UserSettingsFileLocation).u8string();
+                root["userSettingsFile"] = UserSettings::SettingsFilePath().u8string();
             }
 
             void AddAdminSetting(AdminSetting setting)
@@ -43,7 +43,7 @@ namespace AppInstaller::CLI::Workflow
 
     void EnableAdminSetting(Execution::Context& context)
     {
-        std::string_view adminSettingString = context.Args.GetArg(Execution::Args::Type::AdminSettingEnable);
+        auto adminSettingString = LocIndString{ context.Args.GetArg(Execution::Args::Type::AdminSettingEnable) };
         AdminSetting adminSetting = Settings::StringToAdminSetting(adminSettingString);
         if (Settings::EnableAdminSetting(adminSetting))
         {
@@ -51,15 +51,13 @@ namespace AppInstaller::CLI::Workflow
         }
         else
         {
-            std::string adminSettingErrorMessage = Resource::LocString{ Resource::String::EnableAdminSettingFailed };
-            context.Reporter.Error() <<
-                Utility::LocIndString{ FindAndReplaceMessageToken(adminSettingErrorMessage, adminSettingString) };
+            context.Reporter.Error() << Resource::String::EnableAdminSettingFailed(adminSettingString);
         }
     }
 
     void DisableAdminSetting(Execution::Context& context)
     {
-        std::string_view adminSettingString = context.Args.GetArg(Execution::Args::Type::AdminSettingDisable);
+        auto adminSettingString = LocIndString{ context.Args.GetArg(Execution::Args::Type::AdminSettingDisable) };
         AdminSetting adminSetting = Settings::StringToAdminSetting(adminSettingString);
         if (Settings::DisableAdminSetting(adminSetting))
         {
@@ -67,9 +65,7 @@ namespace AppInstaller::CLI::Workflow
         }
         else
         {
-            std::string adminSettingErrorMessage = Resource::LocString{ Resource::String::DisableAdminSettingFailed };
-            context.Reporter.Error() <<
-                Utility::LocIndString{ FindAndReplaceMessageToken(adminSettingErrorMessage, adminSettingString) };
+            context.Reporter.Error() << Resource::String::DisableAdminSettingFailed(adminSettingString);
         }
     }
 
@@ -87,7 +83,7 @@ namespace AppInstaller::CLI::Workflow
                 {
                     if (warning.IsFieldWarning)
                     {
-                        warn << ' ' << Resource::String::SettingsWarningField << ' ' << warning.Path;
+                        warn << ' ' << Resource::String::SettingsWarningField(warning.Path);
                     }
                     else
                     {
@@ -99,7 +95,7 @@ namespace AppInstaller::CLI::Workflow
                 {
                     if (warning.IsFieldWarning)
                     {
-                        warn << ' ' << Resource::String::SettingsWarningValue << ' ' << warning.Data;
+                        warn << ' ' << Resource::String::SettingsWarningValue(warning.Data);
                     }
                     else
                     {

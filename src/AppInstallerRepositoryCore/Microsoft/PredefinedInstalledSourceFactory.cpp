@@ -18,14 +18,23 @@ namespace AppInstaller::Repository::Microsoft
     namespace
     {
         // Populates the index with the entries from MSIX.
-        void PopulateIndexFromMSIX(SQLiteIndex& index)
+        void PopulateIndexFromMSIX(SQLiteIndex& index, Manifest::ScopeEnum scope)
         {
             using namespace winrt::Windows::ApplicationModel;
             using namespace winrt::Windows::Management::Deployment;
+            using namespace winrt::Windows::Foundation::Collections;
 
-            // TODO: Consider if Optional packages should also be enumerated
+            IIterable<Package> packages;
             PackageManager packageManager;
-            auto packages = packageManager.FindPackagesForUserWithPackageTypes({}, PackageTypes::Main);
+            if (scope == Manifest::ScopeEnum::Machine)
+            {
+                packages = packageManager.FindProvisionedPackages();
+            }
+            else
+            {
+                // TODO: Consider if Optional packages should also be enumerated
+                packages = packageManager.FindPackagesForUserWithPackageTypes({}, PackageTypes::Main);
+            }
 
             // Reuse the same manifest object, as we will be setting the same values every time.
             Manifest::Manifest manifest;
@@ -57,23 +66,26 @@ namespace AppInstaller::Repository::Microsoft
                 bool isPackageNameSet = false;
                 // Attempt to get the DisplayName. Since this will retrieve the localized value, it has a chance to fail.
                 // Rather than completely skip this package in that case, we will simply fall back to using the package name below.
-                try
+                if (!Runtime::IsRunningAsSystem())
                 {
-                    auto displayName = Utility::ConvertToUTF8(package.DisplayName());
-                    if (!displayName.empty())
+                    try
                     {
-                        manifest.DefaultLocalization.Add<Manifest::Localization::PackageName>(displayName);
-                        isPackageNameSet = true;
+                        auto displayName = Utility::ConvertToUTF8(package.DisplayName());
+                        if (!displayName.empty())
+                        {
+                            manifest.DefaultLocalization.Add<Manifest::Localization::PackageName>(displayName);
+                            isPackageNameSet = true;
+                        }
                     }
-                }
-                catch (const winrt::hresult_error& hre)
-                {
-                    AICLI_LOG(Repo, Info, << "winrt::hresult_error[0x" << Logging::SetHRFormat << hre.code() << ": " <<
-                        Utility::ConvertToUTF8(hre.message()) << "] exception thrown when getting DisplayName for " << familyName);
-                }
-                catch (...)
-                {
-                    AICLI_LOG(Repo, Info, << "Unknown exception thrown when getting DisplayName for " << familyName);
+                    catch (const winrt::hresult_error& hre)
+                    {
+                        AICLI_LOG(Repo, Info, << "winrt::hresult_error[0x" << Logging::SetHRFormat << hre.code() << ": " <<
+                            Utility::ConvertToUTF8(hre.message()) << "] exception thrown when getting DisplayName for " << familyName);
+                    }
+                    catch (...)
+                    {
+                        AICLI_LOG(Repo, Info, << "Unknown exception thrown when getting DisplayName for " << familyName);
+                    }
                 }
 
                 if (!isPackageNameSet)
@@ -121,16 +133,29 @@ namespace AppInstaller::Repository::Microsoft
                 SQLiteIndex index = SQLiteIndex::CreateNew(SQLITE_MEMORY_DB_CONNECTION_TARGET, Schema::Version::Latest());
 
                 // Put installed packages into the index
-                if (filter == PredefinedInstalledSourceFactory::Filter::None || filter == PredefinedInstalledSourceFactory::Filter::ARP)
+                if (filter == PredefinedInstalledSourceFactory::Filter::None || filter == PredefinedInstalledSourceFactory::Filter::ARP ||
+                    filter == PredefinedInstalledSourceFactory::Filter::User || filter == PredefinedInstalledSourceFactory::Filter::Machine)
                 {
                     ARPHelper arpHelper;
-                    arpHelper.PopulateIndexFromARP(index, Manifest::ScopeEnum::Machine);
-                    arpHelper.PopulateIndexFromARP(index, Manifest::ScopeEnum::User);
+                    if (filter != PredefinedInstalledSourceFactory::Filter::User)
+                    {
+                        arpHelper.PopulateIndexFromARP(index, Manifest::ScopeEnum::Machine);
+                    }
+                    if (filter != PredefinedInstalledSourceFactory::Filter::Machine)
+                    {
+                        arpHelper.PopulateIndexFromARP(index, Manifest::ScopeEnum::User);
+                    }
                 }
 
-                if (filter == PredefinedInstalledSourceFactory::Filter::None || filter == PredefinedInstalledSourceFactory::Filter::MSIX)
+                if (filter == PredefinedInstalledSourceFactory::Filter::None ||
+                    filter == PredefinedInstalledSourceFactory::Filter::MSIX ||
+                    filter == PredefinedInstalledSourceFactory::Filter::User)
                 {
-                    PopulateIndexFromMSIX(index);
+                    PopulateIndexFromMSIX(index, Manifest::ScopeEnum::User);
+                }
+                else if (filter == PredefinedInstalledSourceFactory::Filter::Machine)
+                {
+                    PopulateIndexFromMSIX(index, Manifest::ScopeEnum::Machine);
                 }
 
                 return std::make_shared<SQLiteIndexSource>(m_details, std::move(index), Synchronization::CrossProcessReaderWriteLock{}, true);
@@ -180,6 +205,10 @@ namespace AppInstaller::Repository::Microsoft
             return "ARP"sv;
         case AppInstaller::Repository::Microsoft::PredefinedInstalledSourceFactory::Filter::MSIX:
             return "MSIX"sv;
+        case AppInstaller::Repository::Microsoft::PredefinedInstalledSourceFactory::Filter::User:
+            return "User"sv;
+        case AppInstaller::Repository::Microsoft::PredefinedInstalledSourceFactory::Filter::Machine:
+            return "Machine"sv;
         default:
             return "Unknown"sv;
         }
@@ -194,6 +223,14 @@ namespace AppInstaller::Repository::Microsoft
         else if (filter == FilterToString(Filter::MSIX))
         {
             return Filter::MSIX;
+        }
+        else if (filter == FilterToString(Filter::User))
+        {
+            return Filter::User;
+        }
+        else if (filter == FilterToString(Filter::Machine))
+        {
+            return Filter::Machine;
         }
         else
         {

@@ -57,6 +57,9 @@ namespace AppInstaller::CLI::Workflow
         std::string m_name;
     };
 
+    // Helper to determine installed source to use based on context input.
+    Repository::PredefinedSource DetermineInstalledSource(const Execution::Context& context);
+
     // Helper to report exceptions and return the HRESULT.
     HRESULT HandleException(Execution::Context& context, std::exception_ptr exception);
 
@@ -85,7 +88,7 @@ namespace AppInstaller::CLI::Workflow
         void operator()(Execution::Context& context) const override;
 
     private:
-        std::string_view m_sourceName;
+        Utility::LocIndView m_sourceName;
     };
 
     // Creates a source object for a predefined source.
