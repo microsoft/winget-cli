@@ -1277,8 +1277,6 @@ TEST_CASE("InstallFlow_Zip_ArchiveScanFailed", "[InstallFlow][workflow]")
 TEST_CASE("InstallFlow_Zip_ArchiveScanOverride_AdminSettingDisabled", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
-    TestCommon::TestUserSettings testSettings;
-    testSettings.Set<Setting::EFZipInstall>(true);
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
