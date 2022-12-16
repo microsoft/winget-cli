@@ -201,4 +201,41 @@ namespace AppInstaller::Filesystem
             return path;
         }
     }
+
+    void ReplaceCommonPathPrefix(std::filesystem::path& source, const std::filesystem::path& prefix, std::string_view replacement)
+    {
+        auto prefixItr = prefix.begin();
+        auto sourceItr = source.begin();
+
+        while (prefixItr != prefix.end() && sourceItr != source.end())
+        {
+            if (*prefixItr != *sourceItr)
+            {
+                break;
+            }
+
+            ++prefixItr;
+            ++sourceItr;
+        }
+
+        // Only replace source if we found all of prefix
+        if (prefixItr == prefix.end())
+        {
+            std::filesystem::path temp{ replacement };
+
+            for (; sourceItr != source.end(); ++sourceItr)
+            {
+                temp /= *sourceItr;
+            }
+
+            source = std::move(temp);
+        }
+    }
+
+    std::filesystem::path GetKnownFolderPath(const KNOWNFOLDERID& id)
+    {
+        wil::unique_cotaskmem_string knownFolder = nullptr;
+        THROW_IF_FAILED(SHGetKnownFolderPath(id, KF_FLAG_NO_ALIAS | KF_FLAG_DONT_VERIFY | KF_FLAG_NO_PACKAGE_REDIRECTION, NULL, &knownFolder));
+        return knownFolder.get();
+    }
 }

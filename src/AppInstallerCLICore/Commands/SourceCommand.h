@@ -106,7 +106,7 @@ namespace AppInstaller::CLI
 
     struct SourceExportCommand final : public Command
     {
-        SourceExportCommand(std::string_view parent) : Command("export", parent) {}
+        SourceExportCommand(std::string_view parent) : Command("export", parent, CommandOutputFlags::IgnoreSettingsWarnings) {}
 
         std::vector<Argument> GetArguments() const override;
 

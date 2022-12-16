@@ -24,7 +24,7 @@ namespace AppInstaller::CLI
 
     struct SettingsExportCommand final : public Command
     {
-        SettingsExportCommand(std::string_view parent) : Command("export", parent) {}
+        SettingsExportCommand(std::string_view parent) : Command("export", parent, CommandOutputFlags::IgnoreSettingsWarnings) {}
 
         Resource::LocString ShortDescription() const override;
         Resource::LocString LongDescription() const override;
