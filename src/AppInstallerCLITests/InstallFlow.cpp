@@ -304,8 +304,6 @@ TEST_CASE("InstallFlowWithNonApplicableArchitecture", "[InstallFlow][workflow]")
 TEST_CASE("InstallFlow_Zip_Exe", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
-    TestCommon::TestUserSettings testSettings;
-    testSettings.Set<Setting::EFZipInstall>(true);
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
@@ -335,8 +333,6 @@ TEST_CASE("InstallFlow_Zip_Exe", "[InstallFlow][workflow]")
 TEST_CASE("InstallFlow_Zip_BadRelativePath", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
-    TestCommon::TestUserSettings testSettings;
-    testSettings.Set<Setting::EFZipInstall>(true);
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
@@ -364,8 +360,6 @@ TEST_CASE("InstallFlow_Zip_BadRelativePath", "[InstallFlow][workflow]")
 TEST_CASE("InstallFlow_Zip_MissingNestedInstaller", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
-    TestCommon::TestUserSettings testSettings;
-    testSettings.Set<Setting::EFZipInstall>(true);
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
@@ -386,8 +380,6 @@ TEST_CASE("InstallFlow_Zip_MissingNestedInstaller", "[InstallFlow][workflow]")
 TEST_CASE("InstallFlow_Zip_UnsupportedNestedInstaller", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
-    TestCommon::TestUserSettings testSettings;
-    testSettings.Set<Setting::EFZipInstall>(true);
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
@@ -408,8 +400,6 @@ TEST_CASE("InstallFlow_Zip_UnsupportedNestedInstaller", "[InstallFlow][workflow]
 TEST_CASE("InstallFlow_Zip_MultipleNonPortableNestedInstallers", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
-    TestCommon::TestUserSettings testSettings;
-    testSettings.Set<Setting::EFZipInstall>(true);
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
@@ -430,8 +420,6 @@ TEST_CASE("InstallFlow_Zip_MultipleNonPortableNestedInstallers", "[InstallFlow][
 TEST_CASE("InstallFlow_Zip_ArchiveScanFailed", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
-    TestCommon::TestUserSettings testSettings;
-    testSettings.Set<Setting::EFZipInstall>(true);
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
@@ -456,8 +444,6 @@ TEST_CASE("InstallFlow_Zip_ArchiveScanFailed", "[InstallFlow][workflow]")
 TEST_CASE("InstallFlow_Zip_ArchiveScanOverride_AdminSettingDisabled", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
-    TestCommon::TestUserSettings testSettings;
-    testSettings.Set<Setting::EFZipInstall>(true);
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
@@ -485,8 +471,6 @@ TEST_CASE("InstallFlow_Zip_ArchiveScanOverride_AdminSettingDisabled", "[InstallF
 TEST_CASE("InstallFlow_Zip_ArchiveScanOverride_AdminSettingEnabled", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
-    TestCommon::TestUserSettings testSettings;
-    testSettings.Set<Setting::EFZipInstall>(true);
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
