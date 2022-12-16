@@ -396,6 +396,7 @@
     <ClCompile Include="NameNormalization.cpp" />
     <ClCompile Include="PackageDependenciesValidationUtil.cpp" />
     <ClCompile Include="Pin.cpp" />
+    <ClCompile Include="Progress.cpp" />
     <ClCompile Include="Regex.cpp" />
     <ClCompile Include="Registry.cpp" />
     <ClCompile Include="Resources.cpp" />

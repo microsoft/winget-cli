@@ -23,6 +23,7 @@ using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Settings;
 using namespace AppInstaller::Utility;
+using namespace AppInstaller::Utility::literals;
 
 TEST_CASE("DependencyGraph_BFirst", "[dependencyGraph][dependencies]")
 {
@@ -161,7 +162,7 @@ TEST_CASE("DependencyNodeProcessor_NoInstallers", "[dependencies]")
     Dependency rootAsDependency(DependencyType::Package, manifest.Id);
 
     DependencyNodeProcessorResult result = nodeProcessor.EvaluateDependencies(rootAsDependency);
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesFlowNoInstallerFound)) != std::string::npos);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesFlowNoInstallerFound("withoutInstallers"_liv))) != std::string::npos);
     REQUIRE(result == DependencyNodeProcessorResult::Error);
 }
 

@@ -220,17 +220,6 @@ The `experimentalFeatures` settings involve the configuration of these "experime
    },
 ```
 
-### zipInstall
-
-This feature enables the Windows Package Manager to install from a zip file.
-You can enable the feature as shown below.
-
-```json
-   "experimentalFeatures": {
-       "zipInstall": true
-   },
-```
-
 ### directMSI
 
 This feature enables the Windows Package Manager to directly install MSI packages with the MSI APIs rather than through msiexec. 

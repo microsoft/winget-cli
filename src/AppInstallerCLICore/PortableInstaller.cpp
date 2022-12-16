@@ -129,7 +129,7 @@ namespace AppInstaller::CLI::Portable
                 if (std::filesystem::remove(filePath))
                 {
                     AICLI_LOG(CLI, Info, << "Removed existing file at " << filePath);
-                    m_stream << Resource::String::OverwritingExistingFileAtMessage << ' ' << filePath.u8string() << std::endl;
+                    m_stream << Resource::String::OverwritingExistingFileAtMessage(Utility::LocIndView{ filePath.u8string() }) << std::endl;
                 }
 
                 if (Filesystem::CreateSymlink(entry.SymlinkTarget, filePath))
@@ -299,7 +299,7 @@ namespace AppInstaller::CLI::Portable
                 else
                 {
                     AICLI_LOG(CLI, Info, << "Unable to remove install directory as there are remaining files in: " << InstallLocation);
-                    m_stream << Resource::String::FilesRemainInInstallDirectory << ' ' << InstallLocation.u8string() << std::endl;
+                    m_stream << Resource::String::FilesRemainInInstallDirectory(Utility::LocIndView{ InstallLocation.u8string() }) << std::endl;
                 }
             }
         }

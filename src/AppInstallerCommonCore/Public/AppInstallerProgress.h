@@ -59,71 +59,48 @@ namespace AppInstaller
     struct ProgressCallback : public IProgressCallback
     {
         ProgressCallback() = default;
-        ProgressCallback(IProgressSink* sink) : m_sink(sink) {}
+        ProgressCallback(IProgressSink* sink);
 
-        void BeginProgress() override 
-        {
-            IProgressSink* sink = GetSink();
-            if (sink)
-            {
-                sink->BeginProgress();
-            }
-        };
+        void BeginProgress() override;
 
-        void OnProgress(uint64_t current, uint64_t maximum, ProgressType type) override
-        {
-            IProgressSink* sink = GetSink();
-            if (sink)
-            {
-                sink->OnProgress(current, maximum, type);
-            }
-        }
+        void OnProgress(uint64_t current, uint64_t maximum, ProgressType type) override;
 
-        void EndProgress(bool hideProgressWhenDone) override
-        {
-            IProgressSink* sink = GetSink();
-            if (sink)
-            {
-                sink->EndProgress(hideProgressWhenDone);
-            }
-        };
+        void EndProgress(bool hideProgressWhenDone) override;
 
-        bool IsCancelled() override
-        {
-            return m_cancelled.load();
-        }
+        bool IsCancelled() override;
 
-        [[nodiscard]] IProgressCallback::CancelFunctionRemoval SetCancellationFunction(std::function<void()>&& f) override
-        {
-            m_cancellationFunction = std::move(f);
-            if (m_cancellationFunction)
-            {
-                return IProgressCallback::CancelFunctionRemoval(this);
-            }
-            else
-            {
-                return {};
-            }
-        }
+        [[nodiscard]] IProgressCallback::CancelFunctionRemoval SetCancellationFunction(std::function<void()>&& f) override;
 
-        void Cancel()
-        {
-            m_cancelled = true;
-            if (m_cancellationFunction)
-            {
-                m_cancellationFunction();
-            }
-        }
+        void Cancel();
 
-        IProgressSink* GetSink()
-        {
-            return m_sink.load();
-        }
+        IProgressSink* GetSink();
 
     private:
         std::atomic<IProgressSink*> m_sink = nullptr;
         std::atomic_bool m_cancelled = false;
         std::function<void()> m_cancellationFunction;
+    };
+
+    // A progress callback that reports its progress as a partial range of percentage to its base progress callback
+    struct PartialPercentProgressCallback : public ProgressCallback
+    {
+        PartialPercentProgressCallback(IProgressCallback& baseCallback, uint64_t globalMax);
+
+        void BeginProgress() override;
+
+        void OnProgress(uint64_t current, uint64_t maximum, ProgressType type) override;
+
+        void EndProgress(bool hideProgressWhenDone) override;
+
+        [[nodiscard]] IProgressCallback::CancelFunctionRemoval SetCancellationFunction(std::function<void()>&& f) override;
+
+        void SetRange(uint64_t rangeMin, uint64_t rangeMax);
+
+    private:
+        IProgressCallback& m_baseCallback;
+        uint64_t m_rangeMin = 0;
+        uint64_t m_rangeMax = 0;
+        uint64_t m_globalMax = 0;
     };
 
     namespace details

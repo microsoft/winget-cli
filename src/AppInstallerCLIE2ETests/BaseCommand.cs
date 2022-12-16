@@ -85,7 +85,6 @@ namespace AppInstallerCLIE2ETests
             this.ConfigureFeature("experimentalCmd", status);
             this.ConfigureFeature("dependencies", status);
             this.ConfigureFeature("directMSI", status);
-            this.ConfigureFeature("zipInstall", status);
             this.ConfigureFeature("openLogsArgument", status);
         }
     }

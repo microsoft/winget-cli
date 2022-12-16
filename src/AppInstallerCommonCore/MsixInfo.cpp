@@ -11,6 +11,7 @@
 using namespace winrt::Windows::Storage::Streams;
 using namespace Microsoft::WRL;
 using namespace AppInstaller::Utility::HttpStream;
+using namespace winrt::Windows::Management::Deployment;
 
 namespace AppInstaller::Msix
 {
@@ -363,42 +364,24 @@ namespace AppInstaller::Msix
 
     std::optional<std::string> GetPackageFullNameFromFamilyName(std::string_view familyName)
     {
+        PackageManager packageManager;
+
         std::wstring pfn = Utility::ConvertToUTF16(familyName);
-        UINT32 fullNameCount = 0;
-        UINT32 bufferLength = 0;
-        UINT32 properties = 0;
+        auto packages = packageManager.FindPackages(pfn);
 
-        LONG findResult = FindPackagesByPackageFamily(pfn.c_str(), PACKAGE_FILTER_HEAD, &fullNameCount, nullptr, &bufferLength, nullptr, &properties);
-        if (findResult == ERROR_SUCCESS || fullNameCount == 0)
+        std::optional<std::string> result;
+        for (const auto& package : packages)
         {
-            // No package found
-            return {};
-        }
-        else if (findResult != ERROR_INSUFFICIENT_BUFFER)
-        {
-            THROW_WIN32(findResult);
-        }
-        else if (fullNameCount != 1)
-        {
-            // Don't directly error, let caller deal with it
-            AICLI_LOG(Core, Error, << "Multiple packages found for family name: " << fullNameCount);
-            return {};
+            if (result.has_value())
+            {
+                // More than 1 package found. Don't directly error, let caller deal with it.
+                return {};
+            }
+
+            result = Utility::ConvertToUTF8(package.Id().FullName());
         }
 
-        // fullNameCount == 1 at this point
-        PWSTR fullNamePtr;
-        std::wstring buffer(static_cast<size_t>(bufferLength) + 1, L'\0');
-
-        THROW_IF_WIN32_ERROR(FindPackagesByPackageFamily(pfn.c_str(), PACKAGE_FILTER_HEAD, &fullNameCount, &fullNamePtr, &bufferLength, &buffer[0], &properties));
-        if (fullNameCount != 1 || bufferLength == 0)
-        {
-            // Something changed in between, abandon
-            AICLI_LOG(Core, Error, << "Packages found for family name: " << fullNameCount);
-            return {};
-        }
-
-        buffer.resize(bufferLength - 1);
-        return Utility::ConvertToUTF8(buffer);
+        return result;
     }
 
     std::string GetPackageFamilyNameFromFullName(std::string_view fullName)
