@@ -98,7 +98,6 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(FlagContainAdjoinedError);
         WINGET_DEFINE_RESOURCE_STRINGID(ForceArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(GatedVersionArgumentDescription);
-        WINGET_DEFINE_RESOURCE_STRINGID(GatedVersion);
         WINGET_DEFINE_RESOURCE_STRINGID(GetManifestResultVersionNotFound);
         WINGET_DEFINE_RESOURCE_STRINGID(HashCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(HashCommandShortDescription);

@@ -1541,9 +1541,6 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="UserSettings" xml:space="preserve">
     <value>User Settings</value>
   </data>
-  <data name="GatedVersion" xml:space="preserve">
-    <value>Gated version</value>
-  </data>
   <data name="PinAdded" xml:space="preserve">
     <value>Pin added successfully</value>
   </data>

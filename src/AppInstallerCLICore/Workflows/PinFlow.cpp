@@ -16,19 +16,19 @@ namespace AppInstaller::CLI::Workflow
     namespace
     {
         // Creates a Pin appropriate for the context based on the arguments provided
-        Pinning::Pin CreatePin(Execution::Context& context, std::string_view packageId, std::string_view sourceId)
+        Pinning::Pin CreatePin(Execution::Context& context, std::string_view packageId, std::string_view sourceId, const std::string& installedVersion)
         {
-            if (context.Args.Contains(Execution::Args::Type::BlockingPin))
-            {
-                return Pinning::Pin::CreateBlockingPin({ packageId, sourceId });
-            }
-            else if (context.Args.Contains(Execution::Args::Type::GatedVersion))
+            if (context.Args.Contains(Execution::Args::Type::GatedVersion))
             {
                 return Pinning::Pin::CreateGatingPin({ packageId, sourceId }, context.Args.GetArg(Execution::Args::Type::GatedVersion));
             }
+            else if (context.Args.Contains(Execution::Args::Type::BlockingPin))
+            {
+                return Pinning::Pin::CreateBlockingPin({ packageId, sourceId }, { installedVersion });
+            }
             else
             {
-                return Pinning::Pin::CreatePinningPin({ packageId, sourceId });
+                return Pinning::Pin::CreatePinningPin({ packageId, sourceId }, { installedVersion });
             }
         }
     }
@@ -89,7 +89,8 @@ namespace AppInstaller::CLI::Workflow
         Pinning::PinKey pinKey{
             availableVersion->GetProperty(PackageVersionProperty::Id).get(),
             availableVersion->GetProperty(PackageVersionProperty::SourceIdentifier).get() };
-        auto pin = CreatePin(context, pinKey.PackageId, pinKey.SourceId);
+        auto installedVersion = package->GetInstalledVersion()->GetProperty(PackageVersionProperty::Version);
+        auto pin = CreatePin(context, pinKey.PackageId, pinKey.SourceId, installedVersion);
         AICLI_LOG(CLI, Info, << "Adding pin with type " << ToString(pin.GetType()) << " for package [" << pin.GetPackageId() << "] from source [" << pin.GetSourceId() << "]");
 
 
@@ -160,8 +161,8 @@ namespace AppInstaller::CLI::Workflow
             {
                 Resource::String::SearchId,
                 Resource::String::SearchSource,
+                Resource::String::SearchVersion,
                 Resource::String::PinType,
-                Resource::String::GatedVersion
             });
 
         for (const auto& pin : context.Get<Execution::Data::Pins>())
@@ -170,8 +171,8 @@ namespace AppInstaller::CLI::Workflow
             table.OutputLine({
                 pin.GetPackageId(),
                 std::string{ pin.GetSourceId() },
+                std::string{ pin.GetVersionString() },
                 std::string{ ToString(pin.GetType()) },
-                pin.GetType() == Pinning::PinType::Gating ? pin.GetGatedVersion().ToString() : "",
                 });
         }
 

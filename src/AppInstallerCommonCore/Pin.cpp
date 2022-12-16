@@ -3,6 +3,8 @@
 #include "pch.h"
 #include "winget/Pin.h"
 
+using namespace AppInstaller::Utility;
+
 namespace AppInstaller::Pinning
 {
     using namespace std::string_view_literals;
@@ -23,19 +25,19 @@ namespace AppInstaller::Pinning
         }
     }
 
-    Pin Pin::CreateBlockingPin(PinKey&& pinKey)
+    Pin Pin::CreateBlockingPin(PinKey&& pinKey, Version version)
     {
-        return { PinType::Blocking, std::move(pinKey) };
+        return { PinType::Blocking, std::move(pinKey), version.ToString() };
     }
 
-    Pin Pin::CreatePinningPin(PinKey&& pinKey)
+    Pin Pin::CreatePinningPin(PinKey&& pinKey, Version version)
     {
-        return { PinType::Pinning, std::move(pinKey) };
+        return { PinType::Pinning, std::move(pinKey), version.ToString() };
     }
 
-    Pin Pin::CreateGatingPin(PinKey&& pinKey, AppInstaller::Utility::GatedVersion gatedVersion)
+    Pin Pin::CreateGatingPin(PinKey&& pinKey, GatedVersion gatedVersion)
     {
-        return { PinType::Gating, std::move(pinKey), gatedVersion };
+        return { PinType::Gating, std::move(pinKey), gatedVersion.ToString() };
     }
 
     PinType Pin::GetType() const
@@ -58,24 +60,15 @@ namespace AppInstaller::Pinning
         return m_key.SourceId;
     }
 
-    AppInstaller::Utility::GatedVersion Pin::GetGatedVersion() const
+    std::string_view Pin::GetVersionString() const
     {
-        THROW_HR_IF(E_NOT_VALID_STATE, m_type != PinType::Gating);
-        return m_gatedVersion.value();
+        return m_versionString;
     }
 
     bool Pin::operator==(const Pin& other) const
     {
-        if (m_type != other.m_type || m_key != other.m_key)
-        {
-            return false;
-        }
-
-        if (m_type != PinType::Gating)
-        {
-            return true;
-        }
-
-        return m_gatedVersion == other.m_gatedVersion;
+        return m_type == other.m_type &&
+            m_key == other.m_key &&
+            m_versionString == other.m_versionString;
     }
 }

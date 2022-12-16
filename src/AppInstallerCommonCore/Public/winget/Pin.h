@@ -43,8 +43,8 @@ namespace AppInstaller::Pinning
 
     struct Pin
     {
-        static Pin CreateBlockingPin(PinKey&& pinKey);
-        static Pin CreatePinningPin(PinKey&& pinKey);
+        static Pin CreateBlockingPin(PinKey&& pinKey, Utility::Version version = {});
+        static Pin CreatePinningPin(PinKey&& pinKey, Utility::Version version = {});
         static Pin CreateGatingPin(PinKey&& pinKey, Utility::GatedVersion gatedVersion);
 
         PinType GetType() const;
@@ -52,17 +52,18 @@ namespace AppInstaller::Pinning
         const Manifest::Manifest::string_t& GetPackageId() const;
         std::string_view GetSourceId() const;
 
-        // Only available for PinType Gating
-        Utility::GatedVersion GetGatedVersion() const;
+        // TODO: For now we'll keep the versions as simply a string in all cases.
+        //       This will change once we actually start using them.
+        std::string_view GetVersionString() const;
 
         bool operator==(const Pin& other) const;
 
     private:
-        Pin(PinType type, PinKey&& pinKey, std::optional<Utility::GatedVersion> gatedVersion = {})
-            : m_type(type), m_key(std::move(pinKey)), m_gatedVersion(gatedVersion) {}
+        Pin(PinType type, PinKey&& pinKey, std::string_view versionString)
+            : m_type(type), m_key(std::move(pinKey)), m_versionString(versionString) {}
 
         PinType m_type = PinType::Unknown;
         PinKey m_key;
-        std::optional<Utility::GatedVersion> m_gatedVersion;
+        std::string m_versionString;
     };
 }

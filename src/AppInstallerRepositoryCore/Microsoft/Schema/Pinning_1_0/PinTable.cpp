@@ -9,16 +9,16 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
 {
     namespace
     {
-        std::optional<Pinning::Pin> GetPinFromRow(std::string_view packageId, std::string_view sourceId, Pinning::PinType type, std::string_view gatedVersion)
+        std::optional<Pinning::Pin> GetPinFromRow(std::string_view packageId, std::string_view sourceId, Pinning::PinType type, const std::string& version)
         {
             switch (type)
             {
             case Pinning::PinType::Blocking:
-                return Pinning::Pin::CreateBlockingPin({ packageId, sourceId });
+                return Pinning::Pin::CreateBlockingPin({ packageId, sourceId }, Utility::Version{ version });
             case Pinning::PinType::Pinning:
-                return Pinning::Pin::CreatePinningPin({ packageId, sourceId });
+                return Pinning::Pin::CreatePinningPin({ packageId, sourceId }, Utility::Version{ version });
             case Pinning::PinType::Gating:
-                return Pinning::Pin::CreateGatingPin({ packageId, sourceId }, Utility::GatedVersion{ gatedVersion });
+                return Pinning::Pin::CreateGatingPin({ packageId, sourceId }, Utility::GatedVersion{ version });
             default:
                 return {};
             }
@@ -30,7 +30,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
     static constexpr std::string_view s_PinTable_PackageId_Column = "packageId"sv;
     static constexpr std::string_view s_PinTable_SourceId_Column = "sourceId"sv;
     static constexpr std::string_view s_PinTable_Type_Column = "type"sv;
-    static constexpr std::string_view s_PinTable_GatedVersion_Column = "gatedVersion"sv;
+    static constexpr std::string_view s_PinTable_Version_Column = "version"sv;
     static constexpr std::string_view s_PinTable_Index = "pinIndex"sv;
 
     std::string_view PinTable::TableName()
@@ -50,7 +50,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
         createTableBuilder.Column(ColumnBuilder(s_PinTable_PackageId_Column, Type::Text).NotNull());
         createTableBuilder.Column(ColumnBuilder(s_PinTable_SourceId_Column, Type::Text).NotNull());
         createTableBuilder.Column(ColumnBuilder(s_PinTable_Type_Column, Type::Int64).NotNull());
-        createTableBuilder.Column(ColumnBuilder(s_PinTable_GatedVersion_Column, Type::Text));
+        createTableBuilder.Column(ColumnBuilder(s_PinTable_Version_Column, Type::Text));
 
         createTableBuilder.EndColumns();
         createTableBuilder.Execute(connection);
@@ -94,12 +94,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
                 s_PinTable_PackageId_Column,
                 s_PinTable_SourceId_Column,
                 s_PinTable_Type_Column,
-                s_PinTable_GatedVersion_Column })
+                s_PinTable_Version_Column })
             .Values(
                 (std::string_view)pin.GetPackageId(),
-                (std::string_view)pin.GetSourceId(),
+                pin.GetSourceId(),
                 pin.GetType(),
-                pin.GetType() == Pinning::PinType::Gating ? pin.GetGatedVersion().ToString() : "");
+                pin.GetVersionString());
 
         builder.Execute(connection);
         return connection.GetLastInsertRowID();
@@ -112,9 +112,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
         SQLite::Builder::StatementBuilder builder;
         builder.Update(s_PinTable_Table_Name).Set()
             .Column(s_PinTable_PackageId_Column).Equals((std::string_view)pin.GetPackageId())
-            .Column(s_PinTable_SourceId_Column).Equals((std::string_view)pin.GetSourceId())
+            .Column(s_PinTable_SourceId_Column).Equals(pin.GetSourceId())
             .Column(s_PinTable_Type_Column).Equals(pin.GetType())
-            .Column(s_PinTable_GatedVersion_Column).Equals(pin.GetType() == Pinning::PinType::Gating ? pin.GetGatedVersion().ToString() : "")
+            .Column(s_PinTable_Version_Column).Equals(pin.GetVersionString())
             .Where(SQLite::RowIDName).Equals(pinId);
 
         builder.Execute(connection);
@@ -135,7 +135,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
             s_PinTable_PackageId_Column,
             s_PinTable_SourceId_Column,
             s_PinTable_Type_Column,
-            s_PinTable_GatedVersion_Column })
+            s_PinTable_Version_Column })
             .From(s_PinTable_Table_Name).Where(SQLite::RowIDName).Equals(pinId);
 
         SQLite::Statement select = builder.Prepare(connection);
@@ -156,7 +156,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
             s_PinTable_PackageId_Column,
             s_PinTable_SourceId_Column,
             s_PinTable_Type_Column,
-            s_PinTable_GatedVersion_Column })
+            s_PinTable_Version_Column })
             .From(s_PinTable_Table_Name);
 
         SQLite::Statement select = builder.Prepare(connection);
