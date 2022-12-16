@@ -423,6 +423,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             {
                 context->Args.AddArg(Execution::Args::Type::Silent);
             }
+
+            auto uninstallScope = GetManifestUninstallScope(options.PackageUninstallScope());
+            if (uninstallScope != ::AppInstaller::Manifest::ScopeEnum::Unknown)
+            {
+                context->Args.AddArg(Execution::Args::Type::InstallScope, ScopeToString(uninstallScope));
+            }
         }
     }
 

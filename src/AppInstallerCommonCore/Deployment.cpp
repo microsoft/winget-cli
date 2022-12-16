@@ -107,7 +107,7 @@ namespace AppInstaller::Deployment
     }
 
     bool AddPackageWithDeferredFallback(
-        const std::string& uri,
+        std::string_view uri,
         bool skipSmartScreen,
         IProgressCallback& callback)
     {
@@ -115,11 +115,13 @@ namespace AppInstaller::Deployment
 
         // In the event of a failure we want to ensure that the package is not left on the system.
         Msix::MsixInfo packageInfo{ uri };
-        std::wstring packageFullName = packageInfo.GetPackageFullNameWide();
+        std::wstring packageFullNameWide = packageInfo.GetPackageFullNameWide();
+        std::string packageFullName = Utility::ConvertToUTF8(packageFullNameWide);
         auto removePackage = wil::scope_exit([&]() {
             try
             {
-                RemovePackage(Utility::ConvertToUTF8(packageFullName), callback);
+                ProgressCallback cb;
+                RemovePackage(packageFullName, RemovalOptions::None, cb);
             }
             CATCH_LOG();
         });
@@ -160,23 +162,25 @@ namespace AppInstaller::Deployment
         }
 
         // If we are skipping SmartScreen or the package was in use, stage then register the package.
+        PartialPercentProgressCallback progress{ callback, 100 };
+        progress.SetRange(0, 95);
         {
             size_t id = GetDeploymentOperationId();
             AICLI_LOG(Core, Info, << "Starting StagePackageAsync operation #" << id << ": " << uri);
 
             IAsyncOperationWithProgress<DeploymentResult, DeploymentProgress> stageOperation = packageManager.StagePackageAsync(uriObject, nullptr);
-            WaitForDeployment(stageOperation, id, callback);
+            WaitForDeployment(stageOperation, id, progress);
         }
 
         bool registrationDeferred = false;
-
+        progress.SetRange(95, 100);
         {
             size_t id = GetDeploymentOperationId();
-            AICLI_LOG(Core, Info, << "Starting RegisterPackageByFullNameAsync operation #" << id << ": " << Utility::ConvertToUTF8(packageFullName));
+            AICLI_LOG(Core, Info, << "Starting RegisterPackageByFullNameAsync operation #" << id << ": " << packageFullName);
 
             IAsyncOperationWithProgress<DeploymentResult, DeploymentProgress> registerOperation =
-                packageManager.RegisterPackageByFullNameAsync(packageFullName, nullptr, DeploymentOptions::None);
-            HRESULT hr = WaitForDeployment(registerOperation, id, callback, false);
+                packageManager.RegisterPackageByFullNameAsync(packageFullNameWide, nullptr, DeploymentOptions::None);
+            HRESULT hr = WaitForDeployment(registerOperation, id, progress, false);
 
             if (hr == HRESULT_FROM_WIN32(ERROR_PACKAGES_IN_USE))
             {
@@ -194,6 +198,7 @@ namespace AppInstaller::Deployment
 
     void RemovePackage(
         std::string_view packageFullName,
+        RemovalOptions options,
         IProgressCallback& callback)
     {
         size_t id = GetDeploymentOperationId();
@@ -201,8 +206,110 @@ namespace AppInstaller::Deployment
 
         PackageManager packageManager;
         winrt::hstring fullName = Utility::ConvertToUTF16(packageFullName).c_str();
-        auto deployOperation = packageManager.RemovePackageAsync(fullName, RemovalOptions::None);
+        auto deployOperation = packageManager.RemovePackageAsync(fullName, options);
 
         WaitForDeployment(deployOperation, id, callback);
+    }
+
+    bool AddPackageMachineScope(
+        std::string_view uri,
+        IProgressCallback& callback)
+    {
+        PackageManager packageManager;
+
+        // In the event of a failure we want to ensure that the package is not left on the system.
+        Msix::MsixInfo packageInfo{ uri };
+        std::wstring packageFullNameWide = packageInfo.GetPackageFullNameWide();
+        std::string packageFullName = Utility::ConvertToUTF8(packageFullNameWide);
+        std::string packageFamilyName = Msix::GetPackageFamilyNameFromFullName(packageFullName);
+        auto removePackage = wil::scope_exit([&]() {
+            try
+            {
+                ProgressCallback cb;
+                RemovePackage(packageFullName, RemovalOptions::RemoveForAllUsers, cb);
+            }
+            CATCH_LOG();
+        });
+
+        Uri uriObject(Utility::ConvertToUTF16(uri));
+        PartialPercentProgressCallback progress{ callback, 100 };
+
+        // First stage package contents
+        progress.SetRange(0, 90);
+        {
+            size_t id = GetDeploymentOperationId();
+            AICLI_LOG(Core, Info, << "Starting StagePackageAsync operation #" << id << ": " << uri);
+
+            IAsyncOperationWithProgress<DeploymentResult, DeploymentProgress> stageOperation = packageManager.StagePackageAsync(uriObject, nullptr);
+            WaitForDeployment(stageOperation, id, progress);
+        }
+
+        // Provision for all users
+        progress.SetRange(90, 95);
+        {
+            size_t id = GetDeploymentOperationId();
+            AICLI_LOG(Core, Info, << "Starting ProvisionPackage operation #" << id << ": " << packageFamilyName);
+
+            winrt::hstring familyName = Utility::ConvertToUTF16(packageFamilyName).c_str();
+            auto deployOperation = packageManager.ProvisionPackageForAllUsersAsync(familyName);
+
+            WaitForDeployment(deployOperation, id, progress);
+        }
+
+        // Try registration as best effort, operation is considered successful as long as provisioning is successful.
+        progress.SetRange(95, 100);
+        bool registrationDeferred = false;
+        if (Runtime::IsRunningAsSystem())
+        {
+            // Packages cannot be registered under local system, just return registration deferred
+            registrationDeferred = true;
+        }
+        else
+        {
+            try
+            {
+                size_t id = GetDeploymentOperationId();
+                AICLI_LOG(Core, Info, << "Starting RegisterPackageByFullNameAsync operation #" << id << ": " << packageFullName);
+
+                IAsyncOperationWithProgress<DeploymentResult, DeploymentProgress> registerOperation =
+                    packageManager.RegisterPackageByFullNameAsync(packageFullNameWide, nullptr, DeploymentOptions::None);
+                WaitForDeployment(registerOperation, id, progress);
+            }
+            catch (...)
+            {
+                registrationDeferred = true;
+            }
+        }
+
+        progress.OnProgress(100, 100, ProgressType::Percent);
+        removePackage.release();
+        return registrationDeferred;
+    }
+
+    void RemovePackageMachineScope(
+        std::string_view packageFamilyName,
+        std::string_view packageFullName,
+        IProgressCallback& callback)
+    {
+        PartialPercentProgressCallback progress{ callback, 100 };
+
+        // Deprovision first
+        progress.SetRange(0, 5);
+        {
+            size_t id = GetDeploymentOperationId();
+            AICLI_LOG(Core, Info, << "Starting DeprovisionPackage operation #" << id << ": " << packageFamilyName);
+
+            PackageManager packageManager;
+            winrt::hstring familyName = Utility::ConvertToUTF16(packageFamilyName).c_str();
+            auto deployOperation = packageManager.DeprovisionPackageForAllUsersAsync(familyName);
+
+            WaitForDeployment(deployOperation, id, progress);
+        }
+
+        // Remove for all users
+        progress.SetRange(5, 100);
+        {
+            RemovePackage(packageFullName, RemovalOptions::RemoveForAllUsers, progress);
+        }
     }
 }

@@ -697,6 +697,11 @@ namespace AppInstaller::Runtime
         return wil::test_token_membership(nullptr, SECURITY_NT_AUTHORITY, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS);
     }
 
+    bool IsRunningAsSystem()
+    {
+        return wil::test_token_membership(nullptr, SECURITY_NT_AUTHORITY, SECURITY_LOCAL_SYSTEM_RID);
+    }
+
     // Determines whether developer mode is enabled.
     // Does not account for the group policy value which takes precedence over this registry value.
     bool IsDevModeEnabled()

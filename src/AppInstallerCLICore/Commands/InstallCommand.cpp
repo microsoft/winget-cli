@@ -15,11 +15,6 @@ using namespace AppInstaller::Utility::literals;
 
 namespace AppInstaller::CLI
 {
-    namespace
-    {
-        constexpr Utility::LocIndView s_ArgumentName_Scope = "scope"_liv;
-    }
-
     std::vector<Argument> InstallCommand::GetArguments() const
     {
         return {
@@ -113,14 +108,6 @@ namespace AppInstaller::CLI
             throw CommandException(Resource::String::BothManifestAndSearchQueryProvided);
         }
 
-        if (execArgs.Contains(Args::Type::InstallScope))
-        {
-            if (ConvertToScopeEnum(execArgs.GetArg(Args::Type::InstallScope)) == Manifest::ScopeEnum::Unknown)
-            {
-                auto validOptions = Utility::Join(", "_liv, std::vector<Utility::LocIndString>{ "user"_lis, "machine"_lis});
-                throw CommandException(Resource::String::InvalidArgumentValueError(s_ArgumentName_Scope, validOptions));
-            }
-        }
     }
 
     void InstallCommand::ExecuteInternal(Context& context) const

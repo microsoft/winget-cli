@@ -699,6 +699,15 @@ namespace AppInstaller::CLI
             }
         }
 
+        if (execArgs.Contains(Execution::Args::Type::InstallScope))
+        {
+            if (Manifest::ConvertToScopeEnum(execArgs.GetArg(Execution::Args::Type::InstallScope)) == Manifest::ScopeEnum::Unknown)
+            {
+                auto validOptions = Utility::Join(", "_liv, std::vector<Utility::LocIndString>{ "user"_lis, "machine"_lis});
+                throw CommandException(Resource::String::InvalidArgumentValueError(s_ArgumentName_Scope, validOptions));
+            }
+        }
+
         ValidateArgumentsInternal(execArgs);
     }
 

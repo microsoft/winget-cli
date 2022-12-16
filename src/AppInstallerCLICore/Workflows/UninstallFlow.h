@@ -58,4 +58,10 @@ namespace AppInstaller::CLI::Workflow
         // Whether the Uninstaller result is an HRESULT. This guides how we show it.
         bool m_isHResult;
     };
+
+    // Verifies that the uninstall operation is supported.
+    // Required Args: None
+    // Inputs: InstalledPackageVersion
+    // Outputs: None
+    void EnsureSupportForUninstall(Execution::Context& context);
 }
