@@ -45,26 +45,34 @@ namespace Microsoft.WinGet.Client.Commands
 
         private bool CompareUserSettings()
         {
-            var currentSettings = LocalSettingsFileToJObject();
-            var newSettings = HashtableToJObject(this.UserSettings);
-
-            // Don't fail because of the schema.
-            if (currentSettings.ContainsKey(SchemaKey))
+            try
             {
-                currentSettings.Remove(SchemaKey);
-            }
+                var currentSettings = this.LocalSettingsFileToJObject();
+                var newSettings = HashtableToJObject(this.UserSettings);
 
-            if (newSettings.ContainsKey(SchemaKey))
+                // Don't fail because of the schema.
+                if (currentSettings.ContainsKey(SchemaKey))
+                {
+                    currentSettings.Remove(SchemaKey);
+                }
+
+                if (newSettings.ContainsKey(SchemaKey))
+                {
+                    newSettings.Remove(SchemaKey);
+                }
+
+                if (this.IgnoreNotSet.ToBool())
+                {
+                    return this.PartialDeepEquals(newSettings, currentSettings);
+                }
+
+                return JToken.DeepEquals(newSettings, currentSettings);
+            }
+            catch (Exception e)
             {
-                newSettings.Remove(SchemaKey);
+                this.WriteDebug(e.Message);
+                return false;
             }
-
-            if (this.IgnoreNotSet.ToBool())
-            {
-                return this.PartialDeepEquals(newSettings, currentSettings);
-            }
-
-            return JToken.DeepEquals(newSettings, currentSettings);
         }
 
         /// <summary>
@@ -86,7 +94,7 @@ namespace Microsoft.WinGet.Client.Commands
             if ((json is JValue && otherJson is JValue) ||
                 (json is JArray && otherJson is JArray))
             {
-                this.WriteVerbose($"'{json.ToString(Newtonsoft.Json.Formatting.None)}' != " +
+                this.WriteDebug($"'{json.ToString(Newtonsoft.Json.Formatting.None)}' != " +
                     $"'{otherJson.ToString(Newtonsoft.Json.Formatting.None)}'");
                 return false;
             }
@@ -94,7 +102,7 @@ namespace Microsoft.WinGet.Client.Commands
             // If its not the same type then don't bother.
             if (json.Type != otherJson.Type)
             {
-                this.WriteVerbose($"Mismatch types '{json.ToString(Newtonsoft.Json.Formatting.None)}' " +
+                this.WriteDebug($"Mismatch types '{json.ToString(Newtonsoft.Json.Formatting.None)}' " +
                     $"'{otherJson.ToString(Newtonsoft.Json.Formatting.None)}'");
                 return false;
             }
@@ -111,7 +119,7 @@ namespace Microsoft.WinGet.Client.Commands
                     // If the property is not there then give up.
                     if (!otherJObject.ContainsKey(property.Name))
                     {
-                        this.WriteVerbose($"{property.Name} not found.");
+                        this.WriteDebug($"{property.Name} not found.");
                         return false;
                     }
 

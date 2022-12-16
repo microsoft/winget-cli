@@ -10,7 +10,7 @@ namespace AppInstallerCLIE2ETests.PowerShell
     using System.Collections;
     using System.Diagnostics;
     using System.Linq;
-    using Microsoft.Management.Deployment;
+    using System.Management.Automation;
     using NUnit.Framework;
 
     /// <summary>
@@ -33,10 +33,10 @@ namespace AppInstallerCLIE2ETests.PowerShell
         }
 
         /// <summary>
-        /// One time tear down.
+        /// Tear down.
         /// </summary>
         [OneTimeTearDown]
-        public void OneTimeTearDown()
+        public void TearDown()
         {
             // TODO: This is a workaround to an issue where the server takes longer than expected to terminate when
             // running from the E2E tests. This can cause other E2E tests to fail when attempting to reset the test source.
@@ -48,14 +48,6 @@ namespace AppInstallerCLIE2ETests.PowerShell
             }
 
             TestCommon.RunAICLICommand("source remove", $"{Constants.TestSourceName}");
-        }
-
-        /// <summary>
-        /// Tear down.
-        /// </summary>
-        [TearDown]
-        public void TearDown()
-        {
             WinGetSettingsHelper.InitializeWingetSettings();
         }
 
@@ -606,7 +598,7 @@ namespace AppInstallerCLIE2ETests.PowerShell
 
         /// <summary>
         /// Test Test-WinGetUserSettings IgnoreNotSet.
-        /// Ignore comparing properties that are not set in the input.
+        /// Local settings doesnt have some properties.
         /// </summary>
         [Test]
         public void TestWinGetUserSettings_MoreSettingsInput_IgnoreNotSet()
@@ -832,6 +824,37 @@ namespace AppInstallerCLIE2ETests.PowerShell
         }
 
         /// <summary>
+        /// Test Test-WinGetUserSettings.
+        /// Settings file is not a json.
+        /// </summary>
+        [Test]
+        public void TestWinGetUserSettings_BadJsonFile()
+        {
+            WinGetSettingsHelper.SetWingetSettings("Hi, im not a json. Thank you, Test.");
+
+            var inputSettings = new Hashtable()
+            {
+                {
+                    "visual",
+                    new Hashtable()
+                    {
+                        { "progressBar", "retro" },
+                    }
+                },
+            };
+
+            using var powerShellHost = new PowerShellHost();
+            var result = powerShellHost.PowerShell
+                .AddCommand("Test-WinGetUserSettings")
+                .AddParameter("UserSettings", inputSettings)
+                .Invoke();
+
+            Assert.That(result, Has.Exactly(1).Items);
+            Assert.IsInstanceOf<bool>(result[0].BaseObject);
+            Assert.IsFalse((bool)result[0].BaseObject);
+        }
+
+        /// <summary>
         /// Test Set-WinGetUserSettings.
         /// </summary>
         [Test]
@@ -1025,6 +1048,81 @@ namespace AppInstallerCLIE2ETests.PowerShell
   }
 }";
             Assert.AreEqual(expectedResult, settingsResult);
+        }
+
+        /// <summary>
+        /// Test Set-WinGetUserSettings when the local settings file is not a json.
+        /// </summary>
+        [Test]
+        public void SetWinGetUserSettings_BadJsonFile()
+        {
+            WinGetSettingsHelper.SetWingetSettings("Hi, im not a json. Thank you, Test.");
+
+            var inputSettings = new Hashtable()
+            {
+                {
+                    "visual",
+                    new Hashtable()
+                    {
+                        { "progressBar", "retro" },
+                    }
+                },
+            };
+
+            using var powerShellHost = new PowerShellHost();
+            var result = powerShellHost.PowerShell
+                .AddCommand("Set-WinGetUserSettings")
+                .AddParameter("UserSettings", inputSettings)
+                .Invoke();
+
+            Assert.That(result, Has.Exactly(1).Items);
+            Assert.IsInstanceOf<string>(result[0].BaseObject);
+            var settingsResult = result[0].BaseObject as string;
+
+            var expectedResult = @"{
+  ""$schema"": ""https://aka.ms/winget-settings.schema.json"",
+  ""visual"": {
+    ""progressBar"": ""retro""
+  }
+}";
+            Assert.AreEqual(expectedResult, settingsResult);
+        }
+
+        /// <summary>
+        /// Test Set-WinGetUserSettings when the local settings file is not a json.
+        /// </summary>
+        [Test]
+        public void SetWinGetUserSettings_BadJsonFile_Merge()
+        {
+            WinGetSettingsHelper.SetWingetSettings("Hi, im not a json. Thank you, Test.");
+
+            var inputSettings = new Hashtable()
+            {
+                {
+                    "visual",
+                    new Hashtable()
+                    {
+                        { "progressBar", "retro" },
+                    }
+                },
+            };
+
+            using var powerShellHost = new PowerShellHost();
+
+            var cmdletException = Assert.Throws<CmdletInvocationException>(
+                () => powerShellHost.PowerShell
+                .AddCommand("Set-WinGetUserSettings")
+                .AddParameter("UserSettings", inputSettings)
+                .AddParameter("Merge")
+                .Invoke());
+
+            // If we reference Microsoft.WinGet.Client to this project PowerShell host fails with
+            //   System.Management.Automation.CmdletInvocationException : Operation is not supported on this platform. (0x80131539)
+            //   System.PlatformNotSupportedException : Operation is not supported on this platform. (0x80131539)
+            // trying to load the runspace. This is most probably because the same dll is already loaded.
+            // Check the type the long way.
+            dynamic exception = cmdletException.InnerException;
+            Assert.AreEqual(exception.GetType().ToString(), "Microsoft.WinGet.Client.Exceptions.UserSettingsReadException");
         }
 
         private bool IsRunning(string processName)

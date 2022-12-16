@@ -10,7 +10,7 @@ namespace Microsoft.WinGet.Client.Exceptions
     using Microsoft.WinGet.Client.Properties;
 
     /// <summary>
-    /// WinGet cli exception..
+    /// WinGet cli exception.
     /// </summary>
     public class WinGetCLIException : Exception
     {

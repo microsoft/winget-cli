@@ -9,7 +9,10 @@ namespace Microsoft.WinGet.Client.Commands.Common
     using System.Collections;
     using System.IO;
     using System.Management.Automation;
+    using System.Runtime.CompilerServices;
+    using Microsoft.WinGet.Client.Exceptions;
     using Microsoft.WinGet.Client.Helpers;
+    using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
 
     /// <summary>
@@ -49,31 +52,41 @@ namespace Microsoft.WinGet.Client.Commands.Common
         }
 
         /// <summary>
-        /// Returns the content of the settings file.
+        /// Returns the contents of the settings file.
+        /// The original plan was to return the contents deserialized as a Hashtable, but that
+        /// will make only the top level keys be treated as Hashtable keys and their value would
+        /// be a JObjects. This make them really awkward to handle. If we really want to we will
+        /// need to implement a custom deserializer or manually walk the json and convert all
+        /// keys to hash tables. For now a caller can just pipe this to ConvertTo-Json.
         /// </summary>
-        /// <returns>Contest of  settings file.</returns>
-        protected static string GetLocalSettingsFileContents()
+        /// <returns>Contents of settings file.</returns>
+        protected string GetLocalSettingsFileContents()
         {
-            if (!File.Exists(WinGetSettingsFilePath))
-            {
-                return string.Empty;
-            }
+            // Validate is at least json.
+            _ = this.LocalSettingsFileToJObject();
 
-            // The original plan was to return the contents deserialized as a Hashtable, but that
-            // will make only the top level keys be treated as Hashtable keys and their value would
-            // be a JObjects. This make them really awkward to handle. If we really want to we will
-            // need to implement a custom deserializer or manually walk the json and convert all
-            // keys to hash tables. For now a caller can just pipe this to ConvertTo-Json.
-            return File.ReadAllText(WinGetSettingsFilePath);
+            return File.Exists(WinGetSettingsFilePath) ?
+                File.ReadAllText(WinGetSettingsFilePath) :
+                string.Empty;
         }
 
         /// <summary>
         /// Converts the current local settings file into a JObject object.
         /// </summary>
         /// <returns>User settings as JObject.</returns>
-        protected static JObject LocalSettingsFileToJObject()
+        protected JObject LocalSettingsFileToJObject()
         {
-            return JObject.Parse(GetLocalSettingsFileContents());
+            try
+            {
+                return File.Exists(WinGetSettingsFilePath) ?
+                    JObject.Parse(File.ReadAllText(WinGetSettingsFilePath)) :
+                    new JObject();
+            }
+            catch (JsonReaderException e)
+            {
+                this.WriteDebug(e.Message);
+                throw new UserSettingsReadException(e);
+            }
         }
 
         private static string GetUserSettingsPath()

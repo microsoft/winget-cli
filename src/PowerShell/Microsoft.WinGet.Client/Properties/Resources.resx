@@ -160,4 +160,7 @@
   <data name="WinGetCLIExceptionMessage" xml:space="preserve">
     <value>Command {0} failed with exit code {1}</value>
   </data>
+  <data name="UserSettingsReadException" xml:space="preserve">
+    <value>User settings file is invalid.</value>
+  </data>
 </root>

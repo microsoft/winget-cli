@@ -48,7 +48,7 @@ namespace Microsoft.WinGet.Client.Commands
             // Merge settings.
             if (this.Merge.ToBool())
             {
-                var currentSettings = LocalSettingsFileToJObject();
+                var currentSettings = this.LocalSettingsFileToJObject();
 
                 // To make the input settings triumph, they need to be merged into the existing settings.
                 currentSettings.Merge(newSettings, new JsonMergeSettings

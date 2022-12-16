@@ -142,6 +142,15 @@ namespace Microsoft.WinGet.Client.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to User settings file is invalid..
+        /// </summary>
+        internal static string UserSettingsReadException {
+            get {
+                return ResourceManager.GetString("UserSettingsReadException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0}, {1}, and {2} other packages matched the input criteria. Please refine the input..
         /// </summary>
         internal static string VagueCriteriaExceptionMessage {
