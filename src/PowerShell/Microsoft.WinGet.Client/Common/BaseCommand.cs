@@ -6,8 +6,8 @@
 
 namespace Microsoft.WinGet.Client.Common
 {
-    using System;
     using System.Management.Automation;
+    using Microsoft.WinGet.Client.Exceptions;
 
     /// <summary>
     /// Base class for all Cmdlets.
@@ -22,7 +22,7 @@ namespace Microsoft.WinGet.Client.Common
         {
             if (Utilities.ExecutingAsSystem)
             {
-                throw new Exception(Utilities.ResourceManager.GetString("ExceptionSystemDisabled"));
+                throw new ExecuteAsSystemException();
             }
         }
     }

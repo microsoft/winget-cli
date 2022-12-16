@@ -15,17 +15,6 @@ namespace Microsoft.WinGet.Client.Common
     public static class Utilities
     {
         /// <summary>
-        /// Gets the <see cref="ResourceManager" /> instance for the executing assembly.
-        /// </summary>
-        public static ResourceManager ResourceManager
-        {
-            get
-            {
-                return new ResourceManager(typeof(Properties.Resources));
-            }
-        }
-
-        /// <summary>
         /// Gets a value indicating whether the current assembly is executing in an administrative context.
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "Windows only API")]

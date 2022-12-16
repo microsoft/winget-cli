@@ -13,7 +13,7 @@ namespace Microsoft.WinGet.Client.Common
     using System.Reflection;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Attributes;
-    using Microsoft.WinGet.Client.Errors;
+    using Microsoft.WinGet.Client.Exceptions;
 
     /// <summary>
     /// This is the base class for all commands that might need to search for a package. It contains an initial
@@ -163,7 +163,7 @@ namespace Microsoft.WinGet.Client.Common
             }
             else
             {
-                throw new RuntimeException(Utilities.ResourceManager.GetString("RuntimeExceptionCatalogError"));
+                throw new CatalogConnectException();
             }
         }
 

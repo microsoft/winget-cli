@@ -10,6 +10,7 @@ namespace Microsoft.WinGet.Client.Common
     using System.Collections.Generic;
     using System.Runtime.InteropServices;
     using Microsoft.Management.Deployment;
+    using Microsoft.WinGet.Client.Exceptions;
     using Microsoft.WinGet.Client.Factories;
 
     /// <summary>
@@ -49,9 +50,7 @@ namespace Microsoft.WinGet.Client.Common
                 return new List<PackageCatalogReference>()
                 {
                     PackageManager.Value.GetPackageCatalogByName(source)
-                        ?? throw new ArgumentException(string.Format(
-                            Utilities.ResourceManager.GetString("ArgumentExceptionInvalidSource"),
-                            source)),
+                        ?? throw new InvalidSourceException(source),
                 };
             }
         }

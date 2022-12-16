@@ -4,11 +4,12 @@
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.WinGet.Client.Common
+namespace Microsoft.WinGet.Client.Helpers
 {
     using System;
     using System.Diagnostics;
     using System.IO;
+    using Microsoft.WinGet.Client.Exceptions;
 
     /// <summary>
     /// Calls winget directly.
@@ -48,8 +49,7 @@ namespace Microsoft.WinGet.Client.Common
         {
             if (!File.Exists(WingetCliPath))
             {
-                // Winget is not installed.
-                throw new FileNotFoundException(WingetCliPath);
+                throw new WinGetPackageNotInstalledException();
             }
         }
 
@@ -60,9 +60,8 @@ namespace Microsoft.WinGet.Client.Common
         /// <param name="parameters">Parameters.</param>
         /// <param name="timeOut">Time out.</param>
         /// <returns>WinGetCommandResult.</returns>
-        public WinGetCommandResult RunCommand(string command, string parameters, int timeOut = 60000)
+        public WinGetCLICommandResult RunCommand(string command, string parameters, int timeOut = 60000)
         {
-            WinGetCommandResult result = new ();
             Process p = new ()
             {
                 StartInfo = new (WingetCliPath, command + ' ' + parameters)
@@ -77,56 +76,15 @@ namespace Microsoft.WinGet.Client.Common
 
             if (p.WaitForExit(timeOut))
             {
-                result.ExitCode = p.ExitCode;
-                result.StdOut = p.StandardOutput.ReadToEnd();
-                result.StdErr = p.StandardError.ReadToEnd();
-            }
-            else
-            {
-                throw new TimeoutException($"Direct winget command run timed out: {command} {parameters}");
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// Winget command result.
-        /// </summary>
-        public struct WinGetCommandResult
-        {
-            /// <summary>
-            /// Exit code.
-            /// </summary>
-            public int ExitCode = -1;
-
-            /// <summary>
-            /// StdOut.
-            /// </summary>
-            public string StdOut = string.Empty;
-
-            /// <summary>
-            /// StdErr.
-            /// </summary>
-            public string StdErr = string.Empty;
-
-            /// <summary>
-            /// Initializes a new instance of the <see cref="WinGetCommandResult"/> struct.
-            /// </summary>
-            public WinGetCommandResult()
-            {
+                return new WinGetCLICommandResult(
+                    command,
+                    parameters,
+                    p.ExitCode,
+                    p.StandardOutput.ReadToEnd(),
+                    p.StandardError.ReadToEnd());
             }
 
-            /// <summary>
-            /// Verifies exit code and std error.
-            /// </summary>
-            public void VerifyExitCode()
-            {
-                if (this.ExitCode != 0 || !string.IsNullOrEmpty(this.StdErr))
-                {
-                    // TODO: new exception.
-                    throw new Exception($"ExitCode: '{this.ExitCode}' StdErr {this.StdErr}");
-                }
-            }
+            throw new TimeoutException($"Direct winget command run timed out: {command} {parameters}");
         }
     }
 }

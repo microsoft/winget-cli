@@ -11,7 +11,7 @@ namespace Microsoft.WinGet.Client.Common
     using System.IO;
     using System.Management.Automation;
     using Microsoft.Management.Deployment;
-    using Microsoft.WinGet.Client.Errors;
+    using Microsoft.WinGet.Client.Exceptions;
 
     /// <summary>
     /// This is the base class for commands which operate on a specific package and version i.e.,
@@ -100,7 +100,7 @@ namespace Microsoft.WinGet.Client.Common
                 else if (results.Count == 0)
                 {
                     // No packages matched, we need to throw an error.
-                    throw new RuntimeException(Utilities.ResourceManager.GetString("RuntimeExceptionNoPackagesFound"));
+                    throw new NoPackageFoundException();
                 }
                 else
                 {
@@ -122,7 +122,7 @@ namespace Microsoft.WinGet.Client.Common
                     }
                 }
 
-                throw new ArgumentException(Utilities.ResourceManager.GetString("RuntimeExceptionInvalidVersion"));
+                throw new InvalidVersionException(this.Version);
             }
             else
             {

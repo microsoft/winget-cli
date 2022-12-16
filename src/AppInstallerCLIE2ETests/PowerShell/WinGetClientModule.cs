@@ -507,8 +507,48 @@ namespace AppInstallerCLIE2ETests.PowerShell
         }
 
         /// <summary>
-        /// Test Test-WinGetUserSettings. Ignore comparing properties that are not set in the input.
-        /// Local settings has more properties.
+        /// Test Test-WinGetUserSettings. IgnoreNotSet.
+        /// They are equal.
+        /// </summary>
+        [Test]
+        public void TestWinGetUserSettings_Equal_IgnoreNotSet()
+        {
+            var ogSettings = new Hashtable()
+            {
+                {
+                    "visual",
+                    new Hashtable()
+                    {
+                        { "progressBar", "retro" },
+                    }
+                },
+                {
+                    "experimentalFeatures",
+                    new Hashtable()
+                    {
+                        { "experimentalArg", false },
+                        { "experimentalCmd", true },
+                    }
+                },
+            };
+
+            WinGetSettingsHelper.SetWingetSettings(ogSettings);
+
+            using var powerShellHost = new PowerShellHost();
+            var result = powerShellHost.PowerShell
+                .AddCommand("Test-WinGetUserSettings")
+                .AddParameter("UserSettings", ogSettings)
+                .AddParameter("IgnoreNotSet")
+                .Invoke();
+
+            Assert.That(result, Has.Exactly(1).Items);
+            Assert.IsInstanceOf<bool>(result[0].BaseObject);
+            Assert.IsTrue((bool)result[0].BaseObject);
+        }
+
+        /// <summary>
+        /// Test Test-WinGetUserSettings IgnoreNotSet.
+        /// Ignore comparing properties that are not set in the input.
         /// </summary>
         [Test]
         public void TestWinGetUserSettings_MoreSettingsLocal_IgnoreNotSet()
@@ -565,8 +605,8 @@ namespace AppInstallerCLIE2ETests.PowerShell
         }
 
         /// <summary>
-        /// Test Test-WinGetUserSettings. Ignore comparing properties that are not set in the input.
-        /// Input has more properties.
+        /// Test Test-WinGetUserSettings IgnoreNotSet.
+        /// Ignore comparing properties that are not set in the input.
         /// </summary>
         [Test]
         public void TestWinGetUserSettings_MoreSettingsInput_IgnoreNotSet()
@@ -606,6 +646,175 @@ namespace AppInstallerCLIE2ETests.PowerShell
                     {
                         { "experimentalArg", false },
                         { "experimentalCmd", true },
+                    }
+                },
+            };
+
+            using var powerShellHost = new PowerShellHost();
+            var result = powerShellHost.PowerShell
+                .AddCommand("Test-WinGetUserSettings")
+                .AddParameter("UserSettings", inputSettings)
+                .AddParameter("IgnoreNotSet")
+                .Invoke();
+
+            Assert.That(result, Has.Exactly(1).Items);
+            Assert.IsInstanceOf<bool>(result[0].BaseObject);
+            Assert.IsFalse((bool)result[0].BaseObject);
+        }
+
+        /// <summary>
+        /// Test Test-WinGetUserSettings IgnoreNotSet.
+        /// DeepEquals fails, but we should still fail at experimentalArg.
+        /// </summary>
+        [Test]
+        public void TestWinGetUserSettings_DifferentValue_IgnoreNotSet()
+        {
+            var ogSettings = new Hashtable()
+            {
+                {
+                    "visual",
+                    new Hashtable()
+                    {
+                        { "progressBar", "retro" },
+                    }
+                },
+                {
+                    "experimentalFeatures",
+                    new Hashtable()
+                    {
+                        { "experimentalArg", false },
+                    }
+                },
+            };
+
+            WinGetSettingsHelper.SetWingetSettings(ogSettings);
+
+            var inputSettings = new Hashtable()
+            {
+                {
+                    "visual",
+                    new Hashtable()
+                    {
+                        { "progressBar", "retro" },
+                    }
+                },
+                {
+                    "experimentalFeatures",
+                    new Hashtable()
+                    {
+                        { "experimentalArg", true },
+                    }
+                },
+            };
+
+            using var powerShellHost = new PowerShellHost();
+            var result = powerShellHost.PowerShell
+                .AddCommand("Test-WinGetUserSettings")
+                .AddParameter("UserSettings", inputSettings)
+                .AddParameter("IgnoreNotSet")
+                .Invoke();
+
+            Assert.That(result, Has.Exactly(1).Items);
+            Assert.IsInstanceOf<bool>(result[0].BaseObject);
+            Assert.IsFalse((bool)result[0].BaseObject);
+        }
+
+        /// <summary>
+        /// Test Test-WinGetUserSettings IgnoreNotSet.
+        /// DeepEquals fails, but we should still fail at comparing the array.
+        /// </summary>
+        [Test]
+        public void TestWinGetUserSettings_ArrayDifferent_IgnoreNotSet()
+        {
+            var ogSettings = new Hashtable()
+            {
+                {
+                    "installBehavior",
+                    new Hashtable()
+                    {
+                        {
+                            "preferences",
+                            new Hashtable()
+                            {
+                                { "architectures", new string[] { "x64", "x86" } },
+                            }
+                        },
+                    }
+                },
+            };
+
+            WinGetSettingsHelper.SetWingetSettings(ogSettings);
+
+            var inputSettings = new Hashtable()
+            {
+                {
+                    "installBehavior",
+                    new Hashtable()
+                    {
+                        {
+                            "preferences",
+                            new Hashtable()
+                            {
+                                { "architectures", new string[] { "x64", "arm64" } },
+                            }
+                        },
+                    }
+                },
+            };
+
+            using var powerShellHost = new PowerShellHost();
+            var result = powerShellHost.PowerShell
+                .AddCommand("Test-WinGetUserSettings")
+                .AddParameter("UserSettings", inputSettings)
+                .AddParameter("IgnoreNotSet")
+                .Invoke();
+
+            Assert.That(result, Has.Exactly(1).Items);
+            Assert.IsInstanceOf<bool>(result[0].BaseObject);
+            Assert.IsFalse((bool)result[0].BaseObject);
+        }
+
+        /// <summary>
+        /// Test Test-WinGetUserSettings IgnoreNotSet.
+        /// DeepEquals fails, but we should still fail at experimentalArg because is an int.
+        /// </summary>
+        [Test]
+        public void TestWinGetUserSettings_DifferentValueType_IgnoreNotSet()
+        {
+            var ogSettings = new Hashtable()
+            {
+                {
+                    "visual",
+                    new Hashtable()
+                    {
+                        { "progressBar", "retro" },
+                    }
+                },
+                {
+                    "experimentalFeatures",
+                    new Hashtable()
+                    {
+                        { "experimentalArg", false },
+                    }
+                },
+            };
+
+            WinGetSettingsHelper.SetWingetSettings(ogSettings);
+
+            var inputSettings = new Hashtable()
+            {
+                {
+                    "visual",
+                    new Hashtable()
+                    {
+                        { "progressBar", "retro" },
+                    }
+                },
+                {
+                    "experimentalFeatures",
+                    new Hashtable()
+                    {
+                        { "experimentalArg", 4 },
                     }
                 },
             };

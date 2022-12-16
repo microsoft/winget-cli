@@ -9,6 +9,7 @@ namespace Microsoft.WinGet.Client.Commands
     using System;
     using System.Collections;
     using System.Management.Automation;
+    using System.Management.Automation.Language;
     using Microsoft.WinGet.Client.Common;
     using Newtonsoft.Json.Linq;
 
@@ -59,69 +60,69 @@ namespace Microsoft.WinGet.Client.Commands
 
             if (this.IgnoreNotSet.ToBool())
             {
-                return this.PartialCompare(newSettings, currentSettings);
+                return this.PartialDeepEquals(newSettings, currentSettings);
             }
 
             return JToken.DeepEquals(newSettings, currentSettings);
         }
 
-        private bool PartialCompare(JObject jObject, JObject other)
+        /// <summary>
+        /// Partially compares json. All properties and values of json must exist and have the same value
+        /// as otherJson.
+        /// This doesn't support deep JArray object comparison, but we don't have arrays of type object so far :).
+        /// </summary>
+        /// <param name="json">Main json.</param>
+        /// <param name="otherJson">otherJson.</param>
+        /// <returns>True is otherJson partially contains json.</returns>
+        private bool PartialDeepEquals(JToken json, JToken otherJson)
         {
-            try
+            if (JToken.DeepEquals(json, otherJson))
             {
-                this.PartialDeepEquals(jObject, other);
+                return true;
             }
-            catch (Exception)
+
+            // If they are a JValue (string, integer, date, etc) or they are a JArray and DeepEquals fails then not equal.
+            if ((json is JValue && otherJson is JValue) ||
+                (json is JArray && otherJson is JArray))
             {
+                this.WriteVerbose($"'{json.ToString(Newtonsoft.Json.Formatting.None)}' != " +
+                    $"'{otherJson.ToString(Newtonsoft.Json.Formatting.None)}'");
                 return false;
             }
 
-            return true;
-        }
-
-        // This doesn't support JArray object comparison, but we don't have arrays of type object so far.
-        private void PartialDeepEquals(JToken jToken, JToken other)
-        {
-            if (jToken.Type != other.Type)
+            // If its not the same type then don't bother.
+            if (json.Type != otherJson.Type)
             {
-                string error = $"Mismatch types '{jToken.ToString(Newtonsoft.Json.Formatting.None)}' " +
-                    $"'{other.ToString(Newtonsoft.Json.Formatting.None)}'";
-                this.WriteVerbose(error);
-                throw new Exception(error);
+                this.WriteVerbose($"Mismatch types '{json.ToString(Newtonsoft.Json.Formatting.None)}' " +
+                    $"'{otherJson.ToString(Newtonsoft.Json.Formatting.None)}'");
+                return false;
             }
 
-            if (!JToken.DeepEquals(jToken, other))
+            // Look deeply.
+            if (json.Type == JTokenType.Object)
             {
-                if (jToken.Type == JTokenType.Object)
+                var jObject = (JObject)json;
+                var otherJObject = (JObject)otherJson;
+
+                var properties = jObject.Properties();
+                foreach (var property in properties)
                 {
-                    var jObject = (JObject)jToken;
-                    var otherJObject = (JObject)other;
-
-                    var properties = jObject.Properties();
-                    foreach (var property in properties)
+                    // If the property is not there then give up.
+                    if (!otherJObject.ContainsKey(property.Name))
                     {
-                        // If the property is not there then give up.
-                        if (!otherJObject.ContainsKey(property.Name))
-                        {
-                            string error = $"{property.Name} not found.";
-                            this.WriteVerbose(error);
-                            throw new Exception(error);
-                        }
+                        this.WriteVerbose($"{property.Name} not found.");
+                        return false;
+                    }
 
-                        this.PartialDeepEquals(
-                                property.Value,
-                                otherJObject.GetValue(property.Name));
+                    if (!this.PartialDeepEquals(property.Value, otherJObject.GetValue(property.Name)))
+                    {
+                        // Found inequality within a property. We are done.
+                        return false;
                     }
                 }
-                else if (jToken is JValue)
-                {
-                    // If this is a JValue (string, integer, date, etc) and DeepEquals fails then is not equal.
-                    string error = $"'{jToken.ToString(Newtonsoft.Json.Formatting.None)}' != " +
-                        $"'{other.ToString(Newtonsoft.Json.Formatting.None)}'";
-                    this.WriteVerbose(error);
-                    throw new Exception(error);
-                }
             }
+
+            return true;
         }
     }
 }

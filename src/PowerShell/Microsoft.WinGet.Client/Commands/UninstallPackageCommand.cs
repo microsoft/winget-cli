@@ -11,6 +11,7 @@ namespace Microsoft.WinGet.Client.Commands
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Common;
     using Microsoft.WinGet.Client.Helpers;
+    using Microsoft.WinGet.Client.Properties;
 
     /// <summary>
     /// Uninstalls a package from the local system.
@@ -71,7 +72,7 @@ namespace Microsoft.WinGet.Client.Commands
             UninstallOptions options)
         {
             string activity = string.Format(
-                Utilities.ResourceManager.GetString("ProgressRecordActivityUninstalling"),
+                Resources.ProgressRecordActivityUninstalling,
                 package.Name);
 
             var operation = PackageManager.Value.UninstallPackageAsync(package, options);

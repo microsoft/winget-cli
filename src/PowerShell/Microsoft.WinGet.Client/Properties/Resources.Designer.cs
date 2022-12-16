@@ -61,20 +61,20 @@ namespace Microsoft.WinGet.Client.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to No source matches the given value: {0}.
+        ///   Looks up a localized string similar to An error occurred while connecting to the catalog..
         /// </summary>
-        internal static string ArgumentExceptionInvalidSource {
+        internal static string CatalogConnectExceptionMessage {
             get {
-                return ResourceManager.GetString("ArgumentExceptionInvalidSource", resourceCulture);
+                return ResourceManager.GetString("CatalogConnectExceptionMessage", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to This cmdlet is currently disabled for SYSTEM..
         /// </summary>
-        internal static string ExceptionSystemDisabled {
+        internal static string ExecuteAsSystemExceptionMessage {
             get {
-                return ResourceManager.GetString("ExceptionSystemDisabled", resourceCulture);
+                return ResourceManager.GetString("ExecuteAsSystemExceptionMessage", resourceCulture);
             }
         }
         
@@ -84,6 +84,33 @@ namespace Microsoft.WinGet.Client.Properties {
         internal static string FindPackagesExceptionMessage {
             get {
                 return ResourceManager.GetString("FindPackagesExceptionMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No source matches the given value: {0}.
+        /// </summary>
+        internal static string InvalidSourceExceptionMessage {
+            get {
+                return ResourceManager.GetString("InvalidSourceExceptionMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No versions matched the given value: {0}.
+        /// </summary>
+        internal static string InvalidVersionExceptionMessage {
+            get {
+                return ResourceManager.GetString("InvalidVersionExceptionMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No packages matched the given input criteria..
+        /// </summary>
+        internal static string NoPackageFoundExceptionMessage {
+            get {
+                return ResourceManager.GetString("NoPackageFoundExceptionMessage", resourceCulture);
             }
         }
         
@@ -115,33 +142,6 @@ namespace Microsoft.WinGet.Client.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to An error occurred while connecting to the catalog..
-        /// </summary>
-        internal static string RuntimeExceptionCatalogError {
-            get {
-                return ResourceManager.GetString("RuntimeExceptionCatalogError", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to No versions matched the given value: {0}.
-        /// </summary>
-        internal static string RuntimeExceptionInvalidVersion {
-            get {
-                return ResourceManager.GetString("RuntimeExceptionInvalidVersion", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to No packages matched the given input criteria..
-        /// </summary>
-        internal static string RuntimeExceptionNoPackagesFound {
-            get {
-                return ResourceManager.GetString("RuntimeExceptionNoPackagesFound", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to {0}, {1}, and {2} other packages matched the input criteria. Please refine the input..
         /// </summary>
         internal static string VagueCriteriaExceptionMessage {
@@ -151,11 +151,20 @@ namespace Microsoft.WinGet.Client.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Command {0} failed with exit code {1}.
+        /// </summary>
+        internal static string WinGetCLIExceptionMessage {
+            get {
+                return ResourceManager.GetString("WinGetCLIExceptionMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to execute command; WinGet package not installed..
         /// </summary>
-        internal static string WinGetPackageNotInstalled {
+        internal static string WinGetPackageNotInstalledMessage {
             get {
-                return ResourceManager.GetString("WinGetPackageNotInstalled", resourceCulture);
+                return ResourceManager.GetString("WinGetPackageNotInstalledMessage", resourceCulture);
             }
         }
     }

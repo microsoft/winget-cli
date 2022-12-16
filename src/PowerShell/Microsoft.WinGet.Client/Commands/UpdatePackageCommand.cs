@@ -9,6 +9,7 @@ namespace Microsoft.WinGet.Client.Commands
     using System.Management.Automation;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Common;
+    using Microsoft.WinGet.Client.Properties;
 
     /// <summary>
     /// This commands updates a package from the pipeline or from the local system.
@@ -54,9 +55,11 @@ namespace Microsoft.WinGet.Client.Commands
             InstallOptions options)
         {
             var operation = PackageManager.Value.UpgradePackageAsync(package, options);
-            return this.RegisterCallbacksAndWait(operation, string.Format(
-                Utilities.ResourceManager.GetString("ProgressRecordActivityUpdating"),
-                package.Name));
+            return this.RegisterCallbacksAndWait(
+                operation,
+                string.Format(
+                    Resources.ProgressRecordActivityUpdating,
+                    package.Name));
         }
     }
 }

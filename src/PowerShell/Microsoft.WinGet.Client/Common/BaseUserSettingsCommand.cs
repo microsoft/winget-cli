@@ -6,11 +6,10 @@
 
 namespace Microsoft.WinGet.Client.Common
 {
-    using System;
     using System.Collections;
-    using System.Diagnostics;
     using System.IO;
     using System.Management.Automation;
+    using Microsoft.WinGet.Client.Helpers;
     using Newtonsoft.Json.Linq;
 
     /// <summary>
