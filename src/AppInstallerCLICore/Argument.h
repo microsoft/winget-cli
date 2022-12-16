@@ -147,8 +147,8 @@ namespace AppInstaller::CLI
         Argument(std::string_view name, char alias, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, Argument::Visibility visibility, bool required, Settings::ExperimentalFeature::Feature feature) :
             m_name(name), m_alias(alias), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_visibility(visibility), m_required(required), m_feature(feature) {}
 
-        Argument(std::string_view name, char alias, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, Settings::TogglePolicy::Policy groupPolicy) :
-            m_name(name), m_alias(alias), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_groupPolicy(groupPolicy) {}
+        Argument(std::string_view name, char alias, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, Settings::TogglePolicy::Policy groupPolicy, Settings::AdminSetting adminSetting) :
+            m_name(name), m_alias(alias), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_groupPolicy(groupPolicy), m_adminSetting(adminSetting) {}
 
         Argument(std::string_view name, char alias, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, Argument::Visibility visibility, Settings::TogglePolicy::Policy groupPolicy, Settings::AdminSetting adminSetting) :
             m_name(name), m_alias(alias), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_visibility(visibility), m_groupPolicy(groupPolicy), m_adminSetting(adminSetting) {}
@@ -171,8 +171,8 @@ namespace AppInstaller::CLI
         Argument(std::string_view name, char alias, std::string_view alternateName, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, Argument::Visibility visibility, bool required, Settings::ExperimentalFeature::Feature feature) :
             m_name(name), m_alias(alias), m_alternateName(alternateName), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_visibility(visibility), m_required(required), m_feature(feature) {}
 
-        Argument(std::string_view name, char alias, std::string_view alternateName, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, Settings::TogglePolicy::Policy groupPolicy) :
-            m_name(name), m_alias(alias), m_alternateName(alternateName), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_groupPolicy(groupPolicy) {}
+        Argument(std::string_view name, char alias, std::string_view alternateName, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, Settings::TogglePolicy::Policy groupPolicy, Settings::AdminSetting adminSetting) :
+            m_name(name), m_alias(alias), m_alternateName(alternateName), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_groupPolicy(groupPolicy), m_adminSetting(adminSetting) {}
 
         Argument(std::string_view name, char alias, std::string_view alternateName, Execution::Args::Type execArgType, Resource::StringId desc, ArgumentType type, Argument::Visibility visibility, Settings::TogglePolicy::Policy groupPolicy, Settings::AdminSetting adminSetting) :
             m_name(name), m_alias(alias), m_alternateName(alternateName), m_execArgType(execArgType), m_desc(std::move(desc)), m_type(type), m_visibility(visibility), m_groupPolicy(groupPolicy), m_adminSetting(adminSetting) {}

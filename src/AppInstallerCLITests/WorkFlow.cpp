@@ -36,6 +36,7 @@
 #include <Commands/UninstallCommand.h>
 #include <Commands/UpgradeCommand.h>
 #include <Commands/SourceCommand.h>
+#include <winget/AdminSettings.h>
 #include <winget/LocIndependent.h>
 #include <winget/ManifestYamlParser.h>
 #include <winget/PathVariable.h>
@@ -56,6 +57,7 @@ using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Settings;
 using namespace AppInstaller::Utility;
+using namespace AppInstaller::Utility::literals;
 using namespace AppInstaller::Settings;
 using namespace AppInstaller::CLI::Portable;
 
@@ -1138,8 +1140,6 @@ TEST_CASE("InstallFlowWithNonApplicableArchitecture", "[InstallFlow][workflow]")
 TEST_CASE("InstallFlow_Zip_Exe", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
-    TestCommon::TestUserSettings testSettings;
-    testSettings.Set<Setting::EFZipInstall>(true);
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
@@ -1169,8 +1169,6 @@ TEST_CASE("InstallFlow_Zip_Exe", "[InstallFlow][workflow]")
 TEST_CASE("InstallFlow_Zip_BadRelativePath", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
-    TestCommon::TestUserSettings testSettings;
-    testSettings.Set<Setting::EFZipInstall>(true);
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
@@ -1190,14 +1188,14 @@ TEST_CASE("InstallFlow_Zip_BadRelativePath", "[InstallFlow][workflow]")
 
     // Verify Installer was not called
     REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::NestedInstallerNotFound).get()) != std::string::npos);
+    auto relativePath = context.Get<Execution::Data::InstallerPath>().parent_path() / "extracted" / "relativeFilePath";
+    auto expectedMessage = Resource::String::NestedInstallerNotFound(AppInstaller::Utility::LocIndString{ relativePath.u8string()});
+    REQUIRE(installOutput.str().find(Resource::LocString(expectedMessage).get()) != std::string::npos);
 }
 
 TEST_CASE("InstallFlow_Zip_MissingNestedInstaller", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
-    TestCommon::TestUserSettings testSettings;
-    testSettings.Set<Setting::EFZipInstall>(true);
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
@@ -1218,8 +1216,6 @@ TEST_CASE("InstallFlow_Zip_MissingNestedInstaller", "[InstallFlow][workflow]")
 TEST_CASE("InstallFlow_Zip_UnsupportedNestedInstaller", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
-    TestCommon::TestUserSettings testSettings;
-    testSettings.Set<Setting::EFZipInstall>(true);
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
@@ -1240,8 +1236,6 @@ TEST_CASE("InstallFlow_Zip_UnsupportedNestedInstaller", "[InstallFlow][workflow]
 TEST_CASE("InstallFlow_Zip_MultipleNonPortableNestedInstallers", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
-    TestCommon::TestUserSettings testSettings;
-    testSettings.Set<Setting::EFZipInstall>(true);
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
@@ -1262,8 +1256,6 @@ TEST_CASE("InstallFlow_Zip_MultipleNonPortableNestedInstallers", "[InstallFlow][
 TEST_CASE("InstallFlow_Zip_ArchiveScanFailed", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
-    TestCommon::TestUserSettings testSettings;
-    testSettings.Set<Setting::EFZipInstall>(true);
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
@@ -1285,11 +1277,36 @@ TEST_CASE("InstallFlow_Zip_ArchiveScanFailed", "[InstallFlow][workflow]")
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::ArchiveFailedMalwareScan).get()) != std::string::npos);
 }
 
-TEST_CASE("InstallFlow_Zip_ArchiveScanOverride", "[InstallFlow][workflow]")
+TEST_CASE("InstallFlow_Zip_ArchiveScanOverride_AdminSettingDisabled", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestExeInstalled.txt");
-    TestCommon::TestUserSettings testSettings;
-    testSettings.Set<Setting::EFZipInstall>(true);
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForShellExecute(context);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Zip_Exe.yaml").GetPath().u8string());
+    context.Args.AddArg(Execution::Args::Type::IgnoreLocalArchiveMalwareScan);
+
+    DisableAdminSetting(AppInstaller::Settings::AdminSetting::LocalArchiveMalwareScanOverride);
+
+    bool overrideArchiveScanResult = false;
+    AppInstaller::Archive::TestHook_SetScanArchiveResult_Override(&overrideArchiveScanResult);
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_ARCHIVE_SCAN_FAILED);
+
+    // Verify Installer was not called
+    REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::ArchiveFailedMalwareScan).get()) != std::string::npos);
+}
+
+TEST_CASE("InstallFlow_Zip_ArchiveScanOverride_AdminSettingEnabled", "[InstallFlow][workflow]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
@@ -1299,6 +1316,8 @@ TEST_CASE("InstallFlow_Zip_ArchiveScanOverride", "[InstallFlow][workflow]")
     OverrideForVerifyAndSetNestedInstaller(context);
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Zip_Exe.yaml").GetPath().u8string());
     context.Args.AddArg(Execution::Args::Type::IgnoreLocalArchiveMalwareScan);
+
+    EnableAdminSetting(AppInstaller::Settings::AdminSetting::LocalArchiveMalwareScanOverride);
 
     bool overrideArchiveScanResult = false;
     AppInstaller::Archive::TestHook_SetScanArchiveResult_Override(&overrideArchiveScanResult);
@@ -2104,8 +2123,6 @@ TEST_CASE("UpdateFlow_UpdateExe", "[UpdateFlow][workflow]")
 TEST_CASE("UpdateFlow_UpdateZip_Exe", "[UpdateFlow][workflow]")
 {
     TestCommon::TempFile updateResultPath("TestExeInstalled.txt");
-    TestCommon::TestUserSettings testSettings;
-    testSettings.Set<Setting::EFZipInstall>(true);
 
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
@@ -2445,7 +2462,7 @@ TEST_CASE("UpdateFlow_UpdateExeSpecificVersionNotFound", "[UpdateFlow][workflow]
 
     // Verify Installer is not called.
     REQUIRE(!std::filesystem::exists(updateResultPath.GetPath()));
-    REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::GetManifestResultVersionNotFound).get()) != std::string::npos);
+    REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::GetManifestResultVersionNotFound("1.2.3.4"_liv)).get()) != std::string::npos);
     REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_NO_MANIFEST_FOUND);
 }
 
@@ -3012,7 +3029,7 @@ TEST_CASE("ImportFlow_PackageAlreadyInstalled", "[ImportFlow][workflow]")
 
     // Exe should not have been installed again
     REQUIRE(!std::filesystem::exists(exeInstallResultPath.GetPath()));
-    REQUIRE(importOutput.str().find(Resource::LocString(Resource::String::ImportPackageAlreadyInstalled).get()) != std::string::npos);
+    REQUIRE(importOutput.str().find(Resource::LocString(Resource::String::ImportPackageAlreadyInstalled("AppInstallerCliTest.TestExeInstaller"_liv)).get()) != std::string::npos);
 }
 
 TEST_CASE("ImportFlow_IgnoreVersions", "[ImportFlow][workflow]")
@@ -3050,7 +3067,7 @@ TEST_CASE("ImportFlow_MissingSource", "[ImportFlow][workflow]")
 
     // Installer should not be called
     REQUIRE(!std::filesystem::exists(exeInstallResultPath.GetPath()));
-    REQUIRE(importOutput.str().find(Resource::LocString(Resource::String::ImportSourceNotInstalled).get()) != std::string::npos);
+    REQUIRE(importOutput.str().find(Resource::LocString(Resource::String::ImportSourceNotInstalled("TestSource"_liv)).get()) != std::string::npos);
     REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_SOURCE_NAME_DOES_NOT_EXIST);
 }
 
@@ -3070,7 +3087,7 @@ TEST_CASE("ImportFlow_MissingPackage", "[ImportFlow][workflow]")
 
     // Installer should not be called
     REQUIRE(!std::filesystem::exists(exeInstallResultPath.GetPath()));
-    REQUIRE(importOutput.str().find(Resource::LocString(Resource::String::ImportSearchFailed).get()) != std::string::npos);
+    REQUIRE(importOutput.str().find(Resource::LocString(Resource::String::ImportSearchFailed("MissingPackage"_liv)).get()) != std::string::npos);
     REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_NOT_ALL_PACKAGES_FOUND);
 }
 
@@ -3092,7 +3109,7 @@ TEST_CASE("ImportFlow_IgnoreMissingPackage", "[ImportFlow][workflow]")
 
     // Verify installer was called for the package that was available.
     REQUIRE(std::filesystem::exists(exeInstallResultPath.GetPath()));
-    REQUIRE(importOutput.str().find(Resource::LocString(Resource::String::ImportSearchFailed).get()) != std::string::npos);
+    REQUIRE(importOutput.str().find(Resource::LocString(Resource::String::ImportSearchFailed("MissingPackage"_liv)).get()) != std::string::npos);
 }
 
 TEST_CASE("ImportFlow_MissingVersion", "[ImportFlow][workflow]")
@@ -3111,7 +3128,7 @@ TEST_CASE("ImportFlow_MissingVersion", "[ImportFlow][workflow]")
 
     // Installer should not be called
     REQUIRE(!std::filesystem::exists(exeInstallResultPath.GetPath()));
-    REQUIRE(importOutput.str().find(Resource::LocString(Resource::String::ImportSearchFailed).get()) != std::string::npos);
+    REQUIRE(importOutput.str().find(Resource::LocString(Resource::String::ImportSearchFailed("AppInstallerCliTest.TestExeInstaller"_liv)).get()) != std::string::npos);
     REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_NOT_ALL_PACKAGES_FOUND);
 }
 

@@ -6,6 +6,7 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include <winget/LocIndependent.h>
 
 namespace AppInstaller::Utility
 {
@@ -168,9 +169,6 @@ namespace AppInstaller::Utility
     // Expands environment variables within the input.
     std::wstring ExpandEnvironmentVariables(const std::wstring& input);
 
-    // Replace message predefined token
-    std::string FindAndReplaceMessageToken(std::string_view message, std::string_view value);
-
     // Converts the candidate path part into one suitable for the actual file system
     std::string MakeSuitablePathPart(std::string_view candidate);
 
@@ -230,4 +228,17 @@ namespace AppInstaller::Utility
 
     // Converts the given hexadecimal string into bytes.
     std::vector<uint8_t> ParseFromHexString(const std::string& value, size_t byteCount = 0);
+
+    // Join a string vector using the provided separator.
+    LocIndString Join(LocIndView separator, const std::vector<LocIndString>& vector);
+
+    // Format an input string by replacing placeholders {index} with provided values at corresponding indices.
+    // Note: After upgrading to C++20, this function should be deprecated in favor of std::format.
+    template <typename ... T>
+    std::string Format(std::string inputStr, T ... args)
+    {
+        int index = 0;
+        (FindAndReplace(inputStr, "{" + std::to_string(index++) + "}", (std::ostringstream() << args).str()),...);
+        return inputStr;
+    }
 }

@@ -17,7 +17,7 @@
     <DocumentationFile>$(OutputPath)\Microsoft.WinGet.Client.xml</DocumentationFile>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(WingetUseProdClsids)' == 'true'">
+  <PropertyGroup Condition="'$(UseProdCLSIDs)' == 'true'">
     <DefineConstants>USE_PROD_CLSIDS</DefineConstants>
   </PropertyGroup>
 
@@ -86,22 +86,13 @@
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
   </PropertyGroup>
 
-  <!-- Copy WinRTAct.dll to PowerShell module directory -->
-  <PropertyGroup Condition="'$(Platform)' == 'x64'">
-      <TargetPlatform>x64</TargetPlatform>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Platform)' == 'x86'">
-      <TargetPlatform>Win32</TargetPlatform>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Platform)' == 'ARM64'">
-      <TargetPlatform>Arm64</TargetPlatform>
-  </PropertyGroup>
-
-  <Target Name="CopyWinRTAct" AfterTargets="Build" Condition="'$(Platform)' != 'ARM'">
+  <!-- Copy WinRTAct.dll to PowerShell module directory. Relative path to $(OutputPath) used to support AppInstaller build. -->
+  <Target Name="CopyWinRTAct" AfterTargets="AfterBuild" Condition="'$(Platform)' != 'ARM' AND '$(TargetFramework)' == '$(CoreFramework)'">
+      <PropertyGroup>
+          <WinRTActDir>$(OutputPath)..\..\UndockedRegFreeWinRT\</WinRTActDir>
+      </PropertyGroup>
       <ItemGroup>
-          <WinRTActDll Include="$(SolutionDir)**\$(TargetPlatform)\$(Configuration)\UndockedRegFreeWinRT\winrtact.dll" />
+          <WinRTActDll Include="$(WinRTActDir)winrtact.dll" />
       </ItemGroup>
       <Message Importance="high" Text="Copying '@(WinRTActDll)'" />
       <Copy SourceFiles="@(WinRTActDll)" DestinationFolder="$(OutputPath)" />

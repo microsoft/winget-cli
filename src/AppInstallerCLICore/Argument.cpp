@@ -58,7 +58,7 @@ namespace AppInstaller::CLI
         case Args::Type::InstallLocation:
             return Argument{ "location"_liv, 'l', Args::Type::InstallLocation, Resource::String::LocationArgumentDescription, ArgumentType::Standard };
         case Args::Type::HashOverride:
-            return Argument{ "ignore-security-hash"_liv, NoAlias, Args::Type::HashOverride, Resource::String::HashOverrideArgumentDescription, ArgumentType::Flag, Settings::TogglePolicy::Policy::HashOverride };
+            return Argument{ "ignore-security-hash"_liv, NoAlias, Args::Type::HashOverride, Resource::String::HashOverrideArgumentDescription, ArgumentType::Flag, Settings::TogglePolicy::Policy::HashOverride, Settings::AdminSetting::InstallerHashOverride };
         case Args::Type::AcceptPackageAgreements:
             return Argument{ "accept-package-agreements"_liv, NoAlias, Args::Type::AcceptPackageAgreements, Resource::String::AcceptPackageAgreementsArgumentDescription, ArgumentType::Flag };
         case Args::Type::NoUpgrade:
@@ -72,7 +72,7 @@ namespace AppInstaller::CLI
         case Args::Type::Help:
             return Argument{ "help"_liv, APPINSTALLER_CLI_HELP_ARGUMENT_TEXT_CHAR, Args::Type::Help, Resource::String::HelpArgumentDescription, ArgumentType::Flag };
         case Args::Type::IgnoreLocalArchiveMalwareScan:
-            return Argument{ "ignore-local-archive-malware-scan"_liv, NoAlias, Args::Type::IgnoreLocalArchiveMalwareScan, Resource::String::IgnoreLocalArchiveMalwareScanArgumentDescription, ArgumentType::Flag, Settings::TogglePolicy::Policy::LocalArchiveMalwareScanOverride };
+            return Argument{ "ignore-local-archive-malware-scan"_liv, NoAlias, Args::Type::IgnoreLocalArchiveMalwareScan, Resource::String::IgnoreLocalArchiveMalwareScanArgumentDescription, ArgumentType::Flag, Settings::TogglePolicy::Policy::LocalArchiveMalwareScanOverride, Settings::AdminSetting::LocalArchiveMalwareScanOverride };
         case Args::Type::SourceName:
             return Argument{ "name"_liv, 'n', Args::Type::SourceName,Resource::String::SourceNameArgumentDescription, ArgumentType::Positional, false };
         case Args::Type::SourceArg:

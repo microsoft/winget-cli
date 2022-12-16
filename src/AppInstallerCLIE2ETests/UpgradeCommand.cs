@@ -141,8 +141,6 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void UpgradeZip_Portable()
         {
-            WinGetSettingsHelper.ConfigureFeature("zipInstall", true);
-
             string installDir = TestCommon.GetPortablePackagesDirectory();
             string packageId, commandAlias, fileName, packageDirName, productCode;
             packageId = "AppInstallerTest.TestZipInstallerWithPortable";

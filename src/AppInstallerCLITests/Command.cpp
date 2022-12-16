@@ -202,55 +202,29 @@ struct TestCommand : public Command
 // Matcher that lets us verify CommandExceptions.
 struct CommandExceptionMatcher : public Catch::MatcherBase<CommandException>
 {
-    CommandExceptionMatcher(const std::string &arg) : m_expectedArg(arg) {}
+    CommandExceptionMatcher(CLI::Resource::LocString message) : m_expectedMessage(std::move(message)) {}
 
     bool match(const CommandException& ce) const override
     {
-        const auto& params = ce.Params();
-        return params.size() == 1 && params[0].get() == m_expectedArg;
+        return ce.Message() == m_expectedMessage;
     }
 
     std::string describe() const override
     {
         std::ostringstream result;
-        result << "has param == " << m_expectedArg;
+        result << "has message == " << m_expectedMessage;
         return result.str();
     }
 
 private:
-    std::string m_expectedArg;
+    CLI::Resource::LocString m_expectedMessage;
 };
 
 namespace Catch {
     template<>
     struct StringMaker<CommandException> {
         static std::string convert(CommandException const& ce) {
-            std::string result{ "CommandException{ '" };
-            result += ce.Message().get();
-            result += '\'';
-
-            bool first = true;
-            for (const auto& param : ce.Params())
-            {
-                if (first)
-                {
-                    first = false;
-                    result += ", ['";
-                }
-                else
-                {
-                    result += "', '";
-                }
-                result += param.get();
-            }
-
-            if (!first)
-            {
-                result += "']";
-            }
-
-            result += " }";
-            return result;
+            return Utility::Format("CommandException{ '{0}' }", ce.Message().get());
         }
     };
 }
@@ -313,7 +287,7 @@ TEST_CASE("ParseArguments_TooManyPositional", "[command]")
     std::vector<std::string> values{ "val1", "--", "-std1" };
     Invocation inv{ std::vector<std::string>(values) };
 
-    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), values[2]);
+    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::ExtraPositionalError(Utility::LocIndView{ values[2] }));
 }
 
 TEST_CASE("ParseArguments_InvalidChar", "[command]")
@@ -328,7 +302,7 @@ TEST_CASE("ParseArguments_InvalidChar", "[command]")
     std::vector<std::string> values{ "val1", "-", "-std1" };
     Invocation inv{ std::vector<std::string>(values) };
 
-    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), values[1]);
+    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::InvalidArgumentSpecifierError(Utility::LocIndView{ values[1] }));
 }
 
 TEST_CASE("ParseArguments_InvalidAlias", "[command]")
@@ -343,7 +317,7 @@ TEST_CASE("ParseArguments_InvalidAlias", "[command]")
     std::vector<std::string> values{ "val1", "-b", "-std1" };
     Invocation inv{ std::vector<std::string>(values) };
 
-    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), values[1]);
+    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::InvalidAliasError(Utility::LocIndView{ values[1] }));
 }
 
 TEST_CASE("ParseArguments_MultiFlag", "[command]")
@@ -378,7 +352,7 @@ TEST_CASE("ParseArguments_FlagThenUnknown", "[command]")
     std::vector<std::string> values{ "val1", "-sr", "val2" };
     Invocation inv{ std::vector<std::string>(values) };
 
-    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), values[1]);
+    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::AdjoinedNotFoundError(Utility::LocIndView{ values[1] }));
 }
 
 TEST_CASE("ParseArguments_FlagThenNonFlag", "[command]")
@@ -394,7 +368,7 @@ TEST_CASE("ParseArguments_FlagThenNonFlag", "[command]")
     std::vector<std::string> values{ "val1", "-sp", "val2" };
     Invocation inv{ std::vector<std::string>(values) };
 
-    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), values[1]);
+    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::AdjoinedNotFlagError(Utility::LocIndView{ values[1] }));
 }
 
 TEST_CASE("ParseArguments_NameUsingAliasSpecifier", "[command]")
@@ -410,7 +384,7 @@ TEST_CASE("ParseArguments_NameUsingAliasSpecifier", "[command]")
     std::vector<std::string> values{ "another", "-flag1" };
     Invocation inv{ std::vector<std::string>(values) };
 
-    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), values[1]);
+    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::AdjoinedNotFoundError(Utility::LocIndView{ values[1] }));
 }
 
 TEST_CASE("ParseArguments_AliasWithAdjoinedValue", "[command]")
@@ -459,7 +433,7 @@ TEST_CASE("ParseArguments_AliasWithSeparatedValueMissing", "[command]")
     std::vector<std::string> values{ "-s" };
     Invocation inv{ std::vector<std::string>(values) };
 
-    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), values[0]);
+    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::MissingArgumentError(Utility::LocIndView{ values[0] }));
 }
 
 TEST_CASE("ParseArguments_NameWithAdjoinedValue", "[command]")
@@ -528,7 +502,7 @@ TEST_CASE("ParseArguments_NameFlagWithAdjoinedValue", "[command]")
     std::vector<std::string> values{ "another", "--flag1=arbitrary" };
     Invocation inv{ std::vector<std::string>(values) };
 
-    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), values[1]);
+    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::FlagContainAdjoinedError(Utility::LocIndView{ values[1] }));
 }
 
 TEST_CASE("ParseArguments_NameWithSeparatedValue", "[command]")
@@ -562,7 +536,7 @@ TEST_CASE("ParseArguments_NameWithSeparatedValueMissing", "[command]")
     std::vector<std::string> values{ "--pos2" };
     Invocation inv{ std::vector<std::string>(values) };
 
-    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), values[0]);
+    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::MissingArgumentError(Utility::LocIndView{ values[0] }));
 }
 
 TEST_CASE("ParseArguments_UnknownName", "[command]")
@@ -578,5 +552,5 @@ TEST_CASE("ParseArguments_UnknownName", "[command]")
     std::vector<std::string> values{ "another", "--nope" };
     Invocation inv{ std::vector<std::string>(values) };
 
-    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), values[1]);
+    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::InvalidNameError(Utility::LocIndView{ values[1] }));
 }
