@@ -289,7 +289,7 @@ namespace AppInstaller::CLI::Workflow
         if (installedType == InstallerTypeEnum::Portable)
         {
             const std::string installedScope = installedPackageVersion->GetMetadata()[Repository::PackageVersionMetadata::InstalledScope];
-            if (ConvertToScopeEnum(installedScope) == Manifest::ScopeEnum::Machine)
+            if (Manifest::ConvertToScopeEnum(installedScope) == Manifest::ScopeEnum::Machine)
             {
                 context << EnsureRunningAsAdmin;
             }

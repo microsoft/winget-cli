@@ -501,6 +501,14 @@ namespace AppInstaller::Manifest
             installerType == InstallerTypeEnum::MSStore;
     }
 
+    bool DoesInstallerTypeRequireAdminForMachineScopeInstall(InstallerTypeEnum installerType)
+    {
+        return
+            installerType == InstallerTypeEnum::Portable ||
+            installerType == InstallerTypeEnum::MSStore ||
+            installerType == InstallerTypeEnum::Msix;
+    }
+
     bool IsArchiveType(InstallerTypeEnum installerType)
     {
         return (installerType == InstallerTypeEnum::Zip);

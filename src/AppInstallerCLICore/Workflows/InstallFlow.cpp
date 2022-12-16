@@ -314,9 +314,7 @@ namespace AppInstaller::CLI::Workflow
         // Admin is required for machine scope install for installer types like portable, msix and msstore.
         auto installerType = context.Get<Execution::Data::Installer>().value().EffectiveInstallerType();
 
-        if (installerType == InstallerTypeEnum::Portable ||
-            installerType == InstallerTypeEnum::MSStore ||
-            installerType == InstallerTypeEnum::Msix)
+        if (Manifest::DoesInstallerTypeRequireAdminForMachineScopeInstall(installerType))
         {
             Manifest::ScopeEnum scope = ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
             if (scope == Manifest::ScopeEnum::Machine)
