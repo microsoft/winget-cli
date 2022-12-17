@@ -13,8 +13,8 @@ TEST_CASE("ShowFlow_SearchAndShowAppInfo", "[ShowFlow][workflow]")
     std::ostringstream showOutput;
     TestContext context{ showOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForOpenSource(context);
-    context.Args.AddArg(Execution::Args::Type::Query, "TestQueryReturnOne"sv);
+    OverrideForOpenSource(context, CreateTestSource({ TSR::TestQuery_ReturnOne }));
+    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestQuery_ReturnOne.Query);
 
     ShowCommand show({});
     show.Execute(context);
@@ -32,8 +32,8 @@ TEST_CASE("ShowFlow_SearchAndShowAppVersion", "[ShowFlow][workflow]")
     std::ostringstream showOutput;
     TestContext context{ showOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForOpenSource(context);
-    context.Args.AddArg(Execution::Args::Type::Query, "TestQueryReturnOne"sv);
+    OverrideForOpenSource(context, CreateTestSource({ TSR::TestQuery_ReturnOne }));
+    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestQuery_ReturnOne.Query);
     context.Args.AddArg(Execution::Args::Type::ListVersions);
 
     ShowCommand show({});

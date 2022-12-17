@@ -12,15 +12,24 @@ using namespace AppInstaller::Utility::literals;
 
 void OverrideForImportSource(TestContext& context, bool useTestCompositeSource = false)
 {
+    auto testCompositeSource = CreateTestSource({
+        TSR::TestInstaller_Exe,
+        TSR::TestInstaller_Exe_Dependencies,
+        TSR::TestInstaller_Exe_LicenseAgreement,
+        TSR::TestInstaller_Exe_NothingInstalled,
+        TSR::TestInstaller_Msix,
+        TSR::TestInstaller_Msix_WFDependency,
+        });
+
     context.Override({ "OpenPredefinedSource", [=](TestContext& context)
     {
-        auto installedSource = useTestCompositeSource ? std::make_shared<WorkflowTestCompositeSource>() : std::make_shared<TestSource>();
+        auto installedSource = useTestCompositeSource ? testCompositeSource : std::make_shared<TestSource>();
         context.Add<Execution::Data::Source>(Source{ installedSource });
     } });
 
-    context.Override({ Workflow::OpenSourcesForImport, [](TestContext& context)
+    context.Override({ Workflow::OpenSourcesForImport, [=](TestContext& context)
     {
-        context.Add<Execution::Data::Sources>(std::vector<Source>{ Source{ std::make_shared<WorkflowTestCompositeSource>() } });
+        context.Add<Execution::Data::Sources>(std::vector<Source>{ Source{ testCompositeSource } });
     } });
 }
 
