@@ -31,18 +31,26 @@ Se você desabilitar essa configuração, os usuários não poderão habilitar o
 Se você habilitar ou não definir essa configuração, os usuários poderão instalar pacotes com manifestos locais usando o Gerenciador de pacotes do Windows.
 
 Se você desabilitar essa configuração, os usuários não poderão instalar pacotes com manifestos locais usando o Gerenciador de pacotes do Windows.</string>
-      <string id="EnableBypassCertificatePinningForMicrosoftStore">Enable App Installer Microsoft Store Source Pinned Certificate Bypass</string>
-      <string id="EnableBypassCertificatePinningForMicrosoftStoreExplanation">This policy controls whether the Windows Package Manager can be configured to disable the requirement to use a pinned certificate for the Microsoft Store source.
+      <string id="EnableBypassCertificatePinningForMicrosoftStore">Habilitar Bypass de Validação de Certificado de Origem da Microsoft Store do Instalador de Aplicativos</string>
+      <string id="EnableBypassCertificatePinningForMicrosoftStoreExplanation">Essa política controla se o Gerenciador de Pacotes do Windows validará se o hash do certificado Microsoft Store corresponde a um certificado Microsoft Store conhecido ao iniciar uma conexão com a Origem da Microsoft Store. 
+Se você habilitar essa política, o Gerenciador de Pacotes do Windows ignorará a validação do certificado da Microsoft Store. 
 
-If you enable or do not configure this setting, users will be able to bypass the pinned certificate used to validate the Microsoft Store source.
+Se você desabilitar essa política, o Gerenciador de Pacotes do Windows validará se o certificado Microsoft Store usado é válido e pertence ao Microsoft Store antes de se comunicar com a origem da Microsoft Store.
 
-If you disable this setting, users will not be able to bypass the pinned certificate used to validate the Microsoft Store source.</string>
+Se você não definir essa política, as configurações de administrador do Gerenciador de Pacotes do Windows serão aderidas.</string>
       <string id="EnableHashOverride">Habilitar a Substituição do Hash do Instalador de Aplicativos</string>
       <string id="EnableHashOverrideExplanation">Esta política controla se o Gerenciador de Pacotes do Windows pode ou não ser configurado para permitir a capacidade de substituição da validação de segurança SHA256 nas configurações.
 
 Se você habilitar ou não configurar esta política, os usuários poderão habilitar a capacidade de substituição da validação de segurança SHA256 nas configurações do Gerenciador de Pacotes do Windows.
 
 Se você desabilitar esta política, os usuários não poderão habilitar a capacidade de substituição da validação de segurança SHA256 nas configurações do Gerenciador de Pacotes do Windows.</string>
+      <string id="EnableLocalArchiveMalwareScanOverride">Habilitar Instalador de Aplicativo Verificação de Malware de Arquivo Morto Local</string>
+      <string id="EnableLocalArchiveMalwareScanOverrideExplanation">Esta política controla a capacidade de substituir verificações de vulnerabilidade de malware ao instalar um arquivo morto usando um manifesto local usando os argumentos de linha de comando.
+Se você habilitar essa política, os usuários poderão substituir a verificação de malware ao executar uma instalação de manifesto local de um arquivo morto.
+
+Se você desabilitar essa política, os usuários não poderão substituir a verificação de malware de um arquivo morto durante a instalação usando um manifesto local.
+
+Se você não configurar essa política, as configurações Gerenciador de Pacotes do Windows administrador serão aderidas.</string>
       <string id="EnableDefaultSource">Habilitar a Fonte Padrão do Instalador de Aplicativos</string>
       <string id="EnableDefaultSourceExplanation">Esta política controla a fonte padrão incluída no Gerenciador de Pacotes do Windows.
 
