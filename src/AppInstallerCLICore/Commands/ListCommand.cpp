@@ -64,9 +64,9 @@ namespace AppInstaller::CLI
         }
     }
 
-    std::string ListCommand::HelpLink() const
+    Utility::LocIndString ListCommand::HelpLink() const
     {
-        return "https://aka.ms/winget-command-list";
+        return "https://aka.ms/winget-command-list"_lis;
     }
 
     void ListCommand::ExecuteInternal(Execution::Context& context) const

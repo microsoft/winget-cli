@@ -61,9 +61,9 @@ namespace AppInstaller::CLI
         }
     }
 
-    std::string SearchCommand::HelpLink() const
+    Utility::LocIndString SearchCommand::HelpLink() const
     {
-        return "https://aka.ms/winget-command-search";
+        return "https://aka.ms/winget-command-search"_lis;
     }
 
     void SearchCommand::ValidateArgumentsInternal(Args& execArgs) const

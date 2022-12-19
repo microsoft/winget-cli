@@ -13,7 +13,7 @@ namespace AppInstaller::CLI
     using namespace AppInstaller::Utility::literals;
     using namespace std::string_view_literals;
 
-    static constexpr std::string_view s_PinCommand_HelpLink = "https://aka.ms/winget-command-pin"sv;
+    Utility::LocIndString s_PinCommand_HelpLink = "https://aka.ms/winget-command-pin"_lis;
 
     std::vector<std::unique_ptr<Command>> PinCommand::GetCommands() const
     {
@@ -35,9 +35,9 @@ namespace AppInstaller::CLI
         return { Resource::String::PinCommandLongDescription };
     }
 
-    std::string PinCommand::HelpLink() const
+    Utility::LocIndString PinCommand::HelpLink() const
     {
-        return std::string{ s_PinCommand_HelpLink };
+        return s_PinCommand_HelpLink;
     }
 
     void PinCommand::ExecuteInternal(Execution::Context& context) const
@@ -89,9 +89,9 @@ namespace AppInstaller::CLI
         }
     }
 
-    std::string PinAddCommand::HelpLink() const
+    Utility::LocIndString PinAddCommand::HelpLink() const
     {
-        return std::string{ s_PinCommand_HelpLink };
+        return s_PinCommand_HelpLink;
     }
 
     void PinAddCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
@@ -150,9 +150,9 @@ namespace AppInstaller::CLI
         }
     }
 
-    std::string PinRemoveCommand::HelpLink() const
+    Utility::LocIndString PinRemoveCommand::HelpLink() const
     {
-        return std::string{ s_PinCommand_HelpLink };
+        return s_PinCommand_HelpLink;
     }
 
     void PinRemoveCommand::ExecuteInternal(Execution::Context& context) const
@@ -202,9 +202,9 @@ namespace AppInstaller::CLI
         }
     }
 
-    std::string PinListCommand::HelpLink() const
+    Utility::LocIndString PinListCommand::HelpLink() const
     {
-        return std::string{ s_PinCommand_HelpLink };
+        return s_PinCommand_HelpLink;
     }
 
     void PinListCommand::ExecuteInternal(Execution::Context& context) const
@@ -230,9 +230,9 @@ namespace AppInstaller::CLI
         return { Resource::String::PinResetCommandLongDescription };
     }
 
-    std::string PinResetCommand::HelpLink() const
+    Utility::LocIndString PinResetCommand::HelpLink() const
     {
-        return std::string{ s_PinCommand_HelpLink };
+        return s_PinCommand_HelpLink;
     }
 
     void PinResetCommand::ExecuteInternal(Execution::Context& context) const

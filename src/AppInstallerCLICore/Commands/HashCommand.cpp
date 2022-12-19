@@ -30,9 +30,9 @@ namespace AppInstaller::CLI
         return { Resource::String::HashCommandLongDescription };
     }
 
-    std::string HashCommand::HelpLink() const
+    Utility::LocIndString HashCommand::HelpLink() const
     {
-        return "https://aka.ms/winget-command-hash";
+        return "https://aka.ms/winget-command-hash"_lis;
     }
 
     void HashCommand::ExecuteInternal(Execution::Context& context) const

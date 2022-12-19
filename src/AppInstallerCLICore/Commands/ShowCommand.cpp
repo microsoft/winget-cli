@@ -49,9 +49,9 @@ namespace AppInstaller::CLI
             Workflow::CompleteWithSingleSemanticsForValue(valueType);
     }
 
-    std::string ShowCommand::HelpLink() const
+    Utility::LocIndString ShowCommand::HelpLink() const
     {
-        return "https://aka.ms/winget-command-show";
+        return "https://aka.ms/winget-command-show"_lis;
     }
 
     void ShowCommand::ValidateArgumentsInternal(Args& execArgs) const
