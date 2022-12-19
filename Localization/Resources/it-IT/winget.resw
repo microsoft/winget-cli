@@ -118,17 +118,24 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AdjoinedNotFlagError" xml:space="preserve">
-    <value>L'alias adiacente non è un contrassegno</value>
+    <value>L'alias adiacente non è un contrassegno: '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides an adjoined alias that is not a flag argument. {0} is a placeholder replaced by the user input argument (e.g. '-ab').</comment>
   </data>
   <data name="AdjoinedNotFoundError" xml:space="preserve">
-    <value>Alias del contrassegno adiacente non trovato</value>
+    <value>Alias del contrassegno adiacente non trovato: '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides an adjoined flag alias argument that was not found. {0} is a placeholder replaced by the user input argument (e.g. '-ab').</comment>
   </data>
   <data name="AvailableArguments" xml:space="preserve">
     <value>Sono disponibili i seguenti argomenti:</value>
+    <comment>Message displayed to inform the user about the available command line arguments.</comment>
+  </data>
+  <data name="AvailableCommandAliases" xml:space="preserve">
+    <value>Sono disponibili gli alias di comando seguenti:</value>
+    <comment>Message displayed to inform the user about the available command line alias arguments.</comment>
   </data>
   <data name="AvailableCommands" xml:space="preserve">
     <value>Sono disponibili i seguenti comandi:</value>
-    <comment>Commands the tool supports</comment>
+    <comment>Title displayed to inform the user about the available commands.</comment>
   </data>
   <data name="AvailableHeader" xml:space="preserve">
     <value>Disponibile</value>
@@ -136,23 +143,26 @@
   </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>Sono disponibili le seguenti opzioni:</value>
+    <comment>Message displayed to inform the user about the available options.</comment>
   </data>
   <data name="AvailableSubcommands" xml:space="preserve">
     <value>Sono disponibili i seguenti comandi secondari:</value>
-    <comment>Nested commands that can be run in context of the selected command</comment>
+    <comment>Message displayed to inform the user about the available nested commands that run in context of the selected command.</comment>
   </data>
   <data name="AvailableUpgrades" xml:space="preserve">
-    <value>aggiornamenti disponibili.</value>
+    <value>{0} aggiornamenti disponibili.</value>
+    <comment>{Locked="{0}"} Message displayed to inform the user about available package upgrades. {0} is a placeholder replaced by the number of package upgrades.</comment>
   </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>Usa il canale specificato; l'impostazione predefinita è General Audience (adatto a tutte le età)</value>
   </data>
   <data name="Command" xml:space="preserve">
     <value>comando</value>
-    <comment>A command to give the software</comment>
+    <comment>Label displayed for a command to give the software.</comment>
   </data>
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>Filtra i risultati per comando</value>
+    <comment>Description message displayed to inform the user about filtering the search results by a package command.</comment>
   </data>
   <data name="CommandLineArgumentDescription" xml:space="preserve">
     <value>Riga di comando completa per il completamento</value>
@@ -171,9 +181,11 @@
   </data>
   <data name="Done" xml:space="preserve">
     <value>Fatto</value>
+    <comment>Label displayed when an operation completes or is done executing.</comment>
   </data>
   <data name="ExactArgumentDescription" xml:space="preserve">
     <value>Trova pacchetto con corrispondenza esatta</value>
+    <comment>Description message displayed to inform the user about finding an application package using an exact matching criteria.</comment>
   </data>
   <data name="ExperimentalArgumentDescription" xml:space="preserve">
     <value>Argomento sperimentale a scopo dimostrativo</value>
@@ -186,11 +198,12 @@
     <value>Esempio di funzionalità sperimentale</value>
   </data>
   <data name="ExtraPositionalError" xml:space="preserve">
-    <value>È stato trovato un argomento posizionale nonostante non ne fosse previsto alcuno</value>
+    <value>È stato trovato un argomento posizionale quando non ne era previsto nessuno: '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides an extra positional argument when none was expected. {0} is a placeholder replaced by the user's extra argument input.</comment>
   </data>
   <data name="FeatureDisabledMessage" xml:space="preserve">
-    <value>Questa funzionalità è in fase di elaborazione e potrebbe essere modificata completamente o rimossa del tutto in futuro. Per abilitarla, modifica le tue impostazioni (“winget settings”) per includere la funzionalità sperimentale</value>
-    <comment>{Locked="winget settings"}</comment>
+    <value>Questa funzionalità è in fase di sviluppo e potrebbe essere modificata completamente o rimossa del tutto in futuro. Per abilitarla, modificare le impostazioni ('winget settings') per includere la funzionalità sperimentale: '{0}'</value>
+    <comment>{Locked="winget settings","{0}"}. Error message displayed when the user uses an experimental feature that is disabled. {0} is a placeholder replaced by the experimental feature name.</comment>
   </data>
   <data name="FeaturesCommandLongDescription" xml:space="preserve">
     <value>Mostra lo stato delle funzionalità sperimentali. Le funzionalità sperimentali possono essere attivate tramite “winget settings”.</value>
@@ -226,7 +239,8 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
     <value>File su cui eseguire l'hashing</value>
   </data>
   <data name="FlagContainAdjoinedError" xml:space="preserve">
-    <value>L'argomento del contrassegno non può contenere un valore adiacente</value>
+    <value>L'argomento del contrassegno non può contenere un valore adiacente: '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides a flag argument containing an unexpected adjoined value. {0} is a placeholder replaced by the user input.</comment>
   </data>
   <data name="HashCommandLongDescription" xml:space="preserve">
     <value>Calcola l'hash di un file locale, appropriato per l'ingresso in un manifesto. Può anche calcolare l'hash del file della firma di un pacchetto MSIX per abilitare le installazioni di streaming multimediale.</value>
@@ -241,7 +255,8 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
     <value>Per altre informazioni su un comando specifico, passa alla Guida degli argomenti.</value>
   </data>
   <data name="HelpLinkPreamble" xml:space="preserve">
-    <value>Altre informazioni sono disponibili in:</value>
+    <value>Altre informazioni sono disponibili alla pagina: {0}</value>
+    <comment>{Locked="{0}"} Message displayed to inform the user about a link where they can learn more about the subject context. {0} is a placeholder replaced by a website address.</comment>
   </data>
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>Filtra i risultati per ID</value>
@@ -256,14 +271,23 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
     <value>Questo pacchetto è stato fornito tramite Microsoft Store. winget potrebbe dover acquisire il pacchetto da Microsoft Store per conto dell'utente corrente.</value>
     <comment>{Locked="winget"}</comment>
   </data>
-  <data name="InstallationRequiresHigherWindows" xml:space="preserve">
-    <value>Non è possibile installare il pacchetto perché richiede una versione più recente di Windows:</value>
+  <data name="InstallCommandLongDescription" xml:space="preserve">
+    <value>Installa il pacchetto selezionato, trovato eseguendo una ricerca in un'origine configurata o direttamente da un manifesto. Per impostazione predefinita, la query deve corrispondere senza distinzione tra maiuscole e minuscole all'id, name o moniker del pacchetto. È possibile usare altri campi passando l'opzione appropriata. Per impostazione predefinita, il comando install controllerà lo stato di installazione del pacchetto e tenterà di eseguire un aggiornamento, se applicabile. Eseguire l'override con --force per eseguire un'installazione diretta.</value>
+    <comment>{Locked="--force","id","name","moniker"}; id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>Installa il pacchetto specificato</value>
   </data>
   <data name="InstallerHashMismatchAdminBlock" xml:space="preserve">
     <value>Hash di installazione non corrispondente. Questo non può essere ignorato durante l'esecuzione come amministratore</value>
+  </data>
+  <data name="InstallerHashMismatchOverridden" xml:space="preserve">
+    <value>L’hash di installazione non corrisponde. Procedendo a causa di --ignore-security-hash</value>
+    <comment>{Locked="--ignore-security-hash"}</comment>
+  </data>
+  <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
+    <value>Hash di installazione non corrispondente; Per eseguire l’override, seleziona use --ignore-security-hash</value>
+    <comment>{Locked="--ignore-security-hash"}</comment>
   </data>
   <data name="InstallerHashVerified" xml:space="preserve">
     <value>Verifica dell'hash di installazione completata</value>
@@ -274,17 +298,26 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
   <data name="InstallFlowStartingPackageInstall" xml:space="preserve">
     <value>Avvio installazione pacchetto in corso...</value>
   </data>
+  <data name="HashOverrideArgumentDescription" xml:space="preserve">
+    <value>Ignora l'errore di controllo hash del programma di installazione</value>
+  </data>
+  <data name="IgnoreLocalArchiveMalwareScanArgumentDescription" xml:space="preserve">
+    <value>Ignora l'analisi malware eseguita durante l'installazione di un pacchetto di tipo di archivio dal manifesto locale</value>
+  </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>Richiedi l'installazione interattiva; l'input dell'utente potrebbe essere necessario</value>
   </data>
   <data name="InvalidAliasError" xml:space="preserve">
-    <value>Alias dell'argomento non riconosciuto per il comando corrente</value>
+    <value>Alias di argomento non riconosciuto per il comando corrente: '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides a command line argument alias that was not recognized for a selected command. {0} is a placeholder replaced by the user's argument alias input (e.g. '-a').</comment>
   </data>
   <data name="InvalidArgumentSpecifierError" xml:space="preserve">
-    <value>Identificatore argomento non valido</value>
+    <value>Identificatore di argomento non valido: '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides an invalid argument specifier. {0} is a placeholder replaced by an argument specifier (e.g. '-').</comment>
   </data>
   <data name="InvalidNameError" xml:space="preserve">
-    <value>Nome di argomento non riconosciuto per il comando corrente</value>
+    <value>Nome argomento non riconosciuto per il comando corrente: '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides an unrecognized command line argument name for the selected command. {0} is a placeholder replaced by the user's argument name input (e.g. '--example').</comment>
   </data>
   <data name="LocaleArgumentDescription" xml:space="preserve">
     <value>Impostazioni locali da usare (formato BCP47)</value>
@@ -296,6 +329,10 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
   <data name="Links" xml:space="preserve">
     <value>Collegamenti</value>
     <comment>Links to different webpages</comment>
+  </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>Il comando list mostra i pacchetti installati nel sistema nonché la disponibilità di un aggiornamento. È possibile fornire opzioni aggiuntive per filtrare l'output, molto simili al comando search.</value>
+    <comment>{Locked="list","search"}</comment>
   </data>
   <data name="ListCommandShortDescription" xml:space="preserve">
     <value>Visualizza pacchetti installati</value>
@@ -326,7 +363,8 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
     <value>La convalida del manifesto è stata effettuata con avvisi.</value>
   </data>
   <data name="MissingArgumentError" xml:space="preserve">
-    <value>Il valore dell'argomento risulta mancante</value>
+    <value>Il valore dell'argomento necessario risulta mancante: '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user does not provide a required command line argument value. {0} is a placeholder replaced by the argument name.</comment>
   </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
     <value>Filtra i risultati in base al moniker</value>
@@ -336,6 +374,13 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
   </data>
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>Non è possibile calcolare l'hash della firma MSIX.</value>
+  </data>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>Non è stato possibile installare o aggiornare il pacchetto di Microsoft Store perché l'app specifica è bloccata dai criteri</value>
+  </data>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>Non è stato possibile installare o aggiornare il pacchetto di Microsoft Store. Codice di errore: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when a Microsoft Store application package fails to install or upgrade. {0} is a placeholder replaced by an error code.</comment>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>Verifica/richiesta di acquisizione pacchetto non riuscita: errore di rete</value>
@@ -348,6 +393,9 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
   </data>
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>Verifica/richiesta di acquisizione pacchetto riuscita</value>
+  </data>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>Non è stato possibile installare o aggiornare il pacchetto Microsoft Store perché il client Microsoft Store è bloccato dai criteri</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>Verifica/richiesta di acquisizione pacchetti...</value>
@@ -377,6 +425,9 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
     <value>Disabilita la visualizzazione di VirtualTerminal</value>
     <comment>{Locked="VirtualTerminal"}</comment>
   </data>
+  <data name="OpenLogsArgumentDescription" xml:space="preserve">
+    <value>Apri il percorso predefinito dei log</value>
+  </data>
   <data name="Options" xml:space="preserve">
     <value>opzioni</value>
     <comment>Options to change how a command works</comment>
@@ -385,8 +436,8 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
     <value>Sostituisci gli argomenti da trasmettere al programma di installazione</value>
   </data>
   <data name="Package" xml:space="preserve">
-    <value>Pacchetto</value>
-    <comment>A software package</comment>
+    <value>Pacchetto: {0}</value>
+    <comment>{Locked="{0}"} Label displayed for a software package. {0} is a placeholder replaced by the software package name.</comment>
   </data>
   <data name="PendingWorkError" xml:space="preserve">
     <value>Ci siamo dimenticati di farlo...</value>
@@ -404,7 +455,8 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
     <value>Lo stato di avanzamento mostra un arcobaleno di colori</value>
   </data>
   <data name="RequiredArgError" xml:space="preserve">
-    <value>L'argomento obbligatorio non è stato fornito</value>
+    <value>L'argomento obbligatorio non è stato fornito: '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user does not provide a required command line argument. {0} is a placeholder replaced by an argument name.</comment>
   </data>
   <data name="RetroArgumentDescription" xml:space="preserve">
     <value>Lo stato di avanzamento viene mostrato come il colore predefinito</value>
@@ -438,7 +490,8 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
     <value>Sono stati trovati i seguenti errori durante la convalida delle impostazioni:</value>
   </data>
   <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>Aprire le impostazioni nell'editor di testo JSON predefinito. Se nessun editor è configurato, le impostazioni si apriranno nel notepad. Per le impostazioni disponibili, vedere https://aka.ms/winget-settings Questo comando può essere usato anche per predisporre le impostazioni di amministratore specificando il parametro 'enable' o 'disable'</value>
+    <value>Aprire le impostazioni nell'editor di testo json predefinito. Se nessun editor è configurato, apre le impostazioni nel blocco note. Per le impostazioni disponibili, vedi https://aka.ms/winget-settings. Questo comando può essere usato anche per impostare le impostazioni dell'amministratore, fornendo gli argomenti --enable o --disable</value>
+    <comment>{Locked="--enable"} {Locked="--disable"}</comment>
   </data>
   <data name="SettingsCommandShortDescription" xml:space="preserve">
     <value>Aprire le impostazioni o predisporre le impostazioni di amministratore</value>
@@ -464,7 +517,8 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
     <value>Richiedi l'installazione invisibile all'utente</value>
   </data>
   <data name="SingleCharAfterDashError" xml:space="preserve">
-    <value>Solo l'alias a carattere singolo può verificarsi dopo un singolo -</value>
+    <value>Solo l'alias a carattere singolo può apparire dopo un singolo -: '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides more than a single character command line alias argument after an alias argument specifier '-'. {0} is a placeholder replaced by the user's argument input.</comment>
   </data>
   <data name="SourceAddAlreadyExistsDifferentArg" xml:space="preserve">
     <value>Esiste già un'origine con il nome specificato e si riferisce a un percorso diverso:</value>
@@ -523,7 +577,8 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
     <comment>The source's unique identifier.</comment>
   </data>
   <data name="SourceListNoneFound" xml:space="preserve">
-    <value>Impossibile trovare un'origine denominata:</value>
+    <value>Non è stata trovata un'origine denominata: {0}</value>
+    <comment>Error message displayed when the user provides a repository source name that was not found. {0} is a placeholder replaced by the user input.</comment>
   </data>
   <data name="SourceListNoSources" xml:space="preserve">
     <value>Nessuna origine configurata.</value>
@@ -565,7 +620,8 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
     <value>Rimuovi le origini correnti</value>
   </data>
   <data name="SourceRemoveOne" xml:space="preserve">
-    <value>Rimozione origine:</value>
+    <value>Rimozione origine in corso: {0}</value>
+    <comment>{Locked="{0}"} Message displayed to inform the user about a registered repository source that is currently being removed. {0} is a placeholder replaced by the repository source name.</comment>
   </data>
   <data name="SourceResetAll" xml:space="preserve">
     <value>Reimpostazione di tutte le origini in corso...</value>
@@ -584,7 +640,8 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
     <comment>{Locked="--force"}</comment>
   </data>
   <data name="SourceResetOne" xml:space="preserve">
-    <value>Reimpostazione origine:</value>
+    <value>Reimpostazione origine in corso: {0}</value>
+    <comment>{Locked="{0}"} Message displayed to inform the user about a repository source that is currently being reset. {0} is a placeholder replaced by the repository source name.</comment>
   </data>
   <data name="SourceTypeArgumentDescription" xml:space="preserve">
     <value>Tipo di origine</value>
@@ -599,7 +656,8 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
     <value>Aggiorna le origini correnti</value>
   </data>
   <data name="SourceUpdateOne" xml:space="preserve">
-    <value>Aggiornamento origine:</value>
+    <value>Aggiornamento origine in corso: {0}</value>
+    <comment>{Locked="{0}"} Message displayed to inform the user about a registered repository source that is currently being updated. {0} is a placeholder replaced by the repository source name.</comment>
   </data>
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>Filtra i risultati per tag</value>
@@ -620,16 +678,25 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
     <value>Mostra la versione dello strumento</value>
   </data>
   <data name="TooManyArgError" xml:space="preserve">
-    <value>Argomento fornito più volte di quanto consentito</value>
+    <value>Argomento fornito più volte di quanto consentito: '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides a command line argument more times than it is allowed. {0} is a placeholder replaced by the user's argument name input.</comment>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>È stato fornito più di un argomento sul comportamento di esecuzione</value>
+    <value>Sono stati specificati più argomenti del comportamento di esecuzione: '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides more than one execution behavior argument when installing an application package. {0} is a placeholder replaced by the user specified execution behaviors (e.g. 'silent|interactive').</comment>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>Si è verificato un errore imprevisto durante l'esecuzione del comando:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
-    <value>Comando non riconosciuto</value>
+    <value>Comando non riconosciuto: '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides an unrecognized command. {0} is a placeholder replaced by the user input.</comment>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>Aggiorna tutti i pacchetti installati alla versione più recente se disponibile</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>Non è stato trovato alcun aggiornamento applicabile.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
     <value>Aggiorna il pacchetto selezionato, trovato eseguendo la ricerca nell'elenco dei pacchetti installati o direttamente da un manifesto. Per impostazione predefinita, la query deve essere insensitively con l'ID, il nome o il moniker del pacchetto. Altri campi possono essere utilizzati passando l'opzione appropriata. Quando non vengono forniti argomenti, mostra i pacchetti con aggiornamenti disponibili</value>
@@ -639,8 +706,8 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
     <value>Mostra ed esegue gli aggiornamenti disponibili</value>
   </data>
   <data name="Usage" xml:space="preserve">
-    <value>uso</value>
-    <comment>The way to use the software</comment>
+    <value>utilizzo: {0}{1}</value>
+    <comment>{Locked="{0}","{1}"} Message displayed to provide the user with instructions on how to use a command. {0} is a placeholder replaced by the program name (e.g. 'winget'). {1} is a placeholder replaced by the pattern for using the selected command.</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
     <value>Convalida un manifesto con un insieme di linee guida rigorose. Queste hanno lo scopo di consentirti di controllare il tuo manifesto prima di inviarlo a un repository.</value>
@@ -667,10 +734,12 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
     <value>È richiesto il valore specificato prima del completamento</value>
   </data>
   <data name="GetManifestResultVersionNotFound" xml:space="preserve">
-    <value>Non sono state trovate versioni corrispondenti:</value>
+    <value>Non sono state trovate versioni corrispondenti: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user attempts to upgrade an application package to a version that was not found. {0} is a placeholder replaced by the user's provided upgrade package version.</comment>
   </data>
   <data name="OpenSourceFailedNoMatch" xml:space="preserve">
-    <value>Nessuna origine corrisponde al valore specificato:</value>
+    <value>Nessuna origine corrisponde al valore specificato: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user attempts to install or upgrade an application package from a repository source that was not found. {0} is a placeholder replaced by the user's repository source name input.</comment>
   </data>
   <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
     <value>Le origini configurate sono:</value>
@@ -683,17 +752,19 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
     <value>Trovato</value>
   </data>
   <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
-    <value>Il percorso è una directory:</value>
+    <value>Il percorso è una directory: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides a system path that is a directory. {0} is a placeholder replaced by the provided directory path.</comment>
   </data>
   <data name="VerifyFileFailedNotExist" xml:space="preserve">
-    <value>Il file non esiste:</value>
+    <value>Il file non esiste: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides a system file that does not exist. {0} is a placeholder replaced by the provided file path.</comment>
   </data>
   <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
     <value>Sono forniti argomenti sia per il manifesto locale che per la query di ricerca.</value>
   </data>
   <data name="Logs" xml:space="preserve">
-    <value>Log</value>
-    <comment>Diagnostic files containing information about application use.</comment>
+    <value>Log: {0}</value>
+    <comment>{Locked="{0}"} Label displayed for diagnostic files containing information about the application use. {0} is a placeholder replaced by the logs directory path.</comment>
   </data>
   <data name="InstallerBlockedByPolicy" xml:space="preserve">
     <value>Programma di installazione bloccato dai criteri</value>
@@ -705,7 +776,8 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
     <value>Un antivirus ha rilevato una infezione nel programma di installazione</value>
   </data>
   <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
-    <value>Errore durante il tentativo di aggiornare l'origine:</value>
+    <value>Non è stato possibile aggiornare l'origine: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when an attempt to update the repository source fails. {0} is a placeholder replaced by the repository source name.</comment>
   </data>
   <data name="UninstallCommandLongDescription" xml:space="preserve">
     <value>Disinstalla il pacchetto selezionato, trovato mediante la ricerca dell'elenco dei pacchetti installati o direttamente da un manifesto. Per impostazione predefinita, la query deve essere insensitively con l'ID, il nome o il moniker del pacchetto. Altri campi possono essere utilizzati passando l'opzione appropriata.</value>
@@ -728,7 +800,8 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
     <value>Disinstallazione interrotta</value>
   </data>
   <data name="UninstallFailedWithCode" xml:space="preserve">
-    <value>Disinstallazione non riuscita con codice di uscita:</value>
+    <value>Disinstallazione non riuscita con codice di uscita: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when an attempt to uninstall an application package fails. {0} is a placeholder replaced by an error code.</comment>
   </data>
   <data name="ExportCommandShortDescription" xml:space="preserve">
     <value>Esporta un elenco dei pacchetti installati</value>
@@ -756,16 +829,20 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
     <value>Impossibile installare uno o più pacchetti importati</value>
   </data>
   <data name="ImportSearchFailed" xml:space="preserve">
-    <value>Pacchetto non trovato per l'importazione:</value>
+    <value>Pacchetto non trovato per l'importazione: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user attempts to import an application package that was not found. {0} is a placeholder replaced by the import package name .</comment>
   </data>
   <data name="ImportSourceNotInstalled" xml:space="preserve">
-    <value>L'origine necessaria per l'importazione non è installata:</value>
+    <value>L'origine necessaria per l'importazione non è installata: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user attempts to import application package(s) from a repository source that is not installed. {0} is a placeholder replaced by the repository source name.</comment>
   </data>
   <data name="InstalledPackageNotAvailable" xml:space="preserve">
-    <value>Il pacchetto installato non è disponibile in alcuna origine:</value>
+    <value>Il pacchetto installato non è disponibile in alcuna origine: {0}</value>
+    <comment>{Locked="{0}"} Warning message displayed when the user attempts to export an installed application package that is not available from any repository source. {0} is a placeholder replaced by the installed package name.</comment>
   </data>
   <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
-    <value>La versione installata del pacchetto non è disponibile in alcuna origine:</value>
+    <value>La versione installata del pacchetto non è disponibile in alcuna origine: {0}{1}{2}</value>
+    <comment>{Locked="{0}","{1}","{2}"} Warning message displayed when the user attempts to export an installed application package with a version that is not available from any repository source. {0} is a placeholder replaced by the installed package identifier. {1} is a placeholder replaced by the installed package version. {2} is a placeholder replaced by the installed package channel.</comment>
   </data>
   <data name="NoPackagesInImportFile" xml:space="preserve">
     <value>Nessun pacchetto trovato nel file di importazione</value>
@@ -774,7 +851,8 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
     <value>Il file JSON non è valido</value>
   </data>
   <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
-    <value>Il pacchetto è già installato:</value>
+    <value>Il pacchetto è già installato: {0}</value>
+    <comment>{Locked="{0}"} Message displayed to inform the user that an import application package is already installed. {0} is a placeholder replaced by the package identifier.</comment>
   </data>
   <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
     <value>Ignora pacchetti non disponibili</value>
@@ -786,7 +864,8 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
     <value>Ignora versioni del pacchetto dal file di importazione</value>
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
-    <value>Il percorso non esiste:</value>
+    <value>Il percorso non esiste: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides a system path argument value that does not exist. {0} is a placeholder replaced by the user's provided path.</comment>
   </data>
   <data name="ImportFileHasInvalidSchema" xml:space="preserve">
     <value>Il file JSON non specifica uno schema riconosciuto.</value>
@@ -796,11 +875,12 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
     <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
   </data>
   <data name="InvalidArgumentValueError" xml:space="preserve">
-    <value>Il valore specificato per l'argomento '%1' non è valido. i valori validi sono</value>
-    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+    <value>Il valore specificato per l'argomento '{0}' non è valido. i valori validi sono: {1}</value>
+    <comment>{Locked="{0}","{1}"} Error message displayed when the user provides an invalid command line argument value. {0} is a placeholder replaced by the argument name. {1} is a placeholder replaced by a list of valid options.</comment>
   </data>
   <data name="DisabledByGroupPolicy" xml:space="preserve">
-    <value>Questa operazione è disattivata da criteri di gruppo</value>
+    <value>Operazione disabilitata da Criteri di gruppo: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user performs a command operation that is disabled by a group policy. {0} is a placeholder replaced by a group policy description.</comment>
   </data>
   <data name="PolicyAdditionalSources" xml:space="preserve">
     <value>Abilita altre origini di programma di installazione app di Windows</value>
@@ -845,8 +925,15 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
   <data name="PolicyEnableLocalManifests" xml:space="preserve">
     <value>Abilita file manifesto locali del programma di installazione app di Windows</value>
   </data>
+  <data name="PolicyEnableBypassCertificatePinningForMicrosoftStore" xml:space="preserve">
+    <value>Abilita il bypass del certificato aggiunto di origine di Windows Programma di installazione app Microsoft Store</value>
+  </data>
+  <data name="PolicyEnableLocalArchiveMalwareScanOverride" xml:space="preserve">
+    <value>Abilita l'override dell'analisi malware dell'archivio locale di Programma di installazione app di Windows</value>
+  </data>
   <data name="SettingsWarningField" xml:space="preserve">
-    <value>Campo:</value>
+    <value>Campo: {0}</value>
+    <comment>{Locked="{0}"} Warning message displayed when a user setting field has invalid syntax or semantics. {0} is a placeholder replaced by the setting field path.</comment>
   </data>
   <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
     <value>Formato del campo non valido.</value>
@@ -864,7 +951,8 @@ Possono essere configurati tramite il file di impostazioni ' winget settings '.<
     <value>Errore durante l'analisi del file:</value>
   </data>
   <data name="SettingsWarningValue" xml:space="preserve">
-    <value>Valore:</value>
+    <value>Valore: {0}</value>
+    <comment>{Locked="{0}"} Warning message displayed when a user setting value has invalid syntax or semantics. {0} is a placeholder replaced by the setting data value.</comment>
   </data>
   <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
     <value>Le seguenti funzionalità sperimentali sono in corso.
@@ -891,8 +979,8 @@ La configurazione è disabilitata a causa dei criteri di gruppo.</value>
     <comment>A source that the user is allowed to add.</comment>
   </data>
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
-    <value>Il valore specificato per l'argomento '%1' non è valido</value>
-    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+    <value>Il valore specificato per l'argomento '{0}' non è valido</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides an invalid command line argument value. {0} is a placeholder replaced by the argument name.</comment>
   </data>
   <data name="Cancelled" xml:space="preserve">
     <value>Annullato</value>
@@ -915,18 +1003,20 @@ La configurazione è disabilitata a causa dei criteri di gruppo.</value>
     <value>L'origine delle dipendenze non è stata trovata</value>
   </data>
   <data name="DependenciesFlowSourceTooManyMatches" xml:space="preserve">
-    <value>La ricerca del pacchetto produce più di un risultato.</value>
-    <comment>When node package id search yield too many matches</comment>
+    <value>La ricerca del pacchetto ha restituito più di un risultato: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when application packages search yield more than one result. {0} is a placeholder replaced by the dependency package identifier.</comment>
   </data>
   <data name="DependenciesFlowPackageVersionNotFound" xml:space="preserve">
-    <value>Ultima versione non trovata per il pacchetto</value>
-    <comment>When no suitable version found for the specific package.</comment>
+    <value>Ultima versione non trovata per il pacchetto: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when no suitable version found for the specific application package. {0} is a placeholder replaced by the package identifier.</comment>
   </data>
   <data name="DependenciesFlowNoInstallerFound" xml:space="preserve">
-    <value>Non sono stati trovati programmi di installazione</value>
+    <value>Non sono stati trovati programmi di installazione: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when no installer found for a manifest. {0} is a placeholder replaced by the manifest identifier.</comment>
   </data>
   <data name="DependenciesFlowNoMinVersion" xml:space="preserve">
-    <value>Versione minima richiesta non disponibile per il pacchetto</value>
+    <value>Versione minima richiesta non disponibile per il pacchetto: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the minimum required version is not available for an application package. {0} is a placeholder replaced by the package identifier.</comment>
   </data>
   <data name="DependenciesFlowNoMatches" xml:space="preserve">
     <value>Nessuna corrispondenza</value>
@@ -937,8 +1027,8 @@ La configurazione è disabilitata a causa dei criteri di gruppo.</value>
     <comment>Dependency graph has loop</comment>
   </data>
   <data name="DependenciesFlowNoSuitableInstallerFound" xml:space="preserve">
-    <value>Non è stato trovato alcun programma di installazione adatto per il manifesto</value>
-    <comment>Attempt to get preferred installer for manifest failed.</comment>
+    <value>Non è stato trovato alcun programma di installazione adatto per manifest: {0} {1}</value>
+    <comment>{Locked="{0}","{1}"} Error message displayed when an attempt to get a preferred installer for a manifest fails. {0} is a placeholder replaced by the manifest identifier. {1} is a placeholder replaced by the manifest version.</comment>
   </data>
   <data name="DependenciesManagementError" xml:space="preserve">
     <value>Errore durante l'elaborazione delle dipendenze del pacchetto. Continuare l'installazione?</value>
@@ -975,7 +1065,8 @@ La configurazione è disabilitata a causa dei criteri di gruppo.</value>
     <value>Accetta tutti i contratti di licenza per i pacchetti</value>
   </data>
   <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
-    <value>Per installare il pacchetto esportato occorre il contratto di licenza:</value>
+    <value>Il pacchetto esportato richiede il contratto di licenza per l'installazione: {0}</value>
+    <comment>{Locked="{0}"} Warning message displayed when an exported application package requires license agreement to install. {0} is a placeholder replaced by the package name.</comment>
   </data>
   <data name="PackageAgreementsPrompt" xml:space="preserve">
     <value>L'editore richiede la visualizzazione delle informazioni precedenti e l'accettazione dei contratti prima dell'installazione.
@@ -996,8 +1087,20 @@ Accetti le condizioni?</value>
   <data name="ShowLabelInstaller" xml:space="preserve">
     <value>Programma di installazione:</value>
   </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>Impostazioni locali del programma di installazione:</value>
+  </data>
   <data name="ShowLabelInstallerProductId" xml:space="preserve">
     <value>ID prodotto dello Store:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>SHA256 del programma di installazione:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>Tipo di programma di installazione:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>URL del programma di installazione:</value>
   </data>
   <data name="ShowLabelLicense" xml:space="preserve">
     <value>Licenza:</value>
@@ -1013,6 +1116,9 @@ Accetti le condizioni?</value>
   </data>
   <data name="ShowLabelPublisher" xml:space="preserve">
     <value>Editore:</value>
+  </data>
+  <data name="ShowLabelTags" xml:space="preserve">
+    <value>Tag:</value>
   </data>
   <data name="ShowLabelVersion" xml:space="preserve">
     <value>Versione:</value>
@@ -1045,8 +1151,8 @@ Accetti le condizioni?</value>
     <value>Accetta tutti i contratti di origine durante le operazioni di origine</value>
   </data>
   <data name="SourceAgreementsTitle" xml:space="preserve">
-    <value>Prima di usare l'origine '%1', è necessario visualizzare i contratti seguenti.</value>
-    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+    <value>Prima di usare l'origine `{0}`, è necessario visualizzare i contratti seguenti.</value>
+    <comment>{Locked="{0}"} Message displayed to inform the user that a repository source requires viewing agreements before using. {0} is a placeholder replaced by the repository source name.</comment>
   </data>
   <data name="SourceAgreementsPrompt" xml:space="preserve">
     <value>Accetti tutte le condizioni dei contratti di origine?</value>
@@ -1067,13 +1173,17 @@ Accetti le condizioni?</value>
     <value>L'intestazione facoltativa verrà ignorata perché non è applicabile per questa origine.</value>
   </data>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
-    <value>L'intestazione facoltativa non è applicabile senza specificare un'origine</value>
+    <value>L'intestazione facoltativa non è applicabile senza specificare un'origine: '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user performs an operation (e.g install) and provides the HTTP 'header' argument without specifying the repository source. {0} is a placeholder replaced by the header argument name.</comment>
   </data>
   <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
     <value>Data di rilascio:</value>
   </data>
   <data name="ShowLabelPublisherUrl" xml:space="preserve">
     <value>URL editore:</value>
+  </data>
+  <data name="ShowLabelPurchaseUrl" xml:space="preserve">
+    <value>URL acquisto:</value>
   </data>
   <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
     <value>URL supporto editore:</value>
@@ -1094,14 +1204,16 @@ Accetti le condizioni?</value>
     <value>URL note sulla versione:</value>
   </data>
   <data name="SearchFailureWarning" xml:space="preserve">
-    <value>Errore durante la ricerca nell'origine; i risultati non verranno inclusi:</value>
+    <value>Errore durante la ricerca nell'origine; i risultati non verranno inclusi: '{0}'</value>
+    <comment>{Locked="{0}"} Warning message displayed when searching a repository source fails. {0} is a placeholder replaced by the repository source name.</comment>
   </data>
   <data name="SearchFailureError" xml:space="preserve">
-    <value>Errore durante la ricerca nell'origine:</value>
+    <value>Errore durante la ricerca nell'origine: '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when searching a repository source fails. {0} is a placeholder replaced by the repository source name.</comment>
   </data>
   <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
-    <value>Questa funzionalità deve essere abilitata dagli amministratori. Per abilitarlo, eseguire 'winget settings --enable %1' come amministratore.</value>
-    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+    <value>Questa funzionalità deve essere abilitata dagli amministratori. Per abilitarlo, eseguire 'winget settings --enable {0}' come amministratore.</value>
+    <comment>{Locked="winget settings --enable", "{0}"}. Error message displayed when the user uses a feature that needs to be enabled by administrators. {0} is a placeholder replaced by the admin setting.</comment>
   </data>
   <data name="AdminSettingEnableDescription" xml:space="preserve">
     <value>Abilita l'impostazione amministratore specifica</value>
@@ -1110,7 +1222,8 @@ Accetti le condizioni?</value>
     <value>Disabilita l'impostazione di amministratore specifica</value>
   </data>
   <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
-    <value>Sono stati specificati troppi argomenti dell'impostazione di amministrazione</value>
+    <value>Sono stati specificati troppi argomenti dell'impostazione di amministrazione: '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides too many admin setting arguments. {0} is a placeholder replaced by the admin setting arguments (e.g. 'enable|disable').</comment>
   </data>
   <data name="AdminSettingEnabled" xml:space="preserve">
     <value>Impostazione di amministrazione abilitata.</value>
@@ -1120,6 +1233,9 @@ Accetti le condizioni?</value>
   </data>
   <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
     <value>L'applicazione è attualmente in esecuzione. Uscire dall'applicazione, quindi riprovare.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUseByApplication" xml:space="preserve">
+    <value>I file modificati dal programma di installazione sono attualmente utilizzati da un'applicazione diversa. Chiudere le applicazioni, quindi riprovare.</value>
   </data>
   <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
     <value>È già in corso un'altra installazione. Riprova più tardi.</value>
@@ -1135,6 +1251,9 @@ Accetti le condizioni?</value>
   </data>
   <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
     <value>Memoria insufficiente per l'installazione. Chiudi le altre applicazioni, quindi riprova.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInvalidParameter" xml:space="preserve">
+    <value>Uno dei parametri di installazione non è valido. Il log di installazione del pacchetto potrebbe contenere ulteriori dettagli.</value>
   </data>
   <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
     <value>Questa applicazione richiede la connettività Internet. Connettiti a una rete e riprova.</value>
@@ -1163,18 +1282,23 @@ Accetti le condizioni?</value>
   <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
     <value>I criteri dell'organizzazione impediscono l'installazione. Contattare l'amministratore.</value>
   </data>
+  <data name="InstallFlowReturnCodeSystemNotSupported" xml:space="preserve">
+    <value>La configurazione di sistema corrente non supporta l'installazione di questo pacchetto.</value>
+  </data>
   <data name="InstallAbandoned" xml:space="preserve">
     <value>Installazione interrotta</value>
   </data>
   <data name="InstallerFailedWithCode" xml:space="preserve">
-    <value>Programma di installazione non riuscito con codice di uscita:</value>
+    <value>Programma di installazione non riuscito con codice di uscita: '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the application installer fails. {0} is a placeholder replaced by an error code.</comment>
   </data>
   <data name="InstallerLogAvailable" xml:space="preserve">
-    <value>Il log del programma di installazione è disponibile all'indirizzo:</value>
+    <value>Il log del programma di installazione è disponibile in: '{0}'</value>
+    <comment>{Locked="{0}"} Message displayed to inform the user about the system path of a diagnostic files containing information about the installer. {0} is a placeholder replaced by the diagnostic file system path.</comment>
   </data>
   <data name="SearchFailureErrorListMatches" xml:space="preserve">
     <value>Sono stati trovati i pacchetti seguenti tra le origini di lavoro.
-Specificare uno di questi valori usando l'opzione '--source' per continuare.</value>
+Specificarne uno utilizzando l'opzione --source per continuare.</value>
     <comment>{Locked="--source"} "working sources" as in "sources that are working correctly"</comment>
   </data>
   <data name="SearchFailureErrorNoMatches" xml:space="preserve">
@@ -1186,8 +1310,8 @@ Specificare uno di questi valori usando l'opzione '--source' per continuare.</va
     <comment>{Locked="https://github.com/microsoft/winget-cli"}</comment>
   </data>
   <data name="WindowsPackageManager" xml:space="preserve">
-    <value>Windows Package Manager</value>
-    <comment>The product name.</comment>
+    <value>Gestione pacchetti Windows v{0}</value>
+    <comment>{Locked="{0}"} Label displaying the product name and version. {0} is a placeholder replaced by the product version.</comment>
   </data>
   <data name="ImportIgnorePackageVersionsArgumentDescription" xml:space="preserve">
     <value>Ignora versioni del pacchetto dal file di importazione</value>
@@ -1202,8 +1326,8 @@ Specificare uno di questi valori usando l'opzione '--source' per continuare.</va
     <value>La tecnologia di installazione della versione più recente specificata è diversa dalla versione corrente installata. Disinstallare il pacchetto e installare la versione più recente.</value>
   </data>
   <data name="WindowsPackageManagerPreview" xml:space="preserve">
-    <value>Gestione pacchetti Windows (Anteprima)</value>
-    <comment>The product name plus an indicator that this is a pre-release version.</comment>
+    <value>Gestione pacchetti Windows (Anteprima) v{0}</value>
+    <comment>{Locked="{0}"} Label displaying the preview product name and pre-release version. {0} is a placeholder replaced by the product version.</comment>
   </data>
   <data name="InstallArchitectureArgumentDescription" xml:space="preserve">
     <value>Selezionare l'architettura da installare</value>
@@ -1223,17 +1347,29 @@ Specificare uno di questi valori usando l'opzione '--source' per continuare.</va
     <value>il pacchetto ha un numero di versione che non può essere determinato. L'uso di "--include-unknown" può mostrare altri risultati.</value>
     <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions.</comment>
   </data>
+  <data name="UpgradeUnknownVersionCount" xml:space="preserve">
+    <value>i pacchetti contengono numeri di versione che non possono essere determinati. Usare "--include-unknown" per visualizzare tutti i risultati.</value>
+    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions. </comment>
+  </data>
+  <data name="UpgradeRequireExplicitCount" xml:space="preserve">
+    <value>il pacchetto/i è aggiunto e deve essere aggiornato in modo esplicito.</value>
+    <comment>This string is preceded by a (integer) number of packages that require explicit upgrades.</comment>
+  </data>
   <data name="InvalidArgumentWithoutQueryError" xml:space="preserve">
     <value>Gli argomenti specificati possono essere usati solo con una query.</value>
   </data>
   <data name="SystemArchitecture" xml:space="preserve">
-    <value>Architettura di sistema</value>
+    <value>Architettura di sistema: {0}</value>
+    <comment>{Locked="{0}"} Label displayed for the system architecture. {0} is a placeholder replaced by the value of the system architecture (e.g. X64).</comment>
   </data>
   <data name="PreserveArgumentDescription" xml:space="preserve">
     <value>Conserva tutti i file e le directory creati dal pacchetto (portabile)</value>
   </data>
   <data name="PurgeArgumentDescription" xml:space="preserve">
     <value>Elimina tutti i file e le directory nella directory dei pacchetti (portabile)</value>
+  </data>
+  <data name="PressEnterToContinue" xml:space="preserve">
+    <value>Premi INVIO per continuare</value>
   </data>
   <data name="RenameArgumentDescription" xml:space="preserve">
     <value>Valore per rinominare il file eseguibile (portabile)</value>
@@ -1264,19 +1400,33 @@ Specificare uno di questi valori usando l'opzione '--source' per continuare.</va
     <value>Il nome file specificato non è un nome di file valido</value>
   </data>
   <data name="OverwritingExistingFileAtMessage" xml:space="preserve">
-    <value>Sovrascrittura file esistente:</value>
+    <value>Sovrascrittura file esistente: {0}</value>
+    <comment>{Locked="{0}"} Warning message displayed to inform the user that an existing file is being overwritten. {0} is a placeholder replaced by the file system path.</comment>
   </data>
   <data name="NoPackageSelectionArgumentProvided" xml:space="preserve">
     <value>Non è stato specificato alcun argomento di selezione pacchetto; per informazioni dettagliate sulla ricerca di un pacchetto, vedere la Guida.</value>
+  </data>
+  <data name="PortableAliasAdded" xml:space="preserve">
+    <value>Alias della riga di comando aggiunto:</value>
   </data>
   <data name="PortableInstallFailed" xml:space="preserve">
     <value>Installazione portabile non riuscita; Pulizia...</value>
   </data>
   <data name="BothPurgeAndPreserveFlagsProvided" xml:space="preserve">
-    <value>Sono stati specificati entrambi gli argomenti 'purge' e 'preserve'</value>
+    <value>Vengono forniti gli argomenti --purge e --preserve</value>
+    <comment>{Locked="--purge"} {Locked="--preserve"}</comment>
+  </data>
+  <data name="PortableHashMismatchOverridden" xml:space="preserve">
+    <value>Il pacchetto portatile è stato modificato; procedimento causato da --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="PortableHashMismatchOverrideRequired" xml:space="preserve">
+    <value>Impossibile rimuovere il pacchetto portabile perché è stato modificato; per eseguire la sostituzione di questo controllo usare --force</value>
+    <comment>{Locked="--force"}</comment>
   </data>
   <data name="FilesRemainInInstallDirectory" xml:space="preserve">
-    <value>I file rimangono nella directory di installazione:</value>
+    <value>I file rimangono nella directory di installazione: {0}</value>
+    <comment>{Locked="{0}"} Warning message displayed when files remain in install directory. {0} is a placeholder replaced by the directory path.</comment>
   </data>
   <data name="PurgeInstallDirectory" xml:space="preserve">
     <value>Eliminazione della directory di installazione in corso...</value>
@@ -1291,6 +1441,168 @@ Specificare uno di questi valori usando l'opzione '--source' per continuare.</va
     <value>Documentazione:</value>
   </data>
   <data name="Notes" xml:space="preserve">
-    <value>Note:</value>
+    <value>Note: {0}</value>
+    <comment>{Locked="{0}"} Label displayed for installation notes. {0} is a placeholder replaced by installation notes.</comment>
+  </data>
+  <data name="ShowLabelInstallationNotes" xml:space="preserve">
+    <value>Note sull'installazione:</value>
+  </data>
+  <data name="UnsupportedArgument" xml:space="preserve">
+    <value>Un argomento specificato non è supportato per questo pacchetto</value>
+  </data>
+  <data name="ExtractArchiveFailed" xml:space="preserve">
+    <value>Non è stato possibile estrarre il contenuto dell'archivio</value>
+  </data>
+  <data name="NestedInstallerNotFound" xml:space="preserve">
+    <value>Il file del programma di installazione annidato non esiste. Assicurarsi che il percorso relativo specificato del programma di installazione annidato corrisponda a: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when nested installer file does not exist. {0} is a placeholder replaced by the nested installer file path.</comment>
+  </data>
+  <data name="InvalidPathToNestedInstaller" xml:space="preserve">
+    <value>Il percorso relativo del file del programma di installazione annidato non è valido. il percorso punta a un percorso esterno alla directory di installazione</value>
+  </data>
+  <data name="NestedInstallerNotSpecified" xml:space="preserve">
+    <value>Nessun programma di installazione annidato specificato per questo pacchetto</value>
+  </data>
+  <data name="MultipleNonPortableNestedInstallersSpecified" xml:space="preserve">
+    <value>È possibile specificare un solo programma di installazione annidato non portabile per un programma di installazione del file compresso</value>
+  </data>
+  <data name="IncompatibleArgumentsProvided" xml:space="preserve">
+    <value>Sono stati specificati argomenti della riga di comando incompatibili</value>
+  </data>
+  <data name="UpgradeAvailableForPinned" xml:space="preserve">
+    <value>Per i pacchetti seguenti è disponibile un aggiornamento, ma è necessario un targeting esplicito per l'aggiornamento:</value>
+    <comment>"require explicit targeting for upgrade" means that the package will not be upgraded with all others unless an extra flag is added, or the package is mentioned explicitly</comment>
+  </data>
+  <data name="Downloading" xml:space="preserve">
+    <value>Download in corso</value>
+    <comment>Label displayed while downloading an application installer.</comment>
+  </data>
+  <data name="NestedInstallerNotSupported" xml:space="preserve">
+    <value>Il tipo di programma di installazione annidato non è supportato</value>
+  </data>
+  <data name="InstallerAbortsTerminal" xml:space="preserve">
+    <value>Questo programma di installazione riavvia il terminale o la shell</value>
+  </data>
+  <data name="InstallerRequiresInstallLocation" xml:space="preserve">
+    <value>Questo pacchetto richiede un percorso di installazione</value>
+  </data>
+  <data name="InstallersAbortTerminal" xml:space="preserve">
+    <value>I programmi di installazione seguenti riavviano il terminale o la shell:</value>
+  </data>
+  <data name="InstallersRequireInstallLocation" xml:space="preserve">
+    <value>I seguenti programmi di installazione richiedono un percorso di installazione:</value>
+  </data>
+  <data name="PromptForInstallRoot" xml:space="preserve">
+    <value>Specificare la radice di installazione:</value>
+  </data>
+  <data name="PromptToProceed" xml:space="preserve">
+    <value>Continuare?</value>
+  </data>
+  <data name="ReportIdentityForAgreements" xml:space="preserve">
+    <value>Accordi per</value>
+    <comment>This will be followed by a package name, and then a list of license agreements</comment>
+  </data>
+  <data name="InstallLocationNotProvided" xml:space="preserve">
+    <value>Il percorso di installazione è richiesto dal pacchetto, ma non è stato specificato</value>
+  </data>
+  <data name="DisableInteractivityArgumentDescription" xml:space="preserve">
+    <value>Disabilita prompt interattivi</value>
+    <comment>Description for a command line argument, shown next to it in the help</comment>
+  </data>
+  <data name="ConvertInstallFlowToUpgrade" xml:space="preserve">
+    <value>È stato trovato un pacchetto esistente già installato. Tentativo di aggiornamento del pacchetto installato...</value>
+  </data>
+  <data name="ForceArgumentDescription" xml:space="preserve">
+    <value>Esegui direttamente il comando e continua con problemi non correlati alla sicurezza</value>
+    <comment>Description for a command line argument, shown next to it in the help</comment>
+  </data>
+  <data name="PortablePackageAlreadyExists" xml:space="preserve">
+    <value>Esiste già un pacchetto portabile da un'origine diversa</value>
+  </data>
+  <data name="ExtractArchiveSucceeded" xml:space="preserve">
+    <value>Estrazione del file compresso completata con successo.</value>
+  </data>
+  <data name="ExtractingArchive" xml:space="preserve">
+    <value>Estrazione del file compresso</value>
+  </data>
+  <data name="ArchiveFailedMalwareScan" xml:space="preserve">
+    <value>L'analisi dell'archivio ha rilevato malware. Per eseguire l'override di questo controllo, usare --ignore-local-archive-malware-scan</value>
+    <comment>{Locked="--ignore-local-archive-malware-scan"}</comment>
+  </data>
+  <data name="ArchiveFailedMalwareScanOverridden" xml:space="preserve">
+    <value>L’analisi dell'archivio ha rilevato un malware. Operazione in corso a causa di --ignore-local-archive-malware-scan</value>
+    <comment>{Locked="--ignore-local-archive-malware-scan"}</comment>
+  </data>
+  <data name="NoUpgradeArgumentDescription" xml:space="preserve">
+    <value>Ignora l'aggiornamento se esiste già una versione installata</value>
+  </data>
+  <data name="PackageAlreadyInstalled" xml:space="preserve">
+    <value>È già installata una versione del pacchetto. Installazione annullata.</value>
+  </data>
+  <data name="EnableAdminSettingFailed" xml:space="preserve">
+    <value>Impossibile abilitare {0}. Questa impostazione è controllata dai criteri. Per ulteriori informazioni, contattare l'amministratore di sistema.</value>
+    <comment>{Locked="{0}"} The value will be replaced with the feature name</comment>
+  </data>
+  <data name="DisableAdminSettingFailed" xml:space="preserve">
+    <value>Impossibile disabilitare {0}. Questa impostazione è controllata dai criteri. Per ulteriori informazioni, contattare l'amministratore di sistema.</value>
+    <comment>{Locked="{0}"} The value will be replaced with the feature name</comment>
+  </data>
+  <data name="PinAddCommandLongDescription" xml:space="preserve">
+    <value>Aggiungi un nuovo PIN. Un PIN può limitare la Gestione pacchetti Windows dall'aggiornamento di un pacchetto a intervalli di versioni specifici o impedire l'aggiornamento totale del pacchetto. È possibile che un pacchetto aggiunto venga aggiornato automaticamente e che venga aggiornato dall'esterno del Gestione pacchetti Windows. Per impostazione predefinita, è possibile aggiornare un pacchetto aggiunto menzionandolo in modo esplicito nel comando 'upgrade' o aggiungendo il flag '--include-pinned' a 'winget upgrade --all'.</value>
+    <comment>{Locked{"'upgrade'"} Locked{"--include-pinned"} Locked{"winget upgrade --all"}</comment>
+  </data>
+  <data name="PinAddCommandShortDescription" xml:space="preserve">
+    <value>Aggiungi un nuovo pin</value>
+  </data>
+  <data name="PinCommandLongDescription" xml:space="preserve">
+    <value>Gestione dei pin dei pacchetti con i sotto-comandi. Il pin può limitare l'aggiornamento di un pacchetto da parte di Gestione pacchetti Windows a intervalli specifici di versioni o può impedire l'aggiornamento del pacchetto stesso. Un pacchetto con il pin può comunque aggiornarsi da solo ed essere aggiornato dall'esterno di Gestione pacchetti Windows.</value>
+  </data>
+  <data name="PinCommandShortDescription" xml:space="preserve">
+    <value>Gestisci i pin del pacchetto</value>
+  </data>
+  <data name="PinListCommandLongDescription" xml:space="preserve">
+    <value>Elenca tutti i pin correnti o i dettagli completi di un pin specifico.</value>
+  </data>
+  <data name="PinListCommandShortDescription" xml:space="preserve">
+    <value>Elenca i pin correnti</value>
+  </data>
+  <data name="PinRemoveCommandLongDescription" xml:space="preserve">
+    <value>Rimuovi un pin specifico del pacchetto.</value>
+  </data>
+  <data name="PinRemoveCommandShortDescription" xml:space="preserve">
+    <value>Rimuovi un pin del pacchetto</value>
+  </data>
+  <data name="PinResetCommandLongDescription" xml:space="preserve">
+    <value>Reimposta tutti i pin esistenti.</value>
+  </data>
+  <data name="PinResetCommandShortDescription" xml:space="preserve">
+    <value>Reimposta i pin</value>
+  </data>
+  <data name="BothGatedVersionAndBlockingFlagProvided" xml:space="preserve">
+    <value>Sono stati specificati sia gli argomenti di versione che gli argomenti '--blocking'</value>
+    <comment>{Locked="--blocking"}</comment>
+  </data>
+  <data name="GatedVersionArgumentDescription" xml:space="preserve">
+    <value>Versione a cui aggiungere il pacchetto. È possibile usare il carattere jolly '*' come ultima parte della versione</value>
+  </data>
+  <data name="PinAddBlockingArgumentDescription" xml:space="preserve">
+    <value>Blocca l'aggiornamento fino a quando il pin non viene rimosso, evitando la sostituzione degli argomenti</value>
+  </data>
+  <data name="SettingsExportCommandLongDescription" xml:space="preserve">
+    <value>Esporta le impostazioni come JSON</value>
+  </data>
+  <data name="SettingsExportCommandShortDescription" xml:space="preserve">
+    <value>Impostazioni di esportazione</value>
+  </data>
+  <data name="UserSettings" xml:space="preserve">
+    <value>Impostazioni utente: {0}</value>
+    <comment>{Locked="{0}"} Label displayed for the file containing the user settings. {0} is a placeholder replaced by the user settings file path.</comment>
+  </data>
+  <data name="SettingsWarningUsingDefault" xml:space="preserve">
+    <value>Non è stato possibile caricare il file delle impostazioni. Utilizzo dei valori predefiniti.</value>
+  </data>
+  <data name="InstalledScopeArgumentDescription" xml:space="preserve">
+    <value>Selezionare il filtro dell'ambito del pacchetto installato (utente o computer)</value>
+    <comment>This argument allows the user to select installed packages for just the user or for the entire machine.</comment>
   </data>
 </root>

@@ -31,18 +31,26 @@ Se si disabilita questa impostazione, gli utenti non saranno in grado di abilita
 Se si Abilita o non si configura questa impostazione, gli utenti potranno installare pacchetti con manifesti locali tramite Windows Gestione pacchetti.
 
 Se si disabilita questa impostazione, gli utenti non saranno in grado di installare pacchetti con manifesti locali tramite Windows Gestione pacchetti.</string>
-      <string id="EnableBypassCertificatePinningForMicrosoftStore">Enable App Installer Microsoft Store Source Pinned Certificate Bypass</string>
-      <string id="EnableBypassCertificatePinningForMicrosoftStoreExplanation">This policy controls whether the Windows Package Manager can be configured to disable the requirement to use a pinned certificate for the Microsoft Store source.
+      <string id="EnableBypassCertificatePinningForMicrosoftStore">Abilita il bypass del certificato di origine del programma di installazione app Microsoft Store</string>
+      <string id="EnableBypassCertificatePinningForMicrosoftStoreExplanation">Questo criterio consente di stabilire se Gestione pacchetti Windows convaliderà la corrispondenza dell'hash del certificato Microsoft Store con un certificato Microsoft Store noto quando si avvia una connessione all'origine Microsoft Store. 
+Se si abilita questo criterio, Gestione pacchetti Windows ignorerà la convalida del certificato Microsoft Store. 
 
-If you enable or do not configure this setting, users will be able to bypass the pinned certificate used to validate the Microsoft Store source.
+Se si disabilita questo criterio, Gestione pacchetti Windows convaliderà il certificato Microsoft Store usato affinché sia valido e appartenga a Microsoft Store prima di comunicare con l'origine Microsoft Store.
 
-If you disable this setting, users will not be able to bypass the pinned certificate used to validate the Microsoft Store source.</string>
+Se non si configura questo criterio, verranno rispettate le impostazioni dell'amministratore di Gestione pacchetti Windows.</string>
       <string id="EnableHashOverride">Abilita sostituzione hash del programma di installazione app</string>
       <string id="EnableHashOverrideExplanation">Questa impostazione dei criteri consente di specificare se Windows Gestione pacchetti può essere configurato per abilitare la possibilità di ignorare la convalida di sicurezza SHA256 nelle impostazioni.
 
 Se si Abilita o non si configura questa impostazione dei criteri, gli utenti potranno abilitare la funzionalità di poter ignorare la convalida della sicurezza SHA256 nelle impostazioni di Windows Gestione pacchetti.
 
 Se si disabilita questa impostazione dei criteri, gli utenti non potranno abilitare la funzionalità di ignorare la convalida della sicurezza SHA256 nelle impostazioni di Windows Gestione pacchetti.</string>
+      <string id="EnableLocalArchiveMalwareScanOverride">Abilita l'override dell’analisi malware dell'archivio locale</string>
+      <string id="EnableLocalArchiveMalwareScanOverrideExplanation">Questo criterio consente di controllare la possibilità di eseguire l'override delle analisi di vulnerabilità malware durante l'installazione di un file di archivio usando un manifesto locale usando gli argomenti della riga di comando.
+Se si abilita questo criterio, gli utenti potranno eseguire l'override dell'analisi antimalware durante l'installazione di un manifesto locale di un file di archivio.
+
+Se si disabilita questo criterio, gli utenti non potranno eseguire l'override dell'analisi malware di un file di archivio durante l'installazione con un manifesto locale.
+
+Se non si configura questo criterio, le impostazioni dell'amministratore di Gestione pacchetti Windows saranno conformi.</string>
       <string id="EnableDefaultSource">Abilita origine predefinita del programma di installazione app</string>
       <string id="EnableDefaultSourceExplanation">Questo criterio controlla l'origine predefinita inclusa in Gestione pacchetti Windows.
 

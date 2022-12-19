@@ -31,18 +31,26 @@ Si vous désactivez ce paramètre, les utilisateurs ne peuvent pas activer les f
 Si vous activez ou ne configurez pas ce paramètre, les utilisateurs peuvent installer des packages avec des manifestes locaux à l’aide du gestionnaire de packages Windows.
 
 Si vous désactivez ce paramètre, les utilisateurs ne peuvent pas installer de packages avec des manifestes locaux à l’aide du gestionnaire de packages Windows.</string>
-      <string id="EnableBypassCertificatePinningForMicrosoftStore">Enable App Installer Microsoft Store Source Pinned Certificate Bypass</string>
-      <string id="EnableBypassCertificatePinningForMicrosoftStoreExplanation">This policy controls whether the Windows Package Manager can be configured to disable the requirement to use a pinned certificate for the Microsoft Store source.
+      <string id="EnableBypassCertificatePinningForMicrosoftStore">Activer Programme d'installation d'application Microsoft Store contournement de la validation du certificat source</string>
+      <string id="EnableBypassCertificatePinningForMicrosoftStoreExplanation">This policy controls whether the Windows Package Manager will validate the Microsoft Store certificate hash matches to a known Microsoft Store certificate when initiating a connection to the Microsoft Store Source. 
+If you enable this policy, the Windows Package Manager will bypass the Microsoft Store certificate validation. 
 
-If you enable or do not configure this setting, users will be able to bypass the pinned certificate used to validate the Microsoft Store source.
+If you disable this policy, the Windows Package Manager will validate the Microsoft Store certificate used is valid and belongs to the Microsoft Store before communicating with the Microsoft Store source.
 
-If you disable this setting, users will not be able to bypass the pinned certificate used to validate the Microsoft Store source.</string>
+If you do not configure this policy, the Windows Package Manager administrator settings will be adhered to.</string>
       <string id="EnableHashOverride">Activer le remplacement de code de hachage du Programme d’installation de l’application</string>
       <string id="EnableHashOverrideExplanation">Cette stratégie détermine si les utilisateurs peuvent configurer le Gestionnaire de package Windows ou non pour activer la fonction de remplacement de la validation de sécurité SHA256 dans les paramètres.
 
 Si vous activez ou ne configurez pas cette stratégie, les utilisateurs pourront activer la fonction de remplacement la validation de sécurité SHA256 dans les paramètres du Gestionnaire de package Windows.
 
 Si vous désactivez cette stratégie, les utilisateurs ne pourront pas activer la fonction de remplacement la validation de sécurité SHA256 dans les paramètres du Gestionnaire de package Windows.</string>
+      <string id="EnableLocalArchiveMalwareScanOverride">Activer le remplacement de l’analyse des programmes malveillants des archives locales Windows Programme d'installation d'application</string>
+      <string id="EnableLocalArchiveMalwareScanOverrideExplanation">Cette stratégie contrôle la possibilité de remplacer les analyses de vulnérabilités de programmes malveillants lors de l’installation d’un fichier d’archive à l’aide d’un manifeste local à l’aide des arguments de ligne de commande.
+Si vous activez ce paramètre de stratégie, les utilisateurs peuvent remplacer l’analyse des programmes malveillants lors de l’installation d’un manifeste local d’un fichier d’archive.
+
+Si vous désactivez cette stratégie, les utilisateurs ne peuvent pas remplacer l’analyse des programmes malveillants d’un fichier d’archive lors de l’installation à l’aide d’un manifeste local.
+
+Si vous ne configurez pas cette stratégie, les paramètres d’administrateur Gestionnaire de package Windows sont conformes.</string>
       <string id="EnableDefaultSource">Activer la source par défaut du Programme d'installation d'application</string>
       <string id="EnableDefaultSourceExplanation">Cette stratégie contrôle la source par défaut incluse dans le Gestionnaire de package Windows.
 

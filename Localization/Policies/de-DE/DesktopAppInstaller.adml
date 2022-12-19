@@ -31,18 +31,26 @@ Wenn Sie diese Einstellung deaktivieren, können Benutzer Experiment elle Featur
 Wenn Sie diese Einstellung aktivieren oder nicht konfigurieren, können Benutzer Pakete mit lokalen Manifeste mithilfe des Windows-Paket-Manager installieren.
 
 Wenn Sie diese Einstellung deaktivieren, können Benutzer keine Pakete mit lokalen Manifeste unter Verwendung des Windows-Paket-Manager installieren.</string>
-      <string id="EnableBypassCertificatePinningForMicrosoftStore">Enable App Installer Microsoft Store Source Pinned Certificate Bypass</string>
-      <string id="EnableBypassCertificatePinningForMicrosoftStoreExplanation">This policy controls whether the Windows Package Manager can be configured to disable the requirement to use a pinned certificate for the Microsoft Store source.
+      <string id="EnableBypassCertificatePinningForMicrosoftStore">Enable App Installer Microsoft Store Source Certificate Validation Bypass</string>
+      <string id="EnableBypassCertificatePinningForMicrosoftStoreExplanation">This policy controls whether the Windows Package Manager will validate the Microsoft Store certificate hash matches to a known Microsoft Store certificate when initiating a connection to the Microsoft Store Source. 
+If you enable this policy, the Windows Package Manager will bypass the Microsoft Store certificate validation. 
 
-If you enable or do not configure this setting, users will be able to bypass the pinned certificate used to validate the Microsoft Store source.
+If you disable this policy, the Windows Package Manager will validate the Microsoft Store certificate used is valid and belongs to the Microsoft Store before communicating with the Microsoft Store source.
 
-If you disable this setting, users will not be able to bypass the pinned certificate used to validate the Microsoft Store source.</string>
+If you do not configure this policy, the Windows Package Manager administrator settings will be adhered to.</string>
       <string id="EnableHashOverride">Hash-Überschreibung für den App-Installer aktivieren</string>
       <string id="EnableHashOverrideExplanation">Diese Richtlinie steuert, ob der Windows-Paket-Manager so konfiguriert werden kann, dass die Fähigkeit „SHA256-Sicherheitsvalidierung überschreiben“ in den Einstellungen aktiviert werden kann.
 
 Wenn Sie diese Richtlinie aktivieren oder nicht konfigurieren, können Benutzer die Fähigkeit „SHA256-Sicherheitsvalidierung überschreiben“ in den Windows-Paket-Manager-Einstellungen aktivieren.
 
 Wenn Sie diese Richtlinie deaktivieren, können Benutzer die Fähigkeit „SHA256-Sicherheitsvalidierung überschreiben“ in den Windows-Paket-Manager-Einstellungen nicht aktivieren.</string>
+      <string id="EnableLocalArchiveMalwareScanOverride">Enable App Installer Local Archive Malware Scan Override</string>
+      <string id="EnableLocalArchiveMalwareScanOverrideExplanation">Diese Richtlinie steuert die Möglichkeit, Überprüfungen auf Sicherheitsrisiken durch Schadsoftware außer Kraft zu setzen, wenn eine Archivdatei mithilfe eines lokalen Manifests mithilfe der Befehlszeilenargumente installiert wird.
+Wenn Sie diese Richtlinie aktivieren, können Benutzer die Überprüfung auf Schadsoftware außer Kraft setzen, wenn sie eine lokale Manifestinstallation einer Archivdatei ausführen.
+
+Wenn Sie diese Richtlinie deaktivieren, können Benutzer die Schadsoftwareüberprüfung einer Archivdatei bei der Installation mithilfe eines lokalen Manifests nicht außer Kraft setzen.
+
+Wenn Sie diese Richtlinie nicht konfigurieren, werden die Windows-Paket-Manager Administratoreinstellungen eingehalten.</string>
       <string id="EnableDefaultSource">Standardquelle für den App-Installer aktivieren</string>
       <string id="EnableDefaultSourceExplanation">Diese Richtlinie steuert die Standardquelle, die im Windows-Paket-Manager enthalten ist.
 
