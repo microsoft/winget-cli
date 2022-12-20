@@ -985,7 +985,7 @@ namespace AppInstallerCLIE2ETests.PowerShell
         }
 
         /// <summary>
-        /// Test Set-WinGetUserSettings when the local settings file already have the schmema property. It shouldn't
+        /// Test Set-WinGetUserSettings when the local settings file already have the schema property. It shouldn't
         /// be added twice.
         /// </summary>
         [Test]
