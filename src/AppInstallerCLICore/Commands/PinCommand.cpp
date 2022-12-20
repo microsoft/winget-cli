@@ -123,6 +123,7 @@ namespace AppInstaller::CLI
             Workflow::SearchSourceForSingle <<
             Workflow::HandleSearchResultFailures <<
             Workflow::EnsureOneMatchFromSearchResult(false) <<
+            Workflow::GetInstalledPackageVersion <<
             Workflow::ReportPackageIdentity <<
             Workflow::OpenPinningIndex <<
             Workflow::SearchPin <<
@@ -194,6 +195,7 @@ namespace AppInstaller::CLI
             Workflow::SearchSourceForSingle <<
             Workflow::HandleSearchResultFailures <<
             Workflow::EnsureOneMatchFromSearchResult(false) <<
+            Workflow::GetInstalledPackageVersion <<
             Workflow::ReportPackageIdentity <<
             Workflow::OpenPinningIndex <<
             Workflow::SearchPin <<

@@ -54,7 +54,6 @@ namespace AppInstaller::CLI::Workflow
 
     void SearchPin(Execution::Context& context)
     {
-        AICLI_LOG(CLI, Info, << "SEARCHING PIN");
         auto package = context.Get<Execution::Data::Package>();
         std::vector<Pinning::Pin> pins;
 
@@ -81,6 +80,12 @@ namespace AppInstaller::CLI::Workflow
     void AddPin(Execution::Context& context)
     {
         auto package = context.Get<Execution::Data::Package>();
+        auto installedVersion = context.Get<Execution::Data::InstalledPackageVersion>();
+        if (!installedVersion)
+        {
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND);
+        }
+
         std::vector<Pinning::Pin> pins;
 
         // TODO: We should support querying the multiple sources for a package, instead of just one
@@ -89,8 +94,7 @@ namespace AppInstaller::CLI::Workflow
         Pinning::PinKey pinKey{
             availableVersion->GetProperty(PackageVersionProperty::Id).get(),
             availableVersion->GetProperty(PackageVersionProperty::SourceIdentifier).get() };
-        auto installedVersion = package->GetInstalledVersion()->GetProperty(PackageVersionProperty::Version);
-        auto pin = CreatePin(context, pinKey.PackageId, pinKey.SourceId, installedVersion);
+        auto pin = CreatePin(context, pinKey.PackageId, pinKey.SourceId, installedVersion->GetProperty(PackageVersionProperty::Version));
         AICLI_LOG(CLI, Info, << "Adding pin with type " << ToString(pin.GetType()) << " for package [" << pin.GetPackageId() << "] from source [" << pin.GetSourceId() << "]");
 
 
