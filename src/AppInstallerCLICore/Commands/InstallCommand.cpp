@@ -86,9 +86,9 @@ namespace AppInstaller::CLI
         }
     }
 
-    Utility::LocIndString InstallCommand::HelpLink() const
+    Utility::LocIndView InstallCommand::HelpLink() const
     {
-        return "https://aka.ms/winget-command-install"_lis;
+        return "https://aka.ms/winget-command-install"_liv;
     }
 
     void InstallCommand::ValidateArgumentsInternal(Args& execArgs) const

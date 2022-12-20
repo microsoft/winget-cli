@@ -82,9 +82,9 @@ namespace AppInstaller::CLI
         }
     }
 
-    Utility::LocIndString UninstallCommand::HelpLink() const
+    Utility::LocIndView UninstallCommand::HelpLink() const
     {
-        return "https://aka.ms/winget-command-uninstall"_lis;
+        return "https://aka.ms/winget-command-uninstall"_liv;
     }
 
     void UninstallCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const

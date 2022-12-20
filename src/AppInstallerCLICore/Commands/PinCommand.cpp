@@ -13,7 +13,7 @@ namespace AppInstaller::CLI
     using namespace AppInstaller::Utility::literals;
     using namespace std::string_view_literals;
 
-    Utility::LocIndString s_PinCommand_HelpLink = "https://aka.ms/winget-command-pin"_lis;
+    Utility::LocIndView s_PinCommand_HelpLink = "https://aka.ms/winget-command-pin"_liv;
 
     std::vector<std::unique_ptr<Command>> PinCommand::GetCommands() const
     {
@@ -35,7 +35,7 @@ namespace AppInstaller::CLI
         return { Resource::String::PinCommandLongDescription };
     }
 
-    Utility::LocIndString PinCommand::HelpLink() const
+    Utility::LocIndView PinCommand::HelpLink() const
     {
         return s_PinCommand_HelpLink;
     }
@@ -89,7 +89,7 @@ namespace AppInstaller::CLI
         }
     }
 
-    Utility::LocIndString PinAddCommand::HelpLink() const
+    Utility::LocIndView PinAddCommand::HelpLink() const
     {
         return s_PinCommand_HelpLink;
     }
@@ -150,7 +150,7 @@ namespace AppInstaller::CLI
         }
     }
 
-    Utility::LocIndString PinRemoveCommand::HelpLink() const
+    Utility::LocIndView PinRemoveCommand::HelpLink() const
     {
         return s_PinCommand_HelpLink;
     }
@@ -202,7 +202,7 @@ namespace AppInstaller::CLI
         }
     }
 
-    Utility::LocIndString PinListCommand::HelpLink() const
+    Utility::LocIndView PinListCommand::HelpLink() const
     {
         return s_PinCommand_HelpLink;
     }
@@ -230,7 +230,7 @@ namespace AppInstaller::CLI
         return { Resource::String::PinResetCommandLongDescription };
     }
 
-    Utility::LocIndString PinResetCommand::HelpLink() const
+    Utility::LocIndView PinResetCommand::HelpLink() const
     {
         return s_PinCommand_HelpLink;
     }

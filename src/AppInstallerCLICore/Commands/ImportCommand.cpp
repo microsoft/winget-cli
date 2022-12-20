@@ -33,9 +33,9 @@ namespace AppInstaller::CLI
         return { Resource::String::ImportCommandLongDescription };
     }
 
-    Utility::LocIndString ImportCommand::HelpLink() const
+    Utility::LocIndView ImportCommand::HelpLink() const
     {
-        return "https://aka.ms/winget-command-import"_lis;
+        return "https://aka.ms/winget-command-import"_liv;
     }
 
     void ImportCommand::ExecuteInternal(Execution::Context& context) const

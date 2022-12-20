@@ -29,9 +29,9 @@ namespace AppInstaller::CLI
         return { Resource::String::CompleteCommandLongDescription };
     }
 
-    Utility::LocIndString CompleteCommand::HelpLink() const
+    Utility::LocIndView CompleteCommand::HelpLink() const
     {
-        return "https://aka.ms/winget-command-complete"_lis;
+        return "https://aka.ms/winget-command-complete"_liv;
     }
 
     void CompleteCommand::ExecuteInternal(Execution::Context& context) const

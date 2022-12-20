@@ -16,7 +16,7 @@ namespace AppInstaller::CLI
         constexpr Utility::LocIndView s_ArgumentName_Enable = "enable"_liv;
         constexpr Utility::LocIndView s_ArgumentName_Disable = "disable"_liv;
         constexpr Utility::LocIndView s_ArgName_EnableAndDisable = "enable|disable"_liv;
-        Utility::LocIndString s_SettingsCommand_HelpLink = "https://aka.ms/winget-settings"_lis;
+        Utility::LocIndView s_SettingsCommand_HelpLink = "https://aka.ms/winget-settings"_liv;
     }
 
     std::vector<std::unique_ptr<Command>> SettingsCommand::GetCommands() const
@@ -44,7 +44,7 @@ namespace AppInstaller::CLI
         return { Resource::String::SettingsCommandLongDescription };
     }
 
-    Utility::LocIndString SettingsCommand::HelpLink() const
+    Utility::LocIndView SettingsCommand::HelpLink() const
     {
         return s_SettingsCommand_HelpLink;
     }
@@ -108,7 +108,7 @@ namespace AppInstaller::CLI
         return { Resource::String::SettingsExportCommandLongDescription };
     }
 
-    Utility::LocIndString SettingsExportCommand::HelpLink() const
+    Utility::LocIndView SettingsExportCommand::HelpLink() const
     {
         return s_SettingsCommand_HelpLink;
     }

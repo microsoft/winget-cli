@@ -166,9 +166,9 @@ namespace AppInstaller::CLI
         }
     }
 
-    Utility::LocIndString UpgradeCommand::HelpLink() const
+    Utility::LocIndView UpgradeCommand::HelpLink() const
     {
-        return "https://aka.ms/winget-command-upgrade"_lis;
+        return "https://aka.ms/winget-command-upgrade"_liv;
     }
 
     void UpgradeCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const

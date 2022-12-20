@@ -101,7 +101,7 @@ namespace AppInstaller::CLI
 
         virtual void OutputIntroHeader(Execution::Reporter& reporter) const;
         virtual void OutputHelp(Execution::Reporter& reporter, const CommandException* exception = nullptr) const;
-        virtual Utility::LocIndString HelpLink() const { return {}; }
+        virtual Utility::LocIndView HelpLink() const { return {}; }
 
         virtual std::unique_ptr<Command> FindSubCommand(Invocation& inv) const;
         virtual void ParseArguments(Invocation& inv, Execution::Args& execArgs) const;

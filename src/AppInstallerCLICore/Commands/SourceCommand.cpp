@@ -12,7 +12,7 @@ namespace AppInstaller::CLI
     using namespace AppInstaller::CLI::Execution;
     using namespace std::string_view_literals;
 
-    Utility::LocIndString s_SourceCommand_HelpLink = "https://aka.ms/winget-command-source"_lis;
+    Utility::LocIndView s_SourceCommand_HelpLink = "https://aka.ms/winget-command-source"_liv;
 
     std::vector<std::unique_ptr<Command>> SourceCommand::GetCommands() const
     {
@@ -36,7 +36,7 @@ namespace AppInstaller::CLI
         return { Resource::String::SourceCommandLongDescription };
     }
 
-    Utility::LocIndString SourceCommand::HelpLink() const
+    Utility::LocIndView SourceCommand::HelpLink() const
     {
         return s_SourceCommand_HelpLink;
     }
@@ -67,7 +67,7 @@ namespace AppInstaller::CLI
         return { Resource::String::SourceAddCommandLongDescription };
     }
 
-    Utility::LocIndString SourceAddCommand::HelpLink() const
+    Utility::LocIndView SourceAddCommand::HelpLink() const
     {
         return s_SourceCommand_HelpLink;
     }
@@ -110,7 +110,7 @@ namespace AppInstaller::CLI
         }
     }
 
-    Utility::LocIndString SourceListCommand::HelpLink() const
+    Utility::LocIndView SourceListCommand::HelpLink() const
     {
         return s_SourceCommand_HelpLink;
     }
@@ -148,7 +148,7 @@ namespace AppInstaller::CLI
         }
     }
 
-    Utility::LocIndString SourceUpdateCommand::HelpLink() const
+    Utility::LocIndView SourceUpdateCommand::HelpLink() const
     {
         return s_SourceCommand_HelpLink;
     }
@@ -186,7 +186,7 @@ namespace AppInstaller::CLI
         }
     }
 
-    Utility::LocIndString SourceRemoveCommand::HelpLink() const
+    Utility::LocIndView SourceRemoveCommand::HelpLink() const
     {
         return s_SourceCommand_HelpLink;
     }
@@ -227,7 +227,7 @@ namespace AppInstaller::CLI
         }
     }
 
-    Utility::LocIndString SourceResetCommand::HelpLink() const
+    Utility::LocIndView SourceResetCommand::HelpLink() const
     {
         return s_SourceCommand_HelpLink;
     }
@@ -276,7 +276,7 @@ namespace AppInstaller::CLI
         }
     }
 
-    Utility::LocIndString SourceExportCommand::HelpLink() const
+    Utility::LocIndView SourceExportCommand::HelpLink() const
     {
         return s_SourceCommand_HelpLink;
     }

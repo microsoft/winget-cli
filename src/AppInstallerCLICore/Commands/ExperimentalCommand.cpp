@@ -29,9 +29,9 @@ namespace AppInstaller::CLI
         return { Resource::String::ExperimentalCommandLongDescription };
     }
 
-    Utility::LocIndString ExperimentalCommand::HelpLink() const
+    Utility::LocIndView ExperimentalCommand::HelpLink() const
     {
-        return "https://aka.ms/winget-settings"_lis;
+        return "https://aka.ms/winget-settings"_liv;
     }
 
     void ExperimentalCommand::ExecuteInternal(Execution::Context& context) const
