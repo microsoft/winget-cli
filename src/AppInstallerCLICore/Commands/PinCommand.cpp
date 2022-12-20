@@ -297,6 +297,10 @@ namespace AppInstaller::CLI
     {
         context <<
             Workflow::OpenPinningIndex <<
+            Workflow::GetAllPins <<
+            Workflow::OpenSource() <<
+            Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
+            Workflow::CrossReferencePinsWithSource <<
             Workflow::ResetAllPins;
     }
 }

@@ -248,10 +248,12 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(PinAlreadyExists);
         WINGET_DEFINE_RESOURCE_STRINGID(PinCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PinCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(PinDoesNotExist);
         WINGET_DEFINE_RESOURCE_STRINGID(PinExistsOverwriting);
         WINGET_DEFINE_RESOURCE_STRINGID(PinExistsUseForceArg);
         WINGET_DEFINE_RESOURCE_STRINGID(PinListCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PinListCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(PinNoPinsExist);
         WINGET_DEFINE_RESOURCE_STRINGID(PinRemoveCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PinRemoveCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PinResetCommandLongDescription);

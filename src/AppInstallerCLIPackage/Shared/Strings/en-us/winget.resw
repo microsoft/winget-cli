@@ -1623,9 +1623,17 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Resetting all current pins.</value>
   </data>
   <data name="PinResetUseForceArg" xml:space="preserve">
-    <value>Use the --force argument to reset all pins.</value>
+    <value>Use the --force argument to reset all pins. The following pins would be removed:</value>
   </data>
   <data name="PinType" xml:space="preserve">
     <value>Pin type</value>
+  </data>
+  <data name="PinDoesNotExist" xml:space="preserve">
+    <value>There is no pin for package {0}</value>
+    <comment>{Locked="{0}"} {0} is a placeholder that will be replaced by a package name. The message is shown when attempting to delete a pin for a package that is not pinned.</comment>
+  </data>
+  <data name="PinNoPinsExist" xml:space="preserve">
+    <value>There are no pins configured.</value>
+    <comment>Shown when listing or modifying existing pins if there are none.</comment>
   </data>
 </root>

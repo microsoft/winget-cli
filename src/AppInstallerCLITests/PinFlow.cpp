@@ -30,10 +30,10 @@ TEST_CASE("PinFlow_Add", "[PinFlow][workflow]")
 
     std::ostringstream pinAddOutput;
     TestContext addContext{ pinAddOutput, std::cin };
-    // auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForOpenPinningIndex(addContext, indexFile.GetPath());
     OverrideForCompositeInstalledSource(addContext);
     addContext.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestExeInstaller"sv);
+    addContext.Args.AddArg(Execution::Args::Type::BlockingPin);
 
     PinAddCommand pinAdd({});
     pinAdd.Execute(addContext);
@@ -44,16 +44,28 @@ TEST_CASE("PinFlow_Add", "[PinFlow][workflow]")
         auto index = PinningIndex::Open(indexFile.GetPath().u8string(), SQLiteStorageBase::OpenDisposition::Read);
         auto pins = index.GetAllPins();
         REQUIRE(pins.size() == 1);
-        REQUIRE(pins[0].GetType() == PinType::Pinning);
+        REQUIRE(pins[0].GetType() == PinType::Blocking);
         REQUIRE(pins[0].GetPackageId() == "AppInstallerCliTest.TestExeInstaller");
         REQUIRE(pins[0].GetSourceId() == "*TestSource");
         REQUIRE(pins[0].GetVersionString() == "1.0.0.0");
+
+        std::ostringstream pinListOutput;
+        TestContext listContext{ pinListOutput, std::cin };
+        OverrideForOpenPinningIndex(listContext, indexFile.GetPath());
+        OverrideForCompositeInstalledSource(listContext);
+        listContext.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestExeInstaller"sv);
+
+        PinListCommand pinList({});
+        pinList.Execute(listContext);
+
+        INFO(pinListOutput.str());
+        REQUIRE(pinListOutput.str().find("AppInstallerCliTest.TestExeInstaller"));
+        REQUIRE(pinListOutput.str().find("Blocking"));
     }
     SECTION("Remove pin")
     {
         std::ostringstream pinRemoveOutput;
         TestContext removeContext{ pinRemoveOutput, std::cin };
-        // auto previousThreadGlobals = context.SetForCurrentThread();
         OverrideForOpenPinningIndex(removeContext, indexFile.GetPath());
         OverrideForCompositeInstalledSource(removeContext);
         removeContext.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestExeInstaller"sv);
@@ -70,8 +82,8 @@ TEST_CASE("PinFlow_Add", "[PinFlow][workflow]")
     {
         std::ostringstream pinResetOutput;
         TestContext resetContext{ pinResetOutput, std::cin };
-        // auto previousThreadGlobals = context.SetForCurrentThread();
         OverrideForOpenPinningIndex(resetContext, indexFile.GetPath());
+        OverrideForCompositeInstalledSource(resetContext);
 
         SECTION("Without --force")
         {
@@ -100,11 +112,9 @@ TEST_CASE("PinFlow_Add", "[PinFlow][workflow]")
     {
         std::ostringstream pinUpdateOutput;
         TestContext updateContext{ pinUpdateOutput, std::cin };
-        // auto previousThreadGlobals = context.SetForCurrentThread();
         OverrideForOpenPinningIndex(updateContext, indexFile.GetPath());
         OverrideForCompositeInstalledSource(updateContext);
         updateContext.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestExeInstaller"sv);
-        updateContext.Args.AddArg(Execution::Args::Type::BlockingPin);
 
         SECTION("Without --force")
         {
@@ -116,7 +126,7 @@ TEST_CASE("PinFlow_Add", "[PinFlow][workflow]")
             auto index = PinningIndex::Open(indexFile.GetPath().u8string(), SQLiteStorageBase::OpenDisposition::Read);
             auto pins = index.GetAllPins();
             REQUIRE(pins.size() == 1);
-            REQUIRE(pins[0].GetType() == PinType::Pinning);
+            REQUIRE(pins[0].GetType() == PinType::Blocking);
         }
         SECTION("With --force")
         {
@@ -129,7 +139,7 @@ TEST_CASE("PinFlow_Add", "[PinFlow][workflow]")
             auto index = PinningIndex::Open(indexFile.GetPath().u8string(), SQLiteStorageBase::OpenDisposition::Read);
             auto pins = index.GetAllPins();
             REQUIRE(pins.size() == 1);
-            REQUIRE(pins[0].GetType() == PinType::Blocking);
+            REQUIRE(pins[0].GetType() == PinType::Pinning);
         }
     }
 }
@@ -138,7 +148,6 @@ TEST_CASE("PinFlow_Add_NotFound", "[PinFlow][workflow]")
 {
     std::ostringstream pinAddOutput;
     TestContext addContext{ pinAddOutput, std::cin };
-    // auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForCompositeInstalledSource(addContext);
     addContext.Args.AddArg(Execution::Args::Type::Query, "This package doesn't exist"sv);
 
@@ -155,7 +164,6 @@ TEST_CASE("PinFlow_Add_NotInstalled", "[PinFlow][workflow]")
 
     std::ostringstream pinAddOutput;
     TestContext addContext{ pinAddOutput, std::cin };
-    // auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForOpenPinningIndex(addContext, indexFile.GetPath());
     OverrideForCompositeInstalledSource(addContext);
     addContext.Args.AddArg(Execution::Args::Type::Query, "TestExeInstallerWithNothingInstalled"sv);
@@ -173,20 +181,50 @@ TEST_CASE("PinFlow_Add_NotInstalled", "[PinFlow][workflow]")
 
 TEST_CASE("PinFlow_ListEmpty", "[PinFlow][workflow]")
 {
-}
+    TempFile indexFile("pinningIndex", ".db");
 
-TEST_CASE("PinFlow_ListMultiple", "[PinFlow][workflow]")
-{
-}
+    std::ostringstream pinListOutput;
+    TestContext listContext{ pinListOutput, std::cin };
+    OverrideForOpenPinningIndex(listContext, indexFile.GetPath());
+    OverrideForCompositeInstalledSource(listContext);
 
-TEST_CASE("PinFlow_ListUninstalled", "[PinFlow][workflow]")
-{
+    PinListCommand pinList({});
+    pinList.Execute(listContext);
+    INFO(pinListOutput.str());
+
+     REQUIRE(pinListOutput.str().find(Resource::LocString(Resource::String::PinNoPinsExist)) != std::string::npos);
 }
 
 TEST_CASE("PinFlow_RemoveNonExisting", "[PinFlow][workflow]")
 {
+    TempFile indexFile("pinningIndex", ".db");
+
+    std::ostringstream pinRemoveOutput;
+    TestContext removeContext{ pinRemoveOutput, std::cin };
+    OverrideForOpenPinningIndex(removeContext, indexFile.GetPath());
+    OverrideForCompositeInstalledSource(removeContext);
+    removeContext.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestExeInstaller"sv);
+
+    PinRemoveCommand pinRemove({});
+    pinRemove.Execute(removeContext);
+    INFO(pinRemoveOutput.str());
+
+    REQUIRE_TERMINATED_WITH(removeContext, APPINSTALLER_CLI_ERROR_PIN_DOES_NOT_EXIST);
 }
 
 TEST_CASE("PinFlow_ResetEmpty", "[PinFlow][workflow]")
 {
+    TempFile indexFile("pinningIndex", ".db");
+
+    std::ostringstream pinResetOutput;
+    TestContext resetContext{ pinResetOutput, std::cin };
+    OverrideForOpenPinningIndex(resetContext, indexFile.GetPath());
+    OverrideForCompositeInstalledSource(resetContext);
+    resetContext.Args.AddArg(Execution::Args::Type::Force);
+
+    PinResetCommand pinReset({});
+    pinReset.Execute(resetContext);
+    INFO(pinResetOutput.str());
+
+    REQUIRE(pinResetOutput.str().find(Resource::LocString(Resource::String::PinNoPinsExist)) != std::string::npos);
 }

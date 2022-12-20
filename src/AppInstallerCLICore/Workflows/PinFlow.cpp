@@ -146,9 +146,12 @@ namespace AppInstaller::CLI::Workflow
         Pinning::PinKey pinKey{
             availableVersion->GetProperty(PackageVersionProperty::Id).get(),
             availableVersion->GetProperty(PackageVersionProperty::SourceIdentifier).get() };
+        AICLI_LOG(CLI, Info, << "Removing pin for package [" << pinKey.PackageId << "] from source [" << pinKey.SourceId << "]");
         if (!pinningIndex->GetPin(pinKey))
         {
-            // TODO: Report pin not found
+            AICLI_LOG(CLI, Warning, << "Pin does not exist");
+            context.Reporter.Warn() << Resource::String::PinDoesNotExist(pinKey.PackageId) << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PIN_DOES_NOT_EXIST);
         }
 
         pinningIndex->RemovePin(pinKey);
@@ -160,6 +163,13 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void ReportPins(Execution::Context& context)
     {
+        const auto& pins = context.Get<Execution::Data::Pins>();
+        if (pins.empty())
+        {
+            context.Reporter.Info() << Resource::String::PinNoPinsExist << std::endl;
+            return;
+        }
+
         // TODO: Use package and source names
         Execution::TableOutput<4> table(context.Reporter,
             {
@@ -169,7 +179,7 @@ namespace AppInstaller::CLI::Workflow
                 Resource::String::PinType,
             });
 
-        for (const auto& pin : context.Get<Execution::Data::Pins>())
+        for (const auto& pin : pins)
         {
             // TODO: Avoid these conversions to string
             table.OutputLine({
@@ -193,15 +203,22 @@ namespace AppInstaller::CLI::Workflow
         if (context.Args.Contains(Execution::Args::Type::Force))
         {
             context.Reporter.Info() << Resource::String::PinResettingAll << std::endl;
-            auto pinningIndex = context.Get<Execution::Data::PinningIndex>();
-            pinningIndex->ResetAllPins();
+
+            if (context.Get<Execution::Data::Pins>().empty())
+            {
+                context.Reporter.Info() << Resource::String::PinNoPinsExist << std::endl;
+            }
+            else
+            {
+                auto pinningIndex = context.Get<Execution::Data::PinningIndex>();
+                pinningIndex->ResetAllPins();
+            }
         }
         else
         {
             AICLI_LOG(CLI, Info, << "--force argument is not present");
             context.Reporter.Info() << Resource::String::PinResetUseForceArg << std::endl;
-
-            // TODO: Report pins here
+            context << ReportPins;
         }
     }
 

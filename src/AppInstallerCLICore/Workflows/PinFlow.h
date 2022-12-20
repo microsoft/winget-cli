@@ -32,6 +32,9 @@ namespace AppInstaller::CLI::Workflow
     void AddPin(Execution::Context& context);
 
     // Removes all the pins associated with a package.
+    // Required Args: None
+    // Inputs: PinningIndex, Package, InstalledPackageVersion
+    // Outputs: None
     void RemovePin(Execution::Context& context);
 
     // Report the pins in a table.
@@ -42,7 +45,7 @@ namespace AppInstaller::CLI::Workflow
 
     // Resets all the existing pins.
     // Required Args: None
-    // Inputs: PinningIndex
+    // Inputs: PinningIndex, Pins
     // Outputs: None
     void ResetAllPins(Execution::Context& context);
 

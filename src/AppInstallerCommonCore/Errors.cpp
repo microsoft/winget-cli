@@ -210,6 +210,8 @@ namespace AppInstaller
                 return "Found at least one version of the package installed.";
             case APPINSTALLER_CLI_ERROR_PIN_ALREADY_EXISTS:
                 return "A pin already exists for the package.";
+            case APPINSTALLER_CLI_ERROR_PIN_DOES_NOT_EXIST:
+                return "There is no pin for the package.";
 
             // Install errors
             case APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE:
