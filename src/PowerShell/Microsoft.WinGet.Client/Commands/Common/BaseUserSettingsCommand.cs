@@ -55,7 +55,7 @@ namespace Microsoft.WinGet.Client.Commands.Common
         /// Returns the contents of the settings file.
         /// The original plan was to return the contents deserialized as a Hashtable, but that
         /// will make only the top level keys be treated as Hashtable keys and their value would
-        /// be a JObjects. This make them really awkward to handle. If we really want to we will
+        /// be a JObject. This make them really awkward to handle. If we really want to we will
         /// need to implement a custom deserializer or manually walk the json and convert all
         /// keys to hash tables. For now a caller can just pipe this to ConvertTo-Json.
         /// </summary>
