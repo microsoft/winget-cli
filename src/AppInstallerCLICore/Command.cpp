@@ -246,7 +246,7 @@ namespace AppInstaller::CLI
         }
 
         // Finally, the link to the documentation pages
-        auto helpLink = Utility::LocIndString{ HelpLink() };
+        auto helpLink = HelpLink();
         if (!helpLink.empty())
         {
             infoOut << std::endl << Resource::String::HelpLinkPreamble(helpLink) << std::endl;
