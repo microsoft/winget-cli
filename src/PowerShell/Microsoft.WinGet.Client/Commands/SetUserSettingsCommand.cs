@@ -21,7 +21,7 @@ namespace Microsoft.WinGet.Client.Commands
     /// settings with the input settings. Otherwise, overwrites the input settings.
     /// </summary>
     [Cmdlet(VerbsCommon.Set, Constants.WinGetNouns.UserSettings)]
-    [OutputType(typeof(Hashtable))]
+    [OutputType(typeof(string))]
     public sealed class SetUserSettingsCommand : BaseUserSettingsCommand
     {
         /// <summary>

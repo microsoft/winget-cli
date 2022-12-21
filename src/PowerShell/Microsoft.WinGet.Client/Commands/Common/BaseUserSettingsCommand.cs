@@ -8,8 +8,6 @@ namespace Microsoft.WinGet.Client.Commands.Common
 {
     using System.Collections;
     using System.IO;
-    using System.Management.Automation;
-    using System.Runtime.CompilerServices;
     using Microsoft.WinGet.Client.Exceptions;
     using Microsoft.WinGet.Client.Helpers;
     using Newtonsoft.Json;
@@ -18,7 +16,7 @@ namespace Microsoft.WinGet.Client.Commands.Common
     /// <summary>
     /// Base command for user settings cmdlets.
     /// </summary>
-    public abstract class BaseUserSettingsCommand : PSCmdlet
+    public abstract class BaseUserSettingsCommand : BaseCommand
     {
         /// <summary>
         /// The schema key.
