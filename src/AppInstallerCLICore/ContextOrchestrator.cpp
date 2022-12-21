@@ -249,7 +249,7 @@ namespace AppInstaller::CLI::Execution
             }
 
             // Get the item's command and execute it.
-            HRESULT terminationHR = S_OK;
+            HRESULT exceptionHR = S_OK;
             try
             {
                 std::unique_ptr<Command> command = item->PopNextCommand();
@@ -262,14 +262,13 @@ namespace AppInstaller::CLI::Execution
 
                 ::AppInstaller::CLI::ExecuteWithoutLoggingSuccess(item->GetContext(), command.get());
             }
-            WINGET_CATCH_STORE(terminationHR, APPINSTALLER_CLI_ERROR_COMMAND_FAILED);
+            WINGET_CATCH_STORE(exceptionHR, APPINSTALLER_CLI_ERROR_COMMAND_FAILED);
 
-            if (FAILED(terminationHR))
+            if (FAILED(exceptionHR))
             {
-                // ::Execute sometimes catches exceptions and returns hresults based on those exceptions without the context
-                // being updated with that hresult. This sets the termination hr directly so that the context always 
+                // Set the termination hr directly from any exception that escaped so that the context always 
                 // has the result of the operation no matter how it failed.
-                item->GetContext().SetTerminationHR(terminationHR);
+                item->GetContext().SetTerminationHR(exceptionHR);
             }
 
             item->GetContext().EnableCtrlHandler(false);
@@ -346,10 +345,10 @@ namespace AppInstaller::CLI::Execution
         // The goal is that these should match the winget.exe commands for easy correlation.
         switch (m_operationType)
         {
-        case PackageOperationType::Search: return "root:search";
-        case PackageOperationType::Install: return "root:install";
-        case PackageOperationType::Upgrade: return "root:upgrade";
-        case PackageOperationType::Uninstall: return "root:uninstall";
+        case PackageOperationType::Search: return "root:search"sv;
+        case PackageOperationType::Install: return "root:install"sv;
+        case PackageOperationType::Upgrade: return "root:upgrade"sv;
+        case PackageOperationType::Uninstall: return "root:uninstall"sv;
         default: return "unknown";
         }
     }
