@@ -140,5 +140,7 @@ namespace AppInstaller::CLI
         return result;
     }
 
+    void ExecuteWithoutLoggingSuccess(Execution::Context& context, Command* command);
+
     int Execute(Execution::Context& context, std::unique_ptr<Command>& command);
 }
