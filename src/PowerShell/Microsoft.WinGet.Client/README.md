@@ -8,7 +8,7 @@ After building the project solution, the `Microsoft.WinGet.Client` PowerShell mo
 
 ## Prerequisites
 
-The PowerShell module has a dependency on the latest [Microsoft Visual C++ Redistributable](https://learn.microsoft.com/cpp/windows/latest-supported-vc-redist?view=msvc-170) package which can be downloaded or installed through WinGet by running the following command:
+The PowerShell module has a dependency on the latest [Microsoft Visual C++ Redistributable](https://learn.microsoft.com/cpp/windows/latest-supported-vc-redist?view=msvc-170) package which can be downloaded or installed through the Windows Package Manager (WinGet) by running the following command:
 
 ```
 winget install --id Microsoft.VCRedist.2015+.x64
