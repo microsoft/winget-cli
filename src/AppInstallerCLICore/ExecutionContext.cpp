@@ -128,7 +128,39 @@ namespace AppInstaller::CLI::Execution
         {
             clone->EnableCtrlHandler();
         }
+        CopyArgsToSubContext(clone.get());
         return clone;
+    }
+
+    void Context::CopyArgsToSubContext(Context* subContext)
+    {
+        // Copy over install behavior flags from the parent context.
+        // Arguments not copied: Override, Log
+        for (auto flag : {
+            Args::Type::Interactive,
+            Args::Type::Silent,
+            Args::Type::HashOverride,
+            Args::Type::IgnoreLocalArchiveMalwareScan,
+            })
+        {
+            if (Args.Contains(flag))
+            {
+                subContext->Args.AddArg(flag);
+            }
+        }
+
+        for (auto arg : {
+            Args::Type::Locale,
+            Args::Type::InstallLocation,
+            Args::Type::InstallScope,
+            Args::Type::InstallArchitecture,
+            })
+        {
+            if (Args.Contains(arg))
+            {
+                subContext->Args.AddArg(arg, Args.GetArg(arg));
+            }
+        }
     }
 
     void Context::EnableCtrlHandler(bool enabled)

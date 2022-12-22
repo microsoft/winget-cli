@@ -431,6 +431,7 @@ namespace TestCommon
     {
         auto clone = std::make_unique<TestContext>(m_out, m_in, true, m_overrides);
         clone->SetFlags(this->GetFlags());
+        CopyArgsToSubContext(clone.get());
         return clone;
     }
 

@@ -860,3 +860,37 @@ TEST_CASE("InstallFlow_FoundInstalledAndUpgradeNotAvailable", "[UpdateFlow][work
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::UpdateNotApplicable).get()) != std::string::npos);
     REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
 }
+
+TEST_CASE("UpdateFlow_UpdateAll_ForwardArgs", "[UpdateFlow][workflow]")
+{
+    TestCommon::TempFile updateExeResultPath("TestExeInstalled.txt");
+    TestCommon::TempFile updateMsixResultPath("TestMsixInstalled.txt");
+    TestCommon::TempFile updateMSStoreResultPath("TestMSStoreUpdated.txt");
+    TestCommon::TempFile updatePortableResultPath("TestPortableInstalled.txt");
+
+    std::ostringstream updateOutput;
+    TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context);
+    OverrideForShellExecute(context);
+    OverrideForMSIX(context);
+    OverrideForMSStore(context, true);
+    OverrideForPortableInstall(context);
+    context.Args.AddArg(Execution::Args::Type::All);
+    context.Args.AddArg(Execution::Args::Type::Silent);
+
+    UpgradeCommand update({});
+    update.Execute(context);
+    INFO(updateOutput.str());
+
+    // Verify installers are called with the silent flags
+    REQUIRE(std::filesystem::exists(updateExeResultPath.GetPath()));
+    std::ifstream updateExeResultFile(updateExeResultPath.GetPath());
+    std::string updateExeResultStr;
+    std::getline(updateExeResultFile, updateExeResultStr);
+    REQUIRE(updateExeResultStr.find("/silence") != std::string::npos);
+
+    REQUIRE(std::filesystem::exists(updateMsixResultPath.GetPath()));
+    REQUIRE(std::filesystem::exists(updateMSStoreResultPath.GetPath()));
+    REQUIRE(std::filesystem::exists(updatePortableResultPath.GetPath()));
+}
