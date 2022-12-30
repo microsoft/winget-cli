@@ -239,7 +239,7 @@ namespace AppInstaller::Repository::Microsoft
                 return {};
             }
 
-            std::vector<PackageVersionKey> GetAvailableVersionKeys() const override
+            std::vector<PackageVersionKey> GetAvailableVersionKeys(PinBehavior) const override
             {
                 std::shared_ptr<SQLiteIndexSource> source = GetReferenceSource();
                 std::vector<Utility::VersionAndChannel> versions = source->GetIndex().GetVersionKeysById(m_idId);
@@ -252,12 +252,12 @@ namespace AppInstaller::Repository::Microsoft
                 return result;
             }
 
-            std::shared_ptr<IPackageVersion> GetLatestAvailableVersion() const override
+            std::shared_ptr<IPackageVersion> GetLatestAvailableVersion(PinBehavior) const override
             {
                 return GetLatestVersionInternal();
             }
 
-            std::shared_ptr<IPackageVersion> GetAvailableVersion(const PackageVersionKey& versionKey) const override
+            std::shared_ptr<IPackageVersion> GetAvailableVersion(const PackageVersionKey& versionKey, PinBehavior) const override
             {
                 std::shared_ptr<SQLiteIndexSource> source = GetReferenceSource();
 
@@ -277,7 +277,7 @@ namespace AppInstaller::Repository::Microsoft
                 return {};
             }
 
-            bool IsUpdateAvailable() const override
+            bool IsUpdateAvailable(PinBehavior) const override
             {
                 return false;
             }
@@ -311,22 +311,22 @@ namespace AppInstaller::Repository::Microsoft
                 return GetLatestVersionInternal();
             }
 
-            std::vector<PackageVersionKey> GetAvailableVersionKeys() const override
+            std::vector<PackageVersionKey> GetAvailableVersionKeys(PinBehavior) const override
             {
                 return {};
             }
 
-            std::shared_ptr<IPackageVersion> GetLatestAvailableVersion() const override
+            std::shared_ptr<IPackageVersion> GetLatestAvailableVersion(PinBehavior) const override
             {
                 return {};
             }
 
-            std::shared_ptr<IPackageVersion> GetAvailableVersion(const PackageVersionKey&) const override
+            std::shared_ptr<IPackageVersion> GetAvailableVersion(const PackageVersionKey&, PinBehavior) const override
             {
                 return {};
             }
 
-            bool IsUpdateAvailable() const override
+            bool IsUpdateAvailable(PinBehavior) const override
             {
                 return false;
             }

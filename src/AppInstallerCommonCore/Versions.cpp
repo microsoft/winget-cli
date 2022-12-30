@@ -498,6 +498,12 @@ namespace AppInstaller::Utility
         return m_maxVersion;
     }
 
+    bool GatedVersion::IsValidVersion(Version) const
+    {
+        // TODO #476: Implement actual gating logic
+        return false;
+    }
+
     bool HasOverlapInVersionRanges(const std::vector<VersionRange>& ranges)
     {
         for (size_t i = 0; i < ranges.size(); i++)

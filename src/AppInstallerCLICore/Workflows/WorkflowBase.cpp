@@ -7,14 +7,15 @@
 #include "PromptFlow.h"
 #include "TableOutput.h"
 #include <winget/ManifestYamlParser.h>
+#include <winget/Pin.h>
 
+using namespace std::string_literals;
+using namespace AppInstaller::Utility::literals;
+using namespace AppInstaller::Pinning;
+using namespace AppInstaller::Repository;
 
 namespace AppInstaller::CLI::Workflow
 {
-    using namespace std::string_literals;
-    using namespace AppInstaller::Utility::literals;
-    using namespace AppInstaller::Repository;
-
     namespace
     {
         std::string GetMatchCriteriaDescriptor(const ResultMatch& match)
@@ -752,11 +753,14 @@ namespace AppInstaller::CLI::Workflow
                          shouldShowSource ? sourceName : Utility::LocIndString()
                     );
 
-                    auto pinnedState = ConvertToPackagePinnedStateEnum(installedVersion->GetMetadata()[PackageVersionMetadata::PinnedState]);
-                    bool requiresExplicitUpgrade = m_onlyShowUpgrades && pinnedState != PackagePinnedState::NotPinned;
-                    if (requiresExplicitUpgrade)
+                    if (m_onlyShowUpgrades)
                     {
-                        linesForExplicitUpgrade.push_back(std::move(line));
+                        // Sort into multiple tables according to pins
+                        auto pinnedState = ConvertToPinTypeEnum(installedVersion->GetMetadata()[PackageVersionMetadata::PinnedState]);
+                        if (pinnedState == PinType::PinnedByManifest)
+                        {
+                            linesForExplicitUpgrade.push_back(std::move(line));
+                        }
                     }
                     else
                     {
@@ -796,7 +800,7 @@ namespace AppInstaller::CLI::Workflow
             if (packagesWithUnknownVersionSkipped > 0)
             {
                 AICLI_LOG(CLI, Info, << packagesWithUnknownVersionSkipped << " package(s) skipped due to unknown installed version");
-                context.Reporter.Info() << packagesWithUnknownVersionSkipped << " " << Resource::String::UpgradeUnknownVersionCount << std::endl;
+                context.Reporter.Info() << Resource::String::UpgradeUnknownVersionCount(packagesWithUnknownVersionSkipped) << std::endl;
             }
         }
     }

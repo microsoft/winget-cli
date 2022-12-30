@@ -26,6 +26,22 @@ namespace AppInstaller::Repository::Microsoft
         return result;
     }
 
+    PinningIndex PinningIndex::OpenOrCreateDefault(OpenDisposition disposition)
+    {
+        const auto indexPath = Runtime::GetPathTo(Runtime::PathName::LocalState) / "pinning.db";
+
+        AICLI_LOG(Repo, Info, << "Opening pinning index");
+
+        if (std::filesystem::exists(indexPath))
+        {
+            return PinningIndex::Open(indexPath.u8string(), disposition);
+        }
+        else
+        {
+            return PinningIndex::CreateNew(indexPath.u8string());
+        }
+    }
+
     PinningIndex::IdType PinningIndex::AddPin(const Pinning::Pin& pin)
     {
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
@@ -58,6 +74,19 @@ namespace AppInstaller::Repository::Microsoft
         }
 
         return result;
+    }
+
+    void PinningIndex::AddOrUpdatePin(const Pinning::Pin& pin)
+    {
+        auto existingPin = GetPin(pin.GetKey());
+        if (existingPin.has_value())
+        {
+            UpdatePin(pin);
+        }
+        else
+        {
+            AddPin(pin);
+        }
     }
 
     void PinningIndex::RemovePin(const Pinning::PinKey& pinKey)

@@ -65,7 +65,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
 
     std::optional<SQLite::rowid_t> PinTable::GetByPinKey(SQLite::Connection& connection, const Pinning::PinKey& pinKey)
     {
-        // TODO: The statement builder requires that the bound parameters can be converted to T&&,
+        // TODO #476: The statement builder requires that the bound parameters can be converted to T&&,
         //       but the package/source IDs go as const T&. Find a way to avoid the weird casting.
         SQLite::Builder::StatementBuilder builder;
         builder.Select(SQLite::RowIDName).From(s_PinTable_Table_Name)
@@ -86,7 +86,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
 
     SQLite::rowid_t PinTable::AddPin(SQLite::Connection& connection, const Pinning::Pin& pin)
     {
-        // TODO: The statement builder requires that the bound parameters can be converted to T&&,
+        // TODO #476: The statement builder requires that the bound parameters can be converted to T&&,
         //       but the package/source IDs go as const T&. Find a way to avoid the weird casting.
         SQLite::Builder::StatementBuilder builder;
         builder.InsertInto(s_PinTable_Table_Name)
@@ -107,7 +107,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
 
     bool PinTable::UpdatePin(SQLite::Connection& connection, SQLite::rowid_t pinId, const Pinning::Pin& pin)
     {
-        // TODO: The statement builder requires that the bound parameters can be converted to T&&,
+        // TODO #476: The statement builder requires that the bound parameters can be converted to T&&,
         //       but the package/source IDs go as const T&. Find a way to avoid the weird casting.
         SQLite::Builder::StatementBuilder builder;
         builder.Update(s_PinTable_Table_Name).Set()

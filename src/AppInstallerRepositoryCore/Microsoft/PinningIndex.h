@@ -27,11 +27,19 @@ namespace AppInstaller::Repository::Microsoft
             return { filePath, disposition, std::move(indexFile) };
         }
 
+        // Opens or creates a PinningIndex database on the default path.
+        // disposition is only used when opening an existing database.
+        static PinningIndex OpenOrCreateDefault(OpenDisposition disposition = OpenDisposition::ReadWrite);
+
         // Adds a pin to the index.
         IdType AddPin(const Pinning::Pin& pin);
 
-        // Updates a pin type, and gated version if needed
+        // Updates a pin type, and version if needed.
+        // Return value indicates whether there were any changes.
         bool UpdatePin(const Pinning::Pin& pin);
+
+        // Adds a pin or updates it if it already exists.
+        void AddOrUpdatePin(const Pinning::Pin& pin);
 
         // Removes a pin from the index.
         void RemovePin(const Pinning::PinKey& pinKey);

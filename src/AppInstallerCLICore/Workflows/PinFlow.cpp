@@ -35,14 +35,7 @@ namespace AppInstaller::CLI::Workflow
 
     void OpenPinningIndex(Execution::Context& context)
     {
-        auto indexPath = Runtime::GetPathTo(Runtime::PathName::LocalState) / "pinning.db";
-
-        AICLI_LOG(CLI, Info, << "Opening pinning index");
-
-        auto pinningIndex = std::filesystem::exists(indexPath) ?
-            PinningIndex::Open(indexPath.u8string(), SQLiteStorageBase::OpenDisposition::ReadWrite) :
-            PinningIndex::CreateNew(indexPath.u8string());
-
+        auto pinningIndex = PinningIndex::OpenOrCreateDefault(SQLiteStorageBase::OpenDisposition::ReadWrite);
         context.Add<Execution::Data::PinningIndex>(std::make_shared<PinningIndex>(std::move(pinningIndex)));
     }
 
@@ -56,17 +49,26 @@ namespace AppInstaller::CLI::Workflow
     {
         auto package = context.Get<Execution::Data::Package>();
         std::vector<Pinning::Pin> pins;
-
-        // TODO: We should support querying the multiple sources for a package, instead of just one
-        auto availableVersion = package->GetLatestAvailableVersion();
+        std::set<std::string> sources;
 
         auto pinningIndex = context.Get<Execution::Data::PinningIndex>();
-        auto pin = pinningIndex->GetPin({
-            availableVersion->GetProperty(PackageVersionProperty::Id).get(),
-            availableVersion->GetProperty(PackageVersionProperty::SourceIdentifier).get() });
-        if (pin)
+
+        auto packageVersionKeys = package->GetAvailableVersionKeys(PinBehavior::IgnorePins);
+        for (auto versionKey : packageVersionKeys)
         {
-            pins.emplace_back(std::move(pin.value()));
+            auto availableVersion = package->GetAvailableVersion(versionKey);
+            Pinning::PinKey pinKey{
+                availableVersion->GetProperty(PackageVersionProperty::Id).get(),
+                availableVersion->GetProperty(PackageVersionProperty::SourceIdentifier).get() };
+
+            if (sources.insert(pinKey.SourceId).second)
+            {
+                auto pin = pinningIndex->GetPin(pinKey);
+                if (pin)
+                {
+                    pins.emplace_back(std::move(pin.value()));
+                }
+            }
         }
 
         context.Add<Execution::Data::Pins>(std::move(pins));
@@ -86,49 +88,70 @@ namespace AppInstaller::CLI::Workflow
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND);
         }
 
-        std::vector<Pinning::Pin> pins;
+        auto installedVersionString = installedVersion->GetProperty(PackageVersionProperty::Version);
 
-        // TODO: We should support querying the multiple sources for a package, instead of just one
-        auto availableVersion = package->GetLatestAvailableVersion();
-
-        Pinning::PinKey pinKey{
-            availableVersion->GetProperty(PackageVersionProperty::Id).get(),
-            availableVersion->GetProperty(PackageVersionProperty::SourceIdentifier).get() };
-        auto pin = CreatePin(context, pinKey.PackageId, pinKey.SourceId, installedVersion->GetProperty(PackageVersionProperty::Version));
-        AICLI_LOG(CLI, Info, << "Adding pin with type " << ToString(pin.GetType()) << " for package [" << pin.GetPackageId() << "] from source [" << pin.GetSourceId() << "]");
-
+        std::vector<Pinning::Pin> pinsToAdd;
+        std::vector<Pinning::Pin> pinsToUpdate;
+        std::set<std::string> sources;
 
         auto pinningIndex = context.Get<Execution::Data::PinningIndex>();
-        auto existingPin = pinningIndex->GetPin(pinKey);
 
-        if (existingPin)
+        auto packageVersionKeys = package->GetAvailableVersionKeys(PinBehavior::IgnorePins);
+        for (auto versionKey : packageVersionKeys)
         {
-            // Pin already exists.
-            // If it is the same, we do nothing. If it is different, check for the --force arg
-            if (pin == existingPin)
+            auto availableVersion = package->GetAvailableVersion(versionKey);
+            Pinning::PinKey pinKey{
+                availableVersion->GetProperty(PackageVersionProperty::Id).get(),
+                availableVersion->GetProperty(PackageVersionProperty::SourceIdentifier).get() };
+
+            if (!sources.insert(pinKey.SourceId).second)
             {
-                AICLI_LOG(CLI, Info, << "Pin already exists");
-                context.Reporter.Info() << Resource::String::PinAlreadyExists << std::endl;
-                return;
+                // We already considered the pin for this source
+                continue;
             }
 
-            AICLI_LOG(CLI, Info, << "Another pin already exists for the package");
-            if (context.Args.Contains(Execution::Args::Type::Force))
+            auto pin = CreatePin(context, pinKey.PackageId, pinKey.SourceId, installedVersionString);
+            AICLI_LOG(CLI, Info, << "Evaluating pin with type " << ToString(pin.GetType()) << " for package [" << pin.GetPackageId() << "] from source [" << pin.GetSourceId() << "]");
+
+            auto existingPin = pinningIndex->GetPin(pinKey);
+            if (existingPin)
             {
-                AICLI_LOG(CLI, Info, << "Overwriting pin due to --force argument");
-                context.Reporter.Warn() << Resource::String::PinExistsOverwriting << std::endl;
-                pinningIndex->UpdatePin(pin);
+                // Pin already exists.
+                // If it is the same, we do nothing. If it is different, check for the --force arg
+                // TODO #476: Add source to strings
+                if (pin == existingPin)
+                {
+                    AICLI_LOG(CLI, Info, << "Pin already exists");
+                    context.Reporter.Info() << Resource::String::PinAlreadyExists << std::endl;
+                    continue;
+                }
+
+                AICLI_LOG(CLI, Info, << "Another pin already exists for the package for source " << pinKey.SourceId);
+                if (context.Args.Contains(Execution::Args::Type::Force))
+                {
+                    AICLI_LOG(CLI, Info, << "Overwriting pin due to --force argument");
+                    context.Reporter.Warn() << Resource::String::PinExistsOverwriting << std::endl;
+                    pinsToUpdate.push_back(std::move(pin));
+                }
+                else
+                {
+                    context.Reporter.Error() << Resource::String::PinExistsUseForceArg << std::endl;
+                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PIN_ALREADY_EXISTS);
+                }
             }
             else
             {
-                context.Reporter.Error() << Resource::String::PinExistsUseForceArg << std::endl;
-                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PIN_ALREADY_EXISTS);
+                pinsToAdd.push_back(std::move(pin));
             }
         }
-        else
+
+        if (!pinsToAdd.empty())
         {
-            pinningIndex->AddPin(pin);
-            AICLI_LOG(CLI, Info, << "Finished adding pin");
+            for (auto pin : pinsToAdd)
+            {
+                pinningIndex->AddOrUpdatePin(pin);
+            }
+
             context.Reporter.Info() << Resource::String::PinAdded << std::endl;
         }
     }
@@ -139,7 +162,7 @@ namespace AppInstaller::CLI::Workflow
         auto package = context.Get<Execution::Data::Package>();
         std::vector<Pinning::Pin> pins;
 
-        // TODO: We should support querying the multiple sources for a package, instead of just one
+        // TODO #476: We should support querying the multiple sources for a package, instead of just one
         auto availableVersion = package->GetLatestAvailableVersion();
 
         auto pinningIndex = context.Get<Execution::Data::PinningIndex>();
@@ -170,7 +193,7 @@ namespace AppInstaller::CLI::Workflow
             return;
         }
 
-        // TODO: Use package and source names
+        // TODO #476: Use package and source names
         Execution::TableOutput<4> table(context.Reporter,
             {
                 Resource::String::SearchId,
@@ -181,7 +204,7 @@ namespace AppInstaller::CLI::Workflow
 
         for (const auto& pin : pins)
         {
-            // TODO: Avoid these conversions to string
+            // TODO #476: Avoid these conversions to string
             table.OutputLine({
                 pin.GetPackageId(),
                 std::string{ pin.GetSourceId() },
@@ -233,11 +256,9 @@ namespace AppInstaller::CLI::Workflow
 
         std::vector<Pinning::Pin> matchingPins;
         std::copy_if(pins.begin(), pins.end(), std::back_inserter(matchingPins), [&](Pinning::Pin pin) {
-            // TODO: Filter to source
             SearchRequest searchRequest;
             searchRequest.Filters.emplace_back(PackageMatchField::Id, MatchType::CaseInsensitive, pin.GetPackageId());
             auto searchResult = source.Search(searchRequest);
-
             return !searchResult.Matches.empty();
             });
 

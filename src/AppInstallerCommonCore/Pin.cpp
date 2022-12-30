@@ -19,9 +19,35 @@ namespace AppInstaller::Pinning
             return "Pinning"sv;
         case PinType::Gating:
             return "Gating"sv;
+        case PinType::PinnedByManifest:
+            return "PinnedByManifest"sv;
         case PinType::Unknown:
         default:
             return "Unknown";
+        }
+    }
+
+    PinType ConvertToPinTypeEnum(std::string_view in)
+    {
+        if (Utility::CaseInsensitiveEquals(in, "Blocking"sv))
+        {
+            return PinType::Blocking;
+        }
+        else if (Utility::CaseInsensitiveEquals(in, "Pinning"sv))
+        {
+            return PinType::Pinning;
+        }
+        else if (Utility::CaseInsensitiveEquals(in, "Gating"sv))
+        {
+            return PinType::Gating;
+        }
+        else if (Utility::CaseInsensitiveEquals(in, "PinnedByManifest"sv))
+        {
+            return PinType::PinnedByManifest;
+        }
+        else
+        {
+            return PinType::Unknown;
         }
     }
 

@@ -172,13 +172,15 @@ namespace AppInstaller::Utility
     // A range of versions indicated by a version and optionally a wildcard at the end.
     struct GatedVersion
     {
-        // TODO
+        // TODO #476
         // For now, using dummy implementation that just holds a string
         GatedVersion() {}
         GatedVersion(std::string_view s) : m_tmp(s) {}
-        std::string ToString() const { return m_tmp; }
+
+        bool IsValidVersion(Version version) const;
 
         bool operator==(const GatedVersion& other) const { return m_tmp == other.m_tmp; }
+        std::string ToString() const { return m_tmp; }
 
     private:
         std::string m_tmp;

@@ -116,7 +116,6 @@ namespace AppInstaller::CLI
 
     void PinAddCommand::ExecuteInternal(Execution::Context& context) const
     {
-        // TODO
         context <<
             Workflow::OpenSource() <<
             Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
@@ -261,7 +260,6 @@ namespace AppInstaller::CLI
 
     void PinListCommand::ExecuteInternal(Execution::Context& context) const
     {
-        // TODO
         context <<
             Workflow::OpenPinningIndex <<
             Workflow::GetAllPins <<

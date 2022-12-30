@@ -7,8 +7,11 @@
 #include "InstallFlow.h"
 #include "UpdateFlow.h"
 #include "ManifestComparator.h"
+#include <Microsoft/PinningIndex.h>
 
 using namespace AppInstaller::Repository;
+using namespace AppInstaller::Repository::Microsoft;
+using namespace AppInstaller::Pinning;
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -53,7 +56,7 @@ namespace AppInstaller::CLI::Workflow
 
         if (isUpgrade && installedVersion.IsUnknown() && !context.Args.Contains(Execution::Args::Type::IncludeUnknown))
         {
-            // the package has an unknown version and the user did not request to upgrade it anyway.
+            // the package has an unknown version and the user did not request to upgrade it anyway
             if (m_reportVersionNotFound)
             {
                 context.Reporter.Info() << Resource::String::UpgradeUnknownVersionExplanation << std::endl;
@@ -190,19 +193,18 @@ namespace AppInstaller::CLI::Workflow
                 continue;
             }
 
-            // Filter out packages that require explicit upgrades.
-            // We require explicit upgrades only if the installed version is pinned,
-            // either because it was manually pinned or because the manifest indicated
-            // RequireExplicitUpgrade.
-            // Note that this does not consider whether the update to be installed has
-            // RequireExplicitUpgrade. While this has the downside of not working with
-            // packages installed from another source, it ensures consistency with the
-            // list of available updates (there we don't have the selected installer)
-            // and at most we will update each package like this once.
+            // Filter out packages that require explicit upgrade.
+            // User-defined pins are handled when selecting the version to use.
             auto installedMetadata = updateContext.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata();
-            auto pinnedState = ConvertToPackagePinnedStateEnum(installedMetadata[PackageVersionMetadata::PinnedState]);
-            if (pinnedState != PackagePinnedState::NotPinned)
+            auto pinnedState = ConvertToPinTypeEnum(installedMetadata[PackageVersionMetadata::PinnedState]);
+            if (pinnedState == PinType::PinnedByManifest)
             {
+                // Note that for packages pinned by the manifest
+                // this does not consider whether the update to be installed has
+                // RequireExplicitUpgrade. While this has the downside of not working with
+                // packages installed from another source, it ensures consistency with the
+                // list of available updates (there we don't have the selected installer)
+                // and at most we will update each package like this once.
                 AICLI_LOG(CLI, Info, << "Skipping " << match.Package->GetProperty(PackageProperty::Id) << " as it requires explicit upgrade");
                 ++packagesThatRequireExplicitSkipped;
                 continue;
@@ -227,13 +229,13 @@ namespace AppInstaller::CLI::Workflow
         if (packagesWithUnknownVersionSkipped > 0)
         {
             AICLI_LOG(CLI, Info, << packagesWithUnknownVersionSkipped << " package(s) skipped due to unknown installed version");
-            context.Reporter.Info() << packagesWithUnknownVersionSkipped << " " << Resource::String::UpgradeUnknownVersionCount << std::endl;
+            context.Reporter.Info() << Resource::String::UpgradeUnknownVersionCount(packagesWithUnknownVersionSkipped) << std::endl;
         }
 
         if (packagesThatRequireExplicitSkipped > 0)
         {
             AICLI_LOG(CLI, Info, << packagesThatRequireExplicitSkipped << " package(s) skipped due to requiring explicit upgrade");
-            context.Reporter.Info() << packagesThatRequireExplicitSkipped << " " << Resource::String::UpgradeRequireExplicitCount << std::endl;
+            context.Reporter.Info() << Resource::String::UpgradeRequireExplicitCount(packagesThatRequireExplicitSkipped) << std::endl;
         }
     }
 

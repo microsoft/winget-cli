@@ -1339,21 +1339,13 @@ Please specify one of them using the --source option to proceed.</value>
     <value>This package's version number cannot be determined. To upgrade it anyway, add the argument --include-unknown to your previous command.</value>
     <comment>{Locked="--include-unknown"}</comment>
   </data>
-  <data name="UpgradeUnknownCount" xml:space="preserve">
-    <value>packages have version numbers that cannot be determined. Using --include-unknown may show more results.</value>
-    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions. </comment>
-  </data>
-  <data name="UpgradeUnknownCountSingle" xml:space="preserve">
-    <value>package has a version number that cannot be determined. Using --include-unknown may show more results.</value>
-    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions.</comment>
-  </data>
   <data name="UpgradeUnknownVersionCount" xml:space="preserve">
-    <value>package(s) have version numbers that cannot be determined. Use --include-unknown to see all results.</value>
-    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions. </comment>
+    <value>{0} package(s) have version numbers that cannot be determined. Use --include-unknown to see all results.</value>
+    <comment>{Locked="{0}","--include-unknown"} {0} is a placeholder that is replaced by an integer number of packages that do not have notated versions. </comment>
   </data>
   <data name="UpgradeRequireExplicitCount" xml:space="preserve">
-    <value>package(s) is pinned and needs to be explicitly upgraded.</value>
-    <comment>This string is preceded by a (integer) number of packages that require explicit upgrades.</comment>
+    <value>{0} package(s) are pinned and need to be explicitly upgraded.</value>
+    <comment>{Locked="{0}"} {0} is a placeholder that is replaced by an integer number of packages that require explicit upgrades.</comment>
   </data>
   <data name="InvalidArgumentWithoutQueryError" xml:space="preserve">
     <value>The arguments provided can only be used with a query.</value>
@@ -1635,5 +1627,9 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="PinNoPinsExist" xml:space="preserve">
     <value>There are no pins configured.</value>
     <comment>Shown when listing or modifying existing pins if there are none.</comment>
+  </data>
+  <data name="UpgradeBlockingPinCount" xml:space="preserve">
+    <value>{0} package(s) have a blocking pin that needs to be removed before upgrade</value>
+    <comment>{Locked="{0}"} {0} is a placeholder that is replaced by an integer number of packages with blocking pins</comment>
   </data>
 </root>

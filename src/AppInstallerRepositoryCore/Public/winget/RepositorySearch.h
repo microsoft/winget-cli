@@ -181,7 +181,8 @@ namespace AppInstaller::Repository
         TrackingWriteTime,
         // The Architecture of an installed package
         InstalledArchitecture,
-        // The PackagePinnedState of the installed package
+        // The pinned state of the installed package
+        // As a package can have multiple pins for multiple sources, this is the strictest pin
         PinnedState,
         // The Architecture of user intent
         UserIntentArchitecture,
@@ -191,17 +192,6 @@ namespace AppInstaller::Repository
 
     // Convert a PackageVersionMetadata to a string.
     std::string_view ToString(PackageVersionMetadata pvm);
-
-    // Possible pinned states for a package.
-    // Pinned packages need to be explicitly updated (i.e., are not included in `upgrade --all`)
-    enum class PackagePinnedState
-    {
-        NotPinned,
-        PinnedByManifest,
-    };
-
-    std::string_view ToString(PackagePinnedState state);
-    PackagePinnedState ConvertToPackagePinnedStateEnum(std::string_view in);
 
     // A single package version.
     struct IPackageVersion
@@ -243,7 +233,17 @@ namespace AppInstaller::Repository
 
         // The channel.
         Utility::NormalizedString Channel;
+
+        bool operator<(const PackageVersionKey& other) const
+        {
+            Utility::VersionAndChannel vac({ Version }, { Channel });
+            Utility::VersionAndChannel otherVac({ other.Version }, { other.Channel });
+            if (vac < otherVac) return true;
+            if (otherVac < vac) return false;
+            return SourceId < other.SourceId;
+        }
     };
+
 
     // A property of a package.
     enum class PackageProperty
@@ -300,6 +300,18 @@ namespace AppInstaller::Repository
         std::vector<InstalledStatus> Status;
     };
 
+    // Possible ways to consider pins when getting a package's available versions
+    enum class PinBehavior
+    {
+        // Ignore pins, returns all available versions.
+        IgnorePins,
+        // Include available versions for packages with a Pinning pin.
+        // Blocking pins and Gating pins still respected.
+        IncludePinned,
+        // Respect all the types of pins.
+        ConsiderPins,
+    };
+
     // A package, potentially containing information about it's local state and the available versions.
     struct IPackage
     {
@@ -311,19 +323,23 @@ namespace AppInstaller::Repository
         // Gets the installed package information.
         virtual std::shared_ptr<IPackageVersion> GetInstalledVersion() const = 0;
 
+        // Note on pins:
+        // Pins only make sense when there is both an installed and an available version.
+
         // Gets all available versions of this package.
         // The versions will be returned in sorted, descending order.
         //  Ex. { 4, 3, 2, 1 }
-        virtual std::vector<PackageVersionKey> GetAvailableVersionKeys() const = 0;
+        // The list may contain versions from multiple sources.
+        virtual std::vector<PackageVersionKey> GetAvailableVersionKeys(PinBehavior pinBehavior = PinBehavior::ConsiderPins) const = 0;
 
         // Gets a specific version of this package.
-        virtual std::shared_ptr<IPackageVersion> GetLatestAvailableVersion() const = 0;
+        virtual std::shared_ptr<IPackageVersion> GetLatestAvailableVersion(PinBehavior pinBehavior = PinBehavior::ConsiderPins) const = 0;
 
         // Gets a specific version of this package.
-        virtual std::shared_ptr<IPackageVersion> GetAvailableVersion(const PackageVersionKey& versionKey) const = 0;
+        virtual std::shared_ptr<IPackageVersion> GetAvailableVersion(const PackageVersionKey& versionKey, PinBehavior pinBehavior = PinBehavior::ConsiderPins) const = 0;
 
         // Gets a value indicating whether an available version is newer than the installed version.
-        virtual bool IsUpdateAvailable() const = 0;
+        virtual bool IsUpdateAvailable(PinBehavior pinBehavior = PinBehavior::ConsiderPins) const = 0;
 
         // Determines if the given IPackage refers to the same package as this one.
         virtual bool IsSame(const IPackage*) const = 0;

@@ -177,7 +177,7 @@ namespace TestCommon
         return InstalledVersion;
     }
 
-    std::vector<PackageVersionKey> TestPackage::GetAvailableVersionKeys() const
+    std::vector<PackageVersionKey> TestPackage::GetAvailableVersionKeys(PinBehavior) const
     {
         std::vector<PackageVersionKey> result;
         for (const auto& version : AvailableVersions)
@@ -187,7 +187,7 @@ namespace TestCommon
         return result;
     }
 
-    std::shared_ptr<IPackageVersion> TestPackage::GetLatestAvailableVersion() const
+    std::shared_ptr<IPackageVersion> TestPackage::GetLatestAvailableVersion(PinBehavior) const
     {
         if (AvailableVersions.empty())
         {
@@ -197,7 +197,7 @@ namespace TestCommon
         return AvailableVersions[0];
     }
 
-    std::shared_ptr<IPackageVersion> TestPackage::GetAvailableVersion(const PackageVersionKey& versionKey) const
+    std::shared_ptr<IPackageVersion> TestPackage::GetAvailableVersion(const PackageVersionKey& versionKey, PinBehavior) const
     {
         for (const auto& version : AvailableVersions)
         {
@@ -211,7 +211,7 @@ namespace TestCommon
         return {};
     }
 
-    bool TestPackage::IsUpdateAvailable() const
+    bool TestPackage::IsUpdateAvailable(PinBehavior) const
     {
         if (InstalledVersion && !AvailableVersions.empty())
         {
