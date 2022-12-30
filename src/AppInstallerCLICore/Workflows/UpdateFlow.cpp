@@ -65,14 +65,17 @@ namespace AppInstaller::CLI::Workflow
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
         }
 
+        // TODO #476
+        PinBehavior pinBehavior = (m_reportVersionNotFound || context.Args.Contains(Execution::Args::Type::IncludePinned)) ? PinBehavior::IncludePinned : PinBehavior::ConsiderPins;
+
         // The version keys should have already been sorted by version
-        const auto& versionKeys = package->GetAvailableVersionKeys();
+        const auto& versionKeys = package->GetAvailableVersionKeys(pinBehavior);
         for (const auto& key : versionKeys)
         {
             // Check Applicable Version
             if (!isUpgrade || IsUpdateVersionApplicable(installedVersion, Utility::Version(key.Version)))
             {
-                auto packageVersion = package->GetAvailableVersion(key);
+                auto packageVersion = package->GetAvailableVersion(key, PinBehavior::IgnorePins);
                 auto manifest = packageVersion->GetManifest();
 
                 // Check applicable Installer

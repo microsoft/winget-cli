@@ -246,6 +246,7 @@ namespace AppInstaller::CLI::Workflow
     {
         bool isUpdate = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
         UpdateBehaviorEnum updateBehavior = context.Get<Execution::Data::Installer>().value().UpdateBehavior;
+        THROW_HR_IF(E_FAIL, context.Contains(Execution::Data::Package));
 
         switch (m_installerType)
         {

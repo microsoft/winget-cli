@@ -330,16 +330,16 @@ namespace AppInstaller::Repository
         // The versions will be returned in sorted, descending order.
         //  Ex. { 4, 3, 2, 1 }
         // The list may contain versions from multiple sources.
-        virtual std::vector<PackageVersionKey> GetAvailableVersionKeys(PinBehavior pinBehavior = PinBehavior::ConsiderPins) const = 0;
+        virtual std::vector<PackageVersionKey> GetAvailableVersionKeys(PinBehavior pinBehavior) const = 0;
 
         // Gets a specific version of this package.
-        virtual std::shared_ptr<IPackageVersion> GetLatestAvailableVersion(PinBehavior pinBehavior = PinBehavior::ConsiderPins) const = 0;
+        virtual std::shared_ptr<IPackageVersion> GetLatestAvailableVersion(PinBehavior pinBehavior) const = 0;
 
         // Gets a specific version of this package.
-        virtual std::shared_ptr<IPackageVersion> GetAvailableVersion(const PackageVersionKey& versionKey, PinBehavior pinBehavior = PinBehavior::ConsiderPins) const = 0;
+        virtual std::shared_ptr<IPackageVersion> GetAvailableVersion(const PackageVersionKey& versionKey, PinBehavior pinBehavior) const = 0;
 
         // Gets a value indicating whether an available version is newer than the installed version.
-        virtual bool IsUpdateAvailable(PinBehavior pinBehavior = PinBehavior::ConsiderPins) const = 0;
+        virtual bool IsUpdateAvailable(PinBehavior pinBehavior) const = 0;
 
         // Determines if the given IPackage refers to the same package as this one.
         virtual bool IsSame(const IPackage*) const = 0;

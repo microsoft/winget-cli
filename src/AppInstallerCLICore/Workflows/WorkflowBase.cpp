@@ -561,7 +561,7 @@ namespace AppInstaller::CLI::Workflow
 
         for (size_t i = 0; i < searchResult.Matches.size(); ++i)
         {
-            auto latestVersion = searchResult.Matches[i].Package->GetLatestAvailableVersion();
+            auto latestVersion = searchResult.Matches[i].Package->GetLatestAvailableVersion(PinBehavior::IgnorePins);
 
             table.OutputLine({
                 latestVersion->GetProperty(PackageVersionProperty::Name),
@@ -672,7 +672,7 @@ namespace AppInstaller::CLI::Workflow
             auto package = searchResult.Matches[i].Package;
 
             std::string sourceName;
-            auto latest = package->GetLatestAvailableVersion();
+            auto latest = package->GetLatestAvailableVersion(PinBehavior::IgnorePins);
             if (latest)
             {
                 auto source = latest->GetSource();
@@ -709,14 +709,15 @@ namespace AppInstaller::CLI::Workflow
         auto &source = context.Get<Execution::Data::Source>();
         bool shouldShowSource = source.IsComposite() && source.GetAvailableSources().size() > 1;
 
+        PinBehavior pinBehavior = context.Args.Contains(Execution::Args::Type::IncludePinned) ? PinBehavior::IncludePinned : PinBehavior::ConsiderPins;
         for (const auto& match : searchResult.Matches)
         {
             auto installedVersion = match.Package->GetInstalledVersion();
 
             if (installedVersion)
             {
-                auto latestVersion = match.Package->GetLatestAvailableVersion();
-                bool updateAvailable = match.Package->IsUpdateAvailable();
+                auto latestVersion = match.Package->GetLatestAvailableVersion(pinBehavior);
+                bool updateAvailable = match.Package->IsUpdateAvailable(pinBehavior);
 
                 if (m_onlyShowUpgrades && !context.Args.Contains(Execution::Args::Type::IncludeUnknown) && Utility::Version(installedVersion->GetProperty(PackageVersionProperty::Version)).IsUnknown() && updateAvailable)
                 {
@@ -753,14 +754,10 @@ namespace AppInstaller::CLI::Workflow
                          shouldShowSource ? sourceName : Utility::LocIndString()
                     );
 
-                    if (m_onlyShowUpgrades)
+                    auto pinnedState = ConvertToPinTypeEnum(installedVersion->GetMetadata()[PackageVersionMetadata::PinnedState]);
+                    if (m_onlyShowUpgrades && pinnedState == PinType::PinnedByManifest)
                     {
-                        // Sort into multiple tables according to pins
-                        auto pinnedState = ConvertToPinTypeEnum(installedVersion->GetMetadata()[PackageVersionMetadata::PinnedState]);
-                        if (pinnedState == PinType::PinnedByManifest)
-                        {
-                            linesForExplicitUpgrade.push_back(std::move(line));
-                        }
+                        linesForExplicitUpgrade.push_back(std::move(line));
                     }
                     else
                     {
@@ -865,7 +862,7 @@ namespace AppInstaller::CLI::Workflow
     void GetManifestWithVersionFromPackage::operator()(Execution::Context& context) const
     {
         PackageVersionKey key("", m_version, m_channel);
-        auto requestedVersion = context.Get<Execution::Data::Package>()->GetAvailableVersion(key);
+        auto requestedVersion = context.Get<Execution::Data::Package>()->GetAvailableVersion(key, PinBehavior::ConsiderPins);
 
         std::optional<Manifest::Manifest> manifest;
         if (requestedVersion)

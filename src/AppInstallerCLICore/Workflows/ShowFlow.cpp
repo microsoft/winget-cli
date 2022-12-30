@@ -227,7 +227,7 @@ namespace AppInstaller::CLI::Workflow
 
     void ShowAppVersions(Execution::Context& context)
     {
-        auto versions = context.Get<Execution::Data::Package>()->GetAvailableVersionKeys();
+        auto versions = context.Get<Execution::Data::Package>()->GetAvailableVersionKeys(PinBehavior::IgnorePins);
 
         Execution::TableOutput<2> table(context.Reporter, { Resource::String::ShowVersion, Resource::String::ShowChannel });
         for (const auto& version : versions)

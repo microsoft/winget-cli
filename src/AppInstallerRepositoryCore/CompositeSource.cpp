@@ -26,7 +26,7 @@ namespace AppInstaller::Repository
         {
             return {
                 availablePackage->GetProperty(PackageProperty::Id).get(),
-                availablePackage->GetLatestAvailableVersion()->GetSource().GetIdentifier()
+                availablePackage->GetLatestAvailableVersion(PinBehavior::IgnorePins)->GetSource().GetIdentifier()
             };
         }
 
@@ -106,9 +106,9 @@ namespace AppInstaller::Repository
             std::chrono::system_clock::time_point resultTime{};
             std::shared_ptr<IPackageVersion> resultVersion;
 
-            for (const auto& key : trackingPackage->GetAvailableVersionKeys())
+            for (const auto& key : trackingPackage->GetAvailableVersionKeys(PinBehavior::IgnorePins))
             {
-                auto version = trackingPackage->GetAvailableVersion(key);
+                auto version = trackingPackage->GetAvailableVersion(key, PinBehavior::IgnorePins);
                 if (version)
                 {
                     auto metadata = version->GetMetadata();
@@ -142,12 +142,12 @@ namespace AppInstaller::Repository
         {
             // Stores raw versions value strings to run a preliminary check whether version mapping is needed.
             std::vector<std::tuple<std::string, std::string, std::string>> rawVersionValues;
-            auto versionKeys = availablePackage->GetAvailableVersionKeys();
+            auto versionKeys = availablePackage->GetAvailableVersionKeys(PinBehavior::IgnorePins);
             bool shouldTryPerformMapping = false;
 
             for (auto const& versionKey : versionKeys)
             {
-                auto availableVersion = availablePackage->GetAvailableVersion(versionKey);
+                auto availableVersion = availablePackage->GetAvailableVersion(versionKey, PinBehavior::IgnorePins);
                 std::string arpMinVersion = availableVersion->GetProperty(PackageVersionProperty::ArpMinVersion);
                 std::string arpMaxVersion = availableVersion->GetProperty(PackageVersionProperty::ArpMaxVersion);
 
@@ -403,7 +403,7 @@ namespace AppInstaller::Repository
                     }
                 }
 
-                return AvailablePackage->GetAvailableVersion(versionKey);
+                return AvailablePackage->GetAvailableVersion(versionKey, PinBehavior::IgnorePins);
             }
         };
 
@@ -486,7 +486,13 @@ namespace AppInstaller::Repository
 
             std::shared_ptr<IPackageVersion> GetLatestAvailableVersion(PinBehavior pinBehavior) const override
             {
-                return GetAvailableVersion({ "", "", m_installedChannel.get() }, pinBehavior);
+                auto availableVersionKeys = GetAvailableVersionKeys(pinBehavior);
+                if (availableVersionKeys.empty())
+                {
+                    return {};
+                }
+
+                return GetAvailableVersion(availableVersionKeys.front(), PinBehavior::IgnorePins);
             }
 
             std::shared_ptr<IPackageVersion> GetAvailableVersion(const PackageVersionKey& versionKey, PinBehavior pinBehavior) const override
@@ -799,9 +805,9 @@ namespace AppInstaller::Repository
                 }
 
                 PackageData result;
-                for (auto const& versionKey : availableMatch.Package->GetAvailableVersionKeys())
+                for (auto const& versionKey : availableMatch.Package->GetAvailableVersionKeys(PinBehavior::IgnorePins))
                 {
-                    auto packageVersion = availableMatch.Package->GetAvailableVersion(versionKey);
+                    auto packageVersion = availableMatch.Package->GetAvailableVersion(versionKey, PinBehavior::IgnorePins);
                     AddSystemReferenceStrings(packageVersion.get(), result);
                 }
                 return result;
@@ -827,9 +833,9 @@ namespace AppInstaller::Repository
                 }
 
                 PackageData result;
-                for (auto const& versionKey : trackingMatch.Package->GetAvailableVersionKeys())
+                for (auto const& versionKey : trackingMatch.Package->GetAvailableVersionKeys(PinBehavior::IgnorePins))
                 {
-                    auto packageVersion = trackingMatch.Package->GetAvailableVersion(versionKey);
+                    auto packageVersion = trackingMatch.Package->GetAvailableVersion(versionKey, PinBehavior::IgnorePins);
                     AddSystemReferenceStrings(packageVersion.get(), result);
                 }
                 return result;
@@ -1193,6 +1199,16 @@ namespace AppInstaller::Repository
             // Optimization for the "everything installed" case, no need to allow for reverse correlations
             if (request.IsForEverything() && m_searchBehavior == CompositeSearchBehavior::Installed)
             {
+                if (ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Pinning))
+                {
+                    // Look up any pins for the packages found
+                    auto pinningIndex = PinningIndex::OpenOrCreateDefault();
+                    for (auto& match : result.Matches)
+                    {
+                        match.Package->GetExistingPins(pinningIndex);
+                    }
+                }
+
                 return std::move(result);
             }
         }

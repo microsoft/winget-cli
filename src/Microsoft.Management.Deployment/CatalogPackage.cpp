@@ -51,7 +51,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             [&]()
             {
                 // Vector hasn't been populated yet.
-                for (auto const& versionKey : m_package.get()->GetAvailableVersionKeys())
+                for (auto const& versionKey : m_package.get()->GetAvailableVersionKeys(AppInstaller::Repository::PinBehavior::IgnorePins))
                 {
                     auto packageVersionId = winrt::make_self<wil::details::module_count_wrapper<
                         winrt::Microsoft::Management::Deployment::implementation::PackageVersionId>>();
@@ -66,7 +66,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         std::call_once(m_defaultInstallVersionOnceFlag,
             [&]()
             {
-                std::shared_ptr<::AppInstaller::Repository::IPackageVersion> latestVersion = m_package.get()->GetLatestAvailableVersion();
+                std::shared_ptr<::AppInstaller::Repository::IPackageVersion> latestVersion = m_package.get()->GetLatestAvailableVersion(AppInstaller::Repository::PinBehavior::IgnorePins);
                 if (latestVersion)
                 {
                     // DefaultInstallVersion hasn't been created yet, create and populate it.
@@ -84,7 +84,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         winrt::Microsoft::Management::Deployment::PackageVersionInfo packageVersionInfo{ nullptr };
 
         ::AppInstaller::Repository::PackageVersionKey internalVersionKey(winrt::to_string(versionKey.PackageCatalogId()), winrt::to_string(versionKey.Version()), winrt::to_string(versionKey.Channel()));
-        std::shared_ptr<::AppInstaller::Repository::IPackageVersion> availableVersion = m_package.get()->GetAvailableVersion(internalVersionKey);
+        std::shared_ptr<::AppInstaller::Repository::IPackageVersion> availableVersion = m_package.get()->GetAvailableVersion(internalVersionKey, AppInstaller::Repository::PinBehavior::IgnorePins);
         if (availableVersion)
         {
             auto packageVersionInfoImpl = winrt::make_self<wil::details::module_count_wrapper<
@@ -96,7 +96,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     }
     bool CatalogPackage::IsUpdateAvailable()
     {
-        return m_package->IsUpdateAvailable();
+        return m_package->IsUpdateAvailable(AppInstaller::Repository::PinBehavior::IgnorePins);
     }
     Windows::Foundation::IAsyncOperation<winrt::Microsoft::Management::Deployment::CheckInstalledStatusResult> CatalogPackage::CheckInstalledStatusAsync(
         Microsoft::Management::Deployment::InstalledStatusType checkTypes)

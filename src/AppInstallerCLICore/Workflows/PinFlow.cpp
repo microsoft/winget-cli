@@ -56,7 +56,7 @@ namespace AppInstaller::CLI::Workflow
         auto packageVersionKeys = package->GetAvailableVersionKeys(PinBehavior::IgnorePins);
         for (auto versionKey : packageVersionKeys)
         {
-            auto availableVersion = package->GetAvailableVersion(versionKey);
+            auto availableVersion = package->GetAvailableVersion(versionKey, PinBehavior::IgnorePins);
             Pinning::PinKey pinKey{
                 availableVersion->GetProperty(PackageVersionProperty::Id).get(),
                 availableVersion->GetProperty(PackageVersionProperty::SourceIdentifier).get() };
@@ -99,7 +99,7 @@ namespace AppInstaller::CLI::Workflow
         auto packageVersionKeys = package->GetAvailableVersionKeys(PinBehavior::IgnorePins);
         for (auto versionKey : packageVersionKeys)
         {
-            auto availableVersion = package->GetAvailableVersion(versionKey);
+            auto availableVersion = package->GetAvailableVersion(versionKey, PinBehavior::IgnorePins);
             Pinning::PinKey pinKey{
                 availableVersion->GetProperty(PackageVersionProperty::Id).get(),
                 availableVersion->GetProperty(PackageVersionProperty::SourceIdentifier).get() };
@@ -163,7 +163,7 @@ namespace AppInstaller::CLI::Workflow
         std::vector<Pinning::Pin> pins;
 
         // TODO #476: We should support querying the multiple sources for a package, instead of just one
-        auto availableVersion = package->GetLatestAvailableVersion();
+        auto availableVersion = package->GetLatestAvailableVersion(PinBehavior::IgnorePins);
 
         auto pinningIndex = context.Get<Execution::Data::PinningIndex>();
         Pinning::PinKey pinKey{

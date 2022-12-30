@@ -41,7 +41,7 @@ namespace AppInstaller::CLI::Workflow
         const auto& package = match.Package;
         auto packageId = package->GetProperty(PackageProperty::Id);
         m_nodePackageInstalledVersion = package->GetInstalledVersion();
-        m_nodePackageLatestVersion = package->GetLatestAvailableVersion();
+        m_nodePackageLatestVersion = package->GetLatestAvailableVersion(PinBehavior::ConsiderPins);
 
         if (m_nodePackageInstalledVersion && dependencyNode.IsVersionOk(Utility::Version(m_nodePackageInstalledVersion->GetProperty(PackageVersionProperty::Version))))
         {

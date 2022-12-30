@@ -120,14 +120,14 @@ namespace AppInstaller::Repository
                 {
                     // Use the base version as available version if installed version is mapped to be an approximate.
                     versionKey.Version = installedVersionAsVersion.GetBaseVersion().ToString();
-                    availableVersion = package->GetAvailableVersion(versionKey);
+                    availableVersion = package->GetAvailableVersion(versionKey, PinBehavior::IgnorePins);
                     // It's unexpected if the installed version is already mapped to some version.
                     THROW_HR_IF(E_UNEXPECTED, !availableVersion);
                 }
                 else
                 {
                     versionKey.Version = installedVersionAsVersion.ToString();
-                    availableVersion = package->GetAvailableVersion(versionKey);
+                    availableVersion = package->GetAvailableVersion(versionKey, PinBehavior::IgnorePins);
                     if (availableVersion)
                     {
                         checkFileHash = true;
@@ -139,7 +139,7 @@ namespace AppInstaller::Repository
             {
                 // No installed version, or installed version not found in available versions,
                 // then attempt to check installed status using latest version.
-                availableVersion = package->GetLatestAvailableVersion();
+                availableVersion = package->GetLatestAvailableVersion(PinBehavior::IgnorePins);
                 THROW_HR_IF(E_UNEXPECTED, !availableVersion);
             }
 
