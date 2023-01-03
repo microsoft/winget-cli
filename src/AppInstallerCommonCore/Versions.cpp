@@ -536,6 +536,9 @@ namespace AppInstaller::Utility
                 }
             }
         }
+
+        // All version parts matched
+        return true;
     }
 
     bool HasOverlapInVersionRanges(const std::vector<VersionRange>& ranges)

@@ -173,6 +173,7 @@ namespace AppInstaller::Utility
     struct GatedVersion
     {
         GatedVersion() {}
+        GatedVersion(std::string_view versionString) : m_version(std::string{ versionString }) {}
         GatedVersion(const std::string& versionString) : m_version(versionString) {}
 
         // Determines whether a given version falls within this Geted version.
