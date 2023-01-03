@@ -182,7 +182,7 @@ namespace TestCommon
         std::vector<PackageVersionKey> result;
         for (const auto& version : AvailableVersions)
         {
-            result.emplace_back(PackageVersionKey("", version->GetProperty(PackageVersionProperty::Version).get(), version->GetProperty(PackageVersionProperty::Channel).get()));
+            result.emplace_back(PackageVersionKey(version->GetSource().GetIdentifier(), version->GetProperty(PackageVersionProperty::Version).get(), version->GetProperty(PackageVersionProperty::Channel).get()));
         }
         return result;
     }

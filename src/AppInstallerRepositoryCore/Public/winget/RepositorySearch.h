@@ -236,11 +236,9 @@ namespace AppInstaller::Repository
 
         bool operator<(const PackageVersionKey& other) const
         {
-            Utility::VersionAndChannel vac({ Version }, { Channel });
-            Utility::VersionAndChannel otherVac({ other.Version }, { other.Channel });
-            if (vac < otherVac) return true;
-            if (otherVac < vac) return false;
-            return SourceId < other.SourceId;
+            // Sort using only the version and channel.
+            // The order for the sources depends on the context.
+            return Utility::VersionAndChannel({ Version }, { Channel }) < Utility::VersionAndChannel({ other.Version }, { other.Channel });
         }
     };
 
