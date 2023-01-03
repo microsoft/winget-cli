@@ -317,3 +317,21 @@ TEST_CASE("VersionRange", "[versions]")
     REQUIRE(VersionRange{ Version{ "0.5" }, Version{ "1.0" } } < VersionRange{ Version{ "1.5" }, Version{ "2.0" } });
     REQUIRE_FALSE(VersionRange{ Version{ "1.5" }, Version{ "2.0" } } < VersionRange{ Version{ "0.5" }, Version{ "1.0" } });
 }
+
+TEST_CASE("GatedVersion", "[versions]")
+{
+    REQUIRE(GatedVersion("1.0.*").IsValidVersion({ "1.0.1" }));
+    REQUIRE(GatedVersion("1.0.*").IsValidVersion({ "1.0" }));
+    REQUIRE(GatedVersion("1.0.*").IsValidVersion({ "1" }));
+    REQUIRE(GatedVersion("1.0.*").IsValidVersion({ "1.0.alpha" }));
+    REQUIRE(GatedVersion("1.0.*").IsValidVersion({ "1.0.1.2.3" }));
+    REQUIRE(GatedVersion("1.0.*").IsValidVersion({ "1.0.*" }));
+    REQUIRE_FALSE(GatedVersion("1.0.*").IsValidVersion({ "1.1.1" }));
+
+    REQUIRE(GatedVersion("1.*.*").IsValidVersion({ "1.*.1" }));
+    REQUIRE(GatedVersion("1.*.*").IsValidVersion({ "1.*.*" }));
+    REQUIRE_FALSE(GatedVersion("1.*.*").IsValidVersion({ "1.1.1" }));
+
+    REQUIRE(GatedVersion("1.0.1").IsValidVersion({ "1.0.1" }));
+    REQUIRE_FALSE(GatedVersion("1.0.1").IsValidVersion({ "1.1.1" }));
+}

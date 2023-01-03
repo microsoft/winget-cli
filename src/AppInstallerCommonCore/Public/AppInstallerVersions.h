@@ -95,7 +95,7 @@ namespace AppInstaller::Utility
             std::string Other;
         };
 
-        // Gets the part breakdown for a given version; used for tests.
+        // Gets the part breakdown for a given version.
         const std::vector<Part>& GetParts() const { return m_parts; }
 
         // Gets the part at the given index; or the implied zero part if past the end.
@@ -172,18 +172,20 @@ namespace AppInstaller::Utility
     // A range of versions indicated by a version and optionally a wildcard at the end.
     struct GatedVersion
     {
-        // TODO #476
-        // For now, using dummy implementation that just holds a string
         GatedVersion() {}
-        GatedVersion(std::string_view s) : m_tmp(s) {}
+        GatedVersion(const std::string& versionString) : m_version(versionString) {}
 
+        // Determines whether a given version falls within this Geted version.
+        // I.e., whether it matches up to the wildcard
         bool IsValidVersion(Version version) const;
 
-        bool operator==(const GatedVersion& other) const { return m_tmp == other.m_tmp; }
-        std::string ToString() const { return m_tmp; }
+        bool operator==(const GatedVersion& other) const { return m_version == other.m_version; }
+        std::string ToString() const { return m_version.ToString(); }
 
     private:
-        std::string m_tmp;
+        // Hold the version string as a Version object that makes it easy to access each of
+        // the version's parts. The real magic is in IsValidVersion()
+        Version m_version;
     };
 
     // A channel string; existing solely to give a type.
