@@ -323,9 +323,6 @@ namespace AppInstaller::Repository
                     }
                 }
 
-                // TODO #476 pin info
-                // result[PackageVersionMetadata::]
-
                 return result;
             }
 

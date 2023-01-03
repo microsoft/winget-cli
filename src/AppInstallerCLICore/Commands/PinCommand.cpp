@@ -293,6 +293,7 @@ namespace AppInstaller::CLI
 
     void PinResetCommand::ExecuteInternal(Execution::Context& context) const
     {
+        // Like 'source reset', if we don't get the --force argument we will only list existing pins.
         context <<
             Workflow::OpenPinningIndex <<
             Workflow::GetAllPins <<

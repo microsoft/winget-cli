@@ -74,11 +74,6 @@ namespace AppInstaller::CLI::Workflow
         context.Add<Execution::Data::Pins>(std::move(pins));
     }
 
-    // Adds a pin for the current package.
-    // A separate pin will be added for each source.
-    // Required Args: None
-    // Inputs: PinningIndex, Package
-    // Outputs: None
     void AddPin(Execution::Context& context)
     {
         auto package = context.Get<Execution::Data::Package>();
@@ -155,7 +150,6 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    // Removes all the pins associated with a package.
     void RemovePin(Execution::Context& context)
     {
         auto package = context.Get<Execution::Data::Package>();
@@ -179,10 +173,6 @@ namespace AppInstaller::CLI::Workflow
         pinningIndex->RemovePin(pinKey);
     }
 
-    // Report the pins in a table.
-    // Required Args: None
-    // Inputs: Pins
-    // Outputs: None
     void ReportPins(Execution::Context& context)
     {
         const auto& pins = context.Get<Execution::Data::Pins>();
@@ -215,10 +205,6 @@ namespace AppInstaller::CLI::Workflow
         table.Complete();
     }
 
-    // Resets all the existing pins.
-    // Required Args: None
-    // Inputs: PinningIndex
-    // Outputs: None
     void ResetAllPins(Execution::Context& context)
     {
         AICLI_LOG(CLI, Info, << "Resetting all pins");
@@ -244,10 +230,6 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    // Updates the list of pins to include only those matching the current open source
-    // Required Args: None
-    // Inputs: Pins, Source
-    // Outputs: None
     void CrossReferencePinsWithSource(Execution::Context& context)
     {
         const auto& pins = context.Get<Execution::Data::Pins>();

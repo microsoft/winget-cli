@@ -21,7 +21,7 @@ namespace AppInstaller::CLI::Workflow
     // There may be several if a package is available from multiple sources.
     // Required Args: None
     // Inputs: PinningIndex, Package
-    // Outputs Pins
+    // Outputs: Pins
     void SearchPin(Execution::Context& context);
 
     // Adds a pin for the current package.
