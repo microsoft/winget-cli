@@ -359,14 +359,14 @@ namespace AppInstaller::Repository
                 {
                     if (Pin->GetType() == Pinning::PinType::Blocking)
                     {
-                        AICLI_LOG(Repo, Info, << "Ignoring available versions from source [" << Pin->GetSourceId() << "] for package [ " << Pin->GetPackageId() << "] due to Blocking pin");
+                        AICLI_LOG(Repo, Info, << "Ignoring available versions from source [" << Pin->GetSourceId() << "] for package [" << Pin->GetPackageId() << "] due to Blocking pin");
                         return {};
                     }
                     else if (Pin->GetType() == Pinning::PinType::Pinning)
                     {
                         if (pinBehavior != PinBehavior::IncludePinned)
                         {
-                            AICLI_LOG(Repo, Info, << "Ignoring available versions from source [" << Pin->GetSourceId() << "] for package [ " << Pin->GetPackageId() << "] due to Pinning pin");
+                            AICLI_LOG(Repo, Info, << "Ignoring available versions from source [" << Pin->GetSourceId() << "] for package [" << Pin->GetPackageId() << "] due to Pinning pin");
                             return {};
                         }
                     }
@@ -389,14 +389,14 @@ namespace AppInstaller::Repository
                 {
                     if (Pin->GetType() == Pinning::PinType::Blocking)
                     {
-                        AICLI_LOG(Repo, Info, << "Ignoring available version from source [" << Pin->GetSourceId() << "] for package [ " << Pin->GetPackageId() << "] due to Blocking pin");
+                        AICLI_LOG(Repo, Info, << "Ignoring available version from source [" << Pin->GetSourceId() << "] for package [" << Pin->GetPackageId() << "] due to Blocking pin");
                         return {};
                     }
                     else if (Pin->GetType() == Pinning::PinType::Pinning)
                     {
                         if (pinBehavior != PinBehavior::IncludePinned)
                         {
-                            AICLI_LOG(Repo, Info, << "Ignoring available version from source [" << Pin->GetSourceId() << "] for package [ " << Pin->GetPackageId() << "] due to Pinning pin");
+                            AICLI_LOG(Repo, Info, << "Ignoring available version from source [" << Pin->GetSourceId() << "] for package [" << Pin->GetPackageId() << "] due to Pinning pin");
                             return {};
                         }
                     }
@@ -405,7 +405,7 @@ namespace AppInstaller::Repository
                         Utility::GatedVersion gatedVersion(Pin->GetVersionString());
                         if (!gatedVersion.IsValidVersion(versionKey.Version))
                         {
-                            AICLI_LOG(Repo, Info, << "Ignoring available version from source [" << Pin->GetSourceId() << "] for package [ " << Pin->GetPackageId() << "] as it does not satisfy Gating pin");
+                            AICLI_LOG(Repo, Info, << "Ignoring available version from source [" << Pin->GetSourceId() << "] for package [" << Pin->GetPackageId() << "] as it does not satisfy Gating pin");
                             return {};
                         }
                     }
@@ -1191,7 +1191,7 @@ namespace AppInstaller::Repository
             // Optimization for the "everything installed" case, no need to allow for reverse correlations
             if (request.IsForEverything() && m_searchBehavior == CompositeSearchBehavior::Installed)
             {
-                if (ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Pinning))
+                if (ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Pinning) && !result.Matches.empty())
                 {
                     // Look up any pins for the packages found
                     auto pinningIndex = PinningIndex::OpenOrCreateDefault();
@@ -1314,7 +1314,7 @@ namespace AppInstaller::Repository
             result.Matches.erase(result.Matches.begin() + request.MaximumResults, result.Matches.end());
         }
 
-        if (ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Pinning))
+        if (ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Pinning) && !result.Matches.empty())
         {
             // Look up any pins for the packages found
             auto pinningIndex = PinningIndex::OpenOrCreateDefault();
