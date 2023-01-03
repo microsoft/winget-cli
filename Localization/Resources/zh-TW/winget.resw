@@ -603,7 +603,7 @@
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
-    <value>無法開啟預先定義的來源;請回報 winget maintainers。</value>
+    <value>無法開啟預先定義的來源;請向 winget 維護者回報。</value>
     <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
