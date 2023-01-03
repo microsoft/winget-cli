@@ -176,7 +176,7 @@ namespace AppInstaller::Utility
         GatedVersion(std::string_view versionString) : m_version(std::string{ versionString }) {}
         GatedVersion(const std::string& versionString) : m_version(versionString) {}
 
-        // Determines whether a given version falls within this Geted version.
+        // Determines whether a given version falls within this Gated version.
         // I.e., whether it matches up to the wildcard
         bool IsValidVersion(Version version) const;
 
