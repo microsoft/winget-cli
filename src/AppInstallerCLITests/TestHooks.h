@@ -34,6 +34,11 @@ namespace AppInstaller
         void TestHook_ClearSourceFactoryOverrides();
     }
 
+    namespace Repository::Microsoft
+    {
+        void TestHook_SetPinningIndex_Override(std::optional<std::filesystem::path>&& indexPath);
+    }
+
     namespace Logging
     {
         void TestHook_SetTelemetryOverride(std::shared_ptr<TelemetryTraceLogger> ttl);
@@ -87,5 +92,18 @@ namespace TestHook
 
     private:
         bool m_status;
+    };
+
+    struct SetPinningIndex_Override
+    {
+        SetPinningIndex_Override(const std::filesystem::path& indexPath)
+        {
+            AppInstaller::Repository::Microsoft::TestHook_SetPinningIndex_Override(indexPath);
+        }
+
+        ~SetPinningIndex_Override()
+        {
+            AppInstaller::Repository::Microsoft::TestHook_SetPinningIndex_Override({});
+        }
     };
 }

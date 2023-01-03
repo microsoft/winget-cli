@@ -292,7 +292,7 @@ TEST_CASE("UpdateFlow_NoArgs_UnknownVersion", "[UpdateFlow][workflow]")
     INFO(updateOutput.str());
 
     // Verify --include-unknown help text is displayed if update is executed with no args and an unknown version package is available for upgrade.
-    REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::UpgradeUnknownVersionCount).get()) != std::string::npos);
+    REQUIRE(updateOutput.str().find(Resource::String::UpgradeUnknownVersionCount(1)) != std::string::npos);
 }
 
 TEST_CASE("UpdateFlow_IncludeUnknown", "[UpdateFlow][workflow]")
@@ -309,7 +309,7 @@ TEST_CASE("UpdateFlow_IncludeUnknown", "[UpdateFlow][workflow]")
     INFO(updateOutput.str());
 
     // Verify unknown version package is displayed available for upgrade.
-    REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::UpgradeUnknownVersionCount).get()) == std::string::npos);
+    REQUIRE(updateOutput.str().find(Resource::String::UpgradeUnknownVersionCount(1)) == std::string::npos);
     REQUIRE(updateOutput.str().find("unknown") != std::string::npos);
 }
 
@@ -519,7 +519,7 @@ TEST_CASE("UpdateFlow_UpdateAllApplicable", "[UpdateFlow][workflow]")
     INFO(updateOutput.str());
 
     // Verify that --include-unknown help message is displayed.
-    REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::UpgradeUnknownVersionCount).get()) != std::string::npos);
+    REQUIRE(updateOutput.str().find(Resource::String::UpgradeUnknownVersionCount(1)) != std::string::npos);
     REQUIRE(updateOutput.str().find("AppInstallerCliTest.TestExeUnknownVersion") == std::string::npos);
 
     // Verify installers are called.
@@ -752,7 +752,7 @@ TEST_CASE("UpdateFlow_RequireExplicit", "[UpdateFlow][workflow]")
         REQUIRE(pinnedPackagesHeaderPosition != std::string::npos);
         REQUIRE(pinnedPackageLinePosition != std::string::npos);
         REQUIRE(pinnedPackagesHeaderPosition < pinnedPackageLinePosition);
-        REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::UpgradeRequireExplicitCount)) == std::string::npos);
+        REQUIRE(updateOutput.str().find(Resource::String::UpgradeRequireExplicitCount(1)) == std::string::npos);
     }
 
     SECTION("Upgrade all except pinned")
@@ -771,7 +771,7 @@ TEST_CASE("UpdateFlow_RequireExplicit", "[UpdateFlow][workflow]")
         auto s = updateOutput.str();
 
         // Verify message is printed for skipped package
-        REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::UpgradeRequireExplicitCount)) != std::string::npos);
+        REQUIRE(updateOutput.str().find(Resource::String::UpgradeRequireExplicitCount(1)) != std::string::npos);
 
         // Verify package is not installed, but all others are
         REQUIRE(std::filesystem::exists(updateExeResultPath.GetPath()));

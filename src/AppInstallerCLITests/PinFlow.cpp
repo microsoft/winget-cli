@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "WorkflowCommon.h"
+#include "TestHooks.h"
 #include <Commands/PinCommand.h>
 #include <Workflows/PinFlow.h>
 #include <Microsoft/PinningIndex.h>
@@ -13,24 +14,13 @@ using namespace AppInstaller::CLI::Workflow;
 using namespace AppInstaller::Repository::Microsoft;
 using namespace AppInstaller::Pinning;
 
-void OverrideForOpenPinningIndex(TestContext& context, const std::filesystem::path& indexPath)
-{
-    context.Override({ OpenPinningIndex, [=](TestContext& context)
-        {
-            auto pinningIndex = std::filesystem::exists(indexPath) ?
-                PinningIndex::Open(indexPath.u8string(), SQLiteStorageBase::OpenDisposition::ReadWrite) :
-                PinningIndex::CreateNew(indexPath.u8string());
-            context.Add<Execution::Data::PinningIndex>(std::make_shared<PinningIndex>(std::move(pinningIndex)));
-        } });
-}
-
 TEST_CASE("PinFlow_Add", "[PinFlow][workflow]")
 {
     TempFile indexFile("pinningIndex", ".db");
+    TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
 
     std::ostringstream pinAddOutput;
     TestContext addContext{ pinAddOutput, std::cin };
-    OverrideForOpenPinningIndex(addContext, indexFile.GetPath());
     OverrideForCompositeInstalledSource(addContext);
     addContext.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestExeInstaller"sv);
     addContext.Args.AddArg(Execution::Args::Type::BlockingPin);
@@ -51,7 +41,6 @@ TEST_CASE("PinFlow_Add", "[PinFlow][workflow]")
 
         std::ostringstream pinListOutput;
         TestContext listContext{ pinListOutput, std::cin };
-        OverrideForOpenPinningIndex(listContext, indexFile.GetPath());
         OverrideForCompositeInstalledSource(listContext);
         listContext.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestExeInstaller"sv);
 
@@ -66,7 +55,6 @@ TEST_CASE("PinFlow_Add", "[PinFlow][workflow]")
     {
         std::ostringstream pinRemoveOutput;
         TestContext removeContext{ pinRemoveOutput, std::cin };
-        OverrideForOpenPinningIndex(removeContext, indexFile.GetPath());
         OverrideForCompositeInstalledSource(removeContext);
         removeContext.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestExeInstaller"sv);
 
@@ -82,7 +70,6 @@ TEST_CASE("PinFlow_Add", "[PinFlow][workflow]")
     {
         std::ostringstream pinResetOutput;
         TestContext resetContext{ pinResetOutput, std::cin };
-        OverrideForOpenPinningIndex(resetContext, indexFile.GetPath());
         OverrideForCompositeInstalledSource(resetContext);
 
         SECTION("Without --force")
@@ -112,7 +99,6 @@ TEST_CASE("PinFlow_Add", "[PinFlow][workflow]")
     {
         std::ostringstream pinUpdateOutput;
         TestContext updateContext{ pinUpdateOutput, std::cin };
-        OverrideForOpenPinningIndex(updateContext, indexFile.GetPath());
         OverrideForCompositeInstalledSource(updateContext);
         updateContext.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestExeInstaller"sv);
 
@@ -146,6 +132,9 @@ TEST_CASE("PinFlow_Add", "[PinFlow][workflow]")
 
 TEST_CASE("PinFlow_Add_NotFound", "[PinFlow][workflow]")
 {
+    TempFile indexFile("pinningIndex", ".db");
+    TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
+
     std::ostringstream pinAddOutput;
     TestContext addContext{ pinAddOutput, std::cin };
     OverrideForCompositeInstalledSource(addContext);
@@ -161,10 +150,10 @@ TEST_CASE("PinFlow_Add_NotFound", "[PinFlow][workflow]")
 TEST_CASE("PinFlow_Add_NotInstalled", "[PinFlow][workflow]")
 {
     TempFile indexFile("pinningIndex", ".db");
+    TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
 
     std::ostringstream pinAddOutput;
     TestContext addContext{ pinAddOutput, std::cin };
-    OverrideForOpenPinningIndex(addContext, indexFile.GetPath());
     OverrideForCompositeInstalledSource(addContext);
     addContext.Args.AddArg(Execution::Args::Type::Query, "TestExeInstallerWithNothingInstalled"sv);
 
@@ -182,10 +171,10 @@ TEST_CASE("PinFlow_Add_NotInstalled", "[PinFlow][workflow]")
 TEST_CASE("PinFlow_ListEmpty", "[PinFlow][workflow]")
 {
     TempFile indexFile("pinningIndex", ".db");
+    TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
 
     std::ostringstream pinListOutput;
     TestContext listContext{ pinListOutput, std::cin };
-    OverrideForOpenPinningIndex(listContext, indexFile.GetPath());
     OverrideForCompositeInstalledSource(listContext);
 
     PinListCommand pinList({});
@@ -198,10 +187,10 @@ TEST_CASE("PinFlow_ListEmpty", "[PinFlow][workflow]")
 TEST_CASE("PinFlow_RemoveNonExisting", "[PinFlow][workflow]")
 {
     TempFile indexFile("pinningIndex", ".db");
+    TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
 
     std::ostringstream pinRemoveOutput;
     TestContext removeContext{ pinRemoveOutput, std::cin };
-    OverrideForOpenPinningIndex(removeContext, indexFile.GetPath());
     OverrideForCompositeInstalledSource(removeContext);
     removeContext.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestExeInstaller"sv);
 
@@ -215,10 +204,10 @@ TEST_CASE("PinFlow_RemoveNonExisting", "[PinFlow][workflow]")
 TEST_CASE("PinFlow_ResetEmpty", "[PinFlow][workflow]")
 {
     TempFile indexFile("pinningIndex", ".db");
+    TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
 
     std::ostringstream pinResetOutput;
     TestContext resetContext{ pinResetOutput, std::cin };
-    OverrideForOpenPinningIndex(resetContext, indexFile.GetPath());
     OverrideForCompositeInstalledSource(resetContext);
     resetContext.Args.AddArg(Execution::Args::Type::Force);
 

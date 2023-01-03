@@ -90,8 +90,7 @@ namespace AppInstaller::CLI::Workflow
 
         auto installedVersionString = installedVersion->GetProperty(PackageVersionProperty::Version);
 
-        std::vector<Pinning::Pin> pinsToAdd;
-        std::vector<Pinning::Pin> pinsToUpdate;
+        std::vector<Pinning::Pin> pinsToAddOrUpdate;
         std::set<std::string> sources;
 
         auto pinningIndex = context.Get<Execution::Data::PinningIndex>();
@@ -131,7 +130,7 @@ namespace AppInstaller::CLI::Workflow
                 {
                     AICLI_LOG(CLI, Info, << "Overwriting pin due to --force argument");
                     context.Reporter.Warn() << Resource::String::PinExistsOverwriting << std::endl;
-                    pinsToUpdate.push_back(std::move(pin));
+                    pinsToAddOrUpdate.push_back(std::move(pin));
                 }
                 else
                 {
@@ -141,13 +140,13 @@ namespace AppInstaller::CLI::Workflow
             }
             else
             {
-                pinsToAdd.push_back(std::move(pin));
+                pinsToAddOrUpdate.push_back(std::move(pin));
             }
         }
 
-        if (!pinsToAdd.empty())
+        if (!pinsToAddOrUpdate.empty())
         {
-            for (auto pin : pinsToAdd)
+            for (auto pin : pinsToAddOrUpdate)
             {
                 pinningIndex->AddOrUpdatePin(pin);
             }
