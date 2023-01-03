@@ -110,6 +110,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Execution::Args::Type::CustomHeader),
             Argument{ "all"_liv, 'r', "recurse"_liv, Args::Type::All, Resource::String::UpdateAllArgumentDescription, ArgumentType::Flag },
             Argument{ "include-unknown"_liv, 'u', "unknown"_liv, Args::Type::IncludeUnknown, Resource::String::IncludeUnknownArgumentDescription, ArgumentType::Flag },
+            Argument{ "include-pinned"_liv, Argument::NoAlias, "pinned"_liv, Args::Type::IncludePinned, Resource::String::IncludePinnedArgumentDescription, ArgumentType::Flag},
             Argument::ForType(Args::Type::Force),
         };
     }
