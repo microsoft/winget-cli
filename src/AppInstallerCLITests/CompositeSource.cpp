@@ -6,12 +6,15 @@
 #include "TestHooks.h"
 #include <CompositeSource.h>
 #include <Microsoft/SQLiteIndexSource.h>
+#include <Microsoft/PinningIndex.h>
 #include <PackageTrackingCatalogSourceFactory.h>
+#include <winget/Pin.h>
 
 using namespace std::string_literals;
 using namespace std::string_view_literals;
 using namespace TestCommon;
 using namespace AppInstaller;
+using namespace AppInstaller::Pinning;
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Repository::Microsoft;
 using namespace AppInstaller::Utility;
@@ -95,14 +98,14 @@ struct Criteria : public PackageMatchFilter
     Criteria(PackageMatchField field) : PackageMatchFilter(field, MatchType::Wildcard, ""sv) {}
 };
 
-Manifest::Manifest MakeDefaultManifest()
+Manifest::Manifest MakeDefaultManifest(std::string_view version = "1.0"sv)
 {
     Manifest::Manifest result;
 
     result.Id = "Id";
     result.DefaultLocalization.Add<Manifest::Localization::PackageName>("Name");
     result.DefaultLocalization.Add<Manifest::Localization::Publisher>("Publisher");
-    result.Version = "1.0";
+    result.Version = version;
     result.Installers.push_back({});
 
     return result;
@@ -1025,4 +1028,154 @@ TEST_CASE("CompositeSource_NullAvailableVersion", "[CompositeSource]")
     // We are mostly testing to see if a null available version causes an AV or not
     SearchResult result = setup.Search();
     REQUIRE(result.Matches.size() == 1);
+}
+
+struct ExpectedResultWithPin
+{
+    bool IsUpdateAvailable;
+    std::optional<std::string> LatestAvailableVersion;
+    std::vector<std::string> AvailableVersions;
+    std::vector<std::string> UnavailableVersions;
+};
+
+void RequireExpectedResultsWithPin(std::shared_ptr<IPackage> package, PinBehavior pinBehavior, const ExpectedResultWithPin& expectedResult)
+{
+    REQUIRE(package->IsUpdateAvailable(pinBehavior) == expectedResult.IsUpdateAvailable);
+
+    auto latestAvailable = package->GetLatestAvailableVersion(pinBehavior);
+    if (expectedResult.LatestAvailableVersion.has_value())
+    {
+        REQUIRE(latestAvailable);
+        REQUIRE(latestAvailable->GetManifest().Version == expectedResult.LatestAvailableVersion.value());
+    }
+    else
+    {
+        REQUIRE(!latestAvailable);
+    }
+
+    auto availableVersionKeys = package->GetAvailableVersionKeys(pinBehavior);
+    REQUIRE(availableVersionKeys.size() == expectedResult.AvailableVersions.size());
+    for (size_t i = 0; i < availableVersionKeys.size(); ++i)
+    {
+        REQUIRE(availableVersionKeys[i].Version == expectedResult.AvailableVersions[i]);
+    }
+
+    for (const auto& expectedAvailableVersion : expectedResult.AvailableVersions)
+    {
+        REQUIRE(package->GetAvailableVersion({ "", expectedAvailableVersion, "" }, pinBehavior));
+    }
+
+    for (const auto& expectedUnavailableVersion : expectedResult.UnavailableVersions)
+    {
+        REQUIRE(!(package->GetAvailableVersion({ "", expectedUnavailableVersion, "" }, pinBehavior)));
+    }
+}
+
+TEST_CASE("CompositeSource_PinnedAvailable", "[CompositeSource][PinFlow]")
+{
+    // We use an installed package that has 3 available versions: v1.0.0, v1.0.1 and v1.1.0.
+    // Installed is v1.0.1
+    // We then test the 4 possible pin states (unpinned, Pinned, Blocked, Gated)
+    // with the 3 possible pin search behaviors (ignore, consider, include pinnned)
+    TempFile indexFile("pinningIndex", ".db");
+    TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
+
+    TestUserSettings userSettings;
+    userSettings.Set<Settings::Setting::EFPinning>(true);
+
+    CompositeTestSetup setup;
+
+    auto installedPackage = TestPackage::Make(MakeDefaultManifest("1.0.1"sv), TestPackage::MetadataMap{});
+    setup.Installed->Everything.Matches.emplace_back(installedPackage, Criteria());
+
+    setup.Available->SearchFunction = [&](const SearchRequest&)
+    {
+        auto manifest1 = MakeDefaultManifest("1.0.0"sv);
+        auto manifest2 = MakeDefaultManifest("1.0.1"sv);
+        auto manifest3 = MakeDefaultManifest("1.1.0"sv);
+        auto package = TestPackage::Make(
+            std::vector<Manifest::Manifest>{ manifest1, manifest2, manifest3 },
+            setup.Available);
+
+        SearchResult result;
+        result.Matches.emplace_back(package, Criteria());
+        return result;
+    };
+
+    // The result when ignoring pins is always the same
+    ExpectedResultWithPin expectedResult_ignorePins;
+    expectedResult_ignorePins.IsUpdateAvailable = true;
+    expectedResult_ignorePins.LatestAvailableVersion = "1.1.0";
+    expectedResult_ignorePins.AvailableVersions = { "1.1.0", "1.0.1", "1.0.0" };
+    expectedResult_ignorePins.UnavailableVersions = {};
+
+    ExpectedResultWithPin expectedResult_includePinned;
+    ExpectedResultWithPin expectedResult_considerPins;
+
+    PinKey pinKey("Id", setup.Available->Details.Identifier);
+    PinningIndex pinningIndex = PinningIndex::OpenOrCreateDefault();
+
+    SECTION("Unpinned")
+    {
+        // If there are no pins, the result should not change if we consider them
+        expectedResult_considerPins = expectedResult_ignorePins;
+        expectedResult_includePinned = expectedResult_ignorePins;
+    }
+    SECTION("Pinned")
+    {
+        pinningIndex.AddPin(Pin::CreatePinningPin(PinKey{ pinKey }));
+
+        // Pinning pins are ignored with --include-pinned
+        expectedResult_includePinned = expectedResult_ignorePins;
+
+        expectedResult_considerPins.IsUpdateAvailable = false;
+        expectedResult_considerPins.LatestAvailableVersion = {};
+        expectedResult_considerPins.AvailableVersions = {};
+        expectedResult_considerPins.UnavailableVersions = { "1.1.0", "1.0.1", "1.0.0" };
+    }
+    SECTION("Blocked")
+    {
+        pinningIndex.AddPin(Pin::CreateBlockingPin(PinKey{ pinKey }));
+
+        expectedResult_considerPins.IsUpdateAvailable = false;
+        expectedResult_considerPins.LatestAvailableVersion = {};
+        expectedResult_considerPins.AvailableVersions = {};
+        expectedResult_considerPins.UnavailableVersions = { "1.1.0", "1.0.1", "1.0.0" };
+
+        // Blocking pins are not affected by --include-pinned
+        expectedResult_includePinned = expectedResult_considerPins;
+    }
+    SECTION("Gated to 1.*")
+    {
+        pinningIndex.AddPin(Pin::CreateGatingPin(PinKey{ pinKey }, GatedVersion{ "1.*"sv }));
+
+        expectedResult_considerPins.IsUpdateAvailable = true;
+        expectedResult_considerPins.LatestAvailableVersion = "1.1.0";
+        expectedResult_considerPins.AvailableVersions = { "1.1.0", "1.0.1", "1.0.0" };
+        expectedResult_considerPins.UnavailableVersions = {};
+
+        // Gating pins are not affected by --include-pinned
+        expectedResult_includePinned = expectedResult_considerPins;
+    }
+    SECTION("Gated to 1.0.*")
+    {
+        pinningIndex.AddPin(Pin::CreateGatingPin(PinKey{ pinKey }, GatedVersion{ "1.0.*"sv }));
+
+        expectedResult_considerPins.IsUpdateAvailable = false;
+        expectedResult_considerPins.LatestAvailableVersion = "1.0.1";
+        expectedResult_considerPins.AvailableVersions = { "1.0.1", "1.0.0" };
+        expectedResult_considerPins.UnavailableVersions = { "1.1.0" };
+
+        // Gating pins are not affected by --include-pinned
+        expectedResult_includePinned = expectedResult_considerPins;
+    }
+
+    SearchResult result = setup.Search();
+    REQUIRE(result.Matches.size() == 1);
+    auto package = result.Matches[0].Package;
+    REQUIRE(package);
+
+    RequireExpectedResultsWithPin(package, PinBehavior::IgnorePins, expectedResult_ignorePins);
+    RequireExpectedResultsWithPin(package, PinBehavior::IncludePinned, expectedResult_includePinned);
+    RequireExpectedResultsWithPin(package, PinBehavior::ConsiderPins, expectedResult_considerPins);
 }
