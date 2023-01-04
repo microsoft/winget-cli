@@ -32,12 +32,12 @@ Si vous activez ou ne configurez pas ce paramètre, les utilisateurs peuvent ins
 
 Si vous désactivez ce paramètre, les utilisateurs ne peuvent pas installer de packages avec des manifestes locaux à l’aide du gestionnaire de packages Windows.</string>
       <string id="EnableBypassCertificatePinningForMicrosoftStore">Activer Programme d'installation d'application Microsoft Store contournement de la validation du certificat source</string>
-      <string id="EnableBypassCertificatePinningForMicrosoftStoreExplanation">This policy controls whether the Windows Package Manager will validate the Microsoft Store certificate hash matches to a known Microsoft Store certificate when initiating a connection to the Microsoft Store Source. 
-If you enable this policy, the Windows Package Manager will bypass the Microsoft Store certificate validation. 
+      <string id="EnableBypassCertificatePinningForMicrosoftStoreExplanation">Cette stratégie contrôle si le Gestionnaire de package Windows validera si les correspondances de hachage de certificat Microsoft Store correspond à un certificat Microsoft Store connu lors de l’initialisation d’une connexion à la source Microsoft Store. 
+Si vous activez cette stratégie, le Gestionnaire de package Windows contourne la validation du certificat Microsoft Store. 
 
-If you disable this policy, the Windows Package Manager will validate the Microsoft Store certificate used is valid and belongs to the Microsoft Store before communicating with the Microsoft Store source.
+Si vous désactivez cette stratégie, le Gestionnaire de package Windows vérifie que le certificat Microsoft Store utilisé est valide et appartient au Microsoft Store avant de communiquer avec la source Microsoft Store.
 
-If you do not configure this policy, the Windows Package Manager administrator settings will be adhered to.</string>
+Si vous ne configurez pas cette stratégie, les paramètres d’administrateur Gestionnaire de package Windows sont respectés.</string>
       <string id="EnableHashOverride">Activer le remplacement de code de hachage du Programme d’installation de l’application</string>
       <string id="EnableHashOverrideExplanation">Cette stratégie détermine si les utilisateurs peuvent configurer le Gestionnaire de package Windows ou non pour activer la fonction de remplacement de la validation de sécurité SHA256 dans les paramètres.
 
