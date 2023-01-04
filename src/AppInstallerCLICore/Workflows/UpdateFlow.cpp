@@ -42,6 +42,7 @@ namespace AppInstaller::CLI::Workflow
     {
         auto package = context.Get<Execution::Data::Package>();
         auto installedPackage = context.Get<Execution::Data::InstalledPackageVersion>();
+        const bool reportVersionNotFound = m_isSinglePackage;
 
         bool isUpgrade = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);;
         Utility::Version installedVersion;
@@ -57,7 +58,7 @@ namespace AppInstaller::CLI::Workflow
         if (isUpgrade && installedVersion.IsUnknown() && !context.Args.Contains(Execution::Args::Type::IncludeUnknown))
         {
             // the package has an unknown version and the user did not request to upgrade it anyway
-            if (m_reportVersionNotFound)
+            if (reportVersionNotFound)
             {
                 context.Reporter.Info() << Resource::String::UpgradeUnknownVersionExplanation << std::endl;
             }
@@ -65,8 +66,10 @@ namespace AppInstaller::CLI::Workflow
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
         }
 
-        // TODO #476
-        PinBehavior pinBehavior = (m_reportVersionNotFound || context.Args.Contains(Execution::Args::Type::IncludePinned)) ? PinBehavior::IncludePinned : PinBehavior::ConsiderPins;
+        // If we are updating a single package or we got the --include-pinned flag,
+        // we include packages with Pinning pins
+        const PinBehavior pinBehavior =
+            (m_isSinglePackage || context.Args.Contains(Execution::Args::Type::IncludePinned)) ? PinBehavior::IncludePinned : PinBehavior::ConsiderPins;
 
         // The version keys should have already been sorted by version
         const auto& versionKeys = package->GetAvailableVersionKeys(pinBehavior);
@@ -122,7 +125,7 @@ namespace AppInstaller::CLI::Workflow
 
         if (!versionFound)
         {
-            if (m_reportVersionNotFound)
+            if (reportVersionNotFound)
             {
                 if (installedTypeInapplicable)
                 {

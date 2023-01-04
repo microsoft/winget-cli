@@ -65,8 +65,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
 
     std::optional<SQLite::rowid_t> PinTable::GetByPinKey(SQLite::Connection& connection, const Pinning::PinKey& pinKey)
     {
-        // TODO #476: The statement builder requires that the bound parameters can be converted to T&&,
-        //       but the package/source IDs go as const T&. Find a way to avoid the weird casting.
         SQLite::Builder::StatementBuilder builder;
         builder.Select(SQLite::RowIDName).From(s_PinTable_Table_Name)
             .Where(s_PinTable_PackageId_Column).Equals((std::string_view)pinKey.PackageId)
@@ -86,8 +84,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
 
     SQLite::rowid_t PinTable::AddPin(SQLite::Connection& connection, const Pinning::Pin& pin)
     {
-        // TODO #476: The statement builder requires that the bound parameters can be converted to T&&,
-        //       but the package/source IDs go as const T&. Find a way to avoid the weird casting.
         SQLite::Builder::StatementBuilder builder;
         builder.InsertInto(s_PinTable_Table_Name)
             .Columns({
@@ -99,7 +95,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
                 (std::string_view)pin.GetPackageId(),
                 pin.GetSourceId(),
                 pin.GetType(),
-                pin.GetVersionString());
+                pin.GetVersion().ToString());
 
         builder.Execute(connection);
         return connection.GetLastInsertRowID();
@@ -107,14 +103,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
 
     bool PinTable::UpdatePin(SQLite::Connection& connection, SQLite::rowid_t pinId, const Pinning::Pin& pin)
     {
-        // TODO #476: The statement builder requires that the bound parameters can be converted to T&&,
-        //       but the package/source IDs go as const T&. Find a way to avoid the weird casting.
         SQLite::Builder::StatementBuilder builder;
         builder.Update(s_PinTable_Table_Name).Set()
             .Column(s_PinTable_PackageId_Column).Equals((std::string_view)pin.GetPackageId())
             .Column(s_PinTable_SourceId_Column).Equals(pin.GetSourceId())
             .Column(s_PinTable_Type_Column).Equals(pin.GetType())
-            .Column(s_PinTable_Version_Column).Equals(pin.GetVersionString())
+            .Column(s_PinTable_Version_Column).Equals(pin.GetVersion().ToString())
             .Where(SQLite::RowIDName).Equals(pinId);
 
         builder.Execute(connection);

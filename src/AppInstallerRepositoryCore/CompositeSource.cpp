@@ -369,7 +369,7 @@ namespace AppInstaller::Repository
                     }
                     else if (Pin->GetType() == Pinning::PinType::Gating)
                     {
-                        Utility::GatedVersion gatedVersion(Pin->GetVersionString());
+                        Utility::GatedVersion gatedVersion(Pin->GetVersion());
                         auto versionKeys = AvailablePackage->GetAvailableVersionKeys(PinBehavior::IgnorePins);
                         std::vector<PackageVersionKey> result;
                         std::copy_if(versionKeys.begin(), versionKeys.end(), std::back_inserter(result), [&](const PackageVersionKey& pvk) { return gatedVersion.IsValidVersion(pvk.Version); });
@@ -399,7 +399,7 @@ namespace AppInstaller::Repository
                     }
                     else if (Pin->GetType() == Pinning::PinType::Gating)
                     {
-                        Utility::GatedVersion gatedVersion(Pin->GetVersionString());
+                        Utility::GatedVersion gatedVersion(Pin->GetVersion());
                         if (!gatedVersion.IsValidVersion(versionKey.Version))
                         {
                             AICLI_LOG(Repo, Info, << "Ignoring available version from source [" << Pin->GetSourceId() << "] for package [" << Pin->GetPackageId() << "] as it does not satisfy Gating pin");

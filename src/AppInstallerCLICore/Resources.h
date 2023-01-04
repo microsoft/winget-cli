@@ -257,6 +257,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(PinNoPinsExist);
         WINGET_DEFINE_RESOURCE_STRINGID(PinRemoveCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PinRemoveCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(PinRemovedSuccessfully);
         WINGET_DEFINE_RESOURCE_STRINGID(PinResetCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PinResetCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PinResettingAll);

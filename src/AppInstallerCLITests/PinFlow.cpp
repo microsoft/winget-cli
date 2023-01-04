@@ -7,11 +7,13 @@
 #include <Workflows/PinFlow.h>
 #include <Microsoft/PinningIndex.h>
 #include <AppInstallerRuntime.h>
+#include <AppInstallerVersions.h>
 
 using namespace TestCommon;
 using namespace AppInstaller::CLI;
 using namespace AppInstaller::CLI::Workflow;
 using namespace AppInstaller::Repository::Microsoft;
+using namespace AppInstaller::Utility;
 using namespace AppInstaller::Pinning;
 
 TEST_CASE("PinFlow_Add", "[PinFlow][workflow]")
@@ -37,7 +39,7 @@ TEST_CASE("PinFlow_Add", "[PinFlow][workflow]")
         REQUIRE(pins[0].GetType() == PinType::Blocking);
         REQUIRE(pins[0].GetPackageId() == "AppInstallerCliTest.TestExeInstaller");
         REQUIRE(pins[0].GetSourceId() == "*TestSource");
-        REQUIRE(pins[0].GetVersionString() == "1.0.0.0");
+        REQUIRE(pins[0].GetVersion() == Version{ "1.0.0.0" });
 
         std::ostringstream pinListOutput;
         TestContext listContext{ pinListOutput, std::cin };

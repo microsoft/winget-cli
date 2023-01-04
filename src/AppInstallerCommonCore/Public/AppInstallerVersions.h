@@ -173,6 +173,8 @@ namespace AppInstaller::Utility
     struct GatedVersion
     {
         GatedVersion() {}
+        GatedVersion(Version&& version) : m_version(std::move(version)) {}
+        GatedVersion(const Version& version) : m_version(version) {}
         GatedVersion(std::string_view versionString) : m_version(std::string{ versionString }) {}
         GatedVersion(const std::string& versionString) : m_version(versionString) {}
 
@@ -181,7 +183,7 @@ namespace AppInstaller::Utility
         bool IsValidVersion(Version version) const;
 
         bool operator==(const GatedVersion& other) const { return m_version == other.m_version; }
-        std::string ToString() const { return m_version.ToString(); }
+        const std::string& ToString() const { return m_version.ToString(); }
 
     private:
         // Hold the version string as a Version object that makes it easy to access each of

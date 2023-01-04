@@ -1601,15 +1601,16 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Pin added successfully</value>
   </data>
   <data name="PinAlreadyExists" xml:space="preserve">
-    <value>The pin already exists</value>
+    <value>There is already a pin for package {0}</value>
+    <comment>{Locked="{0}"} {0} is a placeholder that will be replaced by a package name. The message is shown when attempting to add a pin for a package that is already pinned.</comment>
   </data>
   <data name="PinExistsOverwriting" xml:space="preserve">
-    <value>A pin already exists for this package. Overwriting due to the --force argument.</value>
-    <comment>{Locked="--force"}</comment>
+    <value>A pin already exists for package {0}. Overwriting due to the --force argument.</value>
+    <comment>{Locked="--force"}{Locked="--force","{0}"} {0} is a placeholder that will be replaced by a package name.</comment>
   </data>
   <data name="PinExistsUseForceArg" xml:space="preserve">
-    <value>A pin already exists for this package. Use the --force argument to overwrite it.</value>
-    <comment>{Locked="--force"}</comment>
+    <value>A pin already exists for package {0}. Use the --force argument to overwrite it.</value>
+    <comment>{Locked="--force","{0}"} {0} is a placeholder that will be replaced by a package name.</comment>
   </data>
   <data name="PinResettingAll" xml:space="preserve">
     <value>Resetting all current pins.</value>
@@ -1634,5 +1635,8 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="IncludePinnedArgumentDescription" xml:space="preserve">
     <value>Upgrade packages even if they have a non-blocking pin</value>
+  </data>
+  <data name="PinRemovedSuccessfully" xml:space="preserve">
+    <value>Pin removed successfully</value>
   </data>
 </root>

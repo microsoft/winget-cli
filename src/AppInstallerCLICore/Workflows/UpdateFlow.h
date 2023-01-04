@@ -12,13 +12,13 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: Manifest?, Installer?
     struct SelectLatestApplicableVersion : public WorkflowTask
     {
-        SelectLatestApplicableVersion(bool reportVersionNotFound) :
-            WorkflowTask("SelectLatestApplicableUpdate"), m_reportVersionNotFound(reportVersionNotFound) {}
+        SelectLatestApplicableVersion(bool isSinglePackage) :
+            WorkflowTask("SelectLatestApplicableUpdate"), m_isSinglePackage(isSinglePackage) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
-        bool m_reportVersionNotFound;
+        bool m_isSinglePackage;
     };
 
     // Ensures the update package has higher version than installed

@@ -49,7 +49,7 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void ResetAllPins(Execution::Context& context);
 
-    // Updates the list of pins to include only those matching the current open source
+    // Updates the list of pins to include only those matching the current open source.
     // Required Args: None
     // Inputs: Pins, Source
     // Outputs: None
