@@ -134,6 +134,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(InstallCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(InstalledPackageNotAvailable);
         WINGET_DEFINE_RESOURCE_STRINGID(InstalledPackageVersionNotAvailable);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstalledScopeArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerAbortsTerminal);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerElevationExpected);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerBlockedByPolicy);

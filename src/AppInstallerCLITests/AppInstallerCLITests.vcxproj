@@ -185,6 +185,7 @@
     <ClInclude Include="TestHooks.h" />
     <ClInclude Include="TestSettings.h" />
     <ClInclude Include="TestSource.h" />
+    <ClInclude Include="WorkflowCommon.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AdminSettings.cpp" />
@@ -199,12 +200,16 @@
     <ClCompile Include="Dependencies.cpp" />
     <ClCompile Include="Downloader.cpp" />
     <ClCompile Include="ExperimentalFeature.cpp" />
+    <ClCompile Include="ExportFlow.cpp" />
     <ClCompile Include="Filesystem.cpp" />
     <ClCompile Include="FolderFileWatcher.cpp" />
     <ClCompile Include="GroupPolicy.cpp" />
     <ClCompile Include="HashCommand.cpp" />
     <ClCompile Include="HttpClientHelper.cpp" />
+    <ClCompile Include="ImportFlow.cpp" />
+    <ClCompile Include="InstallDependenciesFlow.cpp" />
     <ClCompile Include="InstallerMetadataCollectionContext.cpp" />
+    <ClCompile Include="InstallFlow.cpp" />
     <ClCompile Include="ManifestComparator.cpp" />
     <ClCompile Include="JsonHelper.cpp" />
     <ClCompile Include="MsiExecArguments.cpp" />
@@ -218,6 +223,7 @@
     <ClCompile Include="PortableIndex.cpp" />
     <ClCompile Include="PredefinedInstalledSource.cpp" />
     <ClCompile Include="PreIndexedPackageSource.cpp" />
+    <ClCompile Include="PromptFlow.cpp" />
     <ClCompile Include="Regex.cpp" />
     <ClCompile Include="Registry.cpp" />
     <ClCompile Include="Resources.cpp" />
@@ -228,11 +234,15 @@
     <ClCompile Include="RestInterface_1_4.cpp" />
     <ClCompile Include="Runtime.cpp" />
     <ClCompile Include="SearchRequestSerializer.cpp" />
+    <ClCompile Include="ShowFlow.cpp" />
+    <ClCompile Include="SourceFlow.cpp" />
     <ClCompile Include="SQLiteIndexSource.cpp" />
     <ClCompile Include="Strings.cpp" />
     <ClCompile Include="TestRestRequestHandler.cpp" />
     <ClCompile Include="TestSettings.cpp" />
     <ClCompile Include="TestSource.cpp" />
+    <ClCompile Include="UninstallFlow.cpp" />
+    <ClCompile Include="UpdateFlow.cpp" />
     <ClCompile Include="UserSettings.cpp" />
     <ClCompile Include="Versions.cpp" />
     <ClCompile Include="WorkFlow.cpp" />
@@ -252,6 +262,7 @@
     <ClCompile Include="SQLiteWrapper.cpp" />
     <ClCompile Include="Synchronization.cpp" />
     <ClCompile Include="TestCommon.cpp" />
+    <ClCompile Include="WorkflowCommon.cpp" />
     <ClCompile Include="WorkflowGroupPolicy.cpp" />
     <ClCompile Include="YamlManifest.cpp" />
   </ItemGroup>

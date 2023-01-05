@@ -302,7 +302,7 @@ namespace AppInstaller::Repository::Microsoft
                     {
                         if (origin != PackageOrigin::PackageOrigin_Store)
                         {
-                            Deployment::RemovePackage(Utility::ConvertToUTF8(pfn), progress);
+                            Deployment::RemovePackage(Utility::ConvertToUTF8(pfn), winrt::Windows::Management::Deployment::RemovalOptions::None, progress);
                             THROW_HR(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE);
                         }
                     }
@@ -322,7 +322,7 @@ namespace AppInstaller::Repository::Microsoft
                 else
                 {
                     AICLI_LOG(Repo, Info, << "Removing package: " << *fullName);
-                    Deployment::RemovePackage(*fullName, callback);
+                    Deployment::RemovePackage(*fullName, winrt::Windows::Management::Deployment::RemovalOptions::None, callback);
                 }
 
                 return true;

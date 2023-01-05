@@ -100,6 +100,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Log),             // -o
             Argument::ForType(Args::Type::Override),
             Argument::ForType(Args::Type::InstallLocation), // -l
+            Argument{ s_ArgumentName_Scope, Argument::NoAlias, Execution::Args::Type::InstallScope, Resource::String::InstalledScopeArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help },
             Argument::ForType(Args::Type::InstallArchitecture), // -a
             Argument::ForType(Args::Type::Locale),
             Argument::ForType(Args::Type::HashOverride),
@@ -165,9 +166,9 @@ namespace AppInstaller::CLI
         }
     }
 
-    std::string UpgradeCommand::HelpLink() const
+    Utility::LocIndView UpgradeCommand::HelpLink() const
     {
-        return "https://aka.ms/winget-command-upgrade";
+        return "https://aka.ms/winget-command-upgrade"_liv;
     }
 
     void UpgradeCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
@@ -212,7 +213,7 @@ namespace AppInstaller::CLI
         context <<
             Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
             Workflow::OpenSource() <<
-            Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed);
+            Workflow::OpenCompositeSource(Workflow::DetermineInstalledSource(context));
 
         if (ShouldListUpgrade(context.Args))
         {

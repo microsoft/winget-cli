@@ -14,6 +14,7 @@
 #include "WorkflowBase.h"
 #include "DependenciesFlow.h"
 #include "PromptFlow.h"
+#include <AppInstallerMsixInfo.h>
 #include <AppInstallerDeployment.h>
 #include <winget/ARPCorrelation.h>
 #include <winget/Archive.h>
@@ -296,6 +297,21 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+    void EnsureRunningAsAdminForMachineScopeInstall(Execution::Context& context)
+    {
+        // Admin is required for machine scope install for installer types like portable, msix and msstore.
+        auto installerType = context.Get<Execution::Data::Installer>().value().EffectiveInstallerType();
+
+        if (Manifest::DoesInstallerTypeRequireAdminForMachineScopeInstall(installerType))
+        {
+            Manifest::ScopeEnum scope = ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
+            if (scope == Manifest::ScopeEnum::Machine)
+            {
+                context << Workflow::EnsureRunningAsAdmin;
+            }
+        }
+    }
+
     void ExecuteInstaller(Execution::Context& context)
     {
         context << Workflow::ExecuteInstallerForType(context.Get<Execution::Data::Installer>().value().BaseInstallerType);
@@ -354,8 +370,15 @@ namespace AppInstaller::CLI::Workflow
         try
         {
             registrationDeferred = context.Reporter.ExecuteWithProgress([&](IProgressCallback& callback)
-            {
-                return Deployment::AddPackageWithDeferredFallback(uri, WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerTrusted), callback);
+                {
+                    if (Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope)) == Manifest::ScopeEnum::Machine)
+                    {
+                        return Deployment::AddPackageMachineScope(uri, callback);
+                    }
+                    else
+                    {
+                        return Deployment::AddPackageWithDeferredFallback(uri, WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerTrusted), callback);
+                    }
             });
         }
         catch (const wil::ResultException& re)
@@ -472,6 +495,7 @@ namespace AppInstaller::CLI::Workflow
     void EnsureSupportForInstall(Execution::Context& context)
     {
         context <<
+            Workflow::EnsureRunningAsAdminForMachineScopeInstall <<
             Workflow::EnsureSupportForPortableInstall <<
             Workflow::EnsureValidNestedInstallerMetadataForArchiveInstall;
     }

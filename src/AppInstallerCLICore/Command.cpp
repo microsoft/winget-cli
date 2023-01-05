@@ -246,7 +246,7 @@ namespace AppInstaller::CLI
         }
 
         // Finally, the link to the documentation pages
-        auto helpLink = Utility::LocIndString{ HelpLink() };
+        auto helpLink = HelpLink();
         if (!helpLink.empty())
         {
             infoOut << std::endl << Resource::String::HelpLinkPreamble(helpLink) << std::endl;
@@ -699,6 +699,15 @@ namespace AppInstaller::CLI
             }
         }
 
+        if (execArgs.Contains(Execution::Args::Type::InstallScope))
+        {
+            if (Manifest::ConvertToScopeEnum(execArgs.GetArg(Execution::Args::Type::InstallScope)) == Manifest::ScopeEnum::Unknown)
+            {
+                auto validOptions = Utility::Join(", "_liv, std::vector<Utility::LocIndString>{ "user"_lis, "machine"_lis});
+                throw CommandException(Resource::String::InvalidArgumentValueError(s_ArgumentName_Scope, validOptions));
+            }
+        }
+
         ValidateArgumentsInternal(execArgs);
     }
 
@@ -898,7 +907,7 @@ namespace AppInstaller::CLI
         return arguments;
     }
 
-    int Execute(Execution::Context& context, std::unique_ptr<Command>& command)
+    void ExecuteWithoutLoggingSuccess(Execution::Context& context, Command* command)
     {
         try
         {
@@ -914,6 +923,11 @@ namespace AppInstaller::CLI
         {
             context.SetTerminationHR(Workflow::HandleException(context, std::current_exception()));
         }
+    }
+
+    int Execute(Execution::Context& context, std::unique_ptr<Command>& command)
+    {
+        ExecuteWithoutLoggingSuccess(context, command.get());
 
         if (SUCCEEDED(context.GetTerminationHR()))
         {

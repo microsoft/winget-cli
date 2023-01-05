@@ -46,9 +46,9 @@ namespace AppInstaller::CLI
         }
     }
 
-    std::string ExportCommand::HelpLink() const
+    Utility::LocIndView ExportCommand::HelpLink() const
     {
-        return "https://aka.ms/winget-command-export";
+        return "https://aka.ms/winget-command-export"_liv;
     }
 
     void ExportCommand::ExecuteInternal(Execution::Context& context) const

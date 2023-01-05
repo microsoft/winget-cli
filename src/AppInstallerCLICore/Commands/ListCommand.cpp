@@ -22,6 +22,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Execution::Args::Type::Command),
             Argument::ForType(Execution::Args::Type::Count),
             Argument::ForType(Execution::Args::Type::Exact),
+            Argument{ s_ArgumentName_Scope, Argument::NoAlias, Execution::Args::Type::InstallScope, Resource::String::InstalledScopeArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help },
             Argument::ForType(Execution::Args::Type::CustomHeader),
             Argument::ForType(Execution::Args::Type::AcceptSourceAgreements),
         };
@@ -63,9 +64,9 @@ namespace AppInstaller::CLI
         }
     }
 
-    std::string ListCommand::HelpLink() const
+    Utility::LocIndView ListCommand::HelpLink() const
     {
-        return "https://aka.ms/winget-command-list";
+        return "https://aka.ms/winget-command-list"_liv;
     }
 
     void ListCommand::ExecuteInternal(Execution::Context& context) const
@@ -74,7 +75,7 @@ namespace AppInstaller::CLI
 
         context <<
             Workflow::OpenSource() <<
-            Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
+            Workflow::OpenCompositeSource(Workflow::DetermineInstalledSource(context)) <<
             Workflow::SearchSourceForMany <<
             Workflow::HandleSearchResultFailures <<
             Workflow::EnsureMatchesFromSearchResult(true) <<

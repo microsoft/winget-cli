@@ -110,6 +110,7 @@ namespace Microsoft.WinGet.Client.Factories
             return Create<PackageMatchFilter>(PackageMatchFilterType, PackageMatchFilterIid);
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "COM only usage.")]
         private static T Create<T>(Type type, in Guid iid)
         {
             object instance = null;

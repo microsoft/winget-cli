@@ -76,6 +76,23 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
+        /// Test uninstall msix package with machine scope.
+        /// </summary>
+        [Test]
+        public void UninstallTestMsixMachineScope()
+        {
+            // TODO: Provision and Deprovision api not supported in build server.
+            Assert.Ignore();
+
+            // Uninstall an MSIX
+            TestCommon.RunAICLICommand("install", $"{Constants.MsixInstallerPackageId} --scope machine");
+            var result = TestCommon.RunAICLICommand("uninstall", $"{Constants.MsixInstallerPackageId} --scope machine");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully uninstalled"));
+            Assert.True(TestCommon.VerifyTestMsixUninstalled(true));
+        }
+
+        /// <summary>
         /// Test uninstall portable package.
         /// </summary>
         [Test]

@@ -495,9 +495,18 @@ namespace AppInstaller::Manifest
 
     bool DoesInstallerTypeIgnoreScopeFromManifest(InstallerTypeEnum installerType)
     {
-        return (
-            installerType == InstallerTypeEnum::Portable
-            );
+        return
+            installerType == InstallerTypeEnum::Portable ||
+            installerType == InstallerTypeEnum::Msix ||
+            installerType == InstallerTypeEnum::MSStore;
+    }
+
+    bool DoesInstallerTypeRequireAdminForMachineScopeInstall(InstallerTypeEnum installerType)
+    {
+        return
+            installerType == InstallerTypeEnum::Portable ||
+            installerType == InstallerTypeEnum::MSStore ||
+            installerType == InstallerTypeEnum::Msix;
     }
 
     bool IsArchiveType(InstallerTypeEnum installerType)

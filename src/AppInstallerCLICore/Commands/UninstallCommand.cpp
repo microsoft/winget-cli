@@ -26,6 +26,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Channel),
             Argument::ForType(Args::Type::Source),
             Argument::ForType(Args::Type::Exact),
+            Argument{ s_ArgumentName_Scope, Argument::NoAlias, Execution::Args::Type::InstallScope, Resource::String::InstalledScopeArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help },
             Argument::ForType(Args::Type::Interactive),
             Argument::ForType(Args::Type::Silent),
             Argument::ForType(Args::Type::Force),
@@ -81,9 +82,9 @@ namespace AppInstaller::CLI
         }
     }
 
-    std::string UninstallCommand::HelpLink() const
+    Utility::LocIndView UninstallCommand::HelpLink() const
     {
-        return "https://aka.ms/winget-command-uninstall";
+        return "https://aka.ms/winget-command-uninstall"_liv;
     }
 
     void UninstallCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
@@ -118,7 +119,7 @@ namespace AppInstaller::CLI
         context <<
             Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
             Workflow::OpenSource() <<
-            Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed);
+            Workflow::OpenCompositeSource(Workflow::DetermineInstalledSource(context));
 
         // find the uninstaller
         if (context.Args.Contains(Execution::Args::Type::Manifest))
