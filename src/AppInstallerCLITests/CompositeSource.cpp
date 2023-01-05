@@ -1076,7 +1076,7 @@ TEST_CASE("CompositeSource_PinnedAvailable", "[CompositeSource][PinFlow]")
     // We use an installed package that has 3 available versions: v1.0.0, v1.0.1 and v1.1.0.
     // Installed is v1.0.1
     // We then test the 4 possible pin states (unpinned, Pinned, Blocked, Gated)
-    // with the 3 possible pin search behaviors (ignore, consider, include pinnned)
+    // with the 3 possible pin search behaviors (ignore, consider, include pinned)
     TempFile indexFile("pinningIndex", ".db");
     TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
 
@@ -1319,7 +1319,7 @@ TEST_CASE("CompositeSource_OneSourceGated", "[CompositeSource][PinFlow]")
         expectedResult.AvailableVersions = { "1.2", "1.1" };
         expectedResult.UnavailableVersions = { "2.0" };
     }
-    SECTION("Include pinned")
+    SECTION("Consider pins")
     {
         pinBehavior = PinBehavior::ConsiderPins;
         expectedResult.IsUpdateAvailable = true;
