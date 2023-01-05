@@ -1179,3 +1179,158 @@ TEST_CASE("CompositeSource_PinnedAvailable", "[CompositeSource][PinFlow]")
     RequireExpectedResultsWithPin(package, PinBehavior::IncludePinned, expectedResult_includePinned);
     RequireExpectedResultsWithPin(package, PinBehavior::ConsiderPins, expectedResult_considerPins);
 }
+
+TEST_CASE("CompositeSource_OneSourcePinned", "[CompositeSource][PinFlow]")
+{
+    // We use an installed package that has 2 available sources.
+    // If one of them is pinned, we should still get the updates from the other one.
+    TempFile indexFile("pinningIndex", ".db");
+    TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
+
+    TestUserSettings userSettings;
+    userSettings.Set<Settings::Setting::EFPinning>(true);
+
+    CompositeTestSetup setup;
+
+    auto installedPackage = TestPackage::Make(MakeDefaultManifest("1.0"sv), TestPackage::MetadataMap{});
+    setup.Installed->Everything.Matches.emplace_back(installedPackage, Criteria());
+
+    setup.Available->SearchFunction = [&](const SearchRequest&)
+    {
+        auto package = TestPackage::Make(std::vector<Manifest::Manifest>{ MakeDefaultManifest("2.0"sv) }, setup.Available);
+
+        SearchResult result;
+        result.Matches.emplace_back(package, Criteria());
+        return result;
+    };
+
+    std::shared_ptr<ComponentTestSource> secondAvailable = std::make_shared<ComponentTestSource>("SecondTestSource");
+    setup.Composite.AddAvailableSource(Source{ secondAvailable });
+    secondAvailable->SearchFunction = [&](const SearchRequest&)
+    {
+        auto package = TestPackage::Make(std::vector<Manifest::Manifest>{ MakeDefaultManifest("1.1"sv) }, secondAvailable);
+
+        SearchResult result;
+        result.Matches.emplace_back(package, Criteria());
+        return result;
+    };
+
+    {
+        PinKey pinKey("Id", setup.Available->Details.Identifier);
+        PinningIndex pinningIndex = PinningIndex::OpenOrCreateDefault();
+        pinningIndex.AddPin(Pin::CreatePinningPin(PinKey{ pinKey }));
+    }
+
+    PinBehavior pinBehavior = PinBehavior::IgnorePins;
+    ExpectedResultWithPin expectedResult;
+    SECTION("Ignore pins")
+    {
+        pinBehavior = PinBehavior::IgnorePins;
+        expectedResult.IsUpdateAvailable = true;
+        expectedResult.LatestAvailableVersion = "2.0";
+        expectedResult.AvailableVersions = { "2.0", "1.1" };
+        expectedResult.UnavailableVersions = {};
+    }
+    SECTION("Include pinned")
+    {
+        pinBehavior = PinBehavior::IncludePinned;
+        expectedResult.IsUpdateAvailable = true;
+        expectedResult.LatestAvailableVersion = "2.0";
+        expectedResult.AvailableVersions = { "2.0", "1.1" };
+        expectedResult.UnavailableVersions = {};
+    }
+    SECTION("Consider pins")
+    {
+        pinBehavior = PinBehavior::ConsiderPins;
+        expectedResult.IsUpdateAvailable = true;
+        expectedResult.LatestAvailableVersion = "1.1";
+        expectedResult.AvailableVersions = { "1.1" };
+        expectedResult.UnavailableVersions = { "2.0" };
+    }
+
+    SearchResult result = setup.Search();
+    REQUIRE(result.Matches.size() == 1);
+    auto package = result.Matches[0].Package;
+    REQUIRE(package);
+    RequireExpectedResultsWithPin(package, pinBehavior, expectedResult);
+}
+
+TEST_CASE("CompositeSource_OneSourceGated", "[CompositeSource][PinFlow]")
+{
+    // We use an installed package that has 2 available sources.
+    // If one of them has a gating pin, we should still get the updates from it
+    TempFile indexFile("pinningIndex", ".db");
+    TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
+
+    TestUserSettings userSettings;
+    userSettings.Set<Settings::Setting::EFPinning>(true);
+
+    CompositeTestSetup setup;
+
+    auto installedPackage = TestPackage::Make(MakeDefaultManifest("1.0"sv), TestPackage::MetadataMap{});
+    setup.Installed->Everything.Matches.emplace_back(installedPackage, Criteria());
+
+    setup.Available->SearchFunction = [&](const SearchRequest&)
+    {
+        auto package = TestPackage::Make(
+            std::vector<Manifest::Manifest>{
+                MakeDefaultManifest("2.0"sv),
+                MakeDefaultManifest("1.2"sv),
+            },
+            setup.Available);
+
+        SearchResult result;
+        result.Matches.emplace_back(package, Criteria());
+        return result;
+    };
+
+    std::shared_ptr<ComponentTestSource> secondAvailable = std::make_shared<ComponentTestSource>("SecondTestSource");
+    setup.Composite.AddAvailableSource(Source{ secondAvailable });
+    secondAvailable->SearchFunction = [&](const SearchRequest&)
+    {
+        auto package = TestPackage::Make(std::vector<Manifest::Manifest>{ MakeDefaultManifest("1.1"sv) }, secondAvailable);
+
+        SearchResult result;
+        result.Matches.emplace_back(package, Criteria());
+        return result;
+    };
+
+    {
+        PinKey pinKey("Id", setup.Available->Details.Identifier);
+        PinningIndex pinningIndex = PinningIndex::OpenOrCreateDefault();
+        pinningIndex.AddPin(Pin::CreateGatingPin(PinKey{ pinKey }, GatedVersion{ "1.*"sv }));
+    }
+
+    PinBehavior pinBehavior = PinBehavior::IgnorePins;
+    ExpectedResultWithPin expectedResult;
+    SECTION("Ignore pins")
+    {
+        pinBehavior = PinBehavior::IgnorePins;
+        expectedResult.IsUpdateAvailable = true;
+        expectedResult.LatestAvailableVersion = "2.0";
+        expectedResult.AvailableVersions = { "2.0", "1.2", "1.1"};
+        expectedResult.UnavailableVersions = {};
+    }
+    SECTION("Include pinned")
+    {
+        pinBehavior = PinBehavior::IncludePinned;
+        expectedResult.IsUpdateAvailable = true;
+        expectedResult.LatestAvailableVersion = "1.2";
+        expectedResult.AvailableVersions = { "1.2", "1.1" };
+        expectedResult.UnavailableVersions = { "2.0" };
+    }
+    SECTION("Include pinned")
+    {
+        pinBehavior = PinBehavior::ConsiderPins;
+        expectedResult.IsUpdateAvailable = true;
+        expectedResult.LatestAvailableVersion = "1.2";
+        expectedResult.AvailableVersions = { "1.2", "1.1"};
+        expectedResult.UnavailableVersions = { "2.0" };
+    }
+
+    SearchResult result = setup.Search();
+    REQUIRE(result.Matches.size() == 1);
+    auto package = result.Matches[0].Package;
+    REQUIRE(package);
+    RequireExpectedResultsWithPin(package, pinBehavior, expectedResult);
+}
