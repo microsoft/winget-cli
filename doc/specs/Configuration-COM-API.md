@@ -292,6 +292,23 @@ It is not expected that you would use this interface directly, but rather the `C
 
 _Spec note: A separate binary (written by us) will contain the implementation(s) of this interface._
 
+## DiagnosticLevel enumeration
+
+Indicates the importance of diagnostic information.
+
+| Name | Description |
+|-|-|
+| Verbose | Most useful for debugging scenarios; likely too much for general use. |
+| Informational | Details that can be useful for understanding what is happening. |
+| Warning | Indicates some abnormal condition, but that is not expected to impact functionality. |
+| Error | An error has occurred, but this does not necessarily mean that it will halt the operation. |
+| Critical | A serious, fatal condition has been encountered. |
+
+## DiagnosticInformation class
+
+Contains diagnostic information from the configuration system that can be passed along to the user or log files.
+This is not intended as primary information, and is thus not localized.
+
 ## ConfigurationConflictType enumeration
 
 The type of conflict between configuration sets that was detected.
@@ -319,6 +336,21 @@ Flags to control how a configuration set should be applied to the system.
 |-|-|
 | None | The configuration set should be applied in the default manner. |
 | DoNotOverwriteMatchingOriginSet | Forces a new configuration set instance to be recorded when the set being applied matches a previous set's origin. The default behavior is to assume that the incoming set is an update to the existing set and overwrite it. |
+
+## ConfigurationChangeEventType enumeration
+
+The configuration set change event type that has occurred.
+
+| Name | Description |
+|-|-|
+| Unknown | For future use if the caller is not aware of newer change types. |
+| SetAdded | A new configuration set was recorded in the history with the intent to be applied. |
+| SetStateChanged | A configuration set has changed state. |
+| SetRemoved | A configuration set has been removed from the history. |
+
+## ConfigurationChangeEventType class
+
+The change data sent about changes to sets.
 
 ## ConfigurationProcessor class
 
@@ -400,26 +432,15 @@ Gets the current configuration unit settings from the system state.
 Windows.Foundation.IAsyncOperation<GetConfigurationUnitSettingsResult> GetSettingsAsync(ConfigurationUnit unit);
 ```
 
-## ConfigurationChangeEventType enumeration
+## ConfigurationProcessor.Diagnostics event
 
-The configuration set change event type that has occurred.
+Enables listening to internal diagnostics events for logging purposes.
 
-| Name | Description |
-|-|-|
-| Unknown | For future use if the caller is not aware of newer change types. |
-| SetAdded | A new configuration set was recorded in the history with the intent to be applied. |
-| SetStateChanged | A configuration set has changed state. |
-| SetRemoved | A configuration set has been removed from the history. |
-
-## ConfigurationChangeEventType class
-
-The change data sent about changes to sets.
-
-## Statics.ConfigurationChange event
+## ConfigurationProcessor.ConfigurationChange event
 
 Signals changes to the set of configuration sets in the history, as well as changes to the state of configuration sets in the history.
 
-## Statics.GetConfigurationHistory method
+## ConfigurationProcessor.GetConfigurationHistory method
 
 Gets the configuration sets from the recorded history.
 

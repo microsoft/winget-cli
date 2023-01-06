@@ -261,12 +261,58 @@ namespace Microsoft.Management.Configuration
     interface IConfigurationProcessorFactory
     {
         // Gets the configuration unit processor details for the given unit.
-        IConfigurationUnitProcessorDetails GetUnitProcessorDetails(ConfigurationUnit unit);
+        IConfigurationUnitProcessorDetails GetUnitProcessorDetails(ConfigurationUnit unit, ConfigurationUnitDetailLevel detailLevel);
 
         // Creates a configuration unit processor for the given unit.
         // The optional `directivesOverlay` parameter allows for the `ConfigurationProcessor` to alter behavior without needing to change the unit itself.
         // The overlay is searched first; any value not present there will then fall back to the unit's directives.
         IConfigurationUnitProcessor CreateUnitProcessor(ConfigurationUnit unit, Windows.Foundation.Collections.ValueSet directivesOverlay);
+    }
+
+    // The level of the diagnostic information.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    enum DiagnosticLevel
+    {
+        Verbose,
+        Informational,
+        Warning,
+        Error,
+        Critical,
+    };
+
+    // Enables diagnostic information from the configuration system to be inspected/stored by callers.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    runtimeclass DiagnosticInformation
+    {
+        // Indicates the importance of the diagnostic information.
+        DiagnosticLevel Level{ get; };
+
+        // The diagnostic message.
+        String Message{ get; };
+    }
+
+    // The change event type that has occurred.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    enum ConfigurationChangeEventType
+    {
+        Unknown,
+        SetAdded,
+        SetStateChanged,
+        SetRemoved,
+    };
+
+    // The change data sent about changes to sets.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    runtimeclass ConfigurationChangeData
+    {
+        // The change event type that occurred.
+        ConfigurationChangeEventType Change{ get; };
+
+        // The identifier used to uniquely identify the instance of a configuration set on the system.
+        Guid InstanceIdentifier{ get; };
+
+        // The state of the configuration set for this event (the ConfigurationSet can be used to get the current state, which may be different).
+        ConfigurationSetState State{ get; };
     }
 
     // The type of conflict between configuration sets that was detected.
@@ -399,6 +445,17 @@ namespace Microsoft.Management.Configuration
     {
         ConfigurationProcessor(IConfigurationProcessorFactory factory);
 
+        // Diagnostics event; useful for logging and/or verbose output.
+        event Windows.Foundation.EventHandler<DiagnosticInformation> Diagnostics;
+
+        // Only top level configuration changes are sent to this event.
+        // This includes things like: creation of a new set for intent to run, start/stop of a set for application or test, deletion of a not started set.
+        event Windows.Foundation.TypedEventHandler<ConfigurationSet, ConfigurationChangeData> ConfigurationChange;
+
+        // Gets the configuration sets that have already been applied or the intent to be applied (this may include in progress sets or those that are waiting on others).
+        // These configuration sets will be marked as immutable.
+        Windows.Foundation.Collections.IVectorView<ConfigurationSet> GetConfigurationHistory();
+
         // Checks for conflicts amongst the configuration sets provided, optionally including the configuration sets already applied to the system.
         Windows.Foundation.IAsyncOperation< Windows.Foundation.Collections.IVectorView<ConfigurationConflict> > CheckForConflictsAsync(Windows.Foundation.Collections.IVectorView<ConfigurationSet> configurationSets, Boolean includeConfigurationHistory);
 
@@ -416,42 +473,5 @@ namespace Microsoft.Management.Configuration
 
         // Gets the current configuration unit settings.
         Windows.Foundation.IAsyncOperation<GetConfigurationUnitSettingsResult> GetSettingsAsync(ConfigurationUnit unit);
-    }
-
-    // The change event type that has occurred.
-    [contract(Microsoft.Management.Configuration.Contract, 1)]
-    enum ConfigurationChangeEventType
-    {
-        Unknown,
-        SetAdded,
-        SetStateChanged,
-        SetRemoved,
-    };
-
-    // The change data sent about changes to sets.
-    [contract(Microsoft.Management.Configuration.Contract, 1)]
-    runtimeclass ConfigurationChangeData
-    {
-        // The change event type that occurred.
-        ConfigurationChangeEventType Change{ get; };
-
-        // The identifier used to uniquely identify the instance of a configuration set on the system.
-        Guid InstanceIdentifier{ get; };
-
-        // The state of the configuration set for this event (the ConfigurationSet can be used to get the current state, which may be different).
-        ConfigurationSetState State{ get; };
-    }
-
-    // Statics of Microsoft.Management.Configuration
-    [contract(Microsoft.Management.Configuration.Contract, 1)]
-    static runtimeclass Statics
-    {
-        // Only top level configuration changes are sent to this event.
-        // This includes things like: creation of a new set for intent to run, start/stop of a set for application or test, deletion of a not started set.
-        static event Windows.Foundation.TypedEventHandler<ConfigurationSet, ConfigurationChangeData> ConfigurationChange;
-
-        // Gets the configuration sets that have already been applied or the intent to be applied (this may include in progress sets or those that are waiting on others).
-        // These configuration sets will be marked as immutable.
-        static Windows.Foundation.Collections.IVectorView<ConfigurationSet> GetConfigurationHistory();
     }
 }
