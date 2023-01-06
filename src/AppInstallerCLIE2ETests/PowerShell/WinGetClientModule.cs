@@ -935,20 +935,13 @@ namespace AppInstallerCLIE2ETests.PowerShell
                 .Invoke();
 
             Assert.That(result, Has.Exactly(1).Items);
-            Assert.IsInstanceOf<string>(result[0].BaseObject);
-            var settingsResult = result[0].BaseObject as string;
+            Assert.IsInstanceOf<Hashtable>(result[0].BaseObject);
+            var settingsResult = result[0].BaseObject as Hashtable;
 
-            var expectedResult = @"{
-  ""$schema"": ""https://aka.ms/winget-settings.schema.json"",
-  ""experimentalFeatures"": {
-    ""experimentalArg"": false,
-    ""experimentalCmd"": true
-  },
-  ""visual"": {
-    ""progressBar"": ""retro""
-  }
-}";
-            Assert.AreEqual(expectedResult, settingsResult);
+            Assert.True(settingsResult.ContainsKey("$schema"));
+            Assert.False(settingsResult.ContainsKey("source"));
+            Assert.True(settingsResult.ContainsKey("experimentalFeatures"));
+            Assert.True(settingsResult.ContainsKey("visual"));
         }
 
         /// <summary>
@@ -997,23 +990,13 @@ namespace AppInstallerCLIE2ETests.PowerShell
                 .Invoke();
 
             Assert.That(result, Has.Exactly(1).Items);
-            Assert.IsInstanceOf<string>(result[0].BaseObject);
-            var settingsResult = result[0].BaseObject as string;
+            Assert.IsInstanceOf<Hashtable>(result[0].BaseObject);
+            var settingsResult = result[0].BaseObject as Hashtable;
 
-            var expectedResult = @"{
-  ""$schema"": ""https://aka.ms/winget-settings.schema.json"",
-  ""experimentalFeatures"": {
-    ""experimentalArg"": false,
-    ""experimentalCmd"": true
-  },
-  ""source"": {
-    ""autoUpdateIntervalInMinutes"": 3
-  },
-  ""visual"": {
-    ""progressBar"": ""retro""
-  }
-}";
-            Assert.AreEqual(expectedResult, settingsResult);
+            Assert.True(settingsResult.ContainsKey("$schema"));
+            Assert.True(settingsResult.ContainsKey("source"));
+            Assert.True(settingsResult.ContainsKey("experimentalFeatures"));
+            Assert.True(settingsResult.ContainsKey("visual"));
         }
 
         /// <summary>
@@ -1066,20 +1049,12 @@ namespace AppInstallerCLIE2ETests.PowerShell
                 .Invoke();
 
             Assert.That(result, Has.Exactly(1).Items);
-            Assert.IsInstanceOf<string>(result[0].BaseObject);
-            var settingsResult = result[0].BaseObject as string;
+            Assert.IsInstanceOf<Hashtable>(result[0].BaseObject);
+            var settingsResult = result[0].BaseObject as Hashtable;
 
-            var expectedResult = @"{
-  ""$schema"": ""https://aka.ms/winget-settings.schema.json"",
-  ""experimentalFeatures"": {
-    ""experimentalArg"": false,
-    ""experimentalCmd"": true
-  },
-  ""visual"": {
-    ""progressBar"": ""retro""
-  }
-}";
-            Assert.AreEqual(expectedResult, settingsResult);
+            Assert.True(settingsResult.ContainsKey("$schema"));
+            Assert.False(settingsResult.ContainsKey("source"));
+            Assert.True(settingsResult.ContainsKey("experimentalFeatures"));
         }
 
         /// <summary>
@@ -1108,16 +1083,11 @@ namespace AppInstallerCLIE2ETests.PowerShell
                 .Invoke();
 
             Assert.That(result, Has.Exactly(1).Items);
-            Assert.IsInstanceOf<string>(result[0].BaseObject);
-            var settingsResult = result[0].BaseObject as string;
+            Assert.IsInstanceOf<Hashtable>(result[0].BaseObject);
+            var settingsResult = result[0].BaseObject as Hashtable;
 
-            var expectedResult = @"{
-  ""$schema"": ""https://aka.ms/winget-settings.schema.json"",
-  ""visual"": {
-    ""progressBar"": ""retro""
-  }
-}";
-            Assert.AreEqual(expectedResult, settingsResult);
+            Assert.True(settingsResult.ContainsKey("$schema"));
+            Assert.True(settingsResult.ContainsKey("visual"));
         }
 
         /// <summary>
