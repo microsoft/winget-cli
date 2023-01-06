@@ -61,7 +61,7 @@ class WinGetUserSettingsResource
     {
         Assert-WinGetCommand "Get-WinGetUserSettings"
 
-        $userSettings = Get-WinGetUserSettings | ConvertFrom-Json -AsHashtable
+        $userSettings = Get-WinGetUserSettings
         $result = @{
             SID = ''
             Settings = $userSettings
