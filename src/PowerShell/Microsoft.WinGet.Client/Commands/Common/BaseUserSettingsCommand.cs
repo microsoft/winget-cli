@@ -85,7 +85,7 @@ namespace Microsoft.WinGet.Client.Commands.Common
         }
 
         /// <summary>
-        /// Uses Powershell ConvertFrom-Json to convext a JSON to a Hashtable.
+        /// Uses Powershell ConvertFrom-Json to convert a JSON to a Hashtable.
         /// </summary>
         /// <param name="content">Content.</param>
         /// <returns>Hashtable.</returns>
