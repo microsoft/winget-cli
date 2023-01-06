@@ -125,8 +125,8 @@ class WinGetAdminSettings
     }
 
     # Tests if administrator settings given are set as expected.
-    # This doesn't do a full comparisson to allow users to don't have to update
-    # their resource everytime a new admin setting is added on winget.
+    # This doesn't do a full comparison to allow users to don't have to update
+    # their resource every time a new admin setting is added on winget.
     [bool] Test()
     {
         $adminSettings = $this.Get().Settings
@@ -178,7 +178,7 @@ class WinGetSourcesResource
     [DscProperty(Key)]
     [string]$SID
 
-    # An array of Hashtable with the key value properites that follows the source's group policy schema.
+    # An array of Hashtable with the key value properties that follows the source's group policy schema.
     [DscProperty(Mandatory)]
     [Hashtable[]]$Sources
 

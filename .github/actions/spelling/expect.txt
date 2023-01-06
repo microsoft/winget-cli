@@ -93,6 +93,7 @@ ecfr
 ecfrbrowse
 EFGH
 EQU
+endregion
 errmsg
 ESRB
 etest
@@ -200,6 +201,7 @@ minschema
 missingdependency
 MMmmbbbb
 monicka
+MOF
 MPNS
 msdownload
 msft

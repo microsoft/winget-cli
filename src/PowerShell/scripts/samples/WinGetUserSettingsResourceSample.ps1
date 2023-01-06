@@ -36,7 +36,7 @@ $resource = @{
 # Get current settings
 $getResult = Invoke-DscResource @resource -Method Get
 Write-Host "Current Settings"
-$settingsBckup = $getResult.Settings
+$settingsBackup = $getResult.Settings
 $getResult.Settings | ConvertTo-Json
 
 # Test if telemetry is disabled
@@ -67,7 +67,7 @@ else
 
 if ($Restore)
 {
-    $resource.Property.Settings = $settingsBckup
+    $resource.Property.Settings = $settingsBackup
     $resource.Property.Action = [WinGetAction]::Full
     Invoke-DscResource @resource -Method Set | Out-Null
     Write-Host "Settings restored."

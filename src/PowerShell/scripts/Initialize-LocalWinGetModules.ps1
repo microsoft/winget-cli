@@ -71,7 +71,7 @@ foreach($module in $modules)
         xcopy "$PSScriptRoot\..\..\$Platform\$Configuration\PowerShell\$($module.Name)\" "$moduleRootOutput\$($module.Name)\" /d /s /f /y
     }
 
-    # Copy PowerShell files even for modules with binaray resoures.
+    # Copy PowerShell files even for modules with binary resources.
     # VS won't update the files if there's nothing to build...
     Write-Host "Coping module $($module.Name)" -ForegroundColor Green
     xcopy $module.ModuleRoot "$moduleRootOutput\$($module.Name)\" /d /s /f /y
@@ -79,7 +79,7 @@ foreach($module in $modules)
     if ($module.ForceWinGetDev)
     {
         # This is a terrible and shouldn't be used for real things. We must consider making something smarter and prettier.
-        # We could make the build system always take the crescendo json and geneterate the functions from it. The
+        # We could make the build system always take the crescendo json and generated the functions from it. The
         # build system would know if the original name to be winget.exe or wingetdev.exe, set it on the json and produce
         # the psm1 one. We could add a VS after build task that calls powershell and does it, or we could move away
         # from crescendo and let the internal implementation knows which one to use based on the build preprocessor macro.
