@@ -403,7 +403,7 @@ namespace AppInstallerCLIE2ETests
         public void InstallPortable_UserScope()
         {
             string installDir = TestCommon.GetRandomTestDir();
-            this.ConfigureInstallBehavior(Constants.PortablePackageUserRoot, installDir);
+            WinGetSettingsHelper.ConfigureInstallBehavior(Constants.PortablePackageUserRoot, installDir);
 
             string packageId, commandAlias, fileName, packageDirName, productCode;
             packageId = "AppInstallerTest.TestPortableExe";
@@ -411,7 +411,7 @@ namespace AppInstallerCLIE2ETests
             commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
 
             var result = TestCommon.RunAICLICommand("install", $"{packageId} --scope user");
-            this.ConfigureInstallBehavior(Constants.PortablePackageUserRoot, string.Empty);
+            WinGetSettingsHelper.ConfigureInstallBehavior(Constants.PortablePackageUserRoot, string.Empty);
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
@@ -424,7 +424,7 @@ namespace AppInstallerCLIE2ETests
         public void InstallPortable_MachineScope()
         {
             string installDir = TestCommon.GetRandomTestDir();
-            this.ConfigureInstallBehavior(Constants.PortablePackageMachineRoot, installDir);
+            WinGetSettingsHelper.ConfigureInstallBehavior(Constants.PortablePackageMachineRoot, installDir);
 
             string packageId, commandAlias, fileName, packageDirName, productCode;
             packageId = "AppInstallerTest.TestPortableExe";
@@ -432,7 +432,7 @@ namespace AppInstallerCLIE2ETests
             commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
 
             var result = TestCommon.RunAICLICommand("install", $"{packageId} --scope machine");
-            this.ConfigureInstallBehavior(Constants.PortablePackageMachineRoot, string.Empty);
+            WinGetSettingsHelper.ConfigureInstallBehavior(Constants.PortablePackageMachineRoot, string.Empty);
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true, TestCommon.Scope.Machine);

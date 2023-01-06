@@ -10,6 +10,7 @@ namespace Microsoft.WinGet.Client.Factories
     using System.Runtime.InteropServices;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Common;
+    using Microsoft.WinGet.Client.Exceptions;
 
 #if NET
     using WinRT;
@@ -122,7 +123,7 @@ namespace Microsoft.WinGet.Client.Factories
                 {
                     if (hr == ErrorCode.FileNotFound)
                     {
-                        throw new Exception(Utilities.ResourceManager.GetString("WinGetPackageNotInstalled"));
+                        throw new WinGetPackageNotInstalledException();
                     }
                     else
                     {
