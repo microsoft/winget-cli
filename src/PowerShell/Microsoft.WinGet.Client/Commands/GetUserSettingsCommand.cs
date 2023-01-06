@@ -23,7 +23,7 @@ namespace Microsoft.WinGet.Client.Commands
         /// </summary>
         protected override void ProcessRecord()
         {
-            this.WriteObject(this.GetLocalSettingsFileContents());
+            this.WriteObject(this.GetLocalSettingsAsHashtable());
         }
     }
 }

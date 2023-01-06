@@ -19,7 +19,7 @@ namespace Microsoft.WinGet.Client.Commands.Common
     /// <summary>
     /// Base command for user settings cmdlets.
     /// </summary>
-    public abstract class BaseUserSettingsCommand : PSCmdlet
+    public abstract class BaseUserSettingsCommand : BaseCommand
     {
         /// <summary>
         /// The schema key.
@@ -56,7 +56,7 @@ namespace Microsoft.WinGet.Client.Commands.Common
         /// Returns the contents of the settings file as Hashtable.
         /// </summary>
         /// <returns>Contents of settings file.</returns>
-        protected Hashtable GetLocalSettingsFileContents()
+        protected Hashtable GetLocalSettingsAsHashtable()
         {
             var content = File.Exists(WinGetSettingsFilePath) ?
                 File.ReadAllText(WinGetSettingsFilePath) :
