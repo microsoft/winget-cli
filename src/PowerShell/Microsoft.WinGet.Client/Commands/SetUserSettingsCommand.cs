@@ -74,7 +74,7 @@ namespace Microsoft.WinGet.Client.Commands
                 WinGetSettingsFilePath,
                 settingsJson);
 
-            this.WriteObject(settingsJson);
+            this.WriteObject(this.ConvertToHashtable(settingsJson));
         }
 
         /// <summary>

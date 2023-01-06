@@ -58,11 +58,17 @@
 
   <ItemGroup Condition="'$(TargetFramework)' == '$(CoreFramework)'">
     <PackageReference Include="Microsoft.Windows.CsWinRT" Version="1.6.5" />
+    <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.2.8" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == '$(DesktopFramework)'">
     <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.22000.196" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.PowerShell.5.1.ReferenceAssemblies" Version="1.0.0" />
   </ItemGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == '$(DesktopFramework)'">
+    <DefineConstants>POWERSHELL_WINDOWS</DefineConstants>
+  </PropertyGroup>
 
   <ItemGroup>
     <Compile Update="Properties\Resources.Designer.cs">
@@ -111,18 +117,18 @@
 
   <Target Name="CopyCoreBinaries" AfterTargets="AfterBuild" Condition="'$(TargetFramework)' == '$(CoreFramework)'">
     <ItemGroup>
-      <CoreBinaries Include="$(OutputPath)*" />
+      <CoreBinaries Include="$(OutputPath)\**\*.*" />
     </ItemGroup>
     <Message Importance="high" Text="Copying @(CoreBinaries) to '$(PowerShellModuleOutputDirectory)\$(Platform)\Core'" />
-    <Copy SourceFiles="@(CoreBinaries)" DestinationFolder="$(PowerShellModuleOutputDirectory)\$(Platform)\Core" />
+    <Copy SourceFiles="@(CoreBinaries)" DestinationFolder="$(PowerShellModuleOutputDirectory)\$(Platform)\Core\%(RecursiveDir)" />
   </Target>
 
   <Target Name="CopyDesktopBinaries" AfterTargets="AfterBuild" Condition="'$(TargetFramework)' == '$(DesktopFramework)'">
     <ItemGroup>
-      <DesktopBinaries Include="$(OutputPath)*" />
+      <DesktopBinaries Include="$(OutputPath)\**\*.*" />
     </ItemGroup>
     <Message Importance="high" Text="Copying @(DesktopBinaries) to '$(PowerShellModuleOutputDirectory)\$(Platform)\Desktop'" />
-    <Copy SourceFiles="@(DesktopBinaries)" DestinationFolder="$(PowerShellModuleOutputDirectory)\$(Platform)\Desktop" />
+    <Copy SourceFiles="@(DesktopBinaries)" DestinationFolder="$(PowerShellModuleOutputDirectory)\$(Platform)\Desktop\%(RecursiveDir)" />
   </Target>
 
 </Project>

@@ -6,10 +6,11 @@
 
 namespace Microsoft.WinGet.Client.Commands.Common
 {
+    using System;
     using System.Collections;
     using System.IO;
     using System.Management.Automation;
-    using System.Runtime.CompilerServices;
+    using Microsoft.PowerShell.Commands;
     using Microsoft.WinGet.Client.Exceptions;
     using Microsoft.WinGet.Client.Helpers;
     using Newtonsoft.Json;
@@ -52,22 +53,16 @@ namespace Microsoft.WinGet.Client.Commands.Common
         }
 
         /// <summary>
-        /// Returns the contents of the settings file.
-        /// The original plan was to return the contents deserialized as a Hashtable, but that
-        /// will make only the top level keys be treated as Hashtable keys and their value would
-        /// be a JObjects. This make them really awkward to handle. If we really want to we will
-        /// need to implement a custom deserializer or manually walk the json and convert all
-        /// keys to hash tables. For now a caller can just pipe this to ConvertTo-Json.
+        /// Returns the contents of the settings file as Hashtable.
         /// </summary>
         /// <returns>Contents of settings file.</returns>
-        protected string GetLocalSettingsFileContents()
+        protected Hashtable GetLocalSettingsFileContents()
         {
-            // Validate is at least json.
-            _ = this.LocalSettingsFileToJObject();
-
-            return File.Exists(WinGetSettingsFilePath) ?
+            var content = File.Exists(WinGetSettingsFilePath) ?
                 File.ReadAllText(WinGetSettingsFilePath) :
                 string.Empty;
+
+            return this.ConvertToHashtable(content);
         }
 
         /// <summary>
@@ -87,6 +82,42 @@ namespace Microsoft.WinGet.Client.Commands.Common
                 this.WriteDebug(e.Message);
                 throw new UserSettingsReadException(e);
             }
+        }
+
+        /// <summary>
+        /// Uses Powershell ConvertFrom-Json to convext a JSON to a Hashtable.
+        /// </summary>
+        /// <param name="content">Content.</param>
+        /// <returns>Hashtable.</returns>
+        protected Hashtable ConvertToHashtable(string content)
+        {
+            if (string.IsNullOrEmpty(content))
+            {
+                return new Hashtable();
+            }
+
+#if POWERSHELL_WINDOWS
+            throw new PSNotImplementedException();
+#else
+            // Powershell's documentation says that the object being return is either a PSObject
+            // or a Hashtable depending on the value of returnHashtable, but is not true. The return
+            // type is a PSObject and the BaseObject is either a OrderedHashtable or a PSCustomObject
+            // depending on returnHashtable.
+            try
+            {
+                var result = JsonObject.ConvertFromJson(content, returnHashtable: true, out ErrorRecord error) as PSObject;
+                if (error is not null)
+                {
+                    throw new UserSettingsReadException(error.Exception);
+                }
+
+                return result.BaseObject as Hashtable;
+            }
+            catch (Exception e)
+            {
+                throw new UserSettingsReadException(e);
+            }
+#endif
         }
 
         private static string GetUserSettingsPath()

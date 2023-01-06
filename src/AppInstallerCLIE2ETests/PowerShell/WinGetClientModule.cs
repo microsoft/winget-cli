@@ -225,10 +225,42 @@ namespace AppInstallerCLIE2ETests.PowerShell
                 .Invoke();
 
             Assert.That(result, Has.Exactly(1).Items);
-            Assert.IsInstanceOf<string>(result[0].BaseObject);
-            var settingsResult = result[0].BaseObject as string;
+            Assert.IsInstanceOf<Hashtable>(result[0].BaseObject);
+        }
 
-            Assert.AreEqual(ogSettings, settingsResult);
+        /// <summary>
+        /// Test Get-WinGetUserSettings when the local settings file is not a json.
+        /// </summary>
+        [Test]
+        public void GetWinGetUserSettings_BadJsonFile()
+        {
+            WinGetSettingsHelper.SetWingetSettings("Hi, im not a json. Thank you, Test.");
+
+            var inputSettings = new Hashtable()
+            {
+                {
+                    "visual",
+                    new Hashtable()
+                    {
+                        { "progressBar", "retro" },
+                    }
+                },
+            };
+
+            using var powerShellHost = new PowerShellHost();
+
+            var cmdletException = Assert.Throws<CmdletInvocationException>(
+                () => powerShellHost.PowerShell
+                .AddCommand("Get-WinGetUserSettings")
+                .Invoke());
+
+            // If we reference Microsoft.WinGet.Client to this project PowerShell host fails with
+            //   System.Management.Automation.CmdletInvocationException : Operation is not supported on this platform. (0x80131539)
+            //   System.PlatformNotSupportedException : Operation is not supported on this platform. (0x80131539)
+            // trying to load the runspace. This is most probably because the same dll is already loaded.
+            // Check the type the long way.
+            dynamic exception = cmdletException.InnerException;
+            Assert.AreEqual(exception.GetType().ToString(), "Microsoft.WinGet.Client.Exceptions.UserSettingsReadException");
         }
 
         /// <summary>
