@@ -91,7 +91,10 @@ CmdletsToExport = @(
     'Get-WinGetSource',
     'Install-WinGetPackage',
     'Uninstall-WinGetPackage',
-    'Update-WinGetPackage'
+    'Update-WinGetPackage',
+    'Get-WinGetUserSettings',
+    'Set-WinGetUserSettings',
+    'Test-WinGetUserSettings'
 )
 
 # Variables to export from this module

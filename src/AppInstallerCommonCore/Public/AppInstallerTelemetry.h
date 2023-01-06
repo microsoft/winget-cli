@@ -130,7 +130,7 @@ namespace AppInstaller::Logging
     // this should not become a burden.
     struct TelemetryTraceLogger
     {
-        TelemetryTraceLogger();
+        TelemetryTraceLogger(bool useSummary = true);
 
         ~TelemetryTraceLogger();
 
@@ -276,6 +276,7 @@ namespace AppInstaller::Logging
         // Data that is needed by AnonymizeString
         std::wstring m_userProfile;
 
+        bool m_useSummary = true;
         mutable TelemetrySummary m_summary;
 
         // TODO: This and all related code could be removed after transition to summary event in back end.

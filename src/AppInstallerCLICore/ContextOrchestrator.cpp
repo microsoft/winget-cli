@@ -91,6 +91,9 @@ namespace AppInstaller::CLI::Execution
         if (item->IsOnFirstCommand())
         {
             THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INSTALL_ALREADY_RUNNING), FindById(item->GetId()));
+
+            // Log the beginning of the item
+            item->GetContext().GetThreadGlobals().GetTelemetryLogger().LogCommand(item->GetItemCommandName());
         }
 
         std::string commandQueueName{ GetCommandQueueName(item->GetNextCommand().Name()) };
@@ -246,34 +249,37 @@ namespace AppInstaller::CLI::Execution
             }
 
             // Get the item's command and execute it.
-            HRESULT terminationHR = S_OK;
+            HRESULT exceptionHR = S_OK;
             try
             {
                 std::unique_ptr<Command> command = item->PopNextCommand();
 
                 std::unique_ptr<AppInstaller::ThreadLocalStorage::PreviousThreadGlobals> setThreadGlobalsToPreviousState = item->GetContext().SetForCurrentThread();
 
-                item->GetContext().GetThreadGlobals().GetTelemetryLogger().LogCommand(command->FullName());
                 command->ValidateArguments(item->GetContext().Args);
 
                 item->GetContext().EnableCtrlHandler();
 
-                terminationHR = ::AppInstaller::CLI::Execute(item->GetContext(), command);
+                ::AppInstaller::CLI::ExecuteWithoutLoggingSuccess(item->GetContext(), command.get());
             }
-            WINGET_CATCH_STORE(terminationHR, APPINSTALLER_CLI_ERROR_COMMAND_FAILED);
+            WINGET_CATCH_STORE(exceptionHR, APPINSTALLER_CLI_ERROR_COMMAND_FAILED);
 
-            if (FAILED(terminationHR))
+            if (FAILED(exceptionHR))
             {
-                // ::Execute sometimes catches exceptions and returns hresults based on those exceptions without the context
-                // being updated with that hresult. This sets the termination hr directly so that the context always 
+                // Set the termination hr directly from any exception that escaped so that the context always 
                 // has the result of the operation no matter how it failed.
-                item->GetContext().SetTerminationHR(terminationHR);
+                item->GetContext().SetTerminationHR(exceptionHR);
             }
 
             item->GetContext().EnableCtrlHandler(false);
 
-            if (FAILED(terminationHR) || item->IsComplete())
+            if (FAILED(item->GetContext().GetTerminationHR()) || item->IsComplete())
             {
+                if (SUCCEEDED(item->GetContext().GetTerminationHR()))
+                {
+                    item->GetContext().GetThreadGlobals().GetTelemetryLogger().LogCommandSuccess(item->GetItemCommandName());
+                }
+
                 RemoveItemInState(*item, OrchestratorQueueItemState::Running, true);
             }
             else
@@ -334,6 +340,19 @@ namespace AppInstaller::CLI::Execution
                 (GetSourceId() == comparedId.GetSourceId()));
     }
 
+    std::string_view OrchestratorQueueItem::GetItemCommandName() const
+    {
+        // The goal is that these should match the winget.exe commands for easy correlation.
+        switch (m_operationType)
+        {
+        case PackageOperationType::Search: return "root:search"sv;
+        case PackageOperationType::Install: return "root:install"sv;
+        case PackageOperationType::Upgrade: return "root:upgrade"sv;
+        case PackageOperationType::Uninstall: return "root:uninstall"sv;
+        default: return "unknown";
+        }
+    }
+
     std::unique_ptr<OrchestratorQueueItem> OrchestratorQueueItemFactory::CreateItemForInstall(std::wstring packageId, std::wstring sourceId, std::unique_ptr<COMContext> context, bool isUpgrade)
     {
         std::unique_ptr<OrchestratorQueueItem> item = std::make_unique<OrchestratorQueueItem>(OrchestratorQueueItemId(std::move(packageId), std::move(sourceId)), std::move(context), isUpgrade ? PackageOperationType::Upgrade : PackageOperationType::Install);
@@ -351,7 +370,7 @@ namespace AppInstaller::CLI::Execution
 
     std::unique_ptr<OrchestratorQueueItem> OrchestratorQueueItemFactory::CreateItemForSearch(std::wstring packageId, std::wstring sourceId, std::unique_ptr<COMContext> context)
     {
-        std::unique_ptr<OrchestratorQueueItem> item = std::make_unique<OrchestratorQueueItem>(OrchestratorQueueItemId(std::move(packageId), std::move(sourceId)), std::move(context), PackageOperationType::None);
+        std::unique_ptr<OrchestratorQueueItem> item = std::make_unique<OrchestratorQueueItem>(OrchestratorQueueItemId(std::move(packageId), std::move(sourceId)), std::move(context), PackageOperationType::Search);
         return item;
     }
 }

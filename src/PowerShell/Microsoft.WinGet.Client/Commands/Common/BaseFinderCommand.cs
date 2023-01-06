@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.WinGet.Client.Common
+namespace Microsoft.WinGet.Client.Commands.Common
 {
     using System;
     using System.Collections.Generic;
@@ -13,13 +13,14 @@ namespace Microsoft.WinGet.Client.Common
     using System.Reflection;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Attributes;
-    using Microsoft.WinGet.Client.Errors;
+    using Microsoft.WinGet.Client.Common;
+    using Microsoft.WinGet.Client.Exceptions;
 
     /// <summary>
     /// This is the base class for all commands that might need to search for a package. It contains an initial
     /// set of parameters that corresponds to the intersection of i.e., the "install" and "search" commands.
     /// </summary>
-    public class BaseFinderCommand : BaseClientCommand
+    public abstract class BaseFinderCommand : BaseClientCommand
     {
         /// <summary>
         /// Gets or sets the field that is matched against the identifier of a package.
@@ -78,7 +79,7 @@ namespace Microsoft.WinGet.Client.Common
         {
             get
             {
-                return (this.Query is null)
+                return this.Query is null
                     ? null
                     : string.Join(" ", this.Query);
             }
@@ -163,7 +164,7 @@ namespace Microsoft.WinGet.Client.Common
             }
             else
             {
-                throw new RuntimeException(Utilities.ResourceManager.GetString("RuntimeExceptionCatalogError"));
+                throw new CatalogConnectException();
             }
         }
 
@@ -193,8 +194,7 @@ namespace Microsoft.WinGet.Client.Common
             ref FindPackagesOptions options,
             PackageFieldMatchOption match)
         {
-            IEnumerable<PropertyInfo> properties = this
-                .GetType()
+            IEnumerable<PropertyInfo> properties = this.GetType()
                 .GetProperties()
                 .Where(property => Attribute.IsDefined(property, typeof(FilterAttribute)));
 
