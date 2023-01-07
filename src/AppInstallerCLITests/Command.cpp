@@ -147,9 +147,7 @@ void EnsureCommandConsistency(const Command& command)
 
     // No = allowed in arguments
     // All positional args should be listed first
-    // At most one multi-positional after the positional args
     bool foundNonPositional = false;
-    bool foundMultiPositional = false;
     for (const auto& arg : command.GetArguments())
     {
         INFO(command.FullName());
@@ -160,13 +158,6 @@ void EnsureCommandConsistency(const Command& command)
         if (arg.Type() == ArgumentType::Positional)
         {
             REQUIRE(!foundNonPositional);
-            REQUIRE(!foundMultiPositional);
-        }
-        else if (arg.Type() == ArgumentType::MultiPositional)
-        {
-            REQUIRE(!foundNonPositional);
-            REQUIRE(!foundMultiPositional);
-            foundMultiPositional = true;
         }
         else
         {
@@ -190,7 +181,6 @@ void EnsureCommandConsistency(const Command& command)
 //  6. All argument alias are lower cased
 //  7. No argument names contain '='
 //  8. All positional arguments are first in the list
-//  9. There is at most one multi-positional argument after all the positional arguments
 TEST_CASE("EnsureCommandTreeConsistency", "[command]")
 {
     RootCommand root;
@@ -577,11 +567,11 @@ TEST_CASE("ParseArguments_UnknownName", "[command]")
     REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::InvalidNameError(Utility::LocIndView{ values[1] }));
 }
 
-TEST_CASE("ParseArguments_MultiPositional", "[command]")
+TEST_CASE("ParseArguments_PositionalWithMultipleValues", "[command]")
 {
     Args args;
     TestCommand command({
-            Argument{ "multi", 'm', Args::Type::Query, DefaultDesc, ArgumentType::MultiPositional },
+            Argument{ "multi", 'm', Args::Type::Query, DefaultDesc, ArgumentType::Positional }.SetCountLimit(5),
         });
 
     std::vector<std::string> values{ "value1" "value2", "value3" };
@@ -591,13 +581,13 @@ TEST_CASE("ParseArguments_MultiPositional", "[command]")
     RequireValuesParsedToArg(values, command.m_args[0], args);
 }
 
-TEST_CASE("ParseArguments_MultiPositionalWithOthers", "[command]")
+TEST_CASE("ParseArguments_PositionalWithMultipleValuesAndOtherArgs", "[command]")
 {
     Args args;
     TestCommand command({
             Argument{ "pos1", 'p', Args::Type::Source, DefaultDesc, ArgumentType::Positional },
             Argument{ "pos2", 'q', Args::Type::All, DefaultDesc, ArgumentType::Positional },
-            Argument{ "multi", 'm', Args::Type::Query, DefaultDesc, ArgumentType::MultiPositional },
+            Argument{ "multi", 'm', Args::Type::Query, DefaultDesc, ArgumentType::Positional }.SetCountLimit(5),
             Argument{ "flag", 'f', Args::Type::BlockingPin, DefaultDesc, ArgumentType::Flag },
         });
 
@@ -611,11 +601,11 @@ TEST_CASE("ParseArguments_MultiPositionalWithOthers", "[command]")
     REQUIRE(args.Contains(command.m_args[3].ExecArgType()));
 }
 
-TEST_CASE("ParseArguments_MultiPositionalWithName", "[command]")
+TEST_CASE("ParseArguments_PositionalWithMultipleValuesAndName", "[command]")
 {
     Args args;
     TestCommand command({
-            Argument{ "multi", 'm', Args::Type::Query, DefaultDesc, ArgumentType::MultiPositional },
+            Argument{ "multi", 'm', Args::Type::Query, DefaultDesc, ArgumentType::Positional }.SetCountLimit(5),
         });
 
     std::vector<std::string> values{ "--multi", "one", "two", "three" };

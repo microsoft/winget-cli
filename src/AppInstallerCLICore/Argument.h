@@ -32,10 +32,6 @@ namespace AppInstaller::CLI
         Standard,
         // Argument value can be specified alone; position indicates argument name.
         Positional,
-        // Argument value can be specified alone, and there may be more than one value; position indicates argument name.
-        // A MultiPositional argument cannot come before a Positional argument.
-        // The argument name can only be specified if a single value is provided.
-        MultiPositional,
         // Only argument name can be specified and indicates a bool value.
         Flag,
     };
@@ -136,6 +132,7 @@ namespace AppInstaller::CLI
         Settings::AdminSetting AdminSetting() const { return m_adminSetting; }
 
         Argument& SetRequired(bool required) { m_required = required; return *this; }
+        Argument& SetCountLimit(size_t countLimit) { m_countLimit = countLimit; return *this; }
 
     private:
         // Constructors that set a Feature or Policy are private to force callers to go through the ForType() function.

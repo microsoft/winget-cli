@@ -547,7 +547,3 @@ TEST_CASE("CommandComplete_Complex", "[complete]")
     REQUIRE(ctc.context.Args.Contains(command.Arguments[0].ExecArgType()));
     REQUIRE(ctc.context.Args.GetArg(command.Arguments[0].ExecArgType()) == "value1");
 }
-
-
-// TODO #219
-// Completion for multi-positional

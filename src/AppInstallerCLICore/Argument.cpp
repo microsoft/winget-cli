@@ -26,7 +26,7 @@ namespace AppInstaller::CLI
         case Args::Type::Query:
             return Argument{ "query"_liv, 'q', Args::Type::Query, Resource::String::QueryArgumentDescription, ArgumentType::Positional};
         case Args::Type::MultiQuery:
-            return Argument{ "query"_liv, 'q', Args::Type::MultiQuery, Resource::String::MultiQueryArgumentDescription, ArgumentType::MultiPositional };
+            return Argument{ "query"_liv, 'q', Args::Type::MultiQuery, Resource::String::MultiQueryArgumentDescription, ArgumentType::Positional }.SetCountLimit(128);
         case Args::Type::Manifest:
             return Argument{ "manifest"_liv, 'm', Args::Type::Manifest, Resource::String::ManifestArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help, Settings::TogglePolicy::Policy::LocalManifestFiles, Settings::AdminSetting::LocalManifestFiles };
         case Args::Type::Id:

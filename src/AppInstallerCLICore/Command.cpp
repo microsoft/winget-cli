@@ -111,7 +111,7 @@ namespace AppInstaller::CLI
         // Arguments are required by a test to have all positionals first
         for (const auto& arg : arguments)
         {
-            if (arg.Type() == ArgumentType::Positional || arg.Type() == ArgumentType::MultiPositional)
+            if (arg.Type() == ArgumentType::Positional)
             {
                 hasArguments = true;
 
@@ -135,7 +135,7 @@ namespace AppInstaller::CLI
 
                 infoOut << "] <"_liv << arg.Name() << '>';
 
-                if (arg.Type() == ArgumentType::MultiPositional)
+                if (arg.Limit() > 1)
                 {
                     infoOut << "..."_liv;
                 }
@@ -443,7 +443,6 @@ namespace AppInstaller::CLI
     //  4. If the argument is only a double --, all further arguments are only considered as positional.
     ParseArgumentsStateMachine::State ParseArgumentsStateMachine::StepInternal()
     {
-        // TODO #219: Parse multi-positional args
         auto currArg = Utility::LocIndView{ *m_invocationItr };
         ++m_invocationItr;
 
