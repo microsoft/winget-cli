@@ -13,12 +13,20 @@ namespace AppInstaller::CLI
     using namespace Settings;
     using namespace AppInstaller::Utility::literals;
 
+    bool IsOptionArgument(ArgumentType type)
+    {
+        return type == ArgumentType::Standard || type == ArgumentType::Flag;
+    }
+
+
     Argument Argument::ForType(Execution::Args::Type type)
     {
         switch (type)
         {
         case Args::Type::Query:
             return Argument{ "query"_liv, 'q', Args::Type::Query, Resource::String::QueryArgumentDescription, ArgumentType::Positional};
+        case Args::Type::MultiQuery:
+            return Argument{ "query"_liv, 'q', Args::Type::MultiQuery, Resource::String::MultiQueryArgumentDescription, ArgumentType::MultiPositional };
         case Args::Type::Manifest:
             return Argument{ "manifest"_liv, 'm', Args::Type::Manifest, Resource::String::ManifestArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help, Settings::TogglePolicy::Policy::LocalManifestFiles, Settings::AdminSetting::LocalManifestFiles };
         case Args::Type::Id:

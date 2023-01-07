@@ -108,10 +108,10 @@ namespace AppInstaller::CLI
             }
         }
 
-        // Arguments are required by a test to have all positionals first.
+        // Arguments are required by a test to have all positionals first
         for (const auto& arg : arguments)
         {
-            if (arg.Type() == ArgumentType::Positional)
+            if (arg.Type() == ArgumentType::Positional || arg.Type() == ArgumentType::MultiPositional)
             {
                 hasArguments = true;
 
@@ -134,6 +134,11 @@ namespace AppInstaller::CLI
                 }
 
                 infoOut << "] <"_liv << arg.Name() << '>';
+
+                if (arg.Type() == ArgumentType::MultiPositional)
+                {
+                    infoOut << "..."_liv;
+                }
 
                 if (!arg.Required())
                 {
@@ -215,7 +220,7 @@ namespace AppInstaller::CLI
                 for (const auto& arg : arguments)
                 {
                     const std::string& argName = argNames[i++];
-                    if (arg.Type() == ArgumentType::Positional)
+                    if (!IsOptionArgument(arg.Type()))
                     {
                         size_t fillChars = (maxArgNameLength - argName.length()) + 2;
                         infoOut << "  "_liv << Execution::HelpArgumentEmphasis << argName << Utility::LocIndString{ std::string(fillChars, ' ') } << arg.Description() << std::endl;
@@ -236,7 +241,7 @@ namespace AppInstaller::CLI
                 for (const auto& arg : arguments)
                 {
                     const std::string& argName = argNames[i++];
-                    if (arg.Type() != ArgumentType::Positional)
+                    if (IsOptionArgument(arg.Type()))
                     {
                         size_t fillChars = (maxArgNameLength - argName.length()) + 2;
                         infoOut << "  "_liv << Execution::HelpArgumentEmphasis << argName << Utility::LocIndString{ std::string(fillChars, ' ') } << arg.Description() << std::endl;
@@ -438,6 +443,7 @@ namespace AppInstaller::CLI
     //  4. If the argument is only a double --, all further arguments are only considered as positional.
     ParseArgumentsStateMachine::State ParseArgumentsStateMachine::StepInternal()
     {
+        // TODO #219: Parse multi-positional args
         auto currArg = Utility::LocIndView{ *m_invocationItr };
         ++m_invocationItr;
 

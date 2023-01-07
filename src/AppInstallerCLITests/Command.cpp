@@ -147,7 +147,9 @@ void EnsureCommandConsistency(const Command& command)
 
     // No = allowed in arguments
     // All positional args should be listed first
+    // At most one multi-positional after the positional args
     bool foundNonPositional = false;
+    bool foundMultiPositional = false;
     for (const auto& arg : command.GetArguments())
     {
         INFO(command.FullName());
@@ -158,6 +160,13 @@ void EnsureCommandConsistency(const Command& command)
         if (arg.Type() == ArgumentType::Positional)
         {
             REQUIRE(!foundNonPositional);
+            REQUIRE(!foundMultiPositional);
+        }
+        else if (arg.Type() == ArgumentType::MultiPositional)
+        {
+            REQUIRE(!foundNonPositional);
+            REQUIRE(!foundMultiPositional);
+            foundMultiPositional = true;
         }
         else
         {
@@ -181,6 +190,7 @@ void EnsureCommandConsistency(const Command& command)
 //  6. All argument alias are lower cased
 //  7. No argument names contain '='
 //  8. All positional arguments are first in the list
+//  9. There is at most one multi-positional argument after all the positional arguments
 TEST_CASE("EnsureCommandTreeConsistency", "[command]")
 {
     RootCommand root;
@@ -235,6 +245,18 @@ void RequireValueParsedToArg(const std::string& value, const Argument& arg, cons
 {
     REQUIRE(args.Contains(arg.ExecArgType()));
     REQUIRE(value == args.GetArg(arg.ExecArgType()));
+}
+
+void RequireValuesParsedToArg(const std::vector<std::string>& values, const Argument& arg, const Args& args)
+{
+    REQUIRE(args.Contains(arg.ExecArgType()));
+    REQUIRE(args.GetCount(arg.ExecArgType()) == values.size());
+
+    auto argValues = args.GetArgs(arg.ExecArgType());
+    for (size_t i = 0; i < values.size(); ++i)
+    {
+        REQUIRE(argValues->at(i) == values[i]);
+    }
 }
 
 // Description used for tests; doesn't need to be anything in particular.
@@ -553,4 +575,52 @@ TEST_CASE("ParseArguments_UnknownName", "[command]")
     Invocation inv{ std::vector<std::string>(values) };
 
     REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::InvalidNameError(Utility::LocIndView{ values[1] }));
+}
+
+TEST_CASE("ParseArguments_MultiPositional", "[command]")
+{
+    Args args;
+    TestCommand command({
+            Argument{ "multi", 'm', Args::Type::Query, DefaultDesc, ArgumentType::MultiPositional },
+        });
+
+    std::vector<std::string> values{ "value1" "value2", "value3" };
+    Invocation inv{ std::vector<std::string>(values) };
+
+    command.ParseArguments(inv, args);
+    RequireValuesParsedToArg(values, command.m_args[0], args);
+}
+
+TEST_CASE("ParseArguments_MultiPositionalWithOthers", "[command]")
+{
+    Args args;
+    TestCommand command({
+            Argument{ "pos1", 'p', Args::Type::Source, DefaultDesc, ArgumentType::Positional },
+            Argument{ "pos2", 'q', Args::Type::All, DefaultDesc, ArgumentType::Positional },
+            Argument{ "multi", 'm', Args::Type::Query, DefaultDesc, ArgumentType::MultiPositional },
+            Argument{ "flag", 'f', Args::Type::BlockingPin, DefaultDesc, ArgumentType::Flag },
+        });
+
+    std::vector<std::string> values{ "positional", "-q", "anotherPos", "multiValue1" "multiValue2", "-f" };
+    Invocation inv{ std::vector<std::string>(values) };
+
+    command.ParseArguments(inv, args);
+    RequireValueParsedToArg(values[0], command.m_args[0], args);
+    RequireValueParsedToArg(values[2], command.m_args[1], args);
+    RequireValuesParsedToArg({ values[3], values[4] }, command.m_args[2], args);
+    REQUIRE(args.Contains(command.m_args[3].ExecArgType()));
+}
+
+TEST_CASE("ParseArguments_MultiPositionalWithName", "[command]")
+{
+    Args args;
+    TestCommand command({
+            Argument{ "multi", 'm', Args::Type::Query, DefaultDesc, ArgumentType::MultiPositional },
+        });
+
+    std::vector<std::string> values{ "--multi", "one", "two", "three" };
+    Invocation inv{ std::vector<std::string>(values) };
+
+    command.ParseArguments(inv, args);
+    RequireValuesParsedToArg({ values[0], values[1], values[2] }, command.m_args[0], args);
 }

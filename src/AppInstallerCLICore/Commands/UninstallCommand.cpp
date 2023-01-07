@@ -16,7 +16,7 @@ namespace AppInstaller::CLI
     {
         return
         {
-            Argument::ForType(Args::Type::Query),
+            Argument::ForType(Args::Type::MultiQuery),
             Argument::ForType(Args::Type::Manifest),
             Argument::ForType(Args::Type::Id),
             Argument::ForType(Args::Type::Name),
@@ -63,7 +63,7 @@ namespace AppInstaller::CLI
 
         switch (valueType)
         {
-        case Execution::Args::Type::Query:
+        case Execution::Args::Type::MultiQuery:
             context <<
                 Workflow::RequireCompletionWordNonEmpty <<
                 Workflow::SearchSourceForManyCompletion <<
@@ -92,7 +92,7 @@ namespace AppInstaller::CLI
         Argument::ValidatePackageSelectionArgumentSupplied(execArgs);
 
         if (execArgs.Contains(Execution::Args::Type::Manifest) &&
-            (execArgs.Contains(Execution::Args::Type::Query) ||
+            (execArgs.Contains(Execution::Args::Type::MultiQuery) ||
              execArgs.Contains(Execution::Args::Type::Id) ||
              execArgs.Contains(Execution::Args::Type::Name) ||
              execArgs.Contains(Execution::Args::Type::Moniker) ||
@@ -109,6 +109,8 @@ namespace AppInstaller::CLI
         {
             throw CommandException(Resource::String::BothPurgeAndPreserveFlagsProvided);
         }
+
+        // TODO #219: Validate MultiQuery with options
     }
 
     void UninstallCommand::ExecuteInternal(Execution::Context& context) const

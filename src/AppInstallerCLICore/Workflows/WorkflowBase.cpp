@@ -443,9 +443,18 @@ namespace AppInstaller::CLI::Workflow
         }
 
         SearchRequest searchRequest;
+
         if (args.Contains(Execution::Args::Type::Query))
         {
             searchRequest.Query.emplace(RequestMatch(matchType, args.GetArg(Execution::Args::Type::Query)));
+        }
+        if (args.Contains(Execution::Args::Type::MultiQuery))
+        {
+            auto queries = args.GetArgs(Execution::Args::Type::MultiQuery);
+            for (const auto& query : *queries)
+            {
+                searchRequest.Query.emplace(RequestMatch(matchType, query));
+            }
         }
 
         SearchSourceApplyFilters(context, searchRequest, matchType);
@@ -464,6 +473,7 @@ namespace AppInstaller::CLI::Workflow
         context.Add<Execution::Data::SearchResult>(context.Get<Execution::Data::Source>().Search(searchRequest));
     }
 
+    // TODO #219: Find all uses
     void SearchSourceForSingle(Execution::Context& context)
     {
         const auto& args = context.Args;
@@ -475,6 +485,7 @@ namespace AppInstaller::CLI::Workflow
         }
 
         SearchRequest searchRequest;
+        // Note: MultiQuery when we need search for single is handled with one sub-context per query.
         if (args.Contains(Execution::Args::Type::Query))
         {
             std::string_view query = args.GetArg(Execution::Args::Type::Query);

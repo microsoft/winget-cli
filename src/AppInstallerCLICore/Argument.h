@@ -32,9 +32,16 @@ namespace AppInstaller::CLI
         Standard,
         // Argument value can be specified alone; position indicates argument name.
         Positional,
+        // Argument value can be specified alone, and there may be more than one value; position indicates argument name.
+        // A MultiPositional argument cannot come before a Positional argument.
+        // The argument name can only be specified if a single value is provided.
+        MultiPositional,
         // Only argument name can be specified and indicates a bool value.
         Flag,
     };
+
+    // Determines whether an argument type represents an argument or an option
+    bool IsOptionArgument(ArgumentType type);
 
     // An argument to a command.
     struct Argument

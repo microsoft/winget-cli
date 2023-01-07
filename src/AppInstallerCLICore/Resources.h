@@ -214,6 +214,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(MultipleInstalledPackagesFound);
         WINGET_DEFINE_RESOURCE_STRINGID(MultipleNonPortableNestedInstallersSpecified);
         WINGET_DEFINE_RESOURCE_STRINGID(MultiplePackagesFound);
+        WINGET_DEFINE_RESOURCE_STRINGID(MultiQueryArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(NameArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(NestedInstallerNotFound);
         WINGET_DEFINE_RESOURCE_STRINGID(NestedInstallerNotSpecified);

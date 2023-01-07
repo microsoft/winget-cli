@@ -1653,4 +1653,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Unable to open pin database.</value>
     <comment>Error message for when we cannot open the database containing package pins.</comment>
   </data>
+  <data name="MultiQueryArgumentDescription" xml:space="preserve">
+    <value>The query used to search for a package</value>
+  </data>
 </root>

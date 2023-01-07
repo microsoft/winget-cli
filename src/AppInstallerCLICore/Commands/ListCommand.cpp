@@ -13,7 +13,7 @@ namespace AppInstaller::CLI
     std::vector<Argument> ListCommand::GetArguments() const
     {
         return {
-            Argument::ForType(Execution::Args::Type::Query),
+            Argument::ForType(Execution::Args::Type::MultiQuery),
             Argument::ForType(Execution::Args::Type::Id),
             Argument::ForType(Execution::Args::Type::Name),
             Argument::ForType(Execution::Args::Type::Moniker),
@@ -46,7 +46,7 @@ namespace AppInstaller::CLI
 
         switch (valueType)
         {
-        case Execution::Args::Type::Query:
+        case Execution::Args::Type::MultiQuery:
             context <<
                 Workflow::RequireCompletionWordNonEmpty <<
                 Workflow::SearchSourceForManyCompletion <<

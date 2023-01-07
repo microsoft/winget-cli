@@ -18,7 +18,7 @@ namespace AppInstaller::CLI
     std::vector<Argument> InstallCommand::GetArguments() const
     {
         return {
-            Argument::ForType(Args::Type::Query),
+            Argument::ForType(Args::Type::MultiQuery),
             Argument::ForType(Args::Type::Manifest),
             Argument::ForType(Args::Type::Id),
             Argument::ForType(Args::Type::Name),
@@ -63,7 +63,7 @@ namespace AppInstaller::CLI
     {
         switch (valueType)
         {
-        case Args::Type::Query:
+        case Args::Type::MultiQuery:
         case Args::Type::Manifest:
         case Args::Type::Id:
         case Args::Type::Name:
@@ -98,7 +98,7 @@ namespace AppInstaller::CLI
         Argument::ValidatePackageSelectionArgumentSupplied(execArgs);
 
         if (execArgs.Contains(Args::Type::Manifest) &&
-            (execArgs.Contains(Args::Type::Query) ||
+            (execArgs.Contains(Args::Type::MultiQuery) ||
              execArgs.Contains(Args::Type::Id) ||
              execArgs.Contains(Args::Type::Name) ||
              execArgs.Contains(Args::Type::Moniker) ||
@@ -110,6 +110,7 @@ namespace AppInstaller::CLI
             throw CommandException(Resource::String::BothManifestAndSearchQueryProvided);
         }
 
+        // TODO #219: MultiQuery with options
     }
 
     void InstallCommand::ExecuteInternal(Context& context) const

@@ -24,7 +24,7 @@ namespace AppInstaller::CLI
         bool HasSearchQueryArguments(Execution::Args& execArgs)
         {
             // Note that this does not include Manifest (no search) or source related args (used for listing)
-            return execArgs.Contains(Args::Type::Query) ||
+            return execArgs.Contains(Args::Type::MultiQuery) ||
                 execArgs.Contains(Args::Type::Id) ||
                 execArgs.Contains(Args::Type::Name) ||
                 execArgs.Contains(Args::Type::Moniker) ||
@@ -143,7 +143,7 @@ namespace AppInstaller::CLI
 
         switch (valueType)
         {
-        case Execution::Args::Type::Query:
+        case Execution::Args::Type::MultiQuery:
             context <<
                 RequireCompletionWordNonEmpty <<
                 SearchSourceForManyCompletion <<
