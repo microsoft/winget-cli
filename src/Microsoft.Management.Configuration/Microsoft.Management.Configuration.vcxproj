@@ -128,9 +128,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="ConfigurationUnit.h" />
+    <ClInclude Include="ConfigurationUnitResultInformation.h" />
+    <ClInclude Include="MutableFlag.h" />
     <ClInclude Include="pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ConfigurationUnit.cpp" />
+    <ClCompile Include="ConfigurationUnitResultInformation.cpp" />
+    <ClCompile Include="MutableFlag.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>

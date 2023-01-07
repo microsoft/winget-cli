@@ -3,9 +3,15 @@
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
+    <ClCompile Include="ConfigurationUnitResultInformation.cpp" />
+    <ClCompile Include="ConfigurationUnit.cpp" />
+    <ClCompile Include="MutableFlag.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
+    <ClInclude Include="ConfigurationUnitResultInformation.h" />
+    <ClInclude Include="ConfigurationUnit.h" />
+    <ClInclude Include="MutableFlag.h" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="Microsoft.Management.Configuration.idl" />
