@@ -67,9 +67,9 @@ TEST_CASE("UninstallFlow_UninstallPortable", "[UninstallFlow][workflow]")
     std::ostringstream uninstallOutput;
     TestContext context{ uninstallOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForCompositeInstalledSource(context);
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Portable }));
     OverrideForPortableUninstall(context);
-    context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestPortableInstaller"sv);
+    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Portable.Query);
 
     UninstallCommand uninstall({});
     uninstall.Execute(context);
@@ -84,9 +84,9 @@ TEST_CASE("UninstallFlow_UninstallExe", "[UninstallFlow][workflow]")
     std::ostringstream uninstallOutput;
     TestContext context{ uninstallOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForCompositeInstalledSource(context);
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Exe }));
     OverrideForExeUninstall(context);
-    context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestExeInstaller"sv);
+    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Exe.Query);
     context.Args.AddArg(Execution::Args::Type::Silent);
 
     UninstallCommand uninstall({});
@@ -110,9 +110,9 @@ TEST_CASE("UninstallFlow_UninstallMsix", "[UninstallFlow][workflow]")
     std::ostringstream uninstallOutput;
     TestContext context{ uninstallOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForCompositeInstalledSource(context);
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Msix }));
     OverrideForMSIXUninstall(context);
-    context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestMsixInstaller"sv);
+    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Msix.Query);
 
     UninstallCommand uninstall({});
     uninstall.Execute(context);
@@ -134,9 +134,9 @@ TEST_CASE("UninstallFlow_UninstallMSStore", "[UninstallFlow][workflow]")
     std::ostringstream uninstallOutput;
     TestContext context{ uninstallOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForCompositeInstalledSource(context);
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_MSStore }));
     OverrideForMSIXUninstall(context);
-    context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestMSStoreInstaller"sv);
+    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_MSStore.Query);
 
     UninstallCommand uninstall({});
     uninstall.Execute(context);
@@ -158,7 +158,7 @@ TEST_CASE("UninstallFlow_UninstallExeNotFound", "[UninstallFlow][workflow]")
     std::ostringstream uninstallOutput;
     TestContext context{ uninstallOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForCompositeInstalledSource(context);
+    OverrideForCompositeInstalledSource(context, CreateTestSource({}));
     context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.MissingApp"sv);
     context.Args.AddArg(Execution::Args::Type::Silent);
 

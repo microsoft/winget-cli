@@ -14,7 +14,14 @@ TEST_CASE("ExportFlow_ExportAll", "[ExportFlow][workflow]")
     std::ostringstream exportOutput;
     TestContext context{ exportOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForCompositeInstalledSource(context);
+    OverrideForCompositeInstalledSource(context, CreateTestSource({
+        TSR::TestInstaller_Exe,
+        TSR::TestInstaller_Exe_UnknownVersion,
+        TSR::TestInstaller_Msix,
+        TSR::TestInstaller_MSStore,
+        TSR::TestInstaller_Portable,
+        TSR::TestInstaller_Zip,
+        }));
     context.Args.AddArg(Execution::Args::Type::OutputFile, exportResultPath);
 
     ExportCommand exportCommand({});
@@ -61,7 +68,14 @@ TEST_CASE("ExportFlow_ExportAll_WithVersions", "[ExportFlow][workflow]")
     std::ostringstream exportOutput;
     TestContext context{ exportOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForCompositeInstalledSource(context);
+    OverrideForCompositeInstalledSource(context, CreateTestSource({
+        TSR::TestInstaller_Exe,
+        TSR::TestInstaller_Exe_UnknownVersion,
+        TSR::TestInstaller_Msix,
+        TSR::TestInstaller_MSStore,
+        TSR::TestInstaller_Portable,
+        TSR::TestInstaller_Zip,
+        }));
     context.Args.AddArg(Execution::Args::Type::OutputFile, exportResultPath);
     context.Args.AddArg(Execution::Args::Type::IncludeVersions);
 
