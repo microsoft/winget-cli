@@ -141,7 +141,7 @@ The `defaultInstallRoot` affects the install location when a package requires on
 
 ```json
     "installBehavior": {
-        "defaultInstallRoot": "C:\installRoot"
+        "defaultInstallRoot": "C:/installRoot"
     },
 ```
 
