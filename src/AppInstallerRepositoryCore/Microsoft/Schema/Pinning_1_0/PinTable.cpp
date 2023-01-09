@@ -9,7 +9,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
 {
     namespace
     {
-        std::optional<Pinning::Pin> GetPinFromRow(std::string_view packageId, std::string_view sourceId, Pinning::PinType type, const std::string& version)
+        std::optional<Pinning::Pin> GetPinFromRow(std::string_view packageId, std::string_view sourceId, Pinning::PinType type, std::string_view version)
+
         {
             switch (type)
             {
@@ -42,7 +43,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
     {
         using namespace SQLite::Builder;
 
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "createPinTable_v1_0");
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "createpintable_v1_0");
+
 
         StatementBuilder createTableBuilder;
         createTableBuilder.CreateTable(s_PinTable_Table_Name).BeginColumns();

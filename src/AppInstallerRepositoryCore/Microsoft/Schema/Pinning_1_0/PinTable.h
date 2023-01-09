@@ -17,7 +17,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
         // Creates the table with named indices.
         static void Create(SQLite::Connection& connection);
 
-        static std::optional<SQLite::rowid_t> GetByPinKey(SQLite::Connection& connection, const Pinning::PinKey& pinKey);
+        static std::optional<SQLite::rowid_t> GetIdByPinKey(SQLite::Connection& connection, const Pinning::PinKey& pinKey);
+
         static SQLite::rowid_t AddPin(SQLite::Connection& connection, const Pinning::Pin& pin);
         static bool UpdatePin(SQLite::Connection& connection, SQLite::rowid_t pinId, const Pinning::Pin& pin);
         static void RemovePinById(SQLite::Connection& connection, SQLite::rowid_t pinId);
