@@ -269,8 +269,19 @@ class WinGetSourcesResource
 
         foreach ($source in $this.Sources)
         {
-            # The call to test already validated that Name and Arg are set and valid.
             $sourceType = "Microsoft.PreIndexed.Package"
+
+            # Require Name and Arg.
+            if ((-not $source.ContainsKey("Name")) -or [string]::IsNullOrWhiteSpace($source.Name))
+            {
+                throw "Invalid source input. Name is required."
+            }
+
+            if ((-not $source.ContainsKey("Arg")) -or [string]::IsNullOrWhiteSpace($source.Arg))
+            {
+                throw "Invalid source input. Arg is required."
+            }
+
             if ($source.ContainsKey("Type") -and (-not([string]::IsNullOrWhiteSpace($source.Type))))
             {
                 $sourceType = $source.Type
