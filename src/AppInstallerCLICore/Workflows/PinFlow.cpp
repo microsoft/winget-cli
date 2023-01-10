@@ -37,7 +37,14 @@ namespace AppInstaller::CLI::Workflow
     {
         auto openDisposition = m_readOnly ? SQLiteStorageBase::OpenDisposition::Read : SQLiteStorageBase::OpenDisposition::ReadWrite;
         auto pinningIndex = PinningIndex::OpenOrCreateDefault(openDisposition);
-        context.Add<Execution::Data::PinningIndex>(std::make_shared<PinningIndex>(std::move(pinningIndex)));
+        if (!pinningIndex)
+        {
+            AICLI_LOG(CLI, Error, << "Unable to open pinning index.");
+            context.Reporter.Info() << Resource::String::PinCannotOpenIndex << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_CANNOT_OPEN_PINNING_INDEX);
+        }
+
+        context.Add<Execution::Data::PinningIndex>(std::move(pinningIndex));
     }
 
     void GetAllPins(Execution::Context& context)

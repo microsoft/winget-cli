@@ -212,6 +212,8 @@ namespace AppInstaller
                 return "A pin already exists for the package.";
             case APPINSTALLER_CLI_ERROR_PIN_DOES_NOT_EXIST:
                 return "There is no pin for the package.";
+            case APPINSTALLER_CLI_ERROR_CANNOT_OPEN_PINNING_INDEX:
+                return "Unable to open the pin database."
 
             // Install errors
             case APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE:

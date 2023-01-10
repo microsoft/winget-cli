@@ -246,6 +246,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(PinAddCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PinAdded);
         WINGET_DEFINE_RESOURCE_STRINGID(PinAlreadyExists);
+        WINGET_DEFINE_RESOURCE_STRINGID(PinCannotOpenIndex);
         WINGET_DEFINE_RESOURCE_STRINGID(PinCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PinCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PinDoesNotExist);

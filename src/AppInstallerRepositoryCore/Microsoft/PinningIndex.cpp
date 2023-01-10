@@ -26,19 +26,25 @@ namespace AppInstaller::Repository::Microsoft
         return result;
     }
 
-    PinningIndex PinningIndex::OpenOrCreateDefault(OpenDisposition openDisposition)
+    std::shared_ptr<PinningIndex> PinningIndex::OpenOrCreateDefault(OpenDisposition openDisposition)
     {
         auto indexPath = Runtime::GetPathTo(Runtime::PathName::LocalState) / "pinning.db";
         AICLI_LOG(CLI, Info, << "Opening pinning index");
 
-        if (std::filesystem::exists(indexPath))
+        try
         {
-            return PinningIndex::Open(indexPath.u8string(), openDisposition);
+            if (std::filesystem::exists(indexPath))
+            {
+                return std::make_shared<PinningIndex>(PinningIndex::Open(indexPath.u8string(), openDisposition));
+            }
+            else
+            {
+                return std::make_shared<PinningIndex>(PinningIndex::CreateNew(indexPath.u8string()));
+            }
         }
-        else
-        {
-            return PinningIndex::CreateNew(indexPath.u8string());
-        }
+        CATCH_LOG();
+
+        return {};
     }
 
     PinningIndex::IdType PinningIndex::AddPin(const Pinning::Pin& pin)

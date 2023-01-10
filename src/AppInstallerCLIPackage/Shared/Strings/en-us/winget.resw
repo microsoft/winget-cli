@@ -1641,4 +1641,8 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Pins reset successfully</value>
     <comment>Shown after resetting (deleting) all the pins</comment>
   </data>
+  <data name="PinCannotOpenIndex" xml:space="preserve">
+    <value>Unable to open pin database.</value>
+    <comment>Error message for when we cannot open the database containing package pins.</comment>
+  </data>
 </root>
