@@ -40,7 +40,7 @@ namespace AppInstaller::CLI::Workflow
         if (!pinningIndex)
         {
             AICLI_LOG(CLI, Error, << "Unable to open pinning index.");
-            context.Reporter.Info() << Resource::String::PinCannotOpenIndex << std::endl;
+            context.Reporter.Error() << Resource::String::PinCannotOpenIndex << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_CANNOT_OPEN_PINNING_INDEX);
         }
 
