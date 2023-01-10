@@ -1113,7 +1113,8 @@ TEST_CASE("CompositeSource_PinnedAvailable", "[CompositeSource][PinFlow]")
     ExpectedResultWithPin expectedResult_considerPins;
 
     PinKey pinKey("Id", setup.Available->Details.Identifier);
-    PinningIndex pinningIndex = PinningIndex::OpenOrCreateDefault();
+    auto pinningIndex = PinningIndex::OpenOrCreateDefault();
+    REQUIRE(pinningIndex);
 
     SECTION("Unpinned")
     {
@@ -1123,7 +1124,7 @@ TEST_CASE("CompositeSource_PinnedAvailable", "[CompositeSource][PinFlow]")
     }
     SECTION("Pinned")
     {
-        pinningIndex.AddPin(Pin::CreatePinningPin(PinKey{ pinKey }));
+        pinningIndex->AddPin(Pin::CreatePinningPin(PinKey{ pinKey }));
 
         // Pinning pins are ignored with --include-pinned
         expectedResult_includePinned = expectedResult_ignorePins;
@@ -1135,7 +1136,7 @@ TEST_CASE("CompositeSource_PinnedAvailable", "[CompositeSource][PinFlow]")
     }
     SECTION("Blocked")
     {
-        pinningIndex.AddPin(Pin::CreateBlockingPin(PinKey{ pinKey }));
+        pinningIndex->AddPin(Pin::CreateBlockingPin(PinKey{ pinKey }));
 
         expectedResult_considerPins.IsUpdateAvailable = false;
         expectedResult_considerPins.LatestAvailableVersion = {};
@@ -1147,7 +1148,7 @@ TEST_CASE("CompositeSource_PinnedAvailable", "[CompositeSource][PinFlow]")
     }
     SECTION("Gated to 1.*")
     {
-        pinningIndex.AddPin(Pin::CreateGatingPin(PinKey{ pinKey }, GatedVersion{ "1.*"sv }));
+        pinningIndex->AddPin(Pin::CreateGatingPin(PinKey{ pinKey }, GatedVersion{ "1.*"sv }));
 
         expectedResult_considerPins.IsUpdateAvailable = true;
         expectedResult_considerPins.LatestAvailableVersion = "1.1.0";
@@ -1159,7 +1160,7 @@ TEST_CASE("CompositeSource_PinnedAvailable", "[CompositeSource][PinFlow]")
     }
     SECTION("Gated to 1.0.*")
     {
-        pinningIndex.AddPin(Pin::CreateGatingPin(PinKey{ pinKey }, GatedVersion{ "1.0.*"sv }));
+        pinningIndex->AddPin(Pin::CreateGatingPin(PinKey{ pinKey }, GatedVersion{ "1.0.*"sv }));
 
         expectedResult_considerPins.IsUpdateAvailable = false;
         expectedResult_considerPins.LatestAvailableVersion = "1.0.1";
@@ -1217,8 +1218,9 @@ TEST_CASE("CompositeSource_OneSourcePinned", "[CompositeSource][PinFlow]")
 
     {
         PinKey pinKey("Id", setup.Available->Details.Identifier);
-        PinningIndex pinningIndex = PinningIndex::OpenOrCreateDefault();
-        pinningIndex.AddPin(Pin::CreatePinningPin(PinKey{ pinKey }));
+        auto pinningIndex = PinningIndex::OpenOrCreateDefault();
+        REQUIRE(pinningIndex);
+        pinningIndex->AddPin(Pin::CreatePinningPin(PinKey{ pinKey }));
     }
 
     PinBehavior pinBehavior = PinBehavior::IgnorePins;
@@ -1297,8 +1299,9 @@ TEST_CASE("CompositeSource_OneSourceGated", "[CompositeSource][PinFlow]")
 
     {
         PinKey pinKey("Id", setup.Available->Details.Identifier);
-        PinningIndex pinningIndex = PinningIndex::OpenOrCreateDefault();
-        pinningIndex.AddPin(Pin::CreateGatingPin(PinKey{ pinKey }, GatedVersion{ "1.*"sv }));
+        auto pinningIndex = PinningIndex::OpenOrCreateDefault();
+        REQUIRE(pinningIndex);
+        pinningIndex->AddPin(Pin::CreateGatingPin(PinKey{ pinKey }, GatedVersion{ "1.*"sv }));
     }
 
     PinBehavior pinBehavior = PinBehavior::IgnorePins;

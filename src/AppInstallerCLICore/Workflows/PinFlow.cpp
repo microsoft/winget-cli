@@ -108,7 +108,7 @@ namespace AppInstaller::CLI::Workflow
                 continue;
             }
 
-            auto pin = CreatePin(context, pinKey.PackageId, pinKey.SourceId, installedVersionString);
+            auto pin = CreatePin(context, pinKey.PackageId, pinKey.SourceId);
             AICLI_LOG(CLI, Info, << "Evaluating pin with type " << ToString(pin.GetType()) << " for package [" << pin.GetPackageId() << "] from source [" << pin.GetSourceId() << "]");
 
             auto existingPin = pinningIndex->GetPin(pinKey);

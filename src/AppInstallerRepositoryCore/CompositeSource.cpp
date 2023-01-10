@@ -369,10 +369,9 @@ namespace AppInstaller::Repository
                     }
                     else if (Pin->GetType() == Pinning::PinType::Gating)
                     {
-                        Utility::GatedVersion gatedVersion(Pin->GetVersion());
                         auto versionKeys = AvailablePackage->GetAvailableVersionKeys(PinBehavior::IgnorePins);
                         std::vector<PackageVersionKey> result;
-                        std::copy_if(versionKeys.begin(), versionKeys.end(), std::back_inserter(result), [&](const PackageVersionKey& pvk) { return gatedVersion.IsValidVersion(pvk.Version); });
+                        std::copy_if(versionKeys.begin(), versionKeys.end(), std::back_inserter(result), [&](const PackageVersionKey& pvk) { return Pin->GetGatedVersion().IsValidVersion(pvk.Version); });
                         return result;
                     }
                 }
@@ -399,8 +398,7 @@ namespace AppInstaller::Repository
                     }
                     else if (Pin->GetType() == Pinning::PinType::Gating)
                     {
-                        Utility::GatedVersion gatedVersion(Pin->GetVersion());
-                        if (!gatedVersion.IsValidVersion(versionKey.Version))
+                        if (!Pin->GetGatedVersion().IsValidVersion(versionKey.Version))
                         {
                             AICLI_LOG(Repo, Info, << "Ignoring available version from source [" << Pin->GetSourceId() << "] for package [" << Pin->GetPackageId() << "] as it does not satisfy Gating pin");
                             return {};
@@ -1192,9 +1190,12 @@ namespace AppInstaller::Repository
                 {
                     // Look up any pins for the packages found
                     auto pinningIndex = PinningIndex::OpenOrCreateDefault();
-                    for (auto& match : result.Matches)
+                    if (pinningIndex)
                     {
-                        match.Package->GetExistingPins(pinningIndex);
+                        for (auto& match : result.Matches)
+                        {
+                            match.Package->GetExistingPins(*pinningIndex);
+                        }
                     }
                 }
 
@@ -1315,9 +1316,12 @@ namespace AppInstaller::Repository
         {
             // Look up any pins for the packages found
             auto pinningIndex = PinningIndex::OpenOrCreateDefault();
-            for (auto& match : result.Matches)
+            if (pinningIndex)
             {
-                match.Package->GetExistingPins(pinningIndex);
+                for (auto& match : result.Matches)
+                {
+                    match.Package->GetExistingPins(*pinningIndex);
+                }
             }
         }
 
