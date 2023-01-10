@@ -907,7 +907,7 @@ namespace AppInstaller::CLI
         return arguments;
     }
 
-    int Execute(Execution::Context& context, std::unique_ptr<Command>& command)
+    void ExecuteWithoutLoggingSuccess(Execution::Context& context, Command* command)
     {
         try
         {
@@ -923,6 +923,11 @@ namespace AppInstaller::CLI
         {
             context.SetTerminationHR(Workflow::HandleException(context, std::current_exception()));
         }
+    }
+
+    int Execute(Execution::Context& context, std::unique_ptr<Command>& command)
+    {
+        ExecuteWithoutLoggingSuccess(context, command.get());
 
         if (SUCCEEDED(context.GetTerminationHR()))
         {
