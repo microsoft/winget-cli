@@ -154,13 +154,37 @@
     <value>{0}, {1}, and {2} other packages matched the input criteria. Please refine the input.</value>
     <comment>{0} - The first conflicting package as a string. {1} - The second conflicting package. {2} - The number of other packages that also matched the input criteria.</comment>
   </data>
-  <data name="WinGetPackageNotInstalledMessage" xml:space="preserve">
-    <value>Unable to execute command; WinGet package not installed.</value>
+  <data name="IntegrityUnknownMessage" xml:space="preserve">
+    <value>Unable to execute winget command.</value>
   </data>
   <data name="WinGetCLIExceptionMessage" xml:space="preserve">
     <value>Command {0} failed with exit code {1}</value>
   </data>
   <data name="UserSettingsReadException" xml:space="preserve">
     <value>User settings file is invalid.</value>
+  </data>
+  <data name="IntegrityAppExecutionAliasDisabledMessage" xml:space="preserve">
+    <value>The App Execution Alias for the Windows Package Manager is disabled.</value>
+  </data>
+  <data name="IntegrityAppInstallerNotInstalledMessage" xml:space="preserve">
+    <value>The App Installer is not installed.</value>
+  </data>
+  <data name="IntegrityAppInstallerNotSupportedMessage" xml:space="preserve">
+    <value>The App Installer does not contain the Windows Package Manager.</value>
+  </data>
+  <data name="IntegrityFailureMessage" xml:space="preserve">
+    <value>Windows Package Manager returned an unexcepted result.</value>
+  </data>
+  <data name="IntegrityNotInPathMessage" xml:space="preserve">
+    <value>The App Installer did not automatically add the PATH environment variable.</value>
+  </data>
+  <data name="IntegrityOsNotSupportedMessage" xml:space="preserve">
+    <value>The Windows Package Manager requires at least Version 1809 (October 2018 Update).</value>
+  </data>
+  <data name="WinGetCLITimeoutExceptionMessage" xml:space="preserve">
+    <value>Winget command run timed out: {0} {1}</value>
+  </data>
+  <data name="IntegrityAppInstallerNotRegisteredMessage" xml:space="preserve">
+    <value>The App Installer is not registered.</value>
   </data>
 </root>

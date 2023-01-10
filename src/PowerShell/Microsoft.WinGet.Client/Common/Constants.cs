@@ -35,10 +35,38 @@ namespace Microsoft.WinGet.Client.Common
         public const string FoundSet = "FoundSet";
 
         /// <summary>
+        /// WinGet package family name.
+        /// </summary>
+#if USE_PROD_CLSIDS
+        public const string WingetPackageFamilyName = "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe";
+#else
+        public const string WingetPackageFamilyName = "WinGetDevCLI_8wekyb3d8bbwe";
+#endif
+
+        /// <summary>
+        /// Winget executable name.
+        /// </summary>
+#if USE_PROD_CLSIDS
+        public const string WinGetExe = "winget.exe";
+#else
+        public const string WinGetExe = "wingetdev.exe";
+#endif
+
+        /// <summary>
+        /// Name of PATH environment variable.
+        /// </summary>
+        public const string PathEnvVar = "PATH";
+
+        /// <summary>
         /// Nouns used for different cmdlets. Changing this will alter the names of the related commands.
         /// </summary>
         public static class WinGetNouns
         {
+            /// <summary>
+            /// WinGet.
+            /// </summary>
+            public const string WinGet = "WinGet";
+
             /// <summary>
             /// The noun analogue of the <see cref="CatalogPackage" /> class.
             /// </summary>
@@ -53,6 +81,16 @@ namespace Microsoft.WinGet.Client.Common
             /// The noun for any user settings cmdlet.
             /// </summary>
             public const string UserSettings = "WinGetUserSettings";
+
+            /// <summary>
+            /// The noun for winget version.
+            /// </summary>
+            public const string Version = "WinGetVersion";
+
+            /// <summary>
+            /// The noun for winget integrity.
+            /// </summary>
+            public const string Integrity = "WinGetIntegrity";
         }
     }
 }

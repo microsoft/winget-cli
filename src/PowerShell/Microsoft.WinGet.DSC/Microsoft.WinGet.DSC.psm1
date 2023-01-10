@@ -304,4 +304,51 @@ class WinGetSourcesResource
     }
 }
 
+[DSCResource()]
+class WinGetIntegrityResource
+{
+    # We need a key. Do not set.
+    [DscProperty(Key)]
+    [string]$SID
+
+    [DscProperty()]
+    [string]$Version = ""
+
+    [DscProperty()]
+    [bool]$UsePrerelease = $false
+
+    # There's no much value on this.
+    [WinGetIntegrityResource] Get()
+    {
+        # TODO: add version via Get-WinGetVersion
+        $result = @{
+            SID = ''
+        }
+        return $result
+    }
+
+    # Tests winget is installed.
+    [bool] Test()
+    {
+        Assert-WinGetCommand "Assert-WinGetIntegrity"
+
+        try
+        {
+            Assert-WinGetIntegrity
+        }
+        catch
+        {
+            return $false
+        }
+
+        return $true
+    }
+
+    # Repairs Winget.
+    [void] Set()
+    {
+
+    }
+}
+
 #endregion DscResources

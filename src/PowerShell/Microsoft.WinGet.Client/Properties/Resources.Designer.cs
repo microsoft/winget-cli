@@ -88,6 +88,78 @@ namespace Microsoft.WinGet.Client.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The App Execution Alias for the Windows Package Manager is disabled..
+        /// </summary>
+        internal static string IntegrityAppExecutionAliasDisabledMessage {
+            get {
+                return ResourceManager.GetString("IntegrityAppExecutionAliasDisabledMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The App Installer is not installed..
+        /// </summary>
+        internal static string IntegrityAppInstallerNotInstalledMessage {
+            get {
+                return ResourceManager.GetString("IntegrityAppInstallerNotInstalledMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The App Installer is not registered..
+        /// </summary>
+        internal static string IntegrityAppInstallerNotRegisteredMessage {
+            get {
+                return ResourceManager.GetString("IntegrityAppInstallerNotRegisteredMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The App Installer does not contain the Windows Package Manager..
+        /// </summary>
+        internal static string IntegrityAppInstallerNotSupportedMessage {
+            get {
+                return ResourceManager.GetString("IntegrityAppInstallerNotSupportedMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Windows Package Manager returned an unexcepted result..
+        /// </summary>
+        internal static string IntegrityFailureMessage {
+            get {
+                return ResourceManager.GetString("IntegrityFailureMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The App Installer did not automatically add the PATH environment variable..
+        /// </summary>
+        internal static string IntegrityNotInPathMessage {
+            get {
+                return ResourceManager.GetString("IntegrityNotInPathMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The Windows Package Manager requires at least Version 1809 (October 2018 Update)..
+        /// </summary>
+        internal static string IntegrityOsNotSupportedMessage {
+            get {
+                return ResourceManager.GetString("IntegrityOsNotSupportedMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to execute winget command..
+        /// </summary>
+        internal static string IntegrityUnknownMessage {
+            get {
+                return ResourceManager.GetString("IntegrityUnknownMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to No source matches the given value: {0}.
         /// </summary>
         internal static string InvalidSourceExceptionMessage {
@@ -169,11 +241,11 @@ namespace Microsoft.WinGet.Client.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unable to execute command; WinGet package not installed..
+        ///   Looks up a localized string similar to Winget command run timed out: {0} {1}.
         /// </summary>
-        internal static string WinGetPackageNotInstalledMessage {
+        internal static string WinGetCLITimeoutExceptionMessage {
             get {
-                return ResourceManager.GetString("WinGetPackageNotInstalledMessage", resourceCulture);
+                return ResourceManager.GetString("WinGetCLITimeoutExceptionMessage", resourceCulture);
             }
         }
     }

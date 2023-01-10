@@ -75,7 +75,6 @@ else {
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = @(
-    'Get-WinGetVersion'
     'Enable-WinGetSetting',
     'Disable-WinGetSetting',
     'Add-WinGetSource',
@@ -86,6 +85,7 @@ FunctionsToExport = @(
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @(
+    'Get-WinGetVersion'
     'Find-WinGetPackage',
     'Get-WinGetPackage',
     'Get-WinGetSource',
@@ -94,7 +94,9 @@ CmdletsToExport = @(
     'Update-WinGetPackage',
     'Get-WinGetUserSettings',
     'Set-WinGetUserSettings',
-    'Test-WinGetUserSettings'
+    'Test-WinGetUserSettings',
+    'Assert-WinGetIntegrity',
+    'Repair-WinGet'
 )
 
 # Variables to export from this module
