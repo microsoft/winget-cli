@@ -135,12 +135,13 @@ namespace AppInstaller::CLI::Execution
     void Context::CopyArgsToSubContext(Context* subContext)
     {
         // Copy over install behavior flags from the parent context.
-        // Arguments not copied: Override, Log
         for (auto flag : {
             Args::Type::Interactive,
             Args::Type::Silent,
             Args::Type::HashOverride,
             Args::Type::IgnoreLocalArchiveMalwareScan,
+            Args::Type::NoUpgrade,
+            Args::Type::Force,
             })
         {
             if (Args.Contains(flag))
@@ -151,7 +152,6 @@ namespace AppInstaller::CLI::Execution
 
         for (auto arg : {
             Args::Type::Locale,
-            Args::Type::InstallLocation,
             Args::Type::InstallScope,
             Args::Type::InstallArchitecture,
             })
