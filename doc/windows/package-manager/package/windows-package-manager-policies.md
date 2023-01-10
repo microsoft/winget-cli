@@ -65,14 +65,14 @@ All aspects of the Product should accurately describe the functions, features an
 
 ### 1.1.2
 
-[Tags](https://github.com/microsoft/winget-cli/blob/master/schemas/JSON/manifests/v1.2.0/manifest.defaultLocale.1.2.0.json) may not exceed 16 unique tags and should be relevant to the Product.
+[Tags](https://github.com/microsoft/winget-cli/blob/master/schemas/JSON/manifests/v1.4.0/manifest.defaultLocale.1.4.0.json) may not exceed 16 unique tags and should be relevant to the Product.
 
 ### 1.1.3
 
 The Product must have distinct and informative metadata and must provide a valuable and quality user experience.  
 
 ### 1.1.4
-The [InstallerUrl](https://github.com/microsoft/winget-cli/blob/master/schemas/JSON/manifests/v1.2.0/manifest.defaultLocale.1.2.0.json) must be the ISVs release location for the Product.  Products from download websites will not be allowed.  
+The [InstallerUrl](https://github.com/microsoft/winget-cli/blob/master/schemas/JSON/manifests/v1.4.0/manifest.defaultLocale.1.4.0.json) must be the ISVs release location for the Product.  Products from download websites will not be allowed.  
 
 ### 1.2 Security
 
@@ -118,7 +118,7 @@ The following requirements apply to Products that access Personal Information. P
 
 ### 1.5.1
 
-If the Product accesses, collects or transmits Personal Information, or if otherwise required by law, it should maintain a privacy policy. The submission, should include the [PrivacyUrl](https://github.com/microsoft/winget-cli/blob/master/schemas/JSON/manifests/v1.2.0/manifest.defaultLocale.1.2.0.json) which links to the privacy policy of the Product.
+If the Product accesses, collects or transmits Personal Information, or if otherwise required by law, it should maintain a privacy policy. The submission, should include the [PrivacyUrl](https://github.com/microsoft/winget-cli/blob/master/schemas/JSON/manifests/v1.4.0/manifest.defaultLocale.1.4.0.json) which links to the privacy policy of the Product.
 
 ### 1.5.2
 

@@ -4,19 +4,20 @@
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.WinGet.Client.Common
+namespace Microsoft.WinGet.Client.Commands.Common
 {
     using System.Collections.Generic;
     using System.Management.Automation;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Attributes;
+    using Microsoft.WinGet.Client.Common;
 
     /// <summary>
     /// This is the base class for the commands whose sole purpose is to filter a list of packages i.e.,
     /// the "search" and "list" commands. This class contains an extended set of parameters suited for
     /// that purpose.
     /// </summary>
-    public class BaseFinderExtendedCommand : BaseFinderCommand
+    public abstract class BaseFinderExtendedCommand : BaseFinderCommand
     {
         /// <summary>
         /// Gets or sets the filter that is matched against the tags of the package.

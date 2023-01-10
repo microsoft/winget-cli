@@ -11,18 +11,8 @@ namespace Microsoft.WinGet.Client.Common
     /// <summary>
     /// This class contains all of the configurable constants for this project.
     /// </summary>
-    public static class Constants
+    internal static class Constants
     {
-        /// <summary>
-        /// The noun analogue of the <see cref="CatalogPackage" /> class. Changing this will alter the names of the related commands.
-        /// </summary>
-        public const string PackageNoun = "WinGetPackage";
-
-        /// <summary>
-        /// The noun analogue of the <see cref="PackageCatalogReference" /> class. Changing this will alter the names of the related commands.
-        /// </summary>
-        public const string SourceNoun = "WinGetSource";
-
         /// <summary>
         /// If a command allows the specification of the maximum number of results to return, this is the lower bound for that value.
         /// </summary>
@@ -43,5 +33,26 @@ namespace Microsoft.WinGet.Client.Common
         /// needs to be found by searching a package source.
         /// </summary>
         public const string FoundSet = "FoundSet";
+
+        /// <summary>
+        /// Nouns used for different cmdlets. Changing this will alter the names of the related commands.
+        /// </summary>
+        public static class WinGetNouns
+        {
+            /// <summary>
+            /// The noun analogue of the <see cref="CatalogPackage" /> class.
+            /// </summary>
+            public const string Package = "WinGetPackage";
+
+            /// <summary>
+            /// The noun analogue of the <see cref="PackageCatalogReference" /> class.
+            /// </summary>
+            public const string Source = "WinGetSource";
+
+            /// <summary>
+            /// The noun for any user settings cmdlet.
+            /// </summary>
+            public const string UserSettings = "WinGetUserSettings";
+        }
     }
 }

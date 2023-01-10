@@ -117,7 +117,7 @@ namespace AppInstallerCLIE2ETests
         public void UpgradePortableMachineScope()
         {
             string installDir = TestCommon.GetRandomTestDir();
-            this.ConfigureInstallBehavior(Constants.PortablePackageMachineRoot, installDir);
+            WinGetSettingsHelper.ConfigureInstallBehavior(Constants.PortablePackageMachineRoot, installDir);
 
             string packageId, commandAlias, fileName, packageDirName, productCode;
             packageId = "AppInstallerTest.TestPortableExe";
@@ -129,7 +129,7 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("Successfully installed"));
 
             var result2 = TestCommon.RunAICLICommand("upgrade", $"{packageId} -v 2.0.0.0");
-            this.ConfigureInstallBehavior(Constants.PortablePackageMachineRoot, string.Empty);
+            WinGetSettingsHelper.ConfigureInstallBehavior(Constants.PortablePackageMachineRoot, string.Empty);
             Assert.AreEqual(Constants.ErrorCode.S_OK, result2.ExitCode);
             Assert.True(result2.StdOut.Contains("Successfully installed"));
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true, TestCommon.Scope.Machine);

@@ -4,35 +4,23 @@
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.WinGet.Client.Common
+namespace Microsoft.WinGet.Client.Commands.Common
 {
     using System;
     using System.Collections.Generic;
-    using System.Management.Automation;
     using System.Runtime.InteropServices;
     using Microsoft.Management.Deployment;
+    using Microsoft.WinGet.Client.Exceptions;
     using Microsoft.WinGet.Client.Factories;
 
     /// <summary>
-    /// This is the base class for all of the commands in this module.
+    /// This is the base class for all of the commands in this module that use the COM APIs.
     /// </summary>
-    public class BaseClientCommand : PSCmdlet
+    public abstract class BaseClientCommand : BaseCommand
     {
         static BaseClientCommand()
         {
             InitializeUndockedRegFreeWinRT();
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BaseClientCommand"/> class.
-        /// </summary>
-        public BaseClientCommand()
-            : base()
-        {
-            if (Utilities.ExecutingAsSystem)
-            {
-                throw new Exception(Utilities.ResourceManager.GetString("ExceptionSystemDisabled"));
-            }
         }
 
         /// <summary>
@@ -62,9 +50,7 @@ namespace Microsoft.WinGet.Client.Common
                 return new List<PackageCatalogReference>()
                 {
                     PackageManager.Value.GetPackageCatalogByName(source)
-                        ?? throw new ArgumentException(string.Format(
-                            Utilities.ResourceManager.GetString("ArgumentExceptionInvalidSource"),
-                            source)),
+                        ?? throw new InvalidSourceException(source),
                 };
             }
         }
