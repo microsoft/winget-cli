@@ -20,7 +20,7 @@ namespace AppInstallerCLIE2ETests
         [SetUp]
         public void Setup()
         {
-            this.InitializeAllFeatures(false);
+            WinGetSettingsHelper.InitializeAllFeatures(false);
             GroupPolicyHelper.DeleteExistingPolicies();
         }
 
@@ -30,7 +30,7 @@ namespace AppInstallerCLIE2ETests
         [TearDown]
         public void TearDown()
         {
-            this.InitializeAllFeatures(false);
+            WinGetSettingsHelper.InitializeAllFeatures(false);
             GroupPolicyHelper.DeleteExistingPolicies();
         }
 
@@ -62,7 +62,7 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void EnableExperimentalFeatures()
         {
-            this.ConfigureFeature("experimentalCmd", true);
+            WinGetSettingsHelper.ConfigureFeature("experimentalCmd", true);
             var result = TestCommon.RunAICLICommand("experimental", string.Empty);
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
 

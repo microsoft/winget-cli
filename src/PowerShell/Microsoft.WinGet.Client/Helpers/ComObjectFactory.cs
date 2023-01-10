@@ -10,6 +10,7 @@ namespace Microsoft.WinGet.Client.Factories
     using System.Runtime.InteropServices;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Common;
+    using Microsoft.WinGet.Client.Exceptions;
 
 #if NET
     using WinRT;
@@ -109,6 +110,7 @@ namespace Microsoft.WinGet.Client.Factories
             return Create<PackageMatchFilter>(PackageMatchFilterType, PackageMatchFilterIid);
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "COM only usage.")]
         private static T Create<T>(Type type, in Guid iid)
         {
             object instance = null;
@@ -121,7 +123,7 @@ namespace Microsoft.WinGet.Client.Factories
                 {
                     if (hr == ErrorCode.FileNotFound)
                     {
-                        throw new Exception(Utilities.ResourceManager.GetString("WinGetPackageNotInstalled"));
+                        throw new WinGetPackageNotInstalledException();
                     }
                     else
                     {

@@ -6,6 +6,7 @@
 #include <winget/ManifestCommon.h>
 #include <ExecutionContext.h>
 #include <Workflows/WorkflowBase.h>
+#include <Public/winget/RepositorySearch.h>
 #include <Public/winget/RepositorySource.h>
 
 #define REQUIRE_TERMINATED_WITH(_context_,_hr_) \
@@ -14,27 +15,57 @@
 
 namespace TestCommon
 {
+    using namespace std::string_view_literals;
+
+    // Possible results returned when searching the WorkflowTestSource.
+    // If the search query matches with this object or is empty, it adds to the search results.
+    struct TestSourceResult
+    {
+        using AddResultsFunction = std::function<void(std::vector<AppInstaller::Repository::ResultMatch>&, std::weak_ptr<const AppInstaller::Repository::ISource>)>;
+        TestSourceResult(std::string_view query, AddResultsFunction addResults) : Query(query), AddResults(addResults) {}
+
+        std::string Query;
+        AddResultsFunction AddResults;
+    };
+
+    namespace TSR
+    {
+        const extern TestSourceResult TestQuery_ReturnOne;
+        const extern TestSourceResult TestQuery_ReturnTwo;
+        const extern TestSourceResult TestInstaller_Exe;
+        const extern TestSourceResult TestInstaller_Exe_Dependencies;
+        const extern TestSourceResult TestInstaller_Exe_DifferentInstallerType;
+        const extern TestSourceResult TestInstaller_Exe_IncompatibleInstallerType;
+        const extern TestSourceResult TestInstaller_Exe_LatestInstalled;
+        const extern TestSourceResult TestInstaller_Exe_LicenseAgreement;
+        const extern TestSourceResult TestInstaller_Exe_NothingInstalled;
+        const extern TestSourceResult TestInstaller_Exe_UnknownVersion;
+        const extern TestSourceResult TestInstaller_Exe_UnsupportedArguments;
+        const extern TestSourceResult TestInstaller_Exe_UpgradeAllWithDuplicateUpgradeItems;
+        const extern TestSourceResult TestInstaller_Exe_UpgradeUsesAgreements;
+        const extern TestSourceResult TestInstaller_Msix;
+        const extern TestSourceResult TestInstaller_Msix_UpgradeRequiresExplicit;
+        const extern TestSourceResult TestInstaller_Msix_UpgradeUsesAgreements;
+        const extern TestSourceResult TestInstaller_Msix_WFDependency;
+        const extern TestSourceResult TestInstaller_MSStore;
+        const extern TestSourceResult TestInstaller_Zip;
+        const extern TestSourceResult TestInstaller_Portable;
+    }
+
     struct WorkflowTestSource : public TestSource
     {
-        AppInstaller::Repository::SearchResult Search(const AppInstaller::Repository::SearchRequest& request) const override;
-    };
-
-    enum TestSourceSearchOptions
-    {
-        None = 0,
-        UpgradeUsesAgreements,
-        UpgradeRequiresExplicit,
-    };
-
-    struct WorkflowTestCompositeSource : public TestSource
-    {
-        WorkflowTestCompositeSource(TestSourceSearchOptions searchOptions = TestSourceSearchOptions::None) : m_searchOptions(searchOptions) {}
+        WorkflowTestSource() {}
+        WorkflowTestSource(std::vector<TestSourceResult>&& testSourceResults) : m_testSourceResults(std::move(testSourceResults)) {}
 
         AppInstaller::Repository::SearchResult Search(const AppInstaller::Repository::SearchRequest& request) const override;
+
+        void AddResult(const TestSourceResult& testSourceResult);
 
     private:
-        TestSourceSearchOptions m_searchOptions;
+        std::vector<TestSourceResult> m_testSourceResults;
     };
+
+    std::shared_ptr<WorkflowTestSource> CreateTestSource(std::vector<TestSourceResult>&& testSourceResults);
 
     struct TestContext;
 
@@ -76,9 +107,9 @@ namespace TestCommon
         bool m_isClone = false;
     };
 
-    void OverrideForOpenSource(TestContext& context, bool overrideOpenCompositeSource = false);
+    void OverrideForOpenSource(TestContext& context, std::shared_ptr<WorkflowTestSource> testSource, bool overrideOpenCompositeSource = false);
 
-    void OverrideForCompositeInstalledSource(TestContext& context, TestSourceSearchOptions searchOptions = TestSourceSearchOptions::None);
+    void OverrideForCompositeInstalledSource(TestContext& context, std::shared_ptr<WorkflowTestSource> testSource);
 
     void OverrideForUpdateInstallerMotw(TestContext& context);
 

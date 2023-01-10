@@ -17,54 +17,376 @@ using namespace AppInstaller::Utility;
 
 namespace TestCommon
 {
+    namespace TSR
+    {
+        const TestSourceResult TestQuery_ReturnOne(
+            "TestQueryReturnOne"sv,
+            [](std::vector<ResultMatch>& matches, std::weak_ptr<const ISource> source) {
+                auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
+                matches.emplace_back(
+                    ResultMatch(
+                        TestPackage::Make(std::vector<Manifest>{ manifest }, source),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "TestQueryReturnOne")));
+            });
+
+        const TestSourceResult TestQuery_ReturnTwo(
+            "TestQueryReturnTwo"sv,
+            [](std::vector<ResultMatch>& matches, std::weak_ptr<const ISource> source) {
+                auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
+                matches.emplace_back(
+                    ResultMatch(
+                        TestPackage::Make(std::vector<Manifest>{ manifest }, source),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "TestQueryReturnTwo")));
+
+                auto manifest2 = YamlParser::CreateFromPath(TestDataFile("Manifest-Good.yaml"));
+                matches.emplace_back(
+                    ResultMatch(
+                        TestPackage::Make(std::vector<Manifest>{ manifest2 }, source),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "TestQueryReturnTwo")));
+            });
+
+        const TestSourceResult TestInstaller_Exe(
+            "AppInstallerCliTest.TestExeInstaller"sv,
+            [](std::vector<ResultMatch>& matches, std::weak_ptr<const ISource> source) {
+                auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
+                auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Exe.yaml"));
+                auto manifest3 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Exe_2.yaml"));
+
+                auto testPackage =
+                    TestPackage::Make(
+                        manifest,
+                        TestPackage::MetadataMap
+                        {
+                            { PackageVersionMetadata::InstalledType, "Exe" },
+                            { PackageVersionMetadata::StandardUninstallCommand, "C:\\uninstall.exe" },
+                            { PackageVersionMetadata::SilentUninstallCommand, "C:\\uninstall.exe /silence" },
+                        },
+                        std::vector<Manifest>{ manifest3, manifest2, manifest },
+                        source
+                        );
+                testPackage->IsSameOverride = [](const IPackage*, const IPackage*) { return true; };
+                matches.emplace_back(
+                    ResultMatch(
+                        testPackage,
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
+            });
+
+        const TestSourceResult TestInstaller_Exe_UpgradeUsesAgreements(
+            "AppInstallerCliTest.TestExeInstaller"sv,
+            [](std::vector<ResultMatch>& matches, std::weak_ptr<const ISource> source) {
+                auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
+                auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Exe.yaml"));
+                auto manifest3 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Exe_2_LicenseAgreement.yaml"));
+
+                auto testPackage =
+                    TestPackage::Make(
+                        manifest,
+                        TestPackage::MetadataMap
+                        {
+                            { PackageVersionMetadata::InstalledType, "Exe" },
+                            { PackageVersionMetadata::StandardUninstallCommand, "C:\\uninstall.exe" },
+                            { PackageVersionMetadata::SilentUninstallCommand, "C:\\uninstall.exe /silence" },
+                        },
+                        std::vector<Manifest>{ manifest3, manifest2, manifest },
+                        source
+                        );
+                testPackage->IsSameOverride = [](const IPackage*, const IPackage*) { return true; };
+                matches.emplace_back(
+                    ResultMatch(
+                        testPackage,
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
+            });
+
+        const TestSourceResult TestInstaller_Portable(
+            "AppInstallerCliTest.TestPortableInstaller"sv,
+            [](std::vector<ResultMatch>& matches, std::weak_ptr<const ISource> source) {
+                auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Portable.yaml"));
+                auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Portable.yaml"));
+                matches.emplace_back(
+                    ResultMatch(
+                        TestPackage::Make(
+                            manifest,
+                            TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Portable" } },
+                            std::vector<Manifest>{ manifest2, manifest },
+                            source
+                        ),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestPortableInstaller")));
+            });
+
+        const TestSourceResult TestInstaller_Msix(
+            "AppInstallerCliTest.TestMsixInstaller"sv,
+            [](std::vector<ResultMatch>& matches, std::weak_ptr<const ISource> source) {
+                auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Msix_StreamingFlow.yaml"));
+                auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Msix.yaml"));
+
+                matches.emplace_back(
+                    ResultMatch(
+                        TestPackage::Make(
+                            manifest,
+                            TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Msix" } },
+                            std::vector<Manifest>{ manifest2, manifest },
+                            source
+                        ),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestMsixInstaller")));
+            });
+
+        const TestSourceResult TestInstaller_Msix_UpgradeUsesAgreements(
+            "AppInstallerCliTest.TestMsixInstaller"sv,
+            [](std::vector<ResultMatch>& matches, std::weak_ptr<const ISource> source) {
+                auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Msix_StreamingFlow.yaml"));
+                auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Msix_LicenseAgreement.yaml"));
+
+                matches.emplace_back(
+                    ResultMatch(
+                        TestPackage::Make(
+                            manifest,
+                            TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Msix" } },
+                            std::vector<Manifest>{ manifest2, manifest },
+                            source
+                        ),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestMsixInstaller")));
+            });
+
+        const TestSourceResult TestInstaller_Msix_UpgradeRequiresExplicit(
+            "AppInstallerCliTest.TestMsixInstaller"sv,
+            [](std::vector<ResultMatch>& matches, std::weak_ptr<const ISource> source) {
+                auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Msix_StreamingFlow.yaml"));
+                auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Msix.yaml"));
+
+                matches.emplace_back(
+                    ResultMatch(
+                        TestPackage::Make(
+                            manifest,
+                            TestPackage::MetadataMap
+                            {
+                                { PackageVersionMetadata::InstalledType, "Msix" },
+                                { PackageVersionMetadata::PinnedState, "PinnedByManifest" },
+                            },
+                            std::vector<Manifest>{ manifest2, manifest },
+                            source
+                            ),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestMsixInstaller")));
+            });
+
+        const TestSourceResult TestInstaller_Zip(
+            "AppInstallerCliTest.TestZipInstaller"sv,
+            [](std::vector<ResultMatch>& matches, std::weak_ptr<const ISource> source) {
+                auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Zip_Exe.yaml"));
+                auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Zip_Exe.yaml"));
+                matches.emplace_back(
+                    ResultMatch(
+                        TestPackage::Make(
+                            manifest,
+                            TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Exe" } },
+                            std::vector<Manifest>{ manifest2, manifest },
+                            source
+                        ),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestZipInstaller")));
+            });
+
+        const TestSourceResult TestInstaller_MSStore(
+            "AppInstallerCliTest.TestMSStoreInstaller"sv,
+            [](std::vector<ResultMatch>& matches, std::weak_ptr<const ISource> source) {
+                auto installed = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_MSStore.yaml"));
+                auto available = installed;
+                // Override the installed version to not be Latest
+                installed.Version = "1.0.0.0";
+                matches.emplace_back(
+                    ResultMatch(
+                        TestPackage::Make(
+                            installed,
+                            TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "MSStore" } },
+                            std::vector<Manifest>{ available },
+                            source
+                        ),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestMSStoreInstaller")));
+            });
+
+        const TestSourceResult TestInstaller_Exe_UnknownVersion(
+            "TestExeInstallerWithUnknownVersion"sv,
+            [](std::vector<ResultMatch>& matches, std::weak_ptr<const ISource> source) {
+                auto installed = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_UnknownVersion.yaml"));
+                auto available = installed;
+                // Override the installed version to be unknown.
+                installed.Version = "unknown";
+                matches.emplace_back(
+                    ResultMatch(
+                        TestPackage::Make(
+                            installed,
+                            TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Exe" } },
+                            std::vector<Manifest>{ available },
+                            source
+                        ),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeUnknownVersion")));
+            });
+
+        const TestSourceResult TestInstaller_Exe_LatestInstalled(
+            "TestExeInstallerWithLatestInstalled"sv,
+            [](std::vector<ResultMatch>& matches, std::weak_ptr<const ISource> source) {
+                auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
+                auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Exe.yaml"));
+                matches.emplace_back(
+                    ResultMatch(
+                        TestPackage::Make(
+                            manifest2,
+                            TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Exe" } },
+                            std::vector<Manifest>{ manifest2, manifest },
+                            source
+                        ),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
+            });
+
+        const TestSourceResult TestInstaller_Exe_IncompatibleInstallerType(
+            "TestExeInstallerWithIncompatibleInstallerType"sv,
+            [](std::vector<ResultMatch>& matches, std::weak_ptr<const ISource> source) {
+                auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
+                auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Exe.yaml"));
+                matches.emplace_back(
+                    ResultMatch(
+                        TestPackage::Make(
+                            manifest,
+                            TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Msix" } },
+                            std::vector<Manifest>{ manifest2, manifest },
+                            source
+                        ),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
+            });
+
+        const TestSourceResult TestInstaller_Exe_DifferentInstallerType(
+            "TestExeInstallerWithDifferentInstalledType"sv,
+            [](std::vector<ResultMatch>& matches, std::weak_ptr<const ISource> source) {
+                auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
+                auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Exe_ARPInstallerType.yaml"));
+                matches.emplace_back(
+                    ResultMatch(
+                        TestPackage::Make(
+                            manifest,
+                            TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Msix" } },
+                            std::vector<Manifest>{ manifest2, manifest },
+                            source
+                        ),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
+            });
+
+        const TestSourceResult TestInstaller_Exe_UnsupportedArguments(
+            "TestExeInstallerWithUnsupportedArguments"sv,
+            [](std::vector<ResultMatch>& matches, std::weak_ptr<const ISource> source) {
+                auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
+                auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Exe_UnsupportedArgs.yaml"));
+                matches.emplace_back(
+                    ResultMatch(
+                        TestPackage::Make(
+                            manifest,
+                            TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Exe" } },
+                            std::vector<Manifest>{ manifest2, manifest },
+                            source
+                        ),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
+            });
+
+        const TestSourceResult TestInstaller_Exe_NothingInstalled(
+            "TestExeInstallerWithNothingInstalled"sv,
+            [](std::vector<ResultMatch>& matches, std::weak_ptr<const ISource> source) {
+                auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
+                matches.emplace_back(
+                    ResultMatch(
+                        TestPackage::Make(
+                            std::vector<Manifest>{ manifest },
+                            source
+                        ),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
+            });
+
+        const TestSourceResult TestInstaller_Exe_Dependencies(
+            "AppInstallerCliTest.TestExeInstaller.Dependencies"sv,
+            [](std::vector<ResultMatch>& matches, std::weak_ptr<const ISource> source) {
+                auto manifest = YamlParser::CreateFromPath(TestDataFile("Installer_Exe_Dependencies.yaml"));
+                auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_ExeDependencies.yaml"));
+                matches.emplace_back(
+                    ResultMatch(
+                        TestPackage::Make(
+                            manifest,
+                            TestPackage::MetadataMap
+                            {
+                                { PackageVersionMetadata::InstalledType, "Exe" },
+                                { PackageVersionMetadata::StandardUninstallCommand, "C:\\uninstall.exe" },
+                                { PackageVersionMetadata::SilentUninstallCommand, "C:\\uninstall.exe /silence" },
+                            },
+                            std::vector<Manifest>{ manifest2, manifest },
+                            source
+                            ),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller.Dependencies")));
+            });
+
+        const TestSourceResult TestInstaller_Msix_WFDependency(
+            "AppInstallerCliTest.TestMsixInstaller.WFDep"sv,
+            [](std::vector<ResultMatch>& matches, std::weak_ptr<const ISource> source) {
+                auto manifest = YamlParser::CreateFromPath(TestDataFile("Installer_Msix_WFDependency.yaml"));
+                matches.emplace_back(
+                    ResultMatch(
+                        TestPackage::Make(
+                            std::vector<Manifest>{ manifest },
+                            source
+                        ),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestMsixInstaller.WFDep")));
+            });
+
+        const TestSourceResult TestInstaller_Exe_LicenseAgreement(
+            "TestInstallerWithLicenseAgreement"sv,
+            [](std::vector<ResultMatch>& matches, std::weak_ptr<const ISource> source) {
+                auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_LicenseAgreement.yaml"));
+                auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Exe_2_LicenseAgreement.yaml"));
+                matches.emplace_back(
+                    ResultMatch(
+                        TestPackage::Make(
+                            manifest,
+                            TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Exe" } },
+                            std::vector<Manifest>{ manifest2, manifest },
+                            source
+                        ),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "TestInstallerWithLicenseAgreement")));
+            });
+
+        const TestSourceResult TestInstaller_Exe_UpgradeAllWithDuplicateUpgradeItems(
+            "TestUpgradeAllWithDuplicateUpgradeItems"sv,
+            [](std::vector<ResultMatch>& matches, std::weak_ptr<const ISource> source) {
+                auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
+                auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Exe.yaml"));
+                auto manifest3 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Exe_2.yaml"));
+                matches.emplace_back(
+                    ResultMatch(
+                        TestPackage::Make(
+                            manifest,
+                            TestPackage::MetadataMap
+                            {
+                                { PackageVersionMetadata::InstalledType, "Exe" },
+                                { PackageVersionMetadata::StandardUninstallCommand, "C:\\uninstall.exe" },
+                                { PackageVersionMetadata::SilentUninstallCommand, "C:\\uninstall.exe /silence" },
+                            },
+                            std::vector<Manifest>{ manifest3, manifest2, manifest },
+                            source
+                            ),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
+                matches.emplace_back(
+                    ResultMatch(
+                        TestPackage::Make(
+                            manifest2,
+                            TestPackage::MetadataMap
+                            {
+                                { PackageVersionMetadata::InstalledType, "Exe" },
+                                { PackageVersionMetadata::StandardUninstallCommand, "C:\\uninstall.exe" },
+                                { PackageVersionMetadata::SilentUninstallCommand, "C:\\uninstall.exe /silence" },
+                            },
+                            std::vector<Manifest>{ manifest3, manifest2, manifest },
+                            source
+                            ),
+                        PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
+            });
+    }
 
     SearchResult WorkflowTestSource::Search(const SearchRequest& request) const
     {
-        SearchResult result;
-
         std::string input;
-
-        if (request.Query)
-        {
-            input = request.Query->Value;
-        }
-        else if (!request.Inclusions.empty())
-        {
-            input = request.Inclusions[0].Value;
-        }
-
-        if (input == "TestQueryReturnOne")
-        {
-            auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
-            result.Matches.emplace_back(
-                ResultMatch(
-                    TestPackage::Make(std::vector<Manifest>{ manifest }, shared_from_this()),
-                    PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "TestQueryReturnOne")));
-        }
-        else if (input == "TestQueryReturnTwo")
-        {
-            auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
-            result.Matches.emplace_back(
-                ResultMatch(
-                    TestPackage::Make(std::vector<Manifest>{ manifest }, shared_from_this()),
-                    PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "TestQueryReturnTwo")));
-
-            auto manifest2 = YamlParser::CreateFromPath(TestDataFile("Manifest-Good.yaml"));
-            result.Matches.emplace_back(
-                ResultMatch(
-                    TestPackage::Make(std::vector<Manifest>{ manifest2 }, shared_from_this()),
-                    PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "TestQueryReturnTwo")));
-        }
-
-        return result;
-    }
-
-    SearchResult WorkflowTestCompositeSource::Search(const SearchRequest& request) const
-    {
-        SearchResult result;
-
-        std::string input;
-
         if (request.Query)
         {
             input = request.Query->Value;
@@ -78,296 +400,26 @@ namespace TestCommon
             input = request.Filters[0].Value;
         }
 
-        // Empty query should return all exe, msix and msstore installer
-        if (input.empty() || CaseInsensitiveEquals(input, "AppInstallerCliTest.TestExeInstaller"))
+        SearchResult result;
+        for (const auto& testSourceResult : m_testSourceResults)
         {
-            auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
-            auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Exe.yaml"));
-            Manifest manifest3;
-            switch (m_searchOptions)
+            if (input.empty() || CaseInsensitiveEquals(input, testSourceResult.Query))
             {
-            case TestSourceSearchOptions::UpgradeUsesAgreements:
-                manifest3 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Exe_2_LicenseAgreement.yaml"));
-                break;
-            default:
-                manifest3 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Exe_2.yaml"));
-                break;
+                testSourceResult.AddResults(result.Matches, shared_from_this());
             }
-
-            auto testPackage =
-                TestPackage::Make(
-                    manifest,
-                    TestPackage::MetadataMap
-                    {
-                        { PackageVersionMetadata::InstalledType, "Exe" },
-                        { PackageVersionMetadata::StandardUninstallCommand, "C:\\uninstall.exe" },
-                        { PackageVersionMetadata::SilentUninstallCommand, "C:\\uninstall.exe /silence" },
-                    },
-                    std::vector<Manifest>{ manifest3, manifest2, manifest },
-                    shared_from_this()
-                    );
-            testPackage->IsSameOverride = [](const IPackage*, const IPackage*) { return true; };
-            result.Matches.emplace_back(
-                ResultMatch(
-                    testPackage,
-                    PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
-        }
-
-        if (input.empty() || input == "AppInstallerCliTest.TestPortableInstaller")
-        {
-            auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Portable.yaml"));
-            auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Portable.yaml"));
-            result.Matches.emplace_back(
-                ResultMatch(
-                    TestPackage::Make(
-                        manifest,
-                        TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Portable" } },
-                        std::vector<Manifest>{ manifest2, manifest },
-                        shared_from_this()
-                    ),
-                    PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestPortableInstaller")));
-        }
-
-        if (input.empty() || input == "AppInstallerCliTest.TestMsixInstaller")
-        {
-            auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Msix_StreamingFlow.yaml"));
-            Manifest manifest2;
-            switch (m_searchOptions)
-            {
-            case TestSourceSearchOptions::UpgradeUsesAgreements:
-                manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Msix_LicenseAgreement.yaml"));
-                break;
-            case TestSourceSearchOptions::None:
-            default:
-                manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Msix.yaml"));
-                break;
-            }
-
-            TestPackage::MetadataMap packageMetadata
-            {
-                { PackageVersionMetadata::InstalledType, "Msix" },
-            };
-
-            if (m_searchOptions == TestSourceSearchOptions::UpgradeRequiresExplicit)
-            {
-                packageMetadata[PackageVersionMetadata::PinnedState] = "PinnedByManifest";
-            }
-
-            result.Matches.emplace_back(
-                ResultMatch(
-                    TestPackage::Make(
-                        manifest,
-                        packageMetadata,
-                        std::vector<Manifest>{ manifest2, manifest },
-                        shared_from_this()
-                    ),
-                    PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestMsixInstaller")));
-        }
-
-        if (input.empty() || input == "AppInstallerCliTest.TestZipInstaller")
-        {
-            auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Zip_Exe.yaml"));
-            auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Zip_Exe.yaml"));
-            result.Matches.emplace_back(
-                ResultMatch(
-                    TestPackage::Make(
-                        manifest,
-                        TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Exe" } },
-                        std::vector<Manifest>{ manifest2, manifest },
-                        shared_from_this()
-                    ),
-                    PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestZipInstaller")));
-        }
-
-        if (input.empty() || input == "AppInstallerCliTest.TestMSStoreInstaller")
-        {
-            auto installed = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_MSStore.yaml"));
-            auto available = installed;
-            // Override the installed version to not be Latest
-            installed.Version = "1.0.0.0";
-            result.Matches.emplace_back(
-                ResultMatch(
-                    TestPackage::Make(
-                        installed,
-                        TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "MSStore" } },
-                        std::vector<Manifest>{ available },
-                        shared_from_this()
-                    ),
-                    PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestMSStoreInstaller")));
-        }
-
-        if (input.empty() || input == "TestExeInstallerWithUnknownVersion")
-        {
-            auto installed = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_UnknownVersion.yaml"));
-            auto available = installed;
-            // Override the installed version to be unknown.
-            installed.Version = "unknown";
-            result.Matches.emplace_back(
-                ResultMatch(
-                    TestPackage::Make(
-                        installed,
-                        TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Exe" } },
-                        std::vector<Manifest>{ available },
-                        shared_from_this()
-                    ),
-                    PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeUnknownVersion")));
-        }
-
-        if (input == "TestExeInstallerWithLatestInstalled")
-        {
-            auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
-            auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Exe.yaml"));
-            result.Matches.emplace_back(
-                ResultMatch(
-                    TestPackage::Make(
-                        manifest2,
-                        TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Exe" } },
-                        std::vector<Manifest>{ manifest2, manifest },
-                        shared_from_this()
-                    ),
-                    PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
-        }
-
-        if (input == "TestExeInstallerWithIncompatibleInstallerType")
-        {
-            auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
-            auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Exe.yaml"));
-            result.Matches.emplace_back(
-                ResultMatch(
-                    TestPackage::Make(
-                        manifest,
-                        TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Msix" } },
-                        std::vector<Manifest>{ manifest2, manifest },
-                        shared_from_this()
-                    ),
-                    PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
-        }
-
-        if (input == "TestExeInstallerWithDifferentInstalledType")
-        {
-            auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
-            auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Exe_ARPInstallerType.yaml"));
-            result.Matches.emplace_back(
-                ResultMatch(
-                    TestPackage::Make(
-                        manifest,
-                        TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Msix" } },
-                        std::vector<Manifest>{ manifest2, manifest },
-                        shared_from_this()
-                    ),
-                    PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
-        }
-
-        if (input == "TestExeInstallerWithUnsupportedArguments")
-        {
-            auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
-            auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Exe_UnsupportedArgs.yaml"));
-            result.Matches.emplace_back(
-                ResultMatch(
-                    TestPackage::Make(
-                        manifest,
-                        TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Exe" } },
-                        std::vector<Manifest>{ manifest2, manifest },
-                        shared_from_this()
-                    ),
-                    PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
-        }
-
-        if (input == "TestExeInstallerWithNothingInstalled")
-        {
-            auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
-            result.Matches.emplace_back(
-                ResultMatch(
-                    TestPackage::Make(
-                        std::vector<Manifest>{ manifest },
-                        shared_from_this()
-                    ),
-                    PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
-        }
-
-        if (input == "AppInstallerCliTest.TestExeInstaller.Dependencies")
-        {
-            auto manifest = YamlParser::CreateFromPath(TestDataFile("Installer_Exe_Dependencies.yaml"));
-            auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_ExeDependencies.yaml"));
-            result.Matches.emplace_back(
-                ResultMatch(
-                    TestPackage::Make(
-                        manifest,
-                        TestPackage::MetadataMap
-                        {
-                            { PackageVersionMetadata::InstalledType, "Exe" },
-                            { PackageVersionMetadata::StandardUninstallCommand, "C:\\uninstall.exe" },
-                            { PackageVersionMetadata::SilentUninstallCommand, "C:\\uninstall.exe /silence" },
-                        },
-                        std::vector<Manifest>{ manifest2, manifest },
-                        shared_from_this()
-                        ),
-                    PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller.Dependencies")));
-        }
-
-        if (input == "AppInstallerCliTest.TestMsixInstaller.WFDep")
-        {
-            auto manifest = YamlParser::CreateFromPath(TestDataFile("Installer_Msix_WFDependency.yaml"));
-            result.Matches.emplace_back(
-                ResultMatch(
-                    TestPackage::Make(
-                        std::vector<Manifest>{ manifest },
-                        shared_from_this()
-                    ),
-                    PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestMsixInstaller.WFDep")));
-        }
-
-        if (input == "TestInstallerWithLicenseAgreement")
-        {
-            auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_LicenseAgreement.yaml"));
-            auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Exe_2_LicenseAgreement.yaml"));
-            result.Matches.emplace_back(
-                ResultMatch(
-                    TestPackage::Make(
-                        manifest,
-                        TestPackage::MetadataMap{ { PackageVersionMetadata::InstalledType, "Exe" } },
-                        std::vector<Manifest>{ manifest2, manifest },
-                        shared_from_this()
-                    ),
-                    PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "TestInstallerWithLicenseAgreement")));
-        }
-
-        if (input == "TestUpgradeAllWithDuplicateUpgradeItems")
-        {
-            auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallFlowTest_Exe.yaml"));
-            auto manifest2 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Exe.yaml"));
-            auto manifest3 = YamlParser::CreateFromPath(TestDataFile("UpdateFlowTest_Exe_2.yaml"));
-            result.Matches.emplace_back(
-                ResultMatch(
-                    TestPackage::Make(
-                        manifest,
-                        TestPackage::MetadataMap
-                        {
-                            { PackageVersionMetadata::InstalledType, "Exe" },
-                            { PackageVersionMetadata::StandardUninstallCommand, "C:\\uninstall.exe" },
-                            { PackageVersionMetadata::SilentUninstallCommand, "C:\\uninstall.exe /silence" },
-                        },
-                        std::vector<Manifest>{ manifest3, manifest2, manifest },
-                        shared_from_this()
-                        ),
-                    PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
-            result.Matches.emplace_back(
-                ResultMatch(
-                    TestPackage::Make(
-                        manifest2,
-                        TestPackage::MetadataMap
-                        {
-                            { PackageVersionMetadata::InstalledType, "Exe" },
-                            { PackageVersionMetadata::StandardUninstallCommand, "C:\\uninstall.exe" },
-                            { PackageVersionMetadata::SilentUninstallCommand, "C:\\uninstall.exe /silence" },
-                        },
-                        std::vector<Manifest>{ manifest3, manifest2, manifest },
-                        shared_from_this()
-                        ),
-                    PackageMatchFilter(PackageMatchField::Id, MatchType::Exact, "AppInstallerCliTest.TestExeInstaller")));
         }
 
         return result;
+    }
+
+    void WorkflowTestSource::AddResult(const TestSourceResult& testSourceResult)
+    {
+        m_testSourceResults.push_back(testSourceResult);
+    }
+
+    std::shared_ptr<WorkflowTestSource> CreateTestSource(std::vector<TestSourceResult>&& testSourceResults)
+    {
+        return std::make_shared<WorkflowTestSource>(std::move(testSourceResults));
     }
 
     TestContext::TestContext(std::ostream& out, std::istream& in) : TestContext(out, in, false, std::make_shared<std::vector<WorkflowTaskOverride>>())
@@ -434,11 +486,11 @@ namespace TestCommon
         return clone;
     }
 
-    void OverrideForOpenSource(TestContext& context, bool overrideOpenCompositeSource)
+    void OverrideForOpenSource(TestContext& context, std::shared_ptr<WorkflowTestSource> testSource, bool overrideOpenCompositeSource)
     {
-        context.Override({ "OpenSource", [](TestContext& context)
+        context.Override({ "OpenSource", [=](TestContext& context)
         {
-            context.Add<Execution::Data::Source>(Source{ std::make_shared<WorkflowTestSource>() });
+            context.Add<Execution::Data::Source>(Source{ testSource });
         } });
 
         if (overrideOpenCompositeSource)
@@ -449,7 +501,7 @@ namespace TestCommon
         }
     }
 
-    void OverrideForCompositeInstalledSource(TestContext& context, TestSourceSearchOptions searchOptions)
+    void OverrideForCompositeInstalledSource(TestContext& context, std::shared_ptr<WorkflowTestSource> testSource)
     {
         context.Override({ "OpenSource", [](TestContext&)
         {
@@ -457,7 +509,7 @@ namespace TestCommon
 
         context.Override({ "OpenCompositeSource", [=](TestContext& context)
         {
-            context.Add<Execution::Data::Source>(Source{ std::make_shared<WorkflowTestCompositeSource>(searchOptions) });
+            context.Add<Execution::Data::Source>(Source{ testSource });
         } });
     }
 

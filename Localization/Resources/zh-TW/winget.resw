@@ -118,17 +118,24 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AdjoinedNotFlagError" xml:space="preserve">
-    <value>鄰近別名不是旗標</value>
+    <value>鄰近別名不是旗標: [{0}]</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides an adjoined alias that is not a flag argument. {0} is a placeholder replaced by the user input argument (e.g. '-ab').</comment>
   </data>
   <data name="AdjoinedNotFoundError" xml:space="preserve">
-    <value>找不到鄰近旗標別名</value>
+    <value>找不到鄰近旗標別名: [{0}]</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides an adjoined flag alias argument that was not found. {0} is a placeholder replaced by the user input argument (e.g. '-ab').</comment>
   </data>
   <data name="AvailableArguments" xml:space="preserve">
     <value>以下是可用的引數:</value>
+    <comment>Message displayed to inform the user about the available command line arguments.</comment>
+  </data>
+  <data name="AvailableCommandAliases" xml:space="preserve">
+    <value>以下命令別名可用:</value>
+    <comment>Message displayed to inform the user about the available command line alias arguments.</comment>
   </data>
   <data name="AvailableCommands" xml:space="preserve">
     <value>以下是所有可用的命令:</value>
-    <comment>Commands the tool supports</comment>
+    <comment>Title displayed to inform the user about the available commands.</comment>
   </data>
   <data name="AvailableHeader" xml:space="preserve">
     <value>可用</value>
@@ -136,23 +143,26 @@
   </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>以下是可用的選項:</value>
+    <comment>Message displayed to inform the user about the available options.</comment>
   </data>
   <data name="AvailableSubcommands" xml:space="preserve">
     <value>以下是可用的子命令:</value>
-    <comment>Nested commands that can be run in context of the selected command</comment>
+    <comment>Message displayed to inform the user about the available nested commands that run in context of the selected command.</comment>
   </data>
   <data name="AvailableUpgrades" xml:space="preserve">
-    <value>有可用的升級。</value>
+    <value>{0} 個升級可供使用。</value>
+    <comment>{Locked="{0}"} Message displayed to inform the user about available package upgrades. {0} is a placeholder replaced by the number of package upgrades.</comment>
   </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>使用指定的頻道; 預設為一般觀眾</value>
   </data>
   <data name="Command" xml:space="preserve">
     <value>命令</value>
-    <comment>A command to give the software</comment>
+    <comment>Label displayed for a command to give the software.</comment>
   </data>
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>依命令篩選結果</value>
+    <comment>Description message displayed to inform the user about filtering the search results by a package command.</comment>
   </data>
   <data name="CommandLineArgumentDescription" xml:space="preserve">
     <value>用於完成的完整命令列</value>
@@ -171,9 +181,11 @@
   </data>
   <data name="Done" xml:space="preserve">
     <value>完成</value>
+    <comment>Label displayed when an operation completes or is done executing.</comment>
   </data>
   <data name="ExactArgumentDescription" xml:space="preserve">
     <value>以完全相符，來尋找套件</value>
+    <comment>Description message displayed to inform the user about finding an application package using an exact matching criteria.</comment>
   </data>
   <data name="ExperimentalArgumentDescription" xml:space="preserve">
     <value>示範用的實驗引數</value>
@@ -186,11 +198,12 @@
     <value>實驗功能範例</value>
   </data>
   <data name="ExtraPositionalError" xml:space="preserve">
-    <value>在未預期的情況下找到位置引數</value>
+    <value>在未預期的情況下找到位置引數: [{0}]</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides an extra positional argument when none was expected. {0} is a placeholder replaced by the user's extra argument input.</comment>
   </data>
   <data name="FeatureDisabledMessage" xml:space="preserve">
-    <value>此功能是進行中的工作，可能會大幅變更或在未來完全移除。若要啟用它，請編輯您的設定 ([winget settings]) 以包含實驗性功能</value>
-    <comment>{Locked="winget settings"}</comment>
+    <value>此功能正在進行中，未來可能會大幅變更或全部移除。若要啟用，請編輯您的設定 ('winget settings')以包含實驗性功能： '{0}'</value>
+    <comment>{Locked="winget settings","{0}"}. Error message displayed when the user uses an experimental feature that is disabled. {0} is a placeholder replaced by the experimental feature name.</comment>
   </data>
   <data name="FeaturesCommandLongDescription" xml:space="preserve">
     <value>顯示實驗功能的狀態。實驗功能可以透過 ‘winget settings’ 開啟。</value>
@@ -226,7 +239,8 @@
     <value>雜湊的檔案</value>
   </data>
   <data name="FlagContainAdjoinedError" xml:space="preserve">
-    <value>旗標引數不能包含鄰近值</value>
+    <value>旗標引數不能包含鄰近值: [{0}]</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides a flag argument containing an unexpected adjoined value. {0} is a placeholder replaced by the user input.</comment>
   </data>
   <data name="HashCommandLongDescription" xml:space="preserve">
     <value>計算適合在資訊清單輸入的本機檔案雜湊。它也可以計算 MSIX 封裝的簽章檔案雜湊，以啟用串流安裝。</value>
@@ -241,7 +255,8 @@
     <value>如需特定命令的更多詳細資料，請向其傳遞說明引數。</value>
   </data>
   <data name="HelpLinkPreamble" xml:space="preserve">
-    <value>若要取得更多協助，請參閱：</value>
+    <value>若要取得更多協助，請參閱: [{0}]</value>
+    <comment>{Locked="{0}"} Message displayed to inform the user about a link where they can learn more about the subject context. {0} is a placeholder replaced by a website address.</comment>
   </data>
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>依識別碼篩選結果</value>
@@ -256,14 +271,19 @@
     <value>此套件是透過 Microsoft Store 所提供。winget 可能需要代表目前的使用者從 Microsoft Store 取得套件。</value>
     <comment>{Locked="winget"}</comment>
   </data>
-  <data name="InstallationRequiresHigherWindows" xml:space="preserve">
-    <value>無法安裝套件，因為它要求較新版本的 Windows：</value>
-  </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>安裝指定的套件</value>
   </data>
   <data name="InstallerHashMismatchAdminBlock" xml:space="preserve">
     <value>安裝程式雜湊不相符;以系統管理員執行時，無法覆寫此情況</value>
+  </data>
+  <data name="InstallerHashMismatchOverridden" xml:space="preserve">
+    <value>安裝程式雜湊不相符; 正在繼續，因為 --ignore-security-hash</value>
+    <comment>{Locked="--ignore-security-hash"}</comment>
+  </data>
+  <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
+    <value>安裝程式雜湊不相符;若要覆寫此檢查，請使用 --ignore-security-hash</value>
+    <comment>{Locked="--ignore-security-hash"}</comment>
   </data>
   <data name="InstallerHashVerified" xml:space="preserve">
     <value>已成功驗證安裝程式雜湊</value>
@@ -274,17 +294,26 @@
   <data name="InstallFlowStartingPackageInstall" xml:space="preserve">
     <value>正在啟動套件安裝...</value>
   </data>
+  <data name="HashOverrideArgumentDescription" xml:space="preserve">
+    <value>略過安裝程式雜湊檢查失敗</value>
+  </data>
+  <data name="IgnoreLocalArchiveMalwareScanArgumentDescription" xml:space="preserve">
+    <value>從本機資訊清單安裝封存類型封裝時，略過執行的惡意程式碼掃描</value>
+  </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>要求互動式安裝; 可能需要使用者輸入</value>
   </data>
   <data name="InvalidAliasError" xml:space="preserve">
-    <value>無法辨識目前命令的引數別名</value>
+    <value>無法辨識目前命令的引數別名: [{0}]</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides a command line argument alias that was not recognized for a selected command. {0} is a placeholder replaced by the user's argument alias input (e.g. '-a').</comment>
   </data>
   <data name="InvalidArgumentSpecifierError" xml:space="preserve">
-    <value>無效的引數指定元</value>
+    <value>無效的引數指定元: [{0}]</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides an invalid argument specifier. {0} is a placeholder replaced by an argument specifier (e.g. '-').</comment>
   </data>
   <data name="InvalidNameError" xml:space="preserve">
-    <value>無法辨識目前命令的引數名稱</value>
+    <value>無法辨識目前命令的引數名稱: [{0}]</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides an unrecognized command line argument name for the selected command. {0} is a placeholder replaced by the user's argument name input (e.g. '--example').</comment>
   </data>
   <data name="LocaleArgumentDescription" xml:space="preserve">
     <value>要使用的地區設定 (BCP47 格式)</value>
@@ -296,6 +325,10 @@
   <data name="Links" xml:space="preserve">
     <value>連結</value>
     <comment>Links to different webpages</comment>
+  </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>list 命令會顯示已安裝在系統上的套件，以及是否有可用的更新。可以提供其他選項來篩選輸出 (這與 search 命令很相似)。</value>
+    <comment>{Locked="list","search"}</comment>
   </data>
   <data name="ListCommandShortDescription" xml:space="preserve">
     <value>顯示已安裝的套件</value>
@@ -326,7 +359,8 @@
     <value>資訊清單驗證成功，但出現警告。</value>
   </data>
   <data name="MissingArgumentError" xml:space="preserve">
-    <value>需要引數值，但找不到</value>
+    <value>需要引數值，但找不到: [{0}]</value>
+    <comment>{Locked="{0}"} Error message displayed when the user does not provide a required command line argument value. {0} is a placeholder replaced by the argument name.</comment>
   </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
     <value>依套件連結路徑來篩選結果</value>
@@ -336,6 +370,13 @@
   </data>
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>無法計算 MSIX 簽章訊息摘要。</value>
+  </data>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>無法安裝或升級 Microsoft Store 套件，因為特定應用程式受原則封鎖</value>
+  </data>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>無法安裝或升級 Microsoft Store 套件。錯誤碼: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when a Microsoft Store application package fails to install or upgrade. {0} is a placeholder replaced by an error code.</comment>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>正在驗證/正在要求套件取得失敗：網路錯誤</value>
@@ -348,6 +389,9 @@
   </data>
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>正在驗證/正在要求套件取得成功</value>
+  </data>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>無法安裝或升級 Microsoft Store 套件，因為 Microsoft Store 用戶端受原則封鎖</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>正在驗證/正在要求套件取得...</value>
@@ -377,6 +421,9 @@
     <value>停用 VirtualTerminal 顯示</value>
     <comment>{Locked="VirtualTerminal"}</comment>
   </data>
+  <data name="OpenLogsArgumentDescription" xml:space="preserve">
+    <value>開啟預設記錄位置</value>
+  </data>
   <data name="Options" xml:space="preserve">
     <value>選項</value>
     <comment>Options to change how a command works</comment>
@@ -385,8 +432,8 @@
     <value>覆寫要傳送到安裝程式的引數</value>
   </data>
   <data name="Package" xml:space="preserve">
-    <value>套件</value>
-    <comment>A software package</comment>
+    <value>包裹: {0}</value>
+    <comment>{Locked="{0}"} Label displayed for a software package. {0} is a placeholder replaced by the software package name.</comment>
   </data>
   <data name="PendingWorkError" xml:space="preserve">
     <value>糟糕，我們忘了執行這項工作...</value>
@@ -404,7 +451,8 @@
     <value>顯示各種色彩的進度</value>
   </data>
   <data name="RequiredArgError" xml:space="preserve">
-    <value>未提供必要的引數</value>
+    <value>未提供必要的引數: [{0}]</value>
+    <comment>{Locked="{0}"} Error message displayed when the user does not provide a required command line argument. {0} is a placeholder replaced by an argument name.</comment>
   </data>
   <data name="RetroArgumentDescription" xml:space="preserve">
     <value>顯示為預設色彩的進度</value>
@@ -438,7 +486,8 @@
     <value>驗證設定時發現下列失誤：</value>
   </data>
   <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>在預設 json 文字編輯器中開啟設定。如果未設定任何編輯器，則會在記事本中開啟設定。如需可用的設定，請參閱 https://aka.ms/winget-settings 此命令透過提供‘啟用’或‘停用’引數，可用於設定系統管理員設定。</value>
+    <value>在預設 json 文字編輯器中開啟設定。如果未設定任何編輯器，則會在記事本中開啟設定。如需可用的設定，請參閱 https://aka.ms/winget-settings 此命令透過提供 --enable 或 --disable 引數，可用於設定系統管理員設定。</value>
+    <comment>{Locked="--enable"} {Locked="--disable"}</comment>
   </data>
   <data name="SettingsCommandShortDescription" xml:space="preserve">
     <value>開啟設定或設定系統管理員設定</value>
@@ -464,7 +513,8 @@
     <value>要求無訊息安裝</value>
   </data>
   <data name="SingleCharAfterDashError" xml:space="preserve">
-    <value>單一 - 後只能出現單一字元別名</value>
+    <value>單一 - 後只能出現單一字元別名: [{0}]</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides more than a single character command line alias argument after an alias argument specifier '-'. {0} is a placeholder replaced by the user's argument input.</comment>
   </data>
   <data name="SourceAddAlreadyExistsDifferentArg" xml:space="preserve">
     <value>具有給定名稱的來源已存在，且參照到不同的位置：</value>
@@ -523,7 +573,8 @@
     <comment>The source's unique identifier.</comment>
   </data>
   <data name="SourceListNoneFound" xml:space="preserve">
-    <value>找不到具有此名稱的來源：</value>
+    <value>找不到具有此名稱的來源: {0}</value>
+    <comment>Error message displayed when the user provides a repository source name that was not found. {0} is a placeholder replaced by the user input.</comment>
   </data>
   <data name="SourceListNoSources" xml:space="preserve">
     <value>沒有未設定來源。</value>
@@ -565,7 +616,8 @@
     <value>移除目前的來源</value>
   </data>
   <data name="SourceRemoveOne" xml:space="preserve">
-    <value>正在移除來源：</value>
+    <value>正在移除來源: {0}...</value>
+    <comment>{Locked="{0}"} Message displayed to inform the user about a registered repository source that is currently being removed. {0} is a placeholder replaced by the repository source name.</comment>
   </data>
   <data name="SourceResetAll" xml:space="preserve">
     <value>正在重設所有來源...</value>
@@ -584,7 +636,8 @@
     <comment>{Locked="--force"}</comment>
   </data>
   <data name="SourceResetOne" xml:space="preserve">
-    <value>重設的來源：</value>
+    <value>重設的來源: {0}...</value>
+    <comment>{Locked="{0}"} Message displayed to inform the user about a repository source that is currently being reset. {0} is a placeholder replaced by the repository source name.</comment>
   </data>
   <data name="SourceTypeArgumentDescription" xml:space="preserve">
     <value>來源的類型</value>
@@ -599,7 +652,8 @@
     <value>更新目前的來源</value>
   </data>
   <data name="SourceUpdateOne" xml:space="preserve">
-    <value>更新的來源：</value>
+    <value>更新的來源: {0}...</value>
+    <comment>{Locked="{0}"} Message displayed to inform the user about a registered repository source that is currently being updated. {0} is a placeholder replaced by the repository source name.</comment>
   </data>
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>依標籤篩選結果</value>
@@ -620,16 +674,25 @@
     <value>顯示該工具的版本</value>
   </data>
   <data name="TooManyArgError" xml:space="preserve">
-    <value>引數提供的次數超過允許的次數</value>
+    <value>引數提供的次數超過允許的次數: [{0}]</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides a command line argument more times than it is allowed. {0} is a placeholder replaced by the user's argument name input.</comment>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>提供多個執行行為引數</value>
+    <value>提供了多個執行行為引數： '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides more than one execution behavior argument when installing an application package. {0} is a placeholder replaced by the user specified execution behaviors (e.g. 'silent|interactive').</comment>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>執行命令時，發生意外的錯誤：</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
-    <value>無法辨識的命令</value>
+    <value>無法辨識的命令: [{0}]</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides an unrecognized command. {0} is a placeholder replaced by the user input.</comment>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>將所有已安裝的套件升級至最新版本 (如果有可用更新的話)</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>找不到適用的升級。</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
     <value>可透過搜尋已安裝的套件或直接從資訊清單中，升級已選取的套件。根據預設，查詢必須不區分大小寫地符合該套件的識別碼、名稱或連結路徑。您可以透過傳遞適當的選項，來使用其他欄位。未提供引數時，顯示具有可用升級的套件</value>
@@ -639,8 +702,8 @@
     <value>顯示並執行可用的升級</value>
   </data>
   <data name="Usage" xml:space="preserve">
-    <value>使用</value>
-    <comment>The way to use the software</comment>
+    <value>使用狀況: {0}{1}</value>
+    <comment>{Locked="{0}","{1}"} Message displayed to provide the user with instructions on how to use a command. {0} is a placeholder replaced by the program name (e.g. 'winget'). {1} is a placeholder replaced by the pattern for using the selected command.</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
     <value>使用一套嚴格的指導方針驗證資訊清單。這是為了讓您能夠在提交報告之前檢查您的資訊清單。</value>
@@ -667,10 +730,12 @@
     <value>完成前提供的值已要求</value>
   </data>
   <data name="GetManifestResultVersionNotFound" xml:space="preserve">
-    <value>找不到相符的版本：</value>
+    <value>找不到相符的版本: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user attempts to upgrade an application package to a version that was not found. {0} is a placeholder replaced by the user's provided upgrade package version.</comment>
   </data>
   <data name="OpenSourceFailedNoMatch" xml:space="preserve">
-    <value>沒有符合給定值的來源：</value>
+    <value>沒有符合給定值的來源: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user attempts to install or upgrade an application package from a repository source that was not found. {0} is a placeholder replaced by the user's repository source name input.</comment>
   </data>
   <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
     <value>設定的來源為：</value>
@@ -683,17 +748,19 @@
     <value>找到</value>
   </data>
   <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
-    <value>路徑為目錄：</value>
+    <value>路徑為目錄; {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides a system path that is a directory. {0} is a placeholder replaced by the provided directory path.</comment>
   </data>
   <data name="VerifyFileFailedNotExist" xml:space="preserve">
-    <value>檔案不存在:</value>
+    <value>檔案不存在: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides a system file that does not exist. {0} is a placeholder replaced by the provided file path.</comment>
   </data>
   <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
     <value>提供本地顯示和搜尋查詢引數</value>
   </data>
   <data name="Logs" xml:space="preserve">
-    <value>記錄檔</value>
-    <comment>Diagnostic files containing information about application use.</comment>
+    <value>記錄檔: {0}</value>
+    <comment>{Locked="{0}"} Label displayed for diagnostic files containing information about the application use. {0} is a placeholder replaced by the logs directory path.</comment>
   </data>
   <data name="InstallerBlockedByPolicy" xml:space="preserve">
     <value>安裝程式受到政策封鎖</value>
@@ -705,7 +772,8 @@
     <value>防毒程式產品報告安裝程式中有感染</value>
   </data>
   <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
-    <value>嘗試更新資料來源失敗:</value>
+    <value>嘗試更新來源失敗： {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when an attempt to update the repository source fails. {0} is a placeholder replaced by the repository source name.</comment>
   </data>
   <data name="UninstallCommandLongDescription" xml:space="preserve">
     <value>可透過搜尋已安裝的套件或直接從資訊清單中，解除安裝已選取的套件。根據預設，查詢必須不區分大小寫地符合該套件的識別碼、名稱或連結路徑。您可以透過傳遞適當的選項，來使用其他欄位。</value>
@@ -728,7 +796,8 @@
     <value>已放棄解除安裝</value>
   </data>
   <data name="UninstallFailedWithCode" xml:space="preserve">
-    <value>解除安裝失敗，結束代碼:</value>
+    <value>解除安裝失敗，結束代碼: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when an attempt to uninstall an application package fails. {0} is a placeholder replaced by an error code.</comment>
   </data>
   <data name="ExportCommandShortDescription" xml:space="preserve">
     <value>匯出已安裝套件的清單</value>
@@ -756,16 +825,20 @@
     <value>無法安裝一或多個匯入的套件</value>
   </data>
   <data name="ImportSearchFailed" xml:space="preserve">
-    <value>找不到要匯入的套件：</value>
+    <value>找不到要匯入的套件: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user attempts to import an application package that was not found. {0} is a placeholder replaced by the import package name .</comment>
   </data>
   <data name="ImportSourceNotInstalled" xml:space="preserve">
-    <value>尚未安裝匯入所需的來源：</value>
+    <value>未安裝匯入所需的來源： {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user attempts to import application package(s) from a repository source that is not installed. {0} is a placeholder replaced by the repository source name.</comment>
   </data>
   <data name="InstalledPackageNotAvailable" xml:space="preserve">
-    <value>已安裝套件無法從任何來源取得：</value>
+    <value>已安裝套件無法從任何來源取得: {0}</value>
+    <comment>{Locked="{0}"} Warning message displayed when the user attempts to export an installed application package that is not available from any repository source. {0} is a placeholder replaced by the installed package name.</comment>
   </data>
   <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
-    <value>已安裝的套件版本無法從任一來源取得：</value>
+    <value>已安裝的套件版本無法從任一來源取得: {0}{1}{2}</value>
+    <comment>{Locked="{0}","{1}","{2}"} Warning message displayed when the user attempts to export an installed application package with a version that is not available from any repository source. {0} is a placeholder replaced by the installed package identifier. {1} is a placeholder replaced by the installed package version. {2} is a placeholder replaced by the installed package channel.</comment>
   </data>
   <data name="NoPackagesInImportFile" xml:space="preserve">
     <value>在匯入檔案中找不到套件</value>
@@ -774,7 +847,8 @@
     <value>JSON 檔案無效。</value>
   </data>
   <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
-    <value>已安裝的套件：</value>
+    <value>已安裝的套件: {0}</value>
+    <comment>{Locked="{0}"} Message displayed to inform the user that an import application package is already installed. {0} is a placeholder replaced by the package identifier.</comment>
   </data>
   <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
     <value>略過無法使用的套件</value>
@@ -786,7 +860,8 @@
     <value>略過匯入檔案的套件版本</value>
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
-    <value>路徑不存在：</value>
+    <value>路徑不存在: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides a system path argument value that does not exist. {0} is a placeholder replaced by the user's provided path.</comment>
   </data>
   <data name="ImportFileHasInvalidSchema" xml:space="preserve">
     <value>JSON 檔案未指定可識別的結構描述。</value>
@@ -796,11 +871,12 @@
     <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
   </data>
   <data name="InvalidArgumentValueError" xml:space="preserve">
-    <value>`%1` 引數提供的值無效;有效值為</value>
-    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+    <value>`{0}` 引數提供的值無效;有效值為: {1}</value>
+    <comment>{Locked="{0}","{1}"} Error message displayed when the user provides an invalid command line argument value. {0} is a placeholder replaced by the argument name. {1} is a placeholder replaced by a list of valid options.</comment>
   </data>
   <data name="DisabledByGroupPolicy" xml:space="preserve">
-    <value>群組原則已停用此作業</value>
+    <value>群組原則已停用此作業： {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user performs a command operation that is disabled by a group policy. {0} is a placeholder replaced by a group policy description.</comment>
   </data>
   <data name="PolicyAdditionalSources" xml:space="preserve">
     <value>啟用其他 Windows 應用程式安裝程式來源</value>
@@ -845,8 +921,15 @@
   <data name="PolicyEnableLocalManifests" xml:space="preserve">
     <value>啟用 Windows 應用程式安裝程式本機資訊清單檔案</value>
   </data>
+  <data name="PolicyEnableBypassCertificatePinningForMicrosoftStore" xml:space="preserve">
+    <value>啟用 Windows 應用程式安裝程式 Microsoft Store 來源已釘選憑證旁路</value>
+  </data>
+  <data name="PolicyEnableLocalArchiveMalwareScanOverride" xml:space="preserve">
+    <value>啟用 Windows 應用程式安裝程式本機封存惡意程式碼掃描覆寫</value>
+  </data>
   <data name="SettingsWarningField" xml:space="preserve">
-    <value>欄位:</value>
+    <value>欄位: {0}</value>
+    <comment>{Locked="{0}"} Warning message displayed when a user setting field has invalid syntax or semantics. {0} is a placeholder replaced by the setting field path.</comment>
   </data>
   <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
     <value>無效的欄位格式。</value>
@@ -864,7 +947,8 @@
     <value>剖析檔案時發生錯誤:</value>
   </data>
   <data name="SettingsWarningValue" xml:space="preserve">
-    <value>值:</value>
+    <value>值: {0}</value>
+    <comment>{Locked="{0}"} Warning message displayed when a user setting value has invalid syntax or semantics. {0} is a placeholder replaced by the setting data value.</comment>
   </data>
   <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
     <value>下列實驗性功能正在進行中。
@@ -891,8 +975,8 @@
     <comment>A source that the user is allowed to add.</comment>
   </data>
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
-    <value>提供給 '%1' 引數的值無效</value>
-    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+    <value>為 '{0}' 引數提供的值無效</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides an invalid command line argument value. {0} is a placeholder replaced by the argument name.</comment>
   </data>
   <data name="Cancelled" xml:space="preserve">
     <value>已取消</value>
@@ -915,18 +999,20 @@
     <value>找不到相依性來源</value>
   </data>
   <data name="DependenciesFlowSourceTooManyMatches" xml:space="preserve">
-    <value>套件搜尋產生一個以上的結果。</value>
-    <comment>When node package id search yield too many matches</comment>
+    <value>套件搜尋產生一個以上的結果: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when application packages search yield more than one result. {0} is a placeholder replaced by the dependency package identifier.</comment>
   </data>
   <data name="DependenciesFlowPackageVersionNotFound" xml:space="preserve">
-    <value>找不到套件的最新版本</value>
-    <comment>When no suitable version found for the specific package.</comment>
+    <value>找不到套件的最新版本: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when no suitable version found for the specific application package. {0} is a placeholder replaced by the package identifier.</comment>
   </data>
   <data name="DependenciesFlowNoInstallerFound" xml:space="preserve">
-    <value>找不到任何安裝程式</value>
+    <value>找不到任何安裝程式: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when no installer found for a manifest. {0} is a placeholder replaced by the manifest identifier.</comment>
   </data>
   <data name="DependenciesFlowNoMinVersion" xml:space="preserve">
-    <value>套用沒有可使用的最低必要版本</value>
+    <value>套用沒有可使用的最低必要版本: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the minimum required version is not available for an application package. {0} is a placeholder replaced by the package identifier.</comment>
   </data>
   <data name="DependenciesFlowNoMatches" xml:space="preserve">
     <value>沒有相符項目</value>
@@ -937,8 +1023,8 @@
     <comment>Dependency graph has loop</comment>
   </data>
   <data name="DependenciesFlowNoSuitableInstallerFound" xml:space="preserve">
-    <value>找不到適合資訊清單的安裝程式</value>
-    <comment>Attempt to get preferred installer for manifest failed.</comment>
+    <value>找不到適用于 manifest： {0} {1} 的安裝程式</value>
+    <comment>{Locked="{0}","{1}"} Error message displayed when an attempt to get a preferred installer for a manifest fails. {0} is a placeholder replaced by the manifest identifier. {1} is a placeholder replaced by the manifest version.</comment>
   </data>
   <data name="DependenciesManagementError" xml:space="preserve">
     <value>處理套件相依性時發生錯誤，是否要繼續安裝？</value>
@@ -975,7 +1061,8 @@
     <value>接受套件的所有授權合約</value>
   </data>
   <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
-    <value>匯出的套件需要授權合約才能安裝：</value>
+    <value>匯出的套件需要授權合約才能安裝： {0}</value>
+    <comment>{Locked="{0}"} Warning message displayed when an exported application package requires license agreement to install. {0} is a placeholder replaced by the package name.</comment>
   </data>
   <data name="PackageAgreementsPrompt" xml:space="preserve">
     <value>發行者要求您檢視上述資訊並接受合約，然後再安裝。
@@ -996,8 +1083,20 @@
   <data name="ShowLabelInstaller" xml:space="preserve">
     <value>安裝程式:</value>
   </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>安裝程式地區設定:</value>
+  </data>
   <data name="ShowLabelInstallerProductId" xml:space="preserve">
     <value>Store 產品識別碼：</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>安裝程式 SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>安裝程式類型:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>安裝程式 URL:</value>
   </data>
   <data name="ShowLabelLicense" xml:space="preserve">
     <value>授權:</value>
@@ -1013,6 +1112,9 @@
   </data>
   <data name="ShowLabelPublisher" xml:space="preserve">
     <value>發行者:</value>
+  </data>
+  <data name="ShowLabelTags" xml:space="preserve">
+    <value>標記:</value>
   </data>
   <data name="ShowLabelVersion" xml:space="preserve">
     <value>版本:</value>
@@ -1045,8 +1147,8 @@
     <value>在來源作業期間接受所有來源合約</value>
   </data>
   <data name="SourceAgreementsTitle" xml:space="preserve">
-    <value>'%1' 來源要求您必須先檢視下列合約，再使用。</value>
-    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+    <value>`{0}` 來源要求您必須先檢視下列合約，再使用。</value>
+    <comment>{Locked="{0}"} Message displayed to inform the user that a repository source requires viewing agreements before using. {0} is a placeholder replaced by the repository source name.</comment>
   </data>
   <data name="SourceAgreementsPrompt" xml:space="preserve">
     <value>是否同意所有來源合約條款？</value>
@@ -1067,13 +1169,17 @@
     <value>略過選用標頭，因為它不適用於此來源。</value>
   </data>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
-    <value>選擇性標頭不適用於未指定來源</value>
+    <value>選擇性標頭不適用，但未指定來源： '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user performs an operation (e.g install) and provides the HTTP 'header' argument without specifying the repository source. {0} is a placeholder replaced by the header argument name.</comment>
   </data>
   <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
     <value>發行日期:</value>
   </data>
   <data name="ShowLabelPublisherUrl" xml:space="preserve">
     <value>發行者 URL：</value>
+  </data>
+  <data name="ShowLabelPurchaseUrl" xml:space="preserve">
+    <value>購買 Url:</value>
   </data>
   <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
     <value>發行者支援 URL：</value>
@@ -1094,14 +1200,16 @@
     <value>版本資訊 Url：</value>
   </data>
   <data name="SearchFailureWarning" xml:space="preserve">
-    <value>搜尋來源時失敗; 將不會包含結果:</value>
+    <value>搜尋來源時失敗; 將不會包含結果: {0}</value>
+    <comment>{Locked="{0}"} Warning message displayed when searching a repository source fails. {0} is a placeholder replaced by the repository source name.</comment>
   </data>
   <data name="SearchFailureError" xml:space="preserve">
-    <value>搜尋來源時失敗：</value>
+    <value>搜尋來源時失敗: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when searching a repository source fails. {0} is a placeholder replaced by the repository source name.</comment>
   </data>
   <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
-    <value>系統管理員必須啟用此功能。若要啟用此功能，請以系統管理員的身分執行‘winget settings --enable %1’。</value>
-    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+    <value>系統管理員必須啟用此功能。若要啟用此功能，請以系統管理員的身分執行‘winget settings --enable {0}’。</value>
+    <comment>{Locked="winget settings --enable", "{0}"}. Error message displayed when the user uses a feature that needs to be enabled by administrators. {0} is a placeholder replaced by the admin setting.</comment>
   </data>
   <data name="AdminSettingEnableDescription" xml:space="preserve">
     <value>啟用特定系統管理員設定</value>
@@ -1110,7 +1218,8 @@
     <value>停用特定系統管理員設定</value>
   </data>
   <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
-    <value>提供過多的系統管理員設定引數</value>
+    <value>提供過多的系統管理員設定引數: [{0}]</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides too many admin setting arguments. {0} is a placeholder replaced by the admin setting arguments (e.g. 'enable|disable').</comment>
   </data>
   <data name="AdminSettingEnabled" xml:space="preserve">
     <value>已啟用系統管理員設定。</value>
@@ -1120,6 +1229,9 @@
   </data>
   <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
     <value>應用程式目前正在執行。結束應用程式，然後再試一次。</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUseByApplication" xml:space="preserve">
+    <value>安裝程式修改的檔案目前正被其他應用程式使用。結束應用程式，然後再試一次。</value>
   </data>
   <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
     <value>另一個安裝已在進行中。請稍後再試。</value>
@@ -1135,6 +1247,9 @@
   </data>
   <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
     <value>記憶體不足，無法安裝。請關閉其他應用程式，然後再試一次。</value>
+  </data>
+  <data name="InstallFlowReturnCodeInvalidParameter" xml:space="preserve">
+    <value>其中一個安裝參數無效。套裝安裝記錄可能包含其他詳細資訊。</value>
   </data>
   <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
     <value>此應用程式需要網際網路連線。請連線到網路，然後再試一次。</value>
@@ -1163,14 +1278,19 @@
   <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
     <value>組織原則導致無法安裝。請連絡您的系統管理員。</value>
   </data>
+  <data name="InstallFlowReturnCodeSystemNotSupported" xml:space="preserve">
+    <value>目前系統設定不支援安裝此套件。</value>
+  </data>
   <data name="InstallAbandoned" xml:space="preserve">
     <value>已放棄安裝</value>
   </data>
   <data name="InstallerFailedWithCode" xml:space="preserve">
-    <value>安裝程式失敗，結束代碼為:</value>
+    <value>安裝程式失敗，結束代碼為: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the application installer fails. {0} is a placeholder replaced by an error code.</comment>
   </data>
   <data name="InstallerLogAvailable" xml:space="preserve">
-    <value>安裝程式記錄檔可在下列位置使用:</value>
+    <value>安裝程式記錄檔可在下列位置使用: {0}</value>
+    <comment>{Locked="{0}"} Message displayed to inform the user about the system path of a diagnostic files containing information about the installer. {0} is a placeholder replaced by the diagnostic file system path.</comment>
   </data>
   <data name="SearchFailureErrorListMatches" xml:space="preserve">
     <value>在工作來源中找到下列套件。
@@ -1186,8 +1306,8 @@
     <comment>{Locked="https://github.com/microsoft/winget-cli"}</comment>
   </data>
   <data name="WindowsPackageManager" xml:space="preserve">
-    <value>Windows 封裝管理員</value>
-    <comment>The product name.</comment>
+    <value>Windows 封裝管理員 v{0}</value>
+    <comment>{Locked="{0}"} Label displaying the product name and version. {0} is a placeholder replaced by the product version.</comment>
   </data>
   <data name="ImportIgnorePackageVersionsArgumentDescription" xml:space="preserve">
     <value>忽略匯入檔案中的套件版本</value>
@@ -1202,8 +1322,8 @@
     <value>指定之較新版本的安裝技術與目前安裝的版本不同。請卸載套件並安裝較新的版本。</value>
   </data>
   <data name="WindowsPackageManagerPreview" xml:space="preserve">
-    <value>Windows 封裝管理員 (預覽)</value>
-    <comment>The product name plus an indicator that this is a pre-release version.</comment>
+    <value>Windows 封裝管理員 (預覽) v{0}</value>
+    <comment>{Locked="{0}"} Label displaying the preview product name and pre-release version. {0} is a placeholder replaced by the product version.</comment>
   </data>
   <data name="InstallArchitectureArgumentDescription" xml:space="preserve">
     <value>選取要安裝的架構</value>
@@ -1223,17 +1343,29 @@
     <value>無法判斷套件的版本號碼。使用「--include-unknown」可能會顯示更多結果。</value>
     <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions.</comment>
   </data>
+  <data name="UpgradeUnknownVersionCount" xml:space="preserve">
+    <value>無法確定套件版本號碼。請使用 "--include-unknown" 以查看所有結果。</value>
+    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions. </comment>
+  </data>
+  <data name="UpgradeRequireExplicitCount" xml:space="preserve">
+    <value>套件已釘選，需要明確升級。</value>
+    <comment>This string is preceded by a (integer) number of packages that require explicit upgrades.</comment>
+  </data>
   <data name="InvalidArgumentWithoutQueryError" xml:space="preserve">
     <value>提供的引數只能與查詢一起使用。</value>
   </data>
   <data name="SystemArchitecture" xml:space="preserve">
-    <value>系統架構</value>
+    <value>系統架構: {0}</value>
+    <comment>{Locked="{0}"} Label displayed for the system architecture. {0} is a placeholder replaced by the value of the system architecture (e.g. X64).</comment>
   </data>
   <data name="PreserveArgumentDescription" xml:space="preserve">
     <value>保留套件 (可攜式) 建立的所有檔案和目錄</value>
   </data>
   <data name="PurgeArgumentDescription" xml:space="preserve">
     <value>刪除封裝目錄中的所有檔案和目錄(可攜式)</value>
+  </data>
+  <data name="PressEnterToContinue" xml:space="preserve">
+    <value>按 Enter 以繼續. . .</value>
   </data>
   <data name="RenameArgumentDescription" xml:space="preserve">
     <value>對可執行檔 (可攜式) 重新命名的值</value>
@@ -1264,19 +1396,33 @@
     <value>指定的檔案名稱不是有效的檔案名稱</value>
   </data>
   <data name="OverwritingExistingFileAtMessage" xml:space="preserve">
-    <value>正在覆寫現有的檔案：</value>
+    <value>正在覆寫現有的檔案: {0}</value>
+    <comment>{Locked="{0}"} Warning message displayed to inform the user that an existing file is being overwritten. {0} is a placeholder replaced by the file system path.</comment>
   </data>
   <data name="NoPackageSelectionArgumentProvided" xml:space="preserve">
     <value>未提供套件選取引數；請參閱說明以取得有關尋找套件的詳細資訊。</value>
+  </data>
+  <data name="PortableAliasAdded" xml:space="preserve">
+    <value>新增的命令列別名:</value>
   </data>
   <data name="PortableInstallFailed" xml:space="preserve">
     <value>可攜式安裝失敗；正在清除...</value>
   </data>
   <data name="BothPurgeAndPreserveFlagsProvided" xml:space="preserve">
-    <value>已同時提供 'purge' 和 'preserve' 引數</value>
+    <value>已同時提供 --purge 和 --preserve 引數</value>
+    <comment>{Locked="--purge"} {Locked="--preserve"}</comment>
+  </data>
+  <data name="PortableHashMismatchOverridden" xml:space="preserve">
+    <value>已修改 Portable 套件: 正在繼續，因為 --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="PortableHashMismatchOverrideRequired" xml:space="preserve">
+    <value>無法移除 Portable 套件，因為它已遭到修改；覆寫此檢查可使用 --force</value>
+    <comment>{Locked="--force"}</comment>
   </data>
   <data name="FilesRemainInInstallDirectory" xml:space="preserve">
-    <value>檔案仍保留在安裝目錄中：</value>
+    <value>檔案仍保留在安裝目錄中: {0}</value>
+    <comment>{Locked="{0}"} Warning message displayed when files remain in install directory. {0} is a placeholder replaced by the directory path.</comment>
   </data>
   <data name="PurgeInstallDirectory" xml:space="preserve">
     <value>正在清除安裝目錄...</value>
@@ -1291,6 +1437,168 @@
     <value>文件:</value>
   </data>
   <data name="Notes" xml:space="preserve">
-    <value>備註:</value>
+    <value>筆記: {0}</value>
+    <comment>{Locked="{0}"} Label displayed for installation notes. {0} is a placeholder replaced by installation notes.</comment>
+  </data>
+  <data name="ShowLabelInstallationNotes" xml:space="preserve">
+    <value>安裝附註:</value>
+  </data>
+  <data name="UnsupportedArgument" xml:space="preserve">
+    <value>此套件不支援提供的引數</value>
+  </data>
+  <data name="ExtractArchiveFailed" xml:space="preserve">
+    <value>無法擷取要封存的內容</value>
+  </data>
+  <data name="NestedInstallerNotFound" xml:space="preserve">
+    <value>巢狀安裝程式檔案不存在。請確保巢狀安裝程式的指定相對路徑相符: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when nested installer file does not exist. {0} is a placeholder replaced by the nested installer file path.</comment>
+  </data>
+  <data name="InvalidPathToNestedInstaller" xml:space="preserve">
+    <value>巢狀安裝程式的相對檔案路徑無效；路徑指向安裝目錄之外的位置</value>
+  </data>
+  <data name="NestedInstallerNotSpecified" xml:space="preserve">
+    <value>沒有為此套件指定巢狀安裝程式</value>
+  </data>
+  <data name="MultipleNonPortableNestedInstallersSpecified" xml:space="preserve">
+    <value>只能為封存安裝程式指定一個不可移植的巢狀安裝程式</value>
+  </data>
+  <data name="IncompatibleArgumentsProvided" xml:space="preserve">
+    <value>提供的命令列引數不相容</value>
+  </data>
+  <data name="UpgradeAvailableForPinned" xml:space="preserve">
+    <value>以下套件有可用的升級，但需要升級的明確顯示目標:</value>
+    <comment>"require explicit targeting for upgrade" means that the package will not be upgraded with all others unless an extra flag is added, or the package is mentioned explicitly</comment>
+  </data>
+  <data name="Downloading" xml:space="preserve">
+    <value>正在下載</value>
+    <comment>Label displayed while downloading an application installer.</comment>
+  </data>
+  <data name="NestedInstallerNotSupported" xml:space="preserve">
+    <value>不支援巢狀安裝程式類型</value>
+  </data>
+  <data name="InstallerAbortsTerminal" xml:space="preserve">
+    <value>已知此安裝程式可以重新啟動終端機或殼層</value>
+  </data>
+  <data name="InstallerRequiresInstallLocation" xml:space="preserve">
+    <value>此套件需要安裝位置</value>
+  </data>
+  <data name="InstallersAbortTerminal" xml:space="preserve">
+    <value>已知以下安裝程式可以重新啟動終端機或殼層:</value>
+  </data>
+  <data name="InstallersRequireInstallLocation" xml:space="preserve">
+    <value>以下安裝程式需要安裝位置:</value>
+  </data>
+  <data name="PromptForInstallRoot" xml:space="preserve">
+    <value>指定安裝根目錄:</value>
+  </data>
+  <data name="PromptToProceed" xml:space="preserve">
+    <value>要繼續處理?</value>
+  </data>
+  <data name="ReportIdentityForAgreements" xml:space="preserve">
+    <value>的合約</value>
+    <comment>This will be followed by a package name, and then a list of license agreements</comment>
+  </data>
+  <data name="InstallLocationNotProvided" xml:space="preserve">
+    <value>套件需要安裝位置，但未提供</value>
+  </data>
+  <data name="DisableInteractivityArgumentDescription" xml:space="preserve">
+    <value>停用互動式提示</value>
+    <comment>Description for a command line argument, shown next to it in the help</comment>
+  </data>
+  <data name="ConvertInstallFlowToUpgrade" xml:space="preserve">
+    <value>發現已安裝的現有套件。正在嘗試升級已安裝的套件...</value>
+  </data>
+  <data name="ForceArgumentDescription" xml:space="preserve">
+    <value>直接執行命令並繼續處理非安全性相關問題</value>
+    <comment>Description for a command line argument, shown next to it in the help</comment>
+  </data>
+  <data name="PortablePackageAlreadyExists" xml:space="preserve">
+    <value>來自不同來源的 Portable 套件已存在</value>
+  </data>
+  <data name="ExtractArchiveSucceeded" xml:space="preserve">
+    <value>已成功擷取封存</value>
+  </data>
+  <data name="ExtractingArchive" xml:space="preserve">
+    <value>正在擷取封存...</value>
+  </data>
+  <data name="ArchiveFailedMalwareScan" xml:space="preserve">
+    <value>封存掃描偵測到惡意程式碼。若要覆寫此檢查，請使用 --ignore-local-archive-malware-scan</value>
+    <comment>{Locked="--ignore-local-archive-malware-scan"}</comment>
+  </data>
+  <data name="ArchiveFailedMalwareScanOverridden" xml:space="preserve">
+    <value>封存掃描偵測到惡意程式碼。由於--ignore-local-archive-malware-scan，正在繼續</value>
+    <comment>{Locked="--ignore-local-archive-malware-scan"}</comment>
+  </data>
+  <data name="NoUpgradeArgumentDescription" xml:space="preserve">
+    <value>如果已安裝版本已存在，則跳過升級</value>
+  </data>
+  <data name="PackageAlreadyInstalled" xml:space="preserve">
+    <value>已安裝套件版本。安裝已取消。</value>
+  </data>
+  <data name="EnableAdminSettingFailed" xml:space="preserve">
+    <value>無法啟用{0}。這個設定是由原則控制。如需詳細資訊，請連絡您的系統管理員。</value>
+    <comment>{Locked="{0}"} The value will be replaced with the feature name</comment>
+  </data>
+  <data name="DisableAdminSettingFailed" xml:space="preserve">
+    <value>無法停用{0}。這個設定是由原則控制。如需詳細資訊，請連絡您的系統管理員。</value>
+    <comment>{Locked="{0}"} The value will be replaced with the feature name</comment>
+  </data>
+  <data name="PinAddCommandLongDescription" xml:space="preserve">
+    <value>新增釘選。釘選會限制 Windows 封裝管理員將套件更新至特定版本範圍，或是造成無法完全更新套件。釘選的套件可能仍會自行更新，並從Windows 封裝管理員外部更新。根據預設，釘選的套件可以透過在 'upgrade' 命令中明確提及，或將 '--include-pinned' 旗標新增至 'winget upgrade --all' 來更新。</value>
+    <comment>{Locked{"'upgrade'"} Locked{"--include-pinned"} Locked{"winget upgrade --all"}</comment>
+  </data>
+  <data name="PinAddCommandShortDescription" xml:space="preserve">
+    <value>新增新釘選</value>
+  </data>
+  <data name="PinCommandLongDescription" xml:space="preserve">
+    <value>使用子命令管理封裝釘選。釘選會限制 Windows 封裝管理員將套件更新至特定版本範圍，或是造成無法完全更新套件。釘選的套件可能仍會自行更新，並從 Windows 封裝管理員外部更新。</value>
+  </data>
+  <data name="PinCommandShortDescription" xml:space="preserve">
+    <value>管理套件釘選</value>
+  </data>
+  <data name="PinListCommandLongDescription" xml:space="preserve">
+    <value>列出所有目前的釘選，或特定釘選的完整詳細資料。</value>
+  </data>
+  <data name="PinListCommandShortDescription" xml:space="preserve">
+    <value>列出目前的釘選項目</value>
+  </data>
+  <data name="PinRemoveCommandLongDescription" xml:space="preserve">
+    <value>移除特定套件 PIN。</value>
+  </data>
+  <data name="PinRemoveCommandShortDescription" xml:space="preserve">
+    <value>移除套件釘選</value>
+  </data>
+  <data name="PinResetCommandLongDescription" xml:space="preserve">
+    <value>重設所有現有的釘選。</value>
+  </data>
+  <data name="PinResetCommandShortDescription" xml:space="preserve">
+    <value>重設釘選?</value>
+  </data>
+  <data name="BothGatedVersionAndBlockingFlagProvided" xml:space="preserve">
+    <value>已提供版本和 '--blocking' 引數</value>
+    <comment>{Locked="--blocking"}</comment>
+  </data>
+  <data name="GatedVersionArgumentDescription" xml:space="preserve">
+    <value>要釘選封裝的版本。萬用字元 '*' 可以做為最後一個版本元件</value>
+  </data>
+  <data name="PinAddBlockingArgumentDescription" xml:space="preserve">
+    <value>禁止更新直到移除釘選，以防止覆寫引數</value>
+  </data>
+  <data name="SettingsExportCommandLongDescription" xml:space="preserve">
+    <value>將設定匯出為 JSON</value>
+  </data>
+  <data name="SettingsExportCommandShortDescription" xml:space="preserve">
+    <value>匯出設定</value>
+  </data>
+  <data name="UserSettings" xml:space="preserve">
+    <value>使用者設定: {0}</value>
+    <comment>{Locked="{0}"} Label displayed for the file containing the user settings. {0} is a placeholder replaced by the user settings file path.</comment>
+  </data>
+  <data name="SettingsWarningUsingDefault" xml:space="preserve">
+    <value>無法載入設定檔案。使用預設值。</value>
+  </data>
+  <data name="InstalledScopeArgumentDescription" xml:space="preserve">
+    <value>選取已安裝的套件範圍篩選條件 (使用者或電腦)</value>
+    <comment>This argument allows the user to select installed packages for just the user or for the entire machine.</comment>
   </data>
 </root>

@@ -28,9 +28,9 @@ namespace AppInstaller::CLI
         return Resource::LocString{ Resource::String::ValidateCommandLongDescription };
     }
 
-    std::string ValidateCommand::HelpLink() const
+    Utility::LocIndView ValidateCommand::HelpLink() const
     {
-        return "https://aka.ms/winget-command-validate";
+        return "https://aka.ms/winget-command-validate"_liv;
     }
 
     void ValidateCommand::ExecuteInternal(Execution::Context& context) const

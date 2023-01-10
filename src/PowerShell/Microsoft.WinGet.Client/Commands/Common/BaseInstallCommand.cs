@@ -4,22 +4,19 @@
 // </copyright>
 // -----------------------------------------------------------------------------
 
-#pragma warning disable SA1200 // Using directives should be placed correctly
-using Windows.Foundation;
-#pragma warning restore SA1200 // Using directives should be placed correctly
-
-namespace Microsoft.WinGet.Client.Common
+namespace Microsoft.WinGet.Client.Commands.Common
 {
     using System.IO;
     using System.Management.Automation;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Helpers;
+    using Windows.Foundation;
 
     /// <summary>
     /// This is the base class for all commands that parse a <see cref="FindPackagesOptions" /> result
     /// from the provided parameters i.e., the "install" and "upgrade" commands.
     /// </summary>
-    public class BaseInstallCommand : BasePackageCommand
+    public abstract class BaseInstallCommand : BasePackageCommand
     {
         private string location;
 
@@ -125,7 +122,7 @@ namespace Microsoft.WinGet.Client.Common
                     RecordType = ProgressRecordType.Processing,
                 };
 
-                if ((progress.State == PackageInstallProgressState.Downloading) && (progress.BytesRequired != 0))
+                if (progress.State == PackageInstallProgressState.Downloading && progress.BytesRequired != 0)
                 {
                     record.StatusDescription = $"{progress.BytesDownloaded / 1000000.0f:0.0} MB / {progress.BytesRequired / 1000000.0f:0.0} MB";
                     record.PercentComplete = (int)(progress.DownloadProgress * 100);

@@ -31,18 +31,26 @@
 如果您啟用或未設定這個設定，使用者將可以使用 Windows 套件管理員來安裝具有本機資訊清單的套件。
 
 若停用此設定，使用者將無法使用 Windows 套件管理員來安裝具有本機資訊清單的套件。</string>
-      <string id="EnableBypassCertificatePinningForMicrosoftStore">Enable App Installer Microsoft Store Source Pinned Certificate Bypass</string>
-      <string id="EnableBypassCertificatePinningForMicrosoftStoreExplanation">This policy controls whether the Windows Package Manager can be configured to disable the requirement to use a pinned certificate for the Microsoft Store source.
+      <string id="EnableBypassCertificatePinningForMicrosoftStore">啟用應用程式安裝程式 Microsoft Store 來源已憑證驗證旁路</string>
+      <string id="EnableBypassCertificatePinningForMicrosoftStoreExplanation">此原則可控制 Windows 封裝管理員在起始 Microsoft Store 來源的連線時，是否要驗證與已知 Microsoft Store 憑證相符的 Microsoft Store 憑證雜湊。
+如果您啟用這個原則，Windows 封裝管理員將會略過 Microsoft Store 憑證驗證。
 
-If you enable or do not configure this setting, users will be able to bypass the pinned certificate used to validate the Microsoft Store source.
+如果停用此原則，則 Windows 封裝管理員會在與 Microsoft Store 來源通訊之前，驗證使用的 Microsoft Store 憑證有效且屬於 Microsoft Store。
 
-If you disable this setting, users will not be able to bypass the pinned certificate used to validate the Microsoft Store source.</string>
+如果您未設定這個原則，則會遵循 Windows 封裝管理員系統管理員設定。</string>
       <string id="EnableHashOverride">啟用應用程式安裝程式雜湊覆寫</string>
       <string id="EnableHashOverrideExplanation">此原則會控制 Windows 封裝管理員是否可以設定以便啟用在設定中覆寫 SHA256 安全性驗證的能力。
 
 如果您啟用或未設定此原則，使用者就可以在 Windows 封裝管理員設定中啟用覆寫 SHA256 安全性驗證的能力。
 
 如果您停用此原則，使用者就無法在 Windows 封裝管理員設定中啟用覆寫 SHA256 安全性驗證的能力。</string>
+      <string id="EnableLocalArchiveMalwareScanOverride">啟用應用程式安裝程式本機封存惡意程式碼掃描覆寫</string>
+      <string id="EnableLocalArchiveMalwareScanOverrideExplanation">此原則控制在使用本機資訊清單使用命令列引數安裝封存檔案時，是否可以覆寫惡意程式碼弱點掃描。
+如果您啟用這個原則，使用者可以在執行封存檔案的本機資訊清單安裝時覆寫惡意程式碼掃描。
+
+如果您停用這個原則，使用者將無法在使用本機資訊清單安裝時覆寫封存檔案的惡意程式碼掃描。
+
+如果您未設定這個原則，則會遵循Windows 封裝管理員系統管理員設定。</string>
       <string id="EnableDefaultSource">啟用應用程式安裝程式預設來源</string>
       <string id="EnableDefaultSourceExplanation">此原則控制 Windows 封裝管理員隨附的預設來源。
 
