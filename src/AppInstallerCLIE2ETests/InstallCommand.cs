@@ -15,15 +15,6 @@ namespace AppInstallerCLIE2ETests
     public class InstallCommand : BaseCommand
     {
         /// <summary>
-        /// One time setup.
-        /// </summary>
-        [OneTimeSetUp]
-        public void OneTimeSetup()
-        {
-            this.ConfigureFeature("zipInstall", true);
-        }
-
-        /// <summary>
         /// Set up.
         /// </summary>
         [SetUp]
@@ -163,16 +154,45 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
+        /// Test install msix machine scope.
+        /// </summary>
+        [Test]
+        public void InstallMSIXMachineScope()
+        {
+            // TODO: Provision and Deprovision api not supported in build server.
+            Assert.Ignore();
+
+            var result = TestCommon.RunAICLICommand("install", $"TestMsixInstaller --scope machine");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.True(TestCommon.VerifyTestMsixInstalledAndCleanup(true));
+        }
+
+        /// <summary>
         /// Test install msix with signature hash.
         /// </summary>
         [Test]
         public void InstallMSIXWithSignature()
         {
-            var installDir = TestCommon.GetRandomTestDir();
-            var result = TestCommon.RunAICLICommand("install", $"TestMsixWithSignatureHash --silent -l {installDir}");
+            var result = TestCommon.RunAICLICommand("install", $"TestMsixWithSignatureHash");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
             Assert.True(TestCommon.VerifyTestMsixInstalledAndCleanup());
+        }
+
+        /// <summary>
+        /// Test install msix with signature hash machine scope.
+        /// </summary>
+        [Test]
+        public void InstallMSIXWithSignatureMachineScope()
+        {
+            // TODO: Provision and Deprovision api not supported in build server.
+            Assert.Ignore();
+
+            var result = TestCommon.RunAICLICommand("install", $"TestMsixWithSignatureHash --scope machine");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully installed"));
+            Assert.True(TestCommon.VerifyTestMsixInstalledAndCleanup(true));
         }
 
         /// <summary>
@@ -383,7 +403,7 @@ namespace AppInstallerCLIE2ETests
         public void InstallPortable_UserScope()
         {
             string installDir = TestCommon.GetRandomTestDir();
-            this.ConfigureInstallBehavior(Constants.PortablePackageUserRoot, installDir);
+            WinGetSettingsHelper.ConfigureInstallBehavior(Constants.PortablePackageUserRoot, installDir);
 
             string packageId, commandAlias, fileName, packageDirName, productCode;
             packageId = "AppInstallerTest.TestPortableExe";
@@ -391,7 +411,7 @@ namespace AppInstallerCLIE2ETests
             commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
 
             var result = TestCommon.RunAICLICommand("install", $"{packageId} --scope user");
-            this.ConfigureInstallBehavior(Constants.PortablePackageUserRoot, string.Empty);
+            WinGetSettingsHelper.ConfigureInstallBehavior(Constants.PortablePackageUserRoot, string.Empty);
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
@@ -404,7 +424,7 @@ namespace AppInstallerCLIE2ETests
         public void InstallPortable_MachineScope()
         {
             string installDir = TestCommon.GetRandomTestDir();
-            this.ConfigureInstallBehavior(Constants.PortablePackageMachineRoot, installDir);
+            WinGetSettingsHelper.ConfigureInstallBehavior(Constants.PortablePackageMachineRoot, installDir);
 
             string packageId, commandAlias, fileName, packageDirName, productCode;
             packageId = "AppInstallerTest.TestPortableExe";
@@ -412,7 +432,7 @@ namespace AppInstallerCLIE2ETests
             commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
 
             var result = TestCommon.RunAICLICommand("install", $"{packageId} --scope machine");
-            this.ConfigureInstallBehavior(Constants.PortablePackageMachineRoot, string.Empty);
+            WinGetSettingsHelper.ConfigureInstallBehavior(Constants.PortablePackageMachineRoot, string.Empty);
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true, TestCommon.Scope.Machine);

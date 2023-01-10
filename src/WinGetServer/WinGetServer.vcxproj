@@ -149,7 +149,7 @@
       <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/debug:full /debugtype:cv,fixup /incremental:no %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(WingetEnableReleaseBuild)'=='true'">
+  <ItemDefinitionGroup Condition="'$(UseProdWingetServer)'=='true'">
     <ClCompile>
       <PreprocessorDefinitions>USE_PROD_WINGET_SERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>

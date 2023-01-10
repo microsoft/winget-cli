@@ -113,7 +113,9 @@ namespace AppInstallerCLIE2ETests
 
             TestIndexSetup.GenerateTestDirectory();
 
-            this.InitializeWingetSettings();
+            TestCommon.SettingsJsonFilePath = WinGetSettingsHelper.GetUserSettingsPath();
+
+            WinGetSettingsHelper.InitializeWingetSettings();
         }
 
         /// <summary>
@@ -140,43 +142,6 @@ namespace AppInstallerCLIE2ETests
             {
                 TestCommon.RemoveMsix(Constants.AICLIPackageName);
             }
-        }
-
-        /// <summary>
-        /// Initialize settings.
-        /// </summary>
-        public void InitializeWingetSettings()
-        {
-            string localAppDataPath = Environment.GetEnvironmentVariable(Constants.LocalAppData);
-
-            var settingsJson = new
-            {
-                experimentalFeatures = new
-                {
-                    experimentalArg = false,
-                    experimentalCmd = false,
-                    dependencies = false,
-                    directMSI = false,
-                    openLogsArgument = false,
-                    uninstallPreviousArgument = false,
-                },
-                debugging = new
-                {
-                    enableSelfInitiatedMinidump = true,
-                },
-                installBehavior = new
-                {
-                    portablePackageUserRoot = string.Empty,
-                    portablePackageMachineRoot = string.Empty,
-                },
-            };
-
-            // Run winget one time to initialize settings directory
-            // when running in unpackaged context
-            TestCommon.RunAICLICommand(string.Empty, "-v");
-
-            var serializedSettingsJson = JsonConvert.SerializeObject(settingsJson, Formatting.Indented);
-            File.WriteAllText(Path.Combine(localAppDataPath, TestCommon.SettingsJsonFilePath), serializedSettingsJson);
         }
 
         // Returns whether there's a change to the dev mode state after execution

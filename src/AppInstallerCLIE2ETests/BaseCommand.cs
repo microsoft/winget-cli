@@ -44,50 +44,5 @@ namespace AppInstallerCLIE2ETests
             //       to enable testing it by default.  Until then, leaving this here...
             TestCommon.SetupTestSource(useGroupPolicyForTestSource);
         }
-
-        /// <summary>
-        /// Configure experimental features.
-        /// </summary>
-        /// <param name="featureName">Feature name.</param>
-        /// <param name="status">Status.</param>
-        public void ConfigureFeature(string featureName, bool status)
-        {
-            string localAppDataPath = Environment.GetEnvironmentVariable(Constants.LocalAppData);
-            JObject settingsJson = JObject.Parse(File.ReadAllText(Path.Combine(localAppDataPath, TestCommon.SettingsJsonFilePath)));
-            JObject experimentalFeatures = (JObject)settingsJson["experimentalFeatures"];
-            experimentalFeatures[featureName] = status;
-
-            File.WriteAllText(Path.Combine(localAppDataPath, TestCommon.SettingsJsonFilePath), settingsJson.ToString());
-        }
-
-        /// <summary>
-        /// Configure the install behavior.
-        /// </summary>
-        /// <param name="settingName">Setting name.</param>
-        /// <param name="value">Setting value.</param>
-        public void ConfigureInstallBehavior(string settingName, string value)
-        {
-            string localAppDataPath = Environment.GetEnvironmentVariable(Constants.LocalAppData);
-            JObject settingsJson = JObject.Parse(File.ReadAllText(Path.Combine(localAppDataPath, TestCommon.SettingsJsonFilePath)));
-            JObject installBehavior = (JObject)settingsJson["installBehavior"];
-            installBehavior[settingName] = value;
-
-            File.WriteAllText(Path.Combine(localAppDataPath, TestCommon.SettingsJsonFilePath), settingsJson.ToString());
-        }
-
-        /// <summary>
-        /// Initialize all features.
-        /// </summary>
-        /// <param name="status">Initialized feature value.</param>
-        public void InitializeAllFeatures(bool status)
-        {
-            this.ConfigureFeature("experimentalArg", status);
-            this.ConfigureFeature("experimentalCmd", status);
-            this.ConfigureFeature("dependencies", status);
-            this.ConfigureFeature("directMSI", status);
-            this.ConfigureFeature("zipInstall", status);
-            this.ConfigureFeature("openLogsArgument", status);
-            this.ConfigureFeature("uninstallPreviousArgument", status);
-        }
     }
 }

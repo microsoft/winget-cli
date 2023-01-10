@@ -2,9 +2,10 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "ArchiveFlow.h"
-#include "winget/Archive.h"
-#include "winget/Filesystem.h"
 #include "PortableFlow.h"
+#include <winget/AdminSettings.h>
+#include <winget/Archive.h>
+#include <winget/Filesystem.h>
 
 using namespace AppInstaller::Manifest;
 
@@ -27,9 +28,10 @@ namespace AppInstaller::CLI::Workflow
             }
             else
             {
-                if (context.Args.Contains(Execution::Args::Type::Force))
+                if (context.Args.Contains(Execution::Args::Type::IgnoreLocalArchiveMalwareScan) &&
+                    Settings::IsAdminSettingEnabled(Settings::AdminSetting::LocalArchiveMalwareScanOverride))
                 {
-                    AICLI_LOG(CLI, Warning, << "Archive malware scan failed; proceeding due to --force override");
+                    AICLI_LOG(CLI, Warning, << "Archive scan detected malware. Proceeding due to --ignore-local-archive-malware-scan");
                     context.Reporter.Warn() << Resource::String::ArchiveFailedMalwareScanOverridden << std::endl;
                 }
                 else
@@ -90,7 +92,9 @@ namespace AppInstaller::CLI::Workflow
             else if (!std::filesystem::exists(nestedInstallerPath))
             {
                 AICLI_LOG(CLI, Error, << "Unable to locate nested installer at: " << nestedInstallerPath);
-                context.Reporter.Error() << Resource::String::NestedInstallerNotFound << ' ' << nestedInstallerPath << std::endl;
+                context.Reporter.Error()
+                    << Resource::String::NestedInstallerNotFound(Utility::LocIndView{ nestedInstallerPath.u8string() })
+                    << std::endl;
                 AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NESTEDINSTALLER_NOT_FOUND);
             }
             else if (!IsPortableType(installer.NestedInstallerType))

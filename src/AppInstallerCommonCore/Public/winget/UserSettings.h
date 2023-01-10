@@ -77,7 +77,6 @@ namespace AppInstaller::Settings
         EFExperimentalArg,
         EFDependencies,
         EFDirectMSI,
-        EFZipInstall,
         EFOpenLogsArgument,
         EFPinning,
         EFUninstallPreviousArgument,
@@ -148,7 +147,6 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::EFExperimentalArg, bool, bool, false, ".experimentalFeatures.experimentalArg"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFDependencies, bool, bool, false, ".experimentalFeatures.dependencies"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFDirectMSI, bool, bool, false, ".experimentalFeatures.directMSI"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::EFZipInstall, bool, bool, false, ".experimentalFeatures.zipInstall"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFOpenLogsArgument, bool, bool, false, ".experimentalFeatures.openLogsArgument"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFPinning, bool, bool, false, ".experimentalFeatures.pinning"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFUninstallPreviousArgument, bool, bool, false, ".experimentalFeatures.uninstallPreviousArgument"sv);
@@ -201,14 +199,14 @@ namespace AppInstaller::Settings
                 Message(message), Path(settingPath), Data(settingValue), IsFieldWarning(isField) {}
 
             StringResource::StringId Message;
-            std::string Path;
-            std::string Data;
+            Utility::LocIndString Path;
+            Utility::LocIndString Data;
             bool IsFieldWarning = true;
         };
 
         static UserSettings const& Instance(const std::optional<std::string>& content = std::nullopt);
 
-        static std::filesystem::path SettingsFilePath();
+        static std::filesystem::path SettingsFilePath(bool forDisplay = false);
 
         UserSettings(const UserSettings&) = delete;
         UserSettings& operator=(const UserSettings&) = delete;

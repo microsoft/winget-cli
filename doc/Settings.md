@@ -141,7 +141,7 @@ The `defaultInstallRoot` affects the install location when a package requires on
 
 ```json
     "installBehavior": {
-        "defaultInstallRoot": "C:\installRoot"
+        "defaultInstallRoot": "C:/installRoot"
     },
 ```
 
@@ -217,17 +217,6 @@ The `experimentalFeatures` settings involve the configuration of these "experime
    "experimentalFeatures": {
        "experimentalCmd": true,
        "experimentalArg": false
-   },
-```
-
-### zipInstall
-
-This feature enables the Windows Package Manager to install from a zip file.
-You can enable the feature as shown below.
-
-```json
-   "experimentalFeatures": {
-       "zipInstall": true
    },
 ```
 

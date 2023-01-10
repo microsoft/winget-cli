@@ -130,6 +130,14 @@ namespace AppInstaller::Repository
                 details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
                 details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::None);
                 return details;
+            case PredefinedSource::InstalledUser:
+                details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
+                details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::User);
+                return details;
+            case PredefinedSource::InstalledMachine:
+                details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
+                details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::Machine);
+                return details;
             case PredefinedSource::ARP:
                 details.Type = Microsoft::PredefinedInstalledSourceFactory::Type();
                 details.Arg = Microsoft::PredefinedInstalledSourceFactory::FilterToString(Microsoft::PredefinedInstalledSourceFactory::Filter::ARP);

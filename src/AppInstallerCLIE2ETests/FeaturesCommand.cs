@@ -19,7 +19,7 @@ namespace AppInstallerCLIE2ETests
         [SetUp]
         public void Setup()
         {
-            this.InitializeAllFeatures(false);
+            WinGetSettingsHelper.InitializeAllFeatures(false);
         }
 
         /// <summary>
@@ -28,7 +28,7 @@ namespace AppInstallerCLIE2ETests
         [TearDown]
         public void TearDown()
         {
-            this.InitializeAllFeatures(false);
+            WinGetSettingsHelper.InitializeAllFeatures(false);
         }
 
         /// <summary>
@@ -49,11 +49,11 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void EnableExperimentalFeatures()
         {
-            this.ConfigureFeature("experimentalArg", true);
-            this.ConfigureFeature("experimentalCmd", true);
-            this.ConfigureFeature("directMSI", true);
-            this.ConfigureFeature("openLogsArgument", true);
-            this.ConfigureFeature("uninstallPreviousArgument", true);
+            WinGetSettingsHelper.ConfigureFeature("experimentalArg", true);
+            WinGetSettingsHelper.ConfigureFeature("experimentalCmd", true);
+            WinGetSettingsHelper.ConfigureFeature("directMSI", true);
+            WinGetSettingsHelper.ConfigureFeature("openLogsArgument", true);
+            WinGetSettingsHelper.ConfigureFeature("uninstallPreviousArgument", true);
             var result = TestCommon.RunAICLICommand("features", string.Empty);
             Assert.True(result.StdOut.Contains("Enabled"));
         }

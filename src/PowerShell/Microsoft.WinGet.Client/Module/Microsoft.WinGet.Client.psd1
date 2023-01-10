@@ -66,14 +66,11 @@ PowerShellVersion = '5.1.0'
 FormatsToProcess = 'Format.ps1xml'
 
 # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
-NestedModules = if ($env:PROCESSOR_ARCHITECTURE -like 'AMD64' -OR $env:PROCESSOR_ARCHITECTURE -like 'IA64') {
-    "x64\$PSEdition\Microsoft.WinGet.Client.dll"
-}
-elseif ($env:PROCESSOR_ARCHITECTURE -like 'ARM64') {
-    "ARM64\$PSEdition\Microsoft.WinGet.Client.dll"
+NestedModules = if ($env:PROCESSOR_ARCHITECTURE -like 'x86') {
+    "x86\$PSEdition\Microsoft.WinGet.Client.dll"
 }
 else {
-    "x86\$PSEdition\Microsoft.WinGet.Client.dll"
+    "x64\$PSEdition\Microsoft.WinGet.Client.dll"
 }
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
@@ -93,7 +90,10 @@ CmdletsToExport = @(
     'Get-WinGetSource',
     'Install-WinGetPackage',
     'Uninstall-WinGetPackage',
-    'Update-WinGetPackage'
+    'Update-WinGetPackage',
+    'Get-WinGetUserSettings',
+    'Set-WinGetUserSettings',
+    'Test-WinGetUserSettings'
 )
 
 # Variables to export from this module

@@ -9,7 +9,7 @@ namespace Microsoft.WinGet.Client.Common
     /// <summary>
     /// Error code constants.
     /// </summary>
-    public class ErrorCode
+    public static class ErrorCode
     {
         /// <summary>
         /// Error code for ERROR_FILE_NOT_FOUND.

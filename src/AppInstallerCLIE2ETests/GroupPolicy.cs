@@ -20,7 +20,7 @@ namespace AppInstallerCLIE2ETests
         [SetUp]
         public void Setup()
         {
-            this.InitializeAllFeatures(false);
+            WinGetSettingsHelper.InitializeAllFeatures(false);
             GroupPolicyHelper.DeleteExistingPolicies();
         }
 
@@ -30,7 +30,7 @@ namespace AppInstallerCLIE2ETests
         [TearDown]
         public void TearDown()
         {
-            this.InitializeAllFeatures(false);
+            WinGetSettingsHelper.InitializeAllFeatures(false);
             GroupPolicyHelper.DeleteExistingPolicies();
         }
 
@@ -62,7 +62,7 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void EnableExperimentalFeatures()
         {
-            this.ConfigureFeature("experimentalCmd", true);
+            WinGetSettingsHelper.ConfigureFeature("experimentalCmd", true);
             var result = TestCommon.RunAICLICommand("experimental", string.Empty);
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
 
@@ -92,6 +92,18 @@ namespace AppInstallerCLIE2ETests
         {
             GroupPolicyHelper.EnableHashOverride.Disable();
             var result = TestCommon.RunAICLICommand("install", "AnyPackage --ignore-security-hash");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
+        }
+
+        /// <summary>
+        /// Test install ignoring the malware scan is disabled by policy.
+        /// </summary>
+        [Test]
+        public void EnableIgnoreLocalArchiveMalwareScanOverride()
+        {
+            GroupPolicyHelper.EnableLocalArchiveMalwareScanOverride.Disable();
+            var result = TestCommon.RunAICLICommand("install", "AnyPackage --ignore-local-archive-malware-scan");
+
             Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
         }
 

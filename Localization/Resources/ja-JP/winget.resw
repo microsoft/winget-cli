@@ -118,17 +118,24 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AdjoinedNotFlagError" xml:space="preserve">
-    <value>隣接するエイリアスはフラグではありません</value>
+    <value>隣接エイリアスがフラグではありません: '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides an adjoined alias that is not a flag argument. {0} is a placeholder replaced by the user input argument (e.g. '-ab').</comment>
   </data>
   <data name="AdjoinedNotFoundError" xml:space="preserve">
-    <value>隣接するフラグのエイリアスが見つかりません</value>
+    <value>隣接フラグエイリアスが見つかりません: '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides an adjoined flag alias argument that was not found. {0} is a placeholder replaced by the user input argument (e.g. '-ab').</comment>
   </data>
   <data name="AvailableArguments" xml:space="preserve">
     <value>次の引数を使用できます。</value>
+    <comment>Message displayed to inform the user about the available command line arguments.</comment>
+  </data>
+  <data name="AvailableCommandAliases" xml:space="preserve">
+    <value>次のコマンド エイリアスを使用できます:</value>
+    <comment>Message displayed to inform the user about the available command line alias arguments.</comment>
   </data>
   <data name="AvailableCommands" xml:space="preserve">
     <value>使用できるコマンドは次のとおりです:</value>
-    <comment>Commands the tool supports</comment>
+    <comment>Title displayed to inform the user about the available commands.</comment>
   </data>
   <data name="AvailableHeader" xml:space="preserve">
     <value>利用可能</value>
@@ -136,23 +143,26 @@
   </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>次のオプションを使用できます。</value>
+    <comment>Message displayed to inform the user about the available options.</comment>
   </data>
   <data name="AvailableSubcommands" xml:space="preserve">
     <value>次のサブコマンドを使用できます。</value>
-    <comment>Nested commands that can be run in context of the selected command</comment>
+    <comment>Message displayed to inform the user about the available nested commands that run in context of the selected command.</comment>
   </data>
   <data name="AvailableUpgrades" xml:space="preserve">
-    <value>アップグレードを利用できます。</value>
+    <value>{0} アップグレードを利用できます。</value>
+    <comment>{Locked="{0}"} Message displayed to inform the user about available package upgrades. {0} is a placeholder replaced by the number of package upgrades.</comment>
   </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>指定されたチャンネルを使用します。既定値は一般向けです</value>
   </data>
   <data name="Command" xml:space="preserve">
     <value>コマンド</value>
-    <comment>A command to give the software</comment>
+    <comment>Label displayed for a command to give the software.</comment>
   </data>
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>コマンドによる結果のフィルター処理</value>
+    <comment>Description message displayed to inform the user about filtering the search results by a package command.</comment>
   </data>
   <data name="CommandLineArgumentDescription" xml:space="preserve">
     <value>完了するための完全なコマンド ライン</value>
@@ -171,9 +181,11 @@
   </data>
   <data name="Done" xml:space="preserve">
     <value>完了</value>
+    <comment>Label displayed when an operation completes or is done executing.</comment>
   </data>
   <data name="ExactArgumentDescription" xml:space="preserve">
     <value>完全一致を使用してパッケージを検索</value>
+    <comment>Description message displayed to inform the user about finding an application package using an exact matching criteria.</comment>
   </data>
   <data name="ExperimentalArgumentDescription" xml:space="preserve">
     <value>デモを目的とした試験的引数</value>
@@ -186,11 +198,12 @@
     <value>試験的な機能の例</value>
   </data>
   <data name="ExtraPositionalError" xml:space="preserve">
-    <value>必要なものが見つからないときに位置指定引数が見つかりました</value>
+    <value>何も指定されていないときに位置引数が見つかりました: '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides an extra positional argument when none was expected. {0} is a placeholder replaced by the user's extra argument input.</comment>
   </data>
   <data name="FeatureDisabledMessage" xml:space="preserve">
-    <value>この機能は進行中であり、今後劇的に変更されたり、完全に削除される可能性があります。有効にするには、設定('winget settings')を編集して、試験的な機能を含めます</value>
-    <comment>{Locked="winget settings"}</comment>
+    <value>この機能は進行中の作業であり、今後大幅に変更または完全に削除される可能性があります。これを有効にするには、設定 ('winget settings') を編集して試験的な機能を含めます: '{0}'</value>
+    <comment>{Locked="winget settings","{0}"}. Error message displayed when the user uses an experimental feature that is disabled. {0} is a placeholder replaced by the experimental feature name.</comment>
   </data>
   <data name="FeaturesCommandLongDescription" xml:space="preserve">
     <value>試験的な機能の状態を表示します。試験的な機能は、"winget settings" を使用してオンにすることができます。</value>
@@ -226,7 +239,8 @@
     <value>ハッシュするファイル</value>
   </data>
   <data name="FlagContainAdjoinedError" xml:space="preserve">
-    <value>フラグ引数に隣接値を含めることはできません</value>
+    <value>フラグ引数に隣接する値を含めることはできません: '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides a flag argument containing an unexpected adjoined value. {0} is a placeholder replaced by the user input.</comment>
   </data>
   <data name="HashCommandLongDescription" xml:space="preserve">
     <value>マニフェストへのエントリに適したローカル ファイルのハッシュを計算します。また、MSIX パッケージの署名ファイルのハッシュを計算して、ストリーミング インストールを有効にすることもできます。</value>
@@ -241,7 +255,8 @@
     <value>特定のコマンドの詳細については、そのコマンドにヘルプ引数を渡します。</value>
   </data>
   <data name="HelpLinkPreamble" xml:space="preserve">
-    <value>詳細については、次を参照してください。</value>
+    <value>その他のヘルプについては、次を参照してください: {0}</value>
+    <comment>{Locked="{0}"} Message displayed to inform the user about a link where they can learn more about the subject context. {0} is a placeholder replaced by a website address.</comment>
   </data>
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>ID で結果をフィルター処理</value>
@@ -256,14 +271,19 @@
     <value>このパッケージは Microsoft Store から提供されています。winget は、現在のユーザーに代わって Microsoft Store からパッケージを取得する必要がある場合があります。</value>
     <comment>{Locked="winget"}</comment>
   </data>
-  <data name="InstallationRequiresHigherWindows" xml:space="preserve">
-    <value>パッケージをインストールできません。新しいバージョンの Windows が必要です：</value>
-  </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>指定されたパッケージをインストール</value>
   </data>
   <data name="InstallerHashMismatchAdminBlock" xml:space="preserve">
     <value>インストーラーのハッシュが一致しません; これは、管理者として実行している場合は上書きできません</value>
+  </data>
+  <data name="InstallerHashMismatchOverridden" xml:space="preserve">
+    <value>インストーラーのハッシュが一致しません。--ignore-security-hash のため続行しています</value>
+    <comment>{Locked="--ignore-security-hash"}</comment>
+  </data>
+  <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
+    <value>インストーラーのハッシュが一致しません。このチェックをオーバーライドするには、--ignore-security-hash を使用してください</value>
+    <comment>{Locked="--ignore-security-hash"}</comment>
   </data>
   <data name="InstallerHashVerified" xml:space="preserve">
     <value>インストーラーハッシュが正常に検証されました</value>
@@ -274,17 +294,26 @@
   <data name="InstallFlowStartingPackageInstall" xml:space="preserve">
     <value>パッケージのインストールを開始しています...</value>
   </data>
+  <data name="HashOverrideArgumentDescription" xml:space="preserve">
+    <value>インストーラーのハッシュのチェックが失敗しても無視します</value>
+  </data>
+  <data name="IgnoreLocalArchiveMalwareScanArgumentDescription" xml:space="preserve">
+    <value>ローカル マニフェストからのアーカイブの種類のパッケージのインストールの一環として実行されたマルウェア スキャンを無視します</value>
+  </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>対話式のインストールが要求されます。ユーザーの入力が必要になる場合があります</value>
   </data>
   <data name="InvalidAliasError" xml:space="preserve">
-    <value>引数の別名が現在のコマンドに対して認識されませんでした</value>
+    <value>引数のエイリアスが現在のコマンドに対して認識されませんでした: '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides a command line argument alias that was not recognized for a selected command. {0} is a placeholder replaced by the user's argument alias input (e.g. '-a').</comment>
   </data>
   <data name="InvalidArgumentSpecifierError" xml:space="preserve">
-    <value>引数の指定子が無効です</value>
+    <value>無効な引数指定子: '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides an invalid argument specifier. {0} is a placeholder replaced by an argument specifier (e.g. '-').</comment>
   </data>
   <data name="InvalidNameError" xml:space="preserve">
-    <value>引数名が現在のコマンドに対して認識されませんでした</value>
+    <value>引数名が現在のコマンドに対して認識されませんでした: '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides an unrecognized command line argument name for the selected command. {0} is a placeholder replaced by the user's argument name input (e.g. '--example').</comment>
   </data>
   <data name="LocaleArgumentDescription" xml:space="preserve">
     <value>使用するロケール (BCP47 形式)</value>
@@ -296,6 +325,10 @@
   <data name="Links" xml:space="preserve">
     <value>リンク</value>
     <comment>Links to different webpages</comment>
+  </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>list コマンドは、システムにインストールされているパッケージと、アップグレードを適用可能かどうかを表示します。search コマンドとよく似ていて、出力をフィルター処理するためのその他のオプションを指定できます。</value>
+    <comment>{Locked="list","search"}</comment>
   </data>
   <data name="ListCommandShortDescription" xml:space="preserve">
     <value>インストール済みパッケージを表示する</value>
@@ -326,7 +359,8 @@
     <value>マニフェストの検証は成功しましたが、警告があります。</value>
   </data>
   <data name="MissingArgumentError" xml:space="preserve">
-    <value>引数値が必要ですが、見つかりません</value>
+    <value>引数の値は必須ですが、見つかりませんでした: '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user does not provide a required command line argument value. {0} is a placeholder replaced by the argument name.</comment>
   </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
     <value>モニカーで結果をフィルター処理</value>
@@ -336,6 +370,13 @@
   </data>
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>MSIX 署名ハッシュを計算できませんでした。</value>
+  </data>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>特定のアプリがポリシーによってブロックされているため、Microsoft Store パッケージをインストールまたはアップグレードできませんでした</value>
+  </data>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>Microsoft Store パッケージをインストールまたはアップグレードできませんでした。エラー コード: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when a Microsoft Store application package fails to install or upgrade. {0} is a placeholder replaced by an error code.</comment>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>パッケージ取得の成功の確認/要求に失敗しました: ネットワーク エラー</value>
@@ -348,6 +389,9 @@
   </data>
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>パッケージ取得の成功の確認/要求</value>
+  </data>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>Microsoft Store クライアントがポリシーによってブロックされているため、Microsoft Store パッケージをインストールまたはアップグレードできませんでした</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>パッケージ取得の確認/要求...</value>
@@ -377,6 +421,9 @@
     <value>VirtualTerminal 表示を無効にする</value>
     <comment>{Locked="VirtualTerminal"}</comment>
   </data>
+  <data name="OpenLogsArgumentDescription" xml:space="preserve">
+    <value>既定のログの場所を開く</value>
+  </data>
   <data name="Options" xml:space="preserve">
     <value>オプション</value>
     <comment>Options to change how a command works</comment>
@@ -385,8 +432,8 @@
     <value>インストーラーに渡される引数を上書き</value>
   </data>
   <data name="Package" xml:space="preserve">
-    <value>パッケージ</value>
-    <comment>A software package</comment>
+    <value>パッケージ: {0}</value>
+    <comment>{Locked="{0}"} Label displayed for a software package. {0} is a placeholder replaced by the software package name.</comment>
   </data>
   <data name="PendingWorkError" xml:space="preserve">
     <value>申し訳ございません。これを行うことを忘れました…</value>
@@ -404,7 +451,8 @@
     <value>進行状況は虹の色を表示します</value>
   </data>
   <data name="RequiredArgError" xml:space="preserve">
-    <value>必要な引数が指定されていません</value>
+    <value>必須の引数が指定されていません: '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user does not provide a required command line argument. {0} is a placeholder replaced by an argument name.</comment>
   </data>
   <data name="RetroArgumentDescription" xml:space="preserve">
     <value>既定の色としての進行状況の表示</value>
@@ -438,7 +486,8 @@
     <value>次のエラーが検出されたため、設定を検証しています:</value>
   </data>
   <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>既定の json テキスト エディターで設定を開きます。エディターが構成されていない場合は、メモ帳で設定を開きます。使用可能な設定については、https://aka.ms/winget-settings を参照してください。このコマンドを使用して、'enable' または 'disable' 引数を指定して管理者設定を設定することもできます。</value>
+    <value>既定の json テキスト エディターで設定を開きます。エディターが構成されていない場合は、メモ帳で設定を開きます。使用可能な設定については、https://aka.ms/winget-settings を参照してください。このコマンドを使用して、--enable または --disable 引数を指定して管理者設定を設定することもできます。</value>
+    <comment>{Locked="--enable"} {Locked="--disable"}</comment>
   </data>
   <data name="SettingsCommandShortDescription" xml:space="preserve">
     <value>設定を開くか、管理者設定を設定する</value>
@@ -464,7 +513,8 @@
     <value>サイレント インストールを要求</value>
   </data>
   <data name="SingleCharAfterDashError" xml:space="preserve">
-    <value>単一文字のエイリアスのみが単一の後に発生することができます-</value>
+    <value>単一の - の後に出現できるのは、1 文字の別名のみです: '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides more than a single character command line alias argument after an alias argument specifier '-'. {0} is a placeholder replaced by the user's argument input.</comment>
   </data>
   <data name="SourceAddAlreadyExistsDifferentArg" xml:space="preserve">
     <value>指定された名前のソースは既に存在し、別の場所を参照しています:</value>
@@ -523,7 +573,8 @@
     <comment>The source's unique identifier.</comment>
   </data>
   <data name="SourceListNoneFound" xml:space="preserve">
-    <value>次の名前のソースが見つかりませんでした:</value>
+    <value>次の名前のソースが見つかりませんでした: {0}</value>
+    <comment>Error message displayed when the user provides a repository source name that was not found. {0} is a placeholder replaced by the user input.</comment>
   </data>
   <data name="SourceListNoSources" xml:space="preserve">
     <value>構成されたソースがありません。</value>
@@ -565,7 +616,8 @@
     <value>現在のソースを削除</value>
   </data>
   <data name="SourceRemoveOne" xml:space="preserve">
-    <value>ソースを削除しています:</value>
+    <value>ソースを削除しています: {0}...</value>
+    <comment>{Locked="{0}"} Message displayed to inform the user about a registered repository source that is currently being removed. {0} is a placeholder replaced by the repository source name.</comment>
   </data>
   <data name="SourceResetAll" xml:space="preserve">
     <value>すべてのソースをリセットしています...</value>
@@ -584,7 +636,8 @@
     <comment>{Locked="--force"}</comment>
   </data>
   <data name="SourceResetOne" xml:space="preserve">
-    <value>ソースをリセットしています:</value>
+    <value>ソースをリセットしています: {0}...</value>
+    <comment>{Locked="{0}"} Message displayed to inform the user about a repository source that is currently being reset. {0} is a placeholder replaced by the repository source name.</comment>
   </data>
   <data name="SourceTypeArgumentDescription" xml:space="preserve">
     <value>ソースのタイプ</value>
@@ -599,7 +652,8 @@
     <value>現在のソースを更新</value>
   </data>
   <data name="SourceUpdateOne" xml:space="preserve">
-    <value>ソースを更新しています:</value>
+    <value>ソースを更新しています: {0}...</value>
+    <comment>{Locked="{0}"} Message displayed to inform the user about a registered repository source that is currently being updated. {0} is a placeholder replaced by the repository source name.</comment>
   </data>
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>タグで結果をフィルター処理</value>
@@ -620,16 +674,25 @@
     <value>ツールのバージョンを表示</value>
   </data>
   <data name="TooManyArgError" xml:space="preserve">
-    <value>引数が許可されたよりも多く提供されました</value>
+    <value>引数に指定された回数が許容回数を超えています: '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides a command line argument more times than it is allowed. {0} is a placeholder replaced by the user's argument name input.</comment>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>複数の実行動作引数が提供されています</value>
+    <value>複数の実行動作引数が指定されました: '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides more than one execution behavior argument when installing an application package. {0} is a placeholder replaced by the user specified execution behaviors (e.g. 'silent|interactive').</comment>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>コマンドの実行中に予期しないエラーが発生しました:</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
-    <value>認識されないコマンド</value>
+    <value>認識されないコマンド: '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides an unrecognized command. {0} is a placeholder replaced by the user input.</comment>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>可能な場合はインストール済みのすべてのパッケージをアップグレードして最新状態にします</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>適用可能なアップグレードは見つかりませんでした。</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
     <value>インストールされたパッケージ リスト、またはマニフェストから直接検索し、選択されたパッケージをアップグレードします。既定では、クエリはパッケージの ID、名前、モニカーに大文字小文字の区別なく一致する必要があります。その他のフィールドは、適切なオプションを渡すことで使用することができます。引数が指定されていない場合は、利用可能なアップグレードを含むパッケージが表示されます</value>
@@ -639,8 +702,8 @@
     <value>利用可能なアップグレードの表示と実行</value>
   </data>
   <data name="Usage" xml:space="preserve">
-    <value>使用状況</value>
-    <comment>The way to use the software</comment>
+    <value>使用法: {0}{1}</value>
+    <comment>{Locked="{0}","{1}"} Message displayed to provide the user with instructions on how to use a command. {0} is a placeholder replaced by the program name (e.g. 'winget'). {1} is a placeholder replaced by the pattern for using the selected command.</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
     <value>厳密なガイドラインのセットを使用してマニフェストを検証します。これは、リポジトリに送信する前にマニフェストを確認できるようにすることを目的としています。</value>
@@ -667,10 +730,12 @@
     <value>完了する前に提供された値が要求されます</value>
   </data>
   <data name="GetManifestResultVersionNotFound" xml:space="preserve">
-    <value>一致するバージョンが見つかりませんでした:</value>
+    <value>一致するバージョンが見つかりません: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user attempts to upgrade an application package to a version that was not found. {0} is a placeholder replaced by the user's provided upgrade package version.</comment>
   </data>
   <data name="OpenSourceFailedNoMatch" xml:space="preserve">
-    <value>指定された値に一致するソースがありません:</value>
+    <value>指定された値に一致するソースがありません: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user attempts to install or upgrade an application package from a repository source that was not found. {0} is a placeholder replaced by the user's repository source name input.</comment>
   </data>
   <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
     <value>構成されたソースは次のとおりです:</value>
@@ -683,17 +748,19 @@
     <value>見つかりました</value>
   </data>
   <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
-    <value>パスはディレクトリです:</value>
+    <value>パスはディレクトリです: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides a system path that is a directory. {0} is a placeholder replaced by the provided directory path.</comment>
   </data>
   <data name="VerifyFileFailedNotExist" xml:space="preserve">
-    <value>ファイルが存在しません。</value>
+    <value>ファイルが存在しません: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides a system file that does not exist. {0} is a placeholder replaced by the provided file path.</comment>
   </data>
   <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
     <value>ローカル マニフェストと検索クエリ引数の両方が指定されています</value>
   </data>
   <data name="Logs" xml:space="preserve">
-    <value>ログ</value>
-    <comment>Diagnostic files containing information about application use.</comment>
+    <value>ログ: {0}</value>
+    <comment>{Locked="{0}"} Label displayed for diagnostic files containing information about the application use. {0} is a placeholder replaced by the logs directory path.</comment>
   </data>
   <data name="InstallerBlockedByPolicy" xml:space="preserve">
     <value>インストーラーはポリシーによってブロックされています</value>
@@ -705,7 +772,8 @@
     <value>ウイルス対策製品がインストーラーに感染を報告します</value>
   </data>
   <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
-    <value>ソースを更新中に失敗しました:</value>
+    <value>ソースを更新できませんでした: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when an attempt to update the repository source fails. {0} is a placeholder replaced by the repository source name.</comment>
   </data>
   <data name="UninstallCommandLongDescription" xml:space="preserve">
     <value>インストールされているパッケージリスト、またはマニフェストから検索し、選択したパッケージをアンインストールします。既定では、クエリはパッケージのID、名前、モニカーと大文字と小文字の区別なく一致する必要があります。その他のフィールドは、適切なオプションを渡すことで使用することができます。</value>
@@ -728,7 +796,8 @@
     <value>アンインストールが中止されました</value>
   </data>
   <data name="UninstallFailedWithCode" xml:space="preserve">
-    <value>終了コードでアンインストールに失敗しました:</value>
+    <value>アンインストールは次の終了コードで失敗しました: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when an attempt to uninstall an application package fails. {0} is a placeholder replaced by an error code.</comment>
   </data>
   <data name="ExportCommandShortDescription" xml:space="preserve">
     <value>インストールされているパッケージのリストをエクスポート</value>
@@ -756,16 +825,20 @@
     <value>1つまたは複数のインポートされたパッケージをインストールできませんでした</value>
   </data>
   <data name="ImportSearchFailed" xml:space="preserve">
-    <value>インポートするパッケージが見つかりません:</value>
+    <value>インポート用のパッケージが見つかりません: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user attempts to import an application package that was not found. {0} is a placeholder replaced by the import package name .</comment>
   </data>
   <data name="ImportSourceNotInstalled" xml:space="preserve">
-    <value>インポートに必要なソースがインストールされていません:</value>
+    <value>インポートに必要なソースがインストールされていません: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user attempts to import application package(s) from a repository source that is not installed. {0} is a placeholder replaced by the repository source name.</comment>
   </data>
   <data name="InstalledPackageNotAvailable" xml:space="preserve">
-    <value>インストールされているパッケージのバージョンは、どのソースからも利用できません:</value>
+    <value>インストールされているパッケージはどのソースからも利用できません: {0}</value>
+    <comment>{Locked="{0}"} Warning message displayed when the user attempts to export an installed application package that is not available from any repository source. {0} is a placeholder replaced by the installed package name.</comment>
   </data>
   <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
-    <value>インストールされているパッケージのバージョンは、どのソースからも利用できません:</value>
+    <value>インストールされているパッケージのバージョンは、どのソースからも使用できません: {0}{1}{2}</value>
+    <comment>{Locked="{0}","{1}","{2}"} Warning message displayed when the user attempts to export an installed application package with a version that is not available from any repository source. {0} is a placeholder replaced by the installed package identifier. {1} is a placeholder replaced by the installed package version. {2} is a placeholder replaced by the installed package channel.</comment>
   </data>
   <data name="NoPackagesInImportFile" xml:space="preserve">
     <value>インポート ファイルにパッケージが見つかりません</value>
@@ -774,7 +847,8 @@
     <value>JSON ファイルが無効です</value>
   </data>
   <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
-    <value>パッケージは既にインストールされています:</value>
+    <value>パッケージは既にインストールされています: {0}</value>
+    <comment>{Locked="{0}"} Message displayed to inform the user that an import application package is already installed. {0} is a placeholder replaced by the package identifier.</comment>
   </data>
   <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
     <value>使用できないパッケージを無視する</value>
@@ -786,7 +860,8 @@
     <value>インポート ファイルからパッケージ バージョンを無視する</value>
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
-    <value>パスが存在しません:</value>
+    <value>パスが存在しません: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides a system path argument value that does not exist. {0} is a placeholder replaced by the user's provided path.</comment>
   </data>
   <data name="ImportFileHasInvalidSchema" xml:space="preserve">
     <value>JSON ファイルでは、認識されるスキーマが指定されていません。</value>
@@ -796,11 +871,12 @@
     <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
   </data>
   <data name="InvalidArgumentValueError" xml:space="preserve">
-    <value>'%1' 引数に指定された値が無効です。有効な値は</value>
-    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+    <value>'{0}' 引数に指定された値が無効です。有効な値: {1}</value>
+    <comment>{Locked="{0}","{1}"} Error message displayed when the user provides an invalid command line argument value. {0} is a placeholder replaced by the argument name. {1} is a placeholder replaced by a list of valid options.</comment>
   </data>
   <data name="DisabledByGroupPolicy" xml:space="preserve">
-    <value>この操作はグループ ポリシーによって無効になっています</value>
+    <value>この操作はグループ ポリシーによって無効にされています: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user performs a command operation that is disabled by a group policy. {0} is a placeholder replaced by a group policy description.</comment>
   </data>
   <data name="PolicyAdditionalSources" xml:space="preserve">
     <value>追加の Windows アプリ インストーラー ソースを有効にする</value>
@@ -845,8 +921,15 @@
   <data name="PolicyEnableLocalManifests" xml:space="preserve">
     <value>Windows アプリ インストーラーのローカル マニフェスト ファイルを有効にする</value>
   </data>
+  <data name="PolicyEnableBypassCertificatePinningForMicrosoftStore" xml:space="preserve">
+    <value>Windows アプリ インストーラーでの Microsoft Store ソースの固定証明書のバイパスを有効にする</value>
+  </data>
+  <data name="PolicyEnableLocalArchiveMalwareScanOverride" xml:space="preserve">
+    <value>Windows アプリ インストーラー ローカル アーカイブ マルウェア スキャンの上書きを有効にする</value>
+  </data>
   <data name="SettingsWarningField" xml:space="preserve">
-    <value>フィールド:</value>
+    <value>フィールド: {0}</value>
+    <comment>{Locked="{0}"} Warning message displayed when a user setting field has invalid syntax or semantics. {0} is a placeholder replaced by the setting field path.</comment>
   </data>
   <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
     <value>フィールド形式が無効です。</value>
@@ -864,7 +947,8 @@
     <value>ファイルの解析エラー:</value>
   </data>
   <data name="SettingsWarningValue" xml:space="preserve">
-    <value>値:</value>
+    <value>値: {0}</value>
+    <comment>{Locked="{0}"} Warning message displayed when a user setting value has invalid syntax or semantics. {0} is a placeholder replaced by the setting data value.</comment>
   </data>
   <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
     <value>次の試験的な機能が進行中です。
@@ -891,8 +975,8 @@
     <comment>A source that the user is allowed to add.</comment>
   </data>
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
-    <value>'%1' 引数に指定された値が無効です</value>
-    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+    <value>'{0}' 引数に指定された値が無効です</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides an invalid command line argument value. {0} is a placeholder replaced by the argument name.</comment>
   </data>
   <data name="Cancelled" xml:space="preserve">
     <value>取り消し済み</value>
@@ -915,18 +999,20 @@
     <value>依存ソースが見つかりません</value>
   </data>
   <data name="DependenciesFlowSourceTooManyMatches" xml:space="preserve">
-    <value>パッケージ検索で複数の結果を生成します。</value>
-    <comment>When node package id search yield too many matches</comment>
+    <value>パッケージ検索では、複数の結果が生成されます: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when application packages search yield more than one result. {0} is a placeholder replaced by the dependency package identifier.</comment>
   </data>
   <data name="DependenciesFlowPackageVersionNotFound" xml:space="preserve">
-    <value>パッケージの最新バージョンが見つかりませんでした</value>
-    <comment>When no suitable version found for the specific package.</comment>
+    <value>パッケージの最新バージョンが見つかりません: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when no suitable version found for the specific application package. {0} is a placeholder replaced by the package identifier.</comment>
   </data>
   <data name="DependenciesFlowNoInstallerFound" xml:space="preserve">
-    <value>インストーラーが見つかりませんでした</value>
+    <value>インストーラーが見つかりません: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when no installer found for a manifest. {0} is a placeholder replaced by the manifest identifier.</comment>
   </data>
   <data name="DependenciesFlowNoMinVersion" xml:space="preserve">
-    <value>最小限必要なバージョンがパッケージに使用できません</value>
+    <value>パッケージに必要な最小バージョンは使用できません: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the minimum required version is not available for an application package. {0} is a placeholder replaced by the package identifier.</comment>
   </data>
   <data name="DependenciesFlowNoMatches" xml:space="preserve">
     <value>一致する項目はありません</value>
@@ -937,8 +1023,8 @@
     <comment>Dependency graph has loop</comment>
   </data>
   <data name="DependenciesFlowNoSuitableInstallerFound" xml:space="preserve">
-    <value>マニフェストに適したインストーラーが見つかりませんでした</value>
-    <comment>Attempt to get preferred installer for manifest failed.</comment>
+    <value>manifest: {0} {1} に適したインストーラーが見つかりません</value>
+    <comment>{Locked="{0}","{1}"} Error message displayed when an attempt to get a preferred installer for a manifest fails. {0} is a placeholder replaced by the manifest identifier. {1} is a placeholder replaced by the manifest version.</comment>
   </data>
   <data name="DependenciesManagementError" xml:space="preserve">
     <value>パッケージ依存関係の処理中にエラーが発生しました。インストールを続行しますか?</value>
@@ -975,7 +1061,8 @@
     <value>パッケージのすべての使用許諾契約に同意する</value>
   </data>
   <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
-    <value>エクスポートされたパッケージをインストールするには、使用許諾契約が必要です:</value>
+    <value>エクスポートされたパッケージをインストールするには、使用許諾契約書が必要です: {0}</value>
+    <comment>{Locked="{0}"} Warning message displayed when an exported application package requires license agreement to install. {0} is a placeholder replaced by the package name.</comment>
   </data>
   <data name="PackageAgreementsPrompt" xml:space="preserve">
     <value>発行元は、お客様がインストール前に上記の情報を表示し、契約に同意することを必要としています。
@@ -996,8 +1083,20 @@
   <data name="ShowLabelInstaller" xml:space="preserve">
     <value>インストーラー:</value>
   </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>インストーラーのロケール:</value>
+  </data>
   <data name="ShowLabelInstallerProductId" xml:space="preserve">
     <value>ストア製品 ID:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>インストーラーの SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>インストーラーの種類:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>インストーラーの URL:</value>
   </data>
   <data name="ShowLabelLicense" xml:space="preserve">
     <value>ライセンス:</value>
@@ -1013,6 +1112,9 @@
   </data>
   <data name="ShowLabelPublisher" xml:space="preserve">
     <value>公開元:</value>
+  </data>
+  <data name="ShowLabelTags" xml:space="preserve">
+    <value>タグ:</value>
   </data>
   <data name="ShowLabelVersion" xml:space="preserve">
     <value>バージョン:</value>
@@ -1045,8 +1147,8 @@
     <value>ソース操作中にすべてのソース契約に同意する</value>
   </data>
   <data name="SourceAgreementsTitle" xml:space="preserve">
-    <value>'%1' ソースを使用するには、使用する前に次の契約を表示する必要があります。</value>
-    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+    <value>'{0}' ソースでは、使用する前に次の契約を表示する必要があります。</value>
+    <comment>{Locked="{0}"} Message displayed to inform the user that a repository source requires viewing agreements before using. {0} is a placeholder replaced by the repository source name.</comment>
   </data>
   <data name="SourceAgreementsPrompt" xml:space="preserve">
     <value>すべてのソース契約条件に同意しますか?</value>
@@ -1067,13 +1169,17 @@
     <value>省略可能なヘッダーは、このソースには適用できないため無視されます。</value>
   </data>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
-    <value>省略可能なヘッダーは、ソースを指定せずに適用することはできません</value>
+    <value>省略可能なヘッダーは、ソースを指定しないと適用されません: '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user performs an operation (e.g install) and provides the HTTP 'header' argument without specifying the repository source. {0} is a placeholder replaced by the header argument name.</comment>
   </data>
   <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
     <value>リリース日:</value>
   </data>
   <data name="ShowLabelPublisherUrl" xml:space="preserve">
     <value>発行元 URL:</value>
+  </data>
+  <data name="ShowLabelPurchaseUrl" xml:space="preserve">
+    <value>購入 URL:</value>
   </data>
   <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
     <value>発行元のサポート URL:</value>
@@ -1094,14 +1200,16 @@
     <value>リリース ノート URL:</value>
   </data>
   <data name="SearchFailureWarning" xml:space="preserve">
-    <value>ソースの検索中に失敗しました;結果は含まれません:</value>
+    <value>ソースの検索中にエラーが発生しました;結果は含まれません: {0}</value>
+    <comment>{Locked="{0}"} Warning message displayed when searching a repository source fails. {0} is a placeholder replaced by the repository source name.</comment>
   </data>
   <data name="SearchFailureError" xml:space="preserve">
-    <value>ソースの検索中に失敗しました:</value>
+    <value>ソースの検索中に失敗しました: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when searching a repository source fails. {0} is a placeholder replaced by the repository source name.</comment>
   </data>
   <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
-    <value>この機能は管理者が有効にする必要があります。有効にするには、'winget settings --enable %1'を管理者として実行します。</value>
-    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+    <value>この機能は管理者が有効にする必要があります。有効にするには、'winget settings --enable {0}' を管理者として実行します。</value>
+    <comment>{Locked="winget settings --enable", "{0}"}. Error message displayed when the user uses a feature that needs to be enabled by administrators. {0} is a placeholder replaced by the admin setting.</comment>
   </data>
   <data name="AdminSettingEnableDescription" xml:space="preserve">
     <value>特定の管理者設定を有効にします</value>
@@ -1110,7 +1218,8 @@
     <value>特定の管理者設定を無効にします</value>
   </data>
   <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
-    <value>指定された管理者設定引数が多すぎます</value>
+    <value>指定された管理者設定引数が多すぎます: '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides too many admin setting arguments. {0} is a placeholder replaced by the admin setting arguments (e.g. 'enable|disable').</comment>
   </data>
   <data name="AdminSettingEnabled" xml:space="preserve">
     <value>管理者設定が有効になりました。</value>
@@ -1120,6 +1229,9 @@
   </data>
   <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
     <value>アプリケーションは現在実行中です。アプリケーションを終了してから、もう一度お試しください。</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUseByApplication" xml:space="preserve">
+    <value>インストーラーによって変更されたファイルは、現在別のアプリケーションで使用されています。アプリケーションを終了してから、もう一度お試しください。</value>
   </data>
   <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
     <value>別のインストールが既に進行中です。後でもう一度お試しください。</value>
@@ -1135,6 +1247,9 @@
   </data>
   <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
     <value>インストールできるメモリが不足しています。他のアプリケーションを閉じてから、もう一度やり直してください。</value>
+  </data>
+  <data name="InstallFlowReturnCodeInvalidParameter" xml:space="preserve">
+    <value>インストール パラメーターの 1 つが無効です。パッケージのインストール ログに追加の詳細が含まれている可能性があります。</value>
   </data>
   <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
     <value>このアプリケーションにはインターネット接続が必要です。ネットワークに接続してから、もう一度お試しください。</value>
@@ -1163,14 +1278,19 @@
   <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
     <value>組織のポリシーが原因でインストールできません。管理者にお問い合わせください。</value>
   </data>
+  <data name="InstallFlowReturnCodeSystemNotSupported" xml:space="preserve">
+    <value>現在のシステム構成では、このパッケージのインストールはサポートされていません。</value>
+  </data>
   <data name="InstallAbandoned" xml:space="preserve">
     <value>インストールが破棄されました</value>
   </data>
   <data name="InstallerFailedWithCode" xml:space="preserve">
-    <value>終了コードでインストーラーが失敗しました:</value>
+    <value>インストーラーが終了コードで失敗しました: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the application installer fails. {0} is a placeholder replaced by an error code.</comment>
   </data>
   <data name="InstallerLogAvailable" xml:space="preserve">
-    <value>インストーラー ログは次の時点で利用できます:</value>
+    <value>インストーラー ログは次で入手できます: {0}</value>
+    <comment>{Locked="{0}"} Message displayed to inform the user about the system path of a diagnostic files containing information about the installer. {0} is a placeholder replaced by the diagnostic file system path.</comment>
   </data>
   <data name="SearchFailureErrorListMatches" xml:space="preserve">
     <value>作業ソースの中以下のパッケージが見つかりました。
@@ -1186,8 +1306,8 @@
     <comment>{Locked="https://github.com/microsoft/winget-cli"}</comment>
   </data>
   <data name="WindowsPackageManager" xml:space="preserve">
-    <value>Windows パッケージ マネージャー</value>
-    <comment>The product name.</comment>
+    <value>v{0} の Windows パッケージ マネージャー</value>
+    <comment>{Locked="{0}"} Label displaying the product name and version. {0} is a placeholder replaced by the product version.</comment>
   </data>
   <data name="ImportIgnorePackageVersionsArgumentDescription" xml:space="preserve">
     <value>インポート ファイルのパッケージ バージョンを無視する</value>
@@ -1202,8 +1322,8 @@
     <value>指定された新しいバージョンのインストール テクノロジが、現在インストールされているバージョンと異なります。パッケージをアンインストールして、新しいバージョンをインストールしてください。</value>
   </data>
   <data name="WindowsPackageManagerPreview" xml:space="preserve">
-    <value>Windows パッケージ マネージャー (プレビュー)</value>
-    <comment>The product name plus an indicator that this is a pre-release version.</comment>
+    <value>Windows パッケージ マネージャー (プレビュー) v{0}</value>
+    <comment>{Locked="{0}"} Label displaying the preview product name and pre-release version. {0} is a placeholder replaced by the product version.</comment>
   </data>
   <data name="InstallArchitectureArgumentDescription" xml:space="preserve">
     <value>アーキテクチャを選択してインストール</value>
@@ -1223,17 +1343,29 @@
     <value>パッケージのバージョン番号を判別できません。"--include-unknown" を使用すると、その他の結果が表示される場合があります。</value>
     <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions.</comment>
   </data>
+  <data name="UpgradeUnknownVersionCount" xml:space="preserve">
+    <value>個のパッケージのバージョン番号を判別できません。すべての結果を表示するには、"--include-unknown" を指定します。</value>
+    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions. </comment>
+  </data>
+  <data name="UpgradeRequireExplicitCount" xml:space="preserve">
+    <value>パッケージがピン留めされているため、明示的にアップグレードする必要があります。</value>
+    <comment>This string is preceded by a (integer) number of packages that require explicit upgrades.</comment>
+  </data>
   <data name="InvalidArgumentWithoutQueryError" xml:space="preserve">
     <value>指定された引数はクエリでのみ使用できます。</value>
   </data>
   <data name="SystemArchitecture" xml:space="preserve">
-    <value>システム アーキテクチャ</value>
+    <value>システム アーキテクチャ: {0}</value>
+    <comment>{Locked="{0}"} Label displayed for the system architecture. {0} is a placeholder replaced by the value of the system architecture (e.g. X64).</comment>
   </data>
   <data name="PreserveArgumentDescription" xml:space="preserve">
     <value>パッケージ (ポータブル) によって作成されたすべてのファイルとディレクトリを保持します</value>
   </data>
   <data name="PurgeArgumentDescription" xml:space="preserve">
     <value>パッケージ ディレクトリ (ポータブル) 内のすべてのファイルとディレクトリを削除します</value>
+  </data>
+  <data name="PressEnterToContinue" xml:space="preserve">
+    <value>続行するには、Enter キーを押してください . . .</value>
   </data>
   <data name="RenameArgumentDescription" xml:space="preserve">
     <value>実行可能ファイルの名前を変更する値 (ポータブル)</value>
@@ -1264,19 +1396,33 @@
     <value>指定されたファイル名は有効なファイル名ではありません</value>
   </data>
   <data name="OverwritingExistingFileAtMessage" xml:space="preserve">
-    <value>既存のファイルを上書きしています:</value>
+    <value>既存のファイルを上書きしています: {0}</value>
+    <comment>{Locked="{0}"} Warning message displayed to inform the user that an existing file is being overwritten. {0} is a placeholder replaced by the file system path.</comment>
   </data>
   <data name="NoPackageSelectionArgumentProvided" xml:space="preserve">
     <value>パッケージ選択引数が指定されていません; パッケージの検索の詳細については、ヘルプを参照してください。</value>
+  </data>
+  <data name="PortableAliasAdded" xml:space="preserve">
+    <value>コマンド ライン エイリアスが追加されました:</value>
   </data>
   <data name="PortableInstallFailed" xml:space="preserve">
     <value>ポータブル インストールに失敗しました; クリーンアップしています...</value>
   </data>
   <data name="BothPurgeAndPreserveFlagsProvided" xml:space="preserve">
-    <value>'purge' と 'preserve' 引数の両方が指定されています</value>
+    <value>--purge と --preserve 引数の両方が指定されています</value>
+    <comment>{Locked="--purge"} {Locked="--preserve"}</comment>
+  </data>
+  <data name="PortableHashMismatchOverridden" xml:space="preserve">
+    <value>移植可能パッケージは変更されています。--force が指定されているため続行しています</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="PortableHashMismatchOverrideRequired" xml:space="preserve">
+    <value>移植可能パッケージは、変更されているため削除できません。このチェックをオーバーライドするには、--force を指定します</value>
+    <comment>{Locked="--force"}</comment>
   </data>
   <data name="FilesRemainInInstallDirectory" xml:space="preserve">
-    <value>ファイルはインストール ディレクトリに残ります:</value>
+    <value>ファイルはインストール ディレクトリに残ります: {0}</value>
+    <comment>{Locked="{0}"} Warning message displayed when files remain in install directory. {0} is a placeholder replaced by the directory path.</comment>
   </data>
   <data name="PurgeInstallDirectory" xml:space="preserve">
     <value>インストール ディレクトリを破棄しています...</value>
@@ -1291,6 +1437,168 @@
     <value>Documentation:</value>
   </data>
   <data name="Notes" xml:space="preserve">
-    <value>メモ:</value>
+    <value>メモ: {0}</value>
+    <comment>{Locked="{0}"} Label displayed for installation notes. {0} is a placeholder replaced by installation notes.</comment>
+  </data>
+  <data name="ShowLabelInstallationNotes" xml:space="preserve">
+    <value>インストールに関する注意:</value>
+  </data>
+  <data name="UnsupportedArgument" xml:space="preserve">
+    <value>指定された引数はこのパッケージ用にはサポートされていません</value>
+  </data>
+  <data name="ExtractArchiveFailed" xml:space="preserve">
+    <value>アーカイブの内容を抽出できませんでした</value>
+  </data>
+  <data name="NestedInstallerNotFound" xml:space="preserve">
+    <value>入れ子になったインストーラー ファイルが存在しません。入れ子になったインストーラーの指定された相対パスが一致することを確認します: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when nested installer file does not exist. {0} is a placeholder replaced by the nested installer file path.</comment>
+  </data>
+  <data name="InvalidPathToNestedInstaller" xml:space="preserve">
+    <value>入れ子状態インストーラーへの相対ファイル パスが正しくありません。パスでインストール ディレクトリ以外の場所が示されています</value>
+  </data>
+  <data name="NestedInstallerNotSpecified" xml:space="preserve">
+    <value>このパッケージ用には入れ子状態インストーラーは指定されていません</value>
+  </data>
+  <data name="MultipleNonPortableNestedInstallersSpecified" xml:space="preserve">
+    <value>アーカイブ インストーラー用に指定できる移植可能でない入れ子状態インストーラーは 1 つのみです</value>
+  </data>
+  <data name="IncompatibleArgumentsProvided" xml:space="preserve">
+    <value>互換性のないコマンド ライン引数が指定されました</value>
+  </data>
+  <data name="UpgradeAvailableForPinned" xml:space="preserve">
+    <value>次のパッケージにはアップグレードを適用可能ですが、アップグレードには明示的対象化が必要です:</value>
+    <comment>"require explicit targeting for upgrade" means that the package will not be upgraded with all others unless an extra flag is added, or the package is mentioned explicitly</comment>
+  </data>
+  <data name="Downloading" xml:space="preserve">
+    <value>ダウンロード中</value>
+    <comment>Label displayed while downloading an application installer.</comment>
+  </data>
+  <data name="NestedInstallerNotSupported" xml:space="preserve">
+    <value>入れ子状態インストーラーの種類には対応していません</value>
+  </data>
+  <data name="InstallerAbortsTerminal" xml:space="preserve">
+    <value>このインストーラーではターミナルまたはシェルが再起動されることがわかっています</value>
+  </data>
+  <data name="InstallerRequiresInstallLocation" xml:space="preserve">
+    <value>このパッケージにはインストール先の場所が必要です</value>
+  </data>
+  <data name="InstallersAbortTerminal" xml:space="preserve">
+    <value>次のインストーラーではターミナルまたはシェルが再起動されることがわかっています</value>
+  </data>
+  <data name="InstallersRequireInstallLocation" xml:space="preserve">
+    <value>次のインストーラーにはインストール先の場所が必要です:</value>
+  </data>
+  <data name="PromptForInstallRoot" xml:space="preserve">
+    <value>インストール ルートを指定してください:</value>
+  </data>
+  <data name="PromptToProceed" xml:space="preserve">
+    <value>続行しますか?</value>
+  </data>
+  <data name="ReportIdentityForAgreements" xml:space="preserve">
+    <value>契約の対象</value>
+    <comment>This will be followed by a package name, and then a list of license agreements</comment>
+  </data>
+  <data name="InstallLocationNotProvided" xml:space="preserve">
+    <value>パッケージにはインストール場所が必要ですが、指定されていませんでした</value>
+  </data>
+  <data name="DisableInteractivityArgumentDescription" xml:space="preserve">
+    <value>対話型プロンプトを無効にします</value>
+    <comment>Description for a command line argument, shown next to it in the help</comment>
+  </data>
+  <data name="ConvertInstallFlowToUpgrade" xml:space="preserve">
+    <value>既存のパッケージが既にインストールされています。インストールされているパッケージ...をアップグレードしようとしています</value>
+  </data>
+  <data name="ForceArgumentDescription" xml:space="preserve">
+    <value>コマンドを直接実行し、セキュリティ関連でない問題の場合に続行します</value>
+    <comment>Description for a command line argument, shown next to it in the help</comment>
+  </data>
+  <data name="PortablePackageAlreadyExists" xml:space="preserve">
+    <value>別のソースからの移植可能パッケージが既に存在します</value>
+  </data>
+  <data name="ExtractArchiveSucceeded" xml:space="preserve">
+    <value>アーカイブが正常に展開されました</value>
+  </data>
+  <data name="ExtractingArchive" xml:space="preserve">
+    <value>アーカイブを展開しています...</value>
+  </data>
+  <data name="ArchiveFailedMalwareScan" xml:space="preserve">
+    <value>アーカイブ スキャンでマルウェアが検出されました。このチェックをオーバーライドするには、--ignore-local-archive-malware-scan を使用します</value>
+    <comment>{Locked="--ignore-local-archive-malware-scan"}</comment>
+  </data>
+  <data name="ArchiveFailedMalwareScanOverridden" xml:space="preserve">
+    <value>アーカイブ スキャンでマルウェアが検出されました。--ignore-local-archive-malware-scan により続行しています</value>
+    <comment>{Locked="--ignore-local-archive-malware-scan"}</comment>
+  </data>
+  <data name="NoUpgradeArgumentDescription" xml:space="preserve">
+    <value>インストール済みバージョンが既に存在する場合はアップグレードをスキップします</value>
+  </data>
+  <data name="PackageAlreadyInstalled" xml:space="preserve">
+    <value>パッケージ バージョンは既にインストールされています。インストールが取り消されました。</value>
+  </data>
+  <data name="EnableAdminSettingFailed" xml:space="preserve">
+    <value>{0}を有効にできません。この設定はポリシーによって制御されます。詳細については、システム管理者に問い合わせてください。</value>
+    <comment>{Locked="{0}"} The value will be replaced with the feature name</comment>
+  </data>
+  <data name="DisableAdminSettingFailed" xml:space="preserve">
+    <value>{0}を無効にできません。この設定はポリシーによって制御されます。詳細については、システム管理者に問い合わせてください。</value>
+    <comment>{Locked="{0}"} The value will be replaced with the feature name</comment>
+  </data>
+  <data name="PinAddCommandLongDescription" xml:space="preserve">
+    <value>新しいピンを追加します。ピン留めをすると、Windows パッケージ マネージャーがパッケージを特定のバージョンの範囲に更新するのを制限したり、パッケージを完全に更新できなくなる可能性があります。ピン留めされたパッケージは、それ自体で更新され、Windows パッケージ マネージャー外から更新される可能性があります。既定では、ピン留めされたパッケージを更新するには、'upgrade' コマンドで明示的に指定するか、'--include-pinned' フラグを 'winget upgrade --all' に追加します。</value>
+    <comment>{Locked{"'upgrade'"} Locked{"--include-pinned"} Locked{"winget upgrade --all"}</comment>
+  </data>
+  <data name="PinAddCommandShortDescription" xml:space="preserve">
+    <value>新しい PIN を追加する</value>
+  </data>
+  <data name="PinCommandLongDescription" xml:space="preserve">
+    <value>サブコマンドを使用してパッケージのピンを管理します。ピン留めすると、Windows パッケージ マネージャーがパッケージを特定のバージョンの範囲に更新するのを制限したり、パッケージを完全に更新できなくなる可能性があります。ピン留めされたパッケージは、それ自体で更新され、Windows パッケージ マネージャー外から更新される可能性があります。</value>
+  </data>
+  <data name="PinCommandShortDescription" xml:space="preserve">
+    <value>パッケージ ピンの管理</value>
+  </data>
+  <data name="PinListCommandLongDescription" xml:space="preserve">
+    <value>現在のすべてのピン、または特定のピンの完全な詳細を一覧表示します。</value>
+  </data>
+  <data name="PinListCommandShortDescription" xml:space="preserve">
+    <value>現在のピンを一覧表示する</value>
+  </data>
+  <data name="PinRemoveCommandLongDescription" xml:space="preserve">
+    <value>特定のパッケージ ピンを削除します。</value>
+  </data>
+  <data name="PinRemoveCommandShortDescription" xml:space="preserve">
+    <value>パッケージ ピンの削除</value>
+  </data>
+  <data name="PinResetCommandLongDescription" xml:space="preserve">
+    <value>既存のすべてのピンをリセットします。</value>
+  </data>
+  <data name="PinResetCommandShortDescription" xml:space="preserve">
+    <value>PIN をリセット</value>
+  </data>
+  <data name="BothGatedVersionAndBlockingFlagProvided" xml:space="preserve">
+    <value>バージョン引数と '--blocking' 引数の両方が指定されています</value>
+    <comment>{Locked="--blocking"}</comment>
+  </data>
+  <data name="GatedVersionArgumentDescription" xml:space="preserve">
+    <value>パッケージをピン留めするバージョン。ワイルドカード '*' を最後のバージョン部分として使用できます</value>
+  </data>
+  <data name="PinAddBlockingArgumentDescription" xml:space="preserve">
+    <value>ピンが削除されるまで更新をブロックし、引数をオーバーライドできないようにします</value>
+  </data>
+  <data name="SettingsExportCommandLongDescription" xml:space="preserve">
+    <value>設定を JSON としてエクスポート</value>
+  </data>
+  <data name="SettingsExportCommandShortDescription" xml:space="preserve">
+    <value>設定のエクスポート</value>
+  </data>
+  <data name="UserSettings" xml:space="preserve">
+    <value>ユーザー設定: {0}</value>
+    <comment>{Locked="{0}"} Label displayed for the file containing the user settings. {0} is a placeholder replaced by the user settings file path.</comment>
+  </data>
+  <data name="SettingsWarningUsingDefault" xml:space="preserve">
+    <value>設定ファイルを読み込めませんでした。既定値を使用しています。</value>
+  </data>
+  <data name="InstalledScopeArgumentDescription" xml:space="preserve">
+    <value>インストールされているパッケージ スコープ フィルター (ユーザーまたはコンピューター) の選択</value>
+    <comment>This argument allows the user to select installed packages for just the user or for the entire machine.</comment>
   </data>
 </root>

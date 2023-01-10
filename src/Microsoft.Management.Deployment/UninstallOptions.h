@@ -21,6 +21,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         void CorrelationData(hstring const& value);
         bool Force();
         void Force(bool value);
+        winrt::Microsoft::Management::Deployment::PackageUninstallScope PackageUninstallScope();
+        void PackageUninstallScope(winrt::Microsoft::Management::Deployment::PackageUninstallScope const& value);
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
@@ -29,6 +31,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         std::wstring m_logOutputPath = L"";
         std::wstring m_correlationData = L"";
         bool m_force = false;
+        winrt::Microsoft::Management::Deployment::PackageUninstallScope m_packageUninstallScope = winrt::Microsoft::Management::Deployment::PackageUninstallScope::Any;
 #endif
     };
 }

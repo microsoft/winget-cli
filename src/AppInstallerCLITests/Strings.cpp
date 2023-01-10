@@ -8,7 +8,7 @@
 
 using namespace std::string_view_literals;
 using namespace AppInstaller::Utility;
-
+using namespace AppInstaller::Utility::literals;
 
 TEST_CASE("UTF8Length", "[strings]")
 {
@@ -224,4 +224,27 @@ TEST_CASE("HexStrings", "[strings]")
 
     REQUIRE(value == ConvertToHexString(buffer));
     REQUIRE(std::equal(buffer.begin(), buffer.end(), ParseFromHexString(value).begin()));
+}
+
+TEST_CASE("Join", "[strings]")
+{
+    std::vector<LocIndString> list_0{ };
+    std::vector<LocIndString> list_1{ "A"_lis };
+    std::vector<LocIndString> list_2{ "A"_lis, "B"_lis };
+
+    REQUIRE(""_lis == Join(", "_liv, list_0));
+    REQUIRE("A"_lis == Join(", "_liv, list_1));
+    REQUIRE("A, B"_lis == Join(", "_liv, list_2));
+    REQUIRE("AB"_lis == Join(""_liv, list_2));
+}
+
+TEST_CASE("Format", "[strings]")
+{
+    REQUIRE("First Second" == Format("{0} {1}", "First", "Second"));
+    REQUIRE("First Second" == Format("{1} {0}", "Second", "First"));
+    REQUIRE("First Second" == Format("{0} {1}", "First", "Second", "(Extra", "Input", "Ignored)"));
+    REQUIRE("First Second First Second" == Format("{0} {1} {0} {1}", "First", "Second"));
+
+    // Note: C++20 std::format will throw an exception for this test case
+    REQUIRE("First {1}" == Format("{0} {1}", "First"));
 }

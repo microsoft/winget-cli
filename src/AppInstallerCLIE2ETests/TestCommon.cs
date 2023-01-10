@@ -100,17 +100,9 @@ namespace AppInstallerCLIE2ETests
         public static string PowerShellModulePath { get; set; }
 
         /// <summary>
-        /// Gets the settings json path.
+        /// Gets or sets the settings json path.
         /// </summary>
-        public static string SettingsJsonFilePath
-        {
-            get
-            {
-                return PackagedContext ?
-                    @"Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\settings.json" :
-                    @"Microsoft\WinGet\Settings\settings.json";
-            }
-        }
+        public static string SettingsJsonFilePath { get; set; }
 
         /// <summary>
         /// Run winget command.
@@ -432,10 +424,19 @@ namespace AppInstallerCLIE2ETests
         /// Remove msix package.
         /// </summary>
         /// <param name="name">Package to remove.</param>
+        /// <param name="isProvisioned">Whether the package is provisioned.</param>
         /// <returns>True if removed correctly.</returns>
-        public static bool RemoveMsix(string name)
+        public static bool RemoveMsix(string name, bool isProvisioned = false)
         {
-            return RunCommand("powershell", $"Get-AppxPackage \"{name}\" | Remove-AppxPackage");
+            if (isProvisioned)
+            {
+                return RunCommand("powershell", $"Get-AppxProvisionedPackage -Online | Where-Object {{$_.PackageName -like \"*{name}*\"}} | Remove-AppxProvisionedPackage -Online -AllUsers") &&
+                    RunCommand("powershell", $"Get-AppxPackage \"{name}\" | Remove-AppxPackage -AllUsers");
+            }
+            else
+            {
+                return RunCommand("powershell", $"Get-AppxPackage \"{name}\" | Remove-AppxPackage");
+            }
         }
 
         /// <summary>
@@ -610,8 +611,9 @@ namespace AppInstallerCLIE2ETests
         /// <summary>
         /// Verify msix installed correctly.
         /// </summary>
+        /// <param name="isProvisioned">Whether the package is provisioned.</param>
         /// <returns>True if success.</returns>
-        public static bool VerifyTestMsixInstalledAndCleanup()
+        public static bool VerifyTestMsixInstalledAndCleanup(bool isProvisioned = false)
         {
             var result = RunCommandWithResult("powershell", $"Get-AppxPackage {Constants.MsixInstallerName}");
 
@@ -620,7 +622,16 @@ namespace AppInstallerCLIE2ETests
                 return false;
             }
 
-            return RemoveMsix(Constants.MsixInstallerName);
+            if (isProvisioned)
+            {
+                result = RunCommandWithResult("powershell", $"Get-AppxProvisionedPackage -Online | Where-Object {{$_.PackageName -like \"*{Constants.MsixInstallerName}*\"}}");
+                if (!result.StdOut.Contains(Constants.MsixInstallerName))
+                {
+                    return false;
+                }
+            }
+
+            return RemoveMsix(Constants.MsixInstallerName, isProvisioned);
         }
 
         /// <summary>
@@ -646,11 +657,21 @@ namespace AppInstallerCLIE2ETests
         /// <summary>
         /// Verify msix uninstalled.
         /// </summary>
+        /// <param name="isProvisioned">Whether the package is provisioned.</param>
         /// <returns>True if success.</returns>
-        public static bool VerifyTestMsixUninstalled()
+        public static bool VerifyTestMsixUninstalled(bool isProvisioned = false)
         {
+            bool isUninstalled = false;
             var result = RunCommandWithResult("powershell", $"Get-AppxPackage {Constants.MsixInstallerName}");
-            return string.IsNullOrWhiteSpace(result.StdOut);
+            isUninstalled = string.IsNullOrWhiteSpace(result.StdOut);
+
+            if (isProvisioned)
+            {
+                result = RunCommandWithResult("powershell", $"Get-AppxProvisionedPackage -Online | Where-Object {{$_.PackageName -like \"*{Constants.MsixInstallerName}*\"}}");
+                isUninstalled = isUninstalled && string.IsNullOrWhiteSpace(result.StdOut);
+            }
+
+            return isUninstalled;
         }
 
         /// <summary>

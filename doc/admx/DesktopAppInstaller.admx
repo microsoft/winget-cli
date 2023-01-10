@@ -73,6 +73,16 @@
         <decimal value="0" />
       </disabledValue>
     </policy>
+    <policy name="EnableLocalArchiveMalwareScanOverride" class="Machine" displayName="$(string.EnableLocalArchiveMalwareScanOverride)" explainText="$(string.EnableLocalArchiveMalwareScanOverrideExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableLocalArchiveMalwareScanOverride">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
+      <enabledValue>
+        <decimal value="1" />
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0" />
+      </disabledValue>
+    </policy>
     <policy name="EnableDefaultSource" class="Machine" displayName="$(string.EnableDefaultSource)" explainText="$(string.EnableDefaultSourceExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller" valueName="EnableDefaultSource">
       <parentCategory ref="AppInstaller" />
       <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />

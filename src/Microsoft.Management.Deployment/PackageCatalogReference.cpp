@@ -78,7 +78,21 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 // Check if search behavior indicates that the caller does not want to do local correlation.
                 if (m_compositePackageCatalogOptions.CompositeSearchBehavior() != Microsoft::Management::Deployment::CompositeSearchBehavior::RemotePackagesFromRemoteCatalogs)
                 {
-                    ::AppInstaller::Repository::Source installedSource = ::AppInstaller::Repository::Source{ ::AppInstaller::Repository::PredefinedSource::Installed };
+                    ::AppInstaller::Repository::Source installedSource;
+                    auto manifestInstalledScope = GetManifestScope(m_compositePackageCatalogOptions.InstalledScope()).first;
+                    if (manifestInstalledScope == ::AppInstaller::Manifest::ScopeEnum::User)
+                    {
+                        installedSource = ::AppInstaller::Repository::Source{ ::AppInstaller::Repository::PredefinedSource::InstalledUser };
+                    }
+                    else if (manifestInstalledScope == ::AppInstaller::Manifest::ScopeEnum::Machine)
+                    {
+                        installedSource = ::AppInstaller::Repository::Source{ ::AppInstaller::Repository::PredefinedSource::InstalledMachine };
+                    }
+                    else
+                    {
+                        installedSource = ::AppInstaller::Repository::Source{ ::AppInstaller::Repository::PredefinedSource::Installed };
+                    }
+
                     installedSource.Open(progress);
                     source = ::AppInstaller::Repository::Source{ installedSource, source, searchBehavior };
                 }

@@ -307,4 +307,19 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
         return Microsoft::Management::Deployment::PackageInstallerScope::Unknown;
     }
+
+    ::AppInstaller::Manifest::ScopeEnum GetManifestUninstallScope(winrt::Microsoft::Management::Deployment::PackageUninstallScope scope)
+    {
+        switch (scope)
+        {
+        case winrt::Microsoft::Management::Deployment::PackageInstallScope::Any:
+            return ::AppInstaller::Manifest::ScopeEnum::Unknown;
+        case winrt::Microsoft::Management::Deployment::PackageInstallScope::User:
+            return ::AppInstaller::Manifest::ScopeEnum::User;
+        case winrt::Microsoft::Management::Deployment::PackageInstallScope::System:
+            return ::AppInstaller::Manifest::ScopeEnum::Machine;
+        }
+
+        return ::AppInstaller::Manifest::ScopeEnum::Unknown;
+    }
 }

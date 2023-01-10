@@ -58,7 +58,7 @@ namespace AppInstaller::CLI::Workflow
     {
         context <<
             Workflow::GetInstalledPackageVersion <<
-            Workflow::EnsureSupportForPortableUninstall <<
+            Workflow::EnsureSupportForUninstall <<
             Workflow::GetUninstallInfo <<
             Workflow::GetDependenciesInfoForUninstall <<
             Workflow::ReportDependencies(Resource::String::UninstallCommandReportDependencies) <<
@@ -203,7 +203,14 @@ namespace AppInstaller::CLI::Workflow
             AICLI_LOG(CLI, Info, << "Removing MSIX package: " << packageFullName.value());
             try
             {
-                context.Reporter.ExecuteWithProgress(std::bind(Deployment::RemovePackage, packageFullName.value(), std::placeholders::_1));
+                if (Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope)) == Manifest::ScopeEnum::Machine)
+                {
+                    context.Reporter.ExecuteWithProgress(std::bind(Deployment::RemovePackageMachineScope, packageFamilyName, packageFullName.value(), std::placeholders::_1));
+                }
+                else
+                {
+                    context.Reporter.ExecuteWithProgress(std::bind(Deployment::RemovePackage, packageFullName.value(), winrt::Windows::Management::Deployment::RemovalOptions::None, std::placeholders::_1));
+                }
             }
             catch (const wil::ResultException& re)
             {
@@ -253,17 +260,22 @@ namespace AppInstaller::CLI::Workflow
 
             if (m_isHResult)
             {
-                context.Reporter.Error() << Resource::String::UninstallFailedWithCode << ' ' << GetUserPresentableMessage(uninstallResult) << std::endl;
+                context.Reporter.Error()
+                    << Resource::String::UninstallFailedWithCode(Utility::LocIndView{ GetUserPresentableMessage(uninstallResult) })
+                    << std::endl;
             }
             else
             {
-                context.Reporter.Error() << Resource::String::UninstallFailedWithCode << ' ' << uninstallResult << std::endl;
+                context.Reporter.Error()
+                    << Resource::String::UninstallFailedWithCode(uninstallResult)
+                    << std::endl;
             }
 
             // Show installer log path if exists
             if (context.Contains(Execution::Data::LogPath) && std::filesystem::exists(context.Get<Execution::Data::LogPath>()))
             {
-                context.Reporter.Info() << Resource::String::InstallerLogAvailable << ' ' << context.Get<Execution::Data::LogPath>().u8string() << std::endl;
+                auto installerLogPath = Utility::LocIndString{ context.Get<Execution::Data::LogPath>().u8string() };
+                context.Reporter.Info() << Resource::String::InstallerLogAvailable(installerLogPath) << std::endl;
             }
 
             AICLI_TERMINATE_CONTEXT(m_hr);
@@ -271,6 +283,28 @@ namespace AppInstaller::CLI::Workflow
         else
         {
             context.Reporter.Info() << Resource::String::UninstallFlowUninstallSuccess << std::endl;
+        }
+    }
+
+    void EnsureSupportForUninstall(Execution::Context& context)
+    {
+        auto installedPackageVersion = context.Get<Execution::Data::InstalledPackageVersion>();
+        const std::string installedTypeString = installedPackageVersion->GetMetadata()[PackageVersionMetadata::InstalledType];
+        auto installedType = ConvertToInstallerTypeEnum(installedTypeString);
+        if (installedType == InstallerTypeEnum::Portable)
+        {
+            const std::string installedScope = installedPackageVersion->GetMetadata()[Repository::PackageVersionMetadata::InstalledScope];
+            if (Manifest::ConvertToScopeEnum(installedScope) == Manifest::ScopeEnum::Machine)
+            {
+                context << EnsureRunningAsAdmin;
+            }
+        }
+        else if (installedType == InstallerTypeEnum::Msix)
+        {
+            if (Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope)) == Manifest::ScopeEnum::Machine)
+            {
+                context << EnsureRunningAsAdmin;
+            }
         }
     }
 }

@@ -12,22 +12,12 @@ namespace Microsoft.WinGet.Client.Common
     /// <summary>
     /// This class contains various helper methods for this project.
     /// </summary>
-    public static class Utilities
+    internal static class Utilities
     {
-        /// <summary>
-        /// Gets the <see cref="ResourceManager" /> instance for the executing assembly.
-        /// </summary>
-        public static ResourceManager ResourceManager
-        {
-            get
-            {
-                return new ResourceManager(typeof(Properties.Resources));
-            }
-        }
-
         /// <summary>
         /// Gets a value indicating whether the current assembly is executing in an administrative context.
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "Windows only API")]
         public static bool ExecutingAsAdministrator
         {
             get
@@ -41,6 +31,7 @@ namespace Microsoft.WinGet.Client.Common
         /// <summary>
         /// Gets a value indicating whether the current assembly is executing as a SYSTEM user.
         /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "Windows only API")]
         public static bool ExecutingAsSystem
         {
             get

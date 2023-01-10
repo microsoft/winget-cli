@@ -97,6 +97,103 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("AppInstallerTest.TestMsiInstallerUpgradeCode"));
         }
 
+        /// <summary>
+        /// Test list with exe installed with machine scope.
+        /// </summary>
+        [Test]
+        public void ListWithScopeExeInstalledAsMachine()
+        {
+            System.Guid guid = System.Guid.NewGuid();
+            string productCode = guid.ToString();
+            var installDir = TestCommon.GetRandomTestDir();
+            var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller --override \"/InstallDir {installDir} /ProductID {productCode} /UseHKLM\"");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+
+            // List with user scope will not find the package
+            result = TestCommon.RunAICLICommand("list", $"{productCode} --scope user");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
+            Assert.False(result.StdOut.Contains(productCode));
+
+            // List with machine scope will find the package
+            result = TestCommon.RunAICLICommand("list", $"{productCode} --scope machine");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains(productCode));
+
+            TestCommon.RunCommand(Path.Combine(installDir, Constants.TestExeUninstallerFileName));
+        }
+
+        /// <summary>
+        /// Test list with exe installed with user scope.
+        /// </summary>
+        [Test]
+        public void ListWithScopeExeInstalledAsUser()
+        {
+            System.Guid guid = System.Guid.NewGuid();
+            string productCode = guid.ToString();
+            var installDir = TestCommon.GetRandomTestDir();
+            var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller --override \"/InstallDir {installDir} /ProductID {productCode}\"");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+
+            // List with user scope will find the package
+            result = TestCommon.RunAICLICommand("list", $"{productCode} --scope user");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains(productCode));
+
+            // List with machine scope will not find the package
+            result = TestCommon.RunAICLICommand("list", $"{productCode} --scope machine");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
+            Assert.False(result.StdOut.Contains(productCode));
+
+            TestCommon.RunCommand(Path.Combine(installDir, Constants.TestExeUninstallerFileName));
+        }
+
+        /// <summary>
+        /// Test list with msix installed with machine scope.
+        /// </summary>
+        [Test]
+        public void ListWithScopeMsixInstalledAsMachine()
+        {
+            // TODO: Provision and Deprovision api not supported in build server.
+            Assert.Ignore();
+
+            var result = TestCommon.RunAICLICommand("install", $"{Constants.MsixInstallerPackageId} --scope machine");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+
+            // List with user scope will also find the package because msix is provisioned for all users
+            result = TestCommon.RunAICLICommand("list", $"{Constants.MsixInstallerPackageId} --scope user");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains(Constants.MsixInstallerPackageId));
+
+            // List with machine scope will find the package
+            result = TestCommon.RunAICLICommand("list", $"{Constants.MsixInstallerPackageId} --scope machine");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains(Constants.MsixInstallerPackageId));
+
+            TestCommon.RemoveMsix(Constants.MsixInstallerName, true);
+        }
+
+        /// <summary>
+        /// Test list with msix installed with user scope.
+        /// </summary>
+        [Test]
+        public void ListWithScopeMsixInstalledAsUser()
+        {
+            var result = TestCommon.RunAICLICommand("install", $"{Constants.MsixInstallerPackageId} --scope user");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+
+            // List with user scope will find the package
+            result = TestCommon.RunAICLICommand("list", $"{Constants.MsixInstallerPackageId} --scope user");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains(Constants.MsixInstallerPackageId));
+
+            // List with machine scope will not find the package
+            result = TestCommon.RunAICLICommand("list", $"{Constants.MsixInstallerPackageId} --scope machine");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
+            Assert.False(result.StdOut.Contains(Constants.MsixInstallerPackageId));
+
+            TestCommon.RemoveMsix(Constants.MsixInstallerName);
+        }
+
         private void ArpVersionMappingTest(string packageIdentifier, string displayNameOverride, string displayVersionOverride, string expectedListVersion, string notExpectedListVersion = "")
         {
             System.Guid guid = System.Guid.NewGuid();
