@@ -15,7 +15,7 @@ using namespace AppInstaller::Pinning;
 
 void OverrideForOpenPinningIndex(TestContext& context, const std::filesystem::path& indexPath)
 {
-    context.Override({ OpenPinningIndex, [=](TestContext& context)
+    context.Override({ "OpenPinningIndex", [=](TestContext& context)
         {
             auto pinningIndex = std::filesystem::exists(indexPath) ?
                 PinningIndex::Open(indexPath.u8string(), SQLiteStorageBase::OpenDisposition::ReadWrite) :

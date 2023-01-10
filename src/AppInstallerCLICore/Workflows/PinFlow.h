@@ -9,7 +9,15 @@ namespace AppInstaller::CLI::Workflow
     // Required Args: None
     // Inputs: None
     // Outputs: PinningIndex
-    void OpenPinningIndex(Execution::Context& context);
+    struct OpenPinningIndex : public WorkflowTask
+    {
+        OpenPinningIndex(bool readOnly = false) : WorkflowTask("OpenPinningIndex"), m_readOnly(readOnly) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        bool m_readOnly;
+    };
 
     // Gets all the pins from the index.
     // Required Args: None

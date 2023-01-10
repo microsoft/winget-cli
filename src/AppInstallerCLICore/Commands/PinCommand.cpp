@@ -124,7 +124,7 @@ namespace AppInstaller::CLI
             Workflow::EnsureOneMatchFromSearchResult(false) <<
             Workflow::GetInstalledPackageVersion <<
             Workflow::ReportPackageIdentity <<
-            Workflow::OpenPinningIndex <<
+            Workflow::OpenPinningIndex() <<
             Workflow::SearchPin <<
             Workflow::AddPin;
     }
@@ -196,7 +196,7 @@ namespace AppInstaller::CLI
             Workflow::EnsureOneMatchFromSearchResult(false) <<
             Workflow::GetInstalledPackageVersion <<
             Workflow::ReportPackageIdentity <<
-            Workflow::OpenPinningIndex <<
+            Workflow::OpenPinningIndex() <<
             Workflow::SearchPin <<
             Workflow::RemovePin;
     }
@@ -261,7 +261,7 @@ namespace AppInstaller::CLI
     void PinListCommand::ExecuteInternal(Execution::Context& context) const
     {
         context <<
-            Workflow::OpenPinningIndex <<
+            Workflow::OpenPinningIndex(/* readOnly */ true) <<
             Workflow::GetAllPins <<
             Workflow::OpenSource() <<
             Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
@@ -294,11 +294,12 @@ namespace AppInstaller::CLI
 
     void PinResetCommand::ExecuteInternal(Execution::Context& context) const
     {
-        context << Workflow::OpenPinningIndex;
 
         if (context.Args.Contains(Execution::Args::Type::Force))
         {
-            context << Workflow::ResetAllPins;
+            context <<
+                Workflow::OpenPinningIndex() <<
+                Workflow::ResetAllPins;
         }
         else
         {
@@ -306,6 +307,7 @@ namespace AppInstaller::CLI
             context.Reporter.Info() << Resource::String::PinResetUseForceArg << std::endl;
 
             context <<
+                Workflow::OpenPinningIndex(/* readOnly */ true) <<
                 Workflow::GetAllPins <<
                 Workflow::OpenSource() <<
                 Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<

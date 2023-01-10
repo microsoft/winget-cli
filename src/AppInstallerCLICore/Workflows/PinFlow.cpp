@@ -33,14 +33,15 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void OpenPinningIndex(Execution::Context& context)
+    void OpenPinningIndex::operator()(Execution::Context& context) const
     {
         auto indexPath = Runtime::GetPathTo(Runtime::PathName::LocalState) / "pinning.db";
 
         AICLI_LOG(CLI, Info, << "Opening pinning index");
+        SQLiteStorageBase::OpenDisposition openDisposition = m_readOnly ? SQLiteStorageBase::OpenDisposition::Read : SQLiteStorageBase::OpenDisposition::ReadWrite;
 
         auto pinningIndex = std::filesystem::exists(indexPath) ?
-            PinningIndex::Open(indexPath.u8string(), SQLiteStorageBase::OpenDisposition::ReadWrite) :
+            PinningIndex::Open(indexPath.u8string(), openDisposition) :
             PinningIndex::CreateNew(indexPath.u8string());
 
         context.Add<Execution::Data::PinningIndex>(std::make_shared<PinningIndex>(std::move(pinningIndex)));
