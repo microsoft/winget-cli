@@ -30,7 +30,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
 
     void PinningIndexInterface::CreateTables(SQLite::Connection& connection)
     {
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "createpinningtables_v1_0");
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "createpintable_v1_0");
         Pinning_V1_0::PinTable::Create(connection);
         savepoint.Commit();
     }

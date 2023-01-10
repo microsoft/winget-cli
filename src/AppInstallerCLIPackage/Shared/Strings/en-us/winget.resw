@@ -1638,7 +1638,7 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>Shown when listing or modifying existing pins if there are none.</comment>
   </data>
   <data name="PinResetSuccessful" xml:space="preserve">
-    <value>Pins resetted successfully</value>
+    <value>Pins reset successfully</value>
     <comment>Shown after resetting (deleting) all the pins</comment>
   </data>
 </root>

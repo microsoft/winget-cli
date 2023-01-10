@@ -392,6 +392,7 @@ pfp
 PGP
 php
 PII
+pinningindex
 pipssource
 PKCS
 placeholders
@@ -449,6 +450,7 @@ removeportablefile
 repolibtest
 requeue
 rescap
+resetpins
 resheader
 resmimetype
 RESOLVESOURCE
