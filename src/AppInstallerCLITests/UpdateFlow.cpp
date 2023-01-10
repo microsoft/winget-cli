@@ -920,7 +920,12 @@ TEST_CASE("UpdateFlow_UpdateAll_ForwardArgs", "[UpdateFlow][workflow]")
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForCompositeInstalledSource(context);
+    OverrideForCompositeInstalledSource(context, CreateTestSource({
+        TSR::TestInstaller_Exe,
+        TSR::TestInstaller_Msix,
+        TSR::TestInstaller_MSStore,
+        TSR::TestInstaller_Portable,
+        }));
     OverrideForShellExecute(context);
     OverrideForMSIX(context);
     OverrideForMSStore(context, true);
