@@ -3,6 +3,7 @@
 #pragma once
 #include "ConfigurationSet.g.h"
 #include "MutableFlag.h"
+#include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.Storage.Streams.h>
 
@@ -34,8 +35,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         Windows::Foundation::Collections::IVectorView<ConfigurationUnit> ConfigurationUnits();
         void ConfigurationUnits(const Windows::Foundation::Collections::IVectorView<ConfigurationUnit>& value);
 
-        event_token ConfigurationSetChange(const Windows::Foundation::TypedEventHandler<WinRT_Self, ConfigurationSetChangeData>& value);
-        void ConfigurationSetChange(const event_token& token);
+        event_token ConfigurationSetChange(const Windows::Foundation::TypedEventHandler<WinRT_Self, ConfigurationSetChangeData>& handler);
+        void ConfigurationSetChange(const event_token& token) noexcept;
 
         void Serialize(const Windows::Storage::Streams::IOutputStream& stream);
 

@@ -85,12 +85,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_configurationUnits = winrt::single_threaded_vector<ConfigurationUnit>(std::move(temp));
     }
 
-    event_token ConfigurationSet::ConfigurationSetChange(const Windows::Foundation::TypedEventHandler<WinRT_Self, ConfigurationSetChangeData>& value)
+    event_token ConfigurationSet::ConfigurationSetChange(const Windows::Foundation::TypedEventHandler<WinRT_Self, ConfigurationSetChangeData>& handler)
     {
-        return m_configurationSetChange.add(value);
+        return m_configurationSetChange.add(handler);
     }
 
-    void ConfigurationSet::ConfigurationSetChange(const event_token& token)
+    void ConfigurationSet::ConfigurationSetChange(const event_token& token) noexcept
     {
         m_configurationSetChange.remove(token);
     }

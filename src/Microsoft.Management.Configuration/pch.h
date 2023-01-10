@@ -16,3 +16,4 @@
 #pragma warning( pop )
 
 #include <mutex>
+#include <string_view>

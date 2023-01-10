@@ -1,0 +1,26 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+#pragma once
+#include "TestConfigurationSetResult.g.h"
+#include <winrt/Windows.Foundation.Collections.h>
+
+namespace winrt::Microsoft::Management::Configuration::implementation
+{
+    struct TestConfigurationSetResult : TestConfigurationSetResultT<TestConfigurationSetResult>
+    {
+        TestConfigurationSetResult() = default;
+
+#if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
+        void Initialize();
+#endif
+
+        Windows::Foundation::Collections::IVectorView<TestConfigurationUnitResult> UnitResults();
+        bool TestResult();
+
+#if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
+    private:
+        Windows::Foundation::Collections::IVector<TestConfigurationUnitResult> m_unitResults = nullptr;
+        bool m_testResult;
+#endif
+    };
+}
