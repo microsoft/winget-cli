@@ -43,6 +43,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::CustomHeader),
             Argument::ForType(Args::Type::AcceptSourceAgreements),
             Argument::ForType(Args::Type::Rename),
+            Argument::ForType(Args::Type::UninstallPrevious),
             Argument::ForType(Args::Type::Force),
         };
     }

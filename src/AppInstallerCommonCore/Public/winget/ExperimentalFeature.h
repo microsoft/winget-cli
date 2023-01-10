@@ -26,6 +26,7 @@ namespace AppInstaller::Settings
             DirectMSI = 0x2,
             OpenLogsArgument = 0x4,
             Pinning = 0x8,
+            UninstallPreviousArgument = 0x10,
             Max, // This MUST always be after all experimental features
 
             // Features listed after Max will not be shown with the features command

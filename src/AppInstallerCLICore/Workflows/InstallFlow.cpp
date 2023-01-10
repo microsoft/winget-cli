@@ -246,6 +246,7 @@ namespace AppInstaller::CLI::Workflow
     {
         bool isUpdate = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
         UpdateBehaviorEnum updateBehavior = context.Get<Execution::Data::Installer>().value().UpdateBehavior;
+        bool doUninstallPrevious = isUpdate && (updateBehavior == UpdateBehaviorEnum::UninstallPrevious || context.Args.Contains(Execution::Args::Type::UninstallPrevious));
 
         switch (m_installerType)
         {
@@ -255,7 +256,7 @@ namespace AppInstaller::CLI::Workflow
         case InstallerTypeEnum::Msi:
         case InstallerTypeEnum::Nullsoft:
         case InstallerTypeEnum::Wix:
-            if (isUpdate && updateBehavior == UpdateBehaviorEnum::UninstallPrevious)
+            if (doUninstallPrevious)
             {
                 context <<
                     GetUninstallInfo <<
@@ -280,7 +281,7 @@ namespace AppInstaller::CLI::Workflow
                 (isUpdate ? MSStoreUpdate : MSStoreInstall);
             break;
         case InstallerTypeEnum::Portable:
-            if (isUpdate && updateBehavior == UpdateBehaviorEnum::UninstallPrevious)
+            if (doUninstallPrevious)
             {
                 context <<
                     GetUninstallInfo <<
