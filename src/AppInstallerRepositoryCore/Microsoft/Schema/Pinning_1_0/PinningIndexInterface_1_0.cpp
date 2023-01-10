@@ -53,7 +53,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
         auto existingPinId = GetExistingPinId(connection, pin.GetKey());
 
         // If the pin doesn't exist, fail the update
-        THROW_HR_IF(E_NOT_SET, !existingPinId);
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_NOT_FOUND), !existingPinId);
+
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "updatepin_v1_0");
         bool status = PinTable::UpdatePinById(connection, existingPinId.value(), pin);
