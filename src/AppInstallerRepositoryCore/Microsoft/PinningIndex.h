@@ -29,6 +29,10 @@ namespace AppInstaller::Repository::Microsoft
             return { filePath, disposition, std::move(indexFile) };
         }
 
+        // Opens or creates a PinningIndex database on the default path.
+        // openDisposition is only used when opening an existing database.
+        static PinningIndex OpenOrCreateDefault(OpenDisposition openDisposition = OpenDisposition::ReadWrite);
+
         // Adds a pin to the index.
         IdType AddPin(const Pinning::Pin& pin);
 
