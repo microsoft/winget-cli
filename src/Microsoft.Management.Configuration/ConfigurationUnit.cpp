@@ -10,11 +10,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         GUID instanceIdentifier;
         THROW_IF_FAILED(CoCreateGuid(&instanceIdentifier));
-        m_InstanceIdentifier = instanceIdentifier;
+        m_instanceIdentifier = instanceIdentifier;
     }
 
-    ConfigurationUnit::ConfigurationUnit(guid instanceIdentifier) :
-        m_InstanceIdentifier(instanceIdentifier), m_mutableFlag(false)
+    ConfigurationUnit::ConfigurationUnit(const guid& instanceIdentifier) :
+        m_instanceIdentifier(instanceIdentifier), m_mutableFlag(false)
     {
     }
 
@@ -23,7 +23,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return m_unitName;
     }
 
-    void ConfigurationUnit::UnitName(hstring value)
+    void ConfigurationUnit::UnitName(const hstring& value)
     {
         m_mutableFlag.RequireMutable();
         m_unitName = value;
@@ -31,7 +31,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     guid ConfigurationUnit::InstanceIdentifier()
     {
-        return m_InstanceIdentifier;
+        return m_instanceIdentifier;
     }
 
     hstring ConfigurationUnit::Identifier()
@@ -39,7 +39,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return m_identifier;
     }
 
-    void ConfigurationUnit::Identifier(hstring value)
+    void ConfigurationUnit::Identifier(const hstring& value)
     {
         m_mutableFlag.RequireMutable();
         m_identifier = value;
@@ -50,49 +50,47 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return m_dependencies.GetView();
     }
 
-    void ConfigurationUnit::Dependencies(Windows::Foundation::Collections::IVectorView<hstring> value)
+    void ConfigurationUnit::Dependencies(const Windows::Foundation::Collections::IVectorView<hstring>& value)
     {
         m_mutableFlag.RequireMutable();
-        m_dependencies = winrt::single_threaded_vector<hstring>(value);
+
+        std::vector<hstring> temp{ value.Size() };
+        value.GetMany(0, temp);
+        m_dependencies = winrt::single_threaded_vector<hstring>(std::move(temp));
     }
 
     Windows::Foundation::Collections::ValueSet ConfigurationUnit::Directives()
     {
-        m_directives.get
+        return m_directives;
     }
 
     Windows::Foundation::Collections::ValueSet ConfigurationUnit::Settings()
     {
-
-    }
-
-    void ConfigurationUnit::Settings(Windows::Foundation::Collections::ValueSet value)
-    {
-
+        return m_settings;
     }
 
     IConfigurationUnitProcessorDetails ConfigurationUnit::Details()
     {
-
+        return m_details;
     }
 
     ConfigurationUnitState ConfigurationUnit::State()
     {
-
+        return ConfigurationUnitState::Unknown;
     }
 
     ConfigurationUnitResultInformation ConfigurationUnit::ResultInformation()
     {
-
+        return nullptr;
     }
 
     bool ConfigurationUnit::ShouldApply()
     {
-
+        return m_shouldApply;
     }
 
     void ConfigurationUnit::ShouldApply(bool value)
     {
-
+        m_shouldApply = value;
     }
 }

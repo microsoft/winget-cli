@@ -147,7 +147,7 @@ namespace Microsoft.Management.Configuration
         Windows.Foundation.Collections.ValueSet Directives{ get; };
 
         // Contains the values that are for use by the configuration unit itself.
-        Windows.Foundation.Collections.ValueSet Settings;
+        Windows.Foundation.Collections.ValueSet Settings{ get; };
 
         // Contains information on the origin of the configuration unit.
         // May be null if ConfigurationProcessor.GetDetailsAsync has not been called yet.
@@ -244,7 +244,7 @@ namespace Microsoft.Management.Configuration
         ConfigurationUnit Unit{ get; };
 
         // The directives overlay that the processor was created with.
-        Windows.Foundation.Collections.ValueSet DirectivesOverlay{ get; };
+        Windows.Foundation.Collections.IMapView<String, Object> DirectivesOverlay{ get; };
 
         // Determines if the system is already in the state described by the configuration unit.
         Boolean TestSettings();
@@ -266,7 +266,7 @@ namespace Microsoft.Management.Configuration
         // Creates a configuration unit processor for the given unit.
         // The optional `directivesOverlay` parameter allows for the `ConfigurationProcessor` to alter behavior without needing to change the unit itself.
         // The overlay is searched first; any value not present there will then fall back to the unit's directives.
-        IConfigurationUnitProcessor CreateUnitProcessor(ConfigurationUnit unit, Windows.Foundation.Collections.ValueSet directivesOverlay);
+        IConfigurationUnitProcessor CreateUnitProcessor(ConfigurationUnit unit, Windows.Foundation.Collections.IMapView<String, Object> directivesOverlay);
     }
 
     // The level of the diagnostic information.

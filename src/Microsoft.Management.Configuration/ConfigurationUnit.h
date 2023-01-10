@@ -12,24 +12,23 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         ConfigurationUnit();
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
-        ConfigurationUnit(guid instanceIdentifier);
+        ConfigurationUnit(const guid& instanceIdentifier);
 #endif
 
         hstring UnitName();
-        void UnitName(hstring value);
+        void UnitName(const hstring& value);
 
         guid InstanceIdentifier();
 
         hstring Identifier();
-        void Identifier(hstring value);
+        void Identifier(const hstring& value);
 
         Windows::Foundation::Collections::IVectorView<hstring> Dependencies();
-        void Dependencies(Windows::Foundation::Collections::IVectorView<hstring> value);
+        void Dependencies(const Windows::Foundation::Collections::IVectorView<hstring>& value);
 
         Windows::Foundation::Collections::ValueSet Directives();
 
         Windows::Foundation::Collections::ValueSet Settings();
-        void Settings(Windows::Foundation::Collections::ValueSet value);
 
         IConfigurationUnitProcessorDetails Details();
 
@@ -43,7 +42,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
         hstring m_unitName;
-        guid m_InstanceIdentifier;
+        guid m_instanceIdentifier;
         hstring m_identifier;
         Windows::Foundation::Collections::IVector<hstring> m_dependencies{ winrt::single_threaded_vector<hstring>() };
         Windows::Foundation::Collections::ValueSet m_directives;
@@ -55,3 +54,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 #endif
     };
 }
+
+#if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
+namespace winrt::Microsoft::Management::Configuration::factory_implementation
+{
+    struct ConfigurationUnit : ConfigurationUnitT<ConfigurationUnit, implementation::ConfigurationUnit>
+    {
+    };
+}
+#endif

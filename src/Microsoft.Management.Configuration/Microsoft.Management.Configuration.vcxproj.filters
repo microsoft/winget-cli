@@ -6,12 +6,16 @@
     <ClCompile Include="ConfigurationUnitResultInformation.cpp" />
     <ClCompile Include="ConfigurationUnit.cpp" />
     <ClCompile Include="MutableFlag.cpp" />
+    <ClCompile Include="ConfigurationSetChangeData.cpp" />
+    <ClCompile Include="ConfigurationSet.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
     <ClInclude Include="ConfigurationUnitResultInformation.h" />
     <ClInclude Include="ConfigurationUnit.h" />
     <ClInclude Include="MutableFlag.h" />
+    <ClInclude Include="ConfigurationSetChangeData.h" />
+    <ClInclude Include="ConfigurationSet.h" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="Microsoft.Management.Configuration.idl" />
