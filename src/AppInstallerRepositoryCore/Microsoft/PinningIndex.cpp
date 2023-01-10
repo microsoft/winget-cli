@@ -62,8 +62,8 @@ namespace AppInstaller::Repository::Microsoft
 
     void PinningIndex::RemovePin(const Pinning::PinKey& pinKey)
     {
-        AICLI_LOG(Repo, Verbose, << "Removing Pin for package [" << pinKey.PackageId << "] from source [" << pinKey.SourceId << "]");
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
+        AICLI_LOG(Repo, Verbose, << "Removing Pin for package [" << pinKey.PackageId << "] from source [" << pinKey.SourceId << "]");
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "pinningIndex_removePin");
 
