@@ -45,7 +45,7 @@ namespace AppInstaller::CLI::Workflow
 
     // Resets all the existing pins.
     // Required Args: None
-    // Inputs: PinningIndex, Pins
+    // Inputs: None
     // Outputs: None
     void ResetAllPins(Execution::Context& context);
 

@@ -25,19 +25,19 @@ namespace AppInstaller::Pinning
         }
     }
 
-    Pin Pin::CreateBlockingPin(PinKey&& pinKey, Version version)
+    Pin Pin::CreateBlockingPin(PinKey&& pinKey)
     {
-        return { PinType::Blocking, std::move(pinKey), version.ToString() };
+        return { PinType::Blocking, std::move(pinKey) };
     }
 
-    Pin Pin::CreatePinningPin(PinKey&& pinKey, Version version)
+    Pin Pin::CreatePinningPin(PinKey&& pinKey)
     {
-        return { PinType::Pinning, std::move(pinKey), version.ToString() };
+        return { PinType::Pinning, std::move(pinKey) };
     }
 
-    Pin Pin::CreateGatingPin(PinKey&& pinKey, GatedVersion gatedVersion)
+    Pin Pin::CreateGatingPin(PinKey&& pinKey, GatedVersion&& gatedVersion)
     {
-        return { PinType::Gating, std::move(pinKey), gatedVersion.ToString() };
+        return { PinType::Gating, std::move(pinKey), std::move(gatedVersion) };
     }
 
     PinType Pin::GetType() const
@@ -60,15 +60,15 @@ namespace AppInstaller::Pinning
         return m_key.SourceId;
     }
 
-    std::string_view Pin::GetVersionString() const
+    Utility::GatedVersion Pin::GetGatedVersion() const
     {
-        return m_versionString;
+        return m_gatedVersion;
     }
 
     bool Pin::operator==(const Pin& other) const
     {
         return m_type == other.m_type &&
             m_key == other.m_key &&
-            m_versionString == other.m_versionString;
+            m_gatedVersion == other.m_gatedVersion;
     }
 }

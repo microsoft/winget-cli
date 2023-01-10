@@ -1624,6 +1624,7 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="PinResetUseForceArg" xml:space="preserve">
     <value>Use the --force argument to reset all pins. The following pins would be removed:</value>
+    <comment>{Locked="--force"}</comment>
   </data>
   <data name="PinType" xml:space="preserve">
     <value>Pin type</value>
@@ -1635,5 +1636,9 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="PinNoPinsExist" xml:space="preserve">
     <value>There are no pins configured.</value>
     <comment>Shown when listing or modifying existing pins if there are none.</comment>
+  </data>
+  <data name="PinResetSuccessful" xml:space="preserve">
+    <value>Pins resetted successfully</value>
+    <comment>Shown after resetting (deleting) all the pins</comment>
   </data>
 </root>

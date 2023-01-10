@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 #pragma once
 #include "SQLiteWrapper.h"
 #include "Microsoft/Schema/IPinningIndex.h"
@@ -42,7 +44,8 @@ namespace AppInstaller::Repository::Microsoft
         // Returns a vector containing all the existing pins.
         std::vector<Pinning::Pin> GetAllPins();
 
-        void ResetAllPins();
+        // Deletes all pins from a given source, or from all sources if none is specified
+        bool ResetAllPins(std::string_view sourceId = {});
 
     private:
         // Constructor used to open an existing index.

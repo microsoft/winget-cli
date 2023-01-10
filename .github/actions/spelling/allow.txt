@@ -4,6 +4,7 @@ ACTIONDATA
 ACTIONSTART
 addfile
 addmanifest
+addpin
 addportablefile
 addstore
 admins
@@ -94,6 +95,7 @@ cpprestsdk
 cppwinrt
 CPRWL
 createnew
+createpintable
 createportabletable
 createtables
 cref
@@ -442,6 +444,7 @@ regex
 regexp
 removefile
 removemanifest
+removepin
 removeportablefile
 repolibtest
 requeue
@@ -624,6 +627,7 @@ Unregisters
 untimes
 updatefile
 updatemanifest
+updatepin
 updateportablefile
 UPLEVEL
 upvote

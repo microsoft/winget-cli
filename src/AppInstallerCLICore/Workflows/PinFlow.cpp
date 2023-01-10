@@ -16,7 +16,7 @@ namespace AppInstaller::CLI::Workflow
     namespace
     {
         // Creates a Pin appropriate for the context based on the arguments provided
-        Pinning::Pin CreatePin(Execution::Context& context, std::string_view packageId, std::string_view sourceId, const std::string& installedVersion)
+        Pinning::Pin CreatePin(Execution::Context& context, std::string_view packageId, std::string_view sourceId)
         {
             if (context.Args.Contains(Execution::Args::Type::GatedVersion))
             {
@@ -24,11 +24,11 @@ namespace AppInstaller::CLI::Workflow
             }
             else if (context.Args.Contains(Execution::Args::Type::BlockingPin))
             {
-                return Pinning::Pin::CreateBlockingPin({ packageId, sourceId }, { installedVersion });
+                return Pinning::Pin::CreateBlockingPin({ packageId, sourceId });
             }
             else
             {
-                return Pinning::Pin::CreatePinningPin({ packageId, sourceId }, { installedVersion });
+                return Pinning::Pin::CreatePinningPin({ packageId, sourceId });
             }
         }
     }
@@ -72,19 +72,10 @@ namespace AppInstaller::CLI::Workflow
         context.Add<Execution::Data::Pins>(std::move(pins));
     }
 
-    // Adds a pin for the current package.
-    // A separate pin will be added for each source.
-    // Required Args: None
-    // Inputs: PinningIndex, Package
-    // Outputs: None
     void AddPin(Execution::Context& context)
     {
         auto package = context.Get<Execution::Data::Package>();
         auto installedVersion = context.Get<Execution::Data::InstalledPackageVersion>();
-        if (!installedVersion)
-        {
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND);
-        }
 
         std::vector<Pinning::Pin> pins;
 
@@ -94,7 +85,7 @@ namespace AppInstaller::CLI::Workflow
         Pinning::PinKey pinKey{
             availableVersion->GetProperty(PackageVersionProperty::Id).get(),
             availableVersion->GetProperty(PackageVersionProperty::SourceIdentifier).get() };
-        auto pin = CreatePin(context, pinKey.PackageId, pinKey.SourceId, installedVersion->GetProperty(PackageVersionProperty::Version));
+        auto pin = CreatePin(context, pinKey.PackageId, pinKey.SourceId);
         AICLI_LOG(CLI, Info, << "Adding pin with type " << ToString(pin.GetType()) << " for package [" << pin.GetPackageId() << "] from source [" << pin.GetSourceId() << "]");
 
 
@@ -133,7 +124,6 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    // Removes all the pins associated with a package.
     void RemovePin(Execution::Context& context)
     {
         auto package = context.Get<Execution::Data::Package>();
@@ -157,10 +147,6 @@ namespace AppInstaller::CLI::Workflow
         pinningIndex->RemovePin(pinKey);
     }
 
-    // Report the pins in a table.
-    // Required Args: None
-    // Inputs: Pins
-    // Outputs: None
     void ReportPins(Execution::Context& context)
     {
         const auto& pins = context.Get<Execution::Data::Pins>();
@@ -185,7 +171,7 @@ namespace AppInstaller::CLI::Workflow
             table.OutputLine({
                 pin.GetPackageId(),
                 std::string{ pin.GetSourceId() },
-                std::string{ pin.GetVersionString() },
+                pin.GetGatedVersion().ToString(),
                 std::string{ ToString(pin.GetType()) },
                 });
         }
@@ -193,39 +179,36 @@ namespace AppInstaller::CLI::Workflow
         table.Complete();
     }
 
-    // Resets all the existing pins.
-    // Required Args: None
-    // Inputs: PinningIndex
-    // Outputs: None
     void ResetAllPins(Execution::Context& context)
     {
         AICLI_LOG(CLI, Info, << "Resetting all pins");
-        if (context.Args.Contains(Execution::Args::Type::Force))
-        {
-            context.Reporter.Info() << Resource::String::PinResettingAll << std::endl;
+        context.Reporter.Info() << Resource::String::PinResettingAll << std::endl;
 
-            if (context.Get<Execution::Data::Pins>().empty())
+        std::string sourceId;
+        if (context.Args.Contains(Execution::Args::Type::Source))
+        {
+            auto sourceName = context.Args.GetArg(Execution::Args::Type::Source);
+            auto sources = Source::GetCurrentSources();
+            for (const auto& source : sources)
             {
-                context.Reporter.Info() << Resource::String::PinNoPinsExist << std::endl;
+                if (Utility::CaseInsensitiveEquals(source.Name, sourceName))
+                {
+                    sourceId = source.Identifier;
+                    break;
+                }
             }
-            else
-            {
-                auto pinningIndex = context.Get<Execution::Data::PinningIndex>();
-                pinningIndex->ResetAllPins();
-            }
+        }
+
+        if (context.Get<Execution::Data::PinningIndex>()->ResetAllPins(sourceId))
+        {
+            context.Reporter.Info() << Resource::String::PinResetSuccessful << std::endl;
         }
         else
         {
-            AICLI_LOG(CLI, Info, << "--force argument is not present");
-            context.Reporter.Info() << Resource::String::PinResetUseForceArg << std::endl;
-            context << ReportPins;
+            context.Reporter.Info() << Resource::String::PinNoPinsExist << std::endl;
         }
     }
 
-    // Updates the list of pins to include only those matching the current open source
-    // Required Args: None
-    // Inputs: Pins, Source
-    // Outputs: None
     void CrossReferencePinsWithSource(Execution::Context& context)
     {
         const auto& pins = context.Get<Execution::Data::Pins>();

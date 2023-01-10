@@ -116,7 +116,6 @@ namespace AppInstaller::CLI
 
     void PinAddCommand::ExecuteInternal(Execution::Context& context) const
     {
-        // TODO
         context <<
             Workflow::OpenSource() <<
             Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
@@ -261,7 +260,6 @@ namespace AppInstaller::CLI
 
     void PinListCommand::ExecuteInternal(Execution::Context& context) const
     {
-        // TODO
         context <<
             Workflow::OpenPinningIndex <<
             Workflow::GetAllPins <<
@@ -275,6 +273,7 @@ namespace AppInstaller::CLI
     {
         return {
             Argument::ForType(Args::Type::Force),
+            Argument::ForType(Args::Type::Source),
         };
     }
 
@@ -295,12 +294,23 @@ namespace AppInstaller::CLI
 
     void PinResetCommand::ExecuteInternal(Execution::Context& context) const
     {
-        context <<
-            Workflow::OpenPinningIndex <<
-            Workflow::GetAllPins <<
-            Workflow::OpenSource() <<
-            Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
-            Workflow::CrossReferencePinsWithSource <<
-            Workflow::ResetAllPins;
+        context << Workflow::OpenPinningIndex;
+
+        if (context.Args.Contains(Execution::Args::Type::Force))
+        {
+            context << Workflow::ResetAllPins;
+        }
+        else
+        {
+            AICLI_LOG(CLI, Info, << "--force argument is not present");
+            context.Reporter.Info() << Resource::String::PinResetUseForceArg << std::endl;
+
+            context <<
+                Workflow::GetAllPins <<
+                Workflow::OpenSource() <<
+                Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
+                Workflow::CrossReferencePinsWithSource <<
+                Workflow::ReportPins;
+        }
     }
 }

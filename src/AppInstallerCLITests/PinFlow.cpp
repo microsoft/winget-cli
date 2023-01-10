@@ -47,7 +47,7 @@ TEST_CASE("PinFlow_Add", "[PinFlow][workflow]")
         REQUIRE(pins[0].GetType() == PinType::Blocking);
         REQUIRE(pins[0].GetPackageId() == "AppInstallerCliTest.TestExeInstaller");
         REQUIRE(pins[0].GetSourceId() == "*TestSource");
-        REQUIRE(pins[0].GetVersionString() == "1.0.0.0");
+        REQUIRE(pins[0].GetGatedVersion().ToString() == "");
 
         std::ostringstream pinListOutput;
         TestContext listContext{ pinListOutput, std::cin };
@@ -83,10 +83,10 @@ TEST_CASE("PinFlow_Add", "[PinFlow][workflow]")
         std::ostringstream pinResetOutput;
         TestContext resetContext{ pinResetOutput, std::cin };
         OverrideForOpenPinningIndex(resetContext, indexFile.GetPath());
-        OverrideForCompositeInstalledSource(resetContext);
 
         SECTION("Without --force")
         {
+            OverrideForCompositeInstalledSource(resetContext);
             PinResetCommand pinReset({});
             pinReset.Execute(resetContext);
             INFO(pinResetOutput.str());
@@ -158,27 +158,6 @@ TEST_CASE("PinFlow_Add_NotFound", "[PinFlow][workflow]")
     REQUIRE_TERMINATED_WITH(addContext, APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND);
 }
 
-TEST_CASE("PinFlow_Add_NotInstalled", "[PinFlow][workflow]")
-{
-    TempFile indexFile("pinningIndex", ".db");
-
-    std::ostringstream pinAddOutput;
-    TestContext addContext{ pinAddOutput, std::cin };
-    OverrideForOpenPinningIndex(addContext, indexFile.GetPath());
-    OverrideForCompositeInstalledSource(addContext);
-    addContext.Args.AddArg(Execution::Args::Type::Query, "TestExeInstallerWithNothingInstalled"sv);
-
-    PinAddCommand pinAdd({});
-    pinAdd.Execute(addContext);
-    INFO(pinAddOutput.str());
-
-    REQUIRE_TERMINATED_WITH(addContext, APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND);
-
-    auto index = PinningIndex::Open(indexFile.GetPath().u8string(), SQLiteStorageBase::OpenDisposition::Read);
-    auto pins = index.GetAllPins();
-    REQUIRE(pins.empty());
-}
-
 TEST_CASE("PinFlow_ListEmpty", "[PinFlow][workflow]")
 {
     TempFile indexFile("pinningIndex", ".db");
@@ -219,7 +198,6 @@ TEST_CASE("PinFlow_ResetEmpty", "[PinFlow][workflow]")
     std::ostringstream pinResetOutput;
     TestContext resetContext{ pinResetOutput, std::cin };
     OverrideForOpenPinningIndex(resetContext, indexFile.GetPath());
-    OverrideForCompositeInstalledSource(resetContext);
     resetContext.Args.AddArg(Execution::Args::Type::Force);
 
     PinResetCommand pinReset({});

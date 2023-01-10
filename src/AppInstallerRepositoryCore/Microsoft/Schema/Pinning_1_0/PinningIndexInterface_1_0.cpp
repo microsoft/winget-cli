@@ -10,7 +10,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
     {
         std::optional<SQLite::rowid_t> GetExistingPinId(SQLite::Connection& connection, const Pinning::PinKey& pinKey)
         {
-            auto result = PinTable::GetByPinKey(connection, pinKey);
+            auto result = PinTable::GetIdByPinKey(connection, pinKey);
 
             if (!result)
             {
@@ -30,7 +30,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
 
     void PinningIndexInterface::CreateTables(SQLite::Connection& connection)
     {
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "createPinningTables");
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "createpinningtables_v1_0");
         Pinning_V1_0::PinTable::Create(connection);
         savepoint.Commit();
     }
@@ -41,7 +41,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
 
         THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_ALREADY_EXISTS), existingPin.has_value());
 
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "addPin_v1_0");
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "addpin_v1_0");
         SQLite::rowid_t pinId = PinTable::AddPin(connection, pin);
 
         savepoint.Commit();
@@ -55,8 +55,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
         // If the pin doesn't exist, fail the update
         THROW_HR_IF(E_NOT_SET, !existingPinId);
 
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "addPin_v1_0");
-        bool status = PinTable::UpdatePin(connection, existingPinId.value(), pin);
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "updatepin_v1_0");
+        bool status = PinTable::UpdatePinById(connection, existingPinId.value(), pin);
 
         savepoint.Commit();
         return { status, existingPinId.value() };
@@ -69,7 +69,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
         // If the pin doesn't exist, fail the remove
         THROW_HR_IF(E_NOT_SET, !existingPinId);
 
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "removePin_v1_0");
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "removepin_v1_0");
         PinTable::RemovePinById(connection, existingPinId.value());
 
         savepoint.Commit();
@@ -93,10 +93,12 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
         return PinTable::GetAllPins(connection);
     }
 
-    void PinningIndexInterface::ResetAllPins(SQLite::Connection& connection)
+    bool PinningIndexInterface::ResetAllPins(SQLite::Connection& connection, std::string_view sourceId)
     {
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "resetPins_v1_0");
-        PinTable::ResetAllPins(connection);
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "resetpins_v1_0");
+        bool result = PinTable::ResetAllPins(connection, sourceId);
         savepoint.Commit();
+
+        return result;
     }
 }
