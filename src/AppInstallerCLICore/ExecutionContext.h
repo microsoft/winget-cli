@@ -155,6 +155,9 @@ namespace AppInstaller::CLI::Execution
 #endif
 
     protected:
+        // Copies the args that are also needed in a sub-context. E.g., silent
+        void CopyArgsToSubContext(Context* subContext);
+
         // Neither virtual functions nor member fields can be inside AICLI_DISABLE_TEST_HOOKS
         // or we could have ODR violations that lead to nasty bugs. So we will simply never
         // use this if AICLI_DISABLE_TEST_HOOKS is defined.

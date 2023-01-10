@@ -31,6 +31,7 @@ namespace AppInstaller::CLI::Execution
             Channel,
 
             // Install behavior
+            // When adding a new flag, we may need to copy it in Context::CreateSubContext()
             Interactive,
             Silent,
             Locale,
