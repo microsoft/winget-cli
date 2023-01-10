@@ -12,7 +12,7 @@ namespace AppInstaller::Repository::Microsoft
         AICLI_LOG(Repo, Info, << "Creating new Pinning Index [" << version << "] at '" << filePath << "'");
         PinningIndex result{ filePath, version };
 
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(result.m_dbconn, "pinningIndex_createNew");
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(result.m_dbconn, "pinningindex_createnew");
 
         // Use calculated version, as incoming version could be 'latest'
         result.m_version.SetSchemaVersion(result.m_dbconn);
@@ -34,7 +34,7 @@ namespace AppInstaller::Repository::Microsoft
     }
 #endif
 
-    PinningIndex PinningIndex::OpenOrCreateDefault(OpenDisposition disposition)
+    std::shared_ptr<PinningIndex> PinningIndex::OpenOrCreateDefault(OpenDisposition openDisposition)
     {
         const auto DefaultIndexPath = Runtime::GetPathTo(Runtime::PathName::LocalState) / "pinning.db";
 #ifndef AICLI_DISABLE_TEST_HOOKS
@@ -43,16 +43,22 @@ namespace AppInstaller::Repository::Microsoft
         const auto indexPath = DefaultIndexPath;
 #endif
 
-        AICLI_LOG(Repo, Info, << "Opening pinning index");
+        AICLI_LOG(CLI, Info, << "Opening pinning index");
 
-        if (std::filesystem::exists(indexPath))
+        try
         {
-            return PinningIndex::Open(indexPath.u8string(), disposition);
+            if (std::filesystem::exists(indexPath))
+            {
+                return std::make_shared<PinningIndex>(PinningIndex::Open(indexPath.u8string(), openDisposition));
+            }
+            else
+            {
+                return std::make_shared<PinningIndex>(PinningIndex::CreateNew(indexPath.u8string()));
+            }
         }
-        else
-        {
-            return PinningIndex::CreateNew(indexPath.u8string());
-        }
+        CATCH_LOG();
+
+        return {};
     }
 
     PinningIndex::IdType PinningIndex::AddPin(const Pinning::Pin& pin)
@@ -60,7 +66,7 @@ namespace AppInstaller::Repository::Microsoft
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
         AICLI_LOG(Repo, Verbose, << "Adding Pin for package [" << pin.GetPackageId() << "] from source [" << pin.GetSourceId() << "] with pin type " << Pinning::ToString(pin.GetType()));
 
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "pinningIndex_addPin");
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "pinningindex_addpin");
 
         IdType result = m_interface->AddPin(m_dbconn, pin);
 
@@ -76,7 +82,7 @@ namespace AppInstaller::Repository::Microsoft
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
         AICLI_LOG(Repo, Verbose, << "Updating Pin for package [" << pin.GetPackageId() << "] from source [" << pin.GetSourceId() << "] with pin type " << Pinning::ToString(pin.GetType()));
 
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "pinningIndex_updatePin");
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "pinningindex_updatepin");
 
         bool result = m_interface->UpdatePin(m_dbconn, pin).first;
 
@@ -104,8 +110,8 @@ namespace AppInstaller::Repository::Microsoft
 
     void PinningIndex::RemovePin(const Pinning::PinKey& pinKey)
     {
-        AICLI_LOG(Repo, Verbose, << "Removing Pin for package [" << pinKey.PackageId << "] from source [" << pinKey.SourceId << "]");
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
+        AICLI_LOG(Repo, Verbose, << "Removing Pin for package [" << pinKey.PackageId << "] from source [" << pinKey.SourceId << "]");
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "pinningIndex_removePin");
 
@@ -128,10 +134,10 @@ namespace AppInstaller::Repository::Microsoft
         return m_interface->GetAllPins(m_dbconn);
     }
 
-    void PinningIndex::ResetAllPins()
+    bool PinningIndex::ResetAllPins(std::string_view sourceId)
     {
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
-        m_interface->ResetAllPins(m_dbconn);
+        return m_interface->ResetAllPins(m_dbconn, sourceId);
     }
 
     std::unique_ptr<Schema::IPinningIndex> PinningIndex::CreateIPinningIndex() const

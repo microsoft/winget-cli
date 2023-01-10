@@ -21,7 +21,7 @@ TEST_CASE("UpdateFlow_UpdateWithManifest", "[UpdateFlow][workflow]")
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForCompositeInstalledSource(context);
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Exe }));
     OverrideForShellExecute(context);
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("UpdateFlowTest_Exe.yaml").GetPath().u8string());
 
@@ -46,7 +46,7 @@ TEST_CASE("UpdateFlow_UpdateWithManifestMSStore", "[UpdateFlow][workflow]")
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForCompositeInstalledSource(context);
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_MSStore }));
     OverrideForMSStore(context, true);
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_MSStore.yaml").GetPath().u8string());
 
@@ -70,7 +70,7 @@ TEST_CASE("UpdateFlow_UpdateWithManifestAppNotInstalled", "[UpdateFlow][workflow
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForCompositeInstalledSource(context);
+    OverrideForCompositeInstalledSource(context, CreateTestSource({}));
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallerArgTest_Inno_NoSwitches.yaml").GetPath().u8string());
 
     UpgradeCommand update({});
@@ -90,7 +90,7 @@ TEST_CASE("UpdateFlow_UpdateWithManifestVersionAlreadyInstalled", "[UpdateFlow][
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForCompositeInstalledSource(context);
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Exe }));
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Exe.yaml").GetPath().u8string());
 
     UpgradeCommand update({});
@@ -110,9 +110,9 @@ TEST_CASE("UpdateFlow_UpdateExe", "[UpdateFlow][workflow]")
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForCompositeInstalledSource(context);
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Exe }));
     OverrideForShellExecute(context);
-    context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestExeInstaller"sv);
+    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Exe.Query);
     context.Args.AddArg(Execution::Args::Type::Silent);
 
     UpgradeCommand update({});
@@ -137,11 +137,11 @@ TEST_CASE("UpdateFlow_UpdateZip_Exe", "[UpdateFlow][workflow]")
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForCompositeInstalledSource(context);
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Zip }));
     OverrideForShellExecute(context);
     OverrideForExtractInstallerFromArchive(context);
     OverrideForVerifyAndSetNestedInstaller(context);
-    context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestZipInstaller"sv);
+    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Zip.Query);
     context.Args.AddArg(Execution::Args::Type::Silent);
 
     UpgradeCommand update({});
@@ -166,9 +166,9 @@ TEST_CASE("UpdateFlow_UpdatePortable", "[UpdateFlow][workflow]")
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForCompositeInstalledSource(context);
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Portable }));
     OverrideForPortableInstallFlow(context);
-    context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestPortableInstaller"sv);
+    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Portable.Query);
 
     UpgradeCommand update({});
     update.Execute(context);
@@ -185,8 +185,8 @@ TEST_CASE("UpdateFlow_Portable_SymlinkCreationFail", "[UpdateFlow][workflow]")
     bool overrideCreateSymlinkStatus = false;
     AppInstaller::Filesystem::TestHook_SetCreateSymlinkResult_Override(&overrideCreateSymlinkStatus);
     OverridePortableInstaller(context);
-    OverrideForCompositeInstalledSource(context);
-    context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestPortableInstaller"sv);
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Portable }));
+    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Portable.Query);
 
     UpgradeCommand update({});
     update.Execute(context);
@@ -200,8 +200,8 @@ TEST_CASE("UpdateFlow_Portable_SymlinkCreationFail", "[UpdateFlow][workflow]")
     std::ostringstream uninstallOutput;
     TestContext uninstallContext{ uninstallOutput, std::cin };
     auto previousThreadGlobals = uninstallContext.SetForCurrentThread();
-    OverrideForCompositeInstalledSource(uninstallContext);
-    uninstallContext.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestPortableInstaller"sv);
+    OverrideForCompositeInstalledSource(uninstallContext, CreateTestSource({ TSR::TestInstaller_Portable }));
+    uninstallContext.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Portable.Query);
 
     UninstallCommand uninstall({});
     uninstall.Execute(uninstallContext);
@@ -219,8 +219,8 @@ TEST_CASE("UpdateFlow_UpdateExeWithUnsupportedArgs", "[UpdateFlow][workflow]")
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForCompositeInstalledSource(context);
-    context.Args.AddArg(Execution::Args::Type::Query, "TestExeInstallerWithUnsupportedArguments"sv);
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Exe_UnsupportedArguments }));
+    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Exe_UnsupportedArguments.Query);
     context.Args.AddArg(Execution::Args::Type::InstallLocation, tempDirectory);
 
     UpgradeCommand update({});
@@ -243,8 +243,8 @@ TEST_CASE("UpdateFlow_UnknownVersion", "[UpdateFlow][workflow]")
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForCompositeInstalledSource(context);
-    context.Args.AddArg(Execution::Args::Type::Query, "TestExeInstallerWithUnknownVersion"sv);
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Exe_UnknownVersion }));
+    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Exe_UnknownVersion.Query);
     context.Args.AddArg(Execution::Args::Type::InstallLocation, tempDirectory);
 
     UpgradeCommand update({});
@@ -266,9 +266,9 @@ TEST_CASE("UpdateFlow_UnknownVersion_IncludeUnknownArg", "[UpdateFlow][workflow]
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForCompositeInstalledSource(context);
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Exe_UnknownVersion }));
     OverrideForShellExecute(context);
-    context.Args.AddArg(Execution::Args::Type::Query, "TestExeInstallerWithUnknownVersion"sv);
+    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Exe_UnknownVersion.Query);
     context.Args.AddArg(Execution::Args::Type::InstallLocation, tempDirectory);
     context.Args.AddArg(Execution::Args::Type::IncludeUnknown);
 
@@ -284,7 +284,14 @@ TEST_CASE("UpdateFlow_NoArgs_UnknownVersion", "[UpdateFlow][workflow]")
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForCompositeInstalledSource(context);
+    OverrideForCompositeInstalledSource(context, CreateTestSource({
+        TSR::TestInstaller_Exe,
+        TSR::TestInstaller_Exe_UnknownVersion,
+        TSR::TestInstaller_Msix,
+        TSR::TestInstaller_MSStore,
+        TSR::TestInstaller_Portable,
+        TSR::TestInstaller_Zip,
+        }));
 
     UpgradeCommand update({});
     context.SetExecutingCommand(&update);
@@ -300,7 +307,14 @@ TEST_CASE("UpdateFlow_IncludeUnknown", "[UpdateFlow][workflow]")
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForCompositeInstalledSource(context);
+    OverrideForCompositeInstalledSource(context, CreateTestSource({
+        TSR::TestInstaller_Exe,
+        TSR::TestInstaller_Exe_UnknownVersion,
+        TSR::TestInstaller_Msix,
+        TSR::TestInstaller_MSStore,
+        TSR::TestInstaller_Portable,
+        TSR::TestInstaller_Zip,
+        }));
     context.Args.AddArg(Execution::Args::Type::IncludeUnknown);
 
     UpgradeCommand update({});
@@ -320,7 +334,7 @@ TEST_CASE("UpdateFlow_UpdatePortableWithManifest", "[UpdateFlow][workflow]")
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForCompositeInstalledSource(context);
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Portable }));
     OverrideForPortableInstallFlow(context);
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("UpdateFlowTest_Portable.yaml").GetPath().u8string());
 
@@ -337,9 +351,9 @@ TEST_CASE("UpdateFlow_UpdateMsix", "[UpdateFlow][workflow]")
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForCompositeInstalledSource(context);
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Msix }));
     OverrideForMSIX(context);
-    context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestMsixInstaller"sv);
+    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Msix.Query);
 
     UpgradeCommand update({});
     update.Execute(context);
@@ -356,9 +370,9 @@ TEST_CASE("UpdateFlow_UpdateMSStore", "[UpdateFlow][workflow]")
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForCompositeInstalledSource(context);
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_MSStore }));
     OverrideForMSStore(context, true);
-    context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestMSStoreInstaller"sv);
+    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_MSStore.Query);
 
     UpgradeCommand update({});
     update.Execute(context);
@@ -380,8 +394,8 @@ TEST_CASE("UpdateFlow_UpdateExeLatestAlreadyInstalled", "[UpdateFlow][workflow]"
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForCompositeInstalledSource(context);
-    context.Args.AddArg(Execution::Args::Type::Query, "TestExeInstallerWithLatestInstalled"sv);
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Exe_LatestInstalled }));
+    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Exe_LatestInstalled.Query);
 
     UpgradeCommand update({});
     update.Execute(context);
@@ -400,8 +414,8 @@ TEST_CASE("UpdateFlow_UpdateExeInstallerTypeNotApplicable", "[UpdateFlow][workfl
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForCompositeInstalledSource(context);
-    context.Args.AddArg(Execution::Args::Type::Query, "TestExeInstallerWithIncompatibleInstallerType"sv);
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Exe_IncompatibleInstallerType }));
+    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Exe_IncompatibleInstallerType.Query);
 
     UpgradeCommand update({});
     update.Execute(context);
@@ -420,8 +434,8 @@ TEST_CASE("UpdateFlow_UpdateExeInstallerTypeNotApplicableSpecificVersion", "[Upd
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForCompositeInstalledSource(context);
-    context.Args.AddArg(Execution::Args::Type::Query, "TestExeInstallerWithIncompatibleInstallerType"sv);
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Exe_IncompatibleInstallerType }));
+    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Exe_IncompatibleInstallerType.Query);
     context.Args.AddArg(Execution::Args::Type::Version, "2.0.0.0"sv);
 
     UpgradeCommand update({});
@@ -442,9 +456,9 @@ TEST_CASE("UpdateFlow_UpdateExeWithDifferentInstalledType", "[UpdateFlow][workfl
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForCompositeInstalledSource(context);
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Exe_DifferentInstallerType }));
     OverrideForShellExecute(context);
-    context.Args.AddArg(Execution::Args::Type::Query, "TestExeInstallerWithDifferentInstalledType"sv);
+    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Exe_DifferentInstallerType.Query);
 
     UpgradeCommand update({});
     update.Execute(context);
@@ -462,8 +476,8 @@ TEST_CASE("UpdateFlow_UpdateExeSpecificVersionNotFound", "[UpdateFlow][workflow]
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForCompositeInstalledSource(context);
-    context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestExeInstaller"sv);
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Exe }));
+    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Exe.Query);
     context.Args.AddArg(Execution::Args::Type::Version, "1.2.3.4"sv);
 
     UpgradeCommand update({});
@@ -483,8 +497,8 @@ TEST_CASE("UpdateFlow_UpdateExeSpecificVersionNotApplicable", "[UpdateFlow][work
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForCompositeInstalledSource(context);
-    context.Args.AddArg(Execution::Args::Type::Query, "TestExeInstallerWithIncompatibleInstallerType"sv);
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Exe_IncompatibleInstallerType }));
+    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Exe_IncompatibleInstallerType.Query);
     context.Args.AddArg(Execution::Args::Type::Version, "1.0.0.0"sv);
 
     UpgradeCommand update({});
@@ -507,7 +521,14 @@ TEST_CASE("UpdateFlow_UpdateAllApplicable", "[UpdateFlow][workflow]")
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForCompositeInstalledSource(context);
+    OverrideForCompositeInstalledSource(context, CreateTestSource({
+        TSR::TestInstaller_Exe,
+        TSR::TestInstaller_Exe_UnknownVersion,
+        TSR::TestInstaller_Msix,
+        TSR::TestInstaller_MSStore,
+        TSR::TestInstaller_Portable,
+        TSR::TestInstaller_Zip,
+        }));
     OverrideForShellExecute(context);
     OverrideForMSIX(context);
     OverrideForMSStore(context, true);
@@ -539,7 +560,14 @@ TEST_CASE("UpdateFlow_UpdateAll_IncludeUnknown", "[UpdateFlow][workflow]")
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForCompositeInstalledSource(context);
+    OverrideForCompositeInstalledSource(context, CreateTestSource({
+        TSR::TestInstaller_Exe,
+        TSR::TestInstaller_Exe_UnknownVersion,
+        TSR::TestInstaller_Msix,
+        TSR::TestInstaller_MSStore,
+        TSR::TestInstaller_Portable,
+        TSR::TestInstaller_Zip,
+        }));
     OverrideForShellExecute(context);
     OverrideForMSIX(context);
     OverrideForMSStore(context, true);
@@ -569,10 +597,10 @@ TEST_CASE("UpdateFlow_UpgradeWithDuplicateUpgradeItemsFound", "[UpdateFlow][work
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForCompositeInstalledSource(context);
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Exe_UpgradeAllWithDuplicateUpgradeItems }));
     // Installer should only be run once since the 2 upgrade items are same.
     OverrideForShellExecute(context, 1);
-    context.Args.AddArg(Execution::Args::Type::Query, "TestUpgradeAllWithDuplicateUpgradeItems"sv);
+    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Exe_UpgradeAllWithDuplicateUpgradeItems.Query);
     context.Args.AddArg(Execution::Args::Type::All);
 
     UpgradeCommand update({});
@@ -588,9 +616,9 @@ TEST_CASE("UpdateFlow_Dependencies", "[UpdateFlow][workflow][dependencies]")
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForCompositeInstalledSource(context);
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Exe_Dependencies }));
     OverrideForShellExecute(context);
-    context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestExeInstaller.Dependencies"sv);
+    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Exe_Dependencies.Query);;
 
     TestUserSettings settings;
     settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
@@ -614,9 +642,9 @@ TEST_CASE("UpdateFlow_LicenseAgreement", "[UpdateFlow][workflow]")
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForCompositeInstalledSource(context);
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Exe_LicenseAgreement }));
     OverrideForShellExecute(context);
-    context.Args.AddArg(Execution::Args::Type::Query, "TestInstallerWithLicenseAgreement"sv);
+    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Exe_LicenseAgreement.Query);
     context.Args.AddArg(Execution::Args::Type::AcceptPackageAgreements);
 
     UpgradeCommand update({});
@@ -641,8 +669,8 @@ TEST_CASE("UpdateFlow_LicenseAgreement_NotAccepted", "[UpdateFlow][workflow]")
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, updateInput };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForCompositeInstalledSource(context);
-    context.Args.AddArg(Execution::Args::Type::Query, "TestInstallerWithLicenseAgreement"sv);
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Exe_LicenseAgreement }));
+    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Exe_LicenseAgreement.Query);
 
     UpgradeCommand update({});
     update.Execute(context);
@@ -668,7 +696,14 @@ TEST_CASE("UpdateFlow_All_LicenseAgreement", "[UpdateFlow][workflow]")
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForCompositeInstalledSource(context, TestSourceSearchOptions::UpgradeUsesAgreements);
+    OverrideForCompositeInstalledSource(context, CreateTestSource({
+        TSR::TestInstaller_Exe_UpgradeUsesAgreements,
+        TSR::TestInstaller_Exe_UnknownVersion,
+        TSR::TestInstaller_Msix_UpgradeUsesAgreements,
+        TSR::TestInstaller_MSStore,
+        TSR::TestInstaller_Portable,
+        TSR::TestInstaller_Zip,
+        }));
     OverrideForShellExecute(context);
     OverrideForMSIX(context);
     OverrideForMSStore(context, true);
@@ -705,7 +740,14 @@ TEST_CASE("UpdateFlow_All_LicenseAgreement_NotAccepted", "[UpdateFlow][workflow]
     std::ostringstream updateOutput;
     TestContext context{ updateOutput, updateInput };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForCompositeInstalledSource(context, TestSourceSearchOptions::UpgradeUsesAgreements);
+    OverrideForCompositeInstalledSource(context, CreateTestSource({
+        TSR::TestInstaller_Exe_UpgradeUsesAgreements,
+        TSR::TestInstaller_Exe_UnknownVersion,
+        TSR::TestInstaller_Msix_UpgradeUsesAgreements,
+        TSR::TestInstaller_MSStore,
+        TSR::TestInstaller_Portable,
+        TSR::TestInstaller_Zip,
+        }));
     context.Args.AddArg(Execution::Args::Type::All);
 
     UpgradeCommand update({});
@@ -736,7 +778,14 @@ TEST_CASE("UpdateFlow_RequireExplicit", "[UpdateFlow][workflow]")
 
     // Msix package has an update that requires explicit upgrade.
     // Exe, Portable, MSStore, Zip are also listed with an available upgrade.
-    OverrideForCompositeInstalledSource(context, TestSourceSearchOptions::UpgradeRequiresExplicit);
+    OverrideForCompositeInstalledSource(context, CreateTestSource({
+        TSR::TestInstaller_Exe,
+        TSR::TestInstaller_Exe_UnknownVersion,
+        TSR::TestInstaller_Msix_UpgradeRequiresExplicit,
+        TSR::TestInstaller_MSStore,
+        TSR::TestInstaller_Portable,
+        TSR::TestInstaller_Zip,
+        }));
 
     SECTION("List available upgrades")
     {
@@ -780,7 +829,7 @@ TEST_CASE("UpdateFlow_RequireExplicit", "[UpdateFlow][workflow]")
 
     SECTION("Upgrade explicitly")
     {
-        context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestMsixInstaller"sv);
+        context.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Msix.Query);
         OverrideForMSIX(context);
 
         UpgradeCommand update({});
@@ -801,9 +850,9 @@ TEST_CASE("InstallFlow_FoundInstalledAndUpgradeAvailable", "[UpdateFlow][workflo
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForCompositeInstalledSource(context);
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Exe }));
     OverrideForShellExecute(context);
-    context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestExeInstaller"sv);
+    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Exe.Query);
     context.Args.AddArg(Execution::Args::Type::Silent);
 
     InstallCommand install({});
@@ -827,8 +876,8 @@ TEST_CASE("InstallFlow_FoundInstalledAndUpgradeAvailable_WithNoUpgrade", "[Updat
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForCompositeInstalledSource(context);
-    context.Args.AddArg(Execution::Args::Type::Query, "AppInstallerCliTest.TestExeInstaller"sv);
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Exe }));
+    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Exe.Query);
     context.Args.AddArg(Execution::Args::Type::NoUpgrade);
 
     InstallCommand install({});
@@ -848,8 +897,8 @@ TEST_CASE("InstallFlow_FoundInstalledAndUpgradeNotAvailable", "[UpdateFlow][work
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForCompositeInstalledSource(context);
-    context.Args.AddArg(Execution::Args::Type::Query, "TestExeInstallerWithLatestInstalled"sv);
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Exe_LatestInstalled }));
+    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Exe_LatestInstalled.Query);
 
     InstallCommand install({});
     install.Execute(context);

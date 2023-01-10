@@ -17,6 +17,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
         SQLite::rowid_t RemovePin(SQLite::Connection& connection, const Pinning::PinKey& pinKey) override;
         std::optional<Pinning::Pin> GetPin(SQLite::Connection& connection, const Pinning::PinKey& pinKey) override;
         std::vector<Pinning::Pin> GetAllPins(SQLite::Connection& connection) override;
-        void ResetAllPins(SQLite::Connection& connection) override;
+        bool ResetAllPins(SQLite::Connection& connection, std::string_view sourceId) override;
     };
 }

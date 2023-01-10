@@ -23,7 +23,7 @@ namespace AppInstaller::Manifest
                 { AppInstaller::Manifest::ManifestError::RequiredFieldEmpty, "Required field with empty value."sv },
                 { AppInstaller::Manifest::ManifestError::RequiredFieldMissing,  "Required field missing."sv },
                 { AppInstaller::Manifest::ManifestError::InvalidFieldValue, "Invalid field value."sv },
-                { AppInstaller::Manifest::ManifestError::ExeInstallerMissingSilentSwitches, "Silent and SilentWithProgress switches are not specified for InstallerType exe.Please make sure the installer can run unattended."sv },
+                { AppInstaller::Manifest::ManifestError::ExeInstallerMissingSilentSwitches, "Silent and SilentWithProgress switches are not specified for InstallerType exe. Please make sure the installer can run unattended."sv },
                 { AppInstaller::Manifest::ManifestError::FieldNotSupported, "Field is not supported."sv },
                 { AppInstaller::Manifest::ManifestError::FieldValueNotSupported, "Field value is not supported."sv },
                 { AppInstaller::Manifest::ManifestError::DuplicateInstallerEntry, "Duplicate installer entry found."sv },
@@ -46,7 +46,7 @@ namespace AppInstaller::Manifest
                 { AppInstaller::Manifest::ManifestError::SingleManifestPackageHasDependencies, "Package has a single manifest and is a dependency of other manifests."sv },
                 { AppInstaller::Manifest::ManifestError::MultiManifestPackageHasDependencies, "Deleting the manifest will be break the following dependencies."sv },
                 { AppInstaller::Manifest::ManifestError::MissingManifestDependenciesNode, "Dependency not found: "sv },
-                { AppInstaller::Manifest::ManifestError::NoSuitableMinVersionDependency,"No Suitable Minimum Version : "sv },
+                { AppInstaller::Manifest::ManifestError::NoSuitableMinVersionDependency,"No Suitable Minimum Version: "sv },
                 { AppInstaller::Manifest::ManifestError::FoundDependencyLoop, "Loop found."sv },
                 { AppInstaller::Manifest::ManifestError::ExceededAppsAndFeaturesEntryLimit, "Only zero or one entry for Apps and Features may be specified for InstallerType portable."sv },
                 { AppInstaller::Manifest::ManifestError::ExceededCommandsLimit, "Only zero or one value for Commands may be specified for InstallerType portable."sv },
@@ -56,12 +56,12 @@ namespace AppInstaller::Manifest
                 { AppInstaller::Manifest::ManifestError::InstallerFailedToProcess, "Failed to process installer."sv },
                 { AppInstaller::Manifest::ManifestError::NoSupportedPlatforms, "No supported platforms."sv },
                 { AppInstaller::Manifest::ManifestError::ApproximateVersionNotAllowed, "Approximate version not allowed."sv },
-                { AppInstaller::Manifest::ManifestError::ArpVersionOverlapWithIndex, "DisplayVersion declared in the manifest has overlap with existing DisplayVersion range in the index.Existing DisplayVersion range in index : "sv },
+                { AppInstaller::Manifest::ManifestError::ArpVersionOverlapWithIndex, "DisplayVersion declared in the manifest has overlap with existing DisplayVersion range in the index. Existing DisplayVersion range in index: "sv },
                 { AppInstaller::Manifest::ManifestError::ArpVersionValidationInternalError, "Internal error while validating DisplayVersion against index."sv },
                 { AppInstaller::Manifest::ManifestError::ExceededNestedInstallerFilesLimit, "Only one entry for NestedInstallerFiles can be specified for non-portable InstallerTypes."sv },
-                { AppInstaller::Manifest::ManifestError::RelativeFilePathEscapesDirectory, "Relative file path must not point to a location outside of archive directory"sv },
-                { AppInstaller::Manifest::ManifestError::ArpValidationError, "Arp Validation Error"sv },
-                { AppInstaller::Manifest::ManifestError::SchemaError, "Schema Error"sv },
+                { AppInstaller::Manifest::ManifestError::RelativeFilePathEscapesDirectory, "Relative file path must not point to a location outside of archive directory."sv },
+                { AppInstaller::Manifest::ManifestError::ArpValidationError, "Arp Validation Error."sv },
+                { AppInstaller::Manifest::ManifestError::SchemaError, "Schema Error."sv },
                 { AppInstaller::Manifest::ManifestError::MsixSignatureHashFailed, "Failed to calculate MSIX signature hash.Please verify that the input file is a valid, signed MSIX."sv }
             };
 
@@ -146,9 +146,9 @@ namespace AppInstaller::Manifest
 
             if (!duplicateInstallerFound && !installerSet.insert(installer).second)
             {
-                AICLI_LOG(Core, Error, << "Duplicate installer: Type[" << InstallerTypeToString(installer.EffectiveInstallerType()) <<
-                    "] Architecture[" << Utility::ToString(installer.Arch) << "] Locale[" << installer.Locale <<
-                    "] Scope[" << ScopeToString(installer.Scope) << "]");
+                AICLI_LOG(Core, Error, << "Duplicate installer: Type [" << InstallerTypeToString(installer.EffectiveInstallerType()) <<
+                    "], Architecture [" << Utility::ToString(installer.Arch) << "], Locale [" << installer.Locale <<
+                    "], Scope [" << ScopeToString(installer.Scope) << "]");
 
                 resultErrors.emplace_back(ManifestError::DuplicateInstallerEntry);
                 duplicateInstallerFound = true;

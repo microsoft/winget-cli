@@ -34,7 +34,8 @@ namespace AppInstaller::Repository::Microsoft::Schema
         // Returns a vector containing all the existing pins.
         virtual std::vector<Pinning::Pin> GetAllPins(SQLite::Connection& connection) = 0;
 
-        // Removes all the pins from the index
-        virtual void ResetAllPins(SQLite::Connection& connection) = 0;
+        // Removes all the pins from a given source, or from all sources if none is specified.
+        // Returns a value indicating whether any pin was deleted.
+        virtual bool ResetAllPins(SQLite::Connection& connection, std::string_view sourceId) = 0;
     };
 }

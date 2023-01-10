@@ -4,12 +4,12 @@
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.WinGet.Client.Errors
+namespace Microsoft.WinGet.Client.Exceptions
 {
     using System;
     using System.Collections.Generic;
     using Microsoft.Management.Deployment;
-    using Microsoft.WinGet.Client.Common;
+    using Microsoft.WinGet.Client.Properties;
 
     /// <summary>
     /// Raised when search criteria for installing or updating a package is too vague.
@@ -23,7 +23,7 @@ namespace Microsoft.WinGet.Client.Errors
         /// <param name="results">The list of conflicting packages of length at least two.</param>
         public VagueCriteriaException(IReadOnlyList<MatchResult> results)
             : base(string.Format(
-                Utilities.ResourceManager.GetString("VagueCriteriaExceptionMessage"),
+                Resources.VagueCriteriaExceptionMessage,
                 results[0].CatalogPackage.ToString(null),
                 results[1].CatalogPackage.ToString(null),
                 results.Count - 2))
@@ -32,8 +32,8 @@ namespace Microsoft.WinGet.Client.Errors
         }
 
         /// <summary>
-        /// Gets or sets the list of conflicting packages.
+        /// Gets the list of conflicting packages.
         /// </summary>
-        public IReadOnlyList<MatchResult> MatchResults { get; set; }
+        public IReadOnlyList<MatchResult> MatchResults { get; private set; }
     }
 }

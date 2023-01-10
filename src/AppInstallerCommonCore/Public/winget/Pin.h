@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include <winget/Manifest.h>
-#include <AppInstallerVersions.h>
+#include "winget/Manifest.h"
+#include "AppInstallerVersions.h"
 
 namespace AppInstaller::Pinning
 {
@@ -52,24 +52,24 @@ namespace AppInstaller::Pinning
 
     struct Pin
     {
-        static Pin CreateBlockingPin(PinKey&& pinKey, Utility::Version version = {});
-        static Pin CreatePinningPin(PinKey&& pinKey, Utility::Version version = {});
-        static Pin CreateGatingPin(PinKey&& pinKey, Utility::GatedVersion gatedVersion);
+        static Pin CreateBlockingPin(PinKey&& pinKey);
+        static Pin CreatePinningPin(PinKey&& pinKey);
+        static Pin CreateGatingPin(PinKey&& pinKey, Utility::GatedVersion&& gatedVersion);
 
         PinType GetType() const { return m_type; }
         const PinKey& GetKey() const { return m_key; }
         const Manifest::Manifest::string_t& GetPackageId() const { return m_key.PackageId; }
         const std::string& GetSourceId() const { return m_key.SourceId;  }
-        const Utility::Version& GetVersion() const { return m_version; }
+        const Utility::GatedVersion& GetGatedVersion() const { return m_gatedVersion; }
 
         bool operator==(const Pin& other) const;
 
     private:
-        Pin(PinType type, PinKey&& pinKey, Utility::Version&& version)
-            : m_type(type), m_key(std::move(pinKey)), m_version(std::move(version)) {}
+        Pin(PinType type, PinKey&& pinKey, Utility::GatedVersion&& gatedVersion = {})
+            : m_type(type), m_key(std::move(pinKey)), m_gatedVersion(std::move(gatedVersion)) {}
 
         PinType m_type = PinType::Unknown;
         PinKey m_key;
-        Utility::Version m_version;
+        Utility::GatedVersion m_gatedVersion;
     };
 }

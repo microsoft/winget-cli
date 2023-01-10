@@ -159,6 +159,7 @@ ISQ
 ISVs
 itr
 IWin
+JArray
 jdk
 jfearn
 JObject
@@ -166,6 +167,8 @@ jpalardy
 JREs
 jrsoftware
 jsoncpp
+JToken
+JValue
 KNOWNFOLDERID
 ktf
 ldcase
@@ -288,6 +291,7 @@ rosoft
 rowids
 RRF
 rrr
+runspace
 runtimeclass
 ryfu
 rzkzqaqjwj

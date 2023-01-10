@@ -118,17 +118,24 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AdjoinedNotFlagError" xml:space="preserve">
-    <value>근접한 별칭이 플래그가 아님</value>
+    <value>근접한 별칭이 플래그가 아님: '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides an adjoined alias that is not a flag argument. {0} is a placeholder replaced by the user input argument (e.g. '-ab').</comment>
   </data>
   <data name="AdjoinedNotFoundError" xml:space="preserve">
-    <value>근접한 플래그 별칭 찾을 수 없음</value>
+    <value>근접한 플래그 별칭 찾을 수 없음: '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides an adjoined flag alias argument that was not found. {0} is a placeholder replaced by the user input argument (e.g. '-ab').</comment>
   </data>
   <data name="AvailableArguments" xml:space="preserve">
     <value>다음 인수를 사용할 수 있음</value>
+    <comment>Message displayed to inform the user about the available command line arguments.</comment>
+  </data>
+  <data name="AvailableCommandAliases" xml:space="preserve">
+    <value>다음 명령 별칭을 사용할 수 있습니다.</value>
+    <comment>Message displayed to inform the user about the available command line alias arguments.</comment>
   </data>
   <data name="AvailableCommands" xml:space="preserve">
     <value>다음 명령을 사용할 수 있음</value>
-    <comment>Commands the tool supports</comment>
+    <comment>Title displayed to inform the user about the available commands.</comment>
   </data>
   <data name="AvailableHeader" xml:space="preserve">
     <value>사용 가능</value>
@@ -136,23 +143,26 @@
   </data>
   <data name="AvailableOptions" xml:space="preserve">
     <value>다음 선택 사항을 사용할 수 있음</value>
+    <comment>Message displayed to inform the user about the available options.</comment>
   </data>
   <data name="AvailableSubcommands" xml:space="preserve">
     <value>다음 부명령어는 사용 할 수 없음</value>
-    <comment>Nested commands that can be run in context of the selected command</comment>
+    <comment>Message displayed to inform the user about the available nested commands that run in context of the selected command.</comment>
   </data>
   <data name="AvailableUpgrades" xml:space="preserve">
-    <value>업그레이드할 수 있습니다.</value>
+    <value>{0} 업그레이드를 사용할 수 있습니다.</value>
+    <comment>{Locked="{0}"} Message displayed to inform the user about available package upgrades. {0} is a placeholder replaced by the number of package upgrades.</comment>
   </data>
   <data name="ChannelArgumentDescription" xml:space="preserve">
     <value>지정된 채널을 사용합니다(기본값은 일반 대상).</value>
   </data>
   <data name="Command" xml:space="preserve">
     <value>명령</value>
-    <comment>A command to give the software</comment>
+    <comment>Label displayed for a command to give the software.</comment>
   </data>
   <data name="CommandArgumentDescription" xml:space="preserve">
     <value>명령을 기준으로 결과 필터링</value>
+    <comment>Description message displayed to inform the user about filtering the search results by a package command.</comment>
   </data>
   <data name="CommandLineArgumentDescription" xml:space="preserve">
     <value>완료에 대한 전체 명령줄</value>
@@ -171,9 +181,11 @@
   </data>
   <data name="Done" xml:space="preserve">
     <value>완료</value>
+    <comment>Label displayed when an operation completes or is done executing.</comment>
   </data>
   <data name="ExactArgumentDescription" xml:space="preserve">
     <value>정확한 일치를 사용하여 패키지를 찾습니다.</value>
+    <comment>Description message displayed to inform the user about finding an application package using an exact matching criteria.</comment>
   </data>
   <data name="ExperimentalArgumentDescription" xml:space="preserve">
     <value>데모용 실험 인수</value>
@@ -186,11 +198,12 @@
     <value>실험적 기능 예</value>
   </data>
   <data name="ExtraPositionalError" xml:space="preserve">
-    <value>기대하는 항목이 없으면 위치 인수를 찾음</value>
+    <value>필요한 인수가 없을 때 위치 인수를 찾았습니다. '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides an extra positional argument when none was expected. {0} is a placeholder replaced by the user's extra argument input.</comment>
   </data>
   <data name="FeatureDisabledMessage" xml:space="preserve">
-    <value>이 기능은 진행 중이므로 미래에서 소비히 나타나거나 변화되었을 수 있습니다. 이 기능을 사용하려면 설정('winget settings')을 편집하여 시험판 기능을 포함하세요.</value>
-    <comment>{Locked="winget settings"}</comment>
+    <value>이 기능은 진행 중인 작업이며, 향후 크게 변경되거나 모두 제거될 수 있습니다. 사용하도록 설정하려면 설정('winget settings')을 편집하여 실험적 기능을 포함하세요. '{0}'</value>
+    <comment>{Locked="winget settings","{0}"}. Error message displayed when the user uses an experimental feature that is disabled. {0} is a placeholder replaced by the experimental feature name.</comment>
   </data>
   <data name="FeaturesCommandLongDescription" xml:space="preserve">
     <value>실험적 기능의 상태를 표시합니다. 'winget settings'을 통해 실험적 기능을 켤 수 있습니다.</value>
@@ -226,7 +239,8 @@
     <value>해시할 파일</value>
   </data>
   <data name="FlagContainAdjoinedError" xml:space="preserve">
-    <value>플래그 인수는 근접하는 값을 포함할 수 없음</value>
+    <value>플래그 인수는 근접하는 값을 포함할 수 없음: '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides a flag argument containing an unexpected adjoined value. {0} is a placeholder replaced by the user input.</comment>
   </data>
   <data name="HashCommandLongDescription" xml:space="preserve">
     <value>매니페스트에 삽입하기에 적합한 로컬 파일의 해시를 계산합니다. 또한 MSIX 패키지의 서명 파일의 해시를 계산하여 스트리밍 설치를 사용하도록 할 수도 있습니다.</value>
@@ -241,7 +255,8 @@
     <value>특정 명령에 대한 자세한 내용을 보려면 도움말 인수에 해당 명령을 전달합니다.</value>
   </data>
   <data name="HelpLinkPreamble" xml:space="preserve">
-    <value>자세한 도움말은 다음의 위치에서 찾아볼 수 있습니다.</value>
+    <value>자세한 도움말은 다음의 위치에서 찾아볼 수 있음: {0}</value>
+    <comment>{Locked="{0}"} Message displayed to inform the user about a link where they can learn more about the subject context. {0} is a placeholder replaced by a website address.</comment>
   </data>
   <data name="IdArgumentDescription" xml:space="preserve">
     <value>ID를 기준으로 결과 필터링</value>
@@ -256,14 +271,19 @@
     <value>이 패키지는 Microsoft Store를 통해 제공됩니다. winget은 현재 사용자를 대신하여 Microsoft Store에서 패키지를 가져와야 할 수 있습니다.</value>
     <comment>{Locked="winget"}</comment>
   </data>
-  <data name="InstallationRequiresHigherWindows" xml:space="preserve">
-    <value>상위 버전의 Windows가 필요하므로 응용 프로그램을 설치할 수 없습니다.</value>
-  </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>지정된 패키지를 설치합니다.</value>
   </data>
   <data name="InstallerHashMismatchAdminBlock" xml:space="preserve">
     <value>설치 관리자 해시가 일치하지 않습니다. 관리자로 실행할 경우 이 설정을 무시할 수 없습니다.</value>
+  </data>
+  <data name="InstallerHashMismatchOverridden" xml:space="preserve">
+    <value>설치 프로그램 해시가 일치하지 않습니다. --ignore-security-hash로 인한 진행</value>
+    <comment>{Locked="--ignore-security-hash"}</comment>
+  </data>
+  <data name="InstallerHashMismatchOverrideRequired" xml:space="preserve">
+    <value>설치 프로그램 해시가 일치하지 않습니다. 이 검사를 무시하려면 --ignore-security-hash를 사용하세요.</value>
+    <comment>{Locked="--ignore-security-hash"}</comment>
   </data>
   <data name="InstallerHashVerified" xml:space="preserve">
     <value>설치 관리자 해시를 확인했습니다.</value>
@@ -274,17 +294,26 @@
   <data name="InstallFlowStartingPackageInstall" xml:space="preserve">
     <value>패키지 설치를 시작하는 중...</value>
   </data>
+  <data name="HashOverrideArgumentDescription" xml:space="preserve">
+    <value>설치 관리자 해시 확인 실패 무시</value>
+  </data>
+  <data name="IgnoreLocalArchiveMalwareScanArgumentDescription" xml:space="preserve">
+    <value>로컬 매니페스트에서 보관 유형 패키지를 설치하는 동안 수행된 맬웨어 검색 무시</value>
+  </data>
   <data name="InteractiveArgumentDescription" xml:space="preserve">
     <value>대화형 설치를 요청합니다(사용자 입력이 필요할 수 있음).</value>
   </data>
   <data name="InvalidAliasError" xml:space="preserve">
-    <value>현재 명령에 대해 인수 별칭을 인식할 수 없음</value>
+    <value>현재 명령에 대해 인수 별칭을 인식할 수 없음: '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides a command line argument alias that was not recognized for a selected command. {0} is a placeholder replaced by the user's argument alias input (e.g. '-a').</comment>
   </data>
   <data name="InvalidArgumentSpecifierError" xml:space="preserve">
-    <value>유효하지 않은 인수 특정자</value>
+    <value>유효하지 않은 인수 특정자: '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides an invalid argument specifier. {0} is a placeholder replaced by an argument specifier (e.g. '-').</comment>
   </data>
   <data name="InvalidNameError" xml:space="preserve">
-    <value>현재 명령에 대해 인수 이름을 인식할 수 없음</value>
+    <value>현재 명령에 대해 인수 이름을 인식할 수 없음: '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides an unrecognized command line argument name for the selected command. {0} is a placeholder replaced by the user's argument name input (e.g. '--example').</comment>
   </data>
   <data name="LocaleArgumentDescription" xml:space="preserve">
     <value>사용할 로캘(BCP47 형식)</value>
@@ -296,6 +325,10 @@
   <data name="Links" xml:space="preserve">
     <value>링크</value>
     <comment>Links to different webpages</comment>
+  </data>
+  <data name="ListCommandLongDescription" xml:space="preserve">
+    <value>list 명령은 시스템에 설치된 패키지를 표시하거나 업그레이드를 사용할 수 있는지 여부를 표시합니다. search 명령과 같이 출력을 필터링하는 데 추가 옵션을 제공할 수 도 있습니다.</value>
+    <comment>{Locked="list","search"}</comment>
   </data>
   <data name="ListCommandShortDescription" xml:space="preserve">
     <value>설치된 패키지 표시</value>
@@ -326,7 +359,8 @@
     <value>매니페스트 유효성 검사에 성공했으나 경고가 발생했습니다.</value>
   </data>
   <data name="MissingArgumentError" xml:space="preserve">
-    <value>인수 값이 필수이지만 아무것도 찾지 못했음</value>
+    <value>인수 값이 필수이지만 아무것도 찾지 못했음: '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user does not provide a required command line argument value. {0} is a placeholder replaced by the argument name.</comment>
   </data>
   <data name="MonikerArgumentDescription" xml:space="preserve">
     <value>결과를 모니커로 필터링합니다.</value>
@@ -336,6 +370,13 @@
   </data>
   <data name="MsixSignatureHashFailed" xml:space="preserve">
     <value>MSIX 서명 해시를 계산하지 못했습니다.</value>
+  </data>
+  <data name="MSStoreAppBlocked" xml:space="preserve">
+    <value>정책에 의해 특정 앱이 차단되어 Microsoft Store 패키지를 설치하거나 업그레이드하지 못했습니다.</value>
+  </data>
+  <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
+    <value>Microsoft Store 패키지를 설치하거나 업그레이드하지 못했습니다. 오류 코드: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when a Microsoft Store application package fails to install or upgrade. {0} is a placeholder replaced by an error code.</comment>
   </data>
   <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
     <value>패키지 획득을 확인/요청하지 못했습니다. 네트워크 오류</value>
@@ -348,6 +389,9 @@
   </data>
   <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
     <value>패키지 획득 성공을 확인/요청하고 있습니다.</value>
+  </data>
+  <data name="MSStoreStoreClientBlocked" xml:space="preserve">
+    <value>Microsoft Store 클라이언트가 정책에 의해 차단되어 Microsoft Store 패키지를 설치 또는 업그레이드하지 못했습니다.</value>
   </data>
   <data name="MSStoreInstallTryGetEntitlement" xml:space="preserve">
     <value>패키지 획득을 확인/요청하는 중..</value>
@@ -377,6 +421,9 @@
     <value>VirtualTerminal 표시를 사용 안 함</value>
     <comment>{Locked="VirtualTerminal"}</comment>
   </data>
+  <data name="OpenLogsArgumentDescription" xml:space="preserve">
+    <value>기본 로그 위치 열기</value>
+  </data>
   <data name="Options" xml:space="preserve">
     <value>옵션</value>
     <comment>Options to change how a command works</comment>
@@ -385,8 +432,8 @@
     <value>설치 관리자에 전달할 인수 재정의</value>
   </data>
   <data name="Package" xml:space="preserve">
-    <value>패키지</value>
-    <comment>A software package</comment>
+    <value>패키지: {0}</value>
+    <comment>{Locked="{0}"} Label displayed for a software package. {0} is a placeholder replaced by the software package name.</comment>
   </data>
   <data name="PendingWorkError" xml:space="preserve">
     <value>죄송합니다 .작업 수행을 하지 못했습니다.</value>
@@ -404,7 +451,8 @@
     <value>여러 가지 무지개의 색깔로 진행률 표시</value>
   </data>
   <data name="RequiredArgError" xml:space="preserve">
-    <value>필수 인수가 제공 되지 않음</value>
+    <value>필수 인수가 제공 되지 않음: '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user does not provide a required command line argument. {0} is a placeholder replaced by an argument name.</comment>
   </data>
   <data name="RetroArgumentDescription" xml:space="preserve">
     <value>기본 색깔로 진행률 표시</value>
@@ -438,7 +486,8 @@
     <value>설정의 유효성을 확인하는 동안 다음 오류가 발견되었습니다.</value>
   </data>
   <data name="SettingsCommandLongDescription" xml:space="preserve">
-    <value>기본 json 텍스트 편집기에서 설정을 엽니다. 편집기를 구성하지 않은 경우 메모장에서 설정을 엽니다. 사용 가능한 설정은 https://aka.ms/winget-settings를 참조하세요. 이 명령은 '사용' 또는 '사용 안 함' 인수를 제공하여 관리자 설정을 설정하는 데도 사용할 수 있습니다.</value>
+    <value>기본 json 텍스트 편집기에서 설정을 엽니다. 편집기를 구성하지 않은 경우 메모장에서 설정을 엽니다. 사용 가능한 설정은 https://aka.ms/winget-settings를 참조하세요. 이 명령은 --enable 또는 --disable 함 인수를 제공하여 관리자 설정을 설정하는 데도 사용할 수 있습니다.</value>
+    <comment>{Locked="--enable"} {Locked="--disable"}</comment>
   </data>
   <data name="SettingsCommandShortDescription" xml:space="preserve">
     <value>설정 열기 또는 관리자 설정 설정</value>
@@ -464,7 +513,8 @@
     <value>무인 설치 요청</value>
   </data>
   <data name="SingleCharAfterDashError" xml:space="preserve">
-    <value>단일 문자 별칭만이 단일- 후에 나타남</value>
+    <value>단일 문자 별칭만이 단일- 후에 나타남: '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides more than a single character command line alias argument after an alias argument specifier '-'. {0} is a placeholder replaced by the user's argument input.</comment>
   </data>
   <data name="SourceAddAlreadyExistsDifferentArg" xml:space="preserve">
     <value>지정한 이름의 원본이 이미 있으며 다른 위치를 참조합니다.</value>
@@ -523,7 +573,8 @@
     <comment>The source's unique identifier.</comment>
   </data>
   <data name="SourceListNoneFound" xml:space="preserve">
-    <value>다음 이름의 원본을 찾지 못했습니다.</value>
+    <value>다음 이름의 원본을 찾지 못함: {0}</value>
+    <comment>Error message displayed when the user provides a repository source name that was not found. {0} is a placeholder replaced by the user input.</comment>
   </data>
   <data name="SourceListNoSources" xml:space="preserve">
     <value>구성된 원본이 없습니다.</value>
@@ -565,7 +616,8 @@
     <value>현재의 원본 제거</value>
   </data>
   <data name="SourceRemoveOne" xml:space="preserve">
-    <value>출처를 제거하는 중:</value>
+    <value>출처를 제거하는 중: {0}...</value>
+    <comment>{Locked="{0}"} Message displayed to inform the user about a registered repository source that is currently being removed. {0} is a placeholder replaced by the repository source name.</comment>
   </data>
   <data name="SourceResetAll" xml:space="preserve">
     <value>모든 원본... 다시 설정</value>
@@ -584,7 +636,8 @@
     <comment>{Locked="--force"}</comment>
   </data>
   <data name="SourceResetOne" xml:space="preserve">
-    <value>원본을 다시 설정하는 중:</value>
+    <value>원본을 다시 설정하는 중: {0}...</value>
+    <comment>{Locked="{0}"} Message displayed to inform the user about a repository source that is currently being reset. {0} is a placeholder replaced by the repository source name.</comment>
   </data>
   <data name="SourceTypeArgumentDescription" xml:space="preserve">
     <value>원본의 형식</value>
@@ -599,7 +652,8 @@
     <value>현재의 원본을 업데이트</value>
   </data>
   <data name="SourceUpdateOne" xml:space="preserve">
-    <value>원본 업데이트 중:</value>
+    <value>원본 업데이트 중: {0}...</value>
+    <comment>{Locked="{0}"} Message displayed to inform the user about a registered repository source that is currently being updated. {0} is a placeholder replaced by the repository source name.</comment>
   </data>
   <data name="TagArgumentDescription" xml:space="preserve">
     <value>태그를 기준으로 결과 필터링</value>
@@ -620,16 +674,25 @@
     <value>도구의 버전을 표시</value>
   </data>
   <data name="TooManyArgError" xml:space="preserve">
-    <value>인수가 허용 되는 횟수 보다 더 많이 제공 됨</value>
+    <value>인수가 허용 되는 횟수보다 더 많이 제공 됨: '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides a command line argument more times than it is allowed. {0} is a placeholder replaced by the user's argument name input.</comment>
   </data>
   <data name="TooManyBehaviorsError" xml:space="preserve">
-    <value>둘 이상의 실행 동작 인수가 제공됨</value>
+    <value>둘 이상의 실행 동작 인수가 제공되었습니다. '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides more than one execution behavior argument when installing an application package. {0} is a placeholder replaced by the user specified execution behaviors (e.g. 'silent|interactive').</comment>
   </data>
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>명령을 실행하는 동안 예기치 않은 오류가 발생했습니다.</value>
   </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
-    <value>인식할 수 없는 명령임</value>
+    <value>인식할 수 없는 명령임: '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides an unrecognized command. {0} is a placeholder replaced by the user input.</comment>
+  </data>
+  <data name="UpdateAllArgumentDescription" xml:space="preserve">
+    <value>설치된 모든 패키지를 사용 가능한 경우 최신 패키지로 업그레이드</value>
+  </data>
+  <data name="UpdateNotApplicable" xml:space="preserve">
+    <value>적용 가능한 업그레이드를 찾을 수 없습니다.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
     <value>설치된 패키지 목록을 검색하거나 매니페스트에서 직접 찾은 선택한 패키지를 업그레이드합니다. 기본적으로 쿼리는 패키지의 ID, 이름 또는 모니커와 대/소문자를 구분하지 않아야 합니다. 다른 필드는 적절한 옵션을 전달하여 사용할 수 있습니다. 인수가 지정되지 않은 경우 업그레이드를 사용할 수 있는 패키지가 표시됩니다.</value>
@@ -639,8 +702,8 @@
     <value>사용 가능한 업그레이드를 표시하고 수행합니다.</value>
   </data>
   <data name="Usage" xml:space="preserve">
-    <value>사용</value>
-    <comment>The way to use the software</comment>
+    <value>사용 현황: {0}{1}</value>
+    <comment>{Locked="{0}","{1}"} Message displayed to provide the user with instructions on how to use a command. {0} is a placeholder replaced by the program name (e.g. 'winget'). {1} is a placeholder replaced by the pattern for using the selected command.</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
     <value>엄격한 지침의 집합을 사용하여 매니페스트의 유효성을 검사합니다. 이 기능은 리포지토리를 제출하기 전에 매니페스트를 확인할 수 있도록 하기 위한 목적을 가지고 있습니다.</value>
@@ -667,10 +730,12 @@
     <value>완료되기 전에 제공한 값이 요청되었습니다.</value>
   </data>
   <data name="GetManifestResultVersionNotFound" xml:space="preserve">
-    <value>일치하는 버전을 찾을 수 없는 경우:</value>
+    <value>일치하는 버전을 찾을 수 없는 경우: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user attempts to upgrade an application package to a version that was not found. {0} is a placeholder replaced by the user's provided upgrade package version.</comment>
   </data>
   <data name="OpenSourceFailedNoMatch" xml:space="preserve">
-    <value>지정된 값과 일치하는 원본이 없는 경우:</value>
+    <value>지정된 값과 일치하는 원본이 없는 경우: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user attempts to install or upgrade an application package from a repository source that was not found. {0} is a placeholder replaced by the user's repository source name input.</comment>
   </data>
   <data name="OpenSourceFailedNoMatchHelp" xml:space="preserve">
     <value>구성된 원본은 다음과 같습니다.</value>
@@ -683,17 +748,19 @@
     <value>찾음</value>
   </data>
   <data name="VerifyFileFailedIsDirectory" xml:space="preserve">
-    <value>경로가 디렉터리인 경우:</value>
+    <value>경로가 디렉터리임: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides a system path that is a directory. {0} is a placeholder replaced by the provided directory path.</comment>
   </data>
   <data name="VerifyFileFailedNotExist" xml:space="preserve">
-    <value>파일이 없는 경우:</value>
+    <value>파일이 없음: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides a system file that does not exist. {0} is a placeholder replaced by the provided file path.</comment>
   </data>
   <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
     <value>로컬 매니페스트 및 검색 쿼리 인수가 모두 제공되었습니다.</value>
   </data>
   <data name="Logs" xml:space="preserve">
-    <value>로그</value>
-    <comment>Diagnostic files containing information about application use.</comment>
+    <value>로그: {0}</value>
+    <comment>{Locked="{0}"} Label displayed for diagnostic files containing information about the application use. {0} is a placeholder replaced by the logs directory path.</comment>
   </data>
   <data name="InstallerBlockedByPolicy" xml:space="preserve">
     <value>설치 프로그램이 정책에 의해 차단됨</value>
@@ -705,7 +772,8 @@
     <value>바이러스 백신 제품이 설치 관리자의 감염을 보고합니다.</value>
   </data>
   <data name="SourceOpenWithFailedUpdate" xml:space="preserve">
-    <value>원본을 업데이트하지 못함:</value>
+    <value>원본을 업데이트하지 못했습니다. {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when an attempt to update the repository source fails. {0} is a placeholder replaced by the repository source name.</comment>
   </data>
   <data name="UninstallCommandLongDescription" xml:space="preserve">
     <value>설치된 패키지 목록을 검색하거나 매니페스트에서 직접 찾은 선택한 패키지를 제거합니다. 기본적으로 쿼리는 패키지의 ID, 이름 또는 모양과 대/소문자를 구분하지 않는 것이 어떻게 되아야 합니다. 적절한 옵션을 전달하여 다른 필드를 사용할 수 있습니다.</value>
@@ -728,7 +796,8 @@
     <value>제거가 중단됨</value>
   </data>
   <data name="UninstallFailedWithCode" xml:space="preserve">
-    <value>설치 종료 코드로 인해 제거하지 못함:</value>
+    <value>설치 종료 코드로 인해 제거하지 못함: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when an attempt to uninstall an application package fails. {0} is a placeholder replaced by an error code.</comment>
   </data>
   <data name="ExportCommandShortDescription" xml:space="preserve">
     <value>설치된 패키지 목록 내보내기</value>
@@ -756,16 +825,20 @@
     <value>가져온 패키지를 하나 이상 설치하지 못했습니다.</value>
   </data>
   <data name="ImportSearchFailed" xml:space="preserve">
-    <value>가져올 패키지를 찾을 수 없습니다.</value>
+    <value>가져올 패키지를 찾을 수 없음: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user attempts to import an application package that was not found. {0} is a placeholder replaced by the import package name .</comment>
   </data>
   <data name="ImportSourceNotInstalled" xml:space="preserve">
-    <value>가져오기에 필요한 원본이 설치되지 않았습니다.</value>
+    <value>가져오기에 필요한 원본이 설치되어 있지 않습니다. {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user attempts to import application package(s) from a repository source that is not installed. {0} is a placeholder replaced by the repository source name.</comment>
   </data>
   <data name="InstalledPackageNotAvailable" xml:space="preserve">
-    <value>어떤 원본에서도 설치된 패키지를 사용할 수 없습니다.</value>
+    <value>어떤 원본에서도 설치된 패키지를 사용할 수 없음: {0}</value>
+    <comment>{Locked="{0}"} Warning message displayed when the user attempts to export an installed application package that is not available from any repository source. {0} is a placeholder replaced by the installed package name.</comment>
   </data>
   <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
-    <value>어떤 원본에서도 설치된 패키지 버전을 사용할 수 없습니다.</value>
+    <value>어떤 원본에서도 설치된 패키지 버전을 사용할 수 없음: {0}{1}{2}</value>
+    <comment>{Locked="{0}","{1}","{2}"} Warning message displayed when the user attempts to export an installed application package with a version that is not available from any repository source. {0} is a placeholder replaced by the installed package identifier. {1} is a placeholder replaced by the installed package version. {2} is a placeholder replaced by the installed package channel.</comment>
   </data>
   <data name="NoPackagesInImportFile" xml:space="preserve">
     <value>가져오기 파일에 패키지가 없습니다.</value>
@@ -774,7 +847,8 @@
     <value>JSON 파일이 잘못되었습니다.</value>
   </data>
   <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
-    <value>패키지가 이미 설치되어 있습니다.</value>
+    <value>패키지가 이미 설치되어 있음: {0}</value>
+    <comment>{Locked="{0}"} Message displayed to inform the user that an import application package is already installed. {0} is a placeholder replaced by the package identifier.</comment>
   </data>
   <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
     <value>사용할 수 없는 패키지 무시</value>
@@ -786,7 +860,8 @@
     <value>가져오기 파일에서 패키지 버전 무시</value>
   </data>
   <data name="VerifyPathFailedNotExist" xml:space="preserve">
-    <value>경로가 존재하지 않습니다.</value>
+    <value>경로가 존재하지 않음: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides a system path argument value that does not exist. {0} is a placeholder replaced by the user's provided path.</comment>
   </data>
   <data name="ImportFileHasInvalidSchema" xml:space="preserve">
     <value>JSON 파일에서 인식되는 스키마를 지정하지 않습니다.</value>
@@ -796,11 +871,12 @@
     <comment>This argument allows the user to select between installing for just the user or for the entire machine.</comment>
   </data>
   <data name="InvalidArgumentValueError" xml:space="preserve">
-    <value>'%1' 인수에 지정된 값이 잘못되었습니다. 올바른 값:</value>
-    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+    <value>'{0}' 인수에 제공된 값이 잘못되었습니다. 유효한 값: {1}</value>
+    <comment>{Locked="{0}","{1}"} Error message displayed when the user provides an invalid command line argument value. {0} is a placeholder replaced by the argument name. {1} is a placeholder replaced by a list of valid options.</comment>
   </data>
   <data name="DisabledByGroupPolicy" xml:space="preserve">
-    <value>그룹 정책에 따라 이 작업을 사용할 수 없습니다.</value>
+    <value>그룹 정책 이 작업을 사용하지 않도록 설정했습니다. {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user performs a command operation that is disabled by a group policy. {0} is a placeholder replaced by a group policy description.</comment>
   </data>
   <data name="PolicyAdditionalSources" xml:space="preserve">
     <value>추가 Windows 앱 설치 관리자 원본 사용</value>
@@ -845,8 +921,15 @@
   <data name="PolicyEnableLocalManifests" xml:space="preserve">
     <value>Windows 앱 설치 관리자 로컬 매니페스트 파일 사용</value>
   </data>
+  <data name="PolicyEnableBypassCertificatePinningForMicrosoftStore" xml:space="preserve">
+    <value>Windows 앱 설치 관리자 Microsoft Store 원본 고정 인증서 바이패스 사용</value>
+  </data>
+  <data name="PolicyEnableLocalArchiveMalwareScanOverride" xml:space="preserve">
+    <value>Windows 앱 설치 관리자 로컬 보관 맬웨어 검사 재정의 사용</value>
+  </data>
   <data name="SettingsWarningField" xml:space="preserve">
-    <value>필드:</value>
+    <value>필드: {0}</value>
+    <comment>{Locked="{0}"} Warning message displayed when a user setting field has invalid syntax or semantics. {0} is a placeholder replaced by the setting field path.</comment>
   </data>
   <data name="SettingsWarningInvalidFieldFormat" xml:space="preserve">
     <value>잘못된 필드 형식입니다.</value>
@@ -864,7 +947,8 @@
     <value>오류 구문 분석 파일:</value>
   </data>
   <data name="SettingsWarningValue" xml:space="preserve">
-    <value>값:</value>
+    <value>값: {0}</value>
+    <comment>{Locked="{0}"} Warning message displayed when a user setting value has invalid syntax or semantics. {0} is a placeholder replaced by the setting data value.</comment>
   </data>
   <data name="FeaturesMessageDisabledByPolicy" xml:space="preserve">
     <value>다음 실험적 기능이 진행 중입니다.
@@ -891,8 +975,8 @@
     <comment>A source that the user is allowed to add.</comment>
   </data>
   <data name="InvalidArgumentValueErrorWithoutValidValues" xml:space="preserve">
-    <value>'%1' 인수에 제공된 값이 잘못되었습니다.</value>
-    <comment>{Locked="%1"} The value will be replaced with the argument name</comment>
+    <value>'{0}' 인수에 제공된 값이 잘못되었습니다.</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides an invalid command line argument value. {0} is a placeholder replaced by the argument name.</comment>
   </data>
   <data name="Cancelled" xml:space="preserve">
     <value>취소됨</value>
@@ -915,18 +999,20 @@
     <value>종속성 원본을 찾을 수 없음</value>
   </data>
   <data name="DependenciesFlowSourceTooManyMatches" xml:space="preserve">
-    <value>패키지 검색 결과 수가 두 개 이상입니다.</value>
-    <comment>When node package id search yield too many matches</comment>
+    <value>패키지 검색 결과 두 개 이상 생성: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when application packages search yield more than one result. {0} is a placeholder replaced by the dependency package identifier.</comment>
   </data>
   <data name="DependenciesFlowPackageVersionNotFound" xml:space="preserve">
-    <value>패키지에 대한 최신 버전을 찾을 수 없음</value>
-    <comment>When no suitable version found for the specific package.</comment>
+    <value>패키지에 대한 최신 버전을 찾을 수 없음: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when no suitable version found for the specific application package. {0} is a placeholder replaced by the package identifier.</comment>
   </data>
   <data name="DependenciesFlowNoInstallerFound" xml:space="preserve">
-    <value>설치 프로그램을 찾을 수 없음</value>
+    <value>설치 프로그램을 찾을 수 없음: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when no installer found for a manifest. {0} is a placeholder replaced by the manifest identifier.</comment>
   </data>
   <data name="DependenciesFlowNoMinVersion" xml:space="preserve">
-    <value>패키지에 사용할 수 없는 최소 필수 버전</value>
+    <value>패키지에 사용할 수 없는 최소 필수 버전: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the minimum required version is not available for an application package. {0} is a placeholder replaced by the package identifier.</comment>
   </data>
   <data name="DependenciesFlowNoMatches" xml:space="preserve">
     <value>일치하는 항목 없음</value>
@@ -937,8 +1023,8 @@
     <comment>Dependency graph has loop</comment>
   </data>
   <data name="DependenciesFlowNoSuitableInstallerFound" xml:space="preserve">
-    <value>매니페스트에 적합한 설치 프로그램을 찾을 수 없음</value>
-    <comment>Attempt to get preferred installer for manifest failed.</comment>
+    <value>manifest: {0} {1} 적합한 설치 관리자를 찾을 수 없습니다.</value>
+    <comment>{Locked="{0}","{1}"} Error message displayed when an attempt to get a preferred installer for a manifest fails. {0} is a placeholder replaced by the manifest identifier. {1} is a placeholder replaced by the manifest version.</comment>
   </data>
   <data name="DependenciesManagementError" xml:space="preserve">
     <value>패키지 종속성을 처리하는 동안 오류가 발생했습니다. 설치를 계속하시겠습니까?</value>
@@ -975,7 +1061,8 @@
     <value>패키지에 대한 모든 사용권 계약 수락</value>
   </data>
   <data name="ExportedPackageRequiresLicenseAgreement" xml:space="preserve">
-    <value>내보낸 패키지를 설치하려면 사용권 계약이 필요합니다.</value>
+    <value>내보낸 패키지를 설치하려면 사용권 계약이 필요합니다. {0}</value>
+    <comment>{Locked="{0}"} Warning message displayed when an exported application package requires license agreement to install. {0} is a placeholder replaced by the package name.</comment>
   </data>
   <data name="PackageAgreementsPrompt" xml:space="preserve">
     <value>게시자는 설치하기 전에 위의 정보를 보고 계약에 동의해야 합니다.
@@ -996,8 +1083,20 @@
   <data name="ShowLabelInstaller" xml:space="preserve">
     <value>설치 관리자:</value>
   </data>
+  <data name="ShowLabelInstallerLocale" xml:space="preserve">
+    <value>설치 관리자 로캘:</value>
+  </data>
   <data name="ShowLabelInstallerProductId" xml:space="preserve">
     <value>Store 제품 ID:</value>
+  </data>
+  <data name="ShowLabelInstallerSha256" xml:space="preserve">
+    <value>설치 관리자 SHA256:</value>
+  </data>
+  <data name="ShowLabelInstallerType" xml:space="preserve">
+    <value>설치 관리자 유형:</value>
+  </data>
+  <data name="ShowLabelInstallerUrl" xml:space="preserve">
+    <value>설치 관리자 URL:</value>
   </data>
   <data name="ShowLabelLicense" xml:space="preserve">
     <value>라이선스:</value>
@@ -1013,6 +1112,9 @@
   </data>
   <data name="ShowLabelPublisher" xml:space="preserve">
     <value>게시자:</value>
+  </data>
+  <data name="ShowLabelTags" xml:space="preserve">
+    <value>태그:</value>
   </data>
   <data name="ShowLabelVersion" xml:space="preserve">
     <value>버전:</value>
@@ -1045,8 +1147,8 @@
     <value>원본 작업 중 모든 원본 계약 수락</value>
   </data>
   <data name="SourceAgreementsTitle" xml:space="preserve">
-    <value>'%1' 원본을 사용하려면 다음 계약을 확인해야 합니다.</value>
-    <comment>{Locked="%1"} The value will be replaced with the source name</comment>
+    <value>'{0}' 원본을 사용하려면 다음 계약을 확인해야 합니다.</value>
+    <comment>{Locked="{0}"} Message displayed to inform the user that a repository source requires viewing agreements before using. {0} is a placeholder replaced by the repository source name.</comment>
   </data>
   <data name="SourceAgreementsPrompt" xml:space="preserve">
     <value>모든 원본 사용 약관에 동의하십니까?</value>
@@ -1067,13 +1169,17 @@
     <value>선택적 헤더는 이 원본에 적용할 수 없으므로 무시합니다.</value>
   </data>
   <data name="HeaderArgumentNotApplicableWithoutSource" xml:space="preserve">
-    <value>원본을 지정하지 않으면 선택적 헤더를 적용할 수 없습니다.</value>
+    <value>원본을 지정하지 않으면 선택적 헤더를 적용할 수 없습니다. '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user performs an operation (e.g install) and provides the HTTP 'header' argument without specifying the repository source. {0} is a placeholder replaced by the header argument name.</comment>
   </data>
   <data name="ShowLabelInstallerReleaseDate" xml:space="preserve">
     <value>릴리스 날짜:</value>
   </data>
   <data name="ShowLabelPublisherUrl" xml:space="preserve">
     <value>게시자 URL:</value>
+  </data>
+  <data name="ShowLabelPurchaseUrl" xml:space="preserve">
+    <value>구매 URL:</value>
   </data>
   <data name="ShowLabelPublisherSupportUrl" xml:space="preserve">
     <value>게시자 지원 URL:</value>
@@ -1094,14 +1200,16 @@
     <value>릴리스 정보 URL:</value>
   </data>
   <data name="SearchFailureWarning" xml:space="preserve">
-    <value>원본을 검색하는 동안 실패했습니다. 결과가 포함되지 않습니다.</value>
+    <value>원본을 검색하는 동안 실패했습니다. 결과가 포함되지 않습니다. {0}</value>
+    <comment>{Locked="{0}"} Warning message displayed when searching a repository source fails. {0} is a placeholder replaced by the repository source name.</comment>
   </data>
   <data name="SearchFailureError" xml:space="preserve">
-    <value>원본을 검색하는 동안 실패함:</value>
+    <value>원본을 검색하는 동안 실패함: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when searching a repository source fails. {0} is a placeholder replaced by the repository source name.</comment>
   </data>
   <data name="FeatureDisabledByAdminSettingMessage" xml:space="preserve">
-    <value>관리자가 이 기능을 사용하도록 설정해야 합니다. 사용하도록 설정하려면 관리자 권한으로 'winget settings --enable %1' 실행하세요.</value>
-    <comment>{Locked="winget settings --enable %1"} The value will be replaced with the admin setting</comment>
+    <value>관리자가 이 기능을 사용하도록 설정해야 합니다. 사용하도록 설정하려면 관리자로 'winget settings --enable {0}'를 실행하세요.</value>
+    <comment>{Locked="winget settings --enable", "{0}"}. Error message displayed when the user uses a feature that needs to be enabled by administrators. {0} is a placeholder replaced by the admin setting.</comment>
   </data>
   <data name="AdminSettingEnableDescription" xml:space="preserve">
     <value>특정 관리자 설정을 사용하도록 설정합니다.</value>
@@ -1110,7 +1218,8 @@
     <value>특정 관리자 설정을 사용하지 않도록 설정합니다.</value>
   </data>
   <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
-    <value>제공된 관리자 설정 인수가 너무 많습니다.</value>
+    <value>제공된 관리자 설정 인수가 너무 많음: '{0}'</value>
+    <comment>{Locked="{0}"} Error message displayed when the user provides too many admin setting arguments. {0} is a placeholder replaced by the admin setting arguments (e.g. 'enable|disable').</comment>
   </data>
   <data name="AdminSettingEnabled" xml:space="preserve">
     <value>관리자 설정을 사용하도록 설정했습니다.</value>
@@ -1120,6 +1229,9 @@
   </data>
   <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
     <value>응용 프로그램이 현재 실행 중입니다. 애플리케이션을 종료한 후 다시 시도하세요.</value>
+  </data>
+  <data name="InstallFlowReturnCodePackageInUseByApplication" xml:space="preserve">
+    <value>설치 관리자가 수정한 파일을 현재 다른 응용 프로그램에서 사용하고 있습니다. 응용 프로그램을 종료한 후 다시 시도하십시오.</value>
   </data>
   <data name="InstallFlowReturnCodeInstallInProgress" xml:space="preserve">
     <value>다른 설치가 이미 진행 중입니다. 나중에 다시 시도하세요.</value>
@@ -1135,6 +1247,9 @@
   </data>
   <data name="InstallFlowReturnCodeInsufficientMemory" xml:space="preserve">
     <value>설치할 수 있는 메모리가 부족합니다. 다른 애플리케이션을 닫은 후 다시 시도하세요.</value>
+  </data>
+  <data name="InstallFlowReturnCodeInvalidParameter" xml:space="preserve">
+    <value>설치 매개 변수 중 하나가 잘못되었습니다. 패키지 설치 로그에 추가 정보가 있을 수 있습니다.</value>
   </data>
   <data name="InstallFlowReturnCodeNoNetwork" xml:space="preserve">
     <value>이 응용 프로그램을 사용하려면 인터넷에 연결해야 합니다. 네트워크에 연결한 후 다시 시도하세요.</value>
@@ -1163,18 +1278,23 @@
   <data name="InstallFlowReturnCodeBlockedByPolicy" xml:space="preserve">
     <value>조직 정책으로 인해 설치할 수 없습니다. 관리자에게 문의하세요.</value>
   </data>
+  <data name="InstallFlowReturnCodeSystemNotSupported" xml:space="preserve">
+    <value>현재 시스템 구성에서는 이 패키지 설치를 지원하지 않습니다.</value>
+  </data>
   <data name="InstallAbandoned" xml:space="preserve">
     <value>설치 중단됨</value>
   </data>
   <data name="InstallerFailedWithCode" xml:space="preserve">
-    <value>설치 관리자가 종료 코드로 인해 실패했습니다.</value>
+    <value>설치 관리자가 종료 코드로 인해 실패함: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the application installer fails. {0} is a placeholder replaced by an error code.</comment>
   </data>
   <data name="InstallerLogAvailable" xml:space="preserve">
-    <value>설치 관리자 로그는 다음 위치에서 사용할 수 있습니다.</value>
+    <value>설치 관리자 로그는 다음 위치에서 사용할 수 있음: {0}</value>
+    <comment>{Locked="{0}"} Message displayed to inform the user about the system path of a diagnostic files containing information about the installer. {0} is a placeholder replaced by the diagnostic file system path.</comment>
   </data>
   <data name="SearchFailureErrorListMatches" xml:space="preserve">
     <value>다음 패키지가 작업 원본에서 발견되었습니다.
-계속하려면 '--source' 옵션을 사용하여 둘 중 하나를 지정하세요.</value>
+계속하려면 --source 옵션을 사용하여 둘 중 하나를 지정하십시오.</value>
     <comment>{Locked="--source"} "working sources" as in "sources that are working correctly"</comment>
   </data>
   <data name="SearchFailureErrorNoMatches" xml:space="preserve">
@@ -1186,8 +1306,8 @@
     <comment>{Locked="https://github.com/microsoft/winget-cli"}</comment>
   </data>
   <data name="WindowsPackageManager" xml:space="preserve">
-    <value>Windows 패키지 관리자</value>
-    <comment>The product name.</comment>
+    <value>Windows 패키지 관리자 v{0}</value>
+    <comment>{Locked="{0}"} Label displaying the product name and version. {0} is a placeholder replaced by the product version.</comment>
   </data>
   <data name="ImportIgnorePackageVersionsArgumentDescription" xml:space="preserve">
     <value>가져오기 파일의 패키지 버전 무시</value>
@@ -1202,8 +1322,8 @@
     <value>지정된 최신 버전의 설치 기술이 현재 설치된 버전과 다릅니다. 패키지를 제거하고 최신 버전을 설치하세요.</value>
   </data>
   <data name="WindowsPackageManagerPreview" xml:space="preserve">
-    <value>Windows 패키지 관리자(미리 보기)</value>
-    <comment>The product name plus an indicator that this is a pre-release version.</comment>
+    <value>Windows 패키지 관리자(미리 보기) v{0}</value>
+    <comment>{Locked="{0}"} Label displaying the preview product name and pre-release version. {0} is a placeholder replaced by the product version.</comment>
   </data>
   <data name="InstallArchitectureArgumentDescription" xml:space="preserve">
     <value>설치할 아키텍처 선택</value>
@@ -1216,24 +1336,36 @@
     <comment>{Locked="--include-unknown"}</comment>
   </data>
   <data name="UpgradeUnknownCount" xml:space="preserve">
-    <value>패키지에 확인할 수 없는 버전 번호가 있습니다. "--include-unknown" 사용하면 더 많은 결과가 표시될 수 있습니다.</value>
+    <value>패키지에 확인할 수 없는 버전 번호가 있습니다. --include-unknown 사용하면 더 많은 결과가 표시될 수 있습니다.</value>
     <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions. </comment>
   </data>
   <data name="UpgradeUnknownCountSingle" xml:space="preserve">
-    <value>패키지에 확인할 수 없는 버전 번호가 있습니다. "--include-unknown" 사용하면 더 많은 결과가 표시될 수 있습니다.</value>
+    <value>패키지에 확인할 수 없는 버전 번호가 있습니다. --include-unknown 사용하면 더 많은 결과가 표시될 수 있습니다.</value>
     <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions.</comment>
+  </data>
+  <data name="UpgradeUnknownVersionCount" xml:space="preserve">
+    <value>패키지에 확인할 수 없는 버전 번호가 있습니다. 모든 결과를 보려면 --include-unknown 사용하세요.</value>
+    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions. </comment>
+  </data>
+  <data name="UpgradeRequireExplicitCount" xml:space="preserve">
+    <value>패키지가 고정되어 있으며 명시적으로 업그레이드해야 합니다.</value>
+    <comment>This string is preceded by a (integer) number of packages that require explicit upgrades.</comment>
   </data>
   <data name="InvalidArgumentWithoutQueryError" xml:space="preserve">
     <value>제공된 인수는 쿼리에서만 사용할 수 있습니다.</value>
   </data>
   <data name="SystemArchitecture" xml:space="preserve">
-    <value>시스템 아키텍처</value>
+    <value>시스템 아키텍처: {0}</value>
+    <comment>{Locked="{0}"} Label displayed for the system architecture. {0} is a placeholder replaced by the value of the system architecture (e.g. X64).</comment>
   </data>
   <data name="PreserveArgumentDescription" xml:space="preserve">
     <value>패키지에서 만든 모든 파일 및 디렉터리를 유지합니다(이식 가능).</value>
   </data>
   <data name="PurgeArgumentDescription" xml:space="preserve">
     <value>패키지 디렉터리의 모든 파일 및 디렉터리를 삭제합니다(이식 가능).</value>
+  </data>
+  <data name="PressEnterToContinue" xml:space="preserve">
+    <value>계속하려면 Enter 키를 누르세요 . . .</value>
   </data>
   <data name="RenameArgumentDescription" xml:space="preserve">
     <value>실행 파일의 이름을 바꿀 값입니다(이식 가능).</value>
@@ -1264,19 +1396,33 @@
     <value>지정한 파일 이름이 올바른 파일 이름이 아닙니다.</value>
   </data>
   <data name="OverwritingExistingFileAtMessage" xml:space="preserve">
-    <value>기존 파일 덮어쓰기:</value>
+    <value>기존 파일 덮어쓰기: {0}</value>
+    <comment>{Locked="{0}"} Warning message displayed to inform the user that an existing file is being overwritten. {0} is a placeholder replaced by the file system path.</comment>
   </data>
   <data name="NoPackageSelectionArgumentProvided" xml:space="preserve">
     <value>패키지 선택 인수가 제공되지 않았습니다. 패키지 찾기에 대한 자세한 내용은 도움말을 참조하세요.</value>
+  </data>
+  <data name="PortableAliasAdded" xml:space="preserve">
+    <value>명령줄 별칭이 추가되었습니다.</value>
   </data>
   <data name="PortableInstallFailed" xml:space="preserve">
     <value>이식 가능한 설치에 실패했습니다. 정리 중...</value>
   </data>
   <data name="BothPurgeAndPreserveFlagsProvided" xml:space="preserve">
-    <value>'purge' 및 'preserve' 인수가 모두 제공됩니다.</value>
+    <value>--purge 및 --preserve 인수가 모두 제공됩니다.</value>
+    <comment>{Locked="--purge"} {Locked="--preserve"}</comment>
+  </data>
+  <data name="PortableHashMismatchOverridden" xml:space="preserve">
+    <value>휴대용 패키지가 수정되었습니다. --force로 인해 계속 진행</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="PortableHashMismatchOverrideRequired" xml:space="preserve">
+    <value>휴대용 패키지가 수정되었으므로 제거할 수 없습니다. 이 검사를 재정의하려면 --force 사용하세요.</value>
+    <comment>{Locked="--force"}</comment>
   </data>
   <data name="FilesRemainInInstallDirectory" xml:space="preserve">
-    <value>파일은 설치 디렉터리에 남아 있습니다.</value>
+    <value>파일은 설치 디렉터리에 남아 있음: {0}</value>
+    <comment>{Locked="{0}"} Warning message displayed when files remain in install directory. {0} is a placeholder replaced by the directory path.</comment>
   </data>
   <data name="PurgeInstallDirectory" xml:space="preserve">
     <value>설치 디렉터리를 제거하는 중...</value>
@@ -1291,6 +1437,168 @@
     <value>설명서:</value>
   </data>
   <data name="Notes" xml:space="preserve">
-    <value>메모:</value>
+    <value>메모: {0}</value>
+    <comment>{Locked="{0}"} Label displayed for installation notes. {0} is a placeholder replaced by installation notes.</comment>
+  </data>
+  <data name="ShowLabelInstallationNotes" xml:space="preserve">
+    <value>설치 정보:</value>
+  </data>
+  <data name="UnsupportedArgument" xml:space="preserve">
+    <value>제공된 인수는 이 패키지에 대해 지원되지 않습니다.</value>
+  </data>
+  <data name="ExtractArchiveFailed" xml:space="preserve">
+    <value>보관 파일의 내용을 추출하지 못했습니다.</value>
+  </data>
+  <data name="NestedInstallerNotFound" xml:space="preserve">
+    <value>중첩된 설치 관리자 파일이 없습니다. 중첩 설치 관리자의 지정한 상대 경로가 일치하는지 확인하세요. {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when nested installer file does not exist. {0} is a placeholder replaced by the nested installer file path.</comment>
+  </data>
+  <data name="InvalidPathToNestedInstaller" xml:space="preserve">
+    <value>중첩된 설치 관리자에 대한 상대 파일 경로가 잘못되었습니다. 경로가 설치 디렉터리 외부의 위치를 가리킵니다.</value>
+  </data>
+  <data name="NestedInstallerNotSpecified" xml:space="preserve">
+    <value>이 패키지에 대해 중첩된 설치 관리자가 지정되지 않았습니다.</value>
+  </data>
+  <data name="MultipleNonPortableNestedInstallersSpecified" xml:space="preserve">
+    <value>보관 설치 관리자에 대해 이식할 수 없는 중첩 설치 관리자를 하나만 지정할 수 있습니다.</value>
+  </data>
+  <data name="IncompatibleArgumentsProvided" xml:space="preserve">
+    <value>제공된 호환되지 않는 명령줄 인수</value>
+  </data>
+  <data name="UpgradeAvailableForPinned" xml:space="preserve">
+    <value>다음 패키지에는 업그레이드를 사용할 수 있지만 업그레이드를 위해 명시적 대상 지정이 필요합니다.</value>
+    <comment>"require explicit targeting for upgrade" means that the package will not be upgraded with all others unless an extra flag is added, or the package is mentioned explicitly</comment>
+  </data>
+  <data name="Downloading" xml:space="preserve">
+    <value>다운로드 중</value>
+    <comment>Label displayed while downloading an application installer.</comment>
+  </data>
+  <data name="NestedInstallerNotSupported" xml:space="preserve">
+    <value>중첩된 설치 관리자 유형은 지원되지 않습니다.</value>
+  </data>
+  <data name="InstallerAbortsTerminal" xml:space="preserve">
+    <value>이 설치 관리자는 터미널 또는 셸을 다시 시작하는 것으로 알려져 있습니다.</value>
+  </data>
+  <data name="InstallerRequiresInstallLocation" xml:space="preserve">
+    <value>이 패키지에는 설치 위치가 필요합니다.</value>
+  </data>
+  <data name="InstallersAbortTerminal" xml:space="preserve">
+    <value>다음 설치 관리자는 터미널 또는 셸을 다시 시작하는 것으로 알려져 있습니다.</value>
+  </data>
+  <data name="InstallersRequireInstallLocation" xml:space="preserve">
+    <value>다음 설치 관리자에는 설치 위치가 필요합니다.</value>
+  </data>
+  <data name="PromptForInstallRoot" xml:space="preserve">
+    <value>설치 루트 지정:</value>
+  </data>
+  <data name="PromptToProceed" xml:space="preserve">
+    <value>계속하시겠습니까?</value>
+  </data>
+  <data name="ReportIdentityForAgreements" xml:space="preserve">
+    <value>다음에 대한 계약</value>
+    <comment>This will be followed by a package name, and then a list of license agreements</comment>
+  </data>
+  <data name="InstallLocationNotProvided" xml:space="preserve">
+    <value>설치 위치가 패키지에 필요하지만 제공되지 않았습니다.</value>
+  </data>
+  <data name="DisableInteractivityArgumentDescription" xml:space="preserve">
+    <value>대화형 프롬프트 사용 안 함</value>
+    <comment>Description for a command line argument, shown next to it in the help</comment>
+  </data>
+  <data name="ConvertInstallFlowToUpgrade" xml:space="preserve">
+    <value>이미 설치된 기존 패키지를 찾았습니다. 설치된 패키지를 업그레이드하는 중...</value>
+  </data>
+  <data name="ForceArgumentDescription" xml:space="preserve">
+    <value>명령을 직접 실행하고 보안과 관련되지 않은 문제를 계속 진행합니다.</value>
+    <comment>Description for a command line argument, shown next to it in the help</comment>
+  </data>
+  <data name="PortablePackageAlreadyExists" xml:space="preserve">
+    <value>다른 원본의 휴대용 패키지가 이미 있습니다.</value>
+  </data>
+  <data name="ExtractArchiveSucceeded" xml:space="preserve">
+    <value>보관 파일을 추출했습니다.</value>
+  </data>
+  <data name="ExtractingArchive" xml:space="preserve">
+    <value>보관 파일을 추출하는 중...</value>
+  </data>
+  <data name="ArchiveFailedMalwareScan" xml:space="preserve">
+    <value>보관 검색에서 맬웨어가 검색되었습니다. 이 검사를 재정의하려면 --ignore-local-archive-malware-scan 사용하세요.</value>
+    <comment>{Locked="--ignore-local-archive-malware-scan"}</comment>
+  </data>
+  <data name="ArchiveFailedMalwareScanOverridden" xml:space="preserve">
+    <value>보관 검색에서 맬웨어가 검색되었습니다. --ignore-local-archive-malware-scan 때문에 계속</value>
+    <comment>{Locked="--ignore-local-archive-malware-scan"}</comment>
+  </data>
+  <data name="NoUpgradeArgumentDescription" xml:space="preserve">
+    <value>설치된 버전이 이미 있는 경우 업그레이드를 건너뜁니다.</value>
+  </data>
+  <data name="PackageAlreadyInstalled" xml:space="preserve">
+    <value>패키지 버전이 이미 설치되어 있습니다. 설치가 취소되었습니다.</value>
+  </data>
+  <data name="EnableAdminSettingFailed" xml:space="preserve">
+    <value>{0} 사용하도록 설정할 수 없습니다. 이 설정은 정책에 의해 제어됩니다. 자세한 내용은 시스템 관리자에게 문의하십시오.</value>
+    <comment>{Locked="{0}"} The value will be replaced with the feature name</comment>
+  </data>
+  <data name="DisableAdminSettingFailed" xml:space="preserve">
+    <value>{0} 사용하지 않도록 설정할 수 없습니다. 이 설정은 정책에 의해 제어됩니다. 자세한 내용은 시스템 관리자에게 문의하십시오.</value>
+    <comment>{Locked="{0}"} The value will be replaced with the feature name</comment>
+  </data>
+  <data name="PinAddCommandLongDescription" xml:space="preserve">
+    <value>새 핀을 추가합니다. 핀을 사용하면 Windows 패키지 관리자 패키지를 특정 버전의 범위로 업데이트하지 못하도록 제한하거나 패키지를 완전히 업데이트하지 못할 수 있습니다. 고정된 패키지는 자체적으로 업데이트되고 Windows 패키지 관리자 외부에서 업데이트될 수 있습니다. 기본적으로 고정된 패키지는 'upgrade' 명령에서 명시적으로 언급하거나 'winget upgrade --all'에 '--include-pinned' 플래그를 추가하여 업데이트할 수 있습니다.</value>
+    <comment>{Locked{"'upgrade'"} Locked{"--include-pinned"} Locked{"winget upgrade --all"}</comment>
+  </data>
+  <data name="PinAddCommandShortDescription" xml:space="preserve">
+    <value>새 핀 추가</value>
+  </data>
+  <data name="PinCommandLongDescription" xml:space="preserve">
+    <value>하위 명령을 사용하여 패키지 핀을 관리합니다. 핀은 Windows 패키지 관리자 패키지를 특정 버전의 범위로 업데이트하지 못하도록 제한하거나 패키지를 완전히 업데이트하지 못하게 할 수 있습니다. 고정된 패키지는 여전히 자체적으로 업데이트되고 Windows 패키지 관리자 외부에서 업데이트될 수 있습니다.</value>
+  </data>
+  <data name="PinCommandShortDescription" xml:space="preserve">
+    <value>패키지 핀 관리</value>
+  </data>
+  <data name="PinListCommandLongDescription" xml:space="preserve">
+    <value>현재의 모든 핀 또는 특정 핀의 전체 세부 정보를 목록에 추가합니다.</value>
+  </data>
+  <data name="PinListCommandShortDescription" xml:space="preserve">
+    <value>현재 핀 나열</value>
+  </data>
+  <data name="PinRemoveCommandLongDescription" xml:space="preserve">
+    <value>특정 패키지 핀을 제거합니다.</value>
+  </data>
+  <data name="PinRemoveCommandShortDescription" xml:space="preserve">
+    <value>패키지 핀 제거</value>
+  </data>
+  <data name="PinResetCommandLongDescription" xml:space="preserve">
+    <value>모든 기존 핀을 다시 설정합니다.</value>
+  </data>
+  <data name="PinResetCommandShortDescription" xml:space="preserve">
+    <value>핀을 다시 설정하시겠습니까?</value>
+  </data>
+  <data name="BothGatedVersionAndBlockingFlagProvided" xml:space="preserve">
+    <value>버전 및 '--blocking' 인수 모두 제공</value>
+    <comment>{Locked="--blocking"}</comment>
+  </data>
+  <data name="GatedVersionArgumentDescription" xml:space="preserve">
+    <value>패키지를 고정할 버전입니다. 와일드카드 '*'는 마지막 버전 부분으로 사용할 수 있습니다.</value>
+  </data>
+  <data name="PinAddBlockingArgumentDescription" xml:space="preserve">
+    <value>PIN이 제거될 때까지 업데이트 차단, 인수 재정의 방지</value>
+  </data>
+  <data name="SettingsExportCommandLongDescription" xml:space="preserve">
+    <value>설정을 JSON으로 내보내기</value>
+  </data>
+  <data name="SettingsExportCommandShortDescription" xml:space="preserve">
+    <value>내보내기 설정</value>
+  </data>
+  <data name="UserSettings" xml:space="preserve">
+    <value>사용자 설정: {0}</value>
+    <comment>{Locked="{0}"} Label displayed for the file containing the user settings. {0} is a placeholder replaced by the user settings file path.</comment>
+  </data>
+  <data name="SettingsWarningUsingDefault" xml:space="preserve">
+    <value>설정 파일을 로드할 수 없습니다. 기본값을 사용합니다.</value>
+  </data>
+  <data name="InstalledScopeArgumentDescription" xml:space="preserve">
+    <value>설치된 패키지 범위 필터 선택(사용자 또는 컴퓨터)</value>
+    <comment>This argument allows the user to select installed packages for just the user or for the entire machine.</comment>
   </data>
 </root>

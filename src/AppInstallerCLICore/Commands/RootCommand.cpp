@@ -148,9 +148,9 @@ namespace AppInstaller::CLI
         return { Resource::String::ToolDescription };
     }
 
-    std::string RootCommand::HelpLink() const
+    Utility::LocIndView RootCommand::HelpLink() const
     {
-        return "https://aka.ms/winget-command-help";
+        return "https://aka.ms/winget-command-help"_liv;
     }
 
     void RootCommand::Execute(Execution::Context& context) const

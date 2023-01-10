@@ -9,14 +9,15 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
 {
     namespace
     {
-        std::optional<Pinning::Pin> GetPinFromRow(std::string_view packageId, std::string_view sourceId, Pinning::PinType type, const std::string& version)
+        std::optional<Pinning::Pin> GetPinFromRow(std::string_view packageId, std::string_view sourceId, Pinning::PinType type, std::string_view version)
+
         {
             switch (type)
             {
             case Pinning::PinType::Blocking:
-                return Pinning::Pin::CreateBlockingPin({ packageId, sourceId }, Utility::Version{ version });
+                return Pinning::Pin::CreateBlockingPin({ packageId, sourceId });
             case Pinning::PinType::Pinning:
-                return Pinning::Pin::CreatePinningPin({ packageId, sourceId }, Utility::Version{ version });
+                return Pinning::Pin::CreatePinningPin({ packageId, sourceId });
             case Pinning::PinType::Gating:
                 return Pinning::Pin::CreateGatingPin({ packageId, sourceId }, Utility::GatedVersion{ version });
             default:
@@ -27,11 +28,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
 
     using namespace std::string_view_literals;
     static constexpr std::string_view s_PinTable_Table_Name = "pin"sv;
-    static constexpr std::string_view s_PinTable_PackageId_Column = "packageId"sv;
-    static constexpr std::string_view s_PinTable_SourceId_Column = "sourceId"sv;
+    static constexpr std::string_view s_PinTable_PackageId_Column = "package_id"sv;
+    static constexpr std::string_view s_PinTable_SourceId_Column = "source_id"sv;
     static constexpr std::string_view s_PinTable_Type_Column = "type"sv;
     static constexpr std::string_view s_PinTable_Version_Column = "version"sv;
-    static constexpr std::string_view s_PinTable_Index = "pinIndex"sv;
+    static constexpr std::string_view s_PinTable_Index = "pin_index"sv;
 
     std::string_view PinTable::TableName()
     {
@@ -42,7 +43,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
     {
         using namespace SQLite::Builder;
 
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "createPinTable_v1_0");
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "createpintable_v1_0");
 
         StatementBuilder createTableBuilder;
         createTableBuilder.CreateTable(s_PinTable_Table_Name).BeginColumns();
@@ -63,7 +64,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
         savepoint.Commit();
     }
 
-    std::optional<SQLite::rowid_t> PinTable::GetByPinKey(SQLite::Connection& connection, const Pinning::PinKey& pinKey)
+    std::optional<SQLite::rowid_t> PinTable::GetIdByPinKey(SQLite::Connection& connection, const Pinning::PinKey& pinKey)
     {
         SQLite::Builder::StatementBuilder builder;
         builder.Select(SQLite::RowIDName).From(s_PinTable_Table_Name)
@@ -95,20 +96,20 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
                 (std::string_view)pin.GetPackageId(),
                 pin.GetSourceId(),
                 pin.GetType(),
-                pin.GetVersion().ToString());
+                pin.GetGatedVersion().ToString());
 
         builder.Execute(connection);
         return connection.GetLastInsertRowID();
     }
 
-    bool PinTable::UpdatePin(SQLite::Connection& connection, SQLite::rowid_t pinId, const Pinning::Pin& pin)
+    bool PinTable::UpdatePinById(SQLite::Connection& connection, SQLite::rowid_t pinId, const Pinning::Pin& pin)
     {
         SQLite::Builder::StatementBuilder builder;
         builder.Update(s_PinTable_Table_Name).Set()
             .Column(s_PinTable_PackageId_Column).Equals((std::string_view)pin.GetPackageId())
             .Column(s_PinTable_SourceId_Column).Equals(pin.GetSourceId())
             .Column(s_PinTable_Type_Column).Equals(pin.GetType())
-            .Column(s_PinTable_Version_Column).Equals(pin.GetVersion().ToString())
+            .Column(s_PinTable_Version_Column).Equals(pin.GetGatedVersion().ToString())
             .Where(SQLite::RowIDName).Equals(pinId);
 
         builder.Execute(connection);
@@ -160,7 +161,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
         {
             auto [packageId, sourceId, type, gatedVersion] = select.GetRow<std::string, std::string, Pinning::PinType, std::string>();
             auto pin = GetPinFromRow(packageId, sourceId, type, gatedVersion);
-            if (pin) {
+            if (pin)
+            {
                 pins.push_back(std::move(pin.value()));
             }
         }
@@ -168,10 +170,18 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
         return pins;
     }
 
-    void PinTable::ResetAllPins(SQLite::Connection& connection)
+    bool PinTable::ResetAllPins(SQLite::Connection& connection, std::string_view sourceId)
     {
         SQLite::Builder::StatementBuilder builder;
         builder.DeleteFrom(s_PinTable_Table_Name);
+
+        if (!sourceId.empty())
+        {
+            builder.Where(s_PinTable_SourceId_Column).Equals(sourceId);
+        }
+
         builder.Execute(connection);
+
+        return connection.GetChanges() != 0;
     }
 }

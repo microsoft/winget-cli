@@ -16,7 +16,7 @@ namespace AppInstaller::CLI::Workflow
     namespace
     {
         // Creates a Pin appropriate for the context based on the arguments provided
-        Pinning::Pin CreatePin(Execution::Context& context, std::string_view packageId, std::string_view sourceId, const std::string& installedVersion)
+        Pinning::Pin CreatePin(Execution::Context& context, std::string_view packageId, std::string_view sourceId)
         {
             if (context.Args.Contains(Execution::Args::Type::GatedVersion))
             {
@@ -24,19 +24,27 @@ namespace AppInstaller::CLI::Workflow
             }
             else if (context.Args.Contains(Execution::Args::Type::BlockingPin))
             {
-                return Pinning::Pin::CreateBlockingPin({ packageId, sourceId }, { installedVersion });
+                return Pinning::Pin::CreateBlockingPin({ packageId, sourceId });
             }
             else
             {
-                return Pinning::Pin::CreatePinningPin({ packageId, sourceId }, { installedVersion });
+                return Pinning::Pin::CreatePinningPin({ packageId, sourceId });
             }
         }
     }
 
-    void OpenPinningIndex(Execution::Context& context)
+    void OpenPinningIndex::operator()(Execution::Context& context) const
     {
-        auto pinningIndex = PinningIndex::OpenOrCreateDefault(SQLiteStorageBase::OpenDisposition::ReadWrite);
-        context.Add<Execution::Data::PinningIndex>(std::make_shared<PinningIndex>(std::move(pinningIndex)));
+        auto openDisposition = m_readOnly ? SQLiteStorageBase::OpenDisposition::Read : SQLiteStorageBase::OpenDisposition::ReadWrite;
+        auto pinningIndex = PinningIndex::OpenOrCreateDefault(openDisposition);
+        if (!pinningIndex)
+        {
+            AICLI_LOG(CLI, Error, << "Unable to open pinning index.");
+            context.Reporter.Error() << Resource::String::PinCannotOpenIndex << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_CANNOT_OPEN_PINNING_INDEX);
+        }
+
+        context.Add<Execution::Data::PinningIndex>(std::move(pinningIndex));
     }
 
     void GetAllPins(Execution::Context& context)
@@ -78,10 +86,6 @@ namespace AppInstaller::CLI::Workflow
     {
         auto package = context.Get<Execution::Data::Package>();
         auto installedVersion = context.Get<Execution::Data::InstalledPackageVersion>();
-        if (!installedVersion)
-        {
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND);
-        }
 
         auto installedVersionString = installedVersion->GetProperty(PackageVersionProperty::Version);
 
@@ -212,8 +216,8 @@ namespace AppInstaller::CLI::Workflow
             {
                 Resource::String::SearchId,
                 Resource::String::SearchSource,
-                Resource::String::PinType,
                 Resource::String::SearchVersion,
+                Resource::String::PinType,
             });
 
         for (const auto& pin : pins)
@@ -222,7 +226,7 @@ namespace AppInstaller::CLI::Workflow
                 pin.GetPackageId(),
                 sourceNames[pin.GetSourceId()],
                 std::string{ ToString(pin.GetType()) },
-                pin.GetVersion().ToString(),
+                pin.GetGatedVersion().ToString(),
                 });
         }
 
@@ -232,25 +236,30 @@ namespace AppInstaller::CLI::Workflow
     void ResetAllPins(Execution::Context& context)
     {
         AICLI_LOG(CLI, Info, << "Resetting all pins");
-        if (context.Args.Contains(Execution::Args::Type::Force))
-        {
-            context.Reporter.Info() << Resource::String::PinResettingAll << std::endl;
+        context.Reporter.Info() << Resource::String::PinResettingAll << std::endl;
 
-            if (context.Get<Execution::Data::Pins>().empty())
+        std::string sourceId;
+        if (context.Args.Contains(Execution::Args::Type::Source))
+        {
+            auto sourceName = context.Args.GetArg(Execution::Args::Type::Source);
+            auto sources = Source::GetCurrentSources();
+            for (const auto& source : sources)
             {
-                context.Reporter.Info() << Resource::String::PinNoPinsExist << std::endl;
+                if (Utility::CaseInsensitiveEquals(source.Name, sourceName))
+                {
+                    sourceId = source.Identifier;
+                    break;
+                }
             }
-            else
-            {
-                auto pinningIndex = context.Get<Execution::Data::PinningIndex>();
-                pinningIndex->ResetAllPins();
-            }
+        }
+
+        if (context.Get<Execution::Data::PinningIndex>()->ResetAllPins(sourceId))
+        {
+            context.Reporter.Info() << Resource::String::PinResetSuccessful << std::endl;
         }
         else
         {
-            AICLI_LOG(CLI, Info, << "--force argument is not present");
-            context.Reporter.Info() << Resource::String::PinResetUseForceArg << std::endl;
-            context << ReportPins;
+            context.Reporter.Info() << Resource::String::PinNoPinsExist << std::endl;
         }
     }
 

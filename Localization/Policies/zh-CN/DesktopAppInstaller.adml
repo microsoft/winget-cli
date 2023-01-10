@@ -31,18 +31,26 @@
 如果启用或未配置此设置，则用户可以使用 Windows 程序包管理器在本地清单中安装包。
 
 如果禁用此设置，则用户将无法使用 Windows 程序包管理器在本地清单中安装包。</string>
-      <string id="EnableBypassCertificatePinningForMicrosoftStore">Enable App Installer Microsoft Store Source Pinned Certificate Bypass</string>
-      <string id="EnableBypassCertificatePinningForMicrosoftStoreExplanation">This policy controls whether the Windows Package Manager can be configured to disable the requirement to use a pinned certificate for the Microsoft Store source.
+      <string id="EnableBypassCertificatePinningForMicrosoftStore">启用应用安装程序 Microsoft Store 源证书验证绕过</string>
+      <string id="EnableBypassCertificatePinningForMicrosoftStoreExplanation">此策略控制 Windows 程序包管理器在发起与 Microsoft Store 源的连接时是否验证 Microsoft Store 证书哈希与已知的 Microsoft Store 证书的匹配情况。
+如果启用此策略，Windows 程序包管理器将绕过 Microsoft Store 证书验证。
 
-If you enable or do not configure this setting, users will be able to bypass the pinned certificate used to validate the Microsoft Store source.
+如果禁用此策略，则 Windows 程序包管理器在与 Microsoft Store 源通信之前，将验证所使用的 Microsoft Store 证书是否有效且属于 Microsoft Store。
 
-If you disable this setting, users will not be able to bypass the pinned certificate used to validate the Microsoft Store source.</string>
+如果未配置此策略，则将遵循 Windows 程序包管理器的管理员设置。</string>
       <string id="EnableHashOverride">启用应用安装程序哈希替代</string>
       <string id="EnableHashOverrideExplanation">此策略控制是否可以配置 Windows 程序包管理器，以便在设置中启用覆盖 SHA256 安全验证的能力。
 
 如果启用或未配置此策略，则用户将能够在 Windows 程序包管理器设置中启用覆盖 SHA256 安全验证的能力。
 
 如果禁用此策略，则用户将无法在 Windows 程序包管理器设置中启用覆盖 SHA256 安全验证的能力。</string>
+      <string id="EnableLocalArchiveMalwareScanOverride">启用应用安装程序本地存档恶意软件扫描替代</string>
+      <string id="EnableLocalArchiveMalwareScanOverrideExplanation">此策略控制在使用命令行参数通过本地清单安装存档文件时替代恶意软件漏洞扫描的能力。
+如果启用此策略，则用户可以在对存档文件执行本地清单安装时替代恶意软件扫描。
+
+如果禁用此策略，则在使用本地清单进行安装时，用户将无法替代对存档文件的恶意软件扫描。
+
+如果未配置此策略，则将遵循 Windows 程序包管理器的管理员设置。</string>
       <string id="EnableDefaultSource">启用应用安装程序默认源</string>
       <string id="EnableDefaultSourceExplanation">此策略控制 Windows 程序包管理器中包含的默认源。
 

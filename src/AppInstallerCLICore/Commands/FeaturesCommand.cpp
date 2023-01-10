@@ -20,9 +20,9 @@ namespace AppInstaller::CLI
         return { Resource::String::FeaturesCommandLongDescription };
     }
 
-    std::string FeaturesCommand::HelpLink() const
+    Utility::LocIndView FeaturesCommand::HelpLink() const
     {
-        return "https://aka.ms/winget-experimentalfeatures";
+        return "https://aka.ms/winget-experimentalfeatures"_liv;
     }
 
     void FeaturesCommand::ExecuteInternal(Execution::Context& context) const

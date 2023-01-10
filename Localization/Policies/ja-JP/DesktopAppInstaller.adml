@@ -31,18 +31,26 @@
 この設定を有効にした場合、または構成しなかった場合、ユーザーは Windows パッケージマネージャーを使用してローカルのマニフェストを含むパッケージをインストールできます。
 
 この設定を無効にした場合、ユーザーは Windows パッケージマネージャーを使用してローカルのマニフェストを含むパッケージをインストールできなくなります。</string>
-      <string id="EnableBypassCertificatePinningForMicrosoftStore">Enable App Installer Microsoft Store Source Pinned Certificate Bypass</string>
-      <string id="EnableBypassCertificatePinningForMicrosoftStoreExplanation">This policy controls whether the Windows Package Manager can be configured to disable the requirement to use a pinned certificate for the Microsoft Store source.
+      <string id="EnableBypassCertificatePinningForMicrosoftStore">アプリ インストーラーでの Microsoft Store ソースの固定証明書のバイパスを有効にする</string>
+      <string id="EnableBypassCertificatePinningForMicrosoftStoreExplanation">このポリシーでは、Microsoft Store ソースへの接続を開始するときに、Windows パッケージ マネージャーが既知の Microsoft Store 証明書と一致する Microsoft Store 証明書ハッシュを検証するかどうかを制御します。
+このポリシーを有効にした場合、Windows パッケージ マネージャーは Microsoft Store 証明書の検証をバイパスします。
 
-If you enable or do not configure this setting, users will be able to bypass the pinned certificate used to validate the Microsoft Store source.
+このポリシーを無効にした場合、Windows パッケージ マネージャーは、Microsoft Store ソースと通信する前に、使用されている Microsoft Store 証明書が有効であり、Microsoft Store に属していることを検証します。
 
-If you disable this setting, users will not be able to bypass the pinned certificate used to validate the Microsoft Store source.</string>
+このポリシーを構成しなかった場合は、Windows パッケージ マネージャー管理者の設定が適用されます。</string>
       <string id="EnableHashOverride">アプリ インストーラーのハッシュ上書きを有効にする</string>
       <string id="EnableHashOverrideExplanation">このポリシーでは、設定の SHA256 セキュリティ検証を上書きする機能を有効にできるように Windows パッケージ マネージャーを構成できるかどうかを制御します。
 
 このポリシーを有効にした場合、または構成しなかった場合、ユーザーは Windows パッケージ マネージャーの設定で SHA256 セキュリティ検証を上書きする機能を有効にすることができます。
 
 このポリシーを無効にした場合、ユーザーは Windows パッケージ マネージャーの設定で SHA256 セキュリティ検証を上書きする機能を有効することができなくなります。</string>
+      <string id="EnableLocalArchiveMalwareScanOverride">アプリ インストーラー ローカル アーカイブ マルウェア スキャンの上書きを有効にする</string>
+      <string id="EnableLocalArchiveMalwareScanOverrideExplanation">このポリシーでは、コマンド ライン引数を使用してローカル マニフェストを使用してアーカイブ ファイルをインストールするときに、マルウェアの脆弱性スキャンをオーバーライドする機能を制御します。
+このポリシーを有効にした場合、アーカイブ ファイルのローカル マニフェストのインストールを実行するときに、ユーザーはマルウェア スキャンをオーバーライドできます。
+
+このポリシーを無効にすると、ユーザーはローカル マニフェストを使用してインストールするときにアーカイブ ファイルのマルウェア スキャンをオーバーライドできなくなります。
+
+このポリシーを構成しなかった場合は、Windows パッケージ マネージャー管理者の設定が適用されます。</string>
       <string id="EnableDefaultSource">アプリ インストーラーの既定のソースを有効にする</string>
       <string id="EnableDefaultSourceExplanation">このポリシーでは、Windows パッケージ マネージャーに含まれている 既定ソースを制御します。
 

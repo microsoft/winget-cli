@@ -4,6 +4,7 @@ ACTIONDATA
 ACTIONSTART
 addfile
 addmanifest
+addpin
 addportablefile
 addstore
 admins
@@ -94,6 +95,7 @@ cpprestsdk
 cppwinrt
 CPRWL
 createnew
+createpintable
 createportabletable
 createtables
 cref
@@ -390,6 +392,7 @@ pfp
 PGP
 php
 PII
+pinningindex
 pipssource
 PKCS
 placeholders
@@ -442,10 +445,12 @@ regex
 regexp
 removefile
 removemanifest
+removepin
 removeportablefile
 repolibtest
 requeue
 rescap
+resetpins
 resheader
 resmimetype
 RESOLVESOURCE
@@ -624,6 +629,7 @@ Unregisters
 untimes
 updatefile
 updatemanifest
+updatepin
 updateportablefile
 UPLEVEL
 upvote

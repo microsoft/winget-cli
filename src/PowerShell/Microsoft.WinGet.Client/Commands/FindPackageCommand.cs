@@ -8,12 +8,13 @@ namespace Microsoft.WinGet.Client.Commands
 {
     using System.Management.Automation;
     using Microsoft.Management.Deployment;
+    using Microsoft.WinGet.Client.Commands.Common;
     using Microsoft.WinGet.Client.Common;
 
     /// <summary>
     /// Searches configured sources for packages.
     /// </summary>
-    [Cmdlet(VerbsCommon.Find, Constants.PackageNoun)]
+    [Cmdlet(VerbsCommon.Find, Constants.WinGetNouns.Package)]
     [OutputType(typeof(MatchResult))]
     public sealed class FindPackageCommand : BaseFinderExtendedCommand
     {

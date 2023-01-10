@@ -846,9 +846,9 @@ TEST_CASE("InstallFlow_SearchAndInstall", "[InstallFlow][workflow]")
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForOpenSource(context, true);
+    OverrideForOpenSource(context, CreateTestSource({ TSR::TestQuery_ReturnOne }), true);
     OverrideForShellExecute(context);
-    context.Args.AddArg(Execution::Args::Type::Query, "TestQueryReturnOne"sv);
+    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestQuery_ReturnOne.Query);
 
     InstallCommand install({});
     install.Execute(context);
@@ -869,7 +869,7 @@ TEST_CASE("InstallFlow_SearchFoundNoApp", "[InstallFlow][workflow]")
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForOpenSource(context, true);
+    OverrideForOpenSource(context, CreateTestSource({}), true);
     context.Args.AddArg(Execution::Args::Type::Query, "TestQueryReturnZero"sv);
 
     InstallCommand install({});
@@ -885,8 +885,8 @@ TEST_CASE("InstallFlow_SearchFoundMultipleApp", "[InstallFlow][workflow]")
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForOpenSource(context, true);
-    context.Args.AddArg(Execution::Args::Type::Query, "TestQueryReturnTwo"sv);
+    OverrideForOpenSource(context, CreateTestSource({ TSR::TestQuery_ReturnTwo }), true);
+    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestQuery_ReturnTwo.Query);
 
     InstallCommand install({});
     install.Execute(context);

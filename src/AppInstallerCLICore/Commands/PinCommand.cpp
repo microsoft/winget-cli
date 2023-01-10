@@ -13,7 +13,7 @@ namespace AppInstaller::CLI
     using namespace AppInstaller::Utility::literals;
     using namespace std::string_view_literals;
 
-    static constexpr std::string_view s_PinCommand_HelpLink = "https://aka.ms/winget-command-pin"sv;
+    Utility::LocIndView s_PinCommand_HelpLink = "https://aka.ms/winget-command-pin"_liv;
 
     std::vector<std::unique_ptr<Command>> PinCommand::GetCommands() const
     {
@@ -35,9 +35,9 @@ namespace AppInstaller::CLI
         return { Resource::String::PinCommandLongDescription };
     }
 
-    std::string PinCommand::HelpLink() const
+    Utility::LocIndView PinCommand::HelpLink() const
     {
-        return std::string{ s_PinCommand_HelpLink };
+        return s_PinCommand_HelpLink;
     }
 
     void PinCommand::ExecuteInternal(Execution::Context& context) const
@@ -100,9 +100,9 @@ namespace AppInstaller::CLI
         }
     }
 
-    std::string PinAddCommand::HelpLink() const
+    Utility::LocIndView PinAddCommand::HelpLink() const
     {
-        return std::string{ s_PinCommand_HelpLink };
+        return s_PinCommand_HelpLink;
     }
 
     void PinAddCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
@@ -124,7 +124,7 @@ namespace AppInstaller::CLI
             Workflow::EnsureOneMatchFromSearchResult(false) <<
             Workflow::GetInstalledPackageVersion <<
             Workflow::ReportPackageIdentity <<
-            Workflow::OpenPinningIndex <<
+            Workflow::OpenPinningIndex() <<
             Workflow::SearchPin <<
             Workflow::AddPin;
     }
@@ -181,9 +181,9 @@ namespace AppInstaller::CLI
         }
     }
 
-    std::string PinRemoveCommand::HelpLink() const
+    Utility::LocIndView PinRemoveCommand::HelpLink() const
     {
-        return std::string{ s_PinCommand_HelpLink };
+        return s_PinCommand_HelpLink;
     }
 
     void PinRemoveCommand::ExecuteInternal(Execution::Context& context) const
@@ -196,7 +196,7 @@ namespace AppInstaller::CLI
             Workflow::EnsureOneMatchFromSearchResult(false) <<
             Workflow::GetInstalledPackageVersion <<
             Workflow::ReportPackageIdentity <<
-            Workflow::OpenPinningIndex <<
+            Workflow::OpenPinningIndex() <<
             Workflow::SearchPin <<
             Workflow::RemovePin;
     }
@@ -253,15 +253,15 @@ namespace AppInstaller::CLI
         }
     }
 
-    std::string PinListCommand::HelpLink() const
+    Utility::LocIndView PinListCommand::HelpLink() const
     {
-        return std::string{ s_PinCommand_HelpLink };
+        return s_PinCommand_HelpLink;
     }
 
     void PinListCommand::ExecuteInternal(Execution::Context& context) const
     {
         context <<
-            Workflow::OpenPinningIndex <<
+            Workflow::OpenPinningIndex(/* readOnly */ true) <<
             Workflow::GetAllPins <<
             Workflow::OpenSource() <<
             Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
@@ -273,6 +273,7 @@ namespace AppInstaller::CLI
     {
         return {
             Argument::ForType(Args::Type::Force),
+            Argument::ForType(Args::Type::Source),
         };
     }
 
@@ -286,20 +287,32 @@ namespace AppInstaller::CLI
         return { Resource::String::PinResetCommandLongDescription };
     }
 
-    std::string PinResetCommand::HelpLink() const
+    Utility::LocIndView PinResetCommand::HelpLink() const
     {
-        return std::string{ s_PinCommand_HelpLink };
+        return s_PinCommand_HelpLink;
     }
 
     void PinResetCommand::ExecuteInternal(Execution::Context& context) const
     {
-        // Like 'source reset', if we don't get the --force argument we will only list existing pins.
-        context <<
-            Workflow::OpenPinningIndex <<
-            Workflow::GetAllPins <<
-            Workflow::OpenSource() <<
-            Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
-            Workflow::CrossReferencePinsWithSource <<
-            Workflow::ResetAllPins;
+
+        if (context.Args.Contains(Execution::Args::Type::Force))
+        {
+            context <<
+                Workflow::OpenPinningIndex() <<
+                Workflow::ResetAllPins;
+        }
+        else
+        {
+            AICLI_LOG(CLI, Info, << "--force argument is not present");
+            context.Reporter.Info() << Resource::String::PinResetUseForceArg << std::endl;
+
+            context <<
+                Workflow::OpenPinningIndex(/* readOnly */ true) <<
+                Workflow::GetAllPins <<
+                Workflow::OpenSource() <<
+                Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
+                Workflow::CrossReferencePinsWithSource <<
+                Workflow::ReportPins;
+        }
     }
 }
