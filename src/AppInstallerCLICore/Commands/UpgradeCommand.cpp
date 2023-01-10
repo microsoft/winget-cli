@@ -98,6 +98,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Silent),          // -h
             Argument::ForType(Args::Type::Purge),
             Argument::ForType(Args::Type::Log),             // -o
+            Argument::ForType(Args::Type::CustomSwitches),
             Argument::ForType(Args::Type::Override),
             Argument::ForType(Args::Type::InstallLocation), // -l
             Argument{ s_ArgumentName_Scope, Argument::NoAlias, Execution::Args::Type::InstallScope, Resource::String::InstalledScopeArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help },

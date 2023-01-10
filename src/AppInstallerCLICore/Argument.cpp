@@ -53,6 +53,8 @@ namespace AppInstaller::CLI
             return Argument{ "architecture"_liv, 'a', Args::Type::InstallArchitecture, Resource::String::InstallArchitectureArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         case Args::Type::Log:
             return Argument{ "log"_liv, 'o', Args::Type::Log, Resource::String::LogArgumentDescription, ArgumentType::Standard };
+        case Args::Type::CustomSwitches:
+            return Argument{ "custom"_liv, NoAlias, Args::Type::CustomSwitches, Resource::String::CustomSwitchesArgumentDescription, ArgumentType::Standard};
         case Args::Type::Override:
             return Argument{ "override"_liv, NoAlias, Args::Type::Override, Resource::String::OverrideArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         case Args::Type::InstallLocation:

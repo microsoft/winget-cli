@@ -117,6 +117,10 @@ namespace AppInstaller::CLI::Workflow
             {
                 installerArgs += ' ' + installerSwitches.at(InstallerSwitchType::Custom);
             }
+            if (context.Args.Contains(Execution::Args::Type::CustomSwitches))
+            {
+                installerArgs += ' ' + Utility::Normalize(context.Args.GetArg(Execution::Args::Type::CustomSwitches));
+            }
 
             // Construct update arg if applicable
             if (isUpdate && installerSwitches.find(InstallerSwitchType::Update) != installerSwitches.end())

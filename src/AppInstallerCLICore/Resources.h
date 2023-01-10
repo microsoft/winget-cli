@@ -50,6 +50,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConvertInstallFlowToUpgrade);
         WINGET_DEFINE_RESOURCE_STRINGID(CountArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(CountOutOfBoundsError);
+        WINGET_DEFINE_RESOURCE_STRINGID(CustomSwitchesArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(DependenciesFlowInstall);
         WINGET_DEFINE_RESOURCE_STRINGID(DependenciesFlowSourceNotFound);
         WINGET_DEFINE_RESOURCE_STRINGID(DependenciesFlowSourceTooManyMatches);
