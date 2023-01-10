@@ -117,7 +117,7 @@
 
   <Target Name="CopyCoreBinaries" AfterTargets="AfterBuild" Condition="'$(TargetFramework)' == '$(CoreFramework)'">
     <ItemGroup>
-      <CoreBinaries Include="$(OutputPath)\**\*.*" />
+      <CoreBinaries Include="$(OutputPath)\*.dll" />
     </ItemGroup>
     <Message Importance="high" Text="Copying @(CoreBinaries) to '$(PowerShellModuleOutputDirectory)\$(Platform)\Core'" />
     <Copy SourceFiles="@(CoreBinaries)" DestinationFolder="$(PowerShellModuleOutputDirectory)\$(Platform)\Core\%(RecursiveDir)" />
