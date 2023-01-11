@@ -97,7 +97,8 @@ namespace Microsoft.WinGet.Client.Commands.Common
                 options.ReplacementInstallerArguments = this.Override;
             }
 
-            if (this.Custom != null)
+            // Since these arguments are appended to the installer at runtime, it doesn't make sense to append them if they are whitespace
+            if (!string.IsNullOrWhiteSpace(this.Custom))
             {
                 options.AdditionalInstallerArguments = this.Custom;
             }

@@ -117,9 +117,16 @@ namespace AppInstaller::CLI::Workflow
             {
                 installerArgs += ' ' + installerSwitches.at(InstallerSwitchType::Custom);
             }
+
+            // Construct custom arg passed in by cli arg
             if (context.Args.Contains(Execution::Args::Type::CustomSwitches))
             {
-                installerArgs += ' ' + Utility::Normalize(context.Args.GetArg(Execution::Args::Type::CustomSwitches));
+                std::string_view customSwitches = context.Args.GetArg(Execution::Args::Type::CustomSwitches);
+                // Since these arguments are appended to the installer at runtime, it doesn't make sense to append them if empty or whitespace
+                if (!customSwitches.empty() && !std::all_of(customSwitches.begin(), customSwitches.end(), isspace))
+                {
+                    installerArgs += ' ' + Utility::Normalize(customSwitches);
+                }
             }
 
             // Construct update arg if applicable
