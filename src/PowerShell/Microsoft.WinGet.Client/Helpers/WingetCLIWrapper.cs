@@ -66,7 +66,7 @@ namespace Microsoft.WinGet.Client.Helpers
         public WinGetCLICommandResult RunCommand(string command, string parameters = null, int timeOut = 60000)
         {
             string args = command;
-            if (string.IsNullOrEmpty(parameters))
+            if (!string.IsNullOrEmpty(parameters))
             {
                 args += ' ' + parameters;
             }

@@ -23,9 +23,9 @@ namespace Microsoft.WinGet.Client.Common
         /// <summary>
         /// Verifies winget runs correctly. If it doesn't, tries to find the reason why it failed.
         /// </summary>
-        /// <param name="pSCmdlet">The calling cmdlet.</param>
+        /// <param name="psCmdlet">The calling cmdlet.</param>
         /// <param name="expectedVersion">Expected version.</param>
-        public static void AssertWinGet(PSCmdlet pSCmdlet, string expectedVersion)
+        public static void AssertWinGet(PSCmdlet psCmdlet, string expectedVersion)
         {
             try
             {
@@ -34,25 +34,10 @@ namespace Microsoft.WinGet.Client.Common
                 var wingetCliWrapper = new WingetCLIWrapper(false);
                 var result = wingetCliWrapper.RunCommand("--version");
                 result.VerifyExitCode();
-
-                if (!string.IsNullOrEmpty(expectedVersion))
-                {
-                    // Verify version
-                    var installedVersion = WinGetVersionHelper.InstalledWinGetVersion;
-                    if (expectedVersion != installedVersion)
-                    {
-                        throw new WinGetIntegrityException(
-                            IntegrityCategory.UnexpectedVersion,
-                            string.Format(
-                                Resources.IntegrityUnexpectedVersionMessage,
-                                installedVersion,
-                                expectedVersion));
-                    }
-                }
             }
             catch (Win32Exception)
             {
-                throw new WinGetIntegrityException(GetReason(pSCmdlet));
+                throw new WinGetIntegrityException(GetReason(psCmdlet));
             }
             catch (Exception e) when (e is WinGetCLIException || e is WinGetCLITimeoutException)
             {
@@ -62,19 +47,36 @@ namespace Microsoft.WinGet.Client.Common
             {
                 throw new WinGetIntegrityException(IntegrityCategory.Unknown, e);
             }
+
+            // WinGet is installed. Verify version if needed.
+            if (!string.IsNullOrEmpty(expectedVersion))
+            {
+                // Verify version
+                // TODO: we could also validate if the given version is valid (look at GitHub release).
+                var installedVersion = WinGetVersionHelper.InstalledWinGetVersion;
+                if (expectedVersion != installedVersion)
+                {
+                    throw new WinGetIntegrityException(
+                        IntegrityCategory.UnexpectedVersion,
+                        string.Format(
+                            Resources.IntegrityUnexpectedVersionMessage,
+                            installedVersion,
+                            expectedVersion));
+                }
+            }
         }
 
         /// <summary>
         /// Verifies winget runs correctly.
         /// </summary>
-        /// <param name="pSCmdlet">The calling cmdlet.</param>
+        /// <param name="psCmdlet">The calling cmdlet.</param>
         /// <param name="expectedVersion">Expected version.</param>
         /// <returns>Integrity category.</returns>
-        public static IntegrityCategory GetIntegrityCategory(PSCmdlet pSCmdlet, string expectedVersion)
+        public static IntegrityCategory GetIntegrityCategory(PSCmdlet psCmdlet, string expectedVersion)
         {
             try
             {
-                AssertWinGet(pSCmdlet, expectedVersion);
+                AssertWinGet(psCmdlet, expectedVersion);
             }
             catch (WinGetIntegrityException e)
             {
@@ -84,7 +86,7 @@ namespace Microsoft.WinGet.Client.Common
             return IntegrityCategory.Installed;
         }
 
-        private static IntegrityCategory GetReason(PSCmdlet pSCmdlet)
+        private static IntegrityCategory GetReason(PSCmdlet psCmdlet)
         {
             // Ok, so you are here because calling winget --version failed. Lets try to figure out why.
 
@@ -123,7 +125,7 @@ namespace Microsoft.WinGet.Client.Common
 
             // It could be that AppInstaller package is old or the package is not
             // registered at this point. To know that, call Get-AppxPackage.
-            var appxModule = new AppxModuleHelper(pSCmdlet);
+            var appxModule = new AppxModuleHelper(psCmdlet);
             string version = appxModule.GetAppInstallerPropertyValue("Version");
             if (version is null)
             {

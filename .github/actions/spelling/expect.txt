@@ -246,6 +246,7 @@ PCCERT
 PCs
 pcwsz
 PEGI
+PFM
 pfn
 pfxpath
 Pherson
@@ -263,6 +264,7 @@ processthreads
 productcode
 pscustomobject
 pseudocode
+PSHOST
 psobject
 ptstr
 publickey
@@ -281,6 +283,7 @@ REFIID
 regexes
 REGSAM
 relativefilepath
+remoting
 reparse
 restsource
 rgex

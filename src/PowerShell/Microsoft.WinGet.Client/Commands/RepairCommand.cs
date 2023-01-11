@@ -17,9 +17,13 @@ namespace Microsoft.WinGet.Client.Commands
     /// Repair-WinGet. Repairs winget if needed.
     /// </summary>
     [Cmdlet(VerbsDiagnostic.Repair, Constants.WinGetNouns.WinGet)]
+    [OutputType(typeof(int))]
     public class RepairCommand : BaseCommand
     {
         private const string EnvPath = "env:PATH";
+        private const int Succeeded = 0;
+        private const int Failed = -1;
+
         private static readonly string[] WriteInformationTags = new string[] { "PSHOST" };
 
         /// <summary>
@@ -40,7 +44,7 @@ namespace Microsoft.WinGet.Client.Commands
         /// </summary>
         protected override void ProcessRecord()
         {
-            RepairResult repairResult = RepairResult.Failure;
+            int result = Failed;
 
             var integrityCategory = WinGetIntegrity.GetIntegrityCategory(this, this.Version);
 
@@ -51,12 +55,12 @@ namespace Microsoft.WinGet.Client.Commands
             if (integrityCategory == IntegrityCategory.Installed ||
                 integrityCategory == IntegrityCategory.UnexpectedVersion)
             {
-                repairResult = this.RepairForInstalled(preRelease, WinGetVersionHelper.InstalledWinGetVersion, this.Version);
+                result = this.RepairForInstalled(preRelease, WinGetVersionHelper.InstalledWinGetVersion, this.Version);
             }
             else if (integrityCategory == IntegrityCategory.NotInPath)
             {
                 this.RepairEnvPath();
-                repairResult = RepairResult.PathUpdated;
+                result = Succeeded;
             }
             else if (integrityCategory == IntegrityCategory.AppInstallerNotRegistered)
             {
@@ -64,7 +68,7 @@ namespace Microsoft.WinGet.Client.Commands
                 appxModule.RegisterAppInstaller();
 
                 this.WriteDebug($"WinGet version {WinGetVersionHelper.InstalledWinGetVersion} registered");
-                repairResult = RepairResult.Registered;
+                result = Succeeded;
             }
             else if (integrityCategory == IntegrityCategory.AppInstallerNotInstalled ||
                      integrityCategory == IntegrityCategory.AppInstallerNotSupported ||
@@ -72,27 +76,24 @@ namespace Microsoft.WinGet.Client.Commands
             {
                 if (this.DownloadAndInstall(preRelease, this.Version, false))
                 {
-                    repairResult = RepairResult.Installed;
+                    result = Succeeded;
                 }
             }
             else if (integrityCategory == IntegrityCategory.AppExecutionAliasDisabled)
             {
                 // Sorry, but the user has to manually enabled it.
                 this.WriteInformation(Resources.AppExecutionAliasDisabledHelpMessage, WriteInformationTags);
-                repairResult = RepairResult.NeedsManualRepair;
             }
             else
             {
                 this.WriteInformation(Resources.WinGetNotSupportedMessage, WriteInformationTags);
             }
 
-            this.WriteObject(repairResult);
+            this.WriteObject(result);
         }
 
-        private RepairResult RepairForInstalled(bool preRelease, string installedVersion, string toInstallVersion)
+        private int RepairForInstalled(bool preRelease, string installedVersion, string toInstallVersion)
         {
-            RepairResult repairResult = RepairResult.Failure;
-
             if (string.IsNullOrEmpty(toInstallVersion))
             {
                 var gitHubRelease = new GitHubRelease();
@@ -115,16 +116,16 @@ namespace Microsoft.WinGet.Client.Commands
 
                 if (this.DownloadAndInstall(preRelease, toInstallVersion, downgrade))
                 {
-                    repairResult = downgrade ? RepairResult.Downgraded : RepairResult.Updated;
+                    return Succeeded;
                 }
             }
             else
             {
                 this.WriteDebug($"Installed WinGet version and target match {WinGetVersionHelper.InstalledWinGetVersion}");
-                repairResult = RepairResult.Noop;
+                return Succeeded;
             }
 
-            return repairResult;
+            return Failed;
         }
 
         private bool DownloadAndInstall(bool preRelease, string versionTag, bool downgrade)
