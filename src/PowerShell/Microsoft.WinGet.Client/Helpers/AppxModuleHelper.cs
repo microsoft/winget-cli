@@ -6,7 +6,6 @@
 
 namespace Microsoft.WinGet.Client.Helpers
 {
-    using System;
     using System.IO;
     using System.Linq;
     using System.Management.Automation;
@@ -16,23 +15,23 @@ namespace Microsoft.WinGet.Client.Helpers
 
     /// <summary>
     /// Helper to make calls to the Appx module.
-    /// There's a bug in the Appx Module that it can't be loaded from Core in pre 10.0.22453.0 builds without
-    /// the -UseWindowsPowerShell option. In post 10.0.22453.0 builds there's really no difference between
-    /// using or not -UseWindowsPowerShell as it will automatically get loaded using WinPSCompatSession remoting session.
-    /// https://github.com/PowerShell/PowerShell/issues/13138.
     /// </summary>
     internal class AppxModuleHelper
     {
+        private const string GetAppxModule = "Get-Module Appx";
         private const string ImportModuleCore = "Import-Module Appx -UseWindowsPowerShell";
         private const string GetAppxPackageCommand = "Get-AppxPackage {0}";
         private const string AddAppxPackageFormat = "Add-AppxPackage -Path {0}";
-        private const string AppxManifest = "AppxManifest.xml";
-
+        private const string AddAppxPackageRegisterFormat = "Add-AppxPackage -Path {0} -Register -DisableDevelopmentMode";
         private const string ForceUpdateFromAnyVersion = " -ForceUpdateFromAnyVersion";
-        private const string Register = "-Register";
-        private const string DisableDevelopmentMode = "-DisableDevelopmentMode";
 
         private const string AppInstallerName = "Microsoft.DesktopAppInstaller";
+        private const string AppxManifest = "AppxManifest.xml";
+        private const string PackageFullName = "PackageFullName";
+
+        // Dependencies
+        private const string VCLibsUWPDesktop = "Microsoft.VCLibs.140.00.UWPDesktop";
+        private const string UiXaml27 = "Microsoft.UI.Xaml.2.7";
 
         private readonly CommandInvocationIntrinsics commandInvocation;
 
@@ -44,8 +43,16 @@ namespace Microsoft.WinGet.Client.Helpers
         {
             this.commandInvocation = commandInvocation;
 
+            // There's a bug in the Appx Module that it can't be loaded from Core in pre 10.0.22453.0 builds without
+            // the -UseWindowsPowerShell option. In post 10.0.22453.0 builds there's really no difference between
+            // using or not -UseWindowsPowerShell as it will automatically get loaded using WinPSCompatSession remoting session.
+            // https://github.com/PowerShell/PowerShell/issues/13138.
 #if !POWERSHELL_WINDOWS
-            this.commandInvocation.InvokeScript(ImportModuleCore);
+            var appxModule = this.commandInvocation.InvokeScript(GetAppxModule);
+            if (appxModule is null)
+            {
+                this.commandInvocation.InvokeScript(ImportModuleCore);
+            }
 #endif
         }
 
@@ -80,15 +87,14 @@ namespace Microsoft.WinGet.Client.Helpers
         }
 
         /// <summary>
-        /// Calls Add-AppxPackage with the path specified.
+        /// Calls Add-AppxPackage with the specified path.
         /// </summary>
         /// <param name="localPath">The path of the package to add.</param>
         /// <param name="downgrade">If the package version is lower than the installed one.</param>
         public void AddAppInstallerBundle(string localPath, bool downgrade = false)
         {
-            // TODO: We need to follow up for Microsoft.UI.Xaml.2.7
-            // downloading the nuget and extracting it doesn't sound like the right thing to do.
             this.InstallVCLibsDependencies();
+            this.InstallUiXaml();
 
             StringBuilder sb = new StringBuilder();
             sb.Append(string.Format(AddAppxPackageFormat, localPath));
@@ -102,18 +108,18 @@ namespace Microsoft.WinGet.Client.Helpers
         }
 
         /// <summary>
-        /// Calls Add-AppxPackage to register.
+        /// Calls Add-AppxPackage to register with AppInstaller's AppxManifest.xml.
         /// </summary>
         public void RegisterAppInstaller()
         {
-            string packageFullName = this.GetAppInstallerPropertyValue("PackageFullName");
+            string packageFullName = this.GetAppInstallerPropertyValue(PackageFullName);
             string appxManifestPath = Path.Combine(
                 Utilities.ProgramFilesWindowsAppPath,
                 packageFullName,
                 AppxManifest);
 
             this.commandInvocation.InvokeScript(
-                $"{string.Format(AddAppxPackageFormat, appxManifestPath)} {Register} {DisableDevelopmentMode}");
+                string.Format(AddAppxPackageRegisterFormat, appxManifestPath));
         }
 
         private PSObject GetAppxObject(string packageName)
@@ -125,8 +131,8 @@ namespace Microsoft.WinGet.Client.Helpers
 
         private void InstallVCLibsDependencies()
         {
-            var vcLibsPackageObj = this.GetAppxObject("Microsoft.VCLibs.140.00.UWPDesktop_8wekyb3d8bbwe");
-            if (vcLibsPackageObj is null)
+            var vcLibsPackageObjs = this.GetAppxObject(VCLibsUWPDesktop);
+            if (vcLibsPackageObjs is null)
             {
                 var arch = RuntimeInformation.OSArchitecture;
                 string url;
@@ -150,6 +156,17 @@ namespace Microsoft.WinGet.Client.Helpers
                 githubRelease.DownloadUrl(url, tmpFile);
 
                 this.commandInvocation.InvokeScript(string.Format(AddAppxPackageFormat, tmpFile));
+            }
+        }
+
+        private void InstallUiXaml()
+        {
+            // TODO: We need to follow up for Microsoft.UI.Xaml.2.7
+            // downloading the nuget and extracting it doesn't sound like the right thing to do.
+            var uiXamlObjs = this.GetAppxObject(UiXaml27);
+            if (uiXamlObjs is null)
+            {
+                throw new PSNotImplementedException("TODO: message");
             }
         }
     }
