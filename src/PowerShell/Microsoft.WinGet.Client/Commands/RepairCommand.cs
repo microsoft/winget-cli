@@ -103,7 +103,6 @@ namespace Microsoft.WinGet.Client.Commands
                 this.WriteDebug($"Installed WinGet version {WinGetVersionHelper.InstalledWinGetVersion}");
                 this.WriteDebug($"Installing WinGet version {toInstallVersion}");
 
-                // TODO: write debug, current version installed and version to install.
                 var installedVersion = WinGetVersionHelper.ConvertInstalledWinGetVersion();
                 var inputVersion = WinGetVersionHelper.ConvertWinGetVersion(toInstallVersion);
 
