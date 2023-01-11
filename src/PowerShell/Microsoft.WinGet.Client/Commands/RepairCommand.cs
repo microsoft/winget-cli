@@ -11,6 +11,7 @@ namespace Microsoft.WinGet.Client.Commands
     using Microsoft.WinGet.Client.Commands.Common;
     using Microsoft.WinGet.Client.Common;
     using Microsoft.WinGet.Client.Helpers;
+    using Microsoft.WinGet.Client.Properties;
 
     /// <summary>
     /// Repair-WinGet. Repairs winget if needed.
@@ -19,6 +20,7 @@ namespace Microsoft.WinGet.Client.Commands
     public class RepairCommand : BaseCommand
     {
         private const string EnvPath = "env:PATH";
+        private static readonly string[] WriteInformationTags = new string[] { "PSHOST" };
 
         /// <summary>
         /// Gets or sets the optional version.
@@ -38,88 +40,127 @@ namespace Microsoft.WinGet.Client.Commands
         /// </summary>
         protected override void ProcessRecord()
         {
-            var integrityCategory = WinGetIntegrity.GetIntegrityCategory(this.InvokeCommand);
+            RepairResult repairResult = RepairResult.Failure;
+
+            var integrityCategory = WinGetIntegrity.GetIntegrityCategory(this);
+
+            this.WriteDebug($"Integrity category type: {integrityCategory}");
 
             bool preRelease = this.IncludePreRelease.ToBool();
 
             if (integrityCategory == IntegrityCategory.Installed)
             {
-                string toInstallVersion = this.Version;
-                var gitHubRelease = new GitHubRelease();
-
-                if (string.IsNullOrEmpty(toInstallVersion))
-                {
-                    toInstallVersion = gitHubRelease.GetLatestVersionTagName(preRelease);
-                }
-
-                if (toInstallVersion != WinGetVersionHelper.InstalledWinGetVersion)
-                {
-                    this.WriteObject($"Current installed version {WinGetVersionHelper.InstalledWinGetVersion}");
-                    this.WriteObject($"Version to install {toInstallVersion}");
-
-                    var downloadedMsixBundlePath = gitHubRelease.DownloadRelease(
-                        preRelease,
-                        toInstallVersion);
-
-                    var installedVersion = WinGetVersionHelper.ConvertInstalledWinGetVersion();
-                    var inputVersion = WinGetVersionHelper.ConvertWinGetVersion(toInstallVersion);
-
-                    bool downgrade = false;
-                    if (installedVersion.CompareTo(inputVersion) > 0)
-                    {
-                        downgrade = true;
-                    }
-
-                    var appxModule = new AppxModuleHelper(this.InvokeCommand);
-                    appxModule.AddAppInstallerBundle(downloadedMsixBundlePath, downgrade);
-                }
-                else
-                {
-                    this.WriteObject("WinGet is in good state");
-                }
+                repairResult = this.RepairForInstalled(preRelease, this.Version);
             }
             else if (integrityCategory == IntegrityCategory.NotInPath)
             {
-                // Add windows app path to user PATH environment variable
-                Utilities.AddWindowsAppToPath();
-
-                // Update this sessions PowerShell environment so the user doesn't have to restart the terminal.
-                string envPathUser = Environment.GetEnvironmentVariable(Constants.PathEnvVar, EnvironmentVariableTarget.User);
-                string envPathMachine = Environment.GetEnvironmentVariable(Constants.PathEnvVar, EnvironmentVariableTarget.Machine);
-                string newPwshPathEnv = $"{envPathMachine};{envPathUser}";
-                this.SessionState.PSVariable.Set(EnvPath, newPwshPathEnv);
+                this.RepairEnvPath();
+                repairResult = RepairResult.PathUpdated;
             }
             else if (integrityCategory == IntegrityCategory.AppInstallerNotRegistered)
             {
-                var appxModule = new AppxModuleHelper(this.InvokeCommand);
+                var appxModule = new AppxModuleHelper(this);
                 appxModule.RegisterAppInstaller();
+
+                this.WriteDebug($"WinGet version {WinGetVersionHelper.InstalledWinGetVersion} registered");
+                repairResult = RepairResult.Registered;
             }
             else if (integrityCategory == IntegrityCategory.AppInstallerNotInstalled ||
                      integrityCategory == IntegrityCategory.AppInstallerNotSupported ||
                      integrityCategory == IntegrityCategory.Failure)
             {
-                // Download and install.
-                var gitHubRelease = new GitHubRelease();
-                var downloadedMsixBundlePath = gitHubRelease.DownloadRelease(
-                    this.IncludePreRelease.ToBool(),
-                    this.Version);
-
-                var appxModule = new AppxModuleHelper(this.InvokeCommand);
-                appxModule.AddAppInstallerBundle(downloadedMsixBundlePath);
-
-                this.WriteObject($"Version to install {WinGetVersionHelper.InstalledWinGetVersion}");
+                if (this.DownloadAndInstall(preRelease, this.Version, false))
+                {
+                    repairResult = RepairResult.Installed;
+                }
             }
             else if (integrityCategory == IntegrityCategory.AppExecutionAliasDisabled)
             {
                 // Sorry, but the user has to manually enabled it.
-                throw new Exception("app installer");
+                this.WriteInformation(Resources.AppExecutionAliasDisabledHelpMessage, WriteInformationTags);
+                repairResult = RepairResult.NeedsManualRepair;
             }
             else
             {
-                // Unknown
-                // OsNotSupported
-                throw new Exception("impossible");
+                this.WriteInformation(Resources.WinGetNotSupportedMessage, WriteInformationTags);
             }
+
+            this.WriteObject(repairResult);
+        }
+
+        private RepairResult RepairForInstalled(bool preRelease, string toInstallVersion)
+        {
+            RepairResult repairResult = RepairResult.Failure;
+
+            if (string.IsNullOrEmpty(toInstallVersion))
+            {
+                var gitHubRelease = new GitHubRelease();
+                toInstallVersion = gitHubRelease.GetLatestVersionTagName(preRelease);
+            }
+
+            if (toInstallVersion != WinGetVersionHelper.InstalledWinGetVersion)
+            {
+                this.WriteDebug($"Installed WinGet version {WinGetVersionHelper.InstalledWinGetVersion}");
+                this.WriteDebug($"Installing WinGet version {toInstallVersion}");
+
+                // TODO: write debug, current version installed and version to install.
+                var installedVersion = WinGetVersionHelper.ConvertInstalledWinGetVersion();
+                var inputVersion = WinGetVersionHelper.ConvertWinGetVersion(toInstallVersion);
+
+                bool downgrade = false;
+                if (installedVersion.CompareTo(inputVersion) > 0)
+                {
+                    downgrade = true;
+                }
+
+                if (this.DownloadAndInstall(preRelease, toInstallVersion, downgrade))
+                {
+                    repairResult = downgrade ? RepairResult.Downgraded : RepairResult.Updated;
+                }
+            }
+            else
+            {
+                this.WriteDebug($"Installed WinGet version and target match {WinGetVersionHelper.InstalledWinGetVersion}");
+                repairResult = RepairResult.Noop;
+            }
+
+            return repairResult;
+        }
+
+        private bool DownloadAndInstall(bool preRelease, string versionTag, bool downgrade)
+        {
+            // Download and install.
+            var gitHubRelease = new GitHubRelease();
+            var downloadedMsixBundlePath = gitHubRelease.DownloadRelease(
+                preRelease,
+                versionTag);
+
+            var appxModule = new AppxModuleHelper(this);
+            appxModule.AddAppInstallerBundle(downloadedMsixBundlePath, downgrade);
+
+            // Verify that is installed
+            var integrityCategory = WinGetIntegrity.GetIntegrityCategory(this);
+            if (integrityCategory != IntegrityCategory.Installed)
+            {
+                return false;
+            }
+
+            this.WriteDebug($"Installed WinGet version {WinGetVersionHelper.InstalledWinGetVersion}");
+            return true;
+        }
+
+        private void RepairEnvPath()
+        {
+            // Add windows app path to user PATH environment variable
+            Utilities.AddWindowsAppToPath();
+
+            // Update this sessions PowerShell environment so the user doesn't have to restart the terminal.
+            string envPathUser = Environment.GetEnvironmentVariable(Constants.PathEnvVar, EnvironmentVariableTarget.User);
+            string envPathMachine = Environment.GetEnvironmentVariable(Constants.PathEnvVar, EnvironmentVariableTarget.Machine);
+            string newPwshPathEnv = $"{envPathMachine};{envPathUser}";
+            this.SessionState.PSVariable.Set(EnvPath, newPwshPathEnv);
+
+            this.WriteDebug($"PATH environment variable updated");
         }
     }
 }

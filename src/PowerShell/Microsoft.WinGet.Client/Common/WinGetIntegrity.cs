@@ -22,8 +22,8 @@ namespace Microsoft.WinGet.Client.Common
         /// <summary>
         /// Verifies winget runs correctly. If it doesn't, tries to find the reason why it failed.
         /// </summary>
-        /// <param name="commandInvocation">CommandInvocationIntrinsics of the calling cmdlet.</param>
-        public static void AssertWinGet(CommandInvocationIntrinsics commandInvocation)
+        /// <param name="pSCmdlet">The calling cmdlet.</param>
+        public static void AssertWinGet(PSCmdlet pSCmdlet)
         {
             try
             {
@@ -35,7 +35,7 @@ namespace Microsoft.WinGet.Client.Common
             }
             catch (Win32Exception)
             {
-                throw new WinGetIntegrityException(GetReason(commandInvocation));
+                throw new WinGetIntegrityException(GetReason(pSCmdlet));
             }
             catch (Exception e) when (e is WinGetCLIException || e is WinGetCLITimeoutException)
             {
@@ -50,13 +50,13 @@ namespace Microsoft.WinGet.Client.Common
         /// <summary>
         /// Verifies winget runs correctly.
         /// </summary>
-        /// <param name="commandInvocation">CommandInvocationIntrinsics of the calling cmdlet.</param>
+        /// <param name="pSCmdlet">The calling cmdlet.</param>
         /// <returns>Integrity category.</returns>
-        public static IntegrityCategory GetIntegrityCategory(CommandInvocationIntrinsics commandInvocation)
+        public static IntegrityCategory GetIntegrityCategory(PSCmdlet pSCmdlet)
         {
             try
             {
-                AssertWinGet(commandInvocation);
+                AssertWinGet(pSCmdlet);
             }
             catch (WinGetIntegrityException e)
             {
@@ -66,7 +66,7 @@ namespace Microsoft.WinGet.Client.Common
             return IntegrityCategory.Installed;
         }
 
-        private static IntegrityCategory GetReason(CommandInvocationIntrinsics commandInvocation)
+        private static IntegrityCategory GetReason(PSCmdlet pSCmdlet)
         {
             // Ok, so you are here because calling winget --version failed. Lets try to figure out why.
 
@@ -105,7 +105,7 @@ namespace Microsoft.WinGet.Client.Common
 
             // It could be that AppInstaller package is old or the package is not
             // registered at this point. To know that, call Get-AppxPackage.
-            var appxModule = new AppxModuleHelper(commandInvocation);
+            var appxModule = new AppxModuleHelper(pSCmdlet);
             string version = appxModule.GetAppInstallerPropertyValue("Version");
             if (version is null)
             {

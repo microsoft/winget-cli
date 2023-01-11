@@ -187,4 +187,13 @@
   <data name="IntegrityAppInstallerNotRegisteredMessage" xml:space="preserve">
     <value>The App Installer is not registered.</value>
   </data>
+  <data name="AppExecutionAliasDisabledHelpMessage" xml:space="preserve">
+    <value>The App Execution Alias for the Windows Package Manager is disabled. You should enable the App Execution Alias for the Windows Package Manager. Go to App execution aliases option in Apps &amp; features Settings to enable it.</value>
+  </data>
+  <data name="MicrosoftUIXaml27Message" xml:space="preserve">
+    <value>Microsoft.UI.Xaml.2.7 package is not installed</value>
+  </data>
+  <data name="WinGetNotSupportedMessage" xml:space="preserve">
+    <value>Windows Package Manager not supported.</value>
+  </data>
 </root>

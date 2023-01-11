@@ -9,9 +9,11 @@ namespace Microsoft.WinGet.Client.Helpers
     using System.IO;
     using System.Linq;
     using System.Management.Automation;
+    using System.Management.Automation.Runspaces;
     using System.Runtime.InteropServices;
     using System.Text;
     using Microsoft.WinGet.Client.Common;
+    using Microsoft.WinGet.Client.Properties;
 
     /// <summary>
     /// Helper to make calls to the Appx module.
@@ -24,6 +26,7 @@ namespace Microsoft.WinGet.Client.Helpers
         private const string AddAppxPackageFormat = "Add-AppxPackage -Path {0}";
         private const string AddAppxPackageRegisterFormat = "Add-AppxPackage -Path {0} -Register -DisableDevelopmentMode";
         private const string ForceUpdateFromAnyVersion = " -ForceUpdateFromAnyVersion";
+        private const string GetAppxPackageByVersionCommand = "Get-AppxPackage {0} | Where-Object -Property Version -eq {1}";
 
         private const string AppInstallerName = "Microsoft.DesktopAppInstaller";
         private const string AppxManifest = "AppxManifest.xml";
@@ -31,27 +34,28 @@ namespace Microsoft.WinGet.Client.Helpers
 
         // Dependencies
         private const string VCLibsUWPDesktop = "Microsoft.VCLibs.140.00.UWPDesktop";
+        private const string VCLibsUWPDesktopVersion = "14.0.30704.0";
         private const string UiXaml27 = "Microsoft.UI.Xaml.2.7";
 
-        private readonly CommandInvocationIntrinsics commandInvocation;
+        private readonly PSCmdlet psCmdlet;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AppxModuleHelper"/> class.
         /// </summary>
-        /// <param name="commandInvocation">From calling cmdlet.</param>
-        public AppxModuleHelper(CommandInvocationIntrinsics commandInvocation)
+        /// <param name="psCmdlet">The calling cmdlet.</param>
+        public AppxModuleHelper(PSCmdlet psCmdlet)
         {
-            this.commandInvocation = commandInvocation;
+            this.psCmdlet = psCmdlet;
 
             // There's a bug in the Appx Module that it can't be loaded from Core in pre 10.0.22453.0 builds without
             // the -UseWindowsPowerShell option. In post 10.0.22453.0 builds there's really no difference between
             // using or not -UseWindowsPowerShell as it will automatically get loaded using WinPSCompatSession remoting session.
             // https://github.com/PowerShell/PowerShell/issues/13138.
 #if !POWERSHELL_WINDOWS
-            var appxModule = this.commandInvocation.InvokeScript(GetAppxModule);
+            var appxModule = this.psCmdlet.InvokeCommand.InvokeScript(GetAppxModule);
             if (appxModule is null)
             {
-                this.commandInvocation.InvokeScript(ImportModuleCore);
+                this.psCmdlet.InvokeCommand.InvokeScript(ImportModuleCore);
             }
 #endif
         }
@@ -104,7 +108,13 @@ namespace Microsoft.WinGet.Client.Helpers
                 sb.Append(ForceUpdateFromAnyVersion);
             }
 
-            this.commandInvocation.InvokeScript(sb.ToString());
+            // Using this method simplifies a lot of things, but the error is not propagated with
+            // the default parameters. PipelineResultTypes.Error will at least output it in the terminal.
+            this.psCmdlet.InvokeCommand.InvokeScript(
+                sb.ToString(),
+                useNewScope: true,
+                PipelineResultTypes.Error,
+                input: null);
         }
 
         /// <summary>
@@ -118,21 +128,23 @@ namespace Microsoft.WinGet.Client.Helpers
                 packageFullName,
                 AppxManifest);
 
-            this.commandInvocation.InvokeScript(
+            this.psCmdlet.InvokeCommand.InvokeScript(
                 string.Format(AddAppxPackageRegisterFormat, appxManifestPath));
         }
 
         private PSObject GetAppxObject(string packageName)
         {
-            return this.commandInvocation
+            return this.psCmdlet.InvokeCommand
                 .InvokeScript(string.Format(GetAppxPackageCommand, packageName))
                 .FirstOrDefault();
         }
 
         private void InstallVCLibsDependencies()
         {
-            var vcLibsPackageObjs = this.GetAppxObject(VCLibsUWPDesktop);
-            if (vcLibsPackageObjs is null)
+            var vcLibsPackageObjs = this.psCmdlet.InvokeCommand
+                .InvokeScript(string.Format(GetAppxPackageByVersionCommand, VCLibsUWPDesktop, VCLibsUWPDesktopVersion));
+            if (vcLibsPackageObjs is null ||
+                vcLibsPackageObjs.Count == 0)
             {
                 var arch = RuntimeInformation.OSArchitecture;
                 string url;
@@ -155,7 +167,8 @@ namespace Microsoft.WinGet.Client.Helpers
                 var githubRelease = new GitHubRelease();
                 githubRelease.DownloadUrl(url, tmpFile);
 
-                this.commandInvocation.InvokeScript(string.Format(AddAppxPackageFormat, tmpFile));
+                this.psCmdlet.WriteDebug($"Installing VCLibs {url}");
+                this.psCmdlet.InvokeCommand.InvokeScript(string.Format(AddAppxPackageFormat, tmpFile));
             }
         }
 
@@ -166,7 +179,7 @@ namespace Microsoft.WinGet.Client.Helpers
             var uiXamlObjs = this.GetAppxObject(UiXaml27);
             if (uiXamlObjs is null)
             {
-                throw new PSNotImplementedException("TODO: message");
+                throw new PSNotImplementedException(Resources.MicrosoftUIXaml27Message);
             }
         }
     }

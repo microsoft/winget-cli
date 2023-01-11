@@ -61,6 +61,15 @@ namespace Microsoft.WinGet.Client.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The App Execution Alias for the Windows Package Manager is disabled. You should enable the App Execution Alias for the Windows Package Manager. Go to App execution aliases option in Apps &amp; features Settings to enable it..
+        /// </summary>
+        internal static string AppExecutionAliasDisabledHelpMessage {
+            get {
+                return ResourceManager.GetString("AppExecutionAliasDisabledHelpMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to An error occurred while connecting to the catalog..
         /// </summary>
         internal static string CatalogConnectExceptionMessage {
@@ -178,6 +187,15 @@ namespace Microsoft.WinGet.Client.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Microsoft.UI.Xaml.2.7 package is not installed.
+        /// </summary>
+        internal static string MicrosoftUIXaml27Message {
+            get {
+                return ResourceManager.GetString("MicrosoftUIXaml27Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to No packages matched the given input criteria..
         /// </summary>
         internal static string NoPackageFoundExceptionMessage {
@@ -246,6 +264,15 @@ namespace Microsoft.WinGet.Client.Properties {
         internal static string WinGetCLITimeoutExceptionMessage {
             get {
                 return ResourceManager.GetString("WinGetCLITimeoutExceptionMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Windows Package Manager not supported..
+        /// </summary>
+        internal static string WinGetNotSupportedMessage {
+            get {
+                return ResourceManager.GetString("WinGetNotSupportedMessage", resourceCulture);
             }
         }
     }

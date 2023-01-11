@@ -22,7 +22,7 @@ namespace Microsoft.WinGet.Client.Commands
         /// </summary>
         protected override void ProcessRecord()
         {
-            WinGetIntegrity.AssertWinGet(this.InvokeCommand);
+            WinGetIntegrity.AssertWinGet(this);
         }
     }
 }
