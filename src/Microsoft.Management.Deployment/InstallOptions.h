@@ -25,6 +25,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         void AllowHashMismatch(bool value);
         hstring ReplacementInstallerArguments();
         void ReplacementInstallerArguments(hstring const& value);
+        hstring AdditionalInstallerArguments();
+        void AdditionalInstallerArguments(hstring const& value);
         hstring CorrelationData();
         void CorrelationData(hstring const& value);
         hstring AdditionalPackageCatalogArguments();
@@ -44,6 +46,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         std::wstring m_logOutputPath = L"";
         bool m_allowHashMismatch = false;
         std::wstring m_replacementInstallerArguments = L"";
+        std::wstring m_additionalInstallerArguments = L"";
         std::wstring m_correlationData = L"";
         std::wstring m_additionalPackageCatalogArguments = L"";
         Windows::Foundation::Collections::IVector<Windows::System::ProcessorArchitecture> m_allowedArchitectures{
