@@ -232,17 +232,6 @@ You can enable the feature as shown below.
    },
 ```
 
-### openLogsArgument
-
-This feature enables the Windows Package Manager to open the default logs folder after execution by passing the `--open-logs` argument with any command. 
-You can enable the feature as shown below.
-
-```json
-   "experimentalFeatures": {
-       "openLogsArgument": true
-   },
-```
-
 ### uninstallPreviousArgument
 
 This feature enables the Windows Package Manager to override the upgrade behavior to UninstallPrevious by passing the `--uninstall-previous` argument with the upgrade or install command. 

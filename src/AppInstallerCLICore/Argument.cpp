@@ -106,7 +106,7 @@ namespace AppInstaller::CLI
         case Args::Type::ProductCode:
             return Argument{ "product-code"_liv, NoAlias, Args::Type::ProductCode, Resource::String::ProductCodeArgumentDescription, ArgumentType::Standard, false };
         case Args::Type::OpenLogs:
-            return Argument{ "open-logs"_liv, NoAlias, "logs"_liv, Args::Type::OpenLogs, Resource::String::OpenLogsArgumentDescription, ArgumentType::Flag, ExperimentalFeature::Feature::OpenLogsArgument};
+            return Argument{ "open-logs"_liv, NoAlias, "logs"_liv, Args::Type::OpenLogs, Resource::String::OpenLogsArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help};
         case Args::Type::UninstallPrevious:
             return Argument{ "uninstall-previous"_liv, NoAlias, Args::Type::UninstallPrevious, Resource::String::UninstallPreviousArgumentDescription, ArgumentType::Flag, ExperimentalFeature::Feature::UninstallPreviousArgument };
         case Args::Type::Force:
