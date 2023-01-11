@@ -33,6 +33,12 @@ namespace Microsoft.WinGet.Client.Commands.Common
         public string Override { get; set; }
 
         /// <summary>
+        /// Gets or sets the arguments to be passed on to the installer in addition to the defaults.
+        /// </summary>
+        [Parameter(ValueFromPipelineByPropertyName = true)]
+        public string Custom { get; set; }
+
+        /// <summary>
         /// Gets or sets the installation location.
         /// </summary>
         [Parameter(ValueFromPipelineByPropertyName = true)]
@@ -89,6 +95,11 @@ namespace Microsoft.WinGet.Client.Commands.Common
             if (this.Override != null)
             {
                 options.ReplacementInstallerArguments = this.Override;
+            }
+
+            if (this.Custom != null)
+            {
+                options.AdditionalInstallerArguments = this.Custom;
             }
 
             if (this.Location != null)
