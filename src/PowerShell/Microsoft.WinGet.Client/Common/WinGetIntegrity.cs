@@ -13,6 +13,7 @@ namespace Microsoft.WinGet.Client.Common
     using System.Management.Automation;
     using Microsoft.WinGet.Client.Exceptions;
     using Microsoft.WinGet.Client.Helpers;
+    using Microsoft.WinGet.Client.Properties;
 
     /// <summary>
     /// Validates winget runs correctly.
@@ -23,7 +24,8 @@ namespace Microsoft.WinGet.Client.Common
         /// Verifies winget runs correctly. If it doesn't, tries to find the reason why it failed.
         /// </summary>
         /// <param name="pSCmdlet">The calling cmdlet.</param>
-        public static void AssertWinGet(PSCmdlet pSCmdlet)
+        /// <param name="expectedVersion">Expected version.</param>
+        public static void AssertWinGet(PSCmdlet pSCmdlet, string expectedVersion)
         {
             try
             {
@@ -32,6 +34,21 @@ namespace Microsoft.WinGet.Client.Common
                 var wingetCliWrapper = new WingetCLIWrapper(false);
                 var result = wingetCliWrapper.RunCommand("--version");
                 result.VerifyExitCode();
+
+                if (!string.IsNullOrEmpty(expectedVersion))
+                {
+                    // Verify version
+                    var installedVersion = WinGetVersionHelper.InstalledWinGetVersion;
+                    if (expectedVersion != installedVersion)
+                    {
+                        throw new WinGetIntegrityException(
+                            IntegrityCategory.UnexpectedVersion,
+                            string.Format(
+                                Resources.IntegrityUnexpectedVersionMessage,
+                                installedVersion,
+                                expectedVersion));
+                    }
+                }
             }
             catch (Win32Exception)
             {
@@ -51,12 +68,13 @@ namespace Microsoft.WinGet.Client.Common
         /// Verifies winget runs correctly.
         /// </summary>
         /// <param name="pSCmdlet">The calling cmdlet.</param>
+        /// <param name="expectedVersion">Expected version.</param>
         /// <returns>Integrity category.</returns>
-        public static IntegrityCategory GetIntegrityCategory(PSCmdlet pSCmdlet)
+        public static IntegrityCategory GetIntegrityCategory(PSCmdlet pSCmdlet, string expectedVersion)
         {
             try
             {
-                AssertWinGet(pSCmdlet);
+                AssertWinGet(pSCmdlet, expectedVersion);
             }
             catch (WinGetIntegrityException e)
             {

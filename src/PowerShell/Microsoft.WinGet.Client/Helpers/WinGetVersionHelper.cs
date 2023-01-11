@@ -27,15 +27,6 @@ namespace Microsoft.WinGet.Client.Helpers
         }
 
         /// <summary>
-        /// Converts installed WinGet string version to a Version object.
-        /// </summary>
-        /// <returns>Version.</returns>
-        public static Version ConvertInstalledWinGetVersion()
-        {
-            return ConvertWinGetVersion(InstalledWinGetVersion);
-        }
-
-        /// <summary>
         /// Converts a WinGet string format version to a Version object.
         /// </summary>
         /// <param name="version">Version string.</param>

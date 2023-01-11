@@ -17,6 +17,11 @@ namespace Microsoft.WinGet.Client.Common
         Installed,
 
         /// <summary>
+        /// The version installed is not what is expected.
+        /// </summary>
+        UnexpectedVersion,
+
+        /// <summary>
         /// Unknown reason.
         /// </summary>
         Unknown,

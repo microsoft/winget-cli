@@ -17,12 +17,18 @@ namespace Microsoft.WinGet.Client.Commands
     public class AssertIntegrityCommand : BaseCommand
     {
         /// <summary>
+        /// Gets or sets the optional version.
+        /// </summary>
+        [Parameter(ValueFromPipelineByPropertyName = true)]
+        public string Version { get; set; } = string.Empty;
+
+        /// <summary>
         /// Validates winget is installed correctly. If not, throws an exception
         /// with the reason why, if any.
         /// </summary>
         protected override void ProcessRecord()
         {
-            WinGetIntegrity.AssertWinGet(this);
+            WinGetIntegrity.AssertWinGet(this, this.Version);
         }
     }
 }

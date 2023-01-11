@@ -160,6 +160,15 @@ namespace Microsoft.WinGet.Client.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The installed winget version doesn&apos;t match the expectation. Installer version &apos;{0}&apos; Expected version &apos;{1}&apos;.
+        /// </summary>
+        internal static string IntegrityUnexpectedVersionMessage {
+            get {
+                return ResourceManager.GetString("IntegrityUnexpectedVersionMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to execute winget command..
         /// </summary>
         internal static string IntegrityUnknownMessage {

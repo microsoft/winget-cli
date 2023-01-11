@@ -42,15 +42,16 @@ namespace Microsoft.WinGet.Client.Commands
         {
             RepairResult repairResult = RepairResult.Failure;
 
-            var integrityCategory = WinGetIntegrity.GetIntegrityCategory(this);
+            var integrityCategory = WinGetIntegrity.GetIntegrityCategory(this, this.Version);
 
             this.WriteDebug($"Integrity category type: {integrityCategory}");
 
             bool preRelease = this.IncludePreRelease.ToBool();
 
-            if (integrityCategory == IntegrityCategory.Installed)
+            if (integrityCategory == IntegrityCategory.Installed ||
+                integrityCategory == IntegrityCategory.UnexpectedVersion)
             {
-                repairResult = this.RepairForInstalled(preRelease, this.Version);
+                repairResult = this.RepairForInstalled(preRelease, WinGetVersionHelper.InstalledWinGetVersion, this.Version);
             }
             else if (integrityCategory == IntegrityCategory.NotInPath)
             {
@@ -88,7 +89,7 @@ namespace Microsoft.WinGet.Client.Commands
             this.WriteObject(repairResult);
         }
 
-        private RepairResult RepairForInstalled(bool preRelease, string toInstallVersion)
+        private RepairResult RepairForInstalled(bool preRelease, string installedVersion, string toInstallVersion)
         {
             RepairResult repairResult = RepairResult.Failure;
 
@@ -98,16 +99,16 @@ namespace Microsoft.WinGet.Client.Commands
                 toInstallVersion = gitHubRelease.GetLatestVersionTagName(preRelease);
             }
 
-            if (toInstallVersion != WinGetVersionHelper.InstalledWinGetVersion)
+            if (toInstallVersion != installedVersion)
             {
-                this.WriteDebug($"Installed WinGet version {WinGetVersionHelper.InstalledWinGetVersion}");
+                this.WriteDebug($"Installed WinGet version {installedVersion}");
                 this.WriteDebug($"Installing WinGet version {toInstallVersion}");
 
-                var installedVersion = WinGetVersionHelper.ConvertInstalledWinGetVersion();
-                var inputVersion = WinGetVersionHelper.ConvertWinGetVersion(toInstallVersion);
+                var v1 = WinGetVersionHelper.ConvertWinGetVersion(installedVersion);
+                var v2 = WinGetVersionHelper.ConvertWinGetVersion(toInstallVersion);
 
                 bool downgrade = false;
-                if (installedVersion.CompareTo(inputVersion) > 0)
+                if (v1.CompareTo(v2) > 0)
                 {
                     downgrade = true;
                 }
@@ -138,13 +139,13 @@ namespace Microsoft.WinGet.Client.Commands
             appxModule.AddAppInstallerBundle(downloadedMsixBundlePath, downgrade);
 
             // Verify that is installed
-            var integrityCategory = WinGetIntegrity.GetIntegrityCategory(this);
+            var integrityCategory = WinGetIntegrity.GetIntegrityCategory(this, versionTag);
             if (integrityCategory != IntegrityCategory.Installed)
             {
                 return false;
             }
 
-            this.WriteDebug($"Installed WinGet version {WinGetVersionHelper.InstalledWinGetVersion}");
+            this.WriteDebug($"Installed WinGet version {versionTag}");
             return true;
         }
 

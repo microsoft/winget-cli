@@ -196,4 +196,7 @@
   <data name="WinGetNotSupportedMessage" xml:space="preserve">
     <value>Windows Package Manager not supported.</value>
   </data>
+  <data name="IntegrityUnexpectedVersionMessage" xml:space="preserve">
+    <value>The installed winget version doesn't match the expectation. Installer version '{0}' Expected version '{1}'</value>
+  </data>
 </root>

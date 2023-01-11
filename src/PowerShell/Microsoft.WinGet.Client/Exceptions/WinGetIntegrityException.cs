@@ -37,6 +37,17 @@ namespace Microsoft.WinGet.Client.Exceptions
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="WinGetIntegrityException"/> class.
+        /// </summary>
+        /// <param name="category">Category failure.</param>
+        /// <param name="message">Message.</param>
+        public WinGetIntegrityException(IntegrityCategory category, string message)
+            : base(message)
+        {
+            this.Category = category;
+        }
+
+        /// <summary>
         /// Gets the category of the integrity failure.
         /// </summary>
         public IntegrityCategory Category { get; }
