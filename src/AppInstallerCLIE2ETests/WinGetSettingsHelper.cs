@@ -43,7 +43,6 @@ namespace AppInstallerCLIE2ETests
                         { "experimentalCmd", false },
                         { "dependencies", false },
                         { "directMSI", false },
-                        { "openLogsArgument", false },
                     }
                 },
                 {
@@ -136,7 +135,6 @@ namespace AppInstallerCLIE2ETests
             ConfigureFeature("experimentalCmd", status);
             ConfigureFeature("dependencies", status);
             ConfigureFeature("directMSI", status);
-            ConfigureFeature("openLogsArgument", status);
         }
     }
 }
