@@ -1,33 +1,29 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 #pragma once
-
 #include <AppInstallerLogging.h>
+#include <winget/SharedThreadGlobals.h>
 #include <AppInstallerTelemetry.h>
 #include <mutex>
 
 namespace AppInstaller::ThreadLocalStorage
 {
-
-    struct PreviousThreadGlobals;
-
-    struct ThreadGlobals
+    struct WingetThreadGlobals : public ThreadGlobals
     {
-        ThreadGlobals() = default;
-        ~ThreadGlobals() = default;
+        WingetThreadGlobals() = default;
+        virtual ~WingetThreadGlobals() = default;
 
         // Request that a sub ThreadGlobals be constructed from the given parent.
         struct create_sub_thread_globals_t {};
-        ThreadGlobals(ThreadGlobals& parent, create_sub_thread_globals_t);
+        WingetThreadGlobals(WingetThreadGlobals& parent, create_sub_thread_globals_t);
 
-        AppInstaller::Logging::DiagnosticLogger& GetDiagnosticLogger();
+        AppInstaller::Logging::DiagnosticLogger& GetDiagnosticLogger() override;
 
-        AppInstaller::Logging::TelemetryTraceLogger& GetTelemetryLogger();
+        AppInstaller::Logging::TelemetryTraceLogger& GetTelemetryLogger() override;
 
         // Set Globals for Current Thread
         // Return RAII object with it's ownership to set the AppInstaller ThreadLocalStorage back to previous state
-        std::unique_ptr<AppInstaller::ThreadLocalStorage::PreviousThreadGlobals> SetForCurrentThread();
-
-        // Return Globals for Current Thread
-        static ThreadGlobals* GetForCurrentThread();
+        std::unique_ptr<AppInstaller::ThreadLocalStorage::PreviousThreadGlobals> SetForCurrentThread() override;
 
     private:
 
@@ -36,16 +32,5 @@ namespace AppInstaller::ThreadLocalStorage
         std::shared_ptr<AppInstaller::Logging::DiagnosticLogger> m_pDiagnosticLogger;
         std::unique_ptr<AppInstaller::Logging::TelemetryTraceLogger> m_pTelemetryLogger;
         std::once_flag m_loggerInitOnceFlag;
-    };
-
-    struct PreviousThreadGlobals
-    {
-        ~PreviousThreadGlobals();
-
-        PreviousThreadGlobals(ThreadGlobals* previous) : m_previous(previous) {};
-
-    private:
-
-        ThreadGlobals* m_previous;
     };
 }

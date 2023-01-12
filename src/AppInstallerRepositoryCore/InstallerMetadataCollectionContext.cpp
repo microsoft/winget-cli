@@ -6,6 +6,8 @@
 #include <AppInstallerDownloader.h>
 #include <AppInstallerErrors.h>
 #include <AppInstallerLogging.h>
+#include <AppInstallerFileLogger.h>
+#include <winget/TraceLogger.h>
 #include <AppInstallerStrings.h>
 
 #include <winget/ManifestJSONParser.h>
@@ -590,7 +592,7 @@ namespace AppInstaller::Repository::Metadata
 
     std::wstring InstallerMetadataCollectionContext::Merge(const std::wstring& json, size_t maximumSizeInBytes, const std::filesystem::path& logFile)
     {
-        ThreadLocalStorage::ThreadGlobals threadGlobals;
+        ThreadLocalStorage::WingetThreadGlobals threadGlobals;
         auto globalsLifetime = InitializeLogging(threadGlobals, logFile);
 
         AICLI_LOG(Repo, Info, << "Parsing input JSON:\n" << ConvertToUTF8(json));
@@ -676,18 +678,18 @@ namespace AppInstaller::Repository::Metadata
         outputJSON.serialize(output);
     }
 
-    std::unique_ptr<ThreadLocalStorage::PreviousThreadGlobals> InstallerMetadataCollectionContext::InitializeLogging(ThreadLocalStorage::ThreadGlobals& threadGlobals, const std::filesystem::path& logFile)
+    std::unique_ptr<ThreadLocalStorage::PreviousThreadGlobals> InstallerMetadataCollectionContext::InitializeLogging(ThreadLocalStorage::WingetThreadGlobals& threadGlobals, const std::filesystem::path& logFile)
     {
         auto threadGlobalsLifetime = threadGlobals.SetForCurrentThread();
 
         Logging::Log().SetLevel(Logging::Level::Info);
         Logging::Log().EnableChannel(Logging::Channel::All);
         Logging::EnableWilFailureTelemetry();
-        Logging::AddTraceLogger();
+        Logging::TraceLogger::Add();
 
         if (!logFile.empty())
         {
-            Logging::AddFileLogger(logFile);
+            Logging::FileLogger::Add(logFile);
         }
 
         Logging::Telemetry().SetCaller("installer-metadata-collection");

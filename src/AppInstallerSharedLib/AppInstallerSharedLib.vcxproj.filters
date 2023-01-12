@@ -47,7 +47,7 @@
     <ClInclude Include="Public\winget\Resources.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
-    <ClInclude Include="Public\winget\ThreadGlobals.h">
+    <ClInclude Include="Public\winget\SharedThreadGlobals.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
     <ClInclude Include="Public\winget\LocIndependent.h">
@@ -85,7 +85,7 @@
     <ClCompile Include="JsonSchemaValidation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ThreadGlobals.cpp">
+    <ClCompile Include="SharedThreadGlobals.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Resources.cpp">

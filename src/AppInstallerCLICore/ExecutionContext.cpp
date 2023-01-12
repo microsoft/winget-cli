@@ -241,7 +241,7 @@ namespace AppInstaller::CLI::Execution
         GetThreadGlobals().GetTelemetryLogger().SetExecutionStage(static_cast<uint32_t>(m_executionStage));
     }
 
-    AppInstaller::ThreadLocalStorage::ThreadGlobals& Context::GetThreadGlobals()
+    AppInstaller::ThreadLocalStorage::WingetThreadGlobals& Context::GetThreadGlobals()
     {
         return m_threadGlobals;
     }

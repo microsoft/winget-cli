@@ -284,7 +284,7 @@
     <ClInclude Include="Public\winget\JsonSchemaValidation.h" />
     <ClInclude Include="Public\winget\LocIndependent.h" />
     <ClInclude Include="Public\winget\Resources.h" />
-    <ClInclude Include="Public\winget\ThreadGlobals.h" />
+    <ClInclude Include="Public\winget\SharedThreadGlobals.h" />
     <ClInclude Include="Public\winget\Yaml.h" />
     <ClInclude Include="YamlWrapper.h" />
   </ItemGroup>
@@ -299,7 +299,7 @@
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="SHA256.cpp" />
-    <ClCompile Include="ThreadGlobals.cpp" />
+    <ClCompile Include="SharedThreadGlobals.cpp" />
     <ClCompile Include="Yaml.cpp" />
     <ClCompile Include="YamlWrapper.cpp" />
   </ItemGroup>

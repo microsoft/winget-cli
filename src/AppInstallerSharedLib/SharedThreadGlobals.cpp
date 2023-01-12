@@ -1,5 +1,7 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 #include "pch.h"
-#include "Public/winget/ThreadGlobals.h"
+#include "Public/winget/SharedThreadGlobals.h"
 
 namespace AppInstaller::ThreadLocalStorage
 {

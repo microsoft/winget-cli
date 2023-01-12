@@ -4,7 +4,7 @@
 #include "Public/AppInstallerLogging.h"
 
 #include "Public/AppInstallerDateTime.h"
-#include "Public/winget/ThreadGlobals.h"
+#include "Public/winget/SharedThreadGlobals.h"
 
 namespace AppInstaller::Logging
 {

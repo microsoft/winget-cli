@@ -1,7 +1,7 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 #pragma once
-
 #include <AppInstallerLogging.h>
-#include <mutex>
 
 namespace AppInstaller::Logging
 {

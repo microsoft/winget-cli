@@ -8,7 +8,7 @@
 #include <AppInstallerVersions.h>
 #include <AppInstallerErrors.h>
 #include <winget/ManifestValidation.h>
-#include <Public/AppInstallerSHA256.h>
+#include <AppInstallerSHA256.h>
 
 using namespace TestCommon;
 using namespace AppInstaller::Utility;

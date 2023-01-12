@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "COMContext.h"
+#include <AppInstallerFileLogger.h>
+#include <winget/TraceLogger.h>
 
 namespace AppInstaller::CLI::Execution
 {
@@ -74,10 +76,10 @@ namespace AppInstaller::CLI::Execution
         Logging::Log().EnableChannel(Logging::Channel::All);
 
         // TODO: Log to file for COM API calls only when debugging in visual studio
-        Logging::AddFileLogger(s_comLogFileNamePrefix);
-        Logging::BeginLogFileCleanup();
+        Logging::FileLogger::Add(s_comLogFileNamePrefix);
+        Logging::FileLogger::BeginCleanup();
 
-        Logging::AddTraceLogger();
+        Logging::TraceLogger::Add();
 
         Logging::EnableWilFailureTelemetry();
     }
