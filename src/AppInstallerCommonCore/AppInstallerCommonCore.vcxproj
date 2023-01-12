@@ -326,6 +326,7 @@
     <ClInclude Include="Public\winget\NameNormalization.h" />
     <ClInclude Include="Public\winget\Filesystem.h" />
     <ClInclude Include="Public\winget\PackageDependenciesValidationUtil.h" />
+    <ClInclude Include="Public\winget\Pin.h" />
     <ClInclude Include="Public\winget\Regex.h" />
     <ClInclude Include="Public\winget\Registry.h" />
     <ClInclude Include="Public\winget\PathVariable.h" />
@@ -394,6 +395,7 @@
     <ClCompile Include="MsixManifest.cpp" />
     <ClCompile Include="NameNormalization.cpp" />
     <ClCompile Include="PackageDependenciesValidationUtil.cpp" />
+    <ClCompile Include="Pin.cpp" />
     <ClCompile Include="Progress.cpp" />
     <ClCompile Include="Regex.cpp" />
     <ClCompile Include="Registry.cpp" />

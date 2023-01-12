@@ -4,6 +4,7 @@
 #include <winget/RepositorySource.h>
 #include <winget/Manifest.h>
 #include <winget/ARPCorrelation.h>
+#include <winget/Pin.h>
 #include "CompletionData.h"
 #include "PackageCollection.h"
 #include "PortableInstaller.h"
@@ -16,6 +17,10 @@
 #include <variant>
 #include <vector>
 
+namespace AppInstaller::Repository::Microsoft
+{
+    struct PinningIndex;
+}
 
 namespace AppInstaller::CLI::Execution
 {
@@ -55,6 +60,8 @@ namespace AppInstaller::CLI::Execution
         AllowedArchitectures,
         AllowUnknownScope,
         PortableInstaller,
+        PinningIndex,
+        Pins,
         Max
     };
 
@@ -228,6 +235,18 @@ namespace AppInstaller::CLI::Execution
         struct DataMapping<Data::PortableInstaller>
         {
             using value_t = CLI::Portable::PortableInstaller;
+        };
+
+        template <>
+        struct DataMapping<Data::PinningIndex>
+        {
+            using value_t = std::shared_ptr<Repository::Microsoft::PinningIndex>;
+        };
+
+        template <>
+        struct DataMapping<Data::Pins>
+        {
+            using value_t = std::vector<Pinning::Pin>;
         };
     }
 }

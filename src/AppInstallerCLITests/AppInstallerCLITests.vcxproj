@@ -219,6 +219,8 @@
     <ClCompile Include="PackageCollection.cpp" />
     <ClCompile Include="PackageDependenciesValidationUtil.cpp" />
     <ClCompile Include="PackageTrackingCatalog.cpp" />
+    <ClCompile Include="PinFlow.cpp" />
+    <ClCompile Include="PinningIndex.cpp" />
     <ClCompile Include="PortableInstaller.cpp" />
     <ClCompile Include="PortableIndex.cpp" />
     <ClCompile Include="PredefinedInstalledSource.cpp" />
