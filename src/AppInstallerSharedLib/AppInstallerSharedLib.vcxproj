@@ -277,10 +277,12 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="Public\AppInstallerDateTime.h" />
     <ClInclude Include="Public\AppInstallerErrors.h" />
+    <ClInclude Include="Public\AppInstallerLanguageUtilities.h" />
     <ClInclude Include="Public\AppInstallerSHA256.h" />
     <ClInclude Include="Public\AppInstallerStrings.h" />
     <ClInclude Include="Public\AppInstallerLogging.h" />
     <ClInclude Include="Public\winget\JsonSchemaValidation.h" />
+    <ClInclude Include="Public\winget\LocIndependent.h" />
     <ClInclude Include="Public\winget\Resources.h" />
     <ClInclude Include="Public\winget\ThreadGlobals.h" />
     <ClInclude Include="Public\winget\Yaml.h" />

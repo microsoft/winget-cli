@@ -4,6 +4,7 @@
 
 #define NOMINMAX
 #include <Windows.h>
+#include <icu.h>
 
 #define YAML_DECLARE_STATIC
 #include <yaml.h>
@@ -21,6 +22,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <cwctype>
 #include <filesystem>
 #include <fstream>
 #include <functional>
@@ -50,4 +52,7 @@
 
 #ifndef WINGET_DISABLE_FOR_FUZZING
 #include <wil/cppwinrt.h>
+
+#include <winrt/Windows.ApplicationModel.Resources.h>
+#include <winrt/Windows.Foundation.h>
 #endif

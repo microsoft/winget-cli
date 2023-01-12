@@ -4,11 +4,8 @@
 #define WIN32_NO_STATUS
 #include <bcrypt.h>
 #include "Public/AppInstallerSHA256.h"
-#include "Public/AppInstallerRuntime.h"
 #include "Public/AppInstallerErrors.h"
 #include "Public/AppInstallerStrings.h"
-
-using namespace AppInstaller::Runtime;
 
 namespace AppInstaller::Utility {
 

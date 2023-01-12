@@ -1,43 +1,36 @@
 #pragma once
 
 #include <AppInstallerLogging.h>
-#include <AppInstallerTelemetry.h>
 #include <mutex>
+
+namespace AppInstaller::Logging
+{
+    struct TelemetryTraceLogger;
+}
 
 namespace AppInstaller::ThreadLocalStorage
 {
-
     struct PreviousThreadGlobals;
 
+    // Interface for access to values that are stored on a per-thread object.
     struct ThreadGlobals
     {
         ThreadGlobals() = default;
-        ~ThreadGlobals() = default;
+        virtual ~ThreadGlobals() = default;
 
-        // Request that a sub ThreadGlobals be constructed from the given parent.
-        struct create_sub_thread_globals_t {};
-        ThreadGlobals(ThreadGlobals& parent, create_sub_thread_globals_t);
+        virtual AppInstaller::Logging::DiagnosticLogger& GetDiagnosticLogger() = 0;
 
-        AppInstaller::Logging::DiagnosticLogger& GetDiagnosticLogger();
-
-        AppInstaller::Logging::TelemetryTraceLogger& GetTelemetryLogger();
+        virtual AppInstaller::Logging::TelemetryTraceLogger& GetTelemetryLogger() = 0;
 
         // Set Globals for Current Thread
         // Return RAII object with it's ownership to set the AppInstaller ThreadLocalStorage back to previous state
-        std::unique_ptr<AppInstaller::ThreadLocalStorage::PreviousThreadGlobals> SetForCurrentThread();
+        virtual std::unique_ptr<AppInstaller::ThreadLocalStorage::PreviousThreadGlobals> SetForCurrentThread();
 
         // Return Globals for Current Thread
         static ThreadGlobals* GetForCurrentThread();
-
-    private:
-
-        void Initialize();
-
-        std::shared_ptr<AppInstaller::Logging::DiagnosticLogger> m_pDiagnosticLogger;
-        std::unique_ptr<AppInstaller::Logging::TelemetryTraceLogger> m_pTelemetryLogger;
-        std::once_flag m_loggerInitOnceFlag;
     };
 
+    // RAII object used to 
     struct PreviousThreadGlobals
     {
         ~PreviousThreadGlobals();
@@ -45,7 +38,6 @@ namespace AppInstaller::ThreadLocalStorage
         PreviousThreadGlobals(ThreadGlobals* previous) : m_previous(previous) {};
 
     private:
-
         ThreadGlobals* m_previous;
     };
 }

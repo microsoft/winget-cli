@@ -5,7 +5,6 @@
 #include "Public/AppInstallerLogging.h"
 #include "Public/AppInstallerStrings.h"
 #include "Public/AppInstallerErrors.h"
-#include "Public/AppInstallerTelemetry.h"
 
 namespace AppInstaller
 {
