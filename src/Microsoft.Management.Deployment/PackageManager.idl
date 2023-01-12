@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 namespace Microsoft.Management.Deployment
 {
-    [contractversion(5)]
+    [contractversion(6)]
     apicontract WindowsPackageManagerContract{};
 
     /// State of the install
@@ -764,6 +764,13 @@ namespace Microsoft.Management.Deployment
         {
             /// Force the operation to continue upon non security related failures.
             Boolean Force;
+        }
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
+        {
+            /// A string that will be passed to the installer
+            /// IMPLEMENTATION NOTE: maps to "--custom" in the winget cmd line
+            String AdditionalInstallerArguments;
         }
     }
 

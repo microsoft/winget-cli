@@ -33,6 +33,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Silent),
             Argument::ForType(Args::Type::Locale),
             Argument::ForType(Args::Type::Log),
+            Argument::ForType(Args::Type::CustomSwitches),
             Argument::ForType(Args::Type::Override),
             Argument::ForType(Args::Type::InstallLocation),
             Argument::ForType(Args::Type::HashOverride),

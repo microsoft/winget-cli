@@ -76,15 +76,26 @@ namespace AppInstaller::CLI
 
     void PinAddCommand::Complete(Execution::Context& context, Args::Type valueType) const
     {
+        context <<
+            Workflow::OpenSource() <<
+            Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed);
+
         switch (valueType)
         {
-        case Args::Type::Query:
-        case Args::Type::Id:
-        case Args::Type::Name:
-        case Args::Type::Moniker:
-        case Args::Type::Source:
+        case Execution::Args::Type::Query:
             context <<
-                Workflow::CompleteWithSingleSemanticsForValue(valueType);
+                Workflow::RequireCompletionWordNonEmpty <<
+                Workflow::SearchSourceForManyCompletion <<
+                Workflow::CompleteWithMatchedField;
+            break;
+        case Execution::Args::Type::Id:
+        case Execution::Args::Type::Name:
+        case Execution::Args::Type::Moniker:
+        case Execution::Args::Type::Source:
+        case Execution::Args::Type::Tag:
+        case Execution::Args::Type::Command:
+            context <<
+                Workflow::CompleteWithSingleSemanticsForValueUsingExistingSource(valueType);
             break;
         }
     }
@@ -105,8 +116,17 @@ namespace AppInstaller::CLI
 
     void PinAddCommand::ExecuteInternal(Execution::Context& context) const
     {
-        // TODO
-        Command::ExecuteInternal(context);
+        context <<
+            Workflow::OpenSource() <<
+            Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
+            Workflow::SearchSourceForSingle <<
+            Workflow::HandleSearchResultFailures <<
+            Workflow::EnsureOneMatchFromSearchResult(false) <<
+            Workflow::GetInstalledPackageVersion <<
+            Workflow::ReportPackageIdentity <<
+            Workflow::OpenPinningIndex() <<
+            Workflow::SearchPin <<
+            Workflow::AddPin;
     }
 
     std::vector<Argument> PinRemoveCommand::GetArguments() const
@@ -137,15 +157,26 @@ namespace AppInstaller::CLI
 
     void PinRemoveCommand::Complete(Execution::Context& context, Args::Type valueType) const
     {
+        context <<
+            Workflow::OpenSource() <<
+            Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed);
+
         switch (valueType)
         {
-        case Args::Type::Query:
-        case Args::Type::Id:
-        case Args::Type::Name:
-        case Args::Type::Moniker:
-        case Args::Type::Source:
+        case Execution::Args::Type::Query:
             context <<
-                Workflow::CompleteWithSingleSemanticsForValue(valueType);
+                Workflow::RequireCompletionWordNonEmpty <<
+                Workflow::SearchSourceForManyCompletion <<
+                Workflow::CompleteWithMatchedField;
+            break;
+        case Execution::Args::Type::Id:
+        case Execution::Args::Type::Name:
+        case Execution::Args::Type::Moniker:
+        case Execution::Args::Type::Source:
+        case Execution::Args::Type::Tag:
+        case Execution::Args::Type::Command:
+            context <<
+                Workflow::CompleteWithSingleSemanticsForValueUsingExistingSource(valueType);
             break;
         }
     }
@@ -157,8 +188,17 @@ namespace AppInstaller::CLI
 
     void PinRemoveCommand::ExecuteInternal(Execution::Context& context) const
     {
-        // TODO
-        Command::ExecuteInternal(context);
+        context <<
+            Workflow::OpenSource() <<
+            Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
+            Workflow::SearchSourceForSingle <<
+            Workflow::HandleSearchResultFailures <<
+            Workflow::EnsureOneMatchFromSearchResult(false) <<
+            Workflow::GetInstalledPackageVersion <<
+            Workflow::ReportPackageIdentity <<
+            Workflow::OpenPinningIndex() <<
+            Workflow::SearchPin <<
+            Workflow::RemovePin;
     }
 
     std::vector<Argument> PinListCommand::GetArguments() const
@@ -189,15 +229,26 @@ namespace AppInstaller::CLI
 
     void PinListCommand::Complete(Execution::Context& context, Args::Type valueType) const
     {
+        context <<
+            Workflow::OpenSource() <<
+            Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed);
+
         switch (valueType)
         {
-        case Args::Type::Query:
-        case Args::Type::Id:
-        case Args::Type::Name:
-        case Args::Type::Moniker:
-        case Args::Type::Source:
+        case Execution::Args::Type::Query:
             context <<
-                Workflow::CompleteWithSingleSemanticsForValue(valueType);
+                Workflow::RequireCompletionWordNonEmpty <<
+                Workflow::SearchSourceForManyCompletion <<
+                Workflow::CompleteWithMatchedField;
+            break;
+        case Execution::Args::Type::Id:
+        case Execution::Args::Type::Name:
+        case Execution::Args::Type::Moniker:
+        case Execution::Args::Type::Source:
+        case Execution::Args::Type::Tag:
+        case Execution::Args::Type::Command:
+            context <<
+                Workflow::CompleteWithSingleSemanticsForValueUsingExistingSource(valueType);
             break;
         }
     }
@@ -209,14 +260,20 @@ namespace AppInstaller::CLI
 
     void PinListCommand::ExecuteInternal(Execution::Context& context) const
     {
-        // TODO
-        Command::ExecuteInternal(context);
+        context <<
+            Workflow::OpenPinningIndex(/* readOnly */ true) <<
+            Workflow::GetAllPins <<
+            Workflow::OpenSource() <<
+            Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
+            Workflow::CrossReferencePinsWithSource <<
+            Workflow::ReportPins;
     }
 
     std::vector<Argument> PinResetCommand::GetArguments() const
     {
         return {
             Argument::ForType(Args::Type::Force),
+            Argument::ForType(Args::Type::Source),
         };
     }
 
@@ -237,7 +294,25 @@ namespace AppInstaller::CLI
 
     void PinResetCommand::ExecuteInternal(Execution::Context& context) const
     {
-        // TODO
-        Command::ExecuteInternal(context);
+
+        if (context.Args.Contains(Execution::Args::Type::Force))
+        {
+            context <<
+                Workflow::OpenPinningIndex() <<
+                Workflow::ResetAllPins;
+        }
+        else
+        {
+            AICLI_LOG(CLI, Info, << "--force argument is not present");
+            context.Reporter.Info() << Resource::String::PinResetUseForceArg << std::endl;
+
+            context <<
+                Workflow::OpenPinningIndex(/* readOnly */ true) <<
+                Workflow::GetAllPins <<
+                Workflow::OpenSource() <<
+                Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
+                Workflow::CrossReferencePinsWithSource <<
+                Workflow::ReportPins;
+        }
     }
 }

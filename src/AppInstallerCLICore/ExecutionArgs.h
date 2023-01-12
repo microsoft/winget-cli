@@ -36,6 +36,7 @@ namespace AppInstaller::CLI::Execution
             Silent,
             Locale,
             Log,
+            CustomSwitches, // CustomSwitches args are args passed to the installer in addition to any defined in the manifest
             Override, // Override args are (and the only args) directly passed to installer
             InstallLocation,
             InstallScope,

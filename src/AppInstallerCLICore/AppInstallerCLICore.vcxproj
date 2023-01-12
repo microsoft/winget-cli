@@ -341,6 +341,7 @@
     <ClCompile Include="Workflows\ImportExportFlow.cpp" />
     <ClCompile Include="Workflows\MsiInstallFlow.cpp" />
     <ClCompile Include="Workflows\MSStoreInstallerHandler.cpp" />
+    <ClCompile Include="Workflows\PinFlow.cpp" />
     <ClCompile Include="Workflows\PortableFlow.cpp" />
     <ClCompile Include="Workflows\PromptFlow.cpp" />
     <ClCompile Include="Workflows\SettingsFlow.cpp" />
