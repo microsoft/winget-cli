@@ -4,8 +4,39 @@
 #include "ConfigurationSet.h"
 #include "ConfigurationSet.g.cpp"
 
+#include <winget/Yaml.h>
+
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
+    namespace
+    {
+        std::string StreamToString(const Windows::Storage::Streams::IInputStream& stream)
+        {
+            uint32_t bufferSize = 1 << 20;
+            Windows::Storage::Streams::Buffer buffer(bufferSize);
+            Windows::Storage::Streams::InputStreamOptions readOptions = Windows::Storage::Streams::InputStreamOptions::Partial | Windows::Storage::Streams::InputStreamOptions::ReadAhead;
+            std::string result;
+
+            for (;;)
+            {
+                Windows::Storage::Streams::IBuffer readBuffer = stream.ReadAsync(buffer, bufferSize, readOptions).GetResults();
+
+                size_t readSize = static_cast<size_t>(readBuffer.Length());
+                if (readSize)
+                {
+                    static_assert(sizeof(char) == sizeof(*readBuffer.data()));
+                    result.append(reinterpret_cast<char*>(readBuffer.data()), readSize);
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            return result;
+        }
+    }
+
     ConfigurationSet::ConfigurationSet()
     {
         GUID instanceIdentifier;
@@ -15,8 +46,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     ConfigurationSet::ConfigurationSet(const Windows::Storage::Streams::IInputStream& stream)
     {
-        UNREFERENCED_PARAMETER(stream);
-        THROW_HR(E_NOTIMPL);
+        std::string input = StreamToString(stream);
+        AppInstaller::YAML::Node yaml = AppInstaller::YAML::Load(input);
     }
 
     ConfigurationSet::ConfigurationSet(const guid& instanceIdentifier) :
