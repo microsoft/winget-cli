@@ -35,6 +35,16 @@ namespace Microsoft.WinGet.Client.Common
         public const string FoundSet = "FoundSet";
 
         /// <summary>
+        /// Parameter set for an specific version parameter.
+        /// </summary>
+        public const string IntegrityVersionSet = "IntegrityVersionSet";
+
+        /// <summary>
+        /// Parameter set for an latest version with optional prereleased version.
+        /// </summary>
+        public const string IntegrityLatestSet = "IntegrityLatestSet";
+
+        /// <summary>
         /// WinGet package family name.
         /// </summary>
 #if USE_PROD_CLSIDS

@@ -51,8 +51,6 @@ namespace Microsoft.WinGet.Client.Common
             // WinGet is installed. Verify version if needed.
             if (!string.IsNullOrEmpty(expectedVersion))
             {
-                // Verify version
-                // TODO: we could also validate if the given version is valid (look at GitHub release).
                 var installedVersion = WinGetVersionHelper.InstalledWinGetVersion;
                 if (expectedVersion != installedVersion)
                 {

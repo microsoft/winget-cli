@@ -85,6 +85,7 @@
         'WinGetUserSettingsResource'
         'WinGetAdminSettings'
         'WinGetSourcesResource'
+        'WinGetIntegrityResource'
     )
     
     # List of all modules packaged with this module

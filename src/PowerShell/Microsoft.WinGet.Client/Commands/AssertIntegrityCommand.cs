@@ -9,26 +9,35 @@ namespace Microsoft.WinGet.Client.Commands
     using System.Management.Automation;
     using Microsoft.WinGet.Client.Commands.Common;
     using Microsoft.WinGet.Client.Common;
+    using Microsoft.WinGet.Client.Helpers;
 
     /// <summary>
     /// Assert-WinGetIntegrity. Verifies winget is installed properly.
     /// </summary>
-    [Cmdlet(VerbsLifecycle.Assert, Constants.WinGetNouns.Integrity)]
-    public class AssertIntegrityCommand : BaseCommand
+    [Cmdlet(
+        VerbsLifecycle.Assert,
+        Constants.WinGetNouns.Integrity,
+        DefaultParameterSetName = Constants.IntegrityVersionSet)]
+    public class AssertIntegrityCommand : BaseIntegrityCommand
     {
-        /// <summary>
-        /// Gets or sets the optional version.
-        /// </summary>
-        [Parameter(ValueFromPipelineByPropertyName = true)]
-        public string Version { get; set; } = string.Empty;
-
         /// <summary>
         /// Validates winget is installed correctly. If not, throws an exception
         /// with the reason why, if any.
         /// </summary>
         protected override void ProcessRecord()
         {
-            WinGetIntegrity.AssertWinGet(this, this.Version);
+            string expectedVersion = string.Empty;
+            if (this.ParameterSetName == Constants.IntegrityLatestSet)
+            {
+                var gitHubRelease = new GitHubRelease();
+                expectedVersion = gitHubRelease.GetLatestVersionTagName(this.IncludePreRelease.ToBool());
+            }
+            else
+            {
+                expectedVersion = this.Version;
+            }
+
+            WinGetIntegrity.AssertWinGet(this, expectedVersion);
         }
     }
 }

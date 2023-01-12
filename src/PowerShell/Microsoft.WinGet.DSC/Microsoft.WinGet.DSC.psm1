@@ -304,4 +304,90 @@ class WinGetSourcesResource
     }
 }
 
+[DSCResource()]
+class WinGetIntegrityResource
+{
+    # We need a key. Do not set.
+    [DscProperty(Key)]
+    [string]$SID
+
+    [DscProperty()]
+    [string]$Version = ""
+
+    [DscProperty()]
+    [bool]$Latest
+
+    [DscProperty()]
+    [bool]$LatestPreRelease
+
+    # If winget is not installed the version will be empty.
+    [WinGetIntegrityResource] Get()
+    {
+        $integrityResource = [WinGetIntegrityResource]::new()
+        if ($integrityResource.Test())
+        {
+            $integrityResource.Version = Get-WinGetVersion
+        }
+
+        return $integrityResource
+    }
+
+    # Tests winget is installed.
+    [bool] Test()
+    {
+        Assert-WinGetCommand "Assert-WinGetIntegrity"
+        Assert-WinGetCommand "Get-WinGetVersion"
+
+        try
+        {
+            if ($this.Latest)
+            {
+                Assert-WinGetIntegrity -Latest
+            }
+            elseif ($this.LatestPreRelease)
+            {
+                Assert-WinGetIntegrity -Latest -IncludePreRelease
+            }
+            else
+            {
+                Assert-WinGetIntegrity -Version $this.Version
+            }
+        }
+        catch
+        {
+            return $false
+        }
+
+        return $true
+    }
+
+    # Repairs Winget.
+    [void] Set()
+    {
+        Assert-WinGetCommand "Repair-WinGet"
+
+        if (-not $this.Test())
+        {
+            $result = -1
+            if ($this.Latest)
+            {
+                $result = Repair-WinGet -Latest
+            }
+            elseif ($this.LatestPreRelease)
+            {
+                $result = Repair-WinGet -Latest -IncludePreRelease
+            }
+            else
+            {
+                $result = Repair-WinGet -Version $this.Version
+            }
+            
+            if ($result -ne 0)
+            {
+                throw "Failed to repair winget."
+            }
+        }
+    }
+}
+
 #endregion DscResources

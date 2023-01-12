@@ -38,12 +38,11 @@ namespace Microsoft.WinGet.Client.Helpers
         /// <summary>
         /// Download a release from winget-cli.
         /// </summary>
-        /// <param name="includePreRelease">Include prerelease.</param>
         /// <param name="releaseTag">Optional release name. If null, gets latest.</param>
         /// <returns>Path where the msix bundle is downloaded.</returns>
-        public string DownloadRelease(bool includePreRelease, string releaseTag = null)
+        public string DownloadRelease(string releaseTag)
         {
-            return this.DownloadReleaseAsync(includePreRelease, releaseTag).GetAwaiter().GetResult();
+            return this.DownloadReleaseAsync(releaseTag).GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -69,22 +68,11 @@ namespace Microsoft.WinGet.Client.Helpers
         /// <summary>
         /// Download asynchronously a release from winget-cli.
         /// </summary>
-        /// <param name="includePreRelease">Include prerelease.</param>
         /// <param name="releaseTag">Optional release name. If null, gets latest.</param>
         /// <returns>Path where the msix bundle is downloaded.</returns>
-        public async Task<string> DownloadReleaseAsync(bool includePreRelease, string releaseTag = null)
+        public async Task<string> DownloadReleaseAsync(string releaseTag)
         {
-            Release release;
-
-            // If not specified get the latest.
-            if (string.IsNullOrEmpty(releaseTag))
-            {
-                release = await this.GetLatestVersionAsync(includePreRelease);
-            }
-            else
-            {
-                release = await this.gitHubClient.Repository.Release.Get(Owner, Repo, releaseTag);
-            }
+            Release release = await this.gitHubClient.Repository.Release.Get(Owner, Repo, releaseTag);
 
             // Get asset and download.
             var msixBundleAsset = release.Assets.Where(a => a.Name == MsixBundleName).First();
