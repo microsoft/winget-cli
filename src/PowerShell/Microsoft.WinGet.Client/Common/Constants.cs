@@ -40,7 +40,7 @@ namespace Microsoft.WinGet.Client.Common
         public const string IntegrityVersionSet = "IntegrityVersionSet";
 
         /// <summary>
-        /// Parameter set for an latest version with optional prereleased version.
+        /// Parameter set for an latest version with optional prerelease version.
         /// </summary>
         public const string IntegrityLatestSet = "IntegrityLatestSet";
 

@@ -91,7 +91,7 @@ namespace Microsoft.WinGet.Client.Common
             // First lets check if the file is there, which means it is installed or someone is taking our place.
             if (File.Exists(WingetCLIWrapper.WinGetFullPath))
             {
-                // The file exists, but we couldn't call it... We'll maybe winget's app execution alias is not enabled.
+                // The file exists, but we couldn't call it... Well maybe winget's app execution alias is not enabled.
                 // The trick is knowing that a magical file appears under WindowsApp when its enabled.
                 string wingetAliasPath = Path.Combine(Utilities.LocalDataWindowsAppPath, Constants.WinGetExe);
                 if (File.Exists(wingetAliasPath))

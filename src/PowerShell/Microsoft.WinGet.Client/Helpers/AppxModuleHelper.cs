@@ -162,13 +162,8 @@ namespace Microsoft.WinGet.Client.Helpers
                 }
 
                 var tmpFile = Path.GetTempFileName();
-
-                // This is weird but easy.
-                var githubRelease = new GitHubRelease();
-                githubRelease.DownloadUrl(url, tmpFile);
-
                 this.psCmdlet.WriteDebug($"Installing VCLibs {url}");
-                this.psCmdlet.InvokeCommand.InvokeScript(string.Format(AddAppxPackageFormat, tmpFile));
+                this.psCmdlet.InvokeCommand.InvokeScript(string.Format(AddAppxPackageFormat, url));
             }
         }
 

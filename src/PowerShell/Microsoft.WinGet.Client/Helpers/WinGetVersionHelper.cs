@@ -39,12 +39,10 @@ namespace Microsoft.WinGet.Client.Helpers
             }
 
             // WinGet version starts with v
-            if (version[0] != 'v')
+            if (version[0] == 'v')
             {
-                throw new ArgumentException();
+                version = version.Substring(1);
             }
-
-            version = version.Substring(1);
 
             // WinGet version might end with -preview
             if (version.EndsWith("-preview"))

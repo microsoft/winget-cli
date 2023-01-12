@@ -22,7 +22,7 @@ $resource = @{
     }
 }
 
-# This just demostrate the Get command.
+# This just demonstrate the Get command.
 $getResult = Invoke-DscResource @resource -Method Get
 
 if (-not([string]::IsNullOrWhiteSpace($getResult.Version)))
@@ -109,17 +109,17 @@ $resource = @{
 $testResult = Invoke-DscResource @resource -Method Test
 if ($testResult.InDesiredState)
 {
-    Write-Host "winget version is the latest prereleased version"
+    Write-Host "winget version is the latest prerelease version"
 }
 else
 {
-    # Get the latest prereleased.
+    # Get the latest prerelease.
     Invoke-DscResource @resource -Method Set | Out-Null
 
     $testResult = Invoke-DscResource @resource -Method Test
     if ($testResult.InDesiredState)
     {
-        Write-Host "winget version is the latest prereleased version"
+        Write-Host "winget version is the latest prerelease version"
     }
     else
     {

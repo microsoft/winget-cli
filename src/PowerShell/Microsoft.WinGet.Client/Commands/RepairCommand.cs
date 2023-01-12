@@ -75,7 +75,16 @@ namespace Microsoft.WinGet.Client.Commands
                      integrityCategory == IntegrityCategory.AppInstallerNotSupported ||
                      integrityCategory == IntegrityCategory.Failure)
             {
-                if (this.DownloadAndInstall(this.Version, false))
+                // If we are here and expectedVersion is empty, it means that they just ran Repair-WinGet.
+                // When there is not version specified, we don't want to assume an empty version means latest, but in
+                // this particular case we need to.
+                if (string.IsNullOrEmpty(expectedVersion))
+                {
+                    var gitHubRelease = new GitHubRelease();
+                    expectedVersion = gitHubRelease.GetLatestVersionTagName(false);
+                }
+
+                if (this.DownloadAndInstall(expectedVersion, false))
                 {
                     result = Succeeded;
                 }
