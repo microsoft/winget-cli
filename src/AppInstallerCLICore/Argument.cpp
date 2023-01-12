@@ -53,6 +53,8 @@ namespace AppInstaller::CLI
             return Argument{ "architecture"_liv, 'a', Args::Type::InstallArchitecture, Resource::String::InstallArchitectureArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         case Args::Type::Log:
             return Argument{ "log"_liv, 'o', Args::Type::Log, Resource::String::LogArgumentDescription, ArgumentType::Standard };
+        case Args::Type::CustomSwitches:
+            return Argument{ "custom"_liv, NoAlias, Args::Type::CustomSwitches, Resource::String::CustomSwitchesArgumentDescription, ArgumentType::Standard};
         case Args::Type::Override:
             return Argument{ "override"_liv, NoAlias, Args::Type::Override, Resource::String::OverrideArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         case Args::Type::InstallLocation:
@@ -106,7 +108,9 @@ namespace AppInstaller::CLI
         case Args::Type::ProductCode:
             return Argument{ "product-code"_liv, NoAlias, Args::Type::ProductCode, Resource::String::ProductCodeArgumentDescription, ArgumentType::Standard, false };
         case Args::Type::OpenLogs:
-            return Argument{ "open-logs"_liv, NoAlias, "logs"_liv, Args::Type::OpenLogs, Resource::String::OpenLogsArgumentDescription, ArgumentType::Flag, ExperimentalFeature::Feature::OpenLogsArgument};
+            return Argument{ "open-logs"_liv, NoAlias, "logs"_liv, Args::Type::OpenLogs, Resource::String::OpenLogsArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help};
+        case Args::Type::UninstallPrevious:
+            return Argument{ "uninstall-previous"_liv, NoAlias, Args::Type::UninstallPrevious, Resource::String::UninstallPreviousArgumentDescription, ArgumentType::Flag, ExperimentalFeature::Feature::UninstallPreviousArgument };
         case Args::Type::Force:
             return Argument{ "force"_liv, NoAlias, Args::Type::Force, Resource::String::ForceArgumentDescription, ArgumentType::Flag, false };
         default:

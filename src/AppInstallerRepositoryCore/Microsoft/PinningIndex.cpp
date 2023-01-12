@@ -49,12 +49,21 @@ namespace AppInstaller::Repository::Microsoft
         {
             if (std::filesystem::exists(indexPath))
             {
-                return std::make_shared<PinningIndex>(PinningIndex::Open(indexPath.u8string(), openDisposition));
+                if (std::filesystem::is_regular_file(indexPath))
+                {
+                    try
+                    {
+                        AICLI_LOG(Repo, Info, << "Opening existing pinning index");
+                        return std::make_shared<PinningIndex>(PinningIndex::Open(indexPath.u8string(), openDisposition));
+                    }
+                    CATCH_LOG();
+                }
+
+                AICLI_LOG(Repo, Info, << "Attempting to delete bad index file");
+                std::filesystem::remove_all(indexPath);
             }
-            else
-            {
-                return std::make_shared<PinningIndex>(PinningIndex::CreateNew(indexPath.u8string()));
-            }
+
+            return std::make_shared<PinningIndex>(PinningIndex::CreateNew(indexPath.u8string()));
         }
         CATCH_LOG();
 

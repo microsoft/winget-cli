@@ -117,10 +117,13 @@
 
   <Target Name="CopyCoreBinaries" AfterTargets="AfterBuild" Condition="'$(TargetFramework)' == '$(CoreFramework)'">
     <ItemGroup>
-      <CoreBinaries Include="$(OutputPath)\**\*.*" />
+      <!-- Non-Windows runtime binaries need to be explicitly excluded when building the PowerShell module.-->
+      <CoreBinaries Include="$(OutputPath)\**\*.*" Exclude="$(OutputPath)\runtimes\**" />
+      <WindowsRuntime Include="$(OutputPath)\runtimes\win10*\**\*.*" />
     </ItemGroup>
     <Message Importance="high" Text="Copying @(CoreBinaries) to '$(PowerShellModuleOutputDirectory)\$(Platform)\Core'" />
     <Copy SourceFiles="@(CoreBinaries)" DestinationFolder="$(PowerShellModuleOutputDirectory)\$(Platform)\Core\%(RecursiveDir)" />
+    <Copy SourceFiles="@(WindowsRuntime)" DestinationFolder="$(PowerShellModuleOutputDirectory)\$(Platform)\Core\runtimes\%(RecursiveDir)" />
   </Target>
 
   <Target Name="CopyDesktopBinaries" AfterTargets="AfterBuild" Condition="'$(TargetFramework)' == '$(DesktopFramework)'">

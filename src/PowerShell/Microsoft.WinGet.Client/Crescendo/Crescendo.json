@@ -59,6 +59,18 @@
             ]
         },
         {
+            "Verb": "Get",
+            "Noun": "WinGetSettings",
+            "Platform": [
+                "Windows"
+            ],
+            "OriginalName": "winget.exe",
+            "OriginalCommandElements": [
+                "settings",
+                "export"
+            ]
+        },
+        {
             "Verb": "Add",
             "Noun": "WinGetSource",
             "Platform": [

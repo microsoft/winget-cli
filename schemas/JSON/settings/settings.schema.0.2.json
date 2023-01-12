@@ -204,8 +204,8 @@
           "type": "boolean",
           "default": false
         },
-        "openLogsArgument": {
-          "description": "Enable argument to open default logs location",
+        "uninstallPreviousArgument": {
+          "description": "Enable argument to override upgrade behavior to UninstallPrevious",
           "type": "boolean",
           "default": false
         }

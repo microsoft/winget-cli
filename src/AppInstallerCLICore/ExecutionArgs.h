@@ -31,10 +31,12 @@ namespace AppInstaller::CLI::Execution
             Channel,
 
             // Install behavior
+            // When adding a new flag, we may need to copy it in Context::CreateSubContext()
             Interactive,
             Silent,
             Locale,
             Log,
+            CustomSwitches, // CustomSwitches args are args passed to the installer in addition to any defined in the manifest
             Override, // Override args are (and the only args) directly passed to installer
             InstallLocation,
             InstallScope,
@@ -85,6 +87,7 @@ namespace AppInstaller::CLI::Execution
             All, // Used in Update command to update all installed packages to latest
             IncludeUnknown, // Used in Upgrade command to allow upgrades of packages with unknown versions
             IncludePinned, // Used in Upgrade command to allow upgrades to pinned packages (only for pinning type of pins)
+            UninstallPrevious, // Used in Upgrade command to override the default manifest behavior to UninstallPrevious
 
             // Show command
             ListVersions, // Used in Show command to list all available versions of an app

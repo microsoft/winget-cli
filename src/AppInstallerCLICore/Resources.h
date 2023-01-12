@@ -50,6 +50,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConvertInstallFlowToUpgrade);
         WINGET_DEFINE_RESOURCE_STRINGID(CountArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(CountOutOfBoundsError);
+        WINGET_DEFINE_RESOURCE_STRINGID(CustomSwitchesArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(DependenciesFlowInstall);
         WINGET_DEFINE_RESOURCE_STRINGID(DependenciesFlowSourceNotFound);
         WINGET_DEFINE_RESOURCE_STRINGID(DependenciesFlowSourceTooManyMatches);
@@ -425,6 +426,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(UninstallFailedWithCode);
         WINGET_DEFINE_RESOURCE_STRINGID(UninstallFlowStartingPackageUninstall);
         WINGET_DEFINE_RESOURCE_STRINGID(UninstallFlowUninstallSuccess);
+        WINGET_DEFINE_RESOURCE_STRINGID(UninstallPreviousArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(UnrecognizedCommand);
         WINGET_DEFINE_RESOURCE_STRINGID(UnsupportedArgument);
         WINGET_DEFINE_RESOURCE_STRINGID(UpdateAllArgumentDescription);

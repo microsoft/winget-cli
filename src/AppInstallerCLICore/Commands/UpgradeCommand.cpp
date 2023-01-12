@@ -98,6 +98,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Silent),          // -h
             Argument::ForType(Args::Type::Purge),
             Argument::ForType(Args::Type::Log),             // -o
+            Argument::ForType(Args::Type::CustomSwitches),
             Argument::ForType(Args::Type::Override),
             Argument::ForType(Args::Type::InstallLocation), // -l
             Argument{ s_ArgumentName_Scope, Argument::NoAlias, Execution::Args::Type::InstallScope, Resource::String::InstalledScopeArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help },
@@ -111,6 +112,7 @@ namespace AppInstaller::CLI
             Argument{ "all"_liv, 'r', "recurse"_liv, Args::Type::All, Resource::String::UpdateAllArgumentDescription, ArgumentType::Flag },
             Argument{ "include-unknown"_liv, 'u', "unknown"_liv, Args::Type::IncludeUnknown, Resource::String::IncludeUnknownArgumentDescription, ArgumentType::Flag },
             Argument{ "include-pinned"_liv, Argument::NoAlias, "pinned"_liv, Args::Type::IncludePinned, Resource::String::IncludePinnedArgumentDescription, ArgumentType::Flag},
+            Argument::ForType(Args::Type::UninstallPrevious),
             Argument::ForType(Args::Type::Force),
         };
     }

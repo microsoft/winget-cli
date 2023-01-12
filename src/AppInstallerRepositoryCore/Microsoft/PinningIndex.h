@@ -37,7 +37,7 @@ namespace AppInstaller::Repository::Microsoft
         // Adds a pin to the index.
         IdType AddPin(const Pinning::Pin& pin);
 
-        // Updates a pin type, and version if needed.
+        // Updates a pin type, and gated version if needed.
         // Return value indicates whether there were any changes.
         bool UpdatePin(const Pinning::Pin& pin);
 

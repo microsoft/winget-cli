@@ -73,12 +73,12 @@ foreach ($result in (Get-ChildItem $ResultsPath -Directory))
                 $stats.CorrelationDisagreement += 1
             }
         }
-        Export-Csv -InputObject ($resultObj | Select-Object -Property * -ExcludeProperty @("Error", "Phase", "Action", "HRESULT") ) -Path $resultFile -Append -Encoding UTF8BOM
+        Export-Csv -InputObject ($resultObj | Select-Object -Property * -ExcludeProperty @("Error", "Phase", "Action", "HRESULT") ) -Path $resultFile -Append -Encoding utf8
     }
     else
     {
         $stats.Failed++
-        Export-Csv -InputObject $resultObj -Path $failedFile -Append -Encoding UTF8BOM
+        Export-Csv -InputObject $resultObj -Path $failedFile -Append -Encoding utf8
     }
 }
 
