@@ -125,6 +125,9 @@ namespace AppInstaller::Runtime
     // Determines whether the process is running with administrator privileges.
     bool IsRunningAsAdmin();
 
+    // Determines whether the process is running with local system context.
+    bool IsRunningAsSystem();
+
     // Determines whether developer mode is enabled.
     bool IsDevModeEnabled();
 

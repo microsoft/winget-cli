@@ -71,6 +71,7 @@ The current version of the **winget** tool supports the following options.
 | **-v, --version** | Returns the current version of winget. |
 | **--info** |  Provides you with all detailed information on winget, including the links to the license, privacy statement, and configured group policies. |
 | **-?, --help** |  Shows additional help for winget. |
+| **--wait** | Waits for user input upon command completion. |
 
 ## Supported installer formats
 
@@ -84,6 +85,7 @@ The current version of the **winget** tool supports the following types of insta
 * MSIX
 * BURN
 * PORTABLE
+* ZIP
 
 ## Scripting winget
 

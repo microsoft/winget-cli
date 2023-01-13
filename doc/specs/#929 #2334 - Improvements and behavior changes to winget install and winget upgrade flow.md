@@ -11,7 +11,7 @@ For [#929](https://github.com/microsoft/winget-cli/issues/929), [#2334](https://
 
 ## Abstract
 
-This is a mini spec for describing upcoming beahvior changes and improvements to `winget install` and `winget upgrade` workflows.
+This is a mini spec for describing upcoming behavior changes and improvements to `winget install` and `winget upgrade` workflows.
 
 ## Solution Design
 

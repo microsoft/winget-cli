@@ -1,19 +1,31 @@
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
+// -----------------------------------------------------------------------------
+// <copyright file="SearchCommand.cs" company="Microsoft Corporation">
+//     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
+// </copyright>
+// -----------------------------------------------------------------------------
 
 namespace AppInstallerCLIE2ETests
 {
     using NUnit.Framework;
 
+    /// <summary>
+    /// Test search command.
+    /// </summary>
     public class SearchCommand : BaseCommand
     {
+        /// <summary>
+        /// Test search without args.
+        /// </summary>
         [Test]
         public void SearchWithoutArgs()
         {
-            var result = TestCommon.RunAICLICommand("search", "");
+            var result = TestCommon.RunAICLICommand("search", string.Empty);
             Assert.AreEqual(Constants.ErrorCode.ERROR_INVALID_CL_ARGUMENTS, result.ExitCode);
         }
 
+        /// <summary>
+        /// Test search with query.
+        /// </summary>
         [Test]
         public void SearchQuery()
         {
@@ -23,6 +35,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
         }
 
+        /// <summary>
+        /// Test search with alias.
+        /// </summary>
         public void SearchUsingAlias()
         {
             var result = TestCommon.RunAICLICommand("find", "TestExampleInstaller");
@@ -31,6 +46,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
         }
 
+        /// <summary>
+        /// Test search with name.
+        /// </summary>
         [Test]
         public void SearchWithName()
         {
@@ -40,6 +58,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
         }
 
+        /// <summary>
+        /// Test search with Id.
+        /// </summary>
         [Test]
         public void SearchWithID()
         {
@@ -49,6 +70,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
         }
 
+        /// <summary>
+        /// Test search with invalid name.
+        /// </summary>
         [Test]
         public void SearchWithInvalidName()
         {
@@ -57,6 +81,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("No package found matching input criteria."));
         }
 
+        /// <summary>
+        /// Test search where it returns multiple results.
+        /// </summary>
         [Test]
         public void SearchReturnsMultiple()
         {
@@ -68,6 +95,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
         }
 
+        /// <summary>
+        /// Test search with exact name.
+        /// </summary>
         [Test]
         public void SearchWithExactName()
         {
@@ -77,6 +107,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
         }
 
+        /// <summary>
+        /// Test search with exact ID.
+        /// </summary>
         [Test]
         public void SearchWithExactID()
         {
@@ -86,6 +119,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("AppInstallerTest.TestExampleInstaller"));
         }
 
+        /// <summary>
+        /// Test search with exact case sensitive.
+        /// </summary>
         [Test]
         public void SearchWithExactArgCaseSensitivity()
         {
@@ -94,6 +130,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("No package found matching input criteria."));
         }
 
+        /// <summary>
+        /// Test search with a failed source.
+        /// </summary>
         [Test]
         public void SearchWithSingleSourceFailure()
         {
@@ -109,51 +148,55 @@ namespace AppInstallerCLIE2ETests
             }
             finally
             {
-                ResetTestSource();
+                this.ResetTestSource();
             }
         }
 
+        /// <summary>
+        /// Test search with bad pin.
+        /// </summary>
         [Test]
         public void SearchStoreWithBadPin()
         {
             // Configure as close as possible to the real chain but use the test cert for everything
             // This will at least force the public key to be checked rather than simply failing based on chain length
-            GroupPolicyHelper.EnableAdditionalSources.SetEnabledList(new GroupPolicySource[]
+            GroupPolicyHelper.EnableAdditionalSources.SetEnabledList(new GroupPolicyHelper.GroupPolicySource[]
             {
-                    new GroupPolicySource
+                    new GroupPolicyHelper.GroupPolicySource
                     {
                         Name = Constants.TestAlternateSourceName,
                         Arg = Constants.DefaultMSStoreSourceUrl,
                         Type = Constants.DefaultMSStoreSourceType,
-                        Data = "",
+                        Data = string.Empty,
                         Identifier = Constants.DefaultMSStoreSourceIdentifier,
-                        CertificatePinning = new GroupPolicyCertificatePinning
+                        CertificatePinning = new GroupPolicyHelper.GroupPolicyCertificatePinning
                         {
-                            Chains = new GroupPolicyCertificatePinningChain[] {
-                                new GroupPolicyCertificatePinningChain
+                            Chains = new GroupPolicyHelper.GroupPolicyCertificatePinningChain[]
+                            {
+                                new GroupPolicyHelper.GroupPolicyCertificatePinningChain
                                 {
-                                    Chain = new GroupPolicyCertificatePinningDetails[]
+                                    Chain = new GroupPolicyHelper.GroupPolicyCertificatePinningDetails[]
                                     {
-                                        new GroupPolicyCertificatePinningDetails
+                                        new GroupPolicyHelper.GroupPolicyCertificatePinningDetails
                                         {
                                             Validation = new string[] { "publickey" },
-                                            EmbeddedCertificate = TestCommon.GetTestServerCertificateHexString()
+                                            EmbeddedCertificate = TestCommon.GetTestServerCertificateHexString(),
                                         },
-                                        new GroupPolicyCertificatePinningDetails
+                                        new GroupPolicyHelper.GroupPolicyCertificatePinningDetails
                                         {
                                             Validation = new string[] { "subject", "issuer" },
-                                            EmbeddedCertificate = TestCommon.GetTestServerCertificateHexString()
+                                            EmbeddedCertificate = TestCommon.GetTestServerCertificateHexString(),
                                         },
-                                        new GroupPolicyCertificatePinningDetails
+                                        new GroupPolicyHelper.GroupPolicyCertificatePinningDetails
                                         {
                                             Validation = new string[] { "subject", "issuer" },
-                                            EmbeddedCertificate = TestCommon.GetTestServerCertificateHexString()
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                                            EmbeddedCertificate = TestCommon.GetTestServerCertificateHexString(),
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
             });
 
             try
@@ -163,7 +206,7 @@ namespace AppInstallerCLIE2ETests
             }
             finally
             {
-                ResetTestSource();
+                this.ResetTestSource();
             }
         }
     }

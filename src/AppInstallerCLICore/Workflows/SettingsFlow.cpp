@@ -12,35 +12,60 @@ namespace AppInstaller::CLI::Workflow
     using namespace AppInstaller::Settings;
     using namespace AppInstaller::Utility;
 
+    namespace
+    {
+        struct ExportSettingsJson
+        {
+            ExportSettingsJson()
+            {
+                root["$schema"] = "https://aka.ms/winget-settings-export.schema.json";
+                root["adminSettings"] = Json::ValueType::objectValue;
+                root["userSettingsFile"] = UserSettings::SettingsFilePath().u8string();
+            }
+
+            void AddAdminSetting(AdminSetting setting)
+            {
+                auto str = std::string{ Settings::AdminSettingToString(setting) };
+                root["adminSettings"][str] = Settings::IsAdminSettingEnabled(setting);
+            }
+
+            std::string ToJsonString() const
+            {
+                Json::StreamWriterBuilder writerBuilder;
+                writerBuilder.settings_["indentation"] = "";
+                return Json::writeString(writerBuilder, root);
+            }
+
+        private:
+            Json::Value root{ Json::ValueType::objectValue };
+        };
+    }
+
     void EnableAdminSetting(Execution::Context& context)
     {
-        std::string_view adminSettingString = context.Args.GetArg(Execution::Args::Type::AdminSettingEnable);
+        auto adminSettingString = context.Args.GetArg(Execution::Args::Type::AdminSettingEnable);
         AdminSetting adminSetting = Settings::StringToAdminSetting(adminSettingString);
         if (Settings::EnableAdminSetting(adminSetting))
         {
-            context.Reporter.Info() << Resource::String::AdminSettingEnabled;
+            context.Reporter.Info() << Resource::String::AdminSettingEnabled(AdminSettingToString(adminSetting));
         }
         else
         {
-            std::string adminSettingErrorMessage = Resource::LocString{ Resource::String::EnableAdminSettingFailed };
-            context.Reporter.Error() <<
-                Utility::LocIndString{ FindAndReplaceMessageToken(adminSettingErrorMessage, adminSettingString) };
+            context.Reporter.Error() << Resource::String::EnableAdminSettingFailed(AdminSettingToString(adminSetting));
         }
     }
 
     void DisableAdminSetting(Execution::Context& context)
     {
-        std::string_view adminSettingString = context.Args.GetArg(Execution::Args::Type::AdminSettingDisable);
+        auto adminSettingString = context.Args.GetArg(Execution::Args::Type::AdminSettingDisable);
         AdminSetting adminSetting = Settings::StringToAdminSetting(adminSettingString);
         if (Settings::DisableAdminSetting(adminSetting))
         {
-            context.Reporter.Info() << Resource::String::AdminSettingDisabled;
+            context.Reporter.Info() << Resource::String::AdminSettingDisabled(AdminSettingToString(adminSetting));
         }
         else
         {
-            std::string adminSettingErrorMessage = Resource::LocString{ Resource::String::DisableAdminSettingFailed };
-            context.Reporter.Error() <<
-                Utility::LocIndString{ FindAndReplaceMessageToken(adminSettingErrorMessage, adminSettingString) };
+            context.Reporter.Error() << Resource::String::DisableAdminSettingFailed(AdminSettingToString(adminSetting));
         }
     }
 
@@ -58,7 +83,7 @@ namespace AppInstaller::CLI::Workflow
                 {
                     if (warning.IsFieldWarning)
                     {
-                        warn << ' ' << Resource::String::SettingsWarningField << ' ' << warning.Path;
+                        warn << ' ' << Resource::String::SettingsWarningField(warning.Path);
                     }
                     else
                     {
@@ -70,7 +95,7 @@ namespace AppInstaller::CLI::Workflow
                 {
                     if (warning.IsFieldWarning)
                     {
-                        warn << ' ' << Resource::String::SettingsWarningValue << ' ' << warning.Data;
+                        warn << ' ' << Resource::String::SettingsWarningValue(warning.Data);
                     }
                     else
                     {
@@ -90,7 +115,7 @@ namespace AppInstaller::CLI::Workflow
 
         // Some versions of windows will fail if no file extension association exists, other will pop up the dialog
         // to make the user pick their default.
-        // Kudos to the terminal team for this work around.
+        // Kudos to the terminal team for this workaround.
         HINSTANCE res = ShellExecuteW(nullptr, nullptr, filePathUTF16.c_str(), nullptr, nullptr, SW_SHOW);
         if (static_cast<int>(reinterpret_cast<uintptr_t>(res)) <= 32)
         {
@@ -98,5 +123,19 @@ namespace AppInstaller::CLI::Workflow
             AICLI_LOG(CLI, Info, << "Json file type association not found, using notepad.exe");
             ShellExecuteW(nullptr, nullptr, L"notepad", filePathUTF16.c_str(), nullptr, SW_SHOW);
         }
+    }
+
+    void ExportSettings(Execution::Context& context)
+    {
+        ExportSettingsJson exportSettingsJson;
+        using AdminSetting_t = std::underlying_type_t<AdminSetting>;
+
+        // Skip Unknown.
+        for (AdminSetting_t i = 1 + static_cast<AdminSetting_t>(AdminSetting::Unknown); i < static_cast<AdminSetting_t>(AdminSetting::Max); ++i)
+        {
+            exportSettingsJson.AddAdminSetting(static_cast<AdminSetting>(i));
+        }
+
+        context.Reporter.Info() << exportSettingsJson.ToJsonString() << std::endl;
     }
 }

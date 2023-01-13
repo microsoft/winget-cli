@@ -83,6 +83,26 @@ namespace AppInstaller::Logging
         // Just eat any exceptions here; better than losing logs
     }
 
+    void FileLogger::Add()
+    {
+        Log().AddLogger(std::make_unique<FileLogger>());
+    }
+
+    void FileLogger::Add(const std::filesystem::path& filePath)
+    {
+        Log().AddLogger(std::make_unique<FileLogger>(filePath));
+    }
+
+    void FileLogger::Add(std::string_view fileNamePrefix)
+    {
+        Log().AddLogger(std::make_unique<FileLogger>(fileNamePrefix));
+    }
+
+    void FileLogger::BeginCleanup()
+    {
+        BeginCleanup(Runtime::GetPathTo(Runtime::PathName::DefaultLogLocation));
+    }
+
     void FileLogger::BeginCleanup(const std::filesystem::path& filePath)
     {
         std::thread([filePath]()

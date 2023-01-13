@@ -381,6 +381,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 context->Args.AddArg(Execution::Args::Type::Override, ::AppInstaller::Utility::ConvertToUTF8(options.ReplacementInstallerArguments()));
             }
 
+            if (!options.AdditionalInstallerArguments().empty())
+            {
+                context->Args.AddArg(Execution::Args::Type::CustomSwitches, ::AppInstaller::Utility::ConvertToUTF8(options.AdditionalInstallerArguments()));
+            }
+
             if (options.AllowedArchitectures().Size() != 0)
             {
                 std::vector<AppInstaller::Utility::Architecture> allowedArchitectures;
@@ -422,6 +427,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             else if (options.PackageUninstallMode() == PackageUninstallMode::Silent)
             {
                 context->Args.AddArg(Execution::Args::Type::Silent);
+            }
+
+            auto uninstallScope = GetManifestUninstallScope(options.PackageUninstallScope());
+            if (uninstallScope != ::AppInstaller::Manifest::ScopeEnum::Unknown)
+            {
+                context->Args.AddArg(Execution::Args::Type::InstallScope, ScopeToString(uninstallScope));
             }
         }
     }

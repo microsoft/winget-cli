@@ -14,6 +14,7 @@
 #include "WorkflowBase.h"
 #include "DependenciesFlow.h"
 #include "PromptFlow.h"
+#include <AppInstallerMsixInfo.h>
 #include <AppInstallerDeployment.h>
 #include <winget/ARPCorrelation.h>
 #include <winget/Archive.h>
@@ -71,18 +72,6 @@ namespace AppInstaller::CLI::Workflow
                 return true;
             default:
                 return false;
-            }
-        }
-
-        // TODO: Remove check once feature becomes stable
-        void EnsureFeatureEnabledForArchiveInstall(Execution::Context& context)
-        {
-            auto installer = context.Get<Execution::Data::Installer>().value();
-
-            if (IsArchiveType(installer.BaseInstallerType))
-            {
-                context <<
-                    Workflow::EnsureFeatureEnabled(Settings::ExperimentalFeature::Feature::ZipInstall);
             }
         }
 
@@ -248,7 +237,7 @@ namespace AppInstaller::CLI::Workflow
 
             if (!installationNotes.empty())
             {
-                context.Reporter.Info() << Resource::String::Notes << ' ' << installationNotes << std::endl;
+                context.Reporter.Info() << Resource::String::Notes(installationNotes) << std::endl;
             }
         }
     }
@@ -257,6 +246,7 @@ namespace AppInstaller::CLI::Workflow
     {
         bool isUpdate = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
         UpdateBehaviorEnum updateBehavior = context.Get<Execution::Data::Installer>().value().UpdateBehavior;
+        bool doUninstallPrevious = isUpdate && (updateBehavior == UpdateBehaviorEnum::UninstallPrevious || context.Args.Contains(Execution::Args::Type::UninstallPrevious));
 
         switch (m_installerType)
         {
@@ -266,7 +256,7 @@ namespace AppInstaller::CLI::Workflow
         case InstallerTypeEnum::Msi:
         case InstallerTypeEnum::Nullsoft:
         case InstallerTypeEnum::Wix:
-            if (isUpdate && updateBehavior == UpdateBehaviorEnum::UninstallPrevious)
+            if (doUninstallPrevious)
             {
                 context <<
                     GetUninstallInfo <<
@@ -291,7 +281,7 @@ namespace AppInstaller::CLI::Workflow
                 (isUpdate ? MSStoreUpdate : MSStoreInstall);
             break;
         case InstallerTypeEnum::Portable:
-            if (isUpdate && updateBehavior == UpdateBehaviorEnum::UninstallPrevious)
+            if (doUninstallPrevious)
             {
                 context <<
                     GetUninstallInfo <<
@@ -305,6 +295,21 @@ namespace AppInstaller::CLI::Workflow
             break;
         default:
             THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
+        }
+    }
+
+    void EnsureRunningAsAdminForMachineScopeInstall(Execution::Context& context)
+    {
+        // Admin is required for machine scope install for installer types like portable, msix and msstore.
+        auto installerType = context.Get<Execution::Data::Installer>().value().EffectiveInstallerType();
+
+        if (Manifest::DoesInstallerTypeRequireAdminForMachineScopeInstall(installerType))
+        {
+            Manifest::ScopeEnum scope = ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
+            if (scope == Manifest::ScopeEnum::Machine)
+            {
+                context << Workflow::EnsureRunningAsAdmin;
+            }
         }
     }
 
@@ -366,8 +371,15 @@ namespace AppInstaller::CLI::Workflow
         try
         {
             registrationDeferred = context.Reporter.ExecuteWithProgress([&](IProgressCallback& callback)
-            {
-                return Deployment::AddPackageWithDeferredFallback(uri, WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerTrusted), callback);
+                {
+                    if (Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope)) == Manifest::ScopeEnum::Machine)
+                    {
+                        return Deployment::AddPackageMachineScope(uri, callback);
+                    }
+                    else
+                    {
+                        return Deployment::AddPackageWithDeferredFallback(uri, WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerTrusted), callback);
+                    }
             });
         }
         catch (const wil::ResultException& re)
@@ -398,17 +410,22 @@ namespace AppInstaller::CLI::Workflow
 
             if (m_isHResult)
             {
-                context.Reporter.Error() << Resource::String::InstallerFailedWithCode << ' ' << GetUserPresentableMessage(installResult) << std::endl;
+                context.Reporter.Error()
+                    << Resource::String::InstallerFailedWithCode(Utility::LocIndView{ GetUserPresentableMessage(installResult) })
+                    << std::endl;
             }
             else
             {
-                context.Reporter.Error() << Resource::String::InstallerFailedWithCode << ' ' << installResult << std::endl;
+                context.Reporter.Error()
+                    << Resource::String::InstallerFailedWithCode(installResult)
+                    << std::endl;
             }
 
             // Show installer log path if exists
             if (context.Contains(Execution::Data::LogPath) && std::filesystem::exists(context.Get<Execution::Data::LogPath>()))
             {
-                context.Reporter.Info() << Resource::String::InstallerLogAvailable << ' ' << context.Get<Execution::Data::LogPath>().u8string() << std::endl;
+                auto installerLogPath = Utility::LocIndString{ context.Get<Execution::Data::LogPath>().u8string() };
+                context.Reporter.Info() << Resource::String::InstallerLogAvailable(installerLogPath) << std::endl;
             }
 
             // Show a specific message if we can identify the return code
@@ -479,7 +496,7 @@ namespace AppInstaller::CLI::Workflow
     void EnsureSupportForInstall(Execution::Context& context)
     {
         context <<
-            Workflow::EnsureFeatureEnabledForArchiveInstall <<
+            Workflow::EnsureRunningAsAdminForMachineScopeInstall <<
             Workflow::EnsureSupportForPortableInstall <<
             Workflow::EnsureValidNestedInstallerMetadataForArchiveInstall;
     }
@@ -510,7 +527,7 @@ namespace AppInstaller::CLI::Workflow
         bool allSucceeded = true;
         size_t packagesCount = context.Get<Execution::Data::PackagesToInstall>().size();
         size_t packagesProgress = 0;
-        
+
         for (auto& packageContext : context.Get<Execution::Data::PackagesToInstall>())
         {
             packagesProgress++;
@@ -552,6 +569,10 @@ namespace AppInstaller::CLI::Workflow
                 if (m_ignorableInstallResults.end() == std::find(m_ignorableInstallResults.begin(), m_ignorableInstallResults.end(), installContext.GetTerminationHR()))
                 {
                     allSucceeded = false;
+                    if (m_stopOnFailure)
+                    {
+                        break;
+                    }
                 }
             }
         }

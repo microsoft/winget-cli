@@ -31,18 +31,26 @@
 이 설정을 사용하거나 구성하지 않으면 사용자는 Windows 패키지 관리자를 사용하여 로컬 매니페스트와 함께 패키지를 설치할 수 있습니다.
 
 이 설정을 사용하지 않으면 사용자는 Windows 패키지 관리자를 사용하여 로컬 매니페스트를 통해 패키지를 설치할 수 없습니다.</string>
-      <string id="EnableBypassCertificatePinningForMicrosoftStore">Enable App Installer Microsoft Store Source Pinned Certificate Bypass</string>
-      <string id="EnableBypassCertificatePinningForMicrosoftStoreExplanation">This policy controls whether the Windows Package Manager can be configured to disable the requirement to use a pinned certificate for the Microsoft Store source.
+      <string id="EnableBypassCertificatePinningForMicrosoftStore">앱 설치 관리자 Microsoft Store 원본 인증서 유효성 검사 바이패스 사용</string>
+      <string id="EnableBypassCertificatePinningForMicrosoftStoreExplanation">이 정책은 Windows 패키지 관리자가 Microsoft 저장소 원본에 대한 연결을 시작할 때 알려진 Microsoft Store 인증서와 일치하는 Microsoft 저장소 인증서 해시의 유효성을 검사할지 여부를 제어합니다. 
+이 정책을 사용하면 Windows 패키지 관리자는 Microsoft 저장소 인증서 유효성 검사를 무시합니다. 
 
-If you enable or do not configure this setting, users will be able to bypass the pinned certificate used to validate the Microsoft Store source.
+이 정책을 사용하지 않으면 Windows 패키지 관리자는 Microsoft Store 원본과 통신하기 전에 사용된 Microsoft 저장소 인증서가 유효하고 Microsoft 저장소에 속하는지 확인합니다.
 
-If you disable this setting, users will not be able to bypass the pinned certificate used to validate the Microsoft Store source.</string>
+이 정책을 구성하지 않으면 Windows 패키지 관리자의 관리자 설정이 적용됩니다.</string>
       <string id="EnableHashOverride">앱 설치 관리자 해시 재정의 사용</string>
       <string id="EnableHashOverrideExplanation">이 정책은 설정에서 SHA256 보안 유효성 검사를 재정의하도록 Windows 패키지 관리자를 구성할 수 있는지 여부를 제어합니다.
 
 이 정책을 실행하거나 구성하지 않으면 Windows 패키지 관리자 설정에서 SHA256 보안 유효성 검사를 재정의하는 기능을 사용할 수 있습니다.
 
 이 정책을 실행 중지하면 Windows 패키지 관리자 설정에서 SHA256 보안 유효성 검사를 재정의하는 기능을 사용자가 사용하도록 설정할 수 없습니다.</string>
+      <string id="EnableLocalArchiveMalwareScanOverride">앱 설치 관리자 로컬 보관 맬웨어 검사 재정의 사용</string>
+      <string id="EnableLocalArchiveMalwareScanOverrideExplanation">이 정책은 명령줄 인수를 사용하여 로컬 매니페스트를 사용하여 보관 파일을 설치할 때 맬웨어 취약성 검사를 재정의하는 기능을 제어합니다.
+이 정책을 사용하면 사용자가 보관 파일의 로컬 매니페스트 설치를 수행할 때 맬웨어 검사를 재정의할 수 있습니다.
+
+이 정책을 사용하지 않으면 로컬 매니페스트를 사용하여 설치할 때 사용자가 보관 파일의 맬웨어 검사를 재정의할 수 없습니다.
+
+이 정책을 구성하지 않으면 Windows 패키지 관리자 관리자 설정이 적용됩니다.</string>
       <string id="EnableDefaultSource">앱 설치 관리자 기본 원본 사용</string>
       <string id="EnableDefaultSourceExplanation">이 정책은 Windows 패키지 관리자에 포함된 기본 원본을 제어합니다.
 

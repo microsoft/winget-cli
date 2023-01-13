@@ -31,15 +31,18 @@ namespace AppInstaller::CLI::Execution
             Channel,
 
             // Install behavior
+            // When adding a new flag, we may need to copy it in Context::CreateSubContext()
             Interactive,
             Silent,
             Locale,
             Log,
+            CustomSwitches, // CustomSwitches args are args passed to the installer in addition to any defined in the manifest
             Override, // Override args are (and the only args) directly passed to installer
             InstallLocation,
             InstallScope,
             InstallArchitecture,
             HashOverride, // Ignore hash mismatches
+            IgnoreLocalArchiveMalwareScan, // Ignore the local malware scan on archive files
             AcceptPackageAgreements, // Accept all license agreements for packages
             Rename, // Renames the file of the executable. Only applies to the portable installerType
             NoUpgrade, // Install flow should not try to convert to upgrade flow upon finding existing installed version
@@ -83,9 +86,14 @@ namespace AppInstaller::CLI::Execution
             // Upgrade command
             All, // Used in Update command to update all installed packages to latest
             IncludeUnknown, // Used in Upgrade command to allow upgrades of packages with unknown versions
+            UninstallPrevious, // Used in Upgrade command to override the default manifest behavior to UninstallPrevious
 
             // Show command
             ListVersions, // Used in Show command to list all available versions of an app
+
+            // Pin command
+            GatedVersion, // Differs from Version in that this supports wildcards
+            BlockingPin,
 
             // Common arguments
             NoVT, // Disable VirtualTerminal outputs

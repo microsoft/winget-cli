@@ -35,6 +35,12 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void CheckForUnsupportedArgs(Execution::Context& context);
 
+    // Admin is required for machine scope install for installer types like portable, msix and msstore.
+    // Required Args: None
+    // Inputs: Installer
+    // Outputs: None
+    void EnsureRunningAsAdminForMachineScopeInstall(Execution::Context& context);
+
     // Composite flow that chooses what to do based on the installer type.
     // Required Args: None
     // Inputs: Installer, InstallerPath
@@ -150,13 +156,15 @@ namespace AppInstaller::CLI::Workflow
             HRESULT resultOnFailure,
             std::vector<HRESULT>&& ignorableInstallResults = {},
             bool ensurePackageAgreements = true,
-            bool ignoreDependencies = false) :
+            bool ignoreDependencies = false,
+            bool stopOnFailure = false) :
             WorkflowTask("InstallMultiplePackages"),
             m_dependenciesReportMessage(dependenciesReportMessage),
             m_resultOnFailure(resultOnFailure),
             m_ignorableInstallResults(std::move(ignorableInstallResults)),
             m_ignorePackageDependencies(ignoreDependencies),
-            m_ensurePackageAgreements(ensurePackageAgreements) {}
+            m_ensurePackageAgreements(ensurePackageAgreements),
+            m_stopOnFailure(stopOnFailure) {}
 
         void operator()(Execution::Context& context) const override;
 
@@ -166,6 +174,7 @@ namespace AppInstaller::CLI::Workflow
         StringResource::StringId m_dependenciesReportMessage;
         bool m_ignorePackageDependencies;
         bool m_ensurePackageAgreements;
+        bool m_stopOnFailure;
     };
 
     // Stores the existing set of packages in ARP.

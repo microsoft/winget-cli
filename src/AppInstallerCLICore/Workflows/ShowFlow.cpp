@@ -180,13 +180,13 @@ namespace AppInstaller::CLI::Workflow
                     if (dependencies.HasAnyOf(Manifest::DependencyType::WindowsFeature))
                     {
                         info << "    - "_liv << Resource::String::ShowLabelWindowsFeaturesDependencies << ' ' << std::endl;
-                        dependencies.ApplyToType(Manifest::DependencyType::WindowsFeature, [&info](Manifest::Dependency dependency) {info << "        "_liv << dependency.Id << std::endl; });
+                        dependencies.ApplyToType(Manifest::DependencyType::WindowsFeature, [&info](Manifest::Dependency dependency) {info << "        "_liv << dependency.Id() << std::endl; });
                     }
 
                     if (dependencies.HasAnyOf(Manifest::DependencyType::WindowsLibrary))
                     {
                         info << "    - "_liv << Resource::String::ShowLabelWindowsLibrariesDependencies << ' ' << std::endl;
-                        dependencies.ApplyToType(Manifest::DependencyType::WindowsLibrary, [&info](Manifest::Dependency dependency) {info << "        "_liv << dependency.Id << std::endl; });
+                        dependencies.ApplyToType(Manifest::DependencyType::WindowsLibrary, [&info](Manifest::Dependency dependency) {info << "        "_liv << dependency.Id() << std::endl; });
                     }
 
                     if (dependencies.HasAnyOf(Manifest::DependencyType::Package))
@@ -194,7 +194,7 @@ namespace AppInstaller::CLI::Workflow
                         info << "    - "_liv << Resource::String::ShowLabelPackageDependencies << ' ' << std::endl;
                         dependencies.ApplyToType(Manifest::DependencyType::Package, [&info](Manifest::Dependency dependency)
                             {
-                                info << "        "_liv << dependency.Id;
+                                info << "        "_liv << dependency.Id();
                                 if (dependency.MinVersion)
                                 {
                                     info << " [>= " << dependency.MinVersion.value().ToString() << "]";
@@ -206,7 +206,7 @@ namespace AppInstaller::CLI::Workflow
                     if (dependencies.HasAnyOf(Manifest::DependencyType::External))
                     {
                         info << "    - "_liv << Resource::String::ShowLabelExternalDependencies << ' ' << std::endl;
-                        dependencies.ApplyToType(Manifest::DependencyType::External, [&info](Manifest::Dependency dependency) {info << "        "_liv << dependency.Id << std::endl; });
+                        dependencies.ApplyToType(Manifest::DependencyType::External, [&info](Manifest::Dependency dependency) {info << "        "_liv << dependency.Id() << std::endl; });
                     }
                 }
             }

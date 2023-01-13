@@ -16,6 +16,7 @@ namespace AppInstaller::Runtime
 {
     using namespace Utility;
     using namespace Settings;
+    using namespace Filesystem;
 
     namespace
     {
@@ -23,7 +24,7 @@ namespace AppInstaller::Runtime
         constexpr std::string_view s_DefaultTempDirectory = "WinGet"sv;
         constexpr std::string_view s_AppDataDir_Settings = "Settings"sv;
         constexpr std::string_view s_AppDataDir_State = "State"sv;
-        constexpr std::string_view s_SecureSettings_Base = "Microsoft/WinGet"sv;
+        constexpr std::string_view s_SecureSettings_Base = "Microsoft\\WinGet"sv;
         constexpr std::string_view s_SecureSettings_UserRelative = "settings"sv;
         constexpr std::string_view s_SecureSettings_Relative_Unpackaged = "win"sv;
         constexpr std::string_view s_PortablePackageUserRoot_Base = "Microsoft"sv;
@@ -96,13 +97,6 @@ namespace AppInstaller::Runtime
         static std::map<PathName, PathDetails> s_Path_TestHook_Overrides;
 #endif
 
-        std::filesystem::path GetKnownFolderPath(const KNOWNFOLDERID& id)
-        {
-            wil::unique_cotaskmem_string knownFolder = nullptr;
-            THROW_IF_FAILED(SHGetKnownFolderPath(id, KF_FLAG_NO_ALIAS | KF_FLAG_DONT_VERIFY | KF_FLAG_NO_PACKAGE_REDIRECTION, NULL, &knownFolder));
-            return knownFolder.get();
-        }
-
         // Gets the user's temp path
         std::filesystem::path GetPathToUserTemp()
         {
@@ -164,37 +158,6 @@ namespace AppInstaller::Runtime
             }
 
             return result;
-        }
-
-        // If `source` begins with all of `prefix`, replace that with `replacement`.
-        void ReplaceCommonPathPrefix(std::filesystem::path& source, const std::filesystem::path& prefix, std::string_view replacement)
-        {
-            auto prefixItr = prefix.begin();
-            auto sourceItr = source.begin();
-
-            while (prefixItr != prefix.end() && sourceItr != source.end())
-            {
-                if (*prefixItr != *sourceItr)
-                {
-                    break;
-                }
-
-                ++prefixItr;
-                ++sourceItr;
-            }
-
-            // Only replace source if we found all of prefix
-            if (prefixItr == prefix.end())
-            {
-                std::filesystem::path temp{ replacement };
-
-                for (; sourceItr != source.end(); ++sourceItr)
-                {
-                    temp /= *sourceItr;
-                }
-
-                source = std::move(temp);
-            }
         }
 
         DWORD AccessPermissionsFrom(ACEPermissions permissions)
@@ -732,6 +695,11 @@ namespace AppInstaller::Runtime
     bool IsRunningAsAdmin()
     {
         return wil::test_token_membership(nullptr, SECURITY_NT_AUTHORITY, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS);
+    }
+
+    bool IsRunningAsSystem()
+    {
+        return wil::test_token_membership(nullptr, SECURITY_NT_AUTHORITY, SECURITY_LOCAL_SYSTEM_RID);
     }
 
     // Determines whether developer mode is enabled.

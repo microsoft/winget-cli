@@ -495,9 +495,18 @@ namespace AppInstaller::Manifest
 
     bool DoesInstallerTypeIgnoreScopeFromManifest(InstallerTypeEnum installerType)
     {
-        return (
-            installerType == InstallerTypeEnum::Portable
-            );
+        return
+            installerType == InstallerTypeEnum::Portable ||
+            installerType == InstallerTypeEnum::Msix ||
+            installerType == InstallerTypeEnum::MSStore;
+    }
+
+    bool DoesInstallerTypeRequireAdminForMachineScopeInstall(InstallerTypeEnum installerType)
+    {
+        return
+            installerType == InstallerTypeEnum::Portable ||
+            installerType == InstallerTypeEnum::MSStore ||
+            installerType == InstallerTypeEnum::Msix;
     }
 
     bool IsArchiveType(InstallerTypeEnum installerType)
@@ -694,8 +703,9 @@ namespace AppInstaller::Manifest
 
     Dependency* DependencyList::HasDependency(const Dependency& dependencyToSearch)
     {
-        for (auto& dependency : m_dependencies) {
-            if (dependency.Type == dependencyToSearch.Type && ICUCaseInsensitiveEquals(dependency.Id, dependencyToSearch.Id))
+        for (auto& dependency : m_dependencies)
+        {
+            if (dependency.Type == dependencyToSearch.Type && ICUCaseInsensitiveEquals(dependency.Id(), dependencyToSearch.Id()))
             {
                 return &dependency;
             }
@@ -708,7 +718,7 @@ namespace AppInstaller::Manifest
     {
         for (const auto& dependency : m_dependencies)
         {
-            if (dependency.Type == type && Utility::ICUCaseInsensitiveEquals(dependency.Id, id))
+            if (dependency.Type == type && Utility::ICUCaseInsensitiveEquals(dependency.Id(), id))
             {
                 if (dependency.MinVersion) {
                     if (dependency.MinVersion.value() == minVersion)

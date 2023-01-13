@@ -28,7 +28,7 @@ namespace AppInstaller::Utility::HttpStream
         FindCachePages(requestedPosition, requestedSize, allPages, unsatisfiablePages);
 
         // download the missing pages
-        co_await DownloadAndSaveToCacheAysnc(
+        co_await DownloadAndSaveToCacheAsync(
             unsatisfiablePages,
             httpClientWrapper,
             httpInputStreamOptions);
@@ -145,7 +145,7 @@ namespace AppInstaller::Utility::HttpStream
 
     // Downloads a chunk of the file, saves it to the cache, and returns the corresponding buffer
     // If the requested size is 0, this method returns an empty buffer without making HTTP calls
-    std::future<void> HttpLocalCache::DownloadAndSaveToCacheAysnc(
+    std::future<void> HttpLocalCache::DownloadAndSaveToCacheAsync(
         const std::vector<ULONG64> unsatisfiablePages,
         HttpClientWrapper* httpClientWrapper,
         InputStreamOptions httpInputStreamOptions)

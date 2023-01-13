@@ -45,8 +45,7 @@ namespace AppInstaller::CLI
         // either for upgrading or for listing available upgrades.
         bool HasArgumentsForMultiplePackages(Execution::Args& execArgs)
         {
-            return execArgs.Contains(Args::Type::All) ||
-                execArgs.Contains(Args::Type::IncludeUnknown);
+            return execArgs.Contains(Args::Type::All);
         }
 
         // Determines whether there are any arguments only used as options during an upgrade,
@@ -59,6 +58,7 @@ namespace AppInstaller::CLI
                 execArgs.Contains(Args::Type::Override) ||
                 execArgs.Contains(Args::Type::InstallLocation) ||
                 execArgs.Contains(Args::Type::HashOverride) ||
+                execArgs.Contains(Args::Type::IgnoreLocalArchiveMalwareScan) ||
                 execArgs.Contains(Args::Type::AcceptPackageAgreements);
         }
 
@@ -98,16 +98,20 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Silent),          // -h
             Argument::ForType(Args::Type::Purge),
             Argument::ForType(Args::Type::Log),             // -o
+            Argument::ForType(Args::Type::CustomSwitches),
             Argument::ForType(Args::Type::Override),
             Argument::ForType(Args::Type::InstallLocation), // -l
+            Argument{ s_ArgumentName_Scope, Argument::NoAlias, Execution::Args::Type::InstallScope, Resource::String::InstalledScopeArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help },
             Argument::ForType(Args::Type::InstallArchitecture), // -a
             Argument::ForType(Args::Type::Locale),
             Argument::ForType(Args::Type::HashOverride),
+            Argument::ForType(Args::Type::IgnoreLocalArchiveMalwareScan),
             Argument::ForType(Args::Type::AcceptPackageAgreements),
             Argument::ForType(Args::Type::AcceptSourceAgreements),
             Argument::ForType(Execution::Args::Type::CustomHeader),
             Argument{ "all"_liv, 'r', "recurse"_liv, Args::Type::All, Resource::String::UpdateAllArgumentDescription, ArgumentType::Flag },
             Argument{ "include-unknown"_liv, 'u', "unknown"_liv, Args::Type::IncludeUnknown, Resource::String::IncludeUnknownArgumentDescription, ArgumentType::Flag },
+            Argument::ForType(Args::Type::UninstallPrevious),
             Argument::ForType(Args::Type::Force),
         };
     }
@@ -164,9 +168,9 @@ namespace AppInstaller::CLI
         }
     }
 
-    std::string UpgradeCommand::HelpLink() const
+    Utility::LocIndView UpgradeCommand::HelpLink() const
     {
-        return "https://aka.ms/winget-command-upgrade";
+        return "https://aka.ms/winget-command-upgrade"_liv;
     }
 
     void UpgradeCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
@@ -185,6 +189,7 @@ namespace AppInstaller::CLI
                 execArgs.Contains(Args::Type::Override) ||
                 execArgs.Contains(Args::Type::InstallLocation) ||
                 execArgs.Contains(Args::Type::HashOverride) ||
+                execArgs.Contains(Args::Type::IgnoreLocalArchiveMalwareScan) ||
                 execArgs.Contains(Args::Type::AcceptPackageAgreements)))
         {
             throw CommandException(Resource::String::InvalidArgumentWithoutQueryError);
@@ -210,7 +215,7 @@ namespace AppInstaller::CLI
         context <<
             Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
             Workflow::OpenSource() <<
-            Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed);
+            Workflow::OpenCompositeSource(Workflow::DetermineInstalledSource(context));
 
         if (ShouldListUpgrade(context.Args))
         {

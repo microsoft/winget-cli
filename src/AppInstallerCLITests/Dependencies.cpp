@@ -23,6 +23,7 @@ using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Settings;
 using namespace AppInstaller::Utility;
+using namespace AppInstaller::Utility::literals;
 
 TEST_CASE("DependencyGraph_BFirst", "[dependencyGraph][dependencies]")
 {
@@ -53,9 +54,9 @@ TEST_CASE("DependencyGraph_BFirst", "[dependencyGraph][dependencies]")
     installationOrder = graph.GetInstallationOrder();
 
     REQUIRE(installationOrder.size() == 3);
-    REQUIRE(installationOrder.at(0).Id == "C");
-    REQUIRE(installationOrder.at(1).Id == "B");
-    REQUIRE(installationOrder.at(2).Id == "NeedsToInstallBFirst");
+    REQUIRE(installationOrder.at(0).Id() == "C");
+    REQUIRE(installationOrder.at(1).Id() == "B");
+    REQUIRE(installationOrder.at(2).Id() == "NeedsToInstallBFirst");
 }
 
 TEST_CASE("DependencyGraph_InStackNoLoop", "[dependencyGraph][dependencies]")
@@ -87,9 +88,9 @@ TEST_CASE("DependencyGraph_InStackNoLoop", "[dependencyGraph][dependencies]")
     installationOrder = graph.GetInstallationOrder();
 
     REQUIRE(installationOrder.size() == 3);
-    REQUIRE(installationOrder.at(0).Id == "F");
-    REQUIRE(installationOrder.at(1).Id == "C");
-    REQUIRE(installationOrder.at(2).Id == "DependencyAlreadyInStackButNoLoop");
+    REQUIRE(installationOrder.at(0).Id() == "F");
+    REQUIRE(installationOrder.at(1).Id() == "C");
+    REQUIRE(installationOrder.at(2).Id() == "DependencyAlreadyInStackButNoLoop");
 }
 
 TEST_CASE("DependencyGraph_EasyToSeeLoop", "[dependencyGraph][dependencies]")
@@ -124,8 +125,8 @@ TEST_CASE("DependencyGraph_EasyToSeeLoop", "[dependencyGraph][dependencies]")
     REQUIRE(hasLoop);
 
     REQUIRE(installationOrder.size() == 2);
-    REQUIRE(installationOrder.at(0).Id == "D");
-    REQUIRE(installationOrder.at(1).Id == "EasyToSeeLoop");
+    REQUIRE(installationOrder.at(0).Id() == "D");
+    REQUIRE(installationOrder.at(1).Id() == "EasyToSeeLoop");
 }
 
 TEST_CASE("DependencyNodeProcessor_SkipInstalled", "[dependencies]")
@@ -161,7 +162,7 @@ TEST_CASE("DependencyNodeProcessor_NoInstallers", "[dependencies]")
     Dependency rootAsDependency(DependencyType::Package, manifest.Id);
 
     DependencyNodeProcessorResult result = nodeProcessor.EvaluateDependencies(rootAsDependency);
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesFlowNoInstallerFound)) != std::string::npos);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesFlowNoInstallerFound("withoutInstallers"_liv))) != std::string::npos);
     REQUIRE(result == DependencyNodeProcessorResult::Error);
 }
 

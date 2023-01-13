@@ -52,9 +52,9 @@ struct TestTelemetry : public TelemetryTraceLogger
     mutable bool WasLogSuccessfulInstallARPChangeCalled = false;
 };
 
-struct TestContext : public Context
+struct ARPTestContext : public Context
 {
-    TestContext(Manifest::InstallerTypeEnum installerType = Manifest::InstallerTypeEnum::Exe) :
+    ARPTestContext(Manifest::InstallerTypeEnum installerType = Manifest::InstallerTypeEnum::Exe) :
         Context(OStream, IStream), SourceFactory([this](const SourceDetails&) { return Source; })
     {
         // Put installer in to control whether arp change code cares to run
@@ -117,7 +117,7 @@ struct TestContext : public Context
         AddEverythingResult("Id2", "Name2", "Publisher2", "2.0");
     }
 
-    ~TestContext()
+    ~ARPTestContext()
     {
         TestHook_ClearSourceFactoryOverrides();
         TestHook_SetTelemetryOverride({});
@@ -227,7 +227,7 @@ private:
 TEST_CASE("ARPChanges_MSIX_Ignored", "[ARPChanges][workflow]")
 {
     TestHeuristicOverride heuristicOverride;
-    TestContext context(Manifest::InstallerTypeEnum::Msix);
+    ARPTestContext context(Manifest::InstallerTypeEnum::Msix);
 
     context << SnapshotARPEntries;
 
@@ -241,7 +241,7 @@ TEST_CASE("ARPChanges_MSIX_Ignored", "[ARPChanges][workflow]")
 TEST_CASE("ARPChanges_CheckSnapshot", "[ARPChanges][workflow]")
 {
     TestHeuristicOverride heuristicOverride;
-    TestContext context;
+    ARPTestContext context;
 
     context << SnapshotARPEntries;
 
@@ -276,7 +276,7 @@ TEST_CASE("ARPChanges_CheckSnapshot", "[ARPChanges][workflow]")
 TEST_CASE("ARPChanges_NoChange_NoMatch", "[ARPChanges][workflow]")
 {
     TestHeuristicOverride heuristicOverride;
-    TestContext context;
+    ARPTestContext context;
 
     context << SnapshotARPEntries;
     REQUIRE(context.Contains(Data::ARPCorrelationData));
@@ -288,7 +288,7 @@ TEST_CASE("ARPChanges_NoChange_NoMatch", "[ARPChanges][workflow]")
 TEST_CASE("ARPChanges_NoChange_SingleMatch", "[ARPChanges][workflow]")
 {
     TestHeuristicOverride heuristicOverride;
-    TestContext context;
+    ARPTestContext context;
 
     context << SnapshotARPEntries;
     REQUIRE(context.Contains(Data::ARPCorrelationData));
@@ -302,7 +302,7 @@ TEST_CASE("ARPChanges_NoChange_SingleMatch", "[ARPChanges][workflow]")
 TEST_CASE("ARPChanges_NoChange_MultiMatch", "[ARPChanges][workflow]")
 {
     TestHeuristicOverride heuristicOverride;
-    TestContext context;
+    ARPTestContext context;
 
     context << SnapshotARPEntries;
     REQUIRE(context.Contains(Data::ARPCorrelationData));
@@ -317,7 +317,7 @@ TEST_CASE("ARPChanges_NoChange_MultiMatch", "[ARPChanges][workflow]")
 TEST_CASE("ARPChanges_SingleChange_NoMatch", "[ARPChanges][workflow]")
 {
     TestHeuristicOverride heuristicOverride;
-    TestContext context;
+    ARPTestContext context;
 
     context << SnapshotARPEntries;
     REQUIRE(context.Contains(Data::ARPCorrelationData));
@@ -331,7 +331,7 @@ TEST_CASE("ARPChanges_SingleChange_NoMatch", "[ARPChanges][workflow]")
 TEST_CASE("ARPChanges_SingleChange_SingleMatch", "[ARPChanges][workflow]")
 {
     TestHeuristicOverride heuristicOverride;
-    TestContext context;
+    ARPTestContext context;
 
     context << SnapshotARPEntries;
     REQUIRE(context.Contains(Data::ARPCorrelationData));
@@ -346,7 +346,7 @@ TEST_CASE("ARPChanges_SingleChange_SingleMatch", "[ARPChanges][workflow]")
 TEST_CASE("ARPChanges_SingleChange_MultiMatch", "[ARPChanges][workflow]")
 {
     TestHeuristicOverride heuristicOverride;
-    TestContext context;
+    ARPTestContext context;
 
     context << SnapshotARPEntries;
     REQUIRE(context.Contains(Data::ARPCorrelationData));
@@ -362,7 +362,7 @@ TEST_CASE("ARPChanges_SingleChange_MultiMatch", "[ARPChanges][workflow]")
 TEST_CASE("ARPChanges_MultiChange_NoMatch", "[ARPChanges][workflow]")
 {
     TestHeuristicOverride heuristicOverride;
-    TestContext context;
+    ARPTestContext context;
 
     context << SnapshotARPEntries;
     REQUIRE(context.Contains(Data::ARPCorrelationData));
@@ -377,7 +377,7 @@ TEST_CASE("ARPChanges_MultiChange_NoMatch", "[ARPChanges][workflow]")
 TEST_CASE("ARPChanges_MultiChange_SingleMatch_NoOverlap", "[ARPChanges][workflow]")
 {
     TestHeuristicOverride heuristicOverride;
-    TestContext context;
+    ARPTestContext context;
 
     context << SnapshotARPEntries;
     REQUIRE(context.Contains(Data::ARPCorrelationData));
@@ -393,7 +393,7 @@ TEST_CASE("ARPChanges_MultiChange_SingleMatch_NoOverlap", "[ARPChanges][workflow
 TEST_CASE("ARPChanges_MultiChange_SingleMatch_Overlap", "[ARPChanges][workflow]")
 {
     TestHeuristicOverride heuristicOverride;
-    TestContext context;
+    ARPTestContext context;
 
     context << SnapshotARPEntries;
     REQUIRE(context.Contains(Data::ARPCorrelationData));
@@ -409,7 +409,7 @@ TEST_CASE("ARPChanges_MultiChange_SingleMatch_Overlap", "[ARPChanges][workflow]"
 TEST_CASE("ARPChanges_MultiChange_MultiMatch_NoOverlap", "[ARPChanges][workflow]")
 {
     TestHeuristicOverride heuristicOverride;
-    TestContext context;
+    ARPTestContext context;
 
     context << SnapshotARPEntries;
     REQUIRE(context.Contains(Data::ARPCorrelationData));
@@ -426,7 +426,7 @@ TEST_CASE("ARPChanges_MultiChange_MultiMatch_NoOverlap", "[ARPChanges][workflow]
 TEST_CASE("ARPChanges_MultiChange_MultiMatch_SingleOverlap", "[ARPChanges][workflow]")
 {
     TestHeuristicOverride heuristicOverride;
-    TestContext context;
+    ARPTestContext context;
 
     context << SnapshotARPEntries;
     REQUIRE(context.Contains(Data::ARPCorrelationData));
@@ -443,7 +443,7 @@ TEST_CASE("ARPChanges_MultiChange_MultiMatch_SingleOverlap", "[ARPChanges][workf
 TEST_CASE("ARPChanges_MultiChange_MultiMatch_MultiOverlap", "[ARPChanges][workflow]")
 {
     TestHeuristicOverride heuristicOverride;
-    TestContext context;
+    ARPTestContext context;
 
     context << SnapshotARPEntries;
     REQUIRE(context.Contains(Data::ARPCorrelationData));

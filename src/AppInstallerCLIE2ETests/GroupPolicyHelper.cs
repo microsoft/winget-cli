@@ -1,17 +1,20 @@
-﻿// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Xml.Linq;
-using Microsoft.Win32;
-using Newtonsoft.Json;
-using NUnit.Framework;
+﻿// -----------------------------------------------------------------------------
+// <copyright file="GroupPolicyHelper.cs" company="Microsoft Corporation">
+//     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
+// </copyright>
+// -----------------------------------------------------------------------------
 
 namespace AppInstallerCLIE2ETests
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Xml.Linq;
+    using Microsoft.Win32;
+    using Newtonsoft.Json;
+    using NUnit.Framework;
+
     /// <summary>
     /// Helper for setting Group Policy settings.
     /// This helper reads the keys and values to use directly from the ADMX file to ensure that the names
@@ -31,36 +34,6 @@ namespace AppInstallerCLIE2ETests
         });
 
         /// <summary>
-        /// Names of the XML elements and attributes that make up the definition file.
-        /// </summary>
-        private static class XmlNames
-        {
-            private const string Namespace = "http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions";
-
-            // Root element
-            public static readonly XName PolicyDefinitions = XName.Get("policyDefinitions", Namespace);
-
-            public static readonly XName Policies = XName.Get("policies", Namespace);
-            public static readonly XName Policy = XName.Get("policy", Namespace);
-
-            public static readonly XName EnabledValue = XName.Get("enabledValue", Namespace);
-            public static readonly XName DisabledValue = XName.Get("disabledValue", Namespace);
-            public static readonly XName Elements = XName.Get("elements", Namespace);
-
-            public static readonly XName Decimal = XName.Get("decimal", Namespace);
-            public static readonly XName List = XName.Get("list", Namespace);
-
-            public static class Attributes
-            {
-                public const string Name = "name";
-                public const string Value = "value";
-                public const string Id = "id";
-                public const string Key = "key";
-                public const string ValueName = "valueName";
-            }
-        }
-
-        /// <summary>
         /// Name of the policy. Used to identify it in the file.
         /// </summary>
         private string name;
@@ -70,32 +43,6 @@ namespace AppInstallerCLIE2ETests
         /// This assumes that each policy has a single value element.
         /// </summary>
         private string elementId;
-
-        // Policies available.
-        public static GroupPolicyHelper EnableWinget = new GroupPolicyHelper("EnableAppInstaller");
-        public static GroupPolicyHelper EnableSettings = new GroupPolicyHelper("EnableSettings");
-        public static GroupPolicyHelper EnableExperimentalFeatures = new GroupPolicyHelper("EnableExperimentalFeatures");
-        public static GroupPolicyHelper EnableLocalManifests = new GroupPolicyHelper("EnableLocalManifestFiles");
-        public static GroupPolicyHelper EnableHashOverride = new GroupPolicyHelper("EnableHashOverride");
-        public static GroupPolicyHelper EnableDefaultSource = new GroupPolicyHelper("EnableDefaultSource");
-        public static GroupPolicyHelper EnableMicrosoftStoreSource = new GroupPolicyHelper("EnableMicrosoftStoreSource");
-        public static GroupPolicyHelper EnableAdditionalSources = new GroupPolicyHelper("EnableAdditionalSources", "AdditionalSources");
-        public static GroupPolicyHelper EnableAllowedSources = new GroupPolicyHelper("EnableAllowedSources", "AllowedSources");
-        public static GroupPolicyHelper SourceAutoUpdateInterval = new GroupPolicyHelper("SourceAutoUpdateInterval", "SourceAutoUpdateInterval");
-
-        private static GroupPolicyHelper[] AllPolicies = new GroupPolicyHelper[]
-        {
-            EnableWinget,
-            EnableSettings,
-            EnableExperimentalFeatures,
-            EnableLocalManifests,
-            EnableHashOverride,
-            EnableDefaultSource,
-            EnableMicrosoftStoreSource,
-            EnableAdditionalSources,
-            EnableAllowedSources,
-            SourceAutoUpdateInterval,
-        };
 
         private GroupPolicyHelper(string name)
         {
@@ -107,6 +54,78 @@ namespace AppInstallerCLIE2ETests
             this.name = name;
             this.elementId = elementId;
         }
+
+        // Policies available.
+
+        /// <summary>
+        /// Gets the Enable winget policy.
+        /// </summary>
+        public static GroupPolicyHelper EnableWinget { get; private set; } = new GroupPolicyHelper("EnableAppInstaller");
+
+        /// <summary>
+        /// Gets the Enable settings policy.
+        /// </summary>
+        public static GroupPolicyHelper EnableSettings { get; private set; } = new GroupPolicyHelper("EnableSettings");
+
+        /// <summary>
+        /// Gets the Enable experimental features policy.
+        /// </summary>
+        public static GroupPolicyHelper EnableExperimentalFeatures { get; private set; } = new GroupPolicyHelper("EnableExperimentalFeatures");
+
+        /// <summary>
+        /// Gets the Enable local manifest policy.
+        /// </summary>
+        public static GroupPolicyHelper EnableLocalManifests { get; private set; } = new GroupPolicyHelper("EnableLocalManifestFiles");
+
+        /// <summary>
+        /// Gets the Enable hash override policy.
+        /// </summary>
+        public static GroupPolicyHelper EnableHashOverride { get; private set; } = new GroupPolicyHelper("EnableHashOverride");
+
+        /// <summary>
+        /// Gets the Enable ignore malware scan policy.
+        /// </summary>
+        public static GroupPolicyHelper EnableLocalArchiveMalwareScanOverride { get; private set; } = new GroupPolicyHelper("EnableLocalArchiveMalwareScanOverride");
+
+        /// <summary>
+        /// Gets the Enable default source policy.
+        /// </summary>
+        public static GroupPolicyHelper EnableDefaultSource { get; private set; } = new GroupPolicyHelper("EnableDefaultSource");
+
+        /// <summary>
+        /// Gets the Enable store source policy.
+        /// </summary>
+        public static GroupPolicyHelper EnableMicrosoftStoreSource { get; private set; } = new GroupPolicyHelper("EnableMicrosoftStoreSource");
+
+        /// <summary>
+        /// Gets the Enable additional sources policy.
+        /// </summary>
+        public static GroupPolicyHelper EnableAdditionalSources { get; private set; } = new GroupPolicyHelper("EnableAdditionalSources", "AdditionalSources");
+
+        /// <summary>
+        /// Gets the Enable allowed sources policy.
+        /// </summary>
+        public static GroupPolicyHelper EnableAllowedSources { get; private set; } = new GroupPolicyHelper("EnableAllowedSources", "AllowedSources");
+
+        /// <summary>
+        /// Gets the Enable auto update interval policy.
+        /// </summary>
+        public static GroupPolicyHelper SourceAutoUpdateInterval { get; private set; } = new GroupPolicyHelper("SourceAutoUpdateInterval", "SourceAutoUpdateInterval");
+
+        private static GroupPolicyHelper[] AllPolicies { get; set; } = new GroupPolicyHelper[]
+        {
+            EnableWinget,
+            EnableSettings,
+            EnableExperimentalFeatures,
+            EnableLocalManifests,
+            EnableHashOverride,
+            EnableLocalArchiveMalwareScanOverride,
+            EnableDefaultSource,
+            EnableMicrosoftStoreSource,
+            EnableAdditionalSources,
+            EnableAllowedSources,
+            SourceAutoUpdateInterval,
+        };
 
         /// <summary>
         /// Gets the content of the ADMX file as an XML.
@@ -271,7 +290,7 @@ namespace AppInstallerCLIE2ETests
             int index = 0;
             foreach (string value in values)
             {
-                TestContext.Out.WriteLine($"Setting {name} list value: {value}");
+                TestContext.Out.WriteLine($"Setting {this.name} list value: {value}");
                 listKey.SetValue(index++.ToString(), value);
             }
 
@@ -286,7 +305,7 @@ namespace AppInstallerCLIE2ETests
         /// <param name="values">Values to set in the list.</param>
         public void SetEnabledList(IEnumerable<GroupPolicySource> values)
         {
-            SetEnabledList(values.Select(source => JsonConvert.SerializeObject(source)));
+            this.SetEnabledList(values.Select(source => JsonConvert.SerializeObject(source)));
         }
 
         /// <summary>
@@ -312,35 +331,109 @@ namespace AppInstallerCLIE2ETests
         {
             return Registry.LocalMachine.CreateSubKey(this.KeyPath);
         }
-    }
 
-    /// <summary>
-    /// A group policy source object as used by AdditionalSources and AllowedSources.
-    /// </summary>
-    public class GroupPolicySource
-    {
-        public string Name { get; set; }
-        public string Arg { get; set; }
-        public string Type { get; set; }
-        public string Data { get; set; }
-        public string Identifier { get; set; }
-        public GroupPolicyCertificatePinning CertificatePinning { get; set; }
-    }
+        /// <summary>
+        /// A group policy source object as used by AdditionalSources and AllowedSources.
+        /// </summary>
+        public class GroupPolicySource
+        {
+            /// <summary>
+            /// Gets or sets the source name.
+            /// </summary>
+            public string Name { get; set; }
 
-    public class GroupPolicyCertificatePinning
-    {
-        public GroupPolicyCertificatePinningChain[] Chains { get; set; }
-    }
+            /// <summary>
+            /// Gets or sets the source arg.
+            /// </summary>
+            public string Arg { get; set; }
 
-    public class GroupPolicyCertificatePinningChain
-    {
-        public GroupPolicyCertificatePinningDetails[] Chain { get; set; }
-    }
+            /// <summary>
+            /// Gets or sets the source type.
+            /// </summary>
+            public string Type { get; set; }
 
-    public class GroupPolicyCertificatePinningDetails
-    {
-        public string[] Validation { get; set; }
-        public string EmbeddedCertificate { get; set; }
-    }
+            /// <summary>
+            /// Gets or sets the source data.
+            /// </summary>
+            public string Data { get; set; }
 
+            /// <summary>
+            /// Gets or sets the source identifier.
+            /// </summary>
+            public string Identifier { get; set; }
+
+            /// <summary>
+            /// Gets or sets certificate pinning.
+            /// </summary>
+            public GroupPolicyCertificatePinning CertificatePinning { get; set; }
+        }
+
+        /// <summary>
+        /// Group policy certificate pinning.
+        /// </summary>
+        public class GroupPolicyCertificatePinning
+        {
+            /// <summary>
+            /// Gets or sets the cert pinning chains.
+            /// </summary>
+            public GroupPolicyCertificatePinningChain[] Chains { get; set; }
+        }
+
+        /// <summary>
+        /// Group policy certificate pinning chain.
+        /// </summary>
+        public class GroupPolicyCertificatePinningChain
+        {
+            /// <summary>
+            /// Gets or sets the cert pinning details.
+            /// </summary>
+            public GroupPolicyCertificatePinningDetails[] Chain { get; set; }
+        }
+
+        /// <summary>
+        /// Group policy certificate pinning details.
+        /// </summary>
+        public class GroupPolicyCertificatePinningDetails
+        {
+            /// <summary>
+            /// Gets or sets the validation.
+            /// </summary>
+            public string[] Validation { get; set; }
+
+            /// <summary>
+            /// Gets or sets the embedded cert.
+            /// </summary>
+            public string EmbeddedCertificate { get; set; }
+        }
+
+        /// <summary>
+        /// Names of the XML elements and attributes that make up the definition file.
+        /// </summary>
+        private static class XmlNames
+        {
+            // Root element
+            public static readonly XName PolicyDefinitions = XName.Get("policyDefinitions", Namespace);
+
+            public static readonly XName Policies = XName.Get("policies", Namespace);
+            public static readonly XName Policy = XName.Get("policy", Namespace);
+
+            public static readonly XName EnabledValue = XName.Get("enabledValue", Namespace);
+            public static readonly XName DisabledValue = XName.Get("disabledValue", Namespace);
+            public static readonly XName Elements = XName.Get("elements", Namespace);
+
+            public static readonly XName Decimal = XName.Get("decimal", Namespace);
+            public static readonly XName List = XName.Get("list", Namespace);
+
+            private const string Namespace = "http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions";
+
+            public static class Attributes
+            {
+                public const string Name = "name";
+                public const string Value = "value";
+                public const string Id = "id";
+                public const string Key = "key";
+                public const string ValueName = "valueName";
+            }
+        }
+    }
 }

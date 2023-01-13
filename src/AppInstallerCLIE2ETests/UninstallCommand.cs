@@ -1,11 +1,17 @@
-﻿// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
+﻿// -----------------------------------------------------------------------------
+// <copyright file="UninstallCommand.cs" company="Microsoft Corporation">
+//     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
+// </copyright>
+// -----------------------------------------------------------------------------
 
 namespace AppInstallerCLIE2ETests
 {
-    using NUnit.Framework;
     using System.IO;
+    using NUnit.Framework;
 
+    /// <summary>
+    /// Test uninstall command.
+    /// </summary>
     public class UninstallCommand : BaseCommand
     {
         // Custom product code for overriding the default in the test exe
@@ -20,6 +26,9 @@ namespace AppInstallerCLIE2ETests
         // Package name of the test MSIX package
         private const string UninstallTestMsixName = "6c6338fe-41b7-46ca-8ba6-b5ad5312bb0e";
 
+        /// <summary>
+        /// Test uninstall exe.
+        /// </summary>
         [Test]
         public void UninstallTestExe()
         {
@@ -32,6 +41,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(TestCommon.VerifyTestExeUninstalled(installDir));
         }
 
+        /// <summary>
+        /// Test uninstall msi.
+        /// </summary>
         [Test]
         public void UninstallTestMsi()
         {
@@ -49,6 +61,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(TestCommon.VerifyTestMsiUninstalled(installDir));
         }
 
+        /// <summary>
+        /// Test uninstall msix.
+        /// </summary>
         [Test]
         public void UninstallTestMsix()
         {
@@ -60,6 +75,26 @@ namespace AppInstallerCLIE2ETests
             Assert.True(TestCommon.VerifyTestMsixUninstalled());
         }
 
+        /// <summary>
+        /// Test uninstall msix package with machine scope.
+        /// </summary>
+        [Test]
+        public void UninstallTestMsixMachineScope()
+        {
+            // TODO: Provision and Deprovision api not supported in build server.
+            Assert.Ignore();
+
+            // Uninstall an MSIX
+            TestCommon.RunAICLICommand("install", $"{Constants.MsixInstallerPackageId} --scope machine");
+            var result = TestCommon.RunAICLICommand("uninstall", $"{Constants.MsixInstallerPackageId} --scope machine");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully uninstalled"));
+            Assert.True(TestCommon.VerifyTestMsixUninstalled(true));
+        }
+
+        /// <summary>
+        /// Test uninstall portable package.
+        /// </summary>
         [Test]
         public void UninstallPortable()
         {
@@ -77,6 +112,9 @@ namespace AppInstallerCLIE2ETests
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, false);
         }
 
+        /// <summary>
+        /// Test uninstall portable package with product code.
+        /// </summary>
         [Test]
         public void UninstallPortableWithProductCode()
         {
@@ -94,6 +132,9 @@ namespace AppInstallerCLIE2ETests
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, false);
         }
 
+        /// <summary>
+        /// Test uninstall portable package with modified symlink.
+        /// </summary>
         [Test]
         public void UninstallPortableModifiedSymlink()
         {
@@ -126,6 +167,9 @@ namespace AppInstallerCLIE2ETests
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, false);
         }
 
+        /// <summary>
+        /// Test uninstall zip portable package.
+        /// </summary>
         [Test]
         public void UninstallZip_Portable()
         {
@@ -136,14 +180,16 @@ namespace AppInstallerCLIE2ETests
             commandAlias = "TestPortable.exe";
             fileName = "AppInstallerTestExeInstaller.exe";
 
-            var testreuslt = TestCommon.RunAICLICommand("install", $"{packageId}");
+            var testResult = TestCommon.RunAICLICommand("install", $"{packageId}");
             var result = TestCommon.RunAICLICommand("uninstall", $"{packageId}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully uninstalled"));
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, false);
         }
 
-
+        /// <summary>
+        /// Test uninstall not indexed.
+        /// </summary>
         [Test]
         public void UninstallNotIndexed()
         {
@@ -158,6 +204,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(TestCommon.VerifyTestExeUninstalled(installDir));
         }
 
+        /// <summary>
+        /// Test uninstalled app not found.
+        /// </summary>
         [Test]
         public void UninstallAppNotInstalled()
         {

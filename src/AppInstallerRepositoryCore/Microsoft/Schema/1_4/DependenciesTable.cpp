@@ -48,11 +48,11 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
         {
             if (!missingPackageNodes.empty())
             {
-                std::string missingPackages{ missingPackageNodes.begin()->Id };
+                std::string missingPackages{ missingPackageNodes.begin()->Id()};
                 std::for_each(
                     missingPackageNodes.begin() + 1,
                     missingPackageNodes.end(),
-                    [&](auto& dep) { missingPackages.append(", " + dep.Id);  });
+                    [&](auto& dep) { missingPackages.append(", " + dep.Id()); });
                 THROW_HR_MSG(APPINSTALLER_CLI_ERROR_MISSING_PACKAGE, "Missing packages: %hs", missingPackages.c_str());
             }
         }
@@ -70,9 +70,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_4
             {
                 installer.Dependencies.ApplyToType(dependencyType, [&](Manifest::Dependency dependency)
                 {
-                    auto packageRowId = IdTable::SelectIdByValue(connection, dependency.Id);
+                    auto packageRowId = IdTable::SelectIdByValue(connection, dependency.Id());
                     std::optional<Utility::NormalizedString> version;
-                        
+
                     if (!packageRowId.has_value())
                     {
                         missingPackageNodes.emplace_back(dependency);

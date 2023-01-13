@@ -86,7 +86,7 @@ namespace AppInstaller::Repository::Correlation
 
     // Allows callers finer control over how the correlation result will be chosen.
     // The values appear in order of their application in the correlation algorithm, meaning that a later
-    // setting that is set to true can be pre-empted by an earlier setting, if a correlation occurs with the
+    // setting that is set to true can be preempted by an earlier setting, if a correlation occurs with the
     // earlier setting.
     // The default values are chosen to reflect what is used after an install on a consumer system.
     struct ARPCorrelationSettings

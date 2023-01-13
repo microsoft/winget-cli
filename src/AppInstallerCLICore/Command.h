@@ -23,26 +23,20 @@ namespace AppInstaller::CLI
     struct CommandException
     {
         CommandException(Resource::LocString message) : m_message(std::move(message)) {}
-
-        // The message should be a localized string.
-        // The parameters can be either localized or not.
-        // We 'convert' the param to a localization independent view here if needed.
-        CommandException(Resource::LocString message, Resource::LocString param) : m_message(std::move(message)), m_params({ param }) {}
-        CommandException(Resource::LocString message, std::string_view param) : m_message(std::move(message)), m_params({ Utility::LocIndString{ param } }) {}
-
-        // The message should be a localized string, but the replacement and parameters are not.
-        // This supports replacing %1 in the message with the replace value.
-        CommandException(Resource::LocString message, Utility::LocIndView replace, std::vector<Utility::LocIndString>&& params) :
-            m_message(std::move(message)), m_replace(replace), m_params(std::move(params)) {}
-
-        const Utility::LocIndString Message() const;
-        const std::vector<Utility::LocIndString>& Params() const { return m_params; }
+        const Utility::LocIndString Message() const { return m_message; }
 
     private:
         Resource::LocString m_message;
-        std::optional<Utility::LocIndString> m_replace;
-        std::vector<Utility::LocIndString> m_params;
     };
+
+    // Flags to control the behavior of the command output.
+    enum class CommandOutputFlags : int
+    {
+        None = 0x0,
+        IgnoreSettingsWarnings = 0x1,
+    };
+
+    DEFINE_ENUM_FLAG_OPERATORS(CommandOutputFlags);
 
     struct Command
     {
@@ -57,17 +51,27 @@ namespace AppInstaller::CLI
 
         Command(std::string_view name, std::string_view parent) :
             Command(name, {}, parent) {}
-        Command(std::string_view name,std::vector<std::string_view> aliases, std::string_view parent) :
+        Command(std::string_view name, std::vector<std::string_view> aliases, std::string_view parent) :
             Command(name, aliases, parent, Settings::ExperimentalFeature::Feature::None) {}
-        Command(std::string_view name,std::vector<std::string_view> aliases, std::string_view parent, Command::Visibility visibility) :
+        Command(std::string_view name, std::string_view parent, CommandOutputFlags outputFlags) :
+            Command(name, {}, parent, Command::Visibility::Show, Settings::ExperimentalFeature::Feature::None, Settings::TogglePolicy::Policy::None, outputFlags) {}
+        Command(std::string_view name, std::vector<std::string_view> aliases, std::string_view parent, Command::Visibility visibility) :
             Command(name, aliases, parent, visibility, Settings::ExperimentalFeature::Feature::None) {}
-        Command(std::string_view name,std::vector<std::string_view> aliases, std::string_view parent, Settings::ExperimentalFeature::Feature feature) :
+        Command(std::string_view name, std::vector<std::string_view> aliases, std::string_view parent, Settings::ExperimentalFeature::Feature feature) :
             Command(name, aliases, parent, Command::Visibility::Show, feature) {}
-        Command(std::string_view name,std::vector<std::string_view> aliases, std::string_view parent, Settings::TogglePolicy::Policy groupPolicy) :
-            Command(name, aliases, parent, Command::Visibility::Show, Settings::ExperimentalFeature::Feature::None, groupPolicy) {}
-        Command(std::string_view name,std::vector<std::string_view> aliases, std::string_view parent, Command::Visibility visibility, Settings::ExperimentalFeature::Feature feature) :
-            Command(name, aliases, parent, visibility, feature, Settings::TogglePolicy::Policy::None) {}
-        Command(std::string_view name,std::vector<std::string_view> aliases, std::string_view parent, Command::Visibility visibility, Settings::ExperimentalFeature::Feature feature, Settings::TogglePolicy::Policy groupPolicy);
+        Command(std::string_view name, std::vector<std::string_view> aliases, std::string_view parent, Settings::TogglePolicy::Policy groupPolicy) :
+            Command(name, aliases, parent, Command::Visibility::Show, Settings::ExperimentalFeature::Feature::None, groupPolicy, CommandOutputFlags::None) {}
+        Command(std::string_view name, std::vector<std::string_view> aliases, std::string_view parent, Command::Visibility visibility, Settings::ExperimentalFeature::Feature feature) :
+            Command(name, aliases, parent, visibility, feature, Settings::TogglePolicy::Policy::None, CommandOutputFlags::None) {}
+
+        Command(std::string_view name,
+            std::vector<std::string_view> aliases,
+            std::string_view parent,
+            Command::Visibility visibility,
+            Settings::ExperimentalFeature::Feature feature,
+            Settings::TogglePolicy::Policy groupPolicy,
+            CommandOutputFlags outputFlags);
+
         virtual ~Command() = default;
 
         Command(const Command&) = default;
@@ -85,6 +89,7 @@ namespace AppInstaller::CLI
         Command::Visibility GetVisibility() const;
         Settings::ExperimentalFeature::Feature Feature() const { return m_feature; }
         Settings::TogglePolicy::Policy GroupPolicy() const { return m_groupPolicy; }
+        CommandOutputFlags GetOutputFlags() const { return m_outputFlags; }
 
         virtual std::vector<std::unique_ptr<Command>> GetCommands() const { return {}; }
         virtual std::vector<Argument> GetArguments() const { return {}; }
@@ -96,7 +101,7 @@ namespace AppInstaller::CLI
 
         virtual void OutputIntroHeader(Execution::Reporter& reporter) const;
         virtual void OutputHelp(Execution::Reporter& reporter, const CommandException* exception = nullptr) const;
-        virtual std::string HelpLink() const { return {}; }
+        virtual Utility::LocIndView HelpLink() const { return {}; }
 
         virtual std::unique_ptr<Command> FindSubCommand(Invocation& inv) const;
         virtual void ParseArguments(Invocation& inv, Execution::Args& execArgs) const;
@@ -118,6 +123,7 @@ namespace AppInstaller::CLI
         Command::Visibility m_visibility;
         Settings::ExperimentalFeature::Feature m_feature;
         Settings::TogglePolicy::Policy m_groupPolicy;
+        CommandOutputFlags m_outputFlags;
     };
 
     template <typename Container>
@@ -133,6 +139,8 @@ namespace AppInstaller::CLI
 
         return result;
     }
+
+    void ExecuteWithoutLoggingSuccess(Execution::Context& context, Command* command);
 
     int Execute(Execution::Context& context, std::unique_ptr<Command>& command);
 }

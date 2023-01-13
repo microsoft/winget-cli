@@ -7,6 +7,7 @@
 #include "winget/JsonUtil.h"
 #include "winget/Settings.h"
 #include "winget/UserSettings.h"
+#include "winget/filesystem.h"
 
 #include "AppInstallerArchitecture.h"
 #include "winget/Locale.h"
@@ -18,6 +19,7 @@ namespace AppInstaller::Settings
     using namespace Utility;
     using namespace Logging;
     using namespace JSON;
+    using namespace Filesystem;
 
     static constexpr std::string_view s_SettingEmpty =
         R"({
@@ -93,11 +95,22 @@ namespace AppInstaller::Settings
 
         std::optional<Json::Value> ParseFile(const StreamDefinition& setting, std::vector<UserSettings::Warning>& warnings)
         {
-            auto stream = Stream{ setting }.Get();
-            if (stream)
+            try
             {
-                std::string settingsContentStr = Utility::ReadEntireStream(*stream);
-                return ParseSettingsContent(settingsContentStr, setting.Name, warnings);
+                auto stream = Stream{ setting }.Get();
+                if (stream)
+                {
+                    std::string settingsContentStr = Utility::ReadEntireStream(*stream);
+                    return ParseSettingsContent(settingsContentStr, setting.Name, warnings);
+                }
+            }
+            catch (const std::exception& e)
+            {
+                AICLI_LOG(Core, Error, << "Failed to read " << setting.Name << "; Reason: " << e.what());
+            }
+            catch (...)
+            {
+                AICLI_LOG(Core, Error, << "Failed to read " << setting.Name << "; Reason unknown.");
             }
 
             return {};
@@ -247,8 +260,8 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_PASS_THROUGH(EFExperimentalArg)
         WINGET_VALIDATE_PASS_THROUGH(EFDependencies)
         WINGET_VALIDATE_PASS_THROUGH(EFDirectMSI)
-        WINGET_VALIDATE_PASS_THROUGH(EFZipInstall)
-        WINGET_VALIDATE_PASS_THROUGH(EFOpenLogsArgument)
+        WINGET_VALIDATE_PASS_THROUGH(EFPinning)
+        WINGET_VALIDATE_PASS_THROUGH(EFUninstallPreviousArgument)
         WINGET_VALIDATE_PASS_THROUGH(TelemetryDisable)
         WINGET_VALIDATE_PASS_THROUGH(InteractivityDisable)
         WINGET_VALIDATE_PASS_THROUGH(EnableSelfInitiatedMinidump)
@@ -504,6 +517,16 @@ namespace AppInstaller::Settings
                     m_type = UserSettingsType::Backup;
                     settingsRoot = settingsBackupJson.value();
                 }
+                else
+                {
+                    // Settings and back up didn't parse or exist. If they exist then warn the user.
+                    auto settingsPath = Stream{ Stream::PrimaryUserSettings }.GetPath();
+                    auto backupPath = Stream{ Stream::BackupUserSettings }.GetPath();
+                    if (std::filesystem::exists(settingsPath) || std::filesystem::exists(backupPath))
+                    {
+                        m_warnings.emplace_back(StringResource::String::SettingsWarningUsingDefault);
+                    }
+                }
             }
         }
 
@@ -542,8 +565,15 @@ namespace AppInstaller::Settings
         }
     }
 
-    std::filesystem::path UserSettings::SettingsFilePath()
+    std::filesystem::path UserSettings::SettingsFilePath(bool forDisplay)
     {
-        return Stream{ Stream::PrimaryUserSettings }.GetPath();
+        auto path = Stream{ Stream::PrimaryUserSettings }.GetPath();
+
+        if (forDisplay)
+        {
+            ReplaceCommonPathPrefix(path, GetKnownFolderPath(FOLDERID_LocalAppData), "%LOCALAPPDATA%");
+        }
+
+        return path;
     }
 }

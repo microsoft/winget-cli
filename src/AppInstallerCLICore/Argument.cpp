@@ -53,12 +53,14 @@ namespace AppInstaller::CLI
             return Argument{ "architecture"_liv, 'a', Args::Type::InstallArchitecture, Resource::String::InstallArchitectureArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         case Args::Type::Log:
             return Argument{ "log"_liv, 'o', Args::Type::Log, Resource::String::LogArgumentDescription, ArgumentType::Standard };
+        case Args::Type::CustomSwitches:
+            return Argument{ "custom"_liv, NoAlias, Args::Type::CustomSwitches, Resource::String::CustomSwitchesArgumentDescription, ArgumentType::Standard};
         case Args::Type::Override:
             return Argument{ "override"_liv, NoAlias, Args::Type::Override, Resource::String::OverrideArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         case Args::Type::InstallLocation:
             return Argument{ "location"_liv, 'l', Args::Type::InstallLocation, Resource::String::LocationArgumentDescription, ArgumentType::Standard };
         case Args::Type::HashOverride:
-            return Argument{ "ignore-security-hash"_liv, NoAlias, Args::Type::HashOverride, Resource::String::HashOverrideArgumentDescription, ArgumentType::Flag, Settings::TogglePolicy::Policy::HashOverride };
+            return Argument{ "ignore-security-hash"_liv, NoAlias, Args::Type::HashOverride, Resource::String::HashOverrideArgumentDescription, ArgumentType::Flag, Settings::TogglePolicy::Policy::HashOverride, Settings::AdminSetting::InstallerHashOverride };
         case Args::Type::AcceptPackageAgreements:
             return Argument{ "accept-package-agreements"_liv, NoAlias, Args::Type::AcceptPackageAgreements, Resource::String::AcceptPackageAgreementsArgumentDescription, ArgumentType::Flag };
         case Args::Type::NoUpgrade:
@@ -71,6 +73,8 @@ namespace AppInstaller::CLI
             return Argument{ "versions"_liv, NoAlias, Args::Type::ListVersions, Resource::String::VersionsArgumentDescription, ArgumentType::Flag };
         case Args::Type::Help:
             return Argument{ "help"_liv, APPINSTALLER_CLI_HELP_ARGUMENT_TEXT_CHAR, Args::Type::Help, Resource::String::HelpArgumentDescription, ArgumentType::Flag };
+        case Args::Type::IgnoreLocalArchiveMalwareScan:
+            return Argument{ "ignore-local-archive-malware-scan"_liv, NoAlias, Args::Type::IgnoreLocalArchiveMalwareScan, Resource::String::IgnoreLocalArchiveMalwareScanArgumentDescription, ArgumentType::Flag, Settings::TogglePolicy::Policy::LocalArchiveMalwareScanOverride, Settings::AdminSetting::LocalArchiveMalwareScanOverride };
         case Args::Type::SourceName:
             return Argument{ "name"_liv, 'n', Args::Type::SourceName,Resource::String::SourceNameArgumentDescription, ArgumentType::Positional, false };
         case Args::Type::SourceArg:
@@ -104,7 +108,9 @@ namespace AppInstaller::CLI
         case Args::Type::ProductCode:
             return Argument{ "product-code"_liv, NoAlias, Args::Type::ProductCode, Resource::String::ProductCodeArgumentDescription, ArgumentType::Standard, false };
         case Args::Type::OpenLogs:
-            return Argument{ "open-logs"_liv, NoAlias, "logs"_liv, Args::Type::OpenLogs, Resource::String::OpenLogsArgumentDescription, ArgumentType::Flag, ExperimentalFeature::Feature::OpenLogsArgument};
+            return Argument{ "open-logs"_liv, NoAlias, "logs"_liv, Args::Type::OpenLogs, Resource::String::OpenLogsArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help};
+        case Args::Type::UninstallPrevious:
+            return Argument{ "uninstall-previous"_liv, NoAlias, Args::Type::UninstallPrevious, Resource::String::UninstallPreviousArgumentDescription, ArgumentType::Flag, ExperimentalFeature::Feature::UninstallPreviousArgument };
         case Args::Type::Force:
             return Argument{ "force"_liv, NoAlias, Args::Type::Force, Resource::String::ForceArgumentDescription, ArgumentType::Flag, false };
         default:

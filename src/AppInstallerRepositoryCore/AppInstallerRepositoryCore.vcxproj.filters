@@ -76,6 +76,9 @@
     <Filter Include="Rest\Schema\1_4\Json">
       <UniqueIdentifier>{d9d70cf5-ce04-4db2-a0ec-970dd0ad22b6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Microsoft\Schema\Pinning_1_0">
+      <UniqueIdentifier>{f05e19bb-2161-4ab0-9d04-2dfa2d3eb3c6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -339,6 +342,18 @@
     <ClInclude Include="Rest\Schema\SearchResponseParser.h">
       <Filter>Rest\Schema</Filter>
     </ClInclude>
+    <ClInclude Include="Microsoft\Schema\IPinningIndex.h">
+      <Filter>Microsoft\Schema</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\PinningIndex.h">
+      <Filter>Microsoft</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\Pinning_1_0\PinningIndexInterface.h">
+      <Filter>Microsoft\Schema\Pinning_1_0</Filter>
+    </ClInclude>
+    <ClInclude Include="Microsoft\Schema\Pinning_1_0\PinTable.h">
+      <Filter>Microsoft\Schema\Pinning_1_0</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -538,6 +553,15 @@
     </ClCompile>
     <ClCompile Include="PackageInstalledStatus.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\PinningIndex.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\Schema\Pinning_1_0\PinningIndexInterface_1_0.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Microsoft\Schema\Pinning_1_0\PinTable.cpp">
+      <Filter>Microsoft\Schema\Pinning_1_0</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

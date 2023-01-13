@@ -117,12 +117,12 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ArgumentExceptionInvalidSource" xml:space="preserve">
+  <data name="InvalidSourceExceptionMessage" xml:space="preserve">
     <value>No source matches the given value: {0}</value>
     <comment>{0} - The name of the source that was not found.</comment>
   </data>
-  <data name="ExceptionAdministratorDisabled" xml:space="preserve">
-    <value>This cmdlet is currently disabled in an administrative context.</value>
+  <data name="ExecuteAsSystemExceptionMessage" xml:space="preserve">
+    <value>This cmdlet is currently disabled for SYSTEM.</value>
   </data>
   <data name="FindPackagesExceptionMessage" xml:space="preserve">
     <value>An error occurred while searching for packages: {0}</value>
@@ -140,18 +140,27 @@
     <value>Updating '{0}'</value>
     <comment>{0} - The name of the package being updated.</comment>
   </data>
-  <data name="RuntimeExceptionCatalogError" xml:space="preserve">
+  <data name="CatalogConnectExceptionMessage" xml:space="preserve">
     <value>An error occurred while connecting to the catalog.</value>
   </data>
-  <data name="RuntimeExceptionInvalidVersion" xml:space="preserve">
+  <data name="InvalidVersionExceptionMessage" xml:space="preserve">
     <value>No versions matched the given value: {0}</value>
     <comment>{0} - The version string provided by the user.</comment>
   </data>
-  <data name="RuntimeExceptionNoPackagesFound" xml:space="preserve">
+  <data name="NoPackageFoundExceptionMessage" xml:space="preserve">
     <value>No packages matched the given input criteria.</value>
   </data>
   <data name="VagueCriteriaExceptionMessage" xml:space="preserve">
     <value>{0}, {1}, and {2} other packages matched the input criteria. Please refine the input.</value>
     <comment>{0} - The first conflicting package as a string. {1} - The second conflicting package. {2} - The number of other packages that also matched the input criteria.</comment>
+  </data>
+  <data name="WinGetPackageNotInstalledMessage" xml:space="preserve">
+    <value>Unable to execute command; WinGet package not installed.</value>
+  </data>
+  <data name="WinGetCLIExceptionMessage" xml:space="preserve">
+    <value>Command {0} failed with exit code {1}</value>
+  </data>
+  <data name="UserSettingsReadException" xml:space="preserve">
+    <value>User settings file is invalid.</value>
   </data>
 </root>

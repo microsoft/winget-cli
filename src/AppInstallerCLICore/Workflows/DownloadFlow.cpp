@@ -5,6 +5,7 @@
 #include "winget/Filesystem.h"
 
 #include <AppInstallerMsixInfo.h>
+#include <winget/AdminSettings.h>
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -80,6 +81,9 @@ namespace AppInstaller::CLI::Workflow
             }
 
             filename += installerExtension;
+
+            // Make file name suitable for file system path
+            filename = Utility::ConvertToUTF16(Utility::MakeSuitablePathPart(filename.u8string()));
 
             return filename;
         }
@@ -235,7 +239,7 @@ namespace AppInstaller::CLI::Workflow
         // Use the SHA256 hash of the installer as the identifier for the download
         downloadInfo.ContentId = SHA256::ConvertToString(installer.Sha256);
 
-        context.Reporter.Info() << "Downloading " << Execution::UrlEmphasis << installer.Url << std::endl;
+        context.Reporter.Info() << Resource::String::Downloading << ' ' << Execution::UrlEmphasis << installer.Url << std::endl;
 
         std::optional<std::vector<BYTE>> hash;
 
@@ -328,18 +332,18 @@ namespace AppInstaller::CLI::Workflow
             {
                 context.Reporter.Error() << Resource::String::InstallerHashMismatchAdminBlock << std::endl;
             }
+            else if (!Settings::IsAdminSettingEnabled(Settings::AdminSetting::InstallerHashOverride))
+            {
+                context.Reporter.Error() << Resource::String::InstallerHashMismatchError << std::endl;
+            }
             else if (overrideHashMismatch)
             {
                 context.Reporter.Warn() << Resource::String::InstallerHashMismatchOverridden << std::endl;
                 return;
             }
-            else if (Settings::GroupPolicies().IsEnabled(Settings::TogglePolicy::Policy::HashOverride))
-            {
-                context.Reporter.Error() << Resource::String::InstallerHashMismatchOverrideRequired << std::endl;
-            }
             else
             {
-                context.Reporter.Error() << Resource::String::InstallerHashMismatchError << std::endl;
+                context.Reporter.Error() << Resource::String::InstallerHashMismatchOverrideRequired << std::endl;
             }
 
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALLER_HASH_MISMATCH);

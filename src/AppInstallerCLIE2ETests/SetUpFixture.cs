@@ -1,22 +1,30 @@
-﻿// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
+﻿// -----------------------------------------------------------------------------
+// <copyright file="SetUpFixture.cs" company="Microsoft Corporation">
+//     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
+// </copyright>
+// -----------------------------------------------------------------------------
 
 namespace AppInstallerCLIE2ETests
 {
-    using Microsoft.Win32;
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Linq;
-    using NUnit.Framework;
     using System;
     using System.IO;
+    using Microsoft.Win32;
+    using Newtonsoft.Json;
+    using NUnit.Framework;
 
+    /// <summary>
+    /// Set up fixture.
+    /// </summary>
     [SetUpFixture]
     public class SetUpFixture
     {
-        private static bool ShouldDisableDevModeOnExit = true;
-        private static bool ShouldRevertDefaultFileTypeRiskOnExit = true;
-        private static string DefaultFileTypes = string.Empty;
+        private static bool shouldDisableDevModeOnExit = true;
+        private static bool shouldRevertDefaultFileTypeRiskOnExit = true;
+        private static string defaultFileTypes = string.Empty;
 
+        /// <summary>
+        /// Set up.
+        /// </summary>
         [OneTimeSetUp]
         public void Setup()
         {
@@ -64,9 +72,9 @@ namespace AppInstallerCLIE2ETests
                 TestCommon.AICLIPath = Path.Combine(TestCommon.AICLIPackagePath, TestCommon.AICLIPath);
             }
 
-            ShouldDisableDevModeOnExit = EnableDevMode(true);
+            shouldDisableDevModeOnExit = this.EnableDevMode(true);
 
-            ShouldRevertDefaultFileTypeRiskOnExit = DecreaseFileTypeRisk(".exe;.msi", false);
+            shouldRevertDefaultFileTypeRiskOnExit = this.DecreaseFileTypeRisk(".exe;.msi", false);
 
             Assert.True(TestCommon.RunCommand("certutil.exe", "-addstore -f \"TRUSTEDPEOPLE\" " + TestCommon.GetTestDataFile(Constants.AppInstallerTestCert)), "Add AppInstallerTestCert");
 
@@ -96,24 +104,34 @@ namespace AppInstallerCLIE2ETests
                 TestCommon.PackageCertificatePath = TestContext.Parameters.Get(Constants.PackageCertificatePathParameter);
             }
 
-            ReadTestInstallerPaths();
+            if (TestContext.Parameters.Exists(Constants.PowerShellModulePathParameter))
+            {
+                TestCommon.PowerShellModulePath = TestContext.Parameters.Get(Constants.PowerShellModulePathParameter);
+            }
+
+            this.ReadTestInstallerPaths();
 
             TestIndexSetup.GenerateTestDirectory();
 
-            InitializeWingetSettings();
+            TestCommon.SettingsJsonFilePath = WinGetSettingsHelper.GetUserSettingsPath();
+
+            WinGetSettingsHelper.InitializeWingetSettings();
         }
 
+        /// <summary>
+        /// Tear down.
+        /// </summary>
         [OneTimeTearDown]
         public void TearDown()
         {
-            if (ShouldDisableDevModeOnExit)
+            if (shouldDisableDevModeOnExit)
             {
-                EnableDevMode(false);
+                this.EnableDevMode(false);
             }
 
-            if (ShouldRevertDefaultFileTypeRiskOnExit)
+            if (shouldRevertDefaultFileTypeRiskOnExit)
             {
-                DecreaseFileTypeRisk(DefaultFileTypes, true);
+                this.DecreaseFileTypeRisk(defaultFileTypes, true);
             }
 
             TestCommon.RunCommand("certutil.exe", $"-delstore \"TRUSTEDPEOPLE\" {Constants.AppInstallerTestCertThumbprint}");
@@ -134,7 +152,7 @@ namespace AppInstallerCLIE2ETests
             if (enable)
             {
                 var value = appModelUnlockKey.GetValue("AllowDevelopmentWithoutDevLicense");
-                if (value == null || (Int32)value == 0)
+                if (value == null || (int)value == 0)
                 {
                     appModelUnlockKey.SetValue("AllowDevelopmentWithoutDevLicense", 1, RegistryValueKind.DWord);
                     return true;
@@ -143,12 +161,13 @@ namespace AppInstallerCLIE2ETests
             else
             {
                 var value = appModelUnlockKey.GetValue("AllowDevelopmentWithoutDevLicense");
-                if (value != null && ((Int32)value) != 0)
+                if (value != null && ((int)value) != 0)
                 {
                     appModelUnlockKey.SetValue("AllowDevelopmentWithoutDevLicense", 0, RegistryValueKind.DWord);
                     return true;
                 }
             }
+
             return false;
         }
 
@@ -166,21 +185,22 @@ namespace AppInstallerCLIE2ETests
             {
                 if (string.IsNullOrEmpty(value))
                 {
-                    DefaultFileTypes = string.Empty;
+                    defaultFileTypes = string.Empty;
                     defaultFileTypeRiskKey.SetValue("LowRiskFileTypes", fileTypes);
                 }
                 else
                 {
-                    DefaultFileTypes = value;
+                    defaultFileTypes = value;
                     defaultFileTypeRiskKey.SetValue("LowRiskFileTypes", string.Concat(value, fileTypes));
                 }
+
                 return true;
             }
         }
 
         private void ReadTestInstallerPaths()
         {
-            if (TestContext.Parameters.Exists(Constants.ExeInstallerPathParameter) 
+            if (TestContext.Parameters.Exists(Constants.ExeInstallerPathParameter)
                 && File.Exists(TestContext.Parameters.Get(Constants.ExeInstallerPathParameter)))
             {
                 TestCommon.ExeInstallerPath = TestContext.Parameters.Get(Constants.ExeInstallerPathParameter);
@@ -197,39 +217,6 @@ namespace AppInstallerCLIE2ETests
             {
                 TestCommon.MsixInstallerPath = TestContext.Parameters.Get(Constants.MsixInstallerPathParameter);
             }
-        }
-
-        public void InitializeWingetSettings()
-        {
-            string localAppDataPath = Environment.GetEnvironmentVariable(Constants.LocalAppData);
-
-            var settingsJson = new
-            {
-                experimentalFeatures = new
-                {
-                    experimentalArg = false,
-                    experimentalCmd = false,
-                    dependencies = false,
-                    directMSI = false,
-                    openLogsArgument = false,
-                },
-                debugging = new
-                {
-                    enableSelfInitiatedMinidump = true
-                },
-                installBehavior = new
-                {
-                    portablePackageUserRoot = "",
-                    portablePackageMachineRoot = "",
-                }
-            };
-
-            // Run winget one time to initialize settings directory
-            // when running in unpackaged context
-            TestCommon.RunAICLICommand(string.Empty, "-v");
-
-            var serializedSettingsJson = JsonConvert.SerializeObject(settingsJson, Formatting.Indented);
-            File.WriteAllText(Path.Combine(localAppDataPath, TestCommon.SettingsJsonFilePath), serializedSettingsJson);
         }
     }
 }

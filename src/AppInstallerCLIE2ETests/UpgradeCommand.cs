@@ -1,13 +1,22 @@
-﻿// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
+﻿// -----------------------------------------------------------------------------
+// <copyright file="UpgradeCommand.cs" company="Microsoft Corporation">
+//     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
+// </copyright>
+// -----------------------------------------------------------------------------
 
 namespace AppInstallerCLIE2ETests
 {
-    using NUnit.Framework;
     using System.IO;
+    using NUnit.Framework;
 
+    /// <summary>
+    /// Test upgrade command.
+    /// </summary>
     public class UpgradeCommand : BaseCommand
     {
+        /// <summary>
+        /// Test upgrade portable package.
+        /// </summary>
         [Test]
         public void UpgradePortable()
         {
@@ -20,13 +29,16 @@ namespace AppInstallerCLIE2ETests
             var result = TestCommon.RunAICLICommand("install", "AppInstallerTest.TestPortableExe -v 1.0.0.0");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Successfully installed"));
-            
+
             var result2 = TestCommon.RunAICLICommand("upgrade", $"{packageId} -v 2.0.0.0");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result2.ExitCode);
             Assert.True(result2.StdOut.Contains("Successfully installed"));
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
         }
 
+        /// <summary>
+        /// Test upgrade portable package with arp mismatch.
+        /// </summary>
         [Test]
         public void UpgradePortableARPMismatch()
         {
@@ -50,6 +62,9 @@ namespace AppInstallerCLIE2ETests
             Assert.True(upgradeResult.StdOut.Contains("Portable package from a different source already exists"));
         }
 
+        /// <summary>
+        /// Test upgrade portable package force override.
+        /// </summary>
         [Test]
         public void UpgradePortableForcedOverride()
         {
@@ -73,6 +88,9 @@ namespace AppInstallerCLIE2ETests
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
         }
 
+        /// <summary>
+        /// Test upgrade portable package uninstall previous version.
+        /// </summary>
         [Test]
         public void UpgradePortableUninstallPrevious()
         {
@@ -92,11 +110,14 @@ namespace AppInstallerCLIE2ETests
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
         }
 
+        /// <summary>
+        /// Test upgrade portable package machine scope.
+        /// </summary>
         [Test]
         public void UpgradePortableMachineScope()
         {
             string installDir = TestCommon.GetRandomTestDir();
-            ConfigureInstallBehavior(Constants.PortablePackageMachineRoot, installDir);
+            WinGetSettingsHelper.ConfigureInstallBehavior(Constants.PortablePackageMachineRoot, installDir);
 
             string packageId, commandAlias, fileName, packageDirName, productCode;
             packageId = "AppInstallerTest.TestPortableExe";
@@ -108,12 +129,15 @@ namespace AppInstallerCLIE2ETests
             Assert.True(result.StdOut.Contains("Successfully installed"));
 
             var result2 = TestCommon.RunAICLICommand("upgrade", $"{packageId} -v 2.0.0.0");
-            ConfigureInstallBehavior(Constants.PortablePackageMachineRoot, string.Empty);
+            WinGetSettingsHelper.ConfigureInstallBehavior(Constants.PortablePackageMachineRoot, string.Empty);
             Assert.AreEqual(Constants.ErrorCode.S_OK, result2.ExitCode);
             Assert.True(result2.StdOut.Contains("Successfully installed"));
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true, TestCommon.Scope.Machine);
         }
 
+        /// <summary>
+        /// Test upgrade zip portable package.
+        /// </summary>
         [Test]
         public void UpgradeZip_Portable()
         {

@@ -8,13 +8,16 @@
     The file to update with version information.  If not given, simply outputs the version info.
 .PARAMETER BuildVersion
     The build version to use.
+.PARAMETER MajorMinorOverride
+    The major and minor version in the format of Major.Minor to use.
+    Or skip to skip the major and minor version override.
 .PARAMETER OutVar
     Output a pipeline variable with the version.
 #>
 param(
     [Parameter(Mandatory=$false)]
     [string]$TargetFile,
-    
+
     [Parameter(Mandatory=$false)]
     [int]$BuildVersion = 0,
 
@@ -26,19 +29,27 @@ param(
 
 $Local:Major = 0;
 $Local:Minor = 0;
+$Local:SkipMajorMinorOverride = $false;
 
 if ($MajorMinorOverride -match "([0-9]+)\.([0-9]+)")
 {
     $Local:Major = $Matches[1]
     $Local:Minor = $Matches[2]
 }
-else {
+elseif ($MajorMinorOverride -eq "skip")
+{
+    $Local:SkipMajorMinorOverride = $true;
+
+    Write-Host "Major minor version override skipped"
+}
+else
+{
     $ErrorActionPreference = 'SilentlyContinue'
     $Local:GitDescribeText = git describe --tags;
     $ErrorActionPreference = 'Continue'
 
     Write-Host "Git describe: $Local:GitDescribeText"
-    
+
     if ($Local:GitDescribeText -match "v([0-9]+)\.([0-9]+)")
     {
         $Local:Major = $Matches[1]
@@ -50,7 +61,14 @@ else {
     }
 }
 
-Write-Host "Using version: $Local:Major.$Local:Minor.$BuildVersion"
+if ($Local:SkipMajorMinorOverride)
+{
+    Write-Host "Using build version only: $BuildVersion"
+}
+else
+{
+    Write-Host "Using version: $Local:Major.$Local:Minor.$BuildVersion"
+}
 
 if ($OutVar)
 {
@@ -66,11 +84,11 @@ if (![String]::IsNullOrEmpty($TargetFile))
         $Local:ResultContent = ""
         foreach ($Local:line in [System.IO.File]::ReadLines($Local:FullPath))
         {
-            if ($Local:line.StartsWith("#define VERSION_MAJOR"))
+            if (-Not($Local:SkipMajorMinorOverride) -And $Local:line.StartsWith("#define VERSION_MAJOR"))
             {
                 $Local:ResultContent += "#define VERSION_MAJOR $Local:Major";
             }
-            elseif ($Local:line.StartsWith("#define VERSION_MINOR"))
+            elseif (-Not($Local:SkipMajorMinorOverride) -And $Local:line.StartsWith("#define VERSION_MINOR"))
             {
                 $Local:ResultContent += "#define VERSION_MINOR $Local:Minor";
             }
@@ -91,3 +109,5 @@ if (![String]::IsNullOrEmpty($TargetFile))
         Write-Error "Did not find target file: $TargetFile"
     }
 }
+
+exit 0

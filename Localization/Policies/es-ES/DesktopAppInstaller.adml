@@ -31,18 +31,26 @@ Si deshabilitas esta configuración, los usuarios no podrán habilitar las carac
 Si habilitas o no configuras esta opción, los usuarios podrán instalar paquetes con manifiestos locales mediante el administrador de paquetes de Windows.
 
 Si deshabilitas esta configuración, los usuarios no podrán instalar paquetes con manifiestos locales mediante el administrador de paquetes de Windows.</string>
-      <string id="EnableBypassCertificatePinningForMicrosoftStore">Enable App Installer Microsoft Store Source Pinned Certificate Bypass</string>
-      <string id="EnableBypassCertificatePinningForMicrosoftStoreExplanation">This policy controls whether the Windows Package Manager can be configured to disable the requirement to use a pinned certificate for the Microsoft Store source.
+      <string id="EnableBypassCertificatePinningForMicrosoftStore">Habilitación de la omisión de validación de certificados de origen del Instalador de aplicación para Microsoft Store</string>
+      <string id="EnableBypassCertificatePinningForMicrosoftStoreExplanation">Esta directiva controla si el Administrador de paquetes de Windows validará las coincidencias del hash del certificado de Microsoft Store con un certificado de Microsoft Store conocido al iniciar una conexión con el origen de Microsoft Store. 
+Si habilita esta directiva, el Administrador de paquetes de Windows omitirá la validación del certificado de Microsoft Store. 
 
-If you enable or do not configure this setting, users will be able to bypass the pinned certificate used to validate the Microsoft Store source.
+Si deshabilita esta directiva, el Administrador de paquetes de Windows validará que el certificado de Microsoft Store usado es válido y pertenece a Microsoft Store antes de comunicarse con el origen de Microsoft Store.
 
-If you disable this setting, users will not be able to bypass the pinned certificate used to validate the Microsoft Store source.</string>
+Si no establece esta directiva, se usará la configuración de administrador del Administrador de paquetes de Windows.</string>
       <string id="EnableHashOverride">Habilitar la anulación del hash del instalador de la aplicación</string>
       <string id="EnableHashOverrideExplanation">Esta directiva controla si se puede configurar el administrador de paquetes de Windows para que permita revertir la validación de seguridad SHA256 en la configuración.
 
 Si habilita o no configura esta directiva, los usuarios podrán habilitar la capacidad de revertir la validación de seguridad SHA256 en la configuración del administrador de paquetes de Windows.
 
 Si deshabilita esta directiva, los usuarios no podrán habilitar la capacidad de revertir la validación de seguridad SHA256 en la configuración del administrador de paquetes de Windows.</string>
+      <string id="EnableLocalArchiveMalwareScanOverride">Habilitación de la omisión de detección de malware de archivos locales del Instalador de aplicación</string>
+      <string id="EnableLocalArchiveMalwareScanOverrideExplanation">Esta directiva controla la capacidad de invalidar los exámenes de vulnerabilidades de malware al instalar un archivo de almacenamiento mediante un manifiesto local mediante los argumentos de la línea de comandos.
+Si habilita esta directiva, los usuarios pueden invalidar el examen de malware al realizar una instalación de manifiesto local de un archivo de almacenamiento.
+
+Si deshabilita esta directiva, los usuarios no podrán invalidar el examen de malware de un archivo de almacenamiento al instalarlo mediante un manifiesto local.
+
+Si no establece esta directiva, se cumplirá la configuración de administrador de Administrador de paquetes de Windows.</string>
       <string id="EnableDefaultSource">Habilitar el origen predeterminado del instalador de aplicaciones</string>
       <string id="EnableDefaultSourceExplanation">Esta directiva controla la fuente predeterminada incluida con el Administrador de paquetes de Windows.
 
