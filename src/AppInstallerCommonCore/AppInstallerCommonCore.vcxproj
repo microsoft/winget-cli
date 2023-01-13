@@ -332,7 +332,6 @@
     <ClInclude Include="Telemetry\MicrosoftTelemetry.h" />
     <ClInclude Include="Telemetry\TraceLogging.h" />
     <ClInclude Include="Telemetry\WinEventLogLevels.h" />
-    <ClInclude Include="YamlWrapper.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AdminSettings.cpp" />

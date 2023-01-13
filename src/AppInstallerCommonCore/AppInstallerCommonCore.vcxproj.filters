@@ -93,9 +93,6 @@
     <ClInclude Include="Public\winget\ExperimentalFeature.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
-    <ClInclude Include="YamlWrapper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Public\winget\ManifestInstaller.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
