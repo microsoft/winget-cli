@@ -43,29 +43,29 @@ namespace AppInstaller::CLI::Workflow
 
     void EnableAdminSetting(Execution::Context& context)
     {
-        auto adminSettingString = LocIndString{ context.Args.GetArg(Execution::Args::Type::AdminSettingEnable) };
+        auto adminSettingString = context.Args.GetArg(Execution::Args::Type::AdminSettingEnable);
         AdminSetting adminSetting = Settings::StringToAdminSetting(adminSettingString);
         if (Settings::EnableAdminSetting(adminSetting))
         {
-            context.Reporter.Info() << Resource::String::AdminSettingEnabled;
+            context.Reporter.Info() << Resource::String::AdminSettingEnabled(AdminSettingToString(adminSetting));
         }
         else
         {
-            context.Reporter.Error() << Resource::String::EnableAdminSettingFailed(adminSettingString);
+            context.Reporter.Error() << Resource::String::EnableAdminSettingFailed(AdminSettingToString(adminSetting));
         }
     }
 
     void DisableAdminSetting(Execution::Context& context)
     {
-        auto adminSettingString = LocIndString{ context.Args.GetArg(Execution::Args::Type::AdminSettingDisable) };
+        auto adminSettingString = context.Args.GetArg(Execution::Args::Type::AdminSettingDisable);
         AdminSetting adminSetting = Settings::StringToAdminSetting(adminSettingString);
         if (Settings::DisableAdminSetting(adminSetting))
         {
-            context.Reporter.Info() << Resource::String::AdminSettingDisabled;
+            context.Reporter.Info() << Resource::String::AdminSettingDisabled(AdminSettingToString(adminSetting));
         }
         else
         {
-            context.Reporter.Error() << Resource::String::DisableAdminSettingFailed(adminSettingString);
+            context.Reporter.Error() << Resource::String::DisableAdminSettingFailed(AdminSettingToString(adminSetting));
         }
     }
 
