@@ -36,7 +36,7 @@ extern "C"
     {
         THROW_HR_IF(E_INVALIDARG, !logPath);
 
-        thread_local AppInstaller::ThreadLocalStorage::ThreadGlobals threadGlobals;
+        thread_local AppInstaller::ThreadLocalStorage::WingetThreadGlobals threadGlobals;
         thread_local std::once_flag initLogging;
 
         std::call_once(initLogging, []() {
@@ -55,7 +55,7 @@ extern "C"
         if (!AppInstaller::Logging::Log().ContainsLogger(loggerName))
         {
             // Let FileLogger use default file prefix
-            AppInstaller::Logging::AddFileLogger(pathAsPath);
+            AppInstaller::Logging::FileLogger::Add(pathAsPath);
         }
 
         return S_OK;

@@ -7,7 +7,8 @@
 #include <string>
 #include <vector>
 
-#include <Public/AppInstallerLogging.h>
+#include <AppInstallerLogging.h>
+#include <AppInstallerFileLogger.h>
 #include <Public/AppInstallerTelemetry.h>
 #include <Telemetry/TraceLogging.h>
 
@@ -89,12 +90,12 @@ int main(int argc, char** argv)
         }
         else if ("-log"s == argv[i])
         {
-            Logging::AddFileLogger();
+            Logging::FileLogger::Add();
         }
         else if ("-logto"s == argv[i])
         {
             ++i;
-            Logging::AddFileLogger(std::filesystem::path{ argv[i] });
+            Logging::FileLogger::Add(std::filesystem::path{ argv[i] });
         }
         else if ("-tdd"s == argv[i])
         {

@@ -77,9 +77,9 @@ namespace AppInstaller::CLI::Execution
         Context(std::ostream& out, std::istream& in) : Reporter(out, in) {}
 
         // Constructor for creating a sub-context.
-        Context(Execution::Reporter& reporter, ThreadLocalStorage::ThreadGlobals& threadGlobals) :
+        Context(Execution::Reporter& reporter, ThreadLocalStorage::WingetThreadGlobals& threadGlobals) :
             Reporter(reporter, Execution::Reporter::clone_t{}),
-            m_threadGlobals(threadGlobals, ThreadLocalStorage::ThreadGlobals::create_sub_thread_globals_t{}) {}
+            m_threadGlobals(threadGlobals, ThreadLocalStorage::WingetThreadGlobals::create_sub_thread_globals_t{}) {}
 
         virtual ~Context();
 
@@ -139,7 +139,7 @@ namespace AppInstaller::CLI::Execution
         virtual void SetExecutionStage(Workflow::ExecutionStage stage);
 
         // Get Globals for Current Context
-        AppInstaller::ThreadLocalStorage::ThreadGlobals& GetThreadGlobals();
+        AppInstaller::ThreadLocalStorage::WingetThreadGlobals& GetThreadGlobals();
 
         std::unique_ptr<AppInstaller::ThreadLocalStorage::PreviousThreadGlobals> SetForCurrentThread();
 
@@ -170,7 +170,7 @@ namespace AppInstaller::CLI::Execution
         size_t m_CtrlSignalCount = 0;
         ContextFlag m_flags = ContextFlag::None;
         Workflow::ExecutionStage m_executionStage = Workflow::ExecutionStage::Initial;
-        AppInstaller::ThreadLocalStorage::ThreadGlobals m_threadGlobals;
+        AppInstaller::ThreadLocalStorage::WingetThreadGlobals m_threadGlobals;
         AppInstaller::CLI::Command* m_executingCommand = nullptr;
     };
 }

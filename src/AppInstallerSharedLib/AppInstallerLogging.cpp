@@ -3,12 +3,8 @@
 #include "pch.h"
 #include "Public/AppInstallerLogging.h"
 
-#include "Public/AppInstallerFileLogger.h"
-#include "Public/winget/TraceLogger.h"
-#include "Public/AppInstallerTelemetry.h"
 #include "Public/AppInstallerDateTime.h"
-#include "Public/AppInstallerRuntime.h"
-#include "Public/winget/ThreadGlobals.h"
+#include "Public/winget/SharedThreadGlobals.h"
 
 namespace AppInstaller::Logging
 {
@@ -150,31 +146,6 @@ namespace AppInstaller::Logging
             static DiagnosticLogger processGlobalLogger;
             return processGlobalLogger;
         }
-    }
-
-    void AddFileLogger()
-    {
-        Log().AddLogger(std::make_unique<FileLogger>());
-    }
-
-    void AddFileLogger(const std::filesystem::path& filePath)
-    {
-        Log().AddLogger(std::make_unique<FileLogger>(filePath));
-    }
-
-    void AddFileLogger(std::string_view fileNamePrefix)
-    {
-        Log().AddLogger(std::make_unique<FileLogger>(fileNamePrefix));
-    }
-
-    void AddTraceLogger()
-    {
-        Log().AddLogger(std::make_unique<TraceLogger>());
-    }
-
-    void BeginLogFileCleanup()
-    {
-        FileLogger::BeginCleanup(Runtime::GetPathTo(Runtime::PathName::DefaultLogLocation));
     }
 
     std::ostream& SetHRFormat(std::ostream& out)

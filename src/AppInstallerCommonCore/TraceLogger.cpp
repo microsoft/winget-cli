@@ -41,4 +41,9 @@ namespace AppInstaller::Logging
     {
         return "Trace";
     }
+
+    void TraceLogger::Add()
+    {
+        Log().AddLogger(std::make_unique<TraceLogger>());
+    }
 }
