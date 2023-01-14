@@ -4,6 +4,7 @@
 #include "RestClient.h"
 #include "Rest/Schema/1_0/Interface.h"
 #include "Rest/Schema/1_1/Interface.h"
+#include "Rest/Schema/1_4/Interface.h"
 #include "Rest/Schema/HttpClientHelper.h"
 #include <winget/JsonUtil.h>
 #include "Rest/Schema/InformationResponseDeserializer.h"
@@ -17,7 +18,7 @@ using namespace AppInstaller::Utility;
 namespace AppInstaller::Repository::Rest
 {
     // Supported versions
-    std::set<Version> WingetSupportedContracts = { Version_1_0_0, Version_1_1_0 };
+    std::set<Version> WingetSupportedContracts = { Version_1_0_0, Version_1_1_0, Version_1_4_0 };
 
     constexpr std::string_view WindowsPackageManagerHeader = "Windows-Package-Manager"sv;
     constexpr size_t WindowsPackageManagerHeaderMaxLength = 1024;
@@ -129,6 +130,10 @@ namespace AppInstaller::Repository::Rest
         else if (version == Version_1_1_0)
         {
             return std::make_unique<Schema::V1_1::Interface>(api, information, additionalHeaders);
+        }
+        else if (version == Version_1_4_0)
+        {
+            return std::make_unique<Schema::V1_4::Interface>(api, information, additionalHeaders);
         }
 
         THROW_HR(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_VERSION);
