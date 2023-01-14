@@ -15,5 +15,14 @@
 #include <wil\cppwinrt_wrl.h>
 #pragma warning( pop )
 
+#include <filesystem>
+#include <fstream>
+#include <map>
+#include <memory>
 #include <mutex>
+#include <optional>
+#include <stack>
+#include <stdexcept>
+#include <string>
 #include <string_view>
+#include <vector>

@@ -44,10 +44,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_instanceIdentifier = instanceIdentifier;
     }
 
-    ConfigurationSet::ConfigurationSet(const Windows::Storage::Streams::IInputStream& stream)
+    ConfigurationSet::ConfigurationSet(const Windows::Storage::Streams::IInputStream& stream) : ConfigurationSet()
     {
         std::string input = StreamToString(stream);
         AppInstaller::YAML::Node yaml = AppInstaller::YAML::Load(input);
+
+
     }
 
     ConfigurationSet::ConfigurationSet(const guid& instanceIdentifier) :
@@ -75,6 +77,17 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         m_mutableFlag.RequireMutable();
         m_origin = value;
+    }
+
+    hstring ConfigurationSet::Path()
+    {
+        return m_path;
+    }
+
+    void ConfigurationSet::Path(const hstring& value)
+    {
+        m_mutableFlag.RequireMutable();
+        m_path = value;
     }
 
     guid ConfigurationSet::InstanceIdentifier()

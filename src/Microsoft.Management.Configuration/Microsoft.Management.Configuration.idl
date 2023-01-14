@@ -120,6 +120,19 @@ namespace Microsoft.Management.Configuration
         Windows.Foundation.Collections.IVectorView<IConfigurationUnitSettingDetails> Settings{ get; };
     }
 
+    // Defines how the configuration unit is to be used within the configuration system.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    enum ConfigurationUnitIntent
+    {
+        // The configuration unit will only be used to Test the current system state.
+        Assert,
+        // The configuration unit will only be used to Get the current system state.
+        Inform,
+        // The configuration unit will be used to Set the current system state.
+        // The configuration unit will be used to Test and Get the current system state as part of that process.
+        Apply,
+    };
+
     // A single unit of configuration.
     [contract(Microsoft.Management.Configuration.Contract, 1)]
     runtimeclass ConfigurationUnit
@@ -138,6 +151,10 @@ namespace Microsoft.Management.Configuration
         // The identifier name of this instance within the set.
         // Can be changed if a mutable unit.
         String Identifier;
+
+        // Describes how this configuration unit will be used.
+        // Can be changed if a mutable unit.
+        ConfigurationUnitIntent Intent;
 
         // The configuration units that this unit depends on.
         // Can be set on a mutable configuration unit; this will copy the items into the internal storage.
@@ -208,6 +225,10 @@ namespace Microsoft.Management.Configuration
         // The origin of the set; if it came from a repository it could be the remote URL (ex. https://github.com/microsoft/winget-cli.git).
         // Can be changed if a mutable set.
         String Origin;
+        // The location of the configuration set on the local filesystem.
+        // If this set is from history, the file may no longer exist or it's contents may have been changed.
+        // Can be changed if a mutable set.
+        String Path;
 
         // An identifier used to uniquely identify the instance of a configuration set on the system.
         // Immutable, although the set can be removed and an identical set applied later with a different identifier.

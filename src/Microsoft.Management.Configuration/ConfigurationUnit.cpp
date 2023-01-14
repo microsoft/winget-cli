@@ -45,6 +45,17 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_identifier = value;
     }
 
+    ConfigurationUnitIntent ConfigurationUnit::Intent()
+    {
+        return m_intent;
+    }
+
+    void ConfigurationUnit::Intent(ConfigurationUnitIntent value)
+    {
+        m_mutableFlag.RequireMutable();
+        m_intent = value;
+    }
+
     Windows::Foundation::Collections::IVectorView<hstring> ConfigurationUnit::Dependencies()
     {
         return m_dependencies.GetView();

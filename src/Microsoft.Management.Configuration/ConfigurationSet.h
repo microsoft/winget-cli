@@ -26,6 +26,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         hstring Origin();
         void Origin(const hstring& value);
 
+        hstring Path();
+        void Path(const hstring& value);
+
         guid InstanceIdentifier();
         ConfigurationSetState State();
         clock::time_point InitialIntent();
@@ -46,6 +49,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     private:
         hstring m_name;
         hstring m_origin;
+        hstring m_path;
         guid m_instanceIdentifier;
         clock::time_point m_initialIntent;
         Windows::Foundation::Collections::IVector<ConfigurationUnit> m_configurationUnits{ winrt::single_threaded_vector<ConfigurationUnit>() };

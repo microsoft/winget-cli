@@ -23,6 +23,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         hstring Identifier();
         void Identifier(const hstring& value);
 
+        ConfigurationUnitIntent Intent();
+        void Intent(ConfigurationUnitIntent value);
+
         Windows::Foundation::Collections::IVectorView<hstring> Dependencies();
         void Dependencies(const Windows::Foundation::Collections::IVectorView<hstring>& value);
 
@@ -44,6 +47,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         hstring m_unitName;
         guid m_instanceIdentifier;
         hstring m_identifier;
+        ConfigurationUnitIntent m_intent = ConfigurationUnitIntent::Apply;
         Windows::Foundation::Collections::IVector<hstring> m_dependencies{ winrt::single_threaded_vector<hstring>() };
         Windows::Foundation::Collections::ValueSet m_directives;
         Windows::Foundation::Collections::ValueSet m_settings;
