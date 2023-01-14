@@ -147,7 +147,7 @@ namespace AppInstaller::CLI::Workflow
 
     // Installs multiple packages. This also does the reporting and user interaction needed.
     // Required Args: None
-    // Inputs: PackagesToInstall
+    // Inputs: PackageSubContexts
     // Outputs: None
     struct InstallMultiplePackages : public WorkflowTask
     {

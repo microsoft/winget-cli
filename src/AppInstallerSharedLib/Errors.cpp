@@ -214,6 +214,8 @@ namespace AppInstaller
                 return "There is no pin for the package.";
             case APPINSTALLER_CLI_ERROR_CANNOT_OPEN_PINNING_INDEX:
                 return "Unable to open the pin database.";
+            case APPINSTALLER_CLI_ERROR_MULTIPLE_INSTALL_FAILED:
+                return "One or more applications failed to install";
 
             // Install errors
             case APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE:

@@ -75,7 +75,7 @@ TEST_CASE("DependencyGraph_SkipInstalled", "[InstallFlow][workflow][dependencyGr
 
     context << ManagePackageDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies);
 
-    auto& dependencyPackages = context.Get<Execution::Data::PackagesToInstall>();
+    auto& dependencyPackages = context.Get<Execution::Data::PackageSubContexts>();
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesFlowContainsLoop)) == std::string::npos);
     REQUIRE(dependencyPackages.size() == 0);
 }
@@ -100,7 +100,7 @@ TEST_CASE("DependencyGraph_validMinVersions", "[InstallFlow][workflow][dependenc
 
     context << ManagePackageDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies);
 
-    auto& dependencyPackages = context.Get<Execution::Data::PackagesToInstall>();
+    auto& dependencyPackages = context.Get<Execution::Data::PackageSubContexts>();
 
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesFlowContainsLoop)) == std::string::npos);
     REQUIRE(dependencyPackages.size() == 1);
@@ -127,7 +127,7 @@ TEST_CASE("DependencyGraph_PathNoLoop", "[InstallFlow][workflow][dependencyGraph
 
     context << ManagePackageDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies);
 
-    auto& dependencyPackages = context.Get<Execution::Data::PackagesToInstall>();
+    auto& dependencyPackages = context.Get<Execution::Data::PackageSubContexts>();
 
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesFlowContainsLoop)) == std::string::npos);
 

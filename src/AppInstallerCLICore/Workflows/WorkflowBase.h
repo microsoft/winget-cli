@@ -126,6 +126,13 @@ namespace AppInstaller::CLI::Workflow
         Repository::CompositeSearchBehavior m_searchBehavior;
     };
 
+    // Checks if multiple query arguments were provided.
+    // If a single query is provided, moves it to the Query arg type.
+    // Required Args: None
+    // Inputs: None
+    // Outputs: None
+    void CheckForMultiQuery(Execution::Context& context);
+
     // Performs a search on the source.
     // Required Args: None
     // Inputs: Source

@@ -4,6 +4,7 @@
 #include "InstallFlow.h"
 #include "DownloadFlow.h"
 #include "UninstallFlow.h"
+#include "UpdateFlow.h"
 #include "ShowFlow.h"
 #include "Resources.h"
 #include "ShellExecuteInstallerHandler.h"
@@ -515,7 +516,7 @@ namespace AppInstaller::CLI::Workflow
         if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
         {
             DependencyList allDependencies;
-            for (auto& packageContext : context.Get<Execution::Data::PackagesToInstall>())
+            for (auto& packageContext : context.Get<Execution::Data::PackageSubContexts>())
             {
                 allDependencies.Add(packageContext->Get<Execution::Data::Installer>().value().Dependencies);
             }
@@ -525,10 +526,10 @@ namespace AppInstaller::CLI::Workflow
         }
 
         bool allSucceeded = true;
-        size_t packagesCount = context.Get<Execution::Data::PackagesToInstall>().size();
+        size_t packagesCount = context.Get<Execution::Data::PackageSubContexts>().size();
         size_t packagesProgress = 0;
 
-        for (auto& packageContext : context.Get<Execution::Data::PackagesToInstall>())
+        for (auto& packageContext : context.Get<Execution::Data::PackageSubContexts>())
         {
             packagesProgress++;
             context.Reporter.Info() << '(' << packagesProgress << '/' << packagesCount << ") "_liv;

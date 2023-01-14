@@ -284,6 +284,7 @@
     <ClInclude Include="Workflows\ImportExportFlow.h" />
     <ClInclude Include="Workflows\MsiInstallFlow.h" />
     <ClInclude Include="Workflows\MSStoreInstallerHandler.h" />
+    <ClInclude Include="Workflows\MultiInstallFlow.h" />
     <ClInclude Include="Workflows\PinFlow.h" />
     <ClInclude Include="Workflows\PortableFlow.h" />
     <ClInclude Include="Workflows\PromptFlow.h" />
@@ -341,6 +342,7 @@
     <ClCompile Include="Workflows\ImportExportFlow.cpp" />
     <ClCompile Include="Workflows\MsiInstallFlow.cpp" />
     <ClCompile Include="Workflows\MSStoreInstallerHandler.cpp" />
+    <ClCompile Include="Workflows\MultiInstallFlow.cpp" />
     <ClCompile Include="Workflows\PinFlow.cpp" />
     <ClCompile Include="Workflows\PortableFlow.cpp" />
     <ClCompile Include="Workflows\PromptFlow.cpp" />

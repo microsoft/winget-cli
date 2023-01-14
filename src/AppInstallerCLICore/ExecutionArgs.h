@@ -157,6 +157,11 @@ namespace AppInstaller::CLI::Execution
             m_parsedArgs[arg].emplace_back(value);
         }
 
+        bool RemoveArg(Type arg)
+        {
+            return m_parsedArgs.erase(arg) > 0;
+        }
+
         bool Empty()
         {
             return m_parsedArgs.empty();
@@ -178,6 +183,7 @@ namespace AppInstaller::CLI::Execution
 
             return types;
         }
+
 
     private:
         std::map<Type, std::vector<std::string>> m_parsedArgs;

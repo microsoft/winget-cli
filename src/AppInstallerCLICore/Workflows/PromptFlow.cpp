@@ -440,7 +440,7 @@ namespace AppInstaller::CLI::Workflow
         {
             // Find which packages need this prompt
             std::vector<Execution::Context*> packagesToPrompt;
-            for (auto& packageContext : context.Get<Execution::Data::PackagesToInstall>())
+            for (auto& packageContext : context.Get<Execution::Data::PackageSubContexts>())
             {
                 if (prompt->PackageNeedsPrompt(*packageContext))
                 {

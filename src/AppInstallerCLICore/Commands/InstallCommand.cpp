@@ -5,6 +5,7 @@
 #include "Workflows/CompletionFlow.h"
 #include "Workflows/InstallFlow.h"
 #include "Workflows/UpdateFlow.h"
+#include "Workflows/MultiInstallFlow.h"
 #include "Workflows/WorkflowBase.h"
 #include "Resources.h"
 
@@ -129,6 +130,7 @@ namespace AppInstaller::CLI
         else
         {
             context <<
+                Workflow::CheckForMultiQuery <<
                 Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
                 Workflow::OpenSource();
 
@@ -138,7 +140,20 @@ namespace AppInstaller::CLI
                     Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed, false, Repository::CompositeSearchBehavior::AvailablePackages);
             }
 
-            context << Workflow::InstallOrUpgradeSinglePackage(false);
+            if (!context.Args.Contains(Execution::Args::Type::MultiQuery))
+            {
+                context << Workflow::InstallOrUpgradeSinglePackage(false);
+            }
+            else
+            {
+                context <<
+                    Workflow::GetMultiSearchRequests <<
+                    Workflow::SearchSubContextsForSingle <<
+                    Workflow::ReportExecutionStage(Workflow::ExecutionStage::Execution) <<
+                    Workflow::InstallMultiplePackages(
+                        Resource::String::InstallAndUpgradeCommandsReportDependencies,
+                        APPINSTALLER_CLI_ERROR_MULTIPLE_INSTALL_FAILED);
+            }
         }
     }
 }

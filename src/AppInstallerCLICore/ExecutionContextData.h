@@ -30,6 +30,7 @@ namespace AppInstaller::CLI::Execution
     enum class Data : size_t
     {
         Source,
+        SearchRequest, // Only set for multiple installs
         SearchResult,
         SourceList,
         Package,
@@ -49,8 +50,10 @@ namespace AppInstaller::CLI::Execution
         // On export: A collection of packages to be exported to a file
         // On import: A collection of packages read from a file
         PackageCollection,
-        // On import and upgrade all: A collection of specific package versions to install
-        PackagesToInstall,
+        // When installing multiple packages at once (upgrade all, import, install with multiple args, dependencies):
+        // A collection of sub-contexts, each of which handles the installation of a single package.
+        // TODO #219: Find all uses of PackagesToInstall and rename
+        PackageSubContexts,
         // On import: Sources for the imported packages
         Sources,
         ARPCorrelationData,
@@ -79,6 +82,12 @@ namespace AppInstaller::CLI::Execution
         struct DataMapping<Data::Source>
         {
             using value_t = Repository::Source;
+        };
+
+        template <>
+        struct DataMapping<Data::SearchRequest>
+        {
+            using value_t = Repository::SearchRequest;
         };
 
         template <>
@@ -184,7 +193,7 @@ namespace AppInstaller::CLI::Execution
         };
 
         template <>
-        struct DataMapping<Data::PackagesToInstall>
+        struct DataMapping<Data::PackageSubContexts>
         {
             using value_t = std::vector<std::unique_ptr<Context>>;
         };

@@ -120,8 +120,6 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ImportIgnorePackageVersionsArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportIgnoreUnavailableArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportInstallFailed);
-        WINGET_DEFINE_RESOURCE_STRINGID(ImportPackageAlreadyInstalled);
-        WINGET_DEFINE_RESOURCE_STRINGID(ImportSearchFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportSourceNotInstalled);
         WINGET_DEFINE_RESOURCE_STRINGID(IncludeUnknownArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(IncompatibleArgumentsProvided);
@@ -211,6 +209,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(MSStoreInstallOrUpdateFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(MSStoreInstallTryGetEntitlement);
         WINGET_DEFINE_RESOURCE_STRINGID(MSStoreStoreClientBlocked);
+        WINGET_DEFINE_RESOURCE_STRINGID(MultiInstallPackageAlreadyInstalled);
+        WINGET_DEFINE_RESOURCE_STRINGID(MultiInstallSearchFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(MultipleInstalledPackagesFound);
         WINGET_DEFINE_RESOURCE_STRINGID(MultipleNonPortableNestedInstallersSpecified);
         WINGET_DEFINE_RESOURCE_STRINGID(MultiplePackagesFound);
