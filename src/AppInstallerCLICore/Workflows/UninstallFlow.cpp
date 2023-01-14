@@ -194,7 +194,7 @@ namespace AppInstaller::CLI::Workflow
         // Remove this check when the OS bug is fixed and back ported.
         if (isMachineScope && Runtime::IsRunningInPackagedContext())
         {
-            context.Reporter.Info() << Resource::String::InstallFlowReturnCodeSystemNotSupported << std::endl;
+            context.Reporter.Error() << Resource::String::InstallFlowReturnCodeSystemNotSupported << std::endl;
             context.Add<Execution::Data::OperationReturnCode>(static_cast<DWORD>(APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED));
             AICLI_LOG(CLI, Error, << "Device wide uninstall for msix type is not supported in packaged context.");
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED);
