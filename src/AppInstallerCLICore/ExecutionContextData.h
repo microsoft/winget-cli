@@ -52,7 +52,6 @@ namespace AppInstaller::CLI::Execution
         PackageCollection,
         // When installing multiple packages at once (upgrade all, import, install with multiple args, dependencies):
         // A collection of sub-contexts, each of which handles the installation of a single package.
-        // TODO #219: Find all uses of PackagesToInstall and rename
         PackageSubContexts,
         // On import: Sources for the imported packages
         Sources,

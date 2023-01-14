@@ -14,7 +14,7 @@ namespace AppInstaller::CLI::Execution
         {
             // Args to specify where to get app
             Query, // Query to be performed against index
-            MultiQuery, // TODO #219
+            MultiQuery, // Like query, but can take multiple values
             Manifest, // Provide the app manifest directly
 
             // Query filtering criteria and query behavior

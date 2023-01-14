@@ -131,19 +131,19 @@ namespace AppInstaller::CLI
                 Workflow::GetManifestFromArg <<
                 Workflow::ReportManifestIdentity <<
                 Workflow::SearchSourceUsingManifest <<
-                Workflow::EnsureOneMatchFromSearchResult(true);
+                Workflow::EnsureOneMatchFromSearchResult(true) <<
+                Workflow::UninstallSinglePackage;
         }
         else
         {
-            // search for a single package to uninstall
+            // TODO #219 uninstall multiple
+            // search for a specific package to uninstall
             context <<
                 Workflow::SearchSourceForSingle <<
                 Workflow::HandleSearchResultFailures <<
                 Workflow::EnsureOneMatchFromSearchResult(true) <<
-                Workflow::ReportPackageIdentity;
+                Workflow::ReportPackageIdentity <<
+                Workflow::UninstallSinglePackage;
         }
-
-        context <<
-            Workflow::UninstallSinglePackage;
     }
 }

@@ -5,7 +5,7 @@
 #include "Workflows/CompletionFlow.h"
 #include "Workflows/InstallFlow.h"
 #include "Workflows/UpdateFlow.h"
-#include "Workflows/MultiInstallFlow.h"
+#include "Workflows/MultiQueryFlow.h"
 #include "Workflows/WorkflowBase.h"
 #include "Resources.h"
 
@@ -148,7 +148,7 @@ namespace AppInstaller::CLI
             {
                 context <<
                     Workflow::GetMultiSearchRequests <<
-                    Workflow::SearchSubContextsForSingle <<
+                    Workflow::SearchSubContextsForSingle() <<
                     Workflow::ReportExecutionStage(Workflow::ExecutionStage::Execution) <<
                     Workflow::InstallMultiplePackages(
                         Resource::String::InstallAndUpgradeCommandsReportDependencies,

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "MultiInstallFlow.h"
+#include "MultiQueryFlow.h"
 #include "UpdateFlow.h"
 
 using namespace AppInstaller::CLI;
@@ -67,7 +67,7 @@ namespace AppInstaller::CLI::Workflow
         context.Add<Execution::Data::PackageSubContexts>(std::move(packageSubContexts));
     }
 
-    void SearchSubContextsForSingle(Execution::Context& context)
+    void SearchSubContextsForSingle::operator()(Execution::Context& context) const
     {
         std::vector<std::unique_ptr<Execution::Context>> packageSubContexts;
         bool foundAll = true;
@@ -80,7 +80,7 @@ namespace AppInstaller::CLI::Workflow
 
             // Find the single version we want is available
             searchContext <<
-                Workflow::SelectSinglePackageVersionForInstallOrUpgrade(false);
+                Workflow::SelectSinglePackageVersionForInstallOrUpgrade(m_isUpgrade);
 
             if (searchContext.IsTerminated())
             {

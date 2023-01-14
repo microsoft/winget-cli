@@ -4,6 +4,7 @@
 #include "UpgradeCommand.h"
 #include "Workflows/CompletionFlow.h"
 #include "Workflows/InstallFlow.h"
+#include "Workflows/MultiQueryFlow.h"
 #include "Workflows/UpdateFlow.h"
 #include "Workflows/WorkflowBase.h"
 #include "Workflows/DependenciesFlow.h"
@@ -85,7 +86,7 @@ namespace AppInstaller::CLI
     std::vector<Argument> UpgradeCommand::GetArguments() const
     {
         return {
-            Argument::ForType(Args::Type::Query),           // -q
+            Argument::ForType(Args::Type::MultiQuery),      // -q
             Argument::ForType(Args::Type::Manifest),        // -m
             Argument::ForType(Args::Type::Id),
             Argument::ForType(Args::Type::Name),
@@ -199,6 +200,8 @@ namespace AppInstaller::CLI
         {
             throw CommandException(Resource::String::IncompatibleArgumentsProvided);
         }
+
+        // TODO #219: Validate multiquery
     }
 
     void UpgradeCommand::ExecuteInternal(Execution::Context& context) const
@@ -251,8 +254,23 @@ namespace AppInstaller::CLI
         }
         else
         {
-            // The remaining case: search for single installed package to update
-            context << InstallOrUpgradeSinglePackage(true);
+            // The remaining case: search for specific packages to update
+            context << Workflow::CheckForMultiQuery;
+
+            if (!context.Args.Contains(Execution::Args::Type::MultiQuery))
+            {
+                context << Workflow::InstallOrUpgradeSinglePackage(/* isUpgrade */ true);
+            }
+            else
+            {
+                context <<
+                    Workflow::GetMultiSearchRequests <<
+                    Workflow::SearchSubContextsForSingle(/* isUpgrade */ true) <<
+                    Workflow::ReportExecutionStage(Workflow::ExecutionStage::Execution) <<
+                    Workflow::InstallMultiplePackages(
+                        Resource::String::InstallAndUpgradeCommandsReportDependencies,
+                        APPINSTALLER_CLI_ERROR_MULTIPLE_INSTALL_FAILED);
+            }
         }
     }
 }
