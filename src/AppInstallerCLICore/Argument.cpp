@@ -13,12 +13,6 @@ namespace AppInstaller::CLI
     using namespace Settings;
     using namespace AppInstaller::Utility::literals;
 
-    bool IsOptionArgument(ArgumentType type)
-    {
-        return type == ArgumentType::Standard || type == ArgumentType::Flag;
-    }
-
-
     Argument Argument::ForType(Execution::Args::Type type)
     {
         switch (type)

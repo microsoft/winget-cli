@@ -108,7 +108,7 @@ namespace AppInstaller::CLI
             }
         }
 
-        // Arguments are required by a test to have all positionals first
+        // Arguments are required by a test to have all positionals first.
         for (const auto& arg : arguments)
         {
             if (arg.Type() == ArgumentType::Positional)
@@ -220,7 +220,7 @@ namespace AppInstaller::CLI
                 for (const auto& arg : arguments)
                 {
                     const std::string& argName = argNames[i++];
-                    if (!IsOptionArgument(arg.Type()))
+                    if (arg.Type() == ArgumentType::Positional)
                     {
                         size_t fillChars = (maxArgNameLength - argName.length()) + 2;
                         infoOut << "  "_liv << Execution::HelpArgumentEmphasis << argName << Utility::LocIndString{ std::string(fillChars, ' ') } << arg.Description() << std::endl;
@@ -241,7 +241,7 @@ namespace AppInstaller::CLI
                 for (const auto& arg : arguments)
                 {
                     const std::string& argName = argNames[i++];
-                    if (IsOptionArgument(arg.Type()))
+                    if (arg.Type() != ArgumentType::Positional)
                     {
                         size_t fillChars = (maxArgNameLength - argName.length()) + 2;
                         infoOut << "  "_liv << Execution::HelpArgumentEmphasis << argName << Utility::LocIndString{ std::string(fillChars, ' ') } << arg.Description() << std::endl;

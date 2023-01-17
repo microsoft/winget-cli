@@ -36,9 +36,6 @@ namespace AppInstaller::CLI
         Flag,
     };
 
-    // Determines whether an argument type represents an argument or an option
-    bool IsOptionArgument(ArgumentType type);
-
     // An argument to a command.
     struct Argument
     {
