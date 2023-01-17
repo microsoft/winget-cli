@@ -1112,7 +1112,7 @@ TEST_CASE("InstallFlowMultiLocale_PreferenceWithBetterLocale", "[InstallFlow][wo
     REQUIRE(installResultStr.find("/en-GB") != std::string::npos);
 }
 
-TEST_CASE("InstallFlow_InstallMultiple", "[InstallFlow][workflow][multiquery]")
+TEST_CASE("InstallFlow_InstallMultiple", "[InstallFlow][workflow][MultiQuery]")
 {
     TestCommon::TempFile exeInstallResultPath("TestExeInstalled.txt");
     TestCommon::TempFile msixInstallResultPath("TestMsixInstalled.txt");
@@ -1135,7 +1135,7 @@ TEST_CASE("InstallFlow_InstallMultiple", "[InstallFlow][workflow][multiquery]")
     REQUIRE(std::filesystem::exists(msixInstallResultPath.GetPath()));
 }
 
-TEST_CASE("InstallFlow_InstallMultiple_SearchFailed", "[InstallFlow][workflow][multiquery]")
+TEST_CASE("InstallFlow_InstallMultiple_SearchFailed", "[InstallFlow][workflow][MultiQuery]")
 {
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };

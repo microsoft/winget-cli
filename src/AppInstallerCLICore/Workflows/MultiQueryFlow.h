@@ -15,7 +15,7 @@ namespace AppInstaller::CLI::Workflow
     //   SubContext Outputs: Source, SearchRequest
     void GetMultiSearchRequests(Execution::Context& context);
 
-    // Performs searches on each of the subcontexts with the semantics of targeting a single package for each one.
+    // Performs searches on each of the sub-contexts with the semantics of targeting a single package for each one.
     // Required Args: a value indicating the purpose of the search
     // Inputs: PackageSubContexts
     // Outputs: None

@@ -172,7 +172,7 @@ TEST_CASE("UninstallFlow_UninstallExeNotFound", "[UninstallFlow][workflow]")
     REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND);
 }
 
-TEST_CASE("UninstallFlow_UninstallMultiple", "[UninstallFlow][workflow][multiquery]")
+TEST_CASE("UninstallFlow_UninstallMultiple", "[UninstallFlow][workflow][MultiQuery]")
 {
     TestCommon::TempFile exeUninstallResultPath("TestExeUninstalled.txt");
     TestCommon::TempFile msixUninstallResultPath("TestMsixUninstalled.txt");
@@ -195,7 +195,7 @@ TEST_CASE("UninstallFlow_UninstallMultiple", "[UninstallFlow][workflow][multique
     REQUIRE(std::filesystem::exists(msixUninstallResultPath.GetPath()));
 }
 
-TEST_CASE("UninstallFlow_UninstallMultiple_NotAllInstalled", "[UninstallFlow][workflow][multiquery]")
+TEST_CASE("UninstallFlow_UninstallMultiple_NotAllInstalled", "[UninstallFlow][workflow][MultiQuery]")
 {
     std::ostringstream uninstallOutput;
     TestContext context{ uninstallOutput, std::cin };

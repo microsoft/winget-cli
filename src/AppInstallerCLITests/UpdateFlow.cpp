@@ -949,7 +949,7 @@ TEST_CASE("UpdateFlow_UpdateAll_ForwardArgs", "[UpdateFlow][workflow]")
     REQUIRE(std::filesystem::exists(updatePortableResultPath.GetPath()));
 }
 
-TEST_CASE("UpdateFlow_UpdateMultiple", "[UpdateFlow][workflow][multiquery]")
+TEST_CASE("UpdateFlow_UpdateMultiple", "[UpdateFlow][workflow][MultiQuery]")
 {
     TestCommon::TempFile exeUpdateResultPath("TestExeInstalled.txt");
     TestCommon::TempFile msixUpdateResultPath("TestMsixInstalled.txt");
@@ -972,7 +972,7 @@ TEST_CASE("UpdateFlow_UpdateMultiple", "[UpdateFlow][workflow][multiquery]")
     REQUIRE(std::filesystem::exists(exeUpdateResultPath.GetPath()));
 }
 
-TEST_CASE("UpdateFlow_UpdateMultiple_NotAllFound", "[UpdateFlow][workflow][multiquery]")
+TEST_CASE("UpdateFlow_UpdateMultiple_NotAllFound", "[UpdateFlow][workflow][MultiQuery]")
 {
     TestCommon::TempFile exeUpdateResultPath("TestExeInstalled.txt");
 
