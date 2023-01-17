@@ -107,11 +107,12 @@ namespace AppInstaller::CLI
 
     void PinAddCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
     {
+        Argument::ValidateCommonArguments(execArgs);
+
         if (execArgs.Contains(Execution::Args::Type::GatedVersion) && execArgs.Contains(Execution::Args::Type::BlockingPin))
         {
             throw CommandException(Resource::String::BothGatedVersionAndBlockingFlagProvided);
         }
-
     }
 
     void PinAddCommand::ExecuteInternal(Execution::Context& context) const

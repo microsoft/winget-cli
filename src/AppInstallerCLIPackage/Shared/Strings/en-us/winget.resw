@@ -1653,4 +1653,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Unable to open pin database.</value>
     <comment>Error message for when we cannot open the database containing package pins.</comment>
   </data>
+  <data name="ArgumentForSinglePackageProvidedWithMultipleQueries" xml:space="preserve">
+    <value>An argument was provided that can only be used for single packages</value>
+  </data>
 </root>

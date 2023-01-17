@@ -13,6 +13,14 @@ namespace AppInstaller::CLI
     using namespace Settings;
     using namespace AppInstaller::Utility::literals;
 
+    namespace
+    {
+        bool ContainsArgumentFromList(const Execution::Args& args, const std::vector<Execution::Args::Type>& argTypes)
+        {
+            return std::any_of(argTypes.begin(), argTypes.end(), [&](Execution::Args::Type arg) { return args.Contains(arg); });
+        }
+    }
+
     Argument Argument::ForType(Execution::Args::Type type)
     {
         switch (type)
@@ -54,7 +62,7 @@ namespace AppInstaller::CLI
         case Args::Type::Log:
             return Argument{ "log"_liv, 'o', Args::Type::Log, Resource::String::LogArgumentDescription, ArgumentType::Standard };
         case Args::Type::CustomSwitches:
-            return Argument{ "custom"_liv, NoAlias, Args::Type::CustomSwitches, Resource::String::CustomSwitchesArgumentDescription, ArgumentType::Standard};
+            return Argument{ "custom"_liv, NoAlias, Args::Type::CustomSwitches, Resource::String::CustomSwitchesArgumentDescription, ArgumentType::Standard };
         case Args::Type::Override:
             return Argument{ "override"_liv, NoAlias, Args::Type::Override, Resource::String::OverrideArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         case Args::Type::InstallLocation:
@@ -90,7 +98,7 @@ namespace AppInstaller::CLI
         case Args::Type::RetroStyle:
             return Argument{ "retro"_liv, NoAlias, Args::Type::RetroStyle, Resource::String::RetroArgumentDescription, ArgumentType::Flag, Argument::Visibility::Hidden };
         case Args::Type::VerboseLogs:
-            return Argument{ "verbose-logs"_liv, NoAlias, "verbose"_liv, Args::Type::VerboseLogs, Resource::String::VerboseLogsArgumentDescription, ArgumentType::Flag};
+            return Argument{ "verbose-logs"_liv, NoAlias, "verbose"_liv, Args::Type::VerboseLogs, Resource::String::VerboseLogsArgumentDescription, ArgumentType::Flag };
         case Args::Type::CustomHeader:
             return Argument{ "header"_liv, NoAlias, Args::Type::CustomHeader, Resource::String::HeaderArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         case Args::Type::AcceptSourceAgreements:
@@ -108,7 +116,7 @@ namespace AppInstaller::CLI
         case Args::Type::ProductCode:
             return Argument{ "product-code"_liv, NoAlias, Args::Type::ProductCode, Resource::String::ProductCodeArgumentDescription, ArgumentType::Standard, false };
         case Args::Type::OpenLogs:
-            return Argument{ "open-logs"_liv, NoAlias, "logs"_liv, Args::Type::OpenLogs, Resource::String::OpenLogsArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help};
+            return Argument{ "open-logs"_liv, NoAlias, "logs"_liv, Args::Type::OpenLogs, Resource::String::OpenLogsArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help };
         case Args::Type::UninstallPrevious:
             return Argument{ "uninstall-previous"_liv, NoAlias, Args::Type::UninstallPrevious, Resource::String::UninstallPreviousArgumentDescription, ArgumentType::Flag, ExperimentalFeature::Feature::UninstallPreviousArgument };
         case Args::Type::Force:
@@ -145,17 +153,97 @@ namespace AppInstaller::CLI
         return strstr.str();
     }
 
-    void Argument::ValidatePackageSelectionArgumentSupplied(const Execution::Args& args)
+    ArgTypeCategory Argument::GetCategoriesPresent(const Execution::Args& args)
     {
-        for (Args::Type type : { Args::Type::Query, Args::Type::Manifest, Args::Type::Id, Args::Type::Name, Args::Type::Moniker, Args::Type::ProductCode, Args::Type::Tag, Args::Type::Command })
+        ArgTypeCategory result = ArgTypeCategory::None;
+
+        WI_SetFlagIf(result, ArgTypeCategory::Manifest, args.Contains(Args::Type::Manifest));
+
+
+        if (ContainsArgumentFromList(args, {
+            Args::Type::Exact,
+            }))
         {
-            if (args.Contains(type))
+            WI_SetAllFlags(result, ArgTypeCategory::PackageQuery | ArgTypeCategory::SinglePackageQuery);
+        }
+
+        WI_SetFlagIf(result, ArgTypeCategory::SinglePackageQuery, ContainsArgumentFromList(args, {
+            Args::Type::Query,
+            Args::Type::Id,
+            Args::Type::Name,
+            Args::Type::Moniker,
+            Args::Type::ProductCode,
+            Args::Type::Tag,
+            Args::Type::Command,
+            Args::Type::Version,
+            Args::Type::Channel,
+            }));
+
+        WI_SetFlagIf(result, ArgTypeCategory::InstallerSelection, ContainsArgumentFromList(args, {
+            Args::Type::Locale,
+            Args::Type::InstallScope,
+            Args::Type::InstallArchitecture
+            }));
+
+        if (ContainsArgumentFromList(args, {
+            Args::Type::Interactive,
+            Args::Type::Silent,
+            Args::Type::HashOverride,
+            Args::Type::IgnoreLocalArchiveMalwareScan,
+            Args::Type::AcceptPackageAgreements,
+            }))
+        {
+            WI_SetAllFlags(result, ArgTypeCategory::InstallerBehavior | ArgTypeCategory::SingleInstallerBehavior);
+        }
+
+        WI_SetFlagIf(result, ArgTypeCategory::SingleInstallerBehavior, ContainsArgumentFromList(args, {
+            Args::Type::Log,
+            Args::Type::Override,
+            Args::Type::CustomSwitches,
+            Args::Type::InstallLocation,
+            }));
+
+        WI_SetFlagIf(result, ArgTypeCategory::Source, ContainsArgumentFromList(args, {
+            Args::Type::Source,
+            Args::Type::CustomHeader,
+            Args::Type::AcceptSourceAgreements,
+            }));
+
+        WI_SetFlagIf(result, ArgTypeCategory::MultiplePackages, ContainsArgumentFromList(args, {
+            Args::Type::All,
+            }));
+
+        return result;
+    }
+
+    ArgTypeCategory Argument::GetCategoriesAndValidateCommonArguments(const Execution::Args& args, bool requirePackageSelectionArg)
+    {
+        const auto Categories = GetCategoriesPresent(args);
+
+        // Commands like install require some argument to select a package
+        if (requirePackageSelectionArg)
+        {
+            if (WI_AreAllFlagsClear(Categories, ArgTypeCategory::Manifest | ArgTypeCategory::PackageQuery))
             {
-                return;
+                throw CommandException(Resource::String::NoPackageSelectionArgumentProvided);
             }
         }
 
-        throw CommandException(Resource::String::NoPackageSelectionArgumentProvided);
+        // If a manifest is specified, we cannot also have arguments for searching
+        if (WI_IsFlagSet(Categories, ArgTypeCategory::Manifest) &&
+            WI_IsAnyFlagSet(Categories, ArgTypeCategory::PackageQuery | ArgTypeCategory::Source))
+        {
+            throw CommandException(Resource::String::BothManifestAndSearchQueryProvided);
+        }
+
+        // If we have multiple packages, we cannot have arguments that only make sense for a single package
+        if (WI_IsFlagSet(Categories, ArgTypeCategory::MultiplePackages) &&
+            WI_IsAnyFlagSet(Categories, ArgTypeCategory::SinglePackageQuery | ArgTypeCategory::SingleInstallerBehavior))
+        {
+            throw CommandException(Resource::String::ArgumentForSinglePackageProvidedWithMultipleQueries);
+        }
+
+        return Categories;
     }
 
     Argument::Visibility Argument::GetVisibility() const

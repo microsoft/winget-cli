@@ -36,6 +36,38 @@ namespace AppInstaller::CLI
         Flag,
     };
 
+    // Categories an arg type can belong to.
+    // Used to reason about the arguments present without having to repeat the same
+    // lists every time.
+    enum class ArgTypeCategory
+    {
+        None = 0,
+        // The --manifest argument.
+        Manifest = 0x1,
+        // Arguments for querying or selecting a package.
+        // E.g.: --query
+        PackageQuery = 0x2,
+        // Arguments for querying or selecting a package, which only work for a single package.
+        // E.g.: --version
+        SinglePackageQuery = 0x4,
+        // Arguments for installer or uninstaller selection.
+        // E.g.: --scope
+        InstallerSelection = 0x8,
+        // Arguments for installer or uninstaller behavior.
+        // E.g.: --interactive
+        InstallerBehavior = 0x10,
+        // Arguments for installer or uninstaller behavior, which only work for a single installer.
+        // E.g.: --override
+        SingleInstallerBehavior = 0x20,
+        // Arguments for selecting or interacting with the source.
+        // E.g.: --accept-source-agreements
+        Source = 0x40,
+        // Arguments that only make sense when talking about multiple packages
+        MultiplePackages = 0x80,
+    };
+
+    DEFINE_ENUM_FLAG_OPERATORS(ArgTypeCategory);
+
     // An argument to a command.
     struct Argument
     {
@@ -108,8 +140,11 @@ namespace AppInstaller::CLI
 
         // Static argument validation helpers; throw CommandException when validation fails.
 
-        // Requires that some form of package selection argument is present
-        static void ValidatePackageSelectionArgumentSupplied(const Execution::Args& args);
+        static ArgTypeCategory GetCategoriesPresent(const Execution::Args& arg);
+
+        // Requires that arguments meet common requirements
+        static ArgTypeCategory GetCategoriesAndValidateCommonArguments(const Execution::Args& args, bool requirePackageSelectionArg = true);
+        static void ValidateCommonArguments(const Execution::Args& args, bool requirePackageSelectionArg = true) { std::ignore = GetCategoriesAndValidateCommonArguments(args, requirePackageSelectionArg); }
 
         // Gets the argument usage string in the format of "-alias,--name".
         std::string GetUsageString() const;

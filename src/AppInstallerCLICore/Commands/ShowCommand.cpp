@@ -56,20 +56,7 @@ namespace AppInstaller::CLI
 
     void ShowCommand::ValidateArgumentsInternal(Args& execArgs) const
     {
-        Argument::ValidatePackageSelectionArgumentSupplied(execArgs);
-
-        if (execArgs.Contains(Args::Type::Manifest) &&
-            (execArgs.Contains(Args::Type::Query) ||
-                execArgs.Contains(Args::Type::Id) ||
-                execArgs.Contains(Args::Type::Name) ||
-                execArgs.Contains(Args::Type::Moniker) ||
-                execArgs.Contains(Args::Type::Version) ||
-                execArgs.Contains(Args::Type::Channel) ||
-                execArgs.Contains(Args::Type::Source) ||
-                execArgs.Contains(Args::Type::Exact)))
-        {
-            throw CommandException(Resource::String::BothManifestAndSearchQueryProvided);
-        }
+        Argument::ValidateCommonArguments(execArgs);
     }
 
     void ShowCommand::ExecuteInternal(Execution::Context& context) const
