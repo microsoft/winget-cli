@@ -1111,3 +1111,42 @@ TEST_CASE("InstallFlowMultiLocale_PreferenceWithBetterLocale", "[InstallFlow][wo
     std::getline(installResultFile, installResultStr);
     REQUIRE(installResultStr.find("/en-GB") != std::string::npos);
 }
+
+TEST_CASE("InstallFlow_InstallMultiple", "[InstallFlow][workflow][multiquery]")
+{
+    TestCommon::TempFile exeInstallResultPath("TestExeInstalled.txt");
+    TestCommon::TempFile msixInstallResultPath("TestMsixInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForMSIX(context);
+    OverrideForShellExecute(context);
+    OverrideForOpenSource(context, CreateTestSource({ TSR::TestInstaller_Exe, TSR::TestInstaller_Msix }), true);
+    context.Args.AddArg(Execution::Args::Type::MultiQuery, TSR::TestInstaller_Exe.Query);
+    context.Args.AddArg(Execution::Args::Type::MultiQuery, TSR::TestInstaller_Msix.Query);
+
+    InstallCommand installCommand({});
+    installCommand.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify all packages were installed
+    REQUIRE(std::filesystem::exists(exeInstallResultPath.GetPath()));
+    REQUIRE(std::filesystem::exists(msixInstallResultPath.GetPath()));
+}
+
+TEST_CASE("InstallFlow_InstallMultiple_SearchFailed", "[InstallFlow][workflow][multiquery]")
+{
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForOpenSource(context, CreateTestSource({ TSR::TestInstaller_Exe }), true);
+    context.Args.AddArg(Execution::Args::Type::MultiQuery, TSR::TestInstaller_Exe.Query);
+    context.Args.AddArg(Execution::Args::Type::MultiQuery, TSR::TestInstaller_Msix.Query);
+
+    InstallCommand installCommand({});
+    installCommand.Execute(context);
+    INFO(installOutput.str());
+
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_NOT_ALL_PACKAGES_FOUND);
+}

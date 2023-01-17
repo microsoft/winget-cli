@@ -69,7 +69,7 @@ namespace AppInstaller::CLI::Workflow
             Workflow::RecordUninstall;
     }
 
-    void UninstallMultiplePackage(Execution::Context& context)
+    void UninstallMultiplePackages(Execution::Context& context)
     {
         bool allSucceeded = true;
         size_t packagesCount = context.Get<Execution::Data::PackageSubContexts>().size();
