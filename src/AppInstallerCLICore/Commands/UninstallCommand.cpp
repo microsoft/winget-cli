@@ -5,6 +5,7 @@
 #include "Workflows/UninstallFlow.h"
 #include "Workflows/CompletionFlow.h"
 #include "Workflows/WorkflowBase.h"
+#include "Workflows/MultiQueryFlow.h"
 #include "Resources.h"
 
 using AppInstaller::CLI::Execution::Args;
@@ -109,8 +110,6 @@ namespace AppInstaller::CLI
         {
             throw CommandException(Resource::String::BothPurgeAndPreserveFlagsProvided);
         }
-
-        // TODO #219: Validate MultiQuery with options
     }
 
     void UninstallCommand::ExecuteInternal(Execution::Context& context) const
@@ -136,14 +135,24 @@ namespace AppInstaller::CLI
         }
         else
         {
-            // TODO #219 uninstall multiple
-            // search for a specific package to uninstall
-            context <<
-                Workflow::SearchSourceForSingle <<
-                Workflow::HandleSearchResultFailures <<
-                Workflow::EnsureOneMatchFromSearchResult(true) <<
-                Workflow::ReportPackageIdentity <<
-                Workflow::UninstallSinglePackage;
+            // search for specific packages to uninstall
+            context << Workflow::CheckForMultiQuery;
+            if (!context.Args.Contains(Execution::Args::Type::MultiQuery))
+            {
+                context <<
+                    Workflow::SearchSourceForSingle <<
+                    Workflow::HandleSearchResultFailures <<
+                    Workflow::EnsureOneMatchFromSearchResult(true) <<
+                    Workflow::ReportPackageIdentity <<
+                    Workflow::UninstallSinglePackage;
+            }
+            else
+            {
+                context <<
+                    Workflow::GetMultiSearchRequests <<
+                    Workflow::SearchSubContextsForSingle(Workflow::SearchSubContextsForSingle::SearchPurpose::Uninstall) <<
+                    Workflow::UninstallMultiplePackages;
+            }
         }
     }
 }

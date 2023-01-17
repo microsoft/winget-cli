@@ -110,8 +110,6 @@ namespace AppInstaller::CLI
         {
             throw CommandException(Resource::String::BothManifestAndSearchQueryProvided);
         }
-
-        // TODO #219: MultiQuery with options
     }
 
     void InstallCommand::ExecuteInternal(Context& context) const

@@ -16,18 +16,25 @@ namespace AppInstaller::CLI::Workflow
     void GetMultiSearchRequests(Execution::Context& context);
 
     // Performs searches on each of the subcontexts with the semantics of targeting a single package for each one.
-    // Required Args: bool indicating whether the flow is for upgrade
+    // Required Args: a value indicating the purpose of the search
     // Inputs: PackageSubContexts
     // Outputs: None
     //   SubContext Inputs: Source, SearchRequest
     //   SubContext Outputs: SearchResult
     struct SearchSubContextsForSingle : public WorkflowTask
     {
-        SearchSubContextsForSingle(bool isUpgrade = false) : WorkflowTask("SearchSubContextsForSingle"), m_isUpgrade(isUpgrade) {}
+        enum class SearchPurpose
+        {
+            Install,
+            Upgrade,
+            Uninstall,
+        };
+
+        SearchSubContextsForSingle(SearchPurpose searchPurpose = SearchPurpose::Install) : WorkflowTask("SearchSubContextsForSingle"), m_searchPurpose(searchPurpose) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
-        bool m_isUpgrade;
+        SearchPurpose m_searchPurpose;
     };
 }

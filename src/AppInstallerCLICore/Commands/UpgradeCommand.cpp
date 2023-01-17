@@ -200,8 +200,6 @@ namespace AppInstaller::CLI
         {
             throw CommandException(Resource::String::IncompatibleArgumentsProvided);
         }
-
-        // TODO #219: Validate multiquery
     }
 
     void UpgradeCommand::ExecuteInternal(Execution::Context& context) const
@@ -265,7 +263,7 @@ namespace AppInstaller::CLI
             {
                 context <<
                     Workflow::GetMultiSearchRequests <<
-                    Workflow::SearchSubContextsForSingle(/* isUpgrade */ true) <<
+                    Workflow::SearchSubContextsForSingle(Workflow::SearchSubContextsForSingle::SearchPurpose::Upgrade) <<
                     Workflow::ReportExecutionStage(Workflow::ExecutionStage::Execution) <<
                     Workflow::InstallMultiplePackages(
                         Resource::String::InstallAndUpgradeCommandsReportDependencies,

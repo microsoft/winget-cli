@@ -482,7 +482,6 @@ namespace AppInstaller::CLI::Workflow
         context.Add<Execution::Data::SearchResult>(context.Get<Execution::Data::Source>().Search(searchRequest));
     }
 
-    // TODO #219: Find all uses
     void SearchSourceForSingle(Execution::Context& context)
     {
         const auto& args = context.Args;

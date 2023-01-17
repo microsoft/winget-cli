@@ -216,6 +216,8 @@ namespace AppInstaller
                 return "Unable to open the pin database.";
             case APPINSTALLER_CLI_ERROR_MULTIPLE_INSTALL_FAILED:
                 return "One or more applications failed to install";
+            case APPINSTALLER_CLI_ERROR_MULTIPLE_UNINSTALL_FAILED:
+                return "One or more applications failed to uninstall";
 
             // Install errors
             case APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE:

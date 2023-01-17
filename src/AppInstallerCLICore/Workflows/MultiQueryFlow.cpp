@@ -78,9 +78,23 @@ namespace AppInstaller::CLI::Workflow
             SearchRequest searchRequest = searchContext.Get<Execution::Data::SearchRequest>();
             searchContext.Add<Execution::Data::SearchResult>(searchContext.Get<Execution::Data::Source>().Search(searchRequest));
 
-            // Find the single version we want is available
-            searchContext <<
-                Workflow::SelectSinglePackageVersionForInstallOrUpgrade(m_isUpgrade);
+            switch (m_searchPurpose)
+            {
+            case SearchPurpose::Install:
+                searchContext << Workflow::SelectSinglePackageVersionForInstallOrUpgrade(/* isUpgrade */ false);
+                break;
+            case SearchPurpose::Upgrade:
+                searchContext << Workflow::SelectSinglePackageVersionForInstallOrUpgrade(/* isUpgrade */ true);
+                break;
+            case SearchPurpose::Uninstall:
+                searchContext <<
+                    Workflow::HandleSearchResultFailures <<
+                    Workflow::EnsureOneMatchFromSearchResult(true) <<
+                    Workflow::ReportPackageIdentity;
+                break;
+            default:
+                THROW_HR(E_UNEXPECTED);
+            }
 
             if (searchContext.IsTerminated())
             {
