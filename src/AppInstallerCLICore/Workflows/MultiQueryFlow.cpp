@@ -25,6 +25,11 @@ namespace AppInstaller::CLI::Workflow
                 return Utility::LocIndString{ searchRequest.Inclusions[0].Value };
             }
 
+            if (!searchRequest.Filters.empty())
+            {
+                return Utility::LocIndString{ searchRequest.Filters[0].Value };
+            }
+
             return ""_lis;
         }
     }
