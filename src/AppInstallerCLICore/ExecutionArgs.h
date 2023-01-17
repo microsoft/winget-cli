@@ -184,7 +184,6 @@ namespace AppInstaller::CLI::Execution
             return types;
         }
 
-
     private:
         std::map<Type, std::vector<std::string>> m_parsedArgs;
     };

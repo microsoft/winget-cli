@@ -13,7 +13,6 @@ namespace AppInstaller::CLI::Workflow
 {
     namespace
     {
-        // TODO #219
         Utility::LocIndString GetPackageStringFromSearchRequest(const SearchRequest& searchRequest)
         {
             if (searchRequest.Query)
