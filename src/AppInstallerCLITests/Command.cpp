@@ -591,7 +591,7 @@ TEST_CASE("ParseArguments_PositionalWithMultipleValuesAndOtherArgs", "[command]"
             Argument{ "flag", 'f', Args::Type::BlockingPin, DefaultDesc, ArgumentType::Flag },
         });
 
-    std::vector<std::string> values{ "positional", "-q", "anotherPos", "multiValue1" "multiValue2", "-f" };
+    std::vector<std::string> values{ "positional", "-q", "anotherPos", "multiValue1", "multiValue2", "-f" };
     Invocation inv{ std::vector<std::string>(values) };
 
     command.ParseArguments(inv, args);
@@ -612,5 +612,5 @@ TEST_CASE("ParseArguments_PositionalWithMultipleValuesAndName", "[command]")
     Invocation inv{ std::vector<std::string>(values) };
 
     command.ParseArguments(inv, args);
-    RequireValuesParsedToArg({ values[0], values[1], values[2] }, command.m_args[0], args);
+    RequireValuesParsedToArg({ values[1], values[2], values[3] }, command.m_args[0], args);
 }

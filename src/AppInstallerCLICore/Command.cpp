@@ -410,14 +410,10 @@ namespace AppInstaller::CLI
     const CLI::Argument* ParseArgumentsStateMachine::NextPositional()
     {
         // Find the next appropriate positional arg if the current itr isn't one or has hit its limit.
-        if (m_positionalSearchItr != m_arguments.end() &&
+        while (m_positionalSearchItr != m_arguments.end() &&
             (m_positionalSearchItr->Type() != ArgumentType::Positional || m_executionArgs.GetCount(m_positionalSearchItr->ExecArgType()) == m_positionalSearchItr->Limit()))
         {
-            do
-            {
-                ++m_positionalSearchItr;
-            }
-            while (m_positionalSearchItr != m_arguments.end() && m_positionalSearchItr->Type() != ArgumentType::Positional);
+            ++m_positionalSearchItr;
         }
 
         if (m_positionalSearchItr == m_arguments.end())
