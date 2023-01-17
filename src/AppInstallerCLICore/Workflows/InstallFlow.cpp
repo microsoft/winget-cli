@@ -364,6 +364,18 @@ namespace AppInstaller::CLI::Workflow
             uri = context.Get<Execution::Data::Installer>()->Url;
         }
 
+        bool isMachineScope = Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope)) == Manifest::ScopeEnum::Machine;
+
+        // TODO: There was a bug in deployment api if provision api was called in packaged context.
+        // Remove this check when the OS bug is fixed and back ported.
+        if (isMachineScope && Runtime::IsRunningInPackagedContext())
+        {
+            context.Reporter.Error() << Resource::String::InstallFlowReturnCodeSystemNotSupported << std::endl;
+            context.Add<Execution::Data::OperationReturnCode>(static_cast<DWORD>(APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED));
+            AICLI_LOG(CLI, Error, << "Device wide install for msix type is not supported in packaged context.");
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED);
+        }
+
         context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
 
         bool registrationDeferred = false;
@@ -372,7 +384,7 @@ namespace AppInstaller::CLI::Workflow
         {
             registrationDeferred = context.Reporter.ExecuteWithProgress([&](IProgressCallback& callback)
                 {
-                    if (Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope)) == Manifest::ScopeEnum::Machine)
+                    if (isMachineScope)
                     {
                         return Deployment::AddPackageMachineScope(uri, callback);
                     }
