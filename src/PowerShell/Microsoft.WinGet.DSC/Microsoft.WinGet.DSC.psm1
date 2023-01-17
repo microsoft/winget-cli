@@ -74,12 +74,16 @@ class WinGetUserSettingsResource
     {
         Assert-WinGetCommand "Test-WinGetUserSettings"
 
-        if ($this.Action -eq [WinGetAction]::Partial)
-        {
-            return Test-WinGetUserSettings -UserSettings $this.Settings -IgnoreNotSet
+        $hashArgs = @{
+            UserSettings = $this.Settings
         }
 
-        return Test-WinGetUserSettings -UserSettings $this.Settings
+        if ($this.Action -eq [WinGetAction]::Partial)
+        {
+            $hashArgs.Add('IgnoreNotSet', $true)
+        }
+
+        return Test-WinGetUserSettings @hashArgs
     }
 
     # Sets the desired properties.
@@ -87,14 +91,16 @@ class WinGetUserSettingsResource
     {
         Assert-WinGetCommand "Set-WinGetUserSettings"
 
+        $hashArgs = @{
+            UserSettings = $this.Settings
+        }
+
         if ($this.Action -eq [WinGetAction]::Partial)
         {
-            Set-WinGetUserSettings -UserSettings $this.Settings -Merge | Out-Null
+            $hashArgs.Add('Merge', $true)
         }
-        else
-        {
-            Set-WinGetUserSettings -UserSettings $this.Settings | Out-Null
-        }
+
+        Set-WinGetUserSettings @hashArgs
     }
 }
 
@@ -299,6 +305,177 @@ class WinGetSourcesResource
             else
             {
                 Remove-WinGetSource -Name $source.Name
+            }
+        }
+    }
+}
+
+[DSCResource()]
+class WinGetPackage
+{
+    [DscProperty(Key)]
+    [string]$Id
+
+    [DscProperty()]
+    [string]$Version
+
+    [DscProperty()]
+    [string]$Source
+
+    [DscProperty()]
+    [Ensure]$Ensure = [Ensure]::Present
+
+    [DscProperty(NotConfigurable)]
+    [bool] $Installed = $false
+
+    # Get.
+    [WinGetPackage] Get()
+    {
+        Assert-WinGetCommand "Get-WinGetPackage"
+
+        # DSC only validates keys and mandatories in a Set call.
+        if ([string]::IsNullOrWhiteSpace($this.Id))
+        {
+            throw "Id is required"
+        }
+
+        $wingetPackageResource = [WinGetPackage]::new()
+        $wingetPackageResource.Id = $this.Id
+
+        # We can't have CatalogPackage as member of this class because it doesn't have a default constructor.
+        # A call to Invoke-DscResource will fail with
+        # 'ImportClassResourcesFromModule: Exception calling "ImportClassResourcesFromModule" with "4" argument(s): "The DSC resource 'CatalogPackage' has no default constructor."'
+        $catalogPackage = Get-WinGetPackage -Id $this.Id -Exact
+        if ($null -ne $catalogPackage)
+        {
+            $wingetPackageResource.Installed = $true
+            $wingetPackageResource.Version = $catalogPackage.InstalledVersion.Version
+            $wingetPackageResource.Source = $catalogPackage.DefaultInstallVersion.PackageCatalog.Info.Name
+        }
+
+        return $wingetPackageResource
+    }
+
+    # Test.
+    [bool] Test()
+    {
+        $installedPackage = $this.Get()
+        $ensureInstalled = $this.Ensure -eq [Ensure]::Present
+
+        # This will populate info for Set if needed without another call to Get-WinGetPackage
+        $this.Installed = $installedPackage.Installed
+
+        # Not installed, doesn't have to.
+        if (-not($installedPackage.Installed -or $ensureInstalled))
+        {
+            return $true
+        }
+
+        # Not install, need to ensure installed.
+        # Installed, need to ensure not installed.
+        if ($installedPackage.Installed -ne $ensureInstalled)
+        {
+            return $false
+        }
+
+        # Different sources.
+        if (-not([string]::IsNullOrWhiteSpace($this.Source)))
+        {
+            if ($this.Source -ne $installedPackage.Source)
+            {
+                return $false
+            }
+        }
+
+        $catalogPackage = Get-WinGetPackage -Id $this.Id -Exact
+
+        # If no version is given, see if the latests is installed.
+        if ([string]::IsNullOrWhiteSpace($this.Version) -and
+            $catalogPackage.IsUpdateAvailable)
+        {
+            return $false
+        }
+
+        # If there is an specific version, compare with the current installed version.
+        if (-not ([string]::IsNullOrWhiteSpace($this.Version)))
+        {
+            $compareResult = $catalogPackage.InstalledVersion.CompareToVersion($this.Version)
+            if ($compareResult -ne 'Equal')
+            {
+                return $false
+            }
+        }
+
+        # For now this is all.
+        return $true
+    }
+
+    # Set.
+    [void] Set()
+    {
+        Assert-WinGetCommand "Install-WinGetPackage"
+        Assert-WinGetCommand "Uninstall-WinGetPackage"
+
+        if (-not $this.Test())
+        {
+            $hashArgs = @{
+                Id = $this.Id
+                Exact = $true
+                Mode = 'Silent'
+            }
+            
+            if ($this.Ensure -eq [Ensure]::Present)
+            {
+                if (-not([string]::IsNullOrWhiteSpace($this.Source)))
+                {
+                    $hashArgs.Add("Source", $this.Source)
+                }
+
+                if ($this.Installed)
+                {
+                    $catalogPackage = Get-WinGetPackage -Id $this.Id -Exact
+
+                    if ([string]::IsNullOrWhiteSpace($this.Version))
+                    {
+                        Update-WinGetPackage @hashArgs
+                    }
+                    else
+                    {
+                        $hashArgs.Add("Version", $this.Version)
+
+                        $compareResult = $catalogPackage.InstalledVersion.CompareToVersion($this.Version)
+                        switch ($compareResult)
+                        {
+                            'Lesser'
+                            {
+                                # Installed package has a lower version. Update.
+                                # TODO: if update fails we should uninstall and install.
+                                Update-WinGetPackage @hashArgs
+                                break
+                            }
+                            {'Greater' -or 'Unknown'}
+                            {
+                                # The installed package has a greated version or unknown. Uninstall and install.
+                                Uninstall-WinGetPackage -Id $this.Id
+                                Install-WinGetPackage @hashArgs
+                                break
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    if (-not([string]::IsNullOrWhiteSpace($this.Version)))
+                    {
+                        $hashArgs.Add("Version", $this.Version)
+                    }
+
+                    Install-WinGetPackage @hashArgs
+                }
+            }
+            else
+            {
+                Uninstall-WinGetPackage -Id $this.Id
             }
         }
     }
