@@ -308,7 +308,7 @@ jobs:
         Import-Module Pester -PassThru
         Import-Module '$(buildOutDir)\PowerShell\Microsoft.WinGet.Client\Microsoft.WinGet.Client.psd1'
         Invoke-Pester -Path 'src\PowerShell\tests\' -CI -Output Detailed  -OutputFile '$(buildOutDir)\Microsoft.WinGet.Client.Tests.xml'
-    pwsh: true
+      pwsh: true
 
   - task: PublishTestResults@2
     displayName: 'Publish Pester Tests'
