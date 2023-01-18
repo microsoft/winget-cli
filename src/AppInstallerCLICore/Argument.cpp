@@ -191,6 +191,7 @@ namespace AppInstaller::CLI
             Args::Type::HashOverride,
             Args::Type::IgnoreLocalArchiveMalwareScan,
             Args::Type::AcceptPackageAgreements,
+            Args::Type::UninstallPrevious,
             }))
         {
             WI_SetAllFlags(result, ArgTypeCategory::InstallerBehavior | ArgTypeCategory::SingleInstallerBehavior);
