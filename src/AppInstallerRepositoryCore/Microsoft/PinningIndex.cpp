@@ -43,7 +43,8 @@ namespace AppInstaller::Repository::Microsoft
         const auto indexPath = DefaultIndexPath;
 #endif
 
-        AICLI_LOG(CLI, Info, << "Opening pinning index");
+        AICLI_LOG(Repo, Info, << "Opening pinning index");
+
 
         try
         {
