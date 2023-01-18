@@ -1,0 +1,65 @@
+﻿// -----------------------------------------------------------------------------
+// <copyright file="InstalledCatalogPackage.cs" company="Microsoft Corporation">
+//     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
+// </copyright>
+// -----------------------------------------------------------------------------
+
+namespace Microsoft.WinGet.Client.PSObjects
+{
+    using System;
+    using System.Linq;
+
+    /// <summary>
+    /// CatalogPackage wrapper object for displaying to PowerShell.
+    /// </summary>
+    public class InstalledCatalogPackage
+    {
+        /// <summary>
+        /// The id of the catalog package.
+        /// </summary>
+        public readonly string Id;
+
+        /// <summary>
+        /// The name of the catalog package.
+        /// </summary>
+        public readonly string Name;
+
+        /// <summary>
+        /// The version of the catalog package.
+        /// </summary>
+        public readonly string Version;
+
+        /// <summary>
+        /// A boolean value indicating whether an update is available.
+        /// </summary>
+        public readonly bool IsUpdateAvailable;
+
+        /// <summary>
+        /// The source of the catalog package.
+        /// </summary>
+        public readonly string Source;
+
+        /// <summary>
+        /// A list of strings representing the available versions.
+        /// </summary>
+        public readonly string[] AvailableVersions;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InstalledCatalogPackage"/> class.
+        /// </summary>
+        /// <param name="catalogPackage">The catalog package COM object.</param>
+        public InstalledCatalogPackage(Management.Deployment.CatalogPackage catalogPackage)
+        {
+            this.Id = catalogPackage.Id;
+            this.Name = catalogPackage.Name;
+            this.IsUpdateAvailable = catalogPackage.IsUpdateAvailable;
+            this.Version = catalogPackage.InstalledVersion.Version;
+            this.Source = catalogPackage.DefaultInstallVersion.PackageCatalog.Info.Name;
+
+            if (this.IsUpdateAvailable)
+            {
+                this.AvailableVersions = catalogPackage.AvailableVersions.Select(i => i.Version).ToArray();
+            }
+        }
+    }
+}

@@ -46,7 +46,7 @@ namespace Microsoft.WinGet.Client.Commands
             {
                 UninstallOptions options = this.GetUninstallOptions(version);
                 UninstallResult result = this.UninstallPackage(package, options);
-                this.WriteObject(result);
+                this.WriteObject(new PSObjects.UninstallResult(result));
             });
         }
 

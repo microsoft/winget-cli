@@ -27,7 +27,7 @@ namespace Microsoft.WinGet.Client.Commands
             var results = this.FindPackages(CompositeSearchBehavior.LocalCatalogs);
             for (var i = 0; i < results.Count; i++)
             {
-                this.WriteObject(results[i].CatalogPackage);
+                this.WriteObject(new PSObjects.InstalledCatalogPackage(results[i].CatalogPackage));
             }
         }
     }

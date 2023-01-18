@@ -15,7 +15,7 @@ namespace Microsoft.WinGet.Client.Commands
     /// Searches configured sources for packages.
     /// </summary>
     [Cmdlet(VerbsCommon.Find, Constants.WinGetNouns.Package)]
-    [OutputType(typeof(MatchResult))]
+    [OutputType(typeof(Management.Deployment.CatalogPackage))]
     public sealed class FindPackageCommand : BaseFinderExtendedCommand
     {
         /// <summary>
@@ -27,7 +27,7 @@ namespace Microsoft.WinGet.Client.Commands
             var results = this.FindPackages(CompositeSearchBehavior.RemotePackagesFromRemoteCatalogs);
             for (var i = 0; i < results.Count; i++)
             {
-                this.WriteObject(results[i]);
+                this.WriteObject(new PSObjects.FoundCatalogPackage(results[i].CatalogPackage));
             }
         }
     }

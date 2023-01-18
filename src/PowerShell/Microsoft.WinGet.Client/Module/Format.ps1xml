@@ -50,9 +50,9 @@
       </TableControl>
     </View>
     <View>
-      <Name>Microsoft.Management.Deployment.PackageCatalogReference</Name>
+      <Name>Microsoft.WinGet.Client.PSObjects.FoundCatalogPackage</Name>
       <ViewSelectedBy>
-        <TypeName>Microsoft.Management.Deployment.PackageCatalogReference</TypeName>
+        <TypeName>Microsoft.WinGet.Client.PSObjects.FoundCatalogPackage</TypeName>
       </ViewSelectedBy>
       <TableControl>
         <TableHeaders>
@@ -61,23 +61,30 @@
             <Label>Name</Label>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Argument</Label>
+            <Width>32</Width>
+            <Label>Id</Label>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Type</Label>
+            <Label>Version</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Source</Label>
           </TableColumnHeader>
         </TableHeaders>
         <TableRowEntries>
           <TableRowEntry>
             <TableColumnItems>
               <TableColumnItem>
-                <ScriptBlock>$_.Info.Name</ScriptBlock>
+                <ScriptBlock>$_.Name</ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>$_.Info.Argument</ScriptBlock>
+                <ScriptBlock>$_.Id</ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>$_.Info.Type</ScriptBlock>
+                <ScriptBlock>$_.Version</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.Source</ScriptBlock>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>
@@ -85,9 +92,9 @@
       </TableControl>
     </View>
     <View>
-      <Name>Microsoft.Management.Deployment.CatalogPackage</Name>
+      <Name>Microsoft.WinGet.Client.PSObjects.InstalledCatalogPackage</Name>
       <ViewSelectedBy>
-        <TypeName>Microsoft.Management.Deployment.CatalogPackage</TypeName>
+        <TypeName>Microsoft.WinGet.Client.PSObjects.InstalledCatalogPackage</TypeName>
       </ViewSelectedBy>
       <TableControl>
         <TableHeaders>
@@ -96,6 +103,7 @@
             <Label>Name</Label>
           </TableColumnHeader>
           <TableColumnHeader>
+            <Width>32</Width>
             <Label>Id</Label>
           </TableColumnHeader>
           <TableColumnHeader>
@@ -118,13 +126,140 @@
                 <ScriptBlock>$_.Id</ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>$_.InstalledVersion.Version</ScriptBlock>
+                <ScriptBlock>$_.Version</ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>if ($_.IsUpdateAvailable) { $_.AvailableVersions[0].Version }</ScriptBlock>
+                <ScriptBlock>if ($_.IsUpdateAvailable) { $_.AvailableVersions[0] }</ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>$_.DefaultInstallVersion.PackageCatalog.Info.Name</ScriptBlock>
+                <ScriptBlock>$_.Source</ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <View>
+      <Name>Microsoft.WinGet.Client.PSObjects.InstallResult</Name>
+      <ViewSelectedBy>
+        <TypeName>Microsoft.WinGet.Client.PSObjects.InstallResult</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>InstallerErrorCode</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Status</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>RebootRequired</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>ExtendedErrorCode</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>CorrelationData</Label>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <ScriptBlock>$_.InstallerErrorCode</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.Status</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.RebootRequired</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.ExtendedErrorCode</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.CorrelationData</ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <View>
+      <Name>Microsoft.WinGet.Client.PSObjects.UninstallResult</Name>
+      <ViewSelectedBy>
+        <TypeName>Microsoft.WinGet.Client.PSObjects.UninstallResult</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>UninstallerErrorCode</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Status</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>RebootRequired</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>ExtendedErrorCode</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>CorrelationData</Label>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <ScriptBlock>$_.UninstallerErrorCode</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.Status</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.RebootRequired</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.ExtendedErrorCode</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.CorrelationData</ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <View>
+      <Name>Microsoft.WinGet.Client.PSObjects.SourceResult</Name>
+      <ViewSelectedBy>
+        <TypeName>Microsoft.WinGet.Client.PSObjects.SourceResult</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Width>32</Width>
+            <Label>Name</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Argument</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Type</Label>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <ScriptBlock>$_.Name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.Argument</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.Type</ScriptBlock>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>
