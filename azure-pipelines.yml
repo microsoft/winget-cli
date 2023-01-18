@@ -302,18 +302,19 @@ jobs:
 
   - task: PowerShell@2
     displayName: 'Run Pester Tests for PowerShell Module'
-    targetType: 'inline'
+    inputs:
+      targetType: 'inline'
+      script: |
+        Import-Module Pester -PassThru
+        Import-Module '$(buildOutDir)\PowerShell\Microsoft.WinGet.Client\Microsoft.WinGet.Client.psd1'
+        Invoke-Pester -Path 'src\PowerShell\tests\' -CI -Output Detailed  -OutputFile '$(buildOutDir)\Microsoft.WinGet.Client.Tests.xml'
     pwsh: true
-    script: |        
-      Import-Module Pester -PassThru
-      Import-Module '$(buildOutDir)\PowerShell\Microsoft.WinGet.Client\Microsoft.WinGet.Client.psd1'
-      Invoke-Pester -Path 'src\PowerShell\tests\' -CI -Output Detailed  -OutputFile '$(buildOutDir)\Microsoft.WinGet.Client.Tests.xml'
 
   - task: PublishTestResults@2
     displayName: 'Publish Pester Tests'
     inputs:
       testResultsFormat: 'NUnit'
-      testResultsFiles: 'Microsoft.WinGet.Client.Tests.xml'
+      testResultsFiles: '$(buildOutDir)\Microsoft.WinGet.Client.Tests.xml'
       mergeTestResults: true
       failTaskOnFailedTests: true
 
