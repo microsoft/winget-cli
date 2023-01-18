@@ -62,7 +62,8 @@ namespace AppInstaller::CLI::Workflow
         auto pinningIndex = context.Get<Execution::Data::PinningIndex>();
 
         auto packageVersionKeys = package->GetAvailableVersionKeys(PinBehavior::IgnorePins);
-        for (auto versionKey : packageVersionKeys)
+        for (const auto& versionKey : packageVersionKeys)
+
         {
             auto availableVersion = package->GetAvailableVersion(versionKey, PinBehavior::IgnorePins);
             Pinning::PinKey pinKey{
@@ -95,7 +96,8 @@ namespace AppInstaller::CLI::Workflow
         auto pinningIndex = context.Get<Execution::Data::PinningIndex>();
 
         auto packageVersionKeys = package->GetAvailableVersionKeys(PinBehavior::IgnorePins);
-        for (auto versionKey : packageVersionKeys)
+        for (const auto& versionKey : packageVersionKeys)
+
         {
             auto availableVersion = package->GetAvailableVersion(versionKey, PinBehavior::IgnorePins);
             Pinning::PinKey pinKey{
@@ -147,7 +149,8 @@ namespace AppInstaller::CLI::Workflow
 
         if (!pinsToAddOrUpdate.empty())
         {
-            for (auto pin : pinsToAddOrUpdate)
+            for (const auto& pin : pinsToAddOrUpdate)
+
             {
                 pinningIndex->AddOrUpdatePin(pin);
             }
@@ -169,7 +172,8 @@ namespace AppInstaller::CLI::Workflow
         // that will be the only one we get version keys from.
         // So, we remove pins from all sources unless one was provided.
         auto packageVersionKeys = package->GetAvailableVersionKeys(PinBehavior::IgnorePins);
-        for (auto versionKey : packageVersionKeys)
+        for (const auto& versionKey : packageVersionKeys)
+
         {
             auto availableVersion = package->GetAvailableVersion(versionKey, PinBehavior::IgnorePins);
             Pinning::PinKey pinKey{
@@ -270,7 +274,8 @@ namespace AppInstaller::CLI::Workflow
         const auto& source = context.Get<Execution::Data::Source>();
 
         std::vector<Pinning::Pin> matchingPins;
-        for (const auto pin : pins)
+        for (const auto& pin : pins)
+
         {
             SearchRequest searchRequest;
             searchRequest.Filters.emplace_back(PackageMatchField::Id, MatchType::CaseInsensitive, pin.GetPackageId());
