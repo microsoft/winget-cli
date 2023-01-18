@@ -19,6 +19,21 @@ namespace AppInstaller::CLI
         {
             return std::any_of(argTypes.begin(), argTypes.end(), [&](Execution::Args::Type arg) { return args.Contains(arg); });
         }
+
+        // TODO: This won't work if it's not available in ForType(). We use this only to show a more helpful error
+        //       string when using mutually exclusive args; we will need to re-visit if we ever add that check for
+        //       an argument that doesn't have this available.
+        std::string_view GetArgumentName(Execution::Args::Type arg)
+        {
+            try
+            {
+                return Argument::ForType(arg).Name();
+            }
+            catch (...)
+            {
+                return "";
+            }
+        }
     }
 
     Argument Argument::ForType(Execution::Args::Type type)
@@ -160,7 +175,19 @@ namespace AppInstaller::CLI
 
         if (argsUsed.size() > 1)
         {
-            throw CommandException(Resource::String::MultipleExclusiveArgumentsProvided);
+            // Create a string showing the exclusive args.
+            std::string argsString;
+            for (const auto& arg : argsUsed)
+            {
+                if (!argsString.empty())
+                {
+                    argsString += "|";
+                }
+
+                argsString += GetArgumentName(arg);
+            }
+
+            throw CommandException(Resource::String::MultipleExclusiveArgumentsProvided(Utility::LocIndString{ argsString }));
         }
     }
 

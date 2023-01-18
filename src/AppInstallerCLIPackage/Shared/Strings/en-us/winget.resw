@@ -1657,7 +1657,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>An argument was provided that can only be used for single packages</value>
   </data>
   <data name="MultipleExclusiveArgumentsProvided" xml:space="preserve">
-    <value>Multiple mutually exclusive arguments provided</value>
-    <comment>Error message shown when mutually incompatible command line arguments are used</comment>
+    <value>Multiple mutually exclusive arguments provided: {0}</value>
+    <comment>{Locked="{0}"} Error message shown when mutually incompatible command line arguments are used. {0} is a placeholder replaced by the arguments that cannot be specified together</comment>
   </data>
 </root>
