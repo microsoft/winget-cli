@@ -159,7 +159,6 @@ namespace AppInstaller::CLI
 
         WI_SetFlagIf(result, ArgTypeCategory::Manifest, args.Contains(Args::Type::Manifest));
 
-
         if (ContainsArgumentFromList(args, {
             Args::Type::Exact,
             }))
@@ -224,7 +223,7 @@ namespace AppInstaller::CLI
         // Commands like install require some argument to select a package
         if (requirePackageSelectionArg)
         {
-            if (WI_AreAllFlagsClear(Categories, ArgTypeCategory::Manifest | ArgTypeCategory::PackageQuery))
+            if (WI_AreAllFlagsClear(Categories, ArgTypeCategory::Manifest | ArgTypeCategory::PackageQuery | ArgTypeCategory::SinglePackageQuery))
             {
                 throw CommandException(Resource::String::NoPackageSelectionArgumentProvided);
             }
