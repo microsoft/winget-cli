@@ -153,6 +153,17 @@ namespace AppInstaller::CLI
         return strstr.str();
     }
 
+    void Argument::ValidateExclusiveArguments(const Execution::Args& args, const std::vector<Args::Type>& argTypes)
+    {
+        std::vector<Args::Type> argsUsed;
+        std::copy_if(argTypes.begin(), argTypes.end(), std::back_inserter(argsUsed), [&](Args::Type arg) { return args.Contains(arg); });
+
+        if (argsUsed.size() > 1)
+        {
+            throw CommandException(Resource::String::MultipleExclusiveArgumentsProvided);
+        }
+    }
+
     ArgTypeCategory Argument::GetCategoriesPresent(const Execution::Args& args)
     {
         ArgTypeCategory result = ArgTypeCategory::None;
@@ -211,6 +222,7 @@ namespace AppInstaller::CLI
 
         WI_SetFlagIf(result, ArgTypeCategory::MultiplePackages, ContainsArgumentFromList(args, {
             Args::Type::All,
+            Args::Type::Count,
             }));
 
         return result;

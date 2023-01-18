@@ -140,6 +140,9 @@ namespace AppInstaller::CLI
 
         // Static argument validation helpers; throw CommandException when validation fails.
 
+        // Requires that at most one argument from the list is present.
+        static void ValidateExclusiveArguments(const Execution::Args& args, const std::vector<Execution::Args::Type>& argTypes);
+
         static ArgTypeCategory GetCategoriesPresent(const Execution::Args& arg);
 
         // Requires that arguments meet common requirements

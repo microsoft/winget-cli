@@ -708,6 +708,11 @@ namespace AppInstaller::CLI
             }
         }
 
+        Argument::ValidateExclusiveArguments(execArgs, {
+            Execution::Args::Type::RainbowStyle,
+            Execution::Args::Type::RetroStyle,
+            });
+
         ValidateArgumentsInternal(execArgs);
     }
 
