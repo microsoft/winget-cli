@@ -11,10 +11,6 @@ namespace Microsoft.WinGet.Client.PSObjects
     /// </summary>
     public class SourceResult
     {
-        private readonly string name;
-        private readonly string argument;
-        private readonly string type;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="SourceResult"/> class.
         /// </summary>
@@ -22,33 +18,24 @@ namespace Microsoft.WinGet.Client.PSObjects
         public SourceResult(Management.Deployment.PackageCatalogReference catalogReference)
         {
             var info = catalogReference.Info;
-            this.name = info.Name;
-            this.argument = info.Argument;
-            this.type = info.Type;
+            this.Name = info.Name;
+            this.Argument = info.Argument;
+            this.Type = info.Type;
         }
 
         /// <summary>
         /// Gets the name of the source.
         /// </summary>
-        public string Name
-        {
-            get { return this.name; }
-        }
+        public string Name { get; private set; }
 
         /// <summary>
         /// Gets the argument of the source.
         /// </summary>
-        public string Argument
-        {
-            get { return this.argument; }
-        }
+        public string Argument { get; private set; }
 
         /// <summary>
         /// Gets the type of the source.
         /// </summary>
-        public string Type
-        {
-            get { return this.type; }
-        }
+        public string Type { get; private set; }
     }
 }

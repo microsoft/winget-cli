@@ -14,63 +14,42 @@ namespace Microsoft.WinGet.Client.PSObjects
     /// </summary>
     public class UninstallResult
     {
-        private readonly string correlationData;
-        private readonly Exception extendedErrorCode;
-        private readonly bool rebootRequired;
-        private readonly uint uninstallerErrorCode;
-        private readonly UninstallResultStatus status;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="UninstallResult"/> class.
         /// </summary>
         /// <param name="uninstallResult">The uninstall result COM object.</param>
         public UninstallResult(Management.Deployment.UninstallResult uninstallResult)
         {
-            this.correlationData = uninstallResult.CorrelationData;
-            this.extendedErrorCode = uninstallResult.ExtendedErrorCode;
-            this.rebootRequired = uninstallResult.RebootRequired;
-            this.uninstallerErrorCode = uninstallResult.UninstallerErrorCode;
-            this.status = uninstallResult.Status;
+            this.CorrelationData = uninstallResult.CorrelationData;
+            this.ExtendedErrorCode = uninstallResult.ExtendedErrorCode;
+            this.RebootRequired = uninstallResult.RebootRequired;
+            this.UninstallerErrorCode = uninstallResult.UninstallerErrorCode;
+            this.Status = uninstallResult.Status;
         }
 
         /// <summary>
         /// Gets the correlation data of the uninstall result.
         /// </summary>
-        public string CorrelationData
-        {
-            get { return this.correlationData; }
-        }
+        public string CorrelationData { get; private set; }
 
         /// <summary>
         /// Gets the extended error code exception of the failed uninstall result.
         /// </summary>
-        public Exception ExtendedErrorCode
-        {
-            get { return this.extendedErrorCode; }
-        }
+        public Exception ExtendedErrorCode { get; private set; }
 
         /// <summary>
         /// Gets a value indicating whether a reboot is required.
         /// </summary>
-        public bool RebootRequired
-        {
-            get { return this.rebootRequired; }
-        }
+        public bool RebootRequired { get; private set; }
 
         /// <summary>
         /// Gets the error code of an uninstall.
         /// </summary>
-        public uint UninstallerErrorCode
-        {
-            get { return this.uninstallerErrorCode; }
-        }
+        public uint UninstallerErrorCode { get; private set; }
 
         /// <summary>
         /// Gets the status of the uninstall.
         /// </summary>
-        public UninstallResultStatus Status
-        {
-            get { return this.status; }
-        }
+        public UninstallResultStatus Status { get; private set; }
     }
 }
