@@ -78,9 +78,6 @@
     <ClInclude Include="Public\AppInstallerProgress.h">
       <Filter>Public</Filter>
     </ClInclude>
-    <ClInclude Include="Public\AppInstallerVersions.h">
-      <Filter>Public</Filter>
-    </ClInclude>
     <ClInclude Include="Public\winget\ExtensionCatalog.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
@@ -231,9 +228,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Deployment.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Versions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ExtensionCatalog.cpp">

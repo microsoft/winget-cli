@@ -238,6 +238,11 @@ namespace AppInstaller::YAML
         return m_scalar;
     }
 
+    std::wstring Node::as_dispatch(std::wstring*) const
+    {
+        return Utility::ConvertToUTF16(m_scalar);
+    }
+
     int64_t Node::as_dispatch(int64_t*) const
     {
         return std::stoll(m_scalar);

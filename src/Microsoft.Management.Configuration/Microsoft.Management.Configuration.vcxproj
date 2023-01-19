@@ -101,7 +101,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_WINRT_DLL;WIN32_LEAN_AND_MEAN;WINRT_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalUsingDirectories>$(WindowsSDK_WindowsMetadata);$(AdditionalUsingDirectories)</AdditionalUsingDirectories>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\AppInstallerSharedLib\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)..\AppInstallerSharedLib\Public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -135,6 +135,8 @@
     <ClInclude Include="ConfigurationProcessor.h" />
     <ClInclude Include="ConfigurationSet.h" />
     <ClInclude Include="ConfigurationSetChangeData.h" />
+    <ClInclude Include="ConfigurationSetParser.h" />
+    <ClInclude Include="ConfigurationSetParser_0_1.h" />
     <ClInclude Include="ConfigurationUnit.h" />
     <ClInclude Include="ConfigurationUnitResultInformation.h" />
     <ClInclude Include="DiagnosticInformation.h" />
@@ -153,6 +155,8 @@
     <ClCompile Include="ConfigurationProcessor.cpp" />
     <ClCompile Include="ConfigurationSet.cpp" />
     <ClCompile Include="ConfigurationSetChangeData.cpp" />
+    <ClCompile Include="ConfigurationSetParser.cpp" />
+    <ClCompile Include="ConfigurationSetParser_0_1.cpp" />
     <ClCompile Include="ConfigurationUnit.cpp" />
     <ClCompile Include="ConfigurationUnitResultInformation.cpp" />
     <ClCompile Include="DiagnosticInformation.cpp" />

@@ -70,6 +70,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_dependencies = winrt::single_threaded_vector<hstring>(std::move(temp));
     }
 
+    void ConfigurationUnit::Dependencies(std::vector<hstring>&& value)
+    {
+        m_dependencies = winrt::single_threaded_vector<hstring>(std::move(value));
+    }
+
     Windows::Foundation::Collections::ValueSet ConfigurationUnit::Directives()
     {
         return m_directives;

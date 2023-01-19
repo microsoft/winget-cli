@@ -4,6 +4,7 @@
 #include "ConfigurationUnit.g.h"
 #include "MutableFlag.h"
 #include <winrt/Windows.Foundation.Collections.h>
+#include <vector>
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
@@ -13,6 +14,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
         ConfigurationUnit(const guid& instanceIdentifier);
+        void Dependencies(std::vector<hstring>&& value);
 #endif
 
         hstring UnitName();

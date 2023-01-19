@@ -21,6 +21,7 @@
 #include <memory>
 #include <mutex>
 #include <optional>
+#include <sstream>
 #include <stack>
 #include <stdexcept>
 #include <string>

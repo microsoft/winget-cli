@@ -140,6 +140,32 @@ namespace AppInstaller::Utility
         UINT64 Revision() const { return m_parts.size() > 3 ? m_parts[3].Integer : 0; }
     };
 
+    // A semantic version as defined by semver.org
+    // This is currently fairly loose in its restrictions on a version, and is largely to separate out the prelease and build metadata portions.
+    struct SemanticVersion : public Version
+    {
+        SemanticVersion() = default;
+        SemanticVersion(std::string&& version);
+        SemanticVersion(const std::string& version) :
+            SemanticVersion(std::string(version)) {}
+
+        void Assign(std::string version, std::string_view splitChars = DefaultSplitChars) override;
+
+        // Indicates that the version is pre-release
+        bool IsPrerelease() const;
+        // The pre-release version
+        const Version& PrereleaseVersion() const;
+
+        // Indicates that the version has build metadata
+        bool HasBuildMetadata() const;
+        // The build metadata version
+        const Version& BuildMetadata() const;
+
+    private:
+        Version m_prerelease;
+        Version m_buildMetadata;
+    };
+
     // Version range represented by a min version and max version, both inclusive.
     struct VersionRange
     {

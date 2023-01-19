@@ -48,6 +48,12 @@
     <ClCompile Include="ConfigurationProcessor.cpp">
       <Filter>API Source</Filter>
     </ClCompile>
+    <ClCompile Include="ConfigurationSetParser.cpp">
+      <Filter>Parser</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigurationSetParser_0_1.cpp">
+      <Filter>Parser</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -96,6 +102,12 @@
     <ClInclude Include="ConfigurationProcessor.h">
       <Filter>API Headers</Filter>
     </ClInclude>
+    <ClInclude Include="ConfigurationSetParser.h">
+      <Filter>Parser</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigurationSetParser_0_1.h">
+      <Filter>Parser</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Midl Include="Microsoft.Management.Configuration.idl" />
@@ -114,6 +126,9 @@
     </Filter>
     <Filter Include="Internals">
       <UniqueIdentifier>{c5f2f74e-de80-4235-abbd-bacd6771eaf2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Parser">
+      <UniqueIdentifier>{b31f8336-b4d8-4c05-b08d-6b82c550a30b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

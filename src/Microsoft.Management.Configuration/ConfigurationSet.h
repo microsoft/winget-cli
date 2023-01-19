@@ -12,6 +12,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     struct ConfigurationSet : ConfigurationSetT<ConfigurationSet>
     {
         using WinRT_Self = ::winrt::Microsoft::Management::Configuration::ConfigurationSet;
+        using ConfigurationUnit = ::winrt::Microsoft::Management::Configuration::ConfigurationUnit;
 
         ConfigurationSet();
         ConfigurationSet(const Windows::Storage::Streams::IInputStream& stream);

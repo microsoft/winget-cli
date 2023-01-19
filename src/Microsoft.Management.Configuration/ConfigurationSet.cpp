@@ -3,40 +3,12 @@
 #include "pch.h"
 #include "ConfigurationSet.h"
 #include "ConfigurationSet.g.cpp"
+#include "ConfigurationSetParser.h"
 
-#include <winget/Yaml.h>
+#include <AppInstallerErrors.h>
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
-    namespace
-    {
-        std::string StreamToString(const Windows::Storage::Streams::IInputStream& stream)
-        {
-            uint32_t bufferSize = 1 << 20;
-            Windows::Storage::Streams::Buffer buffer(bufferSize);
-            Windows::Storage::Streams::InputStreamOptions readOptions = Windows::Storage::Streams::InputStreamOptions::Partial | Windows::Storage::Streams::InputStreamOptions::ReadAhead;
-            std::string result;
-
-            for (;;)
-            {
-                Windows::Storage::Streams::IBuffer readBuffer = stream.ReadAsync(buffer, bufferSize, readOptions).GetResults();
-
-                size_t readSize = static_cast<size_t>(readBuffer.Length());
-                if (readSize)
-                {
-                    static_assert(sizeof(char) == sizeof(*readBuffer.data()));
-                    result.append(reinterpret_cast<char*>(readBuffer.data()), readSize);
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            return result;
-        }
-    }
-
     ConfigurationSet::ConfigurationSet()
     {
         GUID instanceIdentifier;
@@ -46,10 +18,20 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     ConfigurationSet::ConfigurationSet(const Windows::Storage::Streams::IInputStream& stream) : ConfigurationSet()
     {
-        std::string input = StreamToString(stream);
-        AppInstaller::YAML::Node yaml = AppInstaller::YAML::Load(input);
+        bool throwException = true;
 
+        try
+        {
+            std::unique_ptr<ConfigurationSetParser> parser = ConfigurationSetParser::Create(stream);
+            if (parser)
+            {
+                m_configurationUnits = winrt::single_threaded_vector<ConfigurationUnit>(parser->GetConfigurationUnits());
+                throwException = false;
+            }
+        }
+        CATCH_LOG();
 
+        THROW_HR_IF(WINGET_CONFIG_ERROR_INVALID_CONFIGURATION_FILE, throwException);
     }
 
     ConfigurationSet::ConfigurationSet(const guid& instanceIdentifier) :
@@ -115,7 +97,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return clock::time_point{};
     }
 
-    Windows::Foundation::Collections::IVectorView<ConfigurationUnit> ConfigurationSet::ConfigurationUnits()
+    Windows::Foundation::Collections::IVectorView<Configuration::ConfigurationUnit> ConfigurationSet::ConfigurationUnits()
     {
         return m_configurationUnits.GetView();
     }

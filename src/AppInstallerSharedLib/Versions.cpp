@@ -440,6 +440,79 @@ namespace AppInstaller::Utility
             THROW_HR_IF(E_INVALIDARG, part.Integer >> 16 != 0);
         }
     }
+
+    SemanticVersion::SemanticVersion(std::string&& version)
+    {
+        Assign(std::move(version), DefaultSplitChars);
+    }
+
+    void SemanticVersion::Assign(std::string version, std::string_view splitChars)
+    {
+        // Semantic versions require using the default split character
+        THROW_HR_IF(E_INVALIDARG, splitChars != DefaultSplitChars);
+
+        // First split off any trailing build metadata
+        std::string interimVersion = version;
+        size_t buildMetadataPos = interimVersion.find('+', 0);
+
+        if (buildMetadataPos != std::string::npos)
+        {
+            m_buildMetadata.Assign(interimVersion.substr(buildMetadataPos + 1));
+            interimVersion.resize(buildMetadataPos);
+        }
+
+        // Now split off the prerelease data
+        size_t prereleasePos = interimVersion.find('-', 0);
+
+        if (prereleasePos != std::string::npos)
+        {
+            m_prerelease.Assign(interimVersion.substr(prereleasePos + 1));
+            interimVersion.resize(prereleasePos);
+        }
+
+        // Parse main version
+        Version::Assign(std::move(interimVersion), splitChars);
+        THROW_HR_IF(E_INVALIDARG, IsApproximate());
+        THROW_HR_IF(E_INVALIDARG, m_parts.size() > 3);
+        for (size_t i = 0; i < 3; ++i)
+        {
+            THROW_HR_IF(E_INVALIDARG, !PartAt(i).Other.empty());
+        }
+
+        // Put rest of version back onto Other of last part
+        size_t otherSplit = (prereleasePos != std::string::npos ? prereleasePos : buildMetadataPos);
+        if (otherSplit != std::string::npos)
+        {
+            while (m_parts.size() < 3)
+            {
+                m_parts.emplace_back();
+            }
+            m_parts[2].Other = version.substr(otherSplit);
+        }
+
+        // Overwrite the whole version string with our whole version string
+        m_version = std::move(version);
+    }
+
+    bool SemanticVersion::IsPrerelease() const
+    {
+        return !m_prerelease.IsEmpty();
+    }
+
+    const Version& SemanticVersion::PrereleaseVersion() const
+    {
+        return m_prerelease;
+    }
+
+    bool SemanticVersion::HasBuildMetadata() const
+    {
+        return !m_buildMetadata.IsEmpty();
+    }
+
+    const Version& SemanticVersion::BuildMetadata() const
+    {
+        return m_buildMetadata;
+    }
       
     VersionRange::VersionRange(Version minVersion, Version maxVersion)
     {

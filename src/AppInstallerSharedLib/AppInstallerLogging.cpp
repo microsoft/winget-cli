@@ -33,14 +33,15 @@ namespace AppInstaller::Logging
     {
         switch(channel)
         {
-        case Channel::Fail: return "FAIL";
-        case Channel::CLI:  return "CLI";
-        case Channel::SQL:  return "SQL";
-        case Channel::Repo: return "REPO";
-        case Channel::YAML: return "YAML";
-        case Channel::Core: return "CORE";
-        case Channel::Test: return "TEST";
-        default:            return "NONE";
+        case Channel::Fail:   return "FAIL";
+        case Channel::CLI:    return "CLI";
+        case Channel::SQL:    return "SQL";
+        case Channel::Repo:   return "REPO";
+        case Channel::YAML:   return "YAML";
+        case Channel::Core:   return "CORE";
+        case Channel::Test:   return "TEST";
+        case Channel::Config: return "CONF";
+        default:              return "NONE";
         }
     }
 
