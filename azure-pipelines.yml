@@ -302,19 +302,33 @@ jobs:
 
   - task: PowerShell@2
     displayName: 'Run Pester Tests for PowerShell Module'
+    condition: eq($(buildPlatform), 'x64')
     inputs:
       targetType: 'inline'
       script: |
         Import-Module Pester -PassThru
         Import-Module '$(buildOutDir)\PowerShell\Microsoft.WinGet.Client\Microsoft.WinGet.Client.psd1'
-        Invoke-Pester -Path 'src\PowerShell\tests\' -CI -Output Detailed  -OutputFile '$(buildOutDir)\Microsoft.WinGet.Client.Tests.xml'
+        $config = [PesterConfiguration]@{
+          Run = @{
+            Path = 'src\PowerShell\tests'
+          }
+          Output = @{
+            Verbosity = 'Detailed'
+          }
+          TestResult = @{
+            Enabled = $true
+            OutputPath = '$(buildOutDir)\Microsoft.WinGet.Client.TestResults.xml'
+          }
+        }
+        Invoke-Pester -Configuration $config
       pwsh: true
 
   - task: PublishTestResults@2
     displayName: 'Publish Pester Tests'
+    condition: eq($(buildPlatform), 'x64')    
     inputs:
       testResultsFormat: 'NUnit'
-      testResultsFiles: '$(buildOutDir)\Microsoft.WinGet.Client.Tests.xml'
+      testResultsFiles: '$(buildOutDir)\Microsoft.WinGet.Client.TestResults.xml'
       mergeTestResults: true
       failTaskOnFailedTests: true
 
