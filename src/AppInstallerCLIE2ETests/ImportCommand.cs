@@ -80,7 +80,7 @@ namespace AppInstallerCLIE2ETests
             // Verify failure when trying to import an unavailable package
             var result = TestCommon.RunAICLICommand("import", this.GetTestImportFile("ImportFile-Bad-UnknownPackage.json"));
             Assert.AreEqual(Constants.ErrorCode.ERROR_NOT_ALL_PACKAGES_FOUND, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Package not found for import"));
+            Assert.True(result.StdOut.Contains("Package not found: MissingPackage"));
         }
 
         /// <summary>
@@ -92,7 +92,7 @@ namespace AppInstallerCLIE2ETests
             // Verify failure when trying to import an unavailable package
             var result = TestCommon.RunAICLICommand("import", this.GetTestImportFile("ImportFile-Bad-UnknownPackageVersion.json"));
             Assert.AreEqual(Constants.ErrorCode.ERROR_NOT_ALL_PACKAGES_FOUND, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Package not found for import"));
+            Assert.True(result.StdOut.Contains("Package not found: AppInstallerTest.TestExeInstaller"));
         }
 
         /// <summary>
