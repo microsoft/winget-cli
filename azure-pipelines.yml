@@ -146,28 +146,28 @@ jobs:
     inputs:
       secureFile: 'PsExec.exe'
 
-  # - task: CmdLine@2
-  #   displayName: Run Unit Tests Unpackaged Under System Context
-  #   inputs:
-  #     script: |
-  #       $(PsExec.secureFilePath) -accepteula -s -i $(buildOutDir)\AppInstallerCLITests\AppInstallerCLITests.exe -logto $(artifactsDir)\AICLI-Unpackaged-System.log -s -r junit -o $(artifactsDir)\TEST-AppInstallerCLI-Unpackaged-System.xml
-  #     workingDirectory: '$(buildOutDir)\AppInstallerCLITests'
-  #   continueOnError: true
+  - task: CmdLine@2
+    displayName: Run Unit Tests Unpackaged Under System Context
+    inputs:
+      script: |
+        $(PsExec.secureFilePath) -accepteula -s -i $(buildOutDir)\AppInstallerCLITests\AppInstallerCLITests.exe -logto $(artifactsDir)\AICLI-Unpackaged-System.log -s -r junit -o $(artifactsDir)\TEST-AppInstallerCLI-Unpackaged-System.xml
+      workingDirectory: '$(buildOutDir)\AppInstallerCLITests'
+    continueOnError: true
 
-  # - task: PowerShell@2
-  #   displayName: Run Unit Tests Packaged
-  #   inputs:
-  #     filePath: 'src\AppInstallerCLITests\Run-TestsInPackage.ps1'
-  #     arguments: '-Args "~[pips]" -BuildRoot $(buildOutDir) -PackageRoot AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration) -LogTarget $(artifactsDir)\AICLI-Packaged.log -TestResultsTarget $(artifactsDir)\TEST-AppInstallerCLI-Packaged.xml -ScriptWait'
-  #     workingDirectory: 'src'
-  #   continueOnError: true
+  - task: PowerShell@2
+    displayName: Run Unit Tests Packaged
+    inputs:
+      filePath: 'src\AppInstallerCLITests\Run-TestsInPackage.ps1'
+      arguments: '-Args "~[pips]" -BuildRoot $(buildOutDir) -PackageRoot AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration) -LogTarget $(artifactsDir)\AICLI-Packaged.log -TestResultsTarget $(artifactsDir)\TEST-AppInstallerCLI-Packaged.xml -ScriptWait'
+      workingDirectory: 'src'
+    continueOnError: true
 
-  # - task: PublishTestResults@2
-  #   displayName: Publish Unit Test Results
-  #   inputs:
-  #     testResultsFormat: 'JUnit'
-  #     testResultsFiles: '$(artifactsDir)\TEST-*.xml'
-  #     failTaskOnFailedTests: true
+  - task: PublishTestResults@2
+    displayName: Publish Unit Test Results
+    inputs:
+      testResultsFormat: 'JUnit'
+      testResultsFiles: '$(artifactsDir)\TEST-*.xml'
+      failTaskOnFailedTests: true
 
   - task: DownloadSecureFile@1
     name: AppInstallerTest
@@ -248,30 +248,30 @@ jobs:
       TargetFolder:  'src\AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration)'
       Contents: Microsoft.Management.Deployment.winmd
 
-  # - template: templates/e2e-test.template.yml
-  #   parameters:
-  #     title: "E2E Tests Packaged"
-  #     isPackaged: true
-  #     filter: "TestCategory!=InProcess&TestCategory!=OutOfProcess"
+  - template: templates/e2e-test.template.yml
+    parameters:
+      title: "E2E Tests Packaged"
+      isPackaged: true
+      filter: "TestCategory!=InProcess&TestCategory!=OutOfProcess"
 
-  # - template: templates/e2e-test.template.yml
-  #   parameters:
-  #     title: "COM API E2E Tests (In-process)"
-  #     isPackaged: false
-  #     filter: "TestCategory=InProcess"
+  - template: templates/e2e-test.template.yml
+    parameters:
+      title: "COM API E2E Tests (In-process)"
+      isPackaged: false
+      filter: "TestCategory=InProcess"
 
-  # - template: templates/e2e-test.template.yml
-  #   parameters:
-  #     title: "COM API E2E Tests (Out-of-process)"
-  #     isPackaged: true
-  #     filter: "TestCategory=OutOfProcess"
+  - template: templates/e2e-test.template.yml
+    parameters:
+      title: "COM API E2E Tests (Out-of-process)"
+      isPackaged: true
+      filter: "TestCategory=OutOfProcess"
 
-  # - task: CopyFiles@2
-  #   displayName: 'Copy E2E Tests Package Log to artifacts folder'
-  #   inputs:
-  #     SourceFolder: '$(temp)\E2ETestLogs'
-  #     TargetFolder: '$(artifactsDir)\E2ETestsPackagedLog'
-  #   condition: succeededOrFailed()
+  - task: CopyFiles@2
+    displayName: 'Copy E2E Tests Package Log to artifacts folder'
+    inputs:
+      SourceFolder: '$(temp)\E2ETestLogs'
+      TargetFolder: '$(artifactsDir)\E2ETestsPackagedLog'
+    condition: succeededOrFailed()
 
   - task: CopyFiles@2
     displayName: 'Copy Files: WinGetUtilInterop.UnitTests'
@@ -281,15 +281,15 @@ jobs:
       CleanTargetFolder: true
       OverWrite: true
 
-  # - task: VSTest@2
-  #   displayName: 'Run tests: WinGetUtilInterop.UnitTests'
-  #   inputs:
-  #     testSelector: 'testAssemblies'
-  #     testAssemblyVer2: 'WinGetUtilInterop.UnitTests.dll'
-  #     searchFolder: '$(Build.ArtifactStagingDirectory)\WinGetUtilInterop.UnitTests'
-  #     codeCoverageEnabled: true
-  #     platform: 'Any CPU'
-  #     configuration: '$(BuildConfiguration)'
+  - task: VSTest@2
+    displayName: 'Run tests: WinGetUtilInterop.UnitTests'
+    inputs:
+      testSelector: 'testAssemblies'
+      testAssemblyVer2: 'WinGetUtilInterop.UnitTests.dll'
+      searchFolder: '$(Build.ArtifactStagingDirectory)\WinGetUtilInterop.UnitTests'
+      codeCoverageEnabled: true
+      platform: 'Any CPU'
+      configuration: '$(BuildConfiguration)'
 
   - task: CopyFiles@2
     displayName: 'Copy Util to artifacts folder'
@@ -299,38 +299,6 @@ jobs:
           $(buildOutDir)\WinGetUtil\WinGetUtil.pdb
       TargetFolder: '$(artifactsDir)'
     condition: succeededOrFailed()
-
-  - task: PowerShell@2
-    displayName: 'Run Pester Tests for PowerShell Module'
-    condition: eq(variables['buildPlatform'], 'x64')
-    inputs:
-      targetType: 'inline'
-      script: |
-        Import-Module Pester -PassThru
-        Import-Module '$(buildOutDir)\PowerShell\Microsoft.WinGet.Client\Microsoft.WinGet.Client.psd1'
-        $config = [PesterConfiguration]@{
-          Run = @{
-            Path = 'src\PowerShell\tests'
-          }
-          Output = @{
-            Verbosity = 'Detailed'
-          }
-          TestResult = @{
-            Enabled = $true
-            OutputPath = '$(buildOutDir)\Microsoft.WinGet.Client.TestResults.xml'
-          }
-        }
-        Invoke-Pester -Configuration $config
-      pwsh: true
-
-  - task: PublishTestResults@2
-    displayName: 'Publish Pester Tests'
-    condition: eq(variables['buildPlatform'], 'x64')    
-    inputs:
-      testResultsFormat: 'NUnit'
-      testResultsFiles: '$(buildOutDir)\Microsoft.WinGet.Client.TestResults.xml'
-      mergeTestResults: true
-      failTaskOnFailedTests: true
 
   - task: CopyFiles@2
     displayName: 'Copy PowerShell Module Files'
