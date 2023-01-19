@@ -17,16 +17,10 @@
             "items": { "$ref": "#/defs/resource" },
             "description": "Resources that retrieve information via a 'get' operation."
         },
-        "configurationType": {
-            "type": "string",
-            "default": "dsc",
-            "const": "dsc",
-            "description": "The configuration type."
-        },
         "configurationVersion": {
             "type": "string",
             "default": "0.1",
-            "pattern": "^(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])(\\.(0|[1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])){2}$",
+            "pattern": "^(?P<major>0|[1-9]\\d*)\\.(?P<minor>0|[1-9]\\d*)\\.(?P<patch>0|[1-9]\\d*)(?:-(?P<prerelease>(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
             "description": "The configuration syntax version"
         }
     },
@@ -34,7 +28,7 @@
         "resource": {
             "type": "object",
             "properties": {
-                "resourceName": {
+                "resource": {
                     "type": "string",
                     "maxLength": 128,
                     "description": "The name of the resource."
@@ -43,92 +37,22 @@
                     "$ref": "#/defs/id"
                 },
                 "dependsOn": {
-                    "type": [ "string", "null" ],
-                    "description": "The list of resource ids identifying dependencies.",
-                    "uniqueItems": true
+                    "type": [ "array", "null" ],
+                    "items": {
+                        "type": "string"
+                    },
+                    "uniqueItems": true,
+                    "description": "The list of resource ids identifying dependencies."
                 },
-                "attribute": {
-                    "type": "object",
+                "directives": {
+                    "type": "object", 
                     "properties": {
                         "module": {
                             "$ref": "#/defs/module"
                         },
                         "description": {
                             "$ref": "#/defs/description"
-                        }
-                    }
-                },
-                "settings": {
-                    "type": "object",
-                    "properties": {
-                        "module": {
-                            "$ref": "#/def/module"
                         },
-                        "version": {
-                            "$ref": "#/def/version"
-                        },
-                        "minimumVersion": {
-                            "$ref": "#/def/version"
-                        },
-                        "productId": {
-                            "type": "string",
-                            "maxLength": 128,
-                            "description": "The product id."
-                        },
-                        "channelId": {
-                            "type": "string",
-                            "maxLength": 128,
-                            "description": "The channel id."
-                        },
-                        "publisher": {
-                            "type": "string",
-                            "maxLength": 128,
-                            "description": "The name of the publisher."
-                        },
-                        "vsconfigFile": {
-                            "type": "string",
-                            "maxLength": 128,
-                            "description": "The VS config file."
-                        },
-                        "os": {
-                            "type": "string",
-                            "maxLength": 128,
-                            "description": "The operating system."
-                        },
-                        "vaultType": {
-                            "type": "string",
-                            "maxLength": 128,
-                            "description": "The key vault type."
-                        },
-                        "vaultName": {
-                            "type": "string",
-                            "maxLength": 128,
-                            "description": "The name of the key vault."
-                        },
-                        "apikey": {
-                            "type": "string",
-                            "maxLength": 128,
-                            "description": "The api key."
-                        },
-                        "repository": {
-                            "type": "string",
-                            "maxLength": 128,
-                            "description": "The name of the repository."
-                        },
-                        "extensions": {
-                            "type": [ "string", "null" ],
-                            "description": "The list of extensions",
-                            "uniqueItems": true
-                        },
-                        "windowsUpdate": {
-                            "type": [ "boolean", "null" ],
-                            "description": "Indicates whether to allow Windows to update."
-                        }
-                    }
-                },
-                "directives": {
-                    "type": "object", 
-                    "properties": {
                         "requiredVersion": {
                             "$ref": "#/defs/version"
                         },
@@ -172,18 +96,22 @@
                             ],
                             "description": "Determines the behavior if a failure is encountered."
                         }
-                    }
+                    },
+                    "additionalProperties": true
+                },
+                "settings": {
+                    "type": "object"
                 }
             },
             "required": [
-                "resourceName",
+                "resource",
                 "id"
             ]
         },
         "id": {
             "type": "string",
             "maxLength": 128,
-            "description": "The identifier of the resource."
+            "description": "The identifier of this item."
         },
         "module": {
             "type": "string",
@@ -193,11 +121,11 @@
         "description": {
             "type": "string",
             "maxLength": 512,
-            "description": "The description of the resource."
+            "description": "The description of the desired state."
         },
         "version": {
             "type": "string",
-            "pattern": "^[^\\\\/:\\*\\?\"<>\\|\\x01-\\x1f]+$",
+            "pattern": "^(?P<major>0|[1-9]\\d*)\\.(?P<minor>0|[1-9]\\d*)\\.(?P<patch>0|[1-9]\\d*)(?:-(?P<prerelease>(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
             "maxLength": 128
         }
     }
