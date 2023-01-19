@@ -15,7 +15,7 @@ namespace Microsoft.WinGet.Client.Commands
     /// Searches configured sources for packages.
     /// </summary>
     [Cmdlet(VerbsCommon.Find, Constants.WinGetNouns.Package)]
-    [OutputType(typeof(Management.Deployment.CatalogPackage))]
+    [OutputType(typeof(PSObjects.FoundCatalogPackage))]
     public sealed class FindPackageCommand : BaseFinderExtendedCommand
     {
         /// <summary>
