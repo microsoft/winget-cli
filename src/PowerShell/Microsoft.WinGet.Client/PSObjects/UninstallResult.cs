@@ -20,17 +20,11 @@ namespace Microsoft.WinGet.Client.PSObjects
         /// <param name="uninstallResult">The uninstall result COM object.</param>
         public UninstallResult(Management.Deployment.UninstallResult uninstallResult)
         {
-            this.CorrelationData = uninstallResult.CorrelationData;
             this.ExtendedErrorCode = uninstallResult.ExtendedErrorCode;
             this.RebootRequired = uninstallResult.RebootRequired;
             this.UninstallerErrorCode = uninstallResult.UninstallerErrorCode;
             this.Status = uninstallResult.Status;
         }
-
-        /// <summary>
-        /// Gets the correlation data of the uninstall result.
-        /// </summary>
-        public string CorrelationData { get; private set; }
 
         /// <summary>
         /// Gets the extended error code exception of the failed uninstall result.

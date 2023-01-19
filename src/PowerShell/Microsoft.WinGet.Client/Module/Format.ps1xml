@@ -110,9 +110,6 @@
           <TableColumnHeader>
             <Label>ExtendedErrorCode</Label>
           </TableColumnHeader>
-          <TableColumnHeader>
-            <Label>CorrelationData</Label>
-          </TableColumnHeader>
         </TableHeaders>
         <TableRowEntries>
           <TableRowEntry>
@@ -128,9 +125,6 @@
               </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>$_.ExtendedErrorCode</ScriptBlock>
-              </TableColumnItem>
-              <TableColumnItem>
-                <ScriptBlock>$_.CorrelationData</ScriptBlock>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>
@@ -156,9 +150,6 @@
           <TableColumnHeader>
             <Label>ExtendedErrorCode</Label>
           </TableColumnHeader>
-          <TableColumnHeader>
-            <Label>CorrelationData</Label>
-          </TableColumnHeader>
         </TableHeaders>
         <TableRowEntries>
           <TableRowEntry>
@@ -174,9 +165,6 @@
               </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>$_.ExtendedErrorCode</ScriptBlock>
-              </TableColumnItem>
-              <TableColumnItem>
-                <ScriptBlock>$_.CorrelationData</ScriptBlock>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>

@@ -20,17 +20,11 @@ namespace Microsoft.WinGet.Client.PSObjects
         /// <param name="installResult">The install result COM object.</param>
         public InstallResult(Management.Deployment.InstallResult installResult)
         {
-            this.CorrelationData = installResult.CorrelationData;
             this.ExtendedErrorCode = installResult.ExtendedErrorCode;
             this.RebootRequired = installResult.RebootRequired;
             this.InstallerErrorCode = installResult.InstallerErrorCode;
             this.Status = installResult.Status;
         }
-
-        /// <summary>
-        /// Gets the correlation data of the install result.
-        /// </summary>
-        public string CorrelationData { get; private set; }
 
         /// <summary>
         /// Gets the extended error code exception of the failed install result.
