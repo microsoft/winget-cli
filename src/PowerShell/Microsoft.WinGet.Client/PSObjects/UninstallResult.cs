@@ -23,7 +23,7 @@ namespace Microsoft.WinGet.Client.PSObjects
         /// <summary>
         /// Initializes a new instance of the <see cref="UninstallResult"/> class.
         /// </summary>
-        /// <param name="uninstallResult">The uninstalll result COM object.</param>
+        /// <param name="uninstallResult">The uninstall result COM object.</param>
         public UninstallResult(Management.Deployment.UninstallResult uninstallResult)
         {
             this.correlationData = uninstallResult.CorrelationData;
@@ -34,7 +34,7 @@ namespace Microsoft.WinGet.Client.PSObjects
         }
 
         /// <summary>
-        /// Gets the correlation data of the install result.
+        /// Gets the correlation data of the uninstall result.
         /// </summary>
         public string CorrelationData
         {
@@ -42,7 +42,7 @@ namespace Microsoft.WinGet.Client.PSObjects
         }
 
         /// <summary>
-        /// Gets the extended error code exception of the failed install result.
+        /// Gets the extended error code exception of the failed uninstall result.
         /// </summary>
         public Exception ExtendedErrorCode
         {
@@ -58,7 +58,7 @@ namespace Microsoft.WinGet.Client.PSObjects
         }
 
         /// <summary>
-        /// Gets the error code of an install.
+        /// Gets the error code of an uninstall.
         /// </summary>
         public uint UninstallerErrorCode
         {
@@ -66,7 +66,7 @@ namespace Microsoft.WinGet.Client.PSObjects
         }
 
         /// <summary>
-        /// Gets the status of the install.
+        /// Gets the status of the uninstall.
         /// </summary>
         public UninstallResultStatus Status
         {

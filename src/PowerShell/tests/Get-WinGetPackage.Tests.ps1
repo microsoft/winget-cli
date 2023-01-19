@@ -6,7 +6,7 @@
    Tests for the Get-WinGetPackage cmdlet in the Microsoft.WinGet.Client PowerShell module.
 #>
 
-Describe 'Install-WinGetPackage' {
+Describe 'Get-WinGetPackage' {
     
     It 'Install by Id' {
         $result = Install-WinGetPackage -Id AppInstallerTest.TestExeInstaller -Version '1.0.0.0'
