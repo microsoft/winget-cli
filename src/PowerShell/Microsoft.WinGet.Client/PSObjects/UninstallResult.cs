@@ -14,30 +14,11 @@ namespace Microsoft.WinGet.Client.PSObjects
     /// </summary>
     public class UninstallResult
     {
-        /// <summary>
-        /// The correlation data of the install result.
-        /// </summary>
-        public readonly string CorrelationData;
-
-        /// <summary>
-        /// The extended error code exception of the failed install result.
-        /// </summary>
-        public readonly Exception ExtendedErrorCode;
-
-        /// <summary>
-        /// A boolean value indicating whether a reboot is required.
-        /// </summary>
-        public readonly bool RebootRequired;
-
-        /// <summary>
-        /// The error code of the uninstall.
-        /// </summary>
-        public readonly uint UninstallerErrorCode;
-
-        /// <summary>
-        /// The status of the uninstall.
-        /// </summary>
-        public readonly UninstallResultStatus Status;
+        private readonly string correlationData;
+        private readonly Exception extendedErrorCode;
+        private readonly bool rebootRequired;
+        private readonly uint uninstallerErrorCode;
+        private readonly UninstallResultStatus status;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UninstallResult"/> class.
@@ -45,11 +26,51 @@ namespace Microsoft.WinGet.Client.PSObjects
         /// <param name="uninstallResult">The uninstalll result COM object.</param>
         public UninstallResult(Management.Deployment.UninstallResult uninstallResult)
         {
-            this.CorrelationData = uninstallResult.CorrelationData;
-            this.ExtendedErrorCode = uninstallResult.ExtendedErrorCode;
-            this.RebootRequired = uninstallResult.RebootRequired;
-            this.UninstallerErrorCode = uninstallResult.UninstallerErrorCode;
-            this.Status = uninstallResult.Status;
+            this.correlationData = uninstallResult.CorrelationData;
+            this.extendedErrorCode = uninstallResult.ExtendedErrorCode;
+            this.rebootRequired = uninstallResult.RebootRequired;
+            this.uninstallerErrorCode = uninstallResult.UninstallerErrorCode;
+            this.status = uninstallResult.Status;
+        }
+
+        /// <summary>
+        /// Gets the correlation data of the install result.
+        /// </summary>
+        public string CorrelationData
+        {
+            get { return this.correlationData; }
+        }
+
+        /// <summary>
+        /// Gets the extended error code exception of the failed install result.
+        /// </summary>
+        public Exception ExtendedErrorCode
+        {
+            get { return this.extendedErrorCode; }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether a reboot is required.
+        /// </summary>
+        public bool RebootRequired
+        {
+            get { return this.rebootRequired; }
+        }
+
+        /// <summary>
+        /// Gets the error code of an install.
+        /// </summary>
+        public uint UninstallerErrorCode
+        {
+            get { return this.uninstallerErrorCode; }
+        }
+
+        /// <summary>
+        /// Gets the status of the install.
+        /// </summary>
+        public UninstallResultStatus Status
+        {
+            get { return this.status; }
         }
     }
 }

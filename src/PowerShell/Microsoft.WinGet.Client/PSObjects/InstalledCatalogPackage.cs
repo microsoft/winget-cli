@@ -6,7 +6,6 @@
 
 namespace Microsoft.WinGet.Client.PSObjects
 {
-    using System;
     using System.Linq;
 
     /// <summary>
@@ -14,35 +13,12 @@ namespace Microsoft.WinGet.Client.PSObjects
     /// </summary>
     public class InstalledCatalogPackage
     {
-        /// <summary>
-        /// The id of the catalog package.
-        /// </summary>
-        public readonly string Id;
-
-        /// <summary>
-        /// The name of the catalog package.
-        /// </summary>
-        public readonly string Name;
-
-        /// <summary>
-        /// The version of the catalog package.
-        /// </summary>
-        public readonly string Version;
-
-        /// <summary>
-        /// A boolean value indicating whether an update is available.
-        /// </summary>
-        public readonly bool IsUpdateAvailable;
-
-        /// <summary>
-        /// The source of the catalog package.
-        /// </summary>
-        public readonly string Source;
-
-        /// <summary>
-        /// A list of strings representing the available versions.
-        /// </summary>
-        public readonly string[] AvailableVersions;
+        private readonly string id;
+        private readonly string name;
+        private readonly string version;
+        private readonly bool isUpdateAvailable;
+        private readonly string source;
+        private readonly string[] availableVersions;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="InstalledCatalogPackage"/> class.
@@ -50,16 +26,64 @@ namespace Microsoft.WinGet.Client.PSObjects
         /// <param name="catalogPackage">The catalog package COM object.</param>
         public InstalledCatalogPackage(Management.Deployment.CatalogPackage catalogPackage)
         {
-            this.Id = catalogPackage.Id;
-            this.Name = catalogPackage.Name;
-            this.IsUpdateAvailable = catalogPackage.IsUpdateAvailable;
-            this.Version = catalogPackage.InstalledVersion.Version;
-            this.Source = catalogPackage.DefaultInstallVersion.PackageCatalog.Info.Name;
+            this.id = catalogPackage.Id;
+            this.name = catalogPackage.Name;
+            this.isUpdateAvailable = catalogPackage.IsUpdateAvailable;
+            this.version = catalogPackage.InstalledVersion.Version;
+            this.source = catalogPackage.DefaultInstallVersion.PackageCatalog.Info.Name;
 
             if (this.IsUpdateAvailable)
             {
-                this.AvailableVersions = catalogPackage.AvailableVersions.Select(i => i.Version).ToArray();
+                this.availableVersions = catalogPackage.AvailableVersions.Select(i => i.Version).ToArray();
             }
+        }
+
+        /// <summary>
+        /// Gets the id of the catalog package.
+        /// </summary>
+        public string Id
+        {
+            get { return this.id; }
+        }
+
+        /// <summary>
+        /// Gets the name of the catalog package.
+        /// </summary>
+        public string Name
+        {
+            get { return this.name; }
+        }
+
+        /// <summary>
+        /// Gets the version of the catalog package.
+        /// </summary>
+        public string Version
+        {
+            get { return this.version; }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether an update is available.
+        /// </summary>
+        public bool IsUpdateAvailable
+        {
+            get { return this.isUpdateAvailable; }
+        }
+
+        /// <summary>
+        /// Gets the source of the catalog package.
+        /// </summary>
+        public string Source
+        {
+            get { return this.source; }
+        }
+
+        /// <summary>
+        /// Gets a list of strings representing the available versions.
+        /// </summary>
+        public string[] AvailableVersions
+        {
+            get { return this.availableVersions; }
         }
     }
 }
