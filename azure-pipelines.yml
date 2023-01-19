@@ -302,7 +302,7 @@ jobs:
 
   - task: PowerShell@2
     displayName: 'Run Pester Tests for PowerShell Module'
-    condition: eq(variables['buildPlatform], 'x64')
+    condition: eq(variables[buildPlatform], 'x64')
     inputs:
       targetType: 'inline'
       script: |
@@ -325,7 +325,7 @@ jobs:
 
   - task: PublishTestResults@2
     displayName: 'Publish Pester Tests'
-    condition: eq(variables['buildPlatform], 'x64')    
+    condition: eq(variables[buildPlatform], 'x64')    
     inputs:
       testResultsFormat: 'NUnit'
       testResultsFiles: '$(buildOutDir)\Microsoft.WinGet.Client.TestResults.xml'
