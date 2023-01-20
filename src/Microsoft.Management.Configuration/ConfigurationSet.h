@@ -5,7 +5,7 @@
 #include "MutableFlag.h"
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Foundation.Collections.h>
-#include <winrt/Windows.Storage.Streams.h>
+#include <vector>
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
@@ -15,10 +15,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         using ConfigurationUnit = ::winrt::Microsoft::Management::Configuration::ConfigurationUnit;
 
         ConfigurationSet();
-        ConfigurationSet(const Windows::Storage::Streams::IInputStream& stream);
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
         ConfigurationSet(const guid& instanceIdentifier);
+        void Initialize(std::vector<Configuration::ConfigurationUnit>&& units);
 #endif
 
         hstring Name();

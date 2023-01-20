@@ -4,11 +4,15 @@
 #include "ConfigurationProcessor.g.h"
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Foundation.Collections.h>
+#include <winrt/Windows.Storage.Streams.h>
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
     struct ConfigurationProcessor : ConfigurationProcessorT<ConfigurationProcessor>
     {
+        using ConfigurationSet = Configuration::ConfigurationSet;
+        using ConfigurationUnit = Configuration::ConfigurationUnit;
+
         ConfigurationProcessor(const IConfigurationProcessorFactory& factory);
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
@@ -22,6 +26,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         void ConfigurationChange(const event_token& token) noexcept;
 
         Windows::Foundation::Collections::IVector<ConfigurationSet> GetConfigurationHistory();
+
+        Configuration::OpenConfigurationSetResult OpenConfigurationSet(Windows::Storage::Streams::IInputStream stream);
 
         Windows::Foundation::IAsyncOperation<Windows::Foundation::Collections::IVectorView<ConfigurationConflict>> CheckForConflictsAsync(
             const Windows::Foundation::Collections::IVectorView<ConfigurationSet>& configurationSets,

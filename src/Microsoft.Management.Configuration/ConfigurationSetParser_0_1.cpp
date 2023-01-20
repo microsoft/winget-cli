@@ -10,49 +10,14 @@
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
+    using namespace AppInstaller::YAML;
+
+#define CHECK_ERROR(_op_) (_op_); if (FAILED(m_result)) { return; }
+#define FIELD_ERROR(_field_) SetError(WINGET_CONFIG_ERROR_INVALID_FIELD, (_field_)); return
+#define FIELD_ERROR_IF(_condition_,_field_) if (_condition_) { FIELD_ERROR(_field_); }
+
     namespace
     {
-        using namespace AppInstaller::YAML;
-
-        void GetStringValueForUnit(const Node& item, std::string_view valueName, bool required, ConfigurationUnit* unit, void(ConfigurationUnit::* propertyFunction)(const hstring& value))
-        {
-            const Node& valueNode = item[valueName];
-
-            if (valueNode)
-            {
-                THROW_HR_IF(WINGET_CONFIG_ERROR_INVALID_CONFIGURATION_FILE, !valueNode.IsScalar());
-            }
-            else
-            {
-                THROW_HR_IF(WINGET_CONFIG_ERROR_INVALID_CONFIGURATION_FILE, required);
-                return;
-            }
-
-            (unit->*propertyFunction)(hstring{ valueNode.as<std::wstring>() });
-        }
-
-        void GetStringArrayForUnit(const Node& item, std::string_view arrayName, ConfigurationUnit* unit, void(ConfigurationUnit::* propertyFunction)(std::vector<hstring>&& value))
-        {
-            const Node& arrayNode = item[arrayName];
-
-            if (!arrayNode)
-            {
-                return;
-            }
-
-            THROW_HR_IF(WINGET_CONFIG_ERROR_INVALID_CONFIGURATION_FILE, !arrayNode.IsSequence());
-
-            std::vector<hstring> arrayValue;
-
-            for (const Node& arrayItem : arrayNode.Sequence())
-            {
-                THROW_HR_IF(WINGET_CONFIG_ERROR_INVALID_CONFIGURATION_FILE, !arrayItem.IsScalar());
-                arrayValue.emplace_back(arrayItem.as<std::wstring>());
-            }
-
-            (unit->*propertyFunction)(std::move(arrayValue));
-        }
-
         Windows::Foundation::IInspectable GetIInspectableFromNode(const Node& node);
 
         // Returns the appropriate IPropertyValue for the given node, which is assumed to be a scalar.
@@ -119,49 +84,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
             return result;
         }
-
-        void GetValueSet(const Node& mapNode, bool required, const Windows::Foundation::Collections::ValueSet& valueSet)
-        {
-            if (mapNode)
-            {
-                THROW_HR_IF(WINGET_CONFIG_ERROR_INVALID_CONFIGURATION_FILE, !mapNode.IsMap());
-            }
-            else
-            {
-                THROW_HR_IF(WINGET_CONFIG_ERROR_INVALID_CONFIGURATION_FILE, required);
-                return;
-            }
-
-            FillValueSetFromMap(mapNode, valueSet);
-        }
-
-        void ParseConfigurationUnitsFromSubsection(const Node& document, std::string_view subsection, ConfigurationUnitIntent intent, std::vector<Configuration::ConfigurationUnit>& result)
-        {
-            Node subsectionNode = document[subsection];
-
-            if (!subsectionNode.IsDefined())
-            {
-                return;
-            }
-
-            THROW_HR_IF(WINGET_CONFIG_ERROR_INVALID_CONFIGURATION_FILE, !subsectionNode.IsSequence());
-
-            for (const Node& item : subsectionNode.Sequence())
-            {
-                THROW_HR_IF(WINGET_CONFIG_ERROR_INVALID_CONFIGURATION_FILE, !item.IsMap());
-
-                auto configurationUnit = make_self<wil::details::module_count_wrapper<ConfigurationUnit>>();
-
-                GetStringValueForUnit(item, "resource", true, configurationUnit.get(), &ConfigurationUnit::UnitName);
-                GetStringValueForUnit(item, "id", false, configurationUnit.get(), &ConfigurationUnit::Identifier);
-                configurationUnit->Intent(intent);
-                GetStringArrayForUnit(item, "dependsOn", configurationUnit.get(), &ConfigurationUnit::Dependencies);
-                GetValueSet(item["directives"], false, configurationUnit->Directives());
-                GetValueSet(item["settings"], false, configurationUnit->Settings());
-
-                result.emplace_back(*configurationUnit);
-            }
-        }
     }
 
     std::vector<Configuration::ConfigurationUnit> ConfigurationSetParser_0_1::GetConfigurationUnits()
@@ -172,5 +94,113 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         ParseConfigurationUnitsFromSubsection(properties, "parameters", ConfigurationUnitIntent::Inform, result);
         ParseConfigurationUnitsFromSubsection(properties, "resources", ConfigurationUnitIntent::Apply, result);
         return result;
+    }
+
+    void ConfigurationSetParser_0_1::ParseConfigurationUnitsFromSubsection(const Node& document, std::string_view subsection, ConfigurationUnitIntent intent, std::vector<Configuration::ConfigurationUnit>& result)
+    {
+        if (FAILED(m_result))
+        {
+            return;
+        }
+
+        Node subsectionNode = document[subsection];
+
+        if (!subsectionNode.IsDefined())
+        {
+            return;
+        }
+
+        FIELD_ERROR_IF(!subsectionNode.IsSequence(), subsection);
+
+        std::ostringstream strstr;
+        strstr << subsection;
+        size_t index = 0;
+
+        for (const Node& item : subsectionNode.Sequence())
+        {
+            if (!item.IsMap())
+            {
+                strstr << '[' << index << ']';
+                FIELD_ERROR(strstr.str());
+            }
+            index++;
+
+            auto configurationUnit = make_self<wil::details::module_count_wrapper<ConfigurationUnit>>();
+
+            CHECK_ERROR(GetStringValueForUnit(item, "resource", true, configurationUnit.get(), &ConfigurationUnit::UnitName));
+            CHECK_ERROR(GetStringValueForUnit(item, "id", false, configurationUnit.get(), &ConfigurationUnit::Identifier));
+            configurationUnit->Intent(intent);
+            CHECK_ERROR(GetStringArrayForUnit(item, "dependsOn", configurationUnit.get(), &ConfigurationUnit::Dependencies));
+            CHECK_ERROR(GetValueSet(item, "directives", false, configurationUnit->Directives()));
+            CHECK_ERROR(GetValueSet(item, "settings", false, configurationUnit->Settings()));
+
+            result.emplace_back(*configurationUnit);
+        }
+    }
+
+    void ConfigurationSetParser_0_1::GetStringValueForUnit(const Node& item, std::string_view valueName, bool required, ConfigurationUnit* unit, void(ConfigurationUnit::* propertyFunction)(const hstring& value))
+    {
+        const Node& valueNode = item[valueName];
+
+        if (valueNode)
+        {
+            FIELD_ERROR_IF(!valueNode.IsScalar(), valueName);
+        }
+        else
+        {
+            FIELD_ERROR_IF(required, valueName);
+            return;
+        }
+
+        (unit->*propertyFunction)(hstring{ valueNode.as<std::wstring>() });
+    }
+
+    void ConfigurationSetParser_0_1::GetStringArrayForUnit(const Node& item, std::string_view arrayName, ConfigurationUnit* unit, void(ConfigurationUnit::* propertyFunction)(std::vector<hstring>&& value))
+    {
+        const Node& arrayNode = item[arrayName];
+
+        if (!arrayNode)
+        {
+            return;
+        }
+
+        FIELD_ERROR_IF(!arrayNode.IsSequence(), arrayName);
+
+        std::vector<hstring> arrayValue;
+
+        std::ostringstream strstr;
+        strstr << arrayName;
+        size_t index = 0;
+
+        for (const Node& arrayItem : arrayNode.Sequence())
+        {
+            if (!arrayItem.IsScalar())
+            {
+                strstr << '[' << index << ']';
+                FIELD_ERROR(strstr.str());
+            }
+            index++;
+
+            arrayValue.emplace_back(arrayItem.as<std::wstring>());
+        }
+
+        (unit->*propertyFunction)(std::move(arrayValue));
+    }
+
+    void ConfigurationSetParser_0_1::GetValueSet(const Node& item, std::string_view mapName, bool required, const Windows::Foundation::Collections::ValueSet& valueSet)
+    {
+        const Node& mapNode = item[mapName];
+
+        if (mapNode)
+        {
+            FIELD_ERROR_IF(!mapNode.IsMap(), mapName);
+        }
+        else
+        {
+            FIELD_ERROR_IF(required, mapName);
+            return;
+        }
+
+        FillValueSetFromMap(mapNode, valueSet);
     }
 }

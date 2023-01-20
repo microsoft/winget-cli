@@ -5,9 +5,11 @@
 
 #include <AppInstallerErrors.h>
 #include <AppInstallerLogging.h>
+#include <AppInstallerStrings.h>
 #include <AppInstallerVersions.h>
 #include <winget/Yaml.h>
 
+#include "ConfigurationSetParserError.h"
 #include "ConfigurationSetParser_0_1.h"
 
 namespace winrt::Microsoft::Management::Configuration::implementation
@@ -48,25 +50,32 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     std::unique_ptr<ConfigurationSetParser> ConfigurationSetParser::Create(std::string_view input)
     {
-        AppInstaller::YAML::Node document = AppInstaller::YAML::Load(input);
+        AppInstaller::YAML::Node document;
+        
+        try
+        {
+            document = AppInstaller::YAML::Load(input);
+        }
+        CATCH_LOG();
+
         if (!document.IsMap())
         {
             AICLI_LOG(Config, Info, << "Invalid YAML");
-            return {};
+            return std::make_unique<ConfigurationSetParserError>(WINGET_CONFIG_ERROR_INVALID_YAML);
         }
 
         AppInstaller::YAML::Node& popertiesNode = document[NodeName_Properties];
         if (!popertiesNode.IsMap())
         {
             AICLI_LOG(Config, Info, << "Invalid properties");
-            return {};
+            return std::make_unique<ConfigurationSetParserError>(WINGET_CONFIG_ERROR_INVALID_FIELD, NodeName_Properties);
         }
 
         AppInstaller::YAML::Node& versionNode = popertiesNode[NodeName_ConfigurationVersion];
         if (!versionNode.IsScalar())
         {
             AICLI_LOG(Config, Info, << "Invalid configuration version");
-            return {};
+            return std::make_unique<ConfigurationSetParserError>(WINGET_CONFIG_ERROR_INVALID_FIELD, NodeName_ConfigurationVersion);
         }
 
         AppInstaller::Utility::SemanticVersion schemaVersion(versionNode.as<std::string>());
@@ -77,6 +86,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
 
         AICLI_LOG(Config, Info, << "Unknown configuration version: " << schemaVersion.ToString());
-        return {};
+        return std::make_unique<ConfigurationSetParserError>(WINGET_CONFIG_ERROR_UKNOWN_CONFIGURATION_FILE_VERSION);
+    }
+
+    void ConfigurationSetParser::SetError(hresult result, std::string_view field)
+    {
+        m_result = result;
+        m_field = AppInstaller::Utility::ConvertToUTF16(field);
     }
 }

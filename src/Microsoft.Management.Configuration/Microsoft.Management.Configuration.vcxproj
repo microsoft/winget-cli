@@ -136,12 +136,14 @@
     <ClInclude Include="ConfigurationSet.h" />
     <ClInclude Include="ConfigurationSetChangeData.h" />
     <ClInclude Include="ConfigurationSetParser.h" />
+    <ClInclude Include="ConfigurationSetParserError.h" />
     <ClInclude Include="ConfigurationSetParser_0_1.h" />
     <ClInclude Include="ConfigurationUnit.h" />
     <ClInclude Include="ConfigurationUnitResultInformation.h" />
     <ClInclude Include="DiagnosticInformation.h" />
     <ClInclude Include="GetConfigurationUnitSettingsResult.h" />
     <ClInclude Include="MutableFlag.h" />
+    <ClInclude Include="OpenConfigurationSetResult.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="TestConfigurationSetResult.h" />
     <ClInclude Include="TestConfigurationUnitResult.h" />
@@ -162,6 +164,7 @@
     <ClCompile Include="DiagnosticInformation.cpp" />
     <ClCompile Include="GetConfigurationUnitSettingsResult.cpp" />
     <ClCompile Include="MutableFlag.cpp" />
+    <ClCompile Include="OpenConfigurationSetResult.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>

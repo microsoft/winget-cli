@@ -3,9 +3,6 @@
 #include "pch.h"
 #include "ConfigurationSet.h"
 #include "ConfigurationSet.g.cpp"
-#include "ConfigurationSetParser.h"
-
-#include <AppInstallerErrors.h>
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
@@ -16,27 +13,14 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_instanceIdentifier = instanceIdentifier;
     }
 
-    ConfigurationSet::ConfigurationSet(const Windows::Storage::Streams::IInputStream& stream) : ConfigurationSet()
-    {
-        bool throwException = true;
-
-        try
-        {
-            std::unique_ptr<ConfigurationSetParser> parser = ConfigurationSetParser::Create(stream);
-            if (parser)
-            {
-                m_configurationUnits = winrt::single_threaded_vector<ConfigurationUnit>(parser->GetConfigurationUnits());
-                throwException = false;
-            }
-        }
-        CATCH_LOG();
-
-        THROW_HR_IF(WINGET_CONFIG_ERROR_INVALID_CONFIGURATION_FILE, throwException);
-    }
-
     ConfigurationSet::ConfigurationSet(const guid& instanceIdentifier) :
         m_instanceIdentifier(instanceIdentifier), m_mutableFlag(false)
     {
+    }
+
+    void ConfigurationSet::Initialize(std::vector<Configuration::ConfigurationUnit>&& units)
+    {
+        m_configurationUnits = winrt::single_threaded_vector<Configuration::ConfigurationUnit>(std::move(units));
     }
 
     hstring ConfigurationSet::Name()

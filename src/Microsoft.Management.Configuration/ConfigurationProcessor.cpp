@@ -3,6 +3,11 @@
 #include "pch.h"
 #include "ConfigurationProcessor.h"
 #include "ConfigurationProcessor.g.cpp"
+#include "ConfigurationSet.h"
+#include "OpenConfigurationSetResult.h"
+#include "ConfigurationSetParser.h"
+
+#include <AppInstallerErrors.h>
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
@@ -35,9 +40,45 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_configurationChange.remove(token);
     }
 
-    Windows::Foundation::Collections::IVector<ConfigurationSet> ConfigurationProcessor::GetConfigurationHistory()
+    Windows::Foundation::Collections::IVector<Configuration::ConfigurationSet> ConfigurationProcessor::GetConfigurationHistory()
     {
         THROW_HR(E_NOTIMPL);
+    }
+
+    Configuration::OpenConfigurationSetResult ConfigurationProcessor::OpenConfigurationSet(Windows::Storage::Streams::IInputStream stream)
+    {
+        auto result = make_self<wil::details::module_count_wrapper<OpenConfigurationSetResult>>();
+
+        try
+        {
+            std::unique_ptr<ConfigurationSetParser> parser = ConfigurationSetParser::Create(stream);
+            if (FAILED(parser->Result()))
+            {
+                result->Initialize(parser->Result(), parser->Field());
+                return *result;
+            }
+
+            auto configurationSet = make_self<wil::details::module_count_wrapper<implementation::ConfigurationSet>>();
+            configurationSet->Initialize(parser->GetConfigurationUnits());
+            if (FAILED(parser->Result()))
+            {
+                result->Initialize(parser->Result(), parser->Field());
+                return *result;
+            }
+
+            result->Initialize(*configurationSet);
+        }
+        catch(const wil::ResultException& resultException)
+        {
+            result->Initialize(resultException.GetErrorCode());
+        }
+        catch (...)
+        {
+            result->Initialize(WINGET_CONFIG_ERROR_INVALID_CONFIGURATION_FILE);
+            LOG_CAUGHT_EXCEPTION();
+        }
+
+        return *result;
     }
 
     Windows::Foundation::IAsyncOperation<Windows::Foundation::Collections::IVectorView<ConfigurationConflict>> ConfigurationProcessor::CheckForConflictsAsync(

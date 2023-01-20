@@ -7,7 +7,7 @@
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
-    // Interface for parsing a configuration set stream.
+    // Parser for schema version 0.1
     struct ConfigurationSetParser_0_1 : public ConfigurationSetParser
     {
         ConfigurationSetParser_0_1(AppInstaller::YAML::Node&& document) : m_document(std::move(document)) {}
@@ -23,6 +23,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         std::vector<Configuration::ConfigurationUnit> GetConfigurationUnits() override;
 
     protected:
+        void ParseConfigurationUnitsFromSubsection(const AppInstaller::YAML::Node& document, std::string_view subsection, ConfigurationUnitIntent intent, std::vector<Configuration::ConfigurationUnit>& result);
+        void GetStringValueForUnit(const AppInstaller::YAML::Node& item, std::string_view valueName, bool required, ConfigurationUnit* unit, void(ConfigurationUnit::* propertyFunction)(const hstring& value));
+        void GetStringArrayForUnit(const AppInstaller::YAML::Node& item, std::string_view arrayName, ConfigurationUnit* unit, void(ConfigurationUnit::* propertyFunction)(std::vector<hstring>&& value));
+        void GetValueSet(const AppInstaller::YAML::Node& item, std::string_view mapName, bool required, const Windows::Foundation::Collections::ValueSet& valueSet);
+
         AppInstaller::YAML::Node m_document;
     };
 }

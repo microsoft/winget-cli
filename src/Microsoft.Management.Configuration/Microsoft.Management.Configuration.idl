@@ -215,9 +215,6 @@ namespace Microsoft.Management.Configuration
     {
         // Creates an empty, mutable configuration set for authoring purposes.
         ConfigurationSet();
-
-        // Loads a mutable configuration set from the given stream.
-        ConfigurationSet(Windows.Storage.Streams.IInputStream stream);
         
         // The name of the set; if from a file this could be the file name.
         // Can be changed if a mutable set.
@@ -277,9 +274,9 @@ namespace Microsoft.Management.Configuration
         void ApplySettings();
     }
 
-    // Allows different runtimes to provide specialized handling of configuration processing.
+    // Controls the lifetime of operations for a single configuration set.
     [contract(Microsoft.Management.Configuration.Contract, 1)]
-    interface IConfigurationProcessorFactory
+    interface IConfigurationSetProcessor
     {
         // Gets the configuration unit processor details for the given unit.
         IConfigurationUnitProcessorDetails GetUnitProcessorDetails(ConfigurationUnit unit, ConfigurationUnitDetailLevel detailLevel);
@@ -288,6 +285,14 @@ namespace Microsoft.Management.Configuration
         // The optional `directivesOverlay` parameter allows for the `ConfigurationProcessor` to alter behavior without needing to change the unit itself.
         // The overlay is searched first; any value not present there will then fall back to the unit's directives.
         IConfigurationUnitProcessor CreateUnitProcessor(ConfigurationUnit unit, Windows.Foundation.Collections.IMapView<String, Object> directivesOverlay);
+    }
+
+    // Allows different runtimes to provide specialized handling of configuration processing.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    interface IConfigurationProcessorFactory
+    {
+        // Creates a configuration set processor for the given set.
+        IConfigurationSetProcessor CreateSetProcessor(ConfigurationSet configurationSet);
     }
 
     // The level of the diagnostic information.
@@ -334,6 +339,20 @@ namespace Microsoft.Management.Configuration
 
         // The state of the configuration set for this event (the ConfigurationSet can be used to get the current state, which may be different).
         ConfigurationSetState State{ get; };
+    }
+
+    // The result of calling OpenConfigurationSet, containing either the set or details about the failure.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    runtimeclass OpenConfigurationSetResult
+    {
+        // The configuration set if successful; null otherwise.
+        ConfigurationSet Set{ get; };
+
+        // The result from opening the set.
+        HRESULT ResultCode{ get; };
+
+        // The field that is missing/invalid, if appropriate for the specific ResultCode.
+        String Field{ get; };
     }
 
     // The type of conflict between configuration sets that was detected.
@@ -476,6 +495,9 @@ namespace Microsoft.Management.Configuration
         // Gets the configuration sets that have already been applied or the intent to be applied (this may include in progress sets or those that are waiting on others).
         // These configuration sets will be marked as immutable.
         Windows.Foundation.Collections.IVector<ConfigurationSet> GetConfigurationHistory();
+
+        // Loads a mutable configuration set from the given stream.
+        OpenConfigurationSetResult OpenConfigurationSet(Windows.Storage.Streams.IInputStream stream);
 
         // Checks for conflicts amongst the configuration sets provided, optionally including the configuration sets already applied to the system.
         Windows.Foundation.IAsyncOperation< Windows.Foundation.Collections.IVectorView<ConfigurationConflict> > CheckForConflictsAsync(Windows.Foundation.Collections.IVectorView<ConfigurationSet> configurationSets, Boolean includeConfigurationHistory);

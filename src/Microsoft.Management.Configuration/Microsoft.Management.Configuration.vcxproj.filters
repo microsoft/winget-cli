@@ -54,6 +54,9 @@
     <ClCompile Include="ConfigurationSetParser_0_1.cpp">
       <Filter>Parser</Filter>
     </ClCompile>
+    <ClCompile Include="OpenConfigurationSetResult.cpp">
+      <Filter>API Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -106,6 +109,12 @@
       <Filter>Parser</Filter>
     </ClInclude>
     <ClInclude Include="ConfigurationSetParser_0_1.h">
+      <Filter>Parser</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenConfigurationSetResult.h">
+      <Filter>API Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigurationSetParserError.h">
       <Filter>Parser</Filter>
     </ClInclude>
   </ItemGroup>

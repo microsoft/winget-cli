@@ -4,6 +4,7 @@
 #include <ConfigurationUnit.h>
 #include <winrt/Windows.Storage.Streams.h>
 #include <memory>
+#include <string_view>
 #include <vector>
 
 using namespace std::string_view_literals;
@@ -32,7 +33,19 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // Retrieve the configuration units from the parser.
         virtual std::vector<Configuration::ConfigurationUnit> GetConfigurationUnits() = 0;
 
+        // The latest result code from the parser.
+        hresult Result() const { return m_result; }
+
+        // The field related to the result code.
+        hstring Field() const { return m_field; }
+
     protected:
         ConfigurationSetParser() = default;
+
+        // Set the error state
+        void SetError(hresult result, std::string_view field = {});
+
+        hresult m_result;
+        hstring m_field;
     };
 }
