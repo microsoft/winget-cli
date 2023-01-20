@@ -54,7 +54,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::CustomSwitches),
             Argument::ForType(Args::Type::Override),
             Argument::ForType(Args::Type::InstallLocation), // -l
-            Argument{ s_ArgumentName_Scope, Argument::NoAlias, Execution::Args::Type::InstallScope, Resource::String::InstalledScopeArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help },
+            Argument{ Execution::Args::Type::InstallScope, Resource::String::InstalledScopeArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help },
             Argument::ForType(Args::Type::InstallArchitecture), // -a
             Argument::ForType(Args::Type::Locale),
             Argument::ForType(Args::Type::HashOverride),
@@ -62,8 +62,8 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::AcceptPackageAgreements),
             Argument::ForType(Args::Type::AcceptSourceAgreements),
             Argument::ForType(Execution::Args::Type::CustomHeader),
-            Argument{ "all"_liv, 'r', "recurse"_liv, Args::Type::All, Resource::String::UpdateAllArgumentDescription, ArgumentType::Flag },
-            Argument{ "include-unknown"_liv, 'u', "unknown"_liv, Args::Type::IncludeUnknown, Resource::String::IncludeUnknownArgumentDescription, ArgumentType::Flag },
+            Argument{ Args::Type::All, Resource::String::UpdateAllArgumentDescription, ArgumentType::Flag },
+            Argument{ Args::Type::IncludeUnknown, Resource::String::IncludeUnknownArgumentDescription, ArgumentType::Flag },
             Argument::ForType(Args::Type::UninstallPrevious),
             Argument::ForType(Args::Type::Force),
         };
@@ -128,11 +128,11 @@ namespace AppInstaller::CLI
 
     void UpgradeCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
     {
-        const auto ArgCategories = Argument::GetCategoriesAndValidateCommonArguments(execArgs, /* requirePackageSelectionArg */ false);
+        const auto argCategories = Argument::GetCategoriesAndValidateCommonArguments(execArgs, /* requirePackageSelectionArg */ false);
 
-        if (!ShouldListUpgrade(execArgs, ArgCategories) &&
-            WI_IsFlagClear(ArgCategories, ArgTypeCategory::PackageQuery) &&
-            WI_IsFlagSet(ArgCategories, ArgTypeCategory::InstallerBehavior))
+        if (!ShouldListUpgrade(execArgs, argCategories) &&
+            WI_IsFlagClear(argCategories, ArgTypeCategory::PackageQuery) &&
+            WI_IsFlagSet(argCategories, ArgTypeCategory::InstallerBehavior))
         {
             throw CommandException(Resource::String::InvalidArgumentWithoutQueryError);
         }

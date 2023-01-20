@@ -138,8 +138,8 @@ namespace AppInstaller::CLI
     {
         return
         {
-            Argument{ "version", 'v', Execution::Args::Type::ListVersions, Resource::String::ToolVersionArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help },
-            Argument{ "info", Argument::NoAlias, Execution::Args::Type::Info, Resource::String::ToolInfoArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help },
+            Argument{ Execution::Args::Type::ToolVersion, Resource::String::ToolVersionArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help },
+            Argument{ Execution::Args::Type::Info, Resource::String::ToolInfoArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help },
         };
     }
 
@@ -211,7 +211,7 @@ namespace AppInstaller::CLI
 
             OutputGroupPolicies(context);
         }
-        else if (context.Args.Contains(Execution::Args::Type::ListVersions))
+        else if (context.Args.Contains(Execution::Args::Type::ToolVersion))
         {
             context.Reporter.Info() << 'v' << Runtime::GetClientVersion() << std::endl;
         }

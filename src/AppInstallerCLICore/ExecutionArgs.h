@@ -10,7 +10,7 @@ namespace AppInstaller::CLI::Execution
 {
     struct Args
     {
-        enum class Type
+        enum class Type : uint32_t
         {
             // Args to specify where to get app
             Query, // Query to be performed against index
@@ -31,7 +31,6 @@ namespace AppInstaller::CLI::Execution
             Channel,
 
             // Install behavior
-            // When adding a new flag, we may need to copy it in Context::CreateSubContext()
             Interactive,
             Silent,
             Locale,
@@ -111,8 +110,13 @@ namespace AppInstaller::CLI::Execution
             CustomHeader, // Optional Rest source header
             AcceptSourceAgreements, // Accept all source agreements
 
+            ToolVersion,
+
             // Used for demonstration purposes
             ExperimentalArg,
+
+            // This should always be at the end
+            Max
         };
 
         bool Contains(Type arg) const { return (m_parsedArgs.count(arg) != 0); }
@@ -156,17 +160,17 @@ namespace AppInstaller::CLI::Execution
             m_parsedArgs[arg].emplace_back(value);
         }
 
-        bool Empty()
+        bool Empty() const
         {
             return m_parsedArgs.empty();
         }
 
-        size_t GetArgsCount()
+        size_t GetArgsCount() const
         {
             return m_parsedArgs.size();
         }
 
-        std::vector<Type> GetTypes()
+        std::vector<Type> GetTypes() const
         {
             std::vector<Type> types;
 

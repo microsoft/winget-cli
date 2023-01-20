@@ -26,7 +26,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Channel),
             Argument::ForType(Args::Type::Source),
             Argument::ForType(Args::Type::Exact),
-            Argument{ s_ArgumentName_Scope, Argument::NoAlias, Execution::Args::Type::InstallScope, Resource::String::InstalledScopeArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help },
+            Argument{ Execution::Args::Type::InstallScope, Resource::String::InstalledScopeArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help },
             Argument::ForType(Args::Type::Interactive),
             Argument::ForType(Args::Type::Silent),
             Argument::ForType(Args::Type::Force),
@@ -90,11 +90,6 @@ namespace AppInstaller::CLI
     void UninstallCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
     {
         Argument::ValidateCommonArguments(execArgs);
-
-        if (execArgs.Contains(Execution::Args::Type::Purge) && execArgs.Contains(Execution::Args::Type::Preserve))
-        {
-            throw CommandException(Resource::String::BothPurgeAndPreserveFlagsProvided);
-        }
     }
 
     void UninstallCommand::ExecuteInternal(Execution::Context& context) const

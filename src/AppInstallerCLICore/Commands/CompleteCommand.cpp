@@ -13,9 +13,9 @@ namespace AppInstaller::CLI
     std::vector<Argument> CompleteCommand::GetArguments() const
     {
         return {
-            Argument{ "word", Argument::NoAlias, Args::Type::Word, Resource::String::WordArgumentDescription, ArgumentType::Standard, Argument::Visibility::Example, true },
-            Argument{ "commandline", Argument::NoAlias, Args::Type::CommandLine, Resource::String::CommandLineArgumentDescription, ArgumentType::Standard, Argument::Visibility::Example, true },
-            Argument{ "position", Argument::NoAlias, Args::Type::Position, Resource::String::PositionArgumentDescription, ArgumentType::Standard, Argument::Visibility::Example, true },
+            Argument{ Args::Type::Word, Resource::String::WordArgumentDescription, ArgumentType::Standard, Argument::Visibility::Example, true },
+            Argument{ Args::Type::CommandLine, Resource::String::CommandLineArgumentDescription, ArgumentType::Standard, Argument::Visibility::Example, true },
+            Argument{ Args::Type::Position, Resource::String::PositionArgumentDescription, ArgumentType::Standard, Argument::Visibility::Example, true },
         };
     }
 
