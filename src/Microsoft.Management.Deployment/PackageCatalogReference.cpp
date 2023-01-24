@@ -6,6 +6,7 @@
 #include "PackageCatalogReference.g.cpp"
 #include "PackageCatalogInfo.h"
 #include "PackageCatalog.h"
+#include "SourceAgreement.h"
 #include "ConnectResult.h"
 #include "Workflows/WorkflowBase.h"
 #include "Converters.h"
@@ -123,6 +124,18 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         {
         }
         return GetConnectCatalogErrorResult();
+    }
+
+    winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::SourceAgreement> PackageCatalogReference::SourceAgreements()
+    {
+        for (auto const& agreement : m_sourceReference.GetInformation().SourceAgreements)
+        {
+            auto sourceAgreement = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::SourceAgreement>>();
+            sourceAgreement->Initialize(agreement);
+            m_sourceAgreements.Append(*sourceAgreement);
+        }
+
+        return m_sourceAgreements.GetView();
     }
 
     hstring PackageCatalogReference::AdditionalPackageCatalogArguments()

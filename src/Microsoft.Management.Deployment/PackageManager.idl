@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 namespace Microsoft.Management.Deployment
 {
-    [contractversion(6)]
+    [contractversion(7)]
     apicontract WindowsPackageManagerContract{};
 
     /// State of the install
@@ -558,7 +558,7 @@ namespace Microsoft.Management.Deployment
         /// If true, the results were truncated by the given ResultLimit
         /// USAGE NOTE: Windows Package Manager does not support result pagination, there is no way to continue 
         /// getting more results.
-        Boolean WasLimitExceeded{ get; };
+        Boolean WasLimitExceeded { get; };
     }
 
     /// Options for FindPackages
@@ -642,6 +642,12 @@ namespace Microsoft.Management.Deployment
         {
             /// A string that will be passed to the source server if using a REST source
             String AdditionalPackageCatalogArguments;
+        }
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 7)]
+        {
+            /// Gets the required agreements for connecting to the package catalog (source).
+            Windows.Foundation.Collections.IVectorView<SourceAgreement> SourceAgreements{ get; };
         }
     }
 
@@ -826,6 +832,26 @@ namespace Microsoft.Management.Deployment
         }
     }
 
+    /// Options when connecting to a package catalog.
+    /// Intended to allow agreements to be exposed and passed when connecting to the package catalog.
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 7)]
+    runtimeclass ConnectOptions
+    {
+        ConnectOptions();
+
+        Windows.Foundation.Collections.IVector<SourceAgreement> SourceAgreements;
+    }
+        
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 7)]
+    runtimeclass SourceAgreement
+    {
+        String Label { get; };
+
+        String Text{ get; };
+    
+        String Url{ get; };
+    }
+
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
     runtimeclass PackageManager
     {
@@ -934,5 +960,7 @@ namespace Microsoft.Management.Deployment
         interface Windows.Foundation.Collections.IVectorView<PackageInstallerInstalledStatus>;
         interface Windows.Foundation.Collections.IVector<CheckInstalledStatusResult>;
         interface Windows.Foundation.Collections.IVectorView<CheckInstalledStatusResult>;
+        interface Windows.Foundation.Collections.IVector<SourceAgreement>;
+        interface Windows.Foundation.Collections.IVectorView<SourceAgreement>;
     }
 }

@@ -138,6 +138,7 @@
   <ItemGroup>
     <ClInclude Include="CatalogPackage.h" />
     <ClInclude Include="CheckInstalledStatusResult.h" />
+    <ClInclude Include="ConnectOptions.h" />
     <ClInclude Include="ConnectResult.h" />
     <ClInclude Include="Converters.h" />
     <ClInclude Include="CreateCompositePackageCatalogOptions.h" />
@@ -160,6 +161,7 @@
     <ClInclude Include="PackageVersionInfo.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Public\ComClsids.h" />
+    <ClInclude Include="SourceAgreement.h" />
     <ClInclude Include="UninstallOptions.h" />
     <ClInclude Include="UninstallResult.h" />
   </ItemGroup>
@@ -167,6 +169,7 @@
     <ClCompile Include="CatalogPackage.cpp" />
     <ClCompile Include="CheckInstalledStatusResult.cpp" />
     <ClCompile Include="ComClsids.cpp" />
+    <ClCompile Include="ConnectOptions.cpp" />
     <ClCompile Include="ConnectResult.cpp" />
     <ClCompile Include="Converters.cpp" />
     <ClCompile Include="CreateCompositePackageCatalogOptions.cpp" />
@@ -190,6 +193,7 @@
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="SourceAgreement.cpp" />
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
     <ClCompile Include="UninstallOptions.cpp" />
     <ClCompile Include="UninstallResult.cpp" />

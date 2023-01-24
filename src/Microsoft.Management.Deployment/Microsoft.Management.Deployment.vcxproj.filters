@@ -2,6 +2,7 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="CatalogPackage.cpp" />
+    <ClCompile Include="ConnectOptions.cpp" />
     <ClCompile Include="ConnectResult.cpp" />
     <ClCompile Include="Converters.cpp" />
     <ClCompile Include="CreateCompositePackageCatalogOptions.cpp" />
@@ -20,6 +21,7 @@
     <ClCompile Include="PackageVersionInfo.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
+    <ClCompile Include="SourceAgreement.cpp" />
     <ClCompile Include="UninstallOptions.cpp" />
     <ClCompile Include="UninstallResult.cpp" />
     <ClCompile Include="ComClsids.cpp" />
@@ -31,6 +33,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CatalogPackage.h" />
+    <ClCompile Include="ConnectOptions.h" />
     <ClInclude Include="ConnectResult.h" />
     <ClInclude Include="Converters.h" />
     <ClInclude Include="CreateCompositePackageCatalogOptions.h" />
@@ -48,6 +51,7 @@
     <ClInclude Include="PackageVersionId.h" />
     <ClInclude Include="PackageVersionInfo.h" />
     <ClInclude Include="pch.h" />
+    <ClCompile Include="SourceAgreement.h" />
     <ClInclude Include="UninstallOptions.h" />
     <ClInclude Include="UninstallResult.h" />
     <ClInclude Include="Public\ComClsids.h">

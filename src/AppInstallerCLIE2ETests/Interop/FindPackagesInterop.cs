@@ -64,5 +64,19 @@ namespace AppInstallerCLIE2ETests.Interop
             // Assert
             Assert.AreEqual(2, searchResult.Count);
         }
+
+        /// <summary>
+        /// Test to find a package with agreements and verify COM output.
+        /// </summary>
+        [Test]
+        public void FindPackagesVerifyAgreements()
+        {
+            // Find package
+            var searchResult = this.FindAllPackages(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.PackageAgreements");
+
+            // Assert
+            Assert.AreEqual(1, searchResult.Count);
+            //searchResult[0].CatalogPackage.Agreements.
+        }
     }
 }

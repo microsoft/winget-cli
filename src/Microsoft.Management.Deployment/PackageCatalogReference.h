@@ -19,6 +19,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         winrt::Microsoft::Management::Deployment::PackageCatalogInfo Info();
         winrt::Windows::Foundation::IAsyncOperation<winrt::Microsoft::Management::Deployment::ConnectResult> ConnectAsync();
         winrt::Microsoft::Management::Deployment::ConnectResult Connect();
+        winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::SourceAgreement> SourceAgreements();
         hstring AdditionalPackageCatalogArguments();
         void AdditionalPackageCatalogArguments(hstring const& value);
 
@@ -26,6 +27,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     private:
         winrt::Microsoft::Management::Deployment::CreateCompositePackageCatalogOptions m_compositePackageCatalogOptions{ nullptr };
         winrt::Microsoft::Management::Deployment::PackageCatalogInfo m_info{ nullptr };
+        winrt::Windows::Foundation::Collections::IVector<winrt::Microsoft::Management::Deployment::SourceAgreement> m_sourceAgreements{ winrt::single_threaded_vector<winrt::Microsoft::Management::Deployment::SourceAgreement>() };
         ::AppInstaller::Repository::Source m_sourceReference;
         std::optional<std::string> m_additionalPackageCatalogArguments;
 #endif

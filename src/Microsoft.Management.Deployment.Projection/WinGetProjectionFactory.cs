@@ -23,6 +23,8 @@ namespace Microsoft.Management.Deployment.Projection
 
         public CreateCompositePackageCatalogOptions CreateCreateCompositePackageCatalogOptions() => InstanceInitializer.CreateInstance<CreateCompositePackageCatalogOptions>();
 
+        public ConnectOptions CreateConnectOptions() => InstanceInitializer.CreateInstance<ConnectOptions>();
+
         public InstallOptions CreateInstallOptions() => InstanceInitializer.CreateInstance<InstallOptions>();
 
         public UninstallOptions CreateUninstallOptions() => InstanceInitializer.CreateInstance<UninstallOptions>();
