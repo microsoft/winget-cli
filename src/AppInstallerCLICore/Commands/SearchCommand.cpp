@@ -76,26 +76,22 @@ namespace AppInstaller::CLI
     {
         context.SetFlags(Execution::ContextFlag::TreatSourceFailuresAsWarning);
 
+        context <<
+            Workflow::OpenSource() <<
+            Workflow::SearchSourceForMany <<
+            Workflow::HandleSearchResultFailures <<
+            Workflow::EnsureOneMatchFromSearchResult(false);
 
-        if (context.Args.Contains(Execution::Args::Type::ListVersions))
-        {
-            context <<
-                Workflow::OpenSource() <<
-                Workflow::SearchSourceForMany <<
-                Workflow::HandleSearchResultFailures <<
-                Workflow::EnsureOneMatchFromSearchResult(false) <<
+            if (context.Args.Contains(Execution::Args::Type::ListVersions))
+            {
+                context <<
                 Workflow::ReportPackageIdentity <<
                 Workflow::ShowAppVersions;
-        }
-        else
-        {
-            context <<
-                Workflow::OpenSource() <<
-                Workflow::SearchSourceForMany <<
-                Workflow::HandleSearchResultFailures <<
-                Workflow::EnsureMatchesFromSearchResult(false) <<
-                Workflow::ReportSearchResult;
-        }
+            }
+            else
+            {
+                context << Workflow::ReportSearchResult;
+            }
         
     }
 }
