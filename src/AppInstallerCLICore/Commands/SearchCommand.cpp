@@ -79,18 +79,20 @@ namespace AppInstaller::CLI
         context <<
             Workflow::OpenSource() <<
             Workflow::SearchSourceForMany <<
-            Workflow::HandleSearchResultFailures <<
-            Workflow::EnsureOneMatchFromSearchResult(false);
+            Workflow::HandleSearchResultFailures;
 
             if (context.Args.Contains(Execution::Args::Type::ListVersions))
             {
                 context <<
+                Workflow::EnsureOneMatchFromSearchResult(false) <<
                 Workflow::ReportPackageIdentity <<
                 Workflow::ShowAppVersions;
             }
             else
             {
-                context << Workflow::ReportSearchResult;
+                context << 
+                    Workflow::EnsureMatchesFromSearchResult(false) <<
+                    Workflow::ReportSearchResult;
             }
         
     }
