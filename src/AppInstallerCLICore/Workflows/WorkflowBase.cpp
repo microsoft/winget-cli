@@ -712,7 +712,18 @@ namespace AppInstaller::CLI::Workflow
         auto &source = context.Get<Execution::Data::Source>();
         bool shouldShowSource = source.IsComposite() && source.GetAvailableSources().size() > 1;
 
-        PinBehavior pinBehavior = context.Args.Contains(Execution::Args::Type::IncludePinned) ? PinBehavior::IncludePinned : PinBehavior::ConsiderPins;
+        PinBehavior pinBehavior;
+        if (m_onlyShowUpgrades)
+        {
+            // For listing upgrades, show the version we would upgrade to with the given pins.
+            pinBehavior = context.Args.Contains(Execution::Args::Type::IncludePinned) ? PinBehavior::IncludePinned : PinBehavior::ConsiderPins;
+        }
+        else
+        {
+            // For listing installed apps, show the latest available.
+            pinBehavior = PinBehavior::IgnorePins;
+        }
+
         for (const auto& match : searchResult.Matches)
         {
             auto installedVersion = match.Package->GetInstalledVersion();
