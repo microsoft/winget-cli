@@ -8,7 +8,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 {
     void ApplyConfigurationSetResult::Initialize(std::vector<ApplyConfigurationUnitResult>&& unitResults, hresult resultCode)
     {
-        m_unitResults = winrt::single_threaded_vector<ApplyConfigurationUnitResult>(std::move(unitResults));
+        m_unitResults = single_threaded_vector(std::move(unitResults));
         m_resultCode = resultCode;
     }
 

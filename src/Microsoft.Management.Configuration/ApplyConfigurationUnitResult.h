@@ -7,6 +7,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 {
     struct ApplyConfigurationUnitResult : ApplyConfigurationUnitResultT<ApplyConfigurationUnitResult>
     {
+        using ConfigurationUnit = Configuration::ConfigurationUnit;
+        using ConfigurationUnitResultInformation = Configuration::ConfigurationUnitResultInformation;
+
         ApplyConfigurationUnitResult() = default;
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)

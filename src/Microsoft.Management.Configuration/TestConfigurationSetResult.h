@@ -8,10 +8,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 {
     struct TestConfigurationSetResult : TestConfigurationSetResultT<TestConfigurationSetResult>
     {
-        TestConfigurationSetResult() = default;
+        TestConfigurationSetResult();
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
-        void Initialize();
+        void AppendUnitResult(const TestConfigurationUnitResult& unitResult);
+        void TestResult(bool value);
 #endif
 
         Windows::Foundation::Collections::IVectorView<TestConfigurationUnitResult> UnitResults();

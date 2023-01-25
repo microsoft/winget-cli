@@ -14,7 +14,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
         ConfigurationUnit(const guid& instanceIdentifier);
-        void Dependencies(std::vector<hstring>&& value);
 #endif
 
         hstring UnitName();
@@ -45,6 +44,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         void ShouldApply(bool value);
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
+        void Dependencies(std::vector<hstring>&& value);
+        void Details(IConfigurationUnitProcessorDetails&& details);
+
     private:
         hstring m_unitName;
         guid m_instanceIdentifier;

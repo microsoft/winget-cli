@@ -57,6 +57,12 @@
     <ClCompile Include="OpenConfigurationSetResult.cpp">
       <Filter>API Source</Filter>
     </ClCompile>
+    <ClCompile Include="ConfigThreadGlobals.cpp">
+      <Filter>Internals</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigurationSetApplyProcessor.cpp">
+      <Filter>Internals</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -116,6 +122,15 @@
     </ClInclude>
     <ClInclude Include="ConfigurationSetParserError.h">
       <Filter>Parser</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigThreadGlobals.h">
+      <Filter>Internals</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigurationSetApplyProcessor.h">
+      <Filter>Internals</Filter>
+    </ClInclude>
+    <ClInclude Include="ExceptionResultHelpers.h">
+      <Filter>Internals</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

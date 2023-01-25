@@ -6,9 +6,13 @@
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
-    void TestConfigurationSetResult::Initialize()
+    TestConfigurationSetResult::TestConfigurationSetResult() : m_unitResults(single_threaded_vector<TestConfigurationUnitResult>())
     {
+    }
 
+    void TestConfigurationSetResult::AppendUnitResult(const TestConfigurationUnitResult& unitResult)
+    {
+        m_unitResults.Append(unitResult);
     }
 
     Windows::Foundation::Collections::IVectorView<TestConfigurationUnitResult> TestConfigurationSetResult::UnitResults()
@@ -19,5 +23,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     bool TestConfigurationSetResult::TestResult()
     {
         return m_testResult;
+    }
+
+    void TestConfigurationSetResult::TestResult(bool value)
+    {
+        m_testResult = value;
     }
 }

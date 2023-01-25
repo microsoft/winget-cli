@@ -12,9 +12,20 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_description = description;
     }
 
+    void ConfigurationUnitResultInformation::Initialize(hresult resultCode, hstring description)
+    {
+        m_resultCode = resultCode;
+        m_description = description;
+    }
+
     hresult ConfigurationUnitResultInformation::ResultCode()
     {
         return m_resultCode;
+    }
+
+    void ConfigurationUnitResultInformation::ResultCode(hresult resultCode)
+    {
+        m_resultCode = resultCode;
     }
 
     hstring ConfigurationUnitResultInformation::Description()

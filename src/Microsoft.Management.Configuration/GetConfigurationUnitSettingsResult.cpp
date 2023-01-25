@@ -6,9 +6,9 @@
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
-    void GetConfigurationUnitSettingsResult::Initialize()
+    void GetConfigurationUnitSettingsResult::Initialize(const ConfigurationUnitResultInformation& resultInformation)
     {
-
+        m_resultInformation = resultInformation;
     }
 
     ConfigurationUnitResultInformation GetConfigurationUnitSettingsResult::ResultInformation()
@@ -19,5 +19,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     Windows::Foundation::Collections::ValueSet GetConfigurationUnitSettingsResult::Settings()
     {
         return m_settings;
+    }
+
+    void GetConfigurationUnitSettingsResult::Settings(Windows::Foundation::Collections::ValueSet&& value)
+    {
+        m_settings = std::move(value);
     }
 }

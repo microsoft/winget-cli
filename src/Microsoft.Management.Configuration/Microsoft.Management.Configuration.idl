@@ -26,6 +26,7 @@ namespace Microsoft.Management.Configuration
         ApplicationFailed,
         ApplicationSucceeded,
         SkippedManually,
+        SkippedDueToAssertions,
         SkippedDueToDependencies,
         TestBegun,
         TestFailed,
@@ -272,6 +273,9 @@ namespace Microsoft.Management.Configuration
 
         // Applies the state described in the configuration unit.
         void ApplySettings();
+
+        // Gets the error message from the last attempt to run a command.
+        String GetLastErrorMessage();
     }
 
     // Controls the lifetime of operations for a single configuration set.
@@ -285,6 +289,9 @@ namespace Microsoft.Management.Configuration
         // The optional `directivesOverlay` parameter allows for the `ConfigurationProcessor` to alter behavior without needing to change the unit itself.
         // The overlay is searched first; any value not present there will then fall back to the unit's directives.
         IConfigurationUnitProcessor CreateUnitProcessor(ConfigurationUnit unit, Windows.Foundation.Collections.IMapView<String, Object> directivesOverlay);
+
+        // Gets the error message from the last attempt to run a command.
+        String GetLastErrorMessage();
     }
 
     // Allows different runtimes to provide specialized handling of configuration processing.

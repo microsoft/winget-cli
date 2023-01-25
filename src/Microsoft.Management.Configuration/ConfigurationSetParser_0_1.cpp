@@ -93,6 +93,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         ParseConfigurationUnitsFromSubsection(properties, "assertions", ConfigurationUnitIntent::Assert, result);
         ParseConfigurationUnitsFromSubsection(properties, "parameters", ConfigurationUnitIntent::Inform, result);
         ParseConfigurationUnitsFromSubsection(properties, "resources", ConfigurationUnitIntent::Apply, result);
+        // TODO: Additional semantic validation?
         return result;
     }
 

@@ -7,10 +7,14 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 {
     struct TestConfigurationUnitResult : TestConfigurationUnitResultT<TestConfigurationUnitResult>
     {
+        using ConfigurationUnit = Configuration::ConfigurationUnit;
+        using ConfigurationUnitResultInformation = Configuration::ConfigurationUnitResultInformation;
+
         TestConfigurationUnitResult() = default;
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
-        void Initialize(ConfigurationUnit unit, ConfigurationUnitResultInformation resultInformation, bool testResult);
+        void Initialize(ConfigurationUnit unit, ConfigurationUnitResultInformation resultInformation);
+        void TestResult(bool value);
 #endif
 
         ConfigurationUnit Unit();
