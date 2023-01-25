@@ -242,6 +242,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(PackageAgreementsPrompt);
         WINGET_DEFINE_RESOURCE_STRINGID(PackageAlreadyInstalled);
         WINGET_DEFINE_RESOURCE_STRINGID(PackageDependencies);
+        WINGET_DEFINE_RESOURCE_STRINGID(PackageIsPinned);
         WINGET_DEFINE_RESOURCE_STRINGID(PendingWorkError);
         WINGET_DEFINE_RESOURCE_STRINGID(PinAddBlockingArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PinAddCommandLongDescription);
@@ -441,6 +442,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeRequireExplicitCount);
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeUnknownVersionCount);
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeUnknownVersionExplanation);
+        WINGET_DEFINE_RESOURCE_STRINGID(UpgradeUserPinnedCount);
         WINGET_DEFINE_RESOURCE_STRINGID(Usage);
         WINGET_DEFINE_RESOURCE_STRINGID(UserSettings);
         WINGET_DEFINE_RESOURCE_STRINGID(ValidateCommandLongDescription);

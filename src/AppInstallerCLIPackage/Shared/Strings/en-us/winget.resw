@@ -1657,4 +1657,12 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="UpgradeIsPinned" xml:space="preserve">
     <value>A newer version was found, but the package has a pin that prevents from updating it.</value>
   </data>
+  <data name="PackageIsPinned" xml:space="preserve">
+    <value>The package is pinned and cannot be updated. Use the 'winget pin' command to view and edit pins. Some pin types can be bypassed with the --include-pinned argument.</value>
+    <comment>{Locked="winget pin","--include-pinned"} Error shown when we block an update due to the package being pinned</comment>
+  </data>
+  <data name="UpgradeUserPinnedCount" xml:space="preserve">
+    <value>{0} package(s) have pins that prevent upgrade. Use the 'winget pin' command to view and edit pins. Using the --include-pinned argument may show more results.</value>
+    <comment>{Locked="winget pin","--include-pinned"} {0} is a placeholder replaced by an integer number of packages</comment>
+  </data>
 </root>

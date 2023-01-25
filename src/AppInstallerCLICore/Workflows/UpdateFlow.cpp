@@ -286,16 +286,14 @@ namespace AppInstaller::CLI::Workflow
         if (context.Args.Contains(Execution::Args::Type::Version))
         {
             // If version specified, use the version and verify applicability
-            context <<
-                GetManifestFromPackage;
+            context << GetManifestFromPackage(/* considerPins */ true);
 
             if (m_isUpgrade)
             {
                 context << EnsureUpdateVersionApplicable;
             }
 
-            context <<
-                SelectInstaller;
+            context << SelectInstaller;
         }
         else
         {

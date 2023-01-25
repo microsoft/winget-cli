@@ -214,8 +214,8 @@ namespace AppInstaller
                 return "There is no pin for the package.";
             case APPINSTALLER_CLI_ERROR_CANNOT_OPEN_PINNING_INDEX:
                 return "Unable to open the pin database.";
-            case APPINSTALLER_CLI_ERROR_PACKAGE_HAS_BLOCKING_PIN:
-                return "The package has a blocking pin that prevents upgrade.";
+            case APPINSTALLER_CLI_ERROR_PACKAGE_IS_PINNED:
+                return "The package has a pin that prevents upgrade.";
 
             // Install errors
             case APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE:

@@ -6,6 +6,7 @@
 #include "ManifestComparator.h"
 #include "PromptFlow.h"
 #include "TableOutput.h"
+#include <winget/ExperimentalFeature.h>
 #include <winget/ManifestYamlParser.h>
 #include <winget/Pin.h>
 
@@ -13,6 +14,7 @@ using namespace std::string_literals;
 using namespace AppInstaller::Utility::literals;
 using namespace AppInstaller::Pinning;
 using namespace AppInstaller::Repository;
+using namespace AppInstaller::Settings;
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -706,6 +708,7 @@ namespace AppInstaller::CLI::Workflow
 
         int availableUpgradesCount = 0;
         int packagesWithUnknownVersionSkipped = 0;
+        int packagesWithUserPinsSkipped = 0;
         auto &source = context.Get<Execution::Data::Source>();
         bool shouldShowSource = source.IsComposite() && source.GetAvailableSources().size() > 1;
 
@@ -724,6 +727,16 @@ namespace AppInstaller::CLI::Workflow
                     // We are only showing upgrades, and the user did not request to include packages with unknown versions.
                     ++packagesWithUnknownVersionSkipped;
                     continue;
+                }
+
+                if (m_onlyShowUpgrades && !updateAvailable && ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Pinning))
+                {
+                    bool updateAvailableWithoutPins = match.Package->IsUpdateAvailable(PinBehavior::IgnorePins);
+                    if (updateAvailableWithoutPins)
+                    {
+                        ++packagesWithUserPinsSkipped;
+                        continue;
+                    }
                 }
 
                 // The only time we don't want to output a line is when filtering and no update is available.
@@ -799,6 +812,12 @@ namespace AppInstaller::CLI::Workflow
                 AICLI_LOG(CLI, Info, << packagesWithUnknownVersionSkipped << " package(s) skipped due to unknown installed version");
                 context.Reporter.Info() << Resource::String::UpgradeUnknownVersionCount(packagesWithUnknownVersionSkipped) << std::endl;
             }
+
+            if (packagesWithUserPinsSkipped > 0)
+            {
+                AICLI_LOG(CLI, Info, << packagesWithUserPinsSkipped << " package(s) skipped due to user pins");
+                context.Reporter.Info() << Resource::String::UpgradeUserPinnedCount(packagesWithUserPinsSkipped) << std::endl;
+            }
         }
     }
 
@@ -862,11 +881,54 @@ namespace AppInstaller::CLI::Workflow
     void GetManifestWithVersionFromPackage::operator()(Execution::Context& context) const
     {
         PackageVersionKey key("", m_version, m_channel);
-        auto requestedVersionAndPin = context.Get<Execution::Data::Package>()->GetAvailableVersionAndPin(key);
-        auto requestedVersion = requestedVersionAndPin.first;
-        std::ignore = requestedVersionAndPin.second;
 
-        // TODO: Use pin
+        std::shared_ptr<IPackage> package = context.Get<Execution::Data::Package>();
+        std::shared_ptr<IPackageVersion> requestedVersion;
+
+        if (m_considerPins && ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Pinning))
+        {
+            bool isPinned = false;
+
+            // TODO: The logic here will probably have to get more difficult once we support channels
+            if (Utility::IsEmptyOrWhitespace(m_version) && Utility::IsEmptyOrWhitespace(m_channel))
+            {
+                PinBehavior pinBehavior = context.Args.Contains(Execution::Args::Type::IncludePinned) ? PinBehavior::IncludePinned : PinBehavior::ConsiderPins;
+                requestedVersion = package->GetLatestAvailableVersion(pinBehavior);
+
+                if (!requestedVersion)
+                {
+                    // Check whether we didn't find the latest version because it was pinned or because there wasn't one
+                    auto latestVersion = package->GetLatestAvailableVersion(PinBehavior::IgnorePins);
+                    if (latestVersion)
+                    {
+                        isPinned = true;
+                    }
+                }
+            }
+            else
+            {
+                auto requestedVersionAndPin = package->GetAvailableVersionAndPin(key);
+                requestedVersion = requestedVersionAndPin.first;
+                auto pin = requestedVersionAndPin.second;
+
+                isPinned =
+                    pin == Pinning::PinType::Blocking ||
+                    pin == Pinning::PinType::Gating ||
+                    (pin == Pinning::PinType::Pinning && !context.Args.Contains(Execution::Args::Type::IncludePinned));
+            }
+
+            if (isPinned)
+            {
+                AICLI_LOG(CLI, Error, << "The requested package version is unavailable because of a pin");
+                context.Reporter.Error() << Resource::String::PackageIsPinned << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PACKAGE_IS_PINNED);
+            }
+        }
+        else
+        {
+            // The simple case: Just look up the requested version
+            requestedVersion = package->GetAvailableVersion(key);
+        }
 
         std::optional<Manifest::Manifest> manifest;
         if (requestedVersion)
@@ -903,9 +965,12 @@ namespace AppInstaller::CLI::Workflow
         context.Add<Execution::Data::PackageVersion>(std::move(requestedVersion));
     }
 
-    void GetManifestFromPackage(Execution::Context& context)
+    void GetManifestFromPackage::operator()(Execution::Context& context) const
     {
-        context << GetManifestWithVersionFromPackage(context.Args.GetArg(Execution::Args::Type::Version), context.Args.GetArg(Execution::Args::Type::Channel));
+        context << GetManifestWithVersionFromPackage(
+            context.Args.GetArg(Execution::Args::Type::Version),
+            context.Args.GetArg(Execution::Args::Type::Channel),
+            m_considerPins);
     }
 
     void VerifyFile::operator()(Execution::Context& context) const
@@ -976,7 +1041,7 @@ namespace AppInstaller::CLI::Workflow
         ReportIdentity(context, m_prefix, m_label, manifest.CurrentLocalization.Get<Manifest::Localization::PackageName>(), manifest.Id, manifest.Version, m_level);
     }
 
-    void GetManifest(Execution::Context& context)
+    void GetManifest::operator()(Execution::Context& context) const
     {
         if (context.Args.Contains(Execution::Args::Type::Manifest))
         {
@@ -990,7 +1055,7 @@ namespace AppInstaller::CLI::Workflow
                 SearchSourceForSingle <<
                 HandleSearchResultFailures <<
                 EnsureOneMatchFromSearchResult(false) <<
-                GetManifestFromPackage;
+                GetManifestFromPackage(m_considerPins);
         }
     }
 
