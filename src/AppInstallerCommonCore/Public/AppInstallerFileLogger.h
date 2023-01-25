@@ -37,7 +37,13 @@ namespace AppInstaller::Logging
 
         void WriteDirect(std::string_view message) noexcept override;
 
+        // Adds a FileLogger to the current Log
+        static void Add();
+        static void Add(const std::filesystem::path& filePath);
+        static void Add(std::string_view fileNamePrefix);
+
         // Starts a background task to clean up old log files.
+        static void BeginCleanup();
         static void BeginCleanup(const std::filesystem::path& filePath);
 
     private:

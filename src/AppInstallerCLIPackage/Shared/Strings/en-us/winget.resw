@@ -206,7 +206,7 @@
     <comment>{Locked="winget settings","{0}"}. Error message displayed when the user uses an experimental feature that is disabled. {0} is a placeholder replaced by the experimental feature name.</comment>
   </data>
   <data name="FeaturesCommandLongDescription" xml:space="preserve">
-    <value>Shows the status of experimental features. Experimental features can be turn on via 'winget settings'.</value>
+    <value>Shows the status of experimental features. Experimental features can be turned on via 'winget settings'.</value>
     <comment>{Locked="winget settings"}</comment>
   </data>
   <data name="FeaturesCommandShortDescription" xml:space="preserve">
@@ -722,7 +722,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>The path to the manifest to be validated</value>
   </data>
   <data name="VerboseLogsArgumentDescription" xml:space="preserve">
-    <value>Enables verbose logging for WinGet</value>
+    <value>Enables verbose logging for winget</value>
   </data>
   <data name="VerifyFileSignedMsix" xml:space="preserve">
     <value>Please verify that the input file is a valid, signed MSIX.</value>
@@ -1229,10 +1229,12 @@ Do you agree to the terms?</value>
     <comment>{Locked="{0}"} Error message displayed when the user provides too many admin setting arguments. {0} is a placeholder replaced by the admin setting arguments (e.g. 'enable|disable').</comment>
   </data>
   <data name="AdminSettingEnabled" xml:space="preserve">
-    <value>Admin setting enabled.</value>
+    <value>Enabled admin setting '{0}'.</value>
+    <comment>{Locked="{0}"} Message displayed when the user enables an admin setting. {0} is a placeholder replaced by the setting name.</comment>
   </data>
   <data name="AdminSettingDisabled" xml:space="preserve">
-    <value>Admin setting disabled.</value>
+    <value>Disabled admin setting '{0}'.</value>
+    <comment>{Locked="{0}"} Message displayed when the user disables an admin setting. {0} is a placeholder replaced by the setting name.</comment>
   </data>
   <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
     <value>Application is currently running. Exit the application then try again.</value>
@@ -1430,7 +1432,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Purging install directory...</value>
   </data>
   <data name="UnableToPurgeInstallDirectory" xml:space="preserve">
-    <value>Cannot purge install directory, as it was not created by WinGet</value>
+    <value>Cannot purge install directory, as it was not created by winget</value>
   </data>
   <data name="RelatedLink" xml:space="preserve">
     <value>Related Link</value>

@@ -23,5 +23,8 @@ namespace AppInstaller::Logging
         void Write(Channel channel, Level, std::string_view message) noexcept override;
 
         void WriteDirect(std::string_view message) noexcept override;
+
+        // Adds a TraceLogger to the current Log
+        static void Add();
     };
 }

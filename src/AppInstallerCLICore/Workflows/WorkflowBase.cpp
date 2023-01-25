@@ -1181,6 +1181,18 @@ namespace AppInstaller::CLI::Workflow
     {
         context.SetExecutionStage(m_stage);
     }
+
+    void ShowAppVersions(Execution::Context& context)
+    {
+        auto versions = context.Get<Execution::Data::Package>()->GetAvailableVersionKeys();
+
+        Execution::TableOutput<2> table(context.Reporter, { Resource::String::ShowVersion, Resource::String::ShowChannel });
+        for (const auto& version : versions)
+        {
+            table.OutputLine({ version.Version, version.Channel });
+        }
+        table.Complete();
+    }
 }
 
 AppInstaller::CLI::Execution::Context& operator<<(AppInstaller::CLI::Execution::Context& context, AppInstaller::CLI::Workflow::WorkflowTask::Func f)

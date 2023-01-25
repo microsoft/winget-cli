@@ -8,6 +8,7 @@
 #include <winget/UserSettings.h>
 #include "Commands/InstallCommand.h"
 #include "COMContext.h"
+#include <AppInstallerFileLogger.h>
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
 #include <winget/Debugging.h>
@@ -67,7 +68,7 @@ namespace AppInstaller::CLI
         // Enable all logging for this phase; we will update once we have the arguments
         Logging::Log().EnableChannel(Logging::Channel::All);
         Logging::Log().SetLevel(Settings::User().Get<Settings::Setting::LoggingLevelPreference>());
-        Logging::AddFileLogger();
+        Logging::FileLogger::Add();
         Logging::EnableWilFailureTelemetry();
 
         // Set output to UTF8
@@ -77,7 +78,7 @@ namespace AppInstaller::CLI
         Logging::Telemetry().LogStartup();
 
         // Initiate the background cleanup of the log file location.
-        Logging::BeginLogFileCleanup();
+        Logging::FileLogger::BeginCleanup();
 
         context << Workflow::ReportExecutionStage(Workflow::ExecutionStage::ParseArgs);
 

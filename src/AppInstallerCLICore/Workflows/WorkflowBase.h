@@ -386,6 +386,12 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: InstalledPackageVersion
     void GetInstalledPackageVersion(Execution::Context& context);
 
+    // Shows all versions for an application.
+    // Required Args: None
+    // Inputs: SearchResult [only operates on first match]
+    // Outputs: None
+    void ShowAppVersions(Execution::Context& context);
+
     // Reports execution stage in a workflow
     // Required Args: ExecutionStage
     // Inputs: ExecutionStage?

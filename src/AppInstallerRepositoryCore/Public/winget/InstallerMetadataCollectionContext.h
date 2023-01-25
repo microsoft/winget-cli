@@ -105,7 +105,7 @@ namespace AppInstaller::Repository::Metadata
 
     private:
         // Initializes the context runtime, including the log file if provided.
-        static std::unique_ptr<ThreadLocalStorage::PreviousThreadGlobals> InitializeLogging(ThreadLocalStorage::ThreadGlobals& threadGlobals, const std::filesystem::path& logFile);
+        static std::unique_ptr<ThreadLocalStorage::PreviousThreadGlobals> InitializeLogging(ThreadLocalStorage::WingetThreadGlobals& threadGlobals, const std::filesystem::path& logFile);
         std::unique_ptr<ThreadLocalStorage::PreviousThreadGlobals> InitializeLogging(const std::filesystem::path& logFile);
 
         // Sets the collection context input and the preinstall state.
@@ -135,7 +135,7 @@ namespace AppInstaller::Repository::Metadata
         // Merge using merge input version 1.0
         static web::json::value Merge_1_0(web::json::value& input, size_t maximumSizeInBytes);
 
-        ThreadLocalStorage::ThreadGlobals m_threadGlobals;
+        ThreadLocalStorage::WingetThreadGlobals m_threadGlobals;
 
         // Parsed input
         Utility::Version m_inputVersion;
