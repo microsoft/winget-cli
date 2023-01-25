@@ -162,7 +162,7 @@ namespace AppInstaller::CLI
             context <<
                 SearchSourceForMany <<
                 HandleSearchResultFailures <<
-                EnsureMatchesFromSearchResult(true) <<
+                EnsureMatchesFromSearchResult(SearchResultType::Upgrade) <<
                 ReportListResult(true);
         }
         else if (context.Args.Contains(Execution::Args::Type::All))
@@ -171,7 +171,7 @@ namespace AppInstaller::CLI
             context <<
                 SearchSourceForMany <<
                 HandleSearchResultFailures <<
-                EnsureMatchesFromSearchResult(true) <<
+                EnsureMatchesFromSearchResult(SearchResultType::Upgrade) <<
                 ReportListResult(true) <<
                 UpdateAllApplicable;
         }
@@ -181,7 +181,7 @@ namespace AppInstaller::CLI
             context <<
                 GetManifestFromArg <<
                 SearchSourceUsingManifest <<
-                EnsureOneMatchFromSearchResult(true) <<
+                EnsureOneMatchFromSearchResult(SearchResultType::Upgrade) <<
                 GetInstalledPackageVersion <<
                 EnsureUpdateVersionApplicable <<
                 SelectInstaller <<

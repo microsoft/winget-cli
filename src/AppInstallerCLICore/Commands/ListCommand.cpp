@@ -6,6 +6,8 @@
 #include "Workflows/WorkflowBase.h"
 #include "Resources.h"
 
+using AppInstaller::CLI::Workflow::SearchResultType;
+
 namespace AppInstaller::CLI
 {
     using namespace std::string_view_literals;
@@ -78,7 +80,7 @@ namespace AppInstaller::CLI
             Workflow::OpenCompositeSource(Workflow::DetermineInstalledSource(context)) <<
             Workflow::SearchSourceForMany <<
             Workflow::HandleSearchResultFailures <<
-            Workflow::EnsureMatchesFromSearchResult(true) <<
+            Workflow::EnsureMatchesFromSearchResult(SearchResultType::FromInstalledSource) <<
             Workflow::ReportListResult();
     }
 }

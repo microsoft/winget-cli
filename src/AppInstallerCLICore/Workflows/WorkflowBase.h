@@ -29,6 +29,13 @@ namespace AppInstaller::CLI::Workflow
         PostExecution = 5000,
     };
 
+    enum class SearchResultType
+    {
+        Default,
+        FromInstalledSource,
+        Upgrade,
+    };
+
     // A task in the workflow.
     struct WorkflowTask
     {
@@ -216,13 +223,13 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     struct EnsureMatchesFromSearchResult : public WorkflowTask
     {
-        EnsureMatchesFromSearchResult(bool isFromInstalledSource) :
-            WorkflowTask("EnsureMatchesFromSearchResult"), m_isFromInstalledSource(isFromInstalledSource) {}
+        EnsureMatchesFromSearchResult(SearchResultType resultType = SearchResultType::Default) :
+            WorkflowTask("EnsureMatchesFromSearchResult"), m_searchResultType(resultType) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
-        bool m_isFromInstalledSource;
+        SearchResultType m_searchResultType;
     };
 
     // Ensures that there is only one result in the search.
@@ -231,13 +238,13 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: Package
     struct EnsureOneMatchFromSearchResult : public WorkflowTask
     {
-        EnsureOneMatchFromSearchResult(bool isFromInstalledSource) :
-            WorkflowTask("EnsureOneMatchFromSearchResult"), m_isFromInstalledSource(isFromInstalledSource) {}
+        EnsureOneMatchFromSearchResult(SearchResultType resultType = SearchResultType::Default) :
+            WorkflowTask("EnsureOneMatchFromSearchResult"), m_searchResultType(resultType) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
-        bool m_isFromInstalledSource;
+        SearchResultType m_searchResultType;
     };
 
     // Gets the manifest from package.

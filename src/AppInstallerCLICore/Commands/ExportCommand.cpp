@@ -7,6 +7,9 @@
 #include "Workflows/WorkflowBase.h"
 #include "Resources.h"
 
+using AppInstaller::CLI::Workflow::ExecutionStage;
+using AppInstaller::CLI::Workflow::SearchResultType;
+
 namespace AppInstaller::CLI
 {
     using namespace std::string_view_literals;
@@ -56,14 +59,14 @@ namespace AppInstaller::CLI
         context.SetFlags(Execution::ContextFlag::TreatSourceFailuresAsWarning);
 
         context <<
-            Workflow::ReportExecutionStage(Workflow::ExecutionStage::Discovery) <<
+            Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
             Workflow::OpenSource() <<
             Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
             Workflow::SearchSourceForMany <<
             Workflow::HandleSearchResultFailures <<
-            Workflow::EnsureMatchesFromSearchResult(true) <<
+            Workflow::EnsureMatchesFromSearchResult(SearchResultType::FromInstalledSource) <<
             Workflow::SelectVersionsToExport <<
-            Workflow::ReportExecutionStage(Workflow::ExecutionStage::Execution) <<
+            Workflow::ReportExecutionStage(ExecutionStage::Execution) <<
             Workflow::WriteImportFile;
     }
 }

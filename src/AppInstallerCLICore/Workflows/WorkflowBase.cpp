@@ -855,14 +855,19 @@ namespace AppInstaller::CLI::Workflow
         if (searchResult.Matches.size() == 0)
         {
             Logging::Telemetry().LogNoAppMatch();
-
-            if (m_isFromInstalledSource)
+            
+            switch (m_searchResultType)
             {
-                context.Reporter.Info() << Resource::String::NoInstalledPackageFound << std::endl;
-            }
-            else
-            {
-                context.Reporter.Info() << Resource::String::NoPackageFound << std::endl;
+                case SearchResultType::FromInstalledSource:
+                    context.Reporter.Info() << Resource::String::NoInstalledPackageFound << std::endl;
+                    break;
+                case SearchResultType::Upgrade:
+                    context.Reporter.Info() << Resource::String::UpdateNoPackagesFound << std::endl;
+                    break;
+                case SearchResultType::Default:
+                default:
+                    context.Reporter.Info() << Resource::String::NoPackageFound << std::endl;
+                    break;
             }
 
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND);
@@ -872,7 +877,7 @@ namespace AppInstaller::CLI::Workflow
     void EnsureOneMatchFromSearchResult::operator()(Execution::Context& context) const
     {
         context <<
-            EnsureMatchesFromSearchResult(m_isFromInstalledSource);
+            EnsureMatchesFromSearchResult(m_searchResultType);
 
         if (!context.IsTerminated())
         {
@@ -882,7 +887,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 Logging::Telemetry().LogMultiAppMatch();
 
-                if (m_isFromInstalledSource)
+                if (m_searchResultType == SearchResultType::FromInstalledSource || m_searchResultType == SearchResultType::Upgrade)
                 {
                     context.Reporter.Warn() << Resource::String::MultipleInstalledPackagesFound << std::endl;
                     context << ReportMultiplePackageFoundResult;
@@ -1096,7 +1101,7 @@ namespace AppInstaller::CLI::Workflow
                 OpenSource() <<
                 SearchSourceForSingle <<
                 HandleSearchResultFailures <<
-                EnsureOneMatchFromSearchResult(false) <<
+                EnsureOneMatchFromSearchResult() <<
                 GetManifestFromPackage(m_considerPins);
         }
     }
