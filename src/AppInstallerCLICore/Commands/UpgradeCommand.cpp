@@ -181,7 +181,7 @@ namespace AppInstaller::CLI
             context <<
                 GetManifestFromArg <<
                 SearchSourceUsingManifest <<
-                EnsureOneMatchFromSearchResult(SearchResultType::Upgrade) <<
+                EnsureOneMatchFromSearchResult(SearchResultType::FromInstalledSource) <<
                 GetInstalledPackageVersion <<
                 EnsureUpdateVersionApplicable <<
                 SelectInstaller <<
