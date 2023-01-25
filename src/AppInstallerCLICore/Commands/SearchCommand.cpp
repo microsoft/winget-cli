@@ -25,6 +25,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Execution::Args::Type::Exact),
             Argument::ForType(Execution::Args::Type::CustomHeader),
             Argument::ForType(Execution::Args::Type::AcceptSourceAgreements),
+            Argument::ForType(Execution::Args::Type::ListVersions),
         };
     }
 
@@ -78,8 +79,21 @@ namespace AppInstaller::CLI
         context <<
             Workflow::OpenSource() <<
             Workflow::SearchSourceForMany <<
-            Workflow::HandleSearchResultFailures <<
-            Workflow::EnsureMatchesFromSearchResult(false) <<
-            Workflow::ReportSearchResult;
+            Workflow::HandleSearchResultFailures;
+
+            if (context.Args.Contains(Execution::Args::Type::ListVersions))
+            {
+                context <<
+                Workflow::EnsureOneMatchFromSearchResult(false) <<
+                Workflow::ReportPackageIdentity <<
+                Workflow::ShowAppVersions;
+            }
+            else
+            {
+                context << 
+                    Workflow::EnsureMatchesFromSearchResult(false) <<
+                    Workflow::ReportSearchResult;
+            }
+        
     }
 }
