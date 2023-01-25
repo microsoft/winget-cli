@@ -61,11 +61,11 @@ namespace AppInstaller::CLI::Workflow
 
         auto pinningIndex = context.Get<Execution::Data::PinningIndex>();
 
-        auto packageVersionKeys = package->GetAvailableVersionKeys(PinBehavior::IgnorePins);
+        auto packageVersionKeys = package->GetAvailableVersionKeys();
         for (const auto& versionKey : packageVersionKeys)
 
         {
-            auto availableVersion = package->GetAvailableVersion(versionKey, PinBehavior::IgnorePins);
+            auto availableVersion = package->GetAvailableVersion(versionKey);
             Pinning::PinKey pinKey{
             availableVersion->GetProperty(PackageVersionProperty::Id).get(),
                 availableVersion->GetProperty(PackageVersionProperty::SourceIdentifier).get() };
@@ -95,11 +95,11 @@ namespace AppInstaller::CLI::Workflow
 
         auto pinningIndex = context.Get<Execution::Data::PinningIndex>();
 
-        auto packageVersionKeys = package->GetAvailableVersionKeys(PinBehavior::IgnorePins);
+        auto packageVersionKeys = package->GetAvailableVersionKeys();
         for (const auto& versionKey : packageVersionKeys)
 
         {
-            auto availableVersion = package->GetAvailableVersion(versionKey, PinBehavior::IgnorePins);
+            auto availableVersion = package->GetAvailableVersion(versionKey);
             Pinning::PinKey pinKey{
                 availableVersion->GetProperty(PackageVersionProperty::Id).get(),
                 availableVersion->GetProperty(PackageVersionProperty::SourceIdentifier).get() };
@@ -171,11 +171,11 @@ namespace AppInstaller::CLI::Workflow
         // Note that if a source was specified in the command line,
         // that will be the only one we get version keys from.
         // So, we remove pins from all sources unless one was provided.
-        auto packageVersionKeys = package->GetAvailableVersionKeys(PinBehavior::IgnorePins);
+        auto packageVersionKeys = package->GetAvailableVersionKeys();
         for (const auto& versionKey : packageVersionKeys)
 
         {
-            auto availableVersion = package->GetAvailableVersion(versionKey, PinBehavior::IgnorePins);
+            auto availableVersion = package->GetAvailableVersion(versionKey);
             Pinning::PinKey pinKey{
                 availableVersion->GetProperty(PackageVersionProperty::Id).get(),
                 availableVersion->GetProperty(PackageVersionProperty::SourceIdentifier).get() };
@@ -284,7 +284,7 @@ namespace AppInstaller::CLI::Workflow
             // Ensure the match comes from the right source
             for (const auto& match : searchResult.Matches)
             {
-                auto availableVersion = match.Package->GetAvailableVersion({ pin.GetSourceId(), "", "" }, PinBehavior::IgnorePins);
+                auto availableVersion = match.Package->GetAvailableVersion({ pin.GetSourceId(), "", "" });
                 if (availableVersion)
                 {
                     matchingPins.push_back(pin);

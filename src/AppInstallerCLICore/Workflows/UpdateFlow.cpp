@@ -54,6 +54,7 @@ namespace AppInstaller::CLI::Workflow
         ManifestComparator manifestComparator(context, isUpgrade ? installedPackage->GetMetadata() : IPackageVersion::Metadata{});
         bool versionFound = false;
         bool installedTypeInapplicable = false;
+        bool packagePinned = false;
 
         if (isUpgrade && installedVersion.IsUnknown() && !context.Args.Contains(Execution::Args::Type::IncludeUnknown))
         {
@@ -68,17 +69,26 @@ namespace AppInstaller::CLI::Workflow
 
         // If we are updating a single package or we got the --include-pinned flag,
         // we include packages with Pinning pins
-        const PinBehavior pinBehavior =
-            (m_isSinglePackage || context.Args.Contains(Execution::Args::Type::IncludePinned)) ? PinBehavior::IncludePinned : PinBehavior::ConsiderPins;
+        const bool includePinned = m_isSinglePackage || context.Args.Contains(Execution::Args::Type::IncludePinned);
 
         // The version keys should have already been sorted by version
-        const auto& versionKeys = package->GetAvailableVersionKeys(pinBehavior);
+        const auto& versionKeys = package->GetAvailableVersionKeys();
         for (const auto& key : versionKeys)
         {
             // Check Applicable Version
             if (!isUpgrade || IsUpdateVersionApplicable(installedVersion, Utility::Version(key.Version)))
             {
-                auto packageVersion = package->GetAvailableVersion(key, PinBehavior::IgnorePins);
+                // Check if the package is pinned
+                if (key.PinnedState == Pinning::PinType::Blocking ||
+                    key.PinnedState == Pinning::PinType::Gating ||
+                    (key.PinnedState == Pinning::PinType::Pinning && !includePinned))
+                {
+                    AICLI_LOG(CLI, Info, << "Version [" << key.Version << "] from Source [" << key.SourceId << "] has a Pin with type [" << ToString(key.PinnedState) << "]");
+                    packagePinned = true;
+                    continue;
+                }
+
+                auto packageVersion = package->GetAvailableVersion(key);
                 auto manifest = packageVersion->GetManifest();
 
                 // Check applicable Installer
@@ -130,6 +140,10 @@ namespace AppInstaller::CLI::Workflow
                 if (installedTypeInapplicable)
                 {
                     context.Reporter.Info() << Resource::String::UpgradeDifferentInstallTechnologyInNewerVersions << std::endl;
+                }
+                else if (packagePinned)
+                {
+                    context.Reporter.Info() << Resource::String::UpgradeIsPinned << std::endl;
                 }
                 else if (isUpgrade)
                 {

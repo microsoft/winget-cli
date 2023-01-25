@@ -233,9 +233,9 @@ namespace AppInstaller::CLI::Workflow
         correlatedSources.AddIfRemoteAndNotPresent(package->GetInstalledVersion());
 
         // Then look through all available versions
-        for (const auto& versionKey : package->GetAvailableVersionKeys(PinBehavior::IgnorePins))
+        for (const auto& versionKey : package->GetAvailableVersionKeys())
         {
-            correlatedSources.AddIfRemoteAndNotPresent(package->GetAvailableVersion(versionKey, PinBehavior::IgnorePins));
+            correlatedSources.AddIfRemoteAndNotPresent(package->GetAvailableVersion(versionKey));
         }
 
         // Finally record the uninstall for each found value

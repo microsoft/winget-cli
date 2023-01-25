@@ -70,7 +70,7 @@ namespace AppInstaller::CLI::Workflow
         const std::string& word = context.Get<Data::CompletionData>().Word();
         auto stream = context.Reporter.Completion();
 
-        for (const auto& vc : context.Get<Execution::Data::Package>()->GetAvailableVersionKeys(Repository::PinBehavior::IgnorePins))
+        for (const auto& vc : context.Get<Execution::Data::Package>()->GetAvailableVersionKeys())
         {
             if (word.empty() || Utility::ICUCaseInsensitiveStartsWith(vc.Version, word))
             {
@@ -86,7 +86,7 @@ namespace AppInstaller::CLI::Workflow
 
         std::vector<std::string> channels;
 
-        for (const auto& vc : context.Get<Execution::Data::Package>()->GetAvailableVersionKeys(Repository::PinBehavior::IgnorePins))
+        for (const auto& vc : context.Get<Execution::Data::Package>()->GetAvailableVersionKeys())
         {
             if ((word.empty() || Utility::ICUCaseInsensitiveStartsWith(vc.Channel, word)) &&
                 std::find(channels.begin(), channels.end(), vc.Channel) == channels.end())

@@ -862,7 +862,11 @@ namespace AppInstaller::CLI::Workflow
     void GetManifestWithVersionFromPackage::operator()(Execution::Context& context) const
     {
         PackageVersionKey key("", m_version, m_channel);
-        auto requestedVersion = context.Get<Execution::Data::Package>()->GetAvailableVersion(key, PinBehavior::ConsiderPins);
+        auto requestedVersionAndPin = context.Get<Execution::Data::Package>()->GetAvailableVersionAndPin(key);
+        auto requestedVersion = requestedVersionAndPin.first;
+        std::ignore = requestedVersionAndPin.second;
+
+        // TODO: Use pin
 
         std::optional<Manifest::Manifest> manifest;
         if (requestedVersion)

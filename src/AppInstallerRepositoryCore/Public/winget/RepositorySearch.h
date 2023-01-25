@@ -6,6 +6,7 @@
 #include <AppInstallerVersions.h>
 #include <winget/LocIndependent.h>
 #include <winget/Manifest.h>
+#include <winget/Pin.h>
 
 #include <map>
 #include <memory>
@@ -222,8 +223,9 @@ namespace AppInstaller::Repository
     {
         PackageVersionKey() = default;
 
-        PackageVersionKey(Utility::NormalizedString sourceId, Utility::NormalizedString version, Utility::NormalizedString channel) :
-            SourceId(std::move(sourceId)), Version(std::move(version)), Channel(std::move(channel)) {}
+        // TODO #219 check all uses
+        PackageVersionKey(Utility::NormalizedString sourceId, Utility::NormalizedString version, Utility::NormalizedString channel, Pinning::PinType pinnedState = Pinning::PinType::Unknown) :
+            SourceId(std::move(sourceId)), Version(std::move(version)), Channel(std::move(channel)), PinnedState(pinnedState) {}
 
         // The source id that this version came from.
         std::string SourceId;
@@ -233,6 +235,10 @@ namespace AppInstaller::Repository
 
         // The channel.
         Utility::NormalizedString Channel;
+
+        // The pin state for this package version, if it came from a list of available versions.
+        // When used to look up a package version, this field is not considered.
+        Pinning::PinType PinnedState = Pinning::PinType::Unknown;
 
         bool operator<(const PackageVersionKey& other) const
         {
@@ -323,18 +329,25 @@ namespace AppInstaller::Repository
 
         // Note on pins:
         // Pins only make sense when there is both an installed and an available version.
+        // Only for the composite source will GetAvailableVersionKeys() include pinned state,
+        // and GetLatestAvailableVersion() consider the pin behavior.
 
         // Gets all available versions of this package.
         // The versions will be returned in sorted, descending order.
         //  Ex. { 4, 3, 2, 1 }
         // The list may contain versions from multiple sources.
-        virtual std::vector<PackageVersionKey> GetAvailableVersionKeys(PinBehavior pinBehavior) const = 0;
+        virtual std::vector<PackageVersionKey> GetAvailableVersionKeys() const = 0;
 
         // Gets a specific version of this package.
         virtual std::shared_ptr<IPackageVersion> GetLatestAvailableVersion(PinBehavior pinBehavior) const = 0;
 
         // Gets a specific version of this package.
-        virtual std::shared_ptr<IPackageVersion> GetAvailableVersion(const PackageVersionKey& versionKey, PinBehavior pinBehavior) const = 0;
+        virtual std::shared_ptr<IPackageVersion> GetAvailableVersion(const PackageVersionKey& versionKey) const = 0;
+
+        virtual std::pair<std::shared_ptr<IPackageVersion>, Pinning::PinType> GetAvailableVersionAndPin(const PackageVersionKey& versionKey) const
+        {
+            return { GetAvailableVersion(versionKey), Pinning::PinType::Unknown };
+        }
 
         // Gets a value indicating whether an available version is newer than the installed version.
         virtual bool IsUpdateAvailable(PinBehavior pinBehavior) const = 0;

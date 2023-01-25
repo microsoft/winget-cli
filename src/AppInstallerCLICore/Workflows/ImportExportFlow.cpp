@@ -68,7 +68,7 @@ namespace AppInstaller::CLI::Workflow
                 return package->GetLatestAvailableVersion(PinBehavior::IgnorePins);
             }
 
-            auto availablePackageVersion = package->GetAvailableVersion({ "", version, channel }, PinBehavior::IgnorePins);
+            auto availablePackageVersion = package->GetAvailableVersion({ "", version, channel });
             if (!availablePackageVersion)
             {
                 availablePackageVersion = package->GetLatestAvailableVersion(PinBehavior::IgnorePins);

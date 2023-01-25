@@ -129,7 +129,7 @@ TEST_CASE("SQLiteIndexSource_Versions", "[sqliteindexsource]")
     REQUIRE(results.Matches.size() == 1);
     REQUIRE(results.Matches[0].Package);
 
-    auto result = results.Matches[0].Package->GetAvailableVersionKeys(PinBehavior::IgnorePins);
+    auto result = results.Matches[0].Package->GetAvailableVersionKeys();
     REQUIRE(result.size() == 1);
     REQUIRE(result[0].Version == manifest.Version);
     REQUIRE(result[0].Channel == manifest.Channel);
@@ -153,7 +153,7 @@ TEST_CASE("SQLiteIndexSource_GetManifest", "[sqliteindexsource]")
     REQUIRE(results.Matches[0].Package);
     auto package = results.Matches[0].Package.get();
 
-    auto specificResultVersion = package->GetAvailableVersion(PackageVersionKey("", manifest.Version, manifest.Channel), PinBehavior::IgnorePins);
+    auto specificResultVersion = package->GetAvailableVersion(PackageVersionKey("", manifest.Version, manifest.Channel));
     REQUIRE(specificResultVersion);
     auto specificResult = specificResultVersion->GetManifest();
     REQUIRE(specificResult.Id == manifest.Id);
@@ -161,7 +161,7 @@ TEST_CASE("SQLiteIndexSource_GetManifest", "[sqliteindexsource]")
     REQUIRE(specificResult.Version == manifest.Version);
     REQUIRE(specificResult.Channel == manifest.Channel);
 
-    auto latestResultVersion = package->GetAvailableVersion(PackageVersionKey("", "", manifest.Channel), PinBehavior::IgnorePins);
+    auto latestResultVersion = package->GetAvailableVersion(PackageVersionKey("", "", manifest.Channel));
     REQUIRE(latestResultVersion);
     auto latestResult = latestResultVersion->GetManifest();
     REQUIRE(latestResult.Id == manifest.Id);
@@ -169,7 +169,7 @@ TEST_CASE("SQLiteIndexSource_GetManifest", "[sqliteindexsource]")
     REQUIRE(latestResult.Version == manifest.Version);
     REQUIRE(latestResult.Channel == manifest.Channel);
 
-    auto noResultVersion = package->GetAvailableVersion(PackageVersionKey("", "blargle", "flargle"), PinBehavior::IgnorePins);
+    auto noResultVersion = package->GetAvailableVersion(PackageVersionKey("", "blargle", "flargle"));
     REQUIRE(!noResultVersion);
 }
 

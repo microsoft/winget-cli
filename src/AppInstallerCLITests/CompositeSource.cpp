@@ -213,7 +213,7 @@ TEST_CASE("CompositeSource_PackageFamilyName_NotAvailable", "[CompositeSource]")
 
     REQUIRE(result.Matches.size() == 1);
     REQUIRE(result.Matches[0].Package->GetInstalledVersion());
-    REQUIRE(result.Matches[0].Package->GetAvailableVersionKeys(PinBehavior::IgnorePins).empty());
+    REQUIRE(result.Matches[0].Package->GetAvailableVersionKeys().empty());
 }
 
 TEST_CASE("CompositeSource_PackageFamilyName_Available", "[CompositeSource]")
@@ -235,7 +235,7 @@ TEST_CASE("CompositeSource_PackageFamilyName_Available", "[CompositeSource]")
 
     REQUIRE(result.Matches.size() == 1);
     REQUIRE(result.Matches[0].Package->GetInstalledVersion());
-    REQUIRE(result.Matches[0].Package->GetAvailableVersionKeys(PinBehavior::IgnorePins).size() == 1);
+    REQUIRE(result.Matches[0].Package->GetAvailableVersionKeys().size() == 1);
 }
 
 TEST_CASE("CompositeSource_ProductCode_NotAvailable", "[CompositeSource]")
@@ -249,7 +249,7 @@ TEST_CASE("CompositeSource_ProductCode_NotAvailable", "[CompositeSource]")
 
     REQUIRE(result.Matches.size() == 1);
     REQUIRE(result.Matches[0].Package->GetInstalledVersion());
-    REQUIRE(result.Matches[0].Package->GetAvailableVersionKeys(PinBehavior::IgnorePins).empty());
+    REQUIRE(result.Matches[0].Package->GetAvailableVersionKeys().empty());
 }
 
 TEST_CASE("CompositeSource_ProductCode_Available", "[CompositeSource]")
@@ -271,7 +271,7 @@ TEST_CASE("CompositeSource_ProductCode_Available", "[CompositeSource]")
 
     REQUIRE(result.Matches.size() == 1);
     REQUIRE(result.Matches[0].Package->GetInstalledVersion());
-    REQUIRE(result.Matches[0].Package->GetAvailableVersionKeys(PinBehavior::IgnorePins).size() == 1);
+    REQUIRE(result.Matches[0].Package->GetAvailableVersionKeys().size() == 1);
 }
 
 TEST_CASE("CompositeSource_NameAndPublisher_Match", "[CompositeSource]")
@@ -291,7 +291,7 @@ TEST_CASE("CompositeSource_NameAndPublisher_Match", "[CompositeSource]")
 
     REQUIRE(result.Matches.size() == 1);
     REQUIRE(result.Matches[0].Package->GetInstalledVersion());
-    REQUIRE(result.Matches[0].Package->GetAvailableVersionKeys(PinBehavior::IgnorePins).size() == 1);
+    REQUIRE(result.Matches[0].Package->GetAvailableVersionKeys().size() == 1);
 }
 
 TEST_CASE("CompositeSource_MultiMatch_FindsStrongMatch", "[CompositeSource]")
@@ -312,7 +312,7 @@ TEST_CASE("CompositeSource_MultiMatch_FindsStrongMatch", "[CompositeSource]")
 
     REQUIRE(result.Matches.size() == 1);
     REQUIRE(result.Matches[0].Package->GetInstalledVersion());
-    REQUIRE(result.Matches[0].Package->GetAvailableVersionKeys(PinBehavior::IgnorePins).size() == 1);
+    REQUIRE(result.Matches[0].Package->GetAvailableVersionKeys().size() == 1);
     REQUIRE(result.Matches[0].Package->GetLatestAvailableVersion(PinBehavior::IgnorePins)->GetProperty(PackageVersionProperty::Name).get() == name);
     REQUIRE(!Version(result.Matches[0].Package->GetLatestAvailableVersion(PinBehavior::IgnorePins)->GetProperty(PackageVersionProperty::Version)).IsUnknown());
 }
@@ -333,7 +333,7 @@ TEST_CASE("CompositeSource_MultiMatch_DoesNotFindStrongMatch", "[CompositeSource
 
     REQUIRE(result.Matches.size() == 1);
     REQUIRE(result.Matches[0].Package->GetInstalledVersion());
-    REQUIRE(result.Matches[0].Package->GetAvailableVersionKeys(PinBehavior::IgnorePins).size() == 0);
+    REQUIRE(result.Matches[0].Package->GetAvailableVersionKeys().size() == 0);
 }
 
 TEST_CASE("CompositeSource_FoundByBothRootSearches", "[CompositeSource]")
@@ -368,7 +368,7 @@ TEST_CASE("CompositeSource_FoundByBothRootSearches", "[CompositeSource]")
 
     REQUIRE(result.Matches.size() == 1);
     REQUIRE(result.Matches[0].Package->GetInstalledVersion());
-    REQUIRE(result.Matches[0].Package->GetAvailableVersionKeys(PinBehavior::IgnorePins).size() == 1);
+    REQUIRE(result.Matches[0].Package->GetAvailableVersionKeys().size() == 1);
 }
 
 TEST_CASE("CompositeSource_OnlyAvailableFoundByRootSearch", "[CompositeSource]")
@@ -399,7 +399,7 @@ TEST_CASE("CompositeSource_OnlyAvailableFoundByRootSearch", "[CompositeSource]")
 
     REQUIRE(result.Matches.size() == 1);
     REQUIRE(result.Matches[0].Package->GetInstalledVersion());
-    REQUIRE(result.Matches[0].Package->GetAvailableVersionKeys(PinBehavior::IgnorePins).size() == 1);
+    REQUIRE(result.Matches[0].Package->GetAvailableVersionKeys().size() == 1);
 }
 
 TEST_CASE("CompositeSource_FoundByAvailableRootSearch_NotInstalled", "[CompositeSource]")
@@ -447,7 +447,7 @@ TEST_CASE("CompositeSource_UpdateWithBetterMatchCriteria", "[CompositeSource]")
 
     REQUIRE(result.Matches.size() == 1);
     REQUIRE(result.Matches[0].Package->GetInstalledVersion());
-    REQUIRE(result.Matches[0].Package->GetAvailableVersionKeys(PinBehavior::IgnorePins).size() == 1);
+    REQUIRE(result.Matches[0].Package->GetAvailableVersionKeys().size() == 1);
     REQUIRE(result.Matches[0].MatchCriteria.Type == originalType);
 
     // Now make the source root search find it with a better criteria
@@ -466,7 +466,7 @@ TEST_CASE("CompositeSource_UpdateWithBetterMatchCriteria", "[CompositeSource]")
 
     REQUIRE(result.Matches.size() == 1);
     REQUIRE(result.Matches[0].Package->GetInstalledVersion());
-    REQUIRE(result.Matches[0].Package->GetAvailableVersionKeys(PinBehavior::IgnorePins).size() == 1);
+    REQUIRE(result.Matches[0].Package->GetAvailableVersionKeys().size() == 1);
     REQUIRE(result.Matches[0].MatchCriteria.Type == type);
 }
 
@@ -521,14 +521,14 @@ TEST_CASE("CompositePackage_AvailableVersions_ChannelFilteredOut", "[CompositeSo
 
         SearchResult result;
         result.Matches.emplace_back(TestPackage::Make(std::vector<Manifest::Manifest>{ noChannel, hasChannel }, setup.Available), Criteria());
-        REQUIRE(result.Matches.back().Package->GetAvailableVersionKeys(PinBehavior::IgnorePins).size() == 2);
+        REQUIRE(result.Matches.back().Package->GetAvailableVersionKeys().size() == 2);
         return result;
     };
 
     SearchResult result = setup.Search();
 
     REQUIRE(result.Matches.size() == 1);
-    auto versionKeys = result.Matches[0].Package->GetAvailableVersionKeys(PinBehavior::IgnorePins);
+    auto versionKeys = result.Matches[0].Package->GetAvailableVersionKeys();
     REQUIRE(versionKeys.size() == 1);
     REQUIRE(versionKeys[0].Channel.empty());
 
@@ -557,14 +557,14 @@ TEST_CASE("CompositePackage_AvailableVersions_NoChannelFilteredOut", "[Composite
 
         SearchResult result;
         result.Matches.emplace_back(TestPackage::Make(std::vector<Manifest::Manifest>{ noChannel, hasChannel }, setup.Available), Criteria());
-        REQUIRE(result.Matches.back().Package->GetAvailableVersionKeys(PinBehavior::IgnorePins).size() == 2);
+        REQUIRE(result.Matches.back().Package->GetAvailableVersionKeys().size() == 2);
         return result;
     };
 
     SearchResult result = setup.Search();
 
     REQUIRE(result.Matches.size() == 1);
-    auto versionKeys = result.Matches[0].Package->GetAvailableVersionKeys(PinBehavior::IgnorePins);
+    auto versionKeys = result.Matches[0].Package->GetAvailableVersionKeys();
     REQUIRE(versionKeys.size() == 1);
     REQUIRE(versionKeys[0].Channel == channel);
 
@@ -609,7 +609,7 @@ TEST_CASE("CompositeSource_MultipleAvailableSources_MatchAll", "[CompositeSource
 
     REQUIRE(result.Matches.size() == 1);
     REQUIRE(result.Matches[0].Package->GetInstalledVersion());
-    REQUIRE(result.Matches[0].Package->GetAvailableVersionKeys(PinBehavior::IgnorePins).size() == 2);
+    REQUIRE(result.Matches[0].Package->GetAvailableVersionKeys().size() == 2);
     REQUIRE(result.Matches[0].Package->GetLatestAvailableVersion(PinBehavior::IgnorePins)->GetProperty(PackageVersionProperty::Name).get() == firstName);
 }
 
@@ -638,7 +638,7 @@ TEST_CASE("CompositeSource_MultipleAvailableSources_MatchSecond", "[CompositeSou
 
     REQUIRE(result.Matches.size() == 1);
     REQUIRE(result.Matches[0].Package->GetInstalledVersion());
-    REQUIRE(result.Matches[0].Package->GetAvailableVersionKeys(PinBehavior::IgnorePins).size() == 1);
+    REQUIRE(result.Matches[0].Package->GetAvailableVersionKeys().size() == 1);
     REQUIRE(result.Matches[0].Package->GetLatestAvailableVersion(PinBehavior::IgnorePins)->GetProperty(PackageVersionProperty::Name).get() == secondName);
 }
 
@@ -668,7 +668,7 @@ TEST_CASE("CompositeSource_MultipleAvailableSources_ReverseMatchBoth", "[Composi
 
     REQUIRE(result.Matches.size() == 1);
     REQUIRE(result.Matches[0].Package->GetInstalledVersion());
-    REQUIRE(result.Matches[0].Package->GetAvailableVersionKeys(PinBehavior::IgnorePins).size() == 1);
+    REQUIRE(result.Matches[0].Package->GetAvailableVersionKeys().size() == 1);
 }
 
 TEST_CASE("CompositeSource_IsSame", "[CompositeSource]")
@@ -1030,44 +1030,51 @@ TEST_CASE("CompositeSource_NullAvailableVersion", "[CompositeSource]")
     REQUIRE(result.Matches.size() == 1);
 }
 
-struct ExpectedResultWithPin
+struct ExpectedResultForPinBehavior
 {
-    bool IsUpdateAvailable;
+    ExpectedResultForPinBehavior(bool isUpdateAvailable, std::optional<std::string> latestAvailableVersion)
+        : IsUpdateAvailable(isUpdateAvailable), LatestAvailableVersion(latestAvailableVersion) {}
+    ExpectedResultForPinBehavior() {}
+
+    bool IsUpdateAvailable = false;
     std::optional<std::string> LatestAvailableVersion;
-    std::vector<std::string> AvailableVersions;
-    std::vector<std::string> UnavailableVersions;
 };
 
-void RequireExpectedResultsWithPin(std::shared_ptr<IPackage> package, PinBehavior pinBehavior, const ExpectedResultWithPin& expectedResult)
+struct ExpectedResultsForPinning
 {
-    REQUIRE(package->IsUpdateAvailable(pinBehavior) == expectedResult.IsUpdateAvailable);
+    std::map<PinBehavior, ExpectedResultForPinBehavior> ResultsForPinBehavior;
+    std::vector<PackageVersionKey> AvailableVersions;
+};
 
-    auto latestAvailable = package->GetLatestAvailableVersion(pinBehavior);
-    if (expectedResult.LatestAvailableVersion.has_value())
+void RequireExpectedResultsWithPin(std::shared_ptr<IPackage> package, const ExpectedResultsForPinning& expectedResult)
+{
+    for (const auto& entry : expectedResult.ResultsForPinBehavior)
     {
-        REQUIRE(latestAvailable);
-        REQUIRE(latestAvailable->GetManifest().Version == expectedResult.LatestAvailableVersion.value());
-    }
-    else
-    {
-        REQUIRE(!latestAvailable);
+        auto pinBehavior = entry.first;
+        const auto& result = entry.second;
+
+        REQUIRE(package->IsUpdateAvailable(pinBehavior) == result.IsUpdateAvailable);
+
+        auto latestAvailable = package->GetLatestAvailableVersion(pinBehavior);
+        if (result.LatestAvailableVersion.has_value())
+        {
+            REQUIRE(latestAvailable);
+            REQUIRE(latestAvailable->GetManifest().Version == result.LatestAvailableVersion.value());
+        }
+        else
+        {
+            REQUIRE(!latestAvailable);
+        }
     }
 
-    auto availableVersionKeys = package->GetAvailableVersionKeys(pinBehavior);
+    auto availableVersionKeys = package->GetAvailableVersionKeys();
     REQUIRE(availableVersionKeys.size() == expectedResult.AvailableVersions.size());
     for (size_t i = 0; i < availableVersionKeys.size(); ++i)
     {
-        REQUIRE(availableVersionKeys[i].Version == expectedResult.AvailableVersions[i]);
-    }
-
-    for (const auto& expectedAvailableVersion : expectedResult.AvailableVersions)
-    {
-        REQUIRE(package->GetAvailableVersion({ "", expectedAvailableVersion, "" }, pinBehavior));
-    }
-
-    for (const auto& expectedUnavailableVersion : expectedResult.UnavailableVersions)
-    {
-        REQUIRE(!(package->GetAvailableVersion({ "", expectedUnavailableVersion, "" }, pinBehavior)));
+        REQUIRE(availableVersionKeys[i].SourceId == expectedResult.AvailableVersions[i].SourceId);
+        REQUIRE(availableVersionKeys[i].Version == expectedResult.AvailableVersions[i].Version);
+        REQUIRE(availableVersionKeys[i].PinnedState == expectedResult.AvailableVersions[i].PinnedState);
+        REQUIRE(package->GetAvailableVersion(expectedResult.AvailableVersions[i]));
     }
 }
 
@@ -1102,15 +1109,9 @@ TEST_CASE("CompositeSource_PinnedAvailable", "[CompositeSource][PinFlow]")
         return result;
     };
 
+    ExpectedResultsForPinning expectedResult;
     // The result when ignoring pins is always the same
-    ExpectedResultWithPin expectedResult_ignorePins;
-    expectedResult_ignorePins.IsUpdateAvailable = true;
-    expectedResult_ignorePins.LatestAvailableVersion = "1.1.0";
-    expectedResult_ignorePins.AvailableVersions = { "1.1.0", "1.0.1", "1.0.0" };
-    expectedResult_ignorePins.UnavailableVersions = {};
-
-    ExpectedResultWithPin expectedResult_includePinned;
-    ExpectedResultWithPin expectedResult_considerPins;
+    expectedResult.ResultsForPinBehavior[PinBehavior::IgnorePins] = { /* IsUpdateAvailable */ true, /* LatestAvailableVersion */ "1.1.0" };
 
     PinKey pinKey("Id", setup.Available->Details.Identifier);
     auto pinningIndex = PinningIndex::OpenOrCreateDefault();
@@ -1119,56 +1120,69 @@ TEST_CASE("CompositeSource_PinnedAvailable", "[CompositeSource][PinFlow]")
     SECTION("Unpinned")
     {
         // If there are no pins, the result should not change if we consider them
-        expectedResult_considerPins = expectedResult_ignorePins;
-        expectedResult_includePinned = expectedResult_ignorePins;
+        expectedResult.ResultsForPinBehavior[PinBehavior::ConsiderPins] = expectedResult.ResultsForPinBehavior[PinBehavior::IgnorePins];
+        expectedResult.ResultsForPinBehavior[PinBehavior::IncludePinned] = expectedResult.ResultsForPinBehavior[PinBehavior::IgnorePins];
+        expectedResult.AvailableVersions = {
+            { "AvailableTestSource1", "1.1.0", "", Pinning::PinType::Unknown },
+            { "AvailableTestSource1", "1.0.1", "", Pinning::PinType::Unknown },
+            { "AvailableTestSource1", "1.0.0", "", Pinning::PinType::Unknown },
+        };
     }
     SECTION("Pinned")
     {
         pinningIndex->AddPin(Pin::CreatePinningPin(PinKey{ pinKey }));
 
         // Pinning pins are ignored with --include-pinned
-        expectedResult_includePinned = expectedResult_ignorePins;
+        expectedResult.ResultsForPinBehavior[PinBehavior::IncludePinned] = expectedResult.ResultsForPinBehavior[PinBehavior::IgnorePins];
 
-        expectedResult_considerPins.IsUpdateAvailable = false;
-        expectedResult_considerPins.LatestAvailableVersion = {};
-        expectedResult_considerPins.AvailableVersions = {};
-        expectedResult_considerPins.UnavailableVersions = { "1.1.0", "1.0.1", "1.0.0" };
+        expectedResult.ResultsForPinBehavior[PinBehavior::ConsiderPins] = { /* IsUpdateAvailable */ false, /* LatestAvailableVersion */ {} };
+        expectedResult.AvailableVersions = {
+            { "AvailableTestSource1", "1.1.0", "", Pinning::PinType::Pinning },
+            { "AvailableTestSource1", "1.0.1", "", Pinning::PinType::Pinning },
+            { "AvailableTestSource1", "1.0.0", "", Pinning::PinType::Pinning },
+        };
     }
     SECTION("Blocked")
     {
         pinningIndex->AddPin(Pin::CreateBlockingPin(PinKey{ pinKey }));
-
-        expectedResult_considerPins.IsUpdateAvailable = false;
-        expectedResult_considerPins.LatestAvailableVersion = {};
-        expectedResult_considerPins.AvailableVersions = {};
-        expectedResult_considerPins.UnavailableVersions = { "1.1.0", "1.0.1", "1.0.0" };
+        expectedResult.ResultsForPinBehavior[PinBehavior::ConsiderPins] = { /* IsUpdateAvailable */ false, /* LatestAvailableVersion */ {} };
 
         // Blocking pins are not affected by --include-pinned
-        expectedResult_includePinned = expectedResult_considerPins;
+        expectedResult.ResultsForPinBehavior[PinBehavior::IncludePinned] = expectedResult.ResultsForPinBehavior[PinBehavior::ConsiderPins];
+
+        expectedResult.AvailableVersions = {
+            { "AvailableTestSource1", "1.1.0", "", Pinning::PinType::Blocking },
+            { "AvailableTestSource1", "1.0.1", "", Pinning::PinType::Blocking },
+            { "AvailableTestSource1", "1.0.0", "", Pinning::PinType::Blocking },
+        };
     }
     SECTION("Gated to 1.*")
     {
         pinningIndex->AddPin(Pin::CreateGatingPin(PinKey{ pinKey }, GatedVersion{ "1.*"sv }));
-
-        expectedResult_considerPins.IsUpdateAvailable = true;
-        expectedResult_considerPins.LatestAvailableVersion = "1.1.0";
-        expectedResult_considerPins.AvailableVersions = { "1.1.0", "1.0.1", "1.0.0" };
-        expectedResult_considerPins.UnavailableVersions = {};
+        expectedResult.ResultsForPinBehavior[PinBehavior::ConsiderPins] = { /* IsUpdateAvailable */ true, /* LatestAvailableVersion */ "1.1.0" };
 
         // Gating pins are not affected by --include-pinned
-        expectedResult_includePinned = expectedResult_considerPins;
+        expectedResult.ResultsForPinBehavior[PinBehavior::IncludePinned] = expectedResult.ResultsForPinBehavior[PinBehavior::ConsiderPins];
+
+        expectedResult.AvailableVersions = {
+            { "AvailableTestSource1", "1.1.0", "", Pinning::PinType::Unknown },
+            { "AvailableTestSource1", "1.0.1", "", Pinning::PinType::Unknown },
+            { "AvailableTestSource1", "1.0.0", "", Pinning::PinType::Unknown },
+        };
     }
     SECTION("Gated to 1.0.*")
     {
         pinningIndex->AddPin(Pin::CreateGatingPin(PinKey{ pinKey }, GatedVersion{ "1.0.*"sv }));
-
-        expectedResult_considerPins.IsUpdateAvailable = false;
-        expectedResult_considerPins.LatestAvailableVersion = "1.0.1";
-        expectedResult_considerPins.AvailableVersions = { "1.0.1", "1.0.0" };
-        expectedResult_considerPins.UnavailableVersions = { "1.1.0" };
+        expectedResult.ResultsForPinBehavior[PinBehavior::ConsiderPins] = { /* IsUpdateAvailable */ false, /* LatestAvailableVersion */ "1.0.1"};
 
         // Gating pins are not affected by --include-pinned
-        expectedResult_includePinned = expectedResult_considerPins;
+        expectedResult.ResultsForPinBehavior[PinBehavior::IncludePinned] = expectedResult.ResultsForPinBehavior[PinBehavior::ConsiderPins];
+
+        expectedResult.AvailableVersions = {
+            { "AvailableTestSource1", "1.1.0", "", Pinning::PinType::Gating },
+            { "AvailableTestSource1", "1.0.1", "", Pinning::PinType::Unknown },
+            { "AvailableTestSource1", "1.0.0", "", Pinning::PinType::Unknown },
+        };
     }
 
     SearchResult result = setup.Search();
@@ -1176,9 +1190,7 @@ TEST_CASE("CompositeSource_PinnedAvailable", "[CompositeSource][PinFlow]")
     auto package = result.Matches[0].Package;
     REQUIRE(package);
 
-    RequireExpectedResultsWithPin(package, PinBehavior::IgnorePins, expectedResult_ignorePins);
-    RequireExpectedResultsWithPin(package, PinBehavior::IncludePinned, expectedResult_includePinned);
-    RequireExpectedResultsWithPin(package, PinBehavior::ConsiderPins, expectedResult_considerPins);
+    RequireExpectedResultsWithPin(package, expectedResult);
 }
 
 TEST_CASE("CompositeSource_OneSourcePinned", "[CompositeSource][PinFlow]")
@@ -1223,38 +1235,20 @@ TEST_CASE("CompositeSource_OneSourcePinned", "[CompositeSource][PinFlow]")
         pinningIndex->AddPin(Pin::CreatePinningPin(PinKey{ pinKey }));
     }
 
-    PinBehavior pinBehavior = PinBehavior::IgnorePins;
-    ExpectedResultWithPin expectedResult;
-    SECTION("Ignore pins")
-    {
-        pinBehavior = PinBehavior::IgnorePins;
-        expectedResult.IsUpdateAvailable = true;
-        expectedResult.LatestAvailableVersion = "2.0";
-        expectedResult.AvailableVersions = { "2.0", "1.1" };
-        expectedResult.UnavailableVersions = {};
-    }
-    SECTION("Include pinned")
-    {
-        pinBehavior = PinBehavior::IncludePinned;
-        expectedResult.IsUpdateAvailable = true;
-        expectedResult.LatestAvailableVersion = "2.0";
-        expectedResult.AvailableVersions = { "2.0", "1.1" };
-        expectedResult.UnavailableVersions = {};
-    }
-    SECTION("Consider pins")
-    {
-        pinBehavior = PinBehavior::ConsiderPins;
-        expectedResult.IsUpdateAvailable = true;
-        expectedResult.LatestAvailableVersion = "1.1";
-        expectedResult.AvailableVersions = { "1.1" };
-        expectedResult.UnavailableVersions = { "2.0" };
-    }
+    ExpectedResultsForPinning expectedResult;
+    expectedResult.ResultsForPinBehavior[PinBehavior::IgnorePins] = { /* IsUpdateAvailable */ true, /* LatestAvailableVersion */ "2.0" };
+    expectedResult.ResultsForPinBehavior[PinBehavior::ConsiderPins] = { /* IsUpdateAvailable */ true, /* LatestAvailableVersion */ "1.1" };
+    expectedResult.ResultsForPinBehavior[PinBehavior::IncludePinned] = { /* IsUpdateAvailable */ true, /* LatestAvailableVersion */ "2.0" };
+    expectedResult.AvailableVersions = {
+        { "AvailableTestSource1", "2.0", "", Pinning::PinType::Pinning },
+        { "SecondTestSource", "1.1", "", Pinning::PinType::Unknown },
+    };
 
     SearchResult result = setup.Search();
     REQUIRE(result.Matches.size() == 1);
     auto package = result.Matches[0].Package;
     REQUIRE(package);
-    RequireExpectedResultsWithPin(package, pinBehavior, expectedResult);
+    RequireExpectedResultsWithPin(package, expectedResult);
 }
 
 TEST_CASE("CompositeSource_OneSourceGated", "[CompositeSource][PinFlow]")
@@ -1304,36 +1298,14 @@ TEST_CASE("CompositeSource_OneSourceGated", "[CompositeSource][PinFlow]")
         pinningIndex->AddPin(Pin::CreateGatingPin(PinKey{ pinKey }, GatedVersion{ "1.*"sv }));
     }
 
-    PinBehavior pinBehavior = PinBehavior::IgnorePins;
-    ExpectedResultWithPin expectedResult;
-    SECTION("Ignore pins")
-    {
-        pinBehavior = PinBehavior::IgnorePins;
-        expectedResult.IsUpdateAvailable = true;
-        expectedResult.LatestAvailableVersion = "2.0";
-        expectedResult.AvailableVersions = { "2.0", "1.2", "1.1"};
-        expectedResult.UnavailableVersions = {};
-    }
-    SECTION("Include pinned")
-    {
-        pinBehavior = PinBehavior::IncludePinned;
-        expectedResult.IsUpdateAvailable = true;
-        expectedResult.LatestAvailableVersion = "1.2";
-        expectedResult.AvailableVersions = { "1.2", "1.1" };
-        expectedResult.UnavailableVersions = { "2.0" };
-    }
-    SECTION("Consider pins")
-    {
-        pinBehavior = PinBehavior::ConsiderPins;
-        expectedResult.IsUpdateAvailable = true;
-        expectedResult.LatestAvailableVersion = "1.2";
-        expectedResult.AvailableVersions = { "1.2", "1.1"};
-        expectedResult.UnavailableVersions = { "2.0" };
-    }
+    ExpectedResultsForPinning expectedResult;
+    expectedResult.ResultsForPinBehavior[PinBehavior::IgnorePins] = { /* IsUpdateAvailable */ true, /* LatestAvailableVersion */ "2.0" };
+    expectedResult.ResultsForPinBehavior[PinBehavior::ConsiderPins] = { /* IsUpdateAvailable */ true, /* LatestAvailableVersion */ "1.2" };
+    expectedResult.ResultsForPinBehavior[PinBehavior::IncludePinned] = { /* IsUpdateAvailable */ true, /* LatestAvailableVersion */ "1.2" };
 
     SearchResult result = setup.Search();
     REQUIRE(result.Matches.size() == 1);
     auto package = result.Matches[0].Package;
     REQUIRE(package);
-    RequireExpectedResultsWithPin(package, pinBehavior, expectedResult);
+    RequireExpectedResultsWithPin(package, expectedResult);
 }

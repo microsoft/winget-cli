@@ -1654,4 +1654,7 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="PinRemovedSuccessfully" xml:space="preserve">
     <value>Pin removed successfully</value>
   </data>
+  <data name="UpgradeIsPinned" xml:space="preserve">
+    <value>A newer version was found, but the package has a pin that prevents from updating it.</value>
+  </data>
 </root>
