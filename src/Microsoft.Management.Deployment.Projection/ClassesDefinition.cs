@@ -46,10 +46,10 @@ namespace Microsoft.Management.Deployment.Projection
                 }
             },
 
-            [typeof(ConnectOptions)] = new()
+            [typeof(PackageCatalogConnectOptions)] = new()
             {
-                ProjectedClassType = typeof(ConnectOptions),
-                InterfaceType = typeof(IConnectOptions),
+                ProjectedClassType = typeof(PackageCatalogConnectOptions),
+                InterfaceType = typeof(IPackageCatalogConnectOptions),
                 Clsids = new Dictionary<ClsidContext, Guid>()
                 {
                     [ClsidContext.InProc] = new Guid("D026FDDC-44D3-443A-8DAB-A4DD969943B3"),

@@ -36,6 +36,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         void AllowUpgradeToUnknownVersion(bool value);
         bool Force();
         void Force(bool value);
+        bool AcceptPackageAgreements();
+        void AcceptPackageAgreements(bool value);
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
@@ -51,8 +53,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         std::wstring m_additionalPackageCatalogArguments = L"";
         Windows::Foundation::Collections::IVector<Windows::System::ProcessorArchitecture> m_allowedArchitectures{
             winrt::single_threaded_vector<winrt::Windows::System::ProcessorArchitecture>() };
+        Windows::Foundation::Collections::IVector<winrt::Microsoft::Management::Deployment::PackageAgreement> m_packageAgreements{
+            winrt::single_threaded_vector<winrt::Microsoft::Management::Deployment::PackageAgreement>() };
         bool m_allowUpgradeToUnknownVersion = false;
         bool m_force = false;
+        bool m_acceptPackageAgreements = false;
 #endif
     };
 }

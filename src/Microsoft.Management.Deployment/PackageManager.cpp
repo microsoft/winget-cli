@@ -547,6 +547,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 THROW_HR(APPINSTALLER_CLI_ERROR_UPGRADE_VERSION_NOT_NEWER);
             }
 
+            // TODO: Replace the line below with the commented block once we have determined if we need to verify whether package agreements have been accepted. 
+            //if (options.AcceptPackageAgreements())
+            //{
+            //    comContext->SetFlags(AppInstaller::CLI::Execution::ContextFlag::AgreementsAcceptedByCaller);
+            //}
+
+            comContext->SetFlags(AppInstaller::CLI::Execution::ContextFlag::AgreementsAcceptedByCaller);
+
             // Set upgrade flag
             comContext->SetFlags(AppInstaller::CLI::Execution::ContextFlag::InstallerExecutionUseUpdate);
             // Add installed version

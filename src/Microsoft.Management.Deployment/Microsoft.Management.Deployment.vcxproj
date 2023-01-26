@@ -138,7 +138,6 @@
   <ItemGroup>
     <ClInclude Include="CatalogPackage.h" />
     <ClInclude Include="CheckInstalledStatusResult.h" />
-    <ClInclude Include="ConnectOptions.h" />
     <ClInclude Include="ConnectResult.h" />
     <ClInclude Include="Converters.h" />
     <ClInclude Include="CreateCompositePackageCatalogOptions.h" />
@@ -149,7 +148,9 @@
     <ClInclude Include="InstallOptions.h" />
     <ClInclude Include="InstallResult.h" />
     <ClInclude Include="MatchResult.h" />
+    <ClInclude Include="PackageAgreement.h" />
     <ClInclude Include="PackageCatalog.h" />
+    <ClInclude Include="PackageCatalogConnectOptions.h" />
     <ClInclude Include="PackageCatalogInfo.h" />
     <ClInclude Include="PackageCatalogReference.h" />
     <ClInclude Include="PackageInstallerInfo.h" />
@@ -169,7 +170,6 @@
     <ClCompile Include="CatalogPackage.cpp" />
     <ClCompile Include="CheckInstalledStatusResult.cpp" />
     <ClCompile Include="ComClsids.cpp" />
-    <ClCompile Include="ConnectOptions.cpp" />
     <ClCompile Include="ConnectResult.cpp" />
     <ClCompile Include="Converters.cpp" />
     <ClCompile Include="CreateCompositePackageCatalogOptions.cpp" />
@@ -180,7 +180,9 @@
     <ClCompile Include="InstallOptions.cpp" />
     <ClCompile Include="InstallResult.cpp" />
     <ClCompile Include="MatchResult.cpp" />
+    <ClCompile Include="PackageAgreement.cpp" />
     <ClCompile Include="PackageCatalog.cpp" />
+    <ClCompile Include="PackageCatalogConnectOptions.cpp" />
     <ClCompile Include="PackageCatalogInfo.cpp" />
     <ClCompile Include="PackageCatalogReference.cpp" />
     <ClCompile Include="PackageInstallerInfo.cpp" />

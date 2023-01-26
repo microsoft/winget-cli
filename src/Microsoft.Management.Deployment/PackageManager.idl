@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 namespace Microsoft.Management.Deployment
 {
-    [contractversion(7)]
+    [contractversion(6)]
     apicontract WindowsPackageManagerContract{};
 
     /// State of the install
@@ -459,6 +459,12 @@ namespace Microsoft.Management.Deployment
         /// IsSame from IPackage in winget/RepositorySearch is not implemented in V1.
         /// Determines if the given IPackage refers to the same package as this one.
         /// virtual bool IsSame(const IPackage*) const = 0;
+        
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
+        {
+            /// Gets the agreements of this package.
+            Windows.Foundation.Collections.IVectorView<PackageAgreement> GetPackageAgreements(PackageVersionId versionKey);
+        }
     }
 
     /// IMPLEMENTATION NOTE: CompositeSearchBehavior from winget/RepositorySource.h
@@ -644,7 +650,7 @@ namespace Microsoft.Management.Deployment
             String AdditionalPackageCatalogArguments;
         }
 
-        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 7)]
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
         {
             /// Gets the required agreements for connecting to the package catalog (source).
             Windows.Foundation.Collections.IVectorView<SourceAgreement> SourceAgreements{ get; };
@@ -777,6 +783,9 @@ namespace Microsoft.Management.Deployment
             /// A string that will be passed to the installer
             /// IMPLEMENTATION NOTE: maps to "--custom" in the winget cmd line
             String AdditionalInstallerArguments;
+
+            /// Accept the package agreements required for installation.
+            Boolean AcceptPackageAgreements;
         }
     }
 
@@ -833,22 +842,35 @@ namespace Microsoft.Management.Deployment
     }
 
     /// Options when connecting to a package catalog.
-    /// Intended to allow agreements to be exposed and passed when connecting to the package catalog.
-    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 7)]
-    runtimeclass ConnectOptions
+    /// Intended to allow source agreements to be accepted connecting to the package catalog.
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
+    runtimeclass PackageCatalogConnectOptions
     {
-        ConnectOptions();
+        PackageCatalogConnectOptions();
 
-        Windows.Foundation.Collections.IVector<SourceAgreement> SourceAgreements;
+        /// Accept the source agreements required when connecting to a package catalog.
+        Boolean AcceptSourceAgreements;
     }
-        
-    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 7)]
+    
+    /// IMPLEMENTATION NOTE: SourceOrigin from AppInstaller::Repository::SourceAgreement
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
     runtimeclass SourceAgreement
     {
         String Label { get; };
 
         String Text{ get; };
     
+        String Url{ get; };
+    }
+
+    /// IMPLEMENTATION NOTE: SourceOrigin from AppInstaller::Manifest::Agreement
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
+    runtimeclass PackageAgreement
+    {
+        String Label { get; };
+
+        String Text{ get; };
+
         String Url{ get; };
     }
 
@@ -962,5 +984,7 @@ namespace Microsoft.Management.Deployment
         interface Windows.Foundation.Collections.IVectorView<CheckInstalledStatusResult>;
         interface Windows.Foundation.Collections.IVector<SourceAgreement>;
         interface Windows.Foundation.Collections.IVectorView<SourceAgreement>;
+        interface Windows.Foundation.Collections.IVector<PackageAgreement>;
+        interface Windows.Foundation.Collections.IVectorView<PackageAgreement>;
     }
 }

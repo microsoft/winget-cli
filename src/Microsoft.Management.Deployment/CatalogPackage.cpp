@@ -146,4 +146,20 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         return m_package;
     }
+    Windows::Foundation::Collections::IVectorView<Microsoft::Management::Deployment::PackageAgreement> CatalogPackage::GetPackageAgreements(winrt::Microsoft::Management::Deployment::PackageVersionId const& versionKey)
+    {
+        ::AppInstaller::Repository::PackageVersionKey internalVersionKey(winrt::to_string(versionKey.PackageCatalogId()), winrt::to_string(versionKey.Version()), winrt::to_string(versionKey.Channel()));
+        std::shared_ptr<::AppInstaller::Repository::IPackageVersion> availableVersion = m_package.get()->GetAvailableVersion(internalVersionKey);
+
+        auto agreements = availableVersion->GetManifest().CurrentLocalization.Get<AppInstaller::Manifest::Localization::Agreements>();
+
+        for (auto const& agreement : agreements)
+        {
+            auto packageAgreement = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageAgreement>>();
+            packageAgreement->Initialize(agreement);
+            m_packageAgreements.Append(*packageAgreement);
+        }
+
+        return m_packageAgreements.GetView();
+    }
 }

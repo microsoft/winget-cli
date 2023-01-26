@@ -21,7 +21,7 @@ using namespace winrt::Microsoft::Management::Deployment;
 CoCreatableClassWrlCreatorMapInclude(PackageManager);
 CoCreatableClassWrlCreatorMapInclude(FindPackagesOptions);
 CoCreatableClassWrlCreatorMapInclude(CreateCompositePackageCatalogOptions);
-CoCreatableClassWrlCreatorMapInclude(ConnectOptions);
+CoCreatableClassWrlCreatorMapInclude(PackageCatalogConnectOptions);
 CoCreatableClassWrlCreatorMapInclude(InstallOptions);
 CoCreatableClassWrlCreatorMapInclude(UninstallOptions);
 CoCreatableClassWrlCreatorMapInclude(PackageMatchFilter);

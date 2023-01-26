@@ -76,7 +76,17 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Assert
             Assert.AreEqual(1, searchResult.Count);
-            //searchResult[0].CatalogPackage.Agreements.
+
+            var catalogPackage = searchResult[0].CatalogPackage;
+            var packageVersionId = catalogPackage.AvailableVersions[0];
+            var packageAgreements = catalogPackage.GetPackageAgreements(packageVersionId);
+
+            Assert.AreEqual(1, packageAgreements.Count);
+
+            var agreement = packageAgreements[0];
+            Assert.AreEqual("DefaultLabel", agreement.Label);
+            Assert.AreEqual("DefaultText", agreement.Text);
+            Assert.AreEqual("https://DefaultAgreementUrl.net", agreement.Url);
         }
     }
 }
