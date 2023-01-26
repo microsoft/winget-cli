@@ -5,6 +5,7 @@
     <ClCompile Include="ConnectResult.cpp" />
     <ClCompile Include="Converters.cpp" />
     <ClCompile Include="CreateCompositePackageCatalogOptions.cpp" />
+    <ClInclude Include="Documentation.cpp" />
     <ClCompile Include="FindPackagesOptions.cpp" />
     <ClCompile Include="FindPackagesResult.cpp" />
     <ClCompile Include="Helpers.cpp" />
@@ -16,6 +17,7 @@
     <ClCompile Include="PackageCatalogConnectOptions.cpp" />
     <ClCompile Include="PackageCatalogInfo.cpp" />
     <ClCompile Include="PackageCatalogReference.cpp" />
+    <ClCompile Include="PackageLocale.cpp" />
     <ClCompile Include="PackageManager.cpp" />
     <ClCompile Include="PackageMatchFilter.cpp" />
     <ClCompile Include="PackageVersionId.cpp" />
@@ -37,6 +39,7 @@
     <ClInclude Include="ConnectResult.h" />
     <ClInclude Include="Converters.h" />
     <ClInclude Include="CreateCompositePackageCatalogOptions.h" />
+    <ClInclude Include="Documentation.h" />
     <ClInclude Include="FindPackagesOptions.h" />
     <ClInclude Include="FindPackagesResult.h" />
     <ClInclude Include="Helpers.h" />
@@ -48,6 +51,7 @@
     <ClCompile Include="PackageCatalogConnectOptions.h" />
     <ClInclude Include="PackageCatalogInfo.h" />
     <ClInclude Include="PackageCatalogReference.h" />
+    <ClCompile Include="PackageLocale.h" />
     <ClInclude Include="PackageManager.h" />
     <ClInclude Include="PackageMatchFilter.h" />
     <ClInclude Include="PackageVersionId.h" />

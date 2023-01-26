@@ -6,11 +6,13 @@
 #include "CatalogPackage.h"
 #include "CatalogPackage.g.cpp"
 #include "PackageCatalog.h"
+#include "PackageLocale.h"
 #include "PackageVersionInfo.h"
 #include "PackageVersionId.h"
 #include "PackageInstallerInstalledStatus.h"
 #include "CheckInstalledStatusResult.h"
 #include <wil\cppwinrt_wrl.h>
+
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
@@ -146,20 +148,43 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         return m_package;
     }
-    Windows::Foundation::Collections::IVectorView<Microsoft::Management::Deployment::PackageAgreement> CatalogPackage::GetPackageAgreements(winrt::Microsoft::Management::Deployment::PackageVersionId const& versionKey)
+    winrt::Microsoft::Management::Deployment::PackageLocale CatalogPackage::GetDefaultLocale(winrt::Microsoft::Management::Deployment::PackageVersionId const& versionKey)
     {
         ::AppInstaller::Repository::PackageVersionKey internalVersionKey(winrt::to_string(versionKey.PackageCatalogId()), winrt::to_string(versionKey.Version()), winrt::to_string(versionKey.Channel()));
+        auto defaultLocale = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageLocale>>();
+
         std::shared_ptr<::AppInstaller::Repository::IPackageVersion> availableVersion = m_package.get()->GetAvailableVersion(internalVersionKey);
-
-        auto agreements = availableVersion->GetManifest().CurrentLocalization.Get<AppInstaller::Manifest::Localization::Agreements>();
-
-        for (auto const& agreement : agreements)
+        if (availableVersion)
         {
-            auto packageAgreement = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageAgreement>>();
-            packageAgreement->Initialize(agreement);
-            m_packageAgreements.Append(*packageAgreement);
+            defaultLocale->Initialize(availableVersion->GetManifest().DefaultLocalization);
         }
 
-        return m_packageAgreements.GetView();
+        return *defaultLocale;
+    }
+    winrt::Microsoft::Management::Deployment::PackageLocale CatalogPackage::GetLocale(winrt::Microsoft::Management::Deployment::PackageVersionId const& versionKey, hstring locale)
+    {
+        ::AppInstaller::Repository::PackageVersionKey internalVersionKey(winrt::to_string(versionKey.PackageCatalogId()), winrt::to_string(versionKey.Version()), winrt::to_string(versionKey.Channel()));
+        auto currentLocale = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageLocale>>();
+
+        std::shared_ptr<::AppInstaller::Repository::IPackageVersion> availableVersion = m_package.get()->GetAvailableVersion(internalVersionKey);
+        if (availableVersion)
+        {
+            availableVersion->GetManifest().ApplyLocale(winrt::to_string(locale));
+            currentLocale->Initialize(availableVersion->GetManifest().CurrentLocalization);
+        }
+
+        return *currentLocale;
+    }
+    winrt::Windows::Foundation::Collections::IVectorView<hstring> CatalogPackage::AvailableLocales(winrt::Microsoft::Management::Deployment::PackageVersionId const& versionKey)
+    {
+        Windows::Foundation::Collections::IVector<hstring> locales{ winrt::single_threaded_vector<hstring>() };
+        ::AppInstaller::Repository::PackageVersionKey internalVersionKey(winrt::to_string(versionKey.PackageCatalogId()), winrt::to_string(versionKey.Version()), winrt::to_string(versionKey.Channel()));
+
+        for (auto const& localization : m_package.get()->GetAvailableVersion(internalVersionKey)->GetManifest().Localizations)
+        {
+            locales.Append(winrt::to_hstring(localization.Locale));
+        }
+
+        return locales.GetView();
     }
 }

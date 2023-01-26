@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include "CatalogPackage.g.h"
-#include <PackageAgreement.h>
+#include "PackageLocale.h"
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
@@ -32,14 +32,15 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         winrt::Windows::Foundation::IAsyncOperation<winrt::Microsoft::Management::Deployment::CheckInstalledStatusResult> CheckInstalledStatusAsync();
         winrt::Microsoft::Management::Deployment::CheckInstalledStatusResult CheckInstalledStatus();
         // Contract 7.0
-        winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::PackageAgreement> GetPackageAgreements(winrt::Microsoft::Management::Deployment::PackageVersionId const& versionKey);
+        winrt::Microsoft::Management::Deployment::PackageLocale GetDefaultLocale(winrt::Microsoft::Management::Deployment::PackageVersionId const& versionKey);
+        winrt::Microsoft::Management::Deployment::PackageLocale GetLocale(winrt::Microsoft::Management::Deployment::PackageVersionId const& versionKey, hstring locale);
+        winrt::Windows::Foundation::Collections::IVectorView<hstring> AvailableLocales(winrt::Microsoft::Management::Deployment::PackageVersionId const& versionKey);
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
         ::AppInstaller::Repository::Source m_source;
         std::shared_ptr<::AppInstaller::Repository::IPackage> m_package;
         Windows::Foundation::Collections::IVector<winrt::Microsoft::Management::Deployment::PackageVersionId> m_availableVersions{ winrt::single_threaded_vector<winrt::Microsoft::Management::Deployment::PackageVersionId>() };
-        Windows::Foundation::Collections::IVector<winrt::Microsoft::Management::Deployment::PackageAgreement> m_packageAgreements{ winrt::single_threaded_vector<winrt::Microsoft::Management::Deployment::PackageAgreement>() };
         winrt::Microsoft::Management::Deployment::PackageVersionInfo m_installedVersion{ nullptr };
         winrt::Microsoft::Management::Deployment::PackageVersionInfo m_defaultInstallVersion{ nullptr };
         std::once_flag m_installedVersionOnceFlag;

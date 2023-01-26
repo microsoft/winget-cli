@@ -141,6 +141,7 @@
     <ClInclude Include="ConnectResult.h" />
     <ClInclude Include="Converters.h" />
     <ClInclude Include="CreateCompositePackageCatalogOptions.h" />
+    <ClInclude Include="Documentation.h" />
     <ClInclude Include="FindPackagesOptions.h" />
     <ClInclude Include="FindPackagesResult.h" />
     <ClInclude Include="Helpers.h" />
@@ -155,6 +156,7 @@
     <ClInclude Include="PackageCatalogReference.h" />
     <ClInclude Include="PackageInstallerInfo.h" />
     <ClInclude Include="PackageInstallerInstalledStatus.h" />
+    <ClInclude Include="PackageLocale.h" />
     <ClInclude Include="PackageManager.h" />
     <ClInclude Include="PackageManagerSettings.h" />
     <ClInclude Include="PackageMatchFilter.h" />
@@ -173,6 +175,7 @@
     <ClCompile Include="ConnectResult.cpp" />
     <ClCompile Include="Converters.cpp" />
     <ClCompile Include="CreateCompositePackageCatalogOptions.cpp" />
+    <ClCompile Include="Documentation.cpp" />
     <ClCompile Include="FindPackagesOptions.cpp" />
     <ClCompile Include="FindPackagesResult.cpp" />
     <ClCompile Include="Helpers.cpp" />
@@ -187,6 +190,7 @@
     <ClCompile Include="PackageCatalogReference.cpp" />
     <ClCompile Include="PackageInstallerInfo.cpp" />
     <ClCompile Include="PackageInstallerInstalledStatus.cpp" />
+    <ClCompile Include="PackageLocale.cpp" />
     <ClCompile Include="PackageManager.cpp" />
     <ClCompile Include="PackageManagerSettings.cpp" />
     <ClCompile Include="PackageMatchFilter.cpp" />

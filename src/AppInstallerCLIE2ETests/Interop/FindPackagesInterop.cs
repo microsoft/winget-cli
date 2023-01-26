@@ -79,7 +79,8 @@ namespace AppInstallerCLIE2ETests.Interop
 
             var catalogPackage = searchResult[0].CatalogPackage;
             var packageVersionId = catalogPackage.AvailableVersions[0];
-            var packageAgreements = catalogPackage.GetPackageAgreements(packageVersionId);
+            var defaultLocale = catalogPackage.GetDefaultLocale(packageVersionId);
+            var packageAgreements = defaultLocale.Agreements;
 
             Assert.AreEqual(1, packageAgreements.Count);
 

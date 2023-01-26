@@ -462,8 +462,11 @@ namespace Microsoft.Management.Deployment
         
         [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
         {
-            /// Gets the agreements of this package.
-            Windows.Foundation.Collections.IVectorView<PackageAgreement> GetPackageAgreements(PackageVersionId versionKey);
+            PackageLocale GetDefaultLocale(PackageVersionId versionKey);
+
+            PackageLocale GetLocale(PackageVersionId versionKey, String locale);
+
+            Windows.Foundation.Collections.IVectorView<String> AvailableLocales(PackageVersionId versionKey);
         }
     }
 
@@ -851,7 +854,16 @@ namespace Microsoft.Management.Deployment
         /// Accept the source agreements required when connecting to a package catalog.
         Boolean AcceptSourceAgreements;
     }
-    
+
+    /// IMPLEMENTATION NOTE: SourceOrigin from AppInstaller::Repository::Documentation
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
+    runtimeclass Documentation
+    {
+        String DocumentLabel { get; };
+
+        String DocumentUrl{ get; };
+    }
+
     /// IMPLEMENTATION NOTE: SourceOrigin from AppInstaller::Repository::SourceAgreement
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
     runtimeclass SourceAgreement
@@ -872,6 +884,47 @@ namespace Microsoft.Management.Deployment
         String Text{ get; };
 
         String Url{ get; };
+    }
+
+    /// IMPLEMENTATION NOTE: SourceOrigin from AppInstaller::Manifest::Localization
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
+    runtimeclass PackageLocale
+    {
+        String Publisher { get; };
+
+        String PublisherSupportUrl { get; };
+
+        String PrivacyUrl{ get; };
+
+        String Author{ get; };
+
+        String PackageName{ get; };
+
+        String PackageUrl{ get; };
+
+        String License{ get; };
+
+        String LicenseUrl{ get; };
+
+        String Copyright{ get; };
+
+        String CopyrightUrl{ get; };
+
+        String ShortDescription{ get; };
+
+        String Description{ get; };
+
+        Windows.Foundation.Collections.IVectorView<String> Tags{ get; };
+
+        Windows.Foundation.Collections.IVectorView<PackageAgreement> Agreements{ get; };
+
+        Windows.Foundation.Collections.IVectorView<Documentation> Documentations{ get; };
+
+        String ReleaseNotes{ get; };
+
+        String ReleaseNotesUrl{ get; };
+
+        String InstallationNotes{ get; };
     }
 
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
@@ -986,5 +1039,7 @@ namespace Microsoft.Management.Deployment
         interface Windows.Foundation.Collections.IVectorView<SourceAgreement>;
         interface Windows.Foundation.Collections.IVector<PackageAgreement>;
         interface Windows.Foundation.Collections.IVectorView<PackageAgreement>;
+        interface Windows.Foundation.Collections.IVector<Documentation>;
+        interface Windows.Foundation.Collections.IVectorView<Documentation>;
     }
 }
