@@ -643,6 +643,7 @@ namespace AppInstaller::Repository
                         details.Arg = additionalSource.Arg;
                         details.Data = additionalSource.Data;
                         details.Identifier = additionalSource.Identifier;
+                        details.IsVisible = !additionalSource.IsHidden;
                         details.Origin = SourceOrigin::GroupPolicy;
 #ifndef AICLI_DISABLE_TEST_HOOKS
                         details.CertificatePinningConfiguration = additionalSource.PinningConfiguration;

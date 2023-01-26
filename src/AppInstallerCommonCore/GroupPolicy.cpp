@@ -196,6 +196,14 @@ namespace AppInstaller::Settings
                 return std::nullopt;
             }
 
+            // IsHidden attribute is optional. When a source is hidden, it can only be reached with direct name.
+            const std::string isHiddenName = "IsHidden";
+            if (sourceJson.isMember(isHiddenName) &&sourceJson[isHiddenName].isBool())
+            {
+                source.IsHidden = sourceJson[isHiddenName].asBool();
+                AICLI_LOG(Core, Info, << "Source " << source.Name << " is hidden: " <<source.IsHidden);
+            }
+
 #ifndef AICLI_DISABLE_TEST_HOOKS
             // Enable certificate pinning configuration through GP sources for testing
             const std::string pinningConfigurationName = "CertificatePinning";

@@ -80,6 +80,7 @@ namespace AppInstaller::Settings
         std::string Type;
         std::string Data;
         std::string Identifier;
+        bool IsHidden = false;
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
         Certificates::PinningConfiguration PinningConfiguration;

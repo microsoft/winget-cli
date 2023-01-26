@@ -246,9 +246,9 @@ namespace AppInstaller::Repository
 
     Source::Source() {}
 
-    Source::Source(std::string_view name)
+    Source::Source(std::string_view name, bool includeHidden)
     {
-        InitializeSourceReference(name);
+        InitializeSourceReference(name, includeHidden);
     }
 
     Source::Source(PredefinedSource source)
@@ -323,7 +323,7 @@ namespace AppInstaller::Repository
         return !m_sourceReferences.empty() || m_source != nullptr;
     }
 
-    void Source::InitializeSourceReference(std::string_view name)
+    void Source::InitializeSourceReference(std::string_view name, bool includeHidden)
     {
         SourceList sourceList;
 
@@ -354,7 +354,7 @@ namespace AppInstaller::Repository
         }
         else
         {
-            auto source = sourceList.GetCurrentSource(name);
+            auto source = includeHidden ? sourceList.GetSource(name) : sourceList.GetCurrentSource(name);
             if (!source)
             {
                 AICLI_LOG(Repo, Info, << "Named source requested, but not found: " << name);

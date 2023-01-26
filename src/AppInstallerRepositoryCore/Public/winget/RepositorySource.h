@@ -163,7 +163,7 @@ namespace AppInstaller::Repository
         Source();
 
         // Constructor to get a named source, passing empty string will get all available sources.
-        Source(std::string_view name);
+        Source(std::string_view name, bool includeHidden = false);
 
         // Constructor to get a PredefinedSource. Like installed source, etc.
         Source(PredefinedSource source);
@@ -265,7 +265,7 @@ namespace AppInstaller::Repository
         static std::vector<SourceDetails> GetCurrentSources();
 
     private:
-        void InitializeSourceReference(std::string_view name);
+        void InitializeSourceReference(std::string_view name, bool includeHidden = false);
 
         std::vector<std::shared_ptr<ISourceReference>> m_sourceReferences;
         std::shared_ptr<ISource> m_source;

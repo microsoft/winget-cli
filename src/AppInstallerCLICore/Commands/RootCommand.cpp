@@ -36,7 +36,10 @@ namespace AppInstaller::CLI
             Execution::TableOutput<3> sourcesTable{ context.Reporter, { header, Resource::String::SourceListType, Resource::String::SourceListArg } };
             for (const auto& source : sources)
             {
-                sourcesTable.OutputLine({ source.Name, source.Type, source.Arg });
+                if (!source.IsHidden)
+                {
+                    sourcesTable.OutputLine({ source.Name, source.Type, source.Arg });
+                }
             }
 
             sourcesTable.Complete();

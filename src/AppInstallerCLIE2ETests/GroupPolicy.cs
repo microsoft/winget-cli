@@ -158,6 +158,21 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
+        /// Test additional hidden sources are enabled by policy.
+        /// </summary>
+        [Test]
+        public void EnableAdditionalSourcesHidden()
+        {
+            GroupPolicyHelper.EnableAdditionalSources.SetEnabledList(new string[]
+            {
+                "{\"Arg\":\"https://localhost:5001/TestKit\",\"Data\":\"WingetE2E.Tests.Hidden_8wekyb3d8bbwe\",\"Identifier\":\"WingetE2E.Tests.Hidden_8wekyb3d8bbwe\",\"Name\":\"TestHiddenSource\",\"Type\":\"Microsoft.PreIndexed.Package\",\"IsHidden\":true}",
+            });
+
+            var result = TestCommon.RunAICLICommand("source list", "TestHiddenSource");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_SOURCE_NAME_DOES_NOT_EXIST, result.ExitCode);
+        }
+
+        /// <summary>
         /// Test enable allowed sources.
         /// </summary>
         [Test]
