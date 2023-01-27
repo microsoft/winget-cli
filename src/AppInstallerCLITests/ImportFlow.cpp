@@ -130,7 +130,7 @@ TEST_CASE("ImportFlow_MissingPackage", "[ImportFlow][workflow]")
     // Installer should not be called
     REQUIRE(!std::filesystem::exists(exeInstallResultPath.GetPath()));
     REQUIRE(importOutput.str().find(Resource::LocString(Resource::String::MultiInstallSearchFailed("MissingPackage"_liv)).get()) != std::string::npos);
-    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_NOT_ALL_PACKAGES_FOUND);
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_NOT_ALL_QUERIES_FOUND_SINGLE);
 }
 
 TEST_CASE("ImportFlow_IgnoreMissingPackage", "[ImportFlow][workflow]")
@@ -171,7 +171,7 @@ TEST_CASE("ImportFlow_MissingVersion", "[ImportFlow][workflow]")
     // Installer should not be called
     REQUIRE(!std::filesystem::exists(exeInstallResultPath.GetPath()));
     REQUIRE(importOutput.str().find(Resource::LocString(Resource::String::MultiInstallSearchFailed("AppInstallerCliTest.TestExeInstaller"_liv)).get()) != std::string::npos);
-    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_NOT_ALL_PACKAGES_FOUND);
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_NOT_ALL_QUERIES_FOUND_SINGLE);
 }
 
 TEST_CASE("ImportFlow_MalformedJsonFile", "[ImportFlow][workflow]")
