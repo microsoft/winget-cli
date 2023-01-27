@@ -28,59 +28,59 @@ namespace AppInstaller::CLI
         {
         // Args to specify where to get app
         case Execution::Args::Type::Query:
-            return { type, "query"_liv, 'q', ArgTypeCategory::SinglePackageQuery };
+            return { type, "query"_liv, 'q', ArgTypeCategory::PackageQuery | ArgTypeCategory::SinglePackageQuery };
         case Execution::Args::Type::Manifest:
             return { type, "manifest"_liv, 'm', ArgTypeCategory::Manifest };
 
         // Query filtering criteria and query behavior
         case Execution::Args::Type::Id:
-            return { type, "id"_liv, ArgTypeCategory::SinglePackageQuery };
+            return { type, "id"_liv, ArgTypeCategory::PackageQuery | ArgTypeCategory::SinglePackageQuery };
         case Execution::Args::Type::Name:
-            return { type, "name"_liv, ArgTypeCategory::SinglePackageQuery };
+            return { type, "name"_liv, ArgTypeCategory::PackageQuery | ArgTypeCategory::SinglePackageQuery };
         case Execution::Args::Type::Moniker:
-            return { type, "moniker"_liv, ArgTypeCategory::SinglePackageQuery };
+            return { type, "moniker"_liv, ArgTypeCategory::PackageQuery | ArgTypeCategory::SinglePackageQuery };
         case Execution::Args::Type::Tag:
-            return { type, "tag"_liv, ArgTypeCategory::PackageQuery | ArgTypeCategory::SinglePackageQuery };
+            return { type, "tag"_liv, ArgTypeCategory::PackageQuery };
         case Execution::Args::Type::Command:
-            return { type, "command"_liv, "cmd"_liv, ArgTypeCategory::SinglePackageQuery };
+            return { type, "command"_liv, "cmd"_liv, ArgTypeCategory::PackageQuery | ArgTypeCategory::SinglePackageQuery };
         case Execution::Args::Type::Source:
             return { type, "source"_liv, 's', ArgTypeCategory::Source };
         case Execution::Args::Type::Count:
             return { type, "count"_liv, 'n', ArgTypeCategory::MultiplePackages };
         case Execution::Args::Type::Exact:
-            return { type, "exact"_liv, 'e', ArgTypeCategory::PackageQuery | ArgTypeCategory::SinglePackageQuery };
+            return { type, "exact"_liv, 'e', ArgTypeCategory::PackageQuery };
 
         // Manifest selection behavior after an app is found
         case Execution::Args::Type::Version:
-            return { type, "version"_liv, 'v', ArgTypeCategory::SinglePackageQuery };
+            return { type, "version"_liv, 'v', ArgTypeCategory::PackageQuery | ArgTypeCategory::SinglePackageQuery };
         case Execution::Args::Type::Channel:
-            return { type, "channel"_liv, 'c', ArgTypeCategory::PackageQuery | ArgTypeCategory::SinglePackageQuery };
+            return { type, "channel"_liv, 'c', ArgTypeCategory::PackageQuery };
 
         // Install behavior
         case Execution::Args::Type::Interactive:
-            return { type, "interactive"_liv, 'i', ArgTypeCategory::InstallerBehavior | ArgTypeCategory::SingleInstallerBehavior | ArgTypeCategory::CopyFlagToSubContext };
+            return { type, "interactive"_liv, 'i', ArgTypeCategory::InstallerBehavior | ArgTypeCategory::CopyFlagToSubContext };
         case Execution::Args::Type::Silent:
-            return { type, "silent"_liv, 'h', ArgTypeCategory::InstallerBehavior | ArgTypeCategory::SingleInstallerBehavior | ArgTypeCategory::CopyFlagToSubContext };
+            return { type, "silent"_liv, 'h', ArgTypeCategory::InstallerBehavior | ArgTypeCategory::CopyFlagToSubContext };
         case Execution::Args::Type::Locale:
             return { type, "locale"_liv, ArgTypeCategory::InstallerSelection | ArgTypeCategory::CopyValueToSubContext };
         case Execution::Args::Type::Log:
-            return { type, "log"_liv, 'o', ArgTypeCategory::SingleInstallerBehavior };
+            return { type, "log"_liv, 'o', ArgTypeCategory::InstallerSelection | ArgTypeCategory::SingleInstallerBehavior };
         case Execution::Args::Type::CustomSwitches:
-            return { type, "custom"_liv, ArgTypeCategory::SingleInstallerBehavior };
+            return { type, "custom"_liv, ArgTypeCategory::InstallerSelection | ArgTypeCategory::SingleInstallerBehavior };
         case Execution::Args::Type::Override:
-            return { type, "override"_liv, ArgTypeCategory::SingleInstallerBehavior };
+            return { type, "override"_liv, ArgTypeCategory::InstallerSelection | ArgTypeCategory::SingleInstallerBehavior };
         case Execution::Args::Type::InstallLocation:
-            return { type, "location"_liv, 'l', ArgTypeCategory::SingleInstallerBehavior };
+            return { type, "location"_liv, 'l', ArgTypeCategory::InstallerSelection | ArgTypeCategory::SingleInstallerBehavior };
         case Execution::Args::Type::InstallScope:
             return { type, "scope"_liv, ArgTypeCategory::InstallerSelection | ArgTypeCategory::CopyValueToSubContext };
         case Execution::Args::Type::InstallArchitecture:
             return { type, "architecture"_liv, 'a', ArgTypeCategory::InstallerSelection | ArgTypeCategory::CopyValueToSubContext };
         case Execution::Args::Type::HashOverride:
-            return { type, "ignore-security-hash"_liv, ArgTypeCategory::InstallerBehavior | ArgTypeCategory::SingleInstallerBehavior | ArgTypeCategory::CopyFlagToSubContext };
+            return { type, "ignore-security-hash"_liv, ArgTypeCategory::InstallerBehavior | ArgTypeCategory::CopyFlagToSubContext };
         case Execution::Args::Type::IgnoreLocalArchiveMalwareScan:
-            return { type, "ignore-local-archive-malware-scan"_liv, ArgTypeCategory::InstallerBehavior | ArgTypeCategory::SingleInstallerBehavior | ArgTypeCategory::CopyFlagToSubContext };
+            return { type, "ignore-local-archive-malware-scan"_liv, ArgTypeCategory::InstallerBehavior | ArgTypeCategory::CopyFlagToSubContext };
         case Execution::Args::Type::AcceptPackageAgreements:
-            return { type, "accept-package-agreements"_liv, ArgTypeCategory::InstallerBehavior | ArgTypeCategory::SingleInstallerBehavior };
+            return { type, "accept-package-agreements"_liv, ArgTypeCategory::InstallerBehavior };
         case Execution::Args::Type::Rename:
             return { type, "rename"_liv, 'r' };
         case Execution::Args::Type::NoUpgrade:
@@ -148,7 +148,7 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::IncludeUnknown:
             return { type, "include-unknown"_liv, 'u', "unknown"_liv };
         case Execution::Args::Type::UninstallPrevious:
-            return { type, "uninstall-previous"_liv, ArgTypeCategory::InstallerBehavior | ArgTypeCategory::SingleInstallerBehavior };
+            return { type, "uninstall-previous"_liv, ArgTypeCategory::InstallerBehavior };
 
         // Show command
         case Execution::Args::Type::ListVersions:
@@ -389,32 +389,32 @@ namespace AppInstaller::CLI
 
     ArgTypeCategory Argument::GetCategoriesAndValidateCommonArguments(const Execution::Args& args, bool requirePackageSelectionArg)
     {
-        const auto Categories = GetCategoriesPresent(args);
+        const auto categories = GetCategoriesPresent(args);
 
         // Commands like install require some argument to select a package
         if (requirePackageSelectionArg)
         {
-            if (WI_AreAllFlagsClear(Categories, ArgTypeCategory::Manifest | ArgTypeCategory::PackageQuery | ArgTypeCategory::SinglePackageQuery))
+            if (WI_AreAllFlagsClear(categories, ArgTypeCategory::Manifest | ArgTypeCategory::PackageQuery | ArgTypeCategory::SinglePackageQuery))
             {
                 throw CommandException(Resource::String::NoPackageSelectionArgumentProvided);
             }
         }
 
         // If a manifest is specified, we cannot also have arguments for searching
-        if (WI_IsFlagSet(Categories, ArgTypeCategory::Manifest) &&
-            WI_IsAnyFlagSet(Categories, ArgTypeCategory::PackageQuery | ArgTypeCategory::Source))
+        if (WI_IsFlagSet(categories, ArgTypeCategory::Manifest) &&
+            WI_IsAnyFlagSet(categories, ArgTypeCategory::PackageQuery | ArgTypeCategory::Source))
         {
             throw CommandException(Resource::String::BothManifestAndSearchQueryProvided);
         }
 
         // If we have multiple packages, we cannot have arguments that only make sense for a single package
-        if (WI_IsFlagSet(Categories, ArgTypeCategory::MultiplePackages) &&
-            WI_IsAnyFlagSet(Categories, ArgTypeCategory::SinglePackageQuery | ArgTypeCategory::SingleInstallerBehavior))
+        if (WI_IsFlagSet(categories, ArgTypeCategory::MultiplePackages) &&
+            WI_IsAnyFlagSet(categories, ArgTypeCategory::SinglePackageQuery | ArgTypeCategory::SingleInstallerBehavior))
         {
             throw CommandException(Resource::String::ArgumentForSinglePackageProvidedWithMultipleQueries);
         }
 
-        return Categories;
+        return categories;
     }
 
     Argument::Visibility Argument::GetVisibility() const

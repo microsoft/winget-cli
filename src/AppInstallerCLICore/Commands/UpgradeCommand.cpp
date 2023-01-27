@@ -132,7 +132,7 @@ namespace AppInstaller::CLI
 
         if (!ShouldListUpgrade(execArgs, argCategories) &&
             WI_IsFlagClear(argCategories, ArgTypeCategory::PackageQuery) &&
-            WI_IsFlagSet(argCategories, ArgTypeCategory::InstallerBehavior))
+            WI_IsFlagSet(argCategories, ArgTypeCategory::SingleInstallerBehavior))
         {
             throw CommandException(Resource::String::InvalidArgumentWithoutQueryError);
         }

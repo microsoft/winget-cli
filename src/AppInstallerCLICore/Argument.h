@@ -46,7 +46,7 @@ namespace AppInstaller::CLI
         // Arguments for querying or selecting a package.
         // E.g.: --query
         PackageQuery = 0x2,
-        // Arguments for querying or selecting a package, which only work for a single package.
+        // Arguments for querying or selecting a package, which do not work for multiple packages.
         // E.g.: --version
         SinglePackageQuery = 0x4,
         // Arguments for installer or uninstaller selection.
@@ -55,7 +55,7 @@ namespace AppInstaller::CLI
         // Arguments for installer or uninstaller behavior.
         // E.g.: --interactive
         InstallerBehavior = 0x10,
-        // Arguments for installer or uninstaller behavior, which only work for a single installer.
+        // Arguments for installer or uninstaller behavior, which do not work for multiple packages.
         // E.g.: --override
         SingleInstallerBehavior = 0x20,
         // Arguments for selecting or interacting with the source.
