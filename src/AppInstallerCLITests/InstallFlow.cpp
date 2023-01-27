@@ -1148,5 +1148,5 @@ TEST_CASE("InstallFlow_InstallMultiple_SearchFailed", "[InstallFlow][workflow][M
     installCommand.Execute(context);
     INFO(installOutput.str());
 
-    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_NOT_ALL_PACKAGES_FOUND);
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_NOT_ALL_QUERIES_FOUND_SINGLE);
 }

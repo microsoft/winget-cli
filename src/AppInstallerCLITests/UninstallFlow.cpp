@@ -208,5 +208,5 @@ TEST_CASE("UninstallFlow_UninstallMultiple_NotAllInstalled", "[UninstallFlow][wo
     uninstall.Execute(context);
     INFO(uninstallOutput.str());
 
-    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_NOT_ALL_PACKAGES_FOUND);
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_NOT_ALL_QUERIES_FOUND_SINGLE);
 }
