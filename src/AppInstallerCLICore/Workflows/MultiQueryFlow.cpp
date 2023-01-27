@@ -79,8 +79,7 @@ namespace AppInstaller::CLI::Workflow
             case SearchPurpose::Uninstall:
                 searchContext <<
                     Workflow::HandleSearchResultFailures <<
-                    Workflow::EnsureOneMatchFromSearchResult(true) <<
-                    Workflow::ReportPackageIdentity;
+                    Workflow::EnsureOneMatchFromSearchResult(true);
                 break;
             default:
                 THROW_HR(E_UNEXPECTED);
@@ -107,7 +106,7 @@ namespace AppInstaller::CLI::Workflow
                     }
                     else
                     {
-                        AICLI_LOG(CLI, Info, << "Package not found: [" << packageString << "]");
+                        AICLI_LOG(CLI, Info, << "Package not found or found multiple matches: [" << packageString << "]");
                         context.Reporter.Info() << Resource::String::MultiInstallSearchFailed(packageString) << std::endl;
 
                         // Keep searching for the remaining packages and only fail at the end.

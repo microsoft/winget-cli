@@ -832,8 +832,8 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>One or more imported packages failed to install</value>
   </data>
   <data name="MultiInstallSearchFailed" xml:space="preserve">
-    <value>Package not found: {0}</value>
-    <comment>{Locked="{0}"} Error message displayed when the user attempts to install multiple application packages and one of them is not found. {0} is a placeholder replaced by the package name or query.</comment>
+    <value>Package not found or multiple packages found matching query: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user attempts to install multiple application packages and one of them is not found or returns more than one result. {0} is a placeholder replaced by the package name or query.</comment>
   </data>
   <data name="ImportSourceNotInstalled" xml:space="preserve">
     <value>Source required for import is not installed: {0}</value>
