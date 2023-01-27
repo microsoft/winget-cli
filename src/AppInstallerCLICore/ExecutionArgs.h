@@ -157,9 +157,14 @@ namespace AppInstaller::CLI::Execution
             m_parsedArgs[arg].emplace_back(value);
         }
 
-        bool RemoveArg(Type arg)
+        // If we get a single value for multi-query, we remove the argument and
+        // add it back as a single query. To handle actual multiple queries, we
+        // create sub-contexts with single queries. This way, most of the code can
+        // assume that there is always a single query.
+        // This is the only case where we modify the parsed args from user input
+        bool RemoveMultiQueryArg()
         {
-            return m_parsedArgs.erase(arg) > 0;
+            return m_parsedArgs.erase(Type::MultiQuery) > 0;
         }
 
         bool Empty()

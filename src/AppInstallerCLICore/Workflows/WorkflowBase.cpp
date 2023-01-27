@@ -437,7 +437,7 @@ namespace AppInstaller::CLI::Workflow
         if (context.Args.GetCount(Execution::Args::Type::MultiQuery) == 1)
         {
             context.Args.AddArg(Execution::Args::Type::Query, context.Args.GetArg(Execution::Args::Type::MultiQuery));
-            context.Args.RemoveArg(Execution::Args::Type::MultiQuery);
+            context.Args.RemoveMultiQueryArg();
         }
     }
 
