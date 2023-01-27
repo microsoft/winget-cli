@@ -36,34 +36,20 @@ namespace AppInstaller::CLI::Workflow
 
     void GetMultiSearchRequests(Execution::Context& context)
     {
-        MatchType matchType = MatchType::CaseInsensitive;
-        if (context.Args.Contains(Execution::Args::Type::Exact))
-        {
-            matchType = MatchType::Exact;
-        }
-
         std::vector<std::unique_ptr<Execution::Context>> packageSubContexts;
         auto& source = context.Get<Execution::Data::Source>();
         for (const auto& query : *context.Args.GetArgs(Execution::Args::Type::MultiQuery))
         {
-            AICLI_LOG(CLI, Info, << "Creating search query for package [" << query << "]");
-
-            // Search for the current package
-            SearchRequest searchRequest;
-
-            // Regardless of match type, always use an exact match for the system reference strings.
-            searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::PackageFamilyName, MatchType::Exact, query));
-            searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::ProductCode, MatchType::Exact, query));
-            searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Id, matchType, query));
-            searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Name, matchType, query));
-            searchRequest.Inclusions.emplace_back(PackageMatchFilter(PackageMatchField::Moniker, matchType, query));
 
             auto searchContextPtr = context.CreateSubContext();
             Execution::Context& searchContext = *searchContextPtr;
             auto previousThreadGlobals = searchContext.SetForCurrentThread();
 
             searchContext.Add<Execution::Data::Source>(source);
-            searchContext.Add<Execution::Data::SearchRequest>(std::move(searchRequest));
+
+            AICLI_LOG(CLI, Info, << "Creating search query for package [" << query << "]");
+            searchContext << GetSearchRequestForSingle;
+
 
             packageSubContexts.emplace_back(std::move(searchContextPtr));
         }
