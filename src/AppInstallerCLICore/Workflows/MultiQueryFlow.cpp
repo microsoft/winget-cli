@@ -121,14 +121,14 @@ namespace AppInstaller::CLI::Workflow
 
         if (!foundAll)
         {
-            AICLI_LOG(CLI, Info, << "Could not find one or more packages");
+            AICLI_LOG(CLI, Info, << "Not all queries returned one result");
             if (context.Args.Contains(Execution::Args::Type::IgnoreUnavailable))
             {
                 AICLI_LOG(CLI, Info, << "Ignoring unavailable packages due to command line argument");
             }
             else
             {
-                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NOT_ALL_PACKAGES_FOUND);
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NOT_ALL_QUERIES_FOUND_SINGLE);
             }
         }
 

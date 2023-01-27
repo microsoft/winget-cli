@@ -218,6 +218,8 @@ namespace AppInstaller
                 return "One or more applications failed to install";
             case APPINSTALLER_CLI_ERROR_MULTIPLE_UNINSTALL_FAILED:
                 return "One or more applications failed to uninstall";
+            case APPINSTALLER_CLI_ERROR_NOT_ALL_QUERIES_FOUND_SINGLE:
+                return "One or more queries did not return exactly one match";
 
             // Install errors
             case APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE:
