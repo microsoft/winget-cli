@@ -138,11 +138,7 @@ namespace AppInstaller::CLI
                     Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed, false, Repository::CompositeSearchBehavior::AvailablePackages);
             }
 
-            if (!context.Args.Contains(Execution::Args::Type::MultiQuery))
-            {
-                context << Workflow::InstallOrUpgradeSinglePackage(false);
-            }
-            else
+            if (context.Args.Contains(Execution::Args::Type::MultiQuery))
             {
                 context <<
                     Workflow::GetMultiSearchRequests <<
@@ -151,6 +147,10 @@ namespace AppInstaller::CLI
                     Workflow::InstallMultiplePackages(
                         Resource::String::InstallAndUpgradeCommandsReportDependencies,
                         APPINSTALLER_CLI_ERROR_MULTIPLE_INSTALL_FAILED);
+            }
+            else
+            {
+                context << Workflow::InstallOrUpgradeSinglePackage(false);
             }
         }
     }
