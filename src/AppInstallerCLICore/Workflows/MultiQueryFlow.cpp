@@ -46,6 +46,7 @@ namespace AppInstaller::CLI::Workflow
             auto previousThreadGlobals = searchContext.SetForCurrentThread();
 
             searchContext.Add<Execution::Data::Source>(source);
+            searchContext.Args.AddArg(Execution::Args::Type::Query, query);
 
             AICLI_LOG(CLI, Info, << "Creating search query for package [" << query << "]");
             searchContext << GetSearchRequestForSingle;
