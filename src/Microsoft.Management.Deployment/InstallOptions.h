@@ -57,7 +57,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             winrt::single_threaded_vector<winrt::Microsoft::Management::Deployment::PackageAgreement>() };
         bool m_allowUpgradeToUnknownVersion = false;
         bool m_force = false;
-        bool m_acceptPackageAgreements = false;
+        bool m_acceptPackageAgreements = true;
 #endif
     };
 }

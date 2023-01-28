@@ -16,7 +16,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
-        bool m_acceptSourceAgreements = false;
+        bool m_acceptSourceAgreements = true;
 #endif
     };
 }

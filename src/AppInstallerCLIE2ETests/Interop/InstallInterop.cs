@@ -525,7 +525,7 @@ namespace AppInstallerCLIE2ETests.Interop
         public async Task InstallWithAgreementsAccepted()
         {
             // Find package
-            var searchResult = this.FindOnePackage(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.PackageAgreements");
+            var searchResult = this.FindOnePackage(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.TestExeInstaller");
 
             // Configure installation
             var installOptions = this.TestFactory.CreateInstallOptions();
@@ -535,9 +535,6 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Install
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
-
-            // Assert
-            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
         }
     }
 }

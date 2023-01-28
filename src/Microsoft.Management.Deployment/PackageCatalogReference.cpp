@@ -39,6 +39,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         co_return Connect();
     }
+    winrt::Windows::Foundation::IAsyncOperation<winrt::Microsoft::Management::Deployment::ConnectResult> PackageCatalogReference::ConnectAsync(winrt::Microsoft::Management::Deployment::PackageCatalogConnectOptions options)
+    {
+        co_return Connect(options);
+    }
     winrt::Microsoft::Management::Deployment::ConnectResult GetConnectCatalogErrorResult()
     {
         auto connectResult = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::ConnectResult>>();
@@ -46,6 +50,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         return *connectResult;
     }
     winrt::Microsoft::Management::Deployment::ConnectResult PackageCatalogReference::Connect()
+    {
+        return Connect(NULL);
+    }
+    winrt::Microsoft::Management::Deployment::ConnectResult PackageCatalogReference::Connect(winrt::Microsoft::Management::Deployment::PackageCatalogConnectOptions options)
     {
         try
         {
@@ -66,7 +74,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                     auto catalog = m_compositePackageCatalogOptions.Catalogs().GetAt(i);
                     winrt::Microsoft::Management::Deployment::implementation::PackageCatalogReference* catalogImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogReference>(catalog);
                     auto copy = catalogImpl->m_sourceReference;
-                    copy.Open(progress);
                     remoteSources.emplace_back(std::move(copy));
                 }
 
@@ -104,9 +111,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 source.Open(progress);
             }
 
-            if (!source)
+            if (options && options.AcceptSourceAgreements())
             {
-                // If source is null, return the error. There's no way to get the hresult that caused the error right now.
+                source.SaveAcceptedSourceAgreements();
+            }
+
+            // Check that source agreements have been accepted before proceeding.
+            if (!source.CheckSourceAgreements())
+            {
                 return GetConnectCatalogErrorResult();
             }
 
@@ -125,7 +137,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         }
         return GetConnectCatalogErrorResult();
     }
-
     winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::SourceAgreement> PackageCatalogReference::SourceAgreements()
     {
         for (auto const& agreement : m_sourceReference.GetInformation().SourceAgreements)
@@ -137,7 +148,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
         return m_sourceAgreements.GetView();
     }
-
     hstring PackageCatalogReference::AdditionalPackageCatalogArguments()
     {
         if (!IsComposite())

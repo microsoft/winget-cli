@@ -156,7 +156,7 @@
     <ClInclude Include="PackageCatalogReference.h" />
     <ClInclude Include="PackageInstallerInfo.h" />
     <ClInclude Include="PackageInstallerInstalledStatus.h" />
-    <ClInclude Include="PackageLocale.h" />
+    <ClInclude Include="CatalogPackageMetadata.h" />
     <ClInclude Include="PackageManager.h" />
     <ClInclude Include="PackageManagerSettings.h" />
     <ClInclude Include="PackageMatchFilter.h" />
@@ -190,7 +190,7 @@
     <ClCompile Include="PackageCatalogReference.cpp" />
     <ClCompile Include="PackageInstallerInfo.cpp" />
     <ClCompile Include="PackageInstallerInstalledStatus.cpp" />
-    <ClCompile Include="PackageLocale.cpp" />
+    <ClCompile Include="CatalogPackageMetadata.cpp" />
     <ClCompile Include="PackageManager.cpp" />
     <ClCompile Include="PackageManagerSettings.cpp" />
     <ClCompile Include="PackageMatchFilter.cpp" />

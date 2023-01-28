@@ -22,6 +22,9 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::SourceAgreement> SourceAgreements();
         hstring AdditionalPackageCatalogArguments();
         void AdditionalPackageCatalogArguments(hstring const& value);
+        // Contract 6.0
+        winrt::Windows::Foundation::IAsyncOperation<winrt::Microsoft::Management::Deployment::ConnectResult> ConnectAsync(PackageCatalogConnectOptions options);
+        winrt::Microsoft::Management::Deployment::ConnectResult Connect(PackageCatalogConnectOptions options);
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:

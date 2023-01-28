@@ -17,7 +17,7 @@
     <ClCompile Include="PackageCatalogConnectOptions.cpp" />
     <ClCompile Include="PackageCatalogInfo.cpp" />
     <ClCompile Include="PackageCatalogReference.cpp" />
-    <ClCompile Include="PackageLocale.cpp" />
+    <ClCompile Include="CatalogPackageMetadata.cpp" />
     <ClCompile Include="PackageManager.cpp" />
     <ClCompile Include="PackageMatchFilter.cpp" />
     <ClCompile Include="PackageVersionId.cpp" />
@@ -51,7 +51,7 @@
     <ClCompile Include="PackageCatalogConnectOptions.h" />
     <ClInclude Include="PackageCatalogInfo.h" />
     <ClInclude Include="PackageCatalogReference.h" />
-    <ClCompile Include="PackageLocale.h" />
+    <ClCompile Include="CatalogPackageMetadata.h" />
     <ClInclude Include="PackageManager.h" />
     <ClInclude Include="PackageMatchFilter.h" />
     <ClInclude Include="PackageVersionId.h" />

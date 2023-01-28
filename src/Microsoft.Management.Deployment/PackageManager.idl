@@ -462,11 +462,9 @@ namespace Microsoft.Management.Deployment
         
         [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
         {
-            PackageLocale GetDefaultLocale(PackageVersionId versionKey);
+            CatalogPackageMetadata GetCatalogPackageMetadata(PackageVersionId versionKey, String locale);
 
-            PackageLocale GetLocale(PackageVersionId versionKey, String locale);
-
-            Windows.Foundation.Collections.IVectorView<String> AvailableLocales(PackageVersionId versionKey);
+            Windows.Foundation.Collections.IVectorView<CatalogPackageMetadata> GetAllCatalogPackageMetadata(PackageVersionId versionKey);
         }
     }
 
@@ -657,6 +655,9 @@ namespace Microsoft.Management.Deployment
         {
             /// Gets the required agreements for connecting to the package catalog (source).
             Windows.Foundation.Collections.IVectorView<SourceAgreement> SourceAgreements{ get; };
+
+            Windows.Foundation.IAsyncOperation<ConnectResult> ConnectAsync(PackageCatalogConnectOptions packageCatalogConnectOptions);
+            ConnectResult Connect(PackageCatalogConnectOptions packageCatalogConnectOptions);
         }
     }
 
@@ -888,9 +889,13 @@ namespace Microsoft.Management.Deployment
 
     /// IMPLEMENTATION NOTE: SourceOrigin from AppInstaller::Manifest::Localization
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
-    runtimeclass PackageLocale
+    runtimeclass CatalogPackageMetadata
     {
+        String Locale { get; };
+
         String Publisher { get; };
+
+        String PublisherUrl { get; };
 
         String PublisherSupportUrl { get; };
 
@@ -1041,5 +1046,7 @@ namespace Microsoft.Management.Deployment
         interface Windows.Foundation.Collections.IVectorView<PackageAgreement>;
         interface Windows.Foundation.Collections.IVector<Documentation>;
         interface Windows.Foundation.Collections.IVectorView<Documentation>;
+        interface Windows.Foundation.Collections.IVector<CatalogPackageMetadata>;
+        interface Windows.Foundation.Collections.IVectorView<CatalogPackageMetadata>;
     }
 }

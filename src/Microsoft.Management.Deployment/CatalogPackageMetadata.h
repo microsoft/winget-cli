@@ -1,20 +1,24 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "PackageLocale.g.h"
+#include "CatalogPackageMetadata.g.h"
 #include "PackageAgreement.h"
 #include "Documentation.h"
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-    struct PackageLocale : PackageLocaleT<PackageLocale>
+    struct CatalogPackageMetadata : CatalogPackageMetadataT<CatalogPackageMetadata>
     {
-        PackageLocale() = default;
+        CatalogPackageMetadata() = default;
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
         void Initialize(::AppInstaller::Manifest::ManifestLocalization manifestLocalization);
 #endif
+        hstring Locale();
+
         hstring Publisher();
+
+        hstring PublisherUrl();
 
         hstring PublisherSupportUrl();
 
@@ -53,8 +57,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
         ::AppInstaller::Manifest::ManifestLocalization m_manifestLocalization;
-        Windows::Foundation::Collections::IVector<winrt::Microsoft::Management::Deployment::PackageAgreement> m_packageAgreements{ winrt::single_threaded_vector<winrt::Microsoft::Management::Deployment::PackageAgreement>() };
-        Windows::Foundation::Collections::IVector<winrt::Microsoft::Management::Deployment::Documentation> m_documentations{ winrt::single_threaded_vector<winrt::Microsoft::Management::Deployment::Documentation>() };
+        Windows::Foundation::Collections::IVector<winrt::Microsoft::Management::Deployment::PackageAgreement> m_packageAgreements{ nullptr };
+        Windows::Foundation::Collections::IVector<winrt::Microsoft::Management::Deployment::Documentation> m_documentations{ nullptr };
         Windows::Foundation::Collections::IVector<hstring> m_tags{ nullptr };
 #endif
     };
