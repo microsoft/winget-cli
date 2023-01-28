@@ -36,8 +36,7 @@ namespace AppInstallerCLIE2ETests.Interop
         public void SetUp()
         {
             this.packageManager = this.TestFactory.CreatePackageManager();
-            //this.testSource = this.packageManager.GetPackageCatalogByName(Constants.TestSourceName);
-            this.testSource = this.packageManager.GetPackageCatalogByName("msstore");
+            this.testSource = this.packageManager.GetPackageCatalogByName(Constants.TestSourceName);
         }
 
         /// <summary>
