@@ -62,7 +62,6 @@ namespace AppInstaller::Repository
             return pvk;
         }
 
-
         // Returns true for fields that provide a strong match; one that is not based on a heuristic.
         bool IsStrongMatchField(PackageMatchField field)
         {
@@ -673,7 +672,7 @@ namespace AppInstaller::Repository
             }
 
             // Gets the information about the pins that exist for this package
-            void GetExistingPins(PinningIndex& pinningIndex)
+            void GetExistingPins(PinningIndex& pinningIndex, bool cleanUpStalePins)
             {
                 // If the package is installed, we need to add the pin information to the available packages from any source.
                 // If the package is not installed, we clean up stale pin information here.
@@ -688,7 +687,7 @@ namespace AppInstaller::Repository
                             availablePackage.Pin = std::move(pin.value());
                         }
                     }
-                    else if (pinningIndex.GetPin(pinKey))
+                    else if (pinningIndex.GetPin(pinKey) && cleanUpStalePins)
                     {
                         pinningIndex.RemovePin(pinKey);
                     }
@@ -1061,6 +1060,25 @@ namespace AppInstaller::Repository
 
             return {};
         }
+
+        // Adds all the pin information to the results from a search to a CompositeSource.
+        // This function assumes that the CompositeSource included an InstalledSource so that we
+        // can clean up stale pins where the package is no longer installed.
+        void AddPinInfoToCompositeSearchResult(CompositeResult& result)
+        {
+            if (ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Pinning) && !result.Matches.empty())
+            {
+                // Look up any pins for the packages found
+                auto pinningIndex = PinningIndex::OpenOrCreateDefault();
+                if (pinningIndex)
+                {
+                    for (auto& match : result.Matches)
+                    {
+                        match.Package->GetExistingPins(*pinningIndex, /* cleanUpStalePins */ true);
+                    }
+                }
+            }
+        }
     }
 
     CompositeSource::CompositeSource(std::string identifier)
@@ -1257,19 +1275,7 @@ namespace AppInstaller::Repository
             // Optimization for the "everything installed" case, no need to allow for reverse correlations
             if (request.IsForEverything() && m_searchBehavior == CompositeSearchBehavior::Installed)
             {
-                if (ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Pinning) && !result.Matches.empty())
-                {
-                    // Look up any pins for the packages found
-                    auto pinningIndex = PinningIndex::OpenOrCreateDefault();
-                    if (pinningIndex)
-                    {
-                        for (auto& match : result.Matches)
-                        {
-                            match.Package->GetExistingPins(*pinningIndex);
-                        }
-                    }
-                }
-
+                AddPinInfoToCompositeSearchResult(result);
                 return std::move(result);
             }
         }
@@ -1383,19 +1389,7 @@ namespace AppInstaller::Repository
             result.Matches.erase(result.Matches.begin() + request.MaximumResults, result.Matches.end());
         }
 
-        if (ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Pinning) && !result.Matches.empty())
-        {
-            // Look up any pins for the packages found
-            auto pinningIndex = PinningIndex::OpenOrCreateDefault();
-            if (pinningIndex)
-            {
-                for (auto& match : result.Matches)
-                {
-                    match.Package->GetExistingPins(*pinningIndex);
-                }
-            }
-        }
-
+        AddPinInfoToCompositeSearchResult(result);
         return std::move(result);
     }
 
