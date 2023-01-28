@@ -1302,6 +1302,11 @@ TEST_CASE("CompositeSource_OneSourceGated", "[CompositeSource][PinFlow]")
     expectedResult.ResultsForPinBehavior[PinBehavior::IgnorePins] = { /* IsUpdateAvailable */ true, /* LatestAvailableVersion */ "2.0" };
     expectedResult.ResultsForPinBehavior[PinBehavior::ConsiderPins] = { /* IsUpdateAvailable */ true, /* LatestAvailableVersion */ "1.2" };
     expectedResult.ResultsForPinBehavior[PinBehavior::IncludePinned] = { /* IsUpdateAvailable */ true, /* LatestAvailableVersion */ "1.2" };
+    expectedResult.AvailableVersions = {
+        { "AvailableTestSource1", "2.0", "", Pinning::PinType::Gating },
+        { "AvailableTestSource1", "1.2", "", Pinning::PinType::Unknown },
+        { "SecondTestSource", "1.1", "", Pinning::PinType::Unknown },
+    };
 
     SearchResult result = setup.Search();
     REQUIRE(result.Matches.size() == 1);
