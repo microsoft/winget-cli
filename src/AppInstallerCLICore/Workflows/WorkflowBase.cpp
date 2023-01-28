@@ -713,14 +713,14 @@ namespace AppInstaller::CLI::Workflow
         bool shouldShowSource = source.IsComposite() && source.GetAvailableSources().size() > 1;
 
         PinBehavior pinBehavior;
-        if (m_onlyShowUpgrades)
+        if (m_onlyShowUpgrades && !context.Args.Contains(Execution::Args::Type::Force))
         {
             // For listing upgrades, show the version we would upgrade to with the given pins.
             pinBehavior = context.Args.Contains(Execution::Args::Type::IncludePinned) ? PinBehavior::IncludePinned : PinBehavior::ConsiderPins;
         }
         else
         {
-            // For listing installed apps, show the latest available.
+            // For listing installed apps or if we are ignoring pins due to --force, show the latest available.
             pinBehavior = PinBehavior::IgnorePins;
         }
 
@@ -903,7 +903,17 @@ namespace AppInstaller::CLI::Workflow
             // TODO: The logic here will probably have to get more difficult once we support channels
             if (Utility::IsEmptyOrWhitespace(m_version) && Utility::IsEmptyOrWhitespace(m_channel))
             {
-                PinBehavior pinBehavior = context.Args.Contains(Execution::Args::Type::IncludePinned) ? PinBehavior::IncludePinned : PinBehavior::ConsiderPins;
+                PinBehavior pinBehavior;
+                if (context.Args.Contains(Execution::Args::Type::Force))
+                {
+                    // --force ignores any pins
+                    pinBehavior = PinBehavior::IgnorePins;
+                }
+                else
+                {
+                    pinBehavior = context.Args.Contains(Execution::Args::Type::IncludePinned) ? PinBehavior::IncludePinned : PinBehavior::ConsiderPins;
+                }
+
                 requestedVersion = package->GetLatestAvailableVersion(pinBehavior);
 
                 if (!requestedVersion)
@@ -930,9 +940,16 @@ namespace AppInstaller::CLI::Workflow
 
             if (isPinned)
             {
-                AICLI_LOG(CLI, Error, << "The requested package version is unavailable because of a pin");
-                context.Reporter.Error() << Resource::String::PackageIsPinned << std::endl;
-                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PACKAGE_IS_PINNED);
+                if (context.Args.Contains(Execution::Args::Type::Force))
+                {
+                    AICLI_LOG(CLI, Info, << "Ignoring pin on package due to --force argument");
+                }
+                else
+                {
+                    AICLI_LOG(CLI, Error, << "The requested package version is unavailable because of a pin");
+                    context.Reporter.Error() << Resource::String::PackageIsPinned << std::endl;
+                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PACKAGE_IS_PINNED);
+                }
             }
         }
         else

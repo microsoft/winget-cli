@@ -84,8 +84,15 @@ namespace AppInstaller::CLI::Workflow
                     (key.PinnedState == Pinning::PinType::Pinning && !includePinned))
                 {
                     AICLI_LOG(CLI, Info, << "Version [" << key.Version << "] from Source [" << key.SourceId << "] has a Pin with type [" << ToString(key.PinnedState) << "]");
-                    packagePinned = true;
-                    continue;
+                    if (context.Args.Contains(Execution::Args::Type::Force))
+                    {
+                        AICLI_LOG(CLI, Info, << "Ignoring pin due to --force argument");
+                    }
+                    else
+                    {
+                        packagePinned = true;
+                        continue;
+                    }
                 }
 
                 auto packageVersion = package->GetAvailableVersion(key);
