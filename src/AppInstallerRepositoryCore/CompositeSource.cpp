@@ -378,10 +378,7 @@ namespace AppInstaller::Repository
                 : AvailablePackage(availablePackage), Pin(pin)
             {
                 auto latestAvailable = AvailablePackage->GetLatestAvailableVersion(PinBehavior::IgnorePins);
-                if (latestAvailable)
-                {
-                    SourceId = latestAvailable->GetSource().GetIdentifier();
-                }
+                SourceId = latestAvailable->GetSource().GetIdentifier();
             }
 
             std::string SourceId;
