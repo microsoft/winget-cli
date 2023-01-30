@@ -74,6 +74,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                     auto catalog = m_compositePackageCatalogOptions.Catalogs().GetAt(i);
                     winrt::Microsoft::Management::Deployment::implementation::PackageCatalogReference* catalogImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogReference>(catalog);
                     auto copy = catalogImpl->m_sourceReference;
+                    copy.Open(progress);
                     remoteSources.emplace_back(std::move(copy));
                 }
 

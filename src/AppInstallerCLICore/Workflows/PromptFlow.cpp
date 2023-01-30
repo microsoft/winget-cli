@@ -78,7 +78,7 @@ namespace AppInstaller::CLI::Workflow
             }
 
             // Show message for each individual implicit agreement field
-            auto fields = source.GetAgreementFieldsFromSourceInformation(); 
+            auto fields = source.GetAgreementFieldsFromSourceInformation();
             if (WI_IsFlagSet(fields, Repository::ImplicitAgreementFieldEnum::Market))
             {
                 context.Reporter.Info() << Resource::String::SourceAgreementsMarketMessage << std::endl;
