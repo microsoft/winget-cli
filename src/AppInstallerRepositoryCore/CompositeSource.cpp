@@ -1228,9 +1228,12 @@ namespace AppInstaller::Repository
                         }
                     }
 
+                    bool addedAvailablePackage = false;
+
                     // Directly search for the available package from tracking information.
                     if (trackingPackage)
                     {
+                        addedAvailablePackage = true;
                         compositePackage->AddAvailablePackage(GetTrackedPackageFromAvailableSource(result, trackedSource, trackingPackage->GetProperty(PackageProperty::Id)));
                         compositePackage->SetTracking(std::move(trackedSource), std::move(trackingPackage), std::move(trackingPackageVersion));
                     }
@@ -1238,6 +1241,13 @@ namespace AppInstaller::Repository
                     // Search sources and add to result
                     for (const auto& source : m_availableSources)
                     {
+                        if (addedAvailablePackage && !ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Pinning))
+                        {
+                            // Having multiple available packages is a new behavior introduced for package pinning,
+                            // so we gate it with the same feature in case it causes problems.
+                            break;
+                        }
+
                         // Do not attempt to correlate local packages against this source
                         if (!source.GetDetails().SupportInstalledSearchCorrelation)
                         {
@@ -1261,6 +1271,7 @@ namespace AppInstaller::Repository
                                 AICLI_LOG(Repo, Warning, << "  Appropriate available package could not be determined");
                             });
 
+                        addedAvailablePackage = true;
                         compositePackage->AddAvailablePackage(std::move(availablePackage));
                     }
                 }
