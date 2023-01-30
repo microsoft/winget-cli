@@ -110,17 +110,18 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             {
                 source = m_sourceReference;
                 source.Open(progress);
-            }
 
-            if (options && options.AcceptSourceAgreements())
-            {
-                source.SaveAcceptedSourceAgreements();
-            }
+                // Check agreements for non-composite source.
+                if (options && options.AcceptSourceAgreements())
+                {
+                    source.SaveAcceptedSourceAgreements();
+                }
 
-            // Check that source agreements have been accepted before proceeding.
-            if (!source.CheckSourceAgreements())
-            {
-                return GetConnectCatalogErrorResult();
+                // Check that source agreements have been accepted before proceeding.
+                if (!source.CheckSourceAgreements())
+                {
+                    return GetConnectCatalogErrorResult();
+                }
             }
 
             // Have to make another package catalog info because source->GetDetails has more fields than m_info does.

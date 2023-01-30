@@ -58,6 +58,7 @@ namespace AppInstallerCLIE2ETests.Interop
             var installOptions = this.TestFactory.CreateInstallOptions();
             installOptions.PackageInstallMode = PackageInstallMode.Silent;
             installOptions.PreferredInstallLocation = this.installDir;
+            installOptions.AcceptPackageAgreements = true;
 
             // Install
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
@@ -535,6 +536,9 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Install
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
+
+            // Assert
+            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
         }
     }
 }

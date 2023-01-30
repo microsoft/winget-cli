@@ -42,7 +42,7 @@ Localization:
     AgreementUrl: https://localeAgreementUrl.net
   Documentations:
   - DocumentLabel: localeDocumentLabel
-    DocumentUrl: https://localeDocumentLabel.com 
+    DocumentUrl: https://localeDocumentUrl.com 
   Tags:
   - tag1
   - tag2
