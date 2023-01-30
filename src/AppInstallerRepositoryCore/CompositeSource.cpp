@@ -489,7 +489,11 @@ namespace AppInstaller::Repository
 
             Utility::LocIndString GetProperty(PackageProperty property) const override
             {
-                std::shared_ptr<IPackageVersion> truth = GetLatestAvailableVersion(PinBehavior::IgnorePins);
+                std::shared_ptr<IPackageVersion> truth;
+                if (m_defaultAvailablePackage)
+                {
+                    truth = m_defaultAvailablePackage->GetLatestAvailableVersion(PinBehavior::IgnorePins);
+                }
                 if (!truth)
                 {
                     truth = m_trackingPackageVersion;
@@ -497,6 +501,10 @@ namespace AppInstaller::Repository
                 if (!truth)
                 {
                     truth = GetInstalledVersion();
+                }
+                if (!truth)
+                {
+                    truth = GetLatestAvailableVersion(PinBehavior::IgnorePins);
                 }
 
                 switch (property)
