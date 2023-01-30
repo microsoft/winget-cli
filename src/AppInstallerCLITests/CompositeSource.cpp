@@ -577,6 +577,9 @@ TEST_CASE("CompositePackage_AvailableVersions_NoChannelFilteredOut", "[Composite
 
 TEST_CASE("CompositeSource_MultipleAvailableSources_MatchAll", "[CompositeSource]")
 {
+    TestCommon::TestUserSettings testSettings;
+    testSettings.Set<Settings::Setting::EFPinning>(true);
+
     std::string pfn = "sortof_apfn";
     std::string firstName = "Name1";
     std::string secondName = "Name2";
