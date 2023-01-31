@@ -363,7 +363,8 @@ namespace AppInstaller::CLI
                 {
                     if (!argsString.empty())
                     {
-                        argsString += "|";
+                        argsString += '|';
+
                     }
 
                     argsString += arg.Name;
