@@ -117,6 +117,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 source.Open(progress);
             }
 
+            if (!source)
+            {
+                // If source is null, return the error. There's no way to get the hresult that caused the error right now.
+                return GetConnectCatalogErrorResult();
+            }
+
             // Have to make another package catalog info because source->GetDetails has more fields than m_info does.
             // Specifically, Rest sources do not have the Ids filled in m_info since they only get the id from the rest server after being Opened.
             auto packageCatalogInfo = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogInfo>>();
