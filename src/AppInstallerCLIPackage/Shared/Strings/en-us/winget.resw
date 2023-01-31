@@ -1224,10 +1224,6 @@ Do you agree to the terms?</value>
   <data name="AdminSettingDisableDescription" xml:space="preserve">
     <value>Disables the specific administrator setting</value>
   </data>
-  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
-    <value>Too many admin setting arguments provided: '{0}'</value>
-    <comment>{Locked="{0}"} Error message displayed when the user provides too many admin setting arguments. {0} is a placeholder replaced by the admin setting arguments (e.g. 'enable|disable').</comment>
-  </data>
   <data name="AdminSettingEnabled" xml:space="preserve">
     <value>Enabled admin setting '{0}'.</value>
     <comment>{Locked="{0}"} Message displayed when the user enables an admin setting. {0} is a placeholder replaced by the setting name.</comment>
@@ -1420,10 +1416,6 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="PortableInstallFailed" xml:space="preserve">
     <value>Portable install failed; Cleaning up...</value>
   </data>
-  <data name="BothPurgeAndPreserveFlagsProvided" xml:space="preserve">
-    <value>Both --purge and --preserve arguments are provided</value>
-    <comment>{Locked="--purge"} {Locked="--preserve"}</comment>
-  </data>
   <data name="PortableHashMismatchOverridden" xml:space="preserve">
     <value>Portable package has been modified; proceeding due to --force</value>
     <comment>{Locked="--force"}</comment>
@@ -1586,10 +1578,6 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="PinResetCommandShortDescription" xml:space="preserve">
     <value>Reset pins</value>
   </data>
-  <data name="BothGatedVersionAndBlockingFlagProvided" xml:space="preserve">
-    <value>Both version and '--blocking' arguments provided</value>
-    <comment>{Locked="--blocking"}</comment>
-  </data>
   <data name="GatedVersionArgumentDescription" xml:space="preserve">
     <value>Version to which to pin the package. The wildcard '*' can be used as the last version part</value>
   </data>
@@ -1652,5 +1640,13 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="PinCannotOpenIndex" xml:space="preserve">
     <value>Unable to open pin database.</value>
     <comment>Error message for when we cannot open the database containing package pins.</comment>
+  </data>
+  <data name="ArgumentForSinglePackageProvidedWithMultipleQueries" xml:space="preserve">
+    <value>An argument was provided that can only be used for single package</value>
+
+  </data>
+  <data name="MultipleExclusiveArgumentsProvided" xml:space="preserve">
+    <value>Multiple mutually exclusive arguments provided: {0}</value>
+    <comment>{Locked="{0}"} Error message shown when mutually incompatible command line arguments are used. {0} is a placeholder replaced by the arguments that cannot be specified together</comment>
   </data>
 </root>
