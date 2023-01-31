@@ -29,6 +29,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(AdminSettingEnableDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ArchiveFailedMalwareScan);
         WINGET_DEFINE_RESOURCE_STRINGID(ArchiveFailedMalwareScanOverridden);
+        WINGET_DEFINE_RESOURCE_STRINGID(ArgumentForSinglePackageProvidedWithMultipleQueries);
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableArguments);
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableCommandAliases);
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableCommands);
@@ -36,9 +37,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableOptions);
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableSubcommands);
         WINGET_DEFINE_RESOURCE_STRINGID(AvailableUpgrades);
-        WINGET_DEFINE_RESOURCE_STRINGID(BothGatedVersionAndBlockingFlagProvided);
         WINGET_DEFINE_RESOURCE_STRINGID(BothManifestAndSearchQueryProvided);
-        WINGET_DEFINE_RESOURCE_STRINGID(BothPurgeAndPreserveFlagsProvided);
         WINGET_DEFINE_RESOURCE_STRINGID(Cancelled);
         WINGET_DEFINE_RESOURCE_STRINGID(ChannelArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(Command);
@@ -211,6 +210,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(MSStoreStoreClientBlocked);
         WINGET_DEFINE_RESOURCE_STRINGID(MultiInstallPackageAlreadyInstalled);
         WINGET_DEFINE_RESOURCE_STRINGID(MultiInstallSearchFailed);
+        WINGET_DEFINE_RESOURCE_STRINGID(MultipleExclusiveArgumentsProvided);
         WINGET_DEFINE_RESOURCE_STRINGID(MultipleInstalledPackagesFound);
         WINGET_DEFINE_RESOURCE_STRINGID(MultipleNonPortableNestedInstallersSpecified);
         WINGET_DEFINE_RESOURCE_STRINGID(MultiplePackagesFound);
@@ -413,7 +413,6 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ToolDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ToolInfoArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ToolVersionArgumentDescription);
-        WINGET_DEFINE_RESOURCE_STRINGID(TooManyAdminSettingArgumentsError);
         WINGET_DEFINE_RESOURCE_STRINGID(TooManyArgError);
         WINGET_DEFINE_RESOURCE_STRINGID(TooManyBehaviorsError);
         WINGET_DEFINE_RESOURCE_STRINGID(UnableToPurgeInstallDirectory);

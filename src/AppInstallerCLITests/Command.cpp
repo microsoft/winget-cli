@@ -42,7 +42,7 @@ std::string GetArgumentAlternateName(const Argument& arg)
 
 std::string GetArgumentAlias(const Argument& arg)
 {
-    if (arg.Alias() == Argument::NoAlias)
+    if (arg.Alias() == ArgumentCommon::NoAlias)
     {
         return {};
     }

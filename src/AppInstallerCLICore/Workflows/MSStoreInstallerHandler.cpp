@@ -85,12 +85,22 @@ namespace AppInstaller::CLI::Workflow
             // Verifying/Acquiring product ownership
             context.Reporter.Info() << Resource::String::MSStoreInstallTryGetEntitlement << std::endl;
 
-            AICLI_LOG(CLI, Info, << "Get user entitlement.");
-            GetEntitlementResult result = installManager.GetFreeUserEntitlementAsync(productId, winrt::hstring(), winrt::hstring()).get();
-            if (result.Status() == GetEntitlementStatus::NoStoreAccount)
+            GetEntitlementResult result{ nullptr };
+
+            if (Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope)) == Manifest::ScopeEnum::Machine)
             {
                 AICLI_LOG(CLI, Info, << "Get device entitlement.");
                 result = installManager.GetFreeDeviceEntitlementAsync(productId, winrt::hstring(), winrt::hstring()).get();
+            }
+            else
+            {
+                AICLI_LOG(CLI, Info, << "Get user entitlement.");
+                result = installManager.GetFreeUserEntitlementAsync(productId, winrt::hstring(), winrt::hstring()).get();
+                if (result.Status() == GetEntitlementStatus::NoStoreAccount)
+                {
+                    AICLI_LOG(CLI, Info, << "Get device entitlement.");
+                    result = installManager.GetFreeDeviceEntitlementAsync(productId, winrt::hstring(), winrt::hstring()).get();
+                }
             }
 
             if (result.Status() == GetEntitlementStatus::Succeeded)
@@ -143,6 +153,17 @@ namespace AppInstaller::CLI::Workflow
 
         if (Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope)) == Manifest::ScopeEnum::Machine)
         {
+            // TODO: There was a bug in InstallService where admin user is incorrectly identified as not admin,
+            // causing false access denied on many OS versions.
+            // Remove this check when the OS bug is fixed and back ported.
+            if (!Runtime::IsRunningAsSystem())
+            {
+                context.Reporter.Error() << Resource::String::InstallFlowReturnCodeSystemNotSupported << std::endl;
+                context.Add<Execution::Data::OperationReturnCode>(static_cast<DWORD>(APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED));
+                AICLI_LOG(CLI, Error, << "Device wide install for msstore type is not supported under admin context.");
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED);
+            }
+
             installOptions.InstallForAllUsers(true);
         }
 

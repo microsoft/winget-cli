@@ -124,7 +124,7 @@ namespace AppInstaller::CLI
 
                 infoOut << '[';
 
-                if (arg.Alias() == Argument::NoAlias)
+                if (arg.Alias() == ArgumentCommon::NoAlias)
                 {
                     infoOut << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << arg.Name();
                 }
@@ -705,9 +705,11 @@ namespace AppInstaller::CLI
             if (Manifest::ConvertToScopeEnum(execArgs.GetArg(Execution::Args::Type::InstallScope)) == Manifest::ScopeEnum::Unknown)
             {
                 auto validOptions = Utility::Join(", "_liv, std::vector<Utility::LocIndString>{ "user"_lis, "machine"_lis});
-                throw CommandException(Resource::String::InvalidArgumentValueError(s_ArgumentName_Scope, validOptions));
+                throw CommandException(Resource::String::InvalidArgumentValueError(ArgumentCommon::ForType(Execution::Args::Type::InstallScope).Name, validOptions));
             }
         }
+
+        Argument::ValidateExclusiveArguments(execArgs);
 
         ValidateArgumentsInternal(execArgs);
     }
@@ -781,7 +783,7 @@ namespace AppInstaller::CLI
             {
                 for (const auto& arg : stateMachine.Arguments())
                 {
-                    if (arg.Alias() != Argument::NoAlias)
+                    if (arg.Alias() != ArgumentCommon::NoAlias)
                     {
                         context.Reporter.Completion() << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << arg.Alias() << std::endl;
                     }

@@ -22,7 +22,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Execution::Args::Type::Command),
             Argument::ForType(Execution::Args::Type::Count),
             Argument::ForType(Execution::Args::Type::Exact),
-            Argument{ s_ArgumentName_Scope, Argument::NoAlias, Execution::Args::Type::InstallScope, Resource::String::InstalledScopeArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help },
+            Argument{ Execution::Args::Type::InstallScope, Resource::String::InstalledScopeArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help },
             Argument::ForType(Execution::Args::Type::CustomHeader),
             Argument::ForType(Execution::Args::Type::AcceptSourceAgreements),
         };

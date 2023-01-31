@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "ExecutionContext.h"
 #include "COMContext.h"
+#include "Argument.h"
 #include "winget/UserSettings.h"
 
 namespace AppInstaller::CLI::Execution
@@ -134,31 +135,16 @@ namespace AppInstaller::CLI::Execution
 
     void Context::CopyArgsToSubContext(Context* subContext)
     {
-        // Copy over install behavior flags from the parent context.
-        for (auto flag : {
-            Args::Type::Interactive,
-            Args::Type::Silent,
-            Args::Type::HashOverride,
-            Args::Type::IgnoreLocalArchiveMalwareScan,
-            Args::Type::NoUpgrade,
-            Args::Type::Force,
-            })
+        auto argProperties = ArgumentCommon::GetFromExecArgs(Args);
+        for (const auto& arg : argProperties)
         {
-            if (Args.Contains(flag))
+            if (WI_IsFlagSet(arg.TypeCategory, ArgTypeCategory::CopyFlagToSubContext))
             {
-                subContext->Args.AddArg(flag);
+                subContext->Args.AddArg(arg.Type);
             }
-        }
-
-        for (auto arg : {
-            Args::Type::Locale,
-            Args::Type::InstallScope,
-            Args::Type::InstallArchitecture,
-            })
-        {
-            if (Args.Contains(arg))
+            else if (WI_IsFlagSet(arg.TypeCategory, ArgTypeCategory::CopyValueToSubContext))
             {
-                subContext->Args.AddArg(arg, Args.GetArg(arg));
+                subContext->Args.AddArg(arg.Type, Args.GetArg(arg.Type));
             }
         }
     }
