@@ -32,12 +32,13 @@ LicenseUrl: https://testLicenseUrl.com
 Copyright: testCopyright
 CopyrightUrl: https://testCopyrightUrl.com
 Description: testDescription
+Moniker: testMoniker
+PurchaseUrl: https://testPurchaseUrl.com
 Tags:
   - "tag1"
   - "tag2"
 ReleaseNotes: testReleaseNotes
 ReleaseNotesUrl: https://testReleaseNotes.net
-PurchaseUrl: https://testPurchaseUrl.com
 InstallationNotes: testInstallationNotes
 Documentations:
   - DocumentLabel: testDocumentLabel

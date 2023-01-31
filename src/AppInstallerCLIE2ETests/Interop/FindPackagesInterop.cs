@@ -92,6 +92,7 @@ namespace AppInstallerCLIE2ETests.Interop
             Assert.AreEqual("https://testCopyrightUrl.com", catalogPackageMetadata.CopyrightUrl);
             Assert.AreEqual("testDescription", catalogPackageMetadata.Description);
             Assert.AreEqual("testShortDescription", catalogPackageMetadata.ShortDescription);
+            Assert.AreEqual("https://testPurchaseUrl.com", catalogPackageMetadata.PurchaseUrl);
 
             var tags = catalogPackageMetadata.Tags;
             Assert.AreEqual(2, tags.Count);
