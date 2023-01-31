@@ -128,6 +128,14 @@ namespace AppInstaller::CLI::Workflow
 
             return false;
         }
+
+        std::optional<std::vector<BYTE>> DownloadWithCustomHandler(
+            const std::string& url,
+            const std::filesystem::path& destination,
+            std::vector<BYTE> expectedHash,
+            IProgressCallback& progress)
+        {
+        }
     }
 
     void DownloadInstaller(Execution::Context& context)
@@ -246,7 +254,6 @@ namespace AppInstaller::CLI::Workflow
         const int MaxRetryCount = 2;
         for (int retryCount = 0; retryCount < MaxRetryCount; ++retryCount)
         {
-            bool success = false;
             try
             {
                 hash = context.Reporter.ExecuteWithProgress(std::bind(Utility::Download,
@@ -257,7 +264,7 @@ namespace AppInstaller::CLI::Workflow
                     true,
                     downloadInfo));
 
-                success = true;
+                break;
             }
             catch (...)
             {
@@ -270,11 +277,6 @@ namespace AppInstaller::CLI::Workflow
                 {
                     throw;
                 }
-            }
-
-            if (success)
-            {
-                break;
             }
         }
 

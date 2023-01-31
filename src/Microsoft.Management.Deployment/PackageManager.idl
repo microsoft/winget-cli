@@ -147,6 +147,28 @@ namespace Microsoft.Management.Deployment
         UInt32 UninstallerErrorCode { get; };
     }
 
+    /// Status of the package download
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
+    enum DownloadResultStatus
+    {
+        Ok,
+        BlockedByPolicy,
+        DownloadError,
+        InternalError,
+    };
+
+    /// Progress of the package download
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
+    struct DownloadProgress
+    {
+        /// Number of bytes downloaded
+        UInt64 BytesDownloaded;
+        /// Number of bytes required if known
+        UInt64 BytesRequired;
+        /// Download progress completed
+        Double Progress;
+    };
+
     /// IMPLEMENTATION NOTE: SourceOrigin from winget/RepositorySource.h
     /// Defines the origin of the package catalog details.
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
@@ -713,6 +735,17 @@ namespace Microsoft.Management.Deployment
         Interactive,
     };
 
+    /// This interface is to be implemented by caller and passed to Windows Package Manager
+    /// to perform custom handling of package download.
+    /// It is part of the effort to support custom private sources.
+    /// Windows Package Manager will still run the hash validation check on the downloaded package
+    /// and apply Mark of the Web accordingly.
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
+    interface IPackageDownloadHandler
+    {
+        Windows.Foundation.IAsyncOperationWithProgress<DownloadResultStatus, DownloadProgress> DownloadPackageAsync(String packageUrl, String destinationPath, UInt8[] expectedHash);
+    };
+
     /// Options when installing a package.
     /// Intended to allow full compatibility with the "winget install" command line interface.
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
@@ -771,6 +804,9 @@ namespace Microsoft.Management.Deployment
             /// A string that will be passed to the installer
             /// IMPLEMENTATION NOTE: maps to "--custom" in the winget cmd line
             String AdditionalInstallerArguments;
+
+            /// A package download handler implemented by caller to support custom private sources
+            IPackageDownloadHandler PackageDownloadHandler;
         }
     }
 

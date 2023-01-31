@@ -36,6 +36,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         void AllowUpgradeToUnknownVersion(bool value);
         bool Force();
         void Force(bool value);
+        winrt::Microsoft::Management::Deployment::IPackageDownloadHandler PackageDownloadHandler();
+        void PackageDownloadHandler(winrt::Microsoft::Management::Deployment::IPackageDownloadHandler const& value);
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
@@ -53,6 +55,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             winrt::single_threaded_vector<winrt::Windows::System::ProcessorArchitecture>() };
         bool m_allowUpgradeToUnknownVersion = false;
         bool m_force = false;
+        winrt::Microsoft::Management::Deployment::IPackageDownloadHandler m_packageDownloadHandler{ nullptr };
 #endif
     };
 }

@@ -128,6 +128,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         m_force = value;
     }
+    winrt::Microsoft::Management::Deployment::IPackageDownloadHandler InstallOptions::PackageDownloadHandler()
+    {
+        return m_packageDownloadHandler;
+    }
+    void InstallOptions::PackageDownloadHandler(winrt::Microsoft::Management::Deployment::IPackageDownloadHandler const& value)
+    {
+        m_packageDownloadHandler = value;
+    }
 
     CoCreatableMicrosoftManagementDeploymentClass(InstallOptions);
 }
