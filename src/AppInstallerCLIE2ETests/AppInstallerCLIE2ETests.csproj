@@ -47,11 +47,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="TestData\Manifests\TestExeInstaller.1.0.1.0.yaml" />
-    <None Remove="TestData\Manifests\TestExeInstaller.1.1.0.0.yaml" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Content Include="..\..\doc\admx\DesktopAppInstaller.admx" Link="TestData\DesktopAppInstaller.admx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
