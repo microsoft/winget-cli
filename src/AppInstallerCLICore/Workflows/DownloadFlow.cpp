@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include "ExecutionContext.h"
 #include "DownloadFlow.h"
 #include "winget/Filesystem.h"
 
@@ -103,7 +104,6 @@ namespace AppInstaller::CLI::Workflow
             {
                 AICLI_LOG(CLI, Warning, << "Failed to remove installer file. Reason unknown.");
             }
-
         }
 
         // Checks the file hash for an existing installer file.
@@ -130,11 +130,42 @@ namespace AppInstaller::CLI::Workflow
         }
 
         std::optional<std::vector<BYTE>> DownloadWithCustomHandler(
+            Execution::Context& context,
             const std::string& url,
             const std::filesystem::path& destination,
-            std::vector<BYTE> expectedHash,
-            IProgressCallback& progress)
+            std::vector<BYTE> expectedHash)
         {
+            auto& downloadHandler = context.Get<Execution::Data::PackageDownloadHandler>();
+
+            auto downloadResult = context.Reporter.ExecuteWithProgress(std::bind(downloadHandler,
+                url,
+                destination.u8string(),
+                expectedHash,
+                std::placeholders::_1));
+
+            AICLI_LOG(CLI, Info, << "Custom download handler download result: " << downloadResult);
+
+            if (SUCCEEDED(downloadResult))
+            {
+                if (std::filesystem::exists(destination) && std::filesystem::is_regular_file(destination))
+                {
+
+                    return SHA256::ComputeHashFromFile(destination);
+                }
+                else
+                {
+                    THROW_HR(APPINSTALLER_CLI_ERROR_CUSTOM_DOWNLOAD_HANDLER_FAILED);
+                }
+            }
+            else if (E_ABORT == downloadResult)
+            {
+                // download cancelled.
+                return {};
+            }
+            else
+            {
+                THROW_HR(APPINSTALLER_CLI_ERROR_CUSTOM_DOWNLOAD_HANDLER_FAILED);
+            }
         }
     }
 
@@ -168,8 +199,10 @@ namespace AppInstaller::CLI::Workflow
                 context << DownloadInstallerFile;
                 break;
             case InstallerTypeEnum::Msix:
-                if (installer.SignatureSha256.empty())
+                if (installer.SignatureSha256.empty() ||
+                    (context.Contains(Execution::Data::PackageDownloadHandler) && context.Get<Execution::Data::PackageDownloadHandler>()))
                 {
+                    // If signature hash not provided, or a custom download handler provided, go to direct download.
                     context << DownloadInstallerFile;
                 }
                 else
@@ -256,15 +289,34 @@ namespace AppInstaller::CLI::Workflow
         {
             try
             {
-                hash = context.Reporter.ExecuteWithProgress(std::bind(Utility::Download,
-                    installer.Url,
-                    installerPath,
-                    Utility::DownloadType::Installer,
-                    std::placeholders::_1,
-                    true,
-                    downloadInfo));
+                if (context.Contains(Execution::Data::PackageDownloadHandler) && context.Get<Execution::Data::PackageDownloadHandler>())
+                {
+                    hash = DownloadWithCustomHandler(context, installer.Url, installerPath, installer.Sha256);
+                }
+                else
+                {
+                    hash = context.Reporter.ExecuteWithProgress(std::bind(Utility::Download,
+                        installer.Url,
+                        installerPath,
+                        Utility::DownloadType::Installer,
+                        std::placeholders::_1,
+                        true,
+                        downloadInfo));
+                }
 
                 break;
+            }
+            catch (const wil::ResultException& re)
+            {
+                if (retryCount < MaxRetryCount - 1)
+                {
+                    AICLI_LOG(CLI, Info, << "Failed to download, waiting a bit and retry. Url: " << installer.Url << " HResult: " << re.GetErrorCode());
+                    Sleep(500);
+                }
+                else
+                {
+                    AICLI_TERMINATE_CONTEXT(re.GetErrorCode());
+                }
             }
             catch (...)
             {
@@ -275,7 +327,7 @@ namespace AppInstaller::CLI::Workflow
                 }
                 else
                 {
-                    throw;
+                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_DOWNLOAD_FAILED);
                 }
             }
         }

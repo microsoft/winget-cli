@@ -400,6 +400,58 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 context->Add<Data::AllowedArchitectures>(std::move(allowedArchitectures));
             }
 
+            if (options.PackageDownloadHandler())
+            {
+                auto downloadHandler = options.PackageDownloadHandler();
+                AppInstaller::CLI::Workflow::PackageDownloadHandlerFunction func = [=](std::string url, std::string path, std::vector<BYTE> hash, AppInstaller::IProgressCallback& progress) -> HRESULT
+                {
+                    auto downloadOperation = downloadHandler.DownloadPackageAsync(winrt::to_hstring(url), winrt::to_hstring(path), winrt::array_view<const uint8_t>(hash.data(), static_cast<winrt::array_view<const uint8_t>::size_type>(hash.size())));
+
+                    winrt::Windows::Foundation::AsyncOperationProgressHandler<winrt::Microsoft::Management::Deployment::DownloadResultStatus, winrt::Microsoft::Management::Deployment::DownloadProgress> progressCallback(
+                        [&](const winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::DownloadResultStatus, winrt::Microsoft::Management::Deployment::DownloadProgress>&, winrt::Microsoft::Management::Deployment::DownloadProgress downloadProgress)
+                        {
+                            // TODO: Direct reporting of DownloadProgressPercentage is not supported in COM framework
+                            progress.OnProgress(downloadProgress.BytesDownloaded, downloadProgress.BytesRequired, ::AppInstaller::ProgressType::Bytes);
+                        }
+                    );
+
+                    // Set progress callback.
+                    downloadOperation.Progress(progressCallback);
+
+                    // Set cancellation function.
+                    auto removeCancel = progress.SetCancellationFunction([&]() { downloadOperation.Cancel(); });
+
+                    try
+                    {
+                        auto downloadResult = downloadOperation.get();
+
+                        switch (downloadResult)
+                        {
+                        case DownloadResultStatus::Ok:
+                            return S_OK;
+                        case DownloadResultStatus::BlockedByPolicy:
+                            return APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY;
+                        case DownloadResultStatus::DownloadError:
+                            return APPINSTALLER_CLI_ERROR_CUSTOM_DOWNLOAD_HANDLER_FAILED;
+                        case DownloadResultStatus::InternalError:
+                            return APPINSTALLER_CLI_ERROR_INTERNAL_ERROR;
+                        default:
+                            return APPINSTALLER_CLI_ERROR_CUSTOM_DOWNLOAD_HANDLER_FAILED;
+                        }
+                    }
+                    catch (...)
+                    {
+                        if (downloadOperation.Status() == winrt::Windows::Foundation::AsyncStatus::Canceled)
+                        {
+                            return E_ABORT;
+                        }
+
+                        return APPINSTALLER_CLI_ERROR_CUSTOM_DOWNLOAD_HANDLER_FAILED;
+                    }
+                };
+                context->Add<Execution::Data::PackageDownloadHandler>(func);
+            }
+
             // Note: AdditionalPackageCatalogArguments is not needed during install since the manifest is already known so no additional calls to the source are needed. The property is deprecated.
         }
     }

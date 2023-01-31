@@ -166,7 +166,7 @@ namespace Microsoft.Management.Deployment
         /// Number of bytes required if known
         UInt64 BytesRequired;
         /// Download progress completed
-        Double Progress;
+        Double ProgressPercentage;
     };
 
     /// IMPLEMENTATION NOTE: SourceOrigin from winget/RepositorySource.h

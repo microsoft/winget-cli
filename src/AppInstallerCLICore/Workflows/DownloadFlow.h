@@ -1,10 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "ExecutionContext.h"
+#include <AppInstallerProgress.h>
+
+namespace AppInstaller::CLI::Execution
+{
+    struct Context;
+}
 
 namespace AppInstaller::CLI::Workflow
 {
+    typedef std::function<HRESULT(std::string url, std::string path, std::vector<std::uint8_t> hash, AppInstaller::IProgressCallback& progress)> PackageDownloadHandlerFunction;
+
     // Composite flow that chooses what to do based on the installer type.
     // Required Args: None
     // Inputs: Manifest, Installer

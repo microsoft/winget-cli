@@ -214,6 +214,8 @@ namespace AppInstaller
                 return "There is no pin for the package.";
             case APPINSTALLER_CLI_ERROR_CANNOT_OPEN_PINNING_INDEX:
                 return "Unable to open the pin database.";
+            case APPINSTALLER_CLI_ERROR_CUSTOM_DOWNLOAD_HANDLER_FAILED:
+                return "Package download with custom download handler failed.";
 
             // Install errors
             case APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE:

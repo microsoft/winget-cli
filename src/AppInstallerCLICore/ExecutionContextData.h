@@ -9,6 +9,7 @@
 #include "PackageCollection.h"
 #include "PortableInstaller.h"
 #include "Workflows/WorkflowBase.h"
+#include "Workflows/DownloadFlow.h"
 
 #include <filesystem>
 #include <map>
@@ -62,6 +63,7 @@ namespace AppInstaller::CLI::Execution
         PortableInstaller,
         PinningIndex,
         Pins,
+        PackageDownloadHandler,
         Max
     };
 
@@ -247,6 +249,12 @@ namespace AppInstaller::CLI::Execution
         struct DataMapping<Data::Pins>
         {
             using value_t = std::vector<Pinning::Pin>;
+        };
+
+        template <>
+        struct DataMapping<Data::PackageDownloadHandler>
+        {
+            using value_t = Workflow::PackageDownloadHandlerFunction;
         };
     }
 }
