@@ -519,11 +519,11 @@ namespace AppInstallerCLIE2ETests.Interop
         }
 
         /// <summary>
-        /// Test installing package with agreements and accepting those agreements.
+        /// Test installing package with agreements and not accepting those agreements.
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Test]
-        public async Task InstallWithAgreementsAccepted()
+        public async Task InstallWithAgreementsNotAccepted()
         {
             // Find package
             var searchResult = this.FindOnePackage(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.TestExeInstaller");
@@ -532,13 +532,13 @@ namespace AppInstallerCLIE2ETests.Interop
             var installOptions = this.TestFactory.CreateInstallOptions();
             installOptions.PackageInstallMode = PackageInstallMode.Silent;
             installOptions.PreferredInstallLocation = this.installDir;
-            installOptions.AcceptPackageAgreements = true;
+            installOptions.AcceptPackageAgreements = false;
 
             // Install
             var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
 
             // Assert
-            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
+            Assert.AreEqual(InstallResultStatus.CatalogError, installResult.Status);
         }
     }
 }

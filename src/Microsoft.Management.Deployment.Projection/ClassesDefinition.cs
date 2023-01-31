@@ -46,18 +46,6 @@ namespace Microsoft.Management.Deployment.Projection
                 }
             },
 
-            [typeof(PackageCatalogConnectOptions)] = new()
-            {
-                ProjectedClassType = typeof(PackageCatalogConnectOptions),
-                InterfaceType = typeof(IPackageCatalogConnectOptions),
-                Clsids = new Dictionary<ClsidContext, Guid>()
-                {
-                    [ClsidContext.InProc] = new Guid("D026FDDC-44D3-443A-8DAB-A4DD969943B3"),
-                    [ClsidContext.OutOfProc] = new Guid("B5033698-79D1-4B94-9C39-0EC4EF1C7853"),
-                    [ClsidContext.OutOfProcDev] = new Guid("6C4F68AC-F601-42FC-8CAF-87D3B3321783"),
-                }
-            },
-
             [typeof(InstallOptions)] = new()
             {
                 ProjectedClassType = typeof(InstallOptions),
@@ -91,6 +79,18 @@ namespace Microsoft.Management.Deployment.Projection
                     [ClsidContext.InProc] = new Guid("57DC8962-7343-42CD-B91C-04F6A25DB1D0"),
                     [ClsidContext.OutOfProc] = new Guid("D02C9DAF-99DC-429C-B503-4E504E4AB000"),
                     [ClsidContext.OutOfProcDev] = new Guid("3F85B9F4-487A-4C48-9035-2903F8A6D9E8"),
+                }
+            },
+
+            [typeof(PackageCatalogConnectOptions)] = new()
+            {
+                ProjectedClassType = typeof(PackageCatalogConnectOptions),
+                InterfaceType = typeof(IPackageCatalogConnectOptions),
+                Clsids = new Dictionary<ClsidContext, Guid>()
+                {
+                    [ClsidContext.InProc] = new Guid("D026FDDC-44D3-443A-8DAB-A4DD969943B3"),
+                    [ClsidContext.OutOfProc] = new Guid("B5033698-79D1-4B94-9C39-0EC4EF1C7853"),
+                    [ClsidContext.OutOfProcDev] = new Guid("6C4F68AC-F601-42FC-8CAF-87D3B3321783"),
                 }
             },
 

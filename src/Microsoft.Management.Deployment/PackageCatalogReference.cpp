@@ -63,6 +63,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 return GetConnectCatalogErrorResult();
             }
 
+            if (options && !options.AcceptSourceAgreements())
+            {
+                return GetConnectCatalogErrorResult();
+            }
+
             ::AppInstaller::ProgressCallback progress;
             ::AppInstaller::Repository::Source source;
             if (m_compositePackageCatalogOptions)
@@ -110,18 +115,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             {
                 source = m_sourceReference;
                 source.Open(progress);
-
-                // Check agreements for non-composite source.
-                if (options && options.AcceptSourceAgreements())
-                {
-                    source.SaveAcceptedSourceAgreements();
-                }
-
-                // Check that source agreements have been accepted before proceeding.
-                if (!source.CheckSourceAgreements())
-                {
-                    return GetConnectCatalogErrorResult();
-                }
             }
 
             // Have to make another package catalog info because source->GetDetails has more fields than m_info does.
