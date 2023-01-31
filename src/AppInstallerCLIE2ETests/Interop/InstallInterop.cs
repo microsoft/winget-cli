@@ -526,7 +526,7 @@ namespace AppInstallerCLIE2ETests.Interop
         public async Task InstallWithAgreementsNotAccepted()
         {
             // Find package
-            var searchResult = this.FindOnePackage(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.TestExeInstaller");
+            var searchResult = this.FindOnePackage(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.CatalogPackageMetadata");
 
             // Configure installation
             var installOptions = this.TestFactory.CreateInstallOptions();

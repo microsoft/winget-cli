@@ -39,9 +39,9 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         co_return Connect();
     }
-    winrt::Windows::Foundation::IAsyncOperation<winrt::Microsoft::Management::Deployment::ConnectResult> PackageCatalogReference::ConnectAsync(winrt::Microsoft::Management::Deployment::PackageCatalogConnectOptions options)
+    winrt::Windows::Foundation::IAsyncOperation<winrt::Microsoft::Management::Deployment::ConnectResult> PackageCatalogReference::ConnectWithOptionsAsync(winrt::Microsoft::Management::Deployment::PackageCatalogConnectOptions options)
     {
-        co_return Connect(options);
+        co_return ConnectWithOptions(options);
     }
     winrt::Microsoft::Management::Deployment::ConnectResult GetConnectCatalogErrorResult()
     {
@@ -51,9 +51,9 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     }
     winrt::Microsoft::Management::Deployment::ConnectResult PackageCatalogReference::Connect()
     {
-        return Connect(NULL);
+        return ConnectWithOptions(NULL);
     }
-    winrt::Microsoft::Management::Deployment::ConnectResult PackageCatalogReference::Connect(winrt::Microsoft::Management::Deployment::PackageCatalogConnectOptions options)
+    winrt::Microsoft::Management::Deployment::ConnectResult PackageCatalogReference::ConnectWithOptions(winrt::Microsoft::Management::Deployment::PackageCatalogConnectOptions options)
     {
         try
         {

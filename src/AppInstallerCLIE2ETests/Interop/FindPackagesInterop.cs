@@ -146,6 +146,9 @@ namespace AppInstallerCLIE2ETests.Interop
             Assert.AreEqual("localeLicense", catalogPackageMetadata.License);
             Assert.AreEqual("localePackageName", catalogPackageMetadata.PackageName);
             Assert.AreEqual("localePublisher", catalogPackageMetadata.Publisher);
+            Assert.AreEqual("localeReleaseNotes", catalogPackageMetadata.ReleaseNotes);
+            Assert.AreEqual("https://localeReleaseNotesUrl.com", catalogPackageMetadata.ReleaseNotesUrl);
+            Assert.AreEqual("https://localePurchaseUrl.com", catalogPackageMetadata.PurchaseUrl);
 
             var tags = catalogPackageMetadata.Tags;
             Assert.AreEqual(2, tags.Count);

@@ -23,8 +23,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         hstring AdditionalPackageCatalogArguments();
         void AdditionalPackageCatalogArguments(hstring const& value);
         // Contract 6.0
-        winrt::Windows::Foundation::IAsyncOperation<winrt::Microsoft::Management::Deployment::ConnectResult> ConnectAsync(PackageCatalogConnectOptions options);
-        winrt::Microsoft::Management::Deployment::ConnectResult Connect(PackageCatalogConnectOptions options);
+        winrt::Windows::Foundation::IAsyncOperation<winrt::Microsoft::Management::Deployment::ConnectResult> ConnectWithOptionsAsync(PackageCatalogConnectOptions options);
+        winrt::Microsoft::Management::Deployment::ConnectResult ConnectWithOptions(PackageCatalogConnectOptions options);
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:

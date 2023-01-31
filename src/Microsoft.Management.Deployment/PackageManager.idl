@@ -656,8 +656,8 @@ namespace Microsoft.Management.Deployment
             /// Gets the required agreements for connecting to the package catalog (source).
             Windows.Foundation.Collections.IVectorView<SourceAgreement> SourceAgreements{ get; };
 
-            Windows.Foundation.IAsyncOperation<ConnectResult> ConnectAsync(PackageCatalogConnectOptions packageCatalogConnectOptions);
-            ConnectResult Connect(PackageCatalogConnectOptions packageCatalogConnectOptions);
+            Windows.Foundation.IAsyncOperation<ConnectResult> ConnectWithOptionsAsync(PackageCatalogConnectOptions packageCatalogConnectOptions);
+            ConnectResult ConnectWithOptions(PackageCatalogConnectOptions packageCatalogConnectOptions);
         }
     }
 
@@ -862,7 +862,7 @@ namespace Microsoft.Management.Deployment
     {
         String DocumentLabel { get; };
 
-        String DocumentUrl{ get; };
+        String DocumentUrl { get; };
     }
 
     /// IMPLEMENTATION NOTE: SourceOrigin from AppInstaller::Repository::SourceAgreement
@@ -871,9 +871,9 @@ namespace Microsoft.Management.Deployment
     {
         String Label { get; };
 
-        String Text{ get; };
+        String Text { get; };
     
-        String Url{ get; };
+        String Url { get; };
     }
 
     /// IMPLEMENTATION NOTE: SourceOrigin from AppInstaller::Manifest::Agreement
@@ -882,9 +882,9 @@ namespace Microsoft.Management.Deployment
     {
         String Label { get; };
 
-        String Text{ get; };
+        String Text { get; };
 
-        String Url{ get; };
+        String Url { get; };
     }
 
     /// IMPLEMENTATION NOTE: SourceOrigin from AppInstaller::Manifest::Localization
@@ -899,37 +899,39 @@ namespace Microsoft.Management.Deployment
 
         String PublisherSupportUrl { get; };
 
-        String PrivacyUrl{ get; };
+        String PrivacyUrl { get; };
 
-        String Author{ get; };
+        String Author { get; };
 
-        String PackageName{ get; };
+        String PackageName { get; };
 
-        String PackageUrl{ get; };
+        String PackageUrl { get; };
 
-        String License{ get; };
+        String License { get; };
 
-        String LicenseUrl{ get; };
+        String LicenseUrl { get; };
 
-        String Copyright{ get; };
+        String Copyright { get; };
 
-        String CopyrightUrl{ get; };
+        String CopyrightUrl { get; };
 
-        String ShortDescription{ get; };
+        String ShortDescription { get; };
 
-        String Description{ get; };
+        String Description { get; };
 
-        Windows.Foundation.Collections.IVectorView<String> Tags{ get; };
+        Windows.Foundation.Collections.IVectorView<String> Tags { get; };
 
-        Windows.Foundation.Collections.IVectorView<PackageAgreement> Agreements{ get; };
+        Windows.Foundation.Collections.IVectorView<PackageAgreement> Agreements { get; };
 
-        Windows.Foundation.Collections.IVectorView<Documentation> Documentations{ get; };
+        Windows.Foundation.Collections.IVectorView<Documentation> Documentations { get; };
 
-        String ReleaseNotes{ get; };
+        String ReleaseNotes { get; };
 
-        String ReleaseNotesUrl{ get; };
+        String ReleaseNotesUrl { get; };
 
-        String InstallationNotes{ get; };
+        String PurchaseUrl { get; };
+
+        String InstallationNotes { get; };
     }
 
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
