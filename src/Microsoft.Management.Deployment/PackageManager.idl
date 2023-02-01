@@ -281,7 +281,6 @@ namespace Microsoft.Management.Deployment
         /// Gets the manifest of this package version.
         /// virtual Manifest::Manifest GetManifest() = 0;
 
-
         [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
         {
             /// Gets the default package catalog metadata of this package version.
