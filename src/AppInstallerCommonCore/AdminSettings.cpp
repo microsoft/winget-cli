@@ -268,11 +268,9 @@ namespace AppInstaller::Settings
         return adminSettingsInternal.GetAdminSettingBoolValue(setting);
     }
 
-
     std::vector<AdminSetting> GetAllAdminSettings()
     {
         std::vector<AdminSetting> result;
-
         using AdminSetting_t = std::underlying_type_t<AdminSetting>;
 
         // Skip Unknown.
@@ -282,19 +280,5 @@ namespace AppInstaller::Settings
         }
 
         return result;
-    }
-
-    std::map<std::string, bool> GetAdminSettingsForOutput()
-    {
-        std::map<std::string, bool> adminSettingStatus;
-        using AdminSetting_t = std::underlying_type_t<AdminSetting>;
-
-        // Skip Unknown.
-        for (AdminSetting_t i = 1 + static_cast<AdminSetting_t>(AdminSetting::Unknown); i < static_cast<AdminSetting_t>(AdminSetting::Max); ++i)
-        {
-            AdminSetting setting = static_cast<AdminSetting>(i);
-            adminSettingStatus.emplace(AdminSettingToString(setting), IsAdminSettingEnabled(setting));
-        }
-        return adminSettingStatus;
     }
 }

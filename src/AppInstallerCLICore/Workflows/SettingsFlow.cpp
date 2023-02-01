@@ -134,7 +134,7 @@ namespace AppInstaller::CLI::Workflow
         {
             exportSettingsJson.AddAdminSetting(setting);
         }
-        
+
         context.Reporter.Info() << exportSettingsJson.ToJsonString() << std::endl;
     }
 }
