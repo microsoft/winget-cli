@@ -91,6 +91,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     void ConfigurationSetParser::SetError(hresult result, std::string_view field)
     {
+        AICLI_LOG(Config, Error, << "ConfigurationSetParser error: " << AppInstaller::Logging::SetHRFormat << result << " [" << field << "]");
         m_result = result;
         m_field = AppInstaller::Utility::ConvertToUTF16(field);
     }

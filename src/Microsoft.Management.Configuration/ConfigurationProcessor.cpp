@@ -63,6 +63,26 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             ConfigurationProcessor& m_processor;
         };
 
+        // Helper to ensure a one-time callback attach
+        struct AttachWilFailureCallback
+        {
+            AttachWilFailureCallback()
+            {
+                wil::SetResultLoggingCallback(wilResultLoggingCallback);
+            }
+
+            ~AttachWilFailureCallback() = default;
+
+            static void __stdcall wilResultLoggingCallback(const wil::FailureInfo& info) noexcept
+            {
+                AICLI_LOG(Fail, Error, << [&]() {
+                    wchar_t message[2048];
+                    GetFailureLogString(message, ARRAYSIZE(message), info);
+                    return AppInstaller::Utility::ConvertToUTF8(message);
+                    }());
+            }
+        };
+
         bool ShouldTestDuringTest(ConfigurationUnitIntent intent)
         {
             return (intent == ConfigurationUnitIntent::Assert || intent == ConfigurationUnitIntent::Apply);
@@ -79,6 +99,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     event_token ConfigurationProcessor::Diagnostics(const Windows::Foundation::EventHandler<DiagnosticInformation>& handler)
     {
+        static AttachWilFailureCallback s_callbackAttach;
         return m_diagnostics.add(handler);
     }
 

@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="OpenConfigurationSetTests.cs" company="Microsoft Corporation">
+// <copyright file="ConfigurationProcessorTestBase.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -7,6 +7,7 @@
 namespace Microsoft.Management.Configuration.UnitTests.Helpers
 {
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
+    using Windows.Storage.Streams;
     using Xunit.Abstractions;
 
     /// <summary>
@@ -47,6 +48,20 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         {
             ConfigurationProcessor result = new ConfigurationProcessor(factory);
             result.Diagnostics += this.diagnosticsEventSink.DiagnosticsHandler;
+            return result;
+        }
+
+        /// <summary>
+        /// Creates an input stream from the given string.
+        /// </summary>
+        /// <param name="contents">The contents that the stream should contain.</param>
+        /// <returns>The created stream.</returns>
+        protected IInputStream CreateStream(string contents)
+        {
+            InMemoryRandomAccessStream result = new InMemoryRandomAccessStream();
+            DataWriter writer = new DataWriter(result);
+            writer.WriteString(contents);
+            result.Seek(0);
             return result;
         }
     }
