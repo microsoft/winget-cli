@@ -77,8 +77,7 @@ namespace AppInstallerCLIE2ETests.Interop
             findPackageOptions.Filters.Add(filter);
 
             // Connect and find package
-            var packageCatalogConnectOptions = this.TestFactory.CreatePackageCatalogConnectOptions();
-            var source = packageCatalogReference.ConnectWithOptions(packageCatalogConnectOptions).PackageCatalog;
+            var source = packageCatalogReference.Connect().PackageCatalog;
 
             return source.FindPackages(findPackageOptions).Matches;
         }

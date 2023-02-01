@@ -280,6 +280,16 @@ namespace Microsoft.Management.Deployment
         /// a lot of fields and no one requesting it.
         /// Gets the manifest of this package version.
         /// virtual Manifest::Manifest GetManifest() = 0;
+
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
+        {
+            /// Gets the default package catalog metadata of this package version.
+            CatalogPackageMetadata GetCatalogPackageMetadata();
+
+            /// Gets the package catalog metadata of this package version with the specified locale.
+            CatalogPackageMetadata GetCatalogPackageMetadata(String locale);
+        }
     }
 
     /// IMPLEMENTATION NOTE: PackageVersionKey from winget/RepositorySearch.h
@@ -459,13 +469,6 @@ namespace Microsoft.Management.Deployment
         /// IsSame from IPackage in winget/RepositorySearch is not implemented in V1.
         /// Determines if the given IPackage refers to the same package as this one.
         /// virtual bool IsSame(const IPackage*) const = 0;
-        
-        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
-        {
-            CatalogPackageMetadata GetCatalogPackageMetadata(PackageVersionId versionKey, String locale);
-
-            Windows.Foundation.Collections.IVectorView<CatalogPackageMetadata> GetAllCatalogPackageMetadata(PackageVersionId versionKey);
-        }
     }
 
     /// IMPLEMENTATION NOTE: CompositeSearchBehavior from winget/RepositorySource.h
@@ -654,10 +657,9 @@ namespace Microsoft.Management.Deployment
         [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
         {
             /// Gets the required agreements for connecting to the package catalog (source).
-            Windows.Foundation.Collections.IVectorView<SourceAgreement> SourceAgreements{ get; };
+            Windows.Foundation.Collections.IVectorView<SourceAgreement> SourceAgreements { get; };
 
-            Windows.Foundation.IAsyncOperation<ConnectResult> ConnectWithOptionsAsync(PackageCatalogConnectOptions packageCatalogConnectOptions);
-            ConnectResult ConnectWithOptions(PackageCatalogConnectOptions packageCatalogConnectOptions);
+            Boolean AcceptSourceAgreements{ get; };
         }
     }
 
@@ -843,17 +845,6 @@ namespace Microsoft.Management.Deployment
             // The scope the uninstall will perform. Currently only applicable to msix.
             PackageUninstallScope PackageUninstallScope;
         }
-    }
-
-    /// Options when connecting to a package catalog.
-    /// Intended to allow source agreements to be accepted connecting to the package catalog.
-    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
-    runtimeclass PackageCatalogConnectOptions
-    {
-        PackageCatalogConnectOptions();
-
-        /// Accept the source agreements required when connecting to a package catalog.
-        Boolean AcceptSourceAgreements;
     }
 
     /// IMPLEMENTATION NOTE: SourceOrigin from AppInstaller::Repository::Documentation

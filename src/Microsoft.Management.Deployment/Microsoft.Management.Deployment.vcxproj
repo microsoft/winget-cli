@@ -151,7 +151,6 @@
     <ClInclude Include="MatchResult.h" />
     <ClInclude Include="PackageAgreement.h" />
     <ClInclude Include="PackageCatalog.h" />
-    <ClInclude Include="PackageCatalogConnectOptions.h" />
     <ClInclude Include="PackageCatalogInfo.h" />
     <ClInclude Include="PackageCatalogReference.h" />
     <ClInclude Include="PackageInstallerInfo.h" />
@@ -185,7 +184,6 @@
     <ClCompile Include="MatchResult.cpp" />
     <ClCompile Include="PackageAgreement.cpp" />
     <ClCompile Include="PackageCatalog.cpp" />
-    <ClCompile Include="PackageCatalogConnectOptions.cpp" />
     <ClCompile Include="PackageCatalogInfo.cpp" />
     <ClCompile Include="PackageCatalogReference.cpp" />
     <ClCompile Include="PackageInstallerInfo.cpp" />

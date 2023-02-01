@@ -82,18 +82,6 @@ namespace Microsoft.Management.Deployment.Projection
                 }
             },
 
-            [typeof(PackageCatalogConnectOptions)] = new()
-            {
-                ProjectedClassType = typeof(PackageCatalogConnectOptions),
-                InterfaceType = typeof(IPackageCatalogConnectOptions),
-                Clsids = new Dictionary<ClsidContext, Guid>()
-                {
-                    [ClsidContext.InProc] = new Guid("D026FDDC-44D3-443A-8DAB-A4DD969943B3"),
-                    [ClsidContext.OutOfProc] = new Guid("B5033698-79D1-4B94-9C39-0EC4EF1C7853"),
-                    [ClsidContext.OutOfProcDev] = new Guid("6C4F68AC-F601-42FC-8CAF-87D3B3321783"),
-                }
-            },
-
             [typeof(PackageManagerSettings)] = new()
             {
                 ProjectedClassType = typeof(PackageManagerSettings),

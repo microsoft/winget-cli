@@ -77,7 +77,8 @@ namespace AppInstallerCLIE2ETests.Interop
 
             var catalogPackage = searchResult[0].CatalogPackage;
             var packageVersionId = catalogPackage.AvailableVersions[0];
-            var catalogPackageMetadata = catalogPackage.GetCatalogPackageMetadata(packageVersionId, string.Empty);
+            var packageVersionInfo = catalogPackage.GetPackageVersionInfo(packageVersionId);
+            var catalogPackageMetadata = packageVersionInfo.GetCatalogPackageMetadata();
 
             Assert.AreEqual("testAuthor", catalogPackageMetadata.Author);
             Assert.AreEqual("AppInstallerTest", catalogPackageMetadata.Publisher);
@@ -127,7 +128,8 @@ namespace AppInstallerCLIE2ETests.Interop
             var searchResult = this.FindAllPackages(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.CatalogPackageMetadata");
             var catalogPackage = searchResult[0].CatalogPackage;
             var packageVersionId = catalogPackage.AvailableVersions[0];
-            Assert.Throws<System.ArgumentException>(() => searchResult[0].CatalogPackage.GetCatalogPackageMetadata(packageVersionId, "badLocale"));
+            var packageVersionInfo = catalogPackage.GetPackageVersionInfo(packageVersionId);
+            Assert.Throws<System.ArgumentException>(() => packageVersionInfo.GetCatalogPackageMetadata("badLocale"));
         }
 
         /// <summary>
@@ -141,7 +143,8 @@ namespace AppInstallerCLIE2ETests.Interop
 
             var catalogPackage = searchResult[0].CatalogPackage;
             var packageVersionId = catalogPackage.AvailableVersions[0];
-            var catalogPackageMetadata = catalogPackage.GetCatalogPackageMetadata(packageVersionId, "zh-CN");
+            var packageVersionInfo = catalogPackage.GetPackageVersionInfo(packageVersionId);
+            var catalogPackageMetadata = packageVersionInfo.GetCatalogPackageMetadata("zh-CN");
 
             Assert.AreEqual("zh-CN", catalogPackageMetadata.Locale);
             Assert.AreEqual("localeLicense", catalogPackageMetadata.License);
@@ -183,11 +186,14 @@ namespace AppInstallerCLIE2ETests.Interop
 
             var catalogPackage = searchResult[0].CatalogPackage;
             var packageVersionId = catalogPackage.AvailableVersions[0];
-            var allCatalogPackageMetadata = catalogPackage.GetAllCatalogPackageMetadata(packageVersionId);
+            var packageVersionInfo = catalogPackage.GetPackageVersionInfo(packageVersionId);
 
-            Assert.AreEqual(2, allCatalogPackageMetadata.Count);
-            Assert.AreEqual("zh-CN", allCatalogPackageMetadata[0].Locale);
-            Assert.AreEqual("en-GB", allCatalogPackageMetadata[1].Locale);
+            var catalogPackageMetadata1 = packageVersionInfo.GetCatalogPackageMetadata("zh-CN");
+            Assert.AreEqual("zh-CN", catalogPackageMetadata1.Locale);
+
+            var catalogPackageMetadata2 = packageVersionInfo.GetCatalogPackageMetadata("en-GB");
+            Assert.AreEqual("en-GB", catalogPackageMetadata2.Locale);
+            Assert.AreEqual("packageNameUK", catalogPackageMetadata2.PackageName);
         }
     }
 }

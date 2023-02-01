@@ -8,7 +8,6 @@
 #include "PackageManager.h"
 #include "FindPackagesOptions.h"
 #include "CreateCompositePackageCatalogOptions.h"
-#include "PackageCatalogConnectOptions.h"
 #include "InstallOptions.h"
 #include "UninstallOptions.h"
 #include "PackageMatchFilter.h"
@@ -30,10 +29,6 @@ namespace winrt::Microsoft::Management::Deployment
         else if (IsEqualCLSID(clsid, WINGET_INPROC_COM_CLSID_CreateCompositePackageCatalogOptions))
         {
             return __uuidof(winrt::Microsoft::Management::Deployment::implementation::CreateCompositePackageCatalogOptions);
-        }
-        else if (IsEqualCLSID(clsid, WINGET_INPROC_COM_CLSID_PackageCatalogConnectOptions))
-        {
-            return __uuidof(winrt::Microsoft::Management::Deployment::implementation::PackageCatalogConnectOptions);
         }
         else if (IsEqualCLSID(clsid, WINGET_INPROC_COM_CLSID_InstallOptions))
         {

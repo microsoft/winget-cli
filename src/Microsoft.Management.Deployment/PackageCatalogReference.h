@@ -23,8 +23,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         hstring AdditionalPackageCatalogArguments();
         void AdditionalPackageCatalogArguments(hstring const& value);
         // Contract 6.0
-        winrt::Windows::Foundation::IAsyncOperation<winrt::Microsoft::Management::Deployment::ConnectResult> ConnectWithOptionsAsync(PackageCatalogConnectOptions options);
-        winrt::Microsoft::Management::Deployment::ConnectResult ConnectWithOptions(PackageCatalogConnectOptions options);
+        bool AcceptSourceAgreements();
+        void AcceptSourceAgreements(bool value);
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
@@ -33,6 +33,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         winrt::Windows::Foundation::Collections::IVector<winrt::Microsoft::Management::Deployment::SourceAgreement> m_sourceAgreements{ winrt::single_threaded_vector<winrt::Microsoft::Management::Deployment::SourceAgreement>() };
         ::AppInstaller::Repository::Source m_sourceReference;
         std::optional<std::string> m_additionalPackageCatalogArguments;
+        bool m_acceptSourceAgreements = true;
 #endif
     };
 }

@@ -20,6 +20,7 @@
 #include "PackageManager.h"
 #pragma warning( pop )
 #include <wil\cppwinrt_wrl.h>
+#include <winget/Locale.h>
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
@@ -137,5 +138,34 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     std::shared_ptr<::AppInstaller::Repository::IPackageVersion> PackageVersionInfo::GetRepositoryPackageVersion()
     { 
         return m_packageVersion; 
+    }
+    Microsoft::Management::Deployment::CatalogPackageMetadata PackageVersionInfo::GetCatalogPackageMetadata()
+    {
+        auto catalogPackageMetadata = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::CatalogPackageMetadata>>();
+        if (m_packageVersion)
+        {
+            auto manifest = m_packageVersion->GetManifest();
+            catalogPackageMetadata->Initialize(manifest.DefaultLocalization);
+        }
+
+        return *catalogPackageMetadata;
+    }
+    Microsoft::Management::Deployment::CatalogPackageMetadata PackageVersionInfo::GetCatalogPackageMetadata(const hstring& locale)
+    {
+        std::string localeString = winrt::to_string(locale);
+        auto catalogPackageMetadata = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::CatalogPackageMetadata>>();
+        if (m_packageVersion)
+        {
+            auto manifest = m_packageVersion->GetManifest();
+            if (!::AppInstaller::Locale::IsWellFormedBcp47Tag(localeString))
+            {
+                throw hresult_invalid_argument();
+            }
+
+            manifest.ApplyLocale(localeString);
+            catalogPackageMetadata->Initialize(manifest.CurrentLocalization);
+        }
+
+        return *catalogPackageMetadata;
     }
 }

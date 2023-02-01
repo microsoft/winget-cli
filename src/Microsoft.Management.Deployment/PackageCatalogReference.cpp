@@ -39,10 +39,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         co_return Connect();
     }
-    winrt::Windows::Foundation::IAsyncOperation<winrt::Microsoft::Management::Deployment::ConnectResult> PackageCatalogReference::ConnectWithOptionsAsync(winrt::Microsoft::Management::Deployment::PackageCatalogConnectOptions options)
-    {
-        co_return ConnectWithOptions(options);
-    }
     winrt::Microsoft::Management::Deployment::ConnectResult GetConnectCatalogErrorResult()
     {
         auto connectResult = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::ConnectResult>>();
@@ -50,10 +46,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         return *connectResult;
     }
     winrt::Microsoft::Management::Deployment::ConnectResult PackageCatalogReference::Connect()
-    {
-        return ConnectWithOptions(NULL);
-    }
-    winrt::Microsoft::Management::Deployment::ConnectResult PackageCatalogReference::ConnectWithOptions(winrt::Microsoft::Management::Deployment::PackageCatalogConnectOptions options)
     {
         try
         {
@@ -63,7 +55,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 return GetConnectCatalogErrorResult();
             }
 
-            if (options && !options.AcceptSourceAgreements())
+            if (!m_acceptSourceAgreements)
             {
                 return GetConnectCatalogErrorResult();
             }
@@ -173,5 +165,13 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             m_additionalPackageCatalogArguments = ::AppInstaller::Utility::ConvertToUTF8(value);
             m_sourceReference.SetCustomHeader(m_additionalPackageCatalogArguments);
         }
+    }
+    void PackageCatalogReference::AcceptSourceAgreements(bool value)
+    {
+        m_acceptSourceAgreements = value;
+    }
+    bool PackageCatalogReference::AcceptSourceAgreements()
+    {
+        return m_acceptSourceAgreements;
     }
 }

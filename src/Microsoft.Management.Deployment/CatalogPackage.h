@@ -31,9 +31,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             winrt::Microsoft::Management::Deployment::InstalledStatusType checkTypes);
         winrt::Windows::Foundation::IAsyncOperation<winrt::Microsoft::Management::Deployment::CheckInstalledStatusResult> CheckInstalledStatusAsync();
         winrt::Microsoft::Management::Deployment::CheckInstalledStatusResult CheckInstalledStatus();
-        // Contract 6.0
-        winrt::Microsoft::Management::Deployment::CatalogPackageMetadata GetCatalogPackageMetadata(winrt::Microsoft::Management::Deployment::PackageVersionId const& versionKey, const hstring& locale);
-        winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::CatalogPackageMetadata> GetAllCatalogPackageMetadata(winrt::Microsoft::Management::Deployment::PackageVersionId const& versionKey);
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
