@@ -1232,6 +1232,10 @@ Do you agree to the terms?</value>
     <value>Disabled admin setting '{0}'.</value>
     <comment>{Locked="{0}"} Message displayed when the user disables an admin setting. {0} is a placeholder replaced by the setting name.</comment>
   </data>
+  <data name="AdminSettingHeader" xml:space="preserve">
+    <value>Enabled Admin Settings</value>
+    <comment>Header for a table displaying admin settings.</comment>
+  </data>
   <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
     <value>Application is currently running. Exit the application then try again.</value>
   </data>

@@ -110,6 +110,30 @@ namespace AppInstaller::CLI
                 }
             }
         }
+
+        void OutputAdminSettings(Execution::Context& context)
+        {
+            std::vector<AdminSetting> adminSettings = Settings::GetAllAdminSettings();
+            std::vector<AdminSetting> enabledSettings;
+            std::copy_if(adminSettings.begin(), adminSettings.end(), std::back_inserter(enabledSettings), [](AdminSetting setting) { return IsAdminSettingEnabled(setting); });
+
+            // Only display the table if there are settings to report
+            if (!enabledSettings.empty())
+            {
+                auto info = context.Reporter.Info();
+                info << std::endl;
+
+                Execution::TableOutput<2> adminSettingsTable{ context.Reporter, { Resource::String::AdminSettingHeader, {} } };
+
+                // Output the admin settings.
+                for (const auto& setting : enabledSettings)
+                {
+                    adminSettingsTable.OutputLine({
+                    std::string{ AdminSettingToString(setting), {} } });
+                }
+                adminSettingsTable.Complete();
+            }
+        }
     }
 
     std::vector<std::unique_ptr<Command>> RootCommand::GetCommands() const
@@ -210,6 +234,7 @@ namespace AppInstaller::CLI
             links.Complete();
 
             OutputGroupPolicies(context);
+            OutputAdminSettings(context);
         }
         else if (context.Args.Contains(Execution::Args::Type::ToolVersion))
         {
