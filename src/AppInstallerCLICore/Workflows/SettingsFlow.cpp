@@ -128,9 +128,8 @@ namespace AppInstaller::CLI::Workflow
     void ExportSettings(Execution::Context& context)
     {
         ExportSettingsJson exportSettingsJson;
-        auto adminSettings = GetAllAdminSettings();
-        
-        for (const auto& setting : adminSettings)
+
+        for (const auto& setting : GetAllAdminSettings())
         {
             exportSettingsJson.AddAdminSetting(setting);
         }
