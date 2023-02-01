@@ -114,25 +114,21 @@ namespace AppInstaller::CLI
         void OutputAdminSettings(Execution::Context& context)
         {
             std::vector<AdminSetting> adminSettings = Settings::GetAllAdminSettings();
-            std::vector<AdminSetting> enabledSettings;
-            std::copy_if(adminSettings.begin(), adminSettings.end(), std::back_inserter(enabledSettings), [](AdminSetting setting) { return IsAdminSettingEnabled(setting); });
 
-            // Only display the table if there are settings to report
-            if (!enabledSettings.empty())
+            auto info = context.Reporter.Info();
+            info << std::endl;
+
+            Execution::TableOutput<2> adminSettingsTable{ context.Reporter, { Resource::String::AdminSettingHeader, Resource::String::PoliciesState } };
+
+            // Output the admin settings.
+            for (const auto& setting : adminSettings)
             {
-                auto info = context.Reporter.Info();
-                info << std::endl;
-
-                Execution::TableOutput<2> adminSettingsTable{ context.Reporter, { Resource::String::AdminSettingHeader, {} } };
-
-                // Output the admin settings.
-                for (const auto& setting : enabledSettings)
-                {
-                    adminSettingsTable.OutputLine({
-                    std::string{ AdminSettingToString(setting), {} } });
-                }
-                adminSettingsTable.Complete();
+                adminSettingsTable.OutputLine({
+                std::string{ AdminSettingToString(setting)},
+                Resource::LocString{ IsAdminSettingEnabled(setting) ? Resource::String::PoliciesEnabled : Resource::String::PoliciesDisabled }
+                });
             }
+            adminSettingsTable.Complete();
         }
     }
 
