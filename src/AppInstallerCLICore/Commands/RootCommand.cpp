@@ -113,15 +113,13 @@ namespace AppInstaller::CLI
 
         void OutputAdminSettings(Execution::Context& context)
         {
-            std::vector<AdminSetting> adminSettings = Settings::GetAllAdminSettings();
-
             auto info = context.Reporter.Info();
             info << std::endl;
 
             Execution::TableOutput<2> adminSettingsTable{ context.Reporter, { Resource::String::AdminSettingHeader, Resource::String::PoliciesState } };
 
             // Output the admin settings.
-            for (const auto& setting : adminSettings)
+            for (const auto& setting : Settings::GetAllAdminSettings())
             {
                 adminSettingsTable.OutputLine({
                 std::string{ AdminSettingToString(setting)},
