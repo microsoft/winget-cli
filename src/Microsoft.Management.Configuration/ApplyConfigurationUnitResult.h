@@ -13,15 +13,17 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         ApplyConfigurationUnitResult() = default;
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
-        void Initialize(const ConfigurationUnit& unit, const ConfigurationUnitResultInformation& resultInformation);
+        void Initialize(const ConfigurationUnit& unit, bool previouslyInDesiredState, const ConfigurationUnitResultInformation& resultInformation);
 #endif
 
         ConfigurationUnit Unit();
+        bool PreviouslyInDesiredState() const;
         ConfigurationUnitResultInformation ResultInformation();
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
         ConfigurationUnit m_unit = nullptr;
+        bool m_previouslyInDesiredState = false;
         ConfigurationUnitResultInformation m_resultInformation = nullptr;
 #endif
     };

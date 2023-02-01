@@ -433,6 +433,9 @@ namespace Microsoft.Management.Configuration
         // The configuration unit that was applied.
         ConfigurationUnit Unit{ get; };
 
+        // Will be true if the configuration unit was in the desired state (Test returns true) prior to the apply action.
+        Boolean PreviouslyInDesiredState{ get; };
+
         // The result of applying the configuration unit.
         ConfigurationUnitResultInformation ResultInformation{ get; };
     }

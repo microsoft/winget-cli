@@ -38,6 +38,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             ConfigurationUnit Unit;
             std::vector<size_t> DependencyIndices;
             decltype(make_self<wil::details::module_count_wrapper<ConfigurationUnitResultInformation>>()) Result;
+            bool PreviouslyInDesiredState = false;
             bool PreProcessed = false;
             bool Processed = false;
         };

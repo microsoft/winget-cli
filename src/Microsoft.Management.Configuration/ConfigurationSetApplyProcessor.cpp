@@ -46,7 +46,16 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     std::vector<Configuration::ApplyConfigurationUnitResult> ConfigurationSetApplyProcessor::GetUnitResults() const
     {
-        THROW_HR(E_NOTIMPL);
+        std::vector<Configuration::ApplyConfigurationUnitResult> unitResults;
+
+        for (const auto& unitInfo : m_unitInfo)
+        {
+            auto result = make_self<wil::details::module_count_wrapper<implementation::ApplyConfigurationUnitResult>>();
+            result->Initialize(unitInfo.Unit, unitInfo.PreviouslyInDesiredState, *unitInfo.Result);
+            unitResults.emplace_back(*result);
+        }
+
+        return unitResults;
     }
 
     hresult ConfigurationSetApplyProcessor::ResultCode() const
@@ -82,6 +91,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         {
             for (hstring dependencyHstring : unitInfo.Unit.Dependencies())
             {
+                // Throw out empty dependency strings
+                if (dependencyHstring.empty())
+                {
+                    continue;
+                }
+
                 std::string dependency = GetNormalizedIdentifier(dependencyHstring);
                 auto itr = m_idToUnitInfoIndex.find(dependency);
                 if (itr == m_idToUnitInfoIndex.end())
@@ -109,7 +124,13 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     bool ConfigurationSetApplyProcessor::AddUnitToMap(UnitInfo& unitInfo, size_t unitInfoIndex)
     {
-        std::string identifier = GetNormalizedIdentifier(unitInfo.Unit.Identifier());
+        hstring originalIdentifier = unitInfo.Unit.Identifier();
+        if (originalIdentifier.empty())
+        {
+            return true;
+        }
+
+        std::string identifier = GetNormalizedIdentifier(originalIdentifier);
 
         auto itr = m_idToUnitInfoIndex.find(identifier);
         if (itr != m_idToUnitInfoIndex.end())
@@ -131,7 +152,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         // Create the set of units that need to be processed
         std::vector<size_t> unitsToProcess;
-        for (size_t i = 0, size = m_unitInfo.size(); i > size; ++i)
+        for (size_t i = 0, size = m_unitInfo.size(); i < size; ++i)
         {
             unitsToProcess.emplace_back(i);
         }
@@ -281,6 +302,17 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         IConfigurationUnitProcessor unitProcessor;
 
+        // Once we get this far, consider the unit processed even if we fail to create the actual processor.
+        unitInfo.Processed = true;
+
+        if (!unitInfo.Unit.ShouldApply())
+        {
+            // If the unit is requested to be skipped, we mark it with a failure to prevent any dependency from running.
+            // But we return true from this function to indicate a successful "processing".
+            unitInfo.Result->ResultCode(WINGET_CONFIG_ERROR_MANUALLY_SKIPPED);
+            return true;
+        }
+
         try
         {
             unitProcessor = m_setProcessor.CreateUnitProcessor(unitInfo.Unit, {});
@@ -317,7 +349,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             {
                 if (unitProcessor.TestSettings())
                 {
-                    unitInfo.Result->ResultCode(S_FALSE);
+                    unitInfo.PreviouslyInDesiredState = true;
                     return true;
                 }
                 else

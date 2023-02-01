@@ -108,6 +108,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         auto result = make_self<wil::details::module_count_wrapper<OpenConfigurationSetResult>>();
 
+        if (!stream)
+        {
+            result->Initialize(E_POINTER, {});
+            return *result;
+        }
+
         try
         {
             std::unique_ptr<ConfigurationSetParser> parser = ConfigurationSetParser::Create(stream);

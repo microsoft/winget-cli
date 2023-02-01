@@ -18,7 +18,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
-        DiagnosticLevel m_level;
+        DiagnosticLevel m_level = DiagnosticLevel::Verbose;
         hstring m_message;
 #endif
     };

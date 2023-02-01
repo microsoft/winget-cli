@@ -6,15 +6,21 @@
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
-    void ApplyConfigurationUnitResult::Initialize(const ConfigurationUnit& unit, const ConfigurationUnitResultInformation& resultInformation)
+    void ApplyConfigurationUnitResult::Initialize(const ConfigurationUnit& unit, bool previouslyInDesiredState, const ConfigurationUnitResultInformation& resultInformation)
     {
         m_unit = unit;
+        m_previouslyInDesiredState = previouslyInDesiredState;
         m_resultInformation = resultInformation;
     }
 
     ConfigurationUnit ApplyConfigurationUnitResult::Unit()
     {
         return m_unit;
+    }
+
+    bool ApplyConfigurationUnitResult::PreviouslyInDesiredState() const
+    {
+        return m_previouslyInDesiredState;
     }
 
     ConfigurationUnitResultInformation ApplyConfigurationUnitResult::ResultInformation()
