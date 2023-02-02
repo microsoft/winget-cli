@@ -330,6 +330,7 @@ swervy
 SYD
 SYG
 Syncy
+SYSLIB
 sysrefcomp
 systemnotsupported
 Tagit
