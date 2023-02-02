@@ -605,7 +605,6 @@ namespace AppInstallerCLIE2ETests.Interop
                                 {
                                     if (c.IsCancellationRequested)
                                     {
-                                        Console.WriteLine("cancel received");
                                         client.CancelAsync();
                                     }
                                 });

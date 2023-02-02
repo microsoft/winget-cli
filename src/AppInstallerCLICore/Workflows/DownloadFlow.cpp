@@ -149,7 +149,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 if (std::filesystem::exists(destination) && std::filesystem::is_regular_file(destination))
                 {
-
+                    ApplyMotwIfApplicable(destination, URLZONE_INTERNET);
                     return SHA256::ComputeHashFromFile(destination);
                 }
                 else
@@ -291,7 +291,6 @@ namespace AppInstaller::CLI::Workflow
             {
                 if (context.Contains(Execution::Data::PackageDownloadHandler) && context.Get<Execution::Data::PackageDownloadHandler>())
                 {
-                    ApplyMotwIfApplicable(installerPath, URLZONE_INTERNET);
                     hash = DownloadWithCustomHandler(context, installer.Url, installerPath, installer.Sha256);
                 }
                 else
