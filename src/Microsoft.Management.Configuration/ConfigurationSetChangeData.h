@@ -7,6 +7,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 {
     struct ConfigurationSetChangeData : ConfigurationSetChangeDataT<ConfigurationSetChangeData>
     {
+        using ConfigurationUnit = Configuration::ConfigurationUnit;
+        using ConfigurationUnitResultInformation = Configuration::ConfigurationUnitResultInformation;
+
         ConfigurationSetChangeData() = default;
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)

@@ -8,12 +8,14 @@
 #include "ConfigThreadGlobals.h"
 
 #include <string_view>
+#include <functional>
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
     struct ConfigurationProcessor : ConfigurationProcessorT<ConfigurationProcessor>
     {
         using ConfigurationSet = Configuration::ConfigurationSet;
+        using ConfigurationSetChangeData = Configuration::ConfigurationSetChangeData;
         using ConfigurationUnit = Configuration::ConfigurationUnit;
         using DiagnosticInformation = Configuration::DiagnosticInformation;
         using ApplyConfigurationSetResult = Configuration::ApplyConfigurationSetResult;
@@ -29,42 +31,41 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         void ConfigurationChange(const event_token& token) noexcept;
 
         Windows::Foundation::Collections::IVector<ConfigurationSet> GetConfigurationHistory();
+        Windows::Foundation::IAsyncOperation<Windows::Foundation::Collections::IVector<ConfigurationSet>> GetConfigurationHistoryAsync();
 
         Configuration::OpenConfigurationSetResult OpenConfigurationSet(Windows::Storage::Streams::IInputStream stream);
+        Windows::Foundation::IAsyncOperation<Configuration::OpenConfigurationSetResult> OpenConfigurationSetAsync(Windows::Storage::Streams::IInputStream stream);
 
-        Windows::Foundation::IAsyncOperation<Windows::Foundation::Collections::IVectorView<ConfigurationConflict>> CheckForConflictsAsync(
+        Windows::Foundation::Collections::IVector<ConfigurationConflict> CheckForConflicts(
+            const Windows::Foundation::Collections::IVectorView<ConfigurationSet>& configurationSets,
+            bool includeConfigurationHistory);
+        Windows::Foundation::IAsyncOperation<Windows::Foundation::Collections::IVector<ConfigurationConflict>> CheckForConflictsAsync(
             const Windows::Foundation::Collections::IVectorView<ConfigurationSet>& configurationSets,
             bool includeConfigurationHistory);
 
+        void GetSetDetails(const ConfigurationSet& configurationSet, ConfigurationUnitDetailLevel detailLevel);
         Windows::Foundation::IAsyncAction GetSetDetailsAsync(const ConfigurationSet& configurationSet, ConfigurationUnitDetailLevel detailLevel);
 
+        void GetUnitDetails(const ConfigurationUnit& unit, ConfigurationUnitDetailLevel detailLevel);
         Windows::Foundation::IAsyncAction GetUnitDetailsAsync(const ConfigurationUnit& unit, ConfigurationUnitDetailLevel detailLevel);
 
-        Windows::Foundation::IAsyncOperation<ApplyConfigurationSetResult> ApplyAsync(const ConfigurationSet& configurationSet, ApplyConfigurationSetFlags flags);
+        ApplyConfigurationSetResult ApplySet(const ConfigurationSet& configurationSet, ApplyConfigurationSetFlags flags);
+        Windows::Foundation::IAsyncOperationWithProgress<ApplyConfigurationSetResult, ConfigurationSetChangeData> ApplySetAsync(const ConfigurationSet& configurationSet, ApplyConfigurationSetFlags flags);
 
-        Windows::Foundation::IAsyncOperation<TestConfigurationSetResult> TestAsync(const ConfigurationSet& configurationSet);
+        TestConfigurationSetResult TestSet(const ConfigurationSet& configurationSet);
+        Windows::Foundation::IAsyncOperationWithProgress<TestConfigurationSetResult, ConfigurationSetChangeData> TestSetAsync(const ConfigurationSet& configurationSet);
 
-        Windows::Foundation::IAsyncOperation<GetConfigurationUnitSettingsResult> GetSettingsAsync(const ConfigurationUnit& unit);
+        GetConfigurationUnitSettingsResult GetUnitSettings(const ConfigurationUnit& unit);
+        Windows::Foundation::IAsyncOperation<GetConfigurationUnitSettingsResult> GetUnitSettingsAsync(const ConfigurationUnit& unit);
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
         // Sends diagnostics objects to the event.
         void Diagnostics(DiagnosticLevel level, std::string_view message);
 
-        Windows::Foundation::Collections::IVectorView<ConfigurationConflict> CheckForConflicts(
-            const Windows::Foundation::Collections::IVectorView<ConfigurationSet>& configurationSets,
-            bool includeConfigurationHistory);
-
-        void GetSetDetails(const ConfigurationSet& configurationSet, ConfigurationUnitDetailLevel detailLevel);
-
-        void GetUnitDetails(const ConfigurationUnit& unit, ConfigurationUnitDetailLevel detailLevel);
-
-        ApplyConfigurationSetResult Apply(const ConfigurationSet& configurationSet, ApplyConfigurationSetFlags flags);
-
-        TestConfigurationSetResult Test(const ConfigurationSet& configurationSet);
-
-        GetConfigurationUnitSettingsResult GetSettings(const ConfigurationUnit& unit);
-
     private:
+        ApplyConfigurationSetResult ApplySetInternal(const ConfigurationSet& configurationSet, ApplyConfigurationSetFlags flags, const std::function<void(ConfigurationSetChangeData)>& progress);
+        TestConfigurationSetResult TestSetInternal(const ConfigurationSet& configurationSet, const std::function<void(ConfigurationSetChangeData)>& progress);
+
         IConfigurationProcessorFactory m_factory = nullptr;
         event<Windows::Foundation::EventHandler<DiagnosticInformation>> m_diagnostics;
         event<Windows::Foundation::TypedEventHandler<ConfigurationSet, ConfigurationChangeData>> m_configurationChange;

@@ -505,26 +505,34 @@ namespace Microsoft.Management.Configuration
         // Gets the configuration sets that have already been applied or the intent to be applied (this may include in progress sets or those that are waiting on others).
         // These configuration sets will be marked as immutable.
         Windows.Foundation.Collections.IVector<ConfigurationSet> GetConfigurationHistory();
+        Windows.Foundation.IAsyncOperation< Windows.Foundation.Collections.IVector<ConfigurationSet> > GetConfigurationHistoryAsync();
 
         // Loads a mutable configuration set from the given stream.
         OpenConfigurationSetResult OpenConfigurationSet(Windows.Storage.Streams.IInputStream stream);
+        Windows.Foundation.IAsyncOperation<OpenConfigurationSetResult> OpenConfigurationSetAsync(Windows.Storage.Streams.IInputStream stream);
 
         // Checks for conflicts amongst the configuration sets provided, optionally including the configuration sets already applied to the system.
-        Windows.Foundation.IAsyncOperation< Windows.Foundation.Collections.IVectorView<ConfigurationConflict> > CheckForConflictsAsync(Windows.Foundation.Collections.IVectorView<ConfigurationSet> configurationSets, Boolean includeConfigurationHistory);
+        Windows.Foundation.Collections.IVector<ConfigurationConflict> CheckForConflicts(Windows.Foundation.Collections.IVectorView<ConfigurationSet> configurationSets, Boolean includeConfigurationHistory);
+        Windows.Foundation.IAsyncOperation< Windows.Foundation.Collections.IVector<ConfigurationConflict> > CheckForConflictsAsync(Windows.Foundation.Collections.IVectorView<ConfigurationSet> configurationSets, Boolean includeConfigurationHistory);
 
         // Gets the details for all configuration units in a set.
+        void GetSetDetails(ConfigurationSet configurationSet, ConfigurationUnitDetailLevel detailLevel);
         Windows.Foundation.IAsyncAction GetSetDetailsAsync(ConfigurationSet configurationSet, ConfigurationUnitDetailLevel detailLevel);
 
         // Gets the details for a configuration unit.
+        void GetUnitDetails(ConfigurationUnit unit, ConfigurationUnitDetailLevel detailLevel);
         Windows.Foundation.IAsyncAction GetUnitDetailsAsync(ConfigurationUnit unit, ConfigurationUnitDetailLevel detailLevel);
 
-        // Applies the configuration set state; to get progress, subscribe to the ConfigurationSetChange before calling this method.
-        Windows.Foundation.IAsyncOperation<ApplyConfigurationSetResult> ApplyAsync(ConfigurationSet configurationSet, ApplyConfigurationSetFlags flags);
+        // Applies the configuration set state.
+        ApplyConfigurationSetResult ApplySet(ConfigurationSet configurationSet, ApplyConfigurationSetFlags flags);
+        Windows.Foundation.IAsyncOperationWithProgress<ApplyConfigurationSetResult, ConfigurationSetChangeData> ApplySetAsync(ConfigurationSet configurationSet, ApplyConfigurationSetFlags flags);
 
-        // Tests the configuration set state; to get progress, subscribe to the ConfigurationSetChange before calling this method.
-        Windows.Foundation.IAsyncOperation<TestConfigurationSetResult> TestAsync(ConfigurationSet configurationSet);
+        // Tests the configuration set state.
+        TestConfigurationSetResult TestSet(ConfigurationSet configurationSet);
+        Windows.Foundation.IAsyncOperationWithProgress<TestConfigurationSetResult, ConfigurationSetChangeData> TestSetAsync(ConfigurationSet configurationSet);
 
         // Gets the current configuration unit settings.
-        Windows.Foundation.IAsyncOperation<GetConfigurationUnitSettingsResult> GetSettingsAsync(ConfigurationUnit unit);
+        GetConfigurationUnitSettingsResult GetUnitSettings(ConfigurationUnit unit);
+        Windows.Foundation.IAsyncOperation<GetConfigurationUnitSettingsResult> GetUnitSettingsAsync(ConfigurationUnit unit);
     }
 }

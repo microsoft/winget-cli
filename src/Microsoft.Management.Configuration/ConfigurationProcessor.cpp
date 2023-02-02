@@ -14,6 +14,7 @@
 #include "ConfigurationUnitResultInformation.h"
 #include "GetConfigurationUnitSettingsResult.h"
 #include "ExceptionResultHelpers.h"
+#include "ConfigurationSetChangeData.h"
 
 #include <AppInstallerErrors.h>
 #include <AppInstallerStrings.h>
@@ -123,6 +124,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         THROW_HR(E_NOTIMPL);
     }
 
+    Windows::Foundation::IAsyncOperation<Windows::Foundation::Collections::IVector<Configuration::ConfigurationSet>> ConfigurationProcessor::GetConfigurationHistoryAsync()
+    {
+        co_return GetConfigurationHistory();
+    }
+
     Configuration::OpenConfigurationSetResult ConfigurationProcessor::OpenConfigurationSet(Windows::Storage::Streams::IInputStream stream)
     {
         auto threadGlobals = m_threadGlobals.SetForCurrentThread();
@@ -167,52 +173,25 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return *result;
     }
 
-    Windows::Foundation::IAsyncOperation<Windows::Foundation::Collections::IVectorView<ConfigurationConflict>> ConfigurationProcessor::CheckForConflictsAsync(
-        const Windows::Foundation::Collections::IVectorView<ConfigurationSet>& configurationSets,
-        bool includeConfigurationHistory)
+    Windows::Foundation::IAsyncOperation<Configuration::OpenConfigurationSetResult> ConfigurationProcessor::OpenConfigurationSetAsync(Windows::Storage::Streams::IInputStream stream)
     {
-        co_return CheckForConflicts(configurationSets, includeConfigurationHistory);
+        co_return OpenConfigurationSet(stream);
     }
 
-    Windows::Foundation::IAsyncAction ConfigurationProcessor::GetSetDetailsAsync(const ConfigurationSet& configurationSet, ConfigurationUnitDetailLevel detailLevel)
-    {
-        co_return GetSetDetails(configurationSet, detailLevel);
-    }
-
-    Windows::Foundation::IAsyncAction ConfigurationProcessor::GetUnitDetailsAsync(const ConfigurationUnit& unit, ConfigurationUnitDetailLevel detailLevel)
-    {
-        co_return GetUnitDetails(unit, detailLevel);
-    }
-
-    Windows::Foundation::IAsyncOperation<Configuration::ApplyConfigurationSetResult> ConfigurationProcessor::ApplyAsync(const ConfigurationSet& configurationSet, ApplyConfigurationSetFlags flags)
-    {
-        co_return Apply(configurationSet, flags);
-    }
-
-    Windows::Foundation::IAsyncOperation<Configuration::TestConfigurationSetResult> ConfigurationProcessor::TestAsync(const ConfigurationSet& configurationSet)
-    {
-        co_return Test(configurationSet);
-    }
-
-    Windows::Foundation::IAsyncOperation<Configuration::GetConfigurationUnitSettingsResult> ConfigurationProcessor::GetSettingsAsync(const ConfigurationUnit& unit)
-    {
-        co_return GetSettings(unit);
-    }
-
-    void ConfigurationProcessor::Diagnostics(DiagnosticLevel level, std::string_view message)
-    {
-        auto diagnostics = make_self<wil::details::module_count_wrapper<implementation::DiagnosticInformation>>();
-        diagnostics->Initialize(level, AppInstaller::Utility::ConvertToUTF16(message));
-        m_diagnostics(*this, *diagnostics);
-    }
-
-    Windows::Foundation::Collections::IVectorView<ConfigurationConflict> ConfigurationProcessor::CheckForConflicts(
+    Windows::Foundation::Collections::IVector<ConfigurationConflict> ConfigurationProcessor::CheckForConflicts(
         const Windows::Foundation::Collections::IVectorView<ConfigurationSet>& configurationSets,
         bool includeConfigurationHistory)
     {
         UNREFERENCED_PARAMETER(configurationSets);
         UNREFERENCED_PARAMETER(includeConfigurationHistory);
         THROW_HR(E_NOTIMPL);
+    }
+
+    Windows::Foundation::IAsyncOperation<Windows::Foundation::Collections::IVector<ConfigurationConflict>> ConfigurationProcessor::CheckForConflictsAsync(
+        const Windows::Foundation::Collections::IVectorView<ConfigurationSet>& configurationSets,
+        bool includeConfigurationHistory)
+    {
+        co_return CheckForConflicts(configurationSets, includeConfigurationHistory);
     }
 
     void ConfigurationProcessor::GetSetDetails(const ConfigurationSet& configurationSet, ConfigurationUnitDetailLevel detailLevel)
@@ -230,6 +209,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
     }
 
+    Windows::Foundation::IAsyncAction ConfigurationProcessor::GetSetDetailsAsync(const ConfigurationSet& configurationSet, ConfigurationUnitDetailLevel detailLevel)
+    {
+        co_return GetSetDetails(configurationSet, detailLevel);
+    }
+
     void ConfigurationProcessor::GetUnitDetails(const ConfigurationUnit& unit, ConfigurationUnitDetailLevel detailLevel)
     {
         auto threadGlobals = m_threadGlobals.SetForCurrentThread();
@@ -241,7 +225,84 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         get_self<implementation::ConfigurationUnit>(unit)->Details(std::move(details));
     }
 
-    Configuration::ApplyConfigurationSetResult ConfigurationProcessor::Apply(const ConfigurationSet& configurationSet, ApplyConfigurationSetFlags flags)
+    Windows::Foundation::IAsyncAction ConfigurationProcessor::GetUnitDetailsAsync(const ConfigurationUnit& unit, ConfigurationUnitDetailLevel detailLevel)
+    {
+        co_return GetUnitDetails(unit, detailLevel);
+    }
+
+    Configuration::ApplyConfigurationSetResult ConfigurationProcessor::ApplySet(const ConfigurationSet& configurationSet, ApplyConfigurationSetFlags flags)
+    {
+        return ApplySetInternal(configurationSet, flags, {});
+    }
+
+    Windows::Foundation::IAsyncOperationWithProgress<Configuration::ApplyConfigurationSetResult, Configuration::ConfigurationSetChangeData> ConfigurationProcessor::ApplySetAsync(const ConfigurationSet& configurationSet, ApplyConfigurationSetFlags flags)
+    {
+        auto progress = co_await winrt::get_progress_token();
+        co_return ApplySetInternal(configurationSet, flags, progress);
+    }
+
+    Configuration::TestConfigurationSetResult ConfigurationProcessor::TestSet(const ConfigurationSet& configurationSet)
+    {
+        return TestSetInternal(configurationSet, {});
+    }
+
+    Windows::Foundation::IAsyncOperationWithProgress<Configuration::TestConfigurationSetResult, Configuration::ConfigurationSetChangeData> ConfigurationProcessor::TestSetAsync(const ConfigurationSet& configurationSet)
+    {
+        auto progress = co_await winrt::get_progress_token();
+        co_return TestSetInternal(configurationSet, progress);
+    }
+
+    Configuration::GetConfigurationUnitSettingsResult ConfigurationProcessor::GetUnitSettings(const ConfigurationUnit& unit)
+    {
+        auto threadGlobals = m_threadGlobals.SetForCurrentThread();
+
+        THROW_HR_IF(E_NOT_VALID_STATE, !m_factory);
+
+        IConfigurationSetProcessor setProcessor = m_factory.CreateSetProcessor(nullptr);
+        auto result = make_self<wil::details::module_count_wrapper<implementation::GetConfigurationUnitSettingsResult>>();
+        auto unitResult = make_self<wil::details::module_count_wrapper<implementation::ConfigurationUnitResultInformation>>();
+        result->Initialize(*unitResult);
+
+        IConfigurationUnitProcessor unitProcessor;
+
+        try
+        {
+            // TODO: Directives overlay to prevent running elevated for get
+            unitProcessor = setProcessor.CreateUnitProcessor(unit, {});
+        }
+        catch (...)
+        {
+            ExtractUnitResultInformation(std::current_exception(), unitResult, setProcessor);
+        }
+
+        if (unitProcessor)
+        {
+            try
+            {
+                result->Settings(unitProcessor.GetSettings());
+            }
+            catch (...)
+            {
+                ExtractUnitResultInformation(std::current_exception(), unitResult, unitProcessor);
+            }
+        }
+
+        return *result;
+    }
+
+    Windows::Foundation::IAsyncOperation<Configuration::GetConfigurationUnitSettingsResult> ConfigurationProcessor::GetUnitSettingsAsync(const ConfigurationUnit& unit)
+    {
+        co_return GetUnitSettings(unit);
+    }
+
+    void ConfigurationProcessor::Diagnostics(DiagnosticLevel level, std::string_view message)
+    {
+        auto diagnostics = make_self<wil::details::module_count_wrapper<implementation::DiagnosticInformation>>();
+        diagnostics->Initialize(level, AppInstaller::Utility::ConvertToUTF16(message));
+        m_diagnostics(*this, *diagnostics);
+    }
+
+    Configuration::ApplyConfigurationSetResult ConfigurationProcessor::ApplySetInternal(const ConfigurationSet& configurationSet, ApplyConfigurationSetFlags flags, const std::function<void(ConfigurationSetChangeData)>& progress)
     {
         // TODO: Not needed until we have history implemented
         UNREFERENCED_PARAMETER(flags);
@@ -250,6 +311,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         THROW_HR_IF(E_NOT_VALID_STATE, !m_factory);
 
+        // TODO: progress passed in here and used
+        UNREFERENCED_PARAMETER(progress);
         ConfigurationSetApplyProcessor applyProcessor{ configurationSet, m_factory.CreateSetProcessor(configurationSet) };
         applyProcessor.Process();
 
@@ -258,7 +321,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return *result;
     }
 
-    Configuration::TestConfigurationSetResult ConfigurationProcessor::Test(const ConfigurationSet& configurationSet)
+    Configuration::TestConfigurationSetResult ConfigurationProcessor::TestSetInternal(const ConfigurationSet& configurationSet, const std::function<void(ConfigurationSetChangeData)>& progress)
     {
         auto threadGlobals = m_threadGlobals.SetForCurrentThread();
 
@@ -267,6 +330,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         IConfigurationSetProcessor setProcessor = m_factory.CreateSetProcessor(configurationSet);
         auto result = make_self<wil::details::module_count_wrapper<implementation::TestConfigurationSetResult>>();
         bool overallResult = true;
+
+        // TODO: Use progress here and below
+        UNREFERENCED_PARAMETER(progress);
 
         for (const auto& unit : configurationSet.ConfigurationUnits())
         {
@@ -311,44 +377,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
 
         result->TestResult(overallResult);
-        return *result;
-    }
-
-    Configuration::GetConfigurationUnitSettingsResult ConfigurationProcessor::GetSettings(const ConfigurationUnit& unit)
-    {
-        auto threadGlobals = m_threadGlobals.SetForCurrentThread();
-
-        THROW_HR_IF(E_NOT_VALID_STATE, !m_factory);
-
-        IConfigurationSetProcessor setProcessor = m_factory.CreateSetProcessor(nullptr);
-        auto result = make_self<wil::details::module_count_wrapper<implementation::GetConfigurationUnitSettingsResult>>();
-        auto unitResult = make_self<wil::details::module_count_wrapper<implementation::ConfigurationUnitResultInformation>>();
-        result->Initialize(*unitResult);
-
-        IConfigurationUnitProcessor unitProcessor;
-
-        try
-        {
-            // TODO: Directives overlay to prevent running elevated for get
-            unitProcessor = setProcessor.CreateUnitProcessor(unit, {});
-        }
-        catch (...)
-        {
-            ExtractUnitResultInformation(std::current_exception(), unitResult, setProcessor);
-        }
-
-        if (unitProcessor)
-        {
-            try
-            {
-                result->Settings(unitProcessor.GetSettings());
-            }
-            catch (...)
-            {
-                ExtractUnitResultInformation(std::current_exception(), unitResult, unitProcessor);
-            }
-        }
-
         return *result;
     }
 }
