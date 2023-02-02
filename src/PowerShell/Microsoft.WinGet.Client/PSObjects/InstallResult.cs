@@ -78,6 +78,5 @@ namespace Microsoft.WinGet.Client.PSObjects
                 return this.installResult.Status.ToString();
             }
         }
-
     }
 }
