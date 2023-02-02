@@ -6,8 +6,6 @@
 
 namespace Microsoft.WinGet.Client.PSObjects
 {
-    using System.Linq;
-
     /// <summary>
     /// CatalogPackage wrapper object for displaying to PowerShell.
     /// </summary>
@@ -18,17 +16,9 @@ namespace Microsoft.WinGet.Client.PSObjects
         /// </summary>
         /// <param name="catalogPackage">The catalog package COM object.</param>
         public InstalledCatalogPackage(Management.Deployment.CatalogPackage catalogPackage)
+            : base(catalogPackage)
         {
-            this.Id = catalogPackage.Id;
-            this.Name = catalogPackage.Name;
-            this.IsUpdateAvailable = catalogPackage.IsUpdateAvailable;
             this.Version = catalogPackage.InstalledVersion.Version;
-            this.Source = catalogPackage.DefaultInstallVersion.PackageCatalog.Info.Name;
-
-            if (this.IsUpdateAvailable)
-            {
-                this.AvailableVersions = catalogPackage.AvailableVersions.Select(i => i.Version).ToArray();
-            }
         }
     }
 }
