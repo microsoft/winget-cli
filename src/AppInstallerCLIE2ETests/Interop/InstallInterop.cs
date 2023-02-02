@@ -8,6 +8,9 @@ namespace AppInstallerCLIE2ETests.Interop
 {
     using System;
     using System.IO;
+    using System.Net;
+    using System.Runtime.InteropServices.WindowsRuntime;
+    using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Management.Deployment;
     using Microsoft.Management.Deployment.Projection;
@@ -515,6 +518,131 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Assert
             Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
+        }
+
+        /// <summary>
+        /// Install exe with custom download handler.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task InstallExeWithCustomDownloadHandler()
+        {
+            // Find package
+            var searchResult = this.FindOnePackage(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.TestExeInstaller");
+
+            // Configure installation
+            var installOptions = this.TestFactory.CreateInstallOptions();
+            installOptions.PackageInstallMode = PackageInstallMode.Silent;
+            installOptions.PreferredInstallLocation = this.installDir;
+            DownloadCallbackSuccess callback = new DownloadCallbackSuccess();
+            installOptions.PackageDownloadHandler = callback;
+
+            // Install
+            var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
+
+            // Assert
+            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
+        }
+
+        /// <summary>
+        /// Install exe with custom download handler that fails download.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task InstallExeWithCustomDownloadHandlerFail()
+        {
+            // Find package
+            var searchResult = this.FindOnePackage(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.TestExeInstaller");
+
+            // Configure installation
+            var installOptions = this.TestFactory.CreateInstallOptions();
+            installOptions.PackageInstallMode = PackageInstallMode.Silent;
+            installOptions.PreferredInstallLocation = this.installDir;
+            DownloadCallbackFail callback = new DownloadCallbackFail();
+            installOptions.PackageDownloadHandler = callback;
+
+            // Install
+            var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
+
+            // Assert
+            Assert.AreEqual(InstallResultStatus.DownloadError, installResult.Status);
+        }
+
+        private class DownloadCallbackSuccess : IPackageDownloadHandler
+        {
+            public Windows.Foundation.IAsyncOperationWithProgress<DownloadResultStatus, DownloadProgress> DownloadPackageAsync(string packageUrl, string destinationPath, byte[] expectedHash)
+            {
+                return AsyncInfo.Run<DownloadResultStatus, DownloadProgress>((c, p) =>
+                Task.Run<DownloadResultStatus>(
+                    () =>
+                    {
+#pragma warning disable SYSLIB0014 // Type or member is obsolete. Test code only.
+                        using (var client = new WebClient())
+                        {
+                            try
+                            {
+                                var resultStatus = DownloadResultStatus.DownloadError;
+                                ManualResetEvent waitForDownload = new ManualResetEvent(false);
+
+                                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                                client.DownloadProgressChanged += (sender, e) =>
+                                {
+                                    DownloadProgress progress = new DownloadProgress((ulong)e.BytesReceived, (ulong)e.TotalBytesToReceive, e.ProgressPercentage);
+                                    p.Report(progress);
+                                };
+
+                                client.DownloadFileCompleted += (sender, e) =>
+                                {
+                                    if (!e.Cancelled && e.Error == null)
+                                    {
+                                        resultStatus = DownloadResultStatus.Ok;
+                                    }
+
+                                    waitForDownload.Set();
+                                };
+
+                                c.Register(() =>
+                                {
+                                    if (c.IsCancellationRequested)
+                                    {
+                                        Console.WriteLine("cancel received");
+                                        client.CancelAsync();
+                                    }
+                                });
+
+                                client.DownloadFileAsync(new Uri(packageUrl), destinationPath);
+
+                                waitForDownload.WaitOne();
+
+                                c.ThrowIfCancellationRequested();
+
+                                return resultStatus;
+                            }
+                            catch (OperationCanceledException)
+                            {
+                                throw;
+                            }
+                            catch (Exception)
+                            {
+                                return DownloadResultStatus.InternalError;
+                            }
+                        }
+#pragma warning restore SYSLIB0014 // Type or member is obsolete. Test code only.
+                    }, c));
+            }
+        }
+
+        private class DownloadCallbackFail : IPackageDownloadHandler
+        {
+            public Windows.Foundation.IAsyncOperationWithProgress<DownloadResultStatus, DownloadProgress> DownloadPackageAsync(string packageUrl, string destinationPath, byte[] expectedHash)
+            {
+                return AsyncInfo.Run<DownloadResultStatus, DownloadProgress>((c, p) =>
+                Task.Run<DownloadResultStatus>(
+                    () =>
+                    {
+                        return DownloadResultStatus.DownloadError;
+                    }, c));
+            }
         }
     }
 }
