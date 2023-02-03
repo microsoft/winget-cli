@@ -62,4 +62,3 @@
 #include <winget/LocIndependent.h>
 #include <winget/ManifestYamlParser.h>
 #include <winget/RepositorySource.h>
-
