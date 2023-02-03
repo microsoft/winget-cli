@@ -335,6 +335,20 @@ namespace Microsoft.Management.Deployment
         System,
     };
 
+    /// The package installer elevation requirement.
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
+    enum ElevationRequirement
+    {
+        /// Elevation requirement not declared.
+        Unknown,
+        /// Package installer requires elevation.
+        ElevationRequired,
+        /// Package installer prohibits elevation.
+        ElevationProhibited,
+        /// Package installer elevates self.
+        ElevatesSelf,
+    };
+
     /// Interface for retrieving information about a package installer.
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 5)]
     runtimeclass PackageInstallerInfo
@@ -348,7 +362,13 @@ namespace Microsoft.Management.Deployment
         /// The package installer scope.
         PackageInstallerScope Scope { get; };
         /// The package installer locale.
-        String Locale{ get; };
+        String Locale { get; };
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
+        {
+            /// The package installer elevation requirement.
+            ElevationRequirement ElevationRequirement { get; };
+        }
     };
 
     /// The installed status type. The values need to match InstalledStatusType from winget/RepositorySearch.h.
