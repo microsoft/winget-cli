@@ -20,6 +20,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         using DiagnosticInformation = Configuration::DiagnosticInformation;
         using ApplyConfigurationSetResult = Configuration::ApplyConfigurationSetResult;
         using TestConfigurationSetResult = Configuration::TestConfigurationSetResult;
+        using TestConfigurationUnitResult = Configuration::TestConfigurationUnitResult;
         using GetConfigurationUnitSettingsResult = Configuration::GetConfigurationUnitSettingsResult;
 
         ConfigurationProcessor(const IConfigurationProcessorFactory& factory);
@@ -53,7 +54,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         Windows::Foundation::IAsyncOperationWithProgress<ApplyConfigurationSetResult, ConfigurationSetChangeData> ApplySetAsync(const ConfigurationSet& configurationSet, ApplyConfigurationSetFlags flags);
 
         TestConfigurationSetResult TestSet(const ConfigurationSet& configurationSet);
-        Windows::Foundation::IAsyncOperationWithProgress<TestConfigurationSetResult, ConfigurationSetChangeData> TestSetAsync(const ConfigurationSet& configurationSet);
+        Windows::Foundation::IAsyncOperationWithProgress<TestConfigurationSetResult, TestConfigurationUnitResult> TestSetAsync(const ConfigurationSet& configurationSet);
 
         GetConfigurationUnitSettingsResult GetUnitSettings(const ConfigurationUnit& unit);
         Windows::Foundation::IAsyncOperation<GetConfigurationUnitSettingsResult> GetUnitSettingsAsync(const ConfigurationUnit& unit);
@@ -64,7 +65,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     private:
         ApplyConfigurationSetResult ApplySetInternal(const ConfigurationSet& configurationSet, ApplyConfigurationSetFlags flags, const std::function<void(ConfigurationSetChangeData)>& progress);
-        TestConfigurationSetResult TestSetInternal(const ConfigurationSet& configurationSet, const std::function<void(ConfigurationSetChangeData)>& progress);
+        TestConfigurationSetResult TestSetInternal(const ConfigurationSet& configurationSet, const std::function<void(TestConfigurationUnitResult)>& progress);
 
         IConfigurationProcessorFactory m_factory = nullptr;
         event<Windows::Foundation::EventHandler<DiagnosticInformation>> m_diagnostics;

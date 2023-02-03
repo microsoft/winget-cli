@@ -13,7 +13,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         ConfigurationSetChangeData() = default;
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
-        void Initialize(ConfigurationSetChangeEventType change);
+        static Configuration::ConfigurationSetChangeData Create(ConfigurationSetState state);
+        static Configuration::ConfigurationSetChangeData Create(ConfigurationUnitState state, ConfigurationUnitResultInformation resultInformation, ConfigurationUnit unit);
+
+        void Initialize(ConfigurationSetState state);
+        void Initialize(ConfigurationUnitState state, ConfigurationUnitResultInformation resultInformation, ConfigurationUnit unit);
 #endif
 
         ConfigurationSetChangeEventType Change();
@@ -24,11 +28,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
-        ConfigurationSetChangeEventType m_change;
-        ConfigurationSetState m_setState;
-        ConfigurationUnitState m_unitState;
-        ConfigurationUnitResultInformation m_resultInformation;
-        ConfigurationUnit m_unit;
+        ConfigurationSetChangeEventType m_change = ConfigurationSetChangeEventType::Unknown;
+        ConfigurationSetState m_setState = ConfigurationSetState::Unknown;
+        ConfigurationUnitState m_unitState = ConfigurationUnitState::Unknown;
+        ConfigurationUnitResultInformation m_resultInformation = nullptr;
+        ConfigurationUnit m_unit = nullptr;
 #endif
     };
 }

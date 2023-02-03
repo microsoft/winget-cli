@@ -17,8 +17,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         using ConfigurationSet = Configuration::ConfigurationSet;
         using ConfigurationUnit = Configuration::ConfigurationUnit;
+        using ConfigurationUnitResultInformation = Configuration::ConfigurationUnitResultInformation;
+        using ConfigurationSetChangeData = Configuration::ConfigurationSetChangeData;
 
-        ConfigurationSetApplyProcessor(const ConfigurationSet& configurationSet, IConfigurationSetProcessor&& setProcessor);
+        ConfigurationSetApplyProcessor(const ConfigurationSet& configurationSet, IConfigurationSetProcessor&& setProcessor, const std::function<void(ConfigurationSetChangeData)>& progress);
 
         // Processes the apply for the configuration set.
         void Process();
@@ -37,7 +39,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
             ConfigurationUnit Unit;
             std::vector<size_t> DependencyIndices;
-            decltype(make_self<wil::details::module_count_wrapper<ConfigurationUnitResultInformation>>()) Result;
+            decltype(make_self<wil::details::module_count_wrapper<implementation::ConfigurationUnitResultInformation>>()) Result;
             bool PreviouslyInDesiredState = false;
             bool PreProcessed = false;
             bool Processed = false;
@@ -56,7 +58,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         using ProcessUnitPtr = bool (ConfigurationSetApplyProcessor::*)(UnitInfo&);
 
         // Runs the processing using the given functions.
-        bool ProcessInternal(CheckDependencyPtr checkDependencyFunction, ProcessUnitPtr processUnitFunction);
+        bool ProcessInternal(CheckDependencyPtr checkDependencyFunction, ProcessUnitPtr processUnitFunction, bool sendProgress = false);
 
         // Processes one of the non-writing intent types, which are fatal if not all successful
         bool ProcessIntentInternal(
@@ -65,7 +67,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             ProcessUnitPtr processUnitFunction,
             ConfigurationUnitIntent intent,
             hresult errorForOtherIntents,
-            hresult errorForFailures);
+            ConfigurationUnitState progressForOtherIntents,
+            hresult errorForFailures,
+            bool sendProgress);
 
         // Determines if the given unit has the given intent and all of its dependencies are satisfied
         bool HasIntentAndSatisfiedDependencies(
@@ -85,7 +89,13 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // Processes a configuration unit per its intent.
         bool ProcessUnit(UnitInfo& unitInfo);
 
+        // Sends progress
+        // TODO: Eventually these functions/call sites will be used for history
+        void SendProgress(ConfigurationSetState state);
+        void SendProgress(ConfigurationUnitState state, const UnitInfo& unitInfo);
+
         IConfigurationSetProcessor m_setProcessor;
+        std::function<void(ConfigurationSetChangeData)> m_progress;
         std::vector<UnitInfo> m_unitInfo;
         std::map<std::string, size_t> m_idToUnitInfoIndex;
         hresult m_resultCode;

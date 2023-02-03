@@ -63,6 +63,15 @@
     <ClCompile Include="ConfigurationSetApplyProcessor.cpp">
       <Filter>Internals</Filter>
     </ClCompile>
+    <ClCompile Include="ApplySettingsResult.cpp">
+      <Filter>API Source</Filter>
+    </ClCompile>
+    <ClCompile Include="GetSettingsResult.cpp">
+      <Filter>API Source</Filter>
+    </ClCompile>
+    <ClCompile Include="TestSettingsResult.cpp">
+      <Filter>API Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -131,6 +140,15 @@
     </ClInclude>
     <ClInclude Include="ExceptionResultHelpers.h">
       <Filter>Internals</Filter>
+    </ClInclude>
+    <ClInclude Include="ApplySettingsResult.h">
+      <Filter>API Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="GetSettingsResult.h">
+      <Filter>API Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="TestSettingsResult.h">
+      <Filter>API Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

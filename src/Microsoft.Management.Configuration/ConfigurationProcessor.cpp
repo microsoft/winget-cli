@@ -84,6 +84,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             }
         };
 
+        // Specifies the set of intents that should execute during a Test request
         bool ShouldTestDuringTest(ConfigurationUnitIntent intent)
         {
             return (intent == ConfigurationUnitIntent::Assert || intent == ConfigurationUnitIntent::Apply);
@@ -246,7 +247,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return TestSetInternal(configurationSet, {});
     }
 
-    Windows::Foundation::IAsyncOperationWithProgress<Configuration::TestConfigurationSetResult, Configuration::ConfigurationSetChangeData> ConfigurationProcessor::TestSetAsync(const ConfigurationSet& configurationSet)
+    Windows::Foundation::IAsyncOperationWithProgress<Configuration::TestConfigurationSetResult, Configuration::TestConfigurationUnitResult> ConfigurationProcessor::TestSetAsync(const ConfigurationSet& configurationSet)
     {
         auto progress = co_await winrt::get_progress_token();
         co_return TestSetInternal(configurationSet, progress);
@@ -261,7 +262,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         IConfigurationSetProcessor setProcessor = m_factory.CreateSetProcessor(nullptr);
         auto result = make_self<wil::details::module_count_wrapper<implementation::GetConfigurationUnitSettingsResult>>();
         auto unitResult = make_self<wil::details::module_count_wrapper<implementation::ConfigurationUnitResultInformation>>();
-        result->Initialize(*unitResult);
+        result->ResultInformation(*unitResult);
 
         IConfigurationUnitProcessor unitProcessor;
 
@@ -272,18 +273,20 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
         catch (...)
         {
-            ExtractUnitResultInformation(std::current_exception(), unitResult, setProcessor);
+            ExtractUnitResultInformation(std::current_exception(), unitResult);
         }
 
         if (unitProcessor)
         {
             try
             {
-                result->Settings(unitProcessor.GetSettings());
+                GetSettingsResult settingsResult = unitProcessor.GetSettings();
+                result->Settings(settingsResult.Settings());
+                result->ResultInformation(settingsResult.ResultInformation());
             }
             catch (...)
             {
-                ExtractUnitResultInformation(std::current_exception(), unitResult, unitProcessor);
+                ExtractUnitResultInformation(std::current_exception(), unitResult);
             }
         }
 
@@ -311,9 +314,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         THROW_HR_IF(E_NOT_VALID_STATE, !m_factory);
 
-        // TODO: progress passed in here and used
-        UNREFERENCED_PARAMETER(progress);
-        ConfigurationSetApplyProcessor applyProcessor{ configurationSet, m_factory.CreateSetProcessor(configurationSet) };
+        ConfigurationSetApplyProcessor applyProcessor{ configurationSet, m_factory.CreateSetProcessor(configurationSet), progress };
         applyProcessor.Process();
 
         auto result = make_self<wil::details::module_count_wrapper<implementation::ApplyConfigurationSetResult>>();
@@ -321,7 +322,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return *result;
     }
 
-    Configuration::TestConfigurationSetResult ConfigurationProcessor::TestSetInternal(const ConfigurationSet& configurationSet, const std::function<void(ConfigurationSetChangeData)>& progress)
+    Configuration::TestConfigurationSetResult ConfigurationProcessor::TestSetInternal(const ConfigurationSet& configurationSet, const std::function<void(TestConfigurationUnitResult)>& progress)
     {
         auto threadGlobals = m_threadGlobals.SetForCurrentThread();
 
@@ -329,13 +330,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         IConfigurationSetProcessor setProcessor = m_factory.CreateSetProcessor(configurationSet);
         auto result = make_self<wil::details::module_count_wrapper<implementation::TestConfigurationSetResult>>();
-        bool overallResult = true;
-
-        // TODO: Use progress here and below
-        UNREFERENCED_PARAMETER(progress);
+        result->TestResult(ConfigurationTestResult::NotRun);
 
         for (const auto& unit : configurationSet.ConfigurationUnits())
         {
+            AICLI_LOG(Config, Info, << "Testing configuration unit: " << AppInstaller::Utility::ConvertToUTF8(unit.UnitName()));
+
             auto testResult = make_self<wil::details::module_count_wrapper<implementation::TestConfigurationUnitResult>>();
             auto unitResult = make_self<wil::details::module_count_wrapper<implementation::ConfigurationUnitResultInformation>>();
             testResult->Initialize(unit, *unitResult);
@@ -351,32 +351,41 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                 }
                 catch (...)
                 {
-                    ExtractUnitResultInformation(std::current_exception(), unitResult, setProcessor);
+                    ExtractUnitResultInformation(std::current_exception(), unitResult);
                 }
 
                 if (unitProcessor)
                 {
                     try
                     {
-                        bool unitTestResult = unitProcessor.TestSettings();
-                        overallResult = overallResult && unitTestResult;
-                        testResult->TestResult(unitTestResult);
+                        TestSettingsResult settingsResult = unitProcessor.TestSettings();
+                        testResult->TestResult(settingsResult.TestResult());
+                        testResult->ResultInformation(settingsResult.ResultInformation());
                     }
                     catch (...)
                     {
-                        ExtractUnitResultInformation(std::current_exception(), unitResult, unitProcessor);
+                        ExtractUnitResultInformation(std::current_exception(), unitResult);
                     }
                 }
             }
             else
             {
-                unitResult->ResultCode(S_FALSE);
+                testResult->TestResult(ConfigurationTestResult::NotRun);
+            }
+
+            if (FAILED(unitResult->ResultCode()))
+            {
+                testResult->TestResult(ConfigurationTestResult::Failed);
+            }
+
+            if (progress)
+            {
+                progress(*testResult);
             }
 
             result->AppendUnitResult(*testResult);
         }
 
-        result->TestResult(overallResult);
         return *result;
     }
 }

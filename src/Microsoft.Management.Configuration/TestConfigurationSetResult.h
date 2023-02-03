@@ -12,16 +12,16 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
         void AppendUnitResult(const TestConfigurationUnitResult& unitResult);
-        void TestResult(bool value);
+        void TestResult(ConfigurationTestResult value);
 #endif
 
         Windows::Foundation::Collections::IVectorView<TestConfigurationUnitResult> UnitResults();
-        bool TestResult();
+        ConfigurationTestResult TestResult();
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
         Windows::Foundation::Collections::IVector<TestConfigurationUnitResult> m_unitResults = nullptr;
-        bool m_testResult;
+        ConfigurationTestResult m_testResult = ConfigurationTestResult::Unknown;
 #endif
     };
 }

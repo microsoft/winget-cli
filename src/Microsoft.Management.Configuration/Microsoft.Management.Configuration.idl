@@ -10,10 +10,9 @@ namespace Microsoft.Management.Configuration
     enum ConfigurationSetState
     {
         Unknown,
-        ApplicationPending,
-        ApplicationBegun,
-        ApplicationFailed,
-        ApplicationSucceeded,
+        Pending,
+        InProgress,
+        Completed,
     };
 
     // The current state of a configuration unit.
@@ -21,16 +20,12 @@ namespace Microsoft.Management.Configuration
     enum ConfigurationUnitState
     {
         Unknown,
-        ApplicationPending,
-        ApplicationBegun,
-        ApplicationFailed,
-        ApplicationSucceeded,
+        Pending,
+        InProgress,
+        Completed,
         SkippedManually,
         SkippedDueToAssertions,
         SkippedDueToDependencies,
-        TestBegun,
-        TestFailed,
-        TestSucceeded,
     };
 
     // Defines the level of detail probing that is allowed about a configuration unit.
@@ -52,10 +47,10 @@ namespace Microsoft.Management.Configuration
     runtimeclass ConfigurationUnitResultInformation
     {
         // The error code of the failure.
-        HRESULT ResultCode{ get; };
+        HRESULT ResultCode;
 
         // The description of the failure.
-        String Description{ get; };
+        String Description;
     }
         
     // Provides information for a specific configuration unit setting.
@@ -255,6 +250,60 @@ namespace Microsoft.Management.Configuration
         void Remove();
     }
 
+    // The result of applying the settings with an IConfigurationUnitProcessor.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    runtimeclass ApplySettingsResult
+    {
+        ApplySettingsResult();
+
+        // The result of applying the configuration unit.
+        ConfigurationUnitResultInformation ResultInformation{ get; };
+    }
+
+    // Informs the caller of the result of running a Test.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    enum ConfigurationTestResult
+    {
+        // The result is unknown.
+        Unknown,
+        // The system is in the state described by the configuration.
+        Positive,
+        // The system is not in the state described by the configuration.
+        Negative,
+        // Running the test failed.
+        Failed,
+        // The test was not run because it was not applicable.
+        NotRun,
+    };
+
+    // The result of testing the settings with an IConfigurationUnitProcessor.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    runtimeclass TestSettingsResult
+    {
+        TestSettingsResult();
+
+        // The result (if any) of running Test on the configuration unit.
+        ConfigurationTestResult TestResult;
+
+        // The result of testing the configuration unit.
+        // This is not the response for the test, but rather contains information about the actual attempt to run the test.
+        ConfigurationUnitResultInformation ResultInformation{ get; };
+    }
+
+    // The result of getting the settings with an IConfigurationUnitProcessor.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    runtimeclass GetSettingsResult
+    {
+        GetSettingsResult();
+
+        // The current state of the system for the configuration unit.
+        Windows.Foundation.Collections.ValueSet Settings { get; };
+
+        // The result of getting the configuration unit settings.
+        // This is not the response for the retrieval, but rather contains information about the actual attempt to retrieve the settings.
+        ConfigurationUnitResultInformation ResultInformation{ get; };
+    }
+
     // Provides access to a specific configuration unit within the runtime.
     [contract(Microsoft.Management.Configuration.Contract, 1)]
     interface IConfigurationUnitProcessor
@@ -266,16 +315,13 @@ namespace Microsoft.Management.Configuration
         Windows.Foundation.Collections.IMapView<String, Object> DirectivesOverlay{ get; };
 
         // Determines if the system is already in the state described by the configuration unit.
-        Boolean TestSettings();
+        TestSettingsResult TestSettings();
 
         // Gets the current system state for the configuration unit.
-        Windows.Foundation.Collections.ValueSet GetSettings();
+        GetSettingsResult GetSettings();
 
         // Applies the state described in the configuration unit.
-        void ApplySettings();
-
-        // Gets the error message from the last attempt to run a command.
-        String GetLastErrorMessage();
+        ApplySettingsResult ApplySettings();
     }
 
     // Controls the lifetime of operations for a single configuration set.
@@ -289,9 +335,6 @@ namespace Microsoft.Management.Configuration
         // The optional `directivesOverlay` parameter allows for the `ConfigurationProcessor` to alter behavior without needing to change the unit itself.
         // The overlay is searched first; any value not present there will then fall back to the unit's directives.
         IConfigurationUnitProcessor CreateUnitProcessor(ConfigurationUnit unit, Windows.Foundation.Collections.IMapView<String, Object> directivesOverlay);
-
-        // Gets the error message from the last attempt to run a command.
-        String GetLastErrorMessage();
     }
 
     // Allows different runtimes to provide specialized handling of configuration processing.
@@ -462,8 +505,8 @@ namespace Microsoft.Management.Configuration
         // This is not the response for the test, but rather contains information about the actual attempt to run the test.
         ConfigurationUnitResultInformation ResultInformation{ get; };
 
-        // Will be true if the system is in the state described by the configuration unit; false otherwise.
-        Boolean TestResult{ get; };
+        // The result (if any) of running Test on the configuration unit.
+        ConfigurationTestResult TestResult{ get; };
     }
 
     // The result of testing the settings for a configuration set.
@@ -473,8 +516,12 @@ namespace Microsoft.Management.Configuration
         // Results for each configuration unit in the set.
         Windows.Foundation.Collections.IVectorView<TestConfigurationUnitResult> UnitResults{ get; };
 
-        // Will be true if the system is in the state described by the entire configuration set; false otherwise (if any unit is not in the described state).
-        Boolean TestResult{ get; };
+        // The result (if any) of running Test on the configuration set.
+        // If this value is NotRun, every unit result will be NotRun.
+        // If this value is Positive, every unit result will be Positive (or NotRun with at least one being Positive).
+        // Any Negative result for a unit will result in this value being Negative.
+        // Any Failed result for a unit will result in this value being Failed (overriding the Negative statement above).
+        ConfigurationTestResult TestResult{ get; };
     }
 
     // The result of getting the settings for a configuration unit.
@@ -529,7 +576,7 @@ namespace Microsoft.Management.Configuration
 
         // Tests the configuration set state.
         TestConfigurationSetResult TestSet(ConfigurationSet configurationSet);
-        Windows.Foundation.IAsyncOperationWithProgress<TestConfigurationSetResult, ConfigurationSetChangeData> TestSetAsync(ConfigurationSet configurationSet);
+        Windows.Foundation.IAsyncOperationWithProgress<TestConfigurationSetResult, TestConfigurationUnitResult> TestSetAsync(ConfigurationSet configurationSet);
 
         // Gets the current configuration unit settings.
         GetConfigurationUnitSettingsResult GetUnitSettings(ConfigurationUnit unit);

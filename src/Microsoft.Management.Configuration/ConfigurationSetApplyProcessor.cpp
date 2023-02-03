@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "ConfigurationSetApplyProcessor.h"
+#include "ConfigurationSetChangeData.h"
 #include "ExceptionResultHelpers.h"
 
 #include <AppInstallerErrors.h>
@@ -19,8 +20,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
     }
 
-    ConfigurationSetApplyProcessor::ConfigurationSetApplyProcessor(const Configuration::ConfigurationSet& configurationSet, IConfigurationSetProcessor&& setProcessor) :
-        m_setProcessor(std::move(setProcessor))
+    ConfigurationSetApplyProcessor::ConfigurationSetApplyProcessor(const Configuration::ConfigurationSet& configurationSet, IConfigurationSetProcessor&& setProcessor, const std::function<void(ConfigurationSetChangeData)>& progress) :
+        m_setProcessor(std::move(setProcessor)), m_progress(progress)
     {
         // Create a copy of the set of configuration units
         auto unitsView = configurationSet.ConfigurationUnits();
@@ -41,7 +42,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             return;
         }
 
-        ProcessInternal(HasProcessedSuccessfully, &ConfigurationSetApplyProcessor::ProcessUnit);
+        // TODO: When cross process is implemented, send Pending until we actually start
+        SendProgress(ConfigurationSetState::InProgress);
+
+        ProcessInternal(HasProcessedSuccessfully, &ConfigurationSetApplyProcessor::ProcessUnit, true);
+
+        SendProgress(ConfigurationSetState::Completed);
     }
 
     std::vector<Configuration::ApplyConfigurationUnitResult> ConfigurationSetApplyProcessor::GetUnitResults() const
@@ -64,7 +70,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     }
 
     ConfigurationSetApplyProcessor::UnitInfo::UnitInfo(const Configuration::ConfigurationUnit& unit) :
-        Unit(unit), Result(make_self<wil::details::module_count_wrapper<ConfigurationUnitResultInformation>>())
+        Unit(unit), Result(make_self<wil::details::module_count_wrapper<implementation::ConfigurationUnitResultInformation>>())
     {
     }
 
@@ -148,7 +154,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
     }
 
-    bool ConfigurationSetApplyProcessor::ProcessInternal(CheckDependencyPtr checkDependencyFunction, ProcessUnitPtr processUnitFunction)
+    bool ConfigurationSetApplyProcessor::ProcessInternal(CheckDependencyPtr checkDependencyFunction, ProcessUnitPtr processUnitFunction, bool sendProgress)
     {
         // Create the set of units that need to be processed
         std::vector<size_t> unitsToProcess;
@@ -164,7 +170,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             processUnitFunction,
             ConfigurationUnitIntent::Assert,
             WINGET_CONFIG_ERROR_ASSERTION_FAILED,
-            WINGET_CONFIG_ERROR_ASSERTION_FAILED))
+            ConfigurationUnitState::SkippedDueToAssertions,
+            WINGET_CONFIG_ERROR_ASSERTION_FAILED,
+            sendProgress))
         {
             return false;
         }
@@ -176,7 +184,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             processUnitFunction,
             ConfigurationUnitIntent::Inform,
             WINGET_CONFIG_ERROR_DEPENDENCY_UNSATISFIED,
-            WINGET_CONFIG_ERROR_DEPENDENCY_UNSATISFIED))
+            ConfigurationUnitState::SkippedDueToDependencies,
+            WINGET_CONFIG_ERROR_DEPENDENCY_UNSATISFIED,
+            sendProgress))
         {
             return false;
         }
@@ -188,7 +198,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             processUnitFunction,
             ConfigurationUnitIntent::Apply,
             E_FAIL, // This should not happen as there are no other intents left
-            WINGET_CONFIG_ERROR_SET_APPLY_FAILED);
+            ConfigurationUnitState::Unknown,
+            WINGET_CONFIG_ERROR_SET_APPLY_FAILED,
+            sendProgress);
     }
 
     bool ConfigurationSetApplyProcessor::ProcessIntentInternal(
@@ -197,7 +209,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         ProcessUnitPtr processUnitFunction,
         ConfigurationUnitIntent intent,
         hresult errorForOtherIntents,
-        hresult errorForFailures)
+        ConfigurationUnitState progressForOtherIntents,
+        hresult errorForFailures,
+        bool sendProgress)
     {
         // Always process the first item in the list that is available to be processed
         bool hasProcessed = true;
@@ -230,6 +244,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             {
                 hasRemainingDependencies = true;
                 unitInfo.Result->ResultCode(WINGET_CONFIG_ERROR_DEPENDENCY_UNSATISFIED);
+                if (sendProgress)
+                {
+                    SendProgress(ConfigurationUnitState::SkippedDueToDependencies, unitInfo);
+                }
             }
         }
 
@@ -242,6 +260,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                 if (unitInfo.Unit.Intent() != intent)
                 {
                     unitInfo.Result->ResultCode(errorForOtherIntents);
+                    if (sendProgress)
+                    {
+                        SendProgress(progressForOtherIntents, unitInfo);
+                    }
                 }
             }
 
@@ -310,8 +332,13 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             // If the unit is requested to be skipped, we mark it with a failure to prevent any dependency from running.
             // But we return true from this function to indicate a successful "processing".
             unitInfo.Result->ResultCode(WINGET_CONFIG_ERROR_MANUALLY_SKIPPED);
+            SendProgress(ConfigurationUnitState::SkippedManually, unitInfo);
             return true;
         }
+
+        // Send a progress event that we are starting, and prepare one for completion when we exit the function
+        SendProgress(ConfigurationUnitState::InProgress, unitInfo);
+        auto sendCompletedProgress = wil::scope_exit([this, &unitInfo]() { SendProgress(ConfigurationUnitState::Completed, unitInfo); });
 
         try
         {
@@ -319,7 +346,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
         catch (...)
         {
-            ExtractUnitResultInformation(std::current_exception(), unitInfo.Result, m_setProcessor);
+            ExtractUnitResultInformation(std::current_exception(), unitInfo.Result);
             return false;
         }
 
@@ -329,33 +356,77 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             {
             case ConfigurationUnitIntent::Assert:
             {
-                if (unitProcessor.TestSettings())
+                TestSettingsResult settingsResult = unitProcessor.TestSettings();
+                
+                if (settingsResult.TestResult() == ConfigurationTestResult::Positive)
                 {
                     return true;
                 }
-                else
+                else if (settingsResult.TestResult() == ConfigurationTestResult::Negative)
                 {
                     unitInfo.Result->ResultCode(WINGET_CONFIG_ERROR_ASSERTION_FAILED);
+                    return false;
+                }
+                else if (settingsResult.TestResult() == ConfigurationTestResult::Failed)
+                {
+                    unitInfo.Result->ResultCode(settingsResult.ResultInformation().ResultCode());
+                    unitInfo.Result->Description(settingsResult.ResultInformation().Description());
+                    return false;
+                }
+                else
+                {
+                    unitInfo.Result->ResultCode(E_UNEXPECTED);
                     return false;
                 }
             }
             case ConfigurationUnitIntent::Inform:
             {
                 // Force the processor to retrieve the settings
-                std::ignore = unitProcessor.GetSettings();
-                return true;
-            }
-            case ConfigurationUnitIntent::Apply:
-            {
-                if (unitProcessor.TestSettings())
+                GetSettingsResult settingsResult = unitProcessor.GetSettings();
+                if (SUCCEEDED(settingsResult.ResultInformation().ResultCode()))
                 {
-                    unitInfo.PreviouslyInDesiredState = true;
                     return true;
                 }
                 else
                 {
-                    unitProcessor.ApplySettings();
+                    unitInfo.Result->ResultCode(settingsResult.ResultInformation().ResultCode());
+                    unitInfo.Result->Description(settingsResult.ResultInformation().Description());
+                    return false;
+                }
+            }
+            case ConfigurationUnitIntent::Apply:
+            {
+                TestSettingsResult testSettingsResult = unitProcessor.TestSettings();
+
+                if (testSettingsResult.TestResult() == ConfigurationTestResult::Positive)
+                {
+                    unitInfo.PreviouslyInDesiredState = true;
                     return true;
+                }
+                else if (testSettingsResult.TestResult() == ConfigurationTestResult::Negative)
+                {
+                    ApplySettingsResult applySettingsResult = unitProcessor.ApplySettings();
+                    if (SUCCEEDED(applySettingsResult.ResultInformation().ResultCode()))
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        unitInfo.Result->ResultCode(applySettingsResult.ResultInformation().ResultCode());
+                        unitInfo.Result->Description(applySettingsResult.ResultInformation().Description());
+                        return false;
+                    }
+                }
+                else if (testSettingsResult.TestResult() == ConfigurationTestResult::Failed)
+                {
+                    unitInfo.Result->ResultCode(testSettingsResult.ResultInformation().ResultCode());
+                    unitInfo.Result->Description(testSettingsResult.ResultInformation().Description());
+                    return false;
+                }
+                else
+                {
+                    unitInfo.Result->ResultCode(E_UNEXPECTED);
+                    return false;
                 }
             }
             default:
@@ -365,8 +436,32 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
         catch (...)
         {
-            ExtractUnitResultInformation(std::current_exception(), unitInfo.Result, unitProcessor);
+            ExtractUnitResultInformation(std::current_exception(), unitInfo.Result);
             return false;
+        }
+    }
+
+    void ConfigurationSetApplyProcessor::SendProgress(ConfigurationSetState state)
+    {
+        if (m_progress)
+        {
+            try
+            {
+                m_progress(implementation::ConfigurationSetChangeData::Create(state));
+            }
+            CATCH_LOG();
+        }
+    }
+
+    void ConfigurationSetApplyProcessor::SendProgress(ConfigurationUnitState state, const UnitInfo& unitInfo)
+    {
+        if (m_progress)
+        {
+            try
+            {
+                m_progress(implementation::ConfigurationSetChangeData::Create(state, *unitInfo.Result, unitInfo.Unit));
+            }
+            CATCH_LOG();
         }
     }
 }

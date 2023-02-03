@@ -32,4 +32,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         return m_description;
     }
+
+    void ConfigurationUnitResultInformation::Description(hstring value)
+    {
+        m_description = value;
+    }
 }

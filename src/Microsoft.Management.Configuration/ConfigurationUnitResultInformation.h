@@ -12,11 +12,13 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
         void Initialize(hresult resultCode, std::wstring_view description);
         void Initialize(hresult resultCode, hstring description);
-        void ResultCode(hresult resultCode);
 #endif
 
         hresult ResultCode();
+        void ResultCode(hresult resultCode);
+
         hstring Description();
+        void Description(hstring value);
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:

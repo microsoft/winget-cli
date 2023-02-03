@@ -13,7 +13,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         GetConfigurationUnitSettingsResult() = default;
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
-        void Initialize(const ConfigurationUnitResultInformation& resultInformation);
+        void ResultInformation(const ConfigurationUnitResultInformation& resultInformation);
         void Settings(Windows::Foundation::Collections::ValueSet&& value);
 #endif
 

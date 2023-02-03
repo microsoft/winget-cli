@@ -6,9 +6,32 @@
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
-    void ConfigurationSetChangeData::Initialize(ConfigurationSetChangeEventType change)
+    Configuration::ConfigurationSetChangeData ConfigurationSetChangeData::Create(ConfigurationSetState state)
     {
-        m_change = change;
+        auto result = make_self<wil::details::module_count_wrapper<implementation::ConfigurationSetChangeData>>();
+        result->Initialize(state);
+        return *result;
+    }
+
+    Configuration::ConfigurationSetChangeData ConfigurationSetChangeData::Create(ConfigurationUnitState state, ConfigurationUnitResultInformation resultInformation, ConfigurationUnit unit)
+    {
+        auto result = make_self<wil::details::module_count_wrapper<implementation::ConfigurationSetChangeData>>();
+        result->Initialize(state, resultInformation, unit);
+        return *result;
+    }
+
+    void ConfigurationSetChangeData::Initialize(ConfigurationSetState state)
+    {
+        m_change = ConfigurationSetChangeEventType::SetStateChanged;
+        m_setState = state;
+    }
+
+    void ConfigurationSetChangeData::Initialize(ConfigurationUnitState state, ConfigurationUnitResultInformation resultInformation, ConfigurationUnit unit)
+    {
+        m_change = ConfigurationSetChangeEventType::UnitStateChanged;
+        m_unitState = state;
+        m_resultInformation = resultInformation;
+        m_unit = unit;
     }
 
     ConfigurationSetChangeEventType ConfigurationSetChangeData::Change()

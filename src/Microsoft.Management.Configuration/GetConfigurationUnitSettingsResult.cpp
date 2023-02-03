@@ -6,7 +6,7 @@
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
-    void GetConfigurationUnitSettingsResult::Initialize(const ConfigurationUnitResultInformation& resultInformation)
+    void GetConfigurationUnitSettingsResult::ResultInformation(const ConfigurationUnitResultInformation& resultInformation)
     {
         m_resultInformation = resultInformation;
     }

@@ -60,7 +60,7 @@
     <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <GenerateManifest>false</GenerateManifest>
-	<DesktopCompatible>true</DesktopCompatible>
+    <DesktopCompatible>true</DesktopCompatible>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Debug'" Label="Configuration">
     <UseDebugLibraries>true</UseDebugLibraries>
@@ -130,6 +130,7 @@
   <ItemGroup>
     <ClInclude Include="ApplyConfigurationSetResult.h" />
     <ClInclude Include="ApplyConfigurationUnitResult.h" />
+    <ClInclude Include="ApplySettingsResult.h" />
     <ClInclude Include="ConfigThreadGlobals.h" />
     <ClInclude Include="ConfigurationChangeData.h" />
     <ClInclude Include="ConfigurationConflict.h" />
@@ -146,15 +147,18 @@
     <ClInclude Include="DiagnosticInformation.h" />
     <ClInclude Include="ExceptionResultHelpers.h" />
     <ClInclude Include="GetConfigurationUnitSettingsResult.h" />
+    <ClInclude Include="GetSettingsResult.h" />
     <ClInclude Include="MutableFlag.h" />
     <ClInclude Include="OpenConfigurationSetResult.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="TestConfigurationSetResult.h" />
     <ClInclude Include="TestConfigurationUnitResult.h" />
+    <ClInclude Include="TestSettingsResult.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ApplyConfigurationSetResult.cpp" />
     <ClCompile Include="ApplyConfigurationUnitResult.cpp" />
+    <ClCompile Include="ApplySettingsResult.cpp" />
     <ClCompile Include="ConfigThreadGlobals.cpp" />
     <ClCompile Include="ConfigurationChangeData.cpp" />
     <ClCompile Include="ConfigurationConflict.cpp" />
@@ -169,6 +173,7 @@
     <ClCompile Include="ConfigurationUnitResultInformation.cpp" />
     <ClCompile Include="DiagnosticInformation.cpp" />
     <ClCompile Include="GetConfigurationUnitSettingsResult.cpp" />
+    <ClCompile Include="GetSettingsResult.cpp" />
     <ClCompile Include="MutableFlag.cpp" />
     <ClCompile Include="OpenConfigurationSetResult.cpp" />
     <ClCompile Include="pch.cpp">
@@ -177,6 +182,7 @@
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
     <ClCompile Include="TestConfigurationSetResult.cpp" />
     <ClCompile Include="TestConfigurationUnitResult.cpp" />
+    <ClCompile Include="TestSettingsResult.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Microsoft_Management_Configuration.def" />
