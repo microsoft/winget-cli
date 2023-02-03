@@ -30,7 +30,7 @@ Describe 'Find-WinGetPackage' {
     }
 
     It 'Find by Id' {
-        $package = Find-WinGetPackage -Source 'TestSource' -Id 'AppInstallerTest.TestExeInstallerasdfasdfasdf'
+        $package = Find-WinGetPackage -Source 'TestSource' -Id 'AppInstallerTest.TestExeInstaller'
 
         $package | Should -Not -BeNullOrEmpty -ErrorAction Stop
         $package.Name | Should -Be 'TestExeInstaller'
@@ -74,7 +74,7 @@ Describe 'Find-WinGetPackage' {
 Describe 'Install|Update|Uninstall-WinGetPackage' {
 
     It 'Install by Id' {
-        $result = Install-WinGetPackage -Id AppInstallasdfasdfasdfstaller -Version '1.0.0.0'
+        $result = Install-WinGetPackage -Id AppInstallerTest.TestExeInstaller -Version '1.0.0.0'
 
         $result.InstallerErrorCode | Should -Be 0
         $result.Status | Should -Be 'Ok'
