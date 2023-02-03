@@ -466,6 +466,21 @@ namespace AppInstaller::Settings
         return UserSettings::Instance(std::move(content)).GetType() == UserSettingsType::Custom;
     }
 
+    Manifest::ScopeEnum ConvertToScopeEnum(Settings::ScopePreference scope)
+    {
+        switch (scope)
+        {
+        case Settings::ScopePreference::None:
+            return Manifest::ScopeEnum::Unknown;
+        case Settings::ScopePreference::User:
+            return Manifest::ScopeEnum::User;
+        case Settings::ScopePreference::Machine:
+            return Manifest::ScopeEnum::Machine;
+        }
+
+        return Manifest::ScopeEnum::Unknown;
+    }
+
     UserSettings::UserSettings(const std::optional<std::string>& content) : m_type(UserSettingsType::Default)
     {
         Json::Value settingsRoot = Json::Value::nullSingleton();

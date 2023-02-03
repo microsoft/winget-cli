@@ -5,6 +5,7 @@
 #include "AppInstallerLogging.h"
 #include "winget/GroupPolicy.h"
 #include "winget/Resources.h"
+#include "winget/ManifestCommon.h"
 
 #include <filesystem>
 #include <map>
@@ -15,6 +16,7 @@
 #include <vector>
 
 #include "AppInstallerArchitecture.h"
+#include "ManifestCommon.h"
 
 using namespace std::chrono_literals;
 using namespace std::string_view_literals;
@@ -242,4 +244,5 @@ namespace AppInstaller::Settings
     const UserSettings* TryGetUser();
     UserSettings const& User();
     bool TryInitializeCustomUserSettings(std::string content);
+    Manifest::ScopeEnum ConvertToScopeEnum(Settings::ScopePreference scope);
 }

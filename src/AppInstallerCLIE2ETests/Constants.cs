@@ -111,6 +111,7 @@ namespace AppInstallerCLIE2ETests
         // User settings
         public const string PortablePackageUserRoot = "portablePackageUserRoot";
         public const string PortablePackageMachineRoot = "portablePackageMachineRoot";
+        public const string InstallBehaviorScope = "scope";
 
         /// <summary>
         /// Error codes.

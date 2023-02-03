@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "WorkflowCommon.h"
 #include "TestHooks.h"
+#include "TestSettings.h"
 #include <AppInstallerFileLogger.h>
 #include <AppInstallerStrings.h>
 #include <Commands/InstallCommand.h>

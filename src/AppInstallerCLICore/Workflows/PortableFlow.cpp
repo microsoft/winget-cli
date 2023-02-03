@@ -122,7 +122,17 @@ namespace AppInstaller::CLI::Workflow
         }
         else
         {
-            scope = Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
+            if (context.Args.Contains(Execution::Args::Type::InstallScope))
+            {
+                scope = Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
+            }
+            else
+            {
+                Manifest::ScopeEnum requiredScope = ConvertToScopeEnum(Settings::User().Get<Settings::Setting::InstallScopeRequirement>());
+                Manifest::ScopeEnum preferredScope = ConvertToScopeEnum(Settings::User().Get<Settings::Setting::InstallScopePreference>());
+
+                scope = requiredScope != Manifest::ScopeEnum::Unknown ? requiredScope : preferredScope;
+            }
         }
 
         Utility::Architecture arch = context.Get<Execution::Data::Installer>()->Arch;
