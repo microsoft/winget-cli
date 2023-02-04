@@ -135,6 +135,7 @@ properties:
 
             OpenConfigurationSetResult result = processor.OpenConfigurationSet(this.CreateStream(@"
 properties:
+  configurationVersion: 0.1
   assertions:
     - resource: Assert
   parameters:
@@ -180,6 +181,7 @@ properties:
 
             OpenConfigurationSetResult result = processor.OpenConfigurationSet(this.CreateStream(@"
 properties:
+  configurationVersion: 0.1
   resources: 1
 "));
             Assert.Null(result.Set);
@@ -198,6 +200,7 @@ properties:
 
             OpenConfigurationSetResult result = processor.OpenConfigurationSet(this.CreateStream(@"
 properties:
+  configurationVersion: 0.1
   resources:
     - string
 "));

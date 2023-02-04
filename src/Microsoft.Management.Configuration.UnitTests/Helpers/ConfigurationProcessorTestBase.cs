@@ -7,6 +7,7 @@
 namespace Microsoft.Management.Configuration.UnitTests.Helpers
 {
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
+    using System;
     using Windows.Storage.Streams;
     using Xunit.Abstractions;
 
@@ -59,8 +60,15 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         protected IInputStream CreateStream(string contents)
         {
             InMemoryRandomAccessStream result = new InMemoryRandomAccessStream();
-            DataWriter writer = new DataWriter(result);
-            writer.WriteString(contents);
+
+            using (DataWriter writer = new DataWriter(result))
+            {
+                writer.UnicodeEncoding = UnicodeEncoding.Utf8;
+                writer.WriteString(contents);
+                writer.StoreAsync().AsTask().Wait();
+                writer.DetachStream();
+            }
+
             result.Seek(0);
             return result;
         }
