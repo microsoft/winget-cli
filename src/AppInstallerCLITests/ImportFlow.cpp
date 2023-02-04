@@ -71,7 +71,7 @@ TEST_CASE("ImportFlow_PackageAlreadyInstalled", "[ImportFlow][workflow]")
 
     // Exe should not have been installed again
     REQUIRE(!std::filesystem::exists(exeInstallResultPath.GetPath()));
-    REQUIRE(importOutput.str().find(Resource::LocString(Resource::String::MultiInstallPackageAlreadyInstalled("AppInstallerCliTest.TestExeInstaller"_liv)).get()) != std::string::npos);
+    REQUIRE(importOutput.str().find(Resource::LocString(Resource::String::MultiQueryPackageAlreadyInstalled("AppInstallerCliTest.TestExeInstaller"_liv)).get()) != std::string::npos);
 }
 
 TEST_CASE("ImportFlow_IgnoreVersions", "[ImportFlow][workflow]")
@@ -129,7 +129,7 @@ TEST_CASE("ImportFlow_MissingPackage", "[ImportFlow][workflow]")
 
     // Installer should not be called
     REQUIRE(!std::filesystem::exists(exeInstallResultPath.GetPath()));
-    REQUIRE(importOutput.str().find(Resource::LocString(Resource::String::MultiInstallSearchFailed("MissingPackage"_liv)).get()) != std::string::npos);
+    REQUIRE(importOutput.str().find(Resource::LocString(Resource::String::MultiQueryPackageNotFound("MissingPackage"_liv)).get()) != std::string::npos);
     REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_NOT_ALL_QUERIES_FOUND_SINGLE);
 }
 
@@ -151,7 +151,7 @@ TEST_CASE("ImportFlow_IgnoreMissingPackage", "[ImportFlow][workflow]")
 
     // Verify installer was called for the package that was available.
     REQUIRE(std::filesystem::exists(exeInstallResultPath.GetPath()));
-    REQUIRE(importOutput.str().find(Resource::LocString(Resource::String::MultiInstallSearchFailed("MissingPackage"_liv)).get()) != std::string::npos);
+    REQUIRE(importOutput.str().find(Resource::LocString(Resource::String::MultiQueryPackageNotFound("MissingPackage"_liv)).get()) != std::string::npos);
 }
 
 TEST_CASE("ImportFlow_MissingVersion", "[ImportFlow][workflow]")
@@ -170,7 +170,7 @@ TEST_CASE("ImportFlow_MissingVersion", "[ImportFlow][workflow]")
 
     // Installer should not be called
     REQUIRE(!std::filesystem::exists(exeInstallResultPath.GetPath()));
-    REQUIRE(importOutput.str().find(Resource::LocString(Resource::String::MultiInstallSearchFailed("AppInstallerCliTest.TestExeInstaller"_liv)).get()) != std::string::npos);
+    REQUIRE(importOutput.str().find(Resource::LocString(Resource::String::MultiQueryPackageNotFound("AppInstallerCliTest.TestExeInstaller"_liv)).get()) != std::string::npos);
     REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_NOT_ALL_QUERIES_FOUND_SINGLE);
 }
 

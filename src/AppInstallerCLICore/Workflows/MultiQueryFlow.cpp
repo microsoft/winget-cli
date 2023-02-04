@@ -96,19 +96,34 @@ namespace AppInstaller::CLI::Workflow
                 }
                 else
                 {
+                    // We already reported the error from the sub-context, but we repeat it here because
+                    // for multi-queries we can a bit more verbose as the queries here are easier to report.
                     auto packageString = GetPackageStringFromSearchRequest(searchRequest);
                     auto searchTerminationHR = searchContext.GetTerminationHR();
                     if (searchTerminationHR == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE ||
                         searchTerminationHR == APPINSTALLER_CLI_ERROR_PACKAGE_ALREADY_INSTALLED)
                     {
                         AICLI_LOG(CLI, Info, << "Package is already installed: [" << packageString << "]");
-                        context.Reporter.Info() << Resource::String::MultiInstallPackageAlreadyInstalled(packageString) << std::endl;
+                        context.Reporter.Info() << Resource::String::MultiQueryPackageAlreadyInstalled(packageString) << std::endl;
                         continue;
                     }
                     else
                     {
-                        AICLI_LOG(CLI, Info, << "Package not found or found multiple matches: [" << packageString << "]");
-                        context.Reporter.Info() << Resource::String::MultiInstallSearchFailed(packageString) << std::endl;
+                        if (searchTerminationHR == APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND)
+                        {
+                            AICLI_LOG(CLI, Info, << "Package not found for query: [" << packageString << "]");
+                            context.Reporter.Warn() << Resource::String::MultiQueryPackageNotFound(packageString) << std::endl;
+                        }
+                        else if (searchTerminationHR == APPINSTALLER_CLI_ERROR_MULTIPLE_APPLICATIONS_FOUND)
+                        {
+                            AICLI_LOG(CLI, Info, << "Multiple packages found for query: [" << packageString << "]");
+                            context.Reporter.Warn() << Resource::String::MultiQuerySearchFoundMultiple(packageString) << std::endl;
+                        }
+                        else
+                        {
+                            AICLI_LOG(CLI, Info, << "Search failed for query: [" << packageString << "]");
+                            context.Reporter.Info() << Resource::String::MultiQuerySearchFailed(packageString) << std::endl;
+                        }
 
                         // Keep searching for the remaining packages and only fail at the end.
                         foundAll = false;

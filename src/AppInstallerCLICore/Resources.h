@@ -208,13 +208,15 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(MSStoreInstallOrUpdateFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(MSStoreInstallTryGetEntitlement);
         WINGET_DEFINE_RESOURCE_STRINGID(MSStoreStoreClientBlocked);
-        WINGET_DEFINE_RESOURCE_STRINGID(MultiInstallPackageAlreadyInstalled);
-        WINGET_DEFINE_RESOURCE_STRINGID(MultiInstallSearchFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(MultipleExclusiveArgumentsProvided);
         WINGET_DEFINE_RESOURCE_STRINGID(MultipleInstalledPackagesFound);
         WINGET_DEFINE_RESOURCE_STRINGID(MultipleNonPortableNestedInstallersSpecified);
         WINGET_DEFINE_RESOURCE_STRINGID(MultiplePackagesFound);
         WINGET_DEFINE_RESOURCE_STRINGID(MultiQueryArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(MultiQueryPackageAlreadyInstalled);
+        WINGET_DEFINE_RESOURCE_STRINGID(MultiQueryPackageNotFound);
+        WINGET_DEFINE_RESOURCE_STRINGID(MultiQuerySearchFailed);
+        WINGET_DEFINE_RESOURCE_STRINGID(MultiQuerySearchFoundMultiple);
         WINGET_DEFINE_RESOURCE_STRINGID(NameArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(NestedInstallerNotFound);
         WINGET_DEFINE_RESOURCE_STRINGID(NestedInstallerNotSpecified);
