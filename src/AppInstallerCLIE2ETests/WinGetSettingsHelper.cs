@@ -140,7 +140,7 @@ namespace AppInstallerCLIE2ETests
             }
 
             var installBehavior = settingsJson["installBehavior"];
-            
+
             if (installBehavior["preferences"] == null)
             {
                 installBehavior["preferences"] = new JObject();
