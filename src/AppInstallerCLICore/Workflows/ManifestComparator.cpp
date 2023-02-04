@@ -364,7 +364,7 @@ namespace AppInstaller::CLI::Workflow
             static std::unique_ptr<ScopeComparator> Create(const Execution::Context& context)
             {
                 // Preference will always come from settings
-                Manifest::ScopeEnum preference = ConvertToScopeEnum(Settings::User().Get<Settings::Setting::InstallScopePreference>());
+                Manifest::ScopeEnum preference = Settings::User().Get<Settings::Setting::InstallScopePreference>();
 
                 // Requirement may come from args or settings; args overrides settings.
                 Manifest::ScopeEnum requirement = Manifest::ScopeEnum::Unknown;
@@ -376,7 +376,7 @@ namespace AppInstaller::CLI::Workflow
                 }
                 else
                 {
-                    requirement = ConvertToScopeEnum(Settings::User().Get<Settings::Setting::InstallScopeRequirement>());
+                    requirement = Settings::User().Get<Settings::Setting::InstallScopeRequirement>();
                 }
 
                 bool allowUnknownInAdditionToRequired = false;

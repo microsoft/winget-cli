@@ -3,7 +3,6 @@
 #include "pch.h"
 #include "winget/ManifestCommon.h"
 #include "winget/ManifestValidation.h"
-#include "winget/UserSettings.h"
 
 namespace AppInstaller::Manifest
 {

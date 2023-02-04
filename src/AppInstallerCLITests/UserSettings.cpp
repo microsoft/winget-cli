@@ -479,7 +479,7 @@ TEST_CASE("SettingsInstallScope", "[settings]")
         SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
-        REQUIRE(userSettingTest.Get<Setting::InstallScopePreference>() == ScopePreference::User);
+        REQUIRE(userSettingTest.Get<Setting::InstallScopePreference>() == AppInstaller::Manifest::ScopeEnum::User);
     }
     SECTION("Machine scope preference")
     {
@@ -488,7 +488,7 @@ TEST_CASE("SettingsInstallScope", "[settings]")
         SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
-        REQUIRE(userSettingTest.Get<Setting::InstallScopePreference>() == ScopePreference::Machine);
+        REQUIRE(userSettingTest.Get<Setting::InstallScopePreference>() == AppInstaller::Manifest::ScopeEnum::Machine);
     }
     SECTION("User scope requirement")
     {
@@ -497,7 +497,7 @@ TEST_CASE("SettingsInstallScope", "[settings]")
         SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
-        REQUIRE(userSettingTest.Get<Setting::InstallScopeRequirement>() == ScopePreference::User);
+        REQUIRE(userSettingTest.Get<Setting::InstallScopeRequirement>() == AppInstaller::Manifest::ScopeEnum::User);
     }
     SECTION("Machine scope requirement")
     {
@@ -506,6 +506,6 @@ TEST_CASE("SettingsInstallScope", "[settings]")
         SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
-        REQUIRE(userSettingTest.Get<Setting::InstallScopeRequirement>() == ScopePreference::Machine);
+        REQUIRE(userSettingTest.Get<Setting::InstallScopeRequirement>() == AppInstaller::Manifest::ScopeEnum::Machine);
     }
 }

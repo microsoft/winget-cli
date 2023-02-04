@@ -39,8 +39,7 @@ TEST_CASE("ExperimentalFeature ExperimentalCmd", "[experimentalFeature]")
     SECTION("Feature on")
     {
         std::string_view json = R"({ "experimentalFeatures": { "experimentalCmd": true } })";
-
-        (Stream::PrimaryUserSettings, json);
+        SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
         REQUIRE(ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::ExperimentalCmd, userSettingTest));

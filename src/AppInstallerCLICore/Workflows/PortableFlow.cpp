@@ -128,8 +128,8 @@ namespace AppInstaller::CLI::Workflow
             }
             else
             {
-                Manifest::ScopeEnum requiredScope = ConvertToScopeEnum(Settings::User().Get<Settings::Setting::InstallScopeRequirement>());
-                Manifest::ScopeEnum preferredScope = ConvertToScopeEnum(Settings::User().Get<Settings::Setting::InstallScopePreference>());
+                Manifest::ScopeEnum requiredScope = Settings::User().Get<Settings::Setting::InstallScopeRequirement>();
+                Manifest::ScopeEnum preferredScope = Settings::User().Get<Settings::Setting::InstallScopePreference>();
 
                 scope = requiredScope != Manifest::ScopeEnum::Unknown ? requiredScope : preferredScope;
             }

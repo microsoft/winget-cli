@@ -313,7 +313,7 @@ TEST_CASE("ManifestComparator_ScopeCompare", "[manifest_comparator]")
     SECTION("User Preference")
     {
         TestUserSettings settings;
-        settings.Set<Setting::InstallScopePreference>(ScopePreference::User);
+        settings.Set<Setting::InstallScopePreference>(ScopeEnum::User);
 
         ManifestComparator mc(ManifestComparatorTestContext{}, {});
         auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
@@ -324,7 +324,7 @@ TEST_CASE("ManifestComparator_ScopeCompare", "[manifest_comparator]")
     SECTION("Machine Preference")
     {
         TestUserSettings settings;
-        settings.Set<Setting::InstallScopePreference>(ScopePreference::Machine);
+        settings.Set<Setting::InstallScopePreference>(ScopeEnum::Machine);
 
         ManifestComparator mc(ManifestComparatorTestContext{}, {});
         auto [result, inapplicabilities] = mc.GetPreferredInstaller(manifest);
