@@ -148,6 +148,8 @@ void EnsureCommandConsistency(const Command& command)
     // No = allowed in arguments
     // All positional args should be listed first
     bool foundNonPositional = false;
+    bool queryArgPresent = false;
+    bool multiQueryArgPresent = false;
     for (const auto& arg : command.GetArguments())
     {
         INFO(command.FullName());
@@ -163,7 +165,19 @@ void EnsureCommandConsistency(const Command& command)
         {
             foundNonPositional = true;
         }
+
+        if (arg.ExecArgType() == Execution::Args::Type::Query)
+        {
+            queryArgPresent = true;
+        }
+
+        if (arg.ExecArgType() == Execution::Args::Type::MultiQuery)
+        {
+            multiQueryArgPresent = true;
+        }
     }
+
+    REQUIRE((!queryArgPresent || !multiQueryArgPresent));
 
     // Recurse for all subcommands
     for (const auto& sub : command.GetCommands())
@@ -181,6 +195,7 @@ void EnsureCommandConsistency(const Command& command)
 //  6. All argument alias are lower cased
 //  7. No argument names contain '='
 //  8. All positional arguments are first in the list
+//  9. No command includes both Query and MultiQuery arguments
 TEST_CASE("EnsureCommandTreeConsistency", "[command]")
 {
     RootCommand root;
@@ -239,10 +254,15 @@ void RequireValueParsedToArg(const std::string& value, const Argument& arg, cons
 
 void RequireValuesParsedToArg(const std::vector<std::string>& values, const Argument& arg, const Args& args)
 {
-    REQUIRE(args.Contains(arg.ExecArgType()));
-    REQUIRE(args.GetCount(arg.ExecArgType()) == values.size());
+    RequireValuesParsedToArg(values, arg.ExecArgType(), args);
+}
 
-    auto argValues = args.GetArgs(arg.ExecArgType());
+void RequireValuesParsedToArg(const std::vector<std::string>& values, Args::Type execArgType, const Args& args)
+{
+    REQUIRE(args.Contains(execArgType));
+    REQUIRE(args.GetCount(execArgType) == values.size());
+
+    auto argValues = args.GetArgs(execArgType);
     for (size_t i = 0; i < values.size(); ++i)
     {
         REQUIRE(argValues->at(i) == values[i]);
@@ -571,7 +591,7 @@ TEST_CASE("ParseArguments_PositionalWithMultipleValues", "[command]")
 {
     Args args;
     TestCommand command({
-            Argument{ "multi", 'm', Args::Type::Query, DefaultDesc, ArgumentType::Positional }.SetCountLimit(5),
+            Argument{ "multi", 'm', Args::Type::MultiQuery, DefaultDesc, ArgumentType::Positional }.SetCountLimit(5),
         });
 
     std::vector<std::string> values{ "value1" "value2", "value3" };
@@ -587,7 +607,7 @@ TEST_CASE("ParseArguments_PositionalWithMultipleValuesAndOtherArgs", "[command]"
     TestCommand command({
             Argument{ "pos1", 'p', Args::Type::Source, DefaultDesc, ArgumentType::Positional },
             Argument{ "pos2", 'q', Args::Type::All, DefaultDesc, ArgumentType::Positional },
-            Argument{ "multi", 'm', Args::Type::Query, DefaultDesc, ArgumentType::Positional }.SetCountLimit(5),
+            Argument{ "multi", 'm', Args::Type::MultiQuery, DefaultDesc, ArgumentType::Positional }.SetCountLimit(5),
             Argument{ "flag", 'f', Args::Type::BlockingPin, DefaultDesc, ArgumentType::Flag },
         });
 
@@ -605,7 +625,7 @@ TEST_CASE("ParseArguments_PositionalWithMultipleValuesAndName", "[command]")
 {
     Args args;
     TestCommand command({
-            Argument{ "multi", 'm', Args::Type::Query, DefaultDesc, ArgumentType::Positional }.SetCountLimit(5),
+            Argument{ "multi", 'm', Args::Type::MultiQuery, DefaultDesc, ArgumentType::Positional }.SetCountLimit(5),
         });
 
     std::vector<std::string> values{ "--multi", "one", "two", "three" };
@@ -613,4 +633,19 @@ TEST_CASE("ParseArguments_PositionalWithMultipleValuesAndName", "[command]")
 
     command.ParseArguments(inv, args);
     RequireValuesParsedToArg({ values[1], values[2], values[3] }, command.m_args[0], args);
+}
+
+TEST_CASE("ParseArguments_MultiQueryConvertedToSingleQuery", "[command]")
+{
+    Args args;
+    TestCommand command({
+            Argument{ "multi", 'm', Args::Type::MultiQuery, DefaultDesc, ArgumentType::Positional }.SetCountLimit(5),
+        });
+
+    std::vector<std::string> values{ "singleValue" };
+    Invocation inv{ std::vector<std::string>(values) };
+
+    // ParseArguments converts MultiQuery args with a single value into Query args
+    command.ParseArguments(inv, args);
+    RequireValuesParsedToArg({ values[0] }, Args::Type::Query, args);
 }

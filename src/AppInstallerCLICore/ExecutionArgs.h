@@ -161,16 +161,6 @@ namespace AppInstaller::CLI::Execution
             m_parsedArgs[arg].emplace_back(value);
         }
 
-        // If we get a single value for multi-query, we remove the argument and
-        // add it back as a single query. To handle actual multiple queries, we
-        // create sub-contexts with single queries. This way, most of the code can
-        // assume that there is always a single query.
-        // This is the only case where we modify the parsed args from user input
-        bool RemoveMultiQueryArg()
-        {
-            return m_parsedArgs.erase(Type::MultiQuery) > 0;
-        }
-
         bool Empty()
         {
             return m_parsedArgs.empty();
@@ -191,6 +181,22 @@ namespace AppInstaller::CLI::Execution
             }
 
             return types;
+        }
+
+        // If we get a single value for multi-query, we remove the argument and add it back as a single query.
+        // This way the rest of the code can assume that if there is a MultiQuery we will always have multiple values,
+        // and if there is a single one it will be in the Query type.
+        // This is the only case where we modify the parsed args from user input.
+        void MoveMultiQueryToSingleQueryIfNeeded()
+        {
+            auto itr = m_parsedArgs.find(Type::MultiQuery);
+            if (itr != m_parsedArgs.end() && itr->second.size() == 1)
+            {
+                // A test ensures that commands don't have both Query and MultiQuery arguments,
+                // so if we had a MultiQuery value, we can be sure there is no Query value
+                m_parsedArgs[Type::Query].emplace_back(std::move(itr->second[0]));
+                m_parsedArgs.erase(itr);
+            }
         }
 
     private:

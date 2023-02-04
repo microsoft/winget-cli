@@ -6,7 +6,7 @@
 
 using namespace AppInstaller::CLI;
 
-TEST_CASE("EnsureAllCommandsDefined", "[argument]")
+TEST_CASE("EnsureAllArgumentsDefined", "[argument]")
 {
     using Arg_t = std::underlying_type_t<Execution::Args::Type>;
     for (Arg_t i = static_cast<Arg_t>(0); i < static_cast<Arg_t>(Execution::Args::Type::Max); ++i)

@@ -29,6 +29,8 @@ namespace AppInstaller::CLI
         // Args to specify where to get app
         case Execution::Args::Type::Query:
             return { type, "query"_liv, 'q', ArgTypeCategory::PackageQuery | ArgTypeCategory::SinglePackageQuery };
+        case Execution::Args::Type::MultiQuery:
+            return { type, "query"_liv, 'q', ArgTypeCategory::PackageQuery };
         case Execution::Args::Type::Manifest:
             return { type, "manifest"_liv, 'm', ArgTypeCategory::Manifest };
 

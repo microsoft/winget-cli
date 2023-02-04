@@ -601,6 +601,9 @@ namespace AppInstaller::CLI
         {
             stateMachine.ThrowIfError();
         }
+
+        // Special handling for multi-query arguments:
+        execArgs.MoveMultiQueryToSingleQueryIfNeeded();
     }
 
     void Command::ValidateArguments(Execution::Args& execArgs) const

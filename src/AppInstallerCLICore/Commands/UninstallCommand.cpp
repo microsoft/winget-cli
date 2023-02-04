@@ -117,7 +117,6 @@ namespace AppInstaller::CLI
         else
         {
             // search for specific packages to uninstall
-            context << Workflow::CheckForMultiQuery;
             if (!context.Args.Contains(Execution::Args::Type::MultiQuery))
             {
                 context <<

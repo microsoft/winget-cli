@@ -432,15 +432,6 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void CheckForMultiQuery(Execution::Context& context)
-    {
-        if (context.Args.GetCount(Execution::Args::Type::MultiQuery) == 1)
-        {
-            context.Args.AddArg(Execution::Args::Type::Query, context.Args.GetArg(Execution::Args::Type::MultiQuery));
-            context.Args.RemoveMultiQueryArg();
-        }
-    }
-
     void SearchSourceForMany(Execution::Context& context)
     {
         const auto& args = context.Args;
