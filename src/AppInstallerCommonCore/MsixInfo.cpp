@@ -7,6 +7,7 @@
 #include "Public/AppInstallerLogging.h"
 #include "Public/AppInstallerStrings.h"
 #include "Public/AppInstallerDownloader.h"
+#include "Public/AppInstallerRuntime.h"
 
 using namespace winrt::Windows::Storage::Streams;
 using namespace Microsoft::WRL;
@@ -367,21 +368,59 @@ namespace AppInstaller::Msix
         PackageManager packageManager;
 
         std::wstring pfn = Utility::ConvertToUTF16(familyName);
-        auto packages = packageManager.FindPackages(pfn);
-
-        std::optional<std::string> result;
-        for (const auto& package : packages)
+        if (Runtime::IsRunningAsAdmin())
         {
-            if (result.has_value())
+            auto packages = packageManager.FindPackages(pfn);
+
+            std::optional<std::string> result;
+            for (const auto& package : packages)
             {
-                // More than 1 package found. Don't directly error, let caller deal with it.
+                if (result.has_value())
+                {
+                    // More than 1 package found. Don't directly error, let caller deal with it.
+                    return {};
+                }
+
+                result = Utility::ConvertToUTF8(package.Id().FullName());
+            }
+
+            return result;
+        }
+        else
+        {
+            UINT32 fullNameCount = 0;
+            UINT32 bufferLength = 0;
+            UINT32 properties = 0;
+            LONG findResult = FindPackagesByPackageFamily(pfn.c_str(), PACKAGE_FILTER_HEAD, &fullNameCount, nullptr, &bufferLength, nullptr, &properties);
+            if (findResult == ERROR_SUCCESS || fullNameCount == 0)
+            {
+                // No package found
+                return {};
+            }
+            else if (findResult != ERROR_INSUFFICIENT_BUFFER)
+            {
+                THROW_WIN32(findResult);
+            }
+            else if (fullNameCount != 1)
+            {
+                // Don't directly error, let caller deal with it
+                AICLI_LOG(Core, Error, << "Multiple packages found for family name: " << fullNameCount);
                 return {};
             }
 
-            result = Utility::ConvertToUTF8(package.Id().FullName());
+            // fullNameCount == 1 at this point
+            PWSTR fullNamePtr;
+            std::wstring buffer(static_cast<size_t>(bufferLength) + 1, '\0');
+            THROW_IF_WIN32_ERROR(FindPackagesByPackageFamily(pfn.c_str(), PACKAGE_FILTER_HEAD, &fullNameCount, &fullNamePtr, &bufferLength, &buffer[0], &properties));
+            if (fullNameCount != 1 || bufferLength == 0)
+            {
+                // Something changed in between, abandon
+                AICLI_LOG(Core, Error, << "Packages found for family name: " << fullNameCount);
+                return {};
+            }
+            buffer.resize(bufferLength - 1);
+            return Utility::ConvertToUTF8(buffer);
         }
-
-        return result;
     }
 
     std::string GetPackageFamilyNameFromFullName(std::string_view fullName)
