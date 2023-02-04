@@ -19,7 +19,6 @@ namespace AppInstaller::CLI
     std::vector<Argument> InstallCommand::GetArguments() const
     {
         return {
-            Argument::ForType(Args::Type::Query),
             Argument::ForType(Args::Type::MultiQuery),
             Argument::ForType(Args::Type::Manifest),
             Argument::ForType(Args::Type::Id),

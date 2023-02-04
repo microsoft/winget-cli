@@ -252,11 +252,6 @@ void RequireValueParsedToArg(const std::string& value, const Argument& arg, cons
     REQUIRE(value == args.GetArg(arg.ExecArgType()));
 }
 
-void RequireValuesParsedToArg(const std::vector<std::string>& values, const Argument& arg, const Args& args)
-{
-    RequireValuesParsedToArg(values, arg.ExecArgType(), args);
-}
-
 void RequireValuesParsedToArg(const std::vector<std::string>& values, Args::Type execArgType, const Args& args)
 {
     REQUIRE(args.Contains(execArgType));
@@ -267,6 +262,11 @@ void RequireValuesParsedToArg(const std::vector<std::string>& values, Args::Type
     {
         REQUIRE(argValues->at(i) == values[i]);
     }
+}
+
+void RequireValuesParsedToArg(const std::vector<std::string>& values, const Argument& arg, const Args& args)
+{
+    RequireValuesParsedToArg(values, arg.ExecArgType(), args);
 }
 
 // Description used for tests; doesn't need to be anything in particular.
@@ -648,4 +648,17 @@ TEST_CASE("ParseArguments_MultiQueryConvertedToSingleQuery", "[command]")
     // ParseArguments converts MultiQuery args with a single value into Query args
     command.ParseArguments(inv, args);
     RequireValuesParsedToArg({ values[0] }, Args::Type::Query, args);
+}
+
+TEST_CASE("ParseArguments_PositionalWithTooManyValues", "[command]")
+{
+    Args args;
+    TestCommand command({
+            Argument{ "multi", 'm', Args::Type::MultiQuery, DefaultDesc, ArgumentType::Positional }.SetCountLimit(5),
+        });
+
+    std::vector<std::string> values{ "1", "2", "3", "4", "5", "tooMany" };
+    Invocation inv{ std::vector<std::string>(values) };
+
+    REQUIRE_COMMAND_EXCEPTION(command.ParseArguments(inv, args), CLI::Resource::String::ExtraPositionalError(Utility::LocIndView{ values.back() }));
 }
