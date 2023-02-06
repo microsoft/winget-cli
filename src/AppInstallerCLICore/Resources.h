@@ -27,6 +27,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(AdminSettingDisableDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(AdminSettingEnabled);
         WINGET_DEFINE_RESOURCE_STRINGID(AdminSettingEnableDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(AdminSettingHeader);
         WINGET_DEFINE_RESOURCE_STRINGID(ArchiveFailedMalwareScan);
         WINGET_DEFINE_RESOURCE_STRINGID(ArchiveFailedMalwareScanOverridden);
         WINGET_DEFINE_RESOURCE_STRINGID(ArgumentForSinglePackageProvidedWithMultipleQueries);
@@ -267,10 +268,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(PinResettingAll);
         WINGET_DEFINE_RESOURCE_STRINGID(PinResetUseForceArg);
         WINGET_DEFINE_RESOURCE_STRINGID(PinType);
-        WINGET_DEFINE_RESOURCE_STRINGID(PoliciesDisabled);
-        WINGET_DEFINE_RESOURCE_STRINGID(PoliciesEnabled);
         WINGET_DEFINE_RESOURCE_STRINGID(PoliciesPolicy);
-        WINGET_DEFINE_RESOURCE_STRINGID(PoliciesState);
         WINGET_DEFINE_RESOURCE_STRINGID(PortableHashMismatchOverridden);
         WINGET_DEFINE_RESOURCE_STRINGID(PortableHashMismatchOverrideRequired);
         WINGET_DEFINE_RESOURCE_STRINGID(PortableAliasAdded);
@@ -408,6 +406,9 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(SourceUpdateCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceUpdateCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceUpdateOne);
+        WINGET_DEFINE_RESOURCE_STRINGID(StateDisabled);
+        WINGET_DEFINE_RESOURCE_STRINGID(StateEnabled);
+        WINGET_DEFINE_RESOURCE_STRINGID(StateHeader);
         WINGET_DEFINE_RESOURCE_STRINGID(SystemArchitecture);
         WINGET_DEFINE_RESOURCE_STRINGID(TagArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ThankYou);
