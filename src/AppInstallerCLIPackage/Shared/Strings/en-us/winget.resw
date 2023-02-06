@@ -909,21 +909,9 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
     <value>Set Windows Package Manager Source Auto Update Interval In Minutes</value>
   </data>
-  <data name="PoliciesDisabled" xml:space="preserve">
-    <value>Disabled</value>
-    <comment>As in enabled/disabled</comment>
-  </data>
-  <data name="PoliciesEnabled" xml:space="preserve">
-    <value>Enabled</value>
-    <comment>As in enabled/disabled</comment>
-  </data>
   <data name="PoliciesPolicy" xml:space="preserve">
     <value>Group Policy</value>
     <comment>Header for a table listing active Group Policies</comment>
-  </data>
-  <data name="PoliciesState" xml:space="preserve">
-    <value>State</value>
-    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
   </data>
   <data name="PolicyEnableLocalManifests" xml:space="preserve">
     <value>Enable Windows App Installer Local Manifest Files</value>
@@ -1231,6 +1219,10 @@ Do you agree to the terms?</value>
   <data name="AdminSettingDisabled" xml:space="preserve">
     <value>Disabled admin setting '{0}'.</value>
     <comment>{Locked="{0}"} Message displayed when the user disables an admin setting. {0} is a placeholder replaced by the setting name.</comment>
+  </data>
+  <data name="AdminSettingHeader" xml:space="preserve">
+    <value>Admin Setting</value>
+    <comment>Header for a table displaying admin settings.</comment>
   </data>
   <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
     <value>Application is currently running. Exit the application then try again.</value>
@@ -1643,10 +1635,21 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="ArgumentForSinglePackageProvidedWithMultipleQueries" xml:space="preserve">
     <value>An argument was provided that can only be used for single package</value>
-
   </data>
   <data name="MultipleExclusiveArgumentsProvided" xml:space="preserve">
     <value>Multiple mutually exclusive arguments provided: {0}</value>
     <comment>{Locked="{0}"} Error message shown when mutually incompatible command line arguments are used. {0} is a placeholder replaced by the arguments that cannot be specified together</comment>
+  </data>
+  <data name="StateDisabled" xml:space="preserve">
+    <value>Disabled</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="StateEnabled" xml:space="preserve">
+    <value>Enabled</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="StateHeader" xml:space="preserve">
+    <value>State</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies and Settings</comment>
   </data>
 </root>
