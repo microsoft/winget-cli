@@ -13,17 +13,15 @@ namespace Microsoft.WinGet.Client.PSObjects
     /// <summary>
     /// CatalogPackage wrapper object for displaying to PowerShell.
     /// </summary>
-    public class CatalogPackage
+    public abstract class CatalogPackage
     {
-        private Management.Deployment.CatalogPackage catalogPackage;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="CatalogPackage"/> class.
         /// </summary>
         /// <param name="catalogPackage">CatalogPackage COM object.</param>
         public CatalogPackage(Management.Deployment.CatalogPackage catalogPackage)
         {
-            this.catalogPackage = catalogPackage;
+            this.CatalogPackageCOM = catalogPackage;
         }
 
         /// <summary>
@@ -33,7 +31,7 @@ namespace Microsoft.WinGet.Client.PSObjects
         {
             get
             {
-                return this.catalogPackage.Name;
+                return this.CatalogPackageCOM.Name;
             }
         }
 
@@ -44,14 +42,9 @@ namespace Microsoft.WinGet.Client.PSObjects
         {
             get
             {
-                return this.catalogPackage.Id;
+                return this.CatalogPackageCOM.Id;
             }
         }
-
-        /// <summary>
-        /// Gets or sets the version of the catalog package.
-        /// </summary>
-        public string Version { get; protected set; }
 
         /// <summary>
         /// Gets a value indicating whether an update is available.
@@ -60,7 +53,7 @@ namespace Microsoft.WinGet.Client.PSObjects
         {
             get
             {
-                return this.catalogPackage.IsUpdateAvailable;
+                return this.CatalogPackageCOM.IsUpdateAvailable;
             }
         }
 
@@ -71,7 +64,7 @@ namespace Microsoft.WinGet.Client.PSObjects
         {
             get
             {
-                return this.catalogPackage.DefaultInstallVersion.PackageCatalog.Info.Name;
+                return this.CatalogPackageCOM.DefaultInstallVersion.PackageCatalog.Info.Name;
             }
         }
 
@@ -87,13 +80,23 @@ namespace Microsoft.WinGet.Client.PSObjects
         }
 
         /// <summary>
+        /// Gets the version of the catalog package.
+        /// </summary>
+        public abstract string Version { get; }
+
+        /// <summary>
+        /// Gets the catalog package COM object.
+        /// </summary>
+        protected Management.Deployment.CatalogPackage CatalogPackageCOM { get; }
+
+        /// <summary>
         /// Gets a list of available package version ids for the package.
         /// </summary>
         private PackageVersionId[] AvailablePackageVersionIds
         {
             get
             {
-                return this.catalogPackage.AvailableVersions.ToArray();
+                return this.CatalogPackageCOM.AvailableVersions.ToArray();
             }
         }
 
@@ -103,7 +106,7 @@ namespace Microsoft.WinGet.Client.PSObjects
         /// <returns>CheckInstalledStatus string.</returns>
         public string CheckInstalledStatus()
         {
-            return this.catalogPackage.CheckInstalledStatus().Status.ToString();
+            return this.CatalogPackageCOM.CheckInstalledStatus().Status.ToString();
         }
 
         /// <summary>
@@ -118,7 +121,7 @@ namespace Microsoft.WinGet.Client.PSObjects
             PackageVersionId packageVersionId = this.AvailablePackageVersionIds.FirstOrDefault(x => x.Version == version);
             if (packageVersionId != null)
             {
-                return new PackageVersionInfo(this.catalogPackage.GetPackageVersionInfo(packageVersionId));
+                return new PackageVersionInfo(this.CatalogPackageCOM.GetPackageVersionInfo(packageVersionId));
             }
             else
             {

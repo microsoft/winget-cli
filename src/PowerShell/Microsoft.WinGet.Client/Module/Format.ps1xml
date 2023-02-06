@@ -9,11 +9,9 @@
       <TableControl>
         <TableHeaders>
           <TableColumnHeader>
-            <Width>32</Width>
             <Label>Name</Label>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Width>32</Width>
             <Label>Id</Label>
           </TableColumnHeader>
           <TableColumnHeader>
@@ -51,11 +49,9 @@
       <TableControl>
         <TableHeaders>
           <TableColumnHeader>
-            <Width>32</Width>
             <Label>Name</Label>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Width>32</Width>
             <Label>Id</Label>
           </TableColumnHeader>
           <TableColumnHeader>
@@ -191,7 +187,6 @@
       <TableControl>
         <TableHeaders>
           <TableColumnHeader>
-            <Width>32</Width>
             <Label>Name</Label>
           </TableColumnHeader>
           <TableColumnHeader>

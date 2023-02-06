@@ -18,7 +18,12 @@ namespace Microsoft.WinGet.Client.PSObjects
         public FoundCatalogPackage(Management.Deployment.CatalogPackage catalogPackage)
             : base(catalogPackage)
         {
-            this.Version = catalogPackage.DefaultInstallVersion.Version;
+        }
+
+        /// <inheritdoc/>
+        public override string Version
+        {
+            get { return this.CatalogPackageCOM.DefaultInstallVersion.Version; }
         }
     }
 }
