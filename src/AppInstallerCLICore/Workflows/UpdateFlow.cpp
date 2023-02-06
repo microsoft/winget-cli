@@ -22,9 +22,9 @@ namespace AppInstaller::CLI::Workflow
             return installedVersion < updateVersion;
         }
 
-        void AddToPackagesToInstallIfNotPresent(std::vector<std::unique_ptr<Execution::Context>>& packagesToInstall, std::unique_ptr<Execution::Context> packageContext)
+        void AddToPackageSubContextsIfNotPresent(std::vector<std::unique_ptr<Execution::Context>>& packageSubContexts, std::unique_ptr<Execution::Context> packageContext)
         {
-            for (auto const& existing : packagesToInstall)
+            for (auto const& existing : packageSubContexts)
             {
                 if (existing->Get<Execution::Data::Manifest>().Id == packageContext->Get<Execution::Data::Manifest>().Id &&
                     existing->Get<Execution::Data::Manifest>().Version == packageContext->Get<Execution::Data::Manifest>().Version &&
@@ -34,7 +34,7 @@ namespace AppInstaller::CLI::Workflow
                 }
             }
 
-            packagesToInstall.emplace_back(std::move(packageContext));
+            packageSubContexts.emplace_back(std::move(packageContext));
         }
     }
 
@@ -182,7 +182,7 @@ namespace AppInstaller::CLI::Workflow
     void UpdateAllApplicable(Execution::Context& context)
     {
         const auto& matches = context.Get<Execution::Data::SearchResult>().Matches;
-        std::vector<std::unique_ptr<Execution::Context>> packagesToInstall;
+        std::vector<std::unique_ptr<Execution::Context>> packageSubContexts;
         bool updateAllFoundUpdate = false;
         int packagesWithUnknownVersionSkipped = 0;
         int packagesThatRequireExplicitSkipped = 0;
@@ -239,12 +239,12 @@ namespace AppInstaller::CLI::Workflow
 
             updateAllFoundUpdate = true;
 
-            AddToPackagesToInstallIfNotPresent(packagesToInstall, std::move(updateContextPtr));
+            AddToPackageSubContextsIfNotPresent(packageSubContexts, std::move(updateContextPtr));
         }
 
         if (updateAllFoundUpdate)
         {
-            context.Add<Execution::Data::PackagesToInstall>(std::move(packagesToInstall));
+            context.Add<Execution::Data::PackageSubContexts>(std::move(packageSubContexts));
             context.Reporter.Info() << std::endl;
             context <<
                 InstallMultiplePackages(

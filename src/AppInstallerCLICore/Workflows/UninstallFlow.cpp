@@ -15,6 +15,7 @@ using namespace AppInstaller::Msix;
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Registry;
 using namespace AppInstaller::CLI::Portable;
+using namespace AppInstaller::Utility::literals;
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -66,6 +67,54 @@ namespace AppInstaller::CLI::Workflow
             Workflow::ExecuteUninstaller <<
             Workflow::ReportExecutionStage(ExecutionStage::PostExecution) <<
             Workflow::RecordUninstall;
+    }
+
+    void UninstallMultiplePackages(Execution::Context& context)
+    {
+        bool allSucceeded = true;
+        size_t packagesCount = context.Get<Execution::Data::PackageSubContexts>().size();
+        size_t packagesProgress = 0;
+
+        for (auto& packageContext : context.Get<Execution::Data::PackageSubContexts>())
+        {
+            packagesProgress++;
+            context.Reporter.Info() << '(' << packagesProgress << '/' << packagesCount << ") "_liv;
+
+            // We want to do best effort to uninstall all packages regardless of previous failures
+            Execution::Context& uninstallContext = *packageContext;
+            auto previousThreadGlobals = uninstallContext.SetForCurrentThread();
+
+            // Prevent individual exceptions from breaking out of the loop
+            try
+            {
+                uninstallContext <<
+                    Workflow::ReportPackageIdentity <<
+                    Workflow::UninstallSinglePackage;
+            }
+            catch (...)
+            {
+                uninstallContext.SetTerminationHR(Workflow::HandleException(uninstallContext, std::current_exception()));
+            }
+
+            uninstallContext.Reporter.Info() << std::endl;
+
+            if (uninstallContext.IsTerminated())
+            {
+                if (context.IsTerminated() && context.GetTerminationHR() == E_ABORT)
+                {
+                    // This means that the subcontext being terminated is due to an overall abort
+                    context.Reporter.Info() << Resource::String::Cancelled << std::endl;
+                    return;
+                }
+
+                allSucceeded = false;
+            }
+        }
+
+        if (!allSucceeded)
+        {
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_MULTIPLE_UNINSTALL_FAILED);
+        }
     }
 
     void GetUninstallInfo(Execution::Context& context)

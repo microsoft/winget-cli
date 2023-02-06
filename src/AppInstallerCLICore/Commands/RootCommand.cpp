@@ -67,7 +67,7 @@ namespace AppInstaller::CLI
                 auto info = context.Reporter.Info();
                 info << std::endl;
 
-                Execution::TableOutput<2> policiesTable{ context.Reporter, { Resource::String::PoliciesPolicy, Resource::String::PoliciesState } };
+                Execution::TableOutput<2> policiesTable{ context.Reporter, { Resource::String::PoliciesPolicy, Resource::String::StateHeader } };
 
                 // Output the toggle policies.
                 for (const auto& activePolicy : activePolicies)
@@ -75,7 +75,7 @@ namespace AppInstaller::CLI
                     auto policy = Settings::TogglePolicy::GetPolicy(activePolicy.first);
                     policiesTable.OutputLine({
                         Resource::LocString{ policy.PolicyName() }.get(),
-                        Resource::LocString{ activePolicy.second == Settings::PolicyState::Enabled ? Resource::String::PoliciesEnabled : Resource::String::PoliciesDisabled }.get() });
+                        Resource::LocString{ activePolicy.second == Settings::PolicyState::Enabled ? Resource::String::StateEnabled : Resource::String::StateDisabled }.get() });
                 }
 
                 // Output the update interval in the same table if needed.
@@ -108,7 +108,23 @@ namespace AppInstaller::CLI
                         OutputGroupPolicySourceList(context, sources->get(), Resource::String::SourceListAllowedSource);
                     }
                 }
+                info << std::endl;
             }
+        }
+
+        void OutputAdminSettings(Execution::Context& context)
+        {
+            Execution::TableOutput<2> adminSettingsTable{ context.Reporter, { Resource::String::AdminSettingHeader, Resource::String::StateHeader } };
+
+            // Output the admin settings.
+            for (const auto& setting : Settings::GetAllAdminSettings())
+            {
+                adminSettingsTable.OutputLine({
+                    std::string{ AdminSettingToString(setting)},
+                    Resource::LocString{ IsAdminSettingEnabled(setting) ? Resource::String::StateEnabled : Resource::String::StateDisabled }
+                });
+            }
+            adminSettingsTable.Complete();
         }
     }
 
@@ -138,8 +154,8 @@ namespace AppInstaller::CLI
     {
         return
         {
-            Argument{ "version", 'v', Execution::Args::Type::ListVersions, Resource::String::ToolVersionArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help },
-            Argument{ "info", Argument::NoAlias, Execution::Args::Type::Info, Resource::String::ToolInfoArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help },
+            Argument{ Execution::Args::Type::ToolVersion, Resource::String::ToolVersionArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help },
+            Argument{ Execution::Args::Type::Info, Resource::String::ToolInfoArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help },
         };
     }
 
@@ -208,10 +224,12 @@ namespace AppInstaller::CLI
             links.OutputLine({ Resource::LocString(Resource::String::WindowsStoreTerms).get(), "https://www.microsoft.com/en-us/storedocs/terms-of-sale" });
 
             links.Complete();
+            info << std::endl;
 
             OutputGroupPolicies(context);
+            OutputAdminSettings(context);
         }
-        else if (context.Args.Contains(Execution::Args::Type::ListVersions))
+        else if (context.Args.Contains(Execution::Args::Type::ToolVersion))
         {
             context.Reporter.Info() << 'v' << Runtime::GetClientVersion() << std::endl;
         }

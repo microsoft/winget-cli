@@ -446,6 +446,7 @@ namespace AppInstaller::CLI::Workflow
         }
 
         SearchRequest searchRequest;
+
         if (args.Contains(Execution::Args::Type::Query))
         {
             searchRequest.Query.emplace(RequestMatch(matchType, args.GetArg(Execution::Args::Type::Query)));
@@ -467,7 +468,7 @@ namespace AppInstaller::CLI::Workflow
         context.Add<Execution::Data::SearchResult>(context.Get<Execution::Data::Source>().Search(searchRequest));
     }
 
-    void SearchSourceForSingle(Execution::Context& context)
+    void GetSearchRequestForSingle(Execution::Context& context)
     {
         const auto& args = context.Args;
 
@@ -478,6 +479,7 @@ namespace AppInstaller::CLI::Workflow
         }
 
         SearchRequest searchRequest;
+        // Note: MultiQuery when we need search for single is handled with one sub-context per query.
         if (args.Contains(Execution::Args::Type::Query))
         {
             std::string_view query = args.GetArg(Execution::Args::Type::Query);
@@ -492,18 +494,30 @@ namespace AppInstaller::CLI::Workflow
 
         SearchSourceApplyFilters(context, searchRequest, matchType);
 
-        Logging::Telemetry().LogSearchRequest(
-            "single",
-            args.GetArg(Execution::Args::Type::Query),
-            args.GetArg(Execution::Args::Type::Id),
-            args.GetArg(Execution::Args::Type::Name),
-            args.GetArg(Execution::Args::Type::Moniker),
-            args.GetArg(Execution::Args::Type::Tag),
-            args.GetArg(Execution::Args::Type::Command),
-            searchRequest.MaximumResults,
-            searchRequest.ToString());
+        context.Add<Execution::Data::SearchRequest>(std::move(searchRequest));
+    }
 
-        context.Add<Execution::Data::SearchResult>(context.Get<Execution::Data::Source>().Search(searchRequest));
+    void SearchSourceForSingle(Execution::Context& context)
+    {
+        const auto& args = context.Args;
+        context << GetSearchRequestForSingle;
+        if (!context.IsTerminated())
+        {
+            const auto& searchRequest = context.Get<Execution::Data::SearchRequest>();
+
+            Logging::Telemetry().LogSearchRequest(
+                "single",
+                args.GetArg(Execution::Args::Type::Query),
+                args.GetArg(Execution::Args::Type::Id),
+                args.GetArg(Execution::Args::Type::Name),
+                args.GetArg(Execution::Args::Type::Moniker),
+                args.GetArg(Execution::Args::Type::Tag),
+                args.GetArg(Execution::Args::Type::Command),
+                searchRequest.MaximumResults,
+                searchRequest.ToString());
+
+            context.Add<Execution::Data::SearchResult>(context.Get<Execution::Data::Source>().Search(searchRequest));
+        }
     }
 
     void SearchSourceForManyCompletion(Execution::Context& context)

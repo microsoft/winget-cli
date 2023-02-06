@@ -190,6 +190,7 @@
   <ItemGroup>
     <ClCompile Include="AdminSettings.cpp" />
     <ClCompile Include="Archive.cpp" />
+    <ClCompile Include="Argument.cpp" />
     <ClCompile Include="ARPChanges.cpp" />
     <ClCompile Include="Certificates.cpp" />
     <ClCompile Include="Command.cpp" />

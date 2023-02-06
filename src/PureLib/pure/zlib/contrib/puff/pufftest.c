@@ -143,7 +143,7 @@ int main(int argc, char **argv)
                                      len - sourcelen);
     }
 
-    /* if requested, inflate again and write decompressd data to stdout */
+    /* if requested, inflate again and write decompressed data to stdout */
     if (put && ret == 0) {
         if (fail)
             destlen >>= 1;

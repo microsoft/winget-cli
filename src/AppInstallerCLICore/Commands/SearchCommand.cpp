@@ -69,7 +69,7 @@ namespace AppInstaller::CLI
 
     void SearchCommand::ValidateArgumentsInternal(Args& execArgs) const
     {
-        Argument::ValidatePackageSelectionArgumentSupplied(execArgs);
+        Argument::ValidateCommonArguments(execArgs);
     }
 
     void SearchCommand::ExecuteInternal(Context& context) const
