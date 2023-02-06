@@ -582,4 +582,17 @@ namespace Microsoft.Management.Configuration
         GetConfigurationUnitSettingsResult GetUnitSettings(ConfigurationUnit unit);
         Windows.Foundation.IAsyncOperation<GetConfigurationUnitSettingsResult> GetUnitSettingsAsync(ConfigurationUnit unit);
     }
+
+    /// Force midl3 to generate vector marshalling info.
+    declare
+    {
+        interface Windows.Foundation.Collections.IVector<ConfigurationConflict>;
+        interface Windows.Foundation.Collections.IVector<ConfigurationSet>;
+        interface Windows.Foundation.Collections.IVectorView<ApplyConfigurationUnitResult>;
+        interface Windows.Foundation.Collections.IVectorView<ConfigurationConflictSetting>;
+        interface Windows.Foundation.Collections.IVectorView<ConfigurationSet>;
+        interface Windows.Foundation.Collections.IVectorView<ConfigurationUnit>;
+        interface Windows.Foundation.Collections.IVectorView<IConfigurationUnitSettingDetails>;
+        interface Windows.Foundation.Collections.IVectorView<TestConfigurationUnitResult>;
+    }
 }

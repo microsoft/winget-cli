@@ -7,6 +7,7 @@
 namespace Microsoft.Management.Configuration.UnitTests.Tests
 {
     using System;
+    using System.Linq;
     using System.Runtime.InteropServices;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
     using Microsoft.Management.Configuration.UnitTests.Helpers;
@@ -208,6 +209,75 @@ properties:
             Assert.NotNull(result.ResultCode);
             Assert.Equal(Errors.WINGET_CONFIG_ERROR_INVALID_FIELD, result.ResultCode.HResult);
             Assert.NotEqual(string.Empty, result.Field);
+        }
+
+        /// <summary>
+        /// Passes YAML with all values present.
+        /// </summary>
+        [Fact]
+        public void CheckAllUnitProperties()
+        {
+            ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics();
+
+            OpenConfigurationSetResult result = processor.OpenConfigurationSet(this.CreateStream(@"
+properties:
+  configurationVersion: 0.1
+  resources:
+    - resource: Resource
+      id: Identifier
+      dependsOn:
+        - Dependency1
+        - Dependency2
+      directives:
+        Directive1: A
+        Directive2: B
+      settings:
+        Setting1: 1
+        Setting2: 2
+"));
+            Assert.NotNull(result.Set);
+            Assert.Null(result.ResultCode);
+            Assert.Equal(string.Empty, result.Field);
+
+            Assert.NotEqual(Guid.Empty, result.Set.InstanceIdentifier);
+
+            var units = result.Set.ConfigurationUnits;
+            Assert.NotNull(units);
+            Assert.Equal(1, units.Count);
+
+            ConfigurationUnit unit = units[0];
+            Assert.NotNull(unit);
+            Assert.Equal("Resource", unit.UnitName);
+            Assert.NotEqual(Guid.Empty, unit.InstanceIdentifier);
+            Assert.Equal("Identifier", unit.Identifier);
+            Assert.Equal(ConfigurationUnitIntent.Apply, unit.Intent);
+
+            var dependencies = unit.Dependencies;
+            Assert.NotNull(dependencies);
+            Assert.Equal(2, dependencies.Count);
+            Assert.Contains("Dependency1", dependencies);
+            Assert.Contains("Dependency2", dependencies);
+
+            var directives = unit.Directives;
+            Assert.NotNull(directives);
+            Assert.Equal(2, directives.Count);
+            Assert.Contains("Directive1", directives);
+            Assert.Equal("A", directives["Directive1"]);
+            Assert.Contains("Directive2", directives);
+            Assert.Equal("B", directives["Directive2"]);
+
+            var settings = unit.Settings;
+            Assert.NotNull(settings);
+            Assert.Equal(2, settings.Count);
+            Assert.Contains("Setting1", settings);
+            Assert.Equal("1", settings["Setting1"]);
+            Assert.Contains("Setting2", settings);
+            Assert.Equal("2", settings["Setting2"]);
+
+            Assert.Null(unit.Details);
+            Assert.Equal(ConfigurationUnitState.Unknown, unit.State);
+            Assert.Null(unit.ResultInformation);
+            Assert.True(unit.ShouldApply);
         }
     }
 }

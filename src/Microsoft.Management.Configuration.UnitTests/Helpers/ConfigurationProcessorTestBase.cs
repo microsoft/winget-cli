@@ -6,8 +6,8 @@
 
 namespace Microsoft.Management.Configuration.UnitTests.Helpers
 {
-    using Microsoft.Management.Configuration.UnitTests.Fixtures;
     using System;
+    using Microsoft.Management.Configuration.UnitTests.Fixtures;
     using Windows.Storage.Streams;
     using Xunit.Abstractions;
 
