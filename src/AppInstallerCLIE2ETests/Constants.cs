@@ -223,6 +223,12 @@ namespace AppInstallerCLIE2ETests
             public const int ERROR_INSTALL_LOCATION_REQUIRED = unchecked((int)0x8A15005F);
             public const int ERROR_ARCHIVE_SCAN_FAILED = unchecked((int)0x8A150060);
             public const int ERROR_PACKAGE_ALREADY_INSTALLED = unchecked((int)0x8A150061);
+            public const int ERROR_PIN_ALREADY_EXISTS = unchecked((int)0x8A150062);
+            public const int ERROR_PIN_DOES_NOT_EXIST = unchecked((int)0x8A150063);
+            public const int ERROR_CANNOT_OPEN_PINNING_INDEX = unchecked((int)0x8A150064);
+            public const int ERROR_MULTIPLE_INSTALL_FAILED = unchecked((int)0x8A150065);
+            public const int ERROR_MULTIPLE_UNINSTALL_FAILED = unchecked((int)0x8A150066);
+            public const int ERROR_NOT_ALL_QUERIES_FOUND_SINGLE = unchecked((int)0x8A150067);
 
             public const int ERROR_INSTALL_PACKAGE_IN_USE = unchecked((int)0x8A150101);
             public const int ERROR_INSTALL_INSTALL_IN_PROGRESS = unchecked((int)0x8A150102);

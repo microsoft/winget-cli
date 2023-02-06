@@ -29,6 +29,8 @@ namespace AppInstaller::CLI
         // Args to specify where to get app
         case Execution::Args::Type::Query:
             return { type, "query"_liv, 'q', ArgTypeCategory::PackageQuery | ArgTypeCategory::SinglePackageQuery };
+        case Execution::Args::Type::MultiQuery:
+            return { type, "query"_liv, 'q', ArgTypeCategory::PackageQuery };
         case Execution::Args::Type::Manifest:
             return { type, "manifest"_liv, 'm', ArgTypeCategory::Manifest };
 
@@ -215,6 +217,8 @@ namespace AppInstaller::CLI
         {
         case Args::Type::Query:
             return Argument{ type, Resource::String::QueryArgumentDescription, ArgumentType::Positional};
+        case Args::Type::MultiQuery:
+            return Argument{ type, Resource::String::MultiQueryArgumentDescription, ArgumentType::Positional }.SetCountLimit(128);
         case Args::Type::Manifest:
             return Argument{ type, Resource::String::ManifestArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help, Settings::TogglePolicy::Policy::LocalManifestFiles, Settings::AdminSetting::LocalManifestFiles };
         case Args::Type::Id:

@@ -5,6 +5,7 @@
 #include "Workflows/UninstallFlow.h"
 #include "Workflows/CompletionFlow.h"
 #include "Workflows/WorkflowBase.h"
+#include "Workflows/MultiQueryFlow.h"
 #include "Resources.h"
 
 using AppInstaller::CLI::Execution::Args;
@@ -16,7 +17,7 @@ namespace AppInstaller::CLI
     {
         return
         {
-            Argument::ForType(Args::Type::Query),
+            Argument::ForType(Args::Type::MultiQuery),
             Argument::ForType(Args::Type::Manifest),
             Argument::ForType(Args::Type::Id),
             Argument::ForType(Args::Type::Name),
@@ -63,7 +64,7 @@ namespace AppInstaller::CLI
 
         switch (valueType)
         {
-        case Execution::Args::Type::Query:
+        case Execution::Args::Type::MultiQuery:
             context <<
                 Workflow::RequireCompletionWordNonEmpty <<
                 Workflow::SearchSourceForManyCompletion <<
@@ -110,19 +111,28 @@ namespace AppInstaller::CLI
                 Workflow::GetManifestFromArg <<
                 Workflow::ReportManifestIdentity <<
                 Workflow::SearchSourceUsingManifest <<
-                Workflow::EnsureOneMatchFromSearchResult(true);
+                Workflow::EnsureOneMatchFromSearchResult(true) <<
+                Workflow::UninstallSinglePackage;
         }
         else
         {
-            // search for a single package to uninstall
-            context <<
-                Workflow::SearchSourceForSingle <<
-                Workflow::HandleSearchResultFailures <<
-                Workflow::EnsureOneMatchFromSearchResult(true) <<
-                Workflow::ReportPackageIdentity;
+            // search for specific packages to uninstall
+            if (!context.Args.Contains(Execution::Args::Type::MultiQuery))
+            {
+                context <<
+                    Workflow::SearchSourceForSingle <<
+                    Workflow::HandleSearchResultFailures <<
+                    Workflow::EnsureOneMatchFromSearchResult(true) <<
+                    Workflow::ReportPackageIdentity <<
+                    Workflow::UninstallSinglePackage;
+            }
+            else
+            {
+                context <<
+                    Workflow::GetMultiSearchRequests <<
+                    Workflow::SearchSubContextsForSingle(Workflow::SearchSubContextsForSingle::SearchPurpose::Uninstall) <<
+                    Workflow::UninstallMultiplePackages;
+            }
         }
-
-        context <<
-            Workflow::UninstallSinglePackage;
     }
 }

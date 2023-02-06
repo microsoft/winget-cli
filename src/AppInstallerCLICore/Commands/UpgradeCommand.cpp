@@ -4,6 +4,7 @@
 #include "UpgradeCommand.h"
 #include "Workflows/CompletionFlow.h"
 #include "Workflows/InstallFlow.h"
+#include "Workflows/MultiQueryFlow.h"
 #include "Workflows/UpdateFlow.h"
 #include "Workflows/WorkflowBase.h"
 #include "Workflows/DependenciesFlow.h"
@@ -31,14 +32,14 @@ namespace AppInstaller::CLI
             // Valid arguments for list are only those related to the sources and which packages to include (e.g. --include-unknown).
             // Instead of checking for them, we check that there aren't any other arguments present.
             return !args.Contains(Args::Type::All) &&
-                WI_AreAllFlagsClear(argCategories, ArgTypeCategory::Manifest | ArgTypeCategory::SinglePackageQuery | ArgTypeCategory::InstallerBehavior);
+                WI_AreAllFlagsClear(argCategories, ArgTypeCategory::Manifest | ArgTypeCategory::PackageQuery | ArgTypeCategory::InstallerBehavior);
         }
     }
 
     std::vector<Argument> UpgradeCommand::GetArguments() const
     {
         return {
-            Argument::ForType(Args::Type::Query),           // -q
+            Argument::ForType(Args::Type::MultiQuery),      // -q
             Argument::ForType(Args::Type::Manifest),        // -m
             Argument::ForType(Args::Type::Id),
             Argument::ForType(Args::Type::Name),
@@ -96,7 +97,7 @@ namespace AppInstaller::CLI
 
         switch (valueType)
         {
-        case Execution::Args::Type::Query:
+        case Execution::Args::Type::MultiQuery:
             context <<
                 RequireCompletionWordNonEmpty <<
                 SearchSourceForManyCompletion <<
@@ -188,8 +189,21 @@ namespace AppInstaller::CLI
         }
         else
         {
-            // The remaining case: search for single installed package to update
-            context << InstallOrUpgradeSinglePackage(true);
+            // The remaining case: search for specific packages to update
+            if (!context.Args.Contains(Execution::Args::Type::MultiQuery))
+            {
+                context << Workflow::InstallOrUpgradeSinglePackage(/* isUpgrade */ true);
+            }
+            else
+            {
+                context <<
+                    Workflow::GetMultiSearchRequests <<
+                    Workflow::SearchSubContextsForSingle(Workflow::SearchSubContextsForSingle::SearchPurpose::Upgrade) <<
+                    Workflow::ReportExecutionStage(Workflow::ExecutionStage::Execution) <<
+                    Workflow::InstallMultiplePackages(
+                        Resource::String::InstallAndUpgradeCommandsReportDependencies,
+                        APPINSTALLER_CLI_ERROR_MULTIPLE_INSTALL_FAILED);
+            }
         }
     }
 }

@@ -135,6 +135,11 @@ namespace AppInstaller::CLI
 
                 infoOut << "] <"_liv << arg.Name() << '>';
 
+                if (arg.Limit() > 1)
+                {
+                    infoOut << "..."_liv;
+                }
+
                 if (!arg.Required())
                 {
                     infoOut << ']';
@@ -405,14 +410,10 @@ namespace AppInstaller::CLI
     const CLI::Argument* ParseArgumentsStateMachine::NextPositional()
     {
         // Find the next appropriate positional arg if the current itr isn't one or has hit its limit.
-        if (m_positionalSearchItr != m_arguments.end() &&
+        while (m_positionalSearchItr != m_arguments.end() &&
             (m_positionalSearchItr->Type() != ArgumentType::Positional || m_executionArgs.GetCount(m_positionalSearchItr->ExecArgType()) == m_positionalSearchItr->Limit()))
         {
-            do
-            {
-                ++m_positionalSearchItr;
-            }
-            while (m_positionalSearchItr != m_arguments.end() && m_positionalSearchItr->Type() != ArgumentType::Positional);
+            ++m_positionalSearchItr;
         }
 
         if (m_positionalSearchItr == m_arguments.end())
@@ -600,6 +601,9 @@ namespace AppInstaller::CLI
         {
             stateMachine.ThrowIfError();
         }
+
+        // Special handling for multi-query arguments:
+        execArgs.MoveMultiQueryToSingleQueryIfNeeded();
     }
 
     void Command::ValidateArguments(Execution::Args& execArgs) const

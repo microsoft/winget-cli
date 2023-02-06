@@ -36,7 +36,7 @@ namespace AppInstaller::CLI::Workflow
 
     // Shows all the prompts required for multiple package, e.g. for package agreements
     // Required Args: None
-    // Inputs: PackagesToInstall
+    // Inputs: PackageSubContexts
     // Outputs: None
     struct ShowPromptsForMultiplePackages : public WorkflowTask
     {

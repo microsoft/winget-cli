@@ -5,6 +5,7 @@
 #include "Workflows/CompletionFlow.h"
 #include "Workflows/InstallFlow.h"
 #include "Workflows/UpdateFlow.h"
+#include "Workflows/MultiQueryFlow.h"
 #include "Workflows/WorkflowBase.h"
 #include "Resources.h"
 
@@ -18,7 +19,7 @@ namespace AppInstaller::CLI
     std::vector<Argument> InstallCommand::GetArguments() const
     {
         return {
-            Argument::ForType(Args::Type::Query),
+            Argument::ForType(Args::Type::MultiQuery),
             Argument::ForType(Args::Type::Manifest),
             Argument::ForType(Args::Type::Id),
             Argument::ForType(Args::Type::Name),
@@ -63,7 +64,7 @@ namespace AppInstaller::CLI
     {
         switch (valueType)
         {
-        case Args::Type::Query:
+        case Args::Type::MultiQuery:
         case Args::Type::Manifest:
         case Args::Type::Id:
         case Args::Type::Name:
@@ -123,7 +124,20 @@ namespace AppInstaller::CLI
                     Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed, false, Repository::CompositeSearchBehavior::AvailablePackages);
             }
 
-            context << Workflow::InstallOrUpgradeSinglePackage(false);
+            if (context.Args.Contains(Execution::Args::Type::MultiQuery))
+            {
+                context <<
+                    Workflow::GetMultiSearchRequests <<
+                    Workflow::SearchSubContextsForSingle() <<
+                    Workflow::ReportExecutionStage(Workflow::ExecutionStage::Execution) <<
+                    Workflow::InstallMultiplePackages(
+                        Resource::String::InstallAndUpgradeCommandsReportDependencies,
+                        APPINSTALLER_CLI_ERROR_MULTIPLE_INSTALL_FAILED);
+            }
+            else
+            {
+                context << Workflow::InstallOrUpgradeSinglePackage(false);
+            }
         }
     }
 }

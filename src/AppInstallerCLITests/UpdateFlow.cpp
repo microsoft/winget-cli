@@ -948,3 +948,59 @@ TEST_CASE("UpdateFlow_UpdateAll_ForwardArgs", "[UpdateFlow][workflow]")
     REQUIRE(std::filesystem::exists(updateMSStoreResultPath.GetPath()));
     REQUIRE(std::filesystem::exists(updatePortableResultPath.GetPath()));
 }
+
+TEST_CASE("UpdateFlow_UpdateMultiple", "[UpdateFlow][workflow][MultiQuery]")
+{
+    TestCommon::TempFile exeUpdateResultPath("TestExeInstalled.txt");
+    TestCommon::TempFile msixUpdateResultPath("TestMsixInstalled.txt");
+
+    std::ostringstream updateOutput;
+    TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Exe, TSR::TestInstaller_Msix }));
+    OverrideForShellExecute(context);
+    OverrideForMSIX(context);
+    context.Args.AddArg(Execution::Args::Type::MultiQuery, TSR::TestInstaller_Exe.Query);
+    context.Args.AddArg(Execution::Args::Type::MultiQuery, TSR::TestInstaller_Msix.Query);
+
+    UpgradeCommand update({});
+    update.Execute(context);
+    INFO(updateOutput.str());
+
+    // Verify Installers are called called.
+    REQUIRE(std::filesystem::exists(exeUpdateResultPath.GetPath()));
+    REQUIRE(std::filesystem::exists(exeUpdateResultPath.GetPath()));
+}
+
+TEST_CASE("UpdateFlow_UpdateMultiple_NotAllFound", "[UpdateFlow][workflow][MultiQuery]")
+{
+    TestCommon::TempFile exeUpdateResultPath("TestExeInstalled.txt");
+
+    std::ostringstream updateOutput;
+    TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Exe }));
+    context.Args.AddArg(Execution::Args::Type::MultiQuery, TSR::TestInstaller_Exe.Query);
+    context.Args.AddArg(Execution::Args::Type::MultiQuery, TSR::TestInstaller_Msix.Query);
+
+    SECTION("Ignore unavailable")
+    {
+        OverrideForShellExecute(context);
+        context.Args.AddArg(Execution::Args::Type::IgnoreUnavailable);
+
+        UpgradeCommand update({});
+        update.Execute(context);
+        INFO(updateOutput.str());
+
+        REQUIRE(!context.IsTerminated());
+        REQUIRE(std::filesystem::exists(exeUpdateResultPath.GetPath()));
+    }
+    SECTION("Don't ignore unavailable")
+    {
+        UpgradeCommand update({});
+        update.Execute(context);
+        INFO(updateOutput.str());
+
+        REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_NOT_ALL_QUERIES_FOUND_SINGLE);
+    }
+}

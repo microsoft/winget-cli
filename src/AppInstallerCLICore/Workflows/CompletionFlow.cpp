@@ -106,6 +106,7 @@ namespace AppInstaller::CLI::Workflow
         switch (m_type)
         {
         case Execution::Args::Type::Query:
+        case Execution::Args::Type::MultiQuery:
         case Execution::Args::Type::Id:
         case Execution::Args::Type::Name:
         case Execution::Args::Type::Moniker:
@@ -126,6 +127,7 @@ namespace AppInstaller::CLI::Workflow
         switch (m_type)
         {
         case Execution::Args::Type::Query:
+        case Execution::Args::Type::MultiQuery:
             context <<
                 Workflow::RequireCompletionWordNonEmpty <<
                 Workflow::SearchSourceForSingleCompletion <<

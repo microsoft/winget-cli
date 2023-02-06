@@ -120,8 +120,6 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ImportIgnorePackageVersionsArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportIgnoreUnavailableArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportInstallFailed);
-        WINGET_DEFINE_RESOURCE_STRINGID(ImportPackageAlreadyInstalled);
-        WINGET_DEFINE_RESOURCE_STRINGID(ImportSearchFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportSourceNotInstalled);
         WINGET_DEFINE_RESOURCE_STRINGID(IncludeUnknownArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(IncompatibleArgumentsProvided);
@@ -215,6 +213,11 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(MultipleInstalledPackagesFound);
         WINGET_DEFINE_RESOURCE_STRINGID(MultipleNonPortableNestedInstallersSpecified);
         WINGET_DEFINE_RESOURCE_STRINGID(MultiplePackagesFound);
+        WINGET_DEFINE_RESOURCE_STRINGID(MultiQueryArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(MultiQueryPackageAlreadyInstalled);
+        WINGET_DEFINE_RESOURCE_STRINGID(MultiQueryPackageNotFound);
+        WINGET_DEFINE_RESOURCE_STRINGID(MultiQuerySearchFailed);
+        WINGET_DEFINE_RESOURCE_STRINGID(MultiQuerySearchFoundMultiple);
         WINGET_DEFINE_RESOURCE_STRINGID(NameArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(NestedInstallerNotFound);
         WINGET_DEFINE_RESOURCE_STRINGID(NestedInstallerNotSpecified);

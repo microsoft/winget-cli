@@ -206,6 +206,7 @@ namespace AppInstaller::CLI
         Settings::AdminSetting AdminSetting() const { return m_adminSetting; }
 
         Argument& SetRequired(bool required) { m_required = required; return *this; }
+        Argument& SetCountLimit(size_t countLimit) { m_countLimit = countLimit; return *this; }
 
     private:
         // Constructors that set a Feature or Policy are private to force callers to go through the ForType() function.
