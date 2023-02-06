@@ -1,8 +1,8 @@
 /*
  * gzlog.c
- * Copyright (C) 2004, 2008, 2012, 2016 Mark Adler, all rights reserved
+ * Copyright (C) 2004, 2008, 2012, 2016, 2019 Mark Adler, all rights reserved
  * For conditions of distribution and use, see copyright notice in gzlog.h
- * version 2.2, 14 Aug 2012
+ * version 2.3, 25 May 2019
  */
 
 /*
@@ -756,12 +756,14 @@ local int log_recover(struct log *log, int op)
                 return -2;
             }
             if ((fd = open(log->path, O_RDONLY, 0)) < 0) {
+                free(data);
                 log_log(log, op, ".add file read failure");
                 return -1;
             }
             ret = (size_t)read(fd, data, len) != len;
             close(fd);
             if (ret) {
+                free(data);
                 log_log(log, op, ".add file read failure");
                 return -1;
             }
