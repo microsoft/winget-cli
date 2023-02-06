@@ -856,15 +856,20 @@ namespace AppInstaller::CLI::Workflow
         {
             Logging::Telemetry().LogNoAppMatch();
             
-            switch (m_searchResultType)
+            switch (m_searchPurpose)
             {
-                case SearchResultType::FromInstalledSource:
+                // These search purposes require a package to be found in the Installed Packages
+                case SearchPurpose::Export:
+                case SearchPurpose::List:
+                case SearchPurpose::Uninstall:
+                case SearchPurpose::RequiresInstalledSource:
                     context.Reporter.Info() << Resource::String::NoInstalledPackageFound << std::endl;
                     break;
-                case SearchResultType::Upgrade:
+                case SearchPurpose::Upgrade:
                     context.Reporter.Info() << Resource::String::UpdateNoPackagesFound << std::endl;
                     break;
-                case SearchResultType::Default:
+                case SearchPurpose::Install:
+                case SearchPurpose::Default:
                 default:
                     context.Reporter.Info() << Resource::String::NoPackageFound << std::endl;
                     break;
@@ -877,7 +882,7 @@ namespace AppInstaller::CLI::Workflow
     void EnsureOneMatchFromSearchResult::operator()(Execution::Context& context) const
     {
         context <<
-            EnsureMatchesFromSearchResult(m_searchResultType);
+            EnsureMatchesFromSearchResult(m_searchPurpose);
 
         if (!context.IsTerminated())
         {
@@ -887,7 +892,9 @@ namespace AppInstaller::CLI::Workflow
             {
                 Logging::Telemetry().LogMultiAppMatch();
 
-                if (m_searchResultType == SearchResultType::FromInstalledSource || m_searchResultType == SearchResultType::Upgrade)
+                if (m_searchPurpose == SearchPurpose::RequiresInstalledSource ||
+                    m_searchPurpose == SearchPurpose::Upgrade ||
+                    m_searchPurpose == SearchPurpose::Uninstall )
                 {
                     context.Reporter.Warn() << Resource::String::MultipleInstalledPackagesFound << std::endl;
                     context << ReportMultiplePackageFoundResult;

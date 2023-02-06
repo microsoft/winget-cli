@@ -162,7 +162,7 @@ namespace AppInstaller::CLI
             context <<
                 SearchSourceForMany <<
                 HandleSearchResultFailures <<
-                EnsureMatchesFromSearchResult(SearchResultType::Upgrade) <<
+                EnsureMatchesFromSearchResult(SearchPurpose::Upgrade) <<
                 ReportListResult(true);
         }
         else if (context.Args.Contains(Execution::Args::Type::All))
@@ -171,7 +171,7 @@ namespace AppInstaller::CLI
             context <<
                 SearchSourceForMany <<
                 HandleSearchResultFailures <<
-                EnsureMatchesFromSearchResult(SearchResultType::Upgrade) <<
+                EnsureMatchesFromSearchResult(SearchPurpose::Upgrade) <<
                 ReportListResult(true) <<
                 UpdateAllApplicable;
         }
@@ -181,7 +181,7 @@ namespace AppInstaller::CLI
             context <<
                 GetManifestFromArg <<
                 SearchSourceUsingManifest <<
-                EnsureOneMatchFromSearchResult(SearchResultType::FromInstalledSource) <<
+                EnsureOneMatchFromSearchResult(SearchPurpose::RequiresInstalledSource) <<
                 GetInstalledPackageVersion <<
                 EnsureUpdateVersionApplicable <<
                 SelectInstaller <<
@@ -199,7 +199,7 @@ namespace AppInstaller::CLI
             {
                 context <<
                     Workflow::GetMultiSearchRequests <<
-                    Workflow::SearchSubContextsForSingle(Workflow::SearchSubContextsForSingle::SearchPurpose::Upgrade) <<
+                    Workflow::SearchSubContextsForSingle(SearchPurpose::Upgrade) <<
                     Workflow::ReportExecutionStage(Workflow::ExecutionStage::Execution) <<
                     Workflow::InstallMultiplePackages(
                         Resource::String::InstallAndUpgradeCommandsReportDependencies,

@@ -6,7 +6,7 @@
 #include "Workflows/WorkflowBase.h"
 #include "Resources.h"
 
-using AppInstaller::CLI::Workflow::SearchResultType;
+using AppInstaller::CLI::Workflow::SearchPurpose;
 
 namespace AppInstaller::CLI
 {
@@ -80,7 +80,7 @@ namespace AppInstaller::CLI
             Workflow::OpenCompositeSource(Workflow::DetermineInstalledSource(context)) <<
             Workflow::SearchSourceForMany <<
             Workflow::HandleSearchResultFailures <<
-            Workflow::EnsureMatchesFromSearchResult(SearchResultType::FromInstalledSource) <<
+            Workflow::EnsureMatchesFromSearchResult(SearchPurpose::List) <<
             Workflow::ReportListResult();
     }
 }

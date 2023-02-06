@@ -8,7 +8,7 @@
 #include "Resources.h"
 
 using AppInstaller::CLI::Workflow::ExecutionStage;
-using AppInstaller::CLI::Workflow::SearchResultType;
+using AppInstaller::CLI::Workflow::SearchPurpose;
 
 namespace AppInstaller::CLI
 {
@@ -64,7 +64,7 @@ namespace AppInstaller::CLI
             Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
             Workflow::SearchSourceForMany <<
             Workflow::HandleSearchResultFailures <<
-            Workflow::EnsureMatchesFromSearchResult(SearchResultType::FromInstalledSource) <<
+            Workflow::EnsureMatchesFromSearchResult(SearchPurpose::Export) <<
             Workflow::SelectVersionsToExport <<
             Workflow::ReportExecutionStage(ExecutionStage::Execution) <<
             Workflow::WriteImportFile;

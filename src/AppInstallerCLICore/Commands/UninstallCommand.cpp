@@ -10,7 +10,7 @@
 
 using AppInstaller::CLI::Execution::Args;
 using AppInstaller::CLI::Workflow::ExecutionStage;
-using AppInstaller::CLI::Workflow::SearchResultType;
+using AppInstaller::CLI::Workflow::SearchPurpose;
 
 namespace AppInstaller::CLI
 {
@@ -112,7 +112,7 @@ namespace AppInstaller::CLI
                 Workflow::GetManifestFromArg <<
                 Workflow::ReportManifestIdentity <<
                 Workflow::SearchSourceUsingManifest <<
-                Workflow::EnsureOneMatchFromSearchResult(SearchResultType::FromInstalledSource) <<
+                Workflow::EnsureOneMatchFromSearchResult(SearchPurpose::Uninstall) <<
                 Workflow::UninstallSinglePackage;
         }
         else
@@ -123,7 +123,7 @@ namespace AppInstaller::CLI
                 context <<
                     Workflow::SearchSourceForSingle <<
                     Workflow::HandleSearchResultFailures <<
-                    Workflow::EnsureOneMatchFromSearchResult(SearchResultType::FromInstalledSource) <<
+                    Workflow::EnsureOneMatchFromSearchResult(SearchPurpose::Uninstall) <<
                     Workflow::ReportPackageIdentity <<
                     Workflow::UninstallSinglePackage;
             }
@@ -131,7 +131,7 @@ namespace AppInstaller::CLI
             {
                 context <<
                     Workflow::GetMultiSearchRequests <<
-                    Workflow::SearchSubContextsForSingle(Workflow::SearchSubContextsForSingle::SearchPurpose::Uninstall) <<
+                    Workflow::SearchSubContextsForSingle(SearchPurpose::Uninstall) <<
                     Workflow::UninstallMultiplePackages;
             }
         }

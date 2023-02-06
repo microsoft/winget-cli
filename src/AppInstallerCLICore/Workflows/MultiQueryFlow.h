@@ -23,13 +23,6 @@ namespace AppInstaller::CLI::Workflow
     //   SubContext Outputs: SearchResult
     struct SearchSubContextsForSingle : public WorkflowTask
     {
-        enum class SearchPurpose
-        {
-            Install,
-            Upgrade,
-            Uninstall,
-        };
-
         SearchSubContextsForSingle(SearchPurpose searchPurpose = SearchPurpose::Install) : WorkflowTask("SearchSubContextsForSingle"), m_searchPurpose(searchPurpose) {}
 
         void operator()(Execution::Context& context) const override;

@@ -80,7 +80,7 @@ namespace AppInstaller::CLI::Workflow
             case SearchPurpose::Uninstall:
                 searchContext <<
                     Workflow::HandleSearchResultFailures <<
-                    Workflow::EnsureOneMatchFromSearchResult(true);
+                    Workflow::EnsureOneMatchFromSearchResult(SearchPurpose::Uninstall);
                 break;
             default:
                 THROW_HR(E_UNEXPECTED);

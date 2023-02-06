@@ -271,7 +271,7 @@ namespace AppInstaller::CLI::Workflow
     {
         context <<
             HandleSearchResultFailures <<
-            EnsureOneMatchFromSearchResult(m_isUpgrade ? SearchResultType::Upgrade : SearchResultType::Default) <<
+            EnsureOneMatchFromSearchResult(m_isUpgrade ? SearchPurpose::Upgrade : SearchPurpose::Default) <<
             GetInstalledPackageVersion;
 
         if (!m_isUpgrade && context.Contains(Execution::Data::InstalledPackageVersion) && context.Get<Execution::Data::InstalledPackageVersion>() != nullptr)
