@@ -368,6 +368,9 @@ namespace AppInstaller::Msix
         PackageManager packageManager;
 
         std::wstring pfn = Utility::ConvertToUTF16(familyName);
+
+        // PackageManager.FindPackages() can find all packages (including provisioned ones) but requires admin.
+        // For non admin callers, use FindPackagesByPackageFamily where only packages registered to current user will be found.
         if (Runtime::IsRunningAsAdmin())
         {
             auto packages = packageManager.FindPackages(pfn);
@@ -378,6 +381,7 @@ namespace AppInstaller::Msix
                 if (result.has_value())
                 {
                     // More than 1 package found. Don't directly error, let caller deal with it.
+                    AICLI_LOG(Core, Error, << "Multiple packages found for family name: " << familyName);
                     return {};
                 }
 
