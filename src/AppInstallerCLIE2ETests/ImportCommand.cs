@@ -92,7 +92,7 @@ namespace AppInstallerCLIE2ETests
             // Verify failure when trying to import an unavailable package
             var result = TestCommon.RunAICLICommand("import", this.GetTestImportFile("ImportFile-Bad-UnknownPackageVersion.json"));
             Assert.AreEqual(Constants.ErrorCode.ERROR_NOT_ALL_QUERIES_FOUND_SINGLE, result.ExitCode);
-            Assert.True(result.StdOut.Contains("Package not found: AppInstallerTest.TestExeInstaller"));
+            Assert.True(result.StdOut.Contains("Search failed for: AppInstallerTest.TestExeInstaller"));
         }
 
         /// <summary>

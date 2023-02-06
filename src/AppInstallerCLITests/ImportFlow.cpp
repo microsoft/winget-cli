@@ -170,7 +170,7 @@ TEST_CASE("ImportFlow_MissingVersion", "[ImportFlow][workflow]")
 
     // Installer should not be called
     REQUIRE(!std::filesystem::exists(exeInstallResultPath.GetPath()));
-    REQUIRE(importOutput.str().find(Resource::LocString(Resource::String::MultiQueryPackageNotFound("AppInstallerCliTest.TestExeInstaller"_liv)).get()) != std::string::npos);
+    REQUIRE(importOutput.str().find(Resource::LocString(Resource::String::MultiQuerySearchFailed("AppInstallerCliTest.TestExeInstaller"_liv)).get()) != std::string::npos);
     REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_NOT_ALL_QUERIES_FOUND_SINGLE);
 }
 

@@ -32,7 +32,7 @@ namespace AppInstaller::CLI
             // Valid arguments for list are only those related to the sources and which packages to include (e.g. --include-unknown).
             // Instead of checking for them, we check that there aren't any other arguments present.
             return !args.Contains(Args::Type::All) &&
-                WI_AreAllFlagsClear(argCategories, ArgTypeCategory::Manifest | ArgTypeCategory::SinglePackageQuery | ArgTypeCategory::InstallerBehavior);
+                WI_AreAllFlagsClear(argCategories, ArgTypeCategory::Manifest | ArgTypeCategory::PackageQuery | ArgTypeCategory::InstallerBehavior);
         }
     }
 
