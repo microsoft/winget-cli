@@ -145,7 +145,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         if (m_packageVersion)
         {
             auto manifest = m_packageVersion->GetManifest();
-            catalogPackageMetadata->Initialize(manifest.DefaultLocalization);
+            manifest.ApplyLocale();
+            catalogPackageMetadata->Initialize(manifest.CurrentLocalization);
         }
 
         return *catalogPackageMetadata;
@@ -153,15 +154,15 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     Microsoft::Management::Deployment::CatalogPackageMetadata PackageVersionInfo::GetCatalogPackageMetadata(const hstring& locale)
     {
         std::string localeString = winrt::to_string(locale);
+        if (!::AppInstaller::Locale::IsWellFormedBcp47Tag(localeString))
+        {
+            throw hresult_invalid_argument();
+        }
+
         auto catalogPackageMetadata = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::CatalogPackageMetadata>>();
         if (m_packageVersion)
         {
             auto manifest = m_packageVersion->GetManifest();
-            if (!::AppInstaller::Locale::IsWellFormedBcp47Tag(localeString))
-            {
-                throw hresult_invalid_argument();
-            }
-
             manifest.ApplyLocale(localeString);
             catalogPackageMetadata->Initialize(manifest.CurrentLocalization);
         }

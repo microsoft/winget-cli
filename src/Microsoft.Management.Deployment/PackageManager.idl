@@ -283,7 +283,7 @@ namespace Microsoft.Management.Deployment
 
         [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
         {
-            /// Gets the default package catalog metadata of this package version.
+            /// Gets the package catalog metadata of this package version with the default localization based on user settings.
             CatalogPackageMetadata GetCatalogPackageMetadata();
 
             /// Gets the package catalog metadata of this package version with the specified locale.
