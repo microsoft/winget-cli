@@ -558,7 +558,6 @@ namespace AppInstallerCLIE2ETests
             return Convert.ToHexString(File.ReadAllBytes(Path.Combine(StaticFileRootPath, Constants.TestSourceServerCertificateFileName)));
         }
 
-
         /// <summary>
         /// Verify exe installer correctly.
         /// </summary>
@@ -583,7 +582,6 @@ namespace AppInstallerCLIE2ETests
             }
 
             return verifyInstallSuccess;
-
         }
 
         /// <summary>
