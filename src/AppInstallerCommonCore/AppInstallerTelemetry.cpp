@@ -193,6 +193,7 @@ namespace AppInstaller::Logging
 
         auto subTraceLogger = std::make_unique<TelemetryTraceLogger>(*this);
 
+        std::ignore = CoCreateGuid(&subTraceLogger->m_activityId);
         subTraceLogger->m_parentActivityId = this->m_activityId;
         subTraceLogger->m_subExecutionId = s_subExecutionId++;
 
@@ -751,14 +752,14 @@ namespace AppInstaller::Logging
             {
                 TraceLoggingWriteActivity(
                     g_hTraceProvider,
-                    "Summary",
+                    "SummaryV2",
                     GetActivityId(),
                     GetParentActivityId(),
                     // From member fields or program info.
                     AICLI_TraceLoggingStringView(m_caller, "Caller"),
                     TraceLoggingPackedFieldEx(m_telemetryCorrelationJsonW.c_str(), static_cast<ULONG>((m_telemetryCorrelationJsonW.size() + 1) * sizeof(wchar_t)), TlgInUNICODESTRING, TlgOutJSON, "CvJson"),
                     TraceLoggingCountedString(version->c_str(), static_cast<ULONG>(version->size()), "ClientVersion"),
-                    TraceLoggingCountedString(packageVersion->c_str(), static_cast<ULONG>(packageVersion->size()), "PackageVersion"),
+                    TraceLoggingCountedString(packageVersion->c_str(), static_cast<ULONG>(packageVersion->size()), "ClientPackageVersion"),
                     TraceLoggingBool(Runtime::IsReleaseBuild(), "IsReleaseBuild"),
                     TraceLoggingUInt32(m_executionStage, "ExecutionStage"),
                     // From TelemetrySummary
