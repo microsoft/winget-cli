@@ -16,7 +16,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     using Xunit.Abstractions;
 
     /// <summary>
-    /// Unit tests for configuration set authoring (creating objects).
+    /// Unit tests for parsing configuration sets from streams.
     /// </summary>
     [Collection("UnitTestCollection")]
     public class OpenConfigurationSetTests : ConfigurationProcessorTestBase

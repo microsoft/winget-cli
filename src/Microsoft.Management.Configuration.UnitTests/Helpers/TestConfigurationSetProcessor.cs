@@ -6,7 +6,6 @@
 
 namespace Microsoft.Management.Configuration.UnitTests.Helpers
 {
-    using ABI.Microsoft.Management.Configuration;
     using System;
     using System.Collections.Generic;
 
@@ -15,13 +14,13 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
     /// </summary>
     internal class TestConfigurationSetProcessor : IConfigurationSetProcessor
     {
-        private ConfigurationSet set;
+        private ConfigurationSet? set;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TestConfigurationSetProcessor"/> class.
         /// </summary>
         /// <param name="set">The set that this processor is for.</param>
-        internal TestConfigurationSetProcessor(ConfigurationSet set)
+        internal TestConfigurationSetProcessor(ConfigurationSet? set)
         {
             this.set = set;
         }
@@ -84,6 +83,17 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
             }
 
             return this.Details[unit];
+        }
+
+        /// <summary>
+        /// Creates a new test processor for the given unit.
+        /// </summary>
+        /// <param name="unit">The unit.</param>
+        /// <returns>The configuration unit processor.</returns>
+        internal TestConfigurationUnitProcessor CreateTestProcessor(ConfigurationUnit unit)
+        {
+            this.Processors[unit] = new TestConfigurationUnitProcessor(unit);
+            return this.Processors[unit];
         }
     }
 }

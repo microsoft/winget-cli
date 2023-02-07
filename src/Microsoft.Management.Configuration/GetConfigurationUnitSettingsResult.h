@@ -10,7 +10,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         using ConfigurationUnitResultInformation = Configuration::ConfigurationUnitResultInformation;
 
-        GetConfigurationUnitSettingsResult() = default;
+        GetConfigurationUnitSettingsResult();
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
         void ResultInformation(const ConfigurationUnitResultInformation& resultInformation);
@@ -22,8 +22,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
-        ConfigurationUnitResultInformation m_resultInformation = nullptr;
-        Windows::Foundation::Collections::ValueSet m_settings = nullptr;
+        ConfigurationUnitResultInformation m_resultInformation;
+        Windows::Foundation::Collections::ValueSet m_settings;
 #endif
     };
 }

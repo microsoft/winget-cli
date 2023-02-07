@@ -15,38 +15,54 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
     /// </summary>
     internal class TestConfigurationUnitProcessorDetails : IConfigurationUnitProcessorDetails
     {
-        public string Author => throw new NotImplementedException();
+        private ConfigurationUnit unit;
+        private ConfigurationUnitDetailLevel detailLevel;
 
-        public bool IsLocal => throw new NotImplementedException();
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TestConfigurationUnitProcessorDetails"/> class.
+        /// </summary>
+        /// <param name="unit">The unit.</param>
+        /// <param name="detailLevel">The level of the details.</param>
+        internal TestConfigurationUnitProcessorDetails(ConfigurationUnit unit, ConfigurationUnitDetailLevel detailLevel)
+        {
+            this.unit = unit;
+            this.detailLevel = detailLevel;
+        }
 
-        public string ModuleDescription => throw new NotImplementedException();
+#pragma warning disable SA1600 // Elements should be documented
+        public string? Author { get; internal set; }
 
-        public Uri ModuleDocumentationUri => throw new NotImplementedException();
+        public bool IsLocal { get; internal set; }
 
-        public string ModuleName => throw new NotImplementedException();
+        public string? ModuleDescription { get; internal set; }
 
-        public string ModuleSource => throw new NotImplementedException();
+        public Uri? ModuleDocumentationUri { get; internal set; }
 
-        public string ModuleType => throw new NotImplementedException();
+        public string? ModuleName { get; internal set; }
 
-        public DateTimeOffset PublishedDate => throw new NotImplementedException();
+        public string? ModuleSource { get; internal set; }
 
-        public Uri PublishedModuleUri => throw new NotImplementedException();
+        public string? ModuleType { get; internal set; }
 
-        public string Publisher => throw new NotImplementedException();
+        public DateTimeOffset PublishedDate { get; internal set; }
 
-        public IReadOnlyList<IConfigurationUnitSettingDetails> Settings => throw new NotImplementedException();
+        public Uri? PublishedModuleUri { get; internal set; }
 
-        public CertificateChain SigningCertificateChain => throw new NotImplementedException();
+        public string? Publisher { get; internal set; }
 
-        public string UnitDescription => throw new NotImplementedException();
+        public IReadOnlyList<IConfigurationUnitSettingDetails>? Settings { get; internal set; }
 
-        public Uri UnitDocumentationUri => throw new NotImplementedException();
+        public CertificateChain? SigningCertificateChain { get; internal set; }
 
-        public Uri UnitIconUri => throw new NotImplementedException();
+        public string? UnitDescription { get; internal set; }
 
-        public string UnitName => throw new NotImplementedException();
+        public Uri? UnitDocumentationUri { get; internal set; }
 
-        public string Version => throw new NotImplementedException();
+        public Uri? UnitIconUri { get; internal set; }
+
+        public string? UnitName { get; internal set; }
+
+        public string? Version { get; internal set; }
+#pragma warning restore SA1600 // Elements should be documented
     }
 }

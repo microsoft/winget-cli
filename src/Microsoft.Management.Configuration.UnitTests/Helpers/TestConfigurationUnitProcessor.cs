@@ -14,8 +14,14 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
     /// </summary>
     internal class TestConfigurationUnitProcessor : IConfigurationUnitProcessor
     {
-        private ConfigurationUnit unit;
-        private IReadOnlyDictionary<string, object> directivesOverlay;
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TestConfigurationUnitProcessor"/> class.
+        /// </summary>
+        /// <param name="unit">The unit.</param>
+        internal TestConfigurationUnitProcessor(ConfigurationUnit unit)
+        {
+            this.Unit = unit;
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TestConfigurationUnitProcessor"/> class.
@@ -24,27 +30,99 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         /// <param name="directivesOverlay">The directives overlay.</param>
         internal TestConfigurationUnitProcessor(ConfigurationUnit unit, IReadOnlyDictionary<string, object> directivesOverlay)
         {
-            this.unit = unit;
-            this.directivesOverlay = directivesOverlay;
+            this.Unit = unit;
+            this.DirectivesOverlay = directivesOverlay;
         }
 
-        public IReadOnlyDictionary<string, object> DirectivesOverlay => throw new NotImplementedException();
+        /// <summary>
+        /// The delegate for ApplySettings.
+        /// </summary>
+        /// <returns>The result.</returns>
+        internal delegate ApplySettingsResult ApplySettingsDelegateType();
 
-        public ConfigurationUnit Unit => throw new NotImplementedException();
+        /// <summary>
+        /// The delegate for GetSettings.
+        /// </summary>
+        /// <returns>The result.</returns>
+        internal delegate GetSettingsResult GetSettingsDelegateType();
 
+        /// <summary>
+        /// The delegate for TestSettings.
+        /// </summary>
+        /// <returns>The result.</returns>
+        internal delegate TestSettingsResult TestSettingsDelegateType();
+
+        /// <summary>
+        /// Gets or sets the directives overlay.
+        /// </summary>
+        public IReadOnlyDictionary<string, object>? DirectivesOverlay { get; set; }
+
+        /// <summary>
+        /// Gets the configuration unit.
+        /// </summary>
+        public ConfigurationUnit Unit { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the delegate object for ApplySettings.
+        /// </summary>
+        internal ApplySettingsDelegateType? ApplySettingsDelegate { get; set; }
+
+        /// <summary>
+        /// Gets or sets the delegate object for GetSettings.
+        /// </summary>
+        internal GetSettingsDelegateType? GetSettingsDelegate { get; set; }
+
+        /// <summary>
+        /// Gets or sets the delegate object for TestSettings.
+        /// </summary>
+        internal TestSettingsDelegateType? TestSettingsDelegate { get; set; }
+
+        /// <summary>
+        /// Calls the ApplySettingsDelegate if one is provided; returns success if not.
+        /// </summary>
+        /// <returns>The result.</returns>
         public ApplySettingsResult ApplySettings()
         {
-            throw new NotImplementedException();
+            if (this.ApplySettingsDelegate != null)
+            {
+                return this.ApplySettingsDelegate();
+            }
+            else
+            {
+                return new ApplySettingsResult();
+            }
         }
 
+        /// <summary>
+        /// Calls the GetSettingsDelegate if one is provided; returns success if not (with no settings values).
+        /// </summary>
+        /// <returns>The result.</returns>
         public GetSettingsResult GetSettings()
         {
-            throw new NotImplementedException();
+            if (this.GetSettingsDelegate != null)
+            {
+                return this.GetSettingsDelegate();
+            }
+            else
+            {
+                return new GetSettingsResult();
+            }
         }
 
+        /// <summary>
+        /// Calls the TestSettingsDelegate if one is provided; returns success if not (with a positive test result).
+        /// </summary>
+        /// <returns>The result.</returns>
         public TestSettingsResult TestSettings()
         {
-            throw new NotImplementedException();
+            if (this.TestSettingsDelegate != null)
+            {
+                return this.TestSettingsDelegate();
+            }
+            else
+            {
+                return new TestSettingsResult { TestResult = ConfigurationTestResult.Positive };
+            }
         }
     }
 }

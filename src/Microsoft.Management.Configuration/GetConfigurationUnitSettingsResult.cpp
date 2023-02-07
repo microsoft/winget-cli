@@ -3,15 +3,21 @@
 #include "pch.h"
 #include "GetConfigurationUnitSettingsResult.h"
 #include "GetConfigurationUnitSettingsResult.g.cpp"
+#include "ConfigurationUnitResultInformation.h"
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
+    GetConfigurationUnitSettingsResult::GetConfigurationUnitSettingsResult() :
+        m_resultInformation(*make_self<wil::details::module_count_wrapper<implementation::ConfigurationUnitResultInformation>>())
+    {
+    }
+
     void GetConfigurationUnitSettingsResult::ResultInformation(const ConfigurationUnitResultInformation& resultInformation)
     {
         m_resultInformation = resultInformation;
     }
 
-    ConfigurationUnitResultInformation GetConfigurationUnitSettingsResult::ResultInformation()
+    Configuration::ConfigurationUnitResultInformation GetConfigurationUnitSettingsResult::ResultInformation()
     {
         return m_resultInformation;
     }
