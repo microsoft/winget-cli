@@ -126,6 +126,60 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
+        /// Configure the install behavior preferences.
+        /// </summary>
+        /// <param name="settingName">Setting name.</param>
+        /// <param name="value">Setting value.</param>
+        public static void ConfigureInstallBehaviorPreferences(string settingName, string value)
+        {
+            JObject settingsJson = JObject.Parse(File.ReadAllText(TestCommon.SettingsJsonFilePath));
+
+            if (!settingsJson.ContainsKey("installBehavior"))
+            {
+                settingsJson["installBehavior"] = new JObject();
+            }
+
+            var installBehavior = settingsJson["installBehavior"];
+
+            if (installBehavior["preferences"] == null)
+            {
+                installBehavior["preferences"] = new JObject();
+            }
+
+            var preferences = installBehavior["preferences"];
+            preferences[settingName] = value;
+
+            File.WriteAllText(TestCommon.SettingsJsonFilePath, settingsJson.ToString());
+        }
+
+        /// <summary>
+        /// Configure the install behavior requirements.
+        /// </summary>
+        /// <param name="settingName">Setting name.</param>
+        /// <param name="value">Setting value.</param>
+        public static void ConfigureInstallBehaviorRequirements(string settingName, string value)
+        {
+            JObject settingsJson = JObject.Parse(File.ReadAllText(TestCommon.SettingsJsonFilePath));
+
+            if (!settingsJson.ContainsKey("installBehavior"))
+            {
+                settingsJson["installBehavior"] = new JObject();
+            }
+
+            var installBehavior = settingsJson["installBehavior"];
+
+            if (installBehavior["requirements"] == null)
+            {
+                installBehavior["requirements"] = new JObject();
+            }
+
+            var requirements = installBehavior["requirements"];
+            requirements[settingName] = value;
+
+            File.WriteAllText(TestCommon.SettingsJsonFilePath, settingsJson.ToString());
+        }
+
+        /// <summary>
         /// Initialize all features.
         /// </summary>
         /// <param name="status">Initialized feature value.</param>

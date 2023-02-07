@@ -305,11 +305,11 @@ namespace AppInstaller::Settings
 
             if (Utility::CaseInsensitiveEquals(value, s_scope_user))
             {
-                return ScopePreference::User;
+                return Manifest::ScopeEnum::User;
             }
             else if (Utility::CaseInsensitiveEquals(value, s_scope_machine))
             {
-                return ScopePreference::Machine;
+                return Manifest::ScopeEnum::Machine;
             }
 
             return {};

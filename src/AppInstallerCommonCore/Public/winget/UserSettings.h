@@ -5,6 +5,7 @@
 #include "AppInstallerLogging.h"
 #include "winget/GroupPolicy.h"
 #include "winget/Resources.h"
+#include "winget/ManifestCommon.h"
 
 #include <filesystem>
 #include <map>
@@ -41,14 +42,6 @@ namespace AppInstaller::Settings
         Retro,
         Accent,
         Rainbow,
-    };
-
-    // The preferred scope for installs.
-    enum class ScopePreference
-    {
-        None,
-        User,
-        Machine,
     };
 
     // The download code to use for *installers*.
@@ -153,8 +146,8 @@ namespace AppInstaller::Settings
         // Install behavior
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallArchitecturePreference, std::vector<std::string>, std::vector<Utility::Architecture>, {}, ".installBehavior.preferences.architectures"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallArchitectureRequirement, std::vector<std::string>, std::vector<Utility::Architecture>, {}, ".installBehavior.requirements.architectures"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::InstallScopePreference, std::string, ScopePreference, ScopePreference::User, ".installBehavior.preferences.scope"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::InstallScopeRequirement, std::string, ScopePreference, ScopePreference::None, ".installBehavior.requirements.scope"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::InstallScopePreference, std::string, Manifest::ScopeEnum, Manifest::ScopeEnum::User, ".installBehavior.preferences.scope"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::InstallScopeRequirement, std::string, Manifest::ScopeEnum, Manifest::ScopeEnum::Unknown, ".installBehavior.requirements.scope"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallLocalePreference, std::vector<std::string>, std::vector<std::string>, {}, ".installBehavior.preferences.locale"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallLocaleRequirement, std::vector<std::string>, std::vector<std::string>, {}, ".installBehavior.requirements.locale"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallIgnoreWarnings, bool, bool, false, ".installBehavior.ignoreWarnings"sv);

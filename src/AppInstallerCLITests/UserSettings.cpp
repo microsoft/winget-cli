@@ -469,3 +469,43 @@ TEST_CASE("SettingsPortablePackageMachineRoot", "[settings]")
         REQUIRE(userSettingTest.GetWarnings().size() == 0);
     }
 }
+
+TEST_CASE("SettingsInstallScope", "[settings]")
+{
+    SECTION("User scope preference")
+    {
+        DeleteUserSettingsFiles();
+        std::string_view json = R"({ "installBehavior": { "preferences": { "scope": "user" } } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::InstallScopePreference>() == AppInstaller::Manifest::ScopeEnum::User);
+    }
+    SECTION("Machine scope preference")
+    {
+        DeleteUserSettingsFiles();
+        std::string_view json = R"({ "installBehavior": { "preferences": { "scope": "machine" } } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::InstallScopePreference>() == AppInstaller::Manifest::ScopeEnum::Machine);
+    }
+    SECTION("User scope requirement")
+    {
+        DeleteUserSettingsFiles();
+        std::string_view json = R"({ "installBehavior": { "requirements": { "scope": "user" } } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::InstallScopeRequirement>() == AppInstaller::Manifest::ScopeEnum::User);
+    }
+    SECTION("Machine scope requirement")
+    {
+        DeleteUserSettingsFiles();
+        std::string_view json = R"({ "installBehavior": { "requirements": { "scope": "machine" } } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::InstallScopeRequirement>() == AppInstaller::Manifest::ScopeEnum::Machine);
+    }
+}
