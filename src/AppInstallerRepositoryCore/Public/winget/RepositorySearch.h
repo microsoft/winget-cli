@@ -223,7 +223,6 @@ namespace AppInstaller::Repository
     {
         PackageVersionKey() = default;
 
-        // TODO #219 check all uses
         PackageVersionKey(Utility::NormalizedString sourceId, Utility::NormalizedString version, Utility::NormalizedString channel, Pinning::PinType pinnedState = Pinning::PinType::Unknown) :
             SourceId(std::move(sourceId)), Version(std::move(version)), Channel(std::move(channel)), PinnedState(pinnedState) {}
 

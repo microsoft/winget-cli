@@ -841,7 +841,7 @@ namespace AppInstaller::CLI::Workflow
             if (packagesWithUserPinsSkipped > 0)
             {
                 AICLI_LOG(CLI, Info, << packagesWithUserPinsSkipped << " package(s) skipped due to user pins");
-                context.Reporter.Info() << Resource::String::UpgradeUserPinnedCount(packagesWithUserPinsSkipped) << std::endl;
+                context.Reporter.Info() << Resource::String::UpgradePinnedByUserCount(packagesWithUserPinsSkipped) << std::endl;
             }
         }
     }

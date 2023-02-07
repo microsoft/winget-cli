@@ -1528,14 +1528,14 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>{Locked="{0}"} The value will be replaced with the feature name</comment>
   </data>
   <data name="PinAddCommandLongDescription" xml:space="preserve">
-    <value>Add a new pin. A pin can limit the Windows Package Manager from updating a package to specific ranges of versions, or it can prevent it from updating the package altogether. A pinned package may still update on its own and be updated from outside the Windows Package Manager. By default, a pinned package can be updated by mentioning it explicitly in the 'upgrade' command or by adding the '--include-pinned' flag to 'winget upgrade --all'.</value>
+    <value>Add a new pin. A pin can limit the Windows Package Manager from upgrade a package to specific ranges of versions, or it can prevent it from upgrading the package altogether. A pinned package may still upgrade on its own and be upgraded from outside the Windows Package Manager. By default, a pinned package can be upgraded by mentioning it explicitly in the 'upgrade' command or by adding the '--include-pinned' flag to 'winget upgrade --all'.</value>
     <comment>{Locked{"'upgrade'"} Locked{"--include-pinned"} Locked{"winget upgrade --all"}</comment>
   </data>
   <data name="PinAddCommandShortDescription" xml:space="preserve">
     <value>Add a new pin</value>
   </data>
   <data name="PinCommandLongDescription" xml:space="preserve">
-    <value>Manage package pins with the sub-commands. A pin can limit the Windows Package Manager from updating a package to specific ranges of versions, or it can prevent it from updating the package altogether. A pinned package may still update on its own and be updated from outside the Windows Package Manager.</value>
+    <value>Manage package pins with the sub-commands. A pin can limit the Windows Package Manager from upgrading a package to specific ranges of versions, or it can prevent it from upgrading the package altogether. A pinned package may still upgrade on its own and be upgraded from outside the Windows Package Manager.</value>
   </data>
   <data name="PinCommandShortDescription" xml:space="preserve">
     <value>Manage package pins</value>
@@ -1562,7 +1562,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Version to which to pin the package. The wildcard '*' can be used as the last version part</value>
   </data>
   <data name="PinAddBlockingArgumentDescription" xml:space="preserve">
-    <value>Block from updating until the pin is removed, preventing override arguments</value>
+    <value>Block from upgrading until the pin is removed, preventing override arguments</value>
   </data>
   <data name="SettingsExportCommandLongDescription" xml:space="preserve">
     <value>Export settings as JSON</value>
@@ -1667,13 +1667,13 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Pin removed successfully</value>
   </data>
   <data name="UpgradeIsPinned" xml:space="preserve">
-    <value>A newer version was found, but the package has a pin that prevents from updating it.</value>
+    <value>A newer version was found, but the package has a pin that prevents from upgrading it.</value>
   </data>
   <data name="PackageIsPinned" xml:space="preserve">
-    <value>The package is pinned and cannot be updated. Use the 'winget pin' command to view and edit pins. Some pin types can be bypassed with the --include-pinned argument.</value>
-    <comment>{Locked="winget pin","--include-pinned"} Error shown when we block an update due to the package being pinned</comment>
+    <value>The package is pinned and cannot be upgraded. Use the 'winget pin' command to view and edit pins. Some pin types can be bypassed with the --include-pinned argument.</value>
+    <comment>{Locked="winget pin","--include-pinned"} Error shown when we block an upgrade due to the package being pinned</comment>
   </data>
-  <data name="UpgradeUserPinnedCount" xml:space="preserve">
+  <data name="UpgradePinnedByUserCount" xml:space="preserve">
     <value>{0} package(s) have pins that prevent upgrade. Use the 'winget pin' command to view and edit pins. Using the --include-pinned argument may show more results.</value>
     <comment>{Locked="winget pin","--include-pinned"} {0} is a placeholder replaced by an integer number of packages</comment>
   </data>
