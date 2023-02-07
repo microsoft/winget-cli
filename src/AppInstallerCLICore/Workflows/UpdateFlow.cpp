@@ -83,7 +83,7 @@ namespace AppInstaller::CLI::Workflow
                     key.PinnedState == Pinning::PinType::Gating ||
                     (key.PinnedState == Pinning::PinType::Pinning && !includePinned))
                 {
-                    AICLI_LOG(CLI, Info, << "Version [" << key.Version << "] from Source [" << key.SourceId << "] has a Pin with type [" << ToString(key.PinnedState) << "]");
+                    AICLI_LOG(CLI, Info, << "Package [" << package->GetProperty(PackageProperty::Id) << " with Version[" << key.Version << "] from Source[" << key.SourceId << "] has a Pin with type[" << ToString(key.PinnedState) << "]");
                     if (context.Args.Contains(Execution::Args::Type::Force))
                     {
                         AICLI_LOG(CLI, Info, << "Ignoring pin due to --force argument");
@@ -151,6 +151,7 @@ namespace AppInstaller::CLI::Workflow
                 else if (packagePinned)
                 {
                     context.Reporter.Info() << Resource::String::UpgradeIsPinned << std::endl;
+                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PACKAGE_IS_PINNED);
                 }
                 else if (isUpgrade)
                 {
