@@ -152,7 +152,7 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::IncludePinned:
             return { type, "include-pinned"_liv, "pinned"_liv, ArgTypeCategory::CopyFlagToSubContext };
         case Execution::Args::Type::UninstallPrevious:
-            return { type, "uninstall-previous"_liv, ArgTypeCategory::InstallerBehavior };
+            return { type, "uninstall-previous"_liv, ArgTypeCategory::InstallerBehavior | ArgTypeCategory::CopyFlagToSubContext };
 
         // Show command
         case Execution::Args::Type::ListVersions:
