@@ -11,13 +11,13 @@
 #include "Resources.h"
 #include <winget/LocIndependent.h>
 
-using namespace AppInstaller::CLI::Execution;
-using namespace AppInstaller::Manifest;
-using namespace AppInstaller::CLI::Workflow;
-using namespace AppInstaller::Utility::literals;
-
 namespace AppInstaller::CLI
 {
+    using namespace AppInstaller::CLI::Execution;
+    using namespace AppInstaller::Manifest;
+    using namespace AppInstaller::CLI::Workflow;
+    using namespace AppInstaller::Utility::literals;
+
     namespace
     {
         // Determines whether we should list available upgrades, instead

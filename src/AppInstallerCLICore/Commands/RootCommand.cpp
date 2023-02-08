@@ -23,10 +23,9 @@
 #include "Resources.h"
 #include "TableOutput.h"
 
-using namespace AppInstaller::Utility::literals;
-
 namespace AppInstaller::CLI
 {
+    using namespace AppInstaller::Utility::literals;
     using namespace Settings;
 
     namespace

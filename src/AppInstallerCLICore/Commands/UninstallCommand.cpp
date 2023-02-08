@@ -8,10 +8,9 @@
 #include "Workflows/MultiQueryFlow.h"
 #include "Resources.h"
 
-using AppInstaller::CLI::Execution::Args;
-
 namespace AppInstaller::CLI
 {
+    using AppInstaller::CLI::Execution::Args;
     using namespace AppInstaller::CLI::Workflow;
 
     std::vector<Argument> UninstallCommand::GetArguments() const

@@ -9,8 +9,8 @@
 
 namespace AppInstaller::CLI
 {
-    using namespace std::string_view_literals;
     using namespace AppInstaller::CLI::Workflow;
+    using namespace std::string_view_literals;
 
     std::vector<Argument> ExportCommand::GetArguments() const
     {
