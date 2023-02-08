@@ -17,6 +17,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return m_settings;
     }
 
+    void GetSettingsResult::Settings(Windows::Foundation::Collections::ValueSet value)
+    {
+        m_settings = std::move(value);
+    }
+
     Configuration::ConfigurationUnitResultInformation GetSettingsResult::ResultInformation()
     {
         return m_resultInformation;

@@ -11,10 +11,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         GetSettingsResult();
 
         Windows::Foundation::Collections::ValueSet Settings();
+        void Settings(Windows::Foundation::Collections::ValueSet value);
+
         Configuration::ConfigurationUnitResultInformation ResultInformation();
 
     private:
-        Windows::Foundation::Collections::ValueSet m_settings;
+        Windows::Foundation::Collections::ValueSet m_settings = nullptr;
         Configuration::ConfigurationUnitResultInformation m_resultInformation;
     };
 }

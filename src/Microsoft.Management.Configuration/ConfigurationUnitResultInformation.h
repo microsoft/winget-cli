@@ -10,6 +10,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         ConfigurationUnitResultInformation() = default;
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
+        void Initialize(const Configuration::ConfigurationUnitResultInformation& other);
         void Initialize(hresult resultCode, std::wstring_view description);
         void Initialize(hresult resultCode, hstring description);
 #endif

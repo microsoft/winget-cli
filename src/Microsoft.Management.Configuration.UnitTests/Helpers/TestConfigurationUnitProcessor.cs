@@ -68,9 +68,19 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         internal ApplySettingsDelegateType? ApplySettingsDelegate { get; set; }
 
         /// <summary>
+        /// Gets the number of times ApplySettings is called.
+        /// </summary>
+        internal int ApplySettingsCalls { get; private set; } = 0;
+
+        /// <summary>
         /// Gets or sets the delegate object for GetSettings.
         /// </summary>
         internal GetSettingsDelegateType? GetSettingsDelegate { get; set; }
+
+        /// <summary>
+        /// Gets the number of times GetSettings is called.
+        /// </summary>
+        internal int GetSettingsCalls { get; private set; } = 0;
 
         /// <summary>
         /// Gets or sets the delegate object for TestSettings.
@@ -78,11 +88,17 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         internal TestSettingsDelegateType? TestSettingsDelegate { get; set; }
 
         /// <summary>
+        /// Gets the number of times TestSettings is called.
+        /// </summary>
+        internal int TestSettingsCalls { get; private set; } = 0;
+
+        /// <summary>
         /// Calls the ApplySettingsDelegate if one is provided; returns success if not.
         /// </summary>
         /// <returns>The result.</returns>
         public ApplySettingsResult ApplySettings()
         {
+            ++this.ApplySettingsCalls;
             if (this.ApplySettingsDelegate != null)
             {
                 return this.ApplySettingsDelegate();
@@ -99,6 +115,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         /// <returns>The result.</returns>
         public GetSettingsResult GetSettings()
         {
+            ++this.GetSettingsCalls;
             if (this.GetSettingsDelegate != null)
             {
                 return this.GetSettingsDelegate();
@@ -115,6 +132,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         /// <returns>The result.</returns>
         public TestSettingsResult TestSettings()
         {
+            ++this.TestSettingsCalls;
             if (this.TestSettingsDelegate != null)
             {
                 return this.TestSettingsDelegate();

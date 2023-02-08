@@ -9,9 +9,13 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         ApplySettingsResult();
 
+        bool RebootRequired() const;
+        void RebootRequired(bool value);
+
         Configuration::ConfigurationUnitResultInformation ResultInformation();
 
     private:
+        bool m_rebootRequired = false;
         Configuration::ConfigurationUnitResultInformation m_resultInformation;
     };
 }

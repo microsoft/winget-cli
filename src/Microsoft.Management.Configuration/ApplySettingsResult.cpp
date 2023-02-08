@@ -12,6 +12,16 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
     }
 
+    bool ApplySettingsResult::RebootRequired() const
+    {
+        return m_rebootRequired;
+    }
+
+    void ApplySettingsResult::RebootRequired(bool value)
+    {
+        m_rebootRequired = value;
+    }
+
     Configuration::ConfigurationUnitResultInformation ApplySettingsResult::ResultInformation()
     {
         return m_resultInformation;

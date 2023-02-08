@@ -149,7 +149,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             GetConfigurationUnitSettingsResult result = processor.GetUnitSettings(configurationUnit);
 
             Assert.NotNull(result);
-            Assert.NotNull(result.Settings);
+            Assert.Null(result.Settings);
             Assert.NotNull(result.ResultInformation);
             Assert.Equal(getSettingsResult.ResultInformation.ResultCode.HResult, result.ResultInformation.ResultCode.HResult);
             Assert.Equal(getSettingsResult.ResultInformation.Description, result.ResultInformation.Description);
@@ -167,6 +167,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             factory.NullProcessor = new TestConfigurationSetProcessor(null);
             TestConfigurationUnitProcessor unitProcessor = factory.NullProcessor.CreateTestProcessor(configurationUnit);
             GetSettingsResult getSettingsResult = new GetSettingsResult();
+            getSettingsResult.Settings = new Windows.Foundation.Collections.ValueSet();
             getSettingsResult.Settings.Add("key", "value");
             unitProcessor.GetSettingsDelegate = () => getSettingsResult;
 

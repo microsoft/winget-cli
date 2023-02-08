@@ -6,6 +6,12 @@
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
+    void ConfigurationUnitResultInformation::Initialize(const Configuration::ConfigurationUnitResultInformation& other)
+    {
+        m_resultCode = other.ResultCode();
+        m_description = other.Description();
+    }
+
     void ConfigurationUnitResultInformation::Initialize(hresult resultCode, std::wstring_view description)
     {
         m_resultCode = resultCode;

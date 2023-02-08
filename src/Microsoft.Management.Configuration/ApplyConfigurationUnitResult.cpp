@@ -3,19 +3,18 @@
 #include "pch.h"
 #include "ApplyConfigurationUnitResult.h"
 #include "ApplyConfigurationUnitResult.g.cpp"
+#include "ConfigurationUnitResultInformation.h"
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
-    void ApplyConfigurationUnitResult::Initialize(const ConfigurationUnit& unit, bool previouslyInDesiredState, const ConfigurationUnitResultInformation& resultInformation)
-    {
-        m_unit = unit;
-        m_previouslyInDesiredState = previouslyInDesiredState;
-        m_resultInformation = resultInformation;
-    }
-
     ConfigurationUnit ApplyConfigurationUnitResult::Unit()
     {
         return m_unit;
+    }
+
+    void ApplyConfigurationUnitResult::Unit(ConfigurationUnit value)
+    {
+        m_unit = std::move(value);
     }
 
     bool ApplyConfigurationUnitResult::PreviouslyInDesiredState() const
@@ -23,8 +22,28 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return m_previouslyInDesiredState;
     }
 
-    ConfigurationUnitResultInformation ApplyConfigurationUnitResult::ResultInformation()
+    void ApplyConfigurationUnitResult::PreviouslyInDesiredState(bool value)
+    {
+        m_previouslyInDesiredState = value;
+    }
+
+    bool ApplyConfigurationUnitResult::RebootRequired() const
+    {
+        return m_rebootRequired;
+    }
+
+    void ApplyConfigurationUnitResult::RebootRequired(bool value)
+    {
+        m_rebootRequired = value;
+    }
+
+    Configuration::ConfigurationUnitResultInformation ApplyConfigurationUnitResult::ResultInformation()
     {
         return m_resultInformation;
+    }
+
+    void ApplyConfigurationUnitResult::ResultInformation(ConfigurationUnitResultInformation value)
+    {
+        m_resultInformation = std::move(value);
     }
 }

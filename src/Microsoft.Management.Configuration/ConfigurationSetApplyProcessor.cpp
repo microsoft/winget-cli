@@ -56,9 +56,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         for (const auto& unitInfo : m_unitInfo)
         {
-            auto result = make_self<wil::details::module_count_wrapper<implementation::ApplyConfigurationUnitResult>>();
-            result->Initialize(unitInfo.Unit, unitInfo.PreviouslyInDesiredState, *unitInfo.Result);
-            unitResults.emplace_back(*result);
+            unitResults.emplace_back(*unitInfo.Result);
         }
 
         return unitResults;
@@ -70,8 +68,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     }
 
     ConfigurationSetApplyProcessor::UnitInfo::UnitInfo(const Configuration::ConfigurationUnit& unit) :
-        Unit(unit), Result(make_self<wil::details::module_count_wrapper<implementation::ConfigurationUnitResultInformation>>())
+        Unit(unit), Result(make_self<wil::details::module_count_wrapper<implementation::ApplyConfigurationUnitResult>>()),
+        ResultInformation(make_self<wil::details::module_count_wrapper<implementation::ConfigurationUnitResultInformation>>())
     {
+        Result->Unit(unit);
+        Result->ResultInformation(*ResultInformation);
     }
 
     bool ConfigurationSetApplyProcessor::PreProcess()
@@ -108,7 +109,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                 if (itr == m_idToUnitInfoIndex.end())
                 {
                     AICLI_LOG(Config, Error, << "Found missing dependency: " << dependency);
-                    unitInfo.Result->ResultCode(WINGET_CONFIG_ERROR_MISSING_DEPENDENCY);
+                    unitInfo.ResultInformation->ResultCode(WINGET_CONFIG_ERROR_MISSING_DEPENDENCY);
                     result = false;
                 }
                 else
@@ -143,8 +144,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         {
             AICLI_LOG(Config, Error, << "Found duplicate identifier: " << identifier);
             // Found a duplicate identifier, mark both as such
-            unitInfo.Result->ResultCode(WINGET_CONFIG_ERROR_DUPLICATE_IDENTIFIER);
-            m_unitInfo[itr->second].Result->ResultCode(WINGET_CONFIG_ERROR_DUPLICATE_IDENTIFIER);
+            unitInfo.ResultInformation->ResultCode(WINGET_CONFIG_ERROR_DUPLICATE_IDENTIFIER);
+            m_unitInfo[itr->second].ResultInformation->ResultCode(WINGET_CONFIG_ERROR_DUPLICATE_IDENTIFIER);
             return false;
         }
         else
@@ -243,7 +244,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             if (unitInfo.Unit.Intent() == intent)
             {
                 hasRemainingDependencies = true;
-                unitInfo.Result->ResultCode(WINGET_CONFIG_ERROR_DEPENDENCY_UNSATISFIED);
+                unitInfo.ResultInformation->ResultCode(WINGET_CONFIG_ERROR_DEPENDENCY_UNSATISFIED);
                 if (sendProgress)
                 {
                     SendProgress(ConfigurationUnitState::SkippedDueToDependencies, unitInfo);
@@ -259,7 +260,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                 UnitInfo& unitInfo = m_unitInfo[index];
                 if (unitInfo.Unit.Intent() != intent)
                 {
-                    unitInfo.Result->ResultCode(errorForOtherIntents);
+                    unitInfo.ResultInformation->ResultCode(errorForOtherIntents);
                     if (sendProgress)
                     {
                         SendProgress(progressForOtherIntents, unitInfo);
@@ -317,7 +318,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     bool ConfigurationSetApplyProcessor::HasProcessedSuccessfully(const UnitInfo& unitInfo)
     {
-        return unitInfo.Processed && SUCCEEDED(unitInfo.Result->ResultCode());
+        return unitInfo.Processed && SUCCEEDED(unitInfo.ResultInformation->ResultCode());
     }
 
     bool ConfigurationSetApplyProcessor::ProcessUnit(UnitInfo& unitInfo)
@@ -331,7 +332,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         {
             // If the unit is requested to be skipped, we mark it with a failure to prevent any dependency from running.
             // But we return true from this function to indicate a successful "processing".
-            unitInfo.Result->ResultCode(WINGET_CONFIG_ERROR_MANUALLY_SKIPPED);
+            unitInfo.ResultInformation->ResultCode(WINGET_CONFIG_ERROR_MANUALLY_SKIPPED);
             SendProgress(ConfigurationUnitState::SkippedManually, unitInfo);
             return true;
         }
@@ -346,7 +347,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
         catch (...)
         {
-            ExtractUnitResultInformation(std::current_exception(), unitInfo.Result);
+            ExtractUnitResultInformation(std::current_exception(), unitInfo.ResultInformation);
             return false;
         }
 
@@ -364,18 +365,17 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                 }
                 else if (settingsResult.TestResult() == ConfigurationTestResult::Negative)
                 {
-                    unitInfo.Result->ResultCode(WINGET_CONFIG_ERROR_ASSERTION_FAILED);
+                    unitInfo.ResultInformation->ResultCode(WINGET_CONFIG_ERROR_ASSERTION_FAILED);
                     return false;
                 }
                 else if (settingsResult.TestResult() == ConfigurationTestResult::Failed)
                 {
-                    unitInfo.Result->ResultCode(settingsResult.ResultInformation().ResultCode());
-                    unitInfo.Result->Description(settingsResult.ResultInformation().Description());
+                    unitInfo.ResultInformation->Initialize(settingsResult.ResultInformation());
                     return false;
                 }
                 else
                 {
-                    unitInfo.Result->ResultCode(E_UNEXPECTED);
+                    unitInfo.ResultInformation->ResultCode(E_UNEXPECTED);
                     return false;
                 }
             }
@@ -389,8 +389,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                 }
                 else
                 {
-                    unitInfo.Result->ResultCode(settingsResult.ResultInformation().ResultCode());
-                    unitInfo.Result->Description(settingsResult.ResultInformation().Description());
+                    unitInfo.ResultInformation->Initialize(settingsResult.ResultInformation());
                     return false;
                 }
             }
@@ -400,7 +399,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
                 if (testSettingsResult.TestResult() == ConfigurationTestResult::Positive)
                 {
-                    unitInfo.PreviouslyInDesiredState = true;
+                    unitInfo.Result->PreviouslyInDesiredState(true);
                     return true;
                 }
                 else if (testSettingsResult.TestResult() == ConfigurationTestResult::Negative)
@@ -408,35 +407,34 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                     ApplySettingsResult applySettingsResult = unitProcessor.ApplySettings();
                     if (SUCCEEDED(applySettingsResult.ResultInformation().ResultCode()))
                     {
+                        unitInfo.Result->RebootRequired(applySettingsResult.RebootRequired());
                         return true;
                     }
                     else
                     {
-                        unitInfo.Result->ResultCode(applySettingsResult.ResultInformation().ResultCode());
-                        unitInfo.Result->Description(applySettingsResult.ResultInformation().Description());
+                        unitInfo.ResultInformation->Initialize(applySettingsResult.ResultInformation());
                         return false;
                     }
                 }
                 else if (testSettingsResult.TestResult() == ConfigurationTestResult::Failed)
                 {
-                    unitInfo.Result->ResultCode(testSettingsResult.ResultInformation().ResultCode());
-                    unitInfo.Result->Description(testSettingsResult.ResultInformation().Description());
+                    unitInfo.ResultInformation->Initialize(testSettingsResult.ResultInformation());
                     return false;
                 }
                 else
                 {
-                    unitInfo.Result->ResultCode(E_UNEXPECTED);
+                    unitInfo.ResultInformation->ResultCode(E_UNEXPECTED);
                     return false;
                 }
             }
             default:
-                unitInfo.Result->ResultCode(E_UNEXPECTED);
+                unitInfo.ResultInformation->ResultCode(E_UNEXPECTED);
                 return false;
             }
         }
         catch (...)
         {
-            ExtractUnitResultInformation(std::current_exception(), unitInfo.Result);
+            ExtractUnitResultInformation(std::current_exception(), unitInfo.ResultInformation);
             return false;
         }
     }
@@ -459,7 +457,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         {
             try
             {
-                m_progress(implementation::ConfigurationSetChangeData::Create(state, *unitInfo.Result, unitInfo.Unit));
+                m_progress(implementation::ConfigurationSetChangeData::Create(state, *unitInfo.ResultInformation, unitInfo.Unit));
             }
             CATCH_LOG();
         }

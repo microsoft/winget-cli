@@ -256,6 +256,9 @@ namespace Microsoft.Management.Configuration
     {
         ApplySettingsResult();
 
+        // Indicates whether a reboot is required after the settings were applied.
+        Boolean RebootRequired;
+
         // The result of applying the configuration unit.
         ConfigurationUnitResultInformation ResultInformation{ get; };
     }
@@ -297,7 +300,7 @@ namespace Microsoft.Management.Configuration
         GetSettingsResult();
 
         // The current state of the system for the configuration unit.
-        Windows.Foundation.Collections.ValueSet Settings { get; };
+        Windows.Foundation.Collections.ValueSet Settings;
 
         // The result of getting the configuration unit settings.
         // This is not the response for the retrieval, but rather contains information about the actual attempt to retrieve the settings.
@@ -478,6 +481,9 @@ namespace Microsoft.Management.Configuration
 
         // Will be true if the configuration unit was in the desired state (Test returns true) prior to the apply action.
         Boolean PreviouslyInDesiredState{ get; };
+
+        // Indicates whether a reboot is required after the configuration unit was applied.
+        Boolean RebootRequired{ get; };
 
         // The result of applying the configuration unit.
         ConfigurationUnitResultInformation ResultInformation{ get; };
