@@ -12,6 +12,7 @@ namespace AppInstallerCLIE2ETests.Interop
     using Microsoft.Management.Deployment;
     using Microsoft.Management.Deployment.Projection;
     using NUnit.Framework;
+    using Windows.System;
 
     /// <summary>
     /// Install interop.
@@ -515,6 +516,42 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Assert
             Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
+        }
+
+        /// <summary>
+        /// Test to verify the GetApplicableInstaller() COM call returns the correct manifest installer metadata.
+        /// </summary>
+        [Test]
+        public void GetApplicableInstaller()
+        {
+            // Find package
+            var searchResult = this.FindAllPackages(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.PackageInstallerInfo");
+            Assert.AreEqual(1, searchResult.Count);
+
+            // Configure installation
+            var catalogPackage = searchResult[0].CatalogPackage;
+            var packageVersionId = catalogPackage.AvailableVersions[0];
+            var packageVersionInfo = catalogPackage.GetPackageVersionInfo(packageVersionId);
+
+            // Use install options with no applicable match.
+            var badInstallOptions = this.TestFactory.CreateInstallOptions();
+            badInstallOptions.PackageInstallScope = PackageInstallScope.System;
+
+            Assert.IsNull(packageVersionInfo.GetApplicableInstaller(badInstallOptions));
+
+            // Use install options with valid applicable match.
+            var installOptions = this.TestFactory.CreateInstallOptions();
+            installOptions.PackageInstallScope = PackageInstallScope.User;
+            var packageInstallerInfo = packageVersionInfo.GetApplicableInstaller(installOptions);
+
+            // Assert
+            Assert.IsNotNull(packageInstallerInfo);
+            Assert.AreEqual(ElevationRequirement.ElevationRequired, packageInstallerInfo.ElevationRequirement);
+            Assert.AreEqual(ProcessorArchitecture.X64, packageInstallerInfo.Architecture);
+            Assert.AreEqual(PackageInstallerType.Zip, packageInstallerInfo.InstallerType);
+            Assert.AreEqual(PackageInstallerType.Exe, packageInstallerInfo.NestedInstallerType);
+            Assert.AreEqual(PackageInstallScope.User, packageInstallerInfo.Scope);
+            Assert.AreEqual("en-US", packageInstallerInfo.Locale);
         }
     }
 }
