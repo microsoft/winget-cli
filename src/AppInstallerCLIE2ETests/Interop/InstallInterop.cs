@@ -550,7 +550,7 @@ namespace AppInstallerCLIE2ETests.Interop
             Assert.AreEqual(ProcessorArchitecture.X64, packageInstallerInfo.Architecture);
             Assert.AreEqual(PackageInstallerType.Zip, packageInstallerInfo.InstallerType);
             Assert.AreEqual(PackageInstallerType.Exe, packageInstallerInfo.NestedInstallerType);
-            Assert.AreEqual(PackageInstallScope.User, packageInstallerInfo.Scope);
+            Assert.AreEqual(PackageInstallerScope.User, packageInstallerInfo.Scope);
             Assert.AreEqual("en-US", packageInstallerInfo.Locale);
         }
     }
