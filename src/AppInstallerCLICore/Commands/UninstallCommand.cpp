@@ -9,11 +9,11 @@
 #include "Resources.h"
 
 using AppInstaller::CLI::Execution::Args;
-using AppInstaller::CLI::Workflow::ExecutionStage;
-using AppInstaller::CLI::Workflow::SearchPurpose;
 
 namespace AppInstaller::CLI
 {
+    using namespace AppInstaller::CLI::Workflow;
+
     std::vector<Argument> UninstallCommand::GetArguments() const
     {
         return

@@ -6,11 +6,10 @@
 #include "Workflows/WorkflowBase.h"
 #include "Resources.h"
 
-using AppInstaller::CLI::Workflow::SearchPurpose;
-
 namespace AppInstaller::CLI
 {
     using namespace std::string_view_literals;
+    using namespace AppInstaller::CLI::Workflow;
 
     std::vector<Argument> ListCommand::GetArguments() const
     {
