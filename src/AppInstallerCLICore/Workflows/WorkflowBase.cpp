@@ -862,7 +862,6 @@ namespace AppInstaller::CLI::Workflow
                 case SearchPurpose::Export:
                 case SearchPurpose::List:
                 case SearchPurpose::Uninstall:
-                case SearchPurpose::RequiresInstalledSource:
                     context.Reporter.Info() << Resource::String::NoInstalledPackageFound << std::endl;
                     break;
                 case SearchPurpose::Upgrade:
@@ -892,9 +891,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 Logging::Telemetry().LogMultiAppMatch();
 
-                if (m_searchPurpose == SearchPurpose::RequiresInstalledSource ||
-                    m_searchPurpose == SearchPurpose::Upgrade ||
-                    m_searchPurpose == SearchPurpose::Uninstall )
+                if (m_searchPurpose == SearchPurpose::Upgrade || m_searchPurpose == SearchPurpose::Uninstall )
                 {
                     context.Reporter.Warn() << Resource::String::MultipleInstalledPackagesFound << std::endl;
                     context << ReportMultiplePackageFoundResult;

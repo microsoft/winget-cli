@@ -36,8 +36,7 @@ namespace AppInstaller::CLI::Workflow
         Install,
         Uninstall,
         Export,
-        List,
-        RequiresInstalledSource
+        List
     };
 
     // A task in the workflow.
