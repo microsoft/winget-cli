@@ -271,10 +271,12 @@ namespace AppInstaller::CLI::Workflow
     {
         context <<
             HandleSearchResultFailures <<
-            EnsureOneMatchFromSearchResult(m_isUpgrade ? SearchPurpose::Upgrade : SearchPurpose::Install) <<
+            EnsureOneMatchFromSearchResult(m_searchPurpose) <<
             GetInstalledPackageVersion;
 
-        if (!m_isUpgrade && context.Contains(Execution::Data::InstalledPackageVersion) && context.Get<Execution::Data::InstalledPackageVersion>() != nullptr)
+        if ( m_searchPurpose != SearchPurpose::Upgrade && 
+            context.Contains(Execution::Data::InstalledPackageVersion) &&
+            context.Get<Execution::Data::InstalledPackageVersion>() != nullptr )
         {
             if (context.Args.Contains(Execution::Args::Type::NoUpgrade))
             {
@@ -287,7 +289,7 @@ namespace AppInstaller::CLI::Workflow
                 AICLI_LOG(CLI, Info, << "Found installed package, converting to upgrade flow");
                 context.Reporter.Info() << Execution::ConvertToUpgradeFlowEmphasis << Resource::String::ConvertInstallFlowToUpgrade << std::endl;
                 context.SetFlags(Execution::ContextFlag::InstallerExecutionUseUpdate);
-                m_isUpgrade = true;
+                m_searchPurpose = SearchPurpose::Upgrade;
             }
         }
 
@@ -296,7 +298,7 @@ namespace AppInstaller::CLI::Workflow
             // If version specified, use the version and verify applicability
             context << GetManifestFromPackage(/* considerPins */ true);
 
-            if (m_isUpgrade)
+            if (m_searchPurpose == SearchPurpose::Upgrade)
             {
                 context << EnsureUpdateVersionApplicable;
             }
@@ -317,7 +319,7 @@ namespace AppInstaller::CLI::Workflow
     {
         context <<
             SearchSourceForSingle <<
-            SelectSinglePackageVersionForInstallOrUpgrade(m_isUpgrade) <<
+            SelectSinglePackageVersionForInstallOrUpgrade(m_searchPurpose) <<
             InstallSinglePackage;
     }
 }

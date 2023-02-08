@@ -136,7 +136,7 @@ namespace AppInstaller::CLI
             }
             else
             {
-                context << Workflow::InstallOrUpgradeSinglePackage(false);
+                context << Workflow::InstallOrUpgradeSinglePackage(SearchPurpose::Install);
             }
         }
     }

@@ -193,7 +193,7 @@ namespace AppInstaller::CLI
             // The remaining case: search for specific packages to update
             if (!context.Args.Contains(Execution::Args::Type::MultiQuery))
             {
-                context << Workflow::InstallOrUpgradeSinglePackage(/* isUpgrade */ true);
+                context << Workflow::InstallOrUpgradeSinglePackage(SearchPurpose::Upgrade);
             }
             else
             {
