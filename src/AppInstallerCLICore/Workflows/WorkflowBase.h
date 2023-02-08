@@ -31,12 +31,15 @@ namespace AppInstaller::CLI::Workflow
 
     enum class SearchPurpose
     {
-        Default,
-        Upgrade,
-        Install,
-        Uninstall,
+        Completion,
         Export,
-        List
+        Install,
+        List,
+        Pin,
+        Search,
+        Show,
+        Uninstall,
+        Upgrade,
     };
 
     // A task in the workflow.
@@ -226,7 +229,7 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     struct EnsureMatchesFromSearchResult : public WorkflowTask
     {
-        EnsureMatchesFromSearchResult(SearchPurpose purpose = SearchPurpose::Default) :
+        EnsureMatchesFromSearchResult(SearchPurpose purpose) :
             WorkflowTask("EnsureMatchesFromSearchResult"), m_searchPurpose(purpose) {}
 
         void operator()(Execution::Context& context) const override;
@@ -241,7 +244,7 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: Package
     struct EnsureOneMatchFromSearchResult : public WorkflowTask
     {
-        EnsureOneMatchFromSearchResult(SearchPurpose purpose = SearchPurpose::Default) :
+        EnsureOneMatchFromSearchResult(SearchPurpose purpose) :
             WorkflowTask("EnsureOneMatchFromSearchResult"), m_searchPurpose(purpose) {}
 
         void operator()(Execution::Context& context) const override;

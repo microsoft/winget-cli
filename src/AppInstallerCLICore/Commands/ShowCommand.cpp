@@ -11,6 +11,8 @@ using namespace AppInstaller::CLI::Execution;
 
 namespace AppInstaller::CLI
 {
+    using namespace AppInstaller::CLI::Workflow;
+
     std::vector<Argument> ShowCommand::GetArguments() const
     {
         return {
@@ -78,7 +80,7 @@ namespace AppInstaller::CLI
                     Workflow::OpenSource() <<
                     Workflow::SearchSourceForSingle <<
                     Workflow::HandleSearchResultFailures <<
-                    Workflow::EnsureOneMatchFromSearchResult() <<
+                    Workflow::EnsureOneMatchFromSearchResult(SearchPurpose::Show) <<
                     Workflow::ReportPackageIdentity <<
                     Workflow::ShowAppVersions;
             }

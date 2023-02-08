@@ -862,13 +862,16 @@ namespace AppInstaller::CLI::Workflow
                 case SearchPurpose::Export:
                 case SearchPurpose::List:
                 case SearchPurpose::Uninstall:
+                case SearchPurpose::Pin:
                     context.Reporter.Info() << Resource::String::NoInstalledPackageFound << std::endl;
                     break;
                 case SearchPurpose::Upgrade:
                     context.Reporter.Info() << Resource::String::UpdateNoPackagesFound << std::endl;
                     break;
+                case SearchPurpose::Completion:
                 case SearchPurpose::Install:
-                case SearchPurpose::Default:
+                case SearchPurpose::Search:
+                case SearchPurpose::Show:
                 default:
                     context.Reporter.Info() << Resource::String::NoPackageFound << std::endl;
                     break;
@@ -1105,7 +1108,7 @@ namespace AppInstaller::CLI::Workflow
                 OpenSource() <<
                 SearchSourceForSingle <<
                 HandleSearchResultFailures <<
-                EnsureOneMatchFromSearchResult() <<
+                EnsureOneMatchFromSearchResult(SearchPurpose::Show) <<
                 GetManifestFromPackage(m_considerPins);
         }
     }
