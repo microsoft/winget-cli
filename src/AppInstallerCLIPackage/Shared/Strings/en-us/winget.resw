@@ -705,7 +705,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>A newer package version is available in a configured source, but it does not apply to your system or requirements.</value>
   </data>
   <data name="UpdateNoPackagesFound" xml:space="preserve">
-    <value>No available upgrades found.</value>
+    <value>No available upgrade found.</value>
   </data>
   <data name="UpdateNoPackagesFoundReason" xml:space="preserve">
     <value>No newer package versions are available from the configured sources.</value>
