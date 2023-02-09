@@ -72,8 +72,6 @@ namespace AppInstaller::CLI::Workflow
             switch (m_searchPurpose)
             {
             case SearchPurpose::Install:
-                searchContext << Workflow::SelectSinglePackageVersionForInstallOrUpgrade(m_searchPurpose);
-                break;
             case SearchPurpose::Upgrade:
                 searchContext << Workflow::SelectSinglePackageVersionForInstallOrUpgrade(m_searchPurpose);
                 break;
