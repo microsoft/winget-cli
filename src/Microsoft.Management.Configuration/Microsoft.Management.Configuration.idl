@@ -23,9 +23,7 @@ namespace Microsoft.Management.Configuration
         Pending,
         InProgress,
         Completed,
-        SkippedManually,
-        SkippedDueToAssertions,
-        SkippedDueToDependencies,
+        Skipped,
     };
 
     // Defines the level of detail probing that is allowed about a configuration unit.
@@ -478,6 +476,9 @@ namespace Microsoft.Management.Configuration
     {
         // The configuration unit that was applied.
         ConfigurationUnit Unit{ get; };
+
+        // The state of the configuration unit with regards to the current execution of ApplySet.
+        ConfigurationUnitState State{ get; };
 
         // Will be true if the configuration unit was in the desired state (Test returns true) prior to the apply action.
         Boolean PreviouslyInDesiredState{ get; };

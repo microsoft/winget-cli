@@ -64,7 +64,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             ProcessUnitPtr processUnitFunction,
             ConfigurationUnitIntent intent,
             hresult errorForOtherIntents,
-            ConfigurationUnitState progressForOtherIntents,
             hresult errorForFailures,
             bool sendProgress);
 

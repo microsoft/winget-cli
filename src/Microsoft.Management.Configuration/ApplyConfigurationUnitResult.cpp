@@ -17,6 +17,16 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_unit = std::move(value);
     }
 
+    ConfigurationUnitState ApplyConfigurationUnitResult::State() const
+    {
+        return m_state.load();
+    }
+
+    void ApplyConfigurationUnitResult::State(ConfigurationUnitState value)
+    {
+        m_state.store(value);
+    }
+
     bool ApplyConfigurationUnitResult::PreviouslyInDesiredState() const
     {
         return m_previouslyInDesiredState;

@@ -110,10 +110,9 @@ The state of a configuration set in the configuration history.
 | Name | Description |
 |-|-|
 | Unknown | Primarily used for a configuration set that has not been applied. |
-| ApplicationPending | The configuration set has been recorded into the history, but has not yet begun applying. |
-| ApplicationBegun | The configuration set has begun being applied to the system. |
-| ApplicationFailed | The configuration set has completed being applied, and one or more configuration units failed to apply. |
-| ApplicationSucceeded | The configuration set has completed being applied successfully. |
+| Pending | The configuration set has been recorded into the history, but has not yet begun applying. |
+| InProgress | The configuration set has begun being applied to the system. |
+| Completed | The configuration set has completed being applied. |
 
 ## ConfigurationUnitState enumeration
 
@@ -122,15 +121,10 @@ The state of a configuration unit in the configuration history.
 | Name | Description |
 |-|-|
 | Unknown | Primarily used for a configuration unit that has not been applied. |
-| ApplicationPending | The configuration unit has been recorded into the history, but has not yet begun applying. |
-| ApplicationBegun | The configuration unit has begun being applied to the system. |
-| ApplicationFailed | The configuration unit has completed being applied, but it failed. |
-| ApplicationSucceeded | The configuration unit has completed being applied successfully. |
-| SkippedManually | The configuration unit was skipped by the user. |
-| SkippedDueToDependencies | The configuration unit was skipped due to a dependency not having been successfully applied. |
-| TestBegun | The configuration unit has begun testing the system state. This state is only sent locally to the set being tested. |
-| TestFailed | The configuration unit testing has failed. This state is only sent locally to the set being tested. |
-| TestSucceeded | The configuration unit testing has succeeded. This state is only sent locally to the set being tested. |
+| Pending | The configuration unit has been recorded into the history, but has not yet begun applying. |
+| InProgress | The configuration unit has begun being applied to the system. |
+| Completed | The configuration unit has completed being applied; the result information will contain additional details. |
+| Skipped | The configuration unit was skipped; the result information will contain additional details on the reason. |
 
 ## ConfigurationUnitDetailLevel enumeration
 
@@ -284,6 +278,13 @@ Provides access to a specific configuration unit within the runtime.
 This interface is the primary mechanism used to actually read and write configuration to the system,
 but it is not expected that you would use this directly as a consumer of Microsoft.Management.Configuration.
 
+## IConfigurationSetProcessor interface
+
+Contains the lifetime of the processing action for a configuration set.
+
+This interface is used to contain the lifetime of a processing action,
+but it is not expected that you would use this directly as a consumer of Microsoft.Management.Configuration.
+
 ## IConfigurationProcessorFactory interface
 
 Allows different runtimes to provide specialized handling of configuration processing.
@@ -369,11 +370,13 @@ ConfigurationProcessor(IConfigurationProcessorFactory factory);
 
 > _TODO: Add details on the mechanics of creating the `IConfigurationProcessorFactory` objects that we provide._
 
-## ConfigurationProcessor.CheckForConflictsAsync method
+## ConfigurationProcessor.CheckForConflicts(Async) method
 
 Checks for conflicts amongst the configuration sets provided, optionally including the configuration sets already applied to the system.
 
 ```C#
+Windows.Foundation.Collections.IVectorView<ConfigurationConflict> CheckForConflicts(Windows.Foundation.Collections.IVectorView<ConfigurationSet> configurationSets, Boolean includeConfigurationHistory);
+
 Windows.Foundation.IAsyncOperation< Windows.Foundation.Collections.IVectorView<ConfigurationConflict> > CheckForConflictsAsync(Windows.Foundation.Collections.IVectorView<ConfigurationSet> configurationSets, Boolean includeConfigurationHistory);
 ```
 
@@ -381,22 +384,26 @@ This method should be used on any configuration set that is opened in order to d
 with previously applied configurations. It should be called *after* setting the `Name` and `Origin` in order to determine
 if it is a potential update.
 
-## ConfigurationProcessor.GetSetDetailsAsync method
+## ConfigurationProcessor.GetSetDetails(Async) method
 
 Gets the details for all configuration units in a set.
 
 ```C#
+void GetSetDetails(ConfigurationSet configurationSet, ConfigurationUnitDetailLevel detailLevel);
+
 Windows.Foundation.IAsyncAction GetSetDetailsAsync(ConfigurationSet configurationSet, ConfigurationUnitDetailLevel detailLevel);
 ```
 
-This is a convenience/optimization method that will do the same thing as calling `GetUnitDetailsAsync` on each
-configuration unit in the set. See `GetUnitDetailsAsync` for more information on what it will do.
+This is a convenience/optimization method that will do the same thing as calling `GetUnitDetails(Async)` on each
+configuration unit in the set. See `GetUnitDetails(Async)` for more information on what it will do.
 
-## ConfigurationProcessor.GetUnitDetailsAsync method
+## ConfigurationProcessor.GetUnitDetails(Async) method
 
 Gets the details for all configuration units in a set.
 
 ```C#
+void GetUnitDetails(ConfigurationUnit unit, ConfigurationUnitDetailLevel detailLevel);
+
 Windows.Foundation.IAsyncAction GetUnitDetailsAsync(ConfigurationUnit unit, ConfigurationUnitDetailLevel detailLevel);
 ```
 
@@ -404,31 +411,35 @@ This method will get the details about a specific configuration unit and make th
 The `detailLevel` parameter allows control over how deeply to probe for details. It is an analog for the amount of
 trust to place in the configuration unit processor.
 
-## ConfigurationProcessor.ApplyAsync method
+## ConfigurationProcessor.ApplySet(Async) method
 
 Applies the configuration set state to the system.
 
 ```C#
-Windows.Foundation.IAsyncOperation<ApplyConfigurationSetResult> ApplyAsync(ConfigurationSet configurationSet, ApplyConfigurationSetFlags flags);
+ApplyConfigurationSetResult ApplySet(ConfigurationSet configurationSet, ApplyConfigurationSetFlags flags);
+
+Windows.Foundation.IAsyncOperationWithProgress<ApplyConfigurationSetResult, ConfigurationSetChangeData> ApplySetAsync(ConfigurationSet configurationSet, ApplyConfigurationSetFlags flags);
 ```
 
-To get progress, subscribe to the `ConfigurationSetChange` before calling this method.
+Using the async method and it's progress is more efficient than subscribing to the `ConfigurationSetChange` event before calling this method.
 
-## ConfigurationProcessor.TestAsync method
+## ConfigurationProcessor.TestSet(Async) method
 
 Tests if the system state matches the state described by the configuration set.
 
 ```C#
-Windows.Foundation.IAsyncOperation<TestConfigurationSetResult> TestAsync(ConfigurationSet configurationSet);
+TestConfigurationSetResult TestSet(ConfigurationSet configurationSet);
+
+Windows.Foundation.IAsyncOperationWithProgress<TestConfigurationSetResult, TestConfigurationUnitResult> TestSetAsync(ConfigurationSet configurationSet);
 ```
 
-To get progress, subscribe to the `ConfigurationSetChange` before calling this method.
-
-## ConfigurationProcessor.GetSettingsAsync method
+## ConfigurationProcessor.GetSettings(Async) method
 
 Gets the current configuration unit settings from the system state.
 
 ```C#
+GetConfigurationUnitSettingsResult GetSettings(ConfigurationUnit unit);
+
 Windows.Foundation.IAsyncOperation<GetConfigurationUnitSettingsResult> GetSettingsAsync(ConfigurationUnit unit);
 ```
 
@@ -445,7 +456,7 @@ Signals changes to the set of configuration sets in the history, as well as chan
 Gets the configuration sets from the recorded history.
 
 ```C#
-static Windows.Foundation.Collections.IVectorView<ConfigurationSet> GetConfigurationHistory();
+Windows.Foundation.Collections.IVectorView<ConfigurationSet> GetConfigurationHistory();
 ```
 
 Gets the configuration sets that have already been applied or those recorded with the intent to be applied. This may include in progress sets or those that are waiting to be applied.
@@ -469,21 +480,39 @@ Gets the configuration sets that have already been applied or those recorded wit
 This sample illustrates some of the expected usage patterns.
 
 ```C#
+using Microsoft.Management.Configuration;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Microsoft.Management.Configuration;
+using System.Reflection;
+using Windows.Foundation;
+using Windows.Foundation.Collections;
 using Windows.Storage;
 using Windows.Storage.Streams;
 
 namespace ConfigurationSample
 {
-    internal class Helpers
+    internal static class Helpers
     {
         internal static IConfigurationProcessorFactory CreateIConfigurationProcessorFactory()
         {
-            // While we will also implement these factories, that will be part of a separate binary.
             throw new NotImplementedException();
+        }
+
+        internal static ConfigurationSet OpenConfigurationSet(string filePath, ConfigurationProcessor processor)
+        {
+            var fileOperation = FileRandomAccessStream.OpenAsync(filePath, FileAccessMode.Read);
+            fileOperation.AsTask().Wait();
+            var file = fileOperation.GetResults();
+            OpenConfigurationSetResult result = processor.OpenConfigurationSet(file);
+            
+            if (result.Set != null)
+            {
+                return result.Set;
+            }
+
+            Console.WriteLine($"Failed opening configuration set: 0x{result.ResultCode:X} at {result.Field}");
+            return null;
         }
 
         internal static void SetWatcher(ConfigurationSet set, ConfigurationSetChangeData data)
@@ -496,10 +525,63 @@ namespace ConfigurationSample
                 case ConfigurationSetChangeEventType.UnitStateChanged:
                     Console.WriteLine($"    Unit: {data.Unit.UnitName} [{data.Unit.InstanceIdentifier}]");
                     Console.WriteLine($"    Unit State: {data.UnitState}");
-                    if (data.UnitState == ConfigurationUnitState.ApplicationFailed)
+                    if (data.UnitState == ConfigurationUnitState.Completed && data.ResultInformation.ResultCode != null)
                     {
                         Console.WriteLine($"    Failure: {data.ResultInformation.Description} [{data.ResultInformation.ResultCode.HResult}]");
                     }
+                    break;
+            }
+        }
+    }
+
+    internal class ApplyProgressWatcher
+    {
+        private bool isFirstProgress = true;
+
+        internal void Watcher(IAsyncOperationWithProgress<ApplyConfigurationSetResult, ConfigurationSetChangeData> operation, ConfigurationSetChangeData data)
+        {
+            if (isFirstProgress)
+            {
+                isFirstProgress = false;
+
+                // If our first progress callback contains partial results, output them as if they had been called through progress
+                ApplyConfigurationSetResult partialResult = operation.GetResults();
+
+                foreach (ApplyConfigurationUnitResult unitResult in partialResult.UnitResults)
+                {
+                    HandleUnitProgress(unitResult.Unit, unitResult.State, unitResult.ResultInformation);
+                }
+            }
+
+            switch (data.Change)
+            {
+                case ConfigurationSetChangeEventType.SetStateChanged:
+                    Console.WriteLine($"  - Set State: {data.SetState}");
+                    break;
+                case ConfigurationSetChangeEventType.UnitStateChanged:
+                    HandleUnitProgress(data.Unit, data.UnitState, data.ResultInformation);
+                    break;
+            }
+        }
+
+        private void HandleUnitProgress(ConfigurationUnit unit, ConfigurationUnitState state, ConfigurationUnitResultInformation resultInformation)
+        {
+            switch (state)
+            {
+                case ConfigurationUnitState.Pending:
+                    break;
+                case ConfigurationUnitState.InProgress:
+                case ConfigurationUnitState.Completed:
+                case ConfigurationUnitState.Skipped:
+                    Console.WriteLine($"  - Unit: {unit.UnitName} [{unit.InstanceIdentifier}]");
+                    Console.WriteLine($"    Unit State: {state}");
+                    if (resultInformation.ResultCode != null)
+                    {
+                        Console.WriteLine($"    HRESULT: [0x{resultInformation.ResultCode.HResult:X8}]");
+                        Console.WriteLine($"    Reason: {resultInformation.Description}");
+                    }
+                    break;
+                case ConfigurationUnitState.Unknown:
                     break;
             }
         }
@@ -509,48 +591,79 @@ namespace ConfigurationSample
     {
         static void LoadAndOutput(string[] args)
         {
-            // Open the given configuration file and load into a set
-            var file = FileRandomAccessStream.OpenAsync(args[2], FileAccessMode.Read).GetResults();
-            ConfigurationSet configSet = new ConfigurationSet(file);
-
-            // Create the factory and processor, then get more information on the configuration unit processors
             ConfigurationProcessor processor = new ConfigurationProcessor(Helpers.CreateIConfigurationProcessorFactory());
-            processor.GetSetDetailsAsync(configSet, ConfigurationUnitDetailLevel.Catalog).GetResults();
+
+            // Open the given configuration file
+            ConfigurationSet configSet = Helpers.OpenConfigurationSet(args[1], processor);
+            if (configSet == null)
+            {
+                return;
+            }
 
             // Output some of the information from the set
-            Console.WriteLine($"Configuration Set: {args[2]}");
+            Console.WriteLine($"Configuration Set: {args[1]}");
 
-            foreach (var unit in configSet.ConfigurationUnits)
+            foreach (ConfigurationUnit unit in configSet.ConfigurationUnits)
             {
                 Console.WriteLine($"  - Configuration Unit: {unit.UnitName}");
-                Console.WriteLine($"    Module: {unit.Details.ModuleName}");
-                Console.WriteLine( "    Settings:");
-                foreach (var setting in unit.Settings)
+                if (!string.IsNullOrEmpty(unit.Identifier))
                 {
-                    Console.WriteLine($"      {setting.Key}: {setting.Value}");
+                    Console.WriteLine($"    Identifier: {unit.Identifier}");
+                }
+                Console.WriteLine($"    Intent: {unit.Intent}");
+                IReadOnlyList<string> dependencies = unit.Dependencies;
+                if (dependencies.Count > 0)
+                {
+                    Console.WriteLine("    Dependencies:");
+                    foreach (string dependency in dependencies)
+                    {
+                        Console.WriteLine($"      {dependency}");
+                    }
+                }
+                ValueSet directives = unit.Directives;
+                if (directives.Count > 0)
+                {
+                    Console.WriteLine("    Directives:");
+                    foreach (var directive in unit.Directives)
+                    {
+                        Console.WriteLine($"      {directive.Key}: {directive.Value}");
+                    }
+                }
+                ValueSet settings = unit.Settings;
+                if (settings.Count > 0)
+                {
+                    Console.WriteLine("    Settings:");
+                    foreach (var setting in unit.Settings)
+                    {
+                        Console.WriteLine($"      {setting.Key}: {setting.Value}");
+                    }
                 }
             }
         }
 
         static void LoadAndCheckConflicts(string[] args)
         {
-            // Open the given configuration file and load into a set
-            var file = FileRandomAccessStream.OpenAsync(args[2], FileAccessMode.Read).GetResults();
-            ConfigurationSet configSet = new ConfigurationSet(file);
+            // Create the factory and processor
+            ConfigurationProcessor processor = new ConfigurationProcessor(Helpers.CreateIConfigurationProcessorFactory());
+
+            // Open the given configuration file
+            ConfigurationSet configSet = Helpers.OpenConfigurationSet(args[1], processor);
+            if (configSet == null)
+            {
+                return;
+            }
 
             // Set a name and origin for this set so that we can see it in the conflict info
-            configSet.Name = Path.GetFileName(args[2]);
-            configSet.Origin = args[2];
+            configSet.Name = Path.GetFileName(args[1]);
+            configSet.Origin = args[1];
 
-            // Create the factory and processor, then check for conflicts with existing configurations
-            ConfigurationProcessor processor = new ConfigurationProcessor(Helpers.CreateIConfigurationProcessorFactory());
-            List<ConfigurationSet> configSets = new List<ConfigurationSet>();
-            configSets.Add(configSet);
-            var conflicts = processor.CheckForConflictsAsync(configSets, true).GetResults();
+            // Check for conflicts with existing configurations
+            List<ConfigurationSet> configSets = new List<ConfigurationSet>() { configSet };
+            IList<ConfigurationConflict> conflicts = processor.CheckForConflicts(configSets, true);
 
-            Console.WriteLine($"Conflicts with Configuration Set: {args[2]}");
+            Console.WriteLine($"Conflicts with Configuration Set: {args[1]}");
 
-            foreach (var conflict in conflicts)
+            foreach (ConfigurationConflict conflict in conflicts)
             {
                 Console.WriteLine($"  - Conflict: {conflict.Conflict}");
                 Console.WriteLine($"    First Set: {conflict.FirstSet.Name} [{conflict.FirstSet.Origin}]");
@@ -559,7 +672,7 @@ namespace ConfigurationSample
                 {
                     Console.WriteLine($"    First Unit: {conflict.FirstUnit.UnitName} [{conflict.FirstUnit.InstanceIdentifier}]");
                     Console.WriteLine($"    Second Unit: {conflict.SecondUnit.UnitName} [{conflict.SecondUnit.InstanceIdentifier}]");
-                    foreach (var setting in conflict.Settings)
+                    foreach (ConfigurationConflictSetting setting in conflict.Settings)
                     {
                         Console.WriteLine($"    - Setting: {setting.Name}");
                         Console.WriteLine($"      First Value: {setting.FirstValue}");
@@ -571,19 +684,24 @@ namespace ConfigurationSample
 
         static void LoadAndApply(string[] args)
         {
-            // Open the given configuration file and load into a set
-            var file = FileRandomAccessStream.OpenAsync(args[2], FileAccessMode.Read).GetResults();
-            ConfigurationSet configSet = new ConfigurationSet(file);
-
             // Create the factory and processor
             ConfigurationProcessor processor = new ConfigurationProcessor(Helpers.CreateIConfigurationProcessorFactory());
 
-            // Attach event handler on set change
-            configSet.ConfigurationSetChange += Helpers.SetWatcher;
+            // Open the given configuration file
+            ConfigurationSet configSet = Helpers.OpenConfigurationSet(args[1], processor);
+            if (configSet == null)
+            {
+                return;
+            }
 
-            Console.WriteLine($"Applying Configuration Set: {args[2]}");
+            Console.WriteLine($"Applying Configuration Set: {args[1]}");
 
-            var result = processor.ApplyAsync(configSet, ApplyConfigurationSetFlags.None).GetResults();
+            ApplyProgressWatcher watcher = new ApplyProgressWatcher();
+
+            var operation = processor.ApplySetAsync(configSet, ApplyConfigurationSetFlags.None);
+            operation.Progress = watcher.Watcher;
+            operation.AsTask().Wait();
+            ApplyConfigurationSetResult result = operation.GetResults();
 
             Console.WriteLine($"  - Done: {result.ResultCode.HResult}");
         }
@@ -592,10 +710,13 @@ namespace ConfigurationSample
         {
             Console.WriteLine("Watching all configuration [press Enter to stop]:");
 
+            // Create the factory and processor
+            ConfigurationProcessor processor = new ConfigurationProcessor(Helpers.CreateIConfigurationProcessorFactory());
+
             List<ConfigurationSet> list = new List<ConfigurationSet>();
 
             // Attach to the top level change event
-            Statics.ConfigurationChange += (ConfigurationSet incomingSet, ConfigurationChangeData data) =>
+            processor.ConfigurationChange += (ConfigurationSet incomingSet, ConfigurationChangeData data) =>
             {
                 int existingSetIndex = -1;
 
@@ -632,7 +753,7 @@ namespace ConfigurationSample
                 Console.WriteLine($"    Change: {data.Change}");
             };
 
-            foreach (var set in Statics.GetConfigurationHistory())
+            foreach (ConfigurationSet set in processor.GetConfigurationHistory())
             {
                 int existingSetIndex = -1;
 
@@ -667,7 +788,7 @@ namespace ConfigurationSample
 
         static void Main(string[] args)
         {
-            var method = typeof(Program).GetMethod(args[1]);
+            var method = typeof(Program).GetMethod(args[0], BindingFlags.NonPublic | BindingFlags.Static);
 
             if (method != null)
             {
@@ -675,7 +796,7 @@ namespace ConfigurationSample
             }
             else
             {
-                Console.WriteLine($"{args[1]} is not a sample");
+                Console.WriteLine($"{args[0]} is not a sample");
             }
         }
     }

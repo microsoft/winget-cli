@@ -32,6 +32,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         for (const auto& unit : unitsToProcess)
         {
             m_unitInfo.emplace_back(unit);
+            m_result->UnitResultsVector().Append(*m_unitInfo.back().Result);
         }
     }
 
@@ -39,12 +40,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         if (!PreProcess())
         {
-            // If preprocessing fails, copy all unit results over
-            for (const UnitInfo& unitInfo : m_unitInfo)
-            {
-                m_result->UnitResultsVector().Append(*unitInfo.Result);
-            }
-
             return;
         }
 
@@ -160,7 +155,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             processUnitFunction,
             ConfigurationUnitIntent::Assert,
             WINGET_CONFIG_ERROR_ASSERTION_FAILED,
-            ConfigurationUnitState::SkippedDueToAssertions,
             WINGET_CONFIG_ERROR_ASSERTION_FAILED,
             sendProgress))
         {
@@ -174,7 +168,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             processUnitFunction,
             ConfigurationUnitIntent::Inform,
             WINGET_CONFIG_ERROR_DEPENDENCY_UNSATISFIED,
-            ConfigurationUnitState::SkippedDueToDependencies,
             WINGET_CONFIG_ERROR_DEPENDENCY_UNSATISFIED,
             sendProgress))
         {
@@ -188,7 +181,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             processUnitFunction,
             ConfigurationUnitIntent::Apply,
             E_FAIL, // This should not happen as there are no other intents left
-            ConfigurationUnitState::Unknown,
             WINGET_CONFIG_ERROR_SET_APPLY_FAILED,
             sendProgress);
     }
@@ -199,7 +191,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         ProcessUnitPtr processUnitFunction,
         ConfigurationUnitIntent intent,
         hresult errorForOtherIntents,
-        ConfigurationUnitState progressForOtherIntents,
         hresult errorForFailures,
         bool sendProgress)
     {
@@ -236,7 +227,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                 unitInfo.ResultInformation->ResultCode(WINGET_CONFIG_ERROR_DEPENDENCY_UNSATISFIED);
                 if (sendProgress)
                 {
-                    SendProgress(ConfigurationUnitState::SkippedDueToDependencies, unitInfo);
+                    SendProgress(ConfigurationUnitState::Skipped, unitInfo);
                 }
             }
         }
@@ -252,7 +243,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                     unitInfo.ResultInformation->ResultCode(errorForOtherIntents);
                     if (sendProgress)
                     {
-                        SendProgress(progressForOtherIntents, unitInfo);
+                        SendProgress(ConfigurationUnitState::Skipped, unitInfo);
                     }
                 }
             }
@@ -322,7 +313,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             // If the unit is requested to be skipped, we mark it with a failure to prevent any dependency from running.
             // But we return true from this function to indicate a successful "processing".
             unitInfo.ResultInformation->ResultCode(WINGET_CONFIG_ERROR_MANUALLY_SKIPPED);
-            SendProgress(ConfigurationUnitState::SkippedManually, unitInfo);
+            SendProgress(ConfigurationUnitState::Skipped, unitInfo);
             return true;
         }
 
@@ -442,10 +433,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     void ConfigurationSetApplyProcessor::SendProgress(ConfigurationUnitState state, const UnitInfo& unitInfo)
     {
-        if (state != ConfigurationUnitState::InProgress)
-        {
-            m_result->UnitResultsVector().Append(*unitInfo.Result);
-        }
+        unitInfo.Result->State(state);
 
         if (m_progress)
         {

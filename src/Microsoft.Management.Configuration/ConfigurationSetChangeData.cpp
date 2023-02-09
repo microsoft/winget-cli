@@ -29,6 +29,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     void ConfigurationSetChangeData::Initialize(ConfigurationUnitState state, ConfigurationUnitResultInformation resultInformation, ConfigurationUnit unit)
     {
         m_change = ConfigurationSetChangeEventType::UnitStateChanged;
+        m_setState = ConfigurationSetState::InProgress;
         m_unitState = state;
         m_resultInformation = resultInformation;
         m_unit = unit;

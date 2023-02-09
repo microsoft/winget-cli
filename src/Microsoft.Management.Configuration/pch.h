@@ -16,6 +16,7 @@
 #include <wil/resource.h>
 #pragma warning( pop )
 
+#include <atomic>
 #include <filesystem>
 #include <fstream>
 #include <functional>
