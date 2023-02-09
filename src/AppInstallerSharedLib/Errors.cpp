@@ -220,6 +220,8 @@ namespace AppInstaller
                 return "One or more applications failed to uninstall";
             case APPINSTALLER_CLI_ERROR_NOT_ALL_QUERIES_FOUND_SINGLE:
                 return "One or more queries did not return exactly one match";
+            case APPINSTALLER_CLI_ERROR_PACKAGE_IS_PINNED:
+                return "The package has a pin that prevents upgrade.";
 
             // Install errors
             case APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE:

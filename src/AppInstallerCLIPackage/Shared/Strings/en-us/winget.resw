@@ -1331,21 +1331,13 @@ Please specify one of them using the --source option to proceed.</value>
     <value>This package's version number cannot be determined. To upgrade it anyway, add the argument --include-unknown to your previous command.</value>
     <comment>{Locked="--include-unknown"}</comment>
   </data>
-  <data name="UpgradeUnknownCount" xml:space="preserve">
-    <value>packages have version numbers that cannot be determined. Using --include-unknown may show more results.</value>
-    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions. </comment>
-  </data>
-  <data name="UpgradeUnknownCountSingle" xml:space="preserve">
-    <value>package has a version number that cannot be determined. Using --include-unknown may show more results.</value>
-    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions.</comment>
-  </data>
   <data name="UpgradeUnknownVersionCount" xml:space="preserve">
-    <value>package(s) have version numbers that cannot be determined. Use --include-unknown to see all results.</value>
-    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions. </comment>
+    <value>{0} package(s) have version numbers that cannot be determined. Use --include-unknown to see all results.</value>
+    <comment>{Locked="{0}","--include-unknown"} {0} is a placeholder that is replaced by an integer number of packages that do not have notated versions. </comment>
   </data>
   <data name="UpgradeRequireExplicitCount" xml:space="preserve">
-    <value>package(s) is pinned and needs to be explicitly upgraded.</value>
-    <comment>This string is preceded by a (integer) number of packages that require explicit upgrades.</comment>
+    <value>{0} package(s) are pinned and need to be explicitly upgraded.</value>
+    <comment>{Locked="{0}"} {0} is a placeholder that is replaced by an integer number of packages that require explicit upgrades.</comment>
   </data>
   <data name="InvalidArgumentWithoutQueryError" xml:space="preserve">
     <value>The arguments provided can only be used with a query.</value>
@@ -1536,14 +1528,14 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>{Locked="{0}"} The value will be replaced with the feature name</comment>
   </data>
   <data name="PinAddCommandLongDescription" xml:space="preserve">
-    <value>Add a new pin. A pin can limit the Windows Package Manager from updating a package to specific ranges of versions, or it can prevent it from updating the package altogether. A pinned package may still update on its own and be updated from outside the Windows Package Manager. By default, a pinned package can be updated by mentioning it explicitly in the 'upgrade' command or by adding the '--include-pinned' flag to 'winget upgrade --all'.</value>
+    <value>Add a new pin. A pin can limit the Windows Package Manager from upgrade a package to specific ranges of versions, or it can prevent it from upgrading the package altogether. A pinned package may still upgrade on its own and be upgraded from outside the Windows Package Manager. By default, a pinned package can be upgraded by mentioning it explicitly in the 'upgrade' command or by adding the '--include-pinned' flag to 'winget upgrade --all'.</value>
     <comment>{Locked{"'upgrade'"} Locked{"--include-pinned"} Locked{"winget upgrade --all"}</comment>
   </data>
   <data name="PinAddCommandShortDescription" xml:space="preserve">
     <value>Add a new pin</value>
   </data>
   <data name="PinCommandLongDescription" xml:space="preserve">
-    <value>Manage package pins with the sub-commands. A pin can limit the Windows Package Manager from updating a package to specific ranges of versions, or it can prevent it from updating the package altogether. A pinned package may still update on its own and be updated from outside the Windows Package Manager.</value>
+    <value>Manage package pins with the sub-commands. A pin can limit the Windows Package Manager from upgrading a package to specific ranges of versions, or it can prevent it from upgrading the package altogether. A pinned package may still upgrade on its own and be upgraded from outside the Windows Package Manager.</value>
   </data>
   <data name="PinCommandShortDescription" xml:space="preserve">
     <value>Manage package pins</value>
@@ -1570,7 +1562,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Version to which to pin the package. The wildcard '*' can be used as the last version part</value>
   </data>
   <data name="PinAddBlockingArgumentDescription" xml:space="preserve">
-    <value>Block from updating until the pin is removed, preventing override arguments</value>
+    <value>Block from upgrading until the pin is removed, preventing override arguments</value>
   </data>
   <data name="SettingsExportCommandLongDescription" xml:space="preserve">
     <value>Export settings as JSON</value>
@@ -1593,15 +1585,16 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Pin added successfully</value>
   </data>
   <data name="PinAlreadyExists" xml:space="preserve">
-    <value>The pin already exists</value>
+    <value>There is already a pin for package {0}</value>
+    <comment>{Locked="{0}"} {0} is a placeholder that will be replaced by a package name. The message is shown when attempting to add a pin for a package that is already pinned.</comment>
   </data>
   <data name="PinExistsOverwriting" xml:space="preserve">
-    <value>A pin already exists for this package. Overwriting due to the --force argument.</value>
-    <comment>{Locked="--force"}</comment>
+    <value>A pin already exists for package {0}. Overwriting due to the --force argument.</value>
+    <comment>{Locked="--force"}{Locked="--force","{0}"} {0} is a placeholder that will be replaced by a package name.</comment>
   </data>
   <data name="PinExistsUseForceArg" xml:space="preserve">
-    <value>A pin already exists for this package. Use the --force argument to overwrite it.</value>
-    <comment>{Locked="--force"}</comment>
+    <value>A pin already exists for package {0}. Use the --force argument to overwrite it.</value>
+    <comment>{Locked="--force","{0}"} {0} is a placeholder that will be replaced by a package name.</comment>
   </data>
   <data name="PinResettingAll" xml:space="preserve">
     <value>Resetting all current pins.</value>
@@ -1662,5 +1655,26 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="MultiQuerySearchFailed" xml:space="preserve">
     <value>Search failed for: {0}</value>
     <comment>{Locked="{0}"} Error message displayed when the user attempts to search for multiple application packages and one of the searches fails. This message is for generic failures, we have more specific messages for when the search returns no results, or when it returns more than one result. {0} is a placeholder replaced by the package name or query.</comment>
+  </data>
+  <data name="UpgradeBlockingPinCount" xml:space="preserve">
+    <value>{0} package(s) have a blocking pin that needs to be removed before upgrade</value>
+    <comment>{Locked="{0}"} {0} is a placeholder that is replaced by an integer number of packages with blocking pins</comment>
+  </data>
+  <data name="IncludePinnedArgumentDescription" xml:space="preserve">
+    <value>Upgrade packages even if they have a non-blocking pin</value>
+  </data>
+  <data name="PinRemovedSuccessfully" xml:space="preserve">
+    <value>Pin removed successfully</value>
+  </data>
+  <data name="UpgradeIsPinned" xml:space="preserve">
+    <value>A newer version was found, but the package has a pin that prevents from upgrading it.</value>
+  </data>
+  <data name="PackageIsPinned" xml:space="preserve">
+    <value>The package is pinned and cannot be upgraded. Use the 'winget pin' command to view and edit pins. Some pin types can be bypassed with the --include-pinned argument.</value>
+    <comment>{Locked="winget pin","--include-pinned"} Error shown when we block an upgrade due to the package being pinned</comment>
+  </data>
+  <data name="UpgradePinnedByUserCount" xml:space="preserve">
+    <value>{0} package(s) have pins that prevent upgrade. Use the 'winget pin' command to view and edit pins. Using the --include-pinned argument may show more results.</value>
+    <comment>{Locked="winget pin","--include-pinned"} {0} is a placeholder replaced by an integer number of packages</comment>
   </data>
 </root>

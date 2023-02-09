@@ -498,6 +498,49 @@ namespace AppInstaller::Utility
         return m_maxVersion;
     }
 
+    bool GatedVersion::IsValidVersion(Version version) const
+    {
+        auto gateParts = m_version.GetParts();
+        if (gateParts.empty())
+        {
+            return false;
+        }
+
+        if (gateParts.back() != Version::Part("*"))
+        {
+            // Without wildcards, revert to direct comparison
+            return m_version == version;
+        }
+
+        auto versionParts = version.GetParts();
+        for (size_t i = 0; i < gateParts.size() - 1; ++i)
+        {
+            if (versionParts.size() > i)
+            {
+                if (gateParts[i] == versionParts[i])
+                {
+                    continue;
+                }
+                else
+                {
+                    // Mismatch with the gated version
+                    return false;
+                }
+            }
+            else
+            {
+                // Assume trailing 0s on the version
+                if (gateParts[i] != Version::Part(0))
+                {
+                    return false;
+                }
+            }
+        }
+
+        // All version parts matched
+        return true;
+    }
+
     bool HasOverlapInVersionRanges(const std::vector<VersionRange>& ranges)
     {
         for (size_t i = 0; i < ranges.size(); i++)

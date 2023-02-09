@@ -65,6 +65,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Execution::Args::Type::CustomHeader),
             Argument{ Args::Type::All, Resource::String::UpdateAllArgumentDescription, ArgumentType::Flag },
             Argument{ Args::Type::IncludeUnknown, Resource::String::IncludeUnknownArgumentDescription, ArgumentType::Flag },
+            Argument{ Args::Type::IncludePinned, Resource::String::IncludePinnedArgumentDescription, ArgumentType::Flag},
             Argument::ForType(Args::Type::UninstallPrevious),
             Argument::ForType(Args::Type::Force),
         };

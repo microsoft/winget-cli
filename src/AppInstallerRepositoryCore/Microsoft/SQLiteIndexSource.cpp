@@ -252,7 +252,7 @@ namespace AppInstaller::Repository::Microsoft
                 return result;
             }
 
-            std::shared_ptr<IPackageVersion> GetLatestAvailableVersion() const override
+            std::shared_ptr<IPackageVersion> GetLatestAvailableVersion(PinBehavior) const override
             {
                 return GetLatestVersionInternal();
             }
@@ -277,7 +277,7 @@ namespace AppInstaller::Repository::Microsoft
                 return {};
             }
 
-            bool IsUpdateAvailable() const override
+            bool IsUpdateAvailable(PinBehavior) const override
             {
                 return false;
             }
@@ -316,7 +316,7 @@ namespace AppInstaller::Repository::Microsoft
                 return {};
             }
 
-            std::shared_ptr<IPackageVersion> GetLatestAvailableVersion() const override
+            std::shared_ptr<IPackageVersion> GetLatestAvailableVersion(PinBehavior) const override
             {
                 return {};
             }
@@ -326,7 +326,7 @@ namespace AppInstaller::Repository::Microsoft
                 return {};
             }
 
-            bool IsUpdateAvailable() const override
+            bool IsUpdateAvailable(PinBehavior) const override
             {
                 return false;
             }

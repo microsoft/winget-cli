@@ -86,6 +86,7 @@ namespace AppInstaller::CLI::Execution
             // Upgrade command
             All, // Used in Update command to update all installed packages to latest
             IncludeUnknown, // Used in Upgrade command to allow upgrades of packages with unknown versions
+            IncludePinned, // Used in Upgrade command to allow upgrades to pinned packages (only for pinning type of pins)
             UninstallPrevious, // Used in Upgrade command to override the default manifest behavior to UninstallPrevious
 
             // Show command

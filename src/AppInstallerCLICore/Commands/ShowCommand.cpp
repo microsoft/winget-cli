@@ -86,7 +86,7 @@ namespace AppInstaller::CLI
         else
         {
             context <<
-                Workflow::GetManifest <<
+                Workflow::GetManifest(/* considerPins */ false) <<
                 Workflow::ReportManifestIdentity <<
                 Workflow::SelectInstaller <<
                 Workflow::ShowManifestInfo;

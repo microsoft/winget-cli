@@ -121,6 +121,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ImportIgnoreUnavailableArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportInstallFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportSourceNotInstalled);
+        WINGET_DEFINE_RESOURCE_STRINGID(IncludePinnedArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(IncludeUnknownArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(IncompatibleArgumentsProvided);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallAndUpgradeCommandsReportDependencies);
@@ -245,6 +246,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(PackageAgreementsPrompt);
         WINGET_DEFINE_RESOURCE_STRINGID(PackageAlreadyInstalled);
         WINGET_DEFINE_RESOURCE_STRINGID(PackageDependencies);
+        WINGET_DEFINE_RESOURCE_STRINGID(PackageIsPinned);
         WINGET_DEFINE_RESOURCE_STRINGID(PendingWorkError);
         WINGET_DEFINE_RESOURCE_STRINGID(PinAddBlockingArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PinAddCommandLongDescription);
@@ -262,6 +264,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(PinNoPinsExist);
         WINGET_DEFINE_RESOURCE_STRINGID(PinRemoveCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PinRemoveCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(PinRemovedSuccessfully);
         WINGET_DEFINE_RESOURCE_STRINGID(PinResetCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PinResetCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PinResetSuccessful);
@@ -433,10 +436,13 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(UpdateAllArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(UpdateNotApplicable);
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeAvailableForPinned);
+        WINGET_DEFINE_RESOURCE_STRINGID(UpgradeBlockingPinCount);
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeDifferentInstallTechnology);
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeDifferentInstallTechnologyInNewerVersions);
+        WINGET_DEFINE_RESOURCE_STRINGID(UpgradeIsPinned);
+        WINGET_DEFINE_RESOURCE_STRINGID(UpgradePinnedByUserCount);
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeRequireExplicitCount);
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeUnknownVersionCount);
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeUnknownVersionExplanation);

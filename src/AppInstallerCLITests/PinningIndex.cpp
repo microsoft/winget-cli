@@ -99,7 +99,7 @@ TEST_CASE("PinningIndex_AddUpdateRemove", "[pinningIndex]")
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
 
-    Pin pin = Pin::CreateGatingPin({ "pkgId", "srcId" }, { "1.0.*" });
+    Pin pin = Pin::CreateGatingPin({ "pkgId", "srcId" }, { "1.0.*"sv });
     Pin updatedPin = Pin::CreatePinningPin({ "pkgId", "srcId" });
 
     {
@@ -158,7 +158,7 @@ TEST_CASE("PinningIndex_AddDuplicatePin", "[pinningIndex]")
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
 
-    Pin pin = Pin::CreateGatingPin({ "pkg", "src" }, { "1.*" });
+    Pin pin = Pin::CreateGatingPin({ "pkg", "src" }, { "1.*"sv });
 
     PinningIndex index = PinningIndex::CreateNew(tempFile, { 1, 0 });
     index.AddPin(pin);

@@ -139,7 +139,7 @@ namespace AppInstaller::Repository
             {
                 // No installed version, or installed version not found in available versions,
                 // then attempt to check installed status using latest version.
-                availableVersion = package->GetLatestAvailableVersion();
+                availableVersion = package->GetLatestAvailableVersion(PinBehavior::IgnorePins);
                 THROW_HR_IF(E_UNEXPECTED, !availableVersion);
             }
 
