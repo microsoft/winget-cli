@@ -17,7 +17,7 @@ namespace AppInstaller::CLI::Workflow
 {
     namespace
     {
-        bool IsUpdateVersionApplicable(const Utility::Version& installedVersion, const Utility::Version& updateVersion)
+        bool IsUpdateVersionAvailable(const Utility::Version& installedVersion, const Utility::Version& updateVersion)
         {
             return installedVersion < updateVersion;
         }
@@ -78,9 +78,9 @@ namespace AppInstaller::CLI::Workflow
         for (const auto& key : versionKeys)
         {
             // Check Applicable Version
-            if (!isUpgrade || IsUpdateVersionApplicable(installedVersion, Utility::Version(key.Version)))
+            if (!isUpgrade || IsUpdateVersionAvailable(installedVersion, Utility::Version(key.Version)))
             {
-                // The only way to enter this portion of the statement with isUpgrade is if the version is applicable
+                // The only way to enter this portion of the statement with isUpgrade is if the version is available
                 if (isUpgrade)
                 {
                     upgradeVersionAvailable = true;
@@ -191,7 +191,7 @@ namespace AppInstaller::CLI::Workflow
         Utility::Version installedVersion = Utility::Version(installedPackage->GetProperty(PackageVersionProperty::Version));
         Utility::Version updateVersion(context.Get<Execution::Data::Manifest>().Version);
 
-        if (!IsUpdateVersionApplicable(installedVersion, updateVersion))
+        if (!IsUpdateVersionAvailable(installedVersion, updateVersion))
         {
             context.Reporter.Info() << Resource::String::UpdateNoPackagesFound << std::endl
                 << Resource::String::UpdateNoPackagesFoundReason << std::endl;
