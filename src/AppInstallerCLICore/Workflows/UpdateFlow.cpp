@@ -288,6 +288,8 @@ namespace AppInstaller::CLI::Workflow
 
     void SelectSinglePackageVersionForInstallOrUpgrade::operator()(Execution::Context& context) const
     {
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), m_searchPurpose != SearchPurpose::Install && m_searchPurpose != SearchPurpose::Upgrade);
+
         context <<
             HandleSearchResultFailures <<
             EnsureOneMatchFromSearchResult(m_searchPurpose) <<
@@ -336,6 +338,8 @@ namespace AppInstaller::CLI::Workflow
 
     void InstallOrUpgradeSinglePackage::operator()(Execution::Context& context) const
     {
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), m_searchPurpose != SearchPurpose::Install && m_searchPurpose != SearchPurpose::Upgrade);
+
         context <<
             SearchSourceForSingle <<
             SelectSinglePackageVersionForInstallOrUpgrade(m_searchPurpose) <<
