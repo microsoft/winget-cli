@@ -85,14 +85,14 @@ namespace AppInstaller::CLI
             if (context.Args.Contains(Execution::Args::Type::ListVersions))
             {
                 context <<
-                Workflow::EnsureOneMatchFromSearchResult(SearchPurpose::Search) <<
+                Workflow::EnsureOneMatchFromSearchResult(OperationType::Search) <<
                 Workflow::ReportPackageIdentity <<
                 Workflow::ShowAppVersions;
             }
             else
             {
                 context << 
-                    Workflow::EnsureMatchesFromSearchResult(SearchPurpose::Search) <<
+                    Workflow::EnsureMatchesFromSearchResult(OperationType::Search) <<
                     Workflow::ReportSearchResult;
             }
         

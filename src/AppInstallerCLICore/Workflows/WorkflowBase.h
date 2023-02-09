@@ -29,7 +29,7 @@ namespace AppInstaller::CLI::Workflow
         PostExecution = 5000,
     };
 
-    enum class SearchPurpose
+    enum class OperationType
     {
         Completion,
         Export,
@@ -229,13 +229,13 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     struct EnsureMatchesFromSearchResult : public WorkflowTask
     {
-        EnsureMatchesFromSearchResult(SearchPurpose purpose) :
-            WorkflowTask("EnsureMatchesFromSearchResult"), m_searchPurpose(purpose) {}
+        EnsureMatchesFromSearchResult(OperationType operation) :
+            WorkflowTask("EnsureMatchesFromSearchResult"), m_operationType(operation) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
-        SearchPurpose m_searchPurpose;
+        OperationType m_operationType;
     };
 
     // Ensures that there is only one result in the search.
@@ -244,13 +244,13 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: Package
     struct EnsureOneMatchFromSearchResult : public WorkflowTask
     {
-        EnsureOneMatchFromSearchResult(SearchPurpose purpose) :
-            WorkflowTask("EnsureOneMatchFromSearchResult"), m_searchPurpose(purpose) {}
+        EnsureOneMatchFromSearchResult(OperationType operation) :
+            WorkflowTask("EnsureOneMatchFromSearchResult"), m_operationType(operation) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
-        SearchPurpose m_searchPurpose;
+        OperationType m_operationType;
     };
 
     // Gets the manifest from package.

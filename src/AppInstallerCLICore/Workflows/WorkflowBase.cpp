@@ -856,23 +856,23 @@ namespace AppInstaller::CLI::Workflow
         {
             Logging::Telemetry().LogNoAppMatch();
             
-            switch (m_searchPurpose)
+            switch (m_operationType)
             {
                 // These search purposes require a package to be found in the Installed Packages
-                case SearchPurpose::Export:
-                case SearchPurpose::List:
-                case SearchPurpose::Uninstall:
-                case SearchPurpose::Pin:
+                case OperationType::Export:
+                case OperationType::List:
+                case OperationType::Uninstall:
+                case OperationType::Pin:
                     context.Reporter.Info() << Resource::String::NoInstalledPackageFound << std::endl;
                     break;
-                case SearchPurpose::Upgrade:
+                case OperationType::Upgrade:
                     context.Reporter.Info() << Resource::String::UpdateNoPackagesFound << std::endl
                         << Resource::String::UpdateNoPackagesFoundReason << std::endl;
                     break;
-                case SearchPurpose::Completion:
-                case SearchPurpose::Install:
-                case SearchPurpose::Search:
-                case SearchPurpose::Show:
+                case OperationType::Completion:
+                case OperationType::Install:
+                case OperationType::Search:
+                case OperationType::Show:
                 default:
                     context.Reporter.Info() << Resource::String::NoPackageFound << std::endl;
                     break;
@@ -885,7 +885,7 @@ namespace AppInstaller::CLI::Workflow
     void EnsureOneMatchFromSearchResult::operator()(Execution::Context& context) const
     {
         context <<
-            EnsureMatchesFromSearchResult(m_searchPurpose);
+            EnsureMatchesFromSearchResult(m_operationType);
 
         if (!context.IsTerminated())
         {
@@ -895,7 +895,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 Logging::Telemetry().LogMultiAppMatch();
 
-                if (m_searchPurpose == SearchPurpose::Upgrade || m_searchPurpose == SearchPurpose::Uninstall )
+                if (m_operationType == OperationType::Upgrade || m_operationType == OperationType::Uninstall )
                 {
                     context.Reporter.Warn() << Resource::String::MultipleInstalledPackagesFound << std::endl;
                     context << ReportMultiplePackageFoundResult;
@@ -1109,7 +1109,7 @@ namespace AppInstaller::CLI::Workflow
                 OpenSource() <<
                 SearchSourceForSingle <<
                 HandleSearchResultFailures <<
-                EnsureOneMatchFromSearchResult(SearchPurpose::Show) <<
+                EnsureOneMatchFromSearchResult(OperationType::Show) <<
                 GetManifestFromPackage(m_considerPins);
         }
     }

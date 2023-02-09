@@ -118,7 +118,7 @@ namespace AppInstaller::CLI
             Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
             Workflow::SearchSourceForSingle <<
             Workflow::HandleSearchResultFailures <<
-            Workflow::EnsureOneMatchFromSearchResult(SearchPurpose::Pin) <<
+            Workflow::EnsureOneMatchFromSearchResult(OperationType::Pin) <<
             Workflow::GetInstalledPackageVersion <<
             Workflow::ReportPackageIdentity <<
             Workflow::OpenPinningIndex() <<
@@ -190,7 +190,7 @@ namespace AppInstaller::CLI
             Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
             Workflow::SearchSourceForSingle <<
             Workflow::HandleSearchResultFailures <<
-            Workflow::EnsureOneMatchFromSearchResult(SearchPurpose::Pin) <<
+            Workflow::EnsureOneMatchFromSearchResult(OperationType::Pin) <<
             Workflow::GetInstalledPackageVersion <<
             Workflow::ReportPackageIdentity <<
             Workflow::OpenPinningIndex() <<

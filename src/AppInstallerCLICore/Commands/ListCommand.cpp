@@ -79,7 +79,7 @@ namespace AppInstaller::CLI
             Workflow::OpenCompositeSource(Workflow::DetermineInstalledSource(context)) <<
             Workflow::SearchSourceForMany <<
             Workflow::HandleSearchResultFailures <<
-            Workflow::EnsureMatchesFromSearchResult(SearchPurpose::List) <<
+            Workflow::EnsureMatchesFromSearchResult(OperationType::List) <<
             Workflow::ReportListResult();
     }
 }

@@ -288,14 +288,14 @@ namespace AppInstaller::CLI::Workflow
 
     void SelectSinglePackageVersionForInstallOrUpgrade::operator()(Execution::Context& context) const
     {
-        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), m_searchPurpose != SearchPurpose::Install && m_searchPurpose != SearchPurpose::Upgrade);
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), m_operationType != OperationType::Install && m_operationType != OperationType::Upgrade);
 
         context <<
             HandleSearchResultFailures <<
-            EnsureOneMatchFromSearchResult(m_searchPurpose) <<
+            EnsureOneMatchFromSearchResult(m_operationType) <<
             GetInstalledPackageVersion;
 
-        if ( m_searchPurpose != SearchPurpose::Upgrade && 
+        if ( m_operationType != OperationType::Upgrade && 
             context.Contains(Execution::Data::InstalledPackageVersion) &&
             context.Get<Execution::Data::InstalledPackageVersion>() != nullptr )
         {
@@ -310,7 +310,7 @@ namespace AppInstaller::CLI::Workflow
                 AICLI_LOG(CLI, Info, << "Found installed package, converting to upgrade flow");
                 context.Reporter.Info() << Execution::ConvertToUpgradeFlowEmphasis << Resource::String::ConvertInstallFlowToUpgrade << std::endl;
                 context.SetFlags(Execution::ContextFlag::InstallerExecutionUseUpdate);
-                m_searchPurpose = SearchPurpose::Upgrade;
+                m_operationType = OperationType::Upgrade;
             }
         }
 
@@ -319,7 +319,7 @@ namespace AppInstaller::CLI::Workflow
             // If version specified, use the version and verify applicability
             context << GetManifestFromPackage(/* considerPins */ true);
 
-            if (m_searchPurpose == SearchPurpose::Upgrade)
+            if (m_operationType == OperationType::Upgrade)
             {
                 context << EnsureUpdateVersionApplicable;
             }
@@ -338,11 +338,11 @@ namespace AppInstaller::CLI::Workflow
 
     void InstallOrUpgradeSinglePackage::operator()(Execution::Context& context) const
     {
-        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), m_searchPurpose != SearchPurpose::Install && m_searchPurpose != SearchPurpose::Upgrade);
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), m_operationType != OperationType::Install && m_operationType != OperationType::Upgrade);
 
         context <<
             SearchSourceForSingle <<
-            SelectSinglePackageVersionForInstallOrUpgrade(m_searchPurpose) <<
+            SelectSinglePackageVersionForInstallOrUpgrade(m_operationType) <<
             InstallSinglePackage;
     }
 }

@@ -62,7 +62,7 @@ namespace AppInstaller::CLI
             Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
             Workflow::SearchSourceForMany <<
             Workflow::HandleSearchResultFailures <<
-            Workflow::EnsureMatchesFromSearchResult(SearchPurpose::Export) <<
+            Workflow::EnsureMatchesFromSearchResult(OperationType::Export) <<
             Workflow::SelectVersionsToExport <<
             Workflow::ReportExecutionStage(ExecutionStage::Execution) <<
             Workflow::WriteImportFile;

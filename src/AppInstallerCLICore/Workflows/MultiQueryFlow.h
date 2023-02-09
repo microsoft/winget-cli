@@ -23,11 +23,11 @@ namespace AppInstaller::CLI::Workflow
     //   SubContext Outputs: SearchResult
     struct SearchSubContextsForSingle : public WorkflowTask
     {
-        SearchSubContextsForSingle(SearchPurpose searchPurpose = SearchPurpose::Install) : WorkflowTask("SearchSubContextsForSingle"), m_searchPurpose(searchPurpose) {}
+        SearchSubContextsForSingle(OperationType operation = OperationType::Install) : WorkflowTask("SearchSubContextsForSingle"), m_operationType(operation) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
-        SearchPurpose m_searchPurpose;
+        OperationType m_operationType;
     };
 }
