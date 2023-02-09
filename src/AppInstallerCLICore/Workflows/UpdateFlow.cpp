@@ -74,7 +74,7 @@ namespace AppInstaller::CLI::Workflow
         // The version keys should have already been sorted by version
         const auto& versionKeys = package->GetAvailableVersionKeys();
         // Assume that no update versions are applicable
-        bool upgradeVersionApplicable = false;
+        bool upgradeVersionAvailable = false;
         for (const auto& key : versionKeys)
         {
             // Check Applicable Version
@@ -83,7 +83,7 @@ namespace AppInstaller::CLI::Workflow
                 // The only way to enter this portion of the statement with isUpgrade is if the version is applicable
                 if (isUpgrade)
                 {
-                    upgradeVersionApplicable = true;
+                    upgradeVersionAvailable = true;
                 }
                 // Check if the package is pinned
                 if (key.PinnedState == Pinning::PinType::Blocking ||
@@ -162,7 +162,7 @@ namespace AppInstaller::CLI::Workflow
                 }
                 else if (isUpgrade)
                 {
-                    if (!upgradeVersionApplicable)
+                    if (!upgradeVersionAvailable)
                     {
                         // This is the case when no newer versions are available in a configured source
                         context.Reporter.Info() << Resource::String::UpdateNoPackagesFound << std::endl
