@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0-windows10.0.22000.0</TargetFramework>
@@ -31,7 +31,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Microsoft.Management.Configuration.Projection\Microsoft.Management.Configuration.Projection.csproj" />
+    <ProjectReference Include="..\Microsoft.Management.Configuration.Projection\Microsoft.Management.Configuration.Projection.csproj">
+      <CopyLocalSatelliteAssemblies>True</CopyLocalSatelliteAssemblies>
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
 
 </Project>
