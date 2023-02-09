@@ -136,6 +136,7 @@ HINSTANCE
 hkey
 hlocal
 hmodule
+Howto
 hre
 hresults
 IARP
@@ -228,6 +229,7 @@ normer
 NOSEPARATOR
 NOTAPROPERTY
 notmatch
+npmjs
 nsis
 nuffing
 objbase
