@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "winget/PackageTrackingCatalog.h"
 #include "PackageTrackingCatalogSourceFactory.h"
+#include "winget/Pin.h"
 #include "winget/RepositorySource.h"
 #include "Microsoft/SQLiteIndexSource.h"
 #include "AppInstallerDateTime.h"
@@ -238,7 +239,7 @@ namespace AppInstaller::Repository
 
         if (installer.RequireExplicitUpgrade)
         {
-            index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::PinnedState, ToString(PackagePinnedState::PinnedByManifest));
+            index.SetMetadataByManifestId(manifestId, PackageVersionMetadata::PinnedState, ToString(Pinning::PinType::PinnedByManifest));
         }
 
         // Record installed architecture and locale if applicable

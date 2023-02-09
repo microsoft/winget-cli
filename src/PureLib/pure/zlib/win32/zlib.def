@@ -69,6 +69,7 @@ EXPORTS
     gzoffset64
     adler32_combine64
     crc32_combine64
+    crc32_combine_gen64
 ; checksum functions
     adler32
     adler32_z
@@ -76,6 +77,8 @@ EXPORTS
     crc32_z
     adler32_combine
     crc32_combine
+    crc32_combine_gen
+    crc32_combine_op
 ; various hacks, don't look :)
     deflateInit_
     deflateInit2_

@@ -19,9 +19,35 @@ namespace AppInstaller::Pinning
             return "Pinning"sv;
         case PinType::Gating:
             return "Gating"sv;
+        case PinType::PinnedByManifest:
+            return "PinnedByManifest"sv;
         case PinType::Unknown:
         default:
             return "Unknown";
+        }
+    }
+
+    PinType ConvertToPinTypeEnum(std::string_view in)
+    {
+        if (Utility::CaseInsensitiveEquals(in, "Blocking"sv))
+        {
+            return PinType::Blocking;
+    }
+        else if (Utility::CaseInsensitiveEquals(in, "Pinning"sv))
+    {
+            return PinType::Pinning;
+    }
+        else if (Utility::CaseInsensitiveEquals(in, "Gating"sv))
+    {
+            return PinType::Gating;
+    }
+        else if (Utility::CaseInsensitiveEquals(in, "PinnedByManifest"sv))
+    {
+            return PinType::PinnedByManifest;
+    }
+        else
+    {
+            return PinType::Unknown;
         }
     }
 
@@ -38,31 +64,6 @@ namespace AppInstaller::Pinning
     Pin Pin::CreateGatingPin(PinKey&& pinKey, GatedVersion&& gatedVersion)
     {
         return { PinType::Gating, std::move(pinKey), std::move(gatedVersion) };
-    }
-
-    PinType Pin::GetType() const
-    {
-        return m_type;
-    }
-
-    const PinKey& Pin::GetKey() const
-    {
-        return m_key;
-    }
-
-    const AppInstaller::Manifest::Manifest::string_t& Pin::GetPackageId() const 
-    {
-        return m_key.PackageId;
-    }
-
-    std::string_view Pin::GetSourceId() const
-    {
-        return m_key.SourceId;
-    }
-
-    Utility::GatedVersion Pin::GetGatedVersion() const
-    {
-        return m_gatedVersion;
     }
 
     bool Pin::operator==(const Pin& other) const

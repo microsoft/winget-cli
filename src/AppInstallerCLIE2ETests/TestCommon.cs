@@ -564,7 +564,7 @@ namespace AppInstallerCLIE2ETests
         /// <param name="installDir">Install directory.</param>
         /// <param name="expectedContent">Optional expected content.</param>
         /// <returns>True if success.</returns>
-        public static bool VerifyTestExeInstalledAndCleanup(string installDir, string expectedContent = null)
+        public static bool VerifyTestExeInstalled(string installDir, string expectedContent = null)
         {
             bool verifyInstallSuccess = true;
 
@@ -580,6 +580,19 @@ namespace AppInstallerCLIE2ETests
                 TestContext.Out.WriteLine($"TestExeInstalled.exe content: {content}");
                 verifyInstallSuccess = content.Contains(expectedContent);
             }
+
+            return verifyInstallSuccess;
+        }
+
+        /// <summary>
+        /// Verify exe installer correctly and then uninstall it.
+        /// </summary>
+        /// <param name="installDir">Install directory.</param>
+        /// <param name="expectedContent">Optional expected content.</param>
+        /// <returns>True if success.</returns>
+        public static bool VerifyTestExeInstalledAndCleanup(string installDir, string expectedContent = null)
+        {
+            bool verifyInstallSuccess = VerifyTestExeInstalled(installDir, expectedContent);
 
             // Always try clean up and ignore clean up failure
             var uninstallerPath = Path.Combine(installDir, Constants.TestExeUninstallerFileName);

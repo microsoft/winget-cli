@@ -2,15 +2,18 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "WorkflowCommon.h"
+#include "TestHooks.h"
 #include <Commands/PinCommand.h>
 #include <Workflows/PinFlow.h>
 #include <Microsoft/PinningIndex.h>
 #include <AppInstallerRuntime.h>
+#include <AppInstallerVersions.h>
 
 using namespace TestCommon;
 using namespace AppInstaller::CLI;
 using namespace AppInstaller::CLI::Workflow;
 using namespace AppInstaller::Repository::Microsoft;
+using namespace AppInstaller::Utility;
 using namespace AppInstaller::Pinning;
 
 void OverrideForOpenPinningIndex(TestContext& context, const std::filesystem::path& indexPath)
@@ -27,6 +30,7 @@ void OverrideForOpenPinningIndex(TestContext& context, const std::filesystem::pa
 TEST_CASE("PinFlow_Add", "[PinFlow][workflow]")
 {
     TempFile indexFile("pinningIndex", ".db");
+    TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
 
     std::ostringstream pinAddOutput;
     TestContext addContext{ pinAddOutput, std::cin };
@@ -146,6 +150,9 @@ TEST_CASE("PinFlow_Add", "[PinFlow][workflow]")
 
 TEST_CASE("PinFlow_Add_NotFound", "[PinFlow][workflow]")
 {
+    TempFile indexFile("pinningIndex", ".db");
+    TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
+
     std::ostringstream pinAddOutput;
     TestContext addContext{ pinAddOutput, std::cin };
     OverrideForCompositeInstalledSource(addContext, CreateTestSource({}));
@@ -161,6 +168,7 @@ TEST_CASE("PinFlow_Add_NotFound", "[PinFlow][workflow]")
 TEST_CASE("PinFlow_ListEmpty", "[PinFlow][workflow]")
 {
     TempFile indexFile("pinningIndex", ".db");
+    TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
 
     std::ostringstream pinListOutput;
     TestContext listContext{ pinListOutput, std::cin };
@@ -177,6 +185,7 @@ TEST_CASE("PinFlow_ListEmpty", "[PinFlow][workflow]")
 TEST_CASE("PinFlow_RemoveNonExisting", "[PinFlow][workflow]")
 {
     TempFile indexFile("pinningIndex", ".db");
+    TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
 
     std::ostringstream pinRemoveOutput;
     TestContext removeContext{ pinRemoveOutput, std::cin };
@@ -194,6 +203,7 @@ TEST_CASE("PinFlow_RemoveNonExisting", "[PinFlow][workflow]")
 TEST_CASE("PinFlow_ResetEmpty", "[PinFlow][workflow]")
 {
     TempFile indexFile("pinningIndex", ".db");
+    TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
 
     std::ostringstream pinResetOutput;
     TestContext resetContext{ pinResetOutput, std::cin };

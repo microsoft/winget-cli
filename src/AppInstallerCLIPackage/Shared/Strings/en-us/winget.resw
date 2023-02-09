@@ -831,10 +831,6 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="ImportInstallFailed" xml:space="preserve">
     <value>One or more imported packages failed to install</value>
   </data>
-  <data name="ImportSearchFailed" xml:space="preserve">
-    <value>Package not found for import: {0}</value>
-    <comment>{Locked="{0}"} Error message displayed when the user attempts to import an application package that was not found. {0} is a placeholder replaced by the import package name .</comment>
-  </data>
   <data name="ImportSourceNotInstalled" xml:space="preserve">
     <value>Source required for import is not installed: {0}</value>
     <comment>{Locked="{0}"} Error message displayed when the user attempts to import application package(s) from a repository source that is not installed. {0} is a placeholder replaced by the repository source name.</comment>
@@ -853,9 +849,9 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="InvalidJsonFile" xml:space="preserve">
     <value>JSON file is not valid</value>
   </data>
-  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+  <data name="MultiQueryPackageAlreadyInstalled" xml:space="preserve">
     <value>Package is already installed: {0}</value>
-    <comment>{Locked="{0}"} Message displayed to inform the user that an import application package is already installed. {0} is a placeholder replaced by the package identifier.</comment>
+    <comment>{Locked="{0}"} Message displayed to inform the user that an application package is already installed. {0} is a placeholder replaced by the package identifier or search query.</comment>
   </data>
   <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
     <value>Ignore unavailable packages</value>
@@ -909,21 +905,9 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
     <value>Set Windows Package Manager Source Auto Update Interval In Minutes</value>
   </data>
-  <data name="PoliciesDisabled" xml:space="preserve">
-    <value>Disabled</value>
-    <comment>As in enabled/disabled</comment>
-  </data>
-  <data name="PoliciesEnabled" xml:space="preserve">
-    <value>Enabled</value>
-    <comment>As in enabled/disabled</comment>
-  </data>
   <data name="PoliciesPolicy" xml:space="preserve">
     <value>Group Policy</value>
     <comment>Header for a table listing active Group Policies</comment>
-  </data>
-  <data name="PoliciesState" xml:space="preserve">
-    <value>State</value>
-    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
   </data>
   <data name="PolicyEnableLocalManifests" xml:space="preserve">
     <value>Enable Windows App Installer Local Manifest Files</value>
@@ -1224,10 +1208,6 @@ Do you agree to the terms?</value>
   <data name="AdminSettingDisableDescription" xml:space="preserve">
     <value>Disables the specific administrator setting</value>
   </data>
-  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
-    <value>Too many admin setting arguments provided: '{0}'</value>
-    <comment>{Locked="{0}"} Error message displayed when the user provides too many admin setting arguments. {0} is a placeholder replaced by the admin setting arguments (e.g. 'enable|disable').</comment>
-  </data>
   <data name="AdminSettingEnabled" xml:space="preserve">
     <value>Enabled admin setting '{0}'.</value>
     <comment>{Locked="{0}"} Message displayed when the user enables an admin setting. {0} is a placeholder replaced by the setting name.</comment>
@@ -1235,6 +1215,10 @@ Do you agree to the terms?</value>
   <data name="AdminSettingDisabled" xml:space="preserve">
     <value>Disabled admin setting '{0}'.</value>
     <comment>{Locked="{0}"} Message displayed when the user disables an admin setting. {0} is a placeholder replaced by the setting name.</comment>
+  </data>
+  <data name="AdminSettingHeader" xml:space="preserve">
+    <value>Admin Setting</value>
+    <comment>Header for a table displaying admin settings.</comment>
   </data>
   <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
     <value>Application is currently running. Exit the application then try again.</value>
@@ -1347,21 +1331,13 @@ Please specify one of them using the --source option to proceed.</value>
     <value>This package's version number cannot be determined. To upgrade it anyway, add the argument --include-unknown to your previous command.</value>
     <comment>{Locked="--include-unknown"}</comment>
   </data>
-  <data name="UpgradeUnknownCount" xml:space="preserve">
-    <value>packages have version numbers that cannot be determined. Using --include-unknown may show more results.</value>
-    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions. </comment>
-  </data>
-  <data name="UpgradeUnknownCountSingle" xml:space="preserve">
-    <value>package has a version number that cannot be determined. Using --include-unknown may show more results.</value>
-    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions.</comment>
-  </data>
   <data name="UpgradeUnknownVersionCount" xml:space="preserve">
-    <value>package(s) have version numbers that cannot be determined. Use --include-unknown to see all results.</value>
-    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions. </comment>
+    <value>{0} package(s) have version numbers that cannot be determined. Use --include-unknown to see all results.</value>
+    <comment>{Locked="{0}","--include-unknown"} {0} is a placeholder that is replaced by an integer number of packages that do not have notated versions. </comment>
   </data>
   <data name="UpgradeRequireExplicitCount" xml:space="preserve">
-    <value>package(s) is pinned and needs to be explicitly upgraded.</value>
-    <comment>This string is preceded by a (integer) number of packages that require explicit upgrades.</comment>
+    <value>{0} package(s) are pinned and need to be explicitly upgraded.</value>
+    <comment>{Locked="{0}"} {0} is a placeholder that is replaced by an integer number of packages that require explicit upgrades.</comment>
   </data>
   <data name="InvalidArgumentWithoutQueryError" xml:space="preserve">
     <value>The arguments provided can only be used with a query.</value>
@@ -1419,10 +1395,6 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="PortableInstallFailed" xml:space="preserve">
     <value>Portable install failed; Cleaning up...</value>
-  </data>
-  <data name="BothPurgeAndPreserveFlagsProvided" xml:space="preserve">
-    <value>Both --purge and --preserve arguments are provided</value>
-    <comment>{Locked="--purge"} {Locked="--preserve"}</comment>
   </data>
   <data name="PortableHashMismatchOverridden" xml:space="preserve">
     <value>Portable package has been modified; proceeding due to --force</value>
@@ -1556,14 +1528,14 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>{Locked="{0}"} The value will be replaced with the feature name</comment>
   </data>
   <data name="PinAddCommandLongDescription" xml:space="preserve">
-    <value>Add a new pin. A pin can limit the Windows Package Manager from updating a package to specific ranges of versions, or it can prevent it from updating the package altogether. A pinned package may still update on its own and be updated from outside the Windows Package Manager. By default, a pinned package can be updated by mentioning it explicitly in the 'upgrade' command or by adding the '--include-pinned' flag to 'winget upgrade --all'.</value>
+    <value>Add a new pin. A pin can limit the Windows Package Manager from upgrade a package to specific ranges of versions, or it can prevent it from upgrading the package altogether. A pinned package may still upgrade on its own and be upgraded from outside the Windows Package Manager. By default, a pinned package can be upgraded by mentioning it explicitly in the 'upgrade' command or by adding the '--include-pinned' flag to 'winget upgrade --all'.</value>
     <comment>{Locked{"'upgrade'"} Locked{"--include-pinned"} Locked{"winget upgrade --all"}</comment>
   </data>
   <data name="PinAddCommandShortDescription" xml:space="preserve">
     <value>Add a new pin</value>
   </data>
   <data name="PinCommandLongDescription" xml:space="preserve">
-    <value>Manage package pins with the sub-commands. A pin can limit the Windows Package Manager from updating a package to specific ranges of versions, or it can prevent it from updating the package altogether. A pinned package may still update on its own and be updated from outside the Windows Package Manager.</value>
+    <value>Manage package pins with the sub-commands. A pin can limit the Windows Package Manager from upgrading a package to specific ranges of versions, or it can prevent it from upgrading the package altogether. A pinned package may still upgrade on its own and be upgraded from outside the Windows Package Manager.</value>
   </data>
   <data name="PinCommandShortDescription" xml:space="preserve">
     <value>Manage package pins</value>
@@ -1586,15 +1558,11 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="PinResetCommandShortDescription" xml:space="preserve">
     <value>Reset pins</value>
   </data>
-  <data name="BothGatedVersionAndBlockingFlagProvided" xml:space="preserve">
-    <value>Both version and '--blocking' arguments provided</value>
-    <comment>{Locked="--blocking"}</comment>
-  </data>
   <data name="GatedVersionArgumentDescription" xml:space="preserve">
     <value>Version to which to pin the package. The wildcard '*' can be used as the last version part</value>
   </data>
   <data name="PinAddBlockingArgumentDescription" xml:space="preserve">
-    <value>Block from updating until the pin is removed, preventing override arguments</value>
+    <value>Block from upgrading until the pin is removed, preventing override arguments</value>
   </data>
   <data name="SettingsExportCommandLongDescription" xml:space="preserve">
     <value>Export settings as JSON</value>
@@ -1617,15 +1585,16 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Pin added successfully</value>
   </data>
   <data name="PinAlreadyExists" xml:space="preserve">
-    <value>The pin already exists</value>
+    <value>There is already a pin for package {0}</value>
+    <comment>{Locked="{0}"} {0} is a placeholder that will be replaced by a package name. The message is shown when attempting to add a pin for a package that is already pinned.</comment>
   </data>
   <data name="PinExistsOverwriting" xml:space="preserve">
-    <value>A pin already exists for this package. Overwriting due to the --force argument.</value>
-    <comment>{Locked="--force"}</comment>
+    <value>A pin already exists for package {0}. Overwriting due to the --force argument.</value>
+    <comment>{Locked="--force"}{Locked="--force","{0}"} {0} is a placeholder that will be replaced by a package name.</comment>
   </data>
   <data name="PinExistsUseForceArg" xml:space="preserve">
-    <value>A pin already exists for this package. Use the --force argument to overwrite it.</value>
-    <comment>{Locked="--force"}</comment>
+    <value>A pin already exists for package {0}. Use the --force argument to overwrite it.</value>
+    <comment>{Locked="--force","{0}"} {0} is a placeholder that will be replaced by a package name.</comment>
   </data>
   <data name="PinResettingAll" xml:space="preserve">
     <value>Resetting all current pins.</value>
@@ -1652,5 +1621,60 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="PinCannotOpenIndex" xml:space="preserve">
     <value>Unable to open pin database.</value>
     <comment>Error message for when we cannot open the database containing package pins.</comment>
+  </data>
+  <data name="ArgumentForSinglePackageProvidedWithMultipleQueries" xml:space="preserve">
+    <value>An argument was provided that can only be used for single package</value>
+  </data>
+  <data name="MultipleExclusiveArgumentsProvided" xml:space="preserve">
+    <value>Multiple mutually exclusive arguments provided: {0}</value>
+    <comment>{Locked="{0}"} Error message shown when mutually incompatible command line arguments are used. {0} is a placeholder replaced by the arguments that cannot be specified together</comment>
+  </data>
+  <data name="StateDisabled" xml:space="preserve">
+    <value>Disabled</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="StateEnabled" xml:space="preserve">
+    <value>Enabled</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="StateHeader" xml:space="preserve">
+    <value>State</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies and Settings</comment>
+  </data>
+  <data name="MultiQueryArgumentDescription" xml:space="preserve">
+    <value>The query used to search for a package</value>
+  </data>
+  <data name="MultiQueryPackageNotFound" xml:space="preserve">
+    <value>Package not found: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user attempts to search for multiple application packages and one of the searches returns no results. {0} is a placeholder replaced by the package name or query.</comment>
+  </data>
+  <data name="MultiQuerySearchFoundMultiple" xml:space="preserve">
+    <value>Multiple packages found for: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user attempts to search for multiple application packages and one of the searches returns more than one result. {0} is a placeholder replaced by the package name or query.</comment>
+  </data>
+  <data name="MultiQuerySearchFailed" xml:space="preserve">
+    <value>Search failed for: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user attempts to search for multiple application packages and one of the searches fails. This message is for generic failures, we have more specific messages for when the search returns no results, or when it returns more than one result. {0} is a placeholder replaced by the package name or query.</comment>
+  </data>
+  <data name="UpgradeBlockingPinCount" xml:space="preserve">
+    <value>{0} package(s) have a blocking pin that needs to be removed before upgrade</value>
+    <comment>{Locked="{0}"} {0} is a placeholder that is replaced by an integer number of packages with blocking pins</comment>
+  </data>
+  <data name="IncludePinnedArgumentDescription" xml:space="preserve">
+    <value>Upgrade packages even if they have a non-blocking pin</value>
+  </data>
+  <data name="PinRemovedSuccessfully" xml:space="preserve">
+    <value>Pin removed successfully</value>
+  </data>
+  <data name="UpgradeIsPinned" xml:space="preserve">
+    <value>A newer version was found, but the package has a pin that prevents from upgrading it.</value>
+  </data>
+  <data name="PackageIsPinned" xml:space="preserve">
+    <value>The package is pinned and cannot be upgraded. Use the 'winget pin' command to view and edit pins. Some pin types can be bypassed with the --include-pinned argument.</value>
+    <comment>{Locked="winget pin","--include-pinned"} Error shown when we block an upgrade due to the package being pinned</comment>
+  </data>
+  <data name="UpgradePinnedByUserCount" xml:space="preserve">
+    <value>{0} package(s) have pins that prevent upgrade. Use the 'winget pin' command to view and edit pins. Using the --include-pinned argument may show more results.</value>
+    <comment>{Locked="winget pin","--include-pinned"} {0} is a placeholder replaced by an integer number of packages</comment>
   </data>
 </root>

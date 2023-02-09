@@ -81,13 +81,27 @@ namespace AppInstallerCLIE2ETests
                 // Leave the server certificate file if present
                 if (file.Name.ToLower() != Constants.TestSourceServerCertificateFileName)
                 {
-                    file.Delete();
+                    try
+                    {
+                        file.Delete();
+                    }
+                    catch
+                    {
+                        // Just ignore errors in this setup step...
+                    }
                 }
             }
 
             foreach (DirectoryInfo dir in directory.GetDirectories())
             {
-                dir.Delete(true);
+                try
+                {
+                    dir.Delete(true);
+                }
+                catch
+                {
+                    // Just ignore errors in this setup step...
+                }
             }
         }
 

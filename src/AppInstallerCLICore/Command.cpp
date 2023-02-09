@@ -124,7 +124,7 @@ namespace AppInstaller::CLI
 
                 infoOut << '[';
 
-                if (arg.Alias() == Argument::NoAlias)
+                if (arg.Alias() == ArgumentCommon::NoAlias)
                 {
                     infoOut << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << arg.Name();
                 }
@@ -134,6 +134,11 @@ namespace AppInstaller::CLI
                 }
 
                 infoOut << "] <"_liv << arg.Name() << '>';
+
+                if (arg.Limit() > 1)
+                {
+                    infoOut << "..."_liv;
+                }
 
                 if (!arg.Required())
                 {
@@ -405,14 +410,10 @@ namespace AppInstaller::CLI
     const CLI::Argument* ParseArgumentsStateMachine::NextPositional()
     {
         // Find the next appropriate positional arg if the current itr isn't one or has hit its limit.
-        if (m_positionalSearchItr != m_arguments.end() &&
+        while (m_positionalSearchItr != m_arguments.end() &&
             (m_positionalSearchItr->Type() != ArgumentType::Positional || m_executionArgs.GetCount(m_positionalSearchItr->ExecArgType()) == m_positionalSearchItr->Limit()))
         {
-            do
-            {
-                ++m_positionalSearchItr;
-            }
-            while (m_positionalSearchItr != m_arguments.end() && m_positionalSearchItr->Type() != ArgumentType::Positional);
+            ++m_positionalSearchItr;
         }
 
         if (m_positionalSearchItr == m_arguments.end())
@@ -600,6 +601,9 @@ namespace AppInstaller::CLI
         {
             stateMachine.ThrowIfError();
         }
+
+        // Special handling for multi-query arguments:
+        execArgs.MoveMultiQueryToSingleQueryIfNeeded();
     }
 
     void Command::ValidateArguments(Execution::Args& execArgs) const
@@ -704,9 +708,11 @@ namespace AppInstaller::CLI
             if (Manifest::ConvertToScopeEnum(execArgs.GetArg(Execution::Args::Type::InstallScope)) == Manifest::ScopeEnum::Unknown)
             {
                 auto validOptions = Utility::Join(", "_liv, std::vector<Utility::LocIndString>{ "user"_lis, "machine"_lis});
-                throw CommandException(Resource::String::InvalidArgumentValueError(s_ArgumentName_Scope, validOptions));
+                throw CommandException(Resource::String::InvalidArgumentValueError(ArgumentCommon::ForType(Execution::Args::Type::InstallScope).Name, validOptions));
             }
         }
+
+        Argument::ValidateExclusiveArguments(execArgs);
 
         ValidateArgumentsInternal(execArgs);
     }
@@ -780,7 +786,7 @@ namespace AppInstaller::CLI
             {
                 for (const auto& arg : stateMachine.Arguments())
                 {
-                    if (arg.Alias() != Argument::NoAlias)
+                    if (arg.Alias() != ArgumentCommon::NoAlias)
                     {
                         context.Reporter.Completion() << APPINSTALLER_CLI_ARGUMENT_IDENTIFIER_CHAR << arg.Alias() << std::endl;
                     }

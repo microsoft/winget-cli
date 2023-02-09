@@ -318,6 +318,24 @@ TEST_CASE("VersionRange", "[versions]")
     REQUIRE_FALSE(VersionRange{ Version{ "1.5" }, Version{ "2.0" } } < VersionRange{ Version{ "0.5" }, Version{ "1.0" } });
 }
 
+TEST_CASE("GatedVersion", "[versions]")
+{
+    REQUIRE(GatedVersion("1.0.*"sv).IsValidVersion({ "1.0.1" }));
+    REQUIRE(GatedVersion("1.0.*"sv).IsValidVersion({ "1.0" }));
+    REQUIRE(GatedVersion("1.0.*"sv).IsValidVersion({ "1" }));
+    REQUIRE(GatedVersion("1.0.*"sv).IsValidVersion({ "1.0.alpha" }));
+    REQUIRE(GatedVersion("1.0.*"sv).IsValidVersion({ "1.0.1.2.3" }));
+    REQUIRE(GatedVersion("1.0.*"sv).IsValidVersion({ "1.0.*" }));
+    REQUIRE_FALSE(GatedVersion("1.0.*"sv).IsValidVersion({ "1.1.1" }));
+
+    REQUIRE(GatedVersion("1.*.*"sv).IsValidVersion({ "1.*.1" }));
+    REQUIRE(GatedVersion("1.*.*"sv).IsValidVersion({ "1.*.*" }));
+    REQUIRE_FALSE(GatedVersion("1.*.*"sv).IsValidVersion({ "1.1.1" }));
+
+    REQUIRE(GatedVersion("1.0.1"sv).IsValidVersion({ "1.0.1" }));
+    REQUIRE_FALSE(GatedVersion("1.0.1"sv).IsValidVersion({ "1.1.1" }));
+}
+
 TEST_CASE("SemanticVersion", "[versions]")
 {
     REQUIRE_THROWS_HR(SemanticVersion("1.2.3.4"), E_INVALIDARG);
