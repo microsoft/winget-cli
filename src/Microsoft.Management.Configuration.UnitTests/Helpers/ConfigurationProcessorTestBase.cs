@@ -41,7 +41,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         protected ITestOutputHelper Log { get; private set; }
 
         /// <summary>
-        /// Createa a new <see cref="ConfigurationProcessor"/> with the diagnostics event hooked up.
+        /// Create a new <see cref="ConfigurationProcessor"/> with the diagnostics event hooked up.
         /// </summary>
         /// <param name="factory">The factory to use.</param>
         /// <returns>The new <see cref="ConfigurationProcessor"/> object.</returns>

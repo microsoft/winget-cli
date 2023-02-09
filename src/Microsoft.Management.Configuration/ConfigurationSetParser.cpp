@@ -64,14 +64,14 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             return std::make_unique<ConfigurationSetParserError>(WINGET_CONFIG_ERROR_INVALID_YAML);
         }
 
-        AppInstaller::YAML::Node& popertiesNode = document[NodeName_Properties];
-        if (!popertiesNode.IsMap())
+        AppInstaller::YAML::Node& propertiesNode = document[NodeName_Properties];
+        if (!propertiesNode.IsMap())
         {
             AICLI_LOG(Config, Info, << "Invalid properties");
             return std::make_unique<ConfigurationSetParserError>(WINGET_CONFIG_ERROR_INVALID_FIELD, NodeName_Properties);
         }
 
-        AppInstaller::YAML::Node& versionNode = popertiesNode[NodeName_ConfigurationVersion];
+        AppInstaller::YAML::Node& versionNode = propertiesNode[NodeName_ConfigurationVersion];
         if (!versionNode.IsScalar())
         {
             AICLI_LOG(Config, Info, << "Invalid configuration version");

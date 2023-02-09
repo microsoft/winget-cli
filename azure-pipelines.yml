@@ -296,7 +296,7 @@ jobs:
     inputs:
       testSelector: 'testAssemblies'
       testAssemblyVer2: 'Microsoft.Management.Configuration.UnitTests.dll'
-      searchFolder: '$(Build.ArtifactStagingDirectory)\Microsoft.Management.Configuration.UnitTests'
+      searchFolder: '$(buildOutDir)\Microsoft.Management.Configuration.UnitTests'
       codeCoverageEnabled: true
       platform: 'x64'
 
