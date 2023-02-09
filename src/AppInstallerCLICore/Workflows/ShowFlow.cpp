@@ -224,4 +224,22 @@ namespace AppInstaller::CLI::Workflow
         table.OutputLine({ manifest.Version, manifest.Channel });
         table.Complete();
     }
+
+    void GetManifest::operator()(Execution::Context& context) const
+    {
+        if (context.Args.Contains(Execution::Args::Type::Manifest))
+        {
+            context <<
+                GetManifestFromArg;
+        }
+        else
+        {
+            context <<
+                OpenSource() <<
+                SearchSourceForSingle <<
+                HandleSearchResultFailures <<
+                EnsureOneMatchFromSearchResult(OperationType::Show) <<
+                GetManifestFromPackage(m_considerPins);
+        }
+    }
 }

@@ -352,21 +352,6 @@ namespace AppInstaller::CLI::Workflow
         Execution::Reporter::Level m_level;
     };
 
-    // Composite flow that produces a manifest; either from one given on the command line or by searching.
-    // Required Args: None
-    // Inputs: None
-    // Outputs: Manifest
-    struct GetManifest : public WorkflowTask
-    {
-        GetManifest(bool considerPins) : WorkflowTask("GetManifest"), m_considerPins(considerPins) {}
-
-        void operator()(Execution::Context& context) const override;
-
-    private:
-        bool m_considerPins;
-    };
-
-
     // Selects the installer from the manifest, if one is applicable.
     // Required Args: None
     // Inputs: Manifest

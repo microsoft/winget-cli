@@ -1096,24 +1096,6 @@ namespace AppInstaller::CLI::Workflow
         ReportIdentity(context, m_prefix, m_label, manifest.CurrentLocalization.Get<Manifest::Localization::PackageName>(), manifest.Id, manifest.Version, m_level);
     }
 
-    void GetManifest::operator()(Execution::Context& context) const
-    {
-        if (context.Args.Contains(Execution::Args::Type::Manifest))
-        {
-            context <<
-                GetManifestFromArg;
-        }
-        else
-        {
-            context <<
-                OpenSource() <<
-                SearchSourceForSingle <<
-                HandleSearchResultFailures <<
-                EnsureOneMatchFromSearchResult(OperationType::Show) <<
-                GetManifestFromPackage(m_considerPins);
-        }
-    }
-
     void SelectInstaller(Execution::Context& context)
     {
         bool isUpdate = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerExecutionUseUpdate);
