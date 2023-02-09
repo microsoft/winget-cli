@@ -295,10 +295,11 @@ jobs:
     displayName: 'Run tests: Microsoft.Management.Configuration.UnitTests'
     inputs:
       testSelector: 'testAssemblies'
-      testAssemblyVer2: 'Microsoft.Management.Configuration.UnitTests.dll'
+      testAssemblyVer2: '**\Microsoft.Management.Configuration.UnitTests.dll'
       searchFolder: '$(buildOutDir)\Microsoft.Management.Configuration.UnitTests'
       codeCoverageEnabled: true
       platform: 'x64'
+      configuration: '$(BuildConfiguration)'
 
   - task: CopyFiles@2
     displayName: 'Copy Util to artifacts folder'
