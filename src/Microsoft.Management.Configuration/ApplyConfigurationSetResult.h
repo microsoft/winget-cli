@@ -10,10 +10,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         using ApplyConfigurationUnitResult = Configuration::ApplyConfigurationUnitResult;
 
-        ApplyConfigurationSetResult() = default;
+        ApplyConfigurationSetResult();
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
-        void Initialize(std::vector<ApplyConfigurationUnitResult>&& unitResults, hresult resultCode);
+        const Windows::Foundation::Collections::IVector<ApplyConfigurationUnitResult>& UnitResultsVector();
+        void ResultCode(hresult value);
 #endif
 
         Windows::Foundation::Collections::IVectorView<ApplyConfigurationUnitResult> UnitResults();
@@ -21,7 +22,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
-        Windows::Foundation::Collections::IVector<ApplyConfigurationUnitResult> m_unitResults = nullptr;
+        Windows::Foundation::Collections::IVector<ApplyConfigurationUnitResult> m_unitResults;
         hresult m_resultCode;
 #endif
     };

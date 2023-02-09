@@ -15,6 +15,14 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
     internal class TestConfigurationProcessorFactory : IConfigurationProcessorFactory
     {
         /// <summary>
+        /// Delegate type for CreateSetProcessor.
+        /// </summary>
+        /// <param name="factory">The TestConfigurationProcessorFactory that is calling this function.</param>
+        /// <param name="configurationSet">The set.</param>
+        /// <returns>A new TestConfigurationSetProcessor for the set.</returns>
+        internal delegate IConfigurationSetProcessor CreateSetProcessorDelegateType(TestConfigurationProcessorFactory factory, ConfigurationSet configurationSet);
+
+        /// <summary>
         /// Gets or sets the processor used when the incoming configuration set is null.
         /// </summary>
         internal TestConfigurationSetProcessor? NullProcessor { get; set; }
@@ -37,11 +45,31 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
             new Dictionary<ConfigurationSet, Exception>();
 
         /// <summary>
+        /// Gets or sets the delegate use to replace the default CreateSetProcessor functionality.
+        /// </summary>
+        internal CreateSetProcessorDelegateType? CreateSetProcessorDelegate { get; set; }
+
+        /// <summary>
         /// Creates a new TestConfigurationSetProcessor for the set.
         /// </summary>
         /// <param name="configurationSet">The set.</param>
         /// <returns>A new TestConfigurationSetProcessor for the set.</returns>
         public IConfigurationSetProcessor CreateSetProcessor(ConfigurationSet configurationSet)
+        {
+            if (this.CreateSetProcessorDelegate != null)
+            {
+                return this.CreateSetProcessorDelegate(this, configurationSet);
+            }
+
+            return this.DefaultCreateSetProcessor(configurationSet);
+        }
+
+        /// <summary>
+        /// The default test implementation that creates a new TestConfigurationSetProcessor for the set.
+        /// </summary>
+        /// <param name="configurationSet">The set.</param>
+        /// <returns>A new TestConfigurationSetProcessor for the set.</returns>
+        internal IConfigurationSetProcessor DefaultCreateSetProcessor(ConfigurationSet configurationSet)
         {
             if (configurationSet == null)
             {

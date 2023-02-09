@@ -3,6 +3,7 @@
 #pragma once
 #include "ConfigurationSet.h"
 #include "ConfigurationUnit.h"
+#include "ApplyConfigurationSetResult.h"
 #include "ApplyConfigurationUnitResult.h"
 #include "ConfigurationUnitResultInformation.h"
 
@@ -20,16 +21,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         using ConfigurationUnitResultInformation = Configuration::ConfigurationUnitResultInformation;
         using ConfigurationSetChangeData = Configuration::ConfigurationSetChangeData;
 
-        ConfigurationSetApplyProcessor(const ConfigurationSet& configurationSet, IConfigurationSetProcessor&& setProcessor, const std::function<void(ConfigurationSetChangeData)>& progress);
+        using result_type = decltype(make_self<wil::details::module_count_wrapper<implementation::ApplyConfigurationSetResult>>());
+
+        ConfigurationSetApplyProcessor(const ConfigurationSet& configurationSet, IConfigurationSetProcessor&& setProcessor, result_type result, const std::function<void(ConfigurationSetChangeData)>& progress);
 
         // Processes the apply for the configuration set.
         void Process();
-
-        // Gets the unit results from the processing.
-        std::vector<Configuration::ApplyConfigurationUnitResult> GetUnitResults() const;
-
-        // Gets the overall result code from the processing.
-        hresult ResultCode() const;
 
     private:
         // Contains all of the relevant data for a configuration unit.
@@ -62,7 +59,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         // Processes one of the non-writing intent types, which are fatal if not all successful
         bool ProcessIntentInternal(
-            std::vector<size_t> unitsToProcess,
+            std::vector<size_t>& unitsToProcess,
             CheckDependencyPtr checkDependencyFunction,
             ProcessUnitPtr processUnitFunction,
             ConfigurationUnitIntent intent,
@@ -95,6 +92,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         void SendProgress(ConfigurationUnitState state, const UnitInfo& unitInfo);
 
         IConfigurationSetProcessor m_setProcessor;
+        result_type m_result;
         std::function<void(ConfigurationSetChangeData)> m_progress;
         std::vector<UnitInfo> m_unitInfo;
         std::map<std::string, size_t> m_idToUnitInfoIndex;

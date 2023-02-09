@@ -34,8 +34,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         Windows::Foundation::Collections::IVector<ConfigurationSet> GetConfigurationHistory();
         Windows::Foundation::IAsyncOperation<Windows::Foundation::Collections::IVector<ConfigurationSet>> GetConfigurationHistoryAsync();
 
-        Configuration::OpenConfigurationSetResult OpenConfigurationSet(Windows::Storage::Streams::IInputStream stream);
-        Windows::Foundation::IAsyncOperation<Configuration::OpenConfigurationSetResult> OpenConfigurationSetAsync(Windows::Storage::Streams::IInputStream stream);
+        Configuration::OpenConfigurationSetResult OpenConfigurationSet(const Windows::Storage::Streams::IInputStream& stream);
+        Windows::Foundation::IAsyncOperation<Configuration::OpenConfigurationSetResult> OpenConfigurationSetAsync(const Windows::Storage::Streams::IInputStream& stream);
 
         Windows::Foundation::Collections::IVector<ConfigurationConflict> CheckForConflicts(
             const Windows::Foundation::Collections::IVectorView<ConfigurationSet>& configurationSets,
@@ -64,9 +64,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         void Diagnostics(DiagnosticLevel level, std::string_view message);
 
     private:
-        ApplyConfigurationSetResult ApplySetInternal(const ConfigurationSet& configurationSet, ApplyConfigurationSetFlags flags, const std::function<void(ConfigurationSetChangeData)>& progress);
-        TestConfigurationSetResult TestSetInternal(const ConfigurationSet& configurationSet, const std::function<void(TestConfigurationUnitResult)>& progress);
-
         IConfigurationProcessorFactory m_factory = nullptr;
         event<Windows::Foundation::EventHandler<DiagnosticInformation>> m_diagnostics;
         event<Windows::Foundation::TypedEventHandler<ConfigurationSet, ConfigurationChangeData>> m_configurationChange;

@@ -20,8 +20,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
     }
 
-    ConfigurationSetApplyProcessor::ConfigurationSetApplyProcessor(const Configuration::ConfigurationSet& configurationSet, IConfigurationSetProcessor&& setProcessor, const std::function<void(ConfigurationSetChangeData)>& progress) :
-        m_setProcessor(std::move(setProcessor)), m_progress(progress)
+    ConfigurationSetApplyProcessor::ConfigurationSetApplyProcessor(const Configuration::ConfigurationSet& configurationSet, IConfigurationSetProcessor&& setProcessor, result_type result, const std::function<void(ConfigurationSetChangeData)>& progress) :
+        m_setProcessor(std::move(setProcessor)), m_result(std::move(result)), m_progress(progress)
     {
         // Create a copy of the set of configuration units
         auto unitsView = configurationSet.ConfigurationUnits();
@@ -39,6 +39,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         if (!PreProcess())
         {
+            // If preprocessing fails, copy all unit results over
+            for (const UnitInfo& unitInfo : m_unitInfo)
+            {
+                m_result->UnitResultsVector().Append(*unitInfo.Result);
+            }
+
             return;
         }
 
@@ -48,23 +54,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         ProcessInternal(HasProcessedSuccessfully, &ConfigurationSetApplyProcessor::ProcessUnit, true);
 
         SendProgress(ConfigurationSetState::Completed);
-    }
-
-    std::vector<Configuration::ApplyConfigurationUnitResult> ConfigurationSetApplyProcessor::GetUnitResults() const
-    {
-        std::vector<Configuration::ApplyConfigurationUnitResult> unitResults;
-
-        for (const auto& unitInfo : m_unitInfo)
-        {
-            unitResults.emplace_back(*unitInfo.Result);
-        }
-
-        return unitResults;
-    }
-
-    hresult ConfigurationSetApplyProcessor::ResultCode() const
-    {
-        return m_resultCode;
     }
 
     ConfigurationSetApplyProcessor::UnitInfo::UnitInfo(const Configuration::ConfigurationUnit& unit) :
@@ -90,7 +79,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         if (!result)
         {
             // This is the only error that adding to the map can produce
-            m_resultCode = WINGET_CONFIG_ERROR_DUPLICATE_IDENTIFIER;
+            m_result->ResultCode(WINGET_CONFIG_ERROR_DUPLICATE_IDENTIFIER);
             return false;
         }
 
@@ -122,7 +111,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         if (!result)
         {
             // This is the only error that adding to the map can produce
-            m_resultCode = WINGET_CONFIG_ERROR_MISSING_DEPENDENCY;
+            m_result->ResultCode(WINGET_CONFIG_ERROR_MISSING_DEPENDENCY);
             return false;
         }
 
@@ -205,7 +194,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     }
 
     bool ConfigurationSetApplyProcessor::ProcessIntentInternal(
-        std::vector<size_t> unitsToProcess,
+        std::vector<size_t>& unitsToProcess,
         CheckDependencyPtr checkDependencyFunction,
         ProcessUnitPtr processUnitFunction,
         ConfigurationUnitIntent intent,
@@ -270,11 +259,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
             if (hasFailure)
             {
-                m_resultCode = errorForFailures;
+                m_result->ResultCode(errorForFailures);
             }
             else // hasRemainingDependencies
             {
-                m_resultCode = WINGET_CONFIG_ERROR_DEPENDENCY_UNSATISFIED;
+                m_result->ResultCode(WINGET_CONFIG_ERROR_DEPENDENCY_UNSATISFIED);
             }
             return false;
         }
@@ -453,6 +442,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     void ConfigurationSetApplyProcessor::SendProgress(ConfigurationUnitState state, const UnitInfo& unitInfo)
     {
+        if (state != ConfigurationUnitState::InProgress)
+        {
+            m_result->UnitResultsVector().Append(*unitInfo.Result);
+        }
+
         if (m_progress)
         {
             try
