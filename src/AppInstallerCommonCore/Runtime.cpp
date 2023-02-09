@@ -465,6 +465,7 @@ namespace AppInstaller::Runtime
             result.Path = GetPathToUserTemp() / s_DefaultTempDirectory;
             result.SetOwner(ACEPrincipal::CurrentUser);
             result.ACL[ACEPrincipal::System] = ACEPermissions::All;
+            result.ACL[ACEPrincipal::Admins] = ACEPermissions::All;
             break;
         case PathName::LocalState:
         case PathName::UserFileSettings:
@@ -534,6 +535,7 @@ namespace AppInstaller::Runtime
             {
                 result.SetOwner(ACEPrincipal::CurrentUser);
                 result.ACL[ACEPrincipal::System] = ACEPermissions::All;
+                result.ACL[ACEPrincipal::Admins] = ACEPermissions::All;
             }
         }
         break;
