@@ -216,7 +216,8 @@ namespace AppInstaller::CLI::Workflow
 
         if (!installItem)
         {
-            context.Reporter.Info() << Resource::String::UpdateNotApplicable << std::endl;
+            context.Reporter.Info() << Resource::String::UpdateNotApplicable << std::endl
+                << Resource::String::UpdateNotApplicableReason << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
         }
 

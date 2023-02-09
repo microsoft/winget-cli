@@ -73,11 +73,18 @@ namespace AppInstaller::CLI::Workflow
 
         // The version keys should have already been sorted by version
         const auto& versionKeys = package->GetAvailableVersionKeys();
+        // Assume that no update versions are applicable
+        bool upgradeVersionApplicable = false;
         for (const auto& key : versionKeys)
         {
             // Check Applicable Version
             if (!isUpgrade || IsUpdateVersionApplicable(installedVersion, Utility::Version(key.Version)))
             {
+                // The only way to enter this portion of the statement with isUpgrade is if the version is applicable
+                if (isUpgrade)
+                {
+                    upgradeVersionApplicable = true;
+                }
                 // Check if the package is pinned
                 if (key.PinnedState == Pinning::PinType::Blocking ||
                     key.PinnedState == Pinning::PinType::Gating ||
@@ -155,7 +162,18 @@ namespace AppInstaller::CLI::Workflow
                 }
                 else if (isUpgrade)
                 {
-                    context.Reporter.Info() << Resource::String::UpdateNotApplicable << std::endl;
+                    if (!upgradeVersionApplicable)
+                    {
+                        // This is the case when no newer versions are available in a configured source
+                        context.Reporter.Info() << Resource::String::UpdateNoPackagesFound << std::endl
+                            << Resource::String::UpdateNoPackagesFoundReason << std::endl;
+                    }
+                    else
+                    {
+                        // This is the case when newer versions are available in a configured source, but none are applicable due to OS Version, user requirement, etc.
+                        context.Reporter.Info() << Resource::String::UpdateNotApplicable << std::endl
+                            << Resource::String::UpdateNotApplicableReason << std::endl;
+                    }
                 }
                 else
                 {
@@ -175,7 +193,8 @@ namespace AppInstaller::CLI::Workflow
 
         if (!IsUpdateVersionApplicable(installedVersion, updateVersion))
         {
-            context.Reporter.Info() << Resource::String::UpdateNotApplicable << std::endl;
+            context.Reporter.Info() << Resource::String::UpdateNoPackagesFound << std::endl
+                << Resource::String::UpdateNoPackagesFoundReason << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
         }
     }

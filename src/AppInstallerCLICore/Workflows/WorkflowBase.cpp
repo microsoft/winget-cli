@@ -866,7 +866,8 @@ namespace AppInstaller::CLI::Workflow
                     context.Reporter.Info() << Resource::String::NoInstalledPackageFound << std::endl;
                     break;
                 case SearchPurpose::Upgrade:
-                    context.Reporter.Info() << Resource::String::UpdateNoPackagesFound << std::endl;
+                    context.Reporter.Info() << Resource::String::UpdateNoPackagesFound << std::endl
+                        << Resource::String::UpdateNoPackagesFoundReason << std::endl;
                     break;
                 case SearchPurpose::Completion:
                 case SearchPurpose::Install:

@@ -701,8 +701,14 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>No applicable upgrade found.</value>
   </data>
+  <data name="UpdateNotApplicableReason" xml:space="preserve">
+    <value>A newer package version is available in a configured source, but it does not apply to your system or requirements.</value>
+  </data>
   <data name="UpdateNoPackagesFound" xml:space="preserve">
     <value>No available upgrades found.</value>
+  </data>
+  <data name="UpdateNoPackagesFoundReason" xml:space="preserve">
+    <value>No newer package versions are available from the configured sources.</value>
   </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
     <value>Upgrades the selected package, either found by searching the installed packages list or directly from a manifest. By default, the query must case-insensitively match the id, name, or moniker of the package. Other fields can be used by passing their appropriate option. When no arguments are given, shows the packages with upgrades available</value>
