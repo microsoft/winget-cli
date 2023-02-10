@@ -290,14 +290,6 @@ jobs:
       codeCoverageEnabled: true
       platform: 'Any CPU'
       configuration: '$(BuildConfiguration)'
-      
-  - task: PowerShell@2
-    displayName: TEMP - Diagnose filesystem for unit tests
-    inputs:
-      targetType: 'inline'
-      script: |
-        Get-ChildItem -Recurse
-      workingDirectory: '$(buildOutDir)\Microsoft.Management.Configuration.UnitTests'
   
   - task: VSTest@2
     displayName: 'Run tests: Microsoft.Management.Configuration.UnitTests'
@@ -306,7 +298,7 @@ jobs:
       testAssemblyVer2: '**\Microsoft.Management.Configuration.UnitTests.dll'
       searchFolder: '$(buildOutDir)\Microsoft.Management.Configuration.UnitTests'
       codeCoverageEnabled: true
-      platform: 'x64'
+      platform: '$(buildPlatform)'
       configuration: '$(BuildConfiguration)'
 
   - task: CopyFiles@2
