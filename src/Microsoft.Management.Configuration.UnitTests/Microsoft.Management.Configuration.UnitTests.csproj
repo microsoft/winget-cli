@@ -36,6 +36,9 @@
 		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		<ReferenceOutputAssembly>True</ReferenceOutputAssembly>
     </ProjectReference>
+    <ProjectReference Include="..\Microsoft.Management.Configuration\Microsoft.Management.Configuration.vcxproj">
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
 
 </Project>
