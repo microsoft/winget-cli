@@ -6,8 +6,6 @@
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.Storage.Streams.h>
 
-// TODO: Is this needed?
-
 #pragma warning( push )
 #pragma warning ( disable : 4467 6388)
 // 4467 Allow use of uuid attribute for com object creation.

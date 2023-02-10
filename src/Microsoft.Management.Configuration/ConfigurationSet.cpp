@@ -66,9 +66,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return ConfigurationSetState::Unknown;
     }
 
-    clock::time_point ConfigurationSet::InitialIntent()
+    clock::time_point ConfigurationSet::FirstApply()
     {
-        return clock::time_point{};
+        return m_firstApply;
     }
 
     clock::time_point ConfigurationSet::ApplyBegun()

@@ -32,7 +32,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         guid InstanceIdentifier();
         ConfigurationSetState State();
-        clock::time_point InitialIntent();
+        clock::time_point FirstApply();
         clock::time_point ApplyBegun();
         clock::time_point ApplyEnded();
 
@@ -52,7 +52,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         hstring m_origin;
         hstring m_path;
         guid m_instanceIdentifier;
-        clock::time_point m_initialIntent;
+        clock::time_point m_firstApply{};
         Windows::Foundation::Collections::IVector<ConfigurationUnit> m_configurationUnits{ winrt::single_threaded_vector<ConfigurationUnit>() };
         winrt::event<Windows::Foundation::TypedEventHandler<WinRT_Self, ConfigurationSetChangeData>> m_configurationSetChange;
 

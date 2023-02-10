@@ -33,12 +33,12 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         /// <summary>
         /// Gets the test fixture.
         /// </summary>
-        protected UnitTestFixture Fixture { get; private set; }
+        protected UnitTestFixture Fixture { get; private init; }
 
         /// <summary>
         /// Gets the output helper.
         /// </summary>
-        protected ITestOutputHelper Log { get; private set; }
+        protected ITestOutputHelper Log { get; private init; }
 
         /// <summary>
         /// Create a new <see cref="ConfigurationProcessor"/> with the diagnostics event hooked up.

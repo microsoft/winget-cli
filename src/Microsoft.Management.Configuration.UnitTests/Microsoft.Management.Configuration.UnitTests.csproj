@@ -32,8 +32,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Microsoft.Management.Configuration.Projection\Microsoft.Management.Configuration.Projection.csproj">
-      <CopyLocalSatelliteAssemblies>True</CopyLocalSatelliteAssemblies>
-      <Private>True</Private>
+		<OutputItemType>Content</OutputItemType>
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		<ReferenceOutputAssembly>True</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>
 

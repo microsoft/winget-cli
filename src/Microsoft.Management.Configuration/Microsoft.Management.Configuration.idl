@@ -9,9 +9,13 @@ namespace Microsoft.Management.Configuration
     [contract(Microsoft.Management.Configuration.Contract, 1)]
     enum ConfigurationSetState
     {
+        // The state of the configuration set is unknown.
         Unknown,
+        // The configuration set is in the queue to be applied.
         Pending,
+        // The configuration set is actively being applied.
         InProgress,
+        // The configuration set has completed being applied.
         Completed,
     };
 
@@ -19,10 +23,15 @@ namespace Microsoft.Management.Configuration
     [contract(Microsoft.Management.Configuration.Contract, 1)]
     enum ConfigurationUnitState
     {
+        // The state of the configuration unit is unknown.
         Unknown,
+        // The configuration unit is in the queue to be applied.
         Pending,
+        // The configuration unit is actively being applied.
         InProgress,
+        // The configuration unit has completed being applied.
         Completed,
+        // The configuration unit was not applied due to external factors.
         Skipped,
     };
 
@@ -122,7 +131,7 @@ namespace Microsoft.Management.Configuration
         Assert,
         // The configuration unit will only be used to Get the current system state.
         Inform,
-        // The configuration unit will be used to Set the current system state.
+        // The configuration unit will be used to Apply the current system state.
         // The configuration unit will be used to Test and Get the current system state as part of that process.
         Apply,
     };
@@ -179,7 +188,9 @@ namespace Microsoft.Management.Configuration
     enum ConfigurationSetChangeEventType
     {
         Unknown,
+        // The change event was for the set state. Only ConfigurationSetChangeData.SetState is valid.
         SetStateChanged,
+        // The change event was for the unit state. All ConfigurationSetChangeData properties are valid.
         UnitStateChanged,
     };
         
@@ -227,7 +238,7 @@ namespace Microsoft.Management.Configuration
         // The state that the set is in.
         ConfigurationSetState State{ get; };
         // The time that this set was recorded with intent to apply.
-        Windows.Foundation.DateTime InitialIntent{ get; };
+        Windows.Foundation.DateTime FirstApply{ get; };
         // The time that this set was last started to be applied.
         Windows.Foundation.DateTime ApplyBegun{ get; };
         // The time that this set was last finished being applied (does not indicate success).

@@ -195,8 +195,8 @@
     <Midl Include="Microsoft.Management.Configuration.idl" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AppInstallerCommonCore\AppInstallerCommonCore.vcxproj">
-      <Project>{5890d6ed-7c3b-40f3-b436-b54f640d9e65}</Project>
+    <ProjectReference Include="..\AppInstallerSharedLib\AppInstallerSharedLib.vcxproj">
+      <Project>{f3f6e699-bc5d-4950-8a05-e49dd9eb0d51}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

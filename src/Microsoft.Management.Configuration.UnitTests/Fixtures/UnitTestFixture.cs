@@ -25,6 +25,6 @@ namespace Microsoft.Management.Configuration.UnitTests.Fixtures
         /// <summary>
         /// Gets the message sink for the fixture.
         /// </summary>
-        public IMessageSink MessageSink { get; private set; }
+        public IMessageSink MessageSink { get; private init; }
     }
 }
