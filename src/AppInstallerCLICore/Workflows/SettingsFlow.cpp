@@ -47,11 +47,11 @@ namespace AppInstaller::CLI::Workflow
         AdminSetting adminSetting = Settings::StringToAdminSetting(adminSettingString);
         if (Settings::EnableAdminSetting(adminSetting))
         {
-            context.Reporter.Info() << Resource::String::AdminSettingEnabled(AdminSettingToString(adminSetting));
+            context.Reporter.Info() << Resource::String::AdminSettingEnabled(AdminSettingToString(adminSetting)) << std::endl;
         }
         else
         {
-            context.Reporter.Error() << Resource::String::EnableAdminSettingFailed(AdminSettingToString(adminSetting));
+            context.Reporter.Error() << Resource::String::EnableAdminSettingFailed(AdminSettingToString(adminSetting)) << std::endl;
         }
     }
 
@@ -61,11 +61,11 @@ namespace AppInstaller::CLI::Workflow
         AdminSetting adminSetting = Settings::StringToAdminSetting(adminSettingString);
         if (Settings::DisableAdminSetting(adminSetting))
         {
-            context.Reporter.Info() << Resource::String::AdminSettingDisabled(AdminSettingToString(adminSetting));
+            context.Reporter.Info() << Resource::String::AdminSettingDisabled(AdminSettingToString(adminSetting)) << std::endl;
         }
         else
         {
-            context.Reporter.Error() << Resource::String::DisableAdminSettingFailed(AdminSettingToString(adminSetting));
+            context.Reporter.Error() << Resource::String::DisableAdminSettingFailed(AdminSettingToString(adminSetting)) << std::endl;
         }
     }
 
