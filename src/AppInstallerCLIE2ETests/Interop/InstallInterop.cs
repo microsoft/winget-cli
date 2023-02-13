@@ -12,7 +12,6 @@ namespace AppInstallerCLIE2ETests.Interop
     using Microsoft.Management.Deployment;
     using Microsoft.Management.Deployment.Projection;
     using NUnit.Framework;
-    using Windows.System;
 
     /// <summary>
     /// Install interop.
@@ -547,7 +546,7 @@ namespace AppInstallerCLIE2ETests.Interop
             // Assert
             Assert.IsNotNull(packageInstallerInfo);
             Assert.AreEqual(ElevationRequirement.ElevationRequired, packageInstallerInfo.ElevationRequirement);
-            Assert.AreEqual(ProcessorArchitecture.X64, packageInstallerInfo.Architecture);
+            Assert.AreEqual(Windows.System.ProcessorArchitecture.X64, packageInstallerInfo.Architecture);
             Assert.AreEqual(PackageInstallerType.Zip, packageInstallerInfo.InstallerType);
             Assert.AreEqual(PackageInstallerType.Exe, packageInstallerInfo.NestedInstallerType);
             Assert.AreEqual(PackageInstallerScope.User, packageInstallerInfo.Scope);

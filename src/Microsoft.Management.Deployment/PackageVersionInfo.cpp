@@ -28,6 +28,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         m_packageVersion = std::move(packageVersion);
     }
+    std::shared_ptr<::AppInstaller::Repository::IPackageVersion> PackageVersionInfo::GetRepositoryPackageVersion()
+    {
+        return m_packageVersion;
+    }
     hstring PackageVersionInfo::GetMetadata(winrt::Microsoft::Management::Deployment::PackageVersionMetadataField const& metadataField)
     {
         ::AppInstaller::Repository::PackageVersionMetadata metadataKey = GetRepositoryPackageVersionMetadata(metadataField);
@@ -135,10 +139,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         auto result = manifestComparator.GetPreferredInstaller(manifest);
         return result.installer.has_value();
     }
-    std::shared_ptr<::AppInstaller::Repository::IPackageVersion> PackageVersionInfo::GetRepositoryPackageVersion()
-    { 
-        return m_packageVersion; 
-    }
     winrt::Microsoft::Management::Deployment::PackageInstallerInfo PackageVersionInfo::GetApplicableInstaller(InstallOptions options)
     {
         AppInstaller::CLI::Execution::COMContext context;
@@ -156,7 +156,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         }
         else
         {
-            return NULL;
+            return nullptr;
         }
     }
 }
