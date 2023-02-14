@@ -133,7 +133,7 @@ The "useMeteredNetwork" setting will accept boolean inputs, controlling the use 
 
 
 ### WinGet PowerShell Cmdlet
-WinGet PowerShell cmdlet will download the identified package's installer based on the user specified parameters. While downloading the package's installer is occuring, PowerShell will show a progress bar displaying the progress. Afterwards, it will return an item object for the files downloaded.:
+WinGet PowerShell cmdlet will download the identified package's installer based on the user specified parameters. While downloading the package's installer is occurring, PowerShell will show a progress bar displaying the progress. Afterwards, it will return an item object for the files downloaded.:
 
 ```PS
 PS C:\> Get-WinGetPackage Microsoft.VisualStudioCode
