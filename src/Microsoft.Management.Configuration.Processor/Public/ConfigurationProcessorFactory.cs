@@ -8,11 +8,11 @@ namespace Microsoft.Management.Configuration.Processor
 {
     using System;
     using Microsoft.Management.Configuration;
-    using Microsoft.Management.Configuration.Processor.Internals.DscModule;
-    using Microsoft.Management.Configuration.Processor.Internals.ProcessorEnvironments;
-    using Microsoft.Management.Configuration.Processor.Internals.Runspaces;
-    using Microsoft.Management.Configuration.Processor.Internals.Set;
+    using Microsoft.Management.Configuration.Processor.DscModule;
+    using Microsoft.Management.Configuration.Processor.ProcessorEnvironments;
     using Microsoft.Management.Configuration.Processor.Public;
+    using Microsoft.Management.Configuration.Processor.Runspaces;
+    using Microsoft.Management.Configuration.Processor.Set;
 
     /// <summary>
     /// ConfigurationProcessorFactory implementation. Does not support out-of-proc.
