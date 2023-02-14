@@ -10,7 +10,6 @@ namespace Microsoft.Management.Configuration.Processor
     using Microsoft.Management.Configuration;
     using Microsoft.Management.Configuration.Processor.DscModule;
     using Microsoft.Management.Configuration.Processor.ProcessorEnvironments;
-    using Microsoft.Management.Configuration.Processor.Public;
     using Microsoft.Management.Configuration.Processor.Runspaces;
     using Microsoft.Management.Configuration.Processor.Set;
 

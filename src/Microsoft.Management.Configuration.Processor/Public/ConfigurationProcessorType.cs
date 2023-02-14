@@ -12,7 +12,7 @@ namespace Microsoft.Management.Configuration.Processor
     public enum ConfigurationProcessorType
     {
         /// <summary>
-        /// Uses default runspace. Requires to be running in powershell. Uses current runspace.
+        /// Uses default runspace. Requires to be running in PowerShell. Uses current runspace.
         /// </summary>
         Default,
 

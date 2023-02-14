@@ -56,15 +56,10 @@ namespace Microsoft.Management.Configuration.Processor.Unit
             var result = new GetSettingsResult();
             try
             {
-                var getResult = this.processorEnvironment.InvokeGetResource(
+                result.Settings = this.processorEnvironment.InvokeGetResource(
                     this.unitResource.GetExpandedSettings(),
                     this.unitResource.ResourceName,
                     this.unitResource.Module);
-
-                foreach (var setting in getResult)
-                {
-                    result.Settings.Add(setting.Key, setting.Value);
-                }
             }
             catch (Exception e) when (e is RuntimeException ||
                                       e is WriteErrorException)

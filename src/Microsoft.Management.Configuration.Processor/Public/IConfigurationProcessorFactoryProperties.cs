@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.Management.Configuration.Processor.Public
+namespace Microsoft.Management.Configuration.Processor
 {
     using System.Collections.Generic;
 
