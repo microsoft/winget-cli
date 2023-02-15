@@ -33,6 +33,7 @@ namespace Microsoft.Management.Configuration.Processor.Constants
             public const string GetChildItem = "Get-ChildItem";
             public const string GetCommand = "Get-Command";
             public const string GetDscResource = "Get-DscResource";
+            public const string GetInstalledModule = "Get-InstalledModule";
             public const string InstallModule = "Install-Module";
             public const string InvokeDscResource = "Invoke-DscResource";
             public const string SaveModule = "Save-Module";

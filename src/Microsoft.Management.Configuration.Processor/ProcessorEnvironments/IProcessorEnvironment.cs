@@ -78,10 +78,39 @@ namespace Microsoft.Management.Configuration.Processor.ProcessorEnvironments
         bool InvokeSetResource(ValueSet settings, string name, ModuleSpecification? moduleSpecification);
 
         /// <summary>
-        /// Uses PowerShellGet to find and install the resource.
+        /// Calls Get-InstalledModule.
+        /// </summary>
+        /// <param name="moduleSpecification">Module specification.</param>
+        /// <returns>Module info, null if not installed.</returns>
+        PSObject? GetInstalledModule(ModuleSpecification moduleSpecification);
+
+        /// <summary>
+        /// Calls Find-DscResource.
         /// </summary>
         /// <param name="unitInternal">Configuration unit internal.</param>
-        void InstallResource(ConfigurationUnitInternal unitInternal);
+        /// <returns>Dsc Resource info, null if not found.</returns>
+        PSObject? FindDscResource(ConfigurationUnitInternal unitInternal);
+
+        /// <summary>
+        /// Calls Save-Module -InputObject object -Path location.
+        /// Input object must be the result of Find cmdlets of PowerShellGet.
+        /// </summary>
+        /// <param name="inputObject">Input object.</param>
+        /// <param name="location">Location to save module.</param>
+        void SaveModule(PSObject inputObject, string location);
+
+        /// <summary>
+        /// Calls Install-Module -InputObject object.
+        /// Input object must be the result of Find cmdlets of PowerShellGet.
+        /// </summary>
+        /// <param name="inputObject">Input object.</param>
+        void InstallModule(PSObject inputObject);
+
+        /// <summary>
+        /// Recursively verify the signature via Get-AuthenticodeSignature.
+        /// </summary>
+        /// <param name="paths">Path.</param>
+        void VerifySignature(string[] paths);
 
         /// <summary>
         /// Gets the value of a variable.
