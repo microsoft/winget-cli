@@ -243,6 +243,10 @@
     <ClInclude Include="Command.h" />
     <ClInclude Include="Commands\COMCommand.h" />
     <ClInclude Include="Commands\CompleteCommand.h" />
+    <ClInclude Include="Commands\ConfigureCommand.h" />
+    <ClInclude Include="Commands\ConfigureShowCommand.h" />
+    <ClInclude Include="Commands\ConfigureTestCommand.h" />
+    <ClInclude Include="Commands\ConfigureValidateCommand.h" />
     <ClInclude Include="Commands\ExperimentalCommand.h" />
     <ClInclude Include="Commands\ExportCommand.h" />
     <ClInclude Include="Commands\ImportCommand.h" />
@@ -301,6 +305,8 @@
   <ItemGroup>
     <ClCompile Include="COMContext.cpp" />
     <ClCompile Include="Commands\COMCommand.cpp" />
+    <ClCompile Include="Commands\ConfigureCommand.cpp" />
+    <ClCompile Include="Commands\ConfigureShowCommand.cpp" />
     <ClCompile Include="Commands\ImportCommand.cpp" />
     <ClCompile Include="Commands\PinCommand.cpp" />
     <ClCompile Include="ContextOrchestrator.cpp" />
@@ -366,6 +372,9 @@
     </ProjectReference>
     <ProjectReference Include="..\AppInstallerRepositoryCore\AppInstallerRepositoryCore.vcxproj">
       <Project>{5eb88068-5fb9-4e69-89b2-72dbc5e068f9}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.Management.Configuration\Microsoft.Management.Configuration.vcxproj">
+      <Project>{ca460806-5e41-4e97-9a3d-1d74b433b663}</Project>
     </ProjectReference>
     <ProjectReference Include="..\YamlCppLib\YamlCppLib.vcxproj">
       <Project>{8bb94bb8-374f-4294-bca1-c7811514a6b7}</Project>

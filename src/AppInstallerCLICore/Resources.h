@@ -47,6 +47,14 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(CommandRequiresAdmin);
         WINGET_DEFINE_RESOURCE_STRINGID(CompleteCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(CompleteCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigureCommandLongDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigureCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigureShowCommandLongDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigureShowCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigureTestCommandLongDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigureTestCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigureValidateCommandLongDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigureValidateCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ConvertInstallFlowToUpgrade);
         WINGET_DEFINE_RESOURCE_STRINGID(CountArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(CountOutOfBoundsError);

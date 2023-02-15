@@ -70,7 +70,7 @@ namespace AppInstaller::CLI
         }
         else
         {
-            commandChain = commandChain.substr(firstSplit);
+            commandChain = commandChain.substr(firstSplit + 1);
             for (char& c : commandChain)
             {
                 if (c == ParentSplitChar)

@@ -197,6 +197,18 @@
     <ClInclude Include="Workflows\MultiQueryFlow.h">
       <Filter>Workflows</Filter>
     </ClInclude>
+    <ClInclude Include="Commands\ConfigureCommand.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="Commands\ConfigureShowCommand.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="Commands\ConfigureTestCommand.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="Commands\ConfigureValidateCommand.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -360,6 +372,12 @@
     </ClCompile>
     <ClCompile Include="Workflows\MultiQueryFlow.cpp">
       <Filter>Workflows</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\ConfigureCommand.cpp">
+      <Filter>Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\ConfigureShowCommand.cpp">
+      <Filter>Commands</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

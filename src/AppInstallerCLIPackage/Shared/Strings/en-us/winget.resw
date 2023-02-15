@@ -1677,4 +1677,16 @@ Please specify one of them using the --source option to proceed.</value>
     <value>{0} package(s) have pins that prevent upgrade. Use the 'winget pin' command to view and edit pins. Using the --include-pinned argument may show more results.</value>
     <comment>{Locked="winget pin","--include-pinned"} {0} is a placeholder replaced by an integer number of packages</comment>
   </data>
+  <data name="ConfigureCommandLongDescription" xml:space="preserve">
+    <value>Ensures that the system matches the desired state as described by the provided configuration. Ensure that the configuration and the processors are trusted before applying it.</value>
+  </data>
+  <data name="ConfigureCommandShortDescription" xml:space="preserve">
+    <value>Configures the system into a desired state</value>
+  </data>
+  <data name="ConfigureShowCommandLongDescription" xml:space="preserve">
+    <value>Shows details of the provided configuration. By default, will not modify the system, but some options will cause files to be downloaded and/or loaded.</value>
+  </data>
+  <data name="ConfigureShowCommandShortDescription" xml:space="preserve">
+    <value>Shows details of a configuration</value>
+  </data>
 </root>
