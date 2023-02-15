@@ -21,19 +21,82 @@ namespace AppInstaller::Repository::Microsoft
         // TODO: This being hard coded to force using the Public directory name is not ideal.
         static constexpr std::string_view s_PreIndexedPackageSourceFactory_IndexFilePath = "Public\\index.db"sv;
 
-        // Construct the package location from the given details.
-        // Currently expects that the arg is an https uri pointing to the root of the data.
-        std::string GetPackageLocation(const SourceDetails& details)
+        struct PreIndexedPackageInfo
         {
-            THROW_HR_IF(E_INVALIDARG, details.Arg.empty());
-            std::string result = details.Arg;
-            if (result.back() != '/')
+            template <typename LocationCheck>
+            PreIndexedPackageInfo(const SourceDetails& details, LocationCheck&& locationCheck)
             {
-                result += '/';
+                // Get both locations to force the alternate location check
+                m_packageLocation = GetPrimaryPackageLocation(details);
+                locationCheck(m_packageLocation);
+
+                std::string alternateLocation = GetAlternatePackageLocation(details);
+                if (!alternateLocation.empty())
+                {
+                    locationCheck(alternateLocation);
+                }
+
+                // Try getting the primary location's info
+                HRESULT primaryHR = S_OK;
+
+                try
+                {
+                    m_msixInfo = std::make_unique<Msix::MsixInfo>(m_packageLocation);
+                    return;
+                }
+                catch (...)
+                {
+                    if (alternateLocation.empty())
+                    {
+                        throw;
+                    }
+                    primaryHR = LOG_CAUGHT_EXCEPTION_MSG("PreIndexedPackageInfo failed on primary location");
+                }
+
+                // Try alternate location
+                m_packageLocation = std::move(alternateLocation);
+
+                try
+                {
+                    m_msixInfo = std::make_unique<Msix::MsixInfo>(m_packageLocation);
+                    return;
+                }
+                CATCH_LOG_MSG("PreIndexedPackageInfo failed on alternate location");
+
+                THROW_HR(primaryHR);
             }
-            result += s_PreIndexedPackageSourceFactory_PackageFileName;
-            return result;
-        }
+
+            const std::string& PackageLocation() const { return m_packageLocation; }
+            Msix::MsixInfo& MsixInfo() { return *m_msixInfo; }
+
+        private:
+            std::string m_packageLocation;
+            std::unique_ptr<Msix::MsixInfo> m_msixInfo;
+
+            std::string GetPrimaryPackageLocation(const SourceDetails& details)
+            {
+                THROW_HR_IF(E_INVALIDARG, details.Arg.empty());
+                return GetPackageLocation(details.Arg);
+            }
+
+            std::string GetAlternatePackageLocation(const SourceDetails& details)
+            {
+                return (details.AlternateArg.empty() ? std::string{} : GetPackageLocation(details.AlternateArg));
+            }
+
+            // Construct the package location from the given details.
+            // Currently expects that the arg is an https uri pointing to the root of the data.
+            std::string GetPackageLocation(const std::string& basePath)
+            {
+                std::string result = basePath;
+                if (result.back() != '/')
+                {
+                    result += '/';
+                }
+                result += s_PreIndexedPackageSourceFactory_PackageFileName;
+                return result;
+            }
+        };
 
         // Gets the package family name from the details.
         std::string GetPackageFamilyNameFromDetails(const SourceDetails& details)
@@ -75,16 +138,16 @@ namespace AppInstaller::Repository::Microsoft
                     THROW_HR_IF(E_INVALIDARG, details.Type != PreIndexedPackageSourceFactory::Type());
                 }
 
-                std::string packageLocation = GetPackageLocation(details);
+                PreIndexedPackageInfo packageInfo(details, [](const std::string& packageLocation)
+                    {
+                        THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NOT_SECURE, Utility::IsUrlRemote(packageLocation) && !Utility::IsUrlSecure(packageLocation));
+                    });
 
-                THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_NOT_SECURE, Utility::IsUrlRemote(packageLocation) && !Utility::IsUrlSecure(packageLocation));
+                AICLI_LOG(Repo, Info, << "Initializing source from: " << details.Name << " => " << packageInfo.PackageLocation());
 
-                AICLI_LOG(Repo, Info, << "Initializing source from: " << details.Name << " => " << packageLocation);
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_PACKAGE_IS_BUNDLE, packageInfo.MsixInfo().GetIsBundle());
 
-                Msix::MsixInfo packageInfo(packageLocation);
-                THROW_HR_IF(APPINSTALLER_CLI_ERROR_PACKAGE_IS_BUNDLE, packageInfo.GetIsBundle());
-
-                auto fullName = packageInfo.GetPackageFullName();
+                auto fullName = packageInfo.MsixInfo().GetPackageFullName();
                 AICLI_LOG(Repo, Info, << "Found package full name: " << details.Name << " => " << fullName);
 
                 details.Data = Msix::GetPackageFamilyNameFromFullName(fullName);
@@ -96,7 +159,7 @@ namespace AppInstaller::Repository::Microsoft
                     return false;
                 }
 
-                return UpdateInternal(packageLocation, packageInfo, details, progress);
+                return UpdateInternal(packageInfo.PackageLocation(), packageInfo.MsixInfo(), details, progress);
             }
 
             bool Update(const SourceDetails& details, IProgressCallback& progress) override final
@@ -143,15 +206,14 @@ namespace AppInstaller::Repository::Microsoft
             {
                 THROW_HR_IF(E_INVALIDARG, details.Type != PreIndexedPackageSourceFactory::Type());
 
-                std::string packageLocation = GetPackageLocation(details);
-                Msix::MsixInfo packageInfo(packageLocation);
+                PreIndexedPackageInfo packageInfo(details, [](const std::string&){});
 
                 // The package should not be a bundle
-                THROW_HR_IF(APPINSTALLER_CLI_ERROR_PACKAGE_IS_BUNDLE, packageInfo.GetIsBundle());
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_PACKAGE_IS_BUNDLE, packageInfo.MsixInfo().GetIsBundle());
 
                 // Ensure that family name has not changed
                 THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE,
-                    GetPackageFamilyNameFromDetails(details) != Msix::GetPackageFamilyNameFromFullName(packageInfo.GetPackageFullName()));
+                    GetPackageFamilyNameFromDetails(details) != Msix::GetPackageFamilyNameFromFullName(packageInfo.MsixInfo().GetPackageFullName()));
 
                 if (progress.IsCancelled())
                 {
@@ -165,7 +227,7 @@ namespace AppInstaller::Repository::Microsoft
                     return false;
                 }
 
-                return UpdateInternal(packageLocation, packageInfo, details, progress);
+                return UpdateInternal(packageInfo.PackageLocation(), packageInfo.MsixInfo(), details, progress);
             }
         };
 
@@ -219,7 +281,7 @@ namespace AppInstaller::Repository::Microsoft
                 // We didn't use to store the source identifier, so we compute it here in case it's
                 // missing from the details.
                 m_details.Identifier = GetPackageFamilyNameFromDetails(m_details);
-                return std::make_shared<SQLiteIndexSource>(m_details, std::move(index), std::move(lock));
+                return std::make_shared<SQLiteIndexSource>(m_details, std::move(index), std::move(lock), false, true);
             }
 
         private:
@@ -394,7 +456,7 @@ namespace AppInstaller::Repository::Microsoft
                 // We didn't use to store the source identifier, so we compute it here in case it's
                 // missing from the details.
                 m_details.Identifier = GetPackageFamilyNameFromDetails(m_details);
-                return std::make_shared<SQLiteIndexSource>(m_details, std::move(index), std::move(lock));
+                return std::make_shared<SQLiteIndexSource>(m_details, std::move(index), std::move(lock), false, true);
             }
 
         private:
