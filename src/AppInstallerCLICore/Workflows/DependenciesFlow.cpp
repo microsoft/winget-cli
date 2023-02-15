@@ -6,10 +6,12 @@
 #include "ManifestComparator.h"
 #include "InstallFlow.h"
 #include "winget\DependenciesGraph.h"
+#include "winget\WindowsFeature.h"
 #include "DependencyNodeProcessor.h"
 
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Manifest;
+using namespace AppInstaller::WindowsFeature;
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -130,6 +132,62 @@ namespace AppInstaller::CLI::Workflow
             context <<
                 Workflow::OpenSource(true) <<
                 Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed, true, Repository::CompositeSearchBehavior::AvailablePackages);
+        }
+    }
+
+    void EnableWindowsFeaturesDependencies(Execution::Context& context)
+    {
+        if (!Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
+        {
+            return;
+        }
+
+        // obtain windows features.
+        // Don't forget to check the root installer node but for now we'll just look at the individual installer root.
+
+        const auto& rootInstaller = context.Get<Execution::Data::Installer>();
+        const auto& rootDependencies = rootInstaller->Dependencies;
+
+        if (rootDependencies.Empty())
+        {
+            // If there's no dependencies there's nothing to do aside of logging the outcome
+            return;
+        }
+
+        if (rootDependencies.HasAnyOf(DependencyType::WindowsFeature))
+        {
+            context << Workflow::EnsureRunningAsAdmin;
+
+            // May have to refactor out the logic into a separate function
+            bool errorMessageDisplayed = false;
+            bool allFeaturesExist = true;
+            auto error = context.Reporter.Error();
+            rootDependencies.ApplyToType(DependencyType::WindowsFeature, [&error, &allFeaturesExist, &errorMessageDisplayed](Dependency dependency)
+                {
+                    WindowsFeature::WindowsFeature feature{ dependency.Id() };
+                    if (!feature.DoesFeatureExist())
+                    {
+                        if (!errorMessageDisplayed)
+                        {
+                            error << "The following dependencies were not found:" << std::endl;
+                            error << "  - " << Resource::String::WindowsFeaturesDependencies << std::endl;
+                            errorMessageDisplayed = true;
+                        }
+
+                        allFeaturesExist = false;
+                        error << "      " << dependency.Id() << std::endl;
+                    }
+                });
+
+            if (!allFeaturesExist && context.Args.Contains(Execution::Args::Type::Force))
+            {
+                std::cout << "proceeding due to --force." << std::endl;
+            }
+
+            //rootDependencies.ApplyToType(DependencyType::WindowsFeature, [&](Dependency dependency)
+            //{
+            //    AppInstaller::WindowsFeature::EnableWindowsFeature(dependency.Id());
+            //});
         }
     }
 

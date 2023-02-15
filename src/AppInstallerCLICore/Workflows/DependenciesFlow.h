@@ -59,4 +59,6 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: PackageVersion, Manifest
     // Outputs: DependencySource
     void OpenDependencySource(Execution::Context& context);
+
+    void EnableWindowsFeaturesDependencies(Execution::Context& context);
 }

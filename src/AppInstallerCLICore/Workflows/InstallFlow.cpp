@@ -495,6 +495,7 @@ namespace AppInstaller::CLI::Workflow
             Workflow::GetDependenciesFromInstaller <<
             Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
             Workflow::ManagePackageDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
+            Workflow::EnableWindowsFeaturesDependencies <<
             Workflow::DownloadInstaller;
     }
 

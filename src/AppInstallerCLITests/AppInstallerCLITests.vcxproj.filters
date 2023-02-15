@@ -284,6 +284,9 @@
     <ClCompile Include="Argument.cpp">
       <Filter>Source Files\CLI</Filter>
     </ClCompile>
+    <ClCompile Include="WindowsFeature.cpp">
+      <Filter>Source Files\CLI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />
