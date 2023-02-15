@@ -7,6 +7,7 @@ namespace AppInstaller::CLI
 {
     struct ConfigureCommand final : public Command
     {
+        // TODO: Experimental feature
         ConfigureCommand(std::string_view parent) : Command("configure", parent) {}
 
         std::vector<std::unique_ptr<Command>> GetCommands() const override;

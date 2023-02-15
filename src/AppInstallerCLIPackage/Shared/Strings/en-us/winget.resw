@@ -1678,7 +1678,7 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>{Locked="winget pin","--include-pinned"} {0} is a placeholder replaced by an integer number of packages</comment>
   </data>
   <data name="ConfigureCommandLongDescription" xml:space="preserve">
-    <value>Ensures that the system matches the desired state as described by the provided configuration. Ensure that the configuration and the processors are trusted before applying it.</value>
+    <value>Ensures that the system matches the desired state as described by the provided configuration. May download/execute processors in order to achieve the desired state. The configuration and the processors should be checked to ensure that they are trustworthy before applying them.</value>
   </data>
   <data name="ConfigureCommandShortDescription" xml:space="preserve">
     <value>Configures the system into a desired state</value>
@@ -1688,5 +1688,17 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="ConfigureShowCommandShortDescription" xml:space="preserve">
     <value>Shows details of a configuration</value>
+  </data>
+  <data name="ConfigureTestCommandLongDescription" xml:space="preserve">
+    <value>Checks that the system matches the desired state as described by the provided configuration. May download/execute processors in order to test the desired state. The configuration and the processors should be checked to ensure that they are trustworthy before executing them.</value>
+  </data>
+  <data name="ConfigureTestCommandShortDescription" xml:space="preserve">
+    <value>Checks the system against a desired state</value>
+  </data>
+  <data name="ConfigureValidateCommandLongDescription" xml:space="preserve">
+    <value>Validates a configuration file for correctness.</value>
+  </data>
+  <data name="ConfigureValidateCommandShortDescription" xml:space="preserve">
+    <value>Validates a configuration file</value>
   </data>
 </root>

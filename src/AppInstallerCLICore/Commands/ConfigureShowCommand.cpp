@@ -23,11 +23,12 @@ namespace AppInstaller::CLI
     Utility::LocIndView ConfigureShowCommand::HelpLink() const
     {
         // TODO: Make this exist
-        return "https://aka.ms/winget-command-configure#show-command"_liv;
+        return "https://aka.ms/winget-command-configure#show"_liv;
     }
 
     void ConfigureShowCommand::ExecuteInternal(Execution::Context& context) const
     {
+        UNREFERENCED_PARAMETER(context);
         THROW_HR(E_NOTIMPL);
     }
 }
