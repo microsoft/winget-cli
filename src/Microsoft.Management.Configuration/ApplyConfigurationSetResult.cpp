@@ -1,0 +1,32 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+#include "pch.h"
+#include "ApplyConfigurationSetResult.h"
+#include "ApplyConfigurationSetResult.g.cpp"
+
+namespace winrt::Microsoft::Management::Configuration::implementation
+{
+    ApplyConfigurationSetResult::ApplyConfigurationSetResult() :
+        m_unitResults(single_threaded_vector<ApplyConfigurationUnitResult>())
+    {}
+
+    Windows::Foundation::Collections::IVectorView<ApplyConfigurationUnitResult> ApplyConfigurationSetResult::UnitResults()
+    {
+        return m_unitResults.GetView();
+    }
+
+    const Windows::Foundation::Collections::IVector<ApplyConfigurationUnitResult>& ApplyConfigurationSetResult::UnitResultsVector()
+    {
+        return m_unitResults;
+    }
+
+    hresult ApplyConfigurationSetResult::ResultCode()
+    {
+        return m_resultCode;
+    }
+
+    void ApplyConfigurationSetResult::ResultCode(hresult value)
+    {
+        m_resultCode = value;
+    }
+}

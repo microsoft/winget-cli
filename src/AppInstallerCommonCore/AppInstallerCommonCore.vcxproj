@@ -299,7 +299,6 @@
     <ClInclude Include="Public\AppInstallerSynchronization.h" />
     <ClInclude Include="Public\AppInstallerTelemetry.h" />
     <ClInclude Include="Public\AppInstallerArchitecture.h" />
-    <ClInclude Include="Public\AppInstallerVersions.h" />
     <ClInclude Include="Public\winget\Archive.h" />
     <ClInclude Include="Public\winget\ExperimentalFeature.h" />
     <ClInclude Include="Public\winget\ExtensionCatalog.h" />
@@ -398,7 +397,6 @@
     <ClCompile Include="ThreadGlobals.cpp" />
     <ClCompile Include="TraceLogger.cpp" />
     <ClCompile Include="UserSettings.cpp" />
-    <ClCompile Include="Versions.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -1,0 +1,176 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
+    <ClCompile Include="ApplyConfigurationSetResult.cpp">
+      <Filter>API Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ApplyConfigurationUnitResult.cpp">
+      <Filter>API Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigurationChangeData.cpp">
+      <Filter>API Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigurationConflict.cpp">
+      <Filter>API Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigurationConflictSetting.cpp">
+      <Filter>API Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigurationSet.cpp">
+      <Filter>API Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigurationSetChangeData.cpp">
+      <Filter>API Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigurationUnit.cpp">
+      <Filter>API Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigurationUnitResultInformation.cpp">
+      <Filter>API Source</Filter>
+    </ClCompile>
+    <ClCompile Include="DiagnosticInformation.cpp">
+      <Filter>API Source</Filter>
+    </ClCompile>
+    <ClCompile Include="GetConfigurationUnitSettingsResult.cpp">
+      <Filter>API Source</Filter>
+    </ClCompile>
+    <ClCompile Include="MutableFlag.cpp">
+      <Filter>Internals</Filter>
+    </ClCompile>
+    <ClCompile Include="TestConfigurationSetResult.cpp">
+      <Filter>API Source</Filter>
+    </ClCompile>
+    <ClCompile Include="TestConfigurationUnitResult.cpp">
+      <Filter>API Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigurationProcessor.cpp">
+      <Filter>API Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigurationSetParser.cpp">
+      <Filter>Parser</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigurationSetParser_0_1.cpp">
+      <Filter>Parser</Filter>
+    </ClCompile>
+    <ClCompile Include="OpenConfigurationSetResult.cpp">
+      <Filter>API Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigThreadGlobals.cpp">
+      <Filter>Internals</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigurationSetApplyProcessor.cpp">
+      <Filter>Internals</Filter>
+    </ClCompile>
+    <ClCompile Include="ApplySettingsResult.cpp">
+      <Filter>API Source</Filter>
+    </ClCompile>
+    <ClCompile Include="GetSettingsResult.cpp">
+      <Filter>API Source</Filter>
+    </ClCompile>
+    <ClCompile Include="TestSettingsResult.cpp">
+      <Filter>API Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="ApplyConfigurationSetResult.h">
+      <Filter>API Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ApplyConfigurationUnitResult.h">
+      <Filter>API Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigurationChangeData.h">
+      <Filter>API Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigurationConflict.h">
+      <Filter>API Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigurationConflictSetting.h">
+      <Filter>API Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigurationSet.h">
+      <Filter>API Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigurationSetChangeData.h">
+      <Filter>API Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigurationUnit.h">
+      <Filter>API Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigurationUnitResultInformation.h">
+      <Filter>API Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="DiagnosticInformation.h">
+      <Filter>API Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="GetConfigurationUnitSettingsResult.h">
+      <Filter>API Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="MutableFlag.h">
+      <Filter>Internals</Filter>
+    </ClInclude>
+    <ClInclude Include="TestConfigurationSetResult.h">
+      <Filter>API Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="TestConfigurationUnitResult.h">
+      <Filter>API Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigurationProcessor.h">
+      <Filter>API Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigurationSetParser.h">
+      <Filter>Parser</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigurationSetParser_0_1.h">
+      <Filter>Parser</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenConfigurationSetResult.h">
+      <Filter>API Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigurationSetParserError.h">
+      <Filter>Parser</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigThreadGlobals.h">
+      <Filter>Internals</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigurationSetApplyProcessor.h">
+      <Filter>Internals</Filter>
+    </ClInclude>
+    <ClInclude Include="ExceptionResultHelpers.h">
+      <Filter>Internals</Filter>
+    </ClInclude>
+    <ClInclude Include="ApplySettingsResult.h">
+      <Filter>API Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="GetSettingsResult.h">
+      <Filter>API Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="TestSettingsResult.h">
+      <Filter>API Headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Midl Include="Microsoft.Management.Configuration.idl" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Microsoft_Management_Configuration.def" />
+    <None Include="packages.config" />
+    <None Include="PropertySheet.props" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="API Headers">
+      <UniqueIdentifier>{0826fc0e-120c-4e31-bde7-ce0a1278b1b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="API Source">
+      <UniqueIdentifier>{6dbfe76d-646d-43b0-b162-e1dedad10ab8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Internals">
+      <UniqueIdentifier>{c5f2f74e-de80-4235-abbd-bacd6771eaf2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Parser">
+      <UniqueIdentifier>{b31f8336-b4d8-4c05-b08d-6b82c550a30b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
