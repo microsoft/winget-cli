@@ -6,11 +6,8 @@
 
 namespace Microsoft.Management.Configuration.Processor
 {
-    using System;
     using Microsoft.Management.Configuration;
-    using Microsoft.Management.Configuration.Processor.DscModule;
     using Microsoft.Management.Configuration.Processor.ProcessorEnvironments;
-    using Microsoft.Management.Configuration.Processor.Runspaces;
     using Microsoft.Management.Configuration.Processor.Set;
 
     /// <summary>
@@ -39,8 +36,8 @@ namespace Microsoft.Management.Configuration.Processor
         /// <returns>Configuration set processor.</returns>
         public IConfigurationSetProcessor CreateSetProcessor(ConfigurationSet set)
         {
-            var dscModule = this.CreateDscModule();
-            var processorEnvironment = this.CreateProcessorEnvironment(dscModule);
+            var envFactory = new ProcessorEnvironmentFactory(this.type);
+            var processorEnvironment = envFactory.CreateEnvironment();
 
             if (this.properties is not null)
             {
@@ -52,30 +49,6 @@ namespace Microsoft.Management.Configuration.Processor
             }
 
             return new ConfigurationSetProcessor(processorEnvironment, set);
-        }
-
-        /// <summary>
-        /// Creates the IDscModule implementation for the processor type.
-        /// </summary>
-        /// <returns>DscModule.</returns>>
-        private IDscModule CreateDscModule()
-        {
-            return this.type switch
-            {
-                ConfigurationProcessorType.Default => new DscModuleV2(customModule: false),
-                ConfigurationProcessorType.Hosted => new DscModuleV2(customModule: true),
-                _ => throw new NotImplementedException()
-            };
-        }
-
-        private IProcessorEnvironment CreateProcessorEnvironment(IDscModule module)
-        {
-            return this.type switch
-            {
-                ConfigurationProcessorType.Default => new DefaultEnvironment(module),
-                ConfigurationProcessorType.Hosted => new HostedEnvironment(module),
-                _ => throw new NotImplementedException()
-            };
         }
     }
 }

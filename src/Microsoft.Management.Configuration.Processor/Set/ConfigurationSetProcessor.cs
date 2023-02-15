@@ -84,8 +84,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
             if (dscResourceInfo is null)
             {
                 // We didn't find any DSC resource with that criteria. Let's find it and install it.
-                var resourceInstaller = new ResourceInstaller(this.ProcessorEnvironment.Runspace, unitInternal);
-                resourceInstaller.InstallResource();
+                this.ProcessorEnvironment.InstallResource(unitInternal);
 
                 // Now we should find it.
                 dscResourceInfo = this.ProcessorEnvironment.GetDscResource(unitInternal);

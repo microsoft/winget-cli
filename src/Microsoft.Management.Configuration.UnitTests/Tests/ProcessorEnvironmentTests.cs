@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="HostedEnvironmentTests.cs" company="Microsoft Corporation">
+// <copyright file="ProcessorEnvironmentTests.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -7,9 +7,6 @@
 namespace Microsoft.Management.Configuration.UnitTests.Tests
 {
     using System.Collections.Generic;
-    using System.Management.Automation.Runspaces;
-    using Microsoft.Management.Configuration.Processor.DscModule;
-    using Microsoft.Management.Configuration.Processor.Runspaces;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
     using Moq;
     using Xunit;
@@ -20,28 +17,20 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     /// HostedEnvironment tests, that is more ProcessorEnvironmentBase tests for non forwarding functions.
     /// </summary>
     [Collection("UnitTestCollection")]
-    public class HostedEnvironmentTests
+    public class ProcessorEnvironmentTests
     {
         private readonly UnitTestFixture fixture;
         private readonly ITestOutputHelper log;
-        private readonly Mock<IDscModule> dscModuleMock;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="HostedEnvironmentTests"/> class.
+        /// Initializes a new instance of the <see cref="ProcessorEnvironmentTests"/> class.
         /// </summary>
         /// <param name="fixture">Unit test fixture.</param>
         /// <param name="log">Log.</param>
-        public HostedEnvironmentTests(UnitTestFixture fixture, ITestOutputHelper log)
+        public ProcessorEnvironmentTests(UnitTestFixture fixture, ITestOutputHelper log)
         {
             this.fixture = fixture;
             this.log = log;
-
-            this.dscModuleMock = new Mock<IDscModule>();
-            this.dscModuleMock.Setup(
-                m => m.ValidateModule(It.IsAny<Runspace>()));
-            this.dscModuleMock.Setup(
-                m => m.ModuleName)
-                .Returns(Modules.PSDesiredStateConfiguration);
         }
 
         /// <summary>
@@ -50,7 +39,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         [Fact]
         public void HostedEnvironment_Variables()
         {
-            var processorEnv = new HostedEnvironment(this.dscModuleMock.Object);
+            var processorEnv = this.fixture.PrepareTestProcessorEnvironment();
 
             // As string.
             string var1Name = "var1";
@@ -75,7 +64,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         [Fact]
         public void HostedEnvironment_SetPSModulePath()
         {
-            var processorEnv = new HostedEnvironment(this.dscModuleMock.Object);
+            var processorEnv = this.fixture.PrepareTestProcessorEnvironment();
 
             string psmodulePathInput = "SetPSModulePathModulePath";
             string psModulePath = processorEnv.GetVariable<string>(Variables.PSModulePath);
@@ -92,7 +81,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         [Fact]
         public void HostedEnvironment_SetPSModulePaths()
         {
-            var processorEnv = new HostedEnvironment(this.dscModuleMock.Object);
+            var processorEnv = this.fixture.PrepareTestProcessorEnvironment();
 
             var psmodulePathInput = new List<string>()
             {
@@ -117,7 +106,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         [Fact]
         public void HostedEnvironment_AppendPSModulePath()
         {
-            var processorEnv = new HostedEnvironment(this.dscModuleMock.Object);
+            var processorEnv = this.fixture.PrepareTestProcessorEnvironment();
 
             string psmodulePathInput = "AppendPSModulePathModulePath";
             string psModulePath = processorEnv.GetVariable<string>(Variables.PSModulePath);
@@ -134,7 +123,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         [Fact]
         public void HostedEnvironment_AppendPSModulePaths()
         {
-            var processorEnv = new HostedEnvironment(this.dscModuleMock.Object);
+            var processorEnv = this.fixture.PrepareTestProcessorEnvironment();
 
             var psmodulePathInput = new List<string>()
             {
@@ -159,7 +148,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         [Fact]
         public void HostedEnvironment_PrependPSModulePath()
         {
-            var processorEnv = new HostedEnvironment(this.dscModuleMock.Object);
+            var processorEnv = this.fixture.PrepareTestProcessorEnvironment();
 
             string psmodulePathInput = "PrependPSModulePathModulePath";
             string psModulePath = processorEnv.GetVariable<string>(Variables.PSModulePath);
@@ -176,7 +165,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         [Fact]
         public void HostedEnvironment_PrependPSModulePaths()
         {
-            var processorEnv = new HostedEnvironment(this.dscModuleMock.Object);
+            var processorEnv = this.fixture.PrepareTestProcessorEnvironment();
 
             var psmodulePathInput = new List<string>()
             {
@@ -201,7 +190,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         [Fact]
         public void HostedEnvironment_CleanupPSModulePath()
         {
-            var processorEnv = new HostedEnvironment(this.dscModuleMock.Object);
+            var processorEnv = this.fixture.PrepareTestProcessorEnvironment();
             var psmodulePathInput = new List<string>()
             {
                 "CleanupPSModulePathPath1",

@@ -9,6 +9,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     using System;
     using Microsoft.Management.Configuration;
     using Microsoft.Management.Configuration.Processor.DscResourcesInfo;
+    using Microsoft.Management.Configuration.Processor.Exceptions;
     using Microsoft.Management.Configuration.Processor.Helpers;
     using Microsoft.Management.Configuration.Processor.ProcessorEnvironments;
     using Microsoft.Management.Configuration.Processor.Set;
@@ -132,6 +133,82 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             var unitProcessor = configurationSetProcessor.CreateUnitProcessor(unit, null);
             Assert.NotNull(unitProcessor);
             Assert.Equal(unit.UnitName, unitProcessor.Unit.UnitName);
+
+            processorEnvMock.Verify();
+        }
+
+        /// <summary>
+        /// Tests Creating a unit processor by downloading the resource.
+        /// </summary>
+        [Fact]
+        public void CreateUnitProcessor_InstallResource()
+        {
+            string resourceName = "xResourceName";
+            string moduleName = "xModuleName";
+            Version version = new Version("1.0");
+
+            DscResourceInfoInternal? nullResource = null;
+            DscResourceInfoInternal dscResourceInfo = new DscResourceInfoInternal(resourceName, moduleName, version);
+            var processorEnvMock = new Mock<IProcessorEnvironment>();
+            processorEnvMock.SetupSequence(
+                m => m.GetDscResource(It.Is<ConfigurationUnitInternal>(c => c.Unit.UnitName == resourceName)))
+                .Returns(nullResource)
+                .Returns(dscResourceInfo);
+            processorEnvMock.Setup(
+                m => m.InstallResource(It.Is<ConfigurationUnitInternal>(c => c.Unit.UnitName == resourceName)))
+                .Verifiable();
+
+            var configurationSetProcessor = new ConfigurationSetProcessor(
+                processorEnvMock.Object,
+                new ConfigurationSet());
+
+            var unit = new ConfigurationUnit
+            {
+                UnitName = resourceName,
+            };
+            unit.Directives.Add("module", moduleName);
+            unit.Directives.Add("version", version.ToString());
+
+            var unitProcessor = configurationSetProcessor.CreateUnitProcessor(unit, null);
+            Assert.NotNull(unitProcessor);
+            Assert.Equal(unit.UnitName, unitProcessor.Unit.UnitName);
+
+            processorEnvMock.Verify();
+        }
+
+        /// <summary>
+        /// Tests Creating a unit processor by downloading the resource.
+        /// </summary>
+        [Fact]
+        public void CreateUnitProcessor_InstallResource_NotFound()
+        {
+            string resourceName = "xResourceName";
+            string moduleName = "xModuleName";
+            Version version = new Version("1.0");
+
+            DscResourceInfoInternal? nullResource = null;
+            DscResourceInfoInternal dscResourceInfo = new DscResourceInfoInternal(resourceName, moduleName, version);
+            var processorEnvMock = new Mock<IProcessorEnvironment>();
+            processorEnvMock.Setup(
+                m => m.GetDscResource(It.Is<ConfigurationUnitInternal>(c => c.Unit.UnitName == resourceName)))
+                .Returns(nullResource);
+            processorEnvMock.Setup(
+                m => m.InstallResource(It.Is<ConfigurationUnitInternal>(c => c.Unit.UnitName == resourceName)))
+                .Verifiable();
+
+            var configurationSetProcessor = new ConfigurationSetProcessor(
+                processorEnvMock.Object,
+                new ConfigurationSet());
+
+            var unit = new ConfigurationUnit
+            {
+                UnitName = resourceName,
+            };
+            unit.Directives.Add("module", moduleName);
+            unit.Directives.Add("version", version.ToString());
+
+            Assert.Throws<GetDscResourceNotFoundException>(
+                () => configurationSetProcessor.CreateUnitProcessor(unit, null));
 
             processorEnvMock.Verify();
         }

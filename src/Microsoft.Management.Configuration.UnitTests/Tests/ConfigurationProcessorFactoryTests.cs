@@ -8,7 +8,6 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 {
     using System.Collections.Generic;
     using Microsoft.Management.Configuration.Processor;
-    using Microsoft.Management.Configuration.Processor.Runspaces;
     using Microsoft.Management.Configuration.Processor.Set;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
     using Moq;
@@ -53,7 +52,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             Assert.NotNull(configurationProcessorSet);
             Assert.IsType<ConfigurationSetProcessor>(configurationProcessorSet);
             var processorSet = configurationProcessorSet as ConfigurationSetProcessor;
-            Assert.IsType<HostedEnvironment>(processorSet!.ProcessorEnvironment);
+            Assert.NotNull(processorSet);
         }
 
         /// <summary>
@@ -80,7 +79,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             Assert.IsType<ConfigurationSetProcessor>(configurationProcessorSet);
             var processorSet = configurationProcessorSet as ConfigurationSetProcessor;
-            Assert.IsType<HostedEnvironment>(processorSet!.ProcessorEnvironment);
+            Assert.NotNull(processorSet);
 
             configurationProcessorFactoryPropertiesMock.Verify();
 

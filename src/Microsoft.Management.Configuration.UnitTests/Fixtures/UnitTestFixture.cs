@@ -10,6 +10,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Fixtures
     using System.IO;
     using System.Management.Automation.Runspaces;
     using System.Reflection;
+    using Microsoft.Management.Configuration.Processor;
     using Microsoft.Management.Configuration.Processor.DscModule;
     using Microsoft.Management.Configuration.Processor.ProcessorEnvironments;
     using Microsoft.Management.Configuration.Processor.Runspaces;
@@ -53,22 +54,10 @@ namespace Microsoft.Management.Configuration.UnitTests.Fixtures
         /// <summary>
         /// Creates a runspace adding the test module path.
         /// </summary>
-        /// <param name="dscModule">Dsc module.</param>
         /// <returns>PowerShellRunspace.</returns>
-        internal IProcessorEnvironment PrepareTestProcessorEnvironment(IDscModule? dscModule = null)
+        internal IProcessorEnvironment PrepareTestProcessorEnvironment()
         {
-            if (dscModule == null)
-            {
-                Mock<IDscModule> dscModuleMock = new Mock<IDscModule>();
-                dscModuleMock.Setup(
-                    (m) => m.ValidateModule(It.IsAny<Runspace>()));
-                dscModuleMock.Setup(
-                    m => m.ModuleName)
-                    .Returns(Modules.PSDesiredStateConfiguration);
-                dscModule = dscModuleMock.Object;
-            }
-
-            var processorEnv = new HostedEnvironment(dscModule);
+            var processorEnv = new ProcessorEnvironmentFactory(ConfigurationProcessorType.Hosted).CreateEnvironment();
             processorEnv.PrependPSModulePath(this.TestModulesPath);
             return processorEnv;
         }

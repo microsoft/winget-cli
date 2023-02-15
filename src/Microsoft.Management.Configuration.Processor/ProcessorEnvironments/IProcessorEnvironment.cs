@@ -8,6 +8,7 @@ namespace Microsoft.Management.Configuration.Processor.ProcessorEnvironments
 {
     using System;
     using System.Collections.Generic;
+    using System.Management.Automation;
     using System.Management.Automation.Runspaces;
     using Microsoft.Management.Configuration.Processor.DscResourcesInfo;
     using Microsoft.Management.Configuration.Processor.Helpers;
@@ -75,6 +76,12 @@ namespace Microsoft.Management.Configuration.Processor.ProcessorEnvironments
         /// <param name="moduleSpecification">Module specification.</param>
         /// <returns>If a reboot is required.</returns>
         bool InvokeSetResource(ValueSet settings, string name, ModuleSpecification? moduleSpecification);
+
+        /// <summary>
+        /// Uses PowerShellGet to find and install the resource.
+        /// </summary>
+        /// <param name="unitInternal">Configuration unit internal.</param>
+        void InstallResource(ConfigurationUnitInternal unitInternal);
 
         /// <summary>
         /// Gets the value of a variable.

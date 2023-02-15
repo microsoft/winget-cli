@@ -25,7 +25,7 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
         /// <param name="directivesOverlay">Directives overlay.</param>
         public ConfigurationUnitInternal(
             ConfigurationUnit unit,
-            IReadOnlyDictionary<string, object>? directivesOverlay)
+            IReadOnlyDictionary<string, object>? directivesOverlay = null)
         {
             this.Unit = unit;
             this.DirectivesOverlay = directivesOverlay;

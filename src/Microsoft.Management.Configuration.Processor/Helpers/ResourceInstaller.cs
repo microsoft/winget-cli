@@ -9,7 +9,6 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Linq;
     using System.Management.Automation;
     using System.Management.Automation.Runspaces;
     using Microsoft.Management.Configuration.Processor.Constants;

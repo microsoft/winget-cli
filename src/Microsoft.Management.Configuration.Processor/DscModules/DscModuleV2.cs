@@ -28,15 +28,11 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
         private const string InDesiredState = "InDesiredState";
         private const string RebootRequired = "RebootRequired";
 
-        private readonly bool customModule = false;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="DscModuleV2"/> class.
         /// </summary>
-        /// <param name="customModule">Is custom module.</param>
-        public DscModuleV2(bool customModule)
+        public DscModuleV2()
         {
-            this.customModule = customModule;
         }
 
         /// <inheritdoc/>
@@ -51,43 +47,7 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
         /// <inheritdoc/>
         public void ValidateModule(Runspace runspace)
         {
-            if (this.customModule)
-            {
-                return;
-            }
-
-            // Make sure we have PSDesiredStateConfiguration installed and that
-            // PSDesiredStateConfiguration.InvokeDscResource is enabled.
-            if (!ExperimentalFeature.IsEnabled(ExperimentalFeatureName))
-            {
-                // I want to use Get-InstalledModule, but couldn't make it work. It would just return no result
-                // and throw an exception reading the error stream.
-                using var pwsh = PowerShell.Create(runspace);
-
-                var getDscResourceCommand = pwsh.AddCommand(Commands.GetCommand)
-                                                .AddParameter(Parameters.Name, this.GetDscResourceCmd)
-                                                .InvokeAndStopOnError<FunctionInfo>()
-                                                .FirstOrDefault();
-
-                if (getDscResourceCommand is null)
-                {
-                    throw new NotSupportedException($"Module {Modules.PSDesiredStateConfiguration} not found.");
-                }
-
-                // Get-DscResource would be found in the PSDesiredStateConfiguration module
-                // in the Windows PowerShell module path.
-                var supportedVersion = Version.Parse(Modules.PSDesiredStateConfigurationVersion);
-                if (getDscResourceCommand.Version.CompareTo(supportedVersion) != 0)
-                {
-                    throw new NotSupportedException($"Module {Modules.PSDesiredStateConfiguration} version" +
-                        $" {getDscResourceCommand.Version} not supported.");
-                }
-                else
-                {
-                    // Supported version is installed, but the feature is not enabled.
-                    throw new NotSupportedException($"Experimental feature {ExperimentalFeatureName} not enabled.");
-                }
-            }
+            // TODO: Validate min version.
         }
 
         /// <inheritdoc/>

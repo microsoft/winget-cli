@@ -57,7 +57,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 { "Ensure", ensureValue },
             };
 
-            var dscModule = new DscModuleV2(true);
+            var dscModule = new DscModuleV2();
             Assert.Equal(
                 expectedResult,
                 dscModule.InvokeTestResource(
@@ -85,7 +85,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 { "Ensure", "Present" },
             };
 
-            var dscModule = new DscModuleV2(true);
+            var dscModule = new DscModuleV2();
             Assert.True(dscModule.InvokeTestResource(
                 processorEnv.Runspace,
                 settings,
@@ -111,7 +111,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 { "Content", "Is that a from somewhere?" },
             };
 
-            var dscModule = new DscModuleV2(true);
+            var dscModule = new DscModuleV2();
             Assert.False(dscModule.InvokeTestResource(
                 processorEnv.Runspace,
                 settings,
@@ -138,7 +138,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 { "Content", content },
             };
 
-            var dscModule = new DscModuleV2(true);
+            var dscModule = new DscModuleV2();
             Assert.True(dscModule.InvokeTestResource(
                 processorEnv.Runspace,
                 settings,
@@ -180,7 +180,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 preCondition,
                 File.Exists(tmpFile.FullFileName));
 
-            var dscModule = new DscModuleV2(true);
+            var dscModule = new DscModuleV2();
             dscModule.InvokeSetResource(
                 processorEnv.Runspace,
                 settings,
@@ -220,7 +220,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 { "Content", postSetContent },
             };
 
-            var dscModule = new DscModuleV2(true);
+            var dscModule = new DscModuleV2();
             dscModule.InvokeSetResource(
                 processorEnv.Runspace,
                 settings,
@@ -249,7 +249,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 { "Path", tmpFile.FullFileName },
             };
 
-            var dscModule = new DscModuleV2(true);
+            var dscModule = new DscModuleV2();
             var properties = dscModule.InvokeGetResource(
                                 processorEnv.Runspace,
                                 settings,

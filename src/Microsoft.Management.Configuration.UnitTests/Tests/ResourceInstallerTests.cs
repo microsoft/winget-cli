@@ -8,13 +8,10 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 {
     using System;
     using Microsoft.Management.Configuration.Processor.Constants;
-    using Microsoft.Management.Configuration.Processor.DscModule;
     using Microsoft.Management.Configuration.Processor.Exceptions;
     using Microsoft.Management.Configuration.Processor.Helpers;
-    using Microsoft.Management.Configuration.Processor.Runspaces;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
     using Microsoft.Management.Configuration.UnitTests.Helpers;
-    using Microsoft.PowerShell.Commands;
     using Xunit;
     using Xunit.Abstractions;
 
@@ -45,10 +42,10 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         [Fact]
         public void FindDscResource_Test()
         {
-            var hostedEnvironment = new HostedEnvironment(new DscModuleV2(true));
+            var processorEnvironment = this.fixture.PrepareTestProcessorEnvironment();
             var unitInternal = this.CreateUnitInternal();
 
-            var resourceInstaller = new ResourceInstaller(hostedEnvironment.Runspace, unitInternal);
+            var resourceInstaller = new ResourceInstaller(processorEnvironment.Runspace, unitInternal);
 
             var resourceModule = resourceInstaller.FindDscResource();
 
@@ -61,14 +58,14 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         [Fact]
         public void FindDscResource_Test_NotFound()
         {
-            var hostedEnvironment = new HostedEnvironment(new DscModuleV2(true));
+            var processorEnvironment = this.fixture.PrepareTestProcessorEnvironment();
             var configurationUnit = new ConfigurationUnit
             {
                 UnitName = $"{Guid.NewGuid()}{Guid.NewGuid()}",
             };
 
             var resourceInstaller = new ResourceInstaller(
-                hostedEnvironment.Runspace,
+                processorEnvironment.Runspace,
                 new ConfigurationUnitInternal(configurationUnit, null));
 
             Assert.Throws<FindDscResourceNotFoundException>(() => resourceInstaller.FindDscResource());
@@ -81,17 +78,17 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         [Fact]
         public void VerifyModule_Test()
         {
-            var tmpDir = new TempDirectory();
-            var hostedEnvironment = new HostedEnvironment(new DscModuleV2(true));
+            var tempDir = new TempDirectory();
+            var processorEnvironment = this.fixture.PrepareTestProcessorEnvironment();
             var unitInternal = this.CreateUnitInternal();
 
-            var resourceInstaller = new ResourceInstaller(hostedEnvironment.Runspace, unitInternal);
+            var resourceInstaller = new ResourceInstaller(processorEnvironment.Runspace, unitInternal);
 
             var resourceModule = resourceInstaller.FindDscResource();
             Assert.NotNull(resourceModule);
 
             Assert.Throws<InvalidOperationException>(
-                () => resourceInstaller.ValidateModule(resourceModule, tmpDir.FullDirectoryPath));
+                () => resourceInstaller.ValidateModule(resourceModule, tempDir.FullDirectoryPath));
         }
 
         /// <summary>
@@ -102,10 +99,10 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         [Fact]
         public void InstallModule_Test()
         {
-            var hostedEnvironment = new HostedEnvironment(new DscModuleV2(true));
+            var processorEnvironment = this.fixture.PrepareTestProcessorEnvironment();
             var unitInternal = this.CreateUnitInternal();
 
-            var resourceInstaller = new ResourceInstaller(hostedEnvironment.Runspace, unitInternal);
+            var resourceInstaller = new ResourceInstaller(processorEnvironment.Runspace, unitInternal);
 
             var resourceModule = resourceInstaller.FindDscResource();
             Assert.NotNull(resourceModule);

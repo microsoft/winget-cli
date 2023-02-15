@@ -47,7 +47,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         {
             var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
 
-            var dscModule = new DscModuleV2(true);
+            var dscModule = new DscModuleV2();
             var resources = dscModule.GetAllDscResources(testEnvironment.Runspace);
 
             Assert.True(resources.Count > 0);
@@ -66,7 +66,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         {
             var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
 
-            var dscModule = new DscModuleV2(true);
+            var dscModule = new DscModuleV2();
             var resources = dscModule.GetDscResourcesInModule(
                 testEnvironment.Runspace,
                 PowerShellHelpers.CreateModuleSpecification(module));
@@ -94,7 +94,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 File.ReadAllText(manifestFile).Replace("0.0.0.1", "1.0.0.0"));
             testEnvironment.AppendPSModulePath(tmpDir.FullDirectoryPath);
 
-            var dscModule = new DscModuleV2(true);
+            var dscModule = new DscModuleV2();
 
             var allResources = dscModule.GetDscResourcesInModule(
                 testEnvironment.Runspace,
@@ -124,7 +124,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         {
             var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
 
-            var dscModule = new DscModuleV2(true);
+            var dscModule = new DscModuleV2();
             var resource = dscModule.GetDscResource(
                 testEnvironment.Runspace,
                 TestModule.SimpleTestResourceName,
@@ -141,7 +141,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         {
             var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
 
-            var dscModule = new DscModuleV2(true);
+            var dscModule = new DscModuleV2();
             Assert.Throws<WriteErrorException>(
                 () => dscModule.GetDscResource(
                     testEnvironment.Runspace,
@@ -164,7 +164,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             tmpDir.CopyDirectory(this.fixture.TestModulesPath);
             testEnvironment.AppendPSModulePath(tmpDir.FullDirectoryPath);
 
-            var dscModule = new DscModuleV2(true);
+            var dscModule = new DscModuleV2();
 
             Assert.Throws<RuntimeException>(
                 () => dscModule.GetDscResource(
@@ -195,7 +195,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 File.ReadAllText(manifestFile).Replace("0.0.0.1", "2.0.0.0"));
             testEnvironment.AppendPSModulePath(tmpDir.FullDirectoryPath);
 
-            var dscModule = new DscModuleV2(true);
+            var dscModule = new DscModuleV2();
 
             // specific version.
             var resource = dscModule.GetDscResource(
@@ -221,7 +221,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         {
             var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
 
-            var dscModule = new DscModuleV2(true);
+            var dscModule = new DscModuleV2();
 
             var getResult = dscModule.InvokeGetResource(
                 testEnvironment.Runspace,
@@ -243,7 +243,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         {
             var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
 
-            var dscModule = new DscModuleV2(true);
+            var dscModule = new DscModuleV2();
 
             var exception = Assert.Throws<RuntimeException>(() =>
                 dscModule.InvokeGetResource(
@@ -264,7 +264,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         {
             var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
 
-            var dscModule = new DscModuleV2(true);
+            var dscModule = new DscModuleV2();
 
             Assert.Throws<WriteErrorException>(() =>
                 dscModule.InvokeGetResource(
@@ -283,7 +283,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         {
             var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
 
-            var dscModule = new DscModuleV2(true);
+            var dscModule = new DscModuleV2();
 
             var exception = Assert.Throws<RuntimeException>(
                 () => dscModule.InvokeGetResource(
@@ -308,7 +308,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         {
             var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
 
-            var dscModule = new DscModuleV2(true);
+            var dscModule = new DscModuleV2();
 
             var settings = new ValueSet()
             {
@@ -333,7 +333,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         {
             var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
 
-            var dscModule = new DscModuleV2(true);
+            var dscModule = new DscModuleV2();
 
             var exception = Assert.Throws<RuntimeException>(() =>
                 dscModule.InvokeTestResource(
@@ -354,7 +354,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         {
             var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
 
-            var dscModule = new DscModuleV2(true);
+            var dscModule = new DscModuleV2();
 
             Assert.Throws<WriteErrorException>(() =>
                 dscModule.InvokeTestResource(
@@ -373,7 +373,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         {
             var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
 
-            var dscModule = new DscModuleV2(true);
+            var dscModule = new DscModuleV2();
 
             var exception = Assert.Throws<RuntimeException>(() =>
                 _ = dscModule.InvokeTestResource(
@@ -398,7 +398,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         {
             var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
 
-            var dscModule = new DscModuleV2(true);
+            var dscModule = new DscModuleV2();
 
             var settings = new ValueSet()
             {
@@ -423,7 +423,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         {
             var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
 
-            var dscModule = new DscModuleV2(true);
+            var dscModule = new DscModuleV2();
 
             var exception = Assert.Throws<RuntimeException>(() =>
                 dscModule.InvokeSetResource(
@@ -444,7 +444,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         {
             var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
 
-            var dscModule = new DscModuleV2(true);
+            var dscModule = new DscModuleV2();
 
             Assert.Throws<WriteErrorException>(() =>
                 dscModule.InvokeSetResource(
@@ -463,7 +463,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         {
             var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
 
-            var dscModule = new DscModuleV2(true);
+            var dscModule = new DscModuleV2();
 
             var exception = Assert.Throws<RuntimeException>(() =>
                 dscModule.InvokeSetResource(
@@ -497,7 +497,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 File.ReadAllText(manifestFile).Replace("0.0.0.1", "0.0.2.0"));
             testEnvironment.AppendPSModulePath(tmpDir.FullDirectoryPath);
 
-            var dscModule = new DscModuleV2(true);
+            var dscModule = new DscModuleV2();
 
             dscModule.InvokeSetResource(
                 testEnvironment.Runspace,
