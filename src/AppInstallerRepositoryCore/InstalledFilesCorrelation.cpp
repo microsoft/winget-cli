@@ -13,7 +13,7 @@ namespace AppInstaller::Repository::Correlation
 {
     namespace
     {
-        constexpr std::string_view s_FileExtensionToWatch = ".lnk"sv;
+        constexpr std::string_view s_ShellLinkFileExtension = ".lnk"sv;
         const std::vector<std::pair<std::filesystem::path, std::string>> s_CandidateInstallLocationRoots =
         {
             { Filesystem::GetExpandedPath("%LOCALAPPDATA%"), "%LOCALAPPDATA%" },
@@ -136,6 +136,7 @@ namespace AppInstaller::Repository::Correlation
             auto relativePath = GetRelativePath(childFile, baseFolder);
             if (relativePath)
             {
+                // TODO: Here we assume the install location is the top directory of relative path.
                 auto installLocation = baseFolder / *relativePath->begin();
                 if (std::filesystem::exists(installLocation) && std::filesystem::is_directory(installLocation))
                 {
@@ -162,6 +163,7 @@ namespace AppInstaller::Repository::Correlation
 
         AppInstaller::Manifest::InstalledFileTypeEnum GetInstalledFileType(const ShellLinkFileInfo& linkInfo)
         {
+            // TODO: basic heuristics to determine file type.
             Manifest::InstalledFileTypeEnum result = Manifest::InstalledFileTypeEnum::Other;
 
             if (Utility::CaseInsensitiveContainsSubstring(linkInfo.Path.string(), "uninstall") ||
@@ -208,8 +210,8 @@ namespace AppInstaller::Repository::Correlation
 
     InstalledFilesCorrelation::InstalledFilesCorrelation()
     {
-        m_fileWatchers.emplace_back(Filesystem::GetKnownFolderPath(FOLDERID_CommonStartMenu), std::string{ s_FileExtensionToWatch });
-        m_fileWatchers.emplace_back(Filesystem::GetKnownFolderPath(FOLDERID_StartMenu), std::string{ s_FileExtensionToWatch });
+        m_fileWatchers.emplace_back(Filesystem::GetKnownFolderPath(FOLDERID_CommonStartMenu), std::string{ s_ShellLinkFileExtension });
+        m_fileWatchers.emplace_back(Filesystem::GetKnownFolderPath(FOLDERID_StartMenu), std::string{ s_ShellLinkFileExtension });
     }
 
     void InstalledFilesCorrelation::StartFileWatcher()
@@ -227,18 +229,27 @@ namespace AppInstaller::Repository::Correlation
         for (auto& watcher : m_fileWatchers)
         {
             watcher.Stop();
+        }
+
+        for (auto& watcher : m_fileWatchers)
+        {
+            FileWatcherFiles files;
+            files.Folder = watcher.FolderPath();
+
             for (auto const& file : watcher.Files())
             {
-                m_files.emplace_back(watcher.FolderPath() / file);
+                files.Files.emplace_back(file);
             }
+
+            m_files.emplace_back(std::move(files));
         }
     }
 
-    std::optional<AppInstaller::Manifest::InstallationMetadataInfo> InstalledFilesCorrelation::CorrelateForNewlyInstalled(
+    std::optional<InstallationMetadata> InstalledFilesCorrelation::CorrelateForNewlyInstalled(
         const Manifest::Manifest&,
         const std::string& arpInstallLocation)
     {
-        AppInstaller::Manifest::InstallationMetadataInfo result;
+        InstallationMetadata result;
 
         std::filesystem::path installLocation;
         if (!arpInstallLocation.empty())
@@ -246,44 +257,59 @@ namespace AppInstaller::Repository::Correlation
             installLocation = Filesystem::GetExpandedPath(arpInstallLocation);
         }
 
-        for (auto const& linkFile : m_files)
+        for (auto const& files : m_files)
         {
-            auto linkInfo = ParseShellLinkFile(linkFile);
-            if (linkInfo && std::filesystem::exists(linkInfo->Path) && std::filesystem::is_regular_file(linkInfo->Path))
+            for (auto const& file : files.Files)
             {
-                if (installLocation.empty())
+                // TODO: we only watch shell link files at the moment.
+                auto linkInfo = ParseShellLinkFile(files.Folder / file);
+                if (linkInfo)
                 {
-                    // TODO: In most cases, installed files are under same folder, so use the first file to determine install location at the moment.
-                    auto location = CheckInstallLocation(linkInfo->Path);
-                    if (!location)
+                    auto installedFileType = GetInstalledFileType(linkInfo.value());
+
+                    // Collect installed files metadata if exist
+                    if (std::filesystem::exists(linkInfo->Path) && std::filesystem::is_regular_file(linkInfo->Path))
                     {
-                        continue;
+                        if (installLocation.empty())
+                        {
+                            // TODO: In most cases, installed files are under same folder, so use the first file to determine install location at the moment.
+                            auto location = CheckInstallLocation(linkInfo->Path);
+                            if (!location)
+                            {
+                                continue;
+                            }
+
+                            installLocation = location.value();
+                        }
+
+                        auto relativePath = GetRelativePath(linkInfo->Path, installLocation);
+                        if (relativePath)
+                        {
+                            AppInstaller::Manifest::InstalledFile fileEntry;
+                            fileEntry.RelativeFilePath = relativePath->string();
+                            std::ifstream in{ linkInfo->Path, std::ifstream::binary };
+                            fileEntry.FileSha256 = Utility::SHA256::ComputeHash(in);
+                            fileEntry.InvocationParameter = linkInfo->Args;
+                            fileEntry.DisplayName = linkInfo->DisplayName;
+                            fileEntry.FileType = installedFileType;
+                            result.InstalledFiles.Files.emplace_back(std::move(fileEntry));
+                        }
                     }
 
-                    installLocation = *location;
-                }
-
-                auto relativePath = GetRelativePath(linkInfo->Path, installLocation);
-                if (relativePath)
-                {
-                    AppInstaller::Manifest::InstalledFile fileEntry;
-                    fileEntry.RelativeFilePath = relativePath->string();
-                    std::ifstream in{ linkInfo->Path, std::ifstream::binary };
-                    fileEntry.FileSha256 = Utility::SHA256::ComputeHash(in);
-                    fileEntry.InvocationParameter = linkInfo->Args;
-                    fileEntry.DisplayName = linkInfo->DisplayName;
-                    fileEntry.FileType = GetInstalledFileType(*linkInfo);
-                    result.Files.emplace_back(std::move(fileEntry));
+                    // Collect short cut paths
+                    InstalledShellLinkFile linkFile;
+                    linkFile.RelativeFilePath = file.string();
+                    linkFile.FileType = installedFileType;
+                    result.ShellLinkFiles.emplace_back(linkFile);
                 }
             }
         }
 
         if (!installLocation.empty())
         {
-            result.DefaultInstallLocation = GetUnexpandedInstallLocation(installLocation);
-            return result;
+            result.InstalledFiles.DefaultInstallLocation = GetUnexpandedInstallLocation(installLocation);
         }
 
-        return {};
+        return result;
     }
 }
