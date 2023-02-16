@@ -45,11 +45,16 @@ namespace Microsoft.Management.Configuration.Processor.Unit
                 }
 
                 this.Settings = settings;
+
+                if (psModuleInfo is null)
+                {
+                    this.ModuleName = dscResourceInfo.ModuleName;
+                    this.Version = dscResourceInfo.Version.ToString();
+                }
             }
 
             if (psModuleInfo is not null)
             {
-                this.UnitName = unitName;
                 this.UnitIconUri = psModuleInfo.IconUri;
                 this.ModuleName = psModuleInfo.Name;
                 this.ModuleType = psModuleInfo.ModuleType.ToString();

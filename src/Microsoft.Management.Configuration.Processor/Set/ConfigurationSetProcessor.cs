@@ -96,7 +96,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
             if (detailLevel == ConfigurationUnitDetailLevel.Catalog)
             {
                 return new ConfigurationUnitProcessorDetails(
-                    unit.UnitName,
+                    findResource.Name,
                     null,
                     null,
                     findResource.PSGetModuleInfo);
@@ -115,7 +115,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
                 // We can't get the resources information because Get-DscResource just look
                 // in the PSModulePaths.
                 return new ConfigurationUnitProcessorDetails(
-                    unit.UnitName,
+                    findResource.Name,
                     null,
                     moduleInfo,
                     findResource.PSGetModuleInfo);
@@ -201,7 +201,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
                 dscResourceInfo.Version is null)
             {
                 return new ConfigurationUnitProcessorDetails(
-                    unitName,
+                    dscResourceInfo.Name,
                     dscResourceInfo,
                     null,
                     null);
@@ -217,7 +217,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
             var installedModule = this.ProcessorEnvironment.GetInstalledModule(module);
 
             return new ConfigurationUnitProcessorDetails(
-                unitName,
+                dscResourceInfo.Name,
                 dscResourceInfo,
                 moduleInfo,
                 installedModule);

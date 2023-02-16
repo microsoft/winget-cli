@@ -19,7 +19,7 @@ namespace Microsoft.Management.Configuration.Processor.DscResourcesInfo
     /// If Invoke-DscResource gets support for passing the DscResourceInfo, we could keep the original object as member
     /// to then pass it in code.
     /// </summary>
-    internal sealed class DscResourceInfoInternal
+    internal class DscResourceInfoInternal
     {
         private const string DscResourceInfoFullName = "Microsoft.PowerShell.DesiredStateConfiguration.DscResourceInfo";
 
