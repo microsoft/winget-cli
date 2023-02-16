@@ -1677,4 +1677,18 @@ Please specify one of them using the --source option to proceed.</value>
     <value>{0} package(s) have pins that prevent upgrade. Use the 'winget pin' command to view and edit pins. Using the --include-pinned argument may show more results.</value>
     <comment>{Locked="winget pin","--include-pinned"} {0} is a placeholder replaced by an integer number of packages</comment>
   </data>
+  <data name="WindowsFeatureNotFoundOverride" xml:space="preserve">
+    <value>The following Windows Feature(s) were not found; proceeding due to --ignore-missing-dependencies.</value>
+    <comment>"Windows Feature(s)" is the name of the options Windows features setting.
+{Locked="--force"}</comment>
+  </data>
+  <data name="WindowsFeatureNotFoundOverrideRequired" xml:space="preserve">
+    <value>The following Windows Feature(s) were not found. To proceed with installation, use --ignore-missing-dependencies.</value>
+    <comment>"Windows Feature(s)" is the name of the options Windows features setting.
+{Locked="--force"}</comment>
+  </data>
+  <data name="IgnoreMissingDependenciesArgumentDescription" xml:space="preserve">
+    <value>Ignores missing Windows Feature dependencies</value>
+    <comment>"Windows Feature" is the name of the options Windows features setting.</comment>
+  </data>
 </root>

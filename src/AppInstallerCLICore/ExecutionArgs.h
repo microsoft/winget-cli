@@ -46,6 +46,7 @@ namespace AppInstaller::CLI::Execution
             AcceptPackageAgreements, // Accept all license agreements for packages
             Rename, // Renames the file of the executable. Only applies to the portable installerType
             NoUpgrade, // Install flow should not try to convert to upgrade flow upon finding existing installed version
+            IgnoreMissingDependencies, // Ignores missing Windows Feature dependencies.
 
             // Uninstall behavior
             Purge, // Removes all files and directories related to a package during an uninstall. Only applies to the portable installerType.

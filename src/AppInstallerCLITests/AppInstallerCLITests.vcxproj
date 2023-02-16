@@ -328,6 +328,12 @@
     <CopyFileToFolders Include="TestData\InstallFlowTest_UnsupportedArguments.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallFlowTest_WindowsFeatures.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallFlowTest_InvalidWindowsFeatures.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_Zip_Exe.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>

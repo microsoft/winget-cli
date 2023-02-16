@@ -58,6 +58,12 @@ namespace AppInstaller
     {
         void TestHook_SetScanArchiveResult_Override(bool* status);
     }
+
+    namespace WindowsFeature
+    {
+        void TestHook_SetEnableWindowsFeatureResult_Override(HRESULT* result);
+        void TestHook_SetIsWindowsFeatureEnabledResult_Override(bool* status);
+    }
 }
 
 namespace TestHook
@@ -105,5 +111,37 @@ namespace TestHook
         {
             AppInstaller::Repository::Microsoft::TestHook_SetPinningIndex_Override({});
         }
+    };
+
+    struct SetEnableWindowsFeatureResult_Override
+    {
+        SetEnableWindowsFeatureResult_Override(HRESULT result) : m_result(result)
+        {
+            AppInstaller::WindowsFeature::TestHook_SetEnableWindowsFeatureResult_Override(&m_result);
+        }
+
+        ~SetEnableWindowsFeatureResult_Override()
+        {
+            AppInstaller::WindowsFeature::TestHook_SetEnableWindowsFeatureResult_Override(nullptr);
+        }
+
+    private:
+        HRESULT m_result;
+    };
+
+    struct SetIsWindowsFeatureEnabledResult_Override
+    {
+        SetIsWindowsFeatureEnabledResult_Override(bool status) : m_status(status)
+        {
+            AppInstaller::WindowsFeature::TestHook_SetIsWindowsFeatureEnabledResult_Override(&m_status);
+        }
+
+        ~SetIsWindowsFeatureEnabledResult_Override()
+        {
+            AppInstaller::WindowsFeature::TestHook_SetIsWindowsFeatureEnabledResult_Override(nullptr);
+        }
+
+    private:
+        bool m_status;
     };
 }

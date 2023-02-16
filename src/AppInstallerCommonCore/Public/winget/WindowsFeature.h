@@ -338,14 +338,15 @@ namespace AppInstaller::WindowsFeature
         typedef UINT DismSession;
 
         wil::unique_hmodule m_module;
+        DismSession m_session = DISM_SESSION_DEFAULT;
+        DismFeatureInfo* m_featureInfo = nullptr;
+
         DismInitializePtr m_dismInitialize = nullptr;
         DismOpenSessionPtr m_dismOpenSession = nullptr;
         DismGetFeatureInfoPtr m_dismGetFeatureInfo = nullptr;
         DismEnableFeaturePtr m_dismEnableFeature = nullptr;
         DismDisableFeaturePtr m_dismDisableFeature = nullptr;
         DismShutdownPtr m_dismShutdown = nullptr;
-        DismSession m_session = 0; // DISM_SESSION_DEFAULT
-        DismFeatureInfo* m_featureInfo = nullptr;
         DismDeletePtr m_dismDelete = nullptr;
 
         void Initialize();
@@ -358,13 +359,13 @@ namespace AppInstaller::WindowsFeature
     {
         WindowsFeature(const std::string& name) : m_featureName{ name } {};
 
-        bool DoesFeatureExist();
+        bool DoesExist();
 
         bool IsEnabled();
 
-        bool EnableFeature();
+        HRESULT EnableFeature();
 
-        bool DisableFeature();
+        HRESULT DisableFeature();
 
     private:
         DismApiHelper m_dismApiHelper;

@@ -142,52 +142,97 @@ namespace AppInstaller::CLI::Workflow
             return;
         }
 
-        // obtain windows features.
-        // Don't forget to check the root installer node but for now we'll just look at the individual installer root.
-
-        const auto& rootInstaller = context.Get<Execution::Data::Installer>();
-        const auto& rootDependencies = rootInstaller->Dependencies;
+        const auto& rootDependencies = context.Get<Execution::Data::Installer>()->Dependencies;
 
         if (rootDependencies.Empty())
         {
-            // If there's no dependencies there's nothing to do aside of logging the outcome
             return;
         }
 
         if (rootDependencies.HasAnyOf(DependencyType::WindowsFeature))
         {
             context << Workflow::EnsureRunningAsAdmin;
+            if (context.IsTerminated())
+            {
+                return;
+            }
 
-            // May have to refactor out the logic into a separate function
-            bool errorMessageDisplayed = false;
-            bool allFeaturesExist = true;
-            auto error = context.Reporter.Error();
-            rootDependencies.ApplyToType(DependencyType::WindowsFeature, [&error, &allFeaturesExist, &errorMessageDisplayed](Dependency dependency)
+            std::vector<std::string> invalidFeatures;
+
+            rootDependencies.ApplyToType(DependencyType::WindowsFeature, [&invalidFeatures](Dependency dependency)
                 {
-                    WindowsFeature::WindowsFeature feature{ dependency.Id() };
-                    if (!feature.DoesFeatureExist())
+                    const auto& name = dependency.Id();
+                    WindowsFeature::WindowsFeature windowsFeature{ name };
+                    if (!windowsFeature.DoesExist())
                     {
-                        if (!errorMessageDisplayed)
-                        {
-                            error << "The following dependencies were not found:" << std::endl;
-                            error << "  - " << Resource::String::WindowsFeaturesDependencies << std::endl;
-                            errorMessageDisplayed = true;
-                        }
-
-                        allFeaturesExist = false;
-                        error << "      " << dependency.Id() << std::endl;
+                        invalidFeatures.emplace_back(name);
                     }
                 });
 
-            if (!allFeaturesExist && context.Args.Contains(Execution::Args::Type::Force))
+            if (!invalidFeatures.empty())
             {
-                std::cout << "proceeding due to --force." << std::endl;
+                bool shouldTerminate = true;
+                auto warn = context.Reporter.Warn();
+                if (context.Args.Contains(Execution::Args::Type::IgnoreMissingDependencies))
+                {
+                    warn << Resource::String::WindowsFeatureNotFoundOverride << std::endl;
+                    shouldTerminate = false;
+                }
+                else
+                {
+                    warn << Resource::String::WindowsFeatureNotFoundOverrideRequired << std::endl;
+                }
+
+                warn << "  - " << Resource::String::WindowsFeaturesDependencies << std::endl;
+
+                for (const auto& feature : invalidFeatures)
+                {
+                    warn << "      " << feature << std::endl;
+                }
+
+                if (shouldTerminate)
+                {
+                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALL_MISSING_DEPENDENCY);
+                }
             }
 
-            //rootDependencies.ApplyToType(DependencyType::WindowsFeature, [&](Dependency dependency)
-            //{
-            //    AppInstaller::WindowsFeature::EnableWindowsFeature(dependency.Id());
-            //});
+            HRESULT hr = S_OK;
+            bool continueOnFailure = context.Args.Contains(Execution::Args::Type::Force);
+            rootDependencies.ApplyToType(DependencyType::WindowsFeature, [&hr, &continueOnFailure, &context](Dependency dependency)
+                {
+                    if (SUCCEEDED(hr) || context.Args.Contains(Execution::Args::Type::Force))
+                    {
+                        // Use progress callback to report to context for each windows feature.
+
+                        auto featureName = dependency.Id();
+                        WindowsFeature::WindowsFeature windowsFeature{ featureName };
+                        if (windowsFeature.DoesExist() && !windowsFeature.IsEnabled())
+                        {
+                            context.Reporter.Info() << "Enabling " << featureName << ": ";
+                            hr = windowsFeature.EnableFeature();
+                            if (hr == ERROR_SUCCESS_REBOOT_REQUIRED)
+                            {
+                                context.Reporter.Warn() << "Reboot required" << std::endl;
+                            }
+                            else if (FAILED(hr))
+                            {
+                                AICLI_LOG(CLI, Error, << "Failed to enable Windows Feature '" << featureName << "' with HRESULT " << hr);
+                                context.Reporter.Error() << "Failed" << std::endl;
+                            }
+                            else
+                            {
+                                context.Reporter.Info() << "Succeeded" << std::endl;
+                            }
+                        }
+                    }
+            });
+
+            // Need a better way to handle reporting this error.
+            if (FAILED(hr) && !continueOnFailure)
+            {
+                context.Reporter.Error() << "Failed to enable all Windows Feature dependencies. To proceed with installation, use --force" << std::endl;
+                AICLI_TERMINATE_CONTEXT(hr);
+            }
         }
     }
 

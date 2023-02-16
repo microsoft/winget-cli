@@ -112,6 +112,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(HelpLinkPreamble);
         WINGET_DEFINE_RESOURCE_STRINGID(IdArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(IgnoreLocalArchiveMalwareScanArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(IgnoreMissingDependenciesArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportCommandReportDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportCommandShortDescription);
@@ -460,6 +461,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(VersionArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(VersionsArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(WaitArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(WindowsFeatureNotFoundOverride);
+        WINGET_DEFINE_RESOURCE_STRINGID(WindowsFeatureNotFoundOverrideRequired);
         WINGET_DEFINE_RESOURCE_STRINGID(WindowsFeaturesDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(WindowsLibrariesDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(WindowsStoreTerms);

@@ -125,7 +125,7 @@ namespace AppInstaller::WindowsFeature
     {
         if (m_dismInitialize)
         {
-            LOG_IF_FAILED(m_dismInitialize(2, nullptr, nullptr));
+            LOG_IF_FAILED(m_dismInitialize(2, NULL, NULL));
         }
     }
 
@@ -133,7 +133,7 @@ namespace AppInstaller::WindowsFeature
     {
         if (m_dismOpenSession)
         {
-            LOG_IF_FAILED(m_dismOpenSession(L"DISM_{53BFAE52-B167-4E2F-A258-0A37B57FF845}", nullptr, nullptr, &m_session));
+            LOG_IF_FAILED(m_dismOpenSession(L"DISM_{53BFAE52-B167-4E2F-A258-0A37B57FF845}", NULL, NULL, &m_session));
         }
     }
 
@@ -153,58 +153,53 @@ namespace AppInstaller::WindowsFeature
         }
     }
 
-    bool WindowsFeature::EnableFeature()
-    {
-        DismFeatureInfo* featureInfo = m_dismApiHelper.GetFeatureInfo(m_featureName);
-        if (!featureInfo)
-        {
-            AICLI_LOG(Core, Verbose, << "Windows feature " << m_featureName << " does not exist.");
-            return false; 
-        }
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    static HRESULT* s_EnableWindowsFeatureResult_TestHook_Override = nullptr;
 
-        HRESULT hr = m_dismApiHelper.EnableFeature(m_featureName);
-        if (SUCCEEDED(hr))
+    void TestHook_SetEnableWindowsFeatureResult_Override(HRESULT* result)
+    {
+        s_EnableWindowsFeatureResult_TestHook_Override = result;
+    }
+#endif
+
+    HRESULT WindowsFeature::EnableFeature()
+    {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (s_EnableWindowsFeatureResult_TestHook_Override)
         {
-            AICLI_LOG(Core, Verbose, << "Windows feature " << m_featureName << " enabled successfully.");
-            return true;
+            return *s_EnableWindowsFeatureResult_TestHook_Override;
         }
-        else
-        {
-            AICLI_LOG(Core, Verbose, << "Failed to enable Windows Feature " << m_featureName << " with HRESULT " << hr);
-            return false;
-        }
+#endif
+        return m_dismApiHelper.EnableFeature(m_featureName);
     }
 
-    bool WindowsFeature::DisableFeature()
+    HRESULT WindowsFeature::DisableFeature()
     {
-        DismFeatureInfo* featureInfo = m_dismApiHelper.GetFeatureInfo(m_featureName);
-        if (!featureInfo)
-        {
-            AICLI_LOG(Core, Verbose, << "Windows feature " << m_featureName << " does not exist.");
-            return true;
-        }
-
-        HRESULT hr = m_dismApiHelper.DisableFeature(m_featureName);
-        if (SUCCEEDED(hr))
-        {
-            AICLI_LOG(Core, Verbose, << "Windows feature " << m_featureName << " disabled successfully.");
-            return true;
-        }
-        else
-        {
-            AICLI_LOG(Core, Verbose, << "Failed to disable Windows Feature " << m_featureName << " with HRESULT " << hr);
-            return false;
-        }
+        return m_dismApiHelper.DisableFeature(m_featureName);
     }
 
-    bool WindowsFeature::DoesFeatureExist()
+    bool WindowsFeature::DoesExist()
     {
-        DismFeatureInfo* featureInfo = m_dismApiHelper.GetFeatureInfo(m_featureName);
-        return featureInfo;
+        return m_dismApiHelper.GetFeatureInfo(m_featureName);
     }
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    static bool* s_IsWindowsFeatureEnabledResult_TestHook_Override = nullptr;
+
+    void TestHook_SetIsWindowsFeatureEnabledResult_Override(bool* status)
+    {
+        s_IsWindowsFeatureEnabledResult_TestHook_Override = status;
+    }
+#endif
 
     bool WindowsFeature::IsEnabled()
     {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (s_IsWindowsFeatureEnabledResult_TestHook_Override)
+        {
+            return *s_IsWindowsFeatureEnabledResult_TestHook_Override;
+        }
+#endif
         DismFeatureInfo* featureInfo = m_dismApiHelper.GetFeatureInfo(m_featureName);
         DismPackageFeatureState featureState = featureInfo->FeatureState;
         AICLI_LOG(Core, Verbose, << "Feature state of " << m_featureName << " is " << featureState);
