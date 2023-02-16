@@ -194,7 +194,7 @@ namespace AppInstaller::Filesystem
 
         try
         {
-            return Utility::ExpandEnvironmentVariables(Utility::ConvertToUTF16(trimPath));
+            return std::filesystem::weakly_canonical(Utility::ExpandEnvironmentVariables(Utility::ConvertToUTF16(trimPath)));
         }
         catch (...)
         {
