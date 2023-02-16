@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="ConfigurationProcessorFactory.cs" company="Microsoft Corporation">
+// <copyright file="ConfigurationSetProcessorFactory.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -12,18 +12,19 @@ namespace Microsoft.Management.Configuration.Processor
 
     /// <summary>
     /// ConfigurationProcessorFactory implementation. Does not support out-of-proc.
+    /// TODO: change to IConfigurationSetProcessorFactory.
     /// </summary>
-    public sealed class ConfigurationProcessorFactory : IConfigurationProcessorFactory
+    public sealed class ConfigurationSetProcessorFactory : IConfigurationProcessorFactory
     {
         private readonly ConfigurationProcessorType type;
         private readonly IConfigurationProcessorFactoryProperties? properties;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ConfigurationProcessorFactory"/> class.
+        /// Initializes a new instance of the <see cref="ConfigurationSetProcessorFactory"/> class.
         /// </summary>
         /// <param name="type">Type.</param>
         /// <param name="properties">Properties.</param>
-        public ConfigurationProcessorFactory(ConfigurationProcessorType type, IConfigurationProcessorFactoryProperties? properties)
+        public ConfigurationSetProcessorFactory(ConfigurationProcessorType type, IConfigurationProcessorFactoryProperties? properties)
         {
             this.type = type;
             this.properties = properties;

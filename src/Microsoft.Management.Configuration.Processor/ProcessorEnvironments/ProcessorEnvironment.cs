@@ -14,7 +14,6 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
     using Microsoft.Management.Configuration.Processor.Constants;
     using Microsoft.Management.Configuration.Processor.DscModule;
     using Microsoft.Management.Configuration.Processor.DscResourcesInfo;
-    using Microsoft.Management.Configuration.Processor.Exceptions;
     using Microsoft.Management.Configuration.Processor.Extensions;
     using Microsoft.Management.Configuration.Processor.Helpers;
     using Microsoft.Management.Configuration.Processor.ProcessorEnvironments;
@@ -27,14 +26,18 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
     /// </summary>
     internal class ProcessorEnvironment : IProcessorEnvironment
     {
+        private ConfigurationProcessorType type;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ProcessorEnvironment"/> class.
         /// </summary>
         /// <param name="runspace">PowerShell Runspace.</param>
+        /// <param name="type">Configuration processor type.</param>
         /// <param name="dscModule">IDscModule.</param>
-        public ProcessorEnvironment(Runspace runspace, IDscModule dscModule)
+        public ProcessorEnvironment(Runspace runspace, ConfigurationProcessorType type, IDscModule dscModule)
         {
             this.Runspace = runspace;
+            this.type = type;
             this.DscModule = dscModule;
         }
 
@@ -83,6 +86,34 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
             this.DscModule.InvokeSetResource(this.Runspace, settings, name, moduleSpecification);
 
         /// <inheritdoc/>
+        public PSModuleInfo? GetModule(ModuleSpecification moduleSpecification)
+        {
+            using PowerShell pwsh = PowerShell.Create(this.Runspace);
+
+            var moduleInfo = pwsh.AddCommand(Commands.GetModule)
+                                 .AddParameter(Parameters.FullyQualifiedName, moduleSpecification)
+                                 .AddParameter(Parameters.ListAvailable)
+                                 .Invoke<PSModuleInfo>()
+                                 .FirstOrDefault();
+
+            return moduleInfo;
+        }
+
+        /// <inheritdoc/>
+        public PSModuleInfo? GetModule(string path)
+        {
+            using PowerShell pwsh = PowerShell.Create(this.Runspace);
+
+            var moduleInfo = pwsh.AddCommand(Commands.GetModule)
+                                 .AddParameter(Parameters.Name, path)
+                                 .AddParameter(Parameters.ListAvailable)
+                                 .Invoke<PSModuleInfo>()
+                                 .FirstOrDefault();
+
+            return moduleInfo;
+        }
+
+        /// <inheritdoc/>
         public PSObject? GetInstalledModule(ModuleSpecification moduleSpecification)
         {
             var parameters = new Dictionary<string, object>()
@@ -109,7 +140,7 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
 
             var result = pwsh.AddCommand(Commands.GetInstalledModule)
                              .AddParameters(parameters)
-                             .InvokeAndStopOnError()
+                             .Invoke()
                              .FirstOrDefault();
 
             return result;
@@ -157,7 +188,7 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
             // is specified and no resource is found then it will fail earlier because of a Write-Error.
             var result = pwsh.AddCommand(Commands.FindDscResource)
                              .AddParameters(parameters)
-                             .InvokeAndStopOnError()
+                             .Invoke()
                              .FirstOrDefault();
 
             return result;

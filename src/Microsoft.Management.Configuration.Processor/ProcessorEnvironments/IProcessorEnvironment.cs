@@ -78,6 +78,20 @@ namespace Microsoft.Management.Configuration.Processor.ProcessorEnvironments
         bool InvokeSetResource(ValueSet settings, string name, ModuleSpecification? moduleSpecification);
 
         /// <summary>
+        /// Calls Get-Module with the fully qualified name.
+        /// </summary>
+        /// <param name="moduleSpecification">Module specification.</param>
+        /// <returns>PSModuleInfo, null if not found.</returns>
+        PSModuleInfo? GetModule(ModuleSpecification moduleSpecification);
+
+        /// <summary>
+        /// Calls Get-Module from a path using ListAvailable.
+        /// </summary>
+        /// <param name="path">Path.</param>
+        /// <returns>The first module returned, null if none.</returns>
+        PSModuleInfo? GetModule(string path);
+
+        /// <summary>
         /// Calls Get-InstalledModule.
         /// </summary>
         /// <param name="moduleSpecification">Module specification.</param>

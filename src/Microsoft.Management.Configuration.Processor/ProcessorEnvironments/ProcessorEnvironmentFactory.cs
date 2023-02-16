@@ -38,6 +38,7 @@ namespace Microsoft.Management.Configuration.Processor.ProcessorEnvironments
 
             var processEnvironment = new ProcessorEnvironment(
                 runspace,
+                type,
                 new DscModuleV2());
 
             processEnvironment.ValidateRunspace();

@@ -34,6 +34,7 @@ namespace Microsoft.Management.Configuration.Processor.Constants
             public const string GetCommand = "Get-Command";
             public const string GetDscResource = "Get-DscResource";
             public const string GetInstalledModule = "Get-InstalledModule";
+            public const string GetModule = "Get-Module";
             public const string InstallModule = "Install-Module";
             public const string InvokeDscResource = "Invoke-DscResource";
             public const string SaveModule = "Save-Module";
@@ -42,8 +43,10 @@ namespace Microsoft.Management.Configuration.Processor.Constants
         internal static class Parameters
         {
             public const string Force = "Force";
+            public const string FullyQualifiedName = "FullyQualifiedName";
             public const string Guid = "GUID";
             public const string InputObject = "InputObject";
+            public const string ListAvailable = "ListAvailable";
             public const string MaximumVersion = "MaximumVersion";
             public const string Method = "Method";
             public const string MinimumVersion = "MinimumVersion";

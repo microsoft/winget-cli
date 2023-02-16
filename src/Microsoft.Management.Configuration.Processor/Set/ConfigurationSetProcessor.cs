@@ -9,12 +9,13 @@ namespace Microsoft.Management.Configuration.Processor.Set
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Management.Automation;
     using Microsoft.Management.Configuration.Processor.DscResourcesInfo;
     using Microsoft.Management.Configuration.Processor.Exceptions;
     using Microsoft.Management.Configuration.Processor.Helpers;
     using Microsoft.Management.Configuration.Processor.ProcessorEnvironments;
     using Microsoft.Management.Configuration.Processor.Unit;
-    using static Microsoft.Management.Configuration.Processor.Constants.PowerShellConstants;
+    using Microsoft.PowerShell.Commands;
 
     /// <summary>
     /// Configuration set processor.
@@ -64,49 +65,78 @@ namespace Microsoft.Management.Configuration.Processor.Set
         /// <param name="unit">Configuration unit.</param>
         /// <param name="detailLevel">Detail level.</param>
         /// <returns>Configuration unit processor details.</returns>
-        public IConfigurationUnitProcessorDetails GetUnitProcessorDetails(
+        public IConfigurationUnitProcessorDetails? GetUnitProcessorDetails(
             ConfigurationUnit unit,
             ConfigurationUnitDetailLevel detailLevel)
         {
-            // Local
-            // Call Get-DscResource
-            // If resource
-            //   Call Get-InstalledModule
-            //   Construct
-            // else
-            //   return null or throw.
+            var unitInternal = new ConfigurationUnitInternal(unit);
+            var dscResourceInfo = this.ProcessorEnvironment.GetDscResource(unitInternal);
 
-            // Catalog
-            // Call Get-DscResource
-            // if resource
-            //    Call Get-InstalledModule
-            //    Construct full
-            // else
-            //    Call Find-DscResource
-            //    Construct no dsc resources.
+            if (dscResourceInfo is not null)
+            {
+                return this.GetUnitProcessorDetailsLocal(unit.UnitName, dscResourceInfo);
+            }
 
-            // Download
-            // Call Get-DscResource
-            // if resource
-            //    Call Get-InstalledModule
-            //    Construct full
-            // else
-            //    Call Find-DscResource
-            //    Call Save-Module
-            //    Construct no dsc resources.
+            if (detailLevel == ConfigurationUnitDetailLevel.Local)
+            {
+                // Not found locally.
+                return null;
+            }
 
-            // Load
-            // Call Get-DscResource
-            // if resource
-            //    Call Get-InstalledModule
-            //    Construct full
-            // else
-            //    Call Find-DscResource
-            //    Call Install-Module.
-            //    Call Load-Module.
-            //    Call Gets-DscResource.
-            //    Construct
-            throw new NotImplementedException();
+            var getFindResource = this.ProcessorEnvironment.FindDscResource(unitInternal);
+            if (getFindResource is null)
+            {
+                // Not found in catalog.
+                return null;
+            }
+
+            // Hopefully they will never have the property name.
+            dynamic findResource = getFindResource as dynamic;
+
+            if (detailLevel == ConfigurationUnitDetailLevel.Catalog)
+            {
+                return new ConfigurationUnitProcessorDetails(
+                    unit.UnitName,
+                    null,
+                    null,
+                    findResource.PSGetModuleInfo);
+            }
+
+            if (detailLevel == ConfigurationUnitDetailLevel.Download)
+            {
+                var tempSavePath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+                Directory.CreateDirectory(tempSavePath);
+                this.ProcessorEnvironment.SaveModule(getFindResource, tempSavePath);
+
+                var moduleInfo = this.ProcessorEnvironment.GetModule(
+                    Path.Combine(tempSavePath, findResource.PSGetModuleInfo.Name));
+
+                // TODO: Send path to get cert signing info and delete directory.
+                // We can't get the resources information because Get-DscResource just look
+                // in the PSModulePaths.
+                return new ConfigurationUnitProcessorDetails(
+                    unit.UnitName,
+                    null,
+                    moduleInfo,
+                    findResource.PSGetModuleInfo);
+            }
+
+            if (detailLevel == ConfigurationUnitDetailLevel.Load)
+            {
+                this.ProcessorEnvironment.InstallModule(getFindResource);
+
+                dscResourceInfo = this.ProcessorEnvironment.GetDscResource(unitInternal);
+
+                if (dscResourceInfo is null)
+                {
+                    // Well, this is awkward.
+                    return null;
+                }
+
+                return this.GetUnitProcessorDetailsLocal(unit.UnitName, dscResourceInfo);
+            }
+
+            return null;
         }
 
         private DscResourceInfoInternal PrepareUnitForProcessing(ConfigurationUnitInternal unitInternal)
@@ -162,6 +192,35 @@ namespace Microsoft.Management.Configuration.Processor.Set
             }
 
             return dscResourceInfo;
+        }
+
+        private ConfigurationUnitProcessorDetails GetUnitProcessorDetailsLocal(string unitName, DscResourceInfoInternal dscResourceInfo)
+        {
+            // I'm looking at you resources under C:\WINDOWS\system32\WindowsPowershell
+            if (dscResourceInfo.ModuleName is null ||
+                dscResourceInfo.Version is null)
+            {
+                return new ConfigurationUnitProcessorDetails(
+                    unitName,
+                    dscResourceInfo,
+                    null,
+                    null);
+            }
+
+            var module = PowerShellHelpers.CreateModuleSpecification(
+                            dscResourceInfo.ModuleName,
+                            dscResourceInfo.Version.ToString());
+
+            // Get-InstalledModule only works for modules installed via PowerShell-Get.
+            // There are some properties that can only be obtain by that it so is better to take both.
+            var moduleInfo = this.ProcessorEnvironment.GetModule(module);
+            var installedModule = this.ProcessorEnvironment.GetInstalledModule(module);
+
+            return new ConfigurationUnitProcessorDetails(
+                unitName,
+                dscResourceInfo,
+                moduleInfo,
+                installedModule);
         }
     }
 }

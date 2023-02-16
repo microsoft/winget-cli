@@ -9,9 +9,11 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Linq;
     using System.Management.Automation;
     using System.Management.Automation.Runspaces;
+    using System.Resources;
     using Microsoft.Management.Configuration.Processor.DscResourcesInfo;
     using Microsoft.Management.Configuration.Processor.Extensions;
     using Microsoft.Management.Configuration.Processor.Helpers;
@@ -59,12 +61,7 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
             var resources = pwsh.AddCommand(this.GetDscResourceCmd)
                                 .InvokeAndStopOnError();
 
-            foreach (dynamic resource in resources)
-            {
-                result.Add(new DscResourceInfoInternal(resource));
-            }
-
-            return result;
+            return this.ConvertToDscResourceInfoInternal(resources);
         }
 
         /// <inheritdoc/>
@@ -80,12 +77,7 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
                                 .AddParameter(Parameters.Module, moduleSpecification)
                                 .InvokeAndStopOnError();
 
-            foreach (dynamic resource in resources)
-            {
-                result.Add(new DscResourceInfoInternal(resource));
-            }
-
-            return result;
+            return this.ConvertToDscResourceInfoInternal(resources);
         }
 
         /// <inheritdoc/>
@@ -105,17 +97,18 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
 
             var resources = pwsh.InvokeAndStopOnError();
 
-            if (resources.Count == 0)
+            var dscResourceInfos = this.ConvertToDscResourceInfoInternal(resources);
+
+            if (dscResourceInfos.Count == 0)
             {
                 return null;
             }
-            else if (resources.Count > 1)
+            else if (dscResourceInfos.Count > 1)
             {
-                // Get-DscResource fails before we get here.
                 throw new ArgumentException(name);
             }
 
-            return new DscResourceInfoInternal(resources[0]);
+            return dscResourceInfos[0];
         }
 
         /// <inheritdoc/>
@@ -230,6 +223,32 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
             }
 
             return parameters;
+        }
+
+        private List<DscResourceInfoInternal> ConvertToDscResourceInfoInternal(Collection<PSObject> psObjects)
+        {
+            var result = new List<DscResourceInfoInternal>();
+            foreach (dynamic psObject in psObjects)
+            {
+                var dscResourceInfo = new DscResourceInfoInternal(psObject);
+
+                // Explicitly don't support old DSC resources from v1 PSDesiredStateConfiguration.
+                // Even if the windows sytem32 windows powershell module path is removed they
+                // will show up.
+                if (dscResourceInfo.ParentPath!.StartsWith(
+                        @"C:\WINDOWS\system32\WindowsPowershell\v1.0\Modules\PsDesiredStateConfiguration\DscResources",
+                        StringComparison.OrdinalIgnoreCase) ||
+                    dscResourceInfo.ParentPath!.StartsWith(
+                        @"C:\Program Files\WindowsPowerShell\Modules\PackageManagement\1.0.0.1",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                result.Add(dscResourceInfo);
+            }
+
+            return result;
         }
     }
 }

@@ -41,7 +41,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         [Fact]
         public void CreateSetProcessor_Test()
         {
-            var configurationProcessorFactory = new ConfigurationProcessorFactory(
+            var configurationProcessorFactory = new ConfigurationSetProcessorFactory(
                 ConfigurationProcessorType.Hosted,
                 null);
 
@@ -69,7 +69,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                     "ThisIsAnotherPath",
                 });
 
-            var configurationProcessorFactory = new ConfigurationProcessorFactory(
+            var configurationProcessorFactory = new ConfigurationSetProcessorFactory(
                 ConfigurationProcessorType.Hosted,
                 configurationProcessorFactoryPropertiesMock.Object);
 

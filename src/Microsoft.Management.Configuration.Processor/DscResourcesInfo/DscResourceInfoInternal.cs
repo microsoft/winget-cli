@@ -34,67 +34,24 @@ namespace Microsoft.Management.Configuration.Processor.DscResourcesInfo
                 throw new ArgumentException();
             }
 
-            if (TypeHelpers.PropertyWithTypeExists<string>(info, nameof(this.ResourceType)))
+            this.ResourceType = info.ResourceType;
+            this.Name = info.Name;
+            this.FriendlyName = info.FriendlyName;
+            this.Module = info.Module;
+            this.Path = info.Path;
+            this.ParentPath = info.ParentPath;
+            this.ImplementedAs = Enum.Parse<ImplementedAsTypeInternal>(info.ImplementedAs.ToString());
+            this.CompanyName = info.CompanyName;
+
+            if (info.Module is not null)
             {
-                this.ResourceType = info.ResourceType;
+                this.ModuleName = this.Module.Name;
+                this.Version = this.Module.Version;
             }
 
-            if (TypeHelpers.PropertyWithTypeExists<string>(info, nameof(this.Name)))
+            foreach (object property in info.Properties)
             {
-                this.Name = info.Name;
-            }
-            else
-            {
-                throw new ArgumentException(nameof(this.Name));
-            }
-
-            if (TypeHelpers.PropertyWithTypeExists<string>(info, nameof(this.FriendlyName)))
-            {
-                this.FriendlyName = info.FriendlyName;
-            }
-
-            if (TypeHelpers.PropertyWithTypeExists<PSModuleInfo>(info, nameof(this.Module)))
-            {
-                this.Module = info.Module;
-
-                if (info.Module is not null)
-                {
-                    this.ModuleName = this.Module.Name;
-                    this.Version = this.Module.Version;
-                }
-            }
-            else
-            {
-                throw new ArgumentException(nameof(this.Module));
-            }
-
-            if (TypeHelpers.PropertyWithTypeExists<string>(info, nameof(this.Path)))
-            {
-                this.Path = info.Path;
-            }
-
-            if (TypeHelpers.PropertyWithTypeExists<string>(info, nameof(this.ParentPath)))
-            {
-                this.ParentPath = info.ParentPath;
-            }
-
-            if (TypeHelpers.PropertyExistsAndIsEnum(info, nameof(this.ImplementedAs)))
-            {
-                this.ImplementedAs = Enum.Parse<ImplementedAsTypeInternal>(info.ImplementedAs.ToString());
-            }
-
-            if (TypeHelpers.PropertyWithTypeExists<string>(info, nameof(this.CompanyName)))
-            {
-                this.CompanyName = info.CompanyName;
-            }
-
-            this.Properties = new List<DscResourcePropertyInfoInternal>();
-            if (TypeHelpers.PropertyExistsAndIsList(info, nameof(this.Properties)))
-            {
-                foreach (object property in info.Properties)
-                {
-                    this.Properties.Add(new DscResourcePropertyInfoInternal(property));
-                }
+                this.Properties.Add(new DscResourcePropertyInfoInternal(property));
             }
         }
 
@@ -186,7 +143,7 @@ namespace Microsoft.Management.Configuration.Processor.DscResourcesInfo
         /// <summary>
         /// Gets properties of the resource.
         /// </summary>
-        public List<DscResourcePropertyInfoInternal>? Properties { get; private set; }
+        public List<DscResourcePropertyInfoInternal> Properties { get; private set; } = new List<DscResourcePropertyInfoInternal>();
 
         /// <summary>
         /// Updates properties of the resource.

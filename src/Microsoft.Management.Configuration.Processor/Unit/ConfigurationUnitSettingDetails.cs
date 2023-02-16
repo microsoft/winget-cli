@@ -7,6 +7,7 @@
 namespace Microsoft.Management.Configuration.Processor.Unit
 {
     using Microsoft.Management.Configuration;
+    using Microsoft.Management.Configuration.Processor.DscResourcesInfo;
     using Windows.Foundation;
 
     /// <summary>
@@ -15,9 +16,28 @@ namespace Microsoft.Management.Configuration.Processor.Unit
     internal sealed class ConfigurationUnitSettingDetails : IConfigurationUnitSettingDetails
     {
         /// <summary>
+        /// Initializes a new instance of the <see cref="ConfigurationUnitSettingDetails"/> class.
+        /// </summary>
+        /// <param name="dscResourceInfo">DSC Resource info.</param>
+        public ConfigurationUnitSettingDetails(DscResourcePropertyInfoInternal dscResourceInfo)
+        {
+            this.Name = dscResourceInfo.Name;
+            this.IsRequired = dscResourceInfo.IsMandatory;
+            this.Semantics = string.Join(" ", dscResourceInfo.Values.ToArray());
+
+            // TODO: PropertyType in DSC is something like [string[]] [string] [PSCredential]
+            // Parse the string and assing to a PropetyType value
+
+            // We don't have this information right now.
+            this.Description = null;
+            this.IsKey = false;
+            this.IsInformational = false;
+        }
+
+        /// <summary>
         /// Gets the name of the setting.
         /// </summary>
-        public string? Name { get; }
+        public string Name { get; }
 
         /// <summary>
         /// Gets the description of the setting.
