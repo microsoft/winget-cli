@@ -92,6 +92,12 @@ namespace Microsoft.Management.Configuration.Processor.ProcessorEnvironments
         PSModuleInfo? GetModule(string path);
 
         /// <summary>
+        /// Call Import-Module with the fully qualified name.
+        /// </summary>
+        /// <param name="moduleSpecification">Module specification.</param>
+        void ImportModule(ModuleSpecification moduleSpecification);
+
+        /// <summary>
         /// Calls Get-InstalledModule.
         /// </summary>
         /// <param name="moduleSpecification">Module specification.</param>

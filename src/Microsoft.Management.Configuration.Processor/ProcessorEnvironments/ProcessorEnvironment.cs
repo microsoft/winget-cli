@@ -8,6 +8,7 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
     using System.Management.Automation;
     using System.Management.Automation.Runspaces;
@@ -111,6 +112,16 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
                                  .FirstOrDefault();
 
             return moduleInfo;
+        }
+
+        /// <inheritdoc/>
+        public void ImportModule(ModuleSpecification moduleSpecification)
+        {
+            using PowerShell pwsh = PowerShell.Create(this.Runspace);
+
+            _ = pwsh.AddCommand(Commands.ImportModule)
+                    .AddParameter(Parameters.FullyQualifiedName, moduleSpecification)
+                    .Invoke();
         }
 
         /// <inheritdoc/>

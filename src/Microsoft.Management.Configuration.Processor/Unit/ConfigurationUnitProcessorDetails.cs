@@ -49,7 +49,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
                 if (psModuleInfo is null)
                 {
                     this.ModuleName = dscResourceInfo.ModuleName;
-                    this.Version = dscResourceInfo.Version.ToString();
+                    this.Version = dscResourceInfo.Version is not null ? dscResourceInfo.Version.ToString() : null;
                 }
             }
 
@@ -75,11 +75,9 @@ namespace Microsoft.Management.Configuration.Processor.Unit
                     // Type is not the same as this PSModuleType.
                     this.TrySetPropertyAsUri(getModuleInfo, "IconUri", nameof(this.UnitIconUri));
                     this.TrySetPropertyAsString(getModuleInfo, "Name", nameof(this.ModuleName));
-                    this.TrySetPropertyAsString(getModuleInfo, "Repository", nameof(this.ModuleSource));
                     this.TrySetPropertyAsString(getModuleInfo, "Description", nameof(this.ModuleDescription));
                     this.TrySetPropertyAsUri(getModuleInfo, "RepositorySourceLocation", nameof(this.PublishedModuleUri));
                     this.TrySetPropertyAsString(getModuleInfo, "Version", nameof(this.Version));
-                    this.TrySetPropertyFromDateTimeToDateTimeOffset(getModuleInfo, "PublishedDate", nameof(this.PublishedDate));
                     this.TrySetPropertyAsString(getModuleInfo, "Author", nameof(this.Author));
                     this.TrySetPropertyAsString(getModuleInfo, "CompanyName", nameof(this.Publisher));
                 }

@@ -35,6 +35,7 @@ namespace Microsoft.Management.Configuration.Processor.Constants
             public const string GetDscResource = "Get-DscResource";
             public const string GetInstalledModule = "Get-InstalledModule";
             public const string GetModule = "Get-Module";
+            public const string ImportModule = "Import-Module";
             public const string InstallModule = "Install-Module";
             public const string InvokeDscResource = "Invoke-DscResource";
             public const string SaveModule = "Save-Module";

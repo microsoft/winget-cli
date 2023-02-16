@@ -74,7 +74,10 @@ namespace Microsoft.Management.Configuration.Processor.Set
 
             if (dscResourceInfo is not null)
             {
-                return this.GetUnitProcessorDetailsLocal(unit.UnitName, dscResourceInfo);
+                return this.GetUnitProcessorDetailsLocal(
+                    unit.UnitName,
+                    dscResourceInfo,
+                    detailLevel == ConfigurationUnitDetailLevel.Load);
             }
 
             if (detailLevel == ConfigurationUnitDetailLevel.Local)
@@ -133,7 +136,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
                     return null;
                 }
 
-                return this.GetUnitProcessorDetailsLocal(unit.UnitName, dscResourceInfo);
+                return this.GetUnitProcessorDetailsLocal(unit.UnitName, dscResourceInfo, true);
             }
 
             return null;
@@ -194,7 +197,10 @@ namespace Microsoft.Management.Configuration.Processor.Set
             return dscResourceInfo;
         }
 
-        private ConfigurationUnitProcessorDetails GetUnitProcessorDetailsLocal(string unitName, DscResourceInfoInternal dscResourceInfo)
+        private ConfigurationUnitProcessorDetails GetUnitProcessorDetailsLocal(
+            string unitName,
+            DscResourceInfoInternal dscResourceInfo,
+            bool importModule)
         {
             // I'm looking at you resources under C:\WINDOWS\system32\WindowsPowershell
             if (dscResourceInfo.ModuleName is null ||
@@ -215,6 +221,11 @@ namespace Microsoft.Management.Configuration.Processor.Set
             // There are some properties that can only be obtain by that it so is better to take both.
             var moduleInfo = this.ProcessorEnvironment.GetModule(module);
             var installedModule = this.ProcessorEnvironment.GetInstalledModule(module);
+
+            if (importModule)
+            {
+                this.ProcessorEnvironment.ImportModule(module);
+            }
 
             return new ConfigurationUnitProcessorDetails(
                 dscResourceInfo.Name,
