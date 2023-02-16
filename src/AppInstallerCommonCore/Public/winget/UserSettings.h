@@ -72,6 +72,7 @@ namespace AppInstaller::Settings
         EFDirectMSI,
         EFPinning,
         EFUninstallPreviousArgument,
+        EFConfiguration,
         // Telemetry
         TelemetryDisable,
         // Install behavior
@@ -141,6 +142,7 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::EFDirectMSI, bool, bool, false, ".experimentalFeatures.directMSI"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFPinning, bool, bool, false, ".experimentalFeatures.pinning"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFUninstallPreviousArgument, bool, bool, false, ".experimentalFeatures.uninstallPreviousArgument"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::EFConfiguration, bool, bool, false, ".experimentalFeatures.configuration"sv);
         // Telemetry
         SETTINGMAPPING_SPECIALIZATION(Setting::TelemetryDisable, bool, bool, false, ".telemetry.disable"sv);
         // Install behavior

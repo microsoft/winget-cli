@@ -2,12 +2,18 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "ConfigureShowCommand.h"
+#include "ConfigurationFlow.h"
+
+using namespace AppInstaller::CLI::Workflow;
 
 namespace AppInstaller::CLI
 {
     std::vector<Argument> ConfigureShowCommand::GetArguments() const
     {
-        return {};
+        return {
+            // Required for now, make exclusive when history implemented
+            Argument{ Execution::Args::Type::ConfigurationFile, Resource::String::ConfigurationFileArgumentDescription, ArgumentType::Positional, true },
+        };
     }
 
     Resource::LocString ConfigureShowCommand::ShortDescription() const
@@ -28,7 +34,10 @@ namespace AppInstaller::CLI
 
     void ConfigureShowCommand::ExecuteInternal(Execution::Context& context) const
     {
-        UNREFERENCED_PARAMETER(context);
-        THROW_HR(E_NOTIMPL);
+        context <<
+            CreateConfigurationProcessor <<
+            OpenConfigurationSet <<
+            GetConfigurationSetDetails <<
+            ShowConfigurationSet;
     }
 }

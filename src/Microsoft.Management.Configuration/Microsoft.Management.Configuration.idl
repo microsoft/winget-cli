@@ -351,7 +351,7 @@ namespace Microsoft.Management.Configuration
 
     // Allows different runtimes to provide specialized handling of configuration processing.
     [contract(Microsoft.Management.Configuration.Contract, 1)]
-    interface IConfigurationProcessorFactory
+    interface IConfigurationSetProcessorFactory
     {
         // Creates a configuration set processor for the given set.
         IConfigurationSetProcessor CreateSetProcessor(ConfigurationSet configurationSet);
@@ -558,7 +558,7 @@ namespace Microsoft.Management.Configuration
     [contract(Microsoft.Management.Configuration.Contract, 1)]
     runtimeclass ConfigurationProcessor
     {
-        ConfigurationProcessor(IConfigurationProcessorFactory factory);
+        ConfigurationProcessor(IConfigurationSetProcessorFactory factory);
 
         // Diagnostics event; useful for logging and/or verbose output.
         event Windows.Foundation.EventHandler<DiagnosticInformation> Diagnostics;

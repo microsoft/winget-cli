@@ -209,6 +209,12 @@
     <ClInclude Include="Commands\ConfigureValidateCommand.h">
       <Filter>Commands</Filter>
     </ClInclude>
+    <ClInclude Include="ConfigurationFlow.h">
+      <Filter>Workflows</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigurationContext.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -384,6 +390,12 @@
     </ClCompile>
     <ClCompile Include="Commands\ConfigureValidateCommand.cpp">
       <Filter>Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigurationFlow.cpp">
+      <Filter>Workflows</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigurationContext.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

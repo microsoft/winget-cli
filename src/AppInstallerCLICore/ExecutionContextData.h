@@ -9,6 +9,7 @@
 #include "PackageCollection.h"
 #include "PortableInstaller.h"
 #include "Workflows/WorkflowBase.h"
+#include "ConfigurationContext.h"
 
 #include <filesystem>
 #include <map>
@@ -64,6 +65,7 @@ namespace AppInstaller::CLI::Execution
         PortableInstaller,
         PinningIndex,
         Pins,
+        ConfigurationContext,
         Max
     };
 
@@ -255,6 +257,12 @@ namespace AppInstaller::CLI::Execution
         struct DataMapping<Data::Pins>
         {
             using value_t = std::vector<Pinning::Pin>;
+        };
+
+        template <>
+        struct DataMapping<Data::ConfigurationContext>
+        {
+            using value_t = ConfigurationContext;
         };
     }
 }

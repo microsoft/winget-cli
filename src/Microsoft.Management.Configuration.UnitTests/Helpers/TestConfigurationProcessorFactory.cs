@@ -12,7 +12,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
     /// <summary>
     /// A test implementation of IConfigurationProcessorFactory.
     /// </summary>
-    internal class TestConfigurationProcessorFactory : IConfigurationProcessorFactory
+    internal class TestConfigurationProcessorFactory : IConfigurationSetProcessorFactory
     {
         /// <summary>
         /// Delegate type for CreateSetProcessor.

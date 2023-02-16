@@ -37,6 +37,7 @@
 #include <winrt/Windows.ApplicationModel.Resources.h>
 #include <winrt/Windows.ApplicationModel.Resources.Core.h>
 #include <winrt/Windows.ApplicationModel.Store.Preview.InstallControl.h>
+#include <winrt/Windows.Storage.Streams.h>
 
 #pragma warning( push )
 #pragma warning ( disable : 6001 6285 6340 6388 )

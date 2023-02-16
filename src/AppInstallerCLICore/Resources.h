@@ -47,6 +47,10 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(CommandRequiresAdmin);
         WINGET_DEFINE_RESOURCE_STRINGID(CompleteCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(CompleteCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFieldInvalid);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFileArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFileInvalid);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFileVersionUnknown);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureShowCommandLongDescription);

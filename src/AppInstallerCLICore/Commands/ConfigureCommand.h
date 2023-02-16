@@ -2,13 +2,13 @@
 // Licensed under the MIT License.
 #pragma once
 #include "Command.h"
+#include <winget/ExperimentalFeature.h>
 
 namespace AppInstaller::CLI
 {
     struct ConfigureCommand final : public Command
     {
-        // TODO: Experimental feature
-        ConfigureCommand(std::string_view parent) : Command("configure", parent) {}
+        ConfigureCommand(std::string_view parent) : Command("configure", {}, parent, Settings::ExperimentalFeature::Feature::Configuration) {}
 
         std::vector<std::unique_ptr<Command>> GetCommands() const override;
         std::vector<Argument> GetArguments() const override;

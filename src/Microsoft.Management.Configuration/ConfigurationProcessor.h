@@ -23,7 +23,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         using TestConfigurationUnitResult = Configuration::TestConfigurationUnitResult;
         using GetConfigurationUnitSettingsResult = Configuration::GetConfigurationUnitSettingsResult;
 
-        ConfigurationProcessor(const IConfigurationProcessorFactory& factory);
+        ConfigurationProcessor(const IConfigurationSetProcessorFactory& factory);
 
         event_token Diagnostics(const Windows::Foundation::EventHandler<DiagnosticInformation>& handler);
         void Diagnostics(const event_token& token) noexcept;
@@ -64,7 +64,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         void Diagnostics(DiagnosticLevel level, std::string_view message);
 
     private:
-        IConfigurationProcessorFactory m_factory = nullptr;
+        IConfigurationSetProcessorFactory m_factory = nullptr;
         event<Windows::Foundation::EventHandler<DiagnosticInformation>> m_diagnostics;
         event<Windows::Foundation::TypedEventHandler<ConfigurationSet, ConfigurationChangeData>> m_configurationChange;
         ConfigThreadGlobals m_threadGlobals;

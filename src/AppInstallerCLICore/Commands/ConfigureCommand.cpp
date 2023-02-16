@@ -5,6 +5,9 @@
 #include "ConfigureShowCommand.h"
 #include "ConfigureTestCommand.h"
 #include "ConfigureValidateCommand.h"
+#include "ConfigurationFlow.h"
+
+using namespace AppInstaller::CLI::Workflow;
 
 namespace AppInstaller::CLI
 {
@@ -40,7 +43,13 @@ namespace AppInstaller::CLI
 
     void ConfigureCommand::ExecuteInternal(Execution::Context& context) const
     {
-        UNREFERENCED_PARAMETER(context);
-        THROW_HR(E_NOTIMPL);
+        context <<
+            CreateConfigurationProcessor <<
+            OpenConfigurationSet <<
+            GetConfigurationSetDetails <<
+            ShowConfigurationSet <<
+            ShowConfigurationSetConflicts <<
+            ConfirmConfigurationProcessing <<
+            ApplyConfigurationSet;
     }
 }
