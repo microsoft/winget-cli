@@ -208,8 +208,8 @@ namespace AppInstaller::Repository::Correlation
 
     InstalledFilesCorrelation::InstalledFilesCorrelation()
     {
-        m_fileWatchers.emplace_back(Runtime::GetKnownFolderPath(FOLDERID_CommonStartMenu), std::string{ s_FileExtensionToWatch });
-        m_fileWatchers.emplace_back(Runtime::GetKnownFolderPath(FOLDERID_StartMenu), std::string{ s_FileExtensionToWatch });
+        m_fileWatchers.emplace_back(Filesystem::GetKnownFolderPath(FOLDERID_CommonStartMenu), std::string{ s_FileExtensionToWatch });
+        m_fileWatchers.emplace_back(Filesystem::GetKnownFolderPath(FOLDERID_StartMenu), std::string{ s_FileExtensionToWatch });
     }
 
     void InstalledFilesCorrelation::StartFileWatcher()
