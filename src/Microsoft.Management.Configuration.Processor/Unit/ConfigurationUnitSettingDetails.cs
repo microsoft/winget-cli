@@ -23,7 +23,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
             this.Name = dscResourceInfo.Name;
             this.IsRequired = dscResourceInfo.IsMandatory;
             this.Type = dscResourceInfo.PropertyType;
-            this.Semantics = string.Join(" ", dscResourceInfo.Values.ToArray());
+            this.Semantics = string.Join(", ", dscResourceInfo.Values.ToArray());
 
             // We don't have this information right now.
             this.Description = null;

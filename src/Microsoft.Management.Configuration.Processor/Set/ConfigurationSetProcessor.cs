@@ -97,13 +97,16 @@ namespace Microsoft.Management.Configuration.Processor.Set
                 return null;
             }
 
-            // Hopefully they will never have the property name.
-            dynamic findResource = getFindResource as dynamic;
+            // Hopefully they will never change the properties name. If someone can explain to me
+            // why assing it Name to $_ in Find-DscResource turns into a string in PowerShell but
+            // into a PSObject here that would be nice...
+            dynamic findResource = getFindResource;
+            string findResourceName = findResource.Name.ToString();
 
             if (detailLevel == ConfigurationUnitDetailLevel.Catalog)
             {
                 return new ConfigurationUnitProcessorDetails(
-                    unit.UnitName,
+                    findResourceName,
                     null,
                     null,
                     findResource.PSGetModuleInfo,
@@ -119,11 +122,8 @@ namespace Microsoft.Management.Configuration.Processor.Set
                 var moduleInfo = this.ProcessorEnvironment.GetModule(
                     Path.Combine(tempSavePath, findResource.PSGetModuleInfo.Name));
 
-                // Warning: if we decide to use the name that comes from the result of Find-DscResource
-                // then findResource.Name is NOT a string but a PSObject (even though in PowerShell
-                // $findResource.Name.GetType() so yeah...
                 return new ConfigurationUnitProcessorDetails(
-                    unit.UnitName,
+                    findResourceName,
                     null,
                     moduleInfo,
                     findResource.PSGetModuleInfo,
@@ -245,16 +245,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
                 paths.Add(psmPath);
             }
 
-            var validSignatures = this.ProcessorEnvironment.GetValidSignatures(paths.ToArray());
-
-            var certificates = new List<Certificate>();
-            foreach (var signature in validSignatures)
-            {
-                IBuffer buffer = signature.SignerCertificate.GetRawCertData().AsBuffer();
-                certificates.Add(new Certificate(buffer));
-            }
-
-            return certificates;
+            return this.ProcessorEnvironment.GetCertsOfValidSignedFiles(paths.ToArray());
         }
     }
 }

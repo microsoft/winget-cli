@@ -8,10 +8,10 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
     using System.Management.Automation;
     using System.Management.Automation.Runspaces;
+    using System.Runtime.InteropServices.WindowsRuntime;
     using Microsoft.Management.Configuration.Processor.Constants;
     using Microsoft.Management.Configuration.Processor.DscModule;
     using Microsoft.Management.Configuration.Processor.DscResourcesInfo;
@@ -20,6 +20,8 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
     using Microsoft.Management.Configuration.Processor.ProcessorEnvironments;
     using Microsoft.PowerShell.Commands;
     using Windows.Foundation.Collections;
+    using Windows.Security.Cryptography.Certificates;
+    using Windows.Storage.Streams;
     using static Microsoft.Management.Configuration.Processor.Constants.PowerShellConstants;
 
     /// <summary>
@@ -235,7 +237,7 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
         }
 
         /// <inheritdoc/>
-        public List<Signature> GetValidSignatures(string[] paths)
+        public List<Certificate> GetCertsOfValidSignedFiles(string[] paths)
         {
             using PowerShell pwsh = PowerShell.Create(this.Runspace);
 
@@ -244,16 +246,21 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
                                  .AddCommand(Commands.GetAuthenticodeSignature)
                                  .InvokeAndStopOnError<Signature>();
 
-            var validSignatures = new Dictionary<string, Signature>();
+            var thumprints = new HashSet<string>();
+            var certificates = new List<Certificate>();
             foreach (var signature in signatures)
             {
                 if (signature.Status == SignatureStatus.Valid)
                 {
-                    _ = validSignatures.TryAdd(signature.SignerCertificate.Thumbprint, signature);
+                    if (thumprints.Add(signature.SignerCertificate.Thumbprint))
+                    {
+                        IBuffer buffer = signature.SignerCertificate.GetRawCertData().AsBuffer();
+                        certificates.Add(new Certificate(buffer));
+                    }
                 }
             }
 
-            return validSignatures.Values.ToList();
+            return certificates;
         }
 
         /// <inheritdoc/>

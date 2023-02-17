@@ -64,11 +64,12 @@ namespace Microsoft.Management.Configuration.Processor.Unit
 
             if (psModuleInfo is not null)
             {
+                this.ModuleDocumentationUri = new Uri(psModuleInfo.HelpInfoUri);
                 this.UnitIconUri = psModuleInfo.IconUri;
                 this.ModuleName = psModuleInfo.Name;
                 this.ModuleType = psModuleInfo.ModuleType.ToString();
                 this.ModuleDescription = psModuleInfo.Description;
-                this.PublishedModuleUri = psModuleInfo.RepositorySourceLocation;
+                this.PublishedModuleUri = psModuleInfo.ProjectUri;
                 this.Version = psModuleInfo.Version.ToString();
                 this.Author = psModuleInfo.Author;
                 this.Publisher = psModuleInfo.CompanyName;
@@ -85,7 +86,6 @@ namespace Microsoft.Management.Configuration.Processor.Unit
                     this.TrySetPropertyAsUri(getModuleInfo, "IconUri", nameof(this.UnitIconUri));
                     this.TrySetPropertyAsString(getModuleInfo, "Name", nameof(this.ModuleName));
                     this.TrySetPropertyAsString(getModuleInfo, "Description", nameof(this.ModuleDescription));
-                    this.TrySetPropertyAsUri(getModuleInfo, "RepositorySourceLocation", nameof(this.PublishedModuleUri));
                     this.TrySetPropertyAsString(getModuleInfo, "Version", nameof(this.Version));
                     this.TrySetPropertyAsString(getModuleInfo, "Author", nameof(this.Author));
                     this.TrySetPropertyAsString(getModuleInfo, "CompanyName", nameof(this.Publisher));

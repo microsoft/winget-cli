@@ -14,6 +14,7 @@ namespace Microsoft.Management.Configuration.Processor.ProcessorEnvironments
     using Microsoft.Management.Configuration.Processor.Helpers;
     using Microsoft.PowerShell.Commands;
     using Windows.Foundation.Collections;
+    using Windows.Security.Cryptography.Certificates;
 
     /// <summary>
     /// IProcessorEnvironment. Provides interaction with PowerShell.
@@ -127,11 +128,11 @@ namespace Microsoft.Management.Configuration.Processor.ProcessorEnvironments
         void InstallModule(PSObject inputObject);
 
         /// <summary>
-        /// Get unique valid signatures from the specified paths.
+        /// Get unique certificates of valid signed files from the specified paths.
         /// </summary>
         /// <param name="paths">Path.</param>
         /// <returns>List with valid signatures.</returns>
-        List<Signature> GetValidSignatures(string[] paths);
+        List<Certificate> GetCertsOfValidSignedFiles(string[] paths);
 
         /// <summary>
         /// Gets the value of a variable.

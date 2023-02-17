@@ -328,8 +328,8 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 .Returns(nullPsModuleInfo)
                 .Verifiable();
             processorEnvMock.Setup(
-                m => m.GetValidSignatures(It.IsAny<string[]>()))
-                .Returns(new List<Signature>())
+                m => m.GetCertsOfValidSignedFiles(It.IsAny<string[]>()))
+                .Returns(new List<Certificate>())
                 .Verifiable();
 
             var configurationSetProcessor = new ConfigurationSetProcessor(
@@ -374,8 +374,8 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 .Returns(getModuleInfo)
                 .Verifiable();
             processorEnvMock.Setup(
-                m => m.GetValidSignatures(It.IsAny<string[]>()))
-                .Returns(new List<Signature>())
+                m => m.GetCertsOfValidSignedFiles(It.IsAny<string[]>()))
+                .Returns(new List<Certificate>())
                 .Verifiable();
 
             var configurationSetProcessor = new ConfigurationSetProcessor(
@@ -421,8 +421,8 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 m => m.ImportModule(It.Is<ModuleSpecification>(s => s.Name == dscResourceInfo.ModuleName)))
                 .Verifiable();
             processorEnvMock.Setup(
-                m => m.GetValidSignatures(It.IsAny<string[]>()))
-                .Returns(new List<Signature>())
+                m => m.GetCertsOfValidSignedFiles(It.IsAny<string[]>()))
+                .Returns(new List<Certificate>())
                 .Verifiable();
 
             var configurationSetProcessor = new ConfigurationSetProcessor(
@@ -535,8 +535,8 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 .Returns(psModuleInfo)
                 .Verifiable();
             processorEnvMock.Setup(
-                m => m.GetValidSignatures(It.IsAny<string[]>()))
-                .Returns(new List<Signature>())
+                m => m.GetCertsOfValidSignedFiles(It.IsAny<string[]>()))
+                .Returns(new List<Certificate>())
                 .Verifiable();
 
             var configurationSetProcessor = new ConfigurationSetProcessor(

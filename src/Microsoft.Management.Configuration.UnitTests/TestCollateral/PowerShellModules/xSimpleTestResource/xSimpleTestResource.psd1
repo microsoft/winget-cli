@@ -25,5 +25,16 @@ DscResourcesToExport = @(
     'SimpleTestResourceThrows'
     'SimpleTestResourceError'
 )
+HelpInfoURI = 'https://www.contoso.com/help'
+
+# Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
+PrivateData = @{
+
+    PSData = @{
+        ProjectUri = 'https://github.com/microsoft/winget-cli'
+        IconUri = 'https://www.contoso.com/icons/icon.png'
+    }
+
+}
 
 }
