@@ -301,6 +301,12 @@ namespace AppInstaller::CLI
             }
         }
 
+        // The command has opted-in to be executed when it has subcommands and the next token is a positional parameter value
+        if (m_selectCurrentCommandIfUnrecognizedSubcommandFound)
+        {
+            return {};
+        }
+
         // TODO: If we get to a large number of commands, do a fuzzy search much like git
         throw CommandException(Resource::String::UnrecognizedCommand(Utility::LocIndView{ *itr }));
     }
@@ -857,6 +863,11 @@ namespace AppInstaller::CLI
         {
             context.Reporter.PromptForEnter();
         }
+    }
+
+    void Command::SelectCurrentCommandIfUnrecognizedSubcommandFound(bool value)
+    {
+        m_selectCurrentCommandIfUnrecognizedSubcommandFound = value;
     }
 
     void Command::ValidateArgumentsInternal(Execution::Args&) const

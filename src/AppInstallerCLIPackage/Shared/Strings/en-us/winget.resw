@@ -1715,4 +1715,65 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Configuration file version {0} is not known.</value>
     <comment>{Locked="{0}"} An error in reading a configuration file. {0} is a placeholder replaced by the version of the configuration file.</comment>
   </data>
+  <data name="ConfigurationAcceptWarningArgumentDescription" xml:space="preserve">
+    <value>Accepts the configuration warning, preventing an interactive prompt</value>
+  </data>
+  <data name="ConfigurationApply" xml:space="preserve">
+    <value>Apply</value>
+    <comment>Indicates that this item is used to write state</comment>
+  </data>
+  <data name="ConfigurationAssert" xml:space="preserve">
+    <value>Assert</value>
+    <comment>Indicates that this item is used to check/assert the state rather than write to it</comment>
+  </data>
+  <data name="ConfigurationDependencies" xml:space="preserve">
+    <value>Dependencies:{0}</value>
+    <comment>{Locked="{0}"} Label displaying a list of dependencies. {0} is replaced with a space separated list of identifiers referencing other items.</comment>
+  </data>
+  <data name="ConfigurationFailedToApply" xml:space="preserve">
+    <value>Some of the configuration was not applied successfully.</value>
+  </data>
+  <data name="ConfigurationFailedToGetDetails" xml:space="preserve">
+    <value>Failed to get detailed information about the configuration.</value>
+  </data>
+  <data name="ConfigurationInform" xml:space="preserve">
+    <value>Inform</value>
+    <comment>Indicates that this item is used to retrieve values for future use rather than writing them</comment>
+  </data>
+  <data name="ConfigurationLocal" xml:space="preserve">
+    <value>Local</value>
+    <comment>Used to indicate the the item is present on the device.</comment>
+  </data>
+  <data name="ConfigurationModuleNameOnly" xml:space="preserve">
+    <value>Module: {0}</value>
+    <comment>{Locked="{0}"} Label displaying a module name. {0} is replaced with the name of the module from the user input file.</comment>
+  </data>
+  <data name="ConfigurationModuleWithDetails" xml:space="preserve">
+    <value>Module: {0} by {1} [{2}]</value>
+    <comment>{Locked="{0}","{1}","{2}"} Label displaying module information. {0} is replaced by the module name. {1} is replaced by the module author. {2} is replaced by a string indicating the source of the module.</comment>
+  </data>
+  <data name="ConfigurationSettings" xml:space="preserve">
+    <value>Settings:</value>
+    <comment>Label for the values that are used as inputs for this item when applying state</comment>
+  </data>
+  <data name="ConfigurationSuccessfullyApplied" xml:space="preserve">
+    <value>Configuration successfully applied.</value>
+  </data>
+  <data name="ConfigurationUnitFailed" xml:space="preserve">
+    <value>Failed:</value>
+  </data>
+  <data name="ConfigurationUnitSkipped" xml:space="preserve">
+    <value>Skipped:</value>
+  </data>
+  <data name="ConfigurationWaitingOnAnother" xml:space="preserve">
+    <value>Another configuration is being applied to the system. This configuration will continue as soon as is possible...</value>
+  </data>
+  <data name="ConfigurationWarning" xml:space="preserve">
+    <value>You are responsible for making sure that the configuration and resources it uses are acceptable to you.</value>
+    <comment>TEMP! NOT APPROVED!</comment>
+  </data>
+  <data name="ConfigurationWarningPrompt" xml:space="preserve">
+    <value>Have you reviewed the configuration and would like to proceed applying it to the system?</value>
+    <comment>TEMP! NOT APPROVED!</comment>
+  </data>
 </root>

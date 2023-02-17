@@ -48,4 +48,19 @@ namespace AppInstaller::CLI::Workflow
     private:
         bool m_ensureAgreementsAcceptance;
     };
+
+    // If the context is not interactive, terminate it with the given HRESULT.
+    // Required Args: None
+    // Inputs: None
+    // Outputs: None
+    struct RequireInteractivity : public WorkflowTask
+    {
+        RequireInteractivity(HRESULT nonInteractiveError) :
+            WorkflowTask("RequireInteractivity"), m_nonInteractiveError(nonInteractiveError) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        HRESULT m_nonInteractiveError;
+    };
 }

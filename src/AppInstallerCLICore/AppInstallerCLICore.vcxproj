@@ -265,9 +265,9 @@
     <ClInclude Include="Commands\SettingsCommand.h" />
     <ClInclude Include="CompletionData.h" />
     <ClInclude Include="ConfigurationContext.h" />
-    <ClInclude Include="ConfigurationFlow.h" />
     <ClInclude Include="ContextOrchestrator.h" />
     <ClInclude Include="COMContext.h" />
+    <ClInclude Include="Workflows\ConfigurationFlow.h" />
     <ClInclude Include="Workflows\DependenciesFlow.h" />
     <ClInclude Include="ExecutionArgs.h" />
     <ClInclude Include="ExecutionContextData.h" />
@@ -314,8 +314,8 @@
     <ClCompile Include="Commands\ImportCommand.cpp" />
     <ClCompile Include="Commands\PinCommand.cpp" />
     <ClCompile Include="ConfigurationContext.cpp" />
-    <ClCompile Include="ConfigurationFlow.cpp" />
     <ClCompile Include="ContextOrchestrator.cpp" />
+    <ClCompile Include="Workflows\ConfigurationFlow.cpp" />
     <ClCompile Include="Workflows\DependenciesFlow.cpp" />
     <ClCompile Include="PackageCollection.cpp" />
     <ClCompile Include="Argument.cpp" />

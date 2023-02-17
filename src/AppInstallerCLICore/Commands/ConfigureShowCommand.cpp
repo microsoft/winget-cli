@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "ConfigureShowCommand.h"
-#include "ConfigurationFlow.h"
+#include "Workflows/ConfigurationFlow.h"
 
 using namespace AppInstaller::CLI::Workflow;
 

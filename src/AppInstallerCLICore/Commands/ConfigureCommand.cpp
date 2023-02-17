@@ -5,12 +5,18 @@
 #include "ConfigureShowCommand.h"
 #include "ConfigureTestCommand.h"
 #include "ConfigureValidateCommand.h"
-#include "ConfigurationFlow.h"
+#include "Workflows/ConfigurationFlow.h"
 
 using namespace AppInstaller::CLI::Workflow;
 
 namespace AppInstaller::CLI
 {
+    ConfigureCommand::ConfigureCommand(std::string_view parent) :
+        Command("configure", {}, parent, Settings::ExperimentalFeature::Feature::Configuration)
+    {
+        SelectCurrentCommandIfUnrecognizedSubcommandFound(true);
+    }
+
     std::vector<std::unique_ptr<Command>> ConfigureCommand::GetCommands() const
     {
         return InitializeFromMoveOnly<std::vector<std::unique_ptr<Command>>>({
@@ -22,7 +28,11 @@ namespace AppInstaller::CLI
 
     std::vector<Argument> ConfigureCommand::GetArguments() const
     {
-        return {};
+        return {
+            // Required for now, make exclusive when history implemented
+            Argument{ Execution::Args::Type::ConfigurationFile, Resource::String::ConfigurationFileArgumentDescription, ArgumentType::Positional, true },
+            Argument{ Execution::Args::Type::ConfigurationAcceptWarning, Resource::String::ConfigurationAcceptWarningArgumentDescription, ArgumentType::Flag },
+        };
     }
 
     Resource::LocString ConfigureCommand::ShortDescription() const
