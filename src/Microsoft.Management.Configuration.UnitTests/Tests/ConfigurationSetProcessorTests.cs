@@ -18,6 +18,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
     using Microsoft.PowerShell.Commands;
     using Moq;
+    using Windows.Security.Cryptography.Certificates;
     using Xunit;
     using Xunit.Abstractions;
 
@@ -322,10 +323,13 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 m => m.GetModule(It.Is<ModuleSpecification>(s => s.Name == dscResourceInfo.ModuleName)))
                 .Returns(psModuleInfo)
                 .Verifiable();
-
             processorEnvMock.Setup(
                 m => m.GetInstalledModule(It.Is<ModuleSpecification>(s => s.Name == dscResourceInfo.ModuleName)))
                 .Returns(nullPsModuleInfo)
+                .Verifiable();
+            processorEnvMock.Setup(
+                m => m.GetValidSignatures(It.IsAny<string[]>()))
+                .Returns(new List<Signature>())
                 .Verifiable();
 
             var configurationSetProcessor = new ConfigurationSetProcessor(
@@ -369,6 +373,10 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 m => m.GetInstalledModule(It.Is<ModuleSpecification>(s => s.Name == dscResourceInfo.ModuleName)))
                 .Returns(getModuleInfo)
                 .Verifiable();
+            processorEnvMock.Setup(
+                m => m.GetValidSignatures(It.IsAny<string[]>()))
+                .Returns(new List<Signature>())
+                .Verifiable();
 
             var configurationSetProcessor = new ConfigurationSetProcessor(
                 processorEnvMock.Object,
@@ -411,6 +419,10 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 .Verifiable();
             processorEnvMock.Setup(
                 m => m.ImportModule(It.Is<ModuleSpecification>(s => s.Name == dscResourceInfo.ModuleName)))
+                .Verifiable();
+            processorEnvMock.Setup(
+                m => m.GetValidSignatures(It.IsAny<string[]>()))
+                .Returns(new List<Signature>())
                 .Verifiable();
 
             var configurationSetProcessor = new ConfigurationSetProcessor(
@@ -521,6 +533,10 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             processorEnvMock.Setup(
                 m => m.GetModule(It.Is<string>(s => s.EndsWith("xSimpleTestResource"))))
                 .Returns(psModuleInfo)
+                .Verifiable();
+            processorEnvMock.Setup(
+                m => m.GetValidSignatures(It.IsAny<string[]>()))
+                .Returns(new List<Signature>())
                 .Verifiable();
 
             var configurationSetProcessor = new ConfigurationSetProcessor(

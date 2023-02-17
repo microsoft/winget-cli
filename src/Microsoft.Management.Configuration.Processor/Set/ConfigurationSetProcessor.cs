@@ -10,12 +10,16 @@ namespace Microsoft.Management.Configuration.Processor.Set
     using System.Collections.Generic;
     using System.IO;
     using System.Management.Automation;
+    using System.Runtime.InteropServices.WindowsRuntime;
+    using System.Security.Cryptography.Xml;
     using Microsoft.Management.Configuration.Processor.DscResourcesInfo;
     using Microsoft.Management.Configuration.Processor.Exceptions;
     using Microsoft.Management.Configuration.Processor.Helpers;
     using Microsoft.Management.Configuration.Processor.ProcessorEnvironments;
     using Microsoft.Management.Configuration.Processor.Unit;
     using Microsoft.PowerShell.Commands;
+    using Windows.Security.Cryptography.Certificates;
+    using Windows.Storage.Streams;
 
     /// <summary>
     /// Configuration set processor.
@@ -99,10 +103,11 @@ namespace Microsoft.Management.Configuration.Processor.Set
             if (detailLevel == ConfigurationUnitDetailLevel.Catalog)
             {
                 return new ConfigurationUnitProcessorDetails(
-                    findResource.Name,
+                    unit.UnitName,
                     null,
                     null,
-                    findResource.PSGetModuleInfo);
+                    findResource.PSGetModuleInfo,
+                    null);
             }
 
             if (detailLevel == ConfigurationUnitDetailLevel.Download)
@@ -114,14 +119,15 @@ namespace Microsoft.Management.Configuration.Processor.Set
                 var moduleInfo = this.ProcessorEnvironment.GetModule(
                     Path.Combine(tempSavePath, findResource.PSGetModuleInfo.Name));
 
-                // TODO: Send path to get cert signing info and delete directory.
-                // We can't get the resources information because Get-DscResource just look
-                // in the PSModulePaths.
+                // Warning: if we decide to use the name that comes from the result of Find-DscResource
+                // then findResource.Name is NOT a string but a PSObject (even though in PowerShell
+                // $findResource.Name.GetType() so yeah...
                 return new ConfigurationUnitProcessorDetails(
-                    findResource.Name,
+                    unit.UnitName,
                     null,
                     moduleInfo,
-                    findResource.PSGetModuleInfo);
+                    findResource.PSGetModuleInfo,
+                    this.GetCertificates(moduleInfo));
             }
 
             if (detailLevel == ConfigurationUnitDetailLevel.Load)
@@ -164,25 +170,6 @@ namespace Microsoft.Management.Configuration.Processor.Set
                     throw new FindDscResourceNotFoundException(message);
                 }
 
-                // TODO: hook up policies and enable this and save the module first and look for files, per set.
-                // string savePath = "TODO: Create path";
-                // this.ProcessorEnvironment.SaveModule(findDscResourceResult, savePath);
-                // string savedModulePath = Path.Combine(
-                //     savePath,
-                //     (string)findDscResourceResult.Properties[Parameters.ModuleName].Value);
-                // string[] paths = new string[]
-                // {
-                //     $"{savedModulePath}\\*.dll",
-                //     $"{savedModulePath}\\*.psd1",
-                //     $"{savedModulePath}\\*.psm1",
-                // };
-                // this.ProcessorEnvironment.VerifySignature(paths);
-
-                // Install module for now, when the validation module gets fully implemented
-                // we can improve the performance by moving the modules file somewhere in the
-                // PSModulePath directory. We need to either Install-Module or move it for DSC cmdlets
-                // to find the resources as the quarantine path will not be in the PSModulePath of
-                // this runspace.
                 this.ProcessorEnvironment.InstallModule(findDscResourceResult);
 
                 // Now we should find it.
@@ -210,6 +197,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
                     dscResourceInfo.Name,
                     dscResourceInfo,
                     null,
+                    null,
                     null);
             }
 
@@ -231,7 +219,42 @@ namespace Microsoft.Management.Configuration.Processor.Set
                 dscResourceInfo.Name,
                 dscResourceInfo,
                 moduleInfo,
-                installedModule);
+                installedModule,
+                this.GetCertificates(moduleInfo));
+        }
+
+        private List<Certificate>? GetCertificates(PSModuleInfo? moduleInfo)
+        {
+            if (moduleInfo is null)
+            {
+                return null;
+            }
+
+            // TODO: we still need to investigate more here, but lets start with something.
+            var paths = new List<string>();
+
+            var psdPath = Path.Combine(moduleInfo.ModuleBase, $"{moduleInfo.Name}.psd1");
+            if (File.Exists(psdPath))
+            {
+                paths.Add(psdPath);
+            }
+
+            var psmPath = Path.Combine(moduleInfo.ModuleBase, $"{moduleInfo.Name}.psm1");
+            if (File.Exists(psmPath))
+            {
+                paths.Add(psmPath);
+            }
+
+            var validSignatures = this.ProcessorEnvironment.GetValidSignatures(paths.ToArray());
+
+            var certificates = new List<Certificate>();
+            foreach (var signature in validSignatures)
+            {
+                IBuffer buffer = signature.SignerCertificate.GetRawCertData().AsBuffer();
+                certificates.Add(new Certificate(buffer));
+            }
+
+            return certificates;
         }
     }
 }

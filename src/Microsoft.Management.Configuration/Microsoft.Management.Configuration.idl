@@ -76,7 +76,7 @@ namespace Microsoft.Management.Configuration
         // When the current settings are retrieved from the system, this can be used to exclude settings that are not relevant to a future application of the unit of configuration.
         Boolean IsInformational{ get; };
         // The data type for the value of this setting.
-        Windows.Foundation.PropertyType Type{ get; };
+        String Type{ get; };
         // The semantics to be used for this setting.
         // The goal is to enable richer conflict detection and authoring scenarios by having a deeper understanding of this value than "String".
         // TODO: Create the actual semantics of the semantics value...
@@ -117,8 +117,8 @@ namespace Microsoft.Management.Configuration
         String Author{ get; };
         // The publisher of the module containing the unit of configuration.
         String Publisher{ get; };
-        // The signing certificate chain of the module containing the unit of configuration.
-        Windows.Security.Cryptography.Certificates.CertificateChain SigningCertificateChain{ get; };
+        // The signing certificate of the module files containing the unit of configuration.
+        Windows.Foundation.Collections.IVectorView<IInspectable> Certificates{ get; };
         // The settings information for the unit of configuration.
         Windows.Foundation.Collections.IVectorView<IConfigurationUnitSettingDetails> Settings{ get; };
     }

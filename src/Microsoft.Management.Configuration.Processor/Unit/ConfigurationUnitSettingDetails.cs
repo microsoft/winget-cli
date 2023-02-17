@@ -8,7 +8,6 @@ namespace Microsoft.Management.Configuration.Processor.Unit
 {
     using Microsoft.Management.Configuration;
     using Microsoft.Management.Configuration.Processor.DscResourcesInfo;
-    using Windows.Foundation;
 
     /// <summary>
     /// Provides information for a specific configuration unit setting.
@@ -23,10 +22,8 @@ namespace Microsoft.Management.Configuration.Processor.Unit
         {
             this.Name = dscResourceInfo.Name;
             this.IsRequired = dscResourceInfo.IsMandatory;
+            this.Type = dscResourceInfo.PropertyType;
             this.Semantics = string.Join(" ", dscResourceInfo.Values.ToArray());
-
-            // TODO: PropertyType in DSC is something like [string[]] [string] [PSCredential]
-            // Parse the string and assing to a PropetyType value
 
             // We don't have this information right now.
             this.Description = null;
@@ -62,7 +59,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
         /// <summary>
         /// Gets the data type for the value of this setting.
         /// </summary>
-        public PropertyType Type { get; }
+        public string Type { get; }
 
         /// <summary>
         /// Gets the semantics to be used for this setting. The goal is to enable richer conflict detection and authoring

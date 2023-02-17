@@ -235,23 +235,25 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
         }
 
         /// <inheritdoc/>
-        public void VerifySignature(string[] paths)
+        public List<Signature> GetValidSignatures(string[] paths)
         {
             using PowerShell pwsh = PowerShell.Create(this.Runspace);
 
             var signatures = pwsh.AddCommand(Commands.GetChildItem)
                                  .AddParameter(Parameters.Path, paths)
-                                 .AddParameter(Parameters.Recurse)
                                  .AddCommand(Commands.GetAuthenticodeSignature)
                                  .InvokeAndStopOnError<Signature>();
 
+            var validSignatures = new Dictionary<string, Signature>();
             foreach (var signature in signatures)
             {
-                if (signature.Status != SignatureStatus.Valid)
+                if (signature.Status == SignatureStatus.Valid)
                 {
-                    throw new InvalidOperationException($"{signature.Status} {signature.Path}");
+                    _ = validSignatures.TryAdd(signature.SignerCertificate.Thumbprint, signature);
                 }
             }
+
+            return validSignatures.Values.ToList();
         }
 
         /// <inheritdoc/>

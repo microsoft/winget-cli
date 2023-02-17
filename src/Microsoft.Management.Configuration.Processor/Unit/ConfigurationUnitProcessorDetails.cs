@@ -26,12 +26,21 @@ namespace Microsoft.Management.Configuration.Processor.Unit
         /// <param name="dscResourceInfo">DSC Resource Info.</param>
         /// <param name="psModuleInfo">PSModuleInfo.</param>
         /// <param name="getModuleInfo">GetModuleInfo.</param>
+        /// <param name="certs">List of certificates..</param>
         public ConfigurationUnitProcessorDetails(
             string unitName,
             DscResourceInfoInternal? dscResourceInfo,
             PSModuleInfo? psModuleInfo,
-            PSObject? getModuleInfo)
+            PSObject? getModuleInfo,
+            List<Certificate>? certs)
         {
+            if (dscResourceInfo is null &&
+                psModuleInfo is null &&
+                getModuleInfo is null)
+            {
+                throw new ArgumentException();
+            }
+
             this.UnitName = unitName;
 
             if (dscResourceInfo is not null)
@@ -83,7 +92,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
                 }
             }
 
-            //// TODO: SigningCertificateChain
+            this.Certificates = certs;
         }
 
         /// <summary>
@@ -162,9 +171,9 @@ namespace Microsoft.Management.Configuration.Processor.Unit
         public string? Publisher { get; private set; }
 
         /// <summary>
-        /// Gets the signing certificate chain of the module containing the unit of configuration.
+        /// Gets the signing certificate of the module files containing the unit of configuration.
         /// </summary>
-        public CertificateChain? SigningCertificateChain { get; private set; }
+        public IReadOnlyList<object>? Certificates { get; private set; }
 
         /// <summary>
         /// Gets the settings information for the unit of configuration.

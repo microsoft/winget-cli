@@ -127,10 +127,11 @@ namespace Microsoft.Management.Configuration.Processor.ProcessorEnvironments
         void InstallModule(PSObject inputObject);
 
         /// <summary>
-        /// Recursively verify the signature via Get-AuthenticodeSignature.
+        /// Get unique valid signatures from the specified paths.
         /// </summary>
         /// <param name="paths">Path.</param>
-        void VerifySignature(string[] paths);
+        /// <returns>List with valid signatures.</returns>
+        List<Signature> GetValidSignatures(string[] paths);
 
         /// <summary>
         /// Gets the value of a variable.
