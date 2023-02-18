@@ -284,8 +284,8 @@ namespace AppInstaller::Repository::Metadata
                 }
                 else if (itr->FileType != incomingEntry.FileType)
                 {
-                    // Set conflicting file type to Other.
-                    itr->FileType = AppInstaller::Manifest::InstalledFileTypeEnum::Other;
+                    // Set conflicting file type to Unknown.
+                    itr->FileType = AppInstaller::Manifest::InstalledFileTypeEnum::Unknown;
                 }
             }
         }
@@ -581,9 +581,9 @@ namespace AppInstaller::Repository::Metadata
             SetStringFromFutureSchema(itemValue, fields.Scope, item.second.Scope);
             if (!fields.InstalledFiles.empty() && item.second.InstalledFiles.has_value())
             {
-                web::json::value installationMetadta;
+                web::json::value installationMetadata;
 
-                installationMetadta[fields.DefaultInstallLocation] = AppInstaller::JSON::GetStringValue(item.second.InstalledFiles->DefaultInstallLocation);
+                installationMetadata[fields.DefaultInstallLocation] = AppInstaller::JSON::GetStringValue(item.second.InstalledFiles->DefaultInstallLocation);
 
                 web::json::value installedFilesArray = web::json::value::array();
                 size_t installedFileIndex = 0;
@@ -600,9 +600,9 @@ namespace AppInstaller::Repository::Metadata
                     }
                     installedFilesArray[installedFileIndex++] = std::move(entryValue);
                 }
-                installationMetadta[fields.InstallationMetadataFiles] = std::move(installedFilesArray);
+                installationMetadata[fields.InstallationMetadataFiles] = std::move(installedFilesArray);
 
-                itemValue[fields.InstalledFiles] = std::move(installationMetadta);
+                itemValue[fields.InstalledFiles] = std::move(installationMetadata);
             }
 
             if (!fields.InstalledStartupLinks.empty() && item.second.StartupLinkFiles.has_value())
