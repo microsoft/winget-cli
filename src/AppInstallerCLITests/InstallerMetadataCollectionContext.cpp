@@ -244,6 +244,10 @@ namespace
             return InstallationMetadata;
         }
 
+        void StartFileWatcher() override {}
+
+        void StopFileWatcher() override {}
+
         Correlation::InstallationMetadata InstallationMetadata;
     };
 

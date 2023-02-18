@@ -33,10 +33,10 @@ namespace AppInstaller::Repository::Correlation
         virtual ~InstalledFilesCorrelation() = default;
 
         // Start the file watcher before the package installation.
-        void StartFileWatcher();
+        virtual void StartFileWatcher();
 
         // Stop the file watcher after the package installation.
-        void StopFileWatcher();
+        virtual void StopFileWatcher();
 
         // Correlates the given manifest against the data previously collected with capture calls.
         virtual InstallationMetadata CorrelateForNewlyInstalled(
