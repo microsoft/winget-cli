@@ -9,7 +9,7 @@
 #include <AppInstallerFileLogger.h>
 #include <winget/TraceLogger.h>
 #include <AppInstallerStrings.h>
-
+#include <winget/JsonUtil.h>
 #include <winget/ManifestJSONParser.h>
 
 using namespace AppInstaller::Utility;
@@ -26,7 +26,12 @@ namespace AppInstaller::Repository::Metadata
                 {
                     SchemaVersion = L"1.1";
                     Scope = L"scope";
-                    InstallationMetadata = L"InstallationMetadata";
+                }
+
+                if (::AppInstaller::Utility::Version{ "1.2" } <= version)
+                {
+                    SchemaVersion = L"1.2";
+                    InstalledFiles = L"installedFiles";
                     DefaultInstallLocation = L"DefaultInstallLocation";
                     InstallationMetadataFiles = L"Files";
                     InstalledFileRelativeFilePath = L"RelativeFilePath";
@@ -34,6 +39,9 @@ namespace AppInstaller::Repository::Metadata
                     InstalledFileType = L"FileType";
                     InstalledFileInvocationParameter = L"InvocationParameter";
                     InstalledFileDisplayName = L"DisplayName";
+                    InstalledStartupLinks = L"startupLinks";
+                    InstalledStartupLinkPath = L"RelativeFilePath";
+                    InstalledStartupLinkType = L"FileType";
                 }
             }
 
@@ -66,9 +74,11 @@ namespace AppInstaller::Repository::Metadata
 
             // 1.1
             utility::string_t Scope;
-            utility::string_t InstallationMetadata;
 
-            // InstallationMetadata fields.
+            // 1.2
+
+            // Installed files
+            utility::string_t InstalledFiles;
             utility::string_t DefaultInstallLocation;
             utility::string_t InstallationMetadataFiles;
             utility::string_t InstalledFileRelativeFilePath;
@@ -76,6 +86,10 @@ namespace AppInstaller::Repository::Metadata
             utility::string_t InstalledFileType;
             utility::string_t InstalledFileInvocationParameter;
             utility::string_t InstalledFileDisplayName;
+            // Startup links
+            utility::string_t InstalledStartupLinks;
+            utility::string_t InstalledStartupLinkPath;
+            utility::string_t InstalledStartupLinkType;
         };
 
         struct OutputFields_1_0
@@ -209,7 +223,8 @@ namespace AppInstaller::Repository::Metadata
             }
         }
 
-        void MergeInstallationMetadata(Manifest::InstallationMetadataInfo& existing, const Manifest::InstallationMetadataInfo& incoming)
+        // For installed files merging, we remove conflicting entries, like scope. Indicating we are not certain some files will always be installed.
+        void MergeInstalledFilesMetadata(Manifest::InstallationMetadataInfo& existing, const Manifest::InstallationMetadataInfo& incoming)
         {
             if (!Utility::CaseInsensitiveEquals(existing.DefaultInstallLocation, incoming.DefaultInstallLocation))
             {
@@ -251,6 +266,65 @@ namespace AppInstaller::Repository::Metadata
                     ++existingItr;
                 }
             }
+        }
+
+        // For startup link files merging, we add non duplicate entries, like ProductCodes. Indicating possible startup links an installer could potentially add.
+        void MergeStartupLinkFilesMetadata(std::vector<Correlation::InstalledStartupLinkFile>& existing, const std::vector<Correlation::InstalledStartupLinkFile>& incoming)
+        {
+            for (auto const& incomingEntry : incoming)
+            {
+                auto itr = std::find_if(existing.begin(), existing.end(), [&](const Correlation::InstalledStartupLinkFile& entry)
+                    {
+                        return Utility::CaseInsensitiveEquals(incomingEntry.RelativeFilePath, entry.RelativeFilePath);
+                    });
+
+                if (itr == existing.end())
+                {
+                    existing.emplace_back(incomingEntry);
+                }
+                else if (itr->FileType != incomingEntry.FileType)
+                {
+                    // Set conflicting file type to Other.
+                    itr->FileType = AppInstaller::Manifest::InstalledFileTypeEnum::Other;
+                }
+            }
+        }
+
+        // TODO: This method could be moved to rest response parser and reused when winget supports launch
+        // scenarios (i.e. when startup links info are exposed in winget manifest).
+        std::optional<std::vector<Correlation::InstalledStartupLinkFile>> DeserializeInstalledStartupLinks(
+            const web::json::value& startupLinkFiles,
+            const ProductMetadataFields_1_N& fields)
+        {
+            if (startupLinkFiles.is_null() || !startupLinkFiles.is_array())
+            {
+                return {};
+            }
+
+            std::vector<Correlation::InstalledStartupLinkFile> startupLinks;
+            for (auto const& startupLink : startupLinkFiles.as_array())
+            {
+                Correlation::InstalledStartupLinkFile fileEntry;
+
+                std::optional<std::string> relativeFilePath = AppInstaller::JSON::GetRawStringValueFromJsonNode(startupLink, fields.InstalledStartupLinkPath);
+                if (!AppInstaller::JSON::IsValidNonEmptyStringValue(relativeFilePath))
+                {
+                    AICLI_LOG(Repo, Error, << "Missing RelativeFilePath in Installed Startup Link Files.");
+                    return {};
+                }
+
+                fileEntry.RelativeFilePath = std::move(*relativeFilePath);
+
+                std::optional<std::string> fileType = AppInstaller::JSON::GetRawStringValueFromJsonNode(startupLink, fields.InstalledStartupLinkType);
+                if (AppInstaller::JSON::IsValidNonEmptyStringValue(fileType))
+                {
+                    fileEntry.FileType = Manifest::ConvertToInstalledFileTypeEnum(*fileType);
+                }
+
+                startupLinks.emplace_back(std::move(fileEntry));
+            }
+
+            return startupLinks;
         }
     }
 
@@ -442,12 +516,22 @@ namespace AppInstaller::Repository::Metadata
                 installerMetadata.AppsAndFeaturesEntries = parser.DeserializeAppsAndFeaturesEntries(appsAndFeatures.value());
 
                 installerMetadata.Scope = GetStringFromFutureSchema(item, fields.Scope).value_or(std::string{});
-                if (!fields.InstallationMetadata.empty())
+
+                if (!fields.InstalledFiles.empty())
                 {
-                    auto installationMetadata = AppInstaller::JSON::GetJsonValueFromNode(item, fields.InstallationMetadata);
-                    if (installationMetadata)
+                    auto installedFiles = AppInstaller::JSON::GetJsonValueFromNode(item, fields.InstalledFiles);
+                    if (installedFiles)
                     {
-                        installerMetadata.InstallationMetadata = parser.DeserializeInstallationMetadata(installationMetadata->get());
+                        installerMetadata.InstalledFiles = parser.DeserializeInstallationMetadata(installedFiles->get());
+                    }
+                }
+
+                if (!fields.InstalledStartupLinks.empty())
+                {
+                    auto startupLinks = AppInstaller::JSON::GetJsonValueFromNode(item, fields.InstalledStartupLinks);
+                    if (startupLinks)
+                    {
+                        installerMetadata.StartupLinkFiles = DeserializeInstalledStartupLinks(startupLinks->get(), fields);
                     }
                 }
 
@@ -495,15 +579,15 @@ namespace AppInstaller::Repository::Metadata
             itemValue[fields.InstallerHash] = AppInstaller::JSON::GetStringValue(item.first);
             itemValue[fields.SubmissionIdentifier] = AppInstaller::JSON::GetStringValue(item.second.SubmissionIdentifier);
             SetStringFromFutureSchema(itemValue, fields.Scope, item.second.Scope);
-            if (!fields.InstallationMetadata.empty() && item.second.InstallationMetadata.has_value())
+            if (!fields.InstalledFiles.empty() && item.second.InstalledFiles.has_value())
             {
                 web::json::value installationMetadta;
 
-                installationMetadta[fields.DefaultInstallLocation] = AppInstaller::JSON::GetStringValue(item.second.InstallationMetadata->DefaultInstallLocation);
+                installationMetadta[fields.DefaultInstallLocation] = AppInstaller::JSON::GetStringValue(item.second.InstalledFiles->DefaultInstallLocation);
 
                 web::json::value installedFilesArray = web::json::value::array();
                 size_t installedFileIndex = 0;
-                for (const auto& entry : item.second.InstallationMetadata->Files)
+                for (const auto& entry : item.second.InstalledFiles->Files)
                 {
                     web::json::value entryValue;
                     AddFieldIfNotEmpty(entryValue, fields.InstalledFileRelativeFilePath, entry.RelativeFilePath);
@@ -518,7 +602,23 @@ namespace AppInstaller::Repository::Metadata
                 }
                 installationMetadta[fields.InstallationMetadataFiles] = std::move(installedFilesArray);
 
-                itemValue[fields.InstallationMetadata] = std::move(installationMetadta);
+                itemValue[fields.InstalledFiles] = std::move(installationMetadta);
+            }
+
+            if (!fields.InstalledStartupLinks.empty() && item.second.StartupLinkFiles.has_value())
+            {
+                web::json::value startupLinkFilesArray = web::json::value::array();
+                size_t startupLinkFileIndex = 0;
+                for (const auto& entry : item.second.StartupLinkFiles.value())
+                {
+                    web::json::value entryValue;
+                    entryValue[fields.InstalledStartupLinkPath] = AppInstaller::JSON::GetStringValue(entry.RelativeFilePath);
+                    entryValue[fields.InstalledStartupLinkType] = AppInstaller::JSON::GetStringValue(Manifest::InstalledFileTypeToString(entry.FileType));
+
+                    startupLinkFilesArray[startupLinkFileIndex++] = std::move(entryValue);
+                }
+
+                itemValue[fields.InstalledStartupLinks] = std::move(startupLinkFilesArray);
             }
 
             web::json::value appsAndFeaturesArray = web::json::value::array();
@@ -859,6 +959,7 @@ namespace AppInstaller::Repository::Metadata
         // As this code is typically run in a controlled environment, we can assume that a single value change is very likely the correct value.
         settings.AllowSingleChange = true;
 
+        // ARP entry correlation
         Correlation::ARPCorrelationResult correlationResult = m_correlationData->CorrelateForNewlyInstalled(m_incomingManifest, settings);
 
         if (correlationResult.Package)
@@ -937,8 +1038,10 @@ namespace AppInstaller::Repository::Metadata
             }
         }
 
-        auto installedFilesResult = m_installedFilesCorrelation->CorrelateForNewlyInstalled(m_incomingManifest, arpInstallLocation);
-        if (installedFilesResult.has_value())
+        // Installation files correlation
+        auto installationMetadata = m_installedFilesCorrelation->CorrelateForNewlyInstalled(m_incomingManifest, arpInstallLocation);
+
+        if (installationMetadata.InstalledFiles.HasData() || !installationMetadata.StartupLinkFiles.empty())
         {
             // Add or update the metadata for the installer hash
             auto itr = m_outputMetadata.InstallerMetadataMap.find(m_installerHash);
@@ -950,24 +1053,47 @@ namespace AppInstaller::Repository::Metadata
 
                 newMetadata.SubmissionIdentifier = m_submissionIdentifier;
 
-                newMetadata.InstallationMetadata = std::move(installedFilesResult);
+                if (installationMetadata.InstalledFiles.HasData())
+                {
+                    newMetadata.InstalledFiles = std::move(installationMetadata.InstalledFiles);
+                }
+                if (!installationMetadata.StartupLinkFiles.empty())
+                {
+                    newMetadata.StartupLinkFiles = std::move(installationMetadata.StartupLinkFiles);
+                }
 
                 m_outputMetadata.InstallerMetadataMap[m_installerHash] = std::move(newMetadata);
             }
             else
             {
-                if (!itr->second.InstallationMetadata.has_value())
+                // Add new or merge with existing entry
+                if (installationMetadata.InstalledFiles.HasData())
                 {
-                    itr->second.InstallationMetadata = std::move(installedFilesResult);
+                    if (!itr->second.InstalledFiles.has_value())
+                    {
+                        itr->second.InstalledFiles = std::move(installationMetadata.InstalledFiles);
+                    }
+                    else
+                    {
+                        MergeInstalledFilesMetadata(*(itr->second.InstalledFiles), installationMetadata.InstalledFiles);
+                    }
                 }
-                else
+
+                if (!installationMetadata.StartupLinkFiles.empty())
                 {
-                    MergeInstallationMetadata(*(itr->second.InstallationMetadata), *installedFilesResult);
+                    if (!itr->second.StartupLinkFiles.has_value())
+                    {
+                        itr->second.StartupLinkFiles = std::move(installationMetadata.StartupLinkFiles);
+                    }
+                    else
+                    {
+                        MergeStartupLinkFilesMetadata(*(itr->second.StartupLinkFiles), installationMetadata.StartupLinkFiles);
+                    }
                 }
             }
         }
 
-        if (correlationResult.Package && installedFilesResult.has_value())
+        if (correlationResult.Package)
         {
             m_outputStatus = OutputStatus::Success;
         }
@@ -1248,13 +1374,22 @@ namespace AppInstaller::Repository::Metadata
                         }
                     }
 
-                    if (!itr->second.InstallationMetadata.has_value())
+                    if (!itr->second.InstalledFiles.has_value())
                     {
-                        itr->second.InstallationMetadata = installerMetadata.second.InstallationMetadata;
+                        itr->second.InstalledFiles = installerMetadata.second.InstalledFiles;
                     }
-                    else if (installerMetadata.second.InstallationMetadata.has_value())
+                    else if (installerMetadata.second.InstalledFiles.has_value())
                     {
-                        MergeInstallationMetadata(*(itr->second.InstallationMetadata), *(installerMetadata.second.InstallationMetadata));
+                        MergeInstalledFilesMetadata(*(itr->second.InstalledFiles), *(installerMetadata.second.InstalledFiles));
+                    }
+
+                    if (!itr->second.StartupLinkFiles.has_value())
+                    {
+                        itr->second.StartupLinkFiles = installerMetadata.second.StartupLinkFiles;
+                    }
+                    else if (installerMetadata.second.StartupLinkFiles.has_value())
+                    {
+                        MergeStartupLinkFilesMetadata(*(itr->second.StartupLinkFiles), *(installerMetadata.second.StartupLinkFiles));
                     }
 
                     // Merge into existing installer data

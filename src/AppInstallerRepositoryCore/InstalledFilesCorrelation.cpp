@@ -245,7 +245,7 @@ namespace AppInstaller::Repository::Correlation
         }
     }
 
-    std::optional<InstallationMetadata> InstalledFilesCorrelation::CorrelateForNewlyInstalled(
+    InstallationMetadata InstalledFilesCorrelation::CorrelateForNewlyInstalled(
         const Manifest::Manifest&,
         const std::string& arpInstallLocation)
     {
@@ -297,10 +297,10 @@ namespace AppInstaller::Repository::Correlation
                     }
 
                     // Collect short cut paths
-                    InstalledShellLinkFile linkFile;
+                    InstalledStartupLinkFile linkFile;
                     linkFile.RelativeFilePath = file.string();
                     linkFile.FileType = installedFileType;
-                    result.ShellLinkFiles.emplace_back(linkFile);
+                    result.StartupLinkFiles.emplace_back(linkFile);
                 }
             }
         }

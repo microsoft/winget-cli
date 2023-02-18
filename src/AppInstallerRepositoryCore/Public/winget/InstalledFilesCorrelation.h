@@ -7,7 +7,8 @@
 
 namespace AppInstaller::Repository::Correlation
 {
-    struct InstalledShellLinkFile
+    // TODO: This definition could be moved to Manifest when winget supports launch scenarios.
+    struct InstalledStartupLinkFile
     {
         AppInstaller::Manifest::string_t RelativeFilePath;
         AppInstaller::Manifest::InstalledFileTypeEnum FileType = AppInstaller::Manifest::InstalledFileTypeEnum::Other;
@@ -16,7 +17,7 @@ namespace AppInstaller::Repository::Correlation
     struct InstallationMetadata
     {
         AppInstaller::Manifest::InstallationMetadataInfo InstalledFiles;
-        std::vector<InstalledShellLinkFile> ShellLinkFiles;
+        std::vector<InstalledStartupLinkFile> StartupLinkFiles;
     };
 
     struct InstalledFilesCorrelation
@@ -31,7 +32,7 @@ namespace AppInstaller::Repository::Correlation
         void StopFileWatcher();
 
         // Correlates the given manifest against the data previously collected with capture calls.
-        std::optional<InstallationMetadata> CorrelateForNewlyInstalled(
+        InstallationMetadata CorrelateForNewlyInstalled(
             const Manifest::Manifest& manifest,
             const std::string& arpInstallLocation);
 

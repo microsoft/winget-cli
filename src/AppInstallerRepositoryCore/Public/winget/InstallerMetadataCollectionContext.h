@@ -49,8 +49,12 @@ namespace AppInstaller::Repository::Metadata
             // 1.1
             // If Scope value is empty, the value is not set before. If the value is Unknown, a conflicting value is encountered.
             std::string Scope;
+
+            // 1.2
             // If std::nullopt, the value is not set before. If the value is empty(i.e. !HasData()), a conflicting value is encountered.
-            std::optional<Correlation::InstallationMetadata> InstallationMetadata;
+            std::optional<Manifest::InstallationMetadataInfo> InstalledFiles;
+            // If std::nullopt, the value is not set before. If the vector is empty, conflicting values are encountered.
+            std::optional<std::vector<Correlation::InstalledStartupLinkFile>> StartupLinkFiles;
         };
 
         // Metadata from previous product revisions.
