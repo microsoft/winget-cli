@@ -21,6 +21,7 @@ namespace AppInstaller::Repository::Correlation
             { Filesystem::GetExpandedPath("%PROGRAMFILES(X86)%"), "%PROGRAMFILES(X86)%" },
         };
 
+        // Contains shell link info
         struct ShellLinkFileInfo
         {
             std::filesystem::path Path;
@@ -102,6 +103,7 @@ namespace AppInstaller::Repository::Correlation
                     }
                 }
 
+                // Use shell link file name (minus extension) as display name.
                 result.DisplayName = linkFile.stem().string();
 
                 AICLI_LOG(Repo, Info, << "Link file parsed. Path: " << result.Path << " Args: " << result.Args << " DisplayName: " << result.DisplayName);
@@ -115,6 +117,7 @@ namespace AppInstaller::Repository::Correlation
             }
         }
 
+        // Returns nullopt if path is not under base.
         std::optional<std::filesystem::path> GetRelativePath(const std::filesystem::path& path, const std::filesystem::path& base)
         {
             auto canonicalPath = std::filesystem::weakly_canonical(path);
@@ -147,6 +150,7 @@ namespace AppInstaller::Repository::Correlation
             return {};
         }
 
+        // If install location is not provided in arp entry, try LocalAppData folder and Program Files folders.
         std::optional<std::filesystem::path> CheckInstallLocation(const std::filesystem::path& path)
         {
             for (auto const& entry : s_CandidateInstallLocationRoots)
@@ -161,9 +165,9 @@ namespace AppInstaller::Repository::Correlation
             return {};
         }
 
+        // TODO: basic heuristics to determine file type.
         AppInstaller::Manifest::InstalledFileTypeEnum GetInstalledFileType(const ShellLinkFileInfo& linkInfo)
         {
-            // TODO: basic heuristics to determine file type.
             Manifest::InstalledFileTypeEnum result = Manifest::InstalledFileTypeEnum::Other;
 
             if (Utility::CaseInsensitiveContainsSubstring(linkInfo.Path.string(), "uninstall") ||
@@ -183,6 +187,7 @@ namespace AppInstaller::Repository::Correlation
 
         std::string GetUnexpandedInstallLocation(const std::filesystem::path& installLocation)
         {
+            // Try to match the candidate install location roots first.
             std::string installLocationString = installLocation.string();
             for (auto const& entry : s_CandidateInstallLocationRoots)
             {
@@ -192,6 +197,7 @@ namespace AppInstaller::Repository::Correlation
                 }
             }
 
+            // Then try PathUnExpandEnvStrings OS api
             std::wstring installLocationWString = installLocation.wstring();
             std::wstring buffer;
             buffer.resize(installLocationWString.size() + 20);
@@ -252,6 +258,7 @@ namespace AppInstaller::Repository::Correlation
         InstallationMetadata result;
 
         std::filesystem::path installLocation;
+        // Use arp install location if provided
         if (!arpInstallLocation.empty())
         {
             installLocation = Filesystem::GetExpandedPath(arpInstallLocation);

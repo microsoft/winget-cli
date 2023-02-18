@@ -30,6 +30,7 @@ namespace AppInstaller::Repository::Correlation
     {
         // Constructor initializes the file watchers.
         InstalledFilesCorrelation();
+        virtual ~InstalledFilesCorrelation() = default;
 
         // Start the file watcher before the package installation.
         void StartFileWatcher();
