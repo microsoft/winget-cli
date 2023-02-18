@@ -222,13 +222,17 @@ NESTEDINSTALLER
 netlify
 Newtonsoft
 NOEXPAND
+NOLINKINFO
 nonetwork
 NONFOLDERS
 nonterminated
 normer
+NOSEARCH
 NOSEPARATOR
 NOTAPROPERTY
 notmatch
+NOTRACK
+NOUPDATE
 npmjs
 nsis
 nuffing
@@ -358,6 +362,7 @@ UChars
 ucnv
 uec
 uninitialize
+unins
 uninstallation
 uninstaller
 uninstallprevious
