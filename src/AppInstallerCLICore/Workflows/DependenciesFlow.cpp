@@ -198,40 +198,35 @@ namespace AppInstaller::CLI::Workflow
 
             HRESULT hr = S_OK;
             bool continueOnFailure = context.Args.Contains(Execution::Args::Type::Force);
-            rootDependencies.ApplyToType(DependencyType::WindowsFeature, [&hr, &continueOnFailure, &context](Dependency dependency)
-                {
-                    if (SUCCEEDED(hr) || context.Args.Contains(Execution::Args::Type::Force))
-                    {
-                        // Use progress callback to report to context for each windows feature.
+            bool rebootRequired = false;
 
+            context.Reporter.Info() << Resource::String::EnablingWindowsFeatures << std::endl;
+            rootDependencies.ApplyToType(DependencyType::WindowsFeature, [&hr, &continueOnFailure, &rebootRequired](Dependency dependency)
+                {
+                    if (SUCCEEDED(hr) || continueOnFailure)
+                    {
                         auto featureName = dependency.Id();
                         WindowsFeature::WindowsFeature windowsFeature{ featureName };
                         if (windowsFeature.DoesExist() && !windowsFeature.IsEnabled())
                         {
-                            context.Reporter.Info() << "Enabling " << featureName << ": ";
                             hr = windowsFeature.EnableFeature();
+                            AICLI_LOG(Core, Info, << "Enabling Windows Feature " << featureName << " returned with HRESULT: " << hr);
                             if (hr == ERROR_SUCCESS_REBOOT_REQUIRED)
                             {
-                                context.Reporter.Warn() << "Reboot required" << std::endl;
-                            }
-                            else if (FAILED(hr))
-                            {
-                                AICLI_LOG(CLI, Error, << "Failed to enable Windows Feature '" << featureName << "' with HRESULT " << hr);
-                                context.Reporter.Error() << "Failed" << std::endl;
-                            }
-                            else
-                            {
-                                context.Reporter.Info() << "Succeeded" << std::endl;
+                                rebootRequired = true;
                             }
                         }
                     }
             });
 
-            // Need a better way to handle reporting this error.
             if (FAILED(hr) && !continueOnFailure)
             {
-                context.Reporter.Error() << "Failed to enable all Windows Feature dependencies. To proceed with installation, use --force" << std::endl;
+                context.Reporter.Error() << Resource::String::FailedToEnableWindowsFeatureOverrideRequired << std::endl;
                 AICLI_TERMINATE_CONTEXT(hr);
+            }
+            else if (rebootRequired)
+            {
+                context.Reporter.Warn() << Resource::String::RebootRequiredForEnablingWindowsFeature << std::endl;
             }
         }
     }

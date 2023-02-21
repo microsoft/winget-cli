@@ -12,7 +12,6 @@ namespace AppInstaller::WindowsFeature
         m_module.reset(LoadLibraryEx(L"dismapi.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32));
         if (!m_module)
         {
-            // Do I need special handling here?
             AICLI_LOG(Core, Verbose, << "Could not load dismapi.dll");
             return;
         }
@@ -133,7 +132,7 @@ namespace AppInstaller::WindowsFeature
     {
         if (m_dismOpenSession)
         {
-            LOG_IF_FAILED(m_dismOpenSession(L"DISM_{53BFAE52-B167-4E2F-A258-0A37B57FF845}", NULL, NULL, &m_session));
+            LOG_IF_FAILED(m_dismOpenSession(DISM_ONLINE_IMAGE, NULL, NULL, &m_session));
         }
     }
 

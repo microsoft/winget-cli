@@ -1691,4 +1691,15 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Ignores missing Windows Feature dependencies</value>
     <comment>"Windows Feature" is the name of the options Windows features setting.</comment>
   </data>
+  <data name="EnablingWindowsFeatures" xml:space="preserve">
+    <value>Enabling Windows Feature dependencies...</value>
+  </data>
+  <data name="FailedToEnableWindowsFeatureOverrideRequired" xml:space="preserve">
+    <value>Failed to enable Windows Feature dependencies. To proceed with installation, use --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="RebootRequiredForEnablingWindowsFeature" xml:space="preserve">
+    <value>Reboot required to fully enable the Windows Feature(s)</value>
+    <comment>"Windows Feature(s)" is the name of the options Windows features setting.</comment>
+  </data>
 </root>

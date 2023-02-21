@@ -123,8 +123,9 @@ TEST_CASE("InstallFlow_FailedToEnableWindowsFeature", "[windowsFeature]")
     TestCommon::TestUserSettings testSettings;
     testSettings.Set<Setting::EFDependencies>(true);
 
-    // Override with arbitrary DISM api error and make windows feature discoverable.
-    TestHook::SetEnableWindowsFeatureResult_Override enableWindowsFeatureResultOverride(DISMAPI_E_DISMAPI_NOT_INITIALIZED);
+    // Override with arbitrary DISM api error (DISMAPI_E_DISMAPI_NOT_INITIALIZED) and make windows feature discoverable.
+    HRESULT dismErrorResult = 0xc0040001;
+    TestHook::SetEnableWindowsFeatureResult_Override enableWindowsFeatureResultOverride(dismErrorResult);
     TestHook::SetIsWindowsFeatureEnabledResult_Override isWindowsFeatureEnabledResultOverride(false);
 
     std::ostringstream installOutput;
@@ -137,9 +138,9 @@ TEST_CASE("InstallFlow_FailedToEnableWindowsFeature", "[windowsFeature]")
     install.Execute(context);
     INFO(installOutput.str());
 
-    REQUIRE(context.GetTerminationHR() == DISMAPI_E_DISMAPI_NOT_INITIALIZED);
+    REQUIRE(context.GetTerminationHR() == dismErrorResult);
     REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
-    REQUIRE(installOutput.str().find("Failed to enable all Windows Feature dependencies") != std::string::npos);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::FailedToEnableWindowsFeatureOverrideRequired).get()) != std::string::npos);
 }
 
 TEST_CASE("InstallFlow_FailedToEnableWindowsFeature_Force", "[windowsFeature]")
@@ -155,8 +156,9 @@ TEST_CASE("InstallFlow_FailedToEnableWindowsFeature_Force", "[windowsFeature]")
     TestCommon::TestUserSettings testSettings;
     testSettings.Set<Setting::EFDependencies>(true);
 
-    // Override with arbitrary DISM api error and make windows feature discoverable.
-    TestHook::SetEnableWindowsFeatureResult_Override enableWindowsFeatureResultOverride(DISMAPI_E_DISMAPI_NOT_INITIALIZED);
+    // Override with arbitrary DISM api error (DISMAPI_E_DISMAPI_NOT_INITIALIZED) and make windows feature discoverable.
+    HRESULT dismErrorResult = 0xc0040001;
+    TestHook::SetEnableWindowsFeatureResult_Override enableWindowsFeatureResultOverride(dismErrorResult);
     TestHook::SetIsWindowsFeatureEnabledResult_Override isWindowsFeatureEnabledResultOverride(false);
 
     std::ostringstream installOutput;
@@ -180,4 +182,41 @@ TEST_CASE("InstallFlow_FailedToEnableWindowsFeature_Force", "[windowsFeature]")
     std::getline(installResultFile, installResultStr);
     REQUIRE(installResultStr.find("/custom") != std::string::npos);
     REQUIRE(installResultStr.find("/silentwithprogress") != std::string::npos);
+}
+
+TEST_CASE("InstallFlow_RebootRequired", "[windowsFeature]")
+{
+    if (!AppInstaller::Runtime::IsRunningAsAdmin())
+    {
+        WARN("Test requires admin privilege. Skipped.");
+        return;
+    }
+
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    TestCommon::TestUserSettings testSettings;
+    testSettings.Set<Setting::EFDependencies>(true);
+
+    // Override with reboot required HRESULT.
+    TestHook::SetEnableWindowsFeatureResult_Override enableWindowsFeatureResultOverride(ERROR_SUCCESS_REBOOT_REQUIRED);
+    TestHook::SetIsWindowsFeatureEnabledResult_Override isWindowsFeatureEnabledResultOverride(false);
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForShellExecute(context);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_WindowsFeatures.yaml").GetPath().u8string());
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
+    std::ifstream installResultFile(installResultPath.GetPath());
+    REQUIRE(installResultFile.is_open());
+    std::string installResultStr;
+    std::getline(installResultFile, installResultStr);
+    REQUIRE(installResultStr.find("/custom") != std::string::npos);
+    REQUIRE(installResultStr.find("/silentwithprogress") != std::string::npos);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::RebootRequiredForEnablingWindowsFeature).get()) != std::string::npos);
 }
