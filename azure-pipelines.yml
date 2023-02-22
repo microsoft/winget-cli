@@ -290,6 +290,16 @@ jobs:
       codeCoverageEnabled: true
       platform: 'Any CPU'
       configuration: '$(BuildConfiguration)'
+  
+  - task: VSTest@2
+    displayName: 'Run tests: Microsoft.Management.Configuration.UnitTests'
+    inputs:
+      testSelector: 'testAssemblies'
+      testAssemblyVer2: '**\Microsoft.Management.Configuration.UnitTests.dll'
+      searchFolder: '$(buildOutDir)\Microsoft.Management.Configuration.UnitTests'
+      codeCoverageEnabled: true
+      platform: '$(buildPlatform)'
+      configuration: '$(BuildConfiguration)'
 
   - task: CopyFiles@2
     displayName: 'Copy Util to artifacts folder'

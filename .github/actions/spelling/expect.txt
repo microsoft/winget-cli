@@ -136,6 +136,7 @@ HINSTANCE
 hkey
 hlocal
 hmodule
+Howto
 hre
 hresults
 IARP
@@ -188,6 +189,7 @@ LPWCH
 LPWSTR
 LSTATUS
 LTDA
+maclachlan
 malware
 maxvalue
 maybenull
@@ -228,6 +230,7 @@ normer
 NOSEPARATOR
 NOTAPROPERTY
 notmatch
+npmjs
 nsis
 nuffing
 objbase
@@ -291,6 +294,7 @@ roblox
 ronomon
 rosoft
 rowids
+roy
 RRF
 rrr
 runspace
@@ -373,6 +377,7 @@ UWP
 VALUENAMECASE
 VERSI
 VERSIE
+visualstudiocode
 vns
 vsconfig
 webpages

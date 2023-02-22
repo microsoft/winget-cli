@@ -30,7 +30,7 @@ namespace AppInstaller::ThreadLocalStorage
         static ThreadGlobals* GetForCurrentThread();
     };
 
-    // RAII object used to 
+    // RAII object used to enable reverting back to the previous thread globals object.
     struct PreviousThreadGlobals
     {
         ~PreviousThreadGlobals();

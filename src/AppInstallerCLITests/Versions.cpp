@@ -335,3 +335,35 @@ TEST_CASE("GatedVersion", "[versions]")
     REQUIRE(GatedVersion("1.0.1"sv).IsValidVersion({ "1.0.1" }));
     REQUIRE_FALSE(GatedVersion("1.0.1"sv).IsValidVersion({ "1.1.1" }));
 }
+
+TEST_CASE("SemanticVersion", "[versions]")
+{
+    REQUIRE_THROWS_HR(SemanticVersion("1.2.3.4"), E_INVALIDARG);
+    REQUIRE_THROWS_HR(SemanticVersion("1.2abc.3"), E_INVALIDARG);
+
+    SemanticVersion version = SemanticVersion("1.2.3-alpha");
+    REQUIRE(version.IsPrerelease());
+    REQUIRE(version.PrereleaseVersion() == Version("alpha"));
+    REQUIRE(!version.HasBuildMetadata());
+    REQUIRE(version.PartAt(2).Other == "-alpha");
+
+    version = SemanticVersion("1.2.3-4.5.6");
+    REQUIRE(version.IsPrerelease());
+    REQUIRE(version.PrereleaseVersion() == Version("4.5.6"));
+    REQUIRE(!version.HasBuildMetadata());
+    REQUIRE(version.PartAt(2).Other == "-4.5.6");
+
+    // Really shouldn't be allowed, but we are loose here
+    version = SemanticVersion("1.2+build");
+    REQUIRE(!version.IsPrerelease());
+    REQUIRE(version.HasBuildMetadata());
+    REQUIRE(version.BuildMetadata() == Version("build"));
+    REQUIRE(version.PartAt(2).Other == "+build");
+
+    version = SemanticVersion("1.2.3-beta+4.5.6");
+    REQUIRE(version.IsPrerelease());
+    REQUIRE(version.PrereleaseVersion() == Version("beta"));
+    REQUIRE(version.HasBuildMetadata());
+    REQUIRE(version.BuildMetadata() == Version("4.5.6"));
+    REQUIRE(version.PartAt(2).Other == "-beta+4.5.6");
+}
