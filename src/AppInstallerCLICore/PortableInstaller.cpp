@@ -107,8 +107,9 @@ namespace AppInstaller::CLI::Portable
         }
         else if (fileType == PortableFileType::Directory)
         {
-            AICLI_LOG(Core, Info, << "Moving directory to: " << filePath);
-            Filesystem::RenameFile(entry.CurrentPath, filePath);
+            // Copy directory instead of renaming as there is a known issue with renaming across filesystems.
+            AICLI_LOG(Core, Info, << "Copying directory to: " << filePath);
+            std::filesystem::copy(entry.CurrentPath, filePath, std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive);
         }
         else if (entry.FileType == PortableFileType::Symlink)
         {
