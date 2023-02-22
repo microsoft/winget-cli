@@ -99,8 +99,8 @@ TEST_CASE("UpdateFlow_UpdateWithManifestVersionAlreadyInstalled", "[UpdateFlow][
 
     // Verify Installer is not called.
     REQUIRE(!std::filesystem::exists(updateResultPath.GetPath()));
-    REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::UpdateNotApplicable).get()) != std::string::npos);
-    REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::UpdateNotApplicableReason).get()) != std::string::npos);
+    REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::UpdateNoPackagesFound).get()) != std::string::npos);
+    REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::UpdateNoPackagesFoundReason).get()) != std::string::npos);
     REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
 }
 
@@ -501,7 +501,8 @@ TEST_CASE("UpdateFlow_UpdateExeSpecificVersionNotApplicable", "[UpdateFlow][work
     auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Exe_IncompatibleInstallerType }));
     context.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Exe_IncompatibleInstallerType.Query);
-    context.Args.AddArg(Execution::Args::Type::Version, "1.0.0.0"sv);
+    // This must be 2.0.0.0 since the version would not be an upgrade otherwise
+    context.Args.AddArg(Execution::Args::Type::Version, "2.0.0.0"sv);
 
     UpgradeCommand update({});
     update.Execute(context);
@@ -909,8 +910,8 @@ TEST_CASE("InstallFlow_FoundInstalledAndUpgradeNotAvailable", "[UpdateFlow][work
 
     // Verify Installer is not called.
     REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::UpdateNotApplicable).get()) != std::string::npos);
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::UpdateNotApplicableReason).get()) != std::string::npos);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::UpdateNoPackagesFound).get()) != std::string::npos);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::UpdateNoPackagesFoundReason).get()) != std::string::npos);
     REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
 }
 
