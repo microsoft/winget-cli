@@ -666,6 +666,39 @@ TEST_CASE("InstallFlow_Portable_SymlinkCreationFail", "[InstallFlow][workflow]")
     INFO(uninstallOutput.str());
 }
 
+TEST_CASE("InstallFlow_Portable_SymlinkCreationFail_RelativeFilePathContainsSubDirectories", "[InstallFlow][workflow]")
+{
+    // Tests to verify that if the relative file path contains nested relative file path, it adds the entire relative file path.
+    std::ostringstream installOutput;
+    TestContext installContext{ installOutput, std::cin };
+    auto PreviousThreadGlobals = installContext.SetForCurrentThread();
+    OverridePortableInstaller(installContext);
+    TestHook::SetCreateSymlinkResult_Override createSymlinkResultOverride(false);
+    installContext.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Portable.yaml").GetPath().u8string());
+
+    InstallCommand install({});
+    install.Execute(installContext);
+    INFO(installOutput.str());
+
+    // 'DefaultSource' is expected because we are installing from a local manifest.
+    const auto& portableUserRoot = AppInstaller::Runtime::GetPathTo(AppInstaller::Runtime::PathName::PortablePackageUserRoot);
+    const auto& portableTargetDirectory = portableUserRoot / "AppInstallerCliTest.TestPortableInstaller__DefaultSource";
+    const auto& portableTargetPath = portableTargetDirectory / "AppInstallerTestExeInstaller.exe";
+    REQUIRE(std::filesystem::exists(portableTargetPath));
+    REQUIRE(AppInstaller::Registry::Environment::PathVariable(AppInstaller::Manifest::ScopeEnum::User).Contains(portableTargetDirectory));
+
+    // Perform uninstall
+    std::ostringstream uninstallOutput;
+    TestContext uninstallContext{ uninstallOutput, std::cin };
+    auto previousThreadGlobals = uninstallContext.SetForCurrentThread();
+    uninstallContext.Args.AddArg(Execution::Args::Type::Name, "AppInstaller Test Portable Exe"sv);
+    uninstallContext.Args.AddArg(Execution::Args::Type::AcceptSourceAgreements);
+
+    UninstallCommand uninstall({});
+    uninstall.Execute(uninstallContext);
+    INFO(uninstallOutput.str());
+}
+
 TEST_CASE("PortableInstallFlow_UserScope", "[InstallFlow][workflow]")
 {
     TestCommon::TempDirectory tempDirectory("TestPortableInstallRoot", false);
