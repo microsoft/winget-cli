@@ -345,28 +345,32 @@ TEST_CASE("ComplexSystemReference", "[ManifestValidation]")
     REQUIRE(manifest.Installers.size() == 4);
 
     // MSIX installer does inherit
-    REQUIRE(manifest.Installers[0].BaseInstallerType == InstallerTypeEnum::Msix);
-    REQUIRE(manifest.Installers[0].Arch == Architecture::X86);
-    REQUIRE(manifest.Installers[0].PackageFamilyName == "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe");
-    REQUIRE(manifest.Installers[0].ProductCode == "");
+    auto& installer = manifest.Installers[0];
+    REQUIRE(installer.BaseInstallerType == InstallerTypeEnum::Msix);
+    REQUIRE(installer.Arch == Architecture::X86);
+    REQUIRE(installer.PackageFamilyName == "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe");
+    REQUIRE(installer.ProductCode == "");
 
     // MSI installer does inherit
-    REQUIRE(manifest.Installers[1].BaseInstallerType == InstallerTypeEnum::Msi);
-    REQUIRE(manifest.Installers[1].Arch == Architecture::X86);
-    REQUIRE(manifest.Installers[1].PackageFamilyName == "");
-    REQUIRE(manifest.Installers[1].ProductCode == "{Foo}");
+    auto& installer1 = manifest.Installers[1];
+    REQUIRE(installer1.BaseInstallerType == InstallerTypeEnum::Msi);
+    REQUIRE(installer1.Arch == Architecture::X86);
+    REQUIRE(installer1.PackageFamilyName == "");
+    REQUIRE(installer1.ProductCode == "{Foo}");
 
     // MSIX installer with override
-    REQUIRE(manifest.Installers[2].BaseInstallerType == InstallerTypeEnum::Msix);
-    REQUIRE(manifest.Installers[2].Arch == Architecture::X64);
-    REQUIRE(manifest.Installers[2].PackageFamilyName == "Override_8wekyb3d8bbwe");
-    REQUIRE(manifest.Installers[2].ProductCode == "");
+    auto& installer2 = manifest.Installers[2];
+    REQUIRE(installer2.BaseInstallerType == InstallerTypeEnum::Msix);
+    REQUIRE(installer2.Arch == Architecture::X64);
+    REQUIRE(installer2.PackageFamilyName == "Override_8wekyb3d8bbwe");
+    REQUIRE(installer2.ProductCode == "");
 
     // MSI installer with override
-    REQUIRE(manifest.Installers[3].BaseInstallerType == InstallerTypeEnum::Msi);
-    REQUIRE(manifest.Installers[3].Arch == Architecture::X64);
-    REQUIRE(manifest.Installers[3].PackageFamilyName == "");
-    REQUIRE(manifest.Installers[3].ProductCode == "Override");
+    auto& installer3 = manifest.Installers[3];
+    REQUIRE(installer3.BaseInstallerType == InstallerTypeEnum::Msi);
+    REQUIRE(installer3.Arch == Architecture::X64);
+    REQUIRE(installer3.PackageFamilyName == "");
+    REQUIRE(installer3.ProductCode == "Override");
 }
 
 TEST_CASE("ManifestVersionExtensions", "[ManifestValidation]")
@@ -657,6 +661,7 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
             REQUIRE(installer4.Arch == Architecture::X64);
             REQUIRE(installer4.Url == "https://www.microsoft.com/msixsdk/msixsdkx64.exe");
             REQUIRE(installer4.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
+            REQUIRE(installer4.ProductCode == "{Foo}");
             REQUIRE(installer4.NestedInstallerType == InstallerTypeEnum::Portable);
             REQUIRE(installer4.NestedInstallerFiles.size() == 2);
             REQUIRE(installer4.NestedInstallerFiles.at(0).RelativeFilePath == "relativeFilePath1");
