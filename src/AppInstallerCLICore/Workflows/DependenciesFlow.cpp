@@ -137,7 +137,7 @@ namespace AppInstaller::CLI::Workflow
 
     void EnableWindowsFeaturesDependencies(Execution::Context& context)
     {
-        if (!Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
+        if (!Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::WindowsFeature))
         {
             return;
         }
