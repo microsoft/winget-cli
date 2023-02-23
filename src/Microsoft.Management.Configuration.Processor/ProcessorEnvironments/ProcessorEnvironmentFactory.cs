@@ -34,41 +34,34 @@ namespace Microsoft.Management.Configuration.Processor.ProcessorEnvironments
         /// <returns>IProcessorEnvironment.</returns>
         public IProcessorEnvironment CreateEnvironment()
         {
-            var runspace = this.GetRunspace();
-
-            var processEnvironment = new ProcessorEnvironment(
-                runspace,
-                this.type,
-                new DscModuleV2());
+            var processEnvironment = this.CreateProcessorEnvironment();
 
             processEnvironment.ValidateRunspace();
 
             return processEnvironment;
         }
 
-        private Runspace GetRunspace()
+        private IProcessorEnvironment CreateProcessorEnvironment()
         {
+            IDscModule dscModule = new DscModuleV2();
+
             if (this.type == ConfigurationProcessorType.Default)
             {
-                return Runspace.DefaultRunspace;
+                throw new NotImplementedException();
             }
             else if (this.type == ConfigurationProcessorType.Hosted)
             {
-                // Once we have an stable pre-release, we can look into the scope of if by specifically
-                // saying which things should be loaded.
                 InitialSessionState initialSessionState = InitialSessionState.CreateDefault();
 
                 // This is where our policy will get translated to PowerShell's execution policy.
-                initialSessionState.ExecutionPolicy = ExecutionPolicy.Bypass;
+                initialSessionState.ExecutionPolicy = ExecutionPolicy.Unrestricted;
 
                 // The $PSHome\Modules directory is added by default in the modules path. Because this is a hosted PowerShell,
                 // we don't have all the nice things that PowerShell installs by default. This includes PowerShellGet.
-                // We could look into finding out if PowerShell Core is installed and get their $PSHome\Modules path, but
-                // then we will need to remove our own $PSHome\Modules path because there will be some
-                // System.Diagnostics.Eventing.Reader.ProviderMetadata errors because member will already be present.
                 var runspace = RunspaceFactory.CreateRunspace(initialSessionState);
                 runspace.Open();
-                return runspace;
+
+                return new HostedEnvironment(runspace, this.type, dscModule);
             }
 
             throw new ArgumentException(this.type.ToString());

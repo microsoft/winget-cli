@@ -25,19 +25,19 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
     using static Microsoft.Management.Configuration.Processor.Constants.PowerShellConstants;
 
     /// <summary>
-    /// Process environment. Provides interaction with PowerShell.
+    /// Process environment. Provides interaction with PowerShell for a hosted environment.
     /// </summary>
-    internal class ProcessorEnvironment : IProcessorEnvironment
+    internal class HostedEnvironment : IProcessorEnvironment
     {
         private ConfigurationProcessorType type;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ProcessorEnvironment"/> class.
+        /// Initializes a new instance of the <see cref="HostedEnvironment"/> class.
         /// </summary>
         /// <param name="runspace">PowerShell Runspace.</param>
         /// <param name="type">Configuration processor type.</param>
         /// <param name="dscModule">IDscModule.</param>
-        public ProcessorEnvironment(Runspace runspace, ConfigurationProcessorType type, IDscModule dscModule)
+        public HostedEnvironment(Runspace runspace, ConfigurationProcessorType type, IDscModule dscModule)
         {
             this.Runspace = runspace;
             this.type = type;

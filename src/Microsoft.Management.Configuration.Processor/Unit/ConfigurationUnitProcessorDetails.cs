@@ -64,7 +64,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
 
             if (psModuleInfo is not null)
             {
-                this.ModuleDocumentationUri = new Uri(psModuleInfo.HelpInfoUri);
+                this.ModuleDocumentationUri = psModuleInfo.HelpInfoUri is not null ? new Uri(psModuleInfo.HelpInfoUri) : null;
                 this.UnitIconUri = psModuleInfo.IconUri;
                 this.ModuleName = psModuleInfo.Name;
                 this.ModuleType = psModuleInfo.ModuleType.ToString();
