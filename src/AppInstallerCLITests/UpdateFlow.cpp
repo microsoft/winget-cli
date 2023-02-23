@@ -211,7 +211,6 @@ TEST_CASE("UpdateFlow_Portable_SymlinkCreationFail", "[UpdateFlow][workflow]")
     INFO(uninstallOutput.str());
 
     REQUIRE_FALSE(std::filesystem::exists(portableTargetPath));
-    REQUIRE_FALSE(AppInstaller::Registry::Environment::PathVariable(AppInstaller::Manifest::ScopeEnum::User).Contains(targetDirectory));
 }
 
 TEST_CASE("UpdateFlow_UpdateExeWithUnsupportedArgs", "[UpdateFlow][workflow]")

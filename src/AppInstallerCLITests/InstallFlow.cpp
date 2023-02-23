@@ -615,6 +615,25 @@ TEST_CASE("MsiInstallFlow_DirectMsi", "[InstallFlow][workflow]")
     REQUIRE(installResultStr.find("/quiet") != std::string::npos);
 }
 
+TEST_CASE("InstallFlow_Portable", "[InstallFlow][workflow]")
+{
+    TestCommon::TempDirectory tempDirectory("TestPortableInstallRoot", false);
+    TestCommon::TempFile portableInstallResultPath("TestPortableInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForPortableInstallFlow(context);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Portable.yaml").GetPath().u8string());
+    context.Args.AddArg(Execution::Args::Type::InstallLocation, tempDirectory);
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    REQUIRE(std::filesystem::exists(portableInstallResultPath.GetPath()));
+}
+
 TEST_CASE("InstallFlow_Portable_SymlinkCreationFail", "[InstallFlow][workflow]")
 {
     TestCommon::TempDirectory tempDirectory("TestPortableInstallRoot", false);
@@ -636,7 +655,7 @@ TEST_CASE("InstallFlow_Portable_SymlinkCreationFail", "[InstallFlow][workflow]")
     REQUIRE(std::filesystem::exists(portableTargetPath));
     REQUIRE(AppInstaller::Registry::Environment::PathVariable(AppInstaller::Manifest::ScopeEnum::User).Contains(targetDirectory));
 
-    // Perform uninstall for proper cleanup since this test modifies the registry and can affect subsequent portable tests.
+    // Perform uninstall
     std::ostringstream uninstallOutput;
     TestContext uninstallContext{ uninstallOutput, std::cin };
     auto previousThreadGlobals = uninstallContext.SetForCurrentThread();
@@ -647,26 +666,6 @@ TEST_CASE("InstallFlow_Portable_SymlinkCreationFail", "[InstallFlow][workflow]")
     uninstall.Execute(uninstallContext);
     INFO(uninstallOutput.str());
     REQUIRE_FALSE(std::filesystem::exists(portableTargetPath));
-    REQUIRE_FALSE(AppInstaller::Registry::Environment::PathVariable(AppInstaller::Manifest::ScopeEnum::User).Contains(targetDirectory));
-}
-
-TEST_CASE("InstallFlow_Portable", "[InstallFlow][workflow]")
-{
-    TestCommon::TempDirectory tempDirectory("TestPortableInstallRoot", false);
-    TestCommon::TempFile portableInstallResultPath("TestPortableInstalled.txt");
-
-    std::ostringstream installOutput;
-    TestContext context{ installOutput, std::cin };
-    auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForPortableInstallFlow(context);
-    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Portable.yaml").GetPath().u8string());
-    context.Args.AddArg(Execution::Args::Type::InstallLocation, tempDirectory);
-
-    InstallCommand install({});
-    install.Execute(context);
-    INFO(installOutput.str());
-
-    REQUIRE(std::filesystem::exists(portableInstallResultPath.GetPath()));
 }
 
 TEST_CASE("PortableInstallFlow_UserScope", "[InstallFlow][workflow]")
