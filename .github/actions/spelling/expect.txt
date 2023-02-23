@@ -72,6 +72,7 @@ contractversion
 count'th
 countof
 countryregion
+cplusplus
 createmanifestmetadata
 ctc
 DACL
@@ -81,6 +82,7 @@ deigh
 deleteifnotneeded
 desktopappinstaller
 diskfull
+dismapi
 dllimport
 DMPAs
 dnld
@@ -219,6 +221,7 @@ mysilentwithprogress
 nameof
 nativehandle
 NESTEDINSTALLER
+netfx
 netlify
 Newtonsoft
 NOEXPAND
@@ -383,6 +386,7 @@ websites
 WERSJA
 wesome
 Whatif
+winapifamily
 windir
 windowsdeveloper
 winerror

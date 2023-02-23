@@ -41,10 +41,14 @@ TEST_CASE("DisableEnableWindowsFeature", "[windowsFeature]")
     }
 
     WindowsFeature feature{ s_featureName };
-    REQUIRE(feature.DisableFeature());
+    HRESULT disableResult = feature.DisableFeature();
+    bool disableStatus = (disableResult == S_OK || disableResult == ERROR_SUCCESS_REBOOT_REQUIRED);
+    REQUIRE(disableStatus);
     REQUIRE_FALSE(feature.IsEnabled());
 
-    REQUIRE(feature.EnableFeature());
+    HRESULT enableResult = feature.EnableFeature();
+    bool enableStatus = (enableResult == S_OK) || (enableResult == ERROR_SUCCESS_REBOOT_REQUIRED);
+    REQUIRE(enableStatus);
     REQUIRE(feature.IsEnabled());
 }
 
