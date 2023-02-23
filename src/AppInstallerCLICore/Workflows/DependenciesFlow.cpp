@@ -219,10 +219,17 @@ namespace AppInstaller::CLI::Workflow
                     }
             });
 
-            if (FAILED(hr) && !continueOnFailure)
+            if (FAILED(hr))
             {
-                context.Reporter.Error() << Resource::String::FailedToEnableWindowsFeatureOverrideRequired << std::endl;
-                AICLI_TERMINATE_CONTEXT(hr);
+                if (continueOnFailure)
+                {
+                    context.Reporter.Warn() << Resource::String::FailedToEnableWindowsFeatureOverridden << std::endl;
+                }
+                else
+                {
+                    context.Reporter.Error() << Resource::String::FailedToEnableWindowsFeatureOverrideRequired << std::endl;
+                    AICLI_TERMINATE_CONTEXT(hr);
+                }
             }
             else if (rebootRequired)
             {

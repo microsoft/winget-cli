@@ -83,6 +83,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ExtractArchiveSucceeded);
         WINGET_DEFINE_RESOURCE_STRINGID(ExtractingArchive);
         WINGET_DEFINE_RESOURCE_STRINGID(ExtraPositionalError);
+        WINGET_DEFINE_RESOURCE_STRINGID(FailedToEnableWindowsFeatureOverridden);
         WINGET_DEFINE_RESOURCE_STRINGID(FailedToEnableWindowsFeatureOverrideRequired);
         WINGET_DEFINE_RESOURCE_STRINGID(FeatureDisabledByAdminSettingMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(FeatureDisabledMessage);

@@ -1680,12 +1680,14 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="WindowsFeatureNotFoundOverride" xml:space="preserve">
     <value>The following Windows Feature(s) were not found; proceeding due to --ignore-missing-dependencies.</value>
     <comment>"Windows Feature(s)" is the name of the options Windows features setting.
-{Locked="--force"}</comment>
+{Locked="--force"}
+{Locked="--ignore-missing-dependencies"}</comment>
   </data>
   <data name="WindowsFeatureNotFoundOverrideRequired" xml:space="preserve">
     <value>The following Windows Feature(s) were not found. To proceed with installation, use --ignore-missing-dependencies.</value>
     <comment>"Windows Feature(s)" is the name of the options Windows features setting.
-{Locked="--force"}</comment>
+{Locked="--force"}
+{Locked="--ignore-missing-dependencies"}</comment>
   </data>
   <data name="IgnoreMissingDependenciesArgumentDescription" xml:space="preserve">
     <value>Ignores missing Windows Feature dependencies</value>
@@ -1701,5 +1703,10 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="RebootRequiredForEnablingWindowsFeature" xml:space="preserve">
     <value>Reboot required to fully enable the Windows Feature(s)</value>
     <comment>"Windows Feature(s)" is the name of the options Windows features setting.</comment>
+  </data>
+  <data name="FailedToEnableWindowsFeatureOverridden" xml:space="preserve">
+    <value>Failed to enable Windows Feature dependencies; proceeding due to --force</value>
+    <comment>"Windows Feature(s)" is the name of the options Windows features setting.
+{Locked="--force"}</comment>
   </data>
 </root>

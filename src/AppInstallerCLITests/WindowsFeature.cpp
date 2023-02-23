@@ -179,6 +179,7 @@ TEST_CASE("InstallFlow_FailedToEnableWindowsFeature_Force", "[windowsFeature]")
 
     // Verify Installer is called and parameters are passed in.
     REQUIRE(context.GetTerminationHR() == ERROR_SUCCESS);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::FailedToEnableWindowsFeatureOverridden).get()) != std::string::npos);
     REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
     std::ifstream installResultFile(installResultPath.GetPath());
     REQUIRE(installResultFile.is_open());
