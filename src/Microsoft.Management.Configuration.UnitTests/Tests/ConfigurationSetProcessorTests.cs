@@ -16,6 +16,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     using Microsoft.Management.Configuration.Processor.ProcessorEnvironments;
     using Microsoft.Management.Configuration.Processor.Set;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
+    using Microsoft.Management.Configuration.UnitTests.Helpers;
     using Microsoft.PowerShell.Commands;
     using Moq;
     using Windows.Security.Cryptography.Certificates;
@@ -307,7 +308,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// <summary>
         /// Test GetUnitProcessorDetails Local Found. Module not installed by PowerShellGet.
         /// </summary>
-        [Fact]
+        [FactSkipIfCI]
         public void GetUnitProcessorDetails_Local_NotInstalledByPowerShellGet()
         {
             var unit = this.CreteConfigurationUnit();
@@ -350,7 +351,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// Test GetUnitProcessorDetails locally found. Do not include Load.
         /// </summary>
         /// <param name="detailLevel">Detail level.</param>
-        [Theory]
+        [TheorySkipIfCI]
         [InlineData(ConfigurationUnitDetailLevel.Local)]
         [InlineData(ConfigurationUnitDetailLevel.Catalog)]
         [InlineData(ConfigurationUnitDetailLevel.Download)]
@@ -397,7 +398,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// <summary>
         /// Test GetUnitProcessorDetails locally found and load.
         /// </summary>
-        [Fact]
+        [FactSkipIfCI]
         public void GetUnitProcessorDetails_Local_Load()
         {
             var unit = this.CreteConfigurationUnit();
@@ -510,7 +511,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// <summary>
         /// Test GetUnitProcessorDetails downloading module.
         /// </summary>
-        [Fact]
+        [FactSkipIfCI]
         public void GetUnitProcessorDetails_Download()
         {
             var unit = this.CreteConfigurationUnit();
@@ -558,7 +559,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// <summary>
         /// Tests GetUnitProcessorDetails install module, but resource not found anyway.
         /// </summary>
-        [Fact]
+        [FactSkipIfCI]
         public void GetUnitProcessorDetails_Load_NotFoundAfterInstall()
         {
             var unit = this.CreteConfigurationUnit();
@@ -598,7 +599,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// <summary>
         /// Tests GetUnitProcessorDetails install module.
         /// </summary>
-        [Fact]
+        [FactSkipIfCI]
         public void GetUnitProcessorDetails_Load()
         {
             var unit = this.CreteConfigurationUnit();

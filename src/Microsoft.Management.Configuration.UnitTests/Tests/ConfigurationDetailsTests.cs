@@ -14,6 +14,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     using Microsoft.Management.Configuration.Processor.Helpers;
     using Microsoft.Management.Configuration.Processor.Unit;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
+    using Microsoft.Management.Configuration.UnitTests.Helpers;
     using Windows.Security.Cryptography.Certificates;
     using Xunit;
     using Xunit.Abstractions;
@@ -43,7 +44,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// <param name="hasPSModuleInfo">Has ps module info.</param>
         /// <param name="hasGetModuleInfo">Has get module info.</param>
         /// <param name="hasCerts">Has certs.</param>
-        [Theory]
+        [TheorySkipIfCI]
         [InlineData(false, false, false, false)]
         [InlineData(false, false, false, true)]
         [InlineData(false, false, true, false)]

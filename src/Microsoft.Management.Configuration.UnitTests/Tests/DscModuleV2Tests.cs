@@ -42,7 +42,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// <summary>
         /// Tests GetAllDscResources.
         /// </summary>
-        [Fact]
+        [FactSkipIfCI]
         public void GetAllDscResources_Test()
         {
             var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
@@ -59,7 +59,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// </summary>
         /// <param name="module">Module.</param>
         /// <param name="expectedResources">Expected DSC resources.</param>
-        [Theory]
+        [TheorySkipIfCI]
         [InlineData(TestModule.SimpleTestResourceModuleName, 4)]
         [InlineData("MyReallyFakeModule", 0)]
         public void GetDscResourcesInModule_Test(string module, int expectedResources)
@@ -76,7 +76,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// <summary>
         /// Tests GetDscResourcesInModule with versions.
         /// </summary>
-        [Fact]
+        [FactSkipIfCI]
         public void GetDscResourcesInModule_VersionTest()
         {
             var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
@@ -119,7 +119,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// <summary>
         /// Tests GetDscResource. Should return a resource.
         /// </summary>
-        [Fact]
+        [FactSkipIfCI]
         public void GetDscResource_ResourceExists()
         {
             var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
@@ -136,7 +136,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// <summary>
         /// Test GetDscResource for a non existent resource.
         /// </summary>
-        [Fact]
+        [FactSkipIfCI]
         public void GetDscResource_ResourceDoesntExist()
         {
             var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
@@ -153,7 +153,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// <summary>
         /// Test GetDscResource when the same module is in different paths.
         /// </summary>
-        [Fact]
+        [FactSkipIfCI]
         public void GetDscResource_Conflict()
         {
             var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
@@ -177,7 +177,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// <summary>
         /// Tests GetDscResource when there are multiple versions of a resource.
         /// </summary>
-        [Fact]
+        [FactSkipIfCI]
         public void GetDscResource_DiffVersions()
         {
             var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
@@ -216,7 +216,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// <summary>
         /// Calls Invoke-DscResource Get.
         /// </summary>
-        [Fact]
+        [FactSkipIfCI]
         public void InvokeGetResource_Test()
         {
             var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
@@ -238,7 +238,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// <summary>
         /// Calls Invoke-DscResource Get. Resource Get throws.
         /// </summary>
-        [Fact]
+        [FactSkipIfCI]
         public void InvokeGetResource_ResourceThrows()
         {
             var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
@@ -259,7 +259,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// <summary>
         /// Calls Invoke-DscResource Get. Resource writes error.
         /// </summary>
-        [Fact]
+        [FactSkipIfCI]
         public void InvokeGetResource_ResourceError()
         {
             var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
@@ -278,7 +278,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// <summary>
         /// Calls Invoke-DscResource Get. Resource does not exist.
         /// </summary>
-        [Fact]
+        [FactSkipIfCI]
         public void InvokeGetResource_ResourceDoesntExist()
         {
             var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
@@ -301,7 +301,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// </summary>
         /// <param name="value">Setting value.</param>
         /// <param name="expectedResult">Expected result.</param>
-        [Theory]
+        [TheorySkipIfCI]
         [InlineData("4815162342", true)]
         [InlineData("notalostreference", false)]
         public void InvokeTestResource_Test(string value, bool expectedResult)
@@ -328,7 +328,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// <summary>
         /// Calls Invoke-DscResource Test. Resource throws.
         /// </summary>
-        [Fact]
+        [FactSkipIfCI]
         public void InvokeTestResource_Throws()
         {
             var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
@@ -349,7 +349,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// <summary>
         /// Calls Invoke-DscResource Test. Resource writes error.
         /// </summary>
-        [Fact]
+        [FactSkipIfCI]
         public void InvokeTestResource_ResourceError()
         {
             var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
@@ -368,7 +368,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// <summary>
         /// Calls Invoke-DscResource Test. Resource does not exist.
         /// </summary>
-        [Fact]
+        [FactSkipIfCI]
         public void InvokeTestResource_ResourceDoesntExist()
         {
             var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
@@ -391,7 +391,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// </summary>
         /// <param name="value">Setting value.</param>
         /// <param name="rebootRequired">Expected reboot required.</param>
-        [Theory]
+        [TheorySkipIfCI]
         [InlineData("4815162342", false)]
         [InlineData("notalostreference", true)]
         public void InvokeSetResource_Test(string value, bool rebootRequired)
@@ -418,7 +418,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// <summary>
         /// Calls Invoke-DscResource Set. Resource throws.
         /// </summary>
-        [Fact]
+        [FactSkipIfCI]
         public void InvokeSetResource_Throws()
         {
             var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
@@ -439,7 +439,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// <summary>
         /// Calls Invoke-DscResource Set. Resource writes error.
         /// </summary>
-        [Fact]
+        [FactSkipIfCI]
         public void InvokeSetResource_ResourceError()
         {
             var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
@@ -458,7 +458,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// <summary>
         /// Calls Invoke-DscResource Set. Resource does not exist.
         /// </summary>
-        [Fact]
+        [FactSkipIfCI]
         public void InvokeSetResource_ResourceDoesntExist()
         {
             var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
@@ -479,7 +479,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// <summary>
         /// Test calling Invoke-DscResource when a resource has multiple versions.
         /// </summary>
-        [Fact]
+        [FactSkipIfCI]
         public void InvokeResource_MultipleVersions()
         {
             var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
