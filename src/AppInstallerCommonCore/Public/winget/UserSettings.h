@@ -90,6 +90,7 @@ namespace AppInstaller::Settings
         // Network
         NetworkDownloader,
         NetworkDOProgressTimeoutInSeconds,
+        NetworkWingetAlternateSourceURL,
         // Logging
         LoggingLevelPreference,
         // Uninstall behavior
@@ -162,6 +163,7 @@ namespace AppInstaller::Settings
         // Network
         SETTINGMAPPING_SPECIALIZATION(Setting::NetworkDownloader, std::string, InstallerDownloader, InstallerDownloader::Default, ".network.downloader"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::NetworkDOProgressTimeoutInSeconds, uint32_t, std::chrono::seconds, 60s, ".network.doProgressTimeoutInSeconds"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::NetworkWingetAlternateSourceURL, bool, bool, true, ".network.enableWingetAlternateSourceURL"sv);
         // Debug
         SETTINGMAPPING_SPECIALIZATION(Setting::EnableSelfInitiatedMinidump, bool, bool, false, ".debugging.enableSelfInitiatedMinidump"sv);
         // Logging

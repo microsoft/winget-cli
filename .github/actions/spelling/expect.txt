@@ -191,6 +191,7 @@ LPWCH
 LPWSTR
 LSTATUS
 LTDA
+maclachlan
 malware
 maxvalue
 maybenull
@@ -296,6 +297,7 @@ roblox
 ronomon
 rosoft
 rowids
+roy
 RRF
 rrr
 runspace
@@ -378,6 +380,7 @@ UWP
 VALUENAMECASE
 VERSI
 VERSIE
+visualstudiocode
 vns
 vsconfig
 webpages

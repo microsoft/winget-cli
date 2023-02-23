@@ -26,6 +26,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         winrt::Microsoft::Management::Deployment::CompareResult CompareToVersion(hstring versionString);
         // Contract version 4
         bool HasApplicableInstaller(InstallOptions options);
+        // Contract version 6
+        winrt::Microsoft::Management::Deployment::PackageInstallerInfo GetApplicableInstaller(InstallOptions options);
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:

@@ -56,6 +56,9 @@
     <ClInclude Include="Public\AppInstallerLanguageUtilities.h">
       <Filter>Public</Filter>
     </ClInclude>
+    <ClInclude Include="Public\AppInstallerVersions.h">
+      <Filter>Public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -89,6 +92,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Resources.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Versions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

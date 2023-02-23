@@ -53,6 +53,7 @@ namespace AppInstaller::Logging
         YAML,
         Core,
         Test,
+        Config,
         All,
     };
 
