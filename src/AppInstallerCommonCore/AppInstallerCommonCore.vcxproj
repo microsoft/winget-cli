@@ -399,7 +399,6 @@
     <ClCompile Include="TraceLogger.cpp" />
     <ClCompile Include="UserSettings.cpp" />
     <ClCompile Include="WindowsFeature.cpp" />
-    <ClCompile Include="Versions.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
