@@ -10,6 +10,10 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <!-- TODO: cswinrt generate source files that will fail with warning CS1591.
+         We need to somehow skip these warning via a .editorconfig or something similar.
+         Ideally cswinrt would fix this in the future.
+    -->
     <!--<TreatWarningsAsErrors>true</TreatWarningsAsErrors>-->
   </PropertyGroup>
 

@@ -21,6 +21,9 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
     ///       - DscResourceInfo obj.
     /// There are some resources that don't have a module name. These are modules that live under
     /// C:\WINDOWS\system32\WindowsPowershell\v1.0\Modules\PsDesiredStateConfiguration\DscResources.
+    /// This is not currently used. For now, we let PowerShell handle all the versioning. In order to avoid
+    /// calls to Get-DscResource every time a unit is set, this class needs to be updated to handle min and max
+    /// version. As it is, it just does RequiredVersion.
     /// </summary>
     internal sealed class DscResourcesMap
     {

@@ -13,7 +13,6 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
     using System.Linq;
     using System.Management.Automation;
     using System.Management.Automation.Runspaces;
-    using System.Resources;
     using Microsoft.Management.Configuration.Processor.DscResourcesInfo;
     using Microsoft.Management.Configuration.Processor.Extensions;
     using Microsoft.Management.Configuration.Processor.Helpers;
@@ -22,7 +21,7 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
     using static Microsoft.Management.Configuration.Processor.Constants.PowerShellConstants;
 
     /// <summary>
-    /// PSDesiredStateConfiguration v2.0.5.
+    /// PSDesiredStateConfiguration.
     /// </summary>
     internal class DscModuleV2 : IDscModule
     {
@@ -122,7 +121,7 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
 
             var getResult = pwsh.AddCommand(this.InvokeDscResourceCmd)
                                 .AddParameters(PrepareInvokeParameters(name, settings, moduleSpecification))
-                                .AddParameter(Parameters.Method, DscMethod.Get)
+                                .AddParameter(Parameters.Method, DscMethods.Get)
                                 .InvokeAndStopOnError()
                                 .FirstOrDefault();
 
@@ -161,7 +160,7 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
             // in PSDesiredStateConfiguration.psm1.
             dynamic? testResult = pwsh.AddCommand(this.InvokeDscResourceCmd)
                                       .AddParameters(PrepareInvokeParameters(name, settings, moduleSpecification))
-                                      .AddParameter(Parameters.Method, DscMethod.Test)
+                                      .AddParameter(Parameters.Method, DscMethods.Test)
                                       .InvokeAndStopOnError()
                                       .FirstOrDefault();
 
@@ -187,7 +186,7 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
             // in PSDesiredStateConfiguration.psm1.
             dynamic? setResult = pwsh.AddCommand(this.InvokeDscResourceCmd)
                                      .AddParameters(PrepareInvokeParameters(name, settings, moduleSpecification))
-                                     .AddParameter(Parameters.Method, DscMethod.Set)
+                                     .AddParameter(Parameters.Method, DscMethods.Set)
                                      .InvokeAndStopOnError()
                                      .FirstOrDefault();
 

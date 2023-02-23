@@ -52,7 +52,7 @@ namespace Microsoft.Management.Configuration.Processor.ProcessorEnvironments
         DscResourceInfoInternal? GetDscResource(ConfigurationUnitInternal unitInternal);
 
         /// <summary>
-        /// Calls Invoke-DscResource -Method Get from this module. Maybe change input to configuration unit internal.
+        /// Calls Invoke-DscResource -Method Get from this module.
         /// </summary>
         /// <param name="settings">Settings.</param>
         /// <param name="name">Name.</param>
@@ -61,7 +61,7 @@ namespace Microsoft.Management.Configuration.Processor.ProcessorEnvironments
         ValueSet InvokeGetResource(ValueSet settings, string name, ModuleSpecification? moduleSpecification);
 
         /// <summary>
-        /// Calls Invoke-DscResource -Method Test from this module. Maybe change input to configuration unit internal.
+        /// Calls Invoke-DscResource -Method Test from this module.
         /// </summary>
         /// <param name="settings">Settings.</param>
         /// <param name="name">Name.</param>
@@ -70,7 +70,7 @@ namespace Microsoft.Management.Configuration.Processor.ProcessorEnvironments
         bool InvokeTestResource(ValueSet settings, string name, ModuleSpecification? moduleSpecification);
 
         /// <summary>
-        /// Calls Invoke-DscResource -Method Set from this module. Maybe change input to configuration unit internal.
+        /// Calls Invoke-DscResource -Method Set from this module.
         /// </summary>
         /// <param name="settings">Settings.</param>
         /// <param name="name">Name.</param>

@@ -62,7 +62,7 @@ namespace Microsoft.Management.Configuration.Processor.Constants
             public const string RequiredVersion = "RequiredVersion";
         }
 
-        internal static class DscMethod
+        internal static class DscMethods
         {
             public const string Get = "Get";
             public const string Set = "Set";

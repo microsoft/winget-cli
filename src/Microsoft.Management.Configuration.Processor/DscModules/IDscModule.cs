@@ -64,7 +64,7 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
         DscResourceInfoInternal? GetDscResource(Runspace runspace, string name, ModuleSpecification? moduleSpecification);
 
         /// <summary>
-        /// Calls Invoke-DscResource -Method Get from this module. Maybe change input to configuration unit internal.
+        /// Calls Invoke-DscResource -Method Get from this module.
         /// </summary>
         /// <param name="runspace">PowerShell Runspace.</param>
         /// <param name="settings">Settings.</param>
@@ -74,7 +74,7 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
         ValueSet InvokeGetResource(Runspace runspace, ValueSet settings, string name, ModuleSpecification? moduleSpecification);
 
         /// <summary>
-        /// Calls Invoke-DscResource -Method Test from this module. Maybe change input to configuration unit internal.
+        /// Calls Invoke-DscResource -Method Test from this module.
         /// </summary>
         /// <param name="runspace">PowerShell Runspace.</param>
         /// <param name="settings">Settings.</param>
@@ -84,7 +84,7 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
         bool InvokeTestResource(Runspace runspace, ValueSet settings, string name, ModuleSpecification? moduleSpecification);
 
         /// <summary>
-        /// Calls Invoke-DscResource -Method Set from this module. Maybe change input to configuration unit internal.
+        /// Calls Invoke-DscResource -Method Set from this module.
         /// </summary>
         /// <param name="runspace">PowerShell Runspace.</param>
         /// <param name="settings">Settings.</param>
