@@ -70,7 +70,7 @@ TEST_CASE("ReadPreviewGoodManifestAndVerifyContents", "[ManifestValidation]")
     REQUIRE(manifest.DefaultInstallerInfo.Commands == MultiValue{ "makemsix", "makeappx" });
     REQUIRE(manifest.DefaultInstallerInfo.Protocols == MultiValue{ "protocol1", "protocol2" });
     REQUIRE(manifest.DefaultInstallerInfo.FileExtensions == MultiValue{ "appx", "appxbundle", "msix", "msixbundle" });
-    REQUIRE(manifest.DefaultInstallerInfo.BaseInstallerType == InstallerTypeEnum::Zip);
+    REQUIRE(manifest.DefaultInstallerInfo.BaseInstallerType == InstallerTypeEnum::Exe);
     REQUIRE(manifest.DefaultInstallerInfo.PackageFamilyName == "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe");
     REQUIRE(manifest.DefaultInstallerInfo.ProductCode == "{Foo}");
     REQUIRE(manifest.DefaultInstallerInfo.UpdateBehavior == UpdateBehaviorEnum::UninstallPrevious);
@@ -93,10 +93,10 @@ TEST_CASE("ReadPreviewGoodManifestAndVerifyContents", "[ManifestValidation]")
     REQUIRE(installer1.Url == "https://rubengustorage.blob.core.windows.net/publiccontainer/msixsdkx86.zip");
     REQUIRE(installer1.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
     REQUIRE(installer1.Locale == "en-US");
-    REQUIRE(installer1.BaseInstallerType == InstallerTypeEnum::Zip);
+    REQUIRE(installer1.BaseInstallerType == InstallerTypeEnum::Exe);
     REQUIRE(installer1.Scope == ScopeEnum::User);
     REQUIRE(installer1.PackageFamilyName == "");
-    REQUIRE(installer1.ProductCode == "");
+    REQUIRE(installer1.ProductCode == "{Foo}");
     REQUIRE(installer1.UpdateBehavior == UpdateBehaviorEnum::Install);
 
     auto installer1Switches = installer1.Switches;
@@ -114,10 +114,10 @@ TEST_CASE("ReadPreviewGoodManifestAndVerifyContents", "[ManifestValidation]")
     REQUIRE(installer2.Url == "https://rubengustorage.blob.core.windows.net/publiccontainer/msixsdkx64.zip");
     REQUIRE(installer2.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF0000"));
     REQUIRE(installer2.Locale == "en-US");
-    REQUIRE(installer2.BaseInstallerType == InstallerTypeEnum::Zip);
+    REQUIRE(installer2.BaseInstallerType == InstallerTypeEnum::Exe);
     REQUIRE(installer2.Scope == ScopeEnum::User);
     REQUIRE(installer2.PackageFamilyName == "");
-    REQUIRE(installer2.ProductCode == "");
+    REQUIRE(installer2.ProductCode == "{Foo}");
     REQUIRE(installer2.UpdateBehavior == UpdateBehaviorEnum::UninstallPrevious);
 
     // Installer2 does not declare switches, it inherits switches from package default.
@@ -342,36 +342,31 @@ TEST_CASE("ComplexSystemReference", "[ManifestValidation]")
 {
     Manifest manifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Good-SystemReferenceComplex.yaml"));
 
-    REQUIRE(manifest.Installers.size() == 5);
-
-    // Zip installer does not inherit
-    REQUIRE(manifest.Installers[0].BaseInstallerType == InstallerTypeEnum::Zip);
-    REQUIRE(manifest.Installers[0].PackageFamilyName == "");
-    REQUIRE(manifest.Installers[0].ProductCode == "");
+    REQUIRE(manifest.Installers.size() == 4);
 
     // MSIX installer does inherit
-    REQUIRE(manifest.Installers[1].BaseInstallerType == InstallerTypeEnum::Msix);
-    REQUIRE(manifest.Installers[1].Arch == Architecture::X86);
-    REQUIRE(manifest.Installers[1].PackageFamilyName == "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe");
-    REQUIRE(manifest.Installers[1].ProductCode == "");
+    REQUIRE(manifest.Installers[0].BaseInstallerType == InstallerTypeEnum::Msix);
+    REQUIRE(manifest.Installers[0].Arch == Architecture::X86);
+    REQUIRE(manifest.Installers[0].PackageFamilyName == "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe");
+    REQUIRE(manifest.Installers[0].ProductCode == "");
 
     // MSI installer does inherit
-    REQUIRE(manifest.Installers[2].BaseInstallerType == InstallerTypeEnum::Msi);
-    REQUIRE(manifest.Installers[2].Arch == Architecture::X86);
-    REQUIRE(manifest.Installers[2].PackageFamilyName == "");
-    REQUIRE(manifest.Installers[2].ProductCode == "{Foo}");
+    REQUIRE(manifest.Installers[1].BaseInstallerType == InstallerTypeEnum::Msi);
+    REQUIRE(manifest.Installers[1].Arch == Architecture::X86);
+    REQUIRE(manifest.Installers[1].PackageFamilyName == "");
+    REQUIRE(manifest.Installers[1].ProductCode == "{Foo}");
 
     // MSIX installer with override
-    REQUIRE(manifest.Installers[3].BaseInstallerType == InstallerTypeEnum::Msix);
-    REQUIRE(manifest.Installers[3].Arch == Architecture::X64);
-    REQUIRE(manifest.Installers[3].PackageFamilyName == "Override_8wekyb3d8bbwe");
-    REQUIRE(manifest.Installers[3].ProductCode == "");
+    REQUIRE(manifest.Installers[2].BaseInstallerType == InstallerTypeEnum::Msix);
+    REQUIRE(manifest.Installers[2].Arch == Architecture::X64);
+    REQUIRE(manifest.Installers[2].PackageFamilyName == "Override_8wekyb3d8bbwe");
+    REQUIRE(manifest.Installers[2].ProductCode == "");
 
     // MSI installer with override
-    REQUIRE(manifest.Installers[4].BaseInstallerType == InstallerTypeEnum::Msi);
-    REQUIRE(manifest.Installers[4].Arch == Architecture::X64);
-    REQUIRE(manifest.Installers[4].PackageFamilyName == "");
-    REQUIRE(manifest.Installers[4].ProductCode == "Override");
+    REQUIRE(manifest.Installers[3].BaseInstallerType == InstallerTypeEnum::Msi);
+    REQUIRE(manifest.Installers[3].Arch == Architecture::X64);
+    REQUIRE(manifest.Installers[3].PackageFamilyName == "");
+    REQUIRE(manifest.Installers[3].ProductCode == "Override");
 }
 
 TEST_CASE("ManifestVersionExtensions", "[ManifestValidation]")
@@ -437,7 +432,7 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
     REQUIRE(manifest.DefaultInstallerInfo.Locale == "en-US");
     REQUIRE(manifest.DefaultInstallerInfo.Platform == std::vector<PlatformEnum>{ PlatformEnum::Desktop, PlatformEnum::Universal });
     REQUIRE(manifest.DefaultInstallerInfo.MinOSVersion == "10.0.0.0");
-    REQUIRE(manifest.DefaultInstallerInfo.BaseInstallerType == InstallerTypeEnum::Zip);
+    REQUIRE(manifest.DefaultInstallerInfo.BaseInstallerType == InstallerTypeEnum::Exe);
     REQUIRE(manifest.DefaultInstallerInfo.Scope == ScopeEnum::Machine);
     REQUIRE(manifest.DefaultInstallerInfo.InstallModes == std::vector<InstallModeEnum>{ InstallModeEnum::Interactive, InstallModeEnum::Silent, InstallModeEnum::SilentWithProgress });
 
