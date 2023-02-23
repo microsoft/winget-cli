@@ -10,16 +10,12 @@ namespace Microsoft.Management.Configuration.Processor.Set
     using System.Collections.Generic;
     using System.IO;
     using System.Management.Automation;
-    using System.Runtime.InteropServices.WindowsRuntime;
-    using System.Security.Cryptography.Xml;
     using Microsoft.Management.Configuration.Processor.DscResourcesInfo;
     using Microsoft.Management.Configuration.Processor.Exceptions;
     using Microsoft.Management.Configuration.Processor.Helpers;
     using Microsoft.Management.Configuration.Processor.ProcessorEnvironments;
     using Microsoft.Management.Configuration.Processor.Unit;
-    using Microsoft.PowerShell.Commands;
     using Windows.Security.Cryptography.Certificates;
-    using Windows.Storage.Streams;
 
     /// <summary>
     /// Configuration set processor.

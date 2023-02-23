@@ -6,7 +6,6 @@
 
 namespace Microsoft.Management.Configuration.Processor.DscModule
 {
-    using System;
     using System.Collections.Generic;
     using System.Management.Automation.Runspaces;
     using Microsoft.Management.Configuration.Processor.DscResourcesInfo;
