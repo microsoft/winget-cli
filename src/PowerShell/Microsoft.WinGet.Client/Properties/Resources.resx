@@ -180,7 +180,7 @@
     <value>The App Installer did not automatically add the PATH environment variable.</value>
   </data>
   <data name="IntegrityOsNotSupportedMessage" xml:space="preserve">
-    <value>The Windows Package Manager requires at least Version 1809 (October 2018 Update).</value>
+    <value>The Windows Package Manager requires Windows Version 1809 (October 2018 Update) or later.</value>
   </data>
   <data name="WinGetCLITimeoutExceptionMessage" xml:space="preserve">
     <value>Winget command run timed out: {0} {1}</value>
