@@ -143,7 +143,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         }
 
         /// <summary>
-        /// Test GetDscResource for a non existent resource.
+        /// Test GetDscResource for a resource that doesn't exist.
         /// </summary>
         [Fact]
         public void GetDscResource_ResourceDoesntExist()

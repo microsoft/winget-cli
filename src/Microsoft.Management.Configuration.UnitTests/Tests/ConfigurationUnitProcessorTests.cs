@@ -160,7 +160,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         }
 
         /// <summary>
-        /// Call TestSettings with with Inform intent is not allowed.
+        /// Call TestSettings with Inform intent is not allowed.
         /// </summary>
         [Fact]
         public void TestSettings_InformIntent()
@@ -294,7 +294,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         }
 
         /// <summary>
-        /// Call ApplySettings with with invalid intents.
+        /// Call ApplySettings with invalid intents.
         /// </summary>
         /// <param name="intent">Intent.</param>
         [Theory]

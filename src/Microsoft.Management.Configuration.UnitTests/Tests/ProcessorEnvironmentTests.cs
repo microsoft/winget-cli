@@ -66,13 +66,13 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         {
             var processorEnv = this.fixture.PrepareTestProcessorEnvironment();
 
-            string psmodulePathInput = "SetPSModulePathModulePath";
+            string psModulePathInput = "SetPSModulePathModulePath";
             string psModulePath = processorEnv.GetVariable<string>(Variables.PSModulePath);
-            Assert.NotEqual(psmodulePathInput, psModulePath);
+            Assert.NotEqual(psModulePathInput, psModulePath);
 
-            processorEnv.SetPSModulePath(psmodulePathInput);
+            processorEnv.SetPSModulePath(psModulePathInput);
             psModulePath = processorEnv.GetVariable<string>(Variables.PSModulePath);
-            Assert.Equal(psmodulePathInput, psModulePath);
+            Assert.Equal(psModulePathInput, psModulePath);
         }
 
         /// <summary>
@@ -83,21 +83,21 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         {
             var processorEnv = this.fixture.PrepareTestProcessorEnvironment();
 
-            var psmodulePathInput = new List<string>()
+            var psModulePathInput = new List<string>()
             {
                 "Path1",
                 "Path2",
                 "Path3",
                 "Path4",
             };
-            string psmodulePathExpected = "Path1;Path2;Path3;Path4";
+            string psModulePathExpected = "Path1;Path2;Path3;Path4";
 
             string psModulePath = processorEnv.GetVariable<string>(Variables.PSModulePath);
-            Assert.NotEqual(psmodulePathExpected, psModulePath);
+            Assert.NotEqual(psModulePathExpected, psModulePath);
 
-            processorEnv.SetPSModulePaths(psmodulePathInput);
+            processorEnv.SetPSModulePaths(psModulePathInput);
             psModulePath = processorEnv.GetVariable<string>(Variables.PSModulePath);
-            Assert.Equal(psmodulePathExpected, psModulePath);
+            Assert.Equal(psModulePathExpected, psModulePath);
         }
 
         /// <summary>
@@ -108,13 +108,13 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         {
             var processorEnv = this.fixture.PrepareTestProcessorEnvironment();
 
-            string psmodulePathInput = "AppendPSModulePathModulePath";
+            string psModulePathInput = "AppendPSModulePathModulePath";
             string psModulePath = processorEnv.GetVariable<string>(Variables.PSModulePath);
-            Assert.False(psModulePath.EndsWith($";{psmodulePathInput}"));
+            Assert.False(psModulePath.EndsWith($";{psModulePathInput}"));
 
-            processorEnv.AppendPSModulePath(psmodulePathInput);
+            processorEnv.AppendPSModulePath(psModulePathInput);
             psModulePath = processorEnv.GetVariable<string>(Variables.PSModulePath);
-            Assert.EndsWith($";{psmodulePathInput}", psModulePath);
+            Assert.EndsWith($";{psModulePathInput}", psModulePath);
         }
 
         /// <summary>
@@ -125,21 +125,21 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         {
             var processorEnv = this.fixture.PrepareTestProcessorEnvironment();
 
-            var psmodulePathInput = new List<string>()
+            var psModulePathInput = new List<string>()
             {
                 "AppendPSModulePathsPath1",
                 "AppendPSModulePathsPath2",
                 "AppendPSModulePathsPath3",
                 "AppendPSModulePathsPath4",
             };
-            string psmodulePathExpected = "AppendPSModulePathsPath1;AppendPSModulePathsPath2;AppendPSModulePathsPath3;AppendPSModulePathsPath4";
+            string psModulePathExpected = "AppendPSModulePathsPath1;AppendPSModulePathsPath2;AppendPSModulePathsPath3;AppendPSModulePathsPath4";
 
             string psModulePath = processorEnv.GetVariable<string>(Variables.PSModulePath);
-            Assert.False(psModulePath.EndsWith($";{psmodulePathExpected}"));
+            Assert.False(psModulePath.EndsWith($";{psModulePathExpected}"));
 
-            processorEnv.AppendPSModulePaths(psmodulePathInput);
+            processorEnv.AppendPSModulePaths(psModulePathInput);
             psModulePath = processorEnv.GetVariable<string>(Variables.PSModulePath);
-            Assert.EndsWith($";{psmodulePathExpected}", psModulePath);
+            Assert.EndsWith($";{psModulePathExpected}", psModulePath);
         }
 
         /// <summary>
@@ -150,13 +150,13 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         {
             var processorEnv = this.fixture.PrepareTestProcessorEnvironment();
 
-            string psmodulePathInput = "PrependPSModulePathModulePath";
+            string psModulePathInput = "PrependPSModulePathModulePath";
             string psModulePath = processorEnv.GetVariable<string>(Variables.PSModulePath);
-            Assert.False(psModulePath.StartsWith($";{psmodulePathInput}"));
+            Assert.False(psModulePath.StartsWith($";{psModulePathInput}"));
 
-            processorEnv.PrependPSModulePath(psmodulePathInput);
+            processorEnv.PrependPSModulePath(psModulePathInput);
             psModulePath = processorEnv.GetVariable<string>(Variables.PSModulePath);
-            Assert.StartsWith($"{psmodulePathInput};", psModulePath);
+            Assert.StartsWith($"{psModulePathInput};", psModulePath);
         }
 
         /// <summary>
@@ -167,21 +167,21 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         {
             var processorEnv = this.fixture.PrepareTestProcessorEnvironment();
 
-            var psmodulePathInput = new List<string>()
+            var psModulePathInput = new List<string>()
             {
                 "PrependPSModulePathsPath1",
                 "PrependPSModulePathsPath2",
                 "PrependPSModulePathsPath3",
                 "PrependPSModulePathsPath4",
             };
-            string psmodulePathExpected = "PrependPSModulePathsPath1;PrependPSModulePathsPath2;PrependPSModulePathsPath3;PrependPSModulePathsPath4";
+            string psModulePathExpected = "PrependPSModulePathsPath1;PrependPSModulePathsPath2;PrependPSModulePathsPath3;PrependPSModulePathsPath4";
 
             string psModulePath = processorEnv.GetVariable<string>(Variables.PSModulePath);
-            Assert.False(psModulePath.StartsWith($";{psmodulePathExpected}"));
+            Assert.False(psModulePath.StartsWith($";{psModulePathExpected}"));
 
-            processorEnv.PrependPSModulePaths(psmodulePathInput);
+            processorEnv.PrependPSModulePaths(psModulePathInput);
             psModulePath = processorEnv.GetVariable<string>(Variables.PSModulePath);
-            Assert.StartsWith($"{psmodulePathExpected};", psModulePath);
+            Assert.StartsWith($"{psModulePathExpected};", psModulePath);
         }
 
         /// <summary>
@@ -191,7 +191,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         public void HostedEnvironment_CleanupPSModulePath()
         {
             var processorEnv = this.fixture.PrepareTestProcessorEnvironment();
-            var psmodulePathInput = new List<string>()
+            var psModulePathInput = new List<string>()
             {
                 "CleanupPSModulePathPath1",
                 "CleanupPSModulePathPath2",
@@ -200,14 +200,14 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 "CleanupPSModulePathPath1",
             };
 
-            string psmodulePathExpected = "CleanupPSModulePathPath1;CleanupPSModulePathPath2;CleanupPSModulePathPath3;CleanupPSModulePathPath1;CleanupPSModulePathPath1";
-            processorEnv.SetPSModulePaths(psmodulePathInput);
+            string psModulePathExpected = "CleanupPSModulePathPath1;CleanupPSModulePathPath2;CleanupPSModulePathPath3;CleanupPSModulePathPath1;CleanupPSModulePathPath1";
+            processorEnv.SetPSModulePaths(psModulePathInput);
             string psModulePath = processorEnv.GetVariable<string>(Variables.PSModulePath);
-            Assert.Equal(psmodulePathExpected, psModulePath);
+            Assert.Equal(psModulePathExpected, psModulePath);
 
             processorEnv.CleanupPSModulePath("CleanupPSModulePathPath1");
 
-            psmodulePathExpected = "CleanupPSModulePathPath2;CleanupPSModulePathPath3";
+            psModulePathExpected = "CleanupPSModulePathPath2;CleanupPSModulePathPath3";
             psModulePath = processorEnv.GetVariable<string>(Variables.PSModulePath);
             Assert.Equal(psModulePath, psModulePath);
         }

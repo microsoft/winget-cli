@@ -228,7 +228,7 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
                 var dscResourceInfo = new DscResourceInfoInternal(psObject);
 
                 // Explicitly don't support old DSC resources from v1 PSDesiredStateConfiguration.
-                // Even if the windows sytem32 windows powershell module path is removed they
+                // Even if the windows system32 windows powershell module path is removed they
                 // will show up.
                 if (dscResourceInfo.ParentPath!.StartsWith(
                         @"C:\WINDOWS\system32\WindowsPowershell\v1.0\Modules\PsDesiredStateConfiguration\DscResources",

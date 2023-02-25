@@ -44,7 +44,7 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
         /// </summary>
         /// <param name="obj">Dynamic object.</param>
         /// <param name="name">Name of property.</param>
-        /// <returns>Trus if property exists and is an enum.</returns>
+        /// <returns>True if property exists and is an enum.</returns>
         public static bool PropertyExistsAndIsEnum(dynamic obj, string name)
         {
             return PropertyExists(obj, name) &&

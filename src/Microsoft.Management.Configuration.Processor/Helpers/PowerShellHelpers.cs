@@ -64,7 +64,7 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
                 moduleInfo.Add(Parameters.Guid, guid);
             }
 
-            // Using the Hashtable constructor will verify that RequiredVersion is used propertly.
+            // Using the Hashtable constructor will verify that RequiredVersion is used properly.
             return new ModuleSpecification(moduleInfo);
         }
     }

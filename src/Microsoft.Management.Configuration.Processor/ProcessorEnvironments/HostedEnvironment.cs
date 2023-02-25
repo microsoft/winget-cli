@@ -303,13 +303,13 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
                                  .AddCommand(Commands.GetAuthenticodeSignature)
                                  .InvokeAndStopOnError<Signature>();
 
-            var thumprints = new HashSet<string>();
+            var thumbprint = new HashSet<string>();
             var certificates = new List<Certificate>();
             foreach (var signature in signatures)
             {
                 if (signature.Status == SignatureStatus.Valid)
                 {
-                    if (thumprints.Add(signature.SignerCertificate.Thumbprint))
+                    if (thumbprint.Add(signature.SignerCertificate.Thumbprint))
                     {
                         IBuffer buffer = signature.SignerCertificate.GetRawCertData().AsBuffer();
                         certificates.Add(new Certificate(buffer));

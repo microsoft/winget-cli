@@ -77,7 +77,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             else
             {
                 var unit = this.CreteConfigurationUnit();
-                var (dscResourceInfo, psModuleInfo) = this.GetReasourceAndModuleInfo(unit);
+                var (dscResourceInfo, psModuleInfo) = this.GetResourceAndModuleInfo(unit);
 
                 DscResourceInfoInternal? dscResourceInfoInput = null;
                 if (hasDscInfo)
@@ -182,7 +182,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             return unit;
         }
 
-        private (DscResourceInfoInternal dscResourceInfo, PSModuleInfo psModuleInfo) GetReasourceAndModuleInfo(ConfigurationUnit unit)
+        private (DscResourceInfoInternal dscResourceInfo, PSModuleInfo psModuleInfo) GetResourceAndModuleInfo(ConfigurationUnit unit)
         {
             // This is easier than trying to mock sealed class from external code...
             var testEnv = this.fixture.PrepareTestProcessorEnvironment();

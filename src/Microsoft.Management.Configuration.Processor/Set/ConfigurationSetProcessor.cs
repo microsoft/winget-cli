@@ -94,7 +94,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
             }
 
             // Hopefully they will never change the properties name. If someone can explain to me
-            // why assing it Name to $_ in Find-DscResource turns into a string in PowerShell but
+            // why assign it Name to $_ in Find-DscResource turns into a string in PowerShell but
             // into a PSObject here that would be nice...
             dynamic findResource = getFindResource;
             string findResourceName = findResource.Name.ToString();

@@ -42,7 +42,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             var exception = new Exception(
                 "message1",
                 new WriteErrorException(
-                    "writeexception",
+                    "WriteException",
                     new ArgumentNullException()));
 
             var mostInner = exception.GetMostInnerException();
@@ -51,7 +51,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             var exception2 = new Exception(
                 "message2",
                 new WriteErrorException(
-                    "writeexception2"));
+                    "WriteException2"));
 
             mostInner = exception2.GetMostInnerException();
             Assert.IsType<WriteErrorException>(mostInner);
