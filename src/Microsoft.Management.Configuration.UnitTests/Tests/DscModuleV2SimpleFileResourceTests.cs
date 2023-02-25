@@ -41,7 +41,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// </summary>
         /// <param name="ensureValue">Ensure value.</param>
         /// <param name="expectedResult">Expected result.</param>
-        [TheorySkipIfCI]
+        [Theory]
         [InlineData("Absent", true)]
         [InlineData("Present", false)]
         public void SimpleFileResource_FileAbsent(string ensureValue, bool expectedResult)
@@ -71,7 +71,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// <summary>
         /// Test SimpleFileResource when the file exists.
         /// </summary>
-        [FactSkipIfCI]
+        [Fact]
         public void SimpleFileResource_FilePresent()
         {
             var processorEnv = this.fixture.PrepareTestProcessorEnvironment();
@@ -97,7 +97,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// <summary>
         /// Test SimpleFileResource with different content.
         /// </summary>
-        [FactSkipIfCI]
+        [Fact]
         public void SimpleFileResource_DifferentContent()
         {
             var processorEnv = this.fixture.PrepareTestProcessorEnvironment();
@@ -123,7 +123,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// <summary>
         /// Test SimpleFileResource with same context.
         /// </summary>
-        [FactSkipIfCI]
+        [Fact]
         public void SimpleFileResource_SameContent()
         {
             var processorEnv = this.fixture.PrepareTestProcessorEnvironment();
@@ -153,7 +153,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// <param name="ensureValue">Ensure value.</param>
         /// <param name="preCondition">If file exists before calling set.</param>
         /// <param name="postCondition">If file exists after calling set.</param>
-        [TheorySkipIfCI]
+        [Theory]
         [InlineData("Absent", false, false)]
         [InlineData("Present", false, true)]
         [InlineData("Absent", true, false)]
@@ -198,7 +198,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// </summary>
         /// <param name="preSetContent">The text in the file before calling Set.</param>
         /// <param name="postSetContent">The test in the file after calling Set.</param>
-        [TheorySkipIfCI]
+        [Theory]
         [InlineData(null, "after content")]
         [InlineData("i am a content", "and im another")]
         [InlineData("copy paste", "copy paste")]
@@ -236,7 +236,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// <summary>
         /// Test SimpleFileResource Get.
         /// </summary>
-        [FactSkipIfCI]
+        [Fact]
         public void SimpleFileResource_Get()
         {
             var processorEnv = this.fixture.PrepareTestProcessorEnvironment();

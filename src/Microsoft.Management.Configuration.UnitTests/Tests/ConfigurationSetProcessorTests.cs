@@ -308,7 +308,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// <summary>
         /// Test GetUnitProcessorDetails Local Found. Module not installed by PowerShellGet.
         /// </summary>
-        [FactSkipIfCI]
+        [Fact]
         public void GetUnitProcessorDetails_Local_NotInstalledByPowerShellGet()
         {
             var unit = this.CreteConfigurationUnit();
@@ -321,7 +321,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 .Returns(dscResourceInfo)
                 .Verifiable();
             processorEnvMock.Setup(
-                m => m.GetModule(It.Is<ModuleSpecification>(s => s.Name == dscResourceInfo.ModuleName)))
+                m => m.GetAvailableModule(It.Is<ModuleSpecification>(s => s.Name == dscResourceInfo.ModuleName)))
                 .Returns(psModuleInfo)
                 .Verifiable();
             processorEnvMock.Setup(
@@ -351,7 +351,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// Test GetUnitProcessorDetails locally found. Do not include Load.
         /// </summary>
         /// <param name="detailLevel">Detail level.</param>
-        [TheorySkipIfCI]
+        [Theory]
         [InlineData(ConfigurationUnitDetailLevel.Local)]
         [InlineData(ConfigurationUnitDetailLevel.Catalog)]
         [InlineData(ConfigurationUnitDetailLevel.Download)]
@@ -367,7 +367,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 .Returns(dscResourceInfo)
                 .Verifiable();
             processorEnvMock.Setup(
-                m => m.GetModule(It.Is<ModuleSpecification>(s => s.Name == dscResourceInfo.ModuleName)))
+                m => m.GetAvailableModule(It.Is<ModuleSpecification>(s => s.Name == dscResourceInfo.ModuleName)))
                 .Returns(psModuleInfo)
                 .Verifiable();
             processorEnvMock.Setup(
@@ -398,7 +398,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// <summary>
         /// Test GetUnitProcessorDetails locally found and load.
         /// </summary>
-        [FactSkipIfCI]
+        [Fact]
         public void GetUnitProcessorDetails_Local_Load()
         {
             var unit = this.CreteConfigurationUnit();
@@ -411,7 +411,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 .Returns(dscResourceInfo)
                 .Verifiable();
             processorEnvMock.Setup(
-                m => m.GetModule(It.Is<ModuleSpecification>(s => s.Name == dscResourceInfo.ModuleName)))
+                m => m.GetAvailableModule(It.Is<ModuleSpecification>(s => s.Name == dscResourceInfo.ModuleName)))
                 .Returns(psModuleInfo)
                 .Verifiable();
             processorEnvMock.Setup(
@@ -511,7 +511,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// <summary>
         /// Test GetUnitProcessorDetails downloading module.
         /// </summary>
-        [FactSkipIfCI]
+        [Fact]
         public void GetUnitProcessorDetails_Download()
         {
             var unit = this.CreteConfigurationUnit();
@@ -532,7 +532,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 m => m.SaveModule(getFindResourceInfo, It.IsAny<string>()))
                 .Verifiable();
             processorEnvMock.Setup(
-                m => m.GetModule(It.Is<string>(s => s.EndsWith("xSimpleTestResource"))))
+                m => m.GetAvailableModule(It.Is<string>(s => s.EndsWith("xSimpleTestResource"))))
                 .Returns(psModuleInfo)
                 .Verifiable();
             processorEnvMock.Setup(
@@ -559,7 +559,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// <summary>
         /// Tests GetUnitProcessorDetails install module, but resource not found anyway.
         /// </summary>
-        [FactSkipIfCI]
+        [Fact]
         public void GetUnitProcessorDetails_Load_NotFoundAfterInstall()
         {
             var unit = this.CreteConfigurationUnit();
@@ -599,7 +599,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// <summary>
         /// Tests GetUnitProcessorDetails install module.
         /// </summary>
-        [FactSkipIfCI]
+        [Fact]
         public void GetUnitProcessorDetails_Load()
         {
             var unit = this.CreteConfigurationUnit();
@@ -660,7 +660,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             var testEnv = this.fixture.PrepareTestProcessorEnvironment();
 
             var dscResourceInfo = testEnv.GetDscResource(new ConfigurationUnitInternal(unit, null));
-            var psModuleInfo = testEnv.GetModule(PowerShellHelpers.CreateModuleSpecification("xSimpleTestResource", "0.0.0.1"));
+            var psModuleInfo = testEnv.GetAvailableModule(PowerShellHelpers.CreateModuleSpecification("xSimpleTestResource", "0.0.0.1"));
 
             if (dscResourceInfo is null || psModuleInfo is null)
             {

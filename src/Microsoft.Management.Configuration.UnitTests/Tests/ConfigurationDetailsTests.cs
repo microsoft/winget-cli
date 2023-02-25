@@ -44,7 +44,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// <param name="hasPSModuleInfo">Has ps module info.</param>
         /// <param name="hasGetModuleInfo">Has get module info.</param>
         /// <param name="hasCerts">Has certs.</param>
-        [TheorySkipIfCI]
+        [Theory]
         [InlineData(false, false, false, false)]
         [InlineData(false, false, false, true)]
         [InlineData(false, false, true, false)]
@@ -188,7 +188,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             var testEnv = this.fixture.PrepareTestProcessorEnvironment();
 
             var dscResourceInfo = testEnv.GetDscResource(new ConfigurationUnitInternal(unit, null));
-            var psModuleInfo = testEnv.GetModule(PowerShellHelpers.CreateModuleSpecification("xSimpleTestResource", "0.0.0.1"));
+            var psModuleInfo = testEnv.GetAvailableModule(PowerShellHelpers.CreateModuleSpecification("xSimpleTestResource", "0.0.0.1"));
 
             if (dscResourceInfo is null || psModuleInfo is null)
             {

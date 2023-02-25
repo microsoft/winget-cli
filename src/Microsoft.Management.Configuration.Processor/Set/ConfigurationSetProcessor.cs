@@ -115,7 +115,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
                 Directory.CreateDirectory(tempSavePath);
                 this.ProcessorEnvironment.SaveModule(getFindResource, tempSavePath);
 
-                var moduleInfo = this.ProcessorEnvironment.GetModule(
+                var moduleInfo = this.ProcessorEnvironment.GetAvailableModule(
                     Path.Combine(tempSavePath, findResource.PSGetModuleInfo.Name));
 
                 return new ConfigurationUnitProcessorDetails(
@@ -203,7 +203,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
 
             // Get-InstalledModule only works for modules installed via PowerShell-Get.
             // There are some properties that can only be obtain by that it so is better to take both.
-            var moduleInfo = this.ProcessorEnvironment.GetModule(module);
+            var moduleInfo = this.ProcessorEnvironment.GetAvailableModule(module);
             var installedModule = this.ProcessorEnvironment.GetInstalledModule(module);
 
             if (importModule)

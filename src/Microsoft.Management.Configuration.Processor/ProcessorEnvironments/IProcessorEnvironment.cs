@@ -78,18 +78,25 @@ namespace Microsoft.Management.Configuration.Processor.ProcessorEnvironments
         bool InvokeSetResource(ValueSet settings, string name, ModuleSpecification? moduleSpecification);
 
         /// <summary>
-        /// Calls Get-Module with the fully qualified name.
+        /// Calls Get-Module with fully qualified name.
+        /// </summary>
+        /// <param name="moduleSpecification">Module name.</param>
+        /// <returns>PSModuleInfo, null if not imported.</returns>
+        PSModuleInfo? GetImportedModule(ModuleSpecification moduleSpecification);
+
+        /// <summary>
+        /// Calls Get-Module with the fully qualified name and using ListAvailable.
         /// </summary>
         /// <param name="moduleSpecification">Module specification.</param>
         /// <returns>PSModuleInfo, null if not found.</returns>
-        PSModuleInfo? GetModule(ModuleSpecification moduleSpecification);
+        PSModuleInfo? GetAvailableModule(ModuleSpecification moduleSpecification);
 
         /// <summary>
         /// Calls Get-Module from a path using ListAvailable.
         /// </summary>
         /// <param name="path">Path.</param>
         /// <returns>The first module returned, null if none.</returns>
-        PSModuleInfo? GetModule(string path);
+        PSModuleInfo? GetAvailableModule(string path);
 
         /// <summary>
         /// Call Import-Module with the fully qualified name.
@@ -125,6 +132,12 @@ namespace Microsoft.Management.Configuration.Processor.ProcessorEnvironments
         /// </summary>
         /// <param name="inputObject">Input object.</param>
         void InstallModule(PSObject inputObject);
+
+        /// <summary>
+        /// Calls Install-Module with a module specification.
+        /// </summary>
+        /// <param name="moduleSpecification">Module specification.</param>
+        void InstallModule(ModuleSpecification moduleSpecification);
 
         /// <summary>
         /// Get unique certificates of valid signed files from the specified paths.

@@ -61,7 +61,8 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
                 throw new NotSupportedException();
             }
 
-            this.DscModule.ValidateModule(this.Runspace);
+            // Make sure PSDesiredConfiguration is present.
+            this.InstallModule(this.DscModule.ModuleSpecification);
         }
 
         /// <inheritdoc/>
@@ -89,7 +90,20 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
             this.DscModule.InvokeSetResource(this.Runspace, settings, name, moduleSpecification);
 
         /// <inheritdoc/>
-        public PSModuleInfo? GetModule(ModuleSpecification moduleSpecification)
+        public PSModuleInfo? GetImportedModule(ModuleSpecification moduleSpecification)
+        {
+            using PowerShell pwsh = PowerShell.Create(this.Runspace);
+
+            var moduleInfo = pwsh.AddCommand(Commands.GetModule)
+                                 .AddParameter(Parameters.FullyQualifiedName, moduleSpecification)
+                                 .Invoke<PSModuleInfo>()
+                                 .FirstOrDefault();
+
+            return moduleInfo;
+        }
+
+        /// <inheritdoc/>
+        public PSModuleInfo? GetAvailableModule(ModuleSpecification moduleSpecification)
         {
             using PowerShell pwsh = PowerShell.Create(this.Runspace);
 
@@ -103,7 +117,7 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
         }
 
         /// <inheritdoc/>
-        public PSModuleInfo? GetModule(string path)
+        public PSModuleInfo? GetAvailableModule(string path)
         {
             using PowerShell pwsh = PowerShell.Create(this.Runspace);
 
@@ -234,6 +248,49 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
                     .AddParameter(Parameters.InputObject, inputObject)
                     .AddParameter(Parameters.Force)
                     .InvokeAndStopOnError();
+        }
+
+        /// <inheritdoc/>
+        public void InstallModule(ModuleSpecification moduleSpecification)
+        {
+            // Maybe is already there.
+            var loadedModule = this.GetImportedModule(this.DscModule.ModuleSpecification);
+            if (loadedModule is null)
+            {
+                var availableModule = this.GetAvailableModule(this.DscModule.ModuleSpecification);
+                if (availableModule is not null)
+                {
+                    this.ImportModule(moduleSpecification);
+                }
+                else
+                {
+                    // Ok, we have to get it.
+                    var parameters = new Dictionary<string, object>()
+                    {
+                        { Parameters.Name, moduleSpecification.Name },
+                    };
+                    if (moduleSpecification.Version is not null)
+                    {
+                        parameters.Add(Parameters.MinimumVersion, moduleSpecification.Version);
+                    }
+
+                    if (moduleSpecification.MaximumVersion is not null)
+                    {
+                        parameters.Add(Parameters.MaximumVersion, moduleSpecification.MaximumVersion);
+                    }
+
+                    if (moduleSpecification.RequiredVersion is not null)
+                    {
+                        parameters.Add(Parameters.RequiredVersion, moduleSpecification.RequiredVersion);
+                    }
+
+                    using PowerShell pwsh = PowerShell.Create(this.Runspace);
+                    _ = pwsh.AddCommand(Commands.InstallModule)
+                            .AddParameters(parameters)
+                            .AddParameter(Parameters.Force)
+                            .InvokeAndStopOnError();
+                }
+            }
         }
 
         /// <inheritdoc/>

@@ -7,10 +7,14 @@
 namespace Microsoft.Management.Configuration.Processor.ProcessorEnvironments
 {
     using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.Management.Automation;
     using System.Management.Automation.Runspaces;
     using Microsoft.Management.Configuration.Processor.DscModule;
     using Microsoft.Management.Configuration.Processor.Runspaces;
     using Microsoft.PowerShell;
+    using Microsoft.PowerShell.Commands;
 
     /// <summary>
     /// Factory class to create a processor environment.
@@ -52,6 +56,14 @@ namespace Microsoft.Management.Configuration.Processor.ProcessorEnvironments
             else if (this.type == ConfigurationProcessorType.Hosted)
             {
                 InitialSessionState initialSessionState = InitialSessionState.CreateDefault();
+
+                // If this call fails importing the module, it won't throw but write to the error output. DSCModule is
+                // in charge of verifying that it got loaded correctly and if not, to install it. Once logging is implemented
+                // we should log the Error PSVariable.
+                initialSessionState.ImportPSModule(new List<ModuleSpecification>()
+                {
+                    dscModule.ModuleSpecification,
+                });
 
                 // This is where our policy will get translated to PowerShell's execution policy.
                 initialSessionState.ExecutionPolicy = ExecutionPolicy.Unrestricted;

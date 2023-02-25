@@ -23,7 +23,7 @@ namespace Microsoft.Management.Configuration.Processor.Constants
         internal static class Modules
         {
             public const string PSDesiredStateConfiguration = "PSDesiredStateConfiguration";
-            public const string PSDesiredStateConfigurationVersion = "2.0.5";
+            public const string PSDesiredStateConfigurationMinVersion = "2.0.6";
         }
 
         internal static class Commands

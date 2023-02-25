@@ -21,11 +21,10 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
     using static Microsoft.Management.Configuration.Processor.Constants.PowerShellConstants;
 
     /// <summary>
-    /// PSDesiredStateConfiguration.
+    /// PSDesiredStateConfiguration v2.0.6.
     /// </summary>
     internal class DscModuleV2 : IDscModule
     {
-        private const string ExperimentalFeatureName = "PSDesiredStateConfiguration.InvokeDscResource";
         private const string InDesiredState = "InDesiredState";
         private const string RebootRequired = "RebootRequired";
 
@@ -34,22 +33,19 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
         /// </summary>
         public DscModuleV2()
         {
+            this.ModuleSpecification = PowerShellHelpers.CreateModuleSpecification(
+                Modules.PSDesiredStateConfiguration,
+                minVersion: Modules.PSDesiredStateConfigurationMinVersion);
         }
 
         /// <inheritdoc/>
-        public string ModuleName { get; } = Modules.PSDesiredStateConfiguration;
+        public ModuleSpecification ModuleSpecification { get; private init; }
 
         /// <inheritdoc/>
         public string GetDscResourceCmd { get; } = Commands.GetDscResource;
 
         /// <inheritdoc/>
         public string InvokeDscResourceCmd { get; } = Commands.InvokeDscResource;
-
-        /// <inheritdoc/>
-        public void ValidateModule(Runspace runspace)
-        {
-            // TODO: Validate min version.
-        }
 
         /// <inheritdoc/>
         public IReadOnlyList<DscResourceInfoInternal> GetAllDscResources(Runspace runspace)

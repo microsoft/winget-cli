@@ -18,9 +18,9 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
     internal interface IDscModule
     {
         /// <summary>
-        /// Gets the name of the module.
+        /// Gets the module specification.
         /// </summary>
-        string ModuleName { get; }
+        ModuleSpecification ModuleSpecification { get; }
 
         /// <summary>
         /// Gets the name of the Get-DscResource Cmdlet.
@@ -31,12 +31,6 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
         /// Gets the name of the Invoke-DscResource Cmdlet.
         /// </summary>
         string InvokeDscResourceCmd { get; }
-
-        /// <summary>
-        /// Validates the module.
-        /// </summary>
-        /// <param name="runspace">Runspace.</param>
-        void ValidateModule(Runspace runspace);
 
         /// <summary>
         /// Gets all DSC resource.
