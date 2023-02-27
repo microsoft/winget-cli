@@ -8,7 +8,6 @@ namespace Microsoft.Management.Configuration.Processor.ProcessorEnvironments
 {
     using System.Collections.Generic;
     using System.Management.Automation;
-    using System.Management.Automation.Runspaces;
     using Microsoft.Management.Configuration.Processor.DscResourcesInfo;
     using Microsoft.Management.Configuration.Processor.Helpers;
     using Microsoft.PowerShell.Commands;
@@ -23,7 +22,7 @@ namespace Microsoft.Management.Configuration.Processor.ProcessorEnvironments
         /// <summary>
         /// Gets the runspace.
         /// </summary>
-        Runspace Runspace { get; }
+        System.Management.Automation.Runspaces.Runspace Runspace { get; }
 
         /// <summary>
         /// Validates the runspace.
