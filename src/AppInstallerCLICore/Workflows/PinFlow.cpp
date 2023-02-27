@@ -221,8 +221,8 @@ namespace AppInstaller::CLI::Workflow
             {
                 Resource::String::SearchId,
                 Resource::String::SearchSource,
-                Resource::String::SearchVersion,
                 Resource::String::PinType,
+                Resource::String::SearchVersion,
             });
 
         for (const auto& pin : pins)
