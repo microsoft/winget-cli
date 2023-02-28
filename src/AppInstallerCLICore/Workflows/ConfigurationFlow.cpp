@@ -14,6 +14,15 @@ using namespace AppInstaller::Utility::literals;
 
 namespace AppInstaller::CLI::Workflow
 {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    IConfigurationSetProcessorFactory s_override_IConfigurationSetProcessorFactory;
+
+    void SetTestConfigurationSetProcessorFactory(IConfigurationSetProcessorFactory factory)
+    {
+        s_override_IConfigurationSetProcessorFactory = std::move(factory);
+    }
+#endif
+
     namespace
     {
         constexpr std::wstring_view s_Directive_Description = L"description";
@@ -42,6 +51,20 @@ namespace AppInstaller::CLI::Workflow
             case ConfigurationUnitIntent::Apply: return Resource::String::ConfigurationApply;
             default: return Resource::StringId::Empty();
             }
+        }
+
+        IConfigurationSetProcessorFactory CreateConfigurationSetProcessorFactory()
+        {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+            // Test could override the entire workflow task, but that may require keeping more in sync than simply setting the factory.
+            if (s_override_IConfigurationSetProcessorFactory)
+            {
+                return s_override_IConfigurationSetProcessorFactory;
+            }
+#endif
+
+            // TODO: Create the real factory
+            return {};
         }
 
         std::optional<Utility::LocIndString> GetValueSetString(const ValueSet& valueSet, std::wstring_view value)
@@ -353,10 +376,7 @@ namespace AppInstaller::CLI::Workflow
 
     void CreateConfigurationProcessor(Context& context)
     {
-        // TODO: Create the real factory
-        IConfigurationSetProcessorFactory factory = nullptr;
-
-        ConfigurationProcessor processor{ factory };
+        ConfigurationProcessor processor{ CreateConfigurationSetProcessorFactory() };
 
         // Route the configuration diagnostics into the context's diagnostics logging
         processor.Diagnostics([&context](const winrt::Windows::Foundation::IInspectable&, const DiagnosticInformation& diagnostics)
