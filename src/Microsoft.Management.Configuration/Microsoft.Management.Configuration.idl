@@ -471,6 +471,25 @@ namespace Microsoft.Management.Configuration
         Windows.Foundation.Collections.IVectorView<ConfigurationConflictSetting> Settings{ get; };
     }
 
+    // The result of getting the configuration unit details.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    runtimeclass GetConfigurationUnitDetailsResult
+    {
+        // The configuration unit whose details were retrieved.
+        ConfigurationUnit Unit{ get; };
+
+        // The result of getting the configuration unit details.
+        ConfigurationUnitResultInformation ResultInformation{ get; };
+    }
+
+    // The result of getting the confguration set details.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    runtimeclass GetConfigurationSetDetailsResult
+    {
+        // The configuration unit whose details were retrieved.
+        Windows.Foundation.Collections.IVectorView<GetConfigurationUnitDetailsResult> UnitResults{ get; };
+    }
+
     // Flags to control how a configuration set should be applied to the system.
     [contract(Microsoft.Management.Configuration.Contract, 1)]
     enum ApplyConfigurationSetFlags
@@ -581,8 +600,8 @@ namespace Microsoft.Management.Configuration
         Windows.Foundation.IAsyncOperation< Windows.Foundation.Collections.IVector<ConfigurationConflict> > CheckForConflictsAsync(Windows.Foundation.Collections.IVectorView<ConfigurationSet> configurationSets, Boolean includeConfigurationHistory);
 
         // Gets the details for all configuration units in a set.
-        void GetSetDetails(ConfigurationSet configurationSet, ConfigurationUnitDetailLevel detailLevel);
-        Windows.Foundation.IAsyncAction GetSetDetailsAsync(ConfigurationSet configurationSet, ConfigurationUnitDetailLevel detailLevel);
+        GetConfigurationSetDetailsResult GetSetDetails(ConfigurationSet configurationSet, ConfigurationUnitDetailLevel detailLevel);
+        Windows.Foundation.IAsyncOperationWithProgress<GetConfigurationSetDetailsResult, GetConfigurationUnitDetailsResult> GetSetDetailsAsync(ConfigurationSet configurationSet, ConfigurationUnitDetailLevel detailLevel);
 
         // Gets the details for a configuration unit.
         void GetUnitDetails(ConfigurationUnit unit, ConfigurationUnitDetailLevel detailLevel);
@@ -610,6 +629,7 @@ namespace Microsoft.Management.Configuration
         interface Windows.Foundation.Collections.IVectorView<ConfigurationConflictSetting>;
         interface Windows.Foundation.Collections.IVectorView<ConfigurationSet>;
         interface Windows.Foundation.Collections.IVectorView<ConfigurationUnit>;
+        interface Windows.Foundation.Collections.IVectorView<GetConfigurationUnitDetailsResult>;
         interface Windows.Foundation.Collections.IVectorView<IConfigurationUnitSettingDetails>;
         interface Windows.Foundation.Collections.IVectorView<TestConfigurationUnitResult>;
     }

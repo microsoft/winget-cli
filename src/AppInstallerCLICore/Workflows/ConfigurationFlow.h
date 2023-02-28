@@ -17,12 +17,6 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: ConfigurationSet
     void OpenConfigurationSet(Execution::Context& context);
 
-    // Gets the details for the configuration set.
-    // Required Args: None
-    // Inputs: ConfigurationProcessor, ConfigurationSet
-    // Outputs: None
-    void GetConfigurationSetDetails(Execution::Context& context);
-
     // Outputs the configuration set.
     // Required Args: None
     // Inputs: ConfigurationSet

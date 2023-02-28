@@ -113,6 +113,119 @@ namespace AppInstaller::CLI::Workflow
             out << '\n';
         }
 
+        void OutputConfigurationUnitInformation(OutputStream& out, const ConfigurationUnit& unit)
+        {
+            IConfigurationUnitProcessorDetails details = unit.Details();
+            ValueSet directives = unit.Directives();
+
+            if (details)
+            {
+                // -- Sample output when IConfigurationUnitProcessorDetails present --
+                // Intent :: UnitName <from details> [Identifier]
+                //   UnitDocumentationUri <if present>
+                //   Description <from details first, directives second>
+                //   "Module": ModuleName "by" Author / Publisher (IsLocal / ModuleSource)
+                //     "Signed by": SigningCertificateChain (leaf subject CN)
+                //     PublishedModuleUri / ModuleDocumentationUri <if present>
+                //     ModuleDescription
+                OutputConfigurationUnitHeader(out, unit, details.UnitName());
+
+                auto unitDocumentationUri = details.UnitDocumentationUri();
+                if (unitDocumentationUri)
+                {
+                    out << "  "_liv << ConvertForOutput(unitDocumentationUri.DisplayUri()) << '\n';
+                }
+
+                winrt::hstring unitDescriptionFromDetails = details.UnitDescription();
+                if (!unitDescriptionFromDetails.empty())
+                {
+                    out << "  "_liv << ConvertForOutput(unitDescriptionFromDetails) << '\n';
+                }
+                else
+                {
+                    auto unitDescriptionFromDirectives = GetValueSetString(directives, s_Directive_Description);
+                    if (unitDescriptionFromDirectives && !unitDescriptionFromDirectives.value().empty())
+                    {
+                        out << "  "_liv << unitDescriptionFromDirectives.value() << '\n';
+                    }
+                }
+
+                auto author = ConvertForOutput(details.Author());
+                if (author.empty())
+                {
+                    author = ConvertForOutput(details.Publisher());
+                }
+                if (details.IsLocal())
+                {
+                    out << "  "_liv << Resource::String::ConfigurationModuleWithDetails(ConvertForOutput(details.ModuleName()), author, Resource::String::ConfigurationLocal) << '\n';
+                }
+                else
+                {
+                    out << "  "_liv << Resource::String::ConfigurationModuleWithDetails(ConvertForOutput(details.ModuleName()), author, ConvertForOutput(details.ModuleSource())) << '\n';
+                }
+
+                // TODO: Signing information after it gets changed
+
+                auto moduleUri = details.PublishedModuleUri();
+                if (!moduleUri)
+                {
+                    moduleUri = details.ModuleDocumentationUri();
+                }
+                if (moduleUri)
+                {
+                    out << "    "_liv << ConvertForOutput(moduleUri.DisplayUri()) << '\n';
+                }
+
+                winrt::hstring moduleDescription = details.ModuleDescription();
+                if (!moduleDescription.empty())
+                {
+                    out << "    "_liv << ConvertForOutput(moduleDescription) << '\n';
+                }
+            }
+            else
+            {
+                // -- Sample output when no IConfigurationUnitProcessorDetails present --
+                // Intent :: UnitName <from unit> [identifier]
+                //   Description (from directives)
+                //   "Module": module <directive>
+                OutputConfigurationUnitHeader(out, unit, unit.UnitName());
+
+                auto description = GetValueSetString(directives, s_Directive_Description);
+                if (description && !description.value().empty())
+                {
+                    out << "  "_liv << description.value() << '\n';
+                }
+
+                auto module = GetValueSetString(directives, s_Directive_Module);
+                if (module && !module.value().empty())
+                {
+                    out << "  "_liv << Resource::String::ConfigurationModuleNameOnly(module.value()) << '\n';
+                }
+            }
+
+            // -- Sample output footer --
+            //   Dependencies: dep1, dep2, ...
+            //   Settings:
+            //     <... settings splat>
+            auto dependencies = unit.Dependencies();
+            if (dependencies.Size() > 0)
+            {
+                std::ostringstream allDependencies;
+                for (const winrt::hstring& dependency : dependencies)
+                {
+                    allDependencies << ' ' << Utility::ConvertToUTF8(dependency);
+                }
+                out << "  "_liv << Resource::String::ConfigurationDependencies(Utility::LocIndString{ std::move(allDependencies).str() }) << '\n';
+            }
+
+            ValueSet settings = unit.Settings();
+            if (settings.Size() > 0)
+            {
+                out << "  "_liv << Resource::String::ConfigurationSettings << '\n';
+                OutputValueSet(out, settings, 4);
+            }
+        }
+
         // Helper to handle progress callbacks from ApplyConfigurationSetAsync
         struct ApplyConfigurationSetProgressOutput
         {
@@ -275,137 +388,57 @@ namespace AppInstaller::CLI::Workflow
         context.Get<Data::ConfigurationContext>().Set(openResult.Set());
     }
 
-    void GetConfigurationSetDetails(Context& context)
+    void ShowConfigurationSet(Context& context)
     {
+        ConfigurationContext& configContext = context.Get<Data::ConfigurationContext>();
+        decltype(configContext.Processor().GetSetDetailsAsync(configContext.Set(), ConfigurationUnitDetailLevel::Catalog)) getDetailsOperation = nullptr;
+
         try
         {
-            ConfigurationContext& configContext = context.Get<Data::ConfigurationContext>();
-            configContext.Processor().GetSetDetails(configContext.Set(), ConfigurationUnitDetailLevel::Catalog);
-            return;
+            getDetailsOperation = configContext.Processor().GetSetDetailsAsync(configContext.Set(), ConfigurationUnitDetailLevel::Catalog);
         }
         catch (...)
         {
             LOG_CAUGHT_EXCEPTION();
         }
 
-        // Failing to get details might not be fatal, warn about it but proceed
-        context.Reporter.Warn() << Resource::String::ConfigurationFailedToGetDetails << std::endl;
-    }
-
-    void ShowConfigurationSet(Context& context)
-    {
-        OutputStream out = context.Reporter.Info();
-
-        for (const ConfigurationUnit& unit : context.Get<Data::ConfigurationContext>().Set().ConfigurationUnits())
+        if (getDetailsOperation)
         {
-            IConfigurationUnitProcessorDetails details = unit.Details();
-            ValueSet directives = unit.Directives();
+            OutputStream out = context.Reporter.Info();
+            uint32_t unitsShown = 0;
 
-            if (details)
-            {
-                // -- Sample output when IConfigurationUnitProcessorDetails present --
-                // Intent :: UnitName <from details> [Identifier]
-                //   UnitDocumentationUri <if present>
-                //   Description <from details first, directives second>
-                //   "Module": ModuleName "by" Author / Publisher (IsLocal / ModuleSource)
-                //     "Signed by": SigningCertificateChain (leaf subject CN)
-                //     PublishedModuleUri / ModuleDocumentationUri <if present>
-                //     ModuleDescription
-                OutputConfigurationUnitHeader(out, unit, details.UnitName());
-
-                auto unitDocumentationUri = details.UnitDocumentationUri();
-                if (unitDocumentationUri)
+            getDetailsOperation.Progress([&](const IAsyncOperationWithProgress<GetConfigurationSetDetailsResult, GetConfigurationUnitDetailsResult>& operation, const GetConfigurationUnitDetailsResult& unitResult)
                 {
-                    out << "  "_liv << ConvertForOutput(unitDocumentationUri.DisplayUri()) << '\n';
-                }
-
-                winrt::hstring unitDescriptionFromDetails = details.UnitDescription();
-                if (!unitDescriptionFromDetails.empty())
-                {
-                    out << "  "_liv << ConvertForOutput(unitDescriptionFromDetails) << '\n';
-                }
-                else
-                {
-                    auto unitDescriptionFromDirectives = GetValueSetString(directives, s_Directive_Description);
-                    if (unitDescriptionFromDirectives && !unitDescriptionFromDirectives.value().empty())
+                    auto unitResults = operation.GetResults().UnitResults();
+                    for (unitsShown; unitsShown < unitResults.Size(); ++unitsShown)
                     {
-                        out << "  "_liv << unitDescriptionFromDirectives.value() << '\n';
+                        GetConfigurationUnitDetailsResult unitResult = unitResults.GetAt(unitsShown);
+                        LogFailedGetConfigurationUnitDetails(unitResult.ResultInformation());
+                        OutputConfigurationUnitInformation(out, unitResult.Unit());
                     }
-                }
+                });
 
-                auto author = ConvertForOutput(details.Author());
-                if (author.empty())
-                {
-                    author = ConvertForOutput(details.Publisher());
-                }
-                if (details.IsLocal())
-                {
-                    out << "  "_liv << Resource::String::ConfigurationModuleNameOnly(ConvertForOutput(details.ModuleName()), author, Resource::String::ConfigurationLocal) << '\n';
-                }
-                else
-                {
-                    out << "  "_liv << Resource::String::ConfigurationModuleNameOnly(ConvertForOutput(details.ModuleName()), author, ConvertForOutput(details.ModuleSource())) << '\n';
-                }
+            GetConfigurationSetDetailsResult result = getDetailsOperation.get();
 
-                // TODO: Signing information after it gets changed
-
-                auto moduleUri = details.PublishedModuleUri();
-                if (!moduleUri)
-                {
-                    moduleUri = details.ModuleDocumentationUri();
-                }
-                if (moduleUri)
-                {
-                    out << "    "_liv << ConvertForOutput(moduleUri.DisplayUri()) << '\n';
-                }
-
-                winrt::hstring moduleDescription = details.ModuleDescription();
-                if (!moduleDescription.empty())
-                {
-                    out << "    "_liv << ConvertForOutput(moduleDescription) << '\n';
-                }
-            }
-            else
+            // Handle any missing progress callbacks
+            auto unitResults = result.UnitResults();
+            for (unitsShown; unitsShown < unitResults.Size(); ++unitsShown)
             {
-                // -- Sample output when no IConfigurationUnitProcessorDetails present --
-                // Intent :: UnitName <from unit> [identifier]
-                //   Description (from directives)
-                //   "Module": module <directive>
-                OutputConfigurationUnitHeader(out, unit, unit.UnitName());
-
-                auto description = GetValueSetString(directives, s_Directive_Description);
-                if (description && !description.value().empty())
-                {
-                    out << "  "_liv << description.value() << '\n';
-                }
-
-                auto module = GetValueSetString(directives, s_Directive_Module);
-                if (module && !module.value().empty())
-                {
-                    out << "  "_liv << Resource::String::ConfigurationModuleNameOnly(module.value()) << '\n';
-                }
+                GetConfigurationUnitDetailsResult unitResult = unitResults.GetAt(unitsShown);
+                LogFailedGetConfigurationUnitDetails(unitResult.ResultInformation());
+                OutputConfigurationUnitInformation(out, unitResult.Unit());
             }
+        }
+        else
+        {
+            // Failing to get details might not be fatal, warn about it but proceed
+            context.Reporter.Warn() << Resource::String::ConfigurationFailedToGetDetails << std::endl;
 
-            // -- Sample output footer --
-            //   Dependencies: dep1, dep2, ...
-            //   Settings:
-            //     <... settings splat>
-            auto dependencies = unit.Dependencies();
-            if (dependencies.Size() > 0)
-            {
-                std::ostringstream allDependencies;
-                for (const winrt::hstring& dependency : dependencies)
-                {
-                    allDependencies << ' ' << Utility::ConvertToUTF8(dependency);
-                }
-                out << "  "_liv << Resource::String::ConfigurationDependencies(Utility::LocIndString{ std::move(allDependencies).str() }) << '\n';
-            }
+            OutputStream out = context.Reporter.Info();
 
-            ValueSet settings = unit.Settings();
-            if (settings.Size() > 0)
+            for (const ConfigurationUnit& unit : configContext.Set().ConfigurationUnits())
             {
-                out << "  "_liv << Resource::String::ConfigurationSettings << '\n';
-                OutputValueSet(out, settings, 4);
+                OutputConfigurationUnitInformation(out, unit);
             }
         }
     }

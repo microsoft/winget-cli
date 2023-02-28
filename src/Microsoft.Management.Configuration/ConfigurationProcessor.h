@@ -22,6 +22,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         using TestConfigurationSetResult = Configuration::TestConfigurationSetResult;
         using TestConfigurationUnitResult = Configuration::TestConfigurationUnitResult;
         using GetConfigurationUnitSettingsResult = Configuration::GetConfigurationUnitSettingsResult;
+        using GetConfigurationSetDetailsResult = Configuration::GetConfigurationSetDetailsResult;
+        using GetConfigurationUnitDetailsResult = Configuration::GetConfigurationUnitDetailsResult;
 
         ConfigurationProcessor(const IConfigurationSetProcessorFactory& factory);
 
@@ -44,8 +46,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             const Windows::Foundation::Collections::IVectorView<ConfigurationSet>& configurationSets,
             bool includeConfigurationHistory);
 
-        void GetSetDetails(const ConfigurationSet& configurationSet, ConfigurationUnitDetailLevel detailLevel);
-        Windows::Foundation::IAsyncAction GetSetDetailsAsync(const ConfigurationSet& configurationSet, ConfigurationUnitDetailLevel detailLevel);
+        GetConfigurationSetDetailsResult GetSetDetails(const ConfigurationSet& configurationSet, ConfigurationUnitDetailLevel detailLevel);
+        Windows::Foundation::IAsyncOperationWithProgress<GetConfigurationSetDetailsResult, GetConfigurationUnitDetailsResult> GetSetDetailsAsync(const ConfigurationSet& configurationSet, ConfigurationUnitDetailLevel detailLevel);
 
         void GetUnitDetails(const ConfigurationUnit& unit, ConfigurationUnitDetailLevel detailLevel);
         Windows::Foundation::IAsyncAction GetUnitDetailsAsync(const ConfigurationUnit& unit, ConfigurationUnitDetailLevel detailLevel);

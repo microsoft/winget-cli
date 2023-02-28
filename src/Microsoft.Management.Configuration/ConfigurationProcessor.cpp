@@ -15,6 +15,8 @@
 #include "GetConfigurationUnitSettingsResult.h"
 #include "ExceptionResultHelpers.h"
 #include "ConfigurationSetChangeData.h"
+#include "GetConfigurationUnitDetailsResult.h"
+#include "GetConfigurationSetDetailsResult.h"
 
 #include <AppInstallerErrors.h>
 #include <AppInstallerStrings.h>
@@ -197,12 +199,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         co_return CheckForConflicts(configurationSets, includeConfigurationHistory);
     }
 
-    void ConfigurationProcessor::GetSetDetails(const ConfigurationSet& configurationSet, ConfigurationUnitDetailLevel detailLevel)
+    Configuration::GetConfigurationSetDetailsResult ConfigurationProcessor::GetSetDetails(const ConfigurationSet& configurationSet, ConfigurationUnitDetailLevel detailLevel)
     {
         return GetSetDetailsAsync(configurationSet, detailLevel).get();
     }
 
-    Windows::Foundation::IAsyncAction ConfigurationProcessor::GetSetDetailsAsync(const ConfigurationSet& configurationSet, ConfigurationUnitDetailLevel detailLevel)
+    Windows::Foundation::IAsyncOperationWithProgress<Configuration::GetConfigurationSetDetailsResult, Configuration::GetConfigurationUnitDetailsResult> ConfigurationProcessor::GetSetDetailsAsync(const ConfigurationSet& configurationSet, ConfigurationUnitDetailLevel detailLevel)
     {
         THROW_HR_IF(E_NOT_VALID_STATE, !m_factory);
 
@@ -213,11 +215,37 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         IConfigurationSetProcessor setProcessor = m_factory.CreateSetProcessor(localSet);
 
+        auto progress = co_await winrt::get_progress_token();
+        auto result = make_self<wil::details::module_count_wrapper<implementation::GetConfigurationSetDetailsResult>>();
+        progress.set_result(*result);
+
         for (const auto& unit : localSet.ConfigurationUnits())
         {
-            IConfigurationUnitProcessorDetails details = setProcessor.GetUnitProcessorDetails(unit, detailLevel);
-            get_self<implementation::ConfigurationUnit>(unit)->Details(std::move(details));
+            auto unitResult = make_self<wil::details::module_count_wrapper<implementation::GetConfigurationUnitDetailsResult>>();
+            auto unitResultInformation = make_self<wil::details::module_count_wrapper<implementation::ConfigurationUnitResultInformation>>();
+            unitResult->Unit(unit);
+            unitResult->ResultInformation(*unitResultInformation);
+
+            try
+            {
+                IConfigurationUnitProcessorDetails details = setProcessor.GetUnitProcessorDetails(unit, detailLevel);
+                get_self<implementation::ConfigurationUnit>(unit)->Details(std::move(details));
+            }
+            catch (const winrt::hresult_error& hre)
+            {
+                unitResultInformation->ResultCode(LOG_CAUGHT_EXCEPTION());
+                unitResultInformation->Description(hre.message());
+            }
+            catch (...)
+            {
+                unitResultInformation->ResultCode(LOG_CAUGHT_EXCEPTION());
+            }
+
+            result->UnitResultsVector().Append(*unitResult);
+            progress(*unitResult);
         }
+
+        co_return *result;
     }
 
     void ConfigurationProcessor::GetUnitDetails(const ConfigurationUnit& unit, ConfigurationUnitDetailLevel detailLevel)

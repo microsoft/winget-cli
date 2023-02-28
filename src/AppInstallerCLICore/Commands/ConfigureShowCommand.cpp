@@ -37,7 +37,6 @@ namespace AppInstaller::CLI
         context <<
             CreateConfigurationProcessor <<
             OpenConfigurationSet <<
-            GetConfigurationSetDetails <<
             ShowConfigurationSet;
     }
 }
