@@ -62,11 +62,21 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
                 throw new NotSupportedException();
             }
 
-            if (!this.ValidateModule(PowerShellHelpers.CreateModuleSpecification(
-                    Modules.PowerShellGetMinVersion,
-                    minVersion: Modules.PowerShellGetMinVersion)))
+            var powerShellGet = PowerShellHelpers.CreateModuleSpecification(
+                    Modules.PowerShellGet,
+                    minVersion: Modules.PowerShellGetMinVersion);
+            if (!this.ValidateModule(powerShellGet))
             {
-                throw new PowerShellGetException();
+                var previousVersion = this.GetAvailableModule(
+                    PowerShellHelpers.CreateModuleSpecification(
+                        Modules.PowerShellGet));
+                string message = $"Required '{powerShellGet}'";
+                if (previousVersion is not null)
+                {
+                    message += $" Found '{previousVersion.Name} {previousVersion.Version}'";
+                }
+
+                throw new NotSupportedException(message);
             }
 
             // Make sure PSDesiredConfiguration is present.
@@ -383,13 +393,13 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
 
         private bool ValidateModule(ModuleSpecification moduleSpecification)
         {
-            var loadedModule = this.GetImportedModule(this.DscModule.ModuleSpecification);
+            var loadedModule = this.GetImportedModule(moduleSpecification);
             if (loadedModule is not null)
             {
                 return true;
             }
 
-            var availableModule = this.GetAvailableModule(this.DscModule.ModuleSpecification);
+            var availableModule = this.GetAvailableModule(moduleSpecification);
             if (availableModule is not null)
             {
                 this.ImportModule(moduleSpecification);

@@ -21,6 +21,7 @@ namespace Microsoft.Management.Configuration.Processor.Exceptions
         /// <param name="module">Optional module.</param>
         public InvokeDscResourceSetException(string resourceName, ModuleSpecification? module)
         {
+            this.HResult = ErrorCodes.WinGetConfigUnitInvokeSet;
             this.ResourceName = resourceName;
             this.Module = module;
         }

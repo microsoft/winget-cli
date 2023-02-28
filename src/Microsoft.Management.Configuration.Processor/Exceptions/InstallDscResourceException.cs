@@ -7,6 +7,7 @@
 namespace Microsoft.Management.Configuration.Processor.Exceptions
 {
     using System;
+    using Microsoft.PowerShell.Commands;
 
     /// <summary>
     /// Installing a DSC resource failed unexpectedly.
@@ -17,14 +18,22 @@ namespace Microsoft.Management.Configuration.Processor.Exceptions
         /// Initializes a new instance of the <see cref="InstallDscResourceException"/> class.
         /// </summary>
         /// <param name="resourceName">Resource name.</param>
-        public InstallDscResourceException(string resourceName)
+        /// <param name="module">Module.</param>
+        public InstallDscResourceException(string resourceName, ModuleSpecification? module)
         {
+            this.HResult = ErrorCodes.WinGetConfigUnitNotFound;
             this.ResourceName = resourceName;
+            this.Module = module;
         }
 
         /// <summary>
         /// Gets the resource name.
         /// </summary>
         public string ResourceName { get; }
+
+        /// <summary>
+        /// Gets the module, if any.
+        /// </summary>
+        public ModuleSpecification? Module { get; }
     }
 }

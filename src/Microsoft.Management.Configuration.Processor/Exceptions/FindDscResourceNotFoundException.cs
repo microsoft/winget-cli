@@ -16,27 +16,16 @@ namespace Microsoft.Management.Configuration.Processor.Exceptions
         /// <summary>
         /// Initializes a new instance of the <see cref="FindDscResourceNotFoundException"/> class.
         /// </summary>
-        public FindDscResourceNotFoundException()
+        /// <param name="unitName">Unit name.</param>
+        public FindDscResourceNotFoundException(string unitName)
         {
+            this.HResult = ErrorCodes.WinGetConfigUnitNotFoundRepository;
+            this.UnitName = unitName;
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FindDscResourceNotFoundException"/> class.
+        /// Gets the unit name.
         /// </summary>
-        /// <param name="message">Message.</param>
-        public FindDscResourceNotFoundException(string message)
-            : base(message)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FindDscResourceNotFoundException"/> class.
-        /// </summary>
-        /// <param name="message">Message.</param>
-        /// <param name="inner">Inner exception.</param>
-        public FindDscResourceNotFoundException(string message, Exception inner)
-            : base(message, inner)
-        {
-        }
+        public string UnitName { get; }
     }
 }

@@ -135,7 +135,9 @@ namespace Microsoft.Management.Configuration.Processor.Set
                 if (dscResourceInfo is null)
                 {
                     // Well, this is awkward.
-                    throw new InstallDscResourceException(unit.UnitName);
+                    throw new InstallDscResourceException(
+                        unit.UnitName,
+                        PowerShellHelpers.CreateModuleSpecification(findResource.ModuleName, findResource.Version));
                 }
 
                 return this.GetUnitProcessorDetailsLocal(unit.UnitName, dscResourceInfo, true);
@@ -162,8 +164,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
 
                 if (findDscResourceResult is null)
                 {
-                    string message = $"Resource = {unitInternal.Unit.UnitName}";
-                    throw new FindDscResourceNotFoundException(message);
+                    throw new FindDscResourceNotFoundException(unitInternal.Unit.UnitName);
                 }
 
                 this.ProcessorEnvironment.InstallModule(findDscResourceResult);
@@ -172,8 +173,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
                 dscResourceInfo = this.ProcessorEnvironment.GetDscResource(unitInternal);
                 if (dscResourceInfo is null)
                 {
-                    string message = $"Resource = {unitInternal.Unit.UnitName} Module {unitInternal.Module}";
-                    throw new GetDscResourceNotFoundException(message);
+                    throw new InstallDscResourceException(unitInternal.Unit.UnitName, unitInternal.Module);
                 }
             }
 

@@ -226,7 +226,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             unit.Directives.Add("module", moduleName);
             unit.Directives.Add("version", version.ToString());
 
-            Assert.Throws<GetDscResourceNotFoundException>(
+            Assert.Throws<InstallDscResourceException>(
                 () => configurationSetProcessor.CreateUnitProcessor(unit, null));
 
             processorEnvMock.Verify();
@@ -690,6 +690,8 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             return new PSObject(new
             {
                 Name = "SimpleFileResource",
+                ModuleName = "xSimpleTestResource",
+                Version = "0.0.0.1",
                 PSGetModuleInfo = getModuleInfo,
             });
         }

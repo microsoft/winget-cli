@@ -39,6 +39,7 @@ namespace Microsoft.Management.Configuration.Processor
         {
             var envFactory = new ProcessorEnvironmentFactory(this.type);
             var processorEnvironment = envFactory.CreateEnvironment();
+            processorEnvironment.ValidateRunspace();
 
             if (this.properties is not null)
             {

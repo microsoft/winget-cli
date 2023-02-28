@@ -7,9 +7,7 @@
 namespace Microsoft.Management.Configuration.Processor.ProcessorEnvironments
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
-    using System.Management.Automation;
     using System.Management.Automation.Runspaces;
     using Microsoft.Management.Configuration.Processor.DscModule;
     using Microsoft.Management.Configuration.Processor.Runspaces;
@@ -38,11 +36,7 @@ namespace Microsoft.Management.Configuration.Processor.ProcessorEnvironments
         /// <returns>IProcessorEnvironment.</returns>
         public IProcessorEnvironment CreateEnvironment()
         {
-            var processEnvironment = this.CreateProcessorEnvironment();
-
-            processEnvironment.ValidateRunspace();
-
-            return processEnvironment;
+            return this.CreateProcessorEnvironment();
         }
 
         private IProcessorEnvironment CreateProcessorEnvironment()
