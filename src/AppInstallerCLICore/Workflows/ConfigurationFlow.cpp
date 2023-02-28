@@ -226,6 +226,15 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
+        void LogFailedGetConfigurationUnitDetails(const ConfigurationUnit& unit, const ConfigurationUnitResultInformation& resultInformation)
+        {
+            if (FAILED(resultInformation.ResultCode()))
+            {
+                AICLI_LOG(Config, Error, << "Failed to get unit details for " << Utility::ConvertToUTF8(unit.UnitName()) << " : 0x" <<
+                    Logging::SetHRFormat << resultInformation.ResultCode() << '\n' << Utility::ConvertToUTF8(resultInformation.Description()));
+            }
+        }
+
         // Helper to handle progress callbacks from ApplyConfigurationSetAsync
         struct ApplyConfigurationSetProgressOutput
         {
@@ -391,33 +400,24 @@ namespace AppInstaller::CLI::Workflow
     void ShowConfigurationSet(Context& context)
     {
         ConfigurationContext& configContext = context.Get<Data::ConfigurationContext>();
-        decltype(configContext.Processor().GetSetDetailsAsync(configContext.Set(), ConfigurationUnitDetailLevel::Catalog)) getDetailsOperation = nullptr;
+        auto getDetailsOperation = configContext.Processor().GetSetDetailsAsync(configContext.Set(), ConfigurationUnitDetailLevel::Catalog);
+
+        OutputStream out = context.Reporter.Info();
+        uint32_t unitsShown = 0;
+
+        getDetailsOperation.Progress([&](const IAsyncOperationWithProgress<GetConfigurationSetDetailsResult, GetConfigurationUnitDetailsResult>& operation, const GetConfigurationUnitDetailsResult&)
+            {
+                auto unitResults = operation.GetResults().UnitResults();
+                for (unitsShown; unitsShown < unitResults.Size(); ++unitsShown)
+                {
+                    GetConfigurationUnitDetailsResult unitResult = unitResults.GetAt(unitsShown);
+                    LogFailedGetConfigurationUnitDetails(unitResult.Unit(), unitResult.ResultInformation());
+                    OutputConfigurationUnitInformation(out, unitResult.Unit());
+                }
+            });
 
         try
         {
-            getDetailsOperation = configContext.Processor().GetSetDetailsAsync(configContext.Set(), ConfigurationUnitDetailLevel::Catalog);
-        }
-        catch (...)
-        {
-            LOG_CAUGHT_EXCEPTION();
-        }
-
-        if (getDetailsOperation)
-        {
-            OutputStream out = context.Reporter.Info();
-            uint32_t unitsShown = 0;
-
-            getDetailsOperation.Progress([&](const IAsyncOperationWithProgress<GetConfigurationSetDetailsResult, GetConfigurationUnitDetailsResult>& operation, const GetConfigurationUnitDetailsResult& unitResult)
-                {
-                    auto unitResults = operation.GetResults().UnitResults();
-                    for (unitsShown; unitsShown < unitResults.Size(); ++unitsShown)
-                    {
-                        GetConfigurationUnitDetailsResult unitResult = unitResults.GetAt(unitsShown);
-                        LogFailedGetConfigurationUnitDetails(unitResult.ResultInformation());
-                        OutputConfigurationUnitInformation(out, unitResult.Unit());
-                    }
-                });
-
             GetConfigurationSetDetailsResult result = getDetailsOperation.get();
 
             // Handle any missing progress callbacks
@@ -425,16 +425,17 @@ namespace AppInstaller::CLI::Workflow
             for (unitsShown; unitsShown < unitResults.Size(); ++unitsShown)
             {
                 GetConfigurationUnitDetailsResult unitResult = unitResults.GetAt(unitsShown);
-                LogFailedGetConfigurationUnitDetails(unitResult.ResultInformation());
+                LogFailedGetConfigurationUnitDetails(unitResult.Unit(), unitResult.ResultInformation());
                 OutputConfigurationUnitInformation(out, unitResult.Unit());
             }
         }
-        else
+        CATCH_LOG();
+
+        // In the event of an exception from GetSetDetailsAsync, show the data we do have
+        if (!unitsShown && configContext.Set().ConfigurationUnits().Size())
         {
             // Failing to get details might not be fatal, warn about it but proceed
             context.Reporter.Warn() << Resource::String::ConfigurationFailedToGetDetails << std::endl;
-
-            OutputStream out = context.Reporter.Info();
 
             for (const ConfigurationUnit& unit : configContext.Set().ConfigurationUnits())
             {
