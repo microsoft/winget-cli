@@ -6,7 +6,6 @@
 
 namespace Microsoft.Management.Configuration.Processor.DscModule
 {
-    using System;
     using System.Collections;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
@@ -14,6 +13,7 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
     using System.Management.Automation;
     using System.Management.Automation.Runspaces;
     using Microsoft.Management.Configuration.Processor.DscResourcesInfo;
+    using Microsoft.Management.Configuration.Processor.Exceptions;
     using Microsoft.Management.Configuration.Processor.Extensions;
     using Microsoft.Management.Configuration.Processor.Helpers;
     using Microsoft.PowerShell.Commands;
@@ -27,6 +27,12 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
     {
         private const string InDesiredState = "InDesiredState";
         private const string RebootRequired = "RebootRequired";
+
+        private static readonly IEnumerable<string> ExclusionResourcesParentPath = new string[]
+        {
+            @"C:\WINDOWS\system32\WindowsPowershell\v1.0\Modules\PsDesiredStateConfiguration\DscResources",
+            @"C:\Program Files\WindowsPowerShell\Modules\PackageManagement\1.0.0.1",
+        };
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DscModuleV2"/> class.
@@ -100,7 +106,7 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
             }
             else if (dscResourceInfos.Count > 1)
             {
-                throw new ArgumentException(name);
+                throw new GetDscResourceMultipleMatches(name, moduleSpecification);
             }
 
             return dscResourceInfos[0];
@@ -123,7 +129,7 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
 
             if (getResult is null)
             {
-                throw new ArgumentException(name);
+                throw new InvokeDscResourceGetException(name, moduleSpecification);
             }
 
             // Script based resource.
@@ -163,7 +169,7 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
             if (testResult is null ||
                 !TypeHelpers.PropertyWithTypeExists<bool>(testResult, InDesiredState))
             {
-                throw new ArgumentException(name);
+                throw new InvokeDscResourceTestException(name, moduleSpecification);
             }
 
             return testResult?.InDesiredState;
@@ -189,7 +195,7 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
             if (setResult is null ||
                 !TypeHelpers.PropertyWithTypeExists<bool>(setResult, RebootRequired))
             {
-                throw new ArgumentException(name);
+                throw new InvokeDscResourceSetException(name, moduleSpecification);
             }
 
             return setResult?.RebootRequired;
@@ -228,14 +234,9 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
                 var dscResourceInfo = new DscResourceInfoInternal(psObject);
 
                 // Explicitly don't support old DSC resources from v1 PSDesiredStateConfiguration.
-                // Even if the windows system32 windows powershell module path is removed they
+                // Even if the Windows System32 Windows PowerShell module path is removed they
                 // will show up.
-                if (dscResourceInfo.ParentPath!.StartsWith(
-                        @"C:\WINDOWS\system32\WindowsPowershell\v1.0\Modules\PsDesiredStateConfiguration\DscResources",
-                        StringComparison.OrdinalIgnoreCase) ||
-                    dscResourceInfo.ParentPath!.StartsWith(
-                        @"C:\Program Files\WindowsPowerShell\Modules\PackageManagement\1.0.0.1",
-                        StringComparison.OrdinalIgnoreCase))
+                if (ExclusionResourcesParentPath.Any(e => dscResourceInfo.ParentPath!.StartsWith(e)))
                 {
                     continue;
                 }

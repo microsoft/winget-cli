@@ -167,7 +167,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
                 if (hasCerts)
                 {
-                    Assert.NotNull(details.Certificates);
+                    Assert.NotNull(details.SigningInformation);
                 }
             }
         }

@@ -584,11 +584,9 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 processorEnvMock.Object,
                 new ConfigurationSet());
 
-            var configurationUnitProcessorDetails = configurationSetProcessor.GetUnitProcessorDetails(
+            Assert.Throws<InstallDscResourceException>(() => configurationSetProcessor.GetUnitProcessorDetails(
                 unit,
-                ConfigurationUnitDetailLevel.Load);
-
-            Assert.Null(configurationUnitProcessorDetails);
+                ConfigurationUnitDetailLevel.Load));
 
             processorEnvMock.Verify();
             processorEnvMock.Verify(

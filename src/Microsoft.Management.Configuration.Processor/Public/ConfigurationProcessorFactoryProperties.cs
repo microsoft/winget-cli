@@ -16,13 +16,11 @@ namespace Microsoft.Management.Configuration.Processor
         /// <summary>
         /// Initializes a new instance of the <see cref="ConfigurationProcessorFactoryProperties"/> class.
         /// </summary>
-        /// <param name="additionalModulePaths">Additional module paths.</param>
-        public ConfigurationProcessorFactoryProperties(IReadOnlyList<string> additionalModulePaths)
+        public ConfigurationProcessorFactoryProperties()
         {
-            this.AdditionalModulePaths = additionalModulePaths;
         }
 
         /// <inheritdoc/>
-        public IReadOnlyList<string> AdditionalModulePaths { get; }
+        public IReadOnlyList<string>? AdditionalModulePaths { get; set; }
     }
 }

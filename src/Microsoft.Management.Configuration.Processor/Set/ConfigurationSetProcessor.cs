@@ -135,7 +135,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
                 if (dscResourceInfo is null)
                 {
                     // Well, this is awkward.
-                    return null;
+                    throw new InstallDscResourceException(unit.UnitName);
                 }
 
                 return this.GetUnitProcessorDetailsLocal(unit.UnitName, dscResourceInfo, true);

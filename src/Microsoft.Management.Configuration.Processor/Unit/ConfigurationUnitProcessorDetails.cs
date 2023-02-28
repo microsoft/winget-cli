@@ -92,7 +92,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
                 }
             }
 
-            this.Certificates = certs;
+            this.SigningInformation = certs;
         }
 
         /// <summary>
@@ -173,7 +173,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
         /// <summary>
         /// Gets the signing certificate of the module files containing the unit of configuration.
         /// </summary>
-        public IReadOnlyList<object>? Certificates { get; private set; }
+        public IReadOnlyList<object>? SigningInformation { get; private set; }
 
         /// <summary>
         /// Gets the settings information for the unit of configuration.

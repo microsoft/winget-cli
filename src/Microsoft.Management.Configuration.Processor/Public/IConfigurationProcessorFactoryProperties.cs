@@ -14,8 +14,8 @@ namespace Microsoft.Management.Configuration.Processor
     public interface IConfigurationProcessorFactoryProperties
     {
         /// <summary>
-        /// Gets the additional module paths.
+        /// Gets or sets the additional module paths.
         /// </summary>
-        IReadOnlyList<string> AdditionalModulePaths { get; }
+        IReadOnlyList<string>? AdditionalModulePaths { get; set; }
     }
 }

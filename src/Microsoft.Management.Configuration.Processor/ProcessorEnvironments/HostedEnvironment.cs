@@ -15,6 +15,7 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
     using Microsoft.Management.Configuration.Processor.Constants;
     using Microsoft.Management.Configuration.Processor.DscModule;
     using Microsoft.Management.Configuration.Processor.DscResourcesInfo;
+    using Microsoft.Management.Configuration.Processor.Exceptions;
     using Microsoft.Management.Configuration.Processor.Extensions;
     using Microsoft.Management.Configuration.Processor.Helpers;
     using Microsoft.Management.Configuration.Processor.ProcessorEnvironments;
@@ -59,6 +60,13 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
             if (this.GetVariable<string>(Variables.PSEdition) != Core)
             {
                 throw new NotSupportedException();
+            }
+
+            if (!this.ValidateModule(PowerShellHelpers.CreateModuleSpecification(
+                    Modules.PowerShellGetMinVersion,
+                    minVersion: Modules.PowerShellGetMinVersion)))
+            {
+                throw new PowerShellGetException();
             }
 
             // Make sure PSDesiredConfiguration is present.
@@ -254,42 +262,33 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
         public void InstallModule(ModuleSpecification moduleSpecification)
         {
             // Maybe is already there.
-            var loadedModule = this.GetImportedModule(this.DscModule.ModuleSpecification);
-            if (loadedModule is null)
+            if (!this.ValidateModule(moduleSpecification))
             {
-                var availableModule = this.GetAvailableModule(this.DscModule.ModuleSpecification);
-                if (availableModule is not null)
+                // Ok, we have to get it.
+                var parameters = new Dictionary<string, object>()
                 {
-                    this.ImportModule(moduleSpecification);
-                }
-                else
+                    { Parameters.Name, moduleSpecification.Name },
+                };
+                if (moduleSpecification.Version is not null)
                 {
-                    // Ok, we have to get it.
-                    var parameters = new Dictionary<string, object>()
-                    {
-                        { Parameters.Name, moduleSpecification.Name },
-                    };
-                    if (moduleSpecification.Version is not null)
-                    {
-                        parameters.Add(Parameters.MinimumVersion, moduleSpecification.Version);
-                    }
-
-                    if (moduleSpecification.MaximumVersion is not null)
-                    {
-                        parameters.Add(Parameters.MaximumVersion, moduleSpecification.MaximumVersion);
-                    }
-
-                    if (moduleSpecification.RequiredVersion is not null)
-                    {
-                        parameters.Add(Parameters.RequiredVersion, moduleSpecification.RequiredVersion);
-                    }
-
-                    using PowerShell pwsh = PowerShell.Create(this.Runspace);
-                    _ = pwsh.AddCommand(Commands.InstallModule)
-                            .AddParameters(parameters)
-                            .AddParameter(Parameters.Force)
-                            .InvokeAndStopOnError();
+                    parameters.Add(Parameters.MinimumVersion, moduleSpecification.Version);
                 }
+
+                if (moduleSpecification.MaximumVersion is not null)
+                {
+                    parameters.Add(Parameters.MaximumVersion, moduleSpecification.MaximumVersion);
+                }
+
+                if (moduleSpecification.RequiredVersion is not null)
+                {
+                    parameters.Add(Parameters.RequiredVersion, moduleSpecification.RequiredVersion);
+                }
+
+                using PowerShell pwsh = PowerShell.Create(this.Runspace);
+                _ = pwsh.AddCommand(Commands.InstallModule)
+                        .AddParameters(parameters)
+                        .AddParameter(Parameters.Force)
+                        .InvokeAndStopOnError();
             }
         }
 
@@ -380,6 +379,24 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
                                        .Replace($";{path}", null);
 
             this.SetPSModulePath(newModulePath);
+        }
+
+        private bool ValidateModule(ModuleSpecification moduleSpecification)
+        {
+            var loadedModule = this.GetImportedModule(this.DscModule.ModuleSpecification);
+            if (loadedModule is not null)
+            {
+                return true;
+            }
+
+            var availableModule = this.GetAvailableModule(this.DscModule.ModuleSpecification);
+            if (availableModule is not null)
+            {
+                this.ImportModule(moduleSpecification);
+                return true;
+            }
+
+            return false;
         }
     }
 }
