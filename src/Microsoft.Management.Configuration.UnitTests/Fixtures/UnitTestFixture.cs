@@ -55,10 +55,16 @@ namespace Microsoft.Management.Configuration.UnitTests.Fixtures
         /// Creates a runspace adding the test module path.
         /// </summary>
         /// <returns>PowerShellRunspace.</returns>
-        internal IProcessorEnvironment PrepareTestProcessorEnvironment()
+        internal IProcessorEnvironment PrepareTestProcessorEnvironment(bool validate = false)
         {
             var processorEnv = new ProcessorEnvironmentFactory(ConfigurationProcessorType.Hosted).CreateEnvironment();
             processorEnv.PrependPSModulePath(this.TestModulesPath);
+
+            if (validate)
+            {
+                processorEnv.ValidateRunspace();
+            }
+
             return processorEnv;
         }
     }
