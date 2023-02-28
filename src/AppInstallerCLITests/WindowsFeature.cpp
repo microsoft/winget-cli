@@ -25,10 +25,16 @@ TEST_CASE("GetWindowsFeature", "[windowsFeature]")
         return;
     }
 
-    WindowsFeature validFeature{ s_featureName };
+    DismHelper dismHelper = DismHelper();
+
+    DismHelper::WindowsFeature validFeature = dismHelper.CreateWindowsFeature(s_featureName);
     REQUIRE(validFeature.DoesExist());
 
-    WindowsFeature invalidFeature{ "invalidFeature" };
+    DismHelper::WindowsFeature validFeatureWithCasing = dismHelper.CreateWindowsFeature("NeTFX3");
+    REQUIRE(validFeatureWithCasing.DoesExist());
+
+
+    DismHelper::WindowsFeature invalidFeature = dismHelper.CreateWindowsFeature("invalidFeature");
     REQUIRE_FALSE(invalidFeature.DoesExist());
 }
 
@@ -40,13 +46,14 @@ TEST_CASE("DisableEnableWindowsFeature", "[windowsFeature]")
         return;
     }
 
-    WindowsFeature feature{ s_featureName };
-    HRESULT disableResult = feature.DisableFeature();
+    DismHelper dismHelper = DismHelper();
+    DismHelper::WindowsFeature feature = dismHelper.CreateWindowsFeature(s_featureName);
+    HRESULT disableResult = feature.Disable();
     bool disableStatus = (disableResult == S_OK || disableResult == ERROR_SUCCESS_REBOOT_REQUIRED);
     REQUIRE(disableStatus);
     REQUIRE_FALSE(feature.IsEnabled());
 
-    HRESULT enableResult = feature.EnableFeature();
+    HRESULT enableResult = feature.Enable();
     bool enableStatus = (enableResult == S_OK) || (enableResult == ERROR_SUCCESS_REBOOT_REQUIRED);
     REQUIRE(enableStatus);
     REQUIRE(feature.IsEnabled());
@@ -136,7 +143,6 @@ TEST_CASE("InstallFlow_FailedToEnableWindowsFeature", "[windowsFeature]")
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_InvalidWindowsFeatures.yaml").GetPath().u8string());
-    context.Args.AddArg(Execution::Args::Type::IgnoreMissingDependencies);
 
     InstallCommand install({});
     install.Execute(context);
@@ -170,7 +176,6 @@ TEST_CASE("InstallFlow_FailedToEnableWindowsFeature_Force", "[windowsFeature]")
     auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForShellExecute(context);
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_InvalidWindowsFeatures.yaml").GetPath().u8string());
-    context.Args.AddArg(Execution::Args::Type::IgnoreMissingDependencies);
     context.Args.AddArg(Execution::Args::Type::Force);
 
     InstallCommand install({});

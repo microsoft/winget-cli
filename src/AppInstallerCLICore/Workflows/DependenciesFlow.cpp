@@ -157,59 +157,31 @@ namespace AppInstaller::CLI::Workflow
                 return;
             }
 
-            std::vector<std::string> invalidFeatures;
-
-            rootDependencies.ApplyToType(DependencyType::WindowsFeature, [&invalidFeatures](Dependency dependency)
-                {
-                    const auto& name = dependency.Id();
-                    WindowsFeature::WindowsFeature windowsFeature{ name };
-                    if (!windowsFeature.DoesExist())
-                    {
-                        invalidFeatures.emplace_back(name);
-                    }
-                });
-
-            if (!invalidFeatures.empty())
-            {
-                bool shouldTerminate = true;
-                auto warn = context.Reporter.Warn();
-                if (context.Args.Contains(Execution::Args::Type::IgnoreMissingDependencies))
-                {
-                    warn << Resource::String::WindowsFeatureNotFoundOverride << std::endl;
-                    shouldTerminate = false;
-                }
-                else
-                {
-                    warn << Resource::String::WindowsFeatureNotFoundOverrideRequired << std::endl;
-                }
-
-                warn << "  - " << Resource::String::WindowsFeaturesDependencies << std::endl;
-
-                for (const auto& feature : invalidFeatures)
-                {
-                    warn << "      " << feature << std::endl;
-                }
-
-                if (shouldTerminate)
-                {
-                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALL_MISSING_DEPENDENCY);
-                }
-            }
-
             HRESULT hr = S_OK;
             bool continueOnFailure = context.Args.Contains(Execution::Args::Type::Force);
             bool rebootRequired = false;
 
+            // Do I need warn, info and error reporters for this function?\
+
+            // Pass info and warn so that we can show enabling and the status. If we don't have continue on failure, we error out and display in a separate.
+            auto info = context.Reporter.Info();
+            auto warn = context.Reporter.Warn();
+
+            DismHelper dismHelper = DismHelper();
+
             context.Reporter.Info() << Resource::String::EnablingWindowsFeatures << std::endl;
-            rootDependencies.ApplyToType(DependencyType::WindowsFeature, [&hr, &continueOnFailure, &rebootRequired](Dependency dependency)
+            rootDependencies.ApplyToType(DependencyType::WindowsFeature, [&hr, &continueOnFailure, &rebootRequired, &warn, &info, &dismHelper](Dependency dependency)
                 {
                     if (SUCCEEDED(hr) || continueOnFailure)
                     {
+                        info << "Enabling feature";
+                        
                         auto featureName = dependency.Id();
-                        WindowsFeature::WindowsFeature windowsFeature{ featureName };
+                        DismHelper::WindowsFeature windowsFeature = dismHelper.CreateWindowsFeature(featureName);
+
                         if (windowsFeature.DoesExist() && !windowsFeature.IsEnabled())
                         {
-                            hr = windowsFeature.EnableFeature();
+                            hr = windowsFeature.Enable();
                             AICLI_LOG(Core, Info, << "Enabling Windows Feature " << featureName << " returned with HRESULT: " << hr);
                             if (hr == ERROR_SUCCESS_REBOOT_REQUIRED)
                             {

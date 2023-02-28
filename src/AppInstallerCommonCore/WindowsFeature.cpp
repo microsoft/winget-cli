@@ -7,7 +7,7 @@
 
 namespace AppInstaller::WindowsFeature
 {
-    DismApiHelper::DismApiHelper()
+    DismHelper::DismHelper()
     {
         m_module.reset(LoadLibraryEx(L"dismapi.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32));
         if (!m_module)
@@ -76,51 +76,7 @@ namespace AppInstaller::WindowsFeature
         OpenSession();
     }
 
-    DismApiHelper::~DismApiHelper()
-    {
-        if (m_featureInfo)
-        {
-            Delete();
-        }
-
-        Shutdown();
-    }
-
-    DismFeatureInfo* DismApiHelper::GetFeatureInfo(const std::string_view& name)
-    {
-        if (m_dismGetFeatureInfo)
-        {
-            LOG_IF_FAILED(m_dismGetFeatureInfo(m_session, Utility::ConvertToUTF16(name).c_str(), NULL, DismPackageNone, &m_featureInfo));
-        }
-
-        return m_featureInfo;
-    }
-
-    HRESULT DismApiHelper::EnableFeature(const std::string_view& name)
-    {
-        HRESULT hr = ERROR_PROC_NOT_FOUND;
-        if (m_dismEnableFeature)
-        {
-            hr = m_dismEnableFeature(m_session, Utility::ConvertToUTF16(name).c_str(), NULL, DismPackageNone, FALSE, NULL, NULL, TRUE, NULL, NULL, NULL);
-            LOG_IF_FAILED(hr);
-        }
-
-        return hr;
-    }
-
-    HRESULT DismApiHelper::DisableFeature(const std::string_view& name)
-    {
-        HRESULT hr = ERROR_PROC_NOT_FOUND;
-        if (m_dismDisableFeature)
-        {
-            hr = m_dismDisableFeature(m_session, Utility::ConvertToUTF16(name).c_str(), NULL, FALSE, NULL, NULL, NULL);
-            LOG_IF_FAILED(hr);
-        }
-
-        return hr;
-    }
-
-    void DismApiHelper::Initialize()
+    void DismHelper::Initialize()
     {
         if (m_dismInitialize)
         {
@@ -128,7 +84,7 @@ namespace AppInstaller::WindowsFeature
         }
     }
 
-    void DismApiHelper::OpenSession()
+    void DismHelper::OpenSession()
     {
         if (m_dismOpenSession)
         {
@@ -136,15 +92,7 @@ namespace AppInstaller::WindowsFeature
         }
     }
 
-    void DismApiHelper::Delete()
-    {
-        if (m_dismDelete)
-        {
-            LOG_IF_FAILED(m_dismDelete(m_featureInfo));
-        }
-    }
-
-    void DismApiHelper::Shutdown()
+    void DismHelper::Shutdown()
     {
         if (m_dismShutdown)
         {
@@ -161,7 +109,7 @@ namespace AppInstaller::WindowsFeature
     }
 #endif
 
-    HRESULT WindowsFeature::EnableFeature()
+    HRESULT DismHelper::WindowsFeature::Enable()
     {
 #ifndef AICLI_DISABLE_TEST_HOOKS
         if (s_EnableWindowsFeatureResult_TestHook_Override)
@@ -169,17 +117,31 @@ namespace AppInstaller::WindowsFeature
             return *s_EnableWindowsFeatureResult_TestHook_Override;
         }
 #endif
-        return m_dismApiHelper.EnableFeature(m_featureName);
+        HRESULT hr = ERROR_PROC_NOT_FOUND;
+        if (m_enableFeature)
+        {
+            hr = m_enableFeature(m_session, Utility::ConvertToUTF16(m_featureName).c_str(), NULL, DismPackageNone, FALSE, NULL, NULL, TRUE, NULL, NULL, NULL);
+            LOG_IF_FAILED(hr);
+        }
+
+        return hr;
     }
 
-    HRESULT WindowsFeature::DisableFeature()
+    HRESULT DismHelper::WindowsFeature::Disable()
     {
-        return m_dismApiHelper.DisableFeature(m_featureName);
+        HRESULT hr = ERROR_PROC_NOT_FOUND;
+        if (m_disableFeaturePtr)
+        {
+            hr = m_disableFeaturePtr(m_session, Utility::ConvertToUTF16(m_featureName).c_str(), NULL, FALSE, NULL, NULL, NULL);
+            LOG_IF_FAILED(hr);
+        }
+
+        return hr;
     }
 
-    bool WindowsFeature::DoesExist()
+    bool DismHelper::WindowsFeature::DoesExist()
     {
-        return m_dismApiHelper.GetFeatureInfo(m_featureName);
+        return m_featureInfo;
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
@@ -191,7 +153,7 @@ namespace AppInstaller::WindowsFeature
     }
 #endif
 
-    bool WindowsFeature::IsEnabled()
+    bool DismHelper::WindowsFeature::IsEnabled()
     {
 #ifndef AICLI_DISABLE_TEST_HOOKS
         if (s_IsWindowsFeatureEnabledResult_TestHook_Override)
@@ -199,9 +161,30 @@ namespace AppInstaller::WindowsFeature
             return *s_IsWindowsFeatureEnabledResult_TestHook_Override;
         }
 #endif
-        DismFeatureInfo* featureInfo = m_dismApiHelper.GetFeatureInfo(m_featureName);
-        DismPackageFeatureState featureState = featureInfo->FeatureState;
+        // Refresh feature info state prior to retrieving state info.
+        GetFeatureInfo();
+        DismPackageFeatureState featureState = GetState();
         AICLI_LOG(Core, Verbose, << "Feature state of " << m_featureName << " is " << featureState);
         return (featureState == DismStateInstalled || featureState == DismStateInstallPending);
+    }
+
+    void DismHelper::WindowsFeature::GetFeatureInfo()
+    {
+        if (m_getFeatureInfoPtr)
+        {
+            LOG_IF_FAILED(m_getFeatureInfoPtr(m_session, Utility::ConvertToUTF16(m_featureName).c_str(), NULL, DismPackageNone, &m_featureInfo));
+        }
+    }
+
+    DismHelper::WindowsFeature::WindowsFeature(const std::string& name, DismGetFeatureInfoPtr getFeatureInfoPtr, DismEnableFeaturePtr enableFeaturePtr, DismDisableFeaturePtr disableFeaturePtr, DismDeletePtr deletePtr, DismSession session)
+    {
+        m_featureName = name;
+        m_getFeatureInfoPtr = getFeatureInfoPtr;
+        m_enableFeature = enableFeaturePtr;
+        m_disableFeaturePtr = disableFeaturePtr;
+        m_deletePtr = deletePtr;
+        m_session = session;
+
+        GetFeatureInfo();
     }
 }

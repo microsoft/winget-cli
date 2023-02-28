@@ -81,8 +81,6 @@ namespace AppInstaller::CLI
             return { type, "ignore-security-hash"_liv, ArgTypeCategory::InstallerBehavior | ArgTypeCategory::CopyFlagToSubContext };
         case Execution::Args::Type::IgnoreLocalArchiveMalwareScan:
             return { type, "ignore-local-archive-malware-scan"_liv, ArgTypeCategory::InstallerBehavior | ArgTypeCategory::CopyFlagToSubContext };
-        case Execution::Args::Type::IgnoreMissingDependencies:
-            return { type, "ignore-missing-dependencies"_liv, ArgTypeCategory::InstallerBehavior | ArgTypeCategory::CopyFlagToSubContext };
         case Execution::Args::Type::AcceptPackageAgreements:
             return { type, "accept-package-agreements"_liv, ArgTypeCategory::InstallerBehavior };
         case Execution::Args::Type::Rename:
@@ -279,8 +277,6 @@ namespace AppInstaller::CLI
             return Argument{ type, Resource::String::HelpArgumentDescription, ArgumentType::Flag };
         case Args::Type::IgnoreLocalArchiveMalwareScan:
             return Argument{ type, Resource::String::IgnoreLocalArchiveMalwareScanArgumentDescription, ArgumentType::Flag, Settings::TogglePolicy::Policy::LocalArchiveMalwareScanOverride, Settings::AdminSetting::LocalArchiveMalwareScanOverride };
-        case Args::Type::IgnoreMissingDependencies:
-            return Argument{ type, Resource::String::IgnoreMissingDependenciesArgumentDescription, ArgumentType::Flag, false };
         case Args::Type::SourceName:
             return Argument{ type, Resource::String::SourceNameArgumentDescription, ArgumentType::Positional, false };
         case Args::Type::SourceArg:
