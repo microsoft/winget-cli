@@ -119,7 +119,7 @@ namespace Microsoft.Management.Configuration
         String Publisher{ get; };
         // The signing information of the module files containing the unit of configuration.
         // May contain Windows.Security.Cryptography.Certificates.Certificate or Windows.Security.Cryptography.Certificates.CertificateChain.
-        Windows.Foundation.Collections.IVectorView<IInspectable> Certificates{ get; };
+        Windows.Foundation.Collections.IVectorView<IInspectable> SigningInformation{ get; };
         // The settings information for the unit of configuration.
         Windows.Foundation.Collections.IVectorView<IConfigurationUnitSettingDetails> Settings{ get; };
     }
