@@ -269,6 +269,7 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_PASS_THROUGH(InstallIgnoreWarnings)
         WINGET_VALIDATE_PASS_THROUGH(DisableInstallNotes)
         WINGET_VALIDATE_PASS_THROUGH(UninstallPurgePortablePackage)
+        WINGET_VALIDATE_PASS_THROUGH(NetworkWingetAlternateSourceURL)
 
         WINGET_VALIDATE_SIGNATURE(PortablePackageUserRoot)
         {
