@@ -117,7 +117,8 @@ namespace Microsoft.Management.Configuration
         String Author{ get; };
         // The publisher of the module containing the unit of configuration.
         String Publisher{ get; };
-        // The signing certificate of the module files containing the unit of configuration.
+        // The signing information of the module files containing the unit of configuration.
+        // May contain Windows.Security.Cryptography.Certificates.Certificate or Windows.Security.Cryptography.Certificates.CertificateChain.
         Windows.Foundation.Collections.IVectorView<IInspectable> Certificates{ get; };
         // The settings information for the unit of configuration.
         Windows.Foundation.Collections.IVectorView<IConfigurationUnitSettingDetails> Settings{ get; };
