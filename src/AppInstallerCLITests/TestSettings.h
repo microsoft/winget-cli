@@ -31,12 +31,14 @@ namespace TestCommon
     void RemoveSetting(const AppInstaller::Settings::StreamDefinition& stream);
     std::filesystem::path GetPathTo(const AppInstaller::Settings::StreamDefinition& stream);
 
-    struct DeleteUserSettingsFileAgain
+    // This type removes the settings file on creation and destruction to ensure that a test that modifies them can do so cleanly.
+    struct UserSettingsFileGuard
     {
-        ~DeleteUserSettingsFileAgain();
+        UserSettingsFileGuard();
+        ~UserSettingsFileGuard();
     };
 
-    [[nodiscard]] DeleteUserSettingsFileAgain DeleteUserSettingsFiles();
+    [[nodiscard]] UserSettingsFileGuard DeleteUserSettingsFiles();
 
     struct UserSettingsTest : AppInstaller::Settings::UserSettings
     {

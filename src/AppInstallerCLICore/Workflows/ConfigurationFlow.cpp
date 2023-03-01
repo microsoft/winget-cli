@@ -384,8 +384,10 @@ namespace AppInstaller::CLI::Workflow
                 context.GetThreadGlobals().GetDiagnosticLogger().Write(Logging::Channel::Config, ConvertLevel(diagnostics.Level()), Utility::ConvertToUTF8(diagnostics.Message()));
             });
 
-        context.Add<Data::ConfigurationContext>(ConfigurationContext{});
-        context.Get<Data::ConfigurationContext>().Processor(std::move(processor));
+        ConfigurationContext configurationContext;
+        configurationContext.Processor(std::move(processor));
+
+        context.Add<Data::ConfigurationContext>(std::move(configurationContext));
     }
 
     void OpenConfigurationSet(Context& context)
@@ -420,6 +422,14 @@ namespace AppInstaller::CLI::Workflow
     void ShowConfigurationSet(Context& context)
     {
         ConfigurationContext& configContext = context.Get<Data::ConfigurationContext>();
+
+        if (configContext.Set().ConfigurationUnits().Size() == 0)
+        {
+            context.Reporter.Warn() << Resource::String::ConfigurationFileEmpty << std::endl;
+            // This isn't an error termination, but there is no reason to proceed.
+            AICLI_TERMINATE_CONTEXT(S_FALSE);
+        }
+
         auto getDetailsOperation = configContext.Processor().GetSetDetailsAsync(configContext.Set(), ConfigurationUnitDetailLevel::Catalog);
 
         OutputStream out = context.Reporter.Info();
@@ -452,7 +462,7 @@ namespace AppInstaller::CLI::Workflow
         CATCH_LOG();
 
         // In the event of an exception from GetSetDetailsAsync, show the data we do have
-        if (!unitsShown && configContext.Set().ConfigurationUnits().Size())
+        if (!unitsShown)
         {
             // Failing to get details might not be fatal, warn about it but proceed
             context.Reporter.Warn() << Resource::String::ConfigurationFailedToGetDetails << std::endl;

@@ -160,7 +160,7 @@ int main(int argc, char** argv)
     Runtime::TestHook_SetPathOverride(Runtime::PathName::SecureSettingsForWrite, Runtime::GetPathDetailsFor(Runtime::PathName::SecureSettingsForRead));
 
     // Remove any existing settings files in the new tests path
-    std::ignore = TestCommon::DeleteUserSettingsFileAgain{};
+    TestCommon::UserSettingsFileGuard settingsGuard;
 
     int result = Catch::Session().run(static_cast<int>(args.size()), args.data());
 

@@ -55,6 +55,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFailedToGetDetails);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFieldInvalid);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFileArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFileEmpty);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFileInvalid);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFileVersionUnknown);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationInform);

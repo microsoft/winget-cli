@@ -42,14 +42,18 @@ namespace TestCommon
         return Stream{ stream }.GetPath();
     }
 
-    DeleteUserSettingsFileAgain::~DeleteUserSettingsFileAgain()
+    UserSettingsFileGuard::UserSettingsFileGuard()
     {
         DeleteUserSettingsFilesInternal();
     }
 
-    [[nodiscard]] DeleteUserSettingsFileAgain DeleteUserSettingsFiles()
+    UserSettingsFileGuard::~UserSettingsFileGuard()
     {
         DeleteUserSettingsFilesInternal();
+    }
+
+    [[nodiscard]] UserSettingsFileGuard DeleteUserSettingsFiles()
+    {
         return {};
     }
 
