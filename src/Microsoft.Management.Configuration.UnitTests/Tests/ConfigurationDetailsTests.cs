@@ -185,8 +185,8 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         private (DscResourceInfoInternal dscResourceInfo, PSModuleInfo psModuleInfo) GetResourceAndModuleInfo(ConfigurationUnit unit)
         {
             // This is easier than trying to mock sealed class from external code...
-            var testEnv = this.fixture.PrepareTestProcessorEnvironment();
-            testEnv.ValidateRunspace();
+            var testEnv = this.fixture.PrepareTestProcessorEnvironment(true);
+
             var dscResourceInfo = testEnv.GetDscResource(new ConfigurationUnitInternal(unit, null));
             var psModuleInfo = testEnv.GetAvailableModule(PowerShellHelpers.CreateModuleSpecification("xSimpleTestResource", "0.0.0.1"));
 
