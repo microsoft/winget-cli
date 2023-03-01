@@ -52,7 +52,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
 
         public IReadOnlyList<IConfigurationUnitSettingDetails>? Settings { get; internal set; }
 
-        public CertificateChain? SigningCertificateChain { get; internal set; }
+        public IReadOnlyList<object>? SigningInformation { get; internal set; }
 
         public string? UnitDescription { get; internal set; }
 
