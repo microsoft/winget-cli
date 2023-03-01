@@ -158,42 +158,55 @@ namespace AppInstaller::CLI::Workflow
             }
 
             HRESULT hr = S_OK;
-            bool continueOnFailure = context.Args.Contains(Execution::Args::Type::Force);
+            DismHelper dismHelper = DismHelper();
+
+            bool force = context.Args.Contains(Execution::Args::Type::Force);
             bool rebootRequired = false;
 
-            // Do I need warn, info and error reporters for this function?\
-
-            // Pass info and warn so that we can show enabling and the status. If we don't have continue on failure, we error out and display in a separate.
             auto info = context.Reporter.Info();
             auto warn = context.Reporter.Warn();
 
-            DismHelper dismHelper = DismHelper();
-
-            context.Reporter.Info() << Resource::String::EnablingWindowsFeatures << std::endl;
-            rootDependencies.ApplyToType(DependencyType::WindowsFeature, [&hr, &continueOnFailure, &rebootRequired, &warn, &info, &dismHelper](Dependency dependency)
+            rootDependencies.ApplyToType(DependencyType::WindowsFeature, [&hr, &dismHelper, &info, &warn, &force, &rebootRequired](Dependency dependency)
                 {
-                    if (SUCCEEDED(hr) || continueOnFailure)
+                    if (SUCCEEDED(hr) || force)
                     {
-                        info << "Enabling feature";
-                        
                         auto featureName = dependency.Id();
                         DismHelper::WindowsFeature windowsFeature = dismHelper.CreateWindowsFeature(featureName);
 
-                        if (windowsFeature.DoesExist() && !windowsFeature.IsEnabled())
+                        if (windowsFeature.DoesExist())
                         {
-                            hr = windowsFeature.Enable();
-                            AICLI_LOG(Core, Info, << "Enabling Windows Feature " << featureName << " returned with HRESULT: " << hr);
-                            if (hr == ERROR_SUCCESS_REBOOT_REQUIRED)
+                            if (!windowsFeature.IsEnabled())
                             {
-                                rebootRequired = true;
+                                std::string featureDisplayName = AppInstaller::Utility::ConvertToUTF8(windowsFeature.GetDisplayName());
+                                Utility::LocIndView locIndFeatureName{ featureName };
+
+                                info << Resource::String::EnablingWindowsFeature(Utility::LocIndView{ featureDisplayName }, locIndFeatureName) << std::endl;
+
+                                hr = windowsFeature.Enable();
+                                AICLI_LOG(Core, Info, << "Enabling Windows Feature [" << featureName << "] returned with HRESULT: " << hr);
+
+                                if (FAILED(hr))
+                                {
+                                    warn << Resource::String::FailedToEnableWindowsFeature(locIndFeatureName) << std::endl;
+                                }
+                                if (hr == ERROR_SUCCESS_REBOOT_REQUIRED || windowsFeature.GetRestartRequiredStatus() == DismRestartType::DismRestartRequired)
+                                {
+                                    rebootRequired = true;
+                                }
                             }
+                        }
+                        else
+                        {
+                            AICLI_LOG(Core, Info, << "Windows Feature [" << featureName << "] does not exist");
+                            hr = APPINSTALLER_CLI_ERROR_INSTALL_MISSING_DEPENDENCY;
+                            warn << Resource::String::WindowsFeatureNotFound(Utility::LocIndView{ featureName }) << std::endl;
                         }
                     }
             });
 
-            if (FAILED(hr))
+            if (FAILED(hr) || hr == APPINSTALLER_CLI_ERROR_INSTALL_MISSING_DEPENDENCY)
             {
-                if (continueOnFailure)
+                if (force)
                 {
                     context.Reporter.Warn() << Resource::String::FailedToEnableWindowsFeatureOverridden << std::endl;
                 }
@@ -205,7 +218,15 @@ namespace AppInstaller::CLI::Workflow
             }
             else if (rebootRequired)
             {
-                context.Reporter.Warn() << Resource::String::RebootRequiredForEnablingWindowsFeature << std::endl;
+                if (force)
+                {
+                    context.Reporter.Warn() << Resource::String::RebootRequiredToEnableWindowsFeatureOverridden << std::endl;
+                }
+                else
+                {
+                    context.Reporter.Error() << Resource::String::RebootRequiredToEnableWindowsFeatureOverrideRequired << std::endl;
+                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL);
+                }
             }
         }
     }

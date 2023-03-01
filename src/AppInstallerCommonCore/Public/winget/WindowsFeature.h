@@ -6,7 +6,7 @@ namespace AppInstaller::WindowsFeature
 {
     /****************************************************************************\
 
-        Declaration copied from DismApi.H to support enabling Windows Features.
+        Declaration copied from DismApi.h to support enabling Windows Features.
 
         Copyright (c) Microsoft Corporation.
         All rights reserved.
@@ -114,22 +114,30 @@ namespace AppInstaller::WindowsFeature
 
     struct DismHelper
     {
-
-        DismHelper();
-        ~DismHelper()
-        {
-            Shutdown();
-        };
-
+        /// <summary>
+        /// Struct representation of a single Windows Feature.
+        /// </summary>
         struct WindowsFeature
         {
-            bool DoesExist();
-            bool IsEnabled();
-            DismPackageFeatureState GetState() { return m_featureInfo->FeatureState; };
-            std::wstring GetDisplayName() { return std::wstring { m_featureInfo->DisplayName }; }
-            DismRestartType GetRestartRequiredStatus() { return m_featureInfo->RestartRequired;  }
             HRESULT Enable();
             HRESULT Disable();
+            bool DoesExist();
+            bool IsEnabled();
+
+            std::wstring GetDisplayName()
+            {
+                return std::wstring{ m_featureInfo->DisplayName };
+            }
+
+            DismPackageFeatureState GetState()
+            {
+                return m_featureInfo->FeatureState;
+            }
+
+            DismRestartType GetRestartRequiredStatus()
+            {
+                return m_featureInfo->RestartRequired;
+            }
 
             ~WindowsFeature()
             {
@@ -142,17 +150,18 @@ namespace AppInstaller::WindowsFeature
         private:
             friend DismHelper;
 
-            WindowsFeature(const std::string& name, DismGetFeatureInfoPtr getFeatureInfoPtr, DismEnableFeaturePtr enableFeaturePtr, DismDisableFeaturePtr disableFeaturePtr, DismDeletePtr deletePtr, DismSession session);
+            WindowsFeature(
+                const std::string& name,
+                DismGetFeatureInfoPtr getFeatureInfoPtr,
+                DismEnableFeaturePtr enableFeaturePtr,
+                DismDisableFeaturePtr disableFeaturePtr,
+                DismDeletePtr deletePtr,
+                DismSession session);
 
-            WindowsFeature(const std::string& name) : m_featureName(name)
-            {
-                GetFeatureInfo();
-            }
+            void GetFeatureInfo();
 
             std::string m_featureName;
             DismFeatureInfo* m_featureInfo = nullptr;
-            void GetFeatureInfo();
-
             DismGetFeatureInfoPtr m_getFeatureInfoPtr = nullptr;
             DismEnableFeaturePtr m_enableFeature = nullptr;
             DismDisableFeaturePtr m_disableFeaturePtr = nullptr;
@@ -160,16 +169,23 @@ namespace AppInstaller::WindowsFeature
             DismSession m_session;
         };
 
+        DismHelper();
+
+        ~DismHelper()
+        {
+            Shutdown();
+        };
+
         WindowsFeature CreateWindowsFeature(const std::string& name)
         {
-            return WindowsFeature(name, m_dismGetFeatureInfo, m_dismEnableFeature, m_dismDisableFeature, m_dismDelete, m_session);
+            return WindowsFeature(name, m_dismGetFeatureInfo, m_dismEnableFeature, m_dismDisableFeature, m_dismDelete, m_dismSession);
         }
 
     private:
         typedef UINT DismSession;
 
         wil::unique_hmodule m_module;
-        DismSession m_session = DISM_SESSION_DEFAULT;
+        DismSession m_dismSession = DISM_SESSION_DEFAULT;
 
         DismInitializePtr m_dismInitialize = nullptr;
         DismOpenSessionPtr m_dismOpenSession = nullptr;

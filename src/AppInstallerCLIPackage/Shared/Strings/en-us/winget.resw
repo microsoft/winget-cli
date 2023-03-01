@@ -1677,36 +1677,33 @@ Please specify one of them using the --source option to proceed.</value>
     <value>{0} package(s) have pins that prevent upgrade. Use the 'winget pin' command to view and edit pins. Using the --include-pinned argument may show more results.</value>
     <comment>{Locked="winget pin","--include-pinned"} {0} is a placeholder replaced by an integer number of packages</comment>
   </data>
-  <data name="WindowsFeatureNotFoundOverride" xml:space="preserve">
-    <value>The following Windows Feature(s) were not found; proceeding due to --ignore-missing-dependencies.</value>
-    <comment>"Windows Feature(s)" is the name of the options Windows features setting.
-{Locked="--force"}
-{Locked="--ignore-missing-dependencies"}</comment>
-  </data>
-  <data name="WindowsFeatureNotFoundOverrideRequired" xml:space="preserve">
-    <value>The following Windows Feature(s) were not found. To proceed with installation, use --ignore-missing-dependencies.</value>
-    <comment>"Windows Feature(s)" is the name of the options Windows features setting.
-{Locked="--force"}
-{Locked="--ignore-missing-dependencies"}</comment>
-  </data>
-  <data name="IgnoreMissingDependenciesArgumentDescription" xml:space="preserve">
-    <value>Ignores missing Windows Feature dependencies</value>
-    <comment>"Windows Feature" is the name of the options Windows features setting.</comment>
-  </data>
-  <data name="EnablingWindowsFeatures" xml:space="preserve">
-    <value>Enabling Windows Feature dependencies...</value>
+  <data name="WindowsFeatureNotFound" xml:space="preserve">
+    <value>The feature [{0}] was not found.</value>
+    <comment>{Locked="{0}"} Error message displayed when a Windows feature was not found on the system.</comment>
   </data>
   <data name="FailedToEnableWindowsFeatureOverrideRequired" xml:space="preserve">
     <value>Failed to enable Windows Feature dependencies. To proceed with installation, use --force</value>
     <comment>{Locked="--force"}</comment>
   </data>
-  <data name="RebootRequiredForEnablingWindowsFeature" xml:space="preserve">
-    <value>Reboot required to fully enable the Windows Feature(s)</value>
+  <data name="RebootRequiredToEnableWindowsFeatureOverrideRequired" xml:space="preserve">
+    <value>Reboot required to fully enable the Windows Feature(s); to override this check use --force</value>
     <comment>"Windows Feature(s)" is the name of the options Windows features setting.</comment>
   </data>
   <data name="FailedToEnableWindowsFeatureOverridden" xml:space="preserve">
     <value>Failed to enable Windows Feature dependencies; proceeding due to --force</value>
     <comment>"Windows Feature(s)" is the name of the options Windows features setting.
 {Locked="--force"}</comment>
+  </data>
+  <data name="EnablingWindowsFeature" xml:space="preserve">
+    <value>Enabling {0} [{1}]...</value>
+    <comment>{Locked="{0}","{1}"} Message displayed to the user regarding which Windows Feature is being enabled.</comment>
+  </data>
+  <data name="FailedToEnableWindowsFeature" xml:space="preserve">
+    <value>Failed to enable [{0}] feature.</value>
+    <comment>{Locked="{0}"} Error message displayed when a failure was encountered when enabling a Windows Feature.</comment>
+  </data>
+  <data name="RebootRequiredToEnableWindowsFeatureOverridden" xml:space="preserve">
+    <value>Reboot required to fully enable the Windows Feature(s); proceeding due to --force</value>
+    <comment>"Windows Feature(s)" is the name of the options Windows features setting.</comment>
   </data>
 </root>

@@ -88,7 +88,7 @@ namespace AppInstaller::WindowsFeature
     {
         if (m_dismOpenSession)
         {
-            LOG_IF_FAILED(m_dismOpenSession(DISM_ONLINE_IMAGE, NULL, NULL, &m_session));
+            LOG_IF_FAILED(m_dismOpenSession(DISM_ONLINE_IMAGE, NULL, NULL, &m_dismSession));
         }
     }
 
@@ -98,6 +98,24 @@ namespace AppInstaller::WindowsFeature
         {
             LOG_IF_FAILED(m_dismShutdown());
         }
+    }
+
+    DismHelper::WindowsFeature::WindowsFeature(
+        const std::string& name,
+        DismGetFeatureInfoPtr getFeatureInfoPtr,
+        DismEnableFeaturePtr enableFeaturePtr,
+        DismDisableFeaturePtr disableFeaturePtr,
+        DismDeletePtr deletePtr,
+        DismSession session)
+    {
+        m_featureName = name;
+        m_getFeatureInfoPtr = getFeatureInfoPtr;
+        m_enableFeature = enableFeaturePtr;
+        m_disableFeaturePtr = disableFeaturePtr;
+        m_deletePtr = deletePtr;
+        m_session = session;
+
+        GetFeatureInfo();
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
@@ -165,7 +183,7 @@ namespace AppInstaller::WindowsFeature
         GetFeatureInfo();
         DismPackageFeatureState featureState = GetState();
         AICLI_LOG(Core, Verbose, << "Feature state of " << m_featureName << " is " << featureState);
-        return (featureState == DismStateInstalled || featureState == DismStateInstallPending);
+        return featureState == DismStateInstalled;
     }
 
     void DismHelper::WindowsFeature::GetFeatureInfo()
@@ -174,17 +192,5 @@ namespace AppInstaller::WindowsFeature
         {
             LOG_IF_FAILED(m_getFeatureInfoPtr(m_session, Utility::ConvertToUTF16(m_featureName).c_str(), NULL, DismPackageNone, &m_featureInfo));
         }
-    }
-
-    DismHelper::WindowsFeature::WindowsFeature(const std::string& name, DismGetFeatureInfoPtr getFeatureInfoPtr, DismEnableFeaturePtr enableFeaturePtr, DismDisableFeaturePtr disableFeaturePtr, DismDeletePtr deletePtr, DismSession session)
-    {
-        m_featureName = name;
-        m_getFeatureInfoPtr = getFeatureInfoPtr;
-        m_enableFeature = enableFeaturePtr;
-        m_disableFeaturePtr = disableFeaturePtr;
-        m_deletePtr = deletePtr;
-        m_session = session;
-
-        GetFeatureInfo();
     }
 }

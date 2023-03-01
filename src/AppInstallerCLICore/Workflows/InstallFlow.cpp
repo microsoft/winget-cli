@@ -495,7 +495,6 @@ namespace AppInstaller::CLI::Workflow
             Workflow::GetDependenciesFromInstaller <<
             Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
             Workflow::ManagePackageDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
-            Workflow::EnableWindowsFeaturesDependencies <<
             Workflow::DownloadInstaller;
     }
 
@@ -504,6 +503,7 @@ namespace AppInstaller::CLI::Workflow
         context <<
             Workflow::CheckForUnsupportedArgs <<
             Workflow::DownloadSinglePackage <<
+            Workflow::EnableWindowsFeaturesDependencies <<
             Workflow::InstallPackageInstaller;
     }
 

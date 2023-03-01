@@ -10,6 +10,7 @@
 
 using namespace AppInstaller::CLI;
 using namespace AppInstaller::Settings;
+using namespace AppInstaller::Utility;
 using namespace AppInstaller::WindowsFeature;
 using namespace TestCommon;
 
@@ -108,6 +109,7 @@ TEST_CASE("InstallFlow_InvalidWindowsFeature", "[windowsFeature]")
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForShellExecute(context);
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_InvalidWindowsFeatures.yaml").GetPath().u8string());
 
     InstallCommand install({});
@@ -116,9 +118,11 @@ TEST_CASE("InstallFlow_InvalidWindowsFeature", "[windowsFeature]")
 
     REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_INSTALL_MISSING_DEPENDENCY);
     REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::WindowsFeatureNotFoundOverrideRequired).get()) != std::string::npos);
-    REQUIRE(installOutput.str().find("invalidFeature") != std::string::npos);
-    REQUIRE(installOutput.str().find("badFeature") != std::string::npos);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::WindowsFeatureNotFound(LocIndView{ "invalidFeature" })).get()) != std::string::npos);
+
+    // "badFeature" should not be displayed as the flow should terminate after failing to find the first feature.
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::WindowsFeatureNotFound(LocIndView{ "badFeature" })).get()) == std::string::npos);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::FailedToEnableWindowsFeatureOverrideRequired).get()) != std::string::npos);
 }
 
 TEST_CASE("InstallFlow_FailedToEnableWindowsFeature", "[windowsFeature]")
@@ -184,6 +188,7 @@ TEST_CASE("InstallFlow_FailedToEnableWindowsFeature_Force", "[windowsFeature]")
 
     // Verify Installer is called and parameters are passed in.
     REQUIRE(context.GetTerminationHR() == ERROR_SUCCESS);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::FailedToEnableWindowsFeature(LocIndString{s_featureName})).get()) != std::string::npos);
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::FailedToEnableWindowsFeatureOverridden).get()) != std::string::npos);
     REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
     std::ifstream installResultFile(installResultPath.GetPath());
@@ -221,6 +226,42 @@ TEST_CASE("InstallFlow_RebootRequired", "[windowsFeature]")
     install.Execute(context);
     INFO(installOutput.str());
 
+    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL);
+    REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::RebootRequiredToEnableWindowsFeatureOverrideRequired).get()) != std::string::npos);
+}
+
+TEST_CASE("InstallFlow_RebootRequired_Force", "[windowsFeature]")
+{
+    if (!AppInstaller::Runtime::IsRunningAsAdmin())
+    {
+        WARN("Test requires admin privilege. Skipped.");
+        return;
+    }
+
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    TestCommon::TestUserSettings testSettings;
+    testSettings.Set<Setting::EFWindowsFeature>(true);
+
+    // Override with reboot required HRESULT.
+    TestHook::SetEnableWindowsFeatureResult_Override enableWindowsFeatureResultOverride(ERROR_SUCCESS_REBOOT_REQUIRED);
+    TestHook::SetIsWindowsFeatureEnabledResult_Override isWindowsFeatureEnabledResultOverride(false);
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForShellExecute(context);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_WindowsFeatures.yaml").GetPath().u8string());
+    context.Args.AddArg(Execution::Args::Type::Force);
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify Installer is called and parameters are passed in.
+    REQUIRE(context.GetTerminationHR() == ERROR_SUCCESS);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::RebootRequiredToEnableWindowsFeatureOverridden).get()) != std::string::npos);
     REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
     std::ifstream installResultFile(installResultPath.GetPath());
     REQUIRE(installResultFile.is_open());
@@ -228,5 +269,4 @@ TEST_CASE("InstallFlow_RebootRequired", "[windowsFeature]")
     std::getline(installResultFile, installResultStr);
     REQUIRE(installResultStr.find("/custom") != std::string::npos);
     REQUIRE(installResultStr.find("/silentwithprogress") != std::string::npos);
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::RebootRequiredForEnablingWindowsFeature).get()) != std::string::npos);
 }
