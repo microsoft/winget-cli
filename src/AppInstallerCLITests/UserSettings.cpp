@@ -43,7 +43,7 @@ TEST_CASE("UserSettingsType", "[settings]")
     // 2 - Bad settings.json file
     // 3 - No settings.json.backup file exists
     // 4 - Bad settings.json.backup file exists.
-    DeleteUserSettingsFiles();
+    auto again = DeleteUserSettingsFiles();
 
     SECTION("No setting.json No setting.json.backup")
     {
@@ -114,7 +114,7 @@ TEST_CASE("UserSettingsType", "[settings]")
 
 TEST_CASE("UserSettingsCreateFiles", "[settings]")
 {
-    DeleteUserSettingsFiles();
+    auto again = DeleteUserSettingsFiles();
 
     auto settingsPath = UserSettings::SettingsFilePath();
     auto settingsBackupPath = GetPathTo(Stream::BackupUserSettings);
@@ -148,7 +148,7 @@ TEST_CASE("UserSettingsCreateFiles", "[settings]")
 
 TEST_CASE("SettingProgressBar", "[settings]")
 {
-    DeleteUserSettingsFiles();
+    auto again = DeleteUserSettingsFiles();
 
     SECTION("Default value")
     {
@@ -206,7 +206,7 @@ TEST_CASE("SettingProgressBar", "[settings]")
 
 TEST_CASE("SettingLoggingLevelPreference", "[settings]")
 {
-    DeleteUserSettingsFiles();
+    auto again = DeleteUserSettingsFiles();
 
     SECTION("Default value")
     {
@@ -282,7 +282,7 @@ TEST_CASE("SettingLoggingLevelPreference", "[settings]")
 
 TEST_CASE("SettingAutoUpdateIntervalInMinutes", "[settings]")
 {
-    DeleteUserSettingsFiles();
+    auto again = DeleteUserSettingsFiles();
 
     constexpr static auto cinq = 5min;
     constexpr static auto cero = 0min;
@@ -361,7 +361,7 @@ TEST_CASE("SettingAutoUpdateIntervalInMinutes", "[settings]")
 
 TEST_CASE("SettingsExperimentalCmd", "[settings]")
 {
-    DeleteUserSettingsFiles();
+    auto again = DeleteUserSettingsFiles();
 
     SECTION("Feature off default")
     {
@@ -416,9 +416,10 @@ TEST_CASE("SettingsExperimentalCmd", "[settings]")
 
 TEST_CASE("SettingsPortablePackageUserRoot", "[settings]")
 {
+    auto again = DeleteUserSettingsFiles();
+
     SECTION("Relative path")
     {
-        DeleteUserSettingsFiles();
         std::string_view json = R"({ "installBehavior": { "portablePackageUserRoot": "%LOCALAPPDATA%/Portable/Root" } })";
         SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
@@ -432,7 +433,6 @@ TEST_CASE("SettingsPortablePackageUserRoot", "[settings]")
     }
     SECTION("Valid path")
     {
-        DeleteUserSettingsFiles();
         std::string_view json = R"({ "installBehavior": { "portablePackageUserRoot": "C:/Foo/Bar" } })";
         SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
@@ -444,9 +444,10 @@ TEST_CASE("SettingsPortablePackageUserRoot", "[settings]")
 
 TEST_CASE("SettingsPortablePackageMachineRoot", "[settings]")
 {
+    auto again = DeleteUserSettingsFiles();
+
     SECTION("Relative path")
     {
-        DeleteUserSettingsFiles();
         std::string_view json = R"({ "installBehavior": { "portablePackageMachineRoot": "%LOCALAPPDATA%/Portable/Root" } })";
         SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
@@ -460,7 +461,6 @@ TEST_CASE("SettingsPortablePackageMachineRoot", "[settings]")
     }
     SECTION("Valid path")
     {
-        DeleteUserSettingsFiles();
         std::string_view json = R"({ "installBehavior": { "portablePackageMachineRoot": "C:/Foo/Bar" } })";
         SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
@@ -472,9 +472,10 @@ TEST_CASE("SettingsPortablePackageMachineRoot", "[settings]")
 
 TEST_CASE("SettingsInstallScope", "[settings]")
 {
+    auto again = DeleteUserSettingsFiles();
+
     SECTION("User scope preference")
     {
-        DeleteUserSettingsFiles();
         std::string_view json = R"({ "installBehavior": { "preferences": { "scope": "user" } } })";
         SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
@@ -483,7 +484,6 @@ TEST_CASE("SettingsInstallScope", "[settings]")
     }
     SECTION("Machine scope preference")
     {
-        DeleteUserSettingsFiles();
         std::string_view json = R"({ "installBehavior": { "preferences": { "scope": "machine" } } })";
         SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
@@ -492,7 +492,6 @@ TEST_CASE("SettingsInstallScope", "[settings]")
     }
     SECTION("User scope requirement")
     {
-        DeleteUserSettingsFiles();
         std::string_view json = R"({ "installBehavior": { "requirements": { "scope": "user" } } })";
         SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
@@ -501,7 +500,6 @@ TEST_CASE("SettingsInstallScope", "[settings]")
     }
     SECTION("Machine scope requirement")
     {
-        DeleteUserSettingsFiles();
         std::string_view json = R"({ "installBehavior": { "requirements": { "scope": "machine" } } })";
         SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;

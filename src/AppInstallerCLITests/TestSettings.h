@@ -31,7 +31,12 @@ namespace TestCommon
     void RemoveSetting(const AppInstaller::Settings::StreamDefinition& stream);
     std::filesystem::path GetPathTo(const AppInstaller::Settings::StreamDefinition& stream);
 
-    void DeleteUserSettingsFiles();
+    struct DeleteUserSettingsFileAgain
+    {
+        ~DeleteUserSettingsFileAgain();
+    };
+
+    [[nodiscard]] DeleteUserSettingsFileAgain DeleteUserSettingsFiles();
 
     struct UserSettingsTest : AppInstaller::Settings::UserSettings
     {
