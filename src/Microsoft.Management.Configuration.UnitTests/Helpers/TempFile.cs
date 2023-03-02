@@ -81,7 +81,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         {
             if (content is null)
             {
-                File.Create(this.FullFileName);
+                using var fs = File.Create(this.FullFileName);
             }
             else
             {
