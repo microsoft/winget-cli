@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include <winrt/Windows.Foundation.h>
+#include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.Security.Cryptography.Certificates.h>
 #include <winrt/Microsoft.Management.Configuration.h>
 #include <functional>
@@ -83,8 +84,8 @@ namespace TestCommon
         winrt::hstring PublisherValue;
         winrt::hstring Publisher() const { return PublisherValue; }
 
-        winrt::Windows::Security::Cryptography::Certificates::CertificateChain SigningCertificateChainValue = nullptr;
-        winrt::Windows::Security::Cryptography::Certificates::CertificateChain SigningCertificateChain() const { return SigningCertificateChainValue; }
+        winrt::Windows::Foundation::Collections::IVector<winrt::Windows::Foundation::IInspectable> SigningInformationValue = nullptr;
+        winrt::Windows::Foundation::Collections::IVectorView<winrt::Windows::Foundation::IInspectable> SigningInformation() const { return SigningInformationValue.GetView(); }
 
         winrt::Windows::Foundation::Collections::IVector<winrt::Microsoft::Management::Configuration::IConfigurationUnitSettingDetails> SettingsValue;
         winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Configuration::IConfigurationUnitSettingDetails> Settings() const { return (SettingsValue ? SettingsValue.GetView() : nullptr); }

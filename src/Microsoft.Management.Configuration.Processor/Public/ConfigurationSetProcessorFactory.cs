@@ -14,7 +14,7 @@ namespace Microsoft.Management.Configuration.Processor
     /// ConfigurationProcessorFactory implementation. Does not support out-of-proc.
     /// TODO: change to IConfigurationSetProcessorFactory.
     /// </summary>
-    public sealed class ConfigurationSetProcessorFactory : IConfigurationProcessorFactory
+    public sealed class ConfigurationSetProcessorFactory : IConfigurationSetProcessorFactory
     {
         private readonly ConfigurationProcessorType type;
         private readonly IConfigurationProcessorFactoryProperties? properties;
