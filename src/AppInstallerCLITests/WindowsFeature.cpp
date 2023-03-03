@@ -57,10 +57,15 @@ TEST_CASE("DisableEnableWindowsFeature", "[windowsFeature]")
     HRESULT enableResult = feature.Enable();
     bool enableStatus = (enableResult == S_OK) || (enableResult == ERROR_SUCCESS_REBOOT_REQUIRED);
     REQUIRE(enableStatus);
-    REQUIRE(feature.IsEnabled());
+
+    if (!feature.IsEnabled())
+    {
+        // If netfx3 is already enabled, this block will not be executed to avoid breaking this test.
+        REQUIRE((feature.GetRestartRequiredStatus() != DismRestartType::DismRestartNo));
+    }
 }
 
-TEST_CASE("InstallFlow_ValidWindowsFeature", "[windowsFeature]")
+TEST_CASE("InstallFlow_ValidWindowsFeature_RebootRequired", "[windowsFeature]")
 {
     if (!AppInstaller::Runtime::IsRunningAsAdmin())
     {
@@ -83,14 +88,9 @@ TEST_CASE("InstallFlow_ValidWindowsFeature", "[windowsFeature]")
     install.Execute(context);
     INFO(installOutput.str());
 
-    // Verify Installer is called and parameters are passed in.
-    REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
-    std::ifstream installResultFile(installResultPath.GetPath());
-    REQUIRE(installResultFile.is_open());
-    std::string installResultStr;
-    std::getline(installResultFile, installResultStr);
-    REQUIRE(installResultStr.find("/custom") != std::string::npos);
-    REQUIRE(installResultStr.find("/silentwithprogress") != std::string::npos);
+    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL);
+    REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::RebootRequiredToEnableWindowsFeatureOverrideRequired).get()) != std::string::npos);
 }
 
 TEST_CASE("InstallFlow_InvalidWindowsFeature", "[windowsFeature]")
@@ -146,6 +146,7 @@ TEST_CASE("InstallFlow_FailedToEnableWindowsFeature", "[windowsFeature]")
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForShellExecute(context);
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_InvalidWindowsFeatures.yaml").GetPath().u8string());
 
     InstallCommand install({});

@@ -105,7 +105,8 @@ namespace AppInstaller::WindowsFeature
 #endif // _DISMAPI_H_
 
     using DismInitializePtr = HRESULT(WINAPI*)(int, PCWSTR, PCWSTR);
-    using DismOpenSessionPtr = HRESULT(WINAPI*)(PCWSTR, PCWSTR, PCWSTR, UINT*);
+    using DismOpenSessionPtr = HRESULT(WINAPI*)(PCWSTR, PCWSTR, PCWSTR, DismSession*);
+    using DismCloseSessionPtr = HRESULT(WINAPI*)(DismSession);
     using DismShutdownPtr = HRESULT(WINAPI*)();
     using DismGetFeatureInfoPtr = HRESULT(WINAPI*)(UINT, PCWSTR, PCWSTR, DismPackageIdentifier, DismFeatureInfo**);
     using DismEnableFeaturePtr = HRESULT(WINAPI*)(UINT, PCWSTR, PCWSTR, DismPackageIdentifier, BOOL, PCWSTR*, UINT, BOOL, HANDLE, DISM_PROGRESS_CALLBACK, PVOID);
@@ -173,6 +174,7 @@ namespace AppInstaller::WindowsFeature
 
         ~DismHelper()
         {
+            CloseSession();
             Shutdown();
         };
 
@@ -192,11 +194,13 @@ namespace AppInstaller::WindowsFeature
         DismGetFeatureInfoPtr m_dismGetFeatureInfo = nullptr;
         DismEnableFeaturePtr m_dismEnableFeature = nullptr;
         DismDisableFeaturePtr m_dismDisableFeature = nullptr;
+        DismCloseSessionPtr m_dismCloseSession = nullptr;
         DismShutdownPtr m_dismShutdown = nullptr;
         DismDeletePtr m_dismDelete = nullptr;
 
         void Initialize();
         void OpenSession();
+        void CloseSession();
         void Shutdown();
     };
 }

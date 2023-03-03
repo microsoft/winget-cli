@@ -64,6 +64,14 @@ namespace AppInstaller::WindowsFeature
             return;
         }
 
+        m_dismCloseSession =
+            reinterpret_cast<DismCloseSessionPtr>(GetProcAddress(m_module.get(), "DismCloseSession"));
+        if (!m_dismCloseSession)
+        {
+            AICLI_LOG(Core, Verbose, << "Could not get proc address of DismCloseSession");
+            return;
+        }
+
         m_dismShutdown =
             reinterpret_cast<DismShutdownPtr>(GetProcAddress(m_module.get(), "DismShutdown"));
         if (!m_dismGetFeatureInfo)
@@ -89,6 +97,14 @@ namespace AppInstaller::WindowsFeature
         if (m_dismOpenSession)
         {
             LOG_IF_FAILED(m_dismOpenSession(DISM_ONLINE_IMAGE, NULL, NULL, &m_dismSession));
+        }
+    }
+
+    void DismHelper::CloseSession()
+    {
+        if (m_dismCloseSession)
+        {
+            LOG_IF_FAILED(m_dismCloseSession(m_dismSession));
         }
     }
 
