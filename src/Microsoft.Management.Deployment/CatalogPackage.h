@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 #pragma once
 #include "CatalogPackage.g.h"
-#include "CatalogPackageMetadata.h"
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {

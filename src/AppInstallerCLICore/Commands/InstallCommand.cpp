@@ -5,6 +5,7 @@
 #include "Workflows/CompletionFlow.h"
 #include "Workflows/InstallFlow.h"
 #include "Workflows/UpdateFlow.h"
+#include "Workflows/MultiQueryFlow.h"
 #include "Workflows/WorkflowBase.h"
 #include "Resources.h"
 
@@ -18,7 +19,7 @@ namespace AppInstaller::CLI
     std::vector<Argument> InstallCommand::GetArguments() const
     {
         return {
-            Argument::ForType(Args::Type::Query),
+            Argument::ForType(Args::Type::MultiQuery),
             Argument::ForType(Args::Type::Manifest),
             Argument::ForType(Args::Type::Id),
             Argument::ForType(Args::Type::Name),
@@ -26,7 +27,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Version),
             Argument::ForType(Args::Type::Channel),
             Argument::ForType(Args::Type::Source),
-            Argument{ s_ArgumentName_Scope, Argument::NoAlias, Args::Type::InstallScope, Resource::String::InstallScopeDescription, ArgumentType::Standard, Argument::Visibility::Help },
+            Argument{ Args::Type::InstallScope, Resource::String::InstallScopeDescription, ArgumentType::Standard, Argument::Visibility::Help },
             Argument::ForType(Args::Type::InstallArchitecture),
             Argument::ForType(Args::Type::Exact),
             Argument::ForType(Args::Type::Interactive),
@@ -63,7 +64,7 @@ namespace AppInstaller::CLI
     {
         switch (valueType)
         {
-        case Args::Type::Query:
+        case Args::Type::MultiQuery:
         case Args::Type::Manifest:
         case Args::Type::Id:
         case Args::Type::Name:
@@ -95,21 +96,7 @@ namespace AppInstaller::CLI
 
     void InstallCommand::ValidateArgumentsInternal(Args& execArgs) const
     {
-        Argument::ValidatePackageSelectionArgumentSupplied(execArgs);
-
-        if (execArgs.Contains(Args::Type::Manifest) &&
-            (execArgs.Contains(Args::Type::Query) ||
-             execArgs.Contains(Args::Type::Id) ||
-             execArgs.Contains(Args::Type::Name) ||
-             execArgs.Contains(Args::Type::Moniker) ||
-             execArgs.Contains(Args::Type::Version) ||
-             execArgs.Contains(Args::Type::Channel) ||
-             execArgs.Contains(Args::Type::Source) ||
-             execArgs.Contains(Args::Type::Exact)))
-        {
-            throw CommandException(Resource::String::BothManifestAndSearchQueryProvided);
-        }
-
+        Argument::ValidateCommonArguments(execArgs);
     }
 
     void InstallCommand::ExecuteInternal(Context& context) const
@@ -137,7 +124,20 @@ namespace AppInstaller::CLI
                     Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed, false, Repository::CompositeSearchBehavior::AvailablePackages);
             }
 
-            context << Workflow::InstallOrUpgradeSinglePackage(false);
+            if (context.Args.Contains(Execution::Args::Type::MultiQuery))
+            {
+                context <<
+                    Workflow::GetMultiSearchRequests <<
+                    Workflow::SearchSubContextsForSingle() <<
+                    Workflow::ReportExecutionStage(Workflow::ExecutionStage::Execution) <<
+                    Workflow::InstallMultiplePackages(
+                        Resource::String::InstallAndUpgradeCommandsReportDependencies,
+                        APPINSTALLER_CLI_ERROR_MULTIPLE_INSTALL_FAILED);
+            }
+            else
+            {
+                context << Workflow::InstallOrUpgradeSinglePackage(false);
+            }
         }
     }
 }

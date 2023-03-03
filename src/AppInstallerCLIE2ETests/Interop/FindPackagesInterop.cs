@@ -176,7 +176,7 @@ namespace AppInstallerCLIE2ETests.Interop
         }
 
         /// <summary>
-        /// Verifies that GetAllCatalogPackageMetadata() returns the correct number of CatalogPackageMetadata.
+        /// Verifies that GetCatalogPackageMetadata returns the correct metadata based on the specified locale.
         /// </summary>
         [Test]
         public void FindPackagesGetAllCatalogPackageMetadata()

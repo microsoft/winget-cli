@@ -9,7 +9,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 {
     void Documentation::Initialize(::AppInstaller::Manifest::Documentation documentation)
     {
-        m_documentation = documentation;
+        m_documentation = std::move(documentation);
     }
     hstring Documentation::DocumentLabel()
     {

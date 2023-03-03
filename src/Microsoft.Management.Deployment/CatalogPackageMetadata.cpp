@@ -4,7 +4,6 @@
 #include <winget/RepositorySource.h>
 #include "CatalogPackageMetadata.h"
 #include "CatalogPackageMetadata.g.cpp"
-#include "Documentation.h"
 #include <wil\cppwinrt_wrl.h>
 
 namespace winrt::Microsoft::Management::Deployment::implementation
@@ -13,7 +12,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
     void CatalogPackageMetadata::Initialize(::AppInstaller::Manifest::ManifestLocalization manifestLocalization)
     {
-        m_manifestLocalization = manifestLocalization;
+        m_manifestLocalization = std::move(manifestLocalization);
     }
 
     hstring CatalogPackageMetadata::Locale()

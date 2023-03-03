@@ -33,4 +33,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         return winrt::to_hstring(m_manifestInstaller.Locale);
     }
+    winrt::Microsoft::Management::Deployment::ElevationRequirement PackageInstallerInfo::ElevationRequirement()
+    {
+        return GetDeploymentElevationRequirement(m_manifestInstaller.ElevationRequirement);
+    }
 }

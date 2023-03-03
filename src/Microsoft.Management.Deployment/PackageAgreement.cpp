@@ -9,7 +9,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 {
     void PackageAgreement::Initialize(::AppInstaller::Manifest::Agreement packageAgreement)
     {
-        m_packageAgreement = packageAgreement;
+        m_packageAgreement = std::move(packageAgreement);
     }
     hstring PackageAgreement::Label()
     {

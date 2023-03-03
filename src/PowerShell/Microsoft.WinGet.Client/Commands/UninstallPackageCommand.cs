@@ -22,7 +22,7 @@ namespace Microsoft.WinGet.Client.Commands
         Constants.WinGetNouns.Package,
         DefaultParameterSetName = Constants.FoundSet,
         SupportsShouldProcess = true)]
-    [OutputType(typeof(UninstallResult))]
+    [OutputType(typeof(PSObjects.UninstallResult))]
     public sealed class UninstallPackageCommand : BasePackageCommand
     {
         /// <summary>
@@ -46,7 +46,7 @@ namespace Microsoft.WinGet.Client.Commands
             {
                 UninstallOptions options = this.GetUninstallOptions(version);
                 UninstallResult result = this.UninstallPackage(package, options);
-                this.WriteObject(result);
+                this.WriteObject(new PSObjects.UninstallResult(result));
             });
         }
 

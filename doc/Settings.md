@@ -121,6 +121,16 @@ The `architectures` behavior affects what architectures will be selected when in
     },
 ```
 
+### Default install root
+
+The `defaultInstallRoot` affects the install location when a package requires one. This can be overridden by the `--location` parameter. This setting is only used when a package manifest includes `InstallLocationRequired`, and the actual location is obtained by appending the package ID to the root.
+
+```json
+    "installBehavior": {
+        "defaultInstallRoot": "C:/installRoot"
+    },
+```
+
 ## Uninstall Behavior
 
 The `uninstallBehavior` settings affect the default behavior of uninstalling (where applicable) packages.
@@ -132,16 +142,6 @@ The `purgePortablePackage` behavior affects the default behavior for uninstallin
 ```json
     "uninstallBehavior": {
         "purgePortablePackage": true
-    },
-```
-
-### Default install root
-
-The `defaultInstallRoot` affects the install location when a package requires one. This can be overridden by the `--location` parameter. This setting is only used when a package manifest includes `InstallLocationRequired`, and the actual location is obtained by appending the package ID to the root.
-
-```json
-    "installBehavior": {
-        "defaultInstallRoot": "C:/installRoot"
     },
 ```
 

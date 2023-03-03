@@ -27,6 +27,7 @@ Atest
 ATL
 AType
 AUrl
+Authenticode
 azurewebsites
 bcp
 BEFACEF
@@ -41,6 +42,7 @@ blogs
 bluetooth
 bomgar
 BOMs
+boop
 boundparms
 Browsable
 BSODs
@@ -73,6 +75,7 @@ count'th
 countof
 countryregion
 createmanifestmetadata
+cswinrt
 ctc
 DACL
 Dbg
@@ -85,15 +88,15 @@ dllimport
 DMPAs
 dnld
 Dobbeleer
-Dsc
+dsc
 DUPLICATEALIAS
 dustojnikhummer
 dvinns
 ecfr
 ecfrbrowse
 EFGH
-EQU
 endregion
+EQU
 errmsg
 ESRB
 etest
@@ -125,6 +128,7 @@ gcpi
 GESMBH
 GHS
 gity
+goku
 Google
 guiddef
 Hackathon
@@ -136,6 +140,7 @@ HINSTANCE
 hkey
 hlocal
 hmodule
+Howto
 hre
 hresults
 IARP
@@ -170,6 +175,7 @@ jrsoftware
 jsoncpp
 JToken
 JValue
+Kaido
 KNOWNFOLDERID
 ktf
 ldcase
@@ -188,6 +194,8 @@ LPWCH
 LPWSTR
 LSTATUS
 LTDA
+luffy
+Luffytaro
 malware
 maxvalue
 maybenull
@@ -200,8 +208,8 @@ minidump
 minschema
 missingdependency
 MMmmbbbb
+mof
 monicka
-MOF
 MPNS
 msdownload
 msft
@@ -209,6 +217,7 @@ msftrubengu
 MSIHASH
 MSIXHASH
 msstore
+Mugiwara
 Multideclaration
 mycustom
 myinstalldir
@@ -226,8 +235,10 @@ NONFOLDERS
 nonterminated
 normer
 NOSEPARATOR
+notalostreference
 NOTAPROPERTY
 notmatch
+npmjs
 nsis
 nuffing
 objbase
@@ -349,6 +360,7 @@ TResult
 trimstart
 TState
 TStatus
+TType
 typeparam
 UCase
 ucasemap
@@ -397,9 +409,13 @@ wwinmain
 WZDNCRFJ
 xcopy
 XFile
+XMUGIWARAMODULE
 XPLATSTR
+XRESOURCEZORO
 xsi
+yamato
 yamlcreateps
 yao
 Zanollo
 ZIPHASH
+zoro

@@ -299,7 +299,7 @@ TEST_CASE("UpdateFlow_NoArgs_UnknownVersion", "[UpdateFlow][workflow]")
     INFO(updateOutput.str());
 
     // Verify --include-unknown help text is displayed if update is executed with no args and an unknown version package is available for upgrade.
-    REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::UpgradeUnknownVersionCount).get()) != std::string::npos);
+    REQUIRE(updateOutput.str().find(Resource::String::UpgradeUnknownVersionCount(1)) != std::string::npos);
 }
 
 TEST_CASE("UpdateFlow_IncludeUnknown", "[UpdateFlow][workflow]")
@@ -323,7 +323,7 @@ TEST_CASE("UpdateFlow_IncludeUnknown", "[UpdateFlow][workflow]")
     INFO(updateOutput.str());
 
     // Verify unknown version package is displayed available for upgrade.
-    REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::UpgradeUnknownVersionCount).get()) == std::string::npos);
+    REQUIRE(updateOutput.str().find(Resource::String::UpgradeUnknownVersionCount(1)) == std::string::npos);
     REQUIRE(updateOutput.str().find("unknown") != std::string::npos);
 }
 
@@ -540,7 +540,7 @@ TEST_CASE("UpdateFlow_UpdateAllApplicable", "[UpdateFlow][workflow]")
     INFO(updateOutput.str());
 
     // Verify that --include-unknown help message is displayed.
-    REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::UpgradeUnknownVersionCount).get()) != std::string::npos);
+    REQUIRE(updateOutput.str().find(Resource::String::UpgradeUnknownVersionCount(1)) != std::string::npos);
     REQUIRE(updateOutput.str().find("AppInstallerCliTest.TestExeUnknownVersion") == std::string::npos);
 
     // Verify installers are called.
@@ -801,7 +801,7 @@ TEST_CASE("UpdateFlow_RequireExplicit", "[UpdateFlow][workflow]")
         REQUIRE(pinnedPackagesHeaderPosition != std::string::npos);
         REQUIRE(pinnedPackageLinePosition != std::string::npos);
         REQUIRE(pinnedPackagesHeaderPosition < pinnedPackageLinePosition);
-        REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::UpgradeRequireExplicitCount)) == std::string::npos);
+        REQUIRE(updateOutput.str().find(Resource::String::UpgradeRequireExplicitCount(1)) == std::string::npos);
     }
 
     SECTION("Upgrade all except pinned")
@@ -820,7 +820,7 @@ TEST_CASE("UpdateFlow_RequireExplicit", "[UpdateFlow][workflow]")
         auto s = updateOutput.str();
 
         // Verify message is printed for skipped package
-        REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::UpgradeRequireExplicitCount)) != std::string::npos);
+        REQUIRE(updateOutput.str().find(Resource::String::UpgradeRequireExplicitCount(1)) != std::string::npos);
 
         // Verify package is not installed, but all others are
         REQUIRE(std::filesystem::exists(updateExeResultPath.GetPath()));
@@ -947,4 +947,60 @@ TEST_CASE("UpdateFlow_UpdateAll_ForwardArgs", "[UpdateFlow][workflow]")
     REQUIRE(std::filesystem::exists(updateMsixResultPath.GetPath()));
     REQUIRE(std::filesystem::exists(updateMSStoreResultPath.GetPath()));
     REQUIRE(std::filesystem::exists(updatePortableResultPath.GetPath()));
+}
+
+TEST_CASE("UpdateFlow_UpdateMultiple", "[UpdateFlow][workflow][MultiQuery]")
+{
+    TestCommon::TempFile exeUpdateResultPath("TestExeInstalled.txt");
+    TestCommon::TempFile msixUpdateResultPath("TestMsixInstalled.txt");
+
+    std::ostringstream updateOutput;
+    TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Exe, TSR::TestInstaller_Msix }));
+    OverrideForShellExecute(context);
+    OverrideForMSIX(context);
+    context.Args.AddArg(Execution::Args::Type::MultiQuery, TSR::TestInstaller_Exe.Query);
+    context.Args.AddArg(Execution::Args::Type::MultiQuery, TSR::TestInstaller_Msix.Query);
+
+    UpgradeCommand update({});
+    update.Execute(context);
+    INFO(updateOutput.str());
+
+    // Verify Installers are called called.
+    REQUIRE(std::filesystem::exists(exeUpdateResultPath.GetPath()));
+    REQUIRE(std::filesystem::exists(exeUpdateResultPath.GetPath()));
+}
+
+TEST_CASE("UpdateFlow_UpdateMultiple_NotAllFound", "[UpdateFlow][workflow][MultiQuery]")
+{
+    TestCommon::TempFile exeUpdateResultPath("TestExeInstalled.txt");
+
+    std::ostringstream updateOutput;
+    TestContext context{ updateOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Exe }));
+    context.Args.AddArg(Execution::Args::Type::MultiQuery, TSR::TestInstaller_Exe.Query);
+    context.Args.AddArg(Execution::Args::Type::MultiQuery, TSR::TestInstaller_Msix.Query);
+
+    SECTION("Ignore unavailable")
+    {
+        OverrideForShellExecute(context);
+        context.Args.AddArg(Execution::Args::Type::IgnoreUnavailable);
+
+        UpgradeCommand update({});
+        update.Execute(context);
+        INFO(updateOutput.str());
+
+        REQUIRE(!context.IsTerminated());
+        REQUIRE(std::filesystem::exists(exeUpdateResultPath.GetPath()));
+    }
+    SECTION("Don't ignore unavailable")
+    {
+        UpgradeCommand update({});
+        update.Execute(context);
+        INFO(updateOutput.str());
+
+        REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_NOT_ALL_QUERIES_FOUND_SINGLE);
+    }
 }

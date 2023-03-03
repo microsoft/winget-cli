@@ -133,6 +133,7 @@ dll
 dllexport
 dllmain
 Dlls
+DMC
 docx
 dotnet
 downlevel
@@ -228,6 +229,7 @@ https
 HWND
 Hyperlink
 IAppx
+IConfiguration
 icu
 IDX
 IFACEMETHOD
@@ -235,6 +237,7 @@ ifdef
 ifndef
 ifspec
 ifstream
+IInspectable
 IIS
 impl
 inapplicabilities

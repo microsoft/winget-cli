@@ -10,7 +10,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 {
     void SourceAgreement::Initialize(::AppInstaller::Repository::SourceAgreement sourceAgreement)
     {
-        m_sourceAgreement = sourceAgreement;
+        m_sourceAgreement = std::move(sourceAgreement);
     }
     hstring SourceAgreement::Label()
     {

@@ -407,6 +407,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 context->Args.AddArg(Execution::Args::Type::AcceptPackageAgreements);
             }
         }
+        else
+        {
+            // Note: If no install options are specified, we assume the caller is accepting the package agreements by default.
+            context->Args.AddArg(Execution::Args::Type::AcceptPackageAgreements);
+        }
     }
 
     void PopulateContextFromUninstallOptions(
@@ -567,9 +572,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         // Add installed version
         AddInstalledVersionToContext(package.InstalledVersion(), comContext.get());
-
-        // Uninstall should not require agreements acceptance.
-        comContext->SetFlags(AppInstaller::CLI::Execution::ContextFlag::AgreementsAcceptedByCaller);
 
         // Add Package which is used by RecordUninstall later for removing from tracking catalog of correlated available sources as best effort
         winrt::Microsoft::Management::Deployment::implementation::CatalogPackage* catalogPackageImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::CatalogPackage>(package);

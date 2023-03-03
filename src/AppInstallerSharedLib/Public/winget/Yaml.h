@@ -99,6 +99,7 @@ namespace AppInstaller::YAML
         bool IsScalar() const { return m_type == Type::Scalar; }
         bool IsSequence() const { return m_type == Type::Sequence; }
         bool IsMap() const { return m_type == Type::Mapping; }
+        Type GetType() const { return m_type; }
 
         explicit operator bool() const { return IsDefined(); }
 
@@ -141,6 +142,7 @@ namespace AppInstaller::YAML
 
         // The workers for the as function.
         std::string as_dispatch(std::string*) const;
+        std::wstring as_dispatch(std::wstring*) const;
         int64_t as_dispatch(int64_t*) const;
         int as_dispatch(int*) const;
         bool as_dispatch(bool*) const;

@@ -322,4 +322,21 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
         return ::AppInstaller::Manifest::ScopeEnum::Unknown;
     }
+
+    winrt::Microsoft::Management::Deployment::ElevationRequirement GetDeploymentElevationRequirement(::AppInstaller::Manifest::ElevationRequirementEnum elevationRequirement)
+    {
+        switch (elevationRequirement)
+        {
+        case ::AppInstaller::Manifest::ElevationRequirementEnum::ElevationRequired:
+            return Microsoft::Management::Deployment::ElevationRequirement::ElevationRequired;
+        case ::AppInstaller::Manifest::ElevationRequirementEnum::ElevationProhibited:
+            return Microsoft::Management::Deployment::ElevationRequirement::ElevationProhibited;
+        case ::AppInstaller::Manifest::ElevationRequirementEnum::ElevatesSelf:
+            return Microsoft::Management::Deployment::ElevationRequirement::ElevatesSelf;
+        case ::AppInstaller::Manifest::ElevationRequirementEnum::Unknown:
+            return Microsoft::Management::Deployment::ElevationRequirement::Unknown;
+        }
+
+        return Microsoft::Management::Deployment::ElevationRequirement::Unknown;
+    }
 }

@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "pch.h"
 #include "PackageAgreement.g.h"
 #include <winget/Manifest.h>
 

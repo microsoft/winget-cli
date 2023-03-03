@@ -62,6 +62,10 @@ namespace Microsoft.Management.Deployment
         [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 4)]
         {
             NoApplicableUpgrade,
+        },
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
+        {
+            PackageAgreementsNotAccepted,
         }
     };
 
@@ -275,19 +279,16 @@ namespace Microsoft.Management.Deployment
             String Publisher { get; };
         }
 
-        /// DESIGN NOTE:
-        /// GetManifest from IPackageVersion in winget/RepositorySearch is not implemented in V1. That class has 
-        /// a lot of fields and no one requesting it.
-        /// Gets the manifest of this package version.
-        /// virtual Manifest::Manifest GetManifest() = 0;
-
         [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
         {
             /// Gets the package catalog metadata of this package version with the default localization based on user settings.
             CatalogPackageMetadata GetCatalogPackageMetadata();
 
-            /// Gets the package catalog metadata of this package version with the specified locale.
-            CatalogPackageMetadata GetCatalogPackageMetadata(String locale);
+            /// Gets the package catalog metadata of this package version with the preferred locale.
+            CatalogPackageMetadata GetCatalogPackageMetadata(String preferredLocale);
+
+            /// Gets the applicable installer for this package version.
+            PackageInstallerInfo GetApplicableInstaller(InstallOptions options);
         }
     }
 
@@ -344,6 +345,20 @@ namespace Microsoft.Management.Deployment
         System,
     };
 
+    /// The package installer elevation requirement.
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
+    enum ElevationRequirement
+    {
+        /// Elevation requirement not declared.
+        Unknown,
+        /// Package installer requires elevation.
+        ElevationRequired,
+        /// Package installer prohibits elevation.
+        ElevationProhibited,
+        /// Package installer elevates self.
+        ElevatesSelf,
+    };
+
     /// Interface for retrieving information about a package installer.
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 5)]
     runtimeclass PackageInstallerInfo
@@ -357,7 +372,13 @@ namespace Microsoft.Management.Deployment
         /// The package installer scope.
         PackageInstallerScope Scope { get; };
         /// The package installer locale.
-        String Locale{ get; };
+        String Locale { get; };
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
+        {
+            /// The package installer elevation requirement.
+            ElevationRequirement ElevationRequirement { get; };
+        }
     };
 
     /// The installed status type. The values need to match InstalledStatusType from winget/RepositorySearch.h.
@@ -620,6 +641,10 @@ namespace Microsoft.Management.Deployment
     {
         Ok,
         CatalogError,
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
+        {
+            SourceAgreementsNotAccepted,
+    }
     };
 
     /// Result of the Connect call
@@ -639,6 +664,7 @@ namespace Microsoft.Management.Deployment
         /// Gets a value indicating whether this package catalog is a composite of other package catalogs,
         /// and thus the packages may come from disparate package catalogs as well.
         Boolean IsComposite { get; };
+
         /// The details of the package catalog if it is not a composite.
         PackageCatalogInfo Info { get; };
 
@@ -658,7 +684,7 @@ namespace Microsoft.Management.Deployment
             /// Gets the required agreements for connecting to the package catalog (source).
             Windows.Foundation.Collections.IVectorView<SourceAgreement> SourceAgreements { get; };
 
-            Boolean AcceptSourceAgreements{ get; };
+            Boolean AcceptSourceAgreements{ get; set; };
         }
     }
 
@@ -830,6 +856,7 @@ namespace Microsoft.Management.Deployment
 
         /// Silent, Interactive, or Default
         PackageUninstallMode PackageUninstallMode;
+
         /// Directs the logging to a log file. If provided, the installer must have write access to the file 
         String LogOutputPath;
 
@@ -846,7 +873,7 @@ namespace Microsoft.Management.Deployment
         }
     }
 
-    /// IMPLEMENTATION NOTE: SourceOrigin from AppInstaller::Repository::Documentation
+    /// IMPLEMENTATION NOTE: Documentation from AppInstaller::Repository::Documentation
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
     runtimeclass Documentation
     {
@@ -855,7 +882,7 @@ namespace Microsoft.Management.Deployment
         String DocumentUrl { get; };
     }
 
-    /// IMPLEMENTATION NOTE: SourceOrigin from AppInstaller::Repository::SourceAgreement
+    /// IMPLEMENTATION NOTE: SourceAgreement from AppInstaller::Repository::SourceAgreement
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
     runtimeclass SourceAgreement
     {
@@ -866,7 +893,7 @@ namespace Microsoft.Management.Deployment
         String Url { get; };
     }
 
-    /// IMPLEMENTATION NOTE: SourceOrigin from AppInstaller::Manifest::Agreement
+    /// IMPLEMENTATION NOTE: PackageAgreement from AppInstaller::Manifest::Agreement
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
     runtimeclass PackageAgreement
     {
@@ -877,7 +904,7 @@ namespace Microsoft.Management.Deployment
         String Url { get; };
     }
 
-    /// IMPLEMENTATION NOTE: SourceOrigin from AppInstaller::Manifest::Localization
+    /// IMPLEMENTATION NOTE: CatalogPackageMetadata from AppInstaller::Manifest::Localization
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
     runtimeclass CatalogPackageMetadata
     {

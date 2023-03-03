@@ -34,6 +34,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         ::AppInstaller::Repository::Source m_sourceReference;
         std::optional<std::string> m_additionalPackageCatalogArguments;
         bool m_acceptSourceAgreements = true;
+        std::once_flag m_sourceAgreementsOnceFlag;
 #endif
     };
 }

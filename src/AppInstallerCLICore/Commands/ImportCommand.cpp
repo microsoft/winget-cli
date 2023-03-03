@@ -4,6 +4,7 @@
 #include "ImportCommand.h"
 #include "Workflows/CompletionFlow.h"
 #include "Workflows/ImportExportFlow.h"
+#include "Workflows/MultiQueryFlow.h"
 #include "Workflows/WorkflowBase.h"
 #include "Resources.h"
 
@@ -14,9 +15,9 @@ namespace AppInstaller::CLI
     std::vector<Argument> ImportCommand::GetArguments() const
     {
         return {
-            Argument{ "import-file", 'i', Execution::Args::Type::ImportFile, Resource::String::ImportFileArgumentDescription, ArgumentType::Positional, true },
-            Argument{ "ignore-unavailable", Argument::NoAlias, Execution::Args::Type::IgnoreUnavailable, Resource::String::ImportIgnoreUnavailableArgumentDescription, ArgumentType::Flag },
-            Argument{ "ignore-versions", Argument::NoAlias, Execution::Args::Type::IgnoreVersions, Resource::String::ImportIgnorePackageVersionsArgumentDescription, ArgumentType::Flag },
+            Argument{ Execution::Args::Type::ImportFile, Resource::String::ImportFileArgumentDescription, ArgumentType::Positional, true },
+            Argument{ Execution::Args::Type::IgnoreUnavailable, Resource::String::ImportIgnoreUnavailableArgumentDescription, ArgumentType::Flag },
+            Argument{ Execution::Args::Type::IgnoreVersions, Resource::String::ImportIgnorePackageVersionsArgumentDescription, ArgumentType::Flag },
             Argument::ForType(Execution::Args::Type::NoUpgrade),
             Argument::ForType(Execution::Args::Type::AcceptPackageAgreements),
             Argument::ForType(Execution::Args::Type::AcceptSourceAgreements),
@@ -46,7 +47,8 @@ namespace AppInstaller::CLI
             Workflow::ReadImportFile <<
             Workflow::OpenSourcesForImport <<
             Workflow::OpenPredefinedSource(Repository::PredefinedSource::Installed) <<
-            Workflow::SearchPackagesForImport <<
+            Workflow::GetSearchRequestsForImport <<
+            Workflow::SearchSubContextsForSingle() <<
             Workflow::ReportExecutionStage(Workflow::ExecutionStage::Execution) <<
             Workflow::InstallImportedPackages;
     }

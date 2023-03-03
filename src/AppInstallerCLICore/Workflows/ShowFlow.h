@@ -28,10 +28,4 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: Manifest
     // Outputs: None
     void ShowManifestVersion(Execution::Context& context);
-
-    // Shows all versions for an application.
-    // Required Args: None
-    // Inputs: SearchResult [only operates on first match]
-    // Outputs: None
-    void ShowAppVersions(Execution::Context& context);
 }
