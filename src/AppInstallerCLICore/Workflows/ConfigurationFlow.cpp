@@ -265,6 +265,8 @@ namespace AppInstaller::CLI::Workflow
 
             void Progress(const IAsyncOperationWithProgress<ApplyConfigurationSetResult, ConfigurationSetChangeData>& operation, const ConfigurationSetChangeData& data)
             {
+                auto threadContext = m_context.SetForCurrentThread();
+
                 if (m_isFirstProgress)
                 {
                     HandleUnreportedProgress(operation.GetResults());
@@ -437,6 +439,8 @@ namespace AppInstaller::CLI::Workflow
 
         getDetailsOperation.Progress([&](const IAsyncOperationWithProgress<GetConfigurationSetDetailsResult, GetConfigurationUnitDetailsResult>& operation, const GetConfigurationUnitDetailsResult&)
             {
+                auto threadContext = context.SetForCurrentThread();
+
                 auto unitResults = operation.GetResults().UnitResults();
                 for (unitsShown; unitsShown < unitResults.Size(); ++unitsShown)
                 {
