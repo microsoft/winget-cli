@@ -11,7 +11,7 @@ issue id: 3026
 
 ## Abstract
 
-This sepc describes the allowing WinGet install to install applications from the Microsoft Store when the "Turn off the Store application" group policy object has been enabled.
+This spec describes allowing WinGet install COM APIs to install applications from the Microsoft Store when the Store application has been disabled through group policy object or SLAPI policies.
 
 ## Inspiration
 
@@ -22,9 +22,9 @@ This is inspired by
 
 ## Solution Design
 
-The Windows Package Manager will allow installation of Microsoft Store applications for the COM API used by Mobile Device Management (MDM) solutions (example: Intune) while continuing to block store application installations through the command line interface (CLI) and PowerShell when the "Turn off the Store application" group policy has been enabled.
+The Windows Package Manager will allow the WinGet COM APIs to perform Microsoft Store application installations that will bypass the check on Microsoft Store is blocked by policy (IsStoreBlockedByPolicyAsync). Both the WinGet command line interface (CLI) and WinGet PowerShell commands will continue to block application installations from the Store when the Microsoft Store is blocked by policy.
 
-An exception will be created for the COM APIs to enable 
+The checks on Microsoft Store blocked by policy will allow calls through COM, with the exception of PowerShell and CLI.
 
 ## UI/UX Design
 
