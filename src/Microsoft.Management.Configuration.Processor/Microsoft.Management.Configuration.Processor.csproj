@@ -4,7 +4,7 @@
     <TargetFramework>net6.0-windows10.0.19041.0</TargetFramework>
     <Nullable>enable</Nullable>
     <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
-    <Platforms>x64;x86;arm64</Platforms>
+    <Platform>AnyCpu</Platform>
     <OutputPath>$(SolutionDir)$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutputPath>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
@@ -36,7 +36,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Microsoft.Management.Configuration.Projection\Microsoft.Management.Configuration.Projection.csproj" >
+    <ProjectReference Include="..\Microsoft.Management.Configuration.Projection\Microsoft.Management.Configuration.Projection.csproj">
       <OutputItemType>Content</OutputItemType>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <ReferenceOutputAssembly>True</ReferenceOutputAssembly>
