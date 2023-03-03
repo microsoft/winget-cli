@@ -31,7 +31,7 @@ namespace AppInstaller::CLI::Workflow::ConfigurationRemoting
     namespace
     {
         // The executable file name for the remote server process.
-        constexpr std::wstring_view s_RemoteServerFileName = L"ConfigurationRemotingServer.exe";
+        constexpr std::wstring_view s_RemoteServerFileName = L"ConfigurationRemotingServer\\ConfigurationRemotingServer.exe";
 
         // Represents a remote factory object that was created from a specific process.
         struct RemoteFactory : winrt::implements<RemoteFactory, IConfigurationSetProcessorFactory>
@@ -76,18 +76,38 @@ namespace AppInstaller::CLI::Workflow::ConfigurationRemoting
 
                 THROW_IF_WIN32_BOOL_FALSE(CreateProcessW(serverPath.c_str(), &arguments[0], nullptr, nullptr, TRUE, DETACHED_PROCESS, nullptr, nullptr, &startupInfo, &processInformation));
 
-                // Wait up to 10 seconds for the server to complete initialization.
-                // This time is fairly arbitrary, although it does correspond with the maximum time for a COM fast rundown.
-                if (!initEvent.wait(10000))
+                HANDLE waitHandles[2];
+                waitHandles[0] = initEvent.get();
+                waitHandles[1] = processInformation.hProcess;
+
+                for (;;)
                 {
-                    // If we timed out, then try to use the exit code of the server process if it has exited with a failed HRESULT.
+                    // Wait up to 10 seconds for the server to complete initialization.
+                    // This time is fairly arbitrary, although it does correspond with the maximum time for a COM fast rundown.
+                    DWORD waitResult = WaitForMultipleObjects(ARRAYSIZE(waitHandles), waitHandles, FALSE, 10000);
+                    THROW_LAST_ERROR_IF(waitResult == WAIT_FAILED);
+
+                    // The init event was signaled.
+                    if (waitResult == WAIT_OBJECT_0)
+                    {
+                        break;
+                    }
+
+                    // Don't break things if the process is being debugged
+                    if (waitResult == WAIT_TIMEOUT && IsDebuggerPresent())
+                    {
+                        continue;
+                    }
+
+                    // If the process exited, then try to use the exit code.
                     DWORD processExitCode = 0;
-                    if (WaitForSingleObject(processInformation.hProcess, 0) == WAIT_OBJECT_0 && GetExitCodeProcess(processInformation.hProcess, &processExitCode) && FAILED(processExitCode))
+                    if (waitResult == (WAIT_OBJECT_0 + 1) && GetExitCodeProcess(processInformation.hProcess, &processExitCode) && FAILED(processExitCode))
                     {
                         THROW_HR(static_cast<HRESULT>(processExitCode));
                     }
                     else
                     {
+                        // The server timed out or didn't have a failed exit code.
                         THROW_HR(E_FAIL);
                     }
                 }

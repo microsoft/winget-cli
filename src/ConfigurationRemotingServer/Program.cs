@@ -9,7 +9,7 @@ namespace ConfigurationRemotingServer
     {
         private static readonly Guid IID_IConfigurationSetProcessorFactory = new Guid("C73A3D5B-E5DA-5C4A-A257-7B343C354591");
 
-        static void Main(string[] args)
+        static int Main(string[] args)
         {
             ulong memoryHandle = ulong.Parse(args[0]);
 
@@ -21,15 +21,16 @@ namespace ConfigurationRemotingServer
                 ConfigurationSetProcessorFactory factory = new ConfigurationSetProcessorFactory(ConfigurationProcessorType.Hosted, null);
                 IObjectReference factoryInterface = ABI.Microsoft.Management.Configuration.Processor.ConfigurationSetProcessorFactory.CreateMarshaler(factory).As(IID_IConfigurationSetProcessorFactory);
 
-                WindowsPackageManagerConfigurationCompleteOutOfProcessFactoryInitialization(0, factoryInterface.ThisPtr, memoryHandle, initEventHandle, completionEventHandle);
+                return WindowsPackageManagerConfigurationCompleteOutOfProcessFactoryInitialization(0, factoryInterface.ThisPtr, memoryHandle, initEventHandle, completionEventHandle);
             }
             catch(Exception ex)
             {
                 WindowsPackageManagerConfigurationCompleteOutOfProcessFactoryInitialization(ex.HResult, IntPtr.Zero, memoryHandle, 0, 0);
+                return ex.HResult;
             }
         }
 
         [DllImport("WindowsPackageManager.dll")]
-        private static extern void WindowsPackageManagerConfigurationCompleteOutOfProcessFactoryInitialization(int result, IntPtr factory, ulong memoryHandle, ulong initEventHandle, ulong completionMutexHandle);
+        private static extern int WindowsPackageManagerConfigurationCompleteOutOfProcessFactoryInitialization(int result, IntPtr factory, ulong memoryHandle, ulong initEventHandle, ulong completionMutexHandle);
     }
 }
