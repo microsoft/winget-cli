@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "ConfigurationFlow.h"
 #include "PromptFlow.h"
+#include "ConfigurationSetProcessorFactoryRemoting.h"
 #include <winrt/Microsoft.Management.Configuration.h>
 
 using namespace AppInstaller::CLI::Execution;
@@ -63,8 +64,7 @@ namespace AppInstaller::CLI::Workflow
             }
 #endif
 
-            // TODO: Create the real factory
-            return {};
+            return ConfigurationRemoting::CreateOutOfProcessFactory();
         }
 
         std::optional<Utility::LocIndString> GetValueSetString(const ValueSet& valueSet, std::wstring_view value)

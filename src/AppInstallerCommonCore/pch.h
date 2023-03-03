@@ -61,7 +61,7 @@
 #include <vector>
 
 #pragma warning( push )
-#pragma warning ( disable : 6001 6285 6287 6340 6387 6388 28196 )
+#pragma warning ( disable : 6001 6285 6287 6340 6387 6388 26451 28196 )
 #include <wil/resource.h>
 #include <wil/result.h>
 #include <wil/result_macros.h>
@@ -69,6 +69,7 @@
 #include <wil/token_helpers.h>
 #include <wil/com.h>
 #include <wil/filesystem.h>
+#include <wil/win32_helpers.h>
 #pragma warning( pop )
 
 #ifndef WINGET_DISABLE_FOR_FUZZING

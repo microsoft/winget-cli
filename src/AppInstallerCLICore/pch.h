@@ -44,6 +44,7 @@
 #include <wil/result.h>
 #include <wil/result_macros.h>
 #include <wil/safecast.h>
+#include <wil/com.h>
 #pragma warning( pop )
 
 #include <wrl/client.h>
