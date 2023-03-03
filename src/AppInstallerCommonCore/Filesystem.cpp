@@ -238,4 +238,18 @@ namespace AppInstaller::Filesystem
         THROW_IF_FAILED(SHGetKnownFolderPath(id, KF_FLAG_NO_ALIAS | KF_FLAG_DONT_VERIFY | KF_FLAG_NO_PACKAGE_REDIRECTION, NULL, &knownFolder));
         return knownFolder.get();
     }
+
+    bool IsSameVolume(const std::filesystem::path& current, const std::filesystem::path& target)
+    {
+        LPWSTR currentVolumeBuffer = new WCHAR[MAX_PATH];
+        LPWSTR targetVolumeBuffer = new WCHAR[MAX_PATH];
+
+        GetVolumePathNameW(current.c_str(), currentVolumeBuffer, sizeof(currentVolumeBuffer));
+        GetVolumePathNameW(target.c_str(), targetVolumeBuffer, sizeof(targetVolumeBuffer));
+
+        std::wstring_view currentVolume { currentVolumeBuffer };
+        std::wstring_view targetVolume { targetVolumeBuffer };
+
+        return Utility::CaseInsensitiveEquals(Utility::ConvertToUTF8(currentVolume), Utility::ConvertToUTF8(targetVolume));
+    }
 }
