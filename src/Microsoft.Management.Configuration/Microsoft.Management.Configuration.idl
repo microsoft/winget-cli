@@ -483,7 +483,7 @@ namespace Microsoft.Management.Configuration
         ConfigurationUnitResultInformation ResultInformation{ get; };
     }
 
-    // The result of getting the confguration set details.
+    // The result of getting the configuration set details.
     [contract(Microsoft.Management.Configuration.Contract, 1)]
     runtimeclass GetConfigurationSetDetailsResult
     {

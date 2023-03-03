@@ -213,6 +213,11 @@
           "description": "Enable support for package pinning",
           "type": "boolean",
           "default": false
+        },
+        "configuration": {
+          "description": "Enable support for configuration",
+          "type": "boolean",
+          "default": false
         }
       }
     }

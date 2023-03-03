@@ -1742,7 +1742,7 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="ConfigurationLocal" xml:space="preserve">
     <value>Local</value>
-    <comment>Used to indicate the the item is present on the device.</comment>
+    <comment>Used to indicate that the item is present on the device.</comment>
   </data>
   <data name="ConfigurationModuleNameOnly" xml:space="preserve">
     <value>Module: {0}</value>
@@ -1770,7 +1770,7 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="ConfigurationWarning" xml:space="preserve">
     <value>You are responsible for understanding the configuration settings you are choosing to execute. Microsoft is not responsible for the configuration file you have authored or imported. This configuration may change settings in Windows, install software, change software settings (including security settings), and accept user agreements to third-party packages and services on your behalf.  By running this configuration file, you acknowledge that you understand and agree to these resources and settings. Any applications installed are licensed to you by their owners. Microsoft is not responsible for, nor does it grant any licenses to, third-party packages or services.</value>
-    <comment>CELA approved. Do not change without approval.</comment>
+    <comment>Legal approved. Do not change without approval.</comment>
   </data>
   <data name="ConfigurationWarningPrompt" xml:space="preserve">
     <value>Have you reviewed the configuration and would you like to proceed applying it to the system?</value>

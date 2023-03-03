@@ -187,6 +187,7 @@ liv
 liwpx
 localizationpriority
 LPBYTE
+LPCWSTR
 LPDWORD
 lpitemidlist
 LPSTR
@@ -197,6 +198,7 @@ LTDA
 luffy
 Luffytaro
 malware
+mapview
 maxvalue
 maybenull
 MBH
@@ -331,6 +333,7 @@ SRL
 srs
 standalone
 startswith
+STARTUPINFOW
 STRRET
 stylecop
 subdir

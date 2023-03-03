@@ -365,7 +365,7 @@ namespace AppInstaller::CLI::Workflow
             void OutputUnitCompletionProgress()
             {
                 // TODO: Change progress reporting to enable separation of spinner and VT progress reporting
-                //  Preferrably we want to be able to have:
+                //  Preferably we want to be able to have:
                 //      1. Spinner with indefinite progress VT before set application begins
                 //      2. 1/N VT progress reporting for configuration units while also showing a spinner for the unit itself
             }

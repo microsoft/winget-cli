@@ -446,6 +446,7 @@ REFCLSID
 REFCOUNT
 regex
 regexp
+remoting
 removefile
 removemanifest
 removepin

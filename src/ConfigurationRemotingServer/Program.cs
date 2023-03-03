@@ -1,4 +1,3 @@
-using Microsoft.Management.Configuration;
 using Microsoft.Management.Configuration.Processor;
 using System.Runtime.InteropServices;
 using WinRT;
