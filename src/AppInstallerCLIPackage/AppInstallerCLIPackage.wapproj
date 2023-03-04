@@ -112,8 +112,8 @@
       <MicrosoftManagementConfigurationPath>$(OutputPath)\..\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd</MicrosoftManagementConfigurationPath>
       <MicrosoftManagementConfigurationPath Condition="!Exists('$(MicrosoftManagementConfigurationPath)')">$(TargetDir)..\..\..\..\$(PlatformTarget)\$(Configuration)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd</MicrosoftManagementConfigurationPath>
       <MicrosoftManagementConfigurationFileName>Microsoft.Management.Configuration.winmd</MicrosoftManagementConfigurationFileName>
-      <MicrosoftManagementConfigurationProcessorPath>$(OutputPath)\..\Microsoft.Management.Configuration.Processor\net6.0-windows10.0.19041.0\Microsoft.Management.Configuration.Processor.winmd</MicrosoftManagementConfigurationProcessorPath>
-      <MicrosoftManagementConfigurationProcessorPath Condition="!Exists('$(MicrosoftManagementConfigurationProcessorPath)')">$(TargetDir)..\..\..\..\$(PlatformTarget)\$(Configuration)\Microsoft.Management.Configuration.Processor\net6.0-windows10.0.19041.0\Microsoft.Management.Configuration.Processor.winmd</MicrosoftManagementConfigurationProcessorPath>
+      <MicrosoftManagementConfigurationProcessorPath>$(OutputPath)\..\..\AnyCPU\Microsoft.Management.Configuration.Processor\net6.0-windows10.0.19041.0\Microsoft.Management.Configuration.Processor.winmd</MicrosoftManagementConfigurationProcessorPath>
+      <MicrosoftManagementConfigurationProcessorPath Condition="!Exists('$(MicrosoftManagementConfigurationProcessorPath)')">$(TargetDir)..\..\..\..\AnyCPU\$(Configuration)\Microsoft.Management.Configuration.Processor\net6.0-windows10.0.19041.0\Microsoft.Management.Configuration.Processor.winmd</MicrosoftManagementConfigurationProcessorPath>
       <MicrosoftManagementConfigurationProcessorFileName>Microsoft.Management.Configuration.Processor.winmd</MicrosoftManagementConfigurationProcessorFileName>
     </PropertyGroup>
     <ItemGroup>
