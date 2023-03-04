@@ -60,6 +60,9 @@ TEST_CASE("VerifySymlink", "[filesystem]")
 
 TEST_CASE("VerifyIsSameVolume", "[filesystem]")
 {
+    TestCommon::TempDirectory tempDirectory("TempDirectory");
+    std::filesystem::path path = tempDirectory.GetPath();
+
     std::filesystem::path path1 = L"C:\\Program Files\\WinGet\\Packages";
     std::filesystem::path path2 = L"C:\\Users\\testUser\\AppData\\Local\\Microsoft\\WinGet\\Packages";
     std::filesystem::path path3 = L"localPath\\test\\folder";
@@ -68,12 +71,11 @@ TEST_CASE("VerifyIsSameVolume", "[filesystem]")
     std::filesystem::path path5 = L"F:\\test\\folder";
     std::filesystem::path path6 = L"d:\\randomFolder";
 
-    // Verify true is returned for paths on the same volume.
+    // Verify that a relative path points to the current volume.
+    REQUIRE(IsSameVolume(path, path3));
     REQUIRE(IsSameVolume(path1, path2));
-    REQUIRE(IsSameVolume(path1, path3));
     REQUIRE(IsSameVolume(path4, path6));
 
-    // Verify false is returned for paths on different volumes.
     REQUIRE_FALSE(IsSameVolume(path1, path4));
     REQUIRE_FALSE(IsSameVolume(path1, path5));
     REQUIRE_FALSE(IsSameVolume(path2, path4));
