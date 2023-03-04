@@ -6,8 +6,6 @@ namespace ConfigurationRemotingServer
 {
     internal class Program
     {
-        private static readonly Guid IID_IConfigurationSetProcessorFactory = new Guid("C73A3D5B-E5DA-5C4A-A257-7B343C354591");
-
         static int Main(string[] args)
         {
             ulong memoryHandle = ulong.Parse(args[0]);
@@ -18,7 +16,7 @@ namespace ConfigurationRemotingServer
                 ulong completionEventHandle = ulong.Parse(args[2]);
 
                 ConfigurationSetProcessorFactory factory = new ConfigurationSetProcessorFactory(ConfigurationProcessorType.Hosted, null);
-                IObjectReference factoryInterface = ABI.Microsoft.Management.Configuration.Processor.ConfigurationSetProcessorFactory.CreateMarshaler(factory).As(IID_IConfigurationSetProcessorFactory);
+                IObjectReference factoryInterface = MarshalInterface<global::Microsoft.Management.Configuration.IConfigurationSetProcessorFactory>.CreateMarshaler(factory);
 
                 return WindowsPackageManagerConfigurationCompleteOutOfProcessFactoryInitialization(0, factoryInterface.ThisPtr, memoryHandle, initEventHandle, completionEventHandle);
             }
