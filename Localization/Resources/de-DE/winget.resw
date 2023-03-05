@@ -202,7 +202,7 @@
     <comment>{Locked="{0}"} Error message displayed when the user provides an extra positional argument when none was expected. {0} is a placeholder replaced by the user's extra argument input.</comment>
   </data>
   <data name="FeatureDisabledMessage" xml:space="preserve">
-    <value>Diese Funktion ist noch in Entwicklung und kann in Zukunft geändert oder entfernt werden. Um Sie zu aktivieren, bearbeiten Sie Ihre Einstellungen („winget settings“) und fügen Sie die experimentelle Funktion hinzu: „{0}“</value>
+    <value>Diese Funktion ist noch in Entwicklung und kann in Zukunft geändert oder entfernt werden. Um sie zu aktivieren, bearbeiten Sie Ihre Einstellungen („winget settings“) und fügen Sie die experimentelle Funktion hinzu: „{0}“</value>
     <comment>{Locked="winget settings","{0}"}. Error message displayed when the user uses an experimental feature that is disabled. {0} is a placeholder replaced by the experimental feature name.</comment>
   </data>
   <data name="FeaturesCommandLongDescription" xml:space="preserve">
