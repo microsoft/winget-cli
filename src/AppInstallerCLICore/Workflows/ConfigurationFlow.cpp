@@ -187,7 +187,10 @@ namespace AppInstaller::CLI::Workflow
                     out << "  "_liv << Resource::String::ConfigurationModuleWithDetails(ConvertForOutput(details.ModuleName()), author, ConvertForOutput(details.ModuleSource())) << '\n';
                 }
 
-                // TODO: Signing information after it gets changed
+                // TODO: Currently the signature information is only for the top files. Maybe each item should be tagged?
+                // TODO: Output signing information with additional details (like whether the certificate is trusted). Doing this with the validate command
+                //       seems like a good time, as that will also need to do the check in order to inform the user on the validation.
+                //       Just saying "Signed By: Foo" is going to lead to a false sense of trust if the signature is valid but not actually trusted.
 
                 auto moduleUri = details.PublishedModuleUri();
                 if (!moduleUri)

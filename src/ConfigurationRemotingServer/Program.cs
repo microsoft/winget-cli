@@ -1,3 +1,5 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 using Microsoft.Management.Configuration.Processor;
 using System.Runtime.InteropServices;
 using WinRT;
