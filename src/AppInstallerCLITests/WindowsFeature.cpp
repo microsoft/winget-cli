@@ -88,9 +88,14 @@ TEST_CASE("InstallFlow_ValidWindowsFeature_RebootRequired", "[windowsFeature]")
     install.Execute(context);
     INFO(installOutput.str());
 
-    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL);
-    REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::RebootRequiredToEnableWindowsFeatureOverrideRequired).get()) != std::string::npos);
+    REQUIRE(context.GetTerminationHR() == ERROR_SUCCESS);
+    REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
+    std::ifstream installResultFile(installResultPath.GetPath());
+    REQUIRE(installResultFile.is_open());
+    std::string installResultStr;
+    std::getline(installResultFile, installResultStr);
+    REQUIRE(installResultStr.find("/custom") != std::string::npos);
+    REQUIRE(installResultStr.find("/silentwithprogress") != std::string::npos);
 }
 
 TEST_CASE("InstallFlow_InvalidWindowsFeature", "[windowsFeature]")

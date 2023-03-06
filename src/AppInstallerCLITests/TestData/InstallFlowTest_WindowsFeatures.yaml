@@ -19,5 +19,6 @@ Installers:
       Dependencies:
         WindowsFeatures:
         - netfx3
+        - tftp
 ManifestType: singleton
 ManifestVersion: 1.4.0

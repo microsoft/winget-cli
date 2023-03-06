@@ -154,7 +154,7 @@ namespace AppInstaller::WindowsFeature
         HRESULT hr = ERROR_PROC_NOT_FOUND;
         if (m_enableFeature)
         {
-            hr = m_enableFeature(m_session, Utility::ConvertToUTF16(m_featureName).c_str(), NULL, DismPackageNone, FALSE, NULL, NULL, TRUE, NULL, NULL, NULL);
+            hr = m_enableFeature(m_session, Utility::ConvertToUTF16(m_featureName).c_str(), NULL, DismPackageNone, FALSE, NULL, NULL, FALSE, NULL, NULL, NULL);
             LOG_IF_FAILED(hr);
         }
 
