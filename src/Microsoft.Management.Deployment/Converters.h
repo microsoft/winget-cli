@@ -82,11 +82,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         case APPINSTALLER_CLI_ERROR_INTERNAL_ERROR:
             resultStatus = TStatus::InternalError;
             break;
-        case APPINSTALLER_CLI_ERROR_SOURCE_AGREEMENTS_NOT_ACCEPTED:
-            resultStatus = TStatus::SourceAgreementsNotAccepted;
-            break;
         case APPINSTALLER_CLI_ERROR_PACKAGE_AGREEMENTS_NOT_ACCEPTED:
-            resultStatus = TStatus::PackageAgreementsNotAccepted;
+            WINGET_GET_OPERATION_RESULT_STATUS(PackageAgreementsNotAccepted, InternalError);
             break;
         default:
             switch (executionStage)
