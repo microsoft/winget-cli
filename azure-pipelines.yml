@@ -318,6 +318,12 @@ jobs:
     condition: always()
 
   - task: PublishPipelineArtifact@1
+    displayName: Publish CsWinRT logs for Processor
+    inputs:
+      targetPath: 'src\Microsoft.Management.Configuration.Processor\obj\Release\net6.0-windows10.0.19041.0\Generated Files\log.txt'
+    condition: always()
+
+  - task: PublishPipelineArtifact@1
     displayName: Publish Pipeline Artifacts
     inputs:
       targetPath: '$(artifactsDir)'
