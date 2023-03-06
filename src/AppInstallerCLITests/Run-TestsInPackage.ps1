@@ -46,7 +46,7 @@ function Wait-ForFileClose([string]$Path)
 {
     $Local:FileInfo = [System.IO.FileInfo]::new($Path)
     $Local:SleepCount = 0
-    $Local:SleepCountMax = 1200
+    $Local:SleepCountMax = 600
 
     while ($Local:SleepCount -lt $Local:SleepCountMax)
     {

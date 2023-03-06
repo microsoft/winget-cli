@@ -1,16 +1,15 @@
-PackageIdentifier: AppInstallerCliTest.TestExeInstaller.WindowsFeatures
+PackageIdentifier: AppInstallerTest.WindowsFeature
 PackageVersion: 1.0.0.0
 PackageLocale: en-US
-PackageName: AppInstaller Test Installer
-ShortDescription: Installs exe installer with invalid Windows Features dependencies
+PackageName: TestWindowsFeature
+ShortDescription: Installs exe installer with valid Windows Features dependencies
 Publisher: Microsoft Corporation
-Moniker: AICLITestZip
 License: Test
 Installers:
     - Architecture: x86
-      InstallerUrl: https://ThisIsNotUsed
+      InstallerUrl: https://localhost:5001/TestKit/AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe
       InstallerType: exe
-      InstallerSha256: 65DB2F2AC2686C7F2FD69D4A4C6683B888DC55BFA20A0E32CA9F838B51689A3B
+      InstallerSha256: <EXEHASH>
       InstallerSwitches:
         Custom: /custom /scope=machine
         SilentWithProgress: /silentwithprogress

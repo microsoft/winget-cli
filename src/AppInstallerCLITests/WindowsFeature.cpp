@@ -14,8 +14,6 @@ using namespace AppInstaller::Utility;
 using namespace AppInstaller::WindowsFeature;
 using namespace TestCommon;
 
-// IMPORTANT: These tests require elevation and will modify your Windows Feature settings. 
-
 const std::string s_featureName = "netfx3";
 
 TEST_CASE("GetWindowsFeature", "[windowsFeature]")
@@ -37,65 +35,6 @@ TEST_CASE("GetWindowsFeature", "[windowsFeature]")
 
     DismHelper::WindowsFeature invalidFeature = dismHelper.CreateWindowsFeature("invalidFeature");
     REQUIRE_FALSE(invalidFeature.DoesExist());
-}
-
-TEST_CASE("DisableEnableWindowsFeature", "[windowsFeature]")
-{
-    if (!AppInstaller::Runtime::IsRunningAsAdmin())
-    {
-        WARN("Test requires admin privilege. Skipped.");
-        return;
-    }
-
-    DismHelper dismHelper = DismHelper();
-    DismHelper::WindowsFeature feature = dismHelper.CreateWindowsFeature(s_featureName);
-    HRESULT disableResult = feature.Disable();
-    bool disableStatus = (disableResult == S_OK || disableResult == ERROR_SUCCESS_REBOOT_REQUIRED);
-    REQUIRE(disableStatus);
-    REQUIRE_FALSE(feature.IsEnabled());
-
-    HRESULT enableResult = feature.Enable();
-    bool enableStatus = (enableResult == S_OK) || (enableResult == ERROR_SUCCESS_REBOOT_REQUIRED);
-    REQUIRE(enableStatus);
-
-    if (!feature.IsEnabled())
-    {
-        // If netfx3 is already enabled, this block will not be executed to avoid breaking this test.
-        REQUIRE((feature.GetRestartRequiredStatus() != DismRestartType::DismRestartNo));
-    }
-}
-
-TEST_CASE("InstallFlow_ValidWindowsFeature_RebootRequired", "[windowsFeature]")
-{
-    if (!AppInstaller::Runtime::IsRunningAsAdmin())
-    {
-        WARN("Test requires admin privilege. Skipped.");
-        return;
-    }
-
-    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
-
-    TestCommon::TestUserSettings testSettings;
-    testSettings.Set<Setting::EFWindowsFeature>(true);
-
-    std::ostringstream installOutput;
-    TestContext context{ installOutput, std::cin };
-    auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForShellExecute(context);
-    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_WindowsFeatures.yaml").GetPath().u8string());
-
-    InstallCommand install({});
-    install.Execute(context);
-    INFO(installOutput.str());
-
-    REQUIRE(context.GetTerminationHR() == ERROR_SUCCESS);
-    REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
-    std::ifstream installResultFile(installResultPath.GetPath());
-    REQUIRE(installResultFile.is_open());
-    std::string installResultStr;
-    std::getline(installResultFile, installResultStr);
-    REQUIRE(installResultStr.find("/custom") != std::string::npos);
-    REQUIRE(installResultStr.find("/silentwithprogress") != std::string::npos);
 }
 
 TEST_CASE("InstallFlow_InvalidWindowsFeature", "[windowsFeature]")

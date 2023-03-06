@@ -15,6 +15,15 @@ namespace AppInstallerCLIE2ETests
     public class InstallCommand : BaseCommand
     {
         /// <summary>
+        /// One time setup.
+        /// </summary>
+        [OneTimeSetUp]
+        public void OneTimeSetup()
+        {
+            WinGetSettingsHelper.ConfigureFeature("windowsFeature", true);
+        }
+
+        /// <summary>
         /// Set up.
         /// </summary>
         [SetUp]
@@ -612,6 +621,33 @@ namespace AppInstallerCLIE2ETests
 
             Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(baseDir));
             Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/execustom"));
+        }
+
+        /// <summary>
+        /// Test install a package with a Windows Feature dependency that requires a reboot.
+        /// </summary>
+        [Test]
+        public void InstallWithWindowsFeatureDependency_RebootRequired()
+        {
+            var testDir = TestCommon.GetRandomTestDir();
+            var installResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.WindowsFeature -l {testDir}");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL, installResult.ExitCode);
+            Assert.True(installResult.StdOut.Contains("Reboot required to fully enable the Windows Feature(s); to override this check use --force"));
+        }
+
+        /// <summary>
+        /// Test install a package with a Windows Feature dependency using the force argument.
+        /// </summary>
+        [Test]
+        public void InstallWithWindowsFeatureDependencyForce()
+        {
+            var testDir = TestCommon.GetRandomTestDir();
+            var installResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.WindowsFeature --force -l {testDir}");
+
+            Assert.AreEqual(Constants.ErrorCode.S_OK, installResult.ExitCode);
+            Assert.True(installResult.StdOut.Contains("Reboot required to fully enable the Windows Feature(s); proceeding due to --force"));
+            Assert.True(installResult.StdOut.Contains("Successfully installed"));
+            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(testDir));
         }
     }
 }
