@@ -60,6 +60,7 @@ TEST_CASE("VerifySymlink", "[filesystem]")
 
 TEST_CASE("VerifyIsSameVolume", "[filesystem]")
 {
+    // Note: Pipeline build machine uses 'D:\' as the volume.
     std::filesystem::path path1 = L"C:\\Program Files\\WinGet\\Packages";
     std::filesystem::path path2 = L"c:\\Users\\testUser\\AppData\\Local\\Microsoft\\WinGet\\Packages";
     std::filesystem::path path3 = L"localPath\\test\\folder";
@@ -78,8 +79,7 @@ TEST_CASE("VerifyIsSameVolume", "[filesystem]")
     REQUIRE_FALSE(IsSameVolume(path1, path6));
     REQUIRE_FALSE(IsSameVolume(path2, path5));
     REQUIRE_FALSE(IsSameVolume(path2, path6));
-    REQUIRE_FALSE(IsSameVolume(path3, path5));
     REQUIRE_FALSE(IsSameVolume(path3, path6));
     REQUIRE_FALSE(IsSameVolume(path5, path6));
-    REQUIRE_FALSE(IsSameVolume(path4, path5));
+    REQUIRE_FALSE(IsSameVolume(path4, path6));
 }
