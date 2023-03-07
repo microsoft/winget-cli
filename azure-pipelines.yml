@@ -107,6 +107,7 @@ jobs:
                     /p:AppxPackageDir="$(appxPackageDir)"
                     /p:AppxBundle=Never
                     /p:UapAppxPackageBuildMode=SideloadOnly'
+                    /p:DeployOnBuild=true
 
   - task: VSBuild@1
     displayName: Build Test Project

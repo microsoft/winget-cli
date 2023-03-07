@@ -44,4 +44,12 @@
     </ProjectReference>
   </ItemGroup>
 
+  <PropertyGroup>
+    <MicrosoftManagementConfigurationPath>$(OutputPath)\..\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd</MicrosoftManagementConfigurationPath>
+  </PropertyGroup>
+
+  <ItemGroup Condition="Exists('$(MicrosoftManagementConfigurationPath)')">
+    <CsWinRTAuthoringWinMDs Include="$(MicrosoftManagementConfigurationPath)" />
+  </ItemGroup>
+
 </Project>
