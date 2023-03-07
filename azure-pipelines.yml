@@ -103,16 +103,17 @@ jobs:
       solution: '$(solution)'
       configuration: '$(buildConfiguration)'
       msbuildArgs: '/bl:$(artifactsDir)\msbuild.binlog
+                    /p:AppxBundlePlatforms="$(buildPlatform)"
                     /p:AppxPackageDir="$(appxPackageDir)"
-                    /p:AppxBundle=Never
+                    /p:AppxBundle=Always
                     /p:UapAppxPackageBuildMode=SideloadOnly
                     /p:DeployOnBuild=true'
 
-  - task: CmdLine@2
+  - task: PowerShell@2
     displayName: Dump output directory
     inputs:
-      script: |
-        Get-ChildItem -Recurse $(buildOutDir)
+      targetType: inline
+      script: Get-ChildItem -Recurse $(buildOutDir)
     continueOnError: true
 
   - task: VSBuild@1
@@ -122,8 +123,9 @@ jobs:
       solution: '$(solution)'
       configuration: '$(testBuildConfiguration)'
       msbuildArgs: '/bl:$(artifactsDir)\msbuild-testProject.binlog
+                    /p:AppxBundlePlatforms="$(buildPlatform)"
                     /p:AppxPackageDir="$(appxPackageDir)"
-                    /p:AppxBundle=Never
+                    /p:AppxBundle=Always
                     /p:UapAppxPackageBuildMode=SideloadOnly'
 
   - task: CopyFiles@2
