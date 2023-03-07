@@ -1,10 +1,9 @@
-PackageIdentifier: AppInstallerCliTest.TestExeInstaller.InvalidWindowsFeatures
+PackageIdentifier: AppInstallerCliTest.InvalidWindowsFeatures
 PackageVersion: 1.0.0.0
 PackageLocale: en-US
 PackageName: AppInstaller Test Installer
 ShortDescription: Installs exe installer with invalid Windows Features dependencies
 Publisher: Microsoft Corporation
-Moniker: AICLITestZip
 License: Test
 Installers:
     - Architecture: x86
@@ -18,8 +17,7 @@ Installers:
         Update: /update
       Dependencies:
         WindowsFeatures:
-        - netfx3
         - invalidFeature
-        - badFeature
+        - netfx3
 ManifestType: singleton
 ManifestVersion: 1.4.0

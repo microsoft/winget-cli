@@ -6,18 +6,20 @@ ShortDescription: Installs exe installer with valid Windows Features dependencie
 Publisher: Microsoft Corporation
 License: Test
 Installers:
-    - Architecture: x86
-      InstallerUrl: https://localhost:5001/TestKit/AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe
-      InstallerType: exe
-      InstallerSha256: <EXEHASH>
-      InstallerSwitches:
-        Custom: /custom /scope=machine
-        SilentWithProgress: /silentwithprogress
-        Silent: /silence
-        Update: /update
-      Dependencies:
-        WindowsFeatures:
-        - netfx3
-        - invalidFeature
+  - Architecture: x64
+    InstallerUrl: https://localhost:5001/TestKit/AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe
+    InstallerType: exe
+    InstallerSha256: <EXEHASH>
+    InstallerSwitches:
+      SilentWithProgress: /exeswp
+      Silent: /exesilent
+      Interactive: /exeinteractive
+      Language: /exeenus
+      Log: /LogFile <LOGPATH>
+      InstallLocation: /InstallDir <INSTALLPATH>
+    Dependencies:
+      WindowsFeatures:
+      - netfx3
+      - invalidFeature
 ManifestType: singleton
 ManifestVersion: 1.4.0

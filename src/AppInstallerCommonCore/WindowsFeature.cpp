@@ -12,7 +12,7 @@ namespace AppInstaller::WindowsFeature
         m_module.reset(LoadLibraryEx(L"dismapi.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32));
         if (!m_module)
         {
-            AICLI_LOG(Core, Verbose, << "Could not load dismapi.dll");
+            AICLI_LOG(Core, Error, << "Could not load dismapi.dll");
             return;
         }
 
@@ -20,7 +20,7 @@ namespace AppInstaller::WindowsFeature
             reinterpret_cast<DismInitializePtr>(GetProcAddress(m_module.get(), "DismInitialize"));
         if (!m_dismInitialize)
         {
-            AICLI_LOG(Core, Verbose, << "Could not get proc address of DismInitialize");
+            AICLI_LOG(Core, Error, << "Could not get proc address of DismInitialize");
             return;
         }
 
@@ -28,7 +28,7 @@ namespace AppInstaller::WindowsFeature
             reinterpret_cast<DismOpenSessionPtr>(GetProcAddress(m_module.get(), "DismOpenSession"));
         if (!m_dismOpenSession)
         {
-            AICLI_LOG(Core, Verbose, << "Could not get proc address of DismOpenSession");
+            AICLI_LOG(Core, Error, << "Could not get proc address of DismOpenSession");
             return;
         }
 
@@ -36,7 +36,7 @@ namespace AppInstaller::WindowsFeature
             reinterpret_cast<DismGetFeatureInfoPtr>(GetProcAddress(m_module.get(), "DismGetFeatureInfo"));
         if (!m_dismGetFeatureInfo)
         {
-            AICLI_LOG(Core, Verbose, << "Could not get proc address of DismGetFeatureInfo");
+            AICLI_LOG(Core, Error, << "Could not get proc address of DismGetFeatureInfo");
             return;
         }
 
@@ -44,7 +44,7 @@ namespace AppInstaller::WindowsFeature
             reinterpret_cast<DismEnableFeaturePtr>(GetProcAddress(m_module.get(), "DismEnableFeature"));
         if (!m_dismEnableFeature)
         {
-            AICLI_LOG(Core, Verbose, << "Could not get proc address of DismEnableFeature");
+            AICLI_LOG(Core, Error, << "Could not get proc address of DismEnableFeature");
             return;
         }
 
@@ -52,7 +52,7 @@ namespace AppInstaller::WindowsFeature
             reinterpret_cast<DismDisableFeaturePtr>(GetProcAddress(m_module.get(), "DismDisableFeature"));
         if (!m_dismDisableFeature)
         {
-            AICLI_LOG(Core, Verbose, << "Could not get proc address of DismDisableFeature");
+            AICLI_LOG(Core, Error, << "Could not get proc address of DismDisableFeature");
             return;
         }
 
@@ -60,7 +60,7 @@ namespace AppInstaller::WindowsFeature
             reinterpret_cast<DismDeletePtr>(GetProcAddress(m_module.get(), "DismDelete"));
         if (!m_dismDelete)
         {
-            AICLI_LOG(Core, Verbose, << "Could not get proc address of DismDelete");
+            AICLI_LOG(Core, Error, << "Could not get proc address of DismDelete");
             return;
         }
 
@@ -68,7 +68,7 @@ namespace AppInstaller::WindowsFeature
             reinterpret_cast<DismCloseSessionPtr>(GetProcAddress(m_module.get(), "DismCloseSession"));
         if (!m_dismCloseSession)
         {
-            AICLI_LOG(Core, Verbose, << "Could not get proc address of DismCloseSession");
+            AICLI_LOG(Core, Error, << "Could not get proc address of DismCloseSession");
             return;
         }
 
@@ -76,7 +76,7 @@ namespace AppInstaller::WindowsFeature
             reinterpret_cast<DismShutdownPtr>(GetProcAddress(m_module.get(), "DismShutdown"));
         if (!m_dismGetFeatureInfo)
         {
-            AICLI_LOG(Core, Verbose, << "Could not get proc address of DismShutdown");
+            AICLI_LOG(Core, Error, << "Could not get proc address of DismShutdown");
             return;
         }
 
@@ -198,7 +198,7 @@ namespace AppInstaller::WindowsFeature
         // Refresh feature info state prior to retrieving state info.
         GetFeatureInfo();
         DismPackageFeatureState featureState = GetState();
-        AICLI_LOG(Core, Verbose, << "Feature state of " << m_featureName << " is " << featureState);
+        AICLI_LOG(Core, Info, << "Feature state of " << m_featureName << " is " << featureState);
         return featureState == DismStateInstalled;
     }
 

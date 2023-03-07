@@ -189,6 +189,7 @@ namespace AppInstaller::CLI::Workflow
                                 {
                                     warn << Resource::String::FailedToEnableWindowsFeature(locIndFeatureName) << std::endl;
                                 }
+
                                 if (hr == ERROR_SUCCESS_REBOOT_REQUIRED || windowsFeature.GetRestartRequiredStatus() == DismRestartType::DismRestartRequired)
                                 {
                                     rebootRequired = true;

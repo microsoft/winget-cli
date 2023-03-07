@@ -1,10 +1,9 @@
-PackageIdentifier: AppInstallerCliTest.TestExeInstaller.WindowsFeatures
+PackageIdentifier: AppInstallerCliTest.WindowsFeatures
 PackageVersion: 1.0.0.0
 PackageLocale: en-US
 PackageName: AppInstaller Test Installer
-ShortDescription: Installs exe installer with invalid Windows Features dependencies
+ShortDescription: Installs exe installer with valid Windows Features dependencies
 Publisher: Microsoft Corporation
-Moniker: AICLITestZip
 License: Test
 Installers:
     - Architecture: x86

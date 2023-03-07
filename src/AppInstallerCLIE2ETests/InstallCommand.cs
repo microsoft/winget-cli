@@ -642,7 +642,7 @@ namespace AppInstallerCLIE2ETests
         public void InstallWithWindowsFeatureDependency_Force()
         {
             var testDir = TestCommon.GetRandomTestDir();
-            var installResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.WindowsFeature --force -l {testDir}");
+            var installResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.WindowsFeature --silent --force -l {testDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, installResult.ExitCode);
             Assert.True(installResult.StdOut.Contains("Successfully installed"));
             Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(testDir));
