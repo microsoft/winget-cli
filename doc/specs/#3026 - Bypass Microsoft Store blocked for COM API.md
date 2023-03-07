@@ -5,7 +5,7 @@ last updated: 2023-02-09
 issue id: 3026
 ---
 
-# Spec Title
+# Bypass Microsoft Store blocked for COM API
 
 "For [#3026](https://github.com/microsoft/winget-cli/issues/3026)"
 
