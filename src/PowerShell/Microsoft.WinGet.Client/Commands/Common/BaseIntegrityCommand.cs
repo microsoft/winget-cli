@@ -10,7 +10,7 @@ namespace Microsoft.WinGet.Client.Commands.Common
     using Microsoft.WinGet.Client.Common;
 
     /// <summary>
-    /// Common parameters for Assert-WinGetIntegrity and Repair-WinGet.
+    /// Common parameters for Assert-WinGetPackageManager and Repair-WinGetPackageManager.
     /// </summary>
     public abstract class BaseIntegrityCommand : BaseCommand
     {

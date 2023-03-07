@@ -6,6 +6,7 @@
 
 namespace Microsoft.WinGet.Client.Helpers
 {
+    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Management.Automation;
@@ -35,6 +36,11 @@ namespace Microsoft.WinGet.Client.Helpers
         // Dependencies
         private const string VCLibsUWPDesktop = "Microsoft.VCLibs.140.00.UWPDesktop";
         private const string VCLibsUWPDesktopVersion = "14.0.30704.0";
+        private const string VCLibsUWPDesktopX64 = "https://aka.ms/Microsoft.VCLibs.x64.14.00.Desktop.appx";
+        private const string VCLibsUWPDesktopX86 = "https://aka.ms/Microsoft.VCLibs.x86.14.00.Desktop.appx";
+        private const string VCLibsUWPDesktopArm = "https://aka.ms/Microsoft.VCLibs.arm.14.00.Desktop.appx";
+        private const string VCLibsUWPDesktopArm64 = "https://aka.ms/Microsoft.VCLibs.arm64.14.00.Desktop.appx";
+
         private const string UiXaml27 = "Microsoft.UI.Xaml.2.7";
 
         private readonly PSCmdlet psCmdlet;
@@ -97,6 +103,12 @@ namespace Microsoft.WinGet.Client.Helpers
         /// <param name="downgrade">If the package version is lower than the installed one.</param>
         public void AddAppInstallerBundle(string localPath, bool downgrade = false)
         {
+            // A better implementation would use Add-AppxPackage with -DependencyPath, but
+            // the Appx module needs to be remoted into Windows PowerShell. When the string[] parameter
+            // gets deserialized from Core the result is a single string which breaks Add-AppxPackage.
+            // Here we should: if we are in Windows Powershell then run Add-AppxPackage with -DependencyPath
+            // if we are in Core, then start powershell.exe and run the same command. Right now, we just
+            // do Add-AppxPackage for each one.
             this.InstallVCLibsDependencies();
             this.InstallUiXaml();
 
@@ -139,6 +151,40 @@ namespace Microsoft.WinGet.Client.Helpers
                 .FirstOrDefault();
         }
 
+        private IReadOnlyList<string> GetVCLibsDependencies()
+        {
+            var vcLibsDependencies = new List<string>();
+            var vcLibsPackageObjs = this.psCmdlet.InvokeCommand
+                .InvokeScript(string.Format(GetAppxPackageByVersionCommand, VCLibsUWPDesktop, VCLibsUWPDesktopVersion));
+            if (vcLibsPackageObjs is null ||
+                vcLibsPackageObjs.Count == 0)
+            {
+                var arch = RuntimeInformation.OSArchitecture;
+                if (arch == Architecture.X64)
+                {
+                    vcLibsDependencies.Add(VCLibsUWPDesktopX64);
+                }
+                else if (arch == Architecture.X86)
+                {
+                    vcLibsDependencies.Add(VCLibsUWPDesktopX86);
+                }
+                else if (arch == Architecture.Arm64)
+                {
+                    // Deployment please figure out for me.
+                    vcLibsDependencies.Add(VCLibsUWPDesktopX64);
+                    vcLibsDependencies.Add(VCLibsUWPDesktopX86);
+                    vcLibsDependencies.Add(VCLibsUWPDesktopArm);
+                    vcLibsDependencies.Add(VCLibsUWPDesktopArm64);
+                }
+                else
+                {
+                    throw new PSNotSupportedException(arch.ToString());
+                }
+            }
+
+            return vcLibsDependencies;
+        }
+
         private void InstallVCLibsDependencies()
         {
             var vcLibsPackageObjs = this.psCmdlet.InvokeCommand
@@ -146,24 +192,38 @@ namespace Microsoft.WinGet.Client.Helpers
             if (vcLibsPackageObjs is null ||
                 vcLibsPackageObjs.Count == 0)
             {
+                var packages = new List<string>();
+
                 var arch = RuntimeInformation.OSArchitecture;
-                string url;
                 if (arch == Architecture.X64)
                 {
-                    url = "https://aka.ms/Microsoft.VCLibs.x64.14.00.Desktop.appx";
+                    packages.Add(VCLibsUWPDesktopX64);
                 }
                 else if (arch == Architecture.X86)
                 {
-                    url = "https://aka.ms/Microsoft.VCLibs.x86.14.00.Desktop.appx";
+                    packages.Add(VCLibsUWPDesktopX86);
+                }
+                else if (arch == Architecture.Arm64)
+                {
+                    packages.Add(VCLibsUWPDesktopX64);
+                    packages.Add(VCLibsUWPDesktopX86);
+                    packages.Add(VCLibsUWPDesktopArm);
+                    packages.Add(VCLibsUWPDesktopArm64);
                 }
                 else
                 {
                     throw new PSNotSupportedException(arch.ToString());
                 }
 
-                var tmpFile = Path.GetTempFileName();
-                this.psCmdlet.WriteDebug($"Installing VCLibs {url}");
-                this.psCmdlet.InvokeCommand.InvokeScript(string.Format(AddAppxPackageFormat, url));
+                foreach (var package in packages)
+                {
+                    this.psCmdlet.WriteDebug($"Installing VCLibs {package}");
+                    this.psCmdlet.InvokeCommand.InvokeScript(string.Format(AddAppxPackageFormat, package));
+                }
+            }
+            else
+            {
+                this.psCmdlet.WriteDebug($"VCLibs are updated.");
             }
         }
 

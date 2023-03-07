@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="AssertIntegrityCommand.cs" company="Microsoft Corporation">
+// <copyright file="AssertWinGetPackageManagerCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -12,13 +12,13 @@ namespace Microsoft.WinGet.Client.Commands
     using Microsoft.WinGet.Client.Helpers;
 
     /// <summary>
-    /// Assert-WinGetIntegrity. Verifies winget is installed properly.
+    /// Assert-WinGetPackageManager. Verifies winget is installed properly.
     /// </summary>
     [Cmdlet(
         VerbsLifecycle.Assert,
-        Constants.WinGetNouns.Integrity,
+        Constants.WinGetNouns.WinGetPackageManager,
         DefaultParameterSetName = Constants.IntegrityVersionSet)]
-    public class AssertIntegrityCommand : BaseIntegrityCommand
+    public class AssertWinGetPackageManagerCommand : BaseIntegrityCommand
     {
         /// <summary>
         /// Validates winget is installed correctly. If not, throws an exception

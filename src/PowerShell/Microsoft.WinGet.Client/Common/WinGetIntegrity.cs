@@ -9,7 +9,6 @@ namespace Microsoft.WinGet.Client.Common
     using System;
     using System.ComponentModel;
     using System.IO;
-    using System.Linq;
     using System.Management.Automation;
     using Microsoft.WinGet.Client.Exceptions;
     using Microsoft.WinGet.Client.Helpers;
@@ -51,8 +50,10 @@ namespace Microsoft.WinGet.Client.Common
             // WinGet is installed. Verify version if needed.
             if (!string.IsNullOrEmpty(expectedVersion))
             {
-                var installedVersion = WinGetVersionHelper.InstalledWinGetVersion;
-                if (expectedVersion != installedVersion)
+                // This assumes caller knows that the version exist.
+                WinGetVersion expectedWinGetVersion = new WinGetVersion(expectedVersion);
+                var installedVersion = WinGetVersion.InstalledWinGetVersion;
+                if (expectedWinGetVersion.CompareTo(installedVersion) != 0)
                 {
                     throw new WinGetIntegrityException(
                         IntegrityCategory.UnexpectedVersion,

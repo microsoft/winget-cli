@@ -4,9 +4,7 @@
 <#
     .SYNOPSIS
         Simple sample on how to use WinGetIntegrity DSC resource.
-        Requires PSDesiredStateConfiguration v2 and enabling the
-        PSDesiredStateConfiguration.InvokeDscResource experimental feature
-        `Enable-ExperimentalFeature -Name PSDesiredStateConfiguration.InvokeDscResource`
+        Requires PSDesiredStateConfiguration version 2.0.6
 
         IMPORTANT: This will modify the winget you have installed
 #>
@@ -16,7 +14,7 @@
 using module Microsoft.WinGet.DSC
 
 $resource = @{
-    Name = 'WinGetIntegrityResource'
+    Name = 'WinGetPackageManager'
     ModuleName = 'Microsoft.WinGet.DSC'
     Property = @{
     }
@@ -47,7 +45,7 @@ else
 # At the time I'm doing this the second latest released winget version is v1.3.2091. Lets assume you want to stay there forever.
 $v132091 = "v1.3.2091"
 $resource = @{
-    Name = 'WinGetIntegrityResource'
+    Name = 'WinGetPackageManager'
     ModuleName = 'Microsoft.WinGet.DSC'
     Property = @{
         Version = $v132091
@@ -80,12 +78,12 @@ else
     }
 }
 
-# Now, lets say that you want to have always the latest winget installed. You can specify the Latest.
+# Now, lets say that you want to have always the latest winget installed. You can specify UseLatest.
 $resource = @{
-    Name = 'WinGetIntegrityResource'
+    Name = 'WinGetPackageManager'
     ModuleName = 'Microsoft.WinGet.DSC'
     Property = @{
-        Latest = $true
+        UseLatest = $true
     }
 }
 $testResult = Invoke-DscResource @resource -Method Test
@@ -98,12 +96,12 @@ else
     Write-Host "winget version is not latest version"
 }
 
-# You can also do LatestPreRelease
+# You can also do UseLatestPreRelease
 $resource = @{
-    Name = 'WinGetIntegrityResource'
+    Name = 'WinGetPackageManager'
     ModuleName = 'Microsoft.WinGet.DSC'
     Property = @{
-        LatestPreRelease = $true
+        UseLatestPreRelease = $true
     }
 }
 $testResult = Invoke-DscResource @resource -Method Test

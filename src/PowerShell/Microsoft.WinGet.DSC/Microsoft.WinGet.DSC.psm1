@@ -43,7 +43,7 @@ enum Ensure
 
 # This resource is in charge of managing the settings.json file of winget.
 [DSCResource()]
-class WinGetUserSettingsResource
+class WinGetUserSettings
 {
     # We need a key. Do not set.
     [DscProperty(Key)]
@@ -57,7 +57,7 @@ class WinGetUserSettingsResource
     [WinGetAction]$Action = [WinGetAction]::Full
 
     # Gets the current UserSettings by looking at the settings.json file for the current user.
-    [WinGetUserSettingsResource] Get()
+    [WinGetUserSettings] Get()
     {
         Assert-WinGetCommand "Get-WinGetUserSettings"
 
@@ -172,7 +172,7 @@ class WinGetAdminSettings
 }
 
 [DSCResource()]
-class WinGetSourcesResource
+class WinGetSources
 {
     # We need a key. Do not set.
     [DscProperty(Key)]
@@ -192,7 +192,7 @@ class WinGetSourcesResource
     [WinGetAction]$Action = [WinGetAction]::Full
 
     # Gets the current sources on winget.
-    [WinGetSourcesResource] Get()
+    [WinGetSources] Get()
     {
         Assert-WinGetCommand "Get-WinGetSource"
         $packageCatalogReferences = Get-WinGetSource
@@ -304,8 +304,10 @@ class WinGetSourcesResource
     }
 }
 
+# TODO: It would be nice if these resource has a non configurable property that has extra information that comes from
+# GitHub. We could implement it here or add more cmdlets in Microsoft.WinGet.Client.
 [DSCResource()]
-class WinGetIntegrityResource
+class WinGetPackageManager
 {
     # We need a key. Do not set.
     [DscProperty(Key)]
@@ -315,15 +317,15 @@ class WinGetIntegrityResource
     [string]$Version = ""
 
     [DscProperty()]
-    [bool]$Latest
+    [bool]$UseLatest
 
     [DscProperty()]
-    [bool]$LatestPreRelease
+    [bool]$UseLatestPreRelease
 
     # If winget is not installed the version will be empty.
-    [WinGetIntegrityResource] Get()
+    [WinGetPackageManager] Get()
     {
-        $integrityResource = [WinGetIntegrityResource]::new()
+        $integrityResource = [WinGetPackageManager]::new()
         if ($integrityResource.Test())
         {
             $integrityResource.Version = Get-WinGetVersion
@@ -335,23 +337,26 @@ class WinGetIntegrityResource
     # Tests winget is installed.
     [bool] Test()
     {
-        Assert-WinGetCommand "Assert-WinGetIntegrity"
+        Assert-WinGetCommand "Assert-WinGetPackageManager"
         Assert-WinGetCommand "Get-WinGetVersion"
 
         try
         {
-            if ($this.Latest)
+            $hashArgs = @{}
+
+            if ($this.UseLatest)
             {
-                Assert-WinGetIntegrity -Latest
-            }
-            elseif ($this.LatestPreRelease)
+                $hashArgs.Add("Latest", $true)
+            } elseif ($this.UseLatestPreRelease)
             {
-                Assert-WinGetIntegrity -Latest -IncludePreRelease
-            }
-            else
+                $hashArgs.Add("Latest", $true)
+                $hashArgs.Add("IncludePreRelease", $true)
+            } elseif (-not [string]::IsNullOrWhiteSpace($this.Version))
             {
-                Assert-WinGetIntegrity -Version $this.Version
+                $hashArgs.Add("Version", $this.Version)
             }
+
+            Assert-WinGetPackageManager @hashArgs
         }
         catch
         {
@@ -364,27 +369,30 @@ class WinGetIntegrityResource
     # Repairs Winget.
     [void] Set()
     {
-        Assert-WinGetCommand "Repair-WinGet"
+        Assert-WinGetCommand "Repair-WinGetPackageManager"
 
         if (-not $this.Test())
         {
             $result = -1
-            if ($this.Latest)
+            $hashArgs = @{}
+
+            if ($this.UseLatest)
             {
-                $result = Repair-WinGet -Latest
-            }
-            elseif ($this.LatestPreRelease)
+                $hashArgs.Add("Latest", $true)
+            } elseif ($this.UseLatestPreRelease)
             {
-                $result = Repair-WinGet -Latest -IncludePreRelease
-            }
-            else
+                $hashArgs.Add("Latest", $true)
+                $hashArgs.Add("IncludePreRelease", $true)
+            } elseif (-not [string]::IsNullOrWhiteSpace($this.Version))
             {
-                $result = Repair-WinGet -Version $this.Version
+                $hashArgs.Add("Version", $this.Version)
             }
-            
+
+            $result = Repair-WinGetPackageManager @hashArgs
+
             if ($result -ne 0)
             {
-                throw "Failed to repair winget."
+                throw "Failed to repair winget. Result $result"
             }
         }
     }

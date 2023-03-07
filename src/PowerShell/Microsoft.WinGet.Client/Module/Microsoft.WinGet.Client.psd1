@@ -95,8 +95,8 @@ CmdletsToExport = @(
     'Get-WinGetUserSettings',
     'Set-WinGetUserSettings',
     'Test-WinGetUserSettings',
-    'Assert-WinGetIntegrity',
-    'Repair-WinGet'
+    'Assert-WinGetPackageManager',
+    'Repair-WinGetPackageManager'
 )
 
 # Variables to export from this module

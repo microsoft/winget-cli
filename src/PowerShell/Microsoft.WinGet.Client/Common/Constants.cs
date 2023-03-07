@@ -75,7 +75,7 @@ namespace Microsoft.WinGet.Client.Common
             /// <summary>
             /// WinGet.
             /// </summary>
-            public const string WinGet = "WinGet";
+            public const string WinGetPackageManager = "WinGetPackageManager";
 
             /// <summary>
             /// The noun analogue of the <see cref="CatalogPackage" /> class.
@@ -96,11 +96,6 @@ namespace Microsoft.WinGet.Client.Common
             /// The noun for winget version.
             /// </summary>
             public const string Version = "WinGetVersion";
-
-            /// <summary>
-            /// The noun for winget integrity.
-            /// </summary>
-            public const string Integrity = "WinGetIntegrity";
         }
     }
 }

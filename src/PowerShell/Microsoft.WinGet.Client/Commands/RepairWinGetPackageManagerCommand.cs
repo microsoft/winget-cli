@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="RepairCommand.cs" company="Microsoft Corporation">
+// <copyright file="RepairWinGetPackageManagerCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -14,14 +14,14 @@ namespace Microsoft.WinGet.Client.Commands
     using Microsoft.WinGet.Client.Properties;
 
     /// <summary>
-    /// Repair-WinGet. Repairs winget if needed.
+    /// Repair-WinGetPackageManager. Repairs winget if needed.
     /// </summary>
     [Cmdlet(
         VerbsDiagnostic.Repair,
-        Constants.WinGetNouns.WinGet,
+        Constants.WinGetNouns.WinGetPackageManager,
         DefaultParameterSetName = Constants.IntegrityVersionSet)]
     [OutputType(typeof(int))]
-    public class RepairCommand : BaseIntegrityCommand
+    public class RepairWinGetPackageManagerCommand : BaseIntegrityCommand
     {
         private const string EnvPath = "env:PATH";
         private const int Succeeded = 0;
@@ -75,7 +75,7 @@ namespace Microsoft.WinGet.Client.Commands
                      integrityCategory == IntegrityCategory.AppInstallerNotSupported ||
                      integrityCategory == IntegrityCategory.Failure)
             {
-                // If we are here and expectedVersion is empty, it means that they just ran Repair-WinGet.
+                // If we are here and expectedVersion is empty, it means that they just ran Repair-WinGetPackageManager.
                 // When there is not version specified, we don't want to assume an empty version means latest, but in
                 // this particular case we need to.
                 if (string.IsNullOrEmpty(expectedVersion))
@@ -117,7 +117,7 @@ namespace Microsoft.WinGet.Client.Commands
             else if (integrityCategory == IntegrityCategory.UnexpectedVersion)
             {
                 // The versions are different, download and install.
-                if (!this.InstallDifferentVersion(WinGetVersionHelper.InstalledWinGetVersion, expectedVersion))
+                if (!this.InstallDifferentVersion(new WinGetVersion(expectedVersion)))
                 {
                     this.WriteDebug($"Failed installing {expectedVersion}");
                 }
@@ -130,21 +130,20 @@ namespace Microsoft.WinGet.Client.Commands
             return Failed;
         }
 
-        private bool InstallDifferentVersion(string installedVersion, string toInstallVersion)
+        private bool InstallDifferentVersion(WinGetVersion toInstallVersion)
         {
-            this.WriteDebug($"Installed WinGet version {installedVersion}");
-            this.WriteDebug($"Installing WinGet version {toInstallVersion}");
+            var installedVersion = WinGetVersion.InstalledWinGetVersion;
 
-            var v1 = WinGetVersionHelper.ConvertWinGetVersion(installedVersion);
-            var v2 = WinGetVersionHelper.ConvertWinGetVersion(toInstallVersion);
+            this.WriteDebug($"Installed WinGet version {installedVersion.TagVersion}");
+            this.WriteDebug($"Installing WinGet version {toInstallVersion.TagVersion}");
 
             bool downgrade = false;
-            if (v1.CompareTo(v2) > 0)
+            if (installedVersion.CompareAsDeployment(toInstallVersion) > 0)
             {
                 downgrade = true;
             }
 
-            return this.DownloadAndInstall(toInstallVersion, downgrade);
+            return this.DownloadAndInstall(toInstallVersion.TagVersion, downgrade);
         }
 
         private bool DownloadAndInstall(string versionTag, bool downgrade)

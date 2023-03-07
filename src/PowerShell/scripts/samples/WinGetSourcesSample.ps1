@@ -4,9 +4,8 @@
 <#
     .SYNOPSIS
         Simple sample on how to use WinGetSourcesResource DSC resource.
-        Requires PSDesiredStateConfiguration v2 and enabling the
-        PSDesiredStateConfiguration.InvokeDscResource experimental feature
-        `Enable-ExperimentalFeature -Name PSDesiredStateConfiguration.InvokeDscResource`
+        Requires PSDesiredStateConfiguration version 2.0.6
+
         IMPORTANT: This deletes the main winget source and add it again.
         Run as admin for set.
 #>
