@@ -113,7 +113,7 @@ jobs:
     displayName: Dump output directory
     inputs:
       targetType: inline
-      script: Get-ChildItem -Recurse $(buildOutDir)
+      script: Get-ChildItem -Recurse src
     continueOnError: true
 
   - task: VSBuild@1
@@ -335,7 +335,7 @@ jobs:
   - task: CopyFiles@2
     displayName: 'Copy Dev Package'
     inputs:
-      SourceFolder: 'appxPackageDir'
+      SourceFolder: '$(appxPackageDir)'
       TargetFolder: '$(artifactsDir)\AppxPackages'
     condition: always()
     
