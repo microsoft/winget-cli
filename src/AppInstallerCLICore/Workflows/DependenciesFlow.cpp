@@ -197,6 +197,7 @@ namespace AppInstaller::CLI::Workflow
                         }
                         else
                         {
+                            // Note: If a feature is not found, continue enabling the rest of the dependencies but block immediately after unless force arg is present.
                             AICLI_LOG(Core, Info, << "Windows Feature [" << featureName << "] does not exist");
                             hr = APPINSTALLER_CLI_ERROR_INSTALL_MISSING_DEPENDENCY;
                             warn << Resource::String::WindowsFeatureNotFound(Utility::LocIndView{ featureName }) << std::endl;

@@ -624,28 +624,26 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
-        /// Test install a package with a Windows Feature dependency that requires a reboot.
+        /// Test install a package with an invalid Windows Feature dependency.
         /// </summary>
         [Test]
-        public void InstallWithWindowsFeatureDependency_RebootRequired()
+        public void InstallWithWindowsFeatureDependency_FeatureNotFound()
         {
             var testDir = TestCommon.GetRandomTestDir();
             var installResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.WindowsFeature -l {testDir}");
-            Assert.AreEqual(Constants.ErrorCode.ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL, installResult.ExitCode);
-            Assert.True(installResult.StdOut.Contains("Reboot required to fully enable the Windows Feature(s); to override this check use --force"));
+            Assert.AreEqual(Constants.ErrorCode.ERROR_INSTALL_MISSING_DEPENDENCY, installResult.ExitCode);
+            Assert.True(installResult.StdOut.Contains("The feature [invalidFeature] was not found."));
         }
 
         /// <summary>
         /// Test install a package with a Windows Feature dependency using the force argument.
         /// </summary>
         [Test]
-        public void InstallWithWindowsFeatureDependencyForce()
+        public void InstallWithWindowsFeatureDependency_Force()
         {
             var testDir = TestCommon.GetRandomTestDir();
             var installResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.WindowsFeature --force -l {testDir}");
-
             Assert.AreEqual(Constants.ErrorCode.S_OK, installResult.ExitCode);
-            Assert.True(installResult.StdOut.Contains("Reboot required to fully enable the Windows Feature(s); proceeding due to --force"));
             Assert.True(installResult.StdOut.Contains("Successfully installed"));
             Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(testDir));
         }

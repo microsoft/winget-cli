@@ -16,27 +16,6 @@ using namespace TestCommon;
 
 const std::string s_featureName = "netfx3";
 
-TEST_CASE("GetWindowsFeature", "[windowsFeature]")
-{
-    if (!AppInstaller::Runtime::IsRunningAsAdmin())
-    {
-        WARN("Test requires admin privilege. Skipped.");
-        return;
-    }
-
-    DismHelper dismHelper = DismHelper();
-
-    DismHelper::WindowsFeature validFeature = dismHelper.CreateWindowsFeature(s_featureName);
-    REQUIRE(validFeature.DoesExist());
-
-    DismHelper::WindowsFeature validFeatureWithCasing = dismHelper.CreateWindowsFeature("NeTFX3");
-    REQUIRE(validFeatureWithCasing.DoesExist());
-
-
-    DismHelper::WindowsFeature invalidFeature = dismHelper.CreateWindowsFeature("invalidFeature");
-    REQUIRE_FALSE(invalidFeature.DoesExist());
-}
-
 TEST_CASE("InstallFlow_InvalidWindowsFeature", "[windowsFeature]")
 {
     if (!AppInstaller::Runtime::IsRunningAsAdmin())

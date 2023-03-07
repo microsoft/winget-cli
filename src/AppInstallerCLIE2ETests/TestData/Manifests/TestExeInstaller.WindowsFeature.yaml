@@ -18,5 +18,6 @@ Installers:
       Dependencies:
         WindowsFeatures:
         - netfx3
+        - invalidFeature
 ManifestType: singleton
 ManifestVersion: 1.4.0
