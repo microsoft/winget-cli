@@ -106,8 +106,7 @@ jobs:
                     /p:AppxBundlePlatforms="$(buildPlatform)"
                     /p:AppxPackageDir="$(appxPackageDir)"
                     /p:AppxBundle=Always
-                    /p:UapAppxPackageBuildMode=SideloadOnly
-                    /p:DeployOnBuild=true'
+                    /p:UapAppxPackageBuildMode=SideloadOnly'
 
   - task: PowerShell@2
     displayName: Dump output directory

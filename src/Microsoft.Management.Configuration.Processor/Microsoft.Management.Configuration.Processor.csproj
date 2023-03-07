@@ -46,7 +46,8 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <MicrosoftManagementConfigurationPath>$(OutDir)\..\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd</MicrosoftManagementConfigurationPath>
+    <MicrosoftManagementConfigurationPath>$(OutDir)\..\..\x64\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd</MicrosoftManagementConfigurationPath>
+    <MicrosoftManagementConfigurationPath Condition="!Exists('$(MicrosoftManagementConfigurationPath)')">$(OutDir)\..\..\x86\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd</MicrosoftManagementConfigurationPath>
   </PropertyGroup>
 
   <ItemGroup Condition="Exists('$(MicrosoftManagementConfigurationPath)')">
