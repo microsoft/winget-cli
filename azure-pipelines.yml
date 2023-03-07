@@ -106,8 +106,8 @@ jobs:
                     /p:AppxBundlePlatforms="$(buildPlatform)"
                     /p:AppxPackageDir="$(appxPackageDir)"
                     /p:AppxBundle=Never
-                    /p:UapAppxPackageBuildMode=SideloadOnly'
-                    /p:DeployOnBuild=true
+                    /p:UapAppxPackageBuildMode=SideloadOnly
+                    /p:DeployOnBuild=true'
 
   - task: VSBuild@1
     displayName: Build Test Project
@@ -321,7 +321,7 @@ jobs:
   - task: CopyFiles@2
     displayName: 'Copy Dev Package'
     inputs:
-      SourceFolder: '$(buildOutDir)\AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration)'
+      SourceFolder: 'src\AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration)'
       TargetFolder: '$(artifactsDir)\DevPackage'
     condition: always()
 
