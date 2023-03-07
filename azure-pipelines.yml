@@ -317,6 +317,13 @@ jobs:
       TargetFolder: '$(artifactsDir)\PowerShell'
     condition: always()
 
+  - task: CopyFiles@2
+    displayName: 'Copy Dev Package'
+    inputs:
+      SourceFolder: '$(buildOutDir)\AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration)'
+      TargetFolder: '$(artifactsDir)\DevPackage'
+    condition: always()
+
   - task: PublishPipelineArtifact@1
     displayName: Publish Pipeline Artifacts
     inputs:
