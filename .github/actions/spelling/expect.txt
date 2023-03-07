@@ -203,6 +203,7 @@ maxvalue
 maybenull
 MBH
 mdmp
+MDs
 megamorf
 midl
 minexample
@@ -322,6 +323,7 @@ SHCONTF
 SHGDN
 SHOWNORMAL
 sid
+Sideload
 SIGNATUREHASH
 Sku
 sortof
