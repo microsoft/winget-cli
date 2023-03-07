@@ -18,7 +18,6 @@ pool:
 
 variables:
   solution: 'src\AppInstallerCLI.sln'
-  appxPackageDir: '$(Build.ArtifactStagingDirectory)/AppxPackages/'
 
 # Do not set the build version for a PR build.
 
@@ -57,6 +56,7 @@ jobs:
     BuildVer: $[counter(dependencies.GetReleaseTag.outputs['GetTag.tag'], 1)]
     buildOutDir: $(Build.SourcesDirectory)\src\$(buildPlatform)\$(buildConfiguration)
     artifactsDir: $(Build.ArtifactStagingDirectory)\$(buildPlatform)
+    appxPackageDir: '$(Build.ArtifactStagingDirectory)\$(buildPlatform)\AppxPackages\'
 
   steps:
   - task: NuGetToolInstaller@1
@@ -105,8 +105,8 @@ jobs:
       msbuildArgs: '/bl:$(artifactsDir)\msbuild.binlog
                     /p:AppxBundlePlatforms="$(buildPlatform)"
                     /p:AppxPackageDir="$(appxPackageDir)"
-                    /p:AppxBundle=Always
-                    /p:UapAppxPackageBuildMode=StoreUpload'
+                    /p:AppxBundle=Never
+                    /p:UapAppxPackageBuildMode=SideloadOnly'
 
   - task: VSBuild@1
     displayName: Build Test Project
@@ -117,8 +117,8 @@ jobs:
       msbuildArgs: '/bl:$(artifactsDir)\msbuild-testProject.binlog
                     /p:AppxBundlePlatforms="$(buildPlatform)"
                     /p:AppxPackageDir="$(appxPackageDir)"
-                    /p:AppxBundle=Always
-                    /p:UapAppxPackageBuildMode=StoreUpload'
+                    /p:AppxBundle=Never
+                    /p:UapAppxPackageBuildMode=SideloadOnly'
 
   - task: CopyFiles@2
     displayName: 'Copy WindowsPackageManager.dll Symbols to artifacts folder'
