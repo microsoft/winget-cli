@@ -108,6 +108,13 @@ jobs:
                     /p:UapAppxPackageBuildMode=SideloadOnly
                     /p:DeployOnBuild=true'
 
+  - task: CmdLine@2
+    displayName: Dump output directory
+    inputs:
+      script: |
+        Get-ChildItem -Recurse $(buildOutDir)
+    continueOnError: true
+
   - task: VSBuild@1
     displayName: Build Test Project
     inputs:
