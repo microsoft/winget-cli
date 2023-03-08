@@ -189,12 +189,6 @@ namespace AppInstaller::CLI::Workflow
                     return;
                 }
 
-                if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::AgreementsAcceptedByCaller))
-                {
-                    AICLI_LOG(CLI, Info, << "Skipping package agreements acceptance check because AgreementsAcceptedByCaller flag is set.");
-                    return;
-                }
-
                 if (context.Args.Contains(Execution::Args::Type::AcceptPackageAgreements))
                 {
                     AICLI_LOG(CLI, Info, << "Package agreements accepted by CLI flag");
@@ -387,12 +381,6 @@ namespace AppInstaller::CLI::Workflow
 
     void HandleSourceAgreements::operator()(Execution::Context& context) const
     {
-        if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::AgreementsAcceptedByCaller))
-        {
-            AICLI_LOG(CLI, Info, << "Skipping source agreements acceptance check because AgreementsAcceptedByCaller flag is set.");
-            return;
-        }
-
         bool allAccepted = true;
 
         if (m_source.IsComposite())

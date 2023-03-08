@@ -69,6 +69,9 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         case APPINSTALLER_CLI_ERROR_EXEC_UNINSTALL_COMMAND_FAILED:
             WINGET_GET_OPERATION_RESULT_STATUS(InstallError, UninstallError);
             break;
+        case APPINSTALLER_CLI_ERROR_PACKAGE_AGREEMENTS_NOT_ACCEPTED:
+            WINGET_GET_OPERATION_RESULT_STATUS(PackageAgreementsNotAccepted, InternalError);
+            break;
         case APPINSTALLER_CLI_ERROR_CANNOT_WRITE_TO_UPLEVEL_INDEX:
         case APPINSTALLER_CLI_ERROR_INDEX_INTEGRITY_COMPROMISED:
         case APPINSTALLER_CLI_ERROR_YAML_INIT_FAILED:

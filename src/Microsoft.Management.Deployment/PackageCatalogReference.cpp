@@ -6,6 +6,7 @@
 #include "PackageCatalogReference.g.cpp"
 #include "PackageCatalogInfo.h"
 #include "PackageCatalog.h"
+#include "SourceAgreement.h"
 #include "ConnectResult.h"
 #include "Workflows/WorkflowBase.h"
 #include "Converters.h"
@@ -44,6 +45,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         connectResult->Initialize(winrt::Microsoft::Management::Deployment::ConnectResultStatus::CatalogError, nullptr);
         return *connectResult;
     }
+    winrt::Microsoft::Management::Deployment::ConnectResult GetConnectSourceAgreementsNotAcceptedErrorResult()
+    {
+        auto connectResult = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::ConnectResult>>();
+        connectResult->Initialize(winrt::Microsoft::Management::Deployment::ConnectResultStatus::SourceAgreementsNotAccepted, nullptr);
+        return *connectResult;
+    }
     winrt::Microsoft::Management::Deployment::ConnectResult PackageCatalogReference::Connect()
     {
         try
@@ -52,6 +59,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             {
                 // TODO: When more error codes are added, this should go back as something other than CatalogError.
                 return GetConnectCatalogErrorResult();
+            }
+
+            if (!m_acceptSourceAgreements && m_sourceAgreements.Size() != 0)
+            {
+                return GetConnectSourceAgreementsNotAcceptedErrorResult();
             }
 
             ::AppInstaller::ProgressCallback progress;
@@ -124,7 +136,20 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         }
         return GetConnectCatalogErrorResult();
     }
-
+    winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::SourceAgreement> PackageCatalogReference::SourceAgreements()
+    {
+        std::call_once(m_sourceAgreementsOnceFlag,
+            [&]()
+            {
+                for (auto const& agreement : m_sourceReference.GetInformation().SourceAgreements)
+                {
+                    auto sourceAgreement = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::SourceAgreement>>();
+                    sourceAgreement->Initialize(agreement);
+                    m_sourceAgreements.Append(*sourceAgreement);
+                }
+            });
+        return m_sourceAgreements.GetView();
+    }
     hstring PackageCatalogReference::AdditionalPackageCatalogArguments()
     {
         if (!IsComposite())
@@ -149,5 +174,13 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             m_additionalPackageCatalogArguments = ::AppInstaller::Utility::ConvertToUTF8(value);
             m_sourceReference.SetCustomHeader(m_additionalPackageCatalogArguments);
         }
+    }
+    void PackageCatalogReference::AcceptSourceAgreements(bool value)
+    {
+        m_acceptSourceAgreements = value;
+    }
+    bool PackageCatalogReference::AcceptSourceAgreements()
+    {
+        return m_acceptSourceAgreements;
     }
 }
