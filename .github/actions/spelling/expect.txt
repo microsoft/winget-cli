@@ -189,6 +189,7 @@ localizationpriority
 LPBYTE
 LPDWORD
 lpitemidlist
+maclachlan
 LPSTR
 LPWCH
 LPWSTR
@@ -301,6 +302,7 @@ riid
 roblox
 ronomon
 rosoft
+roy
 rowids
 RRF
 rrr
