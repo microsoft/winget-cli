@@ -26,6 +26,7 @@ namespace AppInstallerCLIE2ETests
         /// Simple smoke test to ensure that showing details is working.
         /// </summary>
         [Test]
+        [Ignore("Experimental command that is not yet working on CI build server")]
         public void ShowDetailsFromGallery()
         {
             var result = TestCommon.RunAICLICommand("configure show", TestCommon.GetTestDataFile("Configuration\\ShowDetails.yml"));

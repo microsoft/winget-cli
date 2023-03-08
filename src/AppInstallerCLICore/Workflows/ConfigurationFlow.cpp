@@ -397,8 +397,16 @@ namespace AppInstaller::CLI::Workflow
 
     void OpenConfigurationSet(Context& context)
     {
+        std::filesystem::path argPath = Utility::ConvertToUTF16(context.Args.GetArg(Args::Type::ConfigurationFile));
+        std::filesystem::path absolutePath = std::filesystem::weakly_canonical(argPath);
+        if (!std::filesystem::exists(absolutePath))
+        {
+            context.Reporter.Error() << Resource::String::FileNotFound << std::endl;
+            AICLI_TERMINATE_CONTEXT(HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND));
+        }
+
         Streams::IInputStream inputStream = nullptr;
-        inputStream = Streams::FileRandomAccessStream::OpenAsync(Utility::ConvertToUTF16(context.Args.GetArg(Args::Type::ConfigurationFile)), FileAccessMode::Read).get();
+        inputStream = Streams::FileRandomAccessStream::OpenAsync(absolutePath.wstring(), FileAccessMode::Read).get();
 
         OpenConfigurationSetResult openResult = context.Get<Data::ConfigurationContext>().Processor().OpenConfigurationSet(inputStream);
         if (FAILED_LOG(static_cast<HRESULT>(openResult.ResultCode().value)))

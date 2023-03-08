@@ -126,6 +126,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(FeaturesProperty);
         WINGET_DEFINE_RESOURCE_STRINGID(FeaturesStatus);
         WINGET_DEFINE_RESOURCE_STRINGID(FileArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(FileNotFound);
         WINGET_DEFINE_RESOURCE_STRINGID(FilesRemainInInstallDirectory);
         WINGET_DEFINE_RESOURCE_STRINGID(FlagContainAdjoinedError);
         WINGET_DEFINE_RESOURCE_STRINGID(ForceArgumentDescription);

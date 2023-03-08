@@ -1779,4 +1779,7 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="ConfigurationFileEmpty" xml:space="preserve">
     <value>The configuration is empty.</value>
   </data>
+  <data name="FileNotFound" xml:space="preserve">
+    <value>File not found.</value>
+  </data>
 </root>
