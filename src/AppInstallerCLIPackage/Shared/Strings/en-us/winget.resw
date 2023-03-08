@@ -1677,4 +1677,109 @@ Please specify one of them using the --source option to proceed.</value>
     <value>{0} package(s) have pins that prevent upgrade. Use the 'winget pin' command to view and edit pins. Using the --include-pinned argument may show more results.</value>
     <comment>{Locked="winget pin","--include-pinned"} {0} is a placeholder replaced by an integer number of packages</comment>
   </data>
+  <data name="ConfigureCommandLongDescription" xml:space="preserve">
+    <value>Ensures that the system matches the desired state as described by the provided configuration. May download/execute processors in order to achieve the desired state. The configuration and the processors should be checked to ensure that they are trustworthy before applying them.</value>
+  </data>
+  <data name="ConfigureCommandShortDescription" xml:space="preserve">
+    <value>Configures the system into a desired state</value>
+  </data>
+  <data name="ConfigureShowCommandLongDescription" xml:space="preserve">
+    <value>Shows details of the provided configuration. By default, will not modify the system, but some options will cause files to be downloaded and/or loaded.</value>
+  </data>
+  <data name="ConfigureShowCommandShortDescription" xml:space="preserve">
+    <value>Shows details of a configuration</value>
+  </data>
+  <data name="ConfigureTestCommandLongDescription" xml:space="preserve">
+    <value>Checks that the system matches the desired state as described by the provided configuration. May download/execute processors in order to test the desired state. The configuration and the processors should be checked to ensure that they are trustworthy before executing them.</value>
+  </data>
+  <data name="ConfigureTestCommandShortDescription" xml:space="preserve">
+    <value>Checks the system against a desired state</value>
+  </data>
+  <data name="ConfigureValidateCommandLongDescription" xml:space="preserve">
+    <value>Validates a configuration file for correctness.</value>
+  </data>
+  <data name="ConfigureValidateCommandShortDescription" xml:space="preserve">
+    <value>Validates a configuration file</value>
+  </data>
+  <data name="ConfigurationFieldInvalid" xml:space="preserve">
+    <value>The field '{0}' in the configuration file is invalid.</value>
+    <comment>{Locked="{0}"} An error in reading a configuration file. {0} is a placeholder replaced by the field name from the file.</comment>
+  </data>
+  <data name="ConfigurationFileArgumentDescription" xml:space="preserve">
+    <value>The path to the configuration file</value>
+  </data>
+  <data name="ConfigurationFileInvalid" xml:space="preserve">
+    <value>The configuration file is invalid.</value>
+  </data>
+  <data name="ConfigurationFileVersionUnknown" xml:space="preserve">
+    <value>Configuration file version {0} is not known.</value>
+    <comment>{Locked="{0}"} An error in reading a configuration file. {0} is a placeholder replaced by the version of the configuration file.</comment>
+  </data>
+  <data name="ConfigurationAcceptWarningArgumentDescription" xml:space="preserve">
+    <value>Accepts the configuration warning, preventing an interactive prompt</value>
+  </data>
+  <data name="ConfigurationApply" xml:space="preserve">
+    <value>Apply</value>
+    <comment>Indicates that this item is used to write state</comment>
+  </data>
+  <data name="ConfigurationAssert" xml:space="preserve">
+    <value>Assert</value>
+    <comment>Indicates that this item is used to check/assert the state rather than write to it</comment>
+  </data>
+  <data name="ConfigurationDependencies" xml:space="preserve">
+    <value>Dependencies:{0}</value>
+    <comment>{Locked="{0}"} Label displaying a list of dependencies. {0} is replaced with a space separated list of identifiers referencing other items.</comment>
+  </data>
+  <data name="ConfigurationFailedToApply" xml:space="preserve">
+    <value>Some of the configuration was not applied successfully.</value>
+  </data>
+  <data name="ConfigurationFailedToGetDetails" xml:space="preserve">
+    <value>Failed to get detailed information about the configuration.</value>
+  </data>
+  <data name="ConfigurationInform" xml:space="preserve">
+    <value>Inform</value>
+    <comment>Indicates that this item is used to retrieve values for future use rather than writing them</comment>
+  </data>
+  <data name="ConfigurationLocal" xml:space="preserve">
+    <value>Local</value>
+    <comment>Used to indicate that the item is present on the device.</comment>
+  </data>
+  <data name="ConfigurationModuleNameOnly" xml:space="preserve">
+    <value>Module: {0}</value>
+    <comment>{Locked="{0}"} Label displaying a module name. {0} is replaced with the name of the module from the user input file.</comment>
+  </data>
+  <data name="ConfigurationModuleWithDetails" xml:space="preserve">
+    <value>Module: {0} by {1} [{2}]</value>
+    <comment>{Locked="{0}","{1}","{2}"} Label displaying module information. {0} is replaced by the module name. {1} is replaced by the module author. {2} is replaced by a string indicating the source of the module.</comment>
+  </data>
+  <data name="ConfigurationSettings" xml:space="preserve">
+    <value>Settings:</value>
+    <comment>Label for the values that are used as inputs for this item when applying state</comment>
+  </data>
+  <data name="ConfigurationSuccessfullyApplied" xml:space="preserve">
+    <value>Configuration successfully applied.</value>
+  </data>
+  <data name="ConfigurationUnitFailed" xml:space="preserve">
+    <value>Failed:</value>
+  </data>
+  <data name="ConfigurationUnitSkipped" xml:space="preserve">
+    <value>Skipped:</value>
+  </data>
+  <data name="ConfigurationWaitingOnAnother" xml:space="preserve">
+    <value>Another configuration is being applied to the system. This configuration will continue as soon as is possible...</value>
+  </data>
+  <data name="ConfigurationWarning" xml:space="preserve">
+    <value>You are responsible for understanding the configuration settings you are choosing to execute. Microsoft is not responsible for the configuration file you have authored or imported. This configuration may change settings in Windows, install software, change software settings (including security settings), and accept user agreements to third-party packages and services on your behalf.  By running this configuration file, you acknowledge that you understand and agree to these resources and settings. Any applications installed are licensed to you by their owners. Microsoft is not responsible for, nor does it grant any licenses to, third-party packages or services.</value>
+    <comment>Legal approved. Do not change without approval.</comment>
+  </data>
+  <data name="ConfigurationWarningPrompt" xml:space="preserve">
+    <value>Have you reviewed the configuration and would you like to proceed applying it to the system?</value>
+    <comment>PM approved.</comment>
+  </data>
+  <data name="ConfigurationFileEmpty" xml:space="preserve">
+    <value>The configuration is empty.</value>
+  </data>
+  <data name="FileNotFound" xml:space="preserve">
+    <value>File not found.</value>
+  </data>
 </root>

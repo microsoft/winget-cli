@@ -7,6 +7,7 @@ Project("{C7167F0D-BC9F-4E6E-AFE1-012C56B48DB5}") = "AppInstallerCLIPackage", "A
 		{1CC41A9A-AE66-459D-9210-1E572DD7BE69} = {1CC41A9A-AE66-459D-9210-1E572DD7BE69}
 		{2B00D362-AC92-41F3-A8D2-5B1599BDCA01} = {2B00D362-AC92-41F3-A8D2-5B1599BDCA01}
 		{5B6F90DF-FD19-4BAE-83D9-24DAD128E777} = {5B6F90DF-FD19-4BAE-83D9-24DAD128E777}
+		{CA460806-5E41-4E97-9A3D-1D74B433B663} = {CA460806-5E41-4E97-9A3D-1D74B433B663}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AppInstallerCLI", "AppInstallerCLI\AppInstallerCLI.vcxproj", "{5B6F90DF-FD19-4BAE-83D9-24DAD128E777}"
@@ -156,6 +157,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Management.Configuration.UnitTests", "Microsoft.Management.Configuration.UnitTests\Microsoft.Management.Configuration.UnitTests.csproj", "{EE43C990-7789-4A60-B077-BF0ED3D093A1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Management.Configuration.Processor", "Microsoft.Management.Configuration.Processor\Microsoft.Management.Configuration.Processor.csproj", "{71FA29AA-9035-468B-A11D-0F0B0F5D5AF4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConfigurationRemotingServer", "ConfigurationRemotingServer\ConfigurationRemotingServer.csproj", "{6597EB04-D105-49A7-A5A3-D27FE1DF895E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -846,6 +849,30 @@ Global
 		{71FA29AA-9035-468B-A11D-0F0B0F5D5AF4}.TestRelease|x64.Build.0 = Release|x64
 		{71FA29AA-9035-468B-A11D-0F0B0F5D5AF4}.TestRelease|x86.ActiveCfg = Release|x86
 		{71FA29AA-9035-468B-A11D-0F0B0F5D5AF4}.TestRelease|x86.Build.0 = Release|x86
+		{6597EB04-D105-49A7-A5A3-D27FE1DF895E}.Debug|ARM64.ActiveCfg = Debug|arm64
+		{6597EB04-D105-49A7-A5A3-D27FE1DF895E}.Debug|ARM64.Build.0 = Debug|arm64
+		{6597EB04-D105-49A7-A5A3-D27FE1DF895E}.Debug|x64.ActiveCfg = Debug|x64
+		{6597EB04-D105-49A7-A5A3-D27FE1DF895E}.Debug|x64.Build.0 = Debug|x64
+		{6597EB04-D105-49A7-A5A3-D27FE1DF895E}.Debug|x86.ActiveCfg = Debug|x86
+		{6597EB04-D105-49A7-A5A3-D27FE1DF895E}.Debug|x86.Build.0 = Debug|x86
+		{6597EB04-D105-49A7-A5A3-D27FE1DF895E}.Fuzzing|ARM64.ActiveCfg = Debug|arm64
+		{6597EB04-D105-49A7-A5A3-D27FE1DF895E}.Fuzzing|ARM64.Build.0 = Debug|arm64
+		{6597EB04-D105-49A7-A5A3-D27FE1DF895E}.Fuzzing|x64.ActiveCfg = Debug|x64
+		{6597EB04-D105-49A7-A5A3-D27FE1DF895E}.Fuzzing|x64.Build.0 = Debug|x64
+		{6597EB04-D105-49A7-A5A3-D27FE1DF895E}.Fuzzing|x86.ActiveCfg = Debug|x86
+		{6597EB04-D105-49A7-A5A3-D27FE1DF895E}.Fuzzing|x86.Build.0 = Debug|x86
+		{6597EB04-D105-49A7-A5A3-D27FE1DF895E}.Release|ARM64.ActiveCfg = Release|arm64
+		{6597EB04-D105-49A7-A5A3-D27FE1DF895E}.Release|ARM64.Build.0 = Release|arm64
+		{6597EB04-D105-49A7-A5A3-D27FE1DF895E}.Release|x64.ActiveCfg = Release|x64
+		{6597EB04-D105-49A7-A5A3-D27FE1DF895E}.Release|x64.Build.0 = Release|x64
+		{6597EB04-D105-49A7-A5A3-D27FE1DF895E}.Release|x86.ActiveCfg = Release|x86
+		{6597EB04-D105-49A7-A5A3-D27FE1DF895E}.Release|x86.Build.0 = Release|x86
+		{6597EB04-D105-49A7-A5A3-D27FE1DF895E}.TestRelease|ARM64.ActiveCfg = Release|arm64
+		{6597EB04-D105-49A7-A5A3-D27FE1DF895E}.TestRelease|ARM64.Build.0 = Release|arm64
+		{6597EB04-D105-49A7-A5A3-D27FE1DF895E}.TestRelease|x64.ActiveCfg = Release|x64
+		{6597EB04-D105-49A7-A5A3-D27FE1DF895E}.TestRelease|x64.Build.0 = Release|x64
+		{6597EB04-D105-49A7-A5A3-D27FE1DF895E}.TestRelease|x86.ActiveCfg = Release|x86
+		{6597EB04-D105-49A7-A5A3-D27FE1DF895E}.TestRelease|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

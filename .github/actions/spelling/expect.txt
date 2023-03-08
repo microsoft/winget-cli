@@ -187,6 +187,7 @@ liv
 liwpx
 localizationpriority
 LPBYTE
+LPCWSTR
 LPDWORD
 lpitemidlist
 LPSTR
@@ -197,10 +198,12 @@ LTDA
 luffy
 Luffytaro
 malware
+mapview
 maxvalue
 maybenull
 MBH
 mdmp
+MDs
 megamorf
 midl
 minexample
@@ -320,6 +323,7 @@ SHCONTF
 SHGDN
 SHOWNORMAL
 sid
+Sideload
 SIGNATUREHASH
 Sku
 sortof
@@ -331,6 +335,7 @@ SRL
 srs
 standalone
 startswith
+STARTUPINFOW
 STRRET
 stylecop
 subdir

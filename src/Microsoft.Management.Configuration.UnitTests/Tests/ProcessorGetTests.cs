@@ -76,12 +76,23 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             TestConfigurationProcessorFactory factory = new TestConfigurationProcessorFactory();
             TestConfigurationSetProcessor setProcessor = factory.CreateTestProcessor(configurationSet);
-            setProcessor.Exceptions.Add(configurationUnitThrows, new InvalidDataException());
+            var thrownException = new InvalidDataException();
+            setProcessor.Exceptions.Add(configurationUnitThrows, thrownException);
 
             ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics(factory);
 
-            Assert.Throws<InvalidDataException>(() => processor.GetSetDetails(configurationSet, ConfigurationUnitDetailLevel.Local));
+            GetConfigurationSetDetailsResult result = processor.GetSetDetails(configurationSet, ConfigurationUnitDetailLevel.Local);
+            var unitResults = result.UnitResults;
+            Assert.Equal(2, unitResults.Count);
+
+            Assert.Equal(configurationUnitWorks, unitResults[0].Unit);
+            Assert.Null(unitResults[0].ResultInformation.ResultCode);
             Assert.NotNull(configurationUnitWorks.Details);
+
+            Assert.Equal(configurationUnitThrows, unitResults[1].Unit);
+            Assert.NotNull(unitResults[1].ResultInformation.ResultCode);
+            Assert.Equal(thrownException.HResult, unitResults[1].ResultInformation.ResultCode.HResult);
+            Assert.Null(configurationUnitThrows.Details);
         }
 
         /// <summary>

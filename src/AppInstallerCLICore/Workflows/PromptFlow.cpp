@@ -447,4 +447,12 @@ namespace AppInstaller::CLI::Workflow
             }
         }
     }
+
+    void RequireInteractivity::operator()(Execution::Context& context) const
+    {
+        if (!IsInteractivityAllowed(context))
+        {
+            AICLI_TERMINATE_CONTEXT(m_nonInteractiveError);
+        }
+    }
 }

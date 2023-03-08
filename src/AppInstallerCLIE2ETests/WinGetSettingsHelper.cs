@@ -189,6 +189,8 @@ namespace AppInstallerCLIE2ETests
             ConfigureFeature("experimentalCmd", status);
             ConfigureFeature("dependencies", status);
             ConfigureFeature("directMSI", status);
+            ConfigureFeature("pinning", status);
+            ConfigureFeature("configuration", status);
         }
     }
 }

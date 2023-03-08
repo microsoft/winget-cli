@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
     <Platform>AnyCpu</Platform>
+    <RuntimeIdentifiers>win-x64;win-x86;win-arm64</RuntimeIdentifiers>
     <OutputPath>$(SolutionDir)$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutputPath>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
@@ -42,5 +43,18 @@
       <ReferenceOutputAssembly>True</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>
+
+  <PropertyGroup>
+    <MicrosoftManagementConfigurationPath>$(OutputPath)..\..\..\x64\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd</MicrosoftManagementConfigurationPath>
+    <MicrosoftManagementConfigurationPath Condition="!Exists('$(MicrosoftManagementConfigurationPath)')">$(OutputPath)..\..\..\x86\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd</MicrosoftManagementConfigurationPath>
+    <MicrosoftManagementConfigurationPath Condition="!Exists('$(MicrosoftManagementConfigurationPath)')">$(OutputPath)..\..\..\arm64\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd</MicrosoftManagementConfigurationPath>
+  </PropertyGroup>
+
+  <Target Name="MicrosoftManagementConfigurationPathTarget" BeforeTargets="CsWinRTSetAuthoringWinMDs">
+    <Message Importance="normal" Text="Microsoft.Management.Configuration.winmd -&gt; $(MicrosoftManagementConfigurationPath)" />
+    <ItemGroup Condition="Exists('$(MicrosoftManagementConfigurationPath)')">
+      <CsWinRTAuthoringWinMDs Include="$(MicrosoftManagementConfigurationPath)" />
+    </ItemGroup>
+  </Target>
 
 </Project>

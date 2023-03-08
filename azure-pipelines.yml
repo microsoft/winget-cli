@@ -106,7 +106,7 @@ jobs:
                     /p:AppxBundlePlatforms="$(buildPlatform)"
                     /p:AppxPackageDir="$(appxPackageDir)"
                     /p:AppxBundle=Always
-                    /p:UapAppxPackageBuildMode=StoreUpload'
+                    /p:UapAppxPackageBuildMode=SideloadOnly'
 
   - task: VSBuild@1
     displayName: Build Test Project
@@ -118,7 +118,7 @@ jobs:
                     /p:AppxBundlePlatforms="$(buildPlatform)"
                     /p:AppxPackageDir="$(appxPackageDir)"
                     /p:AppxBundle=Always
-                    /p:UapAppxPackageBuildMode=StoreUpload'
+                    /p:UapAppxPackageBuildMode=SideloadOnly'
 
   - task: CopyFiles@2
     displayName: 'Copy WindowsPackageManager.dll Symbols to artifacts folder'
@@ -315,6 +315,20 @@ jobs:
     inputs:
       SourceFolder: '$(buildOutDir)\PowerShell'
       TargetFolder: '$(artifactsDir)\PowerShell'
+    condition: always()
+
+  - task: CopyFiles@2
+    displayName: 'Copy Dev Package (Loose Files)'
+    inputs:
+      SourceFolder: 'src\AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration)'
+      TargetFolder: '$(artifactsDir)\DevPackage'
+    condition: always()
+
+  - task: CopyFiles@2
+    displayName: 'Copy Dev Packages'
+    inputs:
+      SourceFolder: '$(appxPackageDir)'
+      TargetFolder: '$(artifactsDir)\AppxPackages'
     condition: always()
 
   - task: PublishPipelineArtifact@1

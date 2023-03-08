@@ -63,6 +63,9 @@
     <ClInclude Include="WorkflowCommon.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="TestConfiguration.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -283,6 +286,9 @@
     </ClCompile>
     <ClCompile Include="Argument.cpp">
       <Filter>Source Files\CLI</Filter>
+    </ClCompile>
+    <ClCompile Include="TestConfiguration.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

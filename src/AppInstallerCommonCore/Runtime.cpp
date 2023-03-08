@@ -50,6 +50,38 @@ namespace AppInstaller::Runtime
             return (result != APPMODEL_ERROR_NO_PACKAGE);
         }
 
+        // Gets the path to the root of the package containing the current process.
+        std::filesystem::path GetPackagePath()
+        {
+            wchar_t packageFullName[PACKAGE_FULL_NAME_MAX_LENGTH + 1];
+            UINT32 nameLength = ARRAYSIZE(packageFullName);
+            THROW_IF_WIN32_ERROR(GetPackageFullName(GetCurrentProcess(), &nameLength, packageFullName));
+
+            UINT32 pathLength = 0;
+            LONG result = GetPackagePathByFullName(packageFullName, &pathLength, nullptr);
+            THROW_HR_IF(HRESULT_FROM_WIN32(result), result != ERROR_INSUFFICIENT_BUFFER);
+
+            std::unique_ptr<wchar_t[]> buffer = std::make_unique<wchar_t[]>(pathLength);
+            THROW_IF_WIN32_ERROR(GetPackagePathByFullName(packageFullName, &pathLength, buffer.get()));
+
+            return { buffer.get() };
+        }
+
+        // Gets the path to the directory containing the currently executing binary file.
+        std::filesystem::path GetBinaryDirectoryPath()
+        {
+            HMODULE moduleHandle = NULL;
+            THROW_IF_WIN32_BOOL_FALSE(GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                (LPCWSTR)&GetBinaryDirectoryPath, &moduleHandle));
+
+            // Get the path for this module.
+            wil::unique_process_heap_string binaryPath;
+            THROW_IF_FAILED(wil::GetModuleFileNameW(moduleHandle, binaryPath));
+
+            std::filesystem::path resultFilePath{ binaryPath.get() };
+            return resultFilePath.parent_path();
+        }
+
         std::unique_ptr<byte[]> GetPACKAGE_ID()
         {
             UINT32 bufferLength = 0;
@@ -511,6 +543,10 @@ namespace AppInstaller::Runtime
         case PathName::PortableLinksMachineLocation:
             result = GetPathDetailsCommon(path);
             break;
+        case PathName::SelfPackageRoot:
+            result.Path = GetPackagePath();
+            result.Create = false;
+            break;
         default:
             THROW_HR(E_UNEXPECTED);
         }
@@ -581,6 +617,10 @@ namespace AppInstaller::Runtime
         case PathName::PortableLinksUserLocation:
         case PathName::PortableLinksMachineLocation:
             result = GetPathDetailsCommon(path);
+            break;
+        case PathName::SelfPackageRoot:
+            result.Path = GetBinaryDirectoryPath();
+            result.Create = false;
             break;
         default:
             THROW_HR(E_UNEXPECTED);

@@ -181,6 +181,7 @@
     <ClInclude Include="DependenciesTestSource.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="TestCommon.h" />
+    <ClInclude Include="TestConfiguration.h" />
     <ClInclude Include="TestRestRequestHandler.h" />
     <ClInclude Include="TestHooks.h" />
     <ClInclude Include="TestSettings.h" />
@@ -241,6 +242,7 @@
     <ClCompile Include="SourceFlow.cpp" />
     <ClCompile Include="SQLiteIndexSource.cpp" />
     <ClCompile Include="Strings.cpp" />
+    <ClCompile Include="TestConfiguration.cpp" />
     <ClCompile Include="TestRestRequestHandler.cpp" />
     <ClCompile Include="TestSettings.cpp" />
     <ClCompile Include="TestSource.cpp" />
@@ -820,6 +822,9 @@
     </ProjectReference>
     <ProjectReference Include="..\JsonCppLib\JsonCppLib.vcxproj">
       <Project>{82b39fda-e86b-4713-a873-9d56de00247a}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.Management.Configuration\Microsoft.Management.Configuration.vcxproj">
+      <Project>{ca460806-5e41-4e97-9a3d-1d74b433b663}</Project>
     </ProjectReference>
     <ProjectReference Include="..\YamlCppLib\YamlCppLib.vcxproj">
       <Project>{8bb94bb8-374f-4294-bca1-c7811514a6b7}</Project>

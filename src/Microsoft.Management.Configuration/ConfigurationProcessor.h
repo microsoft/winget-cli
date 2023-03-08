@@ -22,8 +22,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         using TestConfigurationSetResult = Configuration::TestConfigurationSetResult;
         using TestConfigurationUnitResult = Configuration::TestConfigurationUnitResult;
         using GetConfigurationUnitSettingsResult = Configuration::GetConfigurationUnitSettingsResult;
+        using GetConfigurationSetDetailsResult = Configuration::GetConfigurationSetDetailsResult;
+        using GetConfigurationUnitDetailsResult = Configuration::GetConfigurationUnitDetailsResult;
 
-        ConfigurationProcessor(const IConfigurationProcessorFactory& factory);
+        ConfigurationProcessor(const IConfigurationSetProcessorFactory& factory);
 
         event_token Diagnostics(const Windows::Foundation::EventHandler<DiagnosticInformation>& handler);
         void Diagnostics(const event_token& token) noexcept;
@@ -44,8 +46,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             const Windows::Foundation::Collections::IVectorView<ConfigurationSet>& configurationSets,
             bool includeConfigurationHistory);
 
-        void GetSetDetails(const ConfigurationSet& configurationSet, ConfigurationUnitDetailLevel detailLevel);
-        Windows::Foundation::IAsyncAction GetSetDetailsAsync(const ConfigurationSet& configurationSet, ConfigurationUnitDetailLevel detailLevel);
+        GetConfigurationSetDetailsResult GetSetDetails(const ConfigurationSet& configurationSet, ConfigurationUnitDetailLevel detailLevel);
+        Windows::Foundation::IAsyncOperationWithProgress<GetConfigurationSetDetailsResult, GetConfigurationUnitDetailsResult> GetSetDetailsAsync(const ConfigurationSet& configurationSet, ConfigurationUnitDetailLevel detailLevel);
 
         void GetUnitDetails(const ConfigurationUnit& unit, ConfigurationUnitDetailLevel detailLevel);
         Windows::Foundation::IAsyncAction GetUnitDetailsAsync(const ConfigurationUnit& unit, ConfigurationUnitDetailLevel detailLevel);
@@ -64,7 +66,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         void Diagnostics(DiagnosticLevel level, std::string_view message);
 
     private:
-        IConfigurationProcessorFactory m_factory = nullptr;
+        IConfigurationSetProcessorFactory m_factory = nullptr;
         event<Windows::Foundation::EventHandler<DiagnosticInformation>> m_diagnostics;
         event<Windows::Foundation::TypedEventHandler<ConfigurationSet, ConfigurationChangeData>> m_configurationChange;
         ConfigThreadGlobals m_threadGlobals;

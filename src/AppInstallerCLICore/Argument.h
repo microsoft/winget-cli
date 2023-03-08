@@ -89,7 +89,7 @@ namespace AppInstaller::CLI
 
     // An argument to a command; containing only data that is common to all its uses.
     // Argument extends this by adding command-specific values, like help strings.
-    struct  ArgumentCommon
+    struct ArgumentCommon
     {
         // Defines an argument with no alias.
         constexpr static char NoAlias = '\0';
