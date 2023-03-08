@@ -108,14 +108,6 @@ jobs:
                     /p:AppxBundle=Always
                     /p:UapAppxPackageBuildMode=SideloadOnly'
 
-  - task: PowerShell@2
-    displayName: Dump output directory
-    inputs:
-      targetType: inline
-      script: Get-ChildItem -Recurse src
-    continueOnError: true
-    condition: always()
-
   - task: VSBuild@1
     displayName: Build Test Project
     inputs:
@@ -333,18 +325,10 @@ jobs:
     condition: always()
 
   - task: CopyFiles@2
-    displayName: 'Copy Dev Package'
+    displayName: 'Copy Dev Packages'
     inputs:
       SourceFolder: '$(appxPackageDir)'
       TargetFolder: '$(artifactsDir)\AppxPackages'
-    condition: always()
-    
-  - task: CopyFiles@2
-    displayName: Copy CsWinRT logs for Processor
-    inputs:
-      SourceFolder: 'src\Microsoft.Management.Configuration.Processor\obj\Release\net6.0-windows10.0.19041.0\Generated Files'
-      TargetFolder: '$(artifactsDir)\ProcessorCsWinRTLog'
-      Contents: 'log.txt'
     condition: always()
 
   - task: PublishPipelineArtifact@1
