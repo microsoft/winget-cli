@@ -2,12 +2,12 @@
 author: Roy MacLachlan RDMaclachlan/roy.maclachlan@microsoft.com
 created on: 2023-02-09
 last updated: 2023-02-09
-issue id: 3026
+issue id: 3025
 ---
 
 # Bypass Microsoft Store blocked for COM API
 
-"For [#3026](https://github.com/microsoft/winget-cli/issues/3026)"
+"For [#3025](https://github.com/microsoft/winget-cli/issues/3025)"
 
 ## Abstract
 
