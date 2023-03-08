@@ -324,6 +324,7 @@ SHOWNORMAL
 sid
 SIGNATUREHASH
 Sku
+SLAPI
 sortof
 sourceforge
 spamming
