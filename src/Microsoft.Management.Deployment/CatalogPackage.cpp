@@ -5,7 +5,6 @@
 #include <winget/RepositorySource.h>
 #include "CatalogPackage.h"
 #include "CatalogPackage.g.cpp"
-#include "CatalogPackageMetadata.h"
 #include "PackageCatalog.h"
 #include "PackageVersionInfo.h"
 #include "PackageVersionId.h"

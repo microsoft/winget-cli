@@ -644,7 +644,7 @@ namespace Microsoft.Management.Deployment
         [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
         {
             SourceAgreementsNotAccepted,
-    }
+        }
     };
 
     /// Result of the Connect call
@@ -684,7 +684,7 @@ namespace Microsoft.Management.Deployment
             /// Gets the required agreements for connecting to the package catalog (source).
             Windows.Foundation.Collections.IVectorView<SourceAgreement> SourceAgreements { get; };
 
-            Boolean AcceptSourceAgreements{ get; set; };
+            Boolean AcceptSourceAgreements;
         }
     }
 
