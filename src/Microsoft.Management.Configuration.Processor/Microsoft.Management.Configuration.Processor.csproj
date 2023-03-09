@@ -43,6 +43,7 @@
       <OutputItemType>Content</OutputItemType>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <ReferenceOutputAssembly>True</ReferenceOutputAssembly>
+      <SetPlatform>AnyCPU</SetPlatform>
     </ProjectReference>
   </ItemGroup>
 

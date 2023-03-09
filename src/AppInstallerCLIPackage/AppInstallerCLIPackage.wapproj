@@ -86,9 +86,21 @@
     <PRIResource Include="shared\strings\zh-TW\winget.resw" Condition="Exists('shared\strings\zh-TW\winget.resw')" />
     <PRIResource Include="Shared\Strings\en-us\Resources.resw" />
   </ItemGroup>
+  <PropertyGroup Condition="'$(Platform)'=='ARM64'">
+    <ConfigServerRid>win10-arm64</ConfigServerRid>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Platform)'=='x64'">
+    <ConfigServerRid>win10-x64</ConfigServerRid>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Platform)'=='x86'">
+    <ConfigServerRid>win10-x86</ConfigServerRid>
+  </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\AppInstallerCLI\AppInstallerCLI.vcxproj" />
-    <ProjectReference Include="..\ConfigurationRemotingServer\ConfigurationRemotingServer.csproj" />
+    <ProjectReference
+      Include="..\ConfigurationRemotingServer\ConfigurationRemotingServer.csproj"
+      SkipGetTargetFrameworkProperties="true" 
+      Properties="RuntimeIdentifier=$(ConfigServerRid);SelfContainer=true"/>
     <ProjectReference Include="..\WinGetServer\WinGetServer.vcxproj" />
   </ItemGroup>
   <Import Project="$(WapProjPath)\Microsoft.DesktopBridge.targets" />
