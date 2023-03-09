@@ -120,6 +120,14 @@ jobs:
                     /p:AppxBundle=Always
                     /p:UapAppxPackageBuildMode=SideloadOnly'
 
+  - task: PowerShell@2
+    displayName: Dump output directory
+    inputs:
+      targetType: inline
+      script: Get-ChildItem -Recurse src
+    continueOnError: true
+    condition: always()
+
   - task: CopyFiles@2
     displayName: 'Copy WindowsPackageManager.dll Symbols to artifacts folder'
     inputs:
