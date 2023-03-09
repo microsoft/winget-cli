@@ -6,6 +6,7 @@
 #include "Public/AppInstallerRuntime.h"
 #include "Public/AppInstallerStrings.h"
 #include "Public/AppInstallerDateTime.h"
+#include <corecrt_io.h>
 
 
 namespace AppInstaller::Logging
@@ -23,6 +24,14 @@ namespace AppInstaller::Logging
     {
         m_name = GetNameForPath(filePath);
         m_filePath = filePath;
+
+        // Prevent inheritance to ensure log file handle is not opened by other processes.
+        FILE* filePtr;
+        if (!fopen_s(&filePtr, m_filePath.string().c_str(), "w") && filePtr != NULL)
+        {
+            SetHandleInformation((HANDLE)_get_osfhandle(_fileno(filePtr)), HANDLE_FLAG_INHERIT, 0);
+            std::ofstream outFile(filePtr);
+        }
 
         m_stream.open(m_filePath, s_fileLoggerDefaultOpenMode);
     }
