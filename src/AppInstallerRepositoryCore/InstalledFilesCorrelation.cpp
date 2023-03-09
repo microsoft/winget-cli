@@ -16,9 +16,9 @@ namespace AppInstaller::Repository::Correlation
         constexpr std::string_view s_ShellLinkFileExtension = ".lnk"sv;
         const std::vector<std::pair<std::filesystem::path, std::string>> s_CandidateInstallLocationRoots =
         {
-            { Filesystem::GetExpandedPath("%LOCALAPPDATA%"), "%LOCALAPPDATA%" },
-            { Filesystem::GetExpandedPath("%PROGRAMFILES%"), "%PROGRAMFILES%" },
-            { Filesystem::GetExpandedPath("%PROGRAMFILES(X86)%"), "%PROGRAMFILES(X86)%" },
+            { Filesystem::GetKnownFolderPath(FOLDERID_LocalAppData), "%LOCALAPPDATA%"},
+            { Filesystem::GetKnownFolderPath(FOLDERID_ProgramFiles), "%PROGRAMFILES%" },
+            { Filesystem::GetKnownFolderPath(FOLDERID_ProgramFilesX86), "%PROGRAMFILES(X86)%" },
         };
 
         // Contains shell link info
@@ -104,7 +104,7 @@ namespace AppInstaller::Repository::Correlation
                 }
 
                 // Use shell link file name (minus extension) as display name.
-                result.DisplayName = linkFile.stem().string();
+                result.DisplayName = linkFile.stem().u8string();
 
                 AICLI_LOG(Repo, Info, << "Link file parsed. Path: " << result.Path << " Args: " << result.Args << " DisplayName: " << result.DisplayName);
 
@@ -170,14 +170,14 @@ namespace AppInstaller::Repository::Correlation
         {
             Manifest::InstalledFileTypeEnum result = Manifest::InstalledFileTypeEnum::Other;
 
-            if (Utility::CaseInsensitiveContainsSubstring(linkInfo.Path.string(), "uninstall") ||
-                Utility::CaseInsensitiveContainsSubstring(linkInfo.Path.string(), "unins000") ||
+            if (Utility::CaseInsensitiveContainsSubstring(linkInfo.Path.u8string(), "uninstall") ||
+                Utility::CaseInsensitiveContainsSubstring(linkInfo.Path.u8string(), "unins000") ||
                 Utility::CaseInsensitiveContainsSubstring(linkInfo.Args, "uninstall") ||
                 Utility::CaseInsensitiveContainsSubstring(linkInfo.DisplayName, "uninstall"))
             {
                 result = Manifest::InstalledFileTypeEnum::Uninstall;
             }
-            else if (Utility::CaseInsensitiveEquals(linkInfo.Path.extension().string(), ".exe"))
+            else if (Utility::CaseInsensitiveEquals(linkInfo.Path.extension().u8string(), ".exe"))
             {
                 result = Manifest::InstalledFileTypeEnum::Launch;
             }
@@ -188,12 +188,12 @@ namespace AppInstaller::Repository::Correlation
         std::string GetUnexpandedInstallLocation(const std::filesystem::path& installLocation)
         {
             // Try to match the candidate install location roots first.
-            std::string installLocationString = installLocation.string();
+            std::filesystem::path resultInstallLocation = installLocation;
             for (auto const& entry : s_CandidateInstallLocationRoots)
             {
-                if (Utility::CaseInsensitiveStartsWith(installLocationString, entry.first.string()))
+                if (Filesystem::ReplaceCommonPathPrefix(resultInstallLocation, entry.first, entry.second))
                 {
-                    return entry.second + installLocationString.substr(entry.first.string().size());
+                    return resultInstallLocation.u8string();
                 }
             }
 
@@ -210,7 +210,7 @@ namespace AppInstaller::Repository::Correlation
                 return Utility::ConvertToUTF8(buffer);
             }
 
-            return installLocationString;
+            return resultInstallLocation.u8string();
         }
     }
 
@@ -305,7 +305,7 @@ namespace AppInstaller::Repository::Correlation
 
                     // Collect short cut paths
                     InstalledStartupLinkFile linkFile;
-                    linkFile.RelativeFilePath = file.string();
+                    linkFile.RelativeFilePath = file.u8string();
                     linkFile.FileType = installedFileType;
                     result.StartupLinkFiles.emplace_back(linkFile);
                 }

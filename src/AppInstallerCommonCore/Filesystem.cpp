@@ -198,11 +198,11 @@ namespace AppInstaller::Filesystem
         }
         catch (...)
         {
-            return path;
+            return Utility::ConvertToUTF16(path);
         }
     }
 
-    void ReplaceCommonPathPrefix(std::filesystem::path& source, const std::filesystem::path& prefix, std::string_view replacement)
+    bool ReplaceCommonPathPrefix(std::filesystem::path& source, const std::filesystem::path& prefix, std::string_view replacement)
     {
         auto prefixItr = prefix.begin();
         auto sourceItr = source.begin();
@@ -229,7 +229,11 @@ namespace AppInstaller::Filesystem
             }
 
             source = std::move(temp);
+
+            return true;
         }
+
+        return false;
     }
 
     std::filesystem::path GetKnownFolderPath(const KNOWNFOLDERID& id)

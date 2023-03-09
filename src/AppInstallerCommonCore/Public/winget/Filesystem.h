@@ -38,7 +38,8 @@ namespace AppInstaller::Filesystem
     std::filesystem::path GetExpandedPath(const std::string& path);
 
     // If `source` begins with all of `prefix`, replace that with `replacement`.
-    void ReplaceCommonPathPrefix(std::filesystem::path& source, const std::filesystem::path& prefix, std::string_view replacement);
+    // Returns true if replacement happened, false otherwise.
+    bool ReplaceCommonPathPrefix(std::filesystem::path& source, const std::filesystem::path& prefix, std::string_view replacement);
 
     // Gets the path of a known folder.
     std::filesystem::path GetKnownFolderPath(const KNOWNFOLDERID& id);

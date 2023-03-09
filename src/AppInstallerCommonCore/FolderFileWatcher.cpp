@@ -27,7 +27,7 @@ namespace AppInstaller::Utility
                 case wil::FolderChangeEvent::RenameNewName:
                 {
                     std::filesystem::path path(filePath);
-                    if (!m_ext.has_value() || Utility::CaseInsensitiveEquals(path.extension().string(), *m_ext))
+                    if (!m_ext.has_value() || Utility::CaseInsensitiveEquals(path.extension().u8string(), *m_ext))
                     {
                         m_files.emplace(path);
                     }
@@ -40,7 +40,7 @@ namespace AppInstaller::Utility
                 case wil::FolderChangeEvent::RenameOldName:
                 {
                     std::filesystem::path path(filePath);
-                    if (!m_ext.has_value() || Utility::CaseInsensitiveEquals(path.extension().string(), *m_ext))
+                    if (!m_ext.has_value() || Utility::CaseInsensitiveEquals(path.extension().u8string(), *m_ext))
                     {
                         auto it = m_files.find(path);
                         if (it != m_files.cend())

@@ -175,7 +175,7 @@ namespace AppInstaller::Repository
                         {
                             installerStatus.Status.emplace_back(
                                 InstalledStatusType::AppsAndFeaturesEntryInstallLocation,
-                                installedLocation.string(),
+                                installedLocation.u8string(),
                                 installedLocationStatus);
                         }
 
@@ -186,12 +186,12 @@ namespace AppInstaller::Repository
                         {
                             for (auto const& file : installer.InstallationMetadata.Files)
                             {
-                                std::filesystem::path filePath = installedLocation / std::filesystem::path{ static_cast<std::string>(file.RelativeFilePath) };
+                                std::filesystem::path filePath = installedLocation / Utility::ConvertToUTF16(file.RelativeFilePath);
                                 auto fileStatus = CheckInstalledFileStatus(filePath, checkFileHash ? file.FileSha256 : Utility::SHA256::HashBuffer{}, fileHashes);
 
                                 installerStatus.Status.emplace_back(
                                     InstalledStatusType::AppsAndFeaturesEntryInstallLocationFile,
-                                    filePath.string(),
+                                    filePath.u8string(),
                                     fileStatus);
                             }
                         }
@@ -208,7 +208,7 @@ namespace AppInstaller::Repository
                         {
                             installerStatus.Status.emplace_back(
                                 InstalledStatusType::DefaultInstallLocation,
-                                defaultInstalledLocation.string(),
+                                defaultInstalledLocation.u8string(),
                                 defaultInstalledLocationStatus);
                         }
 
@@ -218,12 +218,12 @@ namespace AppInstaller::Repository
                         {
                             for (auto const& file : installer.InstallationMetadata.Files)
                             {
-                                std::filesystem::path filePath = defaultInstalledLocation / std::filesystem::path{ static_cast<std::string>(file.RelativeFilePath) };
+                                std::filesystem::path filePath = defaultInstalledLocation / Utility::ConvertToUTF16(file.RelativeFilePath);
                                 auto fileStatus = CheckInstalledFileStatus(filePath, checkFileHash ? file.FileSha256 : Utility::SHA256::HashBuffer{}, fileHashes);
 
                                 installerStatus.Status.emplace_back(
                                     InstalledStatusType::DefaultInstallLocationFile,
-                                    filePath.string(),
+                                    filePath.u8string(),
                                     fileStatus);
                             }
                         }
