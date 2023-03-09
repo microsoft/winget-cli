@@ -72,6 +72,11 @@ namespace AppInstaller
             // Gets the string resource value.
             std::string ResolveString(std::wstring_view resKey) const
             {
+                if (resKey.empty())
+                {
+                    return {};
+                }
+
                 if (m_wingetLoader)
                 {
                     return Utility::ConvertToUTF8(m_wingetLoader.GetString(resKey));

@@ -86,7 +86,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
 
         AICLI_LOG(Config, Info, << "Unknown configuration version: " << schemaVersion.ToString());
-        return std::make_unique<ConfigurationSetParserError>(WINGET_CONFIG_ERROR_UNKNOWN_CONFIGURATION_FILE_VERSION);
+        return std::make_unique<ConfigurationSetParserError>(WINGET_CONFIG_ERROR_UNKNOWN_CONFIGURATION_FILE_VERSION, versionNode.as<std::string>());
     }
 
     void ConfigurationSetParser::SetError(hresult result, std::string_view field)

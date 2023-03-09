@@ -27,6 +27,7 @@ Atest
 ATL
 AType
 AUrl
+Authenticode
 azurewebsites
 bcp
 BEFACEF
@@ -41,6 +42,7 @@ blogs
 bluetooth
 bomgar
 BOMs
+boop
 boundparms
 Browsable
 BSODs
@@ -74,6 +76,7 @@ countof
 countryregion
 cplusplus
 createmanifestmetadata
+cswinrt
 ctc
 DACL
 Dbg
@@ -87,15 +90,15 @@ dllimport
 DMPAs
 dnld
 Dobbeleer
-Dsc
+dsc
 DUPLICATEALIAS
 dustojnikhummer
 dvinns
 ecfr
 ecfrbrowse
 EFGH
-EQU
 endregion
+EQU
 errmsg
 ESRB
 etest
@@ -127,6 +130,7 @@ gcpi
 GESMBH
 GHS
 gity
+goku
 Google
 guiddef
 Hackathon
@@ -173,6 +177,7 @@ jrsoftware
 jsoncpp
 JToken
 JValue
+Kaido
 KNOWNFOLDERID
 ktf
 ldcase
@@ -184,6 +189,7 @@ liv
 liwpx
 localizationpriority
 LPBYTE
+LPCWSTR
 LPDWORD
 lpitemidlist
 LPSTR
@@ -191,12 +197,15 @@ LPWCH
 LPWSTR
 LSTATUS
 LTDA
-maclachlan
+luffy
+Luffytaro
 malware
+mapview
 maxvalue
 maybenull
 MBH
 mdmp
+MDs
 megamorf
 midl
 minexample
@@ -204,8 +213,8 @@ minidump
 minschema
 missingdependency
 MMmmbbbb
+mof
 monicka
-MOF
 MPNS
 msdownload
 msft
@@ -213,6 +222,7 @@ msftrubengu
 MSIHASH
 MSIXHASH
 msstore
+Mugiwara
 Multideclaration
 mycustom
 myinstalldir
@@ -231,6 +241,7 @@ NONFOLDERS
 nonterminated
 normer
 NOSEPARATOR
+notalostreference
 NOTAPROPERTY
 notmatch
 npmjs
@@ -297,7 +308,6 @@ roblox
 ronomon
 rosoft
 rowids
-roy
 RRF
 rrr
 runspace
@@ -316,6 +326,7 @@ SHCONTF
 SHGDN
 SHOWNORMAL
 sid
+Sideload
 SIGNATUREHASH
 Sku
 sortof
@@ -327,6 +338,7 @@ SRL
 srs
 standalone
 startswith
+STARTUPINFOW
 STRRET
 stylecop
 subdir
@@ -356,6 +368,7 @@ TResult
 trimstart
 TState
 TStatus
+TType
 typeparam
 UCase
 ucasemap
@@ -380,7 +393,6 @@ UWP
 VALUENAMECASE
 VERSI
 VERSIE
-visualstudiocode
 vns
 vsconfig
 webpages
@@ -406,9 +418,13 @@ wwinmain
 WZDNCRFJ
 xcopy
 XFile
+XMUGIWARAMODULE
 XPLATSTR
+XRESOURCEZORO
 xsi
+yamato
 yamlcreateps
 yao
 Zanollo
 ZIPHASH
+zoro

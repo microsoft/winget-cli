@@ -96,6 +96,10 @@ namespace AppInstaller::CLI::Execution
             GatedVersion, // Differs from Version in that this supports wildcards
             BlockingPin,
 
+            // Configuration
+            ConfigurationFile,
+            ConfigurationAcceptWarning,
+
             // Common arguments
             NoVT, // Disable VirtualTerminal outputs
             RetroStyle, // Makes progress display as retro

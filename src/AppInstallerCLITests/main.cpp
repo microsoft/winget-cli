@@ -14,6 +14,7 @@
 
 #include "TestCommon.h"
 #include "TestHooks.h"
+#include "TestSettings.h"
 
 using namespace winrt;
 using namespace Windows::Foundation;
@@ -157,6 +158,9 @@ int main(int argc, char** argv)
     Runtime::TestHook_SetPathOverride(Runtime::PathName::StandardSettings, Runtime::GetPathTo(Runtime::PathName::StandardSettings) / "Tests");
     Runtime::TestHook_SetPathOverride(Runtime::PathName::SecureSettingsForRead, Runtime::GetPathTo(Runtime::PathName::StandardSettings) / "WinGet_SecureSettings_Tests");
     Runtime::TestHook_SetPathOverride(Runtime::PathName::SecureSettingsForWrite, Runtime::GetPathDetailsFor(Runtime::PathName::SecureSettingsForRead));
+
+    // Remove any existing settings files in the new tests path
+    TestCommon::UserSettingsFileGuard settingsGuard;
 
     int result = Catch::Session().run(static_cast<int>(args.size()), args.data());
 

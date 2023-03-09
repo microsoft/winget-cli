@@ -62,6 +62,10 @@ namespace Microsoft.Management.Deployment
         [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 4)]
         {
             NoApplicableUpgrade,
+        },
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
+        {
+            PackageAgreementsNotAccepted,
         }
     };
 
@@ -274,9 +278,15 @@ namespace Microsoft.Management.Deployment
             /// Gets the publisher string for this package version, if one is available.
             String Publisher { get; };
         }
-    
+
         [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
         {
+            /// Gets the package catalog metadata of this package version with the default localization based on user settings.
+            CatalogPackageMetadata GetCatalogPackageMetadata();
+
+            /// Gets the package catalog metadata of this package version with the preferred locale.
+            CatalogPackageMetadata GetCatalogPackageMetadata(String preferredLocale);
+
             /// Gets the applicable installer for this package version.
             PackageInstallerInfo GetApplicableInstaller(InstallOptions options);
         }
@@ -578,7 +588,7 @@ namespace Microsoft.Management.Deployment
         /// If true, the results were truncated by the given ResultLimit
         /// USAGE NOTE: Windows Package Manager does not support result pagination, there is no way to continue 
         /// getting more results.
-        Boolean WasLimitExceeded{ get; };
+        Boolean WasLimitExceeded { get; };
     }
 
     /// Options for FindPackages
@@ -631,6 +641,10 @@ namespace Microsoft.Management.Deployment
     {
         Ok,
         CatalogError,
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
+        {
+            SourceAgreementsNotAccepted,
+        }
     };
 
     /// Result of the Connect call
@@ -650,6 +664,7 @@ namespace Microsoft.Management.Deployment
         /// Gets a value indicating whether this package catalog is a composite of other package catalogs,
         /// and thus the packages may come from disparate package catalogs as well.
         Boolean IsComposite { get; };
+
         /// The details of the package catalog if it is not a composite.
         PackageCatalogInfo Info { get; };
 
@@ -662,6 +677,14 @@ namespace Microsoft.Management.Deployment
         {
             /// A string that will be passed to the source server if using a REST source
             String AdditionalPackageCatalogArguments;
+        }
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
+        {
+            /// Gets the required agreements for connecting to the package catalog (source).
+            Windows.Foundation.Collections.IVectorView<SourceAgreement> SourceAgreements { get; };
+
+            Boolean AcceptSourceAgreements;
         }
     }
 
@@ -791,6 +814,9 @@ namespace Microsoft.Management.Deployment
             /// A string that will be passed to the installer
             /// IMPLEMENTATION NOTE: maps to "--custom" in the winget cmd line
             String AdditionalInstallerArguments;
+
+            /// Accept the package agreements required for installation.
+            Boolean AcceptPackageAgreements;
         }
     }
 
@@ -830,6 +856,7 @@ namespace Microsoft.Management.Deployment
 
         /// Silent, Interactive, or Default
         PackageUninstallMode PackageUninstallMode;
+
         /// Directs the logging to a log file. If provided, the installer must have write access to the file 
         String LogOutputPath;
 
@@ -844,6 +871,84 @@ namespace Microsoft.Management.Deployment
             // The scope the uninstall will perform. Currently only applicable to msix.
             PackageUninstallScope PackageUninstallScope;
         }
+    }
+
+    /// IMPLEMENTATION NOTE: Documentation from AppInstaller::Repository::Documentation
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
+    runtimeclass Documentation
+    {
+        String DocumentLabel { get; };
+
+        String DocumentUrl { get; };
+    }
+
+    /// IMPLEMENTATION NOTE: SourceAgreement from AppInstaller::Repository::SourceAgreement
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
+    runtimeclass SourceAgreement
+    {
+        String Label { get; };
+
+        String Text { get; };
+    
+        String Url { get; };
+    }
+
+    /// IMPLEMENTATION NOTE: PackageAgreement from AppInstaller::Manifest::Agreement
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
+    runtimeclass PackageAgreement
+    {
+        String Label { get; };
+
+        String Text { get; };
+
+        String Url { get; };
+    }
+
+    /// IMPLEMENTATION NOTE: CatalogPackageMetadata from AppInstaller::Manifest::Localization
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
+    runtimeclass CatalogPackageMetadata
+    {
+        String Locale { get; };
+
+        String Publisher { get; };
+
+        String PublisherUrl { get; };
+
+        String PublisherSupportUrl { get; };
+
+        String PrivacyUrl { get; };
+
+        String Author { get; };
+
+        String PackageName { get; };
+
+        String PackageUrl { get; };
+
+        String License { get; };
+
+        String LicenseUrl { get; };
+
+        String Copyright { get; };
+
+        String CopyrightUrl { get; };
+
+        String ShortDescription { get; };
+
+        String Description { get; };
+
+        Windows.Foundation.Collections.IVectorView<String> Tags { get; };
+
+        Windows.Foundation.Collections.IVectorView<PackageAgreement> Agreements { get; };
+
+        Windows.Foundation.Collections.IVectorView<Documentation> Documentations { get; };
+
+        String ReleaseNotes { get; };
+
+        String ReleaseNotesUrl { get; };
+
+        String PurchaseUrl { get; };
+
+        String InstallationNotes { get; };
     }
 
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
@@ -954,5 +1059,13 @@ namespace Microsoft.Management.Deployment
         interface Windows.Foundation.Collections.IVectorView<PackageInstallerInstalledStatus>;
         interface Windows.Foundation.Collections.IVector<CheckInstalledStatusResult>;
         interface Windows.Foundation.Collections.IVectorView<CheckInstalledStatusResult>;
+        interface Windows.Foundation.Collections.IVector<SourceAgreement>;
+        interface Windows.Foundation.Collections.IVectorView<SourceAgreement>;
+        interface Windows.Foundation.Collections.IVector<PackageAgreement>;
+        interface Windows.Foundation.Collections.IVectorView<PackageAgreement>;
+        interface Windows.Foundation.Collections.IVector<Documentation>;
+        interface Windows.Foundation.Collections.IVectorView<Documentation>;
+        interface Windows.Foundation.Collections.IVector<CatalogPackageMetadata>;
+        interface Windows.Foundation.Collections.IVectorView<CatalogPackageMetadata>;
     }
 }

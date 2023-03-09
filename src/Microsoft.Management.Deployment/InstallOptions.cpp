@@ -128,6 +128,13 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         m_force = value;
     }
-
+    void InstallOptions::AcceptPackageAgreements(bool value)
+    {
+        m_acceptPackageAgreements = value;
+    }
+    bool InstallOptions::AcceptPackageAgreements()
+    {
+        return m_acceptPackageAgreements;
+    }
     CoCreatableMicrosoftManagementDeploymentClass(InstallOptions);
 }

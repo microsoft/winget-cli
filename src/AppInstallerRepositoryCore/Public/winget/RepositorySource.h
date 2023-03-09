@@ -130,12 +130,14 @@ namespace AppInstaller::Repository
     // Individual source agreement entry. Label will be highlighted in the display as the key of the agreement entry.
     struct SourceAgreement
     {
-        std::string Label;
-        std::string Text;
-        std::string Url;
+        SourceAgreement() = default;
 
         SourceAgreement(std::string label, std::string text, std::string url) :
             Label(std::move(label)), Text(std::move(text)), Url(std::move(url)) {}
+
+        std::string Label;
+        std::string Text;
+        std::string Url;
     };
 
     // Interface for retrieving information about a source after opening the source.

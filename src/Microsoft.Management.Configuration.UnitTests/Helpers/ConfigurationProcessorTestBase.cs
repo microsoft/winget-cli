@@ -45,7 +45,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         /// </summary>
         /// <param name="factory">The factory to use.</param>
         /// <returns>The new <see cref="ConfigurationProcessor"/> object.</returns>
-        protected ConfigurationProcessor CreateConfigurationProcessorWithDiagnostics(IConfigurationProcessorFactory? factory = null)
+        protected ConfigurationProcessor CreateConfigurationProcessorWithDiagnostics(IConfigurationSetProcessorFactory? factory = null)
         {
             ConfigurationProcessor result = new ConfigurationProcessor(factory);
             result.Diagnostics += this.diagnosticsEventSink.DiagnosticsHandler;

@@ -46,6 +46,8 @@ namespace AppInstaller::Settings
                 return userSettings.Get<Setting::EFPinning>();
             case ExperimentalFeature::Feature::UninstallPreviousArgument:
                 return userSettings.Get<Setting::EFUninstallPreviousArgument>();
+            case ExperimentalFeature::Feature::Configuration:
+                return userSettings.Get<Setting::EFConfiguration>();
             case ExperimentalFeature::Feature::WindowsFeature:
                 return userSettings.Get<Setting::EFWindowsFeature>();
             default:
@@ -83,6 +85,8 @@ namespace AppInstaller::Settings
             return ExperimentalFeature{ "Package Pinning", "pinning", "https://aka.ms/winget-settings", Feature::Pinning};
         case Feature::UninstallPreviousArgument:
             return ExperimentalFeature{ "Uninstall Previous Argument", "uninstallPreviousArgument", "https://aka.ms/winget-settings", Feature::UninstallPreviousArgument };
+        case Feature::Configuration:
+            return ExperimentalFeature{ "Configuration", "configuration", "https://aka.ms/winget-settings#configuration", Feature::Configuration };
         case Feature::WindowsFeature:
             return ExperimentalFeature{ "Windows Feature Dependencies", "windowsFeature", "https://aka.ms/winget-settings", Feature::WindowsFeature };
         default:

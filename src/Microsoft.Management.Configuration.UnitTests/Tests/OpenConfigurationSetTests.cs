@@ -123,7 +123,7 @@ properties:
             Assert.Null(result.Set);
             Assert.NotNull(result.ResultCode);
             Assert.Equal(Errors.WINGET_CONFIG_ERROR_UNKNOWN_CONFIGURATION_FILE_VERSION, result.ResultCode.HResult);
-            Assert.Equal(string.Empty, result.Field);
+            Assert.Equal("99999999", result.Field);
         }
 
         /// <summary>

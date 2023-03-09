@@ -76,7 +76,7 @@ namespace Microsoft.Management.Configuration
         // When the current settings are retrieved from the system, this can be used to exclude settings that are not relevant to a future application of the unit of configuration.
         Boolean IsInformational{ get; };
         // The data type for the value of this setting.
-        Windows.Foundation.PropertyType Type{ get; };
+        String Type{ get; };
         // The semantics to be used for this setting.
         // The goal is to enable richer conflict detection and authoring scenarios by having a deeper understanding of this value than "String".
         // TODO: Create the actual semantics of the semantics value...
@@ -117,8 +117,9 @@ namespace Microsoft.Management.Configuration
         String Author{ get; };
         // The publisher of the module containing the unit of configuration.
         String Publisher{ get; };
-        // The signing certificate chain of the module containing the unit of configuration.
-        Windows.Security.Cryptography.Certificates.CertificateChain SigningCertificateChain{ get; };
+        // The signing information of the module files containing the unit of configuration.
+        // May contain Windows.Security.Cryptography.Certificates.Certificate or Windows.Security.Cryptography.Certificates.CertificateChain.
+        Windows.Foundation.Collections.IVectorView<IInspectable> SigningInformation{ get; };
         // The settings information for the unit of configuration.
         Windows.Foundation.Collections.IVectorView<IConfigurationUnitSettingDetails> Settings{ get; };
     }
@@ -351,7 +352,7 @@ namespace Microsoft.Management.Configuration
 
     // Allows different runtimes to provide specialized handling of configuration processing.
     [contract(Microsoft.Management.Configuration.Contract, 1)]
-    interface IConfigurationProcessorFactory
+    interface IConfigurationSetProcessorFactory
     {
         // Creates a configuration set processor for the given set.
         IConfigurationSetProcessor CreateSetProcessor(ConfigurationSet configurationSet);
@@ -471,6 +472,25 @@ namespace Microsoft.Management.Configuration
         Windows.Foundation.Collections.IVectorView<ConfigurationConflictSetting> Settings{ get; };
     }
 
+    // The result of getting the configuration unit details.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    runtimeclass GetConfigurationUnitDetailsResult
+    {
+        // The configuration unit whose details were retrieved.
+        ConfigurationUnit Unit{ get; };
+
+        // The result of getting the configuration unit details.
+        ConfigurationUnitResultInformation ResultInformation{ get; };
+    }
+
+    // The result of getting the configuration set details.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    runtimeclass GetConfigurationSetDetailsResult
+    {
+        // The configuration unit whose details were retrieved.
+        Windows.Foundation.Collections.IVectorView<GetConfigurationUnitDetailsResult> UnitResults{ get; };
+    }
+
     // Flags to control how a configuration set should be applied to the system.
     [contract(Microsoft.Management.Configuration.Contract, 1)]
     enum ApplyConfigurationSetFlags
@@ -558,7 +578,7 @@ namespace Microsoft.Management.Configuration
     [contract(Microsoft.Management.Configuration.Contract, 1)]
     runtimeclass ConfigurationProcessor
     {
-        ConfigurationProcessor(IConfigurationProcessorFactory factory);
+        ConfigurationProcessor(IConfigurationSetProcessorFactory factory);
 
         // Diagnostics event; useful for logging and/or verbose output.
         event Windows.Foundation.EventHandler<DiagnosticInformation> Diagnostics;
@@ -581,8 +601,8 @@ namespace Microsoft.Management.Configuration
         Windows.Foundation.IAsyncOperation< Windows.Foundation.Collections.IVector<ConfigurationConflict> > CheckForConflictsAsync(Windows.Foundation.Collections.IVectorView<ConfigurationSet> configurationSets, Boolean includeConfigurationHistory);
 
         // Gets the details for all configuration units in a set.
-        void GetSetDetails(ConfigurationSet configurationSet, ConfigurationUnitDetailLevel detailLevel);
-        Windows.Foundation.IAsyncAction GetSetDetailsAsync(ConfigurationSet configurationSet, ConfigurationUnitDetailLevel detailLevel);
+        GetConfigurationSetDetailsResult GetSetDetails(ConfigurationSet configurationSet, ConfigurationUnitDetailLevel detailLevel);
+        Windows.Foundation.IAsyncOperationWithProgress<GetConfigurationSetDetailsResult, GetConfigurationUnitDetailsResult> GetSetDetailsAsync(ConfigurationSet configurationSet, ConfigurationUnitDetailLevel detailLevel);
 
         // Gets the details for a configuration unit.
         void GetUnitDetails(ConfigurationUnit unit, ConfigurationUnitDetailLevel detailLevel);
@@ -610,6 +630,7 @@ namespace Microsoft.Management.Configuration
         interface Windows.Foundation.Collections.IVectorView<ConfigurationConflictSetting>;
         interface Windows.Foundation.Collections.IVectorView<ConfigurationSet>;
         interface Windows.Foundation.Collections.IVectorView<ConfigurationUnit>;
+        interface Windows.Foundation.Collections.IVectorView<GetConfigurationUnitDetailsResult>;
         interface Windows.Foundation.Collections.IVectorView<IConfigurationUnitSettingDetails>;
         interface Windows.Foundation.Collections.IVectorView<TestConfigurationUnitResult>;
     }

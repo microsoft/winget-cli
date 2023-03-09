@@ -10,9 +10,9 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
     using System.Collections.Generic;
 
     /// <summary>
-    /// A test implementation of IConfigurationProcessorFactory.
+    /// A test implementation of IConfigurationSetProcessorFactory.
     /// </summary>
-    internal class TestConfigurationProcessorFactory : IConfigurationProcessorFactory
+    internal class TestConfigurationProcessorFactory : IConfigurationSetProcessorFactory
     {
         /// <summary>
         /// Delegate type for CreateSetProcessor.

@@ -197,6 +197,27 @@
     <ClInclude Include="Workflows\MultiQueryFlow.h">
       <Filter>Workflows</Filter>
     </ClInclude>
+    <ClInclude Include="Commands\ConfigureCommand.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="Commands\ConfigureShowCommand.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="Commands\ConfigureTestCommand.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="Commands\ConfigureValidateCommand.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigurationContext.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Workflows\ConfigurationFlow.h">
+      <Filter>Workflows</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigurationSetProcessorFactoryRemoting.h">
+      <Filter>Workflows</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -359,6 +380,27 @@
       <Filter>Commands</Filter>
     </ClCompile>
     <ClCompile Include="Workflows\MultiQueryFlow.cpp">
+      <Filter>Workflows</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\ConfigureCommand.cpp">
+      <Filter>Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\ConfigureShowCommand.cpp">
+      <Filter>Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\ConfigureTestCommand.cpp">
+      <Filter>Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\ConfigureValidateCommand.cpp">
+      <Filter>Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigurationContext.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Workflows\ConfigurationFlow.cpp">
+      <Filter>Workflows</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigurationSetProcessorFactoryRemoting.cpp">
       <Filter>Workflows</Filter>
     </ClCompile>
   </ItemGroup>

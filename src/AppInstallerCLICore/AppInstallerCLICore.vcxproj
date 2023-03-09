@@ -243,6 +243,10 @@
     <ClInclude Include="Command.h" />
     <ClInclude Include="Commands\COMCommand.h" />
     <ClInclude Include="Commands\CompleteCommand.h" />
+    <ClInclude Include="Commands\ConfigureCommand.h" />
+    <ClInclude Include="Commands\ConfigureShowCommand.h" />
+    <ClInclude Include="Commands\ConfigureTestCommand.h" />
+    <ClInclude Include="Commands\ConfigureValidateCommand.h" />
     <ClInclude Include="Commands\ExperimentalCommand.h" />
     <ClInclude Include="Commands\ExportCommand.h" />
     <ClInclude Include="Commands\ImportCommand.h" />
@@ -260,8 +264,11 @@
     <ClInclude Include="Commands\ValidateCommand.h" />
     <ClInclude Include="Commands\SettingsCommand.h" />
     <ClInclude Include="CompletionData.h" />
+    <ClInclude Include="ConfigurationContext.h" />
+    <ClInclude Include="ConfigurationSetProcessorFactoryRemoting.h" />
     <ClInclude Include="ContextOrchestrator.h" />
     <ClInclude Include="COMContext.h" />
+    <ClInclude Include="Workflows\ConfigurationFlow.h" />
     <ClInclude Include="Workflows\DependenciesFlow.h" />
     <ClInclude Include="ExecutionArgs.h" />
     <ClInclude Include="ExecutionContextData.h" />
@@ -301,9 +308,16 @@
   <ItemGroup>
     <ClCompile Include="COMContext.cpp" />
     <ClCompile Include="Commands\COMCommand.cpp" />
+    <ClCompile Include="Commands\ConfigureCommand.cpp" />
+    <ClCompile Include="Commands\ConfigureShowCommand.cpp" />
+    <ClCompile Include="Commands\ConfigureTestCommand.cpp" />
+    <ClCompile Include="Commands\ConfigureValidateCommand.cpp" />
     <ClCompile Include="Commands\ImportCommand.cpp" />
     <ClCompile Include="Commands\PinCommand.cpp" />
+    <ClCompile Include="ConfigurationContext.cpp" />
+    <ClCompile Include="ConfigurationSetProcessorFactoryRemoting.cpp" />
     <ClCompile Include="ContextOrchestrator.cpp" />
+    <ClCompile Include="Workflows\ConfigurationFlow.cpp" />
     <ClCompile Include="Workflows\DependenciesFlow.cpp" />
     <ClCompile Include="PackageCollection.cpp" />
     <ClCompile Include="Argument.cpp" />
@@ -366,6 +380,9 @@
     </ProjectReference>
     <ProjectReference Include="..\AppInstallerRepositoryCore\AppInstallerRepositoryCore.vcxproj">
       <Project>{5eb88068-5fb9-4e69-89b2-72dbc5e068f9}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.Management.Configuration\Microsoft.Management.Configuration.vcxproj">
+      <Project>{ca460806-5e41-4e97-9a3d-1d74b433b663}</Project>
     </ProjectReference>
     <ProjectReference Include="..\YamlCppLib\YamlCppLib.vcxproj">
       <Project>{8bb94bb8-374f-4294-bca1-c7811514a6b7}</Project>

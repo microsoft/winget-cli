@@ -62,6 +62,8 @@ namespace AppInstaller::Runtime
         PortableLinksUserLocation,
         // The location where symlinks to portable packages are stored under machine scope.
         PortableLinksMachineLocation,
+        // The root location for the package containing the winget application.
+        SelfPackageRoot,
     };
 
     // The principal that an ACE applies to.

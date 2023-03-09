@@ -72,6 +72,12 @@
     <ClCompile Include="TestSettingsResult.cpp">
       <Filter>API Source</Filter>
     </ClCompile>
+    <ClCompile Include="GetConfigurationUnitDetailsResult.cpp">
+      <Filter>API Source</Filter>
+    </ClCompile>
+    <ClCompile Include="GetConfigurationSetDetailsResult.cpp">
+      <Filter>API Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -148,6 +154,12 @@
       <Filter>API Headers</Filter>
     </ClInclude>
     <ClInclude Include="TestSettingsResult.h">
+      <Filter>API Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="GetConfigurationUnitDetailsResult.h">
+      <Filter>API Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="GetConfigurationSetDetailsResult.h">
       <Filter>API Headers</Filter>
     </ClInclude>
   </ItemGroup>

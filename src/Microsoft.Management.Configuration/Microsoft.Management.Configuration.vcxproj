@@ -12,7 +12,7 @@
     <DefaultLanguage>en-US</DefaultLanguage>
     <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
     <ApplicationTypeRevision>10.0</ApplicationTypeRevision>
-    <WindowsTargetPlatformVersion>10.0.22000.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.19041.0</WindowsTargetPlatformVersion>
     <WindowsTargetPlatformMinVersion>10.0.17763.0</WindowsTargetPlatformMinVersion>
     <WindowsSDKDesktopARMSupport>true</WindowsSDKDesktopARMSupport>
     <WindowsSDKDesktopARM64Support>true</WindowsSDKDesktopARM64Support>
@@ -154,6 +154,8 @@
     <ClInclude Include="ConfigurationUnitResultInformation.h" />
     <ClInclude Include="DiagnosticInformation.h" />
     <ClInclude Include="ExceptionResultHelpers.h" />
+    <ClInclude Include="GetConfigurationSetDetailsResult.h" />
+    <ClInclude Include="GetConfigurationUnitDetailsResult.h" />
     <ClInclude Include="GetConfigurationUnitSettingsResult.h" />
     <ClInclude Include="GetSettingsResult.h" />
     <ClInclude Include="MutableFlag.h" />
@@ -180,6 +182,8 @@
     <ClCompile Include="ConfigurationUnit.cpp" />
     <ClCompile Include="ConfigurationUnitResultInformation.cpp" />
     <ClCompile Include="DiagnosticInformation.cpp" />
+    <ClCompile Include="GetConfigurationSetDetailsResult.cpp" />
+    <ClCompile Include="GetConfigurationUnitDetailsResult.cpp" />
     <ClCompile Include="GetConfigurationUnitSettingsResult.cpp" />
     <ClCompile Include="GetSettingsResult.cpp" />
     <ClCompile Include="MutableFlag.cpp" />

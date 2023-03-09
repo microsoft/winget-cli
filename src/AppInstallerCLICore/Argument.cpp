@@ -164,6 +164,12 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::BlockingPin:
             return { type, "blocking"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::PinType };
 
+        // Configuration commands
+        case Execution::Args::Type::ConfigurationFile:
+            return { type, "file"_liv, 'f' };
+        case Execution::Args::Type::ConfigurationAcceptWarning:
+            return { type, "accept-configuration-agreements"_liv };
+
         // Common arguments
         case Execution::Args::Type::NoVT:
             return { type, "no-vt"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::ProgressBarOption };
@@ -196,7 +202,7 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::ToolVersion:
             return { type, "version"_liv, 'v' };
 
-            // Used for demonstration purposes
+        // Used for demonstration purposes
         case Execution::Args::Type::ExperimentalArg:
                 return { type, "arg"_liv };
 

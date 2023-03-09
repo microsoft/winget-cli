@@ -9,6 +9,7 @@
 #include "PackageCatalog.h"
 #include "PackageInstallerInfo.h"
 #include "CatalogPackage.h"
+#include "CatalogPackageMetadata.h"
 #include "ComContext.h"
 #include "Workflows/WorkflowBase.h"
 #include "Workflows/ManifestComparator.h"
@@ -21,6 +22,7 @@
 #include "PackageManager.h"
 #pragma warning( pop )
 #include <wil\cppwinrt_wrl.h>
+#include <winget/Locale.h>
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
@@ -106,7 +108,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         return m_packageCatalog;
     }
 
-    winrt::Microsoft::Management::Deployment::CompareResult PackageVersionInfo::CompareToVersion(hstring versionString)
+    winrt::Microsoft::Management::Deployment::CompareResult PackageVersionInfo::CompareToVersion(const hstring& versionString)
     {
         if (versionString.empty())
         {
@@ -158,5 +160,35 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         {
             return nullptr;
         }
+    }
+    Microsoft::Management::Deployment::CatalogPackageMetadata PackageVersionInfo::GetCatalogPackageMetadata()
+    {
+        auto catalogPackageMetadata = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::CatalogPackageMetadata>>();
+        if (m_packageVersion)
+        {
+            auto manifest = m_packageVersion->GetManifest();
+            manifest.ApplyLocale();
+            catalogPackageMetadata->Initialize(manifest.CurrentLocalization);
+        }
+
+        return *catalogPackageMetadata;
+    }
+    Microsoft::Management::Deployment::CatalogPackageMetadata PackageVersionInfo::GetCatalogPackageMetadata(const hstring& preferredLocale)
+    {
+        std::string localeString = winrt::to_string(preferredLocale);
+        if (!::AppInstaller::Locale::IsWellFormedBcp47Tag(localeString))
+        {
+            throw hresult_invalid_argument();
+        }
+
+        auto catalogPackageMetadata = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::CatalogPackageMetadata>>();
+        if (m_packageVersion)
+        {
+            auto manifest = m_packageVersion->GetManifest();
+            manifest.ApplyLocale(localeString);
+            catalogPackageMetadata->Initialize(manifest.CurrentLocalization);
+        }
+
+        return *catalogPackageMetadata;
     }
 }
