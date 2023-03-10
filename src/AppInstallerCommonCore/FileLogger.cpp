@@ -24,16 +24,7 @@ namespace AppInstaller::Logging
     {
         m_name = GetNameForPath(filePath);
         m_filePath = filePath;
-
-        // Prevent inheritance to ensure log file handle is not opened by other processes.
-        FILE* filePtr;
-        if (!fopen_s(&filePtr, m_filePath.string().c_str(), "w") && filePtr != NULL)
-        {
-            SetHandleInformation((HANDLE)_get_osfhandle(_fileno(filePtr)), HANDLE_FLAG_INHERIT, 0);
-            std::ofstream outFile(filePtr);
-        }
-
-        m_stream.open(m_filePath, s_fileLoggerDefaultOpenMode);
+        OpenFileLoggerStream();
     }
 
     FileLogger::FileLogger(const std::string_view fileNamePrefix)
@@ -41,8 +32,7 @@ namespace AppInstaller::Logging
         m_name = "file";
         m_filePath = Runtime::GetPathTo(Runtime::PathName::DefaultLogLocation);
         m_filePath /= fileNamePrefix.data() + ('-' + Utility::GetCurrentTimeForFilename() + s_fileLoggerDefaultFileExt.data());
-
-        m_stream.open(m_filePath, s_fileLoggerDefaultOpenMode);
+        OpenFileLoggerStream();
     }
 
     FileLogger::~FileLogger()
@@ -133,5 +123,23 @@ namespace AppInstaller::Logging
                 // Just throw out everything
                 catch (...) {}
             }).detach();
+    }
+
+    void FileLogger::OpenFileLoggerStream() 
+    {
+        // Prevent inheritance to ensure log file handle is not opened by other processes.
+        FILE* filePtr;
+        if (!fopen_s(&filePtr, m_filePath.string().c_str(), "w") && filePtr != NULL)
+        {
+            if (!SetHandleInformation((HANDLE)_get_osfhandle(_fileno(filePtr)), HANDLE_FLAG_INHERIT, 0))
+            {
+                THROW_LAST_ERROR();
+            }
+            m_stream = std::ofstream{ filePtr };
+        }
+        else
+        {
+            throw std::system_error(errno, std::generic_category());
+        }
     }
 }
