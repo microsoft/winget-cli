@@ -73,7 +73,7 @@ Example Package     Example.Package  1.2.5     * 1.2.5      winget
 ### `winget install Example.Package --version 1.2.4.7b`
 *This would install version 1.2.4.7b*
 ```
-Found Badlion Client [Badlion.BadlionClient] Version 1.2.4 beta
+Found Example Package [Example.Package] Version 1.2.4 beta
 This application is licensed to you by its owner.
 ...
 ```
@@ -81,7 +81,7 @@ This application is licensed to you by its owner.
 ### `winget install Example.Package --version '1.2.4 beta'`
 *This would install version 1.2.4.8b*
 ```
-Found Badlion Client [Badlion.BadlionClient] Version 1.2.4 beta
+Found Example Package [Example.Package] Version 1.2.4 beta
 This application is licensed to you by its owner.
 ...
 ```
