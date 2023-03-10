@@ -402,6 +402,7 @@ Webserver
 websites
 WERSJA
 wesome
+wfopen
 Whatif
 winapifamily
 windir
