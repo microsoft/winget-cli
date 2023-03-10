@@ -128,16 +128,16 @@ namespace AppInstaller::Logging
     {
         // Prevent inheritance to ensure log file handle is not opened by other processes.
         FILE* filePtr;
-        errno_t error = fopen_s(&filePtr, m_filePath.string().c_str(), "w");
-        if (error || filePtr == NULL)
+        errno_t fopenError = _wfopen_s(&filePtr, m_filePath.wstring().c_str(), L"w");
+        if (!fopenError)
         {
-            throw std::system_error(errno, std::generic_category());
+            THROW_HR_IF(E_UNEXPECTED, filePtr == nullptr);
+            THROW_IF_WIN32_BOOL_FALSE(SetHandleInformation(reinterpret_cast<HANDLE>(_get_osfhandle(_fileno(filePtr))), HANDLE_FLAG_INHERIT, 0));
+            m_stream = std::ofstream{ filePtr };
         }
-
-        if (!SetHandleInformation((HANDLE)_get_osfhandle(_fileno(filePtr)), HANDLE_FLAG_INHERIT, 0))
+        else
         {
-            THROW_LAST_ERROR();
+            throw std::system_error(fopenError, std::generic_category());
         }
-        m_stream = std::ofstream{ filePtr };
     }
 }

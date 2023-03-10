@@ -71,6 +71,7 @@ contactsupport
 contentfiles
 contoso
 contractversion
+corecrt
 count'th
 countof
 countryregion
@@ -250,6 +251,7 @@ nuffing
 objbase
 objidl
 ofile
+osfhandle
 Outptr
 packageinuse
 packageinusebyapplication
