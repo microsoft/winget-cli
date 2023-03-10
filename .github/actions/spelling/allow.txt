@@ -594,6 +594,8 @@ toupper
 TOutput
 towlower
 TRACELOGGING
+Trenly
+trenlymc
 triaged
 trunc
 TRUSTEDPEOPLE
