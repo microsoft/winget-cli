@@ -109,7 +109,7 @@
         copy "$(TargetDir)..\..\..\..\$(PlatformTarget)\$(Configuration)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.dll"
         copy "$(TargetDir)..\..\..\..\$(PlatformTarget)\$(Configuration)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd"
         copy "$(TargetDir)..\..\..\..\$(PlatformTarget)\$(Configuration)\Microsoft.Management.Configuration.Processor\$(ConfigTargetFramework)\$(ConfigServerRid)\Microsoft.Management.Configuration.Processor.winmd"
-        xcopy "$(TargetDir)..\..\..\..\$(PlatformTarget)\$(Configuration)\ConfigurationRemotingServer\$(ConfigTargetFramework)\$(ConfigServerRid)" "$(TargetDir)ConfigurationRemotingServer\" /y /d /s
+        xcopy "$(TargetDir)..\..\..\..\$(PlatformTarget)\$(Configuration)\ConfigurationRemotingServer\$(ConfigTargetFramework)\$(ConfigServerRid)\" "$(TargetDir)ConfigurationRemotingServer\" /y /d /s
     </PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
