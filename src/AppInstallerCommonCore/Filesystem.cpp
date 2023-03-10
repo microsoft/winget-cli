@@ -209,7 +209,7 @@ namespace AppInstaller::Filesystem
 
         while (prefixItr != prefix.end() && sourceItr != source.end())
         {
-            if (*prefixItr != *sourceItr)
+            if (Utility::ICUCaseInsensitiveEquals(prefixItr->u8string(), sourceItr->u8string()))
             {
                 break;
             }
