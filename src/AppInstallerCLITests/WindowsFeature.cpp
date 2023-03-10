@@ -14,9 +14,7 @@ using namespace AppInstaller::Utility;
 using namespace AppInstaller::WindowsFeature;
 using namespace TestCommon;
 
-const std::string s_featureName = "netfx3";
-
-TEST_CASE("InstallFlow_InvalidWindowsFeature", "[windowsFeature]")
+TEST_CASE("InstallFlow_WindowsFeatureDoesNotExist", "[windowsFeature]")
 {
     if (!AppInstaller::Runtime::IsRunningAsAdmin())
     {
@@ -33,7 +31,9 @@ TEST_CASE("InstallFlow_InvalidWindowsFeature", "[windowsFeature]")
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForShellExecute(context);
-    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_InvalidWindowsFeatures.yaml").GetPath().u8string());
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_WindowsFeatures.yaml").GetPath().u8string());
+
+    auto doesFeatureExistOverride = TestHook::SetDoesWindowsFeatureExistResult_Override(false);
 
     InstallCommand install({});
     install.Execute(context);
@@ -41,10 +41,10 @@ TEST_CASE("InstallFlow_InvalidWindowsFeature", "[windowsFeature]")
 
     REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_INSTALL_MISSING_DEPENDENCY);
     REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::WindowsFeatureNotFound(LocIndView{ "invalidFeature" })).get()) != std::string::npos);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::WindowsFeatureNotFound(LocIndView{ "testFeature1" })).get()) != std::string::npos);
 
     // "badFeature" should not be displayed as the flow should terminate after failing to find the first feature.
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::WindowsFeatureNotFound(LocIndView{ "badFeature" })).get()) == std::string::npos);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::WindowsFeatureNotFound(LocIndView{ "testFeature2" })).get()) == std::string::npos);
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::FailedToEnableWindowsFeatureOverrideRequired).get()) != std::string::npos);
 }
 
@@ -61,16 +61,19 @@ TEST_CASE("InstallFlow_FailedToEnableWindowsFeature", "[windowsFeature]")
     TestCommon::TestUserSettings testSettings;
     testSettings.Set<Setting::EFWindowsFeature>(true);
 
-    // Override with arbitrary DISM api error (DISMAPI_E_DISMAPI_NOT_INITIALIZED) and make windows feature discoverable.
-    HRESULT dismErrorResult = 0xc0040001;
-    TestHook::SetEnableWindowsFeatureResult_Override enableWindowsFeatureResultOverride(dismErrorResult);
-    TestHook::SetIsWindowsFeatureEnabledResult_Override isWindowsFeatureEnabledResultOverride(false);
-
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForShellExecute(context);
-    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_InvalidWindowsFeatures.yaml").GetPath().u8string());
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_WindowsFeatures.yaml").GetPath().u8string());
+
+    // Override with arbitrary DISM api error (DISMAPI_E_DISMAPI_NOT_INITIALIZED) and make windows feature discoverable.
+    HRESULT dismErrorResult = 0xc0040001;
+    auto setEnableFeatureOverride = TestHook::SetEnableWindowsFeatureResult_Override(dismErrorResult);
+    auto doesFeatureExistOverride = TestHook::SetDoesWindowsFeatureExistResult_Override(true);
+    auto setIsFeatureEnabledOverride = TestHook::SetIsWindowsFeatureEnabledResult_Override(false);
+    auto getDisplayNameOverride = TestHook::SetWindowsFeatureGetDisplayNameResult_Override(L"Test Windows Feature");
+    auto getRestartStatusOverride = TestHook::SetWindowsFeatureGetRestartStatusResult_Override(DismRestartNo);
 
     InstallCommand install({});
     install.Execute(context);
@@ -96,14 +99,17 @@ TEST_CASE("InstallFlow_FailedToEnableWindowsFeature_Force", "[windowsFeature]")
 
     // Override with arbitrary DISM api error (DISMAPI_E_DISMAPI_NOT_INITIALIZED) and make windows feature discoverable.
     HRESULT dismErrorResult = 0xc0040001;
-    TestHook::SetEnableWindowsFeatureResult_Override enableWindowsFeatureResultOverride(dismErrorResult);
-    TestHook::SetIsWindowsFeatureEnabledResult_Override isWindowsFeatureEnabledResultOverride(false);
+    auto setEnableFeatureOverride = TestHook::SetEnableWindowsFeatureResult_Override(dismErrorResult);
+    auto doesFeatureExistOverride = TestHook::SetDoesWindowsFeatureExistResult_Override(true);
+    auto setIsFeatureEnabledOverride = TestHook::SetIsWindowsFeatureEnabledResult_Override(false);
+    auto getDisplayNameOverride = TestHook::SetWindowsFeatureGetDisplayNameResult_Override(L"Test Windows Feature");
+    auto getRestartStatusOverride = TestHook::SetWindowsFeatureGetRestartStatusResult_Override(DismRestartNo);
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
     OverrideForShellExecute(context);
-    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_InvalidWindowsFeatures.yaml").GetPath().u8string());
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_WindowsFeatures.yaml").GetPath().u8string());
     context.Args.AddArg(Execution::Args::Type::Force);
 
     InstallCommand install({});
@@ -112,7 +118,8 @@ TEST_CASE("InstallFlow_FailedToEnableWindowsFeature_Force", "[windowsFeature]")
 
     // Verify Installer is called and parameters are passed in.
     REQUIRE(context.GetTerminationHR() == ERROR_SUCCESS);
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::FailedToEnableWindowsFeature(LocIndString{s_featureName})).get()) != std::string::npos);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::FailedToEnableWindowsFeature(LocIndView{ "testFeature1" })).get()) != std::string::npos);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::FailedToEnableWindowsFeature(LocIndView{ "testFeature2" })).get()) != std::string::npos);
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::FailedToEnableWindowsFeatureOverridden).get()) != std::string::npos);
     REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
     std::ifstream installResultFile(installResultPath.GetPath());
@@ -137,8 +144,11 @@ TEST_CASE("InstallFlow_RebootRequired", "[windowsFeature]")
     testSettings.Set<Setting::EFWindowsFeature>(true);
 
     // Override with reboot required HRESULT.
-    TestHook::SetEnableWindowsFeatureResult_Override enableWindowsFeatureResultOverride(ERROR_SUCCESS_REBOOT_REQUIRED);
-    TestHook::SetIsWindowsFeatureEnabledResult_Override isWindowsFeatureEnabledResultOverride(false);
+    auto setEnableFeatureOverride = TestHook::SetEnableWindowsFeatureResult_Override(ERROR_SUCCESS_REBOOT_REQUIRED);
+    auto setIsFeatureEnabledOverride = TestHook::SetIsWindowsFeatureEnabledResult_Override (false);
+    auto doesFeatureExistOverride = TestHook::SetDoesWindowsFeatureExistResult_Override(true);
+    auto getDisplayNameOverride = TestHook::SetWindowsFeatureGetDisplayNameResult_Override(L"Test Windows Feature");
+    auto getRestartStatusOverride = TestHook::SetWindowsFeatureGetRestartStatusResult_Override(DismRestartRequired);
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
@@ -169,8 +179,11 @@ TEST_CASE("InstallFlow_RebootRequired_Force", "[windowsFeature]")
     testSettings.Set<Setting::EFWindowsFeature>(true);
 
     // Override with reboot required HRESULT.
-    TestHook::SetEnableWindowsFeatureResult_Override enableWindowsFeatureResultOverride(ERROR_SUCCESS_REBOOT_REQUIRED);
-    TestHook::SetIsWindowsFeatureEnabledResult_Override isWindowsFeatureEnabledResultOverride(false);
+    auto setEnableFeatureOverride = TestHook::SetEnableWindowsFeatureResult_Override(ERROR_SUCCESS_REBOOT_REQUIRED);
+    auto setIsFeatureEnabledOverride = TestHook::SetIsWindowsFeatureEnabledResult_Override(false);
+    auto doesFeatureExistOverride = TestHook::SetDoesWindowsFeatureExistResult_Override(true);
+    auto getDisplayNameOverride = TestHook::SetWindowsFeatureGetDisplayNameResult_Override(L"Test Windows Feature");
+    auto getRestartStatusOverride = TestHook::SetWindowsFeatureGetRestartStatusResult_Override(DismRestartRequired);
 
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };

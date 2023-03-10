@@ -618,9 +618,6 @@
     <CopyFileToFolders Include="TestData\InstallFlowTest_WindowsFeatures.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\InstallFlowTest_InvalidWindowsFeatures.yaml">
-      <Filter>TestData</Filter>
-    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_Zip_Exe.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>

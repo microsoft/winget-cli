@@ -124,20 +124,12 @@ namespace AppInstaller::WindowsFeature
             HRESULT Disable();
             bool DoesExist();
             bool IsEnabled();
-
-            std::wstring GetDisplayName()
-            {
-                return std::wstring{ m_featureInfo->DisplayName };
-            }
+            std::wstring GetDisplayName();
+            DismRestartType GetRestartRequiredStatus();
 
             DismPackageFeatureState GetState()
             {
                 return m_featureInfo->FeatureState;
-            }
-
-            DismRestartType GetRestartRequiredStatus()
-            {
-                return m_featureInfo->RestartRequired;
             }
 
             ~WindowsFeature()
@@ -150,6 +142,9 @@ namespace AppInstaller::WindowsFeature
 
         private:
             friend DismHelper;
+
+            // This default constructor is only used for mocking unit tests.
+            WindowsFeature(){};
 
             WindowsFeature(
                 const std::string& name,
@@ -167,7 +162,7 @@ namespace AppInstaller::WindowsFeature
             DismEnableFeaturePtr m_enableFeature = nullptr;
             DismDisableFeaturePtr m_disableFeaturePtr = nullptr;
             DismDeletePtr m_deletePtr = nullptr;
-            DismSession m_session;
+            DismSession m_session = DISM_SESSION_DEFAULT;
         };
 
         DismHelper();
@@ -178,10 +173,7 @@ namespace AppInstaller::WindowsFeature
             Shutdown();
         };
 
-        WindowsFeature CreateWindowsFeature(const std::string& name)
-        {
-            return WindowsFeature(name, m_dismGetFeatureInfo, m_dismEnableFeature, m_dismDisableFeature, m_dismDelete, m_dismSession);
-        }
+        WindowsFeature CreateWindowsFeature(const std::string& name);
 
     private:
         typedef UINT DismSession;

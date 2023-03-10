@@ -16,7 +16,6 @@ namespace AppInstaller::Logging
 
     static constexpr std::string_view s_fileLoggerDefaultFilePrefix = "WinGet"sv;
     static constexpr std::string_view s_fileLoggerDefaultFileExt = ".log"sv;
-    static constexpr std::ios_base::openmode s_fileLoggerDefaultOpenMode = std::ios_base::out | std::ios_base::app;
 
     FileLogger::FileLogger() : FileLogger(s_fileLoggerDefaultFilePrefix) {}
 
@@ -129,17 +128,16 @@ namespace AppInstaller::Logging
     {
         // Prevent inheritance to ensure log file handle is not opened by other processes.
         FILE* filePtr;
-        if (!fopen_s(&filePtr, m_filePath.string().c_str(), "w") && filePtr != NULL)
-        {
-            if (!SetHandleInformation((HANDLE)_get_osfhandle(_fileno(filePtr)), HANDLE_FLAG_INHERIT, 0))
-            {
-                THROW_LAST_ERROR();
-            }
-            m_stream = std::ofstream{ filePtr };
-        }
-        else
+        errno_t error = fopen_s(&filePtr, m_filePath.string().c_str(), "w");
+        if (error || filePtr == NULL)
         {
             throw std::system_error(errno, std::generic_category());
         }
+
+        if (!SetHandleInformation((HANDLE)_get_osfhandle(_fileno(filePtr)), HANDLE_FLAG_INHERIT, 0))
+        {
+            THROW_LAST_ERROR();
+        }
+        m_stream = std::ofstream{ filePtr };
     }
 }

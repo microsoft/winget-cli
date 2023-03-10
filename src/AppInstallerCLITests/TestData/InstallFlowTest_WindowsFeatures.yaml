@@ -17,6 +17,7 @@ Installers:
         Update: /update
       Dependencies:
         WindowsFeatures:
-        - netfx3
+        - testFeature1
+        - testFeature2
 ManifestType: singleton
 ManifestVersion: 1.4.0

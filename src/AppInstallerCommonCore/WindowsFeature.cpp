@@ -7,8 +7,21 @@
 
 namespace AppInstaller::WindowsFeature
 {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    static bool s_Mock_DismHelper_Override = true;
+#endif
+
     DismHelper::DismHelper()
     {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        // The entire DismHelper class needs to be mocked since DismHost.exe inherits log file handles.
+        // Without this, the unit tests will fail to complete waiting for DismHost.exe to release the log file handles.
+        if (s_Mock_DismHelper_Override)
+        {
+            return;
+        }
+#endif
+
         m_module.reset(LoadLibraryEx(L"dismapi.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32));
         if (!m_module)
         {
@@ -84,6 +97,16 @@ namespace AppInstaller::WindowsFeature
         OpenSession();
     }
 
+    DismHelper::WindowsFeature DismHelper::CreateWindowsFeature(const std::string& name)
+    {
+        if (s_Mock_DismHelper_Override)
+        {
+            return WindowsFeature();
+        }
+
+        return WindowsFeature(name, m_dismGetFeatureInfo, m_dismEnableFeature, m_dismDisableFeature, m_dismDelete, m_dismSession);
+    }
+
     void DismHelper::Initialize()
     {
         if (m_dismInitialize)
@@ -141,6 +164,34 @@ namespace AppInstaller::WindowsFeature
     {
         s_EnableWindowsFeatureResult_TestHook_Override = result;
     }
+
+    static bool* s_DoesWindowsFeatureExistResult_TestHook_Override = nullptr;
+
+    void TestHook_SetDoesWindowsFeatureExistResult_Override(bool* result)
+    {
+        s_DoesWindowsFeatureExistResult_TestHook_Override = result;
+    }
+
+    static bool* s_IsWindowsFeatureEnabledResult_TestHook_Override = nullptr;
+
+    void TestHook_SetIsWindowsFeatureEnabledResult_Override(bool* status)
+    {
+        s_IsWindowsFeatureEnabledResult_TestHook_Override = status;
+    }
+
+    static std::wstring* s_WindowsFeatureGetDisplayNameResult_TestHook_Override = nullptr;
+
+    void TestHook_SetWindowsFeatureGetDisplayNameResult_Override(std::wstring* displayName)
+    {
+        s_WindowsFeatureGetDisplayNameResult_TestHook_Override = displayName;
+    }
+
+    static DismRestartType* s_WindowsFeatureGetRestartRequiredStatusResult_TestHook_Override = nullptr;
+
+    void TestHook_SetWindowsFeatureGetRestartStatusResult_Override(DismRestartType* restartType)
+    {
+        s_WindowsFeatureGetRestartRequiredStatusResult_TestHook_Override = restartType;
+    }
 #endif
 
     HRESULT DismHelper::WindowsFeature::Enable()
@@ -175,17 +226,14 @@ namespace AppInstaller::WindowsFeature
 
     bool DismHelper::WindowsFeature::DoesExist()
     {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (s_DoesWindowsFeatureExistResult_TestHook_Override)
+        {
+            return *s_DoesWindowsFeatureExistResult_TestHook_Override;
+        }
+#endif
         return m_featureInfo;
     }
-
-#ifndef AICLI_DISABLE_TEST_HOOKS
-    static bool* s_IsWindowsFeatureEnabledResult_TestHook_Override = nullptr;
-
-    void TestHook_SetIsWindowsFeatureEnabledResult_Override(bool* status)
-    {
-        s_IsWindowsFeatureEnabledResult_TestHook_Override = status;
-    }
-#endif
 
     bool DismHelper::WindowsFeature::IsEnabled()
     {
@@ -200,6 +248,28 @@ namespace AppInstaller::WindowsFeature
         DismPackageFeatureState featureState = GetState();
         AICLI_LOG(Core, Info, << "Feature state of " << m_featureName << " is " << featureState);
         return featureState == DismStateInstalled;
+    }
+
+    std::wstring DismHelper::WindowsFeature::GetDisplayName()
+    {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (s_WindowsFeatureGetDisplayNameResult_TestHook_Override)
+        {
+            return *s_WindowsFeatureGetDisplayNameResult_TestHook_Override;
+        }
+#endif
+        return std::wstring{ m_featureInfo->DisplayName };
+    }
+
+    DismRestartType DismHelper::WindowsFeature::GetRestartRequiredStatus()
+    {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (s_WindowsFeatureGetRestartRequiredStatusResult_TestHook_Override)
+        {
+            return *s_WindowsFeatureGetRestartRequiredStatusResult_TestHook_Override;
+        }
+#endif
+        return m_featureInfo->RestartRequired;
     }
 
     void DismHelper::WindowsFeature::GetFeatureInfo()

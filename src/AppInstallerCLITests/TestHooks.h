@@ -11,6 +11,7 @@
 #include <AppInstallerRuntime.h>
 #include <winget/UserSettings.h>
 #include <winget/Filesystem.h>
+#include <winget/WindowsFeature.h>
 
 #ifdef AICLI_DISABLE_TEST_HOOKS
 static_assert(false, "Test hooks have been disabled");
@@ -63,6 +64,9 @@ namespace AppInstaller
     {
         void TestHook_SetEnableWindowsFeatureResult_Override(HRESULT* result);
         void TestHook_SetIsWindowsFeatureEnabledResult_Override(bool* status);
+        void TestHook_SetDoesWindowsFeatureExistResult_Override(bool* status);
+        void TestHook_SetWindowsFeatureGetDisplayNameResult_Override(std::wstring* displayName);
+        void TestHook_SetWindowsFeatureGetRestartStatusResult_Override(AppInstaller::WindowsFeature::DismRestartType* restartType);
     }
 }
 
@@ -143,5 +147,53 @@ namespace TestHook
 
     private:
         bool m_status;
+    };
+
+    struct SetDoesWindowsFeatureExistResult_Override
+    {
+        SetDoesWindowsFeatureExistResult_Override(bool status) : m_status(status)
+        {
+            AppInstaller::WindowsFeature::TestHook_SetDoesWindowsFeatureExistResult_Override(&m_status);
+        }
+
+        ~SetDoesWindowsFeatureExistResult_Override()
+        {
+            AppInstaller::WindowsFeature::TestHook_SetDoesWindowsFeatureExistResult_Override(nullptr);
+        }
+
+    private:
+        bool m_status;
+    };
+
+    struct SetWindowsFeatureGetDisplayNameResult_Override
+    {
+        SetWindowsFeatureGetDisplayNameResult_Override(std::wstring displayName) : m_displayName(displayName)
+        {
+            AppInstaller::WindowsFeature::TestHook_SetWindowsFeatureGetDisplayNameResult_Override(&m_displayName);
+        }
+
+        ~SetWindowsFeatureGetDisplayNameResult_Override()
+        {
+            AppInstaller::WindowsFeature::TestHook_SetWindowsFeatureGetDisplayNameResult_Override(nullptr);
+        }
+
+    private:
+        std::wstring m_displayName;
+    };
+
+    struct SetWindowsFeatureGetRestartStatusResult_Override
+    {
+        SetWindowsFeatureGetRestartStatusResult_Override(AppInstaller::WindowsFeature::DismRestartType restartType) : m_restartType(restartType)
+        {
+            AppInstaller::WindowsFeature::TestHook_SetWindowsFeatureGetRestartStatusResult_Override(&m_restartType);
+        }
+
+        ~SetWindowsFeatureGetRestartStatusResult_Override()
+        {
+            AppInstaller::WindowsFeature::TestHook_SetWindowsFeatureGetRestartStatusResult_Override(nullptr);
+        }
+
+    private:
+        AppInstaller::WindowsFeature::DismRestartType m_restartType;
     };
 }
