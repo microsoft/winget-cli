@@ -56,6 +56,8 @@
     <DefaultLanguage>en-US</DefaultLanguage>
     <AppxPackageSigningEnabled>false</AppxPackageSigningEnabled>
     <EntryPointProjectUniqueName>..\AppInstallerCLI\AppInstallerCLI.vcxproj</EntryPointProjectUniqueName>
+    <ConfigTargetFramework>net6.0-windows10.0.19041.0</ConfigTargetFramework>
+    <DisableFastUpToDateCheck>True</DisableFastUpToDateCheck>
   </PropertyGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
@@ -97,36 +99,51 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\AppInstallerCLI\AppInstallerCLI.vcxproj" />
-    <ProjectReference
-      Include="..\ConfigurationRemotingServer\ConfigurationRemotingServer.csproj"
-      SkipGetTargetFrameworkProperties="true" 
-      Properties="RuntimeIdentifier=$(ConfigServerRid);SelfContainer=true"/>
     <ProjectReference Include="..\WinGetServer\WinGetServer.vcxproj" />
   </ItemGroup>
   <Import Project="$(WapProjPath)\Microsoft.DesktopBridge.targets" />
+  <PropertyGroup Label="ConfigurationFiles">
+    <!-- When someone figures out how to get the files we want from ConfigurationRemotingServer in the build service remove xcopy -->
+    <PreBuildEvent>
+        echo Copying ConfigurationRemotingServer files
+        copy "$(TargetDir)..\..\..\..\$(PlatformTarget)\$(Configuration)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.dll"
+        copy "$(TargetDir)..\..\..\..\$(PlatformTarget)\$(Configuration)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd"
+        copy "$(TargetDir)..\..\..\..\$(PlatformTarget)\$(Configuration)\Microsoft.Management.Configuration.Processor\$(ConfigTargetFramework)\$(ConfigServerRid)\Microsoft.Management.Configuration.Processor.winmd"
+        xcopy "$(TargetDir)..\..\..\..\$(PlatformTarget)\$(Configuration)\ConfigurationRemotingServer\$(ConfigTargetFramework)\$(ConfigServerRid)" "$(TargetDir)ConfigurationRemotingServer\" /y /d /s
+    </PreBuildEvent>
+  </PropertyGroup>
   <PropertyGroup Label="Configuration">
     <PostBuildEvent>
       copy "$(TargetDir)\resources.pri" "$(ProjectDir)\..\$(Platform)\$(Configuration)\AppInstallerCLI\resources.pri"
       copy "$(TargetDir)\resources.pri" "$(TargetDir)\AppInstallerCLI\resources.pri"
     </PostBuildEvent>
   </PropertyGroup>
+
   <Target Name="IncludeWinMdInPackage" AfterTargets="_ComputeAppxPackagePayload">
     <PropertyGroup>
+      <!-- WindowsPackageManager -->
       <WindowsPackageManagerPath>$(OutputPath)\..\WindowsPackageManager.dll</WindowsPackageManagerPath>
       <WindowsPackageManagerPath Condition="!Exists('$(WindowsPackageManagerPath)')">$(TargetDir)..\..\..\..\$(PlatformTarget)\$(Configuration)\WindowsPackageManager\WindowsPackageManager.dll</WindowsPackageManagerPath>
       <WindowsPackageManagerFileName>WindowsPackageManager.dll</WindowsPackageManagerFileName>
+      <!-- Microsoft.Management.Deployment -->
       <MicrosoftManagementDeploymentPath>$(OutputPath)\..\Microsoft.Management.Deployment\Microsoft.Management.Deployment.winmd</MicrosoftManagementDeploymentPath>
       <MicrosoftManagementDeploymentPath Condition="!Exists('$(MicrosoftManagementDeploymentPath)')">$(TargetDir)..\..\..\..\$(PlatformTarget)\$(Configuration)\Microsoft.Management.Deployment\Microsoft.Management.Deployment.winmd</MicrosoftManagementDeploymentPath>
       <MicrosoftManagementDeploymentFileName>Microsoft.Management.Deployment.winmd</MicrosoftManagementDeploymentFileName>
-      <ConfigurationDllPath>$(OutputPath)\..\Microsoft.Management.Configuration.dll</ConfigurationDllPath>
+      <!-- Configuration DLL -->
+      <ConfigurationDllPath>$(OutputPath)\..\..\..\..\$(PlatformTarget)\$(Configuration)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.dll</ConfigurationDllPath>
       <ConfigurationDllPath Condition="!Exists('$(ConfigurationDllPath)')">$(TargetDir)..\..\..\..\$(PlatformTarget)\$(Configuration)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.dll</ConfigurationDllPath>
       <ConfigurationDllFileName>Microsoft.Management.Configuration.dll</ConfigurationDllFileName>
-      <MicrosoftManagementConfigurationPath>$(OutputPath)\..\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd</MicrosoftManagementConfigurationPath>
+      <!-- Configuration WINMD -->
+      <MicrosoftManagementConfigurationPath>$(OutputPath)\..\..\..\..\$(PlatformTarget)\$(Configuration)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd</MicrosoftManagementConfigurationPath>
       <MicrosoftManagementConfigurationPath Condition="!Exists('$(MicrosoftManagementConfigurationPath)')">$(TargetDir)..\..\..\..\$(PlatformTarget)\$(Configuration)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd</MicrosoftManagementConfigurationPath>
       <MicrosoftManagementConfigurationFileName>Microsoft.Management.Configuration.winmd</MicrosoftManagementConfigurationFileName>
-      <MicrosoftManagementConfigurationProcessorPath>$(OutputPath)\..\..\AnyCPU\Microsoft.Management.Configuration.Processor\net6.0-windows10.0.19041.0\Microsoft.Management.Configuration.Processor.winmd</MicrosoftManagementConfigurationProcessorPath>
-      <MicrosoftManagementConfigurationProcessorPath Condition="!Exists('$(MicrosoftManagementConfigurationProcessorPath)')">$(TargetDir)..\..\..\..\AnyCPU\$(Configuration)\Microsoft.Management.Configuration.Processor\net6.0-windows10.0.19041.0\Microsoft.Management.Configuration.Processor.winmd</MicrosoftManagementConfigurationProcessorPath>
+      <!-- Configuration processor WINMD -->
+      <MicrosoftManagementConfigurationProcessorPath>$(OutputPath)\..\..\..\..\$(PlatformTarget)\$(Configuration)\Microsoft.Management.Configuration.Processor\$(ConfigTargetFramework)\$(ConfigServerRid)\Microsoft.Management.Configuration.Processor.winmd</MicrosoftManagementConfigurationProcessorPath>
+      <MicrosoftManagementConfigurationProcessorPath Condition="!Exists('$(MicrosoftManagementConfigurationProcessorPath)')">$(TargetDir)..\..\..\..\$(PlatformTarget)\$(Configuration)\Microsoft.Management.Configuration.Processor\$(ConfigTargetFramework)\$(ConfigServerRid)\Microsoft.Management.Configuration.Processor.winmd</MicrosoftManagementConfigurationProcessorPath>
       <MicrosoftManagementConfigurationProcessorFileName>Microsoft.Management.Configuration.Processor.winmd</MicrosoftManagementConfigurationProcessorFileName>
+      <!-- ConfigurationRemotingServer -->
+      <ConfigurationRemotingServerPath>$(OutputPath)\..\..\..\..\$(PlatformTarget)\$(Configuration)\ConfigurationRemotingServer\$(ConfigTargetFramework)\$(ConfigServerRid)\</ConfigurationRemotingServerPath>
+      <ConfigurationRemotingServerPath Condition="!Exists('$(MicrosoftManagementConfigurationProcessorPath)')">$(TargetDir)..\..\..\..\$(PlatformTarget)\$(Configuration)\ConfigurationRemotingServer\$(ConfigTargetFramework)\$(ConfigServerRid)\</ConfigurationRemotingServerPath>
     </PropertyGroup>
     <ItemGroup>
       <WindowsPackageManagerItem Include="$(WindowsPackageManagerPath)" />
@@ -134,17 +151,26 @@
       <ConfigurationDllItem Include="$(ConfigurationDllPath)" />
       <MicrosoftManagementConfigurationWinmd Include="$(MicrosoftManagementConfigurationPath)" />
       <MicrosoftManagementConfigurationProcessorWinmd Include="$(MicrosoftManagementConfigurationProcessorPath)" />
-    </ItemGroup>
+      <ConfigurationRemotingServerFiles Include="$(ConfigurationRemotingServerPath)\**" />
+  </ItemGroup>
+    <!-- WindowsPackageManager -->
     <Error Condition="!Exists('$(WindowsPackageManagerPath)')" Text="$(WindowsPackageManagerPath) was not found" />
-    <Error Condition="!Exists('$(MicrosoftManagementDeploymentPath)')" Text="$(MicrosoftManagementDeploymentPath) was not found" />
-    <Error Condition="!Exists('$(ConfigurationDllPath)')" Text="$(ConfigurationDllPath) was not found" />
-    <Error Condition="!Exists('$(MicrosoftManagementConfigurationPath)')" Text="$(MicrosoftManagementConfigurationPath) was not found" />
-    <Error Condition="!Exists('$(MicrosoftManagementConfigurationProcessorPath)')" Text="$(MicrosoftManagementConfigurationProcessorPath) was not found" />
-    <Message Importance="normal" Condition="Exists('$(WindowsPackageManagerPath)')" Text="$(WindowsPackageManagerPath) -&gt; $(WindowsPackageManagerFileName)" />
     <Message Importance="normal" Condition="Exists('$(MicrosoftManagementDeploymentPath)')" Text="$(MicrosoftManagementDeploymentPath) -&gt; $(MicrosoftManagementDeploymentFileName)" />
+    <!-- Microsoft.Management.Deployment -->
+    <Error Condition="!Exists('$(MicrosoftManagementDeploymentPath)')" Text="$(MicrosoftManagementDeploymentPath) was not found" />
+    <Message Importance="normal" Condition="Exists('$(WindowsPackageManagerPath)')" Text="$(WindowsPackageManagerPath) -&gt; $(WindowsPackageManagerFileName)" />
+    <!-- Configuration DLL -->
+    <Error Condition="!Exists('$(ConfigurationDllPath)')" Text="$(ConfigurationDllPath) was not found" />
     <Message Importance="normal" Condition="Exists('$(ConfigurationDllPath)')" Text="$(ConfigurationDllPath) -&gt; $(ConfigurationDllFileName)" />
+    <!-- Configuration WINMD -->
+    <Error Condition="!Exists('$(MicrosoftManagementConfigurationPath)')" Text="$(MicrosoftManagementConfigurationPath) was not found" />
     <Message Importance="normal" Condition="Exists('$(MicrosoftManagementConfigurationPath)')" Text="$(MicrosoftManagementConfigurationPath) -&gt; $(MicrosoftManagementConfigurationFileName)" />
+    <!-- Configuration processor WINMD -->
+    <Error Condition="!Exists('$(MicrosoftManagementConfigurationProcessorPath)')" Text="$(MicrosoftManagementConfigurationProcessorPath) was not found" />
     <Message Importance="normal" Condition="Exists('$(MicrosoftManagementConfigurationProcessorPath)')" Text="$(MicrosoftManagementConfigurationProcessorPath) -&gt; $(MicrosoftManagementConfigurationProcessorFileName)" />
+    <!-- ConfigurationRemotingServer -->
+    <Error Condition="!Exists('$(ConfigurationRemotingServerPath)')" Text="$(ConfigurationRemotingServerPath) was not found" />
+    <Message Importance="normal" Condition="Exists('$(ConfigurationRemotingServerPath)')" Text="$(ConfigurationRemotingServerPath) -&gt; $(ConfigurationRemotingServerOutPath)" />
     <ItemGroup>
       <AppxPackagePayload Include="@(WindowsPackageManagerItem)" KeepDuplicates="false">
         <TargetPath>$(WindowsPackageManagerFileName)</TargetPath>
@@ -161,6 +187,9 @@
       <AppxPackagePayload Include="@(MicrosoftManagementConfigurationProcessorWinmd)" KeepDuplicates="false">
         <TargetPath>$(MicrosoftManagementConfigurationProcessorFileName)</TargetPath>
       </AppxPackagePayload>
+      <!--<AppxPackagePayload Include="@(ConfigurationRemotingServerFiles)" KeepDuplicates="false">
+        <TargetPath>ConfigurationRemotingServer\$(RecursiveDir)$(Filename)$(extension)</TargetPath>
+      </AppxPackagePayload>-->
     </ItemGroup>
   </Target>
 </Project>
