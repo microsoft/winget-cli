@@ -863,20 +863,8 @@ namespace AppInstaller::CLI::Workflow
                 case OperationType::List:
                 case OperationType::Uninstall:
                 case OperationType::Pin:
-                    context.Reporter.Info() << Resource::String::NoInstalledPackageFound << std::endl;
-                    break;
                 case OperationType::Upgrade:
-                    // When the manifest argument is present, the installed source is queried instead of the configured sources
-                    if (context.Args.Contains(Execution::Args::Type::Manifest))
-                    {
-                        context.Reporter.Info() << Resource::String::NoInstalledPackageFound << std::endl;
-                    }
-                    else
-                    {
-                        context.Reporter.Info() << Resource::String::UpdateNoPackagesFound << std::endl
-                            << Resource::String::UpdateNoPackagesFoundReason << std::endl;
-                    }
-                    break;
+                    context.Reporter.Info() << Resource::String::NoInstalledPackageFound << std::endl;
                 case OperationType::Completion:
                 case OperationType::Install:
                 case OperationType::Search:
