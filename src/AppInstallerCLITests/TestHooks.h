@@ -62,6 +62,7 @@ namespace AppInstaller
 
     namespace WindowsFeature
     {
+        void TestHook_MockDismHelper_Override(bool status);
         void TestHook_SetEnableWindowsFeatureResult_Override(HRESULT* result);
         void TestHook_SetIsWindowsFeatureEnabledResult_Override(bool* status);
         void TestHook_SetDoesWindowsFeatureExistResult_Override(bool* status);
@@ -114,6 +115,19 @@ namespace TestHook
         ~SetPinningIndex_Override()
         {
             AppInstaller::Repository::Microsoft::TestHook_SetPinningIndex_Override({});
+        }
+    };
+
+    struct MockDismHelper_Override
+    {
+        MockDismHelper_Override()
+        {
+            AppInstaller::WindowsFeature::TestHook_MockDismHelper_Override(true);
+        }
+
+        ~MockDismHelper_Override()
+        {
+            AppInstaller::WindowsFeature::TestHook_MockDismHelper_Override(false);
         }
     };
 

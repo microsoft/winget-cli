@@ -8,7 +8,12 @@
 namespace AppInstaller::WindowsFeature
 {
 #ifndef AICLI_DISABLE_TEST_HOOKS
-    static bool s_Mock_DismHelper_Override = true;
+    static bool s_MockDismHelper_Override = false;
+
+    void TestHook_MockDismHelper_Override(bool status)
+    {
+        s_MockDismHelper_Override = status;
+    }
 #endif
 
     DismHelper::DismHelper()
@@ -16,7 +21,7 @@ namespace AppInstaller::WindowsFeature
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // The entire DismHelper class needs to be mocked since DismHost.exe inherits log file handles.
         // Without this, the unit tests will fail to complete waiting for DismHost.exe to release the log file handles.
-        if (s_Mock_DismHelper_Override)
+        if (s_MockDismHelper_Override)
         {
             return;
         }
@@ -99,11 +104,12 @@ namespace AppInstaller::WindowsFeature
 
     DismHelper::WindowsFeature DismHelper::CreateWindowsFeature(const std::string& name)
     {
-        if (s_Mock_DismHelper_Override)
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (s_MockDismHelper_Override)
         {
             return WindowsFeature();
         }
-
+#endif
         return WindowsFeature(name, m_dismGetFeatureInfo, m_dismEnableFeature, m_dismDisableFeature, m_dismDelete, m_dismSession);
     }
 

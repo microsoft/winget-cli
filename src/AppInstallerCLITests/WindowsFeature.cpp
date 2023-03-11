@@ -33,6 +33,7 @@ TEST_CASE("InstallFlow_WindowsFeatureDoesNotExist", "[windowsFeature]")
     OverrideForShellExecute(context);
     context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_WindowsFeatures.yaml").GetPath().u8string());
 
+    auto mockDismHelperOverride = TestHook::MockDismHelper_Override();
     auto doesFeatureExistOverride = TestHook::SetDoesWindowsFeatureExistResult_Override(false);
 
     InstallCommand install({});
@@ -69,6 +70,7 @@ TEST_CASE("InstallFlow_FailedToEnableWindowsFeature", "[windowsFeature]")
 
     // Override with arbitrary DISM api error (DISMAPI_E_DISMAPI_NOT_INITIALIZED) and make windows feature discoverable.
     HRESULT dismErrorResult = 0xc0040001;
+    auto mockDismHelperOverride = TestHook::MockDismHelper_Override();
     auto setEnableFeatureOverride = TestHook::SetEnableWindowsFeatureResult_Override(dismErrorResult);
     auto doesFeatureExistOverride = TestHook::SetDoesWindowsFeatureExistResult_Override(true);
     auto setIsFeatureEnabledOverride = TestHook::SetIsWindowsFeatureEnabledResult_Override(false);
@@ -99,6 +101,7 @@ TEST_CASE("InstallFlow_FailedToEnableWindowsFeature_Force", "[windowsFeature]")
 
     // Override with arbitrary DISM api error (DISMAPI_E_DISMAPI_NOT_INITIALIZED) and make windows feature discoverable.
     HRESULT dismErrorResult = 0xc0040001;
+    auto mockDismHelperOverride = TestHook::MockDismHelper_Override();
     auto setEnableFeatureOverride = TestHook::SetEnableWindowsFeatureResult_Override(dismErrorResult);
     auto doesFeatureExistOverride = TestHook::SetDoesWindowsFeatureExistResult_Override(true);
     auto setIsFeatureEnabledOverride = TestHook::SetIsWindowsFeatureEnabledResult_Override(false);
@@ -144,6 +147,7 @@ TEST_CASE("InstallFlow_RebootRequired", "[windowsFeature]")
     testSettings.Set<Setting::EFWindowsFeature>(true);
 
     // Override with reboot required HRESULT.
+    auto mockDismHelperOverride = TestHook::MockDismHelper_Override();
     auto setEnableFeatureOverride = TestHook::SetEnableWindowsFeatureResult_Override(ERROR_SUCCESS_REBOOT_REQUIRED);
     auto setIsFeatureEnabledOverride = TestHook::SetIsWindowsFeatureEnabledResult_Override (false);
     auto doesFeatureExistOverride = TestHook::SetDoesWindowsFeatureExistResult_Override(true);
@@ -179,6 +183,7 @@ TEST_CASE("InstallFlow_RebootRequired_Force", "[windowsFeature]")
     testSettings.Set<Setting::EFWindowsFeature>(true);
 
     // Override with reboot required HRESULT.
+    auto mockDismHelperOverride = TestHook::MockDismHelper_Override();
     auto setEnableFeatureOverride = TestHook::SetEnableWindowsFeatureResult_Override(ERROR_SUCCESS_REBOOT_REQUIRED);
     auto setIsFeatureEnabledOverride = TestHook::SetIsWindowsFeatureEnabledResult_Override(false);
     auto doesFeatureExistOverride = TestHook::SetDoesWindowsFeatureExistResult_Override(true);
