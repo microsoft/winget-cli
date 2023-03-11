@@ -17,7 +17,7 @@ namespace AppInstaller::CLI::Workflow
 {
     namespace
     {
-        bool IsUpdateVersionApplicable(const Utility::Version& installedVersion, const Utility::Version& updateVersion)
+        bool IsUpdateVersionAvailable(const Utility::Version& installedVersion, const Utility::Version& updateVersion)
         {
             return installedVersion < updateVersion;
         }
@@ -73,11 +73,18 @@ namespace AppInstaller::CLI::Workflow
 
         // The version keys should have already been sorted by version
         const auto& versionKeys = package->GetAvailableVersionKeys();
+        // Assume that no update versions are applicable
+        bool upgradeVersionAvailable = false;
         for (const auto& key : versionKeys)
         {
             // Check Applicable Version
-            if (!isUpgrade || IsUpdateVersionApplicable(installedVersion, Utility::Version(key.Version)))
+            if (!isUpgrade || IsUpdateVersionAvailable(installedVersion, Utility::Version(key.Version)))
             {
+                // The only way to enter this portion of the statement with isUpgrade is if the version is available
+                if (isUpgrade)
+                {
+                    upgradeVersionAvailable = true;
+                }
                 // Check if the package is pinned
                 if (key.PinnedState == Pinning::PinType::Blocking ||
                     key.PinnedState == Pinning::PinType::Gating ||
@@ -155,7 +162,18 @@ namespace AppInstaller::CLI::Workflow
                 }
                 else if (isUpgrade)
                 {
-                    context.Reporter.Info() << Resource::String::UpdateNotApplicable << std::endl;
+                    if (!upgradeVersionAvailable)
+                    {
+                        // This is the case when no newer versions are available in a configured source
+                        context.Reporter.Info() << Resource::String::UpdateNoPackagesFound << std::endl
+                            << Resource::String::UpdateNoPackagesFoundReason << std::endl;
+                    }
+                    else
+                    {
+                        // This is the case when newer versions are available in a configured source, but none are applicable due to OS Version, user requirement, etc.
+                        context.Reporter.Info() << Resource::String::UpdateNotApplicable << std::endl
+                            << Resource::String::UpdateNotApplicableReason << std::endl;
+                    }
                 }
                 else
                 {
@@ -173,9 +191,10 @@ namespace AppInstaller::CLI::Workflow
         Utility::Version installedVersion = Utility::Version(installedPackage->GetProperty(PackageVersionProperty::Version));
         Utility::Version updateVersion(context.Get<Execution::Data::Manifest>().Version);
 
-        if (!IsUpdateVersionApplicable(installedVersion, updateVersion))
+        if (!IsUpdateVersionAvailable(installedVersion, updateVersion))
         {
-            context.Reporter.Info() << Resource::String::UpdateNotApplicable << std::endl;
+            context.Reporter.Info() << Resource::String::UpdateNoPackagesFound << std::endl
+                << Resource::String::UpdateNoPackagesFoundReason << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
         }
     }
@@ -269,12 +288,16 @@ namespace AppInstaller::CLI::Workflow
 
     void SelectSinglePackageVersionForInstallOrUpgrade::operator()(Execution::Context& context) const
     {
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), m_operationType != OperationType::Install && m_operationType != OperationType::Upgrade);
+
         context <<
             HandleSearchResultFailures <<
-            EnsureOneMatchFromSearchResult(m_isUpgrade) <<
+            EnsureOneMatchFromSearchResult(m_operationType) <<
             GetInstalledPackageVersion;
 
-        if (!m_isUpgrade && context.Contains(Execution::Data::InstalledPackageVersion) && context.Get<Execution::Data::InstalledPackageVersion>() != nullptr)
+        if ( m_operationType != OperationType::Upgrade && 
+            context.Contains(Execution::Data::InstalledPackageVersion) &&
+            context.Get<Execution::Data::InstalledPackageVersion>() != nullptr )
         {
             if (context.Args.Contains(Execution::Args::Type::NoUpgrade))
             {
@@ -287,7 +310,7 @@ namespace AppInstaller::CLI::Workflow
                 AICLI_LOG(CLI, Info, << "Found installed package, converting to upgrade flow");
                 context.Reporter.Info() << Execution::ConvertToUpgradeFlowEmphasis << Resource::String::ConvertInstallFlowToUpgrade << std::endl;
                 context.SetFlags(Execution::ContextFlag::InstallerExecutionUseUpdate);
-                m_isUpgrade = true;
+                m_operationType = OperationType::Upgrade;
             }
         }
 
@@ -296,7 +319,7 @@ namespace AppInstaller::CLI::Workflow
             // If version specified, use the version and verify applicability
             context << GetManifestFromPackage(/* considerPins */ true);
 
-            if (m_isUpgrade)
+            if (m_operationType == OperationType::Upgrade)
             {
                 context << EnsureUpdateVersionApplicable;
             }
@@ -315,9 +338,11 @@ namespace AppInstaller::CLI::Workflow
 
     void InstallOrUpgradeSinglePackage::operator()(Execution::Context& context) const
     {
+        THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), m_operationType != OperationType::Install && m_operationType != OperationType::Upgrade);
+
         context <<
             SearchSourceForSingle <<
-            SelectSinglePackageVersionForInstallOrUpgrade(m_isUpgrade) <<
+            SelectSinglePackageVersionForInstallOrUpgrade(m_operationType) <<
             InstallSinglePackage;
     }
 }

@@ -28,4 +28,18 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: Manifest
     // Outputs: None
     void ShowManifestVersion(Execution::Context& context);
+
+    // Composite flow that produces a manifest; either from one given on the command line or by searching.
+    // Required Args: None
+    // Inputs: None
+    // Outputs: Manifest
+    struct GetManifest : public WorkflowTask
+    {
+        GetManifest(bool considerPins) : WorkflowTask("GetManifest"), m_considerPins(considerPins) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        bool m_considerPins;
+    };
 }

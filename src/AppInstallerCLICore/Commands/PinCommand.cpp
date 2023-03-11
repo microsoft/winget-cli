@@ -10,6 +10,7 @@
 namespace AppInstaller::CLI
 {
     using namespace AppInstaller::CLI::Execution;
+    using namespace AppInstaller::CLI::Workflow;
     using namespace AppInstaller::Utility::literals;
     using namespace std::string_view_literals;
 
@@ -117,7 +118,7 @@ namespace AppInstaller::CLI
             Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
             Workflow::SearchSourceForSingle <<
             Workflow::HandleSearchResultFailures <<
-            Workflow::EnsureOneMatchFromSearchResult(false) <<
+            Workflow::EnsureOneMatchFromSearchResult(OperationType::Pin) <<
             Workflow::GetInstalledPackageVersion <<
             Workflow::ReportPackageIdentity <<
             Workflow::OpenPinningIndex() <<
@@ -189,7 +190,7 @@ namespace AppInstaller::CLI
             Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
             Workflow::SearchSourceForSingle <<
             Workflow::HandleSearchResultFailures <<
-            Workflow::EnsureOneMatchFromSearchResult(false) <<
+            Workflow::EnsureOneMatchFromSearchResult(OperationType::Pin) <<
             Workflow::GetInstalledPackageVersion <<
             Workflow::ReportPackageIdentity <<
             Workflow::OpenPinningIndex() <<

@@ -7,10 +7,11 @@
 #include "Workflows/WorkflowBase.h"
 #include "Resources.h"
 
-using namespace AppInstaller::CLI::Execution;
-
 namespace AppInstaller::CLI
 {
+    using namespace AppInstaller::CLI::Execution;
+    using namespace AppInstaller::CLI::Workflow;
+
     std::vector<Argument> ShowCommand::GetArguments() const
     {
         return {
@@ -78,7 +79,7 @@ namespace AppInstaller::CLI
                     Workflow::OpenSource() <<
                     Workflow::SearchSourceForSingle <<
                     Workflow::HandleSearchResultFailures <<
-                    Workflow::EnsureOneMatchFromSearchResult(false) <<
+                    Workflow::EnsureOneMatchFromSearchResult(OperationType::Show) <<
                     Workflow::ReportPackageIdentity <<
                     Workflow::ShowAppVersions;
             }
@@ -86,7 +87,7 @@ namespace AppInstaller::CLI
         else
         {
             context <<
-                Workflow::GetManifest(/* considerPins */ false) <<
+                GetManifest( /* considerPins */ false) <<
                 Workflow::ReportManifestIdentity <<
                 Workflow::SelectInstaller <<
                 Workflow::ShowManifestInfo;

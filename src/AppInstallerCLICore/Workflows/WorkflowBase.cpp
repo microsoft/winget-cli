@@ -855,14 +855,23 @@ namespace AppInstaller::CLI::Workflow
         if (searchResult.Matches.size() == 0)
         {
             Logging::Telemetry().LogNoAppMatch();
-
-            if (m_isFromInstalledSource)
+            
+            switch (m_operationType)
             {
-                context.Reporter.Info() << Resource::String::NoInstalledPackageFound << std::endl;
-            }
-            else
-            {
-                context.Reporter.Info() << Resource::String::NoPackageFound << std::endl;
+                // These search purposes require a package to be found in the Installed Packages
+                case OperationType::Export:
+                case OperationType::List:
+                case OperationType::Uninstall:
+                case OperationType::Pin:
+                case OperationType::Upgrade:
+                    context.Reporter.Info() << Resource::String::NoInstalledPackageFound << std::endl;
+                case OperationType::Completion:
+                case OperationType::Install:
+                case OperationType::Search:
+                case OperationType::Show:
+                default:
+                    context.Reporter.Info() << Resource::String::NoPackageFound << std::endl;
+                    break;
             }
 
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND);
@@ -872,7 +881,7 @@ namespace AppInstaller::CLI::Workflow
     void EnsureOneMatchFromSearchResult::operator()(Execution::Context& context) const
     {
         context <<
-            EnsureMatchesFromSearchResult(m_isFromInstalledSource);
+            EnsureMatchesFromSearchResult(m_operationType);
 
         if (!context.IsTerminated())
         {
@@ -882,7 +891,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 Logging::Telemetry().LogMultiAppMatch();
 
-                if (m_isFromInstalledSource)
+                if (m_operationType == OperationType::Upgrade || m_operationType == OperationType::Uninstall )
                 {
                     context.Reporter.Warn() << Resource::String::MultipleInstalledPackagesFound << std::endl;
                     context << ReportMultiplePackageFoundResult;
@@ -1081,24 +1090,6 @@ namespace AppInstaller::CLI::Workflow
     {
         const auto& manifest = context.Get<Execution::Data::Manifest>();
         ReportIdentity(context, m_prefix, m_label, manifest.CurrentLocalization.Get<Manifest::Localization::PackageName>(), manifest.Id, manifest.Version, m_level);
-    }
-
-    void GetManifest::operator()(Execution::Context& context) const
-    {
-        if (context.Args.Contains(Execution::Args::Type::Manifest))
-        {
-            context <<
-                GetManifestFromArg;
-        }
-        else
-        {
-            context <<
-                OpenSource() <<
-                SearchSourceForSingle <<
-                HandleSearchResultFailures <<
-                EnsureOneMatchFromSearchResult(false) <<
-                GetManifestFromPackage(m_considerPins);
-        }
     }
 
     void SelectInstaller(Execution::Context& context)

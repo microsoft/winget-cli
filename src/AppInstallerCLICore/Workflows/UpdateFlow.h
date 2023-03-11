@@ -39,13 +39,13 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     struct SelectSinglePackageVersionForInstallOrUpgrade : public WorkflowTask
     {
-        SelectSinglePackageVersionForInstallOrUpgrade(bool isUpgrade) :
-            WorkflowTask("SelectSinglePackageVersionForInstallOrUpgrade"), m_isUpgrade(isUpgrade) {}
+        SelectSinglePackageVersionForInstallOrUpgrade(OperationType operation) :
+            WorkflowTask("SelectSinglePackageVersionForInstallOrUpgrade"), m_operationType(operation) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
-        mutable bool m_isUpgrade;
+        mutable OperationType m_operationType;
     };
 
     // Install or upgrade a single package
@@ -54,12 +54,12 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     struct InstallOrUpgradeSinglePackage : public WorkflowTask
     {
-        InstallOrUpgradeSinglePackage(bool isUpgrade) :
-            WorkflowTask("InstallOrUpgradeSinglePackage"), m_isUpgrade(isUpgrade) {}
+        InstallOrUpgradeSinglePackage(OperationType operation) :
+            WorkflowTask("InstallOrUpgradeSinglePackage"), m_operationType(operation) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
-        mutable bool m_isUpgrade;
+        mutable OperationType m_operationType;
     };
 }

@@ -588,7 +588,7 @@ namespace AppInstallerCLIE2ETests
             var upgradeResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller --silent -l {upgradeDir}");
             Assert.AreEqual(Constants.ErrorCode.ERROR_UPDATE_NOT_APPLICABLE, upgradeResult.ExitCode);
             Assert.True(upgradeResult.StdOut.Contains("Trying to upgrade the installed package..."));
-            Assert.True(upgradeResult.StdOut.Contains("No applicable upgrade"));
+            Assert.True(upgradeResult.StdOut.Contains("No available upgrade"));
 
             Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(baseDir));
         }

@@ -11,13 +11,13 @@
 #include "Resources.h"
 #include <winget/LocIndependent.h>
 
-using namespace AppInstaller::CLI::Execution;
-using namespace AppInstaller::Manifest;
-using namespace AppInstaller::CLI::Workflow;
-using namespace AppInstaller::Utility::literals;
-
 namespace AppInstaller::CLI
 {
+    using namespace AppInstaller::CLI::Execution;
+    using namespace AppInstaller::Manifest;
+    using namespace AppInstaller::CLI::Workflow;
+    using namespace AppInstaller::Utility::literals;
+
     namespace
     {
         // Determines whether we should list available upgrades, instead
@@ -162,7 +162,7 @@ namespace AppInstaller::CLI
             context <<
                 SearchSourceForMany <<
                 HandleSearchResultFailures <<
-                EnsureMatchesFromSearchResult(true) <<
+                EnsureMatchesFromSearchResult(OperationType::Upgrade) <<
                 ReportListResult(true);
         }
         else if (context.Args.Contains(Execution::Args::Type::All))
@@ -171,7 +171,7 @@ namespace AppInstaller::CLI
             context <<
                 SearchSourceForMany <<
                 HandleSearchResultFailures <<
-                EnsureMatchesFromSearchResult(true) <<
+                EnsureMatchesFromSearchResult(OperationType::Upgrade) <<
                 ReportListResult(true) <<
                 UpdateAllApplicable;
         }
@@ -181,7 +181,7 @@ namespace AppInstaller::CLI
             context <<
                 GetManifestFromArg <<
                 SearchSourceUsingManifest <<
-                EnsureOneMatchFromSearchResult(true) <<
+                EnsureOneMatchFromSearchResult(OperationType::Upgrade) <<
                 GetInstalledPackageVersion <<
                 EnsureUpdateVersionApplicable <<
                 SelectInstaller <<
@@ -193,13 +193,13 @@ namespace AppInstaller::CLI
             // The remaining case: search for specific packages to update
             if (!context.Args.Contains(Execution::Args::Type::MultiQuery))
             {
-                context << Workflow::InstallOrUpgradeSinglePackage(/* isUpgrade */ true);
+                context << Workflow::InstallOrUpgradeSinglePackage(OperationType::Upgrade);
             }
             else
             {
                 context <<
                     Workflow::GetMultiSearchRequests <<
-                    Workflow::SearchSubContextsForSingle(Workflow::SearchSubContextsForSingle::SearchPurpose::Upgrade) <<
+                    Workflow::SearchSubContextsForSingle(OperationType::Upgrade) <<
                     Workflow::ReportExecutionStage(Workflow::ExecutionStage::Execution) <<
                     Workflow::InstallMultiplePackages(
                         Resource::String::InstallAndUpgradeCommandsReportDependencies,

@@ -69,18 +69,16 @@ namespace AppInstaller::CLI::Workflow
             SearchRequest searchRequest = searchContext.Get<Execution::Data::SearchRequest>();
             searchContext.Add<Execution::Data::SearchResult>(searchContext.Get<Execution::Data::Source>().Search(searchRequest));
 
-            switch (m_searchPurpose)
+            switch (m_operationType)
             {
-            case SearchPurpose::Install:
-                searchContext << Workflow::SelectSinglePackageVersionForInstallOrUpgrade(/* isUpgrade */ false);
+            case OperationType::Install:
+            case OperationType::Upgrade:
+                searchContext << Workflow::SelectSinglePackageVersionForInstallOrUpgrade(m_operationType);
                 break;
-            case SearchPurpose::Upgrade:
-                searchContext << Workflow::SelectSinglePackageVersionForInstallOrUpgrade(/* isUpgrade */ true);
-                break;
-            case SearchPurpose::Uninstall:
+            case OperationType::Uninstall:
                 searchContext <<
                     Workflow::HandleSearchResultFailures <<
-                    Workflow::EnsureOneMatchFromSearchResult(true);
+                    Workflow::EnsureOneMatchFromSearchResult(m_operationType);
                 break;
             default:
                 THROW_HR(E_UNEXPECTED);

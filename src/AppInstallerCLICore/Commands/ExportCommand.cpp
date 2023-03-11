@@ -9,6 +9,7 @@
 
 namespace AppInstaller::CLI
 {
+    using namespace AppInstaller::CLI::Workflow;
     using namespace std::string_view_literals;
 
     std::vector<Argument> ExportCommand::GetArguments() const
@@ -56,14 +57,14 @@ namespace AppInstaller::CLI
         context.SetFlags(Execution::ContextFlag::TreatSourceFailuresAsWarning);
 
         context <<
-            Workflow::ReportExecutionStage(Workflow::ExecutionStage::Discovery) <<
+            Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
             Workflow::OpenSource() <<
             Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
             Workflow::SearchSourceForMany <<
             Workflow::HandleSearchResultFailures <<
-            Workflow::EnsureMatchesFromSearchResult(true) <<
+            Workflow::EnsureMatchesFromSearchResult(OperationType::Export) <<
             Workflow::SelectVersionsToExport <<
-            Workflow::ReportExecutionStage(Workflow::ExecutionStage::Execution) <<
+            Workflow::ReportExecutionStage(ExecutionStage::Execution) <<
             Workflow::WriteImportFile;
     }
 }

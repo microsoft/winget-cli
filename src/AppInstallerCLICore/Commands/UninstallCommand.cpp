@@ -8,11 +8,11 @@
 #include "Workflows/MultiQueryFlow.h"
 #include "Resources.h"
 
-using AppInstaller::CLI::Execution::Args;
-using AppInstaller::CLI::Workflow::ExecutionStage;
-
 namespace AppInstaller::CLI
 {
+    using AppInstaller::CLI::Execution::Args;
+    using namespace AppInstaller::CLI::Workflow;
+
     std::vector<Argument> UninstallCommand::GetArguments() const
     {
         return
@@ -111,7 +111,7 @@ namespace AppInstaller::CLI
                 Workflow::GetManifestFromArg <<
                 Workflow::ReportManifestIdentity <<
                 Workflow::SearchSourceUsingManifest <<
-                Workflow::EnsureOneMatchFromSearchResult(true) <<
+                Workflow::EnsureOneMatchFromSearchResult(OperationType::Uninstall) <<
                 Workflow::UninstallSinglePackage;
         }
         else
@@ -122,7 +122,7 @@ namespace AppInstaller::CLI
                 context <<
                     Workflow::SearchSourceForSingle <<
                     Workflow::HandleSearchResultFailures <<
-                    Workflow::EnsureOneMatchFromSearchResult(true) <<
+                    Workflow::EnsureOneMatchFromSearchResult(OperationType::Uninstall) <<
                     Workflow::ReportPackageIdentity <<
                     Workflow::UninstallSinglePackage;
             }
@@ -130,7 +130,7 @@ namespace AppInstaller::CLI
             {
                 context <<
                     Workflow::GetMultiSearchRequests <<
-                    Workflow::SearchSubContextsForSingle(Workflow::SearchSubContextsForSingle::SearchPurpose::Uninstall) <<
+                    Workflow::SearchSubContextsForSingle(OperationType::Uninstall) <<
                     Workflow::UninstallMultiplePackages;
             }
         }

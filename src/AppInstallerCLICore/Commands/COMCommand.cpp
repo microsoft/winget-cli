@@ -7,13 +7,13 @@
 #include "Workflows/UninstallFlow.h"
 #include "Workflows/WorkflowBase.h"
 
-using namespace AppInstaller::CLI::Execution;
-using namespace AppInstaller::CLI::Workflow;
-using namespace AppInstaller::Manifest;
-using namespace AppInstaller::Utility::literals;
-
 namespace AppInstaller::CLI
 {
+    using namespace AppInstaller::CLI::Execution;
+    using namespace AppInstaller::CLI::Workflow;
+    using namespace AppInstaller::Manifest;
+    using namespace AppInstaller::Utility::literals;
+
     // IMPORTANT: To use this command, the caller should have already retrieved the package manifest (GetManifest()) and added it to the Context Data
     void COMDownloadCommand::ExecuteInternal(Context& context) const
     {

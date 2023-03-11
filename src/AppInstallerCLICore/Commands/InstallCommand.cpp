@@ -9,13 +9,14 @@
 #include "Workflows/WorkflowBase.h"
 #include "Resources.h"
 
-using namespace AppInstaller::CLI::Execution;
-using namespace AppInstaller::CLI::Workflow;
-using namespace AppInstaller::Manifest;
-using namespace AppInstaller::Utility::literals;
 
 namespace AppInstaller::CLI
 {
+    using namespace AppInstaller::CLI::Execution;
+    using namespace AppInstaller::CLI::Workflow;
+    using namespace AppInstaller::Manifest;
+    using namespace AppInstaller::Utility::literals;
+
     std::vector<Argument> InstallCommand::GetArguments() const
     {
         return {
@@ -136,7 +137,7 @@ namespace AppInstaller::CLI
             }
             else
             {
-                context << Workflow::InstallOrUpgradeSinglePackage(false);
+                context << Workflow::InstallOrUpgradeSinglePackage(OperationType::Install);
             }
         }
     }

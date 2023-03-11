@@ -29,6 +29,19 @@ namespace AppInstaller::CLI::Workflow
         PostExecution = 5000,
     };
 
+    enum class OperationType
+    {
+        Completion,
+        Export,
+        Install,
+        List,
+        Pin,
+        Search,
+        Show,
+        Uninstall,
+        Upgrade,
+    };
+
     // A task in the workflow.
     struct WorkflowTask
     {
@@ -216,13 +229,13 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     struct EnsureMatchesFromSearchResult : public WorkflowTask
     {
-        EnsureMatchesFromSearchResult(bool isFromInstalledSource) :
-            WorkflowTask("EnsureMatchesFromSearchResult"), m_isFromInstalledSource(isFromInstalledSource) {}
+        EnsureMatchesFromSearchResult(OperationType operation) :
+            WorkflowTask("EnsureMatchesFromSearchResult"), m_operationType(operation) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
-        bool m_isFromInstalledSource;
+        OperationType m_operationType;
     };
 
     // Ensures that there is only one result in the search.
@@ -231,13 +244,13 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: Package
     struct EnsureOneMatchFromSearchResult : public WorkflowTask
     {
-        EnsureOneMatchFromSearchResult(bool isFromInstalledSource) :
-            WorkflowTask("EnsureOneMatchFromSearchResult"), m_isFromInstalledSource(isFromInstalledSource) {}
+        EnsureOneMatchFromSearchResult(OperationType operation) :
+            WorkflowTask("EnsureOneMatchFromSearchResult"), m_operationType(operation) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
-        bool m_isFromInstalledSource;
+        OperationType m_operationType;
     };
 
     // Gets the manifest from package.
@@ -338,21 +351,6 @@ namespace AppInstaller::CLI::Workflow
         std::optional<Resource::StringId> m_label;
         Execution::Reporter::Level m_level;
     };
-
-    // Composite flow that produces a manifest; either from one given on the command line or by searching.
-    // Required Args: None
-    // Inputs: None
-    // Outputs: Manifest
-    struct GetManifest : public WorkflowTask
-    {
-        GetManifest(bool considerPins) : WorkflowTask("GetManifest"), m_considerPins(considerPins) {}
-
-        void operator()(Execution::Context& context) const override;
-
-    private:
-        bool m_considerPins;
-    };
-
 
     // Selects the installer from the manifest, if one is applicable.
     // Required Args: None

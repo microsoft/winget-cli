@@ -8,6 +8,7 @@
 
 namespace AppInstaller::CLI
 {
+    using namespace AppInstaller::CLI::Workflow;
     using namespace std::string_view_literals;
 
     std::vector<Argument> ListCommand::GetArguments() const
@@ -78,7 +79,7 @@ namespace AppInstaller::CLI
             Workflow::OpenCompositeSource(Workflow::DetermineInstalledSource(context)) <<
             Workflow::SearchSourceForMany <<
             Workflow::HandleSearchResultFailures <<
-            Workflow::EnsureMatchesFromSearchResult(true) <<
+            Workflow::EnsureMatchesFromSearchResult(OperationType::List) <<
             Workflow::ReportListResult();
     }
 }
