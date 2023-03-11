@@ -190,6 +190,7 @@ LPBYTE
 LPCWSTR
 LPDWORD
 lpitemidlist
+maclachlan
 LPSTR
 LPWCH
 LPWSTR
@@ -304,6 +305,7 @@ riid
 roblox
 ronomon
 rosoft
+roy
 rowids
 RRF
 rrr
@@ -326,6 +328,7 @@ sid
 Sideload
 SIGNATUREHASH
 Sku
+SLAPI
 sortof
 sourceforge
 spamming
