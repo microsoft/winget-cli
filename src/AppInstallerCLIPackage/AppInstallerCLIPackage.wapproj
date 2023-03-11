@@ -120,14 +120,32 @@
       <WinGetAdditionalPackageFile Include="$(WinGetAdditonalPackageFileRoot)\AnyCPU\$(Configuration)\Microsoft.Management.Configuration.Processor\**\Microsoft.Management.Configuration.Processor.winmd">
         <PackagePath>Microsoft.Management.Configuration.Processor.winmd</PackagePath>
       </WinGetAdditionalPackageFile>
+      <WinGetAdditionalPackageFile Include="$(WinGetAdditonalPackageFileRoot)\AnyCPU\$(Configuration)\Microsoft.Management.Configuration.Projection\**\Microsoft.Management.Configuration.Projection.dll">
+        <PackagePath>ConfigurationRemotingServer\Microsoft.Management.Configuration.Projection.dll</PackagePath>
+      </WinGetAdditionalPackageFile>
+      <WinGetAdditionalPackageFile Include="$(WinGetAdditonalPackageFileRoot)\$(PlatformTarget)\$(Configuration)\ConfigurationRemotingServer\net6.0-windows10.0.19041.0\**\*">
+        <PackagePath>ConfigurationRemotingServer</PackagePath>
+        <Recurse>true</Recurse>
+      </WinGetAdditionalPackageFile>
     </ItemGroup>
 
     <Error Condition="!Exists('%(WinGetAdditionalPackageFile.Identity)')" Text="%(WinGetAdditionalPackageFile.Identity) was not found" />
-    <Message Importance="normal" Condition="Exists('%(WinGetAdditionalPackageFile.Identity)')" Text="%(WinGetAdditionalPackageFile.Identity) -&gt; %(WinGetAdditionalPackageFile.PackagePath)" />
+
+    <!-- Single (non-recursive) file items -->
+    <Message Importance="normal" Condition="'%(WinGetAdditionalPackageFile.Recurse)'!='true' AND Exists('%(WinGetAdditionalPackageFile.Identity)')" Text="%(WinGetAdditionalPackageFile.Identity) -&gt; %(WinGetAdditionalPackageFile.PackagePath)" />
 
     <ItemGroup>
-      <AppxPackagePayload Include="%(WinGetAdditionalPackageFile.Identity)" KeepDuplicates="false">
+      <AppxPackagePayload Condition="'%(WinGetAdditionalPackageFile.Recurse)'!='true'" Include="%(WinGetAdditionalPackageFile.Identity)" KeepDuplicates="false">
         <TargetPath>%(WinGetAdditionalPackageFile.PackagePath)</TargetPath>
+      </AppxPackagePayload>
+    </ItemGroup>
+
+    <!-- Recursive file items -->
+    <Message Importance="normal" Condition="'%(WinGetAdditionalPackageFile.Recurse)'=='true' AND Exists('%(WinGetAdditionalPackageFile.Identity)')" Text="%(WinGetAdditionalPackageFile.Identity) -&gt; %(WinGetAdditionalPackageFile.PackagePath)\%(WinGetAdditionalPackageFile.RecursiveDir)%(WinGetAdditionalPackageFile.Filename)%(WinGetAdditionalPackageFile.Extension)" />
+
+    <ItemGroup>
+      <AppxPackagePayload Condition="'%(WinGetAdditionalPackageFile.Recurse)'=='true'" Include="%(WinGetAdditionalPackageFile.Identity)" KeepDuplicates="false">
+        <TargetPath>%(WinGetAdditionalPackageFile.PackagePath)\%(WinGetAdditionalPackageFile.RecursiveDir)%(WinGetAdditionalPackageFile.Filename)%(WinGetAdditionalPackageFile.Extension)</TargetPath>
       </AppxPackagePayload>
     </ItemGroup>
   </Target>
