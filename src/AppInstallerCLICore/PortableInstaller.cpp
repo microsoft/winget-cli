@@ -109,6 +109,7 @@ namespace AppInstaller::CLI::Portable
         {
             if (Filesystem::IsSameVolume(entry.CurrentPath, filePath))
             {
+                AICLI_LOG(Core, Info, << "Renaming directory to: " << filePath);
                 Filesystem::RenameFile(entry.CurrentPath, filePath);
             }
             else

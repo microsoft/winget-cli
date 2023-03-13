@@ -239,17 +239,17 @@ namespace AppInstaller::Filesystem
         return knownFolder.get();
     }
 
-    bool IsSameVolume(const std::filesystem::path& current, const std::filesystem::path& target)
+    bool IsSameVolume(const std::filesystem::path& path1, const std::filesystem::path& path2)
     {
-        LPWSTR currentVolumeBuffer = new WCHAR[MAX_PATH];
-        LPWSTR targetVolumeBuffer = new WCHAR[MAX_PATH];
+        std::wstring path1Volume;
+        std::wstring path2Volume;
+        DWORD path1Length = static_cast<DWORD>(path1.u16string().length());
+        DWORD path2Length = static_cast<DWORD>(path2.u16string().length());
+        path1Volume.resize(path1Length);
+        path2Volume.resize(path2Length);
 
-        GetVolumePathNameW(current.c_str(), currentVolumeBuffer, sizeof(currentVolumeBuffer));
-        GetVolumePathNameW(target.c_str(), targetVolumeBuffer, sizeof(targetVolumeBuffer));
-
-        std::wstring_view currentVolume { currentVolumeBuffer };
-        std::wstring_view targetVolume { targetVolumeBuffer };
-
-        return Utility::CaseInsensitiveEquals(Utility::ConvertToUTF8(currentVolume), Utility::ConvertToUTF8(targetVolume));
+        GetVolumePathNameW(path1.c_str(), path1Volume.data(), path1Length);
+        GetVolumePathNameW(path2.c_str(), path2Volume.data(), path2Length);
+        return Utility::CaseInsensitiveEquals(Utility::ConvertToUTF8(path1Volume.data()), Utility::ConvertToUTF8(path2Volume.data()));
     }
 }
