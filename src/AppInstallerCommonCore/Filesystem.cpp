@@ -243,8 +243,8 @@ namespace AppInstaller::Filesystem
     {
         std::wstring path1Volume;
         std::wstring path2Volume;
-        DWORD path1Length = static_cast<DWORD>(path1.u16string().length());
-        DWORD path2Length = static_cast<DWORD>(path2.u16string().length());
+        DWORD path1Length = static_cast<DWORD>(path1.wstring().length() + 1);
+        DWORD path2Length = static_cast<DWORD>(path2.wstring().length() + 1);
         path1Volume.resize(path1Length);
         path2Volume.resize(path2Length);
 
