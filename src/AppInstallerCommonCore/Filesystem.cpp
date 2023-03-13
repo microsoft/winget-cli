@@ -241,15 +241,14 @@ namespace AppInstaller::Filesystem
 
     bool IsSameVolume(const std::filesystem::path& path1, const std::filesystem::path& path2)
     {
-        std::wstring path1Volume;
-        std::wstring path2Volume;
-        DWORD path1Length = static_cast<DWORD>(path1.wstring().length() + 1);
-        DWORD path2Length = static_cast<DWORD>(path2.wstring().length() + 1);
-        path1Volume.resize(path1Length);
-        path2Volume.resize(path2Length);
+        WCHAR volumeName1[MAX_PATH];
+        WCHAR volumeName2[MAX_PATH];
 
-        GetVolumePathNameW(path1.c_str(), path1Volume.data(), path1Length);
-        GetVolumePathNameW(path2.c_str(), path2Volume.data(), path2Length);
-        return Utility::CaseInsensitiveEquals(Utility::ConvertToUTF8(path1Volume.data()), Utility::ConvertToUTF8(path2Volume.data()));
+        // Note: GetVolumePathNameW will return false if the volume drive does not exist.
+        if (!GetVolumePathNameW(path1.c_str(), volumeName1, MAX_PATH) || !GetVolumePathNameW(path2.c_str(), volumeName2, MAX_PATH))
+        {
+            return false;
+        }
+        return Utility::CaseInsensitiveEquals(Utility::ConvertToUTF8(volumeName1), Utility::ConvertToUTF8(volumeName2));
     }
 }
