@@ -42,4 +42,7 @@ namespace AppInstaller::Filesystem
 
     // Gets the path of a known folder.
     std::filesystem::path GetKnownFolderPath(const KNOWNFOLDERID& id);
+
+    // Verifies that the paths are on the same volume.
+    bool IsSameVolume(const std::filesystem::path& path1, const std::filesystem::path& path2);
 }
