@@ -292,6 +292,8 @@ namespace AppInstaller::Manifest
 
         // Checks if there are any installation metadata available.
         bool HasData() const { return !DefaultInstallLocation.empty() || !Files.empty(); }
+
+        void Clear() { DefaultInstallLocation.clear(); Files.clear(); }
     };
 
     InstallerTypeEnum ConvertToInstallerTypeEnum(const std::string& in);
@@ -317,6 +319,8 @@ namespace AppInstaller::Manifest
     std::string_view InstallerTypeToString(InstallerTypeEnum installerType);
 
     std::string_view ScopeToString(ScopeEnum scope);
+
+    std::string_view InstalledFileTypeToString(InstalledFileTypeEnum installedFileType);
 
     // Gets a value indicating whether the given installer uses the PackageFamilyName system reference.
     bool DoesInstallerTypeUsePackageFamilyName(InstallerTypeEnum installerType);

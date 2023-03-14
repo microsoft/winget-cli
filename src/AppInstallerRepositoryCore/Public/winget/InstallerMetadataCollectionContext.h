@@ -7,6 +7,7 @@
 #include <winget/JsonUtil.h>
 #include <winget/ThreadGlobals.h>
 #include <winget/ARPCorrelation.h>
+#include <winget/InstalledFilesCorrelation.h>
 
 #include <filesystem>
 #include <map>
@@ -46,7 +47,14 @@ namespace AppInstaller::Repository::Metadata
             std::vector<Manifest::AppsAndFeaturesEntry> AppsAndFeaturesEntries;
 
             // 1.1
+            // If Scope value is empty, the value is not set before. If the value is Unknown, a conflicting value is encountered.
             std::string Scope;
+
+            // 1.2
+            // If std::nullopt, the value is not set before. If the value is empty(i.e. !HasData()), a conflicting value is encountered.
+            std::optional<Manifest::InstallationMetadataInfo> InstalledFiles;
+            // If std::nullopt, the value is not set before. If the vector is empty, conflicting values are encountered.
+            std::optional<std::vector<Correlation::InstalledStartupLinkFile>> StartupLinkFiles;
         };
 
         // Metadata from previous product revisions.
@@ -82,7 +90,10 @@ namespace AppInstaller::Repository::Metadata
     struct InstallerMetadataCollectionContext
     {
         InstallerMetadataCollectionContext();
-        InstallerMetadataCollectionContext(std::unique_ptr<Correlation::ARPCorrelationData> correlationData, const std::wstring& json);
+        InstallerMetadataCollectionContext(
+            std::unique_ptr<Correlation::ARPCorrelationData> correlationData,
+            std::unique_ptr<Correlation::InstalledFilesCorrelation> installedFilesCorrelation,
+            const std::wstring& json);
 
         InstallerMetadataCollectionContext(const InstallerMetadataCollectionContext&) = delete;
         InstallerMetadataCollectionContext& operator=(const InstallerMetadataCollectionContext&) = delete;
@@ -147,6 +158,7 @@ namespace AppInstaller::Repository::Metadata
         Manifest::Manifest m_incomingManifest;
 
         std::unique_ptr<Correlation::ARPCorrelationData> m_correlationData;
+        std::unique_ptr<Correlation::InstalledFilesCorrelation> m_installedFilesCorrelation;
 
         // Output data
         enum class OutputStatus

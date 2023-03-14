@@ -194,22 +194,22 @@ namespace AppInstaller::Filesystem
 
         try
         {
-            return Utility::ExpandEnvironmentVariables(Utility::ConvertToUTF16(trimPath));
+            return std::filesystem::weakly_canonical(Utility::ExpandEnvironmentVariables(Utility::ConvertToUTF16(trimPath)));
         }
         catch (...)
         {
-            return path;
+            return Utility::ConvertToUTF16(path);
         }
     }
 
-    void ReplaceCommonPathPrefix(std::filesystem::path& source, const std::filesystem::path& prefix, std::string_view replacement)
+    bool ReplaceCommonPathPrefix(std::filesystem::path& source, const std::filesystem::path& prefix, std::string_view replacement)
     {
         auto prefixItr = prefix.begin();
         auto sourceItr = source.begin();
 
         while (prefixItr != prefix.end() && sourceItr != source.end())
         {
-            if (*prefixItr != *sourceItr)
+            if (Utility::ICUCaseInsensitiveEquals(prefixItr->u8string(), sourceItr->u8string()))
             {
                 break;
             }
@@ -229,7 +229,11 @@ namespace AppInstaller::Filesystem
             }
 
             source = std::move(temp);
+
+            return true;
         }
+
+        return false;
     }
 
     std::filesystem::path GetKnownFolderPath(const KNOWNFOLDERID& id)

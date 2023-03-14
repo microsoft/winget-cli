@@ -115,6 +115,16 @@ namespace AppInstaller::Utility
         return a.length() >= b.length() && CaseInsensitiveEquals(a.substr(0, b.length()), b);
     }
 
+    bool CaseInsensitiveContainsSubstring(std::string_view a, std::string_view b)
+    {
+        auto it = std::search(
+            a.begin(), a.end(),
+            b.begin(), b.end(),
+            [](char ch1, char ch2) { return std::tolower(ch1) == std::tolower(ch2); }
+        );
+        return (it != a.end());
+    }
+
     bool ICUCaseInsensitiveEquals(std::string_view a, std::string_view b)
     {
         return FoldCase(a) == FoldCase(b);

@@ -277,6 +277,7 @@ LEN
 Linux
 LLVM
 llvmorg
+lnk
 LOCALAPPDATA
 localtime
 LOGONLYONERROR
