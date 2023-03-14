@@ -865,6 +865,7 @@ namespace AppInstaller::CLI::Workflow
                 case OperationType::Pin:
                 case OperationType::Upgrade:
                     context.Reporter.Info() << Resource::String::NoInstalledPackageFound << std::endl;
+                    break;
                 case OperationType::Completion:
                 case OperationType::Install:
                 case OperationType::Search:
