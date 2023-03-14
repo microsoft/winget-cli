@@ -13,9 +13,6 @@ namespace AppInstaller::CLI
 
     namespace
     {
-        constexpr Utility::LocIndView s_ArgumentName_Enable = "enable"_liv;
-        constexpr Utility::LocIndView s_ArgumentName_Disable = "disable"_liv;
-        constexpr Utility::LocIndView s_ArgName_EnableAndDisable = "enable|disable"_liv;
         Utility::LocIndView s_SettingsCommand_HelpLink = "https://aka.ms/winget-settings"_liv;
     }
 
@@ -29,8 +26,8 @@ namespace AppInstaller::CLI
     std::vector<Argument> SettingsCommand::GetArguments() const
     {
         return {
-            Argument{ s_ArgumentName_Enable, Argument::NoAlias, Execution::Args::Type::AdminSettingEnable, Resource::String::AdminSettingEnableDescription, ArgumentType::Standard, Argument::Visibility::Help },
-            Argument{ s_ArgumentName_Disable, Argument::NoAlias, Execution::Args::Type::AdminSettingDisable, Resource::String::AdminSettingDisableDescription, ArgumentType::Standard, Argument::Visibility::Help },
+            Argument{ Execution::Args::Type::AdminSettingEnable, Resource::String::AdminSettingEnableDescription, ArgumentType::Standard, Argument::Visibility::Help },
+            Argument{ Execution::Args::Type::AdminSettingDisable, Resource::String::AdminSettingDisableDescription, ArgumentType::Standard, Argument::Visibility::Help },
         };
     }
 
@@ -51,11 +48,6 @@ namespace AppInstaller::CLI
 
     void SettingsCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
     {
-        if (execArgs.Contains(Execution::Args::Type::AdminSettingEnable) && execArgs.Contains(Execution::Args::Type::AdminSettingDisable))
-        {
-            throw CommandException(Resource::String::TooManyAdminSettingArgumentsError(s_ArgName_EnableAndDisable));
-        }
-
         // Get admin setting string for all available options except Unknown
         using AdminSetting_t = std::underlying_type_t<AdminSetting>;
         std::vector<Utility::LocIndString> adminSettingList;
@@ -68,12 +60,12 @@ namespace AppInstaller::CLI
 
         if (execArgs.Contains(Execution::Args::Type::AdminSettingEnable) && AdminSetting::Unknown == StringToAdminSetting(execArgs.GetArg(Execution::Args::Type::AdminSettingEnable)))
         {
-            throw CommandException(Resource::String::InvalidArgumentValueError(s_ArgumentName_Enable, validOptions));
+            throw CommandException(Resource::String::InvalidArgumentValueError(ArgumentCommon::ForType(Execution::Args::Type::AdminSettingEnable).Name, validOptions));
         }
 
         if (execArgs.Contains(Execution::Args::Type::AdminSettingDisable) && AdminSetting::Unknown == StringToAdminSetting(execArgs.GetArg(Execution::Args::Type::AdminSettingDisable)))
         {
-            throw CommandException(Resource::String::InvalidArgumentValueError(s_ArgumentName_Disable, validOptions));
+            throw CommandException(Resource::String::InvalidArgumentValueError(ArgumentCommon::ForType(Execution::Args::Type::AdminSettingDisable).Name, validOptions));
         }
     }
 

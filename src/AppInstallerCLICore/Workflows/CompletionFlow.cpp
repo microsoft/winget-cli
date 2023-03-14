@@ -106,6 +106,7 @@ namespace AppInstaller::CLI::Workflow
         switch (m_type)
         {
         case Execution::Args::Type::Query:
+        case Execution::Args::Type::MultiQuery:
         case Execution::Args::Type::Id:
         case Execution::Args::Type::Name:
         case Execution::Args::Type::Moniker:
@@ -126,6 +127,7 @@ namespace AppInstaller::CLI::Workflow
         switch (m_type)
         {
         case Execution::Args::Type::Query:
+        case Execution::Args::Type::MultiQuery:
             context <<
                 Workflow::RequireCompletionWordNonEmpty <<
                 Workflow::SearchSourceForSingleCompletion <<
@@ -163,14 +165,14 @@ namespace AppInstaller::CLI::Workflow
             // Here we require that the standard search finds a single entry, and we list those versions.
             context <<
                 Workflow::SearchSourceForSingle <<
-                Workflow::EnsureOneMatchFromSearchResult(false) <<
+                Workflow::EnsureOneMatchFromSearchResult(OperationType::Completion) <<
                 Workflow::CompleteWithSearchResultVersions;
             break;
         case Execution::Args::Type::Channel:
             // Here we require that the standard search finds a single entry, and we list those channels.
             context <<
                 Workflow::SearchSourceForSingle <<
-                Workflow::EnsureOneMatchFromSearchResult(false) <<
+                Workflow::EnsureOneMatchFromSearchResult(OperationType::Completion) <<
                 Workflow::CompleteWithSearchResultChannels;
             break;
         case Execution::Args::Type::Source:

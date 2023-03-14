@@ -42,12 +42,12 @@ namespace AppInstaller::Settings
                 return userSettings.Get<Setting::EFDependencies>();
             case ExperimentalFeature::Feature::DirectMSI:
                 return userSettings.Get<Setting::EFDirectMSI>();
-            case ExperimentalFeature::Feature::OpenLogsArgument:
-                return userSettings.Get<Setting::EFOpenLogsArgument>();
             case ExperimentalFeature::Feature::Pinning:
                 return userSettings.Get<Setting::EFPinning>();
             case ExperimentalFeature::Feature::UninstallPreviousArgument:
                 return userSettings.Get<Setting::EFUninstallPreviousArgument>();
+            case ExperimentalFeature::Feature::Configuration:
+                return userSettings.Get<Setting::EFConfiguration>();
             default:
                 THROW_HR(E_UNEXPECTED);
             }
@@ -79,12 +79,12 @@ namespace AppInstaller::Settings
             return ExperimentalFeature{ "Show Dependencies Information", "dependencies", "https://aka.ms/winget-settings", Feature::Dependencies };
         case Feature::DirectMSI:
             return ExperimentalFeature{ "Direct MSI Installation", "directMSI", "https://aka.ms/winget-settings", Feature::DirectMSI };
-        case Feature::OpenLogsArgument:
-            return ExperimentalFeature{ "Open Logs Argument", "openLogsArgument", "https://aka.ms/winget-settings", Feature::OpenLogsArgument };
         case Feature::Pinning:
             return ExperimentalFeature{ "Package Pinning", "pinning", "https://aka.ms/winget-settings", Feature::Pinning};
         case Feature::UninstallPreviousArgument:
             return ExperimentalFeature{ "Uninstall Previous Argument", "uninstallPreviousArgument", "https://aka.ms/winget-settings", Feature::UninstallPreviousArgument };
+        case Feature::Configuration:
+            return ExperimentalFeature{ "Configuration", "configuration", "https://aka.ms/winget-settings#configuration", Feature::Configuration };
         default:
             THROW_HR(E_UNEXPECTED);
         }

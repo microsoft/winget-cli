@@ -29,6 +29,19 @@ namespace AppInstaller::CLI::Workflow
         PostExecution = 5000,
     };
 
+    enum class OperationType
+    {
+        Completion,
+        Export,
+        Install,
+        List,
+        Pin,
+        Search,
+        Show,
+        Uninstall,
+        Upgrade,
+    };
+
     // A task in the workflow.
     struct WorkflowTask
     {
@@ -132,9 +145,15 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: SearchResult
     void SearchSourceForMany(Execution::Context& context);
 
+    // Creates a search request object with the semantics of targeting a single package.
+    // Required Args: None
+    // Inputs: Query, search filters (Id, Name, etc.)
+    // Outputs: SearchRequest
+    void GetSearchRequestForSingle(Execution::Context& context);
+
     // Performs a search on the source with the semantics of targeting a single package.
     // Required Args: None
-    // Inputs: Source
+    // Inputs: Source, SearchRequest
     // Outputs: SearchResult
     void SearchSourceForSingle(Execution::Context& context);
 
@@ -210,13 +229,13 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     struct EnsureMatchesFromSearchResult : public WorkflowTask
     {
-        EnsureMatchesFromSearchResult(bool isFromInstalledSource) :
-            WorkflowTask("EnsureMatchesFromSearchResult"), m_isFromInstalledSource(isFromInstalledSource) {}
+        EnsureMatchesFromSearchResult(OperationType operation) :
+            WorkflowTask("EnsureMatchesFromSearchResult"), m_operationType(operation) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
-        bool m_isFromInstalledSource;
+        OperationType m_operationType;
     };
 
     // Ensures that there is only one result in the search.
@@ -225,39 +244,48 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: Package
     struct EnsureOneMatchFromSearchResult : public WorkflowTask
     {
-        EnsureOneMatchFromSearchResult(bool isFromInstalledSource) :
-            WorkflowTask("EnsureOneMatchFromSearchResult"), m_isFromInstalledSource(isFromInstalledSource) {}
+        EnsureOneMatchFromSearchResult(OperationType operation) :
+            WorkflowTask("EnsureOneMatchFromSearchResult"), m_operationType(operation) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
-        bool m_isFromInstalledSource;
+        OperationType m_operationType;
     };
 
     // Gets the manifest from package.
-    // Required Args: Version and channel; can be empty
+    // Required Args: Version and channel; can be empty. A flag indicating whether to consider package pins
     // Inputs: Package
     // Outputs: Manifest, PackageVersion
     struct GetManifestWithVersionFromPackage : public WorkflowTask
     {
-        GetManifestWithVersionFromPackage(const Utility::VersionAndChannel& versionAndChannel) :
-            WorkflowTask("GetManifestWithVersionFromPackage"), m_version(versionAndChannel.GetVersion().ToString()), m_channel(versionAndChannel.GetChannel().ToString()) {}
+        GetManifestWithVersionFromPackage(std::string_view version, std::string_view channel, bool considerPins) :
+            WorkflowTask("GetManifestWithVersionFromPackage"), m_version(version), m_channel(channel), m_considerPins(considerPins) {}
 
-        GetManifestWithVersionFromPackage(std::string_view version, std::string_view channel) :
-            WorkflowTask("GetManifestWithVersionFromPackage"), m_version(version), m_channel(channel) {}
+        GetManifestWithVersionFromPackage(const Utility::VersionAndChannel& versionAndChannel, bool considerPins) :
+            GetManifestWithVersionFromPackage(versionAndChannel.GetVersion().ToString(), versionAndChannel.GetChannel().ToString(), considerPins) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
         std::string_view m_version;
         std::string_view m_channel;
+        bool m_considerPins;
     };
 
     // Gets the manifest from package.
-    // Required Args: None
-    // Inputs: Package
+    // Required Args: A value indicating whether to consider pins
+    // Inputs: Package. Optionally Version and Channel
     // Outputs: Manifest, PackageVersion
-    void GetManifestFromPackage(Execution::Context& context);
+    struct GetManifestFromPackage : public WorkflowTask
+    {
+        GetManifestFromPackage(bool considerPins) : WorkflowTask("GetManifestFromPackage"), m_considerPins(considerPins) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        bool m_considerPins;
+    };
 
     // Ensures the file exists and is not a directory.
     // Required Args: the one given
@@ -324,12 +352,6 @@ namespace AppInstaller::CLI::Workflow
         Execution::Reporter::Level m_level;
     };
 
-    // Composite flow that produces a manifest; either from one given on the command line or by searching.
-    // Required Args: None
-    // Inputs: None
-    // Outputs: Manifest
-    void GetManifest(Execution::Context& context);
-
     // Selects the installer from the manifest, if one is applicable.
     // Required Args: None
     // Inputs: Manifest
@@ -367,6 +389,12 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: Package
     // Outputs: InstalledPackageVersion
     void GetInstalledPackageVersion(Execution::Context& context);
+
+    // Shows all versions for an application.
+    // Required Args: None
+    // Inputs: SearchResult [only operates on first match]
+    // Outputs: None
+    void ShowAppVersions(Execution::Context& context);
 
     // Reports execution stage in a workflow
     // Required Args: ExecutionStage

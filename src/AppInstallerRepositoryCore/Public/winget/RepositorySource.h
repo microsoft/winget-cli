@@ -121,17 +121,23 @@ namespace AppInstaller::Repository
 
         // The configuration of how the server certificate will be validated.
         Certificates::PinningConfiguration CertificatePinningConfiguration;
+
+        // This value is used as an alternative to the `Arg` value if it is failing to function properly.
+        // The alternate location must point to identical data or inconsistencies may arise.
+        std::string AlternateArg;
     };
 
     // Individual source agreement entry. Label will be highlighted in the display as the key of the agreement entry.
     struct SourceAgreement
     {
-        std::string Label;
-        std::string Text;
-        std::string Url;
+        SourceAgreement() = default;
 
         SourceAgreement(std::string label, std::string text, std::string url) :
             Label(std::move(label)), Text(std::move(text)), Url(std::move(url)) {}
+
+        std::string Label;
+        std::string Text;
+        std::string Url;
     };
 
     // Interface for retrieving information about a source after opening the source.

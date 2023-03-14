@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33213.308
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotZLib", "DotZLib\DotZLib.csproj", "{BB1EE0B1-1808-46CB-B786-949D91117FC5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BB1EE0B1-1808-46CB-B786-949D91117FC5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB1EE0B1-1808-46CB-B786-949D91117FC5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB1EE0B1-1808-46CB-B786-949D91117FC5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB1EE0B1-1808-46CB-B786-949D91117FC5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D360C369-22C3-427A-A4F5-20CDD070D537}
+	EndGlobalSection
+EndGlobal

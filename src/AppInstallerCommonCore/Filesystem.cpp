@@ -194,22 +194,22 @@ namespace AppInstaller::Filesystem
 
         try
         {
-            return Utility::ExpandEnvironmentVariables(Utility::ConvertToUTF16(trimPath));
+            return std::filesystem::weakly_canonical(Utility::ExpandEnvironmentVariables(Utility::ConvertToUTF16(trimPath)));
         }
         catch (...)
         {
-            return path;
+            return Utility::ConvertToUTF16(path);
         }
     }
 
-    void ReplaceCommonPathPrefix(std::filesystem::path& source, const std::filesystem::path& prefix, std::string_view replacement)
+    bool ReplaceCommonPathPrefix(std::filesystem::path& source, const std::filesystem::path& prefix, std::string_view replacement)
     {
         auto prefixItr = prefix.begin();
         auto sourceItr = source.begin();
 
         while (prefixItr != prefix.end() && sourceItr != source.end())
         {
-            if (*prefixItr != *sourceItr)
+            if (Utility::ICUCaseInsensitiveEquals(prefixItr->u8string(), sourceItr->u8string()))
             {
                 break;
             }
@@ -229,7 +229,11 @@ namespace AppInstaller::Filesystem
             }
 
             source = std::move(temp);
+
+            return true;
         }
+
+        return false;
     }
 
     std::filesystem::path GetKnownFolderPath(const KNOWNFOLDERID& id)
@@ -237,5 +241,18 @@ namespace AppInstaller::Filesystem
         wil::unique_cotaskmem_string knownFolder = nullptr;
         THROW_IF_FAILED(SHGetKnownFolderPath(id, KF_FLAG_NO_ALIAS | KF_FLAG_DONT_VERIFY | KF_FLAG_NO_PACKAGE_REDIRECTION, NULL, &knownFolder));
         return knownFolder.get();
+    }
+
+    bool IsSameVolume(const std::filesystem::path& path1, const std::filesystem::path& path2)
+    {
+        WCHAR volumeName1[MAX_PATH];
+        WCHAR volumeName2[MAX_PATH];
+
+        // Note: GetVolumePathNameW will return false if the volume drive does not exist.
+        if (!GetVolumePathNameW(path1.c_str(), volumeName1, MAX_PATH) || !GetVolumePathNameW(path2.c_str(), volumeName2, MAX_PATH))
+        {
+            return false;
+        }
+        return Utility::CaseInsensitiveEquals(Utility::ConvertToUTF8(volumeName1), Utility::ConvertToUTF8(volumeName2));
     }
 }

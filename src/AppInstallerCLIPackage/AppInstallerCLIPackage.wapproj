@@ -88,6 +88,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AppInstallerCLI\AppInstallerCLI.vcxproj" />
+    <ProjectReference Include="..\ConfigurationRemotingServer\ConfigurationRemotingServer.csproj" />
     <ProjectReference Include="..\WinGetServer\WinGetServer.vcxproj" />
   </ItemGroup>
   <Import Project="$(WapProjPath)\Microsoft.DesktopBridge.targets" />
@@ -105,21 +106,48 @@
       <MicrosoftManagementDeploymentPath>$(OutputPath)\..\Microsoft.Management.Deployment\Microsoft.Management.Deployment.winmd</MicrosoftManagementDeploymentPath>
       <MicrosoftManagementDeploymentPath Condition="!Exists('$(MicrosoftManagementDeploymentPath)')">$(TargetDir)..\..\..\..\$(PlatformTarget)\$(Configuration)\Microsoft.Management.Deployment\Microsoft.Management.Deployment.winmd</MicrosoftManagementDeploymentPath>
       <MicrosoftManagementDeploymentFileName>Microsoft.Management.Deployment.winmd</MicrosoftManagementDeploymentFileName>
+      <ConfigurationDllPath>$(OutputPath)\..\Microsoft.Management.Configuration.dll</ConfigurationDllPath>
+      <ConfigurationDllPath Condition="!Exists('$(ConfigurationDllPath)')">$(TargetDir)..\..\..\..\$(PlatformTarget)\$(Configuration)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.dll</ConfigurationDllPath>
+      <ConfigurationDllFileName>Microsoft.Management.Configuration.dll</ConfigurationDllFileName>
+      <MicrosoftManagementConfigurationPath>$(OutputPath)\..\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd</MicrosoftManagementConfigurationPath>
+      <MicrosoftManagementConfigurationPath Condition="!Exists('$(MicrosoftManagementConfigurationPath)')">$(TargetDir)..\..\..\..\$(PlatformTarget)\$(Configuration)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd</MicrosoftManagementConfigurationPath>
+      <MicrosoftManagementConfigurationFileName>Microsoft.Management.Configuration.winmd</MicrosoftManagementConfigurationFileName>
+      <MicrosoftManagementConfigurationProcessorPath>$(OutputPath)\..\..\AnyCPU\Microsoft.Management.Configuration.Processor\net6.0-windows10.0.19041.0\Microsoft.Management.Configuration.Processor.winmd</MicrosoftManagementConfigurationProcessorPath>
+      <MicrosoftManagementConfigurationProcessorPath Condition="!Exists('$(MicrosoftManagementConfigurationProcessorPath)')">$(TargetDir)..\..\..\..\AnyCPU\$(Configuration)\Microsoft.Management.Configuration.Processor\net6.0-windows10.0.19041.0\Microsoft.Management.Configuration.Processor.winmd</MicrosoftManagementConfigurationProcessorPath>
+      <MicrosoftManagementConfigurationProcessorFileName>Microsoft.Management.Configuration.Processor.winmd</MicrosoftManagementConfigurationProcessorFileName>
     </PropertyGroup>
     <ItemGroup>
       <WindowsPackageManagerItem Include="$(WindowsPackageManagerPath)" />
       <MicrosoftManagementDeploymentWinmd Include="$(MicrosoftManagementDeploymentPath)" />
+      <ConfigurationDllItem Include="$(ConfigurationDllPath)" />
+      <MicrosoftManagementConfigurationWinmd Include="$(MicrosoftManagementConfigurationPath)" />
+      <MicrosoftManagementConfigurationProcessorWinmd Include="$(MicrosoftManagementConfigurationProcessorPath)" />
     </ItemGroup>
     <Error Condition="!Exists('$(WindowsPackageManagerPath)')" Text="$(WindowsPackageManagerPath) was not found" />
     <Error Condition="!Exists('$(MicrosoftManagementDeploymentPath)')" Text="$(MicrosoftManagementDeploymentPath) was not found" />
+    <Error Condition="!Exists('$(ConfigurationDllPath)')" Text="$(ConfigurationDllPath) was not found" />
+    <Error Condition="!Exists('$(MicrosoftManagementConfigurationPath)')" Text="$(MicrosoftManagementConfigurationPath) was not found" />
+    <Error Condition="!Exists('$(MicrosoftManagementConfigurationProcessorPath)')" Text="$(MicrosoftManagementConfigurationProcessorPath) was not found" />
     <Message Importance="normal" Condition="Exists('$(WindowsPackageManagerPath)')" Text="$(WindowsPackageManagerPath) -&gt; $(WindowsPackageManagerFileName)" />
     <Message Importance="normal" Condition="Exists('$(MicrosoftManagementDeploymentPath)')" Text="$(MicrosoftManagementDeploymentPath) -&gt; $(MicrosoftManagementDeploymentFileName)" />
+    <Message Importance="normal" Condition="Exists('$(ConfigurationDllPath)')" Text="$(ConfigurationDllPath) -&gt; $(ConfigurationDllFileName)" />
+    <Message Importance="normal" Condition="Exists('$(MicrosoftManagementConfigurationPath)')" Text="$(MicrosoftManagementConfigurationPath) -&gt; $(MicrosoftManagementConfigurationFileName)" />
+    <Message Importance="normal" Condition="Exists('$(MicrosoftManagementConfigurationProcessorPath)')" Text="$(MicrosoftManagementConfigurationProcessorPath) -&gt; $(MicrosoftManagementConfigurationProcessorFileName)" />
     <ItemGroup>
       <AppxPackagePayload Include="@(WindowsPackageManagerItem)" KeepDuplicates="false">
         <TargetPath>$(WindowsPackageManagerFileName)</TargetPath>
       </AppxPackagePayload>
       <AppxPackagePayload Include="@(MicrosoftManagementDeploymentWinmd)" KeepDuplicates="false">
         <TargetPath>$(MicrosoftManagementDeploymentFileName)</TargetPath>
+      </AppxPackagePayload>
+      <AppxPackagePayload Include="@(ConfigurationDllItem)" KeepDuplicates="false">
+        <TargetPath>$(ConfigurationDllFileName)</TargetPath>
+      </AppxPackagePayload>
+      <AppxPackagePayload Include="@(MicrosoftManagementConfigurationWinmd)" KeepDuplicates="false">
+        <TargetPath>$(MicrosoftManagementConfigurationFileName)</TargetPath>
+      </AppxPackagePayload>
+      <AppxPackagePayload Include="@(MicrosoftManagementConfigurationProcessorWinmd)" KeepDuplicates="false">
+        <TargetPath>$(MicrosoftManagementConfigurationProcessorFileName)</TargetPath>
       </AppxPackagePayload>
     </ItemGroup>
   </Target>

@@ -450,6 +450,21 @@ namespace AppInstaller::Manifest
         return "Unknown"sv;
     }
 
+    std::string_view InstalledFileTypeToString(InstalledFileTypeEnum installedFileType)
+    {
+        switch (installedFileType)
+        {
+        case InstalledFileTypeEnum::Launch:
+            return "launch"sv;
+        case InstalledFileTypeEnum::Uninstall:
+            return "uninstall"sv;
+        case InstalledFileTypeEnum::Other:
+            return "other"sv;
+        }
+
+        return "unknown";
+    }
+
     bool DoesInstallerTypeUsePackageFamilyName(InstallerTypeEnum installerType)
     {
         return (installerType == InstallerTypeEnum::Msix || installerType == InstallerTypeEnum::MSStore);

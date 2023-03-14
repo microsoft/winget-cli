@@ -21,7 +21,7 @@ namespace Microsoft.WinGet.Client.Commands
         Constants.WinGetNouns.Package,
         DefaultParameterSetName = Constants.FoundSet,
         SupportsShouldProcess = true)]
-    [OutputType(typeof(InstallResult))]
+    [OutputType(typeof(PSObjects.InstallResult))]
     public sealed class InstallPackageCommand : BaseInstallCommand
     {
         private ProcessorArchitecture architecture;
@@ -66,7 +66,7 @@ namespace Microsoft.WinGet.Client.Commands
             {
                 InstallOptions options = this.GetInstallOptions(version);
                 InstallResult result = this.InstallPackage(package, options);
-                this.WriteObject(result);
+                this.WriteObject(new PSObjects.InstallResult(result));
             });
         }
 

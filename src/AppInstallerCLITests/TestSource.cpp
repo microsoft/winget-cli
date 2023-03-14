@@ -182,12 +182,12 @@ namespace TestCommon
         std::vector<PackageVersionKey> result;
         for (const auto& version : AvailableVersions)
         {
-            result.emplace_back(PackageVersionKey("", version->GetProperty(PackageVersionProperty::Version).get(), version->GetProperty(PackageVersionProperty::Channel).get()));
+            result.emplace_back(PackageVersionKey(version->GetSource().GetIdentifier(), version->GetProperty(PackageVersionProperty::Version).get(), version->GetProperty(PackageVersionProperty::Channel).get()));
         }
         return result;
     }
 
-    std::shared_ptr<IPackageVersion> TestPackage::GetLatestAvailableVersion() const
+    std::shared_ptr<IPackageVersion> TestPackage::GetLatestAvailableVersion(PinBehavior) const
     {
         if (AvailableVersions.empty())
         {
@@ -211,7 +211,7 @@ namespace TestCommon
         return {};
     }
 
-    bool TestPackage::IsUpdateAvailable() const
+    bool TestPackage::IsUpdateAvailable(PinBehavior) const
     {
         if (InstalledVersion && !AvailableVersions.empty())
         {

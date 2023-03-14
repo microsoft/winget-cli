@@ -204,13 +204,18 @@
           "type": "boolean",
           "default": false
         },
-        "openLogsArgument": {
-          "description": "Enable argument to open default logs location",
+        "uninstallPreviousArgument": {
+          "description": "Enable argument to override upgrade behavior to UninstallPrevious",
           "type": "boolean",
           "default": false
         },
-        "uninstallPreviousArgument": {
-          "description": "Enable argument to override upgrade behavior to UninstallPrevious",
+        "pinning": {
+          "description": "Enable support for package pinning",
+          "type": "boolean",
+          "default": false
+        },
+        "configuration": {
+          "description": "Enable support for configuration",
           "type": "boolean",
           "default": false
         }

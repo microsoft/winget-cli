@@ -206,7 +206,7 @@
     <comment>{Locked="winget settings","{0}"}. Error message displayed when the user uses an experimental feature that is disabled. {0} is a placeholder replaced by the experimental feature name.</comment>
   </data>
   <data name="FeaturesCommandLongDescription" xml:space="preserve">
-    <value>Shows the status of experimental features. Experimental features can be turn on via 'winget settings'.</value>
+    <value>Shows the status of experimental features. Experimental features can be turned on via 'winget settings'.</value>
     <comment>{Locked="winget settings"}</comment>
   </data>
   <data name="FeaturesCommandShortDescription" xml:space="preserve">
@@ -701,6 +701,15 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>No applicable upgrade found.</value>
   </data>
+  <data name="UpdateNotApplicableReason" xml:space="preserve">
+    <value>A newer package version is available in a configured source, but it does not apply to your system or requirements.</value>
+  </data>
+  <data name="UpdateNoPackagesFound" xml:space="preserve">
+    <value>No available upgrade found.</value>
+  </data>
+  <data name="UpdateNoPackagesFoundReason" xml:space="preserve">
+    <value>No newer package versions are available from the configured sources.</value>
+  </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
     <value>Upgrades the selected package, either found by searching the installed packages list or directly from a manifest. By default, the query must case-insensitively match the id, name, or moniker of the package. Other fields can be used by passing their appropriate option. When no arguments are given, shows the packages with upgrades available</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
@@ -722,7 +731,7 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>The path to the manifest to be validated</value>
   </data>
   <data name="VerboseLogsArgumentDescription" xml:space="preserve">
-    <value>Enables verbose logging for WinGet</value>
+    <value>Enables verbose logging for winget</value>
   </data>
   <data name="VerifyFileSignedMsix" xml:space="preserve">
     <value>Please verify that the input file is a valid, signed MSIX.</value>
@@ -831,10 +840,6 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="ImportInstallFailed" xml:space="preserve">
     <value>One or more imported packages failed to install</value>
   </data>
-  <data name="ImportSearchFailed" xml:space="preserve">
-    <value>Package not found for import: {0}</value>
-    <comment>{Locked="{0}"} Error message displayed when the user attempts to import an application package that was not found. {0} is a placeholder replaced by the import package name .</comment>
-  </data>
   <data name="ImportSourceNotInstalled" xml:space="preserve">
     <value>Source required for import is not installed: {0}</value>
     <comment>{Locked="{0}"} Error message displayed when the user attempts to import application package(s) from a repository source that is not installed. {0} is a placeholder replaced by the repository source name.</comment>
@@ -853,9 +858,9 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="InvalidJsonFile" xml:space="preserve">
     <value>JSON file is not valid</value>
   </data>
-  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+  <data name="MultiQueryPackageAlreadyInstalled" xml:space="preserve">
     <value>Package is already installed: {0}</value>
-    <comment>{Locked="{0}"} Message displayed to inform the user that an import application package is already installed. {0} is a placeholder replaced by the package identifier.</comment>
+    <comment>{Locked="{0}"} Message displayed to inform the user that an application package is already installed. {0} is a placeholder replaced by the package identifier or search query.</comment>
   </data>
   <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
     <value>Ignore unavailable packages</value>
@@ -909,21 +914,9 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
     <value>Set Windows Package Manager Source Auto Update Interval In Minutes</value>
   </data>
-  <data name="PoliciesDisabled" xml:space="preserve">
-    <value>Disabled</value>
-    <comment>As in enabled/disabled</comment>
-  </data>
-  <data name="PoliciesEnabled" xml:space="preserve">
-    <value>Enabled</value>
-    <comment>As in enabled/disabled</comment>
-  </data>
   <data name="PoliciesPolicy" xml:space="preserve">
     <value>Group Policy</value>
     <comment>Header for a table listing active Group Policies</comment>
-  </data>
-  <data name="PoliciesState" xml:space="preserve">
-    <value>State</value>
-    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
   </data>
   <data name="PolicyEnableLocalManifests" xml:space="preserve">
     <value>Enable Windows App Installer Local Manifest Files</value>
@@ -1224,15 +1217,17 @@ Do you agree to the terms?</value>
   <data name="AdminSettingDisableDescription" xml:space="preserve">
     <value>Disables the specific administrator setting</value>
   </data>
-  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
-    <value>Too many admin setting arguments provided: '{0}'</value>
-    <comment>{Locked="{0}"} Error message displayed when the user provides too many admin setting arguments. {0} is a placeholder replaced by the admin setting arguments (e.g. 'enable|disable').</comment>
-  </data>
   <data name="AdminSettingEnabled" xml:space="preserve">
-    <value>Admin setting enabled.</value>
+    <value>Enabled admin setting '{0}'.</value>
+    <comment>{Locked="{0}"} Message displayed when the user enables an admin setting. {0} is a placeholder replaced by the setting name.</comment>
   </data>
   <data name="AdminSettingDisabled" xml:space="preserve">
-    <value>Admin setting disabled.</value>
+    <value>Disabled admin setting '{0}'.</value>
+    <comment>{Locked="{0}"} Message displayed when the user disables an admin setting. {0} is a placeholder replaced by the setting name.</comment>
+  </data>
+  <data name="AdminSettingHeader" xml:space="preserve">
+    <value>Admin Setting</value>
+    <comment>Header for a table displaying admin settings.</comment>
   </data>
   <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
     <value>Application is currently running. Exit the application then try again.</value>
@@ -1322,6 +1317,9 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="CountOutOfBoundsError" xml:space="preserve">
     <value>The requested number of results must be between 1 and 1000.</value>
   </data>
+  <data name="CustomSwitchesArgumentDescription" xml:space="preserve">
+    <value>Arguments to be passed on to the installer in addition to the defaults</value>
+  </data>
   <data name="UpgradeDifferentInstallTechnologyInNewerVersions" xml:space="preserve">
     <value>A newer version was found, but the install technology is different from the current version installed. Please uninstall the package and install the newer version.</value>
   </data>
@@ -1342,21 +1340,13 @@ Please specify one of them using the --source option to proceed.</value>
     <value>This package's version number cannot be determined. To upgrade it anyway, add the argument --include-unknown to your previous command.</value>
     <comment>{Locked="--include-unknown"}</comment>
   </data>
-  <data name="UpgradeUnknownCount" xml:space="preserve">
-    <value>packages have version numbers that cannot be determined. Using --include-unknown may show more results.</value>
-    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions. </comment>
-  </data>
-  <data name="UpgradeUnknownCountSingle" xml:space="preserve">
-    <value>package has a version number that cannot be determined. Using --include-unknown may show more results.</value>
-    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions.</comment>
-  </data>
   <data name="UpgradeUnknownVersionCount" xml:space="preserve">
-    <value>package(s) have version numbers that cannot be determined. Use --include-unknown to see all results.</value>
-    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions. </comment>
+    <value>{0} package(s) have version numbers that cannot be determined. Use --include-unknown to see all results.</value>
+    <comment>{Locked="{0}","--include-unknown"} {0} is a placeholder that is replaced by an integer number of packages that do not have notated versions. </comment>
   </data>
   <data name="UpgradeRequireExplicitCount" xml:space="preserve">
-    <value>package(s) is pinned and needs to be explicitly upgraded.</value>
-    <comment>This string is preceded by a (integer) number of packages that require explicit upgrades.</comment>
+    <value>{0} package(s) are pinned and need to be explicitly upgraded.</value>
+    <comment>{Locked="{0}"} {0} is a placeholder that is replaced by an integer number of packages that require explicit upgrades.</comment>
   </data>
   <data name="InvalidArgumentWithoutQueryError" xml:space="preserve">
     <value>The arguments provided can only be used with a query.</value>
@@ -1415,10 +1405,6 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="PortableInstallFailed" xml:space="preserve">
     <value>Portable install failed; Cleaning up...</value>
   </data>
-  <data name="BothPurgeAndPreserveFlagsProvided" xml:space="preserve">
-    <value>Both --purge and --preserve arguments are provided</value>
-    <comment>{Locked="--purge"} {Locked="--preserve"}</comment>
-  </data>
   <data name="PortableHashMismatchOverridden" xml:space="preserve">
     <value>Portable package has been modified; proceeding due to --force</value>
     <comment>{Locked="--force"}</comment>
@@ -1435,7 +1421,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Purging install directory...</value>
   </data>
   <data name="UnableToPurgeInstallDirectory" xml:space="preserve">
-    <value>Cannot purge install directory, as it was not created by WinGet</value>
+    <value>Cannot purge install directory, as it was not created by winget</value>
   </data>
   <data name="RelatedLink" xml:space="preserve">
     <value>Related Link</value>
@@ -1551,14 +1537,14 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>{Locked="{0}"} The value will be replaced with the feature name</comment>
   </data>
   <data name="PinAddCommandLongDescription" xml:space="preserve">
-    <value>Add a new pin. A pin can limit the Windows Package Manager from updating a package to specific ranges of versions, or it can prevent it from updating the package altogether. A pinned package may still update on its own and be updated from outside the Windows Package Manager. By default, a pinned package can be updated by mentioning it explicitly in the 'upgrade' command or by adding the '--include-pinned' flag to 'winget upgrade --all'.</value>
+    <value>Add a new pin. A pin can limit the Windows Package Manager from upgrade a package to specific ranges of versions, or it can prevent it from upgrading the package altogether. A pinned package may still upgrade on its own and be upgraded from outside the Windows Package Manager. By default, a pinned package can be upgraded by mentioning it explicitly in the 'upgrade' command or by adding the '--include-pinned' flag to 'winget upgrade --all'.</value>
     <comment>{Locked{"'upgrade'"} Locked{"--include-pinned"} Locked{"winget upgrade --all"}</comment>
   </data>
   <data name="PinAddCommandShortDescription" xml:space="preserve">
     <value>Add a new pin</value>
   </data>
   <data name="PinCommandLongDescription" xml:space="preserve">
-    <value>Manage package pins with the sub-commands. A pin can limit the Windows Package Manager from updating a package to specific ranges of versions, or it can prevent it from updating the package altogether. A pinned package may still update on its own and be updated from outside the Windows Package Manager.</value>
+    <value>Manage package pins with the sub-commands. A pin can limit the Windows Package Manager from upgrading a package to specific ranges of versions, or it can prevent it from upgrading the package altogether. A pinned package may still upgrade on its own and be upgraded from outside the Windows Package Manager.</value>
   </data>
   <data name="PinCommandShortDescription" xml:space="preserve">
     <value>Manage package pins</value>
@@ -1581,15 +1567,11 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="PinResetCommandShortDescription" xml:space="preserve">
     <value>Reset pins</value>
   </data>
-  <data name="BothGatedVersionAndBlockingFlagProvided" xml:space="preserve">
-    <value>Both version and '--blocking' arguments provided</value>
-    <comment>{Locked="--blocking"}</comment>
-  </data>
   <data name="GatedVersionArgumentDescription" xml:space="preserve">
     <value>Version to which to pin the package. The wildcard '*' can be used as the last version part</value>
   </data>
   <data name="PinAddBlockingArgumentDescription" xml:space="preserve">
-    <value>Block from updating until the pin is removed, preventing override arguments</value>
+    <value>Block from upgrading until the pin is removed, preventing override arguments</value>
   </data>
   <data name="SettingsExportCommandLongDescription" xml:space="preserve">
     <value>Export settings as JSON</value>
@@ -1607,5 +1589,206 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="InstalledScopeArgumentDescription" xml:space="preserve">
     <value>Select installed package scope filter (user or machine)</value>
     <comment>This argument allows the user to select installed packages for just the user or for the entire machine.</comment>
+  </data>
+  <data name="PinAdded" xml:space="preserve">
+    <value>Pin added successfully</value>
+  </data>
+  <data name="PinAlreadyExists" xml:space="preserve">
+    <value>There is already a pin for package {0}</value>
+    <comment>{Locked="{0}"} {0} is a placeholder that will be replaced by a package name. The message is shown when attempting to add a pin for a package that is already pinned.</comment>
+  </data>
+  <data name="PinExistsOverwriting" xml:space="preserve">
+    <value>A pin already exists for package {0}. Overwriting due to the --force argument.</value>
+    <comment>{Locked="--force"}{Locked="--force","{0}"} {0} is a placeholder that will be replaced by a package name.</comment>
+  </data>
+  <data name="PinExistsUseForceArg" xml:space="preserve">
+    <value>A pin already exists for package {0}. Use the --force argument to overwrite it.</value>
+    <comment>{Locked="--force","{0}"} {0} is a placeholder that will be replaced by a package name.</comment>
+  </data>
+  <data name="PinResettingAll" xml:space="preserve">
+    <value>Resetting all current pins.</value>
+  </data>
+  <data name="PinResetUseForceArg" xml:space="preserve">
+    <value>Use the --force argument to reset all pins. The following pins would be removed:</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="PinType" xml:space="preserve">
+    <value>Pin type</value>
+  </data>
+  <data name="PinDoesNotExist" xml:space="preserve">
+    <value>There is no pin for package {0}</value>
+    <comment>{Locked="{0}"} {0} is a placeholder that will be replaced by a package name. The message is shown when attempting to delete a pin for a package that is not pinned.</comment>
+  </data>
+  <data name="PinNoPinsExist" xml:space="preserve">
+    <value>There are no pins configured.</value>
+    <comment>Shown when listing or modifying existing pins if there are none.</comment>
+  </data>
+  <data name="PinResetSuccessful" xml:space="preserve">
+    <value>Pins reset successfully</value>
+    <comment>Shown after resetting (deleting) all the pins</comment>
+  </data>
+  <data name="PinCannotOpenIndex" xml:space="preserve">
+    <value>Unable to open pin database.</value>
+    <comment>Error message for when we cannot open the database containing package pins.</comment>
+  </data>
+  <data name="ArgumentForSinglePackageProvidedWithMultipleQueries" xml:space="preserve">
+    <value>An argument was provided that can only be used for single package</value>
+  </data>
+  <data name="MultipleExclusiveArgumentsProvided" xml:space="preserve">
+    <value>Multiple mutually exclusive arguments provided: {0}</value>
+    <comment>{Locked="{0}"} Error message shown when mutually incompatible command line arguments are used. {0} is a placeholder replaced by the arguments that cannot be specified together</comment>
+  </data>
+  <data name="StateDisabled" xml:space="preserve">
+    <value>Disabled</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="StateEnabled" xml:space="preserve">
+    <value>Enabled</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="StateHeader" xml:space="preserve">
+    <value>State</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies and Settings</comment>
+  </data>
+  <data name="MultiQueryArgumentDescription" xml:space="preserve">
+    <value>The query used to search for a package</value>
+  </data>
+  <data name="MultiQueryPackageNotFound" xml:space="preserve">
+    <value>Package not found: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user attempts to search for multiple application packages and one of the searches returns no results. {0} is a placeholder replaced by the package name or query.</comment>
+  </data>
+  <data name="MultiQuerySearchFoundMultiple" xml:space="preserve">
+    <value>Multiple packages found for: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user attempts to search for multiple application packages and one of the searches returns more than one result. {0} is a placeholder replaced by the package name or query.</comment>
+  </data>
+  <data name="MultiQuerySearchFailed" xml:space="preserve">
+    <value>Search failed for: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user attempts to search for multiple application packages and one of the searches fails. This message is for generic failures, we have more specific messages for when the search returns no results, or when it returns more than one result. {0} is a placeholder replaced by the package name or query.</comment>
+  </data>
+  <data name="UpgradeBlockingPinCount" xml:space="preserve">
+    <value>{0} package(s) have a blocking pin that needs to be removed before upgrade</value>
+    <comment>{Locked="{0}"} {0} is a placeholder that is replaced by an integer number of packages with blocking pins</comment>
+  </data>
+  <data name="IncludePinnedArgumentDescription" xml:space="preserve">
+    <value>Upgrade packages even if they have a non-blocking pin</value>
+  </data>
+  <data name="PinRemovedSuccessfully" xml:space="preserve">
+    <value>Pin removed successfully</value>
+  </data>
+  <data name="UpgradeIsPinned" xml:space="preserve">
+    <value>A newer version was found, but the package has a pin that prevents from upgrading it.</value>
+  </data>
+  <data name="PackageIsPinned" xml:space="preserve">
+    <value>The package is pinned and cannot be upgraded. Use the 'winget pin' command to view and edit pins. Some pin types can be bypassed with the --include-pinned argument.</value>
+    <comment>{Locked="winget pin","--include-pinned"} Error shown when we block an upgrade due to the package being pinned</comment>
+  </data>
+  <data name="UpgradePinnedByUserCount" xml:space="preserve">
+    <value>{0} package(s) have pins that prevent upgrade. Use the 'winget pin' command to view and edit pins. Using the --include-pinned argument may show more results.</value>
+    <comment>{Locked="winget pin","--include-pinned"} {0} is a placeholder replaced by an integer number of packages</comment>
+  </data>
+  <data name="ConfigureCommandLongDescription" xml:space="preserve">
+    <value>Ensures that the system matches the desired state as described by the provided configuration. May download/execute processors in order to achieve the desired state. The configuration and the processors should be checked to ensure that they are trustworthy before applying them.</value>
+  </data>
+  <data name="ConfigureCommandShortDescription" xml:space="preserve">
+    <value>Configures the system into a desired state</value>
+  </data>
+  <data name="ConfigureShowCommandLongDescription" xml:space="preserve">
+    <value>Shows details of the provided configuration. By default, will not modify the system, but some options will cause files to be downloaded and/or loaded.</value>
+  </data>
+  <data name="ConfigureShowCommandShortDescription" xml:space="preserve">
+    <value>Shows details of a configuration</value>
+  </data>
+  <data name="ConfigureTestCommandLongDescription" xml:space="preserve">
+    <value>Checks that the system matches the desired state as described by the provided configuration. May download/execute processors in order to test the desired state. The configuration and the processors should be checked to ensure that they are trustworthy before executing them.</value>
+  </data>
+  <data name="ConfigureTestCommandShortDescription" xml:space="preserve">
+    <value>Checks the system against a desired state</value>
+  </data>
+  <data name="ConfigureValidateCommandLongDescription" xml:space="preserve">
+    <value>Validates a configuration file for correctness.</value>
+  </data>
+  <data name="ConfigureValidateCommandShortDescription" xml:space="preserve">
+    <value>Validates a configuration file</value>
+  </data>
+  <data name="ConfigurationFieldInvalid" xml:space="preserve">
+    <value>The field '{0}' in the configuration file is invalid.</value>
+    <comment>{Locked="{0}"} An error in reading a configuration file. {0} is a placeholder replaced by the field name from the file.</comment>
+  </data>
+  <data name="ConfigurationFileArgumentDescription" xml:space="preserve">
+    <value>The path to the configuration file</value>
+  </data>
+  <data name="ConfigurationFileInvalid" xml:space="preserve">
+    <value>The configuration file is invalid.</value>
+  </data>
+  <data name="ConfigurationFileVersionUnknown" xml:space="preserve">
+    <value>Configuration file version {0} is not known.</value>
+    <comment>{Locked="{0}"} An error in reading a configuration file. {0} is a placeholder replaced by the version of the configuration file.</comment>
+  </data>
+  <data name="ConfigurationAcceptWarningArgumentDescription" xml:space="preserve">
+    <value>Accepts the configuration warning, preventing an interactive prompt</value>
+  </data>
+  <data name="ConfigurationApply" xml:space="preserve">
+    <value>Apply</value>
+    <comment>Indicates that this item is used to write state</comment>
+  </data>
+  <data name="ConfigurationAssert" xml:space="preserve">
+    <value>Assert</value>
+    <comment>Indicates that this item is used to check/assert the state rather than write to it</comment>
+  </data>
+  <data name="ConfigurationDependencies" xml:space="preserve">
+    <value>Dependencies:{0}</value>
+    <comment>{Locked="{0}"} Label displaying a list of dependencies. {0} is replaced with a space separated list of identifiers referencing other items.</comment>
+  </data>
+  <data name="ConfigurationFailedToApply" xml:space="preserve">
+    <value>Some of the configuration was not applied successfully.</value>
+  </data>
+  <data name="ConfigurationFailedToGetDetails" xml:space="preserve">
+    <value>Failed to get detailed information about the configuration.</value>
+  </data>
+  <data name="ConfigurationInform" xml:space="preserve">
+    <value>Inform</value>
+    <comment>Indicates that this item is used to retrieve values for future use rather than writing them</comment>
+  </data>
+  <data name="ConfigurationLocal" xml:space="preserve">
+    <value>Local</value>
+    <comment>Used to indicate that the item is present on the device.</comment>
+  </data>
+  <data name="ConfigurationModuleNameOnly" xml:space="preserve">
+    <value>Module: {0}</value>
+    <comment>{Locked="{0}"} Label displaying a module name. {0} is replaced with the name of the module from the user input file.</comment>
+  </data>
+  <data name="ConfigurationModuleWithDetails" xml:space="preserve">
+    <value>Module: {0} by {1} [{2}]</value>
+    <comment>{Locked="{0}","{1}","{2}"} Label displaying module information. {0} is replaced by the module name. {1} is replaced by the module author. {2} is replaced by a string indicating the source of the module.</comment>
+  </data>
+  <data name="ConfigurationSettings" xml:space="preserve">
+    <value>Settings:</value>
+    <comment>Label for the values that are used as inputs for this item when applying state</comment>
+  </data>
+  <data name="ConfigurationSuccessfullyApplied" xml:space="preserve">
+    <value>Configuration successfully applied.</value>
+  </data>
+  <data name="ConfigurationUnitFailed" xml:space="preserve">
+    <value>Failed:</value>
+  </data>
+  <data name="ConfigurationUnitSkipped" xml:space="preserve">
+    <value>Skipped:</value>
+  </data>
+  <data name="ConfigurationWaitingOnAnother" xml:space="preserve">
+    <value>Another configuration is being applied to the system. This configuration will continue as soon as is possible...</value>
+  </data>
+  <data name="ConfigurationWarning" xml:space="preserve">
+    <value>You are responsible for understanding the configuration settings you are choosing to execute. Microsoft is not responsible for the configuration file you have authored or imported. This configuration may change settings in Windows, install software, change software settings (including security settings), and accept user agreements to third-party packages and services on your behalf.  By running this configuration file, you acknowledge that you understand and agree to these resources and settings. Any applications installed are licensed to you by their owners. Microsoft is not responsible for, nor does it grant any licenses to, third-party packages or services.</value>
+    <comment>Legal approved. Do not change without approval.</comment>
+  </data>
+  <data name="ConfigurationWarningPrompt" xml:space="preserve">
+    <value>Have you reviewed the configuration and would you like to proceed applying it to the system?</value>
+    <comment>PM approved.</comment>
+  </data>
+  <data name="ConfigurationFileEmpty" xml:space="preserve">
+    <value>The configuration is empty.</value>
+  </data>
+  <data name="FileNotFound" xml:space="preserve">
+    <value>File not found.</value>
   </data>
 </root>

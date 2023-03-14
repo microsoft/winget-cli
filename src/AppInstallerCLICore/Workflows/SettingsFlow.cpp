@@ -43,29 +43,29 @@ namespace AppInstaller::CLI::Workflow
 
     void EnableAdminSetting(Execution::Context& context)
     {
-        auto adminSettingString = LocIndString{ context.Args.GetArg(Execution::Args::Type::AdminSettingEnable) };
+        auto adminSettingString = context.Args.GetArg(Execution::Args::Type::AdminSettingEnable);
         AdminSetting adminSetting = Settings::StringToAdminSetting(adminSettingString);
         if (Settings::EnableAdminSetting(adminSetting))
         {
-            context.Reporter.Info() << Resource::String::AdminSettingEnabled;
+            context.Reporter.Info() << Resource::String::AdminSettingEnabled(AdminSettingToString(adminSetting)) << std::endl;
         }
         else
         {
-            context.Reporter.Error() << Resource::String::EnableAdminSettingFailed(adminSettingString);
+            context.Reporter.Error() << Resource::String::EnableAdminSettingFailed(AdminSettingToString(adminSetting)) << std::endl;
         }
     }
 
     void DisableAdminSetting(Execution::Context& context)
     {
-        auto adminSettingString = LocIndString{ context.Args.GetArg(Execution::Args::Type::AdminSettingDisable) };
+        auto adminSettingString = context.Args.GetArg(Execution::Args::Type::AdminSettingDisable);
         AdminSetting adminSetting = Settings::StringToAdminSetting(adminSettingString);
         if (Settings::DisableAdminSetting(adminSetting))
         {
-            context.Reporter.Info() << Resource::String::AdminSettingDisabled;
+            context.Reporter.Info() << Resource::String::AdminSettingDisabled(AdminSettingToString(adminSetting)) << std::endl;
         }
         else
         {
-            context.Reporter.Error() << Resource::String::DisableAdminSettingFailed(adminSettingString);
+            context.Reporter.Error() << Resource::String::DisableAdminSettingFailed(AdminSettingToString(adminSetting)) << std::endl;
         }
     }
 
@@ -128,12 +128,10 @@ namespace AppInstaller::CLI::Workflow
     void ExportSettings(Execution::Context& context)
     {
         ExportSettingsJson exportSettingsJson;
-        using AdminSetting_t = std::underlying_type_t<AdminSetting>;
 
-        // Skip Unknown.
-        for (AdminSetting_t i = 1 + static_cast<AdminSetting_t>(AdminSetting::Unknown); i < static_cast<AdminSetting_t>(AdminSetting::Max); ++i)
+        for (const auto& setting : GetAllAdminSettings())
         {
-            exportSettingsJson.AddAdminSetting(static_cast<AdminSetting>(i));
+            exportSettingsJson.AddAdminSetting(setting);
         }
 
         context.Reporter.Info() << exportSettingsJson.ToJsonString() << std::endl;

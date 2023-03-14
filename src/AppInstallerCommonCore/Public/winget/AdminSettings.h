@@ -26,4 +26,6 @@ namespace AppInstaller::Settings
     bool DisableAdminSetting(AdminSetting setting);
 
     bool IsAdminSettingEnabled(AdminSetting setting);
+
+    std::vector<AdminSetting> GetAllAdminSettings();
 }

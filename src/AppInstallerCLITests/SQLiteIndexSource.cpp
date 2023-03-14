@@ -86,7 +86,7 @@ TEST_CASE("SQLiteIndexSource_Id", "[sqliteindexsource]")
     auto results = source->Search(request);
     REQUIRE(results.Matches.size() == 1);
     REQUIRE(results.Matches[0].Package);
-    auto latestVersion = results.Matches[0].Package->GetLatestAvailableVersion();
+    auto latestVersion = results.Matches[0].Package->GetLatestAvailableVersion(PinBehavior::IgnorePins);
 
     REQUIRE(latestVersion->GetProperty(PackageVersionProperty::Id).get() == manifest.Id);
 }
@@ -107,7 +107,7 @@ TEST_CASE("SQLiteIndexSource_Name", "[sqliteindexsource]")
     auto results = source->Search(request);
     REQUIRE(results.Matches.size() == 1);
     REQUIRE(results.Matches[0].Package);
-    auto latestVersion = results.Matches[0].Package->GetLatestAvailableVersion();
+    auto latestVersion = results.Matches[0].Package->GetLatestAvailableVersion(PinBehavior::IgnorePins);
 
     REQUIRE(latestVersion->GetProperty(PackageVersionProperty::Name).get() == manifest.DefaultLocalization.Get<Localization::PackageName>());
 }

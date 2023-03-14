@@ -17,7 +17,8 @@ namespace AppInstaller::Repository::Microsoft
             const SourceDetails& details,
             SQLiteIndex&& index,
             Synchronization::CrossProcessReaderWriteLock&& lock = {},
-            bool isInstalledSource = false);
+            bool isInstalledSource = false, 
+            bool requireManifestHash = false);
 
         SQLiteIndexSource(const SQLiteIndexSource&) = delete;
         SQLiteIndexSource& operator=(const SQLiteIndexSource&) = delete;
@@ -45,11 +46,14 @@ namespace AppInstaller::Repository::Microsoft
         // Determines if the other source refers to the same as this.
         bool IsSame(const SQLiteIndexSource* other) const;
 
+        bool RequireManifestHash() const { return m_requireManifestHash; }
+
     private:
         std::shared_ptr<SQLiteIndexSource> NonConstSharedFromThis() const;
 
         SourceDetails m_details;
         Synchronization::CrossProcessReaderWriteLock m_lock;
+        bool m_requireManifestHash;
         bool m_isInstalled;
 
     protected:

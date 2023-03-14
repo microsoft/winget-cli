@@ -106,7 +106,7 @@ jobs:
                     /p:AppxBundlePlatforms="$(buildPlatform)"
                     /p:AppxPackageDir="$(appxPackageDir)"
                     /p:AppxBundle=Always
-                    /p:UapAppxPackageBuildMode=StoreUpload'
+                    /p:UapAppxPackageBuildMode=SideloadOnly'
 
   - task: VSBuild@1
     displayName: Build Test Project
@@ -118,7 +118,7 @@ jobs:
                     /p:AppxBundlePlatforms="$(buildPlatform)"
                     /p:AppxPackageDir="$(appxPackageDir)"
                     /p:AppxBundle=Always
-                    /p:UapAppxPackageBuildMode=StoreUpload'
+                    /p:UapAppxPackageBuildMode=SideloadOnly'
 
   - task: CopyFiles@2
     displayName: 'Copy WindowsPackageManager.dll Symbols to artifacts folder'
@@ -290,6 +290,16 @@ jobs:
       codeCoverageEnabled: true
       platform: 'Any CPU'
       configuration: '$(BuildConfiguration)'
+  
+  - task: VSTest@2
+    displayName: 'Run tests: Microsoft.Management.Configuration.UnitTests'
+    inputs:
+      testSelector: 'testAssemblies'
+      testAssemblyVer2: '**\Microsoft.Management.Configuration.UnitTests.dll'
+      searchFolder: '$(buildOutDir)\Microsoft.Management.Configuration.UnitTests'
+      codeCoverageEnabled: true
+      platform: '$(buildPlatform)'
+      configuration: '$(BuildConfiguration)'
 
   - task: CopyFiles@2
     displayName: 'Copy Util to artifacts folder'
@@ -305,6 +315,20 @@ jobs:
     inputs:
       SourceFolder: '$(buildOutDir)\PowerShell'
       TargetFolder: '$(artifactsDir)\PowerShell'
+    condition: always()
+
+  - task: CopyFiles@2
+    displayName: 'Copy Dev Package (Loose Files)'
+    inputs:
+      SourceFolder: 'src\AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration)'
+      TargetFolder: '$(artifactsDir)\DevPackage'
+    condition: always()
+
+  - task: CopyFiles@2
+    displayName: 'Copy Dev Packages'
+    inputs:
+      SourceFolder: '$(appxPackageDir)'
+      TargetFolder: '$(artifactsDir)\AppxPackages'
     condition: always()
 
   - task: PublishPipelineArtifact@1

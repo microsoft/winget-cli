@@ -825,6 +825,43 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow][workflow]")
         std::ostringstream installOutput;
         TestContext context{ installOutput, std::cin };
         auto previousThreadGlobals = context.SetForCurrentThread();
+        // Inno type with /silent and /log and /custom and /installlocation, switches specified in manifest and --custom argument used in cli
+        auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Inno_WithSwitches.yaml"));
+        context.Args.AddArg(Execution::Args::Type::Silent);
+        context.Args.AddArg(Execution::Args::Type::Log, "MyLog.log"sv);
+        context.Args.AddArg(Execution::Args::Type::InstallLocation, "MyDir"sv);
+        context.Args.AddArg(Execution::Args::Type::CustomSwitches, "/MyAppendedSwitch"sv);
+        context.Add<Data::Manifest>(manifest);
+        context.Add<Data::Installer>(manifest.Installers.at(0));
+        context << GetInstallerArgs;
+        std::string installerArgs = context.Get<Data::InstallerArgs>();
+        REQUIRE(installerArgs.find("/mysilent") != std::string::npos); // Use declaration in manifest
+        REQUIRE(installerArgs.find("/mylog=\"MyLog.log\"") != std::string::npos); // Use declaration in manifest
+        REQUIRE(installerArgs.find("/mycustom") != std::string::npos); // Use declaration in manifest
+        REQUIRE(installerArgs.find("/myinstalldir=\"MyDir\"") != std::string::npos); // Use declaration in manifest
+        REQUIRE(installerArgs.find("/MyAppendedSwitch") != std::string::npos); // Use declaration from argument
+    }
+
+    {
+        std::ostringstream installOutput;
+        TestContext context{ installOutput, std::cin };
+        auto previousThreadGlobals = context.SetForCurrentThread();
+        // Inno type with /silent and /log and /custom and /installlocation, switches specified in manifest and whitespace-only --custom argument used in cli
+        auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Inno_WithSwitches.yaml"));
+        context.Args.AddArg(Execution::Args::Type::Silent);
+        context.Args.AddArg(Execution::Args::Type::CustomSwitches, "\t"sv);
+        context.Add<Data::Manifest>(manifest);
+        context.Add<Data::Installer>(manifest.Installers.at(0));
+        context << GetInstallerArgs;
+        std::string installerArgs = context.Get<Data::InstallerArgs>();
+        REQUIRE(installerArgs.find("/mysilent") != std::string::npos); // Use declaration in manifest
+        REQUIRE(installerArgs.find("\t") == std::string::npos); // Whitespace only Custom switches should not be appended
+    }
+
+    {
+        std::ostringstream installOutput;
+        TestContext context{ installOutput, std::cin };
+        auto previousThreadGlobals = context.SetForCurrentThread();
         // Override switch specified. The whole arg passed to installer is overridden.
         auto manifest = YamlParser::CreateFromPath(TestDataFile("InstallerArgTest_Inno_WithSwitches.yaml"));
         context.Args.AddArg(Execution::Args::Type::Silent);
@@ -1073,4 +1110,43 @@ TEST_CASE("InstallFlowMultiLocale_PreferenceWithBetterLocale", "[InstallFlow][wo
     std::string installResultStr;
     std::getline(installResultFile, installResultStr);
     REQUIRE(installResultStr.find("/en-GB") != std::string::npos);
+}
+
+TEST_CASE("InstallFlow_InstallMultiple", "[InstallFlow][workflow][MultiQuery]")
+{
+    TestCommon::TempFile exeInstallResultPath("TestExeInstalled.txt");
+    TestCommon::TempFile msixInstallResultPath("TestMsixInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForMSIX(context);
+    OverrideForShellExecute(context);
+    OverrideForOpenSource(context, CreateTestSource({ TSR::TestInstaller_Exe, TSR::TestInstaller_Msix }), true);
+    context.Args.AddArg(Execution::Args::Type::MultiQuery, TSR::TestInstaller_Exe.Query);
+    context.Args.AddArg(Execution::Args::Type::MultiQuery, TSR::TestInstaller_Msix.Query);
+
+    InstallCommand installCommand({});
+    installCommand.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify all packages were installed
+    REQUIRE(std::filesystem::exists(exeInstallResultPath.GetPath()));
+    REQUIRE(std::filesystem::exists(msixInstallResultPath.GetPath()));
+}
+
+TEST_CASE("InstallFlow_InstallMultiple_SearchFailed", "[InstallFlow][workflow][MultiQuery]")
+{
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForOpenSource(context, CreateTestSource({ TSR::TestInstaller_Exe }), true);
+    context.Args.AddArg(Execution::Args::Type::MultiQuery, TSR::TestInstaller_Exe.Query);
+    context.Args.AddArg(Execution::Args::Type::MultiQuery, TSR::TestInstaller_Msix.Query);
+
+    InstallCommand installCommand({});
+    installCommand.Execute(context);
+    INFO(installOutput.str());
+
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_NOT_ALL_QUERIES_FOUND_SINGLE);
 }

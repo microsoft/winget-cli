@@ -45,28 +45,13 @@
     <ClInclude Include="Public\AppInstallerTelemetry.h">
       <Filter>Public</Filter>
     </ClInclude>
-    <ClInclude Include="Public\AppInstallerLogging.h">
-      <Filter>Public</Filter>
-    </ClInclude>
-    <ClInclude Include="Public\AppInstallerStrings.h">
-      <Filter>Public</Filter>
-    </ClInclude>
     <ClInclude Include="Public\AppInstallerRuntime.h">
-      <Filter>Public</Filter>
-    </ClInclude>
-    <ClInclude Include="Public\AppInstallerSHA256.h">
       <Filter>Public</Filter>
     </ClInclude>
     <ClInclude Include="Public\AppInstallerDownloader.h">
       <Filter>Public</Filter>
     </ClInclude>
     <ClInclude Include="Public\AppInstallerArchitecture.h">
-      <Filter>Public</Filter>
-    </ClInclude>
-    <ClInclude Include="Public\AppInstallerErrors.h">
-      <Filter>Public</Filter>
-    </ClInclude>
-    <ClInclude Include="Public\AppInstallerLanguageUtilities.h">
       <Filter>Public</Filter>
     </ClInclude>
     <ClInclude Include="HttpStream\HttpClientWrapper.h">
@@ -84,9 +69,6 @@
     <ClInclude Include="Public\AppInstallerFileLogger.h">
       <Filter>Public</Filter>
     </ClInclude>
-    <ClInclude Include="Public\AppInstallerDateTime.h">
-      <Filter>Public</Filter>
-    </ClInclude>
     <ClInclude Include="Public\AppInstallerSynchronization.h">
       <Filter>Public</Filter>
     </ClInclude>
@@ -96,13 +78,7 @@
     <ClInclude Include="Public\AppInstallerProgress.h">
       <Filter>Public</Filter>
     </ClInclude>
-    <ClInclude Include="Public\AppInstallerVersions.h">
-      <Filter>Public</Filter>
-    </ClInclude>
     <ClInclude Include="Public\winget\ExtensionCatalog.h">
-      <Filter>Public\winget</Filter>
-    </ClInclude>
-    <ClInclude Include="Public\winget\LocIndependent.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
     <ClInclude Include="Public\winget\Settings.h">
@@ -112,12 +88,6 @@
       <Filter>Public\winget</Filter>
     </ClInclude>
     <ClInclude Include="Public\winget\ExperimentalFeature.h">
-      <Filter>Public\winget</Filter>
-    </ClInclude>
-    <ClInclude Include="YamlWrapper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Public\winget\Yaml.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
     <ClInclude Include="Public\winget\ManifestInstaller.h">
@@ -153,13 +123,7 @@
     <ClInclude Include="Public\winget\ManifestCommon.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
-    <ClInclude Include="Public\winget\JsonSchemaValidation.h">
-      <Filter>Public\winget</Filter>
-    </ClInclude>
     <ClInclude Include="Public\winget\GroupPolicy.h">
-      <Filter>Public\winget</Filter>
-    </ClInclude>
-    <ClInclude Include="Public\winget\Resources.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
     <ClInclude Include="Public\winget\Locale.h">
@@ -222,6 +186,9 @@
     <ClInclude Include="Public\winget\PackageDependenciesValidationUtil.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
+    <ClInclude Include="Public\winget\Pin.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -233,22 +200,10 @@
     <ClCompile Include="AppInstallerTelemetry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AppInstallerLogging.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="AppInstallerStrings.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="FileLogger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DateTime.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Runtime.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SHA256.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Downloader.cpp">
@@ -275,12 +230,6 @@
     <ClCompile Include="Deployment.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Versions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Errors.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ExtensionCatalog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -294,12 +243,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ExperimentalFeature.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="YamlWrapper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Yaml.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Manifest\ManifestValidation.cpp">
@@ -328,9 +271,6 @@
     </ClCompile>
     <ClCompile Include="Manifest\Manifest.cpp">
       <Filter>Manifest</Filter>
-    </ClCompile>
-    <ClCompile Include="JsonSchemaValidation.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GroupPolicy.cpp">
       <Filter>Source Files</Filter>
@@ -374,9 +314,6 @@
     <ClCompile Include="Certificates.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Resources.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="FolderFileWatcher.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -393,6 +330,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Progress.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Pin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

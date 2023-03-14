@@ -4,6 +4,7 @@ ACTIONDATA
 ACTIONSTART
 addfile
 addmanifest
+addpin
 addportablefile
 addstore
 admins
@@ -94,6 +95,7 @@ cpprestsdk
 cppwinrt
 CPRWL
 createnew
+createpintable
 createportabletable
 createtables
 cref
@@ -131,6 +133,7 @@ dll
 dllexport
 dllmain
 Dlls
+DMC
 docx
 dotnet
 downlevel
@@ -227,6 +230,7 @@ https
 HWND
 Hyperlink
 IAppx
+IConfiguration
 icu
 IDX
 IFACEMETHOD
@@ -234,6 +238,7 @@ ifdef
 ifndef
 ifspec
 ifstream
+IInspectable
 IIS
 impl
 inapplicabilities
@@ -254,6 +259,7 @@ INVALIDARG
 INVALIDSID
 iomanip
 iostream
+IPinning
 IPortable
 ipmo
 ISAPPROVEDFOROUTPUT
@@ -272,6 +278,7 @@ LEN
 Linux
 LLVM
 llvmorg
+lnk
 LOCALAPPDATA
 localtime
 LOGONLYONERROR
@@ -390,6 +397,7 @@ pfp
 PGP
 php
 PII
+pinningindex
 pipssource
 PKCS
 placeholders
@@ -440,12 +448,15 @@ REFCLSID
 REFCOUNT
 regex
 regexp
+remoting
 removefile
 removemanifest
+removepin
 removeportablefile
 repolibtest
 requeue
 rescap
+resetpins
 resheader
 resmimetype
 RESOLVESOURCE
@@ -624,6 +635,7 @@ Unregisters
 untimes
 updatefile
 updatemanifest
+updatepin
 updateportablefile
 UPLEVEL
 upvote

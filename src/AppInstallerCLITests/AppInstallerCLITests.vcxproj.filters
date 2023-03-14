@@ -63,6 +63,9 @@
     <ClInclude Include="WorkflowCommon.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="TestConfiguration.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -274,6 +277,18 @@
     </ClCompile>
     <ClCompile Include="WorkflowCommon.cpp">
       <Filter>Source Files\CLI</Filter>
+    </ClCompile>
+    <ClCompile Include="PinningIndex.cpp">
+      <Filter>Source Files\Repository</Filter>
+    </ClCompile>
+    <ClCompile Include="PinFlow.cpp">
+      <Filter>Source Files\CLI</Filter>
+    </ClCompile>
+    <ClCompile Include="Argument.cpp">
+      <Filter>Source Files\CLI</Filter>
+    </ClCompile>
+    <ClCompile Include="TestConfiguration.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -9,6 +9,7 @@
 namespace AppInstaller::CLI
 {
     using namespace AppInstaller::CLI::Execution;
+    using namespace AppInstaller::CLI::Workflow;
     using namespace std::string_view_literals;
 
     std::vector<Argument> SearchCommand::GetArguments() const
@@ -25,6 +26,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Execution::Args::Type::Exact),
             Argument::ForType(Execution::Args::Type::CustomHeader),
             Argument::ForType(Execution::Args::Type::AcceptSourceAgreements),
+            Argument::ForType(Execution::Args::Type::ListVersions),
         };
     }
 
@@ -68,7 +70,7 @@ namespace AppInstaller::CLI
 
     void SearchCommand::ValidateArgumentsInternal(Args& execArgs) const
     {
-        Argument::ValidatePackageSelectionArgumentSupplied(execArgs);
+        Argument::ValidateCommonArguments(execArgs);
     }
 
     void SearchCommand::ExecuteInternal(Context& context) const
@@ -78,8 +80,21 @@ namespace AppInstaller::CLI
         context <<
             Workflow::OpenSource() <<
             Workflow::SearchSourceForMany <<
-            Workflow::HandleSearchResultFailures <<
-            Workflow::EnsureMatchesFromSearchResult(false) <<
-            Workflow::ReportSearchResult;
+            Workflow::HandleSearchResultFailures;
+
+            if (context.Args.Contains(Execution::Args::Type::ListVersions))
+            {
+                context <<
+                Workflow::EnsureOneMatchFromSearchResult(OperationType::Search) <<
+                Workflow::ReportPackageIdentity <<
+                Workflow::ShowAppVersions;
+            }
+            else
+            {
+                context << 
+                    Workflow::EnsureMatchesFromSearchResult(OperationType::Search) <<
+                    Workflow::ReportSearchResult;
+            }
+        
     }
 }

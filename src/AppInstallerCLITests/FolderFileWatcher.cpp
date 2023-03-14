@@ -74,7 +74,7 @@ TEST_CASE("FolderFileWatcher_CreateNewFiles", "[FolderFileWatcher]")
     std::this_thread::sleep_for(100ms);
     folderFileWatcher.Stop();
 
-    auto& watchedFiles = folderFileWatcher.files();
+    auto& watchedFiles = folderFileWatcher.Files();
 
     auto tempFile1RelativePath = RemoveRoot(dirToWatch, tempFile1.GetPath());
     auto foundTempFile1 = watchedFiles.find(tempFile1RelativePath);
@@ -105,7 +105,7 @@ TEST_CASE("FolderFileWatcher_CreateAfterStop", "[FolderFileWatcher]")
     TempFile tempFile2(dirToWatch.GetPath(), "file2_", ".txt");
     WriteText(tempFile2.GetPath());
 
-    auto& watchedFiles = folderFileWatcher.files();
+    auto& watchedFiles = folderFileWatcher.Files();
 
     auto tempFile1RelativePath = RemoveRoot(dirToWatch, tempFile1.GetPath());
     auto foundTempFile1 = watchedFiles.find(tempFile1RelativePath);
@@ -144,7 +144,7 @@ TEST_CASE("FolderFileWatcher_CreateNewFilesAndRename", "[FolderFileWatcher]")
     std::this_thread::sleep_for(100ms);
     folderFileWatcher.Stop();
 
-    auto& watchedFiles = folderFileWatcher.files();
+    auto& watchedFiles = folderFileWatcher.Files();
 
     auto tempFile1RelativePath = RemoveRoot(dirToWatch, tempFile1Path);
     auto foundTempFile1 = watchedFiles.find(tempFile1RelativePath);
@@ -198,7 +198,7 @@ TEST_CASE("FolderFileWatcher_CreateNewFilesAndDelete", "[FolderFileWatcher]")
     std::this_thread::sleep_for(100ms);
     folderFileWatcher.Stop();
 
-    auto& watchedFiles = folderFileWatcher.files();
+    auto& watchedFiles = folderFileWatcher.Files();
 
     auto tempFile1RelativePath = RemoveRoot(dirToWatch, tempFile1.GetPath());
     auto foundTempFile1 = watchedFiles.find(tempFile1RelativePath);
@@ -243,7 +243,7 @@ TEST_CASE("FolderFileWatcher_Extension_CreateNewFiles", "[FolderFileWatcher]")
     std::this_thread::sleep_for(100ms);
     folderFileExtensionWatcher.Stop();
 
-    auto& watchedFiles = folderFileExtensionWatcher.files();
+    auto& watchedFiles = folderFileExtensionWatcher.Files();
 
     auto tempFile1RelativePath = RemoveRoot(dirToWatch, tempFile1.GetPath());
     auto foundTempFile1 = watchedFiles.find(tempFile1RelativePath);
@@ -278,7 +278,7 @@ TEST_CASE("FolderFileWatcher_Extension_CreateAfterStop", "[FolderFileWatcher]")
     TempFile tempFile2(dirToWatch.GetPath(), "file2_", ".txt");
     WriteText(tempFile2.GetPath());
 
-    auto& watchedFiles = folderFileExtensionWatcher.files();
+    auto& watchedFiles = folderFileExtensionWatcher.Files();
 
     auto tempFile1RelativePath = RemoveRoot(dirToWatch, tempFile1.GetPath());
     auto foundTempFile1 = watchedFiles.find(tempFile1RelativePath);
@@ -317,7 +317,7 @@ TEST_CASE("FolderFileWatcher_Extension_CreateNewFilesAndRename", "[FolderFileWat
     std::this_thread::sleep_for(100ms);
     folderFileExtensionWatcher.Stop();
 
-    auto& watchedFiles = folderFileExtensionWatcher.files();
+    auto& watchedFiles = folderFileExtensionWatcher.Files();
 
     auto tempFile1RelativePath = RemoveRoot(dirToWatch, tempFile1Path);
     auto foundTempFile1 = watchedFiles.find(tempFile1RelativePath);
@@ -371,7 +371,7 @@ TEST_CASE("FolderFileWatcher_Extension_CreateNewFilesAndDelete", "[FolderFileWat
     std::this_thread::sleep_for(100ms);
     folderFileExtensionWatcher.Stop();
 
-    auto& watchedFiles = folderFileExtensionWatcher.files();
+    auto& watchedFiles = folderFileExtensionWatcher.Files();
 
     auto tempFile1RelativePath = RemoveRoot(dirToWatch, tempFile1.GetPath());
     auto foundTempFile1 = watchedFiles.find(tempFile1RelativePath);
