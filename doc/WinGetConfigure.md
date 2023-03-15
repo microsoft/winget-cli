@@ -126,12 +126,20 @@ These examples are intentionally pedantic to ensure you have an understanding of
 
  To remove the Process scoped environment variable run:
  ```PowerShell
- Invoke-DscResource -Name Environment -Module PSDscResources -Method Test -Property @{
+ Invoke-DscResource -Name Environment -Module PSDscResources -Method Set -Property @{
     Name   = 'DSC_EXAMPLE'
-    Ensure = 'Present'
+    Ensure = 'Absent'
     Value  = 'Desired State Configuration'
     Target = 'Process'
 }
 ```
-
+To verify the removal of the Process scoped environment variable run:
+ ```PowerShell
+ Invoke-DscResource -Name Environment -Module PSDscResources -Method Test -Property @{
+    Name   = 'DSC_EXAMPLE'
+    Ensure = 'Absent'
+    Value  = 'Desired State Configuration'
+    Target = 'Process'
+}
+```
  
