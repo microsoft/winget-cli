@@ -139,6 +139,7 @@ dotnet
 downlevel
 downloader
 downloaders
+dsc
 dsx
 dword
 DWORDLONG
