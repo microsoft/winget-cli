@@ -61,7 +61,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                 return GetConnectCatalogErrorResult();
             }
 
-            if (!m_acceptSourceAgreements && m_sourceAgreements.Size() != 0)
+            if (!m_acceptSourceAgreements && SourceAgreements().Size() != 0)
             {
                 return GetConnectSourceAgreementsNotAcceptedErrorResult();
             }
