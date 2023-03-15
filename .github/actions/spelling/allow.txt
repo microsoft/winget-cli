@@ -264,6 +264,7 @@ IPortable
 ipmo
 ISAPPROVEDFOROUTPUT
 isspace
+istavailable
 istream
 istringstream
 isxdigit
@@ -276,7 +277,6 @@ LCID
 LCIDTo
 LEN
 Linux
-listavailable
 LLVM
 llvmorg
 lnk
