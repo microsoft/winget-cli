@@ -1,6 +1,6 @@
 # WinGet and Desired State Configuration
 
-The `winget configure` command is designed to streamline the process of getting your Windows environment to a desired state. WinGet is leveraging PowerShell Core (not Windows PowerShell) and PowerShell DSC (Desired State Configuration) to achieve this goal. WinGet is introducing a new YAML formatted file to define the desired state in a declarative manner rather than an imperative mannaer. Our goal is to incorporate this new file and it's syntax into PowerShell DSC v3 in the future.
+The `winget configure` command is designed to streamline the process of getting your Windows environment to a desired state. WinGet is leveraging PowerShell Core (not Windows PowerShell) and PowerShell DSC (Desired State Configuration) to achieve this goal. WinGet is introducing a new YAML formatted file to define the desired state in a declarative manner rather than an imperative manner. Our goal is to incorporate this new file and it's syntax into PowerShell DSC v3 in the future.
 
 Many users will be new to "Desired State Configuration" as well as the concept of "Configuration as Code". If you want to understand the basics of what is happening when you run `winget configure <configuration file>` you can take a look at our "PowerShell DSC Primer" below.
 
@@ -29,7 +29,7 @@ PSRemotingProtocolVersion      2.3
 SerializationVersion           1.1.0.1
 ```
 
-To nstall or upgrade PowerShell to the latest version run `winget install Microsoft.PowerShell`.
+To install or upgrade PowerShell to the latest version run `winget install Microsoft.PowerShell`.
 ```PowerShell
 Found PowerShell [Microsoft.PowerShell] Version 7.3.3.0
 This application is licensed to you by its owner.
