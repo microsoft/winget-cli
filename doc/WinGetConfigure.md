@@ -78,7 +78,7 @@ the modules from 'PSGallery'?
 [Y] Yes  [A] Yes to All  [N] No  [L] No to All  [S] Suspend  [?] Help (default is "N"):
 ```
 
-In this case, you can respond with "Y" if you trust the PowerShell gallery to install this module.
+In this case, you can respond with "Y" if you trust the [PowerShell Gallery](https://www.powershellgallery.com/) to install this module.
 
 To verify the command succeeded you can run `Get-Module -listavailable PSDesiredStateConfiguration` and you should see the following output.
 
@@ -94,7 +94,7 @@ Script     2.0.6                 PSDesiredStateConfiguration         Core      {
 
 ### Install the PSDesiredStateConfiguration module
 
-Run `Install-Module PSDscResources` and you will be prompted with the familiar "Untrusted repository" where you may decide to trust the PowerShell Gallery.
+Run `Install-Module PSDscResources` and you will be prompted with the familiar "Untrusted repository" where you may decide to trust the [PowerShell Gallery](https://www.powershellgallery.com/).
 
 ```PowerShell
 PS C:\Users\denelon> Get-Module -listavailable PSDscResources
