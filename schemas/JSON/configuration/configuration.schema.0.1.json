@@ -6,24 +6,27 @@
     "properties": {
         "assertions": {
             "type": "array",
-            "items": { "$ref": "#/defs/resource" }
+            "items": { "$ref": "#/$defs/resource" }
         },
         "resources": {
             "type": "array",
-            "items": { "$ref": "#/defs/resource" }
+            "items": { "$ref": "#/$defs/resource" }
         },
         "parameters": {
             "type": "array",
-            "items": { "$ref": "#/defs/resource" },
+            "items": { "$ref": "#/$defs/resource" },
             "description": "Resources that retrieve information via a 'get' operation."
         },
         "configurationVersion": {
             "type": "string",
+            "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+            "maxLength": 128,
             "default": "0.1",
-            "pattern": "^(?P<major>0|[1-9]\\d*)\\.(?P<minor>0|[1-9]\\d*)\\.(?P<patch>0|[1-9]\\d*)(?:-(?P<prerelease>(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
             "description": "The configuration syntax version"
         }
     },
+    "required": ["configurationVersion"],
+
     "$defs": {
         "resource": {
             "type": "object",
@@ -34,7 +37,9 @@
                     "description": "The name of the resource."
                 },
                 "id": {
-                    "$ref": "#/defs/id"
+                    "type": "string",
+                    "maxLength": 128,
+                    "description": "The identifier of this item."
                 },
                 "dependsOn": {
                     "type": [ "array", "null" ],
@@ -48,85 +53,21 @@
                     "type": "object", 
                     "properties": {
                         "module": {
-                            "$ref": "#/defs/module"
+                            "type": "string",
+                            "maxLength": 128,
+                            "description": "The name of the module."
                         },
                         "description": {
-                            "$ref": "#/defs/description"
-                        },
-                        "requiredVersion": {
-                            "$ref": "#/defs/version"
-                        },
-                        "timeoutSeconds": {
-                            "type": "integer",
-                            "minimum": 0,
-                            "maximum": 6000,
-                            "description": "The number of seconds to wait before timing out."
-                        },
-                        "runAs": {
                             "type": "string",
-                            "enum": [
-                              "admin",
-                              "user"
-                            ],
-                            "description": "Enum determining whether to run as admin or user. Default is user."
-                        },
-                        "sha256Hash": {
-                            "type": "string",
-                            "pattern": "^[A-Fa-f0-9]{64}$",
-                            "description": "SHA256 hash of the resource."
-                        },
-                        "optional": {
-                            "type": [ "boolean", "null" ],
-                            "description": "Indicates whether to inform the orchestrator to prompt user for install. Default is false."
-                        },
-                        "confirm": {
-                            "type": [ "boolean", "null" ],
-                            "description": "Indicates whether to prompt the user for confirmation before initiation."
-                        },
-                        "signerThumbprint": {
-                            "type": "string",
-                            "pattern": "^[A-Fa-f0-9]{40}$",
-                            "description": "The signer thumbprint."
-                        },
-                        "onFailure": {
-                            "type": "string",
-                            "enum": [
-                              "continue",
-                              "stop"
-                            ],
-                            "description": "Determines the behavior if a failure is encountered."
+                            "maxLength": 512,
+                            "description": "The description of the desired state."
                         }
                     },
                     "additionalProperties": true
                 },
-                "settings": {
-                    "type": "object"
-                }
+                "settings": { "type": "object" }
             },
-            "required": [
-                "resource",
-                "id"
-            ]
-        },
-        "id": {
-            "type": "string",
-            "maxLength": 128,
-            "description": "The identifier of this item."
-        },
-        "module": {
-            "type": "string",
-            "maxLength": 128,
-            "description": "The name of the module."
-        },
-        "description": {
-            "type": "string",
-            "maxLength": 512,
-            "description": "The description of the desired state."
-        },
-        "version": {
-            "type": "string",
-            "pattern": "^(?P<major>0|[1-9]\\d*)\\.(?P<minor>0|[1-9]\\d*)\\.(?P<patch>0|[1-9]\\d*)(?:-(?P<prerelease>(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
-            "maxLength": 128
+            "required": ["resource"]
         }
     }
 }
