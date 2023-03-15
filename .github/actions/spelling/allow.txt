@@ -264,6 +264,7 @@ IPortable
 ipmo
 ISAPPROVEDFOROUTPUT
 isspace
+istavailable
 istream
 istringstream
 isxdigit
