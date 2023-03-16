@@ -153,6 +153,9 @@ You will need to enable the experimental feature using `winget settings`.
         "configuration": true
     }
 ```
+
+### Prerequisites
+
 **Note:** *If you are attempting to run `winget configure` in Windows PowerShell or in CMD.exe you will need to instal the current version of PowerShellGet in Windows PowerShell first. Otherwise you will get a Failure as the first line of output and the configuration will not succeed.
 
 ```PowerShell
