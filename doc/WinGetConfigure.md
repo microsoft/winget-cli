@@ -153,7 +153,43 @@ You will need to enable the experimental feature using `winget settings`.
         "configuration": true
     }
 ```
-**Note:** *This must also be run in PowerShell 7.2 or later (not Windows PowerShell or CMD.exe).*
+**Note:** *If you are attempting to run `winget configure` in Windows PowerShell or in CMD.exe you will need to instal the current version of PowerShellGet in Windows PowerShell first. Otherwise you will get a Failure as the first line of output and the configuration will not succeed.
+
+```PowerShell
+PS C:\Users\denelon\Configurations> Install-Module PowerShellGet
+
+NuGet provider is required to continue
+PowerShellGet requires NuGet provider version '2.8.5.201' or newer to interact with NuGet-based repositories. The NuGet
+ provider must be available in 'C:\Program Files\PackageManagement\ProviderAssemblies' or
+'C:\Users\denelon\AppData\Local\PackageManagement\ProviderAssemblies'. You can also install the NuGet provider by
+running 'Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force'. Do you want PowerShellGet to install
+and import the NuGet provider now?
+[Y] Yes  [N] No  [S] Suspend  [?] Help (default is "Y"): Y
+
+Untrusted repository
+You are installing the modules from an untrusted repository. If you trust this repository, change its
+InstallationPolicy value by running the Set-PSRepository cmdlet. Are you sure you want to install the modules from
+'PSGallery'?
+[Y] Yes  [A] Yes to All  [N] No  [L] No to All  [S] Suspend  [?] Help (default is "N"): Y
+WARNING: Version '1.0.0.1' of module 'PowerShellGet' is already installed at 'C:\Program
+Files\WindowsPowerShell\Modules\PowerShellGet\1.0.0.1'. To install version '2.2.5', run Install-Module and add the
+-Force parameter, this command will install version '2.2.5' in side-by-side with version '1.0.0.1'.
+PS C:\Users\denelon\Configurations> Install-Module PowerShellGet -Force
+PS C:\Users\denelon\Configurations> Get-Module PowerShellGet -ListAvailable
+
+
+    Directory: C:\Program Files\WindowsPowerShell\Modules
+
+
+ModuleType Version    Name                                ExportedCommands
+---------- -------    ----                                ----------------
+Script     2.2.5      PowerShellGet                       {Find-Command, Find-DSCResource, Find-Module, Find-RoleCap...
+Script     1.0.0.1    PowerShellGet                       {Install-Module, Find-Module, Save-Module, Update-Module...}
+```
+
+To install the latest version of PowerShell get, run `Install-Module PowerShellGet -force`. Side by side installation is OK
+
+### Create a configuration.dsc.yaml file
 
 Copy the following into a file named "configuration.dsc.yaml".
 ```YAML
