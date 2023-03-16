@@ -187,7 +187,7 @@ Resources are not currently automatically loaded from the PowerShell gallery. Yo
 ### `winget configure show`
 To "view" a configuration, run `winget configure show <path to configuration.dsc.yaml>`
 
-**Note:** *If you see the error message "Failed to get detailed information about the confguration." you need to switch to PowerShell 7.2 or later.
+**Note:** *If you see the error message "Failed to get detailed information about the configuration." you need to switch to PowerShell 7.2 or later.
 
 ### `winget configure`
 Then you can run `winget configure <path to configuration.dsc.yaml>`.
@@ -198,10 +198,13 @@ Then you can run `winget configure <path to configuration.dsc.yaml>`.
 
 This is a non-destructive configuration as nothing is retained in the system. 
 
-If you want empiracal evidence that something is actually being performed, change the value in "Target" to `Machine` (in "configuration.dsc.yaml") and run the command in an Administrative session. After the configuration completes, you will se the value in the system environment variables.
+If you want empirical evidence that something is actually being performed, change the value in "Target" to `Machine` (in "configuration.dsc.yaml") and run the command in an Administrative session. After the configuration completes, you will se the value in the system environment variables.
 
 To change the state of the environment variables back, you can either delete the System variable in the "Environment Variables" or edit in the configuration.dsc.yaml file and swap the "Ensure: 'Present'" and the "Ensure: 'Absent'".
 
 ### Help
 
 With the experimental "configure" feature enabled you can query for help with either `winget configure show -?` or `winget configure show --help` for the show sub command. You can get help for the configure command using `winget configure -?` or `winget configure --help`.
+
+## Known Issues
+The JSON schema references the "properties" keyword and that causes an error to be displayed when viewing the configuration file in Visual Studio Code with the YAML plugin.
