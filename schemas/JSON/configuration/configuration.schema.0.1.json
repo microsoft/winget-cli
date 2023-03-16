@@ -4,28 +4,33 @@
     "description": "A representation of a configuration used by an orchestrator for WinDSC.",
     "type": "object",
     "properties": {
-        "assertions": {
-            "type": "array",
-            "items": { "$ref": "#/$defs/resource" }
-        },
-        "resources": {
-            "type": "array",
-            "items": { "$ref": "#/$defs/resource" }
-        },
-        "parameters": {
-            "type": "array",
-            "items": { "$ref": "#/$defs/resource" },
-            "description": "Resources that retrieve information via a 'get' operation."
-        },
-        "configurationVersion": {
-            "type": "string",
-            "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
-            "maxLength": 128,
-            "default": "0.1",
-            "description": "The configuration syntax version"
+        "properties": {
+            "type": "object",
+            "properties": {
+                "assertions": {
+                    "type": "array",
+                    "items": { "$ref": "#/$defs/resource" }
+                },
+                "resources": {
+                    "type": "array",
+                    "items": { "$ref": "#/$defs/resource" }
+                },
+                "parameters": {
+                    "type": "array",
+                    "items": { "$ref": "#/$defs/resource" },
+                    "description": "Resources that retrieve information via a 'get' operation."
+                },
+                "configurationVersion": {
+                    "type": "string",
+                    "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$",
+                    "maxLength": 128,
+                    "default": "0.1.0",
+                    "description": "The configuration syntax version"
+                }
+            },
+            "required": ["configurationVersion"]
         }
     },
-    "required": ["configurationVersion"],
 
     "$defs": {
         "resource": {
