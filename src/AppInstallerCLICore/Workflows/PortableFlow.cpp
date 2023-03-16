@@ -172,6 +172,8 @@ namespace AppInstaller::CLI::Workflow
         // InstallerPath will point to a directory if it is extracted from an archive.
         if (std::filesystem::is_directory(installerPath))
         {
+            portableInstaller.RecordToIndex = true;
+
             for (const auto& entry : std::filesystem::directory_iterator(installerPath))
             {
                 std::filesystem::path entryPath = entry.path();
@@ -187,11 +189,6 @@ namespace AppInstaller::CLI::Workflow
                 {
                     entries.emplace_back(std::move(PortableFileEntry::CreateFileEntry(entryPath, targetPath, {})));
                 }
-            }
-
-            if (entries.size() > 1)
-            {
-                portableInstaller.RecordToIndex = true;
             }
 
             const std::vector<Manifest::NestedInstallerFile>& nestedInstallerFiles = context.Get<Execution::Data::Installer>()->NestedInstallerFiles;

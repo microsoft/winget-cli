@@ -67,11 +67,6 @@ namespace AppInstaller::CLI::Portable
             m_portableARPEntry.SetValue(valueName, value);
         }
 
-        std::filesystem::path GetInstallDirectoryForPathVariable()
-        {
-            return  InstallDirectoryAddedToPath ? InstallLocation : GetPortableLinksLocation(GetScope());
-        }
-
         std::filesystem::path GetPortableIndexFileName()
         {
             return Utility::ConvertToUTF16(GetProductCode() + ".db");
@@ -114,7 +109,7 @@ namespace AppInstaller::CLI::Portable
         void CreateTargetInstallDirectory();
         void RemoveInstallDirectory();
 
-        void AddToPathVariable();
-        void RemoveFromPathVariable();
+        void AddToPathVariable(const std::filesystem::path& value);
+        void RemoveFromPathVariable(const std::filesystem::path& value);
     };
 }

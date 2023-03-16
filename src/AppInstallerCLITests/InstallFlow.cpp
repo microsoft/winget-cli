@@ -636,23 +636,24 @@ TEST_CASE("InstallFlow_Portable", "[InstallFlow][workflow]")
 
 TEST_CASE("InstallFlow_Portable_SymlinkCreationFail", "[InstallFlow][workflow]")
 {
+    TestCommon::TempDirectory tempDirectory("TestPortableInstallRoot", false);
     std::ostringstream installOutput;
     TestContext installContext{ installOutput, std::cin };
     auto PreviousThreadGlobals = installContext.SetForCurrentThread();
     OverridePortableInstaller(installContext);
     TestHook::SetCreateSymlinkResult_Override createSymlinkResultOverride(false);
+    const auto& targetDirectory = tempDirectory.GetPath();
     installContext.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_Portable.yaml").GetPath().u8string());
+    installContext.Args.AddArg(Execution::Args::Type::InstallLocation, targetDirectory.u8string());
+    installContext.Args.AddArg(Execution::Args::Type::InstallScope, "user"sv);
 
     InstallCommand install({});
     install.Execute(installContext);
     INFO(installOutput.str());
 
-    // 'DefaultSource' is expected because we are installing from a local manifest.
-    const auto& portableUserRoot = AppInstaller::Runtime::GetPathTo(AppInstaller::Runtime::PathName::PortablePackageUserRoot);
-    const auto& portableTargetDirectory = portableUserRoot / "AppInstallerCliTest.TestPortableInstaller__DefaultSource";
-    const auto& portableTargetPath = portableTargetDirectory / "AppInstallerTestExeInstaller.exe";
+    const auto& portableTargetPath = targetDirectory / "AppInstallerTestExeInstaller.exe";
     REQUIRE(std::filesystem::exists(portableTargetPath));
-    REQUIRE(AppInstaller::Registry::Environment::PathVariable(AppInstaller::Manifest::ScopeEnum::User).Contains(portableTargetDirectory));
+    REQUIRE(AppInstaller::Registry::Environment::PathVariable(AppInstaller::Manifest::ScopeEnum::User).Contains(targetDirectory));
 
     // Perform uninstall
     std::ostringstream uninstallOutput;
@@ -664,6 +665,7 @@ TEST_CASE("InstallFlow_Portable_SymlinkCreationFail", "[InstallFlow][workflow]")
     UninstallCommand uninstall({});
     uninstall.Execute(uninstallContext);
     INFO(uninstallOutput.str());
+    REQUIRE_FALSE(std::filesystem::exists(portableTargetPath));
 }
 
 TEST_CASE("PortableInstallFlow_UserScope", "[InstallFlow][workflow]")
