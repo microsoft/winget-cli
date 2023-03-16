@@ -244,6 +244,3 @@ To change the state of the environment variables back, you can either delete the
 ### Help
 
 With the experimental "configure" feature enabled you can query for help with either `winget configure show -?` or `winget configure show --help` for the show sub command. You can get help for the configure command using `winget configure -?` or `winget configure --help`.
-
-## Known Issues
-The JSON schema references the "properties" keyword and that causes an error to be displayed when viewing the configuration file in Visual Studio Code with the YAML plugin.
