@@ -142,4 +142,66 @@ To verify the removal of the Process scoped environment variable run:
     Target = 'Process'
 }
 ```
- 
+
+## WinGet Configure
+
+In the WinGet 1.5-preview(3) the `winget configure` command is available.
+
+You will need to enable the experimental feature using `winget settings`.
+```YAML
+    "experimentalFeatures": {
+        "configuration": true
+    }
+```
+**Note:** *This must also be run in PowerShell 7.2 or later (not Windows PowerShell or CMD.exe).*
+
+Copy the following into a file named "configuration.dsc.yaml".
+```YAML
+# yaml-language-server: $schema=https://aka.ms/configuration-dsc-schema/0.1
+properties:
+  configurationVersion: '0.1.0'
+  assertions:
+    - resource: Environment
+      attributes:
+        module: PSDscResources
+      settings:
+        Name: 'DSC_EXAMPLE'
+        Ensure: 'Absent'
+        Value: 'Desired State Configuration'
+        Target: 'Process'
+  resources:
+    - resource: Environment
+      attributes:
+        module: PSDscResources
+      settings:
+        Name: 'DSC_EXAMPLE'
+        Ensure: 'Present'
+        Value: 'Desired State Configuration'
+        Target: 'Process'
+```
+
+You can use `$ENV:DSC_EXAMPLE` to validate the environment variable is not present for the first "assertion". 
+
+Resources are not currently automatically loaded from the PowerShell gallery. You may need to install the two PowerShell modules referenced above (PSDesiredStateConfiguration and PSDscResources) if you did not try the `Invoke-DscResource` method described above.
+
+### `winget configure show`
+To "view" a configuration, run `winget configure show <path to configuration.dsc.yaml>`
+
+**Note:** *If you see the error message "Failed to get detailed information about the confguration." you need to switch to PowerShell 7.2 or later.
+
+### `winget configure`
+Then you can run `winget configure <path to configuration.dsc.yaml>`.
+
+**Note:** *If you se the error message "An unexpected error occurred while executing the command: 0x80131515 : unknown error" you need to switch to PowerShell 7.2 or later
+
+**Note:** *The command is run in a child process so the environment variable is not present when you return to the PowerShell process. Running `$ENV:DSC_EXAMPLE` will not show the environment variable present after running the configuration*
+
+This is a non-destructive configuration as nothing is retained in the system. 
+
+If you want empiracal evidence that something is actually being performed, change the value in "Target" to `Machine` (in "configuration.dsc.yaml") and run the command in an Administrative session. After the configuration completes, you will se the value in the system environment variables.
+
+To change the state of the environment variables back, you can either delete the System variable in the "Environment Variables" or edit in the configuration.dsc.yaml file and swap the "Ensure: 'Present'" and the "Ensure: 'Absent'".
+
+### Help
+
+With the experimental "configure" feature enabled you can query for help with either `winget configure show -?` or `winget configure show --help` for the show sub command. You can get help for the configure command using `winget configure -?` or `winget configure --help`.
