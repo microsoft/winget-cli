@@ -1,6 +1,5 @@
-<h1>Windows Package Manager Client<img src=".github/images/Logo.png" align="left" width="50" height="39"></h1>
-
-This repository contains the source code for the Windows Package Manager Client.
+# ![WinGet Icon](.github/images/WindowsPackageManager_Assets/ICO/PNG/_40.png) Windows Package Manager 
+## Winget Client 
 
 ![winget install wingetcreate](.github/images/WingetInstall.gif)
 
