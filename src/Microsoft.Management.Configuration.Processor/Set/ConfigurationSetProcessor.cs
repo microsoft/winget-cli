@@ -36,6 +36,11 @@ namespace Microsoft.Management.Configuration.Processor.Set
         }
 
         /// <summary>
+        /// Gets or initializes the set processor factory.
+        /// </summary>
+        internal ConfigurationSetProcessorFactory? SetProcessorFactory { get; init; }
+
+        /// <summary>
         /// Gets the processor environment.
         /// </summary>
         internal IProcessorEnvironment ProcessorEnvironment { get; }
@@ -50,13 +55,24 @@ namespace Microsoft.Management.Configuration.Processor.Set
             ConfigurationUnit unit,
             IReadOnlyDictionary<string, object>? directivesOverlay)
         {
-            var configurationUnitInternal = new ConfigurationUnitInternal(unit, directivesOverlay);
+            try
+            {
+                var configurationUnitInternal = new ConfigurationUnitInternal(unit, directivesOverlay);
+                this.OnDiagnostics(DiagnosticLevel.Verbose, $"Creating unit processor for: {configurationUnitInternal.ToIdentifyingString()}...");
 
-            var dscResourceInfo = this.PrepareUnitForProcessing(configurationUnitInternal);
+                var dscResourceInfo = this.PrepareUnitForProcessing(configurationUnitInternal);
 
-            return new ConfigurationUnitProcessor(
-                this.ProcessorEnvironment,
-                new ConfigurationUnitAndResource(configurationUnitInternal, dscResourceInfo));
+                this.OnDiagnostics(DiagnosticLevel.Verbose, "... done creating unit processor.");
+                return new ConfigurationUnitProcessor(
+                    this.ProcessorEnvironment,
+                    new ConfigurationUnitAndResource(configurationUnitInternal, dscResourceInfo))
+                { SetProcessorFactory = this.SetProcessorFactory };
+            }
+            catch (Exception ex)
+            {
+                this.OnDiagnostics(DiagnosticLevel.Error, ex.ToString());
+                throw;
+            }
         }
 
         /// <summary>
@@ -69,81 +85,90 @@ namespace Microsoft.Management.Configuration.Processor.Set
             ConfigurationUnit unit,
             ConfigurationUnitDetailLevel detailLevel)
         {
-            var unitInternal = new ConfigurationUnitInternal(unit);
-            var dscResourceInfo = this.ProcessorEnvironment.GetDscResource(unitInternal);
-
-            if (dscResourceInfo is not null)
+            try
             {
-                return this.GetUnitProcessorDetailsLocal(
-                    unit.UnitName,
-                    dscResourceInfo,
-                    detailLevel == ConfigurationUnitDetailLevel.Load);
-            }
+                var unitInternal = new ConfigurationUnitInternal(unit);
+                this.OnDiagnostics(DiagnosticLevel.Verbose, $"Getting unit details [{detailLevel}] for: {unitInternal.ToIdentifyingString()}");
+                var dscResourceInfo = this.ProcessorEnvironment.GetDscResource(unitInternal);
 
-            if (detailLevel == ConfigurationUnitDetailLevel.Local)
-            {
-                // Not found locally.
-                return null;
-            }
-
-            var getFindResource = this.ProcessorEnvironment.FindDscResource(unitInternal);
-            if (getFindResource is null)
-            {
-                // Not found in catalog.
-                return null;
-            }
-
-            // Hopefully they will never change the properties name. If someone can explain to me
-            // why assign it Name to $_ in Find-DscResource turns into a string in PowerShell but
-            // into a PSObject here that would be nice...
-            dynamic findResource = getFindResource;
-            string findResourceName = findResource.Name.ToString();
-
-            if (detailLevel == ConfigurationUnitDetailLevel.Catalog)
-            {
-                return new ConfigurationUnitProcessorDetails(
-                    findResourceName,
-                    null,
-                    null,
-                    findResource.PSGetModuleInfo,
-                    null);
-            }
-
-            if (detailLevel == ConfigurationUnitDetailLevel.Download)
-            {
-                var tempSavePath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-                Directory.CreateDirectory(tempSavePath);
-                this.ProcessorEnvironment.SaveModule(getFindResource, tempSavePath);
-
-                var moduleInfo = this.ProcessorEnvironment.GetAvailableModule(
-                    Path.Combine(tempSavePath, findResource.PSGetModuleInfo.Name));
-
-                return new ConfigurationUnitProcessorDetails(
-                    findResourceName,
-                    null,
-                    moduleInfo,
-                    findResource.PSGetModuleInfo,
-                    this.GetCertificates(moduleInfo));
-            }
-
-            if (detailLevel == ConfigurationUnitDetailLevel.Load)
-            {
-                this.ProcessorEnvironment.InstallModule(getFindResource);
-
-                dscResourceInfo = this.ProcessorEnvironment.GetDscResource(unitInternal);
-
-                if (dscResourceInfo is null)
+                if (dscResourceInfo is not null)
                 {
-                    // Well, this is awkward.
-                    throw new InstallDscResourceException(
+                    return this.GetUnitProcessorDetailsLocal(
                         unit.UnitName,
-                        PowerShellHelpers.CreateModuleSpecification(findResource.ModuleName, findResource.Version));
+                        dscResourceInfo,
+                        detailLevel == ConfigurationUnitDetailLevel.Load);
                 }
 
-                return this.GetUnitProcessorDetailsLocal(unit.UnitName, dscResourceInfo, true);
-            }
+                if (detailLevel == ConfigurationUnitDetailLevel.Local)
+                {
+                    // Not found locally.
+                    return null;
+                }
 
-            return null;
+                var getFindResource = this.ProcessorEnvironment.FindDscResource(unitInternal);
+                if (getFindResource is null)
+                {
+                    // Not found in catalog.
+                    return null;
+                }
+
+                // Hopefully they will never change the properties name. If someone can explain to me
+                // why assign it Name to $_ in Find-DscResource turns into a string in PowerShell but
+                // into a PSObject here that would be nice...
+                dynamic findResource = getFindResource;
+                string findResourceName = findResource.Name.ToString();
+
+                if (detailLevel == ConfigurationUnitDetailLevel.Catalog)
+                {
+                    return new ConfigurationUnitProcessorDetails(
+                        findResourceName,
+                        null,
+                        null,
+                        findResource.PSGetModuleInfo,
+                        null);
+                }
+
+                if (detailLevel == ConfigurationUnitDetailLevel.Download)
+                {
+                    var tempSavePath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+                    Directory.CreateDirectory(tempSavePath);
+                    this.ProcessorEnvironment.SaveModule(getFindResource, tempSavePath);
+
+                    var moduleInfo = this.ProcessorEnvironment.GetAvailableModule(
+                        Path.Combine(tempSavePath, findResource.PSGetModuleInfo.Name));
+
+                    return new ConfigurationUnitProcessorDetails(
+                        findResourceName,
+                        null,
+                        moduleInfo,
+                        findResource.PSGetModuleInfo,
+                        this.GetCertificates(moduleInfo));
+                }
+
+                if (detailLevel == ConfigurationUnitDetailLevel.Load)
+                {
+                    this.ProcessorEnvironment.InstallModule(getFindResource);
+
+                    dscResourceInfo = this.ProcessorEnvironment.GetDscResource(unitInternal);
+
+                    if (dscResourceInfo is null)
+                    {
+                        // Well, this is awkward.
+                        throw new InstallDscResourceException(
+                            unit.UnitName,
+                            PowerShellHelpers.CreateModuleSpecification(findResource.ModuleName, findResource.Version));
+                    }
+
+                    return this.GetUnitProcessorDetailsLocal(unit.UnitName, dscResourceInfo, true);
+                }
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                this.OnDiagnostics(DiagnosticLevel.Error, ex.ToString());
+                throw;
+            }
         }
 
         private DscResourceInfoInternal PrepareUnitForProcessing(ConfigurationUnitInternal unitInternal)
@@ -164,7 +189,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
 
                 if (findDscResourceResult is null)
                 {
-                    throw new FindDscResourceNotFoundException(unitInternal.Unit.UnitName);
+                    throw new FindDscResourceNotFoundException(unitInternal.Unit.UnitName, unitInternal.Module);
                 }
 
                 this.ProcessorEnvironment.InstallModule(findDscResourceResult);
@@ -242,6 +267,11 @@ namespace Microsoft.Management.Configuration.Processor.Set
             }
 
             return this.ProcessorEnvironment.GetCertsOfValidSignedFiles(paths.ToArray());
+        }
+
+        private void OnDiagnostics(DiagnosticLevel level, string message)
+        {
+            this.SetProcessorFactory?.OnDiagnostics(level, message);
         }
     }
 }

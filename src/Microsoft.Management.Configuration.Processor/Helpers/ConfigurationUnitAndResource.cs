@@ -18,7 +18,6 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
     /// </summary>
     internal class ConfigurationUnitAndResource
     {
-        private readonly ConfigurationUnitInternal configurationUnitInternal;
         private readonly DscResourceInfoInternal dscResourceInfoInternal;
 
         /// <summary>
@@ -35,16 +34,21 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
                 throw new ArgumentException();
             }
 
-            this.configurationUnitInternal = configurationUnitInternal;
+            this.UnitInternal = configurationUnitInternal;
             this.dscResourceInfoInternal = dscResourceInfoInternal;
         }
+
+        /// <summary>
+        /// Gets or initializes the internal unit.
+        /// </summary>
+        public ConfigurationUnitInternal UnitInternal { get; private init; }
 
         /// <summary>
         /// Gets the configuration unit.
         /// </summary>
         public ConfigurationUnit Unit
         {
-            get { return this.configurationUnitInternal.Unit; }
+            get { return this.UnitInternal.Unit; }
         }
 
         /// <summary>
@@ -52,7 +56,7 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
         /// </summary>
         public IReadOnlyDictionary<string, object>? DirectivesOverlay
         {
-            get { return this.configurationUnitInternal.DirectivesOverlay; }
+            get { return this.UnitInternal.DirectivesOverlay; }
         }
 
         /// <summary>
@@ -69,7 +73,7 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
         /// </summary>
         public ModuleSpecification? Module
         {
-            get { return this.configurationUnitInternal.Module; }
+            get { return this.UnitInternal.Module; }
         }
 
         /// <summary>
@@ -79,7 +83,7 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
         /// <returns>The value of the directive. Null if doesn't exist.</returns>
         public string? GetDirective(string directiveName)
         {
-            return this.configurationUnitInternal.GetDirective(directiveName);
+            return this.UnitInternal.GetDirective(directiveName);
         }
 
         /// <summary>

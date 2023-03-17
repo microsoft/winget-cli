@@ -47,12 +47,19 @@ namespace Microsoft.Management.Configuration.Processor.Unit
         public IReadOnlyDictionary<string, object>? DirectivesOverlay => this.unitResource.DirectivesOverlay;
 
         /// <summary>
+        /// Gets or initializes the set processor factory.
+        /// </summary>
+        internal ConfigurationSetProcessorFactory? SetProcessorFactory { get; init; }
+
+        /// <summary>
         /// Gets the current system state for the configuration unit.
         /// Calls Get on the DSC resource.
         /// </summary>
         /// <returns>A <see cref="GetSettingsResult"/>.</returns>
         public GetSettingsResult GetSettings()
         {
+            this.OnDiagnostics(DiagnosticLevel.Verbose, $"Invoking `Get` for resource: {this.unitResource.UnitInternal.ToIdentifyingString()}...");
+
             var result = new GetSettingsResult();
             try
             {
@@ -64,15 +71,18 @@ namespace Microsoft.Management.Configuration.Processor.Unit
             catch (Exception e) when (e is RuntimeException ||
                                       e is WriteErrorException)
             {
+                this.OnDiagnostics(DiagnosticLevel.Verbose, e.ToString());
                 var inner = e.GetMostInnerException();
                 result.ResultInformation.ResultCode = inner;
                 result.ResultInformation.Description = e.ToString();
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                this.OnDiagnostics(DiagnosticLevel.Error, e.ToString());
                 throw;
             }
 
+            this.OnDiagnostics(DiagnosticLevel.Verbose, $"... done invoking `Get`.");
             return result;
         }
 
@@ -83,8 +93,11 @@ namespace Microsoft.Management.Configuration.Processor.Unit
         /// <returns>A <see cref="TestSettingsResult"/>.</returns>
         public TestSettingsResult TestSettings()
         {
+            this.OnDiagnostics(DiagnosticLevel.Verbose, $"Invoking `Test` for resource: {this.unitResource.UnitInternal.ToIdentifyingString()}...");
+
             if (this.Unit.Intent == ConfigurationUnitIntent.Inform)
             {
+                this.OnDiagnostics(DiagnosticLevel.Error, "`Test` should not be called on a unit with intent of `Inform`");
                 throw new NotSupportedException();
             }
 
@@ -102,15 +115,18 @@ namespace Microsoft.Management.Configuration.Processor.Unit
             catch (Exception e) when (e is RuntimeException ||
                                       e is WriteErrorException)
             {
+                this.OnDiagnostics(DiagnosticLevel.Verbose, e.ToString());
                 var inner = e.GetMostInnerException();
                 result.ResultInformation.ResultCode = inner;
                 result.ResultInformation.Description = e.ToString();
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                this.OnDiagnostics(DiagnosticLevel.Error, e.ToString());
                 throw;
             }
 
+            this.OnDiagnostics(DiagnosticLevel.Verbose, $"... done invoking `Test`.");
             return result;
         }
 
@@ -121,9 +137,12 @@ namespace Microsoft.Management.Configuration.Processor.Unit
         /// <returns>A <see cref="ApplySettingsResult"/>.</returns>
         public ApplySettingsResult ApplySettings()
         {
+            this.OnDiagnostics(DiagnosticLevel.Verbose, $"Invoking `Apply` for resource: {this.unitResource.UnitInternal.ToIdentifyingString()}...");
+
             if (this.Unit.Intent == ConfigurationUnitIntent.Inform ||
                 this.Unit.Intent == ConfigurationUnitIntent.Assert)
             {
+                this.OnDiagnostics(DiagnosticLevel.Error, $"`Apply` should not be called on a unit with intent of `{this.Unit.Intent}`");
                 throw new NotSupportedException();
             }
 
@@ -138,16 +157,24 @@ namespace Microsoft.Management.Configuration.Processor.Unit
             catch (Exception e) when (e is RuntimeException ||
                                       e is WriteErrorException)
             {
+                this.OnDiagnostics(DiagnosticLevel.Verbose, e.ToString());
                 var inner = e.GetMostInnerException();
                 result.ResultInformation.ResultCode = inner;
                 result.ResultInformation.Description = e.ToString();
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                this.OnDiagnostics(DiagnosticLevel.Error, e.ToString());
                 throw;
             }
 
+            this.OnDiagnostics(DiagnosticLevel.Verbose, $"... done invoking `Apply`.");
             return result;
+        }
+
+        private void OnDiagnostics(DiagnosticLevel level, string message)
+        {
+            this.SetProcessorFactory?.OnDiagnostics(level, message);
         }
     }
 }
