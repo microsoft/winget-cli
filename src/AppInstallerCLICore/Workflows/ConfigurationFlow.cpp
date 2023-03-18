@@ -43,6 +43,20 @@ namespace AppInstaller::CLI::Workflow
             return Logging::Level::Info;
         }
 
+        DiagnosticLevel ConvertLevel(Logging::Level level)
+        {
+            switch (level)
+            {
+            case Logging::Level::Verbose: return DiagnosticLevel::Verbose;
+            case Logging::Level::Info: return DiagnosticLevel::Informational;
+            case Logging::Level::Warning: return DiagnosticLevel::Warning;
+            case Logging::Level::Error: return DiagnosticLevel::Error;
+            case Logging::Level::Crit: return DiagnosticLevel::Critical;
+            }
+
+            return DiagnosticLevel::Informational;
+        }
+
         Resource::StringId ToResource(ConfigurationUnitIntent intent)
         {
             switch (intent)
@@ -384,10 +398,8 @@ namespace AppInstaller::CLI::Workflow
     {
         ConfigurationProcessor processor{ CreateConfigurationSetProcessorFactory() };
 
-        if (context.Args.Contains(Args::Type::VerboseLogs))
-        {
-            processor.MinimumLevel(DiagnosticLevel::Verbose);
-        }
+        // Set the processor to the current level of the logging.
+        processor.MinimumLevel(ConvertLevel(Logging::Log().GetLevel()));
 
         // Route the configuration diagnostics into the context's diagnostics logging
         processor.Diagnostics([&context](const winrt::Windows::Foundation::IInspectable&, const DiagnosticInformation& diagnostics)
