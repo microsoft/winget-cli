@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package >
+  <metadata>
+    <id>Microsoft.WinGet.Client</id>
+    <version>0.1.0</version>
+    <authors>Microsoft</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <projectUrl>https://github.com/microsoft/winget-cli</projectUrl>
+    <description>The Windows Package Manager PowerShell Module</description>
+    <copyright>$copyright$</copyright>
+    <tags>winget</tags>
+    <dependencies>
+      <group targetFramework=".NETFramework4.8">
+      </group>
+      <group targetFramework="net6.0-windows10.0.22000.0">
+      </group>
+    </dependencies>
+  </metadata>
+</package>

@@ -383,7 +383,16 @@ jobs:
       Contents: '**\*'
       TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
+  - task: NuGetCommand@2
+    displayName: Create PowerShell module NuGetPackage
+    inputs:
+      command: pack
+      packagesToPack: '$(Build.ArtifactStagingDirectory)\Microsoft.WinGet.Client\Microsoft.WinGet.Client.nuspec'
+      packDestination: '$(Build.ArtifactStagingDirectory)'
+
   - task: PublishPipelineArtifact@1
     displayName: Publish PowerShell Module Artifacts
     inputs:
       targetPath: '$(Build.ArtifactStagingDirectory)'
+
+

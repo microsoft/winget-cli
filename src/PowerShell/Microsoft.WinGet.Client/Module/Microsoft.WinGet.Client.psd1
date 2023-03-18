@@ -12,7 +12,7 @@
 RootModule = 'Microsoft.WinGet.Client.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.0.1'
+ModuleVersion = '0.1.0'
 
 # Supported PSEditions
 CompatiblePSEditions = 'Core'
@@ -66,11 +66,27 @@ PowerShellVersion = '5.1.0'
 FormatsToProcess = 'Format.ps1xml'
 
 # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
-NestedModules = if ($env:PROCESSOR_ARCHITECTURE -like 'x86') {
-    "x86\$PSEdition\Microsoft.WinGet.Client.dll"
+NestedModules = if ($env:PROCESSOR_ARCHITECTURE -like 'x86')
+{
+    if ($PSEdition -eq 'Core')
+    {
+        "lib\net6.0-windows10.0.22000.0\x86\Microsoft.WinGet.Client.dll"
+    }
+    else
+    {
+        "lib\net48\x86\Microsoft.WinGet.Client.dll"
+    }
 }
-else {
-    "x64\$PSEdition\Microsoft.WinGet.Client.dll"
+else
+{
+    if ($PSEdition -eq 'Core')
+    {
+        "lib\net6.0-windows10.0.22000.0\x64\Microsoft.WinGet.Client.dll"
+    }
+    else
+    {
+        "lib\net48\x64\Microsoft.WinGet.Client.dll"
+    }
 }
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
