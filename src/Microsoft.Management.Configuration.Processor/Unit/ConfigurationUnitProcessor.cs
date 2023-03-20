@@ -74,7 +74,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
                 RuntimeException? re = e as RuntimeException;
                 if (re != null)
                 {
-                    this.OnDiagnostics(DiagnosticLevel.Error, $"An error occured within the configuration unit when attempting `Get`:\n{re.ErrorRecord.ToString()}\n{re.ErrorRecord.ScriptStackTrace}");
+                    this.OnDiagnostics(DiagnosticLevel.Error, $"An error occurred within the configuration unit when attempting `Get`:\n{re.ErrorRecord.ToString()}\n{re.ErrorRecord.ScriptStackTrace}");
                 }
 
                 this.OnDiagnostics(DiagnosticLevel.Verbose, e.ToString());
@@ -124,7 +124,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
                 RuntimeException? re = e as RuntimeException;
                 if (re != null)
                 {
-                    this.OnDiagnostics(DiagnosticLevel.Error, $"An error occured within the configuration unit when attempting `Test`:\n{re.ErrorRecord.ToString()}\n{re.ErrorRecord.ScriptStackTrace}");
+                    this.OnDiagnostics(DiagnosticLevel.Error, $"An error occurred within the configuration unit when attempting `Test`:\n{re.ErrorRecord.ToString()}\n{re.ErrorRecord.ScriptStackTrace}");
                 }
 
                 this.OnDiagnostics(DiagnosticLevel.Verbose, e.ToString());
@@ -172,7 +172,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
                 RuntimeException? re = e as RuntimeException;
                 if (re != null)
                 {
-                    this.OnDiagnostics(DiagnosticLevel.Error, $"An error occured within the configuration unit when attempting `Set`:\n{re.ErrorRecord.ToString()}\n{re.ErrorRecord.ScriptStackTrace}");
+                    this.OnDiagnostics(DiagnosticLevel.Error, $"An error occurred within the configuration unit when attempting `Set`:\n{re.ErrorRecord.ToString()}\n{re.ErrorRecord.ScriptStackTrace}");
                 }
 
                 this.OnDiagnostics(DiagnosticLevel.Verbose, e.ToString());
