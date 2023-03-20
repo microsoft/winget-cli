@@ -100,11 +100,14 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         logger.SetLevel(AppInstaller::Logging::Level::Verbose);
         logger.AddLogger(std::make_unique<ConfigurationProcessorDiagnosticsLogger>(*this));
 
-        m_factoryDiagnosticsEventRevoker = m_factory.Diagnostics(winrt::auto_revoke,
-            [this](const IInspectable&, const DiagnosticInformation& information)
-            {
-                m_diagnostics(*this, information);
-            });
+        if (m_factory)
+        {
+            m_factoryDiagnosticsEventRevoker = m_factory.Diagnostics(winrt::auto_revoke,
+                [this](const IInspectable&, const DiagnosticInformation& information)
+                {
+                    m_diagnostics(*this, information);
+                });
+        }
     }
 
     event_token ConfigurationProcessor::Diagnostics(const Windows::Foundation::EventHandler<DiagnosticInformation>& handler)
