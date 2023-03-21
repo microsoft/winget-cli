@@ -181,49 +181,21 @@ namespace Microsoft.WinGet.Client.Helpers
                     throw new PSNotSupportedException(arch.ToString());
                 }
             }
+            else
+            {
+                this.psCmdlet.WriteDebug($"VCLibs are updated.");
+            }
 
             return vcLibsDependencies;
         }
 
         private void InstallVCLibsDependencies()
         {
-            var vcLibsPackageObjs = this.psCmdlet.InvokeCommand
-                .InvokeScript(string.Format(GetAppxPackageByVersionCommand, VCLibsUWPDesktop, VCLibsUWPDesktopVersion));
-            if (vcLibsPackageObjs is null ||
-                vcLibsPackageObjs.Count == 0)
+            var packages = this.GetVCLibsDependencies();
+            foreach (var package in packages)
             {
-                var packages = new List<string>();
-
-                var arch = RuntimeInformation.OSArchitecture;
-                if (arch == Architecture.X64)
-                {
-                    packages.Add(VCLibsUWPDesktopX64);
-                }
-                else if (arch == Architecture.X86)
-                {
-                    packages.Add(VCLibsUWPDesktopX86);
-                }
-                else if (arch == Architecture.Arm64)
-                {
-                    packages.Add(VCLibsUWPDesktopX64);
-                    packages.Add(VCLibsUWPDesktopX86);
-                    packages.Add(VCLibsUWPDesktopArm);
-                    packages.Add(VCLibsUWPDesktopArm64);
-                }
-                else
-                {
-                    throw new PSNotSupportedException(arch.ToString());
-                }
-
-                foreach (var package in packages)
-                {
-                    this.psCmdlet.WriteDebug($"Installing VCLibs {package}");
-                    this.psCmdlet.InvokeCommand.InvokeScript(string.Format(AddAppxPackageFormat, package));
-                }
-            }
-            else
-            {
-                this.psCmdlet.WriteDebug($"VCLibs are updated.");
+                this.psCmdlet.WriteDebug($"Installing VCLibs {package}");
+                this.psCmdlet.InvokeCommand.InvokeScript(string.Format(AddAppxPackageFormat, package));
             }
         }
 
