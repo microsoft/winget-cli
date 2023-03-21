@@ -48,12 +48,10 @@ jobs:
         buildConfiguration: 'Release'
         buildPlatform: 'x86'
         testBuildConfiguration: 'TestRelease'
-        runtimeIdentifier: 'win-x86'
       x64_release:
         buildConfiguration: 'Release'
         buildPlatform: 'x64'
         testBuildConfiguration: 'TestRelease'
-        runtimeIdentifier: 'win-x64'
 
   variables:
     BuildVer: $[counter(dependencies.GetReleaseTag.outputs['GetTag.tag'], 1)]
