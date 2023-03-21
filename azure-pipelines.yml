@@ -48,10 +48,12 @@ jobs:
         buildConfiguration: 'Release'
         buildPlatform: 'x86'
         testBuildConfiguration: 'TestRelease'
+        runtimeIdentifier: 'win-x86'
       x64_release:
         buildConfiguration: 'Release'
         buildPlatform: 'x64'
         testBuildConfiguration: 'TestRelease'
+        runtimeIdentifier: 'win-x64'
 
   variables:
     BuildVer: $[counter(dependencies.GetReleaseTag.outputs['GetTag.tag'], 1)]
@@ -86,6 +88,13 @@ jobs:
     inputs:
       command: 'restore'
       projects: '**/*.csproj'
+
+  - task: DotNetCoreCLI@2
+    displayName: 'dotnet restore'
+    inputs:
+      command: restore
+      projects: 'src\ConfigurationRemotingServer\ConfigurationRemotingServer.csproj'
+      restoreArguments: '--runtime $(runtimeIdentifier)'
 
   - task: PowerShell@2
     displayName: Update Binary Version
