@@ -4,9 +4,7 @@
 <#
     .SYNOPSIS
         Simple sample on how to use WinGetUserSettings DSC resource.
-        Requires PSDesiredStateConfiguration v2 and enabling the
-        PSDesiredStateConfiguration.InvokeDscResource experimental feature
-        `Enable-ExperimentalFeature -Name PSDesiredStateConfiguration.InvokeDscResource`
+        Requires PSDesiredStateConfiguration version 2.0.6
 
         IMPORTANT: If you loaded the released modules this will modify your settings.
                    Use the -Restore to get back to your original settings
@@ -27,7 +25,7 @@ param (
 )
 
 $resource = @{
-    Name = 'WinGetUserSettingsResource'
+    Name = 'WinGetUserSettings'
     ModuleName = 'Microsoft.WinGet.DSC'
     Property = @{
     }

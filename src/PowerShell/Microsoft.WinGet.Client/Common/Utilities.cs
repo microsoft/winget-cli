@@ -6,7 +6,7 @@
 
 namespace Microsoft.WinGet.Client.Common
 {
-    using System.Resources;
+    using System;
     using System.Security.Principal;
 
     /// <summary>
@@ -39,6 +39,44 @@ namespace Microsoft.WinGet.Client.Common
                 WindowsIdentity identity = WindowsIdentity.GetCurrent();
                 WindowsPrincipal principal = new (identity);
                 return principal.IsInRole(WindowsBuiltInRole.SystemOperator);
+            }
+        }
+
+        /// <summary>
+        /// Gets the windows app path for local app data.
+        /// </summary>
+        public static string LocalDataWindowsAppPath
+        {
+            get
+            {
+                return Environment.ExpandEnvironmentVariables(@"%LOCALAPPDATA%\Microsoft\WindowsApps");
+            }
+        }
+
+        /// <summary>
+        /// Gets the windows app path for program files.
+        /// </summary>
+        public static string ProgramFilesWindowsAppPath
+        {
+            get
+            {
+                return Environment.ExpandEnvironmentVariables(@"%PROGRAMFILES%\WindowsApps");
+            }
+        }
+
+        /// <summary>
+        /// Adds the WindowsApp local app data path to the user environment path.
+        /// </summary>
+        public static void AddWindowsAppToPath()
+        {
+            var scope = EnvironmentVariableTarget.User;
+            string envPathValue = Environment.GetEnvironmentVariable(Constants.PathEnvVar, scope);
+            if (string.IsNullOrEmpty(envPathValue) || !envPathValue.Contains(Utilities.LocalDataWindowsAppPath))
+            {
+                Environment.SetEnvironmentVariable(
+                    Constants.PathEnvVar,
+                    $"{envPathValue};{Utilities.LocalDataWindowsAppPath}",
+                    scope);
             }
         }
     }

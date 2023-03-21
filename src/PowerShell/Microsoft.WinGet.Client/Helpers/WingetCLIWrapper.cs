@@ -6,9 +6,9 @@
 
 namespace Microsoft.WinGet.Client.Helpers
 {
-    using System;
     using System.Diagnostics;
     using System.IO;
+    using Microsoft.WinGet.Client.Common;
     using Microsoft.WinGet.Client.Exceptions;
 
     /// <summary>
@@ -16,40 +16,43 @@ namespace Microsoft.WinGet.Client.Helpers
     /// </summary>
     internal class WingetCLIWrapper
     {
-        private static readonly string WingetCliPath;
+        /// <summary>
+        /// The file name to use in start info.
+        /// </summary>
+        private readonly string wingetPath;
 
         /// <summary>
-        /// Initializes static members of the <see cref="WingetCLIWrapper"/> class.
+        /// Initializes a new instance of the <see cref="WingetCLIWrapper"/> class.
         /// When app execution alias is disabled the path of the exe is
         /// in the package family name directory in the local app data windows app directory. If its enabled then there's
         /// link in the windows app data directory. To avoid checking if its enabled or not, just look in the package
         /// family name directory.
         /// For test, point to the wingetdev executable.
         /// </summary>
-        static WingetCLIWrapper()
+        /// <param name="fullPath">Use full path or not.</param>
+        public WingetCLIWrapper(bool fullPath = true)
         {
-            string windowsAppPath = Environment.ExpandEnvironmentVariables("%LOCALAPPDATA%\\Microsoft\\WindowsApps");
-#if USE_PROD_CLSIDS
-            WingetCliPath = Path.Combine(
-                windowsAppPath,
-                "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe",
-                "winget.exe");
-#else
-            WingetCliPath = Path.Combine(
-                windowsAppPath,
-                "WinGetDevCLI_8wekyb3d8bbwe",
-                "wingetdev.exe");
-#endif
+            if (fullPath)
+            {
+                this.wingetPath = WinGetFullPath;
+            }
+            else
+            {
+                this.wingetPath = Constants.WinGetExe;
+            }
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="WingetCLIWrapper"/> class.
+        /// Gets the full path of winget executable.
         /// </summary>
-        public WingetCLIWrapper()
+        public static string WinGetFullPath
         {
-            if (!File.Exists(WingetCliPath))
+            get
             {
-                throw new WinGetPackageNotInstalledException();
+                return Path.Combine(
+                    Utilities.LocalDataWindowsAppPath,
+                    Constants.WingetPackageFamilyName,
+                    Constants.WinGetExe);
             }
         }
 
@@ -60,11 +63,17 @@ namespace Microsoft.WinGet.Client.Helpers
         /// <param name="parameters">Parameters.</param>
         /// <param name="timeOut">Time out.</param>
         /// <returns>WinGetCommandResult.</returns>
-        public WinGetCLICommandResult RunCommand(string command, string parameters, int timeOut = 60000)
+        public WinGetCLICommandResult RunCommand(string command, string parameters = null, int timeOut = 60000)
         {
+            string args = command;
+            if (!string.IsNullOrEmpty(parameters))
+            {
+                args += ' ' + parameters;
+            }
+
             Process p = new ()
             {
-                StartInfo = new (WingetCliPath, command + ' ' + parameters)
+                StartInfo = new (this.wingetPath, args)
                 {
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
@@ -84,7 +93,7 @@ namespace Microsoft.WinGet.Client.Helpers
                     p.StandardError.ReadToEnd());
             }
 
-            throw new TimeoutException($"Direct winget command run timed out: {command} {parameters}");
+            throw new WinGetCLITimeoutException(command, parameters);
         }
     }
 }
