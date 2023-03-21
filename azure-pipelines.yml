@@ -108,6 +108,14 @@ jobs:
                     /p:AppxBundle=Always
                     /p:UapAppxPackageBuildMode=SideloadOnly'
 
+  - task: PowerShell@2
+    displayName: Dump output directory
+    inputs:
+      targetType: inline
+      script: Get-ChildItem -Recurse src
+    continueOnError: true
+    condition: always()
+
   - task: VSBuild@1
     displayName: Build Test Project
     inputs:
