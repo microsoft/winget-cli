@@ -9,7 +9,7 @@
     <Platforms>x64;x86;arm;arm64</Platforms>
     <OutputPath>$(SolutionDir)$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutputPath>
     <SelfContained>true</SelfContained>
-    <RuntimeIdentifiers>win-arm64;win-x86;win-arm;win-arm64</RuntimeIdentifiers>
+    <RuntimeIdentifiers>win-x64;win-x86;win-arm;win-arm64</RuntimeIdentifiers>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Platform)' == 'x64' ">
