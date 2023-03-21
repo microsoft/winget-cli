@@ -89,13 +89,6 @@ jobs:
       command: 'restore'
       projects: '**/*.csproj'
 
-  - task: DotNetCoreCLI@2
-    displayName: 'dotnet restore'
-    inputs:
-      command: restore
-      projects: 'src\ConfigurationRemotingServer\ConfigurationRemotingServer.csproj'
-      restoreArguments: '--runtime $(runtimeIdentifier)'
-
   - task: PowerShell@2
     displayName: Update Binary Version
     condition: not(eq(variables['Build.Reason'], 'PullRequest'))
