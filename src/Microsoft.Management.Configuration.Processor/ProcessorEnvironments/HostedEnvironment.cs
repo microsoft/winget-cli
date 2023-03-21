@@ -59,7 +59,7 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
             // Only support PowerShell Core.
             if (this.GetVariable<string>(Variables.PSEdition) != Core)
             {
-                throw new NotSupportedException();
+                throw new NotSupportedException("Only PowerShell Core is supported.");
             }
 
             var powerShellGet = PowerShellHelpers.CreateModuleSpecification(

@@ -20,6 +20,7 @@ namespace Microsoft.Management.Configuration.Processor.Exceptions
         /// <param name="resourceName">Resource name.</param>
         /// <param name="module">Module.</param>
         public InstallDscResourceException(string resourceName, ModuleSpecification? module)
+            : base($"Unable to find resource after install: {resourceName} [{module?.ToString() ?? "<no module>"}]")
         {
             this.HResult = ErrorCodes.WinGetConfigUnitNotFound;
             this.ResourceName = resourceName;

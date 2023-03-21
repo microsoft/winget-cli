@@ -14,12 +14,22 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 #endif
 
         DiagnosticLevel Level();
+        void Level(DiagnosticLevel value);
+
         hstring Message();
+        void Message(const hstring& value);
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
         DiagnosticLevel m_level = DiagnosticLevel::Verbose;
         hstring m_message;
 #endif
+    };
+}
+
+namespace winrt::Microsoft::Management::Configuration::factory_implementation
+{
+    struct DiagnosticInformation : DiagnosticInformationT<DiagnosticInformation, implementation::DiagnosticInformation>
+    {
     };
 }

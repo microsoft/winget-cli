@@ -20,6 +20,7 @@ namespace Microsoft.Management.Configuration.Processor.Exceptions
         /// <param name="resourceName">Resource name.</param>
         /// <param name="module">Optional module.</param>
         public InvokeDscResourceSetException(string resourceName, ModuleSpecification? module)
+            : base($"Failed when calling `Set` for resource: {resourceName} [{module?.ToString() ?? "<no module>"}]")
         {
             this.HResult = ErrorCodes.WinGetConfigUnitInvokeSet;
             this.ResourceName = resourceName;

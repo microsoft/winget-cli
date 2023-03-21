@@ -17,8 +17,18 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return m_level;
     }
 
+    void DiagnosticInformation::Level(DiagnosticLevel value)
+    {
+        m_level = value;
+    }
+
     hstring DiagnosticInformation::Message()
     {
         return m_message;
+    }
+
+    void DiagnosticInformation::Message(const hstring& value)
+    {
+        m_message = value;
     }
 }

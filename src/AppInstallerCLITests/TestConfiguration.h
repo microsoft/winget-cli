@@ -13,7 +13,16 @@ namespace TestCommon
     {
         winrt::Microsoft::Management::Configuration::IConfigurationSetProcessor CreateSetProcessor(const winrt::Microsoft::Management::Configuration::ConfigurationSet& configurationSet);
 
+        winrt::event_token Diagnostics(const winrt::Windows::Foundation::EventHandler<winrt::Microsoft::Management::Configuration::DiagnosticInformation>& handler);
+        void Diagnostics(const winrt::event_token& token) noexcept;
+
+        winrt::Microsoft::Management::Configuration::DiagnosticLevel MinimumLevel();
+        void MinimumLevel(winrt::Microsoft::Management::Configuration::DiagnosticLevel value);
+
         std::function<winrt::Microsoft::Management::Configuration::IConfigurationSetProcessor(const winrt::Microsoft::Management::Configuration::ConfigurationSet&)> CreateSetProcessorFunc;
+
+    private:
+        winrt::event<winrt::Windows::Foundation::EventHandler<winrt::Microsoft::Management::Configuration::DiagnosticInformation>> m_diagnostics;
     };
 
     struct TestConfigurationSetProcessor : winrt::implements<TestConfigurationSetProcessor, winrt::Microsoft::Management::Configuration::IConfigurationSetProcessor>

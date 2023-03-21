@@ -135,6 +135,9 @@ namespace AppInstaller::Logging
         // For example; SetLevel(Verbose) will enable all logs.
         void SetLevel(Level level);
 
+        // Gets the enabled level.
+        Level GetLevel() const;
+
         // Checks whether a given channel and level are enabled.
         bool IsEnabled(Channel channel, Level level) const;
 
