@@ -97,6 +97,18 @@
       copy "$(TargetDir)\resources.pri" "$(TargetDir)\AppInstallerCLI\resources.pri"
     </PostBuildEvent>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Platform)'=='ARM'">
+    <ConfigServerRid>win-arm</ConfigServerRid>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Platform)'=='ARM64'">
+    <ConfigServerRid>win-arm64</ConfigServerRid>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Platform)'=='x64'">
+    <ConfigServerRid>win-x64</ConfigServerRid>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Platform)'=='x86'">
+    <ConfigServerRid>win-x86</ConfigServerRid>
+  </PropertyGroup>
   <Target Name="WinGetIncludeAdditionalFilesInPackage" AfterTargets="_ComputeAppxPackagePayload">
     <PropertyGroup>
       <WinGetAdditonalPackageFileRoot>$(SolutionDir)</WinGetAdditonalPackageFileRoot>
@@ -123,7 +135,7 @@
       <WinGetAdditionalPackageFile Include="$(WinGetAdditonalPackageFileRoot)\AnyCPU\$(Configuration)\Microsoft.Management.Configuration.Projection\**\Microsoft.Management.Configuration.Projection.dll">
         <PackagePath>ConfigurationRemotingServer\Microsoft.Management.Configuration.Projection.dll</PackagePath>
       </WinGetAdditionalPackageFile>
-      <WinGetAdditionalPackageFile Include="$(WinGetAdditonalPackageFileRoot)\$(PlatformTarget)\$(Configuration)\ConfigurationRemotingServer\net6.0-windows10.0.19041.0\**\*">
+      <WinGetAdditionalPackageFile Include="$(WinGetAdditonalPackageFileRoot)\$(PlatformTarget)\$(Configuration)\ConfigurationRemotingServer\net6.0-windows10.0.19041.0\$(ConfigServerRid)\**\*">
         <PackagePath>ConfigurationRemotingServer</PackagePath>
         <Recurse>true</Recurse>
       </WinGetAdditionalPackageFile>
