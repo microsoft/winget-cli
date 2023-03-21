@@ -47,7 +47,6 @@
     </ProjectReference>
     <ProjectReference Include="..\Microsoft.Management.Configuration.Processor\Microsoft.Management.Configuration.Processor.csproj">
       <Private>True</Private>
-      <SetPlatform>AnyCPU</SetPlatform>
     </ProjectReference>
   </ItemGroup>
 
