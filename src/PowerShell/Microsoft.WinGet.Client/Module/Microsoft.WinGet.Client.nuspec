@@ -5,7 +5,7 @@
     <version>0.1.0</version>
     <authors>Microsoft</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <license type="expression">MIT</license>
+    <licenseUrl>https://github.com/microsoft/winget-cli/blob/master/LICENSE</licenseUrl>
     <projectUrl>https://github.com/microsoft/winget-cli</projectUrl>
     <description>The Windows Package Manager PowerShell Module</description>
     <copyright>$copyright$</copyright>
