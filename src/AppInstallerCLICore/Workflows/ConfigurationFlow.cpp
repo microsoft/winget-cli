@@ -43,6 +43,20 @@ namespace AppInstaller::CLI::Workflow
             return Logging::Level::Info;
         }
 
+        DiagnosticLevel ConvertLevel(Logging::Level level)
+        {
+            switch (level)
+            {
+            case Logging::Level::Verbose: return DiagnosticLevel::Verbose;
+            case Logging::Level::Info: return DiagnosticLevel::Informational;
+            case Logging::Level::Warning: return DiagnosticLevel::Warning;
+            case Logging::Level::Error: return DiagnosticLevel::Error;
+            case Logging::Level::Crit: return DiagnosticLevel::Critical;
+            }
+
+            return DiagnosticLevel::Informational;
+        }
+
         Resource::StringId ToResource(ConfigurationUnitIntent intent)
         {
             switch (intent)
@@ -102,7 +116,7 @@ namespace AppInstaller::CLI::Workflow
                         break;
                     default:
                         // TODO: Sort out how we actually want to handle this given that we don't expect anything but strings
-                        out << " [PropertyType="_liv << property.Type() << "]\n"_liv;
+                        out << " [Debug:PropertyType="_liv << property.Type() << "]\n"_liv;
                         break;
                     }
                 }
@@ -337,6 +351,7 @@ namespace AppInstaller::CLI::Workflow
                     {
                         AICLI_LOG(Config, Error, << "Configuration unit " << Utility::ConvertToUTF8(unit.UnitName()) << "[" << Utility::ConvertToUTF8(unit.Identifier()) << "] failed with code 0x"
                             << Logging::SetHRFormat << resultInformation.ResultCode() << " and error message:\n" << Utility::ConvertToUTF8(resultInformation.Description()));
+                        // TODO: Improve error reporting for failures: use message, known HRs, getting HR system string, etc.
                         m_context.Reporter.Error() << "  "_liv << Resource::String::ConfigurationUnitFailed << " 0x"_liv << Logging::SetHRFormat << resultInformation.ResultCode() << std::endl;
                     }
                     OutputUnitCompletionProgress();
@@ -382,6 +397,9 @@ namespace AppInstaller::CLI::Workflow
     void CreateConfigurationProcessor(Context& context)
     {
         ConfigurationProcessor processor{ CreateConfigurationSetProcessorFactory() };
+
+        // Set the processor to the current level of the logging.
+        processor.MinimumLevel(ConvertLevel(Logging::Log().GetLevel()));
 
         // Route the configuration diagnostics into the context's diagnostics logging
         processor.Diagnostics([&context](const winrt::Windows::Foundation::IInspectable&, const DiagnosticInformation& diagnostics)
@@ -429,7 +447,15 @@ namespace AppInstaller::CLI::Workflow
             AICLI_TERMINATE_CONTEXT(openResult.ResultCode());
         }
 
-        context.Get<Data::ConfigurationContext>().Set(openResult.Set());
+        ConfigurationSet result = openResult.Set();
+
+        // Fill out the information about the set based on it coming from a file.
+        // TODO: Consider how to properly determine a good value for name and origin.
+        result.Name(absolutePath.filename().wstring());
+        result.Origin(absolutePath.parent_path().wstring());
+        result.Path(absolutePath.wstring());
+
+        context.Get<Data::ConfigurationContext>().Set(result);
     }
 
     void ShowConfigurationSet(Context& context)

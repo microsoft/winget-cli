@@ -20,6 +20,7 @@ namespace Microsoft.Management.Configuration.Processor.Exceptions
         /// <param name="resourceName">Resource name.</param>
         /// <param name="module">Optional module.</param>
         public GetDscResourceMultipleMatches(string resourceName, ModuleSpecification? module)
+            : base($"Multiple matches found for resource: {resourceName} [{module?.ToString() ?? "<no module>"}]")
         {
             this.HResult = ErrorCodes.WinGetConfigUnitMultipleMatches;
             this.ResourceName = resourceName;

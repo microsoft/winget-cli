@@ -63,6 +63,15 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
         public ModuleSpecification? Module { get; }
 
         /// <summary>
+        /// Creates a string that identifies this unit for diagnostics.
+        /// </summary>
+        /// <returns>The string that identifies this unit for diagnostics.</returns>
+        public string ToIdentifyingString()
+        {
+            return $"{this.Unit.UnitName} [{this.Module?.ToString() ?? "<no module>"}]";
+        }
+
+        /// <summary>
         /// Get a directive from the unit taking into account the directives overlay.
         /// </summary>
         /// <param name="directiveName">Directive name.</param>

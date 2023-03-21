@@ -2,17 +2,6 @@
     "$schema": "https://aka.ms/PowerShell/Crescendo/Schemas/2021-11",
     "Commands": [
         {
-            "Verb": "Get",
-            "Noun": "WinGetVersion",
-            "Platform": [
-                "Windows"
-            ],
-            "OriginalName": "winget.exe",
-            "OriginalCommandElements": [
-                "--version"
-            ]
-        },
-        {
             "Verb": "Enable",
             "Noun": "WinGetSetting",
             "Platform": [

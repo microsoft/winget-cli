@@ -99,6 +99,15 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         logger.EnableChannel(AppInstaller::Logging::Channel::All);
         logger.SetLevel(AppInstaller::Logging::Level::Verbose);
         logger.AddLogger(std::make_unique<ConfigurationProcessorDiagnosticsLogger>(*this));
+
+        if (m_factory)
+        {
+            m_factoryDiagnosticsEventRevoker = m_factory.Diagnostics(winrt::auto_revoke,
+                [this](const IInspectable&, const DiagnosticInformation& information)
+                {
+                    m_diagnostics(*this, information);
+                });
+        }
     }
 
     event_token ConfigurationProcessor::Diagnostics(const Windows::Foundation::EventHandler<DiagnosticInformation>& handler)
@@ -110,6 +119,17 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     void ConfigurationProcessor::Diagnostics(const event_token& token) noexcept
     {
         m_diagnostics.remove(token);
+    }
+
+    DiagnosticLevel ConfigurationProcessor::MinimumLevel()
+    {
+        return m_minimumLevel;
+    }
+
+    void ConfigurationProcessor::MinimumLevel(DiagnosticLevel value)
+    {
+        m_minimumLevel = value;
+        m_factory.MinimumLevel(value);
     }
 
     event_token ConfigurationProcessor::ConfigurationChange(const Windows::Foundation::TypedEventHandler<ConfigurationSet, ConfigurationChangeData>& handler)
@@ -418,8 +438,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     void ConfigurationProcessor::Diagnostics(DiagnosticLevel level, std::string_view message)
     {
-        auto diagnostics = make_self<wil::details::module_count_wrapper<implementation::DiagnosticInformation>>();
-        diagnostics->Initialize(level, AppInstaller::Utility::ConvertToUTF16(message));
-        m_diagnostics(*this, *diagnostics);
+        if (level >= m_minimumLevel)
+        {
+            auto diagnostics = make_self<wil::details::module_count_wrapper<implementation::DiagnosticInformation>>();
+            diagnostics->Initialize(level, AppInstaller::Utility::ConvertToUTF16(message));
+            m_diagnostics(*this, *diagnostics);
+        }
     }
 }

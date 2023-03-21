@@ -21,6 +21,25 @@ namespace TestCommon
         }
     }
 
+    winrt::event_token TestConfigurationSetProcessorFactory::Diagnostics(const EventHandler<DiagnosticInformation>& handler)
+    {
+        return m_diagnostics.add(handler);
+    }
+
+    void TestConfigurationSetProcessorFactory::Diagnostics(const winrt::event_token& token) noexcept
+    {
+        m_diagnostics.remove(token);
+    }
+
+    DiagnosticLevel TestConfigurationSetProcessorFactory::MinimumLevel()
+    {
+        return DiagnosticLevel::Informational;
+    }
+
+    void TestConfigurationSetProcessorFactory::MinimumLevel(DiagnosticLevel)
+    {
+    }
+
     IConfigurationUnitProcessorDetails TestConfigurationSetProcessor::GetUnitProcessorDetails(const ConfigurationUnit& unit, ConfigurationUnitDetailLevel detailLevel)
     {
         if (GetUnitProcessorDetailsFunc)

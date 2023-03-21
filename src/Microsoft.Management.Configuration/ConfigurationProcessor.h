@@ -30,6 +30,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         event_token Diagnostics(const Windows::Foundation::EventHandler<DiagnosticInformation>& handler);
         void Diagnostics(const event_token& token) noexcept;
 
+        DiagnosticLevel MinimumLevel();
+        void MinimumLevel(DiagnosticLevel value);
+
         event_token ConfigurationChange(const Windows::Foundation::TypedEventHandler<ConfigurationSet, ConfigurationChangeData>& handler);
         void ConfigurationChange(const event_token& token) noexcept;
 
@@ -70,6 +73,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         event<Windows::Foundation::EventHandler<DiagnosticInformation>> m_diagnostics;
         event<Windows::Foundation::TypedEventHandler<ConfigurationSet, ConfigurationChangeData>> m_configurationChange;
         ConfigThreadGlobals m_threadGlobals;
+        IConfigurationSetProcessorFactory::Diagnostics_revoker m_factoryDiagnosticsEventRevoker;
+        DiagnosticLevel m_minimumLevel = DiagnosticLevel::Informational;
 #endif
     };
 }

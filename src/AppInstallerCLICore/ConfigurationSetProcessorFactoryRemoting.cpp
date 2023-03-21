@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "ConfigurationSetProcessorFactoryRemoting.h"
 
+using namespace winrt::Windows::Foundation;
 using namespace winrt::Microsoft::Management::Configuration;
 
 namespace AppInstaller::CLI::Workflow::ConfigurationRemoting
@@ -38,6 +39,8 @@ namespace AppInstaller::CLI::Workflow::ConfigurationRemoting
         {
             RemoteFactory()
             {
+                AICLI_LOG(Config, Verbose, << "Launching process for configuration processing...");
+
                 // Security attributes to set handles as inherited.
                 SECURITY_ATTRIBUTES securityAttributes{};
                 securityAttributes.nLength = sizeof(securityAttributes);
@@ -75,6 +78,7 @@ namespace AppInstaller::CLI::Workflow::ConfigurationRemoting
                 wil::unique_process_information processInformation;
 
                 THROW_IF_WIN32_BOOL_FALSE(CreateProcessW(serverPath.c_str(), &arguments[0], nullptr, nullptr, TRUE, DETACHED_PROCESS, nullptr, nullptr, &startupInfo, &processInformation));
+                AICLI_LOG(Config, Verbose, << "  Configuration remote PID is " << processInformation.dwProcessId);
 
                 HANDLE waitHandles[2];
                 waitHandles[0] = initEvent.get();
@@ -123,14 +127,35 @@ namespace AppInstaller::CLI::Workflow::ConfigurationRemoting
                 THROW_IF_FAILED(stream->Write(mappedMemory->FactoryObject, mappedMemory->FactorySize, nullptr));
                 THROW_IF_FAILED(stream->Seek({}, STREAM_SEEK_SET, nullptr));
 
-                wil::com_ptr<IUnknown> output;
+                wil::com_ptr<::IUnknown> output;
                 THROW_IF_FAILED(CoUnmarshalInterface(stream.get(), winrt::guid_of<IConfigurationSetProcessorFactory>(), reinterpret_cast<void**>(&output)));
+                AICLI_LOG(Config, Verbose, << "... configuration processing connection established.");
                 m_remoteFactory = IConfigurationSetProcessorFactory{ output.detach(), winrt::take_ownership_from_abi };
             }
 
             IConfigurationSetProcessor CreateSetProcessor(const ConfigurationSet& configurationSet)
             {
                 return m_remoteFactory.CreateSetProcessor(configurationSet);
+            }
+
+            winrt::event_token Diagnostics(const EventHandler<DiagnosticInformation>& handler)
+            {
+                return m_remoteFactory.Diagnostics(handler);
+            }
+
+            void Diagnostics(const winrt::event_token& token) noexcept
+            {
+                m_remoteFactory.Diagnostics(token);
+            }
+
+            DiagnosticLevel MinimumLevel()
+            {
+                return m_remoteFactory.MinimumLevel();
+            }
+
+            void MinimumLevel(DiagnosticLevel value)
+            {
+                m_remoteFactory.MinimumLevel(value);
             }
 
         private:
@@ -163,7 +188,7 @@ HRESULT WindowsPackageManagerConfigurationCompleteOutOfProcessFactoryInitializat
         wil::com_ptr<IStream> stream;
         RETURN_IF_FAILED(CreateStreamOnHGlobal(nullptr, TRUE, &stream));
 
-        RETURN_IF_FAILED(CoMarshalInterface(stream.get(), winrt::guid_of<IConfigurationSetProcessorFactory>(), reinterpret_cast<IUnknown*>(factory), MSHCTX_LOCAL, nullptr, MSHLFLAGS_NORMAL));
+        RETURN_IF_FAILED(CoMarshalInterface(stream.get(), winrt::guid_of<IConfigurationSetProcessorFactory>(), reinterpret_cast<::IUnknown*>(factory), MSHCTX_LOCAL, nullptr, MSHLFLAGS_NORMAL));
 
         ULARGE_INTEGER streamSize{};
         RETURN_IF_FAILED(stream->Seek({}, STREAM_SEEK_CUR, &streamSize));

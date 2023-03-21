@@ -102,6 +102,11 @@ namespace AppInstaller::Logging
         m_enabledLevel = level;
     }
 
+    Level DiagnosticLogger::GetLevel() const
+    {
+        return m_enabledLevel;
+    }
+
     bool DiagnosticLogger::IsEnabled(Channel channel, Level level) const
     {
         return (!m_loggers.empty() &&

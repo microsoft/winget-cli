@@ -350,14 +350,6 @@ namespace Microsoft.Management.Configuration
         IConfigurationUnitProcessor CreateUnitProcessor(ConfigurationUnit unit, Windows.Foundation.Collections.IMapView<String, Object> directivesOverlay);
     }
 
-    // Allows different runtimes to provide specialized handling of configuration processing.
-    [contract(Microsoft.Management.Configuration.Contract, 1)]
-    interface IConfigurationSetProcessorFactory
-    {
-        // Creates a configuration set processor for the given set.
-        IConfigurationSetProcessor CreateSetProcessor(ConfigurationSet configurationSet);
-    }
-
     // The level of the diagnostic information.
     [contract(Microsoft.Management.Configuration.Contract, 1)]
     enum DiagnosticLevel
@@ -373,11 +365,27 @@ namespace Microsoft.Management.Configuration
     [contract(Microsoft.Management.Configuration.Contract, 1)]
     runtimeclass DiagnosticInformation
     {
+        DiagnosticInformation();
+
         // Indicates the importance of the diagnostic information.
-        DiagnosticLevel Level{ get; };
+        DiagnosticLevel Level;
 
         // The diagnostic message.
-        String Message{ get; };
+        String Message;
+    }
+
+    // Allows different runtimes to provide specialized handling of configuration processing.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    interface IConfigurationSetProcessorFactory
+    {
+        // Creates a configuration set processor for the given set.
+        IConfigurationSetProcessor CreateSetProcessor(ConfigurationSet configurationSet);
+
+        // Diagnostics event; useful for logging and/or verbose output.
+        event Windows.Foundation.EventHandler<DiagnosticInformation> Diagnostics;
+
+        // Indicates the minimum importance desired for diagnostics.
+        DiagnosticLevel MinimumLevel;
     }
 
     // The change event type that has occurred.
@@ -582,6 +590,9 @@ namespace Microsoft.Management.Configuration
 
         // Diagnostics event; useful for logging and/or verbose output.
         event Windows.Foundation.EventHandler<DiagnosticInformation> Diagnostics;
+
+        // Indicates the minimum importance desired for diagnostics.
+        DiagnosticLevel MinimumLevel;
 
         // Only top level configuration changes are sent to this event.
         // This includes things like: creation of a new set for intent to run, start/stop of a set for application or test, deletion of a not started set.

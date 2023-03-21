@@ -20,6 +20,7 @@ namespace Microsoft.Management.Configuration.Processor.Exceptions
         /// <param name="resourceName">Resource name.</param>
         /// <param name="module">Optional module.</param>
         public InvokeDscResourceTestException(string resourceName, ModuleSpecification? module)
+            : base($"Failed when calling `Test` for resource: {resourceName} [{module?.ToString() ?? "<no module>"}]")
         {
             this.HResult = ErrorCodes.WinGetConfigUnitInvokeTest;
             this.ResourceName = resourceName;

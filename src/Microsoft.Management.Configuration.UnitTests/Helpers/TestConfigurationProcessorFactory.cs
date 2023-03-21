@@ -23,6 +23,16 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         internal delegate IConfigurationSetProcessor CreateSetProcessorDelegateType(TestConfigurationProcessorFactory factory, ConfigurationSet configurationSet);
 
         /// <summary>
+        /// Diagnostics event; useful for logging and/or verbose output.
+        /// </summary>
+        public event EventHandler<DiagnosticInformation>? Diagnostics;
+
+        /// <summary>
+        /// Gets or sets the minimum diagnostic level to send.
+        /// </summary>
+        public DiagnosticLevel MinimumLevel { get; set; } = DiagnosticLevel.Informational;
+
+        /// <summary>
         /// Gets or sets the processor used when the incoming configuration set is null.
         /// </summary>
         internal TestConfigurationSetProcessor? NullProcessor { get; set; }

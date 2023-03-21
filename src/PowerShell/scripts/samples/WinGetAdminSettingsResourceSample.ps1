@@ -4,9 +4,8 @@
 <#
     .SYNOPSIS
         Simple sample on how to use WinGetAdminSettings DSC resource.
-        Requires PSDesiredStateConfiguration v2 and enabling the
-        PSDesiredStateConfiguration.InvokeDscResource experimental feature
-        `Enable-ExperimentalFeature -Name PSDesiredStateConfiguration.InvokeDscResource`
+        Requires PSDesiredStateConfiguration version 2.0.6
+        
         IMPORTANT: This will leave LocalManifestFiles enabled
         Run as admin for set.
 #>
