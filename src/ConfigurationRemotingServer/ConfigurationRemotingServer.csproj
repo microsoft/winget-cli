@@ -38,11 +38,11 @@
 
   <Target Name="PwshFiles" AfterTargets="AfterBuild" >
     <ItemGroup>
-      <RefFiles       Include="$(OutputPath)..\..\..\..\..\AnyCPU\$(Configuration)\Microsoft.Management.Configuration.Processor\$(TargetFramework)\win\ref\**\*.*" />
+      <RefFiles Include="$(OutputPath)..\..\..\..\..\AnyCPU\$(Configuration)\Microsoft.Management.Configuration.Processor\$(TargetFramework)\win\ref\**\*.*" />
       <WinModuleFiles Include="$(OutputPath)..\..\..\..\..\AnyCPU\$(Configuration)\Microsoft.Management.Configuration.Processor\$(TargetFramework)\win\Modules\**\*.*" />
     </ItemGroup>
     <Copy SourceFiles="@(RefFiles)" DestinationFolder="$(OutputPath)\ref\" />
-    <Copy SourceFiles="@(WinModuleFiles)" DestinationFolder="$(OutputPath)\Modules\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Copy SourceFiles="@(WinModuleFiles)" DestinationFolder="$(OutputPath)\Modules\%(RecursiveDir)\" />
   </Target>
 
 </Project>
