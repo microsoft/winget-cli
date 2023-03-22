@@ -6,10 +6,10 @@
 
 namespace Microsoft.Management.Configuration.UnitTests.Tests
 {
-    using System;
     using System.IO;
     using System.Management.Automation;
     using Microsoft.Management.Configuration.Processor.DscModule;
+    using Microsoft.Management.Configuration.Processor.Exceptions;
     using Microsoft.Management.Configuration.Processor.Helpers;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
     using Microsoft.Management.Configuration.UnitTests.Helpers;
@@ -48,7 +48,8 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
 
             var dscModule = new DscModuleV2();
-            var resources = dscModule.GetAllDscResources(testEnvironment.Runspace);
+            using PowerShell pwsh = PowerShell.Create(testEnvironment.Runspace);
+            var resources = dscModule.GetAllDscResources(pwsh);
 
             Assert.True(resources.Count > 0);
             Assert.Contains(resources, r => r.Name == TestModule.SimpleFileResourceName);
@@ -67,8 +68,9 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
 
             var dscModule = new DscModuleV2();
+            using PowerShell pwsh = PowerShell.Create(testEnvironment.Runspace);
             var resources = dscModule.GetDscResourcesInModule(
-                testEnvironment.Runspace,
+                pwsh,
                 PowerShellHelpers.CreateModuleSpecification(module));
             Assert.Equal(expectedResources, resources.Count);
         }
@@ -102,27 +104,35 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             ////    testEnvironment.Runspace,
             ////    PowerShellHelpers.CreateModuleSpecification(TestModule.SimpleTestResourceModuleName));
             ////Assert.Equal(8, allResources.Count);
-
-            var ogResources = dscModule.GetDscResourcesInModule(
-                testEnvironment.Runspace,
+            {
+                using PowerShell pwsh = PowerShell.Create(testEnvironment.Runspace);
+                var ogResources = dscModule.GetDscResourcesInModule(
+                pwsh,
                 PowerShellHelpers.CreateModuleSpecification(
                     TestModule.SimpleTestResourceModuleName,
                     version: TestModule.SimpleTestResourceVersion));
-            Assert.Equal(4, ogResources.Count);
+                Assert.Equal(4, ogResources.Count);
+            }
 
-            var newVersionResources = dscModule.GetDscResourcesInModule(
-                testEnvironment.Runspace,
-                PowerShellHelpers.CreateModuleSpecification(
-                    TestModule.SimpleTestResourceModuleName,
-                    version: newVersion));
-            Assert.Equal(4, ogResources.Count);
+            {
+                using PowerShell pwsh = PowerShell.Create(testEnvironment.Runspace);
+                var newVersionResources = dscModule.GetDscResourcesInModule(
+                    pwsh,
+                    PowerShellHelpers.CreateModuleSpecification(
+                        TestModule.SimpleTestResourceModuleName,
+                        version: newVersion));
+                Assert.Equal(4, newVersionResources.Count);
+            }
 
-            var badVersionResources = dscModule.GetDscResourcesInModule(
-                testEnvironment.Runspace,
-                PowerShellHelpers.CreateModuleSpecification(
-                    TestModule.SimpleTestResourceModuleName,
-                    version: "1.2.3.4"));
-            Assert.Equal(0, badVersionResources.Count);
+            {
+                using PowerShell pwsh = PowerShell.Create(testEnvironment.Runspace);
+                var badVersionResources = dscModule.GetDscResourcesInModule(
+                    pwsh,
+                    PowerShellHelpers.CreateModuleSpecification(
+                        TestModule.SimpleTestResourceModuleName,
+                        version: "1.2.3.4"));
+                Assert.Equal(0, badVersionResources.Count);
+            }
         }
 
         /// <summary>
@@ -134,8 +144,9 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
 
             var dscModule = new DscModuleV2();
+            using PowerShell pwsh = PowerShell.Create(testEnvironment.Runspace);
             var resource = dscModule.GetDscResource(
-                testEnvironment.Runspace,
+                pwsh,
                 TestModule.SimpleTestResourceName,
                 PowerShellHelpers.CreateModuleSpecification(TestModule.SimpleTestResourceModuleName));
 
@@ -151,9 +162,10 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
 
             var dscModule = new DscModuleV2();
+            using PowerShell pwsh = PowerShell.Create(testEnvironment.Runspace);
             Assert.Throws<WriteErrorException>(
                 () => dscModule.GetDscResource(
-                    testEnvironment.Runspace,
+                    pwsh,
                     "FakeResourceName",
                     PowerShellHelpers.CreateModuleSpecification(
                         TestModule.SimpleTestResourceModuleName)));
@@ -174,10 +186,10 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             testEnvironment.AppendPSModulePath(tmpDir.FullDirectoryPath);
 
             var dscModule = new DscModuleV2();
-
-            Assert.Throws<RuntimeException>(
+            using PowerShell pwsh = PowerShell.Create(testEnvironment.Runspace);
+            Assert.Throws<GetDscResourceModuleConflict>(
                 () => dscModule.GetDscResource(
-                    testEnvironment.Runspace,
+                    pwsh,
                     TestModule.SimpleTestResourceName,
                     PowerShellHelpers.CreateModuleSpecification(
                         TestModule.SimpleTestResourceModuleName)));
@@ -208,24 +220,30 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             var dscModule = new DscModuleV2();
 
             // specific version.
-            var resource = dscModule.GetDscResource(
-                testEnvironment.Runspace,
-                TestModule.SimpleTestResourceName,
-                PowerShellHelpers.CreateModuleSpecification(
-                    TestModule.SimpleTestResourceModuleName,
-                    TestModule.SimpleTestResourceVersion));
-            Assert.NotNull(resource);
+            {
+                using PowerShell pwsh = PowerShell.Create(testEnvironment.Runspace);
+                var resource = dscModule.GetDscResource(
+                    pwsh,
+                    TestModule.SimpleTestResourceName,
+                    PowerShellHelpers.CreateModuleSpecification(
+                        TestModule.SimpleTestResourceModuleName,
+                        TestModule.SimpleTestResourceVersion));
+                Assert.NotNull(resource);
+            }
 
-            var dsc = dscModule.GetDscResource(
-                testEnvironment.Runspace,
-                TestModule.SimpleTestResourceName,
-                PowerShellHelpers.CreateModuleSpecification(
-                    TestModule.SimpleTestResourceModuleName,
-                    version: newVersion));
+            {
+                using PowerShell pwsh = PowerShell.Create(testEnvironment.Runspace);
+                var dsc = dscModule.GetDscResource(
+                    pwsh,
+                    TestModule.SimpleTestResourceName,
+                    PowerShellHelpers.CreateModuleSpecification(
+                        TestModule.SimpleTestResourceModuleName,
+                        version: newVersion));
 
-            Assert.NotNull(dsc);
-            Assert.NotNull(dsc.Version);
-            Assert.Equal(newVersion, dsc.Version.ToString());
+                Assert.NotNull(dsc);
+                Assert.NotNull(dsc.Version);
+                Assert.Equal(newVersion, dsc.Version.ToString());
+            }
         }
 
         /// <summary>
@@ -237,9 +255,9 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
 
             var dscModule = new DscModuleV2();
-
+            using PowerShell pwsh = PowerShell.Create(testEnvironment.Runspace);
             var getResult = dscModule.InvokeGetResource(
-                testEnvironment.Runspace,
+                pwsh,
                 new ValueSet(),
                 TestModule.SimpleTestResourceName,
                 PowerShellHelpers.CreateModuleSpecification(
@@ -260,9 +278,10 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var dscModule = new DscModuleV2();
 
+            using PowerShell pwsh = PowerShell.Create(testEnvironment.Runspace);
             var exception = Assert.Throws<RuntimeException>(() =>
                 dscModule.InvokeGetResource(
-                    testEnvironment.Runspace,
+                    pwsh,
                     new ValueSet(),
                     TestModule.SimpleTestResourceThrowsName,
                     PowerShellHelpers.CreateModuleSpecification(
@@ -280,10 +299,10 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
 
             var dscModule = new DscModuleV2();
-
+            using PowerShell pwsh = PowerShell.Create(testEnvironment.Runspace);
             Assert.Throws<WriteErrorException>(() =>
                 dscModule.InvokeGetResource(
-                    testEnvironment.Runspace,
+                    pwsh,
                     new ValueSet(),
                     TestModule.SimpleTestResourceErrorName,
                     PowerShellHelpers.CreateModuleSpecification(
@@ -299,10 +318,10 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
 
             var dscModule = new DscModuleV2();
-
+            using PowerShell pwsh = PowerShell.Create(testEnvironment.Runspace);
             var exception = Assert.Throws<RuntimeException>(
                 () => dscModule.InvokeGetResource(
-                    testEnvironment.Runspace,
+                    pwsh,
                     new ValueSet(),
                     "FakeResourceName",
                     PowerShellHelpers.CreateModuleSpecification(
@@ -330,8 +349,9 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 { "secretCode", value },
             };
 
+            using PowerShell pwsh = PowerShell.Create(testEnvironment.Runspace);
             var testResult = dscModule.InvokeTestResource(
-                testEnvironment.Runspace,
+                pwsh,
                 settings,
                 TestModule.SimpleTestResourceName,
                 PowerShellHelpers.CreateModuleSpecification(
@@ -349,10 +369,10 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
 
             var dscModule = new DscModuleV2();
-
+            using PowerShell pwsh = PowerShell.Create(testEnvironment.Runspace);
             var exception = Assert.Throws<RuntimeException>(() =>
                 dscModule.InvokeTestResource(
-                    testEnvironment.Runspace,
+                    pwsh,
                     new ValueSet(),
                     TestModule.SimpleTestResourceThrowsName,
                     PowerShellHelpers.CreateModuleSpecification(
@@ -370,10 +390,10 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
 
             var dscModule = new DscModuleV2();
-
+            using PowerShell pwsh = PowerShell.Create(testEnvironment.Runspace);
             Assert.Throws<WriteErrorException>(() =>
                 dscModule.InvokeTestResource(
-                    testEnvironment.Runspace,
+                    pwsh,
                     new ValueSet(),
                     TestModule.SimpleTestResourceErrorName,
                     PowerShellHelpers.CreateModuleSpecification(
@@ -389,10 +409,10 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
 
             var dscModule = new DscModuleV2();
-
+            using PowerShell pwsh = PowerShell.Create(testEnvironment.Runspace);
             var exception = Assert.Throws<RuntimeException>(() =>
                 _ = dscModule.InvokeTestResource(
-                    testEnvironment.Runspace,
+                    pwsh,
                     new ValueSet(),
                     "FakeResourceName",
                     PowerShellHelpers.CreateModuleSpecification(
@@ -418,8 +438,9 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 { "secretCode", "4815162342" },
             };
 
+            using PowerShell pwsh = PowerShell.Create(testEnvironment.Runspace);
             var testResult = dscModule.InvokeSetResource(
-                testEnvironment.Runspace,
+                pwsh,
                 settings,
                 TestModule.SimpleTestResourceName,
                 PowerShellHelpers.CreateModuleSpecification(
@@ -438,10 +459,10 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
 
             var dscModule = new DscModuleV2();
-
+            using PowerShell pwsh = PowerShell.Create(testEnvironment.Runspace);
             var exception = Assert.Throws<RuntimeException>(() =>
                 dscModule.InvokeSetResource(
-                    testEnvironment.Runspace,
+                    pwsh,
                     new ValueSet(),
                     TestModule.SimpleTestResourceThrowsName,
                     PowerShellHelpers.CreateModuleSpecification(
@@ -459,10 +480,10 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
 
             var dscModule = new DscModuleV2();
-
+            using PowerShell pwsh = PowerShell.Create(testEnvironment.Runspace);
             Assert.Throws<WriteErrorException>(() =>
                 dscModule.InvokeSetResource(
-                    testEnvironment.Runspace,
+                    pwsh,
                     new ValueSet(),
                     TestModule.SimpleTestResourceErrorName,
                     PowerShellHelpers.CreateModuleSpecification(
@@ -478,10 +499,10 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
 
             var dscModule = new DscModuleV2();
-
+            using PowerShell pwsh = PowerShell.Create(testEnvironment.Runspace);
             var exception = Assert.Throws<RuntimeException>(() =>
                 dscModule.InvokeSetResource(
-                    testEnvironment.Runspace,
+                    pwsh,
                     new ValueSet(),
                     "FakeResourceName",
                     PowerShellHelpers.CreateModuleSpecification(
@@ -513,22 +534,27 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             testEnvironment.AppendPSModulePath(tmpDir.FullDirectoryPath);
 
             var dscModule = new DscModuleV2();
+            {
+                using PowerShell pwsh = PowerShell.Create(testEnvironment.Runspace);
+                dscModule.InvokeSetResource(
+                    pwsh,
+                    new ValueSet(),
+                    TestModule.SimpleTestResourceName,
+                    PowerShellHelpers.CreateModuleSpecification(
+                        TestModule.SimpleTestResourceModuleName,
+                        TestModule.SimpleTestResourceVersion));
+            }
 
-            dscModule.InvokeSetResource(
-                testEnvironment.Runspace,
-                new ValueSet(),
-                TestModule.SimpleTestResourceName,
-                PowerShellHelpers.CreateModuleSpecification(
-                    TestModule.SimpleTestResourceModuleName,
-                    TestModule.SimpleTestResourceVersion));
-
-            dscModule.InvokeSetResource(
-                testEnvironment.Runspace,
-                new ValueSet(),
-                TestModule.SimpleTestResourceName,
-                PowerShellHelpers.CreateModuleSpecification(
-                    TestModule.SimpleTestResourceModuleName,
-                    version: newVersion));
+            {
+                using PowerShell pwsh = PowerShell.Create(testEnvironment.Runspace);
+                dscModule.InvokeSetResource(
+                    pwsh,
+                    new ValueSet(),
+                    TestModule.SimpleTestResourceName,
+                    PowerShellHelpers.CreateModuleSpecification(
+                        TestModule.SimpleTestResourceModuleName,
+                        version: newVersion));
+            }
         }
     }
 }

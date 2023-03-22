@@ -7,6 +7,8 @@
 namespace Microsoft.Management.Configuration.Processor
 {
     using System;
+    using System.Management.Automation;
+    using System.Text;
     using Microsoft.Management.Configuration;
     using Microsoft.Management.Configuration.Processor.ProcessorEnvironments;
     using Microsoft.Management.Configuration.Processor.Set;
@@ -52,7 +54,7 @@ namespace Microsoft.Management.Configuration.Processor
                 this.OnDiagnostics(DiagnosticLevel.Verbose, $"Creating set processor for `{set.Name}`...");
 
                 var envFactory = new ProcessorEnvironmentFactory(this.type);
-                var processorEnvironment = envFactory.CreateEnvironment();
+                var processorEnvironment = envFactory.CreateEnvironment(this);
                 processorEnvironment.ValidateRunspace();
 
                 if (this.properties is not null)
@@ -85,11 +87,56 @@ namespace Microsoft.Management.Configuration.Processor
             EventHandler<DiagnosticInformation>? diagnostics = this.Diagnostics;
             if (diagnostics != null && level >= this.MinimumLevel)
             {
-                DiagnosticInformation information = new DiagnosticInformation();
-                information.Level = level;
-                information.Message = message;
-                diagnostics.Invoke(this, information);
+                this.InvokeDiagnostics(diagnostics, level, message);
             }
+        }
+
+        /// <summary>
+        /// Sends diagnostic if appropiate for PowerShell streams.
+        /// </summary>
+        /// <param name="level">The level of this diagnostic message.</param>
+        /// <param name="pwsh">The PowerShell object.</param>
+        internal void OnDiagnostics(DiagnosticLevel level, PowerShell pwsh)
+        {
+            EventHandler<DiagnosticInformation>? diagnostics = this.Diagnostics;
+            if (diagnostics != null && level >= this.MinimumLevel && pwsh.HadErrors)
+            {
+                var builder = new StringBuilder();
+
+                // There are the last commands ran by that PowerShell obj, not all in our session.
+                builder.AppendLine("Commands:");
+                foreach (var c in pwsh.Commands.Commands)
+                {
+                    builder.Append($"'{c.CommandText}'");
+                    if (c.Parameters.Count > 0)
+                    {
+                        builder.Append(" Parameters ");
+                        foreach (var p in c.Parameters)
+                        {
+                            builder.Append($"[{p.Name} = '{p.Value}']");
+                        }
+                    }
+
+                    builder.AppendLine();
+                }
+
+                foreach (var error in pwsh.Streams.Error)
+                {
+                    builder.AppendLine($"[WriteError]{error}");
+                }
+
+                this.InvokeDiagnostics(diagnostics, level, builder.ToString());
+            }
+        }
+
+        private void InvokeDiagnostics(EventHandler<DiagnosticInformation> diagnostics, DiagnosticLevel level, string message)
+        {
+            DiagnosticInformation information = new ()
+            {
+                Level = level,
+                Message = message,
+            };
+            diagnostics.Invoke(this, information);
         }
     }
 }

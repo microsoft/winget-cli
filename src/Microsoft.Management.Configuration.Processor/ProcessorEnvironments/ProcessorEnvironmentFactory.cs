@@ -33,13 +33,9 @@ namespace Microsoft.Management.Configuration.Processor.ProcessorEnvironments
         /// <summary>
         /// Create process environment.
         /// </summary>
+        /// <param name="setProcessorFactory">Optional processor factory.</param>
         /// <returns>IProcessorEnvironment.</returns>
-        public IProcessorEnvironment CreateEnvironment()
-        {
-            return this.CreateProcessorEnvironment();
-        }
-
-        private IProcessorEnvironment CreateProcessorEnvironment()
+        public IProcessorEnvironment CreateEnvironment(ConfigurationSetProcessorFactory? setProcessorFactory)
         {
             IDscModule dscModule = new DscModuleV2();
 
@@ -67,7 +63,10 @@ namespace Microsoft.Management.Configuration.Processor.ProcessorEnvironments
                 var runspace = RunspaceFactory.CreateRunspace(initialSessionState);
                 runspace.Open();
 
-                return new HostedEnvironment(runspace, this.type, dscModule);
+                return new HostedEnvironment(runspace, this.type, dscModule)
+                {
+                    SetProcessorFactory = setProcessorFactory,
+                };
             }
 
             throw new ArgumentException(this.type.ToString());
