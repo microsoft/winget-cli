@@ -39,6 +39,26 @@ namespace Microsoft.Management.Configuration.UnitTests.Fixtures
             {
                 throw new DirectoryNotFoundException(this.TestModulesPath);
             }
+
+            string? gitSearchPath = Path.GetDirectoryName(assemblyPath);
+
+            while (!string.IsNullOrEmpty(gitSearchPath))
+            {
+                if (Directory.Exists(Path.Combine(gitSearchPath, ".git")))
+                {
+                    break;
+                }
+
+                gitSearchPath = Path.GetDirectoryName(gitSearchPath);
+            }
+
+            this.GitRootPath = gitSearchPath ?? throw new DirectoryNotFoundException("git root path");
+
+            this.ExternalModulesPath = Path.Combine(this.GitRootPath, "src", "PowerShell", "ExternalModules");
+            if (!Directory.Exists(this.ExternalModulesPath))
+            {
+                throw new DirectoryNotFoundException(this.ExternalModulesPath);
+            }
         }
 
         /// <summary>
@@ -52,12 +72,23 @@ namespace Microsoft.Management.Configuration.UnitTests.Fixtures
         public string TestModulesPath { get; }
 
         /// <summary>
+        /// Gets the git root path.
+        /// </summary>
+        public string GitRootPath { get; }
+
+        /// <summary>
+        /// Gets the external module path.
+        /// </summary>
+        public string ExternalModulesPath { get; }
+
+        /// <summary>
         /// Creates a runspace adding the test module path.
         /// </summary>
         /// <returns>PowerShellRunspace.</returns>
         internal IProcessorEnvironment PrepareTestProcessorEnvironment(bool validate = false)
         {
             var processorEnv = new ProcessorEnvironmentFactory(ConfigurationProcessorType.Hosted).CreateEnvironment();
+            processorEnv.PrependPSModulePath(this.ExternalModulesPath);
             processorEnv.PrependPSModulePath(this.TestModulesPath);
 
             if (validate)

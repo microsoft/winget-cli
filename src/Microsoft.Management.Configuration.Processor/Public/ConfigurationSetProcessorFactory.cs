@@ -10,6 +10,7 @@ namespace Microsoft.Management.Configuration.Processor
     using Microsoft.Management.Configuration;
     using Microsoft.Management.Configuration.Processor.ProcessorEnvironments;
     using Microsoft.Management.Configuration.Processor.Set;
+    using static Microsoft.Management.Configuration.Processor.Constants.PowerShellConstants;
 
     /// <summary>
     /// ConfigurationSetProcessorFactory implementation.
@@ -53,7 +54,6 @@ namespace Microsoft.Management.Configuration.Processor
 
                 var envFactory = new ProcessorEnvironmentFactory(this.type);
                 var processorEnvironment = envFactory.CreateEnvironment();
-                processorEnvironment.ValidateRunspace();
 
                 if (this.properties is not null)
                 {
@@ -63,6 +63,10 @@ namespace Microsoft.Management.Configuration.Processor
                         processorEnvironment.PrependPSModulePaths(additionalPsModulePaths);
                     }
                 }
+
+                this.OnDiagnostics(DiagnosticLevel.Verbose, $"  Effective module path:\n{processorEnvironment.GetVariable<string>(Variables.PSModulePath)}");
+
+                processorEnvironment.ValidateRunspace();
 
                 this.OnDiagnostics(DiagnosticLevel.Verbose, "... done creating set processor.");
 

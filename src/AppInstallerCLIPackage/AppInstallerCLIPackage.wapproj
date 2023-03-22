@@ -127,6 +127,10 @@
         <PackagePath>ConfigurationRemotingServer</PackagePath>
         <Recurse>true</Recurse>
       </WinGetAdditionalPackageFile>
+      <WinGetAdditionalPackageFile Include="$(SolutionDir)\PowerShell\ExternalModules\**\*">
+        <PackagePath>ExternalModules</PackagePath>
+        <Recurse>true</Recurse>
+      </WinGetAdditionalPackageFile>
     </ItemGroup>
 
     <Error Condition="!Exists('%(WinGetAdditionalPackageFile.Identity)')" Text="%(WinGetAdditionalPackageFile.Identity) was not found" />
