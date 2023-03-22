@@ -98,16 +98,16 @@
     </PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Platform)'=='ARM'">
-    <ConfigServerRid>win-arm</ConfigServerRid>
+    <ConfigServerRid>win10-arm</ConfigServerRid>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Platform)'=='ARM64'">
-    <ConfigServerRid>win-arm64</ConfigServerRid>
+    <ConfigServerRid>win10-arm64</ConfigServerRid>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Platform)'=='x64'">
-    <ConfigServerRid>win-x64</ConfigServerRid>
+    <ConfigServerRid>win10-x64</ConfigServerRid>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Platform)'=='x86'">
-    <ConfigServerRid>win-x86</ConfigServerRid>
+    <ConfigServerRid>win10-x86</ConfigServerRid>
   </PropertyGroup>
   <Target Name="WinGetIncludeAdditionalFilesInPackage" AfterTargets="_ComputeAppxPackagePayload">
     <PropertyGroup>
