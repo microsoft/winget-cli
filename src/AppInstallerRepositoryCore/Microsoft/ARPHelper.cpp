@@ -363,12 +363,18 @@ namespace AppInstaller::Repository::Microsoft
                     continue;
                 }
                 auto displayNameValue = displayName->GetValue<Registry::Value::Type::String>();
-                manifest.DefaultLocalization.Add<Manifest::Localization::PackageName>(displayNameValue);
                 if (displayNameValue.empty())
                 {
                     AICLI_LOG(Repo, Verbose, << "Skipping " << productCode << " because DisplayName is empty");
                     continue;
                 }
+
+                manifest.DefaultLocalization.Add<Manifest::Localization::PackageName>(displayNameValue);
+                // Add DisplayName to ARP entries too
+                // This is to help normalized publisher and name correlation where ARP DisplayName matching
+                // will be getting improved in future iterations.
+                manifest.Installers[0].AppsAndFeaturesEntries.emplace_back();
+                manifest.Installers[0].AppsAndFeaturesEntries[0].DisplayName = displayNameValue;
 
                 // If no version can be determined, ignore this entry
                 manifest.Version = DetermineVersion(arpKey);
@@ -404,7 +410,6 @@ namespace AppInstaller::Repository::Microsoft
                     auto upgradeCodeItr = upgradeCodes.find(productCode);
                     if (upgradeCodeItr != upgradeCodes.end())
                     {
-                        manifest.Installers[0].AppsAndFeaturesEntries.emplace_back();
                         manifest.Installers[0].AppsAndFeaturesEntries[0].UpgradeCode = upgradeCodeItr->second;
                     }
                 }

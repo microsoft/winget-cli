@@ -16,6 +16,16 @@ namespace AppInstaller::Utility
         InitialPreserveWhiteSpace,
     };
 
+    // List of name normalization fields. Architecture, locale, etc.
+    // Currently only architecture is used.
+    enum class NormalizationField : uint32_t
+    {
+        None = 0x0,
+        Architecture = 0x1,
+    };
+
+    DEFINE_ENUM_FLAG_OPERATORS(NormalizationField);
+
     struct NameNormalizer;
 
     // A package publisher and name that has been normalized, allowing direct
@@ -38,6 +48,11 @@ namespace AppInstaller::Utility
         const std::string& Publisher() const { return m_publisher; }
         void Publisher(std::string&& publisher) { m_publisher = std::move(publisher); }
         void Publisher(std::string_view publisher) { m_publisher = publisher; }
+
+        // Gets normalized name with additional normalization fields included.
+        std::string GetNormalizedName(NormalizationField fieldsToInclude) const;
+        // Gets a flag indicating the list of fields detected in normalization.
+        NormalizationField GetNormalizedFields() const;
 
     private:
         std::string m_name;

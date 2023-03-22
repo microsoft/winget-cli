@@ -13,9 +13,13 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
 {
     namespace
     {
-        void AddNormalizedName(const Utility::NameNormalizer& normalizer, const Manifest::string_t& name, std::vector<Utility::NormalizedString>& out)
+        void AddNormalizedName(
+            const Utility::NameNormalizer& normalizer,
+            const Manifest::string_t& name,
+            std::vector<Utility::NormalizedString>& out,
+            Utility::NormalizationField fieldsToInclude = Utility::NormalizationField::None)
         {
-            Utility::NormalizedString value = normalizer.NormalizeName(Utility::FoldCase(name)).Name();
+            Utility::NormalizedString value = normalizer.NormalizeName(Utility::FoldCase(name)).GetNormalizedName(fieldsToInclude);
             if (std::find(out.begin(), out.end(), value) == out.end())
             {
                 out.emplace_back(std::move(value));
@@ -65,6 +69,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
                     if (!appsAndFeaturesEntry.DisplayName.empty())
                     {
                         AddNormalizedName(normalizer, appsAndFeaturesEntry.DisplayName, result);
+                        // For arp display name, also add a copy with architecture info for more accurate correlation.
+                        AddNormalizedName(normalizer, appsAndFeaturesEntry.DisplayName, result, Utility::NormalizationField::Architecture);
                     }
                 }
             }

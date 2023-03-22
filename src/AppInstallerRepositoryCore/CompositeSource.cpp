@@ -4,6 +4,7 @@
 #include "CompositeSource.h"
 #include "Microsoft/PinningIndex.h"
 #include <winget/ExperimentalFeature.h>
+#include <winget/NameNormalization.h>
 
 using namespace AppInstaller::Repository::Microsoft;
 using namespace AppInstaller::Settings;
@@ -842,7 +843,15 @@ namespace AppInstaller::Repository
             // Data relevant to correlation for a package.
             struct PackageData
             {
+                // ProductCode, PackageFamilyName, etc
                 std::set<SystemReferenceString> SystemReferenceStrings;
+                // Normalized Publisher and Names, with NormalizationField info for creating filtered search request.
+                std::map<SystemReferenceString, Utility::NormalizationField> NameAndPublishers;
+
+                bool Empty()
+                {
+                    return SystemReferenceStrings.empty() && NameAndPublishers.empty();
+                }
 
                 void AddIfNotPresent(SystemReferenceString&& srs)
                 {
@@ -852,18 +861,52 @@ namespace AppInstaller::Repository
                     }
                 }
 
-                SearchRequest CreateInclusionsSearchRequest() const
+                void AddNameAndPublisherIfNotPresent(SystemReferenceString&& srs, Utility::NormalizationField normalizationField)
+                {
+                    if (NameAndPublishers.find(srs) == NameAndPublishers.end())
+                    {
+                        NameAndPublishers.emplace(std::move(srs), normalizationField);
+                    }
+                }
+
+                // If filter is std::nullopt, all values will be included.
+                SearchRequest CreateInclusionsSearchRequest(std::optional<Utility::NormalizationField> filter = std::nullopt) const
                 {
                     SearchRequest result;
                     for (const auto& srs : SystemReferenceStrings)
                     {
                         srs.AddToFilters(result.Inclusions);
                     }
+                    for (const auto& nameAndPublisher : NameAndPublishers)
+                    {
+                        // We specifically use direct compare of NormalizationField here since most likely in the future,
+                        // The matching logic will try narrowing down list of strings step by step.
+                        // For example, try Name|Arch|Locale, then Name|Arch, then Name.
+                        if (filter.has_value() && nameAndPublisher.second != filter.value())
+                        {
+                            continue;
+                        }
+                        nameAndPublisher.first.AddToFilters(result.Inclusions);
+                    }
                     return result;
+                }
+
+                bool PackageNamesContainNormalizationField(Utility::NormalizationField filter)
+                {
+                    for (const auto& nameAndPublisher : NameAndPublishers)
+                    {
+                        if (nameAndPublisher.second == filter)
+                        {
+                            return true;;
+                        }
+                    }
+
+                    return false;
                 }
             };
 
-            // For a given package version, prepares the results for it.
+            // For a given package version, prepares the system reference strings for correlation.
+            // Excluding normalized publisher and name.
             PackageData GetSystemReferenceStrings(IPackageVersion* version)
             {
                 PackageData result;
@@ -1054,14 +1097,17 @@ namespace AppInstaller::Repository
                 auto names = installedVersion->GetMultiProperty(PackageVersionMultiProperty::Name);
                 auto publishers = installedVersion->GetMultiProperty(PackageVersionMultiProperty::Publisher);
 
+                Utility::NameNormalizer normer(Utility::NormalizationVersion::Initial);
+
                 for (size_t i = 0; i < names.size(); ++i)
                 {
+                    auto normalizationField = normer.NormalizeName(names[i]).GetNormalizedFields();
                     for (size_t j = 0; j < publishers.size(); ++j)
                     {
-                        data.AddIfNotPresent(SystemReferenceString{
+                        data.AddNameAndPublisherIfNotPresent(SystemReferenceString{
                             PackageMatchField::NormalizedNameAndPublisher,
                             names[i],
-                            publishers[j] });
+                            publishers[j] }, normalizationField);
                     }
                 }
             }
@@ -1218,11 +1264,8 @@ namespace AppInstaller::Repository
 
                 auto installedPackageData = result.GetSystemReferenceStrings(installedVersion.get());
 
-                // Create a search request to run against all available sources
-                if (!installedPackageData.SystemReferenceStrings.empty())
+                auto tryAddAvailablePackage = [&](const SearchRequest& systemReferenceSearch) -> bool
                 {
-                    SearchRequest systemReferenceSearch = installedPackageData.CreateInclusionsSearchRequest();
-
                     Source trackedSource;
                     std::shared_ptr<IPackage> trackingPackage;
                     std::shared_ptr<IPackageVersion> trackingPackageVersion;
@@ -1306,6 +1349,21 @@ namespace AppInstaller::Repository
                         addedAvailablePackage = true;
                         compositePackage->AddAvailablePackage(std::move(availablePackage));
                     }
+
+                    return addedAvailablePackage;
+                };
+
+                // Create a search request to run against all available sources
+                if (!installedPackageData.Empty())
+                {
+                    // For installed package to available package mapping,
+                    // try the search with NormalizedName with Arch first, if not found, try with all values.
+                    SearchRequest systemReferenceSearch = installedPackageData.CreateInclusionsSearchRequest(Utility::NormalizationField::Architecture);
+                    if (!tryAddAvailablePackage(systemReferenceSearch))
+                    {
+                        systemReferenceSearch = installedPackageData.CreateInclusionsSearchRequest();
+                        tryAddAvailablePackage(systemReferenceSearch);
+                    }
                 }
 
                 // Move the installed result into the composite result
@@ -1340,10 +1398,15 @@ namespace AppInstaller::Repository
 
                 // If no package was found that was already in the results, do a correlation lookup with the installed
                 // source to create a new composite package entry if we find any packages there.
-                if (packageData && !packageData->SystemReferenceStrings.empty())
+                if (packageData && !packageData->Empty())
                 {
                     // Create a search request to run against the installed source
-                    SearchRequest systemReferenceSearch = packageData->CreateInclusionsSearchRequest();
+                    // For available package to installed package mapping, only one try is needed.
+                    // For example, if arp DisplayName contains arch, then the local packages's arp DisplayName should also include arch.
+                    SearchRequest systemReferenceSearch =
+                        packageData->PackageNamesContainNormalizationField(Utility::NormalizationField::Architecture) ?
+                        packageData->CreateInclusionsSearchRequest(Utility::NormalizationField::Architecture) :
+                        packageData->CreateInclusionsSearchRequest();
 
                     // Correlate against installed (allow exceptions out as we own the installed source)
                     SearchResult installedCrossRef = m_installedSource.Search(systemReferenceSearch);
@@ -1388,10 +1451,15 @@ namespace AppInstaller::Repository
                 // If no package was found that was already in the results, do a correlation lookup with the installed
                 // source to create a new composite package entry if we find any packages there.
                 bool foundInstalledMatch = false;
-                if (packageData && !packageData->SystemReferenceStrings.empty())
+                if (packageData && !packageData->Empty())
                 {
                     // Create a search request to run against the installed source
-                    SearchRequest systemReferenceSearch = packageData->CreateInclusionsSearchRequest();
+                    // For available package to installed package mapping, only one try is needed.
+                    // For example, if arp DisplayName contains arch, then the local packages's arp DisplayName should also include arch.
+                    SearchRequest systemReferenceSearch =
+                        packageData->PackageNamesContainNormalizationField(Utility::NormalizationField::Architecture) ?
+                        packageData->CreateInclusionsSearchRequest(Utility::NormalizationField::Architecture) :
+                        packageData->CreateInclusionsSearchRequest();
 
                     // Correlate against installed (allow exceptions out as we own the installed source)
                     SearchResult installedCrossRef = m_installedSource.Search(systemReferenceSearch);
