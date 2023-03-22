@@ -851,7 +851,6 @@ namespace AppInstaller::CLI::Workflow
         auto& searchResult = context.Get<Execution::Data::SearchResult>();
 
         Logging::Telemetry().LogSearchResultCount(searchResult.Matches.size());
-        AICLI_LOG(Repo, Verbose, << "Search result size: " << searchResult.Matches.size());
 
         if (searchResult.Matches.size() == 0)
         {
