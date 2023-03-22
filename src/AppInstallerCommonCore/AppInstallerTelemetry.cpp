@@ -550,6 +550,8 @@ namespace AppInstaller::Logging
                 m_summary.SearchResultCount = resultCount;
             }
         }
+
+        AICLI_LOG(CLI, Verbose, << "Search result size: " << resultCount);
     }
 
     void TelemetryTraceLogger::LogInstallerHashMismatch(
