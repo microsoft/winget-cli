@@ -1358,11 +1358,21 @@ namespace AppInstaller::Repository
                 {
                     // For installed package to available package mapping,
                     // try the search with NormalizedName with Arch first, if not found, try with all values.
-                    SearchRequest systemReferenceSearch = installedPackageData.CreateInclusionsSearchRequest(Utility::NormalizationField::Architecture);
-                    if (!tryAddAvailablePackage(systemReferenceSearch))
+                    // This can be extended in the future for more granular search requests.
+                    std::vector<SearchRequest> candidateSearches;
+                    if (installedPackageData.PackageNamesContainNormalizationField(Utility::NormalizationField::Architecture))
                     {
-                        systemReferenceSearch = installedPackageData.CreateInclusionsSearchRequest();
-                        tryAddAvailablePackage(systemReferenceSearch);
+                        candidateSearches.emplace_back(installedPackageData.CreateInclusionsSearchRequest(Utility::NormalizationField::Architecture));
+                    }
+                    candidateSearches.emplace_back(installedPackageData.CreateInclusionsSearchRequest());
+
+                    for (const auto& candidateSearch : candidateSearches)
+                    {
+                        if (tryAddAvailablePackage(candidateSearch))
+                        {
+                            // If found available package, break. Otherwise try next search request.
+                            break;
+                        }
                     }
                 }
 
