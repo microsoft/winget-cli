@@ -15,7 +15,6 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
     using Microsoft.Management.Configuration.Processor.Constants;
     using Microsoft.Management.Configuration.Processor.DscModule;
     using Microsoft.Management.Configuration.Processor.DscResourcesInfo;
-    using Microsoft.Management.Configuration.Processor.Extensions;
     using Microsoft.Management.Configuration.Processor.Helpers;
     using Microsoft.Management.Configuration.Processor.ProcessorEnvironments;
     using Microsoft.PowerShell.Commands;
@@ -92,7 +91,7 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
         {
             using PowerShell pwsh = PowerShell.Create(this.Runspace);
             var results = this.DscModule.GetAllDscResources(pwsh);
-            this.OnDiagnostics(DiagnosticLevel.Warning, pwsh);
+            this.OnDiagnostics(DiagnosticLevel.Verbose, pwsh);
             return results;
         }
 
@@ -101,7 +100,7 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
         {
             using PowerShell pwsh = PowerShell.Create(this.Runspace);
             var results = this.DscModule.GetDscResourcesInModule(pwsh, moduleSpecification);
-            this.OnDiagnostics(DiagnosticLevel.Warning, pwsh);
+            this.OnDiagnostics(DiagnosticLevel.Verbose, pwsh);
             return results;
         }
 
@@ -110,7 +109,7 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
         {
             using PowerShell pwsh = PowerShell.Create(this.Runspace);
             var result = this.DscModule.GetDscResource(pwsh, unitInternal.Unit.UnitName, unitInternal.Module);
-            this.OnDiagnostics(DiagnosticLevel.Warning, pwsh);
+            this.OnDiagnostics(DiagnosticLevel.Verbose, pwsh);
             return result;
         }
 
@@ -119,7 +118,7 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
         {
             using PowerShell pwsh = PowerShell.Create(this.Runspace);
             var result = this.DscModule.InvokeGetResource(pwsh, settings, name, moduleSpecification);
-            this.OnDiagnostics(DiagnosticLevel.Warning, pwsh);
+            this.OnDiagnostics(DiagnosticLevel.Verbose, pwsh);
             return result;
         }
 
@@ -128,7 +127,7 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
         {
             using PowerShell pwsh = PowerShell.Create(this.Runspace);
             var result = this.DscModule.InvokeTestResource(pwsh, settings, name, moduleSpecification);
-            this.OnDiagnostics(DiagnosticLevel.Warning, pwsh);
+            this.OnDiagnostics(DiagnosticLevel.Verbose, pwsh);
             return result;
         }
 
@@ -137,7 +136,7 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
         {
             using PowerShell pwsh = PowerShell.Create(this.Runspace);
             var result = this.DscModule.InvokeSetResource(pwsh, settings, name, moduleSpecification);
-            this.OnDiagnostics(DiagnosticLevel.Warning, pwsh);
+            this.OnDiagnostics(DiagnosticLevel.Verbose, pwsh);
             return result;
         }
 
@@ -151,7 +150,7 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
                                  .Invoke<PSModuleInfo>()
                                  .FirstOrDefault();
 
-            this.OnDiagnostics(DiagnosticLevel.Warning, pwsh);
+            this.OnDiagnostics(DiagnosticLevel.Verbose, pwsh);
             return moduleInfo;
         }
 
@@ -166,7 +165,7 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
                                  .Invoke<PSModuleInfo>()
                                  .FirstOrDefault();
 
-            this.OnDiagnostics(DiagnosticLevel.Warning, pwsh);
+            this.OnDiagnostics(DiagnosticLevel.Verbose, pwsh);
             return moduleInfo;
         }
 
@@ -181,7 +180,7 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
                                  .Invoke<PSModuleInfo>()
                                  .FirstOrDefault();
 
-            this.OnDiagnostics(DiagnosticLevel.Warning, pwsh);
+            this.OnDiagnostics(DiagnosticLevel.Verbose, pwsh);
             return moduleInfo;
         }
 
@@ -194,7 +193,7 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
                     .AddParameter(Parameters.FullyQualifiedName, moduleSpecification)
                     .Invoke();
 
-            this.OnDiagnostics(DiagnosticLevel.Warning, pwsh);
+            this.OnDiagnostics(DiagnosticLevel.Verbose, pwsh);
         }
 
         /// <inheritdoc/>
@@ -227,7 +226,7 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
                              .Invoke()
                              .FirstOrDefault();
 
-            this.OnDiagnostics(DiagnosticLevel.Warning, pwsh);
+            this.OnDiagnostics(DiagnosticLevel.Verbose, pwsh);
             return result;
         }
 
@@ -276,7 +275,7 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
                              .Invoke()
                              .FirstOrDefault();
 
-            this.OnDiagnostics(DiagnosticLevel.Warning, pwsh);
+            this.OnDiagnostics(DiagnosticLevel.Verbose, pwsh);
             return result;
         }
 
@@ -290,7 +289,7 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
                     .AddParameter(Parameters.InputObject, inputObject)
                     .Invoke();
 
-            this.OnDiagnostics(DiagnosticLevel.Warning, pwsh);
+            this.OnDiagnostics(DiagnosticLevel.Verbose, pwsh);
         }
 
         /// <inheritdoc/>
@@ -310,7 +309,7 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
                     .AddParameter(Parameters.Force)
                     .Invoke();
 
-            this.OnDiagnostics(DiagnosticLevel.Warning, pwsh);
+            this.OnDiagnostics(DiagnosticLevel.Verbose, pwsh);
         }
 
         /// <inheritdoc/>
@@ -345,7 +344,7 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
                         .AddParameter(Parameters.Force)
                         .Invoke();
 
-                this.OnDiagnostics(DiagnosticLevel.Warning, pwsh);
+                this.OnDiagnostics(DiagnosticLevel.Verbose, pwsh);
             }
         }
 
@@ -373,7 +372,7 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
                 }
             }
 
-            this.OnDiagnostics(DiagnosticLevel.Warning, pwsh);
+            this.OnDiagnostics(DiagnosticLevel.Verbose, pwsh);
             return certificates;
         }
 

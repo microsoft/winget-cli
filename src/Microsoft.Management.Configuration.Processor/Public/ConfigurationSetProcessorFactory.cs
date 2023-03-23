@@ -104,17 +104,18 @@ namespace Microsoft.Management.Configuration.Processor
                 var builder = new StringBuilder();
 
                 // There are the last commands ran by that PowerShell obj, not all in our session.
-                builder.AppendLine("Commands:");
+                builder.Append("PowerShellCommands: ");
                 foreach (var c in pwsh.Commands.Commands)
                 {
-                    builder.Append($"'{c.CommandText}'");
+                    builder.Append($"['{c.CommandText}'");
                     if (c.Parameters.Count > 0)
                     {
-                        builder.Append(" Parameters ");
+                        builder.Append(" Parameters: ");
                         foreach (var p in c.Parameters)
                         {
-                            builder.Append($"[{p.Name} = '{p.Value}']");
+                            builder.Append($"{p.Name} = '{p.Value}' ");
                         }
+                        builder.Append("]");
                     }
 
                     builder.AppendLine();
@@ -122,7 +123,7 @@ namespace Microsoft.Management.Configuration.Processor
 
                 foreach (var error in pwsh.Streams.Error)
                 {
-                    builder.AppendLine($"[WriteError]{error}");
+                    builder.AppendLine($"[WriteError] {error}");
                 }
 
                 this.InvokeDiagnostics(diagnostics, level, builder.ToString());
