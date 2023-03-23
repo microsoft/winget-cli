@@ -11,10 +11,8 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
     using System.Collections.ObjectModel;
     using System.Linq;
     using System.Management.Automation;
-    using System.Management.Automation.Runspaces;
     using Microsoft.Management.Configuration.Processor.DscResourcesInfo;
     using Microsoft.Management.Configuration.Processor.Exceptions;
-    using Microsoft.Management.Configuration.Processor.Extensions;
     using Microsoft.Management.Configuration.Processor.Helpers;
     using Microsoft.PowerShell.Commands;
     using Windows.Foundation.Collections;
@@ -54,51 +52,26 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
         public string InvokeDscResourceCmd { get; } = Commands.InvokeDscResource;
 
         /// <inheritdoc/>
-        public IReadOnlyList<DscResourceInfoInternal> GetAllDscResources(Runspace runspace)
+        public IReadOnlyList<DscResourceInfoInternal> GetAllDscResources(PowerShell pwsh)
         {
-            var result = new List<DscResourceInfoInternal>();
-
-            using PowerShell pwsh = PowerShell.Create(runspace);
-            var resources = pwsh.AddCommand(this.GetDscResourceCmd)
-                                .InvokeAndStopOnError();
-
-            return this.ConvertToDscResourceInfoInternal(resources);
+            return this.GetDscResources(pwsh, null, null);
         }
 
         /// <inheritdoc/>
         public IReadOnlyList<DscResourceInfoInternal> GetDscResourcesInModule(
-            Runspace runspace,
+            PowerShell pwsh,
             ModuleSpecification moduleSpecification)
         {
-            var result = new List<DscResourceInfoInternal>();
-
-            using PowerShell pwsh = PowerShell.Create(runspace);
-
-            var resources = pwsh.AddCommand(this.GetDscResourceCmd)
-                                .AddParameter(Parameters.Module, moduleSpecification)
-                                .InvokeAndStopOnError();
-
-            return this.ConvertToDscResourceInfoInternal(resources);
+            return this.GetDscResources(pwsh, null, moduleSpecification);
         }
 
         /// <inheritdoc/>
         public DscResourceInfoInternal? GetDscResource(
-            Runspace runspace,
+            PowerShell pwsh,
             string name,
             ModuleSpecification? moduleSpecification)
         {
-            using PowerShell pwsh = PowerShell.Create(runspace);
-            pwsh.AddCommand(this.GetDscResourceCmd)
-                .AddParameter(Parameters.Name, name);
-
-            if (moduleSpecification is not null)
-            {
-                pwsh.AddParameter(Parameters.Module, moduleSpecification);
-            }
-
-            var resources = pwsh.InvokeAndStopOnError();
-
-            var dscResourceInfos = this.ConvertToDscResourceInfoInternal(resources);
+            var dscResourceInfos = this.GetDscResources(pwsh, name, moduleSpecification);
 
             if (dscResourceInfos.Count == 0)
             {
@@ -114,17 +87,15 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
 
         /// <inheritdoc/>
         public ValueSet InvokeGetResource(
-            Runspace runspace,
+            PowerShell pwsh,
             ValueSet settings,
             string name,
             ModuleSpecification? moduleSpecification)
         {
-            using PowerShell pwsh = PowerShell.Create(runspace);
-
             var getResult = pwsh.AddCommand(this.InvokeDscResourceCmd)
                                 .AddParameters(PrepareInvokeParameters(name, settings, moduleSpecification))
                                 .AddParameter(Parameters.Method, DscMethods.Get)
-                                .InvokeAndStopOnError()
+                                .Invoke()
                                 .FirstOrDefault();
 
             if (getResult is null)
@@ -151,19 +122,17 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
 
         /// <inheritdoc/>
         public bool InvokeTestResource(
-            Runspace runspace,
+            PowerShell pwsh,
             ValueSet settings,
             string name,
             ModuleSpecification? moduleSpecification)
         {
-            using PowerShell pwsh = PowerShell.Create(runspace);
-
             // Returned type is InvokeDscResourceTestResult which is a PowerShell classed defined
             // in PSDesiredStateConfiguration.psm1.
             dynamic? testResult = pwsh.AddCommand(this.InvokeDscResourceCmd)
                                       .AddParameters(PrepareInvokeParameters(name, settings, moduleSpecification))
                                       .AddParameter(Parameters.Method, DscMethods.Test)
-                                      .InvokeAndStopOnError()
+                                      .Invoke()
                                       .FirstOrDefault();
 
             if (testResult is null ||
@@ -177,19 +146,17 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
 
         /// <inheritdoc/>
         public bool InvokeSetResource(
-            Runspace runspace,
+            PowerShell pwsh,
             ValueSet settings,
             string name,
             ModuleSpecification? moduleSpecification)
         {
-            using PowerShell pwsh = PowerShell.Create(runspace);
-
             // Returned type is InvokeDscResourceSetResult which is a PowerShell classed defined
             // in PSDesiredStateConfiguration.psm1.
             dynamic? setResult = pwsh.AddCommand(this.InvokeDscResourceCmd)
                                      .AddParameters(PrepareInvokeParameters(name, settings, moduleSpecification))
                                      .AddParameter(Parameters.Method, DscMethods.Set)
-                                     .InvokeAndStopOnError()
+                                     .Invoke()
                                      .FirstOrDefault();
 
             if (setResult is null ||
@@ -224,6 +191,40 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
             }
 
             return parameters;
+        }
+
+        private IReadOnlyList<DscResourceInfoInternal> GetDscResources(
+            PowerShell pwsh,
+            string? name,
+            ModuleSpecification? moduleSpecification)
+        {
+            pwsh.AddCommand(this.GetDscResourceCmd);
+
+            if (name is not null)
+            {
+                pwsh.AddParameter(Parameters.Name, name);
+            }
+
+            if (moduleSpecification is not null)
+            {
+                pwsh.AddParameter(Parameters.Module, moduleSpecification);
+            }
+
+            try
+            {
+                var resources = pwsh.Invoke();
+                return this.ConvertToDscResourceInfoInternal(resources);
+            }
+            catch (RuntimeException e)
+            {
+                // Detect easily this.
+                if (e.ErrorRecord.FullyQualifiedErrorId == "ExceptionWhenSetting,GetResourceFromKeyword")
+                {
+                    throw new GetDscResourceModuleConflict(name, moduleSpecification, e);
+                }
+
+                throw;
+            }
         }
 
         private List<DscResourceInfoInternal> ConvertToDscResourceInfoInternal(Collection<PSObject> psObjects)

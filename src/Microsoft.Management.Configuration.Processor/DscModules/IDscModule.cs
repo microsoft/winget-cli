@@ -7,7 +7,7 @@
 namespace Microsoft.Management.Configuration.Processor.DscModule
 {
     using System.Collections.Generic;
-    using System.Management.Automation.Runspaces;
+    using System.Management.Automation;
     using Microsoft.Management.Configuration.Processor.DscResourcesInfo;
     using Microsoft.PowerShell.Commands;
     using Windows.Foundation.Collections;
@@ -35,55 +35,55 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
         /// <summary>
         /// Gets all DSC resource.
         /// </summary>
-        /// <param name="runspace">PowerShell Runspace.</param>
+        /// <param name="pwsh">PowerShell.</param>
         /// <returns>A list with the DSC resource.</returns>
-        IReadOnlyList<DscResourceInfoInternal> GetAllDscResources(Runspace runspace);
+        IReadOnlyList<DscResourceInfoInternal> GetAllDscResources(PowerShell pwsh);
 
         /// <summary>
         /// Gets all resources in a module.
         /// </summary>
-        /// <param name="runspace">PowerShell Runspace.</param>
+        /// <param name="pwsh">PowerShell.</param>
         /// <param name="moduleSpecification">Module specification.</param>
         /// <returns>List of resources of that module and version.</returns>
-        IReadOnlyList<DscResourceInfoInternal> GetDscResourcesInModule(Runspace runspace, ModuleSpecification moduleSpecification);
+        IReadOnlyList<DscResourceInfoInternal> GetDscResourcesInModule(PowerShell pwsh, ModuleSpecification moduleSpecification);
 
         /// <summary>
         /// Gets a DSC Resource.
         /// </summary>
-        /// <param name="runspace">PowerShell Runspace.</param>
+        /// <param name="pwsh">PowerShell.</param>
         /// <param name="name">Name.</param>
         /// <param name="moduleSpecification">Module specification.</param>
         /// <returns>DSC Resource from that module and version.</returns>
-        DscResourceInfoInternal? GetDscResource(Runspace runspace, string name, ModuleSpecification? moduleSpecification);
+        DscResourceInfoInternal? GetDscResource(PowerShell pwsh, string name, ModuleSpecification? moduleSpecification);
 
         /// <summary>
         /// Calls Invoke-DscResource -Method Get from this module.
         /// </summary>
-        /// <param name="runspace">PowerShell Runspace.</param>
+        /// <param name="pwsh">PowerShell.</param>
         /// <param name="settings">Settings.</param>
         /// <param name="name">Name.</param>
         /// <param name="moduleSpecification">Module specification.</param>
         /// <returns>Properties of resource.</returns>
-        ValueSet InvokeGetResource(Runspace runspace, ValueSet settings, string name, ModuleSpecification? moduleSpecification);
+        ValueSet InvokeGetResource(PowerShell pwsh, ValueSet settings, string name, ModuleSpecification? moduleSpecification);
 
         /// <summary>
         /// Calls Invoke-DscResource -Method Test from this module.
         /// </summary>
-        /// <param name="runspace">PowerShell Runspace.</param>
+        /// <param name="pwsh">PowerShell.</param>
         /// <param name="settings">Settings.</param>
         /// <param name="name">Name.</param>
         /// <param name="moduleSpecification">Module specification.</param>
         /// <returns>Is in desired state.</returns>
-        bool InvokeTestResource(Runspace runspace, ValueSet settings, string name, ModuleSpecification? moduleSpecification);
+        bool InvokeTestResource(PowerShell pwsh, ValueSet settings, string name, ModuleSpecification? moduleSpecification);
 
         /// <summary>
         /// Calls Invoke-DscResource -Method Set from this module.
         /// </summary>
-        /// <param name="runspace">PowerShell Runspace.</param>
+        /// <param name="pwsh">PowerShell.</param>
         /// <param name="settings">Settings.</param>
         /// <param name="name">Name.</param>
         /// <param name="moduleSpecification">Module specification.</param>
         /// <returns>If a reboot is required.</returns>
-        bool InvokeSetResource(Runspace runspace, ValueSet settings, string name, ModuleSpecification? moduleSpecification);
+        bool InvokeSetResource(PowerShell pwsh, ValueSet settings, string name, ModuleSpecification? moduleSpecification);
     }
 }

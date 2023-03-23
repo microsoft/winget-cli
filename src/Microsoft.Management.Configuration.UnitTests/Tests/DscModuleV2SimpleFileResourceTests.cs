@@ -7,6 +7,7 @@
 namespace Microsoft.Management.Configuration.UnitTests.Tests
 {
     using System.IO;
+    using System.Management.Automation;
     using Microsoft.Management.Configuration.Processor.DscModule;
     using Microsoft.Management.Configuration.Processor.Helpers;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
@@ -58,10 +59,12 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             };
 
             var dscModule = new DscModuleV2();
+
+            using PowerShell pwsh = PowerShell.Create(processorEnv.Runspace);
             Assert.Equal(
                 expectedResult,
                 dscModule.InvokeTestResource(
-                    processorEnv.Runspace,
+                    pwsh,
                     settings,
                     TestModule.SimpleFileResourceName,
                     PowerShellHelpers.CreateModuleSpecification(
@@ -86,8 +89,9 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             };
 
             var dscModule = new DscModuleV2();
+            using PowerShell pwsh = PowerShell.Create(processorEnv.Runspace);
             Assert.True(dscModule.InvokeTestResource(
-                processorEnv.Runspace,
+                pwsh,
                 settings,
                 TestModule.SimpleFileResourceName,
                 PowerShellHelpers.CreateModuleSpecification(
@@ -112,8 +116,9 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             };
 
             var dscModule = new DscModuleV2();
+            using PowerShell pwsh = PowerShell.Create(processorEnv.Runspace);
             Assert.False(dscModule.InvokeTestResource(
-                processorEnv.Runspace,
+                pwsh,
                 settings,
                 TestModule.SimpleFileResourceName,
                 PowerShellHelpers.CreateModuleSpecification(
@@ -139,8 +144,9 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             };
 
             var dscModule = new DscModuleV2();
+            using PowerShell pwsh = PowerShell.Create(processorEnv.Runspace);
             Assert.True(dscModule.InvokeTestResource(
-                processorEnv.Runspace,
+                pwsh,
                 settings,
                 TestModule.SimpleFileResourceName,
                 PowerShellHelpers.CreateModuleSpecification(
@@ -181,8 +187,9 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 File.Exists(tmpFile.FullFileName));
 
             var dscModule = new DscModuleV2();
+            using PowerShell pwsh = PowerShell.Create(processorEnv.Runspace);
             dscModule.InvokeSetResource(
-                processorEnv.Runspace,
+                pwsh,
                 settings,
                 TestModule.SimpleFileResourceName,
                 PowerShellHelpers.CreateModuleSpecification(
@@ -221,8 +228,9 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             };
 
             var dscModule = new DscModuleV2();
+            using PowerShell pwsh = PowerShell.Create(processorEnv.Runspace);
             dscModule.InvokeSetResource(
-                processorEnv.Runspace,
+                pwsh,
                 settings,
                 TestModule.SimpleFileResourceName,
                 PowerShellHelpers.CreateModuleSpecification(
@@ -250,8 +258,9 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             };
 
             var dscModule = new DscModuleV2();
+            using PowerShell pwsh = PowerShell.Create(processorEnv.Runspace);
             var properties = dscModule.InvokeGetResource(
-                                processorEnv.Runspace,
+                                pwsh,
                                 settings,
                                 TestModule.SimpleFileResourceName,
                                 PowerShellHelpers.CreateModuleSpecification(

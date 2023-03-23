@@ -40,5 +40,10 @@ namespace Microsoft.Management.Configuration.Processor.Exceptions
         /// Internal error calling Invoke-DscResource Set.
         /// </summary>
         internal const int WinGetConfigUnitInvokeSet = unchecked((int)0x8A15C106);
+
+        /// <summary>
+        /// Internal error calling Get-DscResource. More than one module found with the same version.
+        /// </summary>
+        internal const int WinGetConfigUnitModuleConflict = unchecked((int)0x8A15C107);
     }
 }
