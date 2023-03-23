@@ -159,7 +159,7 @@ jobs:
     displayName: Create Package Layout
     inputs:
       filePath: 'src\AppInstallerCLIPackage\Execute-AppxRecipe.ps1'
-      arguments: '-AppxRecipePath src\AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration)\AppInstallerCLIPackage.build.appxrecipe -LayoutPath $(packageLayoutDir) -Force -Verbose'
+      arguments: '-AppxRecipePath AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration)\AppInstallerCLIPackage.build.appxrecipe -LayoutPath $(packageLayoutDir) -Force -Verbose'
       workingDirectory: 'src'
     continueOnError: true
 
