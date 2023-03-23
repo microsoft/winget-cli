@@ -92,7 +92,7 @@ namespace Microsoft.Management.Configuration.Processor
         }
 
         /// <summary>
-        /// Sends diagnostic if appropiate for PowerShell streams.
+        /// Sends diagnostic if appropriate for PowerShell streams.
         /// </summary>
         /// <param name="level">The level of this diagnostic message.</param>
         /// <param name="pwsh">The PowerShell object.</param>

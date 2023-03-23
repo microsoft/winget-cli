@@ -163,12 +163,12 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var dscModule = new DscModuleV2();
             using PowerShell pwsh = PowerShell.Create(testEnvironment.Runspace);
-            Assert.Throws<WriteErrorException>(
-                () => dscModule.GetDscResource(
-                    pwsh,
-                    "FakeResourceName",
-                    PowerShellHelpers.CreateModuleSpecification(
-                        TestModule.SimpleTestResourceModuleName)));
+            var resource = dscModule.GetDscResource(
+                pwsh,
+                "FakeResourceName",
+                PowerShellHelpers.CreateModuleSpecification(
+                    TestModule.SimpleTestResourceModuleName));
+            Assert.Null(resource);
         }
 
         /// <summary>
