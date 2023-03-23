@@ -5,6 +5,8 @@ parameters:
   type: boolean
 - name: filter
   type: string
+- name: packageRootPath
+  type: string
 
 steps:
 - task: VSTest@2
@@ -17,7 +19,7 @@ steps:
     runSettingsFile: '$(buildOutDir)\AppInstallerCLIE2ETests\Test.runsettings'
     ${{ if eq(parameters.isPackaged, true) }}:
       overrideTestrunParameters: '-PackagedContext true
-                                  -AICLIPackagePath $(System.DefaultWorkingDirectory)\src\AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration)
+                                  -AICLIPackagePath $(packageRootPath)
                                   -AICLIPath AppInstallerCLI\winget.exe
                                   -LooseFileRegistration true
                                   -InvokeCommandInDesktopPackage true
@@ -29,7 +31,7 @@ steps:
                                   -PowerShellModulePath $(buildOutDir)\PowerShell\Microsoft.WinGet.Client\Microsoft.WinGet.Client.psd1'
     ${{ else }}:
       overrideTestrunParameters: '-PackagedContext false
-                                  -AICLIPath $(System.DefaultWorkingDirectory)\src\AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration)\AppInstallerCLI\winget.exe
+                                  -AICLIPath $(packageRootPath)\AppInstallerCLI\winget.exe
                                   -InvokeCommandInDesktopPackage false
                                   -StaticFileRootPath $(Agent.TempDirectory)\TestLocalIndex
                                   -MsiTestInstallerPath $(System.DefaultWorkingDirectory)\src\AppInstallerCLIE2ETests\TestData\AppInstallerTestMsiInstaller.msi
