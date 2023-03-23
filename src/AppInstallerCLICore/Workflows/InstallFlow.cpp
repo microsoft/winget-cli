@@ -489,6 +489,7 @@ namespace AppInstaller::CLI::Workflow
 
     void DownloadSinglePackage(Execution::Context& context)
     {
+        // TODO: Split dependencies from download flow to prevent multiple installations.
         context <<
             Workflow::ReportIdentityAndInstallationDisclaimer <<
             Workflow::ShowPromptsForSinglePackage(/* ensureAcceptance */ true) <<
