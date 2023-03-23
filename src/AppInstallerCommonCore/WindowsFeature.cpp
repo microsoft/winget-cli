@@ -96,6 +96,7 @@ namespace AppInstaller::WindowsFeature
     {
         m_dismHelper = std::move(dismHelper);
         m_featureName = name;
+        GetFeatureInfo();
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
