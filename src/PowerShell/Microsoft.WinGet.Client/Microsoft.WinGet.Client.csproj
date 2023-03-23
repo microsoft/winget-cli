@@ -59,6 +59,26 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(TargetFramework)' == '$(CoreFramework)'">
+    <RuntimeIdentifiers>win-x64;win-x86;win-arm;win-arm64</RuntimeIdentifiers>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Platform)' == 'x64' AND '$(TargetFramework)' == '$(CoreFramework)'">
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Platform)' == 'x86' ">
+    <RuntimeIdentifier>win-x86</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Platform)' == 'arm' ">
+    <RuntimeIdentifier>win-arm</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Platform)' == 'arm64' ">
+    <RuntimeIdentifier>win-arm64</RuntimeIdentifier>
+  </PropertyGroup>
+
   <ItemGroup Condition="'$(TargetFramework)' == '$(CoreFramework)'">
     <PackageReference Include="Microsoft.Windows.CsWinRT" Version="1.6.5" />
     <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.2.8" />
@@ -98,7 +118,7 @@
   <!-- Copy WinRTAct.dll to PowerShell module directory. Relative path to $(OutputPath) used to support AppInstaller build. -->
   <Target Name="CopyWinRTAct" AfterTargets="AfterBuild" Condition="'$(Platform)' != 'ARM' AND '$(TargetFramework)' == '$(CoreFramework)'">
       <PropertyGroup>
-          <WinRTActDir>$(OutputPath)..\..\UndockedRegFreeWinRT\</WinRTActDir>
+          <WinRTActDir>$(OutputPath)..\..\..\UndockedRegFreeWinRT\</WinRTActDir>
       </PropertyGroup>
       <ItemGroup>
           <WinRTActDll Include="$(WinRTActDir)winrtact.dll" />
