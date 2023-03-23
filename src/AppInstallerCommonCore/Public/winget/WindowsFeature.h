@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include <AppInstallerProgress.h>
+#include <winget/LocIndependent.h>
 
 namespace AppInstaller::WindowsFeature
 {
@@ -113,69 +115,17 @@ namespace AppInstaller::WindowsFeature
     using DismDisableFeaturePtr = HRESULT(WINAPI*)(UINT, PCWSTR, PCWSTR, BOOL, HANDLE, DISM_PROGRESS_CALLBACK, PVOID);
     using DismDeletePtr = HRESULT(WINAPI*)(VOID*);
 
+    // forward declaration
+    struct WindowsFeature;
+
     struct DismHelper
     {
-        /// <summary>
-        /// Struct representation of a single Windows Feature.
-        /// </summary>
-        struct WindowsFeature
-        {
-            HRESULT Enable();
-            HRESULT Disable();
-            bool DoesExist();
-            bool IsEnabled();
-            std::wstring GetDisplayName();
-            DismRestartType GetRestartRequiredStatus();
-
-            DismPackageFeatureState GetState()
-            {
-                return m_featureInfo->FeatureState;
-            }
-
-            ~WindowsFeature()
-            {
-                if (m_featureInfo)
-                {
-                    m_deletePtr(m_featureInfo);
-                }
-            }
-
-        private:
-            friend DismHelper;
-
-            // This default constructor is only used for mocking unit tests.
-            WindowsFeature(){};
-
-            WindowsFeature(
-                const std::string& name,
-                DismGetFeatureInfoPtr getFeatureInfoPtr,
-                DismEnableFeaturePtr enableFeaturePtr,
-                DismDisableFeaturePtr disableFeaturePtr,
-                DismDeletePtr deletePtr,
-                DismSession session);
-
-            void GetFeatureInfo();
-
-            std::string m_featureName;
-            DismFeatureInfo* m_featureInfo = nullptr;
-            DismGetFeatureInfoPtr m_getFeatureInfoPtr = nullptr;
-            DismEnableFeaturePtr m_enableFeature = nullptr;
-            DismDisableFeaturePtr m_disableFeaturePtr = nullptr;
-            DismDeletePtr m_deletePtr = nullptr;
-            DismSession m_session = DISM_SESSION_DEFAULT;
-        };
-
         DismHelper();
 
-        ~DismHelper()
-        {
-            CloseSession();
-            Shutdown();
-        };
-
-        WindowsFeature CreateWindowsFeature(const std::string& name);
+        ~DismHelper();
 
     private:
+        friend WindowsFeature;
         typedef UINT DismSession;
 
         wil::unique_hmodule m_module;
@@ -194,5 +144,46 @@ namespace AppInstaller::WindowsFeature
         void OpenSession();
         void CloseSession();
         void Shutdown();
+
+        template<typename FuncType>
+        FuncType GetProcAddressHelper(HMODULE module, LPCSTR functionName);
+    };
+
+    /// <summary>
+    /// Struct representation of a single Windows Feature.
+    /// </summary>
+    struct WindowsFeature
+    {
+        // This default constructor is only used for mocking unit tests.
+        WindowsFeature() = default;
+        WindowsFeature(std::shared_ptr<DismHelper> dismHelper, const std::string& name);
+
+        HRESULT Enable(IProgressCallback& progress);
+        HRESULT Disable();
+        bool DoesExist();
+        bool IsEnabled();
+        Utility::LocIndString GetDisplayName();
+        DismRestartType GetRestartRequiredStatus();
+
+        DismPackageFeatureState GetState()
+        {
+            return m_featureInfo->FeatureState;
+        }
+
+        ~WindowsFeature()
+        {
+            if (m_featureInfo)
+            {
+                m_dismHelper->m_dismDelete(m_featureInfo);
+            }
+        }
+
+    private:
+        void GetFeatureInfo();
+
+        std::string m_featureName;
+        std::shared_ptr<DismHelper> m_dismHelper;
+        DismFeatureInfo* m_featureInfo = nullptr;
+        DismSession m_session = DISM_SESSION_DEFAULT;
     };
 }

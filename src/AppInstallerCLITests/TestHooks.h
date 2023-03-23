@@ -66,7 +66,7 @@ namespace AppInstaller
         void TestHook_SetEnableWindowsFeatureResult_Override(HRESULT* result);
         void TestHook_SetIsWindowsFeatureEnabledResult_Override(bool* status);
         void TestHook_SetDoesWindowsFeatureExistResult_Override(bool* status);
-        void TestHook_SetWindowsFeatureGetDisplayNameResult_Override(std::wstring* displayName);
+        void TestHook_SetWindowsFeatureGetDisplayNameResult_Override(Utility::LocIndString* displayName);
         void TestHook_SetWindowsFeatureGetRestartStatusResult_Override(AppInstaller::WindowsFeature::DismRestartType* restartType);
     }
 }
@@ -181,7 +181,7 @@ namespace TestHook
 
     struct SetWindowsFeatureGetDisplayNameResult_Override
     {
-        SetWindowsFeatureGetDisplayNameResult_Override(std::wstring displayName) : m_displayName(displayName)
+        SetWindowsFeatureGetDisplayNameResult_Override(AppInstaller::Utility::LocIndString displayName) : m_displayName(displayName)
         {
             AppInstaller::WindowsFeature::TestHook_SetWindowsFeatureGetDisplayNameResult_Override(&m_displayName);
         }
@@ -192,7 +192,7 @@ namespace TestHook
         }
 
     private:
-        std::wstring m_displayName;
+        AppInstaller::Utility::LocIndString m_displayName;
     };
 
     struct SetWindowsFeatureGetRestartStatusResult_Override

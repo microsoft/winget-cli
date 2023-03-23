@@ -28,139 +28,74 @@ namespace AppInstaller::WindowsFeature
 #endif
 
         m_module.reset(LoadLibraryEx(L"dismapi.dll", NULL, LOAD_LIBRARY_SEARCH_SYSTEM32));
+        
         if (!m_module)
         {
             AICLI_LOG(Core, Error, << "Could not load dismapi.dll");
-            return;
+            THROW_LAST_ERROR();
         }
 
-        m_dismInitialize =
-            reinterpret_cast<DismInitializePtr>(GetProcAddress(m_module.get(), "DismInitialize"));
-        if (!m_dismInitialize)
-        {
-            AICLI_LOG(Core, Error, << "Could not get proc address of DismInitialize");
-            return;
-        }
-
-        m_dismOpenSession =
-            reinterpret_cast<DismOpenSessionPtr>(GetProcAddress(m_module.get(), "DismOpenSession"));
-        if (!m_dismOpenSession)
-        {
-            AICLI_LOG(Core, Error, << "Could not get proc address of DismOpenSession");
-            return;
-        }
-
-        m_dismGetFeatureInfo =
-            reinterpret_cast<DismGetFeatureInfoPtr>(GetProcAddress(m_module.get(), "DismGetFeatureInfo"));
-        if (!m_dismGetFeatureInfo)
-        {
-            AICLI_LOG(Core, Error, << "Could not get proc address of DismGetFeatureInfo");
-            return;
-        }
-
-        m_dismEnableFeature =
-            reinterpret_cast<DismEnableFeaturePtr>(GetProcAddress(m_module.get(), "DismEnableFeature"));
-        if (!m_dismEnableFeature)
-        {
-            AICLI_LOG(Core, Error, << "Could not get proc address of DismEnableFeature");
-            return;
-        }
-
-        m_dismDisableFeature =
-            reinterpret_cast<DismDisableFeaturePtr>(GetProcAddress(m_module.get(), "DismDisableFeature"));
-        if (!m_dismDisableFeature)
-        {
-            AICLI_LOG(Core, Error, << "Could not get proc address of DismDisableFeature");
-            return;
-        }
-
-        m_dismDelete =
-            reinterpret_cast<DismDeletePtr>(GetProcAddress(m_module.get(), "DismDelete"));
-        if (!m_dismDelete)
-        {
-            AICLI_LOG(Core, Error, << "Could not get proc address of DismDelete");
-            return;
-        }
-
-        m_dismCloseSession =
-            reinterpret_cast<DismCloseSessionPtr>(GetProcAddress(m_module.get(), "DismCloseSession"));
-        if (!m_dismCloseSession)
-        {
-            AICLI_LOG(Core, Error, << "Could not get proc address of DismCloseSession");
-            return;
-        }
-
-        m_dismShutdown =
-            reinterpret_cast<DismShutdownPtr>(GetProcAddress(m_module.get(), "DismShutdown"));
-        if (!m_dismGetFeatureInfo)
-        {
-            AICLI_LOG(Core, Error, << "Could not get proc address of DismShutdown");
-            return;
-        }
+        m_dismInitialize = GetProcAddressHelper<DismInitializePtr>(m_module.get(), "DismInitialize");
+        m_dismOpenSession = GetProcAddressHelper<DismOpenSessionPtr>(m_module.get(), "DismOpenSession");
+        m_dismGetFeatureInfo = GetProcAddressHelper<DismGetFeatureInfoPtr>(m_module.get(), "DismGetFeatureInfo");
+        m_dismEnableFeature = GetProcAddressHelper<DismEnableFeaturePtr>(m_module.get(), "DismEnableFeature");
+        m_dismDisableFeature = GetProcAddressHelper<DismDisableFeaturePtr>(m_module.get(), "DismDisableFeature");
+        m_dismDelete = GetProcAddressHelper<DismDeletePtr>(m_module.get(), "DismDelete");
+        m_dismCloseSession = GetProcAddressHelper<DismCloseSessionPtr>(m_module.get(), "DismCloseSession");
+        m_dismShutdown = GetProcAddressHelper<DismShutdownPtr>(m_module.get(), "DismShutdown");
 
         Initialize();
         OpenSession();
     }
 
-    DismHelper::WindowsFeature DismHelper::CreateWindowsFeature(const std::string& name)
+    DismHelper::~DismHelper()
     {
 #ifndef AICLI_DISABLE_TEST_HOOKS
         if (s_MockDismHelper_Override)
         {
-            return WindowsFeature();
+            return;
         }
 #endif
-        return WindowsFeature(name, m_dismGetFeatureInfo, m_dismEnableFeature, m_dismDisableFeature, m_dismDelete, m_dismSession);
+        CloseSession();
+        Shutdown();
+    };
+
+    template<typename FuncType>
+    FuncType DismHelper::GetProcAddressHelper(HMODULE module, LPCSTR functionName)
+    {
+        FuncType result = reinterpret_cast<FuncType>(GetProcAddress(module, functionName));
+        if (!result)
+        {
+            AICLI_LOG(Core, Error, << "Could not get proc address of " << functionName);
+            THROW_LAST_ERROR();
+        }
+        return result;
     }
 
     void DismHelper::Initialize()
     {
-        if (m_dismInitialize)
-        {
-            LOG_IF_FAILED(m_dismInitialize(2, NULL, NULL));
-        }
+        LOG_IF_FAILED(m_dismInitialize(DismLogErrorsWarningsInfo, NULL, NULL));
     }
 
     void DismHelper::OpenSession()
     {
-        if (m_dismOpenSession)
-        {
-            LOG_IF_FAILED(m_dismOpenSession(DISM_ONLINE_IMAGE, NULL, NULL, &m_dismSession));
-        }
+        LOG_IF_FAILED(m_dismOpenSession(DISM_ONLINE_IMAGE, NULL, NULL, &m_dismSession));
     }
 
     void DismHelper::CloseSession()
     {
-        if (m_dismCloseSession)
-        {
-            LOG_IF_FAILED(m_dismCloseSession(m_dismSession));
-        }
+        LOG_IF_FAILED(m_dismCloseSession(m_dismSession));
     }
 
     void DismHelper::Shutdown()
     {
-        if (m_dismShutdown)
-        {
-            LOG_IF_FAILED(m_dismShutdown());
-        }
+        LOG_IF_FAILED(m_dismShutdown());
     }
 
-    DismHelper::WindowsFeature::WindowsFeature(
-        const std::string& name,
-        DismGetFeatureInfoPtr getFeatureInfoPtr,
-        DismEnableFeaturePtr enableFeaturePtr,
-        DismDisableFeaturePtr disableFeaturePtr,
-        DismDeletePtr deletePtr,
-        DismSession session)
+    WindowsFeature::WindowsFeature(std::shared_ptr<DismHelper> dismHelper, const std::string& name)
     {
+        m_dismHelper = std::move(dismHelper);
         m_featureName = name;
-        m_getFeatureInfoPtr = getFeatureInfoPtr;
-        m_enableFeature = enableFeaturePtr;
-        m_disableFeaturePtr = disableFeaturePtr;
-        m_deletePtr = deletePtr;
-        m_session = session;
-
-        GetFeatureInfo();
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
@@ -185,9 +120,9 @@ namespace AppInstaller::WindowsFeature
         s_IsWindowsFeatureEnabledResult_TestHook_Override = status;
     }
 
-    static std::wstring* s_WindowsFeatureGetDisplayNameResult_TestHook_Override = nullptr;
+    static Utility::LocIndString* s_WindowsFeatureGetDisplayNameResult_TestHook_Override = nullptr;
 
-    void TestHook_SetWindowsFeatureGetDisplayNameResult_Override(std::wstring* displayName)
+    void TestHook_SetWindowsFeatureGetDisplayNameResult_Override(Utility::LocIndString* displayName)
     {
         s_WindowsFeatureGetDisplayNameResult_TestHook_Override = displayName;
     }
@@ -200,37 +135,29 @@ namespace AppInstaller::WindowsFeature
     }
 #endif
 
-    HRESULT DismHelper::WindowsFeature::Enable()
+    HRESULT WindowsFeature::Enable(AppInstaller::IProgressCallback& progress)
     {
+        UNREFERENCED_PARAMETER(progress);
+
 #ifndef AICLI_DISABLE_TEST_HOOKS
         if (s_EnableWindowsFeatureResult_TestHook_Override)
         {
             return *s_EnableWindowsFeatureResult_TestHook_Override;
         }
 #endif
-        HRESULT hr = ERROR_PROC_NOT_FOUND;
-        if (m_enableFeature)
-        {
-            hr = m_enableFeature(m_session, Utility::ConvertToUTF16(m_featureName).c_str(), NULL, DismPackageNone, FALSE, NULL, NULL, FALSE, NULL, NULL, NULL);
-            LOG_IF_FAILED(hr);
-        }
-
+        HRESULT hr = m_dismHelper->m_dismEnableFeature(m_session, Utility::ConvertToUTF16(m_featureName).c_str(), NULL, DismPackageNone, FALSE, NULL, NULL, FALSE, NULL, NULL, NULL);
+        LOG_IF_FAILED(hr);
         return hr;
     }
 
-    HRESULT DismHelper::WindowsFeature::Disable()
+    HRESULT WindowsFeature::Disable()
     {
-        HRESULT hr = ERROR_PROC_NOT_FOUND;
-        if (m_disableFeaturePtr)
-        {
-            hr = m_disableFeaturePtr(m_session, Utility::ConvertToUTF16(m_featureName).c_str(), NULL, FALSE, NULL, NULL, NULL);
-            LOG_IF_FAILED(hr);
-        }
-
+        HRESULT hr = m_dismHelper->m_dismDisableFeature(m_session, Utility::ConvertToUTF16(m_featureName).c_str(), NULL, FALSE, NULL, NULL, NULL);
+        LOG_IF_FAILED(hr);
         return hr;
     }
 
-    bool DismHelper::WindowsFeature::DoesExist()
+    bool WindowsFeature::DoesExist()
     {
 #ifndef AICLI_DISABLE_TEST_HOOKS
         if (s_DoesWindowsFeatureExistResult_TestHook_Override)
@@ -241,7 +168,7 @@ namespace AppInstaller::WindowsFeature
         return m_featureInfo;
     }
 
-    bool DismHelper::WindowsFeature::IsEnabled()
+    bool WindowsFeature::IsEnabled()
     {
 #ifndef AICLI_DISABLE_TEST_HOOKS
         if (s_IsWindowsFeatureEnabledResult_TestHook_Override)
@@ -256,7 +183,7 @@ namespace AppInstaller::WindowsFeature
         return featureState == DismStateInstalled;
     }
 
-    std::wstring DismHelper::WindowsFeature::GetDisplayName()
+    Utility::LocIndString WindowsFeature::GetDisplayName()
     {
 #ifndef AICLI_DISABLE_TEST_HOOKS
         if (s_WindowsFeatureGetDisplayNameResult_TestHook_Override)
@@ -264,10 +191,10 @@ namespace AppInstaller::WindowsFeature
             return *s_WindowsFeatureGetDisplayNameResult_TestHook_Override;
         }
 #endif
-        return std::wstring{ m_featureInfo->DisplayName };
+        return Utility::LocIndString{ Utility::ConvertToUTF8(std::wstring{ m_featureInfo->DisplayName }) };
     }
 
-    DismRestartType DismHelper::WindowsFeature::GetRestartRequiredStatus()
+    DismRestartType WindowsFeature::GetRestartRequiredStatus()
     {
 #ifndef AICLI_DISABLE_TEST_HOOKS
         if (s_WindowsFeatureGetRestartRequiredStatusResult_TestHook_Override)
@@ -278,11 +205,8 @@ namespace AppInstaller::WindowsFeature
         return m_featureInfo->RestartRequired;
     }
 
-    void DismHelper::WindowsFeature::GetFeatureInfo()
+    void WindowsFeature::GetFeatureInfo()
     {
-        if (m_getFeatureInfoPtr)
-        {
-            LOG_IF_FAILED(m_getFeatureInfoPtr(m_session, Utility::ConvertToUTF16(m_featureName).c_str(), NULL, DismPackageNone, &m_featureInfo));
-        }
+        LOG_IF_FAILED(m_dismHelper->m_dismGetFeatureInfo(m_session, Utility::ConvertToUTF16(m_featureName).c_str(), NULL, DismPackageNone, &m_featureInfo));
     }
 }

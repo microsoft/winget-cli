@@ -494,6 +494,7 @@ namespace AppInstaller::CLI::Workflow
             Workflow::ShowPromptsForSinglePackage(/* ensureAcceptance */ true) <<
             Workflow::GetDependenciesFromInstaller <<
             Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
+            Workflow::EnableWindowsFeaturesDependencies <<
             Workflow::ManagePackageDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
             Workflow::DownloadInstaller;
     }
@@ -503,7 +504,6 @@ namespace AppInstaller::CLI::Workflow
         context <<
             Workflow::CheckForUnsupportedArgs <<
             Workflow::DownloadSinglePackage <<
-            Workflow::EnableWindowsFeaturesDependencies <<
             Workflow::InstallPackageInstaller;
     }
 

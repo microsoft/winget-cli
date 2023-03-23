@@ -1787,11 +1787,11 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>{Locked="{0}"} Error message displayed when a Windows feature was not found on the system.</comment>
   </data>
   <data name="FailedToEnableWindowsFeatureOverrideRequired" xml:space="preserve">
-    <value>Failed to enable Windows Feature dependencies. To proceed with installation, use --force</value>
+    <value>Failed to enable Windows Feature dependencies. To proceed with installation, use '--force'</value>
     <comment>{Locked="--force"}</comment>
   </data>
   <data name="RebootRequiredToEnableWindowsFeatureOverrideRequired" xml:space="preserve">
-    <value>Reboot required to fully enable the Windows Feature(s); to override this check use --force</value>
+    <value>Reboot required to fully enable the Windows Feature(s); to override this check use '--force'</value>
     <comment>"Windows Feature(s)" is the name of the options Windows features setting.</comment>
   </data>
   <data name="FailedToEnableWindowsFeatureOverridden" xml:space="preserve">
@@ -1804,8 +1804,9 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>{Locked="{0}","{1}"} Message displayed to the user regarding which Windows Feature is being enabled.</comment>
   </data>
   <data name="FailedToEnableWindowsFeature" xml:space="preserve">
-    <value>Failed to enable [{0}] feature.</value>
-    <comment>{Locked="{0}"} Error message displayed when a failure was encountered when enabling a Windows Feature.</comment>
+    <value>Failed to enable [{0}] feature with exit code: {1}</value>
+    <comment>{Locked="{0}"} Error message displayed when a failure was encountered when enabling a Windows Feature.
+{Locked="{1}} Failed exit code</comment>
   </data>
   <data name="RebootRequiredToEnableWindowsFeatureOverridden" xml:space="preserve">
     <value>Reboot required to fully enable the Windows Feature(s); proceeding due to --force</value>

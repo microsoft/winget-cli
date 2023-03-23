@@ -137,6 +137,7 @@ namespace AppInstaller::Logging
         }
         else
         {
+            AICLI_LOG(Core, Error, << "Failed to open log file");
             throw std::system_error(fopenError, std::generic_category());
         }
     }
