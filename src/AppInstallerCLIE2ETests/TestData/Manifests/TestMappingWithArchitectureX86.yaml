@@ -11,8 +11,8 @@ Installers:
     InstallerType: exe
     InstallerSha256: <EXEHASH>
     AppsAndFeaturesEntries:
-    - DisplayName: "TestMappingWithArchitecture (X86)"
+    - DisplayName: "TestMappingWithArchitecture(X86)"
     InstallerSwitches:
-      Custom: '/DisplayName "TestMappingWithArchitecture (X86)"'
+      Custom: '/DisplayName TestMappingWithArchitecture(X86) /ProductID {0e426f01-b682-4e67-a357-52f9ecb4590d}'
 ManifestType: singleton
 ManifestVersion: 1.2.0
