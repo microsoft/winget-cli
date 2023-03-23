@@ -1787,11 +1787,11 @@ Please specify one of them using the --source option to proceed.</value>
     <comment>{Locked="{0}"} Error message displayed when a Windows feature was not found on the system.</comment>
   </data>
   <data name="FailedToEnableWindowsFeatureOverrideRequired" xml:space="preserve">
-    <value>Failed to enable Windows Feature dependencies. To proceed with installation, use '--force'</value>
+    <value>Failed to enable Windows Feature dependencies. To proceed with installation, use '--force'.</value>
     <comment>{Locked="--force"}</comment>
   </data>
   <data name="RebootRequiredToEnableWindowsFeatureOverrideRequired" xml:space="preserve">
-    <value>Reboot required to fully enable the Windows Feature(s); to override this check use '--force'</value>
+    <value>Reboot required to fully enable the Windows Feature(s); to override this check use '--force'.</value>
     <comment>"Windows Feature(s)" is the name of the options Windows features setting.</comment>
   </data>
   <data name="FailedToEnableWindowsFeatureOverridden" xml:space="preserve">
