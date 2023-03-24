@@ -57,6 +57,7 @@ jobs:
     BuildVer: $[counter(dependencies.GetReleaseTag.outputs['GetTag.tag'], 1)]
     buildOutDir: $(Build.SourcesDirectory)\src\$(buildPlatform)\$(buildConfiguration)
     artifactsDir: $(Build.ArtifactStagingDirectory)\$(buildPlatform)
+    packageLayoutDir: $(Build.BinariesDirectory)\WingetPackageLayout
 
   steps:
   - task: NuGetToolInstaller@1
@@ -155,10 +156,18 @@ jobs:
     continueOnError: true
 
   - task: PowerShell@2
+    displayName: Create Package Layout
+    inputs:
+      filePath: 'src\AppInstallerCLIPackage\Execute-AppxRecipe.ps1'
+      arguments: '-AppxRecipePath AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration)\AppInstallerCLIPackage.build.appxrecipe -LayoutPath $(packageLayoutDir) -Force -Verbose'
+      workingDirectory: 'src'
+    continueOnError: true
+
+  - task: PowerShell@2
     displayName: Run Unit Tests Packaged
     inputs:
       filePath: 'src\AppInstallerCLITests\Run-TestsInPackage.ps1'
-      arguments: '-Args "~[pips]" -BuildRoot $(buildOutDir) -PackageRoot AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration) -LogTarget $(artifactsDir)\AICLI-Packaged.log -TestResultsTarget $(artifactsDir)\TEST-AppInstallerCLI-Packaged.xml -ScriptWait'
+      arguments: '-Args "~[pips]" -BuildRoot $(buildOutDir) -PackageRoot $(packageLayoutDir) -LogTarget $(artifactsDir)\AICLI-Packaged.log -TestResultsTarget $(artifactsDir)\TEST-AppInstallerCLI-Packaged.xml -ScriptWait'
       workingDirectory: 'src'
     continueOnError: true
 
@@ -204,15 +213,6 @@ jobs:
       filePath: 'src\LocalhostWebServer\Run-LocalhostWebServer.ps1'
       arguments: '-BuildRoot $(buildOutDir)\LocalhostWebServer -StaticFileRoot $(Agent.TempDirectory)\TestLocalIndex -CertPath $(HTTPSDevCert.secureFilePath) -CertPassword microsoft'
 
-  - task: CopyFiles@2
-    displayName: 'Copy Files to Package Output'
-    inputs:
-      SourceFolder: '$(buildOutDir)\WindowsPackageManager'
-      TargetFolder:  'src\AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration)'
-      Contents: WindowsPackageManager.dll
-      CleanTargetFolder: false
-      OverWrite: true
-
   - task: PowerShell@2
     displayName: 'Set program files directory'
     inputs:
@@ -238,14 +238,6 @@ jobs:
     inputs:
       SourceFolder: '$(buildOutDir)\Microsoft.Management.Deployment'
       TargetFolder: '$(platformProgramFiles)\dotnet'
-      Contents: Microsoft.Management.Deployment.winmd
-
-  # Winmd accessed by WinGetServer process (WindowsPackageManagerServer.exe)
-  - task: CopyFiles@2
-    displayName: 'Copy winmd to Package Output'
-    inputs:
-      SourceFolder: '$(buildOutDir)\Microsoft.Management.Deployment'
-      TargetFolder:  'src\AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration)'
       Contents: Microsoft.Management.Deployment.winmd
 
   - template: templates/e2e-test.template.yml
@@ -320,7 +312,7 @@ jobs:
   - task: CopyFiles@2
     displayName: 'Copy Dev Package (Loose Files)'
     inputs:
-      SourceFolder: 'src\AppInstallerCLIPackage\bin\$(buildPlatform)\$(buildConfiguration)'
+      SourceFolder: '$(packageLayoutDir)'
       TargetFolder: '$(artifactsDir)\DevPackage'
     condition: always()
 
