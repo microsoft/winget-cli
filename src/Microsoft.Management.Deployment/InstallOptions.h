@@ -23,8 +23,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         void LogOutputPath(hstring const& value);
         bool AllowHashMismatch();
         void AllowHashMismatch(bool value);
-        bool BypassStorePolicy();
-        void BypassStorePolicy(bool value);
+        bool BypassIsStoreClientBlockedPolicyCheck();
+        void BypassIsStoreClientBlockedPolicyCheck(bool value);
         hstring ReplacementInstallerArguments();
         void ReplacementInstallerArguments(hstring const& value);
         hstring AdditionalInstallerArguments();

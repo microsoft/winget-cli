@@ -64,7 +64,7 @@ namespace AppInstaller::CLI::Execution
         TreatSourceFailuresAsWarning = 0x8,
         ShowSearchResultsOnPartialFailure = 0x10,
         DisableInteractivity = 0x40,
-        BypassStorePolicy = 0x80,
+        BypassIsStoreClientBlockedPolicyCheck = 0x80,
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(ContextFlag);

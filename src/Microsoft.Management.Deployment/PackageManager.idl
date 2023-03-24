@@ -819,7 +819,7 @@ namespace Microsoft.Management.Deployment
             Boolean AcceptPackageAgreements;
 
             /// Bypasses the Disabled Store Policy
-            Boolean BypassStorePolicy;
+            Boolean BypassIsStoreClientBlockedPolicyCheck;
         }
     }
 

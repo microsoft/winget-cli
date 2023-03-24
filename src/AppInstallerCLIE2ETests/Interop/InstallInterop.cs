@@ -599,28 +599,5 @@ namespace AppInstallerCLIE2ETests.Interop
             Assert.AreEqual(PackageInstallerScope.User, packageInstallerInfo.Scope);
             Assert.AreEqual("en-US", packageInstallerInfo.Locale);
         }
-
-        /// <summary>
-        /// Test install with BypassStorePolicy Enabled.
-        /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
-        [Test]
-        public async Task InstallMsixStoreBypass()
-        {
-            // Find package
-            var searchResult = this.FindOnePackage(this.testSource, PackageMatchField.Name, PackageFieldMatchOption.Equals, "AppInstallerTest.CatalogPackageMetadata");
-
-            // Configure installation
-            var installOptions = this.TestFactory.CreateInstallOptions();
-            installOptions.BypassStorePolicy = true;
-            installOptions.AcceptPackageAgreements = true;
-
-            // Install
-            var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
-
-            // Assert
-            Assert.AreEqual(InstallResultStatus.DownloadError, installResult.Status);
-            Assert.False(TestCommon.VerifyTestMsixInstalledAndCleanup());
-        }
     }
 }

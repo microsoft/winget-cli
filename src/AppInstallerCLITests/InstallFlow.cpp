@@ -536,6 +536,30 @@ TEST_CASE("MSStoreInstallFlowWithTestManifest", "[InstallFlow][workflow]")
     REQUIRE(installResultStr.find("9WZDNCRFJ364") != std::string::npos);
 }
 
+TEST_CASE("MSStoreInstallFlowWithTestManifestBypassStoreClientBlockedByPolicy", "[InstallFlow][workflow]")
+{
+    TestCommon::TempFile installResultPath("TestMSStoreInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForMSStore(context, false);
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("InstallFlowTest_MSStore.yaml").GetPath().u8string());
+    context.SetFlags(Execution::ContextFlag::BypassIsStoreClientBlockedPolicyCheck);
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    // Verify Installer is called and parameters are passed in.
+    REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
+    std::ifstream installResultFile(installResultPath.GetPath());
+    REQUIRE(installResultFile.is_open());
+    std::string installResultStr;
+    std::getline(installResultFile, installResultStr);
+    REQUIRE(installResultStr.find("9WZDNCRFJ364") != std::string::npos);
+}
+
 TEST_CASE("MsixInstallFlow_DownloadFlow", "[InstallFlow][workflow]")
 {
     TestCommon::TempFile installResultPath("TestMsixInstalled.txt");

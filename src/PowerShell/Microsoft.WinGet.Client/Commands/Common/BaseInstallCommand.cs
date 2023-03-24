@@ -60,12 +60,6 @@ namespace Microsoft.WinGet.Client.Commands.Common
         public SwitchParameter AllowHashMismatch { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether to skip the installer hash validation check.
-        /// </summary>
-        [Parameter(ValueFromPipelineByPropertyName = true)]
-        public SwitchParameter BypassStorePolicy { get; set; }
-
-        /// <summary>
         /// Gets or sets a value indicating whether to continue upon non security related failures.
         /// </summary>
         [Parameter(ValueFromPipelineByPropertyName = true)]
@@ -86,7 +80,6 @@ namespace Microsoft.WinGet.Client.Commands.Common
         {
             InstallOptions options = ComObjectFactory.Value.CreateInstallOptions();
             options.AllowHashMismatch = this.AllowHashMismatch.ToBool();
-            options.BypassStorePolicy = this.BypassStorePolicy.ToBool();
             options.Force = this.Force.ToBool();
             options.PackageInstallMode = this.Mode;
             if (version != null)
