@@ -21,7 +21,7 @@ namespace AppInstallerCLIE2ETests
         /// <param name="args">The arguments for the command.</param>
         /// <param name="result">The `RunCommand` result.</param>
         public RunCommandException(string fileName, string args, RunCommandResult result)
-            : base($"Command `{fileName} args` failed with: {result.ExitCode}\nOut: {result.StdOut}\nErr: {result.StdErr}")
+            : base($"Command `{fileName} {args}` failed with: {result.ExitCode}\nOut: {result.StdOut}\nErr: {result.StdErr}")
         {
             this.FileName = fileName;
             this.Arguments = args;
