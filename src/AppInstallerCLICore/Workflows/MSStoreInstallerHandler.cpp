@@ -115,6 +115,12 @@ namespace AppInstaller::CLI::Workflow
             }
             else if (result.Status() == GetEntitlementStatus::ServerError)
             {
+                bool bypassStorePolicy = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::BypassStorePolicy);
+                if (bypassStorePolicy)
+                {
+                    // Entitlement fails because the store is disabled
+                    return true;
+                }
                 context.Reporter.Info() << Resource::String::MSStoreInstallGetEntitlementServerError << std::endl;
                 AICLI_LOG(CLI, Error, << "Get entitlement failed Server error. ProductId: " << Utility::ConvertToUTF8(productId));
             }
@@ -249,7 +255,9 @@ namespace AppInstaller::CLI::Workflow
 
         // Policy check
         AppInstallManager installManager;
-        if (installManager.IsStoreBlockedByPolicyAsync(s_StoreClientName, s_StoreClientPublisher).get())
+        bool bypassStorePolicy = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::BypassStorePolicy);
+
+        if (installManager.IsStoreBlockedByPolicyAsync(s_StoreClientName, s_StoreClientPublisher).get() && !bypassStorePolicy)
         {
             context.Reporter.Error() << Resource::String::MSStoreStoreClientBlocked << std::endl;
             AICLI_LOG(CLI, Error, << "Store client is blocked by policy. MSStore execution failed.");

@@ -23,6 +23,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         void LogOutputPath(hstring const& value);
         bool AllowHashMismatch();
         void AllowHashMismatch(bool value);
+        bool BypassStorePolicy();
+        void BypassStorePolicy(bool value);
         hstring ReplacementInstallerArguments();
         void ReplacementInstallerArguments(hstring const& value);
         hstring AdditionalInstallerArguments();
@@ -47,6 +49,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         winrt::Microsoft::Management::Deployment::PackageInstallMode m_packageInstallMode = winrt::Microsoft::Management::Deployment::PackageInstallMode::Default;
         std::wstring m_logOutputPath = L"";
         bool m_allowHashMismatch = false;
+        bool m_bypassStorePolicy = false;
         std::wstring m_replacementInstallerArguments = L"";
         std::wstring m_additionalInstallerArguments = L"";
         std::wstring m_correlationData = L"";

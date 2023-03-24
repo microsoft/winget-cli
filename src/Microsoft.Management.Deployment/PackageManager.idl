@@ -777,6 +777,8 @@ namespace Microsoft.Management.Deployment
         String LogOutputPath;
         /// Continues the install even if the hash in the catalog does not match the linked installer.
         Boolean AllowHashMismatch;
+        /// Bypasses the Disabled Store Policy
+        Boolean BypassStorePolicy;
         /// A string that will be passed to the installer. 
         /// IMPLEMENTATION NOTE: maps to "--override" in the winget cmd line
         String ReplacementInstallerArguments;

@@ -76,6 +76,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         m_allowHashMismatch = value;
     }
+    bool InstallOptions::BypassStorePolicy()
+    {
+        return m_bypassStorePolicy;
+    }
+    void InstallOptions::BypassStorePolicy(bool value)
+    {
+        m_bypassStorePolicy = value;
+    }
     hstring InstallOptions::ReplacementInstallerArguments()
     {
         return hstring(m_replacementInstallerArguments);

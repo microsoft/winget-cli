@@ -349,6 +349,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             {
                 context->Args.AddArg(Execution::Args::Type::HashOverride);
             }
+
+            if (options.BypassStorePolicy())
+            {
+                context->SetFlags(Execution::ContextFlag::BypassStorePolicy);
+            }
+
             if (options.Force())
             {
                 context->Args.AddArg(Execution::Args::Type::Force);
