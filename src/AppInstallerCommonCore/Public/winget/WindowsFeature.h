@@ -117,7 +117,7 @@ namespace AppInstaller::WindowsFeature
 
     struct DismHelper : public std::enable_shared_from_this<DismHelper>
     {
-        std::shared_ptr<DismHelper> CreateDismHelper()
+        std::shared_ptr<DismHelper> GetPtr()
         {
             return shared_from_this();
         }
@@ -127,7 +127,6 @@ namespace AppInstaller::WindowsFeature
         ~DismHelper();
 
         HRESULT EnableFeature(
-            UINT session,
             PCWSTR featureName,
             PCWSTR identifier,
             DismPackageIdentifier packageIdentifier,
@@ -139,9 +138,9 @@ namespace AppInstaller::WindowsFeature
             DISM_PROGRESS_CALLBACK progress,
             PVOID userData);
 
-        HRESULT DisableFeature(UINT session, PCWSTR featureName, PCWSTR packageName, BOOL removePayload, HANDLE cancelEvent, DISM_PROGRESS_CALLBACK progress, PVOID userData);
+        HRESULT DisableFeature(PCWSTR featureName, PCWSTR packageName, BOOL removePayload, HANDLE cancelEvent, DISM_PROGRESS_CALLBACK progress, PVOID userData);
 
-        HRESULT GetFeatureInfo(UINT session, PCWSTR featureName, PCWSTR identifier, DismPackageIdentifier packageIdentifier, DismFeatureInfo** featureInfo);
+        HRESULT GetFeatureInfo(PCWSTR featureName, PCWSTR identifier, DismPackageIdentifier packageIdentifier, DismFeatureInfo** featureInfo);
 
         HRESULT Delete(VOID* dismStructure);
 
@@ -199,6 +198,5 @@ namespace AppInstaller::WindowsFeature
         std::string m_featureName;
         std::shared_ptr<DismHelper> m_dismHelper;
         DismFeatureInfo* m_featureInfo = nullptr;
-        DismSession m_session = DISM_SESSION_DEFAULT;
     };
 }

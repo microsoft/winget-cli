@@ -19,7 +19,7 @@ namespace AppInstaller::WindowsFeature
     DismHelper::DismHelper()
     {
 #ifndef AICLI_DISABLE_TEST_HOOKS
-        // The entire DismHelper class needs to be mocked since DismHost.exe inherits log file handles.
+        // The entire DismHelper class and its functions needs to be mocked since DismHost.exe inherits log file handles.
         // Without this, the unit tests will fail to complete waiting for DismHost.exe to release the log file handles.
         if (s_MockDismHelper_Override)
         {
@@ -88,7 +88,6 @@ namespace AppInstaller::WindowsFeature
     }
 
     HRESULT DismHelper::EnableFeature(
-        UINT session,
         PCWSTR featureName,
         PCWSTR identifier,
         DismPackageIdentifier packageIdentifier,
@@ -100,17 +99,17 @@ namespace AppInstaller::WindowsFeature
         DISM_PROGRESS_CALLBACK progress,
         PVOID userData)
     {
-        return m_dismEnableFeature(session, featureName, identifier, packageIdentifier, limitAccess, sourcePaths, sourcePathCount, enableAll, cancelEvent, progress, userData);
+        return m_dismEnableFeature(m_dismSession, featureName, identifier, packageIdentifier, limitAccess, sourcePaths, sourcePathCount, enableAll, cancelEvent, progress, userData);
     }
 
-    HRESULT DismHelper::DisableFeature(UINT session, PCWSTR featureName, PCWSTR packageName, BOOL removePayload, HANDLE cancelEvent, DISM_PROGRESS_CALLBACK progress, PVOID userData)
+    HRESULT DismHelper::DisableFeature(PCWSTR featureName, PCWSTR packageName, BOOL removePayload, HANDLE cancelEvent, DISM_PROGRESS_CALLBACK progress, PVOID userData)
     {
-        return m_dismDisableFeature(session, featureName, packageName, removePayload, cancelEvent, progress, userData);
+        return m_dismDisableFeature(m_dismSession, featureName, packageName, removePayload, cancelEvent, progress, userData);
     }
 
-    HRESULT DismHelper::GetFeatureInfo(UINT session, PCWSTR featureName, PCWSTR identifier, DismPackageIdentifier packageIdentifier, DismFeatureInfo** featureInfo)
+    HRESULT DismHelper::GetFeatureInfo(PCWSTR featureName, PCWSTR identifier, DismPackageIdentifier packageIdentifier, DismFeatureInfo** featureInfo)
     {
-        return m_dismGetFeatureInfo(session, featureName, identifier, packageIdentifier, featureInfo);
+        return m_dismGetFeatureInfo(m_dismSession, featureName, identifier, packageIdentifier, featureInfo);
     }
 
     HRESULT DismHelper::Delete(VOID* dismStructure)
@@ -124,6 +123,7 @@ namespace AppInstaller::WindowsFeature
     }
 
     WindowsFeature::WindowsFeature(std::shared_ptr<DismHelper> dismHelper, const std::string& name)
+        : m_dismHelper(dismHelper), m_featureName(name)
     {
 #ifndef AICLI_DISABLE_TEST_HOOKS
         if (s_MockDismHelper_Override)
@@ -131,8 +131,6 @@ namespace AppInstaller::WindowsFeature
             return;
         }
 #endif
-        m_dismHelper = std::move(dismHelper);
-        m_featureName = name;
         GetFeatureInfo();
     }
 
@@ -191,14 +189,14 @@ namespace AppInstaller::WindowsFeature
             return *s_EnableWindowsFeatureResult_TestHook_Override;
         }
 #endif
-        HRESULT hr = m_dismHelper->EnableFeature(m_session, Utility::ConvertToUTF16(m_featureName).c_str(), NULL, DismPackageNone, FALSE, NULL, NULL, FALSE, NULL, NULL, NULL);
+        HRESULT hr = m_dismHelper->EnableFeature(Utility::ConvertToUTF16(m_featureName).c_str(), NULL, DismPackageNone, FALSE, NULL, NULL, FALSE, NULL, NULL, NULL);
         LOG_IF_FAILED(hr);
         return hr;
     }
 
     HRESULT WindowsFeature::Disable()
     {
-        HRESULT hr = m_dismHelper->DisableFeature(m_session, Utility::ConvertToUTF16(m_featureName).c_str(), NULL, FALSE, NULL, NULL, NULL);
+        HRESULT hr = m_dismHelper->DisableFeature(Utility::ConvertToUTF16(m_featureName).c_str(), NULL, FALSE, NULL, NULL, NULL);
         LOG_IF_FAILED(hr);
         return hr;
     }
@@ -253,6 +251,6 @@ namespace AppInstaller::WindowsFeature
 
     void WindowsFeature::GetFeatureInfo()
     {
-        LOG_IF_FAILED(m_dismHelper->GetFeatureInfo(m_session, Utility::ConvertToUTF16(m_featureName).c_str(), NULL, DismPackageNone, &m_featureInfo));
+        LOG_IF_FAILED(m_dismHelper->GetFeatureInfo(Utility::ConvertToUTF16(m_featureName).c_str(), NULL, DismPackageNone, &m_featureInfo));
     }
 }
