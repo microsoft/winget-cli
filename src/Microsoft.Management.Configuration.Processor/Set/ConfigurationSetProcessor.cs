@@ -207,7 +207,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
             // In the case we don't import the module here, eventually Invoke-DscResource will fail for class
             // resources because they will call a method on a null obj. It is easier to just fail here.
             // The exception being thrown will have the correct details (user needs to call Unblock-File)
-            // instead of the criptic Invoke with 0 arguments.
+            // instead of the cryptic Invoke with 0 arguments.
             if (dscResourceInfo.Path is not null)
             {
                 try
