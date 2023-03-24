@@ -17,25 +17,30 @@ namespace AppInstallerCLIE2ETests
         /// <summary>
         /// Initializes a new instance of the <see cref="RunCommandException"/> class.
         /// </summary>
+        /// <param name="fileName">The file name of the command.</param>
+        /// <param name="args">The arguments for the command.</param>
         /// <param name="result">The `RunCommand` result.</param>
-        public RunCommandException(RunCommandResult result)
-            : base($"Command failed with: {result.ExitCode}")
+        public RunCommandException(string fileName, string args, RunCommandResult result)
+            : base($"Command `{fileName} args` failed with: {result.ExitCode}\nOut: {result.StdOut}\nErr: {result.StdErr}")
         {
+            this.FileName = fileName;
+            this.Arguments = args;
             this.Result = result;
         }
+
+        /// <summary>
+        /// Gets or initializes the file name.
+        /// </summary>
+        public string FileName { get; private init; }
+
+        /// <summary>
+        /// Gets or initializes the arguments.
+        /// </summary>
+        public string Arguments { get; private init; }
 
         /// <summary>
         /// Gets or initializes the result object.
         /// </summary>
         public RunCommandResult Result { get; private init; }
-
-        /// <summary>
-        /// Creates a string representation of this object.
-        /// </summary>
-        /// <returns>A string representation of this object.</returns>
-        public override string ToString()
-        {
-            return $"{this.Message}\nOut: {this.Result.StdOut}\nErr: {this.Result.StdErr}\n{this.StackTrace}";
-        }
     }
 }

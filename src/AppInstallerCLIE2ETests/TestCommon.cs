@@ -293,7 +293,7 @@ namespace AppInstallerCLIE2ETests
                 TestContext.Out.WriteLine($"Command failed with: {result.ExitCode}");
                 if (throwOnFailure)
                 {
-                    throw new RunCommandException(result);
+                    throw new RunCommandException(fileName, args, result);
                 }
 
                 return false;
