@@ -202,6 +202,24 @@ namespace Microsoft.Management.Configuration.Processor.Set
                 }
             }
 
+            // PowerShell will prompt the user when a module that is downloaded from the internet is imported.
+            // For a hosted environment, this will throw an exception because it doesn't support user interaction.
+            // In the case we don't import the module here, eventually Invoke-DscResource will fail for class
+            // resources because they will call a method on a null obj. It is easier to just fail here.
+            // The exception being thrown will have the correct details (user needs to call Unblock-File)
+            // instead of the criptic Invoke with 0 arguments.
+            if (dscResourceInfo.Path is not null)
+            {
+                try
+                {
+                    this.ProcessorEnvironment.ImportModule(dscResourceInfo.Path);
+                }
+                catch (Exception e)
+                {
+                    throw new ImportModuleException(dscResourceInfo.ModuleName, e);
+                }
+            }
+
             return dscResourceInfo;
         }
 
