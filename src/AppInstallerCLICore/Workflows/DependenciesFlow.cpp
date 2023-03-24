@@ -168,7 +168,7 @@ namespace AppInstaller::CLI::Workflow
                     if (SUCCEEDED(hr) || force)
                     {
                         auto featureName = dependency.Id();
-                        WindowsFeature::WindowsFeature windowsFeature{ std::move(dismHelper->GetPtr()), featureName};
+                        WindowsFeature::WindowsFeature windowsFeature = dismHelper->GetWindowsFeature(featureName);
 
                         if (windowsFeature.DoesExist())
                         {
