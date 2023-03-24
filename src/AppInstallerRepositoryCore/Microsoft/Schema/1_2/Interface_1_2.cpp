@@ -224,7 +224,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
             if (filter.Field == PackageMatchField::NormalizedNameAndPublisher && filter.Type == MatchType::Exact)
             {
                 Utility::NormalizedName normalized = m_normalizer.Normalize(Utility::FoldCase(filter.Value), Utility::FoldCase(filter.Additional.value()));
-                filter.Value = normalized.Name();
+                filter.Value = normalized.GetNormalizedName(filter.NameNormalizationField);
                 filter.Additional = normalized.Publisher();
             }
         };

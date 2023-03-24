@@ -821,12 +821,14 @@ namespace AppInstaller::Repository
                     return Field == other.Field && String1 == other.String1 && String2 == other.String2;
                 }
 
-                void AddToFilters(std::vector<PackageMatchFilter>& filters) const
+                void AddToFilters(
+                    std::vector<PackageMatchFilter>& filters,
+                    Utility::NormalizationField nameNormalizationField = Utility::NormalizationField::None) const
                 {
                     switch (Field)
                     {
                     case PackageMatchField::NormalizedNameAndPublisher:
-                        filters.emplace_back(PackageMatchFilter(Field, MatchType::Exact, String1.get(), String2.get()));
+                        filters.emplace_back(PackageMatchFilter(Field, MatchType::Exact, String1.get(), String2.get(), nameNormalizationField));
                         break;
 
                     default:
@@ -886,7 +888,7 @@ namespace AppInstaller::Repository
                         {
                             continue;
                         }
-                        nameAndPublisher.first.AddToFilters(result.Inclusions);
+                        nameAndPublisher.first.AddToFilters(result.Inclusions, nameAndPublisher.second);
                     }
                     return result;
                 }
@@ -1308,9 +1310,13 @@ namespace AppInstaller::Repository
                     // Directly search for the available package from tracking information.
                     if (trackingPackage)
                     {
-                        addedAvailablePackage = true;
-                        compositePackage->AddAvailablePackage(GetTrackedPackageFromAvailableSource(result, trackedSource, trackingPackage->GetProperty(PackageProperty::Id)));
-                        compositePackage->SetTracking(std::move(trackedSource), std::move(trackingPackage), std::move(trackingPackageVersion));
+                        auto availablePackage = GetTrackedPackageFromAvailableSource(result, trackedSource, trackingPackage->GetProperty(PackageProperty::Id));
+                        if (availablePackage)
+                        {
+                            addedAvailablePackage = true;
+                            compositePackage->AddAvailablePackage(std::move(availablePackage));
+                            compositePackage->SetTracking(std::move(trackedSource), std::move(trackingPackage), std::move(trackingPackageVersion));
+                        }
                     }
 
                     // Search sources and add to result
@@ -1346,8 +1352,11 @@ namespace AppInstaller::Repository
                                 AICLI_LOG(Repo, Warning, << "  Appropriate available package could not be determined");
                             });
 
-                        addedAvailablePackage = true;
-                        compositePackage->AddAvailablePackage(std::move(availablePackage));
+                        if (availablePackage)
+                        {
+                            addedAvailablePackage = true;
+                            compositePackage->AddAvailablePackage(std::move(availablePackage));
+                        }
                     }
 
                     return addedAvailablePackage;
@@ -1368,6 +1377,7 @@ namespace AppInstaller::Repository
 
                     for (const auto& candidateSearch : candidateSearches)
                     {
+                        AICLI_LOG(Repo, Info, << "Finding available package from installed package using system reference search: " << candidateSearch.ToString());
                         if (tryAddAvailablePackage(candidateSearch))
                         {
                             // If found available package, break. Otherwise try next search request.
@@ -1413,11 +1423,17 @@ namespace AppInstaller::Repository
                     // Create a search request to run against the installed source
                     // For available package to installed package mapping, only one try is needed.
                     // For example, if arp DisplayName contains arch, then the local packages's arp DisplayName should also include arch.
-                    SearchRequest systemReferenceSearch =
-                        packageData->PackageNamesContainNormalizationField(Utility::NormalizationField::Architecture) ?
-                        packageData->CreateInclusionsSearchRequest(Utility::NormalizationField::Architecture) :
-                        packageData->CreateInclusionsSearchRequest();
+                    SearchRequest systemReferenceSearch;
+                    if (packageData->PackageNamesContainNormalizationField(Utility::NormalizationField::Architecture))
+                    {
+                        systemReferenceSearch = packageData->CreateInclusionsSearchRequest(Utility::NormalizationField::Architecture);
+                    }
+                    else
+                    {
+                        systemReferenceSearch = packageData->CreateInclusionsSearchRequest();
+                    }
 
+                    AICLI_LOG(Repo, Info, << "Finding installed package from tracking package using system reference search: " << systemReferenceSearch.ToString());
                     // Correlate against installed (allow exceptions out as we own the installed source)
                     SearchResult installedCrossRef = m_installedSource.Search(systemReferenceSearch);
 
@@ -1466,11 +1482,17 @@ namespace AppInstaller::Repository
                     // Create a search request to run against the installed source
                     // For available package to installed package mapping, only one try is needed.
                     // For example, if arp DisplayName contains arch, then the local packages's arp DisplayName should also include arch.
-                    SearchRequest systemReferenceSearch =
-                        packageData->PackageNamesContainNormalizationField(Utility::NormalizationField::Architecture) ?
-                        packageData->CreateInclusionsSearchRequest(Utility::NormalizationField::Architecture) :
-                        packageData->CreateInclusionsSearchRequest();
+                    SearchRequest systemReferenceSearch;
+                    if (packageData->PackageNamesContainNormalizationField(Utility::NormalizationField::Architecture))
+                    {
+                        systemReferenceSearch = packageData->CreateInclusionsSearchRequest(Utility::NormalizationField::Architecture);
+                    }
+                    else
+                    {
+                        systemReferenceSearch = packageData->CreateInclusionsSearchRequest();
+                    }
 
+                    AICLI_LOG(Repo, Info, << "Finding installed package from available package using system reference search: " << systemReferenceSearch.ToString());
                     // Correlate against installed (allow exceptions out as we own the installed source)
                     SearchResult installedCrossRef = m_installedSource.Search(systemReferenceSearch);
 

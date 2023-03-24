@@ -6,6 +6,7 @@
 #include <AppInstallerVersions.h>
 #include <winget/LocIndependent.h>
 #include <winget/Manifest.h>
+#include <winget/NameNormalization.h>
 #include <winget/Pin.h>
 
 #include <map>
@@ -77,12 +78,13 @@ namespace AppInstaller::Repository
     struct PackageMatchFilter : public RequestMatch
     {
         PackageMatchField Field;
+        Utility::NormalizationField NameNormalizationField = Utility::NormalizationField::None;
 
         PackageMatchFilter(PackageMatchField f, MatchType t) : RequestMatch(t), Field(f) { EnsureRequiredValues(); }
         PackageMatchFilter(PackageMatchField f, MatchType t, Utility::NormalizedString& v) : RequestMatch(t, v), Field(f) { EnsureRequiredValues(); }
         PackageMatchFilter(PackageMatchField f, MatchType t, const Utility::NormalizedString& v) : RequestMatch(t, v), Field(f) { EnsureRequiredValues(); }
         PackageMatchFilter(PackageMatchField f, MatchType t, Utility::NormalizedString&& v) : RequestMatch(t, std::move(v)), Field(f) { EnsureRequiredValues(); }
-        PackageMatchFilter(PackageMatchField f, MatchType t, std::string_view v1, std::string_view v2) : RequestMatch(t, v1, v2), Field(f) { EnsureRequiredValues(); }
+        PackageMatchFilter(PackageMatchField f, MatchType t, std::string_view v1, std::string_view v2, Utility::NormalizationField n = Utility::NormalizationField::None) : RequestMatch(t, v1, v2), Field(f), NameNormalizationField(n) { EnsureRequiredValues(); }
 
     protected:
         void EnsureRequiredValues()
