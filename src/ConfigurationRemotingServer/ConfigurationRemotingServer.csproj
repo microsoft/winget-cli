@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -6,9 +6,26 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
-    <Platforms>x64;x86;arm64</Platforms>
-    <RuntimeIdentifiers>win-x64;win-x86;win-arm64</RuntimeIdentifiers>
+    <Platforms>x64;x86;arm;arm64</Platforms>
     <OutputPath>$(SolutionDir)$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutputPath>
+    <SelfContained>true</SelfContained>
+    <RuntimeIdentifiers>win10-x64;win10-x86;win10-arm;win10-arm64</RuntimeIdentifiers>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Platform)' == 'x64' ">
+    <RuntimeIdentifier>win10-x64</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Platform)' == 'x86' ">
+    <RuntimeIdentifier>win10-x86</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Platform)' == 'arm' ">
+    <RuntimeIdentifier>win10-arm</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Platform)' == 'arm64' ">
+    <RuntimeIdentifier>win10-arm64</RuntimeIdentifier>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,9 +33,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Microsoft.Management.Configuration.Processor\Microsoft.Management.Configuration.Processor.csproj">
-      <PrivateAssets>build</PrivateAssets>
-    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.Management.Configuration.Processor\Microsoft.Management.Configuration.Processor.csproj" />
   </ItemGroup>
+
+  <Target Name="PwshFiles" AfterTargets="AfterBuild" >
+    <ItemGroup>
+      <RefFiles Include="$(OutputPath)..\..\..\..\..\AnyCPU\$(Configuration)\Microsoft.Management.Configuration.Processor\$(TargetFramework)\win\ref\**\*.*" />
+      <WinModuleFiles Include="$(OutputPath)..\..\..\..\..\AnyCPU\$(Configuration)\Microsoft.Management.Configuration.Processor\$(TargetFramework)\win\Modules\**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(RefFiles)" DestinationFolder="$(OutputPath)\ref\" />
+    <Copy SourceFiles="@(WinModuleFiles)" DestinationFolder="$(OutputPath)\Modules\%(RecursiveDir)\" />
+  </Target>
 
 </Project>

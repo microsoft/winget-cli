@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <!-- If these target frameworks are updated, make sure to also update the .psd1 and .nuspec files.-->
     <TargetWindowsVersion>10.0.22000.0</TargetWindowsVersion>
     <CoreFramework>net6.0-windows$(TargetWindowsVersion)</CoreFramework>
     <DesktopFramework>net48</DesktopFramework>
@@ -12,6 +13,7 @@
     <BuildOutputDirectory>$(SolutionDir)$(Platform)\$(Configuration)\</BuildOutputDirectory>
     <OutputPath>$(BuildOutputDirectory)$(MSBuildProjectName)</OutputPath>
     <PowerShellModuleOutputDirectory>$(BuildOutputDirectory)PowerShell\Microsoft.WinGet.Client</PowerShellModuleOutputDirectory>
+    <PowerShellModuleLibDirectory>$(PowerShellModuleOutputDirectory)\lib</PowerShellModuleLibDirectory>
     <Platforms>x64;x86;ARM64</Platforms>
     <TargetFrameworks>$(CoreFramework);$(DesktopFramework)</TargetFrameworks>
     <DocumentationFile>$(OutputPath)\Microsoft.WinGet.Client.xml</DocumentationFile>
@@ -26,6 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Octokit" Version="4.0.3" />
     <PackageReference Include="PowerShellStandard.Library" Version="5.1.1" PrivateAssets="all" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
       <PrivateAssets>all</PrivateAssets>
@@ -54,6 +57,26 @@
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == '$(CoreFramework)'">
+    <RuntimeIdentifiers>win-x64;win-x86;win-arm;win-arm64</RuntimeIdentifiers>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Platform)' == 'x64' AND '$(TargetFramework)' == '$(CoreFramework)'">
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Platform)' == 'x86' ">
+    <RuntimeIdentifier>win-x86</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Platform)' == 'arm' ">
+    <RuntimeIdentifier>win-arm</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Platform)' == 'arm64' ">
+    <RuntimeIdentifier>win-arm64</RuntimeIdentifier>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == '$(CoreFramework)'">
@@ -95,15 +118,15 @@
   <!-- Copy WinRTAct.dll to PowerShell module directory. Relative path to $(OutputPath) used to support AppInstaller build. -->
   <Target Name="CopyWinRTAct" AfterTargets="AfterBuild" Condition="'$(Platform)' != 'ARM' AND '$(TargetFramework)' == '$(CoreFramework)'">
       <PropertyGroup>
-          <WinRTActDir>$(OutputPath)..\..\UndockedRegFreeWinRT\</WinRTActDir>
+          <WinRTActDir>$(OutputPath)..\..\..\UndockedRegFreeWinRT\</WinRTActDir>
       </PropertyGroup>
       <ItemGroup>
           <WinRTActDll Include="$(WinRTActDir)winrtact.dll" />
       </ItemGroup>
       <Message Importance="high" Text="Copying '@(WinRTActDll)'" />
       <Copy SourceFiles="@(WinRTActDll)" DestinationFolder="$(OutputPath)" />
-      <Copy SourceFiles="@(WinRTActDll)" DestinationFolder="$(PowerShellModuleOutputDirectory)\$(Platform)\Core" />
-      <Copy SourceFiles="@(WinRTActDll)" DestinationFolder="$(PowerShellModuleOutputDirectory)\$(Platform)\Desktop" />
+      <Copy SourceFiles="@(WinRTActDll)" DestinationFolder="$(PowerShellModuleLibDirectory)\$(CoreFramework)\$(Platform)" />
+      <Copy SourceFiles="@(WinRTActDll)" DestinationFolder="$(PowerShellModuleLibDirectory)\$(DesktopFramework)\$(Platform)" />
   </Target>
 
   <!-- Build Microsoft.Winget.Client PowerShell Module -->
@@ -121,17 +144,17 @@
       <CoreBinaries Include="$(OutputPath)\**\*.*" Exclude="$(OutputPath)\runtimes\**" />
       <WindowsRuntime Include="$(OutputPath)\runtimes\win10*\**\*.*" />
     </ItemGroup>
-    <Message Importance="high" Text="Copying @(CoreBinaries) to '$(PowerShellModuleOutputDirectory)\$(Platform)\Core'" />
-    <Copy SourceFiles="@(CoreBinaries)" DestinationFolder="$(PowerShellModuleOutputDirectory)\$(Platform)\Core\%(RecursiveDir)" />
-    <Copy SourceFiles="@(WindowsRuntime)" DestinationFolder="$(PowerShellModuleOutputDirectory)\$(Platform)\Core\runtimes\%(RecursiveDir)" />
+    <Message Importance="high" Text="Copying @(CoreBinaries) to '$(PowerShellModuleLibDirectory)\$(CoreFramework)\$(Platform)'" />
+    <Copy SourceFiles="@(CoreBinaries)" DestinationFolder="$(PowerShellModuleLibDirectory)\$(CoreFramework)\$(Platform)\%(RecursiveDir)" />
+    <Copy SourceFiles="@(WindowsRuntime)" DestinationFolder="$(PowerShellModuleLibDirectory)\$(CoreFramework)\$(Platform)\runtimes\%(RecursiveDir)" />
   </Target>
 
   <Target Name="CopyDesktopBinaries" AfterTargets="AfterBuild" Condition="'$(TargetFramework)' == '$(DesktopFramework)'">
     <ItemGroup>
       <DesktopBinaries Include="$(OutputPath)\**\*.*" />
     </ItemGroup>
-    <Message Importance="high" Text="Copying @(DesktopBinaries) to '$(PowerShellModuleOutputDirectory)\$(Platform)\Desktop'" />
-    <Copy SourceFiles="@(DesktopBinaries)" DestinationFolder="$(PowerShellModuleOutputDirectory)\$(Platform)\Desktop\%(RecursiveDir)" />
+    <Message Importance="high" Text="Copying @(DesktopBinaries) to '$(PowerShellModuleLibDirectory)\$(DesktopFramework)\$(Platform)\Desktop'" />
+    <Copy SourceFiles="@(DesktopBinaries)" DestinationFolder="$(PowerShellModuleLibDirectory)\$(DesktopFramework)\$(Platform)\%(RecursiveDir)" />
   </Target>
 
 </Project>

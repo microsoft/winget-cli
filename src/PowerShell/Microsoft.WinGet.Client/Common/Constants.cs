@@ -35,10 +35,48 @@ namespace Microsoft.WinGet.Client.Common
         public const string FoundSet = "FoundSet";
 
         /// <summary>
+        /// Parameter set for an specific version parameter.
+        /// </summary>
+        public const string IntegrityVersionSet = "IntegrityVersionSet";
+
+        /// <summary>
+        /// Parameter set for an latest version with optional prerelease version.
+        /// </summary>
+        public const string IntegrityLatestSet = "IntegrityLatestSet";
+
+        /// <summary>
+        /// WinGet package family name.
+        /// </summary>
+#if USE_PROD_CLSIDS
+        public const string WingetPackageFamilyName = "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe";
+#else
+        public const string WingetPackageFamilyName = "WinGetDevCLI_8wekyb3d8bbwe";
+#endif
+
+        /// <summary>
+        /// Winget executable name.
+        /// </summary>
+#if USE_PROD_CLSIDS
+        public const string WinGetExe = "winget.exe";
+#else
+        public const string WinGetExe = "wingetdev.exe";
+#endif
+
+        /// <summary>
+        /// Name of PATH environment variable.
+        /// </summary>
+        public const string PathEnvVar = "PATH";
+
+        /// <summary>
         /// Nouns used for different cmdlets. Changing this will alter the names of the related commands.
         /// </summary>
         public static class WinGetNouns
         {
+            /// <summary>
+            /// WinGet.
+            /// </summary>
+            public const string WinGetPackageManager = "WinGetPackageManager";
+
             /// <summary>
             /// The noun analogue of the <see cref="CatalogPackage" /> class.
             /// </summary>
@@ -53,6 +91,11 @@ namespace Microsoft.WinGet.Client.Common
             /// The noun for any user settings cmdlet.
             /// </summary>
             public const string UserSettings = "WinGetUserSettings";
+
+            /// <summary>
+            /// The noun for winget version.
+            /// </summary>
+            public const string Version = "WinGetVersion";
         }
     }
 }

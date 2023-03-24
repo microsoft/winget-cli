@@ -119,48 +119,88 @@
   </resheader>
   <data name="InvalidSourceExceptionMessage" xml:space="preserve">
     <value>No source matches the given value: {0}</value>
-    <comment>{0} - The name of the source that was not found.</comment>
+    <comment>{Locked="{0}"} {0} - The name of the source that was not found.</comment>
   </data>
   <data name="ExecuteAsSystemExceptionMessage" xml:space="preserve">
     <value>This cmdlet is currently disabled for SYSTEM.</value>
   </data>
   <data name="FindPackagesExceptionMessage" xml:space="preserve">
     <value>An error occurred while searching for packages: {0}</value>
-    <comment>{0} - A string representation of the error status returned by the catalog.</comment>
+    <comment>{Locked="{0}"} {0} - A string representation of the error status returned by the catalog.</comment>
   </data>
   <data name="ProgressRecordActivityInstalling" xml:space="preserve">
     <value>Installing '{0}'</value>
-    <comment>{0} - The name of the package being installed.</comment>
+    <comment>{Locked="{0}"} {0} - The name of the package being installed.</comment>
   </data>
   <data name="ProgressRecordActivityUninstalling" xml:space="preserve">
     <value>Uninstalling '{0}'</value>
-    <comment>{0} - The name of the package being uninstalled.</comment>
+    <comment>{Locked="{0}"} {0} - The name of the package being uninstalled.</comment>
   </data>
   <data name="ProgressRecordActivityUpdating" xml:space="preserve">
     <value>Updating '{0}'</value>
-    <comment>{0} - The name of the package being updated.</comment>
+    <comment>{Locked="{0}"} {0} - The name of the package being updated.</comment>
   </data>
   <data name="CatalogConnectExceptionMessage" xml:space="preserve">
     <value>An error occurred while connecting to the catalog.</value>
   </data>
   <data name="InvalidVersionExceptionMessage" xml:space="preserve">
     <value>No versions matched the given value: {0}</value>
-    <comment>{0} - The version string provided by the user.</comment>
+    <comment>{Locked="{0}"} {0} - The version string provided by the user.</comment>
   </data>
   <data name="NoPackageFoundExceptionMessage" xml:space="preserve">
     <value>No packages matched the given input criteria.</value>
   </data>
   <data name="VagueCriteriaExceptionMessage" xml:space="preserve">
     <value>{0}, {1}, and {2} other packages matched the input criteria. Please refine the input.</value>
-    <comment>{0} - The first conflicting package as a string. {1} - The second conflicting package. {2} - The number of other packages that also matched the input criteria.</comment>
+    <comment>{Locked="{0}","{1}","{2}"} {0} - The first conflicting package as a string. {1} - The second conflicting package. {2} - The number of other packages that also matched the input criteria.</comment>
   </data>
-  <data name="WinGetPackageNotInstalledMessage" xml:space="preserve">
-    <value>Unable to execute command; WinGet package not installed.</value>
+  <data name="IntegrityUnknownMessage" xml:space="preserve">
+    <value>Unable to execute winget command.</value>
   </data>
   <data name="WinGetCLIExceptionMessage" xml:space="preserve">
     <value>Command {0} failed with exit code {1}</value>
+    <comment>{Locked="{0}","{1}"} {0} - The winget command executed. {1} - The exit code.</comment>
   </data>
   <data name="UserSettingsReadException" xml:space="preserve">
     <value>User settings file is invalid.</value>
+  </data>
+  <data name="IntegrityAppExecutionAliasDisabledMessage" xml:space="preserve">
+    <value>The App Execution Alias for the Windows Package Manager is disabled.</value>
+  </data>
+  <data name="IntegrityAppInstallerNotInstalledMessage" xml:space="preserve">
+    <value>The App Installer is not installed.</value>
+  </data>
+  <data name="IntegrityAppInstallerNotSupportedMessage" xml:space="preserve">
+    <value>The App Installer does not contain the Windows Package Manager.</value>
+  </data>
+  <data name="IntegrityFailureMessage" xml:space="preserve">
+    <value>Windows Package Manager returned an unexcepted result.</value>
+  </data>
+  <data name="IntegrityNotInPathMessage" xml:space="preserve">
+    <value>The App Installer did not automatically add the PATH environment variable.</value>
+  </data>
+  <data name="IntegrityOsNotSupportedMessage" xml:space="preserve">
+    <value>The Windows Package Manager requires Windows Version 1809 (October 2018 Update) or later.</value>
+  </data>
+  <data name="WinGetCLITimeoutExceptionMessage" xml:space="preserve">
+    <value>Winget command run timed out: {0} {1}</value>
+    <comment>{Locked="{0}","{1}"} {0} - The winget command executed. {1} - The parameters of the command.</comment>
+  </data>
+  <data name="IntegrityAppInstallerNotRegisteredMessage" xml:space="preserve">
+    <value>The App Installer is not registered.</value>
+  </data>
+  <data name="AppExecutionAliasDisabledHelpMessage" xml:space="preserve">
+    <value>The App Execution Alias for the Windows Package Manager is disabled. You should enable the App Execution Alias for the Windows Package Manager. Go to App execution aliases option in Apps &amp; features Settings to enable it.</value>
+  </data>
+  <data name="MicrosoftUIXaml27Message" xml:space="preserve">
+    <value>Microsoft.UI.Xaml.2.7 package is not installed</value>
+    <comment>{Locked="Microsoft.UI.Xaml.2.7"}</comment>
+  </data>
+  <data name="WinGetNotSupportedMessage" xml:space="preserve">
+    <value>Windows Package Manager not supported.</value>
+  </data>
+  <data name="IntegrityUnexpectedVersionMessage" xml:space="preserve">
+    <value>The installed winget version doesn't match the expectation. Installer version '{0}' Expected version '{1}'</value>
+    <comment>{Locked="{0}","{1}"} {0} - The winget current installed winget version. {1} - The expected winget version.</comment>
   </data>
 </root>

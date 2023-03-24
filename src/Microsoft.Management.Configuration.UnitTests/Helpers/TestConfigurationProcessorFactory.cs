@@ -25,7 +25,9 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         /// <summary>
         /// Diagnostics event; useful for logging and/or verbose output.
         /// </summary>
+#pragma warning disable CS0067 // The event is never used
         public event EventHandler<DiagnosticInformation>? Diagnostics;
+#pragma warning restore CS0067 // The event is never used
 
         /// <summary>
         /// Gets or sets the minimum diagnostic level to send.

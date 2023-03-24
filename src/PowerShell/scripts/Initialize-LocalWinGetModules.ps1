@@ -25,7 +25,10 @@ param (
 
     [Parameter(Mandatory)]
     [string]
-    $Configuration
+    $Configuration,
+
+    [switch]
+    $SkipImportModule
 )
 
 class WinGetModule
@@ -96,8 +99,11 @@ if (-not $env:PSModulePath.Contains($moduleRootOutput))
 }
 
 # Now import modules.
-foreach($module in $modules)
+if (-not $SkipImportModule)
 {
-    Write-Host "Importing module $($module.Name)" -ForegroundColor Green
-    Import-Module $module.Name -Force
+    foreach($module in $modules)
+    {
+        Write-Host "Importing module $($module.Name)" -ForegroundColor Green
+        Import-Module $module.Name -Force
+    }
 }

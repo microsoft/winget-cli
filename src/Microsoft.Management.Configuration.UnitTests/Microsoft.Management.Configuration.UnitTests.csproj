@@ -6,6 +6,7 @@
     <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
     <Platforms>x64;x86;arm64</Platforms>
     <OutputPath>$(SolutionDir)$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutputPath>
+    <RuntimeIdentifiers>win10-x64;win10-x86;win10-arm;win10-arm64</RuntimeIdentifiers>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
@@ -34,6 +35,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Moq" Version="4.18.2" />
+    <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.2.8" GeneratePathProperty="true"/>
   </ItemGroup>
 
   <ItemGroup>
@@ -47,8 +49,18 @@
     </ProjectReference>
     <ProjectReference Include="..\Microsoft.Management.Configuration.Processor\Microsoft.Management.Configuration.Processor.csproj">
       <Private>True</Private>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </ProjectReference>
   </ItemGroup>
+
+  <Target Name="PwshFiles" AfterTargets="AfterBuild" >
+    <ItemGroup>
+      <RefFiles Include="$(OutputPath)..\..\..\..\..\AnyCPU\$(Configuration)\Microsoft.Management.Configuration.Processor\$(TargetFramework)\win\ref\**\*.*" />
+      <WinModuleFiles Include="$(OutputPath)..\..\..\..\..\AnyCPU\$(Configuration)\Microsoft.Management.Configuration.Processor\$(TargetFramework)\win\Modules\**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(RefFiles)" DestinationFolder="$(OutputPath)\ref\" />
+    <Copy SourceFiles="@(WinModuleFiles)" DestinationFolder="$(OutputPath)\Modules\%(RecursiveDir)%(Filename)%(Extension)" />
+  </Target>
 
   <ItemGroup>
     <None Update="TestCollateral\PowerShellModules\xSimpleTestResource\xSimpleTestResource.psd1">

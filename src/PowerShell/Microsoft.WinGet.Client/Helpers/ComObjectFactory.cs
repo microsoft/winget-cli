@@ -123,7 +123,7 @@ namespace Microsoft.WinGet.Client.Factories
                 {
                     if (hr == ErrorCode.FileNotFound)
                     {
-                        throw new WinGetPackageNotInstalledException();
+                        throw new WinGetIntegrityException(IntegrityCategory.AppInstallerNotInstalled);
                     }
                     else
                     {
