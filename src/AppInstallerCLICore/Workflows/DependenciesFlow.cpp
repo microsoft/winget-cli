@@ -6,10 +6,12 @@
 #include "ManifestComparator.h"
 #include "InstallFlow.h"
 #include "winget\DependenciesGraph.h"
+#include "winget\WindowsFeature.h"
 #include "DependencyNodeProcessor.h"
 
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Manifest;
+using namespace AppInstaller::WindowsFeature;
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -130,6 +132,104 @@ namespace AppInstaller::CLI::Workflow
             context <<
                 Workflow::OpenSource(true) <<
                 Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed, true, Repository::CompositeSearchBehavior::AvailablePackages);
+        }
+    }
+
+    void EnableWindowsFeaturesDependencies(Execution::Context& context)
+    {
+        if (!Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::WindowsFeature))
+        {
+            return;
+        }
+
+        const auto& rootDependencies = context.Get<Execution::Data::Installer>()->Dependencies;
+
+        if (rootDependencies.Empty())
+        {
+            return;
+        }
+
+        if (rootDependencies.HasAnyOf(DependencyType::WindowsFeature))
+        {
+            context << Workflow::EnsureRunningAsAdmin;
+            if (context.IsTerminated())
+            {
+                return;
+            }
+
+            HRESULT hr = S_OK;
+            std::shared_ptr<DismHelper> dismHelper = std::make_shared<DismHelper>();
+
+            bool force = context.Args.Contains(Execution::Args::Type::Force);
+            bool rebootRequired = false;
+
+            rootDependencies.ApplyToType(DependencyType::WindowsFeature, [&context, &hr, &dismHelper, &force, &rebootRequired](Dependency dependency)
+                {
+                    if (SUCCEEDED(hr) || force)
+                    {
+                        auto featureName = dependency.Id();
+                        WindowsFeature::WindowsFeature windowsFeature = dismHelper->GetWindowsFeature(featureName);
+
+                        if (windowsFeature.DoesExist())
+                        {
+                            if (!windowsFeature.IsEnabled())
+                            {
+                                Utility::LocIndString featureDisplayName = windowsFeature.GetDisplayName();
+                                Utility::LocIndView locIndFeatureName{ featureName };
+
+                                context.Reporter.Info() << Resource::String::EnablingWindowsFeature(featureDisplayName, locIndFeatureName) << std::endl;
+
+                                AICLI_LOG(Core, Info, << "Enabling Windows Feature [" << featureName << "] returned with HRESULT: " << hr);
+                                auto enableFeatureFunction = [&](IProgressCallback& progress)->HRESULT { return windowsFeature.Enable(progress); };
+                                hr = context.Reporter.ExecuteWithProgress(enableFeatureFunction, true);
+
+                                if (FAILED(hr))
+                                {
+                                    AICLI_LOG(Core, Error, << "Failed to enable Windows Feature " << featureDisplayName << " [" << locIndFeatureName << "] with exit code: " << hr);
+                                    context.Reporter.Warn() << Resource::String::FailedToEnableWindowsFeature(featureDisplayName, locIndFeatureName) << std::endl
+                                        << GetUserPresentableMessage(hr) << std::endl;
+                                }
+
+                                if (hr == ERROR_SUCCESS_REBOOT_REQUIRED || windowsFeature.GetRestartRequiredStatus() == DismRestartType::DismRestartRequired)
+                                {
+                                    rebootRequired = true;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // Note: If a feature is not found, continue enabling the rest of the dependencies but block immediately after unless force arg is present.
+                            AICLI_LOG(Core, Info, << "Windows Feature [" << featureName << "] does not exist");
+                            hr = APPINSTALLER_CLI_ERROR_INSTALL_MISSING_DEPENDENCY;
+                            context.Reporter.Warn() << Resource::String::WindowsFeatureNotFound(Utility::LocIndView{ featureName }) << std::endl;
+                        }
+                    }
+            });
+
+            if (FAILED(hr))
+            {
+                if (force)
+                {
+                    context.Reporter.Warn() << Resource::String::FailedToEnableWindowsFeatureOverridden << std::endl;
+                }
+                else
+                {
+                    context.Reporter.Error() << Resource::String::FailedToEnableWindowsFeatureOverrideRequired << std::endl;
+                    AICLI_TERMINATE_CONTEXT(hr);
+                }
+            }
+            else if (rebootRequired)
+            {
+                if (force)
+                {
+                    context.Reporter.Warn() << Resource::String::RebootRequiredToEnableWindowsFeatureOverridden << std::endl;
+                }
+                else
+                {
+                    context.Reporter.Error() << Resource::String::RebootRequiredToEnableWindowsFeatureOverrideRequired << std::endl;
+                    AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL);
+                }
+            }
         }
     }
 

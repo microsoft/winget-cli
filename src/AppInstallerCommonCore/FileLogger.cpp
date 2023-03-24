@@ -6,6 +6,7 @@
 #include "Public/AppInstallerRuntime.h"
 #include "Public/AppInstallerStrings.h"
 #include "Public/AppInstallerDateTime.h"
+#include <corecrt_io.h>
 
 
 namespace AppInstaller::Logging
@@ -15,7 +16,6 @@ namespace AppInstaller::Logging
 
     static constexpr std::string_view s_fileLoggerDefaultFilePrefix = "WinGet"sv;
     static constexpr std::string_view s_fileLoggerDefaultFileExt = ".log"sv;
-    static constexpr std::ios_base::openmode s_fileLoggerDefaultOpenMode = std::ios_base::out | std::ios_base::app;
 
     FileLogger::FileLogger() : FileLogger(s_fileLoggerDefaultFilePrefix) {}
 
@@ -23,8 +23,7 @@ namespace AppInstaller::Logging
     {
         m_name = GetNameForPath(filePath);
         m_filePath = filePath;
-
-        m_stream.open(m_filePath, s_fileLoggerDefaultOpenMode);
+        OpenFileLoggerStream();
     }
 
     FileLogger::FileLogger(const std::string_view fileNamePrefix)
@@ -32,8 +31,7 @@ namespace AppInstaller::Logging
         m_name = "file";
         m_filePath = Runtime::GetPathTo(Runtime::PathName::DefaultLogLocation);
         m_filePath /= fileNamePrefix.data() + ('-' + Utility::GetCurrentTimeForFilename() + s_fileLoggerDefaultFileExt.data());
-
-        m_stream.open(m_filePath, s_fileLoggerDefaultOpenMode);
+        OpenFileLoggerStream();
     }
 
     FileLogger::~FileLogger()
@@ -124,5 +122,23 @@ namespace AppInstaller::Logging
                 // Just throw out everything
                 catch (...) {}
             }).detach();
+    }
+
+    void FileLogger::OpenFileLoggerStream() 
+    {
+        // Prevent inheritance to ensure log file handle is not opened by other processes.
+        FILE* filePtr;
+        errno_t fopenError = _wfopen_s(&filePtr, m_filePath.wstring().c_str(), L"w");
+        if (!fopenError)
+        {
+            THROW_HR_IF(E_UNEXPECTED, filePtr == nullptr);
+            THROW_IF_WIN32_BOOL_FALSE(SetHandleInformation(reinterpret_cast<HANDLE>(_get_osfhandle(_fileno(filePtr))), HANDLE_FLAG_INHERIT, 0));
+            m_stream = std::ofstream{ filePtr };
+        }
+        else
+        {
+            AICLI_LOG(Core, Error, << "Failed to open log file " << m_filePath.u8string());
+            throw std::system_error(fopenError, std::generic_category());
+        }
     }
 }

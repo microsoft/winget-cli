@@ -191,6 +191,7 @@ namespace AppInstallerCLIE2ETests
             ConfigureFeature("directMSI", status);
             ConfigureFeature("pinning", status);
             ConfigureFeature("configuration", status);
+            ConfigureFeature("windowsFeature", status);
         }
     }
 }

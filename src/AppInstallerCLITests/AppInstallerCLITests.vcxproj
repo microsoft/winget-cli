@@ -250,6 +250,7 @@
     <ClCompile Include="UpdateFlow.cpp" />
     <ClCompile Include="UserSettings.cpp" />
     <ClCompile Include="Versions.cpp" />
+    <ClCompile Include="WindowsFeature.cpp" />
     <ClCompile Include="WorkFlow.cpp" />
     <ClCompile Include="LanguageUtilities.cpp" />
     <ClCompile Include="main.cpp">
@@ -327,6 +328,9 @@
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_UnsupportedArguments.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallFlowTest_WindowsFeatures.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_Zip_Exe.yaml">

@@ -71,9 +71,11 @@ contactsupport
 contentfiles
 contoso
 contractversion
+corecrt
 count'th
 countof
 countryregion
+cplusplus
 createmanifestmetadata
 cswinrt
 ctc
@@ -84,6 +86,7 @@ deigh
 deleteifnotneeded
 desktopappinstaller
 diskfull
+dismapi
 dllimport
 DMPAs
 dnld
@@ -231,6 +234,7 @@ mysilentwithprogress
 nameof
 nativehandle
 NESTEDINSTALLER
+netfx
 netlify
 Newtonsoft
 NOEXPAND
@@ -252,6 +256,7 @@ nuffing
 objbase
 objidl
 ofile
+osfhandle
 Outptr
 packageinuse
 packageinusebyapplication
@@ -408,7 +413,9 @@ Webserver
 websites
 WERSJA
 wesome
+wfopen
 Whatif
+winapifamily
 windir
 windowsdeveloper
 winerror

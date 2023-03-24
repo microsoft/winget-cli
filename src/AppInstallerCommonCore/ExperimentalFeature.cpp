@@ -48,6 +48,8 @@ namespace AppInstaller::Settings
                 return userSettings.Get<Setting::EFUninstallPreviousArgument>();
             case ExperimentalFeature::Feature::Configuration:
                 return userSettings.Get<Setting::EFConfiguration>();
+            case ExperimentalFeature::Feature::WindowsFeature:
+                return userSettings.Get<Setting::EFWindowsFeature>();
             default:
                 THROW_HR(E_UNEXPECTED);
             }
@@ -85,6 +87,8 @@ namespace AppInstaller::Settings
             return ExperimentalFeature{ "Uninstall Previous Argument", "uninstallPreviousArgument", "https://aka.ms/winget-settings", Feature::UninstallPreviousArgument };
         case Feature::Configuration:
             return ExperimentalFeature{ "Configuration", "configuration", "https://aka.ms/winget-settings#configuration", Feature::Configuration };
+        case Feature::WindowsFeature:
+            return ExperimentalFeature{ "Windows Feature Dependencies", "windowsFeature", "https://aka.ms/winget-settings", Feature::WindowsFeature };
         default:
             THROW_HR(E_UNEXPECTED);
         }

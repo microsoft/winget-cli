@@ -328,6 +328,7 @@
     <ClInclude Include="Public\winget\ThreadGlobals.h" />
     <ClInclude Include="Public\winget\TraceLogger.h" />
     <ClInclude Include="Public\winget\UserSettings.h" />
+    <ClInclude Include="Public\winget\WindowsFeature.h" />
     <ClInclude Include="Telemetry\MicrosoftTelemetry.h" />
     <ClInclude Include="Telemetry\TraceLogging.h" />
     <ClInclude Include="Telemetry\WinEventLogLevels.h" />
@@ -397,6 +398,7 @@
     <ClCompile Include="ThreadGlobals.cpp" />
     <ClCompile Include="TraceLogger.cpp" />
     <ClCompile Include="UserSettings.cpp" />
+    <ClCompile Include="WindowsFeature.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -50,5 +50,7 @@ namespace AppInstaller::Logging
         std::string m_name;
         std::filesystem::path m_filePath;
         std::ofstream m_stream;
+
+        void OpenFileLoggerStream();
     };
 }

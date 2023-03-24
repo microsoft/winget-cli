@@ -27,6 +27,7 @@ namespace AppInstaller::Settings
             Pinning = 0x4,
             UninstallPreviousArgument = 0x8,
             Configuration = 0x10,
+            WindowsFeature = 0x20,
             Max, // This MUST always be after all experimental features
 
             // Features listed after Max will not be shown with the features command
