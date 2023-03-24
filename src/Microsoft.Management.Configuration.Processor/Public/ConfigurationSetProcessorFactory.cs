@@ -119,6 +119,7 @@ namespace Microsoft.Management.Configuration.Processor
                         {
                             builder.Append($"{p.Name} = '{p.Value}' ");
                         }
+
                         builder.Append("]");
                     }
 

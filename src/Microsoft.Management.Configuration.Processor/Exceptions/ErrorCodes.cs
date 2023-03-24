@@ -45,5 +45,10 @@ namespace Microsoft.Management.Configuration.Processor.Exceptions
         /// Internal error calling Get-DscResource. More than one module found with the same version.
         /// </summary>
         internal const int WinGetConfigUnitModuleConflict = unchecked((int)0x8A15C107);
+
+        /// <summary>
+        /// The module where the DSC resource is implemented cannot be imported.
+        /// </summary>
+        internal const int WinGetConfigUnitImportModule = unchecked((int)0x8A15C108);
     }
 }
