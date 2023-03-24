@@ -87,6 +87,37 @@ namespace AppInstaller::WindowsFeature
         LOG_IF_FAILED(m_dismCloseSession(m_dismSession));
     }
 
+    HRESULT DismHelper::EnableFeature(
+        UINT session,
+        PCWSTR featureName,
+        PCWSTR identifier,
+        DismPackageIdentifier packageIdentifier,
+        BOOL limitAccess,
+        PCWSTR* sourcePaths,
+        UINT sourcePathCount,
+        BOOL enableAll,
+        HANDLE cancelEvent,
+        DISM_PROGRESS_CALLBACK progress,
+        PVOID userData)
+    {
+        return m_dismEnableFeature(session, featureName, identifier, packageIdentifier, limitAccess, sourcePaths, sourcePathCount, enableAll, cancelEvent, progress, userData);
+    }
+
+    HRESULT DismHelper::DisableFeature(UINT session, PCWSTR featureName, PCWSTR packageName, BOOL removePayload, HANDLE cancelEvent, DISM_PROGRESS_CALLBACK progress, PVOID userData)
+    {
+        return m_dismDisableFeature(session, featureName, packageName, removePayload, cancelEvent, progress, userData);
+    }
+
+    HRESULT DismHelper::GetFeatureInfo(UINT session, PCWSTR featureName, PCWSTR identifier, DismPackageIdentifier packageIdentifier, DismFeatureInfo** featureInfo)
+    {
+        return m_dismGetFeatureInfo(session, featureName, identifier, packageIdentifier, featureInfo);
+    }
+
+    HRESULT DismHelper::Delete(VOID* dismStructure)
+    {
+        return m_dismDelete(dismStructure);
+    }
+
     void DismHelper::Shutdown()
     {
         LOG_IF_FAILED(m_dismShutdown());
@@ -94,9 +125,23 @@ namespace AppInstaller::WindowsFeature
 
     WindowsFeature::WindowsFeature(std::shared_ptr<DismHelper> dismHelper, const std::string& name)
     {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (s_MockDismHelper_Override)
+        {
+            return;
+        }
+#endif
         m_dismHelper = std::move(dismHelper);
         m_featureName = name;
         GetFeatureInfo();
+    }
+
+    WindowsFeature::~WindowsFeature()
+    {
+        if (m_featureInfo)
+        {
+            LOG_IF_FAILED(m_dismHelper->Delete(m_featureInfo));
+        }
     }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
@@ -146,14 +191,14 @@ namespace AppInstaller::WindowsFeature
             return *s_EnableWindowsFeatureResult_TestHook_Override;
         }
 #endif
-        HRESULT hr = m_dismHelper->m_dismEnableFeature(m_session, Utility::ConvertToUTF16(m_featureName).c_str(), NULL, DismPackageNone, FALSE, NULL, NULL, FALSE, NULL, NULL, NULL);
+        HRESULT hr = m_dismHelper->EnableFeature(m_session, Utility::ConvertToUTF16(m_featureName).c_str(), NULL, DismPackageNone, FALSE, NULL, NULL, FALSE, NULL, NULL, NULL);
         LOG_IF_FAILED(hr);
         return hr;
     }
 
     HRESULT WindowsFeature::Disable()
     {
-        HRESULT hr = m_dismHelper->m_dismDisableFeature(m_session, Utility::ConvertToUTF16(m_featureName).c_str(), NULL, FALSE, NULL, NULL, NULL);
+        HRESULT hr = m_dismHelper->DisableFeature(m_session, Utility::ConvertToUTF16(m_featureName).c_str(), NULL, FALSE, NULL, NULL, NULL);
         LOG_IF_FAILED(hr);
         return hr;
     }
@@ -208,6 +253,6 @@ namespace AppInstaller::WindowsFeature
 
     void WindowsFeature::GetFeatureInfo()
     {
-        LOG_IF_FAILED(m_dismHelper->m_dismGetFeatureInfo(m_session, Utility::ConvertToUTF16(m_featureName).c_str(), NULL, DismPackageNone, &m_featureInfo));
+        LOG_IF_FAILED(m_dismHelper->GetFeatureInfo(m_session, Utility::ConvertToUTF16(m_featureName).c_str(), NULL, DismPackageNone, &m_featureInfo));
     }
 }

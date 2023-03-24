@@ -115,17 +115,37 @@ namespace AppInstaller::WindowsFeature
     using DismDisableFeaturePtr = HRESULT(WINAPI*)(UINT, PCWSTR, PCWSTR, BOOL, HANDLE, DISM_PROGRESS_CALLBACK, PVOID);
     using DismDeletePtr = HRESULT(WINAPI*)(VOID*);
 
-    // forward declaration
-    struct WindowsFeature;
-
-    struct DismHelper
+    struct DismHelper : public std::enable_shared_from_this<DismHelper>
     {
+        std::shared_ptr<DismHelper> CreateDismHelper()
+        {
+            return shared_from_this();
+        }
+
         DismHelper();
 
         ~DismHelper();
 
+        HRESULT EnableFeature(
+            UINT session,
+            PCWSTR featureName,
+            PCWSTR identifier,
+            DismPackageIdentifier packageIdentifier,
+            BOOL limitAccess,
+            PCWSTR* sourcePaths,
+            UINT sourcePathCount,
+            BOOL enableAll,
+            HANDLE cancelEvent,
+            DISM_PROGRESS_CALLBACK progress,
+            PVOID userData);
+
+        HRESULT DisableFeature(UINT session, PCWSTR featureName, PCWSTR packageName, BOOL removePayload, HANDLE cancelEvent, DISM_PROGRESS_CALLBACK progress, PVOID userData);
+
+        HRESULT GetFeatureInfo(UINT session, PCWSTR featureName, PCWSTR identifier, DismPackageIdentifier packageIdentifier, DismFeatureInfo** featureInfo);
+
+        HRESULT Delete(VOID* dismStructure);
+
     private:
-        friend WindowsFeature;
         typedef UINT DismSession;
 
         wil::unique_hmodule m_module;
@@ -158,6 +178,9 @@ namespace AppInstaller::WindowsFeature
         WindowsFeature() = default;
         WindowsFeature(std::shared_ptr<DismHelper> dismHelper, const std::string& name);
 
+        ~WindowsFeature();
+
+        // TODO: Implement progress via DismProgressFunction
         HRESULT Enable(IProgressCallback& progress);
         HRESULT Disable();
         bool DoesExist();
@@ -168,14 +191,6 @@ namespace AppInstaller::WindowsFeature
         DismPackageFeatureState GetState()
         {
             return m_featureInfo->FeatureState;
-        }
-
-        ~WindowsFeature()
-        {
-            if (m_featureInfo)
-            {
-                m_dismHelper->m_dismDelete(m_featureInfo);
-            }
         }
 
     private:

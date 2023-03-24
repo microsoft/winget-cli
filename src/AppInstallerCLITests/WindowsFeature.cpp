@@ -99,11 +99,12 @@ TEST_CASE("InstallFlow_FailedToEnableWindowsFeature_Force", "[windowsFeature]")
 
     // Override with arbitrary DISM api error (DISMAPI_E_DISMAPI_NOT_INITIALIZED) and make windows feature discoverable.
     HRESULT dismErrorResult = 0xc0040001;
+    LocIndString testFeatureDisplayName = LocIndString{ "Test Windows Feature"_liv };
     auto mockDismHelperOverride = TestHook::MockDismHelper_Override();
     auto setEnableFeatureOverride = TestHook::SetEnableWindowsFeatureResult_Override(dismErrorResult);
     auto doesFeatureExistOverride = TestHook::SetDoesWindowsFeatureExistResult_Override(true);
     auto setIsFeatureEnabledOverride = TestHook::SetIsWindowsFeatureEnabledResult_Override(false);
-    auto getDisplayNameOverride = TestHook::SetWindowsFeatureGetDisplayNameResult_Override(LocIndString{ "Test Windows Feature"_liv });
+    auto getDisplayNameOverride = TestHook::SetWindowsFeatureGetDisplayNameResult_Override(testFeatureDisplayName);
     auto getRestartStatusOverride = TestHook::SetWindowsFeatureGetRestartStatusResult_Override(DismRestartNo);
 
     std::ostringstream installOutput;
@@ -119,8 +120,8 @@ TEST_CASE("InstallFlow_FailedToEnableWindowsFeature_Force", "[windowsFeature]")
 
     // Verify Installer is called and parameters are passed in.
     REQUIRE(context.GetTerminationHR() == ERROR_SUCCESS);
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::FailedToEnableWindowsFeature(LocIndView{ "testFeature1" }, dismErrorResult)).get()) != std::string::npos);
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::FailedToEnableWindowsFeature(LocIndView{ "testFeature2" }, dismErrorResult)).get()) != std::string::npos);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::FailedToEnableWindowsFeature(testFeatureDisplayName, LocIndView{ "testFeature1" })).get()) != std::string::npos);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::FailedToEnableWindowsFeature(testFeatureDisplayName, LocIndView{ "testFeature2" })).get()) != std::string::npos);
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::FailedToEnableWindowsFeatureOverridden).get()) != std::string::npos);
     REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
     std::ifstream installResultFile(installResultPath.GetPath());

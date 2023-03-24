@@ -185,7 +185,9 @@ namespace AppInstaller::CLI::Workflow
 
                                 if (FAILED(hr))
                                 {
-                                    context.Reporter.Warn() << Resource::String::FailedToEnableWindowsFeature(locIndFeatureName, HRESULT_FROM_WIN32(hr)) << std::endl;
+                                    AICLI_LOG(Core, Error, << "Failed to enable Windows Feature " << featureDisplayName << " [" << locIndFeatureName << "] with exit code: " << hr);
+                                    context.Reporter.Warn() << Resource::String::FailedToEnableWindowsFeature(featureDisplayName, locIndFeatureName) << std::endl
+                                        << GetUserPresentableMessage(hr) << std::endl;
                                 }
 
                                 if (hr == ERROR_SUCCESS_REBOOT_REQUIRED || windowsFeature.GetRestartRequiredStatus() == DismRestartType::DismRestartRequired)
