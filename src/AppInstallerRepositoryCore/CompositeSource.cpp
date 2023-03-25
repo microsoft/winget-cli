@@ -1315,8 +1315,8 @@ namespace AppInstaller::Repository
                         {
                             addedAvailablePackage = true;
                             compositePackage->AddAvailablePackage(std::move(availablePackage));
-                            compositePackage->SetTracking(std::move(trackedSource), std::move(trackingPackage), std::move(trackingPackageVersion));
                         }
+                        compositePackage->SetTracking(std::move(trackedSource), std::move(trackingPackage), std::move(trackingPackageVersion));
                     }
 
                     // Search sources and add to result
@@ -1352,11 +1352,9 @@ namespace AppInstaller::Repository
                                 AICLI_LOG(Repo, Warning, << "  Appropriate available package could not be determined");
                             });
 
-                        if (availablePackage)
-                        {
-                            addedAvailablePackage = true;
-                            compositePackage->AddAvailablePackage(std::move(availablePackage));
-                        }
+                        // For non pinning cases. We found some matching packages here, don't keep going.
+                        addedAvailablePackage = true;
+                        compositePackage->AddAvailablePackage(std::move(availablePackage));
                     }
 
                     return addedAvailablePackage;
