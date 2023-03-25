@@ -119,6 +119,8 @@
   <Target Name="CopyWinRTAct" AfterTargets="AfterBuild" Condition="'$(Platform)' != 'ARM' AND '$(TargetFramework)' == '$(CoreFramework)'">
       <PropertyGroup>
           <WinRTActDir>$(OutputPath)..\..\..\UndockedRegFreeWinRT\</WinRTActDir>
+          <!-- The output path for this project is different on some builds where the RIDs are not used in the output. -->
+          <WinRTActDir Condition="!Exists('$(WinRTActDir)winrtact.dll')">$(OutputPath)..\..\UndockedRegFreeWinRT\</WinRTActDir>
       </PropertyGroup>
       <ItemGroup>
           <WinRTActDll Include="$(WinRTActDir)winrtact.dll" />
