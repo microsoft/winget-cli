@@ -201,7 +201,7 @@ namespace AppInstallerCLIE2ETests
         public void ListWithMappingWithArchitecture()
         {
             var installDir = TestCommon.GetRandomTestDir();
-            var result = TestCommon.RunAICLICommand("install", "AppInstallerTest.TestMappingWithArchitectureX86");
+            var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestMappingWithArchitectureX86 -l {installDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
 
             // List with AppInstallerTest.TestMappingWithArchitectureX64 (from available to installed scenario) will not find the package.
@@ -219,6 +219,7 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("AppInstallerTest.TestMappingWithArchitectureX86"));
 
+            // best effor clean up
             TestCommon.RunCommand(Path.Combine(installDir, Constants.TestExeUninstallerFileName));
         }
 

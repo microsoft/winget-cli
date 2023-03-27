@@ -14,5 +14,6 @@ Installers:
     - DisplayName: "TestMappingWithArchitecture(X64)"
     InstallerSwitches:
       Custom: '/DisplayName TestMappingWithArchitecture(X64) /ProductID {0e426f01-b682-4e67-a357-52f9ecb4590d}'
+      InstallLocation: /InstallDir <INSTALLPATH>
 ManifestType: singleton
 ManifestVersion: 1.2.0
