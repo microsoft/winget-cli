@@ -219,7 +219,7 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("AppInstallerTest.TestMappingWithArchitectureX86"));
 
-            // best effor clean up
+            // best effort clean up
             TestCommon.RunCommand(Path.Combine(installDir, Constants.TestExeUninstallerFileName));
         }
 
