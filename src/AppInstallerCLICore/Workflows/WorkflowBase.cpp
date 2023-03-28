@@ -101,7 +101,11 @@ namespace AppInstaller::CLI::Workflow
                     }
                 }
 
-                auto openFunction = [&](IProgressCallback& progress)->std::vector<Repository::SourceDetails> { return source.Open(progress); };
+                auto openFunction = [&](IProgressCallback& progress)->std::vector<Repository::SourceDetails>
+                {
+                    source.SetCaller("winget-cli");
+                    return source.Open(progress);
+                };
                 auto updateFailures = context.Reporter.ExecuteWithProgress(openFunction, true);
 
                 // We'll only report the source update failure as warning and continue
@@ -376,7 +380,11 @@ namespace AppInstaller::CLI::Workflow
             // A well known predefined source should return a value.
             THROW_HR_IF(E_UNEXPECTED, !source);
 
-            auto openFunction = [&](IProgressCallback& progress)->std::vector<Repository::SourceDetails> { return source.Open(progress); };
+            auto openFunction = [&](IProgressCallback& progress)->std::vector<Repository::SourceDetails>
+            {
+                source.SetCaller("winget-cli");
+                return source.Open(progress);
+            };
             context.Reporter.ExecuteWithProgress(openFunction, true);
         }
         catch (...)

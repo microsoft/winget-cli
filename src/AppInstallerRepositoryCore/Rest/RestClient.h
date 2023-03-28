@@ -33,7 +33,7 @@ namespace AppInstaller::Repository::Rest
 
         static std::unique_ptr<Schema::IRestClient> GetSupportedInterface(const std::string& restApi, const std::unordered_map<utility::string_t, utility::string_t>& additionalHeaders, const Schema::IRestClient::Information& information, const AppInstaller::Utility::Version& version);
 
-        static RestClient Create(const std::string& restApi, std::optional<std::string> customHeader, const Schema::HttpClientHelper& helper = {});
+        static RestClient Create(const std::string& restApi, std::optional<std::string> customHeader, std::string_view caller, const Schema::HttpClientHelper& helper = {});
     private:
         RestClient(std::unique_ptr<Schema::IRestClient> supportedInterface, std::string sourceIdentifier);
 
