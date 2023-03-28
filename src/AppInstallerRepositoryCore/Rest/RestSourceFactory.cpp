@@ -37,7 +37,7 @@ namespace AppInstaller::Repository::Rest
                 return true;
             }
 
-            void SetCaller(std::string caller)
+            void SetCaller(std::string caller) override
             {
                 m_caller = std::move(caller);
             }

@@ -427,7 +427,7 @@ namespace AppInstaller::Repository
         return m_sourceReferences[0]->SetCustomHeader(header);
     }
 
-    bool Source::SetCaller(std::string caller)
+    void Source::SetCaller(std::string caller)
     {
         for (auto& sourceReference : m_sourceReferences)
         {
