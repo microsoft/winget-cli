@@ -216,6 +216,9 @@ namespace AppInstaller::Repository
         // Set custom header.
         bool SetCustomHeader(std::optional<std::string> header);
 
+        // Set caller.
+        void SetCaller(std::string caller);
+
         // Execute a search on the source.
         SearchResult Search(const SearchRequest& request) const;
 

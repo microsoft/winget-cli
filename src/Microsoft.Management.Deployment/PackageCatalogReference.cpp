@@ -14,10 +14,38 @@
 #include <wil\cppwinrt_wrl.h>
 #include <winget/GroupPolicy.h>
 #include <AppInstallerErrors.h>
+#include <AppInstallerStrings.h>
 #include <Helpers.h>
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
+    namespace
+    {
+        std::string GetCallerName()
+        {
+            // See if caller name is set by caller
+            static auto callerName = GetComCallerName("");
+
+            // Get process string
+            if (callerName.empty())
+            {
+                try
+                {
+                    auto [hrGetCallerId, callerProcessId] = GetCallerProcessId();
+                    THROW_IF_FAILED(hrGetCallerId);
+                    callerName = AppInstaller::Utility::ConvertToUTF8(TryGetCallerProcessInfo(callerProcessId));
+                }
+                CATCH_LOG();
+            }
+
+            if (callerName.empty())
+            {
+                callerName = "UnknownComCaller";
+            }
+
+            return callerName;
+        }
+    }
     void PackageCatalogReference::Initialize(winrt::Microsoft::Management::Deployment::PackageCatalogInfo packageCatalogInfo, ::AppInstaller::Repository::Source sourceReference)
     {
         m_info = packageCatalogInfo;
@@ -77,6 +105,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
                     auto catalog = m_compositePackageCatalogOptions.Catalogs().GetAt(i);
                     winrt::Microsoft::Management::Deployment::implementation::PackageCatalogReference* catalogImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::PackageCatalogReference>(catalog);
                     auto copy = catalogImpl->m_sourceReference;
+                    copy.SetCaller(GetCallerName());
                     copy.Open(progress);
                     remoteSources.emplace_back(std::move(copy));
                 }
@@ -112,6 +141,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             else
             {
                 source = m_sourceReference;
+                source.SetCaller(GetCallerName());
                 source.Open(progress);
             }
 

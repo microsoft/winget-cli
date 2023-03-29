@@ -427,6 +427,14 @@ namespace AppInstaller::Repository
         return m_sourceReferences[0]->SetCustomHeader(header);
     }
 
+    void Source::SetCaller(std::string caller)
+    {
+        for (auto& sourceReference : m_sourceReferences)
+        {
+            sourceReference->SetCaller(caller);
+        }
+    }
+
     SearchResult Source::Search(const SearchRequest& request) const
     {
         THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !m_source);

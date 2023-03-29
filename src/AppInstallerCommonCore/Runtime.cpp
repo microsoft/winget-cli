@@ -775,7 +775,17 @@ namespace AppInstaller::Runtime
     {
         std::ostringstream strstr;
         strstr <<
-            "winget-cli"
+            "winget-cli" <<
+            " WindowsPackageManager/" << GetClientVersion() <<
+            " DesktopAppInstaller/" << GetPackageVersion();
+        return Utility::LocIndString{ strstr.str() };
+    }
+
+    Utility::LocIndString GetUserAgent(std::string_view caller)
+    {
+        std::ostringstream strstr;
+        strstr <<
+            caller <<
             " WindowsPackageManager/" << GetClientVersion() <<
             " DesktopAppInstaller/" << GetPackageVersion();
         return Utility::LocIndString{ strstr.str() };

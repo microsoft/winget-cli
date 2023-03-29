@@ -138,4 +138,7 @@ namespace AppInstaller::Runtime
 
     // Gets the default user agent string for the Windows Package Manager.
     Utility::LocIndString GetDefaultUserAgent();
+
+    // Gets the user agent string from passed in caller for the Windows Package Manager.
+    Utility::LocIndString GetUserAgent(std::string_view caller);
 }

@@ -24,18 +24,30 @@ namespace AppInstaller::Repository::Rest
     constexpr size_t WindowsPackageManagerHeaderMaxLength = 1024;
 
     namespace {
-        std::unordered_map<utility::string_t, utility::string_t> GetHeaders(std::optional<std::string> customHeader)
+        std::unordered_map<utility::string_t, utility::string_t> GetHeaders(std::optional<std::string> customHeader, std::string_view caller)
         {
-            if (!customHeader)
+            std::unordered_map<utility::string_t, utility::string_t> headers;
+
+            if (customHeader)
             {
-                AICLI_LOG(Repo, Verbose, << "Custom header not found.");
-                return {};
+                AICLI_LOG(Repo, Verbose, << "Custom header found: " << customHeader.value());
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_CUSTOMHEADER_EXCEEDS_MAXLENGTH, customHeader.value().size() > WindowsPackageManagerHeaderMaxLength);
+                headers.emplace(JSON::GetUtilityString(WindowsPackageManagerHeader), JSON::GetUtilityString(customHeader.value()));
             }
 
-            THROW_HR_IF(APPINSTALLER_CLI_ERROR_CUSTOMHEADER_EXCEEDS_MAXLENGTH, customHeader.value().size() > WindowsPackageManagerHeaderMaxLength);
+            if (!caller.empty())
+            {
+                AICLI_LOG(Repo, Verbose, << "User agent caller found: " << caller);
+                std::wstring userAgentWide = JSON::GetUtilityString(Runtime::GetUserAgent(caller));
+                try
+                {
+                    // Replace user profile if the caller binary is under user profile.
+                    userAgentWide = Utility::ReplaceWhileCopying(userAgentWide, Runtime::GetPathTo(Runtime::PathName::UserProfile).wstring(), L"%USERPROFILE%");
+                }
+                CATCH_LOG();
+                headers.emplace(web::http::header_names::user_agent, userAgentWide);
+            }
 
-            std::unordered_map<utility::string_t, utility::string_t> headers;
-            headers.emplace(JSON::GetUtilityString(WindowsPackageManagerHeader), JSON::GetUtilityString(customHeader.value()));
             return headers;
         }
     }
@@ -139,12 +151,12 @@ namespace AppInstaller::Repository::Rest
         THROW_HR(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_VERSION);
     }
 
-    RestClient RestClient::Create(const std::string& restApi, std::optional<std::string> customHeader, const HttpClientHelper& helper)
+    RestClient RestClient::Create(const std::string& restApi, std::optional<std::string> customHeader, std::string_view caller, const HttpClientHelper& helper)
     {
         utility::string_t restEndpoint = RestHelper::GetRestAPIBaseUri(restApi);
         THROW_HR_IF(APPINSTALLER_CLI_ERROR_RESTSOURCE_INVALID_URL, !RestHelper::IsValidUri(restEndpoint));
 
-        auto headers = GetHeaders(customHeader);
+        auto headers = GetHeaders(customHeader, caller);
 
         IRestClient::Information information = GetInformation(restEndpoint, headers, helper);
         std::optional<Version> latestCommonVersion = GetLatestCommonVersion(information.ServerSupportedVersions, WingetSupportedContracts);

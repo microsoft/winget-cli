@@ -38,18 +38,6 @@ using namespace ::AppInstaller::CLI::Execution;
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-    namespace
-    {
-        static std::optional<std::string> s_callerName;
-        static wil::srwlock s_callerNameLock;
-    }
-
-    void SetComCallerName(std::string name)
-    {
-        auto lock = s_callerNameLock.lock_exclusive();
-        s_callerName.emplace(std::move(name));
-    }
-
     winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::PackageCatalogReference> PackageManager::GetPackageCatalogs()
     {
         Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::PackageCatalogReference> catalogs{ winrt::single_threaded_vector<Microsoft::Management::Deployment::PackageCatalogReference>() };
@@ -454,12 +442,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         std::unique_ptr<COMContext> context = std::make_unique<COMContext>();
         hstring correlationData = (options) ? options.CorrelationData() : L"";
-        std::string callerName;
-        {
-            auto lock = s_callerNameLock.lock_shared();
-            callerName = s_callerName.has_value() ? s_callerName.value() : AppInstaller::Utility::ConvertToUTF8(callerProcessInfoString);
-        }
-        context->SetContextLoggers(correlationData, callerName);
+
+        context->SetContextLoggers(correlationData, GetComCallerName(AppInstaller::Utility::ConvertToUTF8(callerProcessInfoString)));
 
         // Convert the options to arguments for the installer.
         if constexpr (std::is_same_v<TOptions, winrt::Microsoft::Management::Deployment::InstallOptions>)
