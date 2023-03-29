@@ -130,20 +130,20 @@ TEST_CASE("CPIL_BlocksOthers", "[CrossProcessInstallLock]")
     signal.create();
     AppInstaller::ProgressCallback progress;
 
-    CrossProcessInstallLock mainThreadLock;
-    mainThreadLock.Acquire(progress);
+    {
+        CrossProcessInstallLock mainThreadLock;
+        mainThreadLock.Acquire(progress);
 
-    std::thread otherThread([&signal, &progress]() {
-        CrossProcessInstallLock otherThreadLock;
-        otherThreadLock.Acquire(progress);
-        signal.SetEvent();
-        });
-    // In the event of bugs, we don't want to block the test waiting forever
-    otherThread.detach();
+        std::thread otherThread([&signal, &progress]() {
+            CrossProcessInstallLock otherThreadLock;
+            otherThreadLock.Acquire(progress);
+            signal.SetEvent();
+            });
+        // In the event of bugs, we don't want to block the test waiting forever
+        otherThread.detach();
 
-    REQUIRE(!signal.wait(500));
-
-    progress.Cancel();
+        REQUIRE(!signal.wait(500));
+    }
 
     // Upon release of the writer, the other thread should signal
     REQUIRE(signal.wait(500));

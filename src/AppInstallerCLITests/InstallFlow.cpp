@@ -5,6 +5,7 @@
 #include "TestHooks.h"
 #include <AppInstallerFileLogger.h>
 #include <AppInstallerStrings.h>
+#include <AppInstallerSynchronization.h>
 #include <Commands/InstallCommand.h>
 #include <Commands/UninstallCommand.h>
 #include <winget/AdminSettings.h>
@@ -1151,4 +1152,55 @@ TEST_CASE("InstallFlow_InstallMultiple_SearchFailed", "[InstallFlow][workflow][M
     INFO(installOutput.str());
 
     REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_NOT_ALL_QUERIES_FOUND_SINGLE);
+}
+
+TEST_CASE("InstallFlow_InstallAcquiresLock", "[InstallFlow][workflow]")
+{
+    TestCommon::TempFile installResultPath("TestExeInstalled.txt");
+
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForOpenSource(context, CreateTestSource({ TSR::TestQuery_ReturnOne }), true);
+    OverrideForShellExecute(context);
+    context.Args.AddArg(Execution::Args::Type::Query, TSR::TestQuery_ReturnOne.Query);
+
+    wil::unique_event enteredShellExecute;
+    enteredShellExecute.create();
+    wil::unique_event canLeaveShellExecute;
+    canLeaveShellExecute.create();
+    AppInstaller::ProgressCallback progress;
+
+    context.Override({ ShellExecuteInstallImpl, [&](TestContext&)
+        {
+            enteredShellExecute.SetEvent();
+            canLeaveShellExecute.wait(500);
+        }});
+
+    {
+        std::thread otherThread([&]() {
+            InstallCommand install({});
+            install.Execute(context);
+            });
+        // In the event of bugs, we don't want to block the test waiting forever
+        otherThread.detach();
+
+        REQUIRE(enteredShellExecute.wait(500));
+
+        AppInstaller::Synchronization::CrossProcessInstallLock mainThreadLock;
+        REQUIRE(!mainThreadLock.TryAcquireNoWait());
+
+        canLeaveShellExecute.SetEvent();
+    }
+
+    INFO(installOutput.str());
+
+    // Verify Installer is called and parameters are passed in.
+    REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
+    std::ifstream installResultFile(installResultPath.GetPath());
+    REQUIRE(installResultFile.is_open());
+    std::string installResultStr;
+    std::getline(installResultFile, installResultStr);
+    REQUIRE(installResultStr.find("/custom") != std::string::npos);
+    REQUIRE(installResultStr.find("/silentwithprogress") != std::string::npos);
 }
