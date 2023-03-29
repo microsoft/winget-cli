@@ -592,7 +592,7 @@ TEST_CASE("MSStoreInstallFlowWithStoreDisabledBypassStoreClientBlockedByPolicy",
     std::ostringstream installOutput;
     TestContext context{ installOutput, std::cin };
     auto previousThreadGlobals = context.SetForCurrentThread();
-    OverrideForMSStoreWithEnsureStorePolicySatisfied(context, false);
+    OverrideForMSStoreWithEnsureStorePolicySatisfied(context);
 
     // Disable the store client app and verify
     std::wstring disableStoreSubKey = L"RemoveWindowsStore";

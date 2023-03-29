@@ -133,6 +133,6 @@ namespace TestCommon
 
     void OverrideForMSStore(TestContext& context, bool isUpdate);
 
-    void OverrideForMSStoreWithEnsureStorePolicySatisfied(TestContext& context, bool isUpdate);
+    void OverrideForMSStoreWithEnsureStorePolicySatisfied(TestContext& context);
 
 }
