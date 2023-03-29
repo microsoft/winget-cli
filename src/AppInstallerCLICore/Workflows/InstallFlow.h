@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include "ExecutionContext.h"
+#include <winget/Manifest.h>
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -10,6 +11,45 @@ namespace AppInstaller::CLI::Workflow
     // Token specified in installer args will be replaced by proper value.
     static constexpr std::string_view ARG_TOKEN_LOGPATH = "<LOGPATH>"sv;
     static constexpr std::string_view ARG_TOKEN_INSTALLPATH = "<INSTALLPATH>"sv;
+
+    // Determines if an installer type is allowed to install/uninstall in parallel.
+    bool ExemptFromSingleInstallLocking(AppInstaller::Manifest::InstallerTypeEnum type);
+
+    namespace details
+    {
+        // These single type install flows should remain "internal" and only ExecuteInstallerForType should be used externally
+        // so that all installs can properly handle single install locking.
+
+        // Runs the installer via ShellExecute.
+        // Required Args: None
+        // Inputs: Installer, InstallerPath
+        // Outputs: None
+        void ShellExecuteInstall(Execution::Context& context);
+
+        // Runs an MSI installer directly via MSI APIs.
+        // Required Args: None
+        // Inputs: Installer, InstallerPath
+        // Outputs: None
+        void DirectMSIInstall(Execution::Context& context);
+
+        // Deploys the MSIX.
+        // Required Args: None
+        // Inputs: Manifest?, Installer || InstallerPath
+        // Outputs: None
+        void MsixInstall(Execution::Context& context);
+
+        // Runs the flow for installing a Portable package.
+        // Required Args: None
+        // Inputs: Installer, InstallerPath
+        // Outputs: None
+        void PortableInstall(Execution::Context& context);
+
+        // Runs the flow for installing a package from an archive.
+        // Required Args: None
+        // Inputs: Installer, InstallerPath, Manifest
+        // Outputs: None
+        void ArchiveInstall(Execution::Context& context);
+    }
 
     // Ensures that there is an applicable installer.
     // Required Args: None
@@ -60,36 +100,6 @@ namespace AppInstaller::CLI::Workflow
     private:
         Manifest::InstallerTypeEnum m_installerType;
     };
-
-    // Runs the installer via ShellExecute.
-    // Required Args: None
-    // Inputs: Installer, InstallerPath
-    // Outputs: None
-    void ShellExecuteInstall(Execution::Context& context);
-
-    // Runs an MSI installer directly via MSI APIs.
-    // Required Args: None
-    // Inputs: Installer, InstallerPath
-    // Outputs: None
-    void DirectMSIInstall(Execution::Context& context);
-
-    // Deploys the MSIX.
-    // Required Args: None
-    // Inputs: Manifest?, Installer || InstallerPath
-    // Outputs: None
-    void MsixInstall(Execution::Context& context);
-
-    // Runs the flow for installing a Portable package.
-    // Required Args: None
-    // Inputs: Installer, InstallerPath
-    // Outputs: None
-    void PortableInstall(Execution::Context& context);
-
-    // Runs the flow for installing a package from an archive.
-    // Required Args: None
-    // Inputs: Installer, InstallerPath, Manifest
-    // Outputs: None
-    void ArchiveInstall(Execution::Context& context);
 
     // Verifies parameters for install to ensure success.
     // Required Args: None

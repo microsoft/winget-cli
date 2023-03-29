@@ -1821,4 +1821,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Reboot required to fully enable the Windows Feature(s); proceeding due to --force</value>
     <comment>"Windows Feature(s)" is the name of the options Windows features setting.</comment>
   </data>
+  <data name="InstallWaitingOnAnother" xml:space="preserve">
+    <value>Waiting on another install or uninstall to complete...</value>
+  </data>
 </root>

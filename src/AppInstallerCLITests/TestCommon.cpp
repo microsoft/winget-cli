@@ -162,6 +162,10 @@ namespace TestCommon
         }
     }
 
+    void TestProgress::SetProgressMessage(std::string_view)
+    {
+    }
+
     void TestProgress::BeginProgress()
     {
     }

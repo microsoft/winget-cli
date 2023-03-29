@@ -55,4 +55,21 @@ namespace AppInstaller::Synchronization
 
         std::vector<wil::unique_mutex> m_mutexesHeld;
     };
+
+    // This lock is used to prevent multiple winget related processes from attempting to install (or uninstall) at the same time.
+    struct CrossProcessInstallLock
+    {
+        CrossProcessInstallLock();
+
+        // Acquires the lock; cancellation is enabled via the progress object.
+        // Returns true when the lock is acquired and false if the wait is cancelled.
+        bool Acquire(IProgressCallback& progress);
+
+        // Optionally release the lock before destroying the object.
+        void Release();
+
+    private:
+        wil::unique_mutex m_mutex;
+        wil::mutex_release_scope_exit m_lock;
+    };
 }

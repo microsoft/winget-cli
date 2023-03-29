@@ -4,6 +4,7 @@
 #include <wil/resource.h>
 #include <atomic>
 #include <functional>
+#include <string_view>
 
 namespace AppInstaller
 {
@@ -35,6 +36,9 @@ namespace AppInstaller
         // If maximum is 0, the maximum is unknown.
         virtual void OnProgress(uint64_t current, uint64_t maximum, ProgressType type) = 0;
 
+        // Sets a message for the current progress state.
+        virtual void SetProgressMessage(std::string_view message) = 0;
+
         // Called as progress begins.
         virtual void BeginProgress() = 0;
 
@@ -65,6 +69,8 @@ namespace AppInstaller
 
         void OnProgress(uint64_t current, uint64_t maximum, ProgressType type) override;
 
+        void SetProgressMessage(std::string_view message) override;
+
         void EndProgress(bool hideProgressWhenDone) override;
 
         bool IsCancelled() override;
@@ -89,6 +95,8 @@ namespace AppInstaller
         void BeginProgress() override;
 
         void OnProgress(uint64_t current, uint64_t maximum, ProgressType type) override;
+
+        void SetProgressMessage(std::string_view message) override;
 
         void EndProgress(bool hideProgressWhenDone) override;
 

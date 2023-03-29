@@ -216,6 +216,19 @@ namespace AppInstaller::CLI::Execution
         }
     }
 
+    void Reporter::SetProgressMessage(std::string_view message)
+    {
+        if (m_spinner)
+        {
+            m_spinner->SetMessage(message);
+        }
+
+        if (m_progressBar)
+        {
+            m_progressBar->SetMessage(message);
+        }
+    }
+
     void Reporter::BeginProgress()
     {
         GetBasicOutputStream() << VirtualTerminal::Cursor::Visibility::DisableShow;
@@ -229,6 +242,7 @@ namespace AppInstaller::CLI::Execution
         {
             m_progressBar->EndProgress(hideProgressWhenDone);
         }
+        SetProgressMessage({});
         GetBasicOutputStream() << VirtualTerminal::Cursor::Visibility::EnableShow;
     };
 
