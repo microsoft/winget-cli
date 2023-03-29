@@ -1171,10 +1171,11 @@ TEST_CASE("InstallFlow_InstallAcquiresLock", "[InstallFlow][workflow]")
     canLeaveShellExecute.create();
     AppInstaller::ProgressCallback progress;
 
-    context.Override({ ShellExecuteInstallImpl, [&](TestContext&)
+    context.Override({ ShellExecuteInstallImpl, [&](TestContext& context)
         {
             enteredShellExecute.SetEvent();
             canLeaveShellExecute.wait(500);
+            ShellExecuteInstallImpl(context);
         }});
 
     {
@@ -1182,15 +1183,14 @@ TEST_CASE("InstallFlow_InstallAcquiresLock", "[InstallFlow][workflow]")
             InstallCommand install({});
             install.Execute(context);
             });
-        // In the event of bugs, we don't want to block the test waiting forever
-        otherThread.detach();
 
-        REQUIRE(enteredShellExecute.wait(500));
+        REQUIRE(enteredShellExecute.wait(5000));
 
         AppInstaller::Synchronization::CrossProcessInstallLock mainThreadLock;
         REQUIRE(!mainThreadLock.TryAcquireNoWait());
 
         canLeaveShellExecute.SetEvent();
+        otherThread.join();
     }
 
     INFO(installOutput.str());
