@@ -49,7 +49,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         winrt::Microsoft::Management::Deployment::PackageInstallMode m_packageInstallMode = winrt::Microsoft::Management::Deployment::PackageInstallMode::Default;
         std::wstring m_logOutputPath = L"";
         bool m_allowHashMismatch = false;
-        bool m_bypassStorePolicy = false;
+        bool m_bypassIsStoreClientBlockedPolicyCheck = false;
         std::wstring m_replacementInstallerArguments = L"";
         std::wstring m_additionalInstallerArguments = L"";
         std::wstring m_correlationData = L"";

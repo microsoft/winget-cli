@@ -676,5 +676,30 @@ namespace TestCommon
         {
         } });
     }
+    void OverrideForMSStoreWithEnsureStorePolicySatisfied(TestContext& context, bool isUpdate)
+    {
+        if (isUpdate)
+        {
+            context.Override({ MSStoreUpdate, [](TestContext& context)
+            {
+                std::filesystem::path temp = std::filesystem::temp_directory_path();
+                temp /= "TestMSStoreUpdated.txt";
+                std::ofstream file(temp, std::ofstream::out);
+                file << context.Get<Execution::Data::Installer>()->ProductId;
+                file.close();
+            } });
+        }
+        else
+        {
+            context.Override({ MSStoreInstall, [](TestContext& context)
+            {
+                std::filesystem::path temp = std::filesystem::temp_directory_path();
+                temp /= "TestMSStoreInstalled.txt";
+                std::ofstream file(temp, std::ofstream::out);
+                file << context.Get<Execution::Data::Installer>()->ProductId;
+                file.close();
+            } });
+        }
+    }
 
 }

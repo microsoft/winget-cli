@@ -78,11 +78,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     }
     bool InstallOptions::BypassIsStoreClientBlockedPolicyCheck()
     {
-        return m_bypassStorePolicy;
+        return m_bypassIsStoreClientBlockedPolicyCheck;
     }
     void InstallOptions::BypassIsStoreClientBlockedPolicyCheck(bool value)
     {
-        m_bypassStorePolicy = value;
+        m_bypassIsStoreClientBlockedPolicyCheck = value;
     }
     hstring InstallOptions::ReplacementInstallerArguments()
     {
