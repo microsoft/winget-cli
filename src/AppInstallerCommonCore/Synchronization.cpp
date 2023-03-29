@@ -288,4 +288,22 @@ namespace AppInstaller::Synchronization
     {
         m_lock.reset();
     }
+
+    bool CrossProcessInstallLock::TryAcquireNoWait()
+    {
+        auto lock = m_mutex.acquire(nullptr, 0);
+
+        if (lock)
+        {
+            m_lock = std::move(lock);
+            return true;
+        }
+
+        return false;
+    }
+
+    CrossProcessInstallLock::operator bool() const
+    {
+        return static_cast<bool>(m_lock);
+    }
 }

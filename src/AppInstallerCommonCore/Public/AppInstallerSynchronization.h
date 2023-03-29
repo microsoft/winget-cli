@@ -68,6 +68,13 @@ namespace AppInstaller::Synchronization
         // Optionally release the lock before destroying the object.
         void Release();
 
+        // Attempts to acquire the mutex without a wait.
+        // Returns true if it was able, false if not.
+        bool TryAcquireNoWait();
+
+        // Indicates whether the lock is held.
+        operator bool() const;
+
     private:
         wil::unique_mutex m_mutex;
         wil::mutex_release_scope_exit m_lock;
