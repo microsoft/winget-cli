@@ -44,7 +44,7 @@ namespace AppInstaller::Repository
         // Set custom header. Returns false if custom header is not supported.
         virtual bool SetCustomHeader(std::optional<std::string>) { return false; }
 
-        // Set custom header. Returns false if custom header is not supported.
+        // Set caller.
         virtual void SetCaller(std::string) {}
 
         // Opens the source. This function should throw upon open failure rather than returning an empty pointer.
