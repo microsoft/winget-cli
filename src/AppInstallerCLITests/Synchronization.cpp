@@ -23,7 +23,6 @@ TEST_CASE("CPRWL_MultipleReaders", "[CrossProcessReaderWriteLock]")
     // In the event of bugs, we don't want to block the test waiting forever
     otherThread.detach();
 
-    // Wait up to a second for the other thread to do one thing...
     REQUIRE(signal.wait(500));
 }
 
@@ -158,9 +157,11 @@ TEST_CASE("CPIL_CancelEndsWait", "[CrossProcessInstallLock]")
     CrossProcessInstallLock mainThreadLock;
     mainThreadLock.Acquire(progress);
 
-    std::thread otherThread([&signal, &progress]() {
+    std::optional<bool> otherThreadAcquireResult = std::nullopt;
+
+    std::thread otherThread([&]() {
         CrossProcessInstallLock otherThreadLock;
-        otherThreadLock.Acquire(progress);
+        otherThreadAcquireResult = otherThreadLock.Acquire(progress);
         signal.SetEvent();
         });
     // In the event of bugs, we don't want to block the test waiting forever
@@ -172,4 +173,7 @@ TEST_CASE("CPIL_CancelEndsWait", "[CrossProcessInstallLock]")
 
     // Upon release of the writer, the other thread should signal
     REQUIRE(signal.wait(500));
+
+    REQUIRE(otherThreadAcquireResult.has_value());
+    REQUIRE(!otherThreadAcquireResult.value());
 }

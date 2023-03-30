@@ -9,6 +9,19 @@ namespace AppInstaller::CLI::Execution
     using namespace Settings;
     using namespace VirtualTerminal;
 
+    size_t GetConsoleWidth()
+    {
+        CONSOLE_SCREEN_BUFFER_INFO consoleInfo{};
+        if (GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &consoleInfo))
+        {
+            return static_cast<size_t>(consoleInfo.dwSize.X);
+        }
+        else
+        {
+            return 120;
+        }
+    }
+
     BaseStream::BaseStream(std::ostream& out, bool enabled, bool VTEnabled) :
         m_out(out), m_enabled(enabled), m_VTEnabled(VTEnabled) {}
 

@@ -160,8 +160,7 @@ namespace AppInstaller::CLI::Execution
             }
             else
             {
-                // Best effort when no VT (arbitrary number of spaces that seems to work)
-                m_out << "\r                                                              \r";
+                m_out << '\r' << std::string(GetConsoleWidth(), ' ') << '\r';
             }
         }
 
