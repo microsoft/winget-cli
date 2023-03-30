@@ -553,7 +553,7 @@ TEST_CASE("MSStoreInstallFlowWithStoreDisabled", "[InstallFlow][workflow]")
     // Disable the store client app and verify
     std::wstring disableStoreSubKey = L"RemoveWindowsStore";
     wil::unique_hkey result;
-    RegOpenKeyExW(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Policies\\Microsoft\\WindowsStore", 0, KEY_ALL_ACCESS | KEY_WOW64_64KEY, &result);
+    RegCreateKeyExW(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Policies\\Microsoft\\WindowsStore", 0, nullptr, REG_OPTION_VOLATILE, KEY_ALL_ACCESS | KEY_WOW64_64KEY, nullptr, &result, nullptr);
     SetRegistryValue(result.get(), disableStoreSubKey, 1);
 
     AppInstaller::Registry::Key key{ result.get(), L"" };
@@ -597,7 +597,7 @@ TEST_CASE("MSStoreInstallFlowWithStoreDisabledBypassStoreClientBlockedByPolicy",
     // Disable the store client app and verify
     std::wstring disableStoreSubKey = L"RemoveWindowsStore";
     wil::unique_hkey result;
-    RegOpenKeyExW(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Policies\\Microsoft\\WindowsStore", 0, KEY_ALL_ACCESS | KEY_WOW64_64KEY, &result);
+    RegCreateKeyExW(HKEY_LOCAL_MACHINE, L"SOFTWARE\\Policies\\Microsoft\\WindowsStore", 0, nullptr, REG_OPTION_VOLATILE, KEY_ALL_ACCESS | KEY_WOW64_64KEY, nullptr, &result, nullptr);
     SetRegistryValue(result.get(), disableStoreSubKey, 1);
 
     AppInstaller::Registry::Key key{ result.get(), L"" };
