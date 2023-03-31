@@ -36,9 +36,7 @@ namespace Microsoft.WinGet.Client.Common
         {
             get
             {
-                WindowsIdentity identity = WindowsIdentity.GetCurrent();
-                WindowsPrincipal principal = new (identity);
-                return principal.IsInRole(WindowsBuiltInRole.SystemOperator);
+                return WindowsIdentity.GetCurrent().IsSystem;
             }
         }
 

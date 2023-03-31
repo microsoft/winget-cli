@@ -21,10 +21,6 @@ namespace Microsoft.WinGet.Client.Commands.Common
         public BaseCommand()
             : base()
         {
-            if (Utilities.ExecutingAsSystem)
-            {
-                throw new ExecuteAsSystemException();
-            }
         }
     }
 }

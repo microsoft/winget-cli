@@ -121,9 +121,6 @@
     <value>No source matches the given value: {0}</value>
     <comment>{Locked="{0}"} {0} - The name of the source that was not found.</comment>
   </data>
-  <data name="ExecuteAsSystemExceptionMessage" xml:space="preserve">
-    <value>This cmdlet is currently disabled for SYSTEM.</value>
-  </data>
   <data name="FindPackagesExceptionMessage" xml:space="preserve">
     <value>An error occurred while searching for packages: {0}</value>
     <comment>{Locked="{0}"} {0} - A string representation of the error status returned by the catalog.</comment>
