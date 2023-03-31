@@ -76,6 +76,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         m_allowHashMismatch = value;
     }
+    bool InstallOptions::BypassIsStoreClientBlockedPolicyCheck()
+    {
+        return m_bypassIsStoreClientBlockedPolicyCheck;
+    }
+    void InstallOptions::BypassIsStoreClientBlockedPolicyCheck(bool value)
+    {
+        m_bypassIsStoreClientBlockedPolicyCheck = value;
+    }
     hstring InstallOptions::ReplacementInstallerArguments()
     {
         return hstring(m_replacementInstallerArguments);

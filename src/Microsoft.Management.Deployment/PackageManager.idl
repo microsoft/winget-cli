@@ -817,6 +817,9 @@ namespace Microsoft.Management.Deployment
 
             /// Accept the package agreements required for installation.
             Boolean AcceptPackageAgreements;
+
+            /// Bypasses the Disabled Store Policy
+            Boolean BypassIsStoreClientBlockedPolicyCheck;
         }
     }
 

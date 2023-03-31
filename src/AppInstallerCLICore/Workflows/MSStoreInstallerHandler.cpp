@@ -248,8 +248,9 @@ namespace AppInstaller::CLI::Workflow
         constexpr std::wstring_view s_StoreClientPublisher = L"CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"sv;
 
         // Policy check
-        AppInstallManager installManager;
-        if (installManager.IsStoreBlockedByPolicyAsync(s_StoreClientName, s_StoreClientPublisher).get())
+        AppInstallManager installManager; 
+        
+        if (!WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::BypassIsStoreClientBlockedPolicyCheck) && installManager.IsStoreBlockedByPolicyAsync(s_StoreClientName, s_StoreClientPublisher).get())
         {
             context.Reporter.Error() << Resource::String::MSStoreStoreClientBlocked << std::endl;
             AICLI_LOG(CLI, Error, << "Store client is blocked by policy. MSStore execution failed.");

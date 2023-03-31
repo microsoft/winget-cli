@@ -337,6 +337,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             {
                 context->Args.AddArg(Execution::Args::Type::HashOverride);
             }
+
+            if (options.BypassIsStoreClientBlockedPolicyCheck())
+            {
+                context->SetFlags(Execution::ContextFlag::BypassIsStoreClientBlockedPolicyCheck);
+            }
+
             if (options.Force())
             {
                 context->Args.AddArg(Execution::Args::Type::Force);
