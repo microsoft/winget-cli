@@ -2,12 +2,14 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "UninstallFlow.h"
+#include "InstallFlow.h"
 #include "WorkflowBase.h"
 #include "DependenciesFlow.h"
 #include "ShellExecuteInstallerHandler.h"
 #include "AppInstallerMsixInfo.h"
 #include "PortableFlow.h"
 #include <AppInstallerDeployment.h>
+#include <AppInstallerSynchronization.h>
 
 using namespace AppInstaller::CLI::Execution;
 using namespace AppInstaller::Manifest;
@@ -205,7 +207,24 @@ namespace AppInstaller::CLI::Workflow
     void ExecuteUninstaller(Execution::Context& context)
     {
         const std::string installedTypeString = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata()[PackageVersionMetadata::InstalledType];
-        switch (ConvertToInstallerTypeEnum(installedTypeString))
+        InstallerTypeEnum installerType = ConvertToInstallerTypeEnum(installedTypeString);
+
+        Synchronization::CrossProcessInstallLock lock;
+        if (!ExemptFromSingleInstallLocking(installerType))
+        {
+            // Acquire install lock; if the operation is cancelled it will return false so we will also return.
+            if (!context.Reporter.ExecuteWithProgress([&](IProgressCallback& callback)
+                {
+                    callback.SetProgressMessage(Resource::String::InstallWaitingOnAnother());
+                    return lock.Acquire(callback);
+                }))
+            {
+                AICLI_LOG(CLI, Info, << "Abandoning attempt to acquire install lock due to cancellation");
+                return;
+            }
+        }
+
+        switch (installerType)
         {
         case InstallerTypeEnum::Exe:
         case InstallerTypeEnum::Burn:

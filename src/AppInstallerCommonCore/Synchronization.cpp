@@ -20,6 +20,9 @@ namespace AppInstaller::Synchronization
     // Arbitrary limit that should not ever cause a problem (theoretically 1 per process)
     constexpr size_t s_CrossProcessReaderWriteLock_MaxReaders = 8;
 
+    // The amount of time that we wait in between checking for cancellation
+    constexpr std::chrono::milliseconds s_CrossProcessInstallLock_WaitLoopTime = 250ms;
+
     namespace
     {
         wil::unique_mutex OpenControlMutex(const std::wstring& name)
@@ -258,5 +261,49 @@ namespace AppInstaller::Synchronization
         }
 
         return result;
+    }
+
+    CrossProcessInstallLock::CrossProcessInstallLock()
+    {
+        m_mutex.create(L"WinGetCrossProcessInstallLock", 0, SYNCHRONIZE);
+    }
+
+    bool CrossProcessInstallLock::Acquire(IProgressCallback& progress)
+    {
+        while (!progress.IsCancelled())
+        {
+            auto lock = m_mutex.acquire(nullptr, static_cast<DWORD>(std::chrono::duration_cast<std::chrono::milliseconds>(s_CrossProcessInstallLock_WaitLoopTime).count()));
+
+            if (lock)
+            {
+                m_lock = std::move(lock);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    void CrossProcessInstallLock::Release()
+    {
+        m_lock.reset();
+    }
+
+    bool CrossProcessInstallLock::TryAcquireNoWait()
+    {
+        auto lock = m_mutex.acquire(nullptr, 0);
+
+        if (lock)
+        {
+            m_lock = std::move(lock);
+            return true;
+        }
+
+        return false;
+    }
+
+    CrossProcessInstallLock::operator bool() const
+    {
+        return static_cast<bool>(m_lock);
     }
 }

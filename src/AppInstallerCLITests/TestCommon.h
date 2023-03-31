@@ -100,7 +100,9 @@ namespace TestCommon
         void BeginProgress() override;
         
         void OnProgress(uint64_t current, uint64_t maximum, AppInstaller::ProgressType type) override;
-        
+
+        void SetProgressMessage(std::string_view message) override;
+
         void EndProgress(bool) override;
 
         bool IsCancelled() override;

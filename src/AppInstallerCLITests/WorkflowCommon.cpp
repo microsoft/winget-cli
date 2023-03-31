@@ -565,7 +565,7 @@ namespace TestCommon
 
     void OverrideForPortableInstall(TestContext& context)
     {
-        context.Override({ PortableInstall, [](TestContext&)
+        context.Override({ Workflow::details::PortableInstall, [](TestContext&)
         {
             std::filesystem::path temp = std::filesystem::temp_directory_path();
             temp /= "TestPortableInstalled.txt";
@@ -628,7 +628,7 @@ namespace TestCommon
 
     void OverrideForMSIX(TestContext& context)
     {
-        context.Override({ MsixInstall, [](TestContext& context)
+        context.Override({ Workflow::details::MsixInstall, [](TestContext& context)
         {
             std::filesystem::path temp = std::filesystem::temp_directory_path();
             temp /= "TestMsixInstalled.txt";

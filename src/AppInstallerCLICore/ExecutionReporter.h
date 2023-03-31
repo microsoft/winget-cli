@@ -113,6 +113,7 @@ namespace AppInstaller::CLI::Execution
         // IProgressSink
         void BeginProgress() override;
         void OnProgress(uint64_t current, uint64_t maximum, ProgressType type) override;
+        void SetProgressMessage(std::string_view message) override;
         void EndProgress(bool hideProgressWhenDone) override;
 
         // Runs the given callable of type: auto(IProgressCallback&)

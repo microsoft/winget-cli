@@ -21,6 +21,7 @@
 #include <winget/Archive.h>
 #include <Argument.h>
 #include <Command.h>
+#include <AppInstallerSynchronization.h>
 
 using namespace winrt::Windows::ApplicationModel::Store::Preview::InstallControl;
 using namespace winrt::Windows::Foundation;
@@ -151,6 +152,135 @@ namespace AppInstaller::CLI::Workflow
         };
     }
 
+    namespace details
+    {
+        // Runs the installer via ShellExecute.
+        // Required Args: None
+        // Inputs: Installer, InstallerPath
+        // Outputs: None
+        void ShellExecuteInstall(Execution::Context& context)
+        {
+            context <<
+                GetInstallerArgs <<
+                ShellExecuteInstallImpl <<
+                ReportInstallerResult("ShellExecute"sv, APPINSTALLER_CLI_ERROR_SHELLEXEC_INSTALL_FAILED);
+        }
+
+        // Runs an MSI installer directly via MSI APIs.
+        // Required Args: None
+        // Inputs: Installer, InstallerPath
+        // Outputs: None
+        void DirectMSIInstall(Execution::Context& context)
+        {
+            context <<
+                GetInstallerArgs <<
+                DirectMSIInstallImpl <<
+                ReportInstallerResult("MsiInstallProduct"sv, APPINSTALLER_CLI_ERROR_MSI_INSTALL_FAILED);
+        }
+
+        // Deploys the MSIX.
+        // Required Args: None
+        // Inputs: Manifest?, Installer || InstallerPath
+        // Outputs: None
+        void MsixInstall(Execution::Context& context)
+        {
+            std::string uri;
+            if (context.Contains(Execution::Data::InstallerPath))
+            {
+                uri = context.Get<Execution::Data::InstallerPath>().u8string();
+            }
+            else
+            {
+                uri = context.Get<Execution::Data::Installer>()->Url;
+            }
+
+            bool isMachineScope = Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope)) == Manifest::ScopeEnum::Machine;
+
+            // TODO: There was a bug in deployment api if provision api was called in packaged context.
+            // Remove this check when the OS bug is fixed and back ported.
+            if (isMachineScope && Runtime::IsRunningInPackagedContext())
+            {
+                context.Reporter.Error() << Resource::String::InstallFlowReturnCodeSystemNotSupported << std::endl;
+                context.Add<Execution::Data::OperationReturnCode>(static_cast<DWORD>(APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED));
+                AICLI_LOG(CLI, Error, << "Device wide install for msix type is not supported in packaged context.");
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED);
+            }
+
+            context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
+
+            bool registrationDeferred = false;
+
+            try
+            {
+                registrationDeferred = context.Reporter.ExecuteWithProgress([&](IProgressCallback& callback)
+                    {
+                        if (isMachineScope)
+                        {
+                            return Deployment::AddPackageMachineScope(uri, callback);
+                        }
+                        else
+                        {
+                            return Deployment::AddPackageWithDeferredFallback(uri, WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerTrusted), callback);
+                        }
+                    });
+            }
+            catch (const wil::ResultException& re)
+            {
+                context.Add<Execution::Data::OperationReturnCode>(re.GetErrorCode());
+                context << ReportInstallerResult("MSIX"sv, re.GetErrorCode(), /* isHResult */ true);
+                return;
+            }
+
+            if (registrationDeferred)
+            {
+                context.Reporter.Warn() << Resource::String::InstallFlowRegistrationDeferred << std::endl;
+            }
+            else
+            {
+                context.Reporter.Info() << Resource::String::InstallFlowInstallSuccess << std::endl;
+            }
+        }
+
+        // Runs the flow for installing a Portable package.
+        // Required Args: None
+        // Inputs: Installer, InstallerPath
+        // Outputs: None
+        void PortableInstall(Execution::Context& context)
+        {
+            context <<
+                InitializePortableInstaller <<
+                VerifyPackageAndSourceMatch <<
+                PortableInstallImpl <<
+                ReportInstallerResult("Portable"sv, APPINSTALLER_CLI_ERROR_PORTABLE_INSTALL_FAILED, true);
+        }
+
+        // Runs the flow for installing a package from an archive.
+        // Required Args: None
+        // Inputs: Installer, InstallerPath, Manifest
+        // Outputs: None
+        void ArchiveInstall(Execution::Context& context)
+        {
+            context <<
+                ScanArchiveFromLocalManifest <<
+                ExtractFilesFromArchive <<
+                VerifyAndSetNestedInstaller <<
+                ExecuteInstallerForType(context.Get<Execution::Data::Installer>().value().NestedInstallerType);
+        }
+    }
+
+    bool ExemptFromSingleInstallLocking(InstallerTypeEnum type)
+    {
+        switch (type)
+        {
+            // MSStore installs are always MSIX based; MSIX installs are safe to run in parallel.
+        case InstallerTypeEnum::Msix:
+        case InstallerTypeEnum::MSStore:
+            return true;
+        default:
+            return false;
+        }
+    }
+
     void EnsureApplicableInstaller(Execution::Context& context)
     {
         const auto& installer = context.Get<Execution::Data::Installer>();
@@ -249,6 +379,21 @@ namespace AppInstaller::CLI::Workflow
         UpdateBehaviorEnum updateBehavior = context.Get<Execution::Data::Installer>().value().UpdateBehavior;
         bool doUninstallPrevious = isUpdate && (updateBehavior == UpdateBehaviorEnum::UninstallPrevious || context.Args.Contains(Execution::Args::Type::UninstallPrevious));
 
+        Synchronization::CrossProcessInstallLock lock;
+        if (!ExemptFromSingleInstallLocking(m_installerType))
+        {
+            // Acquire install lock; if the operation is cancelled it will return false so we will also return.
+            if (!context.Reporter.ExecuteWithProgress([&](IProgressCallback& callback)
+                {
+                    callback.SetProgressMessage(Resource::String::InstallWaitingOnAnother());
+                    return lock.Acquire(callback);
+                }))
+            {
+                AICLI_LOG(CLI, Info, << "Abandoning attempt to acquire install lock due to cancellation");
+                return;
+            }
+        }
+
         switch (m_installerType)
         {
         case InstallerTypeEnum::Exe:
@@ -266,15 +411,15 @@ namespace AppInstaller::CLI::Workflow
             }
             if (ShouldUseDirectMSIInstall(m_installerType, context.Args.Contains(Execution::Args::Type::Silent)))
             {
-                context << DirectMSIInstall;
+                context << details::DirectMSIInstall;
             }
             else
             {
-                context << ShellExecuteInstall;
+                context << details::ShellExecuteInstall;
             }
             break;
         case InstallerTypeEnum::Msix:
-            context << MsixInstall;
+            context << details::MsixInstall;
             break;
         case InstallerTypeEnum::MSStore:
             context <<
@@ -289,10 +434,10 @@ namespace AppInstaller::CLI::Workflow
                     ExecuteUninstaller;
                 context.ClearFlags(Execution::ContextFlag::InstallerExecutionUseUpdate);
             }
-            context << PortableInstall;
+            context << details::PortableInstall;
             break;
         case InstallerTypeEnum::Zip:
-            context << ArchiveInstall;
+            context << details::ArchiveInstall;
             break;
         default:
             THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
@@ -317,99 +462,6 @@ namespace AppInstaller::CLI::Workflow
     void ExecuteInstaller(Execution::Context& context)
     {
         context << Workflow::ExecuteInstallerForType(context.Get<Execution::Data::Installer>().value().BaseInstallerType);
-    }
-
-    void ArchiveInstall(Execution::Context& context)
-    {
-        context <<
-            ScanArchiveFromLocalManifest <<
-            ExtractFilesFromArchive <<
-            VerifyAndSetNestedInstaller <<
-            ExecuteInstallerForType(context.Get<Execution::Data::Installer>().value().NestedInstallerType);
-    }
-
-    void ShellExecuteInstall(Execution::Context& context)
-    {
-        context <<
-            GetInstallerArgs <<
-            ShellExecuteInstallImpl <<
-            ReportInstallerResult("ShellExecute"sv, APPINSTALLER_CLI_ERROR_SHELLEXEC_INSTALL_FAILED);
-    }
-
-    void DirectMSIInstall(Execution::Context& context)
-    {
-        context <<
-            GetInstallerArgs <<
-            DirectMSIInstallImpl <<
-            ReportInstallerResult("MsiInstallProduct"sv, APPINSTALLER_CLI_ERROR_MSI_INSTALL_FAILED);
-    }
-
-    void PortableInstall(Execution::Context& context)
-    {
-        context <<
-            InitializePortableInstaller <<
-            VerifyPackageAndSourceMatch <<
-            PortableInstallImpl <<
-            ReportInstallerResult("Portable"sv, APPINSTALLER_CLI_ERROR_PORTABLE_INSTALL_FAILED, true);
-    }
-
-    void MsixInstall(Execution::Context& context)
-    {
-        std::string uri;
-        if (context.Contains(Execution::Data::InstallerPath))
-        {
-            uri = context.Get<Execution::Data::InstallerPath>().u8string();
-        }
-        else
-        {
-            uri = context.Get<Execution::Data::Installer>()->Url;
-        }
-
-        bool isMachineScope = Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope)) == Manifest::ScopeEnum::Machine;
-
-        // TODO: There was a bug in deployment api if provision api was called in packaged context.
-        // Remove this check when the OS bug is fixed and back ported.
-        if (isMachineScope && Runtime::IsRunningInPackagedContext())
-        {
-            context.Reporter.Error() << Resource::String::InstallFlowReturnCodeSystemNotSupported << std::endl;
-            context.Add<Execution::Data::OperationReturnCode>(static_cast<DWORD>(APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED));
-            AICLI_LOG(CLI, Error, << "Device wide install for msix type is not supported in packaged context.");
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED);
-        }
-
-        context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
-
-        bool registrationDeferred = false;
-
-        try
-        {
-            registrationDeferred = context.Reporter.ExecuteWithProgress([&](IProgressCallback& callback)
-                {
-                    if (isMachineScope)
-                    {
-                        return Deployment::AddPackageMachineScope(uri, callback);
-                    }
-                    else
-                    {
-                        return Deployment::AddPackageWithDeferredFallback(uri, WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerTrusted), callback);
-                    }
-            });
-        }
-        catch (const wil::ResultException& re)
-        {
-            context.Add<Execution::Data::OperationReturnCode>(re.GetErrorCode());
-            context << ReportInstallerResult("MSIX"sv, re.GetErrorCode(), /* isHResult */ true);
-            return;
-        }
-
-        if (registrationDeferred)
-        {
-            context.Reporter.Warn() << Resource::String::InstallFlowRegistrationDeferred << std::endl;
-        }
-        else
-        {
-            context.Reporter.Info() << Resource::String::InstallFlowInstallSuccess << std::endl;
-        }
     }
 
     void ReportInstallerResult::operator()(Execution::Context& context) const

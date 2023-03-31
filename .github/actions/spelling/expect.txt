@@ -75,6 +75,7 @@ corecrt
 count'th
 countof
 countryregion
+CPIL
 cplusplus
 createmanifestmetadata
 cswinrt

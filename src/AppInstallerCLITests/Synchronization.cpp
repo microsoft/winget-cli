@@ -23,8 +23,7 @@ TEST_CASE("CPRWL_MultipleReaders", "[CrossProcessReaderWriteLock]")
     // In the event of bugs, we don't want to block the test waiting forever
     otherThread.detach();
 
-    // Wait up to a second for the other thread to do one thing...
-    REQUIRE(signal.wait(1000));
+    REQUIRE(signal.wait(500));
 }
 
 TEST_CASE("CPRWL_WriterBlocksReader", "[CrossProcessReaderWriteLock]")
@@ -44,11 +43,11 @@ TEST_CASE("CPRWL_WriterBlocksReader", "[CrossProcessReaderWriteLock]")
         // In the event of bugs, we don't want to block the test waiting forever
         otherThread.detach();
 
-        REQUIRE(!signal.wait(1000));
+        REQUIRE(!signal.wait(500));
     }
 
     // Upon release of the writer, the other thread should signal
-    REQUIRE(signal.wait(1000));
+    REQUIRE(signal.wait(500));
 }
 
 TEST_CASE("CPRWL_ReaderBlocksWriter", "[CrossProcessReaderWriteLock]")
@@ -68,11 +67,11 @@ TEST_CASE("CPRWL_ReaderBlocksWriter", "[CrossProcessReaderWriteLock]")
         // In the event of bugs, we don't want to block the test waiting forever
         otherThread.detach();
 
-        REQUIRE(!signal.wait(1000));
+        REQUIRE(!signal.wait(500));
     }
 
     // Upon release of the writer, the other thread should signal
-    REQUIRE(signal.wait(1000));
+    REQUIRE(signal.wait(500));
 }
 
 TEST_CASE("CPRWL_WriterBlocksWriter", "[CrossProcessReaderWriteLock]")
@@ -92,11 +91,11 @@ TEST_CASE("CPRWL_WriterBlocksWriter", "[CrossProcessReaderWriteLock]")
         // In the event of bugs, we don't want to block the test waiting forever
         otherThread.detach();
 
-        REQUIRE(!signal.wait(1000));
+        REQUIRE(!signal.wait(500));
     }
 
     // Upon release of the writer, the other thread should signal
-    REQUIRE(signal.wait(1000));
+    REQUIRE(signal.wait(500));
 }
 
 TEST_CASE("CPRWL_CancelEndsWait", "[CrossProcessReaderWriteLock]")
@@ -116,10 +115,65 @@ TEST_CASE("CPRWL_CancelEndsWait", "[CrossProcessReaderWriteLock]")
     // In the event of bugs, we don't want to block the test waiting forever
     otherThread.detach();
 
-    REQUIRE(!signal.wait(1000));
+    REQUIRE(!signal.wait(500));
 
     progress.Cancel();
 
     // Upon release of the writer, the other thread should signal
-    REQUIRE(signal.wait(1000));
+    REQUIRE(signal.wait(500));
+}
+
+TEST_CASE("CPIL_BlocksOthers", "[CrossProcessInstallLock]")
+{
+    wil::unique_event signal;
+    signal.create();
+    AppInstaller::ProgressCallback progress;
+
+    {
+        CrossProcessInstallLock mainThreadLock;
+        mainThreadLock.Acquire(progress);
+
+        std::thread otherThread([&signal, &progress]() {
+            CrossProcessInstallLock otherThreadLock;
+            otherThreadLock.Acquire(progress);
+            signal.SetEvent();
+            });
+        // In the event of bugs, we don't want to block the test waiting forever
+        otherThread.detach();
+
+        REQUIRE(!signal.wait(500));
+    }
+
+    // Upon release of the writer, the other thread should signal
+    REQUIRE(signal.wait(500));
+}
+
+TEST_CASE("CPIL_CancelEndsWait", "[CrossProcessInstallLock]")
+{
+    wil::unique_event signal;
+    signal.create();
+    AppInstaller::ProgressCallback progress;
+
+    CrossProcessInstallLock mainThreadLock;
+    mainThreadLock.Acquire(progress);
+
+    std::optional<bool> otherThreadAcquireResult = std::nullopt;
+
+    std::thread otherThread([&]() {
+        CrossProcessInstallLock otherThreadLock;
+        otherThreadAcquireResult = otherThreadLock.Acquire(progress);
+        signal.SetEvent();
+        });
+    // In the event of bugs, we don't want to block the test waiting forever
+    otherThread.detach();
+
+    REQUIRE(!signal.wait(500));
+
+    progress.Cancel();
+
+    // Upon release of the writer, the other thread should signal
+    REQUIRE(signal.wait(500));
+
+    REQUIRE(otherThreadAcquireResult.has_value());
+    REQUIRE(!otherThreadAcquireResult.value());
 }
