@@ -129,7 +129,8 @@ namespace TestCommon
 
     void OverrideForVerifyAndSetNestedInstaller(TestContext& context);
 
-    void OverrideForMSIX(TestContext& context); 
+    void OverrideForMSIX(TestContext& context);
 
     void OverrideForMSStore(TestContext& context, bool isUpdate);
+
 }

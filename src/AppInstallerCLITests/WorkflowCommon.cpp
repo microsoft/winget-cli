@@ -662,7 +662,7 @@ namespace TestCommon
         }
         else
         {
-            context.Override({ MSStoreInstall, [](TestContext& context) 
+            context.Override({ MSStoreInstall, [](TestContext& context)
             {
                 std::filesystem::path temp = std::filesystem::temp_directory_path();
                 temp /= "TestMSStoreInstalled.txt";
@@ -676,4 +676,5 @@ namespace TestCommon
         {
         } });
     }
+
 }
