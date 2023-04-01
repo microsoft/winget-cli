@@ -8,6 +8,8 @@ namespace Microsoft.WinGet.Client.Commands.Common
 {
     using System;
     using System.Collections;
+    using System.Collections.Generic;
+    using System.Globalization;
     using System.IO;
     using System.Management.Automation;
     using Microsoft.PowerShell.Commands;
@@ -96,28 +98,31 @@ namespace Microsoft.WinGet.Client.Commands.Common
                 return new Hashtable();
             }
 
-#if POWERSHELL_WINDOWS
-            throw new PSNotImplementedException();
-#else
-            // Powershell's documentation says that the object being return is either a PSObject
-            // or a Hashtable depending on the value of returnHashtable, but is not true. The return
-            // type is a PSObject and the BaseObject is either a OrderedHashtable or a PSCustomObject
-            // depending on returnHashtable.
+            // This is based of https://github.com/PowerShell/PowerShell/blob/master/src/Microsoft.PowerShell.Commands.Utility/commands/utility/WebCmdlet/JsonObject.cs.
+            // So we can convert JSON to Hashtable for Windows PowerShell and PowerShell Core.
             try
             {
-                var result = JsonObject.ConvertFromJson(content, returnHashtable: true, out ErrorRecord error) as PSObject;
-                if (error is not null)
-                {
-                    throw new UserSettingsReadException(error.Exception);
-                }
+                var obj = JsonConvert.DeserializeObject(
+                    content,
+                    new JsonSerializerSettings
+                    {
+                        // This TypeNameHandling setting is required to be secure.
+                        TypeNameHandling = TypeNameHandling.None,
+                        MetadataPropertyHandling = MetadataPropertyHandling.Ignore,
+                        MaxDepth = 1024,
+                    });
 
-                return result.BaseObject as Hashtable;
+                // It only makes sense that the deserialized object is a dictionary to start.
+                return obj switch
+                {
+                    JObject dictionary => PopulateHashTableFromJDictionary(dictionary),
+                    _ => throw new UserSettingsReadException()
+                };
             }
             catch (Exception e)
             {
                 throw new UserSettingsReadException(e);
             }
-#endif
         }
 
         private static string GetUserSettingsPath()
@@ -128,6 +133,77 @@ namespace Microsoft.WinGet.Client.Commands.Common
             // Read the user settings file property.
             var serialized = JObject.Parse(settingsResult.StdOut);
             return (string)serialized.GetValue("userSettingsFile");
+        }
+
+        private static Hashtable PopulateHashTableFromJDictionary(JObject entries)
+        {
+            Hashtable result = new (entries.Count);
+            foreach (var entry in entries)
+            {
+                switch (entry.Value)
+                {
+                    case JArray list:
+                        {
+                            // Array
+                            var listResult = PopulateHashTableFromJArray(list);
+                            result.Add(entry.Key, listResult);
+                            break;
+                        }
+
+                    case JObject dic:
+                        {
+                            // Dictionary
+                            var dicResult = PopulateHashTableFromJDictionary(dic);
+                            result.Add(entry.Key, dicResult);
+                            break;
+                        }
+
+                    case JValue value:
+                        {
+                            result.Add(entry.Key, value.Value);
+                            break;
+                        }
+                }
+            }
+
+            return result;
+        }
+
+        private static ICollection<object> PopulateHashTableFromJArray(JArray list)
+        {
+            var result = new object[list.Count];
+
+            for (var index = 0; index < list.Count; index++)
+            {
+                var element = list[index];
+
+                switch (element)
+                {
+                    case JArray array:
+                        {
+                            // Array
+                            var listResult = PopulateHashTableFromJArray(array);
+                            result[index] = listResult;
+                            break;
+                        }
+
+                    case JObject dic:
+                        {
+                            // Dictionary
+                            var dicResult = PopulateHashTableFromJDictionary(dic);
+                            result[index] = dicResult;
+                            break;
+                        }
+
+                    case JValue value:
+                        {
+                            result[index] = value.Value;
+                            break;
+                        }
+                }
+            }
+
+            return result;
         }
     }
 }

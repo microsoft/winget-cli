@@ -67,26 +67,24 @@
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(Platform)' == 'x86' ">
+  <PropertyGroup Condition=" '$(Platform)' == 'x86' AND '$(TargetFramework)' == '$(CoreFramework)'">
     <RuntimeIdentifier>win-x86</RuntimeIdentifier>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(Platform)' == 'arm' ">
+  <PropertyGroup Condition=" '$(Platform)' == 'arm' AND '$(TargetFramework)' == '$(CoreFramework)'">
     <RuntimeIdentifier>win-arm</RuntimeIdentifier>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(Platform)' == 'arm64' ">
+  <PropertyGroup Condition=" '$(Platform)' == 'arm64' AND '$(TargetFramework)' == '$(CoreFramework)'">
     <RuntimeIdentifier>win-arm64</RuntimeIdentifier>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == '$(CoreFramework)'">
     <PackageReference Include="Microsoft.Windows.CsWinRT" Version="1.6.5" />
-    <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.2.8" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == '$(DesktopFramework)'">
     <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.22000.196" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.PowerShell.5.1.ReferenceAssemblies" Version="1.0.0" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == '$(DesktopFramework)'">
