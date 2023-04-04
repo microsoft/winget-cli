@@ -194,6 +194,7 @@ LPBYTE
 LPCWSTR
 LPDWORD
 lpitemidlist
+LPW
 maclachlan
 LPSTR
 LPWCH

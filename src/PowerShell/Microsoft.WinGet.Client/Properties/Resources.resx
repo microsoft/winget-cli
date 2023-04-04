@@ -200,4 +200,8 @@
     <value>The installed winget version doesn't match the expectation. Installer version '{0}' Expected version '{1}'</value>
     <comment>{Locked="{0}","{1}"} {0} - The winget current installed winget version. {1} - The expected winget version.</comment>
   </data>
+  <data name="SingleThreadedApartmentNotSupportedMessage" xml:space="preserve">
+    <value>Single threaded apartment (STA) is not currently supported in this context; run PowerShell in Multi-threaded apartment mode (MTA).</value>
+    <comment>{Locked="STA","MTA"}</comment>
+  </data>
 </root>

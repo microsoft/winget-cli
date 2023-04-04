@@ -26,6 +26,18 @@ namespace Microsoft.WinGet.Client.Common
         /// <param name="expectedVersion">Expected version.</param>
         public static void AssertWinGet(PSCmdlet psCmdlet, string expectedVersion)
         {
+            // In-proc shouldn't have other dependencies and thus should be ok.
+            if (Utilities.UsesInProcWinget)
+            {
+                // Only check the OS version support for in-proc
+                if (!IsSupportedOSVersion())
+                {
+                    throw new WinGetIntegrityException(IntegrityCategory.OsNotSupported);
+                }
+
+                return;
+            }
+
             try
             {
                 // Start by calling winget without its WindowsApp PFN path.
@@ -114,10 +126,8 @@ namespace Microsoft.WinGet.Client.Common
 
             // Not under %LOCALAPPDATA%\\Microsoft\\WindowsApps\PFM\
 
-            // Windows version has to be equal or newer than 10.0.17763.0
-            var minWindowsVersion = new Version(10, 0, 17763, 0);
-            var osVersion = Environment.OSVersion.Version;
-            if (osVersion.CompareTo(minWindowsVersion) < 0)
+            // Check OS version
+            if (!IsSupportedOSVersion())
             {
                 return IntegrityCategory.OsNotSupported;
             }
@@ -142,6 +152,14 @@ namespace Microsoft.WinGet.Client.Common
 
             // If we get here, we know the package is in the machine but not registered for the user.
             return IntegrityCategory.AppInstallerNotRegistered;
+        }
+
+        private static bool IsSupportedOSVersion()
+        {
+            // Windows version has to be equal or newer than 10.0.17763.0
+            var minWindowsVersion = new Version(10, 0, 17763, 0);
+            var osVersion = Environment.OSVersion.Version;
+            return osVersion.CompareTo(minWindowsVersion) >= 0;
         }
     }
 }

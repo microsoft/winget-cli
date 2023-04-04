@@ -232,6 +232,15 @@ namespace Microsoft.WinGet.Client.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Single threaded apartment (STA) is not currently supported in this context; run PowerShell in Multi-threaded apartment mode (MTA)..
+        /// </summary>
+        internal static string SingleThreadedApartmentNotSupportedMessage {
+            get {
+                return ResourceManager.GetString("SingleThreadedApartmentNotSupportedMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to User settings file is invalid..
         /// </summary>
         internal static string UserSettingsReadException {

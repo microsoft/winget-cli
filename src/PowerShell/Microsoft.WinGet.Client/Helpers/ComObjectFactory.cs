@@ -64,10 +64,10 @@ namespace Microsoft.WinGet.Client.Factories
         /// </summary>
         static ComObjectFactory()
         {
-            if (Utilities.ExecutingAsSystem)
+            if (Utilities.UsesInProcWinget)
             {
                 PackageManagerSettings settings = new PackageManagerSettings();
-                settings.SetCallerIdentifier("PowerShellAsSystem");
+                settings.SetCallerIdentifier("PowerShellInProc");
             }
         }
 
@@ -129,27 +129,25 @@ namespace Microsoft.WinGet.Client.Factories
         private static T Create<T>(Type type, in Guid iid)
             where T : new()
         {
-            string executingAssemblyLocation = Assembly.GetExecutingAssembly().Location;
-            string executingAssemblyDirectory = Path.GetDirectoryName(executingAssemblyLocation);
-            SetDllDirectoryW(executingAssemblyDirectory);
-
-            try
+            if (Utilities.UsesInProcWinget)
             {
-                return new T();
-            }
-            finally
-            {
-                SetDllDirectoryW(null);
+                string executingAssemblyLocation = Assembly.GetExecutingAssembly().Location;
+                string executingAssemblyDirectory = Path.GetDirectoryName(executingAssemblyLocation);
+                SetDllDirectoryW(executingAssemblyDirectory);
+
+                try
+                {
+                    return new T();
+                }
+                finally
+                {
+                    SetDllDirectoryW(null);
+                }
             }
 
-            /*
             object instance = null;
 
-            if (Utilities.ExecutingAsSystem)
-            {
-                return new T();
-            }
-            else if (Utilities.ExecutingAsAdministrator)
+            if (Utilities.ExecutingAsAdministrator)
             {
                 int hr = WinGetServerManualActivation_CreateInstance(type.GUID, iid, 0, out instance);
 
@@ -170,14 +168,12 @@ namespace Microsoft.WinGet.Client.Factories
                 instance = Activator.CreateInstance(type);
             }
 
-
 #if NET
             IntPtr pointer = Marshal.GetIUnknownForObject(instance);
             return MarshalInterface<T>.FromAbi(pointer);
 #else
             return (T)instance;
 #endif
-            */
         }
 
         [DllImport("winrtact.dll", EntryPoint = "WinGetServerManualActivation_CreateInstance", ExactSpelling = true, PreserveSig = true)]

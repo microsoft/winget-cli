@@ -8,6 +8,7 @@ namespace Microsoft.WinGet.Client.Common
 {
     using System;
     using System.Security.Principal;
+    using System.Threading;
 
     /// <summary>
     /// This class contains various helper methods for this project.
@@ -37,6 +38,29 @@ namespace Microsoft.WinGet.Client.Common
             get
             {
                 return WindowsIdentity.GetCurrent().IsSystem;
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the current execution context will use in-proc winget.
+        /// </summary>
+        public static bool UsesInProcWinget
+        {
+            get
+            {
+                return ExecutingAsSystem;
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the current thread is executing as STA.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "Windows only API")]
+        public static bool ThreadIsSTA
+        {
+            get
+            {
+                return Thread.CurrentThread.GetApartmentState() == ApartmentState.STA;
             }
         }
 
