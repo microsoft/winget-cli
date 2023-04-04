@@ -11,8 +11,10 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
     using System.Collections.ObjectModel;
     using System.Linq;
     using System.Management.Automation;
+    using System.Text;
     using Microsoft.Management.Configuration.Processor.DscResourcesInfo;
     using Microsoft.Management.Configuration.Processor.Exceptions;
+    using Microsoft.Management.Configuration.Processor.Extensions;
     using Microsoft.Management.Configuration.Processor.Helpers;
     using Microsoft.PowerShell.Commands;
     using Windows.Foundation.Collections;
@@ -25,6 +27,9 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
     {
         private const string InDesiredState = "InDesiredState";
         private const string RebootRequired = "RebootRequired";
+
+        // Fake max version to avoid using v3 and allowing new v2 versions to be used.
+        private const string MaxVersion = "2.*";
 
         private static readonly IEnumerable<string> ExclusionResourcesParentPath = new string[]
         {
@@ -39,7 +44,8 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
         {
             this.ModuleSpecification = PowerShellHelpers.CreateModuleSpecification(
                 Modules.PSDesiredStateConfiguration,
-                minVersion: Modules.PSDesiredStateConfigurationMinVersion);
+                minVersion: Modules.PSDesiredStateConfigurationMinVersion,
+                maxVersion: MaxVersion);
         }
 
         /// <inheritdoc/>
@@ -95,8 +101,19 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
             var getResult = pwsh.AddCommand(this.InvokeDscResourceCmd)
                                 .AddParameters(PrepareInvokeParameters(name, settings, moduleSpecification))
                                 .AddParameter(Parameters.Method, DscMethods.Get)
-                                .Invoke()
+                                .InvokeAndStopOnError()
                                 .FirstOrDefault();
+
+            if (pwsh.HadErrors)
+            {
+                var psStreamBuilder = new StringBuilder();
+                foreach (var line in pwsh.Streams.Error)
+                {
+                    psStreamBuilder.AppendLine(line.ToString());
+                }
+
+                throw new InvokeDscResourceGetException(name, moduleSpecification, psStreamBuilder.ToString());
+            }
 
             if (getResult is null)
             {
@@ -132,8 +149,19 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
             dynamic? testResult = pwsh.AddCommand(this.InvokeDscResourceCmd)
                                       .AddParameters(PrepareInvokeParameters(name, settings, moduleSpecification))
                                       .AddParameter(Parameters.Method, DscMethods.Test)
-                                      .Invoke()
+                                      .InvokeAndStopOnError()
                                       .FirstOrDefault();
+
+            if (pwsh.HadErrors)
+            {
+                var psStreamBuilder = new StringBuilder();
+                foreach (var line in pwsh.Streams.Error)
+                {
+                    psStreamBuilder.AppendLine(line.ToString());
+                }
+
+                throw new InvokeDscResourceTestException(name, moduleSpecification, psStreamBuilder.ToString());
+            }
 
             if (testResult is null ||
                 !TypeHelpers.PropertyWithTypeExists<bool>(testResult, InDesiredState))
@@ -156,8 +184,19 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
             dynamic? setResult = pwsh.AddCommand(this.InvokeDscResourceCmd)
                                      .AddParameters(PrepareInvokeParameters(name, settings, moduleSpecification))
                                      .AddParameter(Parameters.Method, DscMethods.Set)
-                                     .Invoke()
+                                     .InvokeAndStopOnError()
                                      .FirstOrDefault();
+
+            if (pwsh.HadErrors)
+            {
+                var psStreamBuilder = new StringBuilder();
+                foreach (var line in pwsh.Streams.Error)
+                {
+                    psStreamBuilder.AppendLine(line.ToString());
+                }
+
+                throw new InvokeDscResourceSetException(name, moduleSpecification, psStreamBuilder.ToString());
+            }
 
             if (setResult is null ||
                 !TypeHelpers.PropertyWithTypeExists<bool>(setResult, RebootRequired))
@@ -173,11 +212,7 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
             ValueSet settings,
             ModuleSpecification? moduleSpecification)
         {
-            var properties = new Hashtable();
-            foreach (var setting in settings)
-            {
-                properties.Add(setting.Key, setting.Value);
-            }
+            Hashtable properties = settings.ToHashtable();
 
             var parameters = new Dictionary<string, object>()
             {

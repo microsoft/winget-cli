@@ -15,6 +15,8 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
     /// </summary>
     internal static class PowerShellHelpers
     {
+        private const string MaxRange = "999999999";
+
         /// <summary>
         /// Creates a module specification object.
         /// </summary>
@@ -56,7 +58,14 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
 
             if (!string.IsNullOrEmpty(maxVersion))
             {
-                moduleInfo.Add(Parameters.MaximumVersion, maxVersion);
+                // For some reason, the constructor of ModuleSpecification that takes
+                // a hashtable calls ModuleCmdletBase.GetMaximumVersion. This method will
+                // validate the max version and replace * for 999999999 only if its the last
+                // char in the string. But then the returned value is not assigned to the
+                // ModuleSpecification's MaximumVersion property. If we want to set a
+                // MaximumVersion with a wildcard and pass this to Install-Module it will
+                // fail with "Cannot convert value 'x.*' to type 'System.Version'."
+                moduleInfo.Add(Parameters.MaximumVersion, maxVersion.Replace("*", MaxRange));
             }
 
             if (!string.IsNullOrEmpty(guid))

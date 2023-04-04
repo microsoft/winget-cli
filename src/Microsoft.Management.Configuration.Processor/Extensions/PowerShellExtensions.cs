@@ -28,11 +28,7 @@ namespace Microsoft.Management.Configuration.Processor.Extensions
                 ErrorActionPreference = ActionPreference.Stop,
             };
 
-            var result = pwsh.Invoke(null, settings);
-
-            pwsh.ValidateErrorStream();
-
-            return result;
+            return pwsh.Invoke(null, settings);
         }
 
         /// <summary>
@@ -48,29 +44,7 @@ namespace Microsoft.Management.Configuration.Processor.Extensions
                 ErrorActionPreference = ActionPreference.Stop,
             };
 
-            var result = pwsh.Invoke<T>(null, settings);
-
-            pwsh.ValidateErrorStream();
-
-            return result;
-        }
-
-        /// <summary>
-        /// Throws <see cref="WriteErrorException"/> if there are streams in the stream error.
-        /// </summary>
-        /// <param name="pwsh">PowerShell.</param>
-        public static void ValidateErrorStream(this PowerShell pwsh)
-        {
-            if (pwsh.HadErrors)
-            {
-                var psStreamBuilder = new StringBuilder();
-                foreach (var line in pwsh.Streams.Error)
-                {
-                    psStreamBuilder.AppendLine(line.ToString());
-                }
-
-                throw new WriteErrorException(psStreamBuilder.ToString());
-            }
+            return pwsh.Invoke<T>(null, settings);
         }
     }
 }
