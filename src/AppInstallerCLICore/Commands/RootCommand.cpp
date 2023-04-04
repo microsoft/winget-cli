@@ -126,6 +126,18 @@ namespace AppInstaller::CLI
             }
             adminSettingsTable.Complete();
         }
+
+        void OutputPortableDirectories(Execution::Context& context)
+        {
+            Execution::TableOutput<2> portableRoots{ context.Reporter, { Resource::String::PortableDirectoriesHeader, {} } };
+            portableRoots.OutputLine({ "Portable Links Directory (User)", Runtime::GetPathTo(Runtime::PathName::PortableLinksUserLocation, true).string() });
+            portableRoots.OutputLine({ "Portable Links Directory (Machine)", Runtime::GetPathTo(Runtime::PathName::PortableLinksMachineLocation, true).string() });
+            portableRoots.OutputLine({ "Portable Package Root (User)", Runtime::GetPathTo(Runtime::PathName::PortablePackageUserRoot, true).string() });
+            portableRoots.OutputLine({ "Portable Package Root (x86)", Runtime::GetPathTo(Runtime::PathName::PortablePackageMachineRootX86, true).string() });
+            portableRoots.OutputLine({ "Portable Package Root (x64)", Runtime::GetPathTo(Runtime::PathName::PortablePackageMachineRootX64, true).string() });
+            portableRoots.Complete();
+            context.Reporter.Info() << std::endl;
+        }
     }
 
     std::vector<std::unique_ptr<Command>> RootCommand::GetCommands() const
@@ -213,7 +225,6 @@ namespace AppInstaller::CLI
 
             info << std::endl << Resource::String::Logs(Utility::LocIndView{ Runtime::GetPathTo(Runtime::PathName::DefaultLogLocationForDisplay).u8string() }) << std::endl;
             info << std::endl << Resource::String::UserSettings(Utility::LocIndView{ UserSettings::SettingsFilePath(true).u8string() }) << std::endl;
-
             info << std::endl;
 
             Execution::TableOutput<2> links{ context.Reporter, { Resource::String::Links, {} } };
@@ -227,6 +238,7 @@ namespace AppInstaller::CLI
             links.Complete();
             info << std::endl;
 
+            OutputPortableDirectories(context);
             OutputGroupPolicies(context);
             OutputAdminSettings(context);
         }

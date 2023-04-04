@@ -485,7 +485,7 @@ namespace AppInstaller::Runtime
     }
 
 #ifndef WINGET_DISABLE_FOR_FUZZING
-    PathDetails GetPathDetailsForPackagedContext(PathName path)
+    PathDetails GetPathDetailsForPackagedContext(PathName path, bool anonymize)
     {
         PathDetails result;
 
@@ -511,7 +511,7 @@ namespace AppInstaller::Runtime
 
             if (path == PathName::DefaultLogLocationForDisplay)
             {
-                ReplaceCommonPathPrefix(result.Path, GetKnownFolderPath(FOLDERID_LocalAppData), "%LOCALAPPDATA%");
+                AnonymizeFilePath(result.Path);
             }
             break;
         case PathName::StandardSettings:
@@ -542,6 +542,10 @@ namespace AppInstaller::Runtime
         case PathName::PortableLinksUserLocation:
         case PathName::PortableLinksMachineLocation:
             result = GetPathDetailsCommon(path);
+            if (anonymize)
+            {
+                AnonymizeFilePath(result.Path);
+            }
             break;
         case PathName::SelfPackageRoot:
             result.Path = GetPackagePath();
@@ -629,14 +633,14 @@ namespace AppInstaller::Runtime
         return result;
     }
 
-    PathDetails GetPathDetailsFor(PathName path)
+    PathDetails GetPathDetailsFor(PathName path, bool anonymize)
     {
         PathDetails result;
 
 #ifndef WINGET_DISABLE_FOR_FUZZING
         if (IsRunningInPackagedContext())
         {
-            result = GetPathDetailsForPackagedContext(path);
+            result = GetPathDetailsForPackagedContext(path, anonymize);
         }
         else
 #endif
@@ -656,9 +660,9 @@ namespace AppInstaller::Runtime
         return result;
     }
 
-    std::filesystem::path GetPathTo(PathName path)
+    std::filesystem::path GetPathTo(PathName path, bool anonymize)
     {
-        PathDetails details = GetPathDetailsFor(path);
+        PathDetails details = GetPathDetailsFor(path, anonymize);
 
         if (details.Create)
         {

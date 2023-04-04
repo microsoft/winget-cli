@@ -112,10 +112,10 @@ namespace AppInstaller::Runtime
 
     // Gets the PathDetails used for the given path.
     // This is exposed primarily to allow for testing, GetPathTo should be preferred.
-    PathDetails GetPathDetailsFor(PathName path);
+    PathDetails GetPathDetailsFor(PathName path, bool anonymize = false);
 
     // Gets the path to the requested location.
-    std::filesystem::path GetPathTo(PathName path);
+    std::filesystem::path GetPathTo(PathName path, bool anonymize = false);
 
     // Gets a new temp file path.
     std::filesystem::path GetNewTempFilePath();

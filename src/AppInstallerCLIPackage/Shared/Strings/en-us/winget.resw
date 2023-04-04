@@ -1402,6 +1402,10 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="PortableAliasAdded" xml:space="preserve">
     <value>Command line alias added:</value>
   </data>
+  <data name="PortableDirectoriesHeader" xml:space="preserve">
+    <value>Portable Installation Directories</value>
+    <comment>Header for a table detailing the user's configured directories for portable installs</comment>
+  </data>
   <data name="PortableInstallFailed" xml:space="preserve">
     <value>Portable install failed; Cleaning up...</value>
   </data>
