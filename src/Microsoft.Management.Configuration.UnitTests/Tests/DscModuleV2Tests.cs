@@ -61,7 +61,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// <param name="module">Module.</param>
         /// <param name="expectedResources">Expected DSC resources.</param>
         [Theory]
-        [InlineData(TestModule.SimpleTestResourceModuleName, 4)]
+        [InlineData(TestModule.SimpleTestResourceModuleName, 5)]
         [InlineData("MyReallyFakeModule", 0)]
         public void GetDscResourcesInModule_Test(string module, int expectedResources)
         {
@@ -111,7 +111,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 PowerShellHelpers.CreateModuleSpecification(
                     TestModule.SimpleTestResourceModuleName,
                     version: TestModule.SimpleTestResourceVersion));
-                Assert.Equal(4, ogResources.Count);
+                Assert.Equal(5, ogResources.Count);
             }
 
             {
@@ -121,7 +121,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                     PowerShellHelpers.CreateModuleSpecification(
                         TestModule.SimpleTestResourceModuleName,
                         version: newVersion));
-                Assert.Equal(4, newVersionResources.Count);
+                Assert.Equal(5, newVersionResources.Count);
             }
 
             {
@@ -555,6 +555,34 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                         TestModule.SimpleTestResourceModuleName,
                         version: newVersion));
             }
+        }
+
+        /// <summary>
+        /// Calls Invoke-DscResource invalid arguments.
+        /// </summary>
+        /// <param name="value">Setting value.</param>
+        /// <param name="rebootRequired">Expected reboot required.</param>
+        [Fact]
+        public void InvokeSetResource_InvalidArguments()
+        {
+            var testEnvironment = this.fixture.PrepareTestProcessorEnvironment();
+
+            var dscModule = new DscModuleV2();
+
+            var settings = new ValueSet()
+            {
+                { "thisIsNotAPropertyInTheResource", "please dont add it" },
+            };
+
+            using PowerShell pwsh = PowerShell.Create(testEnvironment.Runspace);
+            var e = Assert.Throws<InvokeDscResourceSetException>(() => dscModule.InvokeSetResource(
+                pwsh,
+                settings,
+                TestModule.SimpleTestResourceName,
+                PowerShellHelpers.CreateModuleSpecification(
+                    TestModule.SimpleTestResourceModuleName)));
+
+            Assert.Contains("The property 'thisIsNotAPropertyInTheResource' cannot be found on this object.", e.Message);
         }
     }
 }
