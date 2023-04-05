@@ -4,7 +4,6 @@
 #include "CompositeSource.h"
 #include "Microsoft/PinningIndex.h"
 #include <winget/ExperimentalFeature.h>
-#include <winget/NameNormalization.h>
 
 using namespace AppInstaller::Repository::Microsoft;
 using namespace AppInstaller::Settings;
@@ -822,13 +821,12 @@ namespace AppInstaller::Repository
                 }
 
                 void AddToFilters(
-                    std::vector<PackageMatchFilter>& filters,
-                    Utility::NormalizationField nameNormalizationField = Utility::NormalizationField::None) const
+                    std::vector<PackageMatchFilter>& filters) const
                 {
                     switch (Field)
                     {
                     case PackageMatchField::NormalizedNameAndPublisher:
-                        filters.emplace_back(PackageMatchFilter(Field, MatchType::Exact, String1.get(), String2.get(), nameNormalizationField));
+                        filters.emplace_back(PackageMatchFilter(Field, MatchType::Exact, String1.get(), String2.get()));
                         break;
 
                     default:
@@ -845,15 +843,7 @@ namespace AppInstaller::Repository
             // Data relevant to correlation for a package.
             struct PackageData
             {
-                // ProductCode, PackageFamilyName, etc
                 std::set<SystemReferenceString> SystemReferenceStrings;
-                // Normalized Publisher and Names, with NormalizationField info for creating filtered search request.
-                std::map<SystemReferenceString, Utility::NormalizationField> NameAndPublishers;
-
-                bool Empty()
-                {
-                    return SystemReferenceStrings.empty() && NameAndPublishers.empty();
-                }
 
                 void AddIfNotPresent(SystemReferenceString&& srs)
                 {
@@ -863,52 +853,19 @@ namespace AppInstaller::Repository
                     }
                 }
 
-                void AddNameAndPublisherIfNotPresent(SystemReferenceString&& srs, Utility::NormalizationField normalizationField)
-                {
-                    if (NameAndPublishers.find(srs) == NameAndPublishers.end())
-                    {
-                        NameAndPublishers.emplace(std::move(srs), normalizationField);
-                    }
-                }
-
-                // If filter is std::nullopt, all values will be included.
-                SearchRequest CreateInclusionsSearchRequest(std::optional<Utility::NormalizationField> filter = std::nullopt) const
+                SearchRequest CreateInclusionsSearchRequest(SearchPurpose searchPurpose) const
                 {
                     SearchRequest result;
                     for (const auto& srs : SystemReferenceStrings)
                     {
                         srs.AddToFilters(result.Inclusions);
                     }
-                    for (const auto& nameAndPublisher : NameAndPublishers)
-                    {
-                        // We specifically use direct compare of NormalizationField here since most likely in the future,
-                        // The matching logic will try narrowing down list of strings step by step.
-                        // For example, try Name|Arch|Locale, then Name|Arch, then Name.
-                        if (filter.has_value() && nameAndPublisher.second != filter.value())
-                        {
-                            continue;
-                        }
-                        nameAndPublisher.first.AddToFilters(result.Inclusions, nameAndPublisher.second);
-                    }
+                    result.Purpose = searchPurpose;
                     return result;
-                }
-
-                bool PackageNamesContainNormalizationField(Utility::NormalizationField filter)
-                {
-                    for (const auto& nameAndPublisher : NameAndPublishers)
-                    {
-                        if (nameAndPublisher.second == filter)
-                        {
-                            return true;;
-                        }
-                    }
-
-                    return false;
                 }
             };
 
-            // For a given package version, prepares the system reference strings for correlation.
-            // Excluding normalized publisher and name.
+            // For a given package version, prepares the results for it.
             PackageData GetSystemReferenceStrings(IPackageVersion* version)
             {
                 PackageData result;
@@ -1099,17 +1056,14 @@ namespace AppInstaller::Repository
                 auto names = installedVersion->GetMultiProperty(PackageVersionMultiProperty::Name);
                 auto publishers = installedVersion->GetMultiProperty(PackageVersionMultiProperty::Publisher);
 
-                Utility::NameNormalizer normer(Utility::NormalizationVersion::Initial);
-
                 for (size_t i = 0; i < names.size(); ++i)
                 {
-                    auto normalizationField = normer.NormalizeName(names[i]).GetNormalizedFields();
                     for (size_t j = 0; j < publishers.size(); ++j)
                     {
-                        data.AddNameAndPublisherIfNotPresent(SystemReferenceString{
+                        data.AddIfNotPresent(SystemReferenceString{
                             PackageMatchField::NormalizedNameAndPublisher,
                             names[i],
-                            publishers[j] }, normalizationField);
+                            publishers[j] });
                     }
                 }
             }
@@ -1266,8 +1220,12 @@ namespace AppInstaller::Repository
 
                 auto installedPackageData = result.GetSystemReferenceStrings(installedVersion.get());
 
-                auto tryAddAvailablePackage = [&](const SearchRequest& systemReferenceSearch) -> bool
+                // Create a search request to run against all available sources
+                if (!installedPackageData.SystemReferenceStrings.empty())
                 {
+                    SearchRequest systemReferenceSearch = installedPackageData.CreateInclusionsSearchRequest(SearchPurpose::CorrelationToAvailable);
+                    AICLI_LOG(Repo, Info, << "Finding available package from installed package using system reference search: " << systemReferenceSearch.ToString());
+
                     Source trackedSource;
                     std::shared_ptr<IPackage> trackingPackage;
                     std::shared_ptr<IPackageVersion> trackingPackageVersion;
@@ -1284,8 +1242,8 @@ namespace AppInstaller::Repository
                         std::shared_ptr<IPackage> candidatePackage = GetMatchingPackage(trackingResult.Matches,
                             [&]() {
                                 AICLI_LOG(Repo, Info,
-                                    << "Found multiple matches for installed package [" << installedVersion->GetProperty(PackageVersionProperty::Id) <<
-                                    "] in tracking catalog for source [" << source.GetIdentifier() << "] when searching for [" << systemReferenceSearch.ToString() << "]");
+                                << "Found multiple matches for installed package [" << installedVersion->GetProperty(PackageVersionProperty::Id) <<
+                                "] in tracking catalog for source [" << source.GetIdentifier() << "] when searching for [" << systemReferenceSearch.ToString() << "]");
                             }, [&] {
                                 AICLI_LOG(Repo, Warning, << "  Appropriate tracking package could not be determined");
                             });
@@ -1346,8 +1304,8 @@ namespace AppInstaller::Repository
                         auto availablePackage = GetMatchingPackage(availableResult.Matches,
                             [&]() {
                                 AICLI_LOG(Repo, Info,
-                                    << "Found multiple matches for installed package [" << installedVersion->GetProperty(PackageVersionProperty::Id) <<
-                                    "] in source [" << source.GetIdentifier() << "] when searching for [" << systemReferenceSearch.ToString() << "]");
+                                << "Found multiple matches for installed package [" << installedVersion->GetProperty(PackageVersionProperty::Id) <<
+                                "] in source [" << source.GetIdentifier() << "] when searching for [" << systemReferenceSearch.ToString() << "]");
                             }, [&] {
                                 AICLI_LOG(Repo, Warning, << "  Appropriate available package could not be determined");
                             });
@@ -1355,32 +1313,6 @@ namespace AppInstaller::Repository
                         // For non pinning cases. We found some matching packages here, don't keep going.
                         addedAvailablePackage = true;
                         compositePackage->AddAvailablePackage(std::move(availablePackage));
-                    }
-
-                    return addedAvailablePackage;
-                };
-
-                // Create a search request to run against all available sources
-                if (!installedPackageData.Empty())
-                {
-                    // For installed package to available package mapping,
-                    // try the search with NormalizedName with Arch first, if not found, try with all values.
-                    // This can be extended in the future for more granular search requests.
-                    std::vector<SearchRequest> candidateSearches;
-                    if (installedPackageData.PackageNamesContainNormalizationField(Utility::NormalizationField::Architecture))
-                    {
-                        candidateSearches.emplace_back(installedPackageData.CreateInclusionsSearchRequest(Utility::NormalizationField::Architecture));
-                    }
-                    candidateSearches.emplace_back(installedPackageData.CreateInclusionsSearchRequest());
-
-                    for (const auto& candidateSearch : candidateSearches)
-                    {
-                        AICLI_LOG(Repo, Info, << "Finding available package from installed package using system reference search: " << candidateSearch.ToString());
-                        if (tryAddAvailablePackage(candidateSearch))
-                        {
-                            // If found available package, break. Otherwise try next search request.
-                            break;
-                        }
                     }
                 }
 
@@ -1416,20 +1348,9 @@ namespace AppInstaller::Repository
 
                 // If no package was found that was already in the results, do a correlation lookup with the installed
                 // source to create a new composite package entry if we find any packages there.
-                if (packageData && !packageData->Empty())
+                if (packageData && !packageData->SystemReferenceStrings.empty())
                 {
-                    // Create a search request to run against the installed source
-                    // For available package to installed package mapping, only one try is needed.
-                    // For example, if arp DisplayName contains arch, then the local packages's arp DisplayName should also include arch.
-                    SearchRequest systemReferenceSearch;
-                    if (packageData->PackageNamesContainNormalizationField(Utility::NormalizationField::Architecture))
-                    {
-                        systemReferenceSearch = packageData->CreateInclusionsSearchRequest(Utility::NormalizationField::Architecture);
-                    }
-                    else
-                    {
-                        systemReferenceSearch = packageData->CreateInclusionsSearchRequest();
-                    }
+                    SearchRequest systemReferenceSearch = packageData->CreateInclusionsSearchRequest(SearchPurpose::CorrelationToInstalled);
 
                     AICLI_LOG(Repo, Info, << "Finding installed package from tracking package using system reference search: " << systemReferenceSearch.ToString());
                     // Correlate against installed (allow exceptions out as we own the installed source)
@@ -1475,20 +1396,10 @@ namespace AppInstaller::Repository
                 // If no package was found that was already in the results, do a correlation lookup with the installed
                 // source to create a new composite package entry if we find any packages there.
                 bool foundInstalledMatch = false;
-                if (packageData && !packageData->Empty())
+                if (packageData && !packageData->SystemReferenceStrings.empty())
                 {
                     // Create a search request to run against the installed source
-                    // For available package to installed package mapping, only one try is needed.
-                    // For example, if arp DisplayName contains arch, then the local packages's arp DisplayName should also include arch.
-                    SearchRequest systemReferenceSearch;
-                    if (packageData->PackageNamesContainNormalizationField(Utility::NormalizationField::Architecture))
-                    {
-                        systemReferenceSearch = packageData->CreateInclusionsSearchRequest(Utility::NormalizationField::Architecture);
-                    }
-                    else
-                    {
-                        systemReferenceSearch = packageData->CreateInclusionsSearchRequest();
-                    }
+                    SearchRequest systemReferenceSearch = packageData->CreateInclusionsSearchRequest(SearchPurpose::CorrelationToInstalled);
 
                     AICLI_LOG(Repo, Info, << "Finding installed package from available package using system reference search: " << systemReferenceSearch.ToString());
                     // Correlate against installed (allow exceptions out as we own the installed source)

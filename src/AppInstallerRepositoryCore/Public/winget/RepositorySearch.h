@@ -6,7 +6,6 @@
 #include <AppInstallerVersions.h>
 #include <winget/LocIndependent.h>
 #include <winget/Manifest.h>
-#include <winget/NameNormalization.h>
 #include <winget/Pin.h>
 
 #include <map>
@@ -78,13 +77,12 @@ namespace AppInstaller::Repository
     struct PackageMatchFilter : public RequestMatch
     {
         PackageMatchField Field;
-        Utility::NormalizationField NameNormalizationField = Utility::NormalizationField::None;
 
         PackageMatchFilter(PackageMatchField f, MatchType t) : RequestMatch(t), Field(f) { EnsureRequiredValues(); }
         PackageMatchFilter(PackageMatchField f, MatchType t, Utility::NormalizedString& v) : RequestMatch(t, v), Field(f) { EnsureRequiredValues(); }
         PackageMatchFilter(PackageMatchField f, MatchType t, const Utility::NormalizedString& v) : RequestMatch(t, v), Field(f) { EnsureRequiredValues(); }
         PackageMatchFilter(PackageMatchField f, MatchType t, Utility::NormalizedString&& v) : RequestMatch(t, std::move(v)), Field(f) { EnsureRequiredValues(); }
-        PackageMatchFilter(PackageMatchField f, MatchType t, std::string_view v1, std::string_view v2, Utility::NormalizationField n = Utility::NormalizationField::None) : RequestMatch(t, v1, v2), Field(f), NameNormalizationField(n) { EnsureRequiredValues(); }
+        PackageMatchFilter(PackageMatchField f, MatchType t, std::string_view v1, std::string_view v2) : RequestMatch(t, v1, v2), Field(f) { EnsureRequiredValues(); }
 
     protected:
         void EnsureRequiredValues()
@@ -95,6 +93,17 @@ namespace AppInstaller::Repository
                 Additional = Utility::NormalizedString{};
             }
         }
+    };
+
+    // The search purpose of the search request.
+    enum class SearchPurpose
+    {
+        // Default search purpose.
+        Default,
+        // The result is used for correlation to an installed package.
+        CorrelationToInstalled,
+        // The result is used for correlation to an available package.
+        CorrelationToAvailable,
     };
 
     // Container for data used to filter the available manifests in a source.
@@ -114,6 +123,9 @@ namespace AppInstaller::Repository
 
         // Specific fields used to filter the data further.
         std::vector<PackageMatchFilter> Filters;
+
+        // The search purpose of the search request.
+        SearchPurpose Purpose = SearchPurpose::Default;
 
         // The maximum number of results to return.
         // The default of 0 will place no limit.
