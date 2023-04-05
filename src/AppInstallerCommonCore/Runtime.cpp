@@ -485,7 +485,7 @@ namespace AppInstaller::Runtime
     }
 
 #ifndef WINGET_DISABLE_FOR_FUZZING
-    PathDetails GetPathDetailsForPackagedContext(PathName path, bool forDisplay)
+    PathDetails GetPathDetailsForPackagedContext(PathName path, bool forDisplay = false)
     {
         PathDetails result;
 
@@ -504,12 +504,10 @@ namespace AppInstaller::Runtime
             result.Path.assign(appStorage.LocalFolder().Path().c_str());
             break;
         case PathName::DefaultLogLocation:
-        case PathName::DefaultLogLocationForDisplay:
             // To enable UIF collection through Feedback hub, we must put our logs here.
             result.Path.assign(appStorage.LocalFolder().Path().c_str());
             result.Path /= WINGET_DEFAULT_LOG_DIRECTORY;
-
-            if (path == PathName::DefaultLogLocationForDisplay)
+            if (forDisplay)
             {
                 ReplaceCommonPathPrefix(result.Path, GetKnownFolderPath(FOLDERID_LocalAppData), "%LOCALAPPDATA%");
             }
@@ -560,7 +558,7 @@ namespace AppInstaller::Runtime
     }
 #endif
 
-    PathDetails GetPathDetailsForUnpackagedContext(PathName path)
+    PathDetails GetPathDetailsForUnpackagedContext(PathName path, bool forDisplay = false)
     {
         PathDetails result;
 
@@ -569,23 +567,31 @@ namespace AppInstaller::Runtime
         case PathName::Temp:
         case PathName::DefaultLogLocation:
         {
-            result.Path = GetPathToUserTemp();
+            if (forDisplay)
+            {
+                result.Path.assign("%TEMP%");
+            }
+            else
+            {
+                result.Path = GetPathToUserTemp();
+            }
+
             result.Path /= s_DefaultTempDirectory;
             result.Path /= GetRuntimePathStateName();
+
             if (path == PathName::Temp)
             {
                 result.SetOwner(ACEPrincipal::CurrentUser);
                 result.ACL[ACEPrincipal::System] = ACEPermissions::All;
                 result.ACL[ACEPrincipal::Admins] = ACEPermissions::All;
             }
+
+            if (path == PathName::DefaultLogLocation && forDisplay)
+            {
+                result.Create = false;
+            }
         }
         break;
-        case PathName::DefaultLogLocationForDisplay:
-            result.Path.assign("%TEMP%");
-            result.Path /= s_DefaultTempDirectory;
-            result.Path /= GetRuntimePathStateName();
-            result.Create = false;
-            break;
         case PathName::LocalState:
             result.Path = GetPathToAppDataDir(s_AppDataDir_State);
             result.Path /= GetRuntimePathStateName();
