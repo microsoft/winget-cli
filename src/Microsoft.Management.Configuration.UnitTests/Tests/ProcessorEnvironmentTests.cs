@@ -6,9 +6,14 @@
 
 namespace Microsoft.Management.Configuration.UnitTests.Tests
 {
+    using System;
     using System.Collections.Generic;
+    using System.Linq;
+    using System.Management.Automation;
+    using Microsoft.Management.Configuration.Processor.ProcessorEnvironments;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
     using Moq;
+    using Windows.Security.Authentication.OnlineId;
     using Xunit;
     using Xunit.Abstractions;
     using static Microsoft.Management.Configuration.Processor.Constants.PowerShellConstants;
@@ -209,7 +214,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             psModulePathExpected = "CleanupPSModulePathPath2;CleanupPSModulePathPath3";
             psModulePath = processorEnv.GetVariable<string>(Variables.PSModulePath);
-            Assert.Equal(psModulePath, psModulePath);
+            Assert.Equal(psModulePathExpected, psModulePath);
         }
     }
 }

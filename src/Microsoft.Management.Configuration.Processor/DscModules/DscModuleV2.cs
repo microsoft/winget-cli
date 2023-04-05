@@ -11,8 +11,10 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
     using System.Collections.ObjectModel;
     using System.Linq;
     using System.Management.Automation;
+    using System.Text;
     using Microsoft.Management.Configuration.Processor.DscResourcesInfo;
     using Microsoft.Management.Configuration.Processor.Exceptions;
+    using Microsoft.Management.Configuration.Processor.Extensions;
     using Microsoft.Management.Configuration.Processor.Helpers;
     using Microsoft.PowerShell.Commands;
     using Windows.Foundation.Collections;
@@ -39,7 +41,8 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
         {
             this.ModuleSpecification = PowerShellHelpers.CreateModuleSpecification(
                 Modules.PSDesiredStateConfiguration,
-                minVersion: Modules.PSDesiredStateConfigurationMinVersion);
+                minVersion: Modules.PSDesiredStateConfigurationMinVersion,
+                maxVersion: Modules.PSDesiredStateConfigurationMaxVersion);
         }
 
         /// <inheritdoc/>
@@ -95,8 +98,14 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
             var getResult = pwsh.AddCommand(this.InvokeDscResourceCmd)
                                 .AddParameters(PrepareInvokeParameters(name, settings, moduleSpecification))
                                 .AddParameter(Parameters.Method, DscMethods.Get)
-                                .Invoke()
+                                .InvokeAndStopOnError()
                                 .FirstOrDefault();
+
+            string? errorMessage = pwsh.GetErrorMessage();
+            if (errorMessage is not null)
+            {
+                throw new InvokeDscResourceGetException(name, moduleSpecification, errorMessage);
+            }
 
             if (getResult is null)
             {
@@ -132,8 +141,14 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
             dynamic? testResult = pwsh.AddCommand(this.InvokeDscResourceCmd)
                                       .AddParameters(PrepareInvokeParameters(name, settings, moduleSpecification))
                                       .AddParameter(Parameters.Method, DscMethods.Test)
-                                      .Invoke()
+                                      .InvokeAndStopOnError()
                                       .FirstOrDefault();
+
+            string? errorMessage = pwsh.GetErrorMessage();
+            if (errorMessage is not null)
+            {
+                throw new InvokeDscResourceTestException(name, moduleSpecification, errorMessage);
+            }
 
             if (testResult is null ||
                 !TypeHelpers.PropertyWithTypeExists<bool>(testResult, InDesiredState))
@@ -156,8 +171,14 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
             dynamic? setResult = pwsh.AddCommand(this.InvokeDscResourceCmd)
                                      .AddParameters(PrepareInvokeParameters(name, settings, moduleSpecification))
                                      .AddParameter(Parameters.Method, DscMethods.Set)
-                                     .Invoke()
+                                     .InvokeAndStopOnError()
                                      .FirstOrDefault();
+
+            string? errorMessage = pwsh.GetErrorMessage();
+            if (errorMessage is not null)
+            {
+                throw new InvokeDscResourceSetException(name, moduleSpecification, errorMessage);
+            }
 
             if (setResult is null ||
                 !TypeHelpers.PropertyWithTypeExists<bool>(setResult, RebootRequired))
@@ -173,11 +194,7 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
             ValueSet settings,
             ModuleSpecification? moduleSpecification)
         {
-            var properties = new Hashtable();
-            foreach (var setting in settings)
-            {
-                properties.Add(setting.Key, setting.Value);
-            }
+            Hashtable properties = settings.ToHashtable();
 
             var parameters = new Dictionary<string, object>()
             {

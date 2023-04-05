@@ -24,6 +24,7 @@ DscResourcesToExport = @(
     'SimpleTestResource'
     'SimpleTestResourceThrows'
     'SimpleTestResourceError'
+    'SimpleTestResourceTypes'
 )
 HelpInfoURI = 'https://www.contoso.com/help'
 

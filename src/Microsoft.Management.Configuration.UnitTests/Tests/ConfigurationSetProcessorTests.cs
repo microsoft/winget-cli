@@ -19,6 +19,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     using Microsoft.Management.Configuration.UnitTests.Helpers;
     using Microsoft.PowerShell.Commands;
     using Moq;
+    using Windows.Foundation.Collections;
     using Windows.Security.Cryptography.Certificates;
     using Xunit;
     using Xunit.Abstractions;
@@ -640,6 +641,43 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             processorEnvMock.Verify(
                 m => m.GetDscResource(It.Is<ConfigurationUnitInternal>(u => u.Unit.UnitName == unit.UnitName)),
                 Times.Exactly(2));
+        }
+
+        /// <summary>
+        /// This tests uses SimpleTestResourceTypes Test to validate the resource got the correct types
+        /// from the processor.
+        /// </summary>
+        [Fact]
+        public void CreateUnitProcessor_TestTypes()
+        {
+            var processorEnv = this.fixture.PrepareTestProcessorEnvironment();
+
+            var setProcessor = new ConfigurationSetProcessor(processorEnv, new ConfigurationSet());
+
+            var unit = new ConfigurationUnit
+            {
+                UnitName = "SimpleTestResourceTypes",
+                Intent = ConfigurationUnitIntent.Assert,
+            };
+
+            unit.Directives.Add("module", "xSimpleTestResource");
+            unit.Directives.Add("version", "0.0.0.1");
+
+            var hashtableProperty = new ValueSet
+            {
+                { "secretStringKey", "secretCode" },
+                { "secretIntKey", "123456" },
+            };
+
+            unit.Settings.Add("boolProperty", true);
+            unit.Settings.Add("intProperty", 3);
+            unit.Settings.Add("doubleProperty", -9.876);
+            unit.Settings.Add("charProperty", 'f');
+            unit.Settings.Add("hashtableProperty", hashtableProperty);
+
+            var unitProcessor = setProcessor.CreateUnitProcessor(unit, null);
+
+            unitProcessor.TestSettings();
         }
 
         private ConfigurationUnit CreteConfigurationUnit()
