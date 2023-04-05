@@ -279,5 +279,48 @@ properties:
             Assert.Null(unit.ResultInformation);
             Assert.True(unit.ShouldApply);
         }
+
+        /// <summary>
+        /// Test type of scalar nodes.
+        /// </summary>
+        [Fact]
+        public void CheckUnitScalarTypes()
+        {
+            ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics();
+
+            OpenConfigurationSetResult result = processor.OpenConfigurationSet(this.CreateStream(@"
+properties:
+  configurationVersion: 0.1
+  resources:
+    - resource: Resource
+      id: Identifier
+      settings:
+        SettingInt: 1
+        SettingString: '1' 
+        SettingBool: false
+        SettingStringBool: 'false'
+"));
+            Assert.NotNull(result.Set);
+            Assert.Null(result.ResultCode);
+
+            var units = result.Set.ConfigurationUnits;
+            Assert.NotNull(units);
+            Assert.Equal(1, units.Count);
+
+            ConfigurationUnit unit = units[0];
+            Assert.NotNull(unit);
+
+            var settings = unit.Settings;
+            Assert.NotNull(settings);
+            Assert.Equal(4, settings.Count);
+            Assert.Contains("SettingInt", settings);
+            Assert.Equal((long)1, settings["SettingInt"]);
+            Assert.Contains("SettingString", settings);
+            Assert.Equal("1", settings["SettingString"]);
+            Assert.Contains("SettingBool", settings);
+            Assert.Equal(false, settings["SettingBool"]);
+            Assert.Contains("SettingStringBool", settings);
+            Assert.Equal("false", settings["SettingStringBool"]);
+        }
     }
 }

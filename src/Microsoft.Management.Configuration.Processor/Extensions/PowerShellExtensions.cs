@@ -9,9 +9,6 @@ namespace Microsoft.Management.Configuration.Processor.Extensions
     using System.Collections.ObjectModel;
     using System.Management.Automation;
     using System.Text;
-    using Microsoft.Management.Configuration.Processor.Exceptions;
-    using System.Xml.Linq;
-    using Microsoft.PowerShell.Commands;
 
     /// <summary>
     /// Extensions methods for <see cref="PowerShell"/> class.

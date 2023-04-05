@@ -198,28 +198,31 @@ namespace AppInstaller::YAML
     void Node::SetScalar(std::string value, bool isQuoted)
     {
         this->SetScalar(value);
+
+        // For untagged scalar nodes, yaml-cpp always assigns the generic string
+        // tag. Here we just try our best and assume that if the value is unquoted
+        // then is not necessarily a string.
+        // TODO: handle float and timestamps
         if (!isQuoted && this->GetTagType() == TagType::Str)
         {
+            // Integer
+            // 0 | -? [1-9] [0-9]*
             try
             {
-                // Either 'true' or 'false'
-                this->as<bool>();
-                m_tagType = TagType::Bool;
-                return;
-            }
-            catch (...)
-            {
-            }
-
-            try
-            {
-                // 0 | -? [1-9] [0-9]*
                 this->as<int64_t>();
                 m_tagType = TagType::Int;
                 return;
             }
             catch (...)
             {
+            }
+
+            // Either 'true' or 'false'
+            // Avoid THROW_HR to don't log.
+            if (Utility::CaseInsensitiveEquals(m_scalar, "true") ||
+                Utility::CaseInsensitiveEquals(m_scalar, "false"))
+            {
+                m_tagType = TagType::Bool;
             }
         }
     }
