@@ -157,6 +157,7 @@ IHelp
 iid
 IISOn
 inet
+inproc
 installinprogress
 installshield
 instream
