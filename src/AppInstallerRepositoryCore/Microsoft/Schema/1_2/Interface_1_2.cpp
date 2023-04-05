@@ -287,14 +287,17 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
             }
             candidateSearches.emplace_back(request);
 
+            SearchResult result;
             for (auto& candidateSearch : candidateSearches)
             {
-                auto result = V1_1::Interface::SearchInternal(connection, candidateSearch);
+                result = V1_1::Interface::SearchInternal(connection, candidateSearch);
                 if (!result.Matches.empty())
                 {
-                    return result;
+                    break;
                 }
             }
+
+            return result;
         }
         else
         {
