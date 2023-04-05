@@ -236,13 +236,6 @@ namespace AppInstaller::Filesystem
         return false;
     }
 
-    bool AnonymizeFilePath(std::filesystem::path& source)
-    {
-        bool replaced = ReplaceCommonPathPrefix(source, GetKnownFolderPath(FOLDERID_LocalAppData), "%LOCALAPPDATA%");
-        replaced = ReplaceCommonPathPrefix(source, GetKnownFolderPath(FOLDERID_RoamingAppData), "%APPDATA%") && replaced;
-        return replaced;
-    }
-
     std::filesystem::path GetKnownFolderPath(const KNOWNFOLDERID& id)
     {
         wil::unique_cotaskmem_string knownFolder = nullptr;

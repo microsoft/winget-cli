@@ -41,10 +41,6 @@ namespace AppInstaller::Filesystem
     // Returns true if replacement happened, false otherwise.
     bool ReplaceCommonPathPrefix(std::filesystem::path& source, const std::filesystem::path& prefix, std::string_view replacement);
 
-    // If the path begins with a common prefix for APPDATA or LOCALAPPDATA, replace it with the anonymized version
-    // Returns true if replacement happened, false otherwise.
-    bool AnonymizeFilePath(std::filesystem::path& source);
-
     // Gets the path of a known folder.
     std::filesystem::path GetKnownFolderPath(const KNOWNFOLDERID& id);
 
