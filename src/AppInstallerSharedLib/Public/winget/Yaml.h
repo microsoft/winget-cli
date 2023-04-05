@@ -72,11 +72,26 @@ namespace AppInstaller::YAML
             Mapping
         };
 
-        Node() : m_type(Type::Invalid) {}
+        // The node's tag
+        enum class TagType
+        {
+            Unknown,
+            Null,
+            Bool,
+            Str,
+            Int,
+            Float,
+            Timestamp,
+            Seq,
+            Map,
+        };
+
+        Node() : m_type(Type::Invalid), m_tagType(TagType::Unknown) {}
         Node(Type type, std::string tag, const Mark& mark);
 
         // Sets the scalar value of the node.
         void SetScalar(std::string value);
+        void SetScalar(std::string value, bool isQuoted);
 
         // Adds a child node to the sequence.
         template <typename... Args>
@@ -100,6 +115,7 @@ namespace AppInstaller::YAML
         bool IsSequence() const { return m_type == Type::Sequence; }
         bool IsMap() const { return m_type == Type::Mapping; }
         Type GetType() const { return m_type; }
+        TagType GetTagType() const { return m_tagType; }
 
         explicit operator bool() const { return IsDefined(); }
 
@@ -135,7 +151,7 @@ namespace AppInstaller::YAML
         const std::multimap<Node, Node>& Mapping() const;
 
     private:
-        Node(std::string_view key) : m_type(Type::Scalar), m_scalar(key) {}
+        Node(std::string_view key) : m_type(Type::Scalar), m_scalar(key), m_tagType(TagType::Str) {}
 
         // Require certain node types to; throwing if the requirement is not met.
         void Require(Type type) const;
@@ -149,6 +165,7 @@ namespace AppInstaller::YAML
 
         Type m_type;
         std::string m_tag;
+        TagType m_tagType;
         YAML::Mark m_mark;
         std::string m_scalar;
         std::optional<std::vector<Node>> m_sequence;

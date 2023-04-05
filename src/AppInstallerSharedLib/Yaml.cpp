@@ -16,6 +16,15 @@ namespace AppInstaller::YAML
     {
         Node s_globalInvalidNode;
 
+        static constexpr std::string_view s_nullTag = "tag:yaml.org,2002:null"sv;
+        static constexpr std::string_view s_boolTag = "tag:yaml.org,2002:bool"sv;
+        static constexpr std::string_view s_strTag = "tag:yaml.org,2002:str"sv;
+        static constexpr std::string_view s_intTag = "tag:yaml.org,2002:int"sv;
+        static constexpr std::string_view s_floatTag = "tag:yaml.org,2002:float"sv;
+        static constexpr std::string_view s_timestampTag = "tag:yaml.org,2002:timestamp"sv;
+        static constexpr std::string_view s_seqTag = "tag:yaml.org,2002:seq"sv;
+        static constexpr std::string_view s_mapTag = "tag:yaml.org,2002:map"sv;
+
         std::string_view GetExceptionTypeStringView(Exception::Type type)
         {
             switch (type)
@@ -49,6 +58,44 @@ namespace AppInstaller::YAML
         void OutputMark(std::ostringstream& out, const Mark& mark)
         {
             out << "[line " << mark.line << "; col " << mark.column << ']';
+        }
+
+        Node::TagType ConvertToTagType(const std::string& tag)
+        {
+            if (tag == s_strTag)
+            {
+                return Node::TagType::Str;
+            }
+            else if (tag == s_seqTag)
+            {
+                return Node::TagType::Seq;
+            }
+            else if (tag == s_mapTag)
+            {
+                return Node::TagType::Map;
+            }
+            else if (tag == s_boolTag)
+            {
+                return Node::TagType::Bool;
+            }
+            else if (tag == s_intTag)
+            {
+                return Node::TagType::Int;
+            }
+            else if (tag == s_floatTag)
+            {
+                return Node::TagType::Float;
+            }
+            else if (tag == s_timestampTag)
+            {
+                return Node::TagType::Timestamp;
+            }
+            else if (tag == s_nullTag)
+            {
+                return Node::TagType::Null;
+            }
+
+            return Node::TagType::Unknown;
         }
     }
 
@@ -138,12 +185,43 @@ namespace AppInstaller::YAML
         {
             m_mapping = decltype(m_mapping)::value_type{};
         }
+
+        m_tagType = ConvertToTagType(m_tag);
     }
 
     void Node::SetScalar(std::string value)
     {
         Require(Type::Scalar);
         m_scalar = std::move(value);
+    }
+
+    void Node::SetScalar(std::string value, bool isQuoted)
+    {
+        this->SetScalar(value);
+        if (!isQuoted && this->GetTagType() == TagType::Str)
+        {
+            try
+            {
+                // Either 'true' or 'false'
+                this->as<bool>();
+                m_tagType = TagType::Bool;
+                return;
+            }
+            catch (...)
+            {
+            }
+
+            try
+            {
+                // 0 | -? [1-9] [0-9]*
+                this->as<int64_t>();
+                m_tagType = TagType::Int;
+                return;
+            }
+            catch (...)
+            {
+            }
+        }
     }
 
     bool Node::operator<(const Node& other) const

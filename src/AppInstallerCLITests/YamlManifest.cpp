@@ -1162,3 +1162,32 @@ TEST_CASE("ManifestArpVersionRange", "[ManifestValidation]")
     REQUIRE(arpRangeMultiArp.GetMinVersion().ToString() == "12.0");
     REQUIRE(arpRangeMultiArp.GetMaxVersion().ToString() == "13.0");
 }
+
+TEST_CASE("YamlParserTypes", "[YAML]")
+{
+    auto document = AppInstaller::YAML::Load(TestDataFile("Node-Types.yaml"));
+
+    auto intUnquoted = document["IntegerUnquoted"];
+    CHECK(intUnquoted.GetTagType() == Node::TagType::Int);
+
+    auto intSingleQuoted = document["IntegerSingleQuoted"];
+    CHECK(intSingleQuoted.GetTagType() == Node::TagType::Str);
+
+    auto intDoubleQuoted = document["IntegerDoubleQuoted"];
+    CHECK(intDoubleQuoted.GetTagType() == Node::TagType::Str);
+
+    auto boolTrue = document["BooleanTrue"];
+    CHECK(boolTrue.GetTagType() == Node::TagType::Bool);
+
+    auto strTrue = document["StringTrue"];
+    CHECK(strTrue.GetTagType() == Node::TagType::Str);
+
+    auto boolFalse = document["BooleanFalse"];
+    CHECK(boolFalse.GetTagType() == Node::TagType::Bool);
+
+    auto strFalse = document["StringFalse"];
+    CHECK(strFalse.GetTagType() == Node::TagType::Str);
+
+    auto localTag = document["LocalTag"];
+    CHECK(localTag.GetTagType() == Node::TagType::Unknown);
+}
