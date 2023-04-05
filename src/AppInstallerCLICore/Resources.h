@@ -312,6 +312,11 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(PortableHashMismatchOverrideRequired);
         WINGET_DEFINE_RESOURCE_STRINGID(PortableAliasAdded);
         WINGET_DEFINE_RESOURCE_STRINGID(PortableDirectoriesHeader);
+        WINGET_DEFINE_RESOURCE_STRINGID(PortableLinksMachine);
+        WINGET_DEFINE_RESOURCE_STRINGID(PortableLinksUser);
+        WINGET_DEFINE_RESOURCE_STRINGID(PortableRootUser);
+        WINGET_DEFINE_RESOURCE_STRINGID(PortableRoot64);
+        WINGET_DEFINE_RESOURCE_STRINGID(PortableRoot86);
         WINGET_DEFINE_RESOURCE_STRINGID(PortableInstallFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(PortablePackageAlreadyExists);
         WINGET_DEFINE_RESOURCE_STRINGID(PortableRegistryCollisionOverridden);

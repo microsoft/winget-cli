@@ -1406,6 +1406,21 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Portable Installation Directories</value>
     <comment>Header for a table detailing the user's configured directories for portable installs</comment>
   </data>
+  <data name="PortableLinksMachine" xml:space="preserve">
+    <value>Portable Links Directory (Machine)</value>
+  </data>
+  <data name="PortableLinksUser" xml:space="preserve">
+    <value>Portable Links Directory (User)</value>
+  </data>
+  <data name="PortableRootUser" xml:space="preserve">
+    <value>Portable Package Root (User)</value>
+  </data>
+  <data name="PortableRoot64" xml:space="preserve">
+    <value>Portable Package Root (x86)</value>
+  </data>
+  <data name="PortableRoot86" xml:space="preserve">
+    <value>Portable Package Root (x64)</value>
+  </data>
   <data name="PortableInstallFailed" xml:space="preserve">
     <value>Portable install failed; Cleaning up...</value>
   </data>

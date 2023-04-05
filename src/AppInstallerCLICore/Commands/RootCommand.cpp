@@ -130,11 +130,11 @@ namespace AppInstaller::CLI
         void OutputPortableDirectories(Execution::Context& context)
         {
             Execution::TableOutput<2> portableRoots{ context.Reporter, { Resource::String::PortableDirectoriesHeader, {} } };
-            portableRoots.OutputLine({ "Portable Links Directory (User)", Runtime::GetPathTo(Runtime::PathName::PortableLinksUserLocation, true).string() });
-            portableRoots.OutputLine({ "Portable Links Directory (Machine)", Runtime::GetPathTo(Runtime::PathName::PortableLinksMachineLocation, true).string() });
-            portableRoots.OutputLine({ "Portable Package Root (User)", Runtime::GetPathTo(Runtime::PathName::PortablePackageUserRoot, true).string() });
-            portableRoots.OutputLine({ "Portable Package Root (x86)", Runtime::GetPathTo(Runtime::PathName::PortablePackageMachineRootX86, true).string() });
-            portableRoots.OutputLine({ "Portable Package Root (x64)", Runtime::GetPathTo(Runtime::PathName::PortablePackageMachineRootX64, true).string() });
+            portableRoots.OutputLine({ Resource::LocString{ Resource::String::PortableLinksUser }, Runtime::GetPathTo(Runtime::PathName::PortableLinksUserLocation, true).string() });
+            portableRoots.OutputLine({ Resource::LocString{ Resource::String::PortableLinksMachine }, Runtime::GetPathTo(Runtime::PathName::PortableLinksMachineLocation, true).string() });
+            portableRoots.OutputLine({ Resource::LocString{ Resource::String::PortableRootUser }, Runtime::GetPathTo(Runtime::PathName::PortablePackageUserRoot, true).string() });
+            portableRoots.OutputLine({ Resource::LocString{ Resource::String::PortableRoot64 }, Runtime::GetPathTo(Runtime::PathName::PortablePackageMachineRootX86, true).string() });
+            portableRoots.OutputLine({ Resource::LocString{ Resource::String::PortableRoot86 }, Runtime::GetPathTo(Runtime::PathName::PortablePackageMachineRootX64, true).string() });
             portableRoots.Complete();
             context.Reporter.Info() << std::endl;
         }
