@@ -485,7 +485,7 @@ namespace AppInstaller::Runtime
     }
 
 #ifndef WINGET_DISABLE_FOR_FUZZING
-    PathDetails GetPathDetailsForPackagedContext(PathName path, bool anonymize)
+    PathDetails GetPathDetailsForPackagedContext(PathName path, bool forDisplay)
     {
         PathDetails result;
 
@@ -511,7 +511,7 @@ namespace AppInstaller::Runtime
 
             if (path == PathName::DefaultLogLocationForDisplay)
             {
-                AnonymizeFilePath(result.Path);
+                ReplaceCommonPathPrefix(result.Path, GetKnownFolderPath(FOLDERID_LocalAppData), "%LOCALAPPDATA%");
             }
             break;
         case PathName::StandardSettings:
@@ -542,9 +542,10 @@ namespace AppInstaller::Runtime
         case PathName::PortableLinksUserLocation:
         case PathName::PortableLinksMachineLocation:
             result = GetPathDetailsCommon(path);
-            if (anonymize)
+            if (forDisplay)
             {
-                AnonymizeFilePath(result.Path);
+                ReplaceCommonPathPrefix(result.Path, GetKnownFolderPath(FOLDERID_LocalAppData), "%LOCALAPPDATA%");
+                ReplaceCommonPathPrefix(result.Path, GetKnownFolderPath(FOLDERID_RoamingAppData), "%APPDATA%");
             }
             break;
         case PathName::SelfPackageRoot:
@@ -633,14 +634,14 @@ namespace AppInstaller::Runtime
         return result;
     }
 
-    PathDetails GetPathDetailsFor(PathName path, bool anonymize)
+    PathDetails GetPathDetailsFor(PathName path, bool forDisplay)
     {
         PathDetails result;
 
 #ifndef WINGET_DISABLE_FOR_FUZZING
         if (IsRunningInPackagedContext())
         {
-            result = GetPathDetailsForPackagedContext(path, anonymize);
+            result = GetPathDetailsForPackagedContext(path, forDisplay);
         }
         else
 #endif
@@ -660,9 +661,9 @@ namespace AppInstaller::Runtime
         return result;
     }
 
-    std::filesystem::path GetPathTo(PathName path, bool anonymize)
+    std::filesystem::path GetPathTo(PathName path, bool forDisplay)
     {
-        PathDetails details = GetPathDetailsFor(path, anonymize);
+        PathDetails details = GetPathDetailsFor(path, forDisplay);
 
         if (details.Create)
         {
