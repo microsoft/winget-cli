@@ -28,9 +28,6 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
         private const string InDesiredState = "InDesiredState";
         private const string RebootRequired = "RebootRequired";
 
-        // Fake max version to avoid using v3 and allowing new v2 versions to be used.
-        private const string MaxVersion = "2.*";
-
         private static readonly IEnumerable<string> ExclusionResourcesParentPath = new string[]
         {
             @"C:\WINDOWS\system32\WindowsPowershell\v1.0\Modules\PsDesiredStateConfiguration\DscResources",
@@ -45,7 +42,7 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
             this.ModuleSpecification = PowerShellHelpers.CreateModuleSpecification(
                 Modules.PSDesiredStateConfiguration,
                 minVersion: Modules.PSDesiredStateConfigurationMinVersion,
-                maxVersion: MaxVersion);
+                maxVersion: Modules.PSDesiredStateConfigurationMaxVersion);
         }
 
         /// <inheritdoc/>
@@ -104,15 +101,10 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
                                 .InvokeAndStopOnError()
                                 .FirstOrDefault();
 
-            if (pwsh.HadErrors)
+            string? errorMessage = pwsh.GetErrorMessage();
+            if (errorMessage is not null)
             {
-                var psStreamBuilder = new StringBuilder();
-                foreach (var line in pwsh.Streams.Error)
-                {
-                    psStreamBuilder.AppendLine(line.ToString());
-                }
-
-                throw new InvokeDscResourceGetException(name, moduleSpecification, psStreamBuilder.ToString());
+                throw new InvokeDscResourceGetException(name, moduleSpecification, errorMessage);
             }
 
             if (getResult is null)
@@ -152,15 +144,10 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
                                       .InvokeAndStopOnError()
                                       .FirstOrDefault();
 
-            if (pwsh.HadErrors)
+            string? errorMessage = pwsh.GetErrorMessage();
+            if (errorMessage is not null)
             {
-                var psStreamBuilder = new StringBuilder();
-                foreach (var line in pwsh.Streams.Error)
-                {
-                    psStreamBuilder.AppendLine(line.ToString());
-                }
-
-                throw new InvokeDscResourceTestException(name, moduleSpecification, psStreamBuilder.ToString());
+                throw new InvokeDscResourceTestException(name, moduleSpecification, errorMessage);
             }
 
             if (testResult is null ||
@@ -187,15 +174,10 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
                                      .InvokeAndStopOnError()
                                      .FirstOrDefault();
 
-            if (pwsh.HadErrors)
+            string? errorMessage = pwsh.GetErrorMessage();
+            if (errorMessage is not null)
             {
-                var psStreamBuilder = new StringBuilder();
-                foreach (var line in pwsh.Streams.Error)
-                {
-                    psStreamBuilder.AppendLine(line.ToString());
-                }
-
-                throw new InvokeDscResourceSetException(name, moduleSpecification, psStreamBuilder.ToString());
+                throw new InvokeDscResourceSetException(name, moduleSpecification, errorMessage);
             }
 
             if (setResult is null ||

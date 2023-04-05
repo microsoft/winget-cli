@@ -9,6 +9,8 @@ namespace Microsoft.Management.Configuration.Processor.Extensions
     using System.Collections.ObjectModel;
     using System.Management.Automation;
     using System.Text;
+    using Microsoft.Management.Configuration.Processor.Exceptions;
+    using System.Xml.Linq;
     using Microsoft.PowerShell.Commands;
 
     /// <summary>
@@ -45,6 +47,27 @@ namespace Microsoft.Management.Configuration.Processor.Extensions
             };
 
             return pwsh.Invoke<T>(null, settings);
+        }
+
+        /// <summary>
+        /// Gets the error stream message if any.
+        /// </summary>
+        /// <param name="pwsh">PowerShell.</param>
+        /// <returns>Error message. Null if none.</returns>
+        public static string? GetErrorMessage(this PowerShell pwsh)
+        {
+            if (pwsh.HadErrors)
+            {
+                var psStreamBuilder = new StringBuilder();
+                foreach (var line in pwsh.Streams.Error)
+                {
+                    psStreamBuilder.AppendLine(line.ToString());
+                }
+
+                return psStreamBuilder.ToString();
+            }
+
+            return null;
         }
     }
 }

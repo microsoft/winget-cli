@@ -571,7 +571,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var settings = new ValueSet()
             {
-                { "thisIsNotAPropertyInTheResource", "please dont add it" },
+                { "Fake", "please dont add it" },
             };
 
             using PowerShell pwsh = PowerShell.Create(testEnvironment.Runspace);
@@ -582,7 +582,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 PowerShellHelpers.CreateModuleSpecification(
                     TestModule.SimpleTestResourceModuleName)));
 
-            Assert.Contains("The property 'thisIsNotAPropertyInTheResource' cannot be found on this object.", e.Message);
+            Assert.Contains("The property 'Fake' cannot be found on this object.", e.Message);
         }
     }
 }
