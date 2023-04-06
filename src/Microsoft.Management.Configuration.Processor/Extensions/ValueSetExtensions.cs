@@ -6,7 +6,9 @@
 
 namespace Microsoft.Management.Configuration.Processor.Extensions
 {
+    using System;
     using System.Collections;
+    using System.Collections.Generic;
     using Windows.Foundation.Collections;
 
     /// <summary>
@@ -14,6 +16,8 @@ namespace Microsoft.Management.Configuration.Processor.Extensions
     /// </summary>
     internal static class ValueSetExtensions
     {
+        private const string TreatAsArray = "treatAsArray";
+
         /// <summary>
         /// Extension method to transform a ValueSet to a Hashtable.
         /// </summary>
@@ -28,7 +32,14 @@ namespace Microsoft.Management.Configuration.Processor.Extensions
                 if (keyValuePair.Value is ValueSet)
                 {
                     ValueSet innerValueSet = (ValueSet)keyValuePair.Value;
-                    hashtable.Add(keyValuePair.Key, innerValueSet.ToHashtable());
+                    if (innerValueSet.ContainsKey(TreatAsArray))
+                    {
+                        hashtable.Add(keyValuePair.Key, ConvertValueSetToArray(innerValueSet));
+                    }
+                    else
+                    {
+                        hashtable.Add(keyValuePair.Key, innerValueSet.ToHashtable());
+                    }
                 }
                 else
                 {
@@ -37,6 +48,36 @@ namespace Microsoft.Management.Configuration.Processor.Extensions
             }
 
             return hashtable;
+        }
+
+        private static List<object> ConvertValueSetToArray(ValueSet valueSet)
+        {
+            if (!valueSet.ContainsKey(TreatAsArray))
+            {
+                throw new InvalidOperationException();
+            }
+
+            var result = new List<object>();
+
+            foreach (var keyValuePair in valueSet)
+            {
+                if (keyValuePair.Key == TreatAsArray)
+                {
+                    continue;
+                }
+
+                if (keyValuePair.Value is ValueSet)
+                {
+                    ValueSet innerValueSet = (ValueSet)keyValuePair.Value;
+                    result.Add(innerValueSet.ToHashtable());
+                }
+                else
+                {
+                    result.Add(keyValuePair.Value);
+                }
+            }
+
+            return result;
         }
     }
 }

@@ -96,36 +96,84 @@ namespace AppInstaller::CLI::Workflow
             return {};
         }
 
-        void OutputValueSet(OutputStream& out, const ValueSet& valueSet, size_t indent)
+        void OutputPropertyValue(OutputStream& out, const IPropertyValue property)
+        {
+            switch (property.Type())
+            {
+            case PropertyType::String:
+                out << ' ' << Utility::ConvertToUTF8(property.GetString()) << '\n';
+                break;
+            case PropertyType::Boolean:
+                out << ' ' << (property.GetBoolean() ? "true" : "false") << '\n';
+                break;
+            case PropertyType::Int64:
+                out << ' ' << property.GetInt64() << '\n';
+                break;
+            default:
+                out << " [Debug:PropertyType="_liv << property.Type() << "]\n"_liv;
+                break;
+            }
+        }
+
+        void OutputValueSet(OutputStream& out, const ValueSet& valueSet, size_t indent, bool isArray)
         {
             Utility::LocIndString indentString{ std::string(indent, ' ') };
+            bool processedFirstElement = false;
 
             for (const auto& value : valueSet)
             {
-                out << indentString << Utility::ConvertToUTF8(value.Key()) << ':';
+                if (isArray && !processedFirstElement)
+                {
+                    Utility::LocIndString firstArrayIndentString{ std::string(indent - 2, ' ') };
+                    out << firstArrayIndentString << "- " << Utility::ConvertToUTF8(value.Key()) << ':';
+                }
+                else
+                {
+                    out << indentString << Utility::ConvertToUTF8(value.Key()) << ':';
+                }
+
+                processedFirstElement = true;
 
                 auto object = value.Value();
 
                 IPropertyValue property = object.try_as<IPropertyValue>();
                 if (property)
                 {
-                    switch (property.Type())
-                    {
-                    case PropertyType::String:
-                        out << ' ' << Utility::ConvertToUTF8(property.GetString()) << '\n';
-                        break;
-                    default:
-                        // TODO: Sort out how we actually want to handle this given that we don't expect anything but strings
-                        out << " [Debug:PropertyType="_liv << property.Type() << "]\n"_liv;
-                        break;
-                    }
+                    OutputPropertyValue(out, property);
                 }
                 else
                 {
                     // If not an IPropertyValue, it must be a ValueSet
                     ValueSet subset = object.as<ValueSet>();
+
                     out << '\n';
-                    OutputValueSet(out, subset, indent + 2);
+                    if (subset.HasKey(L"treatAsArray"))
+                    {
+                        size_t arrayIndent = indent + 2;
+                        Utility::LocIndString arrayIndentString{ std::string(arrayIndent, ' ') };
+                        for (const auto& arrayValue : subset)
+                        {
+                            if (arrayValue.Key() != L"treatAsArray")
+                            {
+                                auto arrayObject = arrayValue.Value();
+                                IPropertyValue arrayProperty = arrayObject.try_as<IPropertyValue>();
+                                if (arrayProperty)
+                                {
+                                    out << arrayIndentString << "-";
+                                    OutputPropertyValue(out, arrayProperty);
+                                }
+                                else
+                                {
+                                    ValueSet arraySubset = arrayObject.as<ValueSet>();
+                                    OutputValueSet(out, arraySubset, arrayIndent + 2, true);
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        OutputValueSet(out, subset, indent + 2, false);
+                    }
                 }
             }
         }
@@ -262,7 +310,7 @@ namespace AppInstaller::CLI::Workflow
             if (settings.Size() > 0)
             {
                 out << "  "_liv << Resource::String::ConfigurationSettings << '\n';
-                OutputValueSet(out, settings, 4);
+                OutputValueSet(out, settings, 4, false);
             }
         }
 

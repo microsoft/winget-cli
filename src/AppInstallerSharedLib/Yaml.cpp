@@ -199,7 +199,7 @@ namespace AppInstaller::YAML
     {
         this->SetScalar(value);
 
-        // For untagged scalar nodes, yaml-cpp always assigns the generic string
+        // For untagged scalar nodes, libyaml always assigns the generic string
         // tag. Here we just try our best and assume that if the value is unquoted
         // then is not necessarily a string.
         // TODO: handle float and timestamps
