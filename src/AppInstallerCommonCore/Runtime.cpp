@@ -586,7 +586,7 @@ namespace AppInstaller::Runtime
                 result.ACL[ACEPrincipal::Admins] = ACEPermissions::All;
             }
 
-            if (path == PathName::DefaultLogLocation && forDisplay)
+            if (forDisplay)
             {
                 result.Create = false;
             }
