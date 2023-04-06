@@ -223,7 +223,7 @@ namespace AppInstaller::CLI
                 info << Resource::String::Package(Runtime::GetPackageVersion()) << std::endl;
             };
 
-            info << std::endl << Resource::String::Logs(Utility::LocIndView{ Runtime::GetPathTo(Runtime::PathName::DefaultLogLocationForDisplay).u8string() }) << std::endl;
+            info << std::endl << Resource::String::Logs(Utility::LocIndView{ Runtime::GetPathTo(Runtime::PathName::DefaultLogLocation, true).u8string() }) << std::endl;
             info << std::endl << Resource::String::UserSettings(Utility::LocIndView{ UserSettings::SettingsFilePath(true).u8string() }) << std::endl;
             info << std::endl;
 
