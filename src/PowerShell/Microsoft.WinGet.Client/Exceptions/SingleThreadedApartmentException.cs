@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="ExecuteAsSystemException.cs" company="Microsoft Corporation">
+// <copyright file="SingleThreadedApartmentException.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -7,19 +7,20 @@
 namespace Microsoft.WinGet.Client.Exceptions
 {
     using System;
+    using System.Management.Automation;
     using Microsoft.WinGet.Client.Properties;
 
     /// <summary>
-    /// Executing as system is disabled.
+    /// No package found.
     /// </summary>
     [Serializable]
-    public class ExecuteAsSystemException : Exception
+    public class SingleThreadedApartmentException : RuntimeException
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ExecuteAsSystemException"/> class.
+        /// Initializes a new instance of the <see cref="SingleThreadedApartmentException"/> class.
         /// </summary>
-        public ExecuteAsSystemException()
-            : base(Resources.ExecuteAsSystemExceptionMessage)
+        public SingleThreadedApartmentException()
+            : base(Resources.SingleThreadedApartmentNotSupportedMessage)
         {
         }
     }

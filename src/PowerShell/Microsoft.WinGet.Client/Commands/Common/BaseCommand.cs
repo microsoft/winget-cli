@@ -21,9 +21,10 @@ namespace Microsoft.WinGet.Client.Commands.Common
         public BaseCommand()
             : base()
         {
-            if (Utilities.ExecutingAsSystem)
+            // The inproc COM API may deadlock on an STA thread.
+            if (Utilities.UsesInProcWinget && Utilities.ThreadIsSTA)
             {
-                throw new ExecuteAsSystemException();
+                throw new SingleThreadedApartmentException();
             }
         }
     }

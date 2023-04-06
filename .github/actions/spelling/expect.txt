@@ -157,6 +157,7 @@ IHelp
 iid
 IISOn
 inet
+inproc
 installinprogress
 installshield
 instream
@@ -194,6 +195,7 @@ LPBYTE
 LPCWSTR
 LPDWORD
 lpitemidlist
+LPW
 maclachlan
 LPSTR
 LPWCH
