@@ -219,6 +219,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidJsonFile);
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidNameError);
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidPathToNestedInstaller);
+        WINGET_DEFINE_RESOURCE_STRINGID(KeyDirectoriesHeader);
         WINGET_DEFINE_RESOURCE_STRINGID(LicenseAgreement);
         WINGET_DEFINE_RESOURCE_STRINGID(Links);
         WINGET_DEFINE_RESOURCE_STRINGID(ListCommandLongDescription);
@@ -311,7 +312,6 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(PortableHashMismatchOverridden);
         WINGET_DEFINE_RESOURCE_STRINGID(PortableHashMismatchOverrideRequired);
         WINGET_DEFINE_RESOURCE_STRINGID(PortableAliasAdded);
-        WINGET_DEFINE_RESOURCE_STRINGID(PortableDirectoriesHeader);
         WINGET_DEFINE_RESOURCE_STRINGID(PortableInstallFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(PortableLinksMachine);
         WINGET_DEFINE_RESOURCE_STRINGID(PortableLinksUser);
