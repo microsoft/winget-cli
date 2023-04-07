@@ -571,6 +571,7 @@ namespace AppInstaller::Runtime
             if (forDisplay)
             {
                 result.Path.assign("%TEMP%");
+                result.Create = false;
             }
             else
             {
@@ -585,11 +586,6 @@ namespace AppInstaller::Runtime
                 result.SetOwner(ACEPrincipal::CurrentUser);
                 result.ACL[ACEPrincipal::System] = ACEPermissions::All;
                 result.ACL[ACEPrincipal::Admins] = ACEPermissions::All;
-            }
-
-            if (forDisplay)
-            {
-                result.Create = false;
             }
         }
         break;
