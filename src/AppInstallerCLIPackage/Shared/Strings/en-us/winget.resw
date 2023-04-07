@@ -319,6 +319,10 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Argument name was not recognized for the current command: '{0}'</value>
     <comment>{Locked="{0}"} Error message displayed when the user provides an unrecognized command line argument name for the selected command. {0} is a placeholder replaced by the user's argument name input (e.g. '--example').</comment>
   </data>
+  <data name="KeyDirectoriesHeader" xml:space="preserve">
+    <value>Winget Directories</value>
+    <comment>Header for a table detailing the directories Winget uses for key operations like logging and portable installs</comment>
+  </data>
   <data name="LocaleArgumentDescription" xml:space="preserve">
     <value>Locale to use (BCP47 format)</value>
     <comment>{Locked="BCP47"}</comment>
@@ -775,8 +779,8 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Both local manifest and search query arguments are provided</value>
   </data>
   <data name="Logs" xml:space="preserve">
-    <value>Logs: {0}</value>
-    <comment>{Locked="{0}"} Label displayed for diagnostic files containing information about the application use. {0} is a placeholder replaced by the logs directory path.</comment>
+    <value>Logs</value>
+    <comment>Label displayed for diagnostic files containing information about the application use.</comment>
   </data>
   <data name="InstallerBlockedByPolicy" xml:space="preserve">
     <value>The installer is blocked by policy</value>
@@ -1402,6 +1406,21 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="PortableAliasAdded" xml:space="preserve">
     <value>Command line alias added:</value>
   </data>
+  <data name="PortableLinksMachine" xml:space="preserve">
+    <value>Portable Links Directory (Machine)</value>
+  </data>
+  <data name="PortableLinksUser" xml:space="preserve">
+    <value>Portable Links Directory (User)</value>
+  </data>
+  <data name="PortableRootUser" xml:space="preserve">
+    <value>Portable Package Root (User)</value>
+  </data>
+  <data name="PortableRoot64" xml:space="preserve">
+    <value>Portable Package Root (x86)</value>
+  </data>
+  <data name="PortableRoot86" xml:space="preserve">
+    <value>Portable Package Root (x64)</value>
+  </data>
   <data name="PortableInstallFailed" xml:space="preserve">
     <value>Portable install failed; Cleaning up...</value>
   </data>
@@ -1580,8 +1599,8 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Export settings</value>
   </data>
   <data name="UserSettings" xml:space="preserve">
-    <value>User Settings: {0}</value>
-    <comment>{Locked="{0}"} Label displayed for the file containing the user settings. {0} is a placeholder replaced by the user settings file path.</comment>
+    <value>User Settings</value>
+    <comment>Label displayed for the file containing the user settings.</comment>
   </data>
   <data name="SettingsWarningUsingDefault" xml:space="preserve">
     <value>Settings file couldn't load. Using default values.</value>
