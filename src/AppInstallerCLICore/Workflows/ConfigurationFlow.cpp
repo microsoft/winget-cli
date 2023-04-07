@@ -117,7 +117,7 @@ namespace AppInstaller::CLI::Workflow
 
         void OutputValueSet(OutputStream& out, const ValueSet& valueSet, size_t indent);
 
-        void OuputValueSetAsArray(OutputStream& out, const ValueSet& valueSetArray, size_t indent)
+        void OutputValueSetAsArray(OutputStream& out, const ValueSet& valueSetArray, size_t indent)
         {
             Utility::LocIndString indentString{ std::string(indent, ' ') };
 
@@ -205,7 +205,7 @@ namespace AppInstaller::CLI::Workflow
                     out << '\n';
                     if (subset.HasKey(L"treatAsArray"))
                     {
-                        OuputValueSetAsArray(out, subset, indent + 2);
+                        OutputValueSetAsArray(out, subset, indent + 2);
                     }
                     else
                     {
