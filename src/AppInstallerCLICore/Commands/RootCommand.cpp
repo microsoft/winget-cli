@@ -135,8 +135,11 @@ namespace AppInstaller::CLI
             keyDirectories.OutputLine({ Resource::LocString{ Resource::String::PortableLinksUser }, Runtime::GetPathTo(Runtime::PathName::PortableLinksUserLocation, true).u8string() });
             keyDirectories.OutputLine({ Resource::LocString{ Resource::String::PortableLinksMachine }, Runtime::GetPathTo(Runtime::PathName::PortableLinksMachineLocation, true).u8string() });
             keyDirectories.OutputLine({ Resource::LocString{ Resource::String::PortableRootUser }, Runtime::GetPathTo(Runtime::PathName::PortablePackageUserRoot, true).u8string() });
-            keyDirectories.OutputLine({ Resource::LocString{ Resource::String::PortableRoot64 }, Runtime::GetPathTo(Runtime::PathName::PortablePackageMachineRootX86, true).u8string() });
-            keyDirectories.OutputLine({ Resource::LocString{ Resource::String::PortableRoot86 }, Runtime::GetPathTo(Runtime::PathName::PortablePackageMachineRootX64, true).u8string() });
+            keyDirectories.OutputLine({ Resource::LocString{ Resource::String::PortableRoot86 }, Runtime::GetPathTo(Runtime::PathName::PortablePackageMachineRootX86, true).u8string() });
+            if (Utility::GetSystemArchitecture() == Utility::Architecture::X64 || Utility::GetSystemArchitecture() == Utility::Architecture::Arm64)
+            {
+                keyDirectories.OutputLine({ Resource::LocString{ Resource::String::PortableRoot64 }, Runtime::GetPathTo(Runtime::PathName::PortablePackageMachineRootX64, true).u8string() });
+            }
             keyDirectories.Complete();
             context.Reporter.Info() << std::endl;
         }
