@@ -20,10 +20,12 @@
 [CmdletBinding()]
 param (
     [Parameter(Mandatory)]
+    [ValidateSet("x64", "x86")]
     [string]
     $Platform,
 
     [Parameter(Mandatory)]
+    [ValidateSet("Debug", "Release")]
     [string]
     $Configuration,
 
@@ -49,18 +51,26 @@ class WinGetModule
 
 # I know it makes sense, but please don't do a clean up of $moduleRootOutput. When the modules are loaded
 # there's no way to tell PowerShell to release the binary dlls that are loaded.
-$moduleRootOutput = "$PSScriptRoot\Module\"
+$local:moduleRootOutput = "$PSScriptRoot\Module\"
 
 # Add here new modules
-[WinGetModule[]]$modules = 
-    [WinGetModule]::new("Microsoft.WinGet.DSC", "$PSScriptRoot\..\Microsoft.WinGet.DSC\", $false, $false),
-    [WinGetModule]::new("Microsoft.WinGet.Client", "$PSScriptRoot\..\Microsoft.WinGet.Client\Module\", $true, $true)
+[WinGetModule[]]$local:modules = 
+    [WinGetModule]::new(
+        "Microsoft.WinGet.DSC",
+        "$PSScriptRoot\..\Microsoft.WinGet.DSC\",
+        $false,
+        $false),
+    [WinGetModule]::new(
+        "Microsoft.WinGet.Client",
+        "$PSScriptRoot\..\Microsoft.WinGet.Client\Module\",
+        $true,
+        $true)
 
 foreach($module in $modules)
 {
     # Import-Module with Force just changes functions in the root module, not any nested ones. There's no way to load any
     # updated classes. To ensure that you are running the latest version run Remove-Module
-    if (Get-Module -ListAvailable -Name $module.Name)
+    if (Get-Module -Name $module.Name)
     {
         Write-Host "Removing module $($module.Name)" -ForegroundColor Green
         Remove-Module $module.Name -Force
@@ -70,13 +80,13 @@ foreach($module in $modules)
     if ($module.HasBinary)
     {
         # Copy output files from VS.
-        Write-Host "Coping binary module $($module.Name)" -ForegroundColor Green
+        Write-Host "Copying binary module $($module.Name)" -ForegroundColor Green
         xcopy "$PSScriptRoot\..\..\$Platform\$Configuration\PowerShell\$($module.Name)\" "$moduleRootOutput\$($module.Name)\" /d /s /f /y
     }
 
     # Copy PowerShell files even for modules with binary resources.
     # VS won't update the files if there's nothing to build...
-    Write-Host "Coping module $($module.Name)" -ForegroundColor Green
+    Write-Host "Copying module $($module.Name)" -ForegroundColor Green
     xcopy $module.ModuleRoot "$moduleRootOutput\$($module.Name)\" /d /s /f /y
 
     if ($module.ForceWinGetDev)
