@@ -152,7 +152,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             Assert.NotNull(hashtable);
             Assert.True(hashtable.ContainsKey(arrayKey));
 
-            var expectedList = hashtable[arrayKey] as List<object>;
+            var expectedList = hashtable[arrayKey] as IList<object>;
             Assert.NotNull(expectedList);
             Assert.Equal(4, expectedList.Count);
             foreach (var element in expectedList)
@@ -195,7 +195,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             Assert.NotNull(hashtable);
             Assert.True(hashtable.ContainsKey(arrayKey));
 
-            var expectedList = hashtable[arrayKey] as List<object>;
+            var expectedList = hashtable[arrayKey] as IList<object>;
             Assert.NotNull(expectedList);
             Assert.Equal(2, expectedList.Count);
 

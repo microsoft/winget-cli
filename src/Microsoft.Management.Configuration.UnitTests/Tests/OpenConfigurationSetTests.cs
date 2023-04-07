@@ -232,7 +232,7 @@ properties:
         Directive1: A
         Directive2: B
       settings:
-        Setting1: 1
+        Setting1: '1'
         Setting2: 2
 "));
             Assert.NotNull(result.Set);
@@ -272,7 +272,7 @@ properties:
             Assert.Contains("Setting1", settings);
             Assert.Equal("1", settings["Setting1"]);
             Assert.Contains("Setting2", settings);
-            Assert.Equal("2", settings["Setting2"]);
+            Assert.Equal(2L, settings["Setting2"]);
 
             Assert.Null(unit.Details);
             Assert.Equal(ConfigurationUnitState.Unknown, unit.State);
@@ -314,7 +314,7 @@ properties:
             Assert.NotNull(settings);
             Assert.Equal(4, settings.Count);
             Assert.Contains("SettingInt", settings);
-            Assert.Equal((long)1, settings["SettingInt"]);
+            Assert.Equal(1L, settings["SettingInt"]);
             Assert.Contains("SettingString", settings);
             Assert.Equal("1", settings["SettingString"]);
             Assert.Contains("SettingBool", settings);
