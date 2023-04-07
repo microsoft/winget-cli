@@ -225,6 +225,7 @@ namespace AppInstaller::CLI
 
             info << std::endl << Resource::String::Logs(Utility::LocIndView{ Runtime::GetPathTo(Runtime::PathName::DefaultLogLocation, true).u8string() }) << std::endl;
             info << std::endl << Resource::String::UserSettings(Utility::LocIndView{ UserSettings::SettingsFilePath(true).u8string() }) << std::endl;
+
             info << std::endl;
 
             Execution::TableOutput<2> links{ context.Reporter, { Resource::String::Links, {} } };

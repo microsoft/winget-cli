@@ -580,7 +580,6 @@ namespace AppInstaller::Runtime
 
             result.Path /= s_DefaultTempDirectory;
             result.Path /= GetRuntimePathStateName();
-
             if (path == PathName::Temp)
             {
                 result.SetOwner(ACEPrincipal::CurrentUser);
