@@ -207,22 +207,19 @@ namespace AppInstaller::YAML
         {
             // Integer
             // 0 | -? [1-9] [0-9]*
-            try
+            auto tryInt = this->try_as<int64_t>();
+            if (tryInt.has_value())
             {
-                this->as<int64_t>();
                 m_tagType = TagType::Int;
-                return;
             }
-            catch (...)
+            else
             {
-            }
-
-            // Either 'true' or 'false'
-            // Avoid THROW_HR to don't log.
-            if (Utility::CaseInsensitiveEquals(m_scalar, "true") ||
-                Utility::CaseInsensitiveEquals(m_scalar, "false"))
-            {
-                m_tagType = TagType::Bool;
+                // Boolean. Either 'true' or 'false'
+                auto tryBool = this->try_as<bool>();
+                if (tryBool.has_value())
+                {
+                    m_tagType = TagType::Bool;
+                }
             }
         }
     }
@@ -319,14 +316,36 @@ namespace AppInstaller::YAML
         return m_scalar;
     }
 
+    std::optional<std::string> Node::try_as_dispatch(std::string*) const
+    {
+        return std::optional{ m_scalar };
+    }
+
     std::wstring Node::as_dispatch(std::wstring*) const
     {
         return Utility::ConvertToUTF16(m_scalar);
     }
 
+    std::optional<std::wstring> Node::try_as_dispatch(std::wstring*) const
+    {
+        return Utility::TryConvertToUTF16(m_scalar);
+    }
+
     int64_t Node::as_dispatch(int64_t*) const
     {
         return std::stoll(m_scalar);
+    }
+
+    std::optional<int64_t> Node::try_as_dispatch(int64_t*) const
+    {
+        try
+        {
+            return std::optional{ std::stoll(m_scalar) };
+        }
+        catch(...)
+        {
+            return {};
+        }
     }
 
     int Node::as_dispatch(int*) const
@@ -335,20 +354,44 @@ namespace AppInstaller::YAML
         return static_cast<int>(std::stoll(m_scalar, 0, 0));
     }
 
+    std::optional<int> Node::try_as_dispatch(int*) const
+    {
+        try
+        {
+            return std::optional{ static_cast<int>(std::stoll(m_scalar, 0, 0)) };
+        }
+        catch (...)
+        {
+            return {};
+        }
+    }
+
     bool Node::as_dispatch(bool*) const
     {
-        if (Utility::CaseInsensitiveEquals(m_scalar, "true"))
+        bool* t = nullptr;
+        auto tryToBool = this->try_as_dispatch(t);
+        if (tryToBool.has_value())
         {
-            return true;
-        }
-        else if (Utility::CaseInsensitiveEquals(m_scalar, "false"))
-        {
-            return false;
+            return tryToBool.value();
         }
         else
         {
             THROW_HR(APPINSTALLER_CLI_ERROR_YAML_INVALID_DATA);
         }
+    }
+
+    std::optional<bool> Node::try_as_dispatch(bool*) const
+    {
+        if (Utility::CaseInsensitiveEquals(m_scalar, "true"))
+        {
+            return std::optional{ true };
+        }
+        else if (Utility::CaseInsensitiveEquals(m_scalar, "false"))
+        {
+            return std::optional{ false };
+        }
+
+        return {};
     }
 
     Node Load(std::string_view input)

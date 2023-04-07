@@ -8,4 +8,4 @@ StringTrue: 'true'
 BooleanFalse: false
 StringFalse: 'false'
 
-LocalTag: !mytag value
+LocalTag: !myTag value

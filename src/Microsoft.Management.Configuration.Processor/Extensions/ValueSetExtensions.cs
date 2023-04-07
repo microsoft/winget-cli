@@ -29,12 +29,11 @@ namespace Microsoft.Management.Configuration.Processor.Extensions
 
             foreach (var keyValuePair in valueSet)
             {
-                if (keyValuePair.Value is ValueSet)
+                if (keyValuePair.Value is ValueSet innerValueSet)
                 {
-                    ValueSet innerValueSet = (ValueSet)keyValuePair.Value;
                     if (innerValueSet.ContainsKey(TreatAsArray))
                     {
-                        hashtable.Add(keyValuePair.Key, ConvertValueSetToArray(innerValueSet));
+                        hashtable.Add(keyValuePair.Key, innerValueSet.ToArray());
                     }
                     else
                     {
@@ -50,14 +49,19 @@ namespace Microsoft.Management.Configuration.Processor.Extensions
             return hashtable;
         }
 
-        private static List<object> ConvertValueSetToArray(ValueSet valueSet)
+        /// <summary>
+        /// Gets ordered list from a ValueSet that is threated as an array.
+        /// </summary>
+        /// <param name="valueSet">ValueSet.</param>
+        /// <returns>Ordered list.</returns>
+        public static IList<object> ToArray(this ValueSet valueSet)
         {
             if (!valueSet.ContainsKey(TreatAsArray))
             {
                 throw new InvalidOperationException();
             }
 
-            var result = new List<object>();
+            var sortedList = new SortedList<string, object>();
 
             foreach (var keyValuePair in valueSet)
             {
@@ -66,18 +70,17 @@ namespace Microsoft.Management.Configuration.Processor.Extensions
                     continue;
                 }
 
-                if (keyValuePair.Value is ValueSet)
+                if (keyValuePair.Value is ValueSet innerValueSet)
                 {
-                    ValueSet innerValueSet = (ValueSet)keyValuePair.Value;
-                    result.Add(innerValueSet.ToHashtable());
+                    sortedList.Add(keyValuePair.Key, innerValueSet.ToHashtable());
                 }
                 else
                 {
-                    result.Add(keyValuePair.Value);
+                    sortedList.Add(keyValuePair.Key, keyValuePair.Value);
                 }
             }
 
-            return result;
+            return sortedList.Values;
         }
     }
 }

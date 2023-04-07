@@ -205,7 +205,35 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var resultValue2 = expectedList[1] as Hashtable;
             Assert.NotNull(resultValue2);
-            Assert.Equal(1, resultValue2.Count);
+            Assert.Single(resultValue2);
+        }
+
+        /// <summary>
+        /// Tests ConvertValueSetToArray.
+        /// </summary>
+        [Fact]
+        public void ValueSet_ArrayOrder()
+        {
+            string arrayValue0 = "arrayValue0";
+            string arrayValue1 = "arrayValue1";
+            string arrayValue2 = "arrayValue2";
+            string arrayValue3 = "arrayValue3";
+            var valueSetArray = new ValueSet()
+            {
+                { "3", arrayValue3 },
+                { "treatAsArray", true },
+                { "1", arrayValue1 },
+                { "2", arrayValue2 },
+                { "0", arrayValue0 },
+            };
+
+            var result = valueSetArray.ToArray();
+            Assert.NotNull(result);
+            Assert.Equal(4, result.Count);
+            Assert.Equal(arrayValue0, result[0]);
+            Assert.Equal(arrayValue1, result[1]);
+            Assert.Equal(arrayValue2, result[2]);
+            Assert.Equal(arrayValue3, result[3]);
         }
     }
 }

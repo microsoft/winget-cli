@@ -128,6 +128,14 @@ namespace AppInstaller::YAML
             return as_dispatch(t);
         }
 
+        template <typename T>
+        std::optional<T> try_as() const
+        {
+            Require(Type::Scalar);
+            T* t = nullptr;
+            return try_as_dispatch(t);
+        }
+
         bool operator<(const Node& other) const;
 
         // Gets a child node from the mapping by its name.
@@ -158,10 +166,19 @@ namespace AppInstaller::YAML
 
         // The workers for the as function.
         std::string as_dispatch(std::string*) const;
+        std::optional<std::string> try_as_dispatch(std::string*) const;
+
         std::wstring as_dispatch(std::wstring*) const;
+        std::optional<std::wstring> try_as_dispatch(std::wstring*) const;
+
         int64_t as_dispatch(int64_t*) const;
+        std::optional<int64_t> try_as_dispatch(int64_t*) const;
+
         int as_dispatch(int*) const;
+        std::optional<int> try_as_dispatch(int*) const;
+
         bool as_dispatch(bool*) const;
+        std::optional<bool> try_as_dispatch(bool*) const;
 
         Type m_type;
         std::string m_tag;

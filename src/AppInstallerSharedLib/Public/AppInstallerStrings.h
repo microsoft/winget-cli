@@ -16,6 +16,9 @@ namespace AppInstaller::Utility
     // Converts the given UTF8 string to UTF16
     std::wstring ConvertToUTF16(std::string_view input, UINT codePage = CP_UTF8);
 
+    // Tries to convert the given UTF8 string to UTF16
+    std::optional<std::wstring> TryConvertToUTF16(std::string_view input, UINT codePage = CP_UTF8);
+
     // Converts the given UTF8 string to UTF32
     std::u32string ConvertToUTF32(std::string_view input);
 
