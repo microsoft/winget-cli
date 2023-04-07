@@ -131,7 +131,11 @@ namespace AppInstaller::YAML
         template <typename T>
         std::optional<T> try_as() const
         {
-            Require(Type::Scalar);
+            if (m_type != Type::Scalar)
+            {
+                return {};
+            }
+
             T* t = nullptr;
             return try_as_dispatch(t);
         }

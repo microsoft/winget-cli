@@ -179,7 +179,7 @@ namespace AppInstaller::Utility
     {
         if (input.empty())
         {
-            return {};
+            return std::wstring{};
         }
 
         int utf16CharCount = MultiByteToWideChar(codePage, 0, input.data(), wil::safe_cast<int>(input.length()), nullptr, 0);

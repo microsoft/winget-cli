@@ -218,22 +218,127 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             string arrayValue1 = "arrayValue1";
             string arrayValue2 = "arrayValue2";
             string arrayValue3 = "arrayValue3";
+            string arrayValue4 = "arrayValue4";
+            string arrayValue5 = "arrayValue5";
+            string arrayValue6 = "arrayValue6";
+            string arrayValue7 = "arrayValue7";
+            string arrayValue8 = "arrayValue8";
+            string arrayValue9 = "arrayValue9";
+            string arrayValue10 = "arrayValue10";
+            string arrayValue11 = "arrayValue11";
+            string arrayValue12 = "arrayValue12";
             var valueSetArray = new ValueSet()
             {
-                { "3", arrayValue3 },
-                { "treatAsArray", true },
-                { "1", arrayValue1 },
+                { "10", arrayValue10 },
+                { "7", arrayValue7 },
                 { "2", arrayValue2 },
+                { "12", arrayValue12 },
+                { "6", arrayValue6 },
+                { "treatAsArray", true },
+                { "3", arrayValue3 },
+                { "1", arrayValue1 },
+                { "9", arrayValue9 },
                 { "0", arrayValue0 },
+                { "4", arrayValue4 },
+                { "11", arrayValue11 },
+                { "8", arrayValue8 },
+                { "5", arrayValue5 },
             };
 
             var result = valueSetArray.ToArray();
             Assert.NotNull(result);
-            Assert.Equal(4, result.Count);
+            Assert.Equal(valueSetArray.Count - 1, result.Count);
             Assert.Equal(arrayValue0, result[0]);
             Assert.Equal(arrayValue1, result[1]);
             Assert.Equal(arrayValue2, result[2]);
             Assert.Equal(arrayValue3, result[3]);
+            Assert.Equal(arrayValue4, result[4]);
+            Assert.Equal(arrayValue5, result[5]);
+            Assert.Equal(arrayValue6, result[6]);
+            Assert.Equal(arrayValue7, result[7]);
+            Assert.Equal(arrayValue8, result[8]);
+            Assert.Equal(arrayValue9, result[9]);
+            Assert.Equal(arrayValue10, result[10]);
+            Assert.Equal(arrayValue11, result[11]);
+            Assert.Equal(arrayValue12, result[12]);
+        }
+
+        /// <summary>
+        /// Tests ConvertValueSetToArray.
+        /// </summary>
+        [Fact]
+        public void ValueSet_InvalidArray()
+        {
+            string arrayValue0 = "arrayValue0";
+            string arrayValue1 = "arrayValue1";
+            string arrayValue2 = "arrayValue2";
+            string arrayValue3 = "arrayValue3";
+            string arrayValue4 = "arrayValue4";
+            string arrayValue5 = "arrayValue5";
+            string arrayValue6 = "arrayValue6";
+            string arrayValue7 = "arrayValue7";
+            string arrayValue8 = "arrayValue8";
+            string arrayValue9 = "arrayValue9";
+            string arrayValue10 = "arrayValue10";
+            string arrayValue11 = "arrayValue11";
+            string arrayValue12 = "arrayValue12";
+            var valueSetArray = new ValueSet()
+            {
+                { "10", arrayValue10 },
+                { "7", arrayValue7 },
+                { "2", arrayValue2 },
+                { "12", arrayValue12 },
+                { "6", arrayValue6 },
+                { "3", arrayValue3 },
+                { "1", arrayValue1 },
+                { "9", arrayValue9 },
+                { "0", arrayValue0 },
+                { "4", arrayValue4 },
+                { "11", arrayValue11 },
+                { "8", arrayValue8 },
+                { "5", arrayValue5 },
+            };
+
+            Assert.Throws<InvalidOperationException>(() => valueSetArray.ToArray());
+        }
+
+        /// <summary>
+        /// Tests ConvertValueSetToArray.
+        /// </summary>
+        [Fact]
+        public void ValueSet_InvalidArrayKey()
+        {
+            string arrayValue0 = "arrayValue0";
+            string arrayValue1 = "arrayValue1";
+            string arrayValue2 = "arrayValue2";
+            string arrayValue3 = "arrayValue3";
+            string arrayValue4 = "arrayValue4";
+            string arrayValue5 = "arrayValue5";
+            string arrayValue6 = "arrayValue6";
+            string arrayValue7 = "arrayValue7";
+            string arrayValue8 = "arrayValue8";
+            string arrayValue9 = "arrayValue9";
+            string arrayValue10 = "arrayValue10";
+            string arrayValue11 = "arrayValue11";
+            string arrayValue12 = "arrayValue12";
+            var valueSetArray = new ValueSet()
+            {
+                { "10", arrayValue10 },
+                { "7", arrayValue7 },
+                { "2", arrayValue2 },
+                { "a", arrayValue12 },
+                { "6", arrayValue6 },
+                { "3", arrayValue3 },
+                { "1", arrayValue1 },
+                { "9", arrayValue9 },
+                { "0", arrayValue0 },
+                { "4", arrayValue4 },
+                { "11", arrayValue11 },
+                { "8", arrayValue8 },
+                { "5", arrayValue5 },
+            };
+
+            Assert.Throws<InvalidOperationException>(() => valueSetArray.ToArray());
         }
     }
 }

@@ -121,26 +121,26 @@ namespace AppInstaller::CLI::Workflow
         {
             Utility::LocIndString indentString{ std::string(indent, ' ') };
 
-            std::vector<IKeyValuePair<winrt::hstring, winrt::Windows::Foundation::IInspectable>> arrayValues;
+            std::vector<std::pair<int, winrt::Windows::Foundation::IInspectable>> arrayValues;
             for (const auto& arrayValue : valueSetArray)
             {
                 if (arrayValue.Key() != L"treatAsArray")
                 {
-                    arrayValues.emplace_back(arrayValue);
+                    arrayValues.emplace_back(std::make_pair(std::stoi(arrayValue.Key().c_str()), arrayValue.Value()));
                 }
             }
 
             std::sort(
                 arrayValues.begin(),
                 arrayValues.end(),
-                [](const IKeyValuePair<winrt::hstring, winrt::Windows::Foundation::IInspectable>& a, const IKeyValuePair<winrt::hstring, winrt::Windows::Foundation::IInspectable>& b)
+                [](const std::pair<int, winrt::Windows::Foundation::IInspectable>& a, const std::pair<int, winrt::Windows::Foundation::IInspectable>& b)
                 {
-                    return a.Key() < b.Key();
+                    return a.first < b.first;
                 });
 
             for (const auto& arrayValue : arrayValues)
             {
-                auto arrayObject = arrayValue.Value();
+                auto arrayObject = arrayValue.second;
                 IPropertyValue arrayProperty = arrayObject.try_as<IPropertyValue>();
 
                 out << indentString << "-";

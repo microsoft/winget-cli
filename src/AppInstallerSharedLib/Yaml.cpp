@@ -211,15 +211,14 @@ namespace AppInstaller::YAML
             if (tryInt.has_value())
             {
                 m_tagType = TagType::Int;
+                return;
             }
-            else
+
+            // Boolean. Either 'true' or 'false'
+            auto tryBool = this->try_as<bool>();
+            if (tryBool.has_value())
             {
-                // Boolean. Either 'true' or 'false'
-                auto tryBool = this->try_as<bool>();
-                if (tryBool.has_value())
-                {
-                    m_tagType = TagType::Bool;
-                }
+                m_tagType = TagType::Bool;
             }
         }
     }

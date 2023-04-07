@@ -10,6 +10,7 @@ namespace Microsoft.Management.Configuration.Processor.Extensions
     using System.Collections;
     using System.Collections.Generic;
     using Windows.Foundation.Collections;
+    using WinRT;
 
     /// <summary>
     /// Extensions for ValueSet.
@@ -61,7 +62,7 @@ namespace Microsoft.Management.Configuration.Processor.Extensions
                 throw new InvalidOperationException();
             }
 
-            var sortedList = new SortedList<string, object>();
+            var sortedList = new SortedList<int, object>();
 
             foreach (var keyValuePair in valueSet)
             {
@@ -70,13 +71,20 @@ namespace Microsoft.Management.Configuration.Processor.Extensions
                     continue;
                 }
 
-                if (keyValuePair.Value is ValueSet innerValueSet)
+                if (int.TryParse(keyValuePair.Key, out int key))
                 {
-                    sortedList.Add(keyValuePair.Key, innerValueSet.ToHashtable());
+                    if (keyValuePair.Value is ValueSet innerValueSet)
+                    {
+                        sortedList.Add(key, innerValueSet.ToHashtable());
+                    }
+                    else
+                    {
+                        sortedList.Add(key, keyValuePair.Value);
+                    }
                 }
                 else
                 {
-                    sortedList.Add(keyValuePair.Key, keyValuePair.Value);
+                    throw new InvalidOperationException($"Invalid key for ValueSet to array {keyValuePair.Key}");
                 }
             }
 
