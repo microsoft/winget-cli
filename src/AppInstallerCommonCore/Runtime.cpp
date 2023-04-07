@@ -534,16 +534,17 @@ namespace AppInstaller::Runtime
             }
             break;
         case PathName::UserProfile:
-        case PathName::PortablePackageUserRoot:
         case PathName::PortablePackageMachineRootX64:
         case PathName::PortablePackageMachineRootX86:
-        case PathName::PortableLinksUserLocation:
         case PathName::PortableLinksMachineLocation:
+            result = GetPathDetailsCommon(path);
+            break;
+        case PathName::PortableLinksUserLocation:
+        case PathName::PortablePackageUserRoot:
             result = GetPathDetailsCommon(path);
             if (forDisplay)
             {
                 ReplaceCommonPathPrefix(result.Path, GetKnownFolderPath(FOLDERID_LocalAppData), "%LOCALAPPDATA%");
-                ReplaceCommonPathPrefix(result.Path, GetKnownFolderPath(FOLDERID_RoamingAppData), "%APPDATA%");
             }
             break;
         case PathName::SelfPackageRoot:
