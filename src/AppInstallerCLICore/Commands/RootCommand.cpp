@@ -131,7 +131,7 @@ namespace AppInstaller::CLI
         {
             Execution::TableOutput<2> keyDirectories{ context.Reporter, { Resource::String::KeyDirectoriesHeader, {} } };
             keyDirectories.OutputLine({ Resource::LocString{ Resource::String::Logs }, Runtime::GetPathTo(Runtime::PathName::DefaultLogLocation, true).u8string() });
-            keyDirectories.OutputLine({ Resource::LocString{ Resource::String::UserSettings() }, UserSettings::SettingsFilePath(true).u8string() });
+            keyDirectories.OutputLine({ Resource::LocString{ Resource::String::UserSettings }, UserSettings::SettingsFilePath(true).u8string() });
             keyDirectories.OutputLine({ Resource::LocString{ Resource::String::PortableLinksUser }, Runtime::GetPathTo(Runtime::PathName::PortableLinksUserLocation, true).u8string() });
             keyDirectories.OutputLine({ Resource::LocString{ Resource::String::PortableLinksMachine }, Runtime::GetPathTo(Runtime::PathName::PortableLinksMachineLocation, true).u8string() });
             keyDirectories.OutputLine({ Resource::LocString{ Resource::String::PortableRootUser }, Runtime::GetPathTo(Runtime::PathName::PortablePackageUserRoot, true).u8string() });
@@ -144,13 +144,11 @@ namespace AppInstaller::CLI
         void OutputLinks(Execution::Context& context)
         {
             Execution::TableOutput<2> links{ context.Reporter, { Resource::String::Links, {} } };
-
-            links.OutputLine({ Resource::LocString(Resource::String::PrivacyStatement).get(), "https://aka.ms/winget-privacy" });
-            links.OutputLine({ Resource::LocString(Resource::String::LicenseAgreement).get(), "https://aka.ms/winget-license" });
-            links.OutputLine({ Resource::LocString(Resource::String::ThirdPartSoftwareNotices).get(), "https://aka.ms/winget-3rdPartyNotice" });
-            links.OutputLine({ Resource::LocString(Resource::String::MainHomepage).get(), "https://aka.ms/winget" });
-            links.OutputLine({ Resource::LocString(Resource::String::WindowsStoreTerms).get(), "https://www.microsoft.com/en-us/storedocs/terms-of-sale" });
-
+            links.OutputLine({ Resource::LocString{ Resource::String::PrivacyStatement }, "https://aka.ms/winget-privacy" });
+            links.OutputLine({ Resource::LocString{ Resource::String::LicenseAgreement }, "https://aka.ms/winget-license" });
+            links.OutputLine({ Resource::LocString{ Resource::String::ThirdPartSoftwareNotices }, "https://aka.ms/winget-3rdPartyNotice" });
+            links.OutputLine({ Resource::LocString{ Resource::String::MainHomepage }, "https://aka.ms/winget" });
+            links.OutputLine({ Resource::LocString{ Resource::String::WindowsStoreTerms }, "https://www.microsoft.com/en-us/storedocs/terms-of-sale" });
             links.Complete();
             context.Reporter.Info() << std::endl;
         }
