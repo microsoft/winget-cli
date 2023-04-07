@@ -319,6 +319,10 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Argument name was not recognized for the current command: '{0}'</value>
     <comment>{Locked="{0}"} Error message displayed when the user provides an unrecognized command line argument name for the selected command. {0} is a placeholder replaced by the user's argument name input (e.g. '--example').</comment>
   </data>
+  <data name="KeyDirectoriesHeader" xml:space="preserve">
+    <value>Winget Directories</value>
+    <comment>Header for a table detailing the directories Winget uses for key operations like logging and portable installs</comment>
+  </data>
   <data name="LocaleArgumentDescription" xml:space="preserve">
     <value>Locale to use (BCP47 format)</value>
     <comment>{Locked="BCP47"}</comment>
@@ -1401,10 +1405,6 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="PortableAliasAdded" xml:space="preserve">
     <value>Command line alias added:</value>
-  </data>
-  <data name="KeyDirectoriesHeader" xml:space="preserve">
-    <value>Winget Directories</value>
-    <comment>Header for a table detailing the directories Winget uses for key operations like logging and portable installs</comment>
   </data>
   <data name="PortableLinksMachine" xml:space="preserve">
     <value>Portable Links Directory (Machine)</value>
