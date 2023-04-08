@@ -17,6 +17,7 @@
 #include <SoftPub.h>
 #include <WinTrust.h>
 #include <wincrypt.h>
+#include <wow64apiset.h>
 
 #include "TraceLogging.h"
 

@@ -233,6 +233,34 @@ namespace AppInstaller::Utility
         return systemArchitecture;
     }
 
+    Architecture GetProcessArchitecture()
+    {
+        Architecture processArchitecture = GetSystemArchitecture();
+
+        USHORT ushortProcessArchitecture = 0;
+        if (IsWow64Process2(GetCurrentProcess(), &ushortProcessArchitecture, nullptr))
+        {
+            // If success, the process is running under emulation. Set the real process architecture.
+            switch (ushortProcessArchitecture)
+            {
+            case IMAGE_FILE_MACHINE_I386:
+                processArchitecture = Architecture::X86;
+                break;
+            case IMAGE_FILE_MACHINE_ARM:
+                processArchitecture = Architecture::Arm;
+                break;
+            case IMAGE_FILE_MACHINE_AMD64:
+                processArchitecture = Architecture::X64;
+                break;
+            case IMAGE_FILE_MACHINE_ARM64:
+                processArchitecture = Architecture::Arm64;
+                break;
+            }
+        }
+
+        return processArchitecture;
+    }
+
     const std::vector<Architecture>& GetApplicableArchitectures()
     {
         static std::vector<Architecture> applicableArchs = CreateApplicableArchitecturesVector();

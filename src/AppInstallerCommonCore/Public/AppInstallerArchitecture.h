@@ -28,6 +28,9 @@ namespace AppInstaller::Utility
     // Gets the system's architecture as Architecture enum
     AppInstaller::Utility::Architecture GetSystemArchitecture();
 
+    // Gets the process architecture as Architecture enum
+    AppInstaller::Utility::Architecture GetProcessArchitecture();
+
     // Gets the set of architectures that are applicable to the current system
     const std::vector<Architecture>& GetApplicableArchitectures();
 

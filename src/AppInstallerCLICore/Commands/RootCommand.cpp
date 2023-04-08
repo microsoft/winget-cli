@@ -136,7 +136,9 @@ namespace AppInstaller::CLI
             keyDirectories.OutputLine({ Resource::LocString{ Resource::String::PortableLinksMachine }, Runtime::GetPathTo(Runtime::PathName::PortableLinksMachineLocation, true).u8string() });
             keyDirectories.OutputLine({ Resource::LocString{ Resource::String::PortableRootUser }, Runtime::GetPathTo(Runtime::PathName::PortablePackageUserRoot, true).u8string() });
             keyDirectories.OutputLine({ Resource::LocString{ Resource::String::PortableRoot86 }, Runtime::GetPathTo(Runtime::PathName::PortablePackageMachineRootX86, true).u8string() });
-            if (Utility::GetSystemArchitecture() == Utility::Architecture::X64 || Utility::GetSystemArchitecture() == Utility::Architecture::Arm64)
+            // Do not output Portable root 64 on non applicable cases.
+            auto processArchitecture = Utility::GetProcessArchitecture();
+            if (processArchitecture != Utility::Architecture::X86 && processArchitecture != Utility::Architecture::Arm)
             {
                 keyDirectories.OutputLine({ Resource::LocString{ Resource::String::PortableRoot64 }, Runtime::GetPathTo(Runtime::PathName::PortablePackageMachineRootX64, true).u8string() });
             }
