@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Microsoft.WinGet.Client.Properties {
+namespace Microsoft.WinGet.Client.Engine.Properties {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace Microsoft.WinGet.Client.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Microsoft.WinGet.Client.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Microsoft.WinGet.Client.Engine.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -151,7 +151,7 @@ namespace Microsoft.WinGet.Client.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The Windows Package Manager requires at least Version 1809 (October 2018 Update)..
+        ///   Looks up a localized string similar to The Windows Package Manager requires Windows Version 1809 (October 2018 Update) or later..
         /// </summary>
         internal static string IntegrityOsNotSupportedMessage {
             get {

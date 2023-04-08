@@ -4,11 +4,11 @@
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.WinGet.Client.Exceptions
+namespace Microsoft.WinGet.Client.Engine.Exceptions
 {
     using System;
-    using Microsoft.WinGet.Client.Common;
-    using Microsoft.WinGet.Client.Properties;
+    using Microsoft.WinGet.Client.Engine.Common;
+    using Microsoft.WinGet.Client.Engine.Properties;
 
     /// <summary>
     /// WinGet Integrity exception.

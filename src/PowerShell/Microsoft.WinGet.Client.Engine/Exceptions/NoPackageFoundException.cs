@@ -4,11 +4,11 @@
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.WinGet.Client.Exceptions
+namespace Microsoft.WinGet.Client.Engine.Exceptions
 {
     using System;
     using System.Management.Automation;
-    using Microsoft.WinGet.Client.Properties;
+    using Microsoft.WinGet.Client.Engine.Properties;
 
     /// <summary>
     /// No package found.

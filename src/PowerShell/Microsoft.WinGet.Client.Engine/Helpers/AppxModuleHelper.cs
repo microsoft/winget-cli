@@ -4,17 +4,18 @@
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.WinGet.Client.Helpers
+namespace Microsoft.WinGet.Client.Engine.Helpers
 {
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Management.Automation;
     using System.Management.Automation.Runspaces;
+    using System.Resources;
     using System.Runtime.InteropServices;
     using System.Text;
-    using Microsoft.WinGet.Client.Common;
-    using Microsoft.WinGet.Client.Properties;
+    using Microsoft.WinGet.Client.Engine.Common;
+    using Microsoft.WinGet.Client.Engine.Properties;
 
     /// <summary>
     /// Helper to make calls to the Appx module.
