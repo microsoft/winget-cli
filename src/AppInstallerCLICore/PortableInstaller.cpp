@@ -44,7 +44,7 @@ namespace AppInstaller::CLI::Portable
             }
             else
             {
-                return Runtime::GetPathTo(Runtime::PathName::PortablePackageMachineRootX64);
+                return Runtime::GetPathTo(Runtime::PathName::PortablePackageMachineRoot);
             }
         }
         else

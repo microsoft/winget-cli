@@ -1415,11 +1415,11 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="PortableRootUser" xml:space="preserve">
     <value>Portable Package Root (User)</value>
   </data>
-  <data name="PortableRoot64" xml:space="preserve">
-    <value>Portable Package Root (x86)</value>
+  <data name="PortableRoot" xml:space="preserve">
+    <value>Portable Package Root</value>
   </data>
   <data name="PortableRoot86" xml:space="preserve">
-    <value>Portable Package Root (x64)</value>
+    <value>Portable Package Root (x86)</value>
   </data>
   <data name="PortableInstallFailed" xml:space="preserve">
     <value>Portable install failed; Cleaning up...</value>

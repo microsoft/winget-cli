@@ -317,7 +317,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(PortableLinksUser);
         WINGET_DEFINE_RESOURCE_STRINGID(PortablePackageAlreadyExists);
         WINGET_DEFINE_RESOURCE_STRINGID(PortableRegistryCollisionOverridden);
-        WINGET_DEFINE_RESOURCE_STRINGID(PortableRoot64);
+        WINGET_DEFINE_RESOURCE_STRINGID(PortableRoot);
         WINGET_DEFINE_RESOURCE_STRINGID(PortableRoot86);
         WINGET_DEFINE_RESOURCE_STRINGID(PortableRootUser);
         WINGET_DEFINE_RESOURCE_STRINGID(PositionArgumentDescription);
