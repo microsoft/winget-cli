@@ -71,9 +71,9 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 args += ' ' + parameters;
             }
 
-            Process p = new()
+            Process p = new ()
             {
-                StartInfo = new(this.wingetPath, args)
+                StartInfo = new (this.wingetPath, args)
                 {
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
@@ -96,3 +96,4 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             throw new WinGetCLITimeoutException(command, parameters);
         }
     }
+}

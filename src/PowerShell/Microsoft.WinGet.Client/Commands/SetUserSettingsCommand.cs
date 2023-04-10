@@ -6,15 +6,9 @@
 
 namespace Microsoft.WinGet.Client.Commands
 {
-    using System;
     using System.Collections;
-    using System.IO;
-    using System.Linq;
     using System.Management.Automation;
-    using Microsoft.WinGet.Client.Commands.Common;
     using Microsoft.WinGet.Client.Common;
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Linq;
 
     /// <summary>
     /// Sets the specified user settings into the winget user settings. If the merge switch is on, merges current user
@@ -22,7 +16,7 @@ namespace Microsoft.WinGet.Client.Commands
     /// </summary>
     [Cmdlet(VerbsCommon.Set, Constants.WinGetNouns.UserSettings)]
     [OutputType(typeof(Hashtable))]
-    public sealed class SetUserSettingsCommand : BaseUserSettingsCommand
+    public sealed class SetUserSettingsCommand : PSCmdlet
     {
         /// <summary>
         /// Gets or sets the input user settings.
@@ -43,65 +37,7 @@ namespace Microsoft.WinGet.Client.Commands
         /// </summary>
         protected override void ProcessRecord()
         {
-            var newSettings = HashtableToJObject(this.UserSettings);
-
-            // Merge settings.
-            if (this.Merge.ToBool())
-            {
-                var currentSettings = this.LocalSettingsFileToJObject();
-
-                // To make the input settings triumph, they need to be merged into the existing settings.
-                currentSettings.Merge(newSettings, new JsonMergeSettings
-                {
-                    MergeArrayHandling = MergeArrayHandling.Union,
-                    MergeNullValueHandling = MergeNullValueHandling.Ignore,
-                });
-
-                newSettings = currentSettings;
-            }
-
-            // Add schema if not there.
-            if (!newSettings.ContainsKey(SchemaKey))
-            {
-                newSettings.Add(SchemaKey, SchemaValue);
-            }
-
-            var orderedSettings = CreateAlphabeticallyOrderedJObject(newSettings);
-
-            // Write settings.
-            var settingsJson = orderedSettings.ToString(Formatting.Indented);
-            File.WriteAllText(
-                WinGetSettingsFilePath,
-                settingsJson);
-
-            this.WriteObject(this.ConvertToHashtable(settingsJson));
-        }
-
-        /// <summary>
-        /// Helper method to order alphabetically properties. Newtonsoft doesn't have a nice way
-        /// to do it via a custom JsonConverter.
-        /// </summary>
-        /// <param name="jObject">JObject.</param>
-        /// <returns>New ordered JObject.</returns>
-        private static JObject CreateAlphabeticallyOrderedJObject(JObject jObject)
-        {
-            JObject newJObject = new ();
-            var orderedProperties = jObject.Properties().OrderBy(p => p.Name, StringComparer.Ordinal);
-            foreach (var property in orderedProperties)
-            {
-                if (property.Value.Type == JTokenType.Object)
-                {
-                    newJObject.Add(
-                        property.Name,
-                        CreateAlphabeticallyOrderedJObject((JObject)property.Value));
-                }
-                else
-                {
-                    newJObject.Add(property);
-                }
-            }
-
-            return newJObject;
+            // TODO: call set.
         }
     }
 }

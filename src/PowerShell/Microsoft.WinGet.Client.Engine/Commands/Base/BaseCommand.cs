@@ -6,7 +6,6 @@
 
 namespace Microsoft.WinGet.Client.Engine.Commands.Base
 {
-    using System.Management.Automation;
     using Microsoft.WinGet.Client.Engine.Common;
     using Microsoft.WinGet.Client.Engine.Exceptions;
 
@@ -21,9 +20,10 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Base
         public BaseCommand()
             : base()
         {
-            if (Utilities.ExecutingAsSystem)
+            // The inproc COM API may deadlock on an STA thread.
+            if (Utilities.UsesInProcWinget && Utilities.ThreadIsSTA)
             {
-                throw new ExecuteAsSystemException();
+                throw new SingleThreadedApartmentException();
             }
         }
     }

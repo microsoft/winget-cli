@@ -23,7 +23,7 @@ namespace Microsoft.WinGet.Client.Commands
         /// </summary>
         protected override void ProcessRecord()
         {
-            this.WriteObject(WinGetVersion.InstalledWinGetVersion.TagVersion);
+            // TODO: call VersionCommand Get
         }
     }
 }

@@ -26,18 +26,14 @@ namespace Microsoft.WinGet.Client.Commands
         /// </summary>
         protected override void ProcessRecord()
         {
-            string expectedVersion = string.Empty;
             if (this.ParameterSetName == Constants.IntegrityLatestSet)
             {
-                var gitHubRelease = new GitHubRelease();
-                expectedVersion = gitHubRelease.GetLatestVersionTagName(this.IncludePreRelease.ToBool());
+                // TODO: call WinGetPackageManager AssertUsingLatest(this, this.IncludePreRelease.ToBool())
             }
             else
             {
-                expectedVersion = this.Version;
+                // TODO: call WinGetPackageManager Assert(this, this.Version)
             }
-
-            WinGetIntegrity.AssertWinGet(this, expectedVersion);
         }
     }
 }

@@ -7,12 +7,13 @@
 namespace Microsoft.WinGet.Client.Engine.Exceptions
 {
     using System;
+    using System.Management.Automation;
     using Microsoft.WinGet.Client.Engine.Properties;
 
     /// <summary>
     /// WinGet cli exception.
     /// </summary>
-    public class WinGetCLIException : Exception
+    public class WinGetCLIException : RuntimeException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="WinGetCLIException"/> class.

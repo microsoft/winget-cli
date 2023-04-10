@@ -8,7 +8,6 @@ namespace Microsoft.WinGet.Client.Commands
 {
     using System.Collections;
     using System.Management.Automation;
-    using Microsoft.WinGet.Client.Commands.Common;
     using Microsoft.WinGet.Client.Common;
 
     /// <summary>
@@ -16,14 +15,14 @@ namespace Microsoft.WinGet.Client.Commands
     /// </summary>
     [Cmdlet(VerbsCommon.Get, Constants.WinGetNouns.UserSettings)]
     [OutputType(typeof(Hashtable))]
-    public sealed class GetUserSettingsCommand : BaseUserSettingsCommand
+    public sealed class GetUserSettingsCommand : PSCmdlet
     {
         /// <summary>
         /// Writes the settings file contents.
         /// </summary>
         protected override void ProcessRecord()
         {
-            this.WriteObject(this.GetLocalSettingsAsHashtable());
+            // TODO: call get.
         }
     }
 }

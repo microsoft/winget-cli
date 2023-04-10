@@ -8,6 +8,7 @@ namespace Microsoft.WinGet.Client.Engine.Exceptions
 {
     using System;
     using System.Collections.Generic;
+    using System.Management.Automation;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Engine.Extensions;
     using Microsoft.WinGet.Client.Engine.Properties;
@@ -16,7 +17,7 @@ namespace Microsoft.WinGet.Client.Engine.Exceptions
     /// Raised when search criteria for installing or updating a package is too vague.
     /// </summary>
     [Serializable]
-    public class VagueCriteriaException : Exception
+    public class VagueCriteriaException : RuntimeException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="VagueCriteriaException"/> class.

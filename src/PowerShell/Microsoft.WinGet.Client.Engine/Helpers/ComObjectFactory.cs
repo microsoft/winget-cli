@@ -4,16 +4,15 @@
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.WinGet.Client.Factories
+namespace Microsoft.WinGet.Client.Engine.Helpers
 {
     using System;
     using System.IO;
     using System.Reflection;
     using System.Runtime.InteropServices;
     using Microsoft.Management.Deployment;
-    using Microsoft.WinGet.Client.Common;
-    using Microsoft.WinGet.Client.Exceptions;
-    using Windows.Networking.Sockets;
+    using Microsoft.WinGet.Client.Engine.Common;
+    using Microsoft.WinGet.Client.Engine.Exceptions;
 
 #if NET
     using WinRT;

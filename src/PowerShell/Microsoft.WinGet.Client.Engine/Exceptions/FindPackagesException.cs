@@ -7,6 +7,7 @@
 namespace Microsoft.WinGet.Client.Engine.Exceptions
 {
     using System;
+    using System.Management.Automation;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Engine.Properties;
 
@@ -14,7 +15,7 @@ namespace Microsoft.WinGet.Client.Engine.Exceptions
     /// Raised when there is an error searching for packages.
     /// </summary>
     [Serializable]
-    public class FindPackagesException : Exception
+    public class FindPackagesException : RuntimeException
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="FindPackagesException"/> class.
