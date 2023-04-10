@@ -11,14 +11,12 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <!-- Workaround for MSB3271 error on processor architecture mismatch -->
     <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
+    <!-- Disable warning for CS1591 for cswinrt auto-generated files -->
+    <NoWarn>1591</NoWarn>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <!-- TODO: cswinrt generate source files that will fail with warning CS1591.
-         We need to somehow skip these warning via a .editorconfig or something similar.
-         Ideally cswinrt would fix this in the future.
-    -->
-    <!--<TreatWarningsAsErrors>true</TreatWarningsAsErrors>-->
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <PropertyGroup>
