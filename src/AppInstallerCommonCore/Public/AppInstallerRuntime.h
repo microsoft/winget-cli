@@ -52,8 +52,8 @@ namespace AppInstaller::Runtime
         UserProfile,
         // The location where portable packages are installed to with user scope.
         PortablePackageUserRoot,
-        // The location where portable packages are installed to with machine scope (x64).
-        PortablePackageMachineRootX64,
+        // The location where portable packages are installed to with machine scope.
+        PortablePackageMachineRoot,
         // The location where portable packages are installed to with machine scope (x86).
         PortablePackageMachineRootX86,
         // The location where symlinks to portable packages are stored under user scope.
