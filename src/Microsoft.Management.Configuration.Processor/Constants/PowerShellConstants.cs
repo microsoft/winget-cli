@@ -26,6 +26,7 @@ namespace Microsoft.Management.Configuration.Processor.Constants
             public const string PSDesiredStateConfigurationMinVersion = "2.0.6";
             public const string PowerShellGet = "PowerShellGet";
             public const string PowerShellGetMinVersion = "2.2.5";
+            public const string PSDesiredStateConfigurationMaxVersion = "2.*";
         }
 
         internal static class Commands

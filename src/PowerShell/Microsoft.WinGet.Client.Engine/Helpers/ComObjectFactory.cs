@@ -4,13 +4,16 @@
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.WinGet.Client.Engine.Helpers
+namespace Microsoft.WinGet.Client.Factories
 {
     using System;
+    using System.IO;
+    using System.Reflection;
     using System.Runtime.InteropServices;
     using Microsoft.Management.Deployment;
-    using Microsoft.WinGet.Client.Engine.Common;
-    using Microsoft.WinGet.Client.Engine.Exceptions;
+    using Microsoft.WinGet.Client.Common;
+    using Microsoft.WinGet.Client.Exceptions;
+    using Windows.Networking.Sockets;
 
 #if NET
     using WinRT;
@@ -55,6 +58,18 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         private static readonly Guid InstallOptionsIid = Guid.Parse("6EE9DB69-AB48-5E72-A474-33A924CD23B3");
         private static readonly Guid UninstallOptionsIid = Guid.Parse("3EBC67F0-8339-594B-8A42-F90B69D02BBE");
         private static readonly Guid PackageMatchFilterIid = Guid.Parse("D981ECA3-4DE5-5AD7-967A-698C7D60FC3B");
+
+        /// <summary>
+        /// Initializes static members of the <see cref="ComObjectFactory"/> class.
+        /// </summary>
+        static ComObjectFactory()
+        {
+            if (Utilities.UsesInProcWinget)
+            {
+                PackageManagerSettings settings = new PackageManagerSettings();
+                settings.SetCallerIdentifier("PowerShellInProc");
+            }
+        }
 
         /// <summary>
         /// Creates an instance of the <see cref="PackageManager" /> class.
@@ -112,7 +127,24 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "COM only usage.")]
         private static T Create<T>(Type type, in Guid iid)
+            where T : new()
         {
+            if (Utilities.UsesInProcWinget)
+            {
+                string executingAssemblyLocation = Assembly.GetExecutingAssembly().Location;
+                string executingAssemblyDirectory = Path.GetDirectoryName(executingAssemblyLocation);
+                SetDllDirectoryW(executingAssemblyDirectory);
+
+                try
+                {
+                    return new T();
+                }
+                finally
+                {
+                    SetDllDirectoryW(null);
+                }
+            }
+
             object instance = null;
 
             if (Utilities.ExecutingAsAdministrator)
@@ -150,5 +182,9 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             [In, MarshalAs(UnmanagedType.LPStruct)] Guid iid,
             uint flags,
             [Out, MarshalAs(UnmanagedType.IUnknown)] out object instance);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool SetDllDirectoryW([MarshalAs(UnmanagedType.LPWStr)] string directory);
     }
 }

@@ -95,6 +95,17 @@ namespace AppInstaller::Repository
         }
     };
 
+    // The search purpose of the search request.
+    enum class SearchPurpose
+    {
+        // Default search purpose.
+        Default,
+        // The result is used for correlation to an installed package.
+        CorrelationToInstalled,
+        // The result is used for correlation to an available package.
+        CorrelationToAvailable,
+    };
+
     // Container for data used to filter the available manifests in a source.
     // It can be thought of as:
     //  (Query || Inclusions...) && Filters...
@@ -112,6 +123,9 @@ namespace AppInstaller::Repository
 
         // Specific fields used to filter the data further.
         std::vector<PackageMatchFilter> Filters;
+
+        // The search purpose of the search request.
+        SearchPurpose Purpose = SearchPurpose::Default;
 
         // The maximum number of results to return.
         // The default of 0 will place no limit.

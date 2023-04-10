@@ -121,9 +121,6 @@
     <value>No source matches the given value: {0}</value>
     <comment>{Locked="{0}"} {0} - The name of the source that was not found.</comment>
   </data>
-  <data name="ExecuteAsSystemExceptionMessage" xml:space="preserve">
-    <value>This cmdlet is currently disabled for SYSTEM.</value>
-  </data>
   <data name="FindPackagesExceptionMessage" xml:space="preserve">
     <value>An error occurred while searching for packages: {0}</value>
     <comment>{Locked="{0}"} {0} - A string representation of the error status returned by the catalog.</comment>
@@ -202,5 +199,9 @@
   <data name="IntegrityUnexpectedVersionMessage" xml:space="preserve">
     <value>The installed winget version doesn't match the expectation. Installer version '{0}' Expected version '{1}'</value>
     <comment>{Locked="{0}","{1}"} {0} - The winget current installed winget version. {1} - The expected winget version.</comment>
+  </data>
+  <data name="SingleThreadedApartmentNotSupportedMessage" xml:space="preserve">
+    <value>Single threaded apartment (STA) is not currently supported in this context; run PowerShell in Multi-threaded apartment mode (MTA).</value>
+    <comment>{Locked="STA","MTA"}</comment>
   </data>
 </root>

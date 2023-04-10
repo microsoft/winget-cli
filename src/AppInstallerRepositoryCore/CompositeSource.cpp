@@ -820,7 +820,8 @@ namespace AppInstaller::Repository
                     return Field == other.Field && String1 == other.String1 && String2 == other.String2;
                 }
 
-                void AddToFilters(std::vector<PackageMatchFilter>& filters) const
+                void AddToFilters(
+                    std::vector<PackageMatchFilter>& filters) const
                 {
                     switch (Field)
                     {
@@ -852,13 +853,14 @@ namespace AppInstaller::Repository
                     }
                 }
 
-                SearchRequest CreateInclusionsSearchRequest() const
+                SearchRequest CreateInclusionsSearchRequest(SearchPurpose searchPurpose) const
                 {
                     SearchRequest result;
                     for (const auto& srs : SystemReferenceStrings)
                     {
                         srs.AddToFilters(result.Inclusions);
                     }
+                    result.Purpose = searchPurpose;
                     return result;
                 }
             };
@@ -1221,7 +1223,8 @@ namespace AppInstaller::Repository
                 // Create a search request to run against all available sources
                 if (!installedPackageData.SystemReferenceStrings.empty())
                 {
-                    SearchRequest systemReferenceSearch = installedPackageData.CreateInclusionsSearchRequest();
+                    SearchRequest systemReferenceSearch = installedPackageData.CreateInclusionsSearchRequest(SearchPurpose::CorrelationToAvailable);
+                    AICLI_LOG(Repo, Info, << "Finding available package from installed package using system reference search: " << systemReferenceSearch.ToString());
 
                     Source trackedSource;
                     std::shared_ptr<IPackage> trackingPackage;
@@ -1239,8 +1242,8 @@ namespace AppInstaller::Repository
                         std::shared_ptr<IPackage> candidatePackage = GetMatchingPackage(trackingResult.Matches,
                             [&]() {
                                 AICLI_LOG(Repo, Info,
-                                    << "Found multiple matches for installed package [" << installedVersion->GetProperty(PackageVersionProperty::Id) <<
-                                    "] in tracking catalog for source [" << source.GetIdentifier() << "] when searching for [" << systemReferenceSearch.ToString() << "]");
+                                << "Found multiple matches for installed package [" << installedVersion->GetProperty(PackageVersionProperty::Id) <<
+                                "] in tracking catalog for source [" << source.GetIdentifier() << "] when searching for [" << systemReferenceSearch.ToString() << "]");
                             }, [&] {
                                 AICLI_LOG(Repo, Warning, << "  Appropriate tracking package could not be determined");
                             });
@@ -1265,8 +1268,12 @@ namespace AppInstaller::Repository
                     // Directly search for the available package from tracking information.
                     if (trackingPackage)
                     {
-                        addedAvailablePackage = true;
-                        compositePackage->AddAvailablePackage(GetTrackedPackageFromAvailableSource(result, trackedSource, trackingPackage->GetProperty(PackageProperty::Id)));
+                        auto availablePackage = GetTrackedPackageFromAvailableSource(result, trackedSource, trackingPackage->GetProperty(PackageProperty::Id));
+                        if (availablePackage)
+                        {
+                            addedAvailablePackage = true;
+                            compositePackage->AddAvailablePackage(std::move(availablePackage));
+                        }
                         compositePackage->SetTracking(std::move(trackedSource), std::move(trackingPackage), std::move(trackingPackageVersion));
                     }
 
@@ -1297,12 +1304,13 @@ namespace AppInstaller::Repository
                         auto availablePackage = GetMatchingPackage(availableResult.Matches,
                             [&]() {
                                 AICLI_LOG(Repo, Info,
-                                    << "Found multiple matches for installed package [" << installedVersion->GetProperty(PackageVersionProperty::Id) <<
-                                    "] in source [" << source.GetIdentifier() << "] when searching for [" << systemReferenceSearch.ToString() << "]");
+                                << "Found multiple matches for installed package [" << installedVersion->GetProperty(PackageVersionProperty::Id) <<
+                                "] in source [" << source.GetIdentifier() << "] when searching for [" << systemReferenceSearch.ToString() << "]");
                             }, [&] {
                                 AICLI_LOG(Repo, Warning, << "  Appropriate available package could not be determined");
                             });
 
+                        // For non pinning cases. We found some matching packages here, don't keep going.
                         addedAvailablePackage = true;
                         compositePackage->AddAvailablePackage(std::move(availablePackage));
                     }
@@ -1342,9 +1350,9 @@ namespace AppInstaller::Repository
                 // source to create a new composite package entry if we find any packages there.
                 if (packageData && !packageData->SystemReferenceStrings.empty())
                 {
-                    // Create a search request to run against the installed source
-                    SearchRequest systemReferenceSearch = packageData->CreateInclusionsSearchRequest();
+                    SearchRequest systemReferenceSearch = packageData->CreateInclusionsSearchRequest(SearchPurpose::CorrelationToInstalled);
 
+                    AICLI_LOG(Repo, Info, << "Finding installed package from tracking package using system reference search: " << systemReferenceSearch.ToString());
                     // Correlate against installed (allow exceptions out as we own the installed source)
                     SearchResult installedCrossRef = m_installedSource.Search(systemReferenceSearch);
 
@@ -1391,8 +1399,9 @@ namespace AppInstaller::Repository
                 if (packageData && !packageData->SystemReferenceStrings.empty())
                 {
                     // Create a search request to run against the installed source
-                    SearchRequest systemReferenceSearch = packageData->CreateInclusionsSearchRequest();
+                    SearchRequest systemReferenceSearch = packageData->CreateInclusionsSearchRequest(SearchPurpose::CorrelationToInstalled);
 
+                    AICLI_LOG(Repo, Info, << "Finding installed package from available package using system reference search: " << systemReferenceSearch.ToString());
                     // Correlate against installed (allow exceptions out as we own the installed source)
                     SearchResult installedCrossRef = m_installedSource.Search(systemReferenceSearch);
 

@@ -46,6 +46,14 @@
       <OutputItemType>Content</OutputItemType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </ProjectReference>
+    <ProjectReference Include="..\..\Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.InProc.vcxproj">
+      <OutputItemType>Content</OutputItemType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="..\..\WindowsPackageManager\WindowsPackageManager.vcxproj">
+      <OutputItemType>Content</OutputItemType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </ProjectReference>
   </ItemGroup>
 
   <PropertyGroup>
@@ -156,6 +164,17 @@
     </ItemGroup>
     <Message Importance="high" Text="Copying Desktop @(DesktopBinaries) to '$(PowerShellModuleRuntimesDir)\$(DesktopFramework)'" />
     <Copy SourceFiles="@(DesktopBinaries)" DestinationFolder="$(PowerShellModuleRuntimesDir)\$(DesktopFramework)\%(RecursiveDir)" />
+  </Target>
+
+  <!-- Rename Microsoft.Management.Deployment.InProc.dll to Microsoft.Management.Deployment.dll -->
+  <Target Name="RenameMicrosoftManagementDeployment" AfterTargets="AfterBuild">
+    <ItemGroup>
+      <RenameModuleFiles Include="$(PowerShellModuleLibDirectory)\**\Microsoft.Management.Deployment.InProc.dll">
+        <NewName>Microsoft.Management.Deployment.dll</NewName>
+      </RenameModuleFiles>
+    </ItemGroup>
+    <Message Importance="high" Text="Renaming file '%(RenameModuleFiles.Identity)' to '$(PowerShellModuleLibDirectory)\%(RenameModuleFiles.RecursiveDir)\%(RenameModuleFiles.NewName)'" />
+    <Move SourceFiles="%(RenameModuleFiles.Identity)" DestinationFiles="$(PowerShellModuleLibDirectory)\%(RenameModuleFiles.RecursiveDir)\%(RenameModuleFiles.NewName)" />
   </Target>
 
 </Project>

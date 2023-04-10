@@ -39,8 +39,6 @@ namespace AppInstaller::Runtime
         LocalState,
         // The default location where log files are located.
         DefaultLogLocation,
-        // The default location, anonymized using environment variables.
-        DefaultLogLocationForDisplay,
         // The location that standard type settings are stored.
         // In a packaged context, this returns a prepend value for the container name.
         StandardSettings,
@@ -54,8 +52,8 @@ namespace AppInstaller::Runtime
         UserProfile,
         // The location where portable packages are installed to with user scope.
         PortablePackageUserRoot,
-        // The location where portable packages are installed to with machine scope (x64).
-        PortablePackageMachineRootX64,
+        // The location where portable packages are installed to with machine scope.
+        PortablePackageMachineRoot,
         // The location where portable packages are installed to with machine scope (x86).
         PortablePackageMachineRootX86,
         // The location where symlinks to portable packages are stored under user scope.
@@ -112,10 +110,10 @@ namespace AppInstaller::Runtime
 
     // Gets the PathDetails used for the given path.
     // This is exposed primarily to allow for testing, GetPathTo should be preferred.
-    PathDetails GetPathDetailsFor(PathName path);
+    PathDetails GetPathDetailsFor(PathName path, bool forDisplay = false);
 
     // Gets the path to the requested location.
-    std::filesystem::path GetPathTo(PathName path);
+    std::filesystem::path GetPathTo(PathName path, bool forDisplay = false);
 
     // Gets a new temp file path.
     std::filesystem::path GetNewTempFilePath();

@@ -1,0 +1,19 @@
+PackageIdentifier: AppInstallerTest.TestMappingWithArchitectureX86
+PackageVersion: 1.0
+PackageName: TestMappingWithArchitecture
+PackageLocale: en-US
+Publisher: Microsoft
+License: Test
+ShortDescription: E2E test for mapping with architecture.
+Installers:
+  - Architecture: x86
+    InstallerUrl: https://localhost:5001/TestKit/AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe
+    InstallerType: exe
+    InstallerSha256: <EXEHASH>
+    AppsAndFeaturesEntries:
+    - DisplayName: "TestMappingWithArchitecture(X86)"
+    InstallerSwitches:
+      Custom: '/DisplayName TestMappingWithArchitecture(X86) /ProductID {0e426f01-b682-4e67-a357-52f9ecb4590d}'
+      InstallLocation: /InstallDir <INSTALLPATH>
+ManifestType: singleton
+ManifestVersion: 1.2.0

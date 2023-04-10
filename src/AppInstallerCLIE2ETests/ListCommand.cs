@@ -194,6 +194,35 @@ namespace AppInstallerCLIE2ETests
             TestCommon.RemoveMsix(Constants.MsixInstallerName);
         }
 
+        /// <summary>
+        /// Test package correlation with same package name but different architecture is correct.
+        /// </summary>
+        [Test]
+        public void ListWithMappingWithArchitecture()
+        {
+            var installDir = TestCommon.GetRandomTestDir();
+            var result = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestMappingWithArchitectureX86 -l {installDir}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+
+            // List with AppInstallerTest.TestMappingWithArchitectureX64 (from available to installed scenario) will not find the package.
+            result = TestCommon.RunAICLICommand("list", "AppInstallerTest.TestMappingWithArchitectureX64");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
+            Assert.False(result.StdOut.Contains("AppInstallerTest.TestMappingWithArchitectureX64"));
+
+            // List with AppInstallerTest.TestMappingWithArchitectureX86 (from available to installed scenario) will find the package.
+            result = TestCommon.RunAICLICommand("list", "AppInstallerTest.TestMappingWithArchitectureX86");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("AppInstallerTest.TestMappingWithArchitectureX86"));
+
+            // List with product code (from installed to available scenario) will find the AppInstallerTest.TestMappingWithArchitectureX86 package.
+            result = TestCommon.RunAICLICommand("list", "{0e426f01-b682-4e67-a357-52f9ecb4590d}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("AppInstallerTest.TestMappingWithArchitectureX86"));
+
+            // best effort clean up
+            TestCommon.RunCommand(Path.Combine(installDir, Constants.TestExeUninstallerFileName));
+        }
+
         private void ArpVersionMappingTest(string packageIdentifier, string displayNameOverride, string displayVersionOverride, string expectedListVersion, string notExpectedListVersion = "")
         {
             System.Guid guid = System.Guid.NewGuid();

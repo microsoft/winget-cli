@@ -169,3 +169,94 @@ class SimpleTestResourceError
         Write-Error "Error in Set"
     }
 }
+
+[DscResource()]
+class SimpleTestResourceTypes
+{
+    [DscProperty(Key)]
+    [string] $key
+
+    [DscProperty()]
+    [boolean] $boolProperty
+
+    [DscProperty()]
+    [int] $intProperty;
+
+    [DscProperty()]
+    [double] $doubleProperty;
+
+    [DscProperty()]
+    [char] $charProperty;
+
+    [DscProperty()]
+    [Hashtable] $hashtableProperty;
+
+    [SimpleTestResourceTypes] Get()
+    {
+        $result = @{
+            key = "SimpleTestResourceTypesKey"
+            boolProperty = $false
+            intProperty = 0
+            doubleProperty = 0.0
+            charProperty = 'z'
+            hashtableProperty = @{}
+        }
+        return $result
+    }
+
+    [bool] Test()
+    {
+        # Because we can't get the error stream from a class based resource, I throw so is easier to know if
+        # there's something wrong.
+        if ($this.boolProperty -ne $true)
+        {
+            throw "Failed boolProperty"
+        }
+
+        if ($this.intProperty -ne 3)
+        {
+            throw "Failed intProperty. Got $($this.intProperty)"
+        }
+
+        if ($this.doubleProperty -ne -9.876)
+        {
+            throw "Failed doubleProperty Got $($this.doubleProperty)"
+        }
+
+        if ($this.charProperty -ne 'f')
+        {
+            throw "Failed charProperty Got $($this.charProperty)"
+        }
+
+        if ($this.hashtableProperty.ContainsKey("secretStringKey"))
+        {
+            if ($this.hashtableProperty["secretStringKey"] -ne "secretCode")
+            {
+                throw "Failed comparing value of `$hashtableProperty.secretStringKey Got $($this.hashtableProperty["secretStringKey"])"
+            }
+        }
+        else
+        {
+            throw "Failed finding secretStringKey in hashtableProperty"
+        }
+
+        if ($this.hashtableProperty.ContainsKey("secretIntKey"))
+        {
+            if ($this.hashtableProperty["secretIntKey"] -ne 123456)
+            {
+                throw "Failed comparing value of `$hashtableProperty.secretIntKey Got $($this.hashtableProperty["secretIntKey"])"
+            }
+        }
+        else
+        {
+            throw "Failed finding secretIntKey in hashtableProperty"
+        }
+
+        return $true
+    }
+
+    [void] Set()
+    {
+        # no-op
+    }
+}

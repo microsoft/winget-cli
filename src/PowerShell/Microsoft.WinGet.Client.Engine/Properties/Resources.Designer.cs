@@ -79,15 +79,6 @@ namespace Microsoft.WinGet.Client.Engine.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to This cmdlet is currently disabled for SYSTEM..
-        /// </summary>
-        internal static string ExecuteAsSystemExceptionMessage {
-            get {
-                return ResourceManager.GetString("ExecuteAsSystemExceptionMessage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to An error occurred while searching for packages: {0}.
         /// </summary>
         internal static string FindPackagesExceptionMessage {
@@ -237,6 +228,15 @@ namespace Microsoft.WinGet.Client.Engine.Properties {
         internal static string ProgressRecordActivityUpdating {
             get {
                 return ResourceManager.GetString("ProgressRecordActivityUpdating", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Single threaded apartment (STA) is not currently supported in this context; run PowerShell in Multi-threaded apartment mode (MTA)..
+        /// </summary>
+        internal static string SingleThreadedApartmentNotSupportedMessage {
+            get {
+                return ResourceManager.GetString("SingleThreadedApartmentNotSupportedMessage", resourceCulture);
             }
         }
         
