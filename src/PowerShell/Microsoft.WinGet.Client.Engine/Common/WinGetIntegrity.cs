@@ -4,15 +4,15 @@
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.WinGet.Client.Common
+namespace Microsoft.WinGet.Client.Engine.Common
 {
     using System;
     using System.ComponentModel;
     using System.IO;
     using System.Management.Automation;
-    using Microsoft.WinGet.Client.Exceptions;
-    using Microsoft.WinGet.Client.Helpers;
-    using Microsoft.WinGet.Client.Properties;
+    using Microsoft.WinGet.Client.Engine.Exceptions;
+    using Microsoft.WinGet.Client.Engine.Helpers;
+    using Microsoft.WinGet.Client.Engine.Properties;
 
     /// <summary>
     /// Validates winget runs correctly.
