@@ -49,6 +49,25 @@ namespace Microsoft.Management.Configuration
         Load,
     };
 
+    // The source of a result; for instance, the part of the system that generated a failure.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    enum ConfigurationUnitResultSource
+    {
+        // The source is not known, or more likely, there was no failure.
+        None,
+        // The result came from inside the configuration system; this is likely a bug.
+        Internal,
+        // The configuration set was ill formed. For instance, referencing a configuration unit
+        // that does not exist or a dependency that is not present.
+        ConfigurationSet,
+        // The external module that processes the configuration unit generated the result.
+        UnitProcessing,
+        // The configuration unit was not run due to a precondition not being met.
+        // For example, when an assert in the configuration set is not in the desired state,
+        // all of the units with Apply intent will have this set.
+        Precondition,
+    };
+
     // Information on a result for a single unit of configuration.
     [contract(Microsoft.Management.Configuration.Contract, 1)]
     runtimeclass ConfigurationUnitResultInformation
@@ -58,8 +77,11 @@ namespace Microsoft.Management.Configuration
 
         // The description of the failure.
         String Description;
+
+        // The source of the result.
+        ConfigurationUnitResultSource ResultSource;
     }
-        
+
     // Provides information for a specific configuration unit setting.
     [contract(Microsoft.Management.Configuration.Contract, 1)]
     interface IConfigurationUnitSettingDetails
@@ -593,6 +615,12 @@ namespace Microsoft.Management.Configuration
 
         // Indicates the minimum importance desired for diagnostics.
         DiagnosticLevel MinimumLevel;
+
+        // The identifier for the current activity, enabling multiple calls into the processor to be correlated.
+        Guid ActivityIdentifier;
+
+        // If true, ETW events will be generated. Some of those events may be sent to Microsoft depending on the system settings.
+        Boolean GenerateTelemetryEvents;
 
         // Only top level configuration changes are sent to this event.
         // This includes things like: creation of a new set for intent to run, start/stop of a set for application or test, deletion of a not started set.

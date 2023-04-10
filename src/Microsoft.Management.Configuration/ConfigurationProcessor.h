@@ -33,6 +33,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         DiagnosticLevel MinimumLevel();
         void MinimumLevel(DiagnosticLevel value);
 
+        guid ActivityIdentifier();
+        void ActivityIdentifier(const guid& value);
+
+        bool GenerateTelemetryEvents();
+        void GenerateTelemetryEvents(bool value);
+
         event_token ConfigurationChange(const Windows::Foundation::TypedEventHandler<ConfigurationSet, ConfigurationChangeData>& handler);
         void ConfigurationChange(const event_token& token) noexcept;
 
@@ -75,6 +81,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         ConfigThreadGlobals m_threadGlobals;
         IConfigurationSetProcessorFactory::Diagnostics_revoker m_factoryDiagnosticsEventRevoker;
         DiagnosticLevel m_minimumLevel = DiagnosticLevel::Informational;
+        guid m_activityIdentifier{};
+        bool m_generateTelemetryEvents = true;
 #endif
     };
 }

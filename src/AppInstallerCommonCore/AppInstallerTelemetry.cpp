@@ -856,7 +856,7 @@ namespace AppInstaller::Logging
         ThreadLocalStorage::ThreadGlobals* pThreadGlobals = ThreadLocalStorage::ThreadGlobals::GetForCurrentThread();
         if (pThreadGlobals)
         {
-            return pThreadGlobals->GetTelemetryLogger();
+            return *reinterpret_cast<TelemetryTraceLogger*>(pThreadGlobals->GetTelemetryObject());
         }
         else
         {

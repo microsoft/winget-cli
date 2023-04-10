@@ -43,4 +43,14 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         m_description = value;
     }
+
+    ConfigurationUnitResultSource ConfigurationUnitResultInformation::ResultSource()
+    {
+        return m_resultSource;
+    }
+
+    void ConfigurationUnitResultInformation::ResultSource(ConfigurationUnitResultSource value)
+    {
+        m_resultSource = value;
+    }
 }

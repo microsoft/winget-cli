@@ -19,7 +19,9 @@ namespace AppInstaller::ThreadLocalStorage
 
         AppInstaller::Logging::DiagnosticLogger& GetDiagnosticLogger() override;
 
-        AppInstaller::Logging::TelemetryTraceLogger& GetTelemetryLogger() override;
+        void* GetTelemetryObject() override;
+
+        AppInstaller::Logging::TelemetryTraceLogger& GetTelemetryLogger();
 
         // Set Globals for Current Thread
         // Return RAII object with it's ownership to set the AppInstaller ThreadLocalStorage back to previous state

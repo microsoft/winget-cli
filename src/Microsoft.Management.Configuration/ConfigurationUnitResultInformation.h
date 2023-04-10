@@ -21,10 +21,14 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         hstring Description();
         void Description(hstring value);
 
+        ConfigurationUnitResultSource ResultSource();
+        void ResultSource(ConfigurationUnitResultSource value);
+
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
         hresult m_resultCode;
         hstring m_description;
+        ConfigurationUnitResultSource m_resultSource = ConfigurationUnitResultSource::None;
 #endif
     };
 }

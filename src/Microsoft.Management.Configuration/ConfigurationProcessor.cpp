@@ -25,6 +25,32 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 {
     namespace
     {
+        AppInstaller::Logging::Level ConvertLevel(DiagnosticLevel level)
+        {
+            switch (level)
+            {
+            case DiagnosticLevel::Verbose: return AppInstaller::Logging::Level::Verbose;
+            case DiagnosticLevel::Informational: return AppInstaller::Logging::Level::Info;
+            case DiagnosticLevel::Warning: return AppInstaller::Logging::Level::Warning;
+            case DiagnosticLevel::Error: return AppInstaller::Logging::Level::Error;
+            case DiagnosticLevel::Critical: return AppInstaller::Logging::Level::Crit;
+            default: return AppInstaller::Logging::Level::Warning;
+            }
+        }
+
+        DiagnosticLevel ConvertLevel(AppInstaller::Logging::Level level)
+        {
+            switch (level)
+            {
+            case AppInstaller::Logging::Level::Verbose: return DiagnosticLevel::Verbose;
+            case AppInstaller::Logging::Level::Info: return DiagnosticLevel::Informational;
+            case AppInstaller::Logging::Level::Warning: return DiagnosticLevel::Warning;
+            case AppInstaller::Logging::Level::Error: return DiagnosticLevel::Error;
+            case AppInstaller::Logging::Level::Crit: return DiagnosticLevel::Critical;
+            default: return DiagnosticLevel::Warning;
+            }
+        }
+
         // ILogger that sends data back to the Diagnostics event of the ConfigurationProcessor.
         struct ConfigurationProcessorDiagnosticsLogger : public AppInstaller::Logging::ILogger
         {
@@ -50,19 +76,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             catch (...) {}
 
         private:
-            DiagnosticLevel ConvertLevel(AppInstaller::Logging::Level level)
-            {
-                switch (level)
-                {
-                case AppInstaller::Logging::Level::Verbose: return DiagnosticLevel::Verbose;
-                case AppInstaller::Logging::Level::Info: return DiagnosticLevel::Informational;
-                case AppInstaller::Logging::Level::Warning: return DiagnosticLevel::Warning;
-                case AppInstaller::Logging::Level::Error: return DiagnosticLevel::Error;
-                case AppInstaller::Logging::Level::Crit: return DiagnosticLevel::Critical;
-                default: return DiagnosticLevel::Warning;
-                }
-            }
-
             ConfigurationProcessor& m_processor;
         };
 
@@ -95,6 +108,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     ConfigurationProcessor::ConfigurationProcessor(const IConfigurationSetProcessorFactory& factory) : m_factory(factory)
     {
+        GUID activityIdentifier;
+        THROW_IF_FAILED(CoCreateGuid(&activityIdentifier));
+        m_activityIdentifier = activityIdentifier;
+
         AppInstaller::Logging::DiagnosticLogger& logger = m_threadGlobals.GetDiagnosticLogger();
         logger.EnableChannel(AppInstaller::Logging::Channel::All);
         logger.SetLevel(AppInstaller::Logging::Level::Verbose);
@@ -129,7 +146,28 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     void ConfigurationProcessor::MinimumLevel(DiagnosticLevel value)
     {
         m_minimumLevel = value;
+        m_threadGlobals.GetDiagnosticLogger().SetLevel(ConvertLevel(value));
         m_factory.MinimumLevel(value);
+    }
+
+    guid ConfigurationProcessor::ActivityIdentifier()
+    {
+        return m_activityIdentifier;
+    }
+
+    void ConfigurationProcessor::ActivityIdentifier(const guid& value)
+    {
+        m_activityIdentifier = value;
+    }
+
+    bool ConfigurationProcessor::GenerateTelemetryEvents()
+    {
+        return m_generateTelemetryEvents;
+    }
+
+    void ConfigurationProcessor::GenerateTelemetryEvents(bool value)
+    {
+        m_generateTelemetryEvents = value;
     }
 
     event_token ConfigurationProcessor::ConfigurationChange(const Windows::Foundation::TypedEventHandler<ConfigurationSet, ConfigurationChangeData>& handler)
