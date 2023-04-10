@@ -16,7 +16,7 @@ namespace Microsoft.WinGet.Client.Acl
     /// </summary>
     internal class WinGetAssemblyLoadContext : AssemblyLoadContext
     {
-        private static WinGetAssemblyLoadContext acl = new (Path.Combine(Path.GetDirectoryName(typeof(WinGetAssemblyLoadContext).Assembly.Location)));
+        private static readonly WinGetAssemblyLoadContext WinGetAcl = new (Path.Combine(Path.GetDirectoryName(typeof(WinGetAssemblyLoadContext).Assembly.Location)));
 
         private readonly string location;
 
@@ -34,7 +34,7 @@ namespace Microsoft.WinGet.Client.Acl
         /// <returns>The assembly, null if not in our assembly location.</returns>
         internal static Assembly ResolvingHandler(AssemblyLoadContext context, AssemblyName name)
         {
-            return acl.LoadFromAssemblyName(name);
+            return WinGetAcl.LoadFromAssemblyName(name);
         }
 
         /// <inheritdoc/>

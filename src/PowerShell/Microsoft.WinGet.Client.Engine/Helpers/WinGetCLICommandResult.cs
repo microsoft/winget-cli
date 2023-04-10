@@ -4,9 +4,9 @@
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.WinGet.Client.Helpers
+namespace Microsoft.WinGet.Client.Engine.Helpers
 {
-    using Microsoft.WinGet.Client.Exceptions;
+    using Microsoft.WinGet.Client.Engine.Exceptions;
 
     /// <summary>
     /// Winget cli command result.

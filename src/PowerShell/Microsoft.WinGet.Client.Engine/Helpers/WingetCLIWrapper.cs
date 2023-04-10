@@ -4,12 +4,12 @@
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.WinGet.Client.Helpers
+namespace Microsoft.WinGet.Client.Engine.Helpers
 {
     using System.Diagnostics;
     using System.IO;
-    using Microsoft.WinGet.Client.Common;
-    using Microsoft.WinGet.Client.Exceptions;
+    using Microsoft.WinGet.Client.Engine.Common;
+    using Microsoft.WinGet.Client.Engine.Exceptions;
 
     /// <summary>
     /// Calls winget directly.
@@ -71,9 +71,9 @@ namespace Microsoft.WinGet.Client.Helpers
                 args += ' ' + parameters;
             }
 
-            Process p = new ()
+            Process p = new()
             {
-                StartInfo = new (this.wingetPath, args)
+                StartInfo = new(this.wingetPath, args)
                 {
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
@@ -96,4 +96,3 @@ namespace Microsoft.WinGet.Client.Helpers
             throw new WinGetCLITimeoutException(command, parameters);
         }
     }
-}

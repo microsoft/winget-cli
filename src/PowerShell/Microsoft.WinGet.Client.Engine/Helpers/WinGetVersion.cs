@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.WinGet.Client.Helpers
+namespace Microsoft.WinGet.Client.Engine.Helpers
 {
     using System;
 
