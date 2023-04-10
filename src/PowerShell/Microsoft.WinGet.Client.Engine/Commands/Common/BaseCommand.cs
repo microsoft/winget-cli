@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.WinGet.Client.Engine.Commands.Base
+namespace Microsoft.WinGet.Client.Engine.Commands.Common
 {
     using Microsoft.WinGet.Client.Engine.Common;
     using Microsoft.WinGet.Client.Engine.Exceptions;

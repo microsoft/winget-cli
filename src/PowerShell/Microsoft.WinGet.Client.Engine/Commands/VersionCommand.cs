@@ -7,7 +7,7 @@
 namespace Microsoft.WinGet.Client.Engine.Commands
 {
     using System.Management.Automation;
-    using Microsoft.WinGet.Client.Engine.Commands.Base;
+    using Microsoft.WinGet.Client.Engine.Commands.Common;
     using Microsoft.WinGet.Client.Engine.Helpers;
 
     /// <summary>

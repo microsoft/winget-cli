@@ -31,12 +31,7 @@ namespace Microsoft.WinGet.Client.Commands
         /// </summary>
         protected override void ProcessRecord()
         {
-            base.ProcessRecord();
-            var results = GetPackageCatalogReferences(this.Name);
-            for (var i = 0; i < results.Count; i++)
-            {
-                this.WriteObject(new PSObjects.SourceResult(results[i]));
-            }
+            // TODO: call SourceCommand.Get
         }
     }
 }

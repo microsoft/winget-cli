@@ -7,16 +7,14 @@
 namespace Microsoft.WinGet.Client.Commands
 {
     using System.Management.Automation;
-    using Microsoft.WinGet.Client.Commands.Common;
     using Microsoft.WinGet.Client.Common;
-    using Microsoft.WinGet.Client.Helpers;
 
     /// <summary>
     /// Get-WinGetVersion. Gets the current version of winget.
     /// </summary>
     [Cmdlet(VerbsCommon.Get, Constants.WinGetNouns.Version)]
     [OutputType(typeof(string))]
-    public class GetVersionCommand : BaseCommand
+    public class GetVersionCommand : PSCmdlet
     {
         /// <summary>
         /// Writes the winget version.

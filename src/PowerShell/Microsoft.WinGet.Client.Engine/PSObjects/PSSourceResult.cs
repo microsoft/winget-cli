@@ -1,21 +1,21 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="SourceResult.cs" company="Microsoft Corporation">
+// <copyright file="PSSourceResult.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.WinGet.Client.PSObjects
+namespace Microsoft.WinGet.Client.Engine.PSObjects
 {
     /// <summary>
     /// SourceResult wrapper object for displaying to PowerShell.
     /// </summary>
-    public class SourceResult
+    public class PSSourceResult
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="SourceResult"/> class.
+        /// Initializes a new instance of the <see cref="PSSourceResult"/> class.
         /// </summary>
         /// <param name="catalogReference">The PackageCatalogReference COM object.</param>
-        public SourceResult(Management.Deployment.PackageCatalogReference catalogReference)
+        internal PSSourceResult(Management.Deployment.PackageCatalogReference catalogReference)
         {
             var info = catalogReference.Info;
             this.Name = info.Name;

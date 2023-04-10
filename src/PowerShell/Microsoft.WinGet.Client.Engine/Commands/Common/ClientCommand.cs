@@ -4,21 +4,21 @@
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.WinGet.Client.Commands.Common
+namespace Microsoft.WinGet.Client.Engine.Commands.Common
 {
     using System;
     using System.Collections.Generic;
     using System.Runtime.InteropServices;
     using Microsoft.Management.Deployment;
-    using Microsoft.WinGet.Client.Exceptions;
-    using Microsoft.WinGet.Client.Factories;
+    using Microsoft.WinGet.Client.Engine.Exceptions;
+    using Microsoft.WinGet.Client.Engine.Helpers;
 
     /// <summary>
     /// This is the base class for all of the commands in this module that use the COM APIs.
     /// </summary>
-    public abstract class BaseClientCommand : BaseCommand
+    public abstract class ClientCommand : BaseCommand
     {
-        static BaseClientCommand()
+        static ClientCommand()
         {
             InitializeUndockedRegFreeWinRT();
         }
