@@ -9,7 +9,6 @@ namespace Microsoft.WinGet.Client.Commands
     using System.Management.Automation;
     using Microsoft.WinGet.Client.Commands.Common;
     using Microsoft.WinGet.Client.Common;
-    using Microsoft.WinGet.Client.Helpers;
 
     /// <summary>
     /// Assert-WinGetPackageManager. Verifies winget is installed properly.
@@ -18,7 +17,7 @@ namespace Microsoft.WinGet.Client.Commands
         VerbsLifecycle.Assert,
         Constants.WinGetNouns.WinGetPackageManager,
         DefaultParameterSetName = Constants.IntegrityVersionSet)]
-    public class AssertWinGetPackageManagerCommand : BaseIntegrityCommand
+    public class AssertWinGetPackageManagerCommand : WinGetPackageManagerCommand
     {
         /// <summary>
         /// Validates winget is installed correctly. If not, throws an exception

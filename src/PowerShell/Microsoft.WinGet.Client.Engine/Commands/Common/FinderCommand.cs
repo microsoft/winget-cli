@@ -1,79 +1,57 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="BaseFinderCommand.cs" company="Microsoft Corporation">
+// <copyright file="FinderCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.WinGet.Client.Commands.Common
+namespace Microsoft.WinGet.Client.Engine.Commands.Common
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Management.Automation;
     using System.Reflection;
     using Microsoft.Management.Deployment;
-    using Microsoft.WinGet.Client.Attributes;
-    using Microsoft.WinGet.Client.Common;
-    using Microsoft.WinGet.Client.Exceptions;
+    using Microsoft.WinGet.Client.Engine.Attributes;
+    using Microsoft.WinGet.Client.Engine.Exceptions;
 
     /// <summary>
     /// This is the base class for all commands that might need to search for a package. It contains an initial
     /// set of parameters that corresponds to the intersection of i.e., the "install" and "search" commands.
     /// </summary>
-    public abstract class BaseFinderCommand : BaseClientCommand
+    public abstract class FinderCommand : ClientCommand
     {
         /// <summary>
         /// Gets or sets the field that is matched against the identifier of a package.
         /// </summary>
         [Filter(Field = PackageMatchField.Id)]
-        [Parameter(
-            ParameterSetName = Constants.FoundSet,
-            ValueFromPipelineByPropertyName = true)]
-        public string Id { get; set; }
+        protected string Id { get; set; }
 
         /// <summary>
         /// Gets or sets the field that is matched against the name of a package.
         /// </summary>
         [Filter(Field = PackageMatchField.Name)]
-        [Parameter(
-            ParameterSetName = Constants.FoundSet,
-            ValueFromPipelineByPropertyName = true)]
-        public string Name { get; set; }
+        protected string Name { get; set; }
 
         /// <summary>
         /// Gets or sets the field that is matched against the name of a package.
         /// </summary>
         [Filter(Field = PackageMatchField.Moniker)]
-        [Parameter(
-            ParameterSetName = Constants.FoundSet,
-            ValueFromPipelineByPropertyName = true)]
-        public string Moniker { get; set; }
+        protected string Moniker { get; set; }
 
         /// <summary>
         /// Gets or sets the name of the source to search for packages. If null, then all sources are searched.
         /// </summary>
-        [Parameter(
-            ParameterSetName = Constants.FoundSet,
-            ValueFromPipelineByPropertyName = true)]
-        public string Source { get; set; }
+        protected string Source { get; set; }
 
         /// <summary>
         /// Gets or sets the strings that match against every field of a package.
         /// </summary>
-        [Parameter(
-            ParameterSetName = Constants.FoundSet,
-            Position = 0,
-            ValueFromPipelineByPropertyName = true,
-            ValueFromRemainingArguments = true)]
-        public string[] Query { get; set; }
+        protected string[] Query { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether to match exactly against package fields.
         /// </summary>
-        [Parameter(
-            ParameterSetName = Constants.FoundSet,
-            ValueFromPipelineByPropertyName = true)]
-        public SwitchParameter Exact { get; set; }
+        protected bool Exact { get; set; }
 
         private string QueryAsJoinedString
         {
@@ -91,7 +69,7 @@ namespace Microsoft.WinGet.Client.Commands.Common
         /// <returns>A <see cref="PackageFieldMatchOption" /> value.</returns>
         protected virtual PackageFieldMatchOption GetExactAsMatchOption()
         {
-            return this.Exact.ToBool()
+            return this.Exact
                 ? PackageFieldMatchOption.Equals
                 : PackageFieldMatchOption.ContainsCaseInsensitive;
         }

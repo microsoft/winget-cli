@@ -22,7 +22,7 @@ namespace Microsoft.WinGet.Client.Commands
         DefaultParameterSetName = Constants.FoundSet,
         SupportsShouldProcess = true)]
     [OutputType(typeof(PSObjects.InstallResult))]
-    public sealed class InstallPackageCommand : BaseInstallCommand
+    public sealed class InstallPackageCommand : InstallCommand
     {
         private ProcessorArchitecture architecture;
         private bool architectureGiven;

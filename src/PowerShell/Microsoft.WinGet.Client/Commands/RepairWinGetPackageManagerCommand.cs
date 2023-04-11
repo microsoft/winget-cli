@@ -21,7 +21,7 @@ namespace Microsoft.WinGet.Client.Commands
         Constants.WinGetNouns.WinGetPackageManager,
         DefaultParameterSetName = Constants.IntegrityVersionSet)]
     [OutputType(typeof(int))]
-    public class RepairWinGetPackageManagerCommand : BaseIntegrityCommand
+    public class RepairWinGetPackageManagerCommand : WinGetPackageManagerCommand
     {
         /// <summary>
         /// Attempts to repair winget.

@@ -23,7 +23,7 @@ namespace Microsoft.WinGet.Client.Commands
         DefaultParameterSetName = Constants.FoundSet,
         SupportsShouldProcess = true)]
     [OutputType(typeof(PSObjects.UninstallResult))]
-    public sealed class UninstallPackageCommand : BasePackageCommand
+    public sealed class UninstallPackageCommand : PackageCommand
     {
         /// <summary>
         /// Gets or sets the desired mode for the uninstallation process.

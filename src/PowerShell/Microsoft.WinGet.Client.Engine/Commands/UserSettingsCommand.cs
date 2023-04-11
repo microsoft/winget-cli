@@ -43,7 +43,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <summary>
         /// Initializes a new instance of the <see cref="UserSettingsCommand"/> class.
         /// </summary>
-        /// <param name="cmdlet">Cmdlet.</param>
+        /// <param name="psCmdlet">PSCmdlet.</param>
         public UserSettingsCommand(PSCmdlet psCmdlet)
         {
             this.psCmdlet = psCmdlet;

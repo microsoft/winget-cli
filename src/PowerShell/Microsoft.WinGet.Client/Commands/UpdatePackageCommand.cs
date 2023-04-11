@@ -21,7 +21,7 @@ namespace Microsoft.WinGet.Client.Commands
         DefaultParameterSetName = Constants.FoundSet,
         SupportsShouldProcess = true)]
     [OutputType(typeof(PSObjects.InstallResult))]
-    public sealed class UpdatePackageCommand : BaseInstallCommand
+    public sealed class UpdatePackageCommand : InstallCommand
     {
         /// <summary>
         /// Gets or sets a value indicating whether updating to an unknown version is allowed.
