@@ -20,6 +20,15 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
     public abstract class PackageCommand : FinderCommand
     {
         /// <summary>
+        /// Initializes a new instance of the <see cref="PackageCommand"/> class.
+        /// </summary>
+        /// <param name="psCmdlet">PSCmdlet.</param>
+        internal PackageCommand(PSCmdlet psCmdlet)
+            : base(psCmdlet)
+        {
+        }
+
+        /// <summary>
         /// Gets or sets the package to directly install.
         /// </summary>
         /// <remarks>
@@ -37,11 +46,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         /// TODO: NEEDS TO BE TRANSFORMED.
         /// </summary>
         protected string Log { get; set; }
-
-        /// <summary>
-        /// Gets or sets the caller PSCmdlet.
-        /// </summary>
-        protected PSCmdlet PsCmdlet { get; set; }
 
         /// <summary>
         /// Executes a command targeting a specific package version.

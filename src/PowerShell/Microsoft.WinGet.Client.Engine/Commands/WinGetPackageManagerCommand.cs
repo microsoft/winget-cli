@@ -24,15 +24,13 @@ namespace Microsoft.WinGet.Client.Engine.Commands
 
         private static readonly string[] WriteInformationTags = new string[] { "PSHOST" };
 
-        private readonly PSCmdlet psCmdlet;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="WinGetPackageManagerCommand"/> class.
         /// </summary>
         /// <param name="psCmdlet">Cmdlet being executed.</param>
         public WinGetPackageManagerCommand(PSCmdlet psCmdlet)
+            : base(psCmdlet)
         {
-            this.psCmdlet = psCmdlet;
         }
 
         /// <summary>
@@ -52,7 +50,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="expectedVersion">The expected version.</param>
         public void Assert(string expectedVersion)
         {
-            WinGetIntegrity.AssertWinGet(this.psCmdlet, expectedVersion);
+            WinGetIntegrity.AssertWinGet(this.PsCmdlet, expectedVersion);
         }
 
         /// <summary>
@@ -74,8 +72,8 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         {
             int result = Failed;
 
-            var integrityCategory = WinGetIntegrity.GetIntegrityCategory(this.psCmdlet, expectedVersion);
-            this.psCmdlet.WriteDebug($"Integrity category type: {integrityCategory}");
+            var integrityCategory = WinGetIntegrity.GetIntegrityCategory(this.PsCmdlet, expectedVersion);
+            this.PsCmdlet.WriteDebug($"Integrity category type: {integrityCategory}");
 
             if (integrityCategory == IntegrityCategory.Installed ||
                 integrityCategory == IntegrityCategory.UnexpectedVersion)
@@ -87,18 +85,18 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                 this.RepairEnvPath();
 
                 // Now try again and get the desired winget version if needed.
-                var newIntegrityCategory = WinGetIntegrity.GetIntegrityCategory(this.psCmdlet, expectedVersion);
-                this.psCmdlet.WriteDebug($"Integrity category after fixing PATH {newIntegrityCategory}");
+                var newIntegrityCategory = WinGetIntegrity.GetIntegrityCategory(this.PsCmdlet, expectedVersion);
+                this.PsCmdlet.WriteDebug($"Integrity category after fixing PATH {newIntegrityCategory}");
                 result = this.VerifyWinGetInstall(newIntegrityCategory, expectedVersion);
             }
             else if (integrityCategory == IntegrityCategory.AppInstallerNotRegistered)
             {
-                var appxModule = new AppxModuleHelper(this.psCmdlet);
+                var appxModule = new AppxModuleHelper(this.PsCmdlet);
                 appxModule.RegisterAppInstaller();
 
                 // Now try again and get the desired winget version if needed.
-                var newIntegrityCategory = WinGetIntegrity.GetIntegrityCategory(this.psCmdlet, expectedVersion);
-                this.psCmdlet.WriteDebug($"Integrity category after registering {newIntegrityCategory}");
+                var newIntegrityCategory = WinGetIntegrity.GetIntegrityCategory(this.PsCmdlet, expectedVersion);
+                this.PsCmdlet.WriteDebug($"Integrity category after registering {newIntegrityCategory}");
                 result = this.VerifyWinGetInstall(newIntegrityCategory, expectedVersion);
             }
             else if (integrityCategory == IntegrityCategory.AppInstallerNotInstalled ||
@@ -120,20 +118,20 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                 }
                 else
                 {
-                    this.psCmdlet.WriteDebug($"Failed installing {expectedVersion}");
+                    this.PsCmdlet.WriteDebug($"Failed installing {expectedVersion}");
                 }
             }
             else if (integrityCategory == IntegrityCategory.AppExecutionAliasDisabled)
             {
                 // Sorry, but the user has to manually enabled it.
-                this.psCmdlet.WriteInformation(Resources.AppExecutionAliasDisabledHelpMessage, WriteInformationTags);
+                this.PsCmdlet.WriteInformation(Resources.AppExecutionAliasDisabledHelpMessage, WriteInformationTags);
             }
             else
             {
-                this.psCmdlet.WriteInformation(Resources.WinGetNotSupportedMessage, WriteInformationTags);
+                this.PsCmdlet.WriteInformation(Resources.WinGetNotSupportedMessage, WriteInformationTags);
             }
 
-            this.psCmdlet.WriteObject(result);
+            this.PsCmdlet.WriteObject(result);
         }
 
         private int VerifyWinGetInstall(IntegrityCategory integrityCategory, string expectedVersion)
@@ -141,7 +139,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             if (integrityCategory == IntegrityCategory.Installed)
             {
                 // Nothing to do
-                this.psCmdlet.WriteDebug($"WinGet is in a good state.");
+                this.PsCmdlet.WriteDebug($"WinGet is in a good state.");
                 return Succeeded;
             }
             else if (integrityCategory == IntegrityCategory.UnexpectedVersion)
@@ -149,7 +147,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                 // The versions are different, download and install.
                 if (!this.InstallDifferentVersion(new WinGetVersion(expectedVersion)))
                 {
-                    this.psCmdlet.WriteDebug($"Failed installing {expectedVersion}");
+                    this.PsCmdlet.WriteDebug($"Failed installing {expectedVersion}");
                 }
                 else
                 {
@@ -164,8 +162,8 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         {
             var installedVersion = WinGetVersion.InstalledWinGetVersion;
 
-            this.psCmdlet.WriteDebug($"Installed WinGet version {installedVersion.TagVersion}");
-            this.psCmdlet.WriteDebug($"Installing WinGet version {toInstallVersion.TagVersion}");
+            this.PsCmdlet.WriteDebug($"Installed WinGet version {installedVersion.TagVersion}");
+            this.PsCmdlet.WriteDebug($"Installing WinGet version {toInstallVersion.TagVersion}");
 
             bool downgrade = false;
             if (installedVersion.CompareAsDeployment(toInstallVersion) > 0)
@@ -182,17 +180,17 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             var gitHubRelease = new GitHubRelease();
             var downloadedMsixBundlePath = gitHubRelease.DownloadRelease(versionTag);
 
-            var appxModule = new AppxModuleHelper(this.psCmdlet);
+            var appxModule = new AppxModuleHelper(this.PsCmdlet);
             appxModule.AddAppInstallerBundle(downloadedMsixBundlePath, downgrade);
 
             // Verify that is installed
-            var integrityCategory = WinGetIntegrity.GetIntegrityCategory(this.psCmdlet, versionTag);
+            var integrityCategory = WinGetIntegrity.GetIntegrityCategory(this.PsCmdlet, versionTag);
             if (integrityCategory != IntegrityCategory.Installed)
             {
                 return false;
             }
 
-            this.psCmdlet.WriteDebug($"Installed WinGet version {versionTag}");
+            this.PsCmdlet.WriteDebug($"Installed WinGet version {versionTag}");
             return true;
         }
 
@@ -205,9 +203,9 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             string envPathUser = Environment.GetEnvironmentVariable(Constants.PathEnvVar, EnvironmentVariableTarget.User);
             string envPathMachine = Environment.GetEnvironmentVariable(Constants.PathEnvVar, EnvironmentVariableTarget.Machine);
             string newPwshPathEnv = $"{envPathMachine};{envPathUser}";
-            this.psCmdlet.SessionState.PSVariable.Set(EnvPath, newPwshPathEnv);
+            this.PsCmdlet.SessionState.PSVariable.Set(EnvPath, newPwshPathEnv);
 
-            this.psCmdlet.WriteDebug($"PATH environment variable updated");
+            this.PsCmdlet.WriteDebug($"PATH environment variable updated");
         }
     }
 }

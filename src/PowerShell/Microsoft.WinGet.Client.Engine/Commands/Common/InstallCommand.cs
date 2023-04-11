@@ -18,6 +18,15 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
     public abstract class InstallCommand : PackageCommand
     {
         /// <summary>
+        /// Initializes a new instance of the <see cref="InstallCommand"/> class.
+        /// </summary>
+        /// <param name="psCmdlet">PSCmdlet.</param>
+        internal InstallCommand(PSCmdlet psCmdlet)
+            : base(psCmdlet)
+        {
+        }
+
+        /// <summary>
         /// Gets or sets the mode to manipulate the package with.
         /// </summary>
         protected PackageInstallMode Mode { get; set; } = PackageInstallMode.Default;

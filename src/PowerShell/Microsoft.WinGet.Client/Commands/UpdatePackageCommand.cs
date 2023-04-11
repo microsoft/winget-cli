@@ -7,10 +7,8 @@
 namespace Microsoft.WinGet.Client.Commands
 {
     using System.Management.Automation;
-    using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Commands.Common;
     using Microsoft.WinGet.Client.Common;
-    using Microsoft.WinGet.Client.Properties;
 
     /// <summary>
     /// This commands updates a package from the pipeline or from the local system.
@@ -34,33 +32,7 @@ namespace Microsoft.WinGet.Client.Commands
         /// </summary>
         protected override void ProcessRecord()
         {
-            base.ProcessRecord();
-            this.GetPackageAndExecute(CompositeSearchBehavior.LocalCatalogs, (package, version) =>
-            {
-                InstallOptions options = this.GetInstallOptions(version);
-                InstallResult result = this.UpgradePackage(package, options);
-                this.WriteObject(result);
-            });
-        }
-
-        /// <inheritdoc />
-        protected override InstallOptions GetInstallOptions(PackageVersionId version)
-        {
-            InstallOptions options = base.GetInstallOptions(version);
-            options.AllowUpgradeToUnknownVersion = this.IncludeUnknown.ToBool();
-            return options;
-        }
-
-        private InstallResult UpgradePackage(
-            CatalogPackage package,
-            InstallOptions options)
-        {
-            var operation = PackageManager.Value.UpgradePackageAsync(package, options);
-            return this.RegisterCallbacksAndWait(
-                operation,
-                string.Format(
-                    Resources.ProgressRecordActivityUpdating,
-                    package.Name));
+            // todo create installer command and call update.
         }
     }
 }

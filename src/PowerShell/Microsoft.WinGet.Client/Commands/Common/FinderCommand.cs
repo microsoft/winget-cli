@@ -32,7 +32,7 @@ namespace Microsoft.WinGet.Client.Commands.Common
         public string Name { get; set; }
 
         /// <summary>
-        /// Gets or sets the field that is matched against the name of a package.
+        /// Gets or sets the field that is matched against the moniker of a package.
         /// </summary>
         [Parameter(
             ParameterSetName = Constants.FoundSet,

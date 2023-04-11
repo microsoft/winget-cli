@@ -23,12 +23,7 @@ namespace Microsoft.WinGet.Client.Commands
         /// </summary>
         protected override void ProcessRecord()
         {
-            base.ProcessRecord();
-            var results = this.FindPackages(CompositeSearchBehavior.LocalCatalogs);
-            for (var i = 0; i < results.Count; i++)
-            {
-                this.WriteObject(new PSObjects.InstalledCatalogPackage(results[i].CatalogPackage));
-            }
+            // TODO: create finderpacakge, call get
         }
     }
 }

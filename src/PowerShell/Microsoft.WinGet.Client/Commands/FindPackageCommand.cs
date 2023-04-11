@@ -7,7 +7,6 @@
 namespace Microsoft.WinGet.Client.Commands
 {
     using System.Management.Automation;
-    using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Commands.Common;
     using Microsoft.WinGet.Client.Common;
 
@@ -23,12 +22,7 @@ namespace Microsoft.WinGet.Client.Commands
         /// </summary>
         protected override void ProcessRecord()
         {
-            base.ProcessRecord();
-            var results = this.FindPackages(CompositeSearchBehavior.RemotePackagesFromRemoteCatalogs);
-            for (var i = 0; i < results.Count; i++)
-            {
-                this.WriteObject(new PSObjects.FoundCatalogPackage(results[i].CatalogPackage));
-            }
+            // TODO: create finderpacakge, call find
         }
     }
 }

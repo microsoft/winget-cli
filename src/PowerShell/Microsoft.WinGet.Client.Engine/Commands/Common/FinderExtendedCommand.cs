@@ -7,6 +7,7 @@
 namespace Microsoft.WinGet.Client.Engine.Commands.Common
 {
     using System.Collections.Generic;
+    using System.Management.Automation;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Engine.Attributes;
 
@@ -17,6 +18,15 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
     /// </summary>
     public abstract class FinderExtendedCommand : FinderCommand
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FinderExtendedCommand"/> class.
+        /// </summary>
+        /// <param name="psCmdlet">PSCmdlet.</param>
+        internal FinderExtendedCommand(PSCmdlet psCmdlet)
+            : base(psCmdlet)
+        {
+        }
+
         /// <summary>
         /// Gets or sets the filter that is matched against the tags of the package.
         /// </summary>

@@ -1,25 +1,26 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="PackageVersionInfo.cs" company="Microsoft Corporation">
+// <copyright file="PSPackageVersionInfo.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.WinGet.Client.PSObjects
+namespace Microsoft.WinGet.Client.Engine.PSObjects
 {
     using System.Linq;
+    using Microsoft.Management.Deployment;
 
     /// <summary>
-    /// CatalogPackage wrapper object for displaying to PowerShell.
+    /// PackageVersionInfo wrapper object for displaying to PowerShell.
     /// </summary>
-    public class PackageVersionInfo
+    public sealed class PSPackageVersionInfo
     {
-        private Management.Deployment.PackageVersionInfo packageVersionInfo;
+        private PackageVersionInfo packageVersionInfo;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PackageVersionInfo"/> class.
+        /// Initializes a new instance of the <see cref="PSPackageVersionInfo"/> class.
         /// </summary>
         /// <param name="packageVersionInfo">PackageVersionInfo COM object.</param>
-        public PackageVersionInfo(Management.Deployment.PackageVersionInfo packageVersionInfo)
+        internal PSPackageVersionInfo(PackageVersionInfo packageVersionInfo)
         {
             this.packageVersionInfo = packageVersionInfo;
         }

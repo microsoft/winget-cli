@@ -15,15 +15,13 @@ namespace Microsoft.WinGet.Client.Engine.Commands
     /// </summary>
     internal class VersionCommand : BaseCommand
     {
-        private readonly PSCmdlet psCmdlet;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="VersionCommand"/> class.
         /// </summary>
         /// <param name="psCmdlet">The caller cmdlet.</param>
         public VersionCommand(PSCmdlet psCmdlet)
+            : base(psCmdlet)
         {
-            this.psCmdlet = psCmdlet;
         }
 
         /// <summary>
@@ -31,7 +29,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// </summary>
         public void Get()
         {
-            this.psCmdlet.WriteObject(WinGetVersion.InstalledWinGetVersion.TagVersion);
+            this.PsCmdlet.WriteObject(WinGetVersion.InstalledWinGetVersion.TagVersion);
         }
     }
 }

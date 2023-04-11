@@ -8,6 +8,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
 {
     using System;
     using System.Collections.Generic;
+    using System.Management.Automation;
     using System.Runtime.InteropServices;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Engine.Exceptions;
@@ -21,6 +22,15 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         static ClientCommand()
         {
             InitializeUndockedRegFreeWinRT();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ClientCommand"/> class.
+        /// </summary>
+        /// <param name="psCmdlet">psCmdlet.</param>
+        internal ClientCommand(PSCmdlet psCmdlet)
+            : base(psCmdlet)
+        {
         }
 
         /// <summary>

@@ -9,6 +9,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Management.Automation;
     using System.Reflection;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Engine.Attributes;
@@ -20,6 +21,15 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
     /// </summary>
     public abstract class FinderCommand : ClientCommand
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FinderCommand"/> class.
+        /// </summary>
+        /// <param name="psCmdlet">PSCmdlet.</param>
+        internal FinderCommand(PSCmdlet psCmdlet)
+            : base(psCmdlet)
+        {
+        }
+
         /// <summary>
         /// Gets or sets the field that is matched against the identifier of a package.
         /// </summary>
@@ -33,7 +43,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         protected string Name { get; set; }
 
         /// <summary>
-        /// Gets or sets the field that is matched against the name of a package.
+        /// Gets or sets the field that is matched against the moniker of a package.
         /// </summary>
         [Filter(Field = PackageMatchField.Moniker)]
         protected string Moniker { get; set; }

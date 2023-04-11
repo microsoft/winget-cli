@@ -6,6 +6,7 @@
 
 namespace Microsoft.WinGet.Client.Engine.Commands.Common
 {
+    using System.Management.Automation;
     using Microsoft.WinGet.Client.Engine.Common;
     using Microsoft.WinGet.Client.Engine.Exceptions;
 
@@ -17,7 +18,8 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         /// <summary>
         /// Initializes a new instance of the <see cref="BaseCommand"/> class.
         /// </summary>
-        public BaseCommand()
+        /// <param name="psCmdlet">PSCmdlet.</param>
+        internal BaseCommand(PSCmdlet psCmdlet)
             : base()
         {
             // The inproc COM API may deadlock on an STA thread.
@@ -25,6 +27,13 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
             {
                 throw new SingleThreadedApartmentException();
             }
+
+            this.PsCmdlet = psCmdlet;
         }
+
+        /// <summary>
+        /// Gets the caller PSCmdlet.
+        /// </summary>
+        protected PSCmdlet PsCmdlet { get; private set; }
     }
 }

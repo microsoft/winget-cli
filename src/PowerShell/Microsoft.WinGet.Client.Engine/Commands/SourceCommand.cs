@@ -15,16 +15,14 @@ namespace Microsoft.WinGet.Client.Engine.Commands
     /// </summary>
     public sealed class SourceCommand : ClientCommand
     {
-        private readonly PSCmdlet psCmdlet;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="SourceCommand"/> class.
         /// Wrapper for Source commands.
         /// </summary>
         /// <param name="psCmdlet">Caller cmdlet.</param>
         public SourceCommand(PSCmdlet psCmdlet)
+            : base(psCmdlet)
         {
-            this.psCmdlet = psCmdlet;
         }
 
         /// <summary>
@@ -36,7 +34,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             var results = GetPackageCatalogReferences(name);
             for (var i = 0; i < results.Count; i++)
             {
-                this.psCmdlet.WriteObject(new PSSourceResult(results[i]));
+                this.PsCmdlet.WriteObject(new PSSourceResult(results[i]));
             }
         }
     }

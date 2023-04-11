@@ -25,7 +25,7 @@ namespace Microsoft.WinGet.Client.Commands.Common
             Position = 0,
             ValueFromPipeline = true,
             ValueFromPipelineByPropertyName = true)]
-        public PSCatalogPackage PSCatalogPackage { get; set; }
+        public PSCatalogPackage PSCatalogPackage { get; set; } = null;
 
         /// <summary>
         /// Gets or sets the version to install.
