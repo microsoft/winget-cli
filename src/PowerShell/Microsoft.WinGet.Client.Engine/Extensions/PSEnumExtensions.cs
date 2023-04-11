@@ -19,11 +19,11 @@ namespace Microsoft.WinGet.Client.Engine.Extensions
         /// <summary>
         /// Converts PSPackageInstallMode to PackageInstallMode.
         /// </summary>
-        /// <param name="psObj">PSPackageInstallMode.</param>
+        /// <param name="psEnum">PSPackageInstallMode.</param>
         /// <returns>PackageInstallMode.</returns>
-        public static PackageInstallMode ToPackageInstallMode(this PSPackageInstallMode psObj)
+        public static PackageInstallMode ToPackageInstallMode(this PSPackageInstallMode psEnum)
         {
-            return psObj switch
+            return psEnum switch
             {
                 PSPackageInstallMode.Default => PackageInstallMode.Default,
                 PSPackageInstallMode.Silent => PackageInstallMode.Silent,
@@ -35,11 +35,11 @@ namespace Microsoft.WinGet.Client.Engine.Extensions
         /// <summary>
         /// Converts PSPackageInstallScope to PackageInstallScope.
         /// </summary>
-        /// <param name="psObj">PSPackageInstallScope.</param>
+        /// <param name="psEnum">PSPackageInstallScope.</param>
         /// <returns>PackageInstallScope.</returns>
-        public static PackageInstallScope ToPackageInstallScope(this PSPackageInstallScope psObj)
+        public static PackageInstallScope ToPackageInstallScope(this PSPackageInstallScope psEnum)
         {
-            return psObj switch
+            return psEnum switch
             {
                 PSPackageInstallScope.Any => PackageInstallScope.Any,
                 PSPackageInstallScope.User => PackageInstallScope.User,
@@ -53,11 +53,11 @@ namespace Microsoft.WinGet.Client.Engine.Extensions
         /// <summary>
         /// Converts PSProcessorArchitecture to ProcessorArchitecture.
         /// </summary>
-        /// <param name="psObj">PSProcessorArchitecture.</param>
+        /// <param name="psEnum">PSProcessorArchitecture.</param>
         /// <returns>ProcessorArchitecture.</returns>
-        public static ProcessorArchitecture ToProcessorArchitecture(this PSProcessorArchitecture psObj)
+        public static ProcessorArchitecture ToProcessorArchitecture(this PSProcessorArchitecture psEnum)
         {
-            return psObj switch
+            return psEnum switch
             {
                 PSProcessorArchitecture.X86 => ProcessorArchitecture.X86,
                 PSProcessorArchitecture.Arm => ProcessorArchitecture.Arm,
@@ -65,6 +65,22 @@ namespace Microsoft.WinGet.Client.Engine.Extensions
                 PSProcessorArchitecture.Neutral => ProcessorArchitecture.Neutral,
                 PSProcessorArchitecture.Arm64 => ProcessorArchitecture.Arm64,
                 PSProcessorArchitecture.X86OnArm64 => ProcessorArchitecture.X86OnArm64,
+                _ => throw new InvalidOperationException(),
+            };
+        }
+
+        /// <summary>
+        /// Converts PSPackageUninstallMode to PackageUninstallMode.
+        /// </summary>
+        /// <param name="psEnum">PSPackageUninstallMode.</param>
+        /// <returns>PackageUninstallMode.</returns>
+        public static PackageUninstallMode ToPackageUninstallMode(this PSPackageUninstallMode psEnum)
+        {
+            return psEnum switch
+            {
+                PSPackageUninstallMode.Default => PackageUninstallMode.Default,
+                PSPackageUninstallMode.Silent => PackageUninstallMode.Silent,
+                PSPackageUninstallMode.Interactive => PackageUninstallMode.Interactive,
                 _ => throw new InvalidOperationException(),
             };
         }
