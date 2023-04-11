@@ -24,7 +24,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_description = description;
     }
 
-    hresult ConfigurationUnitResultInformation::ResultCode()
+    hresult ConfigurationUnitResultInformation::ResultCode() const
     {
         return m_resultCode;
     }
@@ -44,7 +44,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_description = value;
     }
 
-    ConfigurationUnitResultSource ConfigurationUnitResultInformation::ResultSource()
+    ConfigurationUnitResultSource ConfigurationUnitResultInformation::ResultSource() const
     {
         return m_resultSource;
     }

@@ -4,10 +4,12 @@
 #include <AppInstallerLanguageUtilities.h>
 #include <winrt/Microsoft.Management.Configuration.h>
 #include <winrt/Windows.Foundation.Collections.h>
+#include "ConfigurationUnitResultInformation.h"
 
 #include <cguid.h>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
@@ -40,14 +42,22 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         void LogConfigUnitRun(
             const guid& setIdentifier,
             const guid& unitIdentifier,
-            std::string_view unitName,
-            std::string_view moduleName,
+            hstring unitName,
+            hstring moduleName,
             ConfigurationUnitIntent unitIntent,
             ConfigurationUnitIntent runIntent,
             std::string_view action,
             hresult result,
             ConfigurationUnitResultSource failurePoint,
-            const winrt::Windows::Foundation::Collections::ValueSet& settings) const noexcept;
+            std::wstring_view settingNames) const noexcept;
+
+        // Logs information about running a configuration unit in the appropriate conditions.
+        void LogConfigUnitRunIfAppropriate(
+            const guid& setIdentifier,
+            const Configuration::ConfigurationUnit& unit,
+            ConfigurationUnitIntent runIntent,
+            std::string_view action,
+            const ConfigurationUnitResultInformation& resultInformation) const noexcept;
 
     protected:
         bool IsTelemetryEnabled() const noexcept;
@@ -55,6 +65,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         CopyConstructibleAtomic<bool> m_isRuntimeEnabled{ true };
 
         GUID m_activityId = GUID_NULL;
+        std::string m_version;
         std::string m_caller;
     };
 }

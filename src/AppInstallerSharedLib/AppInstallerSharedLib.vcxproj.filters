@@ -68,6 +68,9 @@
     <ClInclude Include="Public\Telemetry\WinEventLogLevels.h">
       <Filter>Public\Telemetry - Do Not Modify</Filter>
     </ClInclude>
+    <ClInclude Include="Public\winget\Runtime.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -104,6 +107,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Versions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Runtime.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

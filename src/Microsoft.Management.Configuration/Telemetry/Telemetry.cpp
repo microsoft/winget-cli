@@ -14,6 +14,7 @@ g_hTraceProvider,\
 _eventName_,\
 GetActivityId(),\
 nullptr,\
+TraceLoggingCountedUtf8String(m_version.c_str(),  static_cast<ULONG>(m_version.size()), "CodeVersion"),\
 TraceLoggingCountedUtf8String(m_caller.c_str(),  static_cast<ULONG>(m_caller.size()), "Caller"),\
 __VA_ARGS__)
 
@@ -24,6 +25,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     TelemetryTraceLogger::TelemetryTraceLogger()
     {
         std::ignore = CoCreateGuid(&m_activityId);
+        // TODO: Get client version info
     }
 
     void TelemetryTraceLogger::SetActivityId(const guid& value)
@@ -49,30 +51,67 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     void TelemetryTraceLogger::LogConfigUnitRun(
         const guid& setIdentifier,
         const guid& unitIdentifier,
-        std::string_view unitName,
-        std::string_view moduleName,
+        hstring unitName,
+        hstring moduleName,
         ConfigurationUnitIntent unitIntent,
         ConfigurationUnitIntent runIntent,
         std::string_view action,
         hresult result,
         ConfigurationUnitResultSource failurePoint,
-        const winrt::Windows::Foundation::Collections::ValueSet& settings) const noexcept
+        std::wstring_view settingNames) const noexcept try
     {
         if (IsTelemetryEnabled())
         {
+            // TODO: Integrate enablement and activity id with processor properties
             AICLI_TraceLoggingWriteActivity(
                 "ConfigUnitRun",
-                TraceLoggingHResult(failure.hr, "HResult"),
-                AICLI_TraceLoggingWStringView(anonMessage, "Message"),
-                TraceLoggingString(failure.pszModule, "Module"),
-                TraceLoggingUInt32(failure.threadId, "ThreadId"),
-                TraceLoggingUInt32(static_cast<uint32_t>(failure.type), "Type"),
-                TraceLoggingString(failure.pszFile, "File"),
-                TraceLoggingUInt32(failure.uLineNumber, "Line"),
+                TraceLoggingGuid(setIdentifier, "SetID"),
+                TraceLoggingGuid(unitIdentifier, "UnitID"),
+                AICLI_TraceLoggingWStringView(unitName, "UnitName"),
+                AICLI_TraceLoggingWStringView(moduleName, "ModuleName"),
+                TraceLoggingInt32(static_cast<int32_t>(unitIntent), "UnitIntent"),
+                TraceLoggingInt32(static_cast<int32_t>(runIntent), "RunIntent"),
+                AICLI_TraceLoggingStringView(action, "Action"),
+                TraceLoggingHResult(result, "Result"),
+                TraceLoggingInt32(static_cast<int32_t>(failurePoint), "FailurePoint"),
+                AICLI_TraceLoggingWStringView(settingNames, "SettingProvided"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
         }
     }
+    CATCH_LOG();
+
+    void TelemetryTraceLogger::LogConfigUnitRunIfAppropriate(
+        const guid& setIdentifier,
+        const Configuration::ConfigurationUnit& unit,
+        ConfigurationUnitIntent runIntent,
+        std::string_view action,
+        const ConfigurationUnitResultInformation& resultInformation) const noexcept try
+    {
+        // We only want to send telemetry for failures of publicly available units.
+        if (SUCCEEDED(static_cast<int32_t>(resultInformation.ResultCode())))
+        {
+            return;
+        }
+
+        // TODO: Use details to determine if the configuration unit is public as well
+        IConfigurationUnitProcessorDetails details = unit.Details();
+        if (!details)
+        {
+            return;
+        }
+
+        const winrt::Windows::Foundation::Collections::ValueSet& settings = unit.Settings();
+        std::vector<hstring> settingNames;
+
+        for (const auto& setting : settings)
+        {
+            settingNames.emplace_back(setting.Key());
+        }
+
+        LogConfigUnitRun(setIdentifier, unit.InstanceIdentifier(), unit.UnitName(), details.ModuleName(), unit.Intent(), runIntent, action, resultInformation.ResultCode(), resultInformation.ResultSource(), settingNames);
+    }
+    CATCH_LOG();
 
     bool TelemetryTraceLogger::IsTelemetryEnabled() const noexcept
     {

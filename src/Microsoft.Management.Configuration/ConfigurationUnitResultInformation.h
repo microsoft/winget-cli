@@ -15,13 +15,13 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         void Initialize(hresult resultCode, hstring description);
 #endif
 
-        hresult ResultCode();
+        hresult ResultCode() const;
         void ResultCode(hresult resultCode);
 
         hstring Description();
         void Description(hstring value);
 
-        ConfigurationUnitResultSource ResultSource();
+        ConfigurationUnitResultSource ResultSource() const;
         void ResultSource(ConfigurationUnitResultSource value);
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
