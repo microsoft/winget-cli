@@ -98,6 +98,9 @@ namespace TestCommon
 
         winrt::Windows::Foundation::Collections::IVector<winrt::Microsoft::Management::Configuration::IConfigurationUnitSettingDetails> SettingsValue;
         winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Configuration::IConfigurationUnitSettingDetails> Settings() const { return (SettingsValue ? SettingsValue.GetView() : nullptr); }
+
+        bool IsPublicValue;
+        bool IsPublic() const { return IsPublicValue; }
     };
 
     struct TestConfigurationUnitProcessor : winrt::implements<TestConfigurationUnitProcessor, winrt::Microsoft::Management::Configuration::IConfigurationUnitProcessor>
