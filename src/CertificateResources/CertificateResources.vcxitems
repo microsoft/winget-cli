@@ -17,6 +17,9 @@
     <None Include="$(MSBuildThisFileDirectory)StoreRoot1.cer" />
     <None Include="$(MSBuildThisFileDirectory)StoreIntermediate1.cer" />
     <None Include="$(MSBuildThisFileDirectory)StoreLeaf1.cer" />
+    <None Include="$(MSBuildThisFileDirectory)StoreRoot2.cer" />
+    <None Include="$(MSBuildThisFileDirectory)StoreIntermediate2.cer" />
+    <None Include="$(MSBuildThisFileDirectory)StoreLeaf2.cer" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)CertificateResources.h" />
