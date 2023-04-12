@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="UninstallPackageCommand.cs" company="Microsoft Corporation">
+// <copyright file="UninstallPackageCmdlet.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -20,7 +20,7 @@ namespace Microsoft.WinGet.Client.Commands
         DefaultParameterSetName = Constants.FoundSet,
         SupportsShouldProcess = true)]
     [OutputType(typeof(PSUninstallResult))]
-    public sealed class UninstallPackageCommand : PackageCommand
+    public sealed class UninstallPackageCmdlet : PackageCmdlet
     {
         /// <summary>
         /// Gets or sets the desired mode for the uninstallation process.

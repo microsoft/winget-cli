@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="GetSourceCommand.cs" company="Microsoft Corporation">
+// <copyright file="GetSourceCmdlet.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -15,7 +15,7 @@ namespace Microsoft.WinGet.Client.Commands
     /// </summary>
     [Cmdlet(VerbsCommon.Get, Constants.WinGetNouns.Source)]
     [OutputType(typeof(PSSourceResult))]
-    public sealed class GetSourceCommand : PSCmdlet
+    public sealed class GetSourceCmdlet : PSCmdlet
     {
         /// <summary>
         /// Gets or sets the name of the source to retrieve.

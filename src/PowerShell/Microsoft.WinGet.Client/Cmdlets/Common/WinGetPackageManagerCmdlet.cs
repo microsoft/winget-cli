@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="WinGetPackageManagerCommand.cs" company="Microsoft Corporation">
+// <copyright file="WinGetPackageManagerCmdlet.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -12,7 +12,7 @@ namespace Microsoft.WinGet.Client.Commands.Common
     /// <summary>
     /// Common parameters for Assert-WinGetPackageManager and Repair-WinGetPackageManager.
     /// </summary>
-    public abstract class WinGetPackageManagerCommand : PSCmdlet
+    public abstract class WinGetPackageManagerCmdlet : PSCmdlet
     {
         /// <summary>
         /// Gets or sets the optional version.

@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="FinderCommand.cs" company="Microsoft Corporation">
+// <copyright file="FinderCmdlet.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -13,7 +13,7 @@ namespace Microsoft.WinGet.Client.Commands.Common
     /// This is the base class for all commands that might need to search for a package. It contains an initial
     /// set of parameters that corresponds to the intersection of i.e., the "install" and "search" commands.
     /// </summary>
-    public abstract class FinderCommand : PSCmdlet
+    public abstract class FinderCmdlet : PSCmdlet
     {
         /// <summary>
         /// Gets or sets the field that is matched against the identifier of a package.

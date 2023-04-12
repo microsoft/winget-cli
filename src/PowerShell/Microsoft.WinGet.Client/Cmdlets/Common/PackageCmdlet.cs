@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="PackageCommand.cs" company="Microsoft Corporation">
+// <copyright file="PackageCmdlet.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -14,7 +14,7 @@ namespace Microsoft.WinGet.Client.Commands.Common
     /// This is the base class for commands which operate on a specific package and version i.e.,
     /// the "install", "uninstall", and "upgrade" commands.
     /// </summary>
-    public abstract class PackageCommand : FinderCommand
+    public abstract class PackageCmdlet : FinderCmdlet
     {
         /// <summary>
         /// Gets or sets the package to directly install.

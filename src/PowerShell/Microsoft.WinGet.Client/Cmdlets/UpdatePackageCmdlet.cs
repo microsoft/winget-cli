@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="UpdatePackageCommand.cs" company="Microsoft Corporation">
+// <copyright file="UpdatePackageCmdlet.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -20,7 +20,7 @@ namespace Microsoft.WinGet.Client.Commands
         DefaultParameterSetName = Constants.FoundSet,
         SupportsShouldProcess = true)]
     [OutputType(typeof(PSInstallResult))]
-    public sealed class UpdatePackageCommand : InstallCommand
+    public sealed class UpdatePackageCmdlet : InstallCmdlet
     {
         /// <summary>
         /// Gets or sets a value indicating whether updating to an unknown version is allowed.

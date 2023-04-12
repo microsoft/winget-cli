@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="RepairWinGetPackageManagerCommand.cs" company="Microsoft Corporation">
+// <copyright file="RepairWinGetPackageManagerCmdlet.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -19,7 +19,7 @@ namespace Microsoft.WinGet.Client.Commands
         Constants.WinGetNouns.WinGetPackageManager,
         DefaultParameterSetName = Constants.IntegrityVersionSet)]
     [OutputType(typeof(int))]
-    public class RepairWinGetPackageManagerCommand : WinGetPackageManagerCommand
+    public class RepairWinGetPackageManagerCmdlet : WinGetPackageManagerCmdlet
     {
         /// <summary>
         /// Attempts to repair winget.

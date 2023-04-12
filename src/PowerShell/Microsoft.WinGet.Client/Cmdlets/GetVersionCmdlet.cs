@@ -1,28 +1,27 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="GetUserSettingsCommand.cs" company="Microsoft Corporation">
+// <copyright file="GetVersionCmdlet.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
 
 namespace Microsoft.WinGet.Client.Commands
 {
-    using System.Collections;
     using System.Management.Automation;
     using Microsoft.WinGet.Client.Common;
 
     /// <summary>
-    /// Gets winget's user settings.
+    /// Get-WinGetVersion. Gets the current version of winget.
     /// </summary>
-    [Cmdlet(VerbsCommon.Get, Constants.WinGetNouns.UserSettings)]
-    [OutputType(typeof(Hashtable))]
-    public sealed class GetUserSettingsCommand : PSCmdlet
+    [Cmdlet(VerbsCommon.Get, Constants.WinGetNouns.Version)]
+    [OutputType(typeof(string))]
+    public class GetVersionCmdlet : PSCmdlet
     {
         /// <summary>
-        /// Writes the settings file contents.
+        /// Writes the winget version.
         /// </summary>
         protected override void ProcessRecord()
         {
-            // TODO: call get.
+            // TODO: call VersionCommand Get
         }
     }
 }

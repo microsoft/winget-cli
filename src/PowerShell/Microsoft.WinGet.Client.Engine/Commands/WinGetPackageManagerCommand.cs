@@ -16,7 +16,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
     /// <summary>
     /// Used by Rapair-WinGetPackageManager and Asser-WinGetPackageManager.
     /// </summary>
-    public class WinGetPackageManagerCommand : BaseCommand
+    public sealed class WinGetPackageManagerCommand : BaseCommand
     {
         private const string EnvPath = "env:PATH";
         private const int Succeeded = 0;

@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="GetPackageCommand.cs" company="Microsoft Corporation">
+// <copyright file="FindPackageCmdlet.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -14,16 +14,16 @@ namespace Microsoft.WinGet.Client.Commands
     /// <summary>
     /// Searches configured sources for packages.
     /// </summary>
-    [Cmdlet(VerbsCommon.Get, Constants.WinGetNouns.Package)]
-    [OutputType(typeof(PSInstalledCatalogPackage))]
-    public sealed class GetPackageCommand : FinderExtendedCommand
+    [Cmdlet(VerbsCommon.Find, Constants.WinGetNouns.Package)]
+    [OutputType(typeof(PSFoundCatalogPackage))]
+    public sealed class FindPackageCmdlet : FinderExtendedCmdlet
     {
         /// <summary>
         /// Searches for configured sources for packages.
         /// </summary>
         protected override void ProcessRecord()
         {
-            // TODO: create finderpacakge, call get
+            // TODO: create finderpacakge, call find
         }
     }
 }

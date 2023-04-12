@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="AssertWinGetPackageManagerCommand.cs" company="Microsoft Corporation">
+// <copyright file="AssertWinGetPackageManagerCmdlet.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -17,7 +17,7 @@ namespace Microsoft.WinGet.Client.Commands
         VerbsLifecycle.Assert,
         Constants.WinGetNouns.WinGetPackageManager,
         DefaultParameterSetName = Constants.IntegrityVersionSet)]
-    public class AssertWinGetPackageManagerCommand : WinGetPackageManagerCommand
+    public class AssertWinGetPackageManagerCmdlet : WinGetPackageManagerCmdlet
     {
         /// <summary>
         /// Validates winget is installed correctly. If not, throws an exception
@@ -25,6 +25,7 @@ namespace Microsoft.WinGet.Client.Commands
         /// </summary>
         protected override void ProcessRecord()
         {
+            var command = new WinGetPackageManagerCommand(this);
             if (this.ParameterSetName == Constants.IntegrityLatestSet)
             {
                 // TODO: call WinGetPackageManager AssertUsingLatest(this, this.IncludePreRelease.ToBool())

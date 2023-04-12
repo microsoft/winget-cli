@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="TestUserSettingsCommand.cs" company="Microsoft Corporation">
+// <copyright file="SetUserSettingsCmdlet.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -11,11 +11,12 @@ namespace Microsoft.WinGet.Client.Commands
     using Microsoft.WinGet.Client.Common;
 
     /// <summary>
-    /// Compare the specified user settings with the winget user settings.
+    /// Sets the specified user settings into the winget user settings. If the merge switch is on, merges current user
+    /// settings with the input settings. Otherwise, overwrites the input settings.
     /// </summary>
-    [Cmdlet(VerbsDiagnostic.Test, Constants.WinGetNouns.UserSettings)]
-    [OutputType(typeof(bool))]
-    public sealed class TestUserSettingsCommand : PSCmdlet
+    [Cmdlet(VerbsCommon.Set, Constants.WinGetNouns.UserSettings)]
+    [OutputType(typeof(Hashtable))]
+    public sealed class SetUserSettingsCmdlet : PSCmdlet
     {
         /// <summary>
         /// Gets or sets the input user settings.
@@ -26,17 +27,17 @@ namespace Microsoft.WinGet.Client.Commands
         public Hashtable UserSettings { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether to ignore comparing settings that are not part of the input.
+        /// Gets or sets a value indicating whether to merge the current user settings and the input settings.
         /// </summary>
         [Parameter(ValueFromPipelineByPropertyName = true)]
-        public SwitchParameter IgnoreNotSet { get; set; }
+        public SwitchParameter Merge { get; set; }
 
         /// <summary>
-        /// Process the cmdlet and writes the result of the comparison.
+        /// Process input of cmdlet.
         /// </summary>
         protected override void ProcessRecord()
         {
-            // TODO: call test.
+            // TODO: call set.
         }
     }
 }

@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="InstallCommand.cs" company="Microsoft Corporation">
+// <copyright file="InstallCmdlet.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -14,7 +14,7 @@ namespace Microsoft.WinGet.Client.Commands.Common
     /// This is the base class for all commands that parse a FindPackagesOptions result
     /// from the provided parameters i.e., the "install" and "upgrade" commands.
     /// </summary>
-    public abstract class InstallCommand : PackageCommand
+    public abstract class InstallCmdlet : PackageCmdlet
     {
         private string location;
 

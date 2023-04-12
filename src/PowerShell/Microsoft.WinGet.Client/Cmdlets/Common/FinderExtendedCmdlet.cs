@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="FinderExtendedCommand.cs" company="Microsoft Corporation">
+// <copyright file="FinderExtendedCmdlet.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -14,7 +14,7 @@ namespace Microsoft.WinGet.Client.Commands.Common
     /// the "search" and "list" commands. This class contains an extended set of parameters suited for
     /// that purpose.
     /// </summary>
-    public abstract class FinderExtendedCommand : FinderCommand
+    public abstract class FinderExtendedCmdlet : FinderCmdlet
     {
         /// <summary>
         /// Gets or sets the filter that is matched against the tags of the package.
