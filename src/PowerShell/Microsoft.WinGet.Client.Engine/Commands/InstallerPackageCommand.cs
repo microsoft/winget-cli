@@ -97,7 +97,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             this.GetPackageAndExecute(CompositeSearchBehavior.RemotePackagesFromRemoteCatalogs, (package, version) =>
             {
                 InstallOptions options = this.GetInstallOptions(version);
-                if (psProcessorArchitecture != PSProcessorArchitecture.None)
+                if (psProcessorArchitecture != PSProcessorArchitecture.Default)
                 {
                     options.AllowedArchitectures.Clear();
                     options.AllowedArchitectures.Add(psProcessorArchitecture.ToProcessorArchitecture());

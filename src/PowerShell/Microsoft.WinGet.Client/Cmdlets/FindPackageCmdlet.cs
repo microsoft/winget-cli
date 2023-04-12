@@ -9,6 +9,7 @@ namespace Microsoft.WinGet.Client.Commands
     using System.Management.Automation;
     using Microsoft.WinGet.Client.Commands.Common;
     using Microsoft.WinGet.Client.Common;
+    using Microsoft.WinGet.Client.Engine.Commands;
     using Microsoft.WinGet.Client.Engine.PSObjects;
 
     /// <summary>
@@ -23,7 +24,19 @@ namespace Microsoft.WinGet.Client.Commands
         /// </summary>
         protected override void ProcessRecord()
         {
-            // TODO: create finderpacakge, call find
+            var command = new FinderPackageCommand(
+                this,
+                this.Id,
+                this.Name,
+                this.Moniker,
+                this.Source,
+                this.Query,
+                this.Exact.ToBool(),
+                this.Tag,
+                this.Command,
+                this.Count);
+
+            command.Find();
         }
     }
 }

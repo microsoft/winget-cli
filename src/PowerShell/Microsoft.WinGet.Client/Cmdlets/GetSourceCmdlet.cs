@@ -8,6 +8,7 @@ namespace Microsoft.WinGet.Client.Commands
 {
     using System.Management.Automation;
     using Microsoft.WinGet.Client.Common;
+    using Microsoft.WinGet.Client.Engine.Commands;
     using Microsoft.WinGet.Client.Engine.PSObjects;
 
     /// <summary>
@@ -31,7 +32,8 @@ namespace Microsoft.WinGet.Client.Commands
         /// </summary>
         protected override void ProcessRecord()
         {
-            // TODO: call SourceCommand.Get
+            var command = new SourceCommand(this);
+            command.Get(this.Name);
         }
     }
 }

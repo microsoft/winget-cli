@@ -9,6 +9,7 @@ namespace Microsoft.WinGet.Client.Commands
     using System.Management.Automation;
     using Microsoft.WinGet.Client.Commands.Common;
     using Microsoft.WinGet.Client.Common;
+    using Microsoft.WinGet.Client.Engine.Commands;
 
     /// <summary>
     /// Assert-WinGetPackageManager. Verifies winget is installed properly.
@@ -28,11 +29,11 @@ namespace Microsoft.WinGet.Client.Commands
             var command = new WinGetPackageManagerCommand(this);
             if (this.ParameterSetName == Constants.IntegrityLatestSet)
             {
-                // TODO: call WinGetPackageManager AssertUsingLatest(this, this.IncludePreRelease.ToBool())
+                command.AssertUsingLatest(this.IncludePreRelease.ToBool());
             }
             else
             {
-                // TODO: call WinGetPackageManager Assert(this, this.Version)
+                command.Assert(this.Version);
             }
         }
     }

@@ -9,6 +9,7 @@ namespace Microsoft.WinGet.Client.Commands
     using System.Management.Automation;
     using Microsoft.WinGet.Client.Commands.Common;
     using Microsoft.WinGet.Client.Common;
+    using Microsoft.WinGet.Client.Engine.Commands;
     using Microsoft.WinGet.Client.Engine.PSObjects;
 
     /// <summary>
@@ -39,7 +40,18 @@ namespace Microsoft.WinGet.Client.Commands
         /// </summary>
         protected override void ProcessRecord()
         {
-            // tODO create command call uninstall.
+            var command = new UninstallPackageCommand(
+                this,
+                this.PSCatalogPackage,
+                this.Version,
+                this.Log,
+                this.Id,
+                this.Name,
+                this.Moniker,
+                this.Source,
+                this.Query,
+                this.Exact.ToBool());
+            command.Uninstall(this.Mode, this.Force.ToBool());
         }
     }
 }

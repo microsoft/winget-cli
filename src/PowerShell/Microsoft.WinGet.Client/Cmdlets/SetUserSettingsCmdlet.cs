@@ -9,6 +9,7 @@ namespace Microsoft.WinGet.Client.Commands
     using System.Collections;
     using System.Management.Automation;
     using Microsoft.WinGet.Client.Common;
+    using Microsoft.WinGet.Client.Engine.Commands;
 
     /// <summary>
     /// Sets the specified user settings into the winget user settings. If the merge switch is on, merges current user
@@ -37,7 +38,8 @@ namespace Microsoft.WinGet.Client.Commands
         /// </summary>
         protected override void ProcessRecord()
         {
-            // TODO: call set.
+            var command = new UserSettingsCommand(this);
+            command.Set(this.UserSettings, this.Merge.ToBool());
         }
     }
 }

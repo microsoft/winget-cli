@@ -8,6 +8,7 @@ namespace Microsoft.WinGet.Client.Commands
 {
     using System.Management.Automation;
     using Microsoft.WinGet.Client.Common;
+    using Microsoft.WinGet.Client.Engine.Commands;
 
     /// <summary>
     /// Get-WinGetVersion. Gets the current version of winget.
@@ -21,7 +22,8 @@ namespace Microsoft.WinGet.Client.Commands
         /// </summary>
         protected override void ProcessRecord()
         {
-            // TODO: call VersionCommand Get
+            var command = new VersionCommand(this);
+            command.Get();
         }
     }
 }

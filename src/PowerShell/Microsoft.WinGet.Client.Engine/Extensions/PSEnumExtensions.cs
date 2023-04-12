@@ -62,9 +62,7 @@ namespace Microsoft.WinGet.Client.Engine.Extensions
                 PSProcessorArchitecture.X86 => ProcessorArchitecture.X86,
                 PSProcessorArchitecture.Arm => ProcessorArchitecture.Arm,
                 PSProcessorArchitecture.X64 => ProcessorArchitecture.X64,
-                PSProcessorArchitecture.Neutral => ProcessorArchitecture.Neutral,
                 PSProcessorArchitecture.Arm64 => ProcessorArchitecture.Arm64,
-                PSProcessorArchitecture.X86OnArm64 => ProcessorArchitecture.X86OnArm64,
                 _ => throw new InvalidOperationException(),
             };
         }

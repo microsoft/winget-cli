@@ -9,6 +9,7 @@ namespace Microsoft.WinGet.Client.Commands
     using System.Collections;
     using System.Management.Automation;
     using Microsoft.WinGet.Client.Common;
+    using Microsoft.WinGet.Client.Engine.Commands;
 
     /// <summary>
     /// Compare the specified user settings with the winget user settings.
@@ -36,7 +37,8 @@ namespace Microsoft.WinGet.Client.Commands
         /// </summary>
         protected override void ProcessRecord()
         {
-            // TODO: call test.
+            var command = new UserSettingsCommand(this);
+            command.Test(this.UserSettings, this.IgnoreNotSet.ToBool());
         }
     }
 }

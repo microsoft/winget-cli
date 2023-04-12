@@ -9,6 +9,7 @@ namespace Microsoft.WinGet.Client.Commands
     using System.Management.Automation;
     using Microsoft.WinGet.Client.Commands.Common;
     using Microsoft.WinGet.Client.Common;
+    using Microsoft.WinGet.Client.Engine.Commands;
     using Microsoft.WinGet.Client.Engine.PSObjects;
 
     /// <summary>
@@ -33,7 +34,25 @@ namespace Microsoft.WinGet.Client.Commands
         /// </summary>
         protected override void ProcessRecord()
         {
-            // todo create installer command and call update.
+            var command = new InstallerPackageCommand(
+                this,
+                this.Mode,
+                this.Override,
+                this.Custom,
+                this.Location,
+                this.AllowHashMismatch.ToBool(),
+                this.Force.ToBool(),
+                this.Header,
+                this.PSCatalogPackage,
+                this.Version,
+                this.Log,
+                this.Id,
+                this.Name,
+                this.Moniker,
+                this.Source,
+                this.Query,
+                this.Exact.ToBool());
+            command.Update(this.IncludeUnknown.ToBool());
         }
     }
 }

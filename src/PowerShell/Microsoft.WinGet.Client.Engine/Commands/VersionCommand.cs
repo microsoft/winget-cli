@@ -13,7 +13,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
     /// <summary>
     /// Version commands.
     /// </summary>
-    internal class VersionCommand : BaseCommand
+    public sealed class VersionCommand : BaseCommand
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="VersionCommand"/> class.

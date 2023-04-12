@@ -6,10 +6,10 @@
 
 namespace Microsoft.WinGet.Client.Commands
 {
-    using System;
     using System.Management.Automation;
     using Microsoft.WinGet.Client.Commands.Common;
     using Microsoft.WinGet.Client.Common;
+    using Microsoft.WinGet.Client.Engine.Commands;
 
     /// <summary>
     /// Repair-WinGetPackageManager. Repairs winget if needed.
@@ -27,14 +27,14 @@ namespace Microsoft.WinGet.Client.Commands
         /// </summary>
         protected override void ProcessRecord()
         {
-            string expectedVersion = this.Version;
+            var command = new WinGetPackageManagerCommand(this);
             if (this.ParameterSetName == Constants.IntegrityLatestSet)
             {
-                // TODO: call WinGetPackageManagerCommand RepairUsingLatest(this, this.IncludePreRelease.ToBool())
+                command.RepairUsingLatest(this.IncludePreRelease.ToBool());
             }
             else
             {
-                // TODO: call WinGetPackageManagerCommand Repair(this, this.Version)
+                command.Repair(this.Version);
             }
         }
     }

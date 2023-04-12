@@ -7,14 +7,14 @@
 namespace Microsoft.WinGet.Client.Engine.PSObjects
 {
     /// <summary>
-    /// Must match Windows.System.ProcessorArchitecture except None.
+    /// The processor architecture of the package to install.
     /// </summary>
     public enum PSProcessorArchitecture
     {
         /// <summary>
-        /// None architecture was give.
+        /// Let winget decide.
         /// </summary>
-        None,
+        Default,
 
         /// <summary>
         /// x86,
@@ -32,18 +32,8 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
         X64,
 
         /// <summary>
-        /// Neutral.
-        /// </summary>
-        Neutral,
-
-        /// <summary>
         /// Arm64
         /// </summary>
         Arm64,
-
-        /// <summary>
-        /// x86OnArm64.
-        /// </summary>
-        X86OnArm64,
     }
 }

@@ -51,7 +51,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         /// <exception cref="ArgumentException">The source does not exist.</exception>
         protected static IReadOnlyList<PackageCatalogReference> GetPackageCatalogReferences(string source)
         {
-            if (source is null)
+            if (string.IsNullOrEmpty(source))
             {
                 return PackageManager.Value.GetPackageCatalogs();
             }
