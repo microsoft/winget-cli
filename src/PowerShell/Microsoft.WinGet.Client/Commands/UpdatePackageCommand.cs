@@ -9,6 +9,7 @@ namespace Microsoft.WinGet.Client.Commands
     using System.Management.Automation;
     using Microsoft.WinGet.Client.Commands.Common;
     using Microsoft.WinGet.Client.Common;
+    using Microsoft.WinGet.Client.Engine.PSObjects;
 
     /// <summary>
     /// This commands updates a package from the pipeline or from the local system.
@@ -18,7 +19,7 @@ namespace Microsoft.WinGet.Client.Commands
         Constants.WinGetNouns.Package,
         DefaultParameterSetName = Constants.FoundSet,
         SupportsShouldProcess = true)]
-    [OutputType(typeof(PSObjects.InstallResult))]
+    [OutputType(typeof(PSInstallResult))]
     public sealed class UpdatePackageCommand : InstallCommand
     {
         /// <summary>

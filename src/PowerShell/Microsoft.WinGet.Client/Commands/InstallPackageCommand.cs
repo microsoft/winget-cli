@@ -9,7 +9,7 @@ namespace Microsoft.WinGet.Client.Commands
     using System.Management.Automation;
     using Microsoft.WinGet.Client.Commands.Common;
     using Microsoft.WinGet.Client.Common;
-    using Windows.System;
+    using Microsoft.WinGet.Client.Engine.PSObjects;
 
     /// <summary>
     /// Installs a package from the pipeline or from a configured source.
@@ -19,12 +19,9 @@ namespace Microsoft.WinGet.Client.Commands
         Constants.WinGetNouns.Package,
         DefaultParameterSetName = Constants.FoundSet,
         SupportsShouldProcess = true)]
-    [OutputType(typeof(PSObjects.InstallResult))]
+    [OutputType(typeof(PSInstallResult))]
     public sealed class InstallPackageCommand : InstallCommand
     {
-        private ProcessorArchitecture architecture;
-        private bool architectureGiven;
-
         /// <summary>
         /// Gets or sets the scope to install the application under.
         /// </summary>

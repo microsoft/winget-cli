@@ -2,8 +2,7 @@
 
   <PropertyGroup>
     <!-- If these target frameworks are updated, make sure to also update the .psd1 and .nuspec files.-->
-    <TargetWindowsVersion>10.0.22000.0</TargetWindowsVersion>
-    <CoreFramework>net6.0-windows$(TargetWindowsVersion)</CoreFramework>
+    <CoreFramework>net6.0-windows10.0.22000.0</CoreFramework>
     <DesktopFramework>net48</DesktopFramework>
   </PropertyGroup>
 
@@ -15,60 +14,40 @@
     <Platforms>x64;x86;ARM64</Platforms>
     <TargetFrameworks>$(CoreFramework);$(DesktopFramework)</TargetFrameworks>
     <DocumentationFile>$(OutputPath)\Microsoft.WinGet.Client.xml</DocumentationFile>
-    <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(UseProdCLSIDs)' == 'true'">
-    <DefineConstants>USE_PROD_CLSIDS</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
     <AdditionalFiles Include="..\..\stylecop.json" Link="stylecop.json" />
   </ItemGroup>
 
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
   <ItemGroup>
-    <PackageReference Include="Octokit" Version="4.0.3" />
     <PackageReference Include="PowerShellStandard.Library" Version="5.1.1" PrivateAssets="all" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="System.Security.Principal.Windows" Version="5.0.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\Microsoft.Management.Deployment\Microsoft.Management.Deployment.vcxproj">
-      <OutputItemType>Content</OutputItemType>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Xlang\UndockedRegFreeWinRT\src\UndockedRegFreeWinRT\UndockedRegFreeWinRT\UndockedRegFreeWinRT.vcxproj">
-      <OutputItemType>Content</OutputItemType>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.InProc.vcxproj">
-      <OutputItemType>Content</OutputItemType>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </ProjectReference>
-    <ProjectReference Include="..\..\WindowsPackageManager\WindowsPackageManager.vcxproj">
-      <OutputItemType>Content</OutputItemType>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </ProjectReference>
-  </ItemGroup>
-
-  <PropertyGroup>
-    <!-- Disable warning for CS1591 because auto generated Microsoft.Management.Deployment -->
-    <!-- For our code, we still have stylecops acting on it. -->
-    <NoWarn>1591</NoWarn>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  <PropertyGroup Condition="'$(TargetFramework)' == '$(DesktopFramework)'">
+    <DefineConstants>POWERSHELL_WINDOWS</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == '$(CoreFramework)'">
     <RuntimeIdentifiers>win10-x64;win10-x86;win10-arm;win10-arm64</RuntimeIdentifiers>
   </PropertyGroup>
+
+  <!-- This project doesn't reference it directly, but if I don't add it here it will fail with NETSDK1130 *.winmd cannot be referenced. -->
+  <ItemGroup Condition="'$(TargetFramework)' == '$(CoreFramework)'">
+    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="1.6.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.WinGet.Client.Engine\Microsoft.WinGet.Client.Engine.csproj"/>
+  </ItemGroup>
 
   <PropertyGroup Condition=" '$(Platform)' == 'x64' AND '$(TargetFramework)' == '$(CoreFramework)'">
     <RuntimeIdentifier>win10-x64</RuntimeIdentifier>
@@ -86,95 +65,9 @@
     <RuntimeIdentifier>win10-arm64</RuntimeIdentifier>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == '$(CoreFramework)'">
-    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="1.6.5" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == '$(DesktopFramework)'">
-    <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.22000.196" PrivateAssets="all" />
-  </ItemGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)' == '$(DesktopFramework)'">
-    <DefineConstants>POWERSHELL_WINDOWS</DefineConstants>
-  </PropertyGroup>
-
   <PropertyGroup>
     <PowerShellModuleOutputDirectory>$(BuildOutputDirectory)PowerShell\Microsoft.WinGet.Client</PowerShellModuleOutputDirectory>
     <PowerShellModuleRuntimesDir>$(PowerShellModuleOutputDirectory)\runtimes\win10-$(Platform)\lib</PowerShellModuleRuntimesDir>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Update="Properties\Resources.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Update="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-  </ItemGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)' == '$(CoreFramework)'">
-    <CsWinRTIncludes>Microsoft.Management.Deployment</CsWinRTIncludes>
-    <CsWinRTWindowsMetadata>$(TargetWindowsVersion)</CsWinRTWindowsMetadata>
-    <!-- Ensure Support for Windows 10, Version 1809 -->
-    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
-  </PropertyGroup>
-
-  <!-- Copy WinRTAct.dll to PowerShell module directory. Relative path to $(OutputPath) used to support AppInstaller build. -->
-  <Target Name="CopyWinRTAct" AfterTargets="AfterBuild" Condition="'$(Platform)' != 'ARM' AND '$(TargetFramework)' == '$(CoreFramework)'">
-      <PropertyGroup>
-          <WinRTActDir>$(OutputPath)..\..\..\UndockedRegFreeWinRT\</WinRTActDir>
-          <!-- The output path for this project is different on some builds where the RIDs are not used in the output. -->
-          <WinRTActDir Condition="!Exists('$(WinRTActDir)winrtact.dll')">$(OutputPath)..\..\UndockedRegFreeWinRT\</WinRTActDir>
-      </PropertyGroup>
-      <ItemGroup>
-          <WinRTActDll Include="$(WinRTActDir)winrtact.dll" />
-      </ItemGroup>
-      <Message Importance="high" Text="Copying '@(WinRTActDll)'" />
-      <Copy SourceFiles="@(WinRTActDll)" DestinationFolder="$(OutputPath)" />
-      <Copy SourceFiles="@(WinRTActDll)" DestinationFolder="$(PowerShellModuleRuntimesDir)\$(CoreFramework)" />
-      <Copy SourceFiles="@(WinRTActDll)" DestinationFolder="$(PowerShellModuleRuntimesDir)\$(DesktopFramework)" />
-  </Target>
-
-  <!-- Build Microsoft.Winget.Client PowerShell Module -->
-  <Target Name="CopyModuleFiles" AfterTargets="AfterBuild">
-    <ItemGroup>
-      <ModuleFiles Include="$(ProjectDir)\Module\**\*.*" />
-    </ItemGroup>
-    <Message Importance="high" Text="Copying PowerShell module files to '$(PowerShellModuleOutputDirectory)'" />
-    <Copy SourceFiles="@(ModuleFiles)" DestinationFiles="$(PowerShellModuleOutputDirectory)\%(RecursiveDir)%(Filename)%(Extension)" />
-  </Target>
-
-  <Target Name="CopyCoreBinaries" AfterTargets="AfterBuild" Condition="'$(TargetFramework)' == '$(CoreFramework)'">
-    <ItemGroup>
-      <CoreBinaries Include="$(OutputPath)\**\*.*" />
-    </ItemGroup>
-    <Message Importance="high" Text="Copying Core @(CoreBinaries) to '$(PowerShellModuleRuntimesDir)\$(CoreFramework)\$(RuntimeIdentifier)'" />
-    <Copy SourceFiles="@(CoreBinaries)" DestinationFolder="$(PowerShellModuleRuntimesDir)\$(CoreFramework)\%(RecursiveDir)" />
-  </Target>
-
-  <Target Name="CopyDesktopBinaries" AfterTargets="AfterBuild" Condition="'$(TargetFramework)' == '$(DesktopFramework)'">
-    <ItemGroup>
-      <DesktopBinaries Include="$(OutputPath)\**\*.*" />
-    </ItemGroup>
-    <Message Importance="high" Text="Copying Desktop @(DesktopBinaries) to '$(PowerShellModuleRuntimesDir)\$(DesktopFramework)'" />
-    <Copy SourceFiles="@(DesktopBinaries)" DestinationFolder="$(PowerShellModuleRuntimesDir)\$(DesktopFramework)\%(RecursiveDir)" />
-  </Target>
-
-  <!-- Rename Microsoft.Management.Deployment.InProc.dll to Microsoft.Management.Deployment.dll -->
-  <Target Name="RenameMicrosoftManagementDeployment" AfterTargets="AfterBuild">
-    <ItemGroup>
-      <RenameModuleFiles Include="$(PowerShellModuleLibDirectory)\**\Microsoft.Management.Deployment.InProc.dll">
-        <NewName>Microsoft.Management.Deployment.dll</NewName>
-      </RenameModuleFiles>
-    </ItemGroup>
-    <Message Importance="high" Text="Renaming file '%(RenameModuleFiles.Identity)' to '$(PowerShellModuleLibDirectory)\%(RenameModuleFiles.RecursiveDir)\%(RenameModuleFiles.NewName)'" />
-    <Move SourceFiles="%(RenameModuleFiles.Identity)" DestinationFiles="$(PowerShellModuleLibDirectory)\%(RenameModuleFiles.RecursiveDir)\%(RenameModuleFiles.NewName)" />
-  </Target>
 
 </Project>

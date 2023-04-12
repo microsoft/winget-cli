@@ -6,8 +6,6 @@
 
 namespace Microsoft.WinGet.Client.Common
 {
-    using Microsoft.Management.Deployment;
-
     /// <summary>
     /// This class contains all of the configurable constants for this project.
     /// </summary>
@@ -45,20 +43,6 @@ namespace Microsoft.WinGet.Client.Common
         public const string IntegrityLatestSet = "IntegrityLatestSet";
 
         /// <summary>
-        /// WinGet package family name.
-        /// </summary>
-#if USE_PROD_CLSIDS
-        public const string WingetPackageFamilyName = "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe";
-#else
-        public const string WingetPackageFamilyName = "WinGetDevCLI_8wekyb3d8bbwe";
-#endif
-
-        /// <summary>
-        /// Name of PATH environment variable.
-        /// </summary>
-        public const string PathEnvVar = "PATH";
-
-        /// <summary>
         /// Nouns used for different cmdlets. Changing this will alter the names of the related commands.
         /// </summary>
         public static class WinGetNouns
@@ -69,12 +53,12 @@ namespace Microsoft.WinGet.Client.Common
             public const string WinGetPackageManager = "WinGetPackageManager";
 
             /// <summary>
-            /// The noun analogue of the <see cref="CatalogPackage" /> class.
+            /// WinGetPackage.
             /// </summary>
             public const string Package = "WinGetPackage";
 
             /// <summary>
-            /// The noun analogue of the <see cref="PackageCatalogReference" /> class.
+            /// WinGetSource.
             /// </summary>
             public const string Source = "WinGetSource";
 

@@ -9,12 +9,13 @@ namespace Microsoft.WinGet.Client.Commands
     using System.Management.Automation;
     using Microsoft.WinGet.Client.Commands.Common;
     using Microsoft.WinGet.Client.Common;
+    using Microsoft.WinGet.Client.Engine.PSObjects;
 
     /// <summary>
     /// Searches configured sources for packages.
     /// </summary>
     [Cmdlet(VerbsCommon.Find, Constants.WinGetNouns.Package)]
-    [OutputType(typeof(PSObjects.FoundCatalogPackage))]
+    [OutputType(typeof(PSFoundCatalogPackage))]
     public sealed class FindPackageCommand : FinderExtendedCommand
     {
         /// <summary>

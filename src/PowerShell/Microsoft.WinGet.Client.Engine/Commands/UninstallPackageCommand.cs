@@ -64,6 +64,11 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             this.Exact = exact;
         }
 
+        /// <summary>
+        /// Process uninstall package.
+        /// </summary>
+        /// <param name="psPackageUninstallMode">PSPackageUninstallMode.</param>
+        /// <param name="force">Force.</param>
         public void Uninstall(
             PSPackageUninstallMode psPackageUninstallMode,
             bool force)

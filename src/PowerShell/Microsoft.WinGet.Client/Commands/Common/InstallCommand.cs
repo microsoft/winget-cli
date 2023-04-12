@@ -8,6 +8,7 @@ namespace Microsoft.WinGet.Client.Commands.Common
 {
     using System.IO;
     using System.Management.Automation;
+    using Microsoft.WinGet.Client.Engine.PSObjects;
 
     /// <summary>
     /// This is the base class for all commands that parse a FindPackagesOptions result

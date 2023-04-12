@@ -40,7 +40,7 @@ namespace Microsoft.WinGet.Client.Acl
         /// <inheritdoc/>
         protected override Assembly Load(AssemblyName assemblyName)
         {
-            string path = $"{Path.Combine(this.location, assemblyName.Name)}.dll";
+            string path = $"{Path.Combine(this.location, "Dependencies", assemblyName.Name)}.dll";
 
             if (File.Exists(path))
             {
