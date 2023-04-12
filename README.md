@@ -123,6 +123,10 @@ If you build the client yourself the instrumentation will not be enabled and no 
 
 The winget.exe client respects machine wide privacy settings and users can opt-out on their device, as documented in the Microsoft Windows privacy statement [here](https://support.microsoft.com/help/4468236/diagnostics-feedback-and-privacy-in-windows-10-microsoft-privacy). In addition, you may also explicitly block telemetry using [settings](https://docs.microsoft.com/windows/package-manager/winget/settings)
 
-In short to opt-out, go to `Start`, then select `Settings` > `Privacy` > `Diagnostics & feedback`, and select `Basic`.
+In short to opt-out, do one of the following:
+
+**Windows 11**: Go to `Start`, then select `Settings` > `Privacy & security` > `Diagnostics & feedback` > `Diagnostic data` and unselect `Send optional diagnostic data`.
+
+**Windows 10**: Go to `Start`, then select `Settings` > `Privacy` > `Diagnostics & feedback`, and select `Required diagnostic data`.
 
 See the [privacy statement](PRIVACY.md) for more details.
