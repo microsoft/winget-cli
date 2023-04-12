@@ -47,7 +47,7 @@ Installer behavior can be different depending on whether you are running **winge
 
 ### Build your own
 
-You can also [build the client yourself](#building-the-client). While the client should be perfectly functional, we are not ready to provide full support for clients running outside of the official distribution mechanisms yet. Feel free to file an Issue, but know that it may get lower prioritization.
+You can also [build the client yourself](#building-the-client). While the client should be perfectly functional, we are not ready to provide full support for clients running outside of the official distribution mechanisms yet. Feel free to file an [Issue](https://github.com/microsoft/winget-cli/issues/new/choose), but know that it may get lower prioritization.
 
 ## Build Status
 
@@ -67,7 +67,7 @@ The **Windows Package Manager** is a tool designed to help you quickly and easil
 
 ### Client Repository
 
-This winget-cli repository includes the source code designed to build the client.  You are encouraged to participate in the development of this client. We have plenty of backlog features in our [Issues](https://github.com/microsoft/winget-cli/issues). You can upvote the ones you want, add more, or even [get started on one.](https://github.com/microsoft/winget-cli/projects/1)
+This winget-cli repository includes the source code designed to build the client.  You are encouraged to participate in the development of this client. We have plenty of backlog features in our [Issues](https://github.com/microsoft/winget-cli/issues?q=is%3Aopen+is%3Aissue+milestone%3ABacklog-Client). You can upvote the ones you want, add more, or even [get started on one.](https://github.com/orgs/microsoft/projects/137)
 
 ### Sources
 
