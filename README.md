@@ -89,12 +89,14 @@ The client is built around the concept of sources; a set of packages effectively
   * .NET Desktop Development
   * Desktop Development with C++
   * Universal Windows Platform Development
+* [Windows 10 SDK, version 2004 (10.0.19041.0)](https://developer.microsoft.com/en-us/windows/downloads/sdk-archive/)
+  > **Note**: You can also get it through `winget install Microsoft.WindowsSDK --version 10.0.19041.685` (use --force if you have a newer version installed) or via Visual Studio > Get Tools and Features > Individual Components > Windows 10 SDK (10.0.19041.0)
 * The following extensions:
   * [Microsoft Visual Studio Installer Projects](https://marketplace.visualstudio.com/items?itemName=VisualStudioClient.MicrosoftVisualStudio2022InstallerProjects)
 
 ### Building
 
-We currently only build using the solution; command line methods of building a VS solution should work as well.
+Open `winget-cli\src\AppInstallerCLI.sln` in Visual Studio and build. We currently only build using the solution; command line methods of building a VS solution should work as well. After building, you can run the client from the command line using `wingetdev`.
 
 ## Credit
 
