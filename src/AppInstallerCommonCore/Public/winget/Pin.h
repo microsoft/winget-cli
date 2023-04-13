@@ -20,9 +20,11 @@ namespace AppInstaller::Pinning
         // 'upgrade <package>' is not blocked.
         Pinning,
         // The package is pinned to a specific version range.
+        // The package requires force to uninstall
         Gating,
         // The package is blocked from 'upgrade --all' and 'upgrade <package>'.
         // User has to unblock to allow update.
+        // The package requires force to uninstall
         Blocking,
     };
 

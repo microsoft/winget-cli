@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "UninstallFlow.h"
 #include "InstallFlow.h"
+#include "PinFlow.h"
 #include "WorkflowBase.h"
 #include "DependenciesFlow.h"
 #include "ShellExecuteInstallerHandler.h"
@@ -62,6 +63,8 @@ namespace AppInstaller::CLI::Workflow
     {
         context <<
             Workflow::GetInstalledPackageVersion <<
+            Workflow::OpenPinningIndex() <<
+            Workflow::SearchPin <<
             Workflow::EnsureSupportForUninstall <<
             Workflow::GetUninstallInfo <<
             Workflow::GetDependenciesInfoForUninstall <<
@@ -369,6 +372,36 @@ namespace AppInstaller::CLI::Workflow
 
     void EnsureSupportForUninstall(Execution::Context& context)
     {
+        // If the installed package has a pin which is stricter than a "Pinning" pin, require --force
+        auto pins = context.Get<Execution::Data::Pins>();
+        if (!pins.empty())
+        {
+            bool pinRequiresForce = false;
+            for (const auto& pin : pins)
+            {
+                if (Pinning::IsStricter(pin.GetType(), Pinning::PinType::Pinning))
+                {
+                    pinRequiresForce = true;
+                    AICLI_LOG(CLI, Warning, << "Found Pin " << pin.ToString());
+                    break;
+                }
+            }
+
+            if (pinRequiresForce && context.Args.Contains(Execution::Args::Type::Force))
+            {
+
+                AICLI_LOG(CLI, Warning, << "Continuing with uninstall due to --force argument");
+                context.Reporter.Warn() << Resource::String::UninstallIsPinnedForced << std::endl;
+            }
+            else if (pinRequiresForce)
+            {
+                AICLI_LOG(CLI, Error, << "Package pin is preventing uninstall");
+                context.Reporter.Error() << Resource::String::UninstallIsPinnedUseForce << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PACKAGE_IS_PINNED);
+            }
+        }
+
+        // If the installed package is portable or MSIX and is machine scoped, require admin to uninstall
         auto installedPackageVersion = context.Get<Execution::Data::InstalledPackageVersion>();
         const std::string installedTypeString = installedPackageVersion->GetMetadata()[PackageVersionMetadata::InstalledType];
         auto installedType = ConvertToInstallerTypeEnum(installedTypeString);

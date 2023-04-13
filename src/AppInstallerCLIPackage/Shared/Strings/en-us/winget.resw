@@ -796,6 +796,14 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="UninstallFlowUninstallSuccess" xml:space="preserve">
     <value>Successfully uninstalled</value>
   </data>
+  <data name="UninstallIsPinnedForced" xml:space="preserve">
+    <value>The package has a pin which prevents it from being uninstalled; proceeding due to --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="UninstallIsPinnedUseForce" xml:space="preserve">
+    <value>The package has a pin which prevents it from being uninstalled; to override this check use --force</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
   <data name="NoUninstallInfoFound" xml:space="preserve">
     <value>winget cannot locate the uninstall command for this package. Please reach out to the package publisher for support.</value>
     <comment>{Locked="winget"}</comment>
