@@ -175,6 +175,32 @@ namespace AppInstaller::Utility
         return result;
     }
 
+    std::optional<std::wstring> TryConvertToUTF16(std::string_view input, UINT codePage)
+    {
+        if (input.empty())
+        {
+            return std::wstring{};
+        }
+
+        int utf16CharCount = MultiByteToWideChar(codePage, 0, input.data(), wil::safe_cast<int>(input.length()), nullptr, 0);
+        if (utf16CharCount == 0)
+        {
+            return {};
+        }
+
+        // Since the string view should not contain the null char, the result won't either.
+        // This allows us to use the resulting size value directly in the string constructor.
+        std::wstring result(wil::safe_cast<size_t>(utf16CharCount), L'\0');
+
+        int utf16CharsWritten = MultiByteToWideChar(codePage, 0, input.data(), wil::safe_cast<int>(input.length()), &result[0], wil::safe_cast<int>(result.size()));
+        if (utf16CharCount != utf16CharsWritten)
+        {
+            return {};
+        }
+
+        return std::optional{ result };
+    }
+
     std::u32string ConvertToUTF32(std::string_view input)
     {
         if (input.empty())

@@ -14,7 +14,6 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     using Microsoft.Management.Configuration.Processor.Helpers;
     using Microsoft.Management.Configuration.Processor.Unit;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
-    using Microsoft.Management.Configuration.UnitTests.Helpers;
     using Windows.Security.Cryptography.Certificates;
     using Xunit;
     using Xunit.Abstractions;
@@ -31,6 +30,8 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// <summary>
         /// Initializes a new instance of the <see cref="ConfigurationDetailsTests"/> class.
         /// </summary>
+        /// <param name="fixture">Fixture.</param>
+        /// <param name="log">log.</param>
         public ConfigurationDetailsTests(UnitTestFixture fixture, ITestOutputHelper log)
         {
             this.fixture = fixture;
@@ -163,6 +164,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                     Assert.Equal("0.0.0.1", details.Version);
                     Assert.Equal("Luffytaro", details.Author);
                     Assert.Equal("Microsoft Corporation", details.Publisher);
+                    Assert.True(details.IsPublic);
                 }
 
                 if (hasCerts)
@@ -207,7 +209,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 IconUri = "https://www.contoso.com/icons/icon.png",
                 Name = "xSimpleTestResource",
                 Description = "PowerShell module with DSC resources for unit tests",
-                RepositorySourceLocation = "https://github.com/microsoft/winget-cli",
+                RepositorySourceLocation = "https://www.powershellgallery.com/api/v2",
                 Version = "0.0.0.1",
                 Author = "Luffytaro",
                 CompanyName = "Microsoft Corporation",

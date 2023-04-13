@@ -96,6 +96,93 @@ namespace AppInstaller::CLI::Workflow
             return {};
         }
 
+        void OutputPropertyValue(OutputStream& out, const IPropertyValue property)
+        {
+            switch (property.Type())
+            {
+            case PropertyType::String:
+                out << ' ' << Utility::ConvertToUTF8(property.GetString()) << '\n';
+                break;
+            case PropertyType::Boolean:
+                out << ' ' << (property.GetBoolean() ? Utility::LocIndView("true") : Utility::LocIndView("false")) << '\n';
+                break;
+            case PropertyType::Int64:
+                out << ' ' << property.GetInt64() << '\n';
+                break;
+            default:
+                out << " [Debug:PropertyType="_liv << property.Type() << "]\n"_liv;
+                break;
+            }
+        }
+
+        void OutputValueSet(OutputStream& out, const ValueSet& valueSet, size_t indent);
+
+        void OutputValueSetAsArray(OutputStream& out, const ValueSet& valueSetArray, size_t indent)
+        {
+            Utility::LocIndString indentString{ std::string(indent, ' ') };
+
+            std::vector<std::pair<int, winrt::Windows::Foundation::IInspectable>> arrayValues;
+            for (const auto& arrayValue : valueSetArray)
+            {
+                if (arrayValue.Key() != L"treatAsArray")
+                {
+                    arrayValues.emplace_back(std::make_pair(std::stoi(arrayValue.Key().c_str()), arrayValue.Value()));
+                }
+            }
+
+            std::sort(
+                arrayValues.begin(),
+                arrayValues.end(),
+                [](const std::pair<int, winrt::Windows::Foundation::IInspectable>& a, const std::pair<int, winrt::Windows::Foundation::IInspectable>& b)
+                {
+                    return a.first < b.first;
+                });
+
+            for (const auto& arrayValue : arrayValues)
+            {
+                auto arrayObject = arrayValue.second;
+                IPropertyValue arrayProperty = arrayObject.try_as<IPropertyValue>();
+
+                out << indentString << "-";
+                if (arrayProperty)
+                {
+                    OutputPropertyValue(out, arrayProperty);
+                }
+                else
+                {
+                    ValueSet arraySubset = arrayObject.as<ValueSet>();
+                    auto size = arraySubset.Size();
+                    if (size > 0)
+                    {
+                        // First one is special.
+                        auto first = arraySubset.First().Current();
+                        out << ' ' << Utility::ConvertToUTF8(first.Key()) << ':';
+                        
+                        auto object = first.Value();
+                        IPropertyValue property = object.try_as<IPropertyValue>();
+                        if (property)
+                        {
+                            OutputPropertyValue(out, property);
+                        }
+                        else
+                        {
+                            // If not an IPropertyValue, it must be a ValueSet
+                            ValueSet subset = object.as<ValueSet>();
+                            out << '\n';
+                            OutputValueSet(out, subset, indent + 4);
+                        }
+
+                        if (size > 1)
+                        {
+                            arraySubset.Remove(first.Key());
+                            OutputValueSet(out, arraySubset, indent + 2);
+                            arraySubset.Insert(first.Key(), first.Value());
+                        }
+                    }
+                }
+            }
+        }
+
         void OutputValueSet(OutputStream& out, const ValueSet& valueSet, size_t indent)
         {
             Utility::LocIndString indentString{ std::string(indent, ' ') };
@@ -109,23 +196,21 @@ namespace AppInstaller::CLI::Workflow
                 IPropertyValue property = object.try_as<IPropertyValue>();
                 if (property)
                 {
-                    switch (property.Type())
-                    {
-                    case PropertyType::String:
-                        out << ' ' << Utility::ConvertToUTF8(property.GetString()) << '\n';
-                        break;
-                    default:
-                        // TODO: Sort out how we actually want to handle this given that we don't expect anything but strings
-                        out << " [Debug:PropertyType="_liv << property.Type() << "]\n"_liv;
-                        break;
-                    }
+                    OutputPropertyValue(out, property);
                 }
                 else
                 {
                     // If not an IPropertyValue, it must be a ValueSet
                     ValueSet subset = object.as<ValueSet>();
                     out << '\n';
-                    OutputValueSet(out, subset, indent + 2);
+                    if (subset.HasKey(L"treatAsArray"))
+                    {
+                        OutputValueSetAsArray(out, subset, indent + 2);
+                    }
+                    else
+                    {
+                        OutputValueSet(out, subset, indent + 2);
+                    }
                 }
             }
         }

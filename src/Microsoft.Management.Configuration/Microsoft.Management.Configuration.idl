@@ -149,6 +149,9 @@ namespace Microsoft.Management.Configuration
         Windows.Foundation.Collections.IVectorView<IInspectable> SigningInformation{ get; };
         // The settings information for the unit of configuration.
         Windows.Foundation.Collections.IVectorView<IConfigurationUnitSettingDetails> Settings{ get; };
+        // Does it comes from a public repository
+        Boolean IsPublic{ get; };
+
     }
 
     // Defines how the configuration unit is to be used within the configuration system.

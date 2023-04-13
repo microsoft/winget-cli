@@ -8,6 +8,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Management.Automation;
     using System.Reflection;
     using Microsoft.Management.Configuration;
@@ -19,6 +20,11 @@ namespace Microsoft.Management.Configuration.Processor.Unit
     /// </summary>
     internal sealed class ConfigurationUnitProcessorDetails : IConfigurationUnitProcessorDetails
     {
+        private static readonly IEnumerable<string> PublicRepositories = new string[]
+        {
+            "https://www.powershellgallery.com/api/v2",
+        };
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ConfigurationUnitProcessorDetails"/> class.
         /// </summary>
@@ -79,6 +85,16 @@ namespace Microsoft.Management.Configuration.Processor.Unit
             {
                 this.TrySetPropertyAsString(getModuleInfo, "Repository", nameof(this.ModuleSource));
                 this.TrySetPropertyFromDateTimeToDateTimeOffset(getModuleInfo, "PublishedDate", nameof(this.PublishedDate));
+
+                var repoSourceLocation = getModuleInfo.Properties["RepositorySourceLocation"];
+                if (repoSourceLocation is not null)
+                {
+                    string? repoSourceLocationValue = repoSourceLocation.Value as string;
+                    if (repoSourceLocationValue is not null)
+                    {
+                        this.IsPublic = PublicRepositories.Any(r => r == repoSourceLocationValue);
+                    }
+                }
 
                 if (psModuleInfo is null)
                 {
@@ -179,6 +195,11 @@ namespace Microsoft.Management.Configuration.Processor.Unit
         /// Gets the settings information for the unit of configuration.
         /// </summary>
         public IReadOnlyList<IConfigurationUnitSettingDetails>? Settings { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether the module comes from a public repository.
+        /// </summary>
+        public bool IsPublic { get; private set; }
 
         private void TrySetPropertyAsString(PSObject getModuleInfo, string getModuleInfoProperty, string propertyName)
         {

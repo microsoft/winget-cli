@@ -72,11 +72,26 @@ namespace AppInstaller::YAML
             Mapping
         };
 
-        Node() : m_type(Type::Invalid) {}
+        // The node's tag
+        enum class TagType
+        {
+            Unknown,
+            Null,
+            Bool,
+            Str,
+            Int,
+            Float,
+            Timestamp,
+            Seq,
+            Map,
+        };
+
+        Node() : m_type(Type::Invalid), m_tagType(TagType::Unknown) {}
         Node(Type type, std::string tag, const Mark& mark);
 
         // Sets the scalar value of the node.
         void SetScalar(std::string value);
+        void SetScalar(std::string value, bool isQuoted);
 
         // Adds a child node to the sequence.
         template <typename... Args>
@@ -100,6 +115,7 @@ namespace AppInstaller::YAML
         bool IsSequence() const { return m_type == Type::Sequence; }
         bool IsMap() const { return m_type == Type::Mapping; }
         Type GetType() const { return m_type; }
+        TagType GetTagType() const { return m_tagType; }
 
         explicit operator bool() const { return IsDefined(); }
 
@@ -110,6 +126,18 @@ namespace AppInstaller::YAML
             Require(Type::Scalar);
             T* t = nullptr;
             return as_dispatch(t);
+        }
+
+        template <typename T>
+        std::optional<T> try_as() const
+        {
+            if (m_type != Type::Scalar)
+            {
+                return {};
+            }
+
+            T* t = nullptr;
+            return try_as_dispatch(t);
         }
 
         bool operator<(const Node& other) const;
@@ -135,20 +163,30 @@ namespace AppInstaller::YAML
         const std::multimap<Node, Node>& Mapping() const;
 
     private:
-        Node(std::string_view key) : m_type(Type::Scalar), m_scalar(key) {}
+        Node(std::string_view key) : m_type(Type::Scalar), m_scalar(key), m_tagType(TagType::Str) {}
 
         // Require certain node types to; throwing if the requirement is not met.
         void Require(Type type) const;
 
         // The workers for the as function.
         std::string as_dispatch(std::string*) const;
+        std::optional<std::string> try_as_dispatch(std::string*) const;
+
         std::wstring as_dispatch(std::wstring*) const;
+        std::optional<std::wstring> try_as_dispatch(std::wstring*) const;
+
         int64_t as_dispatch(int64_t*) const;
+        std::optional<int64_t> try_as_dispatch(int64_t*) const;
+
         int as_dispatch(int*) const;
+        std::optional<int> try_as_dispatch(int*) const;
+
         bool as_dispatch(bool*) const;
+        std::optional<bool> try_as_dispatch(bool*) const;
 
         Type m_type;
         std::string m_tag;
+        TagType m_tagType;
         YAML::Mark m_mark;
         std::string m_scalar;
         std::optional<std::vector<Node>> m_sequence;

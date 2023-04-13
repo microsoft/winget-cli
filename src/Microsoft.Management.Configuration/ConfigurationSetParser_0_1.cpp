@@ -23,8 +23,25 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // Returns the appropriate IPropertyValue for the given node, which is assumed to be a scalar.
         Windows::Foundation::IInspectable GetPropertyValueFromScalar(const Node& node)
         {
-            // TODO: Use the tag to determine the type of property to create.
-            return Windows::Foundation::PropertyValue::CreateString(node.as<std::wstring>());
+            ::winrt::Windows::Foundation::IInspectable result;
+
+            switch (node.GetTagType())
+            {
+            case Node::TagType::Null:
+                return Windows::Foundation::PropertyValue::CreateEmpty();
+            case Node::TagType::Bool:
+                return Windows::Foundation::PropertyValue::CreateBoolean(node.as<bool>());
+            case Node::TagType::Str:
+                return Windows::Foundation::PropertyValue::CreateString(node.as<std::wstring>());
+            case Node::TagType::Int:
+                return Windows::Foundation::PropertyValue::CreateInt64(node.as<int64_t>());
+            case Node::TagType::Float:
+                THROW_HR(E_NOTIMPL);
+            case Node::TagType::Timestamp:
+                THROW_HR(E_NOTIMPL);
+            default:
+                THROW_HR(E_UNEXPECTED);
+            }
         }
 
         // Returns the appropriate IPropertyValue for the given node, which is assumed to be a scalar.
