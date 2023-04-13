@@ -701,10 +701,9 @@ namespace AppInstaller::Repository
             }
 
             // Gets the information about the pins that exist for this package
-            void GetExistingPins(PinningIndex& pinningIndex, bool cleanUpStalePins)
+            void GetExistingPins(PinningIndex& pinningIndex)
             {
                 // If the package is installed, we need to add the pin information to the available packages from any source.
-                // If the package is not installed, we clean up stale pin information here.
                 for (auto& availablePackage : m_availablePackages)
                 {
                     auto pinKey = GetPinKey(availablePackage.GetAvailablePackage().get());
@@ -715,10 +714,6 @@ namespace AppInstaller::Repository
                         {
                             availablePackage.SetPin(std::move(pin.value()));
                         }
-                    }
-                    else if (pinningIndex.GetPin(pinKey) && cleanUpStalePins)
-                    {
-                        pinningIndex.RemovePin(pinKey);
                     }
                 }
             }
@@ -1093,8 +1088,6 @@ namespace AppInstaller::Repository
         }
 
         // Adds all the pin information to the results from a search to a CompositeSource.
-        // This function assumes that the CompositeSource included an InstalledSource so that we
-        // can clean up stale pins where the package is no longer installed.
         void AddPinInfoToCompositeSearchResult(CompositeResult& result)
         {
             if (ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Pinning) && !result.Matches.empty())
@@ -1105,7 +1098,7 @@ namespace AppInstaller::Repository
                 {
                     for (auto& match : result.Matches)
                     {
-                        match.Package->GetExistingPins(*pinningIndex, /* cleanUpStalePins */ true);
+                        match.Package->GetExistingPins(*pinningIndex);
                     }
                 }
             }
