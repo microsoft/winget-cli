@@ -135,4 +135,44 @@
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
   </PropertyGroup>
 
+  <!-- Copy unmanaged dlls that are not copied in the build server -->
+  <Target Name="CopyWinRTAct" AfterTargets="AfterBuild" >
+    <PropertyGroup>
+      <WinRTActDir>$(OutputPath)..\..\..\UndockedRegFreeWinRT\</WinRTActDir>
+      <!-- The output path for this project is different on some builds where the RIDs are not used in the output. -->
+      <WinRTActDir Condition="!Exists('$(WinRTActDir)winrtact.dll')">$(OutputPath)..\..\UndockedRegFreeWinRT\</WinRTActDir>
+    </PropertyGroup>
+    <ItemGroup>
+      <WinRTActDll Include="$(WinRTActDir)winrtact.dll" />
+    </ItemGroup>
+    <Message Importance="high" Text="Copying '@(WinRTActDll)'" />
+    <Copy SourceFiles="@(WinRTActDll)" DestinationFolder="$(OutputPath)" />
+  </Target>
+
+  <Target Name="CopyDeploymentInproc" AfterTargets="AfterBuild" >
+    <PropertyGroup>
+      <DeploymentInprocDir>$(OutputPath)..\..\..\Microsoft.Management.Deployment.InProc\</DeploymentInprocDir>
+      <!-- The output path for this project is different on some builds where the RIDs are not used in the output. -->
+      <DeploymentInprocDir Condition="!Exists('$(DeploymentInprocDir)Microsoft.Management.Deployment.InProc.dll')">$(OutputPath)..\..\Microsoft.Management.Deployment.InProc\</DeploymentInprocDir>
+    </PropertyGroup>
+    <ItemGroup>
+      <DeploymentInprocDll Include="$(DeploymentInprocDir)Microsoft.Management.Deployment.InProc.dll" />
+    </ItemGroup>
+    <Message Importance="high" Text="Copying '@(DeploymentInprocDll)'" />
+    <Copy SourceFiles="@(DeploymentInprocDll)" DestinationFolder="$(OutputPath)" />
+  </Target>
+
+  <Target Name="CopyWindowsPackageManager" AfterTargets="AfterBuild" >
+    <PropertyGroup>
+      <WindowsPackageManagerDir>$(OutputPath)..\..\..\WindowsPackageManager\</WindowsPackageManagerDir>
+      <!-- The output path for this project is different on some builds where the RIDs are not used in the output. -->
+      <WindowsPackageManagerDir Condition="!Exists('$(WindowsPackageManagerDir)WindowsPackageManager.dll')">$(OutputPath)..\..\WindowsPackageManager\</WindowsPackageManagerDir>
+    </PropertyGroup>
+    <ItemGroup>
+      <WindowsPackageManagerDll Include="$(WindowsPackageManagerDir)WindowsPackageManager.dll" />
+    </ItemGroup>
+    <Message Importance="high" Text="Copying '@(WindowsPackageManagerDll)'" />
+    <Copy SourceFiles="@(WindowsPackageManagerDll)" DestinationFolder="$(OutputPath)" />
+  </Target>
+
 </Project>

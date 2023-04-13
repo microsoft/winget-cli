@@ -86,8 +86,8 @@
     <ItemGroup>
       <ModuleWinGetDll Include="$(OutputPath)Microsoft.WinGet.Client.Cmdlets.dll" />
       <ModuleWinGetDll Include="$(OutputPath)Microsoft.WinGet.Client.Engine.dll" />
-      <ModuleWinGetDll Include="$(OutputPath)Microsoft.WinGet.Client.Cmdlets.pdb" Condition="'$(Configuration)' == 'Debug'" />
-      <ModuleWinGetDll Include="$(OutputPath)Microsoft.WinGet.Client.Engine.pdb" Condition="'$(Configuration)' == 'Debug'"/>
+      <ModuleWinGetDll Include="$(OutputPath)Microsoft.WinGet.Client.Cmdlets.pdb"/>
+      <ModuleWinGetDll Include="$(OutputPath)Microsoft.WinGet.Client.Engine.pdb"/>
     </ItemGroup>
     <Message Importance="high" Text="Copying CopyWinGetBinaries: '@(ModuleWinGetDll)'" />
     <Copy SourceFiles="@(ModuleWinGetDll)" DestinationFolder="$(PowerShellModuleRuntimesDir)" />
