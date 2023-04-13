@@ -279,6 +279,7 @@ namespace AppInstaller::CLI::Workflow
             PortableInstaller portableInstaller = PortableInstaller(
                 Manifest::ConvertToScopeEnum(installedScope),
                 Utility::ConvertToArchitectureEnum(installedArch),
+<<<<<<< HEAD
                 productCodes[0]);
             context.Add<Execution::Data::PortableInstaller>(std::move(portableInstaller));
             break;
@@ -342,6 +343,54 @@ namespace AppInstaller::CLI::Workflow
     {
         bool isMachineScope = Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope)) == Manifest::ScopeEnum::Machine;
 
+=======
+                productCodes[0]);
+            context.Add<Execution::Data::PortableInstaller>(std::move(portableInstaller));
+            break;
+        }
+        default:
+            THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
+        }
+    }
+
+    void ExecuteUninstaller(Execution::Context& context)
+    {
+        const std::string installedTypeString = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata()[PackageVersionMetadata::InstalledType];
+        switch (ConvertToInstallerTypeEnum(installedTypeString))
+        {
+        case InstallerTypeEnum::Exe:
+        case InstallerTypeEnum::Burn:
+        case InstallerTypeEnum::Inno:
+        case InstallerTypeEnum::Nullsoft:
+            context <<
+                Workflow::ShellExecuteUninstallImpl <<
+                ReportUninstallerResult("UninstallString", APPINSTALLER_CLI_ERROR_EXEC_UNINSTALL_COMMAND_FAILED);
+            break;
+        case InstallerTypeEnum::Msi:
+        case InstallerTypeEnum::Wix:
+            context <<
+                Workflow::ShellExecuteMsiExecUninstall <<
+                ReportUninstallerResult("MsiExec", APPINSTALLER_CLI_ERROR_EXEC_UNINSTALL_COMMAND_FAILED);
+            break;
+        case InstallerTypeEnum::Msix:
+        case InstallerTypeEnum::MSStore:
+            context << Workflow::MsixUninstall;
+            break;
+        case InstallerTypeEnum::Portable:
+            context <<
+                Workflow::PortableUninstallImpl <<
+                ReportUninstallerResult("PortableUninstall"sv, APPINSTALLER_CLI_ERROR_PORTABLE_UNINSTALL_FAILED, true);
+            break;
+        default:
+        THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
+        }
+    }
+
+    void MsixUninstall(Execution::Context& context)
+    {
+        bool isMachineScope = Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope)) == Manifest::ScopeEnum::Machine;
+
+>>>>>>> 034c143c (Block msix provisioning api calls where known OS bugs exist (#2855))
         // TODO: There was a bug in deployment api if deprovision api was called in packaged context.
         // Remove this check when the OS bug is fixed and back ported.
         if (isMachineScope && Runtime::IsRunningInPackagedContext())
@@ -350,6 +399,7 @@ namespace AppInstaller::CLI::Workflow
             context.Add<Execution::Data::OperationReturnCode>(static_cast<DWORD>(APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED));
             AICLI_LOG(CLI, Error, << "Device wide uninstall for msix type is not supported in packaged context.");
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED);
+<<<<<<< HEAD
         }
 
         const auto& packageFamilyNames = context.Get<Execution::Data::PackageFamilyNames>();
@@ -376,6 +426,34 @@ namespace AppInstaller::CLI::Workflow
                     context.Reporter.ExecuteWithProgress(std::bind(Deployment::RemovePackage, packageFullName.value(), winrt::Windows::Management::Deployment::RemovalOptions::None, std::placeholders::_1));
                 }
             }
+=======
+        }
+
+        const auto& packageFamilyNames = context.Get<Execution::Data::PackageFamilyNames>();
+        context.Reporter.Info() << Resource::String::UninstallFlowStartingPackageUninstall << std::endl;
+
+        for (const auto& packageFamilyName : packageFamilyNames)
+        {
+            auto packageFullName = Msix::GetPackageFullNameFromFamilyName(packageFamilyName);
+            if (!packageFullName.has_value())
+            {
+                AICLI_LOG(CLI, Warning, << "No package found with family name: " << packageFamilyName);
+                continue;
+            }
+
+            AICLI_LOG(CLI, Info, << "Removing MSIX package: " << packageFullName.value());
+            try
+            {
+                if (isMachineScope)
+                {
+                    context.Reporter.ExecuteWithProgress(std::bind(Deployment::RemovePackageMachineScope, packageFamilyName, packageFullName.value(), std::placeholders::_1));
+                }
+                else
+                {
+                    context.Reporter.ExecuteWithProgress(std::bind(Deployment::RemovePackage, packageFullName.value(), winrt::Windows::Management::Deployment::RemovalOptions::None, std::placeholders::_1));
+                }
+            }
+>>>>>>> 034c143c (Block msix provisioning api calls where known OS bugs exist (#2855))
             catch (const wil::ResultException& re)
             {
                 context.Add<Execution::Data::OperationReturnCode>(re.GetErrorCode());
