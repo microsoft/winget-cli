@@ -204,7 +204,7 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
             string? errorMessage = pwsh.GetErrorMessage();
             if (errorMessage is not null)
             {
-                throw new InvokeDscResourceException(InvokeDscResourceException.Set, name, moduleSpecification, errorMessage);
+                throw new InvokeDscResourceException(InvokeDscResourceException.Set, name, moduleSpecification, errorMessage, pwsh.ContainsPropertyError());
             }
 
             if (setResult is null ||

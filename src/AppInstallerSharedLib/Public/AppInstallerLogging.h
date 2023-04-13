@@ -187,5 +187,5 @@ namespace AppInstaller::Logging
     };
 }
 
-// Enable output of system_clock time_points.
 std::ostream& operator<<(std::ostream& out, const std::chrono::system_clock::time_point& time);
+std::ostream& operator<<(std::ostream& out, const GUID& time);

@@ -21,23 +21,6 @@ TraceLoggingCountedUtf8String(m_caller.c_str(),  static_cast<ULONG>(m_caller.siz
 TraceLoggingPackedFieldEx(m_telemetryCorrelationJsonW.c_str(), static_cast<ULONG>((m_telemetryCorrelationJsonW.size() + 1) * sizeof(wchar_t)), TlgInUNICODESTRING, TlgOutJSON, "CvJson"),\
 __VA_ARGS__)
 
-// Helper to print a GUID
-std::ostream& operator<<(std::ostream& out, const GUID& guid)
-{
-    wchar_t buffer[256];
-
-    if (StringFromGUID2(guid, buffer, ARRAYSIZE(buffer)))
-    {
-        out << AppInstaller::Utility::ConvertToUTF8(buffer);
-    }
-    else
-    {
-        out << "error";
-    }
-
-    return out;
-}
-
 namespace AppInstaller::Logging
 {
     using namespace Utility;

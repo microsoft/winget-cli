@@ -135,6 +135,11 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(WingetDisableTestHooks)'=='true'">
+    <ClCompile>
+      <PreprocessorDefinitions>AICLI_DISABLE_TEST_HOOKS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="ApplyConfigurationSetResult.h" />
     <ClInclude Include="ApplyConfigurationUnitResult.h" />

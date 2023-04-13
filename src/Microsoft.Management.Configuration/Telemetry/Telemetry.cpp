@@ -25,6 +25,46 @@ TraceLoggingCountedUtf8String(m_version.c_str(),  static_cast<ULONG>(m_version.s
 TraceLoggingCountedUtf8String(m_caller.c_str(),  static_cast<ULONG>(m_caller.size()), "Caller"),\
 __VA_ARGS__)
 
+#ifdef AICLI_DISABLE_TEST_HOOKS
+
+#define WinGet_EventItem(_value_,_name_) 
+#define WinGet_SummaryForIntentItem(_forIntent_,_name_,_pluralName_) 
+#define WinGet_WriteEventToDiagnostics(_eventName_,...) 
+
+#else
+
+struct WinGetAbsorbVA_ARGSCommas
+{
+    WinGetAbsorbVA_ARGSCommas(int, int) {}
+};
+
+inline std::ostream& operator<<(std::ostream& out, const WinGetAbsorbVA_ARGSCommas&) { return out; }
+inline std::ostream& operator<<(std::ostream& out, std::wstring_view value) { out << AppInstaller::Utility::ConvertToUTF8(value); return out; }
+
+#define WinGet_EventItem(_value_,_name_) \
+    0) << (_name_) << ": " << (_value_) << '\n' << WinGetAbsorbVA_ARGSCommas(0
+
+#define WinGet_SummaryForIntentItem(_forIntent_,_name_,_pluralName_) \
+    WinGet_EventItem(_forIntent_.Count, _name_ ## "Count"), \
+    WinGet_EventItem(_forIntent_.Run, _pluralName_ ## "Run"), \
+    WinGet_EventItem(_forIntent_.Failed, _pluralName_ ## "Failed")
+
+#define WinGet_WriteEventToDiagnostics(_eventName_,...) \
+{ \
+    std::ostringstream _debugEventStream; \
+    _debugEventStream << \
+        "#DEBUGEVENTSTREAM\n" << \
+        "Event: " << (_eventName_) << '\n' << \
+        "ActivityID: " << *GetActivityId() << '\n' << \
+        "CodeVersion: " << m_version << '\n' << \
+        "Caller: " << m_caller << '\n' \
+        << WinGetAbsorbVA_ARGSCommas(0, __VA_ARGS__ ,0) \
+        ; \
+    AICLI_LOG_LARGE_STRING(Config, Info, , _debugEventStream.str()); \
+}
+
+#endif
+
 using namespace std::string_view_literals;
 
 namespace winrt::Microsoft::Management::Configuration::implementation
@@ -183,9 +223,23 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                 AICLI_TraceLoggingStringView(action, "Action"),
                 TraceLoggingHResult(result, "Result"),
                 TraceLoggingInt32(static_cast<int32_t>(failurePoint), "FailurePoint"),
-                AICLI_TraceLoggingWStringView(settingNames, "SettingProvided"),
+                AICLI_TraceLoggingWStringView(settingNames, "SettingsProvided"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
+
+            // Keep in sync with above event!
+            WinGet_WriteEventToDiagnostics(
+                "ConfigUnitRun",
+                WinGet_EventItem(setIdentifier, "SetID"),
+                WinGet_EventItem(unitIdentifier, "UnitID"),
+                WinGet_EventItem(unitName, "UnitName"),
+                WinGet_EventItem(moduleName, "ModuleName"),
+                WinGet_EventItem(static_cast<int32_t>(unitIntent), "UnitIntent"),
+                WinGet_EventItem(static_cast<int32_t>(runIntent), "RunIntent"),
+                WinGet_EventItem(action, "Action"),
+                WinGet_EventItem(result, "Result"),
+                WinGet_EventItem(static_cast<int32_t>(failurePoint), "FailurePoint"),
+                WinGet_EventItem(settingNames, "SettingsProvided"));
         }
     }
     CATCH_LOG();
@@ -203,9 +257,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             return;
         }
 
-        // TODO: Use details to determine if the configuration unit is public as well
         IConfigurationUnitProcessorDetails details = unit.Details();
-        if (!details)
+        if (!details || !details.IsPublic())
         {
             return;
         }
@@ -244,11 +297,23 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                 TraceLoggingInt32(static_cast<int32_t>(runIntent), "RunIntent"),
                 TraceLoggingHResult(result, "Result"),
                 TraceLoggingInt32(static_cast<int32_t>(failurePoint), "FailurePoint"),
-                AICLI_TraceLoggingProcessingSummaryForIntent(assertSummary, "assert", "asserts"),
-                AICLI_TraceLoggingProcessingSummaryForIntent(informSummary, "inform", "informs"),
-                AICLI_TraceLoggingProcessingSummaryForIntent(applySummary, "apply", "applies"),
+                AICLI_TraceLoggingProcessingSummaryForIntent(assertSummary, "Assert", "Asserts"),
+                AICLI_TraceLoggingProcessingSummaryForIntent(informSummary, "Inform", "Informs"),
+                AICLI_TraceLoggingProcessingSummaryForIntent(applySummary, "Apply", "Applies"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
                 TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
+
+            // Keep in sync with above event!
+            WinGet_WriteEventToDiagnostics(
+                "ConfigProcessingSummary",
+                WinGet_EventItem(setIdentifier, "SetID"),
+                WinGet_EventItem(fromHistory, "FromHistory"),
+                WinGet_EventItem(static_cast<int32_t>(runIntent), "RunIntent"),
+                WinGet_EventItem(result, "Result"),
+                WinGet_EventItem(static_cast<int32_t>(failurePoint), "FailurePoint"),
+                WinGet_SummaryForIntentItem(assertSummary, "Assert", "Asserts"),
+                WinGet_SummaryForIntentItem(informSummary, "Inform", "Informs"),
+                WinGet_SummaryForIntentItem(applySummary, "Apply", "Applies"));
         }
     }
     CATCH_LOG();
