@@ -14,6 +14,7 @@ namespace Microsoft.WinGet.Client.Acl
     /// <summary>
     /// Custom assembly load context for this module.
     /// This helps us load our dependencies without carrying about apps importing this module.
+    /// All dependencies except the Engine dll needs to be under a Dependencies directory.
     /// </summary>
     internal class WinGetAssemblyLoadContext : AssemblyLoadContext
     {

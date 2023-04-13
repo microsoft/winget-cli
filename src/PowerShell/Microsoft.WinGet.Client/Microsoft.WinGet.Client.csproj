@@ -65,9 +65,74 @@
     <RuntimeIdentifier>win10-arm64</RuntimeIdentifier>
   </PropertyGroup>
 
+  <!-- Build PowerShell Module -->
   <PropertyGroup>
     <PowerShellModuleOutputDirectory>$(BuildOutputDirectory)PowerShell\Microsoft.WinGet.Client</PowerShellModuleOutputDirectory>
-    <PowerShellModuleRuntimesDir>$(PowerShellModuleOutputDirectory)\runtimes\win10-$(Platform)\lib</PowerShellModuleRuntimesDir>
+    <PowerShellModuleRuntimesDir>$(PowerShellModuleOutputDirectory)\runtimes\win10-$(Platform)\lib\$(TargetFramework)</PowerShellModuleRuntimesDir>
+    <PowerShellModuleRuntimesDependencies>$(PowerShellModuleRuntimesDir)\Dependencies</PowerShellModuleRuntimesDependencies>
   </PropertyGroup>
 
+  <!-- psm1, psd1 and ps1xml-->
+  <Target Name="CopyModuleFiles" AfterTargets="AfterBuild">
+    <ItemGroup>
+      <ModuleFiles Include="$(ProjectDir)\..\Microsoft.WinGet.Client.Module\ModuleFiles\**\*.*" />
+    </ItemGroup>
+    <Message Importance="high" Text="Copying PowerShell module files to '$(PowerShellModuleOutputDirectory)'" />
+    <Copy SourceFiles="@(ModuleFiles)" DestinationFiles="$(PowerShellModuleOutputDirectory)\%(RecursiveDir)%(Filename)%(Extension)" />
+  </Target>
+  
+  
+  <ItemGroup>
+    <ModuleDll Include="Microsoft.WinGet.Client.dll"/>
+    <ModuleDll Include="Microsoft.WinGet.Client.Engine.dll"/>
+  </ItemGroup>
+
+  <!-- Main binaries -->
+  <Target Name="CopyWinGetBinaries" AfterTargets="AfterBuild" Condition="'$(Platform)' != 'ARM'">
+    <ItemGroup>
+      <ModuleWinGetDll Include="$(OutputPath)Microsoft.WinGet.Client.dll" />
+      <ModuleWinGetDll Include="$(OutputPath)Microsoft.WinGet.Client.Engine.dll" />
+    </ItemGroup>
+    <Message Importance="high" Text="Copying '@(ModuleWinGetDll)'" />
+    <Copy SourceFiles="@(ModuleWinGetDll)" DestinationFolder="$(PowerShellModuleRuntimesDir)" />
+  </Target>
+
+  <!-- Dependencies in output directory-->
+  <Target Name="CopyDependencies" AfterTargets="AfterBuild" Condition="'$(Platform)' != 'ARM'">
+    <ItemGroup>
+      <ModuleOutPathDependency Include="$(OutputPath)Microsoft.Windows.SDK.NET.dll" Condition="'$(TargetFramework)' == '$(CoreFramework)"/>
+      <ModuleOutPathDependency Include="$(OutputPath)Newtonsoft.Json.dll" />
+      <ModuleOutPathDependency Include="$(OutputPath)Octokit.dll" />
+      <ModuleOutPathDependency Include="$(OutputPath)WinRT.Runtime.dll" />
+    </ItemGroup>
+    <Message Importance="high" Text="Copying '@(ModuleOutPathDependency)'" />
+    <Copy SourceFiles="@(ModuleOutPathDependency)" DestinationFolder="$(PowerShellModuleRuntimesDependencies)" />
+  </Target>
+
+  <!-- Dependencies of Engine that doesn't get copied in the output directory -->
+  <Target Name="CopyEngineDependencies" AfterTargets="AfterBuild" Condition="'$(Platform)' != 'ARM'">
+    <PropertyGroup>
+      <EngineOutDir>$(OutputPath)..\..\..\Microsoft.WinGet.Client.Engine\$(TargetFramework)\win10-$(Platform)</EngineOutDir>
+      <!-- The output path for this project is different on some builds where the RIDs are not used in the output. -->
+      <EngineOutDir Condition="!Exists('$(EngineOutDir)Microsoft.WinGet.Client.Engine.dll')">$(OutputPath)..\..\..\Microsoft.WinGet.Client.Engine\$(TargetFramework)\</EngineOutDir>
+      <EngineOutDir Condition="!Exists('$(EngineOutDir)Microsoft.WinGet.Client.Engine.dll')">$(OutputPath)..\..\Microsoft.WinGet.Client.Engine\$(TargetFramework)\</EngineOutDir>
+  </PropertyGroup>
+    <ItemGroup>
+      <ModuleEngineDependency Include="$(EngineOutDir)Microsoft.Management.Deployment.InProc.dll"/>
+      <ModuleEngineDependency Include="$(EngineOutDir)Microsoft.Management.Deployment.winmd" />
+      <ModuleEngineDependency Include="$(EngineOutDir)WindowsPackageManager.dll" />
+      <ModuleEngineDependency Include="$(EngineOutDir)winrtact.dll" />
+    </ItemGroup>
+    <Message Importance="high" Text="Copying '@(ModuleEngineDependency)'" />
+    <Copy SourceFiles="@(ModuleEngineDependency)" DestinationFolder="$(PowerShellModuleRuntimesDependencies)" />
+  </Target>
+
+  <ItemGroup>
+    <ModuleDependency Include="Microsoft.Management.Deployment.dll" />
+    <ModuleDependency Include="Microsoft.Management.Deployment.winmd" />
+    <ModuleDependency Include="WindowsPackageManager.dll" />
+    <ModuleDependency Include="winrtact.dll" />
+  </ItemGroup>
+
 </Project>
+
