@@ -312,8 +312,17 @@ namespace AppInstaller::Repository
                 chainElement = chainElement.Next();
                 chainElement->LoadCertificate(IDX_CERTIFICATE_STORE_LEAF_1).SetPinning(PinningVerificationType::Subject | PinningVerificationType::Issuer);
 
+                PinningChain chain2;
+                auto chainElement2 = chain2.Root();
+                chainElement2->LoadCertificate(IDX_CERTIFICATE_STORE_ROOT_2).SetPinning(PinningVerificationType::PublicKey);
+                chainElement2 = chainElement2.Next();
+                chainElement2->LoadCertificate(IDX_CERTIFICATE_STORE_INTERMEDIATE_2).SetPinning(PinningVerificationType::Subject | PinningVerificationType::Issuer);
+                chainElement2 = chainElement2.Next();
+                chainElement2->LoadCertificate(IDX_CERTIFICATE_STORE_LEAF_2).SetPinning(PinningVerificationType::Subject | PinningVerificationType::Issuer);
+
                 details.CertificatePinningConfiguration = PinningConfiguration("Microsoft Store Source");
                 details.CertificatePinningConfiguration.AddChain(std::move(chain));
+                details.CertificatePinningConfiguration.AddChain(std::move(chain2));
             }
 
             return details;
