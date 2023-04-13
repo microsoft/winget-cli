@@ -11,7 +11,50 @@ If you are new to the Windows Package Manager, you might want to [Explore the Wi
 
 ### Microsoft Store [Recommended]
 
-The client is distributed within the [App Installer](https://www.microsoft.com/p/app-installer/9nblggh4nns1) package. 
+The client is distributed within the [App Installer](https://www.microsoft.com/p/app-installer/9nblggh4nns1) package.
+
+### Microsoft Store using PowerShell
+
+```PowerShell
+$applicationId = "9NBLGGH4NNS1" # Microsoft.DesktopAppInstaller_8wekyb3d8bbwe
+$skuId = 0016
+
+# Obtain packageFamilyName from applicationId
+$webpage = Invoke-WebRequest -UseBasicParsing -Uri "https://bspmts.mp.microsoft.com/v1/public/catalog/Retail/Products/$applicationId/applockerdata"
+$packageFamilyName = ($webpage | ConvertFrom-JSON).packageFamilyName
+
+# Prepare CIM session object
+$namespaceName = "root\cimv2\mdm\dmmap"
+$session = New-CimSession
+$omaUri = "./Vendor/MSFT/EnterpriseModernAppManagement/AppInstallation"
+$newInstance = New-Object Microsoft.Management.Infrastructure.CimInstance "MDM_EnterpriseModernAppManagement_AppInstallation01_01", $namespaceName
+$property = [Microsoft.Management.Infrastructure.CimProperty]::Create("ParentID", $omaUri, "string", "Key")
+$newInstance.CimInstanceProperties.Add($property)
+$property = [Microsoft.Management.Infrastructure.CimProperty]::Create("InstanceID", $packageFamilyName, "String", "Key")
+$newInstance.CimInstanceProperties.Add($property)
+
+# Set CIM session parameters
+$flags = 0
+$paramValue = [Security.SecurityElement]::Escape($('<Application id="{0}" flags="{1}" skuid="{2}"/>' -f $applicationId, $flags, $skuId))
+$params = New-Object Microsoft.Management.Infrastructure.CimMethodParametersCollection
+$param = [Microsoft.Management.Infrastructure.CimMethodParameter]::Create("param", $paramValue, "String", "In")
+$params.Add($param)
+
+try {
+    # we create the MDM instance and trigger the StoreInstallMethod
+    $instance = $session.CreateInstance($namespaceName, $newInstance)
+    $result = $session.InvokeMethod($namespaceName, $instance, "StoreInstallMethod", $params)
+}
+catch [Exception] {
+    write-host $_ | out-string
+}
+
+# Dispose CIM session object
+Remove-CimSession -CimSession $session
+
+# Wait for a while - application is installed from Microsoft Store on the background
+```
+*Credit: [@JuryA](https://github.com/JuryA), inspired by [@adotcoop](https://gist.github.com/adotcoop) and his [Install-CompanyPortal.ps1](https://gist.github.com/adotcoop/0241d371684c3771000385dd93da77e4#file-install-companyportal-ps1)*
 
 ### Development Releases
 
