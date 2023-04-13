@@ -70,22 +70,22 @@ NestedModules = if ($env:PROCESSOR_ARCHITECTURE -like 'x86')
 {
     if ($PSEdition -eq 'Core')
     {
-        "runtimes\win10-x86\lib\net6.0-windows10.0.22000.0\Microsoft.WinGet.Client.dll"
+        "runtimes\win10-x86\lib\net6.0-windows10.0.22000.0\Microsoft.WinGet.Client.Cmdlets.dll"
     }
     else
     {
-        "runtimes\win10-x86\lib\net48\Microsoft.WinGet.Client.dll"
+        "runtimes\win10-x86\lib\net48\Microsoft.WinGet.Client.Cmdlets.dll"
     }
 }
 else
 {
     if ($PSEdition -eq 'Core')
     {
-        "runtimes\win10-x64\lib\net6.0-windows10.0.22000.0\Microsoft.WinGet.Client.dll"
+        "runtimes\win10-x64\lib\net6.0-windows10.0.22000.0\Microsoft.WinGet.Client.Cmdlets.dll"
     }
     else
     {
-        "runtimes\win10-x64\lib\net48\Microsoft.WinGet.Client.dll"
+        "runtimes\win10-x64\lib\net48\Microsoft.WinGet.Client.Cmdlets.dll"
     }
 }
 

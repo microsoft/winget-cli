@@ -131,7 +131,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CertificateResources", "Cer
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PowerShell", "PowerShell", "{7C218A3E-9BC8-48FF-B91B-BCACD828C0C9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.WinGet.Client", "PowerShell\Microsoft.WinGet.Client\Microsoft.WinGet.Client.csproj", "{463C0EF3-DF38-4C3D-8E7E-D4901E0CDC6C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.WinGet.Client.Cmdlets", "PowerShell\Microsoft.WinGet.Client.Cmdlets\Microsoft.WinGet.Client.Cmdlets.csproj", "{463C0EF3-DF38-4C3D-8E7E-D4901E0CDC6C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Management.Deployment.Projection", "Microsoft.Management.Deployment.Projection\Microsoft.Management.Deployment.Projection.csproj", "{0B104762-5CD8-47EE-A904-71C1C3F84DCD}"
 EndProject
@@ -161,7 +161,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Management.Config
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConfigurationRemotingServer", "ConfigurationRemotingServer\ConfigurationRemotingServer.csproj", "{6597EB04-D105-49A7-A5A3-D27FE1DF895E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft.WinGet.Client.Engine", "PowerShell\Microsoft.WinGet.Client.Engine\Microsoft.WinGet.Client.Engine.csproj", "{1F56BECB-D65D-4BBA-8788-6671B251392A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.WinGet.Client.Engine", "PowerShell\Microsoft.WinGet.Client.Engine\Microsoft.WinGet.Client.Engine.csproj", "{1F56BECB-D65D-4BBA-8788-6671B251392A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
