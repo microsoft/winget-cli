@@ -2,9 +2,9 @@
 <Configuration>
   <ViewDefinitions>
     <View>
-      <Name>Microsoft.WinGet.Client.PSObjects.FoundCatalogPackage</Name>
+      <Name>Microsoft.WinGet.Client.Engine.PSObjects.PSFoundCatalogPackage</Name>
       <ViewSelectedBy>
-        <TypeName>Microsoft.WinGet.Client.PSObjects.FoundCatalogPackage</TypeName>
+        <TypeName>Microsoft.WinGet.Client.Engine.PSObjects.PSFoundCatalogPackage</TypeName>
       </ViewSelectedBy>
       <TableControl>
         <TableHeaders>
@@ -42,9 +42,9 @@
       </TableControl>
     </View>
     <View>
-      <Name>Microsoft.WinGet.Client.PSObjects.InstalledCatalogPackage</Name>
+      <Name>Microsoft.WinGet.Client.Engine.PSObjects.PSInstalledCatalogPackage</Name>
       <ViewSelectedBy>
-        <TypeName>Microsoft.WinGet.Client.PSObjects.InstalledCatalogPackage</TypeName>
+        <TypeName>Microsoft.WinGet.Client.Engine.PSObjects.PSInstalledCatalogPackage</TypeName>
       </ViewSelectedBy>
       <TableControl>
         <TableHeaders>
@@ -88,9 +88,9 @@
       </TableControl>
     </View>
     <View>
-      <Name>Microsoft.WinGet.Client.PSObjects.InstallResult</Name>
+      <Name>Microsoft.WinGet.Client.Engine.PSObjects.PSInstallResult</Name>
       <ViewSelectedBy>
-        <TypeName>Microsoft.WinGet.Client.PSObjects.InstallResult</TypeName>
+        <TypeName>Microsoft.WinGet.Client.Engine.PSObjects.PSInstallResult</TypeName>
       </ViewSelectedBy>
       <TableControl>
         <TableHeaders>
@@ -134,9 +134,9 @@
       </TableControl>
     </View>
     <View>
-      <Name>Microsoft.WinGet.Client.PSObjects.UninstallResult</Name>
+      <Name>Microsoft.WinGet.Client.Engine.PSObjects.PSUninstallResult</Name>
       <ViewSelectedBy>
-        <TypeName>Microsoft.WinGet.Client.PSObjects.UninstallResult</TypeName>
+        <TypeName>Microsoft.WinGet.Client.Engine.PSObjects.PSUninstallResult</TypeName>
       </ViewSelectedBy>
       <TableControl>
         <TableHeaders>
@@ -180,9 +180,9 @@
       </TableControl>
     </View>
     <View>
-      <Name>Microsoft.WinGet.Client.PSObjects.SourceResult</Name>
+      <Name>Microsoft.WinGet.Client.Engine.PSObjects.PSSourceResult</Name>
       <ViewSelectedBy>
-        <TypeName>Microsoft.WinGet.Client.PSObjects.SourceResult</TypeName>
+        <TypeName>Microsoft.WinGet.Client.Engine.PSObjects.PSSourceResult</TypeName>
       </ViewSelectedBy>
       <TableControl>
         <TableHeaders>
@@ -214,9 +214,9 @@
       </TableControl>
     </View>
     <View>
-      <Name>Microsoft.WinGet.Client.PSObjects.PackageVersionInfo</Name>
+      <Name>Microsoft.WinGet.Client.Engine.PSObjects.PSPackageVersionInfo</Name>
       <ViewSelectedBy>
-        <TypeName>Microsoft.WinGet.Client.PSObjects.PackageVersionInfo</TypeName>
+        <TypeName>Microsoft.WinGet.Client.Engine.PSObjects.PSPackageVersionInfo</TypeName>
       </ViewSelectedBy>
       <TableControl>
         <TableHeaders>
@@ -237,7 +237,7 @@
           </TableColumnHeader>
           <TableColumnHeader>
             <Label>ProductCodes</Label>
-          </TableColumnHeader>            
+          </TableColumnHeader>
         </TableHeaders>
         <TableRowEntries>
           <TableRowEntry>

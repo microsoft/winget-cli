@@ -183,7 +183,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
             PackageFieldMatchOption match)
         {
             IEnumerable<PropertyInfo> properties = this.GetType()
-                .GetProperties()
+                .GetProperties(BindingFlags.NonPublic | BindingFlags.Instance)
                 .Where(property => Attribute.IsDefined(property, typeof(FilterAttribute)));
 
             foreach (PropertyInfo info in properties)
