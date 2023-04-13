@@ -86,6 +86,7 @@ debian
 deigh
 deleteifnotneeded
 desktopappinstaller
+dic
 diskfull
 dismapi
 dllimport
@@ -171,6 +172,7 @@ ISVs
 itr
 IWin
 JArray
+JDictionary
 jdk
 jfearn
 JObject
@@ -239,6 +241,7 @@ nativehandle
 NESTEDINSTALLER
 netfx
 netlify
+NETSDK
 Newtonsoft
 NOEXPAND
 NOLINKINFO

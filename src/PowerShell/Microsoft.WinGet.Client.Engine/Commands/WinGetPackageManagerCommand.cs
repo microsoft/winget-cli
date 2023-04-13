@@ -14,7 +14,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
     using Microsoft.WinGet.Client.Engine.Properties;
 
     /// <summary>
-    /// Used by Rapair-WinGetPackageManager and Asser-WinGetPackageManager.
+    /// Used by Repair-WinGetPackageManager and Assert-WinGetPackageManager.
     /// </summary>
     public sealed class WinGetPackageManagerCommand : BaseCommand
     {

@@ -19,7 +19,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
     using Newtonsoft.Json.Linq;
 
     /// <summary>
-    /// Class used by the user serttings cmdlets.
+    /// Class used by the user settings cmdlets.
     /// </summary>
     public sealed class UserSettingsCommand : BaseCommand
     {
