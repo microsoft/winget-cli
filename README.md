@@ -96,7 +96,7 @@ The client is built around the concept of sources; a set of packages effectively
 
 ### Building
 
-Open `winget-cli\src\AppInstallerCLI.sln` in Visual Studio and build. We currently only build using the solution; command line methods of building a VS solution should work as well. After building, you can run the client from the command line using `wingetdev`.
+Open `winget-cli\src\AppInstallerCLI.sln` in Visual Studio and build. We currently only build using the solution; command line methods of building a VS solution should work as well. After the build finishes, deploy the solution from Build > Deploy Solution. You can then run the client from the command line using `wingetdev`.
 
 ## Credit
 
