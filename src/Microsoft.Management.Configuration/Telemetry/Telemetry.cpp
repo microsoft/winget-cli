@@ -71,7 +71,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 {
     namespace
     {
-        // The data collected from running throught a set of results.
+        // The data collected from running through a set of results.
         struct ConfigRunSummaryData
         {
             hresult Result = S_OK;

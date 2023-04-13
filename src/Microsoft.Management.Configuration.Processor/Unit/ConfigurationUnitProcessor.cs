@@ -8,15 +8,11 @@ namespace Microsoft.Management.Configuration.Processor.Unit
 {
     using System;
     using System.Collections.Generic;
-    using System.Management.Automation;
-    using System.Reflection;
     using Microsoft.Management.Configuration;
     using Microsoft.Management.Configuration.Processor.Exceptions;
     using Microsoft.Management.Configuration.Processor.Extensions;
     using Microsoft.Management.Configuration.Processor.Helpers;
     using Microsoft.Management.Configuration.Processor.ProcessorEnvironments;
-    using Microsoft.PowerShell.Commands;
-    using Newtonsoft.Json.Bson;
 
     /// <summary>
     /// Provides access to a specific configuration unit within the runtime.
