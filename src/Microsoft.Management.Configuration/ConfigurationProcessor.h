@@ -81,8 +81,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         ConfigThreadGlobals m_threadGlobals;
         IConfigurationSetProcessorFactory::Diagnostics_revoker m_factoryDiagnosticsEventRevoker;
         DiagnosticLevel m_minimumLevel = DiagnosticLevel::Informational;
-        guid m_activityIdentifier{};
-        bool m_generateTelemetryEvents = true;
 #endif
     };
 }

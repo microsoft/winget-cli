@@ -5,6 +5,9 @@
 #include <winrt/Microsoft.Management.Configuration.h>
 #include <winrt/Windows.Foundation.Collections.h>
 #include "ConfigurationUnitResultInformation.h"
+#include "ConfigurationSet.h"
+#include "TestConfigurationSetResult.h"
+#include "ApplyConfigurationSetResult.h"
 
 #include <cguid.h>
 #include <string>
@@ -28,6 +31,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // Returns the previous value.
         bool EnableRuntime(bool value);
 
+        // Returns a value indicating whether the logger is enabled.
+        bool IsEnabled() const;
+
         // Sets the current activity identifier.
         void SetActivityId(const guid& value);
 
@@ -36,6 +42,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         // Store the passed in name of the Caller for COM calls
         void SetCaller(std::string_view caller);
+
+        static constexpr std::string_view GetAction = "get";
+        static constexpr std::string_view ApplyAction = "apply";
+        static constexpr std::string_view TestAction = "test";
 
         // Logs information about running a configuration unit.
         // The caller is expected to only call this for failures from publicly available units.
@@ -58,6 +68,36 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             ConfigurationUnitIntent runIntent,
             std::string_view action,
             const ConfigurationUnitResultInformation& resultInformation) const noexcept;
+
+        // The summary information for a specific unit intent.
+        struct ProcessingSummaryForIntent
+        {
+            ConfigurationUnitIntent Intent;
+            uint32_t Count;
+            uint32_t Run;
+            uint32_t Failed;
+        };
+
+        // Logs a processing summary event for a configuration set.
+        void LogConfigProcessingSummary(
+            const guid& setIdentifier,
+            bool fromHistory,
+            ConfigurationUnitIntent runIntent,
+            hresult result,
+            ConfigurationUnitResultSource failurePoint,
+            const ProcessingSummaryForIntent& assertSummary,
+            const ProcessingSummaryForIntent& informSummary,
+            const ProcessingSummaryForIntent& applySummary) const noexcept;
+
+        // Logs a processing summary event for a configuration set test run.
+        void LogConfigProcessingSummaryForTest(
+            const ConfigurationSet& configurationSet,
+            const TestConfigurationSetResult& result) const noexcept;
+
+        // Logs a processing summary event for a configuration set apply run.
+        void LogConfigProcessingSummaryForApply(
+            const ConfigurationSet& configurationSet,
+            const ApplyConfigurationSetResult& result) const noexcept;
 
     protected:
         bool IsTelemetryEnabled() const noexcept;

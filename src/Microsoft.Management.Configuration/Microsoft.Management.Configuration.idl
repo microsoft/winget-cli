@@ -62,6 +62,8 @@ namespace Microsoft.Management.Configuration
         ConfigurationSet,
         // The external module that processes the configuration unit generated the result.
         UnitProcessing,
+        // The system state is causing the error.
+        SystemState,
         // The configuration unit was not run due to a precondition not being met.
         // For example, when an assert in the configuration set is not in the desired state,
         // all of the units with Apply intent will have this set.
@@ -75,8 +77,11 @@ namespace Microsoft.Management.Configuration
         // The error code of the failure.
         HRESULT ResultCode;
 
-        // The description of the failure.
+        // The short description of the failure.
         String Description;
+
+        // A more detailed error message appropriate for diagnosing the root cause of an error.
+        String Details;
 
         // The source of the result.
         ConfigurationUnitResultSource ResultSource;

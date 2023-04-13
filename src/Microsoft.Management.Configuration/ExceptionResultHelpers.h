@@ -17,6 +17,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         {
             unitResult->Initialize(hre.code(), hre.message());
         }
+        catch (const std::exception& ex)
+        {
+            unitResult->Initialize(E_FAIL, AppInstaller::Utility::ConvertToUTF16(ex.what()));
+        }
         catch (...)
         {
             unitResult->Initialize(E_FAIL, hstring{});

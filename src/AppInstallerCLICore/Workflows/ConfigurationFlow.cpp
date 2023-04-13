@@ -271,7 +271,8 @@ namespace AppInstaller::CLI::Workflow
             if (FAILED(resultInformation.ResultCode()))
             {
                 AICLI_LOG(Config, Error, << "Failed to get unit details for " << Utility::ConvertToUTF8(unit.UnitName()) << " : 0x" <<
-                    Logging::SetHRFormat << resultInformation.ResultCode() << '\n' << Utility::ConvertToUTF8(resultInformation.Description()));
+                    Logging::SetHRFormat << resultInformation.ResultCode() << '\n' << Utility::ConvertToUTF8(resultInformation.Description()) << '\n' <<
+                    Utility::ConvertToUTF8(resultInformation.Details()));
             }
         }
 
@@ -350,7 +351,8 @@ namespace AppInstaller::CLI::Workflow
                     else
                     {
                         AICLI_LOG(Config, Error, << "Configuration unit " << Utility::ConvertToUTF8(unit.UnitName()) << "[" << Utility::ConvertToUTF8(unit.Identifier()) << "] failed with code 0x"
-                            << Logging::SetHRFormat << resultInformation.ResultCode() << " and error message:\n" << Utility::ConvertToUTF8(resultInformation.Description()));
+                            << Logging::SetHRFormat << resultInformation.ResultCode() << " and error message:\n" << Utility::ConvertToUTF8(resultInformation.Description()) << '\n'
+                            << Utility::ConvertToUTF8(resultInformation.Details()));
                         // TODO: Improve error reporting for failures: use message, known HRs, getting HR system string, etc.
                         m_context.Reporter.Error() << "  "_liv << Resource::String::ConfigurationUnitFailed << " 0x"_liv << Logging::SetHRFormat << resultInformation.ResultCode() << std::endl;
                     }
@@ -400,6 +402,10 @@ namespace AppInstaller::CLI::Workflow
 
         // Set the processor to the current level of the logging.
         processor.MinimumLevel(ConvertLevel(Logging::Log().GetLevel()));
+        // Use same activity as the overall winget command
+        processor.ActivityIdentifier(*Logging::Telemetry().GetActivityId());
+        // Apply winget telemetry setting to configuration
+        processor.GenerateTelemetryEvents(!Settings::User().Get<Settings::Setting::TelemetryDisable>());
 
         // Route the configuration diagnostics into the context's diagnostics logging
         processor.Diagnostics([&context](const winrt::Windows::Foundation::IInspectable&, const DiagnosticInformation& diagnostics)

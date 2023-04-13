@@ -95,21 +95,30 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
             string name,
             ModuleSpecification? moduleSpecification)
         {
-            var getResult = pwsh.AddCommand(this.InvokeDscResourceCmd)
+            PSObject? getResult = null;
+
+            try
+            {
+                getResult = pwsh.AddCommand(this.InvokeDscResourceCmd)
                                 .AddParameters(PrepareInvokeParameters(name, settings, moduleSpecification))
                                 .AddParameter(Parameters.Method, DscMethods.Get)
                                 .InvokeAndStopOnError()
                                 .FirstOrDefault();
+            }
+            catch (System.Exception ex)
+            {
+                throw new InvokeDscResourceException(InvokeDscResourceException.Get, name, moduleSpecification, ex);
+            }
 
             string? errorMessage = pwsh.GetErrorMessage();
             if (errorMessage is not null)
             {
-                throw new InvokeDscResourceGetException(name, moduleSpecification, errorMessage);
+                throw new InvokeDscResourceException(InvokeDscResourceException.Get, name, moduleSpecification, errorMessage);
             }
 
             if (getResult is null)
             {
-                throw new InvokeDscResourceGetException(name, moduleSpecification);
+                throw new InvokeDscResourceException(InvokeDscResourceException.Get, name, moduleSpecification);
             }
 
             // Script based resource.
@@ -138,22 +147,31 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
         {
             // Returned type is InvokeDscResourceTestResult which is a PowerShell classed defined
             // in PSDesiredStateConfiguration.psm1.
-            dynamic? testResult = pwsh.AddCommand(this.InvokeDscResourceCmd)
-                                      .AddParameters(PrepareInvokeParameters(name, settings, moduleSpecification))
-                                      .AddParameter(Parameters.Method, DscMethods.Test)
-                                      .InvokeAndStopOnError()
-                                      .FirstOrDefault();
+            dynamic? testResult = null;
+
+            try
+            {
+                testResult = pwsh.AddCommand(this.InvokeDscResourceCmd)
+                                 .AddParameters(PrepareInvokeParameters(name, settings, moduleSpecification))
+                                 .AddParameter(Parameters.Method, DscMethods.Test)
+                                 .InvokeAndStopOnError()
+                                 .FirstOrDefault();
+            }
+            catch (System.Exception ex)
+            {
+                throw new InvokeDscResourceException(InvokeDscResourceException.Test, name, moduleSpecification, ex);
+            }
 
             string? errorMessage = pwsh.GetErrorMessage();
             if (errorMessage is not null)
             {
-                throw new InvokeDscResourceTestException(name, moduleSpecification, errorMessage);
+                throw new InvokeDscResourceException(InvokeDscResourceException.Test, name, moduleSpecification, errorMessage);
             }
 
             if (testResult is null ||
                 !TypeHelpers.PropertyWithTypeExists<bool>(testResult, InDesiredState))
             {
-                throw new InvokeDscResourceTestException(name, moduleSpecification);
+                throw new InvokeDscResourceException(InvokeDscResourceException.Test, name, moduleSpecification);
             }
 
             return testResult?.InDesiredState;
@@ -168,22 +186,31 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
         {
             // Returned type is InvokeDscResourceSetResult which is a PowerShell classed defined
             // in PSDesiredStateConfiguration.psm1.
-            dynamic? setResult = pwsh.AddCommand(this.InvokeDscResourceCmd)
-                                     .AddParameters(PrepareInvokeParameters(name, settings, moduleSpecification))
-                                     .AddParameter(Parameters.Method, DscMethods.Set)
-                                     .InvokeAndStopOnError()
-                                     .FirstOrDefault();
+            dynamic? setResult = null;
+
+            try
+            {
+                setResult = pwsh.AddCommand(this.InvokeDscResourceCmd)
+                                .AddParameters(PrepareInvokeParameters(name, settings, moduleSpecification))
+                                .AddParameter(Parameters.Method, DscMethods.Set)
+                                .InvokeAndStopOnError()
+                                .FirstOrDefault();
+            }
+            catch (System.Exception ex)
+            {
+                throw new InvokeDscResourceException(InvokeDscResourceException.Set, name, moduleSpecification, ex);
+            }
 
             string? errorMessage = pwsh.GetErrorMessage();
             if (errorMessage is not null)
             {
-                throw new InvokeDscResourceSetException(name, moduleSpecification, errorMessage);
+                throw new InvokeDscResourceException(InvokeDscResourceException.Set, name, moduleSpecification, errorMessage);
             }
 
             if (setResult is null ||
                 !TypeHelpers.PropertyWithTypeExists<bool>(setResult, RebootRequired))
             {
-                throw new InvokeDscResourceSetException(name, moduleSpecification);
+                throw new InvokeDscResourceException(InvokeDscResourceException.Set, name, moduleSpecification);
             }
 
             return setResult?.RebootRequired;

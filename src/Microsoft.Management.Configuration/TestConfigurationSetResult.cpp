@@ -44,12 +44,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
     }
 
-    Windows::Foundation::Collections::IVectorView<TestConfigurationUnitResult> TestConfigurationSetResult::UnitResults()
+    Windows::Foundation::Collections::IVectorView<TestConfigurationUnitResult> TestConfigurationSetResult::UnitResults() const
     {
         return m_unitResults.GetView();
     }
 
-    ConfigurationTestResult TestConfigurationSetResult::TestResult()
+    ConfigurationTestResult TestConfigurationSetResult::TestResult() const
     {
         return m_testResult;
     }

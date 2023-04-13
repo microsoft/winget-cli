@@ -575,7 +575,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             };
 
             using PowerShell pwsh = PowerShell.Create(testEnvironment.Runspace);
-            var e = Assert.Throws<InvokeDscResourceSetException>(() => dscModule.InvokeSetResource(
+            var e = Assert.Throws<InvokeDscResourceException>(() => dscModule.InvokeSetResource(
                 pwsh,
                 settings,
                 TestModule.SimpleTestResourceName,
