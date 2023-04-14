@@ -487,6 +487,7 @@ namespace AppInstaller::CLI::Workflow
 
         // Set the processor to the current level of the logging.
         processor.MinimumLevel(ConvertLevel(Logging::Log().GetLevel()));
+        processor.Caller(L"winget");
         // Use same activity as the overall winget command
         processor.ActivityIdentifier(*Logging::Telemetry().GetActivityId());
         // Apply winget telemetry setting to configuration
