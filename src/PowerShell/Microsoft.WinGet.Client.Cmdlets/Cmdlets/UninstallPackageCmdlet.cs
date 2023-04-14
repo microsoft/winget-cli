@@ -50,7 +50,7 @@ namespace Microsoft.WinGet.Client.Commands
                 this.Moniker,
                 this.Source,
                 this.Query,
-                this.Exact.ToBool());
+                this.MatchOption);
             command.Uninstall(this.Mode.ToString(), this.Force.ToBool());
         }
     }

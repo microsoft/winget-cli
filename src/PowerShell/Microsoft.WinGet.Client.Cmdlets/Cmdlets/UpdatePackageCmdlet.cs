@@ -51,7 +51,7 @@ namespace Microsoft.WinGet.Client.Commands
                 this.Moniker,
                 this.Source,
                 this.Query,
-                this.Exact.ToBool());
+                this.MatchOption);
             command.Update(this.IncludeUnknown.ToBool());
         }
     }

@@ -7,13 +7,14 @@
 namespace Microsoft.WinGet.Client.Engine.PSObjects
 {
     using System.Linq;
+    using System.Management.Automation;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Engine.Exceptions;
 
     /// <summary>
     /// CatalogPackage wrapper object for displaying to PowerShell.
     /// </summary>
-    public abstract class PSCatalogPackage
+    public abstract class PSCatalogPackage : PSObject
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="PSCatalogPackage"/> class.

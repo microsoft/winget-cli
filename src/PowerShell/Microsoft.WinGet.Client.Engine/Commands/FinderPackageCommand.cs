@@ -9,6 +9,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
     using System.Management.Automation;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Engine.Commands.Common;
+    using Microsoft.WinGet.Client.Engine.Extensions;
     using Microsoft.WinGet.Client.Engine.PSObjects;
 
     /// <summary>
@@ -25,7 +26,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="moniker">Moniker of package.</param>
         /// <param name="source">Source to search. If null, all are searched.</param>
         /// <param name="query">Match against any field of a package.</param>
-        /// <param name="exact">Do exact match.</param>
+        /// <param name="matchOption">Match option.</param>
         /// <param name="tag">Tag of the package.</param>
         /// <param name="command">Command of the package.</param>
         /// <param name="count">Max results to return.</param>
@@ -36,7 +37,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             string moniker,
             string source,
             string[] query,
-            bool exact,
+            PSPackageFieldMatchOption matchOption,
             string tag,
             string command,
             uint count)
@@ -48,7 +49,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             this.Moniker = moniker;
             this.Source = source;
             this.Query = query;
-            this.Exact = exact;
+            this.MatchOption = matchOption.ToPackageFieldMatchOption();
 
             // FinderExtendedCommand
             this.Tag = tag;

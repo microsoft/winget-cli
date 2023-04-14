@@ -6,14 +6,16 @@
 
 namespace Microsoft.WinGet.Client.Engine.PSObjects
 {
+    using Microsoft.Management.Deployment;
     using System;
+    using System.Management.Automation;
 
     /// <summary>
     /// UninstallResult wrapper object for displaying to PowerShell.
     /// </summary>
-    public sealed class PSUninstallResult
+    public sealed class PSUninstallResult : PSObject
     {
-        private Management.Deployment.UninstallResult uninstallResult;
+        private readonly Management.Deployment.UninstallResult uninstallResult;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PSUninstallResult"/> class.
@@ -77,6 +79,24 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
             {
                 return this.uninstallResult.UninstallerErrorCode;
             }
+        }
+
+        /// <summary>
+        /// If the uninstall succeeded.
+        /// </summary>
+        /// <returns>True if uninstall succeeded.</returns>
+        public bool Succeeded()
+        {
+            return this.uninstallResult.Status == UninstallResultStatus.Ok;
+        }
+
+        /// <summary>
+        /// Message with error information.
+        /// </summary>
+        /// <returns>Error message.</returns>
+        public string ErrorMessage()
+        {
+            return $"UninstallStatus '{this.Status}' UninstallerErrorCode '{this.UninstallerErrorCode}' ExtendedError '{this.ExtendedErrorCode.HResult}'";
         }
     }
 }

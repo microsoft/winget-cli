@@ -32,7 +32,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="moniker">Moniker of package.</param>
         /// <param name="source">Source to search. If null, all are searched.</param>
         /// <param name="query">Match against any field of a package.</param>
-        /// <param name="exact">Do exact match.</param>
+        /// <param name="matchOption">Match option.</param>
         public UninstallPackageCommand(
             PSCmdlet psCmdlet,
             PSCatalogPackage psCatalogPackage,
@@ -43,7 +43,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             string moniker,
             string source,
             string[] query,
-            bool exact)
+            PSPackageFieldMatchOption matchOption)
             : base(psCmdlet)
         {
             // PackageCommand.
@@ -61,7 +61,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             this.Moniker = moniker;
             this.Source = source;
             this.Query = query;
-            this.Exact = exact;
+            this.MatchOption = matchOption.ToPackageFieldMatchOption();
         }
 
         /// <summary>

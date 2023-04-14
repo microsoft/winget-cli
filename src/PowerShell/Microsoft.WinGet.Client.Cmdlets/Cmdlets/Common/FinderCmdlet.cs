@@ -8,6 +8,7 @@ namespace Microsoft.WinGet.Client.Commands.Common
 {
     using System.Management.Automation;
     using Microsoft.WinGet.Client.Common;
+    using Microsoft.WinGet.Client.Engine.PSObjects;
 
     /// <summary>
     /// This is the base class for all commands that might need to search for a package. It contains an initial
@@ -58,11 +59,11 @@ namespace Microsoft.WinGet.Client.Commands.Common
         public string[] Query { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether to match exactly against package fields.
+        /// Gets or sets how to match against package fields. Default ContainsCaseInsensitive.
         /// </summary>
         [Parameter(
             ParameterSetName = Constants.FoundSet,
             ValueFromPipelineByPropertyName = true)]
-        public SwitchParameter Exact { get; set; }
+        public PSPackageFieldMatchOption MatchOption { get; set; } = PSPackageFieldMatchOption.ContainsCaseInsensitive;
     }
 }

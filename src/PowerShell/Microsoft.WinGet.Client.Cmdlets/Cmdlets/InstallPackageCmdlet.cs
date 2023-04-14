@@ -57,8 +57,8 @@ namespace Microsoft.WinGet.Client.Commands
                 this.Moniker,
                 this.Source,
                 this.Query,
-                this.Exact.ToBool());
-            command.Install(this.Scope.ToString(), this.Architecture.ToString());
+                this.MatchOption);
+            command.Install(this.Scope.ToString(), this.Architecture);
         }
     }
 }
