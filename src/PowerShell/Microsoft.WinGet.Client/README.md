@@ -15,7 +15,7 @@ This project has after build targets that will copy all the necessary files in t
 ## Adding a new function
 
 We don't have an automatic way of producing the psm1 from Crescendo. If a new function is going to be added:
-1. Modify `Crescendo\Crescenso.json`
+1. Modify `Crescendo\Crescendo.json`
 2. Run `Crescendo\Create-CrescendoFunctions.ps1`
 3. Copy the new psm1 in `ModulesFiles\Microsoft.WinGet.Client.psm1`
 4. Add new function in `ModulesFiles\Microsoft.WinGet.Client.psd1`

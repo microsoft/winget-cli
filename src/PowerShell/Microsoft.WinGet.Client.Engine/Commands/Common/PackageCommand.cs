@@ -43,7 +43,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
 
         /// <summary>
         /// Gets or sets the path to the logging file.
-        /// TODO: NEEDS TO BE TRANSFORMED.
         /// </summary>
         protected string Log { get; set; }
 
