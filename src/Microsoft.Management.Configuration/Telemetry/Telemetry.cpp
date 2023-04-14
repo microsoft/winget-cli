@@ -53,14 +53,14 @@ inline std::ostream& operator<<(std::ostream& out, std::wstring_view value) { ou
 { \
     std::ostringstream _debugEventStream; \
     _debugEventStream << \
-        "#DEBUGEVENTSTREAM\n" << \
+        "#DebugEventStream\n" << \
         "Event: " << (_eventName_) << '\n' << \
         "ActivityID: " << *GetActivityId() << '\n' << \
         "CodeVersion: " << m_version << '\n' << \
         "Caller: " << m_caller << '\n' \
         << WinGetAbsorbVA_ARGSCommas(0, __VA_ARGS__ ,0) \
         ; \
-    AICLI_LOG_LARGE_STRING(Config, Info, , _debugEventStream.str()); \
+    AICLI_LOG_LARGE_STRING(Config, Verbose, , _debugEventStream.str()); \
 }
 
 #endif
@@ -198,6 +198,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_caller = caller;
     }
 
+    std::string_view TelemetryTraceLogger::GetCaller() const
+    {
+        return m_caller;
+    }
+
     void TelemetryTraceLogger::LogConfigUnitRun(
         const guid& setIdentifier,
         const guid& unitIdentifier,
@@ -249,7 +254,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         const Configuration::ConfigurationUnit& unit,
         ConfigurationUnitIntent runIntent,
         std::string_view action,
-        const ConfigurationUnitResultInformation& resultInformation) const noexcept try
+        const Configuration::ConfigurationUnitResultInformation& resultInformation) const noexcept try
     {
         // We only want to send telemetry for failures of publicly available units.
         if (!IsTelemetryEnabled() || SUCCEEDED(static_cast<int32_t>(resultInformation.ResultCode())))
@@ -272,7 +277,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             strstr << static_cast<std::wstring_view>(setting.Key()) << L'|';
         }
         std::wstring allSettingsNames = strstr.str();
-        allSettingsNames.pop_back();
+        if (!allSettingsNames.empty())
+        {
+            allSettingsNames.pop_back();
+        }
 
         LogConfigUnitRun(setIdentifier, unit.InstanceIdentifier(), unit.UnitName(), details.ModuleName(), unit.Intent(), runIntent, action, resultInformation.ResultCode(), resultInformation.ResultSource(), allSettingsNames);
     }
@@ -352,6 +360,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     bool TelemetryTraceLogger::IsTelemetryEnabled() const noexcept
     {
+#ifdef AICLI_DISABLE_TEST_HOOKS
         return g_IsTelemetryProviderEnabled && m_isRuntimeEnabled;
+#else
+        // For testing, only use the local enable state.
+        return m_isRuntimeEnabled;
+#endif
     }
 }

@@ -17,7 +17,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_resultInformation = resultInformation;
     }
 
-    Configuration::ConfigurationUnitResultInformation GetConfigurationUnitSettingsResult::ResultInformation()
+    Configuration::ConfigurationUnitResultInformation GetConfigurationUnitSettingsResult::ResultInformation() const
     {
         return m_resultInformation;
     }

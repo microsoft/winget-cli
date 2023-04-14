@@ -19,4 +19,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         return m_telemetry;
     }
+
+    const TelemetryTraceLogger& ConfigThreadGlobals::GetTelemetryLogger() const
+    {
+        return m_telemetry;
+    }
 }

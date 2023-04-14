@@ -106,6 +106,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             // Do not check for the type.
             Assert.Equal(thrownException.HResult, result.ResultInformation.ResultCode.HResult);
             Assert.True(!string.IsNullOrWhiteSpace(result.ResultInformation.Description));
+            Assert.Equal(ConfigurationUnitResultSource.Internal, result.ResultInformation.ResultSource);
         }
 
         /// <summary>
@@ -134,6 +135,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             // Do not check for the type.
             Assert.Equal(thrownException.HResult, result.ResultInformation.ResultCode.HResult);
             Assert.True(!string.IsNullOrWhiteSpace(result.ResultInformation.Description));
+            Assert.Equal(ConfigurationUnitResultSource.Internal, result.ResultInformation.ResultSource);
         }
 
         /// <summary>
@@ -215,6 +217,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             // Do not check for the type.
             Assert.Equal(thrownException.HResult, result.ResultInformation.ResultCode.HResult);
             Assert.True(!string.IsNullOrWhiteSpace(result.ResultInformation.Description));
+            Assert.Equal(ConfigurationUnitResultSource.Internal, result.ResultInformation.ResultSource);
         }
 
         /// <summary>
@@ -245,6 +248,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             // Do not check for the type.
             Assert.Equal(thrownException.HResult, result.ResultInformation.ResultCode.HResult);
             Assert.True(!string.IsNullOrWhiteSpace(result.ResultInformation.Description));
+            Assert.Equal(ConfigurationUnitResultSource.Internal, result.ResultInformation.ResultSource);
         }
 
         /// <summary>
@@ -316,6 +320,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             // Do not check for the type.
             Assert.Equal(thrownException.HResult, result.ResultInformation.ResultCode.HResult);
             Assert.True(!string.IsNullOrWhiteSpace(result.ResultInformation.Description));
+            Assert.Equal(ConfigurationUnitResultSource.Internal, result.ResultInformation.ResultSource);
         }
 
         /// <summary>
@@ -344,6 +349,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             // Do not check for the type.
             Assert.Equal(thrownException.HResult, result.ResultInformation.ResultCode.HResult);
             Assert.True(!string.IsNullOrWhiteSpace(result.ResultInformation.Description));
+            Assert.Equal(ConfigurationUnitResultSource.Internal, result.ResultInformation.ResultSource);
         }
 
         private ConfigurationUnitAndResource CreateUnitResource(ConfigurationUnitIntent intent)

@@ -17,6 +17,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         void* GetTelemetryObject() override;
 
         TelemetryTraceLogger& GetTelemetryLogger();
+        const TelemetryTraceLogger& GetTelemetryLogger() const;
 
     protected:
         AppInstaller::Logging::DiagnosticLogger m_logger;

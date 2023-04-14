@@ -624,6 +624,9 @@ namespace Microsoft.Management.Configuration
         // Indicates the minimum importance desired for diagnostics.
         DiagnosticLevel MinimumLevel;
 
+        // Set the caller to used to identify the usage in telemetry events.
+        String Caller;
+
         // The identifier for the current activity, enabling multiple calls into the processor to be correlated.
         Guid ActivityIdentifier;
 

@@ -85,7 +85,7 @@ namespace AppInstaller::Logging
         virtual void Write(Channel channel, Level level, std::string_view message) noexcept = 0;
 
         // Informs the logger of the given log with the intention that no buffering occurs (in winget code).
-        virtual void WriteDirect(std::string_view message) noexcept = 0;
+        virtual void WriteDirect(Channel channel, Level level, std::string_view message) noexcept = 0;
     };
 
     // This type contains the set of loggers that diagnostic logging will be sent to.

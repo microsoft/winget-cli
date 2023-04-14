@@ -43,19 +43,17 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     void ConfigurationSetApplyProcessor::Process()
     {
-        if (!PreProcess())
+        if (PreProcess())
         {
-            return;
+            // TODO: When cross process is implemented, send Pending until we actually start
+            SendProgress(ConfigurationSetState::InProgress);
+
+            ProcessInternal(HasProcessedSuccessfully, &ConfigurationSetApplyProcessor::ProcessUnit, true);
+
+            SendProgress(ConfigurationSetState::Completed);
         }
 
-        // TODO: When cross process is implemented, send Pending until we actually start
-        SendProgress(ConfigurationSetState::InProgress);
-
-        ProcessInternal(HasProcessedSuccessfully, &ConfigurationSetApplyProcessor::ProcessUnit, true);
-
         m_telemetry.LogConfigProcessingSummaryForApply(*winrt::get_self<implementation::ConfigurationSet>(m_configurationSet), *m_result);
-
-        SendProgress(ConfigurationSetState::Completed);
     }
 
     ConfigurationSetApplyProcessor::UnitInfo::UnitInfo(const Configuration::ConfigurationUnit& unit) :

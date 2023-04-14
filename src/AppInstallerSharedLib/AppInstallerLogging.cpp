@@ -135,7 +135,7 @@ namespace AppInstaller::Logging
         {
             for (auto& logger : m_loggers)
             {
-                logger->WriteDirect(message);
+                logger->WriteDirect(channel, level, message);
             }
         }
     }

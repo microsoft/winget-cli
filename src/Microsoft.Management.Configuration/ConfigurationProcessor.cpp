@@ -69,9 +69,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             }
             catch (...) {}
 
-            void WriteDirect(std::string_view message) noexcept override try
+            void WriteDirect(AppInstaller::Logging::Channel, AppInstaller::Logging::Level level, std::string_view message) noexcept override try
             {
-                m_processor.Diagnostics(DiagnosticLevel::Informational, message);
+                m_processor.Diagnostics(ConvertLevel(level), message);
             }
             catch (...) {}
 
@@ -144,6 +144,16 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_minimumLevel = value;
         m_threadGlobals.GetDiagnosticLogger().SetLevel(ConvertLevel(value));
         m_factory.MinimumLevel(value);
+    }
+
+    hstring ConfigurationProcessor::Caller() const
+    {
+        return hstring{ AppInstaller::Utility::ConvertToUTF16(m_threadGlobals.GetTelemetryLogger().GetCaller()) };
+    }
+
+    void ConfigurationProcessor::Caller(hstring value)
+    {
+        m_threadGlobals.GetTelemetryLogger().SetCaller(AppInstaller::Utility::ConvertToUTF8(value));
     }
 
     guid ConfigurationProcessor::ActivityIdentifier()
@@ -398,7 +408,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                         ExtractUnitResultInformation(std::current_exception(), unitResult);
                     }
 
-                    m_threadGlobals.GetTelemetryLogger().LogConfigUnitRunIfAppropriate(localSet.InstanceIdentifier(), unit, ConfigurationUnitIntent::Assert, TelemetryTraceLogger::TestAction, *unitResult);
+                    m_threadGlobals.GetTelemetryLogger().LogConfigUnitRunIfAppropriate(localSet.InstanceIdentifier(), unit, ConfigurationUnitIntent::Assert, TelemetryTraceLogger::TestAction, testResult->ResultInformation());
                 }
             }
             else
@@ -464,7 +474,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                 ExtractUnitResultInformation(std::current_exception(), unitResult);
             }
 
-            m_threadGlobals.GetTelemetryLogger().LogConfigUnitRunIfAppropriate(GUID_NULL, localUnit, ConfigurationUnitIntent::Inform, TelemetryTraceLogger::GetAction, *unitResult);
+            m_threadGlobals.GetTelemetryLogger().LogConfigUnitRunIfAppropriate(GUID_NULL, localUnit, ConfigurationUnitIntent::Inform, TelemetryTraceLogger::GetAction, result->ResultInformation());
         }
 
         co_return *result;

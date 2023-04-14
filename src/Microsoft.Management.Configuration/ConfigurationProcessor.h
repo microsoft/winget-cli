@@ -33,6 +33,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         DiagnosticLevel MinimumLevel();
         void MinimumLevel(DiagnosticLevel value);
 
+        hstring Caller() const;
+        void Caller(hstring value);
+
         guid ActivityIdentifier();
         void ActivityIdentifier(const guid& value);
 

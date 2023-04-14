@@ -40,8 +40,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // Return address of m_activityId
         const GUID* GetActivityId() const;
 
-        // Store the passed in name of the Caller for COM calls
+        // Store the passed in name of the caller
         void SetCaller(std::string_view caller);
+
+        // Get the current caller value
+        std::string_view GetCaller() const;
 
         static constexpr std::string_view GetAction = "get";
         static constexpr std::string_view ApplyAction = "apply";
@@ -67,7 +70,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             const Configuration::ConfigurationUnit& unit,
             ConfigurationUnitIntent runIntent,
             std::string_view action,
-            const ConfigurationUnitResultInformation& resultInformation) const noexcept;
+            const Configuration::ConfigurationUnitResultInformation& resultInformation) const noexcept;
 
         // The summary information for a specific unit intent.
         struct ProcessingSummaryForIntent
