@@ -14,7 +14,7 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
     /// <summary>
     /// CatalogPackage wrapper object for displaying to PowerShell.
     /// </summary>
-    public abstract class PSCatalogPackage : PSObject
+    public abstract class PSCatalogPackage
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="PSCatalogPackage"/> class.

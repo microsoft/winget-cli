@@ -7,13 +7,12 @@
 namespace Microsoft.WinGet.Client.Engine.PSObjects
 {
     using System.Linq;
-    using System.Management.Automation;
     using Microsoft.Management.Deployment;
 
     /// <summary>
     /// PackageVersionInfo wrapper object for displaying to PowerShell.
     /// </summary>
-    public sealed class PSPackageVersionInfo : PSObject
+    public sealed class PSPackageVersionInfo
     {
         private PackageVersionInfo packageVersionInfo;
 

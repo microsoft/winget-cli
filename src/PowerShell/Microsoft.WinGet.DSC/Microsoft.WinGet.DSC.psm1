@@ -444,7 +444,13 @@ class WinGetPackage
     [InstallMode]$InstallMode = [InstallMode]::Silent
 
     [DscProperty(NotConfigurable)]
-    [bool] $IsInstalled = $false
+    [string]$InstalledVersion
+
+    [DscProperty(NotConfigurable)]
+    [bool]$IsInstalled = $false
+
+    [DscProperty(NotConfigurable)]
+    [bool]$IsUpdateAvailable = $false
 
     [PSObject] hidden $CatalogPackage = $null
 
@@ -461,10 +467,14 @@ class WinGetPackage
             throw "WinGetPackage: Version and UseLatest cannot be set at the same time"
         }
 
+        # This has to use MatchOption equals. Otherwise, it might find other package where the
+        # id starts with.
         $this.CatalogPackage = Get-WinGetPackage -Id $this.Id -MatchOption $this.MatchOption
         if ($null -ne $this.CatalogPackage)
         {
+            $this.InstalledVersion = $this.CatalogPackage.Version
             $this.IsInstalled = $true
+            $this.IsUpdateAvailable = $this.CatalogPackage.IsUpdateAvailable
         }
     }
 
@@ -473,16 +483,7 @@ class WinGetPackage
     {
         Assert-WinGetCommand "Get-WinGetPackage"
         $this.Initialize()
-
-        $wingetPackageResource = [WinGetPackage]::new()
-        $wingetPackageResource.Id = $this.Id
-        $wingetPackageResource.IsInstalled = $this.IsInstalled
-        if ($wingetPackageResource.IsInstalled)
-        {
-            $wingetPackageResource.Version = $this.CatalogPackage.Version
-        }
-
-        return $wingetPackageResource
+        return $this
     }
 
     # Test.
@@ -547,17 +548,17 @@ class WinGetPackage
                     $hashArgs.Add("Source", $this.Source)
                 }
 
-                if ($this.Installed)
+                if ($this.IsInstalled)
                 {
                     if ($this.UseLatest)
                     {
-                        $this.Update($hashArgs)
+                        $this.TryUpdate($hashArgs)
                     }
                     elseif (-not([string]::IsNullOrWhiteSpace($this.Version)))
                     {
                         $hashArgs.Add("Version", $this.Version)
 
-                        $compareResult = $this.CatalogObject.CompareToVersion($this.Version)
+                        $compareResult = $this.CatalogPackage.CompareToVersion($this.Version)
                         switch ($compareResult)
                         {
                             'Lesser'

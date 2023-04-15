@@ -13,7 +13,7 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
     /// <summary>
     /// PSInstallResult.
     /// </summary>
-    public sealed class PSInstallResult : PSObject
+    public sealed class PSInstallResult
     {
         private readonly InstallResult installResult;
 

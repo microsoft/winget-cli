@@ -11,7 +11,7 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
     /// <summary>
     /// SourceResult wrapper object for displaying to PowerShell.
     /// </summary>
-    public sealed class PSSourceResult : PSObject
+    public sealed class PSSourceResult
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="PSSourceResult"/> class.

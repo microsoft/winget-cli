@@ -6,14 +6,14 @@
 
 namespace Microsoft.WinGet.Client.Engine.PSObjects
 {
-    using Microsoft.Management.Deployment;
     using System;
     using System.Management.Automation;
+    using Microsoft.Management.Deployment;
 
     /// <summary>
     /// UninstallResult wrapper object for displaying to PowerShell.
     /// </summary>
-    public sealed class PSUninstallResult : PSObject
+    public sealed class PSUninstallResult
     {
         private readonly Management.Deployment.UninstallResult uninstallResult;
 

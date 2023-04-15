@@ -6,8 +6,8 @@
 
 namespace Microsoft.WinGet.Client.Engine.PSObjects
 {
-    using Microsoft.Management.Deployment;
     using System;
+    using Microsoft.Management.Deployment;
 
     /// <summary>
     /// InstalledCatalogPackage wrapper object for displaying to PowerShell.
