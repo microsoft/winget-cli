@@ -39,6 +39,9 @@ namespace AppInstaller::Runtime
         constexpr std::string_view s_PreviewBuildSuffix = "-preview"sv;
         constexpr std::string_view s_RuntimePath_Unpackaged_DefaultState = "defaultState"sv;
 
+        constexpr std::string_view s_UserProfileEnvironmentVariable = "%USERPROFILE%";
+        constexpr std::string_view s_LocalAppDataEnvironmentVariable = "%LOCALAPPDATA%";
+
         static std::optional<std::string> s_runtimePathStateName;
         static wil::srwlock s_runtimePathStateNameLock;
 
@@ -130,35 +133,42 @@ namespace AppInstaller::Runtime
 #endif
 
         // Gets the user's temp path
-        std::filesystem::path GetPathToUserTemp()
+        std::filesystem::path GetPathToUserTemp(bool forDisplay)
         {
-            wchar_t tempPath[MAX_PATH + 1];
-            DWORD tempChars = GetTempPathW(ARRAYSIZE(tempPath), tempPath);
-            THROW_LAST_ERROR_IF(!tempChars);
-            THROW_HR_IF(E_UNEXPECTED, tempChars > ARRAYSIZE(tempPath));
-            return { std::wstring_view{ tempPath, static_cast<size_t>(tempChars) } };
+            if (forDisplay)
+            {
+                return "%TEMP%";
+            }
+            else
+            {
+                wchar_t tempPath[MAX_PATH + 1];
+                DWORD tempChars = GetTempPathW(ARRAYSIZE(tempPath), tempPath);
+                THROW_LAST_ERROR_IF(!tempChars);
+                THROW_HR_IF(E_UNEXPECTED, tempChars > ARRAYSIZE(tempPath));
+                return { std::wstring_view{ tempPath, static_cast<size_t>(tempChars) } };
+            }
         }
 
         // Gets the path to the appdata root.
         // *Only used by non packaged version!*
-        std::filesystem::path GetPathToAppDataRoot()
+        std::filesystem::path GetPathToAppDataRoot(bool forDisplay)
         {
             THROW_HR_IF(E_NOT_VALID_STATE, IsRunningInPackagedContext());
 
-            std::filesystem::path result = GetKnownFolderPath(FOLDERID_LocalAppData);
+            std::filesystem::path result = forDisplay ? s_LocalAppDataEnvironmentVariable : GetKnownFolderPath(FOLDERID_LocalAppData);
             result /= "Microsoft/WinGet";
 
             return result;
         }
 
         // Gets the path to the app data relative directory.
-        std::filesystem::path GetPathToAppDataDir(const std::filesystem::path& relative)
+        std::filesystem::path GetPathToAppDataDir(const std::filesystem::path& relative, bool forDisplay)
         {
             THROW_HR_IF(E_INVALIDARG, !relative.has_relative_path());
             THROW_HR_IF(E_INVALIDARG, relative.has_root_path());
             THROW_HR_IF(E_INVALIDARG, !relative.has_filename());
 
-            std::filesystem::path result = GetPathToAppDataRoot();
+            std::filesystem::path result = GetPathToAppDataRoot(forDisplay);
             result /= relative;
 
             return result;
@@ -228,6 +238,15 @@ namespace AppInstaller::Runtime
             PSID SID;
             TRUSTEE_TYPE TrusteeType;
         };
+
+        // Try to replace LOCALAPPDATA first as it is the likely location, fall back to trying USERPROFILE.
+        void ReplaceProfilePathsWithEnvironmentVariable(std::filesystem::path& path)
+        {
+            if (!ReplaceCommonPathPrefix(path, GetKnownFolderPath(FOLDERID_LocalAppData), s_LocalAppDataEnvironmentVariable))
+            {
+                ReplaceCommonPathPrefix(path, GetKnownFolderPath(FOLDERID_Profile), s_UserProfileEnvironmentVariable);
+            }
+        }
     }
 
     bool IsRunningInPackagedContext()
@@ -428,14 +447,18 @@ namespace AppInstaller::Runtime
     }
 
     // Contains all of the paths that are common between the runtime contexts.
-    PathDetails GetPathDetailsCommon(PathName path)
+    PathDetails GetPathDetailsCommon(PathName path, bool forDisplay)
     {
         PathDetails result;
+        // We should not create directories by default when they are retrieved for display purposes.
+        result.Create = !forDisplay;
+
+        bool mayBeInProfilePath = false;
 
         switch (path)
         {
         case PathName::UserProfile:
-            result.Path = GetKnownFolderPath(FOLDERID_Profile);
+            result.Path = forDisplay ? s_UserProfileEnvironmentVariable : GetKnownFolderPath(FOLDERID_Profile);
             result.Create = false;
             break;
         case PathName::PortablePackageUserRoot:
@@ -447,6 +470,7 @@ namespace AppInstaller::Runtime
                 result.Path /= s_PortablePackageRoot;
                 result.Path /= s_PortablePackagesDirectory;
             }
+            mayBeInProfilePath = true;
             break;
         case PathName::PortablePackageMachineRoot:
             result.Path = Settings::User().Get<Setting::PortablePackageMachineRoot>();
@@ -471,6 +495,7 @@ namespace AppInstaller::Runtime
             result.Path /= s_PortablePackageUserRoot_Base;
             result.Path /= s_PortablePackageRoot;
             result.Path /= s_LinksDirectory;
+            mayBeInProfilePath = true;
             break;
         case PathName::PortableLinksMachineLocation:
             result.Path = GetKnownFolderPath(FOLDERID_ProgramFiles);
@@ -481,20 +506,28 @@ namespace AppInstaller::Runtime
             THROW_HR(E_UNEXPECTED);
         }
 
+        if (mayBeInProfilePath && forDisplay)
+        {
+            ReplaceProfilePathsWithEnvironmentVariable(result.Path);
+        }
+
         return result;
     }
 
 #ifndef WINGET_DISABLE_FOR_FUZZING
-    PathDetails GetPathDetailsForPackagedContext(PathName path, bool forDisplay = false)
+    PathDetails GetPathDetailsForPackagedContext(PathName path, bool forDisplay)
     {
         PathDetails result;
+        // We should not create directories by default when they are retrieved for display purposes.
+        result.Create = !forDisplay;
 
         auto appStorage = winrt::Windows::Storage::ApplicationData::Current();
+        bool mayBeInProfilePath = false;
 
         switch (path)
         {
         case PathName::Temp:
-            result.Path = GetPathToUserTemp() / s_DefaultTempDirectory;
+            result.Path = GetPathToUserTemp(forDisplay) / s_DefaultTempDirectory;
             result.SetOwner(ACEPrincipal::CurrentUser);
             result.ACL[ACEPrincipal::System] = ACEPermissions::All;
             result.ACL[ACEPrincipal::Admins] = ACEPermissions::All;
@@ -502,15 +535,13 @@ namespace AppInstaller::Runtime
         case PathName::LocalState:
         case PathName::UserFileSettings:
             result.Path.assign(appStorage.LocalFolder().Path().c_str());
+            mayBeInProfilePath = true;
             break;
         case PathName::DefaultLogLocation:
             // To enable UIF collection through Feedback hub, we must put our logs here.
             result.Path.assign(appStorage.LocalFolder().Path().c_str());
             result.Path /= WINGET_DEFAULT_LOG_DIRECTORY;
-            if (forDisplay)
-            {
-                ReplaceCommonPathPrefix(result.Path, GetKnownFolderPath(FOLDERID_LocalAppData), "%LOCALAPPDATA%");
-            }
+            mayBeInProfilePath = true;
             break;
         case PathName::StandardSettings:
             result.Create = false;
@@ -537,15 +568,11 @@ namespace AppInstaller::Runtime
         case PathName::PortablePackageMachineRoot:
         case PathName::PortablePackageMachineRootX86:
         case PathName::PortableLinksMachineLocation:
-            result = GetPathDetailsCommon(path);
+            result = GetPathDetailsCommon(path, forDisplay);
             break;
         case PathName::PortableLinksUserLocation:
         case PathName::PortablePackageUserRoot:
-            result = GetPathDetailsCommon(path);
-            if (forDisplay)
-            {
-                ReplaceCommonPathPrefix(result.Path, GetKnownFolderPath(FOLDERID_LocalAppData), "%LOCALAPPDATA%");
-            }
+            result = GetPathDetailsCommon(path, forDisplay);
             break;
         case PathName::SelfPackageRoot:
             result.Path = GetPackagePath();
@@ -555,29 +582,27 @@ namespace AppInstaller::Runtime
             THROW_HR(E_UNEXPECTED);
         }
 
+        if (mayBeInProfilePath && forDisplay)
+        {
+            ReplaceProfilePathsWithEnvironmentVariable(result.Path);
+        }
+
         return result;
     }
 #endif
 
-    PathDetails GetPathDetailsForUnpackagedContext(PathName path, bool forDisplay = false)
+    PathDetails GetPathDetailsForUnpackagedContext(PathName path, bool forDisplay)
     {
         PathDetails result;
+        // We should not create directories by default when they are retrieved for display purposes.
+        result.Create = !forDisplay;
 
         switch (path)
         {
         case PathName::Temp:
         case PathName::DefaultLogLocation:
         {
-            if (forDisplay)
-            {
-                result.Path.assign("%TEMP%");
-                result.Create = false;
-            }
-            else
-            {
-                result.Path = GetPathToUserTemp();
-            }
-
+            result.Path = GetPathToUserTemp(forDisplay);
             result.Path /= s_DefaultTempDirectory;
             result.Path /= GetRuntimePathStateName();
             if (path == PathName::Temp)
@@ -589,13 +614,13 @@ namespace AppInstaller::Runtime
         }
         break;
         case PathName::LocalState:
-            result.Path = GetPathToAppDataDir(s_AppDataDir_State);
+            result.Path = GetPathToAppDataDir(s_AppDataDir_State, forDisplay);
             result.Path /= GetRuntimePathStateName();
             result.SetOwner(ACEPrincipal::CurrentUser);
             break;
         case PathName::StandardSettings:
         case PathName::UserFileSettings:
-            result.Path = GetPathToAppDataDir(s_AppDataDir_Settings);
+            result.Path = GetPathToAppDataDir(s_AppDataDir_Settings, forDisplay);
             result.Path /= GetRuntimePathStateName();
             result.SetOwner(ACEPrincipal::CurrentUser);
             break;
@@ -621,15 +646,11 @@ namespace AppInstaller::Runtime
         case PathName::PortablePackageMachineRoot:
         case PathName::PortablePackageMachineRootX86:
         case PathName::PortableLinksMachineLocation:
-            result = GetPathDetailsCommon(path);
+            result = GetPathDetailsCommon(path, forDisplay);
             break;
         case PathName::PortableLinksUserLocation:
         case PathName::PortablePackageUserRoot:
-            result = GetPathDetailsCommon(path);
-            if (forDisplay)
-            {
-                ReplaceCommonPathPrefix(result.Path, GetKnownFolderPath(FOLDERID_LocalAppData), "%LOCALAPPDATA%");
-            }
+            result = GetPathDetailsCommon(path, forDisplay);
             break;
         case PathName::SelfPackageRoot:
             result.Path = GetBinaryDirectoryPath();
@@ -654,7 +675,7 @@ namespace AppInstaller::Runtime
         else
 #endif
         {
-            result = GetPathDetailsForUnpackagedContext(path);
+            result = GetPathDetailsForUnpackagedContext(path, forDisplay);
         }
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
