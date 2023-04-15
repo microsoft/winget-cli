@@ -10,6 +10,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 {
     struct ConfigurationUnit : ConfigurationUnitT<ConfigurationUnit>
     {
+        using ConfigurationUnitResultInformation = Configuration::ConfigurationUnitResultInformation;
+
         ConfigurationUnit();
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)

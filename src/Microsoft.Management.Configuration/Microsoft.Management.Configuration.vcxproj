@@ -135,6 +135,11 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(WingetDisableTestHooks)'=='true'">
+    <ClCompile>
+      <PreprocessorDefinitions>AICLI_DISABLE_TEST_HOOKS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="ApplyConfigurationSetResult.h" />
     <ClInclude Include="ApplyConfigurationUnitResult.h" />
@@ -161,6 +166,8 @@
     <ClInclude Include="MutableFlag.h" />
     <ClInclude Include="OpenConfigurationSetResult.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="Telemetry\Telemetry.h" />
+    <ClInclude Include="Telemetry\TraceLogging.h" />
     <ClInclude Include="TestConfigurationSetResult.h" />
     <ClInclude Include="TestConfigurationUnitResult.h" />
     <ClInclude Include="TestSettingsResult.h" />
@@ -192,6 +199,8 @@
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="$(GeneratedFilesDir)module.g.cpp" />
+    <ClCompile Include="Telemetry\Telemetry.cpp" />
+    <ClCompile Include="Telemetry\TraceLogging.cpp" />
     <ClCompile Include="TestConfigurationSetResult.cpp" />
     <ClCompile Include="TestConfigurationUnitResult.cpp" />
     <ClCompile Include="TestSettingsResult.cpp" />

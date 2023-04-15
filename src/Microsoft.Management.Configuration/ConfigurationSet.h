@@ -19,6 +19,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
         ConfigurationSet(const guid& instanceIdentifier);
         void Initialize(std::vector<Configuration::ConfigurationUnit>&& units);
+
+        bool IsFromHistory() const;
 #endif
 
         hstring Name();
@@ -30,7 +32,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         hstring Path();
         void Path(const hstring& value);
 
-        guid InstanceIdentifier();
+        guid InstanceIdentifier() const;
         ConfigurationSetState State();
         clock::time_point FirstApply();
         clock::time_point ApplyBegun();

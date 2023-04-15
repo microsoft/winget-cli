@@ -58,7 +58,7 @@
 #define METH_NAME StringUtil::Utf8ToUtf16(__FUNCTION__).c_str()
 
 // TraceLogging provider name for telemetry.
-#define TELEMETRY_PROVIDER_NAME "Microsoft.PackageManager.Client"
+#define TELEMETRY_PROVIDER_NAME "Microsoft.Management.Configuration"
 
 TRACELOGGING_DECLARE_PROVIDER(g_hTraceProvider);
 extern bool g_IsTelemetryProviderEnabled;

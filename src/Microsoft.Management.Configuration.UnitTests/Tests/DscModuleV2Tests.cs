@@ -279,7 +279,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             var dscModule = new DscModuleV2();
 
             using PowerShell pwsh = PowerShell.Create(testEnvironment.Runspace);
-            var exception = Assert.Throws<RuntimeException>(() =>
+            var exception = Assert.Throws<InvokeDscResourceException>(() =>
                 dscModule.InvokeGetResource(
                     pwsh,
                     new ValueSet(),
@@ -319,7 +319,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var dscModule = new DscModuleV2();
             using PowerShell pwsh = PowerShell.Create(testEnvironment.Runspace);
-            var exception = Assert.Throws<RuntimeException>(
+            var exception = Assert.Throws<InvokeDscResourceException>(
                 () => dscModule.InvokeGetResource(
                     pwsh,
                     new ValueSet(),
@@ -327,7 +327,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                     PowerShellHelpers.CreateModuleSpecification(
                         TestModule.SimpleTestResourceModuleName)));
 
-            Assert.IsType<WriteErrorException>(exception.InnerException);
+            Assert.IsType<RuntimeException>(exception.InnerException);
         }
 
         /// <summary>
@@ -370,7 +370,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var dscModule = new DscModuleV2();
             using PowerShell pwsh = PowerShell.Create(testEnvironment.Runspace);
-            var exception = Assert.Throws<RuntimeException>(() =>
+            var exception = Assert.Throws<InvokeDscResourceException>(() =>
                 dscModule.InvokeTestResource(
                     pwsh,
                     new ValueSet(),
@@ -410,7 +410,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var dscModule = new DscModuleV2();
             using PowerShell pwsh = PowerShell.Create(testEnvironment.Runspace);
-            var exception = Assert.Throws<RuntimeException>(() =>
+            var exception = Assert.Throws<InvokeDscResourceException>(() =>
                 _ = dscModule.InvokeTestResource(
                     pwsh,
                     new ValueSet(),
@@ -418,7 +418,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                     PowerShellHelpers.CreateModuleSpecification(
                         TestModule.SimpleTestResourceModuleName)));
 
-            Assert.IsType<WriteErrorException>(exception.InnerException);
+            Assert.IsType<RuntimeException>(exception.InnerException);
         }
 
         /// <summary>
@@ -460,7 +460,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var dscModule = new DscModuleV2();
             using PowerShell pwsh = PowerShell.Create(testEnvironment.Runspace);
-            var exception = Assert.Throws<RuntimeException>(() =>
+            var exception = Assert.Throws<InvokeDscResourceException>(() =>
                 dscModule.InvokeSetResource(
                     pwsh,
                     new ValueSet(),
@@ -500,7 +500,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var dscModule = new DscModuleV2();
             using PowerShell pwsh = PowerShell.Create(testEnvironment.Runspace);
-            var exception = Assert.Throws<RuntimeException>(() =>
+            var exception = Assert.Throws<InvokeDscResourceException>(() =>
                 dscModule.InvokeSetResource(
                     pwsh,
                     new ValueSet(),
@@ -508,7 +508,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                     PowerShellHelpers.CreateModuleSpecification(
                         TestModule.SimpleTestResourceModuleName)));
 
-            Assert.IsType<WriteErrorException>(exception.InnerException);
+            Assert.IsType<RuntimeException>(exception.InnerException);
         }
 
         /// <summary>
@@ -560,8 +560,6 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// <summary>
         /// Calls Invoke-DscResource invalid arguments.
         /// </summary>
-        /// <param name="value">Setting value.</param>
-        /// <param name="rebootRequired">Expected reboot required.</param>
         [Fact]
         public void InvokeSetResource_InvalidArguments()
         {
@@ -575,7 +573,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             };
 
             using PowerShell pwsh = PowerShell.Create(testEnvironment.Runspace);
-            var e = Assert.Throws<InvokeDscResourceSetException>(() => dscModule.InvokeSetResource(
+            var e = Assert.Throws<InvokeDscResourceException>(() => dscModule.InvokeSetResource(
                 pwsh,
                 settings,
                 TestModule.SimpleTestResourceName,
@@ -583,6 +581,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                     TestModule.SimpleTestResourceModuleName)));
 
             Assert.Contains("The property 'Fake' cannot be found on this object.", e.Message);
+            Assert.Equal(ConfigurationUnitResultSource.ConfigurationSet, e.ResultSource);
         }
     }
 }

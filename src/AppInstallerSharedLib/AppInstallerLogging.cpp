@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Public/AppInstallerLogging.h"
-
+#include "Public/AppInstallerStrings.h"
 #include "Public/AppInstallerDateTime.h"
 #include "Public/winget/SharedThreadGlobals.h"
 
@@ -135,7 +135,7 @@ namespace AppInstaller::Logging
         {
             for (auto& logger : m_loggers)
             {
-                logger->WriteDirect(message);
+                logger->WriteDirect(channel, level, message);
             }
         }
     }
@@ -163,5 +163,21 @@ namespace AppInstaller::Logging
 std::ostream& operator<<(std::ostream& out, const std::chrono::system_clock::time_point& time)
 {
     AppInstaller::Utility::OutputTimePoint(out, time);
+    return out;
+}
+
+std::ostream& operator<<(std::ostream& out, const GUID& guid)
+{
+    wchar_t buffer[256];
+
+    if (StringFromGUID2(guid, buffer, ARRAYSIZE(buffer)))
+    {
+        out << AppInstaller::Utility::ConvertToUTF8(buffer);
+    }
+    else
+    {
+        out << "error";
+    }
+
     return out;
 }

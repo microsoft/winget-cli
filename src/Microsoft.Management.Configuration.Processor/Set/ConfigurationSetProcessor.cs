@@ -208,7 +208,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
             // resources because they will call a method on a null obj. It is easier to just fail here.
             // The exception being thrown will have the correct details (user needs to call Unblock-File)
             // instead of the cryptic Invoke with 0 arguments.
-            if (dscResourceInfo.Path is not null)
+            if (!string.IsNullOrEmpty(dscResourceInfo.Path))
             {
                 try
                 {

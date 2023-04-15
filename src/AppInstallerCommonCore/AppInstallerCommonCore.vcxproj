@@ -329,9 +329,7 @@
     <ClInclude Include="Public\winget\TraceLogger.h" />
     <ClInclude Include="Public\winget\UserSettings.h" />
     <ClInclude Include="Public\winget\WindowsFeature.h" />
-    <ClInclude Include="Telemetry\MicrosoftTelemetry.h" />
     <ClInclude Include="Telemetry\TraceLogging.h" />
-    <ClInclude Include="Telemetry\WinEventLogLevels.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AdminSettings.cpp" />
