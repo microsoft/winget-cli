@@ -60,7 +60,6 @@ namespace Microsoft.Management.Configuration.Processor.Exceptions
         public InvokeDscResourceException(string method, string resourceName, ModuleSpecification? module, string message, bool configurationSetSource = false)
             : base(CreateMessage(method, resourceName, module, message))
         {
-            // The property 'Fake' cannot be found on this object. Verify that the property exists and can be set.
             this.HResult = GetHRForMethod(method);
             this.Method = method;
             this.ResourceName = resourceName;

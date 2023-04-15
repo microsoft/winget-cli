@@ -12,7 +12,7 @@ namespace Microsoft.Management.Configuration.Processor.Exceptions
     internal static class ErrorCodes
     {
         /// <summary>
-        /// The module of the unit was installed, but the unit was not found.
+        /// Corresponds to E_UNEXPECTED; this code path was reached without the developer realizing it was possible.
         /// </summary>
         internal const int Unexpected = unchecked((int)0x8000ffff);
 

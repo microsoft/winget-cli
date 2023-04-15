@@ -143,7 +143,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         m_minimumLevel = value;
         m_threadGlobals.GetDiagnosticLogger().SetLevel(ConvertLevel(value));
-        m_factory.MinimumLevel(value);
+        if (m_factory)
+        {
+            m_factory.MinimumLevel(value);
+        }
     }
 
     hstring ConfigurationProcessor::Caller() const
