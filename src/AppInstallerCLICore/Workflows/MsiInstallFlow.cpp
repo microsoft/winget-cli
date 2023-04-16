@@ -2,7 +2,8 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "MsiInstallFlow.h"
-#include "winget/MsiExecArguments.h"
+#include <winget/MsiExecArguments.h>
+#include <winget/Runtime.h>
 
 namespace AppInstaller::CLI::Workflow
 {

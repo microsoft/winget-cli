@@ -58,10 +58,13 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFileEmpty);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFileInvalid);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFileVersionUnknown);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationGettingDetails);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationInform);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationInitializing);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationLocal);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationModuleNameOnly);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationModuleWithDetails);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationReadingConfigFile);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationSettings);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationSuccessfullyApplied);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitFailed);

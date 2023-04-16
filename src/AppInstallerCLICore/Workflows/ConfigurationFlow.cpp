@@ -479,10 +479,29 @@ namespace AppInstaller::CLI::Workflow
             std::set<winrt::guid> m_unitsSeen;
             bool m_isFirstProgress = true;
         };
+
+        std::filesystem::path GetConfigurationFilePath(Execution::Context& context)
+        {
+            std::filesystem::path argPath = Utility::ConvertToUTF16(context.Args.GetArg(Args::Type::ConfigurationFile));
+            return std::filesystem::weakly_canonical(argPath);
+        }
+    }
+
+    void EnsureConfigurationFileExists(Execution::Context& context)
+    {
+        std::filesystem::path absolutePath = GetConfigurationFilePath(context);
+        if (!std::filesystem::exists(absolutePath))
+        {
+            context.Reporter.Error() << Resource::String::FileNotFound(Utility::LocIndView{ context.Args.GetArg(Args::Type::ConfigurationFile) }) << std::endl;
+            AICLI_TERMINATE_CONTEXT(HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND));
+        }
     }
 
     void CreateConfigurationProcessor(Context& context)
     {
+        auto progressScope = context.Reporter.BeginAsyncProgress(true);
+        progressScope->Callback().SetProgressMessage(Resource::String::ConfigurationInitializing());
+
         ConfigurationProcessor processor{ CreateConfigurationSetProcessorFactory() };
 
         // Set the processor to the current level of the logging.
@@ -507,13 +526,10 @@ namespace AppInstaller::CLI::Workflow
 
     void OpenConfigurationSet(Context& context)
     {
-        std::filesystem::path argPath = Utility::ConvertToUTF16(context.Args.GetArg(Args::Type::ConfigurationFile));
-        std::filesystem::path absolutePath = std::filesystem::weakly_canonical(argPath);
-        if (!std::filesystem::exists(absolutePath))
-        {
-            context.Reporter.Error() << Resource::String::FileNotFound << std::endl;
-            AICLI_TERMINATE_CONTEXT(HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND));
-        }
+        auto progressScope = context.Reporter.BeginAsyncProgress(true);
+        progressScope->Callback().SetProgressMessage(Resource::String::ConfigurationReadingConfigFile());
+
+        std::filesystem::path absolutePath = GetConfigurationFilePath(context);
 
         Streams::IInputStream inputStream = nullptr;
         inputStream = Streams::FileRandomAccessStream::OpenAsync(absolutePath.wstring(), FileAccessMode::Read).get();
@@ -561,6 +577,10 @@ namespace AppInstaller::CLI::Workflow
             AICLI_TERMINATE_CONTEXT(S_FALSE);
         }
 
+        auto gettingDetailString = Resource::String::ConfigurationGettingDetails();
+        auto progressScope = context.Reporter.BeginAsyncProgress(true);
+        progressScope->Callback().SetProgressMessage(gettingDetailString);
+
         auto getDetailsOperation = configContext.Processor().GetSetDetailsAsync(configContext.Set(), ConfigurationUnitDetailLevel::Catalog);
 
         OutputStream out = context.Reporter.Info();
@@ -570,6 +590,8 @@ namespace AppInstaller::CLI::Workflow
             {
                 auto threadContext = context.SetForCurrentThread();
 
+                progressScope.reset();
+
                 auto unitResults = operation.GetResults().UnitResults();
                 for (unitsShown; unitsShown < unitResults.Size(); ++unitsShown)
                 {
@@ -577,11 +599,16 @@ namespace AppInstaller::CLI::Workflow
                     LogFailedGetConfigurationUnitDetails(unitResult.Unit(), unitResult.ResultInformation());
                     OutputConfigurationUnitInformation(out, unitResult.Unit());
                 }
+
+                progressScope = context.Reporter.BeginAsyncProgress(true);
+                progressScope->Callback().SetProgressMessage(gettingDetailString);
             });
 
         try
         {
             GetConfigurationSetDetailsResult result = getDetailsOperation.get();
+
+            progressScope.reset();
 
             // Handle any missing progress callbacks
             auto unitResults = result.UnitResults();
@@ -593,6 +620,8 @@ namespace AppInstaller::CLI::Workflow
             }
         }
         CATCH_LOG();
+
+        progressScope.reset();
 
         // In the event of an exception from GetSetDetailsAsync, show the data we do have
         if (!unitsShown)

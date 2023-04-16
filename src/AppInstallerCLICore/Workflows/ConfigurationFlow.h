@@ -5,6 +5,12 @@
 
 namespace AppInstaller::CLI::Workflow
 {
+    // Fails if the configuration file path does not exist.
+    // Required Args: ConfigurationFile
+    // Inputs: None
+    // Outputs: None
+    void EnsureConfigurationFileExists(Execution::Context& context);
+
     // Composite flow that chooses what to do based on the installer type.
     // Required Args: None
     // Inputs: None

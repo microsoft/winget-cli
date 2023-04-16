@@ -2,10 +2,11 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "DownloadFlow.h"
-#include "winget/Filesystem.h"
-
+#include <winget/Filesystem.h>
+#include <AppInstallerRuntime.h>
 #include <AppInstallerMsixInfo.h>
 #include <winget/AdminSettings.h>
+#include <AppInstallerDownloader.h>
 
 namespace AppInstaller::CLI::Workflow
 {
