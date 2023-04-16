@@ -4,6 +4,7 @@
 #include "ConfigurationFlow.h"
 #include "PromptFlow.h"
 #include "ConfigurationSetProcessorFactoryRemoting.h"
+#include <AppInstallerErrors.h>
 #include <winrt/Microsoft.Management.Configuration.h>
 
 using namespace AppInstaller::CLI::Execution;
@@ -361,6 +362,62 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
+        struct UnitFailedMessageData
+        {
+            Utility::LocIndString Message;
+            bool ShowDescription = true;
+        };
+
+        // TODO: We may need a detailed result code to enable the internal error to be exposed.
+        //       Additionally, some of the processor exceptions that generate these errors should be enlightened to produce better, localized descriptions.
+        UnitFailedMessageData GetUnitFailedData(const ConfigurationUnit& unit, const ConfigurationUnitResultInformation& resultInformation)
+        {
+            int32_t resultCode = resultInformation.ResultCode();
+
+            switch (resultCode)
+            {
+            case WINGET_CONFIG_ERROR_DUPLICATE_IDENTIFIER: return { Resource::String::ConfigurationUnitHasDuplicateIdentifier(Utility::LocIndString{ Utility::ConvertToUTF8(unit.Identifier()) }), false };
+            case WINGET_CONFIG_ERROR_MISSING_DEPENDENCY: return { Resource::String::ConfigurationUnitHasMissingDependency(Utility::LocIndString{ Utility::ConvertToUTF8(resultInformation.Details()) }), false };
+            case WINGET_CONFIG_ERROR_ASSERTION_FAILED: return { Resource::String::ConfigurationUnitAssertHadNegativeResult(), false };
+            case WINGET_CONFIG_ERROR_UNIT_NOT_INSTALLED: return { Resource::String::ConfigurationUnitNotFoundInModule(), false };
+            case WINGET_CONFIG_ERROR_UNIT_NOT_FOUND_REPOSITORY: return { Resource::String::ConfigurationUnitNotFound(), false };
+            case WINGET_CONFIG_ERROR_UNIT_MULTIPLE_MATCHES: return { Resource::String::ConfigurationUnitMultipleMatches(), false };
+            case WINGET_CONFIG_ERROR_UNIT_INVOKE_GET: return { Resource::String::ConfigurationUnitFailedDuringGet(), true };
+            case WINGET_CONFIG_ERROR_UNIT_INVOKE_TEST: return { Resource::String::ConfigurationUnitFailedDuringTest(), true };
+            case WINGET_CONFIG_ERROR_UNIT_INVOKE_SET: return { Resource::String::ConfigurationUnitFailedDuringSet(), true };
+            case WINGET_CONFIG_ERROR_UNIT_MODULE_CONFLICT: return { Resource::String::ConfigurationUnitModuleConflict(), false };
+            case WINGET_CONFIG_ERROR_UNIT_IMPORT_MODULE: return { Resource::String::ConfigurationUnitModuleImportFailed(), true };
+            case WINGET_CONFIG_ERROR_UNIT_INVOKE_INVALID_RESULT: return { Resource::String::ConfigurationUnitReturnedInvalidResult(), false };
+            }
+
+            switch (resultInformation.ResultSource())
+            {
+            case ConfigurationUnitResultSource::ConfigurationSet: return { Resource::String::ConfigurationUnitFailedConfigSet(resultCode), true };
+            case ConfigurationUnitResultSource::Internal: return { Resource::String::ConfigurationUnitFailedInternal(resultCode), true };
+            case ConfigurationUnitResultSource::Precondition: return { Resource::String::ConfigurationUnitFailedPrecondition(resultCode), true };
+            case ConfigurationUnitResultSource::SystemState: return { Resource::String::ConfigurationUnitFailedSystemState(resultCode), true };
+            case ConfigurationUnitResultSource::UnitProcessing: return { Resource::String::ConfigurationUnitFailedUnitProcessing(resultCode), true };
+            }
+
+            // All other errors use a generic message
+            return { Resource::String::ConfigurationUnitFailed(resultCode), true };
+        }
+
+        Utility::LocIndString GetUnitSkippedMessage(const ConfigurationUnitResultInformation& resultInformation)
+        {
+            int32_t resultCode = resultInformation.ResultCode();
+
+            switch (resultInformation.ResultCode())
+            {
+            case WINGET_CONFIG_ERROR_MANUALLY_SKIPPED: return Resource::String::ConfigurationUnitManuallySkipped();
+            case WINGET_CONFIG_ERROR_DEPENDENCY_UNSATISFIED: return Resource::String::ConfigurationUnitNotRunDueToDependency();
+            case WINGET_CONFIG_ERROR_ASSERTION_FAILED: return Resource::String::ConfigurationUnitNotRunDueToFailedAssert();
+            }
+
+            // If new cases arise and are not handled here, at least have a generic backstop message.
+            return Resource::String::ConfigurationUnitSkipped(resultCode);
+        }
+
         // Helper to handle progress callbacks from ApplyConfigurationSetAsync
         struct ApplyConfigurationSetProgressOutput
         {
@@ -435,20 +492,40 @@ namespace AppInstaller::CLI::Workflow
                     }
                     else
                     {
-                        AICLI_LOG(Config, Error, << "Configuration unit " << Utility::ConvertToUTF8(unit.UnitName()) << "[" << Utility::ConvertToUTF8(unit.Identifier()) << "] failed with code 0x"
-                            << Logging::SetHRFormat << resultInformation.ResultCode() << " and error message:\n" << Utility::ConvertToUTF8(resultInformation.Description()) << '\n'
-                            << Utility::ConvertToUTF8(resultInformation.Details()));
-                        // TODO: Improve error reporting for failures: use message, known HRs, getting HR system string, etc.
-                        m_context.Reporter.Error() << "  "_liv << Resource::String::ConfigurationUnitFailed << " 0x"_liv << Logging::SetHRFormat << resultInformation.ResultCode() << std::endl;
+                        std::string description = Utility::Trim(Utility::ConvertToUTF8(resultInformation.Description()));
+
+                        AICLI_LOG_LARGE_STRING(Config, Error, << "Configuration unit " << Utility::ConvertToUTF8(unit.UnitName()) << "[" << Utility::ConvertToUTF8(unit.Identifier()) << "] failed with code 0x"
+                            << Logging::SetHRFormat << resultInformation.ResultCode() << " and error message:\n" << description, Utility::ConvertToUTF8(resultInformation.Details()));
+
+                        UnitFailedMessageData messageData = GetUnitFailedData(unit, resultInformation);
+                        auto error = m_context.Reporter.Error();
+                        error << "  "_liv << messageData.Message << std::endl;
+
+                        if (messageData.ShowDescription && !description.empty())
+                        {
+                            constexpr size_t maximumDescriptionLines = 3;
+                            size_t consoleWidth = GetConsoleWidth();
+                            std::vector<std::string> lines = Utility::SplitIntoLines(description, maximumDescriptionLines + 1);
+                            bool wasLimited = Utility::LimitOutputLines(lines, consoleWidth, maximumDescriptionLines);
+
+                            for (const auto & line : lines)
+                            {
+                                error << line << std::endl;
+                            }
+
+                            if (wasLimited || !resultInformation.Details().empty())
+                            {
+                                error << Resource::String::ConfigurationDescriptionWasTruncated << std::endl;
+                            }
+                        }
                     }
                     OutputUnitCompletionProgress();
                     break;
                 case ConfigurationUnitState::Skipped:
                     OutputUnitInProgressIfNeeded(unit);
-                    AICLI_LOG(Config, Error, << "Configuration unit " << Utility::ConvertToUTF8(unit.UnitName()) << "[" << Utility::ConvertToUTF8(unit.Identifier()) << "] was skipped with code 0x"
+                    AICLI_LOG(Config, Warning, << "Configuration unit " << Utility::ConvertToUTF8(unit.UnitName()) << "[" << Utility::ConvertToUTF8(unit.Identifier()) << "] was skipped with code 0x"
                         << Logging::SetHRFormat << resultInformation.ResultCode());
-                    // TODO: Unique message per skip reason?
-                    m_context.Reporter.Warn() << "  "_liv << Resource::String::ConfigurationUnitSkipped << " 0x"_liv << Logging::SetHRFormat << resultInformation.ResultCode() << std::endl;
+                    m_context.Reporter.Warn() << "  "_liv << GetUnitSkippedMessage(resultInformation) << std::endl;
                     OutputUnitCompletionProgress();
                     break;
                 }

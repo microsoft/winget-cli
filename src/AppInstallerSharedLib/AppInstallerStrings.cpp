@@ -703,6 +703,69 @@ namespace AppInstaller::Utility
         return result;
     }
 
+    std::vector<std::string> SplitIntoLines(std::string_view input, size_t maximum)
+    {
+        std::size_t currentOffset = 0;
+        std::vector<std::string> result;
+
+        while (currentOffset < input.size() && (!maximum || result.size() < maximum))
+        {
+            std::size_t nextOffset = input.find_first_of("\r\n", currentOffset);
+            if (nextOffset == std::string_view::npos)
+            {
+                nextOffset = input.size();
+            }
+
+            if (nextOffset - currentOffset > 1)
+            {
+                result.emplace_back(input.substr(currentOffset, nextOffset - currentOffset));
+            }
+
+            currentOffset = nextOffset;
+        }
+
+        return result;
+    }
+
+    bool LimitOutputLines(std::vector<std::string>& lines, size_t lineWidth, size_t maximum)
+    {
+        size_t totalLines = 0;
+        size_t currentLine = 0;
+        bool result = false;
+
+        for (; currentLine < lines.size() && totalLines < maximum; ++currentLine)
+        {
+            size_t currentLineWidth = UTF8ColumnWidth(lines[currentLine]);
+            // If current line is empty, the cost is 1 line (0 + 1).
+            // If not, round up to the next line count (by rounding down through integer division after subtracting 1 + 1).
+            size_t currentLineActualLineCount = (currentLineWidth ? (currentLineWidth - 1) / lineWidth : 0) + 1;
+
+            // The current line may be too big to be the last line.
+            size_t availableLines = maximum - totalLines;
+            if (currentLineActualLineCount > availableLines)
+            {
+                size_t actualWidth = 0;
+                std::string trimmedLine = UTF8TrimRightToColumnWidth(lines[currentLine], (availableLines * lineWidth) - 1, actualWidth);
+                trimmedLine += "\xE2\x80\xA6"; // UTF8 encoding of ellipsis (…) character
+                lines[currentLine] = trimmedLine;
+
+                currentLineActualLineCount = availableLines;
+                result = true;
+            }
+
+            totalLines += currentLineActualLineCount;
+        }
+
+        // Drop any unprocessed lines
+        if (currentLine != lines.size())
+        {
+            lines.resize(currentLine);
+            result = true;
+        }
+
+        return result;
+    }
+
     std::string ConvertToHexString(const std::vector<uint8_t>& buffer, size_t byteCount)
     {
         if (byteCount && buffer.size() != byteCount)
