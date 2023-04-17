@@ -474,6 +474,11 @@ namespace AppInstaller::CLI::Workflow
         private:
             void HandleUnitProgress(const ConfigurationUnit& unit, ConfigurationUnitState state, const ConfigurationUnitResultInformation& resultInformation)
             {
+                if (UnitHasPreviouslyCompleted(unit))
+                {
+                    return;
+                }
+
                 switch (state)
                 {
                 case ConfigurationUnitState::Pending:
@@ -520,6 +525,7 @@ namespace AppInstaller::CLI::Workflow
                         }
                     }
                     OutputUnitCompletionProgress();
+                    MarkCompleted(unit);
                     break;
                 case ConfigurationUnitState::Skipped:
                     OutputUnitInProgressIfNeeded(unit);
@@ -543,6 +549,18 @@ namespace AppInstaller::CLI::Workflow
                 }
             }
 
+            void MarkCompleted(const ConfigurationUnit& unit)
+            {
+                winrt::guid unitInstance = unit.InstanceIdentifier();
+                m_unitsCompleted.insert(unitInstance);
+            }
+
+            bool UnitHasPreviouslyCompleted(const ConfigurationUnit& unit)
+            {
+                winrt::guid unitInstance = unit.InstanceIdentifier();
+                return m_unitsCompleted.count(unitInstance) != 0;
+            }
+
             // Sends VT progress to the console
             void OutputUnitCompletionProgress()
             {
@@ -554,6 +572,7 @@ namespace AppInstaller::CLI::Workflow
 
             Context& m_context;
             std::set<winrt::guid> m_unitsSeen;
+            std::set<winrt::guid> m_unitsCompleted;
             bool m_isFirstProgress = true;
         };
 
