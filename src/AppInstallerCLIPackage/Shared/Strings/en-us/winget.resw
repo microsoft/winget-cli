@@ -1477,6 +1477,9 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="IncompatibleArgumentsProvided" xml:space="preserve">
     <value>Incompatible command line arguments provided</value>
   </data>
+  <data name="UpgradeArgumentDescription" xml:space="preserve">
+    <value>Lists only packages which have an upgrade available</value>
+  </data>
   <data name="UpgradeAvailableForPinned" xml:space="preserve">
     <value>The following packages have an upgrade available, but require explicit targeting for upgrade:</value>
     <comment>"require explicit targeting for upgrade" means that the package will not be upgraded with all others unless an extra flag is added, or the package is mentioned explicitly</comment>
