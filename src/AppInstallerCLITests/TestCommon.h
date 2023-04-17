@@ -153,4 +153,7 @@ namespace TestCommon
 
     // Convert to Json::Value
     Json::Value ConvertToJson(const std::string& content);
+
+    // Sets up the test path overrides.
+    void SetTestPathOverrides();
 }
