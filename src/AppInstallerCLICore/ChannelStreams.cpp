@@ -6,7 +6,6 @@
 
 namespace AppInstaller::CLI::Execution
 {
-    using namespace Settings;
     using namespace VirtualTerminal;
 
     size_t GetConsoleWidth()

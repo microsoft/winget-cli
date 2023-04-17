@@ -17,6 +17,7 @@
 #pragma warning( pop )
 
 #include <array>
+#include <atomic>
 #include <iostream>
 #include <fstream>
 #include <future>
@@ -50,18 +51,3 @@
 
 #include <wrl/client.h>
 #include <AppxPackaging.h>
-
-#include <AppInstallerArchitecture.h>
-#include <AppInstallerDateTime.h>
-#include <AppInstallerDownloader.h>
-#include <AppInstallerErrors.h>
-#include <AppInstallerLogging.h>
-#include <AppInstallerRuntime.h>
-#include <AppInstallerSHA256.h>
-#include <AppInstallerStrings.h>
-#include <AppInstallerTelemetry.h>
-#include <winget/ExperimentalFeature.h>
-#include <winget/Locale.h>
-#include <winget/LocIndependent.h>
-#include <winget/ManifestYamlParser.h>
-#include <winget/RepositorySource.h>

@@ -90,6 +90,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // TODO: Eventually these functions/call sites will be used for history
         void SendProgress(ConfigurationSetState state);
         void SendProgress(ConfigurationUnitState state, const UnitInfo& unitInfo);
+        void SendProgressIfNotComplete(ConfigurationUnitState state, const UnitInfo& unitInfo);
 
         ConfigurationSet m_configurationSet;
         IConfigurationSetProcessor m_setProcessor;

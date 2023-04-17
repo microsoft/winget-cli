@@ -185,6 +185,14 @@ namespace AppInstaller::Utility
     // Splits the string into words.
     std::vector<std::string> SplitIntoWords(std::string_view input);
 
+    // Splits the string into lines.
+    // Drops empty lines.
+    std::vector<std::string> SplitIntoLines(std::string_view input, size_t maximum = 0);
+
+    // Removes lines from the vector (and/or characters from the last line) so that it contains the maximum number of lines.
+    // Returns true if changes were made, false if not.
+    bool LimitOutputLines(std::vector<std::string>& lines, size_t lineWidth, size_t maximum);
+
     // Converts a container to a string representation of it.
     template <typename T, typename U>
     std::string ConvertContainerToString(const T& container, U toString)

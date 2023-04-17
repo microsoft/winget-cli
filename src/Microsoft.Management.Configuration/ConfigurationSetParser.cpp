@@ -50,6 +50,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     std::unique_ptr<ConfigurationSetParser> ConfigurationSetParser::Create(std::string_view input)
     {
+        AICLI_LOG_LARGE_STRING(Config, Verbose, << "Parsing configuration set:", input);
+
         AppInstaller::YAML::Node document;
         
         try

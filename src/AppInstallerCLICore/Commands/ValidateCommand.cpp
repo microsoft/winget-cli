@@ -5,6 +5,7 @@
 #include "Workflows/WorkflowBase.h"
 #include "Workflows/DependenciesFlow.h"
 #include "Resources.h"
+#include <winget/ManifestYamlParser.h>
 
 namespace AppInstaller::CLI
 {

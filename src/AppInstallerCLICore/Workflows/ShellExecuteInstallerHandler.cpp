@@ -2,7 +2,8 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "ShellExecuteInstallerHandler.h"
-#include "AppInstallerFileLogger.h"
+#include <AppInstallerFileLogger.h>
+#include <AppInstallerRuntime.h>
 
 using namespace AppInstaller::CLI;
 using namespace AppInstaller::Utility;

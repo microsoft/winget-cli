@@ -1787,12 +1787,6 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="ConfigurationSuccessfullyApplied" xml:space="preserve">
     <value>Configuration successfully applied.</value>
   </data>
-  <data name="ConfigurationUnitFailed" xml:space="preserve">
-    <value>Failed:</value>
-  </data>
-  <data name="ConfigurationUnitSkipped" xml:space="preserve">
-    <value>Skipped:</value>
-  </data>
   <data name="ConfigurationWaitingOnAnother" xml:space="preserve">
     <value>Another configuration is being applied to the system. This configuration will continue as soon as is possible...</value>
   </data>
@@ -1806,9 +1800,6 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="ConfigurationFileEmpty" xml:space="preserve">
     <value>The configuration is empty.</value>
-  </data>
-  <data name="FileNotFound" xml:space="preserve">
-    <value>File not found.</value>
   </data>
   <data name="WindowsFeatureNotFound" xml:space="preserve">
     <value>The feature [{0}] was not found.</value>
@@ -1842,5 +1833,93 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="InstallWaitingOnAnother" xml:space="preserve">
     <value>Waiting for another install/uninstall to complete...</value>
+  </data>
+  <data name="ConfigurationDescriptionWasTruncated" xml:space="preserve">
+    <value>&lt;See the log file for additional details&gt;</value>
+    <comment>The brackets are intended to make the value stand out from other text which it will follow. Any locale appropriate mechanism that achieves this is acceptable.</comment>
+  </data>
+  <data name="ConfigurationGettingDetails" xml:space="preserve">
+    <value>Retrieving configuration details</value>
+  </data>
+  <data name="ConfigurationInitializing" xml:space="preserve">
+    <value>Initializing configuration system</value>
+  </data>
+  <data name="ConfigurationReadingConfigFile" xml:space="preserve">
+    <value>Reading configuration file</value>
+  </data>
+  <data name="ConfigurationUnitAssertHadNegativeResult" xml:space="preserve">
+    <value>The system is not in the desired state asserted by the configuration.</value>
+  </data>
+  <data name="ConfigurationUnitFailed" xml:space="preserve">
+    <value>This configuration unit failed for an unknown reason: {0}</value>
+    <comment>{Locked="{0}"} {0} is a placeholder for the unrecognized error code.</comment>
+  </data>
+  <data name="ConfigurationUnitFailedConfigSet" xml:space="preserve">
+    <value>The configuration unit failed due to the configuration: {0}</value>
+    <comment>{Locked="{0}"} {0} is a placeholder for the unrecognized error code.</comment>
+  </data>
+  <data name="ConfigurationUnitFailedDuringGet" xml:space="preserve">
+    <value>The configuration unit failed while attempting to get the current system state.</value>
+  </data>
+  <data name="ConfigurationUnitFailedDuringSet" xml:space="preserve">
+    <value>The configuration unit failed while attempting to apply the desired state.</value>
+  </data>
+  <data name="ConfigurationUnitFailedDuringTest" xml:space="preserve">
+    <value>The configuration unit failed while attempting to test the current system state.</value>
+  </data>
+  <data name="ConfigurationUnitFailedInternal" xml:space="preserve">
+    <value>The configuration unit failed due to an internal error: {0}</value>
+    <comment>{Locked="{0}"} {0} is a placeholder for the unrecognized error code.</comment>
+  </data>
+  <data name="ConfigurationUnitFailedPrecondition" xml:space="preserve">
+    <value>The configuration unit failed due to a precondition not being valid: {0}</value>
+    <comment>{Locked="{0}"} {0} is a placeholder for the unrecognized error code.</comment>
+  </data>
+  <data name="ConfigurationUnitFailedSystemState" xml:space="preserve">
+    <value>The configuration unit failed due to the system state: {0}</value>
+    <comment>{Locked="{0}"} {0} is a placeholder for the unrecognized error code.</comment>
+  </data>
+  <data name="ConfigurationUnitFailedUnitProcessing" xml:space="preserve">
+    <value>The configuration unit failed while attempting to run: {0}</value>
+    <comment>{Locked="{0}"} {0} is a placeholder for the unrecognized error code.</comment>
+  </data>
+  <data name="ConfigurationUnitHasDuplicateIdentifier" xml:space="preserve">
+    <value>The configuration contains the identifier `{0}` multiple times.</value>
+    <comment>{Locked="{0}"} {0} is a placeholder that is replaced by the identifier string from the user input file.</comment>
+  </data>
+  <data name="ConfigurationUnitHasMissingDependency" xml:space="preserve">
+    <value>The dependency `{0}` was not found within the configuration.</value>
+    <comment>{Locked="{0}"} {0} is a placeholder that is replaced by the identifier string from the user input file.</comment>
+  </data>
+  <data name="ConfigurationUnitManuallySkipped" xml:space="preserve">
+    <value>This configuration unit was manually skipped.</value>
+  </data>
+  <data name="ConfigurationUnitModuleConflict" xml:space="preserve">
+    <value>The module for the configuration unit is available in multiple locations with the same version.</value>
+  </data>
+  <data name="ConfigurationUnitModuleImportFailed" xml:space="preserve">
+    <value>Loading the module for the configuration unit failed.</value>
+  </data>
+  <data name="ConfigurationUnitMultipleMatches" xml:space="preserve">
+    <value>Multiple matches were found for the configuration unit; specify the module to select the correct one.</value>
+  </data>
+  <data name="ConfigurationUnitNotFound" xml:space="preserve">
+    <value>The configuration unit could not be found.</value>
+  </data>
+  <data name="ConfigurationUnitNotFoundInModule" xml:space="preserve">
+    <value>The configuration unit was not in the module as expected.</value>
+  </data>
+  <data name="ConfigurationUnitNotRunDueToDependency" xml:space="preserve">
+    <value>This configuration unit was not run because a dependency failed or was not run.</value>
+  </data>
+  <data name="ConfigurationUnitNotRunDueToFailedAssert" xml:space="preserve">
+    <value>This configuration unit was not run because an assert failed or was false.</value>
+  </data>
+  <data name="ConfigurationUnitReturnedInvalidResult" xml:space="preserve">
+    <value>The configuration unit returned an unexpected result during execution.</value>
+  </data>
+  <data name="ConfigurationUnitSkipped" xml:space="preserve">
+    <value>This configuration unit was not run for an unknown reason: {0}</value>
+    <comment>{Locked="{0}"} {0} is a placeholder for the unrecognized error code.</comment>
   </data>
 </root>

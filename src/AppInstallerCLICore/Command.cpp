@@ -4,6 +4,8 @@
 #include "Command.h"
 #include "Resources.h"
 #include <winget/UserSettings.h>
+#include <AppInstallerRuntime.h>
+#include <winget/Locale.h>
 
 using namespace std::string_view_literals;
 using namespace AppInstaller::Utility::literals;

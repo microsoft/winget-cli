@@ -45,13 +45,15 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         if (PreProcess())
         {
-            // TODO: When cross process is implemented, send Pending until we actually start
+            // TODO: Send pending when blocked by another configuration run
+            //SendProgress(ConfigurationSetState::Pending);
+
             SendProgress(ConfigurationSetState::InProgress);
 
             ProcessInternal(HasProcessedSuccessfully, &ConfigurationSetApplyProcessor::ProcessUnit, true);
-
-            SendProgress(ConfigurationSetState::Completed);
         }
+
+        SendProgress(ConfigurationSetState::Completed);
 
         m_telemetry.LogConfigProcessingSummaryForApply(*winrt::get_self<implementation::ConfigurationSet>(m_configurationSet), *m_result);
     }
@@ -99,7 +101,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                 {
                     AICLI_LOG(Config, Error, << "Found missing dependency: " << dependency);
                     unitInfo.ResultInformation->Initialize(WINGET_CONFIG_ERROR_MISSING_DEPENDENCY, ConfigurationUnitResultSource::ConfigurationSet);
+                    unitInfo.ResultInformation->Details(dependencyHstring);
+                    SendProgress(ConfigurationUnitState::Completed, unitInfo);
                     result = false;
+                    // TODO: Consider collecting all missing dependencies, for now just the first
+                    break;
                 }
                 else
                 {
@@ -115,7 +121,16 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             return false;
         }
 
-        return ProcessInternal(HasPreprocessed, &ConfigurationSetApplyProcessor::MarkPreprocessed);
+        if (!ProcessInternal(HasPreprocessed, &ConfigurationSetApplyProcessor::MarkPreprocessed))
+        {
+            // The preprocessing simulates processing as if every unit run was successful.
+            // If it fails, this means that there are unit definitions whose dependencies cannot be satisfied.
+            // The only reason for that is a cycle in the dependency graph somewhere.
+            m_result->ResultCode(WINGET_CONFIG_ERROR_SET_DEPENDENCY_CYCLE);
+            return false;
+        }
+
+        return true;
     }
 
     bool ConfigurationSetApplyProcessor::AddUnitToMap(UnitInfo& unitInfo, size_t unitInfoIndex)
@@ -133,8 +148,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         {
             AICLI_LOG(Config, Error, << "Found duplicate identifier: " << identifier);
             // Found a duplicate identifier, mark both as such
-            unitInfo.ResultInformation->Initialize(WINGET_CONFIG_ERROR_DUPLICATE_IDENTIFIER, ConfigurationUnitResultSource::ConfigurationSet);
             m_unitInfo[itr->second].ResultInformation->Initialize(WINGET_CONFIG_ERROR_DUPLICATE_IDENTIFIER, ConfigurationUnitResultSource::ConfigurationSet);
+            SendProgressIfNotComplete(ConfigurationUnitState::Completed, m_unitInfo[itr->second]);
+            unitInfo.ResultInformation->Initialize(WINGET_CONFIG_ERROR_DUPLICATE_IDENTIFIER, ConfigurationUnitResultSource::ConfigurationSet);
+            SendProgress(ConfigurationUnitState::Completed, unitInfo);
             return false;
         }
         else
@@ -455,6 +472,14 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                 m_progress(implementation::ConfigurationSetChangeData::Create(state, *unitInfo.ResultInformation, unitInfo.Unit));
             }
             CATCH_LOG();
+        }
+    }
+
+    void ConfigurationSetApplyProcessor::SendProgressIfNotComplete(ConfigurationUnitState state, const UnitInfo& unitInfo)
+    {
+        if (unitInfo.Result->State() != ConfigurationUnitState::Completed)
+        {
+            SendProgress(state, unitInfo);
         }
     }
 }
