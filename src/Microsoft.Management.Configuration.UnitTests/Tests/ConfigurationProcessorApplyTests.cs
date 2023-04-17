@@ -171,7 +171,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             ApplyConfigurationSetResult result = processor.ApplySet(configurationSet, ApplyConfigurationSetFlags.None);
             Assert.NotNull(result);
             Assert.NotNull(result.ResultCode);
-            Assert.Equal(Errors.WINGET_CONFIG_ERROR_DEPENDENCY_UNSATISFIED, result.ResultCode.HResult);
+            Assert.Equal(Errors.WINGET_CONFIG_ERROR_SET_DEPENDENCY_CYCLE, result.ResultCode.HResult);
             Assert.Equal(3, result.UnitResults.Count);
 
             foreach (var unitResult in result.UnitResults)

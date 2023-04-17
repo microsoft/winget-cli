@@ -564,16 +564,6 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void EnsureConfigurationFileExists(Execution::Context& context)
-    {
-        std::filesystem::path absolutePath = GetConfigurationFilePath(context);
-        if (!std::filesystem::exists(absolutePath))
-        {
-            context.Reporter.Error() << Resource::String::FileNotFound(Utility::LocIndView{ context.Args.GetArg(Args::Type::ConfigurationFile) }) << std::endl;
-            AICLI_TERMINATE_CONTEXT(HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND));
-        }
-    }
-
     void CreateConfigurationProcessor(Context& context)
     {
         auto progressScope = context.Reporter.BeginAsyncProgress(true);

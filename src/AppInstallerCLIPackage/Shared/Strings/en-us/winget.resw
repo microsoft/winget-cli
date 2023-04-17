@@ -1801,10 +1801,6 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="ConfigurationFileEmpty" xml:space="preserve">
     <value>The configuration is empty.</value>
   </data>
-  <data name="FileNotFound" xml:space="preserve">
-    <value>File not found: {0}</value>
-    <comment>{Locked="{0}"} Error message when file is not found. {0} is the argument provided by the user that is being interpreted as a file name.</comment>
-  </data>
   <data name="WindowsFeatureNotFound" xml:space="preserve">
     <value>The feature [{0}] was not found.</value>
     <comment>{Locked="{0}"} Error message displayed when a Windows feature was not found on the system.</comment>
@@ -1840,7 +1836,7 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="ConfigurationDescriptionWasTruncated" xml:space="preserve">
     <value>&lt;See the log file for additional details&gt;</value>
-    <comment>The brackets are intended to make the value stand out from other text which it will follow. Any locale appropriate mechanism that acheives this is acceptable.</comment>
+    <comment>The brackets are intended to make the value stand out from other text which it will follow. Any locale appropriate mechanism that achieves this is acceptable.</comment>
   </data>
   <data name="ConfigurationGettingDetails" xml:space="preserve">
     <value>Retrieving configuration details</value>
@@ -1866,7 +1862,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>The configuration unit failed while attempting to get the current system state.</value>
   </data>
   <data name="ConfigurationUnitFailedDuringSet" xml:space="preserve">
-    <value>The configuratin unit failed while attempting to apply the desired state.</value>
+    <value>The configuration unit failed while attempting to apply the desired state.</value>
   </data>
   <data name="ConfigurationUnitFailedDuringTest" xml:space="preserve">
     <value>The configuration unit failed while attempting to test the current system state.</value>

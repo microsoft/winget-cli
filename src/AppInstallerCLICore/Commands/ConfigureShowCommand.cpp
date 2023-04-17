@@ -35,7 +35,7 @@ namespace AppInstaller::CLI
     void ConfigureShowCommand::ExecuteInternal(Execution::Context& context) const
     {
         context <<
-            EnsureConfigurationFileExists <<
+            VerifyFile(Execution::Args::Type::ConfigurationFile) <<
             CreateConfigurationProcessor <<
             OpenConfigurationSet <<
             ShowConfigurationSet;
