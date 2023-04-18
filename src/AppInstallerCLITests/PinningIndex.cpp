@@ -57,7 +57,7 @@ TEST_CASE("PinningIndexAddEntryToTable", "[pinningIndex]")
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
 
-    Pin pin = Pin::CreateBlockingPin({ "pkgId", "sourceId" });
+    Pin pin = Pin::CreateBlockingPin({ "pkgId", "sourceId", ExtraIdStringType::None, "" /* TODO */ });
 
     {
         PinningIndex index = PinningIndex::CreateNew(tempFile, { 1, 0 });
@@ -77,8 +77,7 @@ TEST_CASE("PinningIndexAddEntryToTable", "[pinningIndex]")
         REQUIRE(pinFromIndex.value() == pin);
 
         REQUIRE(pinFromIndex->GetType() == pin.GetType());
-        REQUIRE(pinFromIndex->GetPackageId() == pin.GetPackageId());
-        REQUIRE(pinFromIndex->GetSourceId() == pin.GetSourceId());
+        REQUIRE(pinFromIndex->GetKey() == pin.GetKey());
     }
 
     {
@@ -99,8 +98,8 @@ TEST_CASE("PinningIndex_AddUpdateRemove", "[pinningIndex]")
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
 
-    Pin pin = Pin::CreateGatingPin({ "pkgId", "srcId" }, { "1.0.*"sv });
-    Pin updatedPin = Pin::CreatePinningPin({ "pkgId", "srcId" });
+    Pin pin = Pin::CreateGatingPin({ "pkgId", "srcId", ExtraIdStringType::None, "" /* TODO */ }, { "1.0.*"sv });
+    Pin updatedPin = Pin::CreatePinningPin({ "pkgId", "srcId", ExtraIdStringType::None, "" /* TODO */ });
 
     {
         PinningIndex index = PinningIndex::CreateNew(tempFile, { 1, 0 });
@@ -133,8 +132,8 @@ TEST_CASE("PinningIndex_ResetAll", "[pinningIndex]")
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
 
-    Pin pin1 = Pin::CreateBlockingPin({ "pkg1", "src1" });
-    Pin pin2 = Pin::CreatePinningPin({ "pkg2", "src2" });
+    Pin pin1 = Pin::CreateBlockingPin({ "pkg1", "src1", ExtraIdStringType::None, "" /* TODO */ });
+    Pin pin2 = Pin::CreatePinningPin({ "pkg2", "src2", ExtraIdStringType::None, "" /* TODO */ });
 
     // Add two pins to the index, then check that they show up when queried
     PinningIndex index = PinningIndex::CreateNew(tempFile, { 1, 0 });
@@ -144,7 +143,7 @@ TEST_CASE("PinningIndex_ResetAll", "[pinningIndex]")
     REQUIRE(index.GetAllPins().size() == 2);
     REQUIRE(index.GetPin(pin1.GetKey()).has_value());
     REQUIRE(index.GetPin(pin2.GetKey()).has_value());
-    REQUIRE(!index.GetPin({ "pkg", "src" }).has_value());
+    REQUIRE(!index.GetPin({ "pkg", "src", ExtraIdStringType::None, "" /* TODO */ }).has_value());
 
     // Reset the index, then check that there are no pins
     index.ResetAllPins();
@@ -158,7 +157,7 @@ TEST_CASE("PinningIndex_AddDuplicatePin", "[pinningIndex]")
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
 
-    Pin pin = Pin::CreateGatingPin({ "pkg", "src" }, { "1.*"sv });
+    Pin pin = Pin::CreateGatingPin({ "pkg", "src", ExtraIdStringType::None, "" /* TODO */ }, { "1.*"sv });
 
     PinningIndex index = PinningIndex::CreateNew(tempFile, { 1, 0 });
     index.AddPin(pin);
