@@ -1116,7 +1116,7 @@ TEST_CASE("CompositeSource_PinnedAvailable", "[CompositeSource][PinFlow]")
     // The result when ignoring pins is always the same
     expectedResult.ResultsForPinBehavior[PinBehavior::IgnorePins] = { /* IsUpdateAvailable */ true, /* LatestAvailableVersion */ "1.1.0" };
 
-    PinKey pinKey("Id", setup.Available->Details.Identifier, Pinning::ExtraIdStringType::None, "" /* TODO */);
+    PinKey pinKey("Id", setup.Available->Details.Identifier, Pinning::ExtraIdStringType::None, "");
     auto pinningIndex = PinningIndex::OpenOrCreateDefault();
     REQUIRE(pinningIndex);
 
@@ -1232,7 +1232,7 @@ TEST_CASE("CompositeSource_OneSourcePinned", "[CompositeSource][PinFlow]")
     };
 
     {
-        PinKey pinKey("Id", setup.Available->Details.Identifier, Pinning::ExtraIdStringType::None, "" /* TODO */);
+        PinKey pinKey("Id", setup.Available->Details.Identifier, Pinning::ExtraIdStringType::None, "");
         auto pinningIndex = PinningIndex::OpenOrCreateDefault();
         REQUIRE(pinningIndex);
         pinningIndex->AddPin(Pin::CreatePinningPin(PinKey{ pinKey }));
@@ -1295,7 +1295,7 @@ TEST_CASE("CompositeSource_OneSourceGated", "[CompositeSource][PinFlow]")
     };
 
     {
-        PinKey pinKey("Id", setup.Available->Details.Identifier, Pinning::ExtraIdStringType::None, "" /* TODO */);
+        PinKey pinKey("Id", setup.Available->Details.Identifier, Pinning::ExtraIdStringType::None, "");
         auto pinningIndex = PinningIndex::OpenOrCreateDefault();
         REQUIRE(pinningIndex);
         pinningIndex->AddPin(Pin::CreateGatingPin(PinKey{ pinKey }, GatedVersion{ "1.*"sv }));
