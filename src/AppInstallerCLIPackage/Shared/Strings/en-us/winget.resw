@@ -1843,4 +1843,8 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="InstallWaitingOnAnother" xml:space="preserve">
     <value>Waiting for another install/uninstall to complete...</value>
   </data>
+  <data name="PinVersion" xml:space="preserve">
+    <value>Pinned version</value>
+    <comment>Table header for the version to which a package is pinned; meaning it should not update from that version.</comment>
+  </data>
 </root>

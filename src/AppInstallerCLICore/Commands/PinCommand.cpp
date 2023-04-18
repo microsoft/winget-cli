@@ -262,7 +262,6 @@ namespace AppInstaller::CLI
             Workflow::GetAllPins <<
             Workflow::OpenSource() <<
             Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
-            Workflow::CrossReferencePinsWithSource <<
             Workflow::ReportPins;
     }
 

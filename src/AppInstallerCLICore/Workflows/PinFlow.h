@@ -46,6 +46,8 @@ namespace AppInstaller::CLI::Workflow
     void RemovePin(Execution::Context& context);
 
     // Report the pins in a table.
+    // This includes searching for the corresponding installed packages
+    // to be able to show more info, like the package name.
     // Required Args: None
     // Inputs: Pins
     // Outputs: None
