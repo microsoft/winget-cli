@@ -47,6 +47,8 @@ namespace AppInstaller::Runtime
         PortableLinksMachineLocation,
         // The root location for the package containing the winget application.
         SelfPackageRoot,
+        // Always one more than the last path; for being able to iterate paths in tests.
+        Max
     };
 
     // The principal that an ACE applies to.
