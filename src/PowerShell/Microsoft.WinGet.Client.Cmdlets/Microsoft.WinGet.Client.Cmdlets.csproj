@@ -92,26 +92,26 @@
     <Copy SourceFiles="@(ModuleWinGetFile)" DestinationFolder="$(PowerShellModuleRuntimesDir)" />
   </Target>
 
+  <!-- Direct dependencies -->
+  <Target Name="CopyDirectDependencies" AfterTargets="AfterBuild" Condition="'$(Platform)' != 'ARM'">
+    <ItemGroup>
+      <ModuleDirectDependency Include="$(OutputPath)Microsoft.WinGet.Client.Engine.dll" />
+      <ModuleDirectDependency Include="$(OutputPath)Microsoft.WinGet.Client.Engine.pdb" />
+    </ItemGroup>
+    <Message Importance="high" Text="Copying direct dependencies: '@(ModuleDirectDependency)'" />
+    <Copy SourceFiles="@(ModuleDirectDependency)" DestinationFolder="$(PowerShellModuleDirectDependencies)" />
+  </Target>
+
   <!-- Shared dependencies -->
   <Target Name="CopySharedDependencies" AfterTargets="AfterBuild" Condition="'$(Platform)' != 'ARM'">
     <ItemGroup>
-      <ModuleSharedDependency Include="$(OutputPath)Microsoft.WinGet.Client.Engine.dll" />
-      <ModuleSharedDependency Include="$(OutputPath)Microsoft.WinGet.Client.Engine.pdb" />
+      <ModuleSharedDependency Include="$(OutputPath)Microsoft.Windows.SDK.NET.dll" Condition="'$(TargetFramework)' == '$(CoreFramework)'" />
+      <ModuleSharedDependency Include="$(OutputPath)Newtonsoft.Json.dll" />
+      <ModuleSharedDependency Include="$(OutputPath)Octokit.dll" />
+      <ModuleSharedDependency Include="$(OutputPath)WinRT.Runtime.dll" Condition="'$(TargetFramework)' == '$(CoreFramework)'" />
     </ItemGroup>
-    <Message Importance="high" Text="Copying CopyWinGetBinaries: '@(ModuleSharedDependency)'" />
+    <Message Importance="high" Text="Copying shared dependencies: '@(ModuleSharedDependency)'" />
     <Copy SourceFiles="@(ModuleSharedDependency)" DestinationFolder="$(PowerShellModuleSharedDependencies)" />
-  </Target>
-
-  <!-- DirectDependencies in output directory-->
-  <Target Name="CopyDirectDependencies" AfterTargets="AfterBuild" Condition="'$(Platform)' != 'ARM'">
-    <ItemGroup>
-      <ModuleOutPathDependency Include="$(OutputPath)Microsoft.Windows.SDK.NET.dll" Condition="'$(TargetFramework)' == '$(CoreFramework)'" />
-      <ModuleOutPathDependency Include="$(OutputPath)Newtonsoft.Json.dll" />
-      <ModuleOutPathDependency Include="$(OutputPath)Octokit.dll" />
-      <ModuleOutPathDependency Include="$(OutputPath)WinRT.Runtime.dll" Condition="'$(TargetFramework)' == '$(CoreFramework)'" />
-    </ItemGroup>
-    <Message Importance="high" Text="Copying DirectDependencies: '@(ModuleOutPathDependency)'" />
-    <Copy SourceFiles="@(ModuleOutPathDependency)" DestinationFolder="$(PowerShellModuleDirectDependencies)" />
   </Target>
 
   <!-- Dependencies of Engine that doesn't get copied in the output directory -->
@@ -129,7 +129,7 @@
       <ModuleEngineDependency Include="$(EngineOutDir)winrtact.dll" />
     </ItemGroup>
     <Message Importance="high" Text="Copying CopyEngineDependencies: '@(ModuleEngineDependency)'" />
-    <Copy SourceFiles="@(ModuleEngineDependency)" DestinationFolder="$(PowerShellModuleDirectDependencies)" />
+    <Copy SourceFiles="@(ModuleEngineDependency)" DestinationFolder="$(PowerShellModuleSharedDependencies)" />
   </Target>
 
   <!-- Rename Microsoft.Management.Deployment.InProc.dll to Microsoft.Management.Deployment.dll -->

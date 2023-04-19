@@ -41,7 +41,7 @@ namespace Microsoft.WinGet.Client.Acl
         /// <returns>The assembly, null if not in our assembly location.</returns>
         internal static Assembly ResolvingHandler(AssemblyLoadContext context, AssemblyName assemblyName)
         {
-            string path = $"{Path.Combine(SharedDependencyPath, assemblyName.Name)}.dll";
+            string path = $"{Path.Combine(DirectDependencyPath, assemblyName.Name)}.dll";
             if (File.Exists(path))
             {
                 return WinGetAcl.LoadFromAssemblyName(assemblyName);
@@ -53,13 +53,13 @@ namespace Microsoft.WinGet.Client.Acl
         /// <inheritdoc/>
         protected override Assembly Load(AssemblyName assemblyName)
         {
-            string path = $"{Path.Combine(DirectDependencyPath, assemblyName.Name)}.dll";
+            string path = $"{Path.Combine(SharedDependencyPath, assemblyName.Name)}.dll";
             if (File.Exists(path))
             {
                 return this.LoadFromAssemblyPath(path);
             }
 
-            path = $"{Path.Combine(SharedDependencyPath, assemblyName.Name)}.dll";
+            path = $"{Path.Combine(DirectDependencyPath, assemblyName.Name)}.dll";
             if (File.Exists(path))
             {
                 return this.LoadFromAssemblyPath(path);
@@ -71,7 +71,7 @@ namespace Microsoft.WinGet.Client.Acl
         /// <inheritdoc/>
         protected override IntPtr LoadUnmanagedDll(string unmanagedDllName)
         {
-            string path = Path.Combine(DirectDependencyPath, unmanagedDllName);
+            string path = Path.Combine(SharedDependencyPath, unmanagedDllName);
             if (File.Exists(path))
             {
                 return this.LoadUnmanagedDllFromPath(path);
