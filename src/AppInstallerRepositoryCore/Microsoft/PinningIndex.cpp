@@ -169,7 +169,7 @@ namespace AppInstaller::Repository::Microsoft
             m_version.MajorVersion == 1 ||
             m_version.IsLatest())
         {
-            return std::make_unique<Schema::Pinning_V1_0::PinningIndexInterface>();
+            return std::make_unique<Schema::Pinning_V1_1::PinningIndexInterface>();
         }
 
         THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));

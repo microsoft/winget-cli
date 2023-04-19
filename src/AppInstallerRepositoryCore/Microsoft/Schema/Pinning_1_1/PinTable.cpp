@@ -5,7 +5,7 @@
 #include "SQLiteStatementBuilder.h"
 #include "Microsoft/Schema/IPinningIndex.h"
 
-namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
+namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
 {
     namespace
     {

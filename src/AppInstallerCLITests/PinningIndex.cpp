@@ -68,11 +68,11 @@ TEST_CASE("PinningIndexAddEntryToTable", "[pinningIndex]")
         // Open it directly to directly test table state
         Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadWrite);
 
-        auto pins = Pinning_V1_0::PinTable::GetAllPins(connection);
+        auto pins = Pinning_V1_1::PinTable::GetAllPins(connection);
         REQUIRE(pins.size() == 1);
         REQUIRE(pins[0] == pin);
 
-        auto pinFromIndex = Pinning_V1_0::PinTable::GetPinById(connection, 1);
+        auto pinFromIndex = Pinning_V1_1::PinTable::GetPinById(connection, 1);
         REQUIRE(pinFromIndex.has_value());
         REQUIRE(pinFromIndex.value() == pin);
 
@@ -88,8 +88,8 @@ TEST_CASE("PinningIndexAddEntryToTable", "[pinningIndex]")
     {
         // Open it directly to directly test table state
         Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadWrite);
-        REQUIRE(Pinning_V1_0::PinTable::GetAllPins(connection).empty());
-        REQUIRE(!Pinning_V1_0::PinTable::GetPinById(connection, 1));
+        REQUIRE(Pinning_V1_1::PinTable::GetAllPins(connection).empty());
+        REQUIRE(!Pinning_V1_1::PinTable::GetPinById(connection, 1));
     }
 }
 
@@ -109,7 +109,7 @@ TEST_CASE("PinningIndex_AddUpdateRemove", "[pinningIndex]")
 
     {
         Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadOnly);
-        auto pinFromIndex = Pinning_V1_0::PinTable::GetPinById(connection, 1);
+        auto pinFromIndex = Pinning_V1_1::PinTable::GetPinById(connection, 1);
         REQUIRE(pinFromIndex.has_value());
         REQUIRE(pinFromIndex.value() == updatedPin);
     }
@@ -122,8 +122,8 @@ TEST_CASE("PinningIndex_AddUpdateRemove", "[pinningIndex]")
     {
         // Open it directly to directly test table state
         Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadWrite);
-        REQUIRE(Pinning_V1_0::PinTable::GetAllPins(connection).empty());
-        REQUIRE(!Pinning_V1_0::PinTable::GetPinById(connection, 1));
+        REQUIRE(Pinning_V1_1::PinTable::GetAllPins(connection).empty());
+        REQUIRE(!Pinning_V1_1::PinTable::GetPinById(connection, 1));
     }
 }
 
