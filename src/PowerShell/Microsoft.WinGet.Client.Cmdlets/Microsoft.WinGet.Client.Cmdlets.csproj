@@ -46,7 +46,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Microsoft.WinGet.Client.Engine\Microsoft.WinGet.Client.Engine.csproj"/>
+    <ProjectReference Include="..\Microsoft.WinGet.Client.Engine\Microsoft.WinGet.Client.Engine.csproj" />
   </ItemGroup>
 
   <PropertyGroup Condition=" '$(Platform)' == 'x64' AND '$(TargetFramework)' == '$(CoreFramework)'">
@@ -86,8 +86,8 @@
     <ItemGroup>
       <ModuleWinGetDll Include="$(OutputPath)Microsoft.WinGet.Client.Cmdlets.dll" />
       <ModuleWinGetDll Include="$(OutputPath)Microsoft.WinGet.Client.Engine.dll" />
-      <ModuleWinGetDll Include="$(OutputPath)Microsoft.WinGet.Client.Cmdlets.pdb"/>
-      <ModuleWinGetDll Include="$(OutputPath)Microsoft.WinGet.Client.Engine.pdb"/>
+      <ModuleWinGetDll Include="$(OutputPath)Microsoft.WinGet.Client.Cmdlets.pdb" />
+      <ModuleWinGetDll Include="$(OutputPath)Microsoft.WinGet.Client.Engine.pdb" />
     </ItemGroup>
     <Message Importance="high" Text="Copying CopyWinGetBinaries: '@(ModuleWinGetDll)'" />
     <Copy SourceFiles="@(ModuleWinGetDll)" DestinationFolder="$(PowerShellModuleRuntimesDir)" />
@@ -96,10 +96,10 @@
   <!-- Dependencies in output directory-->
   <Target Name="CopyDependencies" AfterTargets="AfterBuild" Condition="'$(Platform)' != 'ARM'">
     <ItemGroup>
-      <ModuleOutPathDependency Include="$(OutputPath)Microsoft.Windows.SDK.NET.dll" Condition="'$(TargetFramework)' == '$(CoreFramework)'"/>
+      <ModuleOutPathDependency Include="$(OutputPath)Microsoft.Windows.SDK.NET.dll" Condition="'$(TargetFramework)' == '$(CoreFramework)'" />
       <ModuleOutPathDependency Include="$(OutputPath)Newtonsoft.Json.dll" />
       <ModuleOutPathDependency Include="$(OutputPath)Octokit.dll" />
-      <ModuleOutPathDependency Include="$(OutputPath)WinRT.Runtime.dll" Condition="'$(TargetFramework)' == '$(CoreFramework)'"/>
+      <ModuleOutPathDependency Include="$(OutputPath)WinRT.Runtime.dll" Condition="'$(TargetFramework)' == '$(CoreFramework)'" />
     </ItemGroup>
     <Message Importance="high" Text="Copying CopyDependencies: '@(ModuleOutPathDependency)'" />
     <Copy SourceFiles="@(ModuleOutPathDependency)" DestinationFolder="$(PowerShellModuleRuntimesDependencies)" />
@@ -114,7 +114,7 @@
       <EngineOutDir Condition="!Exists('$(EngineOutDir)Microsoft.WinGet.Client.Engine.dll')">$(OutputPath)..\..\Microsoft.WinGet.Client.Engine\$(TargetFramework)\</EngineOutDir>
   </PropertyGroup>
     <ItemGroup>
-      <ModuleEngineDependency Include="$(EngineOutDir)Microsoft.Management.Deployment.InProc.dll"/>
+      <ModuleEngineDependency Include="$(EngineOutDir)Microsoft.Management.Deployment.InProc.dll" />
       <ModuleEngineDependency Include="$(EngineOutDir)Microsoft.Management.Deployment.winmd" />
       <ModuleEngineDependency Include="$(EngineOutDir)WindowsPackageManager.dll" />
       <ModuleEngineDependency Include="$(EngineOutDir)winrtact.dll" />

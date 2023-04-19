@@ -10,8 +10,10 @@ namespace Microsoft.WinGet.Client.Engine.Commands
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Engine.Commands.Common;
     using Microsoft.WinGet.Client.Engine.Extensions;
+    using Microsoft.WinGet.Client.Engine.Helpers;
     using Microsoft.WinGet.Client.Engine.Properties;
     using Microsoft.WinGet.Client.Engine.PSObjects;
+    using Windows.System;
 
     /// <summary>
     /// Installs or updates a package from the pipeline or from a configured source.
@@ -40,7 +42,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="exact">Do exact match.</param>
         public InstallerPackageCommand(
             PSCmdlet psCmdlet,
-            PSPackageInstallMode psInstallMode,
+            string psInstallMode,
             string @override,
             string custom,
             string location,
@@ -59,7 +61,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             : base(psCmdlet)
         {
             // InstallCommand.
-            this.Mode = psInstallMode.ToPackageInstallMode();
+            this.Mode = PSEnumHelpers.ToPackageInstallMode(psInstallMode);
             this.Override = @override;
             this.Custom = custom;
             this.Location = location;
@@ -91,19 +93,19 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="psPackageInstallScope">PSPackageInstallScope.</param>
         /// <param name="psProcessorArchitecture">PSProcessorArchitecture.</param>
         public void Install(
-            PSPackageInstallScope psPackageInstallScope,
-            PSProcessorArchitecture psProcessorArchitecture)
+            string psPackageInstallScope,
+            string psProcessorArchitecture)
         {
             this.GetPackageAndExecute(CompositeSearchBehavior.RemotePackagesFromRemoteCatalogs, (package, version) =>
             {
                 InstallOptions options = this.GetInstallOptions(version);
-                if (psProcessorArchitecture != PSProcessorArchitecture.Default)
+                if (psPackageInstallScope != "Default")
                 {
                     options.AllowedArchitectures.Clear();
-                    options.AllowedArchitectures.Add(psProcessorArchitecture.ToProcessorArchitecture());
+                    options.AllowedArchitectures.Add(PSEnumHelpers.ToProcessorArchitecture(psProcessorArchitecture));
                 }
 
-                options.PackageInstallScope = psPackageInstallScope.ToPackageInstallScope();
+                options.PackageInstallScope = PSEnumHelpers.ToPackageInstallScope(psPackageInstallScope);
 
                 InstallResult result = this.InstallPackage(package, options);
                 this.PsCmdlet.WriteObject(new PSInstallResult(result));

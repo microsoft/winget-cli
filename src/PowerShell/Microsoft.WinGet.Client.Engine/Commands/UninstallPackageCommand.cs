@@ -70,12 +70,12 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="psPackageUninstallMode">PSPackageUninstallMode.</param>
         /// <param name="force">Force.</param>
         public void Uninstall(
-            PSPackageUninstallMode psPackageUninstallMode,
+            string psPackageUninstallMode,
             bool force)
         {
             this.GetPackageAndExecute(CompositeSearchBehavior.LocalCatalogs, (package, version) =>
             {
-                UninstallOptions options = this.GetUninstallOptions(version, psPackageUninstallMode, force);
+                UninstallOptions options = this.GetUninstallOptions(version, PSEnumHelpers.ToPackageUninstallMode(psPackageUninstallMode), force);
                 UninstallResult result = this.UninstallPackage(package, options);
                 this.PsCmdlet.WriteObject(new PSUninstallResult(result));
             });
@@ -83,7 +83,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
 
         private UninstallOptions GetUninstallOptions(
             PackageVersionId version,
-            PSPackageUninstallMode psPackageUninstallMode,
+            PackageUninstallMode packageUninstallMode,
             bool force)
         {
             var options = ComObjectFactory.Value.CreateUninstallOptions();
@@ -93,7 +93,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                 options.LogOutputPath = this.Log;
             }
 
-            options.PackageUninstallMode = psPackageUninstallMode.ToPackageUninstallMode();
+            options.PackageUninstallMode = packageUninstallMode;
 
             if (version != null)
             {

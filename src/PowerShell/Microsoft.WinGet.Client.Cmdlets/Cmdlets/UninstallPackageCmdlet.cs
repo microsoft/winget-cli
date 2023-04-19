@@ -51,7 +51,7 @@ namespace Microsoft.WinGet.Client.Commands
                 this.Source,
                 this.Query,
                 this.Exact.ToBool());
-            command.Uninstall(this.Mode, this.Force.ToBool());
+            command.Uninstall(this.Mode.ToString(), this.Force.ToBool());
         }
     }
 }

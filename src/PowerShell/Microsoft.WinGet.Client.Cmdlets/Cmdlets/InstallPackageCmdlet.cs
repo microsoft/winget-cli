@@ -42,7 +42,7 @@ namespace Microsoft.WinGet.Client.Commands
         {
             var command = new InstallerPackageCommand(
                 this,
-                this.Mode,
+                this.Mode.ToString(),
                 this.Override,
                 this.Custom,
                 this.Location,
@@ -58,7 +58,7 @@ namespace Microsoft.WinGet.Client.Commands
                 this.Source,
                 this.Query,
                 this.Exact.ToBool());
-            command.Install(this.Scope, this.Architecture);
+            command.Install(this.Scope.ToString(), this.Architecture.ToString());
         }
     }
 }
