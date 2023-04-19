@@ -227,7 +227,7 @@ namespace AppInstaller::CLI::Workflow
                 {
                     if (pinningIndex->GetPin(pinKey))
                     {
-                        AICLI_LOG(CLI, Info, << "Removing Pin " << pin.ToString());
+                        AICLI_LOG(CLI, Info, << "Removing Pin " << pinKey.ToString());
                         pinningIndex->RemovePin(pinKey);
                         pinExists = true;
                     }

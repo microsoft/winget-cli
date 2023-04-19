@@ -3,7 +3,7 @@
 #include "pch.h"
 #include "PinningIndex.h"
 #include "SQLiteStorageBase.h"
-#include "Schema/Pinning_1_0/PinningIndexInterface.h"
+#include "Schema/Pinning_1_1/PinningIndexInterface.h"
 
 namespace AppInstaller::Repository::Microsoft
 {
@@ -55,7 +55,20 @@ namespace AppInstaller::Repository::Microsoft
                     try
                     {
                         AICLI_LOG(Repo, Info, << "Opening existing pinning index");
-                        return std::make_shared<PinningIndex>(PinningIndex::Open(indexPath.u8string(), openDisposition));
+                        auto pinningIndex = std::make_shared<PinningIndex>(PinningIndex::Open(indexPath.u8string(), openDisposition));
+
+                        // Version 1.1 of the schema is a breaking change from version 1.0.
+                        // Since v1.0 was only available during preview, we don't need to ensure
+                        // backwards compatibility. So, we delete any old versions of the index.
+                        const Schema::Version DeprecatedPinningIndexVersion = { 1, 0 };
+                        if (pinningIndex->GetVersion() == DeprecatedPinningIndexVersion)
+                        {
+                            AICLI_LOG(Repo, Warning, << "Existing pinning index has a deprecated schema version. Will delete existing index");
+                        }
+                        else
+                        {
+                            return pinningIndex;
+                        }
                     }
                     CATCH_LOG();
                 }
