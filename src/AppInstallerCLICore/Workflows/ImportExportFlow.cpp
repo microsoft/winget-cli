@@ -7,6 +7,7 @@
 #include "PackageCollection.h"
 #include "WorkflowBase.h"
 #include <winget/RepositorySearch.h>
+#include <winget/Runtime.h>
 
 namespace AppInstaller::CLI::Workflow
 {

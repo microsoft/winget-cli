@@ -9,6 +9,7 @@
 #include <winget/ExperimentalFeature.h>
 #include <winget/ManifestYamlParser.h>
 #include <winget/Pin.h>
+#include <winget/Runtime.h>
 
 using namespace std::string_literals;
 using namespace AppInstaller::Utility::literals;

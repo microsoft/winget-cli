@@ -10,7 +10,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_unitResults(single_threaded_vector<ApplyConfigurationUnitResult>())
     {}
 
-    Windows::Foundation::Collections::IVectorView<ApplyConfigurationUnitResult> ApplyConfigurationSetResult::UnitResults()
+    Windows::Foundation::Collections::IVectorView<ApplyConfigurationUnitResult> ApplyConfigurationSetResult::UnitResults() const
     {
         return m_unitResults.GetView();
     }
@@ -20,7 +20,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return m_unitResults;
     }
 
-    hresult ApplyConfigurationSetResult::ResultCode()
+    hresult ApplyConfigurationSetResult::ResultCode() const
     {
         return m_resultCode;
     }

@@ -10,6 +10,7 @@
 #include "Microsoft/PortableIndex.h"
 #include "Microsoft/Schema/IPortableIndex.h"
 #include <AppInstallerErrors.h>
+#include <AppInstallerRuntime.h>
 
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Registry;

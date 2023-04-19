@@ -227,9 +227,6 @@
     <ClCompile Include="Archive.cpp">
       <Filter>Source Files\Common</Filter>
     </ClCompile>
-    <ClCompile Include="Filesystem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="FolderFileWatcher.cpp">
       <Filter>Source Files\Common</Filter>
     </ClCompile>
@@ -241,9 +238,6 @@
     </ClCompile>
     <ClCompile Include="PackageDependenciesValidationUtil.cpp">
       <Filter>Source Files\Repository</Filter>
-    </ClCompile>
-    <ClCompile Include="RestInterface_1_4.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="AdminSettings.cpp">
       <Filter>Source Files\Common</Filter>
@@ -292,6 +286,12 @@
     </ClCompile>
     <ClCompile Include="WindowsFeature.cpp">
       <Filter>Source Files\CLI</Filter>
+    </ClCompile>
+    <ClCompile Include="Filesystem.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="RestInterface_1_4.cpp">
+      <Filter>Source Files\Repository</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -33,6 +33,15 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         DiagnosticLevel MinimumLevel();
         void MinimumLevel(DiagnosticLevel value);
 
+        hstring Caller() const;
+        void Caller(hstring value);
+
+        guid ActivityIdentifier();
+        void ActivityIdentifier(const guid& value);
+
+        bool GenerateTelemetryEvents();
+        void GenerateTelemetryEvents(bool value);
+
         event_token ConfigurationChange(const Windows::Foundation::TypedEventHandler<ConfigurationSet, ConfigurationChangeData>& handler);
         void ConfigurationChange(const event_token& token) noexcept;
 

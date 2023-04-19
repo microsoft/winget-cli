@@ -78,6 +78,12 @@
     <ClCompile Include="GetConfigurationSetDetailsResult.cpp">
       <Filter>API Source</Filter>
     </ClCompile>
+    <ClCompile Include="Telemetry\TraceLogging.cpp">
+      <Filter>Telemetry</Filter>
+    </ClCompile>
+    <ClCompile Include="Telemetry\Telemetry.cpp">
+      <Filter>Telemetry</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -162,6 +168,12 @@
     <ClInclude Include="GetConfigurationSetDetailsResult.h">
       <Filter>API Headers</Filter>
     </ClInclude>
+    <ClInclude Include="Telemetry\TraceLogging.h">
+      <Filter>Telemetry</Filter>
+    </ClInclude>
+    <ClInclude Include="Telemetry\Telemetry.h">
+      <Filter>Telemetry</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Midl Include="Microsoft.Management.Configuration.idl" />
@@ -183,6 +195,9 @@
     </Filter>
     <Filter Include="Parser">
       <UniqueIdentifier>{b31f8336-b4d8-4c05-b08d-6b82c550a30b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Telemetry">
+      <UniqueIdentifier>{5a02f1a5-14f3-4a28-8bed-212f3e6b1a00}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

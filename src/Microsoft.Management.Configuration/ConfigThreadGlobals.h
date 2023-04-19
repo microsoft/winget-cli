@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include <winget/SharedThreadGlobals.h>
+#include <Telemetry/Telemetry.h>
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
@@ -13,9 +14,13 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         AppInstaller::Logging::DiagnosticLogger& GetDiagnosticLogger() override;
 
-        AppInstaller::Logging::TelemetryTraceLogger& GetTelemetryLogger() override;
+        void* GetTelemetryObject() override;
+
+        TelemetryTraceLogger& GetTelemetryLogger();
+        const TelemetryTraceLogger& GetTelemetryLogger() const;
 
     protected:
         AppInstaller::Logging::DiagnosticLogger m_logger;
+        TelemetryTraceLogger m_telemetry;
     };
 }

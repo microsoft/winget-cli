@@ -294,9 +294,12 @@
     <ClInclude Include="Public\AppInstallerStrings.h" />
     <ClInclude Include="Public\AppInstallerLogging.h" />
     <ClInclude Include="Public\AppInstallerVersions.h" />
+    <ClInclude Include="Public\Telemetry\MicrosoftTelemetry.h" />
+    <ClInclude Include="Public\Telemetry\WinEventLogLevels.h" />
     <ClInclude Include="Public\winget\JsonSchemaValidation.h" />
     <ClInclude Include="Public\winget\LocIndependent.h" />
     <ClInclude Include="Public\winget\Resources.h" />
+    <ClInclude Include="Public\winget\Runtime.h" />
     <ClInclude Include="Public\winget\SharedThreadGlobals.h" />
     <ClInclude Include="Public\winget\Yaml.h" />
     <ClInclude Include="YamlWrapper.h" />
@@ -311,6 +314,7 @@
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Runtime.cpp" />
     <ClCompile Include="SHA256.cpp" />
     <ClCompile Include="SharedThreadGlobals.cpp" />
     <ClCompile Include="Versions.cpp" />

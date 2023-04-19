@@ -23,6 +23,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_configurationUnits = winrt::single_threaded_vector<Configuration::ConfigurationUnit>(std::move(units));
     }
 
+    bool ConfigurationSet::IsFromHistory() const
+    {
+        return false;
+    }
+
     hstring ConfigurationSet::Name()
     {
         return m_name;
@@ -56,7 +61,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_path = value;
     }
 
-    guid ConfigurationSet::InstanceIdentifier()
+    guid ConfigurationSet::InstanceIdentifier() const
     {
         return m_instanceIdentifier;
     }

@@ -17,8 +17,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         void ResultCode(hresult value);
 #endif
 
-        Windows::Foundation::Collections::IVectorView<ApplyConfigurationUnitResult> UnitResults();
-        hresult ResultCode();
+        Windows::Foundation::Collections::IVectorView<ApplyConfigurationUnitResult> UnitResults() const;
+        hresult ResultCode() const;
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:

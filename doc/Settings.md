@@ -149,7 +149,7 @@ The `purgePortablePackage` behavior affects the default behavior for uninstallin
 
 The `telemetry` settings control whether winget writes ETW events that may be sent to Microsoft on a default installation of Windows.
 
-See [details on telemetry](../README.md#datatelemetry), and our [primary privacy statement](../privacy.md).
+See [details on telemetry](../README.md#datatelemetry), and our [primary privacy statement](../PRIVACY.md).
 
 ### disable
 

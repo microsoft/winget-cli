@@ -13,7 +13,6 @@
 #include <Telemetry/TraceLogging.h>
 
 #include "TestCommon.h"
-#include "TestHooks.h"
 #include "TestSettings.h"
 
 using namespace winrt;
@@ -151,13 +150,7 @@ int main(int argc, char** argv)
     // Forcibly enable event writing to catch bugs in that code
     g_IsTelemetryProviderEnabled = true;
 
-    // Force all tests to run against settings inside this container.
-    // This prevents test runs from trashing the users actual settings.
-    Runtime::TestHook_SetPathOverride(Runtime::PathName::LocalState, Runtime::GetPathTo(Runtime::PathName::LocalState) / "Tests");
-    Runtime::TestHook_SetPathOverride(Runtime::PathName::UserFileSettings, Runtime::GetPathTo(Runtime::PathName::UserFileSettings) / "Tests");
-    Runtime::TestHook_SetPathOverride(Runtime::PathName::StandardSettings, Runtime::GetPathTo(Runtime::PathName::StandardSettings) / "Tests");
-    Runtime::TestHook_SetPathOverride(Runtime::PathName::SecureSettingsForRead, Runtime::GetPathTo(Runtime::PathName::StandardSettings) / "WinGet_SecureSettings_Tests");
-    Runtime::TestHook_SetPathOverride(Runtime::PathName::SecureSettingsForWrite, Runtime::GetPathDetailsFor(Runtime::PathName::SecureSettingsForRead));
+    TestCommon::SetTestPathOverrides();
 
     // Remove any existing settings files in the new tests path
     TestCommon::UserSettingsFileGuard settingsGuard;

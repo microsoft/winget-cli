@@ -3,28 +3,58 @@
 #include "pch.h"
 #include "ConfigurationUnitResultInformation.h"
 #include "ConfigurationUnitResultInformation.g.cpp"
+#include "AppInstallerErrors.h"
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
+    namespace
+    {
+        ConfigurationUnitResultSource FromHRESULT(hresult resultCode)
+        {
+            switch (resultCode)
+            {
+                case WINGET_CONFIG_ERROR_UNIT_NOT_INSTALLED:
+                case WINGET_CONFIG_ERROR_UNIT_NOT_FOUND_REPOSITORY:
+                case WINGET_CONFIG_ERROR_UNIT_MULTIPLE_MATCHES:
+                case WINGET_CONFIG_ERROR_UNIT_IMPORT_MODULE:
+                    return ConfigurationUnitResultSource::ConfigurationSet;
+                case WINGET_CONFIG_ERROR_UNIT_MODULE_CONFLICT:
+                    return ConfigurationUnitResultSource::SystemState;
+            }
+
+            return ConfigurationUnitResultSource::Internal;
+        }
+    }
+
     void ConfigurationUnitResultInformation::Initialize(const Configuration::ConfigurationUnitResultInformation& other)
     {
         m_resultCode = other.ResultCode();
         m_description = other.Description();
+        m_details = other.Details();
+        m_resultSource = other.ResultSource();
     }
 
     void ConfigurationUnitResultInformation::Initialize(hresult resultCode, std::wstring_view description)
     {
         m_resultCode = resultCode;
         m_description = description;
+        m_resultSource = FromHRESULT(resultCode);
     }
 
     void ConfigurationUnitResultInformation::Initialize(hresult resultCode, hstring description)
     {
         m_resultCode = resultCode;
         m_description = description;
+        m_resultSource = FromHRESULT(resultCode);
     }
 
-    hresult ConfigurationUnitResultInformation::ResultCode()
+    void ConfigurationUnitResultInformation::Initialize(hresult resultCode, ConfigurationUnitResultSource resultSource)
+    {
+        m_resultCode = resultCode;
+        m_resultSource = resultSource;
+    }
+
+    hresult ConfigurationUnitResultInformation::ResultCode() const
     {
         return m_resultCode;
     }
@@ -42,5 +72,25 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     void ConfigurationUnitResultInformation::Description(hstring value)
     {
         m_description = value;
+    }
+
+    hstring ConfigurationUnitResultInformation::Details()
+    {
+        return m_details;
+    }
+
+    void ConfigurationUnitResultInformation::Details(hstring value)
+    {
+        m_details = value;
+    }
+
+    ConfigurationUnitResultSource ConfigurationUnitResultInformation::ResultSource() const
+    {
+        return m_resultSource;
+    }
+
+    void ConfigurationUnitResultInformation::ResultSource(ConfigurationUnitResultSource value)
+    {
+        m_resultSource = value;
     }
 }

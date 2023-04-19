@@ -17,7 +17,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         void Settings(Windows::Foundation::Collections::ValueSet&& value);
 #endif
 
-        ConfigurationUnitResultInformation ResultInformation();
+        ConfigurationUnitResultInformation ResultInformation() const;
         Windows::Foundation::Collections::ValueSet Settings();
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)

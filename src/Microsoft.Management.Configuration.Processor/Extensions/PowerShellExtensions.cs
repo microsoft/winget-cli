@@ -7,6 +7,7 @@
 namespace Microsoft.Management.Configuration.Processor.Extensions
 {
     using System.Collections.ObjectModel;
+    using System.Linq;
     using System.Management.Automation;
     using System.Text;
 
@@ -65,6 +66,32 @@ namespace Microsoft.Management.Configuration.Processor.Extensions
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Determines if the given shell contains a property error, meaning that the source of this error is the
+        /// configuration values and not the configuration unit itself.
+        /// </summary>
+        /// <param name="pwsh">The shell to inspect.</param>
+        /// <returns>True if it only contains property errors; false otherwise.</returns>
+        public static bool ContainsPropertyError(this PowerShell pwsh)
+        {
+            if (!pwsh.HadErrors)
+            {
+                return false;
+            }
+
+            bool result = true;
+
+            foreach (ErrorRecord? error in pwsh.Streams.Error)
+            {
+                if (error?.FullyQualifiedErrorId == "PropertyAssignmentException")
+                {
+                    result = result && true;
+                }
+            }
+
+            return result;
         }
     }
 }

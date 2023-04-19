@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "ConfigurationSetProcessorFactoryRemoting.h"
+#include <AppInstallerLogging.h>
+#include <AppInstallerRuntime.h>
 
 using namespace winrt::Windows::Foundation;
 using namespace winrt::Microsoft::Management::Configuration;

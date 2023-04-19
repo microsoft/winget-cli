@@ -1,10 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "WorkflowBase.h"
-#include "ExecutionContext.h"
 #include "ManifestComparator.h"
+#include "WorkflowBase.h"
+#include <AppInstallerLogging.h>
 #include <winget/UserSettings.h>
+#include <winget/Runtime.h>
+#include <winget/Locale.h>
 
 using namespace AppInstaller::CLI;
 using namespace AppInstaller::Manifest;

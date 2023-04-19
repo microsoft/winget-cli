@@ -8,6 +8,8 @@
 #include <AppInstallerMsixInfo.h>
 #include <AppInstallerDownloader.h>
 
+using namespace AppInstaller;
+
 namespace TestCommon
 {
     namespace
@@ -362,5 +364,16 @@ namespace TestCommon
         }
 
         return root;
+    }
+
+    void SetTestPathOverrides()
+    {
+        // Force all tests to run against settings inside this container.
+        // This prevents test runs from trashing the users actual settings.
+        Runtime::TestHook_SetPathOverride(Runtime::PathName::LocalState, Runtime::GetPathTo(Runtime::PathName::LocalState) / "Tests");
+        Runtime::TestHook_SetPathOverride(Runtime::PathName::UserFileSettings, Runtime::GetPathTo(Runtime::PathName::UserFileSettings) / "Tests");
+        Runtime::TestHook_SetPathOverride(Runtime::PathName::StandardSettings, Runtime::GetPathTo(Runtime::PathName::StandardSettings) / "Tests");
+        Runtime::TestHook_SetPathOverride(Runtime::PathName::SecureSettingsForRead, Runtime::GetPathTo(Runtime::PathName::StandardSettings) / "WinGet_SecureSettings_Tests");
+        Runtime::TestHook_SetPathOverride(Runtime::PathName::SecureSettingsForWrite, Runtime::GetPathDetailsFor(Runtime::PathName::SecureSettingsForRead));
     }
 }

@@ -95,5 +95,17 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
             this.Processors[unit] = new TestConfigurationUnitProcessor(unit);
             return this.Processors[unit];
         }
+
+        /// <summary>
+        /// Creates a new unit processor details for the given unit.
+        /// </summary>
+        /// <param name="unit">The unit.</param>
+        /// <param name="detailLevel">The detail level requested.</param>
+        /// <returns>The details requested.</returns>
+        internal TestConfigurationUnitProcessorDetails CreateUnitDetails(ConfigurationUnit unit, ConfigurationUnitDetailLevel detailLevel)
+        {
+            this.Details[unit] = new TestConfigurationUnitProcessorDetails(unit, detailLevel);
+            return this.Details[unit];
+        }
     }
 }
