@@ -18,14 +18,14 @@ namespace Microsoft.WinGet.Client.Acl
         public void OnImport()
         {
             AssemblyLoadContext.Default.Resolving += WinGetAssemblyLoadContext.ResolvingHandler;
-            AssemblyLoadContext.Default.ResolvingUnmanagedDll += WinGetAssemblyLoadContext.ResolvingUnmanagedDllHandler;
+            //AssemblyLoadContext.Default.ResolvingUnmanagedDll += WinGetAssemblyLoadContext.ResolvingUnmanagedDllHandler;
         }
 
         /// <inheritdoc/>
         public void OnRemove(PSModuleInfo module)
         {
             AssemblyLoadContext.Default.Resolving -= WinGetAssemblyLoadContext.ResolvingHandler;
-            AssemblyLoadContext.Default.ResolvingUnmanagedDll -= WinGetAssemblyLoadContext.ResolvingUnmanagedDllHandler;
+            //AssemblyLoadContext.Default.ResolvingUnmanagedDll -= WinGetAssemblyLoadContext.ResolvingUnmanagedDllHandler;
         }
     }
 }

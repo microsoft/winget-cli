@@ -69,7 +69,8 @@
   <PropertyGroup>
     <PowerShellModuleOutputDirectory>$(BuildOutputDirectory)PowerShell\Microsoft.WinGet.Client</PowerShellModuleOutputDirectory>
     <PowerShellModuleRuntimesDir>$(PowerShellModuleOutputDirectory)\runtimes\win10-$(Platform)\lib\$(TargetFramework)</PowerShellModuleRuntimesDir>
-    <PowerShellModuleRuntimesDependencies>$(PowerShellModuleRuntimesDir)\Dependencies</PowerShellModuleRuntimesDependencies>
+    <PowerShellModuleSharedDependencies>$(PowerShellModuleRuntimesDir)\SharedDependencies</PowerShellModuleSharedDependencies>
+    <PowerShellModuleDirectDependencies>$(PowerShellModuleRuntimesDir)\DirectDependencies</PowerShellModuleDirectDependencies>
   </PropertyGroup>
 
   <!-- psm1, psd1 and ps1xml-->
@@ -84,25 +85,33 @@
   <!-- Main binaries -->
   <Target Name="CopyWinGetBinaries" AfterTargets="AfterBuild" Condition="'$(Platform)' != 'ARM'">
     <ItemGroup>
-      <ModuleWinGetDll Include="$(OutputPath)Microsoft.WinGet.Client.Cmdlets.dll" />
-      <ModuleWinGetDll Include="$(OutputPath)Microsoft.WinGet.Client.Engine.dll" />
-      <ModuleWinGetDll Include="$(OutputPath)Microsoft.WinGet.Client.Cmdlets.pdb" />
-      <ModuleWinGetDll Include="$(OutputPath)Microsoft.WinGet.Client.Engine.pdb" />
+      <ModuleWinGetFile Include="$(OutputPath)Microsoft.WinGet.Client.Cmdlets.dll" />
+      <ModuleWinGetFile Include="$(OutputPath)Microsoft.WinGet.Client.Cmdlets.pdb" />
     </ItemGroup>
-    <Message Importance="high" Text="Copying CopyWinGetBinaries: '@(ModuleWinGetDll)'" />
-    <Copy SourceFiles="@(ModuleWinGetDll)" DestinationFolder="$(PowerShellModuleRuntimesDir)" />
+    <Message Importance="high" Text="Copying CopyWinGetBinaries: '@(ModuleWinGetFile)'" />
+    <Copy SourceFiles="@(ModuleWinGetFile)" DestinationFolder="$(PowerShellModuleRuntimesDir)" />
   </Target>
 
-  <!-- Dependencies in output directory-->
-  <Target Name="CopyDependencies" AfterTargets="AfterBuild" Condition="'$(Platform)' != 'ARM'">
+  <!-- Shared dependencies -->
+  <Target Name="CopySharedDependencies" AfterTargets="AfterBuild" Condition="'$(Platform)' != 'ARM'">
+    <ItemGroup>
+      <ModuleSharedDependency Include="$(OutputPath)Microsoft.WinGet.Client.Engine.dll" />
+      <ModuleSharedDependency Include="$(OutputPath)Microsoft.WinGet.Client.Engine.pdb" />
+    </ItemGroup>
+    <Message Importance="high" Text="Copying CopyWinGetBinaries: '@(ModuleSharedDependency)'" />
+    <Copy SourceFiles="@(ModuleSharedDependency)" DestinationFolder="$(PowerShellModuleSharedDependencies)" />
+  </Target>
+
+  <!-- DirectDependencies in output directory-->
+  <Target Name="CopyDirectDependencies" AfterTargets="AfterBuild" Condition="'$(Platform)' != 'ARM'">
     <ItemGroup>
       <ModuleOutPathDependency Include="$(OutputPath)Microsoft.Windows.SDK.NET.dll" Condition="'$(TargetFramework)' == '$(CoreFramework)'" />
       <ModuleOutPathDependency Include="$(OutputPath)Newtonsoft.Json.dll" />
       <ModuleOutPathDependency Include="$(OutputPath)Octokit.dll" />
       <ModuleOutPathDependency Include="$(OutputPath)WinRT.Runtime.dll" Condition="'$(TargetFramework)' == '$(CoreFramework)'" />
     </ItemGroup>
-    <Message Importance="high" Text="Copying CopyDependencies: '@(ModuleOutPathDependency)'" />
-    <Copy SourceFiles="@(ModuleOutPathDependency)" DestinationFolder="$(PowerShellModuleRuntimesDependencies)" />
+    <Message Importance="high" Text="Copying DirectDependencies: '@(ModuleOutPathDependency)'" />
+    <Copy SourceFiles="@(ModuleOutPathDependency)" DestinationFolder="$(PowerShellModuleDirectDependencies)" />
   </Target>
 
   <!-- Dependencies of Engine that doesn't get copied in the output directory -->
@@ -120,18 +129,18 @@
       <ModuleEngineDependency Include="$(EngineOutDir)winrtact.dll" />
     </ItemGroup>
     <Message Importance="high" Text="Copying CopyEngineDependencies: '@(ModuleEngineDependency)'" />
-    <Copy SourceFiles="@(ModuleEngineDependency)" DestinationFolder="$(PowerShellModuleRuntimesDependencies)" />
+    <Copy SourceFiles="@(ModuleEngineDependency)" DestinationFolder="$(PowerShellModuleDirectDependencies)" />
   </Target>
 
   <!-- Rename Microsoft.Management.Deployment.InProc.dll to Microsoft.Management.Deployment.dll -->
   <Target Name="RenameMicrosoftManagementDeployment" AfterTargets="AfterBuild">
     <ItemGroup>
-      <RenameModuleFiles Include="$(PowerShellModuleRuntimesDependencies)\**\Microsoft.Management.Deployment.InProc.dll">
+      <RenameModuleFiles Include="$(PowerShellModuleDirectDependencies)\**\Microsoft.Management.Deployment.InProc.dll">
         <NewName>Microsoft.Management.Deployment.dll</NewName>
       </RenameModuleFiles>
     </ItemGroup>
     <Message Importance="high" Text="Renaming file '%(RenameModuleFiles.Identity)' to '$(PowerShellModuleLibDirectory)\%(RenameModuleFiles.RecursiveDir)\%(RenameModuleFiles.NewName)'" />
-    <Move SourceFiles="%(RenameModuleFiles.Identity)" DestinationFiles="$(PowerShellModuleRuntimesDependencies)\%(RenameModuleFiles.RecursiveDir)\%(RenameModuleFiles.NewName)" />
+    <Move SourceFiles="%(RenameModuleFiles.Identity)" DestinationFiles="$(PowerShellModuleDirectDependencies)\%(RenameModuleFiles.RecursiveDir)\%(RenameModuleFiles.NewName)" />
   </Target>
 
 </Project>

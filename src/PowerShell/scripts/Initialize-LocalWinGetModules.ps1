@@ -62,7 +62,7 @@ $local:moduleRootOutput = "$PSScriptRoot\Module\"
         $false),
     [WinGetModule]::new(
         "Microsoft.WinGet.Client",
-        "$PSScriptRoot\..\Microsoft.WinGet.Client\Module\",
+        "$PSScriptRoot\..\Microsoft.WinGet.Client\ModuleFiles\",
         $true,
         $true)
 
