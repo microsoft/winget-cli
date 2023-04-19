@@ -67,22 +67,10 @@ namespace AppInstaller::Pinning
 
         bool operator<(const PinKey& other) const
         {
-            if (PackageId != other.PackageId)
-            {
-                return PackageId < other.PackageId;
-            }
-            else if (SourceId != other.SourceId)
-            {
-                return SourceId < other.SourceId;
-            }
-            else if (ExtraIdType != other.ExtraIdType)
-            {
-                return ExtraIdType < other.ExtraIdType;
-            }
-            else
-            {
-                return ExtraId < other.ExtraId;
-            }
+            // std::tie implements tuple comparison, wherein it checks the first item in the tuple,
+            // iff the first elements are equal, then the second element is used for comparison, and so on
+            return std::tie(PackageId, SourceId, ExtraIdType, ExtraId) < 
+            	std::tie(other.PackageId, other.SourceId, other.ExtraIdType, other.ExtraId);
         }
 
         const Manifest::Manifest::string_t PackageId;
