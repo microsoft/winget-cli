@@ -9,7 +9,7 @@ namespace AppInstaller::Repository::Microsoft
 {
     PinningIndex PinningIndex::CreateNew(const std::string& filePath, Schema::Version version)
     {
-        AICLI_LOG(Repo, Info, << "Creating new Pinning Index [" << version << "] at '" << filePath << "'");
+        AICLI_LOG(Repo, Info, << "Creating new Pinning Index with version [" << version << "] at '" << filePath << "'");
         PinningIndex result{ filePath, version };
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(result.m_dbconn, "pinningindex_createnew");

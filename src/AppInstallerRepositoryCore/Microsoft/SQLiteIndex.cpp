@@ -18,7 +18,7 @@ namespace AppInstaller::Repository::Microsoft
 {
     SQLiteIndex SQLiteIndex::CreateNew(const std::string& filePath, Schema::Version version, CreateOptions options)
     {
-        AICLI_LOG(Repo, Info, << "Creating new SQLite Index [" << version << "] at '" << filePath << "'");
+        AICLI_LOG(Repo, Info, << "Creating new SQLite Index with version [" << version << "] at '" << filePath << "'");
         SQLiteIndex result{ filePath, version };
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(result.m_dbconn, "sqliteindex_createnew");
