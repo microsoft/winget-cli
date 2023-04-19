@@ -9,22 +9,9 @@ namespace AppInstaller::Pinning
 {
     using namespace std::string_view_literals;
 
-    std::string_view ToString(PinType type)
+    PinType StrictestPinType(PinType first, PinType second)
     {
-        switch (type)
-        {
-        case PinType::Blocking:
-            return "Blocking"sv;
-        case PinType::Pinning:
-            return "Pinning"sv;
-        case PinType::Gating:
-            return "Gating"sv;
-        case PinType::PinnedByManifest:
-            return "PinnedByManifest"sv;
-        case PinType::Unknown:
-        default:
-            return "Unknown";
-        }
+        return std::max(first, second);
     }
 
     PinType ConvertToPinTypeEnum(std::string_view in)
@@ -51,9 +38,22 @@ namespace AppInstaller::Pinning
         }
     }
 
-    PinType StrictestPinType(PinType first, PinType second)
+    std::string_view ToString(PinType type)
     {
-        return std::max(first, second);
+        switch (type)
+        {
+        case PinType::Blocking:
+            return "Blocking"sv;
+        case PinType::Pinning:
+            return "Pinning"sv;
+        case PinType::Gating:
+            return "Gating"sv;
+        case PinType::PinnedByManifest:
+            return "PinnedByManifest"sv;
+        case PinType::Unknown:
+        default:
+            return "Unknown";
+        }
     }
 
     std::string_view ToString(ExtraIdStringType type)
@@ -68,6 +68,33 @@ namespace AppInstaller::Pinning
         default:
             return "None";
         }
+    }
+
+    std::string PinKey::ToString() const
+    {
+        std::stringstream ss;
+        ss << "Package=[" << PackageId << "] Source=[" << SourceId << "]";
+
+        if (ExtraIdType != Pinning::ExtraIdStringType::None)
+        {
+            ss << ' ' << Pinning::ToString(ExtraIdType) << "=[" << ExtraId << "]";
+        }
+
+        return ss.str();
+    }
+
+    std::string Pin::ToString() const
+    {
+        std::stringstream ss;
+        ss << m_key.ToString() << " Type=[" << Pinning::ToString(m_type) << ']';
+
+        if (m_type == PinType::Gating)
+        {
+            ss << " GatedVersion=[" << m_gatedVersion.ToString() << ']';
+        }
+
+        return ss.str();
+
     }
 
     std::vector<PinKey> GetPinKeysForAvailablePackage(

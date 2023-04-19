@@ -147,7 +147,7 @@ namespace AppInstaller::CLI::Workflow
                 }
 
                 auto pin = CreatePin(context, pinKey);
-                AICLI_LOG(CLI, Info, << "Evaluating pin with type " << ToString(pin.GetType()) << " for package [" << pinKey.PackageId << "] from source [" << pinKey.SourceId << "]");
+                AICLI_LOG(CLI, Info, << "Evaluating Pin " << pin.ToString());
 
                 auto existingPin = pinningIndex->GetPin(pinKey);
 
@@ -227,7 +227,7 @@ namespace AppInstaller::CLI::Workflow
                 {
                     if (pinningIndex->GetPin(pinKey))
                     {
-                        AICLI_LOG(CLI, Info, << "Removing pin for package [" << pinKey.PackageId << "] from source [" << pinKey.SourceId << "]");
+                        AICLI_LOG(CLI, Info, << "Removing Pin " << pin.ToString());
                         pinningIndex->RemovePin(pinKey);
                         pinExists = true;
                     }

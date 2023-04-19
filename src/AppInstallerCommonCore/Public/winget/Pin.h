@@ -26,12 +26,6 @@ namespace AppInstaller::Pinning
         Blocking,
     };
 
-    std::string_view ToString(PinType type);
-    PinType ConvertToPinTypeEnum(std::string_view in);
-
-    // Determines which of two pin types is more strict.
-    PinType StrictestPinType(PinType first, PinType second);
-
     // The type of an extra string used for identifying an installed app for pinning
     enum class ExtraIdStringType
     {
@@ -40,7 +34,13 @@ namespace AppInstaller::Pinning
         PackageFamilyName,
     };
 
+    std::string_view ToString(PinType type);
+    PinType ConvertToPinTypeEnum(std::string_view in);
+
     std::string_view ToString(ExtraIdStringType type);
+
+    // Determines which of two pin types is more strict.
+    PinType StrictestPinType(PinType first, PinType second);
 
     // The set of values needed to uniquely identify a Pin.
     // We use both a PackageId and a ProductCode or PackageFamilyName
@@ -73,6 +73,9 @@ namespace AppInstaller::Pinning
             	std::tie(other.PackageId, other.SourceId, other.ExtraIdType, other.ExtraId);
         }
 
+        // Used for logging
+        std::string ToString() const;
+
         const Manifest::Manifest::string_t PackageId;
         const std::string SourceId;
         const ExtraIdStringType ExtraIdType = ExtraIdStringType::None;
@@ -104,6 +107,9 @@ namespace AppInstaller::Pinning
 
         bool operator==(const Pin& other) const;
         bool operator<(const Pin& other) const { return m_key < other.m_key; }
+
+        // Used for logging
+        std::string ToString() const;
 
     private:
         Pin(PinType type, PinKey&& pinKey, Utility::GatedVersion&& gatedVersion = {})

@@ -7,23 +7,6 @@
 
 namespace AppInstaller::Repository::Microsoft
 {
-    namespace
-    {
-        // Gets a string representing a pin key, which is to be used for logging
-        std::string GetPinKeyLogString(const Pinning::PinKey& pinKey)
-        {
-            std::stringstream ss;
-            ss << "Package=[" << pinKey.PackageId << "] Source=[" << pinKey.SourceId << "]";
-
-            if (pinKey.ExtraIdType != Pinning::ExtraIdStringType::None)
-            {
-                ss << ' ' << Pinning::ToString(pinKey.ExtraIdType) << "=[" << pinKey.ExtraId << "]";
-            }
-
-            return ss.str();
-        }
-    }
-
     PinningIndex PinningIndex::CreateNew(const std::string& filePath, Schema::Version version)
     {
         AICLI_LOG(Repo, Info, << "Creating new Pinning Index [" << version << "] at '" << filePath << "'");
@@ -91,7 +74,7 @@ namespace AppInstaller::Repository::Microsoft
     PinningIndex::IdType PinningIndex::AddPin(const Pinning::Pin& pin)
     {
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
-        AICLI_LOG(Repo, Verbose, << "Adding Pin for " << GetPinKeyLogString(pin.GetKey()) << " with pin type " << Pinning::ToString(pin.GetType()));
+        AICLI_LOG(Repo, Verbose, << "Adding Pin " << pin.ToString());
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "pinningindex_addpin");
 
@@ -107,7 +90,7 @@ namespace AppInstaller::Repository::Microsoft
     bool PinningIndex::UpdatePin(const Pinning::Pin& pin)
     {
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
-        AICLI_LOG(Repo, Verbose, << "Updating Pin for " << GetPinKeyLogString(pin.GetKey()) << " with pin type " << Pinning::ToString(pin.GetType()));
+        AICLI_LOG(Repo, Verbose, << "Updating Pin " << pin.ToString());
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "pinningindex_updatepin");
 
@@ -138,7 +121,7 @@ namespace AppInstaller::Repository::Microsoft
     void PinningIndex::RemovePin(const Pinning::PinKey& pinKey)
     {
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
-        AICLI_LOG(Repo, Verbose, << "Removing Pin for package " << GetPinKeyLogString(pinKey));
+        AICLI_LOG(Repo, Verbose, << "Removing Pin " << pinKey.ToString());
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "pinningIndex_removePin");
 
