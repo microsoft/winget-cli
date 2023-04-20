@@ -131,7 +131,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CertificateResources", "Cer
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PowerShell", "PowerShell", "{7C218A3E-9BC8-48FF-B91B-BCACD828C0C9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.WinGet.Client", "PowerShell\Microsoft.WinGet.Client\Microsoft.WinGet.Client.csproj", "{463C0EF3-DF38-4C3D-8E7E-D4901E0CDC6C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.WinGet.Client.Cmdlets", "PowerShell\Microsoft.WinGet.Client.Cmdlets\Microsoft.WinGet.Client.Cmdlets.csproj", "{463C0EF3-DF38-4C3D-8E7E-D4901E0CDC6C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Management.Deployment.Projection", "Microsoft.Management.Deployment.Projection\Microsoft.Management.Deployment.Projection.csproj", "{0B104762-5CD8-47EE-A904-71C1C3F84DCD}"
 EndProject
@@ -160,6 +160,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Management.Configuration.Processor", "Microsoft.Management.Configuration.Processor\Microsoft.Management.Configuration.Processor.csproj", "{71FA29AA-9035-468B-A11D-0F0B0F5D5AF4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConfigurationRemotingServer", "ConfigurationRemotingServer\ConfigurationRemotingServer.csproj", "{6597EB04-D105-49A7-A5A3-D27FE1DF895E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.WinGet.Client.Engine", "PowerShell\Microsoft.WinGet.Client.Engine\Microsoft.WinGet.Client.Engine.csproj", "{1F56BECB-D65D-4BBA-8788-6671B251392A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -874,6 +876,30 @@ Global
 		{6597EB04-D105-49A7-A5A3-D27FE1DF895E}.TestRelease|x64.Build.0 = Release|x64
 		{6597EB04-D105-49A7-A5A3-D27FE1DF895E}.TestRelease|x86.ActiveCfg = Release|x86
 		{6597EB04-D105-49A7-A5A3-D27FE1DF895E}.TestRelease|x86.Build.0 = Release|x86
+		{1F56BECB-D65D-4BBA-8788-6671B251392A}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{1F56BECB-D65D-4BBA-8788-6671B251392A}.Debug|ARM64.Build.0 = Debug|ARM64
+		{1F56BECB-D65D-4BBA-8788-6671B251392A}.Debug|x64.ActiveCfg = Debug|x64
+		{1F56BECB-D65D-4BBA-8788-6671B251392A}.Debug|x64.Build.0 = Debug|x64
+		{1F56BECB-D65D-4BBA-8788-6671B251392A}.Debug|x86.ActiveCfg = Debug|x86
+		{1F56BECB-D65D-4BBA-8788-6671B251392A}.Debug|x86.Build.0 = Debug|x86
+		{1F56BECB-D65D-4BBA-8788-6671B251392A}.Fuzzing|ARM64.ActiveCfg = Debug|ARM64
+		{1F56BECB-D65D-4BBA-8788-6671B251392A}.Fuzzing|ARM64.Build.0 = Debug|ARM64
+		{1F56BECB-D65D-4BBA-8788-6671B251392A}.Fuzzing|x64.ActiveCfg = Debug|x64
+		{1F56BECB-D65D-4BBA-8788-6671B251392A}.Fuzzing|x64.Build.0 = Debug|x64
+		{1F56BECB-D65D-4BBA-8788-6671B251392A}.Fuzzing|x86.ActiveCfg = Debug|x86
+		{1F56BECB-D65D-4BBA-8788-6671B251392A}.Fuzzing|x86.Build.0 = Debug|x86
+		{1F56BECB-D65D-4BBA-8788-6671B251392A}.Release|ARM64.ActiveCfg = Release|ARM64
+		{1F56BECB-D65D-4BBA-8788-6671B251392A}.Release|ARM64.Build.0 = Release|ARM64
+		{1F56BECB-D65D-4BBA-8788-6671B251392A}.Release|x64.ActiveCfg = Release|x64
+		{1F56BECB-D65D-4BBA-8788-6671B251392A}.Release|x64.Build.0 = Release|x64
+		{1F56BECB-D65D-4BBA-8788-6671B251392A}.Release|x86.ActiveCfg = Release|x86
+		{1F56BECB-D65D-4BBA-8788-6671B251392A}.Release|x86.Build.0 = Release|x86
+		{1F56BECB-D65D-4BBA-8788-6671B251392A}.TestRelease|ARM64.ActiveCfg = Release|ARM64
+		{1F56BECB-D65D-4BBA-8788-6671B251392A}.TestRelease|ARM64.Build.0 = Release|ARM64
+		{1F56BECB-D65D-4BBA-8788-6671B251392A}.TestRelease|x64.ActiveCfg = Release|x64
+		{1F56BECB-D65D-4BBA-8788-6671B251392A}.TestRelease|x64.Build.0 = Release|x64
+		{1F56BECB-D65D-4BBA-8788-6671B251392A}.TestRelease|x86.ActiveCfg = Release|x86
+		{1F56BECB-D65D-4BBA-8788-6671B251392A}.TestRelease|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -899,6 +925,7 @@ Global
 		{787EC629-C0FB-4BA9-9746-4A82CD06B73E} = {60618CAC-2995-4DF9-9914-45C6FC02C995}
 		{8E43F982-40D5-4DF1-9044-C08047B5F43B} = {8D53D749-D51C-46F8-A162-9371AAA6C2E7}
 		{BB14D603-F44E-4415-8770-BF3E13F4C17F} = {60618CAC-2995-4DF9-9914-45C6FC02C995}
+		{1F56BECB-D65D-4BBA-8788-6671B251392A} = {7C218A3E-9BC8-48FF-B91B-BCACD828C0C9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B6FDB70C-A751-422C-ACD1-E35419495857}

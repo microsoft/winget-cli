@@ -1,0 +1,147 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- If these target frameworks are updated, make sure to also update the .psd1 and .nuspec files.-->
+    <CoreFramework>net6.0-windows10.0.22000.0</CoreFramework>
+    <DesktopFramework>net48</DesktopFramework>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <LangVersion>10</LangVersion>
+    <BuildOutputDirectory>$(SolutionDir)$(Platform)\$(Configuration)\</BuildOutputDirectory>
+    <OutputPath>$(BuildOutputDirectory)$(MSBuildProjectName)</OutputPath>
+    <Platforms>x64;x86;ARM64</Platforms>
+    <TargetFrameworks>$(CoreFramework);$(DesktopFramework)</TargetFrameworks>
+    <DocumentationFile>$(OutputPath)\Microsoft.WinGet.Client.Cmdlets.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="..\..\stylecop.json" Link="stylecop.json" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="PowerShellStandard.Library" Version="5.1.1" PrivateAssets="all" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == '$(DesktopFramework)'">
+    <DefineConstants>POWERSHELL_WINDOWS</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == '$(CoreFramework)'">
+    <RuntimeIdentifiers>win10-x64;win10-x86;win10-arm;win10-arm64</RuntimeIdentifiers>
+  </PropertyGroup>
+
+  <!-- This project doesn't reference it directly, but if I don't add it here it will fail with NETSDK1130 *.winmd cannot be referenced. -->
+  <ItemGroup Condition="'$(TargetFramework)' == '$(CoreFramework)'">
+    <PackageReference Include="Microsoft.Windows.CsWinRT" Version="1.6.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.WinGet.Client.Engine\Microsoft.WinGet.Client.Engine.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup Condition=" '$(Platform)' == 'x64' AND '$(TargetFramework)' == '$(CoreFramework)'">
+    <RuntimeIdentifier>win10-x64</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Platform)' == 'x86' AND '$(TargetFramework)' == '$(CoreFramework)'">
+    <RuntimeIdentifier>win10-x86</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Platform)' == 'arm' AND '$(TargetFramework)' == '$(CoreFramework)'">
+    <RuntimeIdentifier>win10-arm</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Platform)' == 'arm64' AND '$(TargetFramework)' == '$(CoreFramework)'">
+    <RuntimeIdentifier>win10-arm64</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <!-- Build PowerShell Module -->
+  <PropertyGroup>
+    <PowerShellModuleOutputDirectory>$(BuildOutputDirectory)PowerShell\Microsoft.WinGet.Client</PowerShellModuleOutputDirectory>
+    <PowerShellModuleRuntimesDir>$(PowerShellModuleOutputDirectory)\runtimes\win10-$(Platform)\lib\$(TargetFramework)</PowerShellModuleRuntimesDir>
+    <PowerShellModuleSharedDependencies>$(PowerShellModuleRuntimesDir)\SharedDependencies</PowerShellModuleSharedDependencies>
+    <PowerShellModuleDirectDependencies>$(PowerShellModuleRuntimesDir)\DirectDependencies</PowerShellModuleDirectDependencies>
+  </PropertyGroup>
+
+  <!-- psm1, psd1 and ps1xml-->
+  <Target Name="CopyModuleFiles" AfterTargets="AfterBuild">
+    <ItemGroup>
+      <ModuleFiles Include="$(ProjectDir)\..\Microsoft.WinGet.Client\ModuleFiles\**\*.*" />
+    </ItemGroup>
+    <Message Importance="high" Text="Copying PowerShell module files to '$(PowerShellModuleOutputDirectory)'" />
+    <Copy SourceFiles="@(ModuleFiles)" DestinationFiles="$(PowerShellModuleOutputDirectory)\%(RecursiveDir)%(Filename)%(Extension)" />
+  </Target>
+
+  <!-- Main binaries -->
+  <Target Name="CopyWinGetBinaries" AfterTargets="AfterBuild" Condition="'$(Platform)' != 'ARM'">
+    <ItemGroup>
+      <ModuleWinGetFile Include="$(OutputPath)Microsoft.WinGet.Client.Cmdlets.dll" />
+      <ModuleWinGetFile Include="$(OutputPath)Microsoft.WinGet.Client.Cmdlets.pdb" />
+    </ItemGroup>
+    <Message Importance="high" Text="Copying CopyWinGetBinaries: '@(ModuleWinGetFile)'" />
+    <Copy SourceFiles="@(ModuleWinGetFile)" DestinationFolder="$(PowerShellModuleRuntimesDir)" />
+  </Target>
+
+  <!-- Direct dependencies -->
+  <Target Name="CopyDirectDependencies" AfterTargets="AfterBuild" Condition="'$(Platform)' != 'ARM'">
+    <ItemGroup>
+      <ModuleDirectDependency Include="$(OutputPath)Microsoft.WinGet.Client.Engine.dll" />
+      <ModuleDirectDependency Include="$(OutputPath)Microsoft.WinGet.Client.Engine.pdb" />
+    </ItemGroup>
+    <Message Importance="high" Text="Copying direct dependencies: '@(ModuleDirectDependency)'" />
+    <Copy SourceFiles="@(ModuleDirectDependency)" DestinationFolder="$(PowerShellModuleDirectDependencies)" />
+  </Target>
+
+  <!-- Shared dependencies -->
+  <Target Name="CopySharedDependencies" AfterTargets="AfterBuild" Condition="'$(Platform)' != 'ARM'">
+    <ItemGroup>
+      <ModuleSharedDependency Include="$(OutputPath)Microsoft.Windows.SDK.NET.dll" Condition="'$(TargetFramework)' == '$(CoreFramework)'" />
+      <ModuleSharedDependency Include="$(OutputPath)Newtonsoft.Json.dll" />
+      <ModuleSharedDependency Include="$(OutputPath)Octokit.dll" />
+      <ModuleSharedDependency Include="$(OutputPath)WinRT.Runtime.dll" Condition="'$(TargetFramework)' == '$(CoreFramework)'" />
+    </ItemGroup>
+    <Message Importance="high" Text="Copying shared dependencies: '@(ModuleSharedDependency)'" />
+    <Copy SourceFiles="@(ModuleSharedDependency)" DestinationFolder="$(PowerShellModuleSharedDependencies)" />
+  </Target>
+
+  <!-- Dependencies of Engine that doesn't get copied in the output directory -->
+  <Target Name="CopyEngineDependencies" AfterTargets="AfterBuild" Condition="'$(Platform)' != 'ARM'">
+    <PropertyGroup>
+      <EngineOutDir>$(OutputPath)..\..\..\Microsoft.WinGet.Client.Engine\$(TargetFramework)\win10-$(Platform)\</EngineOutDir>
+      <!-- The output path for this project is different on some builds where the RIDs are not used in the output. -->
+      <EngineOutDir Condition="!Exists('$(EngineOutDir)Microsoft.WinGet.Client.Engine.dll')">$(OutputPath)..\..\..\Microsoft.WinGet.Client.Engine\$(TargetFramework)\</EngineOutDir>
+      <EngineOutDir Condition="!Exists('$(EngineOutDir)Microsoft.WinGet.Client.Engine.dll')">$(OutputPath)..\..\Microsoft.WinGet.Client.Engine\$(TargetFramework)\</EngineOutDir>
+  </PropertyGroup>
+    <ItemGroup>
+      <ModuleEngineDependency Include="$(EngineOutDir)Microsoft.Management.Deployment.InProc.dll" />
+      <ModuleEngineDependency Include="$(EngineOutDir)Microsoft.Management.Deployment.winmd" />
+      <ModuleEngineDependency Include="$(EngineOutDir)WindowsPackageManager.dll" />
+      <ModuleEngineDependency Include="$(EngineOutDir)winrtact.dll" />
+    </ItemGroup>
+    <Message Importance="high" Text="Copying CopyEngineDependencies: '@(ModuleEngineDependency)'" />
+    <Copy SourceFiles="@(ModuleEngineDependency)" DestinationFolder="$(PowerShellModuleSharedDependencies)" />
+  </Target>
+
+  <!-- Rename Microsoft.Management.Deployment.InProc.dll to Microsoft.Management.Deployment.dll -->
+  <Target Name="RenameMicrosoftManagementDeployment" AfterTargets="AfterBuild">
+    <ItemGroup>
+      <RenameModuleFiles Include="$(PowerShellModuleDirectDependencies)\**\Microsoft.Management.Deployment.InProc.dll">
+        <NewName>Microsoft.Management.Deployment.dll</NewName>
+      </RenameModuleFiles>
+    </ItemGroup>
+    <Message Importance="high" Text="Renaming file '%(RenameModuleFiles.Identity)' to '$(PowerShellModuleLibDirectory)\%(RenameModuleFiles.RecursiveDir)\%(RenameModuleFiles.NewName)'" />
+    <Move SourceFiles="%(RenameModuleFiles.Identity)" DestinationFiles="$(PowerShellModuleDirectDependencies)\%(RenameModuleFiles.RecursiveDir)\%(RenameModuleFiles.NewName)" />
+  </Target>
+
+</Project>
+
