@@ -230,7 +230,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                 TraceLoggingInt32(static_cast<int32_t>(failurePoint), "FailurePoint"),
                 AICLI_TraceLoggingWStringView(settingNames, "SettingsProvided"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
-                TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
 
             // Keep in sync with above event!
             WinGet_WriteEventToDiagnostics(
@@ -309,7 +309,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                 AICLI_TraceLoggingProcessingSummaryForIntent(informSummary, "Inform", "Informs"),
                 AICLI_TraceLoggingProcessingSummaryForIntent(applySummary, "Apply", "Applies"),
                 TelemetryPrivacyDataTag(PDT_ProductAndServicePerformance),
-                TraceLoggingKeyword(MICROSOFT_KEYWORD_MEASURES));
+                TraceLoggingKeyword(MICROSOFT_KEYWORD_CRITICAL_DATA));
 
             // Keep in sync with above event!
             WinGet_WriteEventToDiagnostics(
