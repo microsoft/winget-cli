@@ -31,7 +31,7 @@ namespace Microsoft.WinGet.Client.Commands
                 this.Moniker,
                 this.Source,
                 this.Query,
-                this.MatchOption,
+                this.MatchOption.ToString(),
                 this.Tag,
                 this.Command,
                 this.Count);

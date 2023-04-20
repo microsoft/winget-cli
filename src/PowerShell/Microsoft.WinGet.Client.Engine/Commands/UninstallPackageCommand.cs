@@ -10,7 +10,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands
     using System.Management.Automation;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Engine.Commands.Common;
-    using Microsoft.WinGet.Client.Engine.Extensions;
     using Microsoft.WinGet.Client.Engine.Helpers;
     using Microsoft.WinGet.Client.Engine.Properties;
     using Microsoft.WinGet.Client.Engine.PSObjects;
@@ -43,7 +42,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             string moniker,
             string source,
             string[] query,
-            PSPackageFieldMatchOption matchOption)
+            string matchOption)
             : base(psCmdlet)
         {
             // PackageCommand.
@@ -61,7 +60,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             this.Moniker = moniker;
             this.Source = source;
             this.Query = query;
-            this.MatchOption = matchOption.ToPackageFieldMatchOption();
+            this.MatchOption = PSEnumHelpers.ToPackageFieldMatchOption(matchOption);
         }
 
         /// <summary>

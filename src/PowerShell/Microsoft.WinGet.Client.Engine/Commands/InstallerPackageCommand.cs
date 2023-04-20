@@ -57,7 +57,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             string moniker,
             string source,
             string[] query,
-            PSPackageFieldMatchOption matchOption)
+            string matchOption)
             : base(psCmdlet)
         {
             // InstallCommand.
@@ -84,7 +84,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             this.Moniker = moniker;
             this.Source = source;
             this.Query = query;
-            this.MatchOption = matchOption.ToPackageFieldMatchOption();
+            this.MatchOption = PSEnumHelpers.ToPackageFieldMatchOption(matchOption);
         }
 
         /// <summary>

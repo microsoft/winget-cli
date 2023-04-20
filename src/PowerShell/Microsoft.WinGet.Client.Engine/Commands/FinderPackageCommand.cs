@@ -10,6 +10,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Engine.Commands.Common;
     using Microsoft.WinGet.Client.Engine.Extensions;
+    using Microsoft.WinGet.Client.Engine.Helpers;
     using Microsoft.WinGet.Client.Engine.PSObjects;
 
     /// <summary>
@@ -37,7 +38,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             string moniker,
             string source,
             string[] query,
-            PSPackageFieldMatchOption matchOption,
+            string matchOption,
             string tag,
             string command,
             uint count)
@@ -49,7 +50,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             this.Moniker = moniker;
             this.Source = source;
             this.Query = query;
-            this.MatchOption = matchOption.ToPackageFieldMatchOption();
+            this.MatchOption = PSEnumHelpers.ToPackageFieldMatchOption(matchOption);
 
             // FinderExtendedCommand
             this.Tag = tag;
