@@ -1,8 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include <winget/ManifestCommon.h>
 #include "MSStoreInstallerHandler.h"
+#include <winget/ManifestCommon.h>
+#include <winget/Runtime.h>
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -116,7 +117,7 @@ namespace AppInstaller::CLI::Workflow
             else if (result.Status() == GetEntitlementStatus::ServerError)
             {
                 context.Reporter.Info() << Resource::String::MSStoreInstallGetEntitlementServerError << std::endl;
-                AICLI_LOG(CLI, Error, << "Get entitlement succeeded. Server error. ProductId: " << Utility::ConvertToUTF8(productId));
+                AICLI_LOG(CLI, Error, << "Get entitlement failed Server error. ProductId: " << Utility::ConvertToUTF8(productId));
             }
 
             return result.Status() == GetEntitlementStatus::Succeeded;
@@ -216,7 +217,8 @@ namespace AppInstaller::CLI::Workflow
 
         if (!installItem)
         {
-            context.Reporter.Info() << Resource::String::UpdateNotApplicable << std::endl;
+            context.Reporter.Info() << Resource::String::UpdateNotApplicable << std::endl
+                << Resource::String::UpdateNotApplicableReason << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
         }
 
@@ -247,8 +249,9 @@ namespace AppInstaller::CLI::Workflow
         constexpr std::wstring_view s_StoreClientPublisher = L"CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"sv;
 
         // Policy check
-        AppInstallManager installManager;
-        if (installManager.IsStoreBlockedByPolicyAsync(s_StoreClientName, s_StoreClientPublisher).get())
+        AppInstallManager installManager; 
+        
+        if (!WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::BypassIsStoreClientBlockedPolicyCheck) && installManager.IsStoreBlockedByPolicyAsync(s_StoreClientName, s_StoreClientPublisher).get())
         {
             context.Reporter.Error() << Resource::String::MSStoreStoreClientBlocked << std::endl;
             AICLI_LOG(CLI, Error, << "Store client is blocked by policy. MSStore execution failed.");

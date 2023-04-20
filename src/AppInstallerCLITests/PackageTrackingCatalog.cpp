@@ -87,7 +87,7 @@ TEST_CASE("TrackingCatalog_Install", "[tracking_catalog]")
     SearchResult resultAfter = catalog.Search(request);
     REQUIRE(resultAfter.Matches.size() == 1);
 
-    auto trackingVersion = resultAfter.Matches[0].Package->GetLatestAvailableVersion();
+    auto trackingVersion = resultAfter.Matches[0].Package->GetLatestAvailableVersion(PinBehavior::IgnorePins);
     REQUIRE(trackingVersion);
 
     auto metadata = trackingVersion->GetMetadata();
@@ -113,7 +113,7 @@ TEST_CASE("TrackingCatalog_Reinstall", "[tracking_catalog]")
 
     SearchResult resultBefore = catalog.Search(request);
     REQUIRE(resultBefore.Matches.size() == 1);
-    REQUIRE(resultBefore.Matches[0].Package->GetLatestAvailableVersion()->GetProperty(PackageVersionProperty::Name) ==
+    REQUIRE(resultBefore.Matches[0].Package->GetLatestAvailableVersion(PinBehavior::IgnorePins)->GetProperty(PackageVersionProperty::Name) ==
         manifest.DefaultLocalization.Get<Localization::PackageName>());
 
     // Change name
@@ -124,7 +124,7 @@ TEST_CASE("TrackingCatalog_Reinstall", "[tracking_catalog]")
 
     SearchResult resultAfter = catalog.Search(request);
     REQUIRE(resultAfter.Matches.size() == 1);
-    REQUIRE(resultBefore.Matches[0].Package->GetLatestAvailableVersion()->GetProperty(PackageVersionProperty::Name) ==
+    REQUIRE(resultBefore.Matches[0].Package->GetLatestAvailableVersion(PinBehavior::IgnorePins)->GetProperty(PackageVersionProperty::Name) ==
         newName);
 }
 
@@ -147,7 +147,7 @@ TEST_CASE("TrackingCatalog_Upgrade", "[tracking_catalog]")
 
     SearchResult resultBefore = catalog.Search(request);
     REQUIRE(resultBefore.Matches.size() == 1);
-    REQUIRE(resultBefore.Matches[0].Package->GetLatestAvailableVersion()->GetProperty(PackageVersionProperty::Version) ==
+    REQUIRE(resultBefore.Matches[0].Package->GetLatestAvailableVersion(PinBehavior::IgnorePins)->GetProperty(PackageVersionProperty::Version) ==
         manifest.Version);
 
     // Change name
@@ -157,7 +157,7 @@ TEST_CASE("TrackingCatalog_Upgrade", "[tracking_catalog]")
 
     SearchResult resultAfter = catalog.Search(request);
     REQUIRE(resultAfter.Matches.size() == 1);
-    REQUIRE(resultBefore.Matches[0].Package->GetLatestAvailableVersion()->GetProperty(PackageVersionProperty::Version) ==
+    REQUIRE(resultBefore.Matches[0].Package->GetLatestAvailableVersion(PinBehavior::IgnorePins)->GetProperty(PackageVersionProperty::Version) ==
         manifest.Version);
 }
 

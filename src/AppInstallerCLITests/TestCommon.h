@@ -100,7 +100,9 @@ namespace TestCommon
         void BeginProgress() override;
         
         void OnProgress(uint64_t current, uint64_t maximum, AppInstaller::ProgressType type) override;
-        
+
+        void SetProgressMessage(std::string_view message) override;
+
         void EndProgress(bool) override;
 
         bool IsCancelled() override;
@@ -151,4 +153,7 @@ namespace TestCommon
 
     // Convert to Json::Value
     Json::Value ConvertToJson(const std::string& content);
+
+    // Sets up the test path overrides.
+    void SetTestPathOverrides();
 }

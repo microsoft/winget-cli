@@ -113,6 +113,8 @@ namespace AppInstaller::CLI
         virtual void Execute(Execution::Context& context) const;
 
     protected:
+        void SelectCurrentCommandIfUnrecognizedSubcommandFound(bool value);
+
         virtual void ValidateArgumentsInternal(Execution::Args& execArgs) const;
         virtual void ExecuteInternal(Execution::Context& context) const;
 
@@ -124,6 +126,7 @@ namespace AppInstaller::CLI
         Settings::ExperimentalFeature::Feature m_feature;
         Settings::TogglePolicy::Policy m_groupPolicy;
         CommandOutputFlags m_outputFlags;
+        bool m_selectCurrentCommandIfUnrecognizedSubcommandFound = false;
     };
 
     template <typename Container>

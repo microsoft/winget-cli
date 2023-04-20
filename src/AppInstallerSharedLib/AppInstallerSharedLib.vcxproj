@@ -186,6 +186,11 @@
       <EnablePREfast Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">true</EnablePREfast>
       <EnablePREfast Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">true</EnablePREfast>
       <EnablePREfast Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</EnablePREfast>
+      <RuntimeTypeInfo Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">false</RuntimeTypeInfo>
+      <RuntimeTypeInfo Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">false</RuntimeTypeInfo>
+      <RuntimeTypeInfo Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">false</RuntimeTypeInfo>
+      <RuntimeTypeInfo Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">false</RuntimeTypeInfo>
+      <RuntimeTypeInfo Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</RuntimeTypeInfo>
     </ClCompile>
     <Link>
       <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
@@ -201,6 +206,8 @@
       <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</TreatWarningAsError>
       <SDLCheck Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</SDLCheck>
       <EnablePREfast Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</EnablePREfast>
+      <RuntimeTypeInfo Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</RuntimeTypeInfo>
+      <RuntimeTypeInfo Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</RuntimeTypeInfo>
     </ClCompile>
     <Link>
       <SubSystem Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Windows</SubSystem>
@@ -228,6 +235,10 @@
       <EnablePREfast Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">false</EnablePREfast>
       <EnablePREfast Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</EnablePREfast>
       <EnablePREfast Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</EnablePREfast>
+      <RuntimeTypeInfo Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">false</RuntimeTypeInfo>
+      <RuntimeTypeInfo Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">false</RuntimeTypeInfo>
+      <RuntimeTypeInfo Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</RuntimeTypeInfo>
+      <RuntimeTypeInfo Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</RuntimeTypeInfo>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -250,6 +261,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <AdditionalOptions>%(AdditionalOptions) /fsanitize-coverage=inline-8bit-counters /fsanitize-coverage=edge /fsanitize-coverage=trace-cmp /fsanitize-coverage=trace-div</AdditionalOptions>
+      <RuntimeTypeInfo Condition="'$(Configuration)|$(Platform)'=='Fuzzing|x64'">false</RuntimeTypeInfo>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -281,9 +293,13 @@
     <ClInclude Include="Public\AppInstallerSHA256.h" />
     <ClInclude Include="Public\AppInstallerStrings.h" />
     <ClInclude Include="Public\AppInstallerLogging.h" />
+    <ClInclude Include="Public\AppInstallerVersions.h" />
+    <ClInclude Include="Public\Telemetry\MicrosoftTelemetry.h" />
+    <ClInclude Include="Public\Telemetry\WinEventLogLevels.h" />
     <ClInclude Include="Public\winget\JsonSchemaValidation.h" />
     <ClInclude Include="Public\winget\LocIndependent.h" />
     <ClInclude Include="Public\winget\Resources.h" />
+    <ClInclude Include="Public\winget\Runtime.h" />
     <ClInclude Include="Public\winget\SharedThreadGlobals.h" />
     <ClInclude Include="Public\winget\Yaml.h" />
     <ClInclude Include="YamlWrapper.h" />
@@ -298,8 +314,10 @@
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Runtime.cpp" />
     <ClCompile Include="SHA256.cpp" />
     <ClCompile Include="SharedThreadGlobals.cpp" />
+    <ClCompile Include="Versions.cpp" />
     <ClCompile Include="Yaml.cpp" />
     <ClCompile Include="YamlWrapper.cpp" />
   </ItemGroup>

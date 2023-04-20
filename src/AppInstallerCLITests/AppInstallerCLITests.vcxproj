@@ -181,6 +181,7 @@
     <ClInclude Include="DependenciesTestSource.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="TestCommon.h" />
+    <ClInclude Include="TestConfiguration.h" />
     <ClInclude Include="TestRestRequestHandler.h" />
     <ClInclude Include="TestHooks.h" />
     <ClInclude Include="TestSettings.h" />
@@ -190,6 +191,7 @@
   <ItemGroup>
     <ClCompile Include="AdminSettings.cpp" />
     <ClCompile Include="Archive.cpp" />
+    <ClCompile Include="Argument.cpp" />
     <ClCompile Include="ARPChanges.cpp" />
     <ClCompile Include="Certificates.cpp" />
     <ClCompile Include="Command.cpp" />
@@ -240,6 +242,7 @@
     <ClCompile Include="SourceFlow.cpp" />
     <ClCompile Include="SQLiteIndexSource.cpp" />
     <ClCompile Include="Strings.cpp" />
+    <ClCompile Include="TestConfiguration.cpp" />
     <ClCompile Include="TestRestRequestHandler.cpp" />
     <ClCompile Include="TestSettings.cpp" />
     <ClCompile Include="TestSource.cpp" />
@@ -247,6 +250,7 @@
     <ClCompile Include="UpdateFlow.cpp" />
     <ClCompile Include="UserSettings.cpp" />
     <ClCompile Include="Versions.cpp" />
+    <ClCompile Include="WindowsFeature.cpp" />
     <ClCompile Include="WorkFlow.cpp" />
     <ClCompile Include="LanguageUtilities.cpp" />
     <ClCompile Include="main.cpp">
@@ -324,6 +328,9 @@
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_UnsupportedArguments.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallFlowTest_WindowsFeatures.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_Zip_Exe.yaml">
@@ -803,6 +810,9 @@
     <CopyFileToFolders Include="TestData\Manifest-Bad-MsixInstaller-PackageVersion.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Node-Types.yaml">
+      <DeploymentContent>true</DeploymentContent>
+    </CopyFileToFolders>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AppInstallerCLICore\AppInstallerCLICore.vcxproj">
@@ -819,6 +829,9 @@
     </ProjectReference>
     <ProjectReference Include="..\JsonCppLib\JsonCppLib.vcxproj">
       <Project>{82b39fda-e86b-4713-a873-9d56de00247a}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.Management.Configuration\Microsoft.Management.Configuration.vcxproj">
+      <Project>{ca460806-5e41-4e97-9a3d-1d74b433b663}</Project>
     </ProjectReference>
     <ProjectReference Include="..\YamlCppLib\YamlCppLib.vcxproj">
       <Project>{8bb94bb8-374f-4294-bca1-c7811514a6b7}</Project>

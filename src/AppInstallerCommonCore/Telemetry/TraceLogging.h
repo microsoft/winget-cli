@@ -3,10 +3,10 @@
 
 #pragma once
 
-#include "WinEventLogLevels.h"
+#include <Telemetry/WinEventLogLevels.h>
 #include <TraceLoggingProvider.h>
 
-#include "MicrosoftTelemetry.h"
+#include <Telemetry/MicrosoftTelemetry.h>
 
 // Keywords
 #define KEYWORD_REPEATER         0x0000000000000001

@@ -63,6 +63,9 @@
     <ClInclude Include="WorkflowCommon.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="TestConfiguration.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -224,9 +227,6 @@
     <ClCompile Include="Archive.cpp">
       <Filter>Source Files\Common</Filter>
     </ClCompile>
-    <ClCompile Include="Filesystem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="FolderFileWatcher.cpp">
       <Filter>Source Files\Common</Filter>
     </ClCompile>
@@ -238,9 +238,6 @@
     </ClCompile>
     <ClCompile Include="PackageDependenciesValidationUtil.cpp">
       <Filter>Source Files\Repository</Filter>
-    </ClCompile>
-    <ClCompile Include="RestInterface_1_4.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="AdminSettings.cpp">
       <Filter>Source Files\Common</Filter>
@@ -280,6 +277,21 @@
     </ClCompile>
     <ClCompile Include="PinFlow.cpp">
       <Filter>Source Files\CLI</Filter>
+    </ClCompile>
+    <ClCompile Include="Argument.cpp">
+      <Filter>Source Files\CLI</Filter>
+    </ClCompile>
+    <ClCompile Include="TestConfiguration.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowsFeature.cpp">
+      <Filter>Source Files\CLI</Filter>
+    </ClCompile>
+    <ClCompile Include="Filesystem.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="RestInterface_1_4.cpp">
+      <Filter>Source Files\Repository</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -603,6 +615,9 @@
     <CopyFileToFolders Include="TestData\InstallFlowTest_UnsupportedArguments.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\InstallFlowTest_WindowsFeatures.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\InstallFlowTest_Zip_Exe.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
@@ -817,6 +832,9 @@
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Bad-InconsistentSignedMsixBundleInstallerFields.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\Node-Types.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
   </ItemGroup>

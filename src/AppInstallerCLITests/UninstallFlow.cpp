@@ -171,3 +171,42 @@ TEST_CASE("UninstallFlow_UninstallExeNotFound", "[UninstallFlow][workflow]")
     REQUIRE(uninstallOutput.str().find(Resource::LocString(Resource::String::NoInstalledPackageFound).get()) != std::string::npos);
     REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND);
 }
+
+TEST_CASE("UninstallFlow_UninstallMultiple", "[UninstallFlow][workflow][MultiQuery]")
+{
+    TestCommon::TempFile exeUninstallResultPath("TestExeUninstalled.txt");
+    TestCommon::TempFile msixUninstallResultPath("TestMsixUninstalled.txt");
+
+    std::ostringstream uninstallOutput;
+    TestContext context{ uninstallOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Exe, TSR::TestInstaller_Msix }));
+    OverrideForExeUninstall(context);
+    OverrideForMSIXUninstall(context);
+    context.Args.AddArg(Execution::Args::Type::MultiQuery, TSR::TestInstaller_Exe.Query);
+    context.Args.AddArg(Execution::Args::Type::MultiQuery, TSR::TestInstaller_Msix.Query);
+
+    UninstallCommand uninstall({});
+    uninstall.Execute(context);
+    INFO(uninstallOutput.str());
+
+    // Verify Uninstallers are called
+    REQUIRE(std::filesystem::exists(exeUninstallResultPath.GetPath()));
+    REQUIRE(std::filesystem::exists(msixUninstallResultPath.GetPath()));
+}
+
+TEST_CASE("UninstallFlow_UninstallMultiple_NotAllInstalled", "[UninstallFlow][workflow][MultiQuery]")
+{
+    std::ostringstream uninstallOutput;
+    TestContext context{ uninstallOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForCompositeInstalledSource(context, CreateTestSource({ TSR::TestInstaller_Exe }));
+    context.Args.AddArg(Execution::Args::Type::MultiQuery, TSR::TestInstaller_Exe.Query);
+    context.Args.AddArg(Execution::Args::Type::MultiQuery, TSR::TestInstaller_Msix.Query);
+
+    UninstallCommand uninstall({});
+    uninstall.Execute(context);
+    INFO(uninstallOutput.str());
+
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_NOT_ALL_QUERIES_FOUND_SINGLE);
+}

@@ -16,6 +16,9 @@ namespace AppInstaller::Utility
     // Converts the given UTF8 string to UTF16
     std::wstring ConvertToUTF16(std::string_view input, UINT codePage = CP_UTF8);
 
+    // Tries to convert the given UTF8 string to UTF16
+    std::optional<std::wstring> TryConvertToUTF16(std::string_view input, UINT codePage = CP_UTF8);
+
     // Converts the given UTF8 string to UTF32
     std::u32string ConvertToUTF32(std::string_view input);
 
@@ -112,6 +115,10 @@ namespace AppInstaller::Utility
     // Use this if one of the values is a known value, and thus ToLower is sufficient.
     bool CaseInsensitiveStartsWith(std::string_view a, std::string_view b);
 
+    // Determines if string a contains string b.
+    // Use this if one of the values is a known value, and thus ToLower is sufficient.
+    bool CaseInsensitiveContainsSubstring(std::string_view a, std::string_view b);
+
     // Compares the two UTF8 strings in a case insensitive manner, using ICU for case folding.
     bool ICUCaseInsensitiveEquals(std::string_view a, std::string_view b);
 
@@ -177,6 +184,14 @@ namespace AppInstaller::Utility
 
     // Splits the string into words.
     std::vector<std::string> SplitIntoWords(std::string_view input);
+
+    // Splits the string into lines.
+    // Drops empty lines.
+    std::vector<std::string> SplitIntoLines(std::string_view input, size_t maximum = 0);
+
+    // Removes lines from the vector (and/or characters from the last line) so that it contains the maximum number of lines.
+    // Returns true if changes were made, false if not.
+    bool LimitOutputLines(std::vector<std::string>& lines, size_t lineWidth, size_t maximum);
 
     // Converts a container to a string representation of it.
     template <typename T, typename U>

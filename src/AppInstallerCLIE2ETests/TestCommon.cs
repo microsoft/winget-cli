@@ -282,14 +282,20 @@ namespace AppInstallerCLIE2ETests
         /// <param name="fileName">File name.</param>
         /// <param name="args">Args.</param>
         /// <param name="timeOut">Time out.</param>
+        /// <param name="throwOnFailure">If true, throw instead of returning false on a failure.</param>
         /// <returns>True if exit code is 0.</returns>
-        public static bool RunCommand(string fileName, string args = "", int timeOut = 60000)
+        public static bool RunCommand(string fileName, string args = "", int timeOut = 60000, bool throwOnFailure = false)
         {
             RunCommandResult result = RunCommandWithResult(fileName, args, timeOut);
 
             if (result.ExitCode != 0)
             {
                 TestContext.Out.WriteLine($"Command failed with: {result.ExitCode}");
+                if (throwOnFailure)
+                {
+                    throw new RunCommandException(fileName, args, result);
+                }
+
                 return false;
             }
             else
@@ -406,7 +412,7 @@ namespace AppInstallerCLIE2ETests
         /// <returns>True if installed.</returns>
         public static bool InstallMsix(string file)
         {
-            return RunCommand("powershell", $"Add-AppxPackage \"{file}\"");
+            return RunCommand("powershell", $"Add-AppxPackage \"{file}\"", throwOnFailure: true);
         }
 
         /// <summary>
@@ -417,7 +423,7 @@ namespace AppInstallerCLIE2ETests
         public static bool InstallMsixRegister(string packagePath)
         {
             string manifestFile = Path.Combine(packagePath, "AppxManifest.xml");
-            return RunCommand("powershell", $"Add-AppxPackage -Register \"{manifestFile}\"");
+            return RunCommand("powershell", $"Add-AppxPackage -Register \"{manifestFile}\"", throwOnFailure: true);
         }
 
         /// <summary>
@@ -564,7 +570,7 @@ namespace AppInstallerCLIE2ETests
         /// <param name="installDir">Install directory.</param>
         /// <param name="expectedContent">Optional expected content.</param>
         /// <returns>True if success.</returns>
-        public static bool VerifyTestExeInstalledAndCleanup(string installDir, string expectedContent = null)
+        public static bool VerifyTestExeInstalled(string installDir, string expectedContent = null)
         {
             bool verifyInstallSuccess = true;
 
@@ -580,6 +586,19 @@ namespace AppInstallerCLIE2ETests
                 TestContext.Out.WriteLine($"TestExeInstalled.exe content: {content}");
                 verifyInstallSuccess = content.Contains(expectedContent);
             }
+
+            return verifyInstallSuccess;
+        }
+
+        /// <summary>
+        /// Verify exe installer correctly and then uninstall it.
+        /// </summary>
+        /// <param name="installDir">Install directory.</param>
+        /// <param name="expectedContent">Optional expected content.</param>
+        /// <returns>True if success.</returns>
+        public static bool VerifyTestExeInstalledAndCleanup(string installDir, string expectedContent = null)
+        {
+            bool verifyInstallSuccess = VerifyTestExeInstalled(installDir, expectedContent);
 
             // Always try clean up and ignore clean up failure
             var uninstallerPath = Path.Combine(installDir, Constants.TestExeUninstallerFileName);

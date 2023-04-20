@@ -35,7 +35,7 @@ namespace AppInstaller::Logging
 
         void Write(Channel channel, Level level, std::string_view message) noexcept override;
 
-        void WriteDirect(std::string_view message) noexcept override;
+        void WriteDirect(Channel channel, Level level, std::string_view message) noexcept override;
 
         // Adds a FileLogger to the current Log
         static void Add();
@@ -50,5 +50,7 @@ namespace AppInstaller::Logging
         std::string m_name;
         std::filesystem::path m_filePath;
         std::ofstream m_stream;
+
+        void OpenFileLoggerStream();
     };
 }

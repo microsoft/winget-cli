@@ -115,6 +115,16 @@ namespace AppInstaller::Utility
         return a.length() >= b.length() && CaseInsensitiveEquals(a.substr(0, b.length()), b);
     }
 
+    bool CaseInsensitiveContainsSubstring(std::string_view a, std::string_view b)
+    {
+        auto it = std::search(
+            a.begin(), a.end(),
+            b.begin(), b.end(),
+            [](char ch1, char ch2) { return std::tolower(ch1) == std::tolower(ch2); }
+        );
+        return (it != a.end());
+    }
+
     bool ICUCaseInsensitiveEquals(std::string_view a, std::string_view b)
     {
         return FoldCase(a) == FoldCase(b);
@@ -163,6 +173,32 @@ namespace AppInstaller::Utility
         FAIL_FAST_HR_IF(E_UNEXPECTED, utf16CharCount != utf16CharsWritten);
 
         return result;
+    }
+
+    std::optional<std::wstring> TryConvertToUTF16(std::string_view input, UINT codePage)
+    {
+        if (input.empty())
+        {
+            return std::wstring{};
+        }
+
+        int utf16CharCount = MultiByteToWideChar(codePage, 0, input.data(), wil::safe_cast<int>(input.length()), nullptr, 0);
+        if (utf16CharCount == 0)
+        {
+            return {};
+        }
+
+        // Since the string view should not contain the null char, the result won't either.
+        // This allows us to use the resulting size value directly in the string constructor.
+        std::wstring result(wil::safe_cast<size_t>(utf16CharCount), L'\0');
+
+        int utf16CharsWritten = MultiByteToWideChar(codePage, 0, input.data(), wil::safe_cast<int>(input.length()), &result[0], wil::safe_cast<int>(result.size()));
+        if (utf16CharCount != utf16CharsWritten)
+        {
+            return {};
+        }
+
+        return std::optional{ result };
     }
 
     std::u32string ConvertToUTF32(std::string_view input)
@@ -662,6 +698,69 @@ namespace AppInstaller::Utility
             }
 
             currentOffset = nextOffset;
+        }
+
+        return result;
+    }
+
+    std::vector<std::string> SplitIntoLines(std::string_view input, size_t maximum)
+    {
+        std::size_t currentOffset = 0;
+        std::vector<std::string> result;
+
+        while (currentOffset < input.size() && (!maximum || result.size() < maximum))
+        {
+            std::size_t nextOffset = input.find_first_of("\r\n", currentOffset);
+            if (nextOffset == std::string_view::npos)
+            {
+                nextOffset = input.size();
+            }
+
+            if (nextOffset - currentOffset > 1)
+            {
+                result.emplace_back(input.substr(currentOffset, nextOffset - currentOffset));
+            }
+
+            currentOffset = nextOffset;
+        }
+
+        return result;
+    }
+
+    bool LimitOutputLines(std::vector<std::string>& lines, size_t lineWidth, size_t maximum)
+    {
+        size_t totalLines = 0;
+        size_t currentLine = 0;
+        bool result = false;
+
+        for (; currentLine < lines.size() && totalLines < maximum; ++currentLine)
+        {
+            size_t currentLineWidth = UTF8ColumnWidth(lines[currentLine]);
+            // If current line is empty, the cost is 1 line (0 + 1).
+            // If not, round up to the next line count (by rounding down through integer division after subtracting 1 + 1).
+            size_t currentLineActualLineCount = (currentLineWidth ? (currentLineWidth - 1) / lineWidth : 0) + 1;
+
+            // The current line may be too big to be the last line.
+            size_t availableLines = maximum - totalLines;
+            if (currentLineActualLineCount > availableLines)
+            {
+                size_t actualWidth = 0;
+                std::string trimmedLine = UTF8TrimRightToColumnWidth(lines[currentLine], (availableLines * lineWidth) - 1, actualWidth);
+                trimmedLine += "\xE2\x80\xA6"; // UTF8 encoding of ellipsis (…) character
+                lines[currentLine] = trimmedLine;
+
+                currentLineActualLineCount = availableLines;
+                result = true;
+            }
+
+            totalLines += currentLineActualLineCount;
+        }
+
+        // Drop any unprocessed lines
+        if (currentLine != lines.size())
+        {
+            lines.resize(currentLine);
+            result = true;
         }
 
         return result;

@@ -78,6 +78,7 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Connect and find package
             var source = packageCatalogReference.Connect().PackageCatalog;
+
             return source.FindPackages(findPackageOptions).Matches;
         }
     }

@@ -59,12 +59,12 @@ namespace AppInstaller::CLI::Execution
         InstallerExecutionUseUpdate = 0x1,
         InstallerHashMatched = 0x2,
         InstallerTrusted = 0x4,
-        AgreementsAcceptedByCaller = 0x8,
         // Allows a failure in a single source to generate a warning rather than an error.
         // TODO: Remove when the source interface is refactored.
-        TreatSourceFailuresAsWarning = 0x10,
-        ShowSearchResultsOnPartialFailure = 0x20,
+        TreatSourceFailuresAsWarning = 0x8,
+        ShowSearchResultsOnPartialFailure = 0x10,
         DisableInteractivity = 0x40,
+        BypassIsStoreClientBlockedPolicyCheck = 0x80,
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(ContextFlag);

@@ -225,15 +225,21 @@ namespace AppInstaller::CLI::Workflow
         table.Complete();
     }
 
-    void ShowAppVersions(Execution::Context& context)
+    void GetManifest::operator()(Execution::Context& context) const
     {
-        auto versions = context.Get<Execution::Data::Package>()->GetAvailableVersionKeys();
-
-        Execution::TableOutput<2> table(context.Reporter, { Resource::String::ShowVersion, Resource::String::ShowChannel });
-        for (const auto& version : versions)
+        if (context.Args.Contains(Execution::Args::Type::Manifest))
         {
-            table.OutputLine({ version.Version, version.Channel });
+            context <<
+                GetManifestFromArg;
         }
-        table.Complete();
+        else
+        {
+            context <<
+                OpenSource() <<
+                SearchSourceForSingle <<
+                HandleSearchResultFailures <<
+                EnsureOneMatchFromSearchResult(OperationType::Show) <<
+                GetManifestFromPackage(m_considerPins);
+        }
     }
 }

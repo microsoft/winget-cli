@@ -121,6 +121,16 @@ The `architectures` behavior affects what architectures will be selected when in
     },
 ```
 
+### Default install root
+
+The `defaultInstallRoot` affects the install location when a package requires one. This can be overridden by the `--location` parameter. This setting is only used when a package manifest includes `InstallLocationRequired`, and the actual location is obtained by appending the package ID to the root.
+
+```json
+    "installBehavior": {
+        "defaultInstallRoot": "C:/installRoot"
+    },
+```
+
 ## Uninstall Behavior
 
 The `uninstallBehavior` settings affect the default behavior of uninstalling (where applicable) packages.
@@ -135,21 +145,11 @@ The `purgePortablePackage` behavior affects the default behavior for uninstallin
     },
 ```
 
-### Default install root
-
-The `defaultInstallRoot` affects the install location when a package requires one. This can be overridden by the `--location` parameter. This setting is only used when a package manifest includes `InstallLocationRequired`, and the actual location is obtained by appending the package ID to the root.
-
-```json
-    "installBehavior": {
-        "defaultInstallRoot": "C:/installRoot"
-    },
-```
-
 ## Telemetry
 
 The `telemetry` settings control whether winget writes ETW events that may be sent to Microsoft on a default installation of Windows.
 
-See [details on telemetry](../README.md#datatelemetry), and our [primary privacy statement](../privacy.md).
+See [details on telemetry](../README.md#datatelemetry), and our [primary privacy statement](../PRIVACY.md).
 
 ### disable
 
@@ -261,5 +261,27 @@ You can enable the feature as shown below.
 ```json
    "experimentalFeatures": {
        "pinning": true
+   },
+```
+
+### configuration
+
+This feature enables the configuration commands. These commands allow configuring the system into a desired state.
+You can enable the feature as shown below.
+
+```json
+   "experimentalFeatures": {
+       "configuration": true
+   },
+```
+
+### windowsFeature
+
+This feature enables the ability to enable Windows Feature dependencies during installation.
+You can enable the feature as shown below.
+
+```json
+   "experimentalFeatures": {
+       "windowsFeature": true
    },
 ```

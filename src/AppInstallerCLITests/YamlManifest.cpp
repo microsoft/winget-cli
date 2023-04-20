@@ -70,7 +70,7 @@ TEST_CASE("ReadPreviewGoodManifestAndVerifyContents", "[ManifestValidation]")
     REQUIRE(manifest.DefaultInstallerInfo.Commands == MultiValue{ "makemsix", "makeappx" });
     REQUIRE(manifest.DefaultInstallerInfo.Protocols == MultiValue{ "protocol1", "protocol2" });
     REQUIRE(manifest.DefaultInstallerInfo.FileExtensions == MultiValue{ "appx", "appxbundle", "msix", "msixbundle" });
-    REQUIRE(manifest.DefaultInstallerInfo.BaseInstallerType == InstallerTypeEnum::Zip);
+    REQUIRE(manifest.DefaultInstallerInfo.BaseInstallerType == InstallerTypeEnum::Exe);
     REQUIRE(manifest.DefaultInstallerInfo.PackageFamilyName == "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe");
     REQUIRE(manifest.DefaultInstallerInfo.ProductCode == "{Foo}");
     REQUIRE(manifest.DefaultInstallerInfo.UpdateBehavior == UpdateBehaviorEnum::UninstallPrevious);
@@ -93,10 +93,10 @@ TEST_CASE("ReadPreviewGoodManifestAndVerifyContents", "[ManifestValidation]")
     REQUIRE(installer1.Url == "https://rubengustorage.blob.core.windows.net/publiccontainer/msixsdkx86.zip");
     REQUIRE(installer1.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
     REQUIRE(installer1.Locale == "en-US");
-    REQUIRE(installer1.BaseInstallerType == InstallerTypeEnum::Zip);
+    REQUIRE(installer1.BaseInstallerType == InstallerTypeEnum::Exe);
     REQUIRE(installer1.Scope == ScopeEnum::User);
     REQUIRE(installer1.PackageFamilyName == "");
-    REQUIRE(installer1.ProductCode == "");
+    REQUIRE(installer1.ProductCode == "{Foo}");
     REQUIRE(installer1.UpdateBehavior == UpdateBehaviorEnum::Install);
 
     auto installer1Switches = installer1.Switches;
@@ -114,10 +114,10 @@ TEST_CASE("ReadPreviewGoodManifestAndVerifyContents", "[ManifestValidation]")
     REQUIRE(installer2.Url == "https://rubengustorage.blob.core.windows.net/publiccontainer/msixsdkx64.zip");
     REQUIRE(installer2.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF0000"));
     REQUIRE(installer2.Locale == "en-US");
-    REQUIRE(installer2.BaseInstallerType == InstallerTypeEnum::Zip);
+    REQUIRE(installer2.BaseInstallerType == InstallerTypeEnum::Exe);
     REQUIRE(installer2.Scope == ScopeEnum::User);
     REQUIRE(installer2.PackageFamilyName == "");
-    REQUIRE(installer2.ProductCode == "");
+    REQUIRE(installer2.ProductCode == "{Foo}");
     REQUIRE(installer2.UpdateBehavior == UpdateBehaviorEnum::UninstallPrevious);
 
     // Installer2 does not declare switches, it inherits switches from package default.
@@ -342,36 +342,35 @@ TEST_CASE("ComplexSystemReference", "[ManifestValidation]")
 {
     Manifest manifest = YamlParser::CreateFromPath(TestDataFile("Manifest-Good-SystemReferenceComplex.yaml"));
 
-    REQUIRE(manifest.Installers.size() == 5);
-
-    // Zip installer does not inherit
-    REQUIRE(manifest.Installers[0].BaseInstallerType == InstallerTypeEnum::Zip);
-    REQUIRE(manifest.Installers[0].PackageFamilyName == "");
-    REQUIRE(manifest.Installers[0].ProductCode == "");
+    REQUIRE(manifest.Installers.size() == 4);
 
     // MSIX installer does inherit
-    REQUIRE(manifest.Installers[1].BaseInstallerType == InstallerTypeEnum::Msix);
-    REQUIRE(manifest.Installers[1].Arch == Architecture::X86);
-    REQUIRE(manifest.Installers[1].PackageFamilyName == "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe");
-    REQUIRE(manifest.Installers[1].ProductCode == "");
+    auto& installer = manifest.Installers[0];
+    REQUIRE(installer.BaseInstallerType == InstallerTypeEnum::Msix);
+    REQUIRE(installer.Arch == Architecture::X86);
+    REQUIRE(installer.PackageFamilyName == "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe");
+    REQUIRE(installer.ProductCode == "");
 
     // MSI installer does inherit
-    REQUIRE(manifest.Installers[2].BaseInstallerType == InstallerTypeEnum::Msi);
-    REQUIRE(manifest.Installers[2].Arch == Architecture::X86);
-    REQUIRE(manifest.Installers[2].PackageFamilyName == "");
-    REQUIRE(manifest.Installers[2].ProductCode == "{Foo}");
+    auto& installer1 = manifest.Installers[1];
+    REQUIRE(installer1.BaseInstallerType == InstallerTypeEnum::Msi);
+    REQUIRE(installer1.Arch == Architecture::X86);
+    REQUIRE(installer1.PackageFamilyName == "");
+    REQUIRE(installer1.ProductCode == "{Foo}");
 
     // MSIX installer with override
-    REQUIRE(manifest.Installers[3].BaseInstallerType == InstallerTypeEnum::Msix);
-    REQUIRE(manifest.Installers[3].Arch == Architecture::X64);
-    REQUIRE(manifest.Installers[3].PackageFamilyName == "Override_8wekyb3d8bbwe");
-    REQUIRE(manifest.Installers[3].ProductCode == "");
+    auto& installer2 = manifest.Installers[2];
+    REQUIRE(installer2.BaseInstallerType == InstallerTypeEnum::Msix);
+    REQUIRE(installer2.Arch == Architecture::X64);
+    REQUIRE(installer2.PackageFamilyName == "Override_8wekyb3d8bbwe");
+    REQUIRE(installer2.ProductCode == "");
 
     // MSI installer with override
-    REQUIRE(manifest.Installers[4].BaseInstallerType == InstallerTypeEnum::Msi);
-    REQUIRE(manifest.Installers[4].Arch == Architecture::X64);
-    REQUIRE(manifest.Installers[4].PackageFamilyName == "");
-    REQUIRE(manifest.Installers[4].ProductCode == "Override");
+    auto& installer3 = manifest.Installers[3];
+    REQUIRE(installer3.BaseInstallerType == InstallerTypeEnum::Msi);
+    REQUIRE(installer3.Arch == Architecture::X64);
+    REQUIRE(installer3.PackageFamilyName == "");
+    REQUIRE(installer3.ProductCode == "Override");
 }
 
 TEST_CASE("ManifestVersionExtensions", "[ManifestValidation]")
@@ -437,7 +436,7 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
     REQUIRE(manifest.DefaultInstallerInfo.Locale == "en-US");
     REQUIRE(manifest.DefaultInstallerInfo.Platform == std::vector<PlatformEnum>{ PlatformEnum::Desktop, PlatformEnum::Universal });
     REQUIRE(manifest.DefaultInstallerInfo.MinOSVersion == "10.0.0.0");
-    REQUIRE(manifest.DefaultInstallerInfo.BaseInstallerType == InstallerTypeEnum::Zip);
+    REQUIRE(manifest.DefaultInstallerInfo.BaseInstallerType == InstallerTypeEnum::Exe);
     REQUIRE(manifest.DefaultInstallerInfo.Scope == ScopeEnum::Machine);
     REQUIRE(manifest.DefaultInstallerInfo.InstallModes == std::vector<InstallModeEnum>{ InstallModeEnum::Interactive, InstallModeEnum::Silent, InstallModeEnum::SilentWithProgress });
 
@@ -662,6 +661,7 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
             REQUIRE(installer4.Arch == Architecture::X64);
             REQUIRE(installer4.Url == "https://www.microsoft.com/msixsdk/msixsdkx64.exe");
             REQUIRE(installer4.Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
+            REQUIRE(installer4.ProductCode == "{Foo}");
             REQUIRE(installer4.NestedInstallerType == InstallerTypeEnum::Portable);
             REQUIRE(installer4.NestedInstallerFiles.size() == 2);
             REQUIRE(installer4.NestedInstallerFiles.at(0).RelativeFilePath == "relativeFilePath1");
@@ -1161,4 +1161,33 @@ TEST_CASE("ManifestArpVersionRange", "[ManifestValidation]")
     auto arpRangeMultiArp = manifestMultiArp.GetArpVersionRange();
     REQUIRE(arpRangeMultiArp.GetMinVersion().ToString() == "12.0");
     REQUIRE(arpRangeMultiArp.GetMaxVersion().ToString() == "13.0");
+}
+
+TEST_CASE("YamlParserTypes", "[YAML]")
+{
+    auto document = AppInstaller::YAML::Load(TestDataFile("Node-Types.yaml"));
+
+    auto intUnquoted = document["IntegerUnquoted"];
+    CHECK(intUnquoted.GetTagType() == Node::TagType::Int);
+
+    auto intSingleQuoted = document["IntegerSingleQuoted"];
+    CHECK(intSingleQuoted.GetTagType() == Node::TagType::Str);
+
+    auto intDoubleQuoted = document["IntegerDoubleQuoted"];
+    CHECK(intDoubleQuoted.GetTagType() == Node::TagType::Str);
+
+    auto boolTrue = document["BooleanTrue"];
+    CHECK(boolTrue.GetTagType() == Node::TagType::Bool);
+
+    auto strTrue = document["StringTrue"];
+    CHECK(strTrue.GetTagType() == Node::TagType::Str);
+
+    auto boolFalse = document["BooleanFalse"];
+    CHECK(boolFalse.GetTagType() == Node::TagType::Bool);
+
+    auto strFalse = document["StringFalse"];
+    CHECK(strFalse.GetTagType() == Node::TagType::Str);
+
+    auto localTag = document["LocalTag"];
+    CHECK(localTag.GetTagType() == Node::TagType::Unknown);
 }

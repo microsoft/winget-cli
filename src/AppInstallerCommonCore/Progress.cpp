@@ -27,6 +27,15 @@ namespace AppInstaller
         }
     }
 
+    void ProgressCallback::SetProgressMessage(std::string_view message)
+    {
+        IProgressSink* sink = GetSink();
+        if (sink)
+        {
+            sink->SetProgressMessage(message);
+        }
+    }
+
     void ProgressCallback::EndProgress(bool hideProgressWhenDone)
     {
         IProgressSink* sink = GetSink();
@@ -83,6 +92,11 @@ namespace AppInstaller
         THROW_HR_IF(E_UNEXPECTED, ProgressType::Percent != type);
 
         m_baseCallback.OnProgress(m_rangeMin + (m_rangeMax - m_rangeMin) * current / maximum, m_globalMax, type);
+    }
+
+    void PartialPercentProgressCallback::SetProgressMessage(std::string_view message)
+    {
+        m_baseCallback.SetProgressMessage(message);
     }
 
     void PartialPercentProgressCallback::EndProgress(bool)

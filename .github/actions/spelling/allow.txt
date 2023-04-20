@@ -133,11 +133,13 @@ dll
 dllexport
 dllmain
 Dlls
+DMC
 docx
 dotnet
 downlevel
 downloader
 downloaders
+dsc
 dsx
 dword
 DWORDLONG
@@ -228,6 +230,7 @@ https
 HWND
 Hyperlink
 IAppx
+IConfiguration
 icu
 IDX
 IFACEMETHOD
@@ -235,6 +238,7 @@ ifdef
 ifndef
 ifspec
 ifstream
+IInspectable
 IIS
 impl
 inapplicabilities
@@ -274,6 +278,7 @@ LEN
 Linux
 LLVM
 llvmorg
+lnk
 LOCALAPPDATA
 localtime
 LOGONLYONERROR
@@ -443,6 +448,7 @@ REFCLSID
 REFCOUNT
 regex
 regexp
+remoting
 removefile
 removemanifest
 removepin

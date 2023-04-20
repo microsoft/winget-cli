@@ -15,6 +15,9 @@
     <Filter Include="Public\winget">
       <UniqueIdentifier>{41035fd6-dc74-4464-b9b1-4ffe95d6789c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Public\Telemetry - Do Not Modify">
+      <UniqueIdentifier>{3a5b2424-6c80-4edc-85bc-f371f2e93a33}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -56,6 +59,18 @@
     <ClInclude Include="Public\AppInstallerLanguageUtilities.h">
       <Filter>Public</Filter>
     </ClInclude>
+    <ClInclude Include="Public\AppInstallerVersions.h">
+      <Filter>Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\Telemetry\MicrosoftTelemetry.h">
+      <Filter>Public\Telemetry - Do Not Modify</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\Telemetry\WinEventLogLevels.h">
+      <Filter>Public\Telemetry - Do Not Modify</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\winget\Runtime.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -89,6 +104,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Resources.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Versions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Runtime.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

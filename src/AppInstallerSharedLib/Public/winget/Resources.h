@@ -27,11 +27,16 @@ namespace AppInstaller
             template<typename ...T>
             Utility::LocIndString operator()(T ... args) const;
 
+            // Creates a StringId that represents an empty resource string
+            static StringId Empty();
+
         private:
             // Resolve the string ID to its corresponding localized string
             // without replacing placeholders.
             std::string Resolve() const;
         };
+
+        inline StringId StringId::Empty() { return StringId{ {} }; }
 
         // Output resource identifier as localized string.
         std::ostream& operator<<(std::ostream& out, StringId si);

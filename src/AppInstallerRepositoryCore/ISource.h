@@ -42,7 +42,10 @@ namespace AppInstaller::Repository
         virtual SourceInformation GetInformation() { return {}; }
 
         // Set custom header. Returns false if custom header is not supported.
-        virtual bool SetCustomHeader(std::optional<std::string> header) { UNREFERENCED_PARAMETER(header); return false; }
+        virtual bool SetCustomHeader(std::optional<std::string>) { return false; }
+
+        // Set caller.
+        virtual void SetCaller(std::string) {}
 
         // Opens the source. This function should throw upon open failure rather than returning an empty pointer.
         virtual std::shared_ptr<ISource> Open(IProgressCallback& progress) = 0;

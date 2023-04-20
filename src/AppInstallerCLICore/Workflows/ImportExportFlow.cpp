@@ -7,6 +7,7 @@
 #include "PackageCollection.h"
 #include "WorkflowBase.h"
 #include <winget/RepositorySearch.h>
+#include <winget/Runtime.h>
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -65,13 +66,13 @@ namespace AppInstaller::CLI::Workflow
         {
             if (!checkVersion)
             {
-                return package->GetLatestAvailableVersion();
+                return package->GetLatestAvailableVersion(PinBehavior::IgnorePins);
             }
 
             auto availablePackageVersion = package->GetAvailableVersion({ "", version, channel });
             if (!availablePackageVersion)
             {
-                availablePackageVersion = package->GetLatestAvailableVersion();
+                availablePackageVersion = package->GetLatestAvailableVersion(PinBehavior::IgnorePins);
                 if (availablePackageVersion)
                 {
                     // Warn installed version is not available.
@@ -242,11 +243,10 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void SearchPackagesForImport(Execution::Context& context)
+    void GetSearchRequestsForImport(Execution::Context& context)
     {
         const auto& sources = context.Get<Execution::Data::Sources>();
-        std::vector<std::unique_ptr<Execution::Context>> packagesToInstall;
-        bool foundAll = true;
+        std::vector<std::unique_ptr<Execution::Context>> packageSubContexts;
 
         // Look for the packages needed from each source independently.
         // If a package is available from multiple sources, this ensures we will get it from the right one.
@@ -262,7 +262,7 @@ namespace AppInstaller::CLI::Workflow
             // Search for all the packages in the source.
             // Each search is done in a sub context to search everything regardless of previous failures.
             Repository::Source source{ context.Get<Execution::Data::Source>(), *sourceItr, CompositeSearchBehavior::AllPackages };
-            AICLI_LOG(CLI, Info, << "Searching for packages requested from source [" << requiredSource.Details.Identifier << "]");
+            AICLI_LOG(CLI, Info, << "Identifying packages requested from source [" << requiredSource.Details.Identifier << "]");
             for (const auto& packageRequest : requiredSource.Packages)
             {
                 AICLI_LOG(CLI, Info, << "Searching for package [" << packageRequest.Id << "]");
@@ -276,7 +276,7 @@ namespace AppInstaller::CLI::Workflow
                 auto previousThreadGlobals = searchContext.SetForCurrentThread();
 
                 searchContext.Add<Execution::Data::Source>(source);
-                searchContext.Add<Execution::Data::SearchResult>(source.Search(searchRequest));
+                searchContext.Add<Execution::Data::SearchRequest>(std::move(searchRequest));
 
                 if (packageRequest.Scope != Manifest::ScopeEnum::Unknown)
                 {
@@ -296,58 +296,11 @@ namespace AppInstaller::CLI::Workflow
                     searchContext.Args.AddArg(Execution::Args::Type::Channel, channelString);
                 }
 
-                // Find the single version we want is available
-                searchContext <<
-                    Workflow::SelectSinglePackageVersionForInstallOrUpgrade(false);
-
-                if (searchContext.IsTerminated())
-                {
-                    if (context.IsTerminated() && context.GetTerminationHR() == E_ABORT)
-                    {
-                        // This means that the subcontext being terminated is due to an overall abort
-                        context.Reporter.Info() << Resource::String::Cancelled << std::endl;
-                        return;
-                    }
-                    else
-                    {
-                        auto searchTerminationHR = searchContext.GetTerminationHR();
-                        if (searchTerminationHR == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE ||
-                            searchTerminationHR == APPINSTALLER_CLI_ERROR_PACKAGE_ALREADY_INSTALLED)
-                        {
-                            AICLI_LOG(CLI, Info, << "Package is already installed: [" << packageRequest.Id << "]");
-                            context.Reporter.Info() << Resource::String::ImportPackageAlreadyInstalled(packageRequest.Id) << std::endl;
-                            continue;
-                        }
-                        else
-                        {
-                            AICLI_LOG(CLI, Info, << "Package not found for import: [" << packageRequest.Id << "], Version " << packageRequest.VersionAndChannel.ToString());
-                            context.Reporter.Info() << Resource::String::ImportSearchFailed(packageRequest.Id) << std::endl;
-
-                            // Keep searching for the remaining packages and only fail at the end.
-                            foundAll = false;
-                            continue;
-                        }
-                    }
-                }
-
-                packagesToInstall.emplace_back(std::move(searchContextPtr));
+                packageSubContexts.emplace_back(std::move(searchContextPtr));
             }
         }
 
-        if (!foundAll)
-        {
-            AICLI_LOG(CLI, Info, << "Could not find one or more packages for import");
-            if (context.Args.Contains(Execution::Args::Type::IgnoreUnavailable))
-            {
-                AICLI_LOG(CLI, Info, << "Ignoring unavailable packages due to command line argument");
-            }
-            else
-            {
-                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NOT_ALL_PACKAGES_FOUND);
-            }
-        }
-
-        context.Add<Execution::Data::PackagesToInstall>(std::move(packagesToInstall));
+        context.Add<Execution::Data::PackageSubContexts>(std::move(packageSubContexts));
     }
 
     void InstallImportedPackages(Execution::Context& context)

@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Public/AppInstallerLogging.h"
-
+#include "Public/AppInstallerStrings.h"
 #include "Public/AppInstallerDateTime.h"
 #include "Public/winget/SharedThreadGlobals.h"
 
@@ -33,14 +33,15 @@ namespace AppInstaller::Logging
     {
         switch(channel)
         {
-        case Channel::Fail: return "FAIL";
-        case Channel::CLI:  return "CLI";
-        case Channel::SQL:  return "SQL";
-        case Channel::Repo: return "REPO";
-        case Channel::YAML: return "YAML";
-        case Channel::Core: return "CORE";
-        case Channel::Test: return "TEST";
-        default:            return "NONE";
+        case Channel::Fail:   return "FAIL";
+        case Channel::CLI:    return "CLI";
+        case Channel::SQL:    return "SQL";
+        case Channel::Repo:   return "REPO";
+        case Channel::YAML:   return "YAML";
+        case Channel::Core:   return "CORE";
+        case Channel::Test:   return "TEST";
+        case Channel::Config: return "CONF";
+        default:              return "NONE";
         }
     }
 
@@ -101,6 +102,11 @@ namespace AppInstaller::Logging
         m_enabledLevel = level;
     }
 
+    Level DiagnosticLogger::GetLevel() const
+    {
+        return m_enabledLevel;
+    }
+
     bool DiagnosticLogger::IsEnabled(Channel channel, Level level) const
     {
         return (!m_loggers.empty() &&
@@ -129,7 +135,7 @@ namespace AppInstaller::Logging
         {
             for (auto& logger : m_loggers)
             {
-                logger->WriteDirect(message);
+                logger->WriteDirect(channel, level, message);
             }
         }
     }
@@ -157,5 +163,21 @@ namespace AppInstaller::Logging
 std::ostream& operator<<(std::ostream& out, const std::chrono::system_clock::time_point& time)
 {
     AppInstaller::Utility::OutputTimePoint(out, time);
+    return out;
+}
+
+std::ostream& operator<<(std::ostream& out, const GUID& guid)
+{
+    wchar_t buffer[256];
+
+    if (StringFromGUID2(guid, buffer, ARRAYSIZE(buffer)))
+    {
+        out << AppInstaller::Utility::ConvertToUTF8(buffer);
+    }
+    else
+    {
+        out << "error";
+    }
+
     return out;
 }

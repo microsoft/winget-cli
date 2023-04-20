@@ -13,6 +13,24 @@ using namespace std::string_view_literals;
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
+    namespace
+    {
+        static std::optional<std::string> s_callerName;
+        static wil::srwlock s_callerNameLock;
+    }
+
+    void SetComCallerName(std::string name)
+    {
+        auto lock = s_callerNameLock.lock_exclusive();
+        s_callerName.emplace(std::move(name));
+    }
+
+    std::string GetComCallerName(std::string defaultNameIfNotSet)
+    {
+        auto lock = s_callerNameLock.lock_shared();
+        return s_callerName.has_value() ? s_callerName.value() : defaultNameIfNotSet;
+    }
+
     std::pair<HRESULT, DWORD> GetCallerProcessId()
     {
         RPC_STATUS rpcStatus = RPC_S_OK;

@@ -1,10 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "WorkflowBase.h"
-#include "ExecutionContext.h"
 #include "ManifestComparator.h"
+#include "WorkflowBase.h"
+#include <AppInstallerLogging.h>
 #include <winget/UserSettings.h>
+#include <winget/Runtime.h>
+#include <winget/Locale.h>
 
 using namespace AppInstaller::CLI;
 using namespace AppInstaller::Manifest;
@@ -364,7 +366,7 @@ namespace AppInstaller::CLI::Workflow
             static std::unique_ptr<ScopeComparator> Create(const Execution::Context& context)
             {
                 // Preference will always come from settings
-                Manifest::ScopeEnum preference = ConvertScope(Settings::User().Get<Settings::Setting::InstallScopePreference>());
+                Manifest::ScopeEnum preference = Settings::User().Get<Settings::Setting::InstallScopePreference>();
 
                 // Requirement may come from args or settings; args overrides settings.
                 Manifest::ScopeEnum requirement = Manifest::ScopeEnum::Unknown;
@@ -376,7 +378,7 @@ namespace AppInstaller::CLI::Workflow
                 }
                 else
                 {
-                    requirement = ConvertScope(Settings::User().Get<Settings::Setting::InstallScopeRequirement>());
+                    requirement = Settings::User().Get<Settings::Setting::InstallScopeRequirement>();
                 }
 
                 bool allowUnknownInAdditionToRequired = false;
@@ -434,18 +436,6 @@ namespace AppInstaller::CLI::Workflow
             }
 
         private:
-            static Manifest::ScopeEnum ConvertScope(Settings::ScopePreference scope)
-            {
-                switch (scope)
-                {
-                case Settings::ScopePreference::None: return Manifest::ScopeEnum::Unknown;
-                case Settings::ScopePreference::User: return Manifest::ScopeEnum::User;
-                case Settings::ScopePreference::Machine: return Manifest::ScopeEnum::Machine;
-                }
-
-                return Manifest::ScopeEnum::Unknown;
-            }
-
             Manifest::ScopeEnum m_preference;
             Manifest::ScopeEnum m_requirement;
             bool m_allowUnknownInAdditionToRequired;

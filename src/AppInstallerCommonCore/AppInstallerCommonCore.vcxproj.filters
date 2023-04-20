@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Telemetry - Do Not Modify">
-      <UniqueIdentifier>{552a58eb-8d07-41b2-87b5-3e71b9fb3cfd}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Public">
       <UniqueIdentifier>{5cdf3fa3-e657-4d84-81bb-f740aa476143}</UniqueIdentifier>
     </Filter>
@@ -28,19 +25,16 @@
     <Filter Include="Manifest">
       <UniqueIdentifier>{9b8e2682-3eb7-4530-bc9a-a57fafc44177}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Telemetry">
+      <UniqueIdentifier>{552a58eb-8d07-41b2-87b5-3e71b9fb3cfd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Telemetry\MicrosoftTelemetry.h">
-      <Filter>Telemetry - Do Not Modify</Filter>
-    </ClInclude>
     <ClInclude Include="Telemetry\TraceLogging.h">
-      <Filter>Telemetry - Do Not Modify</Filter>
-    </ClInclude>
-    <ClInclude Include="Telemetry\WinEventLogLevels.h">
-      <Filter>Telemetry - Do Not Modify</Filter>
+      <Filter>Telemetry</Filter>
     </ClInclude>
     <ClInclude Include="Public\AppInstallerTelemetry.h">
       <Filter>Public</Filter>
@@ -76,9 +70,6 @@
       <Filter>Public</Filter>
     </ClInclude>
     <ClInclude Include="Public\AppInstallerProgress.h">
-      <Filter>Public</Filter>
-    </ClInclude>
-    <ClInclude Include="Public\AppInstallerVersions.h">
       <Filter>Public</Filter>
     </ClInclude>
     <ClInclude Include="Public\winget\ExtensionCatalog.h">
@@ -192,13 +183,16 @@
     <ClInclude Include="Public\winget\Pin.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
+    <ClInclude Include="Public\winget\WindowsFeature.h">
+      <Filter>Public\winget</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Telemetry\TraceLogging.cpp">
-      <Filter>Telemetry - Do Not Modify</Filter>
+      <Filter>Telemetry</Filter>
     </ClCompile>
     <ClCompile Include="AppInstallerTelemetry.cpp">
       <Filter>Source Files</Filter>
@@ -231,9 +225,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Deployment.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Versions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ExtensionCatalog.cpp">
@@ -339,6 +330,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Pin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowsFeature.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

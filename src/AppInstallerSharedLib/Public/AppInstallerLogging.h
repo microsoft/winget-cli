@@ -53,6 +53,7 @@ namespace AppInstaller::Logging
         YAML,
         Core,
         Test,
+        Config,
         All,
     };
 
@@ -84,7 +85,7 @@ namespace AppInstaller::Logging
         virtual void Write(Channel channel, Level level, std::string_view message) noexcept = 0;
 
         // Informs the logger of the given log with the intention that no buffering occurs (in winget code).
-        virtual void WriteDirect(std::string_view message) noexcept = 0;
+        virtual void WriteDirect(Channel channel, Level level, std::string_view message) noexcept = 0;
     };
 
     // This type contains the set of loggers that diagnostic logging will be sent to.
@@ -133,6 +134,9 @@ namespace AppInstaller::Logging
         // All levels higher than this level will be enabled.
         // For example; SetLevel(Verbose) will enable all logs.
         void SetLevel(Level level);
+
+        // Gets the enabled level.
+        Level GetLevel() const;
 
         // Checks whether a given channel and level are enabled.
         bool IsEnabled(Channel channel, Level level) const;
@@ -183,5 +187,5 @@ namespace AppInstaller::Logging
     };
 }
 
-// Enable output of system_clock time_points.
 std::ostream& operator<<(std::ostream& out, const std::chrono::system_clock::time_point& time);
+std::ostream& operator<<(std::ostream& out, const GUID& time);

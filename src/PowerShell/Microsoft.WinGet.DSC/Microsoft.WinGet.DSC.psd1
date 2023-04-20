@@ -82,9 +82,10 @@
     
     # DSC resources to export from this module
     DscResourcesToExport = @(
-        'WinGetUserSettingsResource'
+        'WinGetUserSettings'
         'WinGetAdminSettings'
-        'WinGetSourcesResource'
+        'WinGetSources'
+        'WinGetPackageManager'
         'WinGetPackage'
     )
     

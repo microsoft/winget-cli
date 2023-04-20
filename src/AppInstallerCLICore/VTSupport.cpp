@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "VTSupport.h"
+#include <AppInstallerLogging.h>
 
 
 namespace AppInstaller::CLI::VirtualTerminal

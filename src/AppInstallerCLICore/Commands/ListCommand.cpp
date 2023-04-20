@@ -8,6 +8,7 @@
 
 namespace AppInstaller::CLI
 {
+    using namespace AppInstaller::CLI::Workflow;
     using namespace std::string_view_literals;
 
     std::vector<Argument> ListCommand::GetArguments() const
@@ -22,7 +23,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Execution::Args::Type::Command),
             Argument::ForType(Execution::Args::Type::Count),
             Argument::ForType(Execution::Args::Type::Exact),
-            Argument{ s_ArgumentName_Scope, Argument::NoAlias, Execution::Args::Type::InstallScope, Resource::String::InstalledScopeArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help },
+            Argument{ Execution::Args::Type::InstallScope, Resource::String::InstalledScopeArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help },
             Argument::ForType(Execution::Args::Type::CustomHeader),
             Argument::ForType(Execution::Args::Type::AcceptSourceAgreements),
         };
@@ -78,7 +79,7 @@ namespace AppInstaller::CLI
             Workflow::OpenCompositeSource(Workflow::DetermineInstalledSource(context)) <<
             Workflow::SearchSourceForMany <<
             Workflow::HandleSearchResultFailures <<
-            Workflow::EnsureMatchesFromSearchResult(true) <<
+            Workflow::EnsureMatchesFromSearchResult(OperationType::List) <<
             Workflow::ReportListResult();
     }
 }

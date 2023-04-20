@@ -74,13 +74,37 @@ namespace AppInstaller::Repository::Microsoft
                 THROW_HR_IF(E_NOT_SET, !relativePathOpt);
 
                 std::optional<std::string> manifestHashString = source->GetIndex().GetPropertyByManifestId(m_manifestId, PackageVersionProperty::ManifestSHA256Hash);
+                THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE, source->RequireManifestHash() && !manifestHashString);
+
                 SHA256::HashBuffer manifestSHA256;
                 if (manifestHashString)
                 {
                     manifestSHA256 = SHA256::ConvertToBytes(manifestHashString.value());
                 }
 
-                return GetManifestFromArgAndRelativePath(source->GetDetails().Arg, relativePathOpt.value(), manifestSHA256);
+                // Try the primary location 
+                HRESULT primaryHR = S_OK;
+                try
+                {
+                    return GetManifestFromArgAndRelativePath(source->GetDetails().Arg, relativePathOpt.value(), manifestSHA256);
+                }
+                catch (...)
+                {
+                    if (source->GetDetails().AlternateArg.empty())
+                    {
+                        throw;
+                    }
+                    primaryHR = LOG_CAUGHT_EXCEPTION_MSG("GetManifest failed on primary location");
+                }
+
+                // Try alternate location
+                try
+                {
+                    return GetManifestFromArgAndRelativePath(source->GetDetails().AlternateArg, relativePathOpt.value(), manifestSHA256);
+                }
+                CATCH_LOG_MSG("GetManifest failed on alternate location");
+
+                THROW_HR(primaryHR);
             }
 
             Source GetSource() const override
@@ -252,7 +276,7 @@ namespace AppInstaller::Repository::Microsoft
                 return result;
             }
 
-            std::shared_ptr<IPackageVersion> GetLatestAvailableVersion() const override
+            std::shared_ptr<IPackageVersion> GetLatestAvailableVersion(PinBehavior) const override
             {
                 return GetLatestVersionInternal();
             }
@@ -277,7 +301,7 @@ namespace AppInstaller::Repository::Microsoft
                 return {};
             }
 
-            bool IsUpdateAvailable() const override
+            bool IsUpdateAvailable(PinBehavior) const override
             {
                 return false;
             }
@@ -316,7 +340,7 @@ namespace AppInstaller::Repository::Microsoft
                 return {};
             }
 
-            std::shared_ptr<IPackageVersion> GetLatestAvailableVersion() const override
+            std::shared_ptr<IPackageVersion> GetLatestAvailableVersion(PinBehavior) const override
             {
                 return {};
             }
@@ -326,7 +350,7 @@ namespace AppInstaller::Repository::Microsoft
                 return {};
             }
 
-            bool IsUpdateAvailable() const override
+            bool IsUpdateAvailable(PinBehavior) const override
             {
                 return false;
             }
@@ -345,8 +369,13 @@ namespace AppInstaller::Repository::Microsoft
         };
     }
 
-    SQLiteIndexSource::SQLiteIndexSource(const SourceDetails& details, SQLiteIndex&& index, Synchronization::CrossProcessReaderWriteLock&& lock, bool isInstalledSource) :
-        m_details(details), m_lock(std::move(lock)), m_isInstalled(isInstalledSource), m_index(std::move(index))
+    SQLiteIndexSource::SQLiteIndexSource(
+        const SourceDetails& details,
+        SQLiteIndex&& index,
+        Synchronization::CrossProcessReaderWriteLock&& lock,
+        bool isInstalledSource,
+        bool requireManifestHash) :
+        m_details(details), m_lock(std::move(lock)), m_isInstalled(isInstalledSource), m_index(std::move(index)), m_requireManifestHash(requireManifestHash)
     {
     }
 

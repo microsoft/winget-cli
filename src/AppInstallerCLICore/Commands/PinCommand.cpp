@@ -10,6 +10,7 @@
 namespace AppInstaller::CLI
 {
     using namespace AppInstaller::CLI::Execution;
+    using namespace AppInstaller::CLI::Workflow;
     using namespace AppInstaller::Utility::literals;
     using namespace std::string_view_literals;
 
@@ -55,12 +56,12 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Tag),
             Argument::ForType(Args::Type::Command),
             Argument::ForType(Args::Type::Exact),
-            Argument{ "version"_liv, 'v', Args::Type::GatedVersion, Resource::String::GatedVersionArgumentDescription, ArgumentType::Standard },
+            Argument{ Args::Type::GatedVersion, Resource::String::GatedVersionArgumentDescription, ArgumentType::Standard },
             Argument::ForType(Args::Type::Source),
             Argument::ForType(Args::Type::CustomHeader),
             Argument::ForType(Args::Type::AcceptSourceAgreements),
             Argument::ForType(Args::Type::Force),
-            Argument{ "blocking"_liv, Argument::NoAlias, Args::Type::BlockingPin, Resource::String::PinAddBlockingArgumentDescription, ArgumentType::Flag },
+            Argument{ Args::Type::BlockingPin, Resource::String::PinAddBlockingArgumentDescription, ArgumentType::Flag },
         };
     }
 
@@ -107,11 +108,7 @@ namespace AppInstaller::CLI
 
     void PinAddCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
     {
-        if (execArgs.Contains(Execution::Args::Type::GatedVersion) && execArgs.Contains(Execution::Args::Type::BlockingPin))
-        {
-            throw CommandException(Resource::String::BothGatedVersionAndBlockingFlagProvided);
-        }
-
+        Argument::ValidateCommonArguments(execArgs);
     }
 
     void PinAddCommand::ExecuteInternal(Execution::Context& context) const
@@ -121,7 +118,7 @@ namespace AppInstaller::CLI
             Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
             Workflow::SearchSourceForSingle <<
             Workflow::HandleSearchResultFailures <<
-            Workflow::EnsureOneMatchFromSearchResult(false) <<
+            Workflow::EnsureOneMatchFromSearchResult(OperationType::Pin) <<
             Workflow::GetInstalledPackageVersion <<
             Workflow::ReportPackageIdentity <<
             Workflow::OpenPinningIndex() <<
@@ -193,7 +190,7 @@ namespace AppInstaller::CLI
             Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
             Workflow::SearchSourceForSingle <<
             Workflow::HandleSearchResultFailures <<
-            Workflow::EnsureOneMatchFromSearchResult(false) <<
+            Workflow::EnsureOneMatchFromSearchResult(OperationType::Pin) <<
             Workflow::GetInstalledPackageVersion <<
             Workflow::ReportPackageIdentity <<
             Workflow::OpenPinningIndex() <<

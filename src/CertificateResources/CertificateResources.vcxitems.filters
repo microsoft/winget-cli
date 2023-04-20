@@ -15,6 +15,15 @@
     <None Include="$(MSBuildThisFileDirectory)StoreLeaf1.cer">
       <Filter>Certificates</Filter>
     </None>
+    <None Include="$(MSBuildThisFileDirectory)StoreRoot2.cer">
+      <Filter>Certificates</Filter>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)StoreIntermediate2.cer">
+      <Filter>Certificates</Filter>
+    </None>
+    <None Include="$(MSBuildThisFileDirectory)StoreLeaf2.cer">
+      <Filter>Certificates</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="$(MSBuildThisFileDirectory)resource.h" />

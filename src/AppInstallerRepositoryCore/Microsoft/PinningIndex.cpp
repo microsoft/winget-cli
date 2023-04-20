@@ -26,9 +26,25 @@ namespace AppInstaller::Repository::Microsoft
         return result;
     }
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    std::optional<std::filesystem::path> s_PinningIndexOverride{};
+    void TestHook_SetPinningIndex_Override(std::optional<std::filesystem::path>&& indexPath)
+    {
+        s_PinningIndexOverride = std::move(indexPath);
+    }
+#endif
+
     std::shared_ptr<PinningIndex> PinningIndex::OpenOrCreateDefault(OpenDisposition openDisposition)
     {
-        auto indexPath = Runtime::GetPathTo(Runtime::PathName::LocalState) / "pinning.db";
+        const auto DefaultIndexPath = Runtime::GetPathTo(Runtime::PathName::LocalState) / "pinning.db";
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        const auto indexPath = s_PinningIndexOverride.has_value() ? s_PinningIndexOverride.value() : DefaultIndexPath;
+#else
+        const auto indexPath = DefaultIndexPath;
+#endif
+
+        AICLI_LOG(Repo, Info, << "Opening pinning index");
+
 
         try
         {
@@ -87,6 +103,19 @@ namespace AppInstaller::Repository::Microsoft
         }
 
         return result;
+    }
+
+    void PinningIndex::AddOrUpdatePin(const Pinning::Pin& pin)
+    {
+        auto existingPin = GetPin(pin.GetKey());
+        if (existingPin.has_value())
+        {
+            UpdatePin(pin);
+        }
+        else
+        {
+            AddPin(pin);
+        }
     }
 
     void PinningIndex::RemovePin(const Pinning::PinKey& pinKey)

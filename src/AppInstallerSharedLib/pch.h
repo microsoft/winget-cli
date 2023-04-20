@@ -4,6 +4,7 @@
 
 #define NOMINMAX
 #include <Windows.h>
+#include <appmodel.h>
 #include <icu.h>
 
 #define YAML_DECLARE_STATIC
@@ -55,4 +56,6 @@
 
 #include <winrt/Windows.ApplicationModel.Resources.h>
 #include <winrt/Windows.Foundation.h>
+#include <winrt/Windows.Globalization.h>
+#include <winrt/Windows.System.Profile.h>
 #endif

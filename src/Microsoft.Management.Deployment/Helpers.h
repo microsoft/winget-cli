@@ -7,6 +7,9 @@
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
+    void SetComCallerName(std::string name);
+    std::string GetComCallerName(std::string defaultNameIfNotSet);
+
     // Enable custom code to run before creating any object through the factory.
     // Currently that means requiring the overall WinGet policy to be enabled.
     template <typename TCppWinRTClass>

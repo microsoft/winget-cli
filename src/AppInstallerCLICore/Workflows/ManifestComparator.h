@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include "ExecutionContext.h"
 #include "ExecutionArgs.h"
 #include <winget/Manifest.h>
 #include <winget/RepositorySearch.h>

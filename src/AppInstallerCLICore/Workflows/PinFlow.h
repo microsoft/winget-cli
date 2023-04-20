@@ -29,7 +29,7 @@ namespace AppInstaller::CLI::Workflow
     // There may be several if a package is available from multiple sources.
     // Required Args: None
     // Inputs: PinningIndex, Package
-    // Outputs Pins
+    // Outputs: Pins
     void SearchPin(Execution::Context& context);
 
     // Adds a pin for the current package.
@@ -57,7 +57,7 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void ResetAllPins(Execution::Context& context);
 
-    // Updates the list of pins to include only those matching the current open source
+    // Updates the list of pins to include only those matching the current open source.
     // Required Args: None
     // Inputs: Pins, Source
     // Outputs: None

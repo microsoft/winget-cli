@@ -15,6 +15,15 @@ namespace AppInstallerCLIE2ETests
     public class InstallCommand : BaseCommand
     {
         /// <summary>
+        /// One time setup.
+        /// </summary>
+        [OneTimeSetUp]
+        public void OneTimeSetup()
+        {
+            WinGetSettingsHelper.ConfigureFeature("windowsFeature", true);
+        }
+
+        /// <summary>
         /// Set up.
         /// </summary>
         [SetUp]
@@ -439,6 +448,50 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
+        /// Test install portable package with settings set to user install scope.
+        /// </summary>
+        [Test]
+        public void InstallPortable_InstallScopePreference_User()
+        {
+            string installDir = TestCommon.GetRandomTestDir();
+            WinGetSettingsHelper.ConfigureInstallBehavior(Constants.PortablePackageUserRoot, installDir);
+            WinGetSettingsHelper.ConfigureInstallBehaviorPreferences(Constants.InstallBehaviorScope, "user");
+
+            string packageId, commandAlias, fileName, packageDirName, productCode;
+            packageId = "AppInstallerTest.TestPortableExe";
+            packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
+            commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
+
+            var result = TestCommon.RunAICLICommand("install", $"{packageId}");
+            WinGetSettingsHelper.ConfigureInstallBehavior(Constants.PortablePackageUserRoot, string.Empty);
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully installed"));
+            TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
+        }
+
+        /// <summary>
+        /// Test install portable package with settings set to machine install scope.
+        /// </summary>
+        [Test]
+        public void InstallPortable_InstallScopePreference_Machine()
+        {
+            string installDir = TestCommon.GetRandomTestDir();
+            WinGetSettingsHelper.ConfigureInstallBehavior(Constants.PortablePackageMachineRoot, installDir);
+            WinGetSettingsHelper.ConfigureInstallBehaviorPreferences(Constants.InstallBehaviorScope, "machine");
+
+            string packageId, commandAlias, fileName, packageDirName, productCode;
+            packageId = "AppInstallerTest.TestPortableExe";
+            packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
+            commandAlias = fileName = "AppInstallerTestExeInstaller.exe";
+
+            var result = TestCommon.RunAICLICommand("install", $"{packageId}");
+            WinGetSettingsHelper.ConfigureInstallBehavior(Constants.PortablePackageMachineRoot, string.Empty);
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Successfully installed"));
+            TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true, TestCommon.Scope.Machine);
+        }
+
+        /// <summary>
         /// Test install zip exe.
         /// </summary>
         [Test]
@@ -544,7 +597,7 @@ namespace AppInstallerCLIE2ETests
             var upgradeResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.TestExeInstaller --silent -l {upgradeDir}");
             Assert.AreEqual(Constants.ErrorCode.ERROR_UPDATE_NOT_APPLICABLE, upgradeResult.ExitCode);
             Assert.True(upgradeResult.StdOut.Contains("Trying to upgrade the installed package..."));
-            Assert.True(upgradeResult.StdOut.Contains("No applicable upgrade"));
+            Assert.True(upgradeResult.StdOut.Contains("No available upgrade"));
 
             Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(baseDir));
         }
@@ -568,6 +621,31 @@ namespace AppInstallerCLIE2ETests
 
             Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(baseDir));
             Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(installDir, "/execustom"));
+        }
+
+        /// <summary>
+        /// Test install a package with an invalid Windows Feature dependency.
+        /// </summary>
+        [Test]
+        public void InstallWithWindowsFeatureDependency_FeatureNotFound()
+        {
+            var testDir = TestCommon.GetRandomTestDir();
+            var installResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.WindowsFeature -l {testDir}");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_INSTALL_MISSING_DEPENDENCY, installResult.ExitCode);
+            Assert.True(installResult.StdOut.Contains("The feature [invalidFeature] was not found."));
+        }
+
+        /// <summary>
+        /// Test install a package with a Windows Feature dependency using the force argument.
+        /// </summary>
+        [Test]
+        public void InstallWithWindowsFeatureDependency_Force()
+        {
+            var testDir = TestCommon.GetRandomTestDir();
+            var installResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.WindowsFeature --silent --force -l {testDir}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, installResult.ExitCode);
+            Assert.True(installResult.StdOut.Contains("Successfully installed"));
+            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(testDir));
         }
     }
 }

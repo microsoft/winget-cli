@@ -82,11 +82,11 @@ namespace AppInstallerCLIE2ETests
             {
                 if (TestCommon.LooseFileRegistration)
                 {
-                    Assert.True(TestCommon.InstallMsixRegister(TestCommon.AICLIPackagePath), "InstallMsixRegister");
+                    Assert.True(TestCommon.InstallMsixRegister(TestCommon.AICLIPackagePath), $"InstallMsixRegister : {TestCommon.AICLIPackagePath}");
                 }
                 else
                 {
-                    Assert.True(TestCommon.InstallMsix(TestCommon.AICLIPackagePath), "InstallMsix");
+                    Assert.True(TestCommon.InstallMsix(TestCommon.AICLIPackagePath), $"InstallMsix : {TestCommon.AICLIPackagePath}");
                 }
             }
 

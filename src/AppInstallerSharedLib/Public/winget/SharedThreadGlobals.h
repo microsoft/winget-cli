@@ -3,11 +3,6 @@
 #pragma once
 #include <AppInstallerLogging.h>
 
-namespace AppInstaller::Logging
-{
-    struct TelemetryTraceLogger;
-}
-
 namespace AppInstaller::ThreadLocalStorage
 {
     struct PreviousThreadGlobals;
@@ -20,7 +15,7 @@ namespace AppInstaller::ThreadLocalStorage
 
         virtual AppInstaller::Logging::DiagnosticLogger& GetDiagnosticLogger() = 0;
 
-        virtual AppInstaller::Logging::TelemetryTraceLogger& GetTelemetryLogger() = 0;
+        virtual void* GetTelemetryObject() = 0;
 
         // Set Globals for Current Thread
         // Return RAII object with it's ownership to set the AppInstaller ThreadLocalStorage back to previous state
@@ -30,7 +25,7 @@ namespace AppInstaller::ThreadLocalStorage
         static ThreadGlobals* GetForCurrentThread();
     };
 
-    // RAII object used to 
+    // RAII object used to enable reverting back to the previous thread globals object.
     struct PreviousThreadGlobals
     {
         ~PreviousThreadGlobals();

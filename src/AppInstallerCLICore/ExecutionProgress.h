@@ -11,6 +11,7 @@
 #include <atomic>
 #include <future>
 #include <istream>
+#include <memory>
 #include <ostream>
 #include <string>
 #include <vector>
@@ -27,6 +28,9 @@ namespace AppInstaller::CLI::Execution
 
             void SetStyle(AppInstaller::Settings::VisualStyle style) { m_style = style; }
 
+            void SetMessage(std::string_view message);
+            std::shared_ptr<std::string> GetMessage();
+
         protected:
             BaseStream& m_out;
             Settings::VisualStyle m_style = AppInstaller::Settings::VisualStyle::Accent;
@@ -36,8 +40,11 @@ namespace AppInstaller::CLI::Execution
             // Applies the selected visual style.
             void ApplyStyle(size_t i, size_t max, bool foregroundOnly);
 
+            void ClearLine();
+
         private:
             bool m_enableVT = false;
+            std::shared_ptr<std::string> m_message;
         };
     }
 
@@ -70,13 +77,9 @@ namespace AppInstaller::CLI::Execution
 
         void EndProgress(bool hideProgressWhenDone);
 
-        void SetStyle(AppInstaller::Settings::VisualStyle style) { m_style = style; }
-
     private:
         std::atomic<bool> m_isVisible = false;
         uint64_t m_lastCurrent = 0;
-
-        void ClearLine();
 
         void ShowProgressNoVT(uint64_t current, uint64_t maximum, ProgressType type);
 

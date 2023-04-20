@@ -299,7 +299,6 @@
     <ClInclude Include="Public\AppInstallerSynchronization.h" />
     <ClInclude Include="Public\AppInstallerTelemetry.h" />
     <ClInclude Include="Public\AppInstallerArchitecture.h" />
-    <ClInclude Include="Public\AppInstallerVersions.h" />
     <ClInclude Include="Public\winget\Archive.h" />
     <ClInclude Include="Public\winget\ExperimentalFeature.h" />
     <ClInclude Include="Public\winget\ExtensionCatalog.h" />
@@ -329,9 +328,8 @@
     <ClInclude Include="Public\winget\ThreadGlobals.h" />
     <ClInclude Include="Public\winget\TraceLogger.h" />
     <ClInclude Include="Public\winget\UserSettings.h" />
-    <ClInclude Include="Telemetry\MicrosoftTelemetry.h" />
+    <ClInclude Include="Public\winget\WindowsFeature.h" />
     <ClInclude Include="Telemetry\TraceLogging.h" />
-    <ClInclude Include="Telemetry\WinEventLogLevels.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AdminSettings.cpp" />
@@ -398,7 +396,7 @@
     <ClCompile Include="ThreadGlobals.cpp" />
     <ClCompile Include="TraceLogger.cpp" />
     <ClCompile Include="UserSettings.cpp" />
-    <ClCompile Include="Versions.cpp" />
+    <ClCompile Include="WindowsFeature.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

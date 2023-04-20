@@ -80,6 +80,7 @@
 ^src/catch2/
 ^src/cpprestsdk/
 ^src/JsonCppLib/
+^src/PowerShell/ExternalModules
 ^src/PureLib/
 ^src/UndockedRegFreeWinRT/
 ^src/Valijson/

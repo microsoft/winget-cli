@@ -38,18 +38,6 @@ using namespace ::AppInstaller::CLI::Execution;
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
-    namespace
-    {
-        static std::optional<std::string> s_callerName;
-        static wil::srwlock s_callerNameLock;
-    }
-
-    void SetComCallerName(std::string name)
-    {
-        auto lock = s_callerNameLock.lock_exclusive();
-        s_callerName.emplace(std::move(name));
-    }
-
     winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::PackageCatalogReference> PackageManager::GetPackageCatalogs()
     {
         Windows::Foundation::Collections::IVector<Microsoft::Management::Deployment::PackageCatalogReference> catalogs{ winrt::single_threaded_vector<Microsoft::Management::Deployment::PackageCatalogReference>() };
@@ -349,6 +337,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             {
                 context->Args.AddArg(Execution::Args::Type::HashOverride);
             }
+
+            if (options.BypassIsStoreClientBlockedPolicyCheck())
+            {
+                context->SetFlags(Execution::ContextFlag::BypassIsStoreClientBlockedPolicyCheck);
+            }
+
             if (options.Force())
             {
                 context->Args.AddArg(Execution::Args::Type::Force);
@@ -401,6 +395,16 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             }
 
             // Note: AdditionalPackageCatalogArguments is not needed during install since the manifest is already known so no additional calls to the source are needed. The property is deprecated.
+
+            if (options.AcceptPackageAgreements())
+            {
+                context->Args.AddArg(Execution::Args::Type::AcceptPackageAgreements);
+            }
+        }
+        else
+        {
+            // Note: If no install options are specified, we assume the caller is accepting the package agreements by default.
+            context->Args.AddArg(Execution::Args::Type::AcceptPackageAgreements);
         }
     }
 
@@ -444,12 +448,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         std::unique_ptr<COMContext> context = std::make_unique<COMContext>();
         hstring correlationData = (options) ? options.CorrelationData() : L"";
-        std::string callerName;
-        {
-            auto lock = s_callerNameLock.lock_shared();
-            callerName = s_callerName.has_value() ? s_callerName.value() : AppInstaller::Utility::ConvertToUTF8(callerProcessInfoString);
-        }
-        context->SetContextLoggers(correlationData, callerName);
+
+        context->SetContextLoggers(correlationData, GetComCallerName(AppInstaller::Utility::ConvertToUTF8(callerProcessInfoString)));
 
         // Convert the options to arguments for the installer.
         if constexpr (std::is_same_v<TOptions, winrt::Microsoft::Management::Deployment::InstallOptions>)
@@ -562,6 +562,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         // Add installed version
         AddInstalledVersionToContext(package.InstalledVersion(), comContext.get());
+
         // Add Package which is used by RecordUninstall later for removing from tracking catalog of correlated available sources as best effort
         winrt::Microsoft::Management::Deployment::implementation::CatalogPackage* catalogPackageImpl = get_self<winrt::Microsoft::Management::Deployment::implementation::CatalogPackage>(package);
         std::shared_ptr<::AppInstaller::Repository::IPackage> internalPackage = catalogPackageImpl->GetRepositoryPackage();

@@ -151,6 +151,28 @@ namespace AppInstaller::CLI::Execution
                 LOG_HR(E_UNEXPECTED);
             }
         }
+
+        void ProgressVisualizerBase::ClearLine()
+        {
+            if (UseVT())
+            {
+                m_out << TextModification::EraseLineEntirely << '\r';
+            }
+            else
+            {
+                m_out << '\r' << std::string(GetConsoleWidth(), ' ') << '\r';
+            }
+        }
+
+        void ProgressVisualizerBase::SetMessage(std::string_view message)
+        {
+            std::atomic_store(&m_message, std::make_shared<std::string>(message));
+        }
+
+        std::shared_ptr<std::string> ProgressVisualizerBase::GetMessage()
+        {
+            return std::atomic_load(&m_message);
+        }
     }
 
     void IndefiniteSpinner::ShowSpinner()
@@ -188,17 +210,20 @@ namespace AppInstaller::CLI::Execution
             }
 
             // Indent two spaces for the spinner, but three here so that we can overwrite it in the loop.
-            m_out << "   ";
+            std::string_view indent = "   ";
 
             for (size_t i = 0; !m_canceled; ++i)
             {
                 constexpr size_t repetitionCount = 20;
                 ApplyStyle(i % repetitionCount, repetitionCount, true);
-                m_out << '\b' << spinnerChars[i % ARRAYSIZE(spinnerChars)] << std::flush;
+                m_out << '\r' << indent << spinnerChars[i % ARRAYSIZE(spinnerChars)];
+                m_out.RestoreDefault();
+                std::shared_ptr<std::string> message = this->GetMessage();
+                m_out << ' ' << (message ? *message : std::string{}) << std::flush;
                 Sleep(250);
             }
 
-            m_out << "\b \r";
+            ClearLine();
 
             if (UseVT())
             {
@@ -217,6 +242,7 @@ namespace AppInstaller::CLI::Execution
             ClearLine();
         }
 
+        // TODO: Progress bar does not currently use message
         if (UseVT())
         {
             ShowProgressWithVT(current, maximum, type);
@@ -252,19 +278,6 @@ namespace AppInstaller::CLI::Execution
             }
 
             m_isVisible = false;
-        }
-    }
-
-    void ProgressBar::ClearLine()
-    {
-        if (UseVT())
-        {
-            m_out << TextModification::EraseLineEntirely << '\r';
-        }
-        else
-        {
-            // Best effort when no VT (arbitrary number of spaces that seems to work)
-            m_out << "\r                                                              \r";
         }
     }
 

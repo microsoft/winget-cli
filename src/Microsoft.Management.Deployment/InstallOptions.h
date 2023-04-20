@@ -23,6 +23,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         void LogOutputPath(hstring const& value);
         bool AllowHashMismatch();
         void AllowHashMismatch(bool value);
+        bool BypassIsStoreClientBlockedPolicyCheck();
+        void BypassIsStoreClientBlockedPolicyCheck(bool value);
         hstring ReplacementInstallerArguments();
         void ReplacementInstallerArguments(hstring const& value);
         hstring AdditionalInstallerArguments();
@@ -36,6 +38,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         void AllowUpgradeToUnknownVersion(bool value);
         bool Force();
         void Force(bool value);
+        bool AcceptPackageAgreements();
+        void AcceptPackageAgreements(bool value);
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
@@ -45,6 +49,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         winrt::Microsoft::Management::Deployment::PackageInstallMode m_packageInstallMode = winrt::Microsoft::Management::Deployment::PackageInstallMode::Default;
         std::wstring m_logOutputPath = L"";
         bool m_allowHashMismatch = false;
+        bool m_bypassIsStoreClientBlockedPolicyCheck = false;
         std::wstring m_replacementInstallerArguments = L"";
         std::wstring m_additionalInstallerArguments = L"";
         std::wstring m_correlationData = L"";
@@ -53,6 +58,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             winrt::single_threaded_vector<winrt::Windows::System::ProcessorArchitecture>() };
         bool m_allowUpgradeToUnknownVersion = false;
         bool m_force = false;
+        bool m_acceptPackageAgreements = true;
 #endif
     };
 }

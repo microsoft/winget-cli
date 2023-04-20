@@ -41,6 +41,11 @@ namespace AppInstaller::CLI::Execution
         FireCallbacks(ReportType::Progressing, current, maximum, progressType, m_executionStage);
     }
 
+    void COMContext::SetProgressMessage(std::string_view)
+    {
+        // TODO: Consider sending message to COM progress
+    }
+
     void COMContext::EndProgress(bool)
     {
         FireCallbacks(ReportType::EndProgress, 0, 0, ProgressType::None, m_executionStage);

@@ -802,6 +802,8 @@ namespace Microsoft.Management.Deployment
         String LogOutputPath;
         /// Continues the install even if the hash in the catalog does not match the linked installer.
         Boolean AllowHashMismatch;
+        /// Allows Store installs when Store Client is disabled.
+        Boolean BypassIsStoreClientBlockedPolicyCheck;
         /// A string that will be passed to the installer. 
         /// IMPLEMENTATION NOTE: maps to "--override" in the winget cmd line
         String ReplacementInstallerArguments;
