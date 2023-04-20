@@ -22,6 +22,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // Retrieve the configuration units from the parser.
         std::vector<Configuration::ConfigurationUnit> GetConfigurationUnits() override;
 
+        // Retrieves the schema version of the parser.
+        hstring GetSchemaVersion() override;
+
     protected:
         void ParseConfigurationUnitsFromSubsection(const AppInstaller::YAML::Node& document, std::string_view subsection, ConfigurationUnitIntent intent, std::vector<Configuration::ConfigurationUnit>& result);
         void GetStringValueForUnit(const AppInstaller::YAML::Node& item, std::string_view valueName, bool required, ConfigurationUnit* unit, void(ConfigurationUnit::* propertyFunction)(const hstring& value));

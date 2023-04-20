@@ -91,6 +91,21 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return std::make_unique<ConfigurationSetParserError>(WINGET_CONFIG_ERROR_UNKNOWN_CONFIGURATION_FILE_VERSION, versionNode.as<std::string>());
     }
 
+    bool ConfigurationSetParser::IsRecognizedSchemaVersion(hstring value) try
+    {
+        using namespace AppInstaller::Utility;
+
+        SemanticVersion schemaVersion(ConvertToUTF8(value));
+
+        return (schemaVersion == SemanticVersion{ "0.1" });
+    }
+    catch (...) { LOG_CAUGHT_EXCEPTION(); return false; }
+
+    hstring ConfigurationSetParser::LatestVersion()
+    {
+        return hstring{ L"0.1" };
+    }
+
     void ConfigurationSetParser::SetError(hresult result, std::string_view field)
     {
         AICLI_LOG(Config, Error, << "ConfigurationSetParser error: " << AppInstaller::Logging::SetHRFormat << result << " [" << field << "]");

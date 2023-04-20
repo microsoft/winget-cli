@@ -114,6 +114,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return result;
     }
 
+    hstring ConfigurationSetParser_0_1::GetSchemaVersion()
+    {
+        static hstring s_schemaVersion{ L"0.1" };
+        return s_schemaVersion;
+    }
+
     void ConfigurationSetParser_0_1::ParseConfigurationUnitsFromSubsection(const Node& document, std::string_view subsection, ConfigurationUnitIntent intent, std::vector<Configuration::ConfigurationUnit>& result)
     {
         if (FAILED(m_result))
@@ -144,6 +150,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             index++;
 
             auto configurationUnit = make_self<wil::details::module_count_wrapper<ConfigurationUnit>>();
+            configurationUnit->SchemaVersion(GetSchemaVersion());
 
             CHECK_ERROR(GetStringValueForUnit(item, "resource", true, configurationUnit.get(), &ConfigurationUnit::UnitName));
             CHECK_ERROR(GetStringValueForUnit(item, "id", false, configurationUnit.get(), &ConfigurationUnit::Identifier));

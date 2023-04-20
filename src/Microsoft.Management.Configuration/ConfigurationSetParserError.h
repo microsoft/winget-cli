@@ -15,5 +15,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
 
         std::vector<Configuration::ConfigurationUnit> GetConfigurationUnits() override { return {}; }
+
+        hstring GetSchemaVersion() override { return {}; }
     };
 }

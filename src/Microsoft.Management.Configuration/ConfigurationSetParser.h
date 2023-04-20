@@ -23,6 +23,13 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // Create a parser from the given bytes (the encoding is detected).
         static std::unique_ptr<ConfigurationSetParser> Create(std::string_view input);
 
+        // Determines if the given value is a recognized schema version.
+        // This will only return true for a version that we fully recognize.
+        static bool IsRecognizedSchemaVersion(hstring value);
+
+        // Gets the latest schema version.
+        static hstring LatestVersion();
+
         virtual ~ConfigurationSetParser() noexcept = default;
 
         ConfigurationSetParser(const ConfigurationSetParser&) = delete;
@@ -32,6 +39,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         // Retrieve the configuration units from the parser.
         virtual std::vector<Configuration::ConfigurationUnit> GetConfigurationUnits() = 0;
+
+        // Retrieves the schema version of the parser.
+        virtual hstring GetSchemaVersion() = 0;
 
         // The latest result code from the parser.
         hresult Result() const { return m_result; }

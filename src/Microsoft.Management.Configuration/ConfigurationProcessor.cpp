@@ -229,6 +229,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
             auto configurationSet = make_self<wil::details::module_count_wrapper<implementation::ConfigurationSet>>();
             configurationSet->Initialize(parser->GetConfigurationUnits());
+            configurationSet->SchemaVersion(parser->GetSchemaVersion());
             if (FAILED(parser->Result()))
             {
                 result->Initialize(parser->Result(), parser->Field());
