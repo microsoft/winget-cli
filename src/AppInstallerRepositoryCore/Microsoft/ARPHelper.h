@@ -51,6 +51,8 @@ namespace AppInstaller::Repository::Microsoft
         const std::wstring WindowsInstaller{ L"WindowsInstaller" };
         // REG_DWORD (bool)
         const std::wstring SystemComponent{ L"SystemComponent" };
+        // REG_SZ
+        const std::wstring DisplayIcon{ L"DisplayIcon" };
 
         // Gets the registry key associated with the given scope and architecture on this platform.
         // May return an empty key if there is no valid location (bad combination or not found).

@@ -1003,6 +1003,9 @@ namespace AppInstaller::Repository::Metadata
 
             Manifest::ScopeEnum scope = Manifest::ConvertToScopeEnum(packageMetadata[PackageVersionMetadata::InstalledScope]);
 
+            // ARP entry icon extraction upon ARP correlation success
+
+
             // Add or update the metadata for the installer hash
             auto itr = m_outputMetadata.InstallerMetadataMap.find(m_installerHash);
 
