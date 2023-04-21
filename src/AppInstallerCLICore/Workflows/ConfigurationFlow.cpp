@@ -625,11 +625,14 @@ namespace AppInstaller::CLI::Workflow
         {
             switch (openResult.ResultCode())
             {
-            case WINGET_CONFIG_ERROR_INVALID_FIELD:
-                context.Reporter.Error() << Resource::String::ConfigurationFieldInvalid(Utility::LocIndString{ Utility::ConvertToUTF8(openResult.Field()) }) << std::endl;
+            case WINGET_CONFIG_ERROR_INVALID_FIELD_TYPE:
+                context.Reporter.Error() << Resource::String::ConfigurationFieldInvalidType(Utility::LocIndString{ Utility::ConvertToUTF8(openResult.Field()) }) << std::endl;
+                break;
+            case WINGET_CONFIG_ERROR_INVALID_FIELD_VALUE:
+                context.Reporter.Error() << Resource::String::ConfigurationFieldInvalidValue(Utility::LocIndString{ Utility::ConvertToUTF8(openResult.Field()) }, Utility::LocIndString{ Utility::ConvertToUTF8(openResult.Value()) }) << std::endl;
                 break;
             case WINGET_CONFIG_ERROR_UNKNOWN_CONFIGURATION_FILE_VERSION:
-                context.Reporter.Error() << Resource::String::ConfigurationFileVersionUnknown(Utility::LocIndString{ Utility::ConvertToUTF8(openResult.Field()) }) << std::endl;
+                context.Reporter.Error() << Resource::String::ConfigurationFileVersionUnknown(Utility::LocIndString{ Utility::ConvertToUTF8(openResult.Value()) }) << std::endl;
                 break;
             case WINGET_CONFIG_ERROR_INVALID_CONFIGURATION_FILE:
             case WINGET_CONFIG_ERROR_INVALID_YAML:

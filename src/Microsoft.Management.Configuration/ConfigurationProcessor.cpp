@@ -232,7 +232,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             configurationSet->SchemaVersion(parser->GetSchemaVersion());
             if (FAILED(parser->Result()))
             {
-                result->Initialize(parser->Result(), parser->Field());
+                result->Initialize(parser->Result(), parser->Field(), parser->Value());
                 co_return *result;
             }
 

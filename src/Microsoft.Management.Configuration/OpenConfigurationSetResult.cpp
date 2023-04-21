@@ -11,10 +11,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_set = std::move(configurationSet);
     }
 
-    void OpenConfigurationSetResult::Initialize(hresult resultCode, hstring field)
+    void OpenConfigurationSetResult::Initialize(hresult resultCode, hstring field, hstring value)
     {
         m_resultCode = resultCode;
         m_field = field;
+        m_value = value;
     }
 
     Configuration::ConfigurationSet OpenConfigurationSetResult::Set()
@@ -30,5 +31,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     hstring OpenConfigurationSetResult::Field()
     {
         return m_field;
+    }
+
+    hstring OpenConfigurationSetResult::Value()
+    {
+        return m_value;
     }
 }

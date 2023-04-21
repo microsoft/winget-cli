@@ -86,8 +86,8 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             OpenConfigurationSetResult result = processor.OpenConfigurationSet(this.CreateStream("yaml: yep"));
             Assert.Null(result.Set);
             Assert.NotNull(result.ResultCode);
-            Assert.Equal(Errors.WINGET_CONFIG_ERROR_INVALID_FIELD, result.ResultCode.HResult);
-            Assert.NotEqual(string.Empty, result.Field);
+            Assert.Equal(Errors.WINGET_CONFIG_ERROR_INVALID_FIELD_TYPE, result.ResultCode.HResult);
+            Assert.Equal("properties", result.Field);
         }
 
         /// <summary>
@@ -104,8 +104,8 @@ properties:
 "));
             Assert.Null(result.Set);
             Assert.NotNull(result.ResultCode);
-            Assert.Equal(Errors.WINGET_CONFIG_ERROR_INVALID_FIELD, result.ResultCode.HResult);
-            Assert.NotEqual(string.Empty, result.Field);
+            Assert.Equal(Errors.WINGET_CONFIG_ERROR_INVALID_FIELD_TYPE, result.ResultCode.HResult);
+            Assert.Equal("configurationVersion", result.Field);
         }
 
         /// <summary>
@@ -123,7 +123,8 @@ properties:
             Assert.Null(result.Set);
             Assert.NotNull(result.ResultCode);
             Assert.Equal(Errors.WINGET_CONFIG_ERROR_UNKNOWN_CONFIGURATION_FILE_VERSION, result.ResultCode.HResult);
-            Assert.Equal("99999999", result.Field);
+            Assert.Equal("configurationVersion", result.Field);
+            Assert.Equal("99999999", result.Value);
         }
 
         /// <summary>
@@ -187,8 +188,8 @@ properties:
 "));
             Assert.Null(result.Set);
             Assert.NotNull(result.ResultCode);
-            Assert.Equal(Errors.WINGET_CONFIG_ERROR_INVALID_FIELD, result.ResultCode.HResult);
-            Assert.NotEqual(string.Empty, result.Field);
+            Assert.Equal(Errors.WINGET_CONFIG_ERROR_INVALID_FIELD_TYPE, result.ResultCode.HResult);
+            Assert.Equal("resources", result.Field);
         }
 
         /// <summary>
@@ -207,8 +208,8 @@ properties:
 "));
             Assert.Null(result.Set);
             Assert.NotNull(result.ResultCode);
-            Assert.Equal(Errors.WINGET_CONFIG_ERROR_INVALID_FIELD, result.ResultCode.HResult);
-            Assert.NotEqual(string.Empty, result.Field);
+            Assert.Equal(Errors.WINGET_CONFIG_ERROR_INVALID_FIELD_TYPE, result.ResultCode.HResult);
+            Assert.Equal("resource", result.Field);
         }
 
         /// <summary>

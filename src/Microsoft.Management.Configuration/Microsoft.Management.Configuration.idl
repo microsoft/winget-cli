@@ -462,6 +462,9 @@ namespace Microsoft.Management.Configuration
 
         // The field that is missing/invalid, if appropriate for the specific ResultCode.
         String Field{ get; };
+
+        // The value of the field, if appropriate for the specific ResultCode.
+        String Value{ get; };
     }
 
     // The type of conflict between configuration sets that was detected.

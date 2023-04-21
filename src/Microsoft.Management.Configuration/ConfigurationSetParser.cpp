@@ -11,6 +11,7 @@
 
 #include "ConfigurationSetParserError.h"
 #include "ConfigurationSetParser_0_1.h"
+#include "ConfigurationSetParser_0_2.h"
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
@@ -66,18 +67,18 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             return std::make_unique<ConfigurationSetParserError>(WINGET_CONFIG_ERROR_INVALID_YAML);
         }
 
-        AppInstaller::YAML::Node& propertiesNode = document[NodeName_Properties];
+        AppInstaller::YAML::Node& propertiesNode = document[GetFieldName(FieldName::Properties)];
         if (!propertiesNode.IsMap())
         {
             AICLI_LOG(Config, Info, << "Invalid properties");
-            return std::make_unique<ConfigurationSetParserError>(WINGET_CONFIG_ERROR_INVALID_FIELD, NodeName_Properties);
+            return std::make_unique<ConfigurationSetParserError>(WINGET_CONFIG_ERROR_INVALID_FIELD_TYPE, GetFieldName(FieldName::Properties));
         }
 
-        AppInstaller::YAML::Node& versionNode = propertiesNode[NodeName_ConfigurationVersion];
+        AppInstaller::YAML::Node& versionNode = propertiesNode[GetFieldName(FieldName::ConfigurationVersion)];
         if (!versionNode.IsScalar())
         {
             AICLI_LOG(Config, Info, << "Invalid configuration version");
-            return std::make_unique<ConfigurationSetParserError>(WINGET_CONFIG_ERROR_INVALID_FIELD, NodeName_ConfigurationVersion);
+            return std::make_unique<ConfigurationSetParserError>(WINGET_CONFIG_ERROR_INVALID_FIELD_TYPE, GetFieldName(FieldName::ConfigurationVersion));
         }
 
         AppInstaller::Utility::SemanticVersion schemaVersion(versionNode.as<std::string>());
@@ -86,9 +87,13 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         {
             return std::make_unique<ConfigurationSetParser_0_1>(std::move(document));
         }
+        else if (schemaVersion.PartAt(0).Integer == 0 && schemaVersion.PartAt(1).Integer == 2)
+        {
+            return std::make_unique<ConfigurationSetParser_0_2>(std::move(document));
+        }
 
         AICLI_LOG(Config, Info, << "Unknown configuration version: " << schemaVersion.ToString());
-        return std::make_unique<ConfigurationSetParserError>(WINGET_CONFIG_ERROR_UNKNOWN_CONFIGURATION_FILE_VERSION, versionNode.as<std::string>());
+        return std::make_unique<ConfigurationSetParserError>(WINGET_CONFIG_ERROR_UNKNOWN_CONFIGURATION_FILE_VERSION, GetFieldName(FieldName::ConfigurationVersion), versionNode.as<std::string>());
     }
 
     bool ConfigurationSetParser::IsRecognizedSchemaVersion(hstring value) try
@@ -106,10 +111,29 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return hstring{ L"0.1" };
     }
 
-    void ConfigurationSetParser::SetError(hresult result, std::string_view field)
+    void ConfigurationSetParser::SetError(hresult result, std::string_view field, std::string_view value)
     {
-        AICLI_LOG(Config, Error, << "ConfigurationSetParser error: " << AppInstaller::Logging::SetHRFormat << result << " [" << field << "]");
+        AICLI_LOG(Config, Error, << "ConfigurationSetParser error: " << AppInstaller::Logging::SetHRFormat << result << " for " << field << " with value `" << value << "`");
         m_result = result;
         m_field = AppInstaller::Utility::ConvertToUTF16(field);
+        m_value = AppInstaller::Utility::ConvertToUTF16(value);
+    }
+
+    std::string_view ConfigurationSetParser::GetFieldName(FieldName fieldName)
+    {
+        switch (fieldName)
+        {
+        case FieldName::ConfigurationVersion: return "configurationVersion"sv;
+        case FieldName::Properties: return "properties"sv;
+        case FieldName::Resource: return "resource"sv;
+        case FieldName::ModuleDirective: return "module"sv;
+        }
+
+        THROW_HR(E_UNEXPECTED);
+    }
+
+    hstring ConfigurationSetParser::GetFieldNameHString(FieldName fieldName)
+    {
+        return hstring{ AppInstaller::Utility::ConvertToUTF16(GetFieldName(fieldName)) };
     }
 }

@@ -12,18 +12,20 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
         void Initialize(Configuration::ConfigurationSet configurationSet);
-        void Initialize(hresult resultCode, hstring field = {});
+        void Initialize(hresult resultCode, hstring field = {}, hstring value = {});
 #endif
 
         Configuration::ConfigurationSet Set();
         hresult ResultCode();
         hstring Field();
+        hstring Value();
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
         Configuration::ConfigurationSet m_set = nullptr;
         hresult m_resultCode;
         hstring m_field;
+        hstring m_value;
 #endif
     };
 }

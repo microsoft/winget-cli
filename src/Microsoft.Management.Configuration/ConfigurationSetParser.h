@@ -14,9 +14,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     // Interface for parsing a configuration set stream.
     struct ConfigurationSetParser
     {
-        static constexpr std::string_view NodeName_Properties = "properties"sv;
-        static constexpr std::string_view NodeName_ConfigurationVersion = "configurationVersion"sv;
-
         // Create a parser from the given stream.
         static std::unique_ptr<ConfigurationSetParser> Create(const Windows::Storage::Streams::IInputStream& stream);
 
@@ -49,13 +46,30 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // The field related to the result code.
         hstring Field() const { return m_field; }
 
+        // The value of the field.
+        hstring Value() const { return m_value; }
+
     protected:
         ConfigurationSetParser() = default;
 
         // Set the error state
-        void SetError(hresult result, std::string_view field = {});
+        void SetError(hresult result, std::string_view field = {}, std::string_view value = {});
+
+        // The various field names that are used in parsing.
+        enum class FieldName
+        {
+            ConfigurationVersion,
+            Properties,
+            Resource,
+            ModuleDirective,
+        };
+
+        // Gets the value of the field name.
+        static std::string_view GetFieldName(FieldName fieldName);
+        static hstring GetFieldNameHString(FieldName fieldName);
 
         hresult m_result;
         hstring m_field;
+        hstring m_value;
     };
 }
