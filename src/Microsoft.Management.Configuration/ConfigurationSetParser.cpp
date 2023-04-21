@@ -71,31 +71,31 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         if (!document.IsMap())
         {
-            AICLI_LOG(Config, Info, << "Invalid YAML: " << documentError << " at [line " << documentErrorMark.line << ", col " << documentErrorMark.column << "]");
+            AICLI_LOG(Config, Error, << "Invalid YAML: " << documentError << " at [line " << documentErrorMark.line << ", col " << documentErrorMark.column << "]");
             return std::make_unique<ConfigurationSetParserError>(WINGET_CONFIG_ERROR_INVALID_YAML, documentError, documentErrorMark);
         }
 
         Node& propertiesNode = document[GetFieldName(FieldName::Properties)];
         if (!propertiesNode)
         {
-            AICLI_LOG(Config, Info, << "Invalid properties");
+            AICLI_LOG(Config, Error, << "No properties");
             return std::make_unique<ConfigurationSetParserError>(WINGET_CONFIG_ERROR_MISSING_FIELD, GetFieldName(FieldName::Properties));
         }
         else if (!propertiesNode.IsMap())
         {
-            AICLI_LOG(Config, Info, << "Invalid properties");
+            AICLI_LOG(Config, Error, << "Invalid properties type");
             return std::make_unique<ConfigurationSetParserError>(WINGET_CONFIG_ERROR_INVALID_FIELD_TYPE, GetFieldName(FieldName::Properties), propertiesNode.Mark());
         }
 
         Node& versionNode = propertiesNode[GetFieldName(FieldName::ConfigurationVersion)];
         if (!versionNode)
         {
-            AICLI_LOG(Config, Info, << "Invalid configuration version");
+            AICLI_LOG(Config, Error, << "No configuration version");
             return std::make_unique<ConfigurationSetParserError>(WINGET_CONFIG_ERROR_MISSING_FIELD, GetFieldName(FieldName::ConfigurationVersion));
         }
         else if (!versionNode.IsScalar())
         {
-            AICLI_LOG(Config, Info, << "Invalid configuration version");
+            AICLI_LOG(Config, Error, << "Invalid configuration version type");
             return std::make_unique<ConfigurationSetParserError>(WINGET_CONFIG_ERROR_INVALID_FIELD_TYPE, GetFieldName(FieldName::ConfigurationVersion), versionNode.Mark());
         }
 
@@ -110,7 +110,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             return std::make_unique<ConfigurationSetParser_0_2>(std::move(document));
         }
 
-        AICLI_LOG(Config, Info, << "Unknown configuration version: " << schemaVersion.ToString());
+        AICLI_LOG(Config, Error, << "Unknown configuration version: " << schemaVersion.ToString());
         return std::make_unique<ConfigurationSetParserError>(WINGET_CONFIG_ERROR_UNKNOWN_CONFIGURATION_FILE_VERSION, GetFieldName(FieldName::ConfigurationVersion), versionNode.as<std::string>());
     }
 
