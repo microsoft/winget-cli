@@ -728,7 +728,7 @@ namespace AppInstaller::CLI::Workflow
 
         std::vector<InstalledPackagesTableLine> lines;
         std::vector<InstalledPackagesTableLine> linesForExplicitUpgrade;
-        std::vector<InstalledPackagesTableLine> linesForBlockingPins;
+        std::vector<InstalledPackagesTableLine> linesForPins;
 
         int availableUpgradesCount = 0;
 
@@ -761,7 +761,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 auto latestVersion = match.Package->GetLatestAvailableVersion(pinBehavior);
                 bool updateAvailable = match.Package->IsUpdateAvailable(pinBehavior);
-                bool updateIsBlockedByPin = false;
+                bool updateIsPinned = false;
 
                 if (m_onlyShowUpgrades && !context.Args.Contains(Execution::Args::Type::IncludeUnknown) && Utility::Version(installedVersion->GetProperty(PackageVersionProperty::Version)).IsUnknown() && updateAvailable)
                 {
@@ -779,8 +779,11 @@ namespace AppInstaller::CLI::Workflow
                         // Otherwise, simply show a count of them
                         if (context.Args.Contains(Execution::Args::Type::IncludePinned))
                         {
+                            updateIsPinned = true;
+
+                            // Override these so we generate the table line below.
                             latestVersion = match.Package->GetLatestAvailableVersion(PinBehavior::IgnorePins);
-                            updateIsBlockedByPin = true;
+                            updateAvailable = true;
                         }
                         else
                         {
@@ -819,9 +822,9 @@ namespace AppInstaller::CLI::Workflow
                     );
 
                     auto pinnedState = ConvertToPinTypeEnum(installedVersion->GetMetadata()[PackageVersionMetadata::PinnedState]);
-                    if (updateIsBlockedByPin)
+                    if (updateIsPinned)
                     {
-                        linesForBlockingPins.push_back(std::move(line));
+                        linesForPins.push_back(std::move(line));
                     }
                     else if (m_onlyShowUpgrades && pinnedState == PinType::PinnedByManifest)
                     {
@@ -860,10 +863,10 @@ namespace AppInstaller::CLI::Workflow
             OutputInstalledPackagesTable(context, linesForExplicitUpgrade);
         }
 
-        if (!linesForBlockingPins.empty())
+        if (!linesForPins.empty())
         {
-            context.Reporter.Info() << std::endl << Resource::String::UpgradeBlockingPinCount(linesForBlockingPins.size()) << std::endl;
-            OutputInstalledPackagesTable(context, linesForBlockingPins);
+            context.Reporter.Info() << std::endl << Resource::String::UpgradeBlockingPinCount(linesForPins.size()) << std::endl;
+            OutputInstalledPackagesTable(context, linesForPins);
         }
 
         if (m_onlyShowUpgrades)
