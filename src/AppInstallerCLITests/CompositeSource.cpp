@@ -1358,7 +1358,7 @@ TEST_CASE("CompositeSource_Pinning_MultipleInstalled", "[CompositeSource][PinFlo
         {
             result.Matches.emplace_back(installedPackage1, Criteria());
         }
-        
+
         if (isSearchById || SearchRequestIncludes(request.Inclusions, PackageMatchField::ProductCode, MatchType::Exact, productCode2))
         {
             result.Matches.emplace_back(installedPackage2, Criteria());

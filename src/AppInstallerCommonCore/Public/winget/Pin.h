@@ -69,8 +69,8 @@ namespace AppInstaller::Pinning
         {
             // std::tie implements tuple comparison, wherein it checks the first item in the tuple,
             // iff the first elements are equal, then the second element is used for comparison, and so on
-            return std::tie(PackageId, SourceId, ExtraIdType, ExtraId) < 
-            	std::tie(other.PackageId, other.SourceId, other.ExtraIdType, other.ExtraId);
+            return std::tie(PackageId, SourceId, ExtraIdType, ExtraId) <
+                std::tie(other.PackageId, other.SourceId, other.ExtraIdType, other.ExtraId);
         }
 
         // Used for logging
