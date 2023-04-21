@@ -13,10 +13,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     using namespace AppInstaller::YAML;
 
 #define CHECK_ERROR(_op_) (_op_); if (FAILED(m_result)) { return; }
-#define FIELD_TYPE_ERROR(_field_) SetError(WINGET_CONFIG_ERROR_INVALID_FIELD_TYPE, (_field_)); return
-#define FIELD_TYPE_ERROR_IF(_condition_,_field_) if (_condition_) { FIELD_TYPE_ERROR(_field_); }
-#define FIELD_VALUE_ERROR(_field_,_value_) SetError(WINGET_CONFIG_ERROR_INVALID_FIELD_VALUE, (_field_), (_value_)); return
-#define FIELD_VALUE_ERROR_IF(_condition_,_field_,_value_) if (_condition_) { FIELD_VALUE_ERROR(_field_,_value_); }
+
+#define FIELD_TYPE_ERROR(_field_,_mark_) SetError(WINGET_CONFIG_ERROR_INVALID_FIELD_TYPE, (_field_), (_mark_)); return
+#define FIELD_TYPE_ERROR_IF(_condition_,_field_,_mark_) if (_condition_) { FIELD_TYPE_ERROR(_field_,_mark_); }
+
+#define FIELD_MISSING_ERROR(_field_) SetError(WINGET_CONFIG_ERROR_MISSING_FIELD, (_field_)); return
+#define FIELD_MISSING_ERROR_IF(_condition_,_field_) if (_condition_) { FIELD_MISSING_ERROR(_field_); }
 
     namespace
     {
@@ -136,7 +138,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             return;
         }
 
-        FIELD_TYPE_ERROR_IF(!subsectionNode.IsSequence(), subsection);
+        FIELD_TYPE_ERROR_IF(!subsectionNode.IsSequence(), subsection, subsectionNode.Mark());
 
         std::ostringstream strstr;
         strstr << subsection;
@@ -147,7 +149,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             if (!item.IsMap())
             {
                 strstr << '[' << index << ']';
-                FIELD_TYPE_ERROR(strstr.str());
+                FIELD_TYPE_ERROR(strstr.str(), item.Mark());
             }
             index++;
 
@@ -176,16 +178,16 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         if (valueNode)
         {
-            FIELD_TYPE_ERROR_IF(!valueNode.IsScalar(), valueName);
+            FIELD_TYPE_ERROR_IF(!valueNode.IsScalar(), valueName, valueNode.Mark());
         }
         else
         {
-            FIELD_VALUE_ERROR_IF(required, valueName, "");
+            FIELD_MISSING_ERROR_IF(required, valueName);
             return;
         }
 
         hstring value{ valueNode.as<std::wstring>() };
-        FIELD_VALUE_ERROR_IF(value.empty() && required, valueName, "");
+        FIELD_MISSING_ERROR_IF(value.empty() && required, valueName);
 
         (unit->*propertyFunction)(std::move(value));
     }
@@ -199,7 +201,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             return;
         }
 
-        FIELD_TYPE_ERROR_IF(!arrayNode.IsSequence(), arrayName);
+        FIELD_TYPE_ERROR_IF(!arrayNode.IsSequence(), arrayName, arrayNode.Mark());
 
         std::vector<hstring> arrayValue;
 
@@ -212,7 +214,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             if (!arrayItem.IsScalar())
             {
                 strstr << '[' << index << ']';
-                FIELD_TYPE_ERROR(strstr.str());
+                FIELD_TYPE_ERROR(strstr.str(), arrayItem.Mark());
             }
             index++;
 
@@ -228,11 +230,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         if (mapNode)
         {
-            FIELD_TYPE_ERROR_IF(!mapNode.IsMap(), mapName);
+            FIELD_TYPE_ERROR_IF(!mapNode.IsMap(), mapName, mapNode.Mark());
         }
         else
         {
-            FIELD_VALUE_ERROR_IF(required, mapName, "");
+            FIELD_MISSING_ERROR_IF(required, mapName);
             return;
         }
 

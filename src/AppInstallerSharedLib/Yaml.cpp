@@ -136,7 +136,7 @@ namespace AppInstaller::YAML
     }
 
     Exception::Exception(Type type, const char* problem, const Mark& problemMark, const char* context, const Mark& contextMark) :
-        wil::ResultException(APPINSTALLER_CLI_ERROR_LIBYAML_ERROR)
+        wil::ResultException(APPINSTALLER_CLI_ERROR_LIBYAML_ERROR), m_mark(problemMark)
     {
         std::ostringstream out;
         OutputExceptionHeader(out, type);
@@ -172,6 +172,11 @@ namespace AppInstaller::YAML
     const char* Exception::what() const noexcept
     {
         return m_what.c_str();
+    }
+
+    const Mark& Exception::GetMark() const
+    {
+        return m_mark;
     }
 
     Node::Node(Type type, std::string tag, const YAML::Mark& mark) :

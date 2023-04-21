@@ -465,6 +465,12 @@ namespace Microsoft.Management.Configuration
 
         // The value of the field, if appropriate for the specific ResultCode.
         String Value{ get; };
+
+        // The line number for the failure reason, if determined.
+        UInt32 Line{ get; };
+
+        // The line number for the failure reason, if determined.
+        UInt32 Column{ get; };
     }
 
     // The type of conflict between configuration sets that was detected.

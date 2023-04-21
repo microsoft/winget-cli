@@ -223,18 +223,18 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             std::unique_ptr<ConfigurationSetParser> parser = ConfigurationSetParser::Create(localStream);
             if (FAILED(parser->Result()))
             {
-                result->Initialize(parser->Result(), parser->Field());
+                result->Initialize(parser->Result(), parser->Field(), parser->Value(), parser->Line(), parser->Column());
                 co_return *result;
             }
 
             auto configurationSet = make_self<wil::details::module_count_wrapper<implementation::ConfigurationSet>>();
             configurationSet->Initialize(parser->GetConfigurationUnits());
-            configurationSet->SchemaVersion(parser->GetSchemaVersion());
             if (FAILED(parser->Result()))
             {
-                result->Initialize(parser->Result(), parser->Field(), parser->Value());
+                result->Initialize(parser->Result(), parser->Field(), parser->Value(), parser->Line(), parser->Column());
                 co_return *result;
             }
+            configurationSet->SchemaVersion(parser->GetSchemaVersion());
 
             result->Initialize(*configurationSet);
         }

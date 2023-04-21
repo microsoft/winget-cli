@@ -12,10 +12,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 {
     using namespace AppInstaller::YAML;
 
-#define FIELD_TYPE_ERROR(_field_) SetError(WINGET_CONFIG_ERROR_INVALID_FIELD_TYPE, (_field_)); return
-#define FIELD_TYPE_ERROR_IF(_condition_,_field_) if (_condition_) { FIELD_TYPE_ERROR(_field_); }
-#define FIELD_VALUE_ERROR(_field_,_value_) SetError(WINGET_CONFIG_ERROR_INVALID_FIELD_VALUE, (_field_), (_value_)); return
-#define FIELD_VALUE_ERROR_IF(_condition_,_field_,_value_) if (_condition_) { FIELD_VALUE_ERROR(_field_,_value_); }
+#define FIELD_TYPE_ERROR(_field_,_mark_) SetError(WINGET_CONFIG_ERROR_INVALID_FIELD_TYPE, (_field_), (_mark_)); return
+#define FIELD_TYPE_ERROR_IF(_condition_,_field_,_mark_) if (_condition_) { FIELD_TYPE_ERROR(_field_,_mark_); }
+
+#define FIELD_VALUE_ERROR(_field_,_value_,_mark_) SetError(WINGET_CONFIG_ERROR_INVALID_FIELD_VALUE, (_field_), (_mark_), (_value_)); return
+#define FIELD_VALUE_ERROR_IF(_condition_,_field_,_value_,_mark_) if (_condition_) { FIELD_VALUE_ERROR(_field_,_value_,_mark_); }
 
     namespace
     {
@@ -25,7 +26,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             QualifiedResourceName(hstring input)
             {
                 std::wstring_view inputView = input;
-                size_t pos = inputView.find('\\');
+                size_t pos = inputView.find('/');
 
                 if (pos != std::wstring_view::npos)
                 {
@@ -58,7 +59,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // Move module qualification into directives if present
         QualifiedResourceName qualifiedName{ unit->UnitName() };
 
-        FIELD_VALUE_ERROR_IF(qualifiedName.Resource.empty(), GetFieldName(FieldName::Resource), ConvertToUTF8(unit->UnitName()));
+        FIELD_VALUE_ERROR_IF(qualifiedName.Resource.empty(), GetFieldName(FieldName::Resource), ConvertToUTF8(unit->UnitName()), unitNode.Mark());
 
         if (!qualifiedName.Module.empty())
         {
@@ -68,10 +69,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             if (moduleDirective)
             {
                 auto moduleProperty = moduleDirective.try_as<Windows::Foundation::IPropertyValue>();
-                FIELD_TYPE_ERROR_IF(!moduleProperty, GetFieldName(FieldName::ModuleDirective));
-                FIELD_TYPE_ERROR_IF(moduleProperty.Type() != Windows::Foundation::PropertyType::String, GetFieldName(FieldName::ModuleDirective));
+                FIELD_TYPE_ERROR_IF(!moduleProperty, GetFieldName(FieldName::ModuleDirective), unitNode.Mark());
+                FIELD_TYPE_ERROR_IF(moduleProperty.Type() != Windows::Foundation::PropertyType::String, GetFieldName(FieldName::ModuleDirective), unitNode.Mark());
                 hstring moduleValue = moduleProperty.GetString();
-                FIELD_VALUE_ERROR_IF(qualifiedName.Module != moduleValue, GetFieldName(FieldName::ModuleDirective), ConvertToUTF8(moduleValue));
+                FIELD_VALUE_ERROR_IF(qualifiedName.Module != moduleValue, GetFieldName(FieldName::ModuleDirective), ConvertToUTF8(moduleValue), unitNode.Mark());
             }
             else
             {

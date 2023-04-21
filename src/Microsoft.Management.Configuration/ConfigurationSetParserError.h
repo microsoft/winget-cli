@@ -14,6 +14,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             SetError(result, field, value);
         }
 
+        ConfigurationSetParserError(hresult result, std::string_view field, const AppInstaller::YAML::Mark& mark)
+        {
+            SetError(result, field, mark);
+        }
+
         std::vector<Configuration::ConfigurationUnit> GetConfigurationUnits() override { return {}; }
 
         hstring GetSchemaVersion() override { return {}; }

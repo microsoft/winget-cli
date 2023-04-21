@@ -1926,4 +1926,12 @@ Please specify one of them using the --source option to proceed.</value>
     <value>The field '{0}' has an invalid value: {1}</value>
     <comment>{Locked="{0}","{1}"} An error in reading a configuration file. {0} is a placeholder replaced by the field name from the file. {1} is a placeholder for the invalid value.</comment>
   </data>
+  <data name="ConfigurationFieldMissing" xml:space="preserve">
+    <value>The field '{0}' is missing or empty.</value>
+    <comment>{Locked="{0}"} An error in reading a configuration file. {0} is a placeholder replaced by the expected field name from the file.</comment>
+  </data>
+  <data name="SeeLineAndColumn" xml:space="preserve">
+    <value>See line {0}, column {1} in the file.</value>
+    <comment>{Locked="{0}","{1}"} Indicates the file location of the error, {0} and {1} are placeholders for numbers of the line and column, respectively.</comment>
+  </data>
 </root>

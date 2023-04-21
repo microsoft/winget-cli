@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #pragma once
 #include <ConfigurationUnit.h>
+#include <winget/Yaml.h>
 #include <winrt/Windows.Storage.Streams.h>
 #include <memory>
 #include <string_view>
@@ -49,11 +50,18 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // The value of the field.
         hstring Value() const { return m_value; }
 
+        // The line related to the result code.
+        uint32_t Line() const { return m_line; }
+
+        // The column related to the result code.
+        uint32_t Column() const { return m_column; }
+
     protected:
         ConfigurationSetParser() = default;
 
         // Set the error state
-        void SetError(hresult result, std::string_view field = {}, std::string_view value = {});
+        void SetError(hresult result, std::string_view field = {}, std::string_view value = {}, uint32_t line = 0, uint32_t column = 0);
+        void SetError(hresult result, std::string_view field, const AppInstaller::YAML::Mark& mark, std::string_view value = {});
 
         // The various field names that are used in parsing.
         enum class FieldName
@@ -71,5 +79,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         hresult m_result;
         hstring m_field;
         hstring m_value;
+        uint32_t m_line = 0;
+        uint32_t m_column = 0;
     };
 }

@@ -7,11 +7,12 @@
 #include <AppInstallerLogging.h>
 #include <AppInstallerStrings.h>
 #include <AppInstallerVersions.h>
-#include <winget/Yaml.h>
 
 #include "ConfigurationSetParserError.h"
 #include "ConfigurationSetParser_0_1.h"
 #include "ConfigurationSetParser_0_2.h"
+
+using namespace AppInstaller::YAML;
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
@@ -53,32 +54,49 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         AICLI_LOG_LARGE_STRING(Config, Verbose, << "Parsing configuration set:", input);
 
-        AppInstaller::YAML::Node document;
-        
+        Node document;
+        std::string documentError;
+        Mark documentErrorMark;
+
         try
         {
-            document = AppInstaller::YAML::Load(input);
+            document = Load(input);
+        }
+        catch (const Exception& exc)
+        {
+            documentError = exc.what();
+            documentErrorMark = exc.GetMark();
         }
         CATCH_LOG();
 
         if (!document.IsMap())
         {
-            AICLI_LOG(Config, Info, << "Invalid YAML");
-            return std::make_unique<ConfigurationSetParserError>(WINGET_CONFIG_ERROR_INVALID_YAML);
+            AICLI_LOG(Config, Info, << "Invalid YAML: " << documentError << " at [line " << documentErrorMark.line << ", col " << documentErrorMark.column << "]");
+            return std::make_unique<ConfigurationSetParserError>(WINGET_CONFIG_ERROR_INVALID_YAML, documentError, documentErrorMark);
         }
 
-        AppInstaller::YAML::Node& propertiesNode = document[GetFieldName(FieldName::Properties)];
-        if (!propertiesNode.IsMap())
+        Node& propertiesNode = document[GetFieldName(FieldName::Properties)];
+        if (!propertiesNode)
         {
             AICLI_LOG(Config, Info, << "Invalid properties");
-            return std::make_unique<ConfigurationSetParserError>(WINGET_CONFIG_ERROR_INVALID_FIELD_TYPE, GetFieldName(FieldName::Properties));
+            return std::make_unique<ConfigurationSetParserError>(WINGET_CONFIG_ERROR_MISSING_FIELD, GetFieldName(FieldName::Properties));
+        }
+        else if (!propertiesNode.IsMap())
+        {
+            AICLI_LOG(Config, Info, << "Invalid properties");
+            return std::make_unique<ConfigurationSetParserError>(WINGET_CONFIG_ERROR_INVALID_FIELD_TYPE, GetFieldName(FieldName::Properties), propertiesNode.Mark());
         }
 
-        AppInstaller::YAML::Node& versionNode = propertiesNode[GetFieldName(FieldName::ConfigurationVersion)];
-        if (!versionNode.IsScalar())
+        Node& versionNode = propertiesNode[GetFieldName(FieldName::ConfigurationVersion)];
+        if (!versionNode)
         {
             AICLI_LOG(Config, Info, << "Invalid configuration version");
-            return std::make_unique<ConfigurationSetParserError>(WINGET_CONFIG_ERROR_INVALID_FIELD_TYPE, GetFieldName(FieldName::ConfigurationVersion));
+            return std::make_unique<ConfigurationSetParserError>(WINGET_CONFIG_ERROR_MISSING_FIELD, GetFieldName(FieldName::ConfigurationVersion));
+        }
+        else if (!versionNode.IsScalar())
+        {
+            AICLI_LOG(Config, Info, << "Invalid configuration version");
+            return std::make_unique<ConfigurationSetParserError>(WINGET_CONFIG_ERROR_INVALID_FIELD_TYPE, GetFieldName(FieldName::ConfigurationVersion), versionNode.Mark());
         }
 
         AppInstaller::Utility::SemanticVersion schemaVersion(versionNode.as<std::string>());
@@ -102,7 +120,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         SemanticVersion schemaVersion(ConvertToUTF8(value));
 
-        return (schemaVersion == SemanticVersion{ "0.1" });
+        return (schemaVersion == SemanticVersion{ "0.1" } || schemaVersion == SemanticVersion{ "0.2" });
     }
     catch (...) { LOG_CAUGHT_EXCEPTION(); return false; }
 
@@ -111,12 +129,19 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return hstring{ L"0.1" };
     }
 
-    void ConfigurationSetParser::SetError(hresult result, std::string_view field, std::string_view value)
+    void ConfigurationSetParser::SetError(hresult result, std::string_view field, std::string_view value, uint32_t line, uint32_t column)
     {
-        AICLI_LOG(Config, Error, << "ConfigurationSetParser error: " << AppInstaller::Logging::SetHRFormat << result << " for " << field << " with value `" << value << "`");
+        AICLI_LOG(Config, Error, << "ConfigurationSetParser error: " << AppInstaller::Logging::SetHRFormat << result << " for " << field << " with value `" << value << "` at [line " << line << ", col " << column << "]");
         m_result = result;
         m_field = AppInstaller::Utility::ConvertToUTF16(field);
         m_value = AppInstaller::Utility::ConvertToUTF16(value);
+        m_line = line;
+        m_column = column;
+    }
+
+    void ConfigurationSetParser::SetError(hresult result, std::string_view field, const Mark& mark, std::string_view value)
+    {
+        SetError(result, field, value, static_cast<uint32_t>(mark.line), static_cast<uint32_t>(mark.column));
     }
 
     std::string_view ConfigurationSetParser::GetFieldName(FieldName fieldName)
