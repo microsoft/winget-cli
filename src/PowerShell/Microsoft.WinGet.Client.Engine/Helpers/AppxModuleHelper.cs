@@ -6,8 +6,10 @@
 
 namespace Microsoft.WinGet.Client.Engine.Helpers
 {
+    using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.IO.Compression;
     using System.Linq;
     using System.Management.Automation;
     using System.Management.Automation.Runspaces;
@@ -25,10 +27,12 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         private const string GetAppxModule = "Get-Module Appx";
         private const string ImportModuleCore = "Import-Module Appx -UseWindowsPowerShell";
         private const string GetAppxPackageCommand = "Get-AppxPackage {0}";
-        private const string AddAppxPackageFormat = "Add-AppxPackage -Path {0}";
+        private const string AddAppxPackageFormat = "Add-AppxPackage -Path {0} -ErrorAction Stop";
         private const string AddAppxPackageRegisterFormat = "Add-AppxPackage -Path {0} -Register -DisableDevelopmentMode";
         private const string ForceUpdateFromAnyVersion = " -ForceUpdateFromAnyVersion";
         private const string GetAppxPackageByVersionCommand = "Get-AppxPackage {0} | Where-Object -Property Version -eq {1}";
+
+        private const string TryCatchScript = "try {{ {0} }} catch {{ return $_ }}";
 
         private const string AppInstallerName = "Microsoft.DesktopAppInstaller";
         private const string AppxManifest = "AppxManifest.xml";
@@ -121,13 +125,12 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 sb.Append(ForceUpdateFromAnyVersion);
             }
 
-            // Using this method simplifies a lot of things, but the error is not propagated with
-            // the default parameters. PipelineResultTypes.Error will at least output it in the terminal.
-            this.psCmdlet.InvokeCommand.InvokeScript(
-                sb.ToString(),
-                useNewScope: true,
-                PipelineResultTypes.Error,
-                input: null);
+            var errorRecord = this.RunScript(sb.ToString());
+            if (errorRecord != null)
+            {
+                this.psCmdlet.WriteError(errorRecord);
+                throw errorRecord.Exception;
+            }
         }
 
         /// <summary>
@@ -155,11 +158,14 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         private IReadOnlyList<string> GetVCLibsDependencies()
         {
             var vcLibsDependencies = new List<string>();
-            var vcLibsPackageObjs = this.psCmdlet.InvokeCommand
-                .InvokeScript(string.Format(GetAppxPackageByVersionCommand, VCLibsUWPDesktop, VCLibsUWPDesktopVersion));
+
+            var cmd = string.Format(GetAppxPackageByVersionCommand, VCLibsUWPDesktop, VCLibsUWPDesktopVersion);
+            this.psCmdlet.WriteDebug($"Running command: '{cmd}'");
+            var vcLibsPackageObjs = this.psCmdlet.InvokeCommand.InvokeScript(cmd);
             if (vcLibsPackageObjs is null ||
                 vcLibsPackageObjs.Count == 0)
             {
+                this.psCmdlet.WriteDebug("Couldn't find required VCLibs package");
                 var arch = RuntimeInformation.OSArchitecture;
                 if (arch == Architecture.X64)
                 {
@@ -195,8 +201,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             var packages = this.GetVCLibsDependencies();
             foreach (var package in packages)
             {
-                this.psCmdlet.WriteDebug($"Installing VCLibs {package}");
-                this.psCmdlet.InvokeCommand.InvokeScript(string.Format(AddAppxPackageFormat, package));
+                this.AddAppxPackageAsUri(package);
             }
         }
 
@@ -209,6 +214,65 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             {
                 throw new PSNotImplementedException(Resources.MicrosoftUIXaml27Message);
             }
+        }
+
+        private void AddAppxPackageAsUri(string packageUri)
+        {
+            var errorRecord = this.RunScript(string.Format(AddAppxPackageFormat, packageUri));
+
+            if (errorRecord != null)
+            {
+                if (errorRecord.CategoryInfo.Category == ErrorCategory.OpenError)
+                {
+                    this.psCmdlet.WriteDebug($"Failed adding package {packageUri}. Retrying downloading it.");
+                    this.DownloadPackageAndAdd(packageUri);
+                }
+                else
+                {
+                    this.psCmdlet.WriteError(errorRecord);
+                    throw errorRecord.Exception;
+                }
+            }
+        }
+
+        private void DownloadPackageAndAdd(string packageUrl)
+        {
+            var tempFile = new TempFile();
+
+            // This is weird but easy.
+            var githubRelease = new GitHubRelease();
+            githubRelease.DownloadUrl(packageUrl, tempFile.FullFileName);
+
+            var errorRecord = this.RunScript(string.Format(AddAppxPackageFormat, tempFile.FullFileName));
+
+            if (errorRecord is not null)
+            {
+                this.psCmdlet.WriteError(errorRecord);
+                throw errorRecord.Exception;
+            }
+        }
+
+        private ErrorRecord RunScript(string innerScript)
+        {
+            var script = string.Format(
+                TryCatchScript,
+                innerScript);
+
+            this.psCmdlet.WriteDebug($"Running script {script}");
+            var result = this.psCmdlet.InvokeCommand.InvokeScript(
+                script,
+                useNewScope: true,
+                PipelineResultTypes.Error,
+                input: null);
+
+            if (result is not null &&
+                result.Count > 0)
+            {
+                var errorRecord = (ErrorRecord)result[0].ImmediateBaseObject;
+                return errorRecord;
+            }
+
+            return null;
         }
     }
 }
