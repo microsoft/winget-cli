@@ -865,7 +865,7 @@ namespace AppInstaller::CLI::Workflow
 
         if (!linesForPins.empty())
         {
-            context.Reporter.Info() << std::endl << Resource::String::UpgradeBlockingPinCount(linesForPins.size()) << std::endl;
+            context.Reporter.Info() << std::endl << Resource::String::UpgradeBlockedByPinCount(linesForPins.size()) << std::endl;
             OutputInstalledPackagesTable(context, linesForPins);
         }
 
