@@ -24,7 +24,6 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
 
         /// <summary>
         /// Gets the installed version of the catalog package.
-
         /// </summary>
         public string InstalledVersion
         {
