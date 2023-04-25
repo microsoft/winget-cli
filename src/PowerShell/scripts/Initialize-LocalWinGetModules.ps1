@@ -20,7 +20,7 @@
 [CmdletBinding()]
 param (
     [Parameter(Mandatory)]
-    [ValidateSet("x64", "x86")]
+    [ValidateSet("x64", "x86", "AnyCpu")]
     [string]
     $Platform,
 
@@ -64,7 +64,12 @@ $local:moduleRootOutput = "$PSScriptRoot\Module\"
         "Microsoft.WinGet.Client",
         "$PSScriptRoot\..\Microsoft.WinGet.Client\ModuleFiles\",
         $true,
-        $true)
+        $true),
+    [WinGetModule]::new(
+        "Microsoft.WinGet.Configuration",
+        "$PSScriptRoot\..\Microsoft.WinGet.Configuration\ModuleFiles\",
+        $true,
+        $false)
 
 foreach($module in $modules)
 {
