@@ -28,6 +28,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         public static readonly int WINGET_CONFIG_ERROR_WARNING_NOT_ACCEPTED                 = unchecked((int)0x8A15C00B);
         public static readonly int WINGET_CONFIG_ERROR_SET_DEPENDENCY_CYCLE                 = unchecked((int)0x8A15C00C);
         public static readonly int WINGET_CONFIG_ERROR_INVALID_FIELD_VALUE                  = unchecked((int)0x8A15C00D);
+        public static readonly int WINGET_CONFIG_ERROR_MISSING_FIELD                        = unchecked((int)0x8A15C00E);
 
 #pragma warning restore SA1025 // Code should not contain multiple whitespace in a row
 #pragma warning restore SA1600 // Elements should be documented
