@@ -126,7 +126,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     hstring ConfigurationSetParser::LatestVersion()
     {
-        return hstring{ L"0.1" };
+        return hstring{ L"0.2" };
     }
 
     void ConfigurationSetParser::SetError(hresult result, std::string_view field, std::string_view value, uint32_t line, uint32_t column)

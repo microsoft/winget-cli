@@ -469,7 +469,7 @@ namespace Microsoft.Management.Configuration
         // The line number for the failure reason, if determined.
         UInt32 Line{ get; };
 
-        // The line number for the failure reason, if determined.
+        // The column number for the failure reason, if determined.
         UInt32 Column{ get; };
     }
 
