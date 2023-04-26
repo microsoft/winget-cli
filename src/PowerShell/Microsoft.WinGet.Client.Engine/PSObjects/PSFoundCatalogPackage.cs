@@ -22,8 +22,10 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
         {
         }
 
-        /// <inheritdoc/>
-        public override string Version
+        /// <summary>
+        /// Gets the default install version of the catalog package.
+        /// </summary>
+        public string Version
         {
             get { return this.CatalogPackageCOM.DefaultInstallVersion.Version; }
         }
