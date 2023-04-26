@@ -208,6 +208,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         Windows::Storage::Streams::IInputStream localStream = stream;
         co_await winrt::resume_background();
+        auto cancellation = co_await get_cancellation_token();
+        cancellation.enable_propagation();
 
         auto threadGlobals = m_threadGlobals.SetForCurrentThread();
         auto result = make_self<wil::details::module_count_wrapper<OpenConfigurationSetResult>>();
@@ -220,7 +222,32 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         try
         {
-            std::unique_ptr<ConfigurationSetParser> parser = ConfigurationSetParser::Create(localStream);
+            // Read the entire file into memory as we expect them to be small and
+            // our YAML parser doesn't support streaming at this time.
+            // This is done here to enable easy cancellation propagation to the stream reads.
+            uint32_t bufferSize = 1 << 20;
+            Windows::Storage::Streams::Buffer buffer(bufferSize);
+            Windows::Storage::Streams::InputStreamOptions readOptions = 
+                Windows::Storage::Streams::InputStreamOptions::Partial | Windows::Storage::Streams::InputStreamOptions::ReadAhead;
+            std::string inputString;
+
+            for (;;)
+            {
+                Windows::Storage::Streams::IBuffer readBuffer = co_await localStream.ReadAsync(buffer, bufferSize, readOptions);
+
+                size_t readSize = static_cast<size_t>(readBuffer.Length());
+                if (readSize)
+                {
+                    static_assert(sizeof(char) == sizeof(*readBuffer.data()));
+                    inputString.append(reinterpret_cast<char*>(readBuffer.data()), readSize);
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            std::unique_ptr<ConfigurationSetParser> parser = ConfigurationSetParser::Create(inputString);
             if (FAILED(parser->Result()))
             {
                 result->Initialize(parser->Result(), parser->Field());

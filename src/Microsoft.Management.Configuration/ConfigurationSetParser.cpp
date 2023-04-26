@@ -14,40 +14,6 @@
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
-    namespace
-    {
-        std::string StreamToString(const Windows::Storage::Streams::IInputStream& stream)
-        {
-            uint32_t bufferSize = 1 << 20;
-            Windows::Storage::Streams::Buffer buffer(bufferSize);
-            Windows::Storage::Streams::InputStreamOptions readOptions = Windows::Storage::Streams::InputStreamOptions::Partial | Windows::Storage::Streams::InputStreamOptions::ReadAhead;
-            std::string result;
-
-            for (;;)
-            {
-                Windows::Storage::Streams::IBuffer readBuffer = stream.ReadAsync(buffer, bufferSize, readOptions).get();
-
-                size_t readSize = static_cast<size_t>(readBuffer.Length());
-                if (readSize)
-                {
-                    static_assert(sizeof(char) == sizeof(*readBuffer.data()));
-                    result.append(reinterpret_cast<char*>(readBuffer.data()), readSize);
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            return result;
-        }
-    }
-
-    std::unique_ptr<ConfigurationSetParser> ConfigurationSetParser::Create(const Windows::Storage::Streams::IInputStream& stream)
-    {
-        return Create(StreamToString(stream));
-    }
-
     std::unique_ptr<ConfigurationSetParser> ConfigurationSetParser::Create(std::string_view input)
     {
         AICLI_LOG_LARGE_STRING(Config, Verbose, << "Parsing configuration set:", input);

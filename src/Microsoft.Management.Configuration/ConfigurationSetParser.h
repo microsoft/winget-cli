@@ -17,9 +17,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         static constexpr std::string_view NodeName_Properties = "properties"sv;
         static constexpr std::string_view NodeName_ConfigurationVersion = "configurationVersion"sv;
 
-        // Create a parser from the given stream.
-        static std::unique_ptr<ConfigurationSetParser> Create(const Windows::Storage::Streams::IInputStream& stream);
-
         // Create a parser from the given bytes (the encoding is detected).
         static std::unique_ptr<ConfigurationSetParser> Create(std::string_view input);
 
