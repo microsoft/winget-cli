@@ -472,7 +472,7 @@ class WinGetPackage
         $this.CatalogPackage = Get-WinGetPackage -Id $this.Id -MatchOption $this.MatchOption
         if ($null -ne $this.CatalogPackage)
         {
-            $this.InstalledVersion = $this.CatalogPackage.Version
+            $this.InstalledVersion = $this.CatalogPackage.InstalledVersion
             $this.IsInstalled = $true
             $this.IsUpdateAvailable = $this.CatalogPackage.IsUpdateAvailable
         }
