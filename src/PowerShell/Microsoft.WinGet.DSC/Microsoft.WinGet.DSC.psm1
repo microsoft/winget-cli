@@ -506,7 +506,7 @@ class WinGetPackage
         }
 
         # At this point we know is installed.
-        # If asked for latests, but there are updates availables.
+        # If asked for latests, but there are updates available.
         if ($this.UseLatest -and
             $this.CatalogPackage.IsUpdateAvailable)
         {
