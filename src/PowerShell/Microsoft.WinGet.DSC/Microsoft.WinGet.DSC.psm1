@@ -253,11 +253,13 @@ class WinGetSources
             # Require Name and Arg.
             if ((-not $source.ContainsKey("Name")) -or [string]::IsNullOrWhiteSpace($source.Name))
             {
+                # TODO: Localize.
                 throw "Invalid source input. Name is required."
             }
 
             if ((-not $source.ContainsKey("Arg")) -or [string]::IsNullOrWhiteSpace($source.Arg))
             {
+                # TODO: Localize.
                 throw "Invalid source input. Arg is required."
             }
 
@@ -295,11 +297,13 @@ class WinGetSources
             # Require Name and Arg.
             if ((-not $source.ContainsKey("Name")) -or [string]::IsNullOrWhiteSpace($source.Name))
             {
+                # TODO: Localize.
                 throw "Invalid source input. Name is required."
             }
 
             if ((-not $source.ContainsKey("Arg")) -or [string]::IsNullOrWhiteSpace($source.Arg))
             {
+                # TODO: Localize.
                 throw "Invalid source input. Arg is required."
             }
 
@@ -413,6 +417,7 @@ class WinGetPackageManager
 
             if ($result -ne 0)
             {
+                # TODO: Localize.
                 throw "Failed to repair winget. Result $result"
             }
         }
@@ -459,11 +464,13 @@ class WinGetPackage
         # DSC only validates keys and mandatories in a Set call.
         if ([string]::IsNullOrWhiteSpace($this.Id))
         {
+            # TODO: Localize.
             throw "WinGetPackage: Id is required"
         }
 
         if (($this.UseLatest -eq $true) -and (-not[string]::IsNullOrWhiteSpace($this.Version)))
         {
+            # TODO: Localize.
             throw "WinGetPackage: Version and UseLatest cannot be set at the same time"
         }
 
@@ -598,6 +605,7 @@ class WinGetPackage
         $installResult = Install-WinGetPackage @hashArgs
         if (-not $installResult.Succeeded())
         {
+            # TODO: Localize.
             throw "WinGetPackage Failed installing $($this.Id). $($installResult.ErrorMessage())"
         }
     }
@@ -607,6 +615,7 @@ class WinGetPackage
         $uninstallResult = Uninstall-WinGetPackage -PSCatalogPackage $this.CatalogPackage
         if (-not $uninstallResult.Succeeded())
         {
+            # TODO: Localize.
             throw "WinGetPackage Failed uninstalling $($this.Id). $($uninstallResult.ErrorMessage())"
         }
     }
@@ -616,6 +625,7 @@ class WinGetPackage
         $updateResult = Update-WinGetPackage @hashArgs
         if (-not $updateResult.Succeeded())
         {
+            # TODO: Localize.
             throw "WinGetPackage Failed updating $($this.Id). $($updateResult.ErrorMessage())"
         }
     }
