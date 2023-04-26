@@ -81,11 +81,6 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
         }
 
         /// <summary>
-        /// Gets the version of the catalog package.
-        /// </summary>
-        public abstract string Version { get; }
-
-        /// <summary>
         /// Gets the catalog package COM object.
         /// </summary>
         internal CatalogPackage CatalogPackageCOM { get; private set; }

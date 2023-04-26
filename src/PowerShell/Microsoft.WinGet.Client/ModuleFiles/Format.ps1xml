@@ -74,7 +74,7 @@
                 <ScriptBlock>$_.Id</ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>$_.Version</ScriptBlock>
+                <ScriptBlock>$_.InstalledVersion</ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>if ($_.IsUpdateAvailable) { $_.AvailableVersions[0] }</ScriptBlock>

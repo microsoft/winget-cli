@@ -23,8 +23,10 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
         {
         }
 
-        /// <inheritdoc/>
-        public override string Version
+        /// <summary>
+        /// Gets the installed version of the catalog package.
+        /// </summary>
+        public string InstalledVersion
         {
             get { return this.CatalogPackageCOM.InstalledVersion.Version; }
         }
