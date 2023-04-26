@@ -90,85 +90,37 @@ namespace AppInstallerCLIE2ETests.PowerShell
         }
 
         /// <summary>
+        /// Tests WinGetPackage cmdlets.
         /// Find-WinGetPackage.
+        /// Install-WinGetPackage.
+        /// Get-WinGetPackage.
+        /// Update-WinGetPackage.
+        /// Uninstall-WinGetPackage.
         /// </summary>
         [Test]
-        public void FindWinGetPackage()
+        public void WinGetPackageCmdlets()
         {
             if (!Environment.Is64BitProcess)
             {
                 return;
             }
 
+            // TODO: It would be nice to add an installer to be use ONLY by the PowerShell cmdlets for E2E to avoid conflicts and bad
+            // cleanups in other tests.
             var result = TestCommon.RunPowerShellCoreCommandWithResult(Constants.FindCmdlet, $"-Id {Constants.ExeInstallerPackageId}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode, $"ExitCode: {result.ExitCode} Failed with the following output: {result.StdOut}; {result.StdErr}");
             Assert.IsTrue(result.StdOut.Contains("TestExeInstaller"));
-        }
-
-        /// <summary>
-        /// Tests Get-WinGetPackage.
-        /// </summary>
-        [Test]
-        public void GetWinGetPackage()
-        {
-            if (!Environment.Is64BitProcess)
-            {
-                return;
-            }
-
-            var installResult = TestCommon.RunPowerShellCoreCommandWithResult(Constants.InstallCmdlet, $"-Id {Constants.MsiInstallerPackageId}");
-            var getResult = TestCommon.RunPowerShellCoreCommandWithResult(Constants.GetCmdlet, $"-Id {Constants.MsiInstallerPackageId}");
-            var uninstallResult = TestCommon.RunPowerShellCoreCommandWithResult(Constants.UninstallCmdlet, $"-Id {Constants.MsiInstallerPackageId}");
-
-            Assert.AreEqual(Constants.ErrorCode.S_OK, installResult.ExitCode, $"ExitCode: {installResult.ExitCode}; Failed with the following output: {installResult.StdOut}; {installResult.StdErr}");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, getResult.ExitCode, $"Failed with the following output: {getResult.StdOut}");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, uninstallResult.ExitCode, $"Failed with the following output: {uninstallResult.StdOut}");
-
-            Assert.IsTrue(!string.IsNullOrEmpty(installResult.StdOut));
-            Assert.IsTrue(getResult.StdOut.Contains("TestMsiInstaller"));
-            Assert.IsTrue(!string.IsNullOrEmpty(uninstallResult.StdOut));
-        }
-
-        /// <summary>
-        /// Tests Install-WinGetPackage.
-        /// </summary>
-        [Test]
-        public void InstallWinGetPackage()
-        {
-            if (!Environment.Is64BitProcess)
-            {
-                return;
-            }
-
-            var installResult = TestCommon.RunPowerShellCoreCommandWithResult(Constants.InstallCmdlet, $"-Id {Constants.ExeInstallerPackageId}");
-            var uninstallResult = TestCommon.RunPowerShellCoreCommandWithResult(Constants.UninstallCmdlet, $"-Id {Constants.ExeInstallerPackageId}");
-
-            Assert.AreEqual(Constants.ErrorCode.S_OK, installResult.ExitCode, $"ExitCode: {installResult.ExitCode}; Failed with the following output: {installResult.StdOut}; {installResult.StdErr}");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, uninstallResult.ExitCode, $"Failed with the following output: {uninstallResult.StdOut}");
-
-            Assert.IsTrue(!string.IsNullOrEmpty(installResult.StdOut));
-            Assert.IsTrue(!string.IsNullOrEmpty(uninstallResult.StdOut));
-        }
-
-        /// <summary>
-        /// Tests Update-WinGetPackage.
-        /// </summary>
-        [Test]
-        public void UpdateWinGetPackage()
-        {
-            if (!Environment.Is64BitProcess)
-            {
-                return;
-            }
 
             var installResult = TestCommon.RunPowerShellCoreCommandWithResult(Constants.InstallCmdlet, $"-Id {Constants.ExeInstallerPackageId} -Version 1.0.0.0");
-            var updateResult = TestCommon.RunPowerShellCoreCommandWithResult(Constants.UpdateCmdlet, $"-Id {Constants.ExeInstallerPackageId}");
-            var getResult = TestCommon.RunPowerShellCoreCommandWithResult(Constants.GetCmdlet, $"-Id {Constants.ExeInstallerPackageId}");
-            var uninstallResult = TestCommon.RunPowerShellCoreCommandWithResult(Constants.UninstallCmdlet, $"-Id {Constants.ExeInstallerPackageId}");
-
             Assert.AreEqual(Constants.ErrorCode.S_OK, installResult.ExitCode, $"Failed with the following output: {installResult.StdOut}");
+
+            var updateResult = TestCommon.RunPowerShellCoreCommandWithResult(Constants.UpdateCmdlet, $"-Id {Constants.ExeInstallerPackageId}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, updateResult.ExitCode, $"Failed with the following output: {updateResult.StdOut}");
+
+            var getResult = TestCommon.RunPowerShellCoreCommandWithResult(Constants.GetCmdlet, $"-Id {Constants.ExeInstallerPackageId}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, getResult.ExitCode, $"Failed with the following output: {getResult.StdOut}");
+
+            var uninstallResult = TestCommon.RunPowerShellCoreCommandWithResult(Constants.UninstallCmdlet, $"-Id {Constants.ExeInstallerPackageId}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, uninstallResult.ExitCode, $"Failed with the following output: {uninstallResult.StdOut}");
 
             Assert.IsTrue(!string.IsNullOrEmpty(installResult.StdOut));
@@ -260,7 +212,7 @@ namespace AppInstallerCLIE2ETests.PowerShell
             // trying to load the runspace. This is most probably because the same dll is already loaded.
             // Check the type the long way.
             dynamic exception = cmdletException.InnerException;
-            Assert.AreEqual(exception.GetType().ToString(), "Microsoft.WinGet.Client.Exceptions.UserSettingsReadException");
+            Assert.AreEqual(exception.GetType().ToString(), "Microsoft.WinGet.Client.Engine.Exceptions.UserSettingsReadException");
         }
 
         /// <summary>
@@ -1124,7 +1076,7 @@ namespace AppInstallerCLIE2ETests.PowerShell
             // trying to load the runspace. This is most probably because the same dll is already loaded.
             // Check the type the long way.
             dynamic exception = cmdletException.InnerException;
-            Assert.AreEqual(exception.GetType().ToString(), "Microsoft.WinGet.Client.Exceptions.UserSettingsReadException");
+            Assert.AreEqual(exception.GetType().ToString(), "Microsoft.WinGet.Client.Engine.Exceptions.UserSettingsReadException");
         }
 
         private bool IsRunning(string processName)

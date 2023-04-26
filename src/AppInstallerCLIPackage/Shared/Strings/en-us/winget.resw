@@ -1684,9 +1684,9 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Search failed for: {0}</value>
     <comment>{Locked="{0}"} Error message displayed when the user attempts to search for multiple application packages and one of the searches fails. This message is for generic failures, we have more specific messages for when the search returns no results, or when it returns more than one result. {0} is a placeholder replaced by the package name or query.</comment>
   </data>
-  <data name="UpgradeBlockingPinCount" xml:space="preserve">
-    <value>{0} package(s) have a blocking pin that needs to be removed before upgrade</value>
-    <comment>{Locked="{0}"} {0} is a placeholder that is replaced by an integer number of packages with blocking pins</comment>
+  <data name="UpgradeBlockedByPinCount" xml:space="preserve">
+    <value>{0} package(s) have a pin that needs to be removed before upgrade</value>
+    <comment>{Locked="{0}"} {0} is a placeholder that is replaced by an integer number of packages with pins that prevent upgrade</comment>
   </data>
   <data name="IncludePinnedArgumentDescription" xml:space="preserve">
     <value>Upgrade packages even if they have a non-blocking pin</value>
