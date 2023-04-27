@@ -86,6 +86,7 @@
         'WinGetAdminSettings'
         'WinGetSources'
         'WinGetPackageManager'
+        'WinGetPackage'
     )
     
     # List of all modules packaged with this module

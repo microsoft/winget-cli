@@ -1,39 +1,34 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="PSProcessorArchitecture.cs" company="Microsoft Corporation">
+// <copyright file="PSCompareResult.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.WinGet.Client.PSObjects
+namespace Microsoft.WinGet.Client.Engine.PSObjects
 {
     /// <summary>
-    /// The processor architecture of the package to install.
+    /// Must match Microsoft.Management.Deployment.CompareResult.
     /// </summary>
-    public enum PSProcessorArchitecture
+    public enum PSCompareResult
     {
         /// <summary>
-        /// Let winget decide.
+        /// Unknown,
         /// </summary>
-        Default,
+        Unknown,
 
         /// <summary>
-        /// x86,
+        /// Lesser.
         /// </summary>
-        X86,
+        Lesser,
 
         /// <summary>
-        /// ARM.
+        /// Equal,
         /// </summary>
-        Arm,
+        Equal,
 
         /// <summary>
-        /// x64.
+        /// Greater,
         /// </summary>
-        X64,
-
-        /// <summary>
-        /// Arm64
-        /// </summary>
-        Arm64,
+        Greater,
     }
 }

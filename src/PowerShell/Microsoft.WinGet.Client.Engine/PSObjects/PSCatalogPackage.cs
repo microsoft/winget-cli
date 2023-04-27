@@ -7,6 +7,7 @@
 namespace Microsoft.WinGet.Client.Engine.PSObjects
 {
     using System.Linq;
+    using System.Management.Automation;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Engine.Exceptions;
 

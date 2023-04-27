@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.WinGet.Client.Engine.PSObjects
+namespace Microsoft.WinGet.Client.PSObjects
 {
     /// <summary>
     /// Must match Microsoft.Management.Deployment.PackageUninstallMode.

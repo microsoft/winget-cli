@@ -39,7 +39,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="moniker">Moniker of package.</param>
         /// <param name="source">Source to search. If null, all are searched.</param>
         /// <param name="query">Match against any field of a package.</param>
-        /// <param name="exact">Do exact match.</param>
+        /// <param name="matchOption">Match option.</param>
         public InstallerPackageCommand(
             PSCmdlet psCmdlet,
             string psInstallMode,
@@ -57,7 +57,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             string moniker,
             string source,
             string[] query,
-            bool exact)
+            string matchOption)
             : base(psCmdlet)
         {
             // InstallCommand.
@@ -84,7 +84,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             this.Moniker = moniker;
             this.Source = source;
             this.Query = query;
-            this.Exact = exact;
+            this.MatchOption = PSEnumHelpers.ToPackageFieldMatchOption(matchOption);
         }
 
         /// <summary>

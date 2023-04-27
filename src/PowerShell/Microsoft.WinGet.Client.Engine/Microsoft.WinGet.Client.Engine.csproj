@@ -136,7 +136,7 @@
   </PropertyGroup>
 
   <!-- Copy unmanaged dlls that are not copied in the build server -->
-  <Target Name="CopyWinRTAct" AfterTargets="AfterBuild" >
+  <Target Name="CopyWinRTAct" AfterTargets="AfterBuild">
     <PropertyGroup>
       <WinRTActDir>$(OutputPath)..\..\..\UndockedRegFreeWinRT\</WinRTActDir>
       <!-- The output path for this project is different on some builds where the RIDs are not used in the output. -->
@@ -149,7 +149,7 @@
     <Copy SourceFiles="@(WinRTActDll)" DestinationFolder="$(OutputPath)" />
   </Target>
 
-  <Target Name="CopyDeploymentInproc" AfterTargets="AfterBuild" >
+  <Target Name="CopyDeploymentInproc" AfterTargets="AfterBuild">
     <PropertyGroup>
       <DeploymentInprocDir>$(OutputPath)..\..\..\Microsoft.Management.Deployment.InProc\</DeploymentInprocDir>
       <!-- The output path for this project is different on some builds where the RIDs are not used in the output. -->
@@ -162,7 +162,7 @@
     <Copy SourceFiles="@(DeploymentInprocDll)" DestinationFolder="$(OutputPath)" />
   </Target>
 
-  <Target Name="CopyWindowsPackageManager" AfterTargets="AfterBuild" >
+  <Target Name="CopyWindowsPackageManager" AfterTargets="AfterBuild">
     <PropertyGroup>
       <WindowsPackageManagerDir>$(OutputPath)..\..\..\WindowsPackageManager\</WindowsPackageManagerDir>
       <!-- The output path for this project is different on some builds where the RIDs are not used in the output. -->

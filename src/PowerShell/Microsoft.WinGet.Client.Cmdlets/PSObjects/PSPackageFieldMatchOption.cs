@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="PSProcessorArchitecture.cs" company="Microsoft Corporation">
+// <copyright file="PSPackageFieldMatchOption.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -7,33 +7,28 @@
 namespace Microsoft.WinGet.Client.PSObjects
 {
     /// <summary>
-    /// The processor architecture of the package to install.
+    /// This should mimic Microsoft.Management.Deployment.PackageFileMatchOption.
     /// </summary>
-    public enum PSProcessorArchitecture
+    public enum PSPackageFieldMatchOption
     {
         /// <summary>
-        /// Let winget decide.
+        /// Equals.
         /// </summary>
-        Default,
+        Equals,
 
         /// <summary>
-        /// x86,
+        /// EqualsCaseInsensitive.
         /// </summary>
-        X86,
+        EqualsCaseInsensitive,
 
         /// <summary>
-        /// ARM.
+        /// StartsWithCaseInsensitive.
         /// </summary>
-        Arm,
+        StartsWithCaseInsensitive,
 
         /// <summary>
-        /// x64.
+        /// ContainsCaseInsensitive
         /// </summary>
-        X64,
-
-        /// <summary>
-        /// Arm64
-        /// </summary>
-        Arm64,
+        ContainsCaseInsensitive,
     }
 }
