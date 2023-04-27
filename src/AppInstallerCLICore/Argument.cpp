@@ -158,6 +158,11 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::ListVersions:
             return { type, "versions"_liv };
 
+        // List command
+        case Execution::Args::Type::Upgrade:
+            return { type, "upgrade-available"_liv};
+
+
         // Pin command
         case Execution::Args::Type::GatedVersion:
             return { type, "version"_liv, 'v', ArgTypeCategory::None, ArgTypeExclusiveSet::PinType };

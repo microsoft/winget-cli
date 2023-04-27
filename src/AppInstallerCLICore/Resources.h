@@ -506,6 +506,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(UpdateNotApplicableReason);
         WINGET_DEFINE_RESOURCE_STRINGID(UpdateNoPackagesFound);
         WINGET_DEFINE_RESOURCE_STRINGID(UpdateNoPackagesFoundReason);
+        WINGET_DEFINE_RESOURCE_STRINGID(UpgradeArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeAvailableForPinned);
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeBlockedByPinCount);
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeCommandLongDescription);

@@ -92,6 +92,9 @@ namespace AppInstaller::CLI::Execution
             // Show command
             ListVersions, // Used in Show command to list all available versions of an app
 
+            // List Command
+            Upgrade, // Used in List command to only show versions with upgrades
+
             // Pin command
             GatedVersion, // Differs from Version in that this supports wildcards
             BlockingPin,
