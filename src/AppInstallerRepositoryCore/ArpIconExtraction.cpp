@@ -114,6 +114,8 @@ namespace AppInstaller::Repository
             EnumGroupIconProcParameter param;
             param.IconIndex = iconIndex;
 
+#pragma warning( push )
+#pragma warning ( disable : 4302 )
             // First find the requested group icon
             EnumResourceNamesExW(
                 module.get(),
@@ -122,6 +124,7 @@ namespace AppInstaller::Repository
                 reinterpret_cast<LONG_PTR>(&param),
                 (RESOURCE_ENUM_MUI | RESOURCE_ENUM_LN | RESOURCE_ENUM_VALIDATE),
                 0);
+#pragma warning( pop )
 
             if (param.ResourceHandle)
             {
@@ -139,7 +142,7 @@ namespace AppInstaller::Repository
 
                 struct SingleIconImage
                 {
-                    ICONDIRENTRY DirEntry;
+                    ICONDIRENTRY DirEntry = { 0 };
                     // pointer to byte contens with size
                     std::pair<const BYTE*, DWORD> Content;
                 };
