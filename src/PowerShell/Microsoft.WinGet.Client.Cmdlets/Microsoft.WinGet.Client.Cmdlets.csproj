@@ -4,6 +4,7 @@
     <!-- If these target frameworks are updated, make sure to also update the .psd1 and .nuspec files.-->
     <CoreFramework>net6.0-windows10.0.22000.0</CoreFramework>
     <DesktopFramework>net48</DesktopFramework>
+    <Configurations>Debug;Release;ReleaseStatic</Configurations>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -21,6 +22,10 @@
   </ItemGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='ReleaseStatic'">
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
@@ -135,12 +140,12 @@
   <!-- Rename Microsoft.Management.Deployment.InProc.dll to Microsoft.Management.Deployment.dll -->
   <Target Name="RenameMicrosoftManagementDeployment" AfterTargets="AfterBuild">
     <ItemGroup>
-      <RenameModuleFiles Include="$(PowerShellModuleDirectDependencies)\**\Microsoft.Management.Deployment.InProc.dll">
+      <RenameModuleFiles Include="$(PowerShellModuleSharedDependencies)\**\Microsoft.Management.Deployment.InProc.dll">
         <NewName>Microsoft.Management.Deployment.dll</NewName>
       </RenameModuleFiles>
     </ItemGroup>
-    <Message Importance="high" Text="Renaming file '%(RenameModuleFiles.Identity)' to '$(PowerShellModuleLibDirectory)\%(RenameModuleFiles.RecursiveDir)\%(RenameModuleFiles.NewName)'" />
-    <Move SourceFiles="%(RenameModuleFiles.Identity)" DestinationFiles="$(PowerShellModuleDirectDependencies)\%(RenameModuleFiles.RecursiveDir)\%(RenameModuleFiles.NewName)" />
+    <Message Importance="high" Text="Renaming file '%(RenameModuleFiles.Identity)' to '$(PowerShellModuleSharedDependencies)\%(RenameModuleFiles.RecursiveDir)\%(RenameModuleFiles.NewName)'" />
+    <Move SourceFiles="%(RenameModuleFiles.Identity)" DestinationFiles="$(PowerShellModuleSharedDependencies)\%(RenameModuleFiles.RecursiveDir)\%(RenameModuleFiles.NewName)" />
   </Target>
 
 </Project>
