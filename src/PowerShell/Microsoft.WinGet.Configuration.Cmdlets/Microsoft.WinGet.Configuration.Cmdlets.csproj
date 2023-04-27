@@ -87,7 +87,7 @@
   </Target>
 
   <!-- Since this is Any CPU we will have to probe for arch specific binaries -->
-  <!-- This gets defined before the target framework and the rid gets appended to the OuputPath -->
+  <!-- This gets defined before the target framework and the rid gets appended to the OutputPath -->
   <PropertyGroup>
     <Configx64Path>$(OutputPath)..\..\..\x64\$(Configuration)\Microsoft.Management.Configuration\</Configx64Path>
     <Configx86Path>$(OutputPath)..\..\..\x86\$(Configuration)\Microsoft.Management.Configuration\</Configx86Path>

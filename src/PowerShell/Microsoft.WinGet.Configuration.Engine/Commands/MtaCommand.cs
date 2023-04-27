@@ -92,10 +92,10 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         /// Execute the delegate in a MTA thread.
         /// </summary>
         /// <param name="func">Function to execute.</param>
-        /// <typeparam name="TReturn">Return type of function.</typeparam>
+        /// <typeparam name="TResult">Return type of function.</typeparam>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public Task<TReturn> RunOnMTA<TReturn>(Func<Task<TReturn>> func)
-            where TReturn : struct
+        public Task<TResult> RunOnMTA<TResult>(Func<Task<TResult>> func)
+            where TResult : struct
         {
             // This must be called in the main thread.
             if (this.originalThread != Thread.CurrentThread)
@@ -110,7 +110,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             }
 
             this.WriteDebug("Creating MTA thread");
-            var tcs = new TaskCompletionSource<TReturn>();
+            var tcs = new TaskCompletionSource<TResult>();
             var thread = new Thread(() =>
             {
                 try
