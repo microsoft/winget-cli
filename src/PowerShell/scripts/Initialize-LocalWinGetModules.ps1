@@ -25,9 +25,12 @@ param (
     $Platform,
 
     [Parameter(Mandatory)]
-    [ValidateSet("Debug", "Release")]
+    [ValidateSet("Debug", "Release", "ReleaseStatic")]
     [string]
     $Configuration,
+
+    [string]
+    $BuildRoot = "",
 
     [switch]
     $SkipImportModule
@@ -52,6 +55,11 @@ class WinGetModule
 # I know it makes sense, but please don't do a clean up of $moduleRootOutput. When the modules are loaded
 # there's no way to tell PowerShell to release the binary dlls that are loaded.
 $local:moduleRootOutput = "$PSScriptRoot\Module\"
+
+if ($BuildRoot -eq "")
+{
+    $BuildRoot = "$PSScriptRoot\..\..";
+}
 
 # Add here new modules
 [WinGetModule[]]$local:modules = 
@@ -81,7 +89,7 @@ foreach($module in $modules)
     {
         # Copy output files from VS.
         Write-Host "Copying binary module $($module.Name)" -ForegroundColor Green
-        xcopy "$PSScriptRoot\..\..\$Platform\$Configuration\PowerShell\$($module.Name)\" "$moduleRootOutput\$($module.Name)\" /d /s /f /y
+        xcopy "$BuildRoot\$Platform\$Configuration\PowerShell\$($module.Name)\" "$moduleRootOutput\$($module.Name)\" /d /s /f /y
     }
 
     # Copy PowerShell files even for modules with binary resources.
