@@ -58,6 +58,10 @@ namespace AppInstaller::Repository::Microsoft
         // May return an empty key if there is no valid location (bad combination or not found).
         Registry::Key GetARPKey(Manifest::ScopeEnum scope, Utility::Architecture architecture) const;
 
+        // Gets the arp registry key associated with the given scope and product code.
+        // May return an empty key if not found.
+        Registry::Key FindARPEntry(const std::string& productCode, AppInstaller::Manifest::ScopeEnum scope) const;
+
         // Returns true IFF the value exists and contains a non-zero DWORD.
         static bool GetBoolValue(const Registry::Key& arpKey, const std::wstring& name);
 

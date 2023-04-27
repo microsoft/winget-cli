@@ -173,6 +173,9 @@ namespace AppInstaller::Utility
     // Reads the entire stream into a string.
     std::string ReadEntireStream(std::istream& stream);
 
+    // Reads the entire stream into a byte array.
+    std::vector<std::uint8_t> ReadEntireStreamAsByteArray(std::istream& stream);
+
     // Expands environment variables within the input.
     std::wstring ExpandEnvironmentVariables(const std::wstring& input);
 

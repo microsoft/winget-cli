@@ -235,6 +235,7 @@
     <ClInclude Include="ArpIconExtraction.h" />
     <ClInclude Include="ArpVersionValidation.h" />
     <ClInclude Include="CompositeSource.h" />
+    <ClInclude Include="IconDefs.h" />
     <ClInclude Include="ICU\SQLiteICU.h" />
     <ClInclude Include="ISource.h" />
     <ClInclude Include="Microsoft\ARPHelper.h" />

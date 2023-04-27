@@ -11,6 +11,7 @@
 #include <AppInstallerStrings.h>
 #include <winget/JsonUtil.h>
 #include <winget/ManifestJSONParser.h>
+#include "ArpIconExtraction.h"
 
 using namespace AppInstaller::Utility;
 
@@ -1004,7 +1005,11 @@ namespace AppInstaller::Repository::Metadata
             Manifest::ScopeEnum scope = Manifest::ConvertToScopeEnum(packageMetadata[PackageVersionMetadata::InstalledScope]);
 
             // ARP entry icon extraction upon ARP correlation success
+            std::vector<BYTE> icon = ExtractIconFromArpEntry(newEntry.ProductCode, scope);
+            if (!icon.empty())
+            {
 
+            }
 
             // Add or update the metadata for the installer hash
             auto itr = m_outputMetadata.InstallerMetadataMap.find(m_installerHash);

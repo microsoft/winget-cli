@@ -190,6 +190,31 @@ namespace AppInstaller::Repository::Microsoft
         }
     }
 
+    Registry::Key ARPHelper::FindARPEntry(const std::string& productCode, AppInstaller::Manifest::ScopeEnum scope) const
+    {
+        if (productCode.empty())
+        {
+            return {};
+        }
+
+        for (auto architecture : Utility::GetApplicableArchitectures())
+        {
+            Registry::Key arpRootKey = GetARPKey(scope, architecture);
+            if (arpRootKey)
+            {
+                for (const auto& entry : arpRootKey)
+                {
+                    if (productCode == entry.Name())
+                    {
+                        return entry.Open();
+                    }
+                }
+            }
+        }
+
+        return {};
+    }
+
     bool ARPHelper::GetBoolValue(const Registry::Key& arpKey, const std::wstring& name)
     {
         auto value = arpKey[name];
