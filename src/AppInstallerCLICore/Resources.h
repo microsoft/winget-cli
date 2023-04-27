@@ -54,7 +54,9 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationDescriptionWasTruncated);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFailedToApply);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFailedToGetDetails);
-        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFieldInvalid);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFieldInvalidType);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFieldInvalidValue);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFieldMissing);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFileArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFileEmpty);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFileInvalid);
@@ -379,6 +381,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(SearchSource);
         WINGET_DEFINE_RESOURCE_STRINGID(SearchTruncated);
         WINGET_DEFINE_RESOURCE_STRINGID(SearchVersion);
+        WINGET_DEFINE_RESOURCE_STRINGID(SeeLineAndColumn);
         WINGET_DEFINE_RESOURCE_STRINGID(SettingLoadFailure);
         WINGET_DEFINE_RESOURCE_STRINGID(SettingsCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SettingsCommandShortDescription);

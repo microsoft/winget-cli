@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "ConfigurationUnit.h"
 #include "ConfigurationUnit.g.cpp"
+#include "ConfigurationSetParser.h"
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
@@ -11,6 +12,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         GUID instanceIdentifier;
         THROW_IF_FAILED(CoCreateGuid(&instanceIdentifier));
         m_instanceIdentifier = instanceIdentifier;
+        m_schemaVersion = ConfigurationSetParser::LatestVersion();
     }
 
     ConfigurationUnit::ConfigurationUnit(const guid& instanceIdentifier) :
@@ -113,5 +115,16 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     void ConfigurationUnit::ShouldApply(bool value)
     {
         m_shouldApply = value;
+    }
+
+    hstring ConfigurationUnit::SchemaVersion()
+    {
+        return m_schemaVersion;
+    }
+
+    void ConfigurationUnit::SchemaVersion(const hstring& value)
+    {
+        THROW_HR_IF(E_INVALIDARG, !ConfigurationSetParser::IsRecognizedSchemaVersion(value));
+        m_schemaVersion = value;
     }
 }

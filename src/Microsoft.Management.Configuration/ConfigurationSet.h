@@ -41,6 +41,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         Windows::Foundation::Collections::IVectorView<ConfigurationUnit> ConfigurationUnits();
         void ConfigurationUnits(const Windows::Foundation::Collections::IVectorView<ConfigurationUnit>& value);
 
+        hstring SchemaVersion();
+        void SchemaVersion(const hstring& value);
+
         event_token ConfigurationSetChange(const Windows::Foundation::TypedEventHandler<WinRT_Self, ConfigurationSetChangeData>& handler);
         void ConfigurationSetChange(const event_token& token) noexcept;
 
@@ -56,6 +59,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         guid m_instanceIdentifier;
         clock::time_point m_firstApply{};
         Windows::Foundation::Collections::IVector<ConfigurationUnit> m_configurationUnits{ winrt::single_threaded_vector<ConfigurationUnit>() };
+        hstring m_schemaVersion;
         winrt::event<Windows::Foundation::TypedEventHandler<WinRT_Self, ConfigurationSetChangeData>> m_configurationSetChange;
 
         MutableFlag m_mutableFlag;

@@ -155,6 +155,7 @@
     <ClInclude Include="ConfigurationSetParser.h" />
     <ClInclude Include="ConfigurationSetParserError.h" />
     <ClInclude Include="ConfigurationSetParser_0_1.h" />
+    <ClInclude Include="ConfigurationSetParser_0_2.h" />
     <ClInclude Include="ConfigurationUnit.h" />
     <ClInclude Include="ConfigurationUnitResultInformation.h" />
     <ClInclude Include="DiagnosticInformation.h" />
@@ -186,6 +187,7 @@
     <ClCompile Include="ConfigurationSetChangeData.cpp" />
     <ClCompile Include="ConfigurationSetParser.cpp" />
     <ClCompile Include="ConfigurationSetParser_0_1.cpp" />
+    <ClCompile Include="ConfigurationSetParser_0_2.cpp" />
     <ClCompile Include="ConfigurationUnit.cpp" />
     <ClCompile Include="ConfigurationUnitResultInformation.cpp" />
     <ClCompile Include="DiagnosticInformation.cpp" />

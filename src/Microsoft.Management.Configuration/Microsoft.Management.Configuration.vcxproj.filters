@@ -84,6 +84,9 @@
     <ClCompile Include="Telemetry\Telemetry.cpp">
       <Filter>Telemetry</Filter>
     </ClCompile>
+    <ClCompile Include="ConfigurationSetParser_0_2.cpp">
+      <Filter>Parser</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
@@ -173,6 +176,9 @@
     </ClInclude>
     <ClInclude Include="Telemetry\Telemetry.h">
       <Filter>Telemetry</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigurationSetParser_0_2.h">
+      <Filter>Parser</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
