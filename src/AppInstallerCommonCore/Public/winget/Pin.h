@@ -26,38 +26,23 @@ namespace AppInstaller::Pinning
         Blocking,
     };
 
-    // The type of an extra string used for identifying an installed app for pinning
-    enum class ExtraIdStringType
-    {
-        None,
-        ProductCode,
-        PackageFamilyName,
-    };
-
     std::string_view ToString(PinType type);
     PinType ConvertToPinTypeEnum(std::string_view in);
-
-    std::string_view ToString(ExtraIdStringType type);
 
     // Determines which of two pin types is more strict.
     PinType StrictestPinType(PinType first, PinType second);
 
     // The set of values needed to uniquely identify a Pin.
-    // We use both a PackageId and a ProductCode or PackageFamilyName
-    // to be able to deal with packages that match with multiple installed apps.
-    // This helps us deal better with apps that we don't match properly elsewhere.
     struct PinKey
     {
         PinKey() {}
-        PinKey(const Manifest::Manifest::string_t& packageId, std::string_view sourceId, ExtraIdStringType extraIdType, std::string_view extraId = {})
-            : PackageId(packageId), SourceId(sourceId), ExtraIdType(extraIdType), ExtraId(extraId) {}
+        PinKey(const Manifest::Manifest::string_t& packageId, std::string_view sourceId)
+            : PackageId(packageId), SourceId(sourceId) {}
 
         bool operator==(const PinKey& other) const
         {
             return PackageId == other.PackageId
-                && SourceId == other.SourceId
-                && ExtraIdType == other.ExtraIdType
-                && ExtraId == other.ExtraId;
+                && SourceId == other.SourceId;
         }
 
         bool operator!=(const PinKey& other) const
@@ -69,8 +54,8 @@ namespace AppInstaller::Pinning
         {
             // std::tie implements tuple comparison, wherein it checks the first item in the tuple,
             // iff the first elements are equal, then the second element is used for comparison, and so on
-            return std::tie(PackageId, SourceId, ExtraIdType, ExtraId) <
-                std::tie(other.PackageId, other.SourceId, other.ExtraIdType, other.ExtraId);
+            return std::tie(PackageId, SourceId) <
+                std::tie(other.PackageId, other.SourceId);
         }
 
         // Used for logging
@@ -78,8 +63,6 @@ namespace AppInstaller::Pinning
 
         const Manifest::Manifest::string_t PackageId;
         const std::string SourceId;
-        const ExtraIdStringType ExtraIdType = ExtraIdStringType::None;
-        const std::string ExtraId;
     };
 
     // Gets a list of the possible pin keys that we may use for an available package

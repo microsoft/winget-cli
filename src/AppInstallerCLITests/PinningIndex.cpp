@@ -4,7 +4,7 @@
 #include "TestCommon.h"
 #include <Microsoft/PinningIndex.h>
 #include <Microsoft/Schema/IPinningIndex.h>
-#include <Microsoft/Schema/Pinning_1_1/PinTable.h>
+#include <Microsoft/Schema/Pinning_1_0/PinTable.h>
 #include <winget/Pin.h>
 
 using namespace std::string_literals;
@@ -57,7 +57,7 @@ TEST_CASE("PinningIndexAddEntryToTable", "[pinningIndex]")
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
 
-    Pin pin = Pin::CreateBlockingPin({ "pkgId", "sourceId", ExtraIdStringType::None, "" });
+    Pin pin = Pin::CreateBlockingPin({ "pkgId", "sourceId" });
 
     {
         PinningIndex index = PinningIndex::CreateNew(tempFile, { 1, 0 });
@@ -68,11 +68,11 @@ TEST_CASE("PinningIndexAddEntryToTable", "[pinningIndex]")
         // Open it directly to directly test table state
         Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadWrite);
 
-        auto pins = Pinning_V1_1::PinTable::GetAllPins(connection);
+        auto pins = Pinning_V1_0::PinTable::GetAllPins(connection);
         REQUIRE(pins.size() == 1);
         REQUIRE(pins[0] == pin);
 
-        auto pinFromIndex = Pinning_V1_1::PinTable::GetPinById(connection, 1);
+        auto pinFromIndex = Pinning_V1_0::PinTable::GetPinById(connection, 1);
         REQUIRE(pinFromIndex.has_value());
         REQUIRE(pinFromIndex.value() == pin);
 
@@ -88,8 +88,8 @@ TEST_CASE("PinningIndexAddEntryToTable", "[pinningIndex]")
     {
         // Open it directly to directly test table state
         Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadWrite);
-        REQUIRE(Pinning_V1_1::PinTable::GetAllPins(connection).empty());
-        REQUIRE(!Pinning_V1_1::PinTable::GetPinById(connection, 1));
+        REQUIRE(Pinning_V1_0::PinTable::GetAllPins(connection).empty());
+        REQUIRE(!Pinning_V1_0::PinTable::GetPinById(connection, 1));
     }
 }
 
@@ -98,8 +98,8 @@ TEST_CASE("PinningIndex_AddUpdateRemove", "[pinningIndex]")
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
 
-    Pin pin = Pin::CreateGatingPin({ "pkgId", "srcId", ExtraIdStringType::None, ""}, { "1.0.*"sv });
-    Pin updatedPin = Pin::CreatePinningPin({ "pkgId", "srcId", ExtraIdStringType::None, ""});
+    Pin pin = Pin::CreateGatingPin({ "pkgId", "srcId"}, { "1.0.*"sv });
+    Pin updatedPin = Pin::CreatePinningPin({ "pkgId", "srcId"});
 
     {
         PinningIndex index = PinningIndex::CreateNew(tempFile, { 1, 0 });
@@ -109,7 +109,7 @@ TEST_CASE("PinningIndex_AddUpdateRemove", "[pinningIndex]")
 
     {
         Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadOnly);
-        auto pinFromIndex = Pinning_V1_1::PinTable::GetPinById(connection, 1);
+        auto pinFromIndex = Pinning_V1_0::PinTable::GetPinById(connection, 1);
         REQUIRE(pinFromIndex.has_value());
         REQUIRE(pinFromIndex.value() == updatedPin);
     }
@@ -122,8 +122,8 @@ TEST_CASE("PinningIndex_AddUpdateRemove", "[pinningIndex]")
     {
         // Open it directly to directly test table state
         Connection connection = Connection::Create(tempFile, Connection::OpenDisposition::ReadWrite);
-        REQUIRE(Pinning_V1_1::PinTable::GetAllPins(connection).empty());
-        REQUIRE(!Pinning_V1_1::PinTable::GetPinById(connection, 1));
+        REQUIRE(Pinning_V1_0::PinTable::GetAllPins(connection).empty());
+        REQUIRE(!Pinning_V1_0::PinTable::GetPinById(connection, 1));
     }
 }
 
@@ -132,8 +132,8 @@ TEST_CASE("PinningIndex_ResetAll", "[pinningIndex]")
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
 
-    Pin pin1 = Pin::CreateBlockingPin({ "pkg1", "src1", ExtraIdStringType::None, "" });
-    Pin pin2 = Pin::CreatePinningPin({ "pkg2", "src2", ExtraIdStringType::None, "" });
+    Pin pin1 = Pin::CreateBlockingPin({ "pkg1", "src1" });
+    Pin pin2 = Pin::CreatePinningPin({ "pkg2", "src2" });
 
     // Add two pins to the index, then check that they show up when queried
     PinningIndex index = PinningIndex::CreateNew(tempFile, { 1, 0 });
@@ -143,7 +143,7 @@ TEST_CASE("PinningIndex_ResetAll", "[pinningIndex]")
     REQUIRE(index.GetAllPins().size() == 2);
     REQUIRE(index.GetPin(pin1.GetKey()).has_value());
     REQUIRE(index.GetPin(pin2.GetKey()).has_value());
-    REQUIRE(!index.GetPin({ "pkg", "src", ExtraIdStringType::None, "" }).has_value());
+    REQUIRE(!index.GetPin({ "pkg", "src" }).has_value());
 
     // Reset the index, then check that there are no pins
     index.ResetAllPins();
@@ -157,7 +157,7 @@ TEST_CASE("PinningIndex_AddDuplicatePin", "[pinningIndex]")
     TempFile tempFile{ "repolibtest_tempdb"s, ".db"s };
     INFO("Using temporary file named: " << tempFile.GetPath());
 
-    Pin pin = Pin::CreateGatingPin({ "pkg", "src", ExtraIdStringType::None, "" }, { "1.*"sv });
+    Pin pin = Pin::CreateGatingPin({ "pkg", "src" }, { "1.*"sv });
 
     PinningIndex index = PinningIndex::CreateNew(tempFile, { 1, 0 });
     index.AddPin(pin);

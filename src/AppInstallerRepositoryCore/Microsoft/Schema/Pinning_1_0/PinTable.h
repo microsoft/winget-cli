@@ -6,7 +6,7 @@
 #include "Microsoft/Schema/IPinningIndex.h"
 #include <string_view>
 
-namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
+namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
 {
     struct PinTable
     {

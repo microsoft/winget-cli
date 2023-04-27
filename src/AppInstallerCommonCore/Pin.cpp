@@ -56,30 +56,10 @@ namespace AppInstaller::Pinning
         }
     }
 
-    std::string_view ToString(ExtraIdStringType type)
-    {
-        switch (type)
-        {
-        case ExtraIdStringType::ProductCode:
-            return "ProductCode"sv;
-        case ExtraIdStringType::PackageFamilyName:
-            return "PackageFamilyName";
-        case ExtraIdStringType::None:
-        default:
-            return "None";
-        }
-    }
-
     std::string PinKey::ToString() const
     {
         std::stringstream ss;
         ss << "Package=[" << PackageId << "] Source=[" << SourceId << "]";
-
-        if (ExtraIdType != Pinning::ExtraIdStringType::None)
-        {
-            ss << ' ' << Pinning::ToString(ExtraIdType) << "=[" << ExtraId << "]";
-        }
-
         return ss.str();
     }
 
@@ -107,17 +87,17 @@ namespace AppInstaller::Pinning
 
         for (const auto& productCode : installedProductCodes)
         {
-            pinKeys.emplace_back(packageId, sourceId, Pinning::ExtraIdStringType::ProductCode, productCode);
+            pinKeys.emplace_back(productCode, "" /* TODO */);
         }
 
         for (const auto& packageFamilyName : installedPackageFamilyNames)
         {
-            pinKeys.emplace_back(packageId, sourceId, Pinning::ExtraIdStringType::PackageFamilyName, packageFamilyName);
+            pinKeys.emplace_back(packageFamilyName, "" /* TODO */);
         }
 
         if (pinKeys.empty())
         {
-            pinKeys.emplace_back(packageId, sourceId, Pinning::ExtraIdStringType::None, "");
+            pinKeys.emplace_back(packageId, sourceId);
         }
 
         return pinKeys;

@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "Microsoft/Schema/Pinning_1_1/PinningIndexInterface.h"
-#include "Microsoft/Schema/Pinning_1_1/PinTable.h"
+#include "Microsoft/Schema/Pinning_1_0/PinningIndexInterface.h"
+#include "Microsoft/Schema/Pinning_1_0/PinTable.h"
 
-namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
+namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
 {
     namespace
     {
@@ -31,7 +31,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_1
     void PinningIndexInterface::CreateTables(SQLite::Connection& connection)
     {
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "createpintable_v1_0");
-        Pinning_V1_1::PinTable::Create(connection);
+        Pinning_V1_0::PinTable::Create(connection);
         savepoint.Commit();
     }
 

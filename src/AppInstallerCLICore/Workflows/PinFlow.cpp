@@ -31,32 +31,6 @@ namespace AppInstaller::CLI::Workflow
                 return Pinning::Pin::CreatePinningPin(pinKey);
             }
         }
-
-        // Gets a search request that can be used to find the installed package
-        // that corresponds with a pin. The search is based on the extra ID
-        // (Product Code or Package Family Name) if it is available; otherwise
-        // it uses the package ID. Using the extra ID allows us to disambiguate
-        // in certain cases.
-        SearchRequest GetSearchRequestForPin(const Pinning::PinKey& pinKey)
-        {
-            SearchRequest searchRequest;
-
-            switch (pinKey.ExtraIdType)
-            {
-            case Pinning::ExtraIdStringType::ProductCode:
-                searchRequest.Filters.emplace_back(PackageMatchField::ProductCode, MatchType::CaseInsensitive, pinKey.ExtraId);
-                break;
-            case Pinning::ExtraIdStringType::PackageFamilyName:
-                searchRequest.Filters.emplace_back(PackageMatchField::PackageFamilyName, MatchType::CaseInsensitive, pinKey.ExtraId);
-                break;
-            case Pinning::ExtraIdStringType::None:
-            default:
-                searchRequest.Filters.emplace_back(PackageMatchField::Id, MatchType::CaseInsensitive, pinKey.PackageId);
-                break;
-            }
-
-            return searchRequest;
-        }
     }
 
     void OpenPinningIndex::operator()(Execution::Context& context) const
@@ -83,7 +57,7 @@ namespace AppInstaller::CLI::Workflow
     {
         auto package = context.Get<Execution::Data::Package>();
         std::vector<Pinning::Pin> pins;
-        std::set<std::pair<std::string, std::string>> sourcesAndIds;
+        std::set<std::string> sources;
 
         auto pinningIndex = context.Get<Execution::Data::PinningIndex>();
 
@@ -102,7 +76,7 @@ namespace AppInstaller::CLI::Workflow
 
             for (const auto& pinKey : pinKeys)
             {
-                if (sourcesAndIds.emplace(pinKey.SourceId, pinKey.ExtraId).second)
+                if (sources.emplace(pinKey.SourceId).second)
                 {
                     auto pin = pinningIndex->GetPin(pinKey);
                     if (pin)
@@ -126,7 +100,7 @@ namespace AppInstaller::CLI::Workflow
         auto installedPackageFamilyNames = installedVersion->GetMultiProperty(PackageVersionMultiProperty::PackageFamilyName);
 
         std::vector<Pinning::Pin> pinsToAddOrUpdate;
-        std::set<std::pair<std::string, std::string>> sourcesAndIds;
+        std::set<std::string> sources;
 
         auto pinningIndex = context.Get<Execution::Data::PinningIndex>();
 
@@ -140,7 +114,7 @@ namespace AppInstaller::CLI::Workflow
 
             for (const auto& pinKey : pinKeys)
             {
-                if (!sourcesAndIds.emplace(pinKey.SourceId, pinKey.ExtraId).second)
+                if (!sources.emplace(pinKey.SourceId).second)
                 {
                     // We already considered the pin for this source and product code/pfn
                     continue;
@@ -200,7 +174,7 @@ namespace AppInstaller::CLI::Workflow
     {
         auto package = context.Get<Execution::Data::Package>();
         std::vector<Pinning::Pin> pins;
-        std::set<std::pair<std::string, std::string>> sourcesAndIds;
+        std::set<std::string> sources;
 
         auto pinningIndex = context.Get<Execution::Data::PinningIndex>();
         bool pinExists = false;
@@ -223,7 +197,7 @@ namespace AppInstaller::CLI::Workflow
 
             for (const auto& pinKey : pinKeys)
             {
-                if (sourcesAndIds.emplace(pinKey.SourceId, pinKey.ExtraId).second)
+                if (sources.emplace(pinKey.SourceId).second)
                 {
                     if (pinningIndex->GetPin(pinKey))
                     {

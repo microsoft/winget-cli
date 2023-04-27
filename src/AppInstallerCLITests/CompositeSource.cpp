@@ -1127,7 +1127,7 @@ TEST_CASE("CompositeSource_Pinning_AvailableVersionPinned", "[CompositeSource][P
     // The result when ignoring pins is always the same
     expectedResult.ResultsForPinBehavior[PinBehavior::IgnorePins] = { /* IsUpdateAvailable */ true, /* LatestAvailableVersion */ "1.1.0" };
 
-    PinKey pinKey("Id", setup.Available->Details.Identifier, Pinning::ExtraIdStringType::None, "");
+    PinKey pinKey("Id", setup.Available->Details.Identifier);
     auto pinningIndex = PinningIndex::OpenOrCreateDefault();
     REQUIRE(pinningIndex);
 
@@ -1243,7 +1243,7 @@ TEST_CASE("CompositeSource_Pinning_OneSourcePinned", "[CompositeSource][PinFlow]
     };
 
     {
-        PinKey pinKey("Id", setup.Available->Details.Identifier, Pinning::ExtraIdStringType::None, "");
+        PinKey pinKey("Id", setup.Available->Details.Identifier);
         auto pinningIndex = PinningIndex::OpenOrCreateDefault();
         REQUIRE(pinningIndex);
         pinningIndex->AddPin(Pin::CreatePinningPin(PinKey{ pinKey }));
@@ -1306,7 +1306,7 @@ TEST_CASE("CompositeSource_Pinning_OneSourceGated", "[CompositeSource][PinFlow]"
     };
 
     {
-        PinKey pinKey("Id", setup.Available->Details.Identifier, Pinning::ExtraIdStringType::None, "");
+        PinKey pinKey("Id", setup.Available->Details.Identifier);
         auto pinningIndex = PinningIndex::OpenOrCreateDefault();
         REQUIRE(pinningIndex);
         pinningIndex->AddPin(Pin::CreateGatingPin(PinKey{ pinKey }, GatedVersion{ "1.*"sv }));
@@ -1376,7 +1376,7 @@ TEST_CASE("CompositeSource_Pinning_MultipleInstalled", "[CompositeSource][PinFlo
     };
 
     // We will pin the first package only
-    PinKey pinKey(packageId, setup.Available->Details.Identifier, Pinning::ExtraIdStringType::ProductCode, productCode1);
+    PinKey pinKey(packageId, setup.Available->Details.Identifier, productCode1);
     auto pinningIndex = PinningIndex::OpenOrCreateDefault();
     REQUIRE(pinningIndex);
 
