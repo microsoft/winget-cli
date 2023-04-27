@@ -48,17 +48,17 @@ namespace Microsoft.WinGet.Client.Engine.Common
             }
             catch (Win32Exception e)
             {
-                psCmdlet.WriteDebug($"'winget.exe --version' Win32Exception {e}");
+                psCmdlet.WriteDebug($"'winget.exe' Win32Exception {e.Message}");
                 throw new WinGetIntegrityException(GetReason(psCmdlet));
             }
             catch (Exception e) when (e is WinGetCLIException || e is WinGetCLITimeoutException)
             {
-                psCmdlet.WriteDebug($"'winget.exe --version' WinGetCLIException {e}");
+                psCmdlet.WriteDebug($"'winget.exe' WinGetCLIException {e.Message}");
                 throw new WinGetIntegrityException(IntegrityCategory.Failure, e);
             }
             catch (Exception e)
             {
-                psCmdlet.WriteDebug($"'winget.exe --version' Exception {e}");
+                psCmdlet.WriteDebug($"'winget.exe' Exception {e.Message}");
                 throw new WinGetIntegrityException(IntegrityCategory.Unknown, e);
             }
 

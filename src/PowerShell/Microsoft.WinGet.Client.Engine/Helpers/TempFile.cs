@@ -40,11 +40,11 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 this.FileName = fileName;
             }
 
-            this.FullFileName = Path.Combine(Path.GetTempPath(), this.FileName);
+            this.FullPath = Path.Combine(Path.GetTempPath(), this.FileName);
 
-            if (deleteIfExists && File.Exists(this.FullFileName))
+            if (deleteIfExists && File.Exists(this.FullPath))
             {
-                File.Delete(this.FullFileName);
+                File.Delete(this.FullPath);
             }
 
             if (!string.IsNullOrWhiteSpace(content))
@@ -61,12 +61,12 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         public string FileName { get; }
 
         /// <summary>
-        /// Gets the full file name.
+        /// Gets the full path.
         /// </summary>
-        public string FullFileName { get; }
+        public string FullPath { get; }
 
         /// <summary>
-        /// IDisposable.Dispose .
+        /// IDisposable.Dispose.
         /// </summary>
         public void Dispose()
         {
@@ -82,11 +82,11 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         {
             if (content is null)
             {
-                using var fs = File.Create(this.FullFileName);
+                using var fs = File.Create(this.FullPath);
             }
             else
             {
-                File.WriteAllText(this.FullFileName, content);
+                File.WriteAllText(this.FullPath, content);
             }
         }
 
@@ -98,9 +98,9 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         {
             if (!this.disposed)
             {
-                if (this.cleanup && File.Exists(this.FullFileName))
+                if (this.cleanup && File.Exists(this.FullPath))
                 {
-                    File.Delete(this.FullFileName);
+                    File.Delete(this.FullPath);
                 }
 
                 this.disposed = true;

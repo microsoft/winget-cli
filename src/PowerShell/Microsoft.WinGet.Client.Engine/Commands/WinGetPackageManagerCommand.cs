@@ -180,10 +180,10 @@ namespace Microsoft.WinGet.Client.Engine.Commands
 
             // Download and install.
             var gitHubRelease = new GitHubRelease();
-            gitHubRelease.DownloadRelease(versionTag, tempFile.FullFileName);
+            gitHubRelease.DownloadRelease(versionTag, tempFile.FullPath);
 
             var appxModule = new AppxModuleHelper(this.PsCmdlet);
-            appxModule.AddAppInstallerBundle(tempFile.FullFileName, downgrade);
+            appxModule.AddAppInstallerBundle(tempFile.FullPath, downgrade);
 
             // Verify that is installed
             var integrityCategory = WinGetIntegrity.GetIntegrityCategory(this.PsCmdlet, versionTag);
