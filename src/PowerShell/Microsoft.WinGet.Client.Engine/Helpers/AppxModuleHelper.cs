@@ -7,13 +7,10 @@
 namespace Microsoft.WinGet.Client.Engine.Helpers
 {
     using System.Collections.Generic;
-    using System.IO;
+    using System.Collections.ObjectModel;
     using System.Linq;
     using System.Management.Automation;
-    using System.Management.Automation.Runspaces;
-    using System.Resources;
     using System.Runtime.InteropServices;
-    using System.Text;
     using Microsoft.WinGet.Client.Engine.Common;
     using Microsoft.WinGet.Client.Engine.Properties;
 
@@ -22,13 +19,27 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
     /// </summary>
     internal class AppxModuleHelper
     {
-        private const string GetAppxModule = "Get-Module Appx";
-        private const string ImportModuleCore = "Import-Module Appx -UseWindowsPowerShell";
-        private const string GetAppxPackageCommand = "Get-AppxPackage {0}";
-        private const string AddAppxPackageFormat = "Add-AppxPackage -Path {0}";
-        private const string AddAppxPackageRegisterFormat = "Add-AppxPackage -Path {0} -Register -DisableDevelopmentMode";
-        private const string ForceUpdateFromAnyVersion = " -ForceUpdateFromAnyVersion";
-        private const string GetAppxPackageByVersionCommand = "Get-AppxPackage {0} | Where-Object -Property Version -eq {1}";
+        // Cmdlets
+        private const string ImportModule = "Import-Module";
+        private const string GetAppxPackage = "Get-AppxPackage";
+        private const string AddAppxPackage = "Add-AppxPackage";
+
+        // Parameters name
+        private const string Name = "Name";
+        private const string Path = "Path";
+        private const string ErrorAction = "ErrorAction";
+        private const string WarningAction = "WarningAction";
+
+        // Parameter Values
+        private const string Appx = "Appx";
+        private const string Stop = "Stop";
+        private const string SilentlyContinue = "SilentlyContinue";
+
+        // Options
+        private const string UseWindowsPowerShell = "UseWindowsPowerShell";
+        private const string ForceUpdateFromAnyVersion = "ForceUpdateFromAnyVersion";
+        private const string Register = "Register";
+        private const string DisableDevelopmentMode = "DisableDevelopmentMode";
 
         private const string AppInstallerName = "Microsoft.DesktopAppInstaller";
         private const string AppxManifest = "AppxManifest.xml";
@@ -53,18 +64,6 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         public AppxModuleHelper(PSCmdlet psCmdlet)
         {
             this.psCmdlet = psCmdlet;
-
-            // There's a bug in the Appx Module that it can't be loaded from Core in pre 10.0.22453.0 builds without
-            // the -UseWindowsPowerShell option. In post 10.0.22453.0 builds there's really no difference between
-            // using or not -UseWindowsPowerShell as it will automatically get loaded using WinPSCompatSession remoting session.
-            // https://github.com/PowerShell/PowerShell/issues/13138.
-#if !POWERSHELL_WINDOWS
-            var appxModule = this.psCmdlet.InvokeCommand.InvokeScript(GetAppxModule);
-            if (appxModule is null)
-            {
-                this.psCmdlet.InvokeCommand.InvokeScript(ImportModuleCore);
-            }
-#endif
         }
 
         /// <summary>
@@ -113,21 +112,28 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             this.InstallVCLibsDependencies();
             this.InstallUiXaml();
 
-            StringBuilder sb = new StringBuilder();
-            sb.Append(string.Format(AddAppxPackageFormat, localPath));
-
+            var options = new List<string>();
             if (downgrade)
             {
-                sb.Append(ForceUpdateFromAnyVersion);
+                options.Add(ForceUpdateFromAnyVersion);
             }
 
-            // Using this method simplifies a lot of things, but the error is not propagated with
-            // the default parameters. PipelineResultTypes.Error will at least output it in the terminal.
-            this.psCmdlet.InvokeCommand.InvokeScript(
-                sb.ToString(),
-                useNewScope: true,
-                PipelineResultTypes.Error,
-                input: null);
+            try
+            {
+                _ = this.ExecuteAppxCmdlet(
+                AddAppxPackage,
+                new Dictionary<string, object>
+                {
+                    { Path, localPath },
+                    { ErrorAction, Stop },
+                },
+                options);
+            }
+            catch (RuntimeException e)
+            {
+                this.psCmdlet.WriteError(e.ErrorRecord);
+                throw e;
+            }
         }
 
         /// <summary>
@@ -136,30 +142,64 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         public void RegisterAppInstaller()
         {
             string packageFullName = this.GetAppInstallerPropertyValue(PackageFullName);
-            string appxManifestPath = Path.Combine(
+            string appxManifestPath = System.IO.Path.Combine(
                 Utilities.ProgramFilesWindowsAppPath,
                 packageFullName,
                 AppxManifest);
 
-            this.psCmdlet.InvokeCommand.InvokeScript(
-                string.Format(AddAppxPackageRegisterFormat, appxManifestPath));
+            _ = this.ExecuteAppxCmdlet(
+                AddAppxPackage,
+                new Dictionary<string, object>
+                {
+                    { Path, appxManifestPath },
+                },
+                new List<string>
+                {
+                    Register,
+                    DisableDevelopmentMode,
+                });
         }
 
         private PSObject GetAppxObject(string packageName)
         {
-            return this.psCmdlet.InvokeCommand
-                .InvokeScript(string.Format(GetAppxPackageCommand, packageName))
+            return this.ExecuteAppxCmdlet(
+                GetAppxPackage,
+                new Dictionary<string, object>
+                {
+                    { Name, packageName },
+                })
                 .FirstOrDefault();
         }
 
         private IReadOnlyList<string> GetVCLibsDependencies()
         {
             var vcLibsDependencies = new List<string>();
-            var vcLibsPackageObjs = this.psCmdlet.InvokeCommand
-                .InvokeScript(string.Format(GetAppxPackageByVersionCommand, VCLibsUWPDesktop, VCLibsUWPDesktopVersion));
-            if (vcLibsPackageObjs is null ||
-                vcLibsPackageObjs.Count == 0)
+
+            var result = this.ExecuteAppxCmdlet(
+                GetAppxPackage,
+                new Dictionary<string, object>
+                {
+                    { Name, VCLibsUWPDesktop },
+                });
+
+            // See if the required version is installed.
+            bool isInstalled = false;
+            if (result != null &&
+                result.Count > 0)
             {
+                foreach (dynamic psobject in result)
+                {
+                    if (psobject?.Version == VCLibsUWPDesktopVersion)
+                    {
+                        isInstalled = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!isInstalled)
+            {
+                this.psCmdlet.WriteDebug("Couldn't find required VCLibs package");
                 var arch = RuntimeInformation.OSArchitecture;
                 if (arch == Architecture.X64)
                 {
@@ -195,8 +235,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             var packages = this.GetVCLibsDependencies();
             foreach (var package in packages)
             {
-                this.psCmdlet.WriteDebug($"Installing VCLibs {package}");
-                this.psCmdlet.InvokeCommand.InvokeScript(string.Format(AddAppxPackageFormat, package));
+                this.AddAppxPackageAsUri(package);
             }
         }
 
@@ -209,6 +248,96 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             {
                 throw new PSNotImplementedException(Resources.MicrosoftUIXaml27Message);
             }
+        }
+
+        private void AddAppxPackageAsUri(string packageUri)
+        {
+            try
+            {
+                _ = this.ExecuteAppxCmdlet(
+                    AddAppxPackage,
+                    new Dictionary<string, object>
+                    {
+                        { Path, packageUri },
+                        { ErrorAction, Stop },
+                    });
+            }
+            catch (RuntimeException e)
+            {
+                // If we couldn't install it via URI, try download and install.
+                if (e.ErrorRecord.CategoryInfo.Category == ErrorCategory.OpenError)
+                {
+                    this.psCmdlet.WriteDebug($"Failed adding package [{packageUri}]. Retrying downloading it.");
+                    this.DownloadPackageAndAdd(packageUri);
+                }
+                else
+                {
+                    this.psCmdlet.WriteError(e.ErrorRecord);
+                    throw e;
+                }
+            }
+        }
+
+        private void DownloadPackageAndAdd(string packageUrl)
+        {
+            var tempFile = new TempFile();
+
+            // This is weird but easy.
+            var githubRelease = new GitHubRelease();
+            githubRelease.DownloadUrl(packageUrl, tempFile.FullPath);
+
+            _ = this.ExecuteAppxCmdlet(
+                AddAppxPackage,
+                new Dictionary<string, object>
+                {
+                    { Path, tempFile.FullPath },
+                    { ErrorAction, Stop },
+                });
+        }
+
+        private Collection<PSObject> ExecuteAppxCmdlet(string cmdlet, Dictionary<string, object> parameters = null, IList<string> options = null)
+        {
+            var ps = PowerShell.Create(RunspaceMode.CurrentRunspace);
+
+            // There's a bug in the Appx Module that it can't be loaded from Core in pre 10.0.22453.0 builds without
+            // the -UseWindowsPowerShell option. In post 10.0.22453.0 builds there's really no difference between
+            // using or not -UseWindowsPowerShell as it will automatically get loaded using WinPSCompatSession remoting session.
+            // https://github.com/PowerShell/PowerShell/issues/13138.
+            // Set warning action to silently continue to avoid the console with
+            // 'Module Appx is loaded in Windows PowerShell using WinPSCompatSession remoting session'
+#if !POWERSHELL_WINDOWS
+            ps.AddCommand(ImportModule)
+              .AddParameter(Name, Appx)
+              .AddParameter(UseWindowsPowerShell)
+              .AddParameter(WarningAction, SilentlyContinue)
+              .AddStatement();
+#endif
+
+            string cmd = cmdlet;
+            ps.AddCommand(cmdlet);
+
+            if (parameters != null)
+            {
+                foreach (var p in parameters)
+                {
+                    cmd += $" -{p.Key} {p.Value}";
+                }
+
+                ps.AddParameters(parameters);
+            }
+
+            if (options != null)
+            {
+                foreach (var option in options)
+                {
+                    cmd += $" -{option}";
+                    ps.AddParameter(option);
+                }
+            }
+
+            this.psCmdlet.WriteDebug($"Executing Appx cmdlet {cmd}");
+            var result = ps.Invoke();
+            return result;
         }
     }
 }
