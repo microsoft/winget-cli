@@ -15,7 +15,8 @@ FunctionsToExport = @()
 AliasesToExport = @()
 
 CmdletsToExport = @(
-    "Invoke-WinGetConfiguration"
+    "Get-WinGetConfiguration"
+    "Start-WinGetConfiguration"
 )
 
 PrivateData = @{

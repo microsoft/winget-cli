@@ -30,6 +30,8 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         private readonly ManualResetEventSlim mainThreadActionCompleted = new (false);
         private readonly CancellationToken cancellationToken;
 
+        private readonly bool isDebugBounded = false;
+
         private Action? mainThreadAction = null;
 
         /// <summary>
@@ -42,6 +44,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             this.PsCmdlet = psCmdlet;
             this.originalThread = Thread.CurrentThread;
             this.cancellationToken = cancellationToken;
+            this.isDebugBounded = this.PsCmdlet.MyInvocation.BoundParameters.ContainsKey("Debug");
         }
 
         /// <summary>
@@ -95,7 +98,6 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         /// <typeparam name="TResult">Return type of function.</typeparam>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public Task<TResult> RunOnMTA<TResult>(Func<Task<TResult>> func)
-            where TResult : struct
         {
             // This must be called in the main thread.
             if (this.originalThread != Thread.CurrentThread)
@@ -181,8 +183,14 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         /// sets it to the main thread action and wait for it to be executed.
         /// </summary>
         /// <param name="text">Debug text.</param>
-        protected void WriteDebug(string text)
+        public void WriteDebug(string text)
         {
+            // There's no need if Debug is not a bound argument.
+            if (!this.isDebugBounded)
+            {
+                return;
+            }
+
             if (this.originalThread == Thread.CurrentThread)
             {
                 this.PsCmdlet.WriteDebug(text);
@@ -193,6 +201,58 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             {
                 this.WaitForOurTurn();
                 this.mainThreadAction = () => this.PsCmdlet.WriteDebug(text);
+                this.mainThreadActionReady.Set();
+                this.WaitMainThreadActionCompletion();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Calls cmdlet WriteDebug.
+        /// If its executed on the main thread calls it directly. Otherwise
+        /// sets it to the main thread action and wait for it to be executed.
+        /// </summary>
+        /// <param name="text">Warning text.</param>
+        public void WriteWarning(string text)
+        {
+            if (this.originalThread == Thread.CurrentThread)
+            {
+                this.PsCmdlet.WriteWarning(text);
+                return;
+            }
+
+            try
+            {
+                this.WaitForOurTurn();
+                this.mainThreadAction = () => this.PsCmdlet.WriteWarning(text);
+                this.mainThreadActionReady.Set();
+                this.WaitMainThreadActionCompletion();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Calls cmdlet WriteObject.
+        /// </summary>
+        /// <param name="obj">Object to write.</param>
+        public void WriteObject(object obj)
+        {
+            if (this.originalThread == Thread.CurrentThread)
+            {
+                this.PsCmdlet.WriteObject(obj);
+                return;
+            }
+
+            try
+            {
+                this.WaitForOurTurn();
+                this.mainThreadAction = () => this.PsCmdlet.WriteObject(obj);
                 this.mainThreadActionReady.Set();
                 this.WaitMainThreadActionCompletion();
             }
