@@ -26,6 +26,9 @@ namespace ConfigurationRemotingServer
                 ConfigurationProcessorFactoryProperties properties = new ConfigurationProcessorFactoryProperties();
                 properties.AdditionalModulePaths = new List<string>() { modulesPath };
 
+                // This should be RemoteSigned or Restricted eventually.
+                properties.Policy = ConfigurationProcessorPolicy.Unrestricted;
+
                 ConfigurationSetProcessorFactory factory = new ConfigurationSetProcessorFactory(ConfigurationProcessorType.Hosted, properties);
                 IObjectReference factoryInterface = MarshalInterface<global::Microsoft.Management.Configuration.IConfigurationSetProcessorFactory>.CreateMarshaler(factory);
 

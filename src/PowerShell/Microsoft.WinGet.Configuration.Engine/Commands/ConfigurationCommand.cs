@@ -13,6 +13,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
     using System.Threading.Tasks;
     using Microsoft.Management.Configuration;
     using Microsoft.Management.Configuration.Processor;
+    using Microsoft.PowerShell;
     using Microsoft.WinGet.Configuration.Engine.PSObjects;
     using Windows.Storage;
     using Windows.Storage.Streams;
@@ -36,7 +37,8 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         /// Open a configuration set.
         /// </summary>
         /// <param name="configFile">Configuration file path.</param>
-        public void Get(string configFile)
+        /// <param name="executionPolicy">Execution policy.</param>
+        public void Get(string configFile, ExecutionPolicy executionPolicy)
         {
             if (!Path.IsPathRooted(configFile))
             {
@@ -53,7 +55,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
 
             // Start task.
             var runningTask = this.RunOnMTA<PSConfigurationSet>(
-                async () => await this.OpenConfigurationSetAsync(configFile));
+                async () => await this.OpenConfigurationSetAsync(configFile, executionPolicy));
 
             this.Wait(runningTask);
             this.WriteObject(runningTask.Result);
@@ -80,8 +82,11 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             // TODO: apply.
         }
 
-        private ConfigurationProcessor CreateConfigurationProcessor()
+        private ConfigurationProcessor CreateConfigurationProcessor(ExecutionPolicy executionPolicy)
         {
+            var properties = new ConfigurationProcessorFactoryProperties();
+            properties.Policy = this.GetConfigurationProcessorPolicy(executionPolicy);
+
             var factory = new ConfigurationSetProcessorFactory(
                 ConfigurationProcessorType.Default, null);
 
@@ -97,9 +102,9 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             return processor;
         }
 
-        private async Task<PSConfigurationSet> OpenConfigurationSetAsync(string configFile)
+        private async Task<PSConfigurationSet> OpenConfigurationSetAsync(string configFile, ExecutionPolicy executionPolicy)
         {
-            var processor = this.CreateConfigurationProcessor();
+            var processor = this.CreateConfigurationProcessor(executionPolicy);
 
             var stream = await FileRandomAccessStream.OpenAsync(configFile, FileAccessMode.Read);
             OpenConfigurationSetResult openResult = await processor.OpenConfigurationSetAsync(stream);
@@ -135,6 +140,19 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
 
             psConfigurationSet.HasDetailsRetrieved = true;
             return psConfigurationSet;
+        }
+
+        private ConfigurationProcessorPolicy GetConfigurationProcessorPolicy(ExecutionPolicy policy)
+        {
+            return policy switch
+            {
+                ExecutionPolicy.Unrestricted => ConfigurationProcessorPolicy.Unrestricted,
+                ExecutionPolicy.RemoteSigned => ConfigurationProcessorPolicy.RemoteSigned,
+                ExecutionPolicy.AllSigned => ConfigurationProcessorPolicy.AllSigned,
+                ExecutionPolicy.Restricted => ConfigurationProcessorPolicy.Restricted,
+                ExecutionPolicy.Bypass => ConfigurationProcessorPolicy.Bypass,
+                _ => throw new InvalidOperationException(),
+            };
         }
     }
 }

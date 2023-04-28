@@ -29,7 +29,7 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
     /// </summary>
     internal class HostedEnvironment : IProcessorEnvironment
     {
-        private ConfigurationProcessorType type;
+        private readonly ConfigurationProcessorType type;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HostedEnvironment"/> class.
@@ -64,6 +64,15 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
             if (this.GetVariable<string>(Variables.PSEdition) != Core)
             {
                 throw new NotSupportedException("Only PowerShell Core is supported.");
+            }
+
+            // If opening a runspace has failures, like one of the modules in ImportPSModule is not found, it won't throw but
+            // write to the error output. This is not a fatal error, since we install PSDesiredStateConfiguration
+            // module if not found, so unless there's a real reason keep it in verbose.
+            var error = this.GetVariable<string>(Variables.Error);
+            if (!string.IsNullOrEmpty(error))
+            {
+                this.OnDiagnostics(DiagnosticLevel.Verbose, $"Error creating runspace '{error}'");
             }
 
             var powerShellGet = PowerShellHelpers.CreateModuleSpecification(
@@ -477,6 +486,11 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
         private void OnDiagnostics(DiagnosticLevel level, PowerShell pwsh)
         {
             this.SetProcessorFactory?.OnDiagnostics(level, pwsh);
+        }
+
+        private void OnDiagnostics(DiagnosticLevel level, string message)
+        {
+            this.SetProcessorFactory?.OnDiagnostics(level, message);
         }
     }
 }
