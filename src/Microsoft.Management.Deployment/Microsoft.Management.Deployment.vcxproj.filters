@@ -5,7 +5,6 @@
     <ClCompile Include="ConnectResult.cpp" />
     <ClCompile Include="Converters.cpp" />
     <ClCompile Include="CreateCompositePackageCatalogOptions.cpp" />
-    <ClInclude Include="Documentation.cpp" />
     <ClCompile Include="FindPackagesOptions.cpp" />
     <ClCompile Include="FindPackagesResult.cpp" />
     <ClCompile Include="Helpers.cpp" />
@@ -32,6 +31,7 @@
     <ClCompile Include="InstalledStatus.cpp" />
     <ClCompile Include="PackageInstallerInstalledStatus.cpp" />
     <ClCompile Include="CheckInstalledStatusResult.cpp" />
+    <ClCompile Include="Documentation.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CatalogPackage.h" />
@@ -49,13 +49,11 @@
     <ClInclude Include="PackageCatalog.h" />
     <ClInclude Include="PackageCatalogInfo.h" />
     <ClInclude Include="PackageCatalogReference.h" />
-    <ClCompile Include="CatalogPackageMetadata.h" />
     <ClInclude Include="PackageManager.h" />
     <ClInclude Include="PackageMatchFilter.h" />
     <ClInclude Include="PackageVersionId.h" />
     <ClInclude Include="PackageVersionInfo.h" />
     <ClInclude Include="pch.h" />
-    <ClCompile Include="SourceAgreement.h" />
     <ClInclude Include="UninstallOptions.h" />
     <ClInclude Include="UninstallResult.h" />
     <ClInclude Include="Public\ComClsids.h">
@@ -66,6 +64,8 @@
     <ClInclude Include="InstalledStatus.h" />
     <ClInclude Include="PackageInstallerInstalledStatus.h" />
     <ClInclude Include="CheckInstalledStatusResult.h" />
+    <ClInclude Include="CatalogPackageMetadata.h" />
+    <ClInclude Include="SourceAgreement.h" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="PackageManager.idl" />

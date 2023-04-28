@@ -5,6 +5,7 @@
     <TargetWindowsVersion>10.0.22000.0</TargetWindowsVersion>
     <CoreFramework>net6.0-windows$(TargetWindowsVersion)</CoreFramework>
     <DesktopFramework>net48</DesktopFramework>
+    <Configurations>Debug;Release;ReleaseStatic</Configurations>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -63,6 +64,10 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='ReleaseStatic'">
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
