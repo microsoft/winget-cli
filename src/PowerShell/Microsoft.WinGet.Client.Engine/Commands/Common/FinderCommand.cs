@@ -88,7 +88,13 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
             return GetMatchResults(catalog, options);
         }
 
-        private static void SetQueryInFindPackagesOptions(
+        /// <summary>
+        /// Sets the find package options for a query input.
+        /// </summary>
+        /// <param name="options">The options object.</param>
+        /// <param name="match">The match type.</param>
+        /// <param name="value">The query value.</param>
+        protected virtual void SetQueryInFindPackagesOptions(
             ref FindPackagesOptions options,
             PackageFieldMatchOption match,
             string value)
@@ -161,7 +167,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         private FindPackagesOptions GetFindPackagesOptions(uint limit)
         {
             var options = ComObjectFactory.Value.CreateFindPackagesOptions();
-            SetQueryInFindPackagesOptions(ref options, this.MatchOption, this.QueryAsJoinedString);
+            this.SetQueryInFindPackagesOptions(ref options, this.MatchOption, this.QueryAsJoinedString);
             this.AddAttributedFiltersToFindPackagesOptions(ref options, this.MatchOption);
             options.ResultLimit = limit;
             return options;
