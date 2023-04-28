@@ -386,18 +386,6 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Failed to install or upgrade Microsoft Store package. Error code: {0}</value>
     <comment>{Locked="{0}"} Error message displayed when a Microsoft Store application package fails to install or upgrade. {0} is a placeholder replaced by an error code.</comment>
   </data>
-  <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
-    <value>Verifying/Requesting package acquisition failed: network error</value>
-  </data>
-  <data name="MSStoreInstallGetEntitlementNoStoreAccount" xml:space="preserve">
-    <value>Verifying/Requesting package acquisition failed: no store account found</value>
-  </data>
-  <data name="MSStoreInstallGetEntitlementServerError" xml:space="preserve">
-    <value>Verifying/Requesting package acquisition failed: server error</value>
-  </data>
-  <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
-    <value>Verifying/Requesting package acquisition success</value>
-  </data>
   <data name="MSStoreStoreClientBlocked" xml:space="preserve">
     <value>Failed to install or upgrade Microsoft Store package because Microsoft Store client is blocked by policy</value>
   </data>
