@@ -289,7 +289,7 @@ namespace AppInstaller
             case WINGET_CONFIG_ERROR_UNKNOWN_CONFIGURATION_FILE_VERSION:
                 return "The configuration has an unknown version.";
             case WINGET_CONFIG_ERROR_SET_APPLY_FAILED:
-                return "An error occured while applying the configuration.";
+                return "An error occurred while applying the configuration.";
             case WINGET_CONFIG_ERROR_DUPLICATE_IDENTIFIER:
                 return "The configuration contains a duplicate identifier.";
             case WINGET_CONFIG_ERROR_MISSING_DEPENDENCY:
