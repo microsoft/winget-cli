@@ -2,9 +2,12 @@
 
   <PropertyGroup>
     <DotNetVersion>net6.0</DotNetVersion>
+    <!-- Keep in sync with attributes in AssemblyInfo.cs -->
     <TargetFramework>$(DotNetVersion)-windows10.0.19041.0</TargetFramework>
     <Nullable>enable</Nullable>
+    <!-- Keep in sync with attributes in AssemblyInfo.cs -->
     <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <Platform>AnyCpu</Platform>
     <RuntimeIdentifier>win</RuntimeIdentifier>
     <OutputPath>$(SolutionDir)$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutputPath>
