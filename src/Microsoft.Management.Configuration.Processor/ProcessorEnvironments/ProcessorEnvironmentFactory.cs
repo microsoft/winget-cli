@@ -43,7 +43,7 @@ namespace Microsoft.Management.Configuration.Processor.ProcessorEnvironments
             IDscModule dscModule = new DscModuleV2();
             ExecutionPolicy executionPolicy = this.GetExecutionPolicy(policy);
 
-            // The for ConfigurationProcessorType.Default the idea is was that since is already running in PowerShell we will
+            // The for ConfigurationProcessorType.Default the idea was that since is already running in PowerShell we will
             // have access to the variables in the current runspace, but we can't use that runspace and AFAIK
             // there's not a simple way to simply clone a runspace. If we want to do it, we will need to get the
             // variables from the current runspace and add them here, but maybe some of them are objects that can't

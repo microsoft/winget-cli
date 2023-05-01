@@ -64,7 +64,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         /// Gets or sets a value indicating whether if writing to stream is blocked.
         /// Writing to streams must be blocked for Start-* cmdlets. The Complete-* cmdlet counterpart
         /// will enable writing to the stream when executed.
-        /// TODO: For now any messages get lost before the Complete-* call. We can add a ConcurrentQueue
+        /// TODO: For now any messages before the Complete-* call get lost. We can add a ConcurrentQueue
         /// to store message and flush them in or before the Wait call.
         /// </summary>
         private bool CanWriteToStream

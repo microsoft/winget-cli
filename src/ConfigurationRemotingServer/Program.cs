@@ -26,7 +26,7 @@ namespace ConfigurationRemotingServer
                 ConfigurationProcessorFactoryProperties properties = new ConfigurationProcessorFactoryProperties();
                 properties.AdditionalModulePaths = new List<string>() { modulesPath };
 
-                // This should be RemoteSigned or Restricted eventually.
+                // This can be RemoteSigned eventually or keep it Unrestricted for dev builds.
                 properties.Policy = ConfigurationProcessorPolicy.Unrestricted;
 
                 ConfigurationSetProcessorFactory factory = new ConfigurationSetProcessorFactory(ConfigurationProcessorType.Hosted, properties);
