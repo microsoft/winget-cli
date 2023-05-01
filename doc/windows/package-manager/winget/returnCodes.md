@@ -161,7 +161,7 @@ ms.localizationpriority: medium
 | 0x8A150087 | -1978335097 | The YAML syntax is invalid.
 | 0x8A150088 | -1978335096 | A configuration field has an invalid type.
 | 0x8A150089 | -1978335095 | The configuration has an unknown version.
-| 0x8A150090 | -1978335088 | An error occured while applying the configuration.
+| 0x8A150090 | -1978335088 | An error occurred while applying the configuration.
 | 0x8A150091 | -1978335087 | The configuration contains a duplicate identifier.
 | 0x8A150092 | -1978335086 | The configuration is missing a dependency.
 | 0x8A150093 | -1978335085 | The configuration has an unsatisfied dependency.
