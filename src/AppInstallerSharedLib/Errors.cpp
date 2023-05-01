@@ -262,6 +262,73 @@ namespace AppInstaller
                 return "Invalid parameter.";
             case APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED:
                 return "Package not supported by the system.";
+            
+            // Status values for check package installed status results.
+            case WINGET_INSTALLED_STATUS_ARP_ENTRY_NOT_FOUND:
+                return "The Add & Remove Programs Entry for the package could not be found.";
+            case WINGET_INSTALLED_STATUS_INSTALL_LOCATION_NOT_APPLICABLE:
+                return "The install location is not applicable.";
+            case WINGET_INSTALLED_STATUS_INSTALL_LOCATION_NOT_FOUND:
+                return "The install location could not be found.";
+            case WINGET_INSTALLED_STATUS_FILE_HASH_MISMATCH:
+                return "The hash of the existing file did not match. Please uninstall and try again.";
+            case WINGET_INSTALLED_STATUS_FILE_NOT_FOUND:
+                return "File not found.";
+            case WINGET_INSTALLED_STATUS_FILE_FOUND_WITHOUT_HASH_CHECK:
+                return "The file was found but the hash was not checked.";
+            case WINGET_INSTALLED_STATUS_FILE_ACCESS_ERROR:
+                return "The file could not be accessed.";
+
+            // Configuration Errors
+            case WINGET_CONFIG_ERROR_INVALID_CONFIGURATION_FILE:
+                return "The configuration file is invalid.";
+            case WINGET_CONFIG_ERROR_INVALID_YAML:
+                return "The YAML syntax is invalid.";
+            case WINGET_CONFIG_ERROR_INVALID_FIELD_TYPE:
+                return "A configuration field has an invalid type.";
+            case WINGET_CONFIG_ERROR_UNKNOWN_CONFIGURATION_FILE_VERSION:
+                return "The configuration has an unknown version.";
+            case WINGET_CONFIG_ERROR_SET_APPLY_FAILED:
+                return "An error occured while applying the configuration.";
+            case WINGET_CONFIG_ERROR_DUPLICATE_IDENTIFIER:
+                return "The configuration contains a duplicate identifier.";
+            case WINGET_CONFIG_ERROR_MISSING_DEPENDENCY:
+                return "The configuration is missing a dependency.";
+            case WINGET_CONFIG_ERROR_DEPENDENCY_UNSATISFIED:
+                return "The configuration has an unsatisfied dependency.";
+            case WINGET_CONFIG_ERROR_ASSERTION_FAILED:
+                return "An assertion for the configuration unit failed.";
+            case WINGET_CONFIG_ERROR_MANUALLY_SKIPPED:
+                return "The configuration was manually skipped.";
+            case WINGET_CONFIG_ERROR_WARNING_NOT_ACCEPTED:
+                return "A warning was thrown and the user declined to continue execution.";
+            case WINGET_CONFIG_ERROR_SET_DEPENDENCY_CYCLE:
+                return "The dependency graph contains a cycle which cannot be resolved.";
+            case WINGET_CONFIG_ERROR_INVALID_FIELD_VALUE:
+                return "The configuration has an invalid field value.";
+            case WINGET_CONFIG_ERROR_MISSING_FIELD:
+                return "The configuration is missing a field.";
+
+            // Configuration Processor Errors
+            case WINGET_CONFIG_ERROR_UNIT_NOT_INSTALLED:
+                return "The configuration unit was not in the module as expected.";
+            case WINGET_CONFIG_ERROR_UNIT_NOT_FOUND_REPOSITORY:
+                return "The configuration unit could not be found.";
+            case WINGET_CONFIG_ERROR_UNIT_MULTIPLE_MATCHES:
+                return "Multiple matches were found for the configuration unit; specify the module to select the correct one.";
+            case WINGET_CONFIG_ERROR_UNIT_INVOKE_GET:
+                return "The configuration unit failed while attempting to get the current system state.";
+            case WINGET_CONFIG_ERROR_UNIT_INVOKE_TEST:
+                return "The configuration unit failed while attempting to test the current system state.";
+            case WINGET_CONFIG_ERROR_UNIT_INVOKE_SET:
+                return "The configuration unit failed while attempting to apply the desired state.";
+            case WINGET_CONFIG_ERROR_UNIT_MODULE_CONFLICT:
+                return "The module for the configuration unit is available in multiple locations with the same version.";
+            case WINGET_CONFIG_ERROR_UNIT_IMPORT_MODULE:
+                return "Loading the module for the configuration unit failed.";
+            case WINGET_CONFIG_ERROR_UNIT_INVOKE_INVALID_RESULT:
+                return "The configuration unit returned an unexpected result during execution.";
+
             default:
                 return "Unknown Error Code";
             }
