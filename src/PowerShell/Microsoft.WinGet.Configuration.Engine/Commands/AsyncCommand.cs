@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="MtaCommand.cs" company="Microsoft Corporation">
+// <copyright file="AsyncCommand.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -12,17 +12,22 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
     using System.Threading.Tasks;
 
     /// <summary>
-    /// This is the base class for any command that needs to be executed on an MTA thread.
-    /// Call RunOnMTA to start any async function call. If the thread is already running
-    /// on an MTA it will executed it, otherwise it will create a new MTA thread.
+    /// This is the base class for any command that performs async operations.
+    /// It supports running tasks in an MTA thread via RunOnMta.
+    /// If the thread is already running on an MTA it will executed it, otherwise
+    /// it will create a new MTA thread.
     ///
     /// Calling PSCmdlet functions to write into their stream from not the main thread will
     /// throw an exception.
     /// This class contains wrappers around those methods with synchronization mechanisms
     /// to output the messages.
+    ///
+    /// Wait must be used to synchronously wait con the task.
     /// </summary>
-    public abstract class MtaCommand
+    public abstract class AsyncCommand
     {
+        private static readonly object CmdletLock = new ();
+
         private readonly Thread originalThread;
 
         private readonly SemaphoreSlim semaphore = new (1, 1);
@@ -30,27 +35,56 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         private readonly ManualResetEventSlim mainThreadActionCompleted = new (false);
         private readonly CancellationToken cancellationToken;
 
-        private readonly bool isDebugBounded = false;
+        private readonly bool isDebugBounded;
 
         private Action? mainThreadAction = null;
+        private bool canWriteToStream;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MtaCommand"/> class.
+        /// Initializes a new instance of the <see cref="AsyncCommand"/> class.
         /// </summary>
         /// <param name="psCmdlet">PSCmdlet.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
-        public MtaCommand(PSCmdlet psCmdlet, CancellationToken cancellationToken)
+        /// <param name="canWriteToStream">If the command can write to stream.</param>
+        public AsyncCommand(PSCmdlet psCmdlet, CancellationToken cancellationToken, bool canWriteToStream)
         {
             this.PsCmdlet = psCmdlet;
             this.originalThread = Thread.CurrentThread;
             this.cancellationToken = cancellationToken;
             this.isDebugBounded = this.PsCmdlet.MyInvocation.BoundParameters.ContainsKey("Debug");
+            this.canWriteToStream = canWriteToStream;
         }
 
         /// <summary>
         /// Gets the base cmdlet.
         /// </summary>
         protected PSCmdlet PsCmdlet { get; private set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether if writing to stream is blocked.
+        /// Writing to streams must be blocked for Start-* cmdlets. The Complete-* cmdlet counterpart
+        /// will enable writing to the stream when executed.
+        /// TODO: For now any messages get lost before the Complete-* call. We can add a ConcurrentQueue
+        /// to store message and flush them in or before the Wait call.
+        /// </summary>
+        private bool CanWriteToStream
+        {
+            get
+            {
+                lock (CmdletLock)
+                {
+                    return this.canWriteToStream;
+                }
+            }
+
+            set
+            {
+                lock (CmdletLock)
+                {
+                    this.canWriteToStream = value;
+                }
+            }
+        }
 
         /// <summary>
         /// Execute the delegate in a MTA thread.
@@ -143,6 +177,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                 throw new InvalidOperationException();
             }
 
+            this.canWriteToStream = true;
             do
             {
                 // Wait for the running task to be completed or if there's
@@ -185,7 +220,12 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         /// <param name="text">Debug text.</param>
         public void WriteDebug(string text)
         {
-            // There's no need if Debug is not a bound argument.
+            if (!this.CanWriteToStream)
+            {
+                return;
+            }
+
+            // Don't do context switch if no need.
             if (!this.isDebugBounded)
             {
                 return;
@@ -218,6 +258,11 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         /// <param name="text">Warning text.</param>
         public void WriteWarning(string text)
         {
+            if (!this.CanWriteToStream)
+            {
+                return;
+            }
+
             if (this.originalThread == Thread.CurrentThread)
             {
                 this.PsCmdlet.WriteWarning(text);

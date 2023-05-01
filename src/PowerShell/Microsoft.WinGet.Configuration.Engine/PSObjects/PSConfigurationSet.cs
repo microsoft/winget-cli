@@ -13,6 +13,10 @@ namespace Microsoft.WinGet.Configuration.Engine.PSObjects
     /// </summary>
     public sealed class PSConfigurationSet
     {
+        private static readonly object ProcessorLock = new ();
+        private volatile bool hasDetails = false;
+        private volatile bool operationInProgress = false;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="PSConfigurationSet"/> class.
         /// </summary>
@@ -91,8 +95,53 @@ namespace Microsoft.WinGet.Configuration.Engine.PSObjects
 
         /// <summary>
         /// Gets or sets a value indicating whether the details had been retrieved for this set.
-        /// Getting the details is required.
         /// </summary>
-        internal bool HasDetailsRetrieved { get; set; }
+        internal bool HasDetails
+        {
+            get
+            {
+                lock (ProcessorLock)
+                {
+                    return this.hasDetails;
+                }
+            }
+
+            set
+            {
+                lock (ProcessorLock)
+                {
+                    this.hasDetails = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Checks if the object is being used by another cmdlet. If not, blocks it for the caller.
+        /// </summary>
+        /// <returns>True if no one is using me.</returns>
+        internal bool CanProcess()
+        {
+            lock (ProcessorLock)
+            {
+                if (!this.operationInProgress)
+                {
+                    this.operationInProgress = true;
+                    return true;
+                }
+
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// The object is no longer in use by a cmdlet.
+        /// </summary>
+        internal void DoneProcessing()
+        {
+            lock (ProcessorLock)
+            {
+                this.operationInProgress = false;
+            }
+        }
     }
 }

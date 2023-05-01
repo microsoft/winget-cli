@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="GetWinGetConfigurationCmdlet.cs" company="Microsoft Corporation">
+// <copyright file="GetWinGetConfigurationDetailsCmdlet.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -8,44 +8,34 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
 {
     using System.Management.Automation;
     using System.Threading;
-    using Microsoft.PowerShell;
     using Microsoft.WinGet.Configuration.Engine.Commands;
-    using Microsoft.WinGet.Configuration.Helpers;
+    using Microsoft.WinGet.Configuration.Engine.PSObjects;
 
     /// <summary>
-    /// Get-WinGetConfiguration.
-    /// Opens a configuration set.
+    /// Get-WinGetConfigurationDetails.
+    /// Gets the details for the units in a configuration set.
     /// </summary>
-    [Cmdlet(VerbsCommon.Get, "WinGetConfiguration")]
-    public sealed class GetWinGetConfigurationCmdlet : PSCmdlet
+    [Cmdlet(VerbsCommon.Get, "WinGetConfigurationDetails")]
+    public sealed class GetWinGetConfigurationDetailsCmdlet : PSCmdlet
     {
-        private ExecutionPolicy executionPolicy = ExecutionPolicy.Undefined;
-
         /// <summary>
-        /// Gets or sets the configuration file.
+        /// Gets or sets the configuration set.
         /// </summary>
         [Parameter(
             Mandatory = true,
+            ValueFromPipeline = true,
             ValueFromPipelineByPropertyName = true)]
-        public string File { get; set; }
+        public PSConfigurationSet Set { get; set; }
 
         /// <summary>
-        /// Pre-processing operations.
-        /// </summary>
-        protected override void BeginProcessing()
-        {
-            this.executionPolicy = Utilities.GetExecutionPolicy();
-        }
-
-        /// <summary>
-        /// Opens the configuration set.
+        /// Starts configuration and wait for it to complete.
         /// </summary>
         protected override void ProcessRecord()
         {
             CancellationTokenSource source = new ();
 
             var configCommand = new ConfigurationCommand(this, source.Token);
-            configCommand.Get(this.File, this.executionPolicy);
+            configCommand.GetDetails(this.Set);
         }
     }
 }

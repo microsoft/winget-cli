@@ -7,6 +7,7 @@
 namespace Microsoft.Management.Configuration.Processor.Runspaces
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
@@ -69,10 +70,12 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
             // If opening a runspace has failures, like one of the modules in ImportPSModule is not found, it won't throw but
             // write to the error output. This is not a fatal error, since we install PSDesiredStateConfiguration
             // module if not found, so unless there's a real reason keep it in verbose.
-            var error = this.GetVariable<string>(Variables.Error);
-            if (!string.IsNullOrEmpty(error))
+            var errors = this.GetVariable<ArrayList>(Variables.Error);
+            if (errors.Count > 0)
             {
-                this.OnDiagnostics(DiagnosticLevel.Verbose, $"Error creating runspace '{error}'");
+                this.OnDiagnostics(
+                    DiagnosticLevel.Verbose,
+                    $"Error creating runspace '{string.Join("\n", errors.Cast<string>().ToArray())}'");
             }
 
             var powerShellGet = PowerShellHelpers.CreateModuleSpecification(

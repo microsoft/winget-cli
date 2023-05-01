@@ -21,15 +21,16 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
     /// <summary>
     /// Class that deals configuration commands.
     /// </summary>
-    public sealed class ConfigurationCommand : MtaCommand
+    public sealed class ConfigurationCommand : AsyncCommand
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ConfigurationCommand"/> class.
         /// </summary>
         /// <param name="psCmdlet">PSCmdlet.</param>
         /// <param name="cancellationToken">Cancellation token.</param>
-        public ConfigurationCommand(PSCmdlet psCmdlet, CancellationToken cancellationToken)
-            : base(psCmdlet, cancellationToken)
+        /// <param name="canWriteToStream">If the command can write to stream.</param>
+        public ConfigurationCommand(PSCmdlet psCmdlet, CancellationToken cancellationToken, bool canWriteToStream = true)
+            : base(psCmdlet, cancellationToken, canWriteToStream)
         {
         }
 
@@ -62,24 +63,118 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         }
 
         /// <summary>
+        /// Gets the details of a configuration set.
+        /// </summary>
+        /// <param name="psConfigurationSet">PSConfigurationSet.</param>
+        public void GetDetails(PSConfigurationSet psConfigurationSet)
+        {
+            if (!psConfigurationSet.HasDetails)
+            {
+                if (!psConfigurationSet.CanProcess())
+                {
+                    // TODO: better exception or just write info and return null.
+                    throw new Exception("Someone is using me!!!");
+                }
+
+                var runningTask = this.RunOnMTA<PSConfigurationSet>(
+                async () =>
+                {
+                    try
+                    {
+                        psConfigurationSet = await this.GetSetDetailsAsync(psConfigurationSet);
+                    }
+                    finally
+                    {
+                        psConfigurationSet.DoneProcessing();
+                    }
+
+                    return psConfigurationSet;
+                });
+
+                this.Wait(runningTask);
+                psConfigurationSet = runningTask.Result;
+            }
+            else
+            {
+                this.WriteWarning("Details already obtained for this set");
+            }
+
+            this.WriteObject(psConfigurationSet);
+        }
+
+        /// <summary>
         /// Starts configuration.
         /// </summary>
         /// <param name="psConfigurationSet">PSConfigurationSet.</param>
-        /// <param name="agrementsAccepted">If the user accepts the configuration agreements.</param>
-        public void Start(PSConfigurationSet psConfigurationSet, bool agrementsAccepted)
+        public void StartApply(PSConfigurationSet psConfigurationSet)
         {
-            // TODO: confirm
-            if (!psConfigurationSet.HasDetailsRetrieved)
+            if (psConfigurationSet.Set.State == ConfigurationSetState.Completed)
             {
-                this.WriteDebug("Getting configuration set");
-                var runningTask = this.RunOnMTA<PSConfigurationSet>(
-                    async () => await this.GetSetDetailsAsync(psConfigurationSet));
-
-                // TODO: remove this.
-                this.Wait(runningTask);
+                this.WriteWarning("Processing this set is completed");
+                return;
             }
 
-            // TODO: apply.
+            if (!psConfigurationSet.CanProcess())
+            {
+                // TODO: better exception or just write info and return null.
+                throw new Exception("Someone is using me!!!");
+            }
+
+            var runningTask = this.StartApplyInternal(psConfigurationSet);
+            this.WriteObject(new PSConfigurationTask(runningTask, this));
+        }
+
+        /// <summary>
+        /// Applies configuration.
+        /// </summary>
+        /// <param name="psConfigurationSet">PSConfigurationSet.</param>
+        public void Apply(PSConfigurationSet psConfigurationSet)
+        {
+            if (psConfigurationSet.Set.State == ConfigurationSetState.Completed)
+            {
+                this.WriteWarning("Processing this set is completed");
+                return;
+            }
+
+            if (!psConfigurationSet.CanProcess())
+            {
+                // TODO: better exception or just write info and return null.
+                throw new Exception("Someone is using me!!!");
+            }
+
+            var runningTask = this.StartApplyInternal(psConfigurationSet);
+            this.Wait(runningTask);
+            this.WriteObject(runningTask.Result);
+        }
+
+        /// <summary>
+        /// Continue a configuration task.
+        /// </summary>
+        /// <param name="psConfigurationTask">The configuration task.</param>
+        public void Continue(PSConfigurationTask psConfigurationTask)
+        {
+            if (psConfigurationTask.ConfigurationTask.IsCompleted)
+            {
+                this.WriteDebug("The task was completed before waiting");
+                if (psConfigurationTask.ConfigurationTask.IsCompletedSuccessfully)
+                {
+                    this.WriteDebug("Completed successfully");
+                    this.WriteObject(psConfigurationTask.ConfigurationTask.Result);
+                    return;
+                }
+                else if (psConfigurationTask.ConfigurationTask.IsFaulted)
+                {
+                    this.WriteDebug("Completed faulted before waiting");
+
+                    // Maybe just write error?
+                    throw psConfigurationTask.ConfigurationTask.Exception!;
+                }
+            }
+
+            // Signal the command that it can write to streams and wait for task.
+            this.WriteDebug("Waiting for task to complete");
+            psConfigurationTask.StartCommand.Wait(psConfigurationTask.ConfigurationTask);
+            this.WriteObject(psConfigurationTask.ConfigurationTask.Result);
         }
 
         private ConfigurationProcessor CreateConfigurationProcessor(ExecutionPolicy executionPolicy)
@@ -88,13 +183,13 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             properties.Policy = this.GetConfigurationProcessorPolicy(executionPolicy);
 
             var factory = new ConfigurationSetProcessorFactory(
-                ConfigurationProcessorType.Default, null);
+                ConfigurationProcessorType.Default, properties);
 
             var processor = new ConfigurationProcessor(factory);
 
             // TODO: set up logging and telemetry.
             ////processor.MinimumLevel = DiagnosticLevel.Error;
-            ////processor.Caller = "ConfigurationCmdlet";
+            ////processor.Caller = "ConfigurationModule";
             ////processor.ActivityIdentifier = Guid.NewGuid();
             ////processor.GenerateTelemetryEvents = false;
             ////processor.Diagnostics;
@@ -125,6 +220,43 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             return new PSConfigurationSet(processor, set);
         }
 
+        private Task<PSConfigurationSet> StartApplyInternal(PSConfigurationSet psConfigurationSet)
+        {
+            var runningTask = this.RunOnMTA<PSConfigurationSet>(
+                async () =>
+                {
+                    try
+                    {
+                        psConfigurationSet = await this.ApplyConfigurationAsync(psConfigurationSet);
+                    }
+                    finally
+                    {
+                        psConfigurationSet.DoneProcessing();
+                    }
+
+                    return psConfigurationSet;
+                });
+
+            return runningTask;
+        }
+
+        private async Task<PSConfigurationSet> ApplyConfigurationAsync(PSConfigurationSet psConfigurationSet)
+        {
+            if (!psConfigurationSet.HasDetails)
+            {
+                this.WriteDebug("Getting details for configuration set");
+                await this.GetSetDetailsAsync(psConfigurationSet);
+            }
+
+            var processor = psConfigurationSet.Processor;
+            var set = psConfigurationSet.Set;
+
+            // TODO: implement progress
+            _ = await processor.ApplySetAsync(set, ApplyConfigurationSetFlags.None);
+
+            return psConfigurationSet;
+        }
+
         private async Task<PSConfigurationSet> GetSetDetailsAsync(PSConfigurationSet psConfigurationSet)
         {
             var processor = psConfigurationSet.Processor;
@@ -136,9 +268,9 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             }
 
             // TODO: implement progress
-            var result = await processor.GetSetDetailsAsync(set, ConfigurationUnitDetailLevel.Catalog);
+            _ = await processor.GetSetDetailsAsync(set, ConfigurationUnitDetailLevel.Catalog);
 
-            psConfigurationSet.HasDetailsRetrieved = true;
+            psConfigurationSet.HasDetails = true;
             return psConfigurationSet;
         }
 

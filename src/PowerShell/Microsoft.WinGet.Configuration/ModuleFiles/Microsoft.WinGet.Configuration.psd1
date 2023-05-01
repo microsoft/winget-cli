@@ -15,7 +15,10 @@ FunctionsToExport = @()
 AliasesToExport = @()
 
 CmdletsToExport = @(
+    "Complete-WinGetConfiguration"
     "Get-WinGetConfiguration"
+    "Get-WinGetConfigurationDetails"
+    "Invoke-WinGetConfiguration"
     "Start-WinGetConfiguration"
 )
 
