@@ -121,67 +121,67 @@ ms.localizationpriority: medium
 
 | Hex | Decimal | Description |
 |-------------|-------------|-------------| 
-| 0x8A150068 | -1978335128 | Application is currently running. Exit the application then try again.
-| 0x8A150069 | -1978335127 | Another installation is already in progress. Try again later.
-| 0x8A150070 | -1978335120 | One or more file is being used. Exit the application then try again.
-| 0x8A150071 | -1978335119 | This package has a dependency missing from your system.
-| 0x8A150072 | -1978335118 | There's no more space on your PC. Make space, then try again.
-| 0x8A150073 | -1978335117 | There's not enough memory available to install. Close other applications then try again.
-| 0x8A150074 | -1978335116 | This application requires internet connectivity.Connect to a network then try again.
-| 0x8A150075 | -1978335115 | This application encountered an error during installation.Contact support.
-| 0x8A150076 | -1978335114 | Restart your PC to finish installation.
-| 0x8A150077 | -1978335113 | Your PC will restart to finish installation.
-| 0x8A150078 | -1978335112 | Installation failed. Restart your PC then try again.
-| 0x8A150079 | -1978335111 | You cancelled the installation.
-| 0x8A150080 | -1978335104 | Another version of this application is already installed.
-| 0x8A150081 | -1978335103 | A higher version of this application is already installed.
-| 0x8A150082 | -1978335102 | Organization policies are preventing installation. Contact your admin.
-| 0x8A150083 | -1978335101 | Failed to install package dependencies.
-| 0x8A150084 | -1978335100 | Application is currently in use by another application.
-| 0x8A150085 | -1978335099 | Invalid parameter.
-| 0x8A150086 | -1978335098 | Package not supported by the system.
+| 0x8A150101 | -1978334975 | Application is currently running. Exit the application then try again.
+| 0x8A150102 | -1978334974 | Another installation is already in progress. Try again later.
+| 0x8A150103 | -1978334973 | One or more file is being used. Exit the application then try again.
+| 0x8A150104 | -1978334972 | This package has a dependency missing from your system.
+| 0x8A150105 | -1978334971 | There's no more space on your PC. Make space, then try again.
+| 0x8A150106 | -1978334970 | There's not enough memory available to install. Close other applications then try again.
+| 0x8A150107 | -1978334969 | This application requires internet connectivity.Connect to a network then try again.
+| 0x8A150108 | -1978334968 | This application encountered an error during installation.Contact support.
+| 0x8A150109 | -1978334967 | Restart your PC to finish installation.
+| 0x8A15010A | -1978334966 | Your PC will restart to finish installation.
+| 0x8A15010B | -1978334965 | Installation failed. Restart your PC then try again.
+| 0x8A15010C | -1978334964 | You cancelled the installation.
+| 0x8A15010D | -1978334963 | Another version of this application is already installed.
+| 0x8A15010E | -1978334962 | A higher version of this application is already installed.
+| 0x8A15010F | -1978334961 | Organization policies are preventing installation. Contact your admin.
+| 0x8A150110 | -1978334960 | Failed to install package dependencies.
+| 0x8A150111 | -1978334959 | Application is currently in use by another application.
+| 0x8A150112 | -1978334958 | Invalid parameter.
+| 0x8A150113 | -1978334957 | Package not supported by the system.
 
 ## Check for package installed status
 
 | Hex | Decimal | Description |
 |-------------|-------------|-------------| 
-| 0x8A150086 | -1978335098 | The Add & Remove Programs Entry for the package could not be found.
-| 0x8A150086 | -1978335098 | The install location is not applicable.
-| 0x8A150087 | -1978335097 | The install location could not be found.
-| 0x8A150086 | -1978335098 | The hash of the existing file did not match. Please uninstall and try again.
-| 0x8A150087 | -1978335097 | File not found.
-| 0x8A150088 | -1978335096 | The file was found but the hash was not checked.
-| 0x8A150089 | -1978335095 | The file could not be accessed.
+| 0x8A150201 | -1978334719 | The Add & Remove Programs Entry for the package could not be found.
+| 0x8A150202 | -1978334718 | The install location is not applicable.
+| 0x8A150203 | -1978334717 | The install location could not be found.
+| 0x8A150204 | -1978334716 | The hash of the existing file did not match. Please uninstall and try again.
+| 0x8A150205 | -1978334715 | File not found.
+| 0x8A150206 | -1978334714 | The file was found but the hash was not checked.
+| 0x8A150207 | -1978334713 | The file could not be accessed.
 
 ## Configuration Errors
 
 | Hex | Decimal | Description |
 |-------------|-------------|-------------| 
-| 0x8A150086 | -1978335098 | configuration file is invalid.
-| 0x8A150087 | -1978335097 | The YAML syntax is invalid.
-| 0x8A150088 | -1978335096 | A configuration field has an invalid type.
-| 0x8A150089 | -1978335095 | The configuration has an unknown version.
-| 0x8A150090 | -1978335088 | An error occurred while applying the configuration.
-| 0x8A150091 | -1978335087 | The configuration contains a duplicate identifier.
-| 0x8A150092 | -1978335086 | The configuration is missing a dependency.
-| 0x8A150093 | -1978335085 | The configuration has an unsatisfied dependency.
-| 0x8A150094 | -1978335084 | An assertion for the configuration unit failed.
-| 0x8A150095 | -1978335083 | The configuration was manually skipped.
-| 0x8A150096 | -1978335082 | A warning was thrown and the user declined to continue execution.
-| 0x8A150097 | -1978335081 | The dependency graph contains a cycle which cannot be resolved.
-| 0x8A150098 | -1978335080 | The configuration has an invalid field value.
-| 0x8A150099 | -1978335079 | The configuration is missing a field.
+| 0x8A15C001 | -1978286079 | The configuration file is invalid.
+| 0x8A15C002 | -1978286078 | The YAML syntax is invalid.
+| 0x8A15C003 | -1978286077 | A configuration field has an invalid type.
+| 0x8A15C004 | -1978286076 | The configuration has an unknown version.
+| 0x8A15C005 | -1978286075 | An error occurred while applying the configuration.
+| 0x8A15C006 | -1978286074 | The configuration contains a duplicate identifier.
+| 0x8A15C007 | -1978286073 | The configuration is missing a dependency.
+| 0x8A15C008 | -1978286072 | The configuration has an unsatisfied dependency.
+| 0x8A15C009 | -1978286071 | An assertion for the configuration unit failed.
+| 0x8A15C00A | -1978286070 | The configuration was manually skipped.
+| 0x8A15C00B | -1978286069 | A warning was thrown and the user declined to continue execution.
+| 0x8A15C00C | -1978286068 | The dependency graph contains a cycle which cannot be resolved.
+| 0x8A15C00D | -1978286067 | The configuration has an invalid field value.
+| 0x8A15C00E | -1978286066 | The configuration is missing a field.
 
 ## Configuration Processor Errors
 
 | Hex | Decimal | Description |
 |-------------|-------------|-------------| 
-| 0x8A150099 | -1978335079 | The configuration unit was not in the module as expected.
-| 0x8A150100 | -1978334976 | The configuration unit could not be found.
-| 0x8A150101 | -1978334975 | Multiple matches were found for the configuration unit specify the module to select the correct one.
-| 0x8A150102 | -1978334974 | The configuration unit failed while attempting to get the current system state.
-| 0x8A150103 | -1978334973 | The configuration unit failed while attempting to test the current system state.
-| 0x8A150104 | -1978334972 | The configuration unit failed while attempting to apply the desired state.
-| 0x8A150105 | -1978334971 | The module for the configuration unit is available in multiple locations with the same version.
-| 0x8A150106 | -1978334970 | Loading the module for the configuration unit failed.
-| 0x8A150107 | -1978334969 | The configuration unit returned an unexpected result during execution.
+| 0x8A15C101 | -1978285823 | The configuration unit was not in the module as expected.
+| 0x8A15C102 | -1978285822 | The configuration unit could not be found.
+| 0x8A15C103 | -1978285821 | Multiple matches were found for the configuration unit specify the module to select the correct one.
+| 0x8A15C104 | -1978285820 | The configuration unit failed while attempting to get the current system state.
+| 0x8A15C105 | -1978285819 | The configuration unit failed while attempting to test the current system state.
+| 0x8A15C106 | -1978285818 | The configuration unit failed while attempting to apply the desired state.
+| 0x8A15C107 | -1978285817 | The module for the configuration unit is available in multiple locations with the same version.
+| 0x8A15C108 | -1978285816 | Loading the module for the configuration unit failed.
+| 0x8A15C109 | -1978285815 | The configuration unit returned an unexpected result during execution.
