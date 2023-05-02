@@ -221,4 +221,44 @@ namespace AppInstaller::JSON
 
         return true;
     }
+
+    std::string Base64Encode(const std::vector<BYTE>& input)
+    {
+        if (input.size() == 0)
+        {
+            return {};
+        }
+
+        std::wstring result;
+        DWORD resultSize = 0;
+        CryptBinaryToStringW(input.data(), static_cast<DWORD>(input.size()), CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF, nullptr, &resultSize);
+        THROW_LAST_ERROR_IF(resultSize == 0);
+
+        result.resize(resultSize);
+        THROW_LAST_ERROR_IF(!CryptBinaryToStringW(input.data(), static_cast<DWORD>(input.size()), CRYPT_STRING_BASE64 | CRYPT_STRING_NOCRLF, result.data(), &resultSize));
+        // Resize to remove trailing null terminator
+        result.resize(resultSize);
+
+        return Utility::ConvertToUTF8(result);
+    }
+
+    std::vector<BYTE> Base64Decode(const std::string& input)
+    {
+        if (input.empty())
+        {
+            return {};
+        }
+
+        auto inputWide = Utility::ConvertToUTF16(input);
+
+        std::vector<BYTE> result;
+        DWORD resultSize = 0;
+        CryptStringToBinaryW(inputWide.data(), static_cast<DWORD>(inputWide.size()), CRYPT_STRING_BASE64, nullptr, &resultSize, nullptr, nullptr);
+        THROW_LAST_ERROR_IF(resultSize == 0);
+
+        result.resize(resultSize);
+        THROW_LAST_ERROR_IF(!CryptStringToBinaryW(inputWide.data(), static_cast<DWORD>(inputWide.size()), CRYPT_STRING_BASE64, result.data(), &resultSize, nullptr, nullptr));
+
+        return result;
+    }
 }

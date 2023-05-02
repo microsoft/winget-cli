@@ -251,10 +251,4 @@ namespace AppInstaller::Utility
         (FindAndReplace(inputStr, "{" + std::to_string(index++) + "}", (std::ostringstream() << args).str()),...);
         return inputStr;
     }
-
-    // Base64 encode
-    std::wstring Base64Encode(const std::vector<BYTE>& input);
-
-    // Base64 decode
-    std::vector<BYTE>Base64Decode(const std::wstring& input);
 }

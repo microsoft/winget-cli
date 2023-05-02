@@ -3,7 +3,7 @@
 #pragma once
 #include "pch.h"
 #include "IconDefs.h"
-#include "IconExtraction.h"
+#include "winget/IconExtraction.h"
 #include "Microsoft/ARPHelper.h"
 #include <AppInstallerSHA256.h>
 #include <winget/Filesystem.h>
@@ -276,7 +276,7 @@ namespace AppInstaller::Repository
                         iconInfo.IconFileType = Manifest::IconFileTypeEnum::Ico;
                         iconInfo.IconTheme = Manifest::IconThemeEnum::Default;
                         iconInfo.IconResolution = Manifest::IconResolutionEnum::Custom;
-                        iconInfo.IconSha256 = Utility::SHA256::ComputeHash(iconContent.data(), iconContent.size());
+                        iconInfo.IconSha256 = Utility::SHA256::ComputeHash(iconContent.data(), static_cast<uint32_t>(iconContent.size()));
                         iconInfo.IconContent = std::move(iconContent);
 
                         return { std::move(iconInfo) };
