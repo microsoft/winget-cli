@@ -17,5 +17,10 @@ namespace Microsoft.Management.Configuration.Processor
         /// Gets or sets the additional module paths.
         /// </summary>
         IReadOnlyList<string>? AdditionalModulePaths { get; set; }
+
+        /// <summary>
+        /// Gets or sets the configuration policy.
+        /// </summary>
+        ConfigurationProcessorPolicy Policy { get; set; }
     }
 }

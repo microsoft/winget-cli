@@ -3,6 +3,7 @@ accepteula
 adjacents
 adml
 admx
+AFAIK
 agg
 aicli
 AICLIC

@@ -87,7 +87,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Fixtures
         /// <returns>PowerShellRunspace.</returns>
         internal IProcessorEnvironment PrepareTestProcessorEnvironment(bool validate = false)
         {
-            var processorEnv = new ProcessorEnvironmentFactory(ConfigurationProcessorType.Hosted).CreateEnvironment(null);
+            var processorEnv = new ProcessorEnvironmentFactory(ConfigurationProcessorType.Hosted).CreateEnvironment(null, ConfigurationProcessorPolicy.Unrestricted);
             processorEnv.PrependPSModulePath(this.ExternalModulesPath);
             processorEnv.PrependPSModulePath(this.TestModulesPath);
 

@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="InvokeWinGetConfigurationCmdlet.cs" company="Microsoft Corporation">
+// <copyright file="GetWinGetConfigurationDetailsCmdlet.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -12,12 +12,11 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
     using Microsoft.WinGet.Configuration.Engine.PSObjects;
 
     /// <summary>
-    /// Invoke-WinGetConfiguration.
-    /// Applies the configuration.
-    /// Wait for completion.
+    /// Get-WinGetConfigurationDetails.
+    /// Gets the details for the units in a configuration set.
     /// </summary>
-    [Cmdlet(VerbsLifecycle.Invoke, "WinGetConfiguration")]
-    public sealed class InvokeWinGetConfigurationCmdlet : PSCmdlet
+    [Cmdlet(VerbsCommon.Get, "WinGetConfigurationDetails")]
+    public sealed class GetWinGetConfigurationDetailsCmdlet : PSCmdlet
     {
         /// <summary>
         /// Gets or sets the configuration set.
@@ -29,27 +28,14 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
         public PSConfigurationSet Set { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether to accept the configuration agreements.
-        /// </summary>
-        public SwitchParameter AcceptConfigurationAgreements { get; set; }
-
-        /// <summary>
-        /// Pre-processing operations.
-        /// </summary>
-        protected override void BeginProcessing()
-        {
-            // TODO: if not agrementsAccepted print message with ShouldContinue.
-        }
-
-        /// <summary>
-        /// Starts to apply the configuration and wait for it to complete.
+        /// Starts configuration and wait for it to complete.
         /// </summary>
         protected override void ProcessRecord()
         {
             CancellationTokenSource source = new ();
 
-            var configCommand = new ConfigurationCommand(this, source.Token, false);
-            configCommand.Apply(this.Set);
+            var configCommand = new ConfigurationCommand(this, source.Token);
+            configCommand.GetDetails(this.Set);
         }
     }
 }
