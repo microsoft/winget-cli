@@ -214,10 +214,24 @@ namespace AppInstaller::Repository
         return {};
     }
 
-    std::vector<ExtractedIconInfo> ExtractIconFromArpEntry(const std::string& productCode, AppInstaller::Manifest::ScopeEnum scope)
+    std::vector<ExtractedIconInfo> ExtractIconFromArpEntry(const std::string& productCode, Manifest::ScopeEnum scope)
     {
         ARPHelper arpHelper;
-        Registry::Key arpEntry = arpHelper.FindARPEntry(productCode, scope);
+        Registry::Key arpEntry;
+
+        if (scope == Manifest::ScopeEnum::Unknown)
+        {
+            // Try user then machine
+            arpEntry = arpHelper.FindARPEntry(productCode, Manifest::ScopeEnum::User);
+            if (!arpEntry)
+            {
+                arpEntry = arpHelper.FindARPEntry(productCode, Manifest::ScopeEnum::Machine);
+            }
+        }
+        else
+        {
+            arpEntry = arpHelper.FindARPEntry(productCode, scope);
+        }
 
         if (arpEntry)
         {
