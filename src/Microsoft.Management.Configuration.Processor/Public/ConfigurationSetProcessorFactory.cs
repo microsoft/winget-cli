@@ -55,7 +55,9 @@ namespace Microsoft.Management.Configuration.Processor
                 this.OnDiagnostics(DiagnosticLevel.Verbose, $"Creating set processor for `{set.Name}`...");
 
                 var envFactory = new ProcessorEnvironmentFactory(this.type);
-                var processorEnvironment = envFactory.CreateEnvironment(this);
+                var processorEnvironment = envFactory.CreateEnvironment(
+                    this,
+                    this.properties?.Policy ?? ConfigurationProcessorPolicy.RemoteSigned);
 
                 if (this.properties is not null)
                 {

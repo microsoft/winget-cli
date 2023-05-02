@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="InvokeWinGetConfigurationCmdlet.cs" company="Microsoft Corporation">
+// <copyright file="StartWinGetConfigurationCmdlet.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -12,12 +12,12 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
     using Microsoft.WinGet.Configuration.Engine.PSObjects;
 
     /// <summary>
-    /// Invoke-WinGetConfiguration.
-    /// Applies the configuration.
-    /// Wait for completion.
+    /// Start-WinGetConfiguration.
+    /// Start to apply the configuration.
+    /// Does not wait for completion.
     /// </summary>
-    [Cmdlet(VerbsLifecycle.Invoke, "WinGetConfiguration")]
-    public sealed class InvokeWinGetConfigurationCmdlet : PSCmdlet
+    [Cmdlet(VerbsLifecycle.Start, "WinGetConfiguration")]
+    public sealed class StartWinGetConfigurationCmdlet : PSCmdlet
     {
         /// <summary>
         /// Gets or sets the configuration set.
@@ -49,7 +49,7 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
             CancellationTokenSource source = new ();
 
             var configCommand = new ConfigurationCommand(this, source.Token, false);
-            configCommand.Apply(this.Set);
+            configCommand.StartApply(this.Set);
         }
     }
 }

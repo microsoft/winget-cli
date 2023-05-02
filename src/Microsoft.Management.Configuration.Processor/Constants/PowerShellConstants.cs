@@ -17,6 +17,7 @@ namespace Microsoft.Management.Configuration.Processor.Constants
         internal static class Variables
         {
             public const string PSEdition = "PSEdition";
+            public const string Error = "Error";
             public const string PSModulePath = "env:PSModulePath";
         }
 
