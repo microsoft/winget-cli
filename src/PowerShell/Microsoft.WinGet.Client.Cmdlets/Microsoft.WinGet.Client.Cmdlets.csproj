@@ -2,7 +2,9 @@
 
   <PropertyGroup>
     <!-- If these target frameworks are updated, make sure to also update the .psd1 and .nuspec files.-->
+    <!-- Keep in sync with attributes in AssemblyInfo.cs -->
     <CoreFramework>net6.0-windows10.0.22000.0</CoreFramework>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <DesktopFramework>net48</DesktopFramework>
     <Configurations>Debug;Release;ReleaseStatic</Configurations>
   </PropertyGroup>
