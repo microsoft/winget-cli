@@ -30,14 +30,25 @@ namespace AppInstaller::Pinning
     PinType ConvertToPinTypeEnum(std::string_view in);
 
     // Determines which of two pin types is more strict.
-    PinType StrictestPinType(PinType first, PinType second);
+    bool IsStricter(PinType first, PinType second);
 
     // The set of values needed to uniquely identify a Pin.
+    // A Pin can apply to an installed package or to an available package.
+    // Pins on available packages can persist when an app is updated outside of winget,
+    // but it's hard to have them work when there are multiple installed packages for the same available package.
+    // Pins on installed packages work fine when there are multiple installed packages for the same available,
+    // but they break when the package is updated outside of winget.
     struct PinKey
     {
         PinKey() {}
         PinKey(const Manifest::Manifest::string_t& packageId, std::string_view sourceId)
             : PackageId(packageId), SourceId(sourceId) {}
+
+        // Gets a pin key that refers to an installed package by its ProductCode or PackageFamilyName.
+        // The sourceId used is a special string to distinguish from available packages.
+        static PinKey GetPinKeyForInstalled(std::string systemReferenceString);
+
+        bool IsForInstalled() const;
 
         bool operator==(const PinKey& other) const
         {
@@ -54,25 +65,15 @@ namespace AppInstaller::Pinning
         {
             // std::tie implements tuple comparison, wherein it checks the first item in the tuple,
             // iff the first elements are equal, then the second element is used for comparison, and so on
-            return std::tie(PackageId, SourceId) <
-                std::tie(other.PackageId, other.SourceId);
+            return std::tie(PackageId, SourceId) < std::tie(other.PackageId, other.SourceId);
         }
 
         // Used for logging
         std::string ToString() const;
 
-        const Manifest::Manifest::string_t PackageId;
+        const std::string PackageId;
         const std::string SourceId;
     };
-
-    // Gets a list of the possible pin keys that we may use for an available package
-    // given the ProductCodes/PackageFamilyNames we know for the installed version.
-    // If there is no ProductCode/PackageFamilyName, returns a single element with no extra id.
-    std::vector<PinKey> GetPinKeysForAvailablePackage(
-        std::string_view packageId,
-        std::string sourceId,
-        const std::vector<Utility::LocIndString>& installedProductCodes,
-        const std::vector<Utility::LocIndString>& installedPackageFamilyNames);
 
     struct Pin
     {
@@ -89,7 +90,10 @@ namespace AppInstaller::Pinning
         const Utility::GatedVersion& GetGatedVersion() const { return m_gatedVersion; }
 
         bool operator==(const Pin& other) const;
-        bool operator<(const Pin& other) const { return m_key < other.m_key; }
+        bool operator<(const Pin& other) const
+        {
+            return std::make_pair(m_type, m_key) < std::make_pair(other.m_type, other.m_key);
+        }
 
         // Used for logging
         std::string ToString() const;

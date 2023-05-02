@@ -9,9 +9,12 @@ namespace AppInstaller::Pinning
 {
     using namespace std::string_view_literals;
 
-    PinType StrictestPinType(PinType first, PinType second)
+    namespace
     {
-        return std::max(first, second);
+        // Source ID to use for the installed source; it does not match any installed source.
+        // This does match with the actual ID of the source, but it doesn't really matter
+        // as it is handled specially when we see it.
+        constexpr std::string_view s_installedSourceId = "*PredefinedInstalledSource"sv;
     }
 
     PinType ConvertToPinTypeEnum(std::string_view in)
@@ -56,11 +59,26 @@ namespace AppInstaller::Pinning
         }
     }
 
+    bool IsStricter(PinType first, PinType second)
+    {
+        return first > second;
+    }
+
     std::string PinKey::ToString() const
     {
         std::stringstream ss;
         ss << "Package=[" << PackageId << "] Source=[" << SourceId << "]";
         return ss.str();
+    }
+
+    PinKey PinKey::GetPinKeyForInstalled(std::string systemReferenceString)
+    {
+        return { systemReferenceString, s_installedSourceId };
+    }
+
+    bool PinKey::IsForInstalled() const
+    {
+        return SourceId == s_installedSourceId;
     }
 
     std::string Pin::ToString() const
@@ -74,33 +92,6 @@ namespace AppInstaller::Pinning
         }
 
         return ss.str();
-
-    }
-
-    std::vector<PinKey> GetPinKeysForAvailablePackage(
-        std::string_view packageId,
-        std::string sourceId,
-        const std::vector<Utility::LocIndString>& installedProductCodes,
-        const std::vector<Utility::LocIndString>& installedPackageFamilyNames)
-    {
-        std::vector<Pinning::PinKey> pinKeys;
-
-        for (const auto& productCode : installedProductCodes)
-        {
-            pinKeys.emplace_back(productCode, "" /* TODO */);
-        }
-
-        for (const auto& packageFamilyName : installedPackageFamilyNames)
-        {
-            pinKeys.emplace_back(packageFamilyName, "" /* TODO */);
-        }
-
-        if (pinKeys.empty())
-        {
-            pinKeys.emplace_back(packageId, sourceId);
-        }
-
-        return pinKeys;
     }
 
     Pin Pin::CreateBlockingPin(PinKey&& pinKey)

@@ -22,10 +22,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
 
     }
 
-    // Version 1.1
+    // Version 1.0
     Schema::Version PinningIndexInterface::GetVersion() const
     {
-        return { 1, 1 };
+        return { 1, 0 };
     }
 
     void PinningIndexInterface::CreateTables(SQLite::Connection& connection)
