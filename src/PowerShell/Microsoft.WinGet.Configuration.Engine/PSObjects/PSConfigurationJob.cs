@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="PSConfigurationTask.cs" company="Microsoft Corporation">
+// <copyright file="PSConfigurationJob.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -13,14 +13,14 @@ namespace Microsoft.WinGet.Configuration.Engine.PSObjects
     /// This is a wrapper object for asynchronous task for this module.
     /// Contains the necessary information to continue the operation.
     /// </summary>
-    public class PSConfigurationTask
+    public class PSConfigurationJob
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="PSConfigurationTask"/> class.
+        /// Initializes a new instance of the <see cref="PSConfigurationJob"/> class.
         /// </summary>
         /// <param name="configTask">The configuration task.</param>
         /// <param name="startCommand">The start command.</param>
-        internal PSConfigurationTask(
+        internal PSConfigurationJob(
             Task<PSConfigurationSet> configTask,
             AsyncCommand startCommand)
         {

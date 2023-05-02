@@ -26,7 +26,7 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
             Mandatory = true,
             ValueFromPipeline = true,
             ValueFromPipelineByPropertyName = true)]
-        public PSConfigurationTask ConfigurationTask { get; set; }
+        public PSConfigurationJob ConfigurationJob { get; set; }
 
         /// <summary>
         /// Starts to apply the configuration and wait for it to complete.
@@ -36,7 +36,7 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
             CancellationTokenSource source = new ();
 
             var configCommand = new ConfigurationCommand(this, source.Token);
-            configCommand.Continue(this.ConfigurationTask);
+            configCommand.Continue(this.ConfigurationJob);
         }
     }
 }

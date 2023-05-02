@@ -120,61 +120,49 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                 throw new Exception("Someone is using me!!!");
             }
 
-            var runningTask = this.StartApplyInternal(psConfigurationSet);
-            this.WriteObject(new PSConfigurationTask(runningTask, this));
+            var configurationJob = this.StartApplyInternal(psConfigurationSet);
+            this.WriteObject(configurationJob);
         }
 
         /// <summary>
         /// Applies configuration.
         /// </summary>
         /// <param name="psConfigurationSet">PSConfigurationSet.</param>
-        public void Apply(PSConfigurationSet psConfigurationSet)
-        {
-            if (psConfigurationSet.Set.State == ConfigurationSetState.Completed)
-            {
-                this.WriteWarning("Processing this set is completed");
-                return;
-            }
-
-            if (!psConfigurationSet.CanProcess())
-            {
-                // TODO: better exception or just write info and return null.
-                throw new Exception("Someone is using me!!!");
-            }
-
-            var runningTask = this.StartApplyInternal(psConfigurationSet);
-            this.Wait(runningTask);
-            this.WriteObject(runningTask.Result);
-        }
+        public void Apply(PSConfigurationSet psConfigurationSet) => this.ContinueHelper(this.StartApplyInternal(psConfigurationSet));
 
         /// <summary>
-        /// Continue a configuration task.
+        /// Continue a configuration job.
         /// </summary>
-        /// <param name="psConfigurationTask">The configuration task.</param>
-        public void Continue(PSConfigurationTask psConfigurationTask)
+        /// <param name="psConfigurationJob">The configuration job.</param>
+        public void Continue(PSConfigurationJob psConfigurationJob)
         {
-            if (psConfigurationTask.ConfigurationTask.IsCompleted)
+            if (psConfigurationJob.ConfigurationTask.IsCompleted)
             {
                 this.WriteDebug("The task was completed before waiting");
-                if (psConfigurationTask.ConfigurationTask.IsCompletedSuccessfully)
+                if (psConfigurationJob.ConfigurationTask.IsCompletedSuccessfully)
                 {
                     this.WriteDebug("Completed successfully");
-                    this.WriteObject(psConfigurationTask.ConfigurationTask.Result);
+                    this.WriteObject(psConfigurationJob.ConfigurationTask.Result);
                     return;
                 }
-                else if (psConfigurationTask.ConfigurationTask.IsFaulted)
+                else if (psConfigurationJob.ConfigurationTask.IsFaulted)
                 {
                     this.WriteDebug("Completed faulted before waiting");
 
                     // Maybe just write error?
-                    throw psConfigurationTask.ConfigurationTask.Exception!;
+                    throw psConfigurationJob.ConfigurationTask.Exception!;
                 }
             }
 
+            this.ContinueHelper(psConfigurationJob);
+        }
+
+        private void ContinueHelper(PSConfigurationJob psConfigurationJob)
+        {
             // Signal the command that it can write to streams and wait for task.
             this.WriteDebug("Waiting for task to complete");
-            psConfigurationTask.StartCommand.Wait(psConfigurationTask.ConfigurationTask);
-            this.WriteObject(psConfigurationTask.ConfigurationTask.Result);
+            psConfigurationJob.StartCommand.Wait(psConfigurationJob.ConfigurationTask);
+            this.WriteObject(psConfigurationJob.ConfigurationTask.Result);
         }
 
         private ConfigurationProcessor CreateConfigurationProcessor(ExecutionPolicy executionPolicy)
@@ -220,7 +208,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             return new PSConfigurationSet(processor, set);
         }
 
-        private Task<PSConfigurationSet> StartApplyInternal(PSConfigurationSet psConfigurationSet)
+        private PSConfigurationJob StartApplyInternal(PSConfigurationSet psConfigurationSet)
         {
             var runningTask = this.RunOnMTA<PSConfigurationSet>(
                 async () =>
@@ -237,7 +225,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                     return psConfigurationSet;
                 });
 
-            return runningTask;
+            return new PSConfigurationJob(runningTask, this);
         }
 
         private async Task<PSConfigurationSet> ApplyConfigurationAsync(PSConfigurationSet psConfigurationSet)
