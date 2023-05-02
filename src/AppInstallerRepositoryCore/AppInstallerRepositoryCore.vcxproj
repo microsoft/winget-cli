@@ -232,7 +232,7 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="ArpIconExtraction.h" />
+    <ClInclude Include="IconExtraction.h" />
     <ClInclude Include="ArpVersionValidation.h" />
     <ClInclude Include="CompositeSource.h" />
     <ClInclude Include="IconDefs.h" />
@@ -330,7 +330,7 @@
   <ItemGroup>
     <ClCompile Include="ARPCorrelation.cpp" />
     <ClCompile Include="ARPCorrelationAlgorithms.cpp" />
-    <ClCompile Include="ArpIconExtraction.cpp" />
+    <ClCompile Include="IconExtraction.cpp" />
     <ClCompile Include="ArpVersionValidation.cpp" />
     <ClCompile Include="CompositeSource.cpp" />
     <ClCompile Include="ICU\SQLiteICU.c">

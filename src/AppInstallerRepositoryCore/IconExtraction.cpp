@@ -3,8 +3,9 @@
 #pragma once
 #include "pch.h"
 #include "IconDefs.h"
-#include "ArpIconExtraction.h"
+#include "IconExtraction.h"
 #include "Microsoft/ARPHelper.h"
+#include <AppInstallerSHA256.h>
 #include <winget/Filesystem.h>
 
 namespace AppInstaller::Repository
@@ -213,7 +214,7 @@ namespace AppInstaller::Repository
         return {};
     }
 
-    std::vector<BYTE> ExtractIconFromArpEntry(const std::string& productCode, AppInstaller::Manifest::ScopeEnum scope)
+    std::vector<ExtractedIconInfo> ExtractIconFromArpEntry(const std::string& productCode, AppInstaller::Manifest::ScopeEnum scope)
     {
         ARPHelper arpHelper;
         Registry::Key arpEntry = arpHelper.FindARPEntry(productCode, scope);
@@ -258,14 +259,27 @@ namespace AppInstaller::Repository
                 if (std::filesystem::exists(iconPath))
                 {
                     auto extension = iconPath.extension().u8string();
+                    std::vector<BYTE> iconContent;
                     if (Utility::CaseInsensitiveEquals(extension, ".ico"))
                     {
                         std::ifstream iconFile{ iconPath, std::ios::in | std::ios::binary };
-                        return Utility::ReadEntireStreamAsByteArray(iconFile);
+                        iconContent = Utility::ReadEntireStreamAsByteArray(iconFile);
                     }
                     else if (Utility::CaseInsensitiveEquals(extension, ".exe") || Utility::CaseInsensitiveEquals(extension, ".dll"))
                     {
-                        return ExtractIconFromBinaryFile(iconPath, iconIndex);
+                        iconContent = ExtractIconFromBinaryFile(iconPath, iconIndex);
+                    }
+
+                    if (!iconContent.empty())
+                    {
+                        ExtractedIconInfo iconInfo;
+                        iconInfo.IconFileType = Manifest::IconFileTypeEnum::Ico;
+                        iconInfo.IconTheme = Manifest::IconThemeEnum::Default;
+                        iconInfo.IconResolution = Manifest::IconResolutionEnum::Custom;
+                        iconInfo.IconSha256 = Utility::SHA256::ComputeHash(iconContent.data(), iconContent.size());
+                        iconInfo.IconContent = std::move(iconContent);
+
+                        return { std::move(iconInfo) };
                     }
                 }
             }

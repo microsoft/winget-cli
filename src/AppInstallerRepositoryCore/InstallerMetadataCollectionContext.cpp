@@ -11,7 +11,7 @@
 #include <AppInstallerStrings.h>
 #include <winget/JsonUtil.h>
 #include <winget/ManifestJSONParser.h>
-#include "ArpIconExtraction.h"
+#include "IconExtraction.h"
 
 using namespace AppInstaller::Utility;
 
@@ -91,6 +91,13 @@ namespace AppInstaller::Repository::Metadata
             utility::string_t InstalledStartupLinks;
             utility::string_t InstalledStartupLinkPath;
             utility::string_t InstalledStartupLinkType;
+            // Icons
+            utility::string_t PackageIcons;
+            utility::string_t IconContent;
+            utility::string_t IconSha256;
+            utility::string_t IconFileType;
+            utility::string_t IconResolution;
+            utility::string_t IconTheme;
         };
 
         struct OutputFields_1_0

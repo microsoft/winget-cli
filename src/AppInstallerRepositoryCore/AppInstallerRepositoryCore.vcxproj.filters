@@ -357,7 +357,7 @@
     <ClInclude Include="Public\winget\InstalledFilesCorrelation.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
-    <ClInclude Include="ArpIconExtraction.h">
+    <ClInclude Include="IconExtraction.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="IconDefs.h">
@@ -575,7 +575,7 @@
     <ClCompile Include="InstalledFilesCorrelation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ArpIconExtraction.cpp">
+    <ClCompile Include="IconExtraction.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
