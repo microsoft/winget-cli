@@ -57,7 +57,7 @@ namespace Microsoft.Management.Configuration.Processor
                 var envFactory = new ProcessorEnvironmentFactory(this.type);
                 var processorEnvironment = envFactory.CreateEnvironment(
                     this,
-                    this.properties != null ? this.properties.Policy : ConfigurationProcessorPolicy.Default);
+                    this.properties != null ? this.properties.Policy : ConfigurationProcessorPolicy.RemoteSigned);
 
                 if (this.properties is not null)
                 {
