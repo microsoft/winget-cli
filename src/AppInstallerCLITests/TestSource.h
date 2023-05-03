@@ -63,7 +63,7 @@ namespace TestCommon
 
         AppInstaller::Utility::LocIndString GetProperty(AppInstaller::Repository::PackageProperty property) const override;
         std::shared_ptr<AppInstaller::Repository::IPackageVersion> GetInstalledVersion() const override;
-        std::vector<AppInstaller::Repository::PackageVersionKey> GetAvailableVersionKeys() const override;
+        std::vector<AppInstaller::Repository::PackageVersionKey> GetAvailableVersionKeys(AppInstaller::Repository::PinBehavior) const override;
         std::shared_ptr<AppInstaller::Repository::IPackageVersion> GetLatestAvailableVersion(AppInstaller::Repository::PinBehavior) const override;
         std::shared_ptr<AppInstaller::Repository::IPackageVersion> GetAvailableVersion(const AppInstaller::Repository::PackageVersionKey& versionKey) const override;
         bool IsUpdateAvailable(AppInstaller::Repository::PinBehavior) const override;

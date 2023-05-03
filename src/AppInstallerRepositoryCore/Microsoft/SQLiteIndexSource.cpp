@@ -263,7 +263,7 @@ namespace AppInstaller::Repository::Microsoft
                 return {};
             }
 
-            std::vector<PackageVersionKey> GetAvailableVersionKeys() const override
+            std::vector<PackageVersionKey> GetAvailableVersionKeys(PinBehavior) const override
             {
                 std::shared_ptr<SQLiteIndexSource> source = GetReferenceSource();
                 std::vector<Utility::VersionAndChannel> versions = source->GetIndex().GetVersionKeysById(m_idId);
@@ -335,7 +335,7 @@ namespace AppInstaller::Repository::Microsoft
                 return GetLatestVersionInternal();
             }
 
-            std::vector<PackageVersionKey> GetAvailableVersionKeys() const override
+            std::vector<PackageVersionKey> GetAvailableVersionKeys(PinBehavior) const override
             {
                 return {};
             }

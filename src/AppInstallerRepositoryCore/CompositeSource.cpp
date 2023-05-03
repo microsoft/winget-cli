@@ -67,7 +67,7 @@ namespace AppInstaller::Repository
                 }
             }
 
-            return Pinning::IsStricter(pinTypeFromAvailable, pinTypeFromAvailable) ? pinTypeFromAvailable : pinTypeFromInstalled;
+            return Pinning::IsStricter(pinTypeFromAvailable, pinTypeFromInstalled) ? pinTypeFromAvailable : pinTypeFromInstalled;
         }
 
         // Gets the latest available version that satisfies both the available pin (already tagged on the keys)
@@ -458,7 +458,7 @@ namespace AppInstaller::Repository
                 return m_package->GetInstalledVersion();
             }
 
-            std::vector<PackageVersionKey> GetAvailableVersionKeys() const override
+            std::vector<PackageVersionKey> GetAvailableVersionKeys(PinBehavior pinBehavior) const override
             {
                 auto result = m_package->GetAvailableVersionKeys();
                 if (ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Pinning) && m_pin.has_value())
@@ -466,7 +466,7 @@ namespace AppInstaller::Repository
                     // Add pin information to all version keys
                     for (auto& pvk : result)
                     {
-                        pvk.PinnedState = GetPinnedStateForVersion(pvk, m_pin, PinBehavior::ConsiderPins);
+                        pvk.PinnedState = GetPinnedStateForVersion(pvk, m_pin, pinBehavior);
                     }
                 }
 
@@ -480,7 +480,7 @@ namespace AppInstaller::Repository
 
             std::shared_ptr<IPackageVersion> GetLatestAvailableVersion(PinBehavior pinBehavior) const override
             {
-                auto availableVersionKeys = GetAvailableVersionKeys();
+                auto availableVersionKeys = GetAvailableVersionKeys(pinBehavior);
                 auto latestVersionKey = GetLatestAvailableVersionKeySatisfyingPin(availableVersionKeys, /* installedPin */ {}, pinBehavior);
                 if (!latestVersionKey)
                 {
@@ -592,21 +592,22 @@ namespace AppInstaller::Repository
                 return {};
             }
 
-            std::vector<PackageVersionKey> GetAvailableVersionKeys() const override
+            std::vector<PackageVersionKey> GetAvailableVersionKeys(PinBehavior pinBehavior) const override
             {
                 std::vector<PackageVersionKey> result;
                 auto installedPin = GetInstalledPin();
 
                 for (const auto& availablePackage : m_availablePackages)
                 {
-                    auto versionKeys = availablePackage.GetAvailableVersionKeys();
+                    auto versionKeys = availablePackage.GetAvailableVersionKeys(pinBehavior);
 
+                    // Filter out versions covered by the installed pin.
+                    // Pins from available package were already considered.
                     if (installedPin)
                     {
-                        // Filter out available versions with pin from the installed package
                         for (const auto& versionKey : versionKeys)
                         {
-                            if (GetPinnedStateForVersion(versionKey, installedPin, PinBehavior::ConsiderPins) == Pinning::PinType::Unknown)
+                            if (GetPinnedStateForVersion(versionKey, installedPin, pinBehavior) == Pinning::PinType::Unknown)
                             {
                                 result.emplace_back(versionKey);
                             }
@@ -633,7 +634,7 @@ namespace AppInstaller::Repository
 
             std::shared_ptr<IPackageVersion> GetLatestAvailableVersion(PinBehavior pinBehavior) const override
             {
-                auto availableVersionKeys = GetAvailableVersionKeys();
+                auto availableVersionKeys = GetAvailableVersionKeys(pinBehavior);
                 auto latestVersionKey = GetLatestAvailableVersionKeySatisfyingPin(availableVersionKeys, GetInstalledPin(), pinBehavior);
                 if (!latestVersionKey)
                 {
