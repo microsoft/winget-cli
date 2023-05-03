@@ -237,9 +237,9 @@ namespace AppInstaller
             case APPINSTALLER_CLI_ERROR_INSTALL_INSUFFICIENT_MEMORY:
                 return "There's not enough memory available to install. Close other applications then try again.";
             case APPINSTALLER_CLI_ERROR_INSTALL_NO_NETWORK:
-                return "This application requires internet connectivity.Connect to a network then try again.";
+                return "This application requires internet connectivity. Connect to a network then try again.";
             case APPINSTALLER_CLI_ERROR_INSTALL_CONTACT_SUPPORT:
-                return "This application encountered an error during installation.Contact support.";
+                return "This application encountered an error during installation. Contact support.";
             case APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_FINISH:
                 return "Restart your PC to finish installation.";
             case APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL:
