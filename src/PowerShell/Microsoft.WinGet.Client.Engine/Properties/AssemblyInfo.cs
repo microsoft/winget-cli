@@ -4,9 +4,9 @@
 // </copyright>
 // -----------------------------------------------------------------------------
 
-using System.Runtime.Versioning;
-
 #if NET
+
+using System.Runtime.Versioning;
 
 // Forcibly set the target and supported platforms due to the internal build setup.
 // Keep in sync with project versions.
