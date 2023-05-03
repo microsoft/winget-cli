@@ -1345,8 +1345,8 @@ TEST_CASE("CompositeSource_Pinning_MultipleInstalled", "[CompositeSource][PinFlo
     std::string productCode2 = "product-code2";
 
     // Installed packages differ in product code and version
-    auto installedPackage1 = MakeInstalled().WithId(packageId).WithPC(productCode1).WithVersion("1.1"sv);
-    auto installedPackage2 = MakeInstalled().WithId(packageId).WithPC(productCode2).WithVersion("1.2"sv);
+    auto installedPackage1 = MakeInstalled().WithId(productCode1).WithPC(productCode1).WithVersion("1.1"sv);
+    auto installedPackage2 = MakeInstalled().WithId(productCode2).WithPC(productCode2).WithVersion("1.2"sv);
 
     CompositeTestSetup setup;
     setup.Installed->SearchFunction = [&](const SearchRequest& request)

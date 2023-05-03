@@ -423,7 +423,6 @@ namespace AppInstaller::Repository
                 auto availableVersion = m_package->GetLatestAvailableVersion(PinBehavior::IgnorePins);
                 if (availableVersion)
                 {
-                    // TODO: Check if needed for installed
                     m_sourceId = availableVersion->GetSource().GetIdentifier();
                 }
             }
@@ -601,23 +600,17 @@ namespace AppInstaller::Repository
                 {
                     auto versionKeys = availablePackage.GetAvailableVersionKeys(pinBehavior);
 
-                    // Filter out versions covered by the installed pin.
-                    // Pins from available package were already considered.
+                    // The version keys we have already have pin information from the available package.
+                    // Here we also add information from the installed package.
                     if (installedPin)
                     {
-                        for (const auto& versionKey : versionKeys)
+                        for (auto& versionKey : versionKeys)
                         {
-                            if (GetPinnedStateForVersion(versionKey, installedPin, pinBehavior) == Pinning::PinType::Unknown)
-                            {
-                                result.emplace_back(versionKey);
-                            }
+                            versionKey.PinnedState = GetPinnedStateForVersion(versionKey, installedPin, pinBehavior);
                         }
                     }
-                    else
-                    {
-                        // Copy all version keys if we don't need to filter from installed pin
-                        std::copy(versionKeys.begin(), versionKeys.end(), std::back_inserter(result));
-                    }
+
+                    std::copy(versionKeys.begin(), versionKeys.end(), std::back_inserter(result));
                 }
 
                 // Remove all elements whose channel does not match the installed package.
