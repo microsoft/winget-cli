@@ -264,6 +264,7 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_PASS_THROUGH(EFUninstallPreviousArgument)
         WINGET_VALIDATE_PASS_THROUGH(EFConfiguration)
         WINGET_VALIDATE_PASS_THROUGH(EFWindowsFeature)
+        WINGET_VALIDATE_PASS_THROUGH(AnonymizePathForDisplay)
         WINGET_VALIDATE_PASS_THROUGH(TelemetryDisable)
         WINGET_VALIDATE_PASS_THROUGH(InteractivityDisable)
         WINGET_VALIDATE_PASS_THROUGH(EnableSelfInitiatedMinidump)
@@ -572,7 +573,7 @@ namespace AppInstaller::Settings
     {
         auto path = Stream{ Stream::PrimaryUserSettings }.GetPath();
 
-        if (forDisplay)
+        if (forDisplay && Settings::User().Get<Setting::AnonymizePathForDisplay>())
         {
             ReplaceCommonPathPrefix(path, GetKnownFolderPath(FOLDERID_LocalAppData), "%LOCALAPPDATA%");
         }
