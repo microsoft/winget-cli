@@ -127,8 +127,8 @@ ms.localizationpriority: medium
 | 0x8A150104 | -1978334972 | APPINSTALLER_CLI_ERROR_INSTALL_MISSING_DEPENDENCY | This package has a dependency missing from your system. |
 | 0x8A150105 | -1978334971 | APPINSTALLER_CLI_ERROR_INSTALL_DISK_FULL | There's no more space on your PC. Make space, then try again. |
 | 0x8A150106 | -1978334970 | APPINSTALLER_CLI_ERROR_INSTALL_INSUFFICIENT_MEMORY | There's not enough memory available to install. Close other applications then try again. |
-| 0x8A150107 | -1978334969 | APPINSTALLER_CLI_ERROR_INSTALL_NO_NETWORK | This application requires internet connectivity.Connect to a network then try again. |
-| 0x8A150108 | -1978334968 | APPINSTALLER_CLI_ERROR_INSTALL_CONTACT_SUPPORT | This application encountered an error during installation.Contact support. |
+| 0x8A150107 | -1978334969 | APPINSTALLER_CLI_ERROR_INSTALL_NO_NETWORK | This application requires internet connectivity. Connect to a network then try again. |
+| 0x8A150108 | -1978334968 | APPINSTALLER_CLI_ERROR_INSTALL_CONTACT_SUPPORT | This application encountered an error during installation. Contact support. |
 | 0x8A150109 | -1978334967 | APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_FINISH | Restart your PC to finish installation. |
 | 0x8A15010A | -1978334966 | APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL | Your PC will restart to finish installation. |
 | 0x8A15010B | -1978334965 | APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_INITIATED | Installation failed. Restart your PC then try again. |
