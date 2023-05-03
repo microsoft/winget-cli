@@ -62,6 +62,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::AcceptSourceAgreements),
             Argument::ForType(Args::Type::Force),
             Argument{ Args::Type::BlockingPin, Resource::String::PinAddBlockingArgumentDescription, ArgumentType::Flag },
+            Argument{ Args::Type::PinInstalled, Resource::String::PinInstalledArgumentDescription, ArgumentType::Flag },
         };
     }
 
@@ -122,7 +123,6 @@ namespace AppInstaller::CLI
             Workflow::GetInstalledPackageVersion <<
             Workflow::ReportPackageIdentity <<
             Workflow::OpenPinningIndex() <<
-            Workflow::SearchPin <<
             Workflow::AddPin;
     }
 
@@ -139,6 +139,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Exact),
             Argument::ForType(Args::Type::CustomHeader),
             Argument::ForType(Args::Type::AcceptSourceAgreements),
+            Argument{ Args::Type::PinInstalled, Resource::String::PinInstalledArgumentDescription, ArgumentType::Flag },
         };
     }
 
@@ -307,7 +308,6 @@ namespace AppInstaller::CLI
                 Workflow::GetAllPins <<
                 Workflow::OpenSource() <<
                 Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
-                Workflow::CrossReferencePinsWithSource <<
                 Workflow::ReportPins;
         }
     }

@@ -98,6 +98,8 @@ namespace AppInstaller::Repository
                     }
                 }
             }
+
+            return {};
         }
 
         // Returns true for fields that provide a strong match; one that is not based on a heuristic.

@@ -95,6 +95,7 @@ namespace AppInstaller::CLI::Execution
             // Pin command
             GatedVersion, // Differs from Version in that this supports wildcards
             BlockingPin,
+            PinInstalled,
 
             // Configuration
             ConfigurationFile,

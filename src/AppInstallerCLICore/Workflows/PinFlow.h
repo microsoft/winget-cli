@@ -26,7 +26,8 @@ namespace AppInstaller::CLI::Workflow
     void GetAllPins(Execution::Context& context);
 
     // Searches for all the pins associated with a package.
-    // There may be several if a package is available from multiple sources.
+    // There may be several if a package is available from multiple sources
+    // or if the pin is for the installed package.
     // Required Args: None
     // Inputs: PinningIndex, Package
     // Outputs: Pins

@@ -1376,7 +1376,7 @@ TEST_CASE("CompositeSource_Pinning_MultipleInstalled", "[CompositeSource][PinFlo
     };
 
     // We will pin the first package only
-    PinKey pinKey(packageId, setup.Available->Details.Identifier, productCode1);
+    PinKey pinKey = PinKey::GetPinKeyForInstalled(productCode1);
     auto pinningIndex = PinningIndex::OpenOrCreateDefault();
     REQUIRE(pinningIndex);
 
