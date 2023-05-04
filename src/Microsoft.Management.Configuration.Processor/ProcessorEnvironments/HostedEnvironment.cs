@@ -256,27 +256,35 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
                 { Parameters.Name, unitInternal.Unit.UnitName },
             };
 
-            if (unitInternal.Module is not null)
+            // Don't use ModuleSpecification here. Each parameter is independent and
+            // we need version even if a module was not specified.
+            string? moduleName = unitInternal.GetDirective<string>(DirectiveConstants.Module);
+            string? semanticVersion = unitInternal.GetDirective<string>(DirectiveConstants.Version);
+            string? semanticMinVersion = unitInternal.GetDirective<string>(DirectiveConstants.MinVersion);
+            string? semanticMaxVersion = unitInternal.GetDirective<string>(DirectiveConstants.MaxVersion);
+            string? repository = unitInternal.GetDirective<string>(DirectiveConstants.Repository);
+            bool allowPrerelease = unitInternal.GetDirective(DirectiveConstants.AllowPrerelease);
+
+            if (!string.IsNullOrEmpty(moduleName))
             {
-                parameters.Add(Parameters.ModuleName, unitInternal.Module.Name);
-
-                if (unitInternal.Module.Version is not null)
-                {
-                    parameters.Add(Parameters.MinimumVersion, unitInternal.Module.Version);
-                }
-
-                if (unitInternal.Module.MaximumVersion is not null)
-                {
-                    parameters.Add(Parameters.MaximumVersion, unitInternal.Module.MaximumVersion);
-                }
-
-                if (unitInternal.Module.RequiredVersion is not null)
-                {
-                    parameters.Add(Parameters.RequiredVersion, unitInternal.Module.RequiredVersion);
-                }
+                parameters.Add(Parameters.ModuleName, moduleName);
             }
 
-            string? repository = unitInternal.GetDirective(DirectiveConstants.Repository);
+            if (!string.IsNullOrEmpty(semanticVersion))
+            {
+                parameters.Add(Parameters.RequiredVersion, semanticVersion);
+            }
+
+            if (!string.IsNullOrEmpty(semanticMinVersion))
+            {
+                parameters.Add(Parameters.MinimumVersion, semanticMinVersion);
+            }
+
+            if (!string.IsNullOrEmpty(semanticMaxVersion))
+            {
+                parameters.Add(Parameters.MaximumVersion, semanticMaxVersion);
+            }
+
             if (!string.IsNullOrEmpty(repository))
             {
                 parameters.Add(Parameters.Repository, repository);
@@ -284,13 +292,18 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
 
             using PowerShell pwsh = PowerShell.Create(this.Runspace);
 
-            // TODO: Implement prerelease directive.
+            pwsh.AddCommand(Commands.FindDscResource)
+                .AddParameters(parameters);
+
+            if (allowPrerelease)
+            {
+                pwsh.AddParameter(Parameters.AllowPrerelease);
+            }
+
             // The result is just a PSCustomObject with a type name of Microsoft.PowerShell.Commands.PSGetDscResourceInfo.
             // When no module is passed and a resource is not found, this will return an empty list. If a module
             // is specified and no resource is found then it will fail earlier because of a Write-Error.
-            var result = pwsh.AddCommand(Commands.FindDscResource)
-                             .AddParameters(parameters)
-                             .Invoke()
+            var result = pwsh.Invoke()
                              .FirstOrDefault();
 
             this.OnDiagnostics(DiagnosticLevel.Verbose, pwsh);

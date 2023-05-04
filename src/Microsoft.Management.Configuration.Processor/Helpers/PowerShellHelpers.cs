@@ -48,16 +48,33 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
 
             if (!string.IsNullOrEmpty(version))
             {
+                // Prerelease versions append the prerelease tag after a -
+                // PowerShell doesn't handle semantic versions.
+                if (version.Contains("-"))
+                {
+                    version = version[..version.IndexOf("-")];
+                }
+
                 moduleInfo.Add(Parameters.RequiredVersion, version);
             }
 
             if (!string.IsNullOrEmpty(minVersion))
             {
+                if (minVersion.Contains("-"))
+                {
+                    minVersion = minVersion[..minVersion.IndexOf("-")];
+                }
+
                 moduleInfo.Add(Parameters.ModuleVersion, minVersion);
             }
 
             if (!string.IsNullOrEmpty(maxVersion))
             {
+                if (maxVersion.Contains("-"))
+                {
+                    maxVersion = maxVersion[..maxVersion.IndexOf("-")];
+                }
+
                 // For some reason, the constructor of ModuleSpecification that takes
                 // a hashtable calls ModuleCmdletBase.GetMaximumVersion. This method will
                 // validate the max version and replace * for 999999999 only if its the last
@@ -65,7 +82,7 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
                 // ModuleSpecification's MaximumVersion property. If we want to set a
                 // MaximumVersion with a wildcard and pass this to Install-Module it will
                 // fail with "Cannot convert value 'x.*' to type 'System.Version'."
-                moduleInfo.Add(Parameters.MaximumVersion, maxVersion.Replace("*", MaxRange));
+                moduleInfo.Add(Parameters.MaximumVersion, GetMaximumVersion(maxVersion));
             }
 
             if (!string.IsNullOrEmpty(guid))
@@ -75,6 +92,16 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
 
             // Using the Hashtable constructor will verify that RequiredVersion is used properly.
             return new ModuleSpecification(moduleInfo);
+        }
+
+        /// <summary>
+        /// Max out a version by replacing * if needed.
+        /// </summary>
+        /// <param name="version">Version.</param>
+        /// <returns>Maxed version.</returns>
+        public static string GetMaximumVersion(string version)
+        {
+            return version.Replace("*", MaxRange);
         }
     }
 }

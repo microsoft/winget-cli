@@ -720,6 +720,10 @@ namespace AppInstaller::Utility
             {
                 result.emplace_back(input.substr(currentOffset, nextOffset - currentOffset));
             }
+            else
+            {
+                nextOffset += 2;
+            }
 
             currentOffset = nextOffset;
         }
@@ -746,7 +750,7 @@ namespace AppInstaller::Utility
             {
                 size_t actualWidth = 0;
                 std::string trimmedLine = UTF8TrimRightToColumnWidth(lines[currentLine], (availableLines * lineWidth) - 1, actualWidth);
-                trimmedLine += "\xE2\x80\xA6"; // UTF8 encoding of ellipsis (…) character
+                trimmedLine += "\xE2\x80\xA6"; // UTF8 encoding of ellipsis (ï¿½) character
                 lines[currentLine] = trimmedLine;
 
                 currentLineActualLineCount = availableLines;

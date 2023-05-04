@@ -31,7 +31,7 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
             this.DirectivesOverlay = directivesOverlay;
             this.InitializeDirectives();
 
-            string? moduleName = this.GetDirective(DirectiveConstants.Module);
+            string? moduleName = this.GetDirective<string>(DirectiveConstants.Module);
             if (string.IsNullOrEmpty(moduleName))
             {
                 this.Module = null;
@@ -40,10 +40,10 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
             {
                 this.Module = PowerShellHelpers.CreateModuleSpecification(
                     moduleName,
-                    this.GetDirective(DirectiveConstants.Version),
-                    this.GetDirective(DirectiveConstants.MinVersion),
-                    this.GetDirective(DirectiveConstants.MaxVersion),
-                    this.GetDirective(DirectiveConstants.ModuleGuid));
+                    this.GetDirective<string>(DirectiveConstants.Version),
+                    this.GetDirective<string>(DirectiveConstants.MinVersion),
+                    this.GetDirective<string>(DirectiveConstants.MaxVersion),
+                    this.GetDirective<string>(DirectiveConstants.ModuleGuid));
             }
         }
 
@@ -72,19 +72,37 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
         }
 
         /// <summary>
-        /// Get a directive from the unit taking into account the directives overlay.
+        /// Gets the directive value from the unit taking into account the directives overlay.
         /// </summary>
         /// <param name="directiveName">Directive name.</param>
         /// <returns>Value of directive, null if not found.</returns>
-        public string? GetDirective(string directiveName)
+        /// <typeparam name="TType">Directive type value.</typeparam>
+        public TType? GetDirective<TType>(string directiveName)
+            where TType : class
         {
             var normalizedDirectiveName = StringHelpers.Normalize(directiveName);
             if (this.normalizedDirectives.TryGetValue(normalizedDirectiveName, out object? value))
             {
-                return value as string;
+                return value as TType;
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Gets the bool value of a directive from the unit taking into account the directives overlay.
+        /// </summary>
+        /// <param name="directiveName">Directive name.</param>
+        /// <returns>Value of directive, false if not found.</returns>
+        public bool GetDirective(string directiveName)
+        {
+            var normalizedDirectiveName = StringHelpers.Normalize(directiveName);
+            if (this.normalizedDirectives.TryGetValue(normalizedDirectiveName, out object? value))
+            {
+                return value as bool? ?? false;
+            }
+
+            return false;
         }
 
         private void InitializeDirectives()

@@ -54,10 +54,18 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             string anotherDirective = "another";
             string overlayAnother = "insert another text";
 
+            string boolDirective = "boolDirective";
+            bool boolDirectiveValue = true;
+
+            string boolDirective2 = "boolDirective2";
+            bool boolDirective2Value = false;
+
             var unit = new ConfigurationUnit();
             unit.Directives.Add(moduleDirective, unitModule);
             unit.Directives.Add(versionDirective, unitVersion);
             unit.Directives.Add(descriptionDirective, unitDescription);
+            unit.Directives.Add(boolDirective, boolDirectiveValue);
+            unit.Directives.Add(boolDirective2, boolDirective2Value);
 
             var overlays = new Dictionary<string, object>()
             {
@@ -67,21 +75,25 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var unitInternal = new ConfigurationUnitInternal(unit, overlays);
 
-            var description = unitInternal.GetDirective(descriptionDirective);
+            var description = unitInternal.GetDirective<string>(descriptionDirective);
             Assert.Equal(description, overlayDescription);
 
-            var another = unitInternal.GetDirective(anotherDirective);
+            var another = unitInternal.GetDirective<string>(anotherDirective);
             Assert.Equal(another, overlayAnother);
 
-            var fake = unitInternal.GetDirective("fake");
+            var fake = unitInternal.GetDirective<string>("fake");
             Assert.Null(fake);
 
-            var description2 = unitInternal.GetDirective("DESCRIPTION");
+            var description2 = unitInternal.GetDirective<string>("DESCRIPTION");
             Assert.Equal(description2, overlayDescription);
 
             Assert.Equal(unitModule, unitInternal.Module!.Name);
 
             Assert.Equal(Version.Parse(unitVersion), unitInternal.Module!.RequiredVersion);
+
+            Assert.Equal(boolDirectiveValue, unitInternal.GetDirective(boolDirective));
+            Assert.Equal(boolDirective2Value, unitInternal.GetDirective(boolDirective2));
+            Assert.False(unitInternal.GetDirective("fakeBool"));
         }
 
         /// <summary>
