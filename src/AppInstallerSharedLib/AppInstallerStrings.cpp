@@ -720,12 +720,8 @@ namespace AppInstaller::Utility
             {
                 result.emplace_back(input.substr(currentOffset, nextOffset - currentOffset));
             }
-            else
-            {
-                nextOffset += 2;
-            }
 
-            currentOffset = nextOffset;
+            currentOffset = nextOffset + 1;
         }
 
         return result;
