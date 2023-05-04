@@ -44,6 +44,9 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         private CancellationToken cancellationToken;
         private ConcurrentQueue<QueuedOutputStream> queuedOutputStreams = new ();
 
+        private int progressActivityId = 0;
+        private ConcurrentDictionary<int, ProgressRecordType> progressRecords = new ();
+
         /// <summary>
         /// Initializes a new instance of the <see cref="AsyncCommand"/> class.
         /// </summary>
@@ -64,6 +67,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             Verbose,
             Warning,
             Error,
+            Progress,
         }
 
         /// <summary>
@@ -98,11 +102,19 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         }
 
         /// <summary>
+        /// Cancel this operation.
+        /// </summary>
+        public virtual void Cancel()
+        {
+            this.source.Cancel();
+        }
+
+        /// <summary>
         /// Execute the delegate in a MTA thread.
         /// </summary>
         /// <param name="func">Function to execute.</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public Task RunOnMTA(Func<Task> func)
+        internal Task RunOnMTA(Func<Task> func)
         {
             // This must be called in the main thread.
             if (this.originalThread != Thread.CurrentThread)
@@ -142,7 +154,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         /// <param name="func">Function to execute.</param>
         /// <typeparam name="TResult">Return type of function.</typeparam>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public Task<TResult> RunOnMTA<TResult>(Func<Task<TResult>> func)
+        internal Task<TResult> RunOnMTA<TResult>(Func<Task<TResult>> func)
         {
             // This must be called in the main thread.
             if (this.originalThread != Thread.CurrentThread)
@@ -180,7 +192,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         /// Waits for the task to be completed. This MUST be called from the main thread.
         /// </summary>
         /// <param name="runningTask">Task to wait for.</param>
-        public void Wait(Task runningTask)
+        internal void Wait(Task runningTask)
         {
             // This must be called in the main thread.
             if (this.originalThread != Thread.CurrentThread)
@@ -230,7 +242,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         /// sets it to the main thread action and wait for it to be executed.
         /// </summary>
         /// <param name="text">Debug text.</param>
-        public void WriteDebug(string text)
+        internal void WriteDebug(string text)
         {
             // Don't do context switch if no need.
             if (!this.isDebugBounded)
@@ -270,7 +282,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         /// sets it to the main thread action and wait for it to be executed.
         /// </summary>
         /// <param name="text">Warning text.</param>
-        public void WriteWarning(string text)
+        internal void WriteWarning(string text)
         {
             if (!this.CanWriteToStream)
             {
@@ -304,7 +316,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         /// sets it to the main thread action and wait for it to be executed.
         /// </summary>
         /// <param name="errorRecord">Error record.</param>
-        public void WriteError(ErrorRecord errorRecord)
+        internal void WriteError(ErrorRecord errorRecord)
         {
             if (!this.CanWriteToStream)
             {
@@ -333,10 +345,48 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         }
 
         /// <summary>
+        /// Calls cmdlet WriteProgress.
+        /// </summary>
+        /// <param name="progressRecord">Progress record.</param>
+        internal void WriteProgress(ProgressRecord progressRecord)
+        {
+            // Keep track of all progress activity.
+            if (!this.progressRecords.TryAdd(progressRecord.ActivityId, progressRecord.RecordType))
+            {
+                _ = this.progressRecords.TryUpdate(progressRecord.ActivityId, progressRecord.RecordType, ProgressRecordType.Completed);
+            }
+
+            if (!this.CanWriteToStream)
+            {
+                this.queuedOutputStreams.Enqueue(
+                    new QueuedOutputStream(OutputStreamType.Progress, progressRecord));
+                return;
+            }
+
+            if (this.originalThread == Thread.CurrentThread)
+            {
+                this.PsCmdlet.WriteProgress(progressRecord);
+                return;
+            }
+
+            try
+            {
+                this.WaitForOurTurn();
+                this.mainThreadAction = () => this.PsCmdlet.WriteProgress(progressRecord);
+                this.mainThreadActionReady.Set();
+                this.WaitMainThreadActionCompletion();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
         /// Calls cmdlet WriteObject.
         /// </summary>
         /// <param name="obj">Object to write.</param>
-        public void WriteObject(object obj)
+        internal void WriteObject(object obj)
         {
             if (this.originalThread == Thread.CurrentThread)
             {
@@ -355,14 +405,6 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             {
                 throw;
             }
-        }
-
-        /// <summary>
-        /// Cancel this operation.
-        /// </summary>
-        public virtual void Cancel()
-        {
-            this.source.Cancel();
         }
 
         /// <summary>
@@ -387,17 +429,29 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             {
                 while (this.queuedOutputStreams.TryDequeue(out var queuedOutput))
                 {
-                    switch (queuedOutput.Type)
+                    if (queuedOutput != null)
                     {
-                        case OutputStreamType.Debug:
-                            this.WriteDebug((string)queuedOutput.Data);
-                            break;
-                        case OutputStreamType.Warning:
-                            this.WriteWarning((string)queuedOutput.Data);
-                            break;
-                        case OutputStreamType.Error:
-                            this.WriteError((ErrorRecord)queuedOutput.Data);
-                            break;
+                        switch (queuedOutput.Type)
+                        {
+                            case OutputStreamType.Debug:
+                                this.WriteDebug((string)queuedOutput.Data);
+                                break;
+                            case OutputStreamType.Warning:
+                                this.WriteWarning((string)queuedOutput.Data);
+                                break;
+                            case OutputStreamType.Error:
+                                this.WriteError((ErrorRecord)queuedOutput.Data);
+                                break;
+                            case OutputStreamType.Progress:
+                                // If the activity is already completed don't write progress.
+                                var progressRecord = (ProgressRecord)queuedOutput.Data;
+                                if (this.progressRecords[progressRecord.ActivityId] == ProgressRecordType.Processing)
+                                {
+                                    this.WriteProgress(progressRecord);
+                                }
+
+                                break;
+                        }
                     }
                 }
             }
@@ -405,6 +459,15 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             {
                 this.Cancel();
             }
+        }
+
+        /// <summary>
+        /// Gets a new progress activity id.
+        /// </summary>
+        /// <returns>The new progress record id.</returns>
+        internal int GetNewProgressActivityId()
+        {
+            return Interlocked.Increment(ref this.progressActivityId);
         }
 
         private void WaitForOurTurn()
