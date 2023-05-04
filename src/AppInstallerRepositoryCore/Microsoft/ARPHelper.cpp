@@ -204,7 +204,7 @@ namespace AppInstaller::Repository::Microsoft
             {
                 for (const auto& entry : arpRootKey)
                 {
-                    if (productCode == entry.Name())
+                    if (Utility::CaseInsensitiveEquals(productCode, entry.Name()))
                     {
                         return entry.Open();
                     }
