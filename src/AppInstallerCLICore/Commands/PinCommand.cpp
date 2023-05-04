@@ -114,9 +114,22 @@ namespace AppInstaller::CLI
 
     void PinAddCommand::ExecuteInternal(Execution::Context& context) const
     {
+        if (context.Args.Contains(Execution::Args::Type::Id))
+        {
+            // When we are given an ID, just pin that available package without checking for installed.
+            // This helps when there are matching issues, for example due to multiple side-by-side installs.
+            context <<
+                Workflow::OpenSource();
+        }
+        else
+        {
+            // If not working from just ID, try matching a single installed package
+            context <<
+                Workflow::OpenSource() <<
+                Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed);
+        }
+
         context <<
-            Workflow::OpenSource() <<
-            Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
             Workflow::SearchSourceForSingle <<
             Workflow::HandleSearchResultFailures <<
             Workflow::EnsureOneMatchFromSearchResult(OperationType::Pin) <<
@@ -186,9 +199,22 @@ namespace AppInstaller::CLI
 
     void PinRemoveCommand::ExecuteInternal(Execution::Context& context) const
     {
+        if (context.Args.Contains(Execution::Args::Type::Id))
+        {
+            // When we are given an ID, just un-pin that available package without checking for installed.
+            // This helps when there are matching issues, for example due to multiple side-by-side installs.
+            context <<
+                Workflow::OpenSource();
+        }
+        else
+        {
+            // If not working from just ID, try matching a single installed package
+            context <<
+                Workflow::OpenSource() <<
+                Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed);
+        }
+
         context <<
-            Workflow::OpenSource() <<
-            Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
             Workflow::SearchSourceForSingle <<
             Workflow::HandleSearchResultFailures <<
             Workflow::EnsureOneMatchFromSearchResult(OperationType::Pin) <<
@@ -262,7 +288,7 @@ namespace AppInstaller::CLI
             Workflow::OpenPinningIndex(/* readOnly */ true) <<
             Workflow::GetAllPins <<
             Workflow::OpenSource() <<
-            Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
+            Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed, false, Repository::CompositeSearchBehavior::AllPackages) <<
             Workflow::ReportPins;
     }
 

@@ -124,8 +124,8 @@ namespace AppInstaller::CLI::Workflow
         auto pinKeys = GetPinKeysForPackage(context);
 
         auto package = context.Get<Execution::Data::Package>();
-        auto installedVersion = context.Get<Execution::Data::InstalledPackageVersion>();
         auto pinningIndex = context.Get<Execution::Data::PinningIndex>();
+        auto installedVersion = context.Get<Execution::Data::InstalledPackageVersion>();
 
         std::vector<Pinning::Pin> pinsToAddOrUpdate;
         for (const auto& pinKey : pinKeys)
@@ -136,8 +136,12 @@ namespace AppInstaller::CLI::Workflow
             auto existingPin = pinningIndex->GetPin(pinKey);
             if (existingPin)
             {
-                Utility::LocIndString packageNameToReport = installedVersion->GetProperty(PackageVersionProperty::Name);
-                if (!pinKey.IsForInstalled())
+                Utility::LocIndString packageNameToReport;
+                if (pinKey.IsForInstalled() && installedVersion)
+                {
+                    packageNameToReport = installedVersion->GetProperty(PackageVersionProperty::Name);
+                }
+                else
                 {
                     auto availableVersion = package->GetAvailableVersion({ pinKey.SourceId, "", "" });
                     if (availableVersion)
@@ -199,10 +203,6 @@ namespace AppInstaller::CLI::Workflow
         // So, we remove pins from all sources unless one was provided.
         auto packageVersionKeys = package->GetAvailableVersionKeys();
 
-        auto installedVersion = package->GetInstalledVersion();
-        auto installedProductCodes = installedVersion->GetMultiProperty(PackageVersionMultiProperty::ProductCode);
-        auto installedPackageFamilyNames = installedVersion->GetMultiProperty(PackageVersionMultiProperty::PackageFamilyName);
-
         for (const auto& pin : pins)
         {
             AICLI_LOG(CLI, Info, << "Removing Pin " << pin.GetKey().ToString());
@@ -247,8 +247,9 @@ namespace AppInstaller::CLI::Workflow
             auto searchResult = source.Search(searchRequest);
             for (const auto& match : searchResult.Matches)
             {
-                auto installedVersion = match.Package->GetInstalledVersion();
+                Utility::LocIndString packageName;
                 Utility::LocIndString sourceName;
+                Utility::LocIndString version;
 
                 if (pinKey.IsForInstalled())
                 {
@@ -260,14 +261,22 @@ namespace AppInstaller::CLI::Workflow
                     auto availableVersion = match.Package->GetAvailableVersion({ pinKey.SourceId, "", "" });
                     if (availableVersion)
                     {
+                        packageName = availableVersion->GetProperty(PackageVersionProperty::Name);
                         sourceName = availableVersion->GetProperty(PackageVersionProperty::SourceName);
                     }
                 }
 
+                auto installedVersion = match.Package->GetInstalledVersion();
+                if (installedVersion)
+                {
+                    packageName = installedVersion->GetProperty(PackageVersionProperty::Name);
+                    version = installedVersion->GetProperty(PackageVersionProperty::Version);
+                }
+
                 table.OutputLine({
-                    installedVersion->GetProperty(PackageVersionProperty::Name),
+                    packageName,
                     pinKey.PackageId,
-                    installedVersion->GetProperty(PackageVersionProperty::Version),
+                    version,
                     sourceName,
                     std::string{ ToString(pin.GetType()) },
                     pin.GetGatedVersion().ToString(),

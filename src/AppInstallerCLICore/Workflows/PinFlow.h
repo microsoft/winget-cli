@@ -36,7 +36,7 @@ namespace AppInstaller::CLI::Workflow
     // Adds a pin for the current package.
     // A separate pin will be added for each source.
     // Required Args: None
-    // Inputs: PinningIndex, Package
+    // Inputs: PinningIndex, Package, InstalledVersion?
     // Outputs: None
     void AddPin(Execution::Context& context);
 
@@ -59,10 +59,4 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: None
     // Outputs: None
     void ResetAllPins(Execution::Context& context);
-
-    // Updates the list of pins to include only those matching the current open source.
-    // Required Args: None
-    // Inputs: Pins, Source
-    // Outputs: None
-    void CrossReferencePinsWithSource(Execution::Context& context);
 }
