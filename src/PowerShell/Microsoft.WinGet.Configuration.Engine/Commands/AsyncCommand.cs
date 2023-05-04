@@ -277,6 +277,40 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         }
 
         /// <summary>
+        /// Calls cmdlet WriteVerbose.
+        /// If its executed on the main thread calls it directly. Otherwise
+        /// sets it to the main thread action and wait for it to be executed.
+        /// </summary>
+        /// <param name="text">Verbose text.</param>
+        internal void WriteVerbose(string text)
+        {
+            if (!this.CanWriteToStream)
+            {
+                this.queuedOutputStreams.Enqueue(
+                    new QueuedOutputStream(OutputStreamType.Verbose, text));
+                return;
+            }
+
+            if (this.originalThread == Thread.CurrentThread)
+            {
+                this.PsCmdlet.WriteVerbose(text);
+                return;
+            }
+
+            try
+            {
+                this.WaitForOurTurn();
+                this.mainThreadAction = () => this.PsCmdlet.WriteVerbose(text);
+                this.mainThreadActionReady.Set();
+                this.WaitMainThreadActionCompletion();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
         /// Calls cmdlet WriteWarning.
         /// If its executed on the main thread calls it directly. Otherwise
         /// sets it to the main thread action and wait for it to be executed.
@@ -435,6 +469,9 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                         {
                             case OutputStreamType.Debug:
                                 this.WriteDebug((string)queuedOutput.Data);
+                                break;
+                            case OutputStreamType.Verbose:
+                                this.WriteVerbose((string)queuedOutput.Data);
                                 break;
                             case OutputStreamType.Warning:
                                 this.WriteWarning((string)queuedOutput.Data);
