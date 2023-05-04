@@ -228,7 +228,7 @@ namespace AppInstaller::Repository
 #ifndef AICLI_DISABLE_TEST_HOOKS
         if (s_ExtractIconFromArpEntry_TestHook_Override)
         {
-            s_ExtractIconFromArpEntry_TestHook_Override;
+            return *s_ExtractIconFromArpEntry_TestHook_Override;
         }
 #endif
 

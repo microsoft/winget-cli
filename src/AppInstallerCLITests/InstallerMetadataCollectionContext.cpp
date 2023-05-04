@@ -1251,7 +1251,7 @@ TEST_CASE("MetadataCollection_Merge_SameInstaller_Icons", "[metadata_collection]
     newTestIcons.emplace_back(std::move(newIconInfo));
 
     mergeData.Metadatas->at(1).SchemaVersion = { "1.2" };
-    mergeData.Metadatas->at(1).InstallerMetadataMap.begin()->second.Icons = testIcons;
+    mergeData.Metadatas->at(1).InstallerMetadataMap.begin()->second.Icons = newTestIcons;
     std::wstring mergeResult = InstallerMetadataCollectionContext::Merge(mergeData.ToJSON(), 0, {});
     REQUIRE(!mergeResult.empty());
 
