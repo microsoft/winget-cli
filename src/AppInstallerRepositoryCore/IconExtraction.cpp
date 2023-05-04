@@ -214,8 +214,24 @@ namespace AppInstaller::Repository
         return {};
     }
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    static std::vector<ExtractedIconInfo>* s_ExtractIconFromArpEntry_TestHook_Override = nullptr;
+
+    void TestHook_SetExtractIconFromArpEntryResult_Override(std::vector<ExtractedIconInfo>* result)
+    {
+        s_ExtractIconFromArpEntry_TestHook_Override = result;
+    }
+#endif
+
     std::vector<ExtractedIconInfo> ExtractIconFromArpEntry(const std::string& productCode, Manifest::ScopeEnum scope)
     {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (s_ExtractIconFromArpEntry_TestHook_Override)
+        {
+            s_ExtractIconFromArpEntry_TestHook_Override;
+        }
+#endif
+
         ARPHelper arpHelper;
         Registry::Key arpEntry;
 
