@@ -9,7 +9,6 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
     using System;
     using System.IO;
     using System.Management.Automation;
-    using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Management.Configuration;
     using Microsoft.Management.Configuration.Processor;
@@ -27,10 +26,9 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         /// Initializes a new instance of the <see cref="ConfigurationCommand"/> class.
         /// </summary>
         /// <param name="psCmdlet">PSCmdlet.</param>
-        /// <param name="cancellationToken">Cancellation token.</param>
         /// <param name="canWriteToStream">If the command can write to stream.</param>
-        public ConfigurationCommand(PSCmdlet psCmdlet, CancellationToken cancellationToken, bool canWriteToStream = true)
-            : base(psCmdlet, cancellationToken, canWriteToStream)
+        public ConfigurationCommand(PSCmdlet psCmdlet, bool canWriteToStream = true)
+            : base(psCmdlet, canWriteToStream)
         {
         }
 
@@ -138,6 +136,9 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         {
             if (psConfigurationJob.ConfigurationTask.IsCompleted)
             {
+                // It is safe to print all output.
+                psConfigurationJob.StartCommand.Flush();
+
                 this.WriteDebug("The task was completed before waiting");
                 if (psConfigurationJob.ConfigurationTask.IsCompletedSuccessfully)
                 {

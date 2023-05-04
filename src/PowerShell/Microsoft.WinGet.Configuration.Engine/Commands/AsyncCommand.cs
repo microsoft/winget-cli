@@ -7,6 +7,7 @@
 namespace Microsoft.WinGet.Configuration.Engine.Commands
 {
     using System;
+    using System.Collections.Concurrent;
     using System.Management.Automation;
     using System.Threading;
     using System.Threading.Tasks;
@@ -33,26 +34,36 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         private readonly SemaphoreSlim semaphore = new (1, 1);
         private readonly ManualResetEventSlim mainThreadActionReady = new (false);
         private readonly ManualResetEventSlim mainThreadActionCompleted = new (false);
-        private readonly CancellationToken cancellationToken;
+
+        private readonly CancellationTokenSource source = new ();
 
         private readonly bool isDebugBounded;
 
         private Action? mainThreadAction = null;
         private bool canWriteToStream;
+        private CancellationToken cancellationToken;
+        private ConcurrentQueue<QueuedOutputStream> queuedOutputStreams = new ();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AsyncCommand"/> class.
         /// </summary>
         /// <param name="psCmdlet">PSCmdlet.</param>
-        /// <param name="cancellationToken">Cancellation token.</param>
         /// <param name="canWriteToStream">If the command can write to stream.</param>
-        public AsyncCommand(PSCmdlet psCmdlet, CancellationToken cancellationToken, bool canWriteToStream)
+        public AsyncCommand(PSCmdlet psCmdlet, bool canWriteToStream)
         {
             this.PsCmdlet = psCmdlet;
             this.originalThread = Thread.CurrentThread;
-            this.cancellationToken = cancellationToken;
             this.isDebugBounded = this.PsCmdlet.MyInvocation.BoundParameters.ContainsKey("Debug");
             this.canWriteToStream = canWriteToStream;
+            this.cancellationToken = this.source.Token;
+        }
+
+        private enum OutputStreamType
+        {
+            Debug,
+            Verbose,
+            Warning,
+            Error,
         }
 
         /// <summary>
@@ -177,7 +188,8 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                 throw new InvalidOperationException();
             }
 
-            this.canWriteToStream = true;
+            this.Flush();
+
             do
             {
                 // Wait for the running task to be completed or if there's
@@ -220,14 +232,16 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         /// <param name="text">Debug text.</param>
         public void WriteDebug(string text)
         {
-            if (!this.CanWriteToStream)
+            // Don't do context switch if no need.
+            if (!this.isDebugBounded)
             {
                 return;
             }
 
-            // Don't do context switch if no need.
-            if (!this.isDebugBounded)
+            if (!this.CanWriteToStream)
             {
+                this.queuedOutputStreams.Enqueue(
+                    new QueuedOutputStream(OutputStreamType.Debug, text));
                 return;
             }
 
@@ -251,7 +265,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         }
 
         /// <summary>
-        /// Calls cmdlet WriteDebug.
+        /// Calls cmdlet WriteWarning.
         /// If its executed on the main thread calls it directly. Otherwise
         /// sets it to the main thread action and wait for it to be executed.
         /// </summary>
@@ -260,6 +274,8 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         {
             if (!this.CanWriteToStream)
             {
+                this.queuedOutputStreams.Enqueue(
+                    new QueuedOutputStream(OutputStreamType.Warning, text));
                 return;
             }
 
@@ -273,6 +289,40 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             {
                 this.WaitForOurTurn();
                 this.mainThreadAction = () => this.PsCmdlet.WriteWarning(text);
+                this.mainThreadActionReady.Set();
+                this.WaitMainThreadActionCompletion();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Calls cmdlet WriteError.
+        /// If its executed on the main thread calls it directly. Otherwise
+        /// sets it to the main thread action and wait for it to be executed.
+        /// </summary>
+        /// <param name="errorRecord">Error record.</param>
+        public void WriteError(ErrorRecord errorRecord)
+        {
+            if (!this.CanWriteToStream)
+            {
+                this.queuedOutputStreams.Enqueue(
+                    new QueuedOutputStream(OutputStreamType.Error, errorRecord));
+                return;
+            }
+
+            if (this.originalThread == Thread.CurrentThread)
+            {
+                this.PsCmdlet.WriteError(errorRecord);
+                return;
+            }
+
+            try
+            {
+                this.WaitForOurTurn();
+                this.mainThreadAction = () => this.PsCmdlet.WriteError(errorRecord);
                 this.mainThreadActionReady.Set();
                 this.WaitMainThreadActionCompletion();
             }
@@ -307,6 +357,56 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             }
         }
 
+        /// <summary>
+        /// Cancel this operation.
+        /// </summary>
+        public virtual void Cancel()
+        {
+            this.source.Cancel();
+        }
+
+        /// <summary>
+        /// Enable writing to pwsh streams and flush all the queued stream.
+        /// This method must be called in the original thread.
+        /// WARNING: You must only call this when the task is completed or in Wait.
+        /// </summary>
+        internal void Flush()
+        {
+            // This must be called in the main thread.
+            if (this.originalThread != Thread.CurrentThread)
+            {
+                throw new InvalidOperationException();
+            }
+
+            this.canWriteToStream = true;
+
+            // At this point, no new messages should be added to the queue and we are in the main thread.
+            // Any non completed async operation will now wait for the main thread, so be sure to cancel
+            // if anything goes wrong.
+            try
+            {
+                while (this.queuedOutputStreams.TryDequeue(out var queuedOutput))
+                {
+                    switch (queuedOutput.Type)
+                    {
+                        case OutputStreamType.Debug:
+                            this.WriteDebug((string)queuedOutput.Data);
+                            break;
+                        case OutputStreamType.Warning:
+                            this.WriteWarning((string)queuedOutput.Data);
+                            break;
+                        case OutputStreamType.Error:
+                            this.WriteError((ErrorRecord)queuedOutput.Data);
+                            break;
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                this.Cancel();
+            }
+        }
+
         private void WaitForOurTurn()
         {
             this.semaphore.Wait(this.cancellationToken);
@@ -322,6 +422,19 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             });
 
             this.semaphore.Release();
+        }
+
+        private class QueuedOutputStream
+        {
+            public QueuedOutputStream(OutputStreamType type, object data)
+            {
+                this.Type = type;
+                this.Data = data;
+            }
+
+            public OutputStreamType Type { get; }
+
+            public object Data { get; }
         }
     }
 }

@@ -44,7 +44,7 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
         {
             CancellationTokenSource source = new ();
 
-            var configCommand = new ConfigurationCommand(this, source.Token);
+            var configCommand = new ConfigurationCommand(this);
             configCommand.Get(this.File, this.executionPolicy);
         }
     }
