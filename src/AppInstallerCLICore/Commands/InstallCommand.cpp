@@ -117,7 +117,7 @@ namespace AppInstaller::CLI
         {
             context <<
                 Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
-                Workflow::OpenSource();
+                Workflow::OpenSourceFor(OperationType::Install);
 
             if (!context.Args.Contains(Execution::Args::Type::Force))
             {

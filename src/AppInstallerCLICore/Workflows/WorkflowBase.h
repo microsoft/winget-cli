@@ -140,6 +140,21 @@ namespace AppInstaller::CLI::Workflow
         Repository::CompositeSearchBehavior m_searchBehavior;
     };
 
+    // Creates the source object required for a specific operation.
+    // Required Args: OperationType
+    // Inputs: None
+    // Outputs: Source
+    struct OpenSourceFor : public WorkflowTask
+    {
+        OpenSourceFor( OperationType type ) :
+            WorkflowTask("OpenSourceFor"), m_operationType(type) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        OperationType m_operationType;
+    };
+
     // Performs a search on the source.
     // Required Args: None
     // Inputs: Source

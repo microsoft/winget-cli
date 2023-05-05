@@ -115,7 +115,7 @@ namespace AppInstaller::CLI::Workflow
         case Execution::Args::Type::Version:
         case Execution::Args::Type::Channel:
             context <<
-                Workflow::OpenSource();
+                Workflow::OpenSourceFor(OperationType::Search);
             break;
         }
 

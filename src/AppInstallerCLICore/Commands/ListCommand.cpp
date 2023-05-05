@@ -42,9 +42,7 @@ namespace AppInstaller::CLI
 
     void ListCommand::Complete(Execution::Context& context, Execution::Args::Type valueType) const
     {
-        context <<
-            Workflow::OpenSource() <<
-            Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed);
+        context << Workflow::OpenSourceFor(OperationType::Completion);
 
         switch (valueType)
         {
@@ -76,8 +74,7 @@ namespace AppInstaller::CLI
         context.SetFlags(Execution::ContextFlag::TreatSourceFailuresAsWarning);
 
         context <<
-            Workflow::OpenSource() <<
-            Workflow::OpenCompositeSource(Workflow::DetermineInstalledSource(context)) <<
+            Workflow::OpenSourceFor(OperationType::List) <<
             Workflow::SearchSourceForMany <<
             Workflow::HandleSearchResultFailures <<
             Workflow::EnsureMatchesFromSearchResult(OperationType::List) <<

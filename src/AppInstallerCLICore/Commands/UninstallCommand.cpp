@@ -58,9 +58,7 @@ namespace AppInstaller::CLI
             return;
         }
 
-        context <<
-            Workflow::OpenSource() <<
-            Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed);
+        context << Workflow::OpenSourceFor(OperationType::Completion);
 
         switch (valueType)
         {
@@ -100,8 +98,7 @@ namespace AppInstaller::CLI
         // open the sources where to search for the package
         context <<
             Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
-            Workflow::OpenSource() <<
-            Workflow::OpenCompositeSource(Workflow::DetermineInstalledSource(context));
+            Workflow::OpenSourceFor(OperationType::Uninstall);
 
         // find the uninstaller
         if (context.Args.Contains(Execution::Args::Type::Manifest))

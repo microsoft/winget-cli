@@ -444,6 +444,35 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
+    void OpenSourceFor::operator()(Execution::Context& context) const
+    {
+        switch (m_operationType)
+        {
+        case OperationType::Search:
+        case OperationType::Show:
+        case OperationType::Install:
+            context << 
+                Workflow::OpenSource();
+            break;
+        case OperationType::List:
+        case OperationType::Uninstall:
+        case OperationType::Upgrade:
+            context <<
+                Workflow::OpenSource() <<
+                Workflow::OpenCompositeSource(Workflow::DetermineInstalledSource(context));
+            break;
+        case OperationType::Pin:
+        case OperationType::Export:
+        case OperationType::Completion:
+            context <<
+                Workflow::OpenSource() <<
+                Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed);
+            break;
+        default:
+            THROW_HR(HRESULT_FROM_WIN32(ERROR_INVALID_STATE));
+        }
+    }
+
     void SearchSourceForMany(Execution::Context& context)
     {
         const auto& args = context.Args;

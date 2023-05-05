@@ -92,9 +92,7 @@ namespace AppInstaller::CLI
             return;
         }
 
-        context <<
-            OpenSource() <<
-            OpenCompositeSource(Repository::PredefinedSource::Installed);
+        context << Workflow::OpenSourceFor(OperationType::Completion);
 
         switch (valueType)
         {
@@ -153,8 +151,7 @@ namespace AppInstaller::CLI
 
         context <<
             Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
-            Workflow::OpenSource() <<
-            Workflow::OpenCompositeSource(Workflow::DetermineInstalledSource(context));
+            Workflow::OpenSourceFor(OperationType::Upgrade);
 
         if (ShouldListUpgrade(context.Args))
         {

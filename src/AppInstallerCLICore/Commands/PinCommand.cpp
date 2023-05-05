@@ -77,9 +77,7 @@ namespace AppInstaller::CLI
 
     void PinAddCommand::Complete(Execution::Context& context, Args::Type valueType) const
     {
-        context <<
-            Workflow::OpenSource() <<
-            Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed);
+        context << Workflow::OpenSourceFor(OperationType::Pin);
 
         switch (valueType)
         {
@@ -114,8 +112,7 @@ namespace AppInstaller::CLI
     void PinAddCommand::ExecuteInternal(Execution::Context& context) const
     {
         context <<
-            Workflow::OpenSource() <<
-            Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
+            Workflow::OpenSourceFor(OperationType::Pin) <<
             Workflow::SearchSourceForSingle <<
             Workflow::HandleSearchResultFailures <<
             Workflow::EnsureOneMatchFromSearchResult(OperationType::Pin) <<
@@ -154,9 +151,7 @@ namespace AppInstaller::CLI
 
     void PinRemoveCommand::Complete(Execution::Context& context, Args::Type valueType) const
     {
-        context <<
-            Workflow::OpenSource() <<
-            Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed);
+        context << Workflow::OpenSourceFor(OperationType::Pin);
 
         switch (valueType)
         {
@@ -186,8 +181,7 @@ namespace AppInstaller::CLI
     void PinRemoveCommand::ExecuteInternal(Execution::Context& context) const
     {
         context <<
-            Workflow::OpenSource() <<
-            Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
+            Workflow::OpenSourceFor(OperationType::Pin) <<
             Workflow::SearchSourceForSingle <<
             Workflow::HandleSearchResultFailures <<
             Workflow::EnsureOneMatchFromSearchResult(OperationType::Pin) <<
@@ -226,9 +220,7 @@ namespace AppInstaller::CLI
 
     void PinListCommand::Complete(Execution::Context& context, Args::Type valueType) const
     {
-        context <<
-            Workflow::OpenSource() <<
-            Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed);
+        context << Workflow::OpenSourceFor(OperationType::Pin);
 
         switch (valueType)
         {
@@ -260,8 +252,7 @@ namespace AppInstaller::CLI
         context <<
             Workflow::OpenPinningIndex(/* readOnly */ true) <<
             Workflow::GetAllPins <<
-            Workflow::OpenSource() <<
-            Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
+            Workflow::OpenSourceFor(OperationType::Pin) <<
             Workflow::CrossReferencePinsWithSource <<
             Workflow::ReportPins;
     }
@@ -306,8 +297,7 @@ namespace AppInstaller::CLI
             context <<
                 Workflow::OpenPinningIndex(/* readOnly */ true) <<
                 Workflow::GetAllPins <<
-                Workflow::OpenSource() <<
-                Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed) <<
+                Workflow::OpenSourceFor(OperationType::Pin) <<
                 Workflow::CrossReferencePinsWithSource <<
                 Workflow::ReportPins;
         }
