@@ -76,7 +76,7 @@ namespace AppInstaller::CLI
             else
             {
                 context <<
-                    Workflow::OpenSourceFor(OperationType::Search) <<
+                    Workflow::OpenSourceFor(OperationType::Show) <<
                     Workflow::SearchSourceForSingle <<
                     Workflow::HandleSearchResultFailures <<
                     Workflow::EnsureOneMatchFromSearchResult(OperationType::Show) <<
