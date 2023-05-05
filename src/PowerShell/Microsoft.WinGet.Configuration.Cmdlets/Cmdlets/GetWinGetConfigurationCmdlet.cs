@@ -20,6 +20,7 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
     public sealed class GetWinGetConfigurationCmdlet : PSCmdlet
     {
         private ExecutionPolicy executionPolicy = ExecutionPolicy.Undefined;
+        private bool canUseTelemetry = true;
 
         /// <summary>
         /// Gets or sets the configuration file.
@@ -35,6 +36,7 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
         protected override void BeginProcessing()
         {
             this.executionPolicy = Utilities.GetExecutionPolicy();
+            this.canUseTelemetry = Utilities.CanUseTelemetry();
         }
 
         /// <summary>
@@ -42,10 +44,8 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
         /// </summary>
         protected override void ProcessRecord()
         {
-            CancellationTokenSource source = new ();
-
             var configCommand = new ConfigurationCommand(this);
-            configCommand.Get(this.File, this.executionPolicy);
+            configCommand.Get(this.File, this.executionPolicy, this.canUseTelemetry);
         }
     }
 }

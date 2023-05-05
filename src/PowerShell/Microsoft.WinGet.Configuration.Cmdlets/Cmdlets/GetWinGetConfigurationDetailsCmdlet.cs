@@ -32,8 +32,6 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
         /// </summary>
         protected override void ProcessRecord()
         {
-            CancellationTokenSource source = new ();
-
             var configCommand = new ConfigurationCommand(this);
             configCommand.GetDetails(this.Set);
         }

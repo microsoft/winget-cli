@@ -37,7 +37,8 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         /// </summary>
         /// <param name="configFile">Configuration file path.</param>
         /// <param name="executionPolicy">Execution policy.</param>
-        public void Get(string configFile, ExecutionPolicy executionPolicy)
+        /// <param name="canUseTelemetry">If telemetry can be used.</param>
+        public void Get(string configFile, ExecutionPolicy executionPolicy, bool canUseTelemetry)
         {
             if (!Path.IsPathRooted(configFile))
             {
@@ -54,7 +55,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
 
             // Start task.
             var runningTask = this.RunOnMTA<PSConfigurationSet>(
-                async () => await this.OpenConfigurationSetAsync(configFile, executionPolicy));
+                async () => await this.OpenConfigurationSetAsync(configFile, executionPolicy, canUseTelemetry));
 
             this.Wait(runningTask);
             this.WriteObject(runningTask.Result);
@@ -168,7 +169,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             this.WriteObject(psConfigurationJob.ConfigurationTask.Result);
         }
 
-        private PSConfigurationProcessor CreateConfigurationProcessor(ExecutionPolicy executionPolicy)
+        private PSConfigurationProcessor CreateConfigurationProcessor(ExecutionPolicy executionPolicy, bool canUseTelemetry)
         {
             var properties = new ConfigurationProcessorFactoryProperties();
             properties.Policy = this.GetConfigurationProcessorPolicy(executionPolicy);
@@ -176,12 +177,12 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             var factory = new ConfigurationSetProcessorFactory(
                 ConfigurationProcessorType.Default, properties);
 
-            return new PSConfigurationProcessor(factory, this);
+            return new PSConfigurationProcessor(factory, this, canUseTelemetry);
         }
 
-        private async Task<PSConfigurationSet> OpenConfigurationSetAsync(string configFile, ExecutionPolicy executionPolicy)
+        private async Task<PSConfigurationSet> OpenConfigurationSetAsync(string configFile, ExecutionPolicy executionPolicy, bool canUseTelemetry)
         {
-            var psProcessor = this.CreateConfigurationProcessor(executionPolicy);
+            var psProcessor = this.CreateConfigurationProcessor(executionPolicy, canUseTelemetry);
 
             var stream = await FileRandomAccessStream.OpenAsync(configFile, FileAccessMode.Read);
             OpenConfigurationSetResult openResult = await psProcessor.Processor.OpenConfigurationSetAsync(stream);

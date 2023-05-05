@@ -31,19 +31,14 @@ namespace Microsoft.WinGet.Configuration.Engine.PSObjects
         /// </summary>
         /// <param name="factory">Factory.</param>
         /// <param name="diagnosticCommand">AsyncCommand to use for diagnostics.</param>
-        internal PSConfigurationProcessor(IConfigurationSetProcessorFactory factory, AsyncCommand diagnosticCommand)
+        /// <param name="canUseTelemetry">If telemetry can be used.</param>
+        internal PSConfigurationProcessor(IConfigurationSetProcessorFactory factory, AsyncCommand diagnosticCommand, bool canUseTelemetry)
         {
             this.Processor = new ConfigurationProcessor(factory);
             this.Processor.MinimumLevel = DiagnosticLevel.Verbose;
             this.Processor.Caller = "Microsoft.WinGet.Configuration";
             this.Processor.Diagnostics += (sender, args) => this.LogConfigurationDiagnostics(args);
-
-            // TODO: see if there's a PowerShell thing to know this.
-            this.Processor.GenerateTelemetryEvents = false;
-
-            // TODO: Create guid or use same as winget?
-            this.Processor.ActivityIdentifier = Guid.NewGuid();
-
+            this.Processor.GenerateTelemetryEvents = canUseTelemetry;
             this.diagnosticCommand = diagnosticCommand;
         }
 
