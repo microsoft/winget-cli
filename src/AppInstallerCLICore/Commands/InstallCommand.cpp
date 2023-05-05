@@ -119,12 +119,6 @@ namespace AppInstaller::CLI
                 Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
                 Workflow::OpenSourceFor(OperationType::Install);
 
-            if (!context.Args.Contains(Execution::Args::Type::Force))
-            {
-                context <<
-                    Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed, false, Repository::CompositeSearchBehavior::AvailablePackages);
-            }
-
             if (context.Args.Contains(Execution::Args::Type::MultiQuery))
             {
                 context <<

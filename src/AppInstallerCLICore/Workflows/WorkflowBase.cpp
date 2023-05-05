@@ -450,9 +450,16 @@ namespace AppInstaller::CLI::Workflow
         {
         case OperationType::Search:
         case OperationType::Show:
-        case OperationType::Install:
             context << 
                 Workflow::OpenSource();
+            break;
+
+        case OperationType::Install:
+            context << Workflow::OpenSource();
+            if (!context.Args.Contains(Execution::Args::Type::Force))
+            {
+                context << Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed, false, Repository::CompositeSearchBehavior::AvailablePackages);
+            }
             break;
         case OperationType::List:
         case OperationType::Uninstall:
