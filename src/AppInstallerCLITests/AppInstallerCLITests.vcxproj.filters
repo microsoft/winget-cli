@@ -228,7 +228,7 @@
       <Filter>Source Files\Common</Filter>
     </ClCompile>
     <ClCompile Include="Filesystem.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Common</Filter>
     </ClCompile>
     <ClCompile Include="FolderFileWatcher.cpp">
       <Filter>Source Files\Common</Filter>
@@ -243,7 +243,7 @@
       <Filter>Source Files\Repository</Filter>
     </ClCompile>
     <ClCompile Include="RestInterface_1_4.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Repository</Filter>
     </ClCompile>
     <ClCompile Include="AdminSettings.cpp">
       <Filter>Source Files\Common</Filter>
@@ -292,6 +292,9 @@
     </ClCompile>
     <ClCompile Include="WindowsFeature.cpp">
       <Filter>Source Files\CLI</Filter>
+    </ClCompile>
+    <ClCompile Include="IconExtraction.cpp">
+      <Filter>Source Files\Repository</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -835,6 +838,12 @@
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Node-Types.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\notepad.exe">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\notepad.ico">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
   </ItemGroup>
