@@ -57,6 +57,8 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             Assert.Empty(testSet.ConfigurationUnits);
             testSet.ConfigurationUnits = new ConfigurationUnit[] { new ConfigurationUnit() };
             Assert.Equal(1, testSet.ConfigurationUnits.Count);
+
+            Assert.NotEqual(string.Empty, testSet.SchemaVersion);
         }
 
         /// <summary>

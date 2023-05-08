@@ -39,10 +39,10 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// Download a release from winget-cli.
         /// </summary>
         /// <param name="releaseTag">Optional release name. If null, gets latest.</param>
-        /// <returns>Path where the msix bundle is downloaded.</returns>
-        public string DownloadRelease(string releaseTag)
+        /// <param name="outputFile">Output file.</param>
+        public void DownloadRelease(string releaseTag, string outputFile)
         {
-            return this.DownloadReleaseAsync(releaseTag).GetAwaiter().GetResult();
+            this.DownloadReleaseAsync(releaseTag, outputFile).GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -69,17 +69,16 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// Download asynchronously a release from winget-cli.
         /// </summary>
         /// <param name="releaseTag">Optional release name. If null, gets latest.</param>
-        /// <returns>Path where the msix bundle is downloaded.</returns>
-        public async Task<string> DownloadReleaseAsync(string releaseTag)
+        /// <param name="outputFile">Output file.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task DownloadReleaseAsync(string releaseTag, string outputFile)
         {
             Release release = await this.gitHubClient.Repository.Release.Get(Owner, Repo, releaseTag);
 
             // Get asset and download.
             var msixBundleAsset = release.Assets.Where(a => a.Name == MsixBundleName).First();
 
-            var tmpFile = Path.GetTempFileName();
-            await this.DownloadUrlAsync(msixBundleAsset.Url, tmpFile);
-            return tmpFile;
+            await this.DownloadUrlAsync(msixBundleAsset.Url, outputFile);
         }
 
         /// <summary>
@@ -96,7 +95,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 ContentType);
 
             using var memoryStream = new MemoryStream((byte[])response.Body);
-            using var fileStream = File.Open(fileName, FileMode.Open);
+            using var fileStream = File.Open(fileName, FileMode.OpenOrCreate);
             memoryStream.Position = 0;
             await memoryStream.CopyToAsync(fileStream);
         }

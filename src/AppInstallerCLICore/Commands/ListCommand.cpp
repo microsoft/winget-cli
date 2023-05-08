@@ -26,6 +26,7 @@ namespace AppInstaller::CLI
             Argument{ Execution::Args::Type::InstallScope, Resource::String::InstalledScopeArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help },
             Argument::ForType(Execution::Args::Type::CustomHeader),
             Argument::ForType(Execution::Args::Type::AcceptSourceAgreements),
+            Argument{ Execution::Args::Type::Upgrade, Resource::String::UpgradeArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help },
         };
     }
 
@@ -80,6 +81,6 @@ namespace AppInstaller::CLI
             Workflow::SearchSourceForMany <<
             Workflow::HandleSearchResultFailures <<
             Workflow::EnsureMatchesFromSearchResult(OperationType::List) <<
-            Workflow::ReportListResult();
+            Workflow::ReportListResult(context.Args.Contains(Execution::Args::Type::Upgrade));
     }
 }

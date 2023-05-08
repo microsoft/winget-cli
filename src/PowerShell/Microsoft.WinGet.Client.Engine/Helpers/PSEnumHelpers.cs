@@ -67,7 +67,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         }
 
         /// <summary>
-        /// Converts PSPackageUninstallMode to PackageUninstallMode.
+        /// Converts PSPackageUninstallMode string value to PackageUninstallMode.
         /// </summary>
         /// <param name="value">PSPackageUninstallMode string value.</param>
         /// <returns>PackageUninstallMode.</returns>
@@ -78,6 +78,23 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 "Default" => PackageUninstallMode.Default,
                 "Silent" => PackageUninstallMode.Silent,
                 "Interactive" => PackageUninstallMode.Interactive,
+                _ => throw new InvalidOperationException(),
+            };
+        }
+
+        /// <summary>
+        /// Converts PSPackageFieldMatchOption string value to PackageFieldMatchOption.
+        /// </summary>
+        /// <param name="value">PSPackageFieldMatchOption string value.</param>
+        /// <returns>PackageFieldMatchOption.</returns>
+        public static PackageFieldMatchOption ToPackageFieldMatchOption(string value)
+        {
+            return value switch
+            {
+                "Equals" => PackageFieldMatchOption.Equals,
+                "EqualsCaseInsensitive" => PackageFieldMatchOption.EqualsCaseInsensitive,
+                "StartsWithCaseInsensitive" => PackageFieldMatchOption.StartsWithCaseInsensitive,
+                "ContainsCaseInsensitive" => PackageFieldMatchOption.ContainsCaseInsensitive,
                 _ => throw new InvalidOperationException(),
             };
         }

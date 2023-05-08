@@ -250,7 +250,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             std::unique_ptr<ConfigurationSetParser> parser = ConfigurationSetParser::Create(inputString);
             if (FAILED(parser->Result()))
             {
-                result->Initialize(parser->Result(), parser->Field());
+                result->Initialize(parser->Result(), parser->Field(), parser->Value(), parser->Line(), parser->Column());
                 co_return *result;
             }
 
@@ -258,9 +258,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             configurationSet->Initialize(parser->GetConfigurationUnits());
             if (FAILED(parser->Result()))
             {
-                result->Initialize(parser->Result(), parser->Field());
+                result->Initialize(parser->Result(), parser->Field(), parser->Value(), parser->Line(), parser->Column());
                 co_return *result;
             }
+            configurationSet->SchemaVersion(parser->GetSchemaVersion());
 
             result->Initialize(*configurationSet);
         }

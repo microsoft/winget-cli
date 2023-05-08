@@ -386,18 +386,6 @@ They can be configured through the settings file 'winget settings'.</value>
     <value>Failed to install or upgrade Microsoft Store package. Error code: {0}</value>
     <comment>{Locked="{0}"} Error message displayed when a Microsoft Store application package fails to install or upgrade. {0} is a placeholder replaced by an error code.</comment>
   </data>
-  <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
-    <value>Verifying/Requesting package acquisition failed: network error</value>
-  </data>
-  <data name="MSStoreInstallGetEntitlementNoStoreAccount" xml:space="preserve">
-    <value>Verifying/Requesting package acquisition failed: no store account found</value>
-  </data>
-  <data name="MSStoreInstallGetEntitlementServerError" xml:space="preserve">
-    <value>Verifying/Requesting package acquisition failed: server error</value>
-  </data>
-  <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
-    <value>Verifying/Requesting package acquisition success</value>
-  </data>
   <data name="MSStoreStoreClientBlocked" xml:space="preserve">
     <value>Failed to install or upgrade Microsoft Store package because Microsoft Store client is blocked by policy</value>
   </data>
@@ -1477,6 +1465,9 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="IncompatibleArgumentsProvided" xml:space="preserve">
     <value>Incompatible command line arguments provided</value>
   </data>
+  <data name="UpgradeArgumentDescription" xml:space="preserve">
+    <value>Lists only packages which have an upgrade available</value>
+  </data>
   <data name="UpgradeAvailableForPinned" xml:space="preserve">
     <value>The following packages have an upgrade available, but require explicit targeting for upgrade:</value>
     <comment>"require explicit targeting for upgrade" means that the package will not be upgraded with all others unless an extra flag is added, or the package is mentioned explicitly</comment>
@@ -1729,8 +1720,8 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="ConfigureValidateCommandShortDescription" xml:space="preserve">
     <value>Validates a configuration file</value>
   </data>
-  <data name="ConfigurationFieldInvalid" xml:space="preserve">
-    <value>The field '{0}' in the configuration file is invalid.</value>
+  <data name="ConfigurationFieldInvalidType" xml:space="preserve">
+    <value>The field '{0}' in the configuration file is the wrong type.</value>
     <comment>{Locked="{0}"} An error in reading a configuration file. {0} is a placeholder replaced by the field name from the file.</comment>
   </data>
   <data name="ConfigurationFileArgumentDescription" xml:space="preserve">
@@ -1921,5 +1912,17 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="ConfigurationUnitSkipped" xml:space="preserve">
     <value>This configuration unit was not run for an unknown reason: {0}</value>
     <comment>{Locked="{0}"} {0} is a placeholder for the unrecognized error code.</comment>
+  </data>
+  <data name="ConfigurationFieldInvalidValue" xml:space="preserve">
+    <value>The field '{0}' has an invalid value: {1}</value>
+    <comment>{Locked="{0}","{1}"} An error in reading a configuration file. {0} is a placeholder replaced by the field name from the file. {1} is a placeholder for the invalid value.</comment>
+  </data>
+  <data name="ConfigurationFieldMissing" xml:space="preserve">
+    <value>The field '{0}' is missing or empty.</value>
+    <comment>{Locked="{0}"} An error in reading a configuration file. {0} is a placeholder replaced by the expected field name from the file.</comment>
+  </data>
+  <data name="SeeLineAndColumn" xml:space="preserve">
+    <value>See line {0}, column {1} in the file.</value>
+    <comment>{Locked="{0}","{1}"} Indicates the file location of the error, {0} and {1} are placeholders for numbers of the line and column, respectively.</comment>
   </data>
 </root>

@@ -63,6 +63,27 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
             }
         }
 
+        /// <summary>
+        /// Sets the find package options for a query input that is looking for a specific package.
+        /// </summary>
+        /// <param name="options">The options object.</param>
+        /// <param name="match">The match type.</param>
+        /// <param name="value">The query value.</param>
+        protected override void SetQueryInFindPackagesOptions(
+            ref FindPackagesOptions options,
+            PackageFieldMatchOption match,
+            string value)
+        {
+            foreach (PackageMatchField field in new PackageMatchField[] { PackageMatchField.Id, PackageMatchField.Name, PackageMatchField.Moniker })
+            {
+                var selector = ComObjectFactory.Value.CreatePackageMatchFilter();
+                selector.Field = field;
+                selector.Value = value ?? string.Empty;
+                selector.Option = match;
+                options.Selectors.Add(selector);
+            }
+        }
+
         private CatalogPackage GetCatalogPackage(CompositeSearchBehavior behavior)
         {
             if (this.CatalogPackage != null)

@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace Microsoft.WinGet.Client.Engine.PSObjects
+namespace Microsoft.WinGet.Client.PSObjects
 {
     /// <summary>
     /// The processor architecture of the package to install.

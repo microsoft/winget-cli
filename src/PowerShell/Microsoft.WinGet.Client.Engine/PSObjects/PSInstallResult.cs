@@ -7,6 +7,7 @@
 namespace Microsoft.WinGet.Client.Engine.PSObjects
 {
     using System;
+    using System.Management.Automation;
     using Microsoft.Management.Deployment;
 
     /// <summary>
@@ -78,6 +79,24 @@ namespace Microsoft.WinGet.Client.Engine.PSObjects
             {
                 return this.installResult.Status.ToString();
             }
+        }
+
+        /// <summary>
+        /// If the installation succeeded.
+        /// </summary>
+        /// <returns>True if installation succeeded.</returns>
+        public bool Succeeded()
+        {
+            return this.installResult.Status == InstallResultStatus.Ok;
+        }
+
+        /// <summary>
+        /// Message with error information.
+        /// </summary>
+        /// <returns>Error message.</returns>
+        public string ErrorMessage()
+        {
+            return $"InstallStatus '{this.Status}' InstallerErrorCode '{this.InstallerErrorCode}' ExtendedError '{this.ExtendedErrorCode.HResult}'";
         }
     }
 }

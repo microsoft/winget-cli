@@ -20,14 +20,17 @@
 [CmdletBinding()]
 param (
     [Parameter(Mandatory)]
-    [ValidateSet("x64", "x86")]
+    [ValidateSet("x64", "x86", "AnyCpu")]
     [string]
     $Platform,
 
     [Parameter(Mandatory)]
-    [ValidateSet("Debug", "Release")]
+    [ValidateSet("Debug", "Release", "ReleaseStatic")]
     [string]
     $Configuration,
+
+    [string]
+    $BuildRoot = "",
 
     [switch]
     $SkipImportModule
@@ -53,6 +56,11 @@ class WinGetModule
 # there's no way to tell PowerShell to release the binary dlls that are loaded.
 $local:moduleRootOutput = "$PSScriptRoot\Module\"
 
+if ($BuildRoot -eq "")
+{
+    $BuildRoot = "$PSScriptRoot\..\..";
+}
+
 # Add here new modules
 [WinGetModule[]]$local:modules = 
     [WinGetModule]::new(
@@ -64,7 +72,12 @@ $local:moduleRootOutput = "$PSScriptRoot\Module\"
         "Microsoft.WinGet.Client",
         "$PSScriptRoot\..\Microsoft.WinGet.Client\ModuleFiles\",
         $true,
-        $true)
+        $true),
+    [WinGetModule]::new(
+        "Microsoft.WinGet.Configuration",
+        "$PSScriptRoot\..\Microsoft.WinGet.Configuration\ModuleFiles\",
+        $true,
+        $false)
 
 foreach($module in $modules)
 {
@@ -81,7 +94,7 @@ foreach($module in $modules)
     {
         # Copy output files from VS.
         Write-Host "Copying binary module $($module.Name)" -ForegroundColor Green
-        xcopy "$PSScriptRoot\..\..\$Platform\$Configuration\PowerShell\$($module.Name)\" "$moduleRootOutput\$($module.Name)\" /d /s /f /y
+        xcopy "$BuildRoot\$Platform\$Configuration\PowerShell\$($module.Name)\" "$moduleRootOutput\$($module.Name)\" /d /s /f /y
     }
 
     # Copy PowerShell files even for modules with binary resources.

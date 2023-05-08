@@ -79,48 +79,69 @@ namespace AppInstaller::CLI::Workflow
             return errorCode;
         }
 
-        bool GetFreeEntitlement(Execution::Context& context, const std::wstring& productId)
+        // The type of entitlement we were able to acquire/ensure.
+        enum class EntitlementType
+        {
+            None,
+            User,
+            Device,
+        };
+
+        EntitlementType EnsureFreeEntitlement(Execution::Context& context, const std::wstring& productId)
         {
             AppInstallManager installManager;
+
+            AICLI_LOG(CLI, Error, << "Getting entitlement for ProductId: " << Utility::ConvertToUTF8(productId));
 
             // Verifying/Acquiring product ownership
             context.Reporter.Info() << Resource::String::MSStoreInstallTryGetEntitlement << std::endl;
 
-            GetEntitlementResult result{ nullptr };
+            GetEntitlementResult entitlementResult{ nullptr };
+            EntitlementType result = EntitlementType::None;
 
             if (Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope)) == Manifest::ScopeEnum::Machine)
             {
-                AICLI_LOG(CLI, Info, << "Get device entitlement.");
-                result = installManager.GetFreeDeviceEntitlementAsync(productId, winrt::hstring(), winrt::hstring()).get();
+                AICLI_LOG(CLI, Info, << "Get device entitlement (machine scope install).");
+                result = EntitlementType::Device;
+                entitlementResult = installManager.GetFreeDeviceEntitlementAsync(productId, winrt::hstring(), winrt::hstring()).get();
             }
             else
             {
                 AICLI_LOG(CLI, Info, << "Get user entitlement.");
-                result = installManager.GetFreeUserEntitlementAsync(productId, winrt::hstring(), winrt::hstring()).get();
-                if (result.Status() == GetEntitlementStatus::NoStoreAccount)
+                result = EntitlementType::User;
+                entitlementResult = installManager.GetFreeUserEntitlementAsync(productId, winrt::hstring(), winrt::hstring()).get();
+
+                if (entitlementResult.Status() == GetEntitlementStatus::NoStoreAccount)
                 {
-                    AICLI_LOG(CLI, Info, << "Get device entitlement.");
-                    result = installManager.GetFreeDeviceEntitlementAsync(productId, winrt::hstring(), winrt::hstring()).get();
+                    AICLI_LOG(CLI, Info, << "Get device entitlement (no store account).");
+                    result = EntitlementType::Device;
+                    entitlementResult = installManager.GetFreeDeviceEntitlementAsync(productId, winrt::hstring(), winrt::hstring()).get();
                 }
             }
 
-            if (result.Status() == GetEntitlementStatus::Succeeded)
+            if (entitlementResult.Status() == GetEntitlementStatus::Succeeded)
             {
-                context.Reporter.Info() << Resource::String::MSStoreInstallGetEntitlementSuccess << std::endl;
                 AICLI_LOG(CLI, Info, << "Get entitlement succeeded.");
             }
-            else if (result.Status() == GetEntitlementStatus::NetworkError)
+            else
             {
-                context.Reporter.Info() << Resource::String::MSStoreInstallGetEntitlementNetworkError << std::endl;
-                AICLI_LOG(CLI, Error, << "Get entitlement failed. Network error.");
-            }
-            else if (result.Status() == GetEntitlementStatus::ServerError)
-            {
-                context.Reporter.Info() << Resource::String::MSStoreInstallGetEntitlementServerError << std::endl;
-                AICLI_LOG(CLI, Error, << "Get entitlement failed Server error. ProductId: " << Utility::ConvertToUTF8(productId));
+                result = EntitlementType::None;
+
+                if (entitlementResult.Status() == GetEntitlementStatus::NetworkError)
+                {
+                    AICLI_LOG(CLI, Error, << "Get entitlement failed. Network error.");
+                }
+                else if (entitlementResult.Status() == GetEntitlementStatus::ServerError)
+                {
+                    AICLI_LOG(CLI, Error, << "Get entitlement failed. Server error.");
+                }
+                else
+                {
+                    AICLI_LOG(CLI, Error, << "Get entitlement failed. Unknown status: " << static_cast<int32_t>(entitlementResult.Status()));
+                }
             }
 
-            return result.Status() == GetEntitlementStatus::Succeeded;
+            return result;
         }
     }
 
@@ -135,11 +156,8 @@ namespace AppInstaller::CLI::Workflow
     {
         auto productId = Utility::ConvertToUTF16(context.Get<Execution::Data::Installer>()->ProductId);
 
-        // Verifying/Acquiring product ownership
-        if (!GetFreeEntitlement(context, productId))
-        {
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_MSSTORE_INSTALL_FAILED);
-        }
+        // Best effort verifying/acquiring product ownership.
+        std::ignore = EnsureFreeEntitlement(context, productId);
 
         AppInstallManager installManager;
         AppInstallOptions installOptions;
@@ -184,7 +202,7 @@ namespace AppInstaller::CLI::Workflow
         else
         {
             auto errorCodeString = GetErrorCodeString(errorCode);
-            context.Reporter.Info() << Resource::String::MSStoreInstallOrUpdateFailed(errorCodeString) << std::endl;
+            context.Reporter.Error() << Resource::String::MSStoreInstallOrUpdateFailed(errorCodeString) << std::endl;
             context.Add<Execution::Data::OperationReturnCode>(errorCode);
             AICLI_LOG(CLI, Error, << "MSStore install failed. ProductId: " << Utility::ConvertToUTF8(productId) << " HResult: " << errorCodeString);
             AICLI_TERMINATE_CONTEXT(errorCode);
@@ -195,11 +213,8 @@ namespace AppInstaller::CLI::Workflow
     {
         auto productId = Utility::ConvertToUTF16(context.Get<Execution::Data::Installer>()->ProductId);
 
-        // Verifying/Acquiring product ownership
-        if (!GetFreeEntitlement(context, productId))
-        {
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_MSSTORE_INSTALL_FAILED);
-        }
+        // Best effort verifying/acquiring product ownership.
+        std::ignore = EnsureFreeEntitlement(context, productId);
 
         AppInstallManager installManager;
         AppUpdateOptions updateOptions;

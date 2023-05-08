@@ -46,16 +46,19 @@ namespace Microsoft.WinGet.Client.Engine.Common
                 var result = wingetCliWrapper.RunCommand("--version");
                 result.VerifyExitCode();
             }
-            catch (Win32Exception)
+            catch (Win32Exception e)
             {
+                psCmdlet.WriteDebug($"'winget.exe' Win32Exception {e.Message}");
                 throw new WinGetIntegrityException(GetReason(psCmdlet));
             }
             catch (Exception e) when (e is WinGetCLIException || e is WinGetCLITimeoutException)
             {
+                psCmdlet.WriteDebug($"'winget.exe' WinGetCLIException {e.Message}");
                 throw new WinGetIntegrityException(IntegrityCategory.Failure, e);
             }
             catch (Exception e)
             {
+                psCmdlet.WriteDebug($"'winget.exe' Exception {e.Message}");
                 throw new WinGetIntegrityException(IntegrityCategory.Unknown, e);
             }
 

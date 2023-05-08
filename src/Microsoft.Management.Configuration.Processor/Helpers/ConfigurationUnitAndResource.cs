@@ -81,7 +81,19 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
         /// </summary>
         /// <param name="directiveName">Name of directive.</param>
         /// <returns>The value of the directive. Null if doesn't exist.</returns>
-        public string? GetDirective(string directiveName)
+        /// <typeparam name="TType">Directive type value.</typeparam>
+        public TType? GetDirective<TType>(string directiveName)
+            where TType : class
+        {
+            return this.UnitInternal.GetDirective<TType>(directiveName);
+        }
+
+        /// <summary>
+        /// Gets a directive bool value.
+        /// </summary>
+        /// <param name="directiveName">Name of directive.</param>
+        /// <returns>The value of the directive. False if not set.</returns>
+        public bool? GetDirective(string directiveName)
         {
             return this.UnitInternal.GetDirective(directiveName);
         }

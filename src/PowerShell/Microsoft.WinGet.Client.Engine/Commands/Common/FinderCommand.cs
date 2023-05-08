@@ -54,14 +54,14 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         protected string Source { get; set; }
 
         /// <summary>
-        /// Gets or sets the strings that match against every field of a package.
+        /// Gets or sets how to match against package fields.
         /// </summary>
         protected string[] Query { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether to match exactly against package fields.
         /// </summary>
-        protected bool Exact { get; set; }
+        protected PackageFieldMatchOption MatchOption { get; set; }
 
         private string QueryAsJoinedString
         {
@@ -71,17 +71,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
                     ? null
                     : string.Join(" ", this.Query);
             }
-        }
-
-        /// <summary>
-        /// Returns a <see cref="PackageFieldMatchOption" /> based on a parameter.
-        /// </summary>
-        /// <returns>A <see cref="PackageFieldMatchOption" /> value.</returns>
-        protected virtual PackageFieldMatchOption GetExactAsMatchOption()
-        {
-            return this.Exact
-                ? PackageFieldMatchOption.Equals
-                : PackageFieldMatchOption.ContainsCaseInsensitive;
         }
 
         /// <summary>
@@ -99,7 +88,13 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
             return GetMatchResults(catalog, options);
         }
 
-        private static void SetQueryInFindPackagesOptions(
+        /// <summary>
+        /// Sets the find package options for a query input.
+        /// </summary>
+        /// <param name="options">The options object.</param>
+        /// <param name="match">The match type.</param>
+        /// <param name="value">The query value.</param>
+        protected virtual void SetQueryInFindPackagesOptions(
             ref FindPackagesOptions options,
             PackageFieldMatchOption match,
             string value)
@@ -172,8 +167,8 @@ namespace Microsoft.WinGet.Client.Engine.Commands.Common
         private FindPackagesOptions GetFindPackagesOptions(uint limit)
         {
             var options = ComObjectFactory.Value.CreateFindPackagesOptions();
-            SetQueryInFindPackagesOptions(ref options, this.GetExactAsMatchOption(), this.QueryAsJoinedString);
-            this.AddAttributedFiltersToFindPackagesOptions(ref options, this.GetExactAsMatchOption());
+            this.SetQueryInFindPackagesOptions(ref options, this.MatchOption, this.QueryAsJoinedString);
+            this.AddAttributedFiltersToFindPackagesOptions(ref options, this.MatchOption);
             options.ResultLimit = limit;
             return options;
         }

@@ -54,7 +54,9 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationDescriptionWasTruncated);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFailedToApply);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFailedToGetDetails);
-        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFieldInvalid);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFieldInvalidType);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFieldInvalidValue);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFieldMissing);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFileArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFileEmpty);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFileInvalid);
@@ -264,10 +266,6 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(MsixArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(MsixSignatureHashFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(MSStoreAppBlocked);
-        WINGET_DEFINE_RESOURCE_STRINGID(MSStoreInstallGetEntitlementNetworkError);
-        WINGET_DEFINE_RESOURCE_STRINGID(MSStoreInstallGetEntitlementNoStoreAccount);
-        WINGET_DEFINE_RESOURCE_STRINGID(MSStoreInstallGetEntitlementServerError);
-        WINGET_DEFINE_RESOURCE_STRINGID(MSStoreInstallGetEntitlementSuccess);
         WINGET_DEFINE_RESOURCE_STRINGID(MSStoreInstallOrUpdateFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(MSStoreInstallTryGetEntitlement);
         WINGET_DEFINE_RESOURCE_STRINGID(MSStoreStoreClientBlocked);
@@ -379,6 +377,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(SearchSource);
         WINGET_DEFINE_RESOURCE_STRINGID(SearchTruncated);
         WINGET_DEFINE_RESOURCE_STRINGID(SearchVersion);
+        WINGET_DEFINE_RESOURCE_STRINGID(SeeLineAndColumn);
         WINGET_DEFINE_RESOURCE_STRINGID(SettingLoadFailure);
         WINGET_DEFINE_RESOURCE_STRINGID(SettingsCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SettingsCommandShortDescription);
@@ -506,6 +505,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(UpdateNotApplicableReason);
         WINGET_DEFINE_RESOURCE_STRINGID(UpdateNoPackagesFound);
         WINGET_DEFINE_RESOURCE_STRINGID(UpdateNoPackagesFoundReason);
+        WINGET_DEFINE_RESOURCE_STRINGID(UpgradeArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeAvailableForPinned);
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeBlockedByPinCount);
         WINGET_DEFINE_RESOURCE_STRINGID(UpgradeCommandLongDescription);

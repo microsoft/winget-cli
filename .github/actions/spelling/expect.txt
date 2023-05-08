@@ -3,6 +3,7 @@ accepteula
 adjacents
 adml
 admx
+AFAIK
 agg
 aicli
 AICLIC
@@ -67,6 +68,7 @@ CODEOWNERS
 COINIT
 COMGLB
 commandline
+Configx
 contactsupport
 contentfiles
 contoso
@@ -210,6 +212,7 @@ malware
 mapview
 maxvalue
 maybenull
+Maxed
 MBH
 mdmp
 MDs
@@ -229,6 +232,7 @@ msftrubengu
 MSIHASH
 MSIXHASH
 msstore
+Mta
 Mugiwara
 Multideclaration
 mycustom
@@ -371,6 +375,7 @@ sysrefcomp
 systemnotsupported
 Tagit
 TCpp
+tcs
 Templating
 temppath
 testexampleinstaller

@@ -6,10 +6,12 @@
 
 namespace Microsoft.WinGet.Client.Engine.PSObjects
 {
+    using System.Management.Automation;
+
     /// <summary>
     /// SourceResult wrapper object for displaying to PowerShell.
     /// </summary>
-    public class PSSourceResult
+    public sealed class PSSourceResult
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="PSSourceResult"/> class.

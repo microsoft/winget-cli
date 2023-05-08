@@ -2,9 +2,12 @@
 
   <PropertyGroup>
     <!-- If these target frameworks are updated, make sure to also update the .psd1 and .nuspec files.-->
+    <!-- Keep in sync with attributes in AssemblyInfo.cs -->
     <TargetWindowsVersion>10.0.22000.0</TargetWindowsVersion>
     <CoreFramework>net6.0-windows$(TargetWindowsVersion)</CoreFramework>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <DesktopFramework>net48</DesktopFramework>
+    <Configurations>Debug;Release;ReleaseStatic</Configurations>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -35,6 +38,7 @@
     </PackageReference>
     <PackageReference Include="System.Security.Principal.Windows" Version="5.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" Condition="'$(TargetFramework)' == '$(DesktopFramework)'"/>
   </ItemGroup>
 
   <ItemGroup>
@@ -63,6 +67,10 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='ReleaseStatic'">
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
@@ -136,7 +144,7 @@
   </PropertyGroup>
 
   <!-- Copy unmanaged dlls that are not copied in the build server -->
-  <Target Name="CopyWinRTAct" AfterTargets="AfterBuild" >
+  <Target Name="CopyWinRTAct" AfterTargets="AfterBuild">
     <PropertyGroup>
       <WinRTActDir>$(OutputPath)..\..\..\UndockedRegFreeWinRT\</WinRTActDir>
       <!-- The output path for this project is different on some builds where the RIDs are not used in the output. -->
@@ -149,7 +157,7 @@
     <Copy SourceFiles="@(WinRTActDll)" DestinationFolder="$(OutputPath)" />
   </Target>
 
-  <Target Name="CopyDeploymentInproc" AfterTargets="AfterBuild" >
+  <Target Name="CopyDeploymentInproc" AfterTargets="AfterBuild">
     <PropertyGroup>
       <DeploymentInprocDir>$(OutputPath)..\..\..\Microsoft.Management.Deployment.InProc\</DeploymentInprocDir>
       <!-- The output path for this project is different on some builds where the RIDs are not used in the output. -->
@@ -162,7 +170,7 @@
     <Copy SourceFiles="@(DeploymentInprocDll)" DestinationFolder="$(OutputPath)" />
   </Target>
 
-  <Target Name="CopyWindowsPackageManager" AfterTargets="AfterBuild" >
+  <Target Name="CopyWindowsPackageManager" AfterTargets="AfterBuild">
     <PropertyGroup>
       <WindowsPackageManagerDir>$(OutputPath)..\..\..\WindowsPackageManager\</WindowsPackageManagerDir>
       <!-- The output path for this project is different on some builds where the RIDs are not used in the output. -->

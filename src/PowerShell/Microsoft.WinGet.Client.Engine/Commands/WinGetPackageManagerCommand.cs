@@ -176,17 +176,20 @@ namespace Microsoft.WinGet.Client.Engine.Commands
 
         private bool DownloadAndInstall(string versionTag, bool downgrade)
         {
+            using var tempFile = new TempFile();
+
             // Download and install.
             var gitHubRelease = new GitHubRelease();
-            var downloadedMsixBundlePath = gitHubRelease.DownloadRelease(versionTag);
+            gitHubRelease.DownloadRelease(versionTag, tempFile.FullPath);
 
             var appxModule = new AppxModuleHelper(this.PsCmdlet);
-            appxModule.AddAppInstallerBundle(downloadedMsixBundlePath, downgrade);
+            appxModule.AddAppInstallerBundle(tempFile.FullPath, downgrade);
 
             // Verify that is installed
             var integrityCategory = WinGetIntegrity.GetIntegrityCategory(this.PsCmdlet, versionTag);
             if (integrityCategory != IntegrityCategory.Installed)
             {
+                this.PsCmdlet.WriteDebug($"Failed installing {versionTag}. IntegrityCategory after attempt: '{integrityCategory}'");
                 return false;
             }
 

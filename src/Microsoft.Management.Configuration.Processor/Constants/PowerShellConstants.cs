@@ -17,6 +17,7 @@ namespace Microsoft.Management.Configuration.Processor.Constants
         internal static class Variables
         {
             public const string PSEdition = "PSEdition";
+            public const string Error = "Error";
             public const string PSModulePath = "env:PSModulePath";
         }
 
@@ -46,6 +47,7 @@ namespace Microsoft.Management.Configuration.Processor.Constants
 
         internal static class Parameters
         {
+            public const string AllowPrerelease = "AllowPrerelease";
             public const string Force = "Force";
             public const string FullyQualifiedName = "FullyQualifiedName";
             public const string Guid = "GUID";

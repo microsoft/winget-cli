@@ -34,6 +34,21 @@ enum Ensure
     Present
 }
 
+enum MatchOption
+{
+    Equals
+    EqualsCaseInsensitive
+    StartsWithCaseInsensitive
+    ContainsCaseInsensitive
+}
+
+enum InstallMode
+{
+    Default
+    Silent
+    Interactive
+}
+
 #endregion enums
 
 #region DscResources
@@ -74,12 +89,16 @@ class WinGetUserSettings
     {
         Assert-WinGetCommand "Test-WinGetUserSettings"
 
-        if ($this.Action -eq [WinGetAction]::Partial)
-        {
-            return Test-WinGetUserSettings -UserSettings $this.Settings -IgnoreNotSet
+        $hashArgs = @{
+            UserSettings = $this.Settings
         }
 
-        return Test-WinGetUserSettings -UserSettings $this.Settings
+        if ($this.Action -eq [WinGetAction]::Partial)
+        {
+            $hashArgs.Add('IgnoreNotSet', $true)
+        }
+
+        return Test-WinGetUserSettings @hashArgs
     }
 
     # Sets the desired properties.
@@ -87,14 +106,16 @@ class WinGetUserSettings
     {
         Assert-WinGetCommand "Set-WinGetUserSettings"
 
+        $hashArgs = @{
+            UserSettings = $this.Settings
+        }
+
         if ($this.Action -eq [WinGetAction]::Partial)
         {
-            Set-WinGetUserSettings -UserSettings $this.Settings -Merge | Out-Null
+            $hashArgs.Add('Merge', $true)
         }
-        else
-        {
-            Set-WinGetUserSettings -UserSettings $this.Settings | Out-Null
-        }
+
+        Set-WinGetUserSettings @hashArgs
     }
 }
 
@@ -232,11 +253,13 @@ class WinGetSources
             # Require Name and Arg.
             if ((-not $source.ContainsKey("Name")) -or [string]::IsNullOrWhiteSpace($source.Name))
             {
+                # TODO: Localize.
                 throw "Invalid source input. Name is required."
             }
 
             if ((-not $source.ContainsKey("Arg")) -or [string]::IsNullOrWhiteSpace($source.Arg))
             {
+                # TODO: Localize.
                 throw "Invalid source input. Arg is required."
             }
 
@@ -274,11 +297,13 @@ class WinGetSources
             # Require Name and Arg.
             if ((-not $source.ContainsKey("Name")) -or [string]::IsNullOrWhiteSpace($source.Name))
             {
+                # TODO: Localize.
                 throw "Invalid source input. Name is required."
             }
 
             if ((-not $source.ContainsKey("Arg")) -or [string]::IsNullOrWhiteSpace($source.Arg))
             {
+                # TODO: Localize.
                 throw "Invalid source input. Arg is required."
             }
 
@@ -289,7 +314,7 @@ class WinGetSources
 
             if ($this.Ensure -eq [Ensure]::Present)
             {
-                Add-WinGetSource -Name $source.Name -Argument $source.Argument -Type $source.Type
+                Add-WinGetSource -Name $source.Name -Argument $source.Argument -Type $sourceType
 
                 if ($this.Reset)
                 {
@@ -392,8 +417,230 @@ class WinGetPackageManager
 
             if ($result -ne 0)
             {
+                # TODO: Localize.
                 throw "Failed to repair winget. Result $result"
             }
+        }
+    }
+}
+
+[DSCResource()]
+class WinGetPackage
+{
+    [DscProperty(Key, Mandatory)]
+    [string]$Id
+
+    [DscProperty()]
+    [string]$Version
+
+    [DscProperty()]
+    [string]$Source
+
+    [DscProperty()]
+    [Ensure]$Ensure = [Ensure]::Present
+
+    [DscProperty()]
+    [MatchOption]$MatchOption = [MatchOption]::EqualsCaseInsensitive
+
+    [DscProperty()]
+    [bool]$UseLatest = $false
+
+    [DSCProperty()]
+    [InstallMode]$InstallMode = [InstallMode]::Silent
+
+    [DscProperty(NotConfigurable)]
+    [string]$InstalledVersion
+
+    [DscProperty(NotConfigurable)]
+    [bool]$IsInstalled = $false
+
+    [DscProperty(NotConfigurable)]
+    [bool]$IsUpdateAvailable = $false
+
+    [PSObject] hidden $CatalogPackage = $null
+
+    hidden Initialize()
+    {
+        # DSC only validates keys and mandatories in a Set call.
+        if ([string]::IsNullOrWhiteSpace($this.Id))
+        {
+            # TODO: Localize.
+            throw "WinGetPackage: Id is required"
+        }
+
+        if (($this.UseLatest -eq $true) -and (-not[string]::IsNullOrWhiteSpace($this.Version)))
+        {
+            # TODO: Localize.
+            throw "WinGetPackage: Version and UseLatest cannot be set at the same time"
+        }
+
+        # This has to use MatchOption equals. Otherwise, it might find other package where the
+        # id starts with.
+        $this.CatalogPackage = Get-WinGetPackage -Id $this.Id -MatchOption $this.MatchOption
+        if ($null -ne $this.CatalogPackage)
+        {
+            $this.InstalledVersion = $this.CatalogPackage.InstalledVersion
+            $this.IsInstalled = $true
+            $this.IsUpdateAvailable = $this.CatalogPackage.IsUpdateAvailable
+        }
+    }
+
+    # Get.
+    [WinGetPackage] Get()
+    {
+        Assert-WinGetCommand "Get-WinGetPackage"
+        $this.Initialize()
+        return $this
+    }
+
+    # Test.
+    [bool] Test()
+    {
+        $this.Initialize()
+        $ensureInstalled = $this.Ensure -eq [Ensure]::Present
+
+        # Not installed, doesn't have to.
+        if (-not($this.IsInstalled -or $ensureInstalled))
+        {
+            return $true
+        }
+
+        # Not install, need to ensure installed.
+        # Installed, need to ensure not installed.
+        if ($this.IsInstalled -ne $ensureInstalled)
+        {
+            return $false
+        }
+
+        # At this point we know is installed.
+        # If asked for latests, but there are updates available.
+        if ($this.UseLatest -and
+            $this.CatalogPackage.IsUpdateAvailable)
+        {
+            return $false
+        }
+
+        # If there is an specific version, compare with the current installed version.
+        if (-not ([string]::IsNullOrWhiteSpace($this.Version)))
+        {
+            $compareResult = $this.CatalogPackage.CompareToVersion($this.Version)
+            if ($compareResult -ne 'Equal')
+            {
+                return $false
+            }
+        }
+
+        # For now this is all.
+        return $true
+    }
+
+    # Set.
+    [void] Set()
+    {
+        Assert-WinGetCommand "Install-WinGetPackage"
+        Assert-WinGetCommand "Uninstall-WinGetPackage"
+
+        if (-not $this.Test())
+        {
+            $hashArgs = @{
+                Id = $this.Id
+                MatchOption = $this.MatchOption
+                Mode = $this.InstallMode
+            }
+            
+            if ($this.Ensure -eq [Ensure]::Present)
+            {
+                if (-not([string]::IsNullOrWhiteSpace($this.Source)))
+                {
+                    $hashArgs.Add("Source", $this.Source)
+                }
+
+                if ($this.IsInstalled)
+                {
+                    if ($this.UseLatest)
+                    {
+                        $this.TryUpdate($hashArgs)
+                    }
+                    elseif (-not([string]::IsNullOrWhiteSpace($this.Version)))
+                    {
+                        $hashArgs.Add("Version", $this.Version)
+
+                        $compareResult = $this.CatalogPackage.CompareToVersion($this.Version)
+                        switch ($compareResult)
+                        {
+                            'Lesser'
+                            {
+                                $this.TryUpdate($hashArgs)
+                                break
+                            }
+                            {'Greater' -or 'Unknown'}
+                            {
+                                # The installed package has a greater version or unknown. Uninstall and install.
+                                $this.Uninstall()
+                                $this.Install($hashArgs)
+                                break
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    if (-not([string]::IsNullOrWhiteSpace($this.Version)))
+                    {
+                        $hashArgs.Add("Version", $this.Version)
+                    }
+
+                    $this.Install($hashArgs)
+                }
+            }
+            else
+            {
+                $this.Uninstall()
+            }
+        }
+    }
+
+    hidden Install([Hashtable]$hashArgs)
+    {
+        $installResult = Install-WinGetPackage @hashArgs
+        if (-not $installResult.Succeeded())
+        {
+            # TODO: Localize.
+            throw "WinGetPackage Failed installing $($this.Id). $($installResult.ErrorMessage())"
+        }
+    }
+
+    hidden Uninstall()
+    {
+        $uninstallResult = Uninstall-WinGetPackage -PSCatalogPackage $this.CatalogPackage
+        if (-not $uninstallResult.Succeeded())
+        {
+            # TODO: Localize.
+            throw "WinGetPackage Failed uninstalling $($this.Id). $($uninstallResult.ErrorMessage())"
+        }
+    }
+
+    hidden Update([Hashtable]$hashArgs)
+    {
+        $updateResult = Update-WinGetPackage @hashArgs
+        if (-not $updateResult.Succeeded())
+        {
+            # TODO: Localize.
+            throw "WinGetPackage Failed updating $($this.Id). $($updateResult.ErrorMessage())"
+        }
+    }
+
+    # Tries to update, if not, uninstall and install.
+    hidden TryUpdate([Hashtable]$hashArgs)
+    {
+        try
+        {
+            $this.Update($hashArgs)
+        }
+        catch
+        {
+            $this.Uninstall()
+            $this.Install($hashArgs)
         }
     }
 }
