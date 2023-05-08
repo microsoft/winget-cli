@@ -93,7 +93,7 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
         /// </summary>
         /// <param name="directiveName">Name of directive.</param>
         /// <returns>The value of the directive. False if not set.</returns>
-        public bool GetDirective(string directiveName)
+        public bool? GetDirective(string directiveName)
         {
             return this.UnitInternal.GetDirective(directiveName);
         }

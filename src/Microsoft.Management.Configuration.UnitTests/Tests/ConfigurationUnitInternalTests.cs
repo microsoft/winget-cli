@@ -93,7 +93,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             Assert.Equal(boolDirectiveValue, unitInternal.GetDirective(boolDirective));
             Assert.Equal(boolDirective2Value, unitInternal.GetDirective(boolDirective2));
-            Assert.False(unitInternal.GetDirective("fakeBool"));
+            Assert.Null(unitInternal.GetDirective("fakeBool"));
         }
 
         /// <summary>
@@ -106,7 +106,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             unit.Directives.Add("module", "module");
             unit.Directives.Add("version", "not a version");
 
-            Assert.Throws<PSInvalidCastException>(
+            Assert.Throws<ArgumentException>(
                 () => new ConfigurationUnitInternal(unit, null));
         }
     }

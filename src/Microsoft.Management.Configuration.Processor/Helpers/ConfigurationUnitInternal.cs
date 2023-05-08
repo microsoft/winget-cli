@@ -94,15 +94,60 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
         /// </summary>
         /// <param name="directiveName">Directive name.</param>
         /// <returns>Value of directive, false if not found.</returns>
-        public bool GetDirective(string directiveName)
+        public bool? GetDirective(string directiveName)
         {
             var normalizedDirectiveName = StringHelpers.Normalize(directiveName);
             if (this.normalizedDirectives.TryGetValue(normalizedDirectiveName, out object? value))
             {
-                return value as bool? ?? false;
+                return value as bool?;
             }
 
-            return false;
+            return null;
+        }
+
+        /// <summary>
+        /// Gets the semantic version, if any.
+        /// </summary>
+        /// <returns>SemanticVersion, null if not specified.</returns>
+        public SemanticVersion? GetSemanticVersion()
+        {
+            string? semanticVersion = this.GetDirective<string>(DirectiveConstants.Version);
+            if (!string.IsNullOrWhiteSpace(semanticVersion))
+            {
+                return new SemanticVersion(semanticVersion);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Gets the semantic min version, if any.
+        /// </summary>
+        /// <returns>SemanticVersion, null if not specified.</returns>
+        public SemanticVersion? GetSemanticMinVersion()
+        {
+            string? semanticVersion = this.GetDirective<string>(DirectiveConstants.MinVersion);
+            if (!string.IsNullOrWhiteSpace(semanticVersion))
+            {
+                return new SemanticVersion(semanticVersion);
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Gets the semantic max version, if any.
+        /// </summary>
+        /// <returns>SemanticVersion, null if not specified.</returns>
+        public SemanticVersion? GetSemanticMaxVersion()
+        {
+            string? semanticVersion = this.GetDirective<string>(DirectiveConstants.MaxVersion);
+            if (!string.IsNullOrWhiteSpace(semanticVersion))
+            {
+                return new SemanticVersion(semanticVersion);
+            }
+
+            return null;
         }
 
         private void InitializeDirectives()

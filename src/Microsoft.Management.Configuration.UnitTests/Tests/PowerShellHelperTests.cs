@@ -7,10 +7,8 @@
 namespace Microsoft.Management.Configuration.UnitTests.Tests
 {
     using System;
-    using Microsoft.Management.Configuration.Processor.Extensions;
     using Microsoft.Management.Configuration.Processor.Helpers;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
-    using Microsoft.PowerShell.Commands;
     using Xunit;
     using Xunit.Abstractions;
 
@@ -173,20 +171,6 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 null,
                 maxVersion,
                 null));
-        }
-
-        /// <summary>
-        /// Tests GetMaximumVersion.
-        /// </summary>
-        /// <param name="input">Input.</param>
-        /// <param name="expected">Expected.</param>
-        [Theory]
-        [InlineData("1.0.1", "1.0.1")]
-        [InlineData("1.0.*", "1.0.999999999")]
-        [InlineData("*.*.1", "999999999.999999999.1")]
-        public void GetMaximumVersion_Test(string input, string expected)
-        {
-            Assert.Equal(expected, PowerShellHelpers.GetMaximumVersion(input));
         }
     }
 }

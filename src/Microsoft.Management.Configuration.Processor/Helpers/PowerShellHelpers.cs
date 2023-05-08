@@ -15,8 +15,6 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
     /// </summary>
     internal static class PowerShellHelpers
     {
-        private const string MaxRange = "999999999";
-
         /// <summary>
         /// Creates a module specification object.
         /// </summary>
@@ -42,38 +40,25 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
             }
 
             var moduleInfo = new Hashtable
-                {
-                    { Parameters.ModuleName, moduleName },
-                };
+            {
+                { Parameters.ModuleName, moduleName },
+            };
 
             if (!string.IsNullOrEmpty(version))
             {
-                // Prerelease versions append the prerelease tag after a -
-                // PowerShell doesn't handle semantic versions.
-                if (version.Contains("-"))
-                {
-                    version = version[..version.IndexOf("-")];
-                }
-
-                moduleInfo.Add(Parameters.RequiredVersion, version);
+                var semanticVersion = new SemanticVersion(version);
+                moduleInfo.Add(Parameters.RequiredVersion, semanticVersion.Version);
             }
 
             if (!string.IsNullOrEmpty(minVersion))
             {
-                if (minVersion.Contains("-"))
-                {
-                    minVersion = minVersion[..minVersion.IndexOf("-")];
-                }
-
-                moduleInfo.Add(Parameters.ModuleVersion, minVersion);
+                var semanticVersion = new SemanticVersion(minVersion);
+                moduleInfo.Add(Parameters.ModuleVersion, semanticVersion.Version);
             }
 
             if (!string.IsNullOrEmpty(maxVersion))
             {
-                if (maxVersion.Contains("-"))
-                {
-                    maxVersion = maxVersion[..maxVersion.IndexOf("-")];
-                }
+                var semanticVersion = new SemanticVersion(maxVersion);
 
                 // For some reason, the constructor of ModuleSpecification that takes
                 // a hashtable calls ModuleCmdletBase.GetMaximumVersion. This method will
@@ -82,7 +67,7 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
                 // ModuleSpecification's MaximumVersion property. If we want to set a
                 // MaximumVersion with a wildcard and pass this to Install-Module it will
                 // fail with "Cannot convert value 'x.*' to type 'System.Version'."
-                moduleInfo.Add(Parameters.MaximumVersion, GetMaximumVersion(maxVersion));
+                moduleInfo.Add(Parameters.MaximumVersion, semanticVersion.Version.ToString());
             }
 
             if (!string.IsNullOrEmpty(guid))
@@ -92,16 +77,6 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
 
             // Using the Hashtable constructor will verify that RequiredVersion is used properly.
             return new ModuleSpecification(moduleInfo);
-        }
-
-        /// <summary>
-        /// Max out a version by replacing * if needed.
-        /// </summary>
-        /// <param name="version">Version.</param>
-        /// <returns>Maxed version.</returns>
-        public static string GetMaximumVersion(string version)
-        {
-            return version.Replace("*", MaxRange);
         }
     }
 }
