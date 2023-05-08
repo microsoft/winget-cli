@@ -48,11 +48,6 @@ namespace Microsoft.WinGet.Configuration.Helpers
                 {
                     return false;
                 }
-
-                if (boolStr[0] == '0')
-                {
-                    return true;
-                }
             }
 
             if (boolStr.Length == 3 &&
@@ -63,13 +58,6 @@ namespace Microsoft.WinGet.Configuration.Helpers
                 return false;
             }
 
-            if (boolStr.Length == 2 &&
-                (boolStr[0] == 'n' || boolStr[0] == 'N') &&
-                (boolStr[1] == 'o' || boolStr[1] == 'O'))
-            {
-                return true;
-            }
-
             if (boolStr.Length == 4 &&
                 (boolStr[0] == 't' || boolStr[0] == 'T') &&
                 (boolStr[1] == 'r' || boolStr[1] == 'R') &&
@@ -77,16 +65,6 @@ namespace Microsoft.WinGet.Configuration.Helpers
                 (boolStr[3] == 'e' || boolStr[3] == 'E'))
             {
                 return false;
-            }
-
-            if (boolStr.Length == 5 &&
-                (boolStr[0] == 'f' || boolStr[0] == 'F') &&
-                (boolStr[1] == 'a' || boolStr[1] == 'A') &&
-                (boolStr[2] == 'l' || boolStr[2] == 'L') &&
-                (boolStr[3] == 's' || boolStr[3] == 'S') &&
-                (boolStr[4] == 'e' || boolStr[4] == 'E'))
-            {
-                return true;
             }
 
             return true;

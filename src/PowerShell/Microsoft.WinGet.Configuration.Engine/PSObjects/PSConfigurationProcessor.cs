@@ -64,30 +64,28 @@ namespace Microsoft.WinGet.Configuration.Engine.PSObjects
             try
             {
                 // This is expensive.
-                lock (CmdletLock)
+                AsyncCommand asyncCommand = this.diagnosticCommand;
+                switch (diagnosticInformation.Level)
                 {
-                    switch (diagnosticInformation.Level)
-                    {
-                        // PowerShell doesn't have critical and critical isn't an error.
-                        case DiagnosticLevel.Critical:
-                        case DiagnosticLevel.Warning:
-                            this.diagnosticCommand.WriteWarning(diagnosticInformation.Message);
-                            return;
-                        case DiagnosticLevel.Error:
-                            // TODO: The error record requires a exception that can't be null, but there's no requirement
-                            // that it was thrown.
-                            this.diagnosticCommand.WriteError(new ErrorRecord(
-                                new WriteErrorException(),
-                                "ConfigurationDiagnosticError",
-                                ErrorCategory.WriteError,
-                                diagnosticInformation.Message));
-                            return;
-                        case DiagnosticLevel.Verbose:
-                        case DiagnosticLevel.Informational:
-                        default:
-                            this.diagnosticCommand.WriteDebug(diagnosticInformation.Message);
-                            return;
-                    }
+                    // PowerShell doesn't have critical and critical isn't an error.
+                    case DiagnosticLevel.Critical:
+                    case DiagnosticLevel.Warning:
+                        asyncCommand.WriteWarning(diagnosticInformation.Message);
+                        return;
+                    case DiagnosticLevel.Error:
+                        // TODO: The error record requires a exception that can't be null, but there's no requirement
+                        // that it was thrown.
+                        asyncCommand.WriteError(new ErrorRecord(
+                            new WriteErrorException(),
+                            "ConfigurationDiagnosticError",
+                            ErrorCategory.WriteError,
+                            diagnosticInformation.Message));
+                        return;
+                    case DiagnosticLevel.Verbose:
+                    case DiagnosticLevel.Informational:
+                    default:
+                        asyncCommand.WriteDebug(diagnosticInformation.Message);
+                        return;
                 }
             }
             catch (Exception)
