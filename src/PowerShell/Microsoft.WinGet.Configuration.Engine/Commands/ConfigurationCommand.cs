@@ -26,9 +26,8 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         /// Initializes a new instance of the <see cref="ConfigurationCommand"/> class.
         /// </summary>
         /// <param name="psCmdlet">PSCmdlet.</param>
-        /// <param name="canWriteToStream">If the command can write to stream.</param>
-        public ConfigurationCommand(PSCmdlet psCmdlet, bool canWriteToStream = true)
-            : base(psCmdlet, canWriteToStream)
+        public ConfigurationCommand(PSCmdlet psCmdlet)
+            : base(psCmdlet)
         {
         }
 
@@ -55,7 +54,17 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
 
             // Start task.
             var runningTask = this.RunOnMTA<PSConfigurationSet>(
-                async () => await this.OpenConfigurationSetAsync(configFile, executionPolicy, canUseTelemetry));
+                async () =>
+                {
+                    try
+                    {
+                        return await this.OpenConfigurationSetAsync(configFile, executionPolicy, canUseTelemetry);
+                    }
+                    finally
+                    {
+                        this.Complete();
+                    }
+                });
 
             this.Wait(runningTask);
             this.WriteObject(runningTask.Result);
@@ -86,6 +95,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                     }
                     finally
                     {
+                        this.Complete();
                         psConfigurationSet.DoneProcessing();
                     }
 
@@ -140,7 +150,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             if (psConfigurationJob.ConfigurationTask.IsCompleted)
             {
                 // It is safe to print all output.
-                psConfigurationJob.StartCommand.Flush();
+                psConfigurationJob.StartCommand.ConsumeStreams();
 
                 this.WriteDebug("The task was completed before waiting");
                 if (psConfigurationJob.ConfigurationTask.IsCompletedSuccessfully)
@@ -216,6 +226,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                     }
                     finally
                     {
+                        this.Complete();
                         psConfigurationSet.DoneProcessing();
                     }
 
