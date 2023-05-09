@@ -23,7 +23,7 @@ namespace AppInstaller::Repository
     std::vector<BYTE> ExtractIconFromBinaryFile(const std::filesystem::path binaryPath, int iconIndex = 0);
 
     // Extracts the app icon given the app's product code.
-    // This method uses simillar logic for retrieving icon as app list in settings page.
+    // This method uses similar logic for retrieving icon as app list in settings page.
     // This method returns empty if only default icons would be picked.
     // This method returns contents of .ico icons.
     std::vector<ExtractedIconInfo> ExtractIconFromArpEntry(const std::string& productCode, AppInstaller::Manifest::ScopeEnum scope = AppInstaller::Manifest::ScopeEnum::Unknown);

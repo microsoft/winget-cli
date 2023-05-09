@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-#pragma once
 #include "pch.h"
 #include "IconDefs.h"
 #include "winget/IconExtraction.h"
@@ -47,14 +46,15 @@ namespace AppInstaller::Repository
                     try
                     {
                         auto resourceId = std::stoi(resourceIdString.c_str(), nullptr, 0);
-                        if (-parameter->IconIndex == resourceId) {
-                            // Found icon by stringized number
+                        if (-parameter->IconIndex == resourceId)
+                        {
+                            // Found icon by number as string #12
                             foundRequestedIcon = true;
                         }
                     }
                     catch (...)
                     {
-                        // Error occured, stop enumerating
+                        // Error occurred, stop enumerating
                         return FALSE;
                     }
                 }
@@ -144,7 +144,7 @@ namespace AppInstaller::Repository
                 struct SingleIconImage
                 {
                     ICONDIRENTRY DirEntry = { 0 };
-                    // pointer to byte contens with size
+                    // pointer to byte contents with size
                     std::pair<const BYTE*, DWORD> Content;
                 };
 
@@ -233,21 +233,7 @@ namespace AppInstaller::Repository
 #endif
 
         ARPHelper arpHelper;
-        Registry::Key arpEntry;
-
-        if (scope == Manifest::ScopeEnum::Unknown)
-        {
-            // Try user then machine
-            arpEntry = arpHelper.FindARPEntry(productCode, Manifest::ScopeEnum::User);
-            if (!arpEntry)
-            {
-                arpEntry = arpHelper.FindARPEntry(productCode, Manifest::ScopeEnum::Machine);
-            }
-        }
-        else
-        {
-            arpEntry = arpHelper.FindARPEntry(productCode, scope);
-        }
+        Registry::Key arpEntry = arpHelper.FindARPEntry(productCode, scope);
 
         if (arpEntry)
         {
@@ -300,6 +286,7 @@ namespace AppInstaller::Repository
                         iconContent = ExtractIconFromBinaryFile(iconPath, iconIndex);
                     }
 
+                    // Construct ExtractedIconInfo return result
                     if (!iconContent.empty())
                     {
                         ExtractedIconInfo iconInfo;

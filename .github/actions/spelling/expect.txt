@@ -34,6 +34,7 @@ BEFACEF
 bfd
 BFirst
 bght
+BITMAPINFOHEADER
 bitmask
 bkup
 blargle
@@ -44,6 +45,7 @@ bomgar
 BOMs
 boop
 boundparms
+bpp
 Browsable
 BSODs
 buildtransitive
@@ -134,12 +136,15 @@ GHS
 gity
 goku
 Google
+GRPICONDIR
+GRPICONDIRENTRY
 guiddef
 Hackathon
 hashtable
 helplib
 helplibrary
 hhx
+highcontrast
 HINSTANCE
 hkey
 hlocal
@@ -149,6 +154,9 @@ hre
 hresults
 IARP
 IAttachment
+ICONDIR
+ICONDIRENTRY
+ICONIMAGE
 idl
 idx
 IEnum
@@ -159,10 +167,12 @@ IISOn
 inet
 inproc
 installinprogress
+INSTALLPROPERTY
 installshield
 instream
 insufficientmemory
 Intelli
+INTRESOURCE
 invalidparameter
 isable
 ishelp
@@ -191,9 +201,15 @@ Linq
 liv
 liwpx
 localizationpriority
+LOWORD
 LPBYTE
 LPCWSTR
 LPDWORD
+LPGRPICONDIR
+LPGRPICONDIRENTRY
+LPICONDIR
+LPICONDIRENTRY
+LPICONIMAGE
 lpitemidlist
 LPW
 maclachlan
@@ -240,6 +256,7 @@ NESTEDINSTALLER
 netfx
 netlify
 Newtonsoft
+NOCRLF
 NOEXPAND
 NOLINKINFO
 nonetwork
@@ -289,6 +306,7 @@ powertoys
 pri
 processthreads
 productcode
+PRODUCTICON
 pscustomobject
 pseudocode
 PSHOST
@@ -313,6 +331,7 @@ relativefilepath
 remoting
 reparse
 restsource
+RGBQUAD
 rgex
 rgp
 rgpsz
