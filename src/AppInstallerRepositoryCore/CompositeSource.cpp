@@ -818,7 +818,7 @@ namespace AppInstaller::Repository
             {
                 return (ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Pinning) && m_installedPackage)
                     ? m_installedPackage->GetPin()
-                    : std::optional<Pinning::Pin>{};
+                    : std::nullopt;
             }
 
             std::optional<PinnablePackage> m_installedPackage;
