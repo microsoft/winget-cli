@@ -341,3 +341,6 @@ src/PowerShell/Microsoft.WinGet.Client/Crescendo/*.psm1
 
 # Dev PowerShell module path
 src/PowerShell/scripts/Module
+
+# ResXFileCodeGenerator files
+src/PowerShell/**/*Designer.cs

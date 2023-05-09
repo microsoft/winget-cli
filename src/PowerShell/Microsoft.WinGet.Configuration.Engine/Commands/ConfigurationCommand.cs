@@ -39,18 +39,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         /// <param name="canUseTelemetry">If telemetry can be used.</param>
         public void Get(string configFile, ExecutionPolicy executionPolicy, bool canUseTelemetry)
         {
-            if (!Path.IsPathRooted(configFile))
-            {
-                configFile = Path.GetFullPath(
-                    Path.Combine(
-                        this.PsCmdlet.SessionState.Path.CurrentFileSystemLocation.Path,
-                        configFile));
-            }
-
-            if (!File.Exists(configFile))
-            {
-                throw new FileNotFoundException(configFile);
-            }
+            configFile = this.VerifyFile(configFile);
 
             // Start task.
             var runningTask = this.RunOnMTA<PSConfigurationSet>(
@@ -169,6 +158,29 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             }
 
             this.ContinueHelper(psConfigurationJob);
+        }
+
+        /// <summary>
+        /// Verifies file exists and return the full path, if not already.
+        /// </summary>
+        /// <param name="filePath">File path.</param>
+        /// <returns>Full path.</returns>
+        private string VerifyFile(string filePath)
+        {
+            if (!Path.IsPathRooted(filePath))
+            {
+                filePath = Path.GetFullPath(
+                    Path.Combine(
+                        this.PsCmdlet.SessionState.Path.CurrentFileSystemLocation.Path,
+                        filePath));
+            }
+
+            if (!File.Exists(filePath))
+            {
+                throw new FileNotFoundException(filePath);
+            }
+
+            return filePath;
         }
 
         private void ContinueHelper(PSConfigurationJob psConfigurationJob)
