@@ -318,6 +318,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(PinDoesNotExist);
         WINGET_DEFINE_RESOURCE_STRINGID(PinExistsOverwriting);
         WINGET_DEFINE_RESOURCE_STRINGID(PinExistsUseForceArg);
+        WINGET_DEFINE_RESOURCE_STRINGID(PinInstalledArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(PinInstalledSource);
         WINGET_DEFINE_RESOURCE_STRINGID(PinListCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PinListCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PinNoPinsExist);
@@ -330,6 +332,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(PinResettingAll);
         WINGET_DEFINE_RESOURCE_STRINGID(PinResetUseForceArg);
         WINGET_DEFINE_RESOURCE_STRINGID(PinType);
+        WINGET_DEFINE_RESOURCE_STRINGID(PinVersion);
         WINGET_DEFINE_RESOURCE_STRINGID(PoliciesPolicy);
         WINGET_DEFINE_RESOURCE_STRINGID(PortableHashMismatchOverridden);
         WINGET_DEFINE_RESOURCE_STRINGID(PortableHashMismatchOverrideRequired);

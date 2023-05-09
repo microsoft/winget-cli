@@ -349,7 +349,7 @@ namespace AppInstaller::Repository
         // The versions will be returned in sorted, descending order.
         //  Ex. { 4, 3, 2, 1 }
         // The list may contain versions from multiple sources.
-        virtual std::vector<PackageVersionKey> GetAvailableVersionKeys() const = 0;
+        virtual std::vector<PackageVersionKey> GetAvailableVersionKeys(PinBehavior pinBehavior = PinBehavior::ConsiderPins) const = 0;
 
         // Gets a specific version of this package.
         virtual std::shared_ptr<IPackageVersion> GetLatestAvailableVersion(PinBehavior pinBehavior) const = 0;

@@ -1583,6 +1583,13 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="PinAddBlockingArgumentDescription" xml:space="preserve">
     <value>Block from upgrading until the pin is removed, preventing override arguments</value>
   </data>
+  <data name="PinInstalledArgumentDescription" xml:space="preserve">
+    <value>Pin a specific installed version</value>
+  </data>
+  <data name="PinInstalledSource" xml:space="preserve">
+    <value>Installed</value>
+    <comment>Value used in a table to indicate that a package comes from the list of packages installed in the machine</comment>
+  </data>
   <data name="SettingsExportCommandLongDescription" xml:space="preserve">
     <value>Export settings as JSON</value>
   </data>
@@ -1824,6 +1831,10 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="InstallWaitingOnAnother" xml:space="preserve">
     <value>Waiting for another install/uninstall to complete...</value>
+  </data>
+  <data name="PinVersion" xml:space="preserve">
+    <value>Pinned version</value>
+    <comment>Table header for the version to which a package is pinned; meaning it should not update from that version.</comment>
   </data>
   <data name="ConfigurationDescriptionWasTruncated" xml:space="preserve">
     <value>&lt;See the log file for additional details&gt;</value>

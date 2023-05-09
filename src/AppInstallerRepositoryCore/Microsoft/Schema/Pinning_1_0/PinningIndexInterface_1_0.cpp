@@ -14,7 +14,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Pinning_V1_0
 
             if (!result)
             {
-                AICLI_LOG(Repo, Verbose, << "Did not find a pin for package [" << pinKey.PackageId << "] from source [" << pinKey.SourceId << "]");
+                AICLI_LOG(Repo, Verbose, << "Did not find pin " << pinKey.ToString());
             }
 
             return result;
