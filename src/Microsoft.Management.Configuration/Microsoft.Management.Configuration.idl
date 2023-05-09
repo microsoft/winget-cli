@@ -49,6 +49,27 @@ namespace Microsoft.Management.Configuration
         Load,
     };
 
+    // The source of a result; for instance, the part of the system that generated a failure.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    enum ConfigurationUnitResultSource
+    {
+        // The source is not known, or more likely, there was no failure.
+        None,
+        // The result came from inside the configuration system; this is likely a bug.
+        Internal,
+        // The configuration set was ill formed. For instance, referencing a configuration unit
+        // that does not exist or a dependency that is not present.
+        ConfigurationSet,
+        // The external module that processes the configuration unit generated the result.
+        UnitProcessing,
+        // The system state is causing the error.
+        SystemState,
+        // The configuration unit was not run due to a precondition not being met.
+        // For example, when an assert in the configuration set is not in the desired state,
+        // all of the units with Apply intent will have this set.
+        Precondition,
+    };
+
     // Information on a result for a single unit of configuration.
     [contract(Microsoft.Management.Configuration.Contract, 1)]
     runtimeclass ConfigurationUnitResultInformation
@@ -56,10 +77,16 @@ namespace Microsoft.Management.Configuration
         // The error code of the failure.
         HRESULT ResultCode;
 
-        // The description of the failure.
+        // The short description of the failure.
         String Description;
+
+        // A more detailed error message appropriate for diagnosing the root cause of an error.
+        String Details;
+
+        // The source of the result.
+        ConfigurationUnitResultSource ResultSource;
     }
-        
+
     // Provides information for a specific configuration unit setting.
     [contract(Microsoft.Management.Configuration.Contract, 1)]
     interface IConfigurationUnitSettingDetails
@@ -185,6 +212,10 @@ namespace Microsoft.Management.Configuration
 
         // Allows for control over whether this unit should be applied when the set containing it is applied.
         Boolean ShouldApply;
+
+        // The schema version to use for the unit.
+        // Will be set to the schema version when read in, and default to the latest if created manually.
+        String SchemaVersion;
     }
 
     // The change event type that has occurred for a configuration set change.
@@ -251,6 +282,10 @@ namespace Microsoft.Management.Configuration
         // The configuration units that are part of this set.
         // Can be set on a mutable configuration set; this will copy the items into the internal storage.
         Windows.Foundation.Collections.IVectorView<ConfigurationUnit> ConfigurationUnits;
+
+        // The schema version to use for the set.
+        // Will be set to the schema version when read in, and default to the latest if created manually.
+        String SchemaVersion;
 
         // Only changes for this set are sent to this event.
         // This includes things like: start/stop of the entire set for application or test, start/stop of a unit for application or test.
@@ -427,6 +462,15 @@ namespace Microsoft.Management.Configuration
 
         // The field that is missing/invalid, if appropriate for the specific ResultCode.
         String Field{ get; };
+
+        // The value of the field, if appropriate for the specific ResultCode.
+        String Value{ get; };
+
+        // The line number for the failure reason, if determined.
+        UInt32 Line{ get; };
+
+        // The column number for the failure reason, if determined.
+        UInt32 Column{ get; };
     }
 
     // The type of conflict between configuration sets that was detected.
@@ -596,6 +640,15 @@ namespace Microsoft.Management.Configuration
 
         // Indicates the minimum importance desired for diagnostics.
         DiagnosticLevel MinimumLevel;
+
+        // Set the caller to used to identify the usage in telemetry events.
+        String Caller;
+
+        // The identifier for the current activity, enabling multiple calls into the processor to be correlated.
+        Guid ActivityIdentifier;
+
+        // If true, ETW events will be generated. Some of those events may be sent to Microsoft depending on the system settings.
+        Boolean GenerateTelemetryEvents;
 
         // Only top level configuration changes are sent to this event.
         // This includes things like: creation of a new set for intent to run, start/stop of a set for application or test, deletion of a not started set.

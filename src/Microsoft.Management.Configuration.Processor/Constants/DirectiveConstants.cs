@@ -18,6 +18,7 @@ namespace Microsoft.Management.Configuration.Processor.Constants
         public const string ModuleGuid = "moduleGuid";
         public const string Repository = "repository";
         public const string Version = "version";
+        public const string AllowPrerelease = "allowPrerelease";
 #pragma warning restore SA1600 // ElementsMustBeDocumented
     }
 }

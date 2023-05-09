@@ -6,6 +6,7 @@
     <IsPackable>false</IsPackable>
     <Platforms>x64;x86</Platforms>
     <OutputType>Library</OutputType>
+    <Configurations>Debug;Release;ReleaseStatic</Configurations>
   </PropertyGroup>
 
   <ItemGroup>

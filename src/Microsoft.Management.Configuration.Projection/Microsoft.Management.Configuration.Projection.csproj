@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <OutputPath>$(SolutionDir)$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutputPath>
+    <Configurations>Debug;Release;ReleaseStatic</Configurations>
   </PropertyGroup>
 
   <PropertyGroup>

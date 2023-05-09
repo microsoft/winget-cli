@@ -55,8 +55,11 @@ namespace AppInstaller::YAML
 
         const char* what() const noexcept override;
 
+        const Mark& GetMark() const;
+
     private:
         std::string m_what;
+        YAML::Mark m_mark;
     };
 
     // A YAML node.

@@ -8,12 +8,11 @@ namespace Microsoft.Management.Configuration.Processor.Unit
 {
     using System;
     using System.Collections.Generic;
-    using System.Management.Automation;
     using Microsoft.Management.Configuration;
+    using Microsoft.Management.Configuration.Processor.Exceptions;
     using Microsoft.Management.Configuration.Processor.Extensions;
     using Microsoft.Management.Configuration.Processor.Helpers;
     using Microsoft.Management.Configuration.Processor.ProcessorEnvironments;
-    using Microsoft.PowerShell.Commands;
 
     /// <summary>
     /// Provides access to a specific configuration unit within the runtime.
@@ -61,6 +60,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
             this.OnDiagnostics(DiagnosticLevel.Verbose, $"Invoking `Get` for resource: {this.unitResource.UnitInternal.ToIdentifyingString()}...");
 
             var result = new GetSettingsResult();
+
             try
             {
                 result.Settings = this.processorEnvironment.InvokeGetResource(
@@ -68,24 +68,9 @@ namespace Microsoft.Management.Configuration.Processor.Unit
                     this.unitResource.ResourceName,
                     this.unitResource.Module);
             }
-            catch (Exception e) when (e is RuntimeException ||
-                                      e is WriteErrorException)
-            {
-                RuntimeException? re = e as RuntimeException;
-                if (re != null)
-                {
-                    this.OnDiagnostics(DiagnosticLevel.Error, $"An error occurred within the configuration unit when attempting `Get`:\n{re.ErrorRecord.ToString()}\n{re.ErrorRecord.ScriptStackTrace}");
-                }
-
-                this.OnDiagnostics(DiagnosticLevel.Verbose, e.ToString());
-                var inner = e.GetMostInnerException();
-                result.ResultInformation.ResultCode = inner;
-                result.ResultInformation.Description = e.ToString();
-            }
             catch (Exception e)
             {
-                this.OnDiagnostics(DiagnosticLevel.Error, e.ToString());
-                throw;
+                this.ExtractExceptionInformation(e, result.ResultInformation);
             }
 
             this.OnDiagnostics(DiagnosticLevel.Verbose, $"... done invoking `Get`.");
@@ -118,24 +103,9 @@ namespace Microsoft.Management.Configuration.Processor.Unit
 
                 result.TestResult = testResult ? ConfigurationTestResult.Positive : ConfigurationTestResult.Negative;
             }
-            catch (Exception e) when (e is RuntimeException ||
-                                      e is WriteErrorException)
-            {
-                RuntimeException? re = e as RuntimeException;
-                if (re != null)
-                {
-                    this.OnDiagnostics(DiagnosticLevel.Error, $"An error occurred within the configuration unit when attempting `Test`:\n{re.ErrorRecord.ToString()}\n{re.ErrorRecord.ScriptStackTrace}");
-                }
-
-                this.OnDiagnostics(DiagnosticLevel.Verbose, e.ToString());
-                var inner = e.GetMostInnerException();
-                result.ResultInformation.ResultCode = inner;
-                result.ResultInformation.Description = e.ToString();
-            }
             catch (Exception e)
             {
-                this.OnDiagnostics(DiagnosticLevel.Error, e.ToString());
-                throw;
+                this.ExtractExceptionInformation(e, result.ResultInformation);
             }
 
             this.OnDiagnostics(DiagnosticLevel.Verbose, $"... done invoking `Test`.");
@@ -166,28 +136,35 @@ namespace Microsoft.Management.Configuration.Processor.Unit
                                             this.unitResource.ResourceName,
                                             this.unitResource.Module);
             }
-            catch (Exception e) when (e is RuntimeException ||
-                                      e is WriteErrorException)
-            {
-                RuntimeException? re = e as RuntimeException;
-                if (re != null)
-                {
-                    this.OnDiagnostics(DiagnosticLevel.Error, $"An error occurred within the configuration unit when attempting `Set`:\n{re.ErrorRecord.ToString()}\n{re.ErrorRecord.ScriptStackTrace}");
-                }
-
-                this.OnDiagnostics(DiagnosticLevel.Verbose, e.ToString());
-                var inner = e.GetMostInnerException();
-                result.ResultInformation.ResultCode = inner;
-                result.ResultInformation.Description = e.ToString();
-            }
             catch (Exception e)
             {
-                this.OnDiagnostics(DiagnosticLevel.Error, e.ToString());
-                throw;
+                this.ExtractExceptionInformation(e, result.ResultInformation);
             }
 
             this.OnDiagnostics(DiagnosticLevel.Verbose, $"... done invoking `Apply`.");
             return result;
+        }
+
+        private void ExtractExceptionInformation(Exception e, ConfigurationUnitResultInformation resultInformation)
+        {
+            this.OnDiagnostics(DiagnosticLevel.Verbose, e.ToString());
+
+            IConfigurationUnitResultException? configurationUnitResultException = e as IConfigurationUnitResultException;
+            if (configurationUnitResultException != null)
+            {
+                resultInformation.ResultCode = e;
+                resultInformation.Description = configurationUnitResultException.Description;
+                resultInformation.Details = configurationUnitResultException.Details;
+                resultInformation.ResultSource = configurationUnitResultException.ResultSource;
+            }
+            else
+            {
+                var inner = e.GetMostInnerException();
+                resultInformation.ResultCode = inner;
+                resultInformation.Description = e.Message;
+                resultInformation.Details = e.ToString();
+                resultInformation.ResultSource = ConfigurationUnitResultSource.Internal;
+            }
         }
 
         private void OnDiagnostics(DiagnosticLevel level, string message)

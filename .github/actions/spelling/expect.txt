@@ -3,6 +3,7 @@ accepteula
 adjacents
 adml
 admx
+AFAIK
 agg
 aicli
 AICLIC
@@ -69,6 +70,7 @@ CODEOWNERS
 COINIT
 COMGLB
 commandline
+Configx
 contactsupport
 contentfiles
 contoso
@@ -88,6 +90,7 @@ debian
 deigh
 deleteifnotneeded
 desktopappinstaller
+dic
 diskfull
 dismapi
 dllimport
@@ -181,6 +184,7 @@ ISVs
 itr
 IWin
 JArray
+JDictionary
 jdk
 jfearn
 JObject
@@ -224,6 +228,7 @@ malware
 mapview
 maxvalue
 maybenull
+Maxed
 MBH
 mdmp
 MDs
@@ -243,6 +248,7 @@ msftrubengu
 MSIHASH
 MSIXHASH
 msstore
+Mta
 Mugiwara
 Multideclaration
 mycustom
@@ -255,6 +261,7 @@ nativehandle
 NESTEDINSTALLER
 netfx
 netlify
+NETSDK
 Newtonsoft
 NOCRLF
 NOEXPAND
@@ -277,6 +284,7 @@ objbase
 objidl
 ofile
 osfhandle
+OPTOUT
 Outptr
 packageinuse
 packageinusebyapplication
@@ -387,6 +395,7 @@ sysrefcomp
 systemnotsupported
 Tagit
 TCpp
+tcs
 Templating
 temppath
 testexampleinstaller

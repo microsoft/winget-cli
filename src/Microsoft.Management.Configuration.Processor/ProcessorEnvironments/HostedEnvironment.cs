@@ -7,6 +7,7 @@
 namespace Microsoft.Management.Configuration.Processor.Runspaces
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
@@ -29,7 +30,7 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
     /// </summary>
     internal class HostedEnvironment : IProcessorEnvironment
     {
-        private ConfigurationProcessorType type;
+        private readonly ConfigurationProcessorType type;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HostedEnvironment"/> class.
@@ -64,6 +65,17 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
             if (this.GetVariable<string>(Variables.PSEdition) != Core)
             {
                 throw new NotSupportedException("Only PowerShell Core is supported.");
+            }
+
+            // If opening a runspace has failures, like one of the modules in ImportPSModule is not found, it won't throw but
+            // write to the error output. This is not a fatal error, since we install PSDesiredStateConfiguration
+            // module if not found, so unless there's a real reason keep it in verbose.
+            var errors = this.GetVariable<ArrayList>(Variables.Error);
+            if (errors.Count > 0)
+            {
+                this.OnDiagnostics(
+                    DiagnosticLevel.Verbose,
+                    $"Error creating runspace '{string.Join("\n", errors.Cast<string>().ToArray())}'");
             }
 
             var powerShellGet = PowerShellHelpers.CreateModuleSpecification(
@@ -256,41 +268,61 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
                 { Parameters.Name, unitInternal.Unit.UnitName },
             };
 
-            if (unitInternal.Module is not null)
+            // Don't use ModuleSpecification here. Each parameter is independent and
+            // we need version even if a module was not specified.
+            string? moduleName = unitInternal.GetDirective<string>(DirectiveConstants.Module);
+            var semanticVersion = unitInternal.GetSemanticVersion();
+            var semanticMinVersion = unitInternal.GetSemanticMinVersion();
+            var semanticMaxVersion = unitInternal.GetSemanticMaxVersion();
+            string? repository = unitInternal.GetDirective<string>(DirectiveConstants.Repository);
+
+            bool? allowPrerelease = unitInternal.GetDirective(DirectiveConstants.AllowPrerelease);
+            bool implicitAllowPrerelease = false;
+
+            if (!string.IsNullOrEmpty(moduleName))
             {
-                parameters.Add(Parameters.ModuleName, unitInternal.Module.Name);
-
-                if (unitInternal.Module.Version is not null)
-                {
-                    parameters.Add(Parameters.MinimumVersion, unitInternal.Module.Version);
-                }
-
-                if (unitInternal.Module.MaximumVersion is not null)
-                {
-                    parameters.Add(Parameters.MaximumVersion, unitInternal.Module.MaximumVersion);
-                }
-
-                if (unitInternal.Module.RequiredVersion is not null)
-                {
-                    parameters.Add(Parameters.RequiredVersion, unitInternal.Module.RequiredVersion);
-                }
+                parameters.Add(Parameters.ModuleName, moduleName);
             }
 
-            string? repository = unitInternal.GetDirective(DirectiveConstants.Repository);
+            if (semanticVersion != null)
+            {
+                implicitAllowPrerelease |= semanticVersion.IsPrerelease;
+                parameters.Add(Parameters.RequiredVersion, semanticVersion.ToString());
+            }
+
+            if (semanticMinVersion != null)
+            {
+                implicitAllowPrerelease |= semanticMinVersion.IsPrerelease;
+                parameters.Add(Parameters.MinimumVersion, semanticMinVersion.ToString());
+            }
+
+            if (semanticMaxVersion != null)
+            {
+                implicitAllowPrerelease |= semanticMaxVersion.IsPrerelease;
+                parameters.Add(Parameters.MaximumVersion, semanticMaxVersion.ToString());
+            }
+
             if (!string.IsNullOrEmpty(repository))
             {
                 parameters.Add(Parameters.Repository, repository);
             }
 
+            if (allowPrerelease.HasValue || implicitAllowPrerelease)
+            {
+                // If explicit allowPrerelease = false don't use implicit.
+                bool allow = allowPrerelease.HasValue ? allowPrerelease.Value : implicitAllowPrerelease;
+                parameters.Add(Parameters.AllowPrerelease, allow);
+            }
+
             using PowerShell pwsh = PowerShell.Create(this.Runspace);
 
-            // TODO: Implement prerelease directive.
+            pwsh.AddCommand(Commands.FindDscResource)
+                .AddParameters(parameters);
+
             // The result is just a PSCustomObject with a type name of Microsoft.PowerShell.Commands.PSGetDscResourceInfo.
             // When no module is passed and a resource is not found, this will return an empty list. If a module
             // is specified and no resource is found then it will fail earlier because of a Write-Error.
-            var result = pwsh.AddCommand(Commands.FindDscResource)
-                             .AddParameters(parameters)
-                             .Invoke()
+            var result = pwsh.Invoke()
                              .FirstOrDefault();
 
             this.OnDiagnostics(DiagnosticLevel.Verbose, pwsh);
@@ -477,6 +509,11 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
         private void OnDiagnostics(DiagnosticLevel level, PowerShell pwsh)
         {
             this.SetProcessorFactory?.OnDiagnostics(level, pwsh);
+        }
+
+        private void OnDiagnostics(DiagnosticLevel level, string message)
+        {
+            this.SetProcessorFactory?.OnDiagnostics(level, message);
         }
     }
 }

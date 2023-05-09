@@ -34,32 +34,40 @@ namespace Microsoft.Management.Configuration.Processor.ProcessorEnvironments
         /// Create process environment.
         /// </summary>
         /// <param name="setProcessorFactory">Optional processor factory.</param>
+        /// <param name="policy">Configuration processor policy.</param>
         /// <returns>IProcessorEnvironment.</returns>
-        public IProcessorEnvironment CreateEnvironment(ConfigurationSetProcessorFactory? setProcessorFactory)
+        public IProcessorEnvironment CreateEnvironment(
+            ConfigurationSetProcessorFactory? setProcessorFactory,
+            ConfigurationProcessorPolicy policy)
         {
             IDscModule dscModule = new DscModuleV2();
+            ExecutionPolicy executionPolicy = this.GetExecutionPolicy(policy);
 
-            if (this.type == ConfigurationProcessorType.Default)
+            // The for ConfigurationProcessorType.Default the idea was that since is already running in PowerShell we will
+            // have access to the variables in the current runspace, but we can't use that runspace and AFAIK
+            // there's not a simple way to simply clone a runspace. If we want to do it, we will need to get the
+            // variables from the current runspace and add them here, but maybe some of them are objects that can't
+            // handle being used in different runspace. It will also be time consuming and we can't block for creating
+            // the create set processor. Even if we could clone it, at this point we are running in a different thread,
+            // so there's no default runspace to clone here (aka. PowerShell.Create(RunspaceMode.CurrentRunspace) throws)
+            //
+            // If we want to somehow support, it might be easier to explicitly ask for the variables that need to be
+            // ported. We can add a new property to IConfigurationProcessorFactoryProperties with the variable names
+            // and set them here, but if they change they won't get reflected in our runspace (which might be a good thing).
+            // The problem with that is that they will need to be defined when the configuration set is opened and it really
+            // just makes sense before the ConfigurationSetProcessor gets created. We could add a new IConfigurationSetProcessorProperties
+            // Then in PowerShell it can be something like
+            // Get-WinGetConfiguration | Add-WinGetConfigurationVariable -Name foo | Start-WinGetConfiguration
+            if (this.type == ConfigurationProcessorType.Hosted ||
+                this.type == ConfigurationProcessorType.Default)
             {
-                throw new NotImplementedException();
-            }
-            else if (this.type == ConfigurationProcessorType.Hosted)
-            {
-                InitialSessionState initialSessionState = InitialSessionState.CreateDefault();
+                var initialSessionState = this.CreateInitialSessionState(
+                    executionPolicy,
+                    new List<ModuleSpecification>
+                    {
+                        dscModule.ModuleSpecification,
+                    });
 
-                // If this call fails importing the module, it won't throw but write to the error output. DSCModule is
-                // in charge of verifying that it got loaded correctly and if not, to install it. Once logging is implemented
-                // we should log the Error PSVariable.
-                initialSessionState.ImportPSModule(new List<ModuleSpecification>()
-                {
-                    dscModule.ModuleSpecification,
-                });
-
-                // This is where our policy will get translated to PowerShell's execution policy.
-                initialSessionState.ExecutionPolicy = ExecutionPolicy.Unrestricted;
-
-                // The $PSHome\Modules directory is added by default in the modules path. Because this is a hosted PowerShell,
-                // we don't have all the nice things that PowerShell installs by default. This includes PowerShellGet.
                 var runspace = RunspaceFactory.CreateRunspace(initialSessionState);
                 runspace.Open();
 
@@ -70,6 +78,32 @@ namespace Microsoft.Management.Configuration.Processor.ProcessorEnvironments
             }
 
             throw new ArgumentException(this.type.ToString());
+        }
+
+        private InitialSessionState CreateInitialSessionState(ExecutionPolicy policy, IReadOnlyList<ModuleSpecification> modules)
+        {
+            InitialSessionState initialSessionState = InitialSessionState.CreateDefault();
+
+            // If this call fails importing the module, it won't throw but write to the error output. DSCModule is
+            // in charge of verifying that it got loaded correctly and if not, to install it.
+            initialSessionState.ImportPSModule(modules);
+
+            initialSessionState.ExecutionPolicy = policy;
+
+            return initialSessionState;
+        }
+
+        private ExecutionPolicy GetExecutionPolicy(ConfigurationProcessorPolicy policy)
+        {
+            return policy switch
+            {
+                ConfigurationProcessorPolicy.Unrestricted => ExecutionPolicy.Unrestricted,
+                ConfigurationProcessorPolicy.RemoteSigned => ExecutionPolicy.RemoteSigned,
+                ConfigurationProcessorPolicy.AllSigned => ExecutionPolicy.AllSigned,
+                ConfigurationProcessorPolicy.Restricted => ExecutionPolicy.Restricted,
+                ConfigurationProcessorPolicy.Bypass => ExecutionPolicy.Bypass,
+                _ => throw new InvalidOperationException(),
+            };
         }
     }
 }

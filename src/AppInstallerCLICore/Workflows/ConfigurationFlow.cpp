@@ -4,6 +4,7 @@
 #include "ConfigurationFlow.h"
 #include "PromptFlow.h"
 #include "ConfigurationSetProcessorFactoryRemoting.h"
+#include <AppInstallerErrors.h>
 #include <winrt/Microsoft.Management.Configuration.h>
 
 using namespace AppInstaller::CLI::Execution;
@@ -356,8 +357,65 @@ namespace AppInstaller::CLI::Workflow
             if (FAILED(resultInformation.ResultCode()))
             {
                 AICLI_LOG(Config, Error, << "Failed to get unit details for " << Utility::ConvertToUTF8(unit.UnitName()) << " : 0x" <<
-                    Logging::SetHRFormat << resultInformation.ResultCode() << '\n' << Utility::ConvertToUTF8(resultInformation.Description()));
+                    Logging::SetHRFormat << resultInformation.ResultCode() << '\n' << Utility::ConvertToUTF8(resultInformation.Description()) << '\n' <<
+                    Utility::ConvertToUTF8(resultInformation.Details()));
             }
+        }
+
+        struct UnitFailedMessageData
+        {
+            Utility::LocIndString Message;
+            bool ShowDescription = true;
+        };
+
+        // TODO: We may need a detailed result code to enable the internal error to be exposed.
+        //       Additionally, some of the processor exceptions that generate these errors should be enlightened to produce better, localized descriptions.
+        UnitFailedMessageData GetUnitFailedData(const ConfigurationUnit& unit, const ConfigurationUnitResultInformation& resultInformation)
+        {
+            int32_t resultCode = resultInformation.ResultCode();
+
+            switch (resultCode)
+            {
+            case WINGET_CONFIG_ERROR_DUPLICATE_IDENTIFIER: return { Resource::String::ConfigurationUnitHasDuplicateIdentifier(Utility::LocIndString{ Utility::ConvertToUTF8(unit.Identifier()) }), false };
+            case WINGET_CONFIG_ERROR_MISSING_DEPENDENCY: return { Resource::String::ConfigurationUnitHasMissingDependency(Utility::LocIndString{ Utility::ConvertToUTF8(resultInformation.Details()) }), false };
+            case WINGET_CONFIG_ERROR_ASSERTION_FAILED: return { Resource::String::ConfigurationUnitAssertHadNegativeResult(), false };
+            case WINGET_CONFIG_ERROR_UNIT_NOT_INSTALLED: return { Resource::String::ConfigurationUnitNotFoundInModule(), false };
+            case WINGET_CONFIG_ERROR_UNIT_NOT_FOUND_REPOSITORY: return { Resource::String::ConfigurationUnitNotFound(), false };
+            case WINGET_CONFIG_ERROR_UNIT_MULTIPLE_MATCHES: return { Resource::String::ConfigurationUnitMultipleMatches(), false };
+            case WINGET_CONFIG_ERROR_UNIT_INVOKE_GET: return { Resource::String::ConfigurationUnitFailedDuringGet(), true };
+            case WINGET_CONFIG_ERROR_UNIT_INVOKE_TEST: return { Resource::String::ConfigurationUnitFailedDuringTest(), true };
+            case WINGET_CONFIG_ERROR_UNIT_INVOKE_SET: return { Resource::String::ConfigurationUnitFailedDuringSet(), true };
+            case WINGET_CONFIG_ERROR_UNIT_MODULE_CONFLICT: return { Resource::String::ConfigurationUnitModuleConflict(), false };
+            case WINGET_CONFIG_ERROR_UNIT_IMPORT_MODULE: return { Resource::String::ConfigurationUnitModuleImportFailed(), true };
+            case WINGET_CONFIG_ERROR_UNIT_INVOKE_INVALID_RESULT: return { Resource::String::ConfigurationUnitReturnedInvalidResult(), false };
+            }
+
+            switch (resultInformation.ResultSource())
+            {
+            case ConfigurationUnitResultSource::ConfigurationSet: return { Resource::String::ConfigurationUnitFailedConfigSet(resultCode), true };
+            case ConfigurationUnitResultSource::Internal: return { Resource::String::ConfigurationUnitFailedInternal(resultCode), true };
+            case ConfigurationUnitResultSource::Precondition: return { Resource::String::ConfigurationUnitFailedPrecondition(resultCode), true };
+            case ConfigurationUnitResultSource::SystemState: return { Resource::String::ConfigurationUnitFailedSystemState(resultCode), true };
+            case ConfigurationUnitResultSource::UnitProcessing: return { Resource::String::ConfigurationUnitFailedUnitProcessing(resultCode), true };
+            }
+
+            // All other errors use a generic message
+            return { Resource::String::ConfigurationUnitFailed(resultCode), true };
+        }
+
+        Utility::LocIndString GetUnitSkippedMessage(const ConfigurationUnitResultInformation& resultInformation)
+        {
+            int32_t resultCode = resultInformation.ResultCode();
+
+            switch (resultInformation.ResultCode())
+            {
+            case WINGET_CONFIG_ERROR_MANUALLY_SKIPPED: return Resource::String::ConfigurationUnitManuallySkipped();
+            case WINGET_CONFIG_ERROR_DEPENDENCY_UNSATISFIED: return Resource::String::ConfigurationUnitNotRunDueToDependency();
+            case WINGET_CONFIG_ERROR_ASSERTION_FAILED: return Resource::String::ConfigurationUnitNotRunDueToFailedAssert();
+            }
+
+            // If new cases arise and are not handled here, at least have a generic backstop message.
+            return Resource::String::ConfigurationUnitSkipped(resultCode);
         }
 
         // Helper to handle progress callbacks from ApplyConfigurationSetAsync
@@ -416,6 +474,11 @@ namespace AppInstaller::CLI::Workflow
         private:
             void HandleUnitProgress(const ConfigurationUnit& unit, ConfigurationUnitState state, const ConfigurationUnitResultInformation& resultInformation)
             {
+                if (UnitHasPreviouslyCompleted(unit))
+                {
+                    return;
+                }
+
                 switch (state)
                 {
                 case ConfigurationUnitState::Pending:
@@ -434,19 +497,41 @@ namespace AppInstaller::CLI::Workflow
                     }
                     else
                     {
-                        AICLI_LOG(Config, Error, << "Configuration unit " << Utility::ConvertToUTF8(unit.UnitName()) << "[" << Utility::ConvertToUTF8(unit.Identifier()) << "] failed with code 0x"
-                            << Logging::SetHRFormat << resultInformation.ResultCode() << " and error message:\n" << Utility::ConvertToUTF8(resultInformation.Description()));
-                        // TODO: Improve error reporting for failures: use message, known HRs, getting HR system string, etc.
-                        m_context.Reporter.Error() << "  "_liv << Resource::String::ConfigurationUnitFailed << " 0x"_liv << Logging::SetHRFormat << resultInformation.ResultCode() << std::endl;
+                        std::string description = Utility::Trim(Utility::ConvertToUTF8(resultInformation.Description()));
+
+                        AICLI_LOG_LARGE_STRING(Config, Error, << "Configuration unit " << Utility::ConvertToUTF8(unit.UnitName()) << "[" << Utility::ConvertToUTF8(unit.Identifier()) << "] failed with code 0x"
+                            << Logging::SetHRFormat << resultInformation.ResultCode() << " and error message:\n" << description, Utility::ConvertToUTF8(resultInformation.Details()));
+
+                        UnitFailedMessageData messageData = GetUnitFailedData(unit, resultInformation);
+                        auto error = m_context.Reporter.Error();
+                        error << "  "_liv << messageData.Message << std::endl;
+
+                        if (messageData.ShowDescription && !description.empty())
+                        {
+                            constexpr size_t maximumDescriptionLines = 3;
+                            size_t consoleWidth = GetConsoleWidth();
+                            std::vector<std::string> lines = Utility::SplitIntoLines(description, maximumDescriptionLines + 1);
+                            bool wasLimited = Utility::LimitOutputLines(lines, consoleWidth, maximumDescriptionLines);
+
+                            for (const auto & line : lines)
+                            {
+                                error << line << std::endl;
+                            }
+
+                            if (wasLimited || !resultInformation.Details().empty())
+                            {
+                                error << Resource::String::ConfigurationDescriptionWasTruncated << std::endl;
+                            }
+                        }
                     }
                     OutputUnitCompletionProgress();
+                    MarkCompleted(unit);
                     break;
                 case ConfigurationUnitState::Skipped:
                     OutputUnitInProgressIfNeeded(unit);
-                    AICLI_LOG(Config, Error, << "Configuration unit " << Utility::ConvertToUTF8(unit.UnitName()) << "[" << Utility::ConvertToUTF8(unit.Identifier()) << "] was skipped with code 0x"
+                    AICLI_LOG(Config, Warning, << "Configuration unit " << Utility::ConvertToUTF8(unit.UnitName()) << "[" << Utility::ConvertToUTF8(unit.Identifier()) << "] was skipped with code 0x"
                         << Logging::SetHRFormat << resultInformation.ResultCode());
-                    // TODO: Unique message per skip reason?
-                    m_context.Reporter.Warn() << "  "_liv << Resource::String::ConfigurationUnitSkipped << " 0x"_liv << Logging::SetHRFormat << resultInformation.ResultCode() << std::endl;
+                    m_context.Reporter.Warn() << "  "_liv << GetUnitSkippedMessage(resultInformation) << std::endl;
                     OutputUnitCompletionProgress();
                     break;
                 }
@@ -464,6 +549,18 @@ namespace AppInstaller::CLI::Workflow
                 }
             }
 
+            void MarkCompleted(const ConfigurationUnit& unit)
+            {
+                winrt::guid unitInstance = unit.InstanceIdentifier();
+                m_unitsCompleted.insert(unitInstance);
+            }
+
+            bool UnitHasPreviouslyCompleted(const ConfigurationUnit& unit)
+            {
+                winrt::guid unitInstance = unit.InstanceIdentifier();
+                return m_unitsCompleted.count(unitInstance) != 0;
+            }
+
             // Sends VT progress to the console
             void OutputUnitCompletionProgress()
             {
@@ -475,16 +572,31 @@ namespace AppInstaller::CLI::Workflow
 
             Context& m_context;
             std::set<winrt::guid> m_unitsSeen;
+            std::set<winrt::guid> m_unitsCompleted;
             bool m_isFirstProgress = true;
         };
+
+        std::filesystem::path GetConfigurationFilePath(Execution::Context& context)
+        {
+            std::filesystem::path argPath = Utility::ConvertToUTF16(context.Args.GetArg(Args::Type::ConfigurationFile));
+            return std::filesystem::weakly_canonical(argPath);
+        }
     }
 
     void CreateConfigurationProcessor(Context& context)
     {
+        auto progressScope = context.Reporter.BeginAsyncProgress(true);
+        progressScope->Callback().SetProgressMessage(Resource::String::ConfigurationInitializing());
+
         ConfigurationProcessor processor{ CreateConfigurationSetProcessorFactory() };
 
         // Set the processor to the current level of the logging.
         processor.MinimumLevel(ConvertLevel(Logging::Log().GetLevel()));
+        processor.Caller(L"winget");
+        // Use same activity as the overall winget command
+        processor.ActivityIdentifier(*Logging::Telemetry().GetActivityId());
+        // Apply winget telemetry setting to configuration
+        processor.GenerateTelemetryEvents(!Settings::User().Get<Settings::Setting::TelemetryDisable>());
 
         // Route the configuration diagnostics into the context's diagnostics logging
         processor.Diagnostics([&context](const winrt::Windows::Foundation::IInspectable&, const DiagnosticInformation& diagnostics)
@@ -500,13 +612,10 @@ namespace AppInstaller::CLI::Workflow
 
     void OpenConfigurationSet(Context& context)
     {
-        std::filesystem::path argPath = Utility::ConvertToUTF16(context.Args.GetArg(Args::Type::ConfigurationFile));
-        std::filesystem::path absolutePath = std::filesystem::weakly_canonical(argPath);
-        if (!std::filesystem::exists(absolutePath))
-        {
-            context.Reporter.Error() << Resource::String::FileNotFound << std::endl;
-            AICLI_TERMINATE_CONTEXT(HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND));
-        }
+        auto progressScope = context.Reporter.BeginAsyncProgress(true);
+        progressScope->Callback().SetProgressMessage(Resource::String::ConfigurationReadingConfigFile());
+
+        std::filesystem::path absolutePath = GetConfigurationFilePath(context);
 
         Streams::IInputStream inputStream = nullptr;
         inputStream = Streams::FileRandomAccessStream::OpenAsync(absolutePath.wstring(), FileAccessMode::Read).get();
@@ -514,19 +623,32 @@ namespace AppInstaller::CLI::Workflow
         OpenConfigurationSetResult openResult = context.Get<Data::ConfigurationContext>().Processor().OpenConfigurationSet(inputStream);
         if (FAILED_LOG(static_cast<HRESULT>(openResult.ResultCode().value)))
         {
+            AICLI_LOG(Config, Error, << "Failed to open configuration set at " << absolutePath.u8string() << " with error 0x" << Logging::SetHRFormat << static_cast<HRESULT>(openResult.ResultCode().value));
+
             switch (openResult.ResultCode())
             {
-            case WINGET_CONFIG_ERROR_INVALID_FIELD:
-                context.Reporter.Error() << Resource::String::ConfigurationFieldInvalid(Utility::LocIndString{ Utility::ConvertToUTF8(openResult.Field()) }) << std::endl;
+            case WINGET_CONFIG_ERROR_INVALID_FIELD_TYPE:
+                context.Reporter.Error() << Resource::String::ConfigurationFieldInvalidType(Utility::LocIndString{ Utility::ConvertToUTF8(openResult.Field()) }) << std::endl;
+                break;
+            case WINGET_CONFIG_ERROR_INVALID_FIELD_VALUE:
+                context.Reporter.Error() << Resource::String::ConfigurationFieldInvalidValue(Utility::LocIndString{ Utility::ConvertToUTF8(openResult.Field()) }, Utility::LocIndString{ Utility::ConvertToUTF8(openResult.Value()) }) << std::endl;
+                break;
+            case WINGET_CONFIG_ERROR_MISSING_FIELD:
+                context.Reporter.Error() << Resource::String::ConfigurationFieldMissing(Utility::LocIndString{ Utility::ConvertToUTF8(openResult.Field()) }) << std::endl;
                 break;
             case WINGET_CONFIG_ERROR_UNKNOWN_CONFIGURATION_FILE_VERSION:
-                context.Reporter.Error() << Resource::String::ConfigurationFileVersionUnknown(Utility::LocIndString{ Utility::ConvertToUTF8(openResult.Field()) }) << std::endl;
+                context.Reporter.Error() << Resource::String::ConfigurationFileVersionUnknown(Utility::LocIndString{ Utility::ConvertToUTF8(openResult.Value()) }) << std::endl;
                 break;
             case WINGET_CONFIG_ERROR_INVALID_CONFIGURATION_FILE:
             case WINGET_CONFIG_ERROR_INVALID_YAML:
             default:
                 context.Reporter.Error() << Resource::String::ConfigurationFileInvalid << std::endl;
                 break;
+            }
+
+            if (openResult.Line() != 0)
+            {
+                context.Reporter.Error() << Resource::String::SeeLineAndColumn(openResult.Line(), openResult.Column()) << std::endl;
             }
 
             AICLI_TERMINATE_CONTEXT(openResult.ResultCode());
@@ -554,6 +676,10 @@ namespace AppInstaller::CLI::Workflow
             AICLI_TERMINATE_CONTEXT(S_FALSE);
         }
 
+        auto gettingDetailString = Resource::String::ConfigurationGettingDetails();
+        auto progressScope = context.Reporter.BeginAsyncProgress(true);
+        progressScope->Callback().SetProgressMessage(gettingDetailString);
+
         auto getDetailsOperation = configContext.Processor().GetSetDetailsAsync(configContext.Set(), ConfigurationUnitDetailLevel::Catalog);
 
         OutputStream out = context.Reporter.Info();
@@ -563,6 +689,8 @@ namespace AppInstaller::CLI::Workflow
             {
                 auto threadContext = context.SetForCurrentThread();
 
+                progressScope.reset();
+
                 auto unitResults = operation.GetResults().UnitResults();
                 for (unitsShown; unitsShown < unitResults.Size(); ++unitsShown)
                 {
@@ -570,11 +698,16 @@ namespace AppInstaller::CLI::Workflow
                     LogFailedGetConfigurationUnitDetails(unitResult.Unit(), unitResult.ResultInformation());
                     OutputConfigurationUnitInformation(out, unitResult.Unit());
                 }
+
+                progressScope = context.Reporter.BeginAsyncProgress(true);
+                progressScope->Callback().SetProgressMessage(gettingDetailString);
             });
 
         try
         {
             GetConfigurationSetDetailsResult result = getDetailsOperation.get();
+
+            progressScope.reset();
 
             // Handle any missing progress callbacks
             auto unitResults = result.UnitResults();
@@ -586,6 +719,8 @@ namespace AppInstaller::CLI::Workflow
             }
         }
         CATCH_LOG();
+
+        progressScope.reset();
 
         // In the event of an exception from GetSetDetailsAsync, show the data we do have
         if (!unitsShown)

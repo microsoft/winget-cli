@@ -106,6 +106,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             // Do not check for the type.
             Assert.Equal(thrownException.HResult, result.ResultInformation.ResultCode.HResult);
             Assert.True(!string.IsNullOrWhiteSpace(result.ResultInformation.Description));
+            Assert.Equal(ConfigurationUnitResultSource.Internal, result.ResultInformation.ResultSource);
         }
 
         /// <summary>
@@ -134,29 +135,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             // Do not check for the type.
             Assert.Equal(thrownException.HResult, result.ResultInformation.ResultCode.HResult);
             Assert.True(!string.IsNullOrWhiteSpace(result.ResultInformation.Description));
-        }
-
-        /// <summary>
-        /// Tests GetSettings when a non specialized catched exception is thrown.
-        /// </summary>
-        [Fact]
-        public void GetSettings_Throws()
-        {
-            var processorEnvMock = new Mock<IProcessorEnvironment>();
-            processorEnvMock.Setup(m => m.InvokeGetResource(
-                It.IsAny<ValueSet>(),
-                It.IsAny<string>(),
-                It.IsAny<ModuleSpecification?>()))
-                .Throws(() => new ArgumentNullException("a message"))
-                .Verifiable();
-
-            var unitResource = this.CreateUnitResource(ConfigurationUnitIntent.Inform);
-
-            var unitProcessor = new ConfigurationUnitProcessor(processorEnvMock.Object, unitResource);
-
-            Assert.Throws<ArgumentNullException>(() => unitProcessor.GetSettings());
-
-            processorEnvMock.Verify();
+            Assert.Equal(ConfigurationUnitResultSource.Internal, result.ResultInformation.ResultSource);
         }
 
         /// <summary>
@@ -238,6 +217,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             // Do not check for the type.
             Assert.Equal(thrownException.HResult, result.ResultInformation.ResultCode.HResult);
             Assert.True(!string.IsNullOrWhiteSpace(result.ResultInformation.Description));
+            Assert.Equal(ConfigurationUnitResultSource.Internal, result.ResultInformation.ResultSource);
         }
 
         /// <summary>
@@ -268,29 +248,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             // Do not check for the type.
             Assert.Equal(thrownException.HResult, result.ResultInformation.ResultCode.HResult);
             Assert.True(!string.IsNullOrWhiteSpace(result.ResultInformation.Description));
-        }
-
-        /// <summary>
-        /// Tests TestSettings when a non specialized catched exception is thrown.
-        /// </summary>
-        [Fact]
-        public void TestSettings_Throws()
-        {
-            var processorEnvMock = new Mock<IProcessorEnvironment>();
-            processorEnvMock.Setup(m => m.InvokeTestResource(
-                It.IsAny<ValueSet>(),
-                It.IsAny<string>(),
-                It.IsAny<ModuleSpecification?>()))
-                .Throws(() => new ArgumentNullException("a message"))
-                .Verifiable();
-
-            var unitResource = this.CreateUnitResource(ConfigurationUnitIntent.Assert);
-
-            var unitProcessor = new ConfigurationUnitProcessor(processorEnvMock.Object, unitResource);
-
-            Assert.Throws<ArgumentNullException>(() => unitProcessor.TestSettings());
-
-            processorEnvMock.Verify();
+            Assert.Equal(ConfigurationUnitResultSource.Internal, result.ResultInformation.ResultSource);
         }
 
         /// <summary>
@@ -362,6 +320,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             // Do not check for the type.
             Assert.Equal(thrownException.HResult, result.ResultInformation.ResultCode.HResult);
             Assert.True(!string.IsNullOrWhiteSpace(result.ResultInformation.Description));
+            Assert.Equal(ConfigurationUnitResultSource.Internal, result.ResultInformation.ResultSource);
         }
 
         /// <summary>
@@ -390,29 +349,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             // Do not check for the type.
             Assert.Equal(thrownException.HResult, result.ResultInformation.ResultCode.HResult);
             Assert.True(!string.IsNullOrWhiteSpace(result.ResultInformation.Description));
-        }
-
-        /// <summary>
-        /// Tests ApplySettings when a non specialized catched exception is thrown.
-        /// </summary>
-        [Fact]
-        public void ApplySettings_Throws()
-        {
-            var processorEnvMock = new Mock<IProcessorEnvironment>();
-            processorEnvMock.Setup(m => m.InvokeSetResource(
-                It.IsAny<ValueSet>(),
-                It.IsAny<string>(),
-                It.IsAny<ModuleSpecification?>()))
-                .Throws(() => new ArgumentNullException("a message"))
-                .Verifiable();
-
-            var unitResource = this.CreateUnitResource(ConfigurationUnitIntent.Apply);
-
-            var unitProcessor = new ConfigurationUnitProcessor(processorEnvMock.Object, unitResource);
-
-            Assert.Throws<ArgumentNullException>(() => unitProcessor.ApplySettings());
-
-            processorEnvMock.Verify();
+            Assert.Equal(ConfigurationUnitResultSource.Internal, result.ResultInformation.ResultSource);
         }
 
         private ConfigurationUnitAndResource CreateUnitResource(ConfigurationUnitIntent intent)

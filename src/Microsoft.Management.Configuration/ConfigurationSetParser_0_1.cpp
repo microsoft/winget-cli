@@ -13,8 +13,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     using namespace AppInstaller::YAML;
 
 #define CHECK_ERROR(_op_) (_op_); if (FAILED(m_result)) { return; }
-#define FIELD_ERROR(_field_) SetError(WINGET_CONFIG_ERROR_INVALID_FIELD, (_field_)); return
-#define FIELD_ERROR_IF(_condition_,_field_) if (_condition_) { FIELD_ERROR(_field_); }
+
+#define FIELD_TYPE_ERROR(_field_,_mark_) SetError(WINGET_CONFIG_ERROR_INVALID_FIELD_TYPE, (_field_), (_mark_)); return
+#define FIELD_TYPE_ERROR_IF(_condition_,_field_,_mark_) if (_condition_) { FIELD_TYPE_ERROR(_field_,_mark_); }
+
+#define FIELD_MISSING_ERROR(_field_) SetError(WINGET_CONFIG_ERROR_MISSING_FIELD, (_field_)); return
+#define FIELD_MISSING_ERROR_IF(_condition_,_field_) if (_condition_) { FIELD_MISSING_ERROR(_field_); }
 
     namespace
     {
@@ -106,12 +110,18 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     std::vector<Configuration::ConfigurationUnit> ConfigurationSetParser_0_1::GetConfigurationUnits()
     {
         std::vector<Configuration::ConfigurationUnit> result;
-        const Node& properties = m_document[NodeName_Properties];
+        const Node& properties = m_document[GetFieldName(FieldName::Properties)];
         ParseConfigurationUnitsFromSubsection(properties, "assertions", ConfigurationUnitIntent::Assert, result);
         ParseConfigurationUnitsFromSubsection(properties, "parameters", ConfigurationUnitIntent::Inform, result);
         ParseConfigurationUnitsFromSubsection(properties, "resources", ConfigurationUnitIntent::Apply, result);
         // TODO: Additional semantic validation?
         return result;
+    }
+
+    hstring ConfigurationSetParser_0_1::GetSchemaVersion()
+    {
+        static hstring s_schemaVersion{ L"0.1" };
+        return s_schemaVersion;
     }
 
     void ConfigurationSetParser_0_1::ParseConfigurationUnitsFromSubsection(const Node& document, std::string_view subsection, ConfigurationUnitIntent intent, std::vector<Configuration::ConfigurationUnit>& result)
@@ -128,7 +138,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             return;
         }
 
-        FIELD_ERROR_IF(!subsectionNode.IsSequence(), subsection);
+        FIELD_TYPE_ERROR_IF(!subsectionNode.IsSequence(), subsection, subsectionNode.Mark());
 
         std::ostringstream strstr;
         strstr << subsection;
@@ -139,21 +149,27 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             if (!item.IsMap())
             {
                 strstr << '[' << index << ']';
-                FIELD_ERROR(strstr.str());
+                FIELD_TYPE_ERROR(strstr.str(), item.Mark());
             }
             index++;
 
             auto configurationUnit = make_self<wil::details::module_count_wrapper<ConfigurationUnit>>();
+            configurationUnit->SchemaVersion(GetSchemaVersion());
 
-            CHECK_ERROR(GetStringValueForUnit(item, "resource", true, configurationUnit.get(), &ConfigurationUnit::UnitName));
-            CHECK_ERROR(GetStringValueForUnit(item, "id", false, configurationUnit.get(), &ConfigurationUnit::Identifier));
-            configurationUnit->Intent(intent);
-            CHECK_ERROR(GetStringArrayForUnit(item, "dependsOn", configurationUnit.get(), &ConfigurationUnit::Dependencies));
-            CHECK_ERROR(GetValueSet(item, "directives", false, configurationUnit->Directives()));
-            CHECK_ERROR(GetValueSet(item, "settings", false, configurationUnit->Settings()));
+            ParseConfigurationUnit(configurationUnit.get(), item, intent);
 
             result.emplace_back(*configurationUnit);
         }
+    }
+
+    void ConfigurationSetParser_0_1::ParseConfigurationUnit(ConfigurationUnit* unit, const Node& unitNode, ConfigurationUnitIntent intent)
+    {
+        CHECK_ERROR(GetStringValueForUnit(unitNode, GetFieldName(FieldName::Resource), true, unit, &ConfigurationUnit::UnitName));
+        CHECK_ERROR(GetStringValueForUnit(unitNode, "id", false, unit, &ConfigurationUnit::Identifier));
+        unit->Intent(intent);
+        CHECK_ERROR(GetStringArrayForUnit(unitNode, "dependsOn", unit, &ConfigurationUnit::Dependencies));
+        CHECK_ERROR(GetValueSet(unitNode, "directives", false, unit->Directives()));
+        CHECK_ERROR(GetValueSet(unitNode, "settings", false, unit->Settings()));
     }
 
     void ConfigurationSetParser_0_1::GetStringValueForUnit(const Node& item, std::string_view valueName, bool required, ConfigurationUnit* unit, void(ConfigurationUnit::* propertyFunction)(const hstring& value))
@@ -162,15 +178,18 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         if (valueNode)
         {
-            FIELD_ERROR_IF(!valueNode.IsScalar(), valueName);
+            FIELD_TYPE_ERROR_IF(!valueNode.IsScalar(), valueName, valueNode.Mark());
         }
         else
         {
-            FIELD_ERROR_IF(required, valueName);
+            FIELD_MISSING_ERROR_IF(required, valueName);
             return;
         }
 
-        (unit->*propertyFunction)(hstring{ valueNode.as<std::wstring>() });
+        hstring value{ valueNode.as<std::wstring>() };
+        FIELD_MISSING_ERROR_IF(value.empty() && required, valueName);
+
+        (unit->*propertyFunction)(std::move(value));
     }
 
     void ConfigurationSetParser_0_1::GetStringArrayForUnit(const Node& item, std::string_view arrayName, ConfigurationUnit* unit, void(ConfigurationUnit::* propertyFunction)(std::vector<hstring>&& value))
@@ -182,7 +201,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             return;
         }
 
-        FIELD_ERROR_IF(!arrayNode.IsSequence(), arrayName);
+        FIELD_TYPE_ERROR_IF(!arrayNode.IsSequence(), arrayName, arrayNode.Mark());
 
         std::vector<hstring> arrayValue;
 
@@ -195,7 +214,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             if (!arrayItem.IsScalar())
             {
                 strstr << '[' << index << ']';
-                FIELD_ERROR(strstr.str());
+                FIELD_TYPE_ERROR(strstr.str(), arrayItem.Mark());
             }
             index++;
 
@@ -211,11 +230,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         if (mapNode)
         {
-            FIELD_ERROR_IF(!mapNode.IsMap(), mapName);
+            FIELD_TYPE_ERROR_IF(!mapNode.IsMap(), mapName, mapNode.Mark());
         }
         else
         {
-            FIELD_ERROR_IF(required, mapName);
+            FIELD_MISSING_ERROR_IF(required, mapName);
             return;
         }
 

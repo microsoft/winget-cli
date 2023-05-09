@@ -13,6 +13,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     using System.Linq;
     using System.Runtime.InteropServices;
     using System.Threading;
+    using Microsoft.CodeAnalysis.Emit;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
     using Microsoft.Management.Configuration.UnitTests.Helpers;
     using Microsoft.VisualBasic;
@@ -50,6 +51,8 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics(factory);
 
             Assert.Throws<FileNotFoundException>(() => processor.ApplySet(configurationSet, ApplyConfigurationSetFlags.None));
+
+            Assert.Empty(this.EventSink.Events);
         }
 
         /// <summary>
@@ -86,6 +89,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 Assert.NotNull(unitResult.ResultInformation);
                 Assert.NotNull(unitResult.ResultInformation.ResultCode);
                 Assert.Equal(Errors.WINGET_CONFIG_ERROR_DUPLICATE_IDENTIFIER, unitResult.ResultInformation.ResultCode.HResult);
+                Assert.Equal(ConfigurationUnitResultSource.ConfigurationSet, unitResult.ResultInformation.ResultSource);
             }
 
             ApplyConfigurationUnitResult unitResultDifferentIdentifier = result.UnitResults.First(x => x.Unit == configurationUnitDifferentIdentifier);
@@ -94,6 +98,9 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             Assert.False(unitResultDifferentIdentifier.RebootRequired);
             Assert.NotNull(unitResultDifferentIdentifier.ResultInformation);
             Assert.Null(unitResultDifferentIdentifier.ResultInformation.ResultCode);
+            Assert.Equal(ConfigurationUnitResultSource.None, unitResultDifferentIdentifier.ResultInformation.ResultSource);
+
+            this.VerifySummaryEvent(configurationSet, result, ConfigurationUnitResultSource.ConfigurationSet);
         }
 
         /// <summary>
@@ -125,6 +132,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             Assert.False(unitResult.RebootRequired);
             Assert.NotNull(unitResult.ResultInformation);
             Assert.Null(unitResult.ResultInformation.ResultCode);
+            Assert.Equal(ConfigurationUnitResultSource.None, unitResult.ResultInformation.ResultSource);
 
             unitResult = result.UnitResults.First(x => x.Unit == configurationUnitMissingDependency);
             Assert.NotNull(unitResult);
@@ -133,6 +141,9 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             Assert.NotNull(unitResult.ResultInformation);
             Assert.NotNull(unitResult.ResultInformation.ResultCode);
             Assert.Equal(Errors.WINGET_CONFIG_ERROR_MISSING_DEPENDENCY, unitResult.ResultInformation.ResultCode.HResult);
+            Assert.Equal(ConfigurationUnitResultSource.ConfigurationSet, unitResult.ResultInformation.ResultSource);
+
+            this.VerifySummaryEvent(configurationSet, result, ConfigurationUnitResultSource.ConfigurationSet);
         }
 
         /// <summary>
@@ -160,7 +171,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             ApplyConfigurationSetResult result = processor.ApplySet(configurationSet, ApplyConfigurationSetFlags.None);
             Assert.NotNull(result);
             Assert.NotNull(result.ResultCode);
-            Assert.Equal(Errors.WINGET_CONFIG_ERROR_DEPENDENCY_UNSATISFIED, result.ResultCode.HResult);
+            Assert.Equal(Errors.WINGET_CONFIG_ERROR_SET_DEPENDENCY_CYCLE, result.ResultCode.HResult);
             Assert.Equal(3, result.UnitResults.Count);
 
             foreach (var unitResult in result.UnitResults)
@@ -171,7 +182,10 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 Assert.NotNull(unitResult.ResultInformation);
                 Assert.NotNull(unitResult.ResultInformation.ResultCode);
                 Assert.Equal(Errors.WINGET_CONFIG_ERROR_DEPENDENCY_UNSATISFIED, unitResult.ResultInformation.ResultCode.HResult);
+                Assert.Equal(ConfigurationUnitResultSource.Precondition, unitResult.ResultInformation.ResultSource);
             }
+
+            this.VerifySummaryEvent(configurationSet, result, ConfigurationUnitResultSource.Precondition);
         }
 
         /// <summary>
@@ -207,6 +221,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 Assert.False(unitResult.RebootRequired);
                 Assert.NotNull(unitResult.ResultInformation);
                 Assert.Null(unitResult.ResultInformation.ResultCode);
+                Assert.Equal(ConfigurationUnitResultSource.None, unitResult.ResultInformation.ResultSource);
             }
 
             Assert.Equal(1, unitProcessorAssert.TestSettingsCalls);
@@ -220,6 +235,8 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             Assert.Equal(1, unitProcessorApply.TestSettingsCalls);
             Assert.Equal(0, unitProcessorApply.GetSettingsCalls);
             Assert.Equal(1, unitProcessorApply.ApplySettingsCalls);
+
+            this.VerifySummaryEvent(configurationSet, result, ConfigurationUnitResultSource.None);
         }
 
         /// <summary>
@@ -255,6 +272,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             Assert.NotNull(unitResult.ResultInformation);
             Assert.NotNull(unitResult.ResultInformation.ResultCode);
             Assert.IsType<NullReferenceException>(unitResult.ResultInformation.ResultCode);
+            Assert.Equal(ConfigurationUnitResultSource.Internal, unitResult.ResultInformation.ResultSource);
 
             unitResult = result.UnitResults.First(x => x.Unit == configurationUnitApply);
             Assert.NotNull(unitResult);
@@ -263,6 +281,9 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             Assert.NotNull(unitResult.ResultInformation);
             Assert.NotNull(unitResult.ResultInformation.ResultCode);
             Assert.Equal(Errors.WINGET_CONFIG_ERROR_ASSERTION_FAILED, unitResult.ResultInformation.ResultCode.HResult);
+            Assert.Equal(ConfigurationUnitResultSource.Precondition, unitResult.ResultInformation.ResultSource);
+
+            this.VerifySummaryEvent(configurationSet, result, ConfigurationUnitResultSource.Internal);
         }
 
         /// <summary>
@@ -299,7 +320,10 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 Assert.NotNull(unitResult.ResultInformation);
                 Assert.NotNull(unitResult.ResultInformation.ResultCode);
                 Assert.Equal(Errors.WINGET_CONFIG_ERROR_ASSERTION_FAILED, unitResult.ResultInformation.ResultCode.HResult);
+                Assert.Equal(ConfigurationUnitResultSource.Precondition, unitResult.ResultInformation.ResultSource);
             }
+
+            this.VerifySummaryEvent(configurationSet, result, ConfigurationUnitResultSource.Precondition);
         }
 
         /// <summary>
@@ -330,6 +354,9 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             Assert.False(unitResult.RebootRequired);
             Assert.NotNull(unitResult.ResultInformation);
             Assert.Null(unitResult.ResultInformation.ResultCode);
+            Assert.Equal(ConfigurationUnitResultSource.None, unitResult.ResultInformation.ResultSource);
+
+            this.VerifySummaryEvent(configurationSet, result, ConfigurationUnitResultSource.None);
         }
 
         /// <summary>
@@ -412,11 +439,13 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                         if (expectedProgress[i].HResult == 0)
                         {
                             Assert.Null(progressEvents[i].ResultInformation.ResultCode);
+                            Assert.Equal(ConfigurationUnitResultSource.None, progressEvents[i].ResultInformation.ResultSource);
                         }
                         else
                         {
                             Assert.NotNull(progressEvents[i].ResultInformation.ResultCode);
                             Assert.Equal(expectedProgress[i].HResult, progressEvents[i].ResultInformation.ResultCode.HResult);
+                            Assert.Equal(ConfigurationUnitResultSource.Precondition, progressEvents[i].ResultInformation.ResultSource);
                         }
 
                         break;
@@ -425,6 +454,8 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                         break;
                 }
             }
+
+            this.VerifySummaryEvent(configurationSet, result, ConfigurationUnitResultSource.Precondition);
         }
 
         private struct ExpectedConfigurationChangeData

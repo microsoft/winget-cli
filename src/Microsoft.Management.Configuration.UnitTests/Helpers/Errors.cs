@@ -15,16 +15,20 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
 #pragma warning disable SA1600 // Elements should be documented
 #pragma warning disable SA1025 // Code should not contain multiple whitespace in a row
 
-        public static readonly int WINGET_CONFIG_ERROR_INVALID_CONFIGURATION_FILE          = unchecked((int)0x8A15C001);
-        public static readonly int WINGET_CONFIG_ERROR_INVALID_YAML                        = unchecked((int)0x8A15C002);
-        public static readonly int WINGET_CONFIG_ERROR_INVALID_FIELD                       = unchecked((int)0x8A15C003);
-        public static readonly int WINGET_CONFIG_ERROR_UNKNOWN_CONFIGURATION_FILE_VERSION  = unchecked((int)0x8A15C004);
-        public static readonly int WINGET_CONFIG_ERROR_SET_APPLY_FAILED                    = unchecked((int)0x8A15C005);
-        public static readonly int WINGET_CONFIG_ERROR_DUPLICATE_IDENTIFIER                = unchecked((int)0x8A15C006);
-        public static readonly int WINGET_CONFIG_ERROR_MISSING_DEPENDENCY                  = unchecked((int)0x8A15C007);
-        public static readonly int WINGET_CONFIG_ERROR_DEPENDENCY_UNSATISFIED              = unchecked((int)0x8A15C008);
-        public static readonly int WINGET_CONFIG_ERROR_ASSERTION_FAILED                    = unchecked((int)0x8A15C009);
-        public static readonly int WINGET_CONFIG_ERROR_MANUALLY_SKIPPED                    = unchecked((int)0x8A15C00A);
+        public static readonly int WINGET_CONFIG_ERROR_INVALID_CONFIGURATION_FILE           = unchecked((int)0x8A15C001);
+        public static readonly int WINGET_CONFIG_ERROR_INVALID_YAML                         = unchecked((int)0x8A15C002);
+        public static readonly int WINGET_CONFIG_ERROR_INVALID_FIELD_TYPE                   = unchecked((int)0x8A15C003);
+        public static readonly int WINGET_CONFIG_ERROR_UNKNOWN_CONFIGURATION_FILE_VERSION   = unchecked((int)0x8A15C004);
+        public static readonly int WINGET_CONFIG_ERROR_SET_APPLY_FAILED                     = unchecked((int)0x8A15C005);
+        public static readonly int WINGET_CONFIG_ERROR_DUPLICATE_IDENTIFIER                 = unchecked((int)0x8A15C006);
+        public static readonly int WINGET_CONFIG_ERROR_MISSING_DEPENDENCY                   = unchecked((int)0x8A15C007);
+        public static readonly int WINGET_CONFIG_ERROR_DEPENDENCY_UNSATISFIED               = unchecked((int)0x8A15C008);
+        public static readonly int WINGET_CONFIG_ERROR_ASSERTION_FAILED                     = unchecked((int)0x8A15C009);
+        public static readonly int WINGET_CONFIG_ERROR_MANUALLY_SKIPPED                     = unchecked((int)0x8A15C00A);
+        public static readonly int WINGET_CONFIG_ERROR_WARNING_NOT_ACCEPTED                 = unchecked((int)0x8A15C00B);
+        public static readonly int WINGET_CONFIG_ERROR_SET_DEPENDENCY_CYCLE                 = unchecked((int)0x8A15C00C);
+        public static readonly int WINGET_CONFIG_ERROR_INVALID_FIELD_VALUE                  = unchecked((int)0x8A15C00D);
+        public static readonly int WINGET_CONFIG_ERROR_MISSING_FIELD                        = unchecked((int)0x8A15C00E);
 
 #pragma warning restore SA1025 // Code should not contain multiple whitespace in a row
 #pragma warning restore SA1600 // Elements should be documented

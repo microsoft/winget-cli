@@ -48,7 +48,7 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::Source:
             return { type, "source"_liv, 's', ArgTypeCategory::Source };
         case Execution::Args::Type::Count:
-            return { type, "count"_liv, 'n', ArgTypeCategory::MultiplePackages };
+            return { type, "count"_liv, 'n', ArgTypeCategory::PackageQuery | ArgTypeCategory::SinglePackageQuery };
         case Execution::Args::Type::Exact:
             return { type, "exact"_liv, 'e', ArgTypeCategory::PackageQuery };
 
@@ -157,6 +157,11 @@ namespace AppInstaller::CLI
         // Show command
         case Execution::Args::Type::ListVersions:
             return { type, "versions"_liv };
+
+        // List command
+        case Execution::Args::Type::Upgrade:
+            return { type, "upgrade-available"_liv};
+
 
         // Pin command
         case Execution::Args::Type::GatedVersion:

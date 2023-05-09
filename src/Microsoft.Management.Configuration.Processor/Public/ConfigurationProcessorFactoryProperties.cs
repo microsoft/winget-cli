@@ -22,5 +22,8 @@ namespace Microsoft.Management.Configuration.Processor
 
         /// <inheritdoc/>
         public IReadOnlyList<string>? AdditionalModulePaths { get; set; }
+
+        /// <inheritdoc/>
+        public ConfigurationProcessorPolicy Policy { get; set; } = ConfigurationProcessorPolicy.Default;
     }
 }

@@ -166,7 +166,12 @@ namespace AppInstaller::CLI::Execution
 
         void ProgressVisualizerBase::SetMessage(std::string_view message)
         {
-            m_message = message;
+            std::atomic_store(&m_message, std::make_shared<std::string>(message));
+        }
+
+        std::shared_ptr<std::string> ProgressVisualizerBase::GetMessage()
+        {
+            return std::atomic_load(&m_message);
         }
     }
 
@@ -213,7 +218,8 @@ namespace AppInstaller::CLI::Execution
                 ApplyStyle(i % repetitionCount, repetitionCount, true);
                 m_out << '\r' << indent << spinnerChars[i % ARRAYSIZE(spinnerChars)];
                 m_out.RestoreDefault();
-                m_out << ' ' << m_message << std::flush;
+                std::shared_ptr<std::string> message = this->GetMessage();
+                m_out << ' ' << (message ? *message : std::string{}) << std::flush;
                 Sleep(250);
             }
 

@@ -10,6 +10,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 {
     struct ConfigurationUnit : ConfigurationUnitT<ConfigurationUnit>
     {
+        using ConfigurationUnitResultInformation = Configuration::ConfigurationUnitResultInformation;
+
         ConfigurationUnit();
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
@@ -43,6 +45,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         bool ShouldApply();
         void ShouldApply(bool value);
 
+        hstring SchemaVersion();
+        void SchemaVersion(const hstring& value);
+
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
         void Dependencies(std::vector<hstring>&& value);
         void Details(IConfigurationUnitProcessorDetails&& details);
@@ -57,6 +62,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         Windows::Foundation::Collections::ValueSet m_settings;
         IConfigurationUnitProcessorDetails m_details{ nullptr };
         bool m_shouldApply = true;
+        hstring m_schemaVersion;
 
         MutableFlag m_mutableFlag;
 #endif

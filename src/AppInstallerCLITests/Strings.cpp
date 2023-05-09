@@ -248,3 +248,15 @@ TEST_CASE("Format", "[strings]")
     // Note: C++20 std::format will throw an exception for this test case
     REQUIRE("First {1}" == Format("{0} {1}", "First"));
 }
+
+TEST_CASE("SplitIntoLines", "[string]")
+{
+    REQUIRE(SplitIntoLines("Boring test") == std::vector<std::string>{ "Boring test" });
+    REQUIRE(SplitIntoLines(
+        "I'm Luffy! The Man Who Will Become the Pirate King!\r-Monkey D. Luffy") == std::vector<std::string>{ "I'm Luffy! The Man Who Will Become the Pirate King!", "-Monkey D. Luffy" });
+    REQUIRE(SplitIntoLines(
+        "I want live!\n-Nico Robin") == std::vector<std::string>{ "I want live!", "-Nico Robin" });
+    REQUIRE(SplitIntoLines(
+        "You want my treasure?\rYou can have it!\nI left everything I gathered in one place!\r\nYou just have to find it!")
+        == std::vector<std::string>{ "You want my treasure?", "You can have it!", "I left everything I gathered in one place!", "You just have to find it!" });
+}

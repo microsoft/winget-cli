@@ -9,6 +9,7 @@
 #include <objbase.h>
 #include <urlmon.h>
 #include <Msi.h>
+#include <KnownFolders.h>
 
 #include <catch.hpp>
 

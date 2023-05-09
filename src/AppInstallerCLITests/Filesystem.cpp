@@ -87,3 +87,17 @@ TEST_CASE("VerifyIsSameVolume", "[filesystem]")
     REQUIRE_FALSE(IsSameVolume(path4, path6));
     REQUIRE_FALSE(IsSameVolume(path6, path8));
 }
+
+TEST_CASE("ReplaceCommonPathPrefix", "[filesystem]")
+{
+    std::filesystem::path prefix = "C:\\test1\\test2";
+    std::string replacement = "%TEST%";
+
+    std::filesystem::path shouldReplace = "C:\\test1\\test2\\subdir1\\subdir2";
+    REQUIRE(ReplaceCommonPathPrefix(shouldReplace, prefix, replacement));
+    REQUIRE(shouldReplace.u8string() == (replacement + "\\subdir1\\subdir2"));
+
+    std::filesystem::path shouldNotReplace = "C:\\test1\\test3\\subdir1\\subdir2";
+    REQUIRE(!ReplaceCommonPathPrefix(shouldNotReplace, prefix, replacement));
+    REQUIRE(shouldNotReplace.u8string() == "C:\\test1\\test3\\subdir1\\subdir2");
+}

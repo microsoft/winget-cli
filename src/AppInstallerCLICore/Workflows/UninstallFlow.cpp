@@ -10,6 +10,7 @@
 #include "PortableFlow.h"
 #include <AppInstallerDeployment.h>
 #include <AppInstallerSynchronization.h>
+#include <winget/Runtime.h>
 
 using namespace AppInstaller::CLI::Execution;
 using namespace AppInstaller::Manifest;

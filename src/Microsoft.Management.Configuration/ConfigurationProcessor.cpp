@@ -25,6 +25,32 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 {
     namespace
     {
+        AppInstaller::Logging::Level ConvertLevel(DiagnosticLevel level)
+        {
+            switch (level)
+            {
+            case DiagnosticLevel::Verbose: return AppInstaller::Logging::Level::Verbose;
+            case DiagnosticLevel::Informational: return AppInstaller::Logging::Level::Info;
+            case DiagnosticLevel::Warning: return AppInstaller::Logging::Level::Warning;
+            case DiagnosticLevel::Error: return AppInstaller::Logging::Level::Error;
+            case DiagnosticLevel::Critical: return AppInstaller::Logging::Level::Crit;
+            default: return AppInstaller::Logging::Level::Warning;
+            }
+        }
+
+        DiagnosticLevel ConvertLevel(AppInstaller::Logging::Level level)
+        {
+            switch (level)
+            {
+            case AppInstaller::Logging::Level::Verbose: return DiagnosticLevel::Verbose;
+            case AppInstaller::Logging::Level::Info: return DiagnosticLevel::Informational;
+            case AppInstaller::Logging::Level::Warning: return DiagnosticLevel::Warning;
+            case AppInstaller::Logging::Level::Error: return DiagnosticLevel::Error;
+            case AppInstaller::Logging::Level::Crit: return DiagnosticLevel::Critical;
+            default: return DiagnosticLevel::Warning;
+            }
+        }
+
         // ILogger that sends data back to the Diagnostics event of the ConfigurationProcessor.
         struct ConfigurationProcessorDiagnosticsLogger : public AppInstaller::Logging::ILogger
         {
@@ -43,26 +69,13 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             }
             catch (...) {}
 
-            void WriteDirect(std::string_view message) noexcept override try
+            void WriteDirect(AppInstaller::Logging::Channel, AppInstaller::Logging::Level level, std::string_view message) noexcept override try
             {
-                m_processor.Diagnostics(DiagnosticLevel::Informational, message);
+                m_processor.Diagnostics(ConvertLevel(level), message);
             }
             catch (...) {}
 
         private:
-            DiagnosticLevel ConvertLevel(AppInstaller::Logging::Level level)
-            {
-                switch (level)
-                {
-                case AppInstaller::Logging::Level::Verbose: return DiagnosticLevel::Verbose;
-                case AppInstaller::Logging::Level::Info: return DiagnosticLevel::Informational;
-                case AppInstaller::Logging::Level::Warning: return DiagnosticLevel::Warning;
-                case AppInstaller::Logging::Level::Error: return DiagnosticLevel::Error;
-                case AppInstaller::Logging::Level::Crit: return DiagnosticLevel::Critical;
-                default: return DiagnosticLevel::Warning;
-                }
-            }
-
             ConfigurationProcessor& m_processor;
         };
 
@@ -129,7 +142,41 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     void ConfigurationProcessor::MinimumLevel(DiagnosticLevel value)
     {
         m_minimumLevel = value;
-        m_factory.MinimumLevel(value);
+        m_threadGlobals.GetDiagnosticLogger().SetLevel(ConvertLevel(value));
+        if (m_factory)
+        {
+            m_factory.MinimumLevel(value);
+        }
+    }
+
+    hstring ConfigurationProcessor::Caller() const
+    {
+        return hstring{ AppInstaller::Utility::ConvertToUTF16(m_threadGlobals.GetTelemetryLogger().GetCaller()) };
+    }
+
+    void ConfigurationProcessor::Caller(hstring value)
+    {
+        m_threadGlobals.GetTelemetryLogger().SetCaller(AppInstaller::Utility::ConvertToUTF8(value));
+    }
+
+    guid ConfigurationProcessor::ActivityIdentifier()
+    {
+        return *m_threadGlobals.GetTelemetryLogger().GetActivityId();
+    }
+
+    void ConfigurationProcessor::ActivityIdentifier(const guid& value)
+    {
+        m_threadGlobals.GetTelemetryLogger().SetActivityId(value);
+    }
+
+    bool ConfigurationProcessor::GenerateTelemetryEvents()
+    {
+        return m_threadGlobals.GetTelemetryLogger().IsEnabled();
+    }
+
+    void ConfigurationProcessor::GenerateTelemetryEvents(bool value)
+    {
+        std::ignore = m_threadGlobals.GetTelemetryLogger().EnableRuntime(value);
     }
 
     event_token ConfigurationProcessor::ConfigurationChange(const Windows::Foundation::TypedEventHandler<ConfigurationSet, ConfigurationChangeData>& handler)
@@ -176,7 +223,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             std::unique_ptr<ConfigurationSetParser> parser = ConfigurationSetParser::Create(localStream);
             if (FAILED(parser->Result()))
             {
-                result->Initialize(parser->Result(), parser->Field());
+                result->Initialize(parser->Result(), parser->Field(), parser->Value(), parser->Line(), parser->Column());
                 co_return *result;
             }
 
@@ -184,9 +231,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             configurationSet->Initialize(parser->GetConfigurationUnits());
             if (FAILED(parser->Result()))
             {
-                result->Initialize(parser->Result(), parser->Field());
+                result->Initialize(parser->Result(), parser->Field(), parser->Value(), parser->Line(), parser->Column());
                 co_return *result;
             }
+            configurationSet->SchemaVersion(parser->GetSchemaVersion());
 
             result->Initialize(*configurationSet);
         }
@@ -251,14 +299,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                 IConfigurationUnitProcessorDetails details = setProcessor.GetUnitProcessorDetails(unit, detailLevel);
                 get_self<implementation::ConfigurationUnit>(unit)->Details(std::move(details));
             }
-            catch (const winrt::hresult_error& hre)
-            {
-                unitResultInformation->ResultCode(LOG_CAUGHT_EXCEPTION());
-                unitResultInformation->Description(hre.message());
-            }
             catch (...)
             {
-                unitResultInformation->ResultCode(LOG_CAUGHT_EXCEPTION());
+                ExtractUnitResultInformation(std::current_exception(), unitResultInformation);
             }
 
             result->UnitResultsVector().Append(*unitResult);
@@ -306,7 +349,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         auto threadGlobals = m_threadGlobals.SetForCurrentThread();
 
         auto result = make_self<wil::details::module_count_wrapper<implementation::ApplyConfigurationSetResult>>();
-        ConfigurationSetApplyProcessor applyProcessor{ localSet, m_factory.CreateSetProcessor(localSet), result, progress };
+        ConfigurationSetApplyProcessor applyProcessor{ localSet, m_threadGlobals.GetTelemetryLogger(), m_factory.CreateSetProcessor(localSet), result, progress};
         progress.set_result(*result);
 
         applyProcessor.Process();
@@ -368,6 +411,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                     {
                         ExtractUnitResultInformation(std::current_exception(), unitResult);
                     }
+
+                    m_threadGlobals.GetTelemetryLogger().LogConfigUnitRunIfAppropriate(localSet.InstanceIdentifier(), unit, ConfigurationUnitIntent::Assert, TelemetryTraceLogger::TestAction, testResult->ResultInformation());
                 }
             }
             else
@@ -385,6 +430,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             progress(*testResult);
         }
 
+        m_threadGlobals.GetTelemetryLogger().LogConfigProcessingSummaryForTest(*winrt::get_self<implementation::ConfigurationSet>(localSet), *result);
         co_return *result;
     }
 
@@ -431,6 +477,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             {
                 ExtractUnitResultInformation(std::current_exception(), unitResult);
             }
+
+            m_threadGlobals.GetTelemetryLogger().LogConfigUnitRunIfAppropriate(GUID_NULL, localUnit, ConfigurationUnitIntent::Inform, TelemetryTraceLogger::GetAction, result->ResultInformation());
         }
 
         co_return *result;

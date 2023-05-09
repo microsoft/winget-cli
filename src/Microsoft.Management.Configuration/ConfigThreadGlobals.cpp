@@ -10,8 +10,18 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return m_logger;
     }
 
-    AppInstaller::Logging::TelemetryTraceLogger& ConfigThreadGlobals::GetTelemetryLogger()
+    void* ConfigThreadGlobals::GetTelemetryObject()
     {
-        THROW_HR(E_NOTIMPL);
+        return &m_telemetry;
+    }
+
+    TelemetryTraceLogger& ConfigThreadGlobals::GetTelemetryLogger()
+    {
+        return m_telemetry;
+    }
+
+    const TelemetryTraceLogger& ConfigThreadGlobals::GetTelemetryLogger() const
+    {
+        return m_telemetry;
     }
 }

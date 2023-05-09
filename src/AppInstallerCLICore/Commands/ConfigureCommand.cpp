@@ -12,7 +12,7 @@ using namespace AppInstaller::CLI::Workflow;
 namespace AppInstaller::CLI
 {
     ConfigureCommand::ConfigureCommand(std::string_view parent) :
-        Command("configure", {}, parent, Settings::ExperimentalFeature::Feature::Configuration)
+        Command("configure", { "configuration" }, parent, Settings::ExperimentalFeature::Feature::Configuration)
     {
         SelectCurrentCommandIfUnrecognizedSubcommandFound(true);
     }
@@ -54,6 +54,7 @@ namespace AppInstaller::CLI
     void ConfigureCommand::ExecuteInternal(Execution::Context& context) const
     {
         context <<
+            VerifyFile(Execution::Args::Type::ConfigurationFile) <<
             CreateConfigurationProcessor <<
             OpenConfigurationSet <<
             ShowConfigurationSet <<

@@ -15,8 +15,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         void TestResult(ConfigurationTestResult value);
 #endif
 
-        Windows::Foundation::Collections::IVectorView<TestConfigurationUnitResult> UnitResults();
-        ConfigurationTestResult TestResult();
+        Windows::Foundation::Collections::IVectorView<TestConfigurationUnitResult> UnitResults() const;
+        ConfigurationTestResult TestResult() const;
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:

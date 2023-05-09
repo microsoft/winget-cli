@@ -21,6 +21,11 @@ namespace AppInstaller::ThreadLocalStorage
         return *(m_pDiagnosticLogger);
     }
 
+    void* WingetThreadGlobals::GetTelemetryObject()
+    {
+        return m_pTelemetryLogger.get();
+    }
+
     TelemetryTraceLogger& WingetThreadGlobals::GetTelemetryLogger()
     {
         return *(m_pTelemetryLogger);

@@ -22,6 +22,11 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     public class OpenConfigurationSetTests : ConfigurationProcessorTestBase
     {
         /// <summary>
+        /// The directives key for the module property.
+        /// </summary>
+        internal const string ModuleDirective = "module";
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="OpenConfigurationSetTests"/> class.
         /// </summary>
         /// <param name="fixture">Unit test fixture.</param>
@@ -58,6 +63,8 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             Assert.NotNull(result.ResultCode);
             Assert.Equal(Errors.WINGET_CONFIG_ERROR_INVALID_YAML, result.ResultCode.HResult);
             Assert.Equal(string.Empty, result.Field);
+            Assert.Equal(0U, result.Line);
+            Assert.Equal(0U, result.Column);
         }
 
         /// <summary>
@@ -72,7 +79,9 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             Assert.Null(result.Set);
             Assert.NotNull(result.ResultCode);
             Assert.Equal(Errors.WINGET_CONFIG_ERROR_INVALID_YAML, result.ResultCode.HResult);
-            Assert.Equal(string.Empty, result.Field);
+            Assert.NotEqual(string.Empty, result.Field);
+            Assert.Equal(0U, result.Line);
+            Assert.Equal(0U, result.Column);
         }
 
         /// <summary>
@@ -86,8 +95,10 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             OpenConfigurationSetResult result = processor.OpenConfigurationSet(this.CreateStream("yaml: yep"));
             Assert.Null(result.Set);
             Assert.NotNull(result.ResultCode);
-            Assert.Equal(Errors.WINGET_CONFIG_ERROR_INVALID_FIELD, result.ResultCode.HResult);
-            Assert.NotEqual(string.Empty, result.Field);
+            Assert.Equal(Errors.WINGET_CONFIG_ERROR_MISSING_FIELD, result.ResultCode.HResult);
+            Assert.Equal("properties", result.Field);
+            Assert.Equal(0U, result.Line);
+            Assert.Equal(0U, result.Column);
         }
 
         /// <summary>
@@ -104,8 +115,10 @@ properties:
 "));
             Assert.Null(result.Set);
             Assert.NotNull(result.ResultCode);
-            Assert.Equal(Errors.WINGET_CONFIG_ERROR_INVALID_FIELD, result.ResultCode.HResult);
-            Assert.NotEqual(string.Empty, result.Field);
+            Assert.Equal(Errors.WINGET_CONFIG_ERROR_MISSING_FIELD, result.ResultCode.HResult);
+            Assert.Equal("configurationVersion", result.Field);
+            Assert.Equal(0U, result.Line);
+            Assert.Equal(0U, result.Column);
         }
 
         /// <summary>
@@ -123,7 +136,10 @@ properties:
             Assert.Null(result.Set);
             Assert.NotNull(result.ResultCode);
             Assert.Equal(Errors.WINGET_CONFIG_ERROR_UNKNOWN_CONFIGURATION_FILE_VERSION, result.ResultCode.HResult);
-            Assert.Equal("99999999", result.Field);
+            Assert.Equal("configurationVersion", result.Field);
+            Assert.Equal("99999999", result.Value);
+            Assert.Equal(0U, result.Line);
+            Assert.Equal(0U, result.Column);
         }
 
         /// <summary>
@@ -187,8 +203,10 @@ properties:
 "));
             Assert.Null(result.Set);
             Assert.NotNull(result.ResultCode);
-            Assert.Equal(Errors.WINGET_CONFIG_ERROR_INVALID_FIELD, result.ResultCode.HResult);
-            Assert.NotEqual(string.Empty, result.Field);
+            Assert.Equal(Errors.WINGET_CONFIG_ERROR_INVALID_FIELD_TYPE, result.ResultCode.HResult);
+            Assert.Equal("resources", result.Field);
+            Assert.Equal(4U, result.Line);
+            Assert.NotEqual(0U, result.Column);
         }
 
         /// <summary>
@@ -207,8 +225,10 @@ properties:
 "));
             Assert.Null(result.Set);
             Assert.NotNull(result.ResultCode);
-            Assert.Equal(Errors.WINGET_CONFIG_ERROR_INVALID_FIELD, result.ResultCode.HResult);
-            Assert.NotEqual(string.Empty, result.Field);
+            Assert.Equal(Errors.WINGET_CONFIG_ERROR_INVALID_FIELD_TYPE, result.ResultCode.HResult);
+            Assert.Equal("resources[0]", result.Field);
+            Assert.Equal(5U, result.Line);
+            Assert.NotEqual(0U, result.Column);
         }
 
         /// <summary>
@@ -321,6 +341,128 @@ properties:
             Assert.Equal(false, settings["SettingBool"]);
             Assert.Contains("SettingStringBool", settings);
             Assert.Equal("false", settings["SettingStringBool"]);
+        }
+
+        /// <summary>
+        /// Test that module gets left in resource name in 0.1.
+        /// </summary>
+        [Fact]
+        public void ModuleInResourceName_NotFor0_1()
+        {
+            ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics();
+
+            OpenConfigurationSetResult result = processor.OpenConfigurationSet(this.CreateStream(@"
+properties:
+  configurationVersion: 0.1
+  resources:
+    - resource: Module/Resource
+      id: Identifier
+      settings:
+        SettingInt: 1
+"));
+
+            Assert.NotNull(result.Set);
+            Assert.Null(result.ResultCode);
+
+            Assert.Equal("0.1", result.Set.SchemaVersion);
+            Assert.Single(result.Set.ConfigurationUnits);
+
+            var unit = result.Set.ConfigurationUnits[0];
+            Assert.NotNull(unit);
+            Assert.Equal("0.1", unit.SchemaVersion);
+            Assert.Equal("Module/Resource", unit.UnitName);
+            Assert.Empty(unit.Directives);
+        }
+
+        /// <summary>
+        /// Test that module gets parsed out of resource name in 0.2.
+        /// </summary>
+        [Fact]
+        public void ModuleInResourceName()
+        {
+            ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics();
+
+            OpenConfigurationSetResult result = processor.OpenConfigurationSet(this.CreateStream(@"
+properties:
+  configurationVersion: 0.2
+  resources:
+    - resource: Module/Resource
+      id: Identifier
+      directives:
+        module: Module
+      settings:
+        SettingInt: 1
+"));
+
+            Assert.NotNull(result.Set);
+            Assert.Null(result.ResultCode);
+
+            Assert.Equal("0.2", result.Set.SchemaVersion);
+            Assert.Single(result.Set.ConfigurationUnits);
+
+            var unit = result.Set.ConfigurationUnits[0];
+            Assert.NotNull(unit);
+            Assert.Equal("0.2", unit.SchemaVersion);
+            Assert.Equal("Resource", unit.UnitName);
+            Assert.Single(unit.Directives);
+            Assert.True(unit.Directives.ContainsKey(ModuleDirective));
+            Assert.Equal("Module", unit.Directives[ModuleDirective]);
+        }
+
+        /// <summary>
+        /// Test that module is in the resource name and the directives and are different.
+        /// </summary>
+        [Fact]
+        public void ModuleInResourceName_DirectiveDifferent()
+        {
+            ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics();
+
+            OpenConfigurationSetResult result = processor.OpenConfigurationSet(this.CreateStream(@"
+properties:
+  configurationVersion: 0.2
+  resources:
+    - resource: Module/Resource
+      id: Identifier
+      directives:
+        module: DifferentModule
+      settings:
+        SettingInt: 1
+"));
+
+            Assert.Null(result.Set);
+            Assert.NotNull(result.ResultCode);
+            Assert.Equal(Errors.WINGET_CONFIG_ERROR_INVALID_FIELD_VALUE, result.ResultCode.HResult);
+            Assert.Equal(ModuleDirective, result.Field);
+            Assert.Equal("DifferentModule", result.Value);
+            Assert.Equal(5U, result.Line);
+            Assert.NotEqual(0U, result.Column);
+        }
+
+        /// <summary>
+        /// Test that providing only the module in the qualified name is an error.
+        /// </summary>
+        [Fact]
+        public void EmptyResourceWithModule()
+        {
+            ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics();
+
+            OpenConfigurationSetResult result = processor.OpenConfigurationSet(this.CreateStream(@"
+properties:
+  configurationVersion: 0.2
+  resources:
+    - resource: Module/
+      id: Identifier
+      settings:
+        SettingInt: 1
+"));
+
+            Assert.Null(result.Set);
+            Assert.NotNull(result.ResultCode);
+            Assert.Equal(Errors.WINGET_CONFIG_ERROR_INVALID_FIELD_VALUE, result.ResultCode.HResult);
+            Assert.Equal("resource", result.Field);
+            Assert.Equal("Module/", result.Value);
+            Assert.Equal(5U, result.Line);
+            Assert.NotEqual(0U, result.Column);
         }
     }
 }
