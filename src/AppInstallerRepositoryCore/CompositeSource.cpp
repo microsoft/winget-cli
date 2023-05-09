@@ -31,8 +31,10 @@ namespace AppInstaller::Repository
         }
 
         // Gets the pinned state for an available PackageVersionKey that may have a pin,
-        // and optionally an additional pin that could come from the installed version.
-        // If there are both installed and available pins, we return the one that is the most strict.
+        // and optionally an additional pin that could come from the installed version or
+        // be a pin we have not considered yet for the version key.
+        // If there are a pin both in the version key and passed as an argument,
+        // we return the one that is the most strict.
         Pinning::PinType GetPinnedStateForVersion(
             const PackageVersionKey& availableVersionKey,
             const std::optional<Pinning::Pin>& pin,
