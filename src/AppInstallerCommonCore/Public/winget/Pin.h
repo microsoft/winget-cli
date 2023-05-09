@@ -46,7 +46,7 @@ namespace AppInstaller::Pinning
 
         // Gets a pin key that refers to an installed package by its ProductCode or PackageFamilyName.
         // The sourceId used is a special string to distinguish from available packages.
-        static PinKey GetPinKeyForInstalled(std::string systemReferenceString);
+        static PinKey GetPinKeyForInstalled(std::string_view systemReferenceString);
 
         bool IsForInstalled() const;
 

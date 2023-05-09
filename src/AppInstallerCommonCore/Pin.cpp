@@ -71,7 +71,7 @@ namespace AppInstaller::Pinning
         return ss.str();
     }
 
-    PinKey PinKey::GetPinKeyForInstalled(std::string systemReferenceString)
+    PinKey PinKey::GetPinKeyForInstalled(std::string_view systemReferenceString)
     {
         return { systemReferenceString, s_installedSourceId };
     }
