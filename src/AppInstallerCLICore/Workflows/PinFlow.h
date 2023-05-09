@@ -26,7 +26,8 @@ namespace AppInstaller::CLI::Workflow
     void GetAllPins(Execution::Context& context);
 
     // Searches for all the pins associated with a package.
-    // There may be several if a package is available from multiple sources.
+    // There may be several if a package is available from multiple sources
+    // or if the pin is for the installed package.
     // Required Args: None
     // Inputs: PinningIndex, Package
     // Outputs: Pins
@@ -35,7 +36,7 @@ namespace AppInstaller::CLI::Workflow
     // Adds a pin for the current package.
     // A separate pin will be added for each source.
     // Required Args: None
-    // Inputs: PinningIndex, Package
+    // Inputs: PinningIndex, Package, InstalledVersion?
     // Outputs: None
     void AddPin(Execution::Context& context);
 
@@ -46,6 +47,8 @@ namespace AppInstaller::CLI::Workflow
     void RemovePin(Execution::Context& context);
 
     // Report the pins in a table.
+    // This includes searching for the corresponding installed packages
+    // to be able to show more info, like the package name.
     // Required Args: None
     // Inputs: Pins
     // Outputs: None
@@ -56,10 +59,4 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: None
     // Outputs: None
     void ResetAllPins(Execution::Context& context);
-
-    // Updates the list of pins to include only those matching the current open source.
-    // Required Args: None
-    // Inputs: Pins, Source
-    // Outputs: None
-    void CrossReferencePinsWithSource(Execution::Context& context);
 }

@@ -15,8 +15,6 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
     /// </summary>
     internal static class PowerShellHelpers
     {
-        private const string MaxRange = "999999999";
-
         /// <summary>
         /// Creates a module specification object.
         /// </summary>
@@ -42,22 +40,26 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
             }
 
             var moduleInfo = new Hashtable
-                {
-                    { Parameters.ModuleName, moduleName },
-                };
+            {
+                { Parameters.ModuleName, moduleName },
+            };
 
             if (!string.IsNullOrEmpty(version))
             {
-                moduleInfo.Add(Parameters.RequiredVersion, version);
+                var semanticVersion = new SemanticVersion(version);
+                moduleInfo.Add(Parameters.RequiredVersion, semanticVersion.Version);
             }
 
             if (!string.IsNullOrEmpty(minVersion))
             {
-                moduleInfo.Add(Parameters.ModuleVersion, minVersion);
+                var semanticVersion = new SemanticVersion(minVersion);
+                moduleInfo.Add(Parameters.ModuleVersion, semanticVersion.Version);
             }
 
             if (!string.IsNullOrEmpty(maxVersion))
             {
+                var semanticVersion = new SemanticVersion(maxVersion);
+
                 // For some reason, the constructor of ModuleSpecification that takes
                 // a hashtable calls ModuleCmdletBase.GetMaximumVersion. This method will
                 // validate the max version and replace * for 999999999 only if its the last
@@ -65,7 +67,7 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
                 // ModuleSpecification's MaximumVersion property. If we want to set a
                 // MaximumVersion with a wildcard and pass this to Install-Module it will
                 // fail with "Cannot convert value 'x.*' to type 'System.Version'."
-                moduleInfo.Add(Parameters.MaximumVersion, maxVersion.Replace("*", MaxRange));
+                moduleInfo.Add(Parameters.MaximumVersion, semanticVersion.Version.ToString());
             }
 
             if (!string.IsNullOrEmpty(guid))

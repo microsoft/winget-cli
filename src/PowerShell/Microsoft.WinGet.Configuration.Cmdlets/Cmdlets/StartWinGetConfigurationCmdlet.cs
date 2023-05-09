@@ -7,7 +7,6 @@
 namespace Microsoft.WinGet.Configuration.Cmdlets
 {
     using System.Management.Automation;
-    using System.Threading;
     using Microsoft.WinGet.Configuration.Engine.Commands;
     using Microsoft.WinGet.Configuration.Engine.PSObjects;
 
@@ -46,9 +45,7 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
         /// </summary>
         protected override void ProcessRecord()
         {
-            CancellationTokenSource source = new ();
-
-            var configCommand = new ConfigurationCommand(this, source.Token, false);
+            var configCommand = new ConfigurationCommand(this, canWriteToStream: false);
             configCommand.StartApply(this.Set);
         }
     }

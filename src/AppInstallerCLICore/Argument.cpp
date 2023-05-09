@@ -168,6 +168,8 @@ namespace AppInstaller::CLI
             return { type, "version"_liv, 'v', ArgTypeCategory::None, ArgTypeExclusiveSet::PinType };
         case Execution::Args::Type::BlockingPin:
             return { type, "blocking"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::PinType };
+        case Execution::Args::Type::PinInstalled:
+            return { type, "installed"_liv, ArgTypeCategory::None };
 
         // Configuration commands
         case Execution::Args::Type::ConfigurationFile:

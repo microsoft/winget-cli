@@ -371,7 +371,7 @@ TEST_CASE("Search_BadRequest_UnsupportedPackageMatchFields", "[RestSource][Inter
               "Publisher": "git",
               "Versions": [
                 {   "PackageVersion": "1.0.0" },
-                {   "PackageVersion": "2.0.0"}]
+                {   "PackageVersion": "2.0.0" }]
             }]
         })delimiter");
 
@@ -394,7 +394,7 @@ TEST_CASE("Search_GoodRequest_OnlyMarketRequired", "[RestSource][Interface_1_1]"
               "Publisher": "git",
               "Versions": [
                 {   "PackageVersion": "1.0.0" },
-                {   "PackageVersion": "2.0.0"}]
+                {   "PackageVersion": "2.0.0" }]
             }]
         })delimiter");
 

@@ -212,6 +212,7 @@ malware
 mapview
 maxvalue
 maybenull
+Maxed
 MBH
 mdmp
 MDs
@@ -266,6 +267,7 @@ objbase
 objidl
 ofile
 osfhandle
+OPTOUT
 Outptr
 packageinuse
 packageinusebyapplication

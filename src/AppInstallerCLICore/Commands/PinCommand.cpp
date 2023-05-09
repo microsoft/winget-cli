@@ -62,6 +62,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::AcceptSourceAgreements),
             Argument::ForType(Args::Type::Force),
             Argument{ Args::Type::BlockingPin, Resource::String::PinAddBlockingArgumentDescription, ArgumentType::Flag },
+            Argument{ Args::Type::PinInstalled, Resource::String::PinInstalledArgumentDescription, ArgumentType::Flag },
         };
     }
 
@@ -111,15 +112,26 @@ namespace AppInstaller::CLI
 
     void PinAddCommand::ExecuteInternal(Execution::Context& context) const
     {
+        if (context.Args.Contains(Execution::Args::Type::Id))
+        {
+            // When we are given an ID, just pin that available package without checking for installed.
+            // This helps when there are matching issues, for example due to multiple side-by-side installs.
+            context <<
+                Workflow::OpenSourceFor(OperationType::Search);
+        }
+        else
+        {
+            // If not working from just ID, try matching a single installed package
+            context << Workflow::OpenSourceFor(OperationType::Pin);
+        }
+
         context <<
-            Workflow::OpenSourceFor(OperationType::Pin) <<
             Workflow::SearchSourceForSingle <<
             Workflow::HandleSearchResultFailures <<
             Workflow::EnsureOneMatchFromSearchResult(OperationType::Pin) <<
             Workflow::GetInstalledPackageVersion <<
             Workflow::ReportPackageIdentity <<
             Workflow::OpenPinningIndex() <<
-            Workflow::SearchPin <<
             Workflow::AddPin;
     }
 
@@ -136,6 +148,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Exact),
             Argument::ForType(Args::Type::CustomHeader),
             Argument::ForType(Args::Type::AcceptSourceAgreements),
+            Argument{ Args::Type::PinInstalled, Resource::String::PinInstalledArgumentDescription, ArgumentType::Flag },
         };
     }
 
@@ -180,8 +193,20 @@ namespace AppInstaller::CLI
 
     void PinRemoveCommand::ExecuteInternal(Execution::Context& context) const
     {
+        if (context.Args.Contains(Execution::Args::Type::Id))
+        {
+            // When we are given an ID, just un-pin that available package without checking for installed.
+            // This helps when there are matching issues, for example due to multiple side-by-side installs.
+            context <<
+                Workflow::OpenSourceFor(OperationType::Search);
+        }
+        else
+        {
+            // If not working from just ID, try matching a single installed package
+            context << Workflow::OpenSourceFor(OperationType::Pin);
+        }
+
         context <<
-            Workflow::OpenSourceFor(OperationType::Pin) <<
             Workflow::SearchSourceForSingle <<
             Workflow::HandleSearchResultFailures <<
             Workflow::EnsureOneMatchFromSearchResult(OperationType::Pin) <<
@@ -252,8 +277,8 @@ namespace AppInstaller::CLI
         context <<
             Workflow::OpenPinningIndex(/* readOnly */ true) <<
             Workflow::GetAllPins <<
-            Workflow::OpenSourceFor(OperationType::Pin) <<
-            Workflow::CrossReferencePinsWithSource <<
+            Workflow::OpenSource() <<
+            Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed, false, Repository::CompositeSearchBehavior::AllPackages) <<
             Workflow::ReportPins;
     }
 
@@ -298,7 +323,6 @@ namespace AppInstaller::CLI
                 Workflow::OpenPinningIndex(/* readOnly */ true) <<
                 Workflow::GetAllPins <<
                 Workflow::OpenSourceFor(OperationType::Pin) <<
-                Workflow::CrossReferencePinsWithSource <<
                 Workflow::ReportPins;
         }
     }

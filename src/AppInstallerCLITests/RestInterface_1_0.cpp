@@ -280,7 +280,7 @@ TEST_CASE("Search_GoodResponse", "[RestSource][Interface_1_0]")
               "Publisher": "git",
               "Versions": [
                 {   "PackageVersion": "1.0.0" },
-                {   "PackageVersion": "2.0.0"}]
+                {   "PackageVersion": "2.0.0" }]
             }]
         })delimiter");
 

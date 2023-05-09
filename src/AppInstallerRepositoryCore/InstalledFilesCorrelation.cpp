@@ -16,7 +16,7 @@ namespace AppInstaller::Repository::Correlation
         constexpr std::string_view s_ShellLinkFileExtension = ".lnk"sv;
         const std::vector<std::pair<std::filesystem::path, std::string>> s_CandidateInstallLocationRoots =
         {
-            { Filesystem::GetKnownFolderPath(FOLDERID_LocalAppData), "%LOCALAPPDATA%"},
+            { Filesystem::GetKnownFolderPath(FOLDERID_LocalAppData), "%LOCALAPPDATA%" },
             { Filesystem::GetKnownFolderPath(FOLDERID_ProgramFiles), "%PROGRAMFILES%" },
             { Filesystem::GetKnownFolderPath(FOLDERID_ProgramFilesX86), "%PROGRAMFILES(X86)%" },
         };
