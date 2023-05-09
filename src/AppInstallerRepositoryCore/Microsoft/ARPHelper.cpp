@@ -197,17 +197,17 @@ namespace AppInstaller::Repository::Microsoft
             return {};
         }
 
-        std::vector<Manifest::ScopeEnum> scopesToSeach;
+        std::vector<Manifest::ScopeEnum> scopesToSearch;
         if (scope == Manifest::ScopeEnum::Unknown)
         {
-            scopesToSeach = { Manifest::ScopeEnum::User, Manifest::ScopeEnum::Machine };
+            scopesToSearch = { Manifest::ScopeEnum::User, Manifest::ScopeEnum::Machine };
         }
         else
         {
-            scopesToSeach = { scope };
+            scopesToSearch = { scope };
         }
 
-        for (auto scopeToSearch : scopesToSeach)
+        for (auto scopeToSearch : scopesToSearch)
         {
             for (auto architecture : Utility::GetApplicableArchitectures())
             {
