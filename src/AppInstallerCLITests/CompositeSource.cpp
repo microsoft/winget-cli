@@ -1187,7 +1187,7 @@ TEST_CASE("CompositeSource_Pinning_AvailableVersionPinned", "[CompositeSource][P
     SECTION("Gated to 1.0.*")
     {
         pinningIndex->AddPin(Pin::CreateGatingPin(PinKey{ pinKey }, GatedVersion{ "1.0.*"sv }));
-        expectedResult.ResultsForPinBehavior[PinBehavior::ConsiderPins] = { /* IsUpdateAvailable */ false, /* LatestAvailableVersion */ "1.0.1"};
+        expectedResult.ResultsForPinBehavior[PinBehavior::ConsiderPins] = { /* IsUpdateAvailable */ false, /* LatestAvailableVersion */ "1.0.1" };
 
         // Gating pins are not affected by --include-pinned
         expectedResult.ResultsForPinBehavior[PinBehavior::IncludePinned] = expectedResult.ResultsForPinBehavior[PinBehavior::ConsiderPins];

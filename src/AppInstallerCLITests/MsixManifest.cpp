@@ -22,8 +22,8 @@ namespace
     constexpr std::string_view expectedFamilyName = "FakeInstallerForTesting_125rzkzqaqjwj";
     PackageVersion expectedPackageVersion { 0xAAAABBBBCCCCDDDD };
     constexpr std::string_view expectedWindowsDesktopName = "Windows.Desktop";
-    OSVersion expectedWindowsDesktopMinVersion { "10.0.16299.0"};
-    OSVersion expectedWindowsUniversalMinVersion { "10.0.0.0"};
+    OSVersion expectedWindowsDesktopMinVersion { "10.0.16299.0" };
+    OSVersion expectedWindowsUniversalMinVersion { "10.0.0.0" };
 }
 
 TEST_CASE("MsixManifest_ValidateFieldsParsedFromManifestReader", "[MsixManifest]")
