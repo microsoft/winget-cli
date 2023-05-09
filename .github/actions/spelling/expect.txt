@@ -267,6 +267,7 @@ objbase
 objidl
 ofile
 osfhandle
+OPTOUT
 Outptr
 packageinuse
 packageinusebyapplication

@@ -20,11 +20,11 @@ namespace Microsoft.WinGet.Configuration.Engine.PSObjects
         /// <summary>
         /// Initializes a new instance of the <see cref="PSConfigurationSet"/> class.
         /// </summary>
-        /// <param name="processor">The configuration processor.</param>
+        /// <param name="psProcessor">The configuration processor wrapper.</param>
         /// <param name="set">The configuration set.</param>
-        internal PSConfigurationSet(ConfigurationProcessor processor, ConfigurationSet set)
+        internal PSConfigurationSet(PSConfigurationProcessor psProcessor, ConfigurationSet set)
         {
-            this.Processor = processor;
+            this.PsProcessor = psProcessor;
             this.Set = set;
         }
 
@@ -84,9 +84,9 @@ namespace Microsoft.WinGet.Configuration.Engine.PSObjects
         }
 
         /// <summary>
-        /// Gets the ConfigurationProcessor.
+        /// Gets the PSConfigurationProcessor.
         /// </summary>
-        internal ConfigurationProcessor Processor { get; private set; }
+        internal PSConfigurationProcessor PsProcessor { get; private set; }
 
         /// <summary>
         /// Gets the ConfigurationSet.

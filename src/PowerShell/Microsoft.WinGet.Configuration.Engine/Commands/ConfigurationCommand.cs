@@ -9,7 +9,6 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
     using System;
     using System.IO;
     using System.Management.Automation;
-    using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Management.Configuration;
     using Microsoft.Management.Configuration.Processor;
@@ -27,10 +26,9 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         /// Initializes a new instance of the <see cref="ConfigurationCommand"/> class.
         /// </summary>
         /// <param name="psCmdlet">PSCmdlet.</param>
-        /// <param name="cancellationToken">Cancellation token.</param>
         /// <param name="canWriteToStream">If the command can write to stream.</param>
-        public ConfigurationCommand(PSCmdlet psCmdlet, CancellationToken cancellationToken, bool canWriteToStream = true)
-            : base(psCmdlet, cancellationToken, canWriteToStream)
+        public ConfigurationCommand(PSCmdlet psCmdlet, bool canWriteToStream = true)
+            : base(psCmdlet, canWriteToStream)
         {
         }
 
@@ -39,7 +37,8 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         /// </summary>
         /// <param name="configFile">Configuration file path.</param>
         /// <param name="executionPolicy">Execution policy.</param>
-        public void Get(string configFile, ExecutionPolicy executionPolicy)
+        /// <param name="canUseTelemetry">If telemetry can be used.</param>
+        public void Get(string configFile, ExecutionPolicy executionPolicy, bool canUseTelemetry)
         {
             if (!Path.IsPathRooted(configFile))
             {
@@ -56,7 +55,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
 
             // Start task.
             var runningTask = this.RunOnMTA<PSConfigurationSet>(
-                async () => await this.OpenConfigurationSetAsync(configFile, executionPolicy));
+                async () => await this.OpenConfigurationSetAsync(configFile, executionPolicy, canUseTelemetry));
 
             this.Wait(runningTask);
             this.WriteObject(runningTask.Result);
@@ -68,6 +67,8 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         /// <param name="psConfigurationSet">PSConfigurationSet.</param>
         public void GetDetails(PSConfigurationSet psConfigurationSet)
         {
+            psConfigurationSet.PsProcessor.UpdateDiagnosticCmdlet(this);
+
             if (!psConfigurationSet.HasDetails)
             {
                 if (!psConfigurationSet.CanProcess())
@@ -138,6 +139,9 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         {
             if (psConfigurationJob.ConfigurationTask.IsCompleted)
             {
+                // It is safe to print all output.
+                psConfigurationJob.StartCommand.Flush();
+
                 this.WriteDebug("The task was completed before waiting");
                 if (psConfigurationJob.ConfigurationTask.IsCompletedSuccessfully)
                 {
@@ -165,7 +169,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             this.WriteObject(psConfigurationJob.ConfigurationTask.Result);
         }
 
-        private ConfigurationProcessor CreateConfigurationProcessor(ExecutionPolicy executionPolicy)
+        private PSConfigurationProcessor CreateConfigurationProcessor(ExecutionPolicy executionPolicy, bool canUseTelemetry)
         {
             var properties = new ConfigurationProcessorFactoryProperties();
             properties.Policy = this.GetConfigurationProcessorPolicy(executionPolicy);
@@ -173,24 +177,15 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             var factory = new ConfigurationSetProcessorFactory(
                 ConfigurationProcessorType.Default, properties);
 
-            var processor = new ConfigurationProcessor(factory);
-
-            // TODO: set up logging and telemetry.
-            ////processor.MinimumLevel = DiagnosticLevel.Error;
-            ////processor.Caller = "ConfigurationModule";
-            ////processor.ActivityIdentifier = Guid.NewGuid();
-            ////processor.GenerateTelemetryEvents = false;
-            ////processor.Diagnostics;
-
-            return processor;
+            return new PSConfigurationProcessor(factory, this, canUseTelemetry);
         }
 
-        private async Task<PSConfigurationSet> OpenConfigurationSetAsync(string configFile, ExecutionPolicy executionPolicy)
+        private async Task<PSConfigurationSet> OpenConfigurationSetAsync(string configFile, ExecutionPolicy executionPolicy, bool canUseTelemetry)
         {
-            var processor = this.CreateConfigurationProcessor(executionPolicy);
+            var psProcessor = this.CreateConfigurationProcessor(executionPolicy, canUseTelemetry);
 
             var stream = await FileRandomAccessStream.OpenAsync(configFile, FileAccessMode.Read);
-            OpenConfigurationSetResult openResult = await processor.OpenConfigurationSetAsync(stream);
+            OpenConfigurationSetResult openResult = await psProcessor.Processor.OpenConfigurationSetAsync(stream);
             if (openResult.Set is null)
             {
                 // TODO: throw better exception.
@@ -205,11 +200,13 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             set.Origin = Path.GetDirectoryName(configFile);
             set.Path = configFile;
 
-            return new PSConfigurationSet(processor, set);
+            return new PSConfigurationSet(psProcessor, set);
         }
 
         private PSConfigurationJob StartApplyInternal(PSConfigurationSet psConfigurationSet)
         {
+            psConfigurationSet.PsProcessor.UpdateDiagnosticCmdlet(this);
+
             var runningTask = this.RunOnMTA<PSConfigurationSet>(
                 async () =>
                 {
@@ -236,7 +233,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                 await this.GetSetDetailsAsync(psConfigurationSet);
             }
 
-            var processor = psConfigurationSet.Processor;
+            var processor = psConfigurationSet.PsProcessor.Processor;
             var set = psConfigurationSet.Set;
 
             // TODO: implement progress
@@ -247,7 +244,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
 
         private async Task<PSConfigurationSet> GetSetDetailsAsync(PSConfigurationSet psConfigurationSet)
         {
-            var processor = psConfigurationSet.Processor;
+            var processor = psConfigurationSet.PsProcessor.Processor;
             var set = psConfigurationSet.Set;
 
             if (set.ConfigurationUnits.Count == 0)
