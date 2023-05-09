@@ -6,6 +6,7 @@
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.Storage.Streams.h>
 #include "ConfigThreadGlobals.h"
+#include <winget/AsyncTokens.h>
 
 #include <string_view>
 #include <functional>
@@ -78,6 +79,18 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         void Diagnostics(DiagnosticLevel level, std::string_view message);
 
     private:
+        GetConfigurationSetDetailsResult GetSetDetailsImpl(
+            const ConfigurationSet& configurationSet,
+            ConfigurationUnitDetailLevel detailLevel,
+            AppInstaller::WinRT::AsyncProgress<GetConfigurationSetDetailsResult, GetConfigurationUnitDetailsResult> progress = {});
+
+        void GetUnitDetailsImpl(const ConfigurationUnit& unit, ConfigurationUnitDetailLevel detailLevel);
+
+        ApplyConfigurationSetResult ApplySetImpl(
+            const ConfigurationSet& configurationSet,
+            ApplyConfigurationSetFlags flags,
+            AppInstaller::WinRT::AsyncProgress<ApplyConfigurationSetResult, ConfigurationSetChangeData> progress = {});
+
         IConfigurationSetProcessorFactory m_factory = nullptr;
         event<Windows::Foundation::EventHandler<DiagnosticInformation>> m_diagnostics;
         event<Windows::Foundation::TypedEventHandler<ConfigurationSet, ConfigurationChangeData>> m_configurationChange;

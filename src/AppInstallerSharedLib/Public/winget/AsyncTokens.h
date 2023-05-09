@@ -60,6 +60,15 @@ namespace AppInstaller::WinRT
             return m_token ? m_token->IsCancelled() : false;
         }
 
+        // Throws the appropriate exception if the operation has been cancelled.
+        void ThrowIfCancelled() const
+        {
+            if (IsCancelled())
+            {
+                throw winrt::hresult_canceled();
+            }
+        }
+
         // Sets a callback that will be invoked on cancellation.
         void Callback(winrt::delegate<>&& callback) const noexcept
         {
@@ -75,26 +84,33 @@ namespace AppInstaller::WinRT
 
     namespace details
     {
-        // Type erasing interface for winrt progess token.
-        template <typename Progress>
-        struct AsyncProgessTypeErasure
+        // Type erasing interface for winrt progress token.
+        template <typename ResultT, typename ProgressT>
+        struct AsyncProgressTypeErasure
         {
-            virtual ~AsyncProgessTypeErasure() = default;
+            virtual ~AsyncProgressTypeErasure() = default;
 
-            virtual void Progress(Progress const& result) const = 0
+            virtual void Progress(ProgressT const& progress) const = 0;
+
+            virtual void Result(ResultT const& result) const = 0;
         };
 
         // Type containing winrt progress token wrapper.
-        template <typename Promise, typename Progress>
-        struct AsyncProgressT : public AsyncProgessTypeErasure
+        template <typename Promise, typename ResultT, typename ProgressT>
+        struct AsyncProgressT : public AsyncProgressTypeErasure<ResultT, ProgressT>
         {
-            using Token = winrt::impl::progress_token<Promise, Progress>;
+            using Token = winrt::impl::progress_token<Promise, ProgressT>;
 
             AsyncProgressT(Token&& token) : m_token(std::move(token)) {}
 
-            void Progress(Progress const& result) const override
+            void Progress(ProgressT const& progress) const override
             {
-                m_token(result);
+                m_token(progress);
+            }
+
+            void Result(ResultT const& result) const override
+            {
+                m_token.set_result(result);
             }
 
         private:
@@ -104,7 +120,7 @@ namespace AppInstaller::WinRT
 
     // May hold a progress token and provide the ability to send progress updates.
     // If empty, progress will be dropped on calls here.
-    template <typename ProgressT>
+    template <typename ResultT, typename ProgressT>
     struct AsyncProgress : public AsyncCancellation
     {
         // Create an empty progress object.
@@ -112,22 +128,31 @@ namespace AppInstaller::WinRT
 
         // Create a progress object from the winrt token.
         template <typename Promise>
-        AsyncProgress(winrt::impl::progress_token<Promise, Progress>&& progress, winrt::impl::cancellation_token<Promise>&& cancellation) :
+        AsyncProgress(winrt::impl::progress_token<Promise, ProgressT>&& progress, winrt::impl::cancellation_token<Promise>&& cancellation) :
             AsyncCancellation(std::move(cancellation))
         {
-            m_token = std::make_unique<details::AsyncProgressT<Promise, ProgressT>>(std::move(token));
+            m_token = std::make_unique<details::AsyncProgressT<Promise, ResultT, ProgressT>>(std::move(progress));
         }
 
         // Sends progress if this object is not empty.
-        void Progress(ProgressT const& result) const
+        void Progress(ProgressT const& progress) const
         {
             if (m_token)
             {
-                m_token->Progress(result);
+                m_token->Progress(progress);
+            }
+        }
+
+        // Sets the result onto the progress object if it is not empty.
+        void Result(ResultT const& result) const
+        {
+            if (m_token)
+            {
+                m_token->Result(result);
             }
         }
 
     private:
-        std::unique_ptr<details::AsyncProgessTypeErasure<ProgressT>> m_token;
+        std::unique_ptr<details::AsyncProgressTypeErasure<ResultT, ProgressT>> m_token;
     };
 }
