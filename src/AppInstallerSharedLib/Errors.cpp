@@ -243,9 +243,9 @@ namespace AppInstaller
             case APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_FINISH:
                 return "Restart your PC to finish installation.";
             case APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL:
-                return "Your PC will restart to finish installation.";
-            case APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_INITIATED:
                 return "Installation failed. Restart your PC then try again.";
+            case APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_INITIATED:
+                return "Your PC will restart to finish installation.";
             case APPINSTALLER_CLI_ERROR_INSTALL_CANCELLED_BY_USER:
                 return "You cancelled the installation.";
             case APPINSTALLER_CLI_ERROR_INSTALL_ALREADY_INSTALLED:
