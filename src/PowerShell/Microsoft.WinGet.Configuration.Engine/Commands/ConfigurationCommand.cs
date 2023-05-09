@@ -14,6 +14,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
     using Microsoft.Management.Configuration.Processor;
     using Microsoft.PowerShell;
     using Microsoft.WinGet.Configuration.Engine.PSObjects;
+    using Microsoft.WinGet.Configuration.Engine.Resources;
     using Windows.Storage;
     using Windows.Storage.Streams;
 
@@ -56,7 +57,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                 });
 
             this.Wait(runningTask);
-            this.WriteObject(runningTask.Result);
+            this.Write(StreamType.Object, runningTask.Result);
         }
 
         /// <summary>
@@ -96,10 +97,10 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             }
             else
             {
-                this.WriteWarning("Details already obtained for this set");
+                this.Write(StreamType.Warning, "Details already obtained for this set");
             }
 
-            this.WriteObject(psConfigurationSet);
+            this.Write(StreamType.Object, psConfigurationSet);
         }
 
         /// <summary>
@@ -110,7 +111,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         {
             if (psConfigurationSet.Set.State == ConfigurationSetState.Completed)
             {
-                this.WriteWarning("Processing this set is completed");
+                this.Write(StreamType.Warning, "Processing this set is completed");
                 return;
             }
 
@@ -121,7 +122,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             }
 
             var configurationJob = this.StartApplyInternal(psConfigurationSet);
-            this.WriteObject(configurationJob);
+            this.Write(StreamType.Object, configurationJob);
         }
 
         /// <summary>
@@ -141,16 +142,16 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                 // It is safe to print all output.
                 psConfigurationJob.StartCommand.ConsumeStreams();
 
-                this.WriteDebug("The task was completed before waiting");
+                this.Write(StreamType.Debug, "The task was completed before waiting");
                 if (psConfigurationJob.ConfigurationTask.IsCompletedSuccessfully)
                 {
-                    this.WriteDebug("Completed successfully");
-                    this.WriteObject(psConfigurationJob.ConfigurationTask.Result);
+                    this.Write(StreamType.Debug, "Completed successfully");
+                    this.Write(StreamType.Object, psConfigurationJob.ConfigurationTask.Result);
                     return;
                 }
                 else if (psConfigurationJob.ConfigurationTask.IsFaulted)
                 {
-                    this.WriteDebug("Completed faulted before waiting");
+                    this.Write(StreamType.Debug, "Completed faulted before waiting");
 
                     // Maybe just write error?
                     throw psConfigurationJob.ConfigurationTask.Exception!;
@@ -186,13 +187,15 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         private void ContinueHelper(PSConfigurationJob psConfigurationJob)
         {
             // Signal the command that it can write to streams and wait for task.
-            this.WriteDebug("Waiting for task to complete");
+            this.Write(StreamType.Debug, "Waiting for task to complete");
             psConfigurationJob.StartCommand.Wait(psConfigurationJob.ConfigurationTask);
-            this.WriteObject(psConfigurationJob.ConfigurationTask.Result);
+            this.Write(StreamType.Object, psConfigurationJob.ConfigurationTask.Result);
         }
 
         private PSConfigurationProcessor CreateConfigurationProcessor(ExecutionPolicy executionPolicy, bool canUseTelemetry)
         {
+            this.Write(StreamType.Information, Resources.ConfigurationInitializing);
+
             var properties = new ConfigurationProcessorFactoryProperties();
             properties.Policy = this.GetConfigurationProcessorPolicy(executionPolicy);
 
@@ -252,7 +255,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         {
             if (!psConfigurationSet.HasDetails)
             {
-                this.WriteDebug("Getting details for configuration set");
+                this.Write(StreamType.Debug, "Getting details for configuration set");
                 await this.GetSetDetailsAsync(psConfigurationSet);
             }
 
@@ -272,7 +275,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
 
             if (set.ConfigurationUnits.Count == 0)
             {
-                this.WriteWarning("Configuration File Empty");
+                this.Write(StreamType.Warning, "Configuration File Empty");
             }
 
             // TODO: implement progress

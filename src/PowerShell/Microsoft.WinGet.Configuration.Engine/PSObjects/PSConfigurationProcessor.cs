@@ -11,6 +11,7 @@ namespace Microsoft.WinGet.Configuration.Engine.PSObjects
     using Microsoft.Management.Configuration;
     using Microsoft.PowerShell.Commands;
     using Microsoft.WinGet.Configuration.Engine.Commands;
+    using static Microsoft.WinGet.Configuration.Engine.Commands.AsyncCommand;
 
     /// <summary>
     /// Creates configuration processor and set up diagnostic logging.
@@ -65,27 +66,30 @@ namespace Microsoft.WinGet.Configuration.Engine.PSObjects
             {
                 // This is expensive.
                 AsyncCommand asyncCommand = this.diagnosticCommand;
-                switch (diagnosticInformation.Level)
+                if (asyncCommand != null)
                 {
-                    // PowerShell doesn't have critical and critical isn't an error.
-                    case DiagnosticLevel.Critical:
-                    case DiagnosticLevel.Warning:
-                        asyncCommand.WriteWarning(diagnosticInformation.Message);
-                        return;
-                    case DiagnosticLevel.Error:
-                        // TODO: The error record requires a exception that can't be null, but there's no requirement
-                        // that it was thrown.
-                        asyncCommand.WriteError(new ErrorRecord(
-                            new WriteErrorException(),
-                            "ConfigurationDiagnosticError",
-                            ErrorCategory.WriteError,
-                            diagnosticInformation.Message));
-                        return;
-                    case DiagnosticLevel.Verbose:
-                    case DiagnosticLevel.Informational:
-                    default:
-                        asyncCommand.WriteDebug(diagnosticInformation.Message);
-                        return;
+                    switch (diagnosticInformation.Level)
+                    {
+                        // PowerShell doesn't have critical and critical isn't an error.
+                        case DiagnosticLevel.Critical:
+                        case DiagnosticLevel.Warning:
+                            asyncCommand.Write(StreamType.Warning, diagnosticInformation.Message);
+                            return;
+                        case DiagnosticLevel.Error:
+                            // TODO: The error record requires a exception that can't be null, but there's no requirement
+                            // that it was thrown.
+                            asyncCommand.Write(StreamType.Error, new ErrorRecord(
+                                new WriteErrorException(),
+                                "ConfigurationDiagnosticError",
+                                ErrorCategory.WriteError,
+                                diagnosticInformation.Message));
+                            return;
+                        case DiagnosticLevel.Verbose:
+                        case DiagnosticLevel.Informational:
+                        default:
+                            asyncCommand.Write(StreamType.Debug, diagnosticInformation.Message);
+                            return;
+                    }
                 }
             }
             catch (Exception)
