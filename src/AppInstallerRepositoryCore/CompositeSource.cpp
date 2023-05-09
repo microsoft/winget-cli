@@ -35,6 +35,9 @@ namespace AppInstaller::Repository
         // be a pin we have not considered yet for the version key.
         // If there are a pin both in the version key and passed as an argument,
         // we return the one that is the most strict.
+        // Note that for a package with both available and installed pins, we will call this
+        // twice: once with the available pin to set the pinned state in the version key,
+        // and once with the installed pin to set the final pinned state.
         Pinning::PinType GetPinnedStateForVersion(
             const PackageVersionKey& availableVersionKey,
             const std::optional<Pinning::Pin>& pin,
@@ -46,30 +49,31 @@ namespace AppInstaller::Repository
                 return Pinning::PinType::Unknown;
             }
 
-            // For the pin in the available version, we can ignore it depending on the behavior and type.
-            // If it is gating, we don't need to check the version as that was already done.
-            Pinning::PinType pinTypeFromAvailable = Pinning::PinType::Unknown;
+            // For the pin in the version version, we can ignore it depending on the behavior and type.
+            // If it is gating, we don't need to check the version as that was already done when the
+            // PinnedState info was added (and we don't have the gated version here).
+            Pinning::PinType pinnedStateFromVersionKey = Pinning::PinType::Unknown;
             if (availableVersionKey.PinnedState == Pinning::PinType::Blocking
                 || (availableVersionKey.PinnedState == Pinning::PinType::Pinning && pinBehavior != PinBehavior::IncludePinned)
                 || availableVersionKey.PinnedState == Pinning::PinType::Gating)
             {
-                pinTypeFromAvailable = availableVersionKey.PinnedState;
+                pinnedStateFromVersionKey = availableVersionKey.PinnedState;
             }
 
-            // For the pin in the installed version, we can ignore it depending on the behavior and type.
+            // For the additional pin, we can ignore it depending on the behavior and type.
             // If it is gating, we need to check the version.
-            Pinning::PinType pinTypeFromInstalled = Pinning::PinType::Unknown;
+            Pinning::PinType pinnedStateFromAdditionalPin = Pinning::PinType::Unknown;
             if (pin)
             {
                 if (pin->GetType() == Pinning::PinType::Blocking
                     || (pin->GetType() == Pinning::PinType::Pinning && pinBehavior != PinBehavior::IncludePinned)
                     || (pin->GetType() == Pinning::PinType::Gating && !pin->GetGatedVersion().IsValidVersion(availableVersionKey.Version)))
                 {
-                    pinTypeFromInstalled = pin->GetType();
+                    pinnedStateFromAdditionalPin = pin->GetType();
                 }
             }
 
-            return Pinning::IsStricter(pinTypeFromAvailable, pinTypeFromInstalled) ? pinTypeFromAvailable : pinTypeFromInstalled;
+            return Pinning::IsStricter(pinnedStateFromVersionKey, pinnedStateFromAdditionalPin) ? pinnedStateFromVersionKey : pinnedStateFromAdditionalPin;
         }
 
         // Gets the latest available version that satisfies both the available pin (already tagged on the keys)
