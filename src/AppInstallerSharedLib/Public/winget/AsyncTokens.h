@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include <AppInstallerLogging.h>
 #include <winrt/Windows.Foundation.h>
 #include <memory>
 
@@ -65,6 +66,7 @@ namespace AppInstaller::WinRT
         {
             if (IsCancelled())
             {
+                AICLI_LOG(Core, Warning, << "Operation cancelled");
                 throw winrt::hresult_canceled();
             }
         }

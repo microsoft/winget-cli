@@ -48,19 +48,36 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     void ConfigurationSetApplyProcessor::Process()
     {
-        if (PreProcess())
+        try
         {
-            // TODO: Send pending when blocked by another configuration run
-            //SendProgress(ConfigurationSetState::Pending);
+            if (PreProcess())
+            {
+                // TODO: Send pending when blocked by another configuration run
+                //SendProgress(ConfigurationSetState::Pending);
 
-            SendProgress(ConfigurationSetState::InProgress);
+                SendProgress(ConfigurationSetState::InProgress);
 
-            ProcessInternal(HasProcessedSuccessfully, &ConfigurationSetApplyProcessor::ProcessUnit, true);
+                ProcessInternal(HasProcessedSuccessfully, &ConfigurationSetApplyProcessor::ProcessUnit, true);
+            }
+
+            SendProgress(ConfigurationSetState::Completed);
+
+            m_telemetry.LogConfigProcessingSummaryForApply(*winrt::get_self<implementation::ConfigurationSet>(m_configurationSet), *m_result);
         }
-
-        SendProgress(ConfigurationSetState::Completed);
-
-        m_telemetry.LogConfigProcessingSummaryForApply(*winrt::get_self<implementation::ConfigurationSet>(m_configurationSet), *m_result);
+        catch (...)
+        {
+            const auto& configurationSet = *winrt::get_self<implementation::ConfigurationSet>(m_configurationSet);
+            m_telemetry.LogConfigProcessingSummary(
+                configurationSet.InstanceIdentifier(),
+                configurationSet.IsFromHistory(),
+                ConfigurationUnitIntent::Apply,
+                LOG_CAUGHT_EXCEPTION(),
+                ConfigurationUnitResultSource::Internal,
+                GetProcessingSummaryFor(ConfigurationUnitIntent::Assert),
+                GetProcessingSummaryFor(ConfigurationUnitIntent::Inform),
+                GetProcessingSummaryFor(ConfigurationUnitIntent::Apply));
+            throw;
+        }
     }
 
     Configuration::ApplyConfigurationSetResult ConfigurationSetApplyProcessor::Result() const
@@ -335,6 +352,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     bool ConfigurationSetApplyProcessor::ProcessUnit(UnitInfo& unitInfo)
     {
+        m_progress.ThrowIfCancelled();
+
         IConfigurationUnitProcessor unitProcessor;
 
         // Once we get this far, consider the unit processed even if we fail to create the actual processor.
@@ -362,6 +381,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             ExtractUnitResultInformation(std::current_exception(), unitInfo.ResultInformation);
             return false;
         }
+
+        // As the process of creating the unit processor could take a while, check for cancellation again
+        m_progress.ThrowIfCancelled();
 
         bool result = false;
         std::string_view action;
@@ -422,6 +444,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                 }
                 else if (testSettingsResult.TestResult() == ConfigurationTestResult::Negative)
                 {
+                    // Just in case testing took a while, check for cancellation before moving on to applying
+                    m_progress.ThrowIfCancelled();
+
                     action = TelemetryTraceLogger::ApplyAction;
                     ApplySettingsResult applySettingsResult = unitProcessor.ApplySettings();
                     if (SUCCEEDED(applySettingsResult.ResultInformation().ResultCode()))
@@ -485,5 +510,30 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         {
             SendProgress(state, unitInfo);
         }
+    }
+
+    TelemetryTraceLogger::ProcessingSummaryForIntent ConfigurationSetApplyProcessor::GetProcessingSummaryFor(ConfigurationUnitIntent intent) const
+    {
+        TelemetryTraceLogger::ProcessingSummaryForIntent result{ intent, 0, 0, 0 };
+
+        for (const auto& unitInfo : m_unitInfo)
+        {
+            if (unitInfo.Unit.Intent() == intent)
+            {
+                ++result.Count;
+
+                if (unitInfo.Processed)
+                {
+                    ++result.Run;
+
+                    if (FAILED(unitInfo.ResultInformation->ResultCode()))
+                    {
+                        ++result.Failed;
+                    }
+                }
+            }
+        }
+
+        return result;
     }
 }

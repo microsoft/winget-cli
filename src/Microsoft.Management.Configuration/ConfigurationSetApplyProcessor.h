@@ -97,6 +97,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         void SendProgress(ConfigurationUnitState state, const UnitInfo& unitInfo);
         void SendProgressIfNotComplete(ConfigurationUnitState state, const UnitInfo& unitInfo);
 
+        // For exception telemetry, get our internal status
+        TelemetryTraceLogger::ProcessingSummaryForIntent GetProcessingSummaryFor(ConfigurationUnitIntent intent) const;
+
         ConfigurationSet m_configurationSet;
         IConfigurationSetProcessor m_setProcessor;
         const TelemetryTraceLogger& m_telemetry;
