@@ -764,15 +764,6 @@ namespace AppInstaller::Repository
             // Gets the information about the pins that exist for this package
             void GetExistingPins(PinningIndex& pinningIndex)
             {
-                if (!m_installedPackage)
-                {
-                    // We only care about pins for installed packages.
-                    // It is possible to add pins for packages that are not installed
-                    // by using the ID, but that bypasses the CompositeSource altogether
-                    // so we don't need to check for that.
-                    return;
-                }
-
                 for (auto& availablePackage : m_availablePackages)
                 {
                     Pinning::PinKey pinKey = GetPinKeyForAvailable(availablePackage.GetPackage().get());
@@ -784,14 +775,17 @@ namespace AppInstaller::Repository
                     }
                 }
 
-                Pinning::PinKey pinKey = Pinning::PinKey::GetPinKeyForInstalled(
-                    m_installedPackage->GetProperty(PackageProperty::Id).get()
-                );
-
-                auto pin = pinningIndex.GetPin(pinKey);
-                if (pin.has_value())
+                if (m_installedPackage)
                 {
-                    m_installedPackage->SetPin(std::move(pin.value()));
+                    Pinning::PinKey pinKey = Pinning::PinKey::GetPinKeyForInstalled(
+                        m_installedPackage->GetProperty(PackageProperty::Id).get()
+                    );
+
+                    auto pin = pinningIndex.GetPin(pinKey);
+                    if (pin.has_value())
+                    {
+                        m_installedPackage->SetPin(std::move(pin.value()));
+                    }
                 }
             }
 
