@@ -766,7 +766,10 @@ namespace AppInstaller::Repository
             {
                 if (!m_installedPackage)
                 {
-                    // Only installed packages have pins
+                    // We only care about pins for installed packages.
+                    // It is possible to add pins for packages that are not installed
+                    // by using the ID, but that bypasses the CompositeSource altogether
+                    // so we don't need to check for that.
                     return;
                 }
 
