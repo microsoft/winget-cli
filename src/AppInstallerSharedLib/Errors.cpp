@@ -265,13 +265,15 @@ namespace AppInstaller
             
             // Status values for check package installed status results.
             case WINGET_INSTALLED_STATUS_ARP_ENTRY_NOT_FOUND:
-                return "The Add & Remove Programs Entry for the package could not be found.";
+                return "The Apps and Features Entry for the package could not be found.";
+
             case WINGET_INSTALLED_STATUS_INSTALL_LOCATION_NOT_APPLICABLE:
                 return "The install location is not applicable.";
             case WINGET_INSTALLED_STATUS_INSTALL_LOCATION_NOT_FOUND:
                 return "The install location could not be found.";
             case WINGET_INSTALLED_STATUS_FILE_HASH_MISMATCH:
-                return "The hash of the existing file did not match. Please uninstall and try again.";
+                return "The hash of the existing file did not match.";
+
             case WINGET_INSTALLED_STATUS_FILE_NOT_FOUND:
                 return "File not found.";
             case WINGET_INSTALLED_STATUS_FILE_FOUND_WITHOUT_HASH_CHECK:
@@ -311,7 +313,8 @@ namespace AppInstaller
 
             // Configuration Processor Errors
             case WINGET_CONFIG_ERROR_UNIT_NOT_INSTALLED:
-                return "The configuration unit was not in the module as expected.";
+                return "The configuration unit was not installed.";
+
             case WINGET_CONFIG_ERROR_UNIT_NOT_FOUND_REPOSITORY:
                 return "The configuration unit could not be found.";
             case WINGET_CONFIG_ERROR_UNIT_MULTIPLE_MATCHES:
