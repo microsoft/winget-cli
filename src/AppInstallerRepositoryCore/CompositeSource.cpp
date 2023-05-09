@@ -689,13 +689,9 @@ namespace AppInstaller::Repository
                     return false;
                 }
 
-                if (m_installedPackage)
+                if (m_installedPackage && !m_installedPackage->GetPackage()->IsSame(otherComposite->m_installedPackage->GetPackage().get()))
                 {
-                    if (m_installedPackage->GetSourceId() != otherComposite->m_installedPackage->GetSourceId() ||
-                        !m_installedPackage->GetPackage()->IsSame(otherComposite->m_installedPackage->GetPackage().get()))
-                    {
-                        return false;
-                    }
+                    return false;
                 }
 
                 for (size_t i = 0; i < m_availablePackages.size(); ++i)
