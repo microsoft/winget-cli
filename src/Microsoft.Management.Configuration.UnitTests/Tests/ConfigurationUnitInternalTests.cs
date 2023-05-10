@@ -122,12 +122,12 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             using var tmpFile = new TempFile("fakeConfigFile.yml", content: "content");
 
             var unit = new ConfigurationUnit();
-            unit.Settings.Add("var1", @"WinGetConfigRoot\this\is\a\path.txt");
-            unit.Settings.Add("var2", @"$WinGetConfigRoot\this\is\a\path.txt");
-            unit.Settings.Add("var3", @"this\is\a\WINGETCONFIGROOT\path.txt");
-            unit.Settings.Add("var4", @"this\is\a\$WINGETCONFIGROOT\path.txt");
-            unit.Settings.Add("var5", @"this\is\a\path\wingetconfigroot");
-            unit.Settings.Add("var6", @"this\is\a\path\$wingetconfigroot");
+            unit.Settings.Add("var1", @"$WinGetConfigRoot\this\is\a\path.txt");
+            unit.Settings.Add("var2", @"${WinGetConfigRoot}\this\is\a\path.txt");
+            unit.Settings.Add("var3", @"this\is\a\$WINGETCONFIGROOT\path.txt");
+            unit.Settings.Add("var4", @"this\is\a\${WINGETCONFIGROOT}\path.txt");
+            unit.Settings.Add("var5", @"this\is\a\path\$wingetconfigroot");
+            unit.Settings.Add("var6", @"this\is\a\path\${wingetconfigroot}");
 
             string configPath = tmpFile.FullFileName;
             string? expectedPath = Path.GetDirectoryName(configPath);
@@ -136,19 +136,19 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             var expandedSettings = unitInternal.GetExpandedSettings();
 
             var var1 = expandedSettings["var1"];
-            Assert.Equal(@"WinGetConfigRoot\this\is\a\path.txt", var1 as string);
+            Assert.Equal(@"$WinGetConfigRoot\this\is\a\path.txt", var1 as string);
 
             var var2 = expandedSettings["var2"];
             Assert.Equal($@"{expectedPath}\this\is\a\path.txt", var2 as string);
 
             var var3 = expandedSettings["var3"];
-            Assert.Equal(@"this\is\a\WINGETCONFIGROOT\path.txt", var3 as string);
+            Assert.Equal(@"this\is\a\$WINGETCONFIGROOT\path.txt", var3 as string);
 
             var var4 = expandedSettings["var4"];
             Assert.Equal($@"this\is\a\{expectedPath}\path.txt", var4 as string);
 
             var var5 = expandedSettings["var5"];
-            Assert.Equal(@"this\is\a\path\wingetconfigroot", var5 as string);
+            Assert.Equal(@"this\is\a\path\$wingetconfigroot", var5 as string);
 
             var var6 = expandedSettings["var6"];
             Assert.Equal($@"this\is\a\path\{expectedPath}", var6 as string);
@@ -161,7 +161,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         public void GetExpandedSetting_ConfigRoot_Throw()
         {
             var unit = new ConfigurationUnit();
-            unit.Settings.Add("var2", @"$WinGetConfigRoot\this\is\a\path.txt");
+            unit.Settings.Add("var2", @"${WinGetConfigRoot}\this\is\a\path.txt");
 
             var unitInternal = new ConfigurationUnitInternal(unit, null!);
             Assert.Throws<UnitSettingConfigRootException>(() => unitInternal.GetExpandedSettings());

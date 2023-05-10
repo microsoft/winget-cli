@@ -20,9 +20,9 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
     /// </summary>
     internal class ConfigurationUnitInternal
     {
-        private static string configRootVar = "$WinGetConfigRoot";
+        private const string ConfigRootVar = "${WinGetConfigRoot}";
 
-        private readonly string configurationFilePath;
+        private readonly string? configurationFileRootPath = null;
         private readonly Dictionary<string, object> normalizedDirectives = new ();
 
         /// <summary>
@@ -37,7 +37,6 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
             IReadOnlyDictionary<string, object>? directivesOverlay = null)
         {
             this.Unit = unit;
-            this.configurationFilePath = configurationFilePath;
             this.DirectivesOverlay = directivesOverlay;
             this.InitializeDirectives();
 
@@ -54,6 +53,16 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
                     this.GetDirective<string>(DirectiveConstants.MinVersion),
                     this.GetDirective<string>(DirectiveConstants.MaxVersion),
                     this.GetDirective<string>(DirectiveConstants.ModuleGuid));
+            }
+
+            if (!string.IsNullOrEmpty(configurationFilePath))
+            {
+                if (!File.Exists(configurationFilePath))
+                {
+                    throw new FileNotFoundException(configurationFilePath);
+                }
+
+                this.configurationFileRootPath = Path.GetDirectoryName(configurationFilePath);
             }
         }
 
@@ -190,27 +199,21 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
             if (!string.IsNullOrEmpty(value))
             {
                 // TODO: since we only support one variable, this only finds and replace
-                // $WingetConfigRoot if found in the string when the work of expanding
+                // ${WingetConfigRoot} if found in the string when the work of expanding
                 // string is done it should take into account other operators like the subexpression operator $()
-                if (value.Contains(configRootVar, StringComparison.OrdinalIgnoreCase))
+                if (value.Contains(ConfigRootVar, StringComparison.OrdinalIgnoreCase))
                 {
-                    if (string.IsNullOrEmpty(this.configurationFilePath))
+                    if (string.IsNullOrEmpty(this.configurationFileRootPath))
                     {
                         throw new UnitSettingConfigRootException(this.Unit.UnitName, settingName);
                     }
 
-                    if (!File.Exists(this.configurationFilePath))
-                    {
-                        throw new FileNotFoundException(this.configurationFilePath);
-                    }
-
-                    var configRoot = Path.GetDirectoryName(this.configurationFilePath);
-                    if (configRoot == null)
+                    if (this.configurationFileRootPath == null)
                     {
                         throw new ArgumentException();
                     }
 
-                    return value.Replace(configRootVar, configRoot, StringComparison.OrdinalIgnoreCase);
+                    return value.Replace(ConfigRootVar, this.configurationFileRootPath, StringComparison.OrdinalIgnoreCase);
                 }
             }
 
