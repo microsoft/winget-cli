@@ -9,7 +9,7 @@ namespace Microsoft.Management.Configuration.Processor.Exceptions
     using System;
 
     /// <summary>
-    /// A setting uses the config root variable and the Origin was not set in the ConfigurationSet.
+    /// A setting uses the config root variable and the Path was not set in the ConfigurationSet.
     /// </summary>
     internal class UnitSettingConfigRootException : Exception
     {
@@ -19,7 +19,7 @@ namespace Microsoft.Management.Configuration.Processor.Exceptions
         /// <param name="unitName">Unit name.</param>
         /// <param name="setting">Setting.</param>
         public UnitSettingConfigRootException(string unitName, string setting)
-            : base($"Unit: {unitName} Setting {setting} requires the ConfigurationSet Origin")
+            : base($"Unit: {unitName} Setting {setting} requires the ConfigurationSet Path")
         {
             this.HResult = ErrorCodes.WinGetConfigUnitSettingConfigRoot;
             this.UnitName = unitName;

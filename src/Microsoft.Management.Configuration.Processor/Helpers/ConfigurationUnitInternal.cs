@@ -8,6 +8,7 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using Microsoft.Management.Configuration.Processor.Constants;
     using Microsoft.Management.Configuration.Processor.Exceptions;
     using Microsoft.PowerShell.Commands;
@@ -19,24 +20,24 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
     /// </summary>
     internal class ConfigurationUnitInternal
     {
-        private static string configRoot = "$WinGetConfigRoot";
+        private static string configRootVar = "$WinGetConfigRoot";
 
-        private readonly string origin;
+        private readonly string configurationFilePath;
         private readonly Dictionary<string, object> normalizedDirectives = new ();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ConfigurationUnitInternal"/> class.
         /// </summary>
         /// <param name="unit">Configuration unit.</param>
-        /// <param name="origin">The origin of the unit.</param>
+        /// <param name="configurationFilePath">The configuration file path.</param>
         /// <param name="directivesOverlay">Directives overlay.</param>
         public ConfigurationUnitInternal(
             ConfigurationUnit unit,
-            string origin,
+            string configurationFilePath,
             IReadOnlyDictionary<string, object>? directivesOverlay = null)
         {
             this.Unit = unit;
-            this.origin = origin;
+            this.configurationFilePath = configurationFilePath;
             this.DirectivesOverlay = directivesOverlay;
             this.InitializeDirectives();
 
@@ -172,8 +173,8 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
             {
                 if (value.Value is string)
                 {
-                    // For now, we just expand origin.
-                    valueSet.Add(value.Key, this.ExpandOrigin(value.Value as string, value.Key));
+                    // For now, we just expand config root.
+                    valueSet.Add(value.Key, this.ExpandConfigRoot(value.Value as string, value.Key));
                 }
                 else
                 {
@@ -184,21 +185,32 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
             return valueSet;
         }
 
-        private string? ExpandOrigin(string? value, string settingName)
+        private string? ExpandConfigRoot(string? value, string settingName)
         {
             if (!string.IsNullOrEmpty(value))
             {
                 // TODO: since we only support one variable, this only finds and replace
                 // $WingetConfigRoot if found in the string when the work of expanding
                 // string is done it should take into account other operators like the subexpression operator $()
-                if (value.Contains(configRoot, StringComparison.OrdinalIgnoreCase))
+                if (value.Contains(configRootVar, StringComparison.OrdinalIgnoreCase))
                 {
-                    if (string.IsNullOrEmpty(this.origin))
+                    if (string.IsNullOrEmpty(this.configurationFilePath))
                     {
                         throw new UnitSettingConfigRootException(this.Unit.UnitName, settingName);
                     }
 
-                    return value.Replace(configRoot, this.origin, StringComparison.OrdinalIgnoreCase);
+                    if (!File.Exists(this.configurationFilePath))
+                    {
+                        throw new FileNotFoundException(this.configurationFilePath);
+                    }
+
+                    var configRoot = Path.GetDirectoryName(this.configurationFilePath);
+                    if (configRoot == null)
+                    {
+                        throw new ArgumentException();
+                    }
+
+                    return value.Replace(configRootVar, configRoot, StringComparison.OrdinalIgnoreCase);
                 }
             }
 
