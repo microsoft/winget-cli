@@ -6,11 +6,13 @@
 
 namespace Microsoft.WinGet.Client.Engine.Commands
 {
+    using System;
     using System.Management.Automation;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Engine.Commands.Common;
     using Microsoft.WinGet.Client.Engine.Extensions;
     using Microsoft.WinGet.Client.Engine.Helpers;
+    using Microsoft.WinGet.Client.Engine.Properties;
     using Microsoft.WinGet.Client.Engine.PSObjects;
 
     /// <summary>
@@ -63,6 +65,9 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// </summary>
         public void Find()
         {
+#if POWERSHELL_WINDOWS
+            throw new NotSupportedException(Resources.WindowsPowerShellNotSupported);
+#endif
             var results = this.FindPackages(CompositeSearchBehavior.RemotePackagesFromRemoteCatalogs);
             for (var i = 0; i < results.Count; i++)
             {
@@ -75,6 +80,9 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// </summary>
         public void Get()
         {
+#if POWERSHELL_WINDOWS
+            throw new NotSupportedException(Resources.WindowsPowerShellNotSupported);
+#endif
             var results = this.FindPackages(CompositeSearchBehavior.LocalCatalogs);
             for (var i = 0; i < results.Count; i++)
             {

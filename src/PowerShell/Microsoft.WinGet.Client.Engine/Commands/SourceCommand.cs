@@ -31,6 +31,9 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="name">Optional name.</param>
         public void Get(string name)
         {
+#if POWERSHELL_WINDOWS
+            throw new NotSupportedException(Resources.WindowsPowerShellNotSupported);
+#endif
             var results = GetPackageCatalogReferences(name);
             for (var i = 0; i < results.Count; i++)
             {

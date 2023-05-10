@@ -96,6 +96,9 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             string psPackageInstallScope,
             string psProcessorArchitecture)
         {
+#if POWERSHELL_WINDOWS
+            throw new NotSupportedException(Resources.WindowsPowerShellNotSupported);
+#endif
             this.GetPackageAndExecute(CompositeSearchBehavior.RemotePackagesFromRemoteCatalogs, (package, version) =>
             {
                 InstallOptions options = this.GetInstallOptions(version);
@@ -118,6 +121,9 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="includeUnknown">If updating to an unknown version is allowed.</param>
         public void Update(bool includeUnknown)
         {
+#if POWERSHELL_WINDOWS
+            throw new NotSupportedException(Resources.WindowsPowerShellNotSupported);
+#endif
             this.GetPackageAndExecute(CompositeSearchBehavior.LocalCatalogs, (package, version) =>
             {
                 InstallOptions options = this.GetInstallOptions(version);
