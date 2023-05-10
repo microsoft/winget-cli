@@ -8,6 +8,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Diagnostics;
     using System.Management.Automation;
     using System.Threading;
     using System.Threading.Tasks;
@@ -238,6 +239,41 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             }
 
             this.queuedStreams.Add(new QueuedStream(type, data));
+        }
+
+        /// <summary>
+        /// Helper to compute percentage and write progress for processing activities.
+        /// </summary>
+        /// <param name="activityId">Activity id.</param>
+        /// <param name="activity">The activity in progress.</param>
+        /// <param name="status">The status of the activity.</param>
+        /// <param name="completed">Number of completed actions.</param>
+        /// <param name="total">The expected total.</param>
+        internal void WriteProgressWithPercentage(int activityId, string activity, string status, int completed, int total)
+        {
+            double percentComplete = (double)completed / total;
+            var record = new ProgressRecord(activityId, activity, status)
+            {
+                RecordType = ProgressRecordType.Processing,
+                PercentComplete = (int)(100.0 * percentComplete),
+            };
+            this.Write(StreamType.Progress, record);
+        }
+
+        /// <summary>
+        /// Helper to complete progress records.
+        /// </summary>
+        /// <param name="activityId">Activity id.</param>
+        /// <param name="activity">The activity in progress.</param>
+        /// <param name="status">The status of the activity.</param>
+        internal void CompleteProgress(int activityId, string activity, string status)
+        {
+            var record = new ProgressRecord(activityId, activity, status)
+            {
+                RecordType = ProgressRecordType.Completed,
+                PercentComplete = 100,
+            };
+            this.Write(StreamType.Progress, record);
         }
 
         /// <summary>

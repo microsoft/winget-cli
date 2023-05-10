@@ -13,8 +13,10 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
     using Microsoft.Management.Configuration;
     using Microsoft.Management.Configuration.Processor;
     using Microsoft.PowerShell;
+    using Microsoft.WinGet.Configuration.Engine.Exceptions;
     using Microsoft.WinGet.Configuration.Engine.PSObjects;
     using Microsoft.WinGet.Configuration.Engine.Resources;
+    using Windows.Foundation.Collections;
     using Windows.Storage;
     using Windows.Storage.Streams;
 
@@ -209,12 +211,13 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         {
             var psProcessor = this.CreateConfigurationProcessor(executionPolicy, canUseTelemetry);
 
+            this.Write(StreamType.Information, Resources.ConfigurationReadingConfigFile);
             var stream = await FileRandomAccessStream.OpenAsync(configFile, FileAccessMode.Read);
+
             OpenConfigurationSetResult openResult = await psProcessor.Processor.OpenConfigurationSetAsync(stream);
-            if (openResult.Set is null)
+            if (openResult.ResultCode != null)
             {
-                // TODO: throw better exception.
-                throw new Exception($"Failed opening configuration set. Result 0x{openResult.ResultCode} at {openResult.Field}");
+                throw new OpenConfigurationSetException(openResult, configFile);
             }
 
             var set = openResult.Set;
@@ -272,17 +275,73 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         {
             var processor = psConfigurationSet.PsProcessor.Processor;
             var set = psConfigurationSet.Set;
+            var totalUnitsCount = set.ConfigurationUnits.Count;
 
-            if (set.ConfigurationUnits.Count == 0)
+            if (totalUnitsCount == 0)
             {
-                this.Write(StreamType.Warning, "Configuration File Empty");
+                this.Write(StreamType.Warning, Resources.ConfigurationFileEmpty);
+                return psConfigurationSet;
             }
 
-            // TODO: implement progress
-            _ = await processor.GetSetDetailsAsync(set, ConfigurationUnitDetailLevel.Catalog);
+            var activityId = this.GetNewProgressActivityId();
+            var activity = Resources.ConfigurationGettingDetails;
+            var inProgress = Resources.OperationInProgress;
+
+            // Write initial progress record.
+            // For some reason, if this is 0 the progress bar is shown full. Start with 1%
+            this.WriteProgressWithPercentage(activityId, activity, inProgress, 1, 100);
+
+            var detailsTask = processor.GetSetDetailsAsync(set, ConfigurationUnitDetailLevel.Catalog);
+
+            int unitsShown = 0;
+            detailsTask.Progress = (operation, result) =>
+            {
+                var unitResults = operation.GetResults().UnitResults;
+                while (unitsShown < unitResults.Count)
+                {
+                    GetConfigurationUnitDetailsResult unitResult = unitResults[unitsShown];
+                    this.LogFailedGetConfigurationUnitDetails(unitResult.Unit, unitResult.ResultInformation);
+                    // TODO: write details.
+                    ++unitsShown;
+
+                    this.WriteProgressWithPercentage(activityId, activity, inProgress, unitsShown, totalUnitsCount);
+                }
+            };
+
+            await detailsTask;
+
+            this.CompleteProgress(activityId, activity, Resources.OperationCompleted);
 
             psConfigurationSet.HasDetails = true;
             return psConfigurationSet;
+        }
+
+        private void OutputConfigurationUnitInformation(ConfigurationUnit unit)
+        {
+            IConfigurationUnitProcessorDetails details = unit.Details;
+            ValueSet directives = unit.Directives;
+
+            if (details != null)
+            {
+                // -- Sample output when IConfigurationUnitProcessorDetails present --
+                // Intent :: UnitName <from details> [Identifier]
+                //   UnitDocumentationUri <if present>
+                //   Description <from details first, directives second>
+                //   "Module": ModuleName "by" Author / Publisher (IsLocal / ModuleSource)
+                //     "Signed by": SigningCertificateChain (leaf subject CN)
+                //     PublishedModuleUri / ModuleDocumentationUri <if present>
+                //     ModuleDescription
+            }
+        }
+
+        private void LogFailedGetConfigurationUnitDetails(ConfigurationUnit unit, ConfigurationUnitResultInformation resultInformation)
+        {
+            if (resultInformation.ResultCode != null)
+            {
+                this.Write(
+                    StreamType.Error,
+                    $"Failed to get unit details for {unit.UnitName} 0x{resultInformation.ResultCode.HResult:X}{Environment.NewLine}Description: '{resultInformation.Description}'{Environment.NewLine}Details: '{resultInformation.Details}'");
+            }
         }
 
         private ConfigurationProcessorPolicy GetConfigurationProcessorPolicy(ExecutionPolicy policy)

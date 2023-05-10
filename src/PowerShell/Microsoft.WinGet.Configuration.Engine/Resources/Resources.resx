@@ -122,7 +122,7 @@
     <comment>{Locked="{0}"} An error in reading a configuration file. {0} is a placeholder replaced by the field name from the file.</comment>
   </data>
   <data name="ConfigurationFileArgumentDescription" xml:space="preserve">
-    <value>The path to the configuration file</value>
+    <value>The path to the configuration file.</value>
   </data>
   <data name="ConfigurationFileInvalid" xml:space="preserve">
     <value>The configuration file is invalid.</value>
@@ -288,5 +288,11 @@
   <data name="SeeLineAndColumn" xml:space="preserve">
     <value>See line {0}, column {1} in the file.</value>
     <comment>{Locked="{0}","{1}"} Indicates the file location of the error, {0} and {1} are placeholders for numbers of the line and column, respectively.</comment>
+  </data>
+  <data name="OperationCompleted" xml:space="preserve">
+    <value>Completed</value>
+  </data>
+  <data name="OperationInProgress" xml:space="preserve">
+    <value>In progress</value>
   </data>
 </root>
