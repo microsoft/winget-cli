@@ -130,8 +130,9 @@ ms.localizationpriority: medium
 | 0x8A150107 | -1978334969 | APPINSTALLER_CLI_ERROR_INSTALL_NO_NETWORK | This application requires internet connectivity. Connect to a network then try again. |
 | 0x8A150108 | -1978334968 | APPINSTALLER_CLI_ERROR_INSTALL_CONTACT_SUPPORT | This application encountered an error during installation. Contact support. |
 | 0x8A150109 | -1978334967 | APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_FINISH | Restart your PC to finish installation. |
-| 0x8A15010A | -1978334966 | APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL | Your PC will restart to finish installation. |
-| 0x8A15010B | -1978334965 | APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_INITIATED | Installation failed. Restart your PC then try again. |
+| 0x8A15010A | -1978334966 | APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_REQUIRED_TO_INSTALL | 
+Installation failed. Restart your PC then try again. |
+| 0x8A15010B | -1978334965 | APPINSTALLER_CLI_ERROR_INSTALL_REBOOT_INITIATED | Your PC will restart to finish installation. |
 | 0x8A15010C | -1978334964 | APPINSTALLER_CLI_ERROR_INSTALL_CANCELLED_BY_USER | You cancelled the installation. |
 | 0x8A15010D | -1978334963 | APPINSTALLER_CLI_ERROR_INSTALL_ALREADY_INSTALLED | Another version of this application is already installed. |
 | 0x8A15010E | -1978334962 | APPINSTALLER_CLI_ERROR_INSTALL_DOWNGRADE | A higher version of this application is already installed. |
@@ -145,10 +146,10 @@ ms.localizationpriority: medium
 
 | Hex | Decimal | Symbol | Description |
 |-------------|-------------|-------------|-------------|
-| 0x8A150201 | -1978334719 | WINGET_INSTALLED_STATUS_ARP_ENTRY_NOT_FOUND | The Add & Remove Programs Entry for the package could not be found. |
+| 0x8A150201 | -1978334719 | WINGET_INSTALLED_STATUS_ARP_ENTRY_NOT_FOUND | The Apps and Features Entry for the package could not be found. |
 | 0x8A150202 | -1978334718 | WINGET_INSTALLED_STATUS_INSTALL_LOCATION_NOT_APPLICABLE | The install location is not applicable. |
 | 0x8A150203 | -1978334717 | WINGET_INSTALLED_STATUS_INSTALL_LOCATION_NOT_FOUND | The install location could not be found. |
-| 0x8A150204 | -1978334716 | WINGET_INSTALLED_STATUS_FILE_HASH_MISMATCH | The hash of the existing file did not match. Please uninstall and try again. |
+| 0x8A150204 | -1978334716 | WINGET_INSTALLED_STATUS_FILE_HASH_MISMATCH | The hash of the existing file did not match. |
 | 0x8A150205 | -1978334715 | WINGET_INSTALLED_STATUS_FILE_NOT_FOUND | File not found. |
 | 0x8A150206 | -1978334714 | WINGET_INSTALLED_STATUS_FILE_FOUND_WITHOUT_HASH_CHECK | The file was found but the hash was not checked. |
 | 0x8A150207 | -1978334713 | WINGET_INSTALLED_STATUS_FILE_ACCESS_ERROR | The file could not be accessed. |
@@ -176,7 +177,7 @@ ms.localizationpriority: medium
 
 | Hex | Decimal | Symbol | Description |
 |-------------|-------------|-------------|-------------|
-| 0x8A15C101 | -1978285823 | WINGET_CONFIG_ERROR_UNIT_NOT_INSTALLED | The configuration unit was not in the module as expected. |
+| 0x8A15C101 | -1978285823 | WINGET_CONFIG_ERROR_UNIT_NOT_INSTALLED | The configuration unit was not installed. |
 | 0x8A15C102 | -1978285822 | WINGET_CONFIG_ERROR_UNIT_NOT_FOUND_REPOSITORY | The configuration unit could not be found. |
 | 0x8A15C103 | -1978285821 | WINGET_CONFIG_ERROR_UNIT_MULTIPLE_MATCHES | Multiple matches were found for the configuration unit specify the module to select the correct one. |
 | 0x8A15C104 | -1978285820 | WINGET_CONFIG_ERROR_UNIT_INVOKE_GET | The configuration unit failed while attempting to get the current system state. |
