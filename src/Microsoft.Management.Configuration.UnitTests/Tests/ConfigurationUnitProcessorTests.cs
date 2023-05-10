@@ -362,6 +362,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                         UnitName = resourceName,
                         Intent = intent,
                     },
+                    string.Empty,
                     new Dictionary<string, object>()),
                 new DscResourceInfoInternal(resourceName, null, null));
         }

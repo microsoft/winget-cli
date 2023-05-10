@@ -6,9 +6,12 @@
 
 namespace Microsoft.Management.Configuration.Processor.Helpers
 {
+    using System;
     using System.Collections.Generic;
     using Microsoft.Management.Configuration.Processor.Constants;
+    using Microsoft.Management.Configuration.Processor.Exceptions;
     using Microsoft.PowerShell.Commands;
+    using Windows.Foundation.Collections;
 
     /// <summary>
     /// Wrapper around Configuration units and its directives. Creates a normalized directives map
@@ -16,18 +19,24 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
     /// </summary>
     internal class ConfigurationUnitInternal
     {
+        private static string configRoot = "$WinGetConfigRoot";
+
+        private readonly string origin;
         private readonly Dictionary<string, object> normalizedDirectives = new ();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ConfigurationUnitInternal"/> class.
         /// </summary>
         /// <param name="unit">Configuration unit.</param>
+        /// <param name="origin">The origin of the unit.</param>
         /// <param name="directivesOverlay">Directives overlay.</param>
         public ConfigurationUnitInternal(
             ConfigurationUnit unit,
+            string origin,
             IReadOnlyDictionary<string, object>? directivesOverlay = null)
         {
             this.Unit = unit;
+            this.origin = origin;
             this.DirectivesOverlay = directivesOverlay;
             this.InitializeDirectives();
 
@@ -148,6 +157,52 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// TODO: Implement for more variables.
+        /// I am so sad because rs.SessionStateProxy.InvokeCommand.ExpandString doesn't work as I wanted.
+        /// PowerShell assumes all code passed to ExpandString is trusted and we cannot assume that.
+        /// </summary>
+        /// <returns>ValueSet with settings.</returns>
+        public ValueSet GetExpandedSettings()
+        {
+            var valueSet = new ValueSet();
+            foreach (var value in this.Unit.Settings)
+            {
+                if (value.Value is string)
+                {
+                    // For now, we just expand origin.
+                    valueSet.Add(value.Key, this.ExpandOrigin(value.Value as string, value.Key));
+                }
+                else
+                {
+                    valueSet.Add(value);
+                }
+            }
+
+            return valueSet;
+        }
+
+        private string? ExpandOrigin(string? value, string settingName)
+        {
+            if (!string.IsNullOrEmpty(value))
+            {
+                // TODO: since we only support one variable, this only finds and replace
+                // $WingetConfigRoot if found in the string when the work of expanding
+                // string is done it should take into account other operators like the subexpression operator $()
+                if (value.Contains(configRoot, StringComparison.OrdinalIgnoreCase))
+                {
+                    if (string.IsNullOrEmpty(this.origin))
+                    {
+                        throw new UnitSettingConfigRootException(this.Unit.UnitName, settingName);
+                    }
+
+                    return value.Replace(configRoot, this.origin, StringComparison.OrdinalIgnoreCase);
+                }
+            }
+
+            return value;
         }
 
         private void InitializeDirectives()
