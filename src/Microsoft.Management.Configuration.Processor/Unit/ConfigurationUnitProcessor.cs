@@ -64,7 +64,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
             try
             {
                 result.Settings = this.processorEnvironment.InvokeGetResource(
-                    this.unitResource.GetExpandedSettings(),
+                    this.unitResource.GetSettings(),
                     this.unitResource.ResourceName,
                     this.unitResource.Module);
             }
@@ -97,7 +97,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
             try
             {
                 bool testResult = this.processorEnvironment.InvokeTestResource(
-                    this.unitResource.GetExpandedSettings(),
+                    this.unitResource.GetSettings(),
                     this.unitResource.ResourceName,
                     this.unitResource.Module);
 
@@ -132,7 +132,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
             try
             {
                 result.RebootRequired = this.processorEnvironment.InvokeSetResource(
-                                            this.unitResource.GetExpandedSettings(),
+                                            this.unitResource.GetSettings(),
                                             this.unitResource.ResourceName,
                                             this.unitResource.Module);
             }

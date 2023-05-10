@@ -60,5 +60,10 @@ namespace Microsoft.Management.Configuration.Processor.Exceptions
         /// The unit returned an invalid result.
         /// </summary>
         internal const int WinGetConfigUnitInvokeInvalidResult = unchecked((int)0x8A15C109);
+
+        /// <summary>
+        /// The unit contains a setting that requires config root.
+        /// </summary>
+        internal const int WinGetConfigUnitSettingConfigRoot = unchecked((int)0x8A15C110);
     }
 }

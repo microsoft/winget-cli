@@ -431,6 +431,7 @@ winapifamily
 windir
 windowsdeveloper
 winerror
+wingetconfigroot
 wingetcreate
 wingetdev
 wingetutil
