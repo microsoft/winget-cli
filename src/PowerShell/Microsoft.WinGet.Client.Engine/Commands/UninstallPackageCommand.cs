@@ -45,6 +45,9 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             string matchOption)
             : base(psCmdlet)
         {
+#if POWERSHELL_WINDOWS
+            throw new NotSupportedException(Resources.WindowsPowerShellNotSupported);
+#else
             // PackageCommand.
             if (psCatalogPackage != null)
             {
@@ -61,6 +64,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             this.Source = source;
             this.Query = query;
             this.MatchOption = PSEnumHelpers.ToPackageFieldMatchOption(matchOption);
+#endif
         }
 
         /// <summary>
@@ -72,9 +76,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             string psPackageUninstallMode,
             bool force)
         {
-#if POWERSHELL_WINDOWS
-            throw new NotSupportedException(Resources.WindowsPowerShellNotSupported);
-#endif
             this.GetPackageAndExecute(CompositeSearchBehavior.LocalCatalogs, (package, version) =>
             {
                 UninstallOptions options = this.GetUninstallOptions(version, PSEnumHelpers.ToPackageUninstallMode(psPackageUninstallMode), force);

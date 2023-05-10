@@ -46,6 +46,9 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             uint count)
             : base(psCmdlet)
         {
+#if POWERSHELL_WINDOWS
+            throw new NotSupportedException(Resources.WindowsPowerShellNotSupported);
+#else
             // FinderCommand
             this.Id = id;
             this.Name = name;
@@ -58,6 +61,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             this.Tag = tag;
             this.Command = command;
             this.Count = count;
+#endif
         }
 
         /// <summary>
@@ -65,9 +69,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// </summary>
         public void Find()
         {
-#if POWERSHELL_WINDOWS
-            throw new NotSupportedException(Resources.WindowsPowerShellNotSupported);
-#endif
             var results = this.FindPackages(CompositeSearchBehavior.RemotePackagesFromRemoteCatalogs);
             for (var i = 0; i < results.Count; i++)
             {
@@ -80,9 +81,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// </summary>
         public void Get()
         {
-#if POWERSHELL_WINDOWS
-            throw new NotSupportedException(Resources.WindowsPowerShellNotSupported);
-#endif
             var results = this.FindPackages(CompositeSearchBehavior.LocalCatalogs);
             for (var i = 0; i < results.Count; i++)
             {

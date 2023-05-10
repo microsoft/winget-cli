@@ -205,6 +205,6 @@
     <comment>{Locked="STA","MTA"}</comment>
   </data>
   <data name="WindowsPowerShellNotSupported" xml:space="preserve">
-    <value>This cmdlet is no supported in Windows PowerShell</value>
+    <value>This cmdlet is not supported in Windows PowerShell.</value>
   </data>
 </root>
