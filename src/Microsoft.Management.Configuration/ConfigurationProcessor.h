@@ -91,6 +91,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             ApplyConfigurationSetFlags flags,
             AppInstaller::WinRT::AsyncProgress<ApplyConfigurationSetResult, ConfigurationSetChangeData> progress = {});
 
+        TestConfigurationSetResult TestSetImpl(
+            const ConfigurationSet& configurationSet,
+            AppInstaller::WinRT::AsyncProgress<TestConfigurationSetResult, TestConfigurationUnitResult> progress = {});
+
+        GetConfigurationUnitSettingsResult GetUnitSettingsImpl(const ConfigurationUnit& unit, AppInstaller::WinRT::AsyncCancellation cancellation = {});
+
         IConfigurationSetProcessorFactory m_factory = nullptr;
         event<Windows::Foundation::EventHandler<DiagnosticInformation>> m_diagnostics;
         event<Windows::Foundation::TypedEventHandler<ConfigurationSet, ConfigurationChangeData>> m_configurationChange;
