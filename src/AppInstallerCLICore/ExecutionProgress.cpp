@@ -166,10 +166,10 @@ namespace AppInstaller::CLI::Execution
 
         void ProgressVisualizerBase::Message(std::string_view message)
         {
-            std::atomic_store(&m_message, std::make_shared<std::string>(message));
+            std::atomic_store(&m_message, std::make_shared<Utility::NormalizedString>(message));
         }
 
-        std::shared_ptr<std::string> ProgressVisualizerBase::Message()
+        std::shared_ptr<Utility::NormalizedString> ProgressVisualizerBase::Message()
         {
             return std::atomic_load(&m_message);
         }
@@ -211,8 +211,8 @@ namespace AppInstaller::CLI::Execution
 
             // Indent two spaces for the spinner, but three here so that we can overwrite it in the loop.
             std::string_view indent = "   ";
-            std::shared_ptr<std::string> message = this->Message();
-            size_t messageLength = message ? message->length() : 0;
+            std::shared_ptr<Utility::NormalizedString> message = this->Message();
+            size_t messageLength = message ? Utility::UTF8ColumnWidth(*message) : 0;
 
             for (size_t i = 0; !m_canceled; ++i)
             {
@@ -221,17 +221,19 @@ namespace AppInstaller::CLI::Execution
                 m_out << '\r' << indent << spinnerChars[i % ARRAYSIZE(spinnerChars)];
                 m_out.RestoreDefault();
 
-                std::shared_ptr<std::string> newMessage = this->Message();
+                std::shared_ptr<Utility::NormalizedString> newMessage = this->Message();
                 std::string eraser;
                 if (newMessage)
                 {
-                    if (newMessage->length() < messageLength)
+                    size_t newLength = Utility::UTF8ColumnWidth(*newMessage);
+
+                    if (newLength < messageLength)
                     {
-                        eraser = std::string(messageLength - newMessage->length(), ' ');
+                        eraser = std::string(messageLength - newLength, ' ');
                     }
 
                     message = newMessage;
-                    messageLength = newMessage->length();
+                    messageLength = newLength;
                 }
 
                 m_out << ' ' << (message ? *message : std::string{}) << eraser << std::flush;
