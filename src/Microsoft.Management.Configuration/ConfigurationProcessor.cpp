@@ -214,7 +214,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         auto threadGlobals = m_threadGlobals.SetForCurrentThread();
         auto result = make_self<wil::details::module_count_wrapper<OpenConfigurationSetResult>>();
 
-        if (!stream)
+        if (!localStream)
         {
             result->Initialize(E_POINTER, {});
             co_return *result;
