@@ -10,8 +10,10 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
     using System.Collections.Concurrent;
     using System.Diagnostics;
     using System.Management.Automation;
+    using System.Management.Automation.Host;
     using System.Threading;
     using System.Threading.Tasks;
+    using static System.Management.Automation.PSStyle;
 
     /// <summary>
     /// This is the base class for any command that performs async operations.
@@ -346,7 +348,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                     this.PsCmdlet.WriteObject(data);
                     break;
                 case StreamType.Information:
-                    this.PsCmdlet.WriteInformation((string)data, WriteInformationTags);
+                    this.PsCmdlet.WriteInformation(data, WriteInformationTags);
                     break;
             }
         }

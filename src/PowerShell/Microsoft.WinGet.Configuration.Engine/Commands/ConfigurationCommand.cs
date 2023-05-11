@@ -14,9 +14,9 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
     using Microsoft.Management.Configuration.Processor;
     using Microsoft.PowerShell;
     using Microsoft.WinGet.Configuration.Engine.Exceptions;
+    using Microsoft.WinGet.Configuration.Engine.Helpers;
     using Microsoft.WinGet.Configuration.Engine.PSObjects;
     using Microsoft.WinGet.Configuration.Engine.Resources;
-    using Windows.Foundation.Collections;
     using Windows.Storage;
     using Windows.Storage.Streams;
 
@@ -301,37 +301,61 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                 {
                     GetConfigurationUnitDetailsResult unitResult = unitResults[unitsShown];
                     this.LogFailedGetConfigurationUnitDetails(unitResult.Unit, unitResult.ResultInformation);
-                    // TODO: write details.
-                    ++unitsShown;
+                    var information = new ConfigurationUnitInformation(unitResult.Unit);
+                    this.Write(StreamType.Information, information.GetHeader());
+                    this.Write(StreamType.Information, information.GetInformation());
 
+                    ++unitsShown;
                     this.WriteProgressWithPercentage(activityId, activity, inProgress, unitsShown, totalUnitsCount);
                 }
             };
 
-            await detailsTask;
+            try
+            {
+                var result = await detailsTask;
+
+                // Handle any missing progress callbacks
+                var unitResults = result.UnitResults;
+                while (unitsShown < unitResults.Count)
+                {
+                    GetConfigurationUnitDetailsResult unitResult = unitResults[unitsShown];
+                    this.LogFailedGetConfigurationUnitDetails(unitResult.Unit, unitResult.ResultInformation);
+                    var information = new ConfigurationUnitInformation(unitResult.Unit);
+                    this.Write(StreamType.Information, information.GetHeader());
+                    this.Write(StreamType.Information, information.GetInformation());
+
+                    ++unitsShown;
+                }
+            }
+            catch (Exception e)
+            {
+                this.Write(
+                    StreamType.Error,
+                    new ErrorRecord(
+                        e,
+                        "ConfigurationDetailsError",
+                        ErrorCategory.NotSpecified,
+                        e.Message));
+            }
 
             this.CompleteProgress(activityId, activity, Resources.OperationCompleted);
 
-            psConfigurationSet.HasDetails = true;
-            return psConfigurationSet;
-        }
-
-        private void OutputConfigurationUnitInformation(ConfigurationUnit unit)
-        {
-            IConfigurationUnitProcessorDetails details = unit.Details;
-            ValueSet directives = unit.Directives;
-
-            if (details != null)
+            if (unitsShown == 0)
             {
-                // -- Sample output when IConfigurationUnitProcessorDetails present --
-                // Intent :: UnitName <from details> [Identifier]
-                //   UnitDocumentationUri <if present>
-                //   Description <from details first, directives second>
-                //   "Module": ModuleName "by" Author / Publisher (IsLocal / ModuleSource)
-                //     "Signed by": SigningCertificateChain (leaf subject CN)
-                //     PublishedModuleUri / ModuleDocumentationUri <if present>
-                //     ModuleDescription
+                this.Write(StreamType.Warning, Resources.ConfigurationFailedToGetDetails);
+                foreach (var unit in set.ConfigurationUnits)
+                {
+                    var information = new ConfigurationUnitInformation(unit);
+                    this.Write(StreamType.Information, information.GetHeader());
+                    this.Write(StreamType.Information, information.GetInformation());
+                }
             }
+            else
+            {
+                psConfigurationSet.HasDetails = true;
+            }
+
+            return psConfigurationSet;
         }
 
         private void LogFailedGetConfigurationUnitDetails(ConfigurationUnit unit, ConfigurationUnitResultInformation resultInformation)
