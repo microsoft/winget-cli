@@ -1,5 +1,5 @@
 {
-    "$id": "https://aka.ms/schemas/dsc/configuration.schema.0.2.yaml",
+    "$id": "https://aka.ms/schemas/dsc/configuration.schema.0.2.json",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "description": "Description of what these resources does to apply the desired state in the configuration",
     "type": "object",
