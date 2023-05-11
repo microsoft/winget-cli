@@ -164,12 +164,12 @@ namespace AppInstaller::CLI::Execution
             }
         }
 
-        void ProgressVisualizerBase::SetMessage(std::string_view message)
+        void ProgressVisualizerBase::Message(std::string_view message)
         {
             std::atomic_store(&m_message, std::make_shared<std::string>(message));
         }
 
-        std::shared_ptr<std::string> ProgressVisualizerBase::GetMessage()
+        std::shared_ptr<std::string> ProgressVisualizerBase::Message()
         {
             return std::atomic_load(&m_message);
         }
@@ -211,6 +211,8 @@ namespace AppInstaller::CLI::Execution
 
             // Indent two spaces for the spinner, but three here so that we can overwrite it in the loop.
             std::string_view indent = "   ";
+            std::shared_ptr<std::string> message = this->Message();
+            size_t messageLength = message ? message->length() : 0;
 
             for (size_t i = 0; !m_canceled; ++i)
             {
@@ -218,8 +220,21 @@ namespace AppInstaller::CLI::Execution
                 ApplyStyle(i % repetitionCount, repetitionCount, true);
                 m_out << '\r' << indent << spinnerChars[i % ARRAYSIZE(spinnerChars)];
                 m_out.RestoreDefault();
-                std::shared_ptr<std::string> message = this->GetMessage();
-                m_out << ' ' << (message ? *message : std::string{}) << std::flush;
+
+                std::shared_ptr<std::string> newMessage = this->Message();
+                std::string eraser;
+                if (newMessage)
+                {
+                    if (newMessage->length() < messageLength)
+                    {
+                        eraser = std::string(messageLength - newMessage->length(), ' ');
+                    }
+
+                    message = newMessage;
+                    messageLength = newMessage->length();
+                }
+
+                m_out << ' ' << (message ? *message : std::string{}) << eraser << std::flush;
                 Sleep(250);
             }
 

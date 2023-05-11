@@ -28,8 +28,8 @@ namespace AppInstaller::CLI::Execution
 
             void SetStyle(AppInstaller::Settings::VisualStyle style) { m_style = style; }
 
-            void SetMessage(std::string_view message);
-            std::shared_ptr<std::string> GetMessage();
+            void Message(std::string_view message);
+            std::shared_ptr<std::string> Message();
 
         protected:
             BaseStream& m_out;

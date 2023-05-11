@@ -1925,4 +1925,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>See line {0}, column {1} in the file.</value>
     <comment>{Locked="{0}","{1}"} Indicates the file location of the error, {0} and {1} are placeholders for numbers of the line and column, respectively.</comment>
   </data>
+  <data name="CancellingOperation" xml:space="preserve">
+    <value>Cancelling operation</value>
+  </data>
 </root>

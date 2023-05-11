@@ -784,35 +784,48 @@ namespace AppInstaller::CLI::Workflow
                 unification.Progress(std::move(progressScope));
             });
 
+        HRESULT hr = S_OK;
+        GetConfigurationSetDetailsResult result = nullptr;
+
         try
         {
-            GetConfigurationSetDetailsResult result = getDetailsOperation.get();
-
-            unification.Reset();
-
-            // Handle any missing progress callbacks
-            auto unitResults = result.UnitResults();
-            for (unitsShown; unitsShown < unitResults.Size(); ++unitsShown)
-            {
-                GetConfigurationUnitDetailsResult unitResult = unitResults.GetAt(unitsShown);
-                LogFailedGetConfigurationUnitDetails(unitResult.Unit(), unitResult.ResultInformation());
-                OutputConfigurationUnitInformation(out, unitResult.Unit());
-            }
+            result = getDetailsOperation.get();
         }
-        CATCH_LOG();
+        catch (...)
+        {
+            hr = LOG_CAUGHT_EXCEPTION();
+        }
 
         unification.Reset();
 
-        // In the event of an exception from GetSetDetailsAsync, show the data we do have
-        if (!unitsShown)
+        if (context.IsTerminated())
+        {
+            // The context should only be terminated on us due to cancellation
+            context.Reporter.Error() << Resource::String::Cancelled << std::endl;
+            return;
+        }
+
+        if (FAILED(hr))
         {
             // Failing to get details might not be fatal, warn about it but proceed
             context.Reporter.Warn() << Resource::String::ConfigurationFailedToGetDetails << std::endl;
+        }
 
-            for (const ConfigurationUnit& unit : configContext.Set().ConfigurationUnits())
-            {
-                OutputConfigurationUnitInformation(out, unit);
-            }
+        // Handle any missing progress callbacks that are in the results
+        auto unitResults = result.UnitResults();
+        for (unitsShown; unitsShown < unitResults.Size(); ++unitsShown)
+        {
+            GetConfigurationUnitDetailsResult unitResult = unitResults.GetAt(unitsShown);
+            LogFailedGetConfigurationUnitDetails(unitResult.Unit(), unitResult.ResultInformation());
+            OutputConfigurationUnitInformation(out, unitResult.Unit());
+        }
+
+        // Handle any units that are NOT in the results (due to an exception part of the way through)
+        auto allUnits = configContext.Set().ConfigurationUnits();
+        for (unitsShown; unitsShown < allUnits.Size(); ++unitsShown)
+        {
+            ConfigurationUnit unit = allUnits.GetAt(unitsShown);
+            OutputConfigurationUnitInformation(out, unit);
         }
     }
 
