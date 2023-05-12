@@ -25,57 +25,6 @@
 
 namespace AppInstaller::Repository::Microsoft::Schema::V1_1
 {
-    namespace
-    {
-        std::vector<Utility::NormalizedString> GetSystemReferenceStrings(
-            const Manifest::Manifest& manifest,
-            std::function<const Utility::NormalizedString&(const Manifest::ManifestInstaller&)> extractStringFromInstaller,
-            std::function<const Utility::NormalizedString&(const Manifest::AppsAndFeaturesEntry&)> extractStringFromAppsAndFeaturesEntry = {})
-        {
-            std::set<Utility::NormalizedString> set;
-
-            for (const auto& installer : manifest.Installers)
-            {
-                const auto& installerString = extractStringFromInstaller(installer);
-                if (!installerString.empty())
-                {
-                    set.emplace(Utility::FoldCase(installerString));
-                }
-
-                if (extractStringFromAppsAndFeaturesEntry)
-                {
-                    for (const auto& entry : installer.AppsAndFeaturesEntries)
-                    {
-                        const auto& entryString = extractStringFromAppsAndFeaturesEntry(entry);
-                        if (!entryString.empty())
-                        {
-                            set.emplace(Utility::FoldCase(entryString));
-                        }
-                    }
-                }
-            }
-
-            std::vector<Utility::NormalizedString> result(
-                std::make_move_iterator(set.begin()),
-                std::make_move_iterator(set.end()));
-
-            return result;
-        }
-
-        std::vector<Utility::NormalizedString> GetPackageFamilyNames(const Manifest::Manifest& manifest)
-        {
-            return GetSystemReferenceStrings(manifest, [](const Manifest::ManifestInstaller& i) -> const Utility::NormalizedString& { return i.PackageFamilyName; });
-        }
-
-        std::vector<Utility::NormalizedString> GetProductCodes(const Manifest::Manifest& manifest)
-        {
-            return GetSystemReferenceStrings(
-                manifest,
-                [](const Manifest::ManifestInstaller& i) -> const Utility::NormalizedString& { return i.ProductCode; },
-                [](const Manifest::AppsAndFeaturesEntry& e) -> const Utility::NormalizedString& { return e.ProductCode; });
-        }
-    }
-
     Schema::Version Interface::GetVersion() const
     {
         return { 1, 1 };
@@ -119,8 +68,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
         // Add the new 1.1 data
         // These system reference strings are all stored with their cases folded so that they can be
         // looked up ordinally; enabling the index to provide efficient searches.
-        PackageFamilyNameTable::EnsureExistsAndInsert(connection, GetPackageFamilyNames(manifest), manifestId);
-        ProductCodeTable::EnsureExistsAndInsert(connection, GetProductCodes(manifest), manifestId);
+        PackageFamilyNameTable::EnsureExistsAndInsert(connection, manifest.GetPackageFamilyNames(), manifestId);
+        ProductCodeTable::EnsureExistsAndInsert(connection, manifest.GetProductCodes(), manifestId);
 
         savepoint.Commit();
 
@@ -134,8 +83,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_1
         auto [indexModified, manifestId] = V1_0::Interface::UpdateManifest(connection, manifest, relativePath);
 
         // Update new 1:N tables as necessary
-        indexModified = PackageFamilyNameTable::UpdateIfNeededByManifestId(connection, GetPackageFamilyNames(manifest), manifestId) || indexModified;
-        indexModified = ProductCodeTable::UpdateIfNeededByManifestId(connection, GetProductCodes(manifest), manifestId) || indexModified;
+        indexModified = PackageFamilyNameTable::UpdateIfNeededByManifestId(connection, manifest.GetPackageFamilyNames(), manifestId) || indexModified;
+        indexModified = ProductCodeTable::UpdateIfNeededByManifestId(connection, manifest.GetProductCodes(), manifestId) || indexModified;
 
         savepoint.Commit();
 

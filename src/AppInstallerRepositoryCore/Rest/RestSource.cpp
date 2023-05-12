@@ -341,11 +341,7 @@ namespace AppInstaller::Repository::Rest
                 for (const auto& loc : m_versionInfo.Manifest->Localizations)
                 {
                     auto f = loc.Get<Field>();
-                    if (f.empty())
-                    {
-                        result.emplace_back(loc.Get<Field>());
-                    }
-                    else
+                    if (!f.empty())
                     {
                         result.emplace_back(std::move(f));
                     }

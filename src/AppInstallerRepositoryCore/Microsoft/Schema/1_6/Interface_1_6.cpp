@@ -9,32 +9,6 @@
 
 namespace AppInstaller::Repository::Microsoft::Schema::V1_6
 {
-    namespace
-    {
-        std::vector<Utility::NormalizedString> GetUpgradeCodes(const Manifest::Manifest& manifest)
-        {
-            std::set<Utility::NormalizedString> set;
-
-            for (const auto& installer : manifest.Installers)
-            {
-                for (const auto& appsAndFeaturesEntry : installer.AppsAndFeaturesEntries)
-                {
-                    const Utility::NormalizedString& string = appsAndFeaturesEntry.UpgradeCode;
-                    if (!string.empty())
-                    {
-                        set.emplace(Utility::FoldCase(string));
-                    }
-                }
-            }
-
-            std::vector<Utility::NormalizedString> result(
-                std::make_move_iterator(set.begin()),
-                std::make_move_iterator(set.end()));
-
-            return result;
-        }
-    }
-
     Interface::Interface(Utility::NormalizationVersion normVersion) : V1_5::Interface(normVersion)
     {
     }
@@ -64,7 +38,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_6
         // Add the new 1.6 data
         // These system reference strings are all stored with their cases folded so that they can be
         // looked up ordinally; enabling the index to provide efficient searches.
-        UpgradeCodeTable::EnsureExistsAndInsert(connection, GetUpgradeCodes(manifest), manifestId);
+        UpgradeCodeTable::EnsureExistsAndInsert(connection, manifest.GetUpgradeCodes(), manifestId);
 
         savepoint.Commit();
 
@@ -78,7 +52,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_6
         auto [indexModified, manifestId] = V1_5::Interface::UpdateManifest(connection, manifest, relativePath);
 
         // Update new 1:N tables as necessary
-        indexModified = UpgradeCodeTable::UpdateIfNeededByManifestId(connection, GetUpgradeCodes(manifest), manifestId) || indexModified;
+        indexModified = UpgradeCodeTable::UpdateIfNeededByManifestId(connection, manifest.GetUpgradeCodes(), manifestId) || indexModified;
 
         savepoint.Commit();
 
