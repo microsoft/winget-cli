@@ -103,27 +103,39 @@ namespace AppInstaller::CLI::Workflow
             {
                 AICLI_LOG(CLI, Info, << "Get device entitlement (machine scope install).");
                 result = EntitlementType::Device;
-                entitlementResult = installManager.GetFreeDeviceEntitlementAsync(productId, winrt::hstring(), winrt::hstring()).get();
+                try
+                {
+                    entitlementResult = installManager.GetFreeDeviceEntitlementAsync(productId, winrt::hstring(), winrt::hstring()).get();
+                }
+                CATCH_LOG();
             }
             else
             {
                 AICLI_LOG(CLI, Info, << "Get user entitlement.");
                 result = EntitlementType::User;
-                entitlementResult = installManager.GetFreeUserEntitlementAsync(productId, winrt::hstring(), winrt::hstring()).get();
+                try
+                {
+                    entitlementResult = installManager.GetFreeUserEntitlementAsync(productId, winrt::hstring(), winrt::hstring()).get();
+                }
+                CATCH_LOG();
 
-                if (entitlementResult.Status() == GetEntitlementStatus::NoStoreAccount)
+                if (!entitlementResult || entitlementResult.Status() == GetEntitlementStatus::NoStoreAccount)
                 {
                     AICLI_LOG(CLI, Info, << "Get device entitlement (no store account).");
                     result = EntitlementType::Device;
-                    entitlementResult = installManager.GetFreeDeviceEntitlementAsync(productId, winrt::hstring(), winrt::hstring()).get();
+                    try
+                    {
+                        entitlementResult = installManager.GetFreeDeviceEntitlementAsync(productId, winrt::hstring(), winrt::hstring()).get();
+                    }
+                    CATCH_LOG();
                 }
             }
 
-            if (entitlementResult.Status() == GetEntitlementStatus::Succeeded)
+            if (entitlementResult && entitlementResult.Status() == GetEntitlementStatus::Succeeded)
             {
                 AICLI_LOG(CLI, Info, << "Get entitlement succeeded.");
             }
-            else
+            else if (entitlementResult)
             {
                 result = EntitlementType::None;
 
@@ -139,6 +151,11 @@ namespace AppInstaller::CLI::Workflow
                 {
                     AICLI_LOG(CLI, Error, << "Get entitlement failed. Unknown status: " << static_cast<int32_t>(entitlementResult.Status()));
                 }
+            }
+            else
+            {
+                result = EntitlementType::None;
+                AICLI_LOG(CLI, Error, << "Get entitlement failed. Exception.");
             }
 
             return result;

@@ -422,6 +422,7 @@
     <ClInclude Include="Public\winget\PortableARPEntry.h" />
     <ClInclude Include="Public\winget\PortableFileEntry.h" />
     <ClInclude Include="Public\winget\ManifestSchemaValidation.h" />
+    <ClInclude Include="Public\winget\SelfManagement.h" />
     <ClInclude Include="Public\winget\Settings.h" />
     <ClInclude Include="Public\winget\ThreadGlobals.h" />
     <ClInclude Include="Public\winget\TraceLogger.h" />
@@ -485,6 +486,7 @@
     </ClCompile>
     <ClCompile Include="AppInstallerTelemetry.cpp" />
     <ClCompile Include="Archive.cpp" />
+    <ClCompile Include="SelfManagement.cpp" />
     <ClCompile Include="Settings.cpp" />
     <ClCompile Include="PathVariable.cpp" />
     <ClCompile Include="PortableARPEntry.cpp" />
