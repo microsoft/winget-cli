@@ -817,7 +817,7 @@ namespace AppInstaller::Repository
 
                 bool operator==(const SystemReferenceString& other) const
                 {
-                    return Field == other.Field && String1 == other.String1 && String2 == other.String2;
+                    return Field == other.Field && Utility::CaseInsensitiveEquals(String1, other.String1) && Utility::CaseInsensitiveEquals(String2, other.String2);
                 }
 
                 void AddToFilters(
