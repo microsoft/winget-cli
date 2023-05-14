@@ -876,7 +876,8 @@ namespace AppInstaller::Repository
             // Check for a package already in the result that should have been correlated already.
             // If we find one, see if we should upgrade it's match criteria.
             // If we don't, return package data for further use.
-            std::optional<PackageData> CheckForExistingResultFromAvailablePackageMatch(const ResultMatch& availableMatch)
+            //     downloadManifests: when creating
+            std::optional<PackageData> CheckForExistingResultFromAvailablePackageMatch(const ResultMatch& availableMatch, bool downloadManifests)
             {
                 for (auto& match : Matches)
                 {
@@ -893,10 +894,19 @@ namespace AppInstaller::Repository
                 }
 
                 PackageData result;
+                constexpr int c_downloadManifestsLimit = 3;
+                int manifestsDownloaded = 0;
                 for (auto const& versionKey : availableMatch.Package->GetAvailableVersionKeys())
                 {
                     auto packageVersion = availableMatch.Package->GetAvailableVersion(versionKey);
                     AddSystemReferenceStrings(packageVersion.get(), result);
+
+                    if (downloadManifests && manifestsDownloaded < c_downloadManifestsLimit)
+                    {
+                        auto manifest = packageVersion->GetManifest();
+                        AddSystemReferenceStringsFromManifest(manifest, result);
+                        manifestsDownloaded++;
+                    }
                 }
                 return result;
             }
@@ -1032,6 +1042,32 @@ namespace AppInstaller::Repository
                 GetNameAndPublisher(
                     version,
                     data);
+            }
+
+            void AddSystemReferenceStringsFromManifest(Manifest::Manifest& manifest, PackageData& data)
+            {
+                for (const auto& pfn : manifest.GetPackageFamilyNames())
+                {
+                    data.AddIfNotPresent(SystemReferenceString{ PackageMatchField::PackageFamilyName, Utility::LocIndString{ pfn } });
+                }
+                for (const auto& productCode : manifest.GetProductCodes())
+                {
+                    data.AddIfNotPresent(SystemReferenceString{ PackageMatchField::ProductCode, Utility::LocIndString{ productCode } });
+                }
+                for (const auto& upgradeCode : manifest.GetUpgradeCodes())
+                {
+                    data.AddIfNotPresent(SystemReferenceString{ PackageMatchField::UpgradeCode, Utility::LocIndString{ upgradeCode } });
+                }
+                for (const auto& name : manifest.GetPackageNames())
+                {
+                    for (const auto& publisher : manifest.GetPublishers())
+                    {
+                        data.AddIfNotPresent(SystemReferenceString{
+                            PackageMatchField::NormalizedNameAndPublisher,
+                            Utility::LocIndString{ name },
+                            Utility::LocIndString{ publisher } });
+                    }
+                }
             }
 
             void GetSystemReferenceStrings(
@@ -1385,7 +1421,9 @@ namespace AppInstaller::Repository
             for (auto&& match : availableResult.Matches)
             {
                 // Check for a package already in the result that should have been correlated already.
-                auto packageData = result.CheckForExistingResultFromAvailablePackageMatch(match);
+                // In cases that PackageData will be created, also download manifests for system reference strings
+                // when search result is small (currently limiting to 1).
+                auto packageData = result.CheckForExistingResultFromAvailablePackageMatch(match, availableResult.Matches.size() == 1);
 
                 // If found existing package in the result, continue
                 if (!packageData)
