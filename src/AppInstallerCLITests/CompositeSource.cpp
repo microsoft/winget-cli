@@ -1317,3 +1317,38 @@ TEST_CASE("CompositeSource_OneSourceGated", "[CompositeSource][PinFlow]")
     REQUIRE(package);
     RequireExpectedResultsWithPin(package, expectedResult);
 }
+
+TEST_CASE("CompositeSource_CorrelateToInstalledContainsManifestData", "[CompositeSource]")
+{
+    CompositeTestSetup setup;
+    setup.Installed->SearchFunction = [&](const SearchRequest& request)
+    {
+        if (request.Purpose == SearchPurpose::CorrelationToInstalled)
+        {
+            bool expectedSearchFound = false;
+            for (const auto& inclusion : request.Inclusions)
+            {
+                if (inclusion.Field == PackageMatchField::ProductCode && inclusion.Value == "hello")
+                {
+                    expectedSearchFound = true;
+                    break;
+                }
+            }
+
+            REQUIRE(expectedSearchFound);
+        }
+
+        SearchResult result;
+        return result;
+    };
+    setup.Available->SearchFunction = [&](const SearchRequest&)
+    {
+        SearchResult result;
+        result.Matches.emplace_back(MakeAvailable(setup.Available).WithPC("hello"), Criteria());
+        return result;
+    };
+
+    SearchRequest request;
+    request.Query = RequestMatch(MatchType::Exact, "NotForEverything");
+    SearchResult result = setup.Composite.Search(request);
+}

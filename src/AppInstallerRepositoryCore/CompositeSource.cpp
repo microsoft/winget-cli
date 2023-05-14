@@ -876,7 +876,7 @@ namespace AppInstaller::Repository
             // Check for a package already in the result that should have been correlated already.
             // If we find one, see if we should upgrade it's match criteria.
             // If we don't, return package data for further use.
-            //     downloadManifests: when creating
+            //     downloadManifests: when creating system reference strings, also download manifests to get more data.
             std::optional<PackageData> CheckForExistingResultFromAvailablePackageMatch(const ResultMatch& availableMatch, bool downloadManifests)
             {
                 for (auto& match : Matches)
