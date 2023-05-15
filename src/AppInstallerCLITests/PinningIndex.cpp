@@ -77,8 +77,7 @@ TEST_CASE("PinningIndexAddEntryToTable", "[pinningIndex]")
         REQUIRE(pinFromIndex.value() == pin);
 
         REQUIRE(pinFromIndex->GetType() == pin.GetType());
-        REQUIRE(pinFromIndex->GetPackageId() == pin.GetPackageId());
-        REQUIRE(pinFromIndex->GetSourceId() == pin.GetSourceId());
+        REQUIRE(pinFromIndex->GetKey() == pin.GetKey());
     }
 
     {

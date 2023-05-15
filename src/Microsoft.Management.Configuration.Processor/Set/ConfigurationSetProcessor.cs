@@ -57,7 +57,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
         {
             try
             {
-                var configurationUnitInternal = new ConfigurationUnitInternal(unit, directivesOverlay);
+                var configurationUnitInternal = new ConfigurationUnitInternal(unit, this.configurationSet.Path, directivesOverlay);
                 this.OnDiagnostics(DiagnosticLevel.Verbose, $"Creating unit processor for: {configurationUnitInternal.ToIdentifyingString()}...");
 
                 var dscResourceInfo = this.PrepareUnitForProcessing(configurationUnitInternal);
@@ -87,7 +87,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
         {
             try
             {
-                var unitInternal = new ConfigurationUnitInternal(unit);
+                var unitInternal = new ConfigurationUnitInternal(unit, this.configurationSet.Path);
                 this.OnDiagnostics(DiagnosticLevel.Verbose, $"Getting unit details [{detailLevel}] for: {unitInternal.ToIdentifyingString()}");
                 var dscResourceInfo = this.ProcessorEnvironment.GetDscResource(unitInternal);
 

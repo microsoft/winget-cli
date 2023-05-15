@@ -35,7 +35,7 @@ TEST_CASE("PinFlow_Add", "[PinFlow][workflow]")
     std::ostringstream pinAddOutput;
     TestContext addContext{ pinAddOutput, std::cin };
     OverrideForOpenPinningIndex(addContext, indexFile.GetPath());
-    OverrideForCompositeInstalledSource(addContext, CreateTestSource({ TSR:: TestInstaller_Exe }));
+    OverrideForCompositeInstalledSource(addContext, CreateTestSource({ TSR::TestInstaller_Exe }));
     addContext.Args.AddArg(Execution::Args::Type::Query, TSR::TestInstaller_Exe.Query);
     addContext.Args.AddArg(Execution::Args::Type::BlockingPin);
 
@@ -49,9 +49,9 @@ TEST_CASE("PinFlow_Add", "[PinFlow][workflow]")
         auto pins = index.GetAllPins();
         REQUIRE(pins.size() == 1);
         REQUIRE(pins[0].GetType() == PinType::Blocking);
-        REQUIRE(pins[0].GetPackageId() == "AppInstallerCliTest.TestExeInstaller");
-        REQUIRE(pins[0].GetSourceId() == "*TestSource");
         REQUIRE(pins[0].GetGatedVersion().ToString() == "");
+        REQUIRE(pins[0].GetKey().PackageId == "AppInstallerCliTest.TestExeInstaller");
+        REQUIRE(pins[0].GetKey().SourceId == "*TestSource");
 
         std::ostringstream pinListOutput;
         TestContext listContext{ pinListOutput, std::cin };

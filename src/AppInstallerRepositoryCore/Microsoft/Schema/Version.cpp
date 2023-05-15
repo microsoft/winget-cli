@@ -26,6 +26,17 @@ namespace AppInstaller::Repository::Microsoft::Schema
 
     std::ostream& operator<<(std::ostream& out, const Version& version)
     {
-        return (out << version.MajorVersion << '.' << version.MinorVersion);
+        if (version.IsLatest())
+        {
+            return out << "Latest";
+        }
+        else if (version.IsLatestForMajor(version.MajorVersion))
+        {
+            return out << version.MajorVersion << ".Latest";
+        }
+        else
+        {
+            return out << version.MajorVersion << '.' << version.MinorVersion;
+        }
     }
 }

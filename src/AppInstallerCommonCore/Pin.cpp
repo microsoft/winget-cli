@@ -9,6 +9,38 @@ namespace AppInstaller::Pinning
 {
     using namespace std::string_view_literals;
 
+    namespace
+    {
+        // Source ID to use for the installed source; it does not match any installed source.
+        // This does match with the actual ID of the source, but it doesn't really matter
+        // as it is handled specially when we see it.
+        constexpr std::string_view s_installedSourceId = "*PredefinedInstalledSource"sv;
+    }
+
+    PinType ConvertToPinTypeEnum(std::string_view in)
+    {
+        if (Utility::CaseInsensitiveEquals(in, "Blocking"sv))
+        {
+            return PinType::Blocking;
+        }
+        else if (Utility::CaseInsensitiveEquals(in, "Pinning"sv))
+        {
+            return PinType::Pinning;
+        }
+        else if (Utility::CaseInsensitiveEquals(in, "Gating"sv))
+        {
+            return PinType::Gating;
+        }
+        else if (Utility::CaseInsensitiveEquals(in, "PinnedByManifest"sv))
+        {
+            return PinType::PinnedByManifest;
+        }
+        else
+        {
+            return PinType::Unknown;
+        }
+    }
+
     std::string_view ToString(PinType type)
     {
         switch (type)
@@ -27,28 +59,39 @@ namespace AppInstaller::Pinning
         }
     }
 
-    PinType ConvertToPinTypeEnum(std::string_view in)
+    bool IsStricter(PinType first, PinType second)
     {
-        if (Utility::CaseInsensitiveEquals(in, "Blocking"sv))
+        return first > second;
+    }
+
+    std::string PinKey::ToString() const
+    {
+        std::stringstream ss;
+        ss << "Package=[" << PackageId << "] Source=[" << SourceId << "]";
+        return ss.str();
+    }
+
+    PinKey PinKey::GetPinKeyForInstalled(std::string_view systemReferenceString)
+    {
+        return { systemReferenceString, s_installedSourceId };
+    }
+
+    bool PinKey::IsForInstalled() const
+    {
+        return SourceId == s_installedSourceId;
+    }
+
+    std::string Pin::ToString() const
+    {
+        std::stringstream ss;
+        ss << m_key.ToString() << " Type=[" << Pinning::ToString(m_type) << ']';
+
+        if (m_type == PinType::Gating)
         {
-            return PinType::Blocking;
-    }
-        else if (Utility::CaseInsensitiveEquals(in, "Pinning"sv))
-    {
-            return PinType::Pinning;
-    }
-        else if (Utility::CaseInsensitiveEquals(in, "Gating"sv))
-    {
-            return PinType::Gating;
-    }
-        else if (Utility::CaseInsensitiveEquals(in, "PinnedByManifest"sv))
-    {
-            return PinType::PinnedByManifest;
-    }
-        else
-    {
-            return PinType::Unknown;
+            ss << " GatedVersion=[" << m_gatedVersion.ToString() << ']';
         }
+
+        return ss.str();
     }
 
     Pin Pin::CreateBlockingPin(PinKey&& pinKey)

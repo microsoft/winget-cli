@@ -397,6 +397,7 @@ pfp
 PGP
 php
 PII
+pinnable
 pinningindex
 pipssource
 PKCS

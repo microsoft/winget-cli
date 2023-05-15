@@ -6,11 +6,13 @@
 
 namespace Microsoft.WinGet.Client.Engine.Commands
 {
+    using System;
     using System.Management.Automation;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Engine.Commands.Common;
     using Microsoft.WinGet.Client.Engine.Extensions;
     using Microsoft.WinGet.Client.Engine.Helpers;
+    using Microsoft.WinGet.Client.Engine.Properties;
     using Microsoft.WinGet.Client.Engine.PSObjects;
 
     /// <summary>
@@ -44,6 +46,9 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             uint count)
             : base(psCmdlet)
         {
+#if POWERSHELL_WINDOWS
+            throw new NotSupportedException(Resources.WindowsPowerShellNotSupported);
+#else
             // FinderCommand
             this.Id = id;
             this.Name = name;
@@ -56,6 +61,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             this.Tag = tag;
             this.Command = command;
             this.Count = count;
+#endif
         }
 
         /// <summary>

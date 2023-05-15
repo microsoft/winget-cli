@@ -259,6 +259,15 @@ namespace Microsoft.WinGet.Client.Engine.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to This cmdlet is no supported in Windows PowerShell.
+        /// </summary>
+        internal static string WindowsPowerShellNotSupported {
+            get {
+                return ResourceManager.GetString("WindowsPowerShellNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Command {0} failed with exit code {1}.
         /// </summary>
         internal static string WinGetCLIExceptionMessage {

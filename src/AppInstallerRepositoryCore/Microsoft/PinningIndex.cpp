@@ -9,7 +9,7 @@ namespace AppInstaller::Repository::Microsoft
 {
     PinningIndex PinningIndex::CreateNew(const std::string& filePath, Schema::Version version)
     {
-        AICLI_LOG(Repo, Info, << "Creating new Pinning Index [" << version << "] at '" << filePath << "'");
+        AICLI_LOG(Repo, Info, << "Creating new Pinning Index with version [" << version << "] at '" << filePath << "'");
         PinningIndex result{ filePath, version };
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(result.m_dbconn, "pinningindex_createnew");
@@ -74,7 +74,7 @@ namespace AppInstaller::Repository::Microsoft
     PinningIndex::IdType PinningIndex::AddPin(const Pinning::Pin& pin)
     {
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
-        AICLI_LOG(Repo, Verbose, << "Adding Pin for package [" << pin.GetPackageId() << "] from source [" << pin.GetSourceId() << "] with pin type " << Pinning::ToString(pin.GetType()));
+        AICLI_LOG(Repo, Verbose, << "Adding Pin " << pin.ToString());
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "pinningindex_addpin");
 
@@ -90,7 +90,7 @@ namespace AppInstaller::Repository::Microsoft
     bool PinningIndex::UpdatePin(const Pinning::Pin& pin)
     {
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
-        AICLI_LOG(Repo, Verbose, << "Updating Pin for package [" << pin.GetPackageId() << "] from source [" << pin.GetSourceId() << "] with pin type " << Pinning::ToString(pin.GetType()));
+        AICLI_LOG(Repo, Verbose, << "Updating Pin " << pin.ToString());
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "pinningindex_updatepin");
 
@@ -121,7 +121,7 @@ namespace AppInstaller::Repository::Microsoft
     void PinningIndex::RemovePin(const Pinning::PinKey& pinKey)
     {
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
-        AICLI_LOG(Repo, Verbose, << "Removing Pin for package [" << pinKey.PackageId << "] from source [" << pinKey.SourceId << "]");
+        AICLI_LOG(Repo, Verbose, << "Removing Pin " << pinKey.ToString());
 
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "pinningIndex_removePin");
 

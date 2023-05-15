@@ -162,7 +162,7 @@ namespace TestCommon
         return InstalledVersion;
     }
 
-    std::vector<PackageVersionKey> TestPackage::GetAvailableVersionKeys() const
+    std::vector<PackageVersionKey> TestPackage::GetAvailableVersionKeys(PinBehavior) const
     {
         std::vector<PackageVersionKey> result;
         for (const auto& version : AvailableVersions)
