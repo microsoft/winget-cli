@@ -21,7 +21,7 @@ namespace Microsoft.Management.Configuration.Processor.DscModule
     using static Microsoft.Management.Configuration.Processor.Constants.PowerShellConstants;
 
     /// <summary>
-    /// PSDesiredStateConfiguration v2.0.6.
+    /// PSDesiredStateConfiguration v2.
     /// </summary>
     internal class DscModuleV2 : IDscModule
     {

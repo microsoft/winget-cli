@@ -84,6 +84,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Fixtures
         /// <summary>
         /// Creates a runspace adding the test module path.
         /// </summary>
+        /// <param name="validate">Validate runspace.</param>
         /// <returns>PowerShellRunspace.</returns>
         internal IProcessorEnvironment PrepareTestProcessorEnvironment(bool validate = false)
         {
