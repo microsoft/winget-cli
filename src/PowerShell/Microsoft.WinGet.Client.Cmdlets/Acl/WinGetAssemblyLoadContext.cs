@@ -52,7 +52,7 @@ namespace Microsoft.WinGet.Client.Acl
         internal static Assembly ResolvingHandler(AssemblyLoadContext context, AssemblyName assemblyName)
         {
             string name = $"{assemblyName.Name}.dll";
-            if (DefaultContextAssemblies.Any(a => a == name))
+            if (DefaultContextAssemblies.Any(a => a.Equals(name, StringComparison.OrdinalIgnoreCase)))
             {
                 string sharedPath = Path.Combine(SharedDependencyPath, name);
                 if (File.Exists(sharedPath))
@@ -74,7 +74,7 @@ namespace Microsoft.WinGet.Client.Acl
         protected override Assembly Load(AssemblyName assemblyName)
         {
             string name = $"{assemblyName.Name}.dll";
-            if (DefaultContextAssemblies.Any(a => a == name))
+            if (DefaultContextAssemblies.Any(a => a.Equals(name, StringComparison.OrdinalIgnoreCase)))
             {
                 return null;
             }
