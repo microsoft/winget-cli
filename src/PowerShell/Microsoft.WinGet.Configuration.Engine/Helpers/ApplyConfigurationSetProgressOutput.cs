@@ -189,10 +189,10 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
 
         private void OutputUnitInProgressIfNeeded(ConfigurationUnit unit)
         {
-            var unitInstace = unit.InstanceIdentifier;
-            if (!this.unitsSeen.Contains(unitInstace))
+            var unitInstance = unit.InstanceIdentifier;
+            if (!this.unitsSeen.Contains(unitInstance))
             {
-                this.unitsSeen.Add(unitInstace);
+                this.unitsSeen.Add(unitInstance);
                 var unitInfo = new ConfigurationUnitInformation(unit);
                 this.cmd.Write(StreamType.Information, unitInfo.GetHeader());
             }

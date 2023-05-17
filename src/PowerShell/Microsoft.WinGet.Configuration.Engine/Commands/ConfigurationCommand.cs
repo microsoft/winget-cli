@@ -45,15 +45,15 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             bool result = false;
             if (!hasAccepted)
             {
-                bool yestoall = false;
-                bool notoall = false;
-                result = psCmdlet.ShouldContinue(Resources.ConfigurationWarningPrompt, Resources.ConfigurationWarning, true, ref yestoall, ref notoall);
+                bool yesToAll = false;
+                bool noToAll = false;
+                result = psCmdlet.ShouldContinue(Resources.ConfigurationWarningPrompt, Resources.ConfigurationWarning, true, ref yesToAll, ref noToAll);
 
-                if (yestoall)
+                if (yesToAll)
                 {
                     result = true;
                 }
-                else if (notoall)
+                else if (noToAll)
                 {
                     result = false;
                 }

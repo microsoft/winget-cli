@@ -43,9 +43,9 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         /// <param name="psCmdlet">PSCmdlet.</param>
         public AsyncCommand(PSCmdlet psCmdlet)
         {
-            // Passing -Debug will make all the message actions to be Inquire. For async operations
-            // and the current queue message implemetnation this doesn't make sense.
-            // PowerShell will inquire for any message giving the impresion that the task is
+            // Passing Debug will make all the message actions to be Inquire. For async operations
+            // and the current queue message implementation this doesn't make sense.
+            // PowerShell will inquire for any message giving the impression that the task is
             // paused, but the async operation is still running.
             if (psCmdlet.MyInvocation.BoundParameters.ContainsKey("Debug"))
             {
@@ -261,7 +261,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         }
 
         /// <summary>
-        /// Write error with a message. Craete WriteErrorException.
+        /// Write error with a message. Create WriteErrorException.
         /// </summary>
         /// <param name="errorId">Error id.</param>
         /// <param name="message">Message.</param>
