@@ -25,6 +25,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
         private readonly int activityId;
         private readonly string activity;
         private readonly string inProgressMessage;
+        private readonly string completeMessage;
         private readonly int totalUnitsExpected;
 
         private readonly HashSet<Guid> unitsSeen = new ();
@@ -39,14 +40,20 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
         /// <param name="activityId">The activity id of the progress bar.</param>
         /// <param name="activity">The activity.</param>
         /// <param name="inProgressMessage">The message in the progress bar.</param>
+        /// <param name="completeMessage">The activity complete message.</param>
         /// <param name="totalUnitsExpected">Total of units expected.</param>
-        public ApplyConfigurationSetProgressOutput(AsyncCommand cmd, int activityId, string activity, string inProgressMessage, int totalUnitsExpected)
+        public ApplyConfigurationSetProgressOutput(AsyncCommand cmd, int activityId, string activity, string inProgressMessage, string completeMessage, int totalUnitsExpected)
         {
             this.cmd = cmd;
             this.activityId = activityId;
             this.activity = activity;
             this.inProgressMessage = inProgressMessage;
+            this.completeMessage = completeMessage;
             this.totalUnitsExpected = totalUnitsExpected;
+
+            // Write initial progress record.
+            // For some reason, if this is 0 the progress bar is shown full. Start with 1%
+            this.cmd.WriteProgressWithPercentage(activityId, activity, $"{this.inProgressMessage} 0/{this.totalUnitsExpected}", 1, 100);
         }
 
         /// <summary>
@@ -58,7 +65,6 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
         {
             if (this.isFirstProgress)
             {
-                // TODO: here create first progress bar?
                 this.HandleUnreportedProgress(operation.GetResults());
             }
 
@@ -93,6 +99,14 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
                     this.HandleUnitProgress(unitResult.Unit, unitResult.State, unitResult.ResultInformation);
                 }
             }
+        }
+
+        /// <summary>
+        /// Completes the progress bar.
+        /// </summary>
+        public void CompleteProgress()
+        {
+            this.cmd.CompleteProgress(this.activityId, this.activity, this.completeMessage);
         }
 
         private void HandleUnitProgress(ConfigurationUnit unit, ConfigurationUnitState state, ConfigurationUnitResultInformation resultInformation)

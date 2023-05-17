@@ -300,15 +300,13 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             var processor = psConfigurationSet.PsProcessor.Processor;
             var set = psConfigurationSet.Set;
 
-            var activityId = this.GetNewProgressActivityId();
-            var activity = Resources.ConfigurationApply;
-            var inProgress = Resources.OperationInProgress;
-
-            // Write initial progress record.
-            // For some reason, if this is 0 the progress bar is shown full. Start with 1%
-            this.WriteProgressWithPercentage(activityId, activity, inProgress, 1, 100);
-
-            var applyProgressOutput = new ApplyConfigurationSetProgressOutput(this, activityId, activity, inProgress, set.ConfigurationUnits.Count);
+            var applyProgressOutput = new ApplyConfigurationSetProgressOutput(
+                this,
+                this.GetNewProgressActivityId(),
+                Resources.ConfigurationApply,
+                Resources.OperationInProgress,
+                Resources.OperationCompleted,
+                set.ConfigurationUnits.Count);
 
             var applyTask = processor.ApplySetAsync(set, ApplyConfigurationSetFlags.None);
             applyTask.Progress = applyProgressOutput.Progress;
@@ -320,7 +318,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             }
             finally
             {
-                this.CompleteProgress(activityId, activity, Resources.OperationCompleted);
+                applyProgressOutput.CompleteProgress();
             }
 
             return psConfigurationSet;
@@ -338,49 +336,21 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                 return psConfigurationSet;
             }
 
-            var activityId = this.GetNewProgressActivityId();
-            var activity = Resources.ConfigurationGettingDetails;
-            var inProgress = Resources.OperationInProgress;
-
-            // Write initial progress record.
-            // For some reason, if this is 0 the progress bar is shown full. Start with 1%
-            this.WriteProgressWithPercentage(activityId, activity, $"{inProgress} 0/{totalUnitsCount}", 1, 100);
+            var detailsProgressOutput = new GetConfigurationSetDetailsProgressOutput(
+                this,
+                this.GetNewProgressActivityId(),
+                Resources.ConfigurationGettingDetails,
+                Resources.OperationInProgress,
+                Resources.OperationCompleted,
+                totalUnitsCount);
 
             var detailsTask = processor.GetSetDetailsAsync(set, ConfigurationUnitDetailLevel.Catalog);
-
-            int unitsShown = 0;
-            detailsTask.Progress = (operation, result) =>
-            {
-                var unitResults = operation.GetResults().UnitResults;
-                while (unitsShown < unitResults.Count)
-                {
-                    GetConfigurationUnitDetailsResult unitResult = unitResults[unitsShown];
-                    this.LogFailedGetConfigurationUnitDetails(unitResult.Unit, unitResult.ResultInformation);
-                    var information = new ConfigurationUnitInformation(unitResult.Unit);
-                    this.Write(StreamType.Information, information.GetHeader());
-                    this.Write(StreamType.Information, information.GetInformation());
-
-                    ++unitsShown;
-                    this.WriteProgressWithPercentage(activityId, activity, $"{inProgress} {unitsShown}/{totalUnitsCount}", unitsShown, totalUnitsCount);
-                }
-            };
+            detailsTask.Progress = detailsProgressOutput.Progress;
 
             try
             {
                 var result = await detailsTask;
-
-                // Handle any missing progress callbacks
-                var unitResults = result.UnitResults;
-                while (unitsShown < unitResults.Count)
-                {
-                    GetConfigurationUnitDetailsResult unitResult = unitResults[unitsShown];
-                    this.LogFailedGetConfigurationUnitDetails(unitResult.Unit, unitResult.ResultInformation);
-                    var information = new ConfigurationUnitInformation(unitResult.Unit);
-                    this.Write(StreamType.Information, information.GetHeader());
-                    this.Write(StreamType.Information, information.GetInformation());
-
-                    ++unitsShown;
-                }
+                detailsProgressOutput.HandleUnits(result.UnitResults);
             }
             catch (Exception e)
             {
@@ -388,10 +358,12 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                     ErrorRecordErrorId.ConfigurationDetailsError,
                     e);
             }
+            finally
+            {
+                detailsProgressOutput.CompleteProgress();
+            }
 
-            this.CompleteProgress(activityId, activity, Resources.OperationCompleted);
-
-            if (unitsShown == 0)
+            if (detailsProgressOutput.UnitsShown == 0)
             {
                 this.Write(StreamType.Warning, Resources.ConfigurationFailedToGetDetails);
                 foreach (var unit in set.ConfigurationUnits)
