@@ -12,6 +12,7 @@
 #include <winget/UserSettings.h>
 #include <winget/Filesystem.h>
 #include <winget/WindowsFeature.h>
+#include <winget/IconExtraction.h>
 
 #ifdef AICLI_DISABLE_TEST_HOOKS
 static_assert(false, "Test hooks have been disabled");
@@ -33,6 +34,7 @@ namespace AppInstaller
     {
         void TestHook_SetSourceFactoryOverride(const std::string& type, std::function<std::unique_ptr<ISourceFactory>()>&& factory);
         void TestHook_ClearSourceFactoryOverrides();
+        void TestHook_SetExtractIconFromArpEntryResult_Override(std::vector<AppInstaller::Repository::ExtractedIconInfo>* result);
     }
 
     namespace Repository::Microsoft
@@ -209,5 +211,21 @@ namespace TestHook
 
     private:
         AppInstaller::WindowsFeature::DismRestartType m_restartType;
+    };
+
+    struct SetExtractIconFromArpEntryResult_Override
+    {
+        SetExtractIconFromArpEntryResult_Override(std::vector<AppInstaller::Repository::ExtractedIconInfo> extractedIcons) : m_extractedIcons(std::move(extractedIcons))
+        {
+            AppInstaller::Repository::TestHook_SetExtractIconFromArpEntryResult_Override(&m_extractedIcons);
+        }
+
+        ~SetExtractIconFromArpEntryResult_Override()
+        {
+            AppInstaller::Repository::TestHook_SetExtractIconFromArpEntryResult_Override(nullptr);
+        }
+
+    private:
+        std::vector<AppInstaller::Repository::ExtractedIconInfo> m_extractedIcons;
     };
 }

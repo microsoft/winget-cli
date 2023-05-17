@@ -8,6 +8,7 @@
 #include <winget/ThreadGlobals.h>
 #include <winget/ARPCorrelation.h>
 #include <winget/InstalledFilesCorrelation.h>
+#include <winget/IconExtraction.h>
 
 #include <filesystem>
 #include <map>
@@ -55,6 +56,8 @@ namespace AppInstaller::Repository::Metadata
             std::optional<Manifest::InstallationMetadataInfo> InstalledFiles;
             // If std::nullopt, the value is not set before. If the vector is empty, conflicting values are encountered.
             std::optional<std::vector<Correlation::InstalledStartupLinkFile>> StartupLinkFiles;
+            // Extracted icons
+            std::vector<ExtractedIconInfo> Icons;
         };
 
         // Metadata from previous product revisions.

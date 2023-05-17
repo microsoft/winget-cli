@@ -293,6 +293,9 @@
     <ClCompile Include="RestInterface_1_4.cpp">
       <Filter>Source Files\Repository</Filter>
     </ClCompile>
+    <ClCompile Include="IconExtraction.cpp">
+      <Filter>Source Files\Repository</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />
@@ -835,6 +838,12 @@
       <Filter>TestData</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Node-Types.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\notepad.exe">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\notepad.ico">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
   </ItemGroup>
