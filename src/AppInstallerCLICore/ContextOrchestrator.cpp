@@ -174,7 +174,20 @@ namespace AppInstaller::CLI::Execution
         // Only do this the first time the item is queued.
         if (item->IsOnFirstCommand())
         {
-            ContextOrchestrator::Instance().AddItemManifestToInstallingSource(*item);
+            try
+            {
+                ContextOrchestrator::Instance().AddItemManifestToInstallingSource(*item);
+            }
+            catch (...)
+            {
+                std::lock_guard<std::mutex> lockQueue{ m_queueLock };
+                auto itr = FindIteratorById(item->GetId());
+                if (itr != m_queueItems.end())
+                {
+                    m_queueItems.erase(itr);
+                }
+                throw;
+            }
         }
 
         {
