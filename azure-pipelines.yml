@@ -345,7 +345,7 @@ jobs:
       InputType: 'Basic'
       Function: 'analyze'
       TargetPattern: 'guardianGlob'
-      AnalyzeTargetGlob: '$(buildOutDir)/**.dll;$(buildOutDir)/**.exe;$(Build.SourcesDirectory)\src\WinGetUtilInterop\bin\*.dll;'
+      AnalyzeTargetGlob: 'f|$(buildOutDir)/**.dll;f|$(buildOutDir)/**.exe;f|$(Build.SourcesDirectory)\src\WinGetUtilInterop\bin\*.dll'
 
   - task: PublishSecurityAnalysisLogs@3
     inputs:
