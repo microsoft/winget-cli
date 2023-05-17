@@ -1,0 +1,144 @@
+<!-- Copyright (c) Microsoft Corporation.
+     Licensed under the MIT License. -->
+
+<!-- Common properties used by most of the projects.
+     This ensures we target the same versions and have the right security settings everywhere.
+     Some properties may need to be overriden in specific projects -->
+<Project>
+  <PropertyGroup>
+    <IsExternalProject Condition=" '$(MSBuildProjectName)' == 'cpprestsdk' ">true</IsExternalProject>
+    <IsExternalProject Condition=" '$(MSBuildProjectName)' == 'Detours' ">true</IsExternalProject>
+    <IsExternalProject Condition=" '$(MSBuildProjectName)' == 'JsonCppLib' ">true</IsExternalProject>
+    <IsExternalProject Condition=" '$(MSBuildProjectName)' == 'PureLib' ">true</IsExternalProject>
+    <IsExternalProject Condition=" '$(MSBuildProjectName)' == 'UndockedRegFreeWinRT' ">true</IsExternalProject>
+    <IsExternalProject Condition=" '$(MSBuildProjectName)' == 'YamlCppLib' ">true</IsExternalProject>
+  </PropertyGroup>
+
+  <Choose>
+    <!-- Don't report warnings from external projects -->
+    <When Condition=" '$(IsExternalProject)' == 'true'">
+      <PropertyGroup>
+        <RunCodeAnalysis>false</RunCodeAnalysis>
+      </PropertyGroup>
+      <ItemDefinitionGroup>
+        <ClCompile>
+          <WarningLevel>TurnOffAllWarnings</WarningLevel>
+          <TreatWarningAsError>false</TreatWarningAsError>
+        </ClCompile>
+      </ItemDefinitionGroup>
+    </When>
+
+    <!-- Most of the properties here are for C++, so the few C# projects are a special case -->
+    <When Condition=" '$(MSBuildProjectExtension)' == '.csproj' ">
+      <PropertyGroup>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+      </PropertyGroup>
+    </When>
+
+    <Otherwise>
+      <PropertyGroup Label="Globals">
+        <CppWinRTOptimized>true</CppWinRTOptimized>
+        <CppWinRTRootNamespaceAutoMerge>true</CppWinRTRootNamespaceAutoMerge>
+        <MinimalCoreWin>true</MinimalCoreWin>
+        <Keyword>Win32Proj</Keyword>
+        <WindowsTargetPlatformVersion>10.0.22000.0</WindowsTargetPlatformVersion>
+        <WindowsTargetPlatformMinVersion>10.0.17763.0</WindowsTargetPlatformMinVersion>
+        <WindowsSDKDesktopARMSupport>true</WindowsSDKDesktopARMSupport>
+        <WindowsSDKDesktopARM64Support>true</WindowsSDKDesktopARM64Support>
+      </PropertyGroup>
+
+      <PropertyGroup Label="Configuration">
+        <ConfigurationType>StaticLibrary</ConfigurationType>
+        <PlatformToolset>v140</PlatformToolset>
+        <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</PlatformToolset>
+        <PlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v142</PlatformToolset>
+        <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
+        <CharacterSet>Unicode</CharacterSet>
+      </PropertyGroup>
+      <PropertyGroup Label="Configuration" Condition=" '$(Configuration)' == 'Release' Or '$(Configuration)' == 'ReleaseStatic' ">
+        <UseDebugLibraries>false</UseDebugLibraries>
+        <WholeProgramOptimization>true</WholeProgramOptimization>
+        <LinkIncremental>false</LinkIncremental>
+        <SpectreMitigation>Spectre</SpectreMitigation>
+        <RunCodeAnalysis>false</RunCodeAnalysis>
+      </PropertyGroup>
+      <PropertyGroup Label="Configuration" Condition=" '$(Configuration)' == 'Debug' ">
+        <UseDebugLibraries>true</UseDebugLibraries>
+        <LinkIncremental>true</LinkIncremental>
+        <RunCodeAnalysis>true</RunCodeAnalysis>
+        <CodeAnalysisRuleSet>$(SolutionDir)CodeAnalysis.ruleset</CodeAnalysisRuleSet>
+        <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
+      </PropertyGroup>
+      <PropertyGroup  Label="Configuration" Condition=" '$(Configuration)' == 'Fuzzing' ">
+        <UseDebugLibraries>false</UseDebugLibraries>
+        <WholeProgramOptimization>false</WholeProgramOptimization>
+        <LinkIncremental>false</LinkIncremental>
+        <EnableASAN>true</EnableASAN>
+      </PropertyGroup>
+
+      <PropertyGroup Condition=" '$(Platform)' == 'Win32' ">
+        <OutDir>$(SolutionDir)x86\$(Configuration)\$(ProjectName)\</OutDir>
+      </PropertyGroup>
+      <PropertyGroup Condition=" '$(Platform)' != 'Win32' ">
+        <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
+      </PropertyGroup>
+
+      <ItemDefinitionGroup>
+        <ClCompile>
+          <PrecompiledHeader Condition="Exists('pch.h')">Use</PrecompiledHeader>
+          <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+          <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
+          <PreprocessorDefinitions Condition=" '$(WingetDisableTestHooks)' == 'true' ">AICLI_DISABLE_TEST_HOOKS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+          <PreprocessorDefinitions Condition=" '$(WingetDisableExperimentalFeatures)' == 'true' ">WINGET_DISABLE_EXPERIMENTAL_FEATURES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+          <PreprocessorDefinitions Condition=" '$(WingetEnableReleaseBuild)' == 'true' ">WINGET_ENABLE_RELEASE_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+          <PreprocessorDefinitions Condition=" '$(UseProdCLSIDs)' == 'true' ">USE_PROD_CLSIDS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+          <PreprocessorDefinitions Condition=" '$(UseProdWingetServer)' == 'true' ">USE_PROD_WINGET_SERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+          <WarningLevel>Level4</WarningLevel>
+          <AdditionalOptions>%(AdditionalOptions) /permissive- /bigobj /D _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING</AdditionalOptions>
+          <TreatWarningAsError>true</TreatWarningAsError>
+          <LanguageStandard>stdcpp17</LanguageStandard>
+          <SDLCheck>true</SDLCheck>
+          <EnablePREfast>true</EnablePREfast>
+          <RuntimeLibrary Condition=" '$(Configuration)' == 'ReleaseStatic' ">MultiThreaded</RuntimeLibrary>
+        </ClCompile>
+        <Link>
+          <SubSystem>Console</SubSystem>
+          <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
+          <CETCompat>true</CETCompat>
+        </Link>
+      </ItemDefinitionGroup>
+      <ItemDefinitionGroup Condition=" '$(Platform)' == 'Win32' ">
+        <ClCompile>
+          <PreprocessorDefinitions>WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+        </ClCompile>
+      </ItemDefinitionGroup>
+      <ItemDefinitionGroup Condition=" '$(Configuration)' == 'Release' Or '$(Configuration)' == 'ReleaseStatic' ">
+        <ClCompile>
+          <Optimization>MaxSpeed</Optimization>
+          <FunctionLevelLinking>true</FunctionLevelLinking>
+          <IntrinsicFunctions>true</IntrinsicFunctions>
+          <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+          <ControlFlowGuard>Guard</ControlFlowGuard>
+        </ClCompile>
+        <Link>
+          <EnableCOMDATFolding>true</EnableCOMDATFolding>
+          <OptimizeReferences>true</OptimizeReferences>
+          <AdditionalOptions>/debug:full /debugtype:cv,fixup /incremental:no %(AdditionalOptions)</AdditionalOptions>
+        </Link>
+      </ItemDefinitionGroup>
+      <ItemDefinitionGroup Condition=" '$(Configuration)' == 'Debug' ">
+        <ClCompile>
+          <Optimization>Disabled</Optimization>
+          <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+          <ControlFlowGuard>false</ControlFlowGuard>
+        </ClCompile>
+      </ItemDefinitionGroup>
+      <ItemDefinitionGroup Condition=" '$(Configuration)' == 'Fuzzing' ">
+        <ClCompile>
+          <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+          <AdditionalOptions>%(AdditionalOptions) /fsanitize-coverage=inline-8bit-counters /fsanitize-coverage=edge /fsanitize-coverage=trace-cmp /fsanitize-coverage=trace-div</AdditionalOptions>
+        </ClCompile>
+      </ItemDefinitionGroup>
+    </Otherwise>
+  </Choose>
+</Project>
