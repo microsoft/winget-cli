@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0-windows</TargetFramework>
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\AppInstallerCLIE2ETests\</OutDir>
     <IsPackable>false</IsPackable>
     <Platforms>x64;x86</Platforms>
     <OutputType>Library</OutputType>
@@ -14,10 +13,6 @@
     <!-- Disable warning for CS1591 because auto generated Microsoft.Management.Deployment -->
     <!-- For our code, we still have stylecops acting on it. -->
     <NoWarn>1591</NoWarn>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>

@@ -2,16 +2,10 @@
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.210505.3\build\native\Microsoft.Windows.CppWinRT.props" Condition="Exists('$(SolutionDir)\packages\Microsoft.Windows.CppWinRT.2.0.210505.3\build\native\Microsoft.Windows.CppWinRT.props')" />
   <PropertyGroup Label="Globals">
-    <CppWinRTOptimized>true</CppWinRTOptimized>
-    <CppWinRTRootNamespaceAutoMerge>true</CppWinRTRootNamespaceAutoMerge>
     <CppWinRTGenerateWindowsMetadata>true</CppWinRTGenerateWindowsMetadata>
-    <MinimalCoreWin>true</MinimalCoreWin>
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{89b1aab4-2bbc-4b65-9ed7-a01d5cf88230}</ProjectGuid>
-    <Keyword>Win32Proj</Keyword>
     <RootNamespace>AppInstallerCLITests</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.22000.0</WindowsTargetPlatformVersion>
-    <WindowsTargetPlatformMinVersion>10.0.17763.0</WindowsTargetPlatformMinVersion>
     <ProjectName>AppInstallerCLITests</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -35,24 +29,8 @@
   </ItemGroup>
   <PropertyGroup Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v140</PlatformToolset>
-    <PlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</PlatformToolset>
-    <PlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v142</PlatformToolset>
-    <PlatformToolset Condition="'$(VisualStudioVersion)' == '17.0'">v143</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)'=='Debug'" Label="Configuration">
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <LinkIncremental>true</LinkIncremental>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)'=='Release'" Label="Configuration">
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-  <ImportGroup Label="ExtensionSettings">
-  </ImportGroup>
   <ImportGroup Label="Shared">
     <Import Project="..\catch2\catch2.vcxitems" Label="Shared" />
     <Import Project="..\ManifestSchema\ManifestSchema.vcxitems" Label="Shared" />
@@ -62,10 +40,6 @@
   <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <ImportGroup Label="PropertySheets">
-    <Import Project="PropertySheet.props" />
-  </ImportGroup>
-  <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
@@ -100,81 +74,18 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
-      <PreprocessorDefinitions>_CONSOLE;WIN32_LEAN_AND_MEAN;WINRT_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <WarningLevel>Level4</WarningLevel>
-      <AdditionalOptions>%(AdditionalOptions) /permissive- /bigobj /D _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING</AdditionalOptions>
-    </ClCompile>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
-    <ClCompile>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>_NO_ASYNCRTIMP;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(MSBuildThisFileDirectory)..\AppInstallerCommonCore;$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore\Public;$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore;$(MSBuildThisFileDirectory)..\AppInstallerCommonCore\Public;$(MSBuildThisFileDirectory)..\AppInstallerSharedLib\Public;$(MSBuildThisFileDirectory)..\AppInstallerCLICore\Public;$(MSBuildThisFileDirectory)..\AppInstallerCLICore;$(ProjectDir)..\JsonCppLib;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</TreatWarningAsError>
+      <PreprocessorDefinitions>_NO_ASYNCRTIMP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\AppInstallerCommonCore;$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore\Public;$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore;$(MSBuildThisFileDirectory)..\AppInstallerCommonCore\Public;$(MSBuildThisFileDirectory)..\AppInstallerSharedLib\Public;$(MSBuildThisFileDirectory)..\AppInstallerCLICore\Public;$(MSBuildThisFileDirectory)..\AppInstallerCLICore;$(ProjectDir)..\JsonCppLib;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
-      <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;onecoreuap.lib;msi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;onecoreuap.lib;msi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)..\manifest\shared.manifest</AdditionalManifestFiles>
+      <AdditionalManifestFiles>$(ProjectDir)..\manifest\shared.manifest</AdditionalManifestFiles>
     </Manifest>
     <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy "$(ProjectDir)..\AppInstallerCLIPackage\bin\$(PlatformTarget)\$(configuration)\resources.pri" "$(TargetDir)\resources.pri"</Command>
-    </PostBuildEvent>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Platform)'=='Win32'">
-    <ClCompile>
-      <PreprocessorDefinitions>_NO_ASYNCRTIMP;WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(MSBuildThisFileDirectory)..\AppInstallerCommonCore;$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore\Public;$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore;$(MSBuildThisFileDirectory)..\AppInstallerCommonCore\Public;$(MSBuildThisFileDirectory)..\AppInstallerSharedLib\Public;$(MSBuildThisFileDirectory)..\AppInstallerCLICore\Public;$(MSBuildThisFileDirectory)..\AppInstallerCLICore;$(ProjectDir)..\JsonCppLib;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</TreatWarningAsError>
-    </ClCompile>
-    <Link>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;onecoreuap.lib;msi.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
-    <Manifest>
-      <AdditionalManifestFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)..\manifest\shared.manifest</AdditionalManifestFiles>
-    </Manifest>
-    <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">copy "$(ProjectDir)..\AppInstallerCLIPackage\bin\$(PlatformTarget)\$(configuration)\resources.pri" "$(TargetDir)\resources.pri"</Command>
-    </PostBuildEvent>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
-    <ClCompile>
-      <Optimization>MaxSpeed</Optimization>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>_NO_ASYNCRTIMP;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(MSBuildThisFileDirectory)..\AppInstallerCommonCore;$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore\Public;$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore;$(MSBuildThisFileDirectory)..\AppInstallerCommonCore\Public;$(MSBuildThisFileDirectory)..\AppInstallerSharedLib\Public;$(MSBuildThisFileDirectory)..\AppInstallerCLICore\Public;$(MSBuildThisFileDirectory)..\AppInstallerCLICore;$(ProjectDir)..\JsonCppLib;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(MSBuildThisFileDirectory)..\AppInstallerCommonCore;$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore\Public;$(MSBuildThisFileDirectory)..\AppInstallerRepositoryCore;$(MSBuildThisFileDirectory)..\AppInstallerCommonCore\Public;$(MSBuildThisFileDirectory)..\AppInstallerSharedLib\Public;$(MSBuildThisFileDirectory)..\AppInstallerCLICore\Public;$(MSBuildThisFileDirectory)..\AppInstallerCLICore;$(ProjectDir)..\JsonCppLib;$(ProjectDir)..\cpprestsdk\cpprestsdk\Release\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</TreatWarningAsError>
-      <TreatWarningAsError Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</TreatWarningAsError>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
-      <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;onecoreuap.lib;msi.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalDependencies Condition="'$(Configuration)|$(Platform)'=='Release|x64'">wininet.lib;shell32.lib;winsqlite3.lib;shlwapi.lib;icuuc.lib;icuin.lib;urlmon.lib;Advapi32.lib;winhttp.lib;onecoreuap.lib;msi.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">/debug:full /debugtype:cv,fixup /incremental:no %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">/debug:full /debugtype:cv,fixup /incremental:no %(AdditionalOptions)</AdditionalOptions>
-    </Link>
-    <Manifest>
-      <AdditionalManifestFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)..\manifest\shared.manifest</AdditionalManifestFiles>
-    </Manifest>
-    <Manifest>
-      <AdditionalManifestFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)..\manifest\shared.manifest</AdditionalManifestFiles>
-    </Manifest>
-    <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">copy "$(ProjectDir)..\AppInstallerCLIPackage\bin\$(PlatformTarget)\$(configuration)\resources.pri" "$(TargetDir)\resources.pri"</Command>
-    </PostBuildEvent>
-    <PostBuildEvent>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy "$(ProjectDir)..\AppInstallerCLIPackage\bin\$(PlatformTarget)\$(configuration)\resources.pri" "$(TargetDir)\resources.pri"</Command>
+      <Command>copy "$(ProjectDir)..\AppInstallerCLIPackage\bin\$(PlatformTarget)\$(configuration)\resources.pri" "$(TargetDir)\resources.pri"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -376,7 +287,6 @@
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
     <None Include="packages.config" />
-    <None Include="PropertySheet.props" />
     <CopyFileToFolders Include="TestData\InstallerArgTest_Inno_NoSwitches.yaml">
       <DeploymentContent>true</DeploymentContent>
     </CopyFileToFolders>
