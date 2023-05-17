@@ -703,7 +703,7 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
   </data>
   <data name="Usage" xml:space="preserve">
     <value>Verwendung: {0} {1}</value>
-    <comment>{Locked="{0}","{1}"} Message displayed to provide the user with instructions on how to use a command. {0} is a placeholder replaced by the program name (e.g. 'winget'). {1} is a placeholder replaced by the pattern for using the selected command.</comment>
+    <comment>{Locked="{0} {1}"} Message displayed to provide the user with instructions on how to use a command. {0} is a placeholder replaced by the program name (e.g. 'winget'). {1} is a placeholder replaced by the pattern for using the selected command.</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
     <value>Überprüft ein Manifest anhand strikter Richtlinien. Hiermit können Sie das Manifest überprüfen, bevor Sie es an ein Repository senden.</value>
@@ -838,7 +838,7 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
   </data>
   <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
     <value>Die installierte Version des Pakets ist in keiner Quelle verfügbar: {0}{1}{2}</value>
-    <comment>{Locked="{0}","{1}","{2}"} Warning message displayed when the user attempts to export an installed application package with a version that is not available from any repository source. {0} is a placeholder replaced by the installed package identifier. {1} is a placeholder replaced by the installed package version. {2} is a placeholder replaced by the installed package channel.</comment>
+    <comment>{Locked="{0} {1} {2}"} Warning message displayed when the user attempts to export an installed application package with a version that is not available from any repository source. {0} is a placeholder replaced by the installed package identifier. {1} is a placeholder replaced by the installed package version. {2} is a placeholder replaced by the installed package channel.</comment>
   </data>
   <data name="NoPackagesInImportFile" xml:space="preserve">
     <value>In der Importdatei wurden keine Pakete gefunden</value>
@@ -872,7 +872,7 @@ Sie können über die Einstellungsdatei „winget settings“ konfiguriert werde
   </data>
   <data name="InvalidArgumentValueError" xml:space="preserve">
     <value>Der für das Argument "{0}" angegebene Wert ist ungültig. gültige Werte sind: {1}</value>
-    <comment>{Locked="{0}","{1}"} Error message displayed when the user provides an invalid command line argument value. {0} is a placeholder replaced by the argument name. {1} is a placeholder replaced by a list of valid options.</comment>
+    <comment>{Locked="{0} {1}"} Error message displayed when the user provides an invalid command line argument value. {0} is a placeholder replaced by the argument name. {1} is a placeholder replaced by a list of valid options.</comment>
   </data>
   <data name="DisabledByGroupPolicy" xml:space="preserve">
     <value>Dieser Vorgang wird von Gruppenrichtlinie deaktiviert: {0}</value>
@@ -1024,7 +1024,7 @@ Die Konfiguration ist aufgrund der Gruppen Richtlinie deaktiviert.</value>
   </data>
   <data name="DependenciesFlowNoSuitableInstallerFound" xml:space="preserve">
     <value>Für manifest: {0} {1} wurde kein passendes Installationsprogramm gefunden.</value>
-    <comment>{Locked="{0}","{1}"} Error message displayed when an attempt to get a preferred installer for a manifest fails. {0} is a placeholder replaced by the manifest identifier. {1} is a placeholder replaced by the manifest version.</comment>
+    <comment>{Locked="{0} {1}"} Error message displayed when an attempt to get a preferred installer for a manifest fails. {0} is a placeholder replaced by the manifest identifier. {1} is a placeholder replaced by the manifest version.</comment>
   </data>
   <data name="DependenciesManagementError" xml:space="preserve">
     <value>Fehler beim Verarbeiten der Paketabhängigkeiten. Möchten Sie die Installation fortsetzen?</value>
