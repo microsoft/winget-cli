@@ -19,6 +19,8 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
     [Cmdlet(VerbsLifecycle.Invoke, "WinGetConfiguration")]
     public sealed class InvokeWinGetConfigurationCmdlet : PSCmdlet
     {
+        private bool acceptedAgreements = false;
+
         /// <summary>
         /// Gets or sets the configuration set.
         /// </summary>
@@ -31,6 +33,7 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
         /// <summary>
         /// Gets or sets a value indicating whether to accept the configuration agreements.
         /// </summary>
+        [Parameter(ValueFromPipelineByPropertyName = true)]
         public SwitchParameter AcceptConfigurationAgreements { get; set; }
 
         /// <summary>
@@ -38,7 +41,7 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
         /// </summary>
         protected override void BeginProcessing()
         {
-            // TODO: if not agrementsAccepted print message with ShouldContinue.
+            this.acceptedAgreements = ConfigurationCommand.ConfirmConfigurationProcessing(this, this.AcceptConfigurationAgreements.ToBool());
         }
 
         /// <summary>
@@ -46,8 +49,11 @@ namespace Microsoft.WinGet.Configuration.Cmdlets
         /// </summary>
         protected override void ProcessRecord()
         {
-            var configCommand = new ConfigurationCommand(this);
-            configCommand.Apply(this.Set);
+            if (this.acceptedAgreements)
+            {
+                var configCommand = new ConfigurationCommand(this);
+                configCommand.Apply(this.Set);
+            }
         }
     }
 }

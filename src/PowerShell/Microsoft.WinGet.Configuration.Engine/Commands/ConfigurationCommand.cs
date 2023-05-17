@@ -34,6 +34,35 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         {
         }
 
+        public static bool ConfirmConfigurationProcessing(PSCmdlet psCmdlet, bool hasAccepted)
+        {
+            bool result = false;
+            if (!hasAccepted)
+            {
+                bool yestoall = false;
+                bool notoall = false;
+                result = psCmdlet.ShouldContinue(Resources.ConfigurationWarningPrompt, Resources.ConfigurationWarning, true, ref yestoall, ref notoall);
+
+                if (yestoall)
+                {
+                    result = true;
+                }
+                else if (notoall)
+                {
+                    result = false;
+                }
+            }
+            else
+            {
+                // This way even if they set WarningActionPreference.Ignore we will still print the
+                // warning message if the agreements didn't get accepted.
+                psCmdlet.WriteWarning(Resources.ConfigurationWarning);
+                result = true;
+            }
+
+            return result;
+        }
+
         /// <summary>
         /// Open a configuration set.
         /// </summary>
@@ -144,16 +173,16 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                 // It is safe to print all output.
                 psConfigurationJob.StartCommand.ConsumeStreams();
 
-                this.Write(StreamType.Debug, "The task was completed before waiting");
+                this.Write(StreamType.Verbose, "The task was completed before waiting");
                 if (psConfigurationJob.ConfigurationTask.IsCompletedSuccessfully)
                 {
-                    this.Write(StreamType.Debug, "Completed successfully");
+                    this.Write(StreamType.Verbose, "Completed successfully");
                     this.Write(StreamType.Object, psConfigurationJob.ConfigurationTask.Result);
                     return;
                 }
                 else if (psConfigurationJob.ConfigurationTask.IsFaulted)
                 {
-                    this.Write(StreamType.Debug, "Completed faulted before waiting");
+                    this.Write(StreamType.Verbose, "Completed faulted before waiting");
 
                     // Maybe just write error?
                     throw psConfigurationJob.ConfigurationTask.Exception!;
@@ -189,7 +218,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         private void ContinueHelper(PSConfigurationJob psConfigurationJob)
         {
             // Signal the command that it can write to streams and wait for task.
-            this.Write(StreamType.Debug, "Waiting for task to complete");
+            this.Write(StreamType.Verbose, "Waiting for task to complete");
             psConfigurationJob.StartCommand.Wait(psConfigurationJob.ConfigurationTask);
             this.Write(StreamType.Object, psConfigurationJob.ConfigurationTask.Result);
         }
@@ -258,7 +287,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         {
             if (!psConfigurationSet.HasDetails)
             {
-                this.Write(StreamType.Debug, "Getting details for configuration set");
+                this.Write(StreamType.Verbose, "Getting details for configuration set");
                 await this.GetSetDetailsAsync(psConfigurationSet);
             }
 
@@ -329,13 +358,10 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             }
             catch (Exception e)
             {
-                this.Write(
-                    StreamType.Error,
-                    new ErrorRecord(
-                        e,
-                        "ConfigurationDetailsError",
-                        ErrorCategory.NotSpecified,
-                        e.Message));
+                this.WriteError(
+                    ErrorRecordErrorId.ConfigurationDetailsError,
+                    e.Message,
+                    e);
             }
 
             this.CompleteProgress(activityId, activity, Resources.OperationCompleted);
@@ -362,9 +388,10 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         {
             if (resultInformation.ResultCode != null)
             {
-                this.Write(
-                    StreamType.Error,
-                    $"Failed to get unit details for {unit.UnitName} 0x{resultInformation.ResultCode.HResult:X}{Environment.NewLine}Description: '{resultInformation.Description}'{Environment.NewLine}Details: '{resultInformation.Details}'");
+                this.WriteError(
+                    ErrorRecordErrorId.ConfigurationDetailsError,
+                    $"Failed to get unit details for {unit.UnitName} 0x{resultInformation.ResultCode.HResult:X}{Environment.NewLine}Description: '{resultInformation.Description}'{Environment.NewLine}Details: '{resultInformation.Details}'",
+                    resultInformation.ResultCode);
             }
         }
 

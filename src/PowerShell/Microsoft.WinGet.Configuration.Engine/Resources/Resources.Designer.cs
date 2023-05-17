@@ -493,6 +493,15 @@ namespace Microsoft.WinGet.Configuration.Engine.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Debug parameter not supported.
+        /// </summary>
+        internal static string DebugNotSupported {
+            get {
+                return ResourceManager.GetString("DebugNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Completed.
         /// </summary>
         internal static string OperationCompleted {

@@ -11,6 +11,7 @@ namespace Microsoft.WinGet.Configuration.Engine.PSObjects
     using Microsoft.Management.Configuration;
     using Microsoft.PowerShell.Commands;
     using Microsoft.WinGet.Configuration.Engine.Commands;
+    using Microsoft.WinGet.Configuration.Engine.Exceptions;
     using static Microsoft.WinGet.Configuration.Engine.Commands.AsyncCommand;
 
     /// <summary>
@@ -76,18 +77,14 @@ namespace Microsoft.WinGet.Configuration.Engine.PSObjects
                             asyncCommand.Write(StreamType.Warning, diagnosticInformation.Message);
                             return;
                         case DiagnosticLevel.Error:
-                            // TODO: The error record requires a exception that can't be null, but there's no requirement
-                            // that it was thrown.
-                            asyncCommand.Write(StreamType.Error, new ErrorRecord(
-                                new WriteErrorException(),
-                                "ConfigurationDiagnosticError",
-                                ErrorCategory.WriteError,
-                                diagnosticInformation.Message));
+                            asyncCommand.WriteError(
+                                ErrorRecordErrorId.ConfigurationDiagnosticError,
+                                diagnosticInformation.Message);
                             return;
                         case DiagnosticLevel.Verbose:
                         case DiagnosticLevel.Informational:
                         default:
-                            asyncCommand.Write(StreamType.Debug, diagnosticInformation.Message);
+                            asyncCommand.Write(StreamType.Verbose, diagnosticInformation.Message);
                             return;
                     }
                 }

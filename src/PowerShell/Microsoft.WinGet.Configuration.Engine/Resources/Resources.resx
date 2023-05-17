@@ -295,4 +295,7 @@
   <data name="OperationInProgress" xml:space="preserve">
     <value>In progress</value>
   </data>
+  <data name="DebugNotSupported" xml:space="preserve">
+    <value>Debug parameter not supported</value>
+  </data>
 </root>

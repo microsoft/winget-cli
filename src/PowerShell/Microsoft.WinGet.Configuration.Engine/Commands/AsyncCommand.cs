@@ -8,12 +8,12 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
 {
     using System;
     using System.Collections.Concurrent;
-    using System.Diagnostics;
     using System.Management.Automation;
-    using System.Management.Automation.Host;
     using System.Threading;
     using System.Threading.Tasks;
-    using static System.Management.Automation.PSStyle;
+    using Microsoft.PowerShell.Commands;
+    using Microsoft.WinGet.Configuration.Engine.Exceptions;
+    using Microsoft.WinGet.Configuration.Engine.Resources;
 
     /// <summary>
     /// This is the base class for any command that performs async operations.
@@ -43,6 +43,15 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         /// <param name="psCmdlet">PSCmdlet.</param>
         public AsyncCommand(PSCmdlet psCmdlet)
         {
+            // Passing -Debug will make all the message actions to be Inquire. For async operations
+            // and the current queue message implemetnation this doesn't make sense.
+            // PowerShell will inquire for any message giving the impresion that the task is
+            // paused, but the async operation is still running.
+            if (psCmdlet.MyInvocation.BoundParameters.ContainsKey("Debug"))
+            {
+                throw new NotSupportedException(Resources.DebugNotSupported);
+            }
+
             this.PsCmdlet = psCmdlet;
             this.originalThread = Thread.CurrentThread;
             this.cancellationToken = this.source.Token;
@@ -117,11 +126,11 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
 
             if (Thread.CurrentThread.GetApartmentState() == ApartmentState.MTA)
             {
-                this.Write(StreamType.Debug, "Already running on MTA");
+                this.Write(StreamType.Verbose, "Already running on MTA");
                 return func();
             }
 
-            this.Write(StreamType.Debug, "Creating MTA thread");
+            this.Write(StreamType.Verbose, "Creating MTA thread");
             var tcs = new TaskCompletionSource();
             var thread = new Thread(() =>
             {
@@ -157,11 +166,11 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
 
             if (Thread.CurrentThread.GetApartmentState() == ApartmentState.MTA)
             {
-                this.Write(StreamType.Debug, "Already running on MTA");
+                this.Write(StreamType.Verbose, "Already running on MTA");
                 return func();
             }
 
-            this.Write(StreamType.Debug, "Creating MTA thread");
+            this.Write(StreamType.Verbose, "Creating MTA thread");
             var tcs = new TaskCompletionSource<TResult>();
             var thread = new Thread(() =>
             {
@@ -232,15 +241,26 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                 return;
             }
 
-            if (type == StreamType.Verbose)
-            {
-                // MshCommandRuntime.WriteVerbose implementation always asks for confirmation
-                // to continue the operation from the user. Because of that there's no
-                // reason to call it form other than the main thread. Use Debug instead.
-                throw new NotSupportedException();
-            }
-
             this.queuedStreams.Add(new QueuedStream(type, data));
+        }
+
+        /// <summary>
+        /// Creates an ErrorRecord and queue error message.
+        /// </summary>
+        /// <param name="errorId">The ErrorId.</param>
+        /// <param name="message">Error message.</param>
+        /// <param name="e">Optional exception.</param>
+        internal void WriteError(ErrorRecordErrorId errorId, string message, Exception? e = null)
+        {
+            // The error record requires a exception that can't be null, but there's no requirement that it was thrown.
+            // If not specified use WriteErrorException.
+            this.Write(
+                StreamType.Error,
+                new ErrorRecord(
+                    e ?? new WriteErrorException(),
+                    errorId.ToString(),
+                    ErrorCategory.WriteError,
+                    message));
         }
 
         /// <summary>
