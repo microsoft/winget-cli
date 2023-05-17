@@ -312,11 +312,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         switch (scope)
         {
-        case winrt::Microsoft::Management::Deployment::PackageInstallScope::Any:
+        case winrt::Microsoft::Management::Deployment::PackageUninstallScope::Any:
             return ::AppInstaller::Manifest::ScopeEnum::Unknown;
-        case winrt::Microsoft::Management::Deployment::PackageInstallScope::User:
+        case winrt::Microsoft::Management::Deployment::PackageUninstallScope::User:
             return ::AppInstaller::Manifest::ScopeEnum::User;
-        case winrt::Microsoft::Management::Deployment::PackageInstallScope::System:
+        case winrt::Microsoft::Management::Deployment::PackageUninstallScope::System:
             return ::AppInstaller::Manifest::ScopeEnum::Machine;
         }
 

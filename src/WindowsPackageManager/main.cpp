@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #include <wil/result_macros.h>
 #pragma warning( push )
-#pragma warning ( disable : 4324 )
+#pragma warning( disable : 4324 )
 #include <wrl/module.h>
 #pragma warning( pop )
 #include <winrt/Microsoft.Management.Deployment.h>
