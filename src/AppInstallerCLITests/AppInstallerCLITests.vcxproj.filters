@@ -334,7 +334,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="PropertySheet.props" />
     <None Include="packages.config" />
     <None Include="Run-TestsInPackage.ps1" />
   </ItemGroup>
