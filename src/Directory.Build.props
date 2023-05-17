@@ -59,8 +59,9 @@
         <UseDebugLibraries>false</UseDebugLibraries>
         <WholeProgramOptimization>true</WholeProgramOptimization>
         <LinkIncremental>false</LinkIncremental>
-        <SpectreMitigation>Spectre</SpectreMitigation>
         <RunCodeAnalysis>false</RunCodeAnalysis>
+        <!-- SpectreMitigation is required by BinSkim -->
+        <SpectreMitigation>Spectre</SpectreMitigation>
       </PropertyGroup>
       <PropertyGroup Label="Configuration" Condition=" '$(Configuration)' == 'Debug' ">
         <UseDebugLibraries>true</UseDebugLibraries>
@@ -73,6 +74,7 @@
         <UseDebugLibraries>false</UseDebugLibraries>
         <WholeProgramOptimization>false</WholeProgramOptimization>
         <LinkIncremental>false</LinkIncremental>
+        <!-- Enable address sanitizer -->
         <EnableASAN>true</EnableASAN>
       </PropertyGroup>
 
@@ -88,22 +90,27 @@
           <PrecompiledHeader Condition="Exists('pch.h')">Use</PrecompiledHeader>
           <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
           <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
+          <!-- Macros used in pipelines to control build behavior -->
           <PreprocessorDefinitions Condition=" '$(WingetDisableTestHooks)' == 'true' ">AICLI_DISABLE_TEST_HOOKS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
           <PreprocessorDefinitions Condition=" '$(WingetDisableExperimentalFeatures)' == 'true' ">WINGET_DISABLE_EXPERIMENTAL_FEATURES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
           <PreprocessorDefinitions Condition=" '$(WingetEnableReleaseBuild)' == 'true' ">WINGET_ENABLE_RELEASE_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
           <PreprocessorDefinitions Condition=" '$(UseProdCLSIDs)' == 'true' ">USE_PROD_CLSIDS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
           <PreprocessorDefinitions Condition=" '$(UseProdWingetServer)' == 'true' ">USE_PROD_WINGET_SERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
           <WarningLevel>Level4</WarningLevel>
-          <AdditionalOptions>%(AdditionalOptions) /permissive- /bigobj /D _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING</AdditionalOptions>
+          <AdditionalOptions>%(AdditionalOptions) /bigobj /D _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING</AdditionalOptions>
           <TreatWarningAsError>true</TreatWarningAsError>
           <LanguageStandard>stdcpp17</LanguageStandard>
-          <SDLCheck>true</SDLCheck>
+          <!-- Enable Native Code Analysis -->
           <EnablePREfast>true</EnablePREfast>
-          <RuntimeLibrary Condition=" '$(Configuration)' == 'ReleaseStatic' ">MultiThreaded</RuntimeLibrary>
+          <!-- Disables non-standards conforming code -->
+          <ConformanceMode>true</ConformanceMode>
+          <!-- SDLCheck is required by BinSkim -->
+          <SDLCheck>true</SDLCheck>
         </ClCompile>
         <Link>
           <SubSystem>Console</SubSystem>
           <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
+          <!-- CETCompat is required by BinSkim -->
           <CETCompat>true</CETCompat>
         </Link>
       </ItemDefinitionGroup>
@@ -118,6 +125,8 @@
           <FunctionLevelLinking>true</FunctionLevelLinking>
           <IntrinsicFunctions>true</IntrinsicFunctions>
           <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+          <RuntimeLibrary Condition=" '$(Configuration)' == 'ReleaseStatic' ">MultiThreaded</RuntimeLibrary>
+          <!-- Control Flow Guard is required by BinSkim -->
           <ControlFlowGuard>Guard</ControlFlowGuard>
         </ClCompile>
         <Link>
