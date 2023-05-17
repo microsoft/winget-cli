@@ -26,6 +26,16 @@ namespace Microsoft.WinGet.Configuration.Engine.Exceptions
         internal const int WingetConfigErrorSetDependencyCycle = unchecked((int)0x8A15C00C);
         internal const int WingetConfigErrorInvalidFieldValue = unchecked((int)0x8A15C00D);
         internal const int WingetConfigErrorMissingField = unchecked((int)0x8A15C00E);
+
+        internal const int WinGetConfigUnitNotFound = unchecked((int)0x8A15C101);
+        internal const int WinGetConfigUnitNotFoundRepository = unchecked((int)0x8A15C102);
+        internal const int WinGetConfigUnitMultipleMatches = unchecked((int)0x8A15C103);
+        internal const int WinGetConfigUnitInvokeGet = unchecked((int)0x8A15C104);
+        internal const int WinGetConfigUnitInvokeTest = unchecked((int)0x8A15C105);
+        internal const int WinGetConfigUnitInvokeSet = unchecked((int)0x8A15C106);
+        internal const int WinGetConfigUnitModuleConflict = unchecked((int)0x8A15C107);
+        internal const int WinGetConfigUnitImportModule = unchecked((int)0x8A15C108);
+        internal const int WinGetConfigUnitInvokeInvalidResult = unchecked((int)0x8A15C109);
 #pragma warning restore SA1600 // ElementsMustBeDocumented
     }
 }

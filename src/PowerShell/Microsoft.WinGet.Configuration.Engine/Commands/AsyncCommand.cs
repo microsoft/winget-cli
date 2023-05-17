@@ -245,11 +245,27 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         }
 
         /// <summary>
-        /// Creates an ErrorRecord and queue error message.
+        /// Write error with an exception.
         /// </summary>
-        /// <param name="errorId">The ErrorId.</param>
-        /// <param name="message">Error message.</param>
-        /// <param name="e">Optional exception.</param>
+        /// <param name="errorId">Error id.</param>
+        /// <param name="e">Exception.</param>
+        internal void WriteError(ErrorRecordErrorId errorId, Exception e)
+        {
+            this.Write(
+                StreamType.Error,
+                new ErrorRecord(
+                    e,
+                    errorId.ToString(),
+                    ErrorCategory.WriteError,
+                    null));
+        }
+
+        /// <summary>
+        /// Write error with a message. Craete WriteErrorException.
+        /// </summary>
+        /// <param name="errorId">Error id.</param>
+        /// <param name="message">Message.</param>
+        /// <param name="e">Inner exception.</param>
         internal void WriteError(ErrorRecordErrorId errorId, string message, Exception? e = null)
         {
             // The error record requires a exception that can't be null, but there's no requirement that it was thrown.
@@ -257,10 +273,10 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             this.Write(
                 StreamType.Error,
                 new ErrorRecord(
-                    e ?? new WriteErrorException(),
+                    new WriteErrorException(message, e),
                     errorId.ToString(),
                     ErrorCategory.WriteError,
-                    message));
+                    null));
         }
 
         /// <summary>

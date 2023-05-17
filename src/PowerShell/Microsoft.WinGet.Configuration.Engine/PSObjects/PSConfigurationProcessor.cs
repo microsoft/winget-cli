@@ -65,28 +65,13 @@ namespace Microsoft.WinGet.Configuration.Engine.PSObjects
         {
             try
             {
-                // This is expensive.
                 AsyncCommand asyncCommand = this.diagnosticCommand;
                 if (asyncCommand != null)
                 {
-                    switch (diagnosticInformation.Level)
-                    {
-                        // PowerShell doesn't have critical and critical isn't an error.
-                        case DiagnosticLevel.Critical:
-                        case DiagnosticLevel.Warning:
-                            asyncCommand.Write(StreamType.Warning, diagnosticInformation.Message);
-                            return;
-                        case DiagnosticLevel.Error:
-                            asyncCommand.WriteError(
-                                ErrorRecordErrorId.ConfigurationDiagnosticError,
-                                diagnosticInformation.Message);
-                            return;
-                        case DiagnosticLevel.Verbose:
-                        case DiagnosticLevel.Informational:
-                        default:
-                            asyncCommand.Write(StreamType.Verbose, diagnosticInformation.Message);
-                            return;
-                    }
+                    // Printing each diagnostic error in their own equivalent stream is too noisy.
+                    // If users want them they have to specify -Verbose.
+                    string tag = $"[Diagnostic{diagnosticInformation.Level}] ";
+                    asyncCommand.Write(StreamType.Verbose, $"{tag}{diagnosticInformation.Message}");
                 }
             }
             catch (Exception)

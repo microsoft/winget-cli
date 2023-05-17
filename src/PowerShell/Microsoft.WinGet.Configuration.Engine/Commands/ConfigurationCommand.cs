@@ -34,6 +34,12 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         {
         }
 
+        /// <summary>
+        /// Verify user accept agreements.
+        /// </summary>
+        /// <param name="psCmdlet">PSCmdlet.</param>
+        /// <param name="hasAccepted">Has already accepted.</param>
+        /// <returns>If accepted.</returns>
         public static bool ConfirmConfigurationProcessing(PSCmdlet psCmdlet, bool hasAccepted)
         {
             bool result = false;
@@ -294,8 +300,28 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             var processor = psConfigurationSet.PsProcessor.Processor;
             var set = psConfigurationSet.Set;
 
-            // TODO: implement progress
-            _ = await processor.ApplySetAsync(set, ApplyConfigurationSetFlags.None);
+            var activityId = this.GetNewProgressActivityId();
+            var activity = Resources.ConfigurationApply;
+            var inProgress = Resources.OperationInProgress;
+
+            // Write initial progress record.
+            // For some reason, if this is 0 the progress bar is shown full. Start with 1%
+            this.WriteProgressWithPercentage(activityId, activity, inProgress, 1, 100);
+
+            var applyProgressOutput = new ApplyConfigurationSetProgressOutput(this, activityId, activity, inProgress, set.ConfigurationUnits.Count);
+
+            var applyTask = processor.ApplySetAsync(set, ApplyConfigurationSetFlags.None);
+            applyTask.Progress = applyProgressOutput.Progress;
+
+            try
+            {
+                var result = await applyTask;
+                applyProgressOutput.HandleUnreportedProgress(result);
+            }
+            finally
+            {
+                this.CompleteProgress(activityId, activity, Resources.OperationCompleted);
+            }
 
             return psConfigurationSet;
         }
@@ -318,7 +344,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
 
             // Write initial progress record.
             // For some reason, if this is 0 the progress bar is shown full. Start with 1%
-            this.WriteProgressWithPercentage(activityId, activity, inProgress, 1, 100);
+            this.WriteProgressWithPercentage(activityId, activity, $"{inProgress} 0/{totalUnitsCount}", 1, 100);
 
             var detailsTask = processor.GetSetDetailsAsync(set, ConfigurationUnitDetailLevel.Catalog);
 
@@ -335,7 +361,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                     this.Write(StreamType.Information, information.GetInformation());
 
                     ++unitsShown;
-                    this.WriteProgressWithPercentage(activityId, activity, inProgress, unitsShown, totalUnitsCount);
+                    this.WriteProgressWithPercentage(activityId, activity, $"{inProgress} {unitsShown}/{totalUnitsCount}", unitsShown, totalUnitsCount);
                 }
             };
 
@@ -360,7 +386,6 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             {
                 this.WriteError(
                     ErrorRecordErrorId.ConfigurationDetailsError,
-                    e.Message,
                     e);
             }
 
@@ -388,9 +413,11 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         {
             if (resultInformation.ResultCode != null)
             {
+                string errorMessage = $"Failed to get unit details for {unit.UnitName} 0x{resultInformation.ResultCode.HResult:X}" +
+                    $"{Environment.NewLine}Description: '{resultInformation.Description}'{Environment.NewLine}Details: '{resultInformation.Details}'";
                 this.WriteError(
                     ErrorRecordErrorId.ConfigurationDetailsError,
-                    $"Failed to get unit details for {unit.UnitName} 0x{resultInformation.ResultCode.HResult:X}{Environment.NewLine}Description: '{resultInformation.Description}'{Environment.NewLine}Details: '{resultInformation.Details}'",
+                    errorMessage,
                     resultInformation.ResultCode);
             }
         }

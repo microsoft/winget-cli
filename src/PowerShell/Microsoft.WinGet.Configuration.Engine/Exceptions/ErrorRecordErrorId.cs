@@ -20,5 +20,10 @@ namespace Microsoft.WinGet.Configuration.Engine.Exceptions
         /// Error processing details.
         /// </summary>
         ConfigurationDetailsError,
+
+        /// <summary>
+        /// Error applying configuration.
+        /// </summary>
+        ConfigurationApplyError,
     }
 }

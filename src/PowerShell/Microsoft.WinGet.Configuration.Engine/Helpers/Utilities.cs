@@ -7,6 +7,8 @@
 namespace Microsoft.WinGet.Configuration.Engine.Helpers
 {
     using System;
+    using System.Collections.Generic;
+    using System.Linq;
     using System.Management.Automation;
     using System.Management.Automation.Host;
 
@@ -47,6 +49,23 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
             }
 
             return infoMessage;
+        }
+
+        /// <summary>
+        /// Splits the message into lines.
+        /// </summary>
+        /// <param name="message">Message.</param>
+        /// <param name="maxLines">Max lines.</param>
+        /// <returns>Lines.</returns>
+        public static string[] SplitIntoLines(string message, int maxLines)
+        {
+            var lines = message.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            if (lines.Length > maxLines)
+            {
+                return lines.Take(maxLines).ToArray();
+            }
+
+            return lines;
         }
     }
 }
