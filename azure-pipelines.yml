@@ -332,25 +332,27 @@ jobs:
   - task: ComponentGovernanceComponentDetection@0
     displayName: Component Governance
     inputs:
-      scanType: 'Register'
+      scanType: 'LogOnly'
       verbosity: 'Verbose'
       alertWarningLevel: 'High'
+      failOnAlert: true
 
-  # Run BimSkim for all the binaries
-  - task: BinSkim@3
-    displayName: 'Run BinSkim '
+  # Run static analysis for all the binaries
+  - task: CredScan@3
+
+  - task: BinSkim@4
     inputs:
-      arguments: 'analyze
-        "$(buildOutDir)\AppInstallerCLI\winget.exe"
-        "$(buildOutDir)\WinGetUtil\WinGetUtil.dll"
-        "$(buildOutDir)\WindowsPackageManager\WindowsPackageManager.dll"
-        "$(buildOutDir)\Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.InProc.dll"
-        "$(Build.SourcesDirectory)\src\WinGetUtilInterop\bin\WinGetUtil*Interop.dll"
-        "$(buildOutDir)\UndockedRegFreeWinRT\winrtact.dll"
-        "$(buildOutDir)\Microsoft.WinGet.Client\Microsoft.WinGet.*Client.dll" --config default --recurse'
+      InputType: 'Basic'
+      Function: 'analyze'
+      TargetPattern: 'guardianGlob'
+      AnalyzeTargetGlob: '$(buildOutDir)/**.dll;$(buildOutDir)/**.exe;$(Build.SourcesDirectory)\src\WinGetUtilInterop\bin\*.dll;'
 
-  - task: securedevelopmentteam.vss-secure-development-tools.build-task-publishsecurityanalysislogs.PublishSecurityAnalysisLogs@2
-    displayName: 'Publish Security Analysis Logs'
+  - task: PublishSecurityAnalysisLogs@3
+    inputs:
+      ArtifactName: 'CodeAnalysisLogs'
+      ArtifactType: 'Container'
+      AllTools: true
+      ToolLogsNotFoundAction: 'Standard'
 
 - job: 'BuildPowerShellModule'
   timeoutInMinutes: 120
