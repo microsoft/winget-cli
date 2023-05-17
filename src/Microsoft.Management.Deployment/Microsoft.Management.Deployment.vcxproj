@@ -79,10 +79,13 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalOptions>%(AdditionalOptions) /bigobj</AdditionalOptions>
       <PreprocessorDefinitions>_WINRT_DLL;WIN32_LEAN_AND_MEAN;WINRT_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalUsingDirectories>$(WindowsSDK_WindowsMetadata);$(AdditionalUsingDirectories)</AdditionalUsingDirectories>
       <AdditionalIncludeDirectories>$(ProjectDir)..\AppInstallerCLICore;$(ProjectDir);$(ProjectDir)..\AppInstallerRepositoryCore;$(ProjectDir)..\AppInstallerRepositoryCore\Public;$(ProjectDir)..\AppInstallerCommonCore\Public;$(ProjectDir)..\AppInstallerSharedLib\Public;$(ProjectDir)..\JsonCppLib\json;$(ProjectDir)..\JsonCppLib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <!-- Equivalent to using /permissive-
+           Allows use of [uuid] attribute as this is a non-standard ATL extension.
+           Alternative is to use the __declspec form. -->
+      <ConformanceMode>false</ConformanceMode>
     </ClCompile>
     <Link>
       <ModuleDefinitionFile>Microsoft_Management_Deployment.def</ModuleDefinitionFile>
