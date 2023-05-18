@@ -3,7 +3,7 @@
 
 <!-- Common properties used by most of the projects.
      This ensures we target the same versions and have the right security settings everywhere.
-     Some properties may need to be overriden in specific projects -->
+     Some properties may need to be overridden in specific projects -->
 <Project>
   <PropertyGroup>
     <IsExternalProject Condition=" '$(MSBuildProjectName)' == 'cpprestsdk' ">true</IsExternalProject>
