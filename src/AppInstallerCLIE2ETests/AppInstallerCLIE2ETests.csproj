@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0-windows</TargetFramework>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\AppInstallerCLIE2ETests\</OutDir>
     <IsPackable>false</IsPackable>
     <Platforms>x64;x86</Platforms>
     <OutputType>Library</OutputType>
