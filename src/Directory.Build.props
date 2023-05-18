@@ -47,6 +47,9 @@
         <WindowsTargetPlatformMinVersion>10.0.17763.0</WindowsTargetPlatformMinVersion>
         <WindowsSDKDesktopARMSupport>true</WindowsSDKDesktopARMSupport>
         <WindowsSDKDesktopARM64Support>true</WindowsSDKDesktopARM64Support>
+        <!-- We need the SolutionDir for the OutDir to be set correctly.
+             It is not defined for cases when we don't use the .sln but specific projects, like some nuget restore. -->
+        <SolutionDir Condition=" '$(SolutionDir)' == '' ">$(MSBuildThisFileDirectory)</SolutionDir>
       </PropertyGroup>
 
       <PropertyGroup Label="Configuration">
