@@ -7,7 +7,6 @@
 namespace Microsoft.WinGet.Configuration.Cmdlets
 {
     using System.Management.Automation;
-    using System.Threading;
     using Microsoft.PowerShell;
     using Microsoft.WinGet.Configuration.Engine.Commands;
     using Microsoft.WinGet.Configuration.Helpers;
