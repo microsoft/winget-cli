@@ -28,7 +28,9 @@
       </ItemDefinitionGroup>
     </When>
 
-    <!-- Most of the properties here are for C++, so the few C# projects are a special case -->
+    <!-- Most of the properties here are for C++, so we exclude other project types. -->
+    <When Condition=" '$(MSBuildProjectExtension)' == '.wapproj' "/>
+
     <When Condition=" '$(MSBuildProjectExtension)' == '.csproj' ">
       <PropertyGroup>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
