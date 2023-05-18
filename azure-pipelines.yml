@@ -19,6 +19,8 @@ pool:
 variables:
   solution: 'src\AppInstallerCLI.sln'
   appxPackageDir: '$(Build.ArtifactStagingDirectory)/AppxPackages/'
+  # Enable CodeQL/Semmle static analysis for default branch
+  Codeql.Enabled: true
 
 # Do not set the build version for a PR build.
 
