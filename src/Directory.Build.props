@@ -3,9 +3,7 @@
 
 <!-- Common properties used by most of the projects.
      This ensures we target the same versions and have the right security settings everywhere.
-     Some properties may need to be overridden in specific projects.
-
-     BinSkim requires us to use SpectreMitigation, SDLCheck, CETCompat, ControlFlowGuard. -->
+     Some properties may need to be overridden in specific projects -->
 <Project>
   <PropertyGroup>
     <IsExternalProject Condition=" '$(MSBuildProjectName)' == 'cpprestsdk' ">true</IsExternalProject>
@@ -17,7 +15,7 @@
   </PropertyGroup>
 
   <Choose>
-    <!-- Don't report warnings from external projects, but do include the configurations required by BinSkim -->
+    <!-- Don't report warnings from external projects -->
     <When Condition=" '$(IsExternalProject)' == 'true'">
       <PropertyGroup>
         <RunCodeAnalysis>false</RunCodeAnalysis>
@@ -27,18 +25,6 @@
           <WarningLevel>TurnOffAllWarnings</WarningLevel>
           <TreatWarningAsError>false</TreatWarningAsError>
         </ClCompile>
-      </ItemDefinitionGroup>
-      <PropertyGroup Label="Configuration" Condition=" '$(Configuration)' == 'Release' ">
-        <SpectreMitigation>Spectre</SpectreMitigation>
-      </PropertyGroup>
-      <ItemDefinitionGroup Condition=" '$(Configuration)' == 'Release' ">
-        <ClCompile>
-          <SDLCheck>true</SDLCheck>
-          <ControlFlowGuard>Guard</ControlFlowGuard>
-        </ClCompile>
-        <Link>
-          <CETCompat>true</CETCompat>
-        </Link>
       </ItemDefinitionGroup>
     </When>
 
@@ -61,9 +47,6 @@
         <WindowsTargetPlatformMinVersion>10.0.17763.0</WindowsTargetPlatformMinVersion>
         <WindowsSDKDesktopARMSupport>true</WindowsSDKDesktopARMSupport>
         <WindowsSDKDesktopARM64Support>true</WindowsSDKDesktopARM64Support>
-        <!-- We need the SolutionDir for the OutDir to be set correctly.
-             It is not defined for cases when we don't use the .sln but specific projects, like some nuget restore. -->
-        <SolutionDir Condition=" '$(SolutionDir)' == '' ">$(MSBuildThisFileDirectory)</SolutionDir>
       </PropertyGroup>
 
       <PropertyGroup Label="Configuration">
@@ -79,6 +62,8 @@
         <WholeProgramOptimization>true</WholeProgramOptimization>
         <LinkIncremental>false</LinkIncremental>
         <RunCodeAnalysis>false</RunCodeAnalysis>
+        <!-- SpectreMitigation is required by BinSkim -->
+        <SpectreMitigation>Spectre</SpectreMitigation>
       </PropertyGroup>
       <PropertyGroup Label="Configuration" Condition=" '$(Configuration)' == 'Debug' ">
         <UseDebugLibraries>true</UseDebugLibraries>
@@ -102,44 +87,33 @@
         <OutDir>thisbe\$(SolutionDir)$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutDir>
       </PropertyGroup>
 
-      <!-- Security settings required by BinSkim -->
-      <PropertyGroup>
-        <SpectreMitigation>Spectre</SpectreMitigation>
-      </PropertyGroup>
       <ItemDefinitionGroup>
         <ClCompile>
-          <SDLCheck>true</SDLCheck>
-          <ControlFlowGuard Condition=" '$(Configuration)' == 'Release' Or '$(Configuration)' == 'ReleaseStatic' ">Guard</ControlFlowGuard>
-        </ClCompile>
-        <Link>
-          <CETCompat>true</CETCompat>
-        </Link>
-      </ItemDefinitionGroup>
-
-      <ItemDefinitionGroup>
-        <ClCompile>
-          <LanguageStandard>stdcpp17</LanguageStandard>
-          <!-- /bigobj increases the number of sections that an object file can contain. -->
-          <AdditionalOptions>%(AdditionalOptions) /bigobj</AdditionalOptions>
-          <!-- Use precompiled header if the project has one -->
           <PrecompiledHeader Condition="Exists('pch.h')">Use</PrecompiledHeader>
           <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
           <PrecompiledHeaderOutputFile>$(IntDir)pch.pch</PrecompiledHeaderOutputFile>
-          <!-- Be strict about compilation warnings -->
-          <WarningLevel>Level4</WarningLevel>
-          <TreatWarningAsError>true</TreatWarningAsError>
-          <!-- Disables non-standard conforming code -->
-          <ConformanceMode>true</ConformanceMode>
           <!-- Macros used in pipelines to control build behavior -->
           <PreprocessorDefinitions Condition=" '$(WingetDisableTestHooks)' == 'true' ">AICLI_DISABLE_TEST_HOOKS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
           <PreprocessorDefinitions Condition=" '$(WingetDisableExperimentalFeatures)' == 'true' ">WINGET_DISABLE_EXPERIMENTAL_FEATURES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
           <PreprocessorDefinitions Condition=" '$(WingetEnableReleaseBuild)' == 'true' ">WINGET_ENABLE_RELEASE_BUILD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
           <PreprocessorDefinitions Condition=" '$(UseProdCLSIDs)' == 'true' ">USE_PROD_CLSIDS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
           <PreprocessorDefinitions Condition=" '$(UseProdWingetServer)' == 'true' ">USE_PROD_WINGET_SERVER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+          <WarningLevel>Level4</WarningLevel>
+          <AdditionalOptions>%(AdditionalOptions) /bigobj /D _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING</AdditionalOptions>
+          <TreatWarningAsError>true</TreatWarningAsError>
+          <LanguageStandard>stdcpp17</LanguageStandard>
+          <!-- Enable Native Code Analysis -->
+          <EnablePREfast>true</EnablePREfast>
+          <!-- Disables non-standards conforming code -->
+          <ConformanceMode>true</ConformanceMode>
+          <!-- SDLCheck is required by BinSkim -->
+          <SDLCheck>true</SDLCheck>
         </ClCompile>
         <Link>
           <SubSystem>Console</SubSystem>
           <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
+          <!-- CETCompat is required by BinSkim -->
+          <CETCompat>true</CETCompat>
         </Link>
       </ItemDefinitionGroup>
       <ItemDefinitionGroup Condition=" '$(Platform)' == 'Win32' ">
@@ -154,6 +128,8 @@
           <IntrinsicFunctions>true</IntrinsicFunctions>
           <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
           <RuntimeLibrary Condition=" '$(Configuration)' == 'ReleaseStatic' ">MultiThreaded</RuntimeLibrary>
+          <!-- Control Flow Guard is required by BinSkim -->
+          <ControlFlowGuard>Guard</ControlFlowGuard>
         </ClCompile>
         <Link>
           <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -165,8 +141,7 @@
         <ClCompile>
           <Optimization>Disabled</Optimization>
           <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-          <!-- Enable Native Code Analysis. This requires more space than is available on release build machines, so we only use it for debug. -->
-          <EnablePREfast>true</EnablePREfast>
+          <ControlFlowGuard>false</ControlFlowGuard>
         </ClCompile>
       </ItemDefinitionGroup>
       <ItemDefinitionGroup Condition=" '$(Configuration)' == 'Fuzzing' ">
