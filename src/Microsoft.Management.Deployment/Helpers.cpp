@@ -1,8 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+
+#pragma warning ( push )
+#pragma warning ( disable : 6001 ) // use of uninitialized memory in wil/result.h
 #include <wil/resource.h>
 #include <wil/win32_helpers.h>
+#pragma warning ( pop )
+
 #include <winrt/Windows.Security.Authorization.AppCapabilityAccess.h>
 #include <appmodel.h>
 #include <Helpers.h>
