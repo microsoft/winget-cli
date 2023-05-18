@@ -235,7 +235,7 @@ TEST_CASE("SettingsAnonymizePathForDisplay", "[settings]")
     }
     SECTION("Invalid Value")
     {
-        std::string_view json = R"({ "visual": { "anonymizeDisplayedPaths": notBoolean } })";
+        std::string_view json = R"({ "visual": { "anonymizeDisplayedPaths": "notBoolean" } })";
         SetSetting(Stream::PrimaryUserSettings, json);
         UserSettingsTest userSettingTest;
 
