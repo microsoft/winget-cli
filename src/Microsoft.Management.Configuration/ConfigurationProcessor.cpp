@@ -427,12 +427,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         auto threadGlobals = m_threadGlobals.SetForCurrentThread();
 
-        std::map<ConfigurationUnitIntent, TelemetryTraceLogger::ProcessingSummaryForIntent> intentSummaries;
-        for (auto intent : { ConfigurationUnitIntent::Assert, ConfigurationUnitIntent::Inform, ConfigurationUnitIntent::Apply })
-        {
-            intentSummaries.emplace(intent, TelemetryTraceLogger::ProcessingSummaryForIntent{ intent, 0, 0, 0 });
-        }
-
         IConfigurationSetProcessor setProcessor = m_factory.CreateSetProcessor(configurationSet);
         auto result = make_self<wil::details::module_count_wrapper<implementation::TestConfigurationSetResult>>();
         result->TestResult(ConfigurationTestResult::NotRun);

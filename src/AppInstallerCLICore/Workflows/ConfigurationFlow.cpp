@@ -812,12 +812,18 @@ namespace AppInstaller::CLI::Workflow
         }
 
         // Handle any missing progress callbacks that are in the results
-        auto unitResults = result.UnitResults();
-        for (unitsShown; unitsShown < unitResults.Size(); ++unitsShown)
+        if (result)
         {
-            GetConfigurationUnitDetailsResult unitResult = unitResults.GetAt(unitsShown);
-            LogFailedGetConfigurationUnitDetails(unitResult.Unit(), unitResult.ResultInformation());
-            OutputConfigurationUnitInformation(out, unitResult.Unit());
+            auto unitResults = result.UnitResults();
+            if (unitResults)
+            {
+                for (unitsShown; unitsShown < unitResults.Size(); ++unitsShown)
+                {
+                    GetConfigurationUnitDetailsResult unitResult = unitResults.GetAt(unitsShown);
+                    LogFailedGetConfigurationUnitDetails(unitResult.Unit(), unitResult.ResultInformation());
+                    OutputConfigurationUnitInformation(out, unitResult.Unit());
+                }
+            }
         }
 
         // Handle any units that are NOT in the results (due to an exception part of the way through)
