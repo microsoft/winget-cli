@@ -1,0 +1,4 @@
+[*.cs]
+# CsWinRT produces files violating this rule
+# CA2257: Members defined on an interface with the 'DynamicInterfaceCastableImplementationAttribute' should be 'static'
+dotnet_diagnostic.CA2257.severity = none
