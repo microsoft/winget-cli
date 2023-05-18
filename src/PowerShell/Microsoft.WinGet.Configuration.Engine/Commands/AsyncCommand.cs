@@ -104,7 +104,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         protected PSCmdlet PsCmdlet { get; private set; }
 
         /// <summary>
-        /// Cancel this operation.
+        /// Complete this operation.
         /// </summary>
         public virtual void Complete()
         {
