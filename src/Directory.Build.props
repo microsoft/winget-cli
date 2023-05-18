@@ -79,10 +79,10 @@
       </PropertyGroup>
 
       <PropertyGroup Condition=" '$(Platform)' == 'Win32' ">
-        <OutDir>$(SolutionDir)x86\$(Configuration)\$(ProjectName)\</OutDir>
+        <OutDir>$(SolutionDir)x86\$(Configuration)\$(MSBuildProjectName)\</OutDir>
       </PropertyGroup>
       <PropertyGroup Condition=" '$(Platform)' != 'Win32' ">
-        <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName)\</OutDir>
+        <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\$(MSBuildProjectName)\</OutDir>
       </PropertyGroup>
 
       <ItemDefinitionGroup>
