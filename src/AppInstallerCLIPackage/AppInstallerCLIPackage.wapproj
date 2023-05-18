@@ -211,6 +211,8 @@
       copy "$(TargetDir)\resources.pri" "$(ProjectDir)\..\$(Platform)\$(Configuration)\AppInstallerCLI\resources.pri"
       copy "$(TargetDir)\resources.pri" "$(TargetDir)\AppInstallerCLI\resources.pri"
     </PostBuildEvent>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <TargetPlatformVersion>10.0.22000.0</TargetPlatformVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Platform)'=='ARM'">
     <ConfigServerRid>win10-arm</ConfigServerRid>
