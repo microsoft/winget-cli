@@ -44,6 +44,7 @@
 \.pdf$
 \.pem$
 \.png$
+\.props$
 \.psd$
 \.pyc$
 \.s$
