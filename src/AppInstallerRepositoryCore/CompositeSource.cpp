@@ -872,10 +872,10 @@ namespace AppInstaller::Repository
             struct SystemReferenceString
             {
                 SystemReferenceString(PackageMatchField field, Utility::LocIndString string) :
-                    Field(field), String1(string) {}
+                    Field(field), String1(Utility::FoldCase(string)) {}
 
                 SystemReferenceString(PackageMatchField field, Utility::LocIndString string1, Utility::LocIndString string2) :
-                    Field(field), String1(string1), String2(string2) {}
+                    Field(field), String1(Utility::FoldCase(string1)), String2(Utility::FoldCase(string2)) {}
 
                 bool operator<(const SystemReferenceString& other) const
                 {
@@ -894,9 +894,7 @@ namespace AppInstaller::Repository
 
                 bool operator==(const SystemReferenceString& other) const
                 {
-                    return Field == other.Field &&
-                        Utility::ICUCaseInsensitiveEquals(String1, other.String1) &&
-                        Utility::ICUCaseInsensitiveEquals(String2, other.String2);
+                    return Field == other.Field && String1 == other.String1 && String2 == other.String2;
                 }
 
                 void AddToFilters(
@@ -1123,7 +1121,7 @@ namespace AppInstaller::Repository
                     data);
             }
 
-            void AddSystemReferenceStringsFromManifest(Manifest::Manifest& manifest, PackageData& data)
+            void AddSystemReferenceStringsFromManifest(const Manifest::Manifest& manifest, PackageData& data)
             {
                 for (const auto& pfn : manifest.GetPackageFamilyNames())
                 {
