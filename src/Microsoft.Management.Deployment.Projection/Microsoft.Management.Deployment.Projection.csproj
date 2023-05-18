@@ -36,12 +36,4 @@
   <ItemGroup>
     <None Include="D:\repos\winget-cli\src\Microsoft.Management.Deployment.Projection\.editorconfig" />
   </ItemGroup>
-
-  <ItemGroup>
-    <EditorConfigFiles Remove="D:\repos\winget-cli\src\Microsoft.Management.Deployment.Projection\.editorconfig" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="D:\repos\winget-cli\src\Microsoft.Management.Deployment.Projection\.editorconfig" />
-  </ItemGroup>
 </Project>
