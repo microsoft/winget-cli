@@ -933,6 +933,11 @@ namespace AppInstaller::CLI
             if (!Settings::User().GetWarnings().empty() &&
                 !WI_IsFlagSet(command->GetOutputFlags(), CommandOutputFlags::IgnoreSettingsWarnings))
             {
+                auto warnings = Settings::User().GetWarnings();
+                for (int i=0; i<warnings.size(); i++) 
+                {
+                    AICLI_LOG( CLI, Warning, << warnings.at(i).Path << ": " << warnings.at(i).Message << warnings.at(i).Data );
+                }
                 context.Reporter.Warn() << Resource::String::SettingsWarnings << std::endl;
             }
 
