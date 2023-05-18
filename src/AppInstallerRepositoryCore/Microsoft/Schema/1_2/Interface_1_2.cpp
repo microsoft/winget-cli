@@ -268,8 +268,13 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
             auto candidateInclusionsWithArch = request.Inclusions;
             if (UpdatePackageMatchFilters(candidateInclusionsWithArch, m_normalizer, Utility::NormalizationField::Architecture))
             {
-                // If DisplayNames contain arch, only use values with arch for search
+                // If DisplayNames contain arch, only use Inclusions with arch for search
                 request.Inclusions = candidateInclusionsWithArch;
+            }
+            else
+            {
+                // Otherwise, just update the Inclusions with normalization
+                UpdatePackageMatchFilters(request.Inclusions, m_normalizer);
             }
 
             return V1_1::Interface::SearchInternal(connection, request);
@@ -285,6 +290,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::V1_2
             {
                 candidateSearches.emplace_back(std::move(candidateSearchWithArch));
             }
+            UpdatePackageMatchFilters(request.Inclusions, m_normalizer);
             candidateSearches.emplace_back(request);
 
             SearchResult result;
