@@ -353,6 +353,7 @@ jobs:
       ArtifactType: 'Container'
       AllTools: true
       ToolLogsNotFoundAction: 'Standard'
+    condition: succeededOrFailed()
 
 - job: 'BuildPowerShellModule'
   timeoutInMinutes: 120
