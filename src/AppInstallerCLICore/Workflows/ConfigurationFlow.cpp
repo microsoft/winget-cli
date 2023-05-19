@@ -418,10 +418,68 @@ namespace AppInstaller::CLI::Workflow
             return Resource::String::ConfigurationUnitSkipped(resultCode);
         }
 
+        // Coordinates an active progress scope and cancellation of the operation.
+        template<typename OperationT>
+        struct ProgressCancellationUnification
+        {
+            ProgressCancellationUnification(std::unique_ptr<Reporter::AsyncProgressScope>&& progressScope, const OperationT& operation) :
+                m_progressScope(std::move(progressScope)), m_operation(operation)
+            {
+                SetCancellationFunction();
+            }
+
+            void Reset()
+            {
+                m_cancelScope.reset();
+                m_progressScope.reset();
+            }
+
+            Reporter::AsyncProgressScope& Progress() const { return *m_progressScope; }
+
+            void Progress(std::unique_ptr<Reporter::AsyncProgressScope>&& progressScope)
+            {
+                m_cancelScope.reset();
+                m_progressScope = std::move(progressScope);
+                SetCancellationFunction();
+            }
+
+            OperationT& Operation() const { return m_operation; }
+
+        private:
+            void SetCancellationFunction()
+            {
+                if (m_progressScope)
+                {
+                    m_cancelScope = m_progressScope->Callback().SetCancellationFunction([this]() { m_operation.Cancel(); });
+                }
+            }
+
+            std::unique_ptr<Reporter::AsyncProgressScope> m_progressScope;
+            OperationT m_operation;
+            IProgressCallback::CancelFunctionRemoval m_cancelScope;
+        };
+
+        template<typename Operation>
+        ProgressCancellationUnification<Operation> CreateProgressCancellationUnification(
+            std::unique_ptr<Reporter::AsyncProgressScope>&& progressScope,
+            const Operation& operation)
+        {
+            return { std::move(progressScope), operation };
+        }
+
         // Helper to handle progress callbacks from ApplyConfigurationSetAsync
         struct ApplyConfigurationSetProgressOutput
         {
-            ApplyConfigurationSetProgressOutput(Context& context) : m_context(context) {}
+            using ApplyOperation = IAsyncOperationWithProgress<ApplyConfigurationSetResult, ConfigurationSetChangeData>;
+
+            ApplyConfigurationSetProgressOutput(Context& context, const ApplyOperation& operation) :
+                m_context(context), m_unification({}, operation)
+            {
+                operation.Progress([&](const IAsyncOperationWithProgress<ApplyConfigurationSetResult, ConfigurationSetChangeData>& operation, const ConfigurationSetChangeData& data)
+                    {
+                        Progress(operation, data);
+                    });
+            }
 
             void Progress(const IAsyncOperationWithProgress<ApplyConfigurationSetResult, ConfigurationSetChangeData>& operation, const ConfigurationSetChangeData& data)
             {
@@ -440,13 +498,13 @@ namespace AppInstaller::CLI::Workflow
                     {
                     case ConfigurationSetState::Pending:
                         m_context.Reporter.Info() << Resource::String::ConfigurationWaitingOnAnother << std::endl;
-                        m_context.Reporter.BeginProgress();
+                        BeginProgress();
                         break;
                     case ConfigurationSetState::InProgress:
-                        m_context.Reporter.EndProgress(true);
+                        EndProgress();
                         break;
                     case ConfigurationSetState::Completed:
-                        m_context.Reporter.EndProgress(true);
+                        EndProgress();
                         break;
                     }
                 }
@@ -486,11 +544,11 @@ namespace AppInstaller::CLI::Workflow
                     break;
                 case ConfigurationUnitState::InProgress:
                     OutputUnitInProgressIfNeeded(unit);
-                    m_context.Reporter.BeginProgress();
+                    BeginProgress();
                     break;
                 case ConfigurationUnitState::Completed:
                     OutputUnitInProgressIfNeeded(unit);
-                    m_context.Reporter.EndProgress(true);
+                    EndProgress();
                     if (SUCCEEDED(resultInformation.ResultCode()))
                     {
                         m_context.Reporter.Info() << "  "_liv << Resource::String::ConfigurationSuccessfullyApplied << std::endl;
@@ -570,7 +628,18 @@ namespace AppInstaller::CLI::Workflow
                 //      2. 1/N VT progress reporting for configuration units while also showing a spinner for the unit itself
             }
 
+            void BeginProgress()
+            {
+                m_unification.Progress(m_context.Reporter.BeginAsyncProgress(true));
+            }
+
+            void EndProgress()
+            {
+                m_unification.Reset();
+            }
+
             Context& m_context;
+            ProgressCancellationUnification<ApplyOperation> m_unification;
             std::set<winrt::guid> m_unitsSeen;
             std::set<winrt::guid> m_unitsCompleted;
             bool m_isFirstProgress = true;
@@ -618,9 +687,19 @@ namespace AppInstaller::CLI::Workflow
         std::filesystem::path absolutePath = GetConfigurationFilePath(context);
 
         Streams::IInputStream inputStream = nullptr;
-        inputStream = Streams::FileRandomAccessStream::OpenAsync(absolutePath.wstring(), FileAccessMode::Read).get();
+        {
+            auto openAction = Streams::FileRandomAccessStream::OpenAsync(absolutePath.wstring(), FileAccessMode::Read);
+            auto cancellationScope = progressScope->Callback().SetCancellationFunction([&]() { openAction.Cancel(); });
+            inputStream = openAction.get();
+        }
 
-        OpenConfigurationSetResult openResult = context.Get<Data::ConfigurationContext>().Processor().OpenConfigurationSet(inputStream);
+        OpenConfigurationSetResult openResult = nullptr;
+        {
+            auto openAction = context.Get<Data::ConfigurationContext>().Processor().OpenConfigurationSetAsync(inputStream);
+            auto cancellationScope = progressScope->Callback().SetCancellationFunction([&]() { openAction.Cancel(); });
+            openResult = openAction.get();
+        }
+
         if (FAILED_LOG(static_cast<HRESULT>(openResult.ResultCode().value)))
         {
             AICLI_LOG(Config, Error, << "Failed to open configuration set at " << absolutePath.u8string() << " with error 0x" << Logging::SetHRFormat << static_cast<HRESULT>(openResult.ResultCode().value));
@@ -681,6 +760,7 @@ namespace AppInstaller::CLI::Workflow
         progressScope->Callback().SetProgressMessage(gettingDetailString);
 
         auto getDetailsOperation = configContext.Processor().GetSetDetailsAsync(configContext.Set(), ConfigurationUnitDetailLevel::Catalog);
+        auto unification = CreateProgressCancellationUnification(std::move(progressScope), getDetailsOperation);
 
         OutputStream out = context.Reporter.Info();
         uint32_t unitsShown = 0;
@@ -689,7 +769,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 auto threadContext = context.SetForCurrentThread();
 
-                progressScope.reset();
+                unification.Reset();
 
                 auto unitResults = operation.GetResults().UnitResults();
                 for (unitsShown; unitsShown < unitResults.Size(); ++unitsShown)
@@ -701,37 +781,57 @@ namespace AppInstaller::CLI::Workflow
 
                 progressScope = context.Reporter.BeginAsyncProgress(true);
                 progressScope->Callback().SetProgressMessage(gettingDetailString);
+                unification.Progress(std::move(progressScope));
             });
+
+        HRESULT hr = S_OK;
+        GetConfigurationSetDetailsResult result = nullptr;
 
         try
         {
-            GetConfigurationSetDetailsResult result = getDetailsOperation.get();
-
-            progressScope.reset();
-
-            // Handle any missing progress callbacks
-            auto unitResults = result.UnitResults();
-            for (unitsShown; unitsShown < unitResults.Size(); ++unitsShown)
-            {
-                GetConfigurationUnitDetailsResult unitResult = unitResults.GetAt(unitsShown);
-                LogFailedGetConfigurationUnitDetails(unitResult.Unit(), unitResult.ResultInformation());
-                OutputConfigurationUnitInformation(out, unitResult.Unit());
-            }
+            result = getDetailsOperation.get();
         }
-        CATCH_LOG();
+        catch (...)
+        {
+            hr = LOG_CAUGHT_EXCEPTION();
+        }
 
-        progressScope.reset();
+        unification.Reset();
 
-        // In the event of an exception from GetSetDetailsAsync, show the data we do have
-        if (!unitsShown)
+        if (context.IsTerminated())
+        {
+            // The context should only be terminated on us due to cancellation
+            context.Reporter.Error() << Resource::String::Cancelled << std::endl;
+            return;
+        }
+
+        if (FAILED(hr))
         {
             // Failing to get details might not be fatal, warn about it but proceed
             context.Reporter.Warn() << Resource::String::ConfigurationFailedToGetDetails << std::endl;
+        }
 
-            for (const ConfigurationUnit& unit : configContext.Set().ConfigurationUnits())
+        // Handle any missing progress callbacks that are in the results
+        if (result)
+        {
+            auto unitResults = result.UnitResults();
+            if (unitResults)
             {
-                OutputConfigurationUnitInformation(out, unit);
+                for (unitsShown; unitsShown < unitResults.Size(); ++unitsShown)
+                {
+                    GetConfigurationUnitDetailsResult unitResult = unitResults.GetAt(unitsShown);
+                    LogFailedGetConfigurationUnitDetails(unitResult.Unit(), unitResult.ResultInformation());
+                    OutputConfigurationUnitInformation(out, unitResult.Unit());
+                }
             }
+        }
+
+        // Handle any units that are NOT in the results (due to an exception part of the way through)
+        auto allUnits = configContext.Set().ConfigurationUnits();
+        for (unitsShown; unitsShown < allUnits.Size(); ++unitsShown)
+        {
+            ConfigurationUnit unit = allUnits.GetAt(unitsShown);
+            OutputConfigurationUnitInformation(out, unit);
         }
     }
 
@@ -761,24 +861,12 @@ namespace AppInstaller::CLI::Workflow
 
     void ApplyConfigurationSet(Execution::Context& context)
     {
-        ApplyConfigurationSetProgressOutput progress{ context };
         ApplyConfigurationSetResult result = nullptr;
-
         ConfigurationContext& configContext = context.Get<Data::ConfigurationContext>();
 
         {
-            // Just in case, forcibly stop our manual progress
-            auto hideProgress = wil::scope_exit([&]()
-                {
-                    context.Reporter.EndProgress(true);
-                });
-
             auto applyOperation = configContext.Processor().ApplySetAsync(configContext.Set(), ApplyConfigurationSetFlags::None);
-
-            applyOperation.Progress([&](const IAsyncOperationWithProgress<ApplyConfigurationSetResult, ConfigurationSetChangeData>& operation, const ConfigurationSetChangeData& data)
-                {
-                    progress.Progress(operation, data);
-                });
+            ApplyConfigurationSetProgressOutput progress{ context, applyOperation };
 
             result = applyOperation.get();
             progress.HandleUnreportedProgress(result);

@@ -208,11 +208,13 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         Windows::Storage::Streams::IInputStream localStream = stream;
         co_await winrt::resume_background();
+        auto cancellation = co_await get_cancellation_token();
+        cancellation.enable_propagation();
 
         auto threadGlobals = m_threadGlobals.SetForCurrentThread();
         auto result = make_self<wil::details::module_count_wrapper<OpenConfigurationSetResult>>();
 
-        if (!stream)
+        if (!localStream)
         {
             result->Initialize(E_POINTER, {});
             co_return *result;
@@ -220,7 +222,32 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         try
         {
-            std::unique_ptr<ConfigurationSetParser> parser = ConfigurationSetParser::Create(localStream);
+            // Read the entire file into memory as we expect them to be small and
+            // our YAML parser doesn't support streaming at this time.
+            // This is done here to enable easy cancellation propagation to the stream reads.
+            uint32_t bufferSize = 1 << 20;
+            Windows::Storage::Streams::Buffer buffer(bufferSize);
+            Windows::Storage::Streams::InputStreamOptions readOptions = 
+                Windows::Storage::Streams::InputStreamOptions::Partial | Windows::Storage::Streams::InputStreamOptions::ReadAhead;
+            std::string inputString;
+
+            for (;;)
+            {
+                Windows::Storage::Streams::IBuffer readBuffer = co_await localStream.ReadAsync(buffer, bufferSize, readOptions);
+
+                size_t readSize = static_cast<size_t>(readBuffer.Length());
+                if (readSize)
+                {
+                    static_assert(sizeof(char) == sizeof(*readBuffer.data()));
+                    inputString.append(reinterpret_cast<char*>(readBuffer.data()), readSize);
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            std::unique_ptr<ConfigurationSetParser> parser = ConfigurationSetParser::Create(inputString);
             if (FAILED(parser->Result()))
             {
                 result->Initialize(parser->Result(), parser->Field(), parser->Value(), parser->Line(), parser->Column());
@@ -269,7 +296,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     Configuration::GetConfigurationSetDetailsResult ConfigurationProcessor::GetSetDetails(const ConfigurationSet& configurationSet, ConfigurationUnitDetailLevel detailLevel)
     {
-        return GetSetDetailsAsync(configurationSet, detailLevel).get();
+        THROW_HR_IF(E_NOT_VALID_STATE, !m_factory);
+        return GetSetDetailsImpl(configurationSet, detailLevel);
     }
 
     Windows::Foundation::IAsyncOperationWithProgress<Configuration::GetConfigurationSetDetailsResult, Configuration::GetConfigurationUnitDetailsResult> ConfigurationProcessor::GetSetDetailsAsync(const ConfigurationSet& configurationSet, ConfigurationUnitDetailLevel detailLevel)
@@ -279,16 +307,25 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         ConfigurationSet localSet = configurationSet;
         co_await winrt::resume_background();
 
+        co_return GetSetDetailsImpl(localSet, detailLevel, { co_await winrt::get_progress_token(), co_await winrt::get_cancellation_token()});
+    }
+
+    Configuration::GetConfigurationSetDetailsResult ConfigurationProcessor::GetSetDetailsImpl(
+        const ConfigurationSet& configurationSet,
+        ConfigurationUnitDetailLevel detailLevel,
+        AppInstaller::WinRT::AsyncProgress<GetConfigurationSetDetailsResult, GetConfigurationUnitDetailsResult> progress)
+    {
         auto threadGlobals = m_threadGlobals.SetForCurrentThread();
 
-        IConfigurationSetProcessor setProcessor = m_factory.CreateSetProcessor(localSet);
+        IConfigurationSetProcessor setProcessor = m_factory.CreateSetProcessor(configurationSet);
 
-        auto progress = co_await winrt::get_progress_token();
         auto result = make_self<wil::details::module_count_wrapper<implementation::GetConfigurationSetDetailsResult>>();
-        progress.set_result(*result);
+        progress.Result(*result);
 
-        for (const auto& unit : localSet.ConfigurationUnits())
+        for (const auto& unit : configurationSet.ConfigurationUnits())
         {
+            progress.ThrowIfCancelled();
+
             auto unitResult = make_self<wil::details::module_count_wrapper<implementation::GetConfigurationUnitDetailsResult>>();
             auto unitResultInformation = make_self<wil::details::module_count_wrapper<implementation::ConfigurationUnitResultInformation>>();
             unitResult->Unit(unit);
@@ -305,15 +342,16 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             }
 
             result->UnitResultsVector().Append(*unitResult);
-            progress(*unitResult);
+            progress.Progress(*unitResult);
         }
 
-        co_return *result;
+        return *result;
     }
 
     void ConfigurationProcessor::GetUnitDetails(const ConfigurationUnit& unit, ConfigurationUnitDetailLevel detailLevel)
     {
-        return GetUnitDetailsAsync(unit, detailLevel).get();
+        THROW_HR_IF(E_NOT_VALID_STATE, !m_factory);
+        return GetUnitDetailsImpl(unit, detailLevel);
     }
 
     Windows::Foundation::IAsyncAction ConfigurationProcessor::GetUnitDetailsAsync(const ConfigurationUnit& unit, ConfigurationUnitDetailLevel detailLevel)
@@ -323,16 +361,22 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         ConfigurationUnit localUnit = unit;
         co_await winrt::resume_background();
 
+        co_return GetUnitDetailsImpl(localUnit, detailLevel);
+    }
+
+    void ConfigurationProcessor::GetUnitDetailsImpl(const ConfigurationUnit& unit, ConfigurationUnitDetailLevel detailLevel)
+    {
         auto threadGlobals = m_threadGlobals.SetForCurrentThread();
 
         IConfigurationSetProcessor setProcessor = m_factory.CreateSetProcessor(nullptr);
-        IConfigurationUnitProcessorDetails details = setProcessor.GetUnitProcessorDetails(localUnit, detailLevel);
-        get_self<implementation::ConfigurationUnit>(localUnit)->Details(std::move(details));
+        IConfigurationUnitProcessorDetails details = setProcessor.GetUnitProcessorDetails(unit, detailLevel);
+        get_self<implementation::ConfigurationUnit>(unit)->Details(std::move(details));
     }
 
     Configuration::ApplyConfigurationSetResult ConfigurationProcessor::ApplySet(const ConfigurationSet& configurationSet, ApplyConfigurationSetFlags flags)
     {
-        return ApplySetAsync(configurationSet, flags).get();
+        THROW_HR_IF(E_NOT_VALID_STATE, !m_factory);
+        return ApplySetImpl(configurationSet, flags);
     }
 
     Windows::Foundation::IAsyncOperationWithProgress<Configuration::ApplyConfigurationSetResult, Configuration::ConfigurationSetChangeData> ConfigurationProcessor::ApplySetAsync(const ConfigurationSet& configurationSet, ApplyConfigurationSetFlags flags)
@@ -341,25 +385,30 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         ConfigurationSet localSet = configurationSet;
         co_await winrt::resume_background();
-        auto progress = co_await winrt::get_progress_token();
 
+        co_return ApplySetImpl(localSet, flags, { co_await winrt::get_progress_token(), co_await winrt::get_cancellation_token() });
+    }
+
+    Configuration::ApplyConfigurationSetResult ConfigurationProcessor::ApplySetImpl(
+        const ConfigurationSet& configurationSet,
+        ApplyConfigurationSetFlags flags,
+        AppInstaller::WinRT::AsyncProgress<ApplyConfigurationSetResult, ConfigurationSetChangeData> progress)
+    {
         // TODO: Not needed until we have history implemented
         UNREFERENCED_PARAMETER(flags);
 
         auto threadGlobals = m_threadGlobals.SetForCurrentThread();
 
-        auto result = make_self<wil::details::module_count_wrapper<implementation::ApplyConfigurationSetResult>>();
-        ConfigurationSetApplyProcessor applyProcessor{ localSet, m_threadGlobals.GetTelemetryLogger(), m_factory.CreateSetProcessor(localSet), result, progress};
-        progress.set_result(*result);
-
+        ConfigurationSetApplyProcessor applyProcessor{ configurationSet, m_threadGlobals.GetTelemetryLogger(), m_factory.CreateSetProcessor(configurationSet), std::move(progress) };
         applyProcessor.Process();
 
-        co_return *result;
+        return applyProcessor.Result();
     }
 
     Configuration::TestConfigurationSetResult ConfigurationProcessor::TestSet(const ConfigurationSet& configurationSet)
     {
-        return TestSetAsync(configurationSet).get();
+        THROW_HR_IF(E_NOT_VALID_STATE, !m_factory);
+        return TestSetImpl(configurationSet);
     }
 
     Windows::Foundation::IAsyncOperationWithProgress<Configuration::TestConfigurationSetResult, Configuration::TestConfigurationUnitResult> ConfigurationProcessor::TestSetAsync(const ConfigurationSet& configurationSet)
@@ -368,75 +417,102 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         ConfigurationSet localSet = configurationSet;
         co_await winrt::resume_background();
-        auto progress = co_await winrt::get_progress_token();
 
+        co_return TestSetImpl(localSet, { co_await winrt::get_progress_token(), co_await winrt::get_cancellation_token() });
+    }
+
+    Configuration::TestConfigurationSetResult ConfigurationProcessor::TestSetImpl(
+        const ConfigurationSet& configurationSet,
+        AppInstaller::WinRT::AsyncProgress<TestConfigurationSetResult, TestConfigurationUnitResult> progress)
+    {
         auto threadGlobals = m_threadGlobals.SetForCurrentThread();
 
-        IConfigurationSetProcessor setProcessor = m_factory.CreateSetProcessor(localSet);
+        IConfigurationSetProcessor setProcessor = m_factory.CreateSetProcessor(configurationSet);
         auto result = make_self<wil::details::module_count_wrapper<implementation::TestConfigurationSetResult>>();
         result->TestResult(ConfigurationTestResult::NotRun);
-        progress.set_result(*result);
+        progress.Result(*result);
 
-        for (const auto& unit : localSet.ConfigurationUnits())
+        try
         {
-            AICLI_LOG(Config, Info, << "Testing configuration unit: " << AppInstaller::Utility::ConvertToUTF8(unit.UnitName()));
-
-            auto testResult = make_self<wil::details::module_count_wrapper<implementation::TestConfigurationUnitResult>>();
-            auto unitResult = make_self<wil::details::module_count_wrapper<implementation::ConfigurationUnitResultInformation>>();
-            testResult->Initialize(unit, *unitResult);
-
-            if (ShouldTestDuringTest(unit.Intent()))
+            for (const auto& unit : configurationSet.ConfigurationUnits())
             {
-                IConfigurationUnitProcessor unitProcessor;
+                AICLI_LOG(Config, Info, << "Testing configuration unit: " << AppInstaller::Utility::ConvertToUTF8(unit.UnitName()));
 
-                try
-                {
-                    // TODO: Directives overlay to prevent running elevated for test
-                    unitProcessor = setProcessor.CreateUnitProcessor(unit, {});
-                }
-                catch (...)
-                {
-                    ExtractUnitResultInformation(std::current_exception(), unitResult);
-                }
+                auto testResult = make_self<wil::details::module_count_wrapper<implementation::TestConfigurationUnitResult>>();
+                auto unitResult = make_self<wil::details::module_count_wrapper<implementation::ConfigurationUnitResultInformation>>();
+                testResult->Initialize(unit, *unitResult);
 
-                if (unitProcessor)
+                if (ShouldTestDuringTest(unit.Intent()))
                 {
+                    progress.ThrowIfCancelled();
+
+                    IConfigurationUnitProcessor unitProcessor;
+
                     try
                     {
-                        TestSettingsResult settingsResult = unitProcessor.TestSettings();
-                        testResult->TestResult(settingsResult.TestResult());
-                        testResult->ResultInformation(settingsResult.ResultInformation());
+                        // TODO: Directives overlay to prevent running elevated for test
+                        unitProcessor = setProcessor.CreateUnitProcessor(unit, {});
                     }
                     catch (...)
                     {
                         ExtractUnitResultInformation(std::current_exception(), unitResult);
                     }
 
-                    m_threadGlobals.GetTelemetryLogger().LogConfigUnitRunIfAppropriate(localSet.InstanceIdentifier(), unit, ConfigurationUnitIntent::Assert, TelemetryTraceLogger::TestAction, testResult->ResultInformation());
+                    progress.ThrowIfCancelled();
+
+                    if (unitProcessor)
+                    {
+                        try
+                        {
+                            TestSettingsResult settingsResult = unitProcessor.TestSettings();
+                            testResult->TestResult(settingsResult.TestResult());
+                            testResult->ResultInformation(settingsResult.ResultInformation());
+                        }
+                        catch (...)
+                        {
+                            ExtractUnitResultInformation(std::current_exception(), unitResult);
+                        }
+
+                        m_threadGlobals.GetTelemetryLogger().LogConfigUnitRunIfAppropriate(
+                            configurationSet.InstanceIdentifier(),
+                            unit,
+                            ConfigurationUnitIntent::Assert,
+                            TelemetryTraceLogger::TestAction,
+                            testResult->ResultInformation());
+                    }
                 }
-            }
-            else
-            {
-                testResult->TestResult(ConfigurationTestResult::NotRun);
+                else
+                {
+                    testResult->TestResult(ConfigurationTestResult::NotRun);
+                }
+
+                if (FAILED(unitResult->ResultCode()))
+                {
+                    testResult->TestResult(ConfigurationTestResult::Failed);
+                }
+
+                result->AppendUnitResult(*testResult);
+
+                progress.Progress(*testResult);
             }
 
-            if (FAILED(unitResult->ResultCode()))
-            {
-                testResult->TestResult(ConfigurationTestResult::Failed);
-            }
-
-            result->AppendUnitResult(*testResult);
-
-            progress(*testResult);
+            m_threadGlobals.GetTelemetryLogger().LogConfigProcessingSummaryForTest(*winrt::get_self<implementation::ConfigurationSet>(configurationSet), *result);
+            return *result;
         }
-
-        m_threadGlobals.GetTelemetryLogger().LogConfigProcessingSummaryForTest(*winrt::get_self<implementation::ConfigurationSet>(localSet), *result);
-        co_return *result;
+        catch (...)
+        {
+            m_threadGlobals.GetTelemetryLogger().LogConfigProcessingSummaryForTestException(
+                *winrt::get_self<implementation::ConfigurationSet>(configurationSet),
+                LOG_CAUGHT_EXCEPTION(),
+                *result);
+            throw;
+        }
     }
 
     Configuration::GetConfigurationUnitSettingsResult ConfigurationProcessor::GetUnitSettings(const ConfigurationUnit& unit)
     {
-        return GetUnitSettingsAsync(unit).get();
+        THROW_HR_IF(E_NOT_VALID_STATE, !m_factory);
+        return GetUnitSettingsImpl(unit);
     }
 
     Windows::Foundation::IAsyncOperation<Configuration::GetConfigurationUnitSettingsResult> ConfigurationProcessor::GetUnitSettingsAsync(const ConfigurationUnit& unit)
@@ -446,6 +522,13 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         ConfigurationUnit localUnit = unit;
         co_await winrt::resume_background();
 
+        co_return GetUnitSettingsImpl(localUnit, { co_await winrt::get_cancellation_token() });
+    }
+
+    Configuration::GetConfigurationUnitSettingsResult ConfigurationProcessor::GetUnitSettingsImpl(
+        const ConfigurationUnit& unit,
+        AppInstaller::WinRT::AsyncCancellation cancellation)
+    {
         auto threadGlobals = m_threadGlobals.SetForCurrentThread();
 
         IConfigurationSetProcessor setProcessor = m_factory.CreateSetProcessor(nullptr);
@@ -453,17 +536,21 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         auto unitResult = make_self<wil::details::module_count_wrapper<implementation::ConfigurationUnitResultInformation>>();
         result->ResultInformation(*unitResult);
 
+        cancellation.ThrowIfCancelled();
+
         IConfigurationUnitProcessor unitProcessor;
 
         try
         {
             // TODO: Directives overlay to prevent running elevated for get
-            unitProcessor = setProcessor.CreateUnitProcessor(localUnit, {});
+            unitProcessor = setProcessor.CreateUnitProcessor(unit, {});
         }
         catch (...)
         {
             ExtractUnitResultInformation(std::current_exception(), unitResult);
         }
+
+        cancellation.ThrowIfCancelled();
 
         if (unitProcessor)
         {
@@ -478,10 +565,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                 ExtractUnitResultInformation(std::current_exception(), unitResult);
             }
 
-            m_threadGlobals.GetTelemetryLogger().LogConfigUnitRunIfAppropriate(GUID_NULL, localUnit, ConfigurationUnitIntent::Inform, TelemetryTraceLogger::GetAction, result->ResultInformation());
+            m_threadGlobals.GetTelemetryLogger().LogConfigUnitRunIfAppropriate(GUID_NULL, unit, ConfigurationUnitIntent::Inform, TelemetryTraceLogger::GetAction, result->ResultInformation());
         }
 
-        co_return *result;
+        return *result;
     }
 
     void ConfigurationProcessor::Diagnostics(DiagnosticLevel level, std::string_view message)

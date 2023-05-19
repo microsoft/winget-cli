@@ -97,6 +97,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             const ConfigurationSet& configurationSet,
             const TestConfigurationSetResult& result) const noexcept;
 
+        // Logs a processing summary event for a configuration set test run exception.
+        void LogConfigProcessingSummaryForTestException(
+            const ConfigurationSet& configurationSet,
+            hresult error,
+            const TestConfigurationSetResult& result) const noexcept;
+
         // Logs a processing summary event for a configuration set apply run.
         void LogConfigProcessingSummaryForApply(
             const ConfigurationSet& configurationSet,

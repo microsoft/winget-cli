@@ -221,12 +221,12 @@ namespace AppInstaller::CLI::Execution
     {
         if (m_spinner)
         {
-            m_spinner->SetMessage(message);
+            m_spinner->Message(message);
         }
 
         if (m_progressBar)
         {
-            m_progressBar->SetMessage(message);
+            m_progressBar->Message(message);
         }
     }
 
@@ -302,6 +302,7 @@ namespace AppInstaller::CLI::Execution
         ProgressCallback* callback = m_progressCallback.load();
         if (callback)
         {
+            callback->SetProgressMessage(Resource::String::CancellingOperation());
             callback->Cancel();
         }
     }
