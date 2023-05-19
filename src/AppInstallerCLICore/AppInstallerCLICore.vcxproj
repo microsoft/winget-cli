@@ -363,9 +363,9 @@
     <ClInclude Include="Commands\SettingsCommand.h" />
     <ClInclude Include="CompletionData.h" />
     <ClInclude Include="ConfigurationContext.h" />
-    <ClInclude Include="ConfigurationSetProcessorFactoryRemoting.h" />
     <ClInclude Include="ContextOrchestrator.h" />
     <ClInclude Include="COMContext.h" />
+    <ClInclude Include="Public\ConfigurationSetProcessorFactoryRemoting.h" />
     <ClInclude Include="Workflows\ConfigurationFlow.h" />
     <ClInclude Include="Workflows\DependenciesFlow.h" />
     <ClInclude Include="ExecutionArgs.h" />

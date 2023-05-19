@@ -710,10 +710,8 @@ namespace Microsoft.Management.Configuration
 
     // Top level entry point for configuration, enabling easier usage in out-of-process scenarios.
     [contract(Microsoft.Management.Configuration.Contract, 1)]
-    runtimeclass ConfigurationStatics
+    interface IConfigurationStatics
     {
-        ConfigurationStatics();
-
         // Creates an empty configuration unit.
         ConfigurationUnit CreateConfigurationUnit();
 
@@ -725,6 +723,13 @@ namespace Microsoft.Management.Configuration
 
         // Creates a processor from the given factory.
         ConfigurationProcessor CreateConfigurationProcessor(IConfigurationSetProcessorFactory factory);
+    }
+
+    // Top level entry point for configuration, enabling easier usage in out-of-process scenarios.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    runtimeclass ConfigurationStaticFunctions : [default]IConfigurationStatics
+    {
+        ConfigurationStaticFunctions();
     }
 
     /// Force midl3 to generate vector marshalling info.

@@ -3,7 +3,7 @@
 #include "pch.h"
 #include "ConfigurationFlow.h"
 #include "PromptFlow.h"
-#include "ConfigurationSetProcessorFactoryRemoting.h"
+#include "Public/ConfigurationSetProcessorFactoryRemoting.h"
 #include <AppInstallerErrors.h>
 #include <winrt/Microsoft.Management.Configuration.h>
 

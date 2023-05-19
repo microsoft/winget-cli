@@ -66,6 +66,9 @@
     <ClInclude Include="CheckInstalledStatusResult.h" />
     <ClInclude Include="CatalogPackageMetadata.h" />
     <ClInclude Include="SourceAgreement.h" />
+    <ClInclude Include="Public\CoCreatableMicrosoftManagementDeploymentClass.h">
+      <Filter>Public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Midl Include="PackageManager.idl" />

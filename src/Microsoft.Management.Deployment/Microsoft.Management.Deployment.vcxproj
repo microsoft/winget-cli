@@ -197,6 +197,7 @@
     <ClInclude Include="PackageVersionId.h" />
     <ClInclude Include="PackageVersionInfo.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="Public\CoCreatableMicrosoftManagementDeploymentClass.h" />
     <ClInclude Include="Public\ComClsids.h" />
     <ClInclude Include="SourceAgreement.h" />
     <ClInclude Include="UninstallOptions.h" />

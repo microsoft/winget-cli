@@ -1,14 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "ConfigurationSetProcessorFactoryRemoting.h"
+#include "Public/ConfigurationSetProcessorFactoryRemoting.h"
 #include <AppInstallerLogging.h>
 #include <AppInstallerRuntime.h>
 
 using namespace winrt::Windows::Foundation;
 using namespace winrt::Microsoft::Management::Configuration;
 
-namespace AppInstaller::CLI::Workflow::ConfigurationRemoting
+namespace AppInstaller::CLI::ConfigurationRemoting
 {
     namespace details
     {
@@ -174,7 +174,7 @@ namespace AppInstaller::CLI::Workflow::ConfigurationRemoting
 
 HRESULT WindowsPackageManagerConfigurationCompleteOutOfProcessFactoryInitialization(HRESULT result, void* factory, uint64_t memoryHandleIntPtr, uint64_t initEventHandleIntPtr, uint64_t completionMutexHandleIntPtr) try
 {
-    using namespace AppInstaller::CLI::Workflow::ConfigurationRemoting;
+    using namespace AppInstaller::CLI::ConfigurationRemoting;
 
     RETURN_HR_IF(E_POINTER, !memoryHandleIntPtr);
 

@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "ConfigurationStatics.g.h"
+#include "ConfigurationStaticFunctions.g.h"
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
-    struct ConfigurationStatics : ConfigurationStaticsT<ConfigurationStatics>
+    struct ConfigurationStaticFunctions : ConfigurationStaticFunctionsT<ConfigurationStaticFunctions>
     { 
-        ConfigurationStatics() = default;
+        ConfigurationStaticFunctions() = default;
 
         Configuration::ConfigurationUnit CreateConfigurationUnit();
         Configuration::ConfigurationSet CreateConfigurationSet();
@@ -17,7 +17,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 }
 namespace winrt::Microsoft::Management::Configuration::factory_implementation
 {
-    struct ConfigurationStatics : ConfigurationStaticsT<ConfigurationStatics, implementation::ConfigurationStatics>
+    struct ConfigurationStaticFunctions : ConfigurationStaticFunctionsT<ConfigurationStaticFunctions, implementation::ConfigurationStaticFunctions>
     {
     };
 }

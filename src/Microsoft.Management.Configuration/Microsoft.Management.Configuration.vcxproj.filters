@@ -87,7 +87,7 @@
     <ClCompile Include="ConfigurationUnitResultInformation.cpp">
       <Filter>Internals</Filter>
     </ClCompile>
-    <ClCompile Include="ConfigurationStatics.cpp">
+    <ClCompile Include="ConfigurationStaticFunctions.cpp">
       <Filter>API Source</Filter>
     </ClCompile>
   </ItemGroup>
@@ -183,7 +183,7 @@
     <ClInclude Include="ConfigurationUnitResultInformation.h">
       <Filter>Internals</Filter>
     </ClInclude>
-    <ClInclude Include="ConfigurationStatics.h">
+    <ClInclude Include="ConfigurationStaticFunctions.h">
       <Filter>API Headers</Filter>
     </ClInclude>
   </ItemGroup>

@@ -399,6 +399,7 @@
     <ClInclude Include="Public\Telemetry\MicrosoftTelemetry.h" />
     <ClInclude Include="Public\Telemetry\WinEventLogLevels.h" />
     <ClInclude Include="Public\winget\AsyncTokens.h" />
+    <ClInclude Include="Public\winget\ConfigurationSetProcessorHandlers.h" />
     <ClInclude Include="Public\winget\JsonSchemaValidation.h" />
     <ClInclude Include="Public\winget\LocIndependent.h" />
     <ClInclude Include="Public\winget\Resources.h" />

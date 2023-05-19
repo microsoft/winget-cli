@@ -1,32 +1,31 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "ConfigurationStatics.h"
-#include "ConfigurationStatics.g.cpp"
+#include "ConfigurationStaticFunctions.h"
+#include "ConfigurationStaticFunctions.g.cpp"
 #include "ConfigurationUnit.h"
 #include "ConfigurationSet.h"
 #include "ConfigurationProcessor.h"
-#include "AppInstallerStrings.h"
+#include <AppInstallerStrings.h>
+#include <winget/ConfigurationSetProcessorHandlers.h>
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
-    constexpr std::wstring_view c_PowerShellHandlerIdentifier = L"pwsh";
-
-    Configuration::ConfigurationUnit ConfigurationStatics::CreateConfigurationUnit()
+    Configuration::ConfigurationUnit ConfigurationStaticFunctions::CreateConfigurationUnit()
     {
         return *make_self<wil::details::module_count_wrapper<implementation::ConfigurationUnit>>();
     }
 
-    Configuration::ConfigurationSet ConfigurationStatics::CreateConfigurationSet()
+    Configuration::ConfigurationSet ConfigurationStaticFunctions::CreateConfigurationSet()
     {
         return *make_self<wil::details::module_count_wrapper<implementation::ConfigurationSet>>();
     }
 
-    IConfigurationSetProcessorFactory ConfigurationStatics::CreateConfigurationSetProcessorFactory(hstring const& handler)
+    IConfigurationSetProcessorFactory ConfigurationStaticFunctions::CreateConfigurationSetProcessorFactory(hstring const& handler)
     {
         std::wstring lowerHandler = AppInstaller::Utility::ToLower(handler);
 
-        if (lowerHandler == c_PowerShellHandlerIdentifier)
+        if (lowerHandler == AppInstaller::Configuration::PowerShellHandlerIdentifier)
         {
             THROW_HR(E_NOTIMPL);
         }
@@ -35,7 +34,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         THROW_HR(E_NOT_SET);
     }
 
-    Configuration::ConfigurationProcessor ConfigurationStatics::CreateConfigurationProcessor(IConfigurationSetProcessorFactory const& factory)
+    Configuration::ConfigurationProcessor ConfigurationStaticFunctions::CreateConfigurationProcessor(IConfigurationSetProcessorFactory const& factory)
     {
         auto result = make_self<wil::details::module_count_wrapper<implementation::ConfigurationProcessor>>();
         result->ConfigurationSetProcessorFactory(factory);
