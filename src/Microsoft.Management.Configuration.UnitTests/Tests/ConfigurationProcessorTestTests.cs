@@ -153,7 +153,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             TestConfigurationProcessorFactory factory = new TestConfigurationProcessorFactory();
             TestConfigurationSetProcessor setProcessor = factory.CreateTestProcessor(configurationSet);
             TestConfigurationUnitProcessor unitProcessor = setProcessor.CreateTestProcessor(configurationUnitThrows);
-            TestSettingsResult testResult = new TestSettingsResult();
+            TestSettingsResultInstance testResult = new TestSettingsResultInstance();
             testResult.TestResult = ConfigurationTestResult.Failed;
             testResult.ResultInformation.ResultCode = new NullReferenceException();
             testResult.ResultInformation.Description = "Failed again";
@@ -228,13 +228,13 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             TestConfigurationProcessorFactory factory = new TestConfigurationProcessorFactory();
             TestConfigurationSetProcessor setProcessor = factory.CreateTestProcessor(configurationSet);
 
-            TestSettingsResult positiveResult = new TestSettingsResult();
+            TestSettingsResultInstance positiveResult = new TestSettingsResultInstance();
             positiveResult.TestResult = ConfigurationTestResult.Positive;
 
-            TestSettingsResult negativeResult = new TestSettingsResult();
+            TestSettingsResultInstance negativeResult = new TestSettingsResultInstance();
             negativeResult.TestResult = ConfigurationTestResult.Negative;
 
-            TestSettingsResult failedResult = new TestSettingsResult();
+            TestSettingsResultInstance failedResult = new TestSettingsResultInstance();
             failedResult.TestResult = ConfigurationTestResult.Failed;
             failedResult.ResultInformation.ResultCode = new NullReferenceException();
             failedResult.ResultInformation.Description = "Failed again";

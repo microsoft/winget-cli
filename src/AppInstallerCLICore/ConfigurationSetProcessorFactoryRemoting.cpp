@@ -140,7 +140,7 @@ namespace AppInstaller::CLI::Workflow::ConfigurationRemoting
                 return m_remoteFactory.CreateSetProcessor(configurationSet);
             }
 
-            winrt::event_token Diagnostics(const EventHandler<DiagnosticInformation>& handler)
+            winrt::event_token Diagnostics(const EventHandler<IDiagnosticInformation>& handler)
             {
                 return m_remoteFactory.Diagnostics(handler);
             }

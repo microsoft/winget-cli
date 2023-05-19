@@ -30,7 +30,7 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
     /// </summary>
     internal class HostedEnvironment : IProcessorEnvironment
     {
-        private readonly ConfigurationProcessorType type;
+        private readonly PowerShellConfigurationProcessorType type;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HostedEnvironment"/> class.
@@ -38,7 +38,7 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
         /// <param name="runspace">PowerShell Runspace.</param>
         /// <param name="type">Configuration processor type.</param>
         /// <param name="dscModule">IDscModule.</param>
-        public HostedEnvironment(Runspace runspace, ConfigurationProcessorType type, IDscModule dscModule)
+        public HostedEnvironment(Runspace runspace, PowerShellConfigurationProcessorType type, IDscModule dscModule)
         {
             this.Runspace = runspace;
             this.type = type;
@@ -56,7 +56,7 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
         /// <summary>
         /// Gets or initializes the set processor factory.
         /// </summary>
-        internal ConfigurationSetProcessorFactory? SetProcessorFactory { get; init; }
+        internal PowerShellConfigurationSetProcessorFactory? SetProcessorFactory { get; init; }
 
         /// <inheritdoc/>
         public void ValidateRunspace()

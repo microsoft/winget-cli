@@ -102,7 +102,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return ConfigurationUnitState::Unknown;
     }
 
-    ConfigurationUnitResultInformation ConfigurationUnit::ResultInformation()
+    IConfigurationUnitResultInformation ConfigurationUnit::ResultInformation()
     {
         return nullptr;
     }

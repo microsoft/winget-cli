@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "DiagnosticInformation.g.h"
+#include "DiagnosticInformationInstance.g.h"
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
-    struct DiagnosticInformation : DiagnosticInformationT<DiagnosticInformation>
+    struct DiagnosticInformationInstance : DiagnosticInformationInstanceT<DiagnosticInformationInstance>
     {
-        DiagnosticInformation() = default;
+        DiagnosticInformationInstance() = default;
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
         void Initialize(DiagnosticLevel level, std::wstring_view message);
@@ -29,7 +29,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
 namespace winrt::Microsoft::Management::Configuration::factory_implementation
 {
-    struct DiagnosticInformation : DiagnosticInformationT<DiagnosticInformation, implementation::DiagnosticInformation>
+    struct DiagnosticInformationInstance : DiagnosticInformationInstanceT<DiagnosticInformationInstance, implementation::DiagnosticInformationInstance>
     {
     };
 }

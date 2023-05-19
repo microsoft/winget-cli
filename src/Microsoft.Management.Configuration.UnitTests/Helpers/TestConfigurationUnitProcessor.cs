@@ -38,19 +38,19 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         /// The delegate for ApplySettings.
         /// </summary>
         /// <returns>The result.</returns>
-        internal delegate ApplySettingsResult ApplySettingsDelegateType();
+        internal delegate IApplySettingsResult ApplySettingsDelegateType();
 
         /// <summary>
         /// The delegate for GetSettings.
         /// </summary>
         /// <returns>The result.</returns>
-        internal delegate GetSettingsResult GetSettingsDelegateType();
+        internal delegate IGetSettingsResult GetSettingsDelegateType();
 
         /// <summary>
         /// The delegate for TestSettings.
         /// </summary>
         /// <returns>The result.</returns>
-        internal delegate TestSettingsResult TestSettingsDelegateType();
+        internal delegate ITestSettingsResult TestSettingsDelegateType();
 
         /// <summary>
         /// Gets or sets the directives overlay.
@@ -96,7 +96,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         /// Calls the ApplySettingsDelegate if one is provided; returns success if not.
         /// </summary>
         /// <returns>The result.</returns>
-        public ApplySettingsResult ApplySettings()
+        public IApplySettingsResult ApplySettings()
         {
             ++this.ApplySettingsCalls;
             if (this.ApplySettingsDelegate != null)
@@ -105,7 +105,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
             }
             else
             {
-                return new ApplySettingsResult();
+                return new ApplySettingsResultInstance();
             }
         }
 
@@ -113,7 +113,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         /// Calls the GetSettingsDelegate if one is provided; returns success if not (with no settings values).
         /// </summary>
         /// <returns>The result.</returns>
-        public GetSettingsResult GetSettings()
+        public IGetSettingsResult GetSettings()
         {
             ++this.GetSettingsCalls;
             if (this.GetSettingsDelegate != null)
@@ -122,7 +122,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
             }
             else
             {
-                return new GetSettingsResult();
+                return new GetSettingsResultInstance();
             }
         }
 
@@ -130,7 +130,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         /// Calls the TestSettingsDelegate if one is provided; returns success if not (with a positive test result).
         /// </summary>
         /// <returns>The result.</returns>
-        public TestSettingsResult TestSettings()
+        public ITestSettingsResult TestSettings()
         {
             ++this.TestSettingsCalls;
             if (this.TestSettingsDelegate != null)
@@ -139,7 +139,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
             }
             else
             {
-                return new TestSettingsResult { TestResult = ConfigurationTestResult.Positive };
+                return new TestSettingsResultInstance { TestResult = ConfigurationTestResult.Positive };
             }
         }
     }

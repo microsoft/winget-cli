@@ -38,7 +38,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
         /// <summary>
         /// Gets or initializes the set processor factory.
         /// </summary>
-        internal ConfigurationSetProcessorFactory? SetProcessorFactory { get; init; }
+        internal PowerShellConfigurationSetProcessorFactory? SetProcessorFactory { get; init; }
 
         /// <summary>
         /// Gets the processor environment.

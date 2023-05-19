@@ -23,13 +23,14 @@ namespace ConfigurationRemotingServer
                 string rootDirectory = Path.GetDirectoryName(assemblyDirectory) ?? throw new InvalidDataException(); ;
                 string modulesPath = Path.Combine(rootDirectory, "ExternalModules");
 
-                ConfigurationProcessorFactoryProperties properties = new ConfigurationProcessorFactoryProperties();
+                PowerShellConfigurationSetProcessorFactory factory = new PowerShellConfigurationSetProcessorFactory();
+
+                IPowerShellConfigurationProcessorFactoryProperties properties = factory.As<IPowerShellConfigurationProcessorFactoryProperties>();
                 properties.AdditionalModulePaths = new List<string>() { modulesPath };
-
                 // This can be RemoteSigned eventually or keep it Unrestricted for dev builds.
-                properties.Policy = ConfigurationProcessorPolicy.Unrestricted;
+                properties.Policy = PowerShellConfigurationProcessorPolicy.Unrestricted;
+                properties.ProcessorType = PowerShellConfigurationProcessorType.Hosted;
 
-                ConfigurationSetProcessorFactory factory = new ConfigurationSetProcessorFactory(ConfigurationProcessorType.Hosted, properties);
                 IObjectReference factoryInterface = MarshalInterface<global::Microsoft.Management.Configuration.IConfigurationSetProcessorFactory>.CreateMarshaler(factory);
 
                 return WindowsPackageManagerConfigurationCompleteOutOfProcessFactoryInitialization(0, factoryInterface.ThisPtr, memoryHandle, initEventHandle, completionEventHandle);

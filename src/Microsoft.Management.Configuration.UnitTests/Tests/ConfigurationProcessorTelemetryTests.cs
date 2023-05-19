@@ -203,7 +203,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
                 if (getFails)
                 {
-                    this.GetResult = new GetSettingsResult();
+                    this.GetResult = new GetSettingsResultInstance();
                     this.GetResult.ResultInformation.ResultCode = new NullReferenceException();
                     this.GetResult.ResultInformation.ResultSource = ConfigurationUnitResultSource.UnitProcessing;
                     this.UnitProcessor.GetSettingsDelegate = () => this.GetResult;
@@ -216,7 +216,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             public TestConfigurationUnitProcessor UnitProcessor { get; set; }
 
-            public GetSettingsResult? GetResult { get; set; }
+            public IGetSettingsResult? GetResult { get; set; }
 
             public TestConfigurationUnitProcessorDetails? UnitDetails { get; set; }
 

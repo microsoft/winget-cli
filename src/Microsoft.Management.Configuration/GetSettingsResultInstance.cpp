@@ -1,28 +1,28 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "GetSettingsResult.h"
-#include "GetSettingsResult.g.cpp"
+#include "GetSettingsResultInstance.h"
+#include "GetSettingsResultInstance.g.cpp"
 #include "ConfigurationUnitResultInformation.h"
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
-    GetSettingsResult::GetSettingsResult() :
+    GetSettingsResultInstance::GetSettingsResultInstance() :
         m_resultInformation(*make_self<wil::details::module_count_wrapper<implementation::ConfigurationUnitResultInformation>>())
     {
     }
 
-    Windows::Foundation::Collections::ValueSet GetSettingsResult::Settings()
+    Windows::Foundation::Collections::ValueSet GetSettingsResultInstance::Settings()
     {
         return m_settings;
     }
 
-    void GetSettingsResult::Settings(Windows::Foundation::Collections::ValueSet value)
+    void GetSettingsResultInstance::Settings(Windows::Foundation::Collections::ValueSet value)
     {
         m_settings = std::move(value);
     }
 
-    Configuration::ConfigurationUnitResultInformation GetSettingsResult::ResultInformation()
+    Configuration::IConfigurationUnitResultInformation GetSettingsResultInstance::ResultInformation()
     {
         return m_resultInformation;
     }

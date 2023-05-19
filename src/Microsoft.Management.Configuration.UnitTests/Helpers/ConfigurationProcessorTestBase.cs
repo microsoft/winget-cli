@@ -125,7 +125,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
             VerifySummaryCounts(summary, counts, runs, failures);
         }
 
-        private static void SummaryCountByIntent(int[] counts, int[] runs, int[] failures, ConfigurationUnitIntent intent, ConfigurationUnitResultInformation resultInformation)
+        private static void SummaryCountByIntent(int[] counts, int[] runs, int[] failures, ConfigurationUnitIntent intent, IConfigurationUnitResultInformation resultInformation)
         {
             int index = (int)intent;
 

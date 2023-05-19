@@ -150,7 +150,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             TestConfigurationProcessorFactory factory = new TestConfigurationProcessorFactory();
             factory.NullProcessor = new TestConfigurationSetProcessor(null);
             TestConfigurationUnitProcessor unitProcessor = factory.NullProcessor.CreateTestProcessor(configurationUnit);
-            GetSettingsResult getSettingsResult = new GetSettingsResult();
+            GetSettingsResultInstance getSettingsResult = new GetSettingsResultInstance();
             getSettingsResult.ResultInformation.ResultCode = new InvalidDataException();
             getSettingsResult.ResultInformation.Description = "We fail because we must";
             unitProcessor.GetSettingsDelegate = () => getSettingsResult;
@@ -177,7 +177,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             TestConfigurationProcessorFactory factory = new TestConfigurationProcessorFactory();
             factory.NullProcessor = new TestConfigurationSetProcessor(null);
             TestConfigurationUnitProcessor unitProcessor = factory.NullProcessor.CreateTestProcessor(configurationUnit);
-            GetSettingsResult getSettingsResult = new GetSettingsResult();
+            GetSettingsResultInstance getSettingsResult = new GetSettingsResultInstance();
             getSettingsResult.Settings = new Windows.Foundation.Collections.ValueSet();
             getSettingsResult.Settings.Add("key", "value");
             unitProcessor.GetSettingsDelegate = () => getSettingsResult;

@@ -352,7 +352,7 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        void LogFailedGetConfigurationUnitDetails(const ConfigurationUnit& unit, const ConfigurationUnitResultInformation& resultInformation)
+        void LogFailedGetConfigurationUnitDetails(const ConfigurationUnit& unit, const IConfigurationUnitResultInformation& resultInformation)
         {
             if (FAILED(resultInformation.ResultCode()))
             {
@@ -370,7 +370,7 @@ namespace AppInstaller::CLI::Workflow
 
         // TODO: We may need a detailed result code to enable the internal error to be exposed.
         //       Additionally, some of the processor exceptions that generate these errors should be enlightened to produce better, localized descriptions.
-        UnitFailedMessageData GetUnitFailedData(const ConfigurationUnit& unit, const ConfigurationUnitResultInformation& resultInformation)
+        UnitFailedMessageData GetUnitFailedData(const ConfigurationUnit& unit, const IConfigurationUnitResultInformation& resultInformation)
         {
             int32_t resultCode = resultInformation.ResultCode();
 
@@ -403,7 +403,7 @@ namespace AppInstaller::CLI::Workflow
             return { Resource::String::ConfigurationUnitFailed(resultCode), true };
         }
 
-        Utility::LocIndString GetUnitSkippedMessage(const ConfigurationUnitResultInformation& resultInformation)
+        Utility::LocIndString GetUnitSkippedMessage(const IConfigurationUnitResultInformation& resultInformation)
         {
             int32_t resultCode = resultInformation.ResultCode();
 
@@ -530,7 +530,7 @@ namespace AppInstaller::CLI::Workflow
             }
 
         private:
-            void HandleUnitProgress(const ConfigurationUnit& unit, ConfigurationUnitState state, const ConfigurationUnitResultInformation& resultInformation)
+            void HandleUnitProgress(const ConfigurationUnit& unit, ConfigurationUnitState state, const IConfigurationUnitResultInformation& resultInformation)
             {
                 if (UnitHasPreviouslyCompleted(unit))
                 {
@@ -668,7 +668,7 @@ namespace AppInstaller::CLI::Workflow
         processor.GenerateTelemetryEvents(!Settings::User().Get<Settings::Setting::TelemetryDisable>());
 
         // Route the configuration diagnostics into the context's diagnostics logging
-        processor.Diagnostics([&context](const winrt::Windows::Foundation::IInspectable&, const DiagnosticInformation& diagnostics)
+        processor.Diagnostics([&context](const winrt::Windows::Foundation::IInspectable&, const IDiagnosticInformation& diagnostics)
             {
                 context.GetThreadGlobals().GetDiagnosticLogger().Write(Logging::Channel::Config, ConvertLevel(diagnostics.Level()), Utility::ConvertToUTF8(diagnostics.Message()));
             });

@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="IConfigurationProcessorFactoryProperties.cs" company="Microsoft Corporation">
+// <copyright file="IPowerShellConfigurationProcessorFactoryProperties.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -11,8 +11,13 @@ namespace Microsoft.Management.Configuration.Processor
     /// <summary>
     /// Properties for the configuration processor factory.
     /// </summary>
-    public interface IConfigurationProcessorFactoryProperties
+    public interface IPowerShellConfigurationProcessorFactoryProperties
     {
+        /// <summary>
+        /// Gets or sets the processor type.
+        /// </summary>
+        PowerShellConfigurationProcessorType ProcessorType { get; set; }
+
         /// <summary>
         /// Gets or sets the additional module paths.
         /// </summary>
@@ -21,6 +26,6 @@ namespace Microsoft.Management.Configuration.Processor
         /// <summary>
         /// Gets or sets the configuration policy.
         /// </summary>
-        ConfigurationProcessorPolicy Policy { get; set; }
+        PowerShellConfigurationProcessorPolicy Policy { get; set; }
     }
 }

@@ -10,8 +10,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 {
     struct ConfigurationUnit : ConfigurationUnitT<ConfigurationUnit>
     {
-        using ConfigurationUnitResultInformation = Configuration::ConfigurationUnitResultInformation;
-
         ConfigurationUnit();
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
@@ -40,7 +38,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         ConfigurationUnitState State();
 
-        ConfigurationUnitResultInformation ResultInformation();
+        IConfigurationUnitResultInformation ResultInformation();
 
         bool ShouldApply();
         void ShouldApply(bool value);

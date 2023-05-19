@@ -13,7 +13,7 @@ namespace TestCommon
     {
         winrt::Microsoft::Management::Configuration::IConfigurationSetProcessor CreateSetProcessor(const winrt::Microsoft::Management::Configuration::ConfigurationSet& configurationSet);
 
-        winrt::event_token Diagnostics(const winrt::Windows::Foundation::EventHandler<winrt::Microsoft::Management::Configuration::DiagnosticInformation>& handler);
+        winrt::event_token Diagnostics(const winrt::Windows::Foundation::EventHandler<winrt::Microsoft::Management::Configuration::IDiagnosticInformation>& handler);
         void Diagnostics(const winrt::event_token& token) noexcept;
 
         winrt::Microsoft::Management::Configuration::DiagnosticLevel MinimumLevel();
@@ -22,7 +22,7 @@ namespace TestCommon
         std::function<winrt::Microsoft::Management::Configuration::IConfigurationSetProcessor(const winrt::Microsoft::Management::Configuration::ConfigurationSet&)> CreateSetProcessorFunc;
 
     private:
-        winrt::event<winrt::Windows::Foundation::EventHandler<winrt::Microsoft::Management::Configuration::DiagnosticInformation>> m_diagnostics;
+        winrt::event<winrt::Windows::Foundation::EventHandler<winrt::Microsoft::Management::Configuration::IDiagnosticInformation>> m_diagnostics;
     };
 
     struct TestConfigurationSetProcessor : winrt::implements<TestConfigurationSetProcessor, winrt::Microsoft::Management::Configuration::IConfigurationSetProcessor>
@@ -115,16 +115,16 @@ namespace TestCommon
         winrt::Windows::Foundation::Collections::IMapView<winrt::hstring, winrt::Windows::Foundation::IInspectable> DirectivesOverlayValue;
         winrt::Windows::Foundation::Collections::IMapView<winrt::hstring, winrt::Windows::Foundation::IInspectable> DirectivesOverlay() { return DirectivesOverlayValue; }
 
-        winrt::Microsoft::Management::Configuration::TestSettingsResult TestSettings();
+        winrt::Microsoft::Management::Configuration::ITestSettingsResult TestSettings();
 
-        std::function<winrt::Microsoft::Management::Configuration::TestSettingsResult()> TestSettingsFunc;
+        std::function<winrt::Microsoft::Management::Configuration::ITestSettingsResult()> TestSettingsFunc;
 
-        winrt::Microsoft::Management::Configuration::GetSettingsResult GetSettings();
+        winrt::Microsoft::Management::Configuration::IGetSettingsResult GetSettings();
 
-        std::function<winrt::Microsoft::Management::Configuration::GetSettingsResult()> GetSettingsFunc;
+        std::function<winrt::Microsoft::Management::Configuration::IGetSettingsResult()> GetSettingsFunc;
 
-        winrt::Microsoft::Management::Configuration::ApplySettingsResult ApplySettings();
+        winrt::Microsoft::Management::Configuration::IApplySettingsResult ApplySettings();
 
-        std::function<winrt::Microsoft::Management::Configuration::ApplySettingsResult()> ApplySettingsFunc;
+        std::function<winrt::Microsoft::Management::Configuration::IApplySettingsResult()> ApplySettingsFunc;
     };
 }

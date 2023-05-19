@@ -1,28 +1,28 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "TestSettingsResult.g.h"
+#include "TestSettingsResultInstance.g.h"
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
-    struct TestSettingsResult : TestSettingsResultT<TestSettingsResult>
+    struct TestSettingsResultInstance : TestSettingsResultInstanceT<TestSettingsResultInstance>
     {
-        TestSettingsResult();
+        TestSettingsResultInstance();
 
         ConfigurationTestResult TestResult();
         void TestResult(ConfigurationTestResult const& value);
 
-        Configuration::ConfigurationUnitResultInformation ResultInformation();
+        IConfigurationUnitResultInformation ResultInformation();
 
     private:
         ConfigurationTestResult m_testResult = ConfigurationTestResult::Unknown;
-        Configuration::ConfigurationUnitResultInformation m_resultInformation;
+        IConfigurationUnitResultInformation m_resultInformation;
     };
 }
 
 namespace winrt::Microsoft::Management::Configuration::factory_implementation
 {
-    struct TestSettingsResult : TestSettingsResultT<TestSettingsResult, implementation::TestSettingsResult>
+    struct TestSettingsResultInstance : TestSettingsResultInstanceT<TestSettingsResultInstance, implementation::TestSettingsResultInstance>
     {
     };
 }

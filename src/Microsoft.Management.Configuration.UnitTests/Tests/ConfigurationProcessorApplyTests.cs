@@ -205,7 +205,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             TestConfigurationUnitProcessor unitProcessorAssert = setProcessor.CreateTestProcessor(configurationUnitAssert);
             TestConfigurationUnitProcessor unitProcessorInform = setProcessor.CreateTestProcessor(configurationUnitInform);
             TestConfigurationUnitProcessor unitProcessorApply = setProcessor.CreateTestProcessor(configurationUnitApply);
-            unitProcessorApply.TestSettingsDelegate = () => new TestSettingsResult { TestResult = ConfigurationTestResult.Negative };
+            unitProcessorApply.TestSettingsDelegate = () => new TestSettingsResultInstance { TestResult = ConfigurationTestResult.Negative };
 
             ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics(factory);
 
@@ -255,7 +255,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             TestConfigurationUnitProcessor unitProcessorAssert = setProcessor.CreateTestProcessor(configurationUnitAssert);
             unitProcessorAssert.TestSettingsDelegate = () => throw new NullReferenceException();
             TestConfigurationUnitProcessor unitProcessorApply = setProcessor.CreateTestProcessor(configurationUnitApply);
-            unitProcessorApply.TestSettingsDelegate = () => new TestSettingsResult { TestResult = ConfigurationTestResult.Negative };
+            unitProcessorApply.TestSettingsDelegate = () => new TestSettingsResultInstance { TestResult = ConfigurationTestResult.Negative };
 
             ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics(factory);
 
@@ -300,9 +300,9 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             TestConfigurationProcessorFactory factory = new TestConfigurationProcessorFactory();
             TestConfigurationSetProcessor setProcessor = factory.CreateTestProcessor(configurationSet);
             TestConfigurationUnitProcessor unitProcessorAssert = setProcessor.CreateTestProcessor(configurationUnitAssert);
-            unitProcessorAssert.TestSettingsDelegate = () => new TestSettingsResult { TestResult = ConfigurationTestResult.Negative };
+            unitProcessorAssert.TestSettingsDelegate = () => new TestSettingsResultInstance { TestResult = ConfigurationTestResult.Negative };
             TestConfigurationUnitProcessor unitProcessorApply = setProcessor.CreateTestProcessor(configurationUnitApply);
-            unitProcessorApply.TestSettingsDelegate = () => new TestSettingsResult { TestResult = ConfigurationTestResult.Negative };
+            unitProcessorApply.TestSettingsDelegate = () => new TestSettingsResultInstance { TestResult = ConfigurationTestResult.Negative };
 
             ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics(factory);
 
@@ -339,7 +339,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             TestConfigurationProcessorFactory factory = new TestConfigurationProcessorFactory();
             TestConfigurationSetProcessor setProcessor = factory.CreateTestProcessor(configurationSet);
             TestConfigurationUnitProcessor unitProcessor = setProcessor.CreateTestProcessor(configurationUnit);
-            unitProcessor.TestSettingsDelegate = () => new TestSettingsResult { TestResult = ConfigurationTestResult.Positive };
+            unitProcessor.TestSettingsDelegate = () => new TestSettingsResultInstance { TestResult = ConfigurationTestResult.Positive };
 
             ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics(factory);
 

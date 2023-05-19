@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="ConfigurationProcessorPolicy.cs" company="Microsoft Corporation">
+// <copyright file="PowerShellConfigurationProcessorPolicy.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -11,7 +11,7 @@ namespace Microsoft.Management.Configuration.Processor
     /// For Processor type Default and Hosted they mean the same as PowerShell ExecutionPolicy.
     /// https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_execution_policies.
     /// </summary>
-    public enum ConfigurationProcessorPolicy
+    public enum PowerShellConfigurationProcessorPolicy
     {
         /// <summary>
         /// Unrestricted.

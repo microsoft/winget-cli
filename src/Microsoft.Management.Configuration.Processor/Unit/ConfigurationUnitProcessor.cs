@@ -48,18 +48,18 @@ namespace Microsoft.Management.Configuration.Processor.Unit
         /// <summary>
         /// Gets or initializes the set processor factory.
         /// </summary>
-        internal ConfigurationSetProcessorFactory? SetProcessorFactory { get; init; }
+        internal PowerShellConfigurationSetProcessorFactory? SetProcessorFactory { get; init; }
 
         /// <summary>
         /// Gets the current system state for the configuration unit.
         /// Calls Get on the DSC resource.
         /// </summary>
-        /// <returns>A <see cref="GetSettingsResult"/>.</returns>
-        public GetSettingsResult GetSettings()
+        /// <returns>A <see cref="IGetSettingsResult"/>.</returns>
+        public IGetSettingsResult GetSettings()
         {
             this.OnDiagnostics(DiagnosticLevel.Verbose, $"Invoking `Get` for resource: {this.unitResource.UnitInternal.ToIdentifyingString()}...");
 
-            var result = new GetSettingsResult();
+            var result = new GetSettingsResultInstance();
 
             try
             {
@@ -81,8 +81,8 @@ namespace Microsoft.Management.Configuration.Processor.Unit
         /// Determines if the system is already in the state described by the configuration unit.
         /// Calls Test on the DSC resource.
         /// </summary>
-        /// <returns>A <see cref="TestSettingsResult"/>.</returns>
-        public TestSettingsResult TestSettings()
+        /// <returns>A <see cref="ITestSettingsResult"/>.</returns>
+        public ITestSettingsResult TestSettings()
         {
             this.OnDiagnostics(DiagnosticLevel.Verbose, $"Invoking `Test` for resource: {this.unitResource.UnitInternal.ToIdentifyingString()}...");
 
@@ -92,7 +92,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
                 throw new NotSupportedException();
             }
 
-            var result = new TestSettingsResult();
+            var result = new TestSettingsResultInstance();
             result.TestResult = ConfigurationTestResult.Failed;
             try
             {
@@ -116,8 +116,8 @@ namespace Microsoft.Management.Configuration.Processor.Unit
         /// Applies the state described in the configuration unit.
         /// Calls Set in the DSC resource.
         /// </summary>
-        /// <returns>A <see cref="ApplySettingsResult"/>.</returns>
-        public ApplySettingsResult ApplySettings()
+        /// <returns>A <see cref="IApplySettingsResult"/>.</returns>
+        public IApplySettingsResult ApplySettings()
         {
             this.OnDiagnostics(DiagnosticLevel.Verbose, $"Invoking `Apply` for resource: {this.unitResource.UnitInternal.ToIdentifyingString()}...");
 
@@ -128,7 +128,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
                 throw new NotSupportedException();
             }
 
-            var result = new ApplySettingsResult();
+            var result = new ApplySettingsResultInstance();
             try
             {
                 result.RebootRequired = this.processorEnvironment.InvokeSetResource(
@@ -145,7 +145,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
             return result;
         }
 
-        private void ExtractExceptionInformation(Exception e, ConfigurationUnitResultInformation resultInformation)
+        private void ExtractExceptionInformation(Exception e, IConfigurationUnitResultInformation resultInformation)
         {
             this.OnDiagnostics(DiagnosticLevel.Verbose, e.ToString());
 
