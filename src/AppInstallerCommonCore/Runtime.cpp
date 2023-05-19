@@ -113,7 +113,7 @@ namespace AppInstaller::Runtime
         // Gets the user's temp path
         std::filesystem::path GetPathToUserTemp(bool forDisplay)
         {
-            if (forDisplay)
+            if (forDisplay && Settings::User().Get<Setting::AnonymizePathForDisplay>())
             {
                 return "%TEMP%";
             }
@@ -133,7 +133,7 @@ namespace AppInstaller::Runtime
         {
             THROW_HR_IF(E_NOT_VALID_STATE, IsRunningInPackagedContext());
 
-            std::filesystem::path result = forDisplay ? s_LocalAppDataEnvironmentVariable : GetKnownFolderPath(FOLDERID_LocalAppData);
+            std::filesystem::path result = (forDisplay && Settings::User().Get<Setting::AnonymizePathForDisplay>()) ? s_LocalAppDataEnvironmentVariable : GetKnownFolderPath(FOLDERID_LocalAppData);
             result /= "Microsoft/WinGet";
 
             return result;
@@ -338,7 +338,7 @@ namespace AppInstaller::Runtime
         switch (path)
         {
         case PathName::UserProfile:
-            result.Path = forDisplay ? s_UserProfileEnvironmentVariable : GetKnownFolderPath(FOLDERID_Profile);
+            result.Path = (forDisplay && Settings::User().Get<Setting::AnonymizePathForDisplay>()) ? s_UserProfileEnvironmentVariable : GetKnownFolderPath(FOLDERID_Profile);
             result.Create = false;
             break;
         case PathName::PortablePackageUserRoot:
@@ -386,7 +386,7 @@ namespace AppInstaller::Runtime
             THROW_HR(E_UNEXPECTED);
         }
 
-        if (mayBeInProfilePath && forDisplay)
+        if (mayBeInProfilePath && forDisplay && Settings::User().Get<Setting::AnonymizePathForDisplay>())
         {
             ReplaceProfilePathsWithEnvironmentVariable(result.Path);
         }
@@ -462,7 +462,7 @@ namespace AppInstaller::Runtime
             THROW_HR(E_UNEXPECTED);
         }
 
-        if (mayBeInProfilePath && forDisplay)
+        if (mayBeInProfilePath && forDisplay && Settings::User().Get<Setting::AnonymizePathForDisplay>())
         {
             ReplaceProfilePathsWithEnvironmentVariable(result.Path);
         }
