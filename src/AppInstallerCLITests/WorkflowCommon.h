@@ -11,10 +11,7 @@
 
 #define REQUIRE_TERMINATED_WITH(_context_,_hr_) \
     REQUIRE(_context_.IsTerminated()); \
-    REQUIRE(( (_hr_) == (_context_).GetTerminationHR() ))
-
-#define REQUIRE_SUCCEEDED(_context_) \
-    REQUIRE(( S_OK == (_context_).GetTerminationHR() ))
+    REQUIRE(static_cast<HRESULT>(_hr_) == _context_.GetTerminationHR())
 
 namespace TestCommon
 {
@@ -38,7 +35,6 @@ namespace TestCommon
         const extern TestSourceResult TestInstaller_Exe;
         const extern TestSourceResult TestInstaller_Exe_Dependencies;
         const extern TestSourceResult TestInstaller_Exe_DifferentInstallerType;
-        const extern TestSourceResult TestInstaller_Exe_ExpectedReturnCodes;
         const extern TestSourceResult TestInstaller_Exe_IncompatibleInstallerType;
         const extern TestSourceResult TestInstaller_Exe_LatestInstalled;
         const extern TestSourceResult TestInstaller_Exe_LicenseAgreement;
@@ -137,11 +133,4 @@ namespace TestCommon
 
     void OverrideForMSStore(TestContext& context, bool isUpdate);
 
-    void OverrideOpenDependencySource(TestContext& context);
-
-    void OverrideEnableWindowsFeaturesDependencies(TestContext& context);
-
-    void OverrideRegisterStartupAfterReboot(TestContext& context);
-
-    void OverrideDownloadInstallerFileForMSStoreDownload(TestContext& context);
 }
