@@ -7,10 +7,11 @@
 #include <winrt/Windows.Storage.Streams.h>
 
 #pragma warning( push )
-#pragma warning( disable : 4324 4467 6388)
+#pragma warning( disable : 4324 4467 6388 6553 )
 // 4324 Allow use of alignment specifiers
 // 4467 Allow use of uuid attribute for com object creation.
 // 6388 Allow CreateInstance.
+// 6553 Allow annotation to value type
 #include <wil/cppwinrt_wrl.h>
 #include <wil/resource.h>
 #pragma warning( pop )
