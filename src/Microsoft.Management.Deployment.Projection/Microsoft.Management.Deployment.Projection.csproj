@@ -4,7 +4,7 @@
     <TargetFramework>net6.0-windows</TargetFramework>
     <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\Microsoft.Management.Deployment.Projection\</OutDir>
     <IsPackable>false</IsPackable>
-    <Platforms>x64;x86</Platforms>
+    <Platforms>x64;x86;arm64</Platforms>
     <OutputType>Library</OutputType>
     <Configurations>Debug;Release;ReleaseStatic</Configurations>
   </PropertyGroup>
