@@ -239,6 +239,7 @@ TEST_CASE("ReadGoodManifests", "[ManifestValidation]")
         { "Manifest-Good-Minimum-InstallerType.yaml" },
         { "Manifest-Good-Switches.yaml" },
         { "Manifest-Good-DefaultExpectedReturnCodeInInstallerSuccessCodes.yaml" },
+        { "Manifest-Good-PackageFamilyNameOnExe-Ver1_2.yaml" },
     };
 
     for (auto const& testCase : TestCases)
@@ -299,9 +300,9 @@ TEST_CASE("ReadBadManifests", "[ManifestValidation]")
         { "Manifest-Bad-VersionMissing.yaml", "Missing required property 'Version'" },
         { "Manifest-Bad-InvalidManifestVersionValue.yaml", "Failed to validate against schema associated with property name 'ManifestVersion'" },
         { "InstallFlowTest_MSStore.yaml", "Field value is not supported. [InstallerType] Value: msstore" },
-        { "Manifest-Bad-PackageFamilyNameOnMSI.yaml", "The specified installer type does not support PackageFamilyName. [InstallerType] Value: msi", true },
+        { "Manifest-Bad-PackageFamilyNameOnMSI.yaml", "The specified installer type does not support PackageFamilyName. [InstallerType] Value: msi" },
         { "Manifest-Bad-ProductCodeOnMSIX.yaml", "The specified installer type does not support ProductCode. [InstallerType] Value: msix" },
-        { "Manifest-Bad-InvalidUpdateBehavior.yaml", "Invalid field value. [UpgradeBehavior]" },
+        { "Manifest-Bad-InvalidUpdateBehavior.yaml", "Invalid field value. [UpdateBehavior]" },
         { "Manifest-Bad-InvalidLocale.yaml", "The locale value is not a well formed bcp47 language tag." },
         { "Manifest-Bad-AppsAndFeaturesEntriesOnMSIX.yaml", "The specified installer type does not write to Apps and Features entry." },
         { "InstallFlowTest_LicenseAgreement.yaml", "Field usage requires verified publishers.", true },
