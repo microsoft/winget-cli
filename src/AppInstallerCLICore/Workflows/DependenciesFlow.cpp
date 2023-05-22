@@ -190,7 +190,12 @@ namespace AppInstaller::CLI::Workflow
                                         << GetUserPresentableMessage(hr) << std::endl;
                                 }
 
+// TODO: Check this warning.
+// Comparison between different int types (HRESULT and long)
+#pragma warning ( push )
+#pragma warning ( disable : 6221 )
                                 if (hr == ERROR_SUCCESS_REBOOT_REQUIRED || windowsFeature.GetRestartRequiredStatus() == DismRestartType::DismRestartRequired)
+#pragma warning ( pop )
                                 {
                                     rebootRequired = true;
                                 }

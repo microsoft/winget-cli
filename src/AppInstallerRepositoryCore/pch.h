@@ -11,7 +11,7 @@
 #include <Shlobj.h>
 
 #pragma warning( push )
-#pragma warning ( disable : 6001 6340 6387 6388 28196 )
+#pragma warning ( disable : 6001 6340 6387 6388 6553 28196 )
 #include <wil/filesystem.h>
 #include <wil/resource.h>
 #include <wil/result.h>

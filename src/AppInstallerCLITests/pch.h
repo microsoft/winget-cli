@@ -20,10 +20,14 @@
 #include <winrt/Windows.Globalization.h>
 #include <winrt/Windows.Management.Deployment.h>
 
+#pragma warning( push )
+#pragma warning ( disable : 6001 6553 6387 6388 28193 28196 )
 #include <wil/filesystem.h>
 #include <wil/resource.h>
+#include <wil/result.h>
 #include <wil/result_macros.h>
 #include <wil/token_helpers.h>
+#pragma warning( push )
 
 #include <atomic>
 #include <filesystem>

@@ -6,8 +6,6 @@
 #include <winget/UserSettings.h>
 #include <ChannelStreams.h>
 
-#include <wil/resource.h>
-
 #include <atomic>
 #include <future>
 #include <istream>

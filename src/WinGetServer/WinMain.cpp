@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 #define NOMINMAX
 #pragma warning( push )
-#pragma warning ( disable : 6001 6388 6553)
+#pragma warning ( disable : 6001 6388 6553 )
 #include <wil/resource.h>
 #include <wil/com.h>
 #pragma warning( pop )
