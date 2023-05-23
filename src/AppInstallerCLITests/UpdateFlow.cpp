@@ -80,7 +80,7 @@ TEST_CASE("UpdateFlow_UpdateWithManifestAppNotInstalled", "[UpdateFlow][workflow
     // Verify Installer is not called.
     REQUIRE(!std::filesystem::exists(updateResultPath.GetPath()));
     REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::NoInstalledPackageFound).get()) != std::string::npos);
-    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND);
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND);
 }
 
 TEST_CASE("UpdateFlow_UpdateWithManifestVersionAlreadyInstalled", "[UpdateFlow][workflow]")
@@ -101,7 +101,7 @@ TEST_CASE("UpdateFlow_UpdateWithManifestVersionAlreadyInstalled", "[UpdateFlow][
     REQUIRE(!std::filesystem::exists(updateResultPath.GetPath()));
     REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::UpdateNoPackagesFound).get()) != std::string::npos);
     REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::UpdateNoPackagesFoundReason).get()) != std::string::npos);
-    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
 }
 
 TEST_CASE("UpdateFlow_UpdateExe", "[UpdateFlow][workflow]")
@@ -232,7 +232,7 @@ TEST_CASE("UpdateFlow_UpdateExeWithUnsupportedArgs", "[UpdateFlow][workflow]")
     INFO(updateOutput.str());
 
     // Verify unsupported arguments error message is shown 
-    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UNSUPPORTED_ARGUMENT);
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_UNSUPPORTED_ARGUMENT);
     REQUIRE(!std::filesystem::exists(updateResultPath.GetPath()));
     REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::UnsupportedArgument).get()) != std::string::npos);
     REQUIRE(updateOutput.str().find("-l,--location") != std::string::npos);
@@ -256,7 +256,7 @@ TEST_CASE("UpdateFlow_UnknownVersion", "[UpdateFlow][workflow]")
     INFO(updateOutput.str());
 
     // Verify help message is shown the user to use --include-unknown
-    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
     REQUIRE(!std::filesystem::exists(updateResultPath.GetPath()));
     REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::UpgradeUnknownVersionExplanation).get()) != std::string::npos);
 }
@@ -408,7 +408,7 @@ TEST_CASE("UpdateFlow_UpdateExeLatestAlreadyInstalled", "[UpdateFlow][workflow]"
     REQUIRE(!std::filesystem::exists(updateResultPath.GetPath()));
     REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::UpdateNoPackagesFound).get()) != std::string::npos);
     REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::UpdateNoPackagesFoundReason).get()) != std::string::npos);
-    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
 }
 
 TEST_CASE("UpdateFlow_UpdateExeInstallerTypeNotApplicable", "[UpdateFlow][workflow]")
@@ -428,7 +428,7 @@ TEST_CASE("UpdateFlow_UpdateExeInstallerTypeNotApplicable", "[UpdateFlow][workfl
     // Verify Installer is not called.
     REQUIRE(!std::filesystem::exists(updateResultPath.GetPath()));
     REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::UpgradeDifferentInstallTechnologyInNewerVersions).get()) != std::string::npos);
-    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
 }
 
 TEST_CASE("UpdateFlow_UpdateExeInstallerTypeNotApplicableSpecificVersion", "[UpdateFlow][workflow]")
@@ -449,7 +449,7 @@ TEST_CASE("UpdateFlow_UpdateExeInstallerTypeNotApplicableSpecificVersion", "[Upd
     // Verify Installer is not called.
     REQUIRE(!std::filesystem::exists(updateResultPath.GetPath()));
     REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::UpgradeDifferentInstallTechnology).get()) != std::string::npos);
-    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
 }
 
 TEST_CASE("UpdateFlow_UpdateExeWithDifferentInstalledType", "[UpdateFlow][workflow]")
@@ -469,7 +469,7 @@ TEST_CASE("UpdateFlow_UpdateExeWithDifferentInstalledType", "[UpdateFlow][workfl
     INFO(updateOutput.str());
 
     // Verify Installer is called.
-    REQUIRE(context.GetTerminationHR() == S_OK);
+    REQUIRE_SUCCEEDED(context);
     REQUIRE(std::filesystem::exists(updateResultPath.GetPath()));
 }
 
@@ -491,7 +491,7 @@ TEST_CASE("UpdateFlow_UpdateExeSpecificVersionNotFound", "[UpdateFlow][workflow]
     // Verify Installer is not called.
     REQUIRE(!std::filesystem::exists(updateResultPath.GetPath()));
     REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::GetManifestResultVersionNotFound("1.2.3.4"_liv)).get()) != std::string::npos);
-    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_NO_MANIFEST_FOUND);
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_NO_MANIFEST_FOUND);
 }
 
 TEST_CASE("UpdateFlow_UpdateExeSpecificVersionNotApplicable", "[UpdateFlow][workflow]")
@@ -513,7 +513,7 @@ TEST_CASE("UpdateFlow_UpdateExeSpecificVersionNotApplicable", "[UpdateFlow][work
     // Verify Installer is not called.
     REQUIRE(!std::filesystem::exists(updateResultPath.GetPath()));
     REQUIRE(updateOutput.str().find(Resource::LocString(Resource::String::UpgradeDifferentInstallTechnology).get()) != std::string::npos);
-    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
 }
 
 TEST_CASE("UpdateFlow_UpdateAllApplicable", "[UpdateFlow][workflow]")
@@ -845,7 +845,7 @@ TEST_CASE("UpdateFlow_RequireExplicit", "[UpdateFlow][workflow]")
     }
 
     // Command should always succeed
-    REQUIRE(context.GetTerminationHR() == S_OK);
+    REQUIRE_SUCCEEDED(context);
 }
 
 TEST_CASE("InstallFlow_FoundInstalledAndUpgradeAvailable", "[UpdateFlow][workflow]")
@@ -892,7 +892,7 @@ TEST_CASE("InstallFlow_FoundInstalledAndUpgradeAvailable_WithNoUpgrade", "[Updat
     // Verify Installer is not called.
     REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::PackageAlreadyInstalled).get()) != std::string::npos);
-    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_PACKAGE_ALREADY_INSTALLED);
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_PACKAGE_ALREADY_INSTALLED);
 }
 
 TEST_CASE("InstallFlow_FoundInstalledAndUpgradeNotAvailable", "[UpdateFlow][workflow]")
@@ -913,7 +913,7 @@ TEST_CASE("InstallFlow_FoundInstalledAndUpgradeNotAvailable", "[UpdateFlow][work
     REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::UpdateNoPackagesFound).get()) != std::string::npos);
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::UpdateNoPackagesFoundReason).get()) != std::string::npos);
-    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
 }
 
 TEST_CASE("UpdateFlow_UpdateAll_ForwardArgs", "[UpdateFlow][workflow]")

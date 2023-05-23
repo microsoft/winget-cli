@@ -743,7 +743,7 @@ TEST_CASE("CompositeSource_AvailableSearchFailure", "[CompositeSource]")
     }
     catch (...) {}
 
-    REQUIRE(searchFailure == expectedHR);
+    REQUIRE((searchFailure == expectedHR));
 }
 
 TEST_CASE("CompositeSource_InstalledToAvailableCorrelationSearchFailure", "[CompositeSource]")
@@ -779,7 +779,7 @@ TEST_CASE("CompositeSource_InstalledToAvailableCorrelationSearchFailure", "[Comp
     }
     catch (...) {}
 
-    REQUIRE(searchFailure == expectedHR);
+    REQUIRE((searchFailure == expectedHR));
 }
 
 TEST_CASE("CompositeSource_InstalledAvailableSearchFailure", "[CompositeSource]")
@@ -823,7 +823,7 @@ TEST_CASE("CompositeSource_InstalledAvailableSearchFailure", "[CompositeSource]"
     }
     catch (...) {}
 
-    REQUIRE(searchFailure == expectedHR);
+    REQUIRE((searchFailure == expectedHR));
 }
 
 TEST_CASE("CompositeSource_TrackingPackageFound", "[CompositeSource]")

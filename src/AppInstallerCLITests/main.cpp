@@ -1,11 +1,8 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 #define CATCH_CONFIG_RUNNER
-#include <catch.hpp>
-#include <winrt/Windows.Foundation.h>
-#include <iostream>
-#include <string>
-#include <vector>
+#include "pch.h"
 
 #include <AppInstallerLogging.h>
 #include <AppInstallerFileLogger.h>
