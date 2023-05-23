@@ -84,7 +84,7 @@ namespace TestCommon
         winrt::Windows::Foundation::DateTime PublishedDateValue;
         winrt::Windows::Foundation::DateTime PublishedDate() const { return PublishedDateValue; }
 
-        bool IsLocalValue;
+        bool IsLocalValue = false;
         bool IsLocal() const { return IsLocalValue; }
 
         winrt::hstring AuthorValue;
@@ -99,7 +99,7 @@ namespace TestCommon
         winrt::Windows::Foundation::Collections::IVector<winrt::Microsoft::Management::Configuration::IConfigurationUnitSettingDetails> SettingsValue;
         winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Configuration::IConfigurationUnitSettingDetails> Settings() const { return (SettingsValue ? SettingsValue.GetView() : nullptr); }
 
-        bool IsPublicValue;
+        bool IsPublicValue = false;
         bool IsPublic() const { return IsPublicValue; }
     };
 

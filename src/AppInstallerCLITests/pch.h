@@ -11,7 +11,10 @@
 #include <Msi.h>
 #include <KnownFolders.h>
 
+#pragma warning( push )
+#pragma warning ( disable : 26495 ) // Member variable is uninitialized
 #include <catch.hpp>
+#pragma warning( pop )
 
 #include <json/json.h>
 
