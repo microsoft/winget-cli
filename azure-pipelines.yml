@@ -62,6 +62,10 @@ jobs:
     packageLayoutDir: $(Build.BinariesDirectory)\WingetPackageLayout
 
   steps:
+
+  # TODO: Remove; only to test in non-default branch
+  - task: CodeQL3000Init@0
+
   - task: NuGetToolInstaller@1
     displayName: Install Nuget
 
@@ -384,3 +388,7 @@ jobs:
     displayName: Publish PowerShell Module Artifacts
     inputs:
       targetPath: '$(Build.ArtifactStagingDirectory)'
+
+      # TODO: Remove; only to test in non-default branch
+  - task: CodeQL3000Finalize@0
+    condition: always()
