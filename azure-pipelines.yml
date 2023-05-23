@@ -389,6 +389,6 @@ jobs:
     inputs:
       targetPath: '$(Build.ArtifactStagingDirectory)'
 
-      # TODO: Remove; only to test in non-default branch
+  # TODO: Remove; only to test in non-default branch
   - task: CodeQL3000Finalize@0
     condition: always()
