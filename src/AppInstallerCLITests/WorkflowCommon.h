@@ -11,7 +11,10 @@
 
 #define REQUIRE_TERMINATED_WITH(_context_,_hr_) \
     REQUIRE(_context_.IsTerminated()); \
-    REQUIRE(static_cast<HRESULT>(_hr_) == _context_.GetTerminationHR())
+    REQUIRE(( (_hr_) == (_context_).GetTerminationHR() ))
+
+#define REQUIRE_SUCCEEDED(_context_) \
+    REQUIRE(( S_OK == (_context_).GetTerminationHR() ))
 
 namespace TestCommon
 {
