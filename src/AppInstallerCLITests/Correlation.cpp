@@ -27,7 +27,7 @@ struct TestCase
     std::string ARPName;
     std::string ARPPublisher;
 
-    bool IsMatch;
+    bool IsMatch = false;
 };
 
 // Definition of a collection of test cases that we evaluate
@@ -43,10 +43,10 @@ struct DataSet
     // Thresholds for considering a run of an heuristic against
     // this data set "good".
     // Values are ratios to the total number of test cases
-    double RequiredTrueMatchRatio;
-    double RequiredTrueMismatchRatio;
-    double RequiredFalseMatchRatio;
-    double RequiredFalseMismatchRatio;
+    double RequiredTrueMatchRatio = 0;
+    double RequiredTrueMismatchRatio = 0;
+    double RequiredFalseMatchRatio = 0;
+    double RequiredFalseMismatchRatio = 0;
 };
 
 // Aggregate result of running an heuristic against a data set.
@@ -264,9 +264,12 @@ DataSet GetDataSet_WithNoise()
 // It is useful for comparing multiple algorithms, but for
 // regular testing we need only check that the chosen algorithm
 // performs well.
+#pragma warning( push )
+#pragma warning ( disable : 26444 ) // Don't declare local variables with no name
 TEMPLATE_TEST_CASE("Correlation_MeasureAlgorithmPerformance", "[correlation][.]",
     EmptyMatchConfidenceAlgorithm,
     WordsEditDistanceMatchConfidenceAlgorithm)
+#pragma warning( push )
 {
     // Each section loads a different data set,
     // and then they are all handled the same
