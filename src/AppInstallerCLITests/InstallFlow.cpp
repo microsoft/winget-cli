@@ -161,7 +161,7 @@ TEST_CASE("InstallFlowNonZeroExitCode", "[InstallFlow][workflow]")
     INFO(installOutput.str());
 
     // Verify Installer is called and parameters are passed in.
-    REQUIRE(context.GetTerminationHR() == S_OK);
+    REQUIRE_SUCCEEDED(context);
     REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
     std::ifstream installResultFile(installResultPath.GetPath());
     REQUIRE(installResultFile.is_open());
@@ -186,7 +186,7 @@ TEST_CASE("InstallFlow_InstallationNotes", "[InstallFlow][workflow]")
     INFO(installOutput.str());
 
     // Verify installation notes are displayed
-    REQUIRE(context.GetTerminationHR() == S_OK);
+    REQUIRE_SUCCEEDED(context);
     REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
     REQUIRE(installOutput.str().find("testInstallationNotes") != std::string::npos);
 }
@@ -209,7 +209,7 @@ TEST_CASE("InstallFlow_UnsupportedArguments_Warn", "[InstallFlow][workflow]")
     INFO(installOutput.str());
 
     // Verify unsupported arguments warn message is shown
-    REQUIRE(context.GetTerminationHR() == S_OK);
+    REQUIRE_SUCCEEDED(context);
     REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::UnsupportedArgument).get()) != std::string::npos);
     REQUIRE(installOutput.str().find("-o,--log") != std::string::npos);
@@ -232,7 +232,7 @@ TEST_CASE("InstallFlow_UnsupportedArguments_Error", "[InstallFlow][workflow]")
     INFO(installOutput.str());
 
     // Verify unsupported arguments error message is shown 
-    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_UNSUPPORTED_ARGUMENT);
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_UNSUPPORTED_ARGUMENT);
     REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::UnsupportedArgument).get()) != std::string::npos);
     REQUIRE(installOutput.str().find("-l,--location") != std::string::npos);
@@ -254,7 +254,7 @@ TEST_CASE("InstallFlow_UnsupportedArguments_NotProvided")
     INFO(installOutput.str());
 
     // Verify unsupported arguments error message is not shown when not provided
-    REQUIRE(context.GetTerminationHR() == S_OK);
+    REQUIRE_SUCCEEDED(context);
     REQUIRE(std::filesystem::exists(installResultPath.GetPath()));
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::UnsupportedArgument).get()) == std::string::npos);
     REQUIRE(installOutput.str().find("-o,--log") == std::string::npos);
@@ -389,7 +389,7 @@ TEST_CASE("InstallFlow_Zip_UnsupportedNestedInstaller", "[InstallFlow][workflow]
     install.Execute(context);
     INFO(installOutput.str());
 
-    REQUIRE_TERMINATED_WITH(context, ERROR_NOT_SUPPORTED);
+    REQUIRE_TERMINATED_WITH(context, HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
 
     // Verify Installer was not called
     REQUIRE(!std::filesystem::exists(installResultPath.GetPath()));
