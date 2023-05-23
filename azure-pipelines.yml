@@ -345,6 +345,7 @@ jobs:
 
   # Run static analysis for all the binaries
   - task: CredScan@3
+    condition: always() # TODO: remove
 
   - task: BinSkim@4
     inputs:
@@ -352,6 +353,7 @@ jobs:
       Function: 'analyze'
       TargetPattern: 'guardianGlob'
       AnalyzeTargetGlob: 'f|$(buildOutDir)/**.dll;f|$(buildOutDir)/**.exe;f|$(Build.SourcesDirectory)\src\WinGetUtilInterop\bin\*.dll'
+    condition: always() # TODO: remove
 
   - task: PublishSecurityAnalysisLogs@3
     inputs:
