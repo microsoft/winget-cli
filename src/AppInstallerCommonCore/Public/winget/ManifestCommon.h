@@ -329,8 +329,8 @@ namespace AppInstaller::Manifest
 
     struct MarketsInfo
     {
-        std::vector<string_t> AllowedMarkets;
-        std::vector<string_t> ExcludedMarkets;
+        std::vector<string_t> AllowedMarkets = {};
+        std::vector<string_t> ExcludedMarkets = {};
     };
 
     struct NestedInstallerFile
