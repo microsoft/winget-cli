@@ -12,7 +12,7 @@
 #include <KnownFolders.h>
 
 #pragma warning( push )
-#pragma warning ( disable : 26439 26451 26495 )
+#pragma warning ( disable : 26495 ) // Member variable is uninitialized
 #include <catch.hpp>
 #pragma warning( pop )
 
@@ -22,6 +22,8 @@
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.Globalization.h>
 #include <winrt/Windows.Management.Deployment.h>
+#include <winrt/Windows.Web.Http.h>
+#include <wrl/client.h>
 
 #pragma warning( push )
 #pragma warning ( disable : 6001 6553 6387 6388 28193 28196 )
@@ -46,11 +48,3 @@
 #include <unordered_set>
 #include <utility>
 #include <vector>
-
-// The compiler complains about MarketsInfo::ExcludedMarkets being uninitialized,
-// only in this project for some reason.
-// Adding = {} didn't fix it, so disabling warning here.
-#pragma warning( push )
-#pragma warning ( disable : 26495 )
-#include <winget/ManifestInstaller.h>
-#pragma warning( pop )
