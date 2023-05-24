@@ -721,6 +721,7 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow][workflow]")
     auto previousThreadGlobals = context.SetForCurrentThread();
     Manifest manifest;
     std::vector<std::string> expectedArgs;
+    std::vector<std::string> forbiddenArgs;
     std::optional<std::string> exactArgs;
 
     SECTION("MSI | No CLI args | No manifest switches")
@@ -810,7 +811,7 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow][workflow]")
         context.Args.AddArg(Execution::Args::Type::Silent);
         context.Args.AddArg(Execution::Args::Type::CustomSwitches, "\t"sv);
         expectedArgs.emplace_back("/mysilent"); // Use declaration in manifest
-        expectedArgs.emplace_back("\t"); // Whitespace only Custom switches should not be appended
+        forbiddenArgs.emplace_back("\t"); // Whitespace only Custom switches should not be appended
     }
     SECTION("Inno | With CLI args | With manifest switches | With --override arg")
     {
@@ -830,6 +831,11 @@ TEST_CASE("ShellExecuteHandlerInstallerArgs", "[InstallFlow][workflow]")
     for (const auto& expectedArg : expectedArgs)
     {
         REQUIRE(installerArgs.find(expectedArg) != std::string::npos);
+    }
+
+    for (const auto& forbiddenArg : forbiddenArgs)
+    {
+        REQUIRE(installerArgs.find(forbiddenArg) == std::string::npos);
     }
 
     if (exactArgs)
