@@ -381,10 +381,13 @@ jobs:
   - powershell: Get-Volume; @('.', '$(Build.ArtifactStagingDirectory)') | %{ $mb = (Get-ChildItem $_ -Recurse | Measure-Object -Sum Length).Sum / (1024 * 1024); Write-Host "$_ :`t$mb MBs" }
     condition: always()
 
-- job: 'BuildPowerShellModule'
-  timeoutInMinutes: 120
-  dependsOn: 'Build'
-  condition: always()
+  # TODO: Remove; only to test in non-default branch
+  - task: CodeQL3000Finalize@0
+    condition: always()
+#- job: 'BuildPowerShellModule'
+  #timeoutInMinutes: 120
+  #dependsOn: 'Build'
+  #condition: always()
 
   #steps:
   #- task: DownloadPipelineArtifact@2
@@ -408,7 +411,3 @@ jobs:
   #  displayName: Publish PowerShell Module Artifacts
   #  inputs:
   #    targetPath: '$(Build.ArtifactStagingDirectory)'
-
-  # TODO: Remove; only to test in non-default branch
-  - task: CodeQL3000Finalize@0
-    condition: always()
