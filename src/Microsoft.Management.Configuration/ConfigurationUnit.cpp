@@ -127,4 +127,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         THROW_HR_IF(E_INVALIDARG, !ConfigurationSetParser::IsRecognizedSchemaVersion(value));
         m_schemaVersion = value;
     }
+
+    HRESULT STDMETHODCALLTYPE ConfigurationUnit::SetLifetimeWatcher(IUnknown* watcher)
+    {
+        return AppInstaller::WinRT::LifetimeWatcherBase::SetLifetimeWatcher(watcher);
+    }
 }

@@ -7,13 +7,14 @@
 #include <winrt/Windows.Storage.Streams.h>
 #include "ConfigThreadGlobals.h"
 #include <winget/AsyncTokens.h>
+#include <winget/ILifetimeWatcher.h>
 
 #include <string_view>
 #include <functional>
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
-    struct ConfigurationProcessor : ConfigurationProcessorT<ConfigurationProcessor>
+    struct ConfigurationProcessor : ConfigurationProcessorT<ConfigurationProcessor, AppInstaller::WinRT::ILifetimeWatcher>, AppInstaller::WinRT::LifetimeWatcherBase
     {
         using ConfigurationSet = Configuration::ConfigurationSet;
         using ConfigurationSetChangeData = Configuration::ConfigurationSetChangeData;
@@ -76,6 +77,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         GetConfigurationUnitSettingsResult GetUnitSettings(const ConfigurationUnit& unit);
         Windows::Foundation::IAsyncOperation<GetConfigurationUnitSettingsResult> GetUnitSettingsAsync(const ConfigurationUnit& unit);
+
+        HRESULT STDMETHODCALLTYPE SetLifetimeWatcher(IUnknown* watcher);
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
         void ConfigurationSetProcessorFactory(const IConfigurationSetProcessorFactory& value);

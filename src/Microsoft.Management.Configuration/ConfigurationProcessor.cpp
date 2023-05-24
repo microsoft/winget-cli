@@ -571,6 +571,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return *result;
     }
 
+    HRESULT STDMETHODCALLTYPE ConfigurationProcessor::SetLifetimeWatcher(IUnknown* watcher)
+    {
+        return AppInstaller::WinRT::LifetimeWatcherBase::SetLifetimeWatcher(watcher);
+    }
+
     void ConfigurationProcessor::ConfigurationSetProcessorFactory(const IConfigurationSetProcessorFactory& value)
     {
         m_factory = value;

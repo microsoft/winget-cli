@@ -3,13 +3,14 @@
 #pragma once
 #include "ConfigurationSet.g.h"
 #include "MutableFlag.h"
+#include <winget/ILifetimeWatcher.h>
 #include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Foundation.Collections.h>
 #include <vector>
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
-    struct ConfigurationSet : ConfigurationSetT<ConfigurationSet>
+    struct ConfigurationSet : ConfigurationSetT<ConfigurationSet, AppInstaller::WinRT::ILifetimeWatcher>, AppInstaller::WinRT::LifetimeWatcherBase
     {
         using WinRT_Self = ::winrt::Microsoft::Management::Configuration::ConfigurationSet;
         using ConfigurationUnit = ::winrt::Microsoft::Management::Configuration::ConfigurationUnit;
@@ -50,6 +51,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         void Serialize(const Windows::Storage::Streams::IOutputStream& stream);
 
         void Remove();
+
+        HRESULT STDMETHODCALLTYPE SetLifetimeWatcher(IUnknown* watcher);
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:

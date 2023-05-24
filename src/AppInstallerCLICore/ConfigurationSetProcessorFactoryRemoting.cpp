@@ -4,6 +4,7 @@
 #include "Public/ConfigurationSetProcessorFactoryRemoting.h"
 #include <AppInstallerLogging.h>
 #include <AppInstallerRuntime.h>
+#include <winget/ILifetimeWatcher.h>
 
 using namespace winrt::Windows::Foundation;
 using namespace winrt::Microsoft::Management::Configuration;
@@ -37,7 +38,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
         constexpr std::wstring_view s_RemoteServerFileName = L"ConfigurationRemotingServer\\ConfigurationRemotingServer.exe";
 
         // Represents a remote factory object that was created from a specific process.
-        struct RemoteFactory : winrt::implements<RemoteFactory, IConfigurationSetProcessorFactory>
+        struct RemoteFactory : winrt::implements<RemoteFactory, IConfigurationSetProcessorFactory, WinRT::ILifetimeWatcher>, WinRT::LifetimeWatcherBase
         {
             RemoteFactory()
             {
@@ -158,6 +159,11 @@ namespace AppInstaller::CLI::ConfigurationRemoting
             void MinimumLevel(DiagnosticLevel value)
             {
                 m_remoteFactory.MinimumLevel(value);
+            }
+
+            HRESULT STDMETHODCALLTYPE SetLifetimeWatcher(IUnknown* watcher)
+            {
+                return WinRT::LifetimeWatcherBase::SetLifetimeWatcher(watcher);
             }
 
         private:
