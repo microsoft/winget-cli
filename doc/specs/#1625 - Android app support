@@ -32,17 +32,16 @@ The "InstallerType" field in the YAML manifest file specifies the type of the ap
 Each PWA would have its own manifest YAML file. A sample manifest file would look like this:
 
 ```
-Id: FinancialTimesLimited.FinTimes
-Version: 1.0.0.0
-Name: AppInstaller FinTimes
-Publisher: Financial Times Limited
-AppMoniker: fintimes
+Id: FDroid.FDroid
+Version: 1337.0
+Name: F-Droid
+Publisher: F-Droid
+AppMoniker: fdroid
 License: Test
-InstallerType: PWA
-MinOSVersion: 10.0.19041.0
+InstallerType: Android
 Installers:
-- Arch: x64
-  Url: https://app.ft.com
+- Arch: neutral
+  Url: https://f-droid.org/F-Droid.apk
   InstallerType: PWA
 ManifestVersion: 0.1.0
 ```
