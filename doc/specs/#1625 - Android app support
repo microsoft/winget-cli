@@ -63,44 +63,45 @@ Either ADB could be used to install the application, or the method that Microsof
 A nice feature in the manifest would be for adding the adb install [flags](https://adbshell.com/commands/adb-install) for installation of apps that require it.
 ## UI/UX Design
 
-Installing a PWA will be similar to installing other application types currently supported by winget, using the install command. The only difference in experience might be if the user passes a -i flag to get a more interactive experience. When this flag is passed, the user will be prompted to allow the PWA to be launched on install. This feature is provided because in order to register a PWA with Edge, it has to be launched once.
+Installing a PWA will be similar to installing other application types currently supported by winget, using the install command. The -i flag will not be implemented due to it's impracticality.
 
 An example of the interactive install would look like this:
 
 ```
->winget install -i fintimes
-Found Financial Times [PWAtest.FinTimes]
+>winget install fdroid
+Found Financial Times [FDroid.FDroid]
 This application is licensed to you by its owner.
 Microsoft is not responsible for, nor does it grant any licenses to, third-party packages.
+Starting Windows Subsystem for Android...
+Connecting to Windows Subsystem for Android via adb...
 Starting package install...
-<Progress bar>
-Successfully installed! Launching app now. This is a necessary step to complete installation.
-(App launches on Edge)
+<Progress bar> (if ADB supports)
+Successfully installed!
 ```
 
 ## Capabilities
 
+# A field to determine minumum platform SDK version of Android is required for the app to run on like 27 (Oreo), 30 (Red Velvet Cake), 31 (Snow Cone), 32 (12L), or 33 (Tiramisu)
+# A field for ADB flags to be put, like test apps.
 ### Accessibility
 
 This should have no direct impact on accessibility.
 
 ### Security
 
-No direct impact on security.
-
+Android has security concerns.
 ### Reliability
 
 This is not expected to impact reliability.
 
 ### Compatibility
 
-This is an additional functionality built on top of the existing implementation to allow the install of PWAs. Therefore we don't anticipate any breaking changes to the existing implementation.
 
 ### Performance, Power, and Efficiency
 
+Installing some or most Android apps leaves a service running in the background, for stuff such as notifications.
 ## Potential Issues
 
-If the user navigates to the site before launching the installed PWA at least once (i.e. before registration with Edge), Edge might prompt them to install the PWA again.
 
 ## Future considerations
 
