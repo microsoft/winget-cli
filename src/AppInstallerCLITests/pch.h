@@ -48,3 +48,11 @@
 #include <unordered_set>
 #include <utility>
 #include <vector>
+
+// The compiler complains about MarketsInfo::ExcludedMarkets being uninitialized,
+// only in this project for some reason.
+// Adding = {} didn't fix it, so disabling warning here.
+#pragma warning( push )
+#pragma warning ( disable : 26495 )
+#include <winget/ManifestInstaller.h>
+#pragma warning( pop )
