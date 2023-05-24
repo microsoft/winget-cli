@@ -11,7 +11,7 @@ For [#1625](https://github.com/microsoft/winget-cli/issues/1625)
 
 ## Abstract
 
-This feature adds Android application support to winget via Windows Subsystem for Android. The goal is to allow users to install and maintain Android applications just like they would any other type of application on winget, and for more community-driven Android apps to be availble via Windows. As a first step, this would be available as an "experimental" feature to make it available to the community and receive feedback.
+This feature adds Android application support to winget via Windows Subsystem for Android. The goal is to allow users to install and maintain Android applications just like they would any other type of application on winget, and for more community-driven Android apps to be available via Windows.
 
 ## Inspiration
 
