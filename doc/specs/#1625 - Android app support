@@ -42,33 +42,25 @@ InstallerType: Android
 Installers:
 - Arch: neutral
   Url: https://f-droid.org/F-Droid.apk
-  InstallerType: PWA
+  InstallerType: Android
+  MinAndroidPlat: 31
+  ADBFlags: 
 ManifestVersion: 0.1.0
 ```
 
 ### Package generation
 
-A POST call is made to a web service (https://pwabuilder-win-chromium-platform.centralus.cloudapp.azure.com) with a JSON body containing the URL to the PWA. The web service packages the PWA and its assets into an unsigned MSIX. An example of the JSON body would be :
-
-```
-{
-    "url": "https://app.ft.com"
-}
-```
-
-There are many more optional parameters that can be passed to this service. For more information, refer to the test website linked in the Resources section.
+WinGetCreate will download the package and extract metadata from AndroidManifest.xml, automatically filling out all data excluding the short desciption
 
 ### Package installation
 
-The unsigned MSIX package and any other dependency packages are added for the current user and the application is silently installed on the user's system. The installation is done by calling the Windows API AddPackageByUriAsync() using the specific deployment options that allow unsigned packages.
-
+Either ADB could be used to install the application, or the method that Microsoft Store installs Android apps could be utilized.
 ### Flow of the install process
 
-1. User types the install command, eg. `winget install fintimes` (For the experimental version, the manifest will be passed as an argument)
-2. The URL from the manifest YAML file of the Financial Times PWA will be sent as a POST request to an internal web service that will generate an unsigned MSIX package. This MSIX package is downloaded onto the user's system.
-3. The generated package will then be silently installed as a Hosted App (Refer to resources for more on the Hostel App Model).
-4. The MSIX file is removed from the user's system.
-
+1. Windows Subsystem for Android is installed
+2. ADB must be installed on the machine
+3. It must connect to the Subsystem, bypassing the developer mode restriction, which I think the uninstallation in control panel already has.
+A nice feature in the manifest would be for adding the adb install [flags](https://adbshell.com/commands/adb-install) for installation of apps that require it.
 ## UI/UX Design
 
 Installing a PWA will be similar to installing other application types currently supported by winget, using the install command. The only difference in experience might be if the user passes a -i flag to get a more interactive experience. When this flag is passed, the user will be prompted to allow the PWA to be launched on install. This feature is provided because in order to register a PWA with Edge, it has to be launched once.
