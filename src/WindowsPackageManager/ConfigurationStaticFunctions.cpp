@@ -39,9 +39,12 @@ namespace ConfigurationShim
             return result;
         }
 
-        winrt::Microsoft::Management::Configuration::IConfigurationSetProcessorFactory CreateConfigurationSetProcessorFactory(winrt::hstring const& handler)
+        winrt::Windows::Foundation::IAsyncOperation<winrt::Microsoft::Management::Configuration::IConfigurationSetProcessorFactory> CreateConfigurationSetProcessorFactoryAsync(winrt::hstring const& handler)
         {
             std::wstring lowerHandler = AppInstaller::Utility::ToLower(handler);
+
+            co_await winrt::resume_background();
+
             winrt::Microsoft::Management::Configuration::IConfigurationSetProcessorFactory result;
 
             if (lowerHandler == AppInstaller::Configuration::PowerShellHandlerIdentifier)
@@ -55,7 +58,7 @@ namespace ConfigurationShim
                 // If we create OOP objects implemented elsewhere in the future, decide then how to exempt those while still ensuring we
                 // don't accidentally create a lifetime bug by basing it solely off the QI result.
                 result.as<AppInstaller::WinRT::ILifetimeWatcher>()->SetLifetimeWatcher(CreateLifetimeWatcher());
-                return result;
+                co_return result;
             }
 
             AICLI_LOG(Config, Error, << "Unknown handler in CreateConfigurationSetProcessorFactory: " << AppInstaller::Utility::ConvertToUTF8(handler));

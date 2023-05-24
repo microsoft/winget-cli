@@ -719,7 +719,7 @@ namespace Microsoft.Management.Configuration
         ConfigurationSet CreateConfigurationSet();
 
         // Creates a processor factory for the given handler.
-        IConfigurationSetProcessorFactory CreateConfigurationSetProcessorFactory(String handler);
+        Windows.Foundation.IAsyncOperation<IConfigurationSetProcessorFactory> CreateConfigurationSetProcessorFactoryAsync(String handler);
 
         // Creates a processor from the given factory.
         ConfigurationProcessor CreateConfigurationProcessor(IConfigurationSetProcessorFactory factory);

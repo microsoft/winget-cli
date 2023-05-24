@@ -17,6 +17,7 @@ namespace ConfigurationRemotingServer
             {
                 ulong initEventHandle = ulong.Parse(args[1]);
                 ulong completionEventHandle = ulong.Parse(args[2]);
+                ulong parentProcessHandle = ulong.Parse(args[3]);
 
                 // Assume that the additional modules path is a sibling directory to the one containing this binary
                 string assemblyDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? throw new InvalidDataException();
@@ -33,16 +34,16 @@ namespace ConfigurationRemotingServer
 
                 IObjectReference factoryInterface = MarshalInterface<global::Microsoft.Management.Configuration.IConfigurationSetProcessorFactory>.CreateMarshaler(factory);
 
-                return WindowsPackageManagerConfigurationCompleteOutOfProcessFactoryInitialization(0, factoryInterface.ThisPtr, memoryHandle, initEventHandle, completionEventHandle);
+                return WindowsPackageManagerConfigurationCompleteOutOfProcessFactoryInitialization(0, factoryInterface.ThisPtr, memoryHandle, initEventHandle, completionEventHandle, parentProcessHandle);
             }
             catch(Exception ex)
             {
-                WindowsPackageManagerConfigurationCompleteOutOfProcessFactoryInitialization(ex.HResult, IntPtr.Zero, memoryHandle, 0, 0);
+                WindowsPackageManagerConfigurationCompleteOutOfProcessFactoryInitialization(ex.HResult, IntPtr.Zero, memoryHandle, 0, 0, 0);
                 return ex.HResult;
             }
         }
 
         [DllImport("WindowsPackageManager.dll")]
-        private static extern int WindowsPackageManagerConfigurationCompleteOutOfProcessFactoryInitialization(int result, IntPtr factory, ulong memoryHandle, ulong initEventHandle, ulong completionMutexHandle);
+        private static extern int WindowsPackageManagerConfigurationCompleteOutOfProcessFactoryInitialization(int result, IntPtr factory, ulong memoryHandle, ulong initEventHandle, ulong completionMutexHandle, ulong parentProcessHandle);
     }
 }

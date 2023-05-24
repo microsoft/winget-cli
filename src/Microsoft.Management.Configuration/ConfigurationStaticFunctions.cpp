@@ -21,7 +21,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return *make_self<wil::details::module_count_wrapper<implementation::ConfigurationSet>>();
     }
 
-    IConfigurationSetProcessorFactory ConfigurationStaticFunctions::CreateConfigurationSetProcessorFactory(hstring const& handler)
+    Windows::Foundation::IAsyncOperation<IConfigurationSetProcessorFactory> ConfigurationStaticFunctions::CreateConfigurationSetProcessorFactoryAsync(hstring const& handler)
     {
         std::wstring lowerHandler = AppInstaller::Utility::ToLower(handler);
 

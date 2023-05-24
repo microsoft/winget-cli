@@ -64,13 +64,17 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 wil::unique_event initEvent;
                 initEvent.create(wil::EventOptions::None, nullptr, &securityAttributes);
 
-                // Create the mutex that the remote process will wait on to keep the object alive.
-                m_completionMutex.create(nullptr, CREATE_MUTEX_INITIAL_OWNER, MUTEX_ALL_ACCESS, &securityAttributes);
+                // Create the event that the remote process will wait on to keep the object alive.
+                m_completionEvent.create(wil::EventOptions::None, nullptr, &securityAttributes);
+
+                wil::unique_process_handle thisProcessHandle;
+                THROW_IF_WIN32_BOOL_FALSE(DuplicateHandle(GetCurrentProcess(), GetCurrentProcess(), GetCurrentProcess(), &thisProcessHandle, 0, TRUE, DUPLICATE_SAME_ACCESS));
 
                 // Arguments are:
-                // server.exe <mapped memory handle> <event handle> <mutex handle>
+                // server.exe <mapped memory handle> <event handle> <mutex handle> <parent process handle>
                 std::wostringstream argumentsStream;
-                argumentsStream << s_RemoteServerFileName << L' ' << reinterpret_cast<INT_PTR>(memoryHandle.get()) << L' ' << reinterpret_cast<INT_PTR>(initEvent.get()) << L' ' << reinterpret_cast<INT_PTR>(m_completionMutex.get());
+                argumentsStream << s_RemoteServerFileName << L' ' << reinterpret_cast<INT_PTR>(memoryHandle.get()) << L' ' << reinterpret_cast<INT_PTR>(initEvent.get())
+                    << L' ' << reinterpret_cast<INT_PTR>(m_completionEvent.get()) << L' ' << reinterpret_cast<INT_PTR>(thisProcessHandle.get());
                 std::wstring arguments = argumentsStream.str();
 
                 std::filesystem::path serverPath = Runtime::GetPathTo(Runtime::PathName::SelfPackageRoot);
@@ -138,7 +142,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 
             ~RemoteFactory()
             {
-                m_completionMutex.ReleaseMutex();
+                m_completionEvent.SetEvent();
             }
 
             IConfigurationSetProcessor CreateSetProcessor(const ConfigurationSet& configurationSet)
@@ -173,7 +177,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 
         private:
             IConfigurationSetProcessorFactory m_remoteFactory;
-            wil::unique_mutex m_completionMutex;
+            wil::unique_event m_completionEvent;
         };
     }
 
@@ -183,7 +187,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
     }
 }
 
-HRESULT WindowsPackageManagerConfigurationCompleteOutOfProcessFactoryInitialization(HRESULT result, void* factory, uint64_t memoryHandleIntPtr, uint64_t initEventHandleIntPtr, uint64_t completionMutexHandleIntPtr) try
+HRESULT WindowsPackageManagerConfigurationCompleteOutOfProcessFactoryInitialization(HRESULT result, void* factory, uint64_t memoryHandleIntPtr, uint64_t initEventHandleIntPtr, uint64_t completionMutexHandleIntPtr, uint64_t parentProcessIntPtr) try
 {
     using namespace AppInstaller::CLI::ConfigurationRemoting;
 
@@ -220,9 +224,15 @@ HRESULT WindowsPackageManagerConfigurationCompleteOutOfProcessFactoryInitializat
     wil::unique_event initEvent{ reinterpret_cast<HANDLE>(initEventHandleIntPtr) };
     initEvent.SetEvent();
 
-    // Wait until the caller releases the object
-    wil::unique_mutex completionMutex{ reinterpret_cast<HANDLE>(completionMutexHandleIntPtr) };
-    std::ignore = completionMutex.acquire();
+    // Wait until the caller releases the object (signalling the event) or the parent process exits
+    wil::unique_event completionEvent{ reinterpret_cast<HANDLE>(completionMutexHandleIntPtr) };
+    wil::unique_process_handle parentProcess{ reinterpret_cast<HANDLE>(parentProcessIntPtr) };
+
+    HANDLE waitHandles[2];
+    waitHandles[0] = completionEvent.get();
+    waitHandles[1] = parentProcess.get();
+
+    std::ignore = WaitForMultipleObjects(ARRAYSIZE(waitHandles), waitHandles, FALSE, INFINITE);
 
     return S_OK;
 }

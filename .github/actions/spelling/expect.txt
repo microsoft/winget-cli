@@ -382,6 +382,7 @@ srs
 standalone
 startswith
 STARTUPINFOW
+STDMETHODCALLTYPE
 STRRET
 stylecop
 subdir
