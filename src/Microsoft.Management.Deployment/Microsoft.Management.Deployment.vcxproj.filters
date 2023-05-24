@@ -32,6 +32,7 @@
     <ClCompile Include="PackageInstallerInstalledStatus.cpp" />
     <ClCompile Include="CheckInstalledStatusResult.cpp" />
     <ClCompile Include="Documentation.cpp" />
+    <ClCompile Include="Icon.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CatalogPackage.h" />
@@ -66,6 +67,7 @@
     <ClInclude Include="CheckInstalledStatusResult.h" />
     <ClInclude Include="CatalogPackageMetadata.h" />
     <ClInclude Include="SourceAgreement.h" />
+    <ClInclude Include="Icon.h" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="PackageManager.idl" />

@@ -4,6 +4,7 @@
 #include "CatalogPackageMetadata.g.h"
 #include "PackageAgreement.h"
 #include "Documentation.h"
+#include "Icon.h"
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {
@@ -48,6 +49,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
         winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::Documentation> Documentations();
 
+        winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::Icon> Icons();
+
         hstring ReleaseNotes();
 
         hstring ReleaseNotesUrl();
@@ -61,6 +64,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         ::AppInstaller::Manifest::ManifestLocalization m_manifestLocalization;
         Windows::Foundation::Collections::IVector<winrt::Microsoft::Management::Deployment::PackageAgreement> m_packageAgreements{ nullptr };
         Windows::Foundation::Collections::IVector<winrt::Microsoft::Management::Deployment::Documentation> m_documentations{ nullptr };
+        Windows::Foundation::Collections::IVector<winrt::Microsoft::Management::Deployment::Icon> m_icons{ nullptr };
         Windows::Foundation::Collections::IVector<hstring> m_tags{ nullptr };
 #endif
     };

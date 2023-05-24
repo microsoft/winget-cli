@@ -876,7 +876,7 @@ namespace Microsoft.Management.Deployment
         }
     }
 
-    /// IMPLEMENTATION NOTE: Documentation from AppInstaller::Repository::Documentation
+    /// IMPLEMENTATION NOTE: Documentation from AppInstaller::Manifest::Documentation
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
     runtimeclass Documentation
     {
@@ -885,7 +885,65 @@ namespace Microsoft.Management.Deployment
         String DocumentUrl { get; };
     }
 
-    /// IMPLEMENTATION NOTE: SourceAgreement from AppInstaller::Repository::SourceAgreement
+    /// Icon resolution
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
+    enum IconResolution
+    {
+        Unknown,
+        Custom,
+        Square16,
+        Square20,
+        Square24,
+        Square30,
+        Square32,
+        Square36,
+        Square40,
+        Square48,
+        Square60,
+        Square64,
+        Square72,
+        Square80,
+        Square96,
+        Square256,
+    };
+
+    /// Icon file type
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
+    enum IconFileType
+    {
+        Unknown,
+        Jpeg,
+        Png,
+        Ico,
+    };
+
+    /// Icon theme
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
+    enum IconTheme
+    {
+        Unknown,
+        Default,
+        Light,
+        Dark,
+        HighContrast,
+    };
+
+    /// IMPLEMENTATION NOTE: Icon from AppInstaller::Manifest::Icon
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
+    runtimeclass Icon
+    {
+        String Url { get; };
+
+        IconFileType FileType{ get; };
+
+        IconResolution Resolution{ get; };
+
+        IconTheme Theme{ get; };
+
+        UInt8[] Sha256 { get; };
+    }
+
+    /// IMPLEMENTATION NOTE: SourceAgreement from AppInstaller::Manifest::SourceAgreement
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
     runtimeclass SourceAgreement
     {
@@ -944,6 +1002,8 @@ namespace Microsoft.Management.Deployment
         Windows.Foundation.Collections.IVectorView<PackageAgreement> Agreements { get; };
 
         Windows.Foundation.Collections.IVectorView<Documentation> Documentations { get; };
+
+        Windows.Foundation.Collections.IVectorView<Icon> Icons { get; };
 
         String ReleaseNotes { get; };
 
@@ -1068,6 +1128,8 @@ namespace Microsoft.Management.Deployment
         interface Windows.Foundation.Collections.IVectorView<PackageAgreement>;
         interface Windows.Foundation.Collections.IVector<Documentation>;
         interface Windows.Foundation.Collections.IVectorView<Documentation>;
+        interface Windows.Foundation.Collections.IVector<Icon>;
+        interface Windows.Foundation.Collections.IVectorView<Icon>;
         interface Windows.Foundation.Collections.IVector<CatalogPackageMetadata>;
         interface Windows.Foundation.Collections.IVectorView<CatalogPackageMetadata>;
     }
