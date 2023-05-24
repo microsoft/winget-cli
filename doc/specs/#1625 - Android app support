@@ -69,7 +69,7 @@ An example of the interactive install would look like this:
 
 ```
 >winget install fdroid
-Found Financial Times [FDroid.FDroid]
+Found F-Droid [FDroid.FDroid]
 This application is licensed to you by its owner.
 Microsoft is not responsible for, nor does it grant any licenses to, third-party packages.
 Starting Windows Subsystem for Android...
@@ -106,8 +106,8 @@ Installing some or most Android apps leaves a service running in the background,
 ## Future considerations
 
 1. Android 14 "Upside Down Cake" will restrict the installation of apps that target any version before 6.0 "Marshmallow" due to security concerns, however --bypass-low-target-sdk-block can bypass this limitation. Similar, certain new Android devices, such as the Pixel 7 and Pixel Tablet, have no support for 32-bit apps and will not be able to run 32 bit code.
+2. Blocking issues may be present for the package repository, including the lack of Google play service replacements, the lack of support for a certain protocol, or the lack of optional root access.
 
 ## Resources
 
-Hosted App Model : https://blogs.windows.com/windowsdeveloper/2020/03/19/hosted-app-model/  
-Test Website for generating MSIX for PWA : https://pwabuilder-win-chromium-platform.centralus.cloudapp.azure.com/
+
