@@ -24,6 +24,19 @@ namespace AppInstaller::WinRT
             return S_OK;
         }
 
+        void PropagateLifetimeWatcher(const winrt::Windows::Foundation::IUnknown& child)
+        {
+            if (m_lifetimeWatcher && child)
+            {
+                // Require that any call to this function is for an object that implements watching to prevent
+                // accidental assumptions about the child object and lifetime management.
+                auto watcher = child.as<ILifetimeWatcher>();
+
+                // Create a copy of the lifetime watcher (to add_ref), then detach and pass it to the child to own.
+                watcher->SetLifetimeWatcher(static_cast<IUnknown*>(winrt::detach_abi(winrt::Windows::Foundation::IUnknown{ m_lifetimeWatcher })));
+            }
+        }
+
     private:
         winrt::Windows::Foundation::IUnknown m_lifetimeWatcher;
     };

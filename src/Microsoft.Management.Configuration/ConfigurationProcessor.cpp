@@ -263,6 +263,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             }
             configurationSet->SchemaVersion(parser->GetSchemaVersion());
 
+            PropagateLifetimeWatcher(configurationSet.as<Windows::Foundation::IUnknown>());
+
             result->Initialize(*configurationSet);
         }
         catch (const wil::ResultException& resultException)

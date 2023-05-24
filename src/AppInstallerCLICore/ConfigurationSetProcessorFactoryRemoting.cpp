@@ -136,6 +136,11 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 m_remoteFactory = IConfigurationSetProcessorFactory{ output.detach(), winrt::take_ownership_from_abi };
             }
 
+            ~RemoteFactory()
+            {
+                m_completionMutex.ReleaseMutex();
+            }
+
             IConfigurationSetProcessor CreateSetProcessor(const ConfigurationSet& configurationSet)
             {
                 return m_remoteFactory.CreateSetProcessor(configurationSet);
