@@ -104,10 +104,7 @@ If the user navigates to the site before launching the installed PWA at least on
 
 ## Future considerations
 
-1. We are looking into where the catalog of PWAs should exist, and the pros and cons of maintaining a separate catalog vs including PWAs on the existing catalog.
-2. We're testing this new integration technology with Edge first in 2020 and hope to have this debugged and contributed to the Chromium project early 2021.
-3. Sometimes there may be multiple versions of a PWA available. In such scenarios, we may allow a "force" option in the case where a user wants all of them to be installed.
-4. There will be a service developed in the future that updates all the PWA manifests whenever there is a breaking change in Edge or in the web service that generates MSIX packages.
+1. Android 14 "Upside Down Cake" will restrict the installation of apps that target any version before 6.0 "Marshmallow" due to security concerns, however --bypass-low-target-sdk-block can bypass this limitation. Similar, certain new Android devices, such as the Pixel 7 and Pixel Tablet, have no support for 32-bit apps and will not be able to run 32 bit code.
 
 ## Resources
 
