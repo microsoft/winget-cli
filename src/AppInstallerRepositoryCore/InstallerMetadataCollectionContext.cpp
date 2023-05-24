@@ -550,8 +550,8 @@ namespace AppInstaller::Repository::Metadata
             ProductVersionMax = Version{ std::move(productVersionMaxString).value() };
         }
 
-        // The 1.0 version of metadata uses the 1.4 version of REST
-        JSON::ManifestJSONParser parser{ Version{ "1.4" } };
+        // The 1.0 version of metadata uses the 1.5 version of REST
+        JSON::ManifestJSONParser parser{ Version{ "1.5" } };
 
         std::string submissionIdentifierVerification;
 
@@ -1274,8 +1274,8 @@ namespace AppInstaller::Repository::Metadata
 
         m_installerHash = GetRequiredString(packageDataValue.value(), installerHashFieldName);
 
-        // The 1.0 version of input uses the 1.4 version of REST
-        JSON::ManifestJSONParser parser{ Version{ "1.4" }};
+        // The 1.0 version of input uses the 1.5 version of REST
+        JSON::ManifestJSONParser parser{ Version{ "1.5" }};
 
         {
             auto defaultLocaleValue = AppInstaller::JSON::GetJsonValueFromNode(packageDataValue.value(), defaultLocaleFieldName);
