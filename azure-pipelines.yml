@@ -102,6 +102,11 @@ jobs:
       arguments: '-TargetFile binver\binver\version.h -BuildVersion $(BuildVer)'
       workingDirectory: 'src'
 
+  - powershell: Get-Volume; @('.', '$(Build.ArtifactStagingDirectory)') | %{ $mb = (Get-ChildItem $_ -Recurse | Measure-Object -Sum Length).Sum / (1024 * 1024); Write-Host "$_ :`t$mb MBs" }
+    condition: always()
+
+  - powershell: Get-Volume; @('.', '$(Build.ArtifactStagingDirectory)') | %{ $mb = (Get-ChildItem $_ -Recurse | Measure-Object -Sum Length).Sum / (1024 * 1024); Write-Host "$_ :`t$mb MBs" }
+
   # Build all solutions in the root directory.
   - task: VSBuild@1
     displayName: Build Solution
@@ -115,6 +120,9 @@ jobs:
                     /p:AppxBundle=Always
                     /p:UapAppxPackageBuildMode=SideloadOnly'
 
+  - powershell: Get-Volume; @('.', '$(Build.ArtifactStagingDirectory)') | %{ $mb = (Get-ChildItem $_ -Recurse | Measure-Object -Sum Length).Sum / (1024 * 1024); Write-Host "$_ :`t$mb MBs" }
+    condition: always()
+  
   - task: VSBuild@1
     displayName: Build Test Project
     inputs:
@@ -300,41 +308,41 @@ jobs:
   #    platform: '$(buildPlatform)'
   #    configuration: '$(BuildConfiguration)'
 
-  - task: CopyFiles@2
-    displayName: 'Copy Util to artifacts folder'
-    inputs:
-      Contents: |
-          $(buildOutDir)\WinGetUtil\WinGetUtil.dll
-          $(buildOutDir)\WinGetUtil\WinGetUtil.pdb
-      TargetFolder: '$(artifactsDir)'
-    condition: succeededOrFailed()
+  #- task: CopyFiles@2
+  #  displayName: 'Copy Util to artifacts folder'
+  #  inputs:
+  #    Contents: |
+  #        $(buildOutDir)\WinGetUtil\WinGetUtil.dll
+  #        $(buildOutDir)\WinGetUtil\WinGetUtil.pdb
+  #    TargetFolder: '$(artifactsDir)'
+  #  condition: succeededOrFailed()
 
-  - task: CopyFiles@2
-    displayName: 'Copy PowerShell Module Files'
-    inputs:
-      SourceFolder: '$(buildOutDir)\PowerShell'
-      TargetFolder: '$(artifactsDir)\PowerShell'
-    condition: always()
+  #- task: CopyFiles@2
+  #  displayName: 'Copy PowerShell Module Files'
+  #  inputs:
+  #    SourceFolder: '$(buildOutDir)\PowerShell'
+  #    TargetFolder: '$(artifactsDir)\PowerShell'
+  #  condition: always()
 
-  - task: CopyFiles@2
-    displayName: 'Copy Dev Package (Loose Files)'
-    inputs:
-      SourceFolder: '$(packageLayoutDir)'
-      TargetFolder: '$(artifactsDir)\DevPackage'
-    condition: always()
+  #- task: CopyFiles@2
+  #  displayName: 'Copy Dev Package (Loose Files)'
+  #  inputs:
+  #    SourceFolder: '$(packageLayoutDir)'
+  #    TargetFolder: '$(artifactsDir)\DevPackage'
+  #  condition: always()
 
-  - task: CopyFiles@2
-    displayName: 'Copy Dev Packages'
-    inputs:
-      SourceFolder: '$(appxPackageDir)'
-      TargetFolder: '$(artifactsDir)\AppxPackages'
-    condition: always()
+  #- task: CopyFiles@2
+  #  displayName: 'Copy Dev Packages'
+  #  inputs:
+  #    SourceFolder: '$(appxPackageDir)'
+  #    TargetFolder: '$(artifactsDir)\AppxPackages'
+  #  condition: always()
 
-  - task: PublishPipelineArtifact@1
-    displayName: Publish Pipeline Artifacts
-    inputs:
-      targetPath: '$(artifactsDir)'
-    condition: always()
+  #- task: PublishPipelineArtifact@1
+  #  displayName: Publish Pipeline Artifacts
+  #  inputs:
+  #    targetPath: '$(artifactsDir)'
+  #  condition: always()
 
   - task: ComponentGovernanceComponentDetection@0
     displayName: Component Governance
@@ -348,6 +356,9 @@ jobs:
   - task: CredScan@3
     condition: always() # TODO: remove
 
+  - powershell: Get-Volume; @('.', '$(Build.ArtifactStagingDirectory)') | %{ $mb = (Get-ChildItem $_ -Recurse | Measure-Object -Sum Length).Sum / (1024 * 1024); Write-Host "$_ :`t$mb MBs" }
+    condition: always()
+
   - task: BinSkim@4
     inputs:
       InputType: 'Basic'
@@ -355,6 +366,9 @@ jobs:
       TargetPattern: 'guardianGlob'
       AnalyzeTargetGlob: 'f|$(buildOutDir)/**.dll;f|$(buildOutDir)/**.exe;f|$(Build.SourcesDirectory)\src\WinGetUtilInterop\bin\*.dll'
     condition: always() # TODO: remove
+
+  - powershell: Get-Volume; @('.', '$(Build.ArtifactStagingDirectory)') | %{ $mb = (Get-ChildItem $_ -Recurse | Measure-Object -Sum Length).Sum / (1024 * 1024); Write-Host "$_ :`t$mb MBs" }
+    condition: always()
 
   - task: PublishSecurityAnalysisLogs@3
     inputs:
@@ -364,33 +378,36 @@ jobs:
       ToolLogsNotFoundAction: 'Standard'
     condition: succeededOrFailed()
 
+  - powershell: Get-Volume; @('.', '$(Build.ArtifactStagingDirectory)') | %{ $mb = (Get-ChildItem $_ -Recurse | Measure-Object -Sum Length).Sum / (1024 * 1024); Write-Host "$_ :`t$mb MBs" }
+    condition: always()
+
 - job: 'BuildPowerShellModule'
   timeoutInMinutes: 120
   dependsOn: 'Build'
   condition: always()
 
-  steps:
-  - task: DownloadPipelineArtifact@2
-    displayName: 'Download Build Artifacts'
+  #steps:
+  #- task: DownloadPipelineArtifact@2
+  #  displayName: 'Download Build Artifacts'
   
-  - task: CopyFiles@2
-    displayName: 'Copy x64 PowerShell Binaries to Output'
-    inputs:
-      SourceFolder: '$(Pipeline.Workspace)\Build.x64release\PowerShell'
-      Contents: '**\*'
-      TargetFolder: '$(Build.ArtifactStagingDirectory)'
+  #- task: CopyFiles@2
+  #  displayName: 'Copy x64 PowerShell Binaries to Output'
+  #  inputs:
+  #    SourceFolder: '$(Pipeline.Workspace)\Build.x64release\PowerShell'
+  #    Contents: '**\*'
+  #    TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
-  - task: CopyFiles@2
-    displayName: 'Copy x86 PowerShell Binaries to Output'
-    inputs:
-      SourceFolder: '$(Pipeline.Workspace)\Build.x86release\PowerShell'
-      Contents: '**\*'
-      TargetFolder: '$(Build.ArtifactStagingDirectory)'
+  #- task: CopyFiles@2
+  #  displayName: 'Copy x86 PowerShell Binaries to Output'
+  #  inputs:
+  #    SourceFolder: '$(Pipeline.Workspace)\Build.x86release\PowerShell'
+  #    Contents: '**\*'
+  #    TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
-  - task: PublishPipelineArtifact@1
-    displayName: Publish PowerShell Module Artifacts
-    inputs:
-      targetPath: '$(Build.ArtifactStagingDirectory)'
+  #- task: PublishPipelineArtifact@1
+  #  displayName: Publish PowerShell Module Artifacts
+  #  inputs:
+  #    targetPath: '$(Build.ArtifactStagingDirectory)'
 
   # TODO: Remove; only to test in non-default branch
   - task: CodeQL3000Finalize@0
