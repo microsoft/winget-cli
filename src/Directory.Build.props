@@ -66,7 +66,7 @@
         <LinkIncremental>false</LinkIncremental>
         <RunCodeAnalysis>false</RunCodeAnalysis>
         <!-- SpectreMitigation is required by BinSkim -->
-        <!-- <SpectreMitigation>Spectre</SpectreMitigation> -->
+        <SpectreMitigation>Spectre</SpectreMitigation>
       </PropertyGroup>
       <PropertyGroup Label="Configuration" Condition=" '$(Configuration)' == 'Debug' ">
         <UseDebugLibraries>true</UseDebugLibraries>
@@ -110,7 +110,7 @@
           <!-- Disables non-standards conforming code -->
           <ConformanceMode>true</ConformanceMode>
           <!-- SDLCheck is required by BinSkim -->
-          <SDLCheck>true</SDLCheck>
+          <!-- <SDLCheck>true</SDLCheck> -->
         </ClCompile>
         <Link>
           <SubSystem>Console</SubSystem>
