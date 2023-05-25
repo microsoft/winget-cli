@@ -114,14 +114,14 @@
           <AdditionalOptions>%(AdditionalOptions) /bigobj /D _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING</AdditionalOptions>
           <TreatWarningAsError>true</TreatWarningAsError>
           <LanguageStandard>stdcpp17</LanguageStandard>
-          <SDLCheck>true</SDLCheck>
+          <!-- <SDLCheck>true</SDLCheck> -->
           <!-- Disables non-standard conforming code -->
           <ConformanceMode>true</ConformanceMode>
         </ClCompile>
         <Link>
           <SubSystem>Console</SubSystem>
           <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
-          <CETCompat>true</CETCompat>
+          <!-- <CETCompat>true</CETCompat> -->
         </Link>
       </ItemDefinitionGroup>
       <ItemDefinitionGroup Condition=" '$(Platform)' == 'Win32' ">
@@ -136,7 +136,7 @@
           <IntrinsicFunctions>true</IntrinsicFunctions>
           <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
           <RuntimeLibrary Condition=" '$(Configuration)' == 'ReleaseStatic' ">MultiThreaded</RuntimeLibrary>
-          <ControlFlowGuard>Guard</ControlFlowGuard>
+          <!-- <ControlFlowGuard>Guard</ControlFlowGuard> -->
         </ClCompile>
         <Link>
           <EnableCOMDATFolding>true</EnableCOMDATFolding>
