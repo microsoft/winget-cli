@@ -110,13 +110,13 @@
           <!-- Disables non-standards conforming code -->
           <ConformanceMode>true</ConformanceMode>
           <!-- SDLCheck is required by BinSkim -->
-          <SDLCheck>true</SDLCheck>
+          <!-- <SDLCheck>true</SDLCheck> -->
         </ClCompile>
         <Link>
           <SubSystem>Console</SubSystem>
           <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
           <!-- CETCompat is required by BinSkim -->
-          <!-- <CETCompat>true</CETCompat> -->
+          <CETCompat>true</CETCompat>
         </Link>
       </ItemDefinitionGroup>
       <ItemDefinitionGroup Condition=" '$(Platform)' == 'Win32' ">
