@@ -21,6 +21,8 @@ variables:
   appxPackageDir: '$(Build.ArtifactStagingDirectory)/AppxPackages/'
   # Enable CodeQL/Semmle static analysis for default branch
   Codeql.Enabled: true
+  # TODO: Remove. Only for testing, we should use standard cadence of 72h
+  CodeQL.Cadence: 0
 
 # Do not set the build version for a PR build.
 
