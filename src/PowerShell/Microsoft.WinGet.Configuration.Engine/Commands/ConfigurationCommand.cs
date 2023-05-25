@@ -177,7 +177,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             if (psConfigurationJob.ConfigurationTask.IsCompleted)
             {
                 // It is safe to print all output.
-                psConfigurationJob.StartCommand.ConsumeStreams();
+                psConfigurationJob.StartCommand.ConsumeAndWriteStreams(this);
 
                 this.Write(StreamType.Verbose, "The task was completed before waiting");
                 if (psConfigurationJob.ConfigurationTask.IsCompletedSuccessfully)
@@ -225,7 +225,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         {
             // Signal the command that it can write to streams and wait for task.
             this.Write(StreamType.Verbose, "Waiting for task to complete");
-            psConfigurationJob.StartCommand.Wait(psConfigurationJob.ConfigurationTask);
+            psConfigurationJob.StartCommand.Wait(psConfigurationJob.ConfigurationTask, this);
             this.Write(StreamType.Object, psConfigurationJob.ConfigurationTask.Result);
         }
 

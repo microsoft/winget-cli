@@ -194,8 +194,11 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         /// Waits for the task to be completed. This MUST be called from the main thread.
         /// </summary>
         /// <param name="runningTask">Task to wait for.</param>
-        internal void Wait(Task runningTask)
+        /// <param name="writeCommand">The command that can write to PowerShell.</param>
+        internal void Wait(Task runningTask, AsyncCommand? writeCommand = null)
         {
+            writeCommand ??= this;
+
             // This must be called in the main thread.
             if (this.originalThread != Thread.CurrentThread)
             {
@@ -204,9 +207,9 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
 
             do
             {
-                this.ConsumeStreams();
+                this.ConsumeAndWriteStreams(writeCommand);
             }
-            while (!runningTask.IsCompleted && this.queuedStreams.IsCompleted);
+            while (!(runningTask.IsCompleted && this.queuedStreams.IsCompleted));
 
             if (runningTask.IsFaulted)
             {
@@ -237,7 +240,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
 
             if (this.originalThread == Thread.CurrentThread)
             {
-                this.CmdletWrite(type, data);
+                this.CmdletWrite(type, data, this);
                 return;
             }
 
@@ -319,7 +322,8 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         /// This method must be called in the original thread.
         /// WARNING: You must only call this when the task is completed or in Wait.
         /// </summary>
-        internal void ConsumeStreams()
+        /// <param name="writeCommand">The command that can write to PowerShell.</param>
+        internal void ConsumeAndWriteStreams(AsyncCommand writeCommand)
         {
             // This must be called in the main thread.
             if (this.originalThread != Thread.CurrentThread)
@@ -335,7 +339,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                     var queuedOutput = this.queuedStreams.Take();
                     if (queuedOutput != null)
                     {
-                        this.CmdletWrite(queuedOutput.Type, queuedOutput.Data);
+                        this.CmdletWrite(queuedOutput.Type, queuedOutput.Data, writeCommand);
                     }
                 }
             }
@@ -355,36 +359,36 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             return Interlocked.Increment(ref this.progressActivityId);
         }
 
-        private void CmdletWrite(StreamType streamType, object data)
+        private void CmdletWrite(StreamType streamType, object data, AsyncCommand writeCommand)
         {
             switch (streamType)
             {
                 case StreamType.Debug:
-                    this.PsCmdlet.WriteDebug((string)data);
+                    writeCommand.PsCmdlet.WriteDebug((string)data);
                     break;
                 case StreamType.Verbose:
-                    this.PsCmdlet.WriteVerbose((string)data);
+                    writeCommand.PsCmdlet.WriteVerbose((string)data);
                     break;
                 case StreamType.Warning:
-                    this.PsCmdlet.WriteWarning((string)data);
+                    writeCommand.PsCmdlet.WriteWarning((string)data);
                     break;
                 case StreamType.Error:
-                    this.PsCmdlet.WriteError((ErrorRecord)data);
+                    writeCommand.PsCmdlet.WriteError((ErrorRecord)data);
                     break;
                 case StreamType.Progress:
                     // If the activity is already completed don't write progress.
                     var progressRecord = (ProgressRecord)data;
                     if (this.progressRecords[progressRecord.ActivityId] == ProgressRecordType.Processing)
                     {
-                        this.PsCmdlet.WriteProgress(progressRecord);
+                        writeCommand.PsCmdlet.WriteProgress(progressRecord);
                     }
 
                     break;
                 case StreamType.Object:
-                    this.PsCmdlet.WriteObject(data);
+                    writeCommand.PsCmdlet.WriteObject(data);
                     break;
                 case StreamType.Information:
-                    this.PsCmdlet.WriteInformation(data, WriteInformationTags);
+                    writeCommand.PsCmdlet.WriteInformation(data, WriteInformationTags);
                     break;
             }
         }
