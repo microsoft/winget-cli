@@ -3,7 +3,9 @@
 
 <!-- Common properties used by most of the projects.
      This ensures we target the same versions and have the right security settings everywhere.
-     Some properties may need to be overridden in specific projects -->
+     Some properties may need to be overridden in specific projects.
+
+     BinSkim requires us to use SpectreMitigation, SDLCheck, CETCompat, ControlFlowGuard. -->
 <Project>
   <PropertyGroup>
     <IsExternalProject Condition=" '$(MSBuildProjectName)' == 'cpprestsdk' ">true</IsExternalProject>
@@ -15,16 +17,24 @@
   </PropertyGroup>
 
   <Choose>
-    <!-- Don't report warnings from external projects -->
+    <!-- Don't report warnings from external projects, but do include the configurations required by BinSkim -->
     <When Condition=" '$(IsExternalProject)' == 'true'">
       <PropertyGroup>
         <RunCodeAnalysis>false</RunCodeAnalysis>
+      </PropertyGroup>
+      <PropertyGroup Label="Configuration" Condition=" '$(Configuration)' == 'Release' ">
+        <SpectreMitigation>Spectre</SpectreMitigation>
       </PropertyGroup>
       <ItemDefinitionGroup>
         <ClCompile>
           <WarningLevel>TurnOffAllWarnings</WarningLevel>
           <TreatWarningAsError>false</TreatWarningAsError>
+          <SDLCheck>true</SDLCheck>
+          <ControlFlowGuard>Guard</ControlFlowGuard>
         </ClCompile>
+        <Link>
+          <CETCompat>true</CETCompat>
+        </Link>
       </ItemDefinitionGroup>
     </When>
 
@@ -65,7 +75,6 @@
         <WholeProgramOptimization>true</WholeProgramOptimization>
         <LinkIncremental>false</LinkIncremental>
         <RunCodeAnalysis>false</RunCodeAnalysis>
-        <!-- SpectreMitigation is required by BinSkim -->
         <SpectreMitigation>Spectre</SpectreMitigation>
       </PropertyGroup>
       <PropertyGroup Label="Configuration" Condition=" '$(Configuration)' == 'Debug' ">
@@ -105,18 +114,14 @@
           <AdditionalOptions>%(AdditionalOptions) /bigobj /D _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING</AdditionalOptions>
           <TreatWarningAsError>true</TreatWarningAsError>
           <LanguageStandard>stdcpp17</LanguageStandard>
-          <!-- Enable Native Code Analysis -->
-          <!-- <EnablePREfast>true</EnablePREfast> -->
-          <!-- Disables non-standards conforming code -->
+          <SDLCheck>true</SDLCheck>
+          <!-- Disables non-standard conforming code -->
           <ConformanceMode>true</ConformanceMode>
-          <!-- SDLCheck is required by BinSkim -->
-          <!-- <SDLCheck>true</SDLCheck> -->
         </ClCompile>
         <Link>
           <SubSystem>Console</SubSystem>
           <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
-          <!-- CETCompat is required by BinSkim -->
-          <!-- <CETCompat>true</CETCompat> -->
+          <CETCompat>true</CETCompat>
         </Link>
       </ItemDefinitionGroup>
       <ItemDefinitionGroup Condition=" '$(Platform)' == 'Win32' ">
@@ -131,8 +136,7 @@
           <IntrinsicFunctions>true</IntrinsicFunctions>
           <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
           <RuntimeLibrary Condition=" '$(Configuration)' == 'ReleaseStatic' ">MultiThreaded</RuntimeLibrary>
-          <!-- Control Flow Guard is required by BinSkim -->
-          <!-- <ControlFlowGuard>Guard</ControlFlowGuard> -->
+          <ControlFlowGuard>Guard</ControlFlowGuard>
         </ClCompile>
         <Link>
           <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -142,6 +146,8 @@
       </ItemDefinitionGroup>
       <ItemDefinitionGroup Condition=" '$(Configuration)' == 'Debug' ">
         <ClCompile>
+          <!-- Enable Native Code Analysis. This requires more space than is available on release build machines, so we only use it for debug. -->
+          <EnablePREfast>true</EnablePREfast>
           <Optimization>Disabled</Optimization>
           <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
           <ControlFlowGuard>false</ControlFlowGuard>
