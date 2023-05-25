@@ -22,13 +22,18 @@
       <PropertyGroup>
         <RunCodeAnalysis>false</RunCodeAnalysis>
       </PropertyGroup>
+      <ItemDefinitionGroup>
+        <ClCompile>
+          <WarningLevel>TurnOffAllWarnings</WarningLevel>
+          <TreatWarningAsError>false</TreatWarningAsError>
+        </ClCompile>
+      </ItemDefinitionGroup>
+      <!--
       <PropertyGroup Label="Configuration" Condition=" '$(Configuration)' == 'Release' ">
         <SpectreMitigation>Spectre</SpectreMitigation>
       </PropertyGroup>
       <ItemDefinitionGroup>
         <ClCompile>
-          <WarningLevel>TurnOffAllWarnings</WarningLevel>
-          <TreatWarningAsError>false</TreatWarningAsError>
           <SDLCheck>true</SDLCheck>
           <ControlFlowGuard>Guard</ControlFlowGuard>
         </ClCompile>
@@ -36,6 +41,7 @@
           <CETCompat>true</CETCompat>
         </Link>
       </ItemDefinitionGroup>
+      -->
     </When>
 
     <!-- Most of the properties here are for C++, so we exclude other project types. -->
@@ -75,7 +81,7 @@
         <WholeProgramOptimization>true</WholeProgramOptimization>
         <LinkIncremental>false</LinkIncremental>
         <RunCodeAnalysis>false</RunCodeAnalysis>
-        <SpectreMitigation>Spectre</SpectreMitigation>
+        <!-- <SpectreMitigation>Spectre</SpectreMitigation> -->
       </PropertyGroup>
       <PropertyGroup Label="Configuration" Condition=" '$(Configuration)' == 'Debug' ">
         <UseDebugLibraries>true</UseDebugLibraries>
