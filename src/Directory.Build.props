@@ -116,7 +116,7 @@
           <SubSystem>Console</SubSystem>
           <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
           <!-- CETCompat is required by BinSkim -->
-          <!-- <CETCompat>true</CETCompat> -->
+          <CETCompat>true</CETCompat>
         </Link>
       </ItemDefinitionGroup>
       <ItemDefinitionGroup Condition=" '$(Platform)' == 'Win32' ">
@@ -132,7 +132,7 @@
           <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
           <RuntimeLibrary Condition=" '$(Configuration)' == 'ReleaseStatic' ">MultiThreaded</RuntimeLibrary>
           <!-- Control Flow Guard is required by BinSkim -->
-          <ControlFlowGuard>Guard</ControlFlowGuard>
+          <!-- <ControlFlowGuard>Guard</ControlFlowGuard> -->
         </ClCompile>
         <Link>
           <EnableCOMDATFolding>true</EnableCOMDATFolding>
