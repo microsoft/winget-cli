@@ -108,7 +108,7 @@
           <!-- Enable Native Code Analysis -->
           <!-- <EnablePREfast>true</EnablePREfast> -->
           <!-- Disables non-standards conforming code -->
-          <!-- <ConformanceMode>true</ConformanceMode> -->
+          <ConformanceMode>true</ConformanceMode>
           <!-- SDLCheck is required by BinSkim -->
           <!-- <SDLCheck>true</SDLCheck> -->
         </ClCompile>
@@ -116,7 +116,7 @@
           <SubSystem>Console</SubSystem>
           <GenerateWindowsMetadata>false</GenerateWindowsMetadata>
           <!-- CETCompat is required by BinSkim -->
-          <CETCompat>true</CETCompat>
+          <!-- <CETCompat>true</CETCompat> -->
         </Link>
       </ItemDefinitionGroup>
       <ItemDefinitionGroup Condition=" '$(Platform)' == 'Win32' ">
