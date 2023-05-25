@@ -106,11 +106,11 @@
           <TreatWarningAsError>true</TreatWarningAsError>
           <LanguageStandard>stdcpp17</LanguageStandard>
           <!-- Enable Native Code Analysis -->
-          <EnablePREfast>true</EnablePREfast>
+          !-- <EnablePREfast>true</EnablePREfast> -->
           <!-- Disables non-standards conforming code -->
           <ConformanceMode>true</ConformanceMode>
           <!-- SDLCheck is required by BinSkim -->
-          <!-- <SDLCheck>true</SDLCheck> -->
+          <SDLCheck>true</SDLCheck>
         </ClCompile>
         <Link>
           <SubSystem>Console</SubSystem>
