@@ -31,8 +31,11 @@ namespace AppInstaller::Manifest
     // V1.2 manifest version
     constexpr std::string_view s_ManifestVersionV1_2 = "1.2.0"sv;
 
-    // V1.3 manifest version
+    // V1.4 manifest version
     constexpr std::string_view s_ManifestVersionV1_4 = "1.4.0"sv;
+
+    // V1.5 manifest version
+    constexpr std::string_view s_ManifestVersionV1_5 = "1.5.0"sv;
 
     // The manifest extension for the MS Store
     constexpr std::string_view s_MSStoreExtension = "msstore"sv;
@@ -192,6 +195,44 @@ namespace AppInstaller::Manifest
         External
     };
 
+    enum class IconFileTypeEnum
+    {
+        Unknown,
+        Jpeg,
+        Png,
+        Ico,
+    };
+
+    enum class IconThemeEnum
+    {
+        Unknown,
+        Default,
+        Light,
+        Dark,
+        HighContrast,
+    };
+
+    // Icon resolutions from https://learn.microsoft.com/en-us/windows/apps/design/style/iconography/app-icon-construction#app-icon
+    enum class IconResolutionEnum
+    {
+        Unknown,
+        Custom,
+        Square16,
+        Square20,
+        Square24,
+        Square30,
+        Square32,
+        Square36,
+        Square40,
+        Square48,
+        Square60,
+        Square64,
+        Square72,
+        Square80,
+        Square96,
+        Square256,
+    };
+
     struct ExpectedReturnCode
     {
         DWORD InstallerReturnCode = 0;
@@ -316,11 +357,23 @@ namespace AppInstaller::Manifest
 
     InstalledFileTypeEnum ConvertToInstalledFileTypeEnum(const std::string& in);
 
+    IconFileTypeEnum ConvertToIconFileTypeEnum(std::string_view in);
+
+    IconThemeEnum ConvertToIconThemeEnum(std::string_view in);
+
+    IconResolutionEnum ConvertToIconResolutionEnum(std::string_view in);
+
     std::string_view InstallerTypeToString(InstallerTypeEnum installerType);
 
     std::string_view ScopeToString(ScopeEnum scope);
 
     std::string_view InstalledFileTypeToString(InstalledFileTypeEnum installedFileType);
+
+    std::string_view IconFileTypeToString(IconFileTypeEnum iconFileType);
+
+    std::string_view IconThemeToString(IconThemeEnum iconTheme);
+
+    std::string_view IconResolutionToString(IconResolutionEnum iconResolution);
 
     // Gets a value indicating whether the given installer uses the PackageFamilyName system reference.
     bool DoesInstallerTypeUsePackageFamilyName(InstallerTypeEnum installerType);

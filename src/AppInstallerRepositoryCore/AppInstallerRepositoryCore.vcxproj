@@ -73,6 +73,7 @@
   <ItemGroup>
     <ClInclude Include="ArpVersionValidation.h" />
     <ClInclude Include="CompositeSource.h" />
+    <ClInclude Include="IconDefs.h" />
     <ClInclude Include="ICU\SQLiteICU.h" />
     <ClInclude Include="ISource.h" />
     <ClInclude Include="Microsoft\ARPHelper.h" />
@@ -130,6 +131,7 @@
     <ClInclude Include="PackageTrackingCatalogSourceFactory.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Public\winget\ARPCorrelation.h" />
+    <ClInclude Include="Public\winget\IconExtraction.h" />
     <ClInclude Include="Public\winget\InstalledFilesCorrelation.h" />
     <ClInclude Include="Public\winget\InstallerMetadataCollectionContext.h" />
     <ClInclude Include="Public\winget\ManifestJSONParser.h" />
@@ -167,6 +169,7 @@
   <ItemGroup>
     <ClCompile Include="ARPCorrelation.cpp" />
     <ClCompile Include="ARPCorrelationAlgorithms.cpp" />
+    <ClCompile Include="IconExtraction.cpp" />
     <ClCompile Include="ArpVersionValidation.cpp" />
     <ClCompile Include="CompositeSource.cpp" />
     <ClCompile Include="ICU\SQLiteICU.c">

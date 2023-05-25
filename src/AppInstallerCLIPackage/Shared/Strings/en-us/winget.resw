@@ -711,7 +711,7 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="Usage" xml:space="preserve">
     <value>usage: {0} {1}</value>
-    <comment>{Locked="{0}","{1}"} Message displayed to provide the user with instructions on how to use a command. {0} is a placeholder replaced by the program name (e.g. 'winget'). {1} is a placeholder replaced by the pattern for using the selected command.</comment>
+    <comment>{Locked="{0} {1}"} Message displayed to provide the user with instructions on how to use a command. {0} is a placeholder replaced by the program name (e.g. 'winget'). {1} is a placeholder replaced by the pattern for using the selected command.</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
     <value>Validates a manifest using a strict set of guidelines. This is intended to enable you to check your manifest before submitting to a repo.</value>
@@ -842,7 +842,7 @@ They can be configured through the settings file 'winget settings'.</value>
   </data>
   <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
     <value>Installed version of package is not available from any source: {0} {1} {2}</value>
-    <comment>{Locked="{0}","{1}","{2}"} Warning message displayed when the user attempts to export an installed application package with a version that is not available from any repository source. {0} is a placeholder replaced by the installed package identifier. {1} is a placeholder replaced by the installed package version. {2} is a placeholder replaced by the installed package channel.</comment>
+    <comment>{Locked="{0} {1} {2}"} Warning message displayed when the user attempts to export an installed application package with a version that is not available from any repository source. {0} is a placeholder replaced by the installed package identifier. {1} is a placeholder replaced by the installed package version. {2} is a placeholder replaced by the installed package channel.</comment>
   </data>
   <data name="NoPackagesInImportFile" xml:space="preserve">
     <value>No packages found in import file</value>
@@ -1016,7 +1016,7 @@ Configuration is disabled due to Group Policy.</value>
   </data>
   <data name="DependenciesFlowNoSuitableInstallerFound" xml:space="preserve">
     <value>No suitable installer found for manifest: {0} {1}</value>
-    <comment>{Locked="{0}","{1}"} Error message displayed when an attempt to get a preferred installer for a manifest fails. {0} is a placeholder replaced by the manifest identifier. {1} is a placeholder replaced by the manifest version.</comment>
+    <comment>{Locked="{0} {1}"} Error message displayed when an attempt to get a preferred installer for a manifest fails. {0} is a placeholder replaced by the manifest identifier. {1} is a placeholder replaced by the manifest version.</comment>
   </data>
   <data name="DependenciesManagementError" xml:space="preserve">
     <value>Error processing package dependencies, do you wish to continue installation?</value>
@@ -1935,5 +1935,8 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="SeeLineAndColumn" xml:space="preserve">
     <value>See line {0}, column {1} in the file.</value>
     <comment>{Locked="{0}","{1}"} Indicates the file location of the error, {0} and {1} are placeholders for numbers of the line and column, respectively.</comment>
+  </data>
+  <data name="CancellingOperation" xml:space="preserve">
+    <value>Cancelling operation</value>
   </data>
 </root>

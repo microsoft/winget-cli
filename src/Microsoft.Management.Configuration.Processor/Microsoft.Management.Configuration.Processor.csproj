@@ -16,10 +16,7 @@
     <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
     <!-- Disable warning for CS1591 for cswinrt auto-generated files -->
     <NoWarn>1591</NoWarn>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <Configurations>Debug;Release;ReleaseStatic</Configurations>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -63,7 +60,7 @@
     </ItemGroup>
   </Target>
 
-  <Target Name="PwshFiles" AfterTargets="AfterBuild" >
+  <Target Name="PwshFiles" AfterTargets="AfterBuild">
     <ItemGroup>
       <RefFiles Include="$(PkgMicrosoft_PowerShell_SDK)\contentFiles\any\any\ref\*.*" />
       <WinModuleFiles Include="$(PkgMicrosoft_PowerShell_SDK)\contentFiles\any\any\runtimes\win\lib\$(DotNetVersion)\Modules\**\*.*" />

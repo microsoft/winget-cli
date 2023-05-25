@@ -63,6 +63,7 @@ namespace AppInstaller::Settings
     {
         // Visual
         ProgressBarVisualStyle,
+        AnonymizePathForDisplay,
         // Source
         AutoUpdateTimeInMinutes,
         // Experimental
@@ -135,6 +136,7 @@ namespace AppInstaller::Settings
 
         // Visual
         SETTINGMAPPING_SPECIALIZATION(Setting::ProgressBarVisualStyle, std::string, VisualStyle, VisualStyle::Accent, ".visual.progressBar"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::AnonymizePathForDisplay, bool, bool, true, ".visual.anonymizeDisplayedPaths"sv);
         // Source
         SETTINGMAPPING_SPECIALIZATION_POLICY(Setting::AutoUpdateTimeInMinutes, uint32_t, std::chrono::minutes, 5min, ".source.autoUpdateIntervalInMinutes"sv, ValuePolicy::SourceAutoUpdateIntervalInMinutes);
         // Experimental

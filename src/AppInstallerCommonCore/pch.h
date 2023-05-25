@@ -61,7 +61,7 @@
 #include <vector>
 
 #pragma warning( push )
-#pragma warning ( disable : 6001 6285 6287 6340 6387 6388 6553 26451 28196 )
+#pragma warning ( disable : 6001 6285 6287 6340 6387 6388 6553 26451 26495 28196 )
 #include <wil/resource.h>
 #include <wil/result.h>
 #include <wil/result_macros.h>
