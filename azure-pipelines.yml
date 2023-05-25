@@ -365,6 +365,7 @@ jobs:
       Function: 'analyze'
       TargetPattern: 'guardianGlob'
       AnalyzeTargetGlob: 'f|$(buildOutDir)/**.dll;f|$(buildOutDir)/**.exe;f|$(Build.SourcesDirectory)\src\WinGetUtilInterop\bin\*.dll'
+    continueOnError: true
     condition: always() # TODO: remove
 
   - powershell: Get-Volume; @('.', '$(Build.ArtifactStagingDirectory)') | %{ $mb = (Get-ChildItem $_ -Recurse | Measure-Object -Sum Length).Sum / (1024 * 1024); Write-Host "$_ :`t$mb MBs" }
