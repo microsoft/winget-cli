@@ -2,30 +2,52 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "winget/Security.h"
+#include "AppInstallerLogging.h"
+#include "AppInstallerLanguageUtilities.h"
 
 namespace AppInstaller::Security
 {
+    namespace
+    {
+        bool IsSameAuthority(const SID_IDENTIFIER_AUTHORITY& a, const SID_IDENTIFIER_AUTHORITY& b)
+        {
+            for (size_t i = 0; i < ARRAYSIZE(a.Value); ++i)
+            {
+                if (a.Value[i] != b.Value[i])
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+    }
+
     IntegrityLevel GetEffectiveIntegrityLevel()
     {
         auto currentIntegrityLevel = wil::get_token_information<TOKEN_MANDATORY_LABEL>();
         PSID sid = currentIntegrityLevel->Label.Sid;
         THROW_HR_IF(CO_E_INVALIDSID, !IsValidSid(sid));
 
-        // TODO: Check that sid has SECURITY_MANDATORY_LABEL_AUTHORITY
         auto identifierAuthority = GetSidIdentifierAuthority(sid);
+        THROW_HR_IF(E_UNEXPECTED, !IsSameAuthority(*identifierAuthority, SECURITY_MANDATORY_LABEL_AUTHORITY));
 
-        // TODO: Check that there is 1 subauthority
+        PUCHAR subAuthorityCount = GetSidSubAuthorityCount(sid);
+        THROW_HR_IF(E_UNEXPECTED, *subAuthorityCount != 1);
 
-        // TODO: Compare subauthority against
-        // SECURITY_MANDATORY_UNTRUSTED_RID        
-        // SECURITY_MANDATORY_LOW_RID              
-        // SECURITY_MANDATORY_MEDIUM_RID           
-        // SECURITY_MANDATORY_HIGH_RID             
-        // SECURITY_MANDATORY_SYSTEM_RID           
-        // SECURITY_MANDATORY_PROTECTED_PROCESS_RID
+        PDWORD subAuthority = GetSidSubAuthority(sid, 0);
 
-        std::string sid = ToString(currentIntegrityLevel->Label.Sid);
-        THROW_HR(E_NOTIMPL);
+        switch (*subAuthority)
+        {
+        case SECURITY_MANDATORY_UNTRUSTED_RID: return IntegrityLevel::Untrusted;
+        case SECURITY_MANDATORY_LOW_RID: return IntegrityLevel::Low;
+        case SECURITY_MANDATORY_MEDIUM_RID: return IntegrityLevel::Medium;
+        case SECURITY_MANDATORY_HIGH_RID: return IntegrityLevel::High;
+        case SECURITY_MANDATORY_SYSTEM_RID: return IntegrityLevel::System;
+        case SECURITY_MANDATORY_PROTECTED_PROCESS_RID: return IntegrityLevel::ProtectedProcess;
+        }
+
+        THROW_HR(E_UNEXPECTED);
     }
 
     wil::unique_hlocal_security_descriptor CreateSecurityDescriptorForCurrentUserWithMandatoryLabel(
@@ -38,8 +60,8 @@ namespace AppInstaller::Security
         // (ML;;NW;;;HI) specifies a high mandatory integrity level (requires admin to write).
         // (A;;GA;;;UserSID) specifies access only for the user with the user SID (i.e. self).
         std::wostringstream stream;
-        stream << L"S:(" SDDL_MANDATORY_LABEL ";;" << mandatoryLabelRight << ";;;" << ToWString(minimumIntegrityLevel) << ")"
-            "D:(A;;GA;;;" << currentUserSID << ")";
+        stream << L"S:(" SDDL_MANDATORY_LABEL L";;" << mandatoryLabelRight << L";;;" << ToWString(minimumIntegrityLevel) << L")"
+            L"D:(A;;GA;;;" << currentUserSID << L")";
 
         wil::unique_hlocal_security_descriptor securityDescriptor;
         THROW_IF_WIN32_BOOL_FALSE(ConvertStringSecurityDescriptorToSecurityDescriptorW(stream.str().c_str(), SDDL_REVISION_1, &securityDescriptor, nullptr));
@@ -49,30 +71,61 @@ namespace AppInstaller::Security
 
     bool IsCOMCallerSameUserAndIntegrityLevel()
     {
-        auto securityDescriptor = CreateSecurityDescriptorForCurrentUserWithMandatoryLabel(SDDL_NO_EXECUTE_UP, GetEffectiveIntegrityLevel());
+        auto serverUser = wil::get_token_information<TOKEN_USER>();
+        IntegrityLevel serverIntegrityLevel = GetEffectiveIntegrityLevel();
 
         // Impersonate caller token
+        // TODO: Handle RPC only caller as well
         wil::com_ptr<IServerSecurity> serverSecurity;
         THROW_IF_FAILED(CoGetCallContext(IID_IServerSecurity, serverSecurity.put_void()));
         THROW_IF_FAILED(serverSecurity->ImpersonateClient());
+        auto stopImpersonation = wil::scope_exit([&]() { FAIL_FAST_IF_FAILED(serverSecurity->RevertToSelf()); });
 
-        // Make up our own generic access bits
-        GENERIC_MAPPING genericMapping{};
-        genericMapping.GenericExecute = 0x1;
-        genericMapping.GenericRead = 0x2;
-        genericMapping.GenericWrite = 0x4;
-        genericMapping.GenericAll = genericMapping.GenericExecute | genericMapping.GenericRead | genericMapping.GenericWrite;
+        auto callingUser = wil::get_token_information<TOKEN_USER>();
+        IntegrityLevel callingIntegrityLevel = GetEffectiveIntegrityLevel();
 
-        PRIVILEGE_SET privilegeSet{};
-        DWORD privilegeSetSize = sizeof(privilegeSet);
+        if (!EqualSid(serverUser->User.Sid, callingUser->User.Sid))
+        {
+            AICLI_LOG(Core, Crit, << "Attempt to access by another user: " << ToString(callingUser->User.Sid));
+            return false;
+        }
 
-        DWORD grantedAccess = 0;
-        BOOL checkResult = FALSE;
+        if (ToIntegral(callingIntegrityLevel) < ToIntegral(serverIntegrityLevel))
+        {
+            AICLI_LOG(Core, Crit, << "Attempt to access by a lower integrity process: " << callingIntegrityLevel);
+            return false;
+        }
 
-        THROW_IF_WIN32_BOOL_FALSE(AccessCheck(securityDescriptor.get(), GetCurrentThreadEffectiveToken(), genericMapping.GenericExecute, &genericMapping, &privilegeSet, &privilegeSetSize, &grantedAccess, &checkResult));
-
-        return checkResult;
+        return true;
     }
+
+    // TODO: Figure out how to make AccessCheck happy or remove.
+    //bool IsCOMCallerSameUserAndIntegrityLevel()
+    //{
+    //    auto securityDescriptor = CreateSecurityDescriptorForCurrentUserWithMandatoryLabel(SDDL_NO_EXECUTE_UP, GetEffectiveIntegrityLevel());
+
+    //    // Impersonate caller token
+    //    wil::com_ptr<IServerSecurity> serverSecurity;
+    //    THROW_IF_FAILED(CoGetCallContext(IID_IServerSecurity, serverSecurity.put_void()));
+    //    THROW_IF_FAILED(serverSecurity->ImpersonateClient());
+
+    //    // Make up our own generic access bits
+    //    GENERIC_MAPPING genericMapping{};
+    //    genericMapping.GenericExecute = 0x1;
+    //    genericMapping.GenericRead = 0x2;
+    //    genericMapping.GenericWrite = 0x4;
+    //    genericMapping.GenericAll = genericMapping.GenericExecute | genericMapping.GenericRead | genericMapping.GenericWrite;
+
+    //    PRIVILEGE_SET privilegeSet{};
+    //    DWORD privilegeSetSize = sizeof(privilegeSet);
+
+    //    DWORD grantedAccess = 0;
+    //    BOOL checkResult = FALSE;
+
+    //    THROW_IF_WIN32_BOOL_FALSE(AccessCheck(securityDescriptor.get(), GetCurrentThreadEffectiveToken(), genericMapping.GenericExecute, &genericMapping, &privilegeSet, &privilegeSetSize, &grantedAccess, &checkResult));
+
+    //    return checkResult;
+    //}
 
     std::string ToString(PSID sid)
     {

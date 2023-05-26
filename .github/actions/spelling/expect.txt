@@ -9,6 +9,7 @@ aicli
 AICLIC
 alreadyinstalled
 amrutha
+ansistring
 APARTMENTTHREADED
 apfn
 apicontract
@@ -179,6 +180,7 @@ Intelli
 INTRESOURCE
 invalidparameter
 isable
+IServer
 ishelp
 ISQ
 ISVs

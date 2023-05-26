@@ -20,10 +20,12 @@ namespace AppInstaller::Security
     };
 
     // Gets the integrity level for the current effective token.
+    // Does not know how to determine MediumPlus, if that ever matters...
     IntegrityLevel GetEffectiveIntegrityLevel();
 
     // Creates a security descriptor granting all access to the current user with the mandatory label
     // set to the minimum integrity level given.
+    // Does not work for Untrusted or ProtectedProcess integrity levels.
     wil::unique_hlocal_security_descriptor CreateSecurityDescriptorForCurrentUserWithMandatoryLabel(
         std::wstring_view mandatoryLabelRight,
         IntegrityLevel minimumIntegrityLevel);
