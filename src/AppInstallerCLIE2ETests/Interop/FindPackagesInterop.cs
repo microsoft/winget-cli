@@ -6,10 +6,10 @@
 
 namespace AppInstallerCLIE2ETests.Interop
 {
+    using System;
     using Microsoft.Management.Deployment;
     using Microsoft.Management.Deployment.Projection;
     using NUnit.Framework;
-    using System;
 
     /// <summary>
     /// Test find package interop.
