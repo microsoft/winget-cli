@@ -941,6 +941,7 @@ namespace AppInstaller::Manifest
         MarketsFieldInfos = GetMarketsFieldProcessInfo(manifestVersion);
         AppsAndFeaturesEntryFieldInfos = GetAppsAndFeaturesEntryFieldProcessInfo(manifestVersion);
         DocumentationFieldInfos = GetDocumentationFieldProcessInfo(manifestVersion);
+        IconFieldInfos = GetIconFieldProcessInfo(manifestVersion);
         NestedInstallerFileFieldInfos = GetNestedInstallerFileFieldProcessInfo(manifestVersion);
         InstallationMetadataFieldInfos = GetInstallationMetadataFieldProcessInfo(manifestVersion);
         InstallationMetadataFilesFieldInfos = GetInstallationMetadataFilesFieldProcessInfo(manifestVersion);
