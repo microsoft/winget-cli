@@ -79,6 +79,11 @@ The client is built around the concept of sources; a set of packages effectively
 
 ## Building the client
 
+1. Clone the repository
+2. Configure your system, please use the [configuration file](.configurations/configuration.dsc.yaml). This can be applied by either:
+   * [Dev Home](https://github.com/microsoft/devhome)'s machine configuration tool
+   * WinGet configuration. If you have the experimental feature enabled, run `winget configure .configurations/configuration.dsc.yaml` from the project root so relative paths resolve correctly
+
 ### Prerequisites
 
 * Windows 10 1809 (17763) or later
