@@ -36,7 +36,6 @@ namespace
     {
         utility::string_t GetSampleManifest_AllFields()
         {
-            utility::string_t id = L"Foo.Bar";
             return _XPLATSTR(
                 R"delimiter(
         {
@@ -130,7 +129,7 @@ namespace
                       "IconSha256": "69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8321"
                     }]
                   }
-                ],
+                ],)delimiter") _XPLATSTR(R"delimiter(
                 "Installers": [
                   {
                     "InstallerSha256": "011048877dfaef109801b3f3ab2b60afc74f3fc4f7b3430e0c897f5da1df84b6",
@@ -303,12 +302,12 @@ namespace
             REQUIRE(frenchLocalization.Get<Localization::Documentations>().size() == 1);
             REQUIRE(frenchLocalization.Get<Localization::Documentations>().at(0).DocumentLabel == "Document Label");
             REQUIRE(frenchLocalization.Get<Localization::Documentations>().at(0).DocumentUrl == "http://documentUrl.net");
-            REQUIRE(frenchLocalization.Get<Localization::Documentations>().size() == 1);
-            REQUIRE(frenchLocalization.Get<Localization::Documentations>().at(0).Url == "https://testIcon");
-            REQUIRE(frenchLocalization.Get<Localization::Documentations>().at(0).FileType == IconFileTypeEnum::Png);
-            REQUIRE(frenchLocalization.Get<Localization::Documentations>().at(0).Resolution == IconResolutionEnum::Square32);
-            REQUIRE(frenchLocalization.Get<Localization::Documentations>().at(0).Theme == IconThemeEnum::Light);
-            REQUIRE(frenchLocalization.Get<Localization::Documentations>().at(0).Sha256 == AppInstaller::Utility::SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8321"));
+            REQUIRE(frenchLocalization.Get<Localization::Icons>().size() == 1);
+            REQUIRE(frenchLocalization.Get<Localization::Icons>().at(0).Url == "https://testIcon");
+            REQUIRE(frenchLocalization.Get<Localization::Icons>().at(0).FileType == IconFileTypeEnum::Png);
+            REQUIRE(frenchLocalization.Get<Localization::Icons>().at(0).Resolution == IconResolutionEnum::Square32);
+            REQUIRE(frenchLocalization.Get<Localization::Icons>().at(0).Theme == IconThemeEnum::Light);
+            REQUIRE(frenchLocalization.Get<Localization::Icons>().at(0).Sha256 == AppInstaller::Utility::SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8321"));
         }
 
         void VerifyInstallers_AllFields(const Manifest& manifest)
