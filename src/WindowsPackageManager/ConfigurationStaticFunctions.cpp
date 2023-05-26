@@ -1,13 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License
 #include <Unknwn.h>
-#include <CoCreatableMicrosoftManagementDeploymentClass.h>
+#include <wil\cppwinrt_wrl.h>
 #include <winrt/Microsoft.Management.Configuration.h>
 #include <ComClsids.h>
+#include <AppInstallerErrors.h>
 #include <AppInstallerStrings.h>
 #include <winget/ConfigurationSetProcessorHandlers.h>
 #include <ConfigurationSetProcessorFactoryRemoting.h>
 #include <winget/ILifetimeWatcher.h>
+#include <winget/GroupPolicy.h>
+#include <winget/Security.h>
 
 namespace ConfigurationShim
 {
@@ -86,10 +89,31 @@ namespace ConfigurationShim
         winrt::Microsoft::Management::Configuration::ConfigurationStaticFunctions m_statics;
     };
 
+    // Enable custom code to run before creating any object through the factory.
+    template <typename TCppWinRTClass>
+    class ConfigurationFactory : public ::wil::wrl_factory_for_winrt_com_class<TCppWinRTClass>
+    {
+    public:
+        IFACEMETHODIMP CreateInstance(_In_opt_::IUnknown* unknownOuter, REFIID riid, _COM_Outptr_ void** object) noexcept try
+        {
+            *object = nullptr;
+            // TODO: Review of policies for configuration
+            RETURN_HR_IF(APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY, !::AppInstaller::Settings::GroupPolicies().IsEnabled(::AppInstaller::Settings::TogglePolicy::Policy::WinGet));
+            // TODO: Review of security for configuration OOP
+            RETURN_HR_IF(E_ACCESSDENIED, !::AppInstaller::Security::IsCOMCallerSameUserAndIntegrityLevel());
+
+            return ::wil::wrl_factory_for_winrt_com_class<TCppWinRTClass>::CreateInstance(unknownOuter, riid, object);
+        }
+        CATCH_RETURN()
+    };
+
+#define CoCreatableMicrosoftManagementConfigurationClass(className) \
+    CoCreatableClassWithFactory(className, ::ConfigurationShim::ConfigurationFactory<className>)
+
     // Disable 6388 as it seems to be falsely warning
 #pragma warning(push)
 #pragma warning(disable : 6388)
-    CoCreatableMicrosoftManagementDeploymentClass(ConfigurationObjectLifetimeWatcher);
-    CoCreatableMicrosoftManagementDeploymentClass(ConfigurationStaticFunctionsShim);
+    CoCreatableCppWinRtClass(ConfigurationObjectLifetimeWatcher);
+    CoCreatableMicrosoftManagementConfigurationClass(ConfigurationStaticFunctionsShim);
 #pragma warning(pop)
 }
