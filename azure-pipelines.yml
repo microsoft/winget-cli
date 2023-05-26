@@ -20,9 +20,9 @@ variables:
   solution: 'src\AppInstallerCLI.sln'
   appxPackageDir: '$(Build.ArtifactStagingDirectory)/AppxPackages/'
   # Enable CodeQL/Semmle static analysis for default branch
-  Codeql.Enabled: true
+  # Codeql.Enabled: true
   # TODO: Remove. Only for testing, we should use standard cadence of 72h
-  CodeQL.Cadence: 0
+  # CodeQL.Cadence: 0
 
 # Do not set the build version for a PR build.
 
@@ -66,7 +66,7 @@ jobs:
   steps:
 
   # TODO: Remove; only to test in non-default branch
-  - task: CodeQL3000Init@0
+  #- task: CodeQL3000Init@0
 
   - task: NuGetToolInstaller@1
     displayName: Install Nuget
