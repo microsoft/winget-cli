@@ -28,10 +28,10 @@
           <TreatWarningAsError>false</TreatWarningAsError>
         </ClCompile>
       </ItemDefinitionGroup>
-      <PropertyGroup Label="Configuration" Condition=" '$(Configuration)' == 'Release' AND '$(foo)' == '1' ">
+      <PropertyGroup Label="Configuration" Condition=" '$(Configuration)' == 'Release' ">
         <SpectreMitigation>Spectre</SpectreMitigation>
       </PropertyGroup>
-      <ItemDefinitionGroup Condition=" '$(Configuration)' == 'Release' AND '$(foo)' == '1' ">
+      <ItemDefinitionGroup Condition=" '$(Configuration)' == 'Release' ">
         <ClCompile>
           <SDLCheck>true</SDLCheck>
           <ControlFlowGuard>Guard</ControlFlowGuard>
@@ -103,10 +103,10 @@
       </PropertyGroup>
 
       <!-- Security settings required by BinSkim -->
-      <PropertyGroup Condition=" '$(foo)' == '1' ">
+      <PropertyGroup>
         <SpectreMitigation>Spectre</SpectreMitigation>
       </PropertyGroup>
-      <ItemDefinitionGroup Condition=" '$(foo)' == '1' ">
+      <ItemDefinitionGroup>
         <ClCompile>
           <SDLCheck>true</SDLCheck>
           <ControlFlowGuard Condition=" '$(Configuration)' == 'Release' Or '$(Configuration)' == 'ReleaseStatic' ">Guard</ControlFlowGuard>
