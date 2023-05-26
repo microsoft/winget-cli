@@ -45,7 +45,13 @@ Localization:
     AgreementUrl: https://localeAgreementUrl.net
   Documentations:
   - DocumentLabel: localeDocumentLabel
-    DocumentUrl: https://localeDocumentUrl.com 
+    DocumentUrl: https://localeDocumentUrl.com
+  Icons:
+  - IconUrl: https://localeTestIcon
+    IconFileType: png
+    IconResolution: 32x32
+    IconTheme: light
+    IconSha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8321
   Tags:
   - tag1
   - tag2
@@ -54,4 +60,4 @@ Localization:
   License: licenseUK
   Publisher: publisherUK
 ManifestType: merged
-ManifestVersion: 1.2.0
+ManifestVersion: 1.5.0
