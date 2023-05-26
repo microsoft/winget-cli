@@ -1939,4 +1939,10 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="CancellingOperation" xml:space="preserve">
     <value>Cancelling operation</value>
   </data>
+  <data name="SkipDependenciesArgumentDescription" xml:space="preserve">
+    <value>Skip dependencies</value>
+  </data>
+  <data name="SkippingDependenciesMessage" xml:space="preserve">
+    <value>Skipping dependencies...</value>
+  </data>
 </root>

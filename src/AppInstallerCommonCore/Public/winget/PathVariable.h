@@ -6,9 +6,11 @@
 
 namespace AppInstaller::Registry::Environment
 {
+    void RefreshPathVariable();
+
     struct PathVariable
     {
-        PathVariable(Manifest::ScopeEnum scope);
+        PathVariable(Manifest::ScopeEnum scope, bool readOnly = false);
 
         // Returns the PATH variable as a string.
         std::string GetPathValue();

@@ -820,6 +820,9 @@ namespace Microsoft.Management.Deployment
 
             /// Bypasses the Disabled Store Policy
             Boolean BypassIsStoreClientBlockedPolicyCheck;
+
+            // Skip installing the dependencies for the package.
+            Boolean SkipDependencies;
         }
     }
 

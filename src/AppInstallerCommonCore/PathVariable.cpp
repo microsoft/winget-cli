@@ -14,15 +14,29 @@ namespace AppInstaller::Registry::Environment
         constexpr std::wstring_view s_PathSubkey_Machine = L"SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment";
     }
 
-    PathVariable::PathVariable(Manifest::ScopeEnum scope)
+    PathVariable::PathVariable(Manifest::ScopeEnum scope, bool readOnly)
     {
-        if (scope == Manifest::ScopeEnum::Machine)
+        if (readOnly)
         {
-            m_key = Registry::Key::Create(HKEY_LOCAL_MACHINE, std::wstring{ s_PathSubkey_Machine });
+            if (scope == Manifest::ScopeEnum::Machine)
+            {
+                m_key = Registry::Key::OpenIfExists(HKEY_LOCAL_MACHINE, std::wstring{ s_PathSubkey_Machine });
+            }
+            else
+            {
+                m_key = Registry::Key::OpenIfExists(HKEY_CURRENT_USER, std::wstring{ s_PathSubkey_User });
+            }
         }
         else
         {
-            m_key = Registry::Key::Create(HKEY_CURRENT_USER, std::wstring{ s_PathSubkey_User });
+            if (scope == Manifest::ScopeEnum::Machine)
+            {
+                m_key = Registry::Key::Create(HKEY_LOCAL_MACHINE, std::wstring{ s_PathSubkey_Machine });
+            }
+            else
+            {
+                m_key = Registry::Key::Create(HKEY_CURRENT_USER, std::wstring{ s_PathSubkey_User });
+            }
         }
     }
 
@@ -80,5 +94,11 @@ namespace AppInstaller::Registry::Environment
     {
         std::wstring pathName = std::wstring{ s_PathName };
         m_key.SetValue(pathName, ConvertToUTF16(value), REG_EXPAND_SZ);
+    }
+
+    void RefreshPathVariable()
+    {
+        const auto& pathVariableValue = PathVariable(Manifest::ScopeEnum::User, true).GetPathValue() + PathVariable(Manifest::ScopeEnum::Machine, true).GetPathValue();
+        THROW_HR_IF(E_UNEXPECTED, _putenv_s("PATH", pathVariableValue.c_str()) != 0);
     }
 }

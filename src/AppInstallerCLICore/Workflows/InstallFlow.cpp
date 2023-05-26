@@ -19,6 +19,7 @@
 #include <AppInstallerDeployment.h>
 #include <winget/ARPCorrelation.h>
 #include <winget/Archive.h>
+#include "winget/PathVariable.h"
 #include <Argument.h>
 #include <Command.h>
 #include <AppInstallerSynchronization.h>
@@ -31,6 +32,7 @@ using namespace winrt::Windows::Management::Deployment;
 using namespace AppInstaller::CLI::Execution;
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
+using namespace AppInstaller::Registry::Environment;
 using namespace AppInstaller::Settings;
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Utility::literals;
@@ -536,28 +538,38 @@ namespace AppInstaller::CLI::Workflow
             Workflow::ReportExecutionStage(ExecutionStage::PostExecution) <<
             Workflow::ReportARPChanges <<
             Workflow::RecordInstall <<
-            Workflow::RemoveInstaller << 
+            Workflow::RemoveInstaller <<
             Workflow::DisplayInstallationNotes;
     }
 
-    void DownloadSinglePackage(Execution::Context& context)
+    void InstallDependencies(Execution::Context& context)
     {
-        // TODO: Split dependencies from download flow to prevent multiple installations.
+        if (!Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
+        {
+            return;
+        }
+
+        if (Settings::User().Get<Settings::Setting::InstallIgnoreDependencies>() || context.Args.Contains(Execution::Args::Type::SkipDependencies))
+        {
+            context.Reporter.Warn() << Resource::String::SkippingDependenciesMessage << std::endl;
+            return;
+        }
+
         context <<
-            Workflow::ReportIdentityAndInstallationDisclaimer <<
-            Workflow::ShowPromptsForSinglePackage(/* ensureAcceptance */ true) <<
             Workflow::GetDependenciesFromInstaller <<
             Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
             Workflow::EnableWindowsFeaturesDependencies <<
-            Workflow::ManagePackageDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
-            Workflow::DownloadInstaller;
+            Workflow::ManagePackageDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies);
     }
 
     void InstallSinglePackage(Execution::Context& context)
     {
         context <<
             Workflow::CheckForUnsupportedArgs <<
-            Workflow::DownloadSinglePackage <<
+            Workflow::ReportIdentityAndInstallationDisclaimer <<
+            Workflow::ShowPromptsForSinglePackage(/* ensureAcceptance */ true) <<
+            Workflow::InstallDependencies <<
+            Workflow::DownloadInstaller <<
             Workflow::InstallPackageInstaller;
     }
 
@@ -617,6 +629,8 @@ namespace AppInstaller::CLI::Workflow
                 installContext <<
                     Workflow::DownloadInstaller <<
                     Workflow::InstallPackageInstaller;
+
+                RefreshPathVariable();
             }
             catch (...)
             {

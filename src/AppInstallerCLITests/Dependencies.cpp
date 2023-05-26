@@ -10,6 +10,7 @@
 #include <Workflows/WorkflowBase.h>
 #include <winget/RepositorySource.h>
 #include <winget/ManifestYamlParser.h>
+#include <winget/PathVariable.h>
 #include <Resources.h>
 
 using namespace winrt::Windows::Foundation;
@@ -207,3 +208,27 @@ TEST_CASE("DependencyNodeProcessor_NoMatches", "[dependencies]")
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesFlowNoMatches)) != std::string::npos);
     REQUIRE(result == DependencyNodeProcessorResult::Error);
 }
+
+#pragma warning( push )
+#pragma warning( disable : 4996)
+TEST_CASE("RefreshEnvironmentVariable", "[dependencies]")
+{
+    std::string testPathValue = "testPathValue";
+    auto pathVariable = AppInstaller::Registry::Environment::PathVariable(ScopeEnum::User);
+    pathVariable.Append(testPathValue);
+
+    std::string envValue = std::string(getenv("PATH"));
+    bool firstCheck = envValue.find(testPathValue) != std::string::npos;
+
+    AppInstaller::Registry::Environment::RefreshPathVariable();
+
+    std::string envValue2 = std::string(getenv("PATH"));
+
+    bool secondCheck = envValue2.find(testPathValue) != std::string::npos;
+
+    pathVariable.Remove(testPathValue);
+
+    REQUIRE_FALSE(firstCheck);
+    REQUIRE(secondCheck);
+}
+#pragma warning( pop )

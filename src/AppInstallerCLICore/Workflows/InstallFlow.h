@@ -142,11 +142,11 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void InstallPackageInstaller(Execution::Context& context);
 
-    // Downloads the installer for a single package. This also does all the reporting and user interaction needed.
+    // Installs the dependencies for a single package.
     // Required Args: None
     // Inputs: Manifest, Installer
     // Outputs: InstallerPath
-    void DownloadSinglePackage(Execution::Context& context);
+    void InstallDependencies(Execution::Context& context);
 
     // Installs a single package. This also does the reporting, user interaction, and installer download
     // for single-package installation.
