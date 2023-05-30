@@ -44,8 +44,6 @@ namespace AppInstaller::Settings
                 return userSettings.Get<Setting::EFDirectMSI>();
             case ExperimentalFeature::Feature::Pinning:
                 return userSettings.Get<Setting::EFPinning>();
-            case ExperimentalFeature::Feature::UninstallPreviousArgument:
-                return userSettings.Get<Setting::EFUninstallPreviousArgument>();
             case ExperimentalFeature::Feature::Configuration:
                 return userSettings.Get<Setting::EFConfiguration>();
             case ExperimentalFeature::Feature::WindowsFeature:
