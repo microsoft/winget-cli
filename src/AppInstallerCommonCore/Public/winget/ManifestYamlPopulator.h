@@ -42,6 +42,7 @@ namespace AppInstaller::Manifest
         std::vector<FieldProcessInfo> MarketsFieldInfos;
         std::vector<FieldProcessInfo> AppsAndFeaturesEntryFieldInfos;
         std::vector<FieldProcessInfo> DocumentationFieldInfos;
+        std::vector<FieldProcessInfo> IconFieldInfos;
         std::vector<FieldProcessInfo> NestedInstallerFileFieldInfos;
         std::vector<FieldProcessInfo> InstallationMetadataFieldInfos;
         std::vector<FieldProcessInfo> InstallationMetadataFilesFieldInfos;
@@ -58,6 +59,7 @@ namespace AppInstaller::Manifest
         AppInstaller::Manifest::MarketsInfo* m_p_markets = nullptr;
         AppInstaller::Manifest::AppsAndFeaturesEntry* m_p_appsAndFeaturesEntry = nullptr;
         AppInstaller::Manifest::Documentation* m_p_documentation = nullptr;
+        AppInstaller::Manifest::Icon* m_p_icon = nullptr;
         AppInstaller::Manifest::NestedInstallerFile* m_p_nestedInstallerFile = nullptr;
         AppInstaller::Manifest::InstallationMetadataInfo* m_p_installationMetadata = nullptr;
         AppInstaller::Manifest::InstalledFile* m_p_installedFile = nullptr;
@@ -77,6 +79,7 @@ namespace AppInstaller::Manifest
         std::vector<FieldProcessInfo> GetMarketsFieldProcessInfo(const ManifestVer& manifestVersion);
         std::vector<FieldProcessInfo> GetAppsAndFeaturesEntryFieldProcessInfo(const ManifestVer& manifestVersion);
         std::vector<FieldProcessInfo> GetDocumentationFieldProcessInfo(const ManifestVer& manifestVersion);
+        std::vector<FieldProcessInfo> GetIconFieldProcessInfo(const ManifestVer& manifestVersion);
         std::vector<FieldProcessInfo> GetNestedInstallerFileFieldProcessInfo(const ManifestVer& manifestVersion);
         std::vector<FieldProcessInfo> GetInstallationMetadataFieldProcessInfo(const ManifestVer& manifestVersion);
         std::vector<FieldProcessInfo> GetInstallationMetadataFilesFieldProcessInfo(const ManifestVer& manifestVersion);
@@ -96,6 +99,7 @@ namespace AppInstaller::Manifest
         std::vector<ValidationError> ProcessAppsAndFeaturesEntriesNode(const YAML::Node& appsAndFeaturesEntriesNode);
         std::vector<ValidationError> ProcessExpectedReturnCodesNode(const YAML::Node& returnCodesNode);
         std::vector<ValidationError> ProcessDocumentationsNode(const YAML::Node& documentationsNode);
+        std::vector<ValidationError> ProcessIconsNode(const YAML::Node& iconsNode);
         std::vector<ValidationError> ProcessNestedInstallerFilesNode(const YAML::Node& nestedInstallerFilesNode);
         std::vector<ValidationError> ProcessInstallationMetadataFilesNode(const YAML::Node& installedFilesNode);
 

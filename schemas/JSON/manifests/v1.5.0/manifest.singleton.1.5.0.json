@@ -69,6 +69,64 @@
         }
       }
     },
+    "Icon": {
+      "type": "object",
+      "properties": {
+        "IconUrl": {
+          "$ref": "#/definitions/Url",
+          "description": "The url of the hosted icon file"
+        },
+        "IconFileType": {
+          "type": "string",
+          "enum": [
+            "png",
+            "jpeg",
+            "ico"
+          ],
+          "description": "The icon file type"
+        },
+        "IconResolution": {
+          "type": [ "string", "null" ],
+          "enum": [
+            "custom",
+            "16x16",
+            "20x20",
+            "24x24",
+            "30x30",
+            "32x32",
+            "36x36",
+            "40x40",
+            "48x48",
+            "60x60",
+            "64x64",
+            "72x72",
+            "80x80",
+            "96x96",
+            "256x256"
+          ],
+          "description": "Optional icon resolution"
+        },
+        "IconTheme": {
+          "type": [ "string", "null" ],
+          "enum": [
+            "default",
+            "light",
+            "dark",
+            "highContrast"
+          ],
+          "description": "Optional icon theme"
+        },
+        "IconSha256": {
+          "type": [ "string", "null" ],
+          "pattern": "^[A-Fa-f0-9]{64}$",
+          "description": "Optional Sha256 of the icon file"
+        }
+      },
+      "required": [
+        "IconUrl",
+        "IconFileType"
+      ]
+    },
     "Channel": {
       "type": [ "string", "null" ],
       "minLength": 1,
@@ -863,6 +921,13 @@
         "$ref": "#/definitions/Documentation"
       },
       "maxItems": 256
+    },
+    "Icons": {
+      "type": [ "array", "null" ],
+      "items": {
+        "$ref": "#/definitions/Icon"
+      },
+      "maxItems": 1024
     },
     "Channel": {
       "$ref": "#/definitions/Channel"
