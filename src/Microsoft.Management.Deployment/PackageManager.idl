@@ -889,7 +889,6 @@ namespace Microsoft.Management.Deployment
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
     enum IconResolution
     {
-        Unknown,
         Custom,
         Square16,
         Square20,

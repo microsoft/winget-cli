@@ -42,7 +42,13 @@ namespace AppInstaller::Repository::Rest::Schema::V1_5::Json
                         continue;
                     }
 
-                    iconEntry.FileType = Manifest::ConvertToIconFileTypeEnum(JSON::GetRawStringValueFromJsonNode(iconNode, JSON::GetUtilityString(IconFileType)).value_or(""));
+                    auto fileType = JSON::GetRawStringValueFromJsonNode(iconNode, JSON::GetUtilityString(IconFileType)).value_or("");
+                    if (fileType.empty())
+                    {
+                        continue;
+                    }
+
+                    iconEntry.FileType = Manifest::ConvertToIconFileTypeEnum(fileType);
                     iconEntry.Resolution = Manifest::ConvertToIconResolutionEnum(JSON::GetRawStringValueFromJsonNode(iconNode, JSON::GetUtilityString(IconResolution)).value_or(""));
                     iconEntry.Theme = Manifest::ConvertToIconThemeEnum(JSON::GetRawStringValueFromJsonNode(iconNode, JSON::GetUtilityString(IconTheme)).value_or(""));
 

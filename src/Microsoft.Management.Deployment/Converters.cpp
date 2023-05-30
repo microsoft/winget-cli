@@ -391,7 +391,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             return Microsoft::Management::Deployment::IconResolution::Square256;
         }
 
-        return Microsoft::Management::Deployment::IconResolution::Unknown;
+        return Microsoft::Management::Deployment::IconResolution::Custom;
     }
 
     winrt::Microsoft::Management::Deployment::IconTheme GetDeploymentIconTheme(::AppInstaller::Manifest::IconThemeEnum iconTheme)
