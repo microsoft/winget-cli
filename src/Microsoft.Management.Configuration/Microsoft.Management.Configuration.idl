@@ -745,4 +745,32 @@ namespace Microsoft.Management.Configuration
         interface Windows.Foundation.Collections.IVectorView<IConfigurationUnitSettingDetails>;
         interface Windows.Foundation.Collections.IVectorView<TestConfigurationUnitResult>;
     }
+
+    // Provides a way to centralize the distribution of interfaces relevant to specific implementations of IConfigurationSetProcessorFactory.
+    namespace SetProcessorFactory
+    {
+        // The same as PowerShell ExecutionPolicy:
+        // https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_execution_policies
+        enum PwshConfigurationProcessorPolicy
+        {
+            Unrestricted = 0,
+            RemoteSigned = 1,
+            AllSigned = 2,
+            Restricted = 3,
+            Bypass = 4,
+            Undefined = 5,
+            Default = RemoteSigned,
+        };
+
+        // The properties provided by the "pwsh" processor factory.
+        interface IPwshConfigurationSetProcessorFactoryProperties
+        {
+            // The module paths to add to the processor.
+            // This will be in addition to any paths added by the processor and those inherent to PowerShell.
+            Windows.Foundation.Collections.IVectorView<String> AdditionalModulePaths;
+
+            // The execution policy to apply; must be set before taking actions with the processor.
+            PwshConfigurationProcessorPolicy Policy;
+        };
+    }
 }

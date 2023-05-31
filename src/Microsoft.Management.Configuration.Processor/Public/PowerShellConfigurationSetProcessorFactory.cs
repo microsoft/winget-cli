@@ -50,7 +50,7 @@ namespace Microsoft.Management.Configuration.Processor
         /// <summary>
         /// Gets or sets the configuration policy.
         /// </summary>
-        public PowerShellConfigurationProcessorPolicy Policy { get; set; } = PowerShellConfigurationProcessorPolicy.RemoteSigned;
+        public PowerShellConfigurationProcessorPolicy Policy { get; set; } = PowerShellConfigurationProcessorPolicy.Default;
 
         /// <summary>
         /// Gets the configuration unit processor details for the given unit.

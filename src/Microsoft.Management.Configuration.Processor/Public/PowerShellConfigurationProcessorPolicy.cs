@@ -46,6 +46,6 @@ namespace Microsoft.Management.Configuration.Processor
         /// <summary>
         /// Default.
         /// </summary>
-        Default = Restricted,
+        Default = RemoteSigned,
     }
 }

@@ -7,6 +7,7 @@
 namespace Microsoft.Management.Configuration.Processor
 {
     using System.Collections.Generic;
+    using System.Runtime.InteropServices;
 
     /// <summary>
     /// Properties for the configuration processor factory.

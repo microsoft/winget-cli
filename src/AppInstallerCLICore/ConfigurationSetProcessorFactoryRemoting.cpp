@@ -2,9 +2,12 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Public/ConfigurationSetProcessorFactoryRemoting.h"
+#include <AppInstallerLanguageUtilities.h>
 #include <AppInstallerLogging.h>
 #include <AppInstallerRuntime.h>
 #include <winget/ILifetimeWatcher.h>
+#include <winrt/Microsoft.Management.Configuration.Processor.h>
+#include <winrt/Microsoft.Management.Configuration.SetProcessorFactory.h>
 
 using namespace winrt::Windows::Foundation;
 using namespace winrt::Microsoft::Management::Configuration;
@@ -38,7 +41,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
         constexpr std::wstring_view s_RemoteServerFileName = L"ConfigurationRemotingServer\\ConfigurationRemotingServer.exe";
 
         // Represents a remote factory object that was created from a specific process.
-        struct RemoteFactory : winrt::implements<RemoteFactory, IConfigurationSetProcessorFactory, WinRT::ILifetimeWatcher>, WinRT::LifetimeWatcherBase
+        struct RemoteFactory : winrt::implements<RemoteFactory, IConfigurationSetProcessorFactory, SetProcessorFactory::IPwshConfigurationSetProcessorFactoryProperties, WinRT::ILifetimeWatcher>, WinRT::LifetimeWatcherBase
         {
             RemoteFactory()
             {
@@ -138,6 +141,8 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 THROW_IF_FAILED(CoUnmarshalInterface(stream.get(), winrt::guid_of<IConfigurationSetProcessorFactory>(), reinterpret_cast<void**>(&output)));
                 AICLI_LOG(Config, Verbose, << "... configuration processing connection established.");
                 m_remoteFactory = IConfigurationSetProcessorFactory{ output.detach(), winrt::take_ownership_from_abi };
+
+                // TODO: Move all initial factory property setting here
             }
 
             ~RemoteFactory()
@@ -170,14 +175,62 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 m_remoteFactory.MinimumLevel(value);
             }
 
+            Collections::IVectorView<winrt::hstring> AdditionalModulePaths() const
+            {
+                return m_additionalModulePaths.GetView();
+            }
+
+            void AdditionalModulePaths(const Collections::IVectorView<winrt::hstring>& value)
+            {
+                // Extract all values from incoming view
+                std::vector<winrt::hstring> newModulePaths{ value.Size() };
+                value.GetMany(0, newModulePaths);
+
+                // Combine with our own values
+                std::vector<winrt::hstring> newRemotePaths{ newModulePaths };
+                // TODO: Append the values that we have already
+
+                // Apply the new combined paths and pass to remote factory
+                m_remoteAdditionalModulePaths = winrt::single_threaded_vector<winrt::hstring>(std::move(newRemotePaths));
+                m_remoteFactory.as<Processor::IPowerShellConfigurationProcessorFactoryProperties>().AdditionalModulePaths(m_remoteAdditionalModulePaths.GetView());
+
+                // Store the updated module paths that we were given
+                m_additionalModulePaths = winrt::single_threaded_vector<winrt::hstring>(std::move(newModulePaths));
+            }
+
+            SetProcessorFactory::PwshConfigurationProcessorPolicy Policy() const
+            {
+                return Convert(m_remoteFactory.as<Processor::IPowerShellConfigurationProcessorFactoryProperties>().Policy());
+            }
+
+            void Policy(SetProcessorFactory::PwshConfigurationProcessorPolicy value)
+            {
+                m_remoteFactory.as<Processor::IPowerShellConfigurationProcessorFactoryProperties>().Policy(Convert(value));
+            }
+
             HRESULT STDMETHODCALLTYPE SetLifetimeWatcher(IUnknown* watcher)
             {
                 return WinRT::LifetimeWatcherBase::SetLifetimeWatcher(watcher);
             }
 
         private:
+            static SetProcessorFactory::PwshConfigurationProcessorPolicy Convert(Processor::PowerShellConfigurationProcessorPolicy policy)
+            {
+                // We have used the same values intentionally; if that changes, update this.
+                return ToEnum<SetProcessorFactory::PwshConfigurationProcessorPolicy>(ToIntegral(policy));
+            }
+
+            static Processor::PowerShellConfigurationProcessorPolicy Convert(SetProcessorFactory::PwshConfigurationProcessorPolicy policy)
+            {
+                // We have used the same values intentionally; if that changes, update this.
+                return ToEnum<Processor::PowerShellConfigurationProcessorPolicy>(ToIntegral(policy));
+            }
+
             IConfigurationSetProcessorFactory m_remoteFactory;
             wil::unique_event m_completionEvent;
+            Collections::IVector<winrt::hstring> m_additionalModulePaths{ winrt::single_threaded_vector<winrt::hstring>() };
+            std::vector<winrt::hstring> m_internalAdditionalModulePaths;
+            Collections::IVector<winrt::hstring> m_remoteAdditionalModulePaths{ winrt::single_threaded_vector<winrt::hstring>() };
         };
     }
 
