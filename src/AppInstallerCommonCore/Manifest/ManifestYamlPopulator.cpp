@@ -454,6 +454,16 @@ namespace AppInstaller::Manifest
 
                 std::move(fields_v1_2.begin(), fields_v1_2.end(), std::inserter(result, result.end()));
             }
+
+            if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_5 })
+            {
+                std::vector<FieldProcessInfo> fields_v1_5 =
+                {
+                    { "Icons", [this](const YAML::Node& value)->ValidationErrors { return ProcessIconsNode(value); }, true },
+                };
+
+                std::move(fields_v1_5.begin(), fields_v1_5.end(), std::inserter(result, result.end()));
+            }
         }
 
         return result;
@@ -565,6 +575,25 @@ namespace AppInstaller::Manifest
             {
                 { "DocumentLabel", [this](const YAML::Node& value)->ValidationErrors { m_p_documentation->DocumentLabel = Utility::Trim(value.as<std::string>()); return {}; } },
                 { "DocumentUrl", [this](const YAML::Node& value)->ValidationErrors { m_p_documentation->DocumentUrl = Utility::Trim(value.as<std::string>()); return {}; } },
+            };
+        }
+
+        return result;
+    }
+
+    std::vector<ManifestYamlPopulator::FieldProcessInfo> ManifestYamlPopulator::GetIconFieldProcessInfo(const ManifestVer& manifestVersion)
+    {
+        std::vector<FieldProcessInfo> result = {};
+
+        if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_5 })
+        {
+            result =
+            {
+                { "IconUrl", [this](const YAML::Node& value)->ValidationErrors { m_p_icon->Url = Utility::Trim(value.as<std::string>()); return {}; } },
+                { "IconFileType", [this](const YAML::Node& value)->ValidationErrors { m_p_icon->FileType = ConvertToIconFileTypeEnum(value.as<std::string>()); return {}; } },
+                { "IconResolution", [this](const YAML::Node& value)->ValidationErrors { m_p_icon->Resolution = ConvertToIconResolutionEnum(value.as<std::string>()); return {}; } },
+                { "IconTheme", [this](const YAML::Node& value)->ValidationErrors { m_p_icon->Theme = ConvertToIconThemeEnum(value.as<std::string>()); return {}; } },
+                { "IconSha256", [this](const YAML::Node& value)->ValidationErrors { m_p_icon->Sha256 = Utility::SHA256::ConvertToBytes(value.as<std::string>()); return {}; } },
             };
         }
 
@@ -795,7 +824,7 @@ namespace AppInstaller::Manifest
     ValidationErrors ManifestYamlPopulator::ProcessDocumentationsNode(const YAML::Node& documentationsNode)
     {
         THROW_HR_IF(E_INVALIDARG, !documentationsNode.IsSequence());
-        
+
         ValidationErrors resultErrors;
         std::vector<Documentation> documentations;
 
@@ -813,6 +842,30 @@ namespace AppInstaller::Manifest
             m_p_localization->Add<Localization::Documentations>(std::move(documentations));
         }
         
+        return resultErrors;
+    }
+
+    std::vector<ValidationError> ManifestYamlPopulator::ProcessIconsNode(const YAML::Node& iconsNode)
+    {
+        THROW_HR_IF(E_INVALIDARG, !iconsNode.IsSequence());
+
+        ValidationErrors resultErrors;
+        std::vector<Icon> icons;
+
+        for (auto const& entry : iconsNode.Sequence())
+        {
+            Icon icon;
+            m_p_icon = &icon;
+            auto errors = ValidateAndProcessFields(entry, IconFieldInfos);
+            std::move(errors.begin(), errors.end(), std::inserter(resultErrors, resultErrors.end()));
+            icons.emplace_back(std::move(icon));
+        }
+
+        if (!icons.empty())
+        {
+            m_p_localization->Add<Localization::Icons>(std::move(icons));
+        }
+
         return resultErrors;
     }
 
@@ -888,6 +941,7 @@ namespace AppInstaller::Manifest
         MarketsFieldInfos = GetMarketsFieldProcessInfo(manifestVersion);
         AppsAndFeaturesEntryFieldInfos = GetAppsAndFeaturesEntryFieldProcessInfo(manifestVersion);
         DocumentationFieldInfos = GetDocumentationFieldProcessInfo(manifestVersion);
+        IconFieldInfos = GetIconFieldProcessInfo(manifestVersion);
         NestedInstallerFileFieldInfos = GetNestedInstallerFileFieldProcessInfo(manifestVersion);
         InstallationMetadataFieldInfos = GetInstallationMetadataFieldProcessInfo(manifestVersion);
         InstallationMetadataFilesFieldInfos = GetInstallationMetadataFilesFieldProcessInfo(manifestVersion);

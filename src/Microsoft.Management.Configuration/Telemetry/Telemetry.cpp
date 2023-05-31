@@ -342,6 +342,23 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     }
     CATCH_LOG();
 
+    void TelemetryTraceLogger::LogConfigProcessingSummaryForTestException(
+        const ConfigurationSet& configurationSet,
+        hresult error,
+        const TestConfigurationSetResult& result) const noexcept try
+    {
+        if (!IsTelemetryEnabled())
+        {
+            return;
+        }
+
+        ConfigRunSummaryData summaryData = ProcessRunResult(result.UnitResults());
+
+        LogConfigProcessingSummary(configurationSet.InstanceIdentifier(), configurationSet.IsFromHistory(), ConfigurationUnitIntent::Assert,
+            error, ConfigurationUnitResultSource::Internal, summaryData.AssertSummary, summaryData.InformSummary, summaryData.ApplySummary);
+    }
+    CATCH_LOG();
+
     void TelemetryTraceLogger::LogConfigProcessingSummaryForApply(
         const ConfigurationSet& configurationSet,
         const ApplyConfigurationSetResult& result) const noexcept try

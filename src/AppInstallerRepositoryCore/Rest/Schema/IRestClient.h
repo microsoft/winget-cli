@@ -24,6 +24,8 @@ namespace AppInstaller::Repository::Rest::Schema
         : PackageIdentifier(std::move(packageIdentifier)), PackageName(std::move(packageName)), Publisher(std::move(publisher)) {}
     };
 
+    // NOTE: When changes are made to VersionInfo struct, remember to update the OptimizedSearch path in RestInterface1_0
+    // where VersionInfo struct was directly created from manifest.
     struct VersionInfo
     {
         AppInstaller::Utility::VersionAndChannel VersionAndChannel;

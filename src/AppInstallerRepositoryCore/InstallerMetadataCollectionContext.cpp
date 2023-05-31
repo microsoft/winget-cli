@@ -42,6 +42,12 @@ namespace AppInstaller::Repository::Metadata
                     InstalledStartupLinks = L"startupLinks";
                     InstalledStartupLinkPath = L"RelativeFilePath";
                     InstalledStartupLinkType = L"FileType";
+                    Icons = L"icons";
+                    IconContent = L"IconContent";
+                    IconSha256 = L"IconSha256";
+                    IconFileType = L"IconFileType";
+                    IconResolution = L"IconResolution";
+                    IconTheme = L"IconTheme";
                 }
             }
 
@@ -90,6 +96,13 @@ namespace AppInstaller::Repository::Metadata
             utility::string_t InstalledStartupLinks;
             utility::string_t InstalledStartupLinkPath;
             utility::string_t InstalledStartupLinkType;
+            // Icons
+            utility::string_t Icons;
+            utility::string_t IconContent;
+            utility::string_t IconSha256;
+            utility::string_t IconFileType;
+            utility::string_t IconResolution;
+            utility::string_t IconTheme;
         };
 
         struct OutputFields_1_0
@@ -326,6 +339,59 @@ namespace AppInstaller::Repository::Metadata
 
             return startupLinks;
         }
+
+        std::vector<ExtractedIconInfo> DeserializeExtractedIcons(
+            const web::json::value& icons,
+            const ProductMetadataFields_1_N& fields)
+        {
+            if (icons.is_null() || !icons.is_array())
+            {
+                return {};
+            }
+
+            std::vector<ExtractedIconInfo> result;
+            for (auto const& iconInfo : icons.as_array())
+            {
+                ExtractedIconInfo iconInfoEntry;
+
+                auto content = AppInstaller::JSON::GetRawStringValueFromJsonNode(iconInfo, fields.IconContent);
+                if (!AppInstaller::JSON::IsValidNonEmptyStringValue(content))
+                {
+                    AICLI_LOG(Repo, Error, << "Missing IconContent in Extracted Icons.");
+                    return {};
+                }
+
+                iconInfoEntry.IconContent = AppInstaller::JSON::Base64Decode(*content);
+
+                std::optional<std::string> sha256 = AppInstaller::JSON::GetRawStringValueFromJsonNode(iconInfo, fields.IconSha256);
+                if (AppInstaller::JSON::IsValidNonEmptyStringValue(sha256))
+                {
+                    iconInfoEntry.IconSha256 = Utility::SHA256::ConvertToBytes(*sha256);
+                }
+
+                std::optional<std::string> fileType = AppInstaller::JSON::GetRawStringValueFromJsonNode(iconInfo, fields.IconFileType);
+                if (AppInstaller::JSON::IsValidNonEmptyStringValue(fileType))
+                {
+                    iconInfoEntry.IconFileType = Manifest::ConvertToIconFileTypeEnum(*fileType);
+                }
+
+                std::optional<std::string> theme = AppInstaller::JSON::GetRawStringValueFromJsonNode(iconInfo, fields.IconTheme);
+                if (AppInstaller::JSON::IsValidNonEmptyStringValue(theme))
+                {
+                    iconInfoEntry.IconTheme = Manifest::ConvertToIconThemeEnum(*theme);
+                }
+
+                std::optional<std::string> resolution = AppInstaller::JSON::GetRawStringValueFromJsonNode(iconInfo, fields.IconResolution);
+                if (AppInstaller::JSON::IsValidNonEmptyStringValue(resolution))
+                {
+                    iconInfoEntry.IconResolution = Manifest::ConvertToIconResolutionEnum(*resolution);
+                }
+
+                result.emplace_back(std::move(iconInfoEntry));
+            }
+
+            return result;
+        }
     }
 
     void ProductMetadata::Clear()
@@ -484,8 +550,8 @@ namespace AppInstaller::Repository::Metadata
             ProductVersionMax = Version{ std::move(productVersionMaxString).value() };
         }
 
-        // The 1.0 version of metadata uses the 1.4 version of REST
-        JSON::ManifestJSONParser parser{ Version{ "1.4" } };
+        // The 1.0 version of metadata uses the 1.5 version of REST
+        JSON::ManifestJSONParser parser{ Version{ "1.5" } };
 
         std::string submissionIdentifierVerification;
 
@@ -532,6 +598,15 @@ namespace AppInstaller::Repository::Metadata
                     if (startupLinks)
                     {
                         installerMetadata.StartupLinkFiles = DeserializeInstalledStartupLinks(startupLinks->get(), fields);
+                    }
+                }
+
+                if (!fields.Icons.empty())
+                {
+                    auto icons = AppInstaller::JSON::GetJsonValueFromNode(item, fields.Icons);
+                    if (icons)
+                    {
+                        installerMetadata.Icons = DeserializeExtractedIcons(icons->get(), fields);
                     }
                 }
 
@@ -619,6 +694,28 @@ namespace AppInstaller::Repository::Metadata
                 }
 
                 itemValue[fields.InstalledStartupLinks] = std::move(startupLinkFilesArray);
+            }
+
+            if (!fields.Icons.empty() && !item.second.Icons.empty())
+            {
+                web::json::value iconsArray = web::json::value::array();
+                size_t iconIndex = 0;
+                for (const auto& entry : item.second.Icons)
+                {
+                    web::json::value entryValue;
+                    entryValue[fields.IconContent] = AppInstaller::JSON::GetStringValue(AppInstaller::JSON::Base64Encode(entry.IconContent));
+                    if (!entry.IconSha256.empty())
+                    {
+                        entryValue[fields.IconSha256] = AppInstaller::JSON::GetStringValue(SHA256::ConvertToString(entry.IconSha256));
+                    }
+                    entryValue[fields.IconFileType] = AppInstaller::JSON::GetStringValue(Manifest::IconFileTypeToString(entry.IconFileType));
+                    entryValue[fields.IconTheme] = AppInstaller::JSON::GetStringValue(Manifest::IconThemeToString(entry.IconTheme));
+                    entryValue[fields.IconResolution] = AppInstaller::JSON::GetStringValue(Manifest::IconResolutionToString(entry.IconResolution));
+
+                    iconsArray[iconIndex++] = std::move(entryValue);
+                }
+
+                itemValue[fields.Icons] = std::move(iconsArray);
             }
 
             web::json::value appsAndFeaturesArray = web::json::value::array();
@@ -1003,6 +1100,9 @@ namespace AppInstaller::Repository::Metadata
 
             Manifest::ScopeEnum scope = Manifest::ConvertToScopeEnum(packageMetadata[PackageVersionMetadata::InstalledScope]);
 
+            // ARP entry icon extraction upon ARP correlation success
+            auto icons = ExtractIconFromArpEntry(newEntry.ProductCode, scope);
+
             // Add or update the metadata for the installer hash
             auto itr = m_outputMetadata.InstallerMetadataMap.find(m_installerHash);
 
@@ -1019,6 +1119,11 @@ namespace AppInstaller::Repository::Metadata
                     newMetadata.Scope = Manifest::ScopeToString(scope);
                 }
 
+                if (!icons.empty())
+                {
+                    newMetadata.Icons = std::move(icons);
+                }
+
                 m_outputMetadata.InstallerMetadataMap[m_installerHash] = std::move(newMetadata);
             }
             else
@@ -1031,6 +1136,12 @@ namespace AppInstaller::Repository::Metadata
                 else if (scope != Manifest::ScopeEnum::Unknown && Manifest::ConvertToScopeEnum(itr->second.Scope) != scope)
                 {
                     itr->second.Scope = Manifest::ScopeToString(Manifest::ScopeEnum::Unknown);
+                }
+
+                // We will always use the latest extracted icons upon confliction.
+                if (!icons.empty())
+                {
+                    itr->second.Icons = std::move(icons);
                 }
 
                 // Existing entry for installer hash, add/update the entry
@@ -1163,8 +1274,8 @@ namespace AppInstaller::Repository::Metadata
 
         m_installerHash = GetRequiredString(packageDataValue.value(), installerHashFieldName);
 
-        // The 1.0 version of input uses the 1.4 version of REST
-        JSON::ManifestJSONParser parser{ Version{ "1.4" }};
+        // The 1.0 version of input uses the 1.5 version of REST
+        JSON::ManifestJSONParser parser{ Version{ "1.5" }};
 
         {
             auto defaultLocaleValue = AppInstaller::JSON::GetJsonValueFromNode(packageDataValue.value(), defaultLocaleFieldName);
@@ -1372,6 +1483,12 @@ namespace AppInstaller::Repository::Metadata
                         {
                             itr->second.Scope = Manifest::ScopeToString(Manifest::ScopeEnum::Unknown);
                         }
+                    }
+
+                    // We will always use the latest extracted icons upon confliction.
+                    if (!installerMetadata.second.Icons.empty())
+                    {
+                        itr->second.Icons = installerMetadata.second.Icons;
                     }
 
                     if (!itr->second.InstalledFiles.has_value())

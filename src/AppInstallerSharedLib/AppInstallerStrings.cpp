@@ -579,6 +579,23 @@ namespace AppInstaller::Utility
         return result;
     }
 
+    std::vector<std::uint8_t> ReadEntireStreamAsByteArray(std::istream& stream)
+    {
+        std::streampos currentPos = stream.tellg();
+        stream.seekg(0, std::ios_base::end);
+
+        auto offset = stream.tellg() - currentPos;
+        stream.seekg(currentPos);
+
+        // Don't allow use of this API for reading very large streams.
+        THROW_HR_IF(E_OUTOFMEMORY, offset > static_cast<std::streamoff>(std::numeric_limits<uint32_t>::max()));
+        std::vector<std::uint8_t> result;
+        result.resize(static_cast<size_t>(offset));
+        stream.read(reinterpret_cast<char*>(result.data()), offset);
+
+        return result;
+    }
+
     std::wstring ExpandEnvironmentVariables(const std::wstring& input)
     {
         if (input.empty())

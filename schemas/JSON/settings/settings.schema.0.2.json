@@ -28,6 +28,11 @@
             "rainbow",
             "retro"
           ]
+        },
+        "anonymizeDisplayedPaths": {
+          "description": "Replaces some known folder paths with their respective environment variable",
+          "type": "boolean",
+          "default": true
         }
       }
     },
@@ -201,11 +206,6 @@
         },
         "directMSI": {
           "description": "Enable use of MSI APIs rather than msiexec for MSI installs",
-          "type": "boolean",
-          "default": false
-        },
-        "uninstallPreviousArgument": {
-          "description": "Enable argument to override upgrade behavior to UninstallPrevious",
           "type": "boolean",
           "default": false
         },

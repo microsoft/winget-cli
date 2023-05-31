@@ -63,6 +63,7 @@ namespace AppInstaller::Settings
     {
         // Visual
         ProgressBarVisualStyle,
+        AnonymizePathForDisplay,
         // Source
         AutoUpdateTimeInMinutes,
         // Experimental
@@ -71,7 +72,6 @@ namespace AppInstaller::Settings
         EFDependencies,
         EFDirectMSI,
         EFPinning,
-        EFUninstallPreviousArgument,
         EFConfiguration,
         EFWindowsFeature,
         // Telemetry
@@ -135,6 +135,7 @@ namespace AppInstaller::Settings
 
         // Visual
         SETTINGMAPPING_SPECIALIZATION(Setting::ProgressBarVisualStyle, std::string, VisualStyle, VisualStyle::Accent, ".visual.progressBar"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::AnonymizePathForDisplay, bool, bool, true, ".visual.anonymizeDisplayedPaths"sv);
         // Source
         SETTINGMAPPING_SPECIALIZATION_POLICY(Setting::AutoUpdateTimeInMinutes, uint32_t, std::chrono::minutes, 5min, ".source.autoUpdateIntervalInMinutes"sv, ValuePolicy::SourceAutoUpdateIntervalInMinutes);
         // Experimental
@@ -143,7 +144,6 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::EFDependencies, bool, bool, false, ".experimentalFeatures.dependencies"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFDirectMSI, bool, bool, false, ".experimentalFeatures.directMSI"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFPinning, bool, bool, false, ".experimentalFeatures.pinning"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::EFUninstallPreviousArgument, bool, bool, false, ".experimentalFeatures.uninstallPreviousArgument"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFConfiguration, bool, bool, false, ".experimentalFeatures.configuration"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::EFWindowsFeature, bool, bool, false, ".experimentalFeatures.windowsFeature"sv);
         // Telemetry

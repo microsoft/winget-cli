@@ -17,8 +17,5 @@ namespace AppInstaller::Repository::Rest::Schema::V1_4
         Interface& operator=(Interface&&) = default;
 
         Utility::Version GetVersion() const override;
-
-    private:
-        IRestClient::Information m_information;
     };
 }

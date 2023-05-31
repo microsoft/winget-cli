@@ -31,12 +31,6 @@ To manually update the source use `winget source update`
 
 The `visual` settings involve visual elements that are displayed by WinGet
 
-```json
-    "visual": {
-        "progressBar": "accent"
-    },
-```
-
 ### progressBar
 
 Color of the progress bar that WinGet displays when not specified by arguments. 
@@ -44,6 +38,22 @@ Color of the progress bar that WinGet displays when not specified by arguments.
 - accent (default)
 - retro
 - rainbow
+
+```json
+    "visual": {
+        "progressBar": "accent"
+    },
+```
+
+### anonymizeDisplayedPaths
+
+Replaces some known folder paths with their respective environment variable. Defaults to true.
+
+```json
+    "visual": {
+        "anonymizeDisplayedPaths": true
+    },
+```
 
 ## Install Behavior
 
@@ -229,17 +239,6 @@ You can enable the feature as shown below.
 ```json
    "experimentalFeatures": {
        "directMSI": true
-   },
-```
-
-### uninstallPreviousArgument
-
-This feature enables the Windows Package Manager to override the upgrade behavior to UninstallPrevious by passing the `--uninstall-previous` argument with the upgrade or install command. 
-You can enable the feature as shown below.
-
-```json
-   "experimentalFeatures": {
-       "uninstallPreviousArgument": true
    },
 ```
 

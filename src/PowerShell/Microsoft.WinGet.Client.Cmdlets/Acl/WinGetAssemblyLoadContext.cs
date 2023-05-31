@@ -7,7 +7,9 @@
 namespace Microsoft.WinGet.Client.Acl
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Reflection;
     using System.Runtime.Loader;
 
@@ -18,6 +20,14 @@ namespace Microsoft.WinGet.Client.Acl
     /// </summary>
     internal class WinGetAssemblyLoadContext : AssemblyLoadContext
     {
+        // The assemblies must be loaded in the default context.
+        // Loading WinRT.Runtime.dll in an ALC when is already loaded in the default context
+        // will result on 'Attempt to update previously set global instance.'
+        private static readonly IEnumerable<string> DefaultContextAssemblies = new string[]
+        {
+            @"WinRT.Runtime.dll",
+        };
+
         private static readonly string SharedDependencyPath = Path.Combine(
             Path.GetDirectoryName(typeof(WinGetAssemblyLoadContext).Assembly.Location),
             "SharedDependencies");
@@ -41,6 +51,16 @@ namespace Microsoft.WinGet.Client.Acl
         /// <returns>The assembly, null if not in our assembly location.</returns>
         internal static Assembly ResolvingHandler(AssemblyLoadContext context, AssemblyName assemblyName)
         {
+            string name = $"{assemblyName.Name}.dll";
+            if (DefaultContextAssemblies.Any(a => a.Equals(name, StringComparison.OrdinalIgnoreCase)))
+            {
+                string sharedPath = Path.Combine(SharedDependencyPath, name);
+                if (File.Exists(sharedPath))
+                {
+                    return AssemblyLoadContext.Default.LoadFromAssemblyPath(sharedPath);
+                }
+            }
+
             string path = $"{Path.Combine(DirectDependencyPath, assemblyName.Name)}.dll";
             if (File.Exists(path))
             {
@@ -53,13 +73,19 @@ namespace Microsoft.WinGet.Client.Acl
         /// <inheritdoc/>
         protected override Assembly Load(AssemblyName assemblyName)
         {
-            string path = $"{Path.Combine(SharedDependencyPath, assemblyName.Name)}.dll";
+            string name = $"{assemblyName.Name}.dll";
+            if (DefaultContextAssemblies.Any(a => a.Equals(name, StringComparison.OrdinalIgnoreCase)))
+            {
+                return null;
+            }
+
+            string path = Path.Combine(SharedDependencyPath, name);
             if (File.Exists(path))
             {
                 return this.LoadFromAssemblyPath(path);
             }
 
-            path = $"{Path.Combine(DirectDependencyPath, assemblyName.Name)}.dll";
+            path = Path.Combine(DirectDependencyPath, name);
             if (File.Exists(path))
             {
                 return this.LoadFromAssemblyPath(path);

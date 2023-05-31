@@ -134,4 +134,20 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
         return m_documentations.GetView();
     }
+    winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Deployment::Icon> CatalogPackageMetadata::Icons()
+    {
+        if (!m_icons)
+        {
+            auto icons = winrt::single_threaded_vector<winrt::Microsoft::Management::Deployment::Icon>();
+            for (auto const& icon : m_manifestLocalization.Get<AppInstaller::Manifest::Localization::Icons>())
+            {
+                auto iconImpl = winrt::make_self<wil::details::module_count_wrapper<winrt::Microsoft::Management::Deployment::implementation::Icon>>();
+                iconImpl->Initialize(icon);
+                icons.Append(*iconImpl);
+            }
+            m_icons = icons;
+        }
+
+        return m_icons.GetView();
+    }
 }

@@ -56,4 +56,10 @@ namespace AppInstaller::JSON
     web::json::value GetStringValue(std::string_view value);
 
     bool IsValidNonEmptyStringValue(std::optional<std::string>& value);
+
+    // Base64 encode
+    std::string Base64Encode(const std::vector<BYTE>& input);
+
+    // Base64 decode
+    std::vector<BYTE>Base64Decode(const std::string& input);
 }

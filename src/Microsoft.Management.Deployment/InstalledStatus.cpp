@@ -3,7 +3,6 @@
 #include "pch.h"
 #include "InstalledStatus.h"
 #include "InstalledStatus.g.cpp"
-#include <wil\cppwinrt_wrl.h>
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {

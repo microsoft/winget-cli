@@ -408,6 +408,121 @@ namespace AppInstaller::Manifest
         return result;
     }
 
+    IconFileTypeEnum ConvertToIconFileTypeEnum(std::string_view in)
+    {
+        std::string inStrLower = Utility::ToLower(in);
+        IconFileTypeEnum result = IconFileTypeEnum::Unknown;
+
+        if (inStrLower == "jpeg")
+        {
+            result = IconFileTypeEnum::Jpeg;
+        }
+        else if (inStrLower == "png")
+        {
+            result = IconFileTypeEnum::Png;
+        }
+        else if (inStrLower == "ico")
+        {
+            result = IconFileTypeEnum::Ico;
+        }
+
+        return result;
+    }
+
+    IconThemeEnum ConvertToIconThemeEnum(std::string_view in)
+    {
+        std::string inStrLower = Utility::ToLower(in);
+        IconThemeEnum result = IconThemeEnum::Unknown;
+
+        if (inStrLower == "default")
+        {
+            result = IconThemeEnum::Default;
+        }
+        else if (inStrLower == "dark")
+        {
+            result = IconThemeEnum::Dark;
+        }
+        else if (inStrLower == "light")
+        {
+            result = IconThemeEnum::Light;
+        }
+        else if (inStrLower == "highcontrast")
+        {
+            result = IconThemeEnum::HighContrast;
+        }
+
+        return result;
+    }
+
+    IconResolutionEnum ConvertToIconResolutionEnum(std::string_view in)
+    {
+        std::string inStrLower = Utility::ToLower(in);
+        IconResolutionEnum result = IconResolutionEnum::Unknown;
+
+        if (inStrLower == "custom")
+        {
+            result = IconResolutionEnum::Custom;
+        }
+        else if (inStrLower == "16x16")
+        {
+            result = IconResolutionEnum::Square16;
+        }
+        else if (inStrLower == "20x20")
+        {
+            result = IconResolutionEnum::Square20;
+        }
+        else if (inStrLower == "24x24")
+        {
+            result = IconResolutionEnum::Square24;
+        }
+        else if (inStrLower == "30x30")
+        {
+            result = IconResolutionEnum::Square30;
+        }
+        else if (inStrLower == "32x32")
+        {
+            result = IconResolutionEnum::Square32;
+        }
+        else if (inStrLower == "36x36")
+        {
+            result = IconResolutionEnum::Square36;
+        }
+        else if (inStrLower == "40x40")
+        {
+            result = IconResolutionEnum::Square40;
+        }
+        else if (inStrLower == "48x48")
+        {
+            result = IconResolutionEnum::Square48;
+        }
+        else if (inStrLower == "60x60")
+        {
+            result = IconResolutionEnum::Square60;
+        }
+        else if (inStrLower == "64x64")
+        {
+            result = IconResolutionEnum::Square64;
+        }
+        else if (inStrLower == "72x72")
+        {
+            result = IconResolutionEnum::Square72;
+        }
+        else if (inStrLower == "80x80")
+        {
+            result = IconResolutionEnum::Square80;
+        }
+        else if (inStrLower == "96x96")
+        {
+            result = IconResolutionEnum::Square96;
+        }
+        else if (inStrLower == "256x256")
+        {
+            result = IconResolutionEnum::Square256;
+        }
+
+        return result;
+    }
+
     std::string_view InstallerTypeToString(InstallerTypeEnum installerType)
     {
         switch (installerType)
@@ -460,6 +575,77 @@ namespace AppInstaller::Manifest
             return "uninstall"sv;
         case InstalledFileTypeEnum::Other:
             return "other"sv;
+        }
+
+        return "unknown";
+    }
+
+    std::string_view IconFileTypeToString(IconFileTypeEnum iconFileType)
+    {
+        switch (iconFileType)
+        {
+        case IconFileTypeEnum::Ico:
+            return "ico"sv;
+        case IconFileTypeEnum::Jpeg:
+            return "jpeg"sv;
+        case IconFileTypeEnum::Png:
+            return "png"sv;
+        }
+
+        return "unknown";
+    }
+
+    std::string_view IconThemeToString(IconThemeEnum iconTheme)
+    {
+        switch (iconTheme)
+        {
+        case IconThemeEnum::Default:
+            return "default"sv;
+        case IconThemeEnum::Dark:
+            return "dark"sv;
+        case IconThemeEnum::Light:
+            return "light"sv;
+        case IconThemeEnum::HighContrast:
+            return "highContrast"sv;
+        }
+
+        return "unknown";
+    }
+
+    std::string_view IconResolutionToString(IconResolutionEnum iconResolution)
+    {
+        switch (iconResolution)
+        {
+        case IconResolutionEnum::Custom:
+            return "custom"sv;
+        case IconResolutionEnum::Square16:
+            return "16x16"sv;
+        case IconResolutionEnum::Square20:
+            return "20x20"sv;
+        case IconResolutionEnum::Square24:
+            return "24x24"sv;
+        case IconResolutionEnum::Square30:
+            return "30x30"sv;
+        case IconResolutionEnum::Square32:
+            return "32x32"sv;
+        case IconResolutionEnum::Square36:
+            return "36x36"sv;
+        case IconResolutionEnum::Square40:
+            return "40x40"sv;
+        case IconResolutionEnum::Square48:
+            return "48x48"sv;
+        case IconResolutionEnum::Square60:
+            return "60x60"sv;
+        case IconResolutionEnum::Square64:
+            return "64x64"sv;
+        case IconResolutionEnum::Square72:
+            return "72x72"sv;
+        case IconResolutionEnum::Square80:
+            return "80x80"sv;
+        case IconResolutionEnum::Square96:
+            return "96x96"sv;
+        case IconResolutionEnum::Square256:
+            return "256x256"sv;
         }
 
         return "unknown";

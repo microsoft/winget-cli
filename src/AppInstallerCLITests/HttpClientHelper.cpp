@@ -77,5 +77,5 @@ TEST_CASE("HttpClientHelper_PinningConfiguration", "[RestSource]")
     HttpClientHelper helper;
     helper.SetPinningConfiguration(config);
 
-    REQUIRE_THROWS_HR(helper.HandleGet(L"https://microsoft.com"), APPINSTALLER_CLI_ERROR_PINNED_CERTIFICATE_MISMATCH);
+    REQUIRE_THROWS_HR(helper.HandleGet(L"https://github.com"), APPINSTALLER_CLI_ERROR_PINNED_CERTIFICATE_MISMATCH);
 }

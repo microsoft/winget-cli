@@ -180,28 +180,19 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0
             std::vector<VersionInfo> versions;
             for (auto& manifestVersion : manifests)
             {
-                std::vector<std::string> packageFamilyNames;
-                std::vector<std::string> productCodes;
-
-                for (auto& installer : manifestVersion.Installers)
-                {
-                    if (!installer.PackageFamilyName.empty())
-                    {
-                        packageFamilyNames.emplace_back(installer.PackageFamilyName);
-                    }
-
-                    if (!installer.ProductCode.empty())
-                    {
-                        productCodes.emplace_back(installer.ProductCode);
-                    }
-                }
-
-                std::vector<std::string> uniquePackageFamilyNames = RestHelper::GetUniqueItems(packageFamilyNames);
-                std::vector<std::string> uniqueProductCodes = RestHelper::GetUniqueItems(productCodes);
+                auto packageFamilyNames = manifestVersion.GetPackageFamilyNames();
+                auto productCodes = manifestVersion.GetProductCodes();
+                auto arpVersionRange = manifestVersion.GetArpVersionRange();
+                auto upgradeCodes = manifestVersion.GetUpgradeCodes();
 
                 versions.emplace_back(
-                    VersionInfo{ AppInstaller::Utility::VersionAndChannel {manifestVersion.Version, manifestVersion.Channel},
-                    manifestVersion, std::move(uniquePackageFamilyNames), std::move(uniqueProductCodes) });
+                    VersionInfo{
+                        AppInstaller::Utility::VersionAndChannel {manifestVersion.Version, manifestVersion.Channel},
+                        manifestVersion,
+                        std::vector<std::string>{ packageFamilyNames.begin(), packageFamilyNames.end()},
+                        std::vector<std::string>{ productCodes.begin(), productCodes.end()},
+                        arpVersionRange.IsEmpty() ? std::vector<Utility::Version>{} : std::vector<Utility::Version>{ arpVersionRange.GetMinVersion(), arpVersionRange.GetMaxVersion() },
+                        std::vector<std::string>{ upgradeCodes.begin(), upgradeCodes.end()} });
             }
 
             Package package = Package{ std::move(packageInfo), std::move(versions) };

@@ -9,9 +9,10 @@
 #include <winhttp.h>
 #include <Shlwapi.h>
 #include <Shlobj.h>
+#include <msi.h>
 
 #pragma warning( push )
-#pragma warning ( disable : 6001 6340 6387 6388 28196 )
+#pragma warning ( disable : 6001 6340 6387 6388 26495 28196 )
 #include <wil/filesystem.h>
 #include <wil/resource.h>
 #include <wil/result.h>
