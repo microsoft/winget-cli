@@ -12,6 +12,7 @@
 #include <winget/ManifestYamlParser.h>
 #include <winget/PathVariable.h>
 #include <Resources.h>
+#include <AppInstallerRuntime.h>
 
 using namespace winrt::Windows::Foundation;
 using namespace winrt::Windows::Management::Deployment;
@@ -209,26 +210,68 @@ TEST_CASE("DependencyNodeProcessor_NoMatches", "[dependencies]")
     REQUIRE(result == DependencyNodeProcessorResult::Error);
 }
 
-#pragma warning( push )
-#pragma warning( disable : 4996)
-TEST_CASE("RefreshEnvironmentVariable", "[dependencies]")
+std::string GetCurrentProcessPathVariable()
 {
-    std::string testPathValue = "testPathValue";
+    size_t requiredSize;
+    getenv_s(&requiredSize, nullptr, 0, "PATH");
+
+    if (requiredSize > 0)
+    {
+        char* buffer = new char[requiredSize];
+        errno_t errorResult = getenv_s(&requiredSize, buffer, requiredSize, "PATH");
+        if (errorResult == 0)
+        {
+            return std::string(buffer);
+        }
+
+        delete[] buffer;
+    }
+
+    return {};
+}
+
+TEST_CASE("RefreshEnvironmentVariable_User", "[dependencies]")
+{
+    std::string testPathEntry = "testPathValue";
     auto pathVariable = AppInstaller::Registry::Environment::PathVariable(ScopeEnum::User);
-    pathVariable.Append(testPathValue);
+    pathVariable.Append(testPathEntry);
 
-    std::string envValue = std::string(getenv("PATH"));
-    bool firstCheck = envValue.find(testPathValue) != std::string::npos;
+    std::string initialPathValue = GetCurrentProcessPathVariable();
+    bool firstCheck = initialPathValue.find(testPathEntry) != std::string::npos;
 
-    AppInstaller::Registry::Environment::RefreshPathVariable();
+    AppInstaller::Registry::Environment::RefreshPathVariableForCurrentProcess();
 
-    std::string envValue2 = std::string(getenv("PATH"));
+    std::string updatedPathValue = GetCurrentProcessPathVariable();
+    bool secondCheck = updatedPathValue.find(testPathEntry) != std::string::npos;
 
-    bool secondCheck = envValue2.find(testPathValue) != std::string::npos;
-
-    pathVariable.Remove(testPathValue);
+    pathVariable.Remove(testPathEntry);
 
     REQUIRE_FALSE(firstCheck);
     REQUIRE(secondCheck);
 }
-#pragma warning( pop )
+
+TEST_CASE("RefreshEnvironmentVariable_System", "[dependencies]")
+{
+    if (!AppInstaller::Runtime::IsRunningAsAdmin())
+    {
+        WARN("Test requires admin privilege. Skipped.");
+        return;
+    }
+
+    std::string testPathEntry = "testPathValue";
+    auto pathVariable = AppInstaller::Registry::Environment::PathVariable(ScopeEnum::Machine);
+    pathVariable.Append(testPathEntry);
+
+    std::string initialPathValue = GetCurrentProcessPathVariable();
+    bool firstCheck = initialPathValue.find(testPathEntry) != std::string::npos;
+
+    AppInstaller::Registry::Environment::RefreshPathVariableForCurrentProcess();
+
+    std::string updatedPathValue = GetCurrentProcessPathVariable();
+    bool secondCheck = updatedPathValue.find(testPathEntry) != std::string::npos;
+
+    pathVariable.Remove(testPathEntry);
+
+    REQUIRE_FALSE(firstCheck);
+    REQUIRE(secondCheck);
+}

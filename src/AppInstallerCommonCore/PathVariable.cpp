@@ -96,9 +96,9 @@ namespace AppInstaller::Registry::Environment
         m_key.SetValue(pathName, ConvertToUTF16(value), REG_EXPAND_SZ);
     }
 
-    void RefreshPathVariable()
+    void RefreshPathVariableForCurrentProcess()
     {
-        const auto& pathVariableValue = PathVariable(Manifest::ScopeEnum::User, true).GetPathValue() + PathVariable(Manifest::ScopeEnum::Machine, true).GetPathValue();
-        THROW_HR_IF(E_UNEXPECTED, _putenv_s("PATH", pathVariableValue.c_str()) != 0);
+        const auto& pathValue = PathVariable(Manifest::ScopeEnum::User, true).GetPathValue() + PathVariable(Manifest::ScopeEnum::Machine, true).GetPathValue();
+        THROW_HR_IF(E_UNEXPECTED, _putenv_s("PATH", pathValue.c_str()) != 0);
     }
 }

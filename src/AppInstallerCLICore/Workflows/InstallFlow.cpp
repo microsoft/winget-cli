@@ -629,13 +629,13 @@ namespace AppInstaller::CLI::Workflow
                 installContext <<
                     Workflow::DownloadInstaller <<
                     Workflow::InstallPackageInstaller;
-
-                RefreshPathVariable();
             }
             catch (...)
             {
                 installContext.SetTerminationHR(Workflow::HandleException(installContext, std::current_exception()));
             }
+
+            RefreshPathVariableForCurrentProcess();
 
             installContext.Reporter.Info() << std::endl;
 

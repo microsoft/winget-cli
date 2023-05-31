@@ -6,7 +6,7 @@
 
 namespace AppInstaller::Registry::Environment
 {
-    void RefreshPathVariable();
+    void RefreshPathVariableForCurrentProcess();
 
     struct PathVariable
     {

@@ -7,6 +7,7 @@
 namespace AppInstallerCLIE2ETests
 {
     using System.IO;
+    using System.IO.Packaging;
     using NUnit.Framework;
 
     /// <summary>
@@ -20,6 +21,7 @@ namespace AppInstallerCLIE2ETests
         [OneTimeSetUp]
         public void OneTimeSetup()
         {
+            WinGetSettingsHelper.ConfigureFeature("dependencies", true);
             WinGetSettingsHelper.ConfigureFeature("windowsFeature", true);
         }
 
@@ -645,6 +647,23 @@ namespace AppInstallerCLIE2ETests
             var installResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.WindowsFeature --silent --force -l {testDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, installResult.ExitCode);
             Assert.True(installResult.StdOut.Contains("Successfully installed"));
+            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(testDir));
+        }
+
+        /// <summary>
+        /// Test install a package with a Package dependency that requires the PATH environment variable to be refreshed between dependency installs.
+        /// </summary>
+        [Test]
+        public void InstallWithPackageDependency_RefreshPathVariable()
+        {
+            var testDir = TestCommon.GetRandomTestDir();
+            var installResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.PackageDependencies -l {testDir}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, installResult.ExitCode);
+            Assert.True(installResult.StdOut.Contains("Successfully installed"));
+
+            var portablePackageId = "AppInstallerTest.TestPortableExeWithCommand";
+            var productCode = portablePackageId + "_" + Constants.TestSourceIdentifier;
+            TestCommon.VerifyPortablePackage(testDir, "testCommand", "AppInstallerTestExeInstaller.exe", productCode, true);
             Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(testDir));
         }
     }

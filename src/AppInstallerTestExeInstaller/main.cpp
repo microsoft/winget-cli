@@ -145,6 +145,8 @@ int wmain(int argc, const wchar_t** argv)
     std::wstring productCode;
     std::wstring displayName;
     std::wstring displayVersion;
+    std::wstring aliasToExecute;
+    std::wstring aliasArguments;
     bool useHKLM = false;
     int exitCode = 0;
 
@@ -221,6 +223,51 @@ int wmain(int argc, const wchar_t** argv)
         else if (_wcsicmp(argv[i], L"/UseHKLM") == 0)
         {
             useHKLM = true;
+        }
+
+        // Executes a command alias during installation
+        else if (_wcsicmp(argv[i], L"/AliasToExecute") == 0)
+        {
+            if (++i < argc)
+            {
+                aliasToExecute = argv[i];
+                outContent << argv[i] << ' ';
+            }
+        }
+
+        // Additional arguments to include when executing the command alias during installation
+        else if (_wcsicmp(argv[i], L"/AliasArguments") == 0)
+        {
+            if (++i < argc)
+            {
+                aliasArguments = argv[i];
+                outContent << argv[i] << ' ';
+            }
+        }
+
+        // Returns the success exit code to emulate being invoked by another caller.
+        else if (_wcsicmp(argv[i], L"/NoOperation") == 0)
+        {
+            return exitCode;
+        }
+    }
+
+    if (!aliasToExecute.empty())
+    {
+        SHELLEXECUTEINFOW execInfo = { 0 };
+        execInfo.cbSize = sizeof(execInfo);
+        execInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
+        execInfo.lpFile = aliasToExecute.c_str();
+        
+        if (!aliasArguments.empty())
+        {
+            execInfo.lpParameters = aliasArguments.c_str();
+        }
+        execInfo.nShow = SW_SHOW;
+
+        if (!ShellExecuteExW(&execInfo) || !execInfo.hProcess)
+        {
+            return -1;
         }
     }
 
