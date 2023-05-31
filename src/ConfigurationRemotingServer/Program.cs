@@ -19,16 +19,7 @@ namespace ConfigurationRemotingServer
                 ulong completionEventHandle = ulong.Parse(args[2]);
                 ulong parentProcessHandle = ulong.Parse(args[3]);
 
-                // Assume that the additional modules path is a sibling directory to the one containing this binary
-                string assemblyDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? throw new InvalidDataException();
-                string rootDirectory = Path.GetDirectoryName(assemblyDirectory) ?? throw new InvalidDataException(); ;
-                string modulesPath = Path.Combine(rootDirectory, "ExternalModules");
-
                 PowerShellConfigurationSetProcessorFactory factory = new PowerShellConfigurationSetProcessorFactory();
-
-                IPowerShellConfigurationProcessorFactoryProperties properties = factory.As<IPowerShellConfigurationProcessorFactoryProperties>();
-                properties.AdditionalModulePaths = new List<string>() { modulesPath };
-                properties.ProcessorType = PowerShellConfigurationProcessorType.Hosted;
 
                 IObjectReference factoryInterface = MarshalInterface<global::Microsoft.Management.Configuration.IConfigurationSetProcessorFactory>.CreateMarshaler(factory);
 

@@ -37,6 +37,9 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 
     namespace
     {
+        // The name of the directory containing additional modules.
+        constexpr std::wstring_view s_ExternalModulesName = L"ExternalModules";
+
         // The executable file name for the remote server process.
         constexpr std::wstring_view s_RemoteServerFileName = L"ConfigurationRemotingServer\\ConfigurationRemotingServer.exe";
 
@@ -69,6 +72,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 
                 // Create the event that the remote process will wait on to keep the object alive.
                 m_completionEvent.create(wil::EventOptions::None, nullptr, &securityAttributes);
+                auto completeEventIfFailureDuringConstruction = wil::scope_exit([&]() { m_completionEvent.SetEvent(); });
 
                 wil::unique_process_handle thisProcessHandle;
                 THROW_IF_WIN32_BOOL_FALSE(DuplicateHandle(GetCurrentProcess(), GetCurrentProcess(), GetCurrentProcess(), &thisProcessHandle, 0, TRUE, DUPLICATE_SAME_ACCESS));
@@ -142,7 +146,17 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 AICLI_LOG(Config, Verbose, << "... configuration processing connection established.");
                 m_remoteFactory = IConfigurationSetProcessorFactory{ output.detach(), winrt::take_ownership_from_abi };
 
-                // TODO: Move all initial factory property setting here
+                // The additional modules path is a direct child directory to the package root
+                std::filesystem::path externalModules = Runtime::GetPathTo(Runtime::PathName::SelfPackageRoot) / s_ExternalModulesName;
+                THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_PATH_NOT_FOUND), !std::filesystem::is_directory(externalModules));
+                m_internalAdditionalModulePaths.emplace_back(externalModules.wstring());
+                m_remoteAdditionalModulePaths = winrt::single_threaded_vector<winrt::hstring>(std::vector<winrt::hstring>{ m_internalAdditionalModulePaths });
+
+                auto properties = m_remoteFactory.as<Processor::IPowerShellConfigurationProcessorFactoryProperties>();
+                properties.AdditionalModulePaths(m_remoteAdditionalModulePaths.GetView());
+                properties.ProcessorType(Processor::PowerShellConfigurationProcessorType::Hosted);
+
+                completeEventIfFailureDuringConstruction.release();
             }
 
             ~RemoteFactory()
@@ -188,7 +202,7 @@ namespace AppInstaller::CLI::ConfigurationRemoting
 
                 // Combine with our own values
                 std::vector<winrt::hstring> newRemotePaths{ newModulePaths };
-                // TODO: Append the values that we have already
+                newRemotePaths.insert(newRemotePaths.end(), m_internalAdditionalModulePaths.begin(), m_internalAdditionalModulePaths.end());
 
                 // Apply the new combined paths and pass to remote factory
                 m_remoteAdditionalModulePaths = winrt::single_threaded_vector<winrt::hstring>(std::move(newRemotePaths));

@@ -300,6 +300,7 @@ pcb
 PCCERT
 PCs
 pcwsz
+PDWORD
 PEGI
 PFM
 pfn
