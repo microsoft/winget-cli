@@ -91,6 +91,8 @@ Installed packages should still be mapped to `PackageVersion`, which will allow 
 
 `MarketingVersion` will allow for packages which use non-semantic versions to have a semantic `PackageVersion` while retaining the non-semantic mapping for `DisplayVersion` and consumer-facing version messages.
 
+Tab Completion should continue to reference the Package Version.
+
 ### Accessibility
 
 The Windows Package Manager has been built in such a way that screen readers will still provide audible output as the command is executed keeping the user informed of progress, warnings, and errors. This should have no direct impact on accessibility.
