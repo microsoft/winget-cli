@@ -4,11 +4,15 @@
 #include "winget/SelfManagement.h"
 #include "AppInstallerRuntime.h"
 
-using namespace winrt::Windows::Management::Deployment;
-using namespace winrt::Windows::Services::Store;
-
 namespace AppInstaller::SelfManagement
 {
+    using namespace std::string_view_literals;
+    using namespace winrt::Windows::Management::Deployment;
+    using namespace winrt::Windows::Services::Store;
+
+    // Always use AppInstaller's package family name even for wingetdev
+    static constexpr std::wstring_view s_AppInstallerPfn = L"Microsoft.DesktopAppInstaller_8wekyb3d8bbwe"sv;
+
     bool IsStubPreferenceSupported()
     {
         if (!Runtime::IsRunningInPackagedContext())
@@ -29,7 +33,7 @@ namespace AppInstaller::SelfManagement
 
     bool IsStubPreferred()
     {
-        winrt::hstring packageFamilyName{ Runtime::GetPackageFamilyName() };
+        winrt::hstring packageFamilyName{ s_AppInstallerPfn };
         if (packageFamilyName.empty())
         {
             return false;
@@ -51,7 +55,7 @@ namespace AppInstaller::SelfManagement
 
     void SetStubPreferred(bool preferStub)
     {
-        winrt::hstring packageFamilyName{ Runtime::GetPackageFamilyName() };
+        winrt::hstring packageFamilyName{ s_AppInstallerPfn };
         THROW_HR_IF(HRESULT_FROM_WIN32(APPMODEL_ERROR_NO_PACKAGE), packageFamilyName.empty());
 
         PackageManager packageManager;

@@ -357,6 +357,7 @@
     <ClInclude Include="Commands\InstallCommand.h" />
     <ClInclude Include="Commands\RootCommand.h" />
     <ClInclude Include="Commands\SourceCommand.h" />
+    <ClInclude Include="Commands\StubCommand.h" />
     <ClInclude Include="Commands\UninstallCommand.h" />
     <ClInclude Include="Commands\UpgradeCommand.h" />
     <ClInclude Include="Commands\ValidateCommand.h" />
@@ -399,6 +400,7 @@
     <ClInclude Include="Workflows\ManifestComparator.h" />
     <ClInclude Include="Workflows\ShowFlow.h" />
     <ClInclude Include="Workflows\SourceFlow.h" />
+    <ClInclude Include="Workflows\StubFlow.h" />
     <ClInclude Include="Workflows\UninstallFlow.h" />
     <ClInclude Include="Workflows\UpdateFlow.h" />
     <ClInclude Include="Workflows\WorkflowBase.h" />
@@ -412,6 +414,7 @@
     <ClCompile Include="Commands\ConfigureValidateCommand.cpp" />
     <ClCompile Include="Commands\ImportCommand.cpp" />
     <ClCompile Include="Commands\PinCommand.cpp" />
+    <ClCompile Include="Commands\StubCommand.cpp" />
     <ClCompile Include="ConfigurationContext.cpp" />
     <ClCompile Include="ConfigurationSetProcessorFactoryRemoting.cpp" />
     <ClCompile Include="ContextOrchestrator.cpp" />
@@ -464,6 +467,7 @@
     <ClCompile Include="Workflows\ManifestComparator.cpp" />
     <ClCompile Include="Workflows\ShowFlow.cpp" />
     <ClCompile Include="Workflows\SourceFlow.cpp" />
+    <ClCompile Include="Workflows\StubFlow.cpp" />
     <ClCompile Include="Workflows\UninstallFlow.cpp" />
     <ClCompile Include="Workflows\UpdateFlow.cpp" />
     <ClCompile Include="Workflows\WorkflowBase.cpp" />

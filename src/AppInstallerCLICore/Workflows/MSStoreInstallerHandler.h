@@ -20,6 +20,12 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void MSStoreUpdate(Execution::Context& context);
 
+    // Updates AppInstaller if applicable.
+    // Required Args: None
+    // Inputs: None
+    // Outputs: None
+    void AppInstallerUpdate(Execution::Context& context);
+
     // Ensure the Store app is not blocked by policy.
     // Required Args: None
     // Inputs: Installer

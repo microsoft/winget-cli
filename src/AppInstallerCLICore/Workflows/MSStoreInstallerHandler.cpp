@@ -12,6 +12,8 @@ namespace AppInstaller::CLI::Workflow
     using namespace winrt::Windows::Foundation::Collections;
     using namespace winrt::Windows::ApplicationModel::Store::Preview::InstallControl;
 
+    static constexpr std::wstring_view s_AppInstallerProductId = L"9NBLGGH4NNS1"sv;
+
     namespace
     {
         HRESULT WaitForMSStoreOperation(Execution::Context& context, IVectorView<AppInstallItem>& installItems)
@@ -87,11 +89,11 @@ namespace AppInstaller::CLI::Workflow
             Device,
         };
 
-        EntitlementType EnsureFreeEntitlement(Execution::Context& context, const std::wstring& productId)
+        EntitlementType EnsureFreeEntitlement(Execution::Context& context, const std::wstring& productId, Manifest::ScopeEnum scope)
         {
             AppInstallManager installManager;
 
-            AICLI_LOG(CLI, Error, << "Getting entitlement for ProductId: " << Utility::ConvertToUTF8(productId));
+            AICLI_LOG(CLI, Info, << "Getting entitlement for ProductId: " << Utility::ConvertToUTF8(productId));
 
             // Verifying/Acquiring product ownership
             context.Reporter.Info() << Resource::String::MSStoreInstallTryGetEntitlement << std::endl;
@@ -99,7 +101,7 @@ namespace AppInstaller::CLI::Workflow
             GetEntitlementResult entitlementResult{ nullptr };
             EntitlementType result = EntitlementType::None;
 
-            if (Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope)) == Manifest::ScopeEnum::Machine)
+            if (scope == Manifest::ScopeEnum::Machine)
             {
                 AICLI_LOG(CLI, Info, << "Get device entitlement (machine scope install).");
                 result = EntitlementType::Device;
@@ -160,21 +162,68 @@ namespace AppInstaller::CLI::Workflow
 
             return result;
         }
-    }
 
-    Utility::LocIndString GetErrorCodeString(const HRESULT errorCode)
-    {
-        std::ostringstream ssError;
-        ssError << WINGET_OSTREAM_FORMAT_HRESULT(errorCode);
-        return Utility::LocIndString{ ssError.str() };
+        Utility::LocIndString GetErrorCodeString(const HRESULT errorCode)
+        {
+            std::ostringstream ssError;
+            ssError << WINGET_OSTREAM_FORMAT_HRESULT(errorCode);
+            return Utility::LocIndString{ ssError.str() };
+        }
+
+        void MSStoreUpdateImpl(Execution::Context& context, const std::wstring& productId, Manifest::ScopeEnum scope, bool force)
+        {
+            // Best effort verifying/acquiring product ownership.
+            std::ignore = EnsureFreeEntitlement(context, productId, scope);
+
+            AppInstallManager installManager;
+            AppUpdateOptions updateOptions;
+            updateOptions.AllowForcedAppRestart(force);
+
+            context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
+
+            // SearchForUpdateAsync will automatically trigger update if found.
+            AppInstallItem installItem =  installManager.SearchForUpdatesAsync(
+                productId,          // ProductId
+                winrt::hstring(),   // SkuId
+                winrt::hstring(),
+                winrt::hstring(),   // ClientId
+                updateOptions
+            ).get();
+
+            if (!installItem)
+            {
+                context.Reporter.Info() << Resource::String::UpdateNotApplicable << std::endl
+                    << Resource::String::UpdateNotApplicableReason << std::endl;
+                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
+            }
+
+            std::vector<AppInstallItem> installItemVector{ installItem };
+            IVectorView<AppInstallItem> installItems = winrt::single_threaded_vector(std::move(installItemVector)).GetView();
+
+            HRESULT errorCode = WaitForMSStoreOperation(context, installItems);
+
+            if (SUCCEEDED(errorCode))
+            {
+                context.Reporter.Info() << Resource::String::InstallFlowInstallSuccess << std::endl;
+            }
+            else
+            {
+                auto errorCodeString = GetErrorCodeString(errorCode);
+                context.Reporter.Info() << Resource::String::MSStoreInstallOrUpdateFailed(errorCodeString) << std::endl;
+                context.Add<Execution::Data::OperationReturnCode>(errorCode);
+                AICLI_LOG(CLI, Error, << "MSStore execution failed. ProductId: " << Utility::ConvertToUTF8(productId) << " HResult: " << errorCodeString);
+                AICLI_TERMINATE_CONTEXT(errorCode);
+            }
+        }
     }
 
     void MSStoreInstall(Execution::Context& context)
     {
         auto productId = Utility::ConvertToUTF16(context.Get<Execution::Data::Installer>()->ProductId);
+        auto scope = Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
 
         // Best effort verifying/acquiring product ownership.
-        std::ignore = EnsureFreeEntitlement(context, productId);
+        std::ignore = EnsureFreeEntitlement(context, productId, scope);
 
         AppInstallManager installManager;
         AppInstallOptions installOptions;
@@ -229,48 +278,14 @@ namespace AppInstaller::CLI::Workflow
     void MSStoreUpdate(Execution::Context& context)
     {
         auto productId = Utility::ConvertToUTF16(context.Get<Execution::Data::Installer>()->ProductId);
+        auto scope = Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
+        MSStoreUpdateImpl(context, productId, scope, false);
+    }
 
-        // Best effort verifying/acquiring product ownership.
-        std::ignore = EnsureFreeEntitlement(context, productId);
-
-        AppInstallManager installManager;
-        AppUpdateOptions updateOptions;
-
-        context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
-
-        // SearchForUpdateAsync will automatically trigger update if found.
-        AppInstallItem installItem = installManager.SearchForUpdatesAsync(
-            productId,          // ProductId
-            winrt::hstring(),   // SkuId
-            winrt::hstring(),
-            winrt::hstring(),   // ClientId
-            updateOptions
-        ).get();
-
-        if (!installItem)
-        {
-            context.Reporter.Info() << Resource::String::UpdateNotApplicable << std::endl
-                << Resource::String::UpdateNotApplicableReason << std::endl;
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
-        }
-
-        std::vector<AppInstallItem> installItemVector{ installItem };
-        IVectorView<AppInstallItem> installItems = winrt::single_threaded_vector(std::move(installItemVector)).GetView();
-
-        HRESULT errorCode = WaitForMSStoreOperation(context, installItems);
-
-        if (SUCCEEDED(errorCode))
-        {
-            context.Reporter.Info() << Resource::String::InstallFlowInstallSuccess << std::endl;
-        }
-        else
-        {
-            auto errorCodeString = GetErrorCodeString(errorCode);
-            context.Reporter.Info() << Resource::String::MSStoreInstallOrUpdateFailed(errorCodeString) << std::endl;
-            context.Add<Execution::Data::OperationReturnCode>(errorCode);
-            AICLI_LOG(CLI, Error, << "MSStore execution failed. ProductId: " << Utility::ConvertToUTF8(productId) << " HResult: " << errorCodeString);
-            AICLI_TERMINATE_CONTEXT(errorCode);
-        }
+    void AppInstallerUpdate(Execution::Context& context)
+    {
+        // TODO: machine?
+        MSStoreUpdateImpl(context, std::wstring{ s_AppInstallerProductId }, Manifest::ScopeEnum::User, true);
     }
 
     void EnsureStorePolicySatisfied(Execution::Context& context)

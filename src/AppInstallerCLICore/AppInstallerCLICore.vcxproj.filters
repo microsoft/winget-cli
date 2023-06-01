@@ -218,6 +218,12 @@
     <ClInclude Include="ConfigurationSetProcessorFactoryRemoting.h">
       <Filter>Workflows</Filter>
     </ClInclude>
+    <ClInclude Include="Commands\StubCommand.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="Workflows\StubFlow.h">
+      <Filter>Workflows</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -401,6 +407,12 @@
       <Filter>Workflows</Filter>
     </ClCompile>
     <ClCompile Include="ConfigurationSetProcessorFactoryRemoting.cpp">
+      <Filter>Workflows</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\StubCommand.cpp">
+      <Filter>Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="Workflows\StubFlow.cpp">
       <Filter>Workflows</Filter>
     </ClCompile>
   </ItemGroup>

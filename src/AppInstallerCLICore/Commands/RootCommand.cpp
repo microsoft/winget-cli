@@ -21,6 +21,7 @@
 #include "ImportCommand.h"
 #include "PinCommand.h"
 #include "ConfigureCommand.h"
+#include "StubCommand.h"
 
 #include "Resources.h"
 #include "TableOutput.h"
@@ -175,6 +176,7 @@ namespace AppInstaller::CLI
             std::make_unique<ImportCommand>(FullName()),
             std::make_unique<PinCommand>(FullName()),
             std::make_unique<ConfigureCommand>(FullName()),
+            std::make_unique<StubCommand>(FullName()),
         });
     }
 
