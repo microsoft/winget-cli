@@ -5,6 +5,8 @@
 
 namespace AppInstaller::SelfManagement
 {
+    // All these methods apply to AppInstaller, not WinGetCLIDev.
+
     // Gets a value indicating whether the current process/system supports
     // stub preference or not.
     bool IsStubPreferenceSupported();
@@ -19,4 +21,7 @@ namespace AppInstaller::SelfManagement
     // It is an error to set the preference if the process is not packaged,
     // or the preference can otherwise not be set (older version of Windows).
     void SetStubPreferred(bool preferStub);
+
+    // Gets a value indicating whether the current package is the stub package.
+    bool IsStubPackage();
 }

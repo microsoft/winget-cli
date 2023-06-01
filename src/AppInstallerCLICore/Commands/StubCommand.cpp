@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "StubCommand.h"
-#include "Workflows/StubFlow.h"
 #include "Workflows/MSStoreInstallerHandler.h"
+#include "Workflows/WorkflowBase.h"
 
 
 namespace AppInstaller::CLI
@@ -41,7 +41,10 @@ namespace AppInstaller::CLI
 
     void StubCommand::ExecuteInternal(Execution::Context& context) const
     {
-        OutputHelp(context.Reporter);
+        context <<
+            Workflow::VerifyStubSupport <<
+            Workflow::EnsureRunningAsAdmin <<
+            Workflow::AppInstallerStatus;
     }
 
     // StubEnableCommand
@@ -64,8 +67,8 @@ namespace AppInstaller::CLI
     {
         context <<
             Workflow::VerifyStubSupport <<
-            Workflow::AppInstallerStubPreferred <<
-            Workflow::AppInstallerUpdate;
+            Workflow::EnsureRunningAsAdmin <<
+            Workflow::AppInstallerInstallStubPackage;
     }
 
     // StubDisableCommand
@@ -88,7 +91,7 @@ namespace AppInstaller::CLI
     {
         context <<
             Workflow::VerifyStubSupport <<
-            Workflow::AppInstallerFullPreferred <<
-            Workflow::AppInstallerUpdate;
+            Workflow::EnsureRunningAsAdmin <<
+            Workflow::AppInstallerInstallFullPackage;
     }
 }

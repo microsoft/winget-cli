@@ -4,9 +4,15 @@
 #include "MSStoreInstallerHandler.h"
 #include <winget/ManifestCommon.h>
 #include <winget/Runtime.h>
+#include <winget/SelfManagement.h>
 
 namespace AppInstaller::CLI::Workflow
 {
+    using namespace AppInstaller::SelfManagement;
+
+    // TODO: take out
+    using namespace AppInstaller::Utility::literals;
+
     using namespace std::string_view_literals;
     using namespace winrt::Windows::Foundation;
     using namespace winrt::Windows::Foundation::Collections;
@@ -215,6 +221,12 @@ namespace AppInstaller::CLI::Workflow
                 AICLI_TERMINATE_CONTEXT(errorCode);
             }
         }
+
+        void AppInstallerUpdate(Execution::Context& context)
+        {
+            // TODO: machine?
+            MSStoreUpdateImpl(context, std::wstring{ s_AppInstallerProductId }, Manifest::ScopeEnum::User, true);
+        }
     }
 
     void MSStoreInstall(Execution::Context& context)
@@ -282,12 +294,6 @@ namespace AppInstaller::CLI::Workflow
         MSStoreUpdateImpl(context, productId, scope, false);
     }
 
-    void AppInstallerUpdate(Execution::Context& context)
-    {
-        // TODO: machine?
-        MSStoreUpdateImpl(context, std::wstring{ s_AppInstallerProductId }, Manifest::ScopeEnum::User, true);
-    }
-
     void EnsureStorePolicySatisfied(Execution::Context& context)
     {
         auto productId = Utility::ConvertToUTF16(context.Get<Execution::Data::Installer>()->ProductId);
@@ -310,6 +316,62 @@ namespace AppInstaller::CLI::Workflow
             context.Reporter.Error() << Resource::String::MSStoreAppBlocked << std::endl;
             AICLI_LOG(CLI, Error, << "App is blocked by policy. MSStore execution failed. ProductId: " << Utility::ConvertToUTF8(productId));
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_MSSTORE_APP_BLOCKED_BY_POLICY);
+        }
+    }
+
+    void VerifyStubSupport(Execution::Context& context)
+    {
+        if (!IsStubPreferenceSupported())
+        {
+            // TODO
+            context.Reporter.Warn() << "Not supported"_liv << std::endl;
+            AICLI_TERMINATE_CONTEXT(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
+        }
+    }
+
+    void AppInstallerStatus(Execution::Context& context)
+    {
+        if (IsStubPackage())
+        {
+            // TODO
+            context.Reporter.Info() << "Stub package"_liv << std::endl;
+        }
+        else
+        {
+            // TODO
+            context.Reporter.Info() << "Full package"_liv << std::endl;
+        }
+    }
+
+    void AppInstallerInstallStubPackage(Execution::Context& context)
+    {
+        if (IsStubPackage())
+        {
+            // TODO
+            context.Reporter.Info() << "Already the stub package"_liv << std::endl;
+        }
+        else
+        {
+            SetStubPreferred(true);
+            // TODO
+            context.Reporter.Info() << "Installing stub package"_liv << std::endl;
+            AppInstallerUpdate(context);
+        }
+    }
+
+    void AppInstallerInstallFullPackage(Execution::Context& context)
+    {
+        if (!IsStubPackage())
+        {
+            // TODO
+            context.Reporter.Info() << "Already the full package"_liv << std::endl;
+        }
+        else
+        {
+            SetStubPreferred(false);
+            // TODO
+            context.Reporter.Info() << "Installing full package"_liv << std::endl;
+            AppInstallerUpdate(context);
         }
     }
 }
