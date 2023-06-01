@@ -7,7 +7,7 @@
   <Identity Name="WingetE2E.Tests"
             ProcessorArchitecture="neutral"
             Publisher="CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"
-            Version="2022.805.713.335" />
+            Version="2020.805.713.335" />
 
   <!-- Commit in which this package was based on 0563b4dd28f58985a8e60762ede9824f1b7ea310-->
 
