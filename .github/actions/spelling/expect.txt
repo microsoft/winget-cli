@@ -322,6 +322,7 @@ PSHOST
 psobject
 ptstr
 publickey
+putenv
 pvk
 pvm
 pwabuilder

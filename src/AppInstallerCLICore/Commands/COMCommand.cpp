@@ -23,8 +23,7 @@ namespace AppInstaller::CLI
             Workflow::SelectInstaller <<
             Workflow::EnsureApplicableInstaller <<
             Workflow::ReportIdentityAndInstallationDisclaimer <<
-            Workflow::ShowPromptsForSinglePackage(/* ensureAcceptance */ true) << // Dependencies has been removed from this flow, is that okay?
-        // Workflow::InstallDependencies <<
+            Workflow::ShowPromptsForSinglePackage(/* ensureAcceptance */ true) <<
             Workflow::DownloadInstaller;
     }
 

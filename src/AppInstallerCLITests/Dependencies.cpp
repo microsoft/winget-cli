@@ -232,7 +232,7 @@ std::string GetCurrentProcessPathVariable()
 
 TEST_CASE("RefreshEnvironmentVariable_User", "[dependencies]")
 {
-    std::string testPathEntry = "testPathValue";
+    std::string testPathEntry = "testUserPathEntry";
     auto pathVariable = AppInstaller::Registry::Environment::PathVariable(ScopeEnum::User);
     pathVariable.Append(testPathEntry);
 
@@ -258,7 +258,7 @@ TEST_CASE("RefreshEnvironmentVariable_System", "[dependencies]")
         return;
     }
 
-    std::string testPathEntry = "testPathValue";
+    std::string testPathEntry = "testSystemPathEntry";
     auto pathVariable = AppInstaller::Registry::Environment::PathVariable(ScopeEnum::Machine);
     pathVariable.Append(testPathEntry);
 
