@@ -36,6 +36,10 @@ namespace AppInstaller::CLI::Workflow
 
     void ReportDependencies::operator()(Execution::Context& context) const
     {
+        if (!Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
+        {
+            return;
+        }
         auto info = context.Reporter.Info();
 
         const auto& dependencies = context.Get<Execution::Data::Dependencies>();
@@ -94,10 +98,13 @@ namespace AppInstaller::CLI::Workflow
 
     void GetDependenciesFromInstaller(Execution::Context& context)
     {
-        const auto& installer = context.Get<Execution::Data::Installer>();
-        if (installer)
+        if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
         {
-            context.Add<Execution::Data::Dependencies>(installer->Dependencies);
+            const auto& installer = context.Get<Execution::Data::Installer>();
+            if (installer)
+            {
+                context.Add<Execution::Data::Dependencies>(installer->Dependencies);
+            }
         }
     }
 
@@ -228,6 +235,11 @@ namespace AppInstaller::CLI::Workflow
 
     void ManagePackageDependencies::operator()(Execution::Context& context) const
     {
+        if (!Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
+        {
+            return;
+        }
+
         auto info = context.Reporter.Info();
         auto error = context.Reporter.Error();
         const auto& rootManifest = context.Get<Execution::Data::Manifest>();

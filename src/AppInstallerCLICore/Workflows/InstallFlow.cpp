@@ -544,17 +544,6 @@ namespace AppInstaller::CLI::Workflow
 
     void InstallDependencies(Execution::Context& context)
     {
-        if (!Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
-        {
-            return;
-        }
-
-        if (Settings::User().Get<Settings::Setting::InstallIgnoreDependencies>() || context.Args.Contains(Execution::Args::Type::SkipDependencies))
-        {
-            context.Reporter.Warn() << Resource::String::SkippingDependenciesMessage << std::endl;
-            return;
-        }
-
         context <<
             Workflow::GetDependenciesFromInstaller <<
             Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
