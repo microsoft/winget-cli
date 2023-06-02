@@ -26,18 +26,6 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void EnsureStorePolicySatisfied(Execution::Context& context);
 
-    // Verifies windows supports stub packages.
-    // Required Args: None
-    // Inputs: None
-    // Outputs: None
-    void VerifyStubSupport(Execution::Context& context);
-
-    // Prints out if the AppInstaller package is the stub or a the full package.
-    // Required Args: None
-    // Inputs: None
-    // Outputs: None
-    void AppInstallerStatus(Execution::Context& context);
-
     // Sets the stub package option to stub and installs stub package if needed.
     // Required Args: None
     // Inputs: None

@@ -357,7 +357,6 @@
     <ClInclude Include="Commands\InstallCommand.h" />
     <ClInclude Include="Commands\RootCommand.h" />
     <ClInclude Include="Commands\SourceCommand.h" />
-    <ClInclude Include="Commands\StubCommand.h" />
     <ClInclude Include="Commands\UninstallCommand.h" />
     <ClInclude Include="Commands\UpgradeCommand.h" />
     <ClInclude Include="Commands\ValidateCommand.h" />
@@ -413,7 +412,6 @@
     <ClCompile Include="Commands\ConfigureValidateCommand.cpp" />
     <ClCompile Include="Commands\ImportCommand.cpp" />
     <ClCompile Include="Commands\PinCommand.cpp" />
-    <ClCompile Include="Commands\StubCommand.cpp" />
     <ClCompile Include="ConfigurationContext.cpp" />
     <ClCompile Include="ConfigurationSetProcessorFactoryRemoting.cpp" />
     <ClCompile Include="ContextOrchestrator.cpp" />

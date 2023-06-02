@@ -222,9 +222,9 @@ namespace AppInstaller::CLI::Workflow
             }
         }
 
-        void AppInstallerUpdate(Execution::Context& context)
+        void AppInstallerUpdate(Execution::Context& context, bool preferStub)
         {
-            // TODO: machine?
+            SetStubPreferred(preferStub);
             MSStoreUpdateImpl(context, std::wstring{ s_AppInstallerProductId }, Manifest::ScopeEnum::User, true);
         }
     }
@@ -319,59 +319,15 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void VerifyStubSupport(Execution::Context& context)
-    {
-        if (!IsStubPreferenceSupported())
-        {
-            // TODO
-            context.Reporter.Warn() << "Not supported"_liv << std::endl;
-            AICLI_TERMINATE_CONTEXT(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
-        }
-    }
-
-    void AppInstallerStatus(Execution::Context& context)
-    {
-        if (IsStubPackage())
-        {
-            // TODO
-            context.Reporter.Info() << "Stub package"_liv << std::endl;
-        }
-        else
-        {
-            // TODO
-            context.Reporter.Info() << "Full package"_liv << std::endl;
-        }
-    }
-
     void AppInstallerInstallStubPackage(Execution::Context& context)
     {
-        if (IsStubPackage())
-        {
-            // TODO
-            context.Reporter.Info() << "Already the stub package"_liv << std::endl;
-        }
-        else
-        {
-            SetStubPreferred(true);
-            // TODO
-            context.Reporter.Info() << "Installing stub package"_liv << std::endl;
-            AppInstallerUpdate(context);
-        }
+        context.Reporter.Info() << Resource::String::InstallStubPackageMessage << std::endl;
+        AppInstallerUpdate(context, true);
     }
 
     void AppInstallerInstallFullPackage(Execution::Context& context)
     {
-        if (!IsStubPackage())
-        {
-            // TODO
-            context.Reporter.Info() << "Already the full package"_liv << std::endl;
-        }
-        else
-        {
-            SetStubPreferred(false);
-            // TODO
-            context.Reporter.Info() << "Installing full package"_liv << std::endl;
-            AppInstallerUpdate(context);
-        }
+        context.Reporter.Info() << Resource::String::InstallFullPackageMessage << std::endl;
+        AppInstallerUpdate(context, false);
     }
 }

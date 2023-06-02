@@ -5,12 +5,6 @@
 
 namespace AppInstaller::SelfManagement
 {
-    // All these methods apply to AppInstaller, not WinGetCLIDev.
-
-    // Gets a value indicating whether the current process/system supports
-    // stub preference or not.
-    bool IsStubPreferenceSupported();
-
     // Gets the stub preference for the current package.
     // Returns true if the package is set to prefer stubs.
     // Returns false if the package is set to prefer the full package,

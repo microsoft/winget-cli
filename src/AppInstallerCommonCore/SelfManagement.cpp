@@ -1,36 +1,21 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include "winget/ExperimentalFeature.h"
 #include "winget/SelfManagement.h"
 #include "AppInstallerRuntime.h"
 
 namespace AppInstaller::SelfManagement
 {
+    using namespace AppInstaller::Settings;
     using namespace std::string_view_literals;
     using namespace winrt::Windows::ApplicationModel;
     using namespace winrt::Windows::Management::Deployment;
     using namespace winrt::Windows::Services::Store;
 
-    // Always use AppInstaller's package family name even for wingetdev
+    // Always use AppInstaller's package family name for wingetdev
     static constexpr std::wstring_view s_AppInstallerPfn = L"Microsoft.DesktopAppInstaller_8wekyb3d8bbwe"sv;
-
-    bool IsStubPreferenceSupported()
-    {
-        if (!Runtime::IsRunningInPackagedContext())
-        {
-            return false;
-        }
-
-        PackageManager packageManager;
-        auto packageManager9 = packageManager.try_as<IPackageManager9>();
-
-        if (!packageManager9)
-        {
-            return false;
-        }
-
-        return true;
-    }
+    constexpr std::wstring_view s_RemoteServerFileName = L"ConfigurationRemotingServer\\ConfigurationRemotingServer.exe";
 
     bool IsStubPreferred()
     {
@@ -64,23 +49,8 @@ namespace AppInstaller::SelfManagement
 
     bool IsStubPackage()
     {
-        winrt::hstring packageFamilyName{ s_AppInstallerPfn };
-
-        PackageManager packageManager;
-
-        // Requires admin.
-        auto packages = packageManager.FindPackagesWithPackageTypes(packageFamilyName, PackageTypes::Main);
-        
-        THROW_HR_IF(HRESULT_FROM_WIN32(APPMODEL_ERROR_NO_PACKAGE), packages.begin() == packages.end());
-
-        auto appInstallerPackage = packages.First().Current();
-        auto package8 = appInstallerPackage.try_as<IPackage8>();
-        if (!package8)
-        {
-            // If the API isn't present, then the only option is full package.
-            return false;
-        }
-
-        return package8.IsStub();
+        // The right way to do it is to call FindPackage APIs from PackageManager, but that requires admin.
+        std::filesystem::path serverPath = Runtime::GetPathTo(Runtime::PathName::SelfPackageRoot) / s_RemoteServerFileName;
+        return !std::filesystem::exists(serverPath);
     }
 }

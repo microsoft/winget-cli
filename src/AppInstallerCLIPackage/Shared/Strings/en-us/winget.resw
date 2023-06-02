@@ -1939,4 +1939,16 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="CancellingOperation" xml:space="preserve">
     <value>Cancelling operation</value>
   </data>
+  <data name="InstallStubPackageDescription" xml:space="preserve">
+    <value>Install the stub package for AppInstaller.</value>
+  </data>
+  <data name="InstallFullPackageDescription" xml:space="preserve">
+    <value>Install the full package for AppInstaller.</value>
+  </data>
+  <data name="InstallStubPackageMessage" xml:space="preserve">
+    <value>Installing stub package for AppInstaller.</value>
+  </data>
+  <data name="InstallFullPackageMessage" xml:space="preserve">
+    <value>Installing full package for AppInstaller.</value>
+  </data>
 </root>
