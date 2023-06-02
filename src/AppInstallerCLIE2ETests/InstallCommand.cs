@@ -7,7 +7,6 @@
 namespace AppInstallerCLIE2ETests
 {
     using System.IO;
-    using System.IO.Packaging;
     using NUnit.Framework;
 
     /// <summary>

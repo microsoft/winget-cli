@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 namespace Microsoft.Management.Deployment
 {
-    [contractversion(7)]
+    [contractversion(6)]
     apicontract WindowsPackageManagerContract{};
 
     /// State of the install
@@ -820,10 +820,7 @@ namespace Microsoft.Management.Deployment
 
             /// Bypasses the Disabled Store Policy
             Boolean BypassIsStoreClientBlockedPolicyCheck;
-        }
 
-        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 7)]
-        {
             // Skip installing the dependencies for the package.
             Boolean SkipDependencies;
         }
