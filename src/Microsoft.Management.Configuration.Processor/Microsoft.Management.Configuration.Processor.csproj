@@ -16,7 +16,6 @@
     <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
     <!-- Disable warning CS1591 for cswinrt auto-generated files and CS8785 for SourceGenerator compilation errors -->
     <NoWarn>1591,8785</NoWarn>
-    <WarningsNotAsErrors>CS8785</WarningsNotAsErrors>
     <Configurations>Debug;Release;ReleaseStatic</Configurations>
   </PropertyGroup>
 
