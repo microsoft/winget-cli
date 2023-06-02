@@ -31,7 +31,7 @@ namespace AppInstaller::CLI
     {
         return {
             // Required for now, make exclusive when history implemented
-            Argument{ Execution::Args::Type::ConfigurationFile, Resource::String::ConfigurationFileArgumentDescription, ArgumentType::Positional, true },
+            Argument{ Execution::Args::Type::ConfigurationFile, Resource::String::ConfigurationFileArgumentDescription, ArgumentType::Positional },
             Argument{ Execution::Args::Type::ConfigurationAcceptWarning, Resource::String::ConfigurationAcceptWarningArgumentDescription, ArgumentType::Flag },
             Argument{ Execution::Args::Type::ConfigurationEnable, Resource::String::ConfigurationEnableMessage, ArgumentType::Flag, Argument::Visibility::Help },
         };
@@ -76,9 +76,16 @@ namespace AppInstaller::CLI
 
     void ConfigureCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
     {
-        if (execArgs.Contains(Execution::Args::Type::ConfigurationEnable) && execArgs.GetArgsCount() > 1)
+        if (execArgs.Contains(Execution::Args::Type::ConfigurationEnable))
         {
-            throw CommandException(Resource::String::ConfigurationEnableArgumentError);
+            if (execArgs.GetArgsCount() > 1)
+            {
+                throw CommandException(Resource::String::ConfigurationEnableArgumentError);
+            }
+        }
+        else if (!execArgs.Contains(Execution::Args::Type::ConfigurationFile))
+        {
+            throw CommandException(Resource::String::RequiredArgError("file"_liv));
         }
     }
 }

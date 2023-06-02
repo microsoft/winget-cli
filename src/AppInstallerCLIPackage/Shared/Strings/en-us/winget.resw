@@ -1955,7 +1955,7 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Enable configuration components</value>
   </data>
   <data name="ConfigurationEnableArgumentError" xml:space="preserve">
-    <value>Argument '--enable' cannot be used with other arguments.</value>
+    <value>Option '--enable' cannot be used with other arguments.</value>
     <comment>{Locked="--enable"}</comment>
   </data>
   <data name="ConfigurationEnablingMessage" xml:space="preserve">
