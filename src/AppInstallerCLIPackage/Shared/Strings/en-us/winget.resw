@@ -1940,15 +1940,28 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Cancelling operation</value>
   </data>
   <data name="InstallStubPackageDescription" xml:space="preserve">
-    <value>Install the stub package for AppInstaller.</value>
+    <value>Install the stub package for AppInstaller</value>
   </data>
   <data name="InstallFullPackageDescription" xml:space="preserve">
-    <value>Install the full package for AppInstaller.</value>
+    <value>Install the full package for AppInstaller</value>
   </data>
   <data name="InstallStubPackageMessage" xml:space="preserve">
-    <value>Installing stub package for AppInstaller.</value>
+    <value>Installing stub package for AppInstaller</value>
   </data>
   <data name="InstallFullPackageMessage" xml:space="preserve">
-    <value>Installing full package for AppInstaller.</value>
+    <value>Installing full package for AppInstaller</value>
+  </data>
+  <data name="ConfigurationEnableMessage" xml:space="preserve">
+    <value>Enable configuration components</value>
+  </data>
+  <data name="ConfigurationEnableArgumentError" xml:space="preserve">
+    <value>Argument '--enable' cannot be used with other arguments.</value>
+    <comment>{Locked="--enable"}</comment>
+  </data>
+  <data name="ConfigurationEnablingMessage" xml:space="preserve">
+    <value>Installing configuration components</value>
+  </data>
+  <data name="ConfigurationNotEnabledMessage" xml:space="preserve">
+    <value>Configuration is not enabled. Run `winget configure --enable` to enable it.</value>
   </data>
 </root>

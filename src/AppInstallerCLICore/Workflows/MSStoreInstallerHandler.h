@@ -37,4 +37,12 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: None
     // Outputs: None
     void AppInstallerInstallFullPackage(Execution::Context& context);
+
+    // Installs the full package if needed.
+    // This should go into configuration flow once installing from the store is
+    // moved out of this work flow.
+    // Required Args: None
+    // Inputs: None
+    // Outputs: None
+    void EnableConfiguration(Execution::Context& context);
 }

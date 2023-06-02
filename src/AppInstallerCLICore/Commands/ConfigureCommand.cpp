@@ -6,6 +6,7 @@
 #include "ConfigureTestCommand.h"
 #include "ConfigureValidateCommand.h"
 #include "Workflows/ConfigurationFlow.h"
+#include "Workflows/MSStoreInstallerHandler.h"
 
 using namespace AppInstaller::CLI::Workflow;
 
@@ -32,6 +33,7 @@ namespace AppInstaller::CLI
             // Required for now, make exclusive when history implemented
             Argument{ Execution::Args::Type::ConfigurationFile, Resource::String::ConfigurationFileArgumentDescription, ArgumentType::Positional, true },
             Argument{ Execution::Args::Type::ConfigurationAcceptWarning, Resource::String::ConfigurationAcceptWarningArgumentDescription, ArgumentType::Flag },
+            Argument{ Execution::Args::Type::ConfigurationEnable, Resource::String::ConfigurationEnableMessage, ArgumentType::Flag, Argument::Visibility::Help },
         };
     }
 
@@ -53,13 +55,30 @@ namespace AppInstaller::CLI
 
     void ConfigureCommand::ExecuteInternal(Execution::Context& context) const
     {
-        context <<
-            VerifyFile(Execution::Args::Type::ConfigurationFile) <<
-            CreateConfigurationProcessor <<
-            OpenConfigurationSet <<
-            ShowConfigurationSet <<
-            ShowConfigurationSetConflicts <<
-            ConfirmConfigurationProcessing <<
-            ApplyConfigurationSet;
+        if (context.Args.Contains(Execution::Args::Type::ConfigurationEnable))
+        {
+            context <<
+                EnableConfiguration;
+        }
+        else
+        {
+            context <<
+                VerifyIsFullPackage <<
+                VerifyFile(Execution::Args::Type::ConfigurationFile) <<
+                CreateConfigurationProcessor <<
+                OpenConfigurationSet <<
+                ShowConfigurationSet <<
+                ShowConfigurationSetConflicts <<
+                ConfirmConfigurationProcessing <<
+                ApplyConfigurationSet;
+        }
+    }
+
+    void ConfigureCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
+    {
+        if (execArgs.Contains(Execution::Args::Type::ConfigurationEnable) && execArgs.GetArgsCount() > 1)
+        {
+            throw CommandException(Resource::String::ConfigurationEnableArgumentError);
+        }
     }
 }

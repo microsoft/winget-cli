@@ -180,6 +180,8 @@ namespace AppInstaller::CLI
             return { type, "file"_liv, 'f' };
         case Execution::Args::Type::ConfigurationAcceptWarning:
             return { type, "accept-configuration-agreements"_liv };
+        case Execution::Args::Type::ConfigurationEnable:
+            return { type, "enable"_liv };
 
         // Common arguments
         case Execution::Args::Type::NoVT:

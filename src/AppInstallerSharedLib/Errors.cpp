@@ -222,6 +222,8 @@ namespace AppInstaller
                 return "One or more queries did not return exactly one match";
             case APPINSTALLER_CLI_ERROR_PACKAGE_IS_PINNED:
                 return "The package has a pin that prevents upgrade.";
+            case APPINSTALLER_CLI_ERROR_PACKAGE_IS_STUB:
+                return "The package currently installed is the stub package";
 
             // Install errors
             case APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE:

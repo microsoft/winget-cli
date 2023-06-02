@@ -330,4 +330,13 @@ namespace AppInstaller::CLI::Workflow
         context.Reporter.Info() << Resource::String::InstallFullPackageMessage << std::endl;
         AppInstallerUpdate(context, false);
     }
+
+    void EnableConfiguration(Execution::Context& context)
+    {
+        if (IsStubPackage())
+        {
+            context.Reporter.Info() << Resource::String::ConfigurationEnablingMessage << std::endl;
+            AppInstallerUpdate(context, false);
+        }
+    }
 }
