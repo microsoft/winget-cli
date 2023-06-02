@@ -338,5 +338,9 @@ namespace AppInstaller::CLI::Workflow
             context.Reporter.Info() << Resource::String::ConfigurationEnablingMessage << std::endl;
             AppInstallerUpdate(context, false);
         }
+        else
+        {
+            context.Reporter.Info() << Resource::String::ConfigurationEnabledMessage << std::endl;
+        }
     }
 }

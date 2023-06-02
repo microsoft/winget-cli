@@ -1964,4 +1964,7 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="ConfigurationNotEnabledMessage" xml:space="preserve">
     <value>Configuration is not enabled. Run `winget configure --enable` to enable it.</value>
   </data>
+  <data name="ConfigurationEnabledMessage" xml:space="preserve">
+    <value>Configuration is enabled.</value>
+  </data>
 </root>

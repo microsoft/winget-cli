@@ -55,6 +55,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationDescriptionWasTruncated);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationEnableArgumentError);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationEnableMessage);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationEnabledMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationEnablingMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFailedToApply);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFailedToGetDetails);
