@@ -3,7 +3,7 @@
 #include "pch.h"
 #include "TestCommon.h"
 #include "TestRestRequestHandler.h"
-#include <Rest/Schema/1_1/Interface.h>
+#include <Rest/Schema/1_5/Interface.h>
 #include <Rest/Schema/IRestClient.h>
 #include <AppInstallerVersions.h>
 #include <AppInstallerErrors.h>
@@ -14,7 +14,7 @@ using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
 using namespace AppInstaller::Repository::Rest;
 using namespace AppInstaller::Repository::Rest::Schema;
-using namespace AppInstaller::Repository::Rest::Schema::V1_1;
+using namespace AppInstaller::Repository::Rest::Schema::V1_5;
 
 namespace
 {
@@ -71,6 +71,19 @@ namespace
                     "AgreementLabel": "DefaultLabel",
                     "Agreement": "DefaultText",
                     "AgreementUrl": "https://DefaultAgreementUrl.net"
+                  }],
+                  "PurchaseUrl": "http://DefaultPurchaseUrl.net",
+                  "InstallationNotes": "Default Installation Notes",
+                  "Documentations": [{
+                    "DocumentLabel": "Default Document Label",
+                    "DocumentUrl": "http://DefaultDocumentUrl.net"
+                  }],
+                  "Icons": [{
+                    "IconUrl": "https://DefaultTestIcon",
+                    "IconFileType": "ico",
+                    "IconResolution": "custom",
+                    "IconTheme": "default",
+                    "IconSha256": "69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8123"
                   }]
                 },
                 "Channel": "",
@@ -101,20 +114,33 @@ namespace
                       "AgreementLabel": "Label",
                       "Agreement": "Text",
                       "AgreementUrl": "https://AgreementUrl.net"
+                    }],
+                    "PurchaseUrl": "http://purchaseUrl.net",
+                    "InstallationNotes": "Installation Notes",
+                    "Documentations": [{
+                      "DocumentLabel": "Document Label",
+                      "DocumentUrl": "http://documentUrl.net"
+                    }],
+                    "Icons": [{
+                      "IconUrl": "https://testIcon",
+                      "IconFileType": "png",
+                      "IconResolution": "32x32",
+                      "IconTheme": "light",
+                      "IconSha256": "69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8321"
                     }]
                   }
-                ],
+                ],)delimiter") _XPLATSTR(R"delimiter(
                 "Installers": [
                   {
                     "InstallerSha256": "011048877dfaef109801b3f3ab2b60afc74f3fc4f7b3430e0c897f5da1df84b6",
-                    "InstallerUrl": "http://foobar.exe",
+                    "InstallerUrl": "http://foobar.zip",
                     "Architecture": "x86",
                     "InstallerLocale": "en-US",
                     "Platform": [
                       "Windows.Desktop"
                     ],
                     "MinimumOSVersion": "1078",
-                    "InstallerType": "msi",
+                    "InstallerType": "zip",
                     "Scope": "user",
                     "InstallModes": [
                       "interactive"
@@ -178,8 +204,26 @@ namespace
                     },
                     "ExpectedReturnCodes": [{
                       "InstallerReturnCode": 3,
-                      "ReturnResponse": "InstallInProgress"
-                    }]
+                      "ReturnResponse": "custom",
+                      "ReturnResponseUrl": "http://returnResponseUrl.net"
+                    }],
+                    "NestedInstallerType": "portable",
+                    "DisplayInstallWarnings": true,
+                    "UnsupportedArguments": [ "log" ],
+                    "NestedInstallerFiles": [{
+                      "RelativeFilePath": "test\\app.exe",
+                      "PortableCommandAlias": "test.exe"
+                    }],
+                    "InstallationMetadata": {
+                      "DefaultInstallLocation": "%TEMP%\\DefaultInstallLocation",
+                      "Files": [{
+                        "RelativeFilePath": "test\\app.exe",
+                        "FileSha256": "011048877dfaef109801b3f3ab2b60afc74f3fc4f7b3430e0c897f5da1df84b6",
+                        "FileType": "launch",
+                        "InvocationParameter": "/parameter",
+                        "DisplayName": "test"
+                      }]
+                    }
                   }
                 ]
               }
@@ -215,6 +259,17 @@ namespace
             REQUIRE(manifest.DefaultLocalization.Get<Localization::Agreements>().at(0).Label == "DefaultLabel");
             REQUIRE(manifest.DefaultLocalization.Get<Localization::Agreements>().at(0).AgreementText == "DefaultText");
             REQUIRE(manifest.DefaultLocalization.Get<Localization::Agreements>().at(0).AgreementUrl == "https://DefaultAgreementUrl.net");
+            REQUIRE(manifest.DefaultLocalization.Get<Localization::PurchaseUrl>() == "http://DefaultPurchaseUrl.net");
+            REQUIRE(manifest.DefaultLocalization.Get<Localization::InstallationNotes>() == "Default Installation Notes");
+            REQUIRE(manifest.DefaultLocalization.Get<Localization::Documentations>().size() == 1);
+            REQUIRE(manifest.DefaultLocalization.Get<Localization::Documentations>().at(0).DocumentLabel == "Default Document Label");
+            REQUIRE(manifest.DefaultLocalization.Get<Localization::Documentations>().at(0).DocumentUrl == "http://DefaultDocumentUrl.net");
+            REQUIRE(manifest.DefaultLocalization.Get<Localization::Icons>().size() == 1);
+            REQUIRE(manifest.DefaultLocalization.Get<Localization::Icons>().at(0).Url == "https://DefaultTestIcon");
+            REQUIRE(manifest.DefaultLocalization.Get<Localization::Icons>().at(0).FileType == IconFileTypeEnum::Ico);
+            REQUIRE(manifest.DefaultLocalization.Get<Localization::Icons>().at(0).Resolution == IconResolutionEnum::Custom);
+            REQUIRE(manifest.DefaultLocalization.Get<Localization::Icons>().at(0).Theme == IconThemeEnum::Default);
+            REQUIRE(manifest.DefaultLocalization.Get<Localization::Icons>().at(0).Sha256 == AppInstaller::Utility::SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8123"));
 
             REQUIRE(manifest.Localizations.size() == 1);
             ManifestLocalization frenchLocalization = manifest.Localizations.at(0);
@@ -242,6 +297,17 @@ namespace
             REQUIRE(frenchLocalization.Get<Localization::Agreements>().at(0).Label == "Label");
             REQUIRE(frenchLocalization.Get<Localization::Agreements>().at(0).AgreementText == "Text");
             REQUIRE(frenchLocalization.Get<Localization::Agreements>().at(0).AgreementUrl == "https://AgreementUrl.net");
+            REQUIRE(frenchLocalization.Get<Localization::PurchaseUrl>() == "http://purchaseUrl.net");
+            REQUIRE(frenchLocalization.Get<Localization::InstallationNotes>() == "Installation Notes");
+            REQUIRE(frenchLocalization.Get<Localization::Documentations>().size() == 1);
+            REQUIRE(frenchLocalization.Get<Localization::Documentations>().at(0).DocumentLabel == "Document Label");
+            REQUIRE(frenchLocalization.Get<Localization::Documentations>().at(0).DocumentUrl == "http://documentUrl.net");
+            REQUIRE(frenchLocalization.Get<Localization::Icons>().size() == 1);
+            REQUIRE(frenchLocalization.Get<Localization::Icons>().at(0).Url == "https://testIcon");
+            REQUIRE(frenchLocalization.Get<Localization::Icons>().at(0).FileType == IconFileTypeEnum::Png);
+            REQUIRE(frenchLocalization.Get<Localization::Icons>().at(0).Resolution == IconResolutionEnum::Square32);
+            REQUIRE(frenchLocalization.Get<Localization::Icons>().at(0).Theme == IconThemeEnum::Light);
+            REQUIRE(frenchLocalization.Get<Localization::Icons>().at(0).Sha256 == AppInstaller::Utility::SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8321"));
         }
 
         void VerifyInstallers_AllFields(const Manifest& manifest)
@@ -250,13 +316,13 @@ namespace
 
             ManifestInstaller actualInstaller = manifest.Installers.at(0);
             REQUIRE(actualInstaller.Sha256 == AppInstaller::Utility::SHA256::ConvertToBytes("011048877dfaef109801b3f3ab2b60afc74f3fc4f7b3430e0c897f5da1df84b6"));
-            REQUIRE(actualInstaller.Url == "http://foobar.exe");
+            REQUIRE(actualInstaller.Url == "http://foobar.zip");
             REQUIRE(actualInstaller.Arch == Architecture::X86);
             REQUIRE(actualInstaller.Locale == "en-US");
             REQUIRE(actualInstaller.Platform.size() == 1);
             REQUIRE(actualInstaller.Platform[0] == PlatformEnum::Desktop);
             REQUIRE(actualInstaller.MinOSVersion == "1078");
-            REQUIRE(actualInstaller.BaseInstallerType == InstallerTypeEnum::Msi);
+            REQUIRE(actualInstaller.BaseInstallerType == InstallerTypeEnum::Zip);
             REQUIRE(actualInstaller.Scope == ScopeEnum::User);
             REQUIRE(actualInstaller.InstallModes.size() == 1);
             REQUIRE(actualInstaller.InstallModes.at(0) == InstallModeEnum::Interactive);
@@ -296,254 +362,33 @@ namespace
             REQUIRE(actualInstaller.AppsAndFeaturesEntries.at(0).InstallerType == InstallerTypeEnum::Exe);
             REQUIRE(actualInstaller.Markets.AllowedMarkets.size() == 1);
             REQUIRE(actualInstaller.Markets.AllowedMarkets.at(0) == "US");
-            REQUIRE(actualInstaller.ExpectedReturnCodes.at(3).ReturnResponseEnum == ExpectedReturnCodeEnum::InstallInProgress);
+            REQUIRE(actualInstaller.ExpectedReturnCodes.at(3).ReturnResponseEnum == ExpectedReturnCodeEnum::Custom);
+            REQUIRE(actualInstaller.ExpectedReturnCodes.at(3).ReturnResponseUrl == "http://returnResponseUrl.net");
+            REQUIRE(actualInstaller.NestedInstallerType == InstallerTypeEnum::Portable);
+            REQUIRE(actualInstaller.DisplayInstallWarnings);
+            REQUIRE(actualInstaller.UnsupportedArguments.size() == 1);
+            REQUIRE(actualInstaller.UnsupportedArguments.at(0) == UnsupportedArgumentEnum::Log);
+            REQUIRE(actualInstaller.NestedInstallerFiles.size() == 1);
+            REQUIRE(actualInstaller.NestedInstallerFiles.at(0).RelativeFilePath == "test\\app.exe");
+            REQUIRE(actualInstaller.NestedInstallerFiles.at(0).PortableCommandAlias == "test.exe");
+            REQUIRE(actualInstaller.InstallationMetadata.DefaultInstallLocation == "%TEMP%\\DefaultInstallLocation");
+            REQUIRE(actualInstaller.InstallationMetadata.Files.size() == 1);
+            REQUIRE(actualInstaller.InstallationMetadata.Files.at(0).RelativeFilePath == "test\\app.exe");
+            REQUIRE(actualInstaller.InstallationMetadata.Files.at(0).FileType == InstalledFileTypeEnum::Launch);
+            REQUIRE(actualInstaller.InstallationMetadata.Files.at(0).FileSha256 == AppInstaller::Utility::SHA256::ConvertToBytes("011048877dfaef109801b3f3ab2b60afc74f3fc4f7b3430e0c897f5da1df84b6"));
+            REQUIRE(actualInstaller.InstallationMetadata.Files.at(0).InvocationParameter == "/parameter");
+            REQUIRE(actualInstaller.InstallationMetadata.Files.at(0).DisplayName == "test");
         }
     };
 }
 
-TEST_CASE("Search_BadResponse_UnsupportedPackageMatchFields", "[RestSource][Interface_1_1]")
-{
-    utility::string_t sample = _XPLATSTR(
-        R"delimiter({
-            "Data" : [],
-            "UnsupportedPackageMatchFields" : [ "Moniker" ]
-        })delimiter");
-
-    HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, std::move(sample)) };
-    Interface v1_1{ TestRestUriString, GetTestSourceInformation(), {}, std::move(helper) };
-    AppInstaller::Repository::SearchRequest request;
-    PackageMatchFilter filter{ PackageMatchField::Name, MatchType::Exact, "Foo" };
-    request.Filters.emplace_back(std::move(filter));
-    REQUIRE_THROWS_HR(v1_1.Search(request), APPINSTALLER_CLI_ERROR_UNSUPPORTED_SOURCE_REQUEST);
-}
-
-TEST_CASE("Search_BadResponse_RequiredPackageMatchFields", "[RestSource][Interface_1_1]")
-{
-    utility::string_t sample = _XPLATSTR(
-        R"delimiter({
-            "Data" : [],
-            "RequiredPackageMatchFields" : [ "Moniker" ]
-        })delimiter");
-
-    HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, std::move(sample)) };
-    Interface v1_1{ TestRestUriString, GetTestSourceInformation(), {}, std::move(helper) };
-    AppInstaller::Repository::SearchRequest request;
-    PackageMatchFilter filter{ PackageMatchField::Name, MatchType::Exact, "Foo" };
-    request.Filters.emplace_back(std::move(filter));
-    REQUIRE_THROWS_HR(v1_1.Search(request), APPINSTALLER_CLI_ERROR_UNSUPPORTED_SOURCE_REQUEST);
-}
-
-TEST_CASE("GetManifests_BadResponse_UnsupportedQueryParameters", "[RestSource][Interface_1_1]")
-{
-    utility::string_t sample = _XPLATSTR(
-        R"delimiter({
-            "Data" : null,
-            "UnsupportedQueryParameters" : [ "Channel" ]
-        })delimiter");
-
-    HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, std::move(sample)) };
-    Interface v1_1{ TestRestUriString, GetTestSourceInformation(), {}, std::move(helper) };
-    REQUIRE_THROWS_HR(v1_1.GetManifests("Foo"), APPINSTALLER_CLI_ERROR_UNSUPPORTED_SOURCE_REQUEST);
-}
-
-TEST_CASE("GetManifests_BadResponse_RequiredQueryParameters", "[RestSource][Interface_1_1]")
-{
-    utility::string_t sample = _XPLATSTR(
-        R"delimiter({
-            "Data" : null,
-            "RequiredQueryParameters" : [ "Version" ]
-        })delimiter");
-
-    HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, std::move(sample)) };
-    Interface v1_1{ TestRestUriString, GetTestSourceInformation(), {}, std::move(helper) };
-    REQUIRE_THROWS_HR(v1_1.GetManifests("Foo"), APPINSTALLER_CLI_ERROR_UNSUPPORTED_SOURCE_REQUEST);
-}
-
-TEST_CASE("Search_BadRequest_UnsupportedPackageMatchFields", "[RestSource][Interface_1_1]")
-{
-    utility::string_t sample = _XPLATSTR(
-        R"delimiter({
-            "Data" : [
-               {
-              "PackageIdentifier": "git.package",
-              "PackageName": "package",
-              "Publisher": "git",
-              "Versions": [
-                {   "PackageVersion": "1.0.0" },
-                {   "PackageVersion": "2.0.0" }]
-            }]
-        })delimiter");
-
-    HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, std::move(sample)) };
-    Interface v1_1{ TestRestUriString, GetTestSourceInformation(), {}, std::move(helper) };
-    AppInstaller::Repository::SearchRequest request;
-    PackageMatchFilter filter{ PackageMatchField::Moniker, MatchType::Exact, "Foo" };
-    request.Filters.emplace_back(std::move(filter));
-    REQUIRE_THROWS_HR(v1_1.Search(request), APPINSTALLER_CLI_ERROR_UNSUPPORTED_SOURCE_REQUEST);
-}
-
-TEST_CASE("Search_GoodRequest_OnlyMarketRequired", "[RestSource][Interface_1_1]")
-{
-    utility::string_t sample = _XPLATSTR(
-        R"delimiter({
-            "Data" : [
-               {
-              "PackageIdentifier": "git.package",
-              "PackageName": "package",
-              "Publisher": "git",
-              "Versions": [
-                {   "PackageVersion": "1.0.0" },
-                {   "PackageVersion": "2.0.0" }]
-            }]
-        })delimiter");
-
-    HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, std::move(sample)) };
-    Interface v1_1{ TestRestUriString, GetTestSourceInformation(), {}, std::move(helper) };
-    AppInstaller::Repository::SearchRequest request;
-    PackageMatchFilter filter{ PackageMatchField::Name, MatchType::Exact, "Foo" };
-    request.Filters.emplace_back(std::move(filter));
-    Schema::IRestClient::SearchResult searchResponse = v1_1.Search(request);
-    REQUIRE(searchResponse.Matches.size() == 1);
-    Schema::IRestClient::Package package = searchResponse.Matches.at(0);
-    REQUIRE(package.PackageInformation.PackageIdentifier.compare("git.package") == 0);
-    REQUIRE(package.PackageInformation.Publisher.compare("git") == 0);
-    REQUIRE(package.PackageInformation.PackageName.compare("package") == 0);
-    REQUIRE(package.Versions.size() == 2);
-    REQUIRE(package.Versions.at(0).VersionAndChannel.GetVersion().ToString().compare("1.0.0") == 0);
-    REQUIRE(package.Versions.at(1).VersionAndChannel.GetVersion().ToString().compare("2.0.0") == 0);
-}
-
-TEST_CASE("GetManifests_BadRequest_UnsupportedQueryParameters", "[RestSource][Interface_1_1]")
-{
-    utility::string_t sample = _XPLATSTR(
-        R"delimiter({
-        "Data": {
-            "PackageIdentifier": "Foo.Bar",
-            "Versions": [
-                {
-                    "PackageVersion": "5.0.0",
-                    "DefaultLocale": {
-                        "PackageLocale": "en-us",
-                        "Publisher": "Foo",
-                        "PackageName": "Bar",
-                        "License": "Foo bar license",
-                        "ShortDescription": "Foo bar description"
-                    },
-                    "Installers": [
-                        {
-                            "Architecture": "x64",
-                            "InstallerSha256": "011048877dfaef109801b3f3ab2b60afc74f3fc4f7b3430e0c897f5da1df84b6",
-                            "InstallerType": "exe",
-                            "InstallerUrl": "https://installer.example.com/foobar.exe"
-                        }
-                    ]
-                }
-            ]
-        }
-    })delimiter");
-
-    HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, std::move(sample)) };
-    Interface v1_1{ TestRestUriString, GetTestSourceInformation(), {}, std::move(helper) };
-    REQUIRE_THROWS_HR(v1_1.GetManifestByVersion("Foo", "1.0", "beta"), APPINSTALLER_CLI_ERROR_UNSUPPORTED_SOURCE_REQUEST);
-}
-
-TEST_CASE("GetManifests_GoodRequest_OnlyMarketRequired", "[RestSource][Interface_1_1]")
-{
-    utility::string_t sample = _XPLATSTR(
-        R"delimiter({
-        "Data": {
-            "PackageIdentifier": "Foo.Bar",
-            "Versions": [
-                {
-                    "PackageVersion": "5.0.0",
-                    "DefaultLocale": {
-                        "PackageLocale": "en-us",
-                        "Publisher": "Foo",
-                        "PackageName": "Bar",
-                        "License": "Foo bar license",
-                        "ShortDescription": "Foo bar description"
-                    },
-                    "Installers": [
-                        {
-                            "Architecture": "x64",
-                            "InstallerSha256": "011048877dfaef109801b3f3ab2b60afc74f3fc4f7b3430e0c897f5da1df84b6",
-                            "InstallerType": "exe",
-                            "InstallerUrl": "https://installer.example.com/foobar.exe"
-                        }
-                    ]
-                }
-            ]
-        }
-    })delimiter");
-
-    IRestClient::Information info = GetTestSourceInformation();
-    info.UnsupportedQueryParameters.clear();
-    HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, std::move(sample)) };
-    Interface v1_1{ TestRestUriString, info, {}, std::move(helper) };
-    auto manifestResult = v1_1.GetManifestByVersion("Foo", "5.0.0", "");
-    REQUIRE(manifestResult.has_value());
-    const Manifest& manifest = manifestResult.value();
-    REQUIRE(manifest.Id == "Foo.Bar");
-    REQUIRE(manifest.Version == "5.0.0");
-    REQUIRE(manifest.DefaultLocalization.Locale == "en-us");
-    REQUIRE(manifest.DefaultLocalization.Get<Localization::Publisher>() == "Foo");
-    REQUIRE(manifest.DefaultLocalization.Get<Localization::PackageName>() == "Bar");
-    REQUIRE(manifest.DefaultLocalization.Get<Localization::License>() == "Foo bar license");
-    REQUIRE(manifest.DefaultLocalization.Get<Localization::ShortDescription>() == "Foo bar description");
-    REQUIRE(manifest.Installers.size() == 1);
-    REQUIRE(manifest.Installers[0].Arch == Architecture::X64);
-    REQUIRE(manifest.Installers[0].Sha256 == AppInstaller::Utility::SHA256::ConvertToBytes("011048877dfaef109801b3f3ab2b60afc74f3fc4f7b3430e0c897f5da1df84b6"));
-    REQUIRE(manifest.Installers[0].BaseInstallerType == InstallerTypeEnum::Exe);
-    REQUIRE(manifest.Installers[0].Url == "https://installer.example.com/foobar.exe");
-}
-
-TEST_CASE("GetManifests_GoodResponse_MSStoreType", "[RestSource][Interface_1_1]")
-{
-    utility::string_t msstoreInstallerResponse = _XPLATSTR(
-        R"delimiter({
-        "Data": {
-            "PackageIdentifier": "Foo.Bar",
-            "Versions": [
-                {
-                    "PackageVersion": "5.0.0",
-                    "DefaultLocale": {
-                        "PackageLocale": "en-us",
-                        "Publisher": "Foo",
-                        "PackageName": "Bar",
-                        "License": "Foo bar license",
-                        "ShortDescription": "Foo bar description"
-                    },
-                    "Installers": [
-                        {
-                            "Architecture": "x64",
-                            "InstallerType": "msstore",
-                            "MSStoreProductIdentifier": "9nblggh4nns1"
-                        }
-                    ]
-                }
-            ]
-        }
-    })delimiter");
-
-    HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, std::move(msstoreInstallerResponse)) };
-    Interface v1_1{ TestRestUriString, GetTestSourceInformation(), {}, std::move(helper) };
-    std::vector<Manifest> manifests = v1_1.GetManifests("Foo.Bar");
-    REQUIRE(manifests.size() == 1);
-
-    // Verify manifest is populated and manifest validation passed
-    Manifest manifest = manifests[0];
-    REQUIRE(manifest.Installers.size() == 1);
-    REQUIRE(manifest.Installers.at(0).BaseInstallerType == InstallerTypeEnum::MSStore);
-    REQUIRE(manifest.Installers.at(0).ProductId == "9nblggh4nns1");
-}
-
-TEST_CASE("GetManifests_GoodResponse_V1_1", "[RestSource][Interface_1_1]")
+TEST_CASE("GetManifests_GoodResponse_V1_5", "[RestSource][Interface_1_5]")
 {
     GoodManifest_AllFields sampleManifest;
     utility::string_t sample = sampleManifest.GetSampleManifest_AllFields();
     HttpClientHelper helper{ GetTestRestRequestHandler(web::http::status_codes::OK, std::move(sample)) };
-    Interface v1_1{ TestRestUriString, {}, {}, std::move(helper) };
-    std::vector<Manifest> manifests = v1_1.GetManifests("Foo.Bar");
+    Interface v1_5{ TestRestUriString, {}, {}, std::move(helper) };
+    std::vector<Manifest> manifests = v1_5.GetManifests("Foo.Bar");
     REQUIRE(manifests.size() == 1);
 
     // Verify manifest is populated

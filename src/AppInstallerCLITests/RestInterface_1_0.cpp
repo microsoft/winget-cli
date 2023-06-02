@@ -56,7 +56,6 @@ namespace
     {
         utility::string_t GetSampleManifest_AllFields()
         {
-            utility::string_t id = L"Foo.Bar";
             return _XPLATSTR(
                 R"delimiter(
         {

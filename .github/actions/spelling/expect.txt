@@ -91,6 +91,7 @@ debian
 deigh
 deleteifnotneeded
 desktopappinstaller
+devhome
 dic
 diskfull
 dismapi
