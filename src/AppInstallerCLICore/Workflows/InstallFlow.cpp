@@ -17,12 +17,12 @@
 #include "PromptFlow.h"
 #include <AppInstallerMsixInfo.h>
 #include <AppInstallerDeployment.h>
-#include <winget/ARPCorrelation.h>
-#include <winget/Archive.h>
-#include "winget/PathVariable.h"
+#include <AppInstallerSynchronization.h>
 #include <Argument.h>
 #include <Command.h>
-#include <AppInstallerSynchronization.h>
+#include <winget/ARPCorrelation.h>
+#include <winget/Archive.h>
+#include <winget/PathVariable.h>
 #include <winget/Runtime.h>
 
 using namespace winrt::Windows::ApplicationModel::Store::Preview::InstallControl;

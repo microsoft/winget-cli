@@ -5,6 +5,7 @@
 #include <winget/DependenciesGraph.h>
 #include <Workflows/DependencyNodeProcessor.h>
 #include <AppInstallerErrors.h>
+#include <AppInstallerRuntime.h>
 #include <AppInstallerStrings.h>
 #include <Workflows/DependenciesFlow.h>
 #include <Workflows/WorkflowBase.h>
@@ -12,7 +13,6 @@
 #include <winget/ManifestYamlParser.h>
 #include <winget/PathVariable.h>
 #include <Resources.h>
-#include <AppInstallerRuntime.h>
 
 using namespace winrt::Windows::Foundation;
 using namespace winrt::Windows::Management::Deployment;
@@ -226,7 +226,6 @@ std::string GetCurrentProcessPathVariable()
 
         delete[] buffer;
     }
-
     return {};
 }
 
