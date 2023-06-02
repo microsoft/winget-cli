@@ -24,9 +24,8 @@ namespace AppInstaller::Settings
             Dependencies = 0x1,
             // Before making DirectMSI non-experimental, it should be part of manifest validation.
             DirectMSI = 0x2,
-            Pinning = 0x4,
-            Configuration = 0x8,
-            WindowsFeature = 0x10,
+            Configuration = 0x4,
+            WindowsFeature = 0x8,
             Max, // This MUST always be after all experimental features
 
             // Features listed after Max will not be shown with the features command

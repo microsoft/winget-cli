@@ -466,7 +466,7 @@ namespace AppInstaller::Repository
             std::vector<PackageVersionKey> GetAvailableVersionKeys(PinBehavior pinBehavior) const override
             {
                 auto result = m_package->GetAvailableVersionKeys();
-                if (ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Pinning) && m_pin.has_value())
+                if (m_pin.has_value())
                 {
                     // Add pin information to all version keys
                     for (auto& pvk : result)
@@ -499,7 +499,7 @@ namespace AppInstaller::Repository
             {
                 Pinning::PinType pinType = Pinning::PinType::Unknown;
 
-                if (ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Pinning) && m_pin.has_value())
+                if (m_pin.has_value())
                 {
                     pinType = GetPinnedStateForVersion(versionKey, m_pin.value(), PinBehavior::ConsiderPins);
                 }
@@ -813,9 +813,7 @@ namespace AppInstaller::Repository
 
             std::optional<Pinning::Pin> GetInstalledPin() const
             {
-                return (ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Pinning) && m_installedPackage)
-                    ? m_installedPackage->GetPin()
-                    : std::nullopt;
+                return m_installedPackage ? m_installedPackage->GetPin() : std::nullopt;
             }
 
             std::optional<PinnablePackage> m_installedPackage;
@@ -1208,7 +1206,7 @@ namespace AppInstaller::Repository
         // Adds all the pin information to the results from a search to a CompositeSource.
         void AddPinInfoToCompositeSearchResult(CompositeResult& result)
         {
-            if (ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Pinning) && !result.Matches.empty())
+            if (!result.Matches.empty())
             {
                 // Look up any pins for the packages found
                 auto pinningIndex = PinningIndex::OpenOrCreateDefault();
@@ -1391,13 +1389,6 @@ namespace AppInstaller::Repository
                     // Search sources and add to result
                     for (const auto& source : m_availableSources)
                     {
-                        if (addedAvailablePackage && !ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Pinning))
-                        {
-                            // Having multiple available packages is a new behavior introduced for package pinning,
-                            // so we gate it with the same feature in case it causes problems.
-                            break;
-                        }
-
                         // Do not attempt to correlate local packages against this source
                         if (!source.GetDetails().SupportInstalledSearchCorrelation)
                         {

@@ -42,8 +42,6 @@ namespace AppInstaller::Settings
                 return userSettings.Get<Setting::EFDependencies>();
             case ExperimentalFeature::Feature::DirectMSI:
                 return userSettings.Get<Setting::EFDirectMSI>();
-            case ExperimentalFeature::Feature::Pinning:
-                return userSettings.Get<Setting::EFPinning>();
             case ExperimentalFeature::Feature::Configuration:
                 return userSettings.Get<Setting::EFConfiguration>();
             case ExperimentalFeature::Feature::WindowsFeature:
@@ -79,8 +77,6 @@ namespace AppInstaller::Settings
             return ExperimentalFeature{ "Show Dependencies Information", "dependencies", "https://aka.ms/winget-settings", Feature::Dependencies };
         case Feature::DirectMSI:
             return ExperimentalFeature{ "Direct MSI Installation", "directMSI", "https://aka.ms/winget-settings", Feature::DirectMSI };
-        case Feature::Pinning:
-            return ExperimentalFeature{ "Package Pinning", "pinning", "https://aka.ms/winget-settings", Feature::Pinning};
         case Feature::Configuration:
             return ExperimentalFeature{ "Configuration", "configuration", "https://aka.ms/winget-settings#configuration", Feature::Configuration };
         case Feature::WindowsFeature:
