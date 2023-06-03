@@ -14,8 +14,8 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <!-- Workaround for MSB3271 error on processor architecture mismatch -->
     <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
-    <!-- Disable warning for CS1591 for cswinrt auto-generated files -->
-    <NoWarn>1591</NoWarn>
+    <!-- Disable warning CS1591 for cswinrt auto-generated files and CS8785 for SourceGenerator compilation errors -->
+    <NoWarn>1591,8785</NoWarn>
     <Configurations>Debug;Release;ReleaseStatic</Configurations>
   </PropertyGroup>
 
