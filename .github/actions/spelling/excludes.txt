@@ -86,6 +86,16 @@
 ^src/Valijson/
 ^src/Xlang/
 ^src/YamlCppLib/
+adb
+adbshell
+apk
+desciption
+droid
+fdroid
+minumum
+Oreo
+Tiramisu
+upintheairsheep
 # Because it doesn't handle argument -Words well
 ^tools/CorrelationTestbed/.*\.ps1$
 ignore$
