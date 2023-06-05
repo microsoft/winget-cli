@@ -655,7 +655,7 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void InstallWithPackageDependency_SkipDependencies()
         {
-            var installResult = TestCommon.RunAICLICommand("install", $"--id AppInstallerTest.PackageDependency --skip-dependencies");
+            var installResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.PackageDependency --skip-dependencies");
             Assert.AreEqual(-1, installResult.ExitCode);
             Assert.True(installResult.StdOut.Contains("Skipping dependencies..."));
         }
@@ -668,7 +668,7 @@ namespace AppInstallerCLIE2ETests
         {
             var testDir = TestCommon.GetRandomTestDir();
             string installDir = TestCommon.GetPortablePackagesDirectory();
-            var installResult = TestCommon.RunAICLICommand("install", $"--id AppInstallerTest.PackageDependency -l {testDir}");
+            var installResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.PackageDependency -l {testDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, installResult.ExitCode);
             Assert.True(installResult.StdOut.Contains("Successfully installed"));
 

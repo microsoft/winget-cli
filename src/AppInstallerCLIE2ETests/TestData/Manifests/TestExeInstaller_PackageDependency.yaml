@@ -2,9 +2,9 @@ PackageIdentifier: AppInstallerTest.PackageDependency
 PackageVersion: 1.0.0.0
 PackageLocale: en-US
 PackageName: TestPackageDependency
-ShortDescription: Installs a portable package dependency that modifies the PATH environment variable during installation. Verifies that the root package can pick up the refreshed environment variable.
-Publisher: Microsoft Corporation
-License: Test
+ShortDescription: Installs a portable package dependency that modifies the PATH environment variable during installation.
+Publisher: AppInstallerTest
+License: testLicense
 Installers:
   - Architecture: x64
     InstallerUrl: https://localhost:5001/TestKit/AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe
@@ -13,9 +13,11 @@ Installers:
     InstallerSwitches:
       Silent: /exesilent
       SilentWithProgress: /exeswp
+      Log: /LogFile <LOGPATH>
+      InstallLocation: /InstallDir <INSTALLPATH>
       Custom: /AliasToExecute testCommand.exe /AliasArguments /NoOperation
     Dependencies:
       PackageDependencies:
       - PackageIdentifier: AppInstallerTest.TestPortableExeWithCommand
 ManifestType: singleton
-ManifestVersion: 1.4.0
+ManifestVersion: 1.5.0
