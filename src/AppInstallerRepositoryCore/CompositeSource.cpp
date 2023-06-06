@@ -770,6 +770,12 @@ namespace AppInstaller::Repository
             {
                 for (auto& availablePackage : m_availablePackages)
                 {
+                    // Safeguard in case a package with no available sneaks in as we intentionally do in tests
+                    if (availablePackage.GetPackage()->GetAvailableVersionKeys().empty())
+                    {
+                        continue;
+                    }
+
                     Pinning::PinKey pinKey = GetPinKeyForAvailable(availablePackage.GetPackage().get());
 
                     auto pin = pinningIndex.GetPin(pinKey);
