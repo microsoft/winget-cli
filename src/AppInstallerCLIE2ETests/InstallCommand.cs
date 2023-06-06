@@ -648,39 +648,5 @@ namespace AppInstallerCLIE2ETests
             Assert.True(installResult.StdOut.Contains("Successfully installed"));
             Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(testDir));
         }
-
-        /// <summary>
-        /// Test install a package that requires a package dependency fails when including the --skip-dependencies argument.
-        /// </summary>
-        [Test]
-        public void InstallWithPackageDependency_SkipDependencies()
-        {
-            var installResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.PackageDependency --skip-dependencies");
-            Assert.AreEqual(-1, installResult.ExitCode);
-            Assert.True(installResult.StdOut.Contains("Skipping dependencies..."));
-        }
-
-        /// <summary>
-        /// Test install a package with a Package dependency that requires the PATH environment variable to be refreshed between dependency installs.
-        /// </summary>
-        [Test]
-        public void InstallWithPackageDependency_RefreshPathVariable()
-        {
-            var testDir = TestCommon.GetRandomTestDir();
-            string installDir = TestCommon.GetPortablePackagesDirectory();
-            var installResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.PackageDependency -l {testDir}");
-            Assert.AreEqual(Constants.ErrorCode.S_OK, installResult.ExitCode);
-            Assert.True(installResult.StdOut.Contains("Successfully installed"));
-
-            // Portable package is used as a dependency. Ensure that it is installed and cleaned up successfully.
-            string portablePackageId, commandAlias, fileName, packageDirName, productCode;
-            portablePackageId = "AppInstallerTest.TestPortableExeWithCommand";
-            packageDirName = productCode = portablePackageId + "_" + Constants.TestSourceIdentifier;
-            fileName = "AppInstallerTestExeInstaller.exe";
-            commandAlias = "testCommand.exe";
-
-            TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
-            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(testDir));
-        }
     }
 }

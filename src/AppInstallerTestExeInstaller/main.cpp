@@ -256,7 +256,7 @@ int wmain(int argc, const wchar_t** argv)
     {
         SHELLEXECUTEINFOW execInfo = { 0 };
         execInfo.cbSize = sizeof(execInfo);
-        execInfo.fMask = SEE_MASK_FLAG_NO_UI;
+        execInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
         execInfo.lpFile = aliasToExecute.c_str();
         
         if (!aliasArguments.empty())

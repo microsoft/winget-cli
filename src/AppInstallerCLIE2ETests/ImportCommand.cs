@@ -134,6 +134,29 @@ namespace AppInstallerCLIE2ETests
             this.UninstallTestExe();
         }
 
+        /// <summary>
+        /// Test import a package with a dependency in the same import file. The dependency package modifies the PATH variable with a command,
+        /// which is then invoked by the main package during its installation. This is a workaround for an issue where a manifest with a
+        /// package dependency specified can interfere with other packages in the test source.
+        /// </summary>
+        [Test]
+        public void ImportDependentPackage()
+        {
+            var result = TestCommon.RunAICLICommand("import", this.GetTestImportFile("ImportFile-Good-DependentPackage.json"));
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(this.VerifyTestExeInstalled());
+            this.UninstallTestExe();
+
+            // Ensure portable package is installed and cleaned up successfully.
+            string installDir = TestCommon.GetPortablePackagesDirectory();
+            string packageId, commandAlias, fileName, packageDirName, productCode;
+            packageId = "AppInstallerTest.TestPortableExeWithCommand";
+            packageDirName = productCode = packageId + "_" + Constants.TestSourceIdentifier;
+            fileName = "AppInstallerTestExeInstaller.exe";
+            commandAlias = "testCommand.exe";
+            TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
+        }
+
         private string GetTestImportFile(string importFileName)
         {
             return TestCommon.GetTestDataFile(Path.Combine("ImportFiles", importFileName));
