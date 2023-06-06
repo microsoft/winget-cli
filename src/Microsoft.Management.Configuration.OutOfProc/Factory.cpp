@@ -4,6 +4,7 @@
 #include "Factory.h"
 #include <winrt/Microsoft.Management.Configuration.h>
 #include <winget/Runtime.h>
+#include <WinGetServerManualActivation_Client.h>
 
 namespace Microsoft::Management::Configuration::OutOfProc
 {
@@ -24,8 +25,9 @@ namespace Microsoft::Management::Configuration::OutOfProc
         {
             if (AppInstaller::Runtime::IsRunningAsAdmin())
             {
-                // TODO: Move the functionality to start and connect to the admin server
-                THROW_HR(E_NOTIMPL);
+                winrt::com_ptr<::IUnknown> result;
+                THROW_IF_FAILED(WinGetServerManualActivation_CreateInstance(GetConfigurationStaticsCLSID(), winrt::guid_of<winrt::Microsoft::Management::Configuration::IConfigurationStatics>(), 0, result.put_void()));
+                return result.as<winrt::Microsoft::Management::Configuration::IConfigurationStatics>();
             }
             else
             {

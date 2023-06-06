@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="WinGetServerManualActivation">
+      <UniqueIdentifier>{6017fd94-3eb1-40bc-964f-5dd571077d3c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -31,6 +34,15 @@
     </ClCompile>
     <ClCompile Include="Factory.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\WinGetServer\WinGetServer_c.c">
+      <Filter>WinGetServerManualActivation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\WinGetServer\WinGetServerManualActivation_Client.cpp">
+      <Filter>WinGetServerManualActivation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\WinGetServer\Utils.cpp">
+      <Filter>WinGetServerManualActivation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

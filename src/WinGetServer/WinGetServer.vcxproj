@@ -161,6 +161,7 @@
     </ClCompile>
     <ClCompile Include="WinGetServer_s.c" />
     <ClCompile Include="WinMain.cpp" />
+    <ClInclude Include="WinGetServerManualActivation_Client.h" />
     <ResourceCompile Include="WinGetServer.rc" />
     <Manifest Include="WinGetServer.exe.manifest" />
     <None Include="packages.config" />
