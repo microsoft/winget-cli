@@ -770,7 +770,7 @@ namespace AppInstaller::CLI::Workflow
                     continue;
                 }
 
-                if (m_onlyShowUpgrades && !updateAvailable && ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Pinning))
+                if (m_onlyShowUpgrades && !updateAvailable)
                 {
                     bool updateAvailableWithoutPins = match.Package->IsUpdateAvailable(PinBehavior::IgnorePins);
                     if (updateAvailableWithoutPins)
@@ -959,7 +959,7 @@ namespace AppInstaller::CLI::Workflow
         std::shared_ptr<IPackage> package = context.Get<Execution::Data::Package>();
         std::shared_ptr<IPackageVersion> requestedVersion;
 
-        if (m_considerPins && ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Pinning))
+        if (m_considerPins)
         {
             bool isPinned = false;
 

@@ -16,15 +16,6 @@ namespace AppInstallerCLIE2ETests
     public class Pinning : BaseCommand
     {
         /// <summary>
-        /// Setup done once before all the tests here.
-        /// </summary>
-        [OneTimeSetUp]
-        public void OneTimeSetup()
-        {
-            WinGetSettingsHelper.ConfigureFeature("pinning", true);
-        }
-
-        /// <summary>
         /// Set up for all tests.
         /// </summary>
         [SetUp]
