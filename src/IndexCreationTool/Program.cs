@@ -62,11 +62,22 @@ namespace IndexCreationTool
                     foreach (string includeDir in includeDirList)
                     {
                         var fullPath = Path.Combine(rootDir, includeDir);
-                        foreach (string file in Directory.EnumerateFiles(fullPath, "*.yaml", SearchOption.AllDirectories))
+                        Queue<string> filesQueue = new(Directory.EnumerateFiles(fullPath, "*.yaml", SearchOption.AllDirectories));
+                        while (filesQueue.Count > 0)
                         {
-                            indexHelper.AddManifest(file, Path.GetRelativePath(rootDir, file));
+                            string file = filesQueue.Dequeue();
+                            try
+                            {
+                                indexHelper.AddManifest(file, Path.GetRelativePath(rootDir, file));
+                            }
+                            catch
+                            {
+                                // If it fails, add back to queue and try again. This can occur if there is a package dependency that has not yet been added.
+                                filesQueue.Enqueue(file);
+                            }
                         }
                     }
+
                     indexHelper.PrepareForPackaging();
                 }
 

@@ -234,13 +234,31 @@ TEST_CASE("InstallerWithDependencies_SkipDependencies", "[dependencies]")
     install.Execute(context);
     INFO(installOutput.str());
 
-    // Verify skip dependencies message is shown
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::SkippingDependenciesMessage).get()) != std::string::npos);
-
-    // Verify root dependencies are not shown
     REQUIRE_FALSE(installOutput.str().find(Resource::LocString(Resource::String::InstallAndUpgradeCommandsReportDependencies).get()) != std::string::npos);
     REQUIRE_FALSE(installOutput.str().find("PreviewIIS") != std::string::npos);
+}
 
+TEST_CASE("InstallerWithDependencies_IgnoreDependenciesSetting", "[dependencies]")
+{
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForShellExecute(context);
+
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Installer_Exe_Dependencies.yaml").GetPath().u8string());
+
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
+    settings.Set<AppInstaller::Settings::Setting::InstallIgnoreDependencies>({ true });
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::SkippingDependenciesMessage).get()) != std::string::npos);
+    REQUIRE_FALSE(installOutput.str().find(Resource::LocString(Resource::String::InstallAndUpgradeCommandsReportDependencies).get()) != std::string::npos);
+    REQUIRE_FALSE(installOutput.str().find("PreviewIIS") != std::string::npos);
 }
 
 TEST_CASE("DependenciesMultideclaration_InstallerDependenciesPreference", "[dependencies]")

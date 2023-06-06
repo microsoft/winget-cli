@@ -648,5 +648,28 @@ namespace AppInstallerCLIE2ETests
             Assert.True(installResult.StdOut.Contains("Successfully installed"));
             Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(testDir));
         }
+
+        /// <summary>
+        /// Test install a package with a package dependency that requires the PATH environment variable to be refreshed between dependency installs.
+        /// </summary>
+        [Test]
+        public void InstallWithPackageDependency_RefreshPathVariable()
+        {
+            var testDir = TestCommon.GetRandomTestDir();
+            string installDir = TestCommon.GetPortablePackagesDirectory();
+            var installResult = TestCommon.RunAICLICommand("install", $"AppInstallerTest.PackageDependencyRequiresPathRefresh -l {testDir}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, installResult.ExitCode);
+            Assert.True(installResult.StdOut.Contains("Successfully installed"));
+
+            // Portable package is used as a dependency. Ensure that it is installed and cleaned up successfully.
+            string portablePackageId, commandAlias, fileName, packageDirName, productCode;
+            portablePackageId = "AppInstallerTest.TestPortableExeWithCommand";
+            packageDirName = productCode = portablePackageId + "_" + Constants.TestSourceIdentifier;
+            fileName = "AppInstallerTestExeInstaller.exe";
+            commandAlias = "testCommand.exe";
+
+            TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
+            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(testDir));
+        }
     }
 }

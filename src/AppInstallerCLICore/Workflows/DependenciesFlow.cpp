@@ -341,10 +341,8 @@ namespace AppInstaller::CLI::Workflow
             info << Resource::String::DependenciesFlowInstall << std::endl;
         }
 
-        bool stopOnFailure = !context.Args.Contains(Execution::Args::Type::Force);
-
         // Install dependencies in the correct order
         context.Add<Execution::Data::PackageSubContexts>(std::move(dependencyPackageContexts));
-        context << Workflow::InstallMultiplePackages(m_dependencyReportMessage, APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES, {}, false, true, stopOnFailure);
+        context << Workflow::InstallMultiplePackages(m_dependencyReportMessage, APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES, {}, false, true, true);
     }
 }
