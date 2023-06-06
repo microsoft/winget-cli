@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "Factory.h"
+#include <winrt/Microsoft.Management.Configuration.h>
+#include <winget/Runtime.h>
 
 namespace Microsoft::Management::Configuration::OutOfProc
 {
@@ -16,6 +18,19 @@ namespace Microsoft::Management::Configuration::OutOfProc
 #endif
 
             return CLSID_ConfigurationStatics;
+        }
+
+        winrt::Microsoft::Management::Configuration::IConfigurationStatics CreateOOPStaticsObject()
+        {
+            if (AppInstaller::Runtime::IsRunningAsAdmin())
+            {
+                // TODO: Move the functionality to start and connect to the admin server
+                THROW_HR(E_NOTIMPL);
+            }
+            else
+            {
+                return winrt::create_instance<winrt::Microsoft::Management::Configuration::IConfigurationStatics>(GetConfigurationStaticsCLSID(), CLSCTX_LOCAL_SERVER | CLSCTX_NO_CODE_DOWNLOAD);
+            }
         }
     }
 
@@ -64,9 +79,20 @@ namespace Microsoft::Management::Configuration::OutOfProc
         return false;
     }
 
-    HRESULT STDMETHODCALLTYPE Factory::ActivateInstance(::IInspectable** instance);
+    winrt::Windows::Foundation::IInspectable Factory::ActivateInstance()
+    {
+        return CreateOOPStaticsObject().as<winrt::Windows::Foundation::IInspectable>();
+    }
 
-    HRESULT STDMETHODCALLTYPE Factory::CreateInstance(::IUnknown* pUnkOuter, REFIID riid, void** ppvObject);
+    HRESULT STDMETHODCALLTYPE Factory::CreateInstance(::IUnknown* pUnkOuter, REFIID riid, void** ppvObject) try
+    {
+        RETURN_HR_IF(E_POINTER, !ppvObject);
+        *ppvObject = nullptr;
+        RETURN_HR_IF(CLASS_E_NOAGGREGATION, pUnkOuter != nullptr);
+
+        return CreateOOPStaticsObject().as(riid, ppvObject);
+    }
+    CATCH_RETURN();
 
     HRESULT STDMETHODCALLTYPE Factory::LockServer(BOOL fLock)
     {
@@ -78,6 +104,8 @@ namespace Microsoft::Management::Configuration::OutOfProc
         {
             DecrementRefCount();
         }
+
+        return S_OK;
     }
 
     void Factory::IncrementRefCount()

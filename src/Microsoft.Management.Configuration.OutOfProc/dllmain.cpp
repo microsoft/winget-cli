@@ -21,7 +21,8 @@ EXTERN_C BOOL WINAPI DllMain(
     return TRUE;
 }
 
-STDAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID* ppv) try
+_Check_return_
+STDAPI DllGetClassObject(_In_ REFCLSID rclsid, _In_ REFIID riid, _Outptr_ LPVOID FAR* ppv) try
 {
     RETURN_HR_IF(E_POINTER, !ppv);
     *ppv = nullptr;
@@ -42,6 +43,7 @@ STDAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID* ppv) try
 }
 CATCH_RETURN();
 
+__control_entrypoint(DllExport)
 STDAPI DllCanUnloadNow()
 {
     return Factory::HasReferences() ? S_FALSE : S_OK;

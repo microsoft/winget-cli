@@ -26,7 +26,7 @@ namespace Microsoft::Management::Configuration::OutOfProc
         static bool IsCLSID(HSTRING clsid);
 
         // IActivationFactory
-        HRESULT STDMETHODCALLTYPE ActivateInstance(::IInspectable** instance);
+        winrt::Windows::Foundation::IInspectable ActivateInstance();
 
         // IClassFactory
         HRESULT STDMETHODCALLTYPE CreateInstance(::IUnknown *pUnkOuter, REFIID riid, void **ppvObject);
