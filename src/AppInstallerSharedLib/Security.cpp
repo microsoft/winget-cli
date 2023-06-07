@@ -21,6 +21,38 @@ namespace AppInstaller::Security
 
             return true;
         }
+
+        // Helper to impersonate the COM or RPC caller.
+        struct ImpersonateCOMorRPCCaller
+        {
+            ImpersonateCOMorRPCCaller()
+            {
+                if (SUCCEEDED_LOG(CoGetCallContext(IID_IServerSecurity, m_serverSecurity.put_void())))
+                {
+                    THROW_IF_FAILED(m_serverSecurity->ImpersonateClient());
+                }
+                else
+                {
+                    RPC_STATUS status = RpcImpersonateClient(nullptr);
+                    THROW_HR_IF(MAKE_HRESULT(SEVERITY_ERROR, FACILITY_RPC, status), status != RPC_S_OK);
+                }
+            }
+
+            ~ImpersonateCOMorRPCCaller()
+            {
+                if (m_serverSecurity)
+                {
+                    FAIL_FAST_IF_FAILED(m_serverSecurity->RevertToSelf());
+                }
+                else
+                {
+                    FAIL_FAST_IF(RpcRevertToSelf() != RPC_S_OK);
+                }
+            }
+
+        private:
+            wil::com_ptr<IServerSecurity> m_serverSecurity;
+        };
     }
 
     IntegrityLevel GetEffectiveIntegrityLevel()
@@ -74,12 +106,7 @@ namespace AppInstaller::Security
         auto serverUser = wil::get_token_information<TOKEN_USER>();
         IntegrityLevel serverIntegrityLevel = GetEffectiveIntegrityLevel();
 
-        // Impersonate caller token
-        // TODO: Handle RPC only caller as well
-        wil::com_ptr<IServerSecurity> serverSecurity;
-        THROW_IF_FAILED(CoGetCallContext(IID_IServerSecurity, serverSecurity.put_void()));
-        THROW_IF_FAILED(serverSecurity->ImpersonateClient());
-        auto stopImpersonation = wil::scope_exit([&]() { FAIL_FAST_IF_FAILED(serverSecurity->RevertToSelf()); });
+        ImpersonateCOMorRPCCaller impersonation;
 
         auto callingUser = wil::get_token_information<TOKEN_USER>();
         IntegrityLevel callingIntegrityLevel = GetEffectiveIntegrityLevel();
@@ -98,34 +125,6 @@ namespace AppInstaller::Security
 
         return true;
     }
-
-    // TODO: Figure out how to make AccessCheck happy or remove.
-    //bool IsCOMCallerSameUserAndIntegrityLevel()
-    //{
-    //    auto securityDescriptor = CreateSecurityDescriptorForCurrentUserWithMandatoryLabel(SDDL_NO_EXECUTE_UP, GetEffectiveIntegrityLevel());
-
-    //    // Impersonate caller token
-    //    wil::com_ptr<IServerSecurity> serverSecurity;
-    //    THROW_IF_FAILED(CoGetCallContext(IID_IServerSecurity, serverSecurity.put_void()));
-    //    THROW_IF_FAILED(serverSecurity->ImpersonateClient());
-
-    //    // Make up our own generic access bits
-    //    GENERIC_MAPPING genericMapping{};
-    //    genericMapping.GenericExecute = 0x1;
-    //    genericMapping.GenericRead = 0x2;
-    //    genericMapping.GenericWrite = 0x4;
-    //    genericMapping.GenericAll = genericMapping.GenericExecute | genericMapping.GenericRead | genericMapping.GenericWrite;
-
-    //    PRIVILEGE_SET privilegeSet{};
-    //    DWORD privilegeSetSize = sizeof(privilegeSet);
-
-    //    DWORD grantedAccess = 0;
-    //    BOOL checkResult = FALSE;
-
-    //    THROW_IF_WIN32_BOOL_FALSE(AccessCheck(securityDescriptor.get(), GetCurrentThreadEffectiveToken(), genericMapping.GenericExecute, &genericMapping, &privilegeSet, &privilegeSetSize, &grantedAccess, &checkResult));
-
-    //    return checkResult;
-    //}
 
     std::string ToString(PSID sid)
     {
