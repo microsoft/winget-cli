@@ -218,11 +218,8 @@ namespace AppInstaller::CLI::Workflow
             updateContext.Add<Execution::Data::Package>(match.Package);
 
             // Filter out packages with unknown installed versions
-            if (context.Args.Contains(Execution::Args::Type::IncludeUnknown))
-            {
-                updateContext.Args.AddArg(Execution::Args::Type::IncludeUnknown);
-            }
-            else if (Utility::Version(installedVersion->GetProperty(PackageVersionProperty::Version)).IsUnknown())
+            if (Utility::Version(installedVersion->GetProperty(PackageVersionProperty::Version)).IsUnknown() &&
+                !context.Args.Contains(Execution::Args::Type::IncludeUnknown))
             {
                 // we don't know what the package's version is and the user didn't ask to upgrade it anyway.
                 AICLI_LOG(CLI, Info, << "Skipping " << match.Package->GetProperty(PackageProperty::Id) << " as it has unknown installed version");

@@ -209,16 +209,6 @@
           "type": "boolean",
           "default": false
         },
-        "uninstallPreviousArgument": {
-          "description": "Enable argument to override upgrade behavior to UninstallPrevious",
-          "type": "boolean",
-          "default": false
-        },
-        "pinning": {
-          "description": "Enable support for package pinning",
-          "type": "boolean",
-          "default": false
-        },
         "configuration": {
           "description": "Enable support for configuration",
           "type": "boolean",

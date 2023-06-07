@@ -242,17 +242,6 @@ You can enable the feature as shown below.
    },
 ```
 
-### uninstallPreviousArgument
-
-This feature enables the Windows Package Manager to override the upgrade behavior to UninstallPrevious by passing the `--uninstall-previous` argument with the upgrade or install command. 
-You can enable the feature as shown below.
-
-```json
-   "experimentalFeatures": {
-       "uninstallPreviousArgument": true
-   },
-```
-
 ### dependencies
 
 Experimental feature with the aim of managing dependencies, as of now it only shows package dependency information. You can enable the feature as shown below.
@@ -260,17 +249,6 @@ Experimental feature with the aim of managing dependencies, as of now it only sh
 ```json
    "experimentalFeatures": {
        "dependencies": true
-   },
-```
-
-### pinning
-
-This feature enables the ability to pin packages to prevent the Windows Package Manager from updating them.
-You can enable the feature as shown below.
-
-```json
-   "experimentalFeatures": {
-       "pinning": true
    },
 ```
 

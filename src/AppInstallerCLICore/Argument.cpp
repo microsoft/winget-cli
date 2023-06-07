@@ -148,7 +148,7 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::All:
             return { type, "all"_liv, 'r', "recurse"_liv, ArgTypeCategory::MultiplePackages };
         case Execution::Args::Type::IncludeUnknown:
-            return { type, "include-unknown"_liv, 'u', "unknown"_liv };
+            return { type, "include-unknown"_liv, 'u', "unknown"_liv, ArgTypeCategory::CopyFlagToSubContext };
         case Execution::Args::Type::IncludePinned:
             return { type, "include-pinned"_liv, "pinned"_liv, ArgTypeCategory::CopyFlagToSubContext };
         case Execution::Args::Type::UninstallPrevious:
@@ -325,7 +325,7 @@ namespace AppInstaller::CLI
         case Args::Type::OpenLogs:
             return Argument{ type, Resource::String::OpenLogsArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help };
         case Args::Type::UninstallPrevious:
-            return Argument{ type, Resource::String::UninstallPreviousArgumentDescription, ArgumentType::Flag, ExperimentalFeature::Feature::UninstallPreviousArgument };
+            return Argument{ type, Resource::String::UninstallPreviousArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help };
         case Args::Type::Force:
             return Argument{ type, Resource::String::ForceArgumentDescription, ArgumentType::Flag, false };
         default:

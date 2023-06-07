@@ -180,6 +180,7 @@
     <ClInclude Include="FindPackagesOptions.h" />
     <ClInclude Include="FindPackagesResult.h" />
     <ClInclude Include="Helpers.h" />
+    <ClInclude Include="Icon.h" />
     <ClInclude Include="InstalledStatus.h" />
     <ClInclude Include="InstallOptions.h" />
     <ClInclude Include="InstallResult.h" />
@@ -214,6 +215,7 @@
     <ClCompile Include="FindPackagesOptions.cpp" />
     <ClCompile Include="FindPackagesResult.cpp" />
     <ClCompile Include="Helpers.cpp" />
+    <ClCompile Include="Icon.cpp" />
     <ClCompile Include="InstalledStatus.cpp" />
     <ClCompile Include="InstallOptions.cpp" />
     <ClCompile Include="InstallResult.cpp" />

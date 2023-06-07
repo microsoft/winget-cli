@@ -3,7 +3,6 @@
 #include "pch.h"
 #include "Documentation.g.cpp"
 #include "Documentation.h"
-#include <wil\cppwinrt_wrl.h>
 
 namespace winrt::Microsoft::Management::Deployment::implementation
 {

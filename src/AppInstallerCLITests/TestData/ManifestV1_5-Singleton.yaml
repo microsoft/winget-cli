@@ -24,7 +24,13 @@ PurchaseUrl: https://DefaultPurchaseUrl.com
 InstallationNotes: Default installation notes
 Documentations:
   - DocumentLabel: Default document label
-    DocumentUrl: https://DefaultDocumentUrl.com 
+    DocumentUrl: https://DefaultDocumentUrl.com
+Icons:
+  - IconUrl: https://testIcon
+    IconFileType: ico
+    IconResolution: custom
+    IconTheme: default
+    IconSha256: 69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8123
 Agreements:
   - AgreementLabel: DefaultLabel
     Agreement: DefaultText
