@@ -896,5 +896,4 @@ namespace AppInstaller::CLI::Workflow
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PACKAGE_IS_STUB);
         }
     }
-    
 }

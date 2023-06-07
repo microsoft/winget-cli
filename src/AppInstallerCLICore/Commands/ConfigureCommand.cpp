@@ -34,6 +34,7 @@ namespace AppInstaller::CLI
             Argument{ Execution::Args::Type::ConfigurationFile, Resource::String::ConfigurationFileArgumentDescription, ArgumentType::Positional },
             Argument{ Execution::Args::Type::ConfigurationAcceptWarning, Resource::String::ConfigurationAcceptWarningArgumentDescription, ArgumentType::Flag },
             Argument{ Execution::Args::Type::ConfigurationEnable, Resource::String::ConfigurationEnableMessage, ArgumentType::Flag, Argument::Visibility::Help },
+            Argument{ Execution::Args::Type::ConfigurationDisable, Resource::String::ConfigurationDisableMessage, ArgumentType::Flag, Argument::Visibility::Help },
         };
     }
 
@@ -60,6 +61,11 @@ namespace AppInstaller::CLI
             context <<
                 EnableConfiguration;
         }
+        else if (context.Args.Contains(Execution::Args::Type::ConfigurationDisable))
+        {
+            context <<
+                DisableConfiguration;
+        }
         else
         {
             context <<
@@ -76,7 +82,8 @@ namespace AppInstaller::CLI
 
     void ConfigureCommand::ValidateArgumentsInternal(Execution::Args& execArgs) const
     {
-        if (execArgs.Contains(Execution::Args::Type::ConfigurationEnable))
+        if (execArgs.Contains(Execution::Args::Type::ConfigurationEnable) ||
+            execArgs.Contains(Execution::Args::Type::ConfigurationDisable))
         {
             if (execArgs.GetArgsCount() > 1)
             {

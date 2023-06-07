@@ -82,8 +82,6 @@ namespace AppInstaller::CLI::Execution
             // Setting Command
             AdminSettingEnable,
             AdminSettingDisable,
-            StubPackage,
-            FullPackage,
 
             // Upgrade command
             All, // Used in Update command to update all installed packages to latest
@@ -106,6 +104,7 @@ namespace AppInstaller::CLI::Execution
             ConfigurationFile,
             ConfigurationAcceptWarning,
             ConfigurationEnable,
+            ConfigurationDisable,
 
             // Common arguments
             NoVT, // Disable VirtualTerminal outputs

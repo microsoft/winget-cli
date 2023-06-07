@@ -143,10 +143,6 @@ namespace AppInstaller::CLI
             return { type, "enable"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::EnableDisable };
         case Execution::Args::Type::AdminSettingDisable:
             return { type, "disable"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::EnableDisable };
-        case Execution::Args::Type::StubPackage:
-            return { type, "stub"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::StubType };
-        case Execution::Args::Type::FullPackage:
-            return { type, "full"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::StubType };
 
         // Upgrade command
         case Execution::Args::Type::All:
@@ -181,7 +177,9 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::ConfigurationAcceptWarning:
             return { type, "accept-configuration-agreements"_liv };
         case Execution::Args::Type::ConfigurationEnable:
-            return { type, "enable"_liv };
+            return { type, "enable"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::StubType };
+        case Execution::Args::Type::ConfigurationDisable:
+            return { type, "disable"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::StubType };
 
         // Common arguments
         case Execution::Args::Type::NoVT:

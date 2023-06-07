@@ -9,10 +9,6 @@
 namespace AppInstaller::CLI::Workflow
 {
     using namespace AppInstaller::SelfManagement;
-
-    // TODO: take out
-    using namespace AppInstaller::Utility::literals;
-
     using namespace std::string_view_literals;
     using namespace winrt::Windows::Foundation;
     using namespace winrt::Windows::Foundation::Collections;
@@ -176,7 +172,7 @@ namespace AppInstaller::CLI::Workflow
             return Utility::LocIndString{ ssError.str() };
         }
 
-        void MSStoreUpdateImpl(Execution::Context& context, const std::wstring& productId, Manifest::ScopeEnum scope, bool force)
+        HRESULT MSStoreUpdateImpl(Execution::Context& context, const std::wstring& productId, Manifest::ScopeEnum scope, bool force)
         {
             // Best effort verifying/acquiring product ownership.
             std::ignore = EnsureFreeEntitlement(context, productId, scope);
@@ -200,7 +196,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 context.Reporter.Info() << Resource::String::UpdateNotApplicable << std::endl
                     << Resource::String::UpdateNotApplicableReason << std::endl;
-                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE);
+                return APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE;
             }
 
             std::vector<AppInstallItem> installItemVector{ installItem };
@@ -218,14 +214,45 @@ namespace AppInstaller::CLI::Workflow
                 context.Reporter.Info() << Resource::String::MSStoreInstallOrUpdateFailed(errorCodeString) << std::endl;
                 context.Add<Execution::Data::OperationReturnCode>(errorCode);
                 AICLI_LOG(CLI, Error, << "MSStore execution failed. ProductId: " << Utility::ConvertToUTF8(productId) << " HResult: " << errorCodeString);
-                AICLI_TERMINATE_CONTEXT(errorCode);
+                return errorCode;
             }
+
+            return S_OK;
         }
 
-        void AppInstallerUpdate(Execution::Context& context, bool preferStub)
+        HRESULT EnsureStorePolicySatisfiedImpl(Execution::Context& context, const std::wstring& productId)
         {
+            constexpr std::wstring_view s_StoreClientName = L"Microsoft.WindowsStore"sv;
+            constexpr std::wstring_view s_StoreClientPublisher = L"CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"sv;
+
+            // Policy check
+            AppInstallManager installManager;
+
+            if (!WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::BypassIsStoreClientBlockedPolicyCheck) && installManager.IsStoreBlockedByPolicyAsync(s_StoreClientName, s_StoreClientPublisher).get())
+            {
+                context.Reporter.Error() << Resource::String::MSStoreStoreClientBlocked << std::endl;
+                AICLI_LOG(CLI, Error, << "Store client is blocked by policy. MSStore execution failed.");
+                return APPINSTALLER_CLI_ERROR_MSSTORE_BLOCKED_BY_POLICY;
+            }
+
+            //if (!installManager.GetIsAppAllowedToInstallAsync(productId).get())
+            if (true)
+            {
+                context.Reporter.Error() << Resource::String::MSStoreAppBlocked << std::endl;
+                AICLI_LOG(CLI, Error, << "App is blocked by policy. MSStore execution failed. ProductId: " << Utility::ConvertToUTF8(productId));
+                return APPINSTALLER_CLI_ERROR_MSSTORE_APP_BLOCKED_BY_POLICY;
+            }
+
+            return S_OK;
+        }
+
+        HRESULT AppInstallerUpdate(Execution::Context& context, bool preferStub)
+        {
+            auto appInstId = std::wstring{ s_AppInstallerProductId };
+            RETURN_IF_FAILED(EnsureStorePolicySatisfiedImpl(context, appInstId));
             SetStubPreferred(preferStub);
-            MSStoreUpdateImpl(context, std::wstring{ s_AppInstallerProductId }, Manifest::ScopeEnum::User, true);
+            RETURN_IF_FAILED(MSStoreUpdateImpl(context, appInstId, Manifest::ScopeEnum::User, true));
+            return S_OK;
         }
     }
 
@@ -291,56 +318,70 @@ namespace AppInstaller::CLI::Workflow
     {
         auto productId = Utility::ConvertToUTF16(context.Get<Execution::Data::Installer>()->ProductId);
         auto scope = Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
-        MSStoreUpdateImpl(context, productId, scope, false);
+        HRESULT hr = MSStoreUpdateImpl(context, productId, scope, false);
+        if (FAILED(hr))
+        {
+            AICLI_TERMINATE_CONTEXT(hr);
+        }
     }
 
     void EnsureStorePolicySatisfied(Execution::Context& context)
     {
         auto productId = Utility::ConvertToUTF16(context.Get<Execution::Data::Installer>()->ProductId);
-
-        constexpr std::wstring_view s_StoreClientName = L"Microsoft.WindowsStore"sv;
-        constexpr std::wstring_view s_StoreClientPublisher = L"CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"sv;
-
-        // Policy check
-        AppInstallManager installManager; 
-        
-        if (!WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::BypassIsStoreClientBlockedPolicyCheck) && installManager.IsStoreBlockedByPolicyAsync(s_StoreClientName, s_StoreClientPublisher).get())
+        HRESULT hr = EnsureStorePolicySatisfiedImpl(context, productId);
+        if (FAILED(hr))
         {
-            context.Reporter.Error() << Resource::String::MSStoreStoreClientBlocked << std::endl;
-            AICLI_LOG(CLI, Error, << "Store client is blocked by policy. MSStore execution failed.");
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_MSSTORE_BLOCKED_BY_POLICY);
+            AICLI_TERMINATE_CONTEXT(hr);
         }
-
-        if (!installManager.GetIsAppAllowedToInstallAsync(productId).get())
-        {
-            context.Reporter.Error() << Resource::String::MSStoreAppBlocked << std::endl;
-            AICLI_LOG(CLI, Error, << "App is blocked by policy. MSStore execution failed. ProductId: " << Utility::ConvertToUTF8(productId));
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_MSSTORE_APP_BLOCKED_BY_POLICY);
-        }
-    }
-
-    void AppInstallerInstallStubPackage(Execution::Context& context)
-    {
-        context.Reporter.Info() << Resource::String::InstallStubPackageMessage << std::endl;
-        AppInstallerUpdate(context, true);
-    }
-
-    void AppInstallerInstallFullPackage(Execution::Context& context)
-    {
-        context.Reporter.Info() << Resource::String::InstallFullPackageMessage << std::endl;
-        AppInstallerUpdate(context, false);
     }
 
     void EnableConfiguration(Execution::Context& context)
     {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        HRESULT hr = AppInstallerUpdate(context, false);
+        if (FAILED(hr))
+        {
+            AICLI_TERMINATE_CONTEXT(hr);
+        }
+#else
         if (IsStubPackage())
         {
             context.Reporter.Info() << Resource::String::ConfigurationEnablingMessage << std::endl;
-            AppInstallerUpdate(context, false);
+            HRESULT hr = AppInstallerUpdate(context, false);
+            if (FAILED(hr))
+            {
+                AICLI_TERMINATE_CONTEXT(hr);
+            }
         }
         else
         {
             context.Reporter.Info() << Resource::String::ConfigurationEnabledMessage << std::endl;
         }
+#endif
+    }
+
+    void DisableConfiguration(Execution::Context& context)
+    {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        HRESULT hr = AppInstallerUpdate(context, true);
+        if (FAILED(hr))
+        {
+            AICLI_TERMINATE_CONTEXT(hr);
+        }
+#else
+        if (!IsStubPackage())
+        {
+            context.Reporter.Info() << Resource::String::ConfigurationDisablingMessage << std::endl;
+            HRESULT hr = AppInstallerUpdate(context, true);
+            if (FAILED(hr))
+            {
+                AICLI_TERMINATE_CONTEXT(hr);
+            }
+        }
+        else
+        {
+            context.Reporter.Info() << Resource::String::ConfigurationDisabledMessage << std::endl;
+        }
+#endif
     }
 }

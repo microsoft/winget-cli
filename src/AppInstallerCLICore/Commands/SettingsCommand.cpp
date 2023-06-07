@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "SettingsCommand.h"
-#include "Workflows/MSStoreInstallerHandler.h"
 #include "Workflows/WorkflowBase.h"
 #include "Workflows/SettingsFlow.h"
 
@@ -29,8 +28,6 @@ namespace AppInstaller::CLI
         return {
             Argument{ Execution::Args::Type::AdminSettingEnable, Resource::String::AdminSettingEnableDescription, ArgumentType::Standard, Argument::Visibility::Help },
             Argument{ Execution::Args::Type::AdminSettingDisable, Resource::String::AdminSettingDisableDescription, ArgumentType::Standard, Argument::Visibility::Help },
-            Argument{ Execution::Args::Type::StubPackage, Resource::String::InstallStubPackageDescription, ArgumentType::Flag, Argument::Visibility::Hidden },
-            Argument{ Execution::Args::Type::FullPackage, Resource::String::InstallFullPackageDescription, ArgumentType::Flag, Argument::Visibility::Hidden },
         };
     }
 
@@ -86,16 +83,6 @@ namespace AppInstaller::CLI
             context <<
                 Workflow::EnsureRunningAsAdmin <<
                 Workflow::DisableAdminSetting;
-        }
-        else if (context.Args.Contains(Execution::Args::Type::StubPackage))
-        {
-            context <<
-                Workflow::AppInstallerInstallStubPackage;
-        }
-        else if (context.Args.Contains(Execution::Args::Type::FullPackage))
-        {
-            context <<
-                Workflow::AppInstallerInstallFullPackage;
         }
         else
         {

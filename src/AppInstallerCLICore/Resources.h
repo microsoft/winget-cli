@@ -53,6 +53,9 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationAssert);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationDescriptionWasTruncated);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationDisableMessage);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationDisabledMessage);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationDisablingMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationEnableArgumentError);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationEnableMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationEnabledMessage);
@@ -240,11 +243,9 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowReturnCodeSystemNotSupported);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowStartingPackageInstall);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFullPackageDescription);
-        WINGET_DEFINE_RESOURCE_STRINGID(InstallFullPackageMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallLocationNotProvided);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallScopeDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallStubPackageDescription);
-        WINGET_DEFINE_RESOURCE_STRINGID(InstallStubPackageMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallWaitingOnAnother);
         WINGET_DEFINE_RESOURCE_STRINGID(InteractiveArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(InvalidAliasError);
