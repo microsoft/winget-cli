@@ -63,6 +63,7 @@ certmgr
 certs
 cgi
 cinq
+CLASSNOTREG
 CLIE
 cloudapp
 cls
@@ -266,6 +267,7 @@ netfx
 netlify
 NETSDK
 Newtonsoft
+NOAGGREGATION
 NOCRLF
 NOEXPAND
 NOLINKINFO
@@ -337,6 +339,7 @@ rebootrequiredtofinish
 redirector
 Redist
 REFIID
+REGDB
 regexes
 REGSAM
 relativefilepath
@@ -429,7 +432,9 @@ uninstallation
 uninstaller
 uninstallprevious
 uninstalls
+Unk
 unknwn
+Unknwnbase
 unparsable
 unvirtualized
 UParse
@@ -461,6 +466,7 @@ wingetdev
 wingetutil
 winreg
 winrtact
+winstring
 withstarts
 wsl
 wsv
