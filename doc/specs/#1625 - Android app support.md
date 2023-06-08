@@ -25,7 +25,7 @@ Windows 11 or newer
 Windows Subsystem for Android
 ADB (Android Debug Bridge) (if it ends up being the method of installation)
 
-### Android YAML manifest
+### Android Installer Type manifest
 
 The "InstallerType" field in the YAML manifest file specifies the type of the application. A new InstallerType "Android" or "APK" will be added to show that a given application is an Android app.
 
