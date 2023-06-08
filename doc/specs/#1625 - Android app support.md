@@ -23,7 +23,7 @@ Android is by far the most used operating system on the planet, excluding a few 
 
 Windows 11 or newer  
 Windows Subsystem for Android
-ADB (if it ends up being the method of installation)
+ADB (Android Debug Bridge) (if it ends up being the method of installation)
 
 ### Android YAML manifest
 
