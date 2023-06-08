@@ -206,7 +206,7 @@
     <comment>{Locked="winget settings","{0}"}. Error message displayed when the user uses an experimental feature that is disabled. {0} is a placeholder replaced by the experimental feature name.</comment>
   </data>
   <data name="FeaturesCommandLongDescription" xml:space="preserve">
-    <value>顯示實驗功能的狀態。實驗功能可以透過 ‘winget settings’ 開啟。</value>
+    <value>顯次實驗功能的狀態。實驗功能可以從「winget settings」開啟。</value>
     <comment>{Locked="winget settings"}</comment>
   </data>
   <data name="FeaturesCommandShortDescription" xml:space="preserve">
@@ -270,6 +270,10 @@
   <data name="InstallationDisclaimerMSStore" xml:space="preserve">
     <value>此套件是透過 Microsoft Store 所提供。winget 可能需要代表目前的使用者從 Microsoft Store 取得套件。</value>
     <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="InstallCommandLongDescription" xml:space="preserve">
+    <value>安裝透過搜尋已設定來源或直接來自資訊清單的已選取套件。根據預設，査詢必須與套件的識別碼 (id)、名稱 (name) 或連結路徑 (moniker) 不區分大小寫。透過傳遞適當的選項，可以使用其他欄位。根據預設，install 命令將檢查套件的安裝狀態，並在適用的情况下嘗試執行升級。使用 --force 覆寫可執行直接安裝。</value>
+    <comment>{Locked="--force"}; id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>安裝指定的套件</value>
@@ -377,18 +381,6 @@
   <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
     <value>無法安裝或升級 Microsoft Store 套件。錯誤碼: {0}</value>
     <comment>{Locked="{0}"} Error message displayed when a Microsoft Store application package fails to install or upgrade. {0} is a placeholder replaced by an error code.</comment>
-  </data>
-  <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
-    <value>正在驗證/正在要求套件取得失敗：網路錯誤</value>
-  </data>
-  <data name="MSStoreInstallGetEntitlementNoStoreAccount" xml:space="preserve">
-    <value>正在驗證/正在要求套件取得失敗：找不到任何 store 帳戶</value>
-  </data>
-  <data name="MSStoreInstallGetEntitlementServerError" xml:space="preserve">
-    <value>正在驗證/正在要求套件取得失敗：伺服器錯誤</value>
-  </data>
-  <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
-    <value>正在驗證/正在要求套件取得成功</value>
   </data>
   <data name="MSStoreStoreClientBlocked" xml:space="preserve">
     <value>無法安裝或升級 Microsoft Store 套件，因為 Microsoft Store 用戶端受原則封鎖</value>
@@ -603,7 +595,7 @@
     <comment>{Locked="source reset"}</comment>
   </data>
   <data name="SourceOpenPredefinedFailedSuggestion" xml:space="preserve">
-    <value>無法開啟預先定義的來源;請回報 winget maintainers。</value>
+    <value>無法開啟預先定義的來源; 請向 winget 維護者回報。</value>
     <comment>{Locked="winget"}</comment>
   </data>
   <data name="SourceRemoveAll" xml:space="preserve">
@@ -684,6 +676,9 @@
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>執行命令時，發生意外的錯誤：</value>
   </data>
+  <data name="UninstallPreviousArgumentDescription" xml:space="preserve">
+    <value>在升級期間卸載舊版的套件</value>
+  </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>無法辨識的命令: [{0}]</value>
     <comment>{Locked="{0}"} Error message displayed when the user provides an unrecognized command. {0} is a placeholder replaced by the user input.</comment>
@@ -694,6 +689,15 @@
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>找不到適用的升級。</value>
   </data>
+  <data name="UpdateNotApplicableReason" xml:space="preserve">
+    <value>已設定的來源中有較新的套件版本，但不適用於您的系統或需求。</value>
+  </data>
+  <data name="UpdateNoPackagesFound" xml:space="preserve">
+    <value>找不到可用的升級。</value>
+  </data>
+  <data name="UpdateNoPackagesFoundReason" xml:space="preserve">
+    <value>沒有較新的套件版本可從設定的來源使用。</value>
+  </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
     <value>可透過搜尋已安裝的套件或直接從資訊清單中，升級已選取的套件。根據預設，查詢必須不區分大小寫地符合該套件的識別碼、名稱或連結路徑。您可以透過傳遞適當的選項，來使用其他欄位。未提供引數時，顯示具有可用升級的套件</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
@@ -703,7 +707,7 @@
   </data>
   <data name="Usage" xml:space="preserve">
     <value>使用狀況: {0}{1}</value>
-    <comment>{Locked="{0}","{1}"} Message displayed to provide the user with instructions on how to use a command. {0} is a placeholder replaced by the program name (e.g. 'winget'). {1} is a placeholder replaced by the pattern for using the selected command.</comment>
+    <comment>{Locked="{0} {1}"} Message displayed to provide the user with instructions on how to use a command. {0} is a placeholder replaced by the program name (e.g. 'winget'). {1} is a placeholder replaced by the pattern for using the selected command.</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
     <value>使用一套嚴格的指導方針驗證資訊清單。這是為了讓您能夠在提交報告之前檢查您的資訊清單。</value>
@@ -715,7 +719,7 @@
     <value>要驗證的資訊清單路徑</value>
   </data>
   <data name="VerboseLogsArgumentDescription" xml:space="preserve">
-    <value>啟用 WinGet 詳細資訊記錄</value>
+    <value>為 winget 啟用詳細登入</value>
   </data>
   <data name="VerifyFileSignedMsix" xml:space="preserve">
     <value>請確認輸入檔是有效且已簽署的 MSIX。</value>
@@ -757,10 +761,6 @@
   </data>
   <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
     <value>提供本地顯示和搜尋查詢引數</value>
-  </data>
-  <data name="Logs" xml:space="preserve">
-    <value>記錄檔: {0}</value>
-    <comment>{Locked="{0}"} Label displayed for diagnostic files containing information about the application use. {0} is a placeholder replaced by the logs directory path.</comment>
   </data>
   <data name="InstallerBlockedByPolicy" xml:space="preserve">
     <value>安裝程式受到政策封鎖</value>
@@ -824,10 +824,6 @@
   <data name="ImportInstallFailed" xml:space="preserve">
     <value>無法安裝一或多個匯入的套件</value>
   </data>
-  <data name="ImportSearchFailed" xml:space="preserve">
-    <value>找不到要匯入的套件: {0}</value>
-    <comment>{Locked="{0}"} Error message displayed when the user attempts to import an application package that was not found. {0} is a placeholder replaced by the import package name .</comment>
-  </data>
   <data name="ImportSourceNotInstalled" xml:space="preserve">
     <value>未安裝匯入所需的來源： {0}</value>
     <comment>{Locked="{0}"} Error message displayed when the user attempts to import application package(s) from a repository source that is not installed. {0} is a placeholder replaced by the repository source name.</comment>
@@ -838,7 +834,7 @@
   </data>
   <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
     <value>已安裝的套件版本無法從任一來源取得: {0}{1}{2}</value>
-    <comment>{Locked="{0}","{1}","{2}"} Warning message displayed when the user attempts to export an installed application package with a version that is not available from any repository source. {0} is a placeholder replaced by the installed package identifier. {1} is a placeholder replaced by the installed package version. {2} is a placeholder replaced by the installed package channel.</comment>
+    <comment>{Locked="{0} {1} {2}"} Warning message displayed when the user attempts to export an installed application package with a version that is not available from any repository source. {0} is a placeholder replaced by the installed package identifier. {1} is a placeholder replaced by the installed package version. {2} is a placeholder replaced by the installed package channel.</comment>
   </data>
   <data name="NoPackagesInImportFile" xml:space="preserve">
     <value>在匯入檔案中找不到套件</value>
@@ -846,9 +842,9 @@
   <data name="InvalidJsonFile" xml:space="preserve">
     <value>JSON 檔案無效。</value>
   </data>
-  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+  <data name="MultiQueryPackageAlreadyInstalled" xml:space="preserve">
     <value>已安裝的套件: {0}</value>
-    <comment>{Locked="{0}"} Message displayed to inform the user that an import application package is already installed. {0} is a placeholder replaced by the package identifier.</comment>
+    <comment>{Locked="{0}"} Message displayed to inform the user that an application package is already installed. {0} is a placeholder replaced by the package identifier or search query.</comment>
   </data>
   <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
     <value>略過無法使用的套件</value>
@@ -902,21 +898,9 @@
   <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
     <value>設定 Windows 封裝管理員來源自動更新間隔 (分鐘)</value>
   </data>
-  <data name="PoliciesDisabled" xml:space="preserve">
-    <value>停用</value>
-    <comment>As in enabled/disabled</comment>
-  </data>
-  <data name="PoliciesEnabled" xml:space="preserve">
-    <value>已啟用</value>
-    <comment>As in enabled/disabled</comment>
-  </data>
   <data name="PoliciesPolicy" xml:space="preserve">
     <value>群組原則</value>
     <comment>Header for a table listing active Group Policies</comment>
-  </data>
-  <data name="PoliciesState" xml:space="preserve">
-    <value>州</value>
-    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
   </data>
   <data name="PolicyEnableLocalManifests" xml:space="preserve">
     <value>啟用 Windows 應用程式安裝程式本機資訊清單檔案</value>
@@ -1024,7 +1008,7 @@
   </data>
   <data name="DependenciesFlowNoSuitableInstallerFound" xml:space="preserve">
     <value>找不到適用于 manifest： {0} {1} 的安裝程式</value>
-    <comment>{Locked="{0}","{1}"} Error message displayed when an attempt to get a preferred installer for a manifest fails. {0} is a placeholder replaced by the manifest identifier. {1} is a placeholder replaced by the manifest version.</comment>
+    <comment>{Locked="{0} {1}"} Error message displayed when an attempt to get a preferred installer for a manifest fails. {0} is a placeholder replaced by the manifest identifier. {1} is a placeholder replaced by the manifest version.</comment>
   </data>
   <data name="DependenciesManagementError" xml:space="preserve">
     <value>處理套件相依性時發生錯誤，是否要繼續安裝？</value>
@@ -1217,15 +1201,17 @@
   <data name="AdminSettingDisableDescription" xml:space="preserve">
     <value>停用特定系統管理員設定</value>
   </data>
-  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
-    <value>提供過多的系統管理員設定引數: [{0}]</value>
-    <comment>{Locked="{0}"} Error message displayed when the user provides too many admin setting arguments. {0} is a placeholder replaced by the admin setting arguments (e.g. 'enable|disable').</comment>
-  </data>
   <data name="AdminSettingEnabled" xml:space="preserve">
-    <value>已啟用系統管理員設定。</value>
+    <value>啟用管理員設定'{0}'。</value>
+    <comment>{Locked="{0}"} Message displayed when the user enables an admin setting. {0} is a placeholder replaced by the setting name.</comment>
   </data>
   <data name="AdminSettingDisabled" xml:space="preserve">
-    <value>已停用系統管理員設定。</value>
+    <value>關閉管理員設定 '{0}'。</value>
+    <comment>{Locked="{0}"} Message displayed when the user disables an admin setting. {0} is a placeholder replaced by the setting name.</comment>
+  </data>
+  <data name="AdminSettingHeader" xml:space="preserve">
+    <value>管理員設定</value>
+    <comment>Header for a table displaying admin settings.</comment>
   </data>
   <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
     <value>應用程式目前正在執行。結束應用程式，然後再試一次。</value>
@@ -1315,6 +1301,9 @@
   <data name="CountOutOfBoundsError" xml:space="preserve">
     <value>要求的結果數目必須介於 1 到 1000 之間。</value>
   </data>
+  <data name="CustomSwitchesArgumentDescription" xml:space="preserve">
+    <value>除預設外在安裝器上通過引數</value>
+  </data>
   <data name="UpgradeDifferentInstallTechnologyInNewerVersions" xml:space="preserve">
     <value>找到較新的版本，但安裝技術與目前安裝的版本不同。請卸載套件並安裝較新的版本。</value>
   </data>
@@ -1335,21 +1324,13 @@
     <value>無法判斷此套件的版本號碼。若要繼續升級，請將引數 「--include-unknown」新增至先前的命令。</value>
     <comment>{Locked="--include-unknown"}</comment>
   </data>
-  <data name="UpgradeUnknownCount" xml:space="preserve">
-    <value>無法判斷套件的版本號碼。使用「--include-unknown」可能會顯示更多結果。</value>
-    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions. </comment>
-  </data>
-  <data name="UpgradeUnknownCountSingle" xml:space="preserve">
-    <value>無法判斷套件的版本號碼。使用「--include-unknown」可能會顯示更多結果。</value>
-    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions.</comment>
-  </data>
   <data name="UpgradeUnknownVersionCount" xml:space="preserve">
-    <value>無法確定套件版本號碼。請使用 "--include-unknown" 以查看所有結果。</value>
-    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions. </comment>
+    <value>{0} 套件具有無法確認的版本號碼。使用--include-unknown (包含未知項目) 來看到所有結果。</value>
+    <comment>{Locked="{0}","--include-unknown"} {0} is a placeholder that is replaced by an integer number of packages that do not have notated versions. </comment>
   </data>
   <data name="UpgradeRequireExplicitCount" xml:space="preserve">
-    <value>套件已釘選，需要明確升級。</value>
-    <comment>This string is preceded by a (integer) number of packages that require explicit upgrades.</comment>
+    <value>{0} 套件已固定且需要特別更新。</value>
+    <comment>{Locked="{0}"} {0} is a placeholder that is replaced by an integer number of packages that require explicit upgrades.</comment>
   </data>
   <data name="InvalidArgumentWithoutQueryError" xml:space="preserve">
     <value>提供的引數只能與查詢一起使用。</value>
@@ -1407,10 +1388,6 @@
   </data>
   <data name="PortableInstallFailed" xml:space="preserve">
     <value>可攜式安裝失敗；正在清除...</value>
-  </data>
-  <data name="BothPurgeAndPreserveFlagsProvided" xml:space="preserve">
-    <value>已同時提供 --purge 和 --preserve 引數</value>
-    <comment>{Locked="--purge"} {Locked="--preserve"}</comment>
   </data>
   <data name="PortableHashMismatchOverridden" xml:space="preserve">
     <value>已修改 Portable 套件: 正在繼續，因為 --force</value>
@@ -1544,14 +1521,14 @@
     <comment>{Locked="{0}"} The value will be replaced with the feature name</comment>
   </data>
   <data name="PinAddCommandLongDescription" xml:space="preserve">
-    <value>新增釘選。釘選會限制 Windows 封裝管理員將套件更新至特定版本範圍，或是造成無法完全更新套件。釘選的套件可能仍會自行更新，並從Windows 封裝管理員外部更新。根據預設，釘選的套件可以透過在 'upgrade' 命令中明確提及，或將 '--include-pinned' 旗標新增至 'winget upgrade --all' 來更新。</value>
+    <value>新增釘選。釘選可以限制 Windows 套件管理員將套件更新至指定的版本範圍，或是避免一次更新所有套件。固定的套件仍可以自行更新，且能在 Windows 套件管理員外進行更新。根據預設，固定的套件可以藉由在「更新」指令中特別指定來更新，或是利用「--include-pinned」(包含固定項目) 旗標至「winget upgrade --all」(winget 更新—全部。)</value>
     <comment>{Locked{"'upgrade'"} Locked{"--include-pinned"} Locked{"winget upgrade --all"}</comment>
   </data>
   <data name="PinAddCommandShortDescription" xml:space="preserve">
     <value>新增新釘選</value>
   </data>
   <data name="PinCommandLongDescription" xml:space="preserve">
-    <value>使用子命令管理封裝釘選。釘選會限制 Windows 封裝管理員將套件更新至特定版本範圍，或是造成無法完全更新套件。釘選的套件可能仍會自行更新，並從 Windows 封裝管理員外部更新。</value>
+    <value>釘選可以限制 Windows 套件管理員將套件更新至指定的版本範圍，或是避免一次更新所有套件。固定套件仍可以自行更新，且能在 Windows 套件管理員外進行更新。</value>
   </data>
   <data name="PinCommandShortDescription" xml:space="preserve">
     <value>管理套件釘選</value>
@@ -1574,15 +1551,11 @@
   <data name="PinResetCommandShortDescription" xml:space="preserve">
     <value>重設釘選?</value>
   </data>
-  <data name="BothGatedVersionAndBlockingFlagProvided" xml:space="preserve">
-    <value>已提供版本和 '--blocking' 引數</value>
-    <comment>{Locked="--blocking"}</comment>
-  </data>
   <data name="GatedVersionArgumentDescription" xml:space="preserve">
     <value>要釘選封裝的版本。萬用字元 '*' 可以做為最後一個版本元件</value>
   </data>
   <data name="PinAddBlockingArgumentDescription" xml:space="preserve">
-    <value>禁止更新直到移除釘選，以防止覆寫引數</value>
+    <value>直到移除釘選前，都對更新進行封鎖，以防止覆寫引數</value>
   </data>
   <data name="SettingsExportCommandLongDescription" xml:space="preserve">
     <value>將設定匯出為 JSON</value>
@@ -1590,15 +1563,228 @@
   <data name="SettingsExportCommandShortDescription" xml:space="preserve">
     <value>匯出設定</value>
   </data>
-  <data name="UserSettings" xml:space="preserve">
-    <value>使用者設定: {0}</value>
-    <comment>{Locked="{0}"} Label displayed for the file containing the user settings. {0} is a placeholder replaced by the user settings file path.</comment>
-  </data>
   <data name="SettingsWarningUsingDefault" xml:space="preserve">
     <value>無法載入設定檔案。使用預設值。</value>
   </data>
   <data name="InstalledScopeArgumentDescription" xml:space="preserve">
     <value>選取已安裝的套件範圍篩選條件 (使用者或電腦)</value>
     <comment>This argument allows the user to select installed packages for just the user or for the entire machine.</comment>
+  </data>
+  <data name="PinAdded" xml:space="preserve">
+    <value>成功新增釘選</value>
+  </data>
+  <data name="PinAlreadyExists" xml:space="preserve">
+    <value>已經有封裝{0}的 PIN</value>
+    <comment>{Locked="{0}"} {0} is a placeholder that will be replaced by a package name. The message is shown when attempting to add a pin for a package that is already pinned.</comment>
+  </data>
+  <data name="PinExistsOverwriting" xml:space="preserve">
+    <value>套件{0}已經有 PIN。正在覆寫，因為--force引數。</value>
+    <comment>{Locked="--force"}{Locked="--force","{0}"} {0} is a placeholder that will be replaced by a package name.</comment>
+  </data>
+  <data name="PinExistsUseForceArg" xml:space="preserve">
+    <value>套件{0}已經有 PIN。使用--force引數覆寫。</value>
+    <comment>{Locked="--force","{0}"} {0} is a placeholder that will be replaced by a package name.</comment>
+  </data>
+  <data name="PinResettingAll" xml:space="preserve">
+    <value>重設目前所有釘選。</value>
+  </data>
+  <data name="PinResetUseForceArg" xml:space="preserve">
+    <value>使用--force引數重設所有釘選。將移除下列 PIN：</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="PinType" xml:space="preserve">
+    <value>釘選類型</value>
+  </data>
+  <data name="PinDoesNotExist" xml:space="preserve">
+    <value>{0} 套件沒有釘選</value>
+    <comment>{Locked="{0}"} {0} is a placeholder that will be replaced by a package name. The message is shown when attempting to delete a pin for a package that is not pinned.</comment>
+  </data>
+  <data name="PinNoPinsExist" xml:space="preserve">
+    <value>沒有經過設定的釘選。</value>
+    <comment>Shown when listing or modifying existing pins if there are none.</comment>
+  </data>
+  <data name="PinResetSuccessful" xml:space="preserve">
+    <value>成功重置釘選</value>
+    <comment>Shown after resetting (deleting) all the pins</comment>
+  </data>
+  <data name="PinCannotOpenIndex" xml:space="preserve">
+    <value>無法開啟釘選資料庫</value>
+    <comment>Error message for when we cannot open the database containing package pins.</comment>
+  </data>
+  <data name="ArgumentForSinglePackageProvidedWithMultipleQueries" xml:space="preserve">
+    <value>提供僅能用於單一套件的引數</value>
+  </data>
+  <data name="MultipleExclusiveArgumentsProvided" xml:space="preserve">
+    <value>已提供多個互斥的引數: {0}</value>
+    <comment>{Locked="{0}"} Error message shown when mutually incompatible command line arguments are used. {0} is a placeholder replaced by the arguments that cannot be specified together</comment>
+  </data>
+  <data name="StateDisabled" xml:space="preserve">
+    <value>停用</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="StateEnabled" xml:space="preserve">
+    <value>已啟用</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="StateHeader" xml:space="preserve">
+    <value>州</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies and Settings</comment>
+  </data>
+  <data name="MultiQueryArgumentDescription" xml:space="preserve">
+    <value>用來搜尋套件的查詢</value>
+  </data>
+  <data name="MultiQueryPackageNotFound" xml:space="preserve">
+    <value>找不到套件: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user attempts to search for multiple application packages and one of the searches returns no results. {0} is a placeholder replaced by the package name or query.</comment>
+  </data>
+  <data name="MultiQuerySearchFoundMultiple" xml:space="preserve">
+    <value>找到多個套件: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user attempts to search for multiple application packages and one of the searches returns more than one result. {0} is a placeholder replaced by the package name or query.</comment>
+  </data>
+  <data name="MultiQuerySearchFailed" xml:space="preserve">
+    <value>搜尋失敗: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user attempts to search for multiple application packages and one of the searches fails. This message is for generic failures, we have more specific messages for when the search returns no results, or when it returns more than one result. {0} is a placeholder replaced by the package name or query.</comment>
+  </data>
+  <data name="IncludePinnedArgumentDescription" xml:space="preserve">
+    <value>即使有非封鎖釘選仍要更新套件</value>
+  </data>
+  <data name="PinRemovedSuccessfully" xml:space="preserve">
+    <value>成功移除釘選</value>
+  </data>
+  <data name="UpgradeIsPinned" xml:space="preserve">
+    <value>找到更新的版本，但套件具有防止更新的釘選。</value>
+  </data>
+  <data name="PackageIsPinned" xml:space="preserve">
+    <value>已固定套件且無法更新。使用「winget pin」指令來檢視並編輯釘選。有些釘選類型可以透過--include-pinned (包含固定項目) 引數執行繞過。</value>
+    <comment>{Locked="winget pin","--include-pinned"} Error shown when we block an upgrade due to the package being pinned</comment>
+  </data>
+  <data name="UpgradePinnedByUserCount" xml:space="preserve">
+    <value>{0} 個套件有阻止更新的釘選。請使用「winget pin」指令來檢視並編輯釘選。使用 --include-pinned (包含固定項目) 引數可能會顯示更多結果。</value>
+    <comment>{Locked="winget pin","--include-pinned"} {0} is a placeholder replaced by an integer number of packages</comment>
+  </data>
+  <data name="ConfigureCommandLongDescription" xml:space="preserve">
+    <value>確保系統是否符合所提供設定所述的預期狀態。可下載/執行處理器，以獲得所需的狀態。應該先檢查設定和處理器，以確保它們在套用前值得信任。</value>
+  </data>
+  <data name="ConfigureCommandShortDescription" xml:space="preserve">
+    <value>將系統設定為所需的狀態</value>
+  </data>
+  <data name="ConfigureShowCommandLongDescription" xml:space="preserve">
+    <value>顯示所提供設定的詳細資料。根據預設，不會修改系統，但某些選項會造成檔案下載和/或載入。</value>
+  </data>
+  <data name="ConfigureShowCommandShortDescription" xml:space="preserve">
+    <value>顯示設定的詳細資料</value>
+  </data>
+  <data name="ConfigureTestCommandLongDescription" xml:space="preserve">
+    <value>檢查系統是否符合所提供設定所述的預期狀態。可下載/執行處理器，以測試所需的狀態。應該先檢查設定和處理器，以確保它們在執行前值得信任。</value>
+  </data>
+  <data name="ConfigureTestCommandShortDescription" xml:space="preserve">
+    <value>檢查系統是否處於預期狀態</value>
+  </data>
+  <data name="ConfigureValidateCommandLongDescription" xml:space="preserve">
+    <value>驗證設定檔案的正確性。</value>
+  </data>
+  <data name="ConfigureValidateCommandShortDescription" xml:space="preserve">
+    <value>驗證設定檔案</value>
+  </data>
+  <data name="ConfigurationFileArgumentDescription" xml:space="preserve">
+    <value>設定檔案的路徑</value>
+  </data>
+  <data name="ConfigurationFileInvalid" xml:space="preserve">
+    <value>設定檔案無效。</value>
+  </data>
+  <data name="ConfigurationFileVersionUnknown" xml:space="preserve">
+    <value>設定檔案版本 {0} 不明。</value>
+    <comment>{Locked="{0}"} An error in reading a configuration file. {0} is a placeholder replaced by the version of the configuration file.</comment>
+  </data>
+  <data name="ConfigurationAcceptWarningArgumentDescription" xml:space="preserve">
+    <value>接受設定警告，防止互動式提示</value>
+  </data>
+  <data name="ConfigurationApply" xml:space="preserve">
+    <value>套用</value>
+    <comment>Indicates that this item is used to write state</comment>
+  </data>
+  <data name="ConfigurationAssert" xml:space="preserve">
+    <value>判斷提示</value>
+    <comment>Indicates that this item is used to check/assert the state rather than write to it</comment>
+  </data>
+  <data name="ConfigurationDependencies" xml:space="preserve">
+    <value>相依性: {0}</value>
+    <comment>{Locked="{0}"} Label displaying a list of dependencies. {0} is replaced with a space separated list of identifiers referencing other items.</comment>
+  </data>
+  <data name="ConfigurationFailedToApply" xml:space="preserve">
+    <value>某些設定未成功套用。</value>
+  </data>
+  <data name="ConfigurationFailedToGetDetails" xml:space="preserve">
+    <value>無法取得設定的詳細資訊。</value>
+  </data>
+  <data name="ConfigurationInform" xml:space="preserve">
+    <value>通知</value>
+    <comment>Indicates that this item is used to retrieve values for future use rather than writing them</comment>
+  </data>
+  <data name="ConfigurationLocal" xml:space="preserve">
+    <value>本機</value>
+    <comment>Used to indicate that the item is present on the device.</comment>
+  </data>
+  <data name="ConfigurationModuleNameOnly" xml:space="preserve">
+    <value>模組: {0}</value>
+    <comment>{Locked="{0}"} Label displaying a module name. {0} is replaced with the name of the module from the user input file.</comment>
+  </data>
+  <data name="ConfigurationModuleWithDetails" xml:space="preserve">
+    <value>模組: {0} {1} [{2}]</value>
+    <comment>{Locked="{0}","{1}","{2}"} Label displaying module information. {0} is replaced by the module name. {1} is replaced by the module author. {2} is replaced by a string indicating the source of the module.</comment>
+  </data>
+  <data name="ConfigurationSettings" xml:space="preserve">
+    <value>設定:</value>
+    <comment>Label for the values that are used as inputs for this item when applying state</comment>
+  </data>
+  <data name="ConfigurationSuccessfullyApplied" xml:space="preserve">
+    <value>已成功套用設定。</value>
+  </data>
+  <data name="ConfigurationWaitingOnAnother" xml:space="preserve">
+    <value>正在將另一個設定套用到系統。此設定會儘快繼續...</value>
+  </data>
+  <data name="ConfigurationWarning" xml:space="preserve">
+    <value>您必須瞭解您選擇要執行的組態設定。Microsoft 不負責您已撰寫或匯入的設定檔。此設定可能會變更 Windows 中的設定、安裝軟體、變更軟體設定 (包括安全性設定)，以及代表您接受與協力廠商套件和服務的使用者合約。 執行此設定檔案，即表示您瞭解並同意這些資源與設定。所有安裝的應用程式均由其擁有者授權給您。Microsoft 不負責，也不會授與任何授權給協力廠商套件或服務。</value>
+    <comment>Legal approved. Do not change without approval.</comment>
+  </data>
+  <data name="ConfigurationWarningPrompt" xml:space="preserve">
+    <value>您是否已檢閱過設定，是否要繼續將它套用至系統?</value>
+    <comment>PM approved.</comment>
+  </data>
+  <data name="ConfigurationFileEmpty" xml:space="preserve">
+    <value>設定是空的。</value>
+  </data>
+  <data name="WindowsFeatureNotFound" xml:space="preserve">
+    <value>找不到功能 [{0}]。</value>
+    <comment>{Locked="{0}"} Error message displayed when a Windows feature was not found on the system.</comment>
+  </data>
+  <data name="FailedToEnableWindowsFeatureOverrideRequired" xml:space="preserve">
+    <value>無法啟用 Windows 功能相依性。若要繼續安裝，請使用'--force'。</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="RebootRequiredToEnableWindowsFeatureOverrideRequired" xml:space="preserve">
+    <value>必須重新開機，才能完全啟用 Windows 功能;若要覆寫此檢查，請使用 [--force]。</value>
+    <comment>"Windows Feature(s)" is the name of the options Windows features setting.</comment>
+  </data>
+  <data name="FailedToEnableWindowsFeatureOverridden" xml:space="preserve">
+    <value>無法啟用 Windows 功能相依性;因為 [--force] 而繼續</value>
+    <comment>"Windows Feature(s)" is the name of the options Windows features setting.
+{Locked="--force"}</comment>
+  </data>
+  <data name="EnablingWindowsFeature" xml:space="preserve">
+    <value>啟用 {0} [{1}]...</value>
+    <comment>{Locked="{0}","{1}"} Message displayed to the user regarding which Windows Feature is being enabled.</comment>
+  </data>
+  <data name="FailedToEnableWindowsFeature" xml:space="preserve">
+    <value>無法啟用 {0} [{1}] 功能。</value>
+    <comment>{Locked="{0}"} Windows Feature display name
+{Locked="{1}"} Windows Feature name</comment>
+  </data>
+  <data name="RebootRequiredToEnableWindowsFeatureOverridden" xml:space="preserve">
+    <value>必須重新開機，才能完全啟用 Windows 功能;因為 [--force] 而繼續</value>
+    <comment>"Windows Feature(s)" is the name of the options Windows features setting.</comment>
+  </data>
+  <data name="InstallWaitingOnAnother" xml:space="preserve">
+    <value>正在等候另一個安裝/卸載完成...</value>
   </data>
 </root>

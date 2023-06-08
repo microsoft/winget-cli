@@ -8,7 +8,7 @@ namespace AppInstaller::CLI
 {
     struct PinCommand final : public Command
     {
-        PinCommand(std::string_view parent) : Command("pin", {} /* aliases */, parent, Settings::ExperimentalFeature::Feature::Pinning) {}
+        PinCommand(std::string_view parent) : Command("pin", {} /* aliases */, parent) {}
 
         std::vector<std::unique_ptr<Command>> GetCommands() const override;
 

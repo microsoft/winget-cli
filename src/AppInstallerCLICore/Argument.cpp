@@ -148,7 +148,7 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::All:
             return { type, "all"_liv, 'r', "recurse"_liv, ArgTypeCategory::MultiplePackages };
         case Execution::Args::Type::IncludeUnknown:
-            return { type, "include-unknown"_liv, 'u', "unknown"_liv };
+            return { type, "include-unknown"_liv, 'u', "unknown"_liv, ArgTypeCategory::CopyFlagToSubContext };
         case Execution::Args::Type::IncludePinned:
             return { type, "include-pinned"_liv, "pinned"_liv, ArgTypeCategory::CopyFlagToSubContext };
         case Execution::Args::Type::UninstallPrevious:

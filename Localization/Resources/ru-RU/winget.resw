@@ -206,7 +206,7 @@
     <comment>{Locked="winget settings","{0}"}. Error message displayed when the user uses an experimental feature that is disabled. {0} is a placeholder replaced by the experimental feature name.</comment>
   </data>
   <data name="FeaturesCommandLongDescription" xml:space="preserve">
-    <value>Показывает состояние экспериментальных компонентов. Экспериментальные компонентов можно включить с помощью файла "winget settings".</value>
+    <value>Показывает состояние экспериментальных компонентов. Экспериментальные компоненты можно включить с помощью команды "winget settings".</value>
     <comment>{Locked="winget settings"}</comment>
   </data>
   <data name="FeaturesCommandShortDescription" xml:space="preserve">
@@ -270,6 +270,10 @@
   <data name="InstallationDisclaimerMSStore" xml:space="preserve">
     <value>Этот пакет предоставляется через Microsoft Store. Программе winget может потребоваться получить пакет в Microsoft Store от имени текущего пользователя.</value>
     <comment>{Locked="winget"}</comment>
+  </data>
+  <data name="InstallCommandLongDescription" xml:space="preserve">
+    <value>Устанавливает выбранный пакет, найденный путем поиска в настроенном источнике или непосредственно из манифеста. По умолчанию запрос должен сравнить id, name или moniker пакета (без учета регистра). Можно использовать и другие поля, указав соответствующий параметр. По умолчанию команда установки проверяет состояние установки пакета и, если применимо, пытается выполнить обновление. Переопределите с помощью параметра --force для прямой установки.</value>
+    <comment>{Locked="--force"}; id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
   </data>
   <data name="InstallCommandShortDescription" xml:space="preserve">
     <value>Установка указанного пакета</value>
@@ -377,18 +381,6 @@
   <data name="MSStoreInstallOrUpdateFailed" xml:space="preserve">
     <value>Не удалось установить или обновить пакет Microsoft Store. Код ошибки: {0}</value>
     <comment>{Locked="{0}"} Error message displayed when a Microsoft Store application package fails to install or upgrade. {0} is a placeholder replaced by an error code.</comment>
-  </data>
-  <data name="MSStoreInstallGetEntitlementNetworkError" xml:space="preserve">
-    <value>Проверка/запрос ошибки при получении пакета: ошибка сети</value>
-  </data>
-  <data name="MSStoreInstallGetEntitlementNoStoreAccount" xml:space="preserve">
-    <value>Проверка/запрос ошибки при получении пакета: не найдена учетная запись магазина</value>
-  </data>
-  <data name="MSStoreInstallGetEntitlementServerError" xml:space="preserve">
-    <value>Проверка/запрос ошибки при получении пакета: ошибка сервера</value>
-  </data>
-  <data name="MSStoreInstallGetEntitlementSuccess" xml:space="preserve">
-    <value>Проверка/запрос успешного состояния получения пакета</value>
   </data>
   <data name="MSStoreStoreClientBlocked" xml:space="preserve">
     <value>Не удалось установить или обновить пакет Microsoft Store, так как клиент Microsoft Store заблокирован политикой</value>
@@ -684,6 +676,9 @@
   <data name="UnexpectedErrorExecutingCommand" xml:space="preserve">
     <value>При выполнении команды произошла непредвиденная ошибка:</value>
   </data>
+  <data name="UninstallPreviousArgumentDescription" xml:space="preserve">
+    <value>Удалить предыдущую версию пакета во время обновления</value>
+  </data>
   <data name="UnrecognizedCommand" xml:space="preserve">
     <value>Нераспознанная команда: "{0}"</value>
     <comment>{Locked="{0}"} Error message displayed when the user provides an unrecognized command. {0} is a placeholder replaced by the user input.</comment>
@@ -694,6 +689,15 @@
   <data name="UpdateNotApplicable" xml:space="preserve">
     <value>Применимые обновления не найдены.</value>
   </data>
+  <data name="UpdateNotApplicableReason" xml:space="preserve">
+    <value>В настроенном источнике доступна более новая версия пакета, но она не применяется к системе или требованиям.</value>
+  </data>
+  <data name="UpdateNoPackagesFound" xml:space="preserve">
+    <value>Доступные обновления не найдены.</value>
+  </data>
+  <data name="UpdateNoPackagesFoundReason" xml:space="preserve">
+    <value>Более новые версии пакетов недоступны в настроенных источниках.</value>
+  </data>
   <data name="UpgradeCommandLongDescription" xml:space="preserve">
     <value>Обновляет выбранный пакет, обнаруженный путем поиска в списке установленных пакетов или непосредственно из манифеста приложения. По умолчанию запрос должен соответствовать идентификатору, имени или пути ссылки пакета (без учета регистра). Можно использовать и другие поля, указав соответствующий параметр. Если аргументы не указаны, показывает пакеты с доступными обновлениями</value>
     <comment>id, name, and moniker are all named values in our context, and may benefit from not being translated. The match must be for any of them, with comparison ignoring case.</comment>
@@ -703,7 +707,7 @@
   </data>
   <data name="Usage" xml:space="preserve">
     <value>использование: {0}{1}</value>
-    <comment>{Locked="{0}","{1}"} Message displayed to provide the user with instructions on how to use a command. {0} is a placeholder replaced by the program name (e.g. 'winget'). {1} is a placeholder replaced by the pattern for using the selected command.</comment>
+    <comment>{Locked="{0} {1}"} Message displayed to provide the user with instructions on how to use a command. {0} is a placeholder replaced by the program name (e.g. 'winget'). {1} is a placeholder replaced by the pattern for using the selected command.</comment>
   </data>
   <data name="ValidateCommandLongDescription" xml:space="preserve">
     <value>Проверяет манифест с помощью строгого набора правил. Это позволяет вам проверить манифест перед отправкой в репозиторий.</value>
@@ -757,10 +761,6 @@
   </data>
   <data name="BothManifestAndSearchQueryProvided" xml:space="preserve">
     <value>Предоставляются аргументы и локального манифеста, и поискового запроса</value>
-  </data>
-  <data name="Logs" xml:space="preserve">
-    <value>Журналы: {0}</value>
-    <comment>{Locked="{0}"} Label displayed for diagnostic files containing information about the application use. {0} is a placeholder replaced by the logs directory path.</comment>
   </data>
   <data name="InstallerBlockedByPolicy" xml:space="preserve">
     <value>Установщик заблокирован политикой</value>
@@ -824,10 +824,6 @@
   <data name="ImportInstallFailed" xml:space="preserve">
     <value>Не удалось установить один или несколько импортированных пакетов</value>
   </data>
-  <data name="ImportSearchFailed" xml:space="preserve">
-    <value>Не найден пакет для импорта: {0}</value>
-    <comment>{Locked="{0}"} Error message displayed when the user attempts to import an application package that was not found. {0} is a placeholder replaced by the import package name .</comment>
-  </data>
   <data name="ImportSourceNotInstalled" xml:space="preserve">
     <value>Источник, необходимый для импорта, не установлен: {0}</value>
     <comment>{Locked="{0}"} Error message displayed when the user attempts to import application package(s) from a repository source that is not installed. {0} is a placeholder replaced by the repository source name.</comment>
@@ -838,7 +834,7 @@
   </data>
   <data name="InstalledPackageVersionNotAvailable" xml:space="preserve">
     <value>Установленная версия пакета недоступна из любого источника: {0}{1}{2}</value>
-    <comment>{Locked="{0}","{1}","{2}"} Warning message displayed when the user attempts to export an installed application package with a version that is not available from any repository source. {0} is a placeholder replaced by the installed package identifier. {1} is a placeholder replaced by the installed package version. {2} is a placeholder replaced by the installed package channel.</comment>
+    <comment>{Locked="{0} {1} {2}"} Warning message displayed when the user attempts to export an installed application package with a version that is not available from any repository source. {0} is a placeholder replaced by the installed package identifier. {1} is a placeholder replaced by the installed package version. {2} is a placeholder replaced by the installed package channel.</comment>
   </data>
   <data name="NoPackagesInImportFile" xml:space="preserve">
     <value>Пакеты в файле импорта не найдены</value>
@@ -846,9 +842,9 @@
   <data name="InvalidJsonFile" xml:space="preserve">
     <value>Файл JSON не является допустимым</value>
   </data>
-  <data name="ImportPackageAlreadyInstalled" xml:space="preserve">
+  <data name="MultiQueryPackageAlreadyInstalled" xml:space="preserve">
     <value>Пакет уже установлен: {0}</value>
-    <comment>{Locked="{0}"} Message displayed to inform the user that an import application package is already installed. {0} is a placeholder replaced by the package identifier.</comment>
+    <comment>{Locked="{0}"} Message displayed to inform the user that an application package is already installed. {0} is a placeholder replaced by the package identifier or search query.</comment>
   </data>
   <data name="ImportIgnoreUnavailableArgumentDescription" xml:space="preserve">
     <value>Игнорировать недоступные пакеты</value>
@@ -902,21 +898,9 @@
   <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
     <value>Задать интервал автоматического обновления источника Диспетчера пакетов Windows в минутах</value>
   </data>
-  <data name="PoliciesDisabled" xml:space="preserve">
-    <value>Отключено</value>
-    <comment>As in enabled/disabled</comment>
-  </data>
-  <data name="PoliciesEnabled" xml:space="preserve">
-    <value>Включено</value>
-    <comment>As in enabled/disabled</comment>
-  </data>
   <data name="PoliciesPolicy" xml:space="preserve">
     <value>Групповая политика</value>
     <comment>Header for a table listing active Group Policies</comment>
-  </data>
-  <data name="PoliciesState" xml:space="preserve">
-    <value>Состояние</value>
-    <comment>Header for a table listing the state (enabled/disabled) of Group Policies</comment>
   </data>
   <data name="PolicyEnableLocalManifests" xml:space="preserve">
     <value>Включить локальные файлы манифестов Установщика приложений для Windows</value>
@@ -1024,7 +1008,7 @@
   </data>
   <data name="DependenciesFlowNoSuitableInstallerFound" xml:space="preserve">
     <value>Не найден подходящий установщик для manifest: {0} {1}</value>
-    <comment>{Locked="{0}","{1}"} Error message displayed when an attempt to get a preferred installer for a manifest fails. {0} is a placeholder replaced by the manifest identifier. {1} is a placeholder replaced by the manifest version.</comment>
+    <comment>{Locked="{0} {1}"} Error message displayed when an attempt to get a preferred installer for a manifest fails. {0} is a placeholder replaced by the manifest identifier. {1} is a placeholder replaced by the manifest version.</comment>
   </data>
   <data name="DependenciesManagementError" xml:space="preserve">
     <value>Ошибка обработки зависимостей пакета. Продолжить установку?</value>
@@ -1217,15 +1201,17 @@
   <data name="AdminSettingDisableDescription" xml:space="preserve">
     <value>Отключает определенный параметр администратора</value>
   </data>
-  <data name="TooManyAdminSettingArgumentsError" xml:space="preserve">
-    <value>Для параметра администратора указано слишком много аргументов: "{0}"</value>
-    <comment>{Locked="{0}"} Error message displayed when the user provides too many admin setting arguments. {0} is a placeholder replaced by the admin setting arguments (e.g. 'enable|disable').</comment>
-  </data>
   <data name="AdminSettingEnabled" xml:space="preserve">
-    <value>Параметр администратора включен.</value>
+    <value>Включен параметр администратора "{0}".</value>
+    <comment>{Locked="{0}"} Message displayed when the user enables an admin setting. {0} is a placeholder replaced by the setting name.</comment>
   </data>
   <data name="AdminSettingDisabled" xml:space="preserve">
-    <value>Параметр администратора отключен.</value>
+    <value>Отключен параметр администратора "{0}".</value>
+    <comment>{Locked="{0}"} Message displayed when the user disables an admin setting. {0} is a placeholder replaced by the setting name.</comment>
+  </data>
+  <data name="AdminSettingHeader" xml:space="preserve">
+    <value>Параметр администратора</value>
+    <comment>Header for a table displaying admin settings.</comment>
   </data>
   <data name="InstallFlowReturnCodePackageInUse" xml:space="preserve">
     <value>Приложение сейчас запущено. Выйдите из приложения и повторите попытку.</value>
@@ -1315,6 +1301,9 @@
   <data name="CountOutOfBoundsError" xml:space="preserve">
     <value>Запрошенное число результатов должно находиться в диапазоне от 1 до 1000.</value>
   </data>
+  <data name="CustomSwitchesArgumentDescription" xml:space="preserve">
+    <value>Аргументы, передаваемые установщику в дополнение к параметрам по умолчанию</value>
+  </data>
   <data name="UpgradeDifferentInstallTechnologyInNewerVersions" xml:space="preserve">
     <value>Обнаружена более новая версия, но технология установки отличается от текущей установленной версии. Удалите пакет и установите более новую версию.</value>
   </data>
@@ -1335,21 +1324,13 @@
     <value>Невозможно определить номер версии этого пакета. Чтобы все равно обновить его, добавьте аргумент --include-unknown к предыдущей команде.</value>
     <comment>{Locked="--include-unknown"}</comment>
   </data>
-  <data name="UpgradeUnknownCount" xml:space="preserve">
-    <value>Невозможно определить номер версии пакетов. Попробуйте использовать аргумент "--include-unknown" для получения более подробных результатов.</value>
-    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions. </comment>
-  </data>
-  <data name="UpgradeUnknownCountSingle" xml:space="preserve">
-    <value>Невозможно определить номер версии пакета. Попробуйте использовать аргумент "--include-unknown" для получения более подробных результатов.</value>
-    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions.</comment>
-  </data>
   <data name="UpgradeUnknownVersionCount" xml:space="preserve">
-    <value>пакеты содержат номера версий, которые невозможно определить. Используйте параметр "--include-unknown" для просмотра всех результатов.</value>
-    <comment>{Locked="--include-unknown"} This string is preceded by a (integer) number of packages that do not have notated versions. </comment>
+    <value>Несколько ({0}) пакетов содержат номера версий, которые невозможно определить. Используйте параметр --include-unknown для просмотра всех результатов.</value>
+    <comment>{Locked="{0}","--include-unknown"} {0} is a placeholder that is replaced by an integer number of packages that do not have notated versions. </comment>
   </data>
   <data name="UpgradeRequireExplicitCount" xml:space="preserve">
-    <value>пакеты закреплены и должны быть явно обновлены.</value>
-    <comment>This string is preceded by a (integer) number of packages that require explicit upgrades.</comment>
+    <value>Несколько ({0}) пакетов закреплены и должны быть явно обновлены.</value>
+    <comment>{Locked="{0}"} {0} is a placeholder that is replaced by an integer number of packages that require explicit upgrades.</comment>
   </data>
   <data name="InvalidArgumentWithoutQueryError" xml:space="preserve">
     <value>Указанные аргументы можно использовать только с запросом.</value>
@@ -1407,10 +1388,6 @@
   </data>
   <data name="PortableInstallFailed" xml:space="preserve">
     <value>Сбой переносной установки; Очистка...</value>
-  </data>
-  <data name="BothPurgeAndPreserveFlagsProvided" xml:space="preserve">
-    <value>Предоставляются аргументы --purge и --preserve.</value>
-    <comment>{Locked="--purge"} {Locked="--preserve"}</comment>
   </data>
   <data name="PortableHashMismatchOverridden" xml:space="preserve">
     <value>Переносимый пакет был изменен. Продолжение работы, так как указан параметр --force</value>
@@ -1544,14 +1521,14 @@
     <comment>{Locked="{0}"} The value will be replaced with the feature name</comment>
   </data>
   <data name="PinAddCommandLongDescription" xml:space="preserve">
-    <value>Добавление нового закрепления. Закрепление может помешать диспетчеру пакетов Windows обновить пакет до определенных диапазонов версий или предотвратить обновление пакета. Закрепленный пакет может по-прежнему обновляться сам и обновляться вне диспетчера пакетов Windows. По умолчанию закрепленный пакет можно обновить, явно указав его в команде "upgrade" или добавив флаг "--include-pinned" в "winget upgrade --all".</value>
+    <value>Добавление нового закрепления. Закрепление может помешать Диспетчеру пакетов Windows обновить пакет до определенных диапазонов версий или предотвратить обновление пакета. Закрепленный пакет может по-прежнему обновляться сам и обновляться вне Диспетчера пакетов Windows. По умолчанию закрепленный пакет можно обновить, явно указав его в команде "upgrade" или добавив флаг "--include-pinned" в "winget upgrade --all".</value>
     <comment>{Locked{"'upgrade'"} Locked{"--include-pinned"} Locked{"winget upgrade --all"}</comment>
   </data>
   <data name="PinAddCommandShortDescription" xml:space="preserve">
     <value>Добавление нового закрепления</value>
   </data>
   <data name="PinCommandLongDescription" xml:space="preserve">
-    <value>Управление закреплениями пакетов с помощью подкоманд. Закрепление может помешать диспетчеру пакетов Windows обновить пакет до определенных диапазонов версий или предотвратить обновление пакета. Закрепленный пакет может по-прежнему обновляться сам по себе и обновляться вне диспетчера пакетов Windows.</value>
+    <value>Управление закреплениями пакетов с помощью подкоманд. Закрепление может помешать Диспетчеру пакетов Windows обновить пакет до определенных диапазонов версий или предотвратить обновление пакета. Закрепленный пакет может по-прежнему обновляться сам и обновляться вне Диспетчера пакетов Windows.</value>
   </data>
   <data name="PinCommandShortDescription" xml:space="preserve">
     <value>Управление закреплениями пакетов</value>
@@ -1574,10 +1551,6 @@
   <data name="PinResetCommandShortDescription" xml:space="preserve">
     <value>Сбросить закрепления</value>
   </data>
-  <data name="BothGatedVersionAndBlockingFlagProvided" xml:space="preserve">
-    <value>Предоставлены аргументы version и "--blocking"</value>
-    <comment>{Locked="--blocking"}</comment>
-  </data>
   <data name="GatedVersionArgumentDescription" xml:space="preserve">
     <value>Версия для закрепления пакета. Подстановочный знак "*" можно использовать как часть последней версии</value>
   </data>
@@ -1590,15 +1563,228 @@
   <data name="SettingsExportCommandShortDescription" xml:space="preserve">
     <value>Параметры экспорта</value>
   </data>
-  <data name="UserSettings" xml:space="preserve">
-    <value>Параметры пользователя: {0}</value>
-    <comment>{Locked="{0}"} Label displayed for the file containing the user settings. {0} is a placeholder replaced by the user settings file path.</comment>
-  </data>
   <data name="SettingsWarningUsingDefault" xml:space="preserve">
     <value>Не удалось загрузить файл параметров. Используются значения по умолчанию.</value>
   </data>
   <data name="InstalledScopeArgumentDescription" xml:space="preserve">
     <value>Выберите фильтр области установленного пакета (пользователь или компьютер)</value>
     <comment>This argument allows the user to select installed packages for just the user or for the entire machine.</comment>
+  </data>
+  <data name="PinAdded" xml:space="preserve">
+    <value>Закрепление добавлено</value>
+  </data>
+  <data name="PinAlreadyExists" xml:space="preserve">
+    <value>Пакет {0} уже закреплен</value>
+    <comment>{Locked="{0}"} {0} is a placeholder that will be replaced by a package name. The message is shown when attempting to add a pin for a package that is already pinned.</comment>
+  </data>
+  <data name="PinExistsOverwriting" xml:space="preserve">
+    <value>Пакет {0} уже закреплен. Перезапись из-за аргумента --force.</value>
+    <comment>{Locked="--force"}{Locked="--force","{0}"} {0} is a placeholder that will be replaced by a package name.</comment>
+  </data>
+  <data name="PinExistsUseForceArg" xml:space="preserve">
+    <value>Пин-код для пакета {0}. Используйте аргумент --force, чтобы перезаписать его.</value>
+    <comment>{Locked="--force","{0}"} {0} is a placeholder that will be replaced by a package name.</comment>
+  </data>
+  <data name="PinResettingAll" xml:space="preserve">
+    <value>Сброс всех текущих закреплений.</value>
+  </data>
+  <data name="PinResetUseForceArg" xml:space="preserve">
+    <value>Используйте аргумент --force для сброса всех закреплений. Будут удалены следующие закрепления:</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="PinType" xml:space="preserve">
+    <value>Тип закрепления</value>
+  </data>
+  <data name="PinDoesNotExist" xml:space="preserve">
+    <value>Нет закрепления для пакета {0}</value>
+    <comment>{Locked="{0}"} {0} is a placeholder that will be replaced by a package name. The message is shown when attempting to delete a pin for a package that is not pinned.</comment>
+  </data>
+  <data name="PinNoPinsExist" xml:space="preserve">
+    <value>Закрепления не настроены.</value>
+    <comment>Shown when listing or modifying existing pins if there are none.</comment>
+  </data>
+  <data name="PinResetSuccessful" xml:space="preserve">
+    <value>Закрепления сброшены</value>
+    <comment>Shown after resetting (deleting) all the pins</comment>
+  </data>
+  <data name="PinCannotOpenIndex" xml:space="preserve">
+    <value>Не удалось открыть базу данных закреплений.</value>
+    <comment>Error message for when we cannot open the database containing package pins.</comment>
+  </data>
+  <data name="ArgumentForSinglePackageProvidedWithMultipleQueries" xml:space="preserve">
+    <value>Указан аргумент, который можно использовать только для одного пакета</value>
+  </data>
+  <data name="MultipleExclusiveArgumentsProvided" xml:space="preserve">
+    <value>Указано несколько взаимоисключающих аргументов: {0}</value>
+    <comment>{Locked="{0}"} Error message shown when mutually incompatible command line arguments are used. {0} is a placeholder replaced by the arguments that cannot be specified together</comment>
+  </data>
+  <data name="StateDisabled" xml:space="preserve">
+    <value>Отключено</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="StateEnabled" xml:space="preserve">
+    <value>Включено</value>
+    <comment>As in enabled/disabled</comment>
+  </data>
+  <data name="StateHeader" xml:space="preserve">
+    <value>Состояние</value>
+    <comment>Header for a table listing the state (enabled/disabled) of Group Policies and Settings</comment>
+  </data>
+  <data name="MultiQueryArgumentDescription" xml:space="preserve">
+    <value>Запрос, используемый для поиска пакета</value>
+  </data>
+  <data name="MultiQueryPackageNotFound" xml:space="preserve">
+    <value>Пакет не найден: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user attempts to search for multiple application packages and one of the searches returns no results. {0} is a placeholder replaced by the package name or query.</comment>
+  </data>
+  <data name="MultiQuerySearchFoundMultiple" xml:space="preserve">
+    <value>Найдено несколько пакетов для: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user attempts to search for multiple application packages and one of the searches returns more than one result. {0} is a placeholder replaced by the package name or query.</comment>
+  </data>
+  <data name="MultiQuerySearchFailed" xml:space="preserve">
+    <value>Сбой поиска для: {0}</value>
+    <comment>{Locked="{0}"} Error message displayed when the user attempts to search for multiple application packages and one of the searches fails. This message is for generic failures, we have more specific messages for when the search returns no results, or when it returns more than one result. {0} is a placeholder replaced by the package name or query.</comment>
+  </data>
+  <data name="IncludePinnedArgumentDescription" xml:space="preserve">
+    <value>Обновление пакетов, даже если они используют неблокирующее закрепление</value>
+  </data>
+  <data name="PinRemovedSuccessfully" xml:space="preserve">
+    <value>Закрепление удалено</value>
+  </data>
+  <data name="UpgradeIsPinned" xml:space="preserve">
+    <value>Обнаружена более новая версия, но пакет содержит закрепление, которое не позволяет обновить его.</value>
+  </data>
+  <data name="PackageIsPinned" xml:space="preserve">
+    <value>Пакет закреплен и не может быть обновлен. Используйте команду "winget pin" для просмотра и изменения закреплений. Некоторые типы закреплений можно обойти с помощью аргумента --include-pinned.</value>
+    <comment>{Locked="winget pin","--include-pinned"} Error shown when we block an upgrade due to the package being pinned</comment>
+  </data>
+  <data name="UpgradePinnedByUserCount" xml:space="preserve">
+    <value>Несколько ({0}) пакетов используют закрепления, которые препятствуют обновлению. Воспользуйтесь командой "winget pin" для просмотра и изменения закреплений. Использование аргумента --include-pinned может привести к отображению дополнительных результатов.</value>
+    <comment>{Locked="winget pin","--include-pinned"} {0} is a placeholder replaced by an integer number of packages</comment>
+  </data>
+  <data name="ConfigureCommandLongDescription" xml:space="preserve">
+    <value>Гарантирует, что система соответствует нужному состоянию, как описано в указанной конфигурации. Может скачивать/выполнять обработчики для достижения нужного состояния. Необходимо проверить надежность конфигурации и обработчиков перед их применением.</value>
+  </data>
+  <data name="ConfigureCommandShortDescription" xml:space="preserve">
+    <value>Настройка системы в нужное состояние</value>
+  </data>
+  <data name="ConfigureShowCommandLongDescription" xml:space="preserve">
+    <value>Отображает сведения об указанной конфигурации. По умолчанию система не изменяется, но некоторые параметры будут вызывать скачивание и/или загрузку файлов.</value>
+  </data>
+  <data name="ConfigureShowCommandShortDescription" xml:space="preserve">
+    <value>Отображение сведений о конфигурации</value>
+  </data>
+  <data name="ConfigureTestCommandLongDescription" xml:space="preserve">
+    <value>Проверяет, соответствует ли система нужному состоянию, как описано в указанной конфигурации. Может скачивать/выполнять обработчики для тестирования нужного состояния. Необходимо проверить надежность конфигурации и обработчиков перед их выполнением.</value>
+  </data>
+  <data name="ConfigureTestCommandShortDescription" xml:space="preserve">
+    <value>Проверяет систему на соответствие нужному состоянию</value>
+  </data>
+  <data name="ConfigureValidateCommandLongDescription" xml:space="preserve">
+    <value>Проверяет правильность файла конфигурации.</value>
+  </data>
+  <data name="ConfigureValidateCommandShortDescription" xml:space="preserve">
+    <value>Проверяет файл конфигурации</value>
+  </data>
+  <data name="ConfigurationFileArgumentDescription" xml:space="preserve">
+    <value>Путь к файлу конфигурации</value>
+  </data>
+  <data name="ConfigurationFileInvalid" xml:space="preserve">
+    <value>Файл конфигурации недопустим.</value>
+  </data>
+  <data name="ConfigurationFileVersionUnknown" xml:space="preserve">
+    <value>Версия файла конфигурации {0} неизвестна.</value>
+    <comment>{Locked="{0}"} An error in reading a configuration file. {0} is a placeholder replaced by the version of the configuration file.</comment>
+  </data>
+  <data name="ConfigurationAcceptWarningArgumentDescription" xml:space="preserve">
+    <value>Принимает предупреждение конфигурации, препятствующее интерактивному запросу</value>
+  </data>
+  <data name="ConfigurationApply" xml:space="preserve">
+    <value>Применить</value>
+    <comment>Indicates that this item is used to write state</comment>
+  </data>
+  <data name="ConfigurationAssert" xml:space="preserve">
+    <value>Декларация</value>
+    <comment>Indicates that this item is used to check/assert the state rather than write to it</comment>
+  </data>
+  <data name="ConfigurationDependencies" xml:space="preserve">
+    <value>Зависимости:{0}</value>
+    <comment>{Locked="{0}"} Label displaying a list of dependencies. {0} is replaced with a space separated list of identifiers referencing other items.</comment>
+  </data>
+  <data name="ConfigurationFailedToApply" xml:space="preserve">
+    <value>Не удалось применить часть конфигурации.</value>
+  </data>
+  <data name="ConfigurationFailedToGetDetails" xml:space="preserve">
+    <value>Не удалось получить подробные сведения о конфигурации.</value>
+  </data>
+  <data name="ConfigurationInform" xml:space="preserve">
+    <value>Информирование</value>
+    <comment>Indicates that this item is used to retrieve values for future use rather than writing them</comment>
+  </data>
+  <data name="ConfigurationLocal" xml:space="preserve">
+    <value>Локальный</value>
+    <comment>Used to indicate that the item is present on the device.</comment>
+  </data>
+  <data name="ConfigurationModuleNameOnly" xml:space="preserve">
+    <value>Модуль: {0}</value>
+    <comment>{Locked="{0}"} Label displaying a module name. {0} is replaced with the name of the module from the user input file.</comment>
+  </data>
+  <data name="ConfigurationModuleWithDetails" xml:space="preserve">
+    <value>Модуль: {0} от {1} [{2}]</value>
+    <comment>{Locked="{0}","{1}","{2}"} Label displaying module information. {0} is replaced by the module name. {1} is replaced by the module author. {2} is replaced by a string indicating the source of the module.</comment>
+  </data>
+  <data name="ConfigurationSettings" xml:space="preserve">
+    <value>Параметры:</value>
+    <comment>Label for the values that are used as inputs for this item when applying state</comment>
+  </data>
+  <data name="ConfigurationSuccessfullyApplied" xml:space="preserve">
+    <value>Конфигурация применена.</value>
+  </data>
+  <data name="ConfigurationWaitingOnAnother" xml:space="preserve">
+    <value>К системе применяется другая конфигурация. Эта конфигурация будет продолжена, как только это будет возможно...</value>
+  </data>
+  <data name="ConfigurationWarning" xml:space="preserve">
+    <value>Вы самостоятельно отвечаете за понимание параметров конфигурации, которую собираетесь выполнить. Корпорация Майкрософт не несет ответственности за файл конфигурации, который вы создали или импортировали. Эта конфигурация может изменить параметры Windows, установить программное обеспечение, изменить параметры установленного программного обеспечения (включая параметры безопасности), а также принять от вашего имени пользовательские соглашения для сторонних пакетов программ и служб. Запуская этот файл конфигурации, вы подтверждаете, что понимаете состав этих ресурсов и параметров и соглашаетесь их применить. Любые установленные приложения лицензируются их владельцами. Майкрософт не несет ответственности за сторонние пакеты программ или службы и не предоставляет для них никаких лицензий.</value>
+    <comment>Legal approved. Do not change without approval.</comment>
+  </data>
+  <data name="ConfigurationWarningPrompt" xml:space="preserve">
+    <value>Вы проверили конфигурацию и хотите продолжить ее применение к системе?</value>
+    <comment>PM approved.</comment>
+  </data>
+  <data name="ConfigurationFileEmpty" xml:space="preserve">
+    <value>Конфигурация пуста.</value>
+  </data>
+  <data name="WindowsFeatureNotFound" xml:space="preserve">
+    <value>Компонент [{0}] не найден.</value>
+    <comment>{Locked="{0}"} Error message displayed when a Windows feature was not found on the system.</comment>
+  </data>
+  <data name="FailedToEnableWindowsFeatureOverrideRequired" xml:space="preserve">
+    <value>Не удалось включить зависимости компонентов Windows. Чтобы продолжить установку, используйте "--force".</value>
+    <comment>{Locked="--force"}</comment>
+  </data>
+  <data name="RebootRequiredToEnableWindowsFeatureOverrideRequired" xml:space="preserve">
+    <value>Для полного включения компонентов Windows требуется перезагрузка. Чтобы переопределить эту проверку, используйте "--force".</value>
+    <comment>"Windows Feature(s)" is the name of the options Windows features setting.</comment>
+  </data>
+  <data name="FailedToEnableWindowsFeatureOverridden" xml:space="preserve">
+    <value>Не удалось включить зависимости компонентов Windows; продолжение из-за --force</value>
+    <comment>"Windows Feature(s)" is the name of the options Windows features setting.
+{Locked="--force"}</comment>
+  </data>
+  <data name="EnablingWindowsFeature" xml:space="preserve">
+    <value>Включение {0} [{1}]...</value>
+    <comment>{Locked="{0}","{1}"} Message displayed to the user regarding which Windows Feature is being enabled.</comment>
+  </data>
+  <data name="FailedToEnableWindowsFeature" xml:space="preserve">
+    <value>Не удалось включить компонент {0} [{1}].</value>
+    <comment>{Locked="{0}"} Windows Feature display name
+{Locked="{1}"} Windows Feature name</comment>
+  </data>
+  <data name="RebootRequiredToEnableWindowsFeatureOverridden" xml:space="preserve">
+    <value>Для полного включения компонентов Windows требуется перезагрузка; продолжение из-за --force</value>
+    <comment>"Windows Feature(s)" is the name of the options Windows features setting.</comment>
+  </data>
+  <data name="InstallWaitingOnAnother" xml:space="preserve">
+    <value>Ожидание завершения другой установки или удаления...</value>
   </data>
 </root>
