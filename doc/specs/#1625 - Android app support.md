@@ -32,7 +32,7 @@ The "InstallerType" field in the YAML manifest file specifies the type of the ap
 The "InstallerType" enumeration would include "APK" to indicate an Andoroid package. A sample installer manifest file would look like the following:
 
 ```
-Id: FDroid.FDroid
+PackageIdentifier: FDroid.FDroid
 Version: 1337.0
 Name: F-Droid
 Publisher: F-Droid
