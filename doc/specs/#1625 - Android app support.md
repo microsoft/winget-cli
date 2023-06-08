@@ -63,7 +63,6 @@ Either ADB could be used to install the application, or the method that Microsof
 A nice feature in the manifest would be for adding the adb install [flags](https://adbshell.com/commands/adb-install) for installation of apps that require it.
 ## UI/UX Design
 
-Installing a PWA will be similar to installing other application types currently supported by winget, using the install command. The -i flag will not be implemented due to it's impracticality.
 
 An example of the interactive install would look like this:
 
