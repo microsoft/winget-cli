@@ -12,12 +12,33 @@ namespace AppInstaller::CLI::Execution
 
     namespace
     {
-        // Type to contain the CTRL signal handler.
-        struct CtrlHandler
+        // This starts getting called by CreateWindowEx.
+        // If it's a method in SignalTerminationHandler we will have problems.
+        LRESULT WindowMessageProcedure(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         {
-            static CtrlHandler& Instance()
+            AICLI_LOG(CLI, Verbose, << "Received window message type: " << uMsg);
+            switch (uMsg)
             {
-                static CtrlHandler s_instance;
+            case WM_ENDSESSION:
+            case WM_QUERYENDSESSION:
+            case WM_CLOSE:
+                DestroyWindow(hWnd);
+                break;
+            case WM_DESTROY:
+                PostQuitMessage(0);
+                break;
+            default:
+                return DefWindowProc(hWnd, uMsg, wParam, lParam);
+            }
+            return 0;
+        }
+
+        // Type to contain the CTRL signal and window messages handler.
+        struct SignalTerminationHandler
+        {
+            static SignalTerminationHandler& Instance()
+            {
+                static SignalTerminationHandler s_instance;
                 return s_instance;
             }
 
@@ -40,9 +61,26 @@ namespace AppInstaller::CLI::Execution
             }
 
         private:
-            CtrlHandler()
+            SignalTerminationHandler()
             {
+                // Create message only window.
+                wil::unique_event messageQueueReady;
+                messageQueueReady.create();
+                m_windowThread = std::thread(&SignalTerminationHandler::CreateWindowAndStartMessageLoop, this, std::ref(messageQueueReady));
+                messageQueueReady.wait();
+
+                // Set up ctrl-c handler.
                 LOG_IF_WIN32_BOOL_FALSE(SetConsoleCtrlHandler(StaticCtrlHandlerFunction, TRUE));
+            }
+
+            ~SignalTerminationHandler()
+            {
+                // At this point the thread is gone, but it will get angry
+                // if there's no call to join.
+                if (m_windowThread.joinable())
+                {
+                    m_windowThread.join();
+                }
             }
 
             static BOOL WINAPI StaticCtrlHandlerFunction(DWORD ctrlType)
@@ -92,30 +130,88 @@ namespace AppInstaller::CLI::Execution
                 return TRUE;
             }
 
+            void CreateWindowAndStartMessageLoop(wil::unique_event& messageQueueReady)
+            {
+                PCWSTR windowClass = L"wingetWindow";
+                HINSTANCE hInstance = GetModuleHandle(NULL);
+                THROW_LAST_ERROR_IF_NULL(hInstance);
+
+                WNDCLASSEX wcex = {};
+                wcex.cbSize = sizeof(wcex);
+                wcex.style = CS_NOCLOSE;
+                wcex.lpfnWndProc = WindowMessageProcedure;
+                wcex.cbClsExtra = 0;
+                wcex.cbWndExtra = 0;
+                wcex.hInstance = hInstance;
+                wcex.lpszClassName = windowClass;
+                THROW_LAST_ERROR_IF(!RegisterClassEx(&wcex));
+
+                m_windowHandle = wil::unique_hwnd(CreateWindowEx(
+                    0, /* dwExStyle */
+                    windowClass,
+                    L"WingetMessageOnlyWindow",
+                    WS_CHILD, /* dwStyle */
+                    0, /* x */
+                    0, /* y */
+                    0, /* nWidth */
+                    0, /* nHeiht*/
+                    HWND_MESSAGE, /* hWndParent */
+                    NULL, /* hMenu */
+                    NULL, /* hInstance */
+                    NULL)); /* lpParam */
+                THROW_LAST_ERROR_IF_NULL(m_windowHandle);
+
+                ShowWindow(m_windowHandle.get(), SW_HIDE);
+
+                // Force message queue to be created.
+                MSG msg;
+                PeekMessage(&msg, NULL, WM_USER, WM_USER, PM_NOREMOVE);
+                messageQueueReady.SetEvent();
+
+                // Message loop
+                BOOL getMessageResult;
+                while ((getMessageResult = GetMessage(&msg, m_windowHandle.get(), 0, 0)) != 0)
+                {
+                    THROW_LAST_ERROR_IF(getMessageResult == -1);
+                    DispatchMessage(&msg);
+                }
+            }
+
+            void CloseWindow()
+            {
+                if (m_windowThread.joinable())
+                {
+                    THROW_LAST_ERROR_IF(!PostMessage(m_windowHandle.get(), WM_CLOSE, 0, 0));
+                    m_windowThread.join();
+                }
+            }
+
             std::mutex m_contextsLock;
             std::vector<Context*> m_contexts;
+            wil::unique_hwnd m_windowHandle;
+            std::thread m_windowThread;
         };
 
-        void SetCtrlHandlerContext(bool add, Context* context)
+        void SetSignalTerminationHandlerContext(bool add, Context* context)
         {
             THROW_HR_IF(E_POINTER, context == nullptr);
 
             if (add)
             {
-                CtrlHandler::Instance().AddContext(context);
+                SignalTerminationHandler::Instance().AddContext(context);
             }
             else
             {
-                CtrlHandler::Instance().RemoveContext(context);
+                SignalTerminationHandler::Instance().RemoveContext(context);
             }
         }
     }
 
     Context::~Context()
     {
-        if (m_disableCtrlHandlerOnExit)
+        if (m_disableSignalTerminationHandlerOnExit)
         {
-            EnableCtrlHandler(false);
+            EnableSignalTerminationHandler(false);
         }
     }
 
@@ -125,9 +221,9 @@ namespace AppInstaller::CLI::Execution
         clone->m_flags = m_flags;
         clone->m_executingCommand = m_executingCommand;
         // If the parent is hooked up to the CTRL signal, have the clone be as well
-        if (m_disableCtrlHandlerOnExit)
+        if (m_disableSignalTerminationHandlerOnExit)
         {
-            clone->EnableCtrlHandler();
+            clone->EnableSignalTerminationHandler();
         }
         CopyArgsToSubContext(clone.get());
         return clone;
@@ -149,10 +245,10 @@ namespace AppInstaller::CLI::Execution
         }
     }
 
-    void Context::EnableCtrlHandler(bool enabled)
+    void Context::EnableSignalTerminationHandler(bool enabled)
     {
-        SetCtrlHandlerContext(enabled, this);
-        m_disableCtrlHandlerOnExit = enabled;
+        SetSignalTerminationHandlerContext(enabled, this);
+        m_disableSignalTerminationHandlerOnExit = enabled;
     }
 
     void Context::UpdateForArgs()

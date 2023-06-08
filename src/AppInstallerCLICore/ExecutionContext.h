@@ -92,8 +92,8 @@ namespace AppInstaller::CLI::Execution
         // Creates a child of this context.
         virtual std::unique_ptr<Context> CreateSubContext();
 
-        // Enables reception of CTRL signals.
-        void EnableCtrlHandler(bool enabled = true);
+        // Enables reception of CTRL signals and window messages.
+        void EnableSignalTerminationHandler(bool enabled = true);
 
         // Applies changes based on the parsed args.
         void UpdateForArgs();
@@ -164,7 +164,7 @@ namespace AppInstaller::CLI::Execution
         std::function<bool(const Workflow::WorkflowTask&)> m_shouldExecuteWorkflowTask;
 
     private:
-        DestructionToken m_disableCtrlHandlerOnExit = false;
+        DestructionToken m_disableSignalTerminationHandlerOnExit = false;
         bool m_isTerminated = false;
         HRESULT m_terminationHR = S_OK;
         size_t m_CtrlSignalCount = 0;
