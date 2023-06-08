@@ -29,7 +29,7 @@ ADB (Android Debug Bridge) (if it ends up being the method of installation)
 
 The "InstallerType" field in the YAML manifest file specifies the type of the application. A new InstallerType "Android" or "APK" will be added to show that a given application is an Android app.
 
-Each PWA would have its own manifest YAML file. A sample manifest file would look like this:
+The "InstallerType" enumeration would include "APK" to indicate an Andoroid package. A sample installer manifest file would look like the following:
 
 ```
 Id: FDroid.FDroid
