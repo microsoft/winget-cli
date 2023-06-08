@@ -53,7 +53,7 @@ namespace Microsoft::Management::Configuration::OutOfProc
 
     void Factory::Terminate()
     {
-        // TODO: Implement anything needed here
+        WinGetServerManualActivation_Terminate();
     }
 
     bool Factory::IsCLSID(const GUID& clsid)
