@@ -95,7 +95,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
                 if (dscResourceInfo is not null)
                 {
                     return this.GetUnitProcessorDetailsLocal(
-                        unit.UnitName,
+                        dscResourceInfo.Name,
                         dscResourceInfo,
                         detailLevel == ConfigurationUnitDetailLevel.Load);
                 }
@@ -106,33 +106,25 @@ namespace Microsoft.Management.Configuration.Processor.Set
                     return null;
                 }
 
-                // If module has been specified, find it and assume that the resource will be within it.
-                // Do this first as we do not currently gain much from FindDscResource; if that changes then it can be the primary.
-                if (unitInternal.Module != null)
-                {
-
-                }
-
-                var getFindResource = this.ProcessorEnvironment.FindDscResource(unitInternal);
-                if (getFindResource is null)
+                var unitModuleInfo = this.FindUnitModule(unitInternal);
+                if (unitModuleInfo is null)
                 {
                     // Not found in catalog.
                     return null;
                 }
 
-                // Hopefully they will never change the properties name. If someone can explain to me
-                // why assign it Name to $_ in Find-DscResource turns into a string in PowerShell but
-                // into a PSObject here that would be nice...
-                dynamic findResource = getFindResource;
-                string findResourceName = findResource.Name.ToString();
+                PSObject foundModule = unitModuleInfo.Value.Module;
+                string resourceName = unitModuleInfo.Value.ResourceName;
+
+                dynamic foundModuleInfo = foundModule;
 
                 if (detailLevel == ConfigurationUnitDetailLevel.Catalog)
                 {
                     return new ConfigurationUnitProcessorDetails(
-                        findResourceName,
+                        resourceName,
                         null,
                         null,
-                        findResource.PSGetModuleInfo,
+                        foundModule,
                         null);
                 }
 
@@ -140,22 +132,22 @@ namespace Microsoft.Management.Configuration.Processor.Set
                 {
                     var tempSavePath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
                     Directory.CreateDirectory(tempSavePath);
-                    this.ProcessorEnvironment.SaveModule(getFindResource, tempSavePath);
+                    this.ProcessorEnvironment.SaveModule(foundModule, tempSavePath);
 
                     var moduleInfo = this.ProcessorEnvironment.GetAvailableModule(
-                        Path.Combine(tempSavePath, findResource.PSGetModuleInfo.Name));
+                        Path.Combine(tempSavePath, foundModuleInfo.Name));
 
                     return new ConfigurationUnitProcessorDetails(
-                        findResourceName,
+                        resourceName,
                         null,
                         moduleInfo,
-                        findResource.PSGetModuleInfo,
+                        foundModule,
                         this.GetCertificates(moduleInfo));
                 }
 
                 if (detailLevel == ConfigurationUnitDetailLevel.Load)
                 {
-                    this.ProcessorEnvironment.InstallModule(getFindResource);
+                    this.ProcessorEnvironment.InstallModule(foundModule);
 
                     dscResourceInfo = this.ProcessorEnvironment.GetDscResource(unitInternal);
 
@@ -164,10 +156,10 @@ namespace Microsoft.Management.Configuration.Processor.Set
                         // Well, this is awkward.
                         throw new InstallDscResourceException(
                             unit.UnitName,
-                            PowerShellHelpers.CreateModuleSpecification(findResource.ModuleName, findResource.Version));
+                            PowerShellHelpers.CreateModuleSpecification(foundModuleInfo.Name, foundModuleInfo.Version));
                     }
 
-                    return this.GetUnitProcessorDetailsLocal(unit.UnitName, dscResourceInfo, true);
+                    return this.GetUnitProcessorDetailsLocal(dscResourceInfo.Name, dscResourceInfo, true);
                 }
 
                 return null;
@@ -177,6 +169,48 @@ namespace Microsoft.Management.Configuration.Processor.Set
                 this.OnDiagnostics(DiagnosticLevel.Error, ex.ToString());
                 throw;
             }
+        }
+
+        /// <summary>
+        /// Finds the module and preferred resource name for processing the configuration unit.
+        /// </summary>
+        /// <param name="unitInternal">The internal configuration unit.</param>
+        /// <returns>A tuple containing the module info and preferred resource name, or null if not found.</returns>
+        private (PSObject Module, string ResourceName)? FindUnitModule(ConfigurationUnitInternal unitInternal)
+        {
+            PSObject? foundModule = null;
+            string resourceName = string.Empty;
+
+            // If module has been specified, find it and assume that the resource will be within it.
+            // Do this first as we do not currently gain much from FindDscResource; if that changes then it can be the primary.
+            if (unitInternal.Module != null)
+            {
+                foundModule = this.ProcessorEnvironment.FindModule(unitInternal);
+                if (foundModule != null)
+                {
+                    resourceName = unitInternal.Unit.UnitName;
+                }
+            }
+            else
+            {
+                dynamic? foundResource = this.ProcessorEnvironment.FindDscResource(unitInternal);
+                if (foundResource != null)
+                {
+                    foundModule = foundResource.PSGetModuleInfo;
+
+                    // Hopefully they will never change the properties name. If someone can explain to me
+                    // why assign it Name to $_ in Find-DscResource turns into a string in PowerShell but
+                    // into a PSObject here that would be nice...
+                    resourceName = foundResource.Name.ToString();
+                }
+            }
+
+            if (foundModule != null)
+            {
+                return (foundModule, resourceName);
+            }
+
+            return null;
         }
 
         private DscResourceInfoInternal PrepareUnitForProcessing(ConfigurationUnitInternal unitInternal)
@@ -193,14 +227,14 @@ namespace Microsoft.Management.Configuration.Processor.Set
 
             if (dscResourceInfo is null)
             {
-                var findDscResourceResult = this.ProcessorEnvironment.FindDscResource(unitInternal);
+                var findUnitModuleResult = this.FindUnitModule(unitInternal);
 
-                if (findDscResourceResult is null)
+                if (findUnitModuleResult is null)
                 {
                     throw new FindDscResourceNotFoundException(unitInternal.Unit.UnitName, unitInternal.Module);
                 }
 
-                this.ProcessorEnvironment.InstallModule(findDscResourceResult);
+                this.ProcessorEnvironment.InstallModule(findUnitModuleResult.Value.Module);
 
                 // Now we should find it.
                 dscResourceInfo = this.ProcessorEnvironment.GetDscResource(unitInternal);

@@ -261,6 +261,73 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
         }
 
         /// <inheritdoc/>
+        public PSObject? FindModule(ConfigurationUnitInternal unitInternal)
+        {
+            // Don't use ModuleSpecification here. Each parameter is independent and
+            // we need version even if a module was not specified.
+            string? moduleName = unitInternal.GetDirective<string>(DirectiveConstants.Module);
+
+            if (string.IsNullOrEmpty(moduleName))
+            {
+                return null;
+            }
+
+            var semanticVersion = unitInternal.GetSemanticVersion();
+            var semanticMinVersion = unitInternal.GetSemanticMinVersion();
+            var semanticMaxVersion = unitInternal.GetSemanticMaxVersion();
+            string? repository = unitInternal.GetDirective<string>(DirectiveConstants.Repository);
+
+            bool? allowPrerelease = unitInternal.GetDirective(DirectiveConstants.AllowPrerelease);
+            bool implicitAllowPrerelease = false;
+
+            var parameters = new Dictionary<string, object>()
+            {
+                { Parameters.Name, moduleName },
+            };
+
+            if (semanticVersion != null)
+            {
+                implicitAllowPrerelease |= semanticVersion.IsPrerelease;
+                parameters.Add(Parameters.RequiredVersion, semanticVersion.ToString());
+            }
+
+            if (semanticMinVersion != null)
+            {
+                implicitAllowPrerelease |= semanticMinVersion.IsPrerelease;
+                parameters.Add(Parameters.MinimumVersion, semanticMinVersion.ToString());
+            }
+
+            if (semanticMaxVersion != null)
+            {
+                implicitAllowPrerelease |= semanticMaxVersion.IsPrerelease;
+                parameters.Add(Parameters.MaximumVersion, semanticMaxVersion.ToString());
+            }
+
+            if (!string.IsNullOrEmpty(repository))
+            {
+                parameters.Add(Parameters.Repository, repository);
+            }
+
+            if (allowPrerelease.HasValue || implicitAllowPrerelease)
+            {
+                // If explicit allowPrerelease = false don't use implicit.
+                bool allow = allowPrerelease.HasValue ? allowPrerelease.Value : implicitAllowPrerelease;
+                parameters.Add(Parameters.AllowPrerelease, allow);
+            }
+
+            using PowerShell pwsh = PowerShell.Create(this.Runspace);
+
+            pwsh.AddCommand(Commands.FindModule)
+                .AddParameters(parameters);
+
+            var result = pwsh.Invoke()
+                             .FirstOrDefault();
+
+            this.OnDiagnostics(DiagnosticLevel.Verbose, pwsh);
+            return result;
+        }
+
+        /// <inheritdoc/>
         public PSObject? FindDscResource(ConfigurationUnitInternal unitInternal)
         {
             var parameters = new Dictionary<string, object>()
