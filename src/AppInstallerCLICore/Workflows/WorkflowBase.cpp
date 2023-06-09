@@ -909,6 +909,7 @@ namespace AppInstaller::CLI::Workflow
                 case OperationType::Install:
                 case OperationType::Search:
                 case OperationType::Show:
+                case OperationType::Download:
                 default:
                     context.Reporter.Info() << Resource::String::NoPackageFound << std::endl;
                     break;

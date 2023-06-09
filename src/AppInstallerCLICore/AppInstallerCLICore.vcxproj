@@ -411,7 +411,7 @@
     <ClCompile Include="Commands\ConfigureShowCommand.cpp" />
     <ClCompile Include="Commands\ConfigureTestCommand.cpp" />
     <ClCompile Include="Commands\ConfigureValidateCommand.cpp" />
-    <ClInclude Include="Commands\DownloadCommand.cpp" />
+    <ClCompile Include="Commands\DownloadCommand.cpp" />
     <ClCompile Include="Commands\ImportCommand.cpp" />
     <ClCompile Include="Commands\PinCommand.cpp" />
     <ClCompile Include="ConfigurationContext.cpp" />

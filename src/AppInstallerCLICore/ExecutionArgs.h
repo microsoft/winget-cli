@@ -44,7 +44,7 @@ namespace AppInstaller::CLI::Execution
             HashOverride, // Ignore hash mismatches
             IgnoreLocalArchiveMalwareScan, // Ignore the local malware scan on archive files
             AcceptPackageAgreements, // Accept all license agreements for packages
-            Rename, // Renames the file of the executable. Only applies to the portable installerType
+            Rename, // Renames the file of the executable
             NoUpgrade, // Install flow should not try to convert to upgrade flow upon finding existing installed version
 
             // Uninstall behavior
@@ -78,6 +78,9 @@ namespace AppInstaller::CLI::Execution
             ImportFile,
             IgnoreUnavailable,
             IgnoreVersions,
+
+            // Download Command
+            OutputDirectory,
 
             // Setting Command
             AdminSettingEnable,

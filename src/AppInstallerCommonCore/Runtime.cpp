@@ -40,6 +40,7 @@ namespace AppInstaller::Runtime
 
         constexpr std::string_view s_UserProfileEnvironmentVariable = "%USERPROFILE%";
         constexpr std::string_view s_LocalAppDataEnvironmentVariable = "%LOCALAPPDATA%";
+        constexpr std::string_view s_DownloadsDirectory = "Downloads"sv;
 
         static std::optional<std::string> s_runtimePathStateName;
         static wil::srwlock s_runtimePathStateNameLock;
@@ -382,6 +383,11 @@ namespace AppInstaller::Runtime
             result.Path /= s_PortablePackageRoot;
             result.Path /= s_LinksDirectory;
             break;
+        case PathName::Downloads:
+            result.Path = (forDisplay && Settings::User().Get<Setting::AnonymizePathForDisplay>()) ? s_UserProfileEnvironmentVariable : GetKnownFolderPath(FOLDERID_Profile);
+            result.Path /= s_DownloadsDirectory;
+            result.Create = false;
+            break;
         default:
             THROW_HR(E_UNEXPECTED);
         }
@@ -448,10 +454,9 @@ namespace AppInstaller::Runtime
         case PathName::PortablePackageMachineRoot:
         case PathName::PortablePackageMachineRootX86:
         case PathName::PortableLinksMachineLocation:
-            result = GetPathDetailsCommon(path, forDisplay);
-            break;
         case PathName::PortableLinksUserLocation:
         case PathName::PortablePackageUserRoot:
+        case PathName::Downloads:
             result = GetPathDetailsCommon(path, forDisplay);
             break;
         case PathName::SelfPackageRoot:
@@ -526,10 +531,9 @@ namespace AppInstaller::Runtime
         case PathName::PortablePackageMachineRoot:
         case PathName::PortablePackageMachineRootX86:
         case PathName::PortableLinksMachineLocation:
-            result = GetPathDetailsCommon(path, forDisplay);
-            break;
         case PathName::PortableLinksUserLocation:
         case PathName::PortablePackageUserRoot:
+        case PathName::Downloads:
             result = GetPathDetailsCommon(path, forDisplay);
             break;
         case PathName::SelfPackageRoot:

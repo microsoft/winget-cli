@@ -162,7 +162,6 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::Upgrade:
             return { type, "upgrade-available"_liv};
 
-
         // Pin command
         case Execution::Args::Type::GatedVersion:
             return { type, "version"_liv, 'v', ArgTypeCategory::None, ArgTypeExclusiveSet::PinType };
@@ -176,6 +175,10 @@ namespace AppInstaller::CLI
             return { type, "file"_liv, 'f' };
         case Execution::Args::Type::ConfigurationAcceptWarning:
             return { type, "accept-configuration-agreements"_liv };
+
+        // Download command
+        case Execution::Args::Type::OutputDirectory:
+            return { type, "output-directory"_liv, 'd', ArgTypeCategory::CopyValueToSubContext };
 
         // Common arguments
         case Execution::Args::Type::NoVT:
@@ -328,6 +331,8 @@ namespace AppInstaller::CLI
             return Argument{ type, Resource::String::UninstallPreviousArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help };
         case Args::Type::Force:
             return Argument{ type, Resource::String::ForceArgumentDescription, ArgumentType::Flag, false };
+        case Args::Type::OutputDirectory:
+            return Argument{ type, Resource::String::OutputDirectoryArgumentDescription, ArgumentType::Positional, false };
         default:
             THROW_HR(E_UNEXPECTED);
         }

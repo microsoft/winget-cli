@@ -213,6 +213,11 @@
           "description": "Enable support for configuration",
           "type": "boolean",
           "default": false
+        },
+        "downloadCommand": {
+          "description": "Enable support for the download command",
+          "type": "boolean",
+          "default": false
         }
       }
     }

@@ -43,9 +43,9 @@ namespace AppInstaller::CLI::Workflow
     // Required Args: None
     // Inputs: Manifest, Installer and DependencySource
     // Outputs: Dependencies
-    struct ManagePackageDependencies : public WorkflowTask
+    struct BuildDependencyGraph : public WorkflowTask
     {
-        ManagePackageDependencies(AppInstaller::StringResource::StringId dependencyReportMessage) :
+        BuildDependencyGraph(AppInstaller::StringResource::StringId dependencyReportMessage) :
             WorkflowTask("ReportDependencies"), m_dependencyReportMessage(dependencyReportMessage) {}
 
         void operator()(Execution::Context& context) const override;

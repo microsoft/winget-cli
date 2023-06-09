@@ -7,9 +7,9 @@ namespace AppInstaller::CLI
 {
     struct DownloadCommand final : public Command
     {
-        DownloadCommand(std::string_view parent) : Command("download", parent, Settings::ExperimentalFeature::Feature::DownloadCommand) {}
+        DownloadCommand(std::string_view parent) : Command("download", {} /* aliases */, parent, Settings::ExperimentalFeature::Feature::Download) {}
 
-        std::vector<std::unique_ptr<Command>> GetCommands() const override;
+        std::vector<Argument> GetArguments() const override;
 
         Resource::LocString ShortDescription() const override;
         Resource::LocString LongDescription() const override;
@@ -17,6 +17,7 @@ namespace AppInstaller::CLI
         Utility::LocIndView HelpLink() const override;
 
     protected:
+        void ValidateArgumentsInternal(Execution::Args& execArgs) const override;
         void ExecuteInternal(Execution::Context& context) const override;
     };
 }

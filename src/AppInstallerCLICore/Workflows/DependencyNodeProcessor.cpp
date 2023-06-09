@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "DependencyNodeProcessor.h"
 #include "ManifestComparator.h"
+#include "Command.h"
 
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
@@ -54,13 +55,13 @@ namespace AppInstaller::CLI::Workflow
 
         m_nodePackageLatestVersion = package->GetLatestAvailableVersion(pinBehavior);
 
-        if (m_nodePackageInstalledVersion && dependencyNode.IsVersionOk(Utility::Version(m_nodePackageInstalledVersion->GetProperty(PackageVersionProperty::Version))))
+        bool installerDownloadOnly = WI_IsFlagSet(m_context.GetFlags(), Execution::ContextFlag::InstallerDownloadOnly);
+        if (!installerDownloadOnly && m_nodePackageInstalledVersion && dependencyNode.IsVersionOk(Utility::Version(m_nodePackageInstalledVersion->GetProperty(PackageVersionProperty::Version))))
         {
             // return empty dependency list,
             // as we won't keep searching for dependencies for installed packages
             return DependencyNodeProcessorResult::Skipped;
         }
-
         
         if (!m_nodePackageLatestVersion)
         {

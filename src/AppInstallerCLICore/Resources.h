@@ -123,6 +123,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(DisableAdminSettingFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(DisableInteractivityArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(Done);
+        WINGET_DEFINE_RESOURCE_STRINGID(DownloadCommandLongDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(DownloadCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(Downloading);
         WINGET_DEFINE_RESOURCE_STRINGID(EnableAdminSettingFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(EnablingWindowsFeature);
@@ -298,6 +300,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(OpenSourceFailedNoMatchHelp);
         WINGET_DEFINE_RESOURCE_STRINGID(OpenSourceFailedNoSourceDefined);
         WINGET_DEFINE_RESOURCE_STRINGID(Options);
+        WINGET_DEFINE_RESOURCE_STRINGID(OutputDirectoryArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(OutputFileArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(OverrideArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(OverwritingExistingFileAtMessage);

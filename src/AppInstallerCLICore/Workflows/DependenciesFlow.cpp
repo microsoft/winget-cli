@@ -233,7 +233,7 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void ManagePackageDependencies::operator()(Execution::Context& context) const
+    void BuildDependencyGraph::operator()(Execution::Context& context) const
     {
         if (!Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
         {
@@ -303,6 +303,8 @@ namespace AppInstaller::CLI::Workflow
 
         std::vector<std::unique_ptr<Execution::Context>> dependencyPackageContexts;
 
+        bool installerDownloadOnly = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerDownloadOnly);
+
         for (auto const& node : installationOrder)
         {
             auto itr = idToPackageMap.find(node.Id());
@@ -332,17 +334,16 @@ namespace AppInstaller::CLI::Workflow
                 dependencyContext.Add<Execution::Data::InstalledPackageVersion>(itr->second.InstalledPackageVersion);
                 dependencyContext.Add<Execution::Data::Installer>(itr->second.Installer);
 
+                // Pass download only context flag to subcontexts
+                if (installerDownloadOnly)
+                {
+                    dependencyContext.SetFlags(Execution::ContextFlag::InstallerDownloadOnly);
+                }
+
                 dependencyPackageContexts.emplace_back(std::move(dependencyContextPtr));
             }
         }
 
-        if (!dependencyPackageContexts.empty())
-        {
-            info << Resource::String::DependenciesFlowInstall << std::endl;
-        }
-
-        // Install dependencies in the correct order
         context.Add<Execution::Data::PackageSubContexts>(std::move(dependencyPackageContexts));
-        context << Workflow::InstallMultiplePackages(m_dependencyReportMessage, APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES, {}, false, true, true);
     }
 }

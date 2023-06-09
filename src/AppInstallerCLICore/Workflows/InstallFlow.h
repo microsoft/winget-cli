@@ -148,6 +148,8 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: InstallerPath
     void DownloadSinglePackage(Execution::Context& context);
 
+    void DownloadSinglePackageAndDependencies(Execution::Context& context);
+
     // Installs a single package. This also does the reporting, user interaction, and installer download
     // for single-package installation.
     // RequiredArgs: None
@@ -185,6 +187,52 @@ namespace AppInstaller::CLI::Workflow
         bool m_ignorePackageDependencies;
         bool m_ensurePackageAgreements;
         bool m_stopOnFailure;
+    };
+
+    struct DownloadMultiplePackages : public WorkflowTask
+    {
+        DownloadMultiplePackages(
+            StringResource::StringId dependenciesReportMessage,
+            bool ensurePackageAgreements = true,
+            bool ignoreDependencies = false,
+            bool stopOnFailure = false) :
+            WorkflowTask("DownloadMultiplePackages"),
+            m_dependenciesReportMessage(dependenciesReportMessage),
+            m_ignorePackageDependencies(ignoreDependencies),
+            m_ensurePackageAgreements(ensurePackageAgreements),
+            m_stopOnFailure(stopOnFailure) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        StringResource::StringId m_dependenciesReportMessage;
+        bool m_ignorePackageDependencies;
+        bool m_ensurePackageAgreements;
+        bool m_stopOnFailure;
+    };
+
+    struct InstallPackageDependencies : public WorkflowTask
+    {
+        InstallPackageDependencies(StringResource::StringId dependenciesReportMessage) :
+            WorkflowTask("InstallPackageDependencies"),
+            m_dependenciesReportMessage(dependenciesReportMessage) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        StringResource::StringId m_dependenciesReportMessage;
+    };
+
+    struct DownloadPackageDependencies : public WorkflowTask
+    {
+        DownloadPackageDependencies(StringResource::StringId dependenciesReportMessage) :
+            WorkflowTask("DownloadPackageDependencies"),
+            m_dependenciesReportMessage(dependenciesReportMessage) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        StringResource::StringId m_dependenciesReportMessage;
     };
 
     // Stores the existing set of packages in ARP.
