@@ -90,17 +90,20 @@ namespace AppInstaller::CLI::Execution
 
             BOOL CtrlHandlerFunction(DWORD ctrlType)
             {
+                // TODO: Move this to be logged per active context when we have thread static globals
+                AICLI_LOG(CLI, Info, << "Got CTRL type: " << ctrlType);
+
                 switch (ctrlType)
                 {
                 case CTRL_C_EVENT:
                 case CTRL_BREAK_EVENT:
-                    return TerminateContexts(ctrlType, false);
+                    return TerminateContexts(CancelReason::CancelSignal, false);
                     // According to MSDN, we should never receive these due to having gdi32/user32 loaded in our process.
                     // But handle them as a force terminate anyway.
                 case CTRL_CLOSE_EVENT:
                 case CTRL_LOGOFF_EVENT:
                 case CTRL_SHUTDOWN_EVENT:
-                    return TerminateContexts(ctrlType, true);
+                    return TerminateContexts(CancelReason::CancelSignal, true);
                 default:
                     return FALSE;
                 }
@@ -108,7 +111,7 @@ namespace AppInstaller::CLI::Execution
 
             // Terminates the currently attached contexts.
             // Returns FALSE if no contexts attached; TRUE otherwise.
-            BOOL TerminateContexts(DWORD ctrlType, bool force)
+            BOOL TerminateContexts(CancelReason reason, bool force)
             {
                 if (m_contexts.empty())
                 {
@@ -117,13 +120,9 @@ namespace AppInstaller::CLI::Execution
 
                 {
                     std::lock_guard<std::mutex> lock{ m_contextsLock };
-
-                    // TODO: Move this to be logged per active context when we have thread static globals
-                    AICLI_LOG(CLI, Info, << "Got CTRL type: " << ctrlType);
-
                     for (auto& context : m_contexts)
                     {
-                        context->Cancel(true, force);
+                        context->Cancel(reason, force);
                     }
                 }
 
@@ -173,6 +172,12 @@ namespace AppInstaller::CLI::Execution
                 while ((getMessageResult = GetMessage(&msg, m_windowHandle.get(), 0, 0)) != 0)
                 {
                     THROW_LAST_ERROR_IF(getMessageResult == -1);
+
+                    if (msg.message == WM_QUERYENDSESSION)
+                    {
+                        TerminateContexts(CancelReason::AppShutdown, true);
+                    }
+
                     DispatchMessage(&msg);
                 }
             }
@@ -289,11 +294,14 @@ namespace AppInstaller::CLI::Execution
                 std::exit(hr);
             }
         }
+        else if (hr == APPINSTALLER_CLI_ERROR_APPTERMINATION_RECEIVED)
+        {
+            AICLI_LOG(CLI, Info, << "Got app termination signal");
+            hr = E_ABORT;
+        }
 
         Logging::Telemetry().LogCommandTermination(hr, file, line);
-
-        m_isTerminated = true;
-        m_terminationHR = hr;
+        SetTerminationHR(hr);
     }
 
     void Context::SetTerminationHR(HRESULT hr)
@@ -302,10 +310,20 @@ namespace AppInstaller::CLI::Execution
         m_isTerminated = true;
     }
 
-    void Context::Cancel(bool exitIfStuck, bool bypassUser)
+    void Context::Cancel(CancelReason reason, bool bypassUser)
     {
-        Terminate(exitIfStuck ? APPINSTALLER_CLI_ERROR_CTRL_SIGNAL_RECEIVED : E_ABORT);
-        Reporter.CancelInProgressTask(bypassUser);
+        HRESULT hr = E_ABORT;
+        if (reason == CancelReason::CancelSignal)
+        {
+            hr = APPINSTALLER_CLI_ERROR_CTRL_SIGNAL_RECEIVED;
+        }
+        else if (reason == CancelReason::AppShutdown)
+        {
+            hr = APPINSTALLER_CLI_ERROR_APPTERMINATION_RECEIVED;
+        }
+
+        Terminate(hr);
+        Reporter.CancelInProgressTask(bypassUser, reason);
     }
 
     void Context::SetExecutionStage(Workflow::ExecutionStage stage)

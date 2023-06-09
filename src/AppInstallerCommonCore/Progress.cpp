@@ -63,13 +63,15 @@ namespace AppInstaller
         }
     }
 
-    void ProgressCallback::Cancel()
+    void ProgressCallback::Cancel(CancelReason reason)
     {
         m_cancelled = true;
         if (m_cancellationFunction)
         {
             m_cancellationFunction();
         }
+
+        m_reason = reason;
     }
 
     IProgressSink* ProgressCallback::GetSink()

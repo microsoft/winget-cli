@@ -117,6 +117,7 @@ ms.localizationpriority: medium
 | 0x8A150067 | -1978335129 | APPINSTALLER_CLI_ERROR_NOT_ALL_QUERIES_FOUND_SINGLE | One or more queries did not return exactly one match |
 | 0x8A150068 | -1978335128 | APPINSTALLER_CLI_ERROR_PACKAGE_IS_PINNED | The package has a pin that prevents upgrade. |
 | 0x8A150069 | -1978335127 | APPINSTALLER_CLI_ERROR_PACKAGE_IS_STUB | The package currently installed is the stub package |
+| 0x8A15006A | -1978335126 | APPINSTALLER_CLI_ERROR_APPTERMINATION_RECEIVED | Application shutdown signal received |
 
 ## Install errors.
 

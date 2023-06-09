@@ -224,6 +224,8 @@ namespace AppInstaller
                 return "The package has a pin that prevents upgrade.";
             case APPINSTALLER_CLI_ERROR_PACKAGE_IS_STUB:
                 return "The package currently installed is the stub package";
+            case APPINSTALLER_CLI_ERROR_APPTERMINATION_RECEIVED:
+                return "Application shutdown signal received";
 
             // Install errors
             case APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE:

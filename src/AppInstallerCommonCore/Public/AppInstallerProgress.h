@@ -27,6 +27,15 @@ namespace AppInstaller
         Percent,
     };
 
+    // The reason why progress is cancelled.
+    enum class CancelReason : uint32_t
+    {
+        Unknown,
+        Abort,
+        CancelSignal,
+        AppShutdown,
+    };
+
     // Interface that only receives progress, and does not participate in cancellation.
     // This allows a sink be simple, and let ProgressCallback handle the complications
     // of cancel state.
@@ -55,6 +64,8 @@ namespace AppInstaller
         // Returns a value indicating if the future has been cancelled.
         virtual bool IsCancelled() = 0;
 
+        virtual CancelReason GetCancelReason() = 0;
+
         // Sets a cancellation function that will be called when the operation is to be cancelled.
         [[nodiscard]] virtual CancelFunctionRemoval SetCancellationFunction(std::function<void()>&& f) = 0;
     };
@@ -75,9 +86,11 @@ namespace AppInstaller
 
         bool IsCancelled() override;
 
+        CancelReason GetCancelReason() override { return m_reason; };
+
         [[nodiscard]] IProgressCallback::CancelFunctionRemoval SetCancellationFunction(std::function<void()>&& f) override;
 
-        void Cancel();
+        void Cancel(CancelReason reason = CancelReason::Abort);
 
         IProgressSink* GetSink();
 
@@ -85,6 +98,7 @@ namespace AppInstaller
         std::atomic<IProgressSink*> m_sink = nullptr;
         std::atomic_bool m_cancelled = false;
         std::function<void()> m_cancellationFunction;
+        CancelReason m_reason = CancelReason::Unknown;
     };
 
     // A progress callback that reports its progress as a partial range of percentage to its base progress callback

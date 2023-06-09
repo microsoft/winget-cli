@@ -114,9 +114,9 @@ namespace AppInstaller::CLI::Execution
         void SetTerminationHR(HRESULT hr);
 
         // Cancel the context; this terminates it as well as informing any in progress task to stop cooperatively.
-        // Multiple attempts with exitIfStuck == true may cause the process to simply exit.
+        // Multiple attempts with CancelReason::CancelSignal may cause the process to simply exit.
         // The bypassUser indicates whether the user should be asked for cancellation (does not currently have any effect).
-        void Cancel(bool exitIfStuck = false, bool bypassUser = false);
+        void Cancel(CancelReason reason, bool bypassUser = false);
 
         // Gets context flags
         ContextFlag GetFlags() const

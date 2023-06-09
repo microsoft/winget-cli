@@ -115,7 +115,7 @@ namespace AppInstaller::CLI::Execution
     void ContextOrchestrator::CancelQueueItem(const OrchestratorQueueItem& item)
     {
         // Always cancel the item, even if it isn't running yet, to get the terminationHR set correctly.
-        item.GetContext().Cancel(false, true);
+        item.GetContext().Cancel(CancelReason::Abort, true);
 
         RemoveItemInState(item, OrchestratorQueueItemState::Queued);
     }
