@@ -23,16 +23,24 @@ namespace Microsoft::Management::Configuration::OutOfProc
 
         winrt::Microsoft::Management::Configuration::IConfigurationStatics CreateOOPStaticsObject()
         {
-            if (AppInstaller::Runtime::IsRunningAsAdmin())
-            {
-                winrt::com_ptr<::IUnknown> result;
-                THROW_IF_FAILED(WinGetServerManualActivation_CreateInstance(GetConfigurationStaticsCLSID(), winrt::guid_of<winrt::Microsoft::Management::Configuration::IConfigurationStatics>(), 0, result.put_void()));
-                return result.as<winrt::Microsoft::Management::Configuration::IConfigurationStatics>();
-            }
-            else
+            bool isAdmin = AppInstaller::Runtime::IsRunningAsAdmin();
+
+            try
             {
                 return winrt::create_instance<winrt::Microsoft::Management::Configuration::IConfigurationStatics>(GetConfigurationStaticsCLSID(), CLSCTX_LOCAL_SERVER | CLSCTX_NO_CODE_DOWNLOAD);
             }
+            catch (const winrt::hresult_error& hre)
+            {
+                // We only want to fall through to trying the manual activation if we are running as admin and couldn't find the registration.
+                if (!(isAdmin && hre.code() == REGDB_E_CLASSNOTREG))
+                {
+                    throw;
+                }
+            }
+
+            winrt::com_ptr<::IUnknown> result;
+            THROW_IF_FAILED(WinGetServerManualActivation_CreateInstance(GetConfigurationStaticsCLSID(), winrt::guid_of<winrt::Microsoft::Management::Configuration::IConfigurationStatics>(), 0, result.put_void()));
+            return result.as<winrt::Microsoft::Management::Configuration::IConfigurationStatics>();
         }
     }
 

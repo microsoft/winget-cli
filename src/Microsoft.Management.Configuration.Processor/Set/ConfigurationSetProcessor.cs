@@ -10,6 +10,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
     using System.Collections.Generic;
     using System.IO;
     using System.Management.Automation;
+    using Microsoft.Management.Configuration.Processor.Constants;
     using Microsoft.Management.Configuration.Processor.DscResourcesInfo;
     using Microsoft.Management.Configuration.Processor.Exceptions;
     using Microsoft.Management.Configuration.Processor.Helpers;
@@ -103,6 +104,13 @@ namespace Microsoft.Management.Configuration.Processor.Set
                 {
                     // Not found locally.
                     return null;
+                }
+
+                // If module has been specified, find it and assume that the resource will be within it.
+                // Do this first as we do not currently gain much from FindDscResource; if that changes then it can be the primary.
+                if (unitInternal.Module != null)
+                {
+
                 }
 
                 var getFindResource = this.ProcessorEnvironment.FindDscResource(unitInternal);
