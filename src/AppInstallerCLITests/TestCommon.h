@@ -105,9 +105,7 @@ namespace TestCommon
 
         void EndProgress(bool) override;
 
-        bool IsCancelled() override;
-
-        AppInstaller::CancelReason GetCancelReason() override { return AppInstaller::CancelReason::Abort; };
+        bool IsCancelledBy(AppInstaller::CancelReason) override;
 
         CancelFunctionRemoval SetCancellationFunction(std::function<void()>&& f) override;
 

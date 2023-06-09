@@ -97,13 +97,13 @@ namespace AppInstaller::CLI::Execution
                 {
                 case CTRL_C_EVENT:
                 case CTRL_BREAK_EVENT:
-                    return TerminateContexts(CancelReason::CancelSignal, false);
+                    return TerminateContexts(CancelReason::CtrlCSignal, false);
                     // According to MSDN, we should never receive these due to having gdi32/user32 loaded in our process.
                     // But handle them as a force terminate anyway.
                 case CTRL_CLOSE_EVENT:
                 case CTRL_LOGOFF_EVENT:
                 case CTRL_SHUTDOWN_EVENT:
-                    return TerminateContexts(CancelReason::CancelSignal, true);
+                    return TerminateContexts(CancelReason::CtrlCSignal, true);
                 default:
                     return FALSE;
                 }
@@ -313,7 +313,7 @@ namespace AppInstaller::CLI::Execution
     void Context::Cancel(CancelReason reason, bool bypassUser)
     {
         HRESULT hr = E_ABORT;
-        if (reason == CancelReason::CancelSignal)
+        if (reason == CancelReason::CtrlCSignal)
         {
             hr = APPINSTALLER_CLI_ERROR_CTRL_SIGNAL_RECEIVED;
         }

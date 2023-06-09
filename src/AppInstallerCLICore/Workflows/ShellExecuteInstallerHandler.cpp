@@ -41,7 +41,7 @@ namespace AppInstaller::CLI::Workflow
             wil::unique_process_handle process{ execInfo.hProcess };
 
             // Wait for installation to finish
-            while (!progress.IsCancelled())
+            while (!progress.IsCancelledBy(CancelReason::User))
             {
                 DWORD waitResult = WaitForSingleObject(process.get(), 250);
                 if (waitResult == WAIT_OBJECT_0)
@@ -54,7 +54,7 @@ namespace AppInstaller::CLI::Workflow
                 }
             }
 
-            if (progress.IsCancelled())
+            if (progress.IsCancelledBy(CancelReason::Any))
             {
                 return {};
             }

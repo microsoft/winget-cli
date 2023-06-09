@@ -30,11 +30,15 @@ namespace AppInstaller
     // The reason why progress is cancelled.
     enum class CancelReason : uint32_t
     {
-        Unknown,
-        Abort,
-        CancelSignal,
-        AppShutdown,
+        None = 0x0,
+        Abort = 0x1,
+        CtrlCSignal = 0x2,
+        User = Abort | CtrlCSignal,
+        AppShutdown = 0x4,
+        Any = 0xFFFFFFFF
     };
+
+    DEFINE_ENUM_FLAG_OPERATORS(CancelReason);
 
     // Interface that only receives progress, and does not participate in cancellation.
     // This allows a sink be simple, and let ProgressCallback handle the complications
@@ -62,9 +66,7 @@ namespace AppInstaller
         using CancelFunctionRemoval = wil::unique_any<IProgressCallback*, decltype(&details::RemoveCancellationFunction), details::RemoveCancellationFunction>;
 
         // Returns a value indicating if the future has been cancelled.
-        virtual bool IsCancelled() = 0;
-
-        virtual CancelReason GetCancelReason() = 0;
+        virtual bool IsCancelledBy(CancelReason cancelReasons) = 0;
 
         // Sets a cancellation function that will be called when the operation is to be cancelled.
         [[nodiscard]] virtual CancelFunctionRemoval SetCancellationFunction(std::function<void()>&& f) = 0;
@@ -84,9 +86,7 @@ namespace AppInstaller
 
         void EndProgress(bool hideProgressWhenDone) override;
 
-        bool IsCancelled() override;
-
-        CancelReason GetCancelReason() override { return m_reason; };
+        bool IsCancelledBy(CancelReason cancelReasons) override;
 
         [[nodiscard]] IProgressCallback::CancelFunctionRemoval SetCancellationFunction(std::function<void()>&& f) override;
 
@@ -96,9 +96,8 @@ namespace AppInstaller
 
     private:
         std::atomic<IProgressSink*> m_sink = nullptr;
-        std::atomic_bool m_cancelled = false;
         std::function<void()> m_cancellationFunction;
-        CancelReason m_reason = CancelReason::Unknown;
+        CancelReason m_cancelReason = CancelReason::None;
     };
 
     // A progress callback that reports its progress as a partial range of percentage to its base progress callback
