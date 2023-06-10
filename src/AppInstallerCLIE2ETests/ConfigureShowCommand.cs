@@ -11,7 +11,7 @@ namespace AppInstallerCLIE2ETests
     /// <summary>
     /// `Configure show` command tests.
     /// </summary>
-    public class ConfigureShowCommand : BaseCommand
+    public class ConfigureShowCommand
     {
         /// <summary>
         /// Setup done once before all the tests here.
@@ -23,14 +23,42 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
-        /// Simple smoke test to ensure that showing details is working.
+        /// Simple test to confirm that a resource without a module specified can be discovered in the PSGallery.
         /// </summary>
         [Test]
         public void ShowDetailsFromGallery()
         {
-            var result = TestCommon.RunAICLICommand("configure show", TestCommon.GetTestDataFile("Configuration\\ShowDetails.yml"));
-            TestContext.Out.Write(result.StdOut);
+            TestCommon.EnsureModuleState(Constants.GalleryTestModuleName, present: false);
+
+            var result = TestCommon.RunAICLICommand("configure show", TestCommon.GetTestDataFile("Configuration\\PSGallery_NoModule_NoSettings.yml"));
             Assert.AreEqual(0, result.ExitCode);
+            Assert.True(result.StdOut.Contains(Constants.PSGalleryName));
+        }
+
+        /// <summary>
+        /// Simple test to confirm that a resource with a module specified can be discovered in a local repository that doesn't support resource discovery.
+        /// </summary>
+        [Test]
+        public void ShowDetailsFromTestRepo()
+        {
+            TestCommon.EnsureModuleState(Constants.SimpleTestModuleName, present: false);
+
+            var result = TestCommon.RunAICLICommand("configure show", TestCommon.GetTestDataFile("Configuration\\ShowDetails_TestRepo.yml"));
+            Assert.AreEqual(0, result.ExitCode);
+            Assert.True(result.StdOut.Contains(Constants.TestRepoName));
+        }
+
+        /// <summary>
+        /// Simple test to confirm that a resource that is already locally available shows that way.
+        /// </summary>
+        [Test]
+        public void ShowDetailsFromLocal()
+        {
+            TestCommon.EnsureModuleState(Constants.SimpleTestModuleName, present: true, repository: Constants.TestRepoName);
+
+            var result = TestCommon.RunAICLICommand("configure show", TestCommon.GetTestDataFile("Configuration\\ShowDetails_TestRepo.yml"));
+            Assert.AreEqual(0, result.ExitCode);
+            Assert.True(result.StdOut.Contains(Constants.LocalModuleDescriptor));
         }
     }
 }

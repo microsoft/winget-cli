@@ -1,0 +1,17 @@
+properties:
+    configurationVersion: 0.2
+    resources:
+      - resource: xSimpleTestResource/SimpleTestResourceThrows
+        id: first
+        directives:
+          repository: AppInstallerCLIE2ETestsRepo
+        settings:
+          key: Foo
+      - resource: xSimpleTestResource/SimpleFileResource
+        dependsOn:
+          - first
+        directives:
+          repository: AppInstallerCLIE2ETestsRepo
+        settings:
+          Path: ${WinGetConfigRoot}\DependentResources_Failure.txt
+          Content: Contents!
