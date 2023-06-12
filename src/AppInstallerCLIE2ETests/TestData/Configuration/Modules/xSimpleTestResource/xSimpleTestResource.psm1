@@ -268,23 +268,23 @@ class SimpleTestResourceCrash
     [DscProperty(Key)]
     [string] $key
 
-    [SimpleTestResourceError] Get()
+    [SimpleTestResourceCrash] Get()
     {
         $result = @{
             key = "SimpleTestResourceCrashKey"
         }
-        [System.Environmnet]::Exit(0)
+        [System.Environment]::Exit(0)
         return $result
     }
 
     [bool] Test()
     {
-        [System.Environmnet]::Exit(0)
+        [System.Environment]::Exit(0)
         return $true
     }
 
     [void] Set()
     {
-        [System.Environmnet]::Exit(0)
+        [System.Environment]::Exit(0)
     }
 }

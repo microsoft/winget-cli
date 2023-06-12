@@ -7,6 +7,7 @@
 namespace AppInstallerCLIE2ETests
 {
     using NUnit.Framework;
+    using System.IO;
 
     /// <summary>
     /// `Configure` command tests.
@@ -22,6 +23,12 @@ namespace AppInstallerCLIE2ETests
         public void OneTimeSetup()
         {
             WinGetSettingsHelper.ConfigureFeature("configuration", true);
+
+            // Delete all .txt files in the test directory; they are placed there by the tests
+            foreach (string file in Directory.GetFiles(TestCommon.GetTestDataFile("Configuration"), "*.txt"))
+            {
+                File.Delete(file);
+            }
         }
 
         /// <summary>
