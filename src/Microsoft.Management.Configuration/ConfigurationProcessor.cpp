@@ -106,21 +106,17 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
     }
 
-    ConfigurationProcessor::ConfigurationProcessor(const IConfigurationSetProcessorFactory& factory) : m_factory(factory)
+    ConfigurationProcessor::ConfigurationProcessor()
     {
         AppInstaller::Logging::DiagnosticLogger& logger = m_threadGlobals.GetDiagnosticLogger();
         logger.EnableChannel(AppInstaller::Logging::Channel::All);
         logger.SetLevel(AppInstaller::Logging::Level::Verbose);
         logger.AddLogger(std::make_unique<ConfigurationProcessorDiagnosticsLogger>(*this));
+    }
 
-        if (m_factory)
-        {
-            m_factoryDiagnosticsEventRevoker = m_factory.Diagnostics(winrt::auto_revoke,
-                [this](const IInspectable&, const IDiagnosticInformation& information)
-                {
-                    m_diagnostics(*this, information);
-                });
-        }
+    ConfigurationProcessor::ConfigurationProcessor(const IConfigurationSetProcessorFactory& factory) : ConfigurationProcessor()
+    {
+        ConfigurationSetProcessorFactory(factory);
     }
 
     event_token ConfigurationProcessor::Diagnostics(const Windows::Foundation::EventHandler<IDiagnosticInformation>& handler)
@@ -581,6 +577,15 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     void ConfigurationProcessor::ConfigurationSetProcessorFactory(const IConfigurationSetProcessorFactory& value)
     {
         m_factory = value;
+
+        if (m_factory)
+        {
+            m_factoryDiagnosticsEventRevoker = m_factory.Diagnostics(winrt::auto_revoke,
+                [this](const IInspectable&, const IDiagnosticInformation& information)
+                {
+                    m_diagnostics(*this, information);
+                });
+        }
     }
 
     void ConfigurationProcessor::Diagnostics(DiagnosticLevel level, std::string_view message)

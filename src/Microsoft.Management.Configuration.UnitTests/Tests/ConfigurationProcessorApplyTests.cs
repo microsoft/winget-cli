@@ -25,6 +25,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     /// Unit tests for running test on the processor.
     /// </summary>
     [Collection("UnitTestCollection")]
+    [OutOfProc]
     public class ConfigurationProcessorApplyTests : ConfigurationProcessorTestBase
     {
         /// <summary>
@@ -43,7 +44,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         [Fact]
         public void ApplySet_SetProcessorError()
         {
-            ConfigurationSet configurationSet = new ConfigurationSet();
+            ConfigurationSet configurationSet = this.ConfigurationSet();
 
             TestConfigurationProcessorFactory factory = new TestConfigurationProcessorFactory();
             factory.Exceptions.Add(configurationSet, new FileNotFoundException());
@@ -61,10 +62,10 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         [Fact]
         public void ApplySet_DuplicateIdentifiers()
         {
-            ConfigurationSet configurationSet = new ConfigurationSet();
-            ConfigurationUnit configurationUnit1 = new ConfigurationUnit();
-            ConfigurationUnit configurationUnit2 = new ConfigurationUnit();
-            ConfigurationUnit configurationUnitDifferentIdentifier = new ConfigurationUnit();
+            ConfigurationSet configurationSet = this.ConfigurationSet();
+            ConfigurationUnit configurationUnit1 = this.ConfigurationUnit();
+            ConfigurationUnit configurationUnit2 = this.ConfigurationUnit();
+            ConfigurationUnit configurationUnitDifferentIdentifier = this.ConfigurationUnit();
             string sharedIdentifier = "SameIdentifier";
             configurationUnit1.Identifier = sharedIdentifier;
             configurationUnit2.Identifier = sharedIdentifier;
@@ -109,9 +110,9 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         [Fact]
         public void ApplySet_MissingDependency()
         {
-            ConfigurationSet configurationSet = new ConfigurationSet();
-            ConfigurationUnit configurationUnit = new ConfigurationUnit();
-            ConfigurationUnit configurationUnitMissingDependency = new ConfigurationUnit();
+            ConfigurationSet configurationSet = this.ConfigurationSet();
+            ConfigurationUnit configurationUnit = this.ConfigurationUnit();
+            ConfigurationUnit configurationUnitMissingDependency = this.ConfigurationUnit();
             configurationUnit.Identifier = "Identifier";
             configurationUnitMissingDependency.Dependencies = new string[] { "Dependency" };
             configurationSet.ConfigurationUnits = new ConfigurationUnit[] { configurationUnit, configurationUnitMissingDependency };
@@ -152,10 +153,10 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         [Fact]
         public void ApplySet_DependencyCycle()
         {
-            ConfigurationSet configurationSet = new ConfigurationSet();
-            ConfigurationUnit configurationUnit1 = new ConfigurationUnit();
-            ConfigurationUnit configurationUnit2 = new ConfigurationUnit();
-            ConfigurationUnit configurationUnit3 = new ConfigurationUnit();
+            ConfigurationSet configurationSet = this.ConfigurationSet();
+            ConfigurationUnit configurationUnit1 = this.ConfigurationUnit();
+            ConfigurationUnit configurationUnit2 = this.ConfigurationUnit();
+            ConfigurationUnit configurationUnit3 = this.ConfigurationUnit();
             configurationUnit1.Identifier = "Identifier1";
             configurationUnit2.Identifier = "Identifier2";
             configurationUnit3.Identifier = "Identifier3";
@@ -194,7 +195,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         [Fact]
         public void ApplySet_IntentRespected()
         {
-            ConfigurationSet configurationSet = new ConfigurationSet();
+            ConfigurationSet configurationSet = this.ConfigurationSet();
             ConfigurationUnit configurationUnitAssert = new ConfigurationUnit { Intent = ConfigurationUnitIntent.Assert };
             ConfigurationUnit configurationUnitInform = new ConfigurationUnit { Intent = ConfigurationUnitIntent.Inform };
             ConfigurationUnit configurationUnitApply = new ConfigurationUnit { Intent = ConfigurationUnitIntent.Apply };
@@ -245,7 +246,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         [Fact]
         public void ApplySet_AssertionFailure()
         {
-            ConfigurationSet configurationSet = new ConfigurationSet();
+            ConfigurationSet configurationSet = this.ConfigurationSet();
             ConfigurationUnit configurationUnitAssert = new ConfigurationUnit { Intent = ConfigurationUnitIntent.Assert };
             ConfigurationUnit configurationUnitApply = new ConfigurationUnit { Intent = ConfigurationUnitIntent.Apply };
             configurationSet.ConfigurationUnits = new ConfigurationUnit[] { configurationUnitApply, configurationUnitAssert };
@@ -292,7 +293,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         [Fact]
         public void ApplySet_AssertionNegative()
         {
-            ConfigurationSet configurationSet = new ConfigurationSet();
+            ConfigurationSet configurationSet = this.ConfigurationSet();
             ConfigurationUnit configurationUnitAssert = new ConfigurationUnit { Intent = ConfigurationUnitIntent.Assert };
             ConfigurationUnit configurationUnitApply = new ConfigurationUnit { Intent = ConfigurationUnitIntent.Apply };
             configurationSet.ConfigurationUnits = new ConfigurationUnit[] { configurationUnitApply, configurationUnitAssert };
@@ -332,7 +333,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         [Fact]
         public void ApplySet_UnitAlreadyInCorrectState()
         {
-            ConfigurationSet configurationSet = new ConfigurationSet();
+            ConfigurationSet configurationSet = this.ConfigurationSet();
             ConfigurationUnit configurationUnit = new ConfigurationUnit { Intent = ConfigurationUnitIntent.Apply };
             configurationSet.ConfigurationUnits = new ConfigurationUnit[] { configurationUnit };
 
@@ -365,15 +366,15 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         [Fact]
         public void ApplySet_Progress()
         {
-            ConfigurationSet configurationSet = new ConfigurationSet();
-            ConfigurationUnit assert1 = new ConfigurationUnit() { Intent = ConfigurationUnitIntent.Assert, Identifier = "Assert1" };
-            ConfigurationUnit assert2 = new ConfigurationUnit() { Intent = ConfigurationUnitIntent.Assert, Identifier = "Assert2", Dependencies = new string[] { assert1.Identifier } };
-            ConfigurationUnit inform1 = new ConfigurationUnit() { Intent = ConfigurationUnitIntent.Inform, Identifier = "Inform1" };
-            ConfigurationUnit apply1 = new ConfigurationUnit() { Intent = ConfigurationUnitIntent.Apply, Identifier = "Apply1" };
-            ConfigurationUnit apply2 = new ConfigurationUnit() { Intent = ConfigurationUnitIntent.Apply, Identifier = "Apply2" };
-            ConfigurationUnit apply3 = new ConfigurationUnit() { Intent = ConfigurationUnitIntent.Apply, Identifier = "Apply3", Dependencies = new string[] { apply1.Identifier, apply2.Identifier } };
-            ConfigurationUnit apply4 = new ConfigurationUnit() { Intent = ConfigurationUnitIntent.Apply, Identifier = "Apply4", ShouldApply = false };
-            ConfigurationUnit apply5 = new ConfigurationUnit() { Intent = ConfigurationUnitIntent.Apply, Identifier = "Apply5", Dependencies = new string[] { apply4.Identifier } };
+            ConfigurationSet configurationSet = this.ConfigurationSet();
+            ConfigurationUnit assert1 = this.ConfigurationUnit().Assign(new { Intent = ConfigurationUnitIntent.Assert, Identifier = "Assert1" });
+            ConfigurationUnit assert2 = this.ConfigurationUnit().Assign(new { Intent = ConfigurationUnitIntent.Assert, Identifier = "Assert2", Dependencies = new string[] { assert1.Identifier } });
+            ConfigurationUnit inform1 = this.ConfigurationUnit().Assign(new { Intent = ConfigurationUnitIntent.Inform, Identifier = "Inform1" });
+            ConfigurationUnit apply1 = this.ConfigurationUnit().Assign(new { Intent = ConfigurationUnitIntent.Apply, Identifier = "Apply1" });
+            ConfigurationUnit apply2 = this.ConfigurationUnit().Assign(new { Intent = ConfigurationUnitIntent.Apply, Identifier = "Apply2" });
+            ConfigurationUnit apply3 = this.ConfigurationUnit().Assign(new { Intent = ConfigurationUnitIntent.Apply, Identifier = "Apply3", Dependencies = new string[] { apply1.Identifier, apply2.Identifier } });
+            ConfigurationUnit apply4 = this.ConfigurationUnit().Assign(new { Intent = ConfigurationUnitIntent.Apply, Identifier = "Apply4", ShouldApply = false });
+            ConfigurationUnit apply5 = this.ConfigurationUnit().Assign(new { Intent = ConfigurationUnitIntent.Apply, Identifier = "Apply5", Dependencies = new string[] { apply4.Identifier } });
             configurationSet.ConfigurationUnits = new ConfigurationUnit[] { assert2, assert1, inform1, apply1, apply3, apply4,  apply2, apply5 };
 
             ManualResetEvent startProcessing = new ManualResetEvent(false);

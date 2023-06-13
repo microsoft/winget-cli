@@ -27,7 +27,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         using GetConfigurationUnitDetailsResult = Configuration::GetConfigurationUnitDetailsResult;
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
-        ConfigurationProcessor() = default;
+        ConfigurationProcessor();
 #endif
 
         ConfigurationProcessor(const IConfigurationSetProcessorFactory& factory);

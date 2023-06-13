@@ -53,7 +53,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         /// <returns>The new <see cref="ConfigurationProcessor"/> object.</returns>
         protected ConfigurationProcessor CreateConfigurationProcessorWithDiagnostics(IConfigurationSetProcessorFactory? factory = null)
         {
-            ConfigurationProcessor result = new ConfigurationProcessor(factory);
+            ConfigurationProcessor result = this.Fixture.ConfigurationStatics.CreateConfigurationProcessor(factory);
             result.Diagnostics += this.EventSink.DiagnosticsHandler;
             result.MinimumLevel = DiagnosticLevel.Verbose;
             return result;
@@ -78,6 +78,24 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
 
             result.Seek(0);
             return result;
+        }
+
+        /// <summary>
+        /// Creates a configuration unit via the configuration statics object.
+        /// </summary>
+        /// <returns>A new configuration unit.</returns>
+        protected ConfigurationUnit ConfigurationUnit()
+        {
+            return this.Fixture.ConfigurationStatics.CreateConfigurationUnit();
+        }
+
+        /// <summary>
+        /// Creates a configuration set via the configuration statics object.
+        /// </summary>
+        /// <returns>A new configuration set.</returns>
+        protected ConfigurationSet ConfigurationSet()
+        {
+            return this.Fixture.ConfigurationStatics.CreateConfigurationSet();
         }
 
         /// <summary>

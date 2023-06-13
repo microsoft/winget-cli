@@ -59,6 +59,8 @@ namespace Microsoft.Management.Configuration.UnitTests.Fixtures
             {
                 throw new DirectoryNotFoundException(this.ExternalModulesPath);
             }
+
+            this.ConfigurationStatics = new ConfigurationStaticFunctions();
         }
 
         /// <summary>
@@ -80,6 +82,11 @@ namespace Microsoft.Management.Configuration.UnitTests.Fixtures
         /// Gets the external module path.
         /// </summary>
         public string ExternalModulesPath { get; }
+
+        /// <summary>
+        /// Gets the configuration statics object to use.
+        /// </summary>
+        public IConfigurationStatics ConfigurationStatics { get; private init; }
 
         /// <summary>
         /// Creates a runspace adding the test module path.
