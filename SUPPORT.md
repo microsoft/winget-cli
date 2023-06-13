@@ -12,6 +12,6 @@ Support for Windows Package Manager is limited to the resources listed above.
 
 [gh-issue]: https://github.com/microsoft/winget-cli/issues/new/choose
 [gh-bug]: https://github.com/microsoft/winget-cli/issues/new?assignees=&labels=Issue-Bug&projects=&template=Bug_Report.yml
-[gh-feature]: https://github.com/microsoft/winget-cli/issues/new?assignees=&labels=Issue-Bug&projects=&template=Feature_Request.yml
+[gh-feature]: https://github.com/microsoft/winget-cli/issues/new?assignees=&labels=Issue-Feature&projects=&template=Feature_Request.yml
 [docs]: https://docs.microsoft.com/windows/package-manager
 [contributor]: https://github.com/microsoft/winget-cli/blob/master/CONTRIBUTING.md
