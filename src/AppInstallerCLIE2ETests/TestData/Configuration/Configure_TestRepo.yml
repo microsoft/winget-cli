@@ -1,7 +1,7 @@
 properties:
     configurationVersion: 0.2
     resources:
-      - resource: xSimpleTestResource/SimpleFileResource
+      - resource: xE2ETestResource/E2EFileResource
         directives:
           repository: AppInstallerCLIE2ETestsRepo
         settings:

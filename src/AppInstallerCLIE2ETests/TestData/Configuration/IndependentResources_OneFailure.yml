@@ -1,12 +1,12 @@
 properties:
     configurationVersion: 0.2
     resources:
-      - resource: xSimpleTestResource/SimpleTestResourceThrows
+      - resource: xE2ETestResource/E2ETestResourceThrows
         directives:
           repository: AppInstallerCLIE2ETestsRepo
         settings:
           key: Foo
-      - resource: xSimpleTestResource/SimpleFileResource
+      - resource: xE2ETestResource/E2EFileResource
         directives:
           repository: AppInstallerCLIE2ETestsRepo
         settings:

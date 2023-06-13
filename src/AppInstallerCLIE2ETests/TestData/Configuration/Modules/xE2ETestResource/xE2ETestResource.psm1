@@ -1,4 +1,4 @@
-﻿# Simple module with resources.
+﻿# E2E module with resources.
 
 enum Ensure
 {
@@ -8,7 +8,7 @@ enum Ensure
 
 # This resource just checks if a file is there or not with and if its with the specified content.
 [DscResource()]
-class SimpleFileResource
+class E2EFileResource
 {
     [DscProperty(Key)]
     [string] $Path
@@ -19,7 +19,7 @@ class SimpleFileResource
     [DscProperty()]
     [string] $Content = $null
 
-    [SimpleFileResource] Get()
+    [E2EFileResource] Get()
     {
         if ([string]::IsNullOrEmpty($this.Path))
         {
@@ -86,7 +86,7 @@ class SimpleFileResource
 }
 
 [DscResource()]
-class SimpleTestResource
+class E2ETestResource
 {
     [DscProperty(Key)]
     [string] $key
@@ -94,10 +94,10 @@ class SimpleTestResource
     [DscProperty(Mandatory)]
     [string] $secretCode
 
-    [SimpleTestResource] Get()
+    [E2ETestResource] Get()
     {
         $result = @{
-            key = "SimpleTestResourceKey"
+            key = "E2ETestResourceKey"
         }
         return $result
     }
@@ -117,15 +117,15 @@ class SimpleTestResource
 }
 
 [DscResource()]
-class SimpleTestResourceThrows
+class E2ETestResourceThrows
 {
     [DscProperty(Key)]
     [string] $key
 
-    [SimpleTestResourceThrows] Get()
+    [E2ETestResourceThrows] Get()
     {
         $result = @{
-            key = "SimpleTestResourceThrowsKey"
+            key = "E2ETestResourceThrowsKey"
         }
         throw "throws in Get"
         return $result
@@ -144,15 +144,15 @@ class SimpleTestResourceThrows
 }
 
 [DscResource()]
-class SimpleTestResourceError
+class E2ETestResourceError
 {
     [DscProperty(Key)]
     [string] $key
 
-    [SimpleTestResourceError] Get()
+    [E2ETestResourceError] Get()
     {
         $result = @{
-            key = "SimpleTestResourceErrorKey"
+            key = "E2ETestResourceErrorKey"
         }
         Write-Error "Error in Get"
         return $result
@@ -171,7 +171,7 @@ class SimpleTestResourceError
 }
 
 [DscResource()]
-class SimpleTestResourceTypes
+class E2ETestResourceTypes
 {
     [DscProperty(Key)]
     [string] $key
@@ -191,10 +191,10 @@ class SimpleTestResourceTypes
     [DscProperty()]
     [Hashtable] $hashtableProperty;
 
-    [SimpleTestResourceTypes] Get()
+    [E2ETestResourceTypes] Get()
     {
         $result = @{
-            key = "SimpleTestResourceTypesKey"
+            key = "E2ETestResourceTypesKey"
             boolProperty = $false
             intProperty = 0
             doubleProperty = 0.0
@@ -263,15 +263,15 @@ class SimpleTestResourceTypes
 
 # This resource "crashes" the containing process (really it just exits)
 [DscResource()]
-class SimpleTestResourceCrash
+class E2ETestResourceCrash
 {
     [DscProperty(Key)]
     [string] $key
 
-    [SimpleTestResourceCrash] Get()
+    [E2ETestResourceCrash] Get()
     {
         $result = @{
-            key = "SimpleTestResourceCrashKey"
+            key = "E2ETestResourceCrashKey"
         }
         [System.Environment]::Exit(0)
         return $result

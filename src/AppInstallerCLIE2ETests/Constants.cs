@@ -117,7 +117,7 @@ namespace AppInstallerCLIE2ETests
         public const string PSGalleryName = "PSGallery";
         public const string TestRepoName = "AppInstallerCLIE2ETestsRepo";
         public const string GalleryTestModuleName = "XmlContentDsc";
-        public const string SimpleTestModuleName = "xSimpleTestResource";
+        public const string SimpleTestModuleName = "xE2ETestResource";
         public const string LocalModuleDescriptor = "[Local]";
 
         /// <summary>
