@@ -14,4 +14,4 @@ Support for Dev Home is limited to the resources listed above.
 [gh-bug]: https://github.com/microsoft/winget-cli/issues/new?assignees=&labels=Issue-Bug&projects=&template=Bug_Report.yml
 [gh-feature]: https://github.com/microsoft/winget-cli/issues/new?assignees=&labels=Issue-Bug&projects=&template=Feature_Request.yml
 [docs]: https://docs.microsoft.com/windows/package-manager
-[contributor]: https://github.com/microsoft/winget-cli/blob/main/CONTRIBUTING.md
+[contributor]: https://github.com/microsoft/winget-cli/blob/master/CONTRIBUTING.md
