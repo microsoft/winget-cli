@@ -8,7 +8,7 @@ For help and questions about using this project, please look at the [docs site f
 
 ## Microsoft Support Policy  
 
-Support for Dev Home is limited to the resources listed above.
+Support for Windows Package Manager is limited to the resources listed above.
 
 [gh-issue]: https://github.com/microsoft/winget-cli/issues/new/choose
 [gh-bug]: https://github.com/microsoft/winget-cli/issues/new?assignees=&labels=Issue-Bug&projects=&template=Bug_Report.yml
