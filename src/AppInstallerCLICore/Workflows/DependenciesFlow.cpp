@@ -269,7 +269,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 DependencyNodeProcessor nodeProcessor(context);
 
-                auto result = nodeProcessor.EvaluateDependencies(node);
+                auto result = nodeProcessor.EvaluateDependencies(node, m_includeInstalledPackages);
                 DependencyList list = nodeProcessor.GetDependencyList();
                 foundError = foundError || (result == DependencyNodeProcessorResult::Error);
 
@@ -303,8 +303,6 @@ namespace AppInstaller::CLI::Workflow
 
         std::vector<std::unique_ptr<Execution::Context>> dependencyPackageContexts;
 
-        bool installerDownloadOnly = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerDownloadOnly);
-
         for (auto const& node : installationOrder)
         {
             auto itr = idToPackageMap.find(node.Id());
@@ -333,12 +331,6 @@ namespace AppInstaller::CLI::Workflow
                 dependencyContext.Add<Execution::Data::Manifest>(itr->second.Manifest);
                 dependencyContext.Add<Execution::Data::InstalledPackageVersion>(itr->second.InstalledPackageVersion);
                 dependencyContext.Add<Execution::Data::Installer>(itr->second.Installer);
-
-                // Pass download only context flag to subcontexts
-                if (installerDownloadOnly)
-                {
-                    dependencyContext.SetFlags(Execution::ContextFlag::InstallerDownloadOnly);
-                }
 
                 dependencyPackageContexts.emplace_back(std::move(dependencyContextPtr));
             }

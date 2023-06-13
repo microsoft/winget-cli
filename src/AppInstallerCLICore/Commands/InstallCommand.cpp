@@ -131,7 +131,7 @@ namespace AppInstaller::CLI
                     Workflow::GetMultiSearchRequests <<
                     Workflow::SearchSubContextsForSingle() <<
                     Workflow::ReportExecutionStage(Workflow::ExecutionStage::Execution) <<
-                    Workflow::InstallMultiplePackages(
+                    Workflow::ProcessMultiplePackages(
                         Resource::String::InstallAndUpgradeCommandsReportDependencies,
                         APPINSTALLER_CLI_ERROR_MULTIPLE_INSTALL_FAILED);
             }

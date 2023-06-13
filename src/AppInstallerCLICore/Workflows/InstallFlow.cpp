@@ -540,35 +540,31 @@ namespace AppInstaller::CLI::Workflow
             Workflow::DisplayInstallationNotes;
     }
 
-    void DownloadSinglePackage(Execution::Context& context)
+    void InstallDependencies(Execution::Context& context)
     {
-        // TODO: Split dependencies from download flow to prevent multiple installations.
         context <<
-            Workflow::ReportIdentityAndInstallationDisclaimer <<
-            Workflow::ShowPromptsForSinglePackage(/* ensureAcceptance */ true) <<
             Workflow::GetDependenciesFromInstaller <<
             Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
             Workflow::EnableWindowsFeaturesDependencies <<
-            Workflow::InstallPackageDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
-            Workflow::DownloadInstaller;
+            Workflow::ProcessPackageDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies);
     }
 
-    void DownloadSinglePackageAndDependencies(Execution::Context& context)
+    void DownloadPackageDependencies(Execution::Context& context)
     {
         context <<
-            Workflow::ReportIdentityAndInstallationDisclaimer <<
-            Workflow::ShowPromptsForSinglePackage(/* ensureAcceptance */ true) <<
             Workflow::GetDependenciesFromInstaller <<
             Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
-            Workflow::DownloadPackageDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
-            Workflow::DownloadInstaller;
+            Workflow::ProcessPackageDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies, true);
     }
 
     void InstallSinglePackage(Execution::Context& context)
     {
         context <<
             Workflow::CheckForUnsupportedArgs <<
-            Workflow::DownloadSinglePackage <<
+            Workflow::ReportIdentityAndInstallationDisclaimer <<
+            Workflow::ShowPromptsForSinglePackage(/* ensureAcceptance */ true) <<
+            Workflow::InstallDependencies <<
+            Workflow::DownloadInstaller <<
             Workflow::InstallPackageInstaller;
     }
 
@@ -580,87 +576,7 @@ namespace AppInstaller::CLI::Workflow
             Workflow::EnsureValidNestedInstallerMetadataForArchiveInstall;
     }
 
-    void DownloadMultiplePackages::operator()(Execution::Context& context) const
-    {
-        // If there are no subcontexts, then there are no dependencies to handle.
-        if (!context.Contains(Execution::Data::PackageSubContexts))
-        {
-            return;
-        }
-
-        // Show all prompts needed for every package before downloading anything
-        context << Workflow::ShowPromptsForMultiplePackages(m_ensurePackageAgreements);
-
-        if (context.IsTerminated())
-        {
-            return;
-        }
-
-        // Report dependencies
-        if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
-        {
-            auto& packageSubContexts = context.Get<Execution::Data::PackageSubContexts>();
-            if (!packageSubContexts.empty())
-            {
-                context.Reporter.Info() << Resource::String::DependenciesFlowInstall << std::endl;
-            }
-
-            DependencyList allDependencies;
-
-            for (auto& packageContext : packageSubContexts)
-            {
-                allDependencies.Add(packageContext->Get<Execution::Data::Installer>().value().Dependencies);
-            }
-
-            context.Add<Execution::Data::Dependencies>(allDependencies);
-            context << Workflow::ReportDependencies(m_dependenciesReportMessage);
-        }
-
-        size_t packagesCount = context.Get<Execution::Data::PackageSubContexts>().size();
-        size_t packagesProgress = 0;
-
-        for (auto& packageContext : context.Get<Execution::Data::PackageSubContexts>())
-        {
-            packagesProgress++;
-            context.Reporter.Info() << '(' << packagesProgress << '/' << packagesCount << ") "_liv;
-
-            // We want to do best effort to download all packages regardless of previous failures
-            Execution::Context& downloadContext = *packageContext;
-            auto previousThreadGlobals = downloadContext.SetForCurrentThread();
-
-            downloadContext << Workflow::ReportIdentityAndInstallationDisclaimer;
-
-            // Prevent individual exceptions from breaking out of the loop
-            try
-            {
-                if (!m_ignorePackageDependencies)
-                {
-                    downloadContext << Workflow::DownloadPackageDependencies(m_dependenciesReportMessage);
-                }
-                downloadContext << Workflow::DownloadInstaller;
-            }
-            catch (...)
-            {
-                downloadContext.SetTerminationHR(Workflow::HandleException(downloadContext, std::current_exception()));
-            }
-
-            downloadContext.Reporter.Info() << std::endl;
-
-            if (downloadContext.IsTerminated())
-            {
-                if (context.IsTerminated() && context.GetTerminationHR() == E_ABORT)
-                {
-                    // This means that the subcontext being terminated is due to an overall abort
-                    context.Reporter.Info() << Resource::String::Cancelled << std::endl;
-                    return;
-                }
-
-                AICLI_TERMINATE_CONTEXT(downloadContext.GetTerminationHR());
-            }
-        }
-    }
-
-    void InstallMultiplePackages::operator()(Execution::Context& context) const
+    void ProcessMultiplePackages::operator()(Execution::Context& context) const
     {
         // If there are no subcontexts, then there are no dependencies to handle.
         if (!context.Contains(Execution::Data::PackageSubContexts))
@@ -682,7 +598,14 @@ namespace AppInstaller::CLI::Workflow
             auto& packageSubContexts = context.Get<Execution::Data::PackageSubContexts>();
             if (!packageSubContexts.empty())
             {
-                context.Reporter.Info() << Resource::String::DependenciesFlowInstall << std::endl;
+                if (m_downloadInstallerOnly)
+                {
+                    context.Reporter.Info() << Resource::String::DependenciesFlowDownload << std::endl;
+                }
+                else
+                {
+                    context.Reporter.Info() << Resource::String::DependenciesFlowInstall << std::endl;
+                }
             }
 
             DependencyList allDependencies;
@@ -706,30 +629,38 @@ namespace AppInstaller::CLI::Workflow
             context.Reporter.Info() << '(' << packagesProgress << '/' << packagesCount << ") "_liv;
 
             // We want to do best effort to install all packages regardless of previous failures
-            Execution::Context& installContext = *packageContext;
-            auto previousThreadGlobals = installContext.SetForCurrentThread();
+            Execution::Context& currentContext = *packageContext;
+            auto previousThreadGlobals = currentContext.SetForCurrentThread();
 
-            installContext << Workflow::ReportIdentityAndInstallationDisclaimer;
+            currentContext << Workflow::ReportIdentityAndInstallationDisclaimer;
 
             // Prevent individual exceptions from breaking out of the loop
             try
             {
                 if (!m_ignorePackageDependencies)
                 {
-                    installContext << Workflow::InstallPackageDependencies(m_dependenciesReportMessage);
+                    currentContext << Workflow::ProcessPackageDependencies(m_dependenciesReportMessage, m_downloadInstallerOnly);
                 }
-                installContext <<
-                    Workflow::DownloadInstaller <<
-                    Workflow::InstallPackageInstaller;
+
+                if (m_downloadInstallerOnly)
+                {
+                    currentContext << Workflow::DownloadInstallerToTargetDirectory;
+                }
+                else
+                {
+                    currentContext <<
+                        Workflow::DownloadInstaller <<
+                        Workflow::InstallPackageInstaller;
+                }
             }
             catch (...)
             {
-                installContext.SetTerminationHR(Workflow::HandleException(installContext, std::current_exception()));
+                currentContext.SetTerminationHR(Workflow::HandleException(currentContext, std::current_exception()));
             }
 
-            installContext.Reporter.Info() << std::endl;
+            currentContext.Reporter.Info() << std::endl;
 
-            if (installContext.IsTerminated())
+            if (currentContext.IsTerminated())
             {
                 if (context.IsTerminated() && context.GetTerminationHR() == E_ABORT)
                 {
@@ -738,7 +669,7 @@ namespace AppInstaller::CLI::Workflow
                     return;
                 }
 
-                if (m_ignorableInstallResults.end() == std::find(m_ignorableInstallResults.begin(), m_ignorableInstallResults.end(), installContext.GetTerminationHR()))
+                if (m_ignorableInstallResults.end() == std::find(m_ignorableInstallResults.begin(), m_ignorableInstallResults.end(), currentContext.GetTerminationHR()))
                 {
                     allSucceeded = false;
                     if (m_stopOnFailure)
@@ -755,18 +686,11 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void InstallPackageDependencies::operator()(Execution::Context& context) const
+    void ProcessPackageDependencies::operator()(Execution::Context& context) const
     {
         context
-            << Workflow::BuildDependencyGraph(m_dependenciesReportMessage)
-            << Workflow::InstallMultiplePackages(m_dependenciesReportMessage, APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES, {}, false, true, true);;
-    }
-
-    void DownloadPackageDependencies::operator()(Execution::Context& context) const
-    {
-        context
-            << Workflow::BuildDependencyGraph(m_dependenciesReportMessage)
-            << Workflow::DownloadMultiplePackages(m_dependenciesReportMessage, false, true, true);;
+            << Workflow::BuildDependencyGraph(m_dependenciesReportMessage, m_downloadInstallerOnly)
+            << Workflow::ProcessMultiplePackages(m_dependenciesReportMessage, APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES, {}, false, true, true, m_downloadInstallerOnly);;
     }
 
     void SnapshotARPEntries(Execution::Context& context) try

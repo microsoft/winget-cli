@@ -1945,7 +1945,16 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="DownloadCommandShortDescription" xml:space="preserve">
     <value>Downloads the installer from a given package</value>
   </data>
-  <data name="OutputDirectoryArgumentDescription" xml:space="preserve">
+  <data name="DownloadDirectoryArgumentDescription" xml:space="preserve">
     <value>Directory where the installers are downloaded to</value>
+  </data>
+  <data name="DependenciesFlowDownload" xml:space="preserve">
+    <value>Downloading dependencies:</value>
+  </data>
+  <data name="InstallerDownloaded" xml:space="preserve">
+    <value>Installer downloaded:</value>
+  </data>
+  <data name="InstallerTypeArgumentDescription" xml:space="preserve">
+    <value>Select the installer type to download</value>
   </data>
 </root>

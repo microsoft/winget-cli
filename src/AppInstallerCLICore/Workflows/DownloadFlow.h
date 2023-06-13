@@ -11,6 +11,12 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void DownloadInstaller(Execution::Context& context);
 
+    // Downloads the installer to the target directory (Used by the download command)
+    // Required Args: none
+    // Inputs: Manifest, Installer
+    // Outputs: None
+    void DownloadInstallerToTargetDirectory(Execution::Context& context);
+
     // Check if the desired installer has already been downloaded.
     // Required Args: None
     // Inputs: Manifest, Installer
@@ -60,6 +66,13 @@ namespace AppInstaller::CLI::Workflow
     // Modifies: InstallerPath
     // Outputs: None
     void RenameDownloadedInstaller(Execution::Context& context);
+
+    // Moves the downloaded installer to the target download directory.
+    // Required Args: None
+    // Inputs: Installer, InstallerPath
+    // Modifies: InstallerPath
+    // Outputs: None
+    void MoveDownloadedInstallerToDownloadDirectory(Execution::Context& context);
 
     // Deletes the installer file.
     // Required Args: None

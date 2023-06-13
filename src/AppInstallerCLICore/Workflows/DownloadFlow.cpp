@@ -129,30 +129,6 @@ namespace AppInstaller::CLI::Workflow
 
             return false;
         }
-
-        // Gets the full target path if the installer is only being downloaded. Default directory is user profile downloads folder.
-        std::filesystem::path GetInstallerDownloadOnlyTargetPath(Execution::Context& context)
-        {
-            std::filesystem::path installerDownloadPath;
-
-            if (context.Args.Contains(Execution::Args::Type::OutputDirectory))
-            {
-                std::filesystem::path outputDirectory{ context.Args.GetArg(Execution::Args::Type::OutputDirectory) };
-                if (!std::filesystem::exists(outputDirectory) || std::filesystem::is_directory(outputDirectory))
-                {
-                    std::filesystem::create_directories(outputDirectory);
-                }
-
-                installerDownloadPath = outputDirectory;
-            }
-            else
-            {
-                installerDownloadPath = AppInstaller::Runtime::GetPathTo(AppInstaller::Runtime::PathName::Downloads);
-            }
-
-            installerDownloadPath /= GetInstallerPostHashValidationFileName(context);
-            return installerDownloadPath;
-        }
     }
 
     void DownloadInstaller(Execution::Context& context)
@@ -163,6 +139,7 @@ namespace AppInstaller::CLI::Workflow
         context <<
             ReportExecutionStage(ExecutionStage::Download) <<
             CheckForExistingInstaller;
+
         if (context.IsTerminated())
         {
             return;
@@ -207,11 +184,39 @@ namespace AppInstaller::CLI::Workflow
             VerifyInstallerHash <<
             UpdateInstallerFileMotwIfApplicable <<
             RenameDownloadedInstaller;
+    }
 
-        if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerDownloadOnly))
+    void DownloadInstallerToTargetDirectory(Execution::Context& context)
+    {
+        // Check if file was already downloaded.
+        // This may happen after a failed installation or if the download was done
+        // separately before, e.g. on COM scenarios.
+        context <<
+            ReportExecutionStage(ExecutionStage::Download) <<
+            CheckForExistingInstaller;
+
+        if (context.IsTerminated())
         {
-            context.Reporter.Info() << "Installer downloaded to: " << context.Get<Execution::Data::InstallerPath>() << std::endl;
+            return;
         }
+
+        if (!context.Contains(Execution::Data::InstallerPath))
+        {
+            const auto& installer = context.Get<Execution::Data::Installer>().value();
+
+            if (installer.BaseInstallerType == InstallerTypeEnum::MSStore)
+            {
+                // Do nothing for MSStore installer type
+                return;
+            }
+
+            context << DownloadInstallerFile;
+        }
+
+        context <<
+            VerifyInstallerHash <<
+            UpdateInstallerFileMotwIfApplicable <<
+            MoveDownloadedInstallerToDownloadDirectory;
     }
 
     void CheckForExistingInstaller(Execution::Context& context)
@@ -461,6 +466,37 @@ namespace AppInstaller::CLI::Workflow
         context << VerifyInstallerHash;
     }
 
+    void MoveDownloadedInstallerToDownloadDirectory(Execution::Context& context)
+    {
+        if (!context.Contains(Execution::Data::InstallerPath))
+        {
+            // No installer downloaded, no need to rename anything.
+            return;
+        }
+
+        auto& installerPath = context.Get<Execution::Data::InstallerPath>();
+        std::filesystem::path installerDownloadPath;
+
+        if (context.Args.Contains(Execution::Args::Type::DownloadDirectory))
+        {
+            std::filesystem::path downloadDirectory{ context.Args.GetArg(Execution::Args::Type::DownloadDirectory) };
+            if (!std::filesystem::exists(downloadDirectory) || !std::filesystem::is_directory(downloadDirectory))
+            {
+                std::filesystem::create_directories(downloadDirectory);
+            }
+
+            installerDownloadPath = downloadDirectory;
+        }
+        else
+        {
+            installerDownloadPath = AppInstaller::Runtime::GetPathTo(AppInstaller::Runtime::PathName::Downloads);
+        }
+
+        installerDownloadPath /= GetInstallerPostHashValidationFileName(context);
+        Filesystem::RenameFile(installerPath, installerDownloadPath);
+        context.Reporter.Info() << Resource::String::InstallerDownloaded << ' ' << '"' << installerDownloadPath << '"' << std::endl;
+    }
+
     void RenameDownloadedInstaller(Execution::Context& context)
     {
         if (!context.Contains(Execution::Data::InstallerPath))
@@ -470,24 +506,15 @@ namespace AppInstaller::CLI::Workflow
         }
 
         auto& installerPath = context.Get<Execution::Data::InstallerPath>();
-        std::filesystem::path renamedDownloadedInstaller;
+        std::filesystem::path renamedDownloadedInstaller = installerPath;
+        renamedDownloadedInstaller.replace_filename(GetInstallerPostHashValidationFileName(context));
 
-        if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerDownloadOnly))
+        if (installerPath == renamedDownloadedInstaller)
         {
-            renamedDownloadedInstaller = GetInstallerDownloadOnlyTargetPath(context);
+            // In case we are reusing an existing downloaded file
+            return;
         }
-        else
-        {
-            renamedDownloadedInstaller = installerPath;
-            renamedDownloadedInstaller.replace_filename(GetInstallerPostHashValidationFileName(context));
 
-            if (installerPath == renamedDownloadedInstaller)
-            {
-                // In case we are reusing an existing downloaded file
-                return;
-            }
-        }
-        
         Filesystem::RenameFile(installerPath, renamedDownloadedInstaller);
 
         installerPath.assign(renamedDownloadedInstaller);

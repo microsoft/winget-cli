@@ -4,6 +4,7 @@
 #include "COMCommand.h"
 #include "Workflows/DownloadFlow.h"
 #include "Workflows/InstallFlow.h"
+#include "Workflows/PromptFlow.h"
 #include "Workflows/UninstallFlow.h"
 #include "Workflows/WorkflowBase.h"
 
@@ -21,7 +22,9 @@ namespace AppInstaller::CLI
             Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
             Workflow::SelectInstaller <<
             Workflow::EnsureApplicableInstaller <<
-            Workflow::DownloadSinglePackage;
+            Workflow::ReportIdentityAndInstallationDisclaimer <<
+            Workflow::ShowPromptsForSinglePackage(/* ensureAcceptance */ true) <<
+            Workflow::DownloadInstallerToTargetDirectory;
     }
 
     // IMPORTANT: To use this command, the caller should have already executed the COMDownloadCommand

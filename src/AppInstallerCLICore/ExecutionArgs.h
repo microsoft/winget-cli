@@ -41,6 +41,7 @@ namespace AppInstaller::CLI::Execution
             InstallLocation,
             InstallScope,
             InstallArchitecture,
+            InstallerType,
             HashOverride, // Ignore hash mismatches
             IgnoreLocalArchiveMalwareScan, // Ignore the local malware scan on archive files
             AcceptPackageAgreements, // Accept all license agreements for packages
@@ -80,7 +81,7 @@ namespace AppInstaller::CLI::Execution
             IgnoreVersions,
 
             // Download Command
-            OutputDirectory,
+            DownloadDirectory,
 
             // Setting Command
             AdminSettingEnable,

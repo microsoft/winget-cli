@@ -45,13 +45,18 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: Dependencies
     struct BuildDependencyGraph : public WorkflowTask
     {
-        BuildDependencyGraph(AppInstaller::StringResource::StringId dependencyReportMessage) :
-            WorkflowTask("ReportDependencies"), m_dependencyReportMessage(dependencyReportMessage) {}
+        BuildDependencyGraph(
+            AppInstaller::StringResource::StringId dependencyReportMessage,
+            bool includeInstalledPackages = false) :
+            WorkflowTask("ReportDependencies"),
+            m_dependencyReportMessage(dependencyReportMessage),
+            m_includeInstalledPackages(includeInstalledPackages) {}
 
         void operator()(Execution::Context& context) const override;
 
         private:
             AppInstaller::StringResource::StringId m_dependencyReportMessage;
+            bool m_includeInstalledPackages;
     };
 
     // Sets up the source used to get the dependencies.

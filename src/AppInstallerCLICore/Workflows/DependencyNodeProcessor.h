@@ -22,7 +22,7 @@ namespace AppInstaller::CLI::Workflow
     {
         DependencyNodeProcessor(Execution::Context& context);
 
-        DependencyNodeProcessorResult EvaluateDependencies(Dependency& dependencyNode);
+        DependencyNodeProcessorResult EvaluateDependencies(Dependency& dependencyNode, bool includeInstalledPackages = false);
 
         DependencyList GetDependencyList() { return m_dependenciesList; }
 

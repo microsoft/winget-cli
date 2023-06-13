@@ -77,6 +77,8 @@ namespace AppInstaller::CLI
             return { type, "scope"_liv, ArgTypeCategory::InstallerSelection | ArgTypeCategory::CopyValueToSubContext };
         case Execution::Args::Type::InstallArchitecture:
             return { type, "architecture"_liv, 'a', ArgTypeCategory::InstallerSelection | ArgTypeCategory::CopyValueToSubContext };
+        case Execution::Args::Type::InstallerType:
+            return { type, "installer-type"_liv, ArgTypeCategory::InstallerSelection };
         case Execution::Args::Type::HashOverride:
             return { type, "ignore-security-hash"_liv, ArgTypeCategory::InstallerBehavior | ArgTypeCategory::CopyFlagToSubContext };
         case Execution::Args::Type::IgnoreLocalArchiveMalwareScan:
@@ -177,8 +179,8 @@ namespace AppInstaller::CLI
             return { type, "accept-configuration-agreements"_liv };
 
         // Download command
-        case Execution::Args::Type::OutputDirectory:
-            return { type, "output-directory"_liv, 'd', ArgTypeCategory::CopyValueToSubContext };
+        case Execution::Args::Type::DownloadDirectory:
+            return { type, "download-directory"_liv, 'd', ArgTypeCategory::CopyValueToSubContext };
 
         // Common arguments
         case Execution::Args::Type::NoVT:
@@ -331,8 +333,10 @@ namespace AppInstaller::CLI
             return Argument{ type, Resource::String::UninstallPreviousArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help };
         case Args::Type::Force:
             return Argument{ type, Resource::String::ForceArgumentDescription, ArgumentType::Flag, false };
-        case Args::Type::OutputDirectory:
-            return Argument{ type, Resource::String::OutputDirectoryArgumentDescription, ArgumentType::Positional, false };
+        case Args::Type::DownloadDirectory:
+            return Argument{ type, Resource::String::DownloadDirectoryArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help, false };
+        case Args::Type::InstallerType:
+            return Argument{ type, Resource::String::InstallerTypeArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help, false };
         default:
             THROW_HR(E_UNEXPECTED);
         }

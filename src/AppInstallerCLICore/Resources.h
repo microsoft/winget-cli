@@ -108,6 +108,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(CountArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(CountOutOfBoundsError);
         WINGET_DEFINE_RESOURCE_STRINGID(CustomSwitchesArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(DependenciesFlowDownload);
         WINGET_DEFINE_RESOURCE_STRINGID(DependenciesFlowInstall);
         WINGET_DEFINE_RESOURCE_STRINGID(DependenciesFlowSourceNotFound);
         WINGET_DEFINE_RESOURCE_STRINGID(DependenciesFlowSourceTooManyMatches);
@@ -200,8 +201,9 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(InstalledPackageVersionNotAvailable);
         WINGET_DEFINE_RESOURCE_STRINGID(InstalledScopeArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerAbortsTerminal);
-        WINGET_DEFINE_RESOURCE_STRINGID(InstallerElevationExpected);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerBlockedByPolicy);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallerDownloaded);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallerElevationExpected);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerFailedSecurityCheck);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerFailedVirusScan);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerFailedWithCode);
@@ -213,6 +215,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerLogAvailable);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerProhibitsElevation);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerRequiresInstallLocation);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallerTypeArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallersAbortTerminal);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallersRequireInstallLocation);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowInstallSuccess);
@@ -300,7 +303,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(OpenSourceFailedNoMatchHelp);
         WINGET_DEFINE_RESOURCE_STRINGID(OpenSourceFailedNoSourceDefined);
         WINGET_DEFINE_RESOURCE_STRINGID(Options);
-        WINGET_DEFINE_RESOURCE_STRINGID(OutputDirectoryArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(DownloadDirectoryArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(OutputFileArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(OverrideArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(OverwritingExistingFileAtMessage);

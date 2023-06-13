@@ -245,6 +245,71 @@ namespace AppInstaller::CLI::Workflow
             std::vector<Utility::Architecture> m_allowedArchitectures;
         };
 
+        struct InstallerTypeComparator : public details::ComparisonField
+        {
+            InstallerTypeComparator(Manifest::InstallerTypeEnum installerType) :
+                details::ComparisonField("Installer Type"), m_installerType(installerType) {}
+
+            static std::unique_ptr<InstallerTypeComparator> Create(const Execution::Args& args)
+            {
+                if (args.Contains(Execution::Args::Type::InstallerType))
+                {
+                    Manifest::InstallerTypeEnum installerType = Manifest::ConvertToInstallerTypeEnum(std::string(args.GetArg(Execution::Args::Type::InstallerType)));
+                    return std::make_unique<InstallerTypeComparator>(installerType);
+                }
+                else
+                {
+                    return {};
+                }
+            }
+
+            InapplicabilityFlags IsApplicable(const Manifest::ManifestInstaller& installer) override
+            {
+                // The installer is applicable if the installer type or nested installer type matches. (User should be allowed to specify 'zip')
+                if (Manifest::IsInstallerTypeCompatible(installer.EffectiveInstallerType(), m_installerType) ||
+                    Manifest::IsInstallerTypeCompatible(installer.BaseInstallerType, m_installerType))
+                {
+                    return InapplicabilityFlags::None;
+                }
+
+                return InapplicabilityFlags::InstallerType;
+            }
+
+            std::string ExplainInapplicable(const Manifest::ManifestInstaller& installer) override
+            {
+                std::string result = "Installer type does not match required type: ";
+
+                if (IsArchiveType(m_installerType))
+                {
+                    result += Manifest::InstallerTypeToString(installer.BaseInstallerType);
+                }
+                else
+                {
+                    result += Manifest::InstallerTypeToString(installer.EffectiveInstallerType());
+                }
+
+                result += " != ";
+                result += Manifest::InstallerTypeToString(m_installerType);
+                return result;
+            }
+
+            bool IsFirstBetter(const Manifest::ManifestInstaller& first, const Manifest::ManifestInstaller& second) override
+            {
+                if (IsArchiveType(m_installerType))
+                {
+                    // If the selected installer type is an archive type, only compare the base installer types.
+                    return (first.BaseInstallerType == m_installerType && second.BaseInstallerType != m_installerType);
+                }
+                else
+                {
+                    return (first.EffectiveInstallerType() == m_installerType && second.EffectiveInstallerType() != m_installerType);
+                }
+            }
+
+        private:
+            Manifest::InstallerTypeEnum m_installerType;
+        };
+
         struct InstalledTypeComparator : public details::ComparisonField
         {
             InstalledTypeComparator(Manifest::InstallerTypeEnum installedType) :
@@ -655,6 +720,7 @@ namespace AppInstaller::CLI::Workflow
 
         // Filter order is not important, but comparison order determines priority.
         // TODO: There are improvements to be made here around ordering, especially in the context of implicit vs explicit vs command line preferences.
+        AddComparator(InstallerTypeComparator::Create(context.Args));
         AddComparator(InstalledTypeComparator::Create(installationMetadata));
         AddComparator(LocaleComparator::Create(context.Args, installationMetadata));
         AddComparator(ScopeComparator::Create(context));

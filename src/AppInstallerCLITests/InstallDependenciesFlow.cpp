@@ -43,7 +43,7 @@ void OverrideOpenDependencySource(TestContext& context)
 
 void OverrideForInstallMultiplePackages(TestContext& context)
 {
-    context.Override({ Workflow::InstallMultiplePackages(
+    context.Override({ Workflow::ProcessMultiplePackages(
         Resource::String::InstallAndUpgradeCommandsReportDependencies,
         APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES,
         {},

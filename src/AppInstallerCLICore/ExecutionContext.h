@@ -65,7 +65,6 @@ namespace AppInstaller::CLI::Execution
         ShowSearchResultsOnPartialFailure = 0x10,
         DisableInteractivity = 0x40,
         BypassIsStoreClientBlockedPolicyCheck = 0x80,
-        InstallerDownloadOnly = 0x100,
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(ContextFlag);

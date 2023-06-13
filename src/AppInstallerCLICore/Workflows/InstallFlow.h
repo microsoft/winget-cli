@@ -142,13 +142,17 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void InstallPackageInstaller(Execution::Context& context);
 
-    // Downloads the installer for a single package. This also does all the reporting and user interaction needed.
+    // Processes all of the dependencies of a specific package.
     // Required Args: None
     // Inputs: Manifest, Installer
-    // Outputs: InstallerPath
-    void DownloadSinglePackage(Execution::Context& context);
+    // Outputs: None
+    void InstallDependencies(Execution::Context& context);
 
-    void DownloadSinglePackageAndDependencies(Execution::Context& context);
+    // Downloads all of the package dependencies of a specific package.
+    // Required Args: none
+    // Inputs: Manifest, Installer
+    // Outputs: None
+    void DownloadPackageDependencies(Execution::Context& context);
 
     // Installs a single package. This also does the reporting, user interaction, and installer download
     // for single-package installation.
@@ -157,26 +161,28 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void InstallSinglePackage(Execution::Context& context);
 
-    // Installs multiple packages. This also does the reporting and user interaction needed.
+    // Processes multiple packages by handling download and/or install. This also does the reporting and user interaction needed.
     // Required Args: None
     // Inputs: PackageSubContexts
     // Outputs: None
-    struct InstallMultiplePackages : public WorkflowTask
+    struct ProcessMultiplePackages : public WorkflowTask
     {
-        InstallMultiplePackages(
+        ProcessMultiplePackages(
             StringResource::StringId dependenciesReportMessage,
             HRESULT resultOnFailure,
             std::vector<HRESULT>&& ignorableInstallResults = {},
             bool ensurePackageAgreements = true,
             bool ignoreDependencies = false,
-            bool stopOnFailure = false) :
-            WorkflowTask("InstallMultiplePackages"),
+            bool stopOnFailure = false,
+            bool downloadInstallerOnly = false):
+            WorkflowTask("ProcessMultiplePackages"),
             m_dependenciesReportMessage(dependenciesReportMessage),
             m_resultOnFailure(resultOnFailure),
             m_ignorableInstallResults(std::move(ignorableInstallResults)),
             m_ignorePackageDependencies(ignoreDependencies),
             m_ensurePackageAgreements(ensurePackageAgreements),
-            m_stopOnFailure(stopOnFailure) {}
+            m_stopOnFailure(stopOnFailure),
+            m_downloadInstallerOnly(downloadInstallerOnly){}
 
         void operator()(Execution::Context& context) const override;
 
@@ -187,52 +193,27 @@ namespace AppInstaller::CLI::Workflow
         bool m_ignorePackageDependencies;
         bool m_ensurePackageAgreements;
         bool m_stopOnFailure;
+        bool m_downloadInstallerOnly;
     };
-
-    struct DownloadMultiplePackages : public WorkflowTask
+    
+    // Processes only the package dependencies of a package by downloading and/or installing them.
+    // Required Args: None
+    // Inputs: PackageSubContexts
+    // Outputs: None
+    struct ProcessPackageDependencies : public WorkflowTask
     {
-        DownloadMultiplePackages(
+        ProcessPackageDependencies(
             StringResource::StringId dependenciesReportMessage,
-            bool ensurePackageAgreements = true,
-            bool ignoreDependencies = false,
-            bool stopOnFailure = false) :
-            WorkflowTask("DownloadMultiplePackages"),
+            bool downloadInstallerOnly = false) :
+            WorkflowTask("ProcessPackageDependencies"),
             m_dependenciesReportMessage(dependenciesReportMessage),
-            m_ignorePackageDependencies(ignoreDependencies),
-            m_ensurePackageAgreements(ensurePackageAgreements),
-            m_stopOnFailure(stopOnFailure) {}
+            m_downloadInstallerOnly(downloadInstallerOnly) {}
 
         void operator()(Execution::Context& context) const override;
 
     private:
         StringResource::StringId m_dependenciesReportMessage;
-        bool m_ignorePackageDependencies;
-        bool m_ensurePackageAgreements;
-        bool m_stopOnFailure;
-    };
-
-    struct InstallPackageDependencies : public WorkflowTask
-    {
-        InstallPackageDependencies(StringResource::StringId dependenciesReportMessage) :
-            WorkflowTask("InstallPackageDependencies"),
-            m_dependenciesReportMessage(dependenciesReportMessage) {}
-
-        void operator()(Execution::Context& context) const override;
-
-    private:
-        StringResource::StringId m_dependenciesReportMessage;
-    };
-
-    struct DownloadPackageDependencies : public WorkflowTask
-    {
-        DownloadPackageDependencies(StringResource::StringId dependenciesReportMessage) :
-            WorkflowTask("DownloadPackageDependencies"),
-            m_dependenciesReportMessage(dependenciesReportMessage) {}
-
-        void operator()(Execution::Context& context) const override;
-
-    private:
-        StringResource::StringId m_dependenciesReportMessage;
+        bool m_downloadInstallerOnly;
     };
 
     // Stores the existing set of packages in ARP.

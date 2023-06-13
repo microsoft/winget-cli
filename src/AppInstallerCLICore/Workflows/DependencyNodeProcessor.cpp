@@ -13,7 +13,7 @@ namespace AppInstaller::CLI::Workflow
     DependencyNodeProcessor::DependencyNodeProcessor(Execution::Context& context)
         : m_context(context) {}
 
-    DependencyNodeProcessorResult DependencyNodeProcessor::EvaluateDependencies(Dependency& dependencyNode)
+    DependencyNodeProcessorResult DependencyNodeProcessor::EvaluateDependencies(Dependency& dependencyNode, bool includeInstalledPackages)
     {
         SearchRequest searchRequest;
         const auto& source = m_context.Get<Execution::Data::DependencySource>();
@@ -55,8 +55,7 @@ namespace AppInstaller::CLI::Workflow
 
         m_nodePackageLatestVersion = package->GetLatestAvailableVersion(pinBehavior);
 
-        bool installerDownloadOnly = WI_IsFlagSet(m_context.GetFlags(), Execution::ContextFlag::InstallerDownloadOnly);
-        if (!installerDownloadOnly && m_nodePackageInstalledVersion && dependencyNode.IsVersionOk(Utility::Version(m_nodePackageInstalledVersion->GetProperty(PackageVersionProperty::Version))))
+        if (!includeInstalledPackages && m_nodePackageInstalledVersion && dependencyNode.IsVersionOk(Utility::Version(m_nodePackageInstalledVersion->GetProperty(PackageVersionProperty::Version))))
         {
             // return empty dependency list,
             // as we won't keep searching for dependencies for installed packages

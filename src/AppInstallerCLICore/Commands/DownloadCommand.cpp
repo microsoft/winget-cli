@@ -5,6 +5,7 @@
 #include "Workflows/DownloadFlow.h"
 #include "Workflows/InstallFlow.h"
 #include "Workflows/MultiQueryFlow.h"
+#include "Workflows/PromptFlow.h"
 #include "Resources.h"
 
 namespace AppInstaller::CLI
@@ -17,7 +18,7 @@ namespace AppInstaller::CLI
     {
         return {
             Argument::ForType(Args::Type::Query),
-            Argument::ForType(Args::Type::OutputDirectory),
+            Argument::ForType(Args::Type::DownloadDirectory),
             Argument::ForType(Args::Type::Manifest),
             Argument::ForType(Args::Type::Id),
             Argument::ForType(Args::Type::Name),
@@ -27,6 +28,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Source),
             Argument{ Args::Type::InstallScope, Resource::String::InstallScopeDescription, ArgumentType::Standard, Argument::Visibility::Help },
             Argument::ForType(Args::Type::InstallArchitecture),
+            Argument::ForType(Args::Type::InstallerType),
             Argument::ForType(Args::Type::Exact),
             Argument::ForType(Args::Type::Locale),
             Argument::ForType(Args::Type::Log),
@@ -59,15 +61,11 @@ namespace AppInstaller::CLI
 
     void DownloadCommand::ExecuteInternal(Context& context) const
     {
-        context.SetFlags(Execution::ContextFlag::InstallerDownloadOnly);
-
         if (context.Args.Contains(Execution::Args::Type::Manifest))
         {
             context <<
                 Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
-                Workflow::GetManifestFromArg <<
-                Workflow::SelectInstaller <<
-                Workflow::DownloadSinglePackageAndDependencies;
+                Workflow::GetManifestFromArg;
         }
         else
         {
@@ -81,24 +79,19 @@ namespace AppInstaller::CLI
                     Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed, false, Repository::CompositeSearchBehavior::AvailablePackages);
             }
 
-            if (context.Args.Contains(Execution::Args::Type::MultiQuery))
-            {
-                context <<
-                    Workflow::GetMultiSearchRequests <<
-                    Workflow::SearchSubContextsForSingle() <<
-                    Workflow::ReportExecutionStage(Workflow::ExecutionStage::Execution) <<
-                    Workflow::DownloadMultiplePackages(Resource::String::InstallAndUpgradeCommandsReportDependencies);
-            }
-            else
-            {
-                context <<
-                    SearchSourceForSingle <<
-                    Workflow::HandleSearchResultFailures <<
-                    Workflow::EnsureOneMatchFromSearchResult(OperationType::Download) <<
-                    Workflow::GetManifestFromPackage(false) <<
-                    Workflow::SelectInstaller <<
-                    Workflow::DownloadSinglePackageAndDependencies;
-            }
+            context <<
+                Workflow::SearchSourceForSingle <<
+                Workflow::HandleSearchResultFailures <<
+                Workflow::EnsureOneMatchFromSearchResult(OperationType::Download) <<
+                Workflow::GetManifestFromPackage(false);
         }
+
+        context <<
+            Workflow::SelectInstaller <<
+            Workflow::EnsureApplicableInstaller <<
+            Workflow::ReportIdentityAndInstallationDisclaimer <<
+            Workflow::ShowPromptsForSinglePackage(/* ensureAcceptance */ true) <<
+            Workflow::DownloadPackageDependencies <<
+            Workflow::DownloadInstallerToTargetDirectory;
     }
 }
