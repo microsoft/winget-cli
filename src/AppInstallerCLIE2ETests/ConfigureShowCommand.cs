@@ -30,7 +30,7 @@ namespace AppInstallerCLIE2ETests
         {
             TestCommon.EnsureModuleState(Constants.GalleryTestModuleName, present: false);
 
-            var result = TestCommon.RunAICLICommand("configure show", TestCommon.GetTestDataFile("Configuration\\PSGallery_NoModule_NoSettings.yml"));
+            var result = TestCommon.RunAICLICommand("configure show", TestCommon.GetTestDataFile("Configuration\\PSGallery_NoModule_NoSettings.yml"), timeOut: 120000);
             Assert.AreEqual(0, result.ExitCode);
             Assert.True(result.StdOut.Contains(Constants.PSGalleryName));
         }

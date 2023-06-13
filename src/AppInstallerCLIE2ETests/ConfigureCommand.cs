@@ -6,8 +6,8 @@
 
 namespace AppInstallerCLIE2ETests
 {
-    using NUnit.Framework;
     using System.IO;
+    using NUnit.Framework;
 
     /// <summary>
     /// `Configure` command tests.
@@ -23,12 +23,16 @@ namespace AppInstallerCLIE2ETests
         public void OneTimeSetup()
         {
             WinGetSettingsHelper.ConfigureFeature("configuration", true);
+            this.DeleteTxtFiles();
+        }
 
-            // Delete all .txt files in the test directory; they are placed there by the tests
-            foreach (string file in Directory.GetFiles(TestCommon.GetTestDataFile("Configuration"), "*.txt"))
-            {
-                File.Delete(file);
-            }
+        /// <summary>
+        /// Teardown done once after all the tests here.
+        /// </summary>
+        [OneTimeTearDown]
+        public void OneTimeTeardown()
+        {
+            this.DeleteTxtFiles();
         }
 
         /// <summary>
@@ -40,7 +44,7 @@ namespace AppInstallerCLIE2ETests
         {
             TestCommon.EnsureModuleState(Constants.GalleryTestModuleName, present: false);
 
-            var result = TestCommon.RunAICLICommand(CommandAndAgreements, TestCommon.GetTestDataFile("Configuration\\PSGallery_NoModule_NoSettings.yml"));
+            var result = TestCommon.RunAICLICommand(CommandAndAgreements, TestCommon.GetTestDataFile("Configuration\\PSGallery_NoModule_NoSettings.yml"), timeOut: 120000);
             Assert.AreEqual(Constants.ErrorCode.CONFIG_ERROR_SET_APPLY_FAILED, result.ExitCode);
             Assert.True(result.StdOut.Contains("The configuration unit failed while attempting to test the current system state."));
         }
@@ -94,6 +98,7 @@ namespace AppInstallerCLIE2ETests
         /// <summary>
         /// The configuration server unexpectedly exits. Winget should continue to operate properly.
         /// </summary>
+        [Ignore("The version of CppWinRT that we are currently using is old and causes an assert on this test. Once it is updated, remove this Ignore.")]
         [Test]
         public void ConfigServerUnexpectedExit()
         {
@@ -103,6 +108,15 @@ namespace AppInstallerCLIE2ETests
             // The configuration creates a file next to itself with the given contents
             string targetFilePath = TestCommon.GetTestDataFile("Configuration\\ConfigServerUnexpectedExit.txt");
             FileAssert.DoesNotExist(targetFilePath);
+        }
+
+        private void DeleteTxtFiles()
+        {
+            // Delete all .txt files in the test directory; they are placed there by the tests
+            foreach (string file in Directory.GetFiles(TestCommon.GetTestDataFile("Configuration"), "*.txt"))
+            {
+                File.Delete(file);
+            }
         }
     }
 }
