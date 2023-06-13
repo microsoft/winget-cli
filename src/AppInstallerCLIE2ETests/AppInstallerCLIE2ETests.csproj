@@ -51,7 +51,7 @@
     <None Remove="TestData\Configuration\Configure_TestRepo.yml" />
     <None Remove="TestData\Configuration\DependentResources_Failure.yml" />
     <None Remove="TestData\Configuration\IndependentResources_OneFailure.yml" />
-    <None Remove="testdata\configuration\Init-TestRepository.ps1" />
+    <None Remove="TestData\configuration\Init-TestRepository.ps1" />
     <None Remove="TestData\Configuration\ShowDetails_TestRepo.yml" />
   </ItemGroup>
 
