@@ -8,7 +8,7 @@ where:
 configuration:
   resourceManagementConfiguration:
     eventResponderTasks:
-      - description: Enable Auto Merge when the "AutMerge" label is present
+      - description: Enable Auto Merge when the "AutoMerge" label is present
         if:
           - payloadType: Pull_Request
           - hasLabel:
