@@ -43,6 +43,7 @@ namespace AppInstallerCLIE2ETests
                         { "experimentalCmd", false },
                         { "dependencies", false },
                         { "directMSI", false },
+                        { "download", false },
                     }
                 },
                 {
@@ -192,6 +193,7 @@ namespace AppInstallerCLIE2ETests
             ConfigureFeature("pinning", status);
             ConfigureFeature("configuration", status);
             ConfigureFeature("windowsFeature", status);
+            ConfigureFeature("download", status);
         }
     }
 }

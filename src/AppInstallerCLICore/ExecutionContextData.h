@@ -66,6 +66,8 @@ namespace AppInstaller::CLI::Execution
         PinningIndex,
         Pins,
         ConfigurationContext,
+        // On download: Target directory to place the downloaded installer
+        DownloadDirectory,
         Max
     };
 
@@ -263,6 +265,12 @@ namespace AppInstaller::CLI::Execution
         struct DataMapping<Data::ConfigurationContext>
         {
             using value_t = ConfigurationContext;
+        };
+
+        template <>
+        struct DataMapping<Data::DownloadDirectory>
+        {
+            using value_t = std::filesystem::path;
         };
     }
 }

@@ -7,6 +7,7 @@
 #include "Workflows/MultiQueryFlow.h"
 #include "Workflows/PromptFlow.h"
 #include "Resources.h"
+#include <AppInstallerRuntime.h>
 
 namespace AppInstaller::CLI
 {
@@ -84,6 +85,20 @@ namespace AppInstaller::CLI
                 Workflow::HandleSearchResultFailures <<
                 Workflow::EnsureOneMatchFromSearchResult(OperationType::Download) <<
                 Workflow::GetManifestFromPackage(false);
+        }
+
+        // Predetermine download location
+        if (context.Args.Contains(Execution::Args::Type::DownloadDirectory))
+        {
+            context.Add<Execution::Data::DownloadDirectory>(std::filesystem::path{ context.Args.GetArg(Execution::Args::Type::DownloadDirectory) });
+        }
+        else
+        {
+            std::filesystem::path downloadsDirectory = AppInstaller::Runtime::GetPathTo(AppInstaller::Runtime::PathName::Downloads);
+
+            const auto& manifest = context.Get<Execution::Data::Manifest>();
+            std::string packageDownloadFolderName = manifest.Id + '.' + manifest.Version;
+            context.Add<Execution::Data::DownloadDirectory>(downloadsDirectory / packageDownloadFolderName);
         }
 
         context <<

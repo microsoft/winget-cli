@@ -477,24 +477,19 @@ namespace AppInstaller::CLI::Workflow
         auto& installerPath = context.Get<Execution::Data::InstallerPath>();
         std::filesystem::path installerDownloadPath;
 
-        if (context.Args.Contains(Execution::Args::Type::DownloadDirectory))
-        {
-            std::filesystem::path downloadDirectory{ context.Args.GetArg(Execution::Args::Type::DownloadDirectory) };
-            if (!std::filesystem::exists(downloadDirectory) || !std::filesystem::is_directory(downloadDirectory))
-            {
-                std::filesystem::create_directories(downloadDirectory);
-            }
+        // Download directory should always exist as it is set at the beginning of download command execution.
+        THROW_HR_IF(E_UNEXPECTED, !context.Contains(Execution::Data::DownloadDirectory));
 
-            installerDownloadPath = downloadDirectory;
-        }
-        else
+        std::filesystem::path downloadDirectory = context.Get<Execution::Data::DownloadDirectory>();
+
+        if (!std::filesystem::exists(downloadDirectory) || !std::filesystem::is_directory(downloadDirectory))
         {
-            installerDownloadPath = AppInstaller::Runtime::GetPathTo(AppInstaller::Runtime::PathName::Downloads);
+            std::filesystem::create_directories(downloadDirectory);
         }
 
-        installerDownloadPath /= GetInstallerPostHashValidationFileName(context);
-        Filesystem::RenameFile(installerPath, installerDownloadPath);
-        context.Reporter.Info() << Resource::String::InstallerDownloaded << ' ' << '"' << installerDownloadPath << '"' << std::endl;
+        std::filesystem::path downloadTargetPath = downloadDirectory / GetInstallerPostHashValidationFileName(context);
+        Filesystem::RenameFile(installerPath, downloadTargetPath);
+        context.Reporter.Info() << Resource::String::InstallerDownloaded << ' ' << '"' << downloadTargetPath << '"' << std::endl;
     }
 
     void RenameDownloadedInstaller(Execution::Context& context)

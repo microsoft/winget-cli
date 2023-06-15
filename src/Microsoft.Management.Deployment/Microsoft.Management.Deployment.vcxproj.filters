@@ -2,14 +2,21 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="CatalogPackage.cpp" />
+    <ClCompile Include="CheckInstalledStatusResult.cpp" />
+    <ClCompile Include="ComClsids.cpp" />
     <ClCompile Include="ConnectResult.cpp" />
     <ClCompile Include="Converters.cpp" />
     <ClCompile Include="CreateCompositePackageCatalogOptions.cpp" />
+    <ClCompile Include="Documentation.cpp" />
+    <ClCompile Include="DownloadOptions.cpp" />
+    <ClCompile Include="DownloadResult.cpp" />
     <ClCompile Include="FindPackagesOptions.cpp" />
     <ClCompile Include="FindPackagesResult.cpp" />
     <ClCompile Include="Helpers.cpp" />
+    <ClCompile Include="Icon.cpp" />
     <ClCompile Include="InstallOptions.cpp" />
     <ClCompile Include="InstallResult.cpp" />
+    <ClCompile Include="InstalledStatus.cpp" />
     <ClCompile Include="MatchResult.cpp" />
     <ClCompile Include="PackageAgreement.cpp" />
     <ClCompile Include="PackageCatalog.cpp" />
@@ -25,49 +32,46 @@
     <ClCompile Include="SourceAgreement.cpp" />
     <ClCompile Include="UninstallOptions.cpp" />
     <ClCompile Include="UninstallResult.cpp" />
-    <ClCompile Include="ComClsids.cpp" />
     <ClCompile Include="PackageManagerSettings.cpp" />
     <ClCompile Include="PackageInstallerInfo.cpp" />
-    <ClCompile Include="InstalledStatus.cpp" />
     <ClCompile Include="PackageInstallerInstalledStatus.cpp" />
-    <ClCompile Include="CheckInstalledStatusResult.cpp" />
-    <ClCompile Include="Documentation.cpp" />
-    <ClCompile Include="Icon.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CatalogPackage.h" />
+    <ClInclude Include="CatalogPackageMetadata.h" />
+    <ClInclude Include="CheckInstalledStatusResult.h" />
     <ClInclude Include="ConnectResult.h" />
     <ClInclude Include="Converters.h" />
     <ClInclude Include="CreateCompositePackageCatalogOptions.h" />
     <ClInclude Include="Documentation.h" />
+    <ClInclude Include="DownloadOptions.h" />
+    <ClInclude Include="DownloadResult.h" />
     <ClInclude Include="FindPackagesOptions.h" />
     <ClInclude Include="FindPackagesResult.h" />
     <ClInclude Include="Helpers.h" />
+    <ClInclude Include="Icon.h" />
     <ClInclude Include="InstallOptions.h" />
     <ClInclude Include="InstallResult.h" />
+    <ClInclude Include="InstalledStatus.h" />
     <ClInclude Include="MatchResult.h" />
     <ClInclude Include="PackageAgreement.h" />
     <ClInclude Include="PackageCatalog.h" />
     <ClInclude Include="PackageCatalogInfo.h" />
     <ClInclude Include="PackageCatalogReference.h" />
+    <ClInclude Include="PackageInstallerInfo.h" />
+    <ClInclude Include="PackageInstallerInstalledStatus.h" />
     <ClInclude Include="PackageManager.h" />
+    <ClInclude Include="PackageManagerSettings.h" />
     <ClInclude Include="PackageMatchFilter.h" />
     <ClInclude Include="PackageVersionId.h" />
     <ClInclude Include="PackageVersionInfo.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="SourceAgreement.h" />
     <ClInclude Include="UninstallOptions.h" />
     <ClInclude Include="UninstallResult.h" />
     <ClInclude Include="Public\ComClsids.h">
       <Filter>Public</Filter>
     </ClInclude>
-    <ClInclude Include="PackageManagerSettings.h" />
-    <ClInclude Include="PackageInstallerInfo.h" />
-    <ClInclude Include="InstalledStatus.h" />
-    <ClInclude Include="PackageInstallerInstalledStatus.h" />
-    <ClInclude Include="CheckInstalledStatusResult.h" />
-    <ClInclude Include="CatalogPackageMetadata.h" />
-    <ClInclude Include="SourceAgreement.h" />
-    <ClInclude Include="Icon.h" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="PackageManager.idl" />

@@ -177,6 +177,8 @@
     <ClInclude Include="Converters.h" />
     <ClInclude Include="CreateCompositePackageCatalogOptions.h" />
     <ClInclude Include="Documentation.h" />
+    <ClInclude Include="DownloadOptions.h" />
+    <ClInclude Include="DownloadResult.h" />
     <ClInclude Include="FindPackagesOptions.h" />
     <ClInclude Include="FindPackagesResult.h" />
     <ClInclude Include="Helpers.h" />
@@ -211,6 +213,8 @@
     <ClCompile Include="Converters.cpp" />
     <ClCompile Include="CreateCompositePackageCatalogOptions.cpp" />
     <ClCompile Include="Documentation.cpp" />
+    <ClCompile Include="DownloadOptions.cpp" />
+    <ClCompile Include="DownloadResult.cpp" />
     <ClCompile Include="FindPackagesOptions.cpp" />
     <ClCompile Include="FindPackagesResult.cpp" />
     <ClCompile Include="Helpers.cpp" />

@@ -446,7 +446,7 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
-        /// Get portable symlink dir.
+        /// Gets the portable symlink directory.
         /// </summary>
         /// <param name="scope">Scope.</param>
         /// <returns>The path of the symlinks.</returns>
@@ -463,12 +463,21 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
-        /// Get portable package directory.
+        /// Gets the portable package directory.
         /// </summary>
         /// <returns>The portable package directory.</returns>
         public static string GetPortablePackagesDirectory()
         {
             return Path.Combine(Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet", "Packages");
+        }
+
+        /// <summary>
+        /// Gets the default download directory for the download command.
+        /// </summary>
+        /// <returns>The default download directory.</returns>
+        public static string GetDefaultDownloadDirectory()
+        {
+            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
         }
 
         /// <summary>
@@ -588,6 +597,33 @@ namespace AppInstallerCLIE2ETests
             }
 
             return verifyInstallSuccess;
+        }
+
+        /// <summary>
+        /// Verify installer downloaded correctly and cleanup.
+        /// </summary>
+        /// <param name="downloadDir">Download directory.</param>
+        /// <param name="installerFileName">Name of the installer file.</param>
+        /// <param name="cleanup">Boolean value indicating whether to remove the installer file and directory.</param>
+        /// <returns>True if success.</returns>
+        public static bool VerifyInstallerDownload(string downloadDir, string installerFileName, bool cleanup = true)
+        {
+            string installerDownloadPath = Path.Combine(downloadDir, installerFileName);
+
+            bool downloadResult = false;
+
+            if (Directory.Exists(downloadDir) && File.Exists(installerDownloadPath))
+            {
+                downloadResult = true;
+            }
+
+            if (cleanup)
+            {
+                File.Delete(installerDownloadPath);
+                Directory.Delete(downloadDir, true);
+            }
+
+            return downloadResult;
         }
 
         /// <summary>
