@@ -43,29 +43,74 @@ namespace AppInstallerCLIE2ETests
         public void DownloadToDirectory()
         {
             var downloadDir = TestCommon.GetRandomTestDir();
-            var result = TestCommon.RunAICLICommand("download", $"AppInstallerTest.TestExeInstaller --download-directory {downloadDir}");
+            var result = TestCommon.RunAICLICommand("download", $"{Constants.ExeInstallerPackageId} --download-directory {downloadDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.IsTrue(TestCommon.VerifyInstallerDownload(downloadDir, Constants.AppInstallerTestExeInstallerExe));
         }
 
+        /// <summary>
+        /// Downloads the test installer using the user scope argument.
+        /// </summary>
         [Test]
-        public void DownloadWithScopeArg()
+        public void DownloadWithUserScope()
         {
-
+            var downloadDir = TestCommon.GetRandomTestDir();
+            var result = TestCommon.RunAICLICommand("download", $"AppInstallerTest.TestMultipleInstallers --scope user --download-directory {downloadDir}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.IsTrue(TestCommon.VerifyInstallerDownload(downloadDir, Constants.AppInstallerTestExeInstallerExe));
         }
 
+        /// <summary>
+        /// Downloads the test installer using the machine scope argument.
+        /// </summary>
+        [Test]
+        public void DownloadWithMachineScope()
+        {
+            var downloadDir = TestCommon.GetRandomTestDir();
+            var result = TestCommon.RunAICLICommand("download", $"AppInstallerTest.TestMultipleInstallers --scope machine --download-directory {downloadDir}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.IsTrue(TestCommon.VerifyInstallerDownload(downloadDir, Constants.AppInstallerTestMsiInstallerMsi));
+        }
+
+        /// <summary>
+        /// Downloads the test installer using the 'zip' installer type argument. Verifies that base installer types such as 'zip' are still supported.
+        /// </summary>
+        [Test]
+        public void DownloadWithZipInstallerTypeArg()
+        {
+            var downloadDir = TestCommon.GetRandomTestDir();
+            var result = TestCommon.RunAICLICommand("download", $"AppInstallerTest.TestMultipleInstallers --installer-type zip --download-directory {downloadDir}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.IsTrue(TestCommon.VerifyInstallerDownload(downloadDir, Constants.AppInstallerTestZipInstallerZip));
+        }
+
+        /// <summary>
+        /// Downloads the test installer using the 'zip' installer type argument. Verifies that base installer types such as 'zip' are still supported.
+        /// </summary>
         [Test]
         public void DownloadWithInstallerTypeArg()
         {
-
+            var downloadDir = TestCommon.GetRandomTestDir();
+            var result = TestCommon.RunAICLICommand("download", $"AppInstallerTest.TestMultipleInstallers --installer-type msi --download-directory {downloadDir}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.IsTrue(TestCommon.VerifyInstallerDownload(downloadDir, Constants.AppInstallerTestMsiInstallerMsi));
         }
 
+        /// <summary>
+        /// Downloads the test installer using the architecture argument.
+        /// </summary>
         [Test]
         public void DownloadWithArchitectureArg()
         {
-
+            var downloadDir = TestCommon.GetRandomTestDir();
+            var result = TestCommon.RunAICLICommand("download", $"AppInstallerTest.TestMultipleInstallers --architecture x86 --download-directory {downloadDir}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.IsTrue(TestCommon.VerifyInstallerDownload(downloadDir, Constants.AppInstallerTestMsiInstallerMsi));
         }
 
+        /// <summary>
+        /// Downlods the test installer with a hash mismatch.
+        /// </summary>
         [Test]
         public void DownloadWithHashMismatch()
         {
@@ -74,21 +119,31 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.ERROR_INSTALLER_HASH_MISMATCH, errorResult.ExitCode);
         }
 
-        // These are the scenarios that I want to cover in the E2E tests
-        // Create a manifest that has 2 installers of exe, 2 installers of msi, different scope and different args as well as a zip installer so that we can verify zip still works.
-        // Create a manifest that has a dependency and download those installers as well to a specific test folder.
-        // Do we need to clean up folder afterwards?
-        // Refactor and Create PR?
-        // Run Dependency Tests
-        // Add COM tests as well.
+        /// <summary>
+        /// Downloads the test installer and the installers of the package dependencies.
+        /// </summary>
+        //[Test]
+        //public void DownloadWithPackageDependency()
+        //{
 
-        // Download manifest with dependencies
-        // Download manifest with dependencies but including the skip dependencies argument
-        // Download specific installer using scope
-        // Download specific installer using arch
-        // Download specific installer using installertype
-        // Download specific installer using locale
+        //}
 
-        // Dependency graph needs a unit test for verifying that it produces installed as well, possibly.
+        ///// <summary>
+        ///// Downloads the test installer but skips the installers of the package dependencies.
+        ///// </summary>
+        //[Test]
+        //public void DownloadWithPackageDependency_SkipDependenciesArg()
+        //{
+
+        //}
+
+        ///// <summary>
+        ///// Downloads the test installer with an invalid package dependency, but continues due to the 'force' argument.
+        ///// </summary>
+        //[Test]
+        //public void DownloadWithPackageDependency_Force()
+        //{
+
+        //}
     }
 }

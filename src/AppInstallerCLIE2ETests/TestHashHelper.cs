@@ -87,12 +87,14 @@ namespace AppInstallerCLIE2ETests
                     text = text.Replace("<EXEHASH>", ExeInstallerHashValue);
                     File.WriteAllText(file.FullName, text);
                 }
-                else if (text.Contains("<MSIHASH>"))
+
+                if (text.Contains("<MSIHASH>"))
                 {
                     text = text.Replace("<MSIHASH>", MsiInstallerHashValue);
                     File.WriteAllText(file.FullName, text);
                 }
-                else if (text.Contains("<MSIXHASH>"))
+
+                if (text.Contains("<MSIXHASH>"))
                 {
                     text = text.Replace("<MSIXHASH>", MsixInstallerHashValue);
 
@@ -103,7 +105,8 @@ namespace AppInstallerCLIE2ETests
 
                     File.WriteAllText(file.FullName, text);
                 }
-                else if (text.Contains("<ZIPHASH>"))
+
+                if (text.Contains("<ZIPHASH>"))
                 {
                     text = text.Replace("<ZIPHASH>", ZipInstallerHashValue);
                     File.WriteAllText(file.FullName, text);

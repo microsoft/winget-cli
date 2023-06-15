@@ -68,6 +68,8 @@ namespace AppInstallerCLIE2ETests
         // Installer filename
         public const string TestCommandExe = "testCommand.exe";
         public const string AppInstallerTestExeInstallerExe = "AppInstallerTestExeInstaller.exe";
+        public const string AppInstallerTestMsiInstallerMsi = "AppInstallerTestMsiInstaller.msi";
+        public const string AppInstallerTestZipInstallerZip = "AppInstallerTestZipInstaller.zip";
 
         // Test installers' package IDs
         public const string ExeInstallerPackageId = "AppInstallerTest.TestExeInstaller";
