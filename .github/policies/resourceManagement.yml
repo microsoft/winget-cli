@@ -14,28 +14,5 @@ configuration:
       - inPrLabel:
           label: In-PR
       description: 
-    - if:
-      - payloadType: Issue_Comment
-      - commentContains:
-          pattern: '\/feedback'
-          isRegex: True
-      - or:
-        - activitySenderHasPermission:
-            permission: Admin
-        - activitySenderHasPermission:
-            permission: Write
-      then:
-      - addReply:
-          reply: >-
-            @${issueAuthor},<br /><br />
-
-            Please send us feedback with the Feedback Hub [Windows]+[f] with this issue and paste the link here so we can more easily find your crash information on the back end?<br /><br />
-
-            Please use "Apps" and "Windows Package Manager" for the Category. <br /><br />
-
-            The link on the bottom of the feedback report will provide the URL to paste in this Issue to share with us.
-      - addLabel:
-          label: Needs-Author-Feedback
-      description:
 onFailure: 
 onSuccess: 
