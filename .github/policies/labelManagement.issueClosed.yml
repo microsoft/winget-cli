@@ -33,6 +33,6 @@ configuration:
               label: Needs-Attention
           - removeLabel:
               label: Needs-Author-Feedback
-        ## TODO: Unassign ICM Users
+        ## TODO: Unassign Users
 onFailure:
 onSuccess:
