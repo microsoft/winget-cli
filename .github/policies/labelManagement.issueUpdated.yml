@@ -97,5 +97,7 @@ configuration:
               pattern: Severity-
           - labelSync:
               pattern: Impact-
+          - inPrLabel:
+              label: In-PR
 onFailure:
 onSuccess:
