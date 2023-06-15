@@ -9,16 +9,16 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
     /// <summary>
     /// Constants used by the tests.
     /// </summary>
-    internal class Constants
+    public class Constants
     {
         /// <summary>
         /// The assembly name value used by xUnit traits.
         /// </summary>
-        internal const string AssemblyNameForTraits = "Microsoft.Management.Configuration.UnitTests";
+        public const string AssemblyNameForTraits = "Microsoft.Management.Configuration.UnitTests";
 
         /// <summary>
         /// The namespace where xUnit traits will be defined.
         /// </summary>
-        internal const string NamespaceNameForTraits = "Microsoft.Management.Configuration.UnitTests.Helpers";
+        public const string NamespaceNameForTraits = "Microsoft.Management.Configuration.UnitTests.Helpers";
     }
 }

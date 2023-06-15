@@ -32,5 +32,24 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
 
             return unit;
         }
+
+        /// <summary>
+        /// Gets the unit result from the apply set result matching the given unit.
+        /// </summary>
+        /// <param name="setResult">The set result to inspect.</param>
+        /// <param name="unit">The unit to match.</param>
+        /// <returns>The unit result matching the unit, or null if not found.</returns>
+        internal static Configuration.ApplyConfigurationUnitResult? GetUnitResultFor(this Configuration.ApplyConfigurationSetResult setResult, Configuration.ConfigurationUnit unit)
+        {
+            foreach (Configuration.ApplyConfigurationUnitResult unitResult in setResult.UnitResults)
+            {
+                if (unitResult.Unit.Identifier == unit.Identifier)
+                {
+                    return unitResult;
+                }
+            }
+
+            return null;
+        }
     }
 }

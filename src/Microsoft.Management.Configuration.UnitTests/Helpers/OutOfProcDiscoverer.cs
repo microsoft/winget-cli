@@ -13,12 +13,19 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
     /// <summary>
     /// Enables integration with xUnit trait system.
     /// </summary>
-    internal class OutOfProcDiscoverer : ITraitDiscoverer
+    public class OutOfProcDiscoverer : ITraitDiscoverer
     {
         /// <summary>
         /// The type name for this discoverer.
         /// </summary>
-        internal const string TypeName = Constants.NamespaceNameForTraits + ".OutOfProcDiscoverer";
+        public const string TypeName = Constants.NamespaceNameForTraits + ".OutOfProcDiscoverer";
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="OutOfProcDiscoverer"/> class.
+        /// </summary>
+        public OutOfProcDiscoverer()
+        {
+        }
 
         /// <summary>
         /// Gets the trait information for the OutOfProcAttribute.

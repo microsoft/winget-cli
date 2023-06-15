@@ -83,7 +83,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             foreach (var configurationUnit in new ConfigurationUnit[] { configurationUnit1, configurationUnit2 })
             {
-                ApplyConfigurationUnitResult unitResult = result.UnitResults.First(x => x.Unit == configurationUnit);
+                ApplyConfigurationUnitResult? unitResult = result.GetUnitResultFor(configurationUnit);
                 Assert.NotNull(unitResult);
                 Assert.False(unitResult.PreviouslyInDesiredState);
                 Assert.False(unitResult.RebootRequired);
