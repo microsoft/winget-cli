@@ -300,13 +300,5 @@ configuration:
       - labelSync:
           pattern: Impact-
       description: 
-    - if:
-      - payloadType: Issues
-      - isAction:
-          action: Closed
-      then:
-      - removeLabel:
-          label: Needs-Triage
-      description: 
 onFailure: 
 onSuccess: 
