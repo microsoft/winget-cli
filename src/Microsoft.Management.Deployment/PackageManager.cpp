@@ -614,7 +614,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         winrt::Microsoft::Management::Deployment::CatalogPackage package,
         winrt::Microsoft::Management::Deployment::DownloadOptions options)
     {
-        // Add manifest and PackageVersion to context for install/upgrade.
+        // Add manifest and PackageVersion to context for download.
         // If the version of the package is specified use that, otherwise use the default.
         Microsoft::Management::Deployment::PackageVersionInfo packageVersionInfo = GetPackageVersionInfo(package, options);
         AddPackageManifestToContext(packageVersionInfo, comContext.get());
@@ -989,7 +989,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             // Get the queueItem synchronously.
             queueItem = GetExistingQueueItemForPackage(package, catalogInfo);
             if (queueItem == nullptr ||
-                queueItem->GetPackageOperationType() != PackageOperationType::Uninstall)
+                queueItem->GetPackageOperationType() != PackageOperationType::Download)
             {
                 return nullptr;
             }

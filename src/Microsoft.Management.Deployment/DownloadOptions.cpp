@@ -83,6 +83,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         m_allowHashMismatch = value;
     }
+    bool DownloadOptions::AcceptPackageAgreements()
+    {
+        return m_acceptPackageAgreements;
+    }
+    void DownloadOptions::AcceptPackageAgreements(bool value)
+    {
+        m_acceptPackageAgreements = value;
+    }
     hstring DownloadOptions::CorrelationData()
     {
         return hstring(m_correlationData);
@@ -98,14 +106,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     void DownloadOptions::Force(bool value)
     {
         m_force = value;
-    }
-    void DownloadOptions::AcceptPackageAgreements(bool value)
-    {
-        m_acceptPackageAgreements = value;
-    }
-    bool DownloadOptions::AcceptPackageAgreements()
-    {
-        return m_acceptPackageAgreements;
     }
     CoCreatableMicrosoftManagementDeploymentClass(DownloadOptions);
 }

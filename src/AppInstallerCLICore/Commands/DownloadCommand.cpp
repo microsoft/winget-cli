@@ -87,18 +87,9 @@ namespace AppInstaller::CLI
                 Workflow::GetManifestFromPackage(false);
         }
 
-        // Predetermine download location
-        if (context.Args.Contains(Execution::Args::Type::DownloadDirectory))
+        if (context.IsTerminated())
         {
-            context.Add<Execution::Data::DownloadDirectory>(std::filesystem::path{ context.Args.GetArg(Execution::Args::Type::DownloadDirectory) });
-        }
-        else
-        {
-            std::filesystem::path downloadsDirectory = AppInstaller::Runtime::GetPathTo(AppInstaller::Runtime::PathName::Downloads);
-
-            const auto& manifest = context.Get<Execution::Data::Manifest>();
-            std::string packageDownloadFolderName = manifest.Id + '.' + manifest.Version;
-            context.Add<Execution::Data::DownloadDirectory>(downloadsDirectory / packageDownloadFolderName);
+            return;
         }
 
         context <<
@@ -106,6 +97,7 @@ namespace AppInstaller::CLI
             Workflow::EnsureApplicableInstaller <<
             Workflow::ReportIdentityAndInstallationDisclaimer <<
             Workflow::ShowPromptsForSinglePackage(/* ensureAcceptance */ true) <<
+            Workflow::SetDownloadLocation <<
             Workflow::DownloadPackageDependencies <<
             Workflow::DownloadInstallerToTargetDirectory;
     }

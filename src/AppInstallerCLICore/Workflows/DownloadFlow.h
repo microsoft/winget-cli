@@ -70,7 +70,6 @@ namespace AppInstaller::CLI::Workflow
     // Moves the downloaded installer to the target download directory.
     // Required Args: None
     // Inputs: Installer, InstallerPath
-    // Modifies: InstallerPath
     // Outputs: None
     void MoveDownloadedInstallerToDownloadDirectory(Execution::Context& context);
 
@@ -79,4 +78,10 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: InstallerPath
     // Outputs: None
     void RemoveInstaller(Execution::Context& context);
+
+    // Sets the target download location.
+    // Required Args: None
+    // Inputs: Manifest
+    // Outputs: None
+    void SetDownloadLocation(Execution::Context& context);
 }

@@ -25,14 +25,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         void DownloadDirectory(hstring const& value);
         bool AllowHashMismatch();
         void AllowHashMismatch(bool value);
+        bool AcceptPackageAgreements();
+        void AcceptPackageAgreements(bool value);
         hstring LogOutputPath();
         void LogOutputPath(hstring const& value);
         hstring CorrelationData();
         void CorrelationData(hstring const& value);
         bool Force();
         void Force(bool value);
-        bool AcceptPackageAgreements();
-        void AcceptPackageAgreements(bool value);
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
@@ -44,9 +44,9 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         std::wstring m_downloadDirectory = L"";
         std::wstring m_logOutputPath = L"";
         bool m_allowHashMismatch = false;
+        bool m_acceptPackageAgreements = true;
         std::wstring m_correlationData = L"";
         bool m_force = false;
-        bool m_acceptPackageAgreements = true;
 #endif
     };
 }

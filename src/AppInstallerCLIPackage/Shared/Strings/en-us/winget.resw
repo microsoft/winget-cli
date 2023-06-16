@@ -1322,8 +1322,8 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Windows Package Manager (Preview) v{0}</value>
     <comment>{Locked="{0}"} Label displaying the preview product name and pre-release version. {0} is a placeholder replaced by the product version.</comment>
   </data>
-  <data name="InstallArchitectureArgumentDescription" xml:space="preserve">
-    <value>Select the architecture to install</value>
+  <data name="ArchitectureArgumentDescription" xml:space="preserve">
+    <value>Select the architecture</value>
   </data>
   <data name="IncludeUnknownArgumentDescription" xml:space="preserve">
     <value>Upgrade packages even if their current version cannot be determined</value>
@@ -1955,6 +1955,6 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Installer downloaded:</value>
   </data>
   <data name="InstallerTypeArgumentDescription" xml:space="preserve">
-    <value>Select the installer type to download</value>
+    <value>Select the installer type</value>
   </data>
 </root>

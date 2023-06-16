@@ -960,11 +960,14 @@ namespace Microsoft.Management.Deployment
         /// The package installer locale.
         String Locale;
 
+        /// The directory where the installers are downloaded to.
+        String DownloadDirectory;
+
         /// Continues the download even if the hash in the catalog does not match the linked installer.
         Boolean AllowHashMismatch;
 
-        /// The directory where the installers are downloaded to.
-        String DownloadDirectory;
+        /// Accept the package agreements required for download.
+        Boolean AcceptPackageAgreements;
 
         /// Directs the logging to a log file. If provided, the installer must have write access to the file 
         String LogOutputPath;

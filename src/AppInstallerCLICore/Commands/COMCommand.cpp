@@ -24,14 +24,14 @@ namespace AppInstaller::CLI
             Workflow::EnsureApplicableInstaller <<
             Workflow::ReportIdentityAndInstallationDisclaimer <<
             Workflow::ShowPromptsForSinglePackage(/* ensureAcceptance */ true) <<
-            Workflow::DownloadInstallerToTargetDirectory;
+            Workflow::DownloadInstaller; // Need to change this somehow to download to a specific location. // what about package dependencies.
     }
 
     // IMPORTANT: To use this command, the caller should have already executed the COMDownloadCommand
     void COMInstallCommand::ExecuteInternal(Context& context) const
     {
         context <<
-            Workflow::ReverifyInstallerHash <<
+            Workflow::ReverifyInstallerHash << 
             Workflow::InstallPackageInstaller;
     }
 
