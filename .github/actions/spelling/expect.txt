@@ -179,6 +179,7 @@ insufficientmemory
 Intelli
 INTRESOURCE
 invalidparameter
+IPackage
 isable
 ishelp
 ISQ
@@ -260,11 +261,13 @@ mysilent
 mysilentwithprogress
 nameof
 nativehandle
+NBLGGH
 NESTEDINSTALLER
 netfx
 netlify
 NETSDK
 Newtonsoft
+NNS
 NOCRLF
 NOEXPAND
 NOLINKINFO
