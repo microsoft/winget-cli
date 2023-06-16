@@ -25,6 +25,10 @@
 #include "Resources.h"
 #include "TableOutput.h"
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
+#include "TestCommand.h"
+#endif
+
 namespace AppInstaller::CLI
 {
     using namespace AppInstaller::Utility::literals;
@@ -175,6 +179,9 @@ namespace AppInstaller::CLI
             std::make_unique<ImportCommand>(FullName()),
             std::make_unique<PinCommand>(FullName()),
             std::make_unique<ConfigureCommand>(FullName()),
+#ifndef AICLI_DISABLE_TEST_HOOKS
+            std::make_unique<TestCommand>(FullName()),
+#endif
         });
     }
 

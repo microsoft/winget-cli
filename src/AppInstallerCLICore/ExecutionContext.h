@@ -152,6 +152,10 @@ namespace AppInstaller::CLI::Execution
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // Enable tests to override behavior
         bool ShouldExecuteWorkflowTask(const Workflow::WorkflowTask& task);
+
+        HWND GetWindowHandle();
+
+        bool WaitForAppShutdownEvent();
 #endif
 
     protected:

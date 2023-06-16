@@ -302,8 +302,11 @@ namespace AppInstaller::CLI::Execution
         ProgressCallback* callback = m_progressCallback.load();
         if (callback)
         {
-            callback->SetProgressMessage(Resource::String::CancellingOperation());
-            callback->Cancel(reason);
+            if (!callback->IsCancelledBy(CancelReason::Any))
+            {
+                callback->SetProgressMessage(Resource::String::CancellingOperation());
+                callback->Cancel(reason);
+            }
         }
     }
 

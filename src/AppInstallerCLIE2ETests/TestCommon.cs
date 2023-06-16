@@ -202,8 +202,9 @@ namespace AppInstallerCLIE2ETests
         /// <param name="parameters">Parameters.</param>
         /// <param name="stdIn">Optional std in.</param>
         /// <param name="timeOut">Optional timeout.</param>
+        /// <param name="throwOnTimeout">Throw on timeout.</param>
         /// <returns>The result of the command.</returns>
-        public static RunCommandResult RunAICLICommandViaInvokeCommandInDesktopPackage(string command, string parameters, string stdIn = null, int timeOut = 60000)
+        public static RunCommandResult RunAICLICommandViaInvokeCommandInDesktopPackage(string command, string parameters, string stdIn = null, int timeOut = 60000, bool throwOnTimeout = true)
         {
             string cmdCommandPiped = string.Empty;
             if (!string.IsNullOrEmpty(stdIn))
@@ -239,7 +240,7 @@ namespace AppInstallerCLIE2ETests
                 waitedTime += 1000;
             }
 
-            if (waitedTime >= timeOut)
+            if (waitedTime >= timeOut && throwOnTimeout)
             {
                 throw new TimeoutException($"Packaged winget command run timed out: {command} {parameters}");
             }
@@ -419,11 +420,20 @@ namespace AppInstallerCLIE2ETests
         /// Install and register msix package via appx manifest.
         /// </summary>
         /// <param name="packagePath">Path to package.</param>
+        /// <param name="forceShutdown">Force shutdown.</param>
+        /// <param name="throwOnFailure">Throw on failure.</param>
         /// <returns>True if installed correctly.</returns>
-        public static bool InstallMsixRegister(string packagePath)
+        public static bool InstallMsixRegister(string packagePath, bool forceShutdown = false, bool throwOnFailure = true)
         {
             string manifestFile = Path.Combine(packagePath, "AppxManifest.xml");
-            return RunCommand("powershell", $"Add-AppxPackage -Register \"{manifestFile}\"", throwOnFailure: true);
+
+            var command = $"Add-AppxPackage -Register \"{manifestFile}\"";
+            if (forceShutdown)
+            {
+                command += " -ForceTargetApplicationShutdown";
+            }
+
+            return RunCommand("powershell", command, throwOnFailure: throwOnFailure);
         }
 
         /// <summary>

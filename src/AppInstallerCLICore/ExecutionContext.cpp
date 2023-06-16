@@ -12,26 +12,7 @@ namespace AppInstaller::CLI::Execution
 
     namespace
     {
-        // This starts getting called by CreateWindowEx.
-        // If it's a method in SignalTerminationHandler we will have problems.
-        LRESULT WindowMessageProcedure(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-        {
-            AICLI_LOG(CLI, Verbose, << "Received window message type: " << uMsg);
-            switch (uMsg)
-            {
-            case WM_ENDSESSION:
-            case WM_QUERYENDSESSION:
-            case WM_CLOSE:
-                DestroyWindow(hWnd);
-                break;
-            case WM_DESTROY:
-                PostQuitMessage(0);
-                break;
-            default:
-                return DefWindowProc(hWnd, uMsg, wParam, lParam);
-            }
-            return 0;
-        }
+        LRESULT WindowMessageProcedure(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
         // Type to contain the CTRL signal and window messages handler.
         struct SignalTerminationHandler
@@ -60,6 +41,26 @@ namespace AppInstaller::CLI::Execution
                 m_contexts.erase(itr);
             }
 
+            void StartAppShutdown()
+            {
+                // Lifetime manager sends CTRL-C after the WM_QUERYENDSESSION is processed.
+                // If we disable the CTRL-C handler, the default handler will kill us.
+                TerminateContexts(CancelReason::AppShutdown, true);
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+                m_appShutdownEvent.SetEvent();
+#endif
+            }
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+            HWND GetWindowHandle() { return m_windowHandle.get(); }
+
+            bool WaitForAppShutdownEvent()
+            {
+                return m_appShutdownEvent.wait(60000);
+            }
+#endif
+
         private:
             SignalTerminationHandler()
             {
@@ -71,6 +72,10 @@ namespace AppInstaller::CLI::Execution
 
                 // Set up ctrl-c handler.
                 LOG_IF_WIN32_BOOL_FALSE(SetConsoleCtrlHandler(StaticCtrlHandlerFunction, TRUE));
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+                m_appShutdownEvent.create();
+#endif
             }
 
             ~SignalTerminationHandler()
@@ -137,6 +142,7 @@ namespace AppInstaller::CLI::Execution
 
                 WNDCLASSEX wcex = {};
                 wcex.cbSize = sizeof(wcex);
+
                 wcex.style = CS_NOCLOSE;
                 wcex.lpfnWndProc = WindowMessageProcedure;
                 wcex.cbClsExtra = 0;
@@ -145,18 +151,17 @@ namespace AppInstaller::CLI::Execution
                 wcex.lpszClassName = windowClass;
                 THROW_LAST_ERROR_IF(!RegisterClassEx(&wcex));
 
-                m_windowHandle = wil::unique_hwnd(CreateWindowEx(
-                    0, /* dwExStyle */
+                m_windowHandle = wil::unique_hwnd(CreateWindow(
                     windowClass,
                     L"WingetMessageOnlyWindow",
-                    WS_CHILD, /* dwStyle */
+                    WS_OVERLAPPEDWINDOW,
                     0, /* x */
                     0, /* y */
                     0, /* nWidth */
-                    0, /* nHeiht*/
-                    HWND_MESSAGE, /* hWndParent */
+                    0, /* nHeigth */
+                    NULL, /* hWndParent */
                     NULL, /* hMenu */
-                    NULL, /* hInstance */
+                    hInstance,
                     NULL)); /* lpParam */
                 THROW_LAST_ERROR_IF_NULL(m_windowHandle);
 
@@ -172,24 +177,13 @@ namespace AppInstaller::CLI::Execution
                 while ((getMessageResult = GetMessage(&msg, m_windowHandle.get(), 0, 0)) != 0)
                 {
                     THROW_LAST_ERROR_IF(getMessageResult == -1);
-
-                    if (msg.message == WM_QUERYENDSESSION)
-                    {
-                        TerminateContexts(CancelReason::AppShutdown, true);
-                    }
-
                     DispatchMessage(&msg);
                 }
             }
 
-            void CloseWindow()
-            {
-                if (m_windowThread.joinable())
-                {
-                    THROW_LAST_ERROR_IF(!PostMessage(m_windowHandle.get(), WM_CLOSE, 0, 0));
-                    m_windowThread.join();
-                }
-            }
+#ifndef AICLI_DISABLE_TEST_HOOKS
+            wil::unique_event m_appShutdownEvent;
+#endif
 
             std::mutex m_contextsLock;
             std::vector<Context*> m_contexts;
@@ -209,6 +203,29 @@ namespace AppInstaller::CLI::Execution
             {
                 SignalTerminationHandler::Instance().RemoveContext(context);
             }
+        }
+
+        // This starts getting called by CreateWindow.
+        // If it's a member function in SignalTerminationHandler we will have problems.
+        LRESULT WindowMessageProcedure(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+        {
+            AICLI_LOG(CLI, Verbose, << "Received window message type: " << uMsg);
+            switch (uMsg)
+            {
+            case WM_QUERYENDSESSION:
+                SignalTerminationHandler::Instance().StartAppShutdown();
+                return TRUE;
+            case WM_ENDSESSION:
+            case WM_CLOSE:
+                DestroyWindow(hWnd);
+                break;
+            case WM_DESTROY:
+                PostQuitMessage(0);
+                break;
+            default:
+                return DefWindowProc(hWnd, uMsg, wParam, lParam);
+            }
+            return FALSE;
         }
     }
 
@@ -301,7 +318,11 @@ namespace AppInstaller::CLI::Execution
         }
 
         Logging::Telemetry().LogCommandTermination(hr, file, line);
-        SetTerminationHR(hr);
+
+        if (!m_isTerminated)
+        {
+            SetTerminationHR(hr);
+        }
     }
 
     void Context::SetTerminationHR(HRESULT hr)
@@ -355,6 +376,16 @@ namespace AppInstaller::CLI::Execution
     bool Context::ShouldExecuteWorkflowTask(const Workflow::WorkflowTask& task)
     {
         return (m_shouldExecuteWorkflowTask ? m_shouldExecuteWorkflowTask(task) : true);
+    }
+
+    HWND Context::GetWindowHandle()
+    {
+        return SignalTerminationHandler::Instance().GetWindowHandle();
+    }
+
+    bool Context::WaitForAppShutdownEvent()
+    {
+        return SignalTerminationHandler::Instance().WaitForAppShutdownEvent();
     }
 #endif
 }

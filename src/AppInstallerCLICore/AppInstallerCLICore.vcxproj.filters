@@ -218,6 +218,9 @@
     <ClInclude Include="ConfigurationSetProcessorFactoryRemoting.h">
       <Filter>Workflows</Filter>
     </ClInclude>
+    <ClInclude Include="Commands\TestCommand.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -402,6 +405,9 @@
     </ClCompile>
     <ClCompile Include="ConfigurationSetProcessorFactoryRemoting.cpp">
       <Filter>Workflows</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\TestCommand.cpp">
+      <Filter>Commands</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
