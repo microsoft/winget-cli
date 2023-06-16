@@ -102,8 +102,8 @@
       "properties": {
         "preferences": { "$ref": "#/definitions/InstallPrefReq" },
         "requirements": { "$ref": "#/definitions/InstallPrefReq" },
-        "ignoreDependencies": {
-          "description": "Controls whether package dependencies are ignored during installation",
+        "skipDependencies": {
+          "description": "Controls whether package dependencies and Windows Features are skipped during installation",
           "type": "boolean",
           "default": false
         },

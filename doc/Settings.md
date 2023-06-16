@@ -90,12 +90,12 @@ The `portablePackageMachineRoot` setting affects the default root directory wher
     },
 ```
 
-### Ignore Dependencies
-The 'ignoreDependencies' behavior affects whether dependencies are installed for a given package. Defaults to 'false' if value is not set or is invalid.
+### Skip Dependencies
+The 'skipDependencies' behavior affects whether dependencies are installed for a given package. Defaults to 'false' if value is not set or is invalid.
 
 ```json
     "installBehavior": {
-        "ignoreDependencies": true
+        "skipDependencies": true
     },
 ```
 

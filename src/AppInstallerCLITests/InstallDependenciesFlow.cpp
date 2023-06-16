@@ -250,7 +250,7 @@ TEST_CASE("InstallerWithDependencies_IgnoreDependenciesSetting", "[dependencies]
 
     TestUserSettings settings;
     settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
-    settings.Set<AppInstaller::Settings::Setting::InstallIgnoreDependencies>({ true });
+    settings.Set<AppInstaller::Settings::Setting::InstallSkipDependencies>({ true });
 
     InstallCommand install({});
     install.Execute(context);

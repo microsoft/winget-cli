@@ -544,7 +544,7 @@ namespace AppInstaller::CLI::Workflow
 
     void ManageDependencies(Execution::Context& context)
     {
-        if (Settings::User().Get<Settings::Setting::InstallIgnoreDependencies>() || context.Args.Contains(Execution::Args::Type::SkipDependencies))
+        if (Settings::User().Get<Settings::Setting::InstallSkipDependencies>() || context.Args.Contains(Execution::Args::Type::SkipDependencies))
         {
             context.Reporter.Warn() << Resource::String::DependenciesSkippedMessage << std::endl;
             return;

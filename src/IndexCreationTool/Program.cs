@@ -66,9 +66,9 @@ namespace IndexCreationTool
 
                         while (filesQueue.Count > 0)
                         {
-                            int queueCount = filesQueue.Count;
+                            int currentCount = filesQueue.Count;
 
-                            for (int i = ; i < queueCount; i++)
+                            for (int i = 0; i < currentCount; i++)
                             {
                                 string file = filesQueue.Dequeue();
                                 try
@@ -82,9 +82,9 @@ namespace IndexCreationTool
                                 }
                             }
 
-                            if (queueCount == filesQueue.Count)
+                            if (filesQueue.Count == currentCount)
                             {
-                                Console.WriteLine("Failed. Reason: " + );
+                                Console.WriteLine("Failed to add all manifests in directory to index.");
                                 Environment.Exit(-1);
                             }
                         }

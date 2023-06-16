@@ -84,8 +84,7 @@ namespace AppInstaller::Settings
         InstallLocalePreference,
         InstallLocaleRequirement,
         InstallDefaultRoot,
-        InstallIgnoreDependencies,
-        InstallIgnoreWarnings,
+        InstallSkipDependencies,
         DisableInstallNotes,
         PortablePackageUserRoot,
         PortablePackageMachineRoot,
@@ -156,7 +155,7 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallScopeRequirement, std::string, Manifest::ScopeEnum, Manifest::ScopeEnum::Unknown, ".installBehavior.requirements.scope"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallLocalePreference, std::vector<std::string>, std::vector<std::string>, {}, ".installBehavior.preferences.locale"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallLocaleRequirement, std::vector<std::string>, std::vector<std::string>, {}, ".installBehavior.requirements.locale"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::InstallIgnoreDependencies, bool, bool, false, ".installBehavior.ignoreDependencies"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::InstallSkipDependencies, bool, bool, false, ".installBehavior.skipDependencies"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::DisableInstallNotes, bool, bool, false, ".installBehavior.disableInstallNotes"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::PortablePackageUserRoot, std::string, std::filesystem::path, {}, ".installBehavior.portablePackageUserRoot"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::PortablePackageMachineRoot, std::string, std::filesystem::path, {}, ".installBehavior.portablePackageMachineRoot"sv);
