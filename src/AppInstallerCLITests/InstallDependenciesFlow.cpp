@@ -3,7 +3,6 @@
 #include "pch.h"
 #include "WorkflowCommon.h"
 #include "DependenciesTestSource.h"
-#include "TestHooks.h"
 #include <Commands/InstallCommand.h>
 #include <Workflows/DependenciesFlow.h>
 #include <Workflows/InstallFlow.h>
