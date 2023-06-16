@@ -1,11 +1,9 @@
 #include "pch.h"
 #include "TestCommon.h"
-#include "TestSource.h"
+#include <AppInstallerRuntime.h>
 #include <Resources.h>
 #include <winget/PathVariable.h>
-#include <AppInstallerRuntime.h>
 
-using namespace TestCommon;
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Registry::Environment;
 
