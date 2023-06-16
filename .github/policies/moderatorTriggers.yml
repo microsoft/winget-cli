@@ -286,6 +286,14 @@ configuration:
                 then:
                   - addLabel:
                       label: Side-By-Side
+              # Breaking-Change
+              - if:
+                  - commentContains:
+                      pattern: '\[[Pp]olicy\]\s+[bB]reaking[\s-][cC]hange'
+                      isRegex: True
+                then:
+                  - addLabel:
+                      label: Breaking-Change
               # Duplicate of #
               - if:
                   - commentContains:
