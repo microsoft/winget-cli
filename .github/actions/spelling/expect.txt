@@ -323,7 +323,6 @@ PSHOST
 psobject
 ptstr
 publickey
-putenv
 pvk
 pvm
 pwabuilder
@@ -448,6 +447,7 @@ websites
 WERSJA
 wesome
 wfopen
+wgetenv
 Whatif
 winapifamily
 windir
@@ -460,6 +460,7 @@ wingetutil
 winreg
 winrtact
 withstarts
+wputenv
 wsl
 wsv
 wto
