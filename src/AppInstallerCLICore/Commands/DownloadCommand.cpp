@@ -34,7 +34,6 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Locale),
             Argument::ForType(Args::Type::Log),
             Argument::ForType(Args::Type::HashOverride),
-            Argument::ForType(Args::Type::Force),
             Argument::ForType(Execution::Args::Type::AcceptPackageAgreements),
             Argument::ForType(Execution::Args::Type::AcceptSourceAgreements),
         };
