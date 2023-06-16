@@ -63,33 +63,29 @@ namespace IndexCreationTool
                     {
                         var fullPath = Path.Combine(rootDir, includeDir);
                         Queue<string> filesQueue = new(Directory.EnumerateFiles(fullPath, "*.yaml", SearchOption.AllDirectories));
-                        Queue<string> retryQueue = new Queue<string>();
 
                         while (filesQueue.Count > 0)
                         {
-                            string file = filesQueue.Dequeue();
-                            try
-                            {
-                                indexHelper.AddManifest(file, Path.GetRelativePath(rootDir, file));
-                            }
-                            catch
-                            {
-                                // If it fails, add to retry queue and try again. This can occur if there is a package dependency that has not yet been added.
-                                retryQueue.Enqueue(file);
-                            }
-                        }
+                            int queueCount = filesQueue.Count;
 
-                        while (retryQueue.Count > 0)
-                        {
-                            string file = retryQueue.Dequeue();
-                            try
+                            for (int i = ; i < queueCount; i++)
                             {
-                                indexHelper.AddManifest(file, Path.GetRelativePath(rootDir, file));
+                                string file = filesQueue.Dequeue();
+                                try
+                                {
+                                    indexHelper.AddManifest(file, Path.GetRelativePath(rootDir, file));
+                                }
+                                catch
+                                {
+                                    // If it fails, add to retry queue and try again. This can occur if there is a package dependency that has not yet been added.
+                                    filesQueue.Enqueue(file);
+                                }
                             }
-                            catch
+
+                            if (queueCount == filesQueue.Count)
                             {
-                                Console.WriteLine($"Failed to add manifest to index: {file}");
-                                throw new InvalidOperationException();
+                                Console.WriteLine("Failed. Reason: " + );
+                                Environment.Exit(-1);
                             }
                         }
                     }

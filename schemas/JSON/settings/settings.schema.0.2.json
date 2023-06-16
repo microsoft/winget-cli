@@ -107,11 +107,6 @@
           "type": "boolean",
           "default": false
         },
-        "ignoreWarnings": {
-          "description": "Controls whether blocking warning messages shown to the user during an install or upgrade are ignored",
-          "type": "boolean",
-          "default": false
-        },
         "disableInstallNotes": {
           "description": "Controls whether installation notes are shown after a successful install",
           "type": "boolean",
