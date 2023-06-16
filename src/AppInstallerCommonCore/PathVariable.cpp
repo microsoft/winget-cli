@@ -12,13 +12,24 @@ namespace AppInstaller::Registry::Environment
         constexpr std::wstring_view s_PathName = L"Path";
         constexpr std::wstring_view s_PathSubkey_User = L"Environment";
         constexpr std::wstring_view s_PathSubkey_Machine = L"SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment";
+
+        void EnsurePathValueEndsWithSemicolon(std::string& value)
+        {
+            if (value.back() != ';')
+            {
+                value += ";";
+            }
+        }
     }
 
     PathVariable::PathVariable(Manifest::ScopeEnum scope, bool readOnly)
     {
-        if (readOnly)
+        m_scope = scope;
+        m_readOnly = readOnly;
+
+        if (m_readOnly)
         {
-            if (scope == Manifest::ScopeEnum::Machine)
+            if (m_scope == Manifest::ScopeEnum::Machine)
             {
                 m_key = Registry::Key::OpenIfExists(HKEY_LOCAL_MACHINE, std::wstring{ s_PathSubkey_Machine });
             }
@@ -29,7 +40,7 @@ namespace AppInstaller::Registry::Environment
         }
         else
         {
-            if (scope == Manifest::ScopeEnum::Machine)
+            if (m_scope == Manifest::ScopeEnum::Machine)
             {
                 m_key = Registry::Key::Create(HKEY_LOCAL_MACHINE, std::wstring{ s_PathSubkey_Machine });
             }
@@ -54,6 +65,8 @@ namespace AppInstaller::Registry::Environment
 
     bool PathVariable::Remove(const std::filesystem::path& target)
     {
+        THROW_HR_IF(E_ACCESSDENIED, m_readOnly);
+
         if (Contains(target))
         {
             std::string targetString = Normalize(target.u8string());
@@ -71,16 +84,15 @@ namespace AppInstaller::Registry::Environment
 
     bool PathVariable::Append(const std::filesystem::path& target)
     {
+        THROW_HR_IF(E_ACCESSDENIED, m_readOnly);
+
         if (!Contains(target))
         {
             std::string targetString = Normalize(target.u8string());
             std::string pathValue = GetPathValue();
-            if (pathValue.back() != ';')
-            {
-                pathValue += ";";
-            }
-
-            pathValue += targetString + ";";
+            EnsurePathValueEndsWithSemicolon(pathValue);
+            pathValue += targetString;
+            EnsurePathValueEndsWithSemicolon(pathValue);
             SetPathValue(pathValue);
             return true;
         }
@@ -96,9 +108,15 @@ namespace AppInstaller::Registry::Environment
         m_key.SetValue(pathName, ConvertToUTF16(value), REG_EXPAND_SZ);
     }
 
-    void RefreshPathVariableForCurrentProcess()
+    bool RefreshPathVariableForCurrentProcess()
     {
-        const auto& pathValue = PathVariable(Manifest::ScopeEnum::User, true).GetPathValue() + PathVariable(Manifest::ScopeEnum::Machine, true).GetPathValue();
-        THROW_HR_IF(E_UNEXPECTED, _putenv_s("PATH", pathValue.c_str()) != 0);
+        std::string userPathValue = PathVariable(Manifest::ScopeEnum::User, true).GetPathValue();
+        std::string systemPathValue = PathVariable(Manifest::ScopeEnum::Machine, true).GetPathValue();
+
+        EnsurePathValueEndsWithSemicolon(userPathValue);
+        EnsurePathValueEndsWithSemicolon(systemPathValue);
+
+        std::wstring pathValue = ConvertToUTF16(userPathValue + systemPathValue);
+        return _wputenv_s(L"PATH", pathValue.c_str()) == 0;
     }
 }

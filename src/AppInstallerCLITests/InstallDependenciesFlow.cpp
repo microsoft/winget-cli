@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "WorkflowCommon.h"
 #include "DependenciesTestSource.h"
+#include "TestHooks.h"
 #include <Commands/InstallCommand.h>
 #include <Workflows/DependenciesFlow.h>
 #include <Workflows/InstallFlow.h>
@@ -234,7 +235,7 @@ TEST_CASE("InstallerWithDependencies_SkipDependencies", "[dependencies]")
     install.Execute(context);
     INFO(installOutput.str());
 
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::SkippingDependenciesMessage).get()) != std::string::npos);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesSkippedMessage).get()) != std::string::npos);
     REQUIRE_FALSE(installOutput.str().find(Resource::LocString(Resource::String::InstallAndUpgradeCommandsReportDependencies).get()) != std::string::npos);
     REQUIRE_FALSE(installOutput.str().find("PreviewIIS") != std::string::npos);
 }
@@ -256,7 +257,7 @@ TEST_CASE("InstallerWithDependencies_IgnoreDependenciesSetting", "[dependencies]
     install.Execute(context);
     INFO(installOutput.str());
 
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::SkippingDependenciesMessage).get()) != std::string::npos);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesSkippedMessage).get()) != std::string::npos);
     REQUIRE_FALSE(installOutput.str().find(Resource::LocString(Resource::String::InstallAndUpgradeCommandsReportDependencies).get()) != std::string::npos);
     REQUIRE_FALSE(installOutput.str().find("PreviewIIS") != std::string::npos);
 }

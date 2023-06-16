@@ -343,6 +343,6 @@ namespace AppInstaller::CLI::Workflow
 
         // Install dependencies in the correct order
         context.Add<Execution::Data::PackageSubContexts>(std::move(dependencyPackageContexts));
-        context << Workflow::InstallMultiplePackages(m_dependencyReportMessage, APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES, {}, false, true, true);
+        context << Workflow::InstallMultiplePackages(m_dependencyReportMessage, APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES, {}, false, true, true, true);
     }
 }

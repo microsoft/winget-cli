@@ -24,6 +24,7 @@ namespace AppInstaller::CLI
             Workflow::EnsureApplicableInstaller <<
             Workflow::ReportIdentityAndInstallationDisclaimer <<
             Workflow::ShowPromptsForSinglePackage(/* ensureAcceptance */ true) <<
+            Workflow::ManageDependencies << // TODO: Separate handling dependencies from download flow.
             Workflow::DownloadInstaller;
     }
 

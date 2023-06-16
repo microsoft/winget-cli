@@ -148,6 +148,7 @@ int wmain(int argc, const wchar_t** argv)
     std::wstring aliasToExecute;
     std::wstring aliasArguments;
     bool useHKLM = false;
+    bool noOperation = false;
     int exitCode = 0;
 
     // Output to cout by default, but swap to a file if requested
@@ -248,8 +249,13 @@ int wmain(int argc, const wchar_t** argv)
         // Returns the success exit code to emulate being invoked by another caller.
         else if (_wcsicmp(argv[i], L"/NoOperation") == 0)
         {
-            return exitCode;
+            noOperation = true;
         }
+    }
+
+    if (noOperation)
+    {
+        return exitCode;
     }
 
     if (!aliasToExecute.empty())

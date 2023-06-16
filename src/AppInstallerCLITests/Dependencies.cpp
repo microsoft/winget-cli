@@ -210,18 +210,18 @@ TEST_CASE("DependencyNodeProcessor_NoMatches", "[dependencies]")
     REQUIRE(result == DependencyNodeProcessorResult::Error);
 }
 
-std::string GetCurrentProcessPathVariable()
+std::wstring GetCurrentProcessPathVariable()
 {
     size_t requiredSize;
-    getenv_s(&requiredSize, nullptr, 0, "PATH");
+    _wgetenv_s(&requiredSize, nullptr, 0, L"PATH");
 
     if (requiredSize > 0)
     {
-        char* buffer = new char[requiredSize];
-        errno_t errorResult = getenv_s(&requiredSize, buffer, requiredSize, "PATH");
+        wchar_t* buffer = new wchar_t[requiredSize];
+        errno_t errorResult = _wgetenv_s(&requiredSize, buffer, requiredSize, L"PATH");
         if (errorResult == 0)
         {
-            return std::string(buffer);
+            return std::wstring(buffer);
         }
 
         delete[] buffer;
@@ -231,16 +231,22 @@ std::string GetCurrentProcessPathVariable()
 
 TEST_CASE("RefreshEnvironmentVariable_User", "[dependencies]")
 {
-    std::string testPathEntry = "testUserPathEntry";
+    if (!AppInstaller::Runtime::IsRunningAsAdmin())
+    {
+        WARN("Test requires admin privilege. Skipped.");
+        return;
+    }
+
+    std::wstring testPathEntry = L"testUserPathEntry";
     auto pathVariable = AppInstaller::Registry::Environment::PathVariable(ScopeEnum::User);
     pathVariable.Append(testPathEntry);
 
-    std::string initialPathValue = GetCurrentProcessPathVariable();
+    std::wstring initialPathValue = GetCurrentProcessPathVariable();
     bool firstCheck = initialPathValue.find(testPathEntry) != std::string::npos;
 
     AppInstaller::Registry::Environment::RefreshPathVariableForCurrentProcess();
 
-    std::string updatedPathValue = GetCurrentProcessPathVariable();
+    std::wstring updatedPathValue = GetCurrentProcessPathVariable();
     bool secondCheck = updatedPathValue.find(testPathEntry) != std::string::npos;
 
     pathVariable.Remove(testPathEntry);
@@ -257,16 +263,16 @@ TEST_CASE("RefreshEnvironmentVariable_System", "[dependencies]")
         return;
     }
 
-    std::string testPathEntry = "testSystemPathEntry";
+    std::wstring testPathEntry = L"testSystemPathEntry";
     auto pathVariable = AppInstaller::Registry::Environment::PathVariable(ScopeEnum::Machine);
     pathVariable.Append(testPathEntry);
 
-    std::string initialPathValue = GetCurrentProcessPathVariable();
+    std::wstring initialPathValue = GetCurrentProcessPathVariable();
     bool firstCheck = initialPathValue.find(testPathEntry) != std::string::npos;
 
     AppInstaller::Registry::Environment::RefreshPathVariableForCurrentProcess();
 
-    std::string updatedPathValue = GetCurrentProcessPathVariable();
+    std::wstring updatedPathValue = GetCurrentProcessPathVariable();
     bool secondCheck = updatedPathValue.find(testPathEntry) != std::string::npos;
 
     pathVariable.Remove(testPathEntry);

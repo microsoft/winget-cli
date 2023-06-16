@@ -63,6 +63,8 @@ namespace IndexCreationTool
                     {
                         var fullPath = Path.Combine(rootDir, includeDir);
                         Queue<string> filesQueue = new(Directory.EnumerateFiles(fullPath, "*.yaml", SearchOption.AllDirectories));
+                        Queue<string> retryQueue = new Queue<string>();
+
                         while (filesQueue.Count > 0)
                         {
                             string file = filesQueue.Dequeue();
@@ -72,8 +74,22 @@ namespace IndexCreationTool
                             }
                             catch
                             {
-                                // If it fails, add back to queue and try again. This can occur if there is a package dependency that has not yet been added.
-                                filesQueue.Enqueue(file);
+                                // If it fails, add to retry queue and try again. This can occur if there is a package dependency that has not yet been added.
+                                retryQueue.Enqueue(file);
+                            }
+                        }
+
+                        while (retryQueue.Count > 0)
+                        {
+                            string file = retryQueue.Dequeue();
+                            try
+                            {
+                                indexHelper.AddManifest(file, Path.GetRelativePath(rootDir, file));
+                            }
+                            catch
+                            {
+                                Console.WriteLine($"Failed to add manifest to index: {file}");
+                                throw new InvalidOperationException();
                             }
                         }
                     }

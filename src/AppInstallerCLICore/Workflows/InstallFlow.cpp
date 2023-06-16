@@ -542,11 +542,11 @@ namespace AppInstaller::CLI::Workflow
             Workflow::DisplayInstallationNotes;
     }
 
-    void InstallDependencies(Execution::Context& context)
+    void ManageDependencies(Execution::Context& context)
     {
         if (Settings::User().Get<Settings::Setting::InstallIgnoreDependencies>() || context.Args.Contains(Execution::Args::Type::SkipDependencies))
         {
-            context.Reporter.Warn() << Resource::String::SkippingDependenciesMessage << std::endl;
+            context.Reporter.Warn() << Resource::String::DependenciesSkippedMessage << std::endl;
             return;
         }
 
@@ -563,7 +563,7 @@ namespace AppInstaller::CLI::Workflow
             Workflow::CheckForUnsupportedArgs <<
             Workflow::ReportIdentityAndInstallationDisclaimer <<
             Workflow::ShowPromptsForSinglePackage(/* ensureAcceptance */ true) <<
-            Workflow::InstallDependencies <<
+            Workflow::ManageDependencies <<
             Workflow::DownloadInstaller <<
             Workflow::InstallPackageInstaller;
     }
@@ -630,7 +630,18 @@ namespace AppInstaller::CLI::Workflow
                 installContext.SetTerminationHR(Workflow::HandleException(installContext, std::current_exception()));
             }
 
-            RefreshPathVariableForCurrentProcess();
+            if (m_refreshPathVariable)
+            {
+                if (RefreshPathVariableForCurrentProcess())
+                {
+                    AICLI_LOG(CLI, Info, << "Successfully refreshed process PATH environment variable.");
+                }
+                else
+                {
+                    AICLI_LOG(CLI, Info, << "Failed to refresh process PATH environment variable.");
+                    context.Reporter.Warn() << Resource::String::FailedToRefreshPathWarning << std::endl;
+                }
+            }
 
             installContext.Reporter.Info() << std::endl;
 

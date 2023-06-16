@@ -142,11 +142,11 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void InstallPackageInstaller(Execution::Context& context);
 
-    // Installs the dependencies for a single package.
+    // Manages the dependencies for a single package.
     // Required Args: None
     // Inputs: Manifest, Installer
     // Outputs: InstallerPath
-    void InstallDependencies(Execution::Context& context);
+    void ManageDependencies(Execution::Context& context);
 
     // Installs a single package. This also does the reporting, user interaction, and installer download
     // for single-package installation.
@@ -167,14 +167,16 @@ namespace AppInstaller::CLI::Workflow
             std::vector<HRESULT>&& ignorableInstallResults = {},
             bool ensurePackageAgreements = true,
             bool ignoreDependencies = false,
-            bool stopOnFailure = false) :
+            bool stopOnFailure = false,
+            bool refreshPathVariable = false) :
             WorkflowTask("InstallMultiplePackages"),
             m_dependenciesReportMessage(dependenciesReportMessage),
             m_resultOnFailure(resultOnFailure),
             m_ignorableInstallResults(std::move(ignorableInstallResults)),
             m_ignorePackageDependencies(ignoreDependencies),
             m_ensurePackageAgreements(ensurePackageAgreements),
-            m_stopOnFailure(stopOnFailure) {}
+            m_stopOnFailure(stopOnFailure),
+            m_refreshPathVariable(refreshPathVariable){}
 
         void operator()(Execution::Context& context) const override;
 
@@ -185,6 +187,7 @@ namespace AppInstaller::CLI::Workflow
         bool m_ignorePackageDependencies;
         bool m_ensurePackageAgreements;
         bool m_stopOnFailure;
+        bool m_refreshPathVariable;
     };
 
     // Stores the existing set of packages in ARP.
