@@ -88,7 +88,8 @@ This should have no direct impact on accessibility.
 
 ### Security
 
-Android has security concerns.
+Like Windows packages, Android APK files have security concerns related to malware. An attacker could intercept HTTP with Android malware like Windows malware on unsecure platforms.
+
 ### Reliability
 
 This is not expected to impact reliability.
