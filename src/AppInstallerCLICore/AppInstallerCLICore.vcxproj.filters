@@ -218,6 +218,9 @@
     <ClInclude Include="Public\ConfigurationSetProcessorFactoryRemoting.h">
       <Filter>Public</Filter>
     </ClInclude>
+    <ClInclude Include="Commands\DebugCommand.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -402,6 +405,9 @@
     </ClCompile>
     <ClCompile Include="ConfigurationSetProcessorFactoryRemoting.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\DebugCommand.cpp">
+      <Filter>Commands</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

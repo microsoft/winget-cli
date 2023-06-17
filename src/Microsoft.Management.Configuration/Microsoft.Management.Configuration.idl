@@ -735,6 +735,9 @@ namespace Microsoft.Management.Configuration
     /// Force midl3 to generate vector marshalling info.
     declare
     {
+        // Due to the way that metadata (WinMD) based marshalling works, in order for any of these to be IIterable<T>, they need to be
+        // included in the manifest of the package. Update the DumpProxyStubRegistrationsCommand to add any new types to make it easier
+        // to iterate over these collections, especially in C#.
         interface Windows.Foundation.Collections.IVector<ConfigurationConflict>;
         interface Windows.Foundation.Collections.IVector<ConfigurationSet>;
         interface Windows.Foundation.Collections.IVectorView<ApplyConfigurationUnitResult>;

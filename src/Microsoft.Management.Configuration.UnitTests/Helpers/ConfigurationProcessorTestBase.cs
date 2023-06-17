@@ -112,8 +112,10 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
             int[] runs = new int[3];
             int[] failures = new int[3];
 
-            foreach (ApplyConfigurationUnitResult unitResult in setResult.UnitResults)
+            var unitResults = setResult.UnitResults;
+            for (int i = 0; i < unitResults.Count; ++i)
             {
+                ApplyConfigurationUnitResult unitResult = unitResults[i];
                 SummaryCountByIntent(counts, runs, failures, unitResult.Unit.Intent, unitResult.ResultInformation);
             }
 
