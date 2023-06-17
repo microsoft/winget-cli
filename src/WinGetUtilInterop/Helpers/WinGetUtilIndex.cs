@@ -1,30 +1,34 @@
-﻿// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
+﻿// -----------------------------------------------------------------------
+// <copyright file="WinGetUtilWrapperSQLiteIndex.cs" company="Microsoft Corporation">
+//     Copyright (c) Microsoft Corporation. All rights reserved.
+// </copyright>
+// -----------------------------------------------------------------------
 
-namespace IndexCreationTool
+namespace WinGetUtilInterop.Helpers
 {
     using System;
     using System.Runtime.InteropServices;
+    using Microsoft.WinGetUtil.Interfaces;
+    using WinGetUtilInterop.Exceptions;
 
-    /// <summary>
-    /// Wrapper class around WinGetUtil index modifier native implementation.
-    /// </summary>
-    internal class WinGetUtilWrapper : IDisposable
+    public class WinGetUtilIndex : IWinGetUtilIndex
     {
+        private const string WinGetUtilDll = "WinGetUtil.dll";
+        private const uint IndexLatestVersion = unchecked((uint)-1);
+
         /// <summary>
-        /// Dll name.
+        /// WinGet Index latest version.
         /// </summary>
-        public const string DllName = @"WinGetUtil.dll";
+        public const uint WinGetIndexLatestVersion = unchecked((uint)-1);
 
-        private const uint LatestVersion = unchecked((uint)-1);
-
-        private IntPtr indexHandle;
+        private readonly IntPtr indexHandle;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="WinGetUtilWrapper"/> class.
+        /// Initializes a new instance of the <see cref="WinGetUtilIndex"/> class.
         /// </summary>
         /// <param name="indexHandle">Handle of the index.</param>
-        private WinGetUtilWrapper(IntPtr indexHandle)
+        /// <param name="loggingContext">Logging Context.</param>
+        private WinGetUtilIndex(IntPtr indexHandle)
         {
             this.indexHandle = indexHandle;
         }
@@ -33,106 +37,91 @@ namespace IndexCreationTool
         /// Creates a new index file in the specified path.
         /// </summary>
         /// <param name="indexFile">Index file to create.</param>
-        /// <returns>Instance of WinGetUtilWrapper.</returns>
-        public static WinGetUtilWrapper Create(string indexFile)
+        /// <param name="majorVersion">Major version.</param>
+        /// <param name="minorVersion">Minor version.</param>
+        /// <param name="loggingContext">Logging Context.</param>
+        /// <returns>Instance of IWinGetUtilSQLiteIndex.</returns>
+        public static IWinGetUtilIndex Create(string indexFile, uint majorVersion, uint minorVersion)
         {
             try
             {
                 WinGetSQLiteIndexCreate(
                     indexFile,
-                    WinGetUtilWrapper.LatestVersion,
-                    WinGetUtilWrapper.LatestVersion,
+                    majorVersion,
+                    minorVersion,
                     out IntPtr index);
-                return new WinGetUtilWrapper(index);
+                return new WinGetUtilIndex(index);
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Error to create {indexFile}. {Environment.NewLine}{e.ToString()}");
-                throw;
+                throw new WinGetUtilIndexException(e);
             }
         }
 
         /// <summary>
-        /// Open the index.
+        /// Creates a new index file in the specified path.
+        /// </summary>
+        /// <param name="indexFile">Index file to create.</param>
+        /// <returns>Instance of IWinGetUtilSQLiteIndex.</returns>
+        public static IWinGetUtilIndex CreateLatestVersion(string indexFile)
+        {
+            return Create(indexFile, IndexLatestVersion, IndexLatestVersion);
+        }
+
+        /// <summary>
+        /// Open the index file.
         /// </summary>
         /// <param name="indexFile">Index file to open.</param>
-        /// <returns>Instance of WinGetUtilWrapper.</returns>
-        public static WinGetUtilWrapper Open(string indexFile)
+        /// <returns>Instance of IWinGetUtilSQLiteIndex.</returns>
+        public static IWinGetUtilIndex Open(string indexFile)
         {
             try
             {
                 WinGetSQLiteIndexOpen(indexFile, out IntPtr index);
-                return new WinGetUtilWrapper(index);
+                return new WinGetUtilIndex(index);
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Error to open {indexFile}. {Environment.NewLine}{e.ToString()}");
-                throw;
+                throw new WinGetUtilIndexException(e);
             }
         }
 
-        /// <summary>
-        /// Adds manifest to index.
-        /// </summary>
-        /// <param name="manifestPath">Manifest to add.</param>
-        /// <param name="relativePath">Path of the manifest in the repository.</param>
+        /// <inheritdoc/>
         public void AddManifest(string manifestPath, string relativePath)
         {
             try
             {
-                Console.WriteLine($"Adding manifest {manifestPath} on index file.");
                 WinGetSQLiteIndexAddManifest(this.indexHandle, manifestPath, relativePath);
                 return;
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Error to add manifest {manifestPath} with relative path {relativePath}. {Environment.NewLine}{e.ToString()}");
-                throw;
+                throw new WinGetUtilIndexException(e);
             }
         }
 
-        /// <summary>
-        /// Updates manifest in the index.
-        /// </summary>
-        /// <param name="manifestPath">Path to manifest to modify.</param>
-        /// <param name="relativePath">Path of the manifest in the repository.</param>
-        /// <returns>True if index was modified.</returns>
+        /// <inheritdoc/>
         public bool UpdateManifest(string manifestPath, string relativePath)
         {
             try
             {
-                Console.WriteLine($"Updating manifest {manifestPath} on index file.");
-
                 // For now, modifying a manifest implies that the file didn't got moved in the repository. So only
                 // contents of the file are modified. However, in the future we might support moving which requires
-                // oldManifestPath, oldRelativePath, newManifestPath and oldManifestPath.
+                // oldManifestPath, oldRelativePath, newManigestPath and oldManifestPath.
                 WinGetSQLiteIndexUpdateManifest(
                     this.indexHandle,
                     manifestPath,
                     relativePath,
                     out bool indexModified);
-
-                if (!indexModified)
-                {
-                    // This means that some of the attributes that don't get indexed, like Description, where
-                    // were modified, so the index doesn't got updated.
-                    Console.WriteLine($"Manifest {manifestPath} didn't result in a modification to the index.");
-                }
-
                 return indexModified;
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Error to update manifest {manifestPath} with relative path {relativePath}. {Environment.NewLine}{e.ToString()}");
-                throw;
+                throw new WinGetUtilIndexException(e);
             }
         }
 
-        /// <summary>
-        /// Delete manifest from index.
-        /// </summary>
-        /// <param name="manifestPath">Path to manifest to modify.</param>
-        /// <param name="relativePath">Path of the manifest in the repository.</param>
+        /// <inheritdoc/>
         public void RemoveManifest(string manifestPath, string relativePath)
         {
             try
@@ -142,14 +131,11 @@ namespace IndexCreationTool
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Error to remove manifest {manifestPath} with relative path {relativePath}. {Environment.NewLine}{e.ToString()}");
-                throw;
+                throw new WinGetUtilIndexException(e);
             }
         }
 
-        /// <summary>
-        /// Wrapper for WinGetSQLiteIndexPrepareForPackaging.
-        /// </summary>
+        /// <inheritdoc/>
         public void PrepareForPackaging()
         {
             try
@@ -159,9 +145,28 @@ namespace IndexCreationTool
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Error to prepare for packaging. {Environment.NewLine}{e.ToString()}");
-                throw;
+                throw new WinGetUtilIndexException(e);
             }
+        }
+
+        /// <inheritdoc/>
+        public bool IsIndexConsitent()
+        {
+            try
+            {
+                WinGetSQLiteIndexCheckConsistency(this.indexHandle, out bool indexModified);
+                return indexModified;
+            }
+            catch (Exception e)
+            {
+                throw new WinGetUtilIndexException(e);
+            }
+        }
+
+        /// <inheritdoc/>
+        public IntPtr GetIndexHandle()
+        {
+            return this.indexHandle;
         }
 
         /// <summary>
@@ -174,14 +179,14 @@ namespace IndexCreationTool
         }
 
         /// <summary>
-        /// Dispose method to dispose the Git desktop process runner.
+        /// Dispose method to free the sqlite index handle.
         /// </summary>
         /// <param name="disposing">Bool value indicating if Dispose is being run.</param>
-        protected void Dispose(bool disposing)
+        public void Dispose(bool disposing)
         {
             if (disposing)
             {
-                if (this.indexHandle != IntPtr.Zero)
+                if (this.indexHandle != null)
                 {
                     WinGetSQLiteIndexClose(this.indexHandle);
                 }
@@ -196,7 +201,7 @@ namespace IndexCreationTool
         /// <param name="minorVersion">Minor version.</param>
         /// <param name="index">Out handle of the index.</param>
         /// <returns>HRESULT.</returns>
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
+        [DllImport(WinGetUtilDll, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
         private static extern IntPtr WinGetSQLiteIndexCreate(string filePath, uint majorVersion, uint minorVersion, out IntPtr index);
 
         /// <summary>
@@ -205,7 +210,7 @@ namespace IndexCreationTool
         /// <param name="filePath">File path of index.</param>
         /// <param name="index">Out handle of the index.</param>
         /// <returns>HRESULT.</returns>
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
+        [DllImport(WinGetUtilDll, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
         private static extern IntPtr WinGetSQLiteIndexOpen(string filePath, out IntPtr index);
 
         /// <summary>
@@ -213,7 +218,7 @@ namespace IndexCreationTool
         /// </summary>
         /// <param name="index">Handle of the index.</param>
         /// <returns>HRESULT.</returns>
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
+        [DllImport(WinGetUtilDll, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
         private static extern IntPtr WinGetSQLiteIndexClose(IntPtr index);
 
         /// <summary>
@@ -224,7 +229,7 @@ namespace IndexCreationTool
         /// <param name="manifestPath">Manifest to add.</param>
         /// <param name="relativePath">Path of the manifest in the container.</param>
         /// <returns>HRESULT.</returns>
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
+        [DllImport(WinGetUtilDll, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
         private static extern IntPtr WinGetSQLiteIndexAddManifest(IntPtr index, string manifestPath, string relativePath);
 
         /// <summary>
@@ -236,7 +241,7 @@ namespace IndexCreationTool
         /// <param name="relativePath">Old relative path in the container.</param>
         /// <param name="indexModified">Out bool if the index is modified.</param>
         /// <returns>HRESULT.</returns>
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
+        [DllImport(WinGetUtilDll, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
         private static extern IntPtr WinGetSQLiteIndexUpdateManifest(
             IntPtr index,
             string manifestPath,
@@ -250,7 +255,7 @@ namespace IndexCreationTool
         /// <param name="manifestPath">Manifest path to remove.</param>
         /// <param name="relativePath">Relative path in the container.</param>
         /// <returns>HRESULT.</returns>
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
+        [DllImport(WinGetUtilDll, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
         private static extern IntPtr WinGetSQLiteIndexRemoveManifest(IntPtr index, string manifestPath, string relativePath);
 
         /// <summary>
@@ -258,7 +263,16 @@ namespace IndexCreationTool
         /// </summary>
         /// <param name="index">Index handle.</param>
         /// <returns>HRESULT.</returns>
-        [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
+        [DllImport(WinGetUtilDll, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
         private static extern IntPtr WinGetSQLiteIndexPrepareForPackaging(IntPtr index);
+
+        /// <summary>
+        /// Checks the index for consistency, ensuring that at a minimum all referenced rows actually exist.
+        /// </summary>
+        /// <param name="index">Index handle.</param>
+        /// <param name="succeeded">Does the consistency check succeeded.</param>
+        /// <returns>HRESULT.</returns>
+        [DllImport(WinGetUtilDll, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, PreserveSig = false)]
+        private static extern IntPtr WinGetSQLiteIndexCheckConsistency(IntPtr index, [MarshalAs(UnmanagedType.U1)] out bool succeeded);
     }
 }

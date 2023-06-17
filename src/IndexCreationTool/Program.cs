@@ -8,6 +8,7 @@ namespace IndexCreationTool
     using System.Diagnostics;
     using System.IO;
     using System.Linq;
+    using WinGetUtilInterop.Helpers;
 
     class Program
     {
@@ -15,7 +16,7 @@ namespace IndexCreationTool
         public const string IndexPathInPackage = @"Public\index.db";
         public const string IndexPackageName = @"source.msix";
 
-        static void Main(string[] args)
+        static int Main(string[] args)
         {
             string rootDir = string.Empty;
             string appxManifestPath = string.Empty;
@@ -47,7 +48,7 @@ namespace IndexCreationTool
             if (string.IsNullOrEmpty(rootDir))
             {
                 Console.WriteLine("Usage: IndexCreationTool.exe -d <Path to search for yaml> [-i <Comma-separated list of included dirs in the search for yaml. If not specified, include all dirs>] [-m <appxmanifest for index package> [-c <cert for signing index package>]]");
-                return;
+                return 0;
             }
 
             try
@@ -57,10 +58,13 @@ namespace IndexCreationTool
                     File.Delete(IndexName);
                 }
 
-                using (var indexHelper = WinGetUtilWrapper.Create(IndexName))
+                using var indexHelper = WinGetUtilIndex.CreateLatestVersion(IndexName);
+                foreach (string includeDir in includeDirList)
                 {
-                    foreach (string includeDir in includeDirList)
+                    var fullPath = Path.Combine(rootDir, includeDir);
+                    foreach (string file in Directory.EnumerateFiles(fullPath, "*.yaml", SearchOption.AllDirectories))
                     {
+<<<<<<< HEAD
                         var fullPath = Path.Combine(rootDir, includeDir);
                         Queue<string> filesQueue = new(Directory.EnumerateFiles(fullPath, "*.yaml", SearchOption.AllDirectories));
 
@@ -92,7 +96,12 @@ namespace IndexCreationTool
                     }
 
                     indexHelper.PrepareForPackaging();
+=======
+                        indexHelper.AddManifest(file, Path.GetRelativePath(rootDir, file));
+                    }
+>>>>>>> 8a4c811c (Start tool)
                 }
+                indexHelper.PrepareForPackaging();
 
                 if (!string.IsNullOrEmpty(appxManifestPath))
                 {
@@ -113,9 +122,10 @@ namespace IndexCreationTool
             catch (Exception e)
             {
                 Console.WriteLine("Failed. Reason: " + e.Message);
+                return -1;
             }
 
-            Environment.Exit(0);
+            return 0;
         }
 
         static void RunCommand(string command, string args)
