@@ -24,6 +24,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     /// Unit tests for running test on the processor.
     /// </summary>
     [Collection("UnitTestCollection")]
+    [OutOfProc]
     public class ConfigurationProcessorTestTests : ConfigurationProcessorTestBase
     {
         /// <summary>
@@ -42,7 +43,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         [Fact]
         public void TestSet_SetProcessorError()
         {
-            ConfigurationSet configurationSet = new ConfigurationSet();
+            ConfigurationSet configurationSet = this.ConfigurationSet();
 
             TestConfigurationProcessorFactory factory = new TestConfigurationProcessorFactory();
             factory.Exceptions.Add(configurationSet, new FileNotFoundException());
@@ -60,9 +61,9 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         [Fact]
         public void TestSet_UnitProcessorCreationError()
         {
-            ConfigurationSet configurationSet = new ConfigurationSet();
-            ConfigurationUnit configurationUnitThrows = new ConfigurationUnit();
-            ConfigurationUnit configurationUnitWorks = new ConfigurationUnit();
+            ConfigurationSet configurationSet = this.ConfigurationSet();
+            ConfigurationUnit configurationUnitThrows = this.ConfigurationUnit();
+            ConfigurationUnit configurationUnitWorks = this.ConfigurationUnit();
             configurationSet.ConfigurationUnits = new ConfigurationUnit[] { configurationUnitThrows, configurationUnitWorks };
 
             TestConfigurationProcessorFactory factory = new TestConfigurationProcessorFactory();
@@ -102,9 +103,9 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         [Fact]
         public void TestSet_UnitProcessorExecutionError()
         {
-            ConfigurationSet configurationSet = new ConfigurationSet();
-            ConfigurationUnit configurationUnitThrows = new ConfigurationUnit();
-            ConfigurationUnit configurationUnitWorks = new ConfigurationUnit();
+            ConfigurationSet configurationSet = this.ConfigurationSet();
+            ConfigurationUnit configurationUnitThrows = this.ConfigurationUnit();
+            ConfigurationUnit configurationUnitWorks = this.ConfigurationUnit();
             configurationSet.ConfigurationUnits = new ConfigurationUnit[] { configurationUnitWorks, configurationUnitThrows };
 
             TestConfigurationProcessorFactory factory = new TestConfigurationProcessorFactory();
@@ -145,9 +146,9 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         [Fact]
         public void TestSet_UnitProcessorResultError()
         {
-            ConfigurationSet configurationSet = new ConfigurationSet();
-            ConfigurationUnit configurationUnitThrows = new ConfigurationUnit();
-            ConfigurationUnit configurationUnitWorks = new ConfigurationUnit();
+            ConfigurationSet configurationSet = this.ConfigurationSet();
+            ConfigurationUnit configurationUnitThrows = this.ConfigurationUnit();
+            ConfigurationUnit configurationUnitWorks = this.ConfigurationUnit();
             configurationSet.ConfigurationUnits = new ConfigurationUnit[] { configurationUnitWorks, configurationUnitThrows };
 
             TestConfigurationProcessorFactory factory = new TestConfigurationProcessorFactory();
@@ -222,7 +223,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// <param name="overallResult">The expected overall test result.</param>
         private void RunTestSetTestForResultTypes(ConfigurationTestResult[] resultTypes, ConfigurationTestResult overallResult)
         {
-            ConfigurationSet configurationSet = new ConfigurationSet();
+            ConfigurationSet configurationSet = this.ConfigurationSet();
             ConfigurationUnit[] configurationUnits = new ConfigurationUnit[resultTypes.Length];
 
             TestConfigurationProcessorFactory factory = new TestConfigurationProcessorFactory();
@@ -242,7 +243,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             for (int i = 0; i < resultTypes.Length; ++i)
             {
-                configurationUnits[i] = new ConfigurationUnit();
+                configurationUnits[i] = this.ConfigurationUnit();
                 configurationUnits[i].UnitName = $"Unit {i}";
                 TestConfigurationUnitProcessor unitProcessor = setProcessor.CreateTestProcessor(configurationUnits[i]);
 
