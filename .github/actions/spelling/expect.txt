@@ -323,6 +323,7 @@ pri
 processthreads
 productcode
 PRODUCTICON
+proxystub
 pscustomobject
 pseudocode
 PSHOST
@@ -451,6 +452,7 @@ VERSI
 VERSIE
 vns
 vsconfig
+vstest
 webpages
 Webserver
 websites

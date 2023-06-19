@@ -30,7 +30,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         public Exception? ResultCode { get; set; }
 
         /// <summary>
-        /// Gets or sets thre result source.
+        /// Gets or sets the result source.
         /// </summary>
         public ConfigurationUnitResultSource ResultSource { get; set; } = ConfigurationUnitResultSource.None;
     }
