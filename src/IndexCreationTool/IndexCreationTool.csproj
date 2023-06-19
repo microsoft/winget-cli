@@ -7,4 +7,9 @@
     <Platforms>x64;x86</Platforms>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\WinGetSourceCreator\WinGetSourceCreator.csproj" />
+    <ProjectReference Include="..\WinGetUtilInterop\WinGetUtilInterop.csproj" />
+  </ItemGroup>
+
 </Project>
