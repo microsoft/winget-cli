@@ -151,8 +151,8 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             factory.NullProcessor = new TestConfigurationSetProcessor(null);
             TestConfigurationUnitProcessor unitProcessor = factory.NullProcessor.CreateTestProcessor(configurationUnit);
             GetSettingsResultInstance getSettingsResult = new GetSettingsResultInstance();
-            getSettingsResult.ResultInformation.ResultCode = new InvalidDataException();
-            getSettingsResult.ResultInformation.Description = "We fail because we must";
+            getSettingsResult.InternalResult.ResultCode = new InvalidDataException();
+            getSettingsResult.InternalResult.Description = "We fail because we must";
             unitProcessor.GetSettingsDelegate = () => getSettingsResult;
 
             ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics(factory);

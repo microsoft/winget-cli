@@ -75,16 +75,16 @@ namespace Microsoft.Management.Configuration
     interface IConfigurationUnitResultInformation
     {
         // The error code of the failure.
-        HRESULT ResultCode;
+        HRESULT ResultCode{ get; };
 
         // The short description of the failure.
-        String Description;
+        String Description{ get; };
 
         // A more detailed error message appropriate for diagnosing the root cause of an error.
-        String Details;
+        String Details{ get; };
 
         // The source of the result.
-        ConfigurationUnitResultSource ResultSource;
+        ConfigurationUnitResultSource ResultSource{ get; };
     }
 
     // Provides information for a specific configuration unit setting.
@@ -303,17 +303,10 @@ namespace Microsoft.Management.Configuration
     interface IApplySettingsResult
     {
         // Indicates whether a reboot is required after the settings were applied.
-        Boolean RebootRequired;
+        Boolean RebootRequired{ get; };
 
         // The result of applying the configuration unit.
         IConfigurationUnitResultInformation ResultInformation{ get; };
-    }
-
-    // The result of applying the settings with an IConfigurationUnitProcessor.
-    [contract(Microsoft.Management.Configuration.Contract, 1)]
-    runtimeclass ApplySettingsResultInstance : [default]IApplySettingsResult
-    {
-        ApplySettingsResultInstance();
     }
 
     // Informs the caller of the result of running a Test.
@@ -337,18 +330,11 @@ namespace Microsoft.Management.Configuration
     interface ITestSettingsResult
     {
         // The result (if any) of running Test on the configuration unit.
-        ConfigurationTestResult TestResult;
+        ConfigurationTestResult TestResult{ get; };
 
         // The result of testing the configuration unit.
         // This is not the response for the test, but rather contains information about the actual attempt to run the test.
         IConfigurationUnitResultInformation ResultInformation{ get; };
-    }
-
-    // The result of testing the settings with an IConfigurationUnitProcessor.
-    [contract(Microsoft.Management.Configuration.Contract, 1)]
-    runtimeclass TestSettingsResultInstance : [default]ITestSettingsResult
-    {
-        TestSettingsResultInstance();
     }
 
     // The result of getting the settings with an IConfigurationUnitProcessor.
@@ -356,18 +342,11 @@ namespace Microsoft.Management.Configuration
     interface IGetSettingsResult
     {
         // The current state of the system for the configuration unit.
-        Windows.Foundation.Collections.ValueSet Settings;
+        Windows.Foundation.Collections.ValueSet Settings{ get; };
 
         // The result of getting the configuration unit settings.
         // This is not the response for the retrieval, but rather contains information about the actual attempt to retrieve the settings.
         IConfigurationUnitResultInformation ResultInformation{ get; };
-    }
-
-    // The result of getting the settings with an IConfigurationUnitProcessor.
-    [contract(Microsoft.Management.Configuration.Contract, 1)]
-    runtimeclass GetSettingsResultInstance : [default]IGetSettingsResult
-    {
-        GetSettingsResultInstance();
     }
 
     // Provides access to a specific configuration unit within the runtime.
@@ -419,17 +398,10 @@ namespace Microsoft.Management.Configuration
     interface IDiagnosticInformation
     {
         // Indicates the importance of the diagnostic information.
-        DiagnosticLevel Level;
+        DiagnosticLevel Level{ get; };
 
         // The diagnostic message.
-        String Message;
-    }
-
-    // Enables diagnostic information from the configuration system to be inspected/stored by callers.
-    [contract(Microsoft.Management.Configuration.Contract, 1)]
-    runtimeclass DiagnosticInformationInstance : [default]IDiagnosticInformation
-    {
-        DiagnosticInformationInstance();
+        String Message{ get; };
     }
 
     // Allows different runtimes to provide specialized handling of configuration processing.

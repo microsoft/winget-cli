@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "DiagnosticInformationInstance.h"
-#include "DiagnosticInformationInstance.g.cpp"
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {

@@ -206,7 +206,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             TestConfigurationUnitProcessor unitProcessorAssert = setProcessor.CreateTestProcessor(configurationUnitAssert);
             TestConfigurationUnitProcessor unitProcessorInform = setProcessor.CreateTestProcessor(configurationUnitInform);
             TestConfigurationUnitProcessor unitProcessorApply = setProcessor.CreateTestProcessor(configurationUnitApply);
-            unitProcessorApply.TestSettingsDelegate = () => new TestTestSettingsResultInstance { TestResult = ConfigurationTestResult.Negative };
+            unitProcessorApply.TestSettingsDelegate = () => new TestSettingsResultInstance { TestResult = ConfigurationTestResult.Negative };
 
             ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics(factory);
 

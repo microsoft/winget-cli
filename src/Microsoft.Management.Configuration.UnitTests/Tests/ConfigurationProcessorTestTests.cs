@@ -155,9 +155,9 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             TestConfigurationUnitProcessor unitProcessor = setProcessor.CreateTestProcessor(configurationUnitThrows);
             TestSettingsResultInstance testResult = new TestSettingsResultInstance();
             testResult.TestResult = ConfigurationTestResult.Failed;
-            testResult.ResultInformation.ResultCode = new NullReferenceException();
-            testResult.ResultInformation.Description = "Failed again";
-            testResult.ResultInformation.ResultSource = ConfigurationUnitResultSource.UnitProcessing;
+            testResult.InternalResult.ResultCode = new NullReferenceException();
+            testResult.InternalResult.Description = "Failed again";
+            testResult.InternalResult.ResultSource = ConfigurationUnitResultSource.UnitProcessing;
             unitProcessor.TestSettingsDelegate = () => testResult;
 
             ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics(factory);
@@ -236,9 +236,9 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             TestSettingsResultInstance failedResult = new TestSettingsResultInstance();
             failedResult.TestResult = ConfigurationTestResult.Failed;
-            failedResult.ResultInformation.ResultCode = new NullReferenceException();
-            failedResult.ResultInformation.Description = "Failed again";
-            failedResult.ResultInformation.ResultSource = ConfigurationUnitResultSource.UnitProcessing;
+            failedResult.InternalResult.ResultCode = new NullReferenceException();
+            failedResult.InternalResult.Description = "Failed again";
+            failedResult.InternalResult.ResultSource = ConfigurationUnitResultSource.UnitProcessing;
 
             for (int i = 0; i < resultTypes.Length; ++i)
             {

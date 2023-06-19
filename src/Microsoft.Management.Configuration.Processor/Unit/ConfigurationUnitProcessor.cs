@@ -59,7 +59,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
         {
             this.OnDiagnostics(DiagnosticLevel.Verbose, $"Invoking `Get` for resource: {this.unitResource.UnitInternal.ToIdentifyingString()}...");
 
-            var result = new GetSettingsResultInstance();
+            var result = new GetSettingsResult();
 
             try
             {
@@ -70,7 +70,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
             }
             catch (Exception e)
             {
-                this.ExtractExceptionInformation(e, result.ResultInformation);
+                this.ExtractExceptionInformation(e, result.InternalResult);
             }
 
             this.OnDiagnostics(DiagnosticLevel.Verbose, $"... done invoking `Get`.");
@@ -92,7 +92,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
                 throw new NotSupportedException();
             }
 
-            var result = new TestSettingsResultInstance();
+            var result = new TestSettingsResult();
             result.TestResult = ConfigurationTestResult.Failed;
             try
             {
@@ -105,7 +105,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
             }
             catch (Exception e)
             {
-                this.ExtractExceptionInformation(e, result.ResultInformation);
+                this.ExtractExceptionInformation(e, result.InternalResult);
             }
 
             this.OnDiagnostics(DiagnosticLevel.Verbose, $"... done invoking `Test`.");
@@ -128,7 +128,7 @@ namespace Microsoft.Management.Configuration.Processor.Unit
                 throw new NotSupportedException();
             }
 
-            var result = new ApplySettingsResultInstance();
+            var result = new ApplySettingsResult();
             try
             {
                 result.RebootRequired = this.processorEnvironment.InvokeSetResource(
@@ -138,14 +138,14 @@ namespace Microsoft.Management.Configuration.Processor.Unit
             }
             catch (Exception e)
             {
-                this.ExtractExceptionInformation(e, result.ResultInformation);
+                this.ExtractExceptionInformation(e, result.InternalResult);
             }
 
             this.OnDiagnostics(DiagnosticLevel.Verbose, $"... done invoking `Apply`.");
             return result;
         }
 
-        private void ExtractExceptionInformation(Exception e, IConfigurationUnitResultInformation resultInformation)
+        private void ExtractExceptionInformation(Exception e, ConfigurationUnitResultInformation resultInformation)
         {
             this.OnDiagnostics(DiagnosticLevel.Verbose, e.ToString());
 

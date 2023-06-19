@@ -144,7 +144,7 @@ namespace Microsoft.Management.Configuration.Processor
 
         private void InvokeDiagnostics(EventHandler<IDiagnosticInformation> diagnostics, DiagnosticLevel level, string message)
         {
-            DiagnosticInformationInstance information = new ()
+            Helpers.DiagnosticInformation information = new ()
             {
                 Level = level,
                 Message = message,

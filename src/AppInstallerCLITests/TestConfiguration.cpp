@@ -80,7 +80,7 @@ namespace TestCommon
         }
         else
         {
-            return TestSettingsResultInstance{};
+            return winrt::make<TestSettingsResultInstance>();
         }
     }
 
@@ -92,7 +92,7 @@ namespace TestCommon
         }
         else
         {
-            return GetSettingsResultInstance{};
+            return winrt::make<GetSettingsResultInstance>();
         }
     }
 
@@ -104,7 +104,7 @@ namespace TestCommon
         }
         else
         {
-            return ApplySettingsResultInstance{};
+            return winrt::make<ApplySettingsResultInstance>();
         }
     }
 }

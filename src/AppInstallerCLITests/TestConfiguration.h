@@ -127,4 +127,49 @@ namespace TestCommon
 
         std::function<winrt::Microsoft::Management::Configuration::IApplySettingsResult()> ApplySettingsFunc;
     };
+
+    struct TestSettingsResultInstance : winrt::implements<TestSettingsResultInstance, winrt::Microsoft::Management::Configuration::ITestSettingsResult>
+    {
+        TestSettingsResultInstance() = default;
+
+        winrt::Microsoft::Management::Configuration::ConfigurationTestResult TestResult() { return m_testResult; }
+        void TestResult(winrt::Microsoft::Management::Configuration::ConfigurationTestResult value) { m_testResult = value; }
+
+        winrt::Microsoft::Management::Configuration::IConfigurationUnitResultInformation ResultInformation() { return m_resultInformation; }
+        void ResultInformation(winrt::Microsoft::Management::Configuration::IConfigurationUnitResultInformation value) { m_resultInformation = value; }
+
+    private:
+        winrt::Microsoft::Management::Configuration::ConfigurationTestResult m_testResult = winrt::Microsoft::Management::Configuration::ConfigurationTestResult::Unknown;
+        winrt::Microsoft::Management::Configuration::IConfigurationUnitResultInformation m_resultInformation;
+    };
+
+    struct ApplySettingsResultInstance : winrt::implements<ApplySettingsResultInstance, winrt::Microsoft::Management::Configuration::IApplySettingsResult>
+    {
+        ApplySettingsResultInstance() = default;
+
+        bool RebootRequired() { return m_rebootRequired; }
+        void RebootRequired(bool value) { m_rebootRequired = value; }
+
+        winrt::Microsoft::Management::Configuration::IConfigurationUnitResultInformation ResultInformation() { return m_resultInformation; }
+        void ResultInformation(winrt::Microsoft::Management::Configuration::IConfigurationUnitResultInformation value) { m_resultInformation = value; }
+
+    private:
+        bool m_rebootRequired = false;
+        winrt::Microsoft::Management::Configuration::IConfigurationUnitResultInformation m_resultInformation;
+    };
+
+    struct GetSettingsResultInstance : winrt::implements<GetSettingsResultInstance, winrt::Microsoft::Management::Configuration::IGetSettingsResult>
+    {
+        GetSettingsResultInstance() = default;
+
+        winrt::Windows::Foundation::Collections::ValueSet Settings() { return m_settings; }
+        void Settings(winrt::Windows::Foundation::Collections::ValueSet value) { m_settings = value; }
+
+        winrt::Microsoft::Management::Configuration::IConfigurationUnitResultInformation ResultInformation() { return m_resultInformation; }
+        void ResultInformation(winrt::Microsoft::Management::Configuration::IConfigurationUnitResultInformation value) { m_resultInformation = value; }
+
+    private:
+        winrt::Windows::Foundation::Collections::ValueSet m_settings;
+        winrt::Microsoft::Management::Configuration::IConfigurationUnitResultInformation m_resultInformation;
+    };
 }
