@@ -27,7 +27,6 @@
 #include "PackageCatalogReference.h"
 #include "PackageVersionInfo.h"
 #include "PackageVersionId.h"
-#include "Workflows/WorkflowBase.h"
 #include "Converters.h"
 #include "Helpers.h"
 #include "ContextOrchestrator.h"
@@ -479,6 +478,47 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         }
     }
 
+    void PopulateContextFromDownloadOptions(
+        ::AppInstaller::CLI::Execution::Context* context,
+        winrt::Microsoft::Management::Deployment::DownloadOptions options)
+    {
+        if (options)
+        {
+            if (!options.LogOutputPath().empty())
+            {
+                context->Args.AddArg(Execution::Args::Type::Log, ::AppInstaller::Utility::ConvertToUTF8(options.LogOutputPath()));
+                context->Args.AddArg(Execution::Args::Type::VerboseLogs);
+            }
+            if (!options.DownloadDirectory().empty())
+            {
+                context->Args.AddArg(Execution::Args::Type::DownloadDirectory, ::AppInstaller::Utility::ConvertToUTF8(options.DownloadDirectory()));
+            }
+            if (options.AllowHashMismatch())
+            {
+                context->Args.AddArg(Execution::Args::Type::HashOverride);
+            }
+            if (options.AcceptPackageAgreements())
+            {
+                context->Args.AddArg(Execution::Args::Type::AcceptPackageAgreements);
+            }
+            // Figure out which is the correct scope.
+
+            // If the PackageInstallScope is anything other than ::Any then set it as a requirement.
+            //auto manifestScope = GetManifestScope(options.PackageInstallScope());
+            //if (manifestScope.first != ::AppInstaller::Manifest::ScopeEnum::Unknown)
+            //{
+            //    context->Args.AddArg(Execution::Args::Type::InstallScope, ScopeToString(manifestScope.first));
+            //    context->Add<Execution::Data::AllowUnknownScope>(manifestScope.second);
+            //}
+
+
+            //if (options.Scope())
+            //{
+            //    context->Args.AddArg(Execution::Args::Type::InstallScope);
+            //}
+        }
+    }
+
     template <typename TOptions>
     std::unique_ptr<COMContext> CreateContextFromOperationOptions(
         TOptions options,
@@ -497,6 +537,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         else if constexpr (std::is_same_v<TOptions, winrt::Microsoft::Management::Deployment::UninstallOptions>)
         {
             PopulateContextFromUninstallOptions(context.get(), options);
+        }
+        else if constexpr (std::is_same_v<TOptions, winrt::Microsoft::Management::Deployment::DownloadOptions>)
+        {
+            PopulateContextFromDownloadOptions(context.get(), options);
         }
 
         return context;
@@ -618,6 +662,9 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         // If the version of the package is specified use that, otherwise use the default.
         Microsoft::Management::Deployment::PackageVersionInfo packageVersionInfo = GetPackageVersionInfo(package, options);
         AddPackageManifestToContext(packageVersionInfo, comContext.get());
+
+        // Set download flag
+        comContext->SetFlags(AppInstaller::CLI::Execution::ContextFlag::DownloadInstallerOnly);
 
         return Execution::OrchestratorQueueItemFactory::CreateItemForDownload(std::wstring{ package.Id() }, std::wstring{ packageVersionInfo.PackageCatalog().Info().Id() }, std::move(comContext));
     }

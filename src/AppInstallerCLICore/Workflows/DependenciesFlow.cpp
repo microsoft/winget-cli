@@ -280,6 +280,8 @@ namespace AppInstaller::CLI::Workflow
                         std::move(nodeProcessor.GetPackageInstalledVersion()),
                         std::move(nodeProcessor.GetManifest()),
                         std::move(nodeProcessor.GetPreferredInstaller()) };
+
+                    // Not thread safe... add a comment if we move. 
                     idToPackageMap.emplace(node.Id(), std::move(dependencyPackageCandidate));
                 };
 
@@ -298,6 +300,12 @@ namespace AppInstaller::CLI::Workflow
         {
             context.Reporter.Warn() << Resource::String::DependenciesFlowContainsLoop;
         }
+
+        // Store id to package map to be utilized by install flow.
+        //dependencyGraph.SetPackageMap(idToPackageMap);
+        //context.Add<Execution::Data::DependencyGraph>(dependencyGraph);
+
+        // The rest after this is responsible for building sub contexts. 
 
         const auto& installationOrder = dependencyGraph.GetInstallationOrder();
 

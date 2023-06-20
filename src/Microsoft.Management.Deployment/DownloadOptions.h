@@ -31,8 +31,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         void LogOutputPath(hstring const& value);
         hstring CorrelationData();
         void CorrelationData(hstring const& value);
-        bool Force();
-        void Force(bool value);
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:

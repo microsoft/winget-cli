@@ -546,6 +546,8 @@ namespace AppInstaller::CLI::Workflow
             Workflow::GetDependenciesFromInstaller <<
             Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
             Workflow::EnableWindowsFeaturesDependencies <<
+            Workflow::BuildDependencyGraph(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
+            Workflow::DownloadInstaller << // This should simply check if the installer already exists.
             Workflow::ProcessPackageDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies);
     }
 
@@ -637,20 +639,18 @@ namespace AppInstaller::CLI::Workflow
             // Prevent individual exceptions from breaking out of the loop
             try
             {
+                // Use Flag here to control the download flow behavior.
+
                 if (!m_ignorePackageDependencies)
                 {
                     currentContext << Workflow::ProcessPackageDependencies(m_dependenciesReportMessage, m_downloadInstallerOnly);
                 }
 
-                if (m_downloadInstallerOnly)
+                currentContext << Workflow::DownloadInstaller;
+
+                if (!m_downloadInstallerOnly)
                 {
-                    currentContext << Workflow::DownloadInstallerToTargetDirectory;
-                }
-                else
-                {
-                    currentContext <<
-                        Workflow::DownloadInstaller <<
-                        Workflow::InstallPackageInstaller;
+                    currentContext << Workflow::InstallPackageInstaller;
                 }
             }
             catch (...)

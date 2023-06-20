@@ -99,13 +99,5 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         m_correlationData = value;
     }
-    bool DownloadOptions::Force()
-    {
-        return m_force;
-    }
-    void DownloadOptions::Force(bool value)
-    {
-        m_force = value;
-    }
     CoCreatableMicrosoftManagementDeploymentClass(DownloadOptions);
 }

@@ -177,6 +177,8 @@ namespace Microsoft.Management.Deployment
         InvalidOptions,
         DownloadError,
         ManifestError,
+        NoApplicableInstallers,
+        PackageAgreementsNotAccepted,
     };
 
     /// Result of the download
