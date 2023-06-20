@@ -102,7 +102,6 @@ namespace AppInstaller::CLI
         }
 
         // TODO: Have a PRIVATE export from WindowsPackageManager that returns a set of names and IIDs to include from the Deployment API surface
-        //GetProcAddress()
     }
 
     Resource::LocString DumpInterestingIIDsCommand::ShortDescription() const

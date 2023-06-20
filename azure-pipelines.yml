@@ -240,6 +240,12 @@ jobs:
       TargetFolder: '$(platformProgramFiles)\dotnet'
       Contents: Microsoft.Management.Deployment.winmd
 
+  - task: PowerShell@2
+    displayName: Setup Local PS Repository
+    inputs:
+      filePath: 'src\AppInstallerCLIE2ETests\TestData\Configuration\Init-TestRepository.ps1'
+      arguments: '-Force'
+
   - template: templates/e2e-test.template.yml
     parameters:
       title: "E2E Tests Packaged"
@@ -248,13 +254,13 @@ jobs:
 
   - template: templates/e2e-test.template.yml
     parameters:
-      title: "COM API E2E Tests (In-process)"
+      title: "Microsoft.Management.Deployment E2E Tests (In-process)"
       isPackaged: false
       filter: "TestCategory=InProcess"
 
   - template: templates/e2e-test.template.yml
     parameters:
-      title: "COM API E2E Tests (Out-of-process)"
+      title: "Microsoft.Management.Deployment E2E Tests (Out-of-process)"
       isPackaged: true
       filter: "TestCategory=OutOfProcess"
 
@@ -284,11 +290,36 @@ jobs:
       configuration: '$(BuildConfiguration)'
   
   - task: VSTest@2
-    displayName: 'Run tests: Microsoft.Management.Configuration.UnitTests'
+    displayName: 'Run tests: Microsoft.Management.Configuration.UnitTests (InProc)'
     inputs:
+      testRunTitle: Microsoft.Management.Configuration.UnitTests (InProc)
       testSelector: 'testAssemblies'
       testAssemblyVer2: '**\Microsoft.Management.Configuration.UnitTests.dll'
       searchFolder: '$(buildOutDir)\Microsoft.Management.Configuration.UnitTests'
+      codeCoverageEnabled: true
+      platform: '$(buildPlatform)'
+      configuration: '$(BuildConfiguration)'
+
+  - task: CopyFiles@2
+    displayName: 'Copy Microsoft.Management.Configuration.winmd'
+    inputs:
+      Contents: |
+          $(buildOutDir)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd
+      TargetFolder: '$(buildOutDir)\Microsoft.Management.Configuration.UnitTests\net6.0-windows10.0.19041.0'
+      
+  - task: PowerShell@2
+    displayName: 'Copy Microsoft.Management.Configuration.OutOfProc.dll as Microsoft.Management.Configuration.dll'
+    inputs:
+      script: Copy-Item '$(buildOutDir)\Microsoft.Management.Configuration.OutOfProc\Microsoft.Management.Configuration.OutOfProc.dll' '$(buildOutDir)\Microsoft.Management.Configuration.UnitTests\net6.0-windows10.0.19041.0\Microsoft.Management.Configuration.dll' -Force
+  
+  - task: VSTest@2
+    displayName: 'Run tests: Microsoft.Management.Configuration.UnitTests (OutOfProc)'
+    inputs:
+      testRunTitle: Microsoft.Management.Configuration.UnitTests (OutOfProc)
+      testSelector: 'testAssemblies'
+      testAssemblyVer2: '**\Microsoft.Management.Configuration.UnitTests.dll'
+      searchFolder: '$(buildOutDir)\Microsoft.Management.Configuration.UnitTests'
+      testFiltercriteria: 'Category=OutOfProc'
       codeCoverageEnabled: true
       platform: '$(buildPlatform)'
       configuration: '$(BuildConfiguration)'
