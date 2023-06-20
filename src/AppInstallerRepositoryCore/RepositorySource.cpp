@@ -259,6 +259,8 @@ namespace AppInstaller::Repository
 
     Source::Source(WellKnownSource source)
     {
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY, !IsWellKnownSourceEnabled(source));
+
         SourceDetails details = GetWellKnownSourceDetailsInternal(source);
         m_sourceReferences.emplace_back(CreateSourceFromDetails(details));
     }
