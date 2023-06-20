@@ -85,6 +85,11 @@ namespace AppInstaller::Repository::Rest
         // The base class for data that comes from a rest based source.
         struct RestSourceFactoryImpl : public ISourceFactory
         {
+            std::string_view TypeName() const override final
+            {
+                return RestSourceFactory::Type();
+            }
+
             std::shared_ptr<ISourceReference> Create(const SourceDetails& details) override final
             {
                 THROW_HR_IF(E_INVALIDARG, !Utility::CaseInsensitiveEquals(details.Type, RestSourceFactory::Type()));

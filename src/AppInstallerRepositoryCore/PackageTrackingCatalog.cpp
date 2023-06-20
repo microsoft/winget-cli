@@ -80,6 +80,11 @@ namespace AppInstaller::Repository
 
         struct PackageTrackingCatalogSourceFactoryImpl : public ISourceFactory
         {
+            std::string_view TypeName() const override final
+            {
+                return PackageTrackingCatalogSourceFactory::Type();
+            }
+
             std::shared_ptr<ISourceReference> Create(const SourceDetails& details) override final
             {
                 THROW_HR_IF(E_INVALIDARG, !Utility::CaseInsensitiveEquals(details.Type, PackageTrackingCatalogSourceFactory::Type()));
