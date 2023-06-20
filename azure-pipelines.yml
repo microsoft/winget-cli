@@ -245,6 +245,7 @@ jobs:
     inputs:
       filePath: 'src\AppInstallerCLIE2ETests\TestData\Configuration\Init-TestRepository.ps1'
       arguments: '-Force'
+      pwsh: true
 
   - template: templates/e2e-test.template.yml
     parameters:
