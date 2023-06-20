@@ -490,7 +490,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Management.Configuration.Processor">
-      <HintPath>$(SolutionDir)\AnyCPU\Debug\Microsoft.Management.Configuration.Processor\net6.0-windows10.0.19041.0\win\Microsoft.Management.Configuration.Processor.winmd</HintPath>
+      <HintPath>$(SolutionDir)\AnyCPU\$(Configuration)\Microsoft.Management.Configuration.Processor\net6.0-windows10.0.19041.0\win\Microsoft.Management.Configuration.Processor.winmd</HintPath>
       <IsWinMDFile>true</IsWinMDFile>
     </Reference>
   </ItemGroup>

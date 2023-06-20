@@ -88,7 +88,7 @@
     <Extension Category="windows.activatableClass.inProcessServer">
       <InProcessServer>
         <Path>WindowsPackageManager.dll</Path>
-        <ActivatableClass ActivatableClassId="Placeholder.Workaround.Activable.Class.Do.Not.Use" ThreadingModel="STA" />
+        <ActivatableClass ActivatableClassId="Placeholder.Activatable.Class.Do.Not.Use" ThreadingModel="STA" />
       </InProcessServer>
     </Extension>
   </Extensions>
