@@ -3,6 +3,7 @@
 #include <AppInstallerRuntime.h>
 #include <Resources.h>
 #include <winget/PathVariable.h>
+#include <winget/Filesystem.h>
 
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Registry::Environment;
@@ -58,4 +59,101 @@ TEST_CASE("PathVariable_Append_WithSemicolon", "[pathVariable]")
 
     REQUIRE(pathVariable.Remove(testPath));
     REQUIRE_FALSE(pathVariable.Contains(testPath));
+}
+
+std::wstring GetCurrentProcessPathVariable()
+{
+    size_t requiredSize;
+    _wgetenv_s(&requiredSize, nullptr, 0, L"PATH");
+
+    if (requiredSize > 0)
+    {
+        auto buffer = std::make_unique<wchar_t[]>(requiredSize);
+        errno_t errorResult = _wgetenv_s(&requiredSize, buffer.get(), requiredSize, L"PATH");
+        if (errorResult == 0)
+        {
+            return std::wstring(buffer.get());
+        }
+    }
+    return {};
+}
+
+TEST_CASE("RefreshEnvironmentVariable_User", "[pathVariable]")
+{
+    if (!AppInstaller::Runtime::IsRunningAsAdmin())
+    {
+        WARN("Test requires admin privilege. Skipped.");
+        return;
+    }
+
+    std::wstring testPathEntry = L"testUserPathEntry";
+    auto pathVariable = AppInstaller::Registry::Environment::PathVariable(ScopeEnum::User);
+    pathVariable.Append(testPathEntry);
+
+    std::wstring initialPathValue = GetCurrentProcessPathVariable();
+    bool firstCheck = initialPathValue.find(testPathEntry) != std::string::npos;
+
+    AppInstaller::Registry::Environment::RefreshPathVariableForCurrentProcess();
+
+    std::wstring updatedPathValue = GetCurrentProcessPathVariable();
+    bool secondCheck = updatedPathValue.find(testPathEntry) != std::string::npos;
+
+    pathVariable.Remove(testPathEntry);
+
+    REQUIRE_FALSE(firstCheck);
+    REQUIRE(secondCheck);
+}
+
+TEST_CASE("RefreshEnvironmentVariable_System", "[pathVariable]")
+{
+    if (!AppInstaller::Runtime::IsRunningAsAdmin())
+    {
+        WARN("Test requires admin privilege. Skipped.");
+        return;
+    }
+
+    std::wstring testPathEntry = L"testSystemPathEntry";
+    auto pathVariable = AppInstaller::Registry::Environment::PathVariable(ScopeEnum::Machine);
+    pathVariable.Append(testPathEntry);
+
+    std::wstring initialPathValue = GetCurrentProcessPathVariable();
+    bool firstCheck = initialPathValue.find(testPathEntry) != std::string::npos;
+
+    AppInstaller::Registry::Environment::RefreshPathVariableForCurrentProcess();
+
+    std::wstring updatedPathValue = GetCurrentProcessPathVariable();
+    bool secondCheck = updatedPathValue.find(testPathEntry) != std::string::npos;
+
+    pathVariable.Remove(testPathEntry);
+
+    REQUIRE_FALSE(firstCheck);
+    REQUIRE(secondCheck);
+}
+
+TEST_CASE("VerifyPathRefreshExpandsValues", "[pathVariable]")
+{
+    if (!AppInstaller::Runtime::IsRunningAsAdmin())
+    {
+        WARN("Test requires admin privilege. Skipped.");
+        return;
+    }
+
+    std::filesystem::path testEntry{ "%USERPROFILE%\\testPath" };
+    auto pathVariable = AppInstaller::Registry::Environment::PathVariable(ScopeEnum::User);
+    pathVariable.Append(testEntry);
+
+    std::wstring initialPathValue = GetCurrentProcessPathVariable();
+    bool firstCheck = initialPathValue.find(testEntry) != std::string::npos;
+
+    AppInstaller::Registry::Environment::RefreshPathVariableForCurrentProcess();
+
+    // %USERPROFILE% should be replaced with the actual path.
+    std::wstring updatedPathValue = GetCurrentProcessPathVariable();
+    std::wstring expandedTestPath = AppInstaller::Filesystem::GetExpandedPath(testEntry.u8string());
+    bool secondCheck = updatedPathValue.find(expandedTestPath) != std::string::npos;
+
+    pathVariable.Remove(testEntry);
+
+    REQUIRE_FALSE(firstCheck);
+    REQUIRE(secondCheck);
 }

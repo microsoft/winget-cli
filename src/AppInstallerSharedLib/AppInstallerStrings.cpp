@@ -842,16 +842,15 @@ namespace AppInstaller::Utility
     std::vector<std::string> Split(const std::string& input, char token)
     {
         std::vector<std::string> result;
-        int startIndex = 0, endIndex = 0;
-        int inputLength = input.size();
-        for (int i = 0; i <= inputLength; i++)
+        size_t startIndex = 0, endIndex = 0;
+        size_t inputLength = input.length();
+        for (size_t i = 0; i <= inputLength; i++)
         {
             if (input[i] == token || i == inputLength)
             {
                 endIndex = i;
                 std::string substring;
-                int length = endIndex - startIndex;
-                substring.append(input, startIndex, length);
+                substring.append(input, startIndex, endIndex - startIndex);
                 result.push_back(substring);
                 startIndex = endIndex + 1;
             }
