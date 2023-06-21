@@ -9,11 +9,15 @@ param (
     $configFile
 )
 
-# TODO: Call install module if not installed once is published.
+if (-not(Get-Module -Name Microsoft.WinGet.Configuration -ListAvailable))
+{
+    Install-Module Microsoft.WinGet.Configuration -AllowPrerelease
+}
+
 Import-Module Microsoft.WinGet.Configuration
 
 # Starts the configuration in the background
-$configJob = Get-WinGetConfiguration -File $configFile | Start-WinGetConfiguration -Set $configSet
+$configJob = Get-WinGetConfiguration -File $configFile | Start-WinGetConfiguration
 
 # This will block until the configuration is completed. Or print the results if already one.
-Complete-WinGetConfiguration -ConfigurationJob $job
+Complete-WinGetConfiguration -ConfigurationJob $configJob

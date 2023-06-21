@@ -9,7 +9,11 @@ param (
     $configFile
 )
 
-# TODO: Call install module if not installed once is published.
+if (-not(Get-Module -Name Microsoft.WinGet.Configuration -ListAvailable))
+{
+    Install-Module Microsoft.WinGet.Configuration -AllowPrerelease
+}
+
 Import-Module Microsoft.WinGet.Configuration
 
 $configSet = Get-WinGetConfiguration -File $configFile
