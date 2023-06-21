@@ -133,7 +133,7 @@ jobs:
     inputs:
       targetType: 'inline'
       script: |
-        Add-AppxPackage AppInstallerCLIPackage_0.0.2.0_Test\Dependencies\$(buildPlatform)\Microsoft.VCLibs.$(buildPlatform).14.00.Desktop.appx
+        Get-ChildItem AppInstallerCLIPackage_0.0.2.0_Test\Dependencies\$(buildPlatform) -Filter *.appx | %{ Add-AppxPackage $_.FullName }
       workingDirectory: $(appxPackageDir)
 
   - task: VisualStudioTestPlatformInstaller@1
