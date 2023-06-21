@@ -7,6 +7,7 @@ namespace IndexCreationTool
     using System;
     using System.IO;
     using System.Text.Json;
+    using System.Text.Json.Serialization;
 
     class Program
     {
@@ -35,7 +36,11 @@ namespace IndexCreationTool
 
             var options = new JsonSerializerOptions
             {
-                PropertyNameCaseInsensitive = true
+                PropertyNameCaseInsensitive = true,
+                Converters =
+                {
+                    new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
+                }
             };
             return JsonSerializer.Deserialize<LocalSource>(File.ReadAllText(inputFile), options);
         }

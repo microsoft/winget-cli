@@ -9,28 +9,23 @@ namespace Microsoft.WinGetSourceCreator
 
     internal static class Helpers
     {
-        public static void SignFile(string filePath, string certFile)
+        public static void SignInstaller(SourceInstaller installer, Signature signature)
         {
-            if (!File.Exists(filePath))
+            if (installer.Type == InstallerType.Msix)
             {
-                throw new FileNotFoundException(filePath);
+                SignMsixFile(installer.InstallerFile, signature);
             }
-
-            if (!File.Exists(certFile))
+            else
             {
-                throw new FileNotFoundException(certFile);
+                SignFile(installer.InstallerFile, signature);
             }
-
-            string pathToSDK = SDKDetector.Instance.LatestSDKBinPath;
-            string signtoolExecutable = Path.Combine(pathToSDK, "signtool.exe");
-            RunCommand(signtoolExecutable, $"sign /a /fd sha256 /f {certFile} {filePath}");
         }
 
-        public static void SignMsixFile(string filePath, Signature signature)
+        public static void SignFile(string fileToSign, Signature signature)
         {
-            if (!File.Exists(filePath))
+            if (!File.Exists(fileToSign))
             {
-                throw new FileNotFoundException(filePath);
+                throw new FileNotFoundException(fileToSign);
             }
 
             if (!File.Exists(signature.CertFile))
@@ -38,13 +33,31 @@ namespace Microsoft.WinGetSourceCreator
                 throw new FileNotFoundException(signature.CertFile);
             }
 
-            // If any of these are set modify the manifest and pack it.
-            if (signature.Name != null || signature.Publisher != null)
+            string pathToSDK = SDKDetector.Instance.LatestSDKBinPath;
+            string signtoolExecutable = Path.Combine(pathToSDK, "signtool.exe");
+            string command = $"sign /a /fd sha256 /f {signature.CertFile} ";
+            if (!string.IsNullOrEmpty(signature.Password))
+            {
+                command += $"/p {signature.Password} ";
+            }
+            command += fileToSign;
+            RunCommand(signtoolExecutable, command);
+        }
+
+        public static void SignMsixFile(string fileToSign, Signature signature)
+        {
+            if (!File.Exists(fileToSign))
+            {
+                throw new FileNotFoundException(fileToSign);
+            }
+
+            // Modify publisher if needed.
+            if (signature.Publisher != null)
             {
                 string tmpPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-                Unpack(filePath, tmpPath);
-                ModifyAppxManifestIdentity(Path.Combine(tmpPath, "AppxManifest.xml"), signature.Name, signature.Publisher);
-                Pack(filePath, tmpPath);
+                Unpack(fileToSign, tmpPath);
+                ModifyAppxManifestIdentity(Path.Combine(tmpPath, "AppxManifest.xml"), signature.Publisher);
+                Pack(fileToSign, tmpPath);
 
                 try
                 {
@@ -55,9 +68,7 @@ namespace Microsoft.WinGetSourceCreator
                 }
             }
 
-            string pathToSDK = SDKDetector.Instance.LatestSDKBinPath;
-            string signtoolExecutable = Path.Combine(pathToSDK, "signtool.exe");
-            RunCommand(signtoolExecutable, $"sign /a /fd sha256 /f {signature.CertFile} {filePath}");
+            SignFile(fileToSign, signature);
         }
 
         public static void Unpack(string package, string outDir)
@@ -88,12 +99,7 @@ namespace Microsoft.WinGetSourceCreator
             string pathToSDK = SDKDetector.Instance.LatestSDKBinPath;
             string makeappxExecutable = Path.Combine(pathToSDK, "makeappx.exe");
             string args = $"pack /o /f {mappingFile} /d {outputPackage}";
-            Process p = new()
-            {
-                StartInfo = new ProcessStartInfo(makeappxExecutable, args)
-            };
-            p.Start();
-            p.WaitForExit();
+            RunCommand(makeappxExecutable, args);
         }
 
         public static void Pack(string outputPackage, string directoryToPack)
@@ -103,26 +109,23 @@ namespace Microsoft.WinGetSourceCreator
                 throw new DirectoryNotFoundException(directoryToPack);
             }
 
-            if (!File.Exists(outputPackage))
+            if (File.Exists(outputPackage))
             {
                 File.Delete(outputPackage);
             }
 
             string pathToSDK = SDKDetector.Instance.LatestSDKBinPath;
             string makeappxExecutable = Path.Combine(pathToSDK, "makeappx.exe");
-            string args = $"pack /o /d {directoryToPack} /d {outputPackage}";
-            Process p = new()
-            {
-                StartInfo = new ProcessStartInfo(makeappxExecutable, args)
-            };
-            p.Start();
-            p.WaitForExit();
+            string args = $"pack /o /d {directoryToPack} /p {outputPackage}";
+            RunCommand(makeappxExecutable, args);
         }
 
         public static void RunCommand(string command, string args, string? workingDirectory = null)
         {
-            Process p = new Process();
-            p.StartInfo = new ProcessStartInfo(command, args);
+            Process p = new()
+            {
+                StartInfo = new ProcessStartInfo(command, args)
+            };
 
             if (workingDirectory != null)
             {
@@ -133,7 +136,7 @@ namespace Microsoft.WinGetSourceCreator
         }
 
         // If in the future we edit more elements, this should be a nice wrapper class.
-        public static void ModifyAppxManifestIdentity(string manifestFile, string? identityName, string? identityPublisher)
+        public static void ModifyAppxManifestIdentity(string manifestFile, string? identityPublisher)
         {
             if (!File.Exists(manifestFile))
             {
@@ -150,17 +153,7 @@ namespace Microsoft.WinGetSourceCreator
                 throw new NullReferenceException("Identity node");
             }
 
-            if (identityName != null)
-            {
-                var atr = identityNode.Attributes?["Name"];
-                if (atr == null)
-                {
-                    throw new NullReferenceException("Name attribute");
-                }
-                atr.Value = identityName;
-            }
-
-            if (identityPublisher != null)
+            if (!string.IsNullOrEmpty(identityPublisher))
             {
                 var atr = identityNode.Attributes?["Publisher"];
                 if (atr == null)
@@ -171,6 +164,44 @@ namespace Microsoft.WinGetSourceCreator
             }
 
             xmlDoc.Save(manifestFile);
+        }
+
+        // Gets the AppxSignature.p7x file.
+        public static string GetSignatureFileFromMsix(string packageFilePath)
+        {
+            string extractedPackageDest = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+            if (Directory.Exists(extractedPackageDest))
+            {
+                Directory.Delete(extractedPackageDest, true);
+            }
+
+            Helpers.Unpack(packageFilePath, extractedPackageDest);
+
+            return Path.Combine(extractedPackageDest, "AppxSignature.p7x");
+        }
+
+        public static void CopyDirectory(string sourceDirName, string destDirName)
+        {
+            if (!Directory.Exists(destDirName))
+            {
+                Directory.CreateDirectory(destDirName);
+            }
+
+            DirectoryInfo dir = new (sourceDirName);
+            DirectoryInfo[] dirs = dir.GetDirectories();
+
+            FileInfo[] files = dir.GetFiles();
+            foreach (FileInfo file in files)
+            {
+                string temppath = Path.Combine(destDirName, file.Name);
+                file.CopyTo(temppath, false);
+            }
+
+            foreach (DirectoryInfo subdir in dirs)
+            {
+                string temppath = Path.Combine(destDirName, subdir.Name);
+                CopyDirectory(subdir.FullName, temppath);
+            }
         }
     }
 }

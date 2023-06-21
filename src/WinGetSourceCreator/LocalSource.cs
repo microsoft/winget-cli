@@ -1,8 +1,18 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.IO.Compression;
+
 namespace Microsoft.WinGetSourceCreator
 {
+    public enum InstallerType
+    {
+        Msix,
+        Exe,
+        Msi,
+        Zip,
+    }
+
     public class LocalSource
     {
         // The name of the local source.
@@ -22,6 +32,8 @@ namespace Microsoft.WinGetSourceCreator
         public List<string> LocalManifests { get; set; } = new();
 
         public List<LocalInstaller>? LocalInstallers { get; set; }
+
+        public List<DynamicInstaller>? DynamicInstallers { get; set; }
 
         public Signature? Signature { get; set; }
 
@@ -55,15 +67,17 @@ namespace Microsoft.WinGetSourceCreator
                 }
             }
 
+            if (this.DynamicInstallers != null)
+            {
+                foreach (var installer in this.DynamicInstallers)
+                {
+                    installer.Validate();
+                }
+            }
+
             if (this.Signature != null)
             {
                 this.Signature.Validate();
-
-                // Top level requires appx info
-                if (this.Signature.Name == null)
-                {
-                    throw new ArgumentNullException(nameof(this.Signature.Name));
-                }
 
                 if (this.Signature.Publisher == null)
                 {
@@ -83,47 +97,142 @@ namespace Microsoft.WinGetSourceCreator
         }
     }
 
-    public class LocalInstaller
+    public abstract class Installer
     {
-        // The full path of the installer.
-        // Gets copied to the output directory and optionally signed.
-        public string InstallerFile { get; set; } = string.Empty;
+        public InstallerType Type { get; set; }
+
+        // The name of the installer when it copied or created.
+        public string Name { get; set; } = string.Empty;
 
         // The identifying token of the installer in the manifests.
-        public string Token { get; set; } = string.Empty;
+        public string? HashToken { get; set; }
 
         // An optional token relevant to the installer.
         // If the installer is an msix, this is the token used for the appx signature hash.
-        public string? MiscToken { get; set; }
+        public string? SignatureToken { get; set; }
 
         public Signature? Signature { get; set; }
 
-        internal void Validate()
+        public bool SkipSignature { get; set; }
+
+        protected void Validate()
         {
-            if (string.IsNullOrEmpty(this.InstallerFile))
+            if (string.IsNullOrEmpty(this.Name))
             {
-                throw new ArgumentNullException(nameof(this.InstallerFile));
-            }
-
-            if (string.IsNullOrEmpty(this.Token))
-            {
-                throw new ArgumentNullException(nameof(this.Token));
-            }
-
-            if (!File.Exists(InstallerFile))
-            {
-                throw new FileNotFoundException(InstallerFile);
+                throw new ArgumentNullException(nameof(this.Name));
             }
 
             if (this.Signature != null)
             {
                 this.Signature.Validate();
             }
+
+            if (this.Type != InstallerType.Msix && !string.IsNullOrEmpty(this.SignatureToken))
+            {
+                throw new Exception($"{nameof(this.SignatureToken)} can only be used for MSIX");
+            }
         }
-        internal bool IsMsix()
+    }
+
+    public class SourceInstaller : Installer
+    {
+        public SourceInstaller(string installerFile, Installer installer)
         {
-            string ext = Path.GetExtension(InstallerFile);
-            return string.Compare(ext, ".msix", true) == 0 || string.Compare(ext, ".appx", true) == 0;
+            var properties = this.GetType().GetProperties();
+
+            foreach (var installerProperty in installer.GetType().GetProperties())
+            {
+                var toProperty = this.GetType().GetProperty(installerProperty.Name);
+                if (toProperty != null)
+                {
+                    toProperty.SetValue(this, installerProperty.GetValue(installer));
+                }
+            }
+
+            this.InstallerFile = Path.Combine(installerFile, this.Name);
+        }
+
+        public string InstallerFile { get;  private set; }
+    }
+
+    public class LocalInstaller : Installer
+    {
+        // The full path of the installer.
+        // Gets copied to the output directory and optionally signed.
+        public string Input { get; set; } = string.Empty;
+
+        internal new void Validate()
+        {
+            base.Validate();
+            if (string.IsNullOrEmpty(this.Input))
+            {
+                throw new ArgumentNullException(nameof(this.Input));
+            }
+
+            if (!File.Exists(this.Input))
+            {
+                throw new FileNotFoundException(this.Input);
+            }
+        }
+    }
+
+    public class DynamicInstaller : Installer
+    {
+        // Input depends on the Type.
+        // For zip it is the directories or files that need to included in the zip
+        public List<string> Input { get; set; } = new List<string>();
+
+        internal new void Validate()
+        {
+            base.Validate();
+        }
+
+        public void Create(string outputFile)
+        {
+            if (this.Type == InstallerType.Zip)
+            {
+                CreateZipInstaller(outputFile);
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        private void CreateZipInstaller(string outputFile)
+        {
+            var tmpPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+            if (Directory.Exists(tmpPath))
+            {
+                Directory.Delete(tmpPath, true);
+            }
+            Directory.CreateDirectory(tmpPath);
+
+            foreach (var i in this.Input)
+            {
+                if (File.Exists(i))
+                {
+                    File.Copy(i, Path.Combine(tmpPath, Path.GetFileName(i)), true);
+                }
+                else if (Directory.Exists(i))
+                {
+                    Helpers.CopyDirectory(i, tmpPath);
+                }
+                else
+                {
+                    throw new InvalidOperationException(i);
+                }
+            }
+
+            ZipFile.CreateFromDirectory(tmpPath, outputFile);
+
+            try
+            {
+                Directory.Delete(tmpPath, true);
+            }
+            catch (Exception)
+            {
+            }
         }
     }
 
@@ -132,8 +241,7 @@ namespace Microsoft.WinGetSourceCreator
         // Full path of the certificate used to sign the package and installers
         public string CertFile { get; set; } = string.Empty;
 
-        // The name for the AppxPackage Identity Name property.
-        public string? Name { get; set; }
+        public string? Password { get; set; }
 
         // The publisher for the AppxPackage Identity Name property.
         public string? Publisher { get; set; }

@@ -8,7 +8,7 @@ namespace Microsoft.WinGetSourceCreator
     public class WinGetLocalSource
     {
         private readonly string workingDirectory;
-        private readonly WinGetInstallerHashes installerHashes;
+        private readonly ManifestTokens tokens;
 
         public static void CreateLocalSource(LocalSource localSource)
         {
@@ -19,21 +19,31 @@ namespace Microsoft.WinGetSourceCreator
             Signature? topSignature = localSource.Signature;
             if (localSource.LocalInstallers != null)
             {
-                foreach (var localInstaller in localSource.LocalInstallers)
+                foreach (var installer in localSource.LocalInstallers)
                 {
-                    var signature = localInstaller.Signature == null ? topSignature : localInstaller.Signature;
-                    wingetSource.PrepareInstaller(localInstaller, signature);
+                    var signature = installer.Signature == null ? topSignature : installer.Signature;
+                    wingetSource.PrepareLocalInstaller(installer, signature);
                 }
             }
 
-            foreach (var localManifest in  localSource.LocalManifests)
+            if (localSource.DynamicInstallers != null)
             {
-                wingetSource.PrepareManifest(localManifest);
+                foreach (var installer in localSource.DynamicInstallers)
+                {
+                    var signature = installer.Signature == null ? topSignature : installer.Signature;
+                    wingetSource.PrepareDynamicInstaller(installer, signature);
+                }
             }
 
-            var indexFile = wingetSource.CreateIndex(localSource.GetIndexName());
-
-            _ = wingetSource.CreatePackage(localSource.GetSourceName(), localSource.AppxManifest, indexFile, topSignature);
+            // TODO: test this.
+            //foreach (var localManifest in  localSource.LocalManifests)
+            //{
+            //    wingetSource.PrepareManifest(localManifest);
+            //}
+            //
+            //var indexFile = wingetSource.CreateIndex(localSource.GetIndexName());
+            //
+            //_ = wingetSource.CreatePackage(localSource.GetSourceName(), localSource.AppxManifest, indexFile, topSignature);
         }
 
         public WinGetLocalSource(string workingDirectory)
@@ -46,34 +56,58 @@ namespace Microsoft.WinGetSourceCreator
             }
             Directory.CreateDirectory(workingDirectory);
 
-            this.installerHashes = new();
+            this.tokens = new();
         }
 
-        public void PrepareInstaller(LocalInstaller localInstaller, Signature? signature)
+        public void PrepareDynamicInstaller(DynamicInstaller installer, Signature? signature)
         {
-            var dest = Path.Combine(this.workingDirectory, Path.GetFileName(localInstaller.InstallerFile));
-            if (localInstaller.IsMsix())
-            {
-                if (signature != null)
-                {
-                    Helpers.SignMsixFile(dest, signature);
-                }
-                else
-                {
-                    File.Copy(localInstaller.InstallerFile, dest, true);
-                }
+            var sourceInstaller = new SourceInstaller(this.workingDirectory, installer);
+            installer.Create(sourceInstaller.InstallerFile);
+            PrepareInstaller(sourceInstaller, signature);
+        }
 
-                this.installerHashes.AddMsix(localInstaller.InstallerFile, localInstaller.Token, localInstaller.MiscToken!);
+        public void PrepareLocalInstaller(LocalInstaller installer, Signature? signature)
+        {
+            var sourceInstaller = new SourceInstaller(this.workingDirectory, installer);
+            File.Copy(installer.Input, sourceInstaller.InstallerFile, true);
+            PrepareInstaller(sourceInstaller, signature);
+        }
+
+        private void PrepareInstaller(SourceInstaller installer, Signature? signature)
+        {
+            // Sign installer if needed.
+            if (signature != null && installer.SkipSignature)
+            {
+                Helpers.SignInstaller(installer, signature);
             }
-            else
-            {
-                File.Copy(localInstaller.InstallerFile, dest, true);
-                if (signature != null)
-                {
-                    Helpers.SignFile(dest, signature.CertFile);
-                }
 
-                this.installerHashes.Add(localInstaller.InstallerFile, localInstaller.Token);
+            // Process hash token if needed.
+            if (!string.IsNullOrEmpty(installer.HashToken))
+            {
+                this.tokens.AddHashToken(installer.InstallerFile, installer.HashToken);
+            }
+
+            // Extra steps.
+            // An msix can include the signature token.
+            if (installer.Type == InstallerType.Msix)
+            {
+                if (!string.IsNullOrEmpty(installer.SignatureToken))
+                {
+                    var signatureFilePath = Helpers.GetSignatureFileFromMsix(installer.InstallerFile);
+                    this.tokens.AddHashToken(signatureFilePath, installer.SignatureToken);
+
+                    try
+                    {
+                        var dir = Path.GetDirectoryName(signatureFilePath);
+                        if (!string.IsNullOrEmpty(dir))
+                        {
+                            Directory.Delete(dir, true);
+                        }
+                    }
+                    catch (Exception)
+                    {
+                    }
+                }
             }
         }
 
@@ -130,7 +164,7 @@ namespace Microsoft.WinGetSourceCreator
 
             if (signature != null)
             {
-                Helpers.ModifyAppxManifestIdentity(appxManifestFile, signature.Name, signature.Publisher);
+                Helpers.ModifyAppxManifestIdentity(appxManifestFile, signature.Publisher);
             }
 
             string mappingFile = Path.Combine(this.workingDirectory, "MappingFile.txt");
@@ -144,7 +178,7 @@ namespace Microsoft.WinGetSourceCreator
 
             if (signature != null)
             {
-                Helpers.SignFile(outputPackage, signature.CertFile);
+                Helpers.SignFile(outputPackage, signature);
             }
 
             return outputPackage;
@@ -181,7 +215,7 @@ namespace Microsoft.WinGetSourceCreator
 
             var content = File.ReadAllText(sourceFile);
 
-            foreach (var token in this.installerHashes.InstallerTokens)
+            foreach (var token in this.tokens.Tokens)
             {
                 if (content.Contains(token.Key))
                 {
