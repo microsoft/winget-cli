@@ -251,7 +251,7 @@ namespace AppInstaller::Utility
     LocIndString Join(LocIndView separator, const std::vector<LocIndString>& vector);
 
     // Splits the string using the provided separator.
-    std::vector<std::string> Split(const std::string& value, char token);
+    std::vector<std::string> Split(const std::string& input, char token);
 
     // Format an input string by replacing placeholders {index} with provided values at corresponding indices.
     // Note: After upgrading to C++20, this function should be deprecated in favor of std::format.
