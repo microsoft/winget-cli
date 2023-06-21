@@ -279,6 +279,7 @@ jobs:
       TargetFolder:  '$(Build.ArtifactStagingDirectory)\WinGetUtilInterop.UnitTests\'
       CleanTargetFolder: true
       OverWrite: true
+    condition: succeededOrFailed()
 
   - task: VSTest@2
     displayName: 'Run tests: WinGetUtilInterop.UnitTests'
@@ -289,6 +290,7 @@ jobs:
       codeCoverageEnabled: true
       platform: 'Any CPU'
       configuration: '$(BuildConfiguration)'
+    condition: succeededOrFailed()
   
   - task: VSTest@2
     displayName: 'Run tests: Microsoft.Management.Configuration.UnitTests (InProc)'
@@ -300,6 +302,7 @@ jobs:
       codeCoverageEnabled: true
       platform: '$(buildPlatform)'
       configuration: '$(BuildConfiguration)'
+    condition: succeededOrFailed()
 
   - task: CopyFiles@2
     displayName: 'Copy Microsoft.Management.Configuration.winmd'
@@ -307,11 +310,13 @@ jobs:
       Contents: |
           $(buildOutDir)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd
       TargetFolder: '$(buildOutDir)\Microsoft.Management.Configuration.UnitTests\net6.0-windows10.0.19041.0'
+    condition: succeededOrFailed()
       
   - task: PowerShell@2
     displayName: 'Copy Microsoft.Management.Configuration.OutOfProc.dll as Microsoft.Management.Configuration.dll'
     inputs:
       script: Copy-Item '$(buildOutDir)\Microsoft.Management.Configuration.OutOfProc\Microsoft.Management.Configuration.OutOfProc.dll' '$(buildOutDir)\Microsoft.Management.Configuration.UnitTests\net6.0-windows10.0.19041.0\Microsoft.Management.Configuration.dll' -Force
+    condition: succeededOrFailed()
   
   - task: VSTest@2
     displayName: 'Run tests: Microsoft.Management.Configuration.UnitTests (OutOfProc)'
@@ -324,6 +329,7 @@ jobs:
       codeCoverageEnabled: true
       platform: '$(buildPlatform)'
       configuration: '$(BuildConfiguration)'
+    condition: succeededOrFailed()
 
   - task: CopyFiles@2
     displayName: 'Copy Util to artifacts folder'
@@ -339,27 +345,27 @@ jobs:
     inputs:
       SourceFolder: '$(buildOutDir)\PowerShell'
       TargetFolder: '$(artifactsDir)\PowerShell'
-    condition: always()
+    condition: succeededOrFailed()
 
   - task: CopyFiles@2
     displayName: 'Copy Dev Package (Loose Files)'
     inputs:
       SourceFolder: '$(packageLayoutDir)'
       TargetFolder: '$(artifactsDir)\DevPackage'
-    condition: always()
+    condition: succeededOrFailed()
 
   - task: CopyFiles@2
     displayName: 'Copy Dev Packages'
     inputs:
       SourceFolder: '$(appxPackageDir)'
       TargetFolder: '$(artifactsDir)\AppxPackages'
-    condition: always()
+    condition: succeededOrFailed()
 
   - task: PublishPipelineArtifact@1
     displayName: Publish Pipeline Artifacts
     inputs:
       targetPath: '$(artifactsDir)'
-    condition: always()
+    condition: succeededOrFailed()
 
   - task: ComponentGovernanceComponentDetection@0
     displayName: Component Governance

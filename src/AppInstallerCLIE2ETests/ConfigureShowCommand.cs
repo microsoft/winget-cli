@@ -30,7 +30,7 @@ namespace AppInstallerCLIE2ETests
         {
             TestCommon.EnsureModuleState(Constants.GalleryTestModuleName, present: false);
 
-            var result = TestCommon.RunAICLICommand("configure show", TestCommon.GetTestDataFile("Configuration\\PSGallery_NoModule_NoSettings.yml"), timeOut: 120000);
+            var result = TestCommon.RunAICLICommand("configure show", $"{TestCommon.GetTestDataFile("Configuration\\PSGallery_NoModule_NoSettings.yml")} --verbose", timeOut: 120000);
             Assert.AreEqual(0, result.ExitCode);
             Assert.True(result.StdOut.Contains(Constants.PSGalleryName));
         }
@@ -43,7 +43,7 @@ namespace AppInstallerCLIE2ETests
         {
             TestCommon.EnsureModuleState(Constants.SimpleTestModuleName, present: false);
 
-            var result = TestCommon.RunAICLICommand("configure show", TestCommon.GetTestDataFile("Configuration\\ShowDetails_TestRepo.yml"));
+            var result = TestCommon.RunAICLICommand("configure show", $"{TestCommon.GetTestDataFile("Configuration\\ShowDetails_TestRepo.yml")} --verbose");
             Assert.AreEqual(0, result.ExitCode);
             Assert.True(result.StdOut.Contains(Constants.TestRepoName));
         }
@@ -56,7 +56,7 @@ namespace AppInstallerCLIE2ETests
         {
             TestCommon.EnsureModuleState(Constants.SimpleTestModuleName, present: true, repository: Constants.TestRepoName);
 
-            var result = TestCommon.RunAICLICommand("configure show", TestCommon.GetTestDataFile("Configuration\\ShowDetails_TestRepo.yml"));
+            var result = TestCommon.RunAICLICommand("configure show", $"{TestCommon.GetTestDataFile("Configuration\\ShowDetails_TestRepo.yml")} --verbose");
             Assert.AreEqual(0, result.ExitCode);
             Assert.True(result.StdOut.Contains(Constants.LocalModuleDescriptor));
         }
