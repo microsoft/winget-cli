@@ -857,4 +857,5 @@ namespace AppInstaller::Utility
         }
 
         return result;
+    }
 }
