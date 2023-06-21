@@ -263,6 +263,11 @@ namespace TestCommon
         }
     }
 
+    std::string_view TestSourceFactory::TypeName() const
+    {
+        return "*TestSource"sv;
+    }
+
     std::shared_ptr<ISourceReference> TestSourceFactory::Create(const SourceDetails& details)
     {
         if (OnOpenWithCustomHeader)

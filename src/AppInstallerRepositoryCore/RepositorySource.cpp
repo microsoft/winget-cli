@@ -259,6 +259,8 @@ namespace AppInstaller::Repository
 
     Source::Source(WellKnownSource source)
     {
+        THROW_HR_IF(APPINSTALLER_CLI_ERROR_BLOCKED_BY_POLICY, !IsWellKnownSourceEnabled(source));
+
         SourceDetails details = GetWellKnownSourceDetailsInternal(source);
         m_sourceReferences.emplace_back(CreateSourceFromDetails(details));
     }
@@ -600,6 +602,13 @@ namespace AppInstaller::Repository
         THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !m_isSourceToBeAdded || m_sourceReferences.size() != 1);
 
         auto& sourceDetails = m_sourceReferences[0]->GetDetails();
+
+        // If the source type is empty, use a default.
+        // AddSourceForDetails will also check for empty, but we need the actual type before that for validation.
+        if (sourceDetails.Type.empty())
+        {
+            sourceDetails.Type = ISourceFactory::GetForType("")->TypeName();
+        }
 
         AICLI_LOG(Repo, Info, << "Adding source: Name[" << sourceDetails.Name << "], Type[" << sourceDetails.Type << "], Arg[" << sourceDetails.Arg << "]");
 
