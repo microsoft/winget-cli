@@ -24,8 +24,8 @@ namespace AppInstaller::Registry::Environment
 
         std::string ExpandPathValue(const std::string& value)
         {
-            std::vector<std::string> pathEntries = Split(value, ';');
             std::string result;
+            std::vector<std::string> pathEntries = Split(value, ';');
             for (std::string& pathEntry : pathEntries)
             {
                 if (!pathEntry.empty())
@@ -34,7 +34,6 @@ namespace AppInstaller::Registry::Environment
                     result += ';';
                 }
             }
-
             return result;
         }
     }
