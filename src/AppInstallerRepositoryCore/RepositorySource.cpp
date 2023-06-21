@@ -603,9 +603,12 @@ namespace AppInstaller::Repository
 
         auto& sourceDetails = m_sourceReferences[0]->GetDetails();
 
-        // GetForType() has some special handling, like a default in case the type is empty.
-        // We get the canonical name here to make it easier to have checks for the source type.
-        sourceDetails.Type = ISourceFactory::GetForType(sourceDetails.Type)->TypeName();
+        // If the source type is empty, use a default.
+        // AddSourceForDetails will also check for empty, but we need the actual type before that for validation.
+        if (sourceDetails.Type.empty())
+        {
+            sourceDetails.Type = ISourceFactory::GetForType("")->TypeName();
+        }
 
         AICLI_LOG(Repo, Info, << "Adding source: Name[" << sourceDetails.Name << "], Type[" << sourceDetails.Type << "], Arg[" << sourceDetails.Arg << "]");
 
