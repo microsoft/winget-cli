@@ -2,12 +2,12 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "MSStoreInstallerHandler.h"
-#include <winget/ManifestCommon.h>
-#include <winget/Runtime.h>
+#include <winget/MSStore.h>
 #include <winget/SelfManagement.h>
 
 namespace AppInstaller::CLI::Workflow
 {
+    using namespace AppInstaller::MSStore;
     using namespace AppInstaller::SelfManagement;
     using namespace std::string_view_literals;
     using namespace winrt::Windows::Foundation;
@@ -18,149 +18,6 @@ namespace AppInstaller::CLI::Workflow
     {
         static constexpr std::wstring_view s_AppInstallerProductId = L"9NBLGGH4NNS1"sv;
 
-        HRESULT WaitForMSStoreOperation(IVectorView<AppInstallItem>& installItems, Execution::Reporter& reporter, bool isSilentMode)
-        {
-            for (auto const& installItem : installItems)
-            {
-                AICLI_LOG(CLI, Info, <<
-                    "Started MSStore package execution. ProductId: " << Utility::ConvertToUTF8(installItem.ProductId()) <<
-                    " PackageFamilyName: " << Utility::ConvertToUTF8(installItem.PackageFamilyName()));
-
-                if (isSilentMode)
-                {
-                    installItem.InstallInProgressToastNotificationMode(AppInstallationToastNotificationMode::NoToast);
-                    installItem.CompletedInstallToastNotificationMode(AppInstallationToastNotificationMode::NoToast);
-                }
-            }
-
-            HRESULT errorCode = S_OK;
-            reporter.ExecuteWithProgress(
-                [&](IProgressCallback& progress)
-                {
-                    // We are aggregating all AppInstallItem progresses into one.
-                    // Averaging every progress for now until we have a better way to find overall progress.
-                    uint64_t overallProgressMax = 100 * static_cast<uint64_t>(installItems.Size());
-                    uint64_t currentProgress = 0;
-
-                    while (currentProgress < overallProgressMax)
-                    {
-                        currentProgress = 0;
-
-                        for (auto const& installItem : installItems)
-                        {
-                            const auto& status = installItem.GetCurrentStatus();
-                            currentProgress += static_cast<uint64_t>(status.PercentComplete());
-
-                            errorCode = status.ErrorCode();
-
-                            if (!SUCCEEDED(errorCode))
-                            {
-                                return;
-                            }
-                        }
-
-                        // It may take a while for Store client to pick up the install request.
-                        // So we show indefinite progress here to avoid a progress bar stuck at 0.
-                        if (currentProgress > 0)
-                        {
-                            progress.OnProgress(currentProgress, overallProgressMax, ProgressType::Percent);
-                        }
-
-                        if (progress.IsCancelled())
-                        {
-                            for (auto const& installItem : installItems)
-                            {
-                                installItem.Cancel();
-                            }
-                        }
-
-                        Sleep(100);
-                    }
-                });
-
-            return errorCode;
-        }
-
-        // The type of entitlement we were able to acquire/ensure.
-        enum class EntitlementType
-        {
-            None,
-            User,
-            Device,
-        };
-
-        EntitlementType EnsureFreeEntitlement(const std::wstring& productId, Manifest::ScopeEnum scope)
-        {
-            AppInstallManager installManager;
-
-            AICLI_LOG(CLI, Info, << "Getting entitlement for ProductId: " << Utility::ConvertToUTF8(productId));
-
-            // Verifying/Acquiring product ownership
-            GetEntitlementResult entitlementResult{ nullptr };
-            EntitlementType result = EntitlementType::None;
-
-            if (scope == Manifest::ScopeEnum::Machine)
-            {
-                AICLI_LOG(CLI, Info, << "Get device entitlement (machine scope install).");
-                result = EntitlementType::Device;
-                try
-                {
-                    entitlementResult = installManager.GetFreeDeviceEntitlementAsync(productId, winrt::hstring(), winrt::hstring()).get();
-                }
-                CATCH_LOG();
-            }
-            else
-            {
-                AICLI_LOG(CLI, Info, << "Get user entitlement.");
-                result = EntitlementType::User;
-                try
-                {
-                    entitlementResult = installManager.GetFreeUserEntitlementAsync(productId, winrt::hstring(), winrt::hstring()).get();
-                }
-                CATCH_LOG();
-
-                if (!entitlementResult || entitlementResult.Status() == GetEntitlementStatus::NoStoreAccount)
-                {
-                    AICLI_LOG(CLI, Info, << "Get device entitlement (no store account).");
-                    result = EntitlementType::Device;
-                    try
-                    {
-                        entitlementResult = installManager.GetFreeDeviceEntitlementAsync(productId, winrt::hstring(), winrt::hstring()).get();
-                    }
-                    CATCH_LOG();
-                }
-            }
-
-            if (entitlementResult && entitlementResult.Status() == GetEntitlementStatus::Succeeded)
-            {
-                AICLI_LOG(CLI, Info, << "Get entitlement succeeded.");
-            }
-            else if (entitlementResult)
-            {
-                result = EntitlementType::None;
-
-                if (entitlementResult.Status() == GetEntitlementStatus::NetworkError)
-                {
-                    AICLI_LOG(CLI, Error, << "Get entitlement failed. Network error.");
-                }
-                else if (entitlementResult.Status() == GetEntitlementStatus::ServerError)
-                {
-                    AICLI_LOG(CLI, Error, << "Get entitlement failed. Server error.");
-                }
-                else
-                {
-                    AICLI_LOG(CLI, Error, << "Get entitlement failed. Unknown status: " << static_cast<int32_t>(entitlementResult.Status()));
-                }
-            }
-            else
-            {
-                result = EntitlementType::None;
-                AICLI_LOG(CLI, Error, << "Get entitlement failed. Exception.");
-            }
-
-            return result;
-        }
-
         Utility::LocIndString GetErrorCodeString(const HRESULT errorCode)
         {
             std::ostringstream ssError;
@@ -168,36 +25,7 @@ namespace AppInstaller::CLI::Workflow
             return Utility::LocIndString{ ssError.str() };
         }
 
-        HRESULT MSStoreUpdateImpl(const std::wstring& productId, Manifest::ScopeEnum scope, Execution::Reporter& reporter, bool isSilentMode, bool force)
-        {
-            // Best effort verifying/acquiring product ownership.
-            std::ignore = EnsureFreeEntitlement(productId, scope);
-
-            AppInstallManager installManager;
-            AppUpdateOptions updateOptions;
-            updateOptions.AllowForcedAppRestart(force);
-
-            // SearchForUpdateAsync will automatically trigger update if found.
-            AppInstallItem installItem =  installManager.SearchForUpdatesAsync(
-                productId,          // ProductId
-                winrt::hstring(),   // SkuId
-                winrt::hstring(),
-                winrt::hstring(),   // ClientId
-                updateOptions
-            ).get();
-
-            if (!installItem)
-            {
-                return APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE;
-            }
-
-            std::vector<AppInstallItem> installItemVector{ installItem };
-            IVectorView<AppInstallItem> installItems = winrt::single_threaded_vector(std::move(installItemVector)).GetView();
-
-            return WaitForMSStoreOperation(installItems, reporter, isSilentMode);
-        }
-
-        HRESULT EnsureStorePolicySatisfiedImpl(const std::wstring& productId, Execution::ContextFlag contextFlags)
+        HRESULT EnsureStorePolicySatisfiedImpl(const std::wstring& productId, bool bypassPolicy)
         {
             constexpr std::wstring_view s_StoreClientName = L"Microsoft.WindowsStore"sv;
             constexpr std::wstring_view s_StoreClientPublisher = L"CN=Microsoft Corporation, O=Microsoft Corporation, L=Redmond, S=Washington, C=US"sv;
@@ -205,7 +33,7 @@ namespace AppInstaller::CLI::Workflow
             // Policy check
             AppInstallManager installManager;
 
-            if (!WI_IsFlagSet(contextFlags, Execution::ContextFlag::BypassIsStoreClientBlockedPolicyCheck) && installManager.IsStoreBlockedByPolicyAsync(s_StoreClientName, s_StoreClientPublisher).get())
+            if (!bypassPolicy && installManager.IsStoreBlockedByPolicyAsync(s_StoreClientName, s_StoreClientPublisher).get())
             {
                 AICLI_LOG(CLI, Error, << "Store client is blocked by policy. MSStore execution failed.");
                 return APPINSTALLER_CLI_ERROR_MSSTORE_BLOCKED_BY_POLICY;
@@ -220,12 +48,22 @@ namespace AppInstaller::CLI::Workflow
             return S_OK;
         }
 
-        void AppInstallerUpdate(bool preferStub, Execution::ContextFlag contextFlags, Execution::Reporter& reporter)
+        void AppInstallerUpdate(bool preferStub, bool bypassPolicy, Execution::Context& context)
         {
             auto appInstId = std::wstring{ s_AppInstallerProductId };
-            THROW_IF_FAILED(EnsureStorePolicySatisfiedImpl(appInstId, contextFlags));
+            THROW_IF_FAILED(EnsureStorePolicySatisfiedImpl(appInstId, bypassPolicy));
             SetStubPreferred(preferStub);
-            THROW_IF_FAILED(MSStoreUpdateImpl(appInstId, Manifest::ScopeEnum::User, reporter, true, true));
+
+            auto installOperation = MSStoreOperation(MSStoreOperationType::Update, appInstId, Manifest::ScopeEnum::User, true, true);
+
+            HRESULT hr = S_OK;
+            context.Reporter.ExecuteWithProgress(
+                [&](IProgressCallback& progress)
+                {
+                    hr = installOperation.StartAndWaitForOperation(progress);
+                });
+
+            THROW_IF_FAILED(hr);
         }
     }
 
@@ -234,69 +72,59 @@ namespace AppInstaller::CLI::Workflow
         auto productId = Utility::ConvertToUTF16(context.Get<Execution::Data::Installer>()->ProductId);
         auto scope = Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
         bool isSilentMode = context.Args.Contains(Execution::Args::Type::Silent);
+        bool force = context.Args.Contains(Execution::Args::Type::Force);
 
-        // Best effort verifying/acquiring product ownership.
-        std::ignore = EnsureFreeEntitlement(productId, scope);
-
-        AppInstallManager installManager;
-        AppInstallOptions installOptions;
+        auto installOperation = MSStoreOperation(MSStoreOperationType::Install, productId, scope, isSilentMode, force);
 
         context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
 
-        if (isSilentMode)
-        {
-            installOptions.InstallInProgressToastNotificationMode(AppInstallationToastNotificationMode::NoToast);
-            installOptions.CompletedInstallToastNotificationMode(AppInstallationToastNotificationMode::NoToast);
-        }
-
-        if (Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope)) == Manifest::ScopeEnum::Machine)
-        {
-            // TODO: There was a bug in InstallService where admin user is incorrectly identified as not admin,
-            // causing false access denied on many OS versions.
-            // Remove this check when the OS bug is fixed and back ported.
-            if (!Runtime::IsRunningAsSystem())
+        HRESULT hr = S_OK;
+        context.Reporter.ExecuteWithProgress(
+            [&](IProgressCallback& progress)
             {
-                context.Reporter.Error() << Resource::String::InstallFlowReturnCodeSystemNotSupported << std::endl;
-                context.Add<Execution::Data::OperationReturnCode>(static_cast<DWORD>(APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED));
-                AICLI_LOG(CLI, Error, << "Device wide install for msstore type is not supported under admin context.");
-                AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED);
-            }
+                hr = installOperation.StartAndWaitForOperation(progress);
+            });
 
-            installOptions.InstallForAllUsers(true);
-        }
-
-        IVectorView<AppInstallItem> installItems = installManager.StartProductInstallAsync(
-            productId,              // ProductId
-            winrt::hstring(),       // FlightId
-            L"WinGetCli",           // ClientId
-            winrt::hstring(),
-            installOptions).get();
-
-        HRESULT errorCode = WaitForMSStoreOperation(installItems, context.Reporter, isSilentMode);
-
-        if (SUCCEEDED(errorCode))
+        if (SUCCEEDED(hr))
         {
             context.Reporter.Info() << Resource::String::InstallFlowInstallSuccess << std::endl;
         }
         else
         {
-            auto errorCodeString = GetErrorCodeString(errorCode);
-            context.Reporter.Error() << Resource::String::MSStoreInstallOrUpdateFailed(errorCodeString) << std::endl;
-            context.Add<Execution::Data::OperationReturnCode>(errorCode);
-            AICLI_LOG(CLI, Error, << "MSStore install failed. ProductId: " << Utility::ConvertToUTF8(productId) << " HResult: " << errorCodeString);
-            AICLI_TERMINATE_CONTEXT(errorCode);
+            if (hr == APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED)
+            {
+                context.Reporter.Error() << Resource::String::InstallFlowReturnCodeSystemNotSupported << std::endl;
+                context.Add<Execution::Data::OperationReturnCode>(static_cast<DWORD>(APPINSTALLER_CLI_ERROR_INSTALL_SYSTEM_NOT_SUPPORTED));
+            }
+            else
+            {
+                auto errorCodeString = GetErrorCodeString(hr);
+                context.Reporter.Error() << Resource::String::MSStoreInstallOrUpdateFailed(errorCodeString) << std::endl;
+                context.Add<Execution::Data::OperationReturnCode>(hr);
+                AICLI_LOG(CLI, Error, << "MSStore install failed. ProductId: " << Utility::ConvertToUTF8(productId) << " HResult: " << errorCodeString);
+            }
+
+            AICLI_TERMINATE_CONTEXT(hr);
         }
     }
 
     void MSStoreUpdate(Execution::Context& context)
     {
         bool isSilentMode = context.Args.Contains(Execution::Args::Type::Silent);
-
         auto productId = Utility::ConvertToUTF16(context.Get<Execution::Data::Installer>()->ProductId);
         auto scope = Manifest::ConvertToScopeEnum(context.Args.GetArg(Execution::Args::Type::InstallScope));
+        bool force = context.Args.Contains(Execution::Args::Type::Force);
+
+        auto installOperation = MSStoreOperation(MSStoreOperationType::Update, productId, scope, isSilentMode, force);
 
         context.Reporter.Info() << Resource::String::InstallFlowStartingPackageInstall << std::endl;
-        HRESULT hr = MSStoreUpdateImpl(productId, scope, context.Reporter, isSilentMode, false);
+
+        HRESULT hr = S_OK;
+        context.Reporter.ExecuteWithProgress(
+            [&](IProgressCallback& progress)
+            {
+                hr = installOperation.StartAndWaitForOperation(progress);
+            });
 
         if (SUCCEEDED(hr))
         {
@@ -324,7 +152,9 @@ namespace AppInstaller::CLI::Workflow
     void EnsureStorePolicySatisfied(Execution::Context& context)
     {
         auto productId = Utility::ConvertToUTF16(context.Get<Execution::Data::Installer>()->ProductId);
-        HRESULT hr = EnsureStorePolicySatisfiedImpl(productId, context.GetFlags());
+        bool bypassStorePolicy = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::BypassIsStoreClientBlockedPolicyCheck);
+
+        HRESULT hr = EnsureStorePolicySatisfiedImpl(productId, bypassStorePolicy);
         if (FAILED(hr))
         {
             if (hr == APPINSTALLER_CLI_ERROR_MSSTORE_BLOCKED_BY_POLICY)
@@ -336,19 +166,20 @@ namespace AppInstaller::CLI::Workflow
                 context.Reporter.Error() << Resource::String::MSStoreAppBlocked << std::endl;
             }
 
-            THROW_HR(hr);
+            AICLI_TERMINATE_CONTEXT(hr);
         }
     }
 
     void EnableConfiguration(Execution::Context& context)
     {
 #ifndef AICLI_DISABLE_TEST_HOOKS
-        AppInstallerUpdate(false, context.GetFlags(), context.Reporter);
+        AppInstallerUpdate(false, true, context);
 #else
         if (IsStubPackage())
         {
             context.Reporter.Info() << Resource::String::ConfigurationEnablingMessage << std::endl;
-            AppInstallerUpdate(false, context.GetFlags(), context.Reporter);
+            bool bypassStorePolicy = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::BypassIsStoreClientBlockedPolicyCheck);
+            AppInstallerUpdate(false, bypassStorePolicy, context.Reporter);
         }
         else
         {
@@ -360,12 +191,13 @@ namespace AppInstaller::CLI::Workflow
     void DisableConfiguration(Execution::Context& context)
     {
 #ifndef AICLI_DISABLE_TEST_HOOKS
-        AppInstallerUpdate(true, context.GetFlags(), context.Reporter);
+        AppInstallerUpdate(true, true, context);
 #else
         if (!IsStubPackage())
         {
             context.Reporter.Info() << Resource::String::ConfigurationDisablingMessage << std::endl;
-            AppInstallerUpdate(true, context.GetFlags(), context.Reporter);
+            bool bypassStorePolicy = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::BypassIsStoreClientBlockedPolicyCheck);
+            AppInstallerUpdate(true, bypassStorePolicy, context);
         }
         else
         {

@@ -90,6 +90,7 @@
 #include <winrt/Windows.Web.Http.Headers.h>
 #include <winrt/Windows.Web.Http.Filters.h>
 #include <winrt/Windows.Globalization.h>
+#include <winrt/Windows.ApplicationModel.Store.Preview.InstallControl.h>
 
 #endif
 
