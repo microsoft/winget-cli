@@ -28,8 +28,11 @@ namespace AppInstaller::Registry::Environment
             std::string result;
             for (std::string& pathEntry : pathEntries)
             {
-                result += AppInstaller::Filesystem::GetExpandedPath(pathEntry).u8string();
-                result += ';';
+                if (!pathEntry.empty())
+                {
+                    result += AppInstaller::Filesystem::GetExpandedPath(pathEntry).u8string();
+                    result += ';';
+                }
             }
 
             return result;
