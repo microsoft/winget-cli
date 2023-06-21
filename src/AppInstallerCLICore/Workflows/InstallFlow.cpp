@@ -638,7 +638,7 @@ namespace AppInstaller::CLI::Workflow
                 }
                 else
                 {
-                    AICLI_LOG(CLI, Info, << "Failed to refresh process PATH environment variable.");
+                    AICLI_LOG(CLI, Warning, << "Failed to refresh process PATH environment variable.");
                     context.Reporter.Warn() << Resource::String::FailedToRefreshPathWarning << std::endl;
                 }
             }

@@ -9,9 +9,10 @@
 #include <AppInstallerStrings.h>
 #include <Workflows/DependenciesFlow.h>
 #include <Workflows/WorkflowBase.h>
-#include <winget/RepositorySource.h>
+#include <winget/Filesystem.h>
 #include <winget/ManifestYamlParser.h>
 #include <winget/PathVariable.h>
+#include <winget/RepositorySource.h>
 #include <Resources.h>
 
 using namespace winrt::Windows::Foundation;
@@ -217,14 +218,12 @@ std::wstring GetCurrentProcessPathVariable()
 
     if (requiredSize > 0)
     {
-        wchar_t* buffer = new wchar_t[requiredSize];
-        errno_t errorResult = _wgetenv_s(&requiredSize, buffer, requiredSize, L"PATH");
+        auto buffer = std::make_unique<wchar_t[]>(requiredSize);
+        errno_t errorResult = _wgetenv_s(&requiredSize, buffer.get(), requiredSize, L"PATH");
         if (errorResult == 0)
         {
-            return std::wstring(buffer);
+            return std::wstring(buffer.get());
         }
-
-        delete[] buffer;
     }
     return {};
 }
@@ -276,6 +275,34 @@ TEST_CASE("RefreshEnvironmentVariable_System", "[dependencies]")
     bool secondCheck = updatedPathValue.find(testPathEntry) != std::string::npos;
 
     pathVariable.Remove(testPathEntry);
+
+    REQUIRE_FALSE(firstCheck);
+    REQUIRE(secondCheck);
+}
+
+TEST_CASE("VerifyPathRefreshExpandsValues", "[dependencies]")
+{
+    if (!AppInstaller::Runtime::IsRunningAsAdmin())
+    {
+        WARN("Test requires admin privilege. Skipped.");
+        return;
+    }
+
+    std::filesystem::path testEntry{ "%USERPROFILE%\\testPath" };
+    auto pathVariable = AppInstaller::Registry::Environment::PathVariable(ScopeEnum::User);
+    pathVariable.Append(testEntry);
+
+    std::wstring initialPathValue = GetCurrentProcessPathVariable();
+    bool firstCheck = initialPathValue.find(testEntry) != std::string::npos;
+
+    AppInstaller::Registry::Environment::RefreshPathVariableForCurrentProcess();
+
+    // %USERPROFILE% should be replaced with the actual path.
+    std::wstring updatedPathValue = GetCurrentProcessPathVariable();
+    std::wstring expandedTestPath = AppInstaller::Filesystem::GetExpandedPath(testEntry.u8string());
+    bool secondCheck = updatedPathValue.find(expandedTestPath) != std::string::npos;
+
+    pathVariable.Remove(testEntry);
 
     REQUIRE_FALSE(firstCheck);
     REQUIRE(secondCheck);

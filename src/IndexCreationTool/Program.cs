@@ -77,7 +77,8 @@ namespace IndexCreationTool
                                 }
                                 catch
                                 {
-                                    // If it fails, add to retry queue and try again. This can occur if there is a package dependency that has not yet been added.
+                                    // If adding manifest to index fails, add to queue and try again.
+                                    // This can occur if there is a package dependency that has not yet been added to the index.
                                     filesQueue.Enqueue(file);
                                 }
                             }

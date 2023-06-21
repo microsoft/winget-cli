@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "winget/PathVariable.h"
+#include <winget/Filesystem.h>
 
 using namespace AppInstaller::Utility;
 
@@ -17,16 +18,26 @@ namespace AppInstaller::Registry::Environment
         {
             if (value.back() != ';')
             {
-                value += ";";
+                value += ';';
             }
+        }
+
+        std::string ExpandPathValue(const std::string& value)
+        {
+            std::vector<std::string> pathEntries = Split(value, ';');
+            std::string result;
+            for (std::string& pathEntry : pathEntries)
+            {
+                result += AppInstaller::Filesystem::GetExpandedPath(pathEntry).u8string();
+                result += ';';
+            }
+
+            return result;
         }
     }
 
-    PathVariable::PathVariable(Manifest::ScopeEnum scope, bool readOnly)
+    PathVariable::PathVariable(Manifest::ScopeEnum scope, bool readOnly) : m_scope(scope), m_readOnly(readOnly)
     {
-        m_scope = scope;
-        m_readOnly = readOnly;
-
         if (m_readOnly)
         {
             if (m_scope == Manifest::ScopeEnum::Machine)
@@ -104,14 +115,17 @@ namespace AppInstaller::Registry::Environment
 
     void PathVariable::SetPathValue(const std::string& value)
     {
+        THROW_HR_IF(E_ACCESSDENIED, m_readOnly);
+
         std::wstring pathName = std::wstring{ s_PathName };
         m_key.SetValue(pathName, ConvertToUTF16(value), REG_EXPAND_SZ);
     }
 
     bool RefreshPathVariableForCurrentProcess()
     {
-        std::string userPathValue = PathVariable(Manifest::ScopeEnum::User, true).GetPathValue();
-        std::string systemPathValue = PathVariable(Manifest::ScopeEnum::Machine, true).GetPathValue();
+        // Path values must be expanded before assigning to process environment for proper refresh.
+        std::string userPathValue = ExpandPathValue(PathVariable(Manifest::ScopeEnum::User, true).GetPathValue());
+        std::string systemPathValue = ExpandPathValue(PathVariable(Manifest::ScopeEnum::Machine, true).GetPathValue());
 
         EnsurePathValueEndsWithSemicolon(userPathValue);
         EnsurePathValueEndsWithSemicolon(systemPathValue);

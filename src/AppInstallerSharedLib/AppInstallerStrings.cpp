@@ -838,4 +838,23 @@ namespace AppInstaller::Utility
         }
         return LocIndString{ ssJoin.str() };
     }
+
+    std::vector<std::string> Split(const std::string& inputStr, char token)
+    {
+        std::vector<std::string> result;
+        int startIndex = 0, endIndex = 0;
+        for (int i = 0; i <= inputStr.size(); i++)
+        {
+            if (inputStr[i] == token || i == inputStr.size())
+            {
+                endIndex = i;
+                std::string substring;
+                int length = endIndex - startIndex;
+                substring.append(inputStr, startIndex, length);
+                result.push_back(substring);
+                startIndex = endIndex + 1;
+            }
+        }
+
+        return result;
 }
