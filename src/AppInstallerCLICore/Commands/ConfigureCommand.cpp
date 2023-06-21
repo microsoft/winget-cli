@@ -30,7 +30,6 @@ namespace AppInstaller::CLI
     std::vector<Argument> ConfigureCommand::GetArguments() const
     {
         return {
-            // Required for now, make exclusive when history implemented
             Argument{ Execution::Args::Type::ConfigurationFile, Resource::String::ConfigurationFileArgumentDescription, ArgumentType::Positional },
             Argument{ Execution::Args::Type::ConfigurationAcceptWarning, Resource::String::ConfigurationAcceptWarningArgumentDescription, ArgumentType::Flag },
             Argument{ Execution::Args::Type::ConfigurationEnable, Resource::String::ConfigurationEnableMessage, ArgumentType::Flag, Argument::Visibility::Help },
