@@ -61,6 +61,9 @@ namespace AppInstaller::CLI
 
         Logging::UseGlobalTelemetryLoggerActivityIdOnly();
 
+        Execution::Context context{ std::cout, std::cin };
+        auto previousThreadGlobals = context.SetForCurrentThread();
+
         // Enable all logging for this phase; we will update once we have the arguments
         Logging::Log().EnableChannel(Logging::Channel::All);
         Logging::Log().SetLevel(Settings::User().Get<Settings::Setting::LoggingLevelPreference>());
@@ -76,8 +79,6 @@ namespace AppInstaller::CLI
         // Initiate the background cleanup of the log file location.
         Logging::FileLogger::BeginCleanup();
 
-        Execution::Context context{ std::cout, std::cin };
-        auto previousThreadGlobals = context.SetForCurrentThread();
         context.EnableSignalTerminationHandler();
 
         context << Workflow::ReportExecutionStage(Workflow::ExecutionStage::ParseArgs);

@@ -65,10 +65,12 @@ namespace AppInstaller::CLI::Execution
             SignalTerminationHandler()
             {
                 // Create message only window.
-                wil::unique_event messageQueueReady;
-                messageQueueReady.create();
-                m_windowThread = std::thread(&SignalTerminationHandler::CreateWindowAndStartMessageLoop, this, std::ref(messageQueueReady));
-                messageQueueReady.wait();
+                m_messageQueueReady.create();
+                m_windowThread = std::thread(&SignalTerminationHandler::CreateWindowAndStartMessageLoop, this);
+                if (!m_messageQueueReady.wait(100))
+                {
+                    AICLI_LOG(CLI, Warning, << "Timeout creating winget window");
+                }
 
                 // Set up ctrl-c handler.
                 LOG_IF_WIN32_BOOL_FALSE(SetConsoleCtrlHandler(StaticCtrlHandlerFunction, TRUE));
@@ -134,11 +136,15 @@ namespace AppInstaller::CLI::Execution
                 return TRUE;
             }
 
-            void CreateWindowAndStartMessageLoop(wil::unique_event& messageQueueReady)
+            void CreateWindowAndStartMessageLoop()
             {
                 PCWSTR windowClass = L"wingetWindow";
                 HINSTANCE hInstance = GetModuleHandle(NULL);
-                THROW_LAST_ERROR_IF_NULL(hInstance);
+                if (hInstance == NULL)
+                {
+                    LOG_LAST_ERROR_MSG("Failed getting module handle");
+                    return;
+                }
 
                 WNDCLASSEX wcex = {};
                 wcex.cbSize = sizeof(wcex);
@@ -149,7 +155,12 @@ namespace AppInstaller::CLI::Execution
                 wcex.cbWndExtra = 0;
                 wcex.hInstance = hInstance;
                 wcex.lpszClassName = windowClass;
-                THROW_LAST_ERROR_IF(!RegisterClassEx(&wcex));
+
+                if (!RegisterClassEx(&wcex))
+                {
+                    LOG_LAST_ERROR_MSG("Failed registering window class");
+                    return;
+                }
 
                 m_windowHandle = wil::unique_hwnd(CreateWindow(
                     windowClass,
@@ -163,21 +174,32 @@ namespace AppInstaller::CLI::Execution
                     NULL, /* hMenu */
                     hInstance,
                     NULL)); /* lpParam */
-                THROW_LAST_ERROR_IF_NULL(m_windowHandle);
+
+                if (m_windowHandle == nullptr)
+                {
+                    LOG_LAST_ERROR_MSG("Failed creating window");
+                    return;
+                }
 
                 ShowWindow(m_windowHandle.get(), SW_HIDE);
 
                 // Force message queue to be created.
                 MSG msg;
                 PeekMessage(&msg, NULL, WM_USER, WM_USER, PM_NOREMOVE);
-                messageQueueReady.SetEvent();
+                m_messageQueueReady.SetEvent();
 
                 // Message loop
                 BOOL getMessageResult;
                 while ((getMessageResult = GetMessage(&msg, m_windowHandle.get(), 0, 0)) != 0)
                 {
-                    THROW_LAST_ERROR_IF(getMessageResult == -1);
-                    DispatchMessage(&msg);
+                    if (getMessageResult == -1)
+                    {
+                        LOG_LAST_ERROR();
+                    }
+                    else
+                    {
+                        DispatchMessage(&msg);
+                    }
                 }
             }
 
@@ -187,6 +209,7 @@ namespace AppInstaller::CLI::Execution
 
             std::mutex m_contextsLock;
             std::vector<Context*> m_contexts;
+            wil::unique_event m_messageQueueReady;
             wil::unique_hwnd m_windowHandle;
             std::thread m_windowThread;
         };
