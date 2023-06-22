@@ -20,6 +20,11 @@ namespace AppInstaller::Repository::Microsoft
         // The factory for the predefined installing source.
         struct PredefinedWriteableSourceFactoryImpl : public ISourceFactory
         {
+            std::string_view TypeName() const override final
+            {
+                return PredefinedWriteableSourceFactory::Type();
+            }
+
             std::shared_ptr<ISourceReference> Create(const SourceDetails& details) override final;
 
             bool Add(SourceDetails&, IProgressCallback&) override final

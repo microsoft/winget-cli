@@ -168,6 +168,11 @@ namespace AppInstaller::Repository::Microsoft
         // The factory for the predefined installed source.
         struct Factory : public ISourceFactory
         {
+            std::string_view TypeName() const override final
+            {
+                return PredefinedInstalledSourceFactory::Type();
+            }
+
             std::shared_ptr<ISourceReference> Create(const SourceDetails& details) override final
             {
                 THROW_HR_IF(E_INVALIDARG, details.Type != PredefinedInstalledSourceFactory::Type());

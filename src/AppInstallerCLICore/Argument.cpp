@@ -177,6 +177,10 @@ namespace AppInstaller::CLI
             return { type, "file"_liv, 'f' };
         case Execution::Args::Type::ConfigurationAcceptWarning:
             return { type, "accept-configuration-agreements"_liv };
+        case Execution::Args::Type::ConfigurationEnable:
+            return { type, "enable"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::StubType };
+        case Execution::Args::Type::ConfigurationDisable:
+            return { type, "disable"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::StubType };
 
         // Download command
         case Execution::Args::Type::DownloadDirectory:

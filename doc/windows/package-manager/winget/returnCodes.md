@@ -116,6 +116,7 @@ ms.localizationpriority: medium
 | 0x8A150066 | -1978335130 | APPINSTALLER_CLI_ERROR_MULTIPLE_UNINSTALL_FAILED | One or more applications failed to uninstall |
 | 0x8A150067 | -1978335129 | APPINSTALLER_CLI_ERROR_NOT_ALL_QUERIES_FOUND_SINGLE | One or more queries did not return exactly one match |
 | 0x8A150068 | -1978335128 | APPINSTALLER_CLI_ERROR_PACKAGE_IS_PINNED | The package has a pin that prevents upgrade. |
+| 0x8A150069 | -1978335127 | APPINSTALLER_CLI_ERROR_PACKAGE_IS_STUB | The package currently installed is the stub package |
 
 ## Install errors.
 

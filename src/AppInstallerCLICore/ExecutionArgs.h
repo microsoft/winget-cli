@@ -107,6 +107,8 @@ namespace AppInstaller::CLI::Execution
             // Configuration
             ConfigurationFile,
             ConfigurationAcceptWarning,
+            ConfigurationEnable,
+            ConfigurationDisable,
 
             // Common arguments
             NoVT, // Disable VirtualTerminal outputs
