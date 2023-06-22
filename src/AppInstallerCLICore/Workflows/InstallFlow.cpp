@@ -573,7 +573,6 @@ namespace AppInstaller::CLI::Workflow
 
     void ProcessMultiplePackages::operator()(Execution::Context& context) const
     {
-        // If there are no subcontexts, then there are no dependencies to handle.
         if (!context.Contains(Execution::Data::PackageSubContexts))
         {
             return;

@@ -39,6 +39,10 @@ namespace winrt::Microsoft::Management::Deployment
         {
             return __uuidof(winrt::Microsoft::Management::Deployment::implementation::UninstallOptions);
         }
+        else if (IsEqualCLSID(clsid, WINGET_INPROC_COM_CLSID_DownloadOptions))
+        {
+            return __uuidof(winrt::Microsoft::Management::Deployment::implementation::DownloadOptions);
+        }
         else if (IsEqualCLSID(clsid, WINGET_INPROC_COM_CLSID_PackageMatchFilter))
         {
             return __uuidof(winrt::Microsoft::Management::Deployment::implementation::PackageMatchFilter);
@@ -46,10 +50,6 @@ namespace winrt::Microsoft::Management::Deployment
         else if (IsEqualCLSID(clsid, WINGET_INPROC_COM_CLSID_PackageManagerSettings))
         {
             return __uuidof(winrt::Microsoft::Management::Deployment::implementation::PackageManagerSettings);
-        }
-        else if (IsEqualCLSID(clsid, WINGET_INPROC_COM_CLSID_DownloadOptions))
-        {
-            return __uuidof(winrt::Microsoft::Management::Deployment::implementation::DownloadOptions);
         }
         else
         {

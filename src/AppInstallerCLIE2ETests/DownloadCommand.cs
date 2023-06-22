@@ -109,7 +109,7 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
-        /// Downlods the test installer with a hash mismatch.
+        /// Downloads the test installer with a hash mismatch.
         /// </summary>
         [Test]
         public void DownloadWithHashMismatch()
