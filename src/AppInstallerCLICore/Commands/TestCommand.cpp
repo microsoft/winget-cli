@@ -21,6 +21,16 @@ namespace AppInstaller::CLI
         Sleep(INFINITE);
     }
 
+    Resource::LocString TestCommand::ShortDescription() const
+    {
+        return Utility::LocIndString("Waits infinitely"sv);
+    }
+
+    Resource::LocString TestCommand::LongDescription() const
+    {
+        return Utility::LocIndString("Waits infinitely. Use this if you want winget to wait forever while something is going on"sv);
+    }
+
     void TestAppShutdownCommand::ExecuteInternal(Execution::Context& context) const
     {
         auto windowHandle = context.GetWindowHandle();
@@ -41,6 +51,17 @@ namespace AppInstaller::CLI
 
         context.Reporter.Info() << "Succeeded waiting for app shutdown event" << std::endl;
     }
+
+    Resource::LocString TestAppShutdownCommand::ShortDescription() const
+    {
+        return Utility::LocIndString("Test command to verify appshutdown event."sv);
+    }
+
+    Resource::LocString TestAppShutdownCommand::LongDescription() const
+    {
+        return Utility::LocIndString("Test command for appshutdown. Verifies the window was created and waits for the app shutdown event"sv);
+    }
+
 }
 
 #endif

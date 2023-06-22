@@ -21,13 +21,10 @@
 #include "ImportCommand.h"
 #include "PinCommand.h"
 #include "ConfigureCommand.h"
+#include "TestCommand.h"
 
 #include "Resources.h"
 #include "TableOutput.h"
-
-#ifndef AICLI_DISABLE_TEST_HOOKS
-#include "TestCommand.h"
-#endif
 
 namespace AppInstaller::CLI
 {

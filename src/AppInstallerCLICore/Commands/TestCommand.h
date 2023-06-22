@@ -16,6 +16,9 @@ namespace AppInstaller::CLI
 
         std::vector<std::unique_ptr<Command>> GetCommands() const override;
 
+        Resource::LocString ShortDescription() const override;
+        Resource::LocString LongDescription() const override;
+
     protected:
         void ExecuteInternal(Execution::Context& context) const override;
     };
@@ -26,6 +29,9 @@ namespace AppInstaller::CLI
     struct TestAppShutdownCommand final : public Command
     {
         TestAppShutdownCommand(std::string_view parent) : Command("appshutdown", {}, parent, Visibility::Hidden) {}
+
+        Resource::LocString ShortDescription() const override;
+        Resource::LocString LongDescription() const override;
 
     protected:
         void ExecuteInternal(Execution::Context& context) const override;
