@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
+#include "Command.h"
 
 #ifndef AICLI_DISABLE_TEST_HOOKS
-#include "Command.h"
 
 namespace AppInstaller::CLI
 {

@@ -9,15 +9,12 @@ namespace AppInstaller::CLI::Workflow
 {
     using namespace AppInstaller::MSStore;
     using namespace AppInstaller::SelfManagement;
-    using namespace std::string_view_literals;
     using namespace winrt::Windows::Foundation;
     using namespace winrt::Windows::Foundation::Collections;
     using namespace winrt::Windows::ApplicationModel::Store::Preview::InstallControl;
 
     namespace
     {
-        static constexpr std::wstring_view s_AppInstallerProductId = L"9NBLGGH4NNS1"sv;
-
         Utility::LocIndString GetErrorCodeString(const HRESULT errorCode)
         {
             std::ostringstream ssError;
