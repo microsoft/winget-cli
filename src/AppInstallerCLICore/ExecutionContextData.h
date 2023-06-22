@@ -66,7 +66,6 @@ namespace AppInstaller::CLI::Execution
         PinningIndex,
         Pins,
         ConfigurationContext,
-        // On download: Target directory to place the downloaded installer
         DownloadDirectory,
         Max
     };

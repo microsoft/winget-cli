@@ -540,23 +540,21 @@ namespace AppInstaller::CLI::Workflow
             Workflow::DisplayInstallationNotes;
     }
 
-    void InstallDependencies(Execution::Context& context)
-    {
-        context <<
-            Workflow::GetDependenciesFromInstaller <<
-            Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
-            Workflow::EnableWindowsFeaturesDependencies <<
-            Workflow::BuildDependencyGraph(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
-            Workflow::DownloadInstaller << // This should simply check if the installer already exists.
-            Workflow::ProcessPackageDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies);
-    }
-
     void DownloadPackageDependencies(Execution::Context& context)
     {
         context <<
             Workflow::GetDependenciesFromInstaller <<
             Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
             Workflow::ProcessPackageDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies, true);
+    }
+
+    void InstallDependencies(Execution::Context& context)
+    {
+        context <<
+            Workflow::GetDependenciesFromInstaller <<
+            Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
+            Workflow::EnableWindowsFeaturesDependencies <<
+            Workflow::ProcessPackageDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies);
     }
 
     void InstallSinglePackage(Execution::Context& context)

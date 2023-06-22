@@ -24,7 +24,7 @@ namespace AppInstaller::CLI
             Workflow::EnsureApplicableInstaller <<
             Workflow::ReportIdentityAndInstallationDisclaimer <<
             Workflow::ShowPromptsForSinglePackage(/* ensureAcceptance */ true) <<
-            Workflow::SetDownloadLocation <<
+            Workflow::SetDownloadDirectory <<
             Workflow::DownloadPackageDependencies <<
             Workflow::DownloadInstaller;
     }

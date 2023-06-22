@@ -180,7 +180,7 @@ namespace AppInstaller::CLI
 
         // Download command
         case Execution::Args::Type::DownloadDirectory:
-            return { type, "download-directory"_liv, 'd', ArgTypeCategory::CopyValueToSubContext };
+            return { type, "download-directory"_liv, 'd', ArgTypeCategory::None };
 
         // Common arguments
         case Execution::Args::Type::NoVT:

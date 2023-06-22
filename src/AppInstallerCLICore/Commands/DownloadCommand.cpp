@@ -94,11 +94,11 @@ namespace AppInstaller::CLI
         }
 
         context <<
+            Workflow::SetDownloadDirectory <<
             Workflow::SelectInstaller <<
             Workflow::EnsureApplicableInstaller <<
             Workflow::ReportIdentityAndInstallationDisclaimer <<
             Workflow::ShowPromptsForSinglePackage(/* ensureAcceptance */ true) <<
-            Workflow::SetDownloadLocation <<
             Workflow::DownloadPackageDependencies <<
             Workflow::DownloadInstaller;
     }

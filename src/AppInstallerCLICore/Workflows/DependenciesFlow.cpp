@@ -340,9 +340,10 @@ namespace AppInstaller::CLI::Workflow
                 dependencyContext.Add<Execution::Data::InstalledPackageVersion>(itr->second.InstalledPackageVersion);
                 dependencyContext.Add<Execution::Data::Installer>(itr->second.Installer);
 
-                // This value is only present and set by the download command. Dependencies should always be downloaded to the 'Dependencies' folder.
-                if (context.Contains(Execution::Data::DownloadDirectory))
+                // Set flag for download behavior and append dependencies folder to download directory.
+                if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::DownloadInstallerOnly))
                 {
+                    dependencyContext.SetFlags(Execution::ContextFlag::DownloadInstallerOnly);
                     dependencyContext.Add<Execution::Data::DownloadDirectory>(context.Get<Execution::Data::DownloadDirectory>() / "Dependencies");
                 }
 

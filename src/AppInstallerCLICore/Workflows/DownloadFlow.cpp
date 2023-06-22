@@ -445,11 +445,11 @@ namespace AppInstaller::CLI::Workflow
         auto& installerPath = context.Get<Execution::Data::InstallerPath>();
         std::filesystem::path renamedDownloadedInstaller;
 
-        if (context.Contains(Execution::Data::DownloadDirectory))
+        if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::DownloadInstallerOnly))
         {
-            // This means that we want to download the installer to a specific directory,
-            std::filesystem::path downloadDirectory = context.Get<Execution::Data::DownloadDirectory>();
+            THROW_HR_IF(E_UNEXPECTED, !context.Contains(Execution::Data::DownloadDirectory));
 
+            std::filesystem::path downloadDirectory = context.Get<Execution::Data::DownloadDirectory>();
             if (!std::filesystem::exists(downloadDirectory) || !std::filesystem::is_directory(downloadDirectory))
             {
                 std::filesystem::create_directories(downloadDirectory);
@@ -488,7 +488,7 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void SetDownloadLocation(Execution::Context& context)
+    void SetDownloadDirectory(Execution::Context& context)
     {
         if (!WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::DownloadInstallerOnly))
         {
