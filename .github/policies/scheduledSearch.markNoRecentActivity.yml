@@ -1,0 +1,69 @@
+id: scheduledSearch.closeNoRecentActivity
+name: GitOps.PullRequestIssueManagement
+description: Markss issues that are inactive
+owner:
+resource: repository
+disabled: false
+where:
+configuration:
+  resourceManagementConfiguration:
+    scheduledSearches:
+      - description: >-
+          Search for PR where -
+          * Pull Request is Open
+          * Pull request does not have the label No-Recent-Activity
+          * Pull request does not have the label Blocking-Issue
+          * Pull request has the label Needs-Author-Feedback
+          * Has not had activity in the last 7 days
+
+          Then -
+          * Add No-Recent-Activity label
+        frequencies:
+          - hourly:
+              hour: 6
+        filters:
+          - isPullRequest
+          - isOpen
+          - isNotLabeledWith:
+              label: No-Recent-Activity
+          - isNotLabeledWith:
+              label: Blocking-Issue
+          - hasLabel:
+              label: Needs-Author-Feedback
+          - noActivitySince:
+              days: 7
+        actions:
+          - addLabel:
+              label: No-Recent-Activity
+      - description: >-
+          Search for Issues where -
+          * Issue is Open
+          * Issue has the label Needs-Author-Feedback
+          * Issue does not have the label No-Recent-Activity
+          * Issue does not have the label Blocking-Issue
+          * Issue does not have the label Issue-Feature
+          * Has not had activity in the last 7 days
+
+          Then -
+          * Close the Issue
+        frequencies:
+          - hourly:
+              hour: 6
+        filters:
+          - isIssue
+          - isOpen
+          - hasLabel:
+              label: Needs-Author-Feedback
+          - isNotLabeledWith:
+              label: No-Recent-Activity
+          - isNotLabeledWith:
+              label: Blocking-Issue
+          - isNotLabeledWith:
+              label: Issue-Feature
+          - noActivitySince:
+              days: 7
+        actions:
+          - addLabel:
+              label: No-Recent-Activity
+onFailure:
+onSuccess:

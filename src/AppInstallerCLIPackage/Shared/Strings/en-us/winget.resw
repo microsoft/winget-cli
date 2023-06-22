@@ -1939,6 +1939,37 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="CancellingOperation" xml:space="preserve">
     <value>Cancelling operation</value>
   </data>
+  <data name="InstallStubPackageDescription" xml:space="preserve">
+    <value>Install the stub package for AppInstaller</value>
+  </data>
+  <data name="InstallFullPackageDescription" xml:space="preserve">
+    <value>Install the full package for AppInstaller</value>
+  </data>
+  <data name="ConfigurationEnableMessage" xml:space="preserve">
+    <value>Enable configuration components. Requires store access.</value>
+  </data>
+  <data name="ConfigurationEnableArgumentError" xml:space="preserve">
+    <value>Option '--enable' and '--disable' cannot be used with other arguments.</value>
+    <comment>{Locked="--enable", "--disable"}</comment>
+  </data>
+  <data name="ConfigurationEnablingMessage" xml:space="preserve">
+    <value>Enabling configuration components. Requires store access.</value>
+  </data>
+  <data name="ConfigurationNotEnabledMessage" xml:space="preserve">
+    <value>Configuration is not enabled. Run `winget configure --enable` to enable it.</value>
+  </data>
+  <data name="ConfigurationEnabledMessage" xml:space="preserve">
+    <value>Configuration is enabled.</value>
+  </data>
+  <data name="ConfigurationDisableMessage" xml:space="preserve">
+    <value>Disable configuration components. Requires store access.</value>
+  </data>
+  <data name="ConfigurationDisablingMessage" xml:space="preserve">
+    <value>Disabling configuration components. Requires store access.</value>
+  </data>
+  <data name="ConfigurationDisabledMessage" xml:space="preserve">
+    <value>Configuration is disabled.</value>
+  </data>
   <data name="SkipDependenciesArgumentDescription" xml:space="preserve">
     <value>Skips processing package dependencies and Windows features</value>
   </data>

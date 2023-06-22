@@ -6,6 +6,7 @@
 #include "ConfigurationSetProcessorFactoryRemoting.h"
 #include <AppInstallerErrors.h>
 #include <winrt/Microsoft.Management.Configuration.h>
+#include <winget/SelfManagement.h>
 
 using namespace AppInstaller::CLI::Execution;
 using namespace winrt::Microsoft::Management::Configuration;
@@ -13,6 +14,7 @@ using namespace winrt::Windows::Foundation;
 using namespace winrt::Windows::Foundation::Collections;
 using namespace winrt::Windows::Storage;
 using namespace AppInstaller::Utility::literals;
+using namespace AppInstaller::SelfManagement;
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -883,6 +885,15 @@ namespace AppInstaller::CLI::Workflow
         else
         {
             context.Reporter.Info() << Resource::String::ConfigurationSuccessfullyApplied << std::endl;
+        }
+    }
+
+    void VerifyIsFullPackage(Execution::Context& context)
+    {
+        if (IsStubPackage())
+        {
+            context.Reporter.Error() << Resource::String::ConfigurationNotEnabledMessage << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PACKAGE_IS_STUB);
         }
     }
 }

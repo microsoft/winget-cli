@@ -115,6 +115,11 @@ namespace AppInstaller::Repository::Microsoft
         // The base class for a package that comes from a preindexed packaged source.
         struct PreIndexedFactoryBase : public ISourceFactory
         {
+            std::string_view TypeName() const override final
+            {
+                return PreIndexedPackageSourceFactory::Type();
+            }
+
             std::shared_ptr<ISourceReference> Create(const SourceDetails& details) override final
             {
                 // With more than one source implementation, we will probably need to probe first

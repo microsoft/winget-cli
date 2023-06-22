@@ -150,7 +150,7 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::All:
             return { type, "all"_liv, 'r', "recurse"_liv, ArgTypeCategory::MultiplePackages };
         case Execution::Args::Type::IncludeUnknown:
-            return { type, "include-unknown"_liv, 'u', "unknown"_liv };
+            return { type, "include-unknown"_liv, 'u', "unknown"_liv, ArgTypeCategory::CopyFlagToSubContext };
         case Execution::Args::Type::IncludePinned:
             return { type, "include-pinned"_liv, "pinned"_liv, ArgTypeCategory::CopyFlagToSubContext };
         case Execution::Args::Type::UninstallPrevious:
@@ -178,6 +178,10 @@ namespace AppInstaller::CLI
             return { type, "file"_liv, 'f' };
         case Execution::Args::Type::ConfigurationAcceptWarning:
             return { type, "accept-configuration-agreements"_liv };
+        case Execution::Args::Type::ConfigurationEnable:
+            return { type, "enable"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::StubType };
+        case Execution::Args::Type::ConfigurationDisable:
+            return { type, "disable"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::StubType };
 
         // Common arguments
         case Execution::Args::Type::NoVT:

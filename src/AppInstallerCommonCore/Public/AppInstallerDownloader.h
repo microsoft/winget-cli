@@ -4,6 +4,7 @@
 #include <AppInstallerProgress.h>
 
 #include <urlmon.h>
+#include <wrl/client.h>
 
 #include <filesystem>
 #include <optional>

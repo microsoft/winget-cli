@@ -261,17 +261,6 @@ Experimental feature with the aim of managing dependencies, as of now it only sh
    },
 ```
 
-### pinning
-
-This feature enables the ability to pin packages to prevent the Windows Package Manager from updating them.
-You can enable the feature as shown below.
-
-```json
-   "experimentalFeatures": {
-       "pinning": true
-   },
-```
-
 ### configuration
 
 This feature enables the configuration commands. These commands allow configuring the system into a desired state.
