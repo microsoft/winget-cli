@@ -18,6 +18,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     std::optional<::AppInstaller::Utility::Architecture> GetUtilityArchitecture(winrt::Windows::System::ProcessorArchitecture architecture);
     std::optional<winrt::Windows::System::ProcessorArchitecture> GetWindowsSystemProcessorArchitecture(::AppInstaller::Utility::Architecture architecture);
     std::pair<::AppInstaller::Manifest::ScopeEnum, bool> GetManifestScope(winrt::Microsoft::Management::Deployment::PackageInstallScope scope);
+    ::AppInstaller::Manifest::InstallerTypeEnum GetManifestInstallerType(winrt::Microsoft::Management::Deployment::PackageInstallerType installerType);
     winrt::Microsoft::Management::Deployment::PackageInstallerType GetDeploymentInstallerType(::AppInstaller::Manifest::InstallerTypeEnum installerType);
     winrt::Microsoft::Management::Deployment::PackageInstallerScope GetDeploymentInstallerScope(::AppInstaller::Manifest::ScopeEnum installerScope);
     ::AppInstaller::Manifest::ScopeEnum GetManifestUninstallScope(winrt::Microsoft::Management::Deployment::PackageUninstallScope scope);

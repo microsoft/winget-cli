@@ -13,8 +13,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
         winrt::Microsoft::Management::Deployment::PackageVersionId PackageVersionId();
         void PackageVersionId(winrt::Microsoft::Management::Deployment::PackageVersionId const& value);
-        winrt::Microsoft::Management::Deployment::PackageInstallerScope Scope();
-        void Scope(winrt::Microsoft::Management::Deployment::PackageInstallerScope const& value);
+        winrt::Microsoft::Management::Deployment::PackageInstallScope Scope();
+        void Scope(winrt::Microsoft::Management::Deployment::PackageInstallScope const& value);
         winrt::Microsoft::Management::Deployment::PackageInstallerType InstallerType();
         void InstallerType(winrt::Microsoft::Management::Deployment::PackageInstallerType const& value);
         winrt::Windows::System::ProcessorArchitecture Architecture();
@@ -35,7 +35,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
         winrt::Microsoft::Management::Deployment::PackageVersionId m_packageVersionId{ nullptr };
-        winrt::Microsoft::Management::Deployment::PackageInstallerScope m_scope = winrt::Microsoft::Management::Deployment::PackageInstallerScope::Unknown;
+        winrt::Microsoft::Management::Deployment::PackageInstallScope m_scope = winrt::Microsoft::Management::Deployment::PackageInstallScope::Any;
         winrt::Microsoft::Management::Deployment::PackageInstallerType m_installerType = winrt::Microsoft::Management::Deployment::PackageInstallerType::Unknown;
         winrt::Windows::System::ProcessorArchitecture m_architecture = winrt::Windows::System::ProcessorArchitecture::Unknown;
         std::wstring m_locale = L"";

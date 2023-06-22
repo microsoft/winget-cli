@@ -85,7 +85,7 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
-        /// Downloads the test installer using the 'zip' installer type argument. Verifies that base installer types such as 'zip' are still supported.
+        /// Downloads the test installer using the installer type argument.
         /// </summary>
         [Test]
         public void DownloadWithInstallerTypeArg()
@@ -118,32 +118,5 @@ namespace AppInstallerCLIE2ETests
             var errorResult = TestCommon.RunAICLICommand("download", $"AppInstallerTest.TestExeSha256Mismatch --download-directory {downloadDir}");
             Assert.AreEqual(Constants.ErrorCode.ERROR_INSTALLER_HASH_MISMATCH, errorResult.ExitCode);
         }
-
-        /// <summary>
-        /// Downloads the test installer and the installers of the package dependencies.
-        /// </summary>
-        //[Test]
-        //public void DownloadWithPackageDependency()
-        //{
-
-        //}
-
-        ///// <summary>
-        ///// Downloads the test installer but skips the installers of the package dependencies.
-        ///// </summary>
-        //[Test]
-        //public void DownloadWithPackageDependency_SkipDependenciesArg()
-        //{
-
-        //}
-
-        ///// <summary>
-        ///// Downloads the test installer with an invalid package dependency, but continues due to the 'force' argument.
-        ///// </summary>
-        //[Test]
-        //public void DownloadWithPackageDependency_Force()
-        //{
-
-        //}
     }
 }

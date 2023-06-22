@@ -10,6 +10,7 @@
 #include <winget/UserSettings.h>
 #include <winget/Manifest.h>
 #include "Commands/COMCommand.h"
+#include <AppInstallerArchitecture.h>
 #include <AppInstallerTelemetry.h>
 #include <AppInstallerErrors.h>
 #pragma warning( push )
@@ -493,6 +494,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             {
                 context->Args.AddArg(Execution::Args::Type::DownloadDirectory, ::AppInstaller::Utility::ConvertToUTF8(options.DownloadDirectory()));
             }
+            if (!options.Locale().empty())
+            {
+                context->Args.AddArg(Execution::Args::Type::Locale, ::AppInstaller::Utility::ConvertToUTF8(options.Locale()));
+            }
             if (options.AllowHashMismatch())
             {
                 context->Args.AddArg(Execution::Args::Type::HashOverride);
@@ -501,21 +506,27 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             {
                 context->Args.AddArg(Execution::Args::Type::AcceptPackageAgreements);
             }
-            // Figure out which is the correct scope.
+            auto manifestScope = GetManifestScope(options.Scope());
+            if (manifestScope.first != ::AppInstaller::Manifest::ScopeEnum::Unknown)
+            {
+                context->Args.AddArg(Execution::Args::Type::InstallScope, ScopeToString(manifestScope.first));
+            }
 
-            // If the PackageInstallScope is anything other than ::Any then set it as a requirement.
-            //auto manifestScope = GetManifestScope(options.PackageInstallScope());
-            //if (manifestScope.first != ::AppInstaller::Manifest::ScopeEnum::Unknown)
-            //{
-            //    context->Args.AddArg(Execution::Args::Type::InstallScope, ScopeToString(manifestScope.first));
-            //    context->Add<Execution::Data::AllowUnknownScope>(manifestScope.second);
-            //}
+            auto architecture = options.Architecture();
+            if (architecture != Windows::System::ProcessorArchitecture::Unknown)
+            {
+                auto convertedArchitecture = GetUtilityArchitecture(architecture);
+                if (convertedArchitecture)
+                {
+                    context->Args.AddArg(Execution::Args::Type::InstallArchitecture, ToString(convertedArchitecture.value()));
+                }
+            }
 
-
-            //if (options.Scope())
-            //{
-            //    context->Args.AddArg(Execution::Args::Type::InstallScope);
-            //}
+            auto installerType = GetManifestInstallerType(options.InstallerType());
+            if (installerType != AppInstaller::Manifest::InstallerTypeEnum::Unknown)
+            {
+                context->Args.AddArg(Execution::Args::Type::InstallerType, AppInstaller::Manifest::InstallerTypeToString(installerType));
+            }
         }
     }
 
@@ -663,8 +674,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         Microsoft::Management::Deployment::PackageVersionInfo packageVersionInfo = GetPackageVersionInfo(package, options);
         AddPackageManifestToContext(packageVersionInfo, comContext.get());
 
-        // Set download flag
-        comContext->SetFlags(AppInstaller::CLI::Execution::ContextFlag::DownloadInstallerOnly);
+        comContext->SetFlags(AppInstaller::CLI::Execution::ContextFlag::RetainDownloadedInstaller);
 
         return Execution::OrchestratorQueueItemFactory::CreateItemForDownload(std::wstring{ package.Id() }, std::wstring{ packageVersionInfo.PackageCatalog().Info().Id() }, std::move(comContext));
     }

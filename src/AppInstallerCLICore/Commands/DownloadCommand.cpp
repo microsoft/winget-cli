@@ -61,7 +61,7 @@ namespace AppInstaller::CLI
 
     void DownloadCommand::ExecuteInternal(Context& context) const
     {
-        context.SetFlags(AppInstaller::CLI::Execution::ContextFlag::DownloadInstallerOnly);
+        context.SetFlags(AppInstaller::CLI::Execution::ContextFlag::RetainDownloadedInstaller);
 
         if (context.Args.Contains(Execution::Args::Type::Manifest))
         {
@@ -99,7 +99,7 @@ namespace AppInstaller::CLI
             Workflow::EnsureApplicableInstaller <<
             Workflow::ReportIdentityAndInstallationDisclaimer <<
             Workflow::ShowPromptsForSinglePackage(/* ensureAcceptance */ true) <<
-            Workflow::DownloadPackageDependencies <<
+            Workflow::DownloadPackageDependencies(/* includeInstalledPackages */ true) <<
             Workflow::DownloadInstaller;
     }
 }

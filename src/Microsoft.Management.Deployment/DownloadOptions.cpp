@@ -27,11 +27,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         m_packageVersionId = value;
     }
-    winrt::Microsoft::Management::Deployment::PackageInstallerScope DownloadOptions::Scope()
+    winrt::Microsoft::Management::Deployment::PackageInstallScope DownloadOptions::Scope()
     {
         return m_scope;
     }
-    void DownloadOptions::Scope(winrt::Microsoft::Management::Deployment::PackageInstallerScope const& value)
+    void DownloadOptions::Scope(winrt::Microsoft::Management::Deployment::PackageInstallScope const& value)
     {
         m_scope = value;
     }

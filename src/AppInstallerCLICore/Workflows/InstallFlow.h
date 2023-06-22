@@ -142,17 +142,22 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void InstallPackageInstaller(Execution::Context& context);
 
-    // Processes all of the dependencies of a specific package.
-    // Required Args: None
-    // Inputs: Manifest, Installer
-    // Outputs: None
-    void InstallDependencies(Execution::Context& context);
-
     // Downloads all of the package dependencies of a specific package.
     // Required Args: none
     // Inputs: Manifest, Installer
     // Outputs: None
-    void DownloadPackageDependencies(Execution::Context& context);
+    struct DownloadPackageDependencies : public WorkflowTask
+    {
+        DownloadPackageDependencies(
+            bool includeInstalledPackages):
+            WorkflowTask("ProcessMultiplePackages"),
+            m_includeInstalledPackages(includeInstalledPackages) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        bool m_includeInstalledPackages = false;
+    };
 
     // Installs a single package. This also does the reporting, user interaction, and installer download
     // for single-package installation.
@@ -174,6 +179,7 @@ namespace AppInstaller::CLI::Workflow
             bool ensurePackageAgreements = true,
             bool ignoreDependencies = false,
             bool stopOnFailure = false,
+            bool includeInstalledPackages = false,
             bool downloadInstallerOnly = false):
             WorkflowTask("ProcessMultiplePackages"),
             m_dependenciesReportMessage(dependenciesReportMessage),
@@ -182,6 +188,7 @@ namespace AppInstaller::CLI::Workflow
             m_ignorePackageDependencies(ignoreDependencies),
             m_ensurePackageAgreements(ensurePackageAgreements),
             m_stopOnFailure(stopOnFailure),
+            m_includeInstalledPackages(includeInstalledPackages),
             m_downloadInstallerOnly(downloadInstallerOnly){}
 
         void operator()(Execution::Context& context) const override;
@@ -193,26 +200,7 @@ namespace AppInstaller::CLI::Workflow
         bool m_ignorePackageDependencies;
         bool m_ensurePackageAgreements;
         bool m_stopOnFailure;
-        bool m_downloadInstallerOnly;
-    };
-    
-    // Processes only the package dependencies of a package by downloading and/or installing them.
-    // Required Args: None
-    // Inputs: PackageSubContexts
-    // Outputs: None
-    struct ProcessPackageDependencies : public WorkflowTask
-    {
-        ProcessPackageDependencies(
-            StringResource::StringId dependenciesReportMessage,
-            bool downloadInstallerOnly = false) :
-            WorkflowTask("ProcessPackageDependencies"),
-            m_dependenciesReportMessage(dependenciesReportMessage),
-            m_downloadInstallerOnly(downloadInstallerOnly) {}
-
-        void operator()(Execution::Context& context) const override;
-
-    private:
-        StringResource::StringId m_dependenciesReportMessage;
+        bool m_includeInstalledPackages;
         bool m_downloadInstallerOnly;
     };
 

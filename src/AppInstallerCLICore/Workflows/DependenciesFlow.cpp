@@ -341,9 +341,9 @@ namespace AppInstaller::CLI::Workflow
                 dependencyContext.Add<Execution::Data::Installer>(itr->second.Installer);
 
                 // Set flag for download behavior and append dependencies folder to download directory.
-                if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::DownloadInstallerOnly))
+                if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::RetainDownloadedInstaller))
                 {
-                    dependencyContext.SetFlags(Execution::ContextFlag::DownloadInstallerOnly);
+                    dependencyContext.SetFlags(Execution::ContextFlag::RetainDownloadedInstaller);
                     dependencyContext.Add<Execution::Data::DownloadDirectory>(context.Get<Execution::Data::DownloadDirectory>() / "Dependencies");
                 }
 

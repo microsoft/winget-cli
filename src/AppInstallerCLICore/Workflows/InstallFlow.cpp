@@ -540,21 +540,13 @@ namespace AppInstaller::CLI::Workflow
             Workflow::DisplayInstallationNotes;
     }
 
-    void DownloadPackageDependencies(Execution::Context& context)
+    void DownloadPackageDependencies::operator()(Execution::Context& context) const
     {
         context <<
             Workflow::GetDependenciesFromInstaller <<
             Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
-            Workflow::ProcessPackageDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies, true);
-    }
-
-    void InstallDependencies(Execution::Context& context)
-    {
-        context <<
-            Workflow::GetDependenciesFromInstaller <<
-            Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
-            Workflow::EnableWindowsFeaturesDependencies <<
-            Workflow::ProcessPackageDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies);
+            Workflow::BuildDependencyGraph(Resource::String::InstallAndUpgradeCommandsReportDependencies, m_includeInstalledPackages) <<
+            Workflow::ProcessMultiplePackages(Resource::String::InstallAndUpgradeCommandsReportDependencies, APPINSTALLER_CLI_ERROR_DOWNLOAD_DEPENDENCIES, {}, false, true, true, m_includeInstalledPackages, true);
     }
 
     void InstallSinglePackage(Execution::Context& context)
@@ -563,7 +555,11 @@ namespace AppInstaller::CLI::Workflow
             Workflow::CheckForUnsupportedArgs <<
             Workflow::ReportIdentityAndInstallationDisclaimer <<
             Workflow::ShowPromptsForSinglePackage(/* ensureAcceptance */ true) <<
-            Workflow::InstallDependencies <<
+            Workflow::GetDependenciesFromInstaller <<
+            Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
+            Workflow::EnableWindowsFeaturesDependencies <<
+            Workflow::BuildDependencyGraph(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
+            Workflow::ProcessMultiplePackages(Resource::String::InstallAndUpgradeCommandsReportDependencies, APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES, {}, false, true, true) <<
             Workflow::DownloadInstaller <<
             Workflow::InstallPackageInstaller;
     }
@@ -637,11 +633,11 @@ namespace AppInstaller::CLI::Workflow
             // Prevent individual exceptions from breaking out of the loop
             try
             {
-                // Use Flag here to control the download flow behavior.
-
                 if (!m_ignorePackageDependencies)
                 {
-                    currentContext << Workflow::ProcessPackageDependencies(m_dependenciesReportMessage, m_downloadInstallerOnly);
+                    currentContext <<
+                        Workflow::BuildDependencyGraph(m_dependenciesReportMessage, m_includeInstalledPackages) <<
+                        Workflow::ProcessMultiplePackages(m_dependenciesReportMessage, APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES, {}, false, true, true, m_includeInstalledPackages, m_downloadInstallerOnly);
                 }
 
                 currentContext << Workflow::DownloadInstaller;
@@ -682,13 +678,6 @@ namespace AppInstaller::CLI::Workflow
         {
             AICLI_TERMINATE_CONTEXT(m_resultOnFailure);
         }
-    }
-
-    void ProcessPackageDependencies::operator()(Execution::Context& context) const
-    {
-        context
-            << Workflow::BuildDependencyGraph(m_dependenciesReportMessage, m_downloadInstallerOnly)
-            << Workflow::ProcessMultiplePackages(m_dependenciesReportMessage, APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES, {}, false, true, true, m_downloadInstallerOnly);;
     }
 
     void SnapshotARPEntries(Execution::Context& context) try

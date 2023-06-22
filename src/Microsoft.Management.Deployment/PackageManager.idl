@@ -954,7 +954,7 @@ namespace Microsoft.Management.Deployment
         PackageInstallerType InstallerType;
 
         /// The package installer scope.
-        PackageInstallerScope Scope;
+        PackageInstallScope Scope;
 
         /// The package installer architecture.
         Windows.System.ProcessorArchitecture Architecture;

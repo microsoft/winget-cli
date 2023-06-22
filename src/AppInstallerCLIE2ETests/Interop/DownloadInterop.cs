@@ -20,7 +20,6 @@ namespace AppInstallerCLIE2ETests.Interop
     [TestFixtureSource(typeof(InstanceInitializersSource), nameof(InstanceInitializersSource.OutOfProcess), Category = nameof(InstanceInitializersSource.OutOfProcess))]
     public class DownloadInterop : BaseInterop
     {
-        private string installDir;
         private PackageManager packageManager;
         private PackageCatalogReference testSource;
 
@@ -48,7 +47,7 @@ namespace AppInstallerCLIE2ETests.Interop
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
         [Test]
-        public async Task DownloadToDirectory()
+        public async Task DownloadToDefaultDirectory()
         {
             // Find package
             var searchResult = this.FindOnePackage(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.TestExeInstaller");
@@ -65,6 +64,155 @@ namespace AppInstallerCLIE2ETests.Interop
             Assert.AreEqual(DownloadResultStatus.Ok, downloadResult.Status);
             string downloadDir = Path.Combine(TestCommon.GetDefaultDownloadDirectory(), $"{Constants.ExeInstallerPackageId}.{packageVersion}");
             Assert.True(TestCommon.VerifyInstallerDownload(downloadDir, Constants.AppInstallerTestExeInstallerExe));
+        }
+
+        /// <summary>
+        /// Download the installer to a specified directory.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task DownloadToDirectory()
+        {
+            // Find package
+            var downloadDir = TestCommon.GetRandomTestDir();
+            var searchResult = this.FindOnePackage(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.TestExeInstaller");
+
+            // Configure installation
+            var downloadOptions = this.TestFactory.CreateDownloadOptions();
+            downloadOptions.AcceptPackageAgreements = true;
+            downloadOptions.DownloadDirectory = downloadDir;
+
+            // Download
+            var downloadResult = await this.packageManager.DownloadPackageAsync(searchResult.CatalogPackage, downloadOptions);
+
+            // Assert
+            Assert.AreEqual(DownloadResultStatus.Ok, downloadResult.Status);
+            Assert.True(TestCommon.VerifyInstallerDownload(downloadDir, Constants.AppInstallerTestExeInstallerExe));
+        }
+
+        /// <summary>
+        /// Download the installer using the user scope argument.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task DownloadWithUserScope()
+        {
+            // Find package
+            var downloadDir = TestCommon.GetRandomTestDir();
+            var searchResult = this.FindOnePackage(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.TestMultipleInstallers");
+
+            // Configure installation
+            var downloadOptions = this.TestFactory.CreateDownloadOptions();
+            downloadOptions.AcceptPackageAgreements = true;
+            downloadOptions.DownloadDirectory = downloadDir;
+            downloadOptions.Scope = PackageInstallScope.User;
+
+            // Download
+            var downloadResult = await this.packageManager.DownloadPackageAsync(searchResult.CatalogPackage, downloadOptions);
+
+            // Assert
+            Assert.AreEqual(DownloadResultStatus.Ok, downloadResult.Status);
+            Assert.True(TestCommon.VerifyInstallerDownload(downloadDir, Constants.AppInstallerTestExeInstallerExe));
+        }
+
+        /// <summary>
+        /// Download the installer using the machine scope argument.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task DownloadWithMachineScope()
+        {
+            // Find package
+            var downloadDir = TestCommon.GetRandomTestDir();
+            var searchResult = this.FindOnePackage(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.TestMultipleInstallers");
+
+            // Configure installation
+            var downloadOptions = this.TestFactory.CreateDownloadOptions();
+            downloadOptions.AcceptPackageAgreements = true;
+            downloadOptions.DownloadDirectory = downloadDir;
+            downloadOptions.Scope = PackageInstallScope.System;
+
+            // Download
+            var downloadResult = await this.packageManager.DownloadPackageAsync(searchResult.CatalogPackage, downloadOptions);
+
+            // Assert
+            Assert.AreEqual(DownloadResultStatus.Ok, downloadResult.Status);
+            Assert.True(TestCommon.VerifyInstallerDownload(downloadDir, Constants.AppInstallerTestMsiInstallerMsi));
+        }
+
+        /// <summary>
+        /// Download the test installer using the 'zip' installer type argument.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task DownloadWithZipInstallerTypeArg()
+        {
+            // Find package
+            var downloadDir = TestCommon.GetRandomTestDir();
+            var searchResult = this.FindOnePackage(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.TestMultipleInstallers");
+
+            // Configure installation
+            var downloadOptions = this.TestFactory.CreateDownloadOptions();
+            downloadOptions.AcceptPackageAgreements = true;
+            downloadOptions.DownloadDirectory = downloadDir;
+            downloadOptions.InstallerType = PackageInstallerType.Zip;
+
+            // Download
+            var downloadResult = await this.packageManager.DownloadPackageAsync(searchResult.CatalogPackage, downloadOptions);
+
+            // Assert
+            Assert.AreEqual(DownloadResultStatus.Ok, downloadResult.Status);
+            Assert.True(TestCommon.VerifyInstallerDownload(downloadDir, Constants.AppInstallerTestZipInstallerZip));
+        }
+
+        /// <summary>
+        /// Downloads the test installer using the installer type argument.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task DownloadWithInstallerTypeArg()
+        {
+            // Find package
+            var downloadDir = TestCommon.GetRandomTestDir();
+            var searchResult = this.FindOnePackage(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.TestMultipleInstallers");
+
+            // Configure installation
+            var downloadOptions = this.TestFactory.CreateDownloadOptions();
+            downloadOptions.AcceptPackageAgreements = true;
+            downloadOptions.DownloadDirectory = downloadDir;
+            downloadOptions.InstallerType = PackageInstallerType.Msi;
+
+            // Download
+            var downloadResult = await this.packageManager.DownloadPackageAsync(searchResult.CatalogPackage, downloadOptions);
+
+            // Assert
+            Assert.AreEqual(DownloadResultStatus.Ok, downloadResult.Status);
+            Assert.True(TestCommon.VerifyInstallerDownload(downloadDir, Constants.AppInstallerTestMsiInstallerMsi));
+        }
+
+        /// <summary>
+        /// Downloads the test installer using the architecture argument.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task DownloadWithArchitectureArg()
+        {
+            // Find package
+            var downloadDir = TestCommon.GetRandomTestDir();
+            var searchResult = this.FindOnePackage(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.TestMultipleInstallers");
+
+            // Configure installation
+            var downloadOptions = this.TestFactory.CreateDownloadOptions();
+            downloadOptions.AcceptPackageAgreements = true;
+            downloadOptions.DownloadDirectory = downloadDir;
+            downloadOptions.Architecture = Windows.System.ProcessorArchitecture.X86;
+
+            // Download
+            var downloadResult = await this.packageManager.DownloadPackageAsync(searchResult.CatalogPackage, downloadOptions);
+
+            // Assert
+            Assert.AreEqual(DownloadResultStatus.Ok, downloadResult.Status);
+            Assert.True(TestCommon.VerifyInstallerDownload(downloadDir, Constants.AppInstallerTestMsiInstallerMsi));
         }
     }
 }
