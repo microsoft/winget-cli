@@ -80,6 +80,7 @@ namespace AppInstaller::CLI
         EnableDisable = 0x2,
         PurgePreserve = 0x4,
         PinType = 0x8,
+        StubType = 0x10,
 
         // This must always be at the end
         Max

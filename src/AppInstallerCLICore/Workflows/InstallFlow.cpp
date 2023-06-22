@@ -24,7 +24,6 @@
 #include <AppInstallerSynchronization.h>
 #include <winget/Runtime.h>
 
-using namespace winrt::Windows::ApplicationModel::Store::Preview::InstallControl;
 using namespace winrt::Windows::Foundation;
 using namespace winrt::Windows::Foundation::Collections;
 using namespace winrt::Windows::Management::Deployment;
