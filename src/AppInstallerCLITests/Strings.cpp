@@ -275,7 +275,7 @@ TEST_CASE("SplitWithSeparator", "[string]")
     REQUIRE(test2[1] == "");
     REQUIRE(test2[2] == "spaces");
 
-    std::vector<std::string> test3 = Split("nosplit", '.');
+    std::vector<std::string> test3 = Split("test", '.');
     REQUIRE(test3.size() == 1);
-    REQUIRE(test3[0] == "nosplit");
+    REQUIRE(test3[0] == "test");
 }
