@@ -126,13 +126,9 @@ namespace AppInstaller::Registry::Environment
     bool RefreshPathVariableForCurrentProcess()
     {
         // Path values must be expanded before assigning to process environment for proper refresh.
-        std::string userPathValue = ExpandPathValue(PathVariable(Manifest::ScopeEnum::User, true).GetPathValue());
         std::string systemPathValue = ExpandPathValue(PathVariable(Manifest::ScopeEnum::Machine, true).GetPathValue());
-
-        EnsurePathValueEndsWithSemicolon(userPathValue);
-        EnsurePathValueEndsWithSemicolon(systemPathValue);
-
-        std::wstring pathValue = ConvertToUTF16(userPathValue + systemPathValue);
+        std::string userPathValue = ExpandPathValue(PathVariable(Manifest::ScopeEnum::User, true).GetPathValue());
+        std::wstring pathValue = ConvertToUTF16(systemPathValue + userPathValue);
         return _wputenv_s(L"PATH", pathValue.c_str()) == 0;
     }
 }

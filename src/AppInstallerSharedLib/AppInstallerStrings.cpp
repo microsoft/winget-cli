@@ -839,22 +839,20 @@ namespace AppInstaller::Utility
         return LocIndString{ ssJoin.str() };
     }
 
-    std::vector<std::string> Split(const std::string& input, char token)
+    std::vector<std::string> Split(const std::string& input, char separator)
     {
         std::vector<std::string> result;
-        size_t startIndex = 0, endIndex = 0;
-        size_t inputLength = input.length();
-        for (size_t i = 0; i <= inputLength; i++)
+        size_t startIndex = 0;
+        size_t endIndex = 0;
+
+        while ((endIndex = input.find(separator, startIndex)) != std::string::npos)
         {
-            if (input[i] == token || i == inputLength)
-            {
-                endIndex = i;
-                std::string substring;
-                substring.append(input, startIndex, endIndex - startIndex);
-                result.push_back(substring);
-                startIndex = endIndex + 1;
-            }
+            std::string substring = input.substr(startIndex, endIndex - startIndex);
+            result.push_back(substring);
+            startIndex = endIndex + 1;
         }
+
+        result.push_back(input.substr(startIndex));
         return result;
     }
 }
