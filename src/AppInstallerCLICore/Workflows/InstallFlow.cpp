@@ -17,11 +17,12 @@
 #include "PromptFlow.h"
 #include <AppInstallerMsixInfo.h>
 #include <AppInstallerDeployment.h>
-#include <winget/ARPCorrelation.h>
-#include <winget/Archive.h>
+#include <AppInstallerSynchronization.h>
 #include <Argument.h>
 #include <Command.h>
-#include <AppInstallerSynchronization.h>
+#include <winget/ARPCorrelation.h>
+#include <winget/Archive.h>
+#include <winget/PathVariable.h>
 #include <winget/Runtime.h>
 
 using namespace winrt::Windows::Foundation;
@@ -30,6 +31,7 @@ using namespace winrt::Windows::Management::Deployment;
 using namespace AppInstaller::CLI::Execution;
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
+using namespace AppInstaller::Registry::Environment;
 using namespace AppInstaller::Settings;
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Utility::literals;
@@ -535,17 +537,23 @@ namespace AppInstaller::CLI::Workflow
             Workflow::ReportExecutionStage(ExecutionStage::PostExecution) <<
             Workflow::ReportARPChanges <<
             Workflow::RecordInstall <<
-            Workflow::RemoveInstaller << 
+            Workflow::RemoveInstaller <<
             Workflow::DisplayInstallationNotes;
     }
 
     void DownloadPackageDependencies::operator()(Execution::Context& context) const
     {
+        if (Settings::User().Get<Settings::Setting::InstallSkipDependencies>() || context.Args.Contains(Execution::Args::Type::SkipDependencies))
+        {
+            context.Reporter.Warn() << Resource::String::DependenciesSkippedMessage << std::endl;
+            return;
+        }
+
         context <<
             Workflow::GetDependenciesFromInstaller <<
             Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
             Workflow::BuildDependencyGraph(Resource::String::InstallAndUpgradeCommandsReportDependencies, m_includeInstalledPackages) <<
-            Workflow::ProcessMultiplePackages(Resource::String::InstallAndUpgradeCommandsReportDependencies, APPINSTALLER_CLI_ERROR_DOWNLOAD_DEPENDENCIES, {}, false, true, true, m_includeInstalledPackages, true);
+            Workflow::ProcessMultiplePackages(Resource::String::InstallAndUpgradeCommandsReportDependencies, APPINSTALLER_CLI_ERROR_DOWNLOAD_DEPENDENCIES, {}, false, true, true, false, m_includeInstalledPackages, true);
     }
 
     void InstallSinglePackage(Execution::Context& context)
@@ -573,11 +581,6 @@ namespace AppInstaller::CLI::Workflow
 
     void ProcessMultiplePackages::operator()(Execution::Context& context) const
     {
-        if (!context.Contains(Execution::Data::PackageSubContexts))
-        {
-            return;
-        }
-
         // Show all prompts needed for every package before installing anything
         context << Workflow::ShowPromptsForMultiplePackages(m_ensurePackageAgreements);
 
@@ -635,7 +638,7 @@ namespace AppInstaller::CLI::Workflow
                 {
                     currentContext <<
                         Workflow::BuildDependencyGraph(m_dependenciesReportMessage, m_includeInstalledPackages) <<
-                        Workflow::ProcessMultiplePackages(m_dependenciesReportMessage, APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES, {}, false, true, true, m_includeInstalledPackages, m_downloadInstallerOnly);
+                        Workflow::ProcessMultiplePackages(m_dependenciesReportMessage, APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES, {}, false, true, true, true, m_includeInstalledPackages, m_downloadInstallerOnly);
                 }
 
                 currentContext << Workflow::DownloadInstaller;
@@ -648,6 +651,19 @@ namespace AppInstaller::CLI::Workflow
             catch (...)
             {
                 currentContext.SetTerminationHR(Workflow::HandleException(currentContext, std::current_exception()));
+            }
+
+            if (m_refreshPathVariable)
+            {
+                if (RefreshPathVariableForCurrentProcess())
+                {
+                    AICLI_LOG(CLI, Info, << "Successfully refreshed process PATH environment variable.");
+                }
+                else
+                {
+                    AICLI_LOG(CLI, Warning, << "Failed to refresh process PATH environment variable.");
+                    context.Reporter.Warn() << Resource::String::FailedToRefreshPathWarning << std::endl;
+                }
             }
 
             currentContext.Reporter.Info() << std::endl;

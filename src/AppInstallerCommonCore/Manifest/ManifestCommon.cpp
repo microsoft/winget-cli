@@ -551,7 +551,7 @@ namespace AppInstaller::Manifest
 
         return "unknown"sv;
     }
-    
+
     std::string_view ScopeToString(ScopeEnum scope)
     {
         switch (scope)

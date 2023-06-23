@@ -21,6 +21,7 @@ namespace AppInstallerCLIE2ETests
         public void OneTimeSetup()
         {
             WinGetSettingsHelper.ConfigureFeature("download", true);
+            WinGetSettingsHelper.ConfigureFeature("dependencies", true);
         }
 
         /// <summary>
@@ -117,6 +118,34 @@ namespace AppInstallerCLIE2ETests
             var downloadDir = TestCommon.GetRandomTestDir();
             var errorResult = TestCommon.RunAICLICommand("download", $"AppInstallerTest.TestExeSha256Mismatch --download-directory {downloadDir}");
             Assert.AreEqual(Constants.ErrorCode.ERROR_INSTALLER_HASH_MISMATCH, errorResult.ExitCode);
+        }
+
+        /// <summary>
+        /// Downloads the test installer and its package dependencies.
+        /// </summary>
+        [Test]
+        public void DownloadDependencies()
+        {
+            var downloadDir = TestCommon.GetRandomTestDir();
+            var result = TestCommon.RunAICLICommand("download", $"AppInstallerTest.PackageDependency --download-directory {downloadDir}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            var dependenciesDir = Path.Combine(downloadDir, Constants.Dependencies);
+            Assert.IsTrue(TestCommon.VerifyInstallerDownload(dependenciesDir, Constants.AppInstallerTestExeInstallerExe));
+            Assert.IsTrue(TestCommon.VerifyInstallerDownload(downloadDir, Constants.AppInstallerTestExeInstallerExe));
+        }
+
+        /// <summary>
+        /// Downloads the test installer and skips dependencies.
+        /// </summary>
+        [Test]
+        public void DownloadDependencies_Skip()
+        {
+            var downloadDir = TestCommon.GetRandomTestDir();
+            var result = TestCommon.RunAICLICommand("download", $"AppInstallerTest.PackageDependency --skip-dependencies --download-directory {downloadDir}");
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
+            Assert.True(result.StdOut.Contains("Dependencies skipped."));
+            Assert.IsFalse(Directory.Exists(Path.Combine(downloadDir, Constants.Dependencies)));
+            Assert.IsTrue(TestCommon.VerifyInstallerDownload(downloadDir, Constants.AppInstallerTestExeInstallerExe));
         }
     }
 }

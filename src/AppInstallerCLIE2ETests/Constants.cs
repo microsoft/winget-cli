@@ -98,6 +98,7 @@ namespace AppInstallerCLIE2ETests
 
         // Locations
         public const string LocalAppData = "LocalAppData";
+        public const string Dependencies = "Dependencies";
 
         // Package dir
         public const string PortableExePackageDirName = $"{PortableExePackageId}_{TestSourceIdentifier}";

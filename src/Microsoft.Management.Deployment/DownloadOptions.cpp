@@ -83,6 +83,14 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         m_allowHashMismatch = value;
     }
+    bool DownloadOptions::SkipDependencies()
+    {
+        return m_skipDependencies;
+    }
+    void DownloadOptions::SkipDependencies(bool value)
+    {
+        m_skipDependencies = value;
+    }
     bool DownloadOptions::AcceptPackageAgreements()
     {
         return m_acceptPackageAgreements;

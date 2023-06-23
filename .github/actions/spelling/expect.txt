@@ -450,6 +450,7 @@ websites
 WERSJA
 wesome
 wfopen
+wgetenv
 Whatif
 winapifamily
 windir
@@ -462,6 +463,7 @@ wingetutil
 winreg
 winrtact
 withstarts
+wputenv
 wsl
 wsv
 wto

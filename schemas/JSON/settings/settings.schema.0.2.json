@@ -102,15 +102,15 @@
       "properties": {
         "preferences": { "$ref": "#/definitions/InstallPrefReq" },
         "requirements": { "$ref": "#/definitions/InstallPrefReq" },
-        "ignoreWarnings": {
-          "description": "Controls whether blocking warning messages shown to the user during an install or upgrade are ignored",
+        "skipDependencies": {
+          "description": "Controls whether package dependencies and Windows Features are skipped during installation",
           "type": "boolean",
           "default": false
         },
         "disableInstallNotes": {
           "description": "Controls whether installation notes are shown after a successful install",
           "type": "boolean",
-          "default":  false
+          "default": false
         },
         "portablePackageUserRoot": {
           "description": "The default root directory where packages are installed to under User scope. Applies to the portable installer type.",

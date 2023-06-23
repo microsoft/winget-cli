@@ -26,7 +26,7 @@ namespace AppInstaller::CLI
             Workflow::ReportIdentityAndInstallationDisclaimer <<
             Workflow::ShowPromptsForSinglePackage(/* ensureAcceptance */ true) <<
             Workflow::SetDownloadDirectory <<
-            Workflow::DownloadPackageDependencies(/* includeInstalledPackages */ WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::RetainDownloadedInstaller)) <<
+            Workflow::DownloadPackageDependencies(/* includeInstalledPackages */ WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::DownloadInstallerOnly)) <<
             Workflow::DownloadInstaller;
     }
 

@@ -214,5 +214,58 @@ namespace AppInstallerCLIE2ETests.Interop
             Assert.AreEqual(DownloadResultStatus.Ok, downloadResult.Status);
             Assert.True(TestCommon.VerifyInstallerDownload(downloadDir, Constants.AppInstallerTestMsiInstallerMsi));
         }
+
+        /// <summary>
+        /// Downloads the test installer and its package dependencies.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task DownloadDependencies()
+        {
+            // Find package
+            var downloadDir = TestCommon.GetRandomTestDir();
+            var searchResult = this.FindOnePackage(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.PackageDependency");
+
+            // Configure installation
+            var downloadOptions = this.TestFactory.CreateDownloadOptions();
+            downloadOptions.AcceptPackageAgreements = true;
+            downloadOptions.DownloadDirectory = downloadDir;
+
+            // Download
+            var downloadResult = await this.packageManager.DownloadPackageAsync(searchResult.CatalogPackage, downloadOptions);
+
+            // Assert
+            Assert.AreEqual(DownloadResultStatus.Ok, downloadResult.Status);
+            var dependenciesDir = Path.Combine(downloadDir, Constants.Dependencies);
+            Assert.True(TestCommon.VerifyInstallerDownload(dependenciesDir, Constants.AppInstallerTestExeInstallerExe));
+            Assert.True(TestCommon.VerifyInstallerDownload(downloadDir, Constants.AppInstallerTestExeInstallerExe));
+        }
+
+        /// <summary>
+        /// Downloads the test installer and skips dependencies.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task DownloadDependencies_Skip()
+        {
+            // Find package
+            var downloadDir = TestCommon.GetRandomTestDir();
+            var searchResult = this.FindOnePackage(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.PackageDependency");
+
+            // Configure installation
+            var downloadOptions = this.TestFactory.CreateDownloadOptions();
+            downloadOptions.AcceptPackageAgreements = true;
+            downloadOptions.DownloadDirectory = downloadDir;
+            downloadOptions.SkipDependencies = true;
+
+            // Download
+            var downloadResult = await this.packageManager.DownloadPackageAsync(searchResult.CatalogPackage, downloadOptions);
+
+            // Assert
+            Assert.AreEqual(DownloadResultStatus.Ok, downloadResult.Status);
+            var dependenciesDir = Path.Combine(downloadDir, Constants.Dependencies);
+            Assert.True(TestCommon.VerifyInstallerDownload(dependenciesDir, Constants.AppInstallerTestExeInstallerExe));
+            Assert.True(TestCommon.VerifyInstallerDownload(downloadDir, Constants.AppInstallerTestExeInstallerExe));
+        }
     }
 }

@@ -22,6 +22,7 @@
 #pragma warning( pop )
 #include "PackageManager.g.cpp"
 #include "CatalogPackage.h"
+#include "DownloadResult.h"
 #include "InstallResult.h"
 #include "UninstallResult.h"
 #include "PackageCatalogInfo.h"
@@ -31,7 +32,6 @@
 #include "Converters.h"
 #include "Helpers.h"
 #include "ContextOrchestrator.h"
-#include "DownloadResult.h"
 
 using namespace std::literals::chrono_literals;
 using namespace ::AppInstaller::CLI;
@@ -438,6 +438,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             {
                 context->Args.AddArg(Execution::Args::Type::AcceptPackageAgreements);
             }
+
+            if (options.SkipDependencies())
+            {
+                context->Args.AddArg(Execution::Args::Type::SkipDependencies);
+            }
         }
         else
         {
@@ -501,6 +506,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             if (options.AllowHashMismatch())
             {
                 context->Args.AddArg(Execution::Args::Type::HashOverride);
+            }
+            if (options.SkipDependencies())
+            {
+                context->Args.AddArg(Execution::Args::Type::SkipDependencies);
             }
             if (options.AcceptPackageAgreements())
             {
@@ -674,7 +683,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         Microsoft::Management::Deployment::PackageVersionInfo packageVersionInfo = GetPackageVersionInfo(package, options);
         AddPackageManifestToContext(packageVersionInfo, comContext.get());
 
-        comContext->SetFlags(AppInstaller::CLI::Execution::ContextFlag::RetainDownloadedInstaller);
+        comContext->SetFlags(AppInstaller::CLI::Execution::ContextFlag::DownloadInstallerOnly);
 
         return Execution::OrchestratorQueueItemFactory::CreateItemForDownload(std::wstring{ package.Id() }, std::wstring{ packageVersionInfo.PackageCatalog().Info().Id() }, std::move(comContext));
     }

@@ -34,6 +34,7 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::Locale),
             Argument::ForType(Args::Type::Log),
             Argument::ForType(Args::Type::HashOverride),
+            Argument::ForType(Args::Type::SkipDependencies),
             Argument::ForType(Execution::Args::Type::AcceptPackageAgreements),
             Argument::ForType(Execution::Args::Type::AcceptSourceAgreements),
         };
@@ -61,7 +62,7 @@ namespace AppInstaller::CLI
 
     void DownloadCommand::ExecuteInternal(Context& context) const
     {
-        context.SetFlags(AppInstaller::CLI::Execution::ContextFlag::RetainDownloadedInstaller);
+        context.SetFlags(AppInstaller::CLI::Execution::ContextFlag::DownloadInstallerOnly);
 
         if (context.Args.Contains(Execution::Args::Type::Manifest))
         {

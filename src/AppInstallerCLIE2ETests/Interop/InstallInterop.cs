@@ -65,6 +65,7 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Assert
             Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
+            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(this.installDir));
         }
 
         /// <summary>
@@ -562,6 +563,37 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Assert
             Assert.AreEqual(InstallResultStatus.PackageAgreementsNotAccepted, installResult.Status);
+        }
+
+        /// <summary>
+        /// Test installing a package with a package dependency and passing in the 'skip-dependencies' install option.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task InstallWithSkipDependencies()
+        {
+            // Find package
+            var searchResult = this.FindOnePackage(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.PackageDependency");
+
+            // Configure installation
+            var installOptions = this.TestFactory.CreateInstallOptions();
+            installOptions.PackageInstallMode = PackageInstallMode.Silent;
+            installOptions.PreferredInstallLocation = this.installDir;
+            installOptions.AcceptPackageAgreements = true;
+            installOptions.SkipDependencies = true;
+
+            // Install
+            var installResult = await this.packageManager.InstallPackageAsync(searchResult.CatalogPackage, installOptions);
+
+            // Assert that only the exe installer is installed and not the portable package dependency.
+            Assert.AreEqual(InstallResultStatus.Ok, installResult.Status);
+            Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(this.installDir));
+
+            string installDir = Path.Combine(Environment.GetEnvironmentVariable(Constants.LocalAppData), "Microsoft", "WinGet", "Packages");
+            string productCode = Constants.PortableExePackageDirName;
+            string commandAlias = $"{Constants.ExeInstaller}.exe";
+            string fileName = $"{Constants.ExeInstaller}.exe";
+            TestCommon.VerifyPortablePackage(Path.Combine(installDir, Constants.PortableExePackageDirName), commandAlias, fileName, productCode, false);
         }
 
         /// <summary>

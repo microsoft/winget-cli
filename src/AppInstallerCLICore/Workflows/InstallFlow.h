@@ -179,15 +179,17 @@ namespace AppInstaller::CLI::Workflow
             bool ensurePackageAgreements = true,
             bool ignoreDependencies = false,
             bool stopOnFailure = false,
+            bool refreshPathVariable = false,
             bool includeInstalledPackages = false,
-            bool downloadInstallerOnly = false):
-            WorkflowTask("ProcessMultiplePackages"),
+            bool downloadInstallerOnly = false) :
+            WorkflowTask("InstallMultiplePackages"),
             m_dependenciesReportMessage(dependenciesReportMessage),
             m_resultOnFailure(resultOnFailure),
             m_ignorableInstallResults(std::move(ignorableInstallResults)),
             m_ignorePackageDependencies(ignoreDependencies),
             m_ensurePackageAgreements(ensurePackageAgreements),
             m_stopOnFailure(stopOnFailure),
+            m_refreshPathVariable(refreshPathVariable),
             m_includeInstalledPackages(includeInstalledPackages),
             m_downloadInstallerOnly(downloadInstallerOnly){}
 
@@ -200,6 +202,7 @@ namespace AppInstaller::CLI::Workflow
         bool m_ignorePackageDependencies;
         bool m_ensurePackageAgreements;
         bool m_stopOnFailure;
+        bool m_refreshPathVariable;
         bool m_includeInstalledPackages;
         bool m_downloadInstallerOnly;
     };
