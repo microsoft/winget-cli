@@ -176,7 +176,7 @@ namespace AppInstaller::CLI::Workflow
         {
             context.Reporter.Info() << Resource::String::ConfigurationEnablingMessage << std::endl;
             bool bypassStorePolicy = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::BypassIsStoreClientBlockedPolicyCheck);
-            AppInstallerUpdate(false, bypassStorePolicy, context.Reporter);
+            AppInstallerUpdate(false, bypassStorePolicy, context);
         }
         else
         {
