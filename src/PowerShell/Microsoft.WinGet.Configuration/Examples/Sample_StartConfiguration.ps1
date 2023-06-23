@@ -19,5 +19,5 @@ Import-Module Microsoft.WinGet.Configuration
 # Starts the configuration in the background
 $configJob = Get-WinGetConfiguration -File $configFile | Start-WinGetConfiguration
 
-# This will block until the configuration is completed. Or print the results if already one.
+# This will block until the configuration is completed. Or print the results if already done.
 Complete-WinGetConfiguration -ConfigurationJob $configJob

@@ -1,6 +1,6 @@
 # Windows Package Manager Configuration PowerShell Module
 
-The Windows Package Manager Configuration PowerShell Module is made up on three components
+The Windows Package Manager Configuration PowerShell Module is made up on two components
 
 1. The `Microsoft.WinGet.Configuration.Cmdlets` project which contains cmdlet implementations.
 2. The `Microsoft.WinGet.Configuration.Engine` project which contain the real logic for the cmdlets.
@@ -35,9 +35,43 @@ Telemetry is enabled by default. To disable it one should set the POWERSHELL_TEL
 ## Building the PowerShell Module Locally
 After building the Microsoft.WinGet.Configuration.Cmdlets project, the `Microsoft.WinGet.Configuration` PowerShell module can be found in the output directory in the `PowerShell` folder. For example if you built the project as x64 release, you should expect to find the module files in `$(SolutionDirectory)/src/x64/Release/PowerShell`.
 
-This project has after build targets that will copy all the necessary files in the correct location.
 
 ## Adding a new cmdlet
-This project uses a custom `AssemblyLoadContext` that handles all dependencies loading. The only two binaries that are loaded in the default context are Microsoft.WinGet.Configuration.Cmdlets.dll and Microsoft.WinGet.Configuration.Engine.dll. This is to handle [assembly dependency conflicts](https://learn.microsoft.com/en-us/powershell/scripting/dev-cross-plat/resolving-dependency-conflicts?view=powershell-7.3). Because of that, the cmdlet must be defined in Microsoft.WinGet.Configuration.Cmdlets but the actual implementation in Microsoft.WinGet.Configuration.Engine.
+In order to avoid [assembly dependency conflicts](https://learn.microsoft.com/en-us/powershell/scripting/dev-cross-plat/resolving-dependency-conflicts?view=powershell-7.3) this project uses a custom `AssemblyLoadContext` that load all dependencies.
 
-If the new cmdlet introduces a new dependency, please make sure to add it in the after build targets to copy it in the Dependencies directory.
+Microsoft.WinGet.Configuration.Cmdlets.dll is the binary that gets loaded when the module is imported. When Microsoft.WinGet.Configuration.Engine.dll is getting loaded the resolving handler use the custom ALC to load it. Then all the dependencies of that binary will be loaded using that custom context.
+
+The dependencies are layout in two directories: `DirectDependencies` and `SharedDependencies`. The resolving handler looks for binaries under `DirectDependencies` and uses the custom ALC to load them. The custom ALC load any binaries in `DirectDependencies` and `SharedDependencies`.
+
+Exception: WinRT.Runtime.dll doesn't support get loaded in multiple context in the same process. We special case it to get loaded in by the default loader.
+
+### Current layout.
+```
+Microsoft.WinGet.Configuration.Cmdlets.dll
+DirectDependencies\Microsoft.WinGet.Configuration.Engine.dll
+SharedDependencies\Microsoft.Management.Configuration.Processor.dll
+SharedDependencies\Microsoft.Windows.SDK.NET.dll
+SharedDependencies\WinRT.Runtime.dll
+SharedDependencies\x64\Microsoft.Management.Configuration.dll
+SharedDependencies\x64\Microsoft.Management.Configuration.Projection.dll
+SharedDependencies\x86\Microsoft.Management.Configuration.dll
+SharedDependencies\x86\Microsoft.Management.Configuration.Projection.dll
+```
+If the new cmdlet introduces a new dependency, please make sure to add it to the proper location in the AfterBuild tasks in Microsoft.WinGet.Configuration.Cmdlets.csproj.
+
+### Dependency graph
+```mermaid
+graph TD;
+    subgraph DF[Default Loader]
+        DF_1[Cmdlets.dll]
+        DF_2[WinRT.Runtime.dll]
+    end
+    subgraph ALC[Custom ALC]
+        ALC_1[Engine.dll]
+        ALC_2[Other dependencies]
+        ALC_1--> ALC_2
+    end
+
+DF_1--> ALC_1
+ALC_1 --> DF_2
+```
