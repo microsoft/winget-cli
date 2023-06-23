@@ -125,6 +125,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(DependenciesFlowNoSuitableInstallerFound);
         WINGET_DEFINE_RESOURCE_STRINGID(DependenciesFlowNoMatches);
         WINGET_DEFINE_RESOURCE_STRINGID(DependenciesFlowContainsLoop);
+        WINGET_DEFINE_RESOURCE_STRINGID(DependenciesSkippedMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(DependenciesManagementError);
         WINGET_DEFINE_RESOURCE_STRINGID(DependenciesManagementExitMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(DisabledByGroupPolicy);
@@ -151,6 +152,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(FailedToEnableWindowsFeature);
         WINGET_DEFINE_RESOURCE_STRINGID(FailedToEnableWindowsFeatureOverridden);
         WINGET_DEFINE_RESOURCE_STRINGID(FailedToEnableWindowsFeatureOverrideRequired);
+        WINGET_DEFINE_RESOURCE_STRINGID(FailedToRefreshPathWarning);
         WINGET_DEFINE_RESOURCE_STRINGID(FeatureDisabledByAdminSettingMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(FeatureDisabledMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(FeaturesCommandLongDescription);
@@ -438,6 +440,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ShowVersion);
         WINGET_DEFINE_RESOURCE_STRINGID(SilentArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SingleCharAfterDashError);
+        WINGET_DEFINE_RESOURCE_STRINGID(SkipDependenciesArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceAddAlreadyExistsDifferentArg);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceAddAlreadyExistsDifferentName);
         WINGET_DEFINE_RESOURCE_STRINGID(SourceAddAlreadyExistsMatch);

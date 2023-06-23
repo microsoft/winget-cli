@@ -260,3 +260,22 @@ TEST_CASE("SplitIntoLines", "[string]")
         "You want my treasure?\rYou can have it!\nI left everything I gathered in one place!\r\nYou just have to find it!")
         == std::vector<std::string>{ "You want my treasure?", "You can have it!", "I left everything I gathered in one place!", "You just have to find it!" });
 }
+
+TEST_CASE("SplitWithSeparator", "[string]")
+{
+    std::vector<std::string> test1 = Split("first;second;third", ';');
+    REQUIRE(test1.size() == 3);
+    REQUIRE(test1[0] == "first");
+    REQUIRE(test1[1] == "second");
+    REQUIRE(test1[2] == "third");
+
+    std::vector<std::string> test2 = Split("two  spaces", ' ');
+    REQUIRE(test2.size() == 3);
+    REQUIRE(test2[0] == "two");
+    REQUIRE(test2[1] == "");
+    REQUIRE(test2[2] == "spaces");
+
+    std::vector<std::string> test3 = Split("test", '.');
+    REQUIRE(test3.size() == 1);
+    REQUIRE(test3[0] == "test");
+}
