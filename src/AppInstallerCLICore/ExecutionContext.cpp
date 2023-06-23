@@ -12,7 +12,7 @@ namespace AppInstaller::CLI::Execution
 
     namespace
     {
-        LRESULT WindowMessageProcedure(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+        static LRESULT WINAPI WindowMessageProcedure(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
         // Type to contain the CTRL signal and window messages handler.
         struct SignalTerminationHandler
@@ -230,7 +230,7 @@ namespace AppInstaller::CLI::Execution
 
         // This starts getting called by CreateWindow.
         // If it's a member function in SignalTerminationHandler we will have problems.
-        LRESULT WindowMessageProcedure(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+        static LRESULT WINAPI WindowMessageProcedure(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         {
             AICLI_LOG(CLI, Verbose, << "Received window message type: " << uMsg);
             switch (uMsg)
