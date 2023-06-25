@@ -16,10 +16,6 @@
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-  </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="Microsoft.PowerShell.SDK" Version="7.2.8" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />

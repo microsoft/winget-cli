@@ -169,7 +169,7 @@ TEST_CASE("UninstallFlow_UninstallExeNotFound", "[UninstallFlow][workflow]")
     // Verify Uninstaller is not called.
     REQUIRE(!std::filesystem::exists(uninstallResultPath.GetPath()));
     REQUIRE(uninstallOutput.str().find(Resource::LocString(Resource::String::NoInstalledPackageFound).get()) != std::string::npos);
-    REQUIRE(context.GetTerminationHR() == APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND);
+    REQUIRE_TERMINATED_WITH(context, APPINSTALLER_CLI_ERROR_NO_APPLICATIONS_FOUND);
 }
 
 TEST_CASE("UninstallFlow_UninstallMultiple", "[UninstallFlow][workflow][MultiQuery]")

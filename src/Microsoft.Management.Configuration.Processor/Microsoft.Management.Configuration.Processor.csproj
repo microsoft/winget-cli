@@ -19,14 +19,6 @@
     <Configurations>Debug;Release;ReleaseStatic</Configurations>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)'=='ReleaseStatic'">
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-  </PropertyGroup>
-
   <PropertyGroup>
     <CsWinRTComponent>true</CsWinRTComponent>
     <CsWinRTWindowsMetadata>10.0.19041.0</CsWinRTWindowsMetadata>
@@ -70,7 +62,7 @@
     </ItemGroup>
   </Target>
 
-  <Target Name="PwshFiles" AfterTargets="AfterBuild" >
+  <Target Name="PwshFiles" AfterTargets="AfterBuild">
     <ItemGroup>
       <RefFiles Include="$(PkgMicrosoft_PowerShell_SDK)\contentFiles\any\any\ref\*.*" />
       <WinModuleFiles Include="$(PkgMicrosoft_PowerShell_SDK)\contentFiles\any\any\runtimes\win\lib\$(DotNetVersion)\Modules\**\*.*" />

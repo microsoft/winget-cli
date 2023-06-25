@@ -4,8 +4,6 @@
 #include "SQLiteWrapper.h"
 #include "ICU/SQLiteICU.h"
 
-#include <wil/result_macros.h>
-
 using namespace std::string_view_literals;
 
 // Enable this to have all Statement constructions output the associated query plan.

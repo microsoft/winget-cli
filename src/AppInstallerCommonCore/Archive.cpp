@@ -7,7 +7,7 @@
 #pragma warning( push )
 #pragma warning ( disable : 4189 4244 26451 )
 #include <pure.h>
-#pragma warning ( pop )
+#pragma warning( pop )
 
 namespace AppInstaller::Archive
 {

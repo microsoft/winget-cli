@@ -31,7 +31,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="PropertySheet.props" />
     <None Include="packages.config" />
     <None Include="Source.def">
       <Filter>Source Files</Filter>

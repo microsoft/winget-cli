@@ -190,7 +190,9 @@ namespace AppInstaller::CLI::Workflow
                                         << GetUserPresentableMessage(hr) << std::endl;
                                 }
 
-                                if (hr == ERROR_SUCCESS_REBOOT_REQUIRED || windowsFeature.GetRestartRequiredStatus() == DismRestartType::DismRestartRequired)
+                                // ERROR_SUCCESS_REBOOT_REQUIRED is not an HResult, but that's what DismEnableFeature returns.
+                                // Cast it to HResult (instead of using HRESULT_FROM_WIN32) to avoid warning about comparing semantically different types.
+                                if (hr == static_cast<HRESULT>(ERROR_SUCCESS_REBOOT_REQUIRED) || windowsFeature.GetRestartRequiredStatus() == DismRestartType::DismRestartRequired)
                                 {
                                     rebootRequired = true;
                                 }

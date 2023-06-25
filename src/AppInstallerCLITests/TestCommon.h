@@ -5,7 +5,6 @@
 #include <AppInstallerProgress.h>
 #include <AppxPackaging.h>
 #include <winget/UserSettings.h>
-#include <wil/result.h>
 
 #include <filesystem>
 #include <functional>

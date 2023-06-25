@@ -3,7 +3,6 @@
 #pragma once
 #include <AppInstallerLanguageUtilities.h>
 #include <AppInstallerProgress.h>
-#include <wil/resource.h>
 
 #include <chrono>
 #include <string_view>

@@ -29,7 +29,9 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         /// </summary>
         public const string ConfigProcessingSummaryName = "ConfigProcessingSummary";
 
+// Two different analyzers complain about this
 #pragma warning disable SA1600 // Elements should be documented
+#pragma warning disable CS1591 // Elements should be documented
 
         // Shared fields
         public const string SetID = "SetID";
@@ -57,6 +59,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
         public const string AppliesRun = "AppliesRun";
         public const string AppliesFailed = "AppliesFailed";
 #pragma warning restore SA1600 // Elements should be documented
+#pragma warning restore CS1591 // Elements should be documented
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TelemetryEvent"/> class.

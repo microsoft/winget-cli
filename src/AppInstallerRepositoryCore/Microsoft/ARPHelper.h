@@ -5,7 +5,6 @@
 #include <AppInstallerArchitecture.h>
 #include <winget/Registry.h>
 #include <winget/ManifestInstaller.h>
-#include <wil/resource.h>
 
 #include <string>
 

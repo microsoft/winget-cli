@@ -3,7 +3,7 @@
 #pragma once
 #include <unordered_set>
 #pragma warning( push )
-#pragma warning ( disable : 6387 28196 )
+#pragma warning ( disable : 6001 6387 28196 )
 #include <wil/filesystem.h>
 #pragma warning( pop )
 
