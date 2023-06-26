@@ -17,6 +17,9 @@ namespace AppInstaller::Runtime
     // Determines the current version of the client and returns it.
     Utility::LocIndString GetClientVersion();
 
+    // Gets the package family name of the current package (or empty string if not packaged).
+    std::wstring GetPackageFamilyName();
+
     // Determines the current version of the package if running in a packaged context.
     Utility::LocIndString GetPackageVersion();
 

@@ -137,6 +137,7 @@ namespace TestCommon
         TestSourceFactory(OpenFunctorWithCustomHeader open) : OnOpenWithCustomHeader(std::move(open)) {}
 
         // ISourceFactory
+        std::string_view TypeName() const override;
         std::shared_ptr<AppInstaller::Repository::ISourceReference> Create(const AppInstaller::Repository::SourceDetails& details) override;
         bool Add(AppInstaller::Repository::SourceDetails& details, AppInstaller::IProgressCallback&) override;
         bool Update(const AppInstaller::Repository::SourceDetails& details, AppInstaller::IProgressCallback&) override;

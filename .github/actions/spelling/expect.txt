@@ -182,6 +182,7 @@ insufficientmemory
 Intelli
 INTRESOURCE
 invalidparameter
+IPackage
 isable
 IServer
 ishelp
@@ -264,11 +265,13 @@ mysilent
 mysilentwithprogress
 nameof
 nativehandle
+NBLGGH
 NESTEDINSTALLER
 netfx
 netlify
 NETSDK
 Newtonsoft
+NNS
 NOAGGREGATION
 NOCRLF
 NOEXPAND
@@ -459,6 +462,7 @@ websites
 WERSJA
 wesome
 wfopen
+wgetenv
 Whatif
 winapifamily
 windir
@@ -472,6 +476,7 @@ winreg
 winrtact
 winstring
 withstarts
+wputenv
 wsl
 wsv
 wto

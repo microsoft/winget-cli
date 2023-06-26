@@ -17,20 +17,21 @@
 #include "PromptFlow.h"
 #include <AppInstallerMsixInfo.h>
 #include <AppInstallerDeployment.h>
-#include <winget/ARPCorrelation.h>
-#include <winget/Archive.h>
+#include <AppInstallerSynchronization.h>
 #include <Argument.h>
 #include <Command.h>
-#include <AppInstallerSynchronization.h>
+#include <winget/ARPCorrelation.h>
+#include <winget/Archive.h>
+#include <winget/PathVariable.h>
 #include <winget/Runtime.h>
 
-using namespace winrt::Windows::ApplicationModel::Store::Preview::InstallControl;
 using namespace winrt::Windows::Foundation;
 using namespace winrt::Windows::Foundation::Collections;
 using namespace winrt::Windows::Management::Deployment;
 using namespace AppInstaller::CLI::Execution;
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Repository;
+using namespace AppInstaller::Registry::Environment;
 using namespace AppInstaller::Settings;
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::Utility::literals;
@@ -536,28 +537,33 @@ namespace AppInstaller::CLI::Workflow
             Workflow::ReportExecutionStage(ExecutionStage::PostExecution) <<
             Workflow::ReportARPChanges <<
             Workflow::RecordInstall <<
-            Workflow::RemoveInstaller << 
+            Workflow::RemoveInstaller <<
             Workflow::DisplayInstallationNotes;
     }
 
-    void DownloadSinglePackage(Execution::Context& context)
+    void ManageDependencies(Execution::Context& context)
     {
-        // TODO: Split dependencies from download flow to prevent multiple installations.
+        if (Settings::User().Get<Settings::Setting::InstallSkipDependencies>() || context.Args.Contains(Execution::Args::Type::SkipDependencies))
+        {
+            context.Reporter.Warn() << Resource::String::DependenciesSkippedMessage << std::endl;
+            return;
+        }
+
         context <<
-            Workflow::ReportIdentityAndInstallationDisclaimer <<
-            Workflow::ShowPromptsForSinglePackage(/* ensureAcceptance */ true) <<
             Workflow::GetDependenciesFromInstaller <<
             Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
             Workflow::EnableWindowsFeaturesDependencies <<
-            Workflow::ManagePackageDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
-            Workflow::DownloadInstaller;
+            Workflow::ManagePackageDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies);
     }
 
     void InstallSinglePackage(Execution::Context& context)
     {
         context <<
             Workflow::CheckForUnsupportedArgs <<
-            Workflow::DownloadSinglePackage <<
+            Workflow::ReportIdentityAndInstallationDisclaimer <<
+            Workflow::ShowPromptsForSinglePackage(/* ensureAcceptance */ true) <<
+            Workflow::ManageDependencies <<
+            Workflow::DownloadInstaller <<
             Workflow::InstallPackageInstaller;
     }
 
@@ -621,6 +627,19 @@ namespace AppInstaller::CLI::Workflow
             catch (...)
             {
                 installContext.SetTerminationHR(Workflow::HandleException(installContext, std::current_exception()));
+            }
+
+            if (m_refreshPathVariable)
+            {
+                if (RefreshPathVariableForCurrentProcess())
+                {
+                    AICLI_LOG(CLI, Info, << "Successfully refreshed process PATH environment variable.");
+                }
+                else
+                {
+                    AICLI_LOG(CLI, Warning, << "Failed to refresh process PATH environment variable.");
+                    context.Reporter.Warn() << Resource::String::FailedToRefreshPathWarning << std::endl;
+                }
             }
 
             installContext.Reporter.Info() << std::endl;

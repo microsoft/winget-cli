@@ -1,14 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "winget/Registry.h"
 #include "winget/Manifest.h"
+#include "winget/Registry.h"
 
 namespace AppInstaller::Registry::Environment
 {
+    bool RefreshPathVariableForCurrentProcess();
+
     struct PathVariable
     {
-        PathVariable(Manifest::ScopeEnum scope);
+        PathVariable(Manifest::ScopeEnum scope, bool readOnly = false);
 
         // Returns the PATH variable as a string.
         std::string GetPathValue();
@@ -25,7 +27,7 @@ namespace AppInstaller::Registry::Environment
     private:
         void SetPathValue(const std::string& value);
         Registry::Key m_key;
-        HKEY m_root;
         Manifest::ScopeEnum m_scope;
+        bool m_readOnly;
     };
 }

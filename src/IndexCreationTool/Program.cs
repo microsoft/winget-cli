@@ -62,11 +62,35 @@ namespace IndexCreationTool
                     foreach (string includeDir in includeDirList)
                     {
                         var fullPath = Path.Combine(rootDir, includeDir);
-                        foreach (string file in Directory.EnumerateFiles(fullPath, "*.yaml", SearchOption.AllDirectories))
+                        Queue<string> filesQueue = new(Directory.EnumerateFiles(fullPath, "*.yaml", SearchOption.AllDirectories));
+
+                        while (filesQueue.Count > 0)
                         {
-                            indexHelper.AddManifest(file, Path.GetRelativePath(rootDir, file));
+                            int currentCount = filesQueue.Count;
+
+                            for (int i = 0; i < currentCount; i++)
+                            {
+                                string file = filesQueue.Dequeue();
+                                try
+                                {
+                                    indexHelper.AddManifest(file, Path.GetRelativePath(rootDir, file));
+                                }
+                                catch
+                                {
+                                    // If adding manifest to index fails, add to queue and try again.
+                                    // This can occur if there is a package dependency that has not yet been added to the index.
+                                    filesQueue.Enqueue(file);
+                                }
+                            }
+
+                            if (filesQueue.Count == currentCount)
+                            {
+                                Console.WriteLine("Failed to add all manifests in directory to index.");
+                                Environment.Exit(-1);
+                            }
                         }
                     }
+
                     indexHelper.PrepareForPackaging();
                 }
 

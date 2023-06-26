@@ -40,4 +40,10 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: ConfigurationProcessor, ConfigurationSet
     // Outputs: None
     void ApplyConfigurationSet(Execution::Context& context);
+
+    // Verifies the full package is installed.
+    // Required Args: None
+    // Inputs: None
+    // Outputs: None
+    void VerifyIsFullPackage(Execution::Context& context);
 }

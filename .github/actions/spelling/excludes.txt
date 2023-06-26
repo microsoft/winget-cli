@@ -65,6 +65,7 @@
 \.xlsx?$
 \.zip$
 ^\.github/actions/spelling/
+^\.github/policies/
 ^\.github/workflows/spelling\d*\.yml$
 ^\Qsrc/PureLib/pure/AUTHORS\E$
 ^cgmanifest\.json$
