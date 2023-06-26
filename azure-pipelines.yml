@@ -315,6 +315,7 @@ jobs:
   - task: PowerShell@2
     displayName: 'Copy Microsoft.Management.Configuration.OutOfProc.dll as Microsoft.Management.Configuration.dll'
     inputs:
+      targetType: 'inline'
       script: Copy-Item '$(buildOutDir)\Microsoft.Management.Configuration.OutOfProc\Microsoft.Management.Configuration.OutOfProc.dll' '$(buildOutDir)\Microsoft.Management.Configuration.UnitTests\net6.0-windows10.0.19041.0\Microsoft.Management.Configuration.dll' -Force
     condition: succeededOrFailed()
   
