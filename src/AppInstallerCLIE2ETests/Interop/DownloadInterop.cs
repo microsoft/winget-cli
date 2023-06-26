@@ -38,7 +38,6 @@ namespace AppInstallerCLIE2ETests.Interop
         [OneTimeSetUp]
         public void OneTimeSetup()
         {
-            WinGetSettingsHelper.ConfigureFeature("download", true);
             WinGetSettingsHelper.ConfigureFeature("dependencies", true);
         }
 
