@@ -554,7 +554,7 @@ namespace AppInstaller::CLI::Workflow
             Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
             Workflow::EnableWindowsFeaturesDependencies <<
             Workflow::CreateDependencySubContexts(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
-            Workflow::ProcessMultiplePackages(Resource::String::InstallAndUpgradeCommandsReportDependencies, APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES, {}, false, true, true);
+            Workflow::ProcessMultiplePackages(Resource::String::InstallAndUpgradeCommandsReportDependencies, APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES, {}, false, true, true, true);
     }
 
     void InstallDependenciesFromCOM(Execution::Context& context)
@@ -569,7 +569,7 @@ namespace AppInstaller::CLI::Workflow
             Workflow::GetDependenciesFromInstaller <<
             Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
             Workflow::EnableWindowsFeaturesDependencies <<
-            Workflow::ProcessMultiplePackages(Resource::String::InstallAndUpgradeCommandsReportDependencies, APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES, {}, false, true, true);
+            Workflow::ProcessMultiplePackages(Resource::String::InstallAndUpgradeCommandsReportDependencies, APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES, {}, false, true, true, true);
     }
 
     void DownloadPackageDependencies::operator()(Execution::Context& context) const
