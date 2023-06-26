@@ -26,19 +26,15 @@ namespace AppInstaller::CLI
             Workflow::ReportIdentityAndInstallationDisclaimer <<
             Workflow::ShowPromptsForSinglePackage(/* ensureAcceptance */ true) <<
             Workflow::SetDownloadDirectory <<
-            Workflow::DownloadPackageDependencies(/* includeInstalledPackages */ WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::DownloadInstallerOnly)) <<
+            Workflow::DownloadPackageDependencies(/* includeInstalledPackages */ WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerDownloadOnly)) <<
             Workflow::DownloadInstaller;
     }
 
     // IMPORTANT: To use this command, the caller should have already executed the COMDownloadCommand
     void COMInstallCommand::ExecuteInternal(Context& context) const
     {
-        // We don't build dependency graph as that should have already been built from the COMDownloadCommand.
         context <<
-            Workflow::GetDependenciesFromInstaller <<
-            Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
-            Workflow::EnableWindowsFeaturesDependencies <<
-            Workflow::ProcessMultiplePackages(Resource::String::InstallAndUpgradeCommandsReportDependencies, APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES, {}, false, true, true) <<
+            Workflow::InstallDependenciesFromCOM <<
             Workflow::ReverifyInstallerHash << 
             Workflow::InstallPackageInstaller;
     }

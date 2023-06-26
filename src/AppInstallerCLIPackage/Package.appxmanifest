@@ -62,6 +62,8 @@
               </com:Class>
               <com:Class Id ="AA2A5C04-1AD9-46C4-B74F-6B334AD7EB8C" DisplayName="UninstallOptions Server">
               </com:Class>
+              <com:Class Id ="8EF324ED-367C-4880-83E5-BB2ABD0B72F6" DisplayName="DownloadOptions Server">
+              </com:Class> 
             </com:ExeServer>
           </com:ComServer>
         </com:Extension>

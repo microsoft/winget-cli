@@ -67,7 +67,7 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void RemoveInstaller(Execution::Context& context);
 
-    // Sets the target download directory location.
+    // Sets the target download directory location if applicable.
     // Required Args: None
     // Inputs: Manifest
     // Outputs: None

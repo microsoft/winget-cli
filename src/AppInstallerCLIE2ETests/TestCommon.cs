@@ -615,12 +615,12 @@ namespace AppInstallerCLIE2ETests
             if (Directory.Exists(downloadDir) && File.Exists(installerDownloadPath))
             {
                 downloadResult = true;
-            }
 
-            if (cleanup)
-            {
-                File.Delete(installerDownloadPath);
-                Directory.Delete(downloadDir, true);
+                if (cleanup)
+                {
+                    File.Delete(installerDownloadPath);
+                    Directory.Delete(downloadDir, true);
+                }
             }
 
             return downloadResult;

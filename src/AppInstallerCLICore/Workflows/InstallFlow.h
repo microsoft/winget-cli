@@ -136,11 +136,23 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void ReportIdentityAndInstallationDisclaimer(Execution::Context& context);
 
-    // Installs a specific package installer. See also InstallSinglePackage & InstallMultiplePackages.
+    // Installs a specific package installer. See also InstallSinglePackage & ProcessMultiplePackages
     // Required Args: None
     // Inputs: InstallerPath, Manifest, Installer, PackageVersion, InstalledPackageVersion?
     // Outputs: None
     void InstallPackageInstaller(Execution::Context& context);
+
+    // Reports and installs the package dependencies. Also creates the sub contexts for each package dependency.
+    // Required Args: None
+    // Inputs: InstallerPath, Manifest, Installer, PackageVersion, InstalledPackageVersion?
+    // Outputs: None
+    void InstallDependencies(Execution::Context& context);
+
+    // Reports and installs the package dependencies from COM. Package dependency sub contexts should already have been populated.
+    // Require Args: None
+    // Inputs:InstallerPath, Manifest, Installer, PAckageVersion, InstalledPackageVersion?
+    // Outputs: None
+    void InstallDependenciesFromCOM(Execution::Context& context);
 
     // Downloads all of the package dependencies of a specific package.
     // Required Args: none
@@ -150,7 +162,7 @@ namespace AppInstaller::CLI::Workflow
     {
         DownloadPackageDependencies(
             bool includeInstalledPackages):
-            WorkflowTask("ProcessMultiplePackages"),
+            WorkflowTask("DownloadPackageDependencies"),
             m_includeInstalledPackages(includeInstalledPackages) {}
 
         void operator()(Execution::Context& context) const override;
@@ -182,7 +194,7 @@ namespace AppInstaller::CLI::Workflow
             bool refreshPathVariable = false,
             bool includeInstalledPackages = false,
             bool downloadInstallerOnly = false) :
-            WorkflowTask("InstallMultiplePackages"),
+            WorkflowTask("ProcessMultiplePackages"),
             m_dependenciesReportMessage(dependenciesReportMessage),
             m_resultOnFailure(resultOnFailure),
             m_ignorableInstallResults(std::move(ignorableInstallResults)),

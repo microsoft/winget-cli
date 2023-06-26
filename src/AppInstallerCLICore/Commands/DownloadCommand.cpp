@@ -62,7 +62,7 @@ namespace AppInstaller::CLI
 
     void DownloadCommand::ExecuteInternal(Context& context) const
     {
-        context.SetFlags(AppInstaller::CLI::Execution::ContextFlag::DownloadInstallerOnly);
+        context.SetFlags(AppInstaller::CLI::Execution::ContextFlag::InstallerDownloadOnly);
 
         if (context.Args.Contains(Execution::Args::Type::Manifest))
         {

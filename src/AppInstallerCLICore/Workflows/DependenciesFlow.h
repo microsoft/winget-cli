@@ -39,13 +39,13 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: Dependencies
     void GetDependenciesInfoForUninstall(Execution::Context& context);
 
-    // Builds the dependency graph.
+    // Builds the dependency graph and creates the sub contexts for each package dependency.
     // Required Args: None
     // Inputs: Manifest, Installer and DependencySource
     // Outputs: Dependencies
-    struct BuildDependencyGraph : public WorkflowTask
+    struct CreateDependencySubContexts : public WorkflowTask
     {
-        BuildDependencyGraph(
+        CreateDependencySubContexts(
             AppInstaller::StringResource::StringId dependencyReportMessage,
             bool includeInstalledPackages = false) :
             WorkflowTask("ReportDependencies"),

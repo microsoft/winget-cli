@@ -233,7 +233,7 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void BuildDependencyGraph::operator()(Execution::Context& context) const
+    void CreateDependencySubContexts::operator()(Execution::Context& context) const
     {
         if (!Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
         {
@@ -281,7 +281,6 @@ namespace AppInstaller::CLI::Workflow
                         std::move(nodeProcessor.GetManifest()),
                         std::move(nodeProcessor.GetPreferredInstaller()) };
 
-                    // Not thread safe... add a comment if we move. 
                     idToPackageMap.emplace(node.Id(), std::move(dependencyPackageCandidate));
                 };
 
@@ -300,12 +299,6 @@ namespace AppInstaller::CLI::Workflow
         {
             context.Reporter.Warn() << Resource::String::DependenciesFlowContainsLoop;
         }
-
-        // Store id to package map to be utilized by install flow.
-        //dependencyGraph.SetPackageMap(idToPackageMap);
-        //context.Add<Execution::Data::DependencyGraph>(dependencyGraph);
-
-        // The rest after this is responsible for building sub contexts. 
 
         const auto& installationOrder = dependencyGraph.GetInstallationOrder();
 
@@ -341,9 +334,9 @@ namespace AppInstaller::CLI::Workflow
                 dependencyContext.Add<Execution::Data::Installer>(itr->second.Installer);
 
                 // Set flag for download behavior and append dependencies folder to download directory.
-                if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::DownloadInstallerOnly))
+                if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerDownloadOnly))
                 {
-                    dependencyContext.SetFlags(Execution::ContextFlag::DownloadInstallerOnly);
+                    dependencyContext.SetFlags(Execution::ContextFlag::InstallerDownloadOnly);
                     dependencyContext.Add<Execution::Data::DownloadDirectory>(context.Get<Execution::Data::DownloadDirectory>() / "Dependencies");
                 }
 

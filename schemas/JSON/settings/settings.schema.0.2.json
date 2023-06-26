@@ -214,7 +214,7 @@
           "type": "boolean",
           "default": false
         },
-        "downloadCommand": {
+        "download": {
           "description": "Enable support for the download command",
           "type": "boolean",
           "default": false

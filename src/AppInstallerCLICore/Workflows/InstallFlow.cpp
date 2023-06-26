@@ -541,6 +541,37 @@ namespace AppInstaller::CLI::Workflow
             Workflow::DisplayInstallationNotes;
     }
 
+    void InstallDependencies(Execution::Context& context)
+    {
+        if (Settings::User().Get<Settings::Setting::InstallSkipDependencies>() || context.Args.Contains(Execution::Args::Type::SkipDependencies))
+        {
+            context.Reporter.Warn() << Resource::String::DependenciesSkippedMessage << std::endl;
+            return;
+        }
+
+        context <<
+            Workflow::GetDependenciesFromInstaller <<
+            Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
+            Workflow::EnableWindowsFeaturesDependencies <<
+            Workflow::CreateDependencySubContexts(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
+            Workflow::ProcessMultiplePackages(Resource::String::InstallAndUpgradeCommandsReportDependencies, APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES, {}, false, true, true);
+    }
+
+    void InstallDependenciesFromCOM(Execution::Context& context)
+    {
+        if (Settings::User().Get<Settings::Setting::InstallSkipDependencies>() || context.Args.Contains(Execution::Args::Type::SkipDependencies))
+        {
+            context.Reporter.Warn() << Resource::String::DependenciesSkippedMessage << std::endl;
+            return;
+        }
+
+        context <<
+            Workflow::GetDependenciesFromInstaller <<
+            Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
+            Workflow::EnableWindowsFeaturesDependencies <<
+            Workflow::ProcessMultiplePackages(Resource::String::InstallAndUpgradeCommandsReportDependencies, APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES, {}, false, true, true);
+    }
+
     void DownloadPackageDependencies::operator()(Execution::Context& context) const
     {
         if (Settings::User().Get<Settings::Setting::InstallSkipDependencies>() || context.Args.Contains(Execution::Args::Type::SkipDependencies))
@@ -552,7 +583,7 @@ namespace AppInstaller::CLI::Workflow
         context <<
             Workflow::GetDependenciesFromInstaller <<
             Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
-            Workflow::BuildDependencyGraph(Resource::String::InstallAndUpgradeCommandsReportDependencies, m_includeInstalledPackages) <<
+            Workflow::CreateDependencySubContexts(Resource::String::InstallAndUpgradeCommandsReportDependencies, m_includeInstalledPackages) <<
             Workflow::ProcessMultiplePackages(Resource::String::InstallAndUpgradeCommandsReportDependencies, APPINSTALLER_CLI_ERROR_DOWNLOAD_DEPENDENCIES, {}, false, true, true, false, m_includeInstalledPackages, true);
     }
 
@@ -562,11 +593,7 @@ namespace AppInstaller::CLI::Workflow
             Workflow::CheckForUnsupportedArgs <<
             Workflow::ReportIdentityAndInstallationDisclaimer <<
             Workflow::ShowPromptsForSinglePackage(/* ensureAcceptance */ true) <<
-            Workflow::GetDependenciesFromInstaller <<
-            Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
-            Workflow::EnableWindowsFeaturesDependencies <<
-            Workflow::BuildDependencyGraph(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
-            Workflow::ProcessMultiplePackages(Resource::String::InstallAndUpgradeCommandsReportDependencies, APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES, {}, false, true, true) <<
+            Workflow::InstallDependencies <<
             Workflow::DownloadInstaller <<
             Workflow::InstallPackageInstaller;
     }
@@ -581,6 +608,11 @@ namespace AppInstaller::CLI::Workflow
 
     void ProcessMultiplePackages::operator()(Execution::Context& context) const
     {
+        if (!context.Contains(Execution::Data::PackageSubContexts))
+        {
+            return;
+        }
+
         // Show all prompts needed for every package before installing anything
         context << Workflow::ShowPromptsForMultiplePackages(m_ensurePackageAgreements);
 
@@ -637,7 +669,7 @@ namespace AppInstaller::CLI::Workflow
                 if (!m_ignorePackageDependencies)
                 {
                     currentContext <<
-                        Workflow::BuildDependencyGraph(m_dependenciesReportMessage, m_includeInstalledPackages) <<
+                        Workflow::CreateDependencySubContexts(m_dependenciesReportMessage, m_includeInstalledPackages) <<
                         Workflow::ProcessMultiplePackages(m_dependenciesReportMessage, APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES, {}, false, true, true, true, m_includeInstalledPackages, m_downloadInstallerOnly);
                 }
 

@@ -683,7 +683,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         Microsoft::Management::Deployment::PackageVersionInfo packageVersionInfo = GetPackageVersionInfo(package, options);
         AddPackageManifestToContext(packageVersionInfo, comContext.get());
 
-        comContext->SetFlags(AppInstaller::CLI::Execution::ContextFlag::DownloadInstallerOnly);
+        comContext->SetFlags(AppInstaller::CLI::Execution::ContextFlag::InstallerDownloadOnly);
 
         return Execution::OrchestratorQueueItemFactory::CreateItemForDownload(std::wstring{ package.Id() }, std::wstring{ packageVersionInfo.PackageCatalog().Info().Id() }, std::move(comContext));
     }

@@ -41,7 +41,7 @@ void OverrideOpenDependencySource(TestContext& context)
     } });
 }
 
-void OverrideForInstallMultiplePackages(TestContext& context)
+void OverrideForProcessMultiplePackages(TestContext& context)
 {
     context.Override({ Workflow::ProcessMultiplePackages(
         Resource::String::InstallAndUpgradeCommandsReportDependencies,
@@ -72,7 +72,7 @@ TEST_CASE("DependencyGraph_SkipInstalled", "[InstallFlow][workflow][dependencyGr
     TestUserSettings settings;
     settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
 
-    context << BuildDependencyGraph(Resource::String::InstallAndUpgradeCommandsReportDependencies);
+    context << CreateDependencySubContexts(Resource::String::InstallAndUpgradeCommandsReportDependencies);
 
     auto& dependencyPackages = context.Get<Execution::Data::PackageSubContexts>();
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesFlowContainsLoop)) == std::string::npos);
@@ -96,7 +96,7 @@ TEST_CASE("DependencyGraph_validMinVersions", "[InstallFlow][workflow][dependenc
     TestUserSettings settings;
     settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
 
-    context << BuildDependencyGraph(Resource::String::InstallAndUpgradeCommandsReportDependencies);
+    context << CreateDependencySubContexts(Resource::String::InstallAndUpgradeCommandsReportDependencies);
 
     auto& dependencyPackages = context.Get<Execution::Data::PackageSubContexts>();
 
@@ -122,7 +122,7 @@ TEST_CASE("DependencyGraph_PathNoLoop", "[InstallFlow][workflow][dependencyGraph
     TestUserSettings settings;
     settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
 
-    context << BuildDependencyGraph(Resource::String::InstallAndUpgradeCommandsReportDependencies);
+    context << CreateDependencySubContexts(Resource::String::InstallAndUpgradeCommandsReportDependencies);
 
     auto& dependencyPackages = context.Get<Execution::Data::PackageSubContexts>();
 

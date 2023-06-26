@@ -1998,4 +1998,7 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="InstallerTypeArgumentDescription" xml:space="preserve">
     <value>Select the installer type</value>
   </data>
+  <data name="Downloads" xml:space="preserve">
+    <value>Installer Downloads</value>
+  </data>
 </root>

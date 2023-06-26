@@ -162,7 +162,7 @@ namespace AppInstaller::CLI::Workflow
                 context << DownloadInstallerFile;
                 break;
             case InstallerTypeEnum::Msix:
-                if (installer.SignatureSha256.empty() || WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::DownloadInstallerOnly))
+                if (installer.SignatureSha256.empty() || WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerDownloadOnly))
                 {
                     // If DownloadInstallerFlag is set, always download the installer file.
                     context << DownloadInstallerFile;
@@ -445,7 +445,7 @@ namespace AppInstaller::CLI::Workflow
         auto& installerPath = context.Get<Execution::Data::InstallerPath>();
         std::filesystem::path renamedDownloadedInstaller;
 
-        if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::DownloadInstallerOnly))
+        if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerDownloadOnly))
         {
             THROW_HR_IF(E_UNEXPECTED, !context.Contains(Execution::Data::DownloadDirectory));
 
@@ -490,7 +490,7 @@ namespace AppInstaller::CLI::Workflow
 
     void SetDownloadDirectory(Execution::Context& context)
     {
-        if (!WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::DownloadInstallerOnly))
+        if (!WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerDownloadOnly))
         {
             return;
         }
