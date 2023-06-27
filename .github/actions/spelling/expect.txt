@@ -114,6 +114,7 @@ EQU
 errmsg
 ESRB
 etest
+etl
 execustom
 EXEHASH
 experimentalfeatures
@@ -172,6 +173,7 @@ IFACEMETHODIMP
 IHelp
 iid
 IISOn
+ilemode
 inet
 inproc
 installinprogress
@@ -293,6 +295,7 @@ nuffing
 objbase
 objidl
 ofile
+ools
 osfhandle
 OPTOUT
 Outptr
@@ -476,6 +479,8 @@ winreg
 winrtact
 winstring
 withstarts
+wpr
+wprp
 wputenv
 wsl
 wsv
