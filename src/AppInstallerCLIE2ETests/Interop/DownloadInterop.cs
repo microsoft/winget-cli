@@ -22,6 +22,7 @@ namespace AppInstallerCLIE2ETests.Interop
     {
         private PackageManager packageManager;
         private PackageCatalogReference testSource;
+        private PackageManagerSettings packageManagerSettings;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DownloadInterop"/> class.
@@ -49,10 +50,8 @@ namespace AppInstallerCLIE2ETests.Interop
         {
             if (this.TestFactory.Context == ClsidContext.InProc)
             {
-                var packageManagerSettings = this.TestFactory.CreatePackageManagerSettings();
-                packageManagerSettings.SetCallerIdentifier("downloadInterop");
-                packageManagerSettings.SetStateIdentifier("downloadInterop");
-                packageManagerSettings.SetUserSettings(File.ReadAllText(TestCommon.SettingsJsonFilePath));
+                this.packageManagerSettings = this.TestFactory.CreatePackageManagerSettings();
+                this.packageManagerSettings.SetUserSettings(File.ReadAllText(TestCommon.SettingsJsonFilePath));
             }
 
             this.packageManager = this.TestFactory.CreatePackageManager();

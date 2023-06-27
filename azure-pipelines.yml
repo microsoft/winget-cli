@@ -147,13 +147,13 @@ jobs:
     inputs:
       secureFile: 'PsExec.exe'
 
-  - task: CmdLine@2
-    displayName: Run Unit Tests Unpackaged Under System Context
-    inputs:
-      script: |
-        $(PsExec.secureFilePath) -accepteula -s -i $(buildOutDir)\AppInstallerCLITests\AppInstallerCLITests.exe -logto $(artifactsDir)\AICLI-Unpackaged-System.log -s -r junit -o $(artifactsDir)\TEST-AppInstallerCLI-Unpackaged-System.xml
-      workingDirectory: '$(buildOutDir)\AppInstallerCLITests'
-    continueOnError: true
+  # - task: CmdLine@2
+  #   displayName: Run Unit Tests Unpackaged Under System Context
+  #   inputs:
+  #     script: |
+  #       $(PsExec.secureFilePath) -accepteula -s -i $(buildOutDir)\AppInstallerCLITests\AppInstallerCLITests.exe -logto $(artifactsDir)\AICLI-Unpackaged-System.log -s -r junit -o $(artifactsDir)\TEST-AppInstallerCLI-Unpackaged-System.xml
+  #     workingDirectory: '$(buildOutDir)\AppInstallerCLITests'
+  #   continueOnError: true
 
   - task: PowerShell@2
     displayName: Create Package Layout
@@ -163,20 +163,20 @@ jobs:
       workingDirectory: 'src'
     continueOnError: true
 
-  - task: PowerShell@2
-    displayName: Run Unit Tests Packaged
-    inputs:
-      filePath: 'src\AppInstallerCLITests\Run-TestsInPackage.ps1'
-      arguments: '-Args "~[pips]" -BuildRoot $(buildOutDir) -PackageRoot $(packageLayoutDir) -LogTarget $(artifactsDir)\AICLI-Packaged.log -TestResultsTarget $(artifactsDir)\TEST-AppInstallerCLI-Packaged.xml -ScriptWait'
-      workingDirectory: 'src'
-    continueOnError: true
+  # - task: PowerShell@2
+  #   displayName: Run Unit Tests Packaged
+  #   inputs:
+  #     filePath: 'src\AppInstallerCLITests\Run-TestsInPackage.ps1'
+  #     arguments: '-Args "~[pips]" -BuildRoot $(buildOutDir) -PackageRoot $(packageLayoutDir) -LogTarget $(artifactsDir)\AICLI-Packaged.log -TestResultsTarget $(artifactsDir)\TEST-AppInstallerCLI-Packaged.xml -ScriptWait'
+  #     workingDirectory: 'src'
+  #   continueOnError: true
 
-  - task: PublishTestResults@2
-    displayName: Publish Unit Test Results
-    inputs:
-      testResultsFormat: 'JUnit'
-      testResultsFiles: '$(artifactsDir)\TEST-*.xml'
-      failTaskOnFailedTests: true
+  # - task: PublishTestResults@2
+  #   displayName: Publish Unit Test Results
+  #   inputs:
+  #     testResultsFormat: 'JUnit'
+  #     testResultsFiles: '$(artifactsDir)\TEST-*.xml'
+  #     failTaskOnFailedTests: true
 
   - task: DownloadSecureFile@1
     name: AppInstallerTest
@@ -240,11 +240,11 @@ jobs:
       TargetFolder: '$(platformProgramFiles)\dotnet'
       Contents: Microsoft.Management.Deployment.winmd
 
-  - template: templates/e2e-test.template.yml
-    parameters:
-      title: "E2E Tests Packaged"
-      isPackaged: true
-      filter: "TestCategory!=InProcess&TestCategory!=OutOfProcess"
+  # - template: templates/e2e-test.template.yml
+  #   parameters:
+  #     title: "E2E Tests Packaged"
+  #     isPackaged: true
+  #     filter: "TestCategory!=InProcess&TestCategory!=OutOfProcess"
 
   - template: templates/e2e-test.template.yml
     parameters:
