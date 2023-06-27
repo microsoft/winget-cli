@@ -251,7 +251,9 @@ jobs:
     parameters:
       title: "E2E Tests Packaged"
       isPackaged: true
-      filter: "TestCategory!=InProcess&TestCategory!=OutOfProcess"
+      comTrace: true
+      filter: "Name=ShowDetailsFromTestRepo"
+      #filter: "TestCategory!=InProcess&TestCategory!=OutOfProcess"
 
   - template: templates/e2e-test.template.yml
     parameters:
@@ -317,6 +319,14 @@ jobs:
     inputs:
       targetType: 'inline'
       script: Copy-Item '$(buildOutDir)\Microsoft.Management.Configuration.OutOfProc\Microsoft.Management.Configuration.OutOfProc.dll' '$(buildOutDir)\Microsoft.Management.Configuration.UnitTests\net6.0-windows10.0.19041.0\Microsoft.Management.Configuration.dll' -Force
+    condition: succeededOrFailed()
+      
+  - task: PowerShell@2
+    displayName: 'List everything in AEA directory'
+    inputs:
+      targetType: 'inline'
+      script: Get-ChildItem -Recurse $env:LOCALAPPDATA\Microsoft\\WindowsApps
+      pwsh: true
     condition: succeededOrFailed()
   
   - task: VSTest@2

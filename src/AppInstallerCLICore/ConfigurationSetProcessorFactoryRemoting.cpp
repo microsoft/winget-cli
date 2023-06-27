@@ -146,12 +146,6 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 AICLI_LOG(Config, Verbose, << "... configuration processing connection established.");
                 m_remoteFactory = IConfigurationSetProcessorFactory{ output.detach(), winrt::take_ownership_from_abi };
 
-                //AICLI_LOG(Config, Verbose, << "Remote server exposes...");
-                //for (const auto& iid : winrt::get_interfaces(m_remoteFactory))
-                //{
-                //    AICLI_LOG(Config, Verbose, << "  " << static_cast<const GUID&>(iid));
-                //}
-
                 // The additional modules path is a direct child directory to the package root
                 std::filesystem::path externalModules = Runtime::GetPathTo(Runtime::PathName::SelfPackageRoot) / s_ExternalModulesName;
                 THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_PATH_NOT_FOUND), !std::filesystem::is_directory(externalModules));

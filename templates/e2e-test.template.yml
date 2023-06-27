@@ -5,35 +5,50 @@ parameters:
   type: boolean
 - name: filter
   type: string
+- name: comTrace
+  type: boolean
+  default: false
 
 steps:
-- task: VSTest@2
-  displayName: Run ${{ parameters.title }}
-  inputs:
+  - task: CmdLine@2
+    displayName: Start COM trace for ${{ parameters.title }}
+    condition: and(succeededOrFailed(), ${{ parameters.comTrace }})
+    inputs:
+        script: 'wpr -start $(Build.SourcesDirectory)\tools\COMTrace\ComTrace.wprp -filemode'
+
+  - task: VSTest@2
+    displayName: Run ${{ parameters.title }}
+    inputs:
     testRunTitle: ${{ parameters.title }}
     testSelector: 'testAssemblies'
     testAssemblyVer2: '$(buildOutDir)\AppInstallerCLIE2ETests\AppInstallerCLIE2ETests.dll'
     testFiltercriteria: ${{ parameters.filter }}
     runSettingsFile: '$(buildOutDir)\AppInstallerCLIE2ETests\Test.runsettings'
     ${{ if eq(parameters.isPackaged, true) }}:
-      overrideTestrunParameters: '-PackagedContext true
-                                  -AICLIPackagePath $(packageLayoutDir)
-                                  -AICLIPath AppInstallerCLI\winget.exe
-                                  -LooseFileRegistration true
-                                  -InvokeCommandInDesktopPackage true
-                                  -StaticFileRootPath $(Agent.TempDirectory)\TestLocalIndex
-                                  -MsiTestInstallerPath $(System.DefaultWorkingDirectory)\src\AppInstallerCLIE2ETests\TestData\AppInstallerTestMsiInstaller.msi
-                                  -MsixTestInstallerPath $(Build.ArtifactStagingDirectory)\AppInstallerTestMsixInstaller.msix
-                                  -ExeTestInstallerPath $(buildOutDir)\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe
-                                  -PackageCertificatePath $(AppInstallerTest.secureFilePath)
-                                  -PowerShellModulePath $(buildOutDir)\PowerShell\Microsoft.WinGet.Client\Microsoft.WinGet.Client.psd1'
+        overrideTestrunParameters: '-PackagedContext true
+                                    -AICLIPackagePath $(packageLayoutDir)
+                                    -AICLIPath AppInstallerCLI\winget.exe
+                                    -LooseFileRegistration true
+                                    -InvokeCommandInDesktopPackage true
+                                    -StaticFileRootPath $(Agent.TempDirectory)\TestLocalIndex
+                                    -MsiTestInstallerPath $(System.DefaultWorkingDirectory)\src\AppInstallerCLIE2ETests\TestData\AppInstallerTestMsiInstaller.msi
+                                    -MsixTestInstallerPath $(Build.ArtifactStagingDirectory)\AppInstallerTestMsixInstaller.msix
+                                    -ExeTestInstallerPath $(buildOutDir)\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe
+                                    -PackageCertificatePath $(AppInstallerTest.secureFilePath)
+                                    -PowerShellModulePath $(buildOutDir)\PowerShell\Microsoft.WinGet.Client\Microsoft.WinGet.Client.psd1'
     ${{ else }}:
-      overrideTestrunParameters: '-PackagedContext false
-                                  -AICLIPath $(packageLayoutDir)\AppInstallerCLI\winget.exe
-                                  -InvokeCommandInDesktopPackage false
-                                  -StaticFileRootPath $(Agent.TempDirectory)\TestLocalIndex
-                                  -MsiTestInstallerPath $(System.DefaultWorkingDirectory)\src\AppInstallerCLIE2ETests\TestData\AppInstallerTestMsiInstaller.msi
-                                  -MsixTestInstallerPath $(Build.ArtifactStagingDirectory)\AppInstallerTestMsixInstaller.msix
-                                  -ExeTestInstallerPath $(buildOutDir)\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe
-                                  -PackageCertificatePath $(AppInstallerTest.secureFilePath)
-                                  -PowerShellModulePath $(buildOutDir)\PowerShell\Microsoft.WinGet.Client\Microsoft.WinGet.Client.psd1'
+        overrideTestrunParameters: '-PackagedContext false
+                                    -AICLIPath $(packageLayoutDir)\AppInstallerCLI\winget.exe
+                                    -InvokeCommandInDesktopPackage false
+                                    -StaticFileRootPath $(Agent.TempDirectory)\TestLocalIndex
+                                    -MsiTestInstallerPath $(System.DefaultWorkingDirectory)\src\AppInstallerCLIE2ETests\TestData\AppInstallerTestMsiInstaller.msi
+                                    -MsixTestInstallerPath $(Build.ArtifactStagingDirectory)\AppInstallerTestMsixInstaller.msix
+                                    -ExeTestInstallerPath $(buildOutDir)\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe
+                                    -PackageCertificatePath $(AppInstallerTest.secureFilePath)
+                                    -PowerShellModulePath $(buildOutDir)\PowerShell\Microsoft.WinGet.Client\Microsoft.WinGet.Client.psd1'
+
+  - task: CmdLine@2
+    displayName: Complete COM trace for ${{ parameters.title }}
+    condition: and(succeededOrFailed(), ${{ parameters.comTrace }})
+    inputs:
+        script: 'wpr -stop "$(artifactsDir)\ComTrace - ${{ parameters.title }}.etl"'
