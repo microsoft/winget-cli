@@ -980,9 +980,9 @@ Configuration is disabled due to Group Policy.</value>
     <value>The packages found in this import have the following dependencies:</value>
     <comment>Import command sentence showed before reporting dependencies</comment>
   </data>
-  <data name="InstallAndUpgradeCommandsReportDependencies" xml:space="preserve">
+  <data name="PackageRequiresDependencies" xml:space="preserve">
     <value>This package requires the following dependencies:</value>
-    <comment>Install and Upgrade commands sentence showed before reporting dependencies</comment>
+    <comment>Message shown before reporting dependencies</comment>
   </data>
   <data name="DependenciesFlowInstall" xml:space="preserve">
     <value>Installing dependencies:</value>

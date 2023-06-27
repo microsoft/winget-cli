@@ -201,7 +201,6 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(IncludePinnedArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(IncludeUnknownArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(IncompatibleArgumentsProvided);
-        WINGET_DEFINE_RESOURCE_STRINGID(InstallAndUpgradeCommandsReportDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallationAbandoned);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallationDisclaimer1);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallationDisclaimer2);
@@ -326,6 +325,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(PackageAlreadyInstalled);
         WINGET_DEFINE_RESOURCE_STRINGID(PackageDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(PackageIsPinned);
+        WINGET_DEFINE_RESOURCE_STRINGID(PackageRequiresDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(PendingWorkError);
         WINGET_DEFINE_RESOURCE_STRINGID(PinAddBlockingArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PinAddCommandLongDescription);

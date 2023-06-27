@@ -47,6 +47,14 @@ namespace AppInstallerCLIE2ETests.Interop
         [SetUp]
         public void SetUp()
         {
+            if (this.TestFactory.Context == ClsidContext.InProc)
+            {
+                var packageManagerSettings = this.TestFactory.CreatePackageManagerSettings();
+                packageManagerSettings.SetCallerIdentifier("downloadInterop");
+                packageManagerSettings.SetStateIdentifier("downloadInterop");
+                packageManagerSettings.SetUserSettings(File.ReadAllText(TestCommon.SettingsJsonFilePath));
+            }
+
             this.packageManager = this.TestFactory.CreatePackageManager();
             this.testSource = this.packageManager.GetPackageCatalogByName(Constants.TestSourceName);
         }

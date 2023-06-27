@@ -265,7 +265,7 @@ namespace AppInstaller::CLI::Workflow
             context.Reporter.Info() << std::endl;
             context <<
                  ProcessMultiplePackages(
-                    Resource::String::InstallAndUpgradeCommandsReportDependencies,
+                    Resource::String::PackageRequiresDependencies,
                     APPINSTALLER_CLI_ERROR_UPDATE_ALL_HAS_FAILURE,
                     { APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE });
         }

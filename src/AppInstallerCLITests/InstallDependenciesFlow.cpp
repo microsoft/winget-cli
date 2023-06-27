@@ -44,7 +44,7 @@ void OverrideOpenDependencySource(TestContext& context)
 void OverrideForProcessMultiplePackages(TestContext& context)
 {
     context.Override({ Workflow::ProcessMultiplePackages(
-        Resource::String::InstallAndUpgradeCommandsReportDependencies,
+        Resource::String::PackageRequiresDependencies,
         APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES,
         {},
         false,
@@ -72,7 +72,7 @@ TEST_CASE("DependencyGraph_SkipInstalled", "[InstallFlow][workflow][dependencyGr
     TestUserSettings settings;
     settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
 
-    context << CreateDependencySubContexts(Resource::String::InstallAndUpgradeCommandsReportDependencies);
+    context << CreateDependencySubContexts(Resource::String::PackageRequiresDependencies);
 
     auto& dependencyPackages = context.Get<Execution::Data::PackageSubContexts>();
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesFlowContainsLoop)) == std::string::npos);
@@ -96,7 +96,7 @@ TEST_CASE("DependencyGraph_validMinVersions", "[InstallFlow][workflow][dependenc
     TestUserSettings settings;
     settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
 
-    context << CreateDependencySubContexts(Resource::String::InstallAndUpgradeCommandsReportDependencies);
+    context << CreateDependencySubContexts(Resource::String::PackageRequiresDependencies);
 
     auto& dependencyPackages = context.Get<Execution::Data::PackageSubContexts>();
 
@@ -122,7 +122,7 @@ TEST_CASE("DependencyGraph_PathNoLoop", "[InstallFlow][workflow][dependencyGraph
     TestUserSettings settings;
     settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
 
-    context << CreateDependencySubContexts(Resource::String::InstallAndUpgradeCommandsReportDependencies);
+    context << CreateDependencySubContexts(Resource::String::PackageRequiresDependencies);
 
     auto& dependencyPackages = context.Get<Execution::Data::PackageSubContexts>();
 
@@ -210,7 +210,7 @@ TEST_CASE("InstallerWithoutDependencies_RootDependenciesAreUsed", "[dependencies
     INFO(installOutput.str());
 
     // Verify root dependencies are shown
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InstallAndUpgradeCommandsReportDependencies).get()) != std::string::npos);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::PackageRequiresDependencies).get()) != std::string::npos);
     REQUIRE(installOutput.str().find("PreviewIISOnRoot") != std::string::npos);
 }
 
@@ -232,7 +232,7 @@ TEST_CASE("InstallerWithDependencies_SkipDependencies", "[dependencies]")
     INFO(installOutput.str());
 
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesSkippedMessage).get()) != std::string::npos);
-    REQUIRE_FALSE(installOutput.str().find(Resource::LocString(Resource::String::InstallAndUpgradeCommandsReportDependencies).get()) != std::string::npos);
+    REQUIRE_FALSE(installOutput.str().find(Resource::LocString(Resource::String::PackageRequiresDependencies).get()) != std::string::npos);
     REQUIRE_FALSE(installOutput.str().find("PreviewIIS") != std::string::npos);
 }
 
@@ -254,7 +254,7 @@ TEST_CASE("InstallerWithDependencies_IgnoreDependenciesSetting", "[dependencies]
     INFO(installOutput.str());
 
     REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesSkippedMessage).get()) != std::string::npos);
-    REQUIRE_FALSE(installOutput.str().find(Resource::LocString(Resource::String::InstallAndUpgradeCommandsReportDependencies).get()) != std::string::npos);
+    REQUIRE_FALSE(installOutput.str().find(Resource::LocString(Resource::String::PackageRequiresDependencies).get()) != std::string::npos);
     REQUIRE_FALSE(installOutput.str().find("PreviewIIS") != std::string::npos);
 }
 
@@ -276,7 +276,7 @@ TEST_CASE("DependenciesMultideclaration_InstallerDependenciesPreference", "[depe
     INFO(installOutput.str());
 
     // Verify installer dependencies are shown
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InstallAndUpgradeCommandsReportDependencies).get()) != std::string::npos);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::PackageRequiresDependencies).get()) != std::string::npos);
     REQUIRE(installOutput.str().find("PreviewIIS") != std::string::npos);
     // and root dependencies are not
     REQUIRE(installOutput.str().find("PreviewIISOnRoot") == std::string::npos);
@@ -300,7 +300,7 @@ TEST_CASE("InstallFlow_Dependencies", "[InstallFlow][workflow][dependencies]")
     INFO(installOutput.str());
 
     // Verify all types of dependencies are printed
-    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::InstallAndUpgradeCommandsReportDependencies).get()) != std::string::npos);
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::PackageRequiresDependencies).get()) != std::string::npos);
     REQUIRE(installOutput.str().find("PreviewIIS") != std::string::npos);
 }
 

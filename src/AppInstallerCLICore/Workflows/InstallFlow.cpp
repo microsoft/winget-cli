@@ -551,10 +551,10 @@ namespace AppInstaller::CLI::Workflow
 
         context <<
             Workflow::GetDependenciesFromInstaller <<
-            Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
+            Workflow::ReportDependencies(Resource::String::PackageRequiresDependencies) <<
             Workflow::EnableWindowsFeaturesDependencies <<
-            Workflow::CreateDependencySubContexts(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
-            Workflow::ProcessMultiplePackages(Resource::String::InstallAndUpgradeCommandsReportDependencies, APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES, {}, false, true, true, true);
+            Workflow::CreateDependencySubContexts(Resource::String::PackageRequiresDependencies) <<
+            Workflow::ProcessMultiplePackages(Resource::String::PackageRequiresDependencies, APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES, {}, false, true, true, true);
     }
 
     void InstallDependenciesFromCOM(Execution::Context& context)
@@ -567,9 +567,9 @@ namespace AppInstaller::CLI::Workflow
 
         context <<
             Workflow::GetDependenciesFromInstaller <<
-            Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
+            Workflow::ReportDependencies(Resource::String::PackageRequiresDependencies) <<
             Workflow::EnableWindowsFeaturesDependencies <<
-            Workflow::ProcessMultiplePackages(Resource::String::InstallAndUpgradeCommandsReportDependencies, APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES, {}, false, true, true, true);
+            Workflow::ProcessMultiplePackages(Resource::String::PackageRequiresDependencies, APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES, {}, false, true, true, true);
     }
 
     void DownloadPackageDependencies::operator()(Execution::Context& context) const
@@ -582,9 +582,9 @@ namespace AppInstaller::CLI::Workflow
 
         context <<
             Workflow::GetDependenciesFromInstaller <<
-            Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
-            Workflow::CreateDependencySubContexts(Resource::String::InstallAndUpgradeCommandsReportDependencies, m_includeInstalledPackages) <<
-            Workflow::ProcessMultiplePackages(Resource::String::InstallAndUpgradeCommandsReportDependencies, APPINSTALLER_CLI_ERROR_DOWNLOAD_DEPENDENCIES, {}, false, true, true, false, m_includeInstalledPackages, true);
+            Workflow::ReportDependencies(Resource::String::PackageRequiresDependencies) <<
+            Workflow::CreateDependencySubContexts(Resource::String::PackageRequiresDependencies, m_includeInstalledPackages) <<
+            Workflow::ProcessMultiplePackages(Resource::String::PackageRequiresDependencies, APPINSTALLER_CLI_ERROR_DOWNLOAD_DEPENDENCIES, {}, false, true, true, false, m_includeInstalledPackages, true);
     }
 
     void InstallSinglePackage(Execution::Context& context)
