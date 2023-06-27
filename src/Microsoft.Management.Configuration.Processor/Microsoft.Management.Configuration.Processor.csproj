@@ -17,6 +17,7 @@
     <!-- Disable warning CS1591 for cswinrt auto-generated files and CS8785 for SourceGenerator compilation errors -->
     <NoWarn>1591,8785</NoWarn>
     <Configurations>Debug;Release;ReleaseStatic</Configurations>
+    <CsWinRTEnableLogging>true</CsWinRTEnableLogging>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">

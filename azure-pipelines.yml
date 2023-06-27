@@ -108,7 +108,15 @@ jobs:
                     /p:AppxPackageDir="$(appxPackageDir)"
                     /p:AppxBundle=Always
                     /p:UapAppxPackageBuildMode=SideloadOnly'
+                    
+  - task: PowerShell@2
+    displayName: Dump out CsWinRT log
+    inputs:
+      targetType: 'inline'
+      script: |
+        Get-Content (Join-Path $(Build.SourcesDirectory) '\src\Microsoft.Management.Configuration.Processor\obj\Release\net6.0-windows10.0.19041.0\win\Generated Files\log.txt')
 
+                    
   - task: VSBuild@1
     displayName: Build Test Project
     inputs:
@@ -322,11 +330,10 @@ jobs:
     condition: succeededOrFailed()
       
   - task: PowerShell@2
-    displayName: 'List everything in AEA directory'
+    displayName: 'Register the Dev package for OOP configuration tests'
     inputs:
       targetType: 'inline'
-      script: Get-ChildItem -Recurse $env:LOCALAPPDATA\Microsoft\\WindowsApps
-      pwsh: true
+      script: Add-AppxPackage -Register $(packageLayoutDir)\AppxManifest.xml
     condition: succeededOrFailed()
   
   - task: VSTest@2
