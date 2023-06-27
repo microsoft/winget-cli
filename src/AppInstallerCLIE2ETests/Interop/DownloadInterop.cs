@@ -50,8 +50,9 @@ namespace AppInstallerCLIE2ETests.Interop
         {
             if (this.TestFactory.Context == ClsidContext.InProc)
             {
+                // Enable dependencies experimental feature.
                 this.packageManagerSettings = this.TestFactory.CreatePackageManagerSettings();
-                this.packageManagerSettings.SetUserSettings(File.ReadAllText(TestCommon.SettingsJsonFilePath));
+                this.packageManagerSettings.SetUserSettings(@"{ ""experimentalFeatures"":{ ""dependencies"": true } }");
             }
 
             this.packageManager = this.TestFactory.CreatePackageManager();
