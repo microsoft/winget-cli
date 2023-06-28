@@ -32,7 +32,7 @@ namespace AppInstaller::CLI::Workflow
         }
 
         // Get the file extension to be used for the installer file.
-        std::wstring_view GetInstallerFileExtension(Execution::Context& context)
+        std::wstring_view GetInstallerFileExtension(std::wstring extension, Execution::Context& context)
         {
             const auto& installer = context.Get<Execution::Data::Installer>();
             switch (installer->BaseInstallerType)
@@ -41,8 +41,10 @@ namespace AppInstaller::CLI::Workflow
             case InstallerTypeEnum::Exe:
             case InstallerTypeEnum::Inno:
             case InstallerTypeEnum::Nullsoft:
-            case InstallerTypeEnum::Portable:
                 return L".exe"sv;
+            case InstallerTypeEnum::Portable:
+                // When a portable installer has an extension, use it, it might be a .jar, or portable executable file.
+                return not extension.empty() ? extension : L".exe"sv;
             case InstallerTypeEnum::Msi:
             case InstallerTypeEnum::Wix:
                 return L".msi"sv;
@@ -67,7 +69,8 @@ namespace AppInstaller::CLI::Workflow
         {
             // Get file name from download URI
             std::filesystem::path filename = GetFileNameFromURI(context.Get<Execution::Data::Installer>()->Url);
-            std::wstring_view installerExtension = GetInstallerFileExtension(context);
+            std::wstring currentExtension = filename.has_extension() ? std::wstring(filename.extension()) : std::wstring(L"");
+            std::wstring_view installerExtension = GetInstallerFileExtension(currentExtension, context);
 
             // Assuming that we find a safe stem value in the URI, use it.
             // This should be extremely common, but just in case fall back to the older name style.
@@ -451,7 +454,6 @@ namespace AppInstaller::CLI::Workflow
         }
 
         Filesystem::RenameFile(installerPath, renamedDownloadedInstaller);
-
         installerPath.assign(renamedDownloadedInstaller);
         AICLI_LOG(CLI, Info, << "Successfully renamed downloaded installer. Path: " << installerPath);
     }
