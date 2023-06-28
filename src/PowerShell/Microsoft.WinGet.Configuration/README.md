@@ -43,7 +43,7 @@ Microsoft.WinGet.Configuration.Cmdlets.dll is the binary that gets loaded when t
 
 The dependencies are laid out in two directories: `DirectDependencies` and `SharedDependencies`. The resolving handler looks for binaries under `DirectDependencies` and uses the custom ALC to load them. The custom ALC load any binaries in `DirectDependencies` and `SharedDependencies`.
 
-Exception: WinRT.Runtime.dll doesn't support get loaded in multiple context in the same process. We special case it to get loaded in by the default loader.
+Exception: WinRT.Runtime.dll doesn't support getting loaded in multiple times in the same process, because it affects static state in the CLR itself. We special case it to get loaded in by the default loader.
 
 ### Current layout.
 ```
