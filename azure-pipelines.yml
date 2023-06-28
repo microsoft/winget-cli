@@ -261,14 +261,14 @@ jobs:
   - task: CopyFiles@2
     displayName: 'Copy Unpackaged Logs to Artifacts'
     inputs:
-      SourceFolder: '$(localappdata)\WinGet\defaultState'
+      SourceFolder: '$(temp)\WinGet\defaultState'
       TargetFolder: '$(artifactsDir)\UnpackagedLogs'
     condition: succeededOrFailed()
 
   - task: CopyFiles@2
     displayName: 'Copy Packaged Logs to Artifacts'
     inputs:
-      SourceFolder: '$(localappdata)\Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\DiagOutputDir'
+      SourceFolder: '$(localAppData)\Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\DiagOutputDir'
       TargetFolder: '$(artifactsDir)\PackagedLogs'
     condition: succeededOrFailed()   
 
