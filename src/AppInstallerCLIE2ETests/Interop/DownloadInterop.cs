@@ -23,7 +23,8 @@ namespace AppInstallerCLIE2ETests.Interop
     {
         private PackageManager packageManager;
         private PackageCatalogReference testSource;
-        //private PackageManagerSettings packageManagerSettings;
+
+        // private PackageManagerSettings packageManagerSettings;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DownloadInterop"/> class.
@@ -40,7 +41,7 @@ namespace AppInstallerCLIE2ETests.Interop
         [OneTimeSetUp]
         public void OneTimeSetup()
         {
-            //WinGetSettingsHelper.ConfigureFeature("dependencies", true);
+            // WinGetSettingsHelper.ConfigureFeature("dependencies", true);
         }
 
         /// <summary>
@@ -49,13 +50,12 @@ namespace AppInstallerCLIE2ETests.Interop
         [SetUp]
         public void SetUp()
         {
-            //if (this.TestFactory.Context == ClsidContext.InProc)
-            //{
+            // if (this.TestFactory.Context == ClsidContext.InProc)
+            // {
             //    // Enable dependencies experimental feature.
             //    this.packageManagerSettings = this.TestFactory.CreatePackageManagerSettings();
             //    this.packageManagerSettings.SetUserSettings(@"{ ""experimentalFeatures"":{ ""dependencies"": true } }");
-            //}
-
+            // }
             this.packageManager = this.TestFactory.CreatePackageManager();
             this.testSource = this.packageManager.GetPackageCatalogByName(Constants.TestSourceName);
         }
