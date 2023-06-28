@@ -41,14 +41,17 @@ namespace AppInstaller::CLI
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INTERNAL_ERROR);
         }
 
+        AICLI_LOG(CLI, Info, << "Waiting for app shutdown event");
         context.Reporter.Info() << "Waiting for app shutdown event" << std::endl;
         bool result = context.WaitForAppShutdownEvent();
         if (!result)
         {
+            AICLI_LOG(CLI, Info, << "Failed getting app shutdown event");
             context.Reporter.Info() << "Failed getting app shutdown event" << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INTERNAL_ERROR);
         }
 
+        AICLI_LOG(CLI, Info, << "Succeeded waiting for app shutdown event");
         context.Reporter.Info() << "Succeeded waiting for app shutdown event" << std::endl;
     }
 

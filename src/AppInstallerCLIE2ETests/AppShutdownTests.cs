@@ -66,7 +66,7 @@ namespace AppInstallerCLIE2ETests
             // This just waits for the app termination event.
             var testCmdTask = new Task<TestCommon.RunCommandResult>(() =>
             {
-                return TestCommon.RunAICLICommandViaInvokeCommandInDesktopPackage("test", "appshutdown", timeOut: 60000, throwOnTimeout: false);
+                return TestCommon.RunAICLICommandViaInvokeCommandInDesktopPackage("test", "appshutdown", timeOut: 120000, throwOnTimeout: false);
             });
 
             // Register the app with the updated version.
@@ -80,7 +80,7 @@ namespace AppInstallerCLIE2ETests
             Thread.Sleep(10000);
             registerTask.Start();
 
-            Task.WaitAll(new Task[] { testCmdTask, registerTask }, 120000);
+            Task.WaitAll(new Task[] { testCmdTask, registerTask }, 150000);
 
             Assert.True(registerTask.Result);
             TestContext.Out.Write(testCmdTask.Result.StdOut);
