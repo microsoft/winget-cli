@@ -60,16 +60,21 @@
 
   <Target Name="MicrosoftManagementConfigurationPathTarget" BeforeTargets="CsWinRTSetAuthoringWinMDs">
     <PropertyGroup>
-      <MicrosoftManagementConfigurationPath>$(OutputPath)..\..\..\x64\$(Configuration)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd</MicrosoftManagementConfigurationPath>
-      <MicrosoftManagementConfigurationPath Condition="!Exists('$(MicrosoftManagementConfigurationPath)')">$(OutputPath)..\..\..\x86\$(Configuration)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd</MicrosoftManagementConfigurationPath>
-      <MicrosoftManagementConfigurationPath Condition="!Exists('$(MicrosoftManagementConfigurationPath)')">$(OutputPath)..\..\..\arm\$(Configuration)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd</MicrosoftManagementConfigurationPath>
-      <MicrosoftManagementConfigurationPath Condition="!Exists('$(MicrosoftManagementConfigurationPath)')">$(OutputPath)..\..\..\arm64\$(Configuration)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd</MicrosoftManagementConfigurationPath>
+      <MicrosoftManagementConfigurationPathx64>$(OutputPath)..\..\..\x64\$(Configuration)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd</MicrosoftManagementConfigurationPathx64>
+      <MicrosoftManagementConfigurationPathx86>$(OutputPath)..\..\..\x86\$(Configuration)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd</MicrosoftManagementConfigurationPathx86>
+      <MicrosoftManagementConfigurationPatharm>$(OutputPath)..\..\..\arm\$(Configuration)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd</MicrosoftManagementConfigurationPatharm>
+      <MicrosoftManagementConfigurationPatharm64>$(OutputPath)..\..\..\arm64\$(Configuration)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd</MicrosoftManagementConfigurationPatharm64>
     </PropertyGroup>
 
-    <Error Condition="!Exists('$(MicrosoftManagementConfigurationPath)')" Text="Microsoft.Management.Configuration.winmd was not found" />
-    <Message Importance="normal" Text="Microsoft.Management.Configuration.winmd -&gt; $(MicrosoftManagementConfigurationPath)" />
-    <ItemGroup Condition="Exists('$(MicrosoftManagementConfigurationPath)')">
-      <CsWinRTAuthoringWinMDs Include="$(MicrosoftManagementConfigurationPath)" />
+    <Message Importance="normal" Condition="Exists('$(MicrosoftManagementConfigurationPathx64)')" Text="$(MicrosoftManagementConfigurationPathx64) exists!" />
+    <Message Importance="normal" Condition="Exists('$(MicrosoftManagementConfigurationPathx86)')" Text="$(MicrosoftManagementConfigurationPathx86) exists!" />
+    <Message Importance="normal" Condition="Exists('$(MicrosoftManagementConfigurationPatharm)')" Text="$(MicrosoftManagementConfigurationPatharm) exists!" />
+    <Message Importance="normal" Condition="Exists('$(MicrosoftManagementConfigurationPatharm64)')" Text="$(MicrosoftManagementConfigurationPatharm64) exists!" />
+
+    <Message Importance="normal" Text="Microsoft.Management.Configuration.winmd -&gt; $(MicrosoftManagementConfigurationPathx64)" />
+    <Error Condition="!Exists('$(MicrosoftManagementConfigurationPathx64)')" Text="Microsoft.Management.Configuration.winmd was not found" />
+    <ItemGroup Condition="Exists('$(MicrosoftManagementConfigurationPathx64)')">
+      <CsWinRTAuthoringWinMDs Include="$(MicrosoftManagementConfigurationPathx64)" />
     </ItemGroup>
   </Target>
 
