@@ -18,13 +18,13 @@ jobs:
   - job: "Build"
     timeoutInMinutes: 120
     strategy:
-    matrix:
-      x86_release:
-        buildConfiguration: 'Release'
-        buildPlatform: 'x86'
-      x64_release:
-        buildConfiguration: 'Release'
-        buildPlatform: 'x64'
+      matrix:
+        x86_release:
+          buildConfiguration: 'Release'
+          buildPlatform: 'x86'
+        x64_release:
+          buildConfiguration: 'Release'
+          buildPlatform: 'x64'
     variables:
       artifactsDir: $(Build.ArtifactStagingDirectory)\$(buildPlatform)
     steps:
