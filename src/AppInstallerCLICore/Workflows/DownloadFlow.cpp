@@ -501,7 +501,7 @@ namespace AppInstaller::CLI::Workflow
         }
         else
         {
-            std::filesystem::path downloadsDirectory = AppInstaller::Runtime::GetPathTo(AppInstaller::Runtime::PathName::Downloads);
+            std::filesystem::path downloadsDirectory = AppInstaller::Runtime::GetPathTo(AppInstaller::Runtime::PathName::UserProfileDownloads);
             const auto& manifest = context.Get<Execution::Data::Manifest>();
             std::string packageDownloadFolderName = manifest.Id + '.' + manifest.Version;
             context.Add<Execution::Data::DownloadDirectory>(downloadsDirectory / packageDownloadFolderName);

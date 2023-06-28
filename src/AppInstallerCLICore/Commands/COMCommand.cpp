@@ -34,7 +34,7 @@ namespace AppInstaller::CLI
     void COMInstallCommand::ExecuteInternal(Context& context) const
     {
         context <<
-            Workflow::InstallDependenciesFromCOM <<
+            Workflow::InstallDependencies(/* createDependencySubContexts */ false) <<
             Workflow::ReverifyInstallerHash << 
             Workflow::InstallPackageInstaller;
     }

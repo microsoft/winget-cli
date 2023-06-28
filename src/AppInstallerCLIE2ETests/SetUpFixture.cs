@@ -9,7 +9,6 @@ namespace AppInstallerCLIE2ETests
     using System;
     using System.IO;
     using Microsoft.Win32;
-    using Newtonsoft.Json;
     using NUnit.Framework;
 
     /// <summary>

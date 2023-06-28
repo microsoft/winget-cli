@@ -383,7 +383,7 @@ namespace AppInstaller::Runtime
             result.Path /= s_PortablePackageRoot;
             result.Path /= s_LinksDirectory;
             break;
-        case PathName::Downloads:
+        case PathName::UserProfileDownloads:
             result.Path = (forDisplay && Settings::User().Get<Setting::AnonymizePathForDisplay>()) ? s_UserProfileEnvironmentVariable : GetKnownFolderPath(FOLDERID_Profile);
             result.Path /= s_DownloadsDirectory;
             result.Create = false;
@@ -456,7 +456,7 @@ namespace AppInstaller::Runtime
         case PathName::PortableLinksMachineLocation:
         case PathName::PortableLinksUserLocation:
         case PathName::PortablePackageUserRoot:
-        case PathName::Downloads:
+        case PathName::UserProfileDownloads:
             result = GetPathDetailsCommon(path, forDisplay);
             break;
         case PathName::SelfPackageRoot:
@@ -533,7 +533,7 @@ namespace AppInstaller::Runtime
         case PathName::PortableLinksMachineLocation:
         case PathName::PortableLinksUserLocation:
         case PathName::PortablePackageUserRoot:
-        case PathName::Downloads:
+        case PathName::UserProfileDownloads:
             result = GetPathDetailsCommon(path, forDisplay);
             break;
         case PathName::SelfPackageRoot:

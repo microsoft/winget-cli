@@ -141,18 +141,23 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: InstallerPath, Manifest, Installer, PackageVersion, InstalledPackageVersion?
     // Outputs: None
     void InstallPackageInstaller(Execution::Context& context);
-
-    // Reports and installs the package dependencies. Also creates the sub contexts for each package dependency.
+    
+    // Installs the dependencies for a specific package.
     // Required Args: None
     // Inputs: InstallerPath, Manifest, Installer, PackageVersion, InstalledPackageVersion?
     // Outputs: None
-    void InstallDependencies(Execution::Context& context);
+    struct InstallDependencies : public WorkflowTask
+    {
+        InstallDependencies(
+            bool createDependencySubContexts) :
+            WorkflowTask("InstallDependencies"),
+            m_createDependencySubContexts(createDependencySubContexts) {}
 
-    // Reports and installs the package dependencies from COM. Package dependency sub contexts should already have been populated.
-    // Require Args: None
-    // Inputs:InstallerPath, Manifest, Installer, PAckageVersion, InstalledPackageVersion?
-    // Outputs: None
-    void InstallDependenciesFromCOM(Execution::Context& context);
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        bool m_createDependencySubContexts = false;
+    };
 
     // Downloads all of the package dependencies of a specific package.
     // Required Args: none

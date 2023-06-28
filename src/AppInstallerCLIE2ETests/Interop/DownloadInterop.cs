@@ -8,6 +8,7 @@ namespace AppInstallerCLIE2ETests.Interop
 {
     using System;
     using System.IO;
+    using System.IO.Packaging;
     using System.Threading.Tasks;
     using Microsoft.Management.Deployment;
     using Microsoft.Management.Deployment.Projection;
@@ -57,6 +58,94 @@ namespace AppInstallerCLIE2ETests.Interop
 
             this.packageManager = this.TestFactory.CreatePackageManager();
             this.testSource = this.packageManager.GetPackageCatalogByName(Constants.TestSourceName);
+        }
+
+        /// <summary>
+        /// Test settings path.
+        /// </summary>
+        [Test]
+        public void VerifySettingsPath()
+        {
+            var settingsPath = TestCommon.SettingsJsonFilePath;
+            string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            string expectedSettingsPath = Path.Combine(localAppData, @"Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\settings.json");
+            Assert.True(File.Exists(expectedSettingsPath));
+            string content = File.ReadAllText(expectedSettingsPath);
+            Assert.True(content.Contains(@"""dependencies"": true"));
+            Assert.AreEqual(settingsPath, expectedSettingsPath);
+        }
+
+        /// <summary>
+        /// Test settings path 2.
+        /// </summary>
+        [Test]
+        public void VerifySettingsPath2()
+        {
+            var settingsPath = TestCommon.SettingsJsonFilePath;
+            string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            string expectedSettingsPath = Path.Combine(localAppData, @"Microsoft\WinGet\Settings\defaultState\settings.json");
+            Assert.True(File.Exists(expectedSettingsPath));
+            string content = File.ReadAllText(expectedSettingsPath);
+            Assert.True(content.Contains(@"""dependencies"": true"));
+            Assert.AreEqual(settingsPath, expectedSettingsPath);
+        }
+
+        /// <summary>
+        /// Downloads the test installer and its package dependencies.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task DownloadDependencies()
+        {
+            string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            string expectedSettingsPath = Path.Combine(localAppData, @"Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\settings.json");
+            TestCommon.SettingsJsonFilePath = expectedSettingsPath;
+            WinGetSettingsHelper.ConfigureFeature("dependencies", true);
+
+            // Find package
+            var downloadDir = TestCommon.GetRandomTestDir();
+            var searchResult = this.FindOnePackage(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.PackageDependency");
+
+            // Configure installation
+            var downloadOptions = this.TestFactory.CreateDownloadOptions();
+            downloadOptions.AcceptPackageAgreements = true;
+            downloadOptions.DownloadDirectory = downloadDir;
+
+            // Download
+            var downloadResult = await this.packageManager.DownloadPackageAsync(searchResult.CatalogPackage, downloadOptions);
+
+            // Assert
+            Assert.AreEqual(DownloadResultStatus.Ok, downloadResult.Status);
+            var dependenciesDir = Path.Combine(downloadDir, Constants.Dependencies);
+            Assert.True(TestCommon.VerifyInstallerDownload(dependenciesDir, Constants.AppInstallerTestExeInstallerExe));
+            Assert.True(TestCommon.VerifyInstallerDownload(downloadDir, Constants.AppInstallerTestExeInstallerExe));
+        }
+
+        /// <summary>
+        /// Downloads the test installer and skips dependencies.
+        /// </summary>
+        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
+        [Test]
+        public async Task DownloadDependencies_Skip()
+        {
+            // Find package
+            var downloadDir = TestCommon.GetRandomTestDir();
+            var searchResult = this.FindOnePackage(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.PackageDependency");
+
+            // Configure installation
+            var downloadOptions = this.TestFactory.CreateDownloadOptions();
+            downloadOptions.AcceptPackageAgreements = true;
+            downloadOptions.DownloadDirectory = downloadDir;
+            downloadOptions.SkipDependencies = true;
+
+            // Download
+            var downloadResult = await this.packageManager.DownloadPackageAsync(searchResult.CatalogPackage, downloadOptions);
+
+            // Assert
+            Assert.AreEqual(DownloadResultStatus.Ok, downloadResult.Status);
+            var dependenciesDir = Path.Combine(downloadDir, Constants.Dependencies);
+            Assert.IsFalse(Directory.Exists(dependenciesDir));
+            Assert.True(TestCommon.VerifyInstallerDownload(downloadDir, Constants.AppInstallerTestExeInstallerExe));
         }
 
         /// <summary>
@@ -253,59 +342,6 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Assert
             Assert.AreEqual(DownloadResultStatus.DownloadError, downloadResult.Status);
-        }
-
-        /// <summary>
-        /// Downloads the test installer and its package dependencies.
-        /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
-        [Test]
-        public async Task DownloadDependencies()
-        {
-            // Find package
-            var downloadDir = TestCommon.GetRandomTestDir();
-            var searchResult = this.FindOnePackage(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.PackageDependency");
-
-            // Configure installation
-            var downloadOptions = this.TestFactory.CreateDownloadOptions();
-            downloadOptions.AcceptPackageAgreements = true;
-            downloadOptions.DownloadDirectory = downloadDir;
-
-            // Download
-            var downloadResult = await this.packageManager.DownloadPackageAsync(searchResult.CatalogPackage, downloadOptions);
-
-            // Assert
-            Assert.AreEqual(DownloadResultStatus.Ok, downloadResult.Status);
-            var dependenciesDir = Path.Combine(downloadDir, Constants.Dependencies);
-            Assert.True(TestCommon.VerifyInstallerDownload(dependenciesDir, Constants.AppInstallerTestExeInstallerExe));
-            Assert.True(TestCommon.VerifyInstallerDownload(downloadDir, Constants.AppInstallerTestExeInstallerExe));
-        }
-
-        /// <summary>
-        /// Downloads the test installer and skips dependencies.
-        /// </summary>
-        /// <returns>A <see cref="Task"/> representing the asynchronous unit test.</returns>
-        [Test]
-        public async Task DownloadDependencies_Skip()
-        {
-            // Find package
-            var downloadDir = TestCommon.GetRandomTestDir();
-            var searchResult = this.FindOnePackage(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.PackageDependency");
-
-            // Configure installation
-            var downloadOptions = this.TestFactory.CreateDownloadOptions();
-            downloadOptions.AcceptPackageAgreements = true;
-            downloadOptions.DownloadDirectory = downloadDir;
-            downloadOptions.SkipDependencies = true;
-
-            // Download
-            var downloadResult = await this.packageManager.DownloadPackageAsync(searchResult.CatalogPackage, downloadOptions);
-
-            // Assert
-            Assert.AreEqual(DownloadResultStatus.Ok, downloadResult.Status);
-            var dependenciesDir = Path.Combine(downloadDir, Constants.Dependencies);
-            Assert.IsFalse(Directory.Exists(dependenciesDir));
-            Assert.True(TestCommon.VerifyInstallerDownload(downloadDir, Constants.AppInstallerTestExeInstallerExe));
         }
     }
 }

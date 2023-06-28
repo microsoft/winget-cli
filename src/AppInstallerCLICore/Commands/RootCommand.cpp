@@ -139,7 +139,7 @@ namespace AppInstaller::CLI
             keyDirectories.OutputLine({ Resource::LocString{ Resource::String::PortableRootUser }, Runtime::GetPathTo(Runtime::PathName::PortablePackageUserRoot, true).u8string() });
             keyDirectories.OutputLine({ Resource::LocString{ Resource::String::PortableRoot }, Runtime::GetPathTo(Runtime::PathName::PortablePackageMachineRoot, true).u8string() });
             keyDirectories.OutputLine({ Resource::LocString{ Resource::String::PortableRoot86 }, Runtime::GetPathTo(Runtime::PathName::PortablePackageMachineRootX86, true).u8string() });
-            keyDirectories.OutputLine({ Resource::LocString{ Resource::String::Downloads }, Runtime::GetPathTo(Runtime::PathName::Downloads, true).u8string() });
+            keyDirectories.OutputLine({ Resource::LocString{ Resource::String::Downloads }, Runtime::GetPathTo(Runtime::PathName::UserProfileDownloads, true).u8string() });
             keyDirectories.Complete();
             context.Reporter.Info() << std::endl;
         }
