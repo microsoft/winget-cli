@@ -44,6 +44,8 @@ namespace TestCommon
     // IPackage for TestSource
     struct TestPackage : public AppInstaller::Repository::IPackage
     {
+        static constexpr AppInstaller::Repository::IPackageType PackageType = AppInstaller::Repository::IPackageType::TestPackage;
+
         using Manifest = AppInstaller::Manifest::Manifest;
         using ISource = AppInstaller::Repository::ISource;
         using LocIndString = AppInstaller::Utility::LocIndString;
@@ -68,6 +70,7 @@ namespace TestCommon
         std::shared_ptr<AppInstaller::Repository::IPackageVersion> GetAvailableVersion(const AppInstaller::Repository::PackageVersionKey& versionKey) const override;
         bool IsUpdateAvailable(AppInstaller::Repository::PinBehavior) const override;
         bool IsSame(const IPackage* other) const override;
+        const void* CastTo(AppInstaller::Repository::IPackageType type) const override;
 
         std::shared_ptr<AppInstaller::Repository::IPackageVersion> InstalledVersion;
         std::vector<std::shared_ptr<AppInstaller::Repository::IPackageVersion>> AvailableVersions;
