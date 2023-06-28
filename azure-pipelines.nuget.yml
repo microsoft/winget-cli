@@ -10,15 +10,23 @@ pool:
 
 variables:
   solution: "src/AppInstallerCLI.sln"
-  buildConfiguration: "Release"
   packageName: Microsoft.WindowsPackageManager.Utils
+  buildVer: $[counter(${{ parameters.version }}, 1)]
+  version: ${{ parameters.version }}.$(buildVer)
 
 jobs:
   - job: "Build"
     timeoutInMinutes: 120
+    strategy:
+    matrix:
+      x86_release:
+        buildConfiguration: 'Release'
+        buildPlatform: 'x86'
+      x64_release:
+        buildConfiguration: 'Release'
+        buildPlatform: 'x64'
     variables:
-      BuildVer: $[counter(${{ parameters.version }}, 1)]
-      version: ${{ parameters.version }}.$(BuildVer)
+      artifactsDir: $(Build.ArtifactStagingDirectory)\$(buildPlatform)
     steps:
       - script: echo $(version)
 
@@ -55,20 +63,13 @@ jobs:
         condition: not(eq(variables['Build.Reason'], 'PullRequest'))
         inputs:
           filePath: 'src\binver\Update-BinVer.ps1'
-          arguments: '-TargetFile binver\binver\version.h -BuildVersion $(BuildVer) -MajorMinorOverride ${{ parameters.version }}'
+          arguments: '-TargetFile binver\binver\version.h -BuildVersion $(buildVer) -MajorMinorOverride ${{ parameters.version }}'
           workingDirectory: "src"
 
       - task: VSBuild@1
-        displayName: Build Solution x86
+        displayName: Build Solution
         inputs:
-          platform: "x86"
-          solution: "$(solution)"
-          configuration: "$(buildConfiguration)"
-
-      - task: VSBuild@1
-        displayName: Build Solution x64
-        inputs:
-          platform: "x64"
+          platform: "$(buildPlatform)"
           solution: "$(solution)"
           configuration: "$(buildConfiguration)"
 
@@ -105,6 +106,27 @@ jobs:
                   "ToolVersion" : "1.0"
               }
             ]
+      - task: CopyFiles@2
+        displayName: 'Copy Util to artifacts folder'
+        inputs:
+          Contents: |
+              src\$(buildPlatform)\$(buildConfiguration)\WinGetUtil\WinGetUtil.dll
+              src\$(buildPlatform)\$(buildConfiguration)\WinGetUtil\WinGetUtil.pdb
+              src\WinGetUtilInterop\bin\$(buildConfiguration)\netstandard2.0\WinGetUtilInterop.dll
+              src\WinGetUtilInterop\bin\$(buildConfiguration)\netstandard2.0\WinGetUtilInterop.pdb
+              src\WinGetUtilInterop\build\Microsoft.WindowsPackageManager.Utils.targets
+              schemas\JSON\manifests\**
+          TargetFolder: '$(artifactsDir)'
+
+      - task: PublishPipelineArtifact@1
+        displayName: Publish Pipeline Artifacts
+        inputs:
+          targetPath: '$(artifactsDir)'
+
+  - job: "Nuget"
+    steps:
+      - task: DownloadPipelineArtifact@2
+        displayName: 'Download Build Artifacts'
 
       - task: NuGetCommand@2
         displayName: Pack WingetUtil nuget package
@@ -114,6 +136,7 @@ jobs:
           versioningScheme: byEnvVar
           versionEnvVar: version
           packDestination: "$(Build.ArtifactStagingDirectory)"
+          basePath: $(Pipeline.Workspace)
 
       - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
         displayName: "ESRP CodeSigning - NuGet package"
@@ -149,6 +172,7 @@ jobs:
 
       - task: NuGetCommand@2
         displayName: Push WingetUtil nuget package to nuget.org
+        condition: eq(1,2)
         inputs:
           command: push
           nuGetFeedType: external
