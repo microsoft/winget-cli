@@ -23,7 +23,7 @@ namespace AppInstallerCLIE2ETests.Interop
     {
         private PackageManager packageManager;
         private PackageCatalogReference testSource;
-        private PackageManagerSettings packageManagerSettings;
+        //private PackageManagerSettings packageManagerSettings;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DownloadInterop"/> class.
@@ -40,7 +40,7 @@ namespace AppInstallerCLIE2ETests.Interop
         [OneTimeSetUp]
         public void OneTimeSetup()
         {
-            WinGetSettingsHelper.ConfigureFeature("dependencies", true);
+            //WinGetSettingsHelper.ConfigureFeature("dependencies", true);
         }
 
         /// <summary>
@@ -49,45 +49,15 @@ namespace AppInstallerCLIE2ETests.Interop
         [SetUp]
         public void SetUp()
         {
-            if (this.TestFactory.Context == ClsidContext.InProc)
-            {
-                // Enable dependencies experimental feature.
-                this.packageManagerSettings = this.TestFactory.CreatePackageManagerSettings();
-                this.packageManagerSettings.SetUserSettings(@"{ ""experimentalFeatures"":{ ""dependencies"": true } }");
-            }
+            //if (this.TestFactory.Context == ClsidContext.InProc)
+            //{
+            //    // Enable dependencies experimental feature.
+            //    this.packageManagerSettings = this.TestFactory.CreatePackageManagerSettings();
+            //    this.packageManagerSettings.SetUserSettings(@"{ ""experimentalFeatures"":{ ""dependencies"": true } }");
+            //}
 
             this.packageManager = this.TestFactory.CreatePackageManager();
             this.testSource = this.packageManager.GetPackageCatalogByName(Constants.TestSourceName);
-        }
-
-        /// <summary>
-        /// Test settings path.
-        /// </summary>
-        [Test]
-        public void VerifySettingsPath()
-        {
-            var settingsPath = TestCommon.SettingsJsonFilePath;
-            string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            string expectedSettingsPath = Path.Combine(localAppData, @"Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\settings.json");
-            Assert.True(File.Exists(expectedSettingsPath));
-            string content = File.ReadAllText(expectedSettingsPath);
-            Assert.True(content.Contains(@"""dependencies"": true"));
-            Assert.AreEqual(settingsPath, expectedSettingsPath);
-        }
-
-        /// <summary>
-        /// Test settings path 2.
-        /// </summary>
-        [Test]
-        public void VerifySettingsPath2()
-        {
-            var settingsPath = TestCommon.SettingsJsonFilePath;
-            string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            string expectedSettingsPath = Path.Combine(localAppData, @"Microsoft\WinGet\Settings\defaultState\settings.json");
-            Assert.True(File.Exists(expectedSettingsPath));
-            string content = File.ReadAllText(expectedSettingsPath);
-            Assert.True(content.Contains(@"""dependencies"": true"));
-            Assert.AreEqual(settingsPath, expectedSettingsPath);
         }
 
         /// <summary>
@@ -97,11 +67,6 @@ namespace AppInstallerCLIE2ETests.Interop
         [Test]
         public async Task DownloadDependencies()
         {
-            string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            string expectedSettingsPath = Path.Combine(localAppData, @"Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\settings.json");
-            TestCommon.SettingsJsonFilePath = expectedSettingsPath;
-            WinGetSettingsHelper.ConfigureFeature("dependencies", true);
-
             // Find package
             var downloadDir = TestCommon.GetRandomTestDir();
             var searchResult = this.FindOnePackage(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.PackageDependency");

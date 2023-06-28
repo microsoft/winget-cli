@@ -255,8 +255,22 @@ jobs:
   - template: templates/e2e-test.template.yml
     parameters:
       title: "COM API E2E Tests (Out-of-process)"
-      isPackaged: true
+      isPackaged: true  
       filter: "TestCategory=OutOfProcess"
+
+  - task: CopyFiles@2
+    displayName: 'Copy Unpackaged Logs to Artifacts'
+    inputs:
+      SourceFolder: '$(localappdata)\WinGet\defaultState'
+      TargetFolder: '$(artifactsDir)\UnpackagedLogs'
+    condition: succeededOrFailed()
+
+  - task: CopyFiles@2
+    displayName: 'Copy Packaged Logs to Artifacts'
+    inputs:
+      SourceFolder: '$(localappdata)\Packages\WinGetDevCLI_8wekyb3d8bbwe\LocalState\DiagOutputDir'
+      TargetFolder: '$(artifactsDir)\PackagedLogs'
+    condition: succeededOrFailed()   
 
   - task: CopyFiles@2
     displayName: 'Copy E2E Tests Package Log to artifacts folder'

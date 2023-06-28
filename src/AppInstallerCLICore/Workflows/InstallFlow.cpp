@@ -611,32 +611,55 @@ namespace AppInstaller::CLI::Workflow
             return;
         }
 
-        // Report dependencies
-        if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
+        auto& packageSubContexts = context.Get<Execution::Data::PackageSubContexts>();
+        if (!packageSubContexts.empty())
         {
-            auto& packageSubContexts = context.Get<Execution::Data::PackageSubContexts>();
-            if (!packageSubContexts.empty())
+            if (m_downloadInstallerOnly)
             {
-                if (m_downloadInstallerOnly)
-                {
-                    context.Reporter.Info() << Resource::String::DependenciesFlowDownload << std::endl;
-                }
-                else
-                {
-                    context.Reporter.Info() << Resource::String::DependenciesFlowInstall << std::endl;
-                }
+                context.Reporter.Info() << Resource::String::DependenciesFlowDownload << std::endl;
             }
-
-            DependencyList allDependencies;
-
-            for (auto& packageContext : packageSubContexts)
+            else
             {
-                allDependencies.Add(packageContext->Get<Execution::Data::Installer>().value().Dependencies);
+                context.Reporter.Info() << Resource::String::DependenciesFlowInstall << std::endl;
             }
-
-            context.Add<Execution::Data::Dependencies>(allDependencies);
-            context << Workflow::ReportDependencies(m_dependenciesReportMessage);
         }
+
+        DependencyList allDependencies;
+
+        for (auto& packageContext : packageSubContexts)
+        {
+            allDependencies.Add(packageContext->Get<Execution::Data::Installer>().value().Dependencies);
+        }
+
+        context.Add<Execution::Data::Dependencies>(allDependencies);
+        context << Workflow::ReportDependencies(m_dependenciesReportMessage);
+
+        // Report dependencies
+        //if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
+        //{
+        //    auto& packageSubContexts = context.Get<Execution::Data::PackageSubContexts>();
+        //    if (!packageSubContexts.empty())
+        //    {
+        //        if (m_downloadInstallerOnly)
+        //        {
+        //            context.Reporter.Info() << Resource::String::DependenciesFlowDownload << std::endl;
+        //        }
+        //        else
+        //        {
+        //            context.Reporter.Info() << Resource::String::DependenciesFlowInstall << std::endl;
+        //        }
+        //    }
+
+        //    DependencyList allDependencies;
+
+        //    for (auto& packageContext : packageSubContexts)
+        //    {
+        //        allDependencies.Add(packageContext->Get<Execution::Data::Installer>().value().Dependencies);
+        //    }
+
+        //    context.Add<Execution::Data::Dependencies>(allDependencies);
+        //    context << Workflow::ReportDependencies(m_dependenciesReportMessage);
+        //}
 
         bool allSucceeded = true;
         size_t packagesCount = context.Get<Execution::Data::PackageSubContexts>().size();
