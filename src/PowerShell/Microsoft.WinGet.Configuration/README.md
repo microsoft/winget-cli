@@ -41,7 +41,7 @@ In order to avoid [assembly dependency conflicts](https://learn.microsoft.com/en
 
 Microsoft.WinGet.Configuration.Cmdlets.dll is the binary that gets loaded when the module is imported. When Microsoft.WinGet.Configuration.Engine.dll is getting loaded the resolving handler use the custom ALC to load it. Then all the dependencies of that binary will be loaded using that custom context.
 
-The dependencies are layout in two directories: `DirectDependencies` and `SharedDependencies`. The resolving handler looks for binaries under `DirectDependencies` and uses the custom ALC to load them. The custom ALC load any binaries in `DirectDependencies` and `SharedDependencies`.
+The dependencies are laid out in two directories: `DirectDependencies` and `SharedDependencies`. The resolving handler looks for binaries under `DirectDependencies` and uses the custom ALC to load them. The custom ALC load any binaries in `DirectDependencies` and `SharedDependencies`.
 
 Exception: WinRT.Runtime.dll doesn't support get loaded in multiple context in the same process. We special case it to get loaded in by the default loader.
 
