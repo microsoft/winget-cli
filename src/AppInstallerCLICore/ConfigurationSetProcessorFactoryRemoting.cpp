@@ -146,19 +146,12 @@ namespace AppInstaller::CLI::ConfigurationRemoting
                 AICLI_LOG(Config, Verbose, << "... configuration processing connection established.");
                 m_remoteFactory = IConfigurationSetProcessorFactory{ output.detach(), winrt::take_ownership_from_abi };
 
-                AICLI_LOG(Config, Verbose, << "Remote server exposes...");
-                for (const auto& iid : winrt::get_interfaces(m_remoteFactory.as<winrt::Windows::Foundation::IInspectable>()))
-                {
-                    AICLI_LOG(Config, Verbose, << "  " << static_cast<const GUID&>(iid));
-                }
-
                 // The additional modules path is a direct child directory to the package root
                 std::filesystem::path externalModules = Runtime::GetPathTo(Runtime::PathName::SelfPackageRoot) / s_ExternalModulesName;
                 THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_PATH_NOT_FOUND), !std::filesystem::is_directory(externalModules));
                 m_internalAdditionalModulePaths.emplace_back(externalModules.wstring());
                 m_remoteAdditionalModulePaths = winrt::single_threaded_vector<winrt::hstring>(std::vector<winrt::hstring>{ m_internalAdditionalModulePaths });
 
-                AICLI_LOG(Config, Verbose, << "Querying remote server for access to properties: " << static_cast<const GUID&>(winrt::guid_of<Processor::IPowerShellConfigurationProcessorFactoryProperties>()));
                 auto properties = m_remoteFactory.as<Processor::IPowerShellConfigurationProcessorFactoryProperties>();
                 AICLI_LOG(Config, Verbose, << "Applying built in additional module path: " << externalModules.u8string());
                 properties.AdditionalModulePaths(m_remoteAdditionalModulePaths.GetView());

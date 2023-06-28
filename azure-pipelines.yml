@@ -108,15 +108,7 @@ jobs:
                     /p:AppxPackageDir="$(appxPackageDir)"
                     /p:AppxBundle=Always
                     /p:UapAppxPackageBuildMode=SideloadOnly'
-                    
-  - task: PowerShell@2
-    displayName: Dump out CsWinRT log
-    inputs:
-      targetType: 'inline'
-      script: |
-        Get-Content (Join-Path $(Build.SourcesDirectory) '\src\Microsoft.Management.Configuration.Processor\obj\Release\net6.0-windows10.0.19041.0\win\Generated Files\log.txt')
 
-                    
   - task: VSBuild@1
     displayName: Build Test Project
     inputs:
@@ -259,9 +251,7 @@ jobs:
     parameters:
       title: "E2E Tests Packaged"
       isPackaged: true
-      comTrace: true
-      filter: "Name=ShowDetailsFromTestRepo"
-      #filter: "TestCategory!=InProcess&TestCategory!=OutOfProcess"
+      filter: "TestCategory!=InProcess&TestCategory!=OutOfProcess"
 
   - template: templates/e2e-test.template.yml
     parameters:
