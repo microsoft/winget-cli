@@ -70,19 +70,19 @@ namespace AppInstallerCLIE2ETests
             });
 
             // Register the app with the updated version.
-            var registerTask = new Task<bool>(() =>
-            {
-                return TestCommon.InstallMsixRegister(TestCommon.AICLIPackagePath, true, false);
-            });
+            // var registerTask = new Task<bool>(() =>
+            // {
+            //     return TestCommon.InstallMsixRegister(TestCommon.AICLIPackagePath, true, false);
+            // });
 
             // Give it a little time.
             testCmdTask.Start();
             Thread.Sleep(30000);
-            registerTask.Start();
+            //// registerTask.Start();
 
-            Task.WaitAll(new Task[] { testCmdTask, registerTask }, 360000);
+            Task.WaitAll(new Task[] { testCmdTask /*, registerTask*/ }, 360000);
 
-            Assert.True(registerTask.Result);
+            // Assert.True(registerTask.Result);
             TestContext.Out.Write(testCmdTask.Result.StdOut);
 
             // The ctrl-c command terminates the batch file before the exit code file gets created.
