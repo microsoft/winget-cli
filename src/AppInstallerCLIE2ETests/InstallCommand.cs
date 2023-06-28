@@ -671,5 +671,39 @@ namespace AppInstallerCLIE2ETests
             TestCommon.VerifyPortablePackage(Path.Combine(installDir, packageDirName), commandAlias, fileName, productCode, true);
             Assert.True(TestCommon.VerifyTestExeInstalledAndCleanup(testDir));
         }
+
+        /// <summary>
+        /// This test flow is intended to test an EXE that actually installs an MSIX internally, and whose name+publisher
+        /// information resembles an existing installation. Given this, the goal is to get correlation to stick to the
+        /// MSIX rather than the ARP entry that we would match with in the absence of the package family name being present.
+        /// </summary>
+        [Test]
+        public void InstallExeThatInstallsMSIX()
+        {
+            // Insert fake ARP entry as if a pre-existing install of the non-MSIX version of the package
+            // Name: EXE Installer that Installs MSIX
+            // Publisher: AppInstallerTest
+            // TODO: FAKE ARP
+
+            // We should not find it before installing because the normalized name doesn't match
+            // TODO: LIST AppInstallerTest.TestExeInstallerInstallsMSIX
+
+            // Add the MSIX to simulate an installer doing it
+            TestCommon.InstallMsix("TODO: Find where the test MSIX lives");
+
+            // Install our exe that "installs" the MSIX
+            // TODO: INSTALL AppInstallerTest.TestExeInstallerInstallsMSIX
+
+            // We should find the package now, and it should be correlated to the MSIX (although we don't actually know that from this probe)
+            // TODO: LIST AppInstallerTest.TestExeInstallerInstallsMSIX
+
+            // Remove the MSIX outside of winget's knowledge to keep the tracking data.
+            TestCommon.RemoveMsix(Constants.MsixInstallerName);
+
+            // We should not find the package now that the MSIX is gone, confirming that it was correlated
+            // TODO: LIST AppInstallerTest.TestExeInstallerInstallsMSIX
+        }
+
+        // TODO: A test using the same package but a different installer WITHOUT PFN to confirm that everything is the same as above except that the last LIST does fine the fake ARP entry
     }
 }
