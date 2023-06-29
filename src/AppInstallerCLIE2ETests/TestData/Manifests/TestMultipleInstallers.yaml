@@ -20,6 +20,7 @@ Installers:
   - Architecture: x64
     InstallerUrl: https://localhost:5001/TestKit/AppInstallerTestZipInstaller/AppInstallerTestZipInstaller.zip
     InstallerType: zip
+    InstallerLocale: zh-CN
     ProductCode: '{E1880465-8CC2-4033-90AE-DE4E7FDBA26E}'
     InstallerSha256: <ZIPHASH>
     NestedInstallerType: exe

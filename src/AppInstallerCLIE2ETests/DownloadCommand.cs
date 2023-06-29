@@ -146,9 +146,9 @@ namespace AppInstallerCLIE2ETests
         public void DownloadWithLocaleArg()
         {
             var downloadDir = TestCommon.GetRandomTestDir();
-            var result = TestCommon.RunAICLICommand("download", $"AppInstallerTest.MultipleLocale --locale zh-CN --download-directory {downloadDir}");
+            var result = TestCommon.RunAICLICommand("download", $"AppInstallerTest.TestMultipleInstallers --locale zh-CN --download-directory {downloadDir}");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
-            Assert.True(TestCommon.VerifyInstallerDownload(downloadDir, "AppInstallerTest.MultipleLocale", "1.0.0.0", ProcessorArchitecture.X86, TestCommon.Scope.Machine, PackageInstallerType.Msi, "zh-CN"));
+            Assert.True(TestCommon.VerifyInstallerDownload(downloadDir, "AppInstallerTest.TestMultipleInstallers", "1.0.0.0", ProcessorArchitecture.X64, TestCommon.Scope.User, PackageInstallerType.Zip, "zh-CN"));
         }
 
         /// <summary>

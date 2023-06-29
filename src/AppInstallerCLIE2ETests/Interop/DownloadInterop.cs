@@ -216,7 +216,7 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Assert
             Assert.AreEqual(DownloadResultStatus.Ok, downloadResult.Status);
-            Assert.True(TestCommon.VerifyInstallerDownload(downloadDir, "AppInstallerTest.TestMultipleInstallers", "1.0.0.0", ProcessorArchitecture.X64, TestCommon.Scope.User, PackageInstallerType.Zip, "en-US"));
+            Assert.True(TestCommon.VerifyInstallerDownload(downloadDir, "AppInstallerTest.TestMultipleInstallers", "1.0.0.0", ProcessorArchitecture.X64, TestCommon.Scope.User, PackageInstallerType.Zip, "zh-CN"));
         }
 
         /// <summary>
@@ -278,7 +278,7 @@ namespace AppInstallerCLIE2ETests.Interop
         {
             // Find package
             var downloadDir = TestCommon.GetRandomTestDir();
-            var searchResult = this.FindOnePackage(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.MultipleLocale");
+            var searchResult = this.FindOnePackage(this.testSource, PackageMatchField.Id, PackageFieldMatchOption.Equals, "AppInstallerTest.TestMultipleInstallers");
 
             // Configure installation
             var downloadOptions = this.TestFactory.CreateDownloadOptions();
@@ -291,7 +291,7 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Assert
             Assert.AreEqual(DownloadResultStatus.Ok, downloadResult.Status);
-            Assert.True(TestCommon.VerifyInstallerDownload(downloadDir, "AppInstallerTest.MultipleLocale", "1.0.0.0", ProcessorArchitecture.X86, TestCommon.Scope.Machine, PackageInstallerType.Msi, "zh-CN"));
+            Assert.True(TestCommon.VerifyInstallerDownload(downloadDir, "AppInstallerTest.TestMultipleInstallers", "1.0.0.0", ProcessorArchitecture.X64, TestCommon.Scope.User, PackageInstallerType.Zip, "zh-CN"));
         }
 
         /// <summary>
