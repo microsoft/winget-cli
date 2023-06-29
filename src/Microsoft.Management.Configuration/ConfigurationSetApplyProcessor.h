@@ -21,7 +21,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         using ApplyConfigurationSetResult = Configuration::ApplyConfigurationSetResult;
         using ConfigurationSet = Configuration::ConfigurationSet;
         using ConfigurationUnit = Configuration::ConfigurationUnit;
-        using ConfigurationUnitResultInformation = Configuration::ConfigurationUnitResultInformation;
         using ConfigurationSetChangeData = Configuration::ConfigurationSetChangeData;
 
         using result_type = decltype(make_self<wil::details::module_count_wrapper<implementation::ApplyConfigurationSetResult>>());

@@ -1,33 +1,32 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "DiagnosticInformation.h"
-#include "DiagnosticInformation.g.cpp"
+#include "DiagnosticInformationInstance.h"
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
-    void DiagnosticInformation::Initialize(DiagnosticLevel level, std::wstring_view message)
+    void DiagnosticInformationInstance::Initialize(DiagnosticLevel level, std::wstring_view message)
     {
         m_level = level;
         m_message = message;
     }
 
-    DiagnosticLevel DiagnosticInformation::Level()
+    DiagnosticLevel DiagnosticInformationInstance::Level()
     {
         return m_level;
     }
 
-    void DiagnosticInformation::Level(DiagnosticLevel value)
+    void DiagnosticInformationInstance::Level(DiagnosticLevel value)
     {
         m_level = value;
     }
 
-    hstring DiagnosticInformation::Message()
+    hstring DiagnosticInformationInstance::Message()
     {
         return m_message;
     }
 
-    void DiagnosticInformation::Message(const hstring& value)
+    void DiagnosticInformationInstance::Message(const hstring& value)
     {
         m_message = value;
     }

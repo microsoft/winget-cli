@@ -6,7 +6,7 @@
 #include "ConfigurationSet.h"
 #include "OpenConfigurationSetResult.h"
 #include "ConfigurationSetParser.h"
-#include "DiagnosticInformation.h"
+#include "DiagnosticInformationInstance.h"
 #include "ApplyConfigurationSetResult.h"
 #include "ConfigurationSetApplyProcessor.h"
 #include "TestConfigurationSetResult.h"
@@ -106,24 +106,20 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
     }
 
-    ConfigurationProcessor::ConfigurationProcessor(const IConfigurationSetProcessorFactory& factory) : m_factory(factory)
+    ConfigurationProcessor::ConfigurationProcessor()
     {
         AppInstaller::Logging::DiagnosticLogger& logger = m_threadGlobals.GetDiagnosticLogger();
         logger.EnableChannel(AppInstaller::Logging::Channel::All);
         logger.SetLevel(AppInstaller::Logging::Level::Verbose);
         logger.AddLogger(std::make_unique<ConfigurationProcessorDiagnosticsLogger>(*this));
-
-        if (m_factory)
-        {
-            m_factoryDiagnosticsEventRevoker = m_factory.Diagnostics(winrt::auto_revoke,
-                [this](const IInspectable&, const DiagnosticInformation& information)
-                {
-                    m_diagnostics(*this, information);
-                });
-        }
     }
 
-    event_token ConfigurationProcessor::Diagnostics(const Windows::Foundation::EventHandler<DiagnosticInformation>& handler)
+    ConfigurationProcessor::ConfigurationProcessor(const IConfigurationSetProcessorFactory& factory) : ConfigurationProcessor()
+    {
+        ConfigurationSetProcessorFactory(factory);
+    }
+
+    event_token ConfigurationProcessor::Diagnostics(const Windows::Foundation::EventHandler<IDiagnosticInformation>& handler)
     {
         static AttachWilFailureCallback s_callbackAttach;
         return m_diagnostics.add(handler);
@@ -262,6 +258,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                 co_return *result;
             }
             configurationSet->SchemaVersion(parser->GetSchemaVersion());
+
+            PropagateLifetimeWatcher(configurationSet.as<Windows::Foundation::IUnknown>());
 
             result->Initialize(*configurationSet);
         }
@@ -464,7 +462,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                     {
                         try
                         {
-                            TestSettingsResult settingsResult = unitProcessor.TestSettings();
+                            ITestSettingsResult settingsResult = unitProcessor.TestSettings();
                             testResult->TestResult(settingsResult.TestResult());
                             testResult->ResultInformation(settingsResult.ResultInformation());
                         }
@@ -556,7 +554,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         {
             try
             {
-                GetSettingsResult settingsResult = unitProcessor.GetSettings();
+                IGetSettingsResult settingsResult = unitProcessor.GetSettings();
                 result->Settings(settingsResult.Settings());
                 result->ResultInformation(settingsResult.ResultInformation());
             }
@@ -571,11 +569,30 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return *result;
     }
 
+    HRESULT STDMETHODCALLTYPE ConfigurationProcessor::SetLifetimeWatcher(IUnknown* watcher)
+    {
+        return AppInstaller::WinRT::LifetimeWatcherBase::SetLifetimeWatcher(watcher);
+    }
+
+    void ConfigurationProcessor::ConfigurationSetProcessorFactory(const IConfigurationSetProcessorFactory& value)
+    {
+        m_factory = value;
+
+        if (m_factory)
+        {
+            m_factoryDiagnosticsEventRevoker = m_factory.Diagnostics(winrt::auto_revoke,
+                [this](const IInspectable&, const IDiagnosticInformation& information)
+                {
+                    m_diagnostics(*this, information);
+                });
+        }
+    }
+
     void ConfigurationProcessor::Diagnostics(DiagnosticLevel level, std::string_view message)
     {
         if (level >= m_minimumLevel)
         {
-            auto diagnostics = make_self<wil::details::module_count_wrapper<implementation::DiagnosticInformation>>();
+            auto diagnostics = make_self<wil::details::module_count_wrapper<implementation::DiagnosticInformationInstance>>();
             diagnostics->Initialize(level, AppInstaller::Utility::ConvertToUTF16(message));
             m_diagnostics(*this, *diagnostics);
         }

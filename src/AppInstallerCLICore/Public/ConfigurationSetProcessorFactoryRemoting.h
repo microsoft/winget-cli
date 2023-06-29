@@ -4,7 +4,7 @@
 #include <Windows.h>
 #include <winrt/Microsoft.Management.Configuration.h>
 
-namespace AppInstaller::CLI::Workflow::ConfigurationRemoting
+namespace AppInstaller::CLI::ConfigurationRemoting
 {
     // Creates a factory in another process
     winrt::Microsoft::Management::Configuration::IConfigurationSetProcessorFactory CreateOutOfProcessFactory();

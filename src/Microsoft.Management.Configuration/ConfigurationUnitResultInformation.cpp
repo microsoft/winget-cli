@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "ConfigurationUnitResultInformation.h"
-#include "ConfigurationUnitResultInformation.g.cpp"
 #include "AppInstallerErrors.h"
 
 namespace winrt::Microsoft::Management::Configuration::implementation
@@ -26,7 +25,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
     }
 
-    void ConfigurationUnitResultInformation::Initialize(const Configuration::ConfigurationUnitResultInformation& other)
+    void ConfigurationUnitResultInformation::Initialize(const Configuration::IConfigurationUnitResultInformation& other)
     {
         m_resultCode = other.ResultCode();
         m_description = other.Description();

@@ -63,6 +63,7 @@
     </AppxManifest>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Execute-AppxRecipe.ps1" />
     <Content Include="Images\SplashScreen.scale-200.png" />
     <Content Include="Images\LockScreenLogo.scale-200.png" />
     <Content Include="Images\Square150x150Logo.scale-200.png" />
@@ -114,7 +115,6 @@
       <WinGetAdditonalPackageFileRoot>$(SolutionDir)</WinGetAdditonalPackageFileRoot>
       <WinGetAdditonalPackageFileRoot Condition="!Exists('$(WinGetAdditonalPackageFileRoot)\$(PlatformTarget)\$(Configuration)\WindowsPackageManager\WindowsPackageManager.dll')">$(OutputPath)\..\..\..\..</WinGetAdditonalPackageFileRoot>
     </PropertyGroup>
-
     <Message Importance="normal" Text="WinGetAdditonalPackageFileRoot = $(WinGetAdditonalPackageFileRoot)" />
     <ItemGroup>
       <WinGetAdditionalPackageFile Include="$(WinGetAdditonalPackageFileRoot)\$(PlatformTarget)\$(Configuration)\WindowsPackageManager\WindowsPackageManager.dll">
@@ -144,21 +144,16 @@
         <Recurse>true</Recurse>
       </WinGetAdditionalPackageFile>
     </ItemGroup>
-
     <Error Condition="!Exists('%(WinGetAdditionalPackageFile.Identity)')" Text="%(WinGetAdditionalPackageFile.Identity) was not found" />
-
     <!-- Single (non-recursive) file items -->
     <Message Importance="normal" Condition="'%(WinGetAdditionalPackageFile.Recurse)'!='true' AND Exists('%(WinGetAdditionalPackageFile.Identity)')" Text="%(WinGetAdditionalPackageFile.Identity) -&gt; %(WinGetAdditionalPackageFile.PackagePath)" />
-
     <ItemGroup>
       <AppxPackagePayload Condition="'%(WinGetAdditionalPackageFile.Recurse)'!='true'" Include="%(WinGetAdditionalPackageFile.Identity)" KeepDuplicates="false">
         <TargetPath>%(WinGetAdditionalPackageFile.PackagePath)</TargetPath>
       </AppxPackagePayload>
     </ItemGroup>
-
     <!-- Recursive file items -->
     <Message Importance="normal" Condition="'%(WinGetAdditionalPackageFile.Recurse)'=='true' AND Exists('%(WinGetAdditionalPackageFile.Identity)')" Text="%(WinGetAdditionalPackageFile.Identity) -&gt; %(WinGetAdditionalPackageFile.PackagePath)\%(WinGetAdditionalPackageFile.RecursiveDir)%(WinGetAdditionalPackageFile.Filename)%(WinGetAdditionalPackageFile.Extension)" />
-
     <ItemGroup>
       <AppxPackagePayload Condition="'%(WinGetAdditionalPackageFile.Recurse)'=='true'" Include="%(WinGetAdditionalPackageFile.Identity)" KeepDuplicates="false">
         <TargetPath>%(WinGetAdditionalPackageFile.PackagePath)\%(WinGetAdditionalPackageFile.RecursiveDir)%(WinGetAdditionalPackageFile.Filename)%(WinGetAdditionalPackageFile.Extension)</TargetPath>

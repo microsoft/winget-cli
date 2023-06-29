@@ -771,6 +771,34 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
+        /// Ensures that a module is in the desired state.
+        /// </summary>
+        /// <param name="moduleName">The module.</param>
+        /// <param name="present">Whether the module is present or not.</param>
+        /// <param name="repository">The repository to get the module from if needed.</param>
+        public static void EnsureModuleState(string moduleName, bool present, string repository = null)
+        {
+            var result = RunCommandWithResult("pwsh", $"-Command \"Get-Module {moduleName} -ListAvailable\"");
+            bool isPresent = !string.IsNullOrWhiteSpace(result.StdOut);
+
+            if (isPresent && !present)
+            {
+                RunCommand("pwsh", $"-Command \"Uninstall-Module {moduleName}\"");
+            }
+            else if (!isPresent && present)
+            {
+                if (string.IsNullOrEmpty(repository))
+                {
+                    RunCommand("pwsh", $"-Command \"Install-Module {moduleName} -Force\"");
+                }
+                else
+                {
+                    RunCommand("pwsh", $"-Command \"Install-Module {moduleName} -Repository {repository} -Force\"");
+                }
+            }
+        }
+
+        /// <summary>
         /// Creates an ARP entry from the given values.
         /// </summary>
         /// <param name="productCode">Product code of the entry.</param>

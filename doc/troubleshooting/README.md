@@ -105,6 +105,14 @@ If the above guidelines do not resolve the problem, please open an issue with de
 
 ## Common Errors
 
+#### Error 0x80072efd
+
+This error is related to networking and maps to "ERROR_INTERNET_CANNOT_CONNECT". It could be related to TLS (Transport Layer Security).
+
+This issue may be resolved by enabling TLS 1.2. 
+
+It may also be resolved by flushing your DNS cache. Instructions are available at [Microsoft Learn](https://learn.microsoft.com/windows-server/administration/windows-commands/ipconfig).
+
 
 #### Error 0x801901a0
 

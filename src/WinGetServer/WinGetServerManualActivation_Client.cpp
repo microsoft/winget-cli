@@ -155,3 +155,9 @@ extern "C" HRESULT WinGetServerManualActivation_CreateInstance(REFCLSID rclsid, 
 
     return result;
 }
+
+extern "C" HRESULT WinGetServerManualActivation_Terminate()
+{
+    RpcBindingFree(&WinGetServerManualActivation_IfHandle);
+    return S_OK;
+}

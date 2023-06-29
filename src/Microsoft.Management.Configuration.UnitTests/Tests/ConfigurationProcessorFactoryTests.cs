@@ -11,6 +11,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     using Microsoft.Management.Configuration.Processor.Set;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
     using Moq;
+    using WinRT;
     using Xunit;
     using Xunit.Abstractions;
     using static Microsoft.Management.Configuration.Processor.Constants.PowerShellConstants;
@@ -41,9 +42,10 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         [Fact]
         public void CreateSetProcessor_Test()
         {
-            var configurationProcessorFactory = new ConfigurationSetProcessorFactory(
-                ConfigurationProcessorType.Hosted,
-                null);
+            var configurationProcessorFactory = new PowerShellConfigurationSetProcessorFactory();
+
+            var properties = configurationProcessorFactory.As<IPowerShellConfigurationProcessorFactoryProperties>();
+            properties.ProcessorType = PowerShellConfigurationProcessorType.Hosted;
 
             var configurationSet = new ConfigurationSet();
 
@@ -56,22 +58,20 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         }
 
         /// <summary>
-        /// CreateSetProcessor test.
+        /// AdditionalModulePaths test.
         /// </summary>
         [Fact]
         public void CreateSetProcessor_Properties_PsModulePath()
         {
-            var configurationProcessorFactoryPropertiesMock = new Mock<IConfigurationProcessorFactoryProperties>();
-            configurationProcessorFactoryPropertiesMock.Setup(c => c.AdditionalModulePaths)
-                .Returns(new List<string>
+            var configurationProcessorFactory = new PowerShellConfigurationSetProcessorFactory();
+
+            var properties = configurationProcessorFactory.As<IPowerShellConfigurationProcessorFactoryProperties>();
+            properties.ProcessorType = PowerShellConfigurationProcessorType.Hosted;
+            properties.AdditionalModulePaths = new List<string>
                 {
                     "ThisIsOnePath",
                     "ThisIsAnotherPath",
-                });
-
-            var configurationProcessorFactory = new ConfigurationSetProcessorFactory(
-                ConfigurationProcessorType.Hosted,
-                configurationProcessorFactoryPropertiesMock.Object);
+                };
 
             var configurationSet = new ConfigurationSet();
 
@@ -80,8 +80,6 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             Assert.IsType<ConfigurationSetProcessor>(configurationProcessorSet);
             var processorSet = configurationProcessorSet as ConfigurationSetProcessor;
             Assert.NotNull(processorSet);
-
-            configurationProcessorFactoryPropertiesMock.Verify();
 
             var modulePath = processorSet.ProcessorEnvironment.GetVariable<string>(Variables.PSModulePath);
             Assert.StartsWith("ThisIsOnePath;ThisIsAnotherPath", modulePath);

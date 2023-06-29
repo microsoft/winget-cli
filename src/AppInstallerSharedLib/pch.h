@@ -6,6 +6,7 @@
 #include <Windows.h>
 #include <appmodel.h>
 #include <icu.h>
+#include <sddl.h>
 
 #define YAML_DECLARE_STATIC
 #include <yaml.h>

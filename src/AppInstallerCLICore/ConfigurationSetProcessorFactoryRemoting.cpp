@@ -1,14 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "ConfigurationSetProcessorFactoryRemoting.h"
+#include "Public/ConfigurationSetProcessorFactoryRemoting.h"
+#include <AppInstallerLanguageUtilities.h>
 #include <AppInstallerLogging.h>
 #include <AppInstallerRuntime.h>
+#include <winget/ILifetimeWatcher.h>
+#include <winrt/Microsoft.Management.Configuration.Processor.h>
+#include <winrt/Microsoft.Management.Configuration.SetProcessorFactory.h>
 
 using namespace winrt::Windows::Foundation;
 using namespace winrt::Microsoft::Management::Configuration;
 
-namespace AppInstaller::CLI::Workflow::ConfigurationRemoting
+namespace AppInstaller::CLI::ConfigurationRemoting
 {
     namespace details
     {
@@ -33,11 +37,14 @@ namespace AppInstaller::CLI::Workflow::ConfigurationRemoting
 
     namespace
     {
+        // The name of the directory containing additional modules.
+        constexpr std::wstring_view s_ExternalModulesName = L"ExternalModules";
+
         // The executable file name for the remote server process.
         constexpr std::wstring_view s_RemoteServerFileName = L"ConfigurationRemotingServer\\ConfigurationRemotingServer.exe";
 
         // Represents a remote factory object that was created from a specific process.
-        struct RemoteFactory : winrt::implements<RemoteFactory, IConfigurationSetProcessorFactory>
+        struct RemoteFactory : winrt::implements<RemoteFactory, IConfigurationSetProcessorFactory, SetProcessorFactory::IPwshConfigurationSetProcessorFactoryProperties, WinRT::ILifetimeWatcher>, WinRT::LifetimeWatcherBase
         {
             RemoteFactory()
             {
@@ -63,13 +70,18 @@ namespace AppInstaller::CLI::Workflow::ConfigurationRemoting
                 wil::unique_event initEvent;
                 initEvent.create(wil::EventOptions::None, nullptr, &securityAttributes);
 
-                // Create the mutex that the remote process will wait on to keep the object alive.
-                m_completionMutex.create(nullptr, CREATE_MUTEX_INITIAL_OWNER, MUTEX_ALL_ACCESS, &securityAttributes);
+                // Create the event that the remote process will wait on to keep the object alive.
+                m_completionEvent.create(wil::EventOptions::None, nullptr, &securityAttributes);
+                auto completeEventIfFailureDuringConstruction = wil::scope_exit([&]() { m_completionEvent.SetEvent(); });
+
+                wil::unique_process_handle thisProcessHandle;
+                THROW_IF_WIN32_BOOL_FALSE(DuplicateHandle(GetCurrentProcess(), GetCurrentProcess(), GetCurrentProcess(), &thisProcessHandle, 0, TRUE, DUPLICATE_SAME_ACCESS));
 
                 // Arguments are:
-                // server.exe <mapped memory handle> <event handle> <mutex handle>
+                // server.exe <mapped memory handle> <event handle> <mutex handle> <parent process handle>
                 std::wostringstream argumentsStream;
-                argumentsStream << s_RemoteServerFileName << L' ' << reinterpret_cast<INT_PTR>(memoryHandle.get()) << L' ' << reinterpret_cast<INT_PTR>(initEvent.get()) << L' ' << reinterpret_cast<INT_PTR>(m_completionMutex.get());
+                argumentsStream << s_RemoteServerFileName << L' ' << reinterpret_cast<INT_PTR>(memoryHandle.get()) << L' ' << reinterpret_cast<INT_PTR>(initEvent.get())
+                    << L' ' << reinterpret_cast<INT_PTR>(m_completionEvent.get()) << L' ' << reinterpret_cast<INT_PTR>(thisProcessHandle.get());
                 std::wstring arguments = argumentsStream.str();
 
                 std::filesystem::path serverPath = Runtime::GetPathTo(Runtime::PathName::SelfPackageRoot);
@@ -133,6 +145,24 @@ namespace AppInstaller::CLI::Workflow::ConfigurationRemoting
                 THROW_IF_FAILED(CoUnmarshalInterface(stream.get(), winrt::guid_of<IConfigurationSetProcessorFactory>(), reinterpret_cast<void**>(&output)));
                 AICLI_LOG(Config, Verbose, << "... configuration processing connection established.");
                 m_remoteFactory = IConfigurationSetProcessorFactory{ output.detach(), winrt::take_ownership_from_abi };
+
+                // The additional modules path is a direct child directory to the package root
+                std::filesystem::path externalModules = Runtime::GetPathTo(Runtime::PathName::SelfPackageRoot) / s_ExternalModulesName;
+                THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_PATH_NOT_FOUND), !std::filesystem::is_directory(externalModules));
+                m_internalAdditionalModulePaths.emplace_back(externalModules.wstring());
+                m_remoteAdditionalModulePaths = winrt::single_threaded_vector<winrt::hstring>(std::vector<winrt::hstring>{ m_internalAdditionalModulePaths });
+
+                auto properties = m_remoteFactory.as<Processor::IPowerShellConfigurationProcessorFactoryProperties>();
+                AICLI_LOG(Config, Verbose, << "Applying built in additional module path: " << externalModules.u8string());
+                properties.AdditionalModulePaths(m_remoteAdditionalModulePaths.GetView());
+                properties.ProcessorType(Processor::PowerShellConfigurationProcessorType::Hosted);
+
+                completeEventIfFailureDuringConstruction.release();
+            }
+
+            ~RemoteFactory()
+            {
+                m_completionEvent.SetEvent();
             }
 
             IConfigurationSetProcessor CreateSetProcessor(const ConfigurationSet& configurationSet)
@@ -140,7 +170,7 @@ namespace AppInstaller::CLI::Workflow::ConfigurationRemoting
                 return m_remoteFactory.CreateSetProcessor(configurationSet);
             }
 
-            winrt::event_token Diagnostics(const EventHandler<DiagnosticInformation>& handler)
+            winrt::event_token Diagnostics(const EventHandler<IDiagnosticInformation>& handler)
             {
                 return m_remoteFactory.Diagnostics(handler);
             }
@@ -160,9 +190,62 @@ namespace AppInstaller::CLI::Workflow::ConfigurationRemoting
                 m_remoteFactory.MinimumLevel(value);
             }
 
+            Collections::IVectorView<winrt::hstring> AdditionalModulePaths() const
+            {
+                return m_additionalModulePaths.GetView();
+            }
+
+            void AdditionalModulePaths(const Collections::IVectorView<winrt::hstring>& value)
+            {
+                // Extract all values from incoming view
+                std::vector<winrt::hstring> newModulePaths{ value.Size() };
+                value.GetMany(0, newModulePaths);
+
+                // Combine with our own values
+                std::vector<winrt::hstring> newRemotePaths{ newModulePaths };
+                newRemotePaths.insert(newRemotePaths.end(), m_internalAdditionalModulePaths.begin(), m_internalAdditionalModulePaths.end());
+
+                // Apply the new combined paths and pass to remote factory
+                m_remoteAdditionalModulePaths = winrt::single_threaded_vector<winrt::hstring>(std::move(newRemotePaths));
+                m_remoteFactory.as<Processor::IPowerShellConfigurationProcessorFactoryProperties>().AdditionalModulePaths(m_remoteAdditionalModulePaths.GetView());
+
+                // Store the updated module paths that we were given
+                m_additionalModulePaths = winrt::single_threaded_vector<winrt::hstring>(std::move(newModulePaths));
+            }
+
+            SetProcessorFactory::PwshConfigurationProcessorPolicy Policy() const
+            {
+                return Convert(m_remoteFactory.as<Processor::IPowerShellConfigurationProcessorFactoryProperties>().Policy());
+            }
+
+            void Policy(SetProcessorFactory::PwshConfigurationProcessorPolicy value)
+            {
+                m_remoteFactory.as<Processor::IPowerShellConfigurationProcessorFactoryProperties>().Policy(Convert(value));
+            }
+
+            HRESULT STDMETHODCALLTYPE SetLifetimeWatcher(IUnknown* watcher)
+            {
+                return WinRT::LifetimeWatcherBase::SetLifetimeWatcher(watcher);
+            }
+
         private:
+            static SetProcessorFactory::PwshConfigurationProcessorPolicy Convert(Processor::PowerShellConfigurationProcessorPolicy policy)
+            {
+                // We have used the same values intentionally; if that changes, update this.
+                return ToEnum<SetProcessorFactory::PwshConfigurationProcessorPolicy>(ToIntegral(policy));
+            }
+
+            static Processor::PowerShellConfigurationProcessorPolicy Convert(SetProcessorFactory::PwshConfigurationProcessorPolicy policy)
+            {
+                // We have used the same values intentionally; if that changes, update this.
+                return ToEnum<Processor::PowerShellConfigurationProcessorPolicy>(ToIntegral(policy));
+            }
+
             IConfigurationSetProcessorFactory m_remoteFactory;
-            wil::unique_mutex m_completionMutex;
+            wil::unique_event m_completionEvent;
+            Collections::IVector<winrt::hstring> m_additionalModulePaths{ winrt::single_threaded_vector<winrt::hstring>() };
+            std::vector<winrt::hstring> m_internalAdditionalModulePaths;
+            Collections::IVector<winrt::hstring> m_remoteAdditionalModulePaths{ winrt::single_threaded_vector<winrt::hstring>() };
         };
     }
 
@@ -172,9 +255,9 @@ namespace AppInstaller::CLI::Workflow::ConfigurationRemoting
     }
 }
 
-HRESULT WindowsPackageManagerConfigurationCompleteOutOfProcessFactoryInitialization(HRESULT result, void* factory, uint64_t memoryHandleIntPtr, uint64_t initEventHandleIntPtr, uint64_t completionMutexHandleIntPtr) try
+HRESULT WindowsPackageManagerConfigurationCompleteOutOfProcessFactoryInitialization(HRESULT result, void* factory, uint64_t memoryHandleIntPtr, uint64_t initEventHandleIntPtr, uint64_t completionMutexHandleIntPtr, uint64_t parentProcessIntPtr) try
 {
-    using namespace AppInstaller::CLI::Workflow::ConfigurationRemoting;
+    using namespace AppInstaller::CLI::ConfigurationRemoting;
 
     RETURN_HR_IF(E_POINTER, !memoryHandleIntPtr);
 
@@ -209,9 +292,15 @@ HRESULT WindowsPackageManagerConfigurationCompleteOutOfProcessFactoryInitializat
     wil::unique_event initEvent{ reinterpret_cast<HANDLE>(initEventHandleIntPtr) };
     initEvent.SetEvent();
 
-    // Wait until the caller releases the object
-    wil::unique_mutex completionMutex{ reinterpret_cast<HANDLE>(completionMutexHandleIntPtr) };
-    std::ignore = completionMutex.acquire();
+    // Wait until the caller releases the object (signalling the event) or the parent process exits
+    wil::unique_event completionEvent{ reinterpret_cast<HANDLE>(completionMutexHandleIntPtr) };
+    wil::unique_process_handle parentProcess{ reinterpret_cast<HANDLE>(parentProcessIntPtr) };
+
+    HANDLE waitHandles[2];
+    waitHandles[0] = completionEvent.get();
+    waitHandles[1] = parentProcess.get();
+
+    std::ignore = WaitForMultipleObjects(ARRAYSIZE(waitHandles), waitHandles, FALSE, INFINITE);
 
     return S_OK;
 }

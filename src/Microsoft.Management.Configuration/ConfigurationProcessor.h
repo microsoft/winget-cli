@@ -7,18 +7,18 @@
 #include <winrt/Windows.Storage.Streams.h>
 #include "ConfigThreadGlobals.h"
 #include <winget/AsyncTokens.h>
+#include <winget/ILifetimeWatcher.h>
 
 #include <string_view>
 #include <functional>
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
-    struct ConfigurationProcessor : ConfigurationProcessorT<ConfigurationProcessor>
+    struct ConfigurationProcessor : ConfigurationProcessorT<ConfigurationProcessor, AppInstaller::WinRT::ILifetimeWatcher>, AppInstaller::WinRT::LifetimeWatcherBase
     {
         using ConfigurationSet = Configuration::ConfigurationSet;
         using ConfigurationSetChangeData = Configuration::ConfigurationSetChangeData;
         using ConfigurationUnit = Configuration::ConfigurationUnit;
-        using DiagnosticInformation = Configuration::DiagnosticInformation;
         using ApplyConfigurationSetResult = Configuration::ApplyConfigurationSetResult;
         using TestConfigurationSetResult = Configuration::TestConfigurationSetResult;
         using TestConfigurationUnitResult = Configuration::TestConfigurationUnitResult;
@@ -26,9 +26,13 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         using GetConfigurationSetDetailsResult = Configuration::GetConfigurationSetDetailsResult;
         using GetConfigurationUnitDetailsResult = Configuration::GetConfigurationUnitDetailsResult;
 
+#if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
+        ConfigurationProcessor();
+#endif
+
         ConfigurationProcessor(const IConfigurationSetProcessorFactory& factory);
 
-        event_token Diagnostics(const Windows::Foundation::EventHandler<DiagnosticInformation>& handler);
+        event_token Diagnostics(const Windows::Foundation::EventHandler<IDiagnosticInformation>& handler);
         void Diagnostics(const event_token& token) noexcept;
 
         DiagnosticLevel MinimumLevel();
@@ -74,7 +78,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         GetConfigurationUnitSettingsResult GetUnitSettings(const ConfigurationUnit& unit);
         Windows::Foundation::IAsyncOperation<GetConfigurationUnitSettingsResult> GetUnitSettingsAsync(const ConfigurationUnit& unit);
 
+        HRESULT STDMETHODCALLTYPE SetLifetimeWatcher(IUnknown* watcher);
+
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
+        void ConfigurationSetProcessorFactory(const IConfigurationSetProcessorFactory& value);
+
         // Sends diagnostics objects to the event.
         void Diagnostics(DiagnosticLevel level, std::string_view message);
 
@@ -98,7 +106,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         GetConfigurationUnitSettingsResult GetUnitSettingsImpl(const ConfigurationUnit& unit, AppInstaller::WinRT::AsyncCancellation cancellation = {});
 
         IConfigurationSetProcessorFactory m_factory = nullptr;
-        event<Windows::Foundation::EventHandler<DiagnosticInformation>> m_diagnostics;
+        event<Windows::Foundation::EventHandler<IDiagnosticInformation>> m_diagnostics;
         event<Windows::Foundation::TypedEventHandler<ConfigurationSet, ConfigurationChangeData>> m_configurationChange;
         ConfigThreadGlobals m_threadGlobals;
         IConfigurationSetProcessorFactory::Diagnostics_revoker m_factoryDiagnosticsEventRevoker;

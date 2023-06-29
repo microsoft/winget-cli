@@ -3,15 +3,14 @@
 #pragma once
 #include "ConfigurationUnit.g.h"
 #include "MutableFlag.h"
+#include <winget/ILifetimeWatcher.h>
 #include <winrt/Windows.Foundation.Collections.h>
 #include <vector>
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
-    struct ConfigurationUnit : ConfigurationUnitT<ConfigurationUnit>
+    struct ConfigurationUnit : ConfigurationUnitT<ConfigurationUnit, AppInstaller::WinRT::ILifetimeWatcher>, AppInstaller::WinRT::LifetimeWatcherBase
     {
-        using ConfigurationUnitResultInformation = Configuration::ConfigurationUnitResultInformation;
-
         ConfigurationUnit();
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
@@ -40,13 +39,15 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         ConfigurationUnitState State();
 
-        ConfigurationUnitResultInformation ResultInformation();
+        IConfigurationUnitResultInformation ResultInformation();
 
         bool ShouldApply();
         void ShouldApply(bool value);
 
         hstring SchemaVersion();
         void SchemaVersion(const hstring& value);
+
+        HRESULT STDMETHODCALLTYPE SetLifetimeWatcher(IUnknown* watcher);
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
         void Dependencies(std::vector<hstring>&& value);

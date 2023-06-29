@@ -11,7 +11,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_unit = std::move(value);
     }
 
-    void GetConfigurationUnitDetailsResult::ResultInformation(ConfigurationUnitResultInformation value)
+    void GetConfigurationUnitDetailsResult::ResultInformation(IConfigurationUnitResultInformation value)
     {
         m_resultInformation = std::move(value);
     }
@@ -21,7 +21,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return m_unit;
     }
 
-    ConfigurationUnitResultInformation GetConfigurationUnitDetailsResult::ResultInformation()
+    IConfigurationUnitResultInformation GetConfigurationUnitDetailsResult::ResultInformation()
     {
         return m_resultInformation;
     }

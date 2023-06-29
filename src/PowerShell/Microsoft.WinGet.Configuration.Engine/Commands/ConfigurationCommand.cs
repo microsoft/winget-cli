@@ -19,6 +19,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
     using Microsoft.WinGet.Configuration.Engine.Resources;
     using Windows.Storage;
     using Windows.Storage.Streams;
+    using WinRT;
 
     /// <summary>
     /// Class that deals configuration commands.
@@ -233,11 +234,11 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         {
             this.Write(StreamType.Information, Resources.ConfigurationInitializing);
 
-            var properties = new ConfigurationProcessorFactoryProperties();
-            properties.Policy = this.GetConfigurationProcessorPolicy(executionPolicy);
+            var factory = new PowerShellConfigurationSetProcessorFactory();
 
-            var factory = new ConfigurationSetProcessorFactory(
-                ConfigurationProcessorType.Default, properties);
+            var properties = factory.As<IPowerShellConfigurationProcessorFactoryProperties>();
+            properties.Policy = this.GetConfigurationProcessorPolicy(executionPolicy);
+            properties.ProcessorType = PowerShellConfigurationProcessorType.Default;
 
             return new PSConfigurationProcessor(factory, this, canUseTelemetry);
         }
@@ -381,7 +382,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             return psConfigurationSet;
         }
 
-        private void LogFailedGetConfigurationUnitDetails(ConfigurationUnit unit, ConfigurationUnitResultInformation resultInformation)
+        private void LogFailedGetConfigurationUnitDetails(ConfigurationUnit unit, IConfigurationUnitResultInformation resultInformation)
         {
             if (resultInformation.ResultCode != null)
             {
@@ -394,15 +395,15 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             }
         }
 
-        private ConfigurationProcessorPolicy GetConfigurationProcessorPolicy(ExecutionPolicy policy)
+        private PowerShellConfigurationProcessorPolicy GetConfigurationProcessorPolicy(ExecutionPolicy policy)
         {
             return policy switch
             {
-                ExecutionPolicy.Unrestricted => ConfigurationProcessorPolicy.Unrestricted,
-                ExecutionPolicy.RemoteSigned => ConfigurationProcessorPolicy.RemoteSigned,
-                ExecutionPolicy.AllSigned => ConfigurationProcessorPolicy.AllSigned,
-                ExecutionPolicy.Restricted => ConfigurationProcessorPolicy.Restricted,
-                ExecutionPolicy.Bypass => ConfigurationProcessorPolicy.Bypass,
+                ExecutionPolicy.Unrestricted => PowerShellConfigurationProcessorPolicy.Unrestricted,
+                ExecutionPolicy.RemoteSigned => PowerShellConfigurationProcessorPolicy.RemoteSigned,
+                ExecutionPolicy.AllSigned => PowerShellConfigurationProcessorPolicy.AllSigned,
+                ExecutionPolicy.Restricted => PowerShellConfigurationProcessorPolicy.Restricted,
+                ExecutionPolicy.Bypass => PowerShellConfigurationProcessorPolicy.Bypass,
                 _ => throw new InvalidOperationException(),
             };
         }

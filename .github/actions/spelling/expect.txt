@@ -9,6 +9,7 @@ aicli
 AICLIC
 alreadyinstalled
 amrutha
+ansistring
 APARTMENTTHREADED
 apfn
 apicontract
@@ -62,6 +63,7 @@ certmgr
 certs
 cgi
 cinq
+CLASSNOTREG
 CLIE
 cloudapp
 cls
@@ -106,11 +108,13 @@ dvinns
 ecfr
 ecfrbrowse
 EFGH
+EFile
 endregion
 EQU
 errmsg
 ESRB
 etest
+etl
 execustom
 EXEHASH
 experimentalfeatures
@@ -169,6 +173,7 @@ IFACEMETHODIMP
 IHelp
 iid
 IISOn
+ilemode
 inet
 inproc
 installinprogress
@@ -181,6 +186,7 @@ INTRESOURCE
 invalidparameter
 IPackage
 isable
+IServer
 ishelp
 ISQ
 ISVs
@@ -268,6 +274,7 @@ netlify
 NETSDK
 Newtonsoft
 NNS
+NOAGGREGATION
 NOCRLF
 NOEXPAND
 NOLINKINFO
@@ -288,6 +295,7 @@ nuffing
 objbase
 objidl
 ofile
+ools
 osfhandle
 OPTOUT
 Outptr
@@ -302,6 +310,7 @@ pcb
 PCCERT
 PCs
 pcwsz
+PDWORD
 PEGI
 PFM
 pfn
@@ -320,6 +329,7 @@ pri
 processthreads
 productcode
 PRODUCTICON
+proxystub
 pscustomobject
 pseudocode
 PSHOST
@@ -338,6 +348,7 @@ rebootrequiredtofinish
 redirector
 Redist
 REFIID
+REGDB
 regexes
 REGSAM
 relativefilepath
@@ -386,6 +397,7 @@ srs
 standalone
 startswith
 STARTUPINFOW
+STDMETHODCALLTYPE
 STRRET
 stylecop
 subdir
@@ -429,7 +441,9 @@ uninstallation
 uninstaller
 uninstallprevious
 uninstalls
+Unk
 unknwn
+Unknwnbase
 unparsable
 unvirtualized
 UParse
@@ -444,6 +458,7 @@ VERSI
 VERSIE
 vns
 vsconfig
+vstest
 webpages
 Webserver
 websites
@@ -462,7 +477,10 @@ wingetdev
 wingetutil
 winreg
 winrtact
+winstring
 withstarts
+wpr
+wprp
 wputenv
 wsl
 wsv
