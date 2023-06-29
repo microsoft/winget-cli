@@ -73,7 +73,7 @@ jobs:
           solution: "$(solution)"
           configuration: "$(buildConfiguration)"
 
-      - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+      - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@2
         displayName: "ESRP CodeSigning - Package contents"
         inputs:
           ConnectedServiceName: "WindowsPackageManager ESRP CodeSigning"
@@ -138,7 +138,7 @@ jobs:
           packDestination: "$(Build.ArtifactStagingDirectory)"
           basePath: $(Pipeline.Workspace)
 
-      - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+      - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@2
         displayName: "ESRP CodeSigning - NuGet package"
         inputs:
           ConnectedServiceName: "WindowsPackageManager ESRP CodeSigning"
