@@ -89,6 +89,34 @@ namespace AppInstaller::CLI::Workflow
             return filename;
         }
 
+        // Gets the file name for the downloaded installer in the format of {id}_{version}_{architecture}_{scope}_{installerType}_{locale}.
+        std::filesystem::path GetInstallerDownloadOnlyFileName(Execution::Context& context)
+        {
+            const auto& manifest = context.Get<Execution::Data::Manifest>();
+            const auto& installer = context.Get<Execution::Data::Installer>().value();
+
+            const auto& architecture = std::string{ ToString(installer.Arch) };
+            const auto& scope = std::string{ installer.Scope == ScopeEnum::Machine ? ScopeToString(ScopeEnum::Machine) : ScopeToString(ScopeEnum::User) };
+
+            // Use base installer type to include zip installer type.
+            const auto& baseInstallerType = std::string{ InstallerTypeToString(installer.BaseInstallerType) }; 
+
+            std::wstring_view installerExtension = GetInstallerFileExtension(context);
+            std::filesystem::path filename = Utility::ConvertToUTF16(manifest.Id + '_' + manifest.Version + '_' + architecture + '_' + scope + '_' + baseInstallerType);
+
+            const auto& locale = manifest.CurrentLocalization.Locale;
+            if (!locale.empty())
+            {
+                filename += '_' + locale;
+            }
+
+            filename += installerExtension;
+
+            // Make file name suitable for file system path
+            filename = Utility::ConvertToUTF16(Utility::MakeSuitablePathPart(filename.u8string()));
+            return filename;
+        }
+
         // Try to remove the installer file, ignoring any errors.
         void RemoveInstallerFile(const std::filesystem::path& path)
         {
@@ -455,7 +483,7 @@ namespace AppInstaller::CLI::Workflow
                 std::filesystem::create_directories(downloadDirectory);
             }
 
-            renamedDownloadedInstaller = downloadDirectory / GetInstallerPostHashValidationFileName(context);
+            renamedDownloadedInstaller = downloadDirectory / GetInstallerDownloadOnlyFileName(context);
             Filesystem::RenameFile(installerPath, renamedDownloadedInstaller);
             context.Reporter.Info() << Resource::String::InstallerDownloaded << ' ' << '"' << renamedDownloadedInstaller << '"' << std::endl;
         }

@@ -20,6 +20,13 @@ Installers:
       Language: /exeenus
       Log: /LogFile <LOGPATH>
       InstallLocation: /InstallDir <INSTALLPATH>
+  - Architecture: x86
+    InstallerUrl: https://localhost:5001/TestKit/AppInstallerTestMsiInstaller/AppInstallerTestMsiInstaller.msi
+    InstallerSha256: <MSIHASH>
+    InstallerType: msi
+    ProductCode: '{A5D36CF1-1993-4F63-BFB4-3ACD910D36A1}'
+    InstallerLocale: zh-CN
+    Scope: machine
 Agreements:
   - AgreementLabel: testAgreementLabel
     Agreement: testAgreementText
