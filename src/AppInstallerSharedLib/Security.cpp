@@ -25,17 +25,9 @@ namespace AppInstaller::Security
         // Helper to impersonate the COM or RPC caller.
         struct ImpersonateCOMorRPCCaller
         {
-            ImpersonateCOMorRPCCaller()
+            static ImpersonateCOMorRPCCaller BeginImpersonation()
             {
-                if (SUCCEEDED_LOG(CoGetCallContext(IID_IServerSecurity, m_serverSecurity.put_void())))
-                {
-                    THROW_IF_FAILED(m_serverSecurity->ImpersonateClient());
-                }
-                else
-                {
-                    RPC_STATUS status = RpcImpersonateClient(nullptr);
-                    THROW_HR_IF(MAKE_HRESULT(SEVERITY_ERROR, FACILITY_RPC, status), status != RPC_S_OK);
-                }
+                return {};
             }
 
             ~ImpersonateCOMorRPCCaller()
@@ -51,6 +43,19 @@ namespace AppInstaller::Security
             }
 
         private:
+            ImpersonateCOMorRPCCaller()
+            {
+                if (SUCCEEDED_LOG(CoGetCallContext(IID_IServerSecurity, m_serverSecurity.put_void())))
+                {
+                    THROW_IF_FAILED(m_serverSecurity->ImpersonateClient());
+                }
+                else
+                {
+                    RPC_STATUS status = RpcImpersonateClient(nullptr);
+                    THROW_HR_IF(MAKE_HRESULT(SEVERITY_ERROR, FACILITY_RPC, status), status != RPC_S_OK);
+                }
+            }
+
             wil::com_ptr<IServerSecurity> m_serverSecurity;
         };
     }
@@ -87,7 +92,7 @@ namespace AppInstaller::Security
         auto serverUser = wil::get_token_information<TOKEN_USER>();
         IntegrityLevel serverIntegrityLevel = GetEffectiveIntegrityLevel();
 
-        ImpersonateCOMorRPCCaller impersonation;
+        auto impersonation = ImpersonateCOMorRPCCaller::BeginImpersonation();
 
         auto callingUser = wil::get_token_information<TOKEN_USER>();
         IntegrityLevel callingIntegrityLevel = GetEffectiveIntegrityLevel();

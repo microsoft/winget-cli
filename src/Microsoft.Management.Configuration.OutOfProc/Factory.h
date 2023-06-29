@@ -13,7 +13,7 @@ namespace Microsoft::Management::Configuration::OutOfProc
         Factory();
         ~Factory();
 
-        // Determines if the reference count is 0.
+        // Returns true if the reference count is not 0; false if it is.
         static bool HasReferences();
 
         // Forcibly destroys any static objects.
