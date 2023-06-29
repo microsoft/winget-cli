@@ -22,6 +22,7 @@ namespace AppInstallerCLIE2ETests.Interop
         public void Setup()
         {
             TestCommon.SetupTestSource();
+            WinGetSettingsHelper.ConfigureFeature("dependencies", true);
         }
 
         /// <summary>
