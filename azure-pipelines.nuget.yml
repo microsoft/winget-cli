@@ -106,10 +106,12 @@ jobs:
                   "ToolVersion" : "1.0"
               }
             ]
+
       - task: CopyFiles@2
-        displayName: 'Copy Util to artifacts folder'
+        displayName: 'Copy nuget pack files to artifacts folder'
         inputs:
           Contents: |
+              WinGetUtil.nuspec
               src\$(buildPlatform)\$(buildConfiguration)\WinGetUtil\WinGetUtil.dll
               src\$(buildPlatform)\$(buildConfiguration)\WinGetUtil\WinGetUtil.pdb
               src\WinGetUtilInterop\bin\$(buildConfiguration)\netstandard2.0\WinGetUtilInterop.dll
@@ -125,14 +127,25 @@ jobs:
 
   - job: "Nuget"
     steps:
+      - checkout: none
+
       - task: DownloadPipelineArtifact@2
-        displayName: 'Download Build Artifacts'
+        displayName: 'Download Build.x64release artifacts'
+        inputs:
+          artifactName: Build.x64release
+          targetPath: '$(Pipeline.Workspace)/Build.x64release'
+
+      - task: DownloadPipelineArtifact@2
+        displayName: 'Download Build.x86release artifacts'
+        inputs:
+          artifactName: Build.x86release
+          targetPath: '$(Pipeline.Workspace)/Build.x86release'
 
       - task: NuGetCommand@2
         displayName: Pack WingetUtil nuget package
         inputs:
           command: pack
-          packagesToPack: WinGetUtil.nuspec
+          packagesToPack: 'Build.x64release\WinGetUtil.nuspec'
           versioningScheme: byEnvVar
           versionEnvVar: version
           packDestination: "$(Build.ArtifactStagingDirectory)"
