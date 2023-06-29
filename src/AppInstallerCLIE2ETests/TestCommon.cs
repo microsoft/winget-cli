@@ -538,12 +538,6 @@ namespace AppInstallerCLIE2ETests
             string testLogsPackagedDestPath = Path.Combine(testLogsDestPath, "Packaged");
             string testLogsUnpackagedDestPath = Path.Combine(testLogsDestPath, "Unpackaged");
 
-            if (Directory.Exists(testLogsDestPath))
-            {
-                TestIndexSetup.DeleteDirectoryContents(new DirectoryInfo(testLogsDestPath));
-                Directory.Delete(testLogsDestPath);
-            }
-
             if (Directory.Exists(testLogsPackagedSourcePath))
             {
                 TestIndexSetup.CopyDirectory(testLogsPackagedSourcePath, testLogsPackagedDestPath);

@@ -51,5 +51,7 @@
     <None Include="Source.def">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="Collect-ConfigurationOOPTests.ps1" />
+    <None Include="Prepare-ConfigurationOOPTests.ps1" />
   </ItemGroup>
 </Project>

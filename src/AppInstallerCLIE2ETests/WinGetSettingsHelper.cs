@@ -49,7 +49,8 @@ namespace AppInstallerCLIE2ETests
                     "debugging",
                     new Hashtable()
                     {
-                        { "enableSelfInitiatedMinidump", false },
+                        { "enableSelfInitiatedMinidump", true },
+                        { "keepAllLogFiles", true },
                     }
                 },
                 {

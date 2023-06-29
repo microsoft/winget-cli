@@ -1,0 +1,1 @@
+Copy log directory to a new artifacts directory
