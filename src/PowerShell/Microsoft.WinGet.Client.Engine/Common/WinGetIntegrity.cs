@@ -80,26 +80,6 @@ namespace Microsoft.WinGet.Client.Engine.Common
             }
         }
 
-        /// <summary>
-        /// Verifies winget runs correctly.
-        /// </summary>
-        /// <param name="psCmdlet">The calling cmdlet.</param>
-        /// <param name="expectedVersion">Expected version.</param>
-        /// <returns>Integrity category.</returns>
-        public static IntegrityCategory GetIntegrityCategory(PSCmdlet psCmdlet, string expectedVersion)
-        {
-            try
-            {
-                AssertWinGet(psCmdlet, expectedVersion);
-            }
-            catch (WinGetIntegrityException e)
-            {
-                return e.Category;
-            }
-
-            return IntegrityCategory.Installed;
-        }
-
         private static IntegrityCategory GetReason(PSCmdlet psCmdlet)
         {
             // Ok, so you are here because calling winget --version failed. Lets try to figure out why.
