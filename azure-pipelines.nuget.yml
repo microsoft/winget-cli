@@ -126,6 +126,8 @@ jobs:
           targetPath: '$(artifactsDir)'
 
   - job: "Nuget"
+    timeoutInMinutes: 60
+    dependsOn: 'Build'
     steps:
       - checkout: none
 
