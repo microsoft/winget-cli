@@ -2,6 +2,7 @@ abi
 ACCESSDENIED
 ACTIONDATA
 ACTIONSTART
+activatable
 addfile
 addmanifest
 addpin

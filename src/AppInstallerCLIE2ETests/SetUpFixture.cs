@@ -19,6 +19,7 @@ namespace AppInstallerCLIE2ETests
     {
         private static bool shouldDisableDevModeOnExit = true;
         private static bool shouldRevertDefaultFileTypeRiskOnExit = true;
+        private static bool shouldDoAnyTeardown = true;
         private static string defaultFileTypes = string.Empty;
 
         /// <summary>
@@ -27,6 +28,21 @@ namespace AppInstallerCLIE2ETests
         [OneTimeSetUp]
         public void Setup()
         {
+            if (TestContext.Parameters.Count == 0)
+            {
+                // If no parameters are provided, use defaults that work locally.
+                // This allows the user to assume responsibility for setup.
+                TestCommon.PackagedContext = true;
+                TestCommon.VerboseLogging = true;
+                TestCommon.AICLIPath = "WinGetDev.exe";
+                TestCommon.StaticFileRootPath = Path.GetTempPath();
+                TestCommon.SettingsJsonFilePath = WinGetSettingsHelper.GetUserSettingsPath();
+                WinGetSettingsHelper.InitializeWingetSettings();
+                shouldDoAnyTeardown = false;
+
+                return;
+            }
+
             // Read TestParameters and set runtime variables
             TestCommon.PackagedContext = TestContext.Parameters.Exists(Constants.PackagedContextParameter) &&
                 TestContext.Parameters.Get(Constants.PackagedContextParameter).Equals("true", StringComparison.OrdinalIgnoreCase);
@@ -123,23 +139,26 @@ namespace AppInstallerCLIE2ETests
         [OneTimeTearDown]
         public void TearDown()
         {
-            if (shouldDisableDevModeOnExit)
+            if (shouldDoAnyTeardown)
             {
-                this.EnableDevMode(false);
-            }
+                if (shouldDisableDevModeOnExit)
+                {
+                    this.EnableDevMode(false);
+                }
 
-            if (shouldRevertDefaultFileTypeRiskOnExit)
-            {
-                this.DecreaseFileTypeRisk(defaultFileTypes, true);
-            }
+                if (shouldRevertDefaultFileTypeRiskOnExit)
+                {
+                    this.DecreaseFileTypeRisk(defaultFileTypes, true);
+                }
 
-            TestCommon.RunCommand("certutil.exe", $"-delstore \"TRUSTEDPEOPLE\" {Constants.AppInstallerTestCertThumbprint}");
+                TestCommon.RunCommand("certutil.exe", $"-delstore \"TRUSTEDPEOPLE\" {Constants.AppInstallerTestCertThumbprint}");
 
-            TestCommon.PublishE2ETestLogs();
+                TestCommon.PublishE2ETestLogs();
 
-            if (TestCommon.PackagedContext)
-            {
-                TestCommon.RemoveMsix(Constants.AICLIPackageName);
+                if (TestCommon.PackagedContext)
+                {
+                    TestCommon.RemoveMsix(Constants.AICLIPackageName);
+                }
             }
         }
 

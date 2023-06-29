@@ -72,6 +72,9 @@
     <ClInclude Include="Public\ComClsids.h">
       <Filter>Public</Filter>
     </ClInclude>
+    <ClInclude Include="Public\CoCreatableMicrosoftManagementDeploymentClass.h">
+      <Filter>Public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Midl Include="PackageManager.idl" />

@@ -27,6 +27,9 @@ CoCreatableClassWrlCreatorMapInclude(DownloadOptions);
 CoCreatableClassWrlCreatorMapInclude(PackageMatchFilter);
 CoCreatableClassWrlCreatorMapInclude(PackageManagerSettings);
 
+// Shim for configuration static functions
+CoCreatableClassWrlCreatorMapInclude(ConfigurationStaticFunctionsShim);
+
 extern "C"
 {
     int WINDOWS_PACKAGE_MANAGER_API_CALLING_CONVENTION WindowsPackageManagerCLIMain(int argc, wchar_t const** argv) try

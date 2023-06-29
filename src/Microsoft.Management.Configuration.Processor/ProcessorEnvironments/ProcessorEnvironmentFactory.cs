@@ -19,13 +19,13 @@ namespace Microsoft.Management.Configuration.Processor.ProcessorEnvironments
     /// </summary>
     internal class ProcessorEnvironmentFactory
     {
-        private readonly ConfigurationProcessorType type;
+        private readonly PowerShellConfigurationProcessorType type;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ProcessorEnvironmentFactory"/> class.
         /// </summary>
         /// <param name="type">Configuration processor type.</param>
-        public ProcessorEnvironmentFactory(ConfigurationProcessorType type)
+        public ProcessorEnvironmentFactory(PowerShellConfigurationProcessorType type)
         {
             this.type = type;
         }
@@ -37,8 +37,8 @@ namespace Microsoft.Management.Configuration.Processor.ProcessorEnvironments
         /// <param name="policy">Configuration processor policy.</param>
         /// <returns>IProcessorEnvironment.</returns>
         public IProcessorEnvironment CreateEnvironment(
-            ConfigurationSetProcessorFactory? setProcessorFactory,
-            ConfigurationProcessorPolicy policy)
+            PowerShellConfigurationSetProcessorFactory? setProcessorFactory,
+            PowerShellConfigurationProcessorPolicy policy)
         {
             IDscModule dscModule = new DscModuleV2();
             ExecutionPolicy executionPolicy = this.GetExecutionPolicy(policy);
@@ -58,8 +58,8 @@ namespace Microsoft.Management.Configuration.Processor.ProcessorEnvironments
             // just makes sense before the ConfigurationSetProcessor gets created. We could add a new IConfigurationSetProcessorProperties
             // Then in PowerShell it can be something like
             // Get-WinGetConfiguration | Add-WinGetConfigurationVariable -Name foo | Start-WinGetConfiguration
-            if (this.type == ConfigurationProcessorType.Hosted ||
-                this.type == ConfigurationProcessorType.Default)
+            if (this.type == PowerShellConfigurationProcessorType.Hosted ||
+                this.type == PowerShellConfigurationProcessorType.Default)
             {
                 var initialSessionState = this.CreateInitialSessionState(
                     executionPolicy,
@@ -93,15 +93,15 @@ namespace Microsoft.Management.Configuration.Processor.ProcessorEnvironments
             return initialSessionState;
         }
 
-        private ExecutionPolicy GetExecutionPolicy(ConfigurationProcessorPolicy policy)
+        private ExecutionPolicy GetExecutionPolicy(PowerShellConfigurationProcessorPolicy policy)
         {
             return policy switch
             {
-                ConfigurationProcessorPolicy.Unrestricted => ExecutionPolicy.Unrestricted,
-                ConfigurationProcessorPolicy.RemoteSigned => ExecutionPolicy.RemoteSigned,
-                ConfigurationProcessorPolicy.AllSigned => ExecutionPolicy.AllSigned,
-                ConfigurationProcessorPolicy.Restricted => ExecutionPolicy.Restricted,
-                ConfigurationProcessorPolicy.Bypass => ExecutionPolicy.Bypass,
+                PowerShellConfigurationProcessorPolicy.Unrestricted => ExecutionPolicy.Unrestricted,
+                PowerShellConfigurationProcessorPolicy.RemoteSigned => ExecutionPolicy.RemoteSigned,
+                PowerShellConfigurationProcessorPolicy.AllSigned => ExecutionPolicy.AllSigned,
+                PowerShellConfigurationProcessorPolicy.Restricted => ExecutionPolicy.Restricted,
+                PowerShellConfigurationProcessorPolicy.Bypass => ExecutionPolicy.Bypass,
                 _ => throw new InvalidOperationException(),
             };
         }

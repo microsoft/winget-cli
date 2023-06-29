@@ -21,6 +21,7 @@
 #include "ImportCommand.h"
 #include "PinCommand.h"
 #include "ConfigureCommand.h"
+#include "DebugCommand.h"
 #include "DownloadCommand.h"
 
 #include "Resources.h"
@@ -178,6 +179,9 @@ namespace AppInstaller::CLI
             std::make_unique<PinCommand>(FullName()),
             std::make_unique<ConfigureCommand>(FullName()),
             std::make_unique<DownloadCommand>(FullName()),
+#if _DEBUG
+            std::make_unique<DebugCommand>(FullName()),
+#endif
         });
     }
 

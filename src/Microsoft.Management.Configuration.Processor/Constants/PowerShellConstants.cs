@@ -43,6 +43,7 @@ namespace Microsoft.Management.Configuration.Processor.Constants
             public const string InstallModule = "Install-Module";
             public const string InvokeDscResource = "Invoke-DscResource";
             public const string SaveModule = "Save-Module";
+            public const string FindModule = "Find-Module";
         }
 
         internal static class Parameters

@@ -163,7 +163,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             PSObject findDscResourceResult = new PSObject(processorEnvMock);
             processorEnvMock.Setup(
-                m => m.FindDscResource(It.Is<ConfigurationUnitInternal>(c => c.Unit.UnitName == resourceName)))
+                m => m.FindModule(It.Is<ConfigurationUnitInternal>(c => c.Unit.UnitName == resourceName)))
                 .Returns(findDscResourceResult)
                 .Verifiable();
 
@@ -193,6 +193,51 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// Tests Creating a unit processor by downloading the resource.
         /// </summary>
         [Fact]
+        public void CreateUnitProcessor_InstallResource_WithoutModule()
+        {
+            string resourceName = "SimpleFileResource";
+            Version version = new Version("0.0.0.1");
+
+            DscResourceInfoInternal? nullResource = null;
+            DscResourceInfoInternal dscResourceInfo = new DscResourceInfoInternal(resourceName, null, version);
+            var processorEnvMock = new Mock<IProcessorEnvironment>();
+            processorEnvMock.SetupSequence(
+                m => m.GetDscResource(It.Is<ConfigurationUnitInternal>(c => c.Unit.UnitName == resourceName)))
+                .Returns(nullResource)
+                .Returns(dscResourceInfo);
+
+            PSObject findDscResourceResult = this.CreateFindResourceInfo();
+            processorEnvMock.Setup(
+                m => m.FindDscResource(It.Is<ConfigurationUnitInternal>(c => c.Unit.UnitName == resourceName)))
+                .Returns(findDscResourceResult)
+                .Verifiable();
+
+            PSObject moduleInfo = ((dynamic)findDscResourceResult).PSGetModuleInfo;
+            processorEnvMock.Setup(
+                m => m.InstallModule(moduleInfo))
+                .Verifiable();
+
+            var configurationSetProcessor = new ConfigurationSetProcessor(
+                processorEnvMock.Object,
+                new ConfigurationSet());
+
+            var unit = new ConfigurationUnit
+            {
+                UnitName = resourceName,
+            };
+            unit.Directives.Add("version", version.ToString());
+
+            var unitProcessor = configurationSetProcessor.CreateUnitProcessor(unit, null);
+            Assert.NotNull(unitProcessor);
+            Assert.Equal(unit.UnitName, unitProcessor.Unit.UnitName);
+
+            processorEnvMock.Verify();
+        }
+
+        /// <summary>
+        /// Tests Creating a unit processor by downloading the resource.
+        /// </summary>
+        [Fact]
         public void CreateUnitProcessor_InstallResource_NotFoundAfterInstall()
         {
             string resourceName = "xResourceName";
@@ -208,7 +253,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             PSObject findDscResourceResult = new PSObject(processorEnvMock);
             processorEnvMock.Setup(
-                m => m.FindDscResource(It.Is<ConfigurationUnitInternal>(c => c.Unit.UnitName == resourceName)))
+                m => m.FindModule(It.Is<ConfigurationUnitInternal>(c => c.Unit.UnitName == resourceName)))
                 .Returns(findDscResourceResult)
                 .Verifiable();
 
@@ -252,7 +297,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             PSObject? findDscResourceResult = null;
             processorEnvMock.Setup(
-                m => m.FindDscResource(It.Is<ConfigurationUnitInternal>(c => c.Unit.UnitName == resourceName)))
+                m => m.FindModule(It.Is<ConfigurationUnitInternal>(c => c.Unit.UnitName == resourceName)))
                 .Returns(findDscResourceResult)
                 .Verifiable();
 
@@ -458,7 +503,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 .Returns(nullDscResourceInfo)
                 .Verifiable();
             processorEnvMock.Setup(
-                m => m.FindDscResource(It.Is<ConfigurationUnitInternal>(c => unit.UnitName == unit.UnitName)))
+                m => m.FindModule(It.Is<ConfigurationUnitInternal>(c => unit.UnitName == unit.UnitName)))
                 .Returns(nullPsModuleInfo)
                 .Verifiable();
 
@@ -491,7 +536,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 .Returns(nullDscResourceInfo)
                 .Verifiable();
             processorEnvMock.Setup(
-                m => m.FindDscResource(It.Is<ConfigurationUnitInternal>(c => unit.UnitName == unit.UnitName)))
+                m => m.FindModule(It.Is<ConfigurationUnitInternal>(c => unit.UnitName == unit.UnitName)))
                 .Returns(getFindResourceInfo)
                 .Verifiable();
 
@@ -518,7 +563,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             var unit = this.CreteConfigurationUnit();
             DscResourceInfoInternal? nullDscResourceInfo = null;
             var (_, psModuleInfo) = this.GetResourceAndModuleInfo(unit);
-            var getFindResourceInfo = this.CreateFindResourceInfo();
+            var getFindModuleInfo = this.CreateGetModuleInfo();
 
             var processorEnvMock = new Mock<IProcessorEnvironment>();
             processorEnvMock.Setup(
@@ -526,11 +571,11 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 .Returns(nullDscResourceInfo)
                 .Verifiable();
             processorEnvMock.Setup(
-                m => m.FindDscResource(It.Is<ConfigurationUnitInternal>(c => unit.UnitName == unit.UnitName)))
-                .Returns(getFindResourceInfo)
+                m => m.FindModule(It.Is<ConfigurationUnitInternal>(c => unit.UnitName == unit.UnitName)))
+                .Returns(getFindModuleInfo)
                 .Verifiable();
             processorEnvMock.Setup(
-                m => m.SaveModule(getFindResourceInfo, It.IsAny<string>()))
+                m => m.SaveModule(getFindModuleInfo, It.IsAny<string>()))
                 .Verifiable();
             processorEnvMock.Setup(
                 m => m.GetAvailableModule(It.Is<string>(s => s.EndsWith("xSimpleTestResource"))))
@@ -574,7 +619,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 .Returns(nullDscResourceInfo)
                 .Verifiable();
             processorEnvMock.Setup(
-                m => m.FindDscResource(It.Is<ConfigurationUnitInternal>(c => unit.UnitName == unit.UnitName)))
+                m => m.FindModule(It.Is<ConfigurationUnitInternal>(c => unit.UnitName == unit.UnitName)))
                 .Returns(getFindResourceInfo)
                 .Verifiable();
             processorEnvMock.Setup(
@@ -612,7 +657,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
                 .Returns(nullDscResourceInfo)
                 .Returns(dscResourceInfo);
             processorEnvMock.Setup(
-                m => m.FindDscResource(It.Is<ConfigurationUnitInternal>(c => unit.UnitName == unit.UnitName)))
+                m => m.FindModule(It.Is<ConfigurationUnitInternal>(c => unit.UnitName == unit.UnitName)))
                 .Returns(getFindResourceInfo)
                 .Verifiable();
             processorEnvMock.Setup(

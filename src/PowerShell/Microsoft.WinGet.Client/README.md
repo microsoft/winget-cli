@@ -48,15 +48,6 @@ If the new cmdlet introduces a new dependency, please make sure to add it in the
 - Uninstall-WinGetPackage
 - Update-WinGetPackage
 
-
-## Prerequisites
-
-The PowerShell module has a dependency on the latest [Microsoft Visual C++ Redistributable](https://learn.microsoft.com/cpp/windows/latest-supported-vc-redist?view=msvc-170) package which can be downloaded or installed through the Windows Package Manager (WinGet) by running the following command:
-
-```
-winget install --id Microsoft.VCRedist.2015+.x64
-```
-
 ## Quick Start Guide
 
 **To run the module, make sure you are using the latest version of PowerShell (not Windows PowerShell)**. 
