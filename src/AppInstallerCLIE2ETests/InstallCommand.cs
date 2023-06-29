@@ -680,30 +680,40 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void InstallExeThatInstallsMSIX()
         {
-            // Insert fake ARP entry as if a pre-existing install of the non-MSIX version of the package
-            // Name: EXE Installer that Installs MSIX
-            // Publisher: AppInstallerTest
-            // TODO: FAKE ARP
+            string targetPackageIdentifier = "AppInstallerTest.TestExeInstallerInstallsMSIX";
+            string fakeProductCode = "e35f5799-cce3-41fd-886c-c36fcb7104fe";
+
+            // Insert fake ARP entry as if a non-MSIX version of the package is already installed.
+            // The name here must not match the normalized name of the package, but be close enough to meet
+            // the confidence requirements for correlation after an install operation (so we drop one word here).
+            TestCommon.CreateARPEntry(fakeProductCode, new
+            {
+                DisplayName = "EXE Installer that Installs MSIX",
+                Publisher = "AppInstallerTest",
+                DisplayVersion = "1.0.0",
+            });
 
             // We should not find it before installing because the normalized name doesn't match
-            // TODO: LIST AppInstallerTest.TestExeInstallerInstallsMSIX
+            var result = TestCommon.RunAICLICommand("list", targetPackageIdentifier);
+            Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
 
             // Add the MSIX to simulate an installer doing it
-            TestCommon.InstallMsix("TODO: Find where the test MSIX lives");
+            TestCommon.InstallMsix(TestCommon.MsixInstallerPath);
 
             // Install our exe that "installs" the MSIX
-            // TODO: INSTALL AppInstallerTest.TestExeInstallerInstallsMSIX
+            result = TestCommon.RunAICLICommand("install", targetPackageIdentifier);
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
 
             // We should find the package now, and it should be correlated to the MSIX (although we don't actually know that from this probe)
-            // TODO: LIST AppInstallerTest.TestExeInstallerInstallsMSIX
+            result = TestCommon.RunAICLICommand("list", targetPackageIdentifier);
+            Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
 
             // Remove the MSIX outside of winget's knowledge to keep the tracking data.
             TestCommon.RemoveMsix(Constants.MsixInstallerName);
 
             // We should not find the package now that the MSIX is gone, confirming that it was correlated
-            // TODO: LIST AppInstallerTest.TestExeInstallerInstallsMSIX
+            result = TestCommon.RunAICLICommand("list", targetPackageIdentifier);
+            Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
         }
-
-        // TODO: A test using the same package but a different installer WITHOUT PFN to confirm that everything is the same as above except that the last LIST does fine the fake ARP entry
     }
 }
