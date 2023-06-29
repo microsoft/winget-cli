@@ -102,7 +102,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return ConfigurationUnitState::Unknown;
     }
 
-    ConfigurationUnitResultInformation ConfigurationUnit::ResultInformation()
+    IConfigurationUnitResultInformation ConfigurationUnit::ResultInformation()
     {
         return nullptr;
     }
@@ -126,5 +126,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         THROW_HR_IF(E_INVALIDARG, !ConfigurationSetParser::IsRecognizedSchemaVersion(value));
         m_schemaVersion = value;
+    }
+
+    HRESULT STDMETHODCALLTYPE ConfigurationUnit::SetLifetimeWatcher(IUnknown* watcher)
+    {
+        return AppInstaller::WinRT::LifetimeWatcherBase::SetLifetimeWatcher(watcher);
     }
 }

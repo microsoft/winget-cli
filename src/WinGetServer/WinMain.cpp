@@ -135,8 +135,11 @@ int __stdcall wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR cmdLine, 
         // Register all the CoCreatableClassWrlCreatorMapInclude classes
         RETURN_IF_FAILED(WindowsPackageManagerServerModuleRegister());
 
+        // Manual reset event to notify the client that the server is available.
+        wil::unique_event manualResetEvent;
+
         if (manualActivation)
-        {   
+        {
             HANDLE hMutex = NULL;
             hMutex = CreateMutex(NULL, FALSE, TEXT("WinGetServerMutex"));
             RETURN_LAST_ERROR_IF_NULL(hMutex);
@@ -148,20 +151,22 @@ int __stdcall wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR cmdLine, 
             }
 
             RETURN_IF_FAILED(WindowsPackageManagerServerInitializeRPCServer());
-        }
 
-        // Manual reset event to notify the client that the server is available.
-        wil::unique_event manualResetEvent;
-        if (!manualResetEvent.try_create(wil::EventOptions::ManualReset, L"WinGetServerStartEvent"))
-        {
-            manualResetEvent.open(L"WinGetServerStartEvent");
-        }
+            if (!manualResetEvent.try_create(wil::EventOptions::ManualReset, L"WinGetServerStartEvent"))
+            {
+                manualResetEvent.open(L"WinGetServerStartEvent");
+            }
 
-        manualResetEvent.SetEvent();
+            manualResetEvent.SetEvent();
+        }
 
         _comServerExitEvent.wait();
 
-        manualResetEvent.reset();
+        if (manualResetEvent)
+        {
+            manualResetEvent.reset();
+        }
+
         RETURN_IF_FAILED(WindowsPackageManagerServerModuleUnregister());
     }
     CATCH_RETURN()

@@ -70,7 +70,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             const Configuration::ConfigurationUnit& unit,
             ConfigurationUnitIntent runIntent,
             std::string_view action,
-            const Configuration::ConfigurationUnitResultInformation& resultInformation) const noexcept;
+            const IConfigurationUnitResultInformation& resultInformation) const noexcept;
 
         // The summary information for a specific unit intent.
         struct ProcessingSummaryForIntent

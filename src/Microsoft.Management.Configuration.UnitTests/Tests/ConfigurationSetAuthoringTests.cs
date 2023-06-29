@@ -8,6 +8,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 {
     using System;
     using Microsoft.Management.Configuration.UnitTests.Fixtures;
+    using Microsoft.Management.Configuration.UnitTests.Helpers;
     using Microsoft.VisualBasic;
     using Xunit;
     using Xunit.Abstractions;
@@ -16,20 +17,17 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     /// Unit tests for configuration set authoring (creating objects).
     /// </summary>
     [Collection("UnitTestCollection")]
-    public class ConfigurationSetAuthoringTests
+    [OutOfProc]
+    public class ConfigurationSetAuthoringTests : ConfigurationProcessorTestBase
     {
-        private readonly UnitTestFixture fixture;
-        private readonly ITestOutputHelper log;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="ConfigurationSetAuthoringTests"/> class.
         /// </summary>
         /// <param name="fixture">Unit test fixture.</param>
         /// <param name="log">Log helper.</param>
         public ConfigurationSetAuthoringTests(UnitTestFixture fixture, ITestOutputHelper log)
+            : base(fixture, log)
         {
-            this.fixture = fixture;
-            this.log = log;
         }
 
         /// <summary>
@@ -42,7 +40,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             string testOrigin = "Test Origin";
             string testPath = "TestPath.ext";
 
-            ConfigurationSet testSet = new ConfigurationSet();
+            ConfigurationSet testSet = this.ConfigurationSet();
 
             testSet.Name = testName;
             Assert.Equal(testName, testSet.Name);
@@ -55,7 +53,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             Assert.Equal(ConfigurationSetState.Unknown, testSet.State);
 
             Assert.Empty(testSet.ConfigurationUnits);
-            testSet.ConfigurationUnits = new ConfigurationUnit[] { new ConfigurationUnit() };
+            testSet.ConfigurationUnits = new ConfigurationUnit[] { this.ConfigurationUnit() };
             Assert.Equal(1, testSet.ConfigurationUnits.Count);
 
             Assert.NotEqual(string.Empty, testSet.SchemaVersion);
@@ -71,7 +69,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             string testIdentifier = "Test Identifier";
             ConfigurationUnitIntent testIntent = ConfigurationUnitIntent.Assert;
 
-            ConfigurationUnit testUnit = new ConfigurationUnit();
+            ConfigurationUnit testUnit = this.ConfigurationUnit();
 
             testUnit.UnitName = testName;
             Assert.Equal(testName, testUnit.UnitName);
@@ -107,7 +105,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         [Fact]
         public void ConfigurationSetSerializeNotImplemented()
         {
-            Assert.Throws<NotImplementedException>(() => new ConfigurationSet().Serialize(null));
+            Assert.Throws<NotImplementedException>(() => this.ConfigurationSet().Serialize(null));
         }
     }
 }

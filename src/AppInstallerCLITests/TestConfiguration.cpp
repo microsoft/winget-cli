@@ -21,7 +21,7 @@ namespace TestCommon
         }
     }
 
-    winrt::event_token TestConfigurationSetProcessorFactory::Diagnostics(const EventHandler<DiagnosticInformation>& handler)
+    winrt::event_token TestConfigurationSetProcessorFactory::Diagnostics(const EventHandler<IDiagnosticInformation>& handler)
     {
         return m_diagnostics.add(handler);
     }
@@ -72,7 +72,7 @@ namespace TestCommon
         UnitValue(unit), DirectivesOverlayValue(directivesOverlay)
     {}
 
-    TestSettingsResult TestConfigurationUnitProcessor::TestSettings()
+    ITestSettingsResult TestConfigurationUnitProcessor::TestSettings()
     {
         if (TestSettingsFunc)
         {
@@ -80,11 +80,11 @@ namespace TestCommon
         }
         else
         {
-            return TestSettingsResult{};
+            return winrt::make<TestSettingsResultInstance>();
         }
     }
 
-    GetSettingsResult TestConfigurationUnitProcessor::GetSettings()
+    IGetSettingsResult TestConfigurationUnitProcessor::GetSettings()
     {
         if (GetSettingsFunc)
         {
@@ -92,11 +92,11 @@ namespace TestCommon
         }
         else
         {
-            return GetSettingsResult{};
+            return winrt::make<GetSettingsResultInstance>();
         }
     }
 
-    ApplySettingsResult TestConfigurationUnitProcessor::ApplySettings()
+    IApplySettingsResult TestConfigurationUnitProcessor::ApplySettings()
     {
         if (ApplySettingsFunc)
         {
@@ -104,7 +104,7 @@ namespace TestCommon
         }
         else
         {
-            return ApplySettingsResult{};
+            return winrt::make<ApplySettingsResultInstance>();
         }
     }
 }
