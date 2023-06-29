@@ -794,6 +794,22 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
+        /// Removes an ARP entry.
+        /// </summary>
+        /// <param name="productCode">Product code of the entry.</param>
+        /// <param name="scope">Scope of the entry.</param>
+        public static void RemoveARPEntry(
+            string productCode,
+            Scope scope = Scope.User)
+        {
+            RegistryKey baseKey = (scope == Scope.User) ? Registry.CurrentUser : Registry.LocalMachine;
+            using (RegistryKey uninstallRegistryKey = baseKey.OpenSubKey(Constants.UninstallSubKey, true))
+            {
+                uninstallRegistryKey.DeleteSubKey(productCode);
+            }
+        }
+
+        /// <summary>
         /// Run command result.
         /// </summary>
         public struct RunCommandResult

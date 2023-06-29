@@ -701,7 +701,7 @@ namespace AppInstallerCLIE2ETests
             TestCommon.InstallMsix(TestCommon.MsixInstallerPath);
 
             // Install our exe that "installs" the MSIX
-            result = TestCommon.RunAICLICommand("install", targetPackageIdentifier);
+            result = TestCommon.RunAICLICommand("install", $"{targetPackageIdentifier} --force");
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
 
             // We should find the package now, and it should be correlated to the MSIX (although we don't actually know that from this probe)
@@ -714,6 +714,8 @@ namespace AppInstallerCLIE2ETests
             // We should not find the package now that the MSIX is gone, confirming that it was correlated
             result = TestCommon.RunAICLICommand("list", targetPackageIdentifier);
             Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
+
+            TestCommon.RemoveARPEntry(fakeProductCode);
         }
     }
 }
