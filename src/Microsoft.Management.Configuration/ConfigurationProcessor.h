@@ -9,8 +9,9 @@
 #include <winget/AsyncTokens.h>
 #include <winget/ILifetimeWatcher.h>
 
-#include <string_view>
 #include <functional>
+#include <mutex>
+#include <string_view>
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
@@ -84,7 +85,10 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         void ConfigurationSetProcessorFactory(const IConfigurationSetProcessorFactory& value);
 
         // Sends diagnostics objects to the event.
-        void Diagnostics(DiagnosticLevel level, std::string_view message);
+        void SendDiagnostics(DiagnosticLevel level, std::string_view message);
+
+        // Sends diagnostics objects to the event.
+        void SendDiagnostics(const IDiagnosticInformation& information);
 
     private:
         GetConfigurationSetDetailsResult GetSetDetailsImpl(
@@ -105,12 +109,16 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
         GetConfigurationUnitSettingsResult GetUnitSettingsImpl(const ConfigurationUnit& unit, AppInstaller::WinRT::AsyncCancellation cancellation = {});
 
+        void SendDiagnosticsImpl(const IDiagnosticInformation& information);
+
         IConfigurationSetProcessorFactory m_factory = nullptr;
         event<Windows::Foundation::EventHandler<IDiagnosticInformation>> m_diagnostics;
         event<Windows::Foundation::TypedEventHandler<ConfigurationSet, ConfigurationChangeData>> m_configurationChange;
         ConfigThreadGlobals m_threadGlobals;
         IConfigurationSetProcessorFactory::Diagnostics_revoker m_factoryDiagnosticsEventRevoker;
         DiagnosticLevel m_minimumLevel = DiagnosticLevel::Informational;
+        std::recursive_mutex m_diagnosticsMutex;
+        bool m_isHandlingDiagnostics = false;
 #endif
     };
 }
