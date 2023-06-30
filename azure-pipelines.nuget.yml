@@ -135,22 +135,22 @@ jobs:
         displayName: 'Download Build.x64release artifacts'
         inputs:
           artifactName: Build.x64release
-          targetPath: '$(Pipeline.Workspace)/Build.x64release'
+          targetPath: '$(Pipeline.Workspace)\Build.x64release'
 
       - task: DownloadPipelineArtifact@2
         displayName: 'Download Build.x86release artifacts'
         inputs:
           artifactName: Build.x86release
-          targetPath: '$(Pipeline.Workspace)/Build.x86release'
+          targetPath: '$(Pipeline.Workspace)\Build.x86release'
 
       - task: NuGetCommand@2
         displayName: Pack WingetUtil nuget package
         inputs:
           command: pack
-          packagesToPack: 'Build.x64release\WinGetUtil.nuspec'
+          packagesToPack: '$(Pipeline.Workspace)\Build.x64release\WinGetUtil.nuspec'
           versioningScheme: byEnvVar
           versionEnvVar: version
-          packDestination: "$(Build.ArtifactStagingDirectory)"
+          packDestination: '$(Build.ArtifactStagingDirectory)'
           basePath: $(Pipeline.Workspace)
 
       - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@2
