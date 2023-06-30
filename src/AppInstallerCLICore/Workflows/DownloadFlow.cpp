@@ -97,20 +97,17 @@ namespace AppInstaller::CLI::Workflow
 
             const auto& architecture = std::string{ ToString(installer.Arch) };
             const auto& scope = std::string{ installer.Scope == ScopeEnum::Machine ? ScopeToString(ScopeEnum::Machine) : ScopeToString(ScopeEnum::User) };
+            const auto& installerType = std::string{ InstallerTypeToString(installer.EffectiveInstallerType()) }; 
 
-            // Use base installer type to include zip installer type.
-            const auto& baseInstallerType = std::string{ InstallerTypeToString(installer.BaseInstallerType) }; 
+            std::filesystem::path filename = Utility::ConvertToUTF16(manifest.Id + '_' + manifest.Version + '_' + architecture + '_' + scope + '_' + installerType);
 
-            std::wstring_view installerExtension = GetInstallerFileExtension(context);
-            std::filesystem::path filename = Utility::ConvertToUTF16(manifest.Id + '_' + manifest.Version + '_' + architecture + '_' + scope + '_' + baseInstallerType);
-
-            const auto& locale = manifest.CurrentLocalization.Locale;
+            const auto& locale = !installer.Locale.empty() ? installer.Locale : manifest.CurrentLocalization.Locale;
             if (!locale.empty())
             {
                 filename += '_' + locale;
             }
 
-            filename += installerExtension;
+            filename += GetInstallerFileExtension(context);
 
             // Make file name suitable for file system path
             filename = Utility::ConvertToUTF16(Utility::MakeSuitablePathPart(filename.u8string()));
@@ -531,7 +528,7 @@ namespace AppInstaller::CLI::Workflow
         {
             std::filesystem::path downloadsDirectory = AppInstaller::Runtime::GetPathTo(AppInstaller::Runtime::PathName::UserProfileDownloads);
             const auto& manifest = context.Get<Execution::Data::Manifest>();
-            std::string packageDownloadFolderName = manifest.Id + '.' + manifest.Version;
+            std::string packageDownloadFolderName = manifest.Id + '_' + manifest.Version;
             context.Add<Execution::Data::DownloadDirectory>(downloadsDirectory / packageDownloadFolderName);
         }
     }

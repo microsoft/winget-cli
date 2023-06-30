@@ -116,7 +116,7 @@ namespace AppInstallerCLIE2ETests.Interop
             // Assert
             var packageVersion = "2.0.0.0";
             Assert.AreEqual(DownloadResultStatus.Ok, downloadResult.Status);
-            string downloadDir = Path.Combine(TestCommon.GetDefaultDownloadDirectory(), $"{Constants.ExeInstallerPackageId}.{packageVersion}");
+            string downloadDir = Path.Combine(TestCommon.GetDefaultDownloadDirectory(), $"{Constants.ExeInstallerPackageId}_{packageVersion}");
             Assert.True(TestCommon.VerifyInstallerDownload(downloadDir, "AppInstallerTest.TestExeInstaller", packageVersion, ProcessorArchitecture.X86, TestCommon.Scope.User, PackageInstallerType.Exe));
         }
 
@@ -216,7 +216,7 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Assert
             Assert.AreEqual(DownloadResultStatus.Ok, downloadResult.Status);
-            Assert.True(TestCommon.VerifyInstallerDownload(downloadDir, "AppInstallerTest.TestMultipleInstallers", "1.0.0.0", ProcessorArchitecture.X64, TestCommon.Scope.User, PackageInstallerType.Zip, "zh-CN"));
+            Assert.True(TestCommon.VerifyInstallerDownload(downloadDir, "AppInstallerTest.TestMultipleInstallers", "1.0.0.0", ProcessorArchitecture.X64, TestCommon.Scope.User, PackageInstallerType.Exe, "zh-CN", true));
         }
 
         /// <summary>
@@ -291,7 +291,7 @@ namespace AppInstallerCLIE2ETests.Interop
 
             // Assert
             Assert.AreEqual(DownloadResultStatus.Ok, downloadResult.Status);
-            Assert.True(TestCommon.VerifyInstallerDownload(downloadDir, "AppInstallerTest.TestMultipleInstallers", "1.0.0.0", ProcessorArchitecture.X64, TestCommon.Scope.User, PackageInstallerType.Zip, "zh-CN"));
+            Assert.True(TestCommon.VerifyInstallerDownload(downloadDir, "AppInstallerTest.TestMultipleInstallers", "1.0.0.0", ProcessorArchitecture.X64, TestCommon.Scope.User, PackageInstallerType.Exe, "zh-CN", true));
         }
 
         /// <summary>

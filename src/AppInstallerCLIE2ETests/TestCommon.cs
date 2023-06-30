@@ -612,6 +612,7 @@ namespace AppInstallerCLIE2ETests
         /// <param name="scope">Installer scope.</param>
         /// <param name="installerType">Installer type.</param>
         /// <param name="locale">Installer locale.</param>
+        /// <param name="isArchive">Boolean value indicating whether the installer is an archive.</param>
         /// <param name="cleanup">Boolean value indicating whether to remove the installer file and directory.</param>
         /// <returns>True if success.</returns>
         public static bool VerifyInstallerDownload(
@@ -622,6 +623,7 @@ namespace AppInstallerCLIE2ETests
             Scope scope,
             PackageInstallerType installerType,
             string locale = null,
+            bool isArchive = false,
             bool cleanup = true)
         {
             string expectedFileName = $"{id}_{version}_{arch}_{scope}_{installerType}";
@@ -631,13 +633,20 @@ namespace AppInstallerCLIE2ETests
                 expectedFileName += $"_{locale}";
             }
 
-            string extension = installerType switch
+            string extension;
+            if (isArchive)
             {
-                PackageInstallerType.Msi => ".msi",
-                PackageInstallerType.Msix => ".msix",
-                PackageInstallerType.Zip => ".zip",
-                _ => ".exe"
-            };
+                extension = ".zip";
+            }
+            else
+            {
+                extension = installerType switch
+                {
+                    PackageInstallerType.Msi => ".msi",
+                    PackageInstallerType.Msix => ".msix",
+                    _ => ".exe"
+                };
+            }
 
             expectedFileName += extension;
             string installerDownloadPath = Path.Combine(downloadDir, expectedFileName);
