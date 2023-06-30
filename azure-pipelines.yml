@@ -309,7 +309,7 @@ jobs:
     inputs:
       filePath: 'src\Microsoft.Management.Configuration.OutOfProc\Prepare-ConfigurationOOPTests.ps1'
       arguments: '-BuildOutputPath $(buildOutDir) -PackageLayoutPath $(packageLayoutDir)'
-      pwsh: true
+    condition: succeededOrFailed()
 
   - task: VSTest@2
     displayName: 'Run tests: Microsoft.Management.Configuration.UnitTests (OutOfProc)'
@@ -329,6 +329,7 @@ jobs:
     inputs:
       filePath: 'src\Microsoft.Management.Configuration.OutOfProc\Collect-ConfigurationOOPTests.ps1'
       arguments: '-TargetLocation $(artifactsDir)\ConfigOOPTestsLog'
+    condition: succeededOrFailed()
 
   - task: CopyFiles@2
     displayName: 'Copy Util to artifacts folder'
