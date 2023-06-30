@@ -181,7 +181,7 @@ jobs:
       - task: PublishBuildArtifacts@1
         displayName: Publish nuget package to artifacts
         inputs:
-          PathtoPublish: '$(Build.ArtifactStagingDirectory)\$(packageName).$(version).nupkg'
+          PathtoPublish: '$(Build.ArtifactStagingDirectory)'
           ArtifactName: $(packageName)
           publishLocation: Container
 
