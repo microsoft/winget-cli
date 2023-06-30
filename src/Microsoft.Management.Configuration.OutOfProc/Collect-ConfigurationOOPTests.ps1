@@ -1,1 +1,11 @@
-Copy log directory to a new artifacts directory
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+[CmdletBinding()]
+param(
+    [string]$TargetLocation
+)
+
+$Local:settingsExport = ConvertFrom-Json (wingetdev.exe settings export)
+$Local:logsFilePath = Join-Path (Split-Path $Local:settingsExport.userSettingsFile -Parent) "DiagOutputDir"
+
+Copy-Item $Local:logsFilePath $TargetLocation -Recurse -Force
