@@ -181,13 +181,12 @@ jobs:
       - task: PublishBuildArtifacts@1
         displayName: Publish nuget package to artifacts
         inputs:
-          PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+          PathtoPublish: '$(Build.ArtifactStagingDirectory)\$(packageName).$(version).nupkg'
           ArtifactName: $(packageName)
           publishLocation: Container
 
       - task: NuGetCommand@2
         displayName: Push WingetUtil nuget package to nuget.org
-        condition: eq(1,2)
         inputs:
           command: push
           nuGetFeedType: external
