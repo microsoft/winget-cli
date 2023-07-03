@@ -15,7 +15,7 @@
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
-    struct ConfigurationProcessor : ConfigurationProcessorT<ConfigurationProcessor, AppInstaller::WinRT::ILifetimeWatcher>, AppInstaller::WinRT::LifetimeWatcherBase
+    struct ConfigurationProcessor : ConfigurationProcessorT<ConfigurationProcessor, winrt::cloaked<AppInstaller::WinRT::ILifetimeWatcher>>, AppInstaller::WinRT::LifetimeWatcherBase
     {
         using ConfigurationSet = Configuration::ConfigurationSet;
         using ConfigurationSetChangeData = Configuration::ConfigurationSetChangeData;

@@ -99,6 +99,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                     return AppInstaller::Utility::ConvertToUTF8(message);
                     }());
             }
+
+            static void Ensure()
+            {
+                static AttachWilFailureCallback s_callbackAttach;
+            }
         };
 
         // Specifies the set of intents that should execute during a Test request
@@ -123,7 +128,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     event_token ConfigurationProcessor::Diagnostics(const Windows::Foundation::EventHandler<IDiagnosticInformation>& handler)
     {
-        static AttachWilFailureCallback s_callbackAttach;
+        AttachWilFailureCallback::Ensure();
         return m_diagnostics.add(handler);
     }
 

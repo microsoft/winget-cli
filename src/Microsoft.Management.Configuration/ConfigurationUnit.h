@@ -9,7 +9,7 @@
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
-    struct ConfigurationUnit : ConfigurationUnitT<ConfigurationUnit, AppInstaller::WinRT::ILifetimeWatcher>, AppInstaller::WinRT::LifetimeWatcherBase
+    struct ConfigurationUnit : ConfigurationUnitT<ConfigurationUnit, winrt::cloaked<AppInstaller::WinRT::ILifetimeWatcher>>, AppInstaller::WinRT::LifetimeWatcherBase
     {
         ConfigurationUnit();
 

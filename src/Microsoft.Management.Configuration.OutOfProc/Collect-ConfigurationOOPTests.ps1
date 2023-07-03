@@ -8,4 +8,6 @@ param(
 $Local:settingsExport = ConvertFrom-Json (wingetdev.exe settings export)
 $Local:logsFilePath = Join-Path (Split-Path $Local:settingsExport.userSettingsFile -Parent) "DiagOutputDir"
 
-Copy-Item $Local:logsFilePath $TargetLocation -Recurse -Force
+Get-AppxPackage WinGetDevCLI | Remove-AppxPackage
+
+Copy-Item $Local:logsFilePath $TargetLocation -Recurse -Force -ErrorAction Ignore
