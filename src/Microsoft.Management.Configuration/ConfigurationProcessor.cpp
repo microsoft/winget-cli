@@ -21,6 +21,8 @@
 #include <AppInstallerErrors.h>
 #include <AppInstallerStrings.h>
 
+using namespace std::chrono_literals;
+
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
     namespace
@@ -206,8 +208,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         Windows::Storage::Streams::IInputStream localStream = stream;
 
         co_await winrt::resume_background();
-        auto cancellation = co_await get_cancellation_token();
-        cancellation.enable_propagation();
+        auto cancellation = co_await winrt::get_cancellation_token();
 
         auto threadGlobals = m_threadGlobals.SetForCurrentThread();
         auto result = make_self<wil::details::module_count_wrapper<OpenConfigurationSetResult>>();
@@ -231,7 +232,20 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
             for (;;)
             {
-                Windows::Storage::Streams::IBuffer readBuffer = co_await localStream.ReadAsync(buffer, bufferSize, readOptions);
+                auto asyncOperation = localStream.ReadAsync(buffer, bufferSize, readOptions);
+
+                // Manually poll status and propagate cancellation to stay on this thread for thread globals
+                while (asyncOperation.Status() == Windows::Foundation::AsyncStatus::Started)
+                {
+                    if (cancellation())
+                    {
+                        asyncOperation.Cancel();
+                    }
+
+                    std::this_thread::sleep_for(100ms);
+                }
+
+                Windows::Storage::Streams::IBuffer readBuffer = asyncOperation.GetResults();
 
                 size_t readSize = static_cast<size_t>(readBuffer.Length());
                 if (readSize)
