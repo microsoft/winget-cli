@@ -304,28 +304,13 @@ jobs:
       configuration: '$(BuildConfiguration)'
     condition: succeededOrFailed()
 
-  - task: CopyFiles@2
-    displayName: 'Copy Microsoft.Management.Configuration.winmd'
-    inputs:
-      Contents: |
-          $(buildOutDir)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd
-      TargetFolder: '$(buildOutDir)\Microsoft.Management.Configuration.UnitTests\net6.0-windows10.0.19041.0'
-    condition: succeededOrFailed()
-      
   - task: PowerShell@2
-    displayName: 'Copy Microsoft.Management.Configuration.OutOfProc.dll as Microsoft.Management.Configuration.dll'
+    displayName: Prepare for Microsoft.Management.Configuration.UnitTests (OutOfProc)
     inputs:
-      targetType: 'inline'
-      script: Copy-Item '$(buildOutDir)\Microsoft.Management.Configuration.OutOfProc\Microsoft.Management.Configuration.OutOfProc.dll' '$(buildOutDir)\Microsoft.Management.Configuration.UnitTests\net6.0-windows10.0.19041.0\Microsoft.Management.Configuration.dll' -Force
+      filePath: 'src\Microsoft.Management.Configuration.OutOfProc\Prepare-ConfigurationOOPTests.ps1'
+      arguments: '-BuildOutputPath $(buildOutDir) -PackageLayoutPath $(packageLayoutDir)'
     condition: succeededOrFailed()
-      
-  - task: PowerShell@2
-    displayName: 'Register the Dev package for OOP configuration tests'
-    inputs:
-      targetType: 'inline'
-      script: Add-AppxPackage -Register $(packageLayoutDir)\AppxManifest.xml
-    condition: succeededOrFailed()
-  
+
   - task: VSTest@2
     displayName: 'Run tests: Microsoft.Management.Configuration.UnitTests (OutOfProc)'
     inputs:
@@ -337,6 +322,13 @@ jobs:
       codeCoverageEnabled: true
       platform: '$(buildPlatform)'
       configuration: '$(BuildConfiguration)'
+    condition: succeededOrFailed()
+
+  - task: PowerShell@2
+    displayName: Collect logs for Microsoft.Management.Configuration.UnitTests (OutOfProc)
+    inputs:
+      filePath: 'src\Microsoft.Management.Configuration.OutOfProc\Collect-ConfigurationOOPTests.ps1'
+      arguments: '-TargetLocation $(artifactsDir)\ConfigOOPTestsLog'
     condition: succeededOrFailed()
 
   - task: CopyFiles@2

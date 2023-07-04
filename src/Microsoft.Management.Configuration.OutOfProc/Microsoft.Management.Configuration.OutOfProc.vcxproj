@@ -471,7 +471,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Collect-ConfigurationOOPTests.ps1" />
     <None Include="packages.config" />
+    <None Include="Prepare-ConfigurationOOPTests.ps1" />
     <None Include="PropertySheet.props" />
     <None Include="Source.def" />
   </ItemGroup>

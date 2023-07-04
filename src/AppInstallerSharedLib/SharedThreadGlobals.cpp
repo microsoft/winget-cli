@@ -31,8 +31,15 @@ namespace AppInstaller::ThreadLocalStorage
         return SetOrGetThreadGlobals(false);
     }
 
+    PreviousThreadGlobals::PreviousThreadGlobals(ThreadGlobals* previous) : m_previous(previous)
+    {
+        m_threadId = GetCurrentThreadId();
+    }
+
     PreviousThreadGlobals::~PreviousThreadGlobals()
     {
+        // Not remaining on the same thread is a serious issue that must be resolved
+        FAIL_FAST_IF(GetCurrentThreadId() != m_threadId);
         std::ignore = SetOrGetThreadGlobals(true, m_previous);
     }
 }

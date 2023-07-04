@@ -92,6 +92,7 @@ Dbg
 debian
 deigh
 deleteifnotneeded
+DENYWR
 desktopappinstaller
 devhome
 dic
@@ -465,6 +466,7 @@ websites
 WERSJA
 wesome
 wfopen
+wfsopen
 wgetenv
 Whatif
 winapifamily

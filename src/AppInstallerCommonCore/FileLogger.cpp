@@ -126,19 +126,23 @@ namespace AppInstaller::Logging
 
     void FileLogger::OpenFileLoggerStream() 
     {
-        // Prevent inheritance to ensure log file handle is not opened by other processes.
-        FILE* filePtr;
-        errno_t fopenError = _wfopen_s(&filePtr, m_filePath.wstring().c_str(), L"w");
-        if (!fopenError)
+        // Prevent other writers to our log file, but allow readers
+        FILE* filePtr = _wfsopen(m_filePath.wstring().c_str(), L"w", _SH_DENYWR);
+
+        if (filePtr)
         {
-            THROW_HR_IF(E_UNEXPECTED, filePtr == nullptr);
+            auto closeFile = wil::scope_exit([&]() { fclose(filePtr); });
+
+            // Prevent inheritance to ensure log file handle is not opened by other processes
             THROW_IF_WIN32_BOOL_FALSE(SetHandleInformation(reinterpret_cast<HANDLE>(_get_osfhandle(_fileno(filePtr))), HANDLE_FLAG_INHERIT, 0));
+
             m_stream = std::ofstream{ filePtr };
+            closeFile.release();
         }
         else
         {
             AICLI_LOG(Core, Error, << "Failed to open log file " << m_filePath.u8string());
-            throw std::system_error(fopenError, std::generic_category());
+            throw std::system_error(errno, std::generic_category());
         }
     }
 }
