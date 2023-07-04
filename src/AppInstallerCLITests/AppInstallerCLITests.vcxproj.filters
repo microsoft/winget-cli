@@ -221,6 +221,9 @@
     <ClCompile Include="YamlManifest.cpp">
       <Filter>Source Files\Common</Filter>
     </ClCompile>
+    <ClCompile Include="YamlManifestWriter.cpp">
+      <Filter>Source Files\Common</Filter>
+    </ClCompile>
     <ClCompile Include="Certificates.cpp">
       <Filter>Source Files\Common</Filter>
     </ClCompile>

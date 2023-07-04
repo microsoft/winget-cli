@@ -236,7 +236,7 @@ namespace AppInstaller::Manifest
 
     ElevationRequirementEnum ConvertToElevationRequirementEnum(const std::string& in)
     {
-        ElevationRequirementEnum result = ElevationRequirementEnum::Unknown;
+         ElevationRequirementEnum result = ElevationRequirementEnum::Unknown;
 
         if (Utility::CaseInsensitiveEquals(in, "elevationRequired"))
         {
@@ -552,6 +552,47 @@ namespace AppInstaller::Manifest
         return "unknown"sv;
     }
 
+    std::string_view InstallerSwitchTypeToString(InstallerSwitchType installerSwitchType)
+    {
+        switch (installerSwitchType)
+        {
+        case InstallerSwitchType::Custom:
+            return "Custom"sv;
+        case InstallerSwitchType::Silent:
+            return "Silent"sv;
+        case InstallerSwitchType::SilentWithProgress:
+            return "SilentWithProgress"sv;
+        case InstallerSwitchType::Interactive:
+            return "Interactive"sv;
+        case InstallerSwitchType::Language:
+            return "Language"sv;
+        case InstallerSwitchType::Log:
+            return "Log"sv;
+        case InstallerSwitchType::InstallLocation:
+            return "InstallLocation"sv;
+        case InstallerSwitchType::Update:
+            return "Update"sv;
+        }
+
+        return "unknown"sv;
+    }
+
+
+    std::string_view ElevationRequirementToString(ElevationRequirementEnum elevationRequirement)
+    {
+        switch (elevationRequirement)
+        {
+        case ElevationRequirementEnum::ElevationRequired:
+            return "ElevationRequired"sv;
+        case ElevationRequirementEnum::ElevationProhibited:
+            return "ElevationProhibited"sv;
+        case ElevationRequirementEnum::ElevatesSelf:
+            return "ElevatesSelf"sv;
+        }
+
+        return "Unknown"sv;
+    }
+
     std::string_view ScopeToString(ScopeEnum scope)
     {
         switch (scope)
@@ -649,6 +690,58 @@ namespace AppInstaller::Manifest
         }
 
         return "unknown";
+    }
+
+    std::string_view ExpectedReturnCodeToString(ExpectedReturnCodeEnum expectedReturnCode)
+    {
+        switch (expectedReturnCode)
+        {
+        case ExpectedReturnCodeEnum::AlreadyInstalled:
+            return "AlreadyInstalled"sv;
+        case ExpectedReturnCodeEnum::PackageInUse:
+            return "PackageInUse"sv;
+        case ExpectedReturnCodeEnum::PackageInUseByApplication:
+            return "PackageInUseByApplication"sv;
+        case ExpectedReturnCodeEnum::InstallInProgress:
+            return "InstallInProgress"sv;
+        case ExpectedReturnCodeEnum::FileInUse:
+            return "FileInUse"sv;
+        case ExpectedReturnCodeEnum::MissingDependency:
+            return "MissingDependency"sv;
+        case ExpectedReturnCodeEnum::DiskFull:
+            return "DiskFull"sv;
+        case ExpectedReturnCodeEnum::InsufficientMemory:
+            return "InsufficientMemory"sv;
+        case ExpectedReturnCodeEnum::InvalidParameter:
+            return "InvalidParameter"sv;
+        case ExpectedReturnCodeEnum::NoNetwork:
+            return "NoNetwork"sv;
+        case ExpectedReturnCodeEnum::ContactSupport:
+            return "ContactSupport"sv;
+        case ExpectedReturnCodeEnum::RebootRequiredToFinish:
+            return "RebootRequiredToFinish"sv;
+        case ExpectedReturnCodeEnum::RebootRequiredForInstall:
+            return "RebootRequiredForInstall"sv;
+        case ExpectedReturnCodeEnum::RebootInitiated:
+            return "RebootInitiated"sv;
+        case ExpectedReturnCodeEnum::CancelledByUser:
+            return "CancelledByUser"sv;
+        case ExpectedReturnCodeEnum::Downgrade:
+            return "Downgrade"sv;
+        case ExpectedReturnCodeEnum::BlockedByPolicy:
+            return "BlockedByPolicy"sv;
+        case ExpectedReturnCodeEnum::SystemNotSupported:
+            return "SystemNotSupported"sv;
+        case ExpectedReturnCodeEnum::Custom:
+            return "Custom"sv;
+        }
+
+        return "Unknown";
+    }
+
+    std::string_view BoolToString(bool value)
+    {
+        return value ? "true" : "false";
     }
 
     bool DoesInstallerTypeUsePackageFamilyName(InstallerTypeEnum installerType)

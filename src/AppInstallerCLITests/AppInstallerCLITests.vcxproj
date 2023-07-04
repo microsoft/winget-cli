@@ -274,6 +274,7 @@
     <ClCompile Include="WorkflowCommon.cpp" />
     <ClCompile Include="WorkflowGroupPolicy.cpp" />
     <ClCompile Include="YamlManifest.cpp" />
+    <ClCompile Include="YamlManifestWriter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CopyFileToFolders Include="TestData\Manifest-Good.yaml">
