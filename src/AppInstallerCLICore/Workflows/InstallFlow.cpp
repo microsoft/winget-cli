@@ -693,7 +693,7 @@ namespace AppInstaller::CLI::Workflow
 
         // If the installer claims to have a PackageFamilyName, and that family name is currently registered for the user,
         // let that be the correlated item and skip any attempt at further ARP correlation.
-        auto installer = context.Get<Execution::Data::Installer>();
+        const auto& installer = context.Get<Execution::Data::Installer>();
 
         if (installer && !installer->PackageFamilyName.empty() && Deployment::IsRegistered(installer->PackageFamilyName))
         {
