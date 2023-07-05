@@ -265,11 +265,15 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_PASS_THROUGH(AnonymizePathForDisplay)
         WINGET_VALIDATE_PASS_THROUGH(TelemetryDisable)
         WINGET_VALIDATE_PASS_THROUGH(InteractivityDisable)
-        WINGET_VALIDATE_PASS_THROUGH(EnableSelfInitiatedMinidump)
-        WINGET_VALIDATE_PASS_THROUGH(InstallIgnoreWarnings)
+        WINGET_VALIDATE_PASS_THROUGH(InstallSkipDependencies)
         WINGET_VALIDATE_PASS_THROUGH(DisableInstallNotes)
         WINGET_VALIDATE_PASS_THROUGH(UninstallPurgePortablePackage)
         WINGET_VALIDATE_PASS_THROUGH(NetworkWingetAlternateSourceURL)
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        WINGET_VALIDATE_PASS_THROUGH(EnableSelfInitiatedMinidump)
+        WINGET_VALIDATE_PASS_THROUGH(KeepAllLogFiles)
+#endif
 
         WINGET_VALIDATE_SIGNATURE(PortablePackageUserRoot)
         {

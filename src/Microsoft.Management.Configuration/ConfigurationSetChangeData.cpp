@@ -13,7 +13,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return *result;
     }
 
-    Configuration::ConfigurationSetChangeData ConfigurationSetChangeData::Create(ConfigurationUnitState state, ConfigurationUnitResultInformation resultInformation, ConfigurationUnit unit)
+    Configuration::ConfigurationSetChangeData ConfigurationSetChangeData::Create(ConfigurationUnitState state, IConfigurationUnitResultInformation resultInformation, ConfigurationUnit unit)
     {
         auto result = make_self<wil::details::module_count_wrapper<implementation::ConfigurationSetChangeData>>();
         result->Initialize(state, resultInformation, unit);
@@ -26,7 +26,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_setState = state;
     }
 
-    void ConfigurationSetChangeData::Initialize(ConfigurationUnitState state, ConfigurationUnitResultInformation resultInformation, ConfigurationUnit unit)
+    void ConfigurationSetChangeData::Initialize(ConfigurationUnitState state, IConfigurationUnitResultInformation resultInformation, ConfigurationUnit unit)
     {
         m_change = ConfigurationSetChangeEventType::UnitStateChanged;
         m_setState = ConfigurationSetState::InProgress;
@@ -50,7 +50,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return m_unitState;
     }
 
-    ConfigurationUnitResultInformation ConfigurationSetChangeData::ResultInformation()
+    IConfigurationUnitResultInformation ConfigurationSetChangeData::ResultInformation()
     {
         return m_resultInformation;
     }

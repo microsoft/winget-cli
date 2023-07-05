@@ -115,12 +115,22 @@ function Close-WindowsSandbox {
       $sandboxServer = Get-Process 'WindowsSandbox' -ErrorAction SilentlyContinue
 
       $sandbox | Stop-Process
-      $sandbox | Wait-Process -Timeout 30
+      $sandbox | Wait-Process -Timeout 120
 
       # Also wait for the server to close
       if ($sandboxServer)
       {
-        $sandboxServer | Wait-Process -Timeout 30
+        try
+        {
+            $sandboxServer | Wait-Process -Timeout 120
+        }
+        catch [System.TimeoutException]
+        {
+            # Force stop the server if it does not automatically stop
+            $sandboxServer | Stop-Process
+            $sandboxServer | Wait-Process -Timeout 120
+        }
+
       }
 
       Write-Host

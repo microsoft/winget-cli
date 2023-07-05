@@ -113,6 +113,13 @@ namespace AppInstallerCLIE2ETests
         public const string PortablePackageMachineRoot = "portablePackageMachineRoot";
         public const string InstallBehaviorScope = "scope";
 
+        // Configuration
+        public const string PSGalleryName = "PSGallery";
+        public const string TestRepoName = "AppInstallerCLIE2ETestsRepo";
+        public const string GalleryTestModuleName = "XmlContentDsc";
+        public const string SimpleTestModuleName = "xE2ETestResource";
+        public const string LocalModuleDescriptor = "[Local]";
+
         /// <summary>
         /// Error codes.
         /// </summary>
@@ -259,6 +266,32 @@ namespace AppInstallerCLIE2ETests
             public const int INSTALLED_STATUS_FILE_NOT_FOUND = unchecked((int)0x8A150205);
             public const int INSTALLED_STATUS_FILE_FOUND_WITHOUT_HASH_CHECK = unchecked((int)0x0A150206);
             public const int INSTALLED_STATUS_FILE_ACCESS_ERROR = unchecked((int)0x8A150207);
+
+            public const int CONFIG_ERROR_INVALID_CONFIGURATION_FILE = unchecked((int)0x8A15C001);
+            public const int CONFIG_ERROR_INVALID_YAML = unchecked((int)0x8A15C002);
+            public const int CONFIG_ERROR_INVALID_FIELD_TYPE = unchecked((int)0x8A15C003);
+            public const int CONFIG_ERROR_UNKNOWN_CONFIGURATION_FILE_VERSION = unchecked((int)0x8A15C004);
+            public const int CONFIG_ERROR_SET_APPLY_FAILED = unchecked((int)0x8A15C005);
+            public const int CONFIG_ERROR_DUPLICATE_IDENTIFIER = unchecked((int)0x8A15C006);
+            public const int CONFIG_ERROR_MISSING_DEPENDENCY = unchecked((int)0x8A15C007);
+            public const int CONFIG_ERROR_DEPENDENCY_UNSATISFIED = unchecked((int)0x8A15C008);
+            public const int CONFIG_ERROR_ASSERTION_FAILED = unchecked((int)0x8A15C009);
+            public const int CONFIG_ERROR_MANUALLY_SKIPPED = unchecked((int)0x8A15C00A);
+            public const int CONFIG_ERROR_WARNING_NOT_ACCEPTED = unchecked((int)0x8A15C00B);
+            public const int CONFIG_ERROR_SET_DEPENDENCY_CYCLE = unchecked((int)0x8A15C00C);
+            public const int CONFIG_ERROR_INVALID_FIELD_VALUE = unchecked((int)0x8A15C00D);
+            public const int CONFIG_ERROR_MISSING_FIELD = unchecked((int)0x8A15C00E);
+
+            public const int CONFIG_ERROR_UNIT_NOT_INSTALLED = unchecked((int)0x8A15C101);
+            public const int CONFIG_ERROR_UNIT_NOT_FOUND_REPOSITORY = unchecked((int)0x8A15C102);
+            public const int CONFIG_ERROR_UNIT_MULTIPLE_MATCHES = unchecked((int)0x8A15C103);
+            public const int CONFIG_ERROR_UNIT_INVOKE_GET = unchecked((int)0x8A15C104);
+            public const int CONFIG_ERROR_UNIT_INVOKE_TEST = unchecked((int)0x8A15C105);
+            public const int CONFIG_ERROR_UNIT_INVOKE_SET = unchecked((int)0x8A15C106);
+            public const int CONFIG_ERROR_UNIT_MODULE_CONFLICT = unchecked((int)0x8A15C107);
+            public const int CONFIG_ERROR_UNIT_IMPORT_MODULE = unchecked((int)0x8A15C108);
+            public const int CONFIG_ERROR_UNIT_INVOKE_INVALID_RESULT = unchecked((int)0x8A15C109);
+            public const int CONFIG_ERROR_UNIT_SETTING_CONFIG_ROOT = unchecked((int)0x8A15C110);
         }
 
 #pragma warning restore SA1310 // Field names should not contain underscore

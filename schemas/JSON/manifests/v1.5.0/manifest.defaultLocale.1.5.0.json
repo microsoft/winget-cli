@@ -234,7 +234,7 @@
     "InstallationNotes": {
       "type": [ "string", "null" ],
       "minLength": 1,
-      "maxLength": 256,
+      "maxLength": 10000,
       "description": "The notes displayed to the user upon completion of a package installation."
     },
     "Documentations": {

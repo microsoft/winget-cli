@@ -548,12 +548,6 @@ namespace AppInstallerCLIE2ETests
             string testLogsPackagedDestPath = Path.Combine(testLogsDestPath, "Packaged");
             string testLogsUnpackagedDestPath = Path.Combine(testLogsDestPath, "Unpackaged");
 
-            if (Directory.Exists(testLogsDestPath))
-            {
-                TestIndexSetup.DeleteDirectoryContents(new DirectoryInfo(testLogsDestPath));
-                Directory.Delete(testLogsDestPath);
-            }
-
             if (Directory.Exists(testLogsPackagedSourcePath))
             {
                 TestIndexSetup.CopyDirectory(testLogsPackagedSourcePath, testLogsPackagedDestPath);
@@ -778,6 +772,34 @@ namespace AppInstallerCLIE2ETests
         {
             RunAICLICommand("source remove", Constants.TestSourceName);
             RunAICLICommand("source reset", "--force");
+        }
+
+        /// <summary>
+        /// Ensures that a module is in the desired state.
+        /// </summary>
+        /// <param name="moduleName">The module.</param>
+        /// <param name="present">Whether the module is present or not.</param>
+        /// <param name="repository">The repository to get the module from if needed.</param>
+        public static void EnsureModuleState(string moduleName, bool present, string repository = null)
+        {
+            var result = RunCommandWithResult("pwsh", $"-Command \"Get-Module {moduleName} -ListAvailable\"");
+            bool isPresent = !string.IsNullOrWhiteSpace(result.StdOut);
+
+            if (isPresent && !present)
+            {
+                RunCommand("pwsh", $"-Command \"Uninstall-Module {moduleName}\"");
+            }
+            else if (!isPresent && present)
+            {
+                if (string.IsNullOrEmpty(repository))
+                {
+                    RunCommand("pwsh", $"-Command \"Install-Module {moduleName} -Force\"");
+                }
+                else
+                {
+                    RunCommand("pwsh", $"-Command \"Install-Module {moduleName} -Repository {repository} -Force\"");
+                }
+            }
         }
 
         /// <summary>

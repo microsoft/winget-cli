@@ -100,7 +100,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             return GetPriority(first) < GetPriority(second);
         }
 
-        void ProcessUnitResult(const Configuration::ConfigurationUnit unit, Configuration::ConfigurationUnitResultInformation resultInformation, ConfigRunSummaryData& result)
+        void ProcessUnitResult(const Configuration::ConfigurationUnit unit, const IConfigurationUnitResultInformation& resultInformation, ConfigRunSummaryData& result)
         {
             hresult resultCode = resultInformation.ResultCode();
             if (FAILED(resultCode))
@@ -254,7 +254,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         const Configuration::ConfigurationUnit& unit,
         ConfigurationUnitIntent runIntent,
         std::string_view action,
-        const Configuration::ConfigurationUnitResultInformation& resultInformation) const noexcept try
+        const IConfigurationUnitResultInformation& resultInformation) const noexcept try
     {
         // We only want to send telemetry for failures of publicly available units.
         if (!IsTelemetryEnabled() || SUCCEEDED(static_cast<int32_t>(resultInformation.ResultCode())))

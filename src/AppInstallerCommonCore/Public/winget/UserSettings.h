@@ -83,7 +83,7 @@ namespace AppInstaller::Settings
         InstallLocalePreference,
         InstallLocaleRequirement,
         InstallDefaultRoot,
-        InstallIgnoreWarnings,
+        InstallSkipDependencies,
         DisableInstallNotes,
         PortablePackageUserRoot,
         PortablePackageMachineRoot,
@@ -99,6 +99,7 @@ namespace AppInstaller::Settings
         InteractivityDisable,
         // Debug
         EnableSelfInitiatedMinidump,
+        KeepAllLogFiles,
         Max
     };
 
@@ -153,7 +154,7 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallScopeRequirement, std::string, Manifest::ScopeEnum, Manifest::ScopeEnum::Unknown, ".installBehavior.requirements.scope"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallLocalePreference, std::vector<std::string>, std::vector<std::string>, {}, ".installBehavior.preferences.locale"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallLocaleRequirement, std::vector<std::string>, std::vector<std::string>, {}, ".installBehavior.requirements.locale"sv);
-        SETTINGMAPPING_SPECIALIZATION(Setting::InstallIgnoreWarnings, bool, bool, false, ".installBehavior.ignoreWarnings"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::InstallSkipDependencies, bool, bool, false, ".installBehavior.skipDependencies"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::DisableInstallNotes, bool, bool, false, ".installBehavior.disableInstallNotes"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::PortablePackageUserRoot, std::string, std::filesystem::path, {}, ".installBehavior.portablePackageUserRoot"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::PortablePackageMachineRoot, std::string, std::filesystem::path, {}, ".installBehavior.portablePackageMachineRoot"sv);
@@ -164,8 +165,11 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::NetworkDownloader, std::string, InstallerDownloader, InstallerDownloader::Default, ".network.downloader"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::NetworkDOProgressTimeoutInSeconds, uint32_t, std::chrono::seconds, 60s, ".network.doProgressTimeoutInSeconds"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::NetworkWingetAlternateSourceURL, bool, bool, true, ".network.enableWingetAlternateSourceURL"sv);
+#ifndef AICLI_DISABLE_TEST_HOOKS
         // Debug
         SETTINGMAPPING_SPECIALIZATION(Setting::EnableSelfInitiatedMinidump, bool, bool, false, ".debugging.enableSelfInitiatedMinidump"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::KeepAllLogFiles, bool, bool, false, ".debugging.keepAllLogFiles"sv);
+#endif
         // Logging
         SETTINGMAPPING_SPECIALIZATION(Setting::LoggingLevelPreference, std::string, Logging::Level, Logging::Level::Info, ".logging.level"sv);
         // Interactivity

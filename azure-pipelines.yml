@@ -133,7 +133,7 @@ jobs:
     inputs:
       targetType: 'inline'
       script: |
-        Add-AppxPackage AppInstallerCLIPackage_0.0.2.0_Test\Dependencies\$(buildPlatform)\Microsoft.VCLibs.$(buildPlatform).14.00.Desktop.appx
+        Get-ChildItem AppInstallerCLIPackage_0.0.2.0_Test\Dependencies\$(buildPlatform) -Filter *.appx | %{ Add-AppxPackage $_.FullName }
       workingDirectory: $(appxPackageDir)
 
   - task: VisualStudioTestPlatformInstaller@1
@@ -240,6 +240,13 @@ jobs:
       TargetFolder: '$(platformProgramFiles)\dotnet'
       Contents: Microsoft.Management.Deployment.winmd
 
+  - task: PowerShell@2
+    displayName: Setup Local PS Repository
+    inputs:
+      filePath: 'src\AppInstallerCLIE2ETests\TestData\Configuration\Init-TestRepository.ps1'
+      arguments: '-Force'
+      pwsh: true
+
   - template: templates/e2e-test.template.yml
     parameters:
       title: "E2E Tests Packaged"
@@ -248,13 +255,13 @@ jobs:
 
   - template: templates/e2e-test.template.yml
     parameters:
-      title: "COM API E2E Tests (In-process)"
+      title: "Microsoft.Management.Deployment E2E Tests (In-process)"
       isPackaged: false
       filter: "TestCategory=InProcess"
 
   - template: templates/e2e-test.template.yml
     parameters:
-      title: "COM API E2E Tests (Out-of-process)"
+      title: "Microsoft.Management.Deployment E2E Tests (Out-of-process)"
       isPackaged: true
       filter: "TestCategory=OutOfProcess"
 
@@ -272,6 +279,7 @@ jobs:
       TargetFolder:  '$(Build.ArtifactStagingDirectory)\WinGetUtilInterop.UnitTests\'
       CleanTargetFolder: true
       OverWrite: true
+    condition: succeededOrFailed()
 
   - task: VSTest@2
     displayName: 'Run tests: WinGetUtilInterop.UnitTests'
@@ -282,16 +290,46 @@ jobs:
       codeCoverageEnabled: true
       platform: 'Any CPU'
       configuration: '$(BuildConfiguration)'
+    condition: succeededOrFailed()
   
   - task: VSTest@2
-    displayName: 'Run tests: Microsoft.Management.Configuration.UnitTests'
+    displayName: 'Run tests: Microsoft.Management.Configuration.UnitTests (InProc)'
     inputs:
+      testRunTitle: Microsoft.Management.Configuration.UnitTests (InProc)
       testSelector: 'testAssemblies'
       testAssemblyVer2: '**\Microsoft.Management.Configuration.UnitTests.dll'
       searchFolder: '$(buildOutDir)\Microsoft.Management.Configuration.UnitTests'
       codeCoverageEnabled: true
       platform: '$(buildPlatform)'
       configuration: '$(BuildConfiguration)'
+    condition: succeededOrFailed()
+
+  - task: PowerShell@2
+    displayName: Prepare for Microsoft.Management.Configuration.UnitTests (OutOfProc)
+    inputs:
+      filePath: 'src\Microsoft.Management.Configuration.OutOfProc\Prepare-ConfigurationOOPTests.ps1'
+      arguments: '-BuildOutputPath $(buildOutDir) -PackageLayoutPath $(packageLayoutDir)'
+    condition: succeededOrFailed()
+
+  - task: VSTest@2
+    displayName: 'Run tests: Microsoft.Management.Configuration.UnitTests (OutOfProc)'
+    inputs:
+      testRunTitle: Microsoft.Management.Configuration.UnitTests (OutOfProc)
+      testSelector: 'testAssemblies'
+      testAssemblyVer2: '**\Microsoft.Management.Configuration.UnitTests.dll'
+      searchFolder: '$(buildOutDir)\Microsoft.Management.Configuration.UnitTests'
+      testFiltercriteria: 'Category=OutOfProc'
+      codeCoverageEnabled: true
+      platform: '$(buildPlatform)'
+      configuration: '$(BuildConfiguration)'
+    condition: succeededOrFailed()
+
+  - task: PowerShell@2
+    displayName: Collect logs for Microsoft.Management.Configuration.UnitTests (OutOfProc)
+    inputs:
+      filePath: 'src\Microsoft.Management.Configuration.OutOfProc\Collect-ConfigurationOOPTests.ps1'
+      arguments: '-TargetLocation $(artifactsDir)\ConfigOOPTestsLog'
+    condition: succeededOrFailed()
 
   - task: CopyFiles@2
     displayName: 'Copy Util to artifacts folder'
@@ -307,27 +345,27 @@ jobs:
     inputs:
       SourceFolder: '$(buildOutDir)\PowerShell'
       TargetFolder: '$(artifactsDir)\PowerShell'
-    condition: always()
+    condition: succeededOrFailed()
 
   - task: CopyFiles@2
     displayName: 'Copy Dev Package (Loose Files)'
     inputs:
       SourceFolder: '$(packageLayoutDir)'
       TargetFolder: '$(artifactsDir)\DevPackage'
-    condition: always()
+    condition: succeededOrFailed()
 
   - task: CopyFiles@2
     displayName: 'Copy Dev Packages'
     inputs:
       SourceFolder: '$(appxPackageDir)'
       TargetFolder: '$(artifactsDir)\AppxPackages'
-    condition: always()
+    condition: succeededOrFailed()
 
   - task: PublishPipelineArtifact@1
     displayName: Publish Pipeline Artifacts
     inputs:
       targetPath: '$(artifactsDir)'
-    condition: always()
+    condition: succeededOrFailed()
 
   - task: ComponentGovernanceComponentDetection@0
     displayName: Component Governance

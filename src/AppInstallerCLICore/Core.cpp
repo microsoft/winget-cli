@@ -76,8 +76,13 @@ namespace AppInstaller::CLI
         Logging::Telemetry().SetCaller("winget-cli");
         Logging::Telemetry().LogStartup();
 
-        // Initiate the background cleanup of the log file location.
-        Logging::FileLogger::BeginCleanup();
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (!Settings::User().Get<Settings::Setting::KeepAllLogFiles>())
+#endif
+        {
+            // Initiate the background cleanup of the log file location.
+            Logging::FileLogger::BeginCleanup();
+        }
 
         context.EnableSignalTerminationHandler();
 
@@ -153,6 +158,13 @@ namespace AppInstaller::CLI
 
     void ServerInitialize()
     {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (Settings::User().Get<Settings::Setting::EnableSelfInitiatedMinidump>())
+        {
+            Debugging::EnableSelfInitiatedMinidump();
+        }
+#endif
+
         AppInstaller::CLI::Execution::COMContext::SetLoggers();
     }
 }

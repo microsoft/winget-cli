@@ -217,6 +217,50 @@ TEST_CASE("InstallerWithoutDependencies_RootDependenciesAreUsed", "[dependencies
     REQUIRE(installOutput.str().find("PreviewIISOnRoot") != std::string::npos);
 }
 
+TEST_CASE("InstallerWithDependencies_SkipDependencies", "[dependencies]")
+{
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForShellExecute(context);
+
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Installer_Exe_Dependencies.yaml").GetPath().u8string());
+    context.Args.AddArg(Execution::Args::Type::SkipDependencies);
+
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesSkippedMessage).get()) != std::string::npos);
+    REQUIRE_FALSE(installOutput.str().find(Resource::LocString(Resource::String::InstallAndUpgradeCommandsReportDependencies).get()) != std::string::npos);
+    REQUIRE_FALSE(installOutput.str().find("PreviewIIS") != std::string::npos);
+}
+
+TEST_CASE("InstallerWithDependencies_IgnoreDependenciesSetting", "[dependencies]")
+{
+    std::ostringstream installOutput;
+    TestContext context{ installOutput, std::cin };
+    auto previousThreadGlobals = context.SetForCurrentThread();
+    OverrideForShellExecute(context);
+
+    context.Args.AddArg(Execution::Args::Type::Manifest, TestDataFile("Installer_Exe_Dependencies.yaml").GetPath().u8string());
+
+    TestUserSettings settings;
+    settings.Set<AppInstaller::Settings::Setting::EFDependencies>({ true });
+    settings.Set<AppInstaller::Settings::Setting::InstallSkipDependencies>({ true });
+
+    InstallCommand install({});
+    install.Execute(context);
+    INFO(installOutput.str());
+
+    REQUIRE(installOutput.str().find(Resource::LocString(Resource::String::DependenciesSkippedMessage).get()) != std::string::npos);
+    REQUIRE_FALSE(installOutput.str().find(Resource::LocString(Resource::String::InstallAndUpgradeCommandsReportDependencies).get()) != std::string::npos);
+    REQUIRE_FALSE(installOutput.str().find("PreviewIIS") != std::string::npos);
+}
+
 TEST_CASE("DependenciesMultideclaration_InstallerDependenciesPreference", "[dependencies]")
 {
     std::ostringstream installOutput;

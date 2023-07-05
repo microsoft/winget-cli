@@ -3,9 +3,4 @@ properties:
     resources:
       - resource: XmlFileContentResource
         directives:
-          module: XmlContentDsc
           description: Set XML file contents
-      - resource: SecureBoot
-        directives:
-          module: DellBIOSProvider
-          description: Set secure boot options

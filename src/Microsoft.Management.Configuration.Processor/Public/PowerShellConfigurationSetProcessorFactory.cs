@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="ConfigurationSetProcessorFactory.cs" company="Microsoft Corporation">
+// <copyright file="PowerShellConfigurationSetProcessorFactory.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -7,6 +7,7 @@
 namespace Microsoft.Management.Configuration.Processor
 {
     using System;
+    using System.Collections.Generic;
     using System.Management.Automation;
     using System.Text;
     using Microsoft.Management.Configuration;
@@ -17,31 +18,39 @@ namespace Microsoft.Management.Configuration.Processor
     /// <summary>
     /// ConfigurationSetProcessorFactory implementation.
     /// </summary>
-    public sealed class ConfigurationSetProcessorFactory : IConfigurationSetProcessorFactory
+    public sealed class PowerShellConfigurationSetProcessorFactory : IConfigurationSetProcessorFactory, IPowerShellConfigurationProcessorFactoryProperties
     {
-        private readonly ConfigurationProcessorType type;
-        private readonly IConfigurationProcessorFactoryProperties? properties;
-
         /// <summary>
-        /// Initializes a new instance of the <see cref="ConfigurationSetProcessorFactory"/> class.
+        /// Initializes a new instance of the <see cref="PowerShellConfigurationSetProcessorFactory"/> class.
         /// </summary>
-        /// <param name="type">Type.</param>
-        /// <param name="properties">Properties.</param>
-        public ConfigurationSetProcessorFactory(ConfigurationProcessorType type, IConfigurationProcessorFactoryProperties? properties)
+        public PowerShellConfigurationSetProcessorFactory()
         {
-            this.type = type;
-            this.properties = properties;
         }
 
         /// <summary>
         /// Diagnostics event; useful for logging and/or verbose output.
         /// </summary>
-        public event EventHandler<DiagnosticInformation>? Diagnostics;
+        public event EventHandler<IDiagnosticInformation>? Diagnostics;
 
         /// <summary>
         /// Gets or sets the minimum diagnostic level to send.
         /// </summary>
         public DiagnosticLevel MinimumLevel { get; set; } = DiagnosticLevel.Informational;
+
+        /// <summary>
+        /// Gets or sets the processor type.
+        /// </summary>
+        public PowerShellConfigurationProcessorType ProcessorType { get; set; } = PowerShellConfigurationProcessorType.Default;
+
+        /// <summary>
+        /// Gets or sets the additional module paths.
+        /// </summary>
+        public IReadOnlyList<string>? AdditionalModulePaths { get; set; }
+
+        /// <summary>
+        /// Gets or sets the configuration policy.
+        /// </summary>
+        public PowerShellConfigurationProcessorPolicy Policy { get; set; } = PowerShellConfigurationProcessorPolicy.Default;
 
         /// <summary>
         /// Gets the configuration unit processor details for the given unit.
@@ -54,18 +63,14 @@ namespace Microsoft.Management.Configuration.Processor
             {
                 this.OnDiagnostics(DiagnosticLevel.Verbose, $"Creating set processor for `{set.Name}`...");
 
-                var envFactory = new ProcessorEnvironmentFactory(this.type);
+                var envFactory = new ProcessorEnvironmentFactory(this.ProcessorType);
                 var processorEnvironment = envFactory.CreateEnvironment(
                     this,
-                    this.properties?.Policy ?? ConfigurationProcessorPolicy.RemoteSigned);
+                    this.Policy);
 
-                if (this.properties is not null)
+                if (this.AdditionalModulePaths is not null)
                 {
-                    var additionalPsModulePaths = this.properties.AdditionalModulePaths;
-                    if (additionalPsModulePaths is not null)
-                    {
-                        processorEnvironment.PrependPSModulePaths(additionalPsModulePaths);
-                    }
+                    processorEnvironment.PrependPSModulePaths(this.AdditionalModulePaths);
                 }
 
                 this.OnDiagnostics(DiagnosticLevel.Verbose, $"  Effective module path:\n{processorEnvironment.GetVariable<string>(Variables.PSModulePath)}");
@@ -90,7 +95,7 @@ namespace Microsoft.Management.Configuration.Processor
         /// <param name="message">The diagnostic message.</param>
         internal void OnDiagnostics(DiagnosticLevel level, string message)
         {
-            EventHandler<DiagnosticInformation>? diagnostics = this.Diagnostics;
+            EventHandler<IDiagnosticInformation>? diagnostics = this.Diagnostics;
             if (diagnostics != null && level >= this.MinimumLevel)
             {
                 this.InvokeDiagnostics(diagnostics, level, message);
@@ -104,7 +109,7 @@ namespace Microsoft.Management.Configuration.Processor
         /// <param name="pwsh">The PowerShell object.</param>
         internal void OnDiagnostics(DiagnosticLevel level, PowerShell pwsh)
         {
-            EventHandler<DiagnosticInformation>? diagnostics = this.Diagnostics;
+            EventHandler<IDiagnosticInformation>? diagnostics = this.Diagnostics;
             if (diagnostics != null && level >= this.MinimumLevel && pwsh.HadErrors)
             {
                 var builder = new StringBuilder();
@@ -137,9 +142,9 @@ namespace Microsoft.Management.Configuration.Processor
             }
         }
 
-        private void InvokeDiagnostics(EventHandler<DiagnosticInformation> diagnostics, DiagnosticLevel level, string message)
+        private void InvokeDiagnostics(EventHandler<IDiagnosticInformation> diagnostics, DiagnosticLevel level, string message)
         {
-            DiagnosticInformation information = new ()
+            Helpers.DiagnosticInformation information = new ()
             {
                 Level = level,
                 Message = message,

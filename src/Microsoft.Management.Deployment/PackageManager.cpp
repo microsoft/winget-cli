@@ -400,6 +400,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             {
                 context->Args.AddArg(Execution::Args::Type::AcceptPackageAgreements);
             }
+
+            if (options.SkipDependencies())
+            {
+                context->Args.AddArg(Execution::Args::Type::SkipDependencies);
+            }
         }
         else
         {

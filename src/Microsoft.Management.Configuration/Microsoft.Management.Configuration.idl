@@ -72,19 +72,19 @@ namespace Microsoft.Management.Configuration
 
     // Information on a result for a single unit of configuration.
     [contract(Microsoft.Management.Configuration.Contract, 1)]
-    runtimeclass ConfigurationUnitResultInformation
+    interface IConfigurationUnitResultInformation
     {
         // The error code of the failure.
-        HRESULT ResultCode;
+        HRESULT ResultCode{ get; };
 
         // The short description of the failure.
-        String Description;
+        String Description{ get; };
 
         // A more detailed error message appropriate for diagnosing the root cause of an error.
-        String Details;
+        String Details{ get; };
 
         // The source of the result.
-        ConfigurationUnitResultSource ResultSource;
+        ConfigurationUnitResultSource ResultSource{ get; };
     }
 
     // Provides information for a specific configuration unit setting.
@@ -208,7 +208,7 @@ namespace Microsoft.Management.Configuration
         ConfigurationUnitState State{ get; };
 
         // Contains information on the result of the latest attempt to apply the configuration unit.
-        ConfigurationUnitResultInformation ResultInformation{ get; };
+        IConfigurationUnitResultInformation ResultInformation{ get; };
 
         // Allows for control over whether this unit should be applied when the set containing it is applied.
         Boolean ShouldApply;
@@ -243,7 +243,7 @@ namespace Microsoft.Management.Configuration
         ConfigurationUnitState UnitState{ get; };
 
         // Contains information on the result of the attempt to apply the configuration unit.
-        ConfigurationUnitResultInformation ResultInformation{ get; };
+        IConfigurationUnitResultInformation ResultInformation{ get; };
 
         // The configuration unit whose state changed.
         ConfigurationUnit Unit{ get; };
@@ -300,15 +300,13 @@ namespace Microsoft.Management.Configuration
 
     // The result of applying the settings with an IConfigurationUnitProcessor.
     [contract(Microsoft.Management.Configuration.Contract, 1)]
-    runtimeclass ApplySettingsResult
+    interface IApplySettingsResult
     {
-        ApplySettingsResult();
-
         // Indicates whether a reboot is required after the settings were applied.
-        Boolean RebootRequired;
+        Boolean RebootRequired{ get; };
 
         // The result of applying the configuration unit.
-        ConfigurationUnitResultInformation ResultInformation{ get; };
+        IConfigurationUnitResultInformation ResultInformation{ get; };
     }
 
     // Informs the caller of the result of running a Test.
@@ -329,30 +327,26 @@ namespace Microsoft.Management.Configuration
 
     // The result of testing the settings with an IConfigurationUnitProcessor.
     [contract(Microsoft.Management.Configuration.Contract, 1)]
-    runtimeclass TestSettingsResult
+    interface ITestSettingsResult
     {
-        TestSettingsResult();
-
         // The result (if any) of running Test on the configuration unit.
-        ConfigurationTestResult TestResult;
+        ConfigurationTestResult TestResult{ get; };
 
         // The result of testing the configuration unit.
         // This is not the response for the test, but rather contains information about the actual attempt to run the test.
-        ConfigurationUnitResultInformation ResultInformation{ get; };
+        IConfigurationUnitResultInformation ResultInformation{ get; };
     }
 
     // The result of getting the settings with an IConfigurationUnitProcessor.
     [contract(Microsoft.Management.Configuration.Contract, 1)]
-    runtimeclass GetSettingsResult
+    interface IGetSettingsResult
     {
-        GetSettingsResult();
-
         // The current state of the system for the configuration unit.
-        Windows.Foundation.Collections.ValueSet Settings;
+        Windows.Foundation.Collections.ValueSet Settings{ get; };
 
         // The result of getting the configuration unit settings.
         // This is not the response for the retrieval, but rather contains information about the actual attempt to retrieve the settings.
-        ConfigurationUnitResultInformation ResultInformation{ get; };
+        IConfigurationUnitResultInformation ResultInformation{ get; };
     }
 
     // Provides access to a specific configuration unit within the runtime.
@@ -366,13 +360,13 @@ namespace Microsoft.Management.Configuration
         Windows.Foundation.Collections.IMapView<String, Object> DirectivesOverlay{ get; };
 
         // Determines if the system is already in the state described by the configuration unit.
-        TestSettingsResult TestSettings();
+        ITestSettingsResult TestSettings();
 
         // Gets the current system state for the configuration unit.
-        GetSettingsResult GetSettings();
+        IGetSettingsResult GetSettings();
 
         // Applies the state described in the configuration unit.
-        ApplySettingsResult ApplySettings();
+        IApplySettingsResult ApplySettings();
     }
 
     // Controls the lifetime of operations for a single configuration set.
@@ -401,15 +395,13 @@ namespace Microsoft.Management.Configuration
 
     // Enables diagnostic information from the configuration system to be inspected/stored by callers.
     [contract(Microsoft.Management.Configuration.Contract, 1)]
-    runtimeclass DiagnosticInformation
+    interface IDiagnosticInformation
     {
-        DiagnosticInformation();
-
         // Indicates the importance of the diagnostic information.
-        DiagnosticLevel Level;
+        DiagnosticLevel Level{ get; };
 
         // The diagnostic message.
-        String Message;
+        String Message{ get; };
     }
 
     // Allows different runtimes to provide specialized handling of configuration processing.
@@ -420,7 +412,7 @@ namespace Microsoft.Management.Configuration
         IConfigurationSetProcessor CreateSetProcessor(ConfigurationSet configurationSet);
 
         // Diagnostics event; useful for logging and/or verbose output.
-        event Windows.Foundation.EventHandler<DiagnosticInformation> Diagnostics;
+        event Windows.Foundation.EventHandler<IDiagnosticInformation> Diagnostics;
 
         // Indicates the minimum importance desired for diagnostics.
         DiagnosticLevel MinimumLevel;
@@ -535,7 +527,7 @@ namespace Microsoft.Management.Configuration
         ConfigurationUnit Unit{ get; };
 
         // The result of getting the configuration unit details.
-        ConfigurationUnitResultInformation ResultInformation{ get; };
+        IConfigurationUnitResultInformation ResultInformation{ get; };
     }
 
     // The result of getting the configuration set details.
@@ -573,7 +565,7 @@ namespace Microsoft.Management.Configuration
         Boolean RebootRequired{ get; };
 
         // The result of applying the configuration unit.
-        ConfigurationUnitResultInformation ResultInformation{ get; };
+        IConfigurationUnitResultInformation ResultInformation{ get; };
     }
 
     // The result of applying the settings for a configuration set.
@@ -596,7 +588,7 @@ namespace Microsoft.Management.Configuration
 
         // The result of testing the configuration unit.
         // This is not the response for the test, but rather contains information about the actual attempt to run the test.
-        ConfigurationUnitResultInformation ResultInformation{ get; };
+        IConfigurationUnitResultInformation ResultInformation{ get; };
 
         // The result (if any) of running Test on the configuration unit.
         ConfigurationTestResult TestResult{ get; };
@@ -623,7 +615,7 @@ namespace Microsoft.Management.Configuration
     {
         // The result of getting the configuration unit settings.
         // This is not the response for the retrieval, but rather contains information about the actual attempt to retrieve the settings.
-        ConfigurationUnitResultInformation ResultInformation{ get; };
+        IConfigurationUnitResultInformation ResultInformation{ get; };
 
         // The current state of the system for the configuration unit.
         Windows.Foundation.Collections.ValueSet Settings { get; };
@@ -636,7 +628,7 @@ namespace Microsoft.Management.Configuration
         ConfigurationProcessor(IConfigurationSetProcessorFactory factory);
 
         // Diagnostics event; useful for logging and/or verbose output.
-        event Windows.Foundation.EventHandler<DiagnosticInformation> Diagnostics;
+        event Windows.Foundation.EventHandler<IDiagnosticInformation> Diagnostics;
 
         // Indicates the minimum importance desired for diagnostics.
         DiagnosticLevel MinimumLevel;
@@ -688,9 +680,36 @@ namespace Microsoft.Management.Configuration
         Windows.Foundation.IAsyncOperation<GetConfigurationUnitSettingsResult> GetUnitSettingsAsync(ConfigurationUnit unit);
     }
 
+    // Top level entry point for configuration, enabling easier usage in out-of-process scenarios.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    interface IConfigurationStatics
+    {
+        // Creates an empty configuration unit.
+        ConfigurationUnit CreateConfigurationUnit();
+
+        // Creates an empty configuration unit.
+        ConfigurationSet CreateConfigurationSet();
+
+        // Creates a processor factory for the given handler.
+        Windows.Foundation.IAsyncOperation<IConfigurationSetProcessorFactory> CreateConfigurationSetProcessorFactoryAsync(String handler);
+
+        // Creates a processor from the given factory.
+        ConfigurationProcessor CreateConfigurationProcessor(IConfigurationSetProcessorFactory factory);
+    }
+
+    // Top level entry point for configuration, enabling easier usage in out-of-process scenarios.
+    [contract(Microsoft.Management.Configuration.Contract, 1)]
+    runtimeclass ConfigurationStaticFunctions : [default]IConfigurationStatics
+    {
+        ConfigurationStaticFunctions();
+    }
+
     /// Force midl3 to generate vector marshalling info.
     declare
     {
+        // Due to the way that metadata (WinMD) based marshalling works, in order for any of these to be IIterable<T>, they need to be
+        // included in the manifest of the package. Update the DumpProxyStubRegistrationsCommand to add any new types to make it easier
+        // to iterate over these collections, especially in C#.
         interface Windows.Foundation.Collections.IVector<ConfigurationConflict>;
         interface Windows.Foundation.Collections.IVector<ConfigurationSet>;
         interface Windows.Foundation.Collections.IVectorView<ApplyConfigurationUnitResult>;
@@ -700,5 +719,33 @@ namespace Microsoft.Management.Configuration
         interface Windows.Foundation.Collections.IVectorView<GetConfigurationUnitDetailsResult>;
         interface Windows.Foundation.Collections.IVectorView<IConfigurationUnitSettingDetails>;
         interface Windows.Foundation.Collections.IVectorView<TestConfigurationUnitResult>;
+    }
+
+    // Provides a way to centralize the distribution of interfaces relevant to specific implementations of IConfigurationSetProcessorFactory.
+    namespace SetProcessorFactory
+    {
+        // The same as PowerShell ExecutionPolicy:
+        // https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_execution_policies
+        enum PwshConfigurationProcessorPolicy
+        {
+            Unrestricted = 0,
+            RemoteSigned = 1,
+            AllSigned = 2,
+            Restricted = 3,
+            Bypass = 4,
+            Undefined = 5,
+            Default = RemoteSigned,
+        };
+
+        // The properties provided by the "pwsh" processor factory.
+        interface IPwshConfigurationSetProcessorFactoryProperties
+        {
+            // The module paths to add to the processor.
+            // This will be in addition to any paths added by the processor and those inherent to PowerShell.
+            Windows.Foundation.Collections.IVectorView<String> AdditionalModulePaths;
+
+            // The execution policy to apply; must be set before taking actions with the processor.
+            PwshConfigurationProcessorPolicy Policy;
+        };
     }
 }
