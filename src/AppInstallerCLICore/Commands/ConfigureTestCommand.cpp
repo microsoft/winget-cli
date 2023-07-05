@@ -2,12 +2,18 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "ConfigureTestCommand.h"
+#include "Workflows/ConfigurationFlow.h"
+
+using namespace AppInstaller::CLI::Workflow;
 
 namespace AppInstaller::CLI
 {
     std::vector<Argument> ConfigureTestCommand::GetArguments() const
     {
-        return {};
+        return {
+            Argument{ Execution::Args::Type::ConfigurationFile, Resource::String::ConfigurationFileArgumentDescription, ArgumentType::Positional, true },
+            Argument{ Execution::Args::Type::ConfigurationAcceptWarning, Resource::String::ConfigurationAcceptWarningArgumentDescription, ArgumentType::Flag },
+        };
     }
 
     Resource::LocString ConfigureTestCommand::ShortDescription() const
@@ -28,6 +34,14 @@ namespace AppInstaller::CLI
 
     void ConfigureTestCommand::ExecuteInternal(Execution::Context& context) const
     {
-        Command::ExecuteInternal(context);
+        context <<
+            VerifyIsFullPackage <<
+            VerifyFile(Execution::Args::Type::ConfigurationFile) <<
+            CreateConfigurationProcessor <<
+            OpenConfigurationSet <<
+            ShowConfigurationSet <<
+            ShowConfigurationSetConflicts <<
+            ConfirmConfigurationProcessing <<
+            TestConfigurationSet;
     }
 }

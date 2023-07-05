@@ -41,6 +41,12 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void ApplyConfigurationSet(Execution::Context& context);
 
+    // Tests the configuration set state, showing progress as it proceeds.
+    // Required Args: None
+    // Inputs: ConfigurationProcessor, ConfigurationSet
+    // Outputs: None
+    void TestConfigurationSet(Execution::Context& context);
+
     // Verifies the full package is installed.
     // Required Args: None
     // Inputs: None

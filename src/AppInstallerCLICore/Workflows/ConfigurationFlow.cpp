@@ -420,6 +420,36 @@ namespace AppInstaller::CLI::Workflow
             return Resource::String::ConfigurationUnitSkipped(resultCode);
         }
 
+        void OutputUnitRunFailure(Context& context, const ConfigurationUnit& unit, const IConfigurationUnitResultInformation& resultInformation)
+        {
+            std::string description = Utility::Trim(Utility::ConvertToUTF8(resultInformation.Description()));
+
+            AICLI_LOG_LARGE_STRING(Config, Error, << "Configuration unit " << Utility::ConvertToUTF8(unit.UnitName()) << "[" << Utility::ConvertToUTF8(unit.Identifier()) << "] failed with code 0x"
+                << Logging::SetHRFormat << resultInformation.ResultCode() << " and error message:\n" << description, Utility::ConvertToUTF8(resultInformation.Details()));
+
+            UnitFailedMessageData messageData = GetUnitFailedData(unit, resultInformation);
+            auto error = context.Reporter.Error();
+            error << "  "_liv << messageData.Message << std::endl;
+
+            if (messageData.ShowDescription && !description.empty())
+            {
+                constexpr size_t maximumDescriptionLines = 3;
+                size_t consoleWidth = GetConsoleWidth();
+                std::vector<std::string> lines = Utility::SplitIntoLines(description, maximumDescriptionLines + 1);
+                bool wasLimited = Utility::LimitOutputLines(lines, consoleWidth, maximumDescriptionLines);
+
+                for (const auto& line : lines)
+                {
+                    error << line << std::endl;
+                }
+
+                if (wasLimited || !resultInformation.Details().empty())
+                {
+                    error << Resource::String::ConfigurationDescriptionWasTruncated << std::endl;
+                }
+            }
+        }
+
         // Coordinates an active progress scope and cancellation of the operation.
         template<typename OperationT>
         struct ProgressCancellationUnification
@@ -469,21 +499,73 @@ namespace AppInstaller::CLI::Workflow
             return { std::move(progressScope), operation };
         }
 
-        // Helper to handle progress callbacks from ApplyConfigurationSetAsync
-        struct ApplyConfigurationSetProgressOutput
+        // The base type for progress reporting
+        template<typename ResultType, typename ProgressType>
+        struct ConfigurationSetProgressOutputBase
         {
-            using ApplyOperation = IAsyncOperationWithProgress<ApplyConfigurationSetResult, ConfigurationSetChangeData>;
+            using Operation = IAsyncOperationWithProgress<ResultType, ProgressType>;
 
-            ApplyConfigurationSetProgressOutput(Context& context, const ApplyOperation& operation) :
+            ConfigurationSetProgressOutputBase(Context& context, const Operation& operation) :
                 m_context(context), m_unification({}, operation)
             {
-                operation.Progress([&](const IAsyncOperationWithProgress<ApplyConfigurationSetResult, ConfigurationSetChangeData>& operation, const ConfigurationSetChangeData& data)
+                operation.Progress([&](const Operation& operation, const ProgressType& data)
                     {
                         Progress(operation, data);
                     });
             }
 
-            void Progress(const IAsyncOperationWithProgress<ApplyConfigurationSetResult, ConfigurationSetChangeData>& operation, const ConfigurationSetChangeData& data)
+            virtual void Progress(const Operation& operation, const ProgressType& data) = 0;
+
+        protected:
+            void MarkCompleted(const ConfigurationUnit& unit)
+            {
+                winrt::guid unitInstance = unit.InstanceIdentifier();
+                m_unitsCompleted.insert(unitInstance);
+            }
+
+            bool UnitHasPreviouslyCompleted(const ConfigurationUnit& unit)
+            {
+                winrt::guid unitInstance = unit.InstanceIdentifier();
+                return m_unitsCompleted.count(unitInstance) != 0;
+            }
+
+            // Sends VT progress to the console
+            void OutputUnitCompletionProgress()
+            {
+                // TODO: Change progress reporting to enable separation of spinner and VT progress reporting
+                //  Preferably we want to be able to have:
+                //      1. Spinner with indefinite progress VT before set application begins
+                //      2. 1/N VT progress reporting for configuration units while also showing a spinner for the unit itself
+            }
+
+            void BeginProgress()
+            {
+                m_unification.Progress(m_context.Reporter.BeginAsyncProgress(true));
+            }
+
+            void EndProgress()
+            {
+                m_unification.Reset();
+            }
+
+            Context& m_context;
+
+        private:
+            ProgressCancellationUnification<Operation> m_unification;
+            std::set<winrt::guid> m_unitsCompleted;
+        };
+
+        // Helper to handle progress callbacks from ApplyConfigurationSetAsync
+        struct ApplyConfigurationSetProgressOutput final : public ConfigurationSetProgressOutputBase<ApplyConfigurationSetResult, ConfigurationSetChangeData>
+        {
+            using Operation = ConfigurationSetProgressOutputBase<ApplyConfigurationSetResult, ConfigurationSetChangeData>::Operation;
+
+            ApplyConfigurationSetProgressOutput(Context& context, const Operation& operation) :
+                ConfigurationSetProgressOutputBase(context, operation)
+            {
+            }
+
+            void Progress(const Operation& operation, const ConfigurationSetChangeData& data) override
             {
                 auto threadContext = m_context.SetForCurrentThread();
 
@@ -557,41 +639,17 @@ namespace AppInstaller::CLI::Workflow
                     }
                     else
                     {
-                        std::string description = Utility::Trim(Utility::ConvertToUTF8(resultInformation.Description()));
-
-                        AICLI_LOG_LARGE_STRING(Config, Error, << "Configuration unit " << Utility::ConvertToUTF8(unit.UnitName()) << "[" << Utility::ConvertToUTF8(unit.Identifier()) << "] failed with code 0x"
-                            << Logging::SetHRFormat << resultInformation.ResultCode() << " and error message:\n" << description, Utility::ConvertToUTF8(resultInformation.Details()));
-
-                        UnitFailedMessageData messageData = GetUnitFailedData(unit, resultInformation);
-                        auto error = m_context.Reporter.Error();
-                        error << "  "_liv << messageData.Message << std::endl;
-
-                        if (messageData.ShowDescription && !description.empty())
-                        {
-                            constexpr size_t maximumDescriptionLines = 3;
-                            size_t consoleWidth = GetConsoleWidth();
-                            std::vector<std::string> lines = Utility::SplitIntoLines(description, maximumDescriptionLines + 1);
-                            bool wasLimited = Utility::LimitOutputLines(lines, consoleWidth, maximumDescriptionLines);
-
-                            for (const auto & line : lines)
-                            {
-                                error << line << std::endl;
-                            }
-
-                            if (wasLimited || !resultInformation.Details().empty())
-                            {
-                                error << Resource::String::ConfigurationDescriptionWasTruncated << std::endl;
-                            }
-                        }
+                        OutputUnitRunFailure(m_context, unit, resultInformation);
                     }
-                    OutputUnitCompletionProgress();
                     MarkCompleted(unit);
+                    OutputUnitCompletionProgress();
                     break;
                 case ConfigurationUnitState::Skipped:
                     OutputUnitInProgressIfNeeded(unit);
                     AICLI_LOG(Config, Warning, << "Configuration unit " << Utility::ConvertToUTF8(unit.UnitName()) << "[" << Utility::ConvertToUTF8(unit.Identifier()) << "] was skipped with code 0x"
                         << Logging::SetHRFormat << resultInformation.ResultCode());
                     m_context.Reporter.Warn() << "  "_liv << GetUnitSkippedMessage(resultInformation) << std::endl;
+                    MarkCompleted(unit);
                     OutputUnitCompletionProgress();
                     break;
                 }
@@ -609,41 +667,87 @@ namespace AppInstaller::CLI::Workflow
                 }
             }
 
-            void MarkCompleted(const ConfigurationUnit& unit)
-            {
-                winrt::guid unitInstance = unit.InstanceIdentifier();
-                m_unitsCompleted.insert(unitInstance);
-            }
-
-            bool UnitHasPreviouslyCompleted(const ConfigurationUnit& unit)
-            {
-                winrt::guid unitInstance = unit.InstanceIdentifier();
-                return m_unitsCompleted.count(unitInstance) != 0;
-            }
-
-            // Sends VT progress to the console
-            void OutputUnitCompletionProgress()
-            {
-                // TODO: Change progress reporting to enable separation of spinner and VT progress reporting
-                //  Preferably we want to be able to have:
-                //      1. Spinner with indefinite progress VT before set application begins
-                //      2. 1/N VT progress reporting for configuration units while also showing a spinner for the unit itself
-            }
-
-            void BeginProgress()
-            {
-                m_unification.Progress(m_context.Reporter.BeginAsyncProgress(true));
-            }
-
-            void EndProgress()
-            {
-                m_unification.Reset();
-            }
-
-            Context& m_context;
-            ProgressCancellationUnification<ApplyOperation> m_unification;
             std::set<winrt::guid> m_unitsSeen;
-            std::set<winrt::guid> m_unitsCompleted;
+            bool m_isFirstProgress = true;
+        };
+
+        // Helper to handle progress callbacks from TestConfigurationSetAsync
+        struct TestConfigurationSetProgressOutput final : public ConfigurationSetProgressOutputBase<TestConfigurationSetResult, TestConfigurationUnitResult>
+        {
+            using Operation = ConfigurationSetProgressOutputBase<TestConfigurationSetResult, TestConfigurationUnitResult>::Operation;
+
+            TestConfigurationSetProgressOutput(Context& context, const Operation& operation) :
+                ConfigurationSetProgressOutputBase(context, operation)
+            {
+                // Start the spinner for the first unit being tested since we only receive completions
+                BeginProgress();
+            }
+
+            void Progress(const Operation& operation, const TestConfigurationUnitResult& data) override
+            {
+                auto threadContext = m_context.SetForCurrentThread();
+
+                if (m_isFirstProgress)
+                {
+                    HandleUnreportedProgress(operation.GetResults());
+                }
+
+                HandleUnitProgress(data.Unit(), data.TestResult(), data.ResultInformation());
+            }
+
+            // If no progress has been reported, this function will report the given results
+            void HandleUnreportedProgress(const TestConfigurationSetResult& result)
+            {
+                if (m_isFirstProgress)
+                {
+                    m_isFirstProgress = false;
+
+                    for (const TestConfigurationUnitResult& unitResult : result.UnitResults())
+                    {
+                        HandleUnitProgress(unitResult.Unit(), unitResult.TestResult(), unitResult.ResultInformation());
+                    }
+                }
+            }
+
+        private:
+            void HandleUnitProgress(const ConfigurationUnit& unit, ConfigurationTestResult testResult, const IConfigurationUnitResultInformation& resultInformation)
+            {
+                if (UnitHasPreviouslyCompleted(unit))
+                {
+                    return;
+                }
+
+                EndProgress();
+
+                {
+                    OutputStream info = m_context.Reporter.Info();
+                    OutputConfigurationUnitHeader(info, unit, unit.Details() ? unit.Details().UnitName() : unit.UnitName());
+                }
+
+                switch (testResult)
+                {
+                case ConfigurationTestResult::Failed:
+                    OutputUnitRunFailure(m_context, unit, resultInformation);
+                    break;
+                case ConfigurationTestResult::Negative:
+                    m_context.Reporter.Warn() << Resource::String::ConfigurationNotInDesiredState << std::endl;
+                    break;
+                case ConfigurationTestResult::NotRun:
+                    m_context.Reporter.Warn() << Resource::String::ConfigurationNoTestRun << std::endl;
+                    break;
+                case ConfigurationTestResult::Positive:
+                    m_context.Reporter.Info() << Resource::String::ConfigurationInDesiredState << std::endl;
+                    break;
+                default: // ConfigurationTestResult::Unknown
+                    m_context.Reporter.Error() << Resource::String::ConfigurationUnexpectedTestResult(testResult) << std::endl;
+                    break;
+                }
+
+                MarkCompleted(unit);
+                OutputUnitCompletionProgress();
+                BeginProgress();
+            }
+
             bool m_isFirstProgress = true;
         };
 
@@ -885,6 +989,43 @@ namespace AppInstaller::CLI::Workflow
         else
         {
             context.Reporter.Info() << Resource::String::ConfigurationSuccessfullyApplied << std::endl;
+        }
+    }
+
+    void TestConfigurationSet(Execution::Context& context)
+    {
+        TestConfigurationSetResult result = nullptr;
+        ConfigurationContext& configContext = context.Get<Data::ConfigurationContext>();
+
+        {
+            auto testOperation = configContext.Processor().TestSetAsync(configContext.Set());
+            TestConfigurationSetProgressOutput progress{ context, testOperation };
+
+            result = testOperation.get();
+            progress.HandleUnreportedProgress(result);
+        }
+
+        switch (result.TestResult())
+        {
+        case ConfigurationTestResult::Failed:
+            context.Reporter.Error() << Resource::String::ConfigurationFailedToTest << std::endl;
+            AICLI_TERMINATE_CONTEXT(WINGET_CONFIG_ERROR_TEST_FAILED);
+            break;
+        case ConfigurationTestResult::Negative:
+            context.Reporter.Warn() << Resource::String::ConfigurationNotInDesiredState << std::endl;
+            context.SetTerminationHR(S_FALSE);
+            break;
+        case ConfigurationTestResult::NotRun:
+            context.Reporter.Warn() << Resource::String::ConfigurationNoTestRun << std::endl;
+            AICLI_TERMINATE_CONTEXT(WINGET_CONFIG_ERROR_TEST_NOT_RUN);
+            break;
+        case ConfigurationTestResult::Positive:
+            context.Reporter.Info() << Resource::String::ConfigurationInDesiredState << std::endl;
+            break;
+        default: // ConfigurationTestResult::Unknown
+            context.Reporter.Error() << Resource::String::ConfigurationUnexpectedTestResult(result.TestResult()) << std::endl;
+            AICLI_TERMINATE_CONTEXT(E_FAIL);
+            break;
         }
     }
 
