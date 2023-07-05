@@ -12,8 +12,6 @@ namespace AppInstaller::CLI::Execution
 
     namespace
     {
-        static LRESULT WINAPI WindowMessageProcedure(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-
         // Type to contain the CTRL signal and window messages handler.
         struct SignalTerminationHandler
         {
@@ -95,6 +93,27 @@ namespace AppInstaller::CLI::Execution
                 return Instance().CtrlHandlerFunction(ctrlType);
             }
 
+            static LRESULT WINAPI WindowMessageProcedure(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+            {
+                AICLI_LOG(CLI, Verbose, << "Received window message type: " << uMsg);
+                switch (uMsg)
+                {
+                case WM_QUERYENDSESSION:
+                    SignalTerminationHandler::Instance().StartAppShutdown();
+                    return TRUE;
+                case WM_ENDSESSION:
+                case WM_CLOSE:
+                    DestroyWindow(hWnd);
+                    break;
+                case WM_DESTROY:
+                    PostQuitMessage(0);
+                    break;
+                default:
+                    return DefWindowProc(hWnd, uMsg, wParam, lParam);
+                }
+                return FALSE;
+            }
+
             BOOL CtrlHandlerFunction(DWORD ctrlType)
             {
                 // TODO: Move this to be logged per active context when we have thread static globals
@@ -150,7 +169,7 @@ namespace AppInstaller::CLI::Execution
                 wcex.cbSize = sizeof(wcex);
 
                 wcex.style = CS_NOCLOSE;
-                wcex.lpfnWndProc = WindowMessageProcedure;
+                wcex.lpfnWndProc = SignalTerminationHandler::WindowMessageProcedure;
                 wcex.cbClsExtra = 0;
                 wcex.cbWndExtra = 0;
                 wcex.hInstance = hInstance;
@@ -169,7 +188,7 @@ namespace AppInstaller::CLI::Execution
                     0, /* x */
                     0, /* y */
                     0, /* nWidth */
-                    0, /* nHeigth */
+                    0, /* nHeight */
                     NULL, /* hWndParent */
                     NULL, /* hMenu */
                     hInstance,
@@ -226,29 +245,6 @@ namespace AppInstaller::CLI::Execution
             {
                 SignalTerminationHandler::Instance().RemoveContext(context);
             }
-        }
-
-        // This starts getting called by CreateWindow.
-        // If it's a member function in SignalTerminationHandler we will have problems.
-        static LRESULT WINAPI WindowMessageProcedure(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-        {
-            AICLI_LOG(CLI, Verbose, << "Received window message type: " << uMsg);
-            switch (uMsg)
-            {
-            case WM_QUERYENDSESSION:
-                SignalTerminationHandler::Instance().StartAppShutdown();
-                return TRUE;
-            case WM_ENDSESSION:
-            case WM_CLOSE:
-                DestroyWindow(hWnd);
-                break;
-            case WM_DESTROY:
-                PostQuitMessage(0);
-                break;
-            default:
-                return DefWindowProc(hWnd, uMsg, wParam, lParam);
-            }
-            return FALSE;
         }
     }
 
@@ -401,12 +397,12 @@ namespace AppInstaller::CLI::Execution
         return (m_shouldExecuteWorkflowTask ? m_shouldExecuteWorkflowTask(task) : true);
     }
 
-    HWND Context::GetWindowHandle()
+    HWND GetWindowHandle()
     {
         return SignalTerminationHandler::Instance().GetWindowHandle();
     }
 
-    bool Context::WaitForAppShutdownEvent()
+    bool WaitForAppShutdownEvent()
     {
         return SignalTerminationHandler::Instance().WaitForAppShutdownEvent();
     }

@@ -8,6 +8,15 @@
 
 namespace AppInstaller::CLI
 {
+    namespace
+    {
+        void LogAndReport(Execution::Context& context, const std::string& message)
+        {
+            AICLI_LOG(CLI, Info, << message);
+            context.Reporter.Info() << message << std::endl;
+        }
+    }
+
     std::vector<std::unique_ptr<Command>> TestCommand::GetCommands() const
     {
         return InitializeFromMoveOnly<std::vector<std::unique_ptr<Command>>>({
@@ -31,28 +40,45 @@ namespace AppInstaller::CLI
         return Utility::LocIndString("Waits infinitely. Use this if you want winget to wait forever while something is going on"sv);
     }
 
+    std::vector<Argument> TestAppShutdownCommand::GetArguments() const
+    {
+        return {
+            Argument::ForType(Execution::Args::Type::Force)
+        };
+    }
+
     void TestAppShutdownCommand::ExecuteInternal(Execution::Context& context) const
     {
-        auto windowHandle = context.GetWindowHandle();
+        auto windowHandle = Execution::GetWindowHandle();
 
         if (windowHandle == NULL)
         {
-            context.Reporter.Info() << "Window was not created" << std::endl;
+            LogAndReport(context, "Window was not created");
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INTERNAL_ERROR);
         }
 
-        AICLI_LOG(CLI, Info, << "Waiting for app shutdown event");
-        context.Reporter.Info() << "Waiting for app shutdown event" << std::endl;
-        bool result = context.WaitForAppShutdownEvent();
+        if (context.Args.Contains(Execution::Args::Type::Force))
+        {
+            LogAndReport(context, "Sending WM_QUERYENDSESSION message");
+            THROW_LAST_ERROR_IF(!SendMessageTimeout(
+                windowHandle,
+                WM_QUERYENDSESSION,
+                NULL,
+                ENDSESSION_CLOSEAPP,
+                (SMTO_ABORTIFHUNG | SMTO_ERRORONEXIT),
+                5000,
+                NULL));
+        }
+
+        LogAndReport(context, "Waiting for app shutdown event");
+        bool result = Execution::WaitForAppShutdownEvent();
         if (!result)
         {
-            AICLI_LOG(CLI, Info, << "Failed getting app shutdown event");
-            context.Reporter.Info() << "Failed getting app shutdown event" << std::endl;
+            LogAndReport(context, "Failed getting app shutdown event");
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INTERNAL_ERROR);
         }
 
-        AICLI_LOG(CLI, Info, << "Succeeded waiting for app shutdown event");
-        context.Reporter.Info() << "Succeeded waiting for app shutdown event" << std::endl;
+        LogAndReport(context, "Succeeded waiting for app shutdown event");
     }
 
     Resource::LocString TestAppShutdownCommand::ShortDescription() const

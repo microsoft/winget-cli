@@ -30,6 +30,8 @@ namespace AppInstaller::CLI
     {
         TestAppShutdownCommand(std::string_view parent) : Command("appshutdown", {}, parent, Visibility::Hidden) {}
 
+        std::vector<Argument> GetArguments() const override;
+
         Resource::LocString ShortDescription() const override;
         Resource::LocString LongDescription() const override;
 

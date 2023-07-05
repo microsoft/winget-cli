@@ -69,6 +69,12 @@ namespace AppInstaller::CLI::Execution
 
     DEFINE_ENUM_FLAG_OPERATORS(ContextFlag);
 
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    HWND GetWindowHandle();
+
+    bool WaitForAppShutdownEvent();
+#endif
+
     // The context within which all commands execute.
     // Contains input/output via Execution::Reporter and
     // arguments via Execution::Args.
@@ -152,10 +158,6 @@ namespace AppInstaller::CLI::Execution
 #ifndef AICLI_DISABLE_TEST_HOOKS
         // Enable tests to override behavior
         bool ShouldExecuteWorkflowTask(const Workflow::WorkflowTask& task);
-
-        HWND GetWindowHandle();
-
-        bool WaitForAppShutdownEvent();
 #endif
 
     protected:
