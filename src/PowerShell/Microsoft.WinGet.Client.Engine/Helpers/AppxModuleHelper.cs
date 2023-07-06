@@ -8,6 +8,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
 {
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.IO.Compression;
     using System.Linq;
     using System.Management.Automation;
     using System.Runtime.InteropServices;
@@ -54,6 +55,8 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         private const string VCLibsUWPDesktopArm64 = "https://aka.ms/Microsoft.VCLibs.arm64.14.00.Desktop.appx";
 
         private const string UiXaml27 = "Microsoft.UI.Xaml.2.7";
+        private const string UiXamlNuget = "https://globalcdn.nuget.org/packages/microsoft.ui.xaml.2.7.3.nupkg";
+        private const string UiXamlNugetAppxPathFormat = @"{0}\tools\AppX\{1}\Release\Microsoft.UI.Xaml.2.7.appx";
 
         private readonly PSCmdlet psCmdlet;
 
@@ -246,7 +249,45 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             var uiXamlObjs = this.GetAppxObject(UiXaml27);
             if (uiXamlObjs is null)
             {
-                throw new PSNotImplementedException(Resources.MicrosoftUIXaml27Message);
+                // Download xaml nuget, extract and install.
+                this.psCmdlet.WriteDebug("Downloading and installing Microsoft.UI.Xaml.2.7");
+                using var tempFile = new TempFile();
+                var githubRelease = new GitHubRelease();
+                githubRelease.DownloadUrl(UiXamlNuget, tempFile.FullPath);
+
+                using var tempDir = new TempDirectory();
+                ZipFile.ExtractToDirectory(tempFile.FullPath, tempDir.FullDirectoryPath);
+
+                var packagesToInstall = new List<string>();
+
+                var arch = RuntimeInformation.OSArchitecture;
+                if (arch == Architecture.X64 ||
+                    arch == Architecture.X86)
+                {
+                    packagesToInstall.Add(string.Format(UiXamlNugetAppxPathFormat, tempDir.FullDirectoryPath, arch));
+                }
+                else if (arch == Architecture.Arm64)
+                {
+                    packagesToInstall.Add(string.Format(UiXamlNugetAppxPathFormat, tempDir.FullDirectoryPath, Architecture.X64));
+                    packagesToInstall.Add(string.Format(UiXamlNugetAppxPathFormat, tempDir.FullDirectoryPath, Architecture.X86));
+                    packagesToInstall.Add(string.Format(UiXamlNugetAppxPathFormat, tempDir.FullDirectoryPath, Architecture.Arm));
+                    packagesToInstall.Add(string.Format(UiXamlNugetAppxPathFormat, tempDir.FullDirectoryPath, arch));
+                }
+                else
+                {
+                    throw new PSNotSupportedException(arch.ToString());
+                }
+
+                foreach (var package in packagesToInstall)
+                {
+                    _ = this.ExecuteAppxCmdlet(
+                        AddAppxPackage,
+                        new Dictionary<string, object>
+                        {
+                            { Path, package },
+                            { ErrorAction, Stop },
+                        });
+                }
             }
         }
 
@@ -280,7 +321,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
 
         private void DownloadPackageAndAdd(string packageUrl)
         {
-            var tempFile = new TempFile();
+            using var tempFile = new TempFile();
 
             // This is weird but easy.
             var githubRelease = new GitHubRelease();
