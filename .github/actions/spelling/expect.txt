@@ -1,4 +1,5 @@
 abcd
+ABORTIFHUNG
 accepteula
 adjacents
 adml
@@ -67,6 +68,7 @@ cgi
 cinq
 CLASSNOTREG
 CLIE
+CLOSEAPP
 cloudapp
 cls
 clsctx
@@ -116,6 +118,7 @@ endregion
 ENDSESSION
 EQU
 errmsg
+ERRORONEXIT
 ESRB
 etest
 etl
@@ -401,6 +404,7 @@ Sideload
 SIGNATUREHASH
 Sku
 SLAPI
+SMTO
 sortof
 sourceforge
 spamming
