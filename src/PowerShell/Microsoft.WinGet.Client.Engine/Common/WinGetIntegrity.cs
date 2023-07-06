@@ -10,6 +10,7 @@ namespace Microsoft.WinGet.Client.Engine.Common
     using System.ComponentModel;
     using System.IO;
     using System.Management.Automation;
+    using System.Runtime.CompilerServices;
     using Microsoft.WinGet.Client.Engine.Exceptions;
     using Microsoft.WinGet.Client.Engine.Helpers;
     using Microsoft.WinGet.Client.Engine.Properties;
@@ -131,6 +132,18 @@ namespace Microsoft.WinGet.Client.Engine.Common
             if (appInstallerVersion.CompareTo(minAppInstallerVersion) < 0)
             {
                 return IntegrityCategory.AppInstallerNotSupported;
+            }
+
+            // PowerShell is nice enough to tell us about the license.
+            try
+            {
+                var ps = PowerShell.Create(RunspaceMode.CurrentRunspace);
+                ps.AddCommand("winget").Invoke();
+            }
+            catch (ApplicationFailedException e)
+            {
+                psCmdlet.WriteDebug(e.Message);
+                return IntegrityCategory.AppInstallerNoLicense;
             }
 
             // If we get here, we know the package is in the machine but not registered for the user.

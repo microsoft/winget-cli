@@ -97,6 +97,15 @@ namespace Microsoft.WinGet.Client.Engine.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to No applicable license found..
+        /// </summary>
+        internal static string IntegrityAppInstallerLicense {
+            get {
+                return ResourceManager.GetString("IntegrityAppInstallerLicense", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The App Installer is not installed..
         /// </summary>
         internal static string IntegrityAppInstallerNotInstalledMessage {
@@ -259,7 +268,7 @@ namespace Microsoft.WinGet.Client.Engine.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to This cmdlet is no supported in Windows PowerShell.
+        ///   Looks up a localized string similar to This cmdlet is not supported in Windows PowerShell..
         /// </summary>
         internal static string WindowsPowerShellNotSupported {
             get {
