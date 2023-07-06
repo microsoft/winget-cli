@@ -203,9 +203,10 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
                 if (getFails)
                 {
-                    this.GetResult = new GetSettingsResult();
-                    this.GetResult.ResultInformation.ResultCode = new NullReferenceException();
-                    this.GetResult.ResultInformation.ResultSource = ConfigurationUnitResultSource.UnitProcessing;
+                    var getResult = new GetSettingsResultInstance();
+                    getResult.InternalResult.ResultCode = new NullReferenceException();
+                    getResult.InternalResult.ResultSource = ConfigurationUnitResultSource.UnitProcessing;
+                    this.GetResult = getResult;
                     this.UnitProcessor.GetSettingsDelegate = () => this.GetResult;
                 }
             }
@@ -216,7 +217,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             public TestConfigurationUnitProcessor UnitProcessor { get; set; }
 
-            public GetSettingsResult? GetResult { get; set; }
+            public IGetSettingsResult? GetResult { get; set; }
 
             public TestConfigurationUnitProcessorDetails? UnitDetails { get; set; }
 

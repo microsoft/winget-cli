@@ -395,7 +395,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             case ConfigurationUnitIntent::Assert:
             {
                 action = TelemetryTraceLogger::TestAction;
-                TestSettingsResult settingsResult = unitProcessor.TestSettings();
+                ITestSettingsResult settingsResult = unitProcessor.TestSettings();
 
                 if (settingsResult.TestResult() == ConfigurationTestResult::Positive)
                 {
@@ -420,7 +420,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             {
                 // Force the processor to retrieve the settings
                 action = TelemetryTraceLogger::GetAction;
-                GetSettingsResult settingsResult = unitProcessor.GetSettings();
+                IGetSettingsResult settingsResult = unitProcessor.GetSettings();
                 if (SUCCEEDED(settingsResult.ResultInformation().ResultCode()))
                 {
                     result = true;
@@ -435,7 +435,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             case ConfigurationUnitIntent::Apply:
             {
                 action = TelemetryTraceLogger::TestAction;
-                TestSettingsResult testSettingsResult = unitProcessor.TestSettings();
+                ITestSettingsResult testSettingsResult = unitProcessor.TestSettings();
 
                 if (testSettingsResult.TestResult() == ConfigurationTestResult::Positive)
                 {
@@ -448,7 +448,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                     m_progress.ThrowIfCancelled();
 
                     action = TelemetryTraceLogger::ApplyAction;
-                    ApplySettingsResult applySettingsResult = unitProcessor.ApplySettings();
+                    IApplySettingsResult applySettingsResult = unitProcessor.ApplySettings();
                     if (SUCCEEDED(applySettingsResult.ResultInformation().ResultCode()))
                     {
                         unitInfo.Result->RebootRequired(applySettingsResult.RebootRequired());

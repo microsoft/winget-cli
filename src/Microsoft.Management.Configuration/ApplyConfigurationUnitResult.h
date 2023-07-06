@@ -9,7 +9,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     struct ApplyConfigurationUnitResult : ApplyConfigurationUnitResultT<ApplyConfigurationUnitResult>
     {
         using ConfigurationUnit = Configuration::ConfigurationUnit;
-        using ConfigurationUnitResultInformation = Configuration::ConfigurationUnitResultInformation;
 
         ApplyConfigurationUnitResult() = default;
 
@@ -18,14 +17,14 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         void State(ConfigurationUnitState value);
         void PreviouslyInDesiredState(bool value);
         void RebootRequired(bool value);
-        void ResultInformation(ConfigurationUnitResultInformation value);
+        void ResultInformation(IConfigurationUnitResultInformation value);
 #endif
 
         ConfigurationUnit Unit();
         ConfigurationUnitState State() const;
         bool PreviouslyInDesiredState() const;
         bool RebootRequired() const;
-        ConfigurationUnitResultInformation ResultInformation();
+        IConfigurationUnitResultInformation ResultInformation();
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
@@ -33,7 +32,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         std::atomic<ConfigurationUnitState> m_state = ConfigurationUnitState::Pending;
         bool m_previouslyInDesiredState = false;
         bool m_rebootRequired = false;
-        ConfigurationUnitResultInformation m_resultInformation = nullptr;
+        IConfigurationUnitResultInformation m_resultInformation;
 #endif
     };
 }

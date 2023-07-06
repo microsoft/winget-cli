@@ -61,7 +61,7 @@ namespace Microsoft.WinGet.Configuration.Engine.PSObjects
             }
         }
 
-        private void LogConfigurationDiagnostics(DiagnosticInformation diagnosticInformation)
+        private void LogConfigurationDiagnostics(IDiagnosticInformation diagnosticInformation)
         {
             try
             {

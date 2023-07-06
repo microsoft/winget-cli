@@ -133,4 +133,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         THROW_HR(E_NOTIMPL);
     }
+
+    HRESULT STDMETHODCALLTYPE ConfigurationSet::SetLifetimeWatcher(IUnknown* watcher)
+    {
+        return AppInstaller::WinRT::LifetimeWatcherBase::SetLifetimeWatcher(watcher);
+    }
 }

@@ -6,7 +6,7 @@
 #include "ConfigurationSet.h"
 #include "OpenConfigurationSetResult.h"
 #include "ConfigurationSetParser.h"
-#include "DiagnosticInformation.h"
+#include "DiagnosticInformationInstance.h"
 #include "ApplyConfigurationSetResult.h"
 #include "ConfigurationSetApplyProcessor.h"
 #include "TestConfigurationSetResult.h"
@@ -20,6 +20,8 @@
 
 #include <AppInstallerErrors.h>
 #include <AppInstallerStrings.h>
+
+using namespace std::chrono_literals;
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
@@ -65,13 +67,13 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             {
                 std::ostringstream strstr;
                 strstr << '[' << AppInstaller::Logging::GetChannelName(channel) << "] " << message;
-                m_processor.Diagnostics(ConvertLevel(level), strstr.str());
+                m_processor.SendDiagnostics(ConvertLevel(level), strstr.str());
             }
             catch (...) {}
 
             void WriteDirect(AppInstaller::Logging::Channel, AppInstaller::Logging::Level level, std::string_view message) noexcept override try
             {
-                m_processor.Diagnostics(ConvertLevel(level), message);
+                m_processor.SendDiagnostics(ConvertLevel(level), message);
             }
             catch (...) {}
 
@@ -97,6 +99,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                     return AppInstaller::Utility::ConvertToUTF8(message);
                     }());
             }
+
+            static void Ensure()
+            {
+                static AttachWilFailureCallback s_callbackAttach;
+            }
         };
 
         // Specifies the set of intents that should execute during a Test request
@@ -106,26 +113,22 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         }
     }
 
-    ConfigurationProcessor::ConfigurationProcessor(const IConfigurationSetProcessorFactory& factory) : m_factory(factory)
+    ConfigurationProcessor::ConfigurationProcessor()
     {
         AppInstaller::Logging::DiagnosticLogger& logger = m_threadGlobals.GetDiagnosticLogger();
         logger.EnableChannel(AppInstaller::Logging::Channel::All);
         logger.SetLevel(AppInstaller::Logging::Level::Verbose);
         logger.AddLogger(std::make_unique<ConfigurationProcessorDiagnosticsLogger>(*this));
-
-        if (m_factory)
-        {
-            m_factoryDiagnosticsEventRevoker = m_factory.Diagnostics(winrt::auto_revoke,
-                [this](const IInspectable&, const DiagnosticInformation& information)
-                {
-                    m_diagnostics(*this, information);
-                });
-        }
     }
 
-    event_token ConfigurationProcessor::Diagnostics(const Windows::Foundation::EventHandler<DiagnosticInformation>& handler)
+    ConfigurationProcessor::ConfigurationProcessor(const IConfigurationSetProcessorFactory& factory) : ConfigurationProcessor()
     {
-        static AttachWilFailureCallback s_callbackAttach;
+        ConfigurationSetProcessorFactory(factory);
+    }
+
+    event_token ConfigurationProcessor::Diagnostics(const Windows::Foundation::EventHandler<IDiagnosticInformation>& handler)
+    {
+        AttachWilFailureCallback::Ensure();
         return m_diagnostics.add(handler);
     }
 
@@ -206,10 +209,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     Windows::Foundation::IAsyncOperation<Configuration::OpenConfigurationSetResult> ConfigurationProcessor::OpenConfigurationSetAsync(const Windows::Storage::Streams::IInputStream& stream)
     {
+        auto strong_this{ get_strong() };
         Windows::Storage::Streams::IInputStream localStream = stream;
+
         co_await winrt::resume_background();
-        auto cancellation = co_await get_cancellation_token();
-        cancellation.enable_propagation();
+        auto cancellation = co_await winrt::get_cancellation_token();
 
         auto threadGlobals = m_threadGlobals.SetForCurrentThread();
         auto result = make_self<wil::details::module_count_wrapper<OpenConfigurationSetResult>>();
@@ -233,7 +237,20 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
             for (;;)
             {
-                Windows::Storage::Streams::IBuffer readBuffer = co_await localStream.ReadAsync(buffer, bufferSize, readOptions);
+                auto asyncOperation = localStream.ReadAsync(buffer, bufferSize, readOptions);
+
+                // Manually poll status and propagate cancellation to stay on this thread for thread globals
+                while (asyncOperation.Status() == Windows::Foundation::AsyncStatus::Started)
+                {
+                    if (cancellation())
+                    {
+                        asyncOperation.Cancel();
+                    }
+
+                    std::this_thread::sleep_for(100ms);
+                }
+
+                Windows::Storage::Streams::IBuffer readBuffer = asyncOperation.GetResults();
 
                 size_t readSize = static_cast<size_t>(readBuffer.Length());
                 if (readSize)
@@ -262,6 +279,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                 co_return *result;
             }
             configurationSet->SchemaVersion(parser->GetSchemaVersion());
+
+            PropagateLifetimeWatcher(configurationSet.as<Windows::Foundation::IUnknown>());
 
             result->Initialize(*configurationSet);
         }
@@ -304,7 +323,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         THROW_HR_IF(E_NOT_VALID_STATE, !m_factory);
 
+        auto strong_this{ get_strong() };
         ConfigurationSet localSet = configurationSet;
+
         co_await winrt::resume_background();
 
         co_return GetSetDetailsImpl(localSet, detailLevel, { co_await winrt::get_progress_token(), co_await winrt::get_cancellation_token()});
@@ -358,7 +379,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         THROW_HR_IF(E_NOT_VALID_STATE, !m_factory);
 
+        auto strong_this{ get_strong() };
         ConfigurationUnit localUnit = unit;
+
         co_await winrt::resume_background();
 
         co_return GetUnitDetailsImpl(localUnit, detailLevel);
@@ -383,7 +406,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         THROW_HR_IF(E_NOT_VALID_STATE, !m_factory);
 
+        auto strong_this{ get_strong() };
         ConfigurationSet localSet = configurationSet;
+
         co_await winrt::resume_background();
 
         co_return ApplySetImpl(localSet, flags, { co_await winrt::get_progress_token(), co_await winrt::get_cancellation_token() });
@@ -415,7 +440,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         THROW_HR_IF(E_NOT_VALID_STATE, !m_factory);
 
+        auto strong_this{ get_strong() };
         ConfigurationSet localSet = configurationSet;
+
         co_await winrt::resume_background();
 
         co_return TestSetImpl(localSet, { co_await winrt::get_progress_token(), co_await winrt::get_cancellation_token() });
@@ -464,7 +491,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
                     {
                         try
                         {
-                            TestSettingsResult settingsResult = unitProcessor.TestSettings();
+                            ITestSettingsResult settingsResult = unitProcessor.TestSettings();
                             testResult->TestResult(settingsResult.TestResult());
                             testResult->ResultInformation(settingsResult.ResultInformation());
                         }
@@ -519,7 +546,9 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
         THROW_HR_IF(E_NOT_VALID_STATE, !m_factory);
 
+        auto strong_this{ get_strong() };
         ConfigurationUnit localUnit = unit;
+
         co_await winrt::resume_background();
 
         co_return GetUnitSettingsImpl(localUnit, { co_await winrt::get_cancellation_token() });
@@ -556,7 +585,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         {
             try
             {
-                GetSettingsResult settingsResult = unitProcessor.GetSettings();
+                IGetSettingsResult settingsResult = unitProcessor.GetSettings();
                 result->Settings(settingsResult.Settings());
                 result->ResultInformation(settingsResult.ResultInformation());
             }
@@ -571,13 +600,66 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return *result;
     }
 
-    void ConfigurationProcessor::Diagnostics(DiagnosticLevel level, std::string_view message)
+    HRESULT STDMETHODCALLTYPE ConfigurationProcessor::SetLifetimeWatcher(IUnknown* watcher)
+    {
+        return AppInstaller::WinRT::LifetimeWatcherBase::SetLifetimeWatcher(watcher);
+    }
+
+    void ConfigurationProcessor::ConfigurationSetProcessorFactory(const IConfigurationSetProcessorFactory& value)
+    {
+        m_factory = value;
+
+        if (m_factory)
+        {
+            m_factoryDiagnosticsEventRevoker = m_factory.Diagnostics(winrt::auto_revoke,
+                [weak_this{ get_weak() }](const IInspectable&, const IDiagnosticInformation& information)
+                {
+                    if (auto strong_this{ weak_this.get() })
+                    {
+                        strong_this->SendDiagnostics(information);
+                    }
+                });
+        }
+    }
+
+    void ConfigurationProcessor::SendDiagnostics(DiagnosticLevel level, std::string_view message) try
     {
         if (level >= m_minimumLevel)
         {
-            auto diagnostics = make_self<wil::details::module_count_wrapper<implementation::DiagnosticInformation>>();
+            auto diagnostics = make_self<wil::details::module_count_wrapper<implementation::DiagnosticInformationInstance>>();
             diagnostics->Initialize(level, AppInstaller::Utility::ConvertToUTF16(message));
-            m_diagnostics(*this, *diagnostics);
+            SendDiagnosticsImpl(*diagnostics);
         }
+    }
+    // While diagnostics can be important, a failure to send them should not cause additional issues.
+    catch (...) {}
+
+    void ConfigurationProcessor::SendDiagnostics(const IDiagnosticInformation& information) try
+    {
+        if (information.Level() >= m_minimumLevel)
+        {
+            SendDiagnosticsImpl(information);
+        }
+    }
+    // While diagnostics can be important, a failure to send them should not cause additional issues.
+    catch (...) {}
+
+    void ConfigurationProcessor::SendDiagnosticsImpl(const IDiagnosticInformation& information)
+    {
+        std::lock_guard<std::recursive_mutex> lock{ m_diagnosticsMutex };
+
+        // Prevent a winrt/wil error recursion here by detecting that this thread failed to send a previous message.
+        if (m_isHandlingDiagnostics)
+        {
+            std::wstring debugMessage = L"An error occurred while trying to send a previous diagnostics message:\n";
+            debugMessage.append(information.Message());
+            OutputDebugStringW(debugMessage.c_str());
+            return;
+        }
+
+        m_isHandlingDiagnostics = true;
+        auto notHandling = wil::scope_exit([&] { m_isHandlingDiagnostics = false; });
+
+        m_diagnostics(*this, information);
     }
 }

@@ -109,7 +109,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
             this.cmd.CompleteProgress(this.activityId, this.activity, this.completeMessage);
         }
 
-        private void HandleUnitProgress(ConfigurationUnit unit, ConfigurationUnitState state, ConfigurationUnitResultInformation resultInformation)
+        private void HandleUnitProgress(ConfigurationUnit unit, ConfigurationUnitState state, IConfigurationUnitResultInformation resultInformation)
         {
             if (this.unitsCompleted.Contains(unit.InstanceIdentifier))
             {
@@ -198,7 +198,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
             }
         }
 
-        private (string message, bool showDescription) GetUnitFailedMessage(ConfigurationUnit unit, ConfigurationUnitResultInformation resultInformation)
+        private (string message, bool showDescription) GetUnitFailedMessage(ConfigurationUnit unit, IConfigurationUnitResultInformation resultInformation)
         {
             if (resultInformation.ResultCode == null)
             {
@@ -251,7 +251,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
             return (string.Format(Resources.ConfigurationUnitFailed, resultCode), true);
         }
 
-        private string GetUnitSkippedMessage(ConfigurationUnitResultInformation resultInformation)
+        private string GetUnitSkippedMessage(IConfigurationUnitResultInformation resultInformation)
         {
             if (resultInformation.ResultCode == null)
             {

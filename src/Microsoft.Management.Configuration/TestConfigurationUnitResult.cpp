@@ -6,7 +6,7 @@
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
-    void TestConfigurationUnitResult::Initialize(ConfigurationUnit unit, ConfigurationUnitResultInformation resultInformation)
+    void TestConfigurationUnitResult::Initialize(ConfigurationUnit unit, IConfigurationUnitResultInformation resultInformation)
     {
         m_unit = unit;
         m_resultInformation = resultInformation;
@@ -17,12 +17,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         return m_unit;
     }
 
-    ConfigurationUnitResultInformation TestConfigurationUnitResult::ResultInformation()
+    IConfigurationUnitResultInformation TestConfigurationUnitResult::ResultInformation()
     {
         return m_resultInformation;
     }
 
-    void TestConfigurationUnitResult::ResultInformation(const ConfigurationUnitResultInformation& value)
+    void TestConfigurationUnitResult::ResultInformation(const IConfigurationUnitResultInformation& value)
     {
         m_resultInformation = value;
     }

@@ -49,6 +49,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="TestData\Configuration\ConfigServerUnexpectedExit.yml" />
+    <None Remove="TestData\Configuration\Configure_TestRepo.yml" />
+    <None Remove="TestData\Configuration\DependentResources_Failure.yml" />
+    <None Remove="TestData\Configuration\IndependentResources_OneFailure.yml" />
+    <None Remove="TestData\configuration\Init-TestRepository.ps1" />
+    <None Remove="TestData\Configuration\ShowDetails_TestRepo.yml" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="..\..\doc\admx\DesktopAppInstaller.admx" Link="TestData\DesktopAppInstaller.admx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
