@@ -19,6 +19,7 @@ namespace AppInstaller::Manifest::YamlWriter
         constexpr Utility::LocIndView PackageVersion = "PackageVersion"_liv;
         constexpr Utility::LocIndView Channel = "Channel"_liv;
         constexpr Utility::LocIndView ManifestVersion = "ManifestVersion"_liv;
+        constexpr Utility::LocIndView ManifestType = "ManifestType"_liv;
 
         // Installer
         constexpr Utility::LocIndView Installers = "Installers"_liv;
@@ -64,6 +65,7 @@ namespace AppInstaller::Manifest::YamlWriter
         constexpr Utility::LocIndView FileType = "FileType"_liv;
         constexpr Utility::LocIndView InvocationParameter = "InvocationParameter"_liv;
         constexpr Utility::LocIndView DisplayName = "DisplayName"_liv;
+        constexpr Utility::LocIndView MinimumOSVersion = "MinimumOSVersion"_liv;
 
         // Installer switches
         constexpr Utility::LocIndView InstallerSwitches = "InstallerSwitches"_liv;
@@ -128,7 +130,7 @@ namespace AppInstaller::Manifest::YamlWriter
         constexpr Utility::LocIndView Tags = "Tags"_liv;
         constexpr Utility::LocIndView Moniker = "Moniker"_liv;
 
-#define ADD_PROPERTY_NODE(emitter, key, value) \
+#define WRITE_PROPERTY_IF_EXISTS(emitter, key, value) \
         { \
             if (!value.empty()) \
             { \
@@ -137,26 +139,7 @@ namespace AppInstaller::Manifest::YamlWriter
         }
     }
 
-    void ProcessDocumentations(YAML::Emitter& out, std::vector<AppInstaller::Manifest::Documentation> documentations)
-    {
-        if (documentations.empty())
-        {
-            return;
-        }
-
-        out << YAML::Key << Documentations;
-        out << YAML::BeginSeq;
-        for (const auto& document : documentations)
-        {
-            out << YAML::BeginMap;
-            ADD_PROPERTY_NODE(out, DocumentLabel, document.DocumentLabel);
-            ADD_PROPERTY_NODE(out, DocumentUrl, document.DocumentUrl);
-            out << YAML::EndMap;
-        }
-        out << YAML::EndSeq;
-    }
-
-    void ProcessAgreements(YAML::Emitter& out, std::vector<AppInstaller::Manifest::Agreement> agreements)
+    void ProcessAgreements(YAML::Emitter& out, const std::vector<AppInstaller::Manifest::Agreement>& agreements)
     {
         if (agreements.empty())
         {
@@ -168,13 +151,33 @@ namespace AppInstaller::Manifest::YamlWriter
         for (const auto& agreement : agreements)
         {
             out << YAML::BeginMap;
-            ADD_PROPERTY_NODE(out, AgreementLabel, agreement.Label);
-            ADD_PROPERTY_NODE(out, AgreementUrl, agreement.AgreementUrl);
-            ADD_PROPERTY_NODE(out, Agreement, agreement.AgreementText);
+            WRITE_PROPERTY_IF_EXISTS(out, AgreementLabel, agreement.Label);
+            WRITE_PROPERTY_IF_EXISTS(out, AgreementUrl, agreement.AgreementUrl);
+            WRITE_PROPERTY_IF_EXISTS(out, Agreement, agreement.AgreementText);
             out << YAML::EndMap;
         }
         out << YAML::EndSeq;
     }
+
+    void ProcessDocumentations(YAML::Emitter& out, const std::vector<AppInstaller::Manifest::Documentation>& documentations)
+    {
+        if (documentations.empty())
+        {
+            return;
+        }
+
+        out << YAML::Key << Documentations;
+        out << YAML::BeginSeq;
+        for (const auto& document : documentations)
+        {
+            out << YAML::BeginMap;
+            WRITE_PROPERTY_IF_EXISTS(out, DocumentLabel, document.DocumentLabel);
+            WRITE_PROPERTY_IF_EXISTS(out, DocumentUrl, document.DocumentUrl);
+            out << YAML::EndMap;
+        }
+        out << YAML::EndSeq;
+    }
+
 
     void ProcessIcons(YAML::Emitter& out, std::vector<AppInstaller::Manifest::Icon> icons)
     {
@@ -188,11 +191,11 @@ namespace AppInstaller::Manifest::YamlWriter
         for (const auto& icon : icons)
         {
             out << YAML::BeginMap;
-            ADD_PROPERTY_NODE(out, IconUrl, icon.Url);
-            ADD_PROPERTY_NODE(out, IconFileType, IconFileTypeToString(icon.FileType));
-            ADD_PROPERTY_NODE(out, IconResolution, IconResolutionToString(icon.Resolution));
-            ADD_PROPERTY_NODE(out, IconTheme, IconThemeToString(icon.Theme));
-            ADD_PROPERTY_NODE(out, IconSha256, Utility::LocIndString{ Utility::SHA256::ConvertToString(icon.Sha256)});
+            WRITE_PROPERTY_IF_EXISTS(out, IconUrl, icon.Url);
+            WRITE_PROPERTY_IF_EXISTS(out, IconFileType, IconFileTypeToString(icon.FileType));
+            WRITE_PROPERTY_IF_EXISTS(out, IconResolution, IconResolutionToString(icon.Resolution));
+            WRITE_PROPERTY_IF_EXISTS(out, IconTheme, IconThemeToString(icon.Theme));
+            WRITE_PROPERTY_IF_EXISTS(out, IconSha256, Utility::LocIndString{ Utility::SHA256::ConvertToString(icon.Sha256)});
             out << YAML::EndMap;
         }
         out << YAML::EndSeq;
@@ -201,6 +204,11 @@ namespace AppInstaller::Manifest::YamlWriter
     // Generic method for handling a list of strings (i.e. tags)
     void ProcessSequence(YAML::Emitter& out, AppInstaller::Utility::LocIndView name, std::vector<AppInstaller::Manifest::string_t> items)
     {
+        if (items.empty())
+        {
+            return;
+        }
+
         out << YAML::Key << name;
         out << YAML::BeginSeq;
         for (const auto& item : items)
@@ -217,23 +225,24 @@ namespace AppInstaller::Manifest::YamlWriter
         ProcessIcons(out, manifest.Get<Localization::Icons>());
         ProcessSequence(out, Tags, manifest.Get<Localization::Tags>());
 
-        ADD_PROPERTY_NODE(out, Author, manifest.Get<Localization::Author>());
-        ADD_PROPERTY_NODE(out, Copyright, manifest.Get<Localization::Copyright>());
-        ADD_PROPERTY_NODE(out, CopyrightUrl, manifest.Get<Localization::CopyrightUrl>());
-        ADD_PROPERTY_NODE(out, Description, manifest.Get<Localization::Description>());
-        ADD_PROPERTY_NODE(out, ShortDescription, manifest.Get<Localization::ShortDescription>());
-        ADD_PROPERTY_NODE(out, License, manifest.Get<Localization::License>());
-        ADD_PROPERTY_NODE(out, LicenseUrl, manifest.Get<Localization::LicenseUrl>());
-        ADD_PROPERTY_NODE(out, PackageName, manifest.Get<Localization::PackageName>());
-        ADD_PROPERTY_NODE(out, PackageUrl, manifest.Get<Localization::PackageUrl>());
-        ADD_PROPERTY_NODE(out, PrivacyUrl, manifest.Get<Localization::PrivacyUrl>());
-        ADD_PROPERTY_NODE(out, Publisher, manifest.Get<Localization::Publisher>());
-        ADD_PROPERTY_NODE(out, PublisherSupportUrl, manifest.Get<Localization::PublisherSupportUrl>());
-        ADD_PROPERTY_NODE(out, PublisherUrl, manifest.Get<Localization::PublisherUrl>());
-        ADD_PROPERTY_NODE(out, PurchaseUrl, manifest.Get<Localization::PurchaseUrl>());
-        ADD_PROPERTY_NODE(out, ReleaseNotes, manifest.Get<Localization::ReleaseNotes>());
-        ADD_PROPERTY_NODE(out, ReleaseNotesUrl, manifest.Get<Localization::ReleaseNotesUrl>());
-        ADD_PROPERTY_NODE(out, InstallationNotes, manifest.Get<Localization::InstallationNotes>());
+        WRITE_PROPERTY_IF_EXISTS(out, PackageLocale, manifest.Locale);
+        WRITE_PROPERTY_IF_EXISTS(out, Author, manifest.Get<Localization::Author>());
+        WRITE_PROPERTY_IF_EXISTS(out, Copyright, manifest.Get<Localization::Copyright>());
+        WRITE_PROPERTY_IF_EXISTS(out, CopyrightUrl, manifest.Get<Localization::CopyrightUrl>());
+        WRITE_PROPERTY_IF_EXISTS(out, Description, manifest.Get<Localization::Description>());
+        WRITE_PROPERTY_IF_EXISTS(out, ShortDescription, manifest.Get<Localization::ShortDescription>());
+        WRITE_PROPERTY_IF_EXISTS(out, License, manifest.Get<Localization::License>());
+        WRITE_PROPERTY_IF_EXISTS(out, LicenseUrl, manifest.Get<Localization::LicenseUrl>());
+        WRITE_PROPERTY_IF_EXISTS(out, PackageName, manifest.Get<Localization::PackageName>());
+        WRITE_PROPERTY_IF_EXISTS(out, PackageUrl, manifest.Get<Localization::PackageUrl>());
+        WRITE_PROPERTY_IF_EXISTS(out, PrivacyUrl, manifest.Get<Localization::PrivacyUrl>());
+        WRITE_PROPERTY_IF_EXISTS(out, Publisher, manifest.Get<Localization::Publisher>());
+        WRITE_PROPERTY_IF_EXISTS(out, PublisherSupportUrl, manifest.Get<Localization::PublisherSupportUrl>());
+        WRITE_PROPERTY_IF_EXISTS(out, PublisherUrl, manifest.Get<Localization::PublisherUrl>());
+        WRITE_PROPERTY_IF_EXISTS(out, PurchaseUrl, manifest.Get<Localization::PurchaseUrl>());
+        WRITE_PROPERTY_IF_EXISTS(out, ReleaseNotes, manifest.Get<Localization::ReleaseNotes>());
+        WRITE_PROPERTY_IF_EXISTS(out, ReleaseNotesUrl, manifest.Get<Localization::ReleaseNotesUrl>());
+        WRITE_PROPERTY_IF_EXISTS(out, InstallationNotes, manifest.Get<Localization::InstallationNotes>());
     }
 
     void ProcessAppsAndFeaturesEntries(YAML::Emitter& out, const std::vector<AppsAndFeaturesEntry>& appsAndFeaturesEntries)
@@ -248,12 +257,12 @@ namespace AppInstaller::Manifest::YamlWriter
         for (const auto& appsAndFeatureEntry : appsAndFeaturesEntries)
         {
             out << YAML::BeginMap;
-            ADD_PROPERTY_NODE(out, DisplayName, appsAndFeatureEntry.DisplayName);
-            ADD_PROPERTY_NODE(out, DisplayVersion, appsAndFeatureEntry.DisplayVersion);
-            ADD_PROPERTY_NODE(out, InstallerType, InstallerTypeToString(appsAndFeatureEntry.InstallerType));
-            ADD_PROPERTY_NODE(out, ProductCode, appsAndFeatureEntry.ProductCode);
-            ADD_PROPERTY_NODE(out, Publisher, appsAndFeatureEntry.Publisher);
-            ADD_PROPERTY_NODE(out, UpgradeCode, appsAndFeatureEntry.UpgradeCode);
+            WRITE_PROPERTY_IF_EXISTS(out, DisplayName, appsAndFeatureEntry.DisplayName);
+            WRITE_PROPERTY_IF_EXISTS(out, DisplayVersion, appsAndFeatureEntry.DisplayVersion);
+            WRITE_PROPERTY_IF_EXISTS(out, InstallerType, InstallerTypeToString(appsAndFeatureEntry.InstallerType));
+            WRITE_PROPERTY_IF_EXISTS(out, ProductCode, appsAndFeatureEntry.ProductCode);
+            WRITE_PROPERTY_IF_EXISTS(out, Publisher, appsAndFeatureEntry.Publisher);
+            WRITE_PROPERTY_IF_EXISTS(out, UpgradeCode, appsAndFeatureEntry.UpgradeCode);
             out << YAML::EndMap;
         }
         out << YAML::EndSeq;
@@ -261,28 +270,247 @@ namespace AppInstaller::Manifest::YamlWriter
 
     void ProcessInstallerSwitches(YAML::Emitter& out, const std::map<InstallerSwitchType, string_t>& installerSwitches)
     {
+        if (installerSwitches.empty())
+        {
+            return;
+        }
+
         out << YAML::Key << InstallerSwitches;
         out << YAML::BeginMap;
         for (auto const& [type, value] : installerSwitches)
         {
-            ADD_PROPERTY_NODE(out, InstallerSwitchTypeToString(type), value);
+            WRITE_PROPERTY_IF_EXISTS(out, InstallerSwitchTypeToString(type), value);
         }
         out << YAML::EndMap;
     }
 
     void ProcessExpectedReturnCodes(YAML::Emitter& out, const std::map<DWORD, ManifestInstaller::ExpectedReturnCodeInfo>& expectedReturnCodes)
     {
+        if (expectedReturnCodes.empty())
+        {
+            return;
+        }
+
         out << YAML::Key << ExpectedReturnCodes;
         out << YAML::BeginSeq;
-        for (auto const& [installerReturnCode, expectedReturnCodeInfo] : expectedReturnCodes)
+        for (const auto& expectedReturnCode : expectedReturnCodes)
         {
             out << YAML::BeginMap;
-            ADD_PROPERTY_NODE(out, InstallerReturnCode, std::to_string(installerReturnCode));
-            ADD_PROPERTY_NODE(out, ReturnResponse, ExpectedReturnCodeToString(expectedReturnCodeInfo.ReturnResponseEnum));
-            ADD_PROPERTY_NODE(out, ReturnResponseUrl, expectedReturnCodeInfo.ReturnResponseUrl);
+            WRITE_PROPERTY_IF_EXISTS(out, InstallerReturnCode, std::to_string(expectedReturnCode.first));
+            WRITE_PROPERTY_IF_EXISTS(out, ReturnResponse, ExpectedReturnCodeToString(expectedReturnCode.second.ReturnResponseEnum));
+            WRITE_PROPERTY_IF_EXISTS(out, ReturnResponseUrl, expectedReturnCode.second.ReturnResponseUrl);
             out << YAML::EndMap;
         }
         out << YAML::EndSeq;
+    }
+
+    void ProcessUnsupportedArguments(YAML::Emitter& out, const std::vector<UnsupportedArgumentEnum>& unsupportedArguments)
+    {
+        if (unsupportedArguments.empty())
+        {
+            return;
+        }
+
+        out << YAML::Key << UnsupportedArguments;
+        out << YAML::BeginSeq;
+        for (auto const& unsupportedArgs : unsupportedArguments)
+        {
+            out << UnsupportedArgumentToString(unsupportedArgs);
+        }
+        out << YAML::EndSeq;
+    }
+
+    void ProcessUnsupportedOSArchitecture(YAML::Emitter& out, const std::vector<AppInstaller::Utility::Architecture>& architectures)
+    {
+        if (architectures.empty())
+        {
+            return;
+        }
+
+        out << YAML::Key << UnsupportedOSArchitectures;
+        out << YAML::BeginSeq;
+        for (auto const& architecture : architectures)
+        {
+            out << ToString(architecture);
+        }
+        out << YAML::EndSeq;
+    }
+
+    void ProcessInstallModes(YAML::Emitter& out, const std::vector<InstallModeEnum>& installModes)
+    {
+        if (installModes.empty())
+        {
+            return;
+        }
+
+        out << YAML::Key << InstallModes;
+        out << YAML::BeginSeq;
+        for (auto const& installMode : installModes)
+        {
+            out << InstallModeToString(installMode);
+        }
+        out << YAML::EndSeq;
+    }
+
+    void ProcessPlatforms(YAML::Emitter& out, const std::vector<PlatformEnum>& platforms)
+    {
+        if (platforms.empty())
+        {
+            return;
+        }
+        out << YAML::Key << Platform;
+        out << YAML::BeginSeq;
+        for (auto const& platform : platforms)
+        {
+            out << PlatformToString(platform);
+        }
+        out << YAML::EndSeq;
+    }
+
+    void ProcessInstallerSuccessCodes(YAML::Emitter& out, const std::vector<DWORD>& installerSuccessCodes)
+    {
+        if (installerSuccessCodes.empty())
+        {
+            return;
+        }
+
+        out << YAML::Key << InstallerSuccessCodes;
+        out << YAML::BeginSeq;
+        for (auto const& installerSuccessCode : installerSuccessCodes)
+        {
+            out << std::to_string(installerSuccessCode);
+        }
+        out << YAML::EndSeq;
+    }
+
+    void ProcessMarkets(YAML::Emitter& out, const MarketsInfo& marketsInfo)
+    {
+        if (marketsInfo.AllowedMarkets.empty() && marketsInfo.ExcludedMarkets.empty())
+        {
+            return;
+        }
+
+        out << YAML::Key << Markets;
+        out << YAML::BeginMap;
+        ProcessSequence(out, AllowedMarkets, marketsInfo.AllowedMarkets);
+        ProcessSequence(out, ExcludedMarkets, marketsInfo.ExcludedMarkets);
+        out << YAML::EndMap;
+    }
+
+    void ProcessNestedInstallerFiles(YAML::Emitter& out, const std::vector<NestedInstallerFile>& nestedInstallerFiles)
+    {
+        if (nestedInstallerFiles.empty())
+        {
+            return;
+        }
+
+        out << YAML::Key << NestedInstallerFiles;
+        out << YAML::BeginSeq;
+        for (const auto& nestedInstallerFile : nestedInstallerFiles)
+        {
+            out << YAML::BeginMap;
+            WRITE_PROPERTY_IF_EXISTS(out, NestedInstallerFileRelativeFilePath, nestedInstallerFile.RelativeFilePath);
+            WRITE_PROPERTY_IF_EXISTS(out, PortableCommandAlias, nestedInstallerFile.PortableCommandAlias);
+            out << YAML::EndMap;
+        }
+        out << YAML::EndSeq;
+    }
+
+    void ProcessInstallationMetadataInstalledFiles(YAML::Emitter& out, const std::vector<InstalledFile>& installedFiles)
+    {
+        if (installedFiles.empty())
+        {
+            return;
+        }
+
+        out << YAML::Key << InstallationMetadataFiles;
+        out << YAML::BeginSeq;
+        for (const auto& installedFile : installedFiles)
+        {
+            out << YAML::BeginMap;
+            WRITE_PROPERTY_IF_EXISTS(out, InstallationMetadataRelativeFilePath, installedFile.RelativeFilePath);
+            WRITE_PROPERTY_IF_EXISTS(out, FileSha256, Utility::LocIndString{ Utility::SHA256::ConvertToString(installedFile.FileSha256) });
+            WRITE_PROPERTY_IF_EXISTS(out, FileType, InstalledFileTypeToString(installedFile.FileType));
+            WRITE_PROPERTY_IF_EXISTS(out, InvocationParameter, installedFile.InvocationParameter);
+            WRITE_PROPERTY_IF_EXISTS(out, DisplayName, installedFile.DisplayName);
+
+            out << YAML::EndMap;
+        }
+        out << YAML::EndSeq;
+    }
+
+    void ProcessInstallationMetadata(YAML::Emitter& out, const InstallationMetadataInfo& installationMetadata)
+    {
+        if (installationMetadata.DefaultInstallLocation.empty() && installationMetadata.Files.empty())
+        {
+            return;
+        }
+
+        out << YAML::Key << InstallationMetadata;
+        out << YAML::BeginMap;
+        WRITE_PROPERTY_IF_EXISTS(out, DefaultInstallLocation, installationMetadata.DefaultInstallLocation);
+        ProcessInstallationMetadataInstalledFiles(out, installationMetadata.Files);
+        out << YAML::EndMap;
+    }
+
+    void ProcessDependencies(YAML::Emitter& out, const DependencyList& dependencies)
+    {
+        if (!dependencies.HasAny())
+        {
+            return;
+        }
+
+        out << YAML::Key << Dependencies;
+        out << YAML::BeginMap;
+
+        if (dependencies.HasAnyOf(DependencyType::WindowsFeature))
+        {
+            out << YAML::Key << WindowsFeatures;
+            out << YAML::BeginSeq;
+            dependencies.ApplyToType(DependencyType::WindowsFeature, [&out](Dependency dependency)
+                {
+                    out << dependency.Id();
+                });
+            out << YAML::EndSeq;
+        }
+
+        if (dependencies.HasAnyOf(DependencyType::WindowsLibrary))
+        {
+            out << YAML::Key << WindowsLibraries;
+            out << YAML::BeginSeq;
+            dependencies.ApplyToType(DependencyType::WindowsLibrary, [&out](Dependency dependency)
+                {
+                    out << dependency.Id();
+                });
+            out << YAML::EndSeq;
+        }
+
+        if (dependencies.HasAnyOf(DependencyType::Package))
+        {
+            out << YAML::Key << PackageDependencies;
+            out << YAML::BeginSeq;
+            dependencies.ApplyToType(DependencyType::Package, [&out](Dependency dependency)
+                {
+                    out << YAML::BeginMap;
+                    WRITE_PROPERTY_IF_EXISTS(out, PackageIdentifier, dependency.Id());
+                    WRITE_PROPERTY_IF_EXISTS(out, MinimumVersion, dependency.MinVersion.value().ToString());
+                    out << YAML::EndMap;
+                });
+            out << YAML::EndSeq;
+        }
+
+        if (dependencies.HasAnyOf(DependencyType::External))
+        {
+            out << YAML::Key << ExternalDependencies;
+            out << YAML::BeginSeq;
+            dependencies.ApplyToType(DependencyType::External, [&out](Dependency dependency)
+                {
+                    out << dependency.Id();
+                });
+            out << YAML::EndSeq;
+        }
+
+        out << YAML::EndMap;
     }
 
     void ProcessInstallers(YAML::Emitter& out, const std::vector<ManifestInstaller>& installers)
@@ -292,32 +520,48 @@ namespace AppInstaller::Manifest::YamlWriter
         for (const auto& installer : installers)
         {
             out << YAML::BeginMap;
-            ProcessAppsAndFeaturesEntries(out, installer.AppsAndFeaturesEntries);
-            ADD_PROPERTY_NODE(out, Architecture, ToString(installer.Arch));
-            ADD_PROPERTY_NODE(out, InstallerLocale, installer.Locale);
-            ADD_PROPERTY_NODE(out, InstallerType, InstallerTypeToString(installer.BaseInstallerType));
-            ADD_PROPERTY_NODE(out, NestedInstallerType, InstallerTypeToString(installer.NestedInstallerType));
+            WRITE_PROPERTY_IF_EXISTS(out, Architecture, ToString(installer.Arch));
+            WRITE_PROPERTY_IF_EXISTS(out, InstallerType, InstallerTypeToString(installer.BaseInstallerType));
+
+            if (installer.NestedInstallerType != InstallerTypeEnum::Unknown)
+            {
+                WRITE_PROPERTY_IF_EXISTS(out, NestedInstallerType, InstallerTypeToString(installer.NestedInstallerType));
+            }
+
+            WRITE_PROPERTY_IF_EXISTS(out, InstallerSha256, Utility::SHA256::ConvertToString(installer.Sha256));
+            WRITE_PROPERTY_IF_EXISTS(out, SignatureSha256, Utility::SHA256::ConvertToString(installer.SignatureSha256));
+            WRITE_PROPERTY_IF_EXISTS(out, InstallerUrl, installer.Url);
+            WRITE_PROPERTY_IF_EXISTS(out, Scope, ScopeToString(installer.Scope));
+            WRITE_PROPERTY_IF_EXISTS(out, InstallerLocale, installer.Locale);
+            WRITE_PROPERTY_IF_EXISTS(out, ElevationRequirement, ElevationRequirementToString(installer.ElevationRequirement));
+            WRITE_PROPERTY_IF_EXISTS(out, PackageFamilyName, installer.PackageFamilyName);
+            WRITE_PROPERTY_IF_EXISTS(out, ReleaseDate, installer.ReleaseDate);
+            WRITE_PROPERTY_IF_EXISTS(out, InstallerAbortsTerminal, BoolToString(installer.InstallerAbortsTerminal));
+            WRITE_PROPERTY_IF_EXISTS(out, InstallLocationRequired, BoolToString(installer.InstallLocationRequired));
+            WRITE_PROPERTY_IF_EXISTS(out, RequireExplicitUpgrade, BoolToString(installer.RequireExplicitUpgrade));
+            WRITE_PROPERTY_IF_EXISTS(out, DisplayInstallWarnings, BoolToString(installer.DisplayInstallWarnings));
+            WRITE_PROPERTY_IF_EXISTS(out, MinimumOSVersion, installer.MinOSVersion);
+            WRITE_PROPERTY_IF_EXISTS(out, ProductCode, installer.ProductCode);
+            WRITE_PROPERTY_IF_EXISTS(out, UpgradeBehavior, UpdateBehaviorToString(installer.UpdateBehavior));
+
             ProcessSequence(out, Capabilities, installer.Capabilities);
             ProcessSequence(out, Commands, installer.Commands);
             ProcessSequence(out, FileExtensions, installer.FileExtensions);
             ProcessSequence(out, Protocols, installer.Protocols);
             ProcessSequence(out, RestrictedCapabilities, installer.RestrictedCapabilities);
-            ADD_PROPERTY_NODE(out, ElevationRequirement, ElevationRequirementToString(installer.ElevationRequirement));
-            ADD_PROPERTY_NODE(out, Scope, ScopeToString(installer.Scope));
-            ADD_PROPERTY_NODE(out, InstallerSha256, Utility::SHA256::ConvertToString(installer.Sha256));
-            ADD_PROPERTY_NODE(out, InstallerSha256, Utility::SHA256::ConvertToString(installer.SignatureSha256));
-            ADD_PROPERTY_NODE(out, PackageFamilyName, installer.PackageFamilyName);
-            ADD_PROPERTY_NODE(out, ReleaseDate, installer.ReleaseDate);
-            ADD_PROPERTY_NODE(out, InstallerAbortsTerminal, BoolToString(installer.InstallerAbortsTerminal));
-            ADD_PROPERTY_NODE(out, InstallLocationRequired, BoolToString(installer.InstallLocationRequired));
-            ADD_PROPERTY_NODE(out, RequireExplicitUpgrade, BoolToString(installer.RequireExplicitUpgrade));
-            ADD_PROPERTY_NODE(out, DisplayInstallWarnings, BoolToString(installer.DisplayInstallWarnings));
 
-            // ProcessSequence(out, UnsupportedArguments, installer.UnsupportedArguments);
-            // ProcessSequence(out, UnsupportedOSArchitectures, installer.UnsupportedOSArchitectures);
-            ProcessInstallerSwitches(out, installer.Switches);
+            ProcessAppsAndFeaturesEntries(out, installer.AppsAndFeaturesEntries);
+            ProcessDependencies(out, installer.Dependencies);
             ProcessExpectedReturnCodes(out, installer.ExpectedReturnCodes);
-
+            ProcessInstallerSwitches(out, installer.Switches);
+            ProcessInstallationMetadata(out, installer.InstallationMetadata);
+            ProcessInstallerSuccessCodes(out, installer.InstallerSuccessCodes);
+            ProcessInstallModes(out, installer.InstallModes);
+            ProcessMarkets(out, installer.Markets);
+            ProcessNestedInstallerFiles(out, installer.NestedInstallerFiles);
+            ProcessPlatforms(out, installer.Platform);
+            ProcessUnsupportedArguments(out, installer.UnsupportedArguments);
+            ProcessUnsupportedOSArchitecture(out, installer.UnsupportedOSArchitectures);
             out << YAML::EndMap;
         }
         out << YAML::EndSeq;
@@ -327,18 +571,24 @@ namespace AppInstaller::Manifest::YamlWriter
     {
         YAML::Emitter out;
         out << YAML::BeginMap;
-        // Add all basic properties.
-        ADD_PROPERTY_NODE(out, PackageIdentifier, manifest.Id);
-        ADD_PROPERTY_NODE(out, PackageVersion, manifest.Version);
-        ADD_PROPERTY_NODE(out, Channel, manifest.Channel);
-        ADD_PROPERTY_NODE(out, Moniker, manifest.Moniker);
-        ADD_PROPERTY_NODE(out, ManifestVersion, manifest.ManifestVersion.ToString());
-        ProcessInstallers(out, manifest.Installers);
+        WRITE_PROPERTY_IF_EXISTS(out, PackageIdentifier, manifest.Id);
+        WRITE_PROPERTY_IF_EXISTS(out, PackageVersion, manifest.Version);
+        WRITE_PROPERTY_IF_EXISTS(out, Channel, manifest.Channel);
+        WRITE_PROPERTY_IF_EXISTS(out, Moniker, manifest.Moniker);
         ProcessLocaleFields(out, manifest.DefaultLocalization);
-
+        ProcessInstallers(out, manifest.Installers);
+        WRITE_PROPERTY_IF_EXISTS(out, ManifestVersion, manifest.ManifestVersion.ToString());
+        WRITE_PROPERTY_IF_EXISTS(out, ManifestType, "singleton"sv);
         out << YAML::EndMap;
-
         return out.str();
     }
 
+    void OutputYamlDoc(const Manifest& manifest, const std::filesystem::path& out)
+    {
+        const auto& manifestYamlOutput = ManifestYamlDepopulator::DepopulateManifest(manifest);
+        std::filesystem::create_directories(out.parent_path());
+        std::ofstream outFileStream(out);
+        outFileStream << manifestYamlOutput;
+        outFileStream.close();
+    }
 }

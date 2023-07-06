@@ -571,7 +571,7 @@ namespace AppInstaller::Manifest
         case InstallerSwitchType::InstallLocation:
             return "InstallLocation"sv;
         case InstallerSwitchType::Update:
-            return "Update"sv;
+            return "Upgrade"sv;
         }
 
         return "unknown"sv;
@@ -583,14 +583,68 @@ namespace AppInstaller::Manifest
         switch (elevationRequirement)
         {
         case ElevationRequirementEnum::ElevationRequired:
-            return "ElevationRequired"sv;
+            return "elevationRequired"sv;
         case ElevationRequirementEnum::ElevationProhibited:
-            return "ElevationProhibited"sv;
+            return "elevationProhibited"sv;
         case ElevationRequirementEnum::ElevatesSelf:
-            return "ElevatesSelf"sv;
+            return "elevatesSelf"sv;
+        }
+
+        return "unknown"sv;
+    }
+
+    std::string_view UnsupportedArgumentToString(UnsupportedArgumentEnum unsupportedArgument)
+    {
+        switch (unsupportedArgument)
+        {
+        case UnsupportedArgumentEnum::Log:
+            return "log"sv;
+        case UnsupportedArgumentEnum::Location:
+            return "location"sv;
+        }
+
+        return "unknown"sv;
+    }
+
+    std::string_view InstallModeToString(InstallModeEnum installMode)
+    {
+        switch (installMode)
+        {
+        case InstallModeEnum::Interactive:
+            return "interactive"sv;
+        case InstallModeEnum::Silent:
+            return "silent"sv;
+        case InstallModeEnum::SilentWithProgress:
+            return "silentWithProgress"sv;
+        }
+
+        return "unknown"sv;
+    }
+
+    std::string_view PlatformToString(PlatformEnum platform)
+    {
+        switch (platform)
+        {
+        case PlatformEnum::Desktop:
+            return "Windows.Desktop"sv;
+        case PlatformEnum::Universal:
+            return "Windows.Universal"sv;
         }
 
         return "Unknown"sv;
+    }
+
+    std::string_view UpdateBehaviorToString(UpdateBehaviorEnum updateBehavior)
+    {
+        switch (updateBehavior)
+        {
+        case UpdateBehaviorEnum::Install:
+            return "install"sv;
+        case UpdateBehaviorEnum::UninstallPrevious:
+            return "uninstallPrevious"sv;
+        }
+
+        return "unknown"sv;
     }
 
     std::string_view ScopeToString(ScopeEnum scope)
@@ -598,12 +652,12 @@ namespace AppInstaller::Manifest
         switch (scope)
         {
         case ScopeEnum::User:
-            return "User"sv;
+            return "user"sv;
         case ScopeEnum::Machine:
-            return "Machine"sv;
+            return "machine"sv;
         }
 
-        return "Unknown"sv;
+        return "unknown"sv;
     }
 
     std::string_view InstalledFileTypeToString(InstalledFileTypeEnum installedFileType)
@@ -697,46 +751,46 @@ namespace AppInstaller::Manifest
         switch (expectedReturnCode)
         {
         case ExpectedReturnCodeEnum::AlreadyInstalled:
-            return "AlreadyInstalled"sv;
+            return "alreadyInstalled"sv;
         case ExpectedReturnCodeEnum::PackageInUse:
-            return "PackageInUse"sv;
+            return "packageInUse"sv;
         case ExpectedReturnCodeEnum::PackageInUseByApplication:
-            return "PackageInUseByApplication"sv;
+            return "packageInUseByApplication"sv;
         case ExpectedReturnCodeEnum::InstallInProgress:
-            return "InstallInProgress"sv;
+            return "installInProgress"sv;
         case ExpectedReturnCodeEnum::FileInUse:
-            return "FileInUse"sv;
+            return "fileInUse"sv;
         case ExpectedReturnCodeEnum::MissingDependency:
-            return "MissingDependency"sv;
+            return "missingDependency"sv;
         case ExpectedReturnCodeEnum::DiskFull:
-            return "DiskFull"sv;
+            return "diskFull"sv;
         case ExpectedReturnCodeEnum::InsufficientMemory:
-            return "InsufficientMemory"sv;
+            return "insufficientMemory"sv;
         case ExpectedReturnCodeEnum::InvalidParameter:
-            return "InvalidParameter"sv;
+            return "invalidParameter"sv;
         case ExpectedReturnCodeEnum::NoNetwork:
-            return "NoNetwork"sv;
+            return "noNetwork"sv;
         case ExpectedReturnCodeEnum::ContactSupport:
-            return "ContactSupport"sv;
+            return "contactSupport"sv;
         case ExpectedReturnCodeEnum::RebootRequiredToFinish:
-            return "RebootRequiredToFinish"sv;
+            return "rebootRequiredToFinish"sv;
         case ExpectedReturnCodeEnum::RebootRequiredForInstall:
-            return "RebootRequiredForInstall"sv;
+            return "rebootRequiredForInstall"sv;
         case ExpectedReturnCodeEnum::RebootInitiated:
-            return "RebootInitiated"sv;
+            return "rebootInitiated"sv;
         case ExpectedReturnCodeEnum::CancelledByUser:
-            return "CancelledByUser"sv;
+            return "cancelledByUser"sv;
         case ExpectedReturnCodeEnum::Downgrade:
-            return "Downgrade"sv;
+            return "downgrade"sv;
         case ExpectedReturnCodeEnum::BlockedByPolicy:
-            return "BlockedByPolicy"sv;
+            return "blockedByPolicy"sv;
         case ExpectedReturnCodeEnum::SystemNotSupported:
-            return "SystemNotSupported"sv;
+            return "systemNotSupported"sv;
         case ExpectedReturnCodeEnum::Custom:
-            return "Custom"sv;
+            return "custom"sv;
         }
 
-        return "Unknown";
+        return "unknown";
     }
 
     std::string_view BoolToString(bool value)

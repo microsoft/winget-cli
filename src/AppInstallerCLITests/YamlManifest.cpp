@@ -4,11 +4,13 @@
 #include "TestCommon.h"
 #include <AppInstallerSHA256.h>
 #include <winget/ManifestYamlParser.h>
+#include <winget/ManifestYamlWriter.h>
 #include <winget/Yaml.h>
 
 using namespace TestCommon;
 using namespace AppInstaller::Manifest;
 using namespace AppInstaller::Manifest::YamlParser;
+using namespace AppInstaller::Manifest::YamlWriter;
 using namespace AppInstaller::Utility;
 using namespace AppInstaller::YAML;
 
@@ -860,6 +862,24 @@ TEST_CASE("ValidateV1_5GoodManifestAndVerifyContents", "[ManifestValidation]")
     // Read from merged manifest should have the same content as multi file manifest
     Manifest mergedManifest = YamlParser::CreateFromPath(mergedManifestFile);
     VerifyV1ManifestContent(mergedManifest, false, ManifestVer{ s_ManifestVersionV1_5 });
+}
+
+TEST_CASE("WriteV1_5ManifestAndVerifyContents", "[ManifestCreation]")
+{
+    ManifestValidateOption validateOption;
+    validateOption.FullValidation = true;
+    TempDirectory singletonDirectory{ "SingletonManifest" };
+    CopyTestDataFilesToFolder({ "ManifestV1_5-Singleton.yaml" }, singletonDirectory);
+    Manifest singletonManifest = YamlParser::CreateFromPath(singletonDirectory, validateOption);
+
+    // Write out yaml manifest to the new directory.
+    std::string result = ManifestYamlDepopulator::DepopulateManifest(singletonManifest);
+    // Need to convert this into 
+
+    TempDirectory mergedDirectory{ "MergedManifest" };
+    Manifest mergedManifest = YamlParser::CreateFromPath(mergedDirectory, validateOption);
+    VerifyV1ManifestContent(mergedManifest, true, ManifestVer{ s_ManifestVersionV1_5 });
+
 }
 
 YamlManifestInfo CreateYamlManifestInfo(std::string testDataFile)

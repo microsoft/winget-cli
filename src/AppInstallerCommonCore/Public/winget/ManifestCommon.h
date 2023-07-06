@@ -369,6 +369,14 @@ namespace AppInstaller::Manifest
 
     std::string_view ElevationRequirementToString(ElevationRequirementEnum elevationRequirement);
 
+    std::string_view InstallModeToString(InstallModeEnum installMode);
+
+    std::string_view UnsupportedArgumentToString(UnsupportedArgumentEnum unsupportedArgument);
+
+    std::string_view UpdateBehaviorToString(UpdateBehaviorEnum updateBehavior);
+
+    std::string_view PlatformToString(PlatformEnum platform);
+
     std::string_view ScopeToString(ScopeEnum scope);
 
     std::string_view InstalledFileTypeToString(InstalledFileTypeEnum installedFileType);
