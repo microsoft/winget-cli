@@ -739,7 +739,7 @@ namespace AppInstaller::CLI::Workflow
                     m_context.Reporter.Info() << Resource::String::ConfigurationInDesiredState << std::endl;
                     break;
                 default: // ConfigurationTestResult::Unknown
-                    m_context.Reporter.Error() << Resource::String::ConfigurationUnexpectedTestResult(testResult) << std::endl;
+                    m_context.Reporter.Error() << Resource::String::ConfigurationUnexpectedTestResult(ToIntegral(testResult)) << std::endl;
                     break;
                 }
 
@@ -1023,7 +1023,7 @@ namespace AppInstaller::CLI::Workflow
             context.Reporter.Info() << Resource::String::ConfigurationInDesiredState << std::endl;
             break;
         default: // ConfigurationTestResult::Unknown
-            context.Reporter.Error() << Resource::String::ConfigurationUnexpectedTestResult(result.TestResult()) << std::endl;
+            context.Reporter.Error() << Resource::String::ConfigurationUnexpectedTestResult(ToIntegral(result.TestResult())) << std::endl;
             AICLI_TERMINATE_CONTEXT(E_FAIL);
             break;
         }
