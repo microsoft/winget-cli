@@ -9,6 +9,7 @@ namespace AppInstallerCLIE2ETests
     using System;
     using System.Diagnostics;
     using System.IO;
+    using System.Reflection;
     using System.Threading;
     using Microsoft.Win32;
     using NUnit.Framework;
@@ -695,8 +696,7 @@ namespace AppInstallerCLIE2ETests
         /// <param name="value">Value.</param>
         public static void ModifyPortableARPEntryValue(string productCode, string name, string value)
         {
-            const string uninstallSubKey = @"Software\Microsoft\Windows\CurrentVersion\Uninstall";
-            using (RegistryKey uninstallRegistryKey = Registry.CurrentUser.OpenSubKey(uninstallSubKey, true))
+            using (RegistryKey uninstallRegistryKey = Registry.CurrentUser.OpenSubKey(Constants.UninstallSubKey, true))
             {
                 RegistryKey entry = uninstallRegistryKey.OpenSubKey(productCode, true);
                 entry.SetValue(name, value);
@@ -789,6 +789,45 @@ namespace AppInstallerCLIE2ETests
                 {
                     RunCommand("pwsh", $"-Command \"Install-Module {moduleName} -Repository {repository} -Force\"");
                 }
+            }
+        }
+
+        /// <summary>
+        /// Creates an ARP entry from the given values.
+        /// </summary>
+        /// <param name="productCode">Product code of the entry.</param>
+        /// <param name="properties">The properties to set in the entry.</param>
+        /// <param name="scope">Scope of the entry.</param>
+        public static void CreateARPEntry(
+            string productCode,
+            object properties,
+            Scope scope = Scope.User)
+        {
+            RegistryKey baseKey = (scope == Scope.User) ? Registry.CurrentUser : Registry.LocalMachine;
+            using (RegistryKey uninstallRegistryKey = baseKey.OpenSubKey(Constants.UninstallSubKey, true))
+            {
+                RegistryKey entry = uninstallRegistryKey.CreateSubKey(productCode, true);
+
+                foreach (PropertyInfo property in properties.GetType().GetProperties())
+                {
+                    entry.SetValue(property.Name, property.GetValue(properties));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Removes an ARP entry.
+        /// </summary>
+        /// <param name="productCode">Product code of the entry.</param>
+        /// <param name="scope">Scope of the entry.</param>
+        public static void RemoveARPEntry(
+            string productCode,
+            Scope scope = Scope.User)
+        {
+            RegistryKey baseKey = (scope == Scope.User) ? Registry.CurrentUser : Registry.LocalMachine;
+            using (RegistryKey uninstallRegistryKey = baseKey.OpenSubKey(Constants.UninstallSubKey, true))
+            {
+                uninstallRegistryKey.DeleteSubKey(productCode);
             }
         }
 
