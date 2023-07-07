@@ -188,4 +188,4 @@ namespace AppInstaller::Logging
 }
 
 std::ostream& operator<<(std::ostream& out, const std::chrono::system_clock::time_point& time);
-std::ostream& operator<<(std::ostream& out, const GUID& time);
+std::ostream& operator<<(std::ostream& out, const GUID& guid);

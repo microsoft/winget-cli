@@ -27,12 +27,6 @@
     <ClCompile Include="ConfigurationUnit.cpp">
       <Filter>API Source</Filter>
     </ClCompile>
-    <ClCompile Include="ConfigurationUnitResultInformation.cpp">
-      <Filter>API Source</Filter>
-    </ClCompile>
-    <ClCompile Include="DiagnosticInformation.cpp">
-      <Filter>API Source</Filter>
-    </ClCompile>
     <ClCompile Include="GetConfigurationUnitSettingsResult.cpp">
       <Filter>API Source</Filter>
     </ClCompile>
@@ -63,15 +57,6 @@
     <ClCompile Include="ConfigurationSetApplyProcessor.cpp">
       <Filter>Internals</Filter>
     </ClCompile>
-    <ClCompile Include="ApplySettingsResult.cpp">
-      <Filter>API Source</Filter>
-    </ClCompile>
-    <ClCompile Include="GetSettingsResult.cpp">
-      <Filter>API Source</Filter>
-    </ClCompile>
-    <ClCompile Include="TestSettingsResult.cpp">
-      <Filter>API Source</Filter>
-    </ClCompile>
     <ClCompile Include="GetConfigurationUnitDetailsResult.cpp">
       <Filter>API Source</Filter>
     </ClCompile>
@@ -86,6 +71,15 @@
     </ClCompile>
     <ClCompile Include="ConfigurationSetParser_0_2.cpp">
       <Filter>Parser</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigurationUnitResultInformation.cpp">
+      <Filter>Internals</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigurationStaticFunctions.cpp">
+      <Filter>API Source</Filter>
+    </ClCompile>
+    <ClCompile Include="DiagnosticInformationInstance.cpp">
+      <Filter>Internals</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -112,12 +106,6 @@
       <Filter>API Headers</Filter>
     </ClInclude>
     <ClInclude Include="ConfigurationUnit.h">
-      <Filter>API Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="ConfigurationUnitResultInformation.h">
-      <Filter>API Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="DiagnosticInformation.h">
       <Filter>API Headers</Filter>
     </ClInclude>
     <ClInclude Include="GetConfigurationUnitSettingsResult.h">
@@ -156,15 +144,6 @@
     <ClInclude Include="ExceptionResultHelpers.h">
       <Filter>Internals</Filter>
     </ClInclude>
-    <ClInclude Include="ApplySettingsResult.h">
-      <Filter>API Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="GetSettingsResult.h">
-      <Filter>API Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="TestSettingsResult.h">
-      <Filter>API Headers</Filter>
-    </ClInclude>
     <ClInclude Include="GetConfigurationUnitDetailsResult.h">
       <Filter>API Headers</Filter>
     </ClInclude>
@@ -179,6 +158,15 @@
     </ClInclude>
     <ClInclude Include="ConfigurationSetParser_0_2.h">
       <Filter>Parser</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigurationUnitResultInformation.h">
+      <Filter>Internals</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigurationStaticFunctions.h">
+      <Filter>API Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="DiagnosticInformationInstance.h">
+      <Filter>Internals</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

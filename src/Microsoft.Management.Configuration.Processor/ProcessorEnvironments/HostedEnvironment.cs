@@ -30,7 +30,7 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
     /// </summary>
     internal class HostedEnvironment : IProcessorEnvironment
     {
-        private readonly ConfigurationProcessorType type;
+        private readonly PowerShellConfigurationProcessorType type;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HostedEnvironment"/> class.
@@ -38,7 +38,7 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
         /// <param name="runspace">PowerShell Runspace.</param>
         /// <param name="type">Configuration processor type.</param>
         /// <param name="dscModule">IDscModule.</param>
-        public HostedEnvironment(Runspace runspace, ConfigurationProcessorType type, IDscModule dscModule)
+        public HostedEnvironment(Runspace runspace, PowerShellConfigurationProcessorType type, IDscModule dscModule)
         {
             this.Runspace = runspace;
             this.type = type;
@@ -56,7 +56,7 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
         /// <summary>
         /// Gets or initializes the set processor factory.
         /// </summary>
-        internal ConfigurationSetProcessorFactory? SetProcessorFactory { get; init; }
+        internal PowerShellConfigurationSetProcessorFactory? SetProcessorFactory { get; init; }
 
         /// <inheritdoc/>
         public void ValidateRunspace()
@@ -254,6 +254,73 @@ namespace Microsoft.Management.Configuration.Processor.Runspaces
             var result = pwsh.AddCommand(Commands.GetInstalledModule)
                              .AddParameters(parameters)
                              .Invoke()
+                             .FirstOrDefault();
+
+            this.OnDiagnostics(DiagnosticLevel.Verbose, pwsh);
+            return result;
+        }
+
+        /// <inheritdoc/>
+        public PSObject? FindModule(ConfigurationUnitInternal unitInternal)
+        {
+            // Don't use ModuleSpecification here. Each parameter is independent and
+            // we need version even if a module was not specified.
+            string? moduleName = unitInternal.GetDirective<string>(DirectiveConstants.Module);
+
+            if (string.IsNullOrEmpty(moduleName))
+            {
+                return null;
+            }
+
+            var semanticVersion = unitInternal.GetSemanticVersion();
+            var semanticMinVersion = unitInternal.GetSemanticMinVersion();
+            var semanticMaxVersion = unitInternal.GetSemanticMaxVersion();
+            string? repository = unitInternal.GetDirective<string>(DirectiveConstants.Repository);
+
+            bool? allowPrerelease = unitInternal.GetDirective(DirectiveConstants.AllowPrerelease);
+            bool implicitAllowPrerelease = false;
+
+            var parameters = new Dictionary<string, object>()
+            {
+                { Parameters.Name, moduleName },
+            };
+
+            if (semanticVersion != null)
+            {
+                implicitAllowPrerelease |= semanticVersion.IsPrerelease;
+                parameters.Add(Parameters.RequiredVersion, semanticVersion.ToString());
+            }
+
+            if (semanticMinVersion != null)
+            {
+                implicitAllowPrerelease |= semanticMinVersion.IsPrerelease;
+                parameters.Add(Parameters.MinimumVersion, semanticMinVersion.ToString());
+            }
+
+            if (semanticMaxVersion != null)
+            {
+                implicitAllowPrerelease |= semanticMaxVersion.IsPrerelease;
+                parameters.Add(Parameters.MaximumVersion, semanticMaxVersion.ToString());
+            }
+
+            if (!string.IsNullOrEmpty(repository))
+            {
+                parameters.Add(Parameters.Repository, repository);
+            }
+
+            if (allowPrerelease.HasValue || implicitAllowPrerelease)
+            {
+                // If explicit allowPrerelease = false don't use implicit.
+                bool allow = allowPrerelease.HasValue ? allowPrerelease.Value : implicitAllowPrerelease;
+                parameters.Add(Parameters.AllowPrerelease, allow);
+            }
+
+            using PowerShell pwsh = PowerShell.Create(this.Runspace);
+
+            pwsh.AddCommand(Commands.FindModule)
+                .AddParameters(parameters);
+
+            var result = pwsh.Invoke()
                              .FirstOrDefault();
 
             this.OnDiagnostics(DiagnosticLevel.Verbose, pwsh);

@@ -117,6 +117,13 @@ namespace Microsoft.Management.Configuration.Processor.ProcessorEnvironments
         PSObject? GetInstalledModule(ModuleSpecification moduleSpecification);
 
         /// <summary>
+        /// Calls Find-Module.
+        /// </summary>
+        /// <param name="unitInternal">Configuration unit internal.</param>
+        /// <returns>Module info, null if not found.</returns>
+        PSObject? FindModule(ConfigurationUnitInternal unitInternal);
+
+        /// <summary>
         /// Calls Find-DscResource.
         /// </summary>
         /// <param name="unitInternal">Configuration unit internal.</param>

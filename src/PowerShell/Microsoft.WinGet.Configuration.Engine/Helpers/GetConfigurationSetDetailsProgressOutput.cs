@@ -91,7 +91,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Helpers
             this.cmd.CompleteProgress(this.activityId, this.activity, this.completeMessage);
         }
 
-        private void LogFailedGetConfigurationUnitDetails(ConfigurationUnit unit, ConfigurationUnitResultInformation resultInformation)
+        private void LogFailedGetConfigurationUnitDetails(ConfigurationUnit unit, IConfigurationUnitResultInformation resultInformation)
         {
             if (resultInformation.ResultCode != null)
             {

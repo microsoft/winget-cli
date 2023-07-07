@@ -77,7 +77,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             }
             else
             {
-                var unit = this.CreteConfigurationUnit();
+                var unit = this.CreateConfigurationUnit();
                 var (dscResourceInfo, psModuleInfo) = this.GetResourceAndModuleInfo(unit);
 
                 DscResourceInfoInternal? dscResourceInfoInput = null;
@@ -174,7 +174,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             }
         }
 
-        private ConfigurationUnit CreteConfigurationUnit()
+        private ConfigurationUnit CreateConfigurationUnit()
         {
             var unit = new ConfigurationUnit();
             unit.UnitName = "SimpleFileResource";

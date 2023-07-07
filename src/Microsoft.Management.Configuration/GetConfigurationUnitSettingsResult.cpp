@@ -12,12 +12,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     {
     }
 
-    void GetConfigurationUnitSettingsResult::ResultInformation(const ConfigurationUnitResultInformation& resultInformation)
+    void GetConfigurationUnitSettingsResult::ResultInformation(const IConfigurationUnitResultInformation& resultInformation)
     {
         m_resultInformation = resultInformation;
     }
 
-    Configuration::ConfigurationUnitResultInformation GetConfigurationUnitSettingsResult::ResultInformation() const
+    IConfigurationUnitResultInformation GetConfigurationUnitSettingsResult::ResultInformation() const
     {
         return m_resultInformation;
     }
