@@ -100,39 +100,6 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         }
 
         /// <summary>
-        /// Installs AppInstaller froma GitHub release.
-        /// If allUsers is true uses Add-AppxProvisionedPackage otherwise Add-AppxPacakge.
-        /// </summary>
-        /// <param name="versionTag">Version tag of GitHub release.</param>
-        /// <param name="allUsers">If install for all users is needed.</param>
-        public void Install(string versionTag, bool allUsers)
-        {
-            if (allUsers)
-            {
-                this.AddProvisionPackage(versionTag);
-            }
-            else
-            {
-                this.AddAppInstallerBundle(versionTag, false);
-            }
-        }
-
-        /// <summary>
-        /// Downgrades app installer.
-        /// </summary>
-        /// <param name="versionTag">Version tag of GitHub release.</param>
-        /// <param name="allUsers">If install for all users is needed.</param>
-        public void InstallDowngrade(string versionTag, bool allUsers)
-        {
-            this.AddAppInstallerBundle(versionTag, true);
-
-            if (allUsers)
-            {
-                // TODO: what happen in add-provisioned with downgrade?
-            }
-        }
-
-        /// <summary>
         /// Calls Add-AppxPackage to register with AppInstaller's AppxManifest.xml.
         /// </summary>
         public void RegisterAppInstaller()
@@ -156,7 +123,43 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 });
         }
 
-        private void AddProvisionPackage(string versionTag)
+        /// <summary>
+        /// Install AppInstaller bundle from GitHub release.
+        /// </summary>
+        /// <param name="versionTag">Version tag of GitHub release.</param>
+        /// <param name="allUsers">If install for all users is needed.</param>
+        /// <param name="isDowngrade">Is downgrade.</param>
+        public void InstallFromGitHubRelease(string versionTag, bool allUsers, bool isDowngrade)
+        {
+            using var bundle = new TempFile();
+            var gitHubRelease = new GitHubRelease();
+            gitHubRelease.DownloadRelease(versionTag, bundle.FullPath);
+
+            this.VerifyDependencies();
+
+            if (isDowngrade)
+            {
+                this.AddAppInstallerBundle(bundle.FullPath, true);
+
+                if (allUsers)
+                {
+                    this.AddProvisionPackage(bundle.FullPath, versionTag);
+                }
+            }
+            else
+            {
+                if (allUsers)
+                {
+                    this.AddProvisionPackage(bundle.FullPath, versionTag);
+                }
+                else
+                {
+                    this.AddAppInstallerBundle(bundle.FullPath, false);
+                }
+            }
+        }
+
+        private void AddProvisionPackage(string bundlePath, string versionTag)
         {
             // TODO: verify system.
             if (!Utilities.ExecutingAsAdministrator)
@@ -165,41 +168,29 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 throw new System.Exception("Admin bro");
             }
 
-            using var bundle = new TempFile();
             using var licenseFile = new TempFile();
-
             var gitHubRelease = new GitHubRelease();
-            gitHubRelease.DownloadRelease(versionTag, bundle.FullPath);
             gitHubRelease.DownloadLicense(versionTag, licenseFile.FullPath);
-
-            this.VerifyDependencies();
 
             try
             {
                 var ps = PowerShell.Create(RunspaceMode.CurrentRunspace);
                 ps.AddCommand("Add-AppxProvisionedPackage")
                   .AddParameter("Online")
-                  .AddParameter("PackagePath", bundle.FullPath)
+                  .AddParameter("PackagePath", bundlePath)
                   .AddParameter("LicensePath", licenseFile.FullPath)
                   .AddParameter(ErrorAction, Stop)
                   .Invoke();
             }
             catch (RuntimeException e)
             {
-                this.psCmdlet.WriteError(e.ErrorRecord);
+                this.psCmdlet.WriteDebug($"Failed installing bundle via Add-AppxProvisionedPackage {e}");
                 throw e;
             }
         }
 
-        private void AddAppInstallerBundle(string versionTag, bool downgrade = false)
+        private void AddAppInstallerBundle(string bundlePath, bool downgrade)
         {
-            using var bundle = new TempFile();
-
-            var gitHubRelease = new GitHubRelease();
-            gitHubRelease.DownloadRelease(versionTag, bundle.FullPath);
-
-            this.VerifyDependencies();
-
             var options = new List<string>();
             if (downgrade)
             {
@@ -212,14 +203,14 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                     AddAppxPackage,
                     new Dictionary<string, object>
                     {
-                        { Path, bundle.FullPath },
+                        { Path, bundlePath },
                         { ErrorAction, Stop },
                     },
                     options);
             }
             catch (RuntimeException e)
             {
-                this.psCmdlet.WriteError(e.ErrorRecord);
+                this.psCmdlet.WriteDebug($"Failed installing bundle via Add-AppxPackage {e}");
                 throw e;
             }
         }

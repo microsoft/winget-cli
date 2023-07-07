@@ -135,34 +135,28 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         private void InstallDifferentVersion(WinGetVersion toInstallVersion, bool allUsers)
         {
             var installedVersion = WinGetVersion.InstalledWinGetVersion;
+            bool isDowngrade = installedVersion.CompareAsDeployment(toInstallVersion) > 0;
 
-            this.PsCmdlet.WriteDebug($"Installed WinGet version {installedVersion.TagVersion}");
-            this.PsCmdlet.WriteDebug($"Installing WinGet version {toInstallVersion.TagVersion}");
-
+            this.PsCmdlet.WriteDebug($"Installed WinGet version '{installedVersion.TagVersion}' " +
+                $"Installing WinGet version '{toInstallVersion.TagVersion}' " +
+                $"Is downgrade {isDowngrade}");
             var appxModule = new AppxModuleHelper(this.PsCmdlet);
-            if (installedVersion.CompareAsDeployment(toInstallVersion) > 0)
-            {
-                appxModule.InstallDowngrade(toInstallVersion.TagVersion, allUsers);
-            }
-            else
-            {
-                appxModule.Install(toInstallVersion.TagVersion, allUsers);
-            }
+            appxModule.InstallFromGitHubRelease(toInstallVersion.TagVersion, allUsers, isDowngrade);
         }
 
-        private void Install(string expectedVersion, bool allUsers)
+        private void Install(string toInstallVersion, bool allUsers)
         {
-            // If we are here and expectedVersion is empty, it means that they just ran Repair-WinGetPackageManager.
+            // If we are here and toInstallVersion is empty, it means that they just ran Repair-WinGetPackageManager.
             // When there is not version specified, we don't want to assume an empty version means latest, but in
             // this particular case we need to.
-            if (string.IsNullOrEmpty(expectedVersion))
+            if (string.IsNullOrEmpty(toInstallVersion))
             {
                 var gitHubRelease = new GitHubRelease();
-                expectedVersion = gitHubRelease.GetLatestVersionTagName(false);
+                toInstallVersion = gitHubRelease.GetLatestVersionTagName(false);
             }
 
             var appxModule = new AppxModuleHelper(this.PsCmdlet);
-            appxModule.Install(expectedVersion, allUsers);
+            appxModule.InstallFromGitHubRelease(toInstallVersion, allUsers, false);
         }
 
         private void Register()

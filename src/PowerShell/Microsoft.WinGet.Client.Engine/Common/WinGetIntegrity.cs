@@ -74,7 +74,7 @@ namespace Microsoft.WinGet.Client.Engine.Common
                         IntegrityCategory.UnexpectedVersion,
                         string.Format(
                             Resources.IntegrityUnexpectedVersionMessage,
-                            installedVersion,
+                            installedVersion.TagVersion,
                             expectedVersion));
                 }
             }
