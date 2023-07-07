@@ -5,6 +5,16 @@
 
 namespace AppInstaller::Repository
 {
+    // To allow for runtime casting from ISource to the specific types, this enum contains all of the ISource implementations.
+    enum class ISourceType
+    {
+        TestSource,
+        ConfigurableTestSource,
+        RestSource,
+        SQLiteIndexSource,
+        CompositeSource,
+    };
+
     // Internal interface for interacting with a source from outside of the repository lib.
     struct ISource
     {
