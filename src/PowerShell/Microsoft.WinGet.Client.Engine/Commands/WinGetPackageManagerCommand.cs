@@ -57,23 +57,25 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// Repairs winget using the latest version on winget-cli.
         /// </summary>
         /// <param name="preRelease">Use prerelease version on GitHub.</param>
-        public void RepairUsingLatest(bool preRelease)
+        /// <param name="allUsers">Install for all users. Requires admin.</param>
+        public void RepairUsingLatest(bool preRelease, bool allUsers)
         {
             var gitHubRelease = new GitHubRelease();
             string expectedVersion = gitHubRelease.GetLatestVersionTagName(preRelease);
-            this.Repair(expectedVersion);
+            this.Repair(expectedVersion, allUsers);
         }
 
         /// <summary>
         /// Repairs winget if needed.
         /// </summary>
         /// <param name="expectedVersion">The expected version, if any.</param>
-        public void Repair(string expectedVersion)
+        /// <param name="allUsers">Install for all users. Requires admin.</param>
+        public void Repair(string expectedVersion, bool allUsers)
         {
-            this.RepairStateMachine(expectedVersion, new HashSet<IntegrityCategory>());
+            this.RepairStateMachine(expectedVersion, allUsers, new HashSet<IntegrityCategory>());
         }
 
-        private void RepairStateMachine(string expectedVersion, HashSet<IntegrityCategory> seenCategories)
+        private void RepairStateMachine(string expectedVersion, bool allUsers, HashSet<IntegrityCategory> seenCategories)
         {
             try
             {
@@ -94,28 +96,27 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                 switch (e.Category)
                 {
                     case IntegrityCategory.UnexpectedVersion:
-                        this.InstallDifferentVersion(new WinGetVersion(expectedVersion));
+                        this.InstallDifferentVersion(new WinGetVersion(expectedVersion), allUsers);
                         break;
                     case IntegrityCategory.NotInPath:
                         this.RepairEnvPath();
                         break;
                     case IntegrityCategory.AppInstallerNotRegistered:
-                        var appxModule = new AppxModuleHelper(this.PsCmdlet);
-                        appxModule.RegisterAppInstaller();
+                        this.Register();
                         break;
                     case IntegrityCategory.AppInstallerNotInstalled:
                     case IntegrityCategory.AppInstallerNotSupported:
                     case IntegrityCategory.Failure:
-                        // If we are here and expectedVersion is empty, it means that they just ran Repair-WinGetPackageManager.
-                        // When there is not version specified, we don't want to assume an empty version means latest, but in
-                        // this particular case we need to.
-                        if (string.IsNullOrEmpty(expectedVersion))
+                        this.Install(expectedVersion, allUsers);
+                        break;
+                    case IntegrityCategory.AppInstallerNoLicense:
+                        if (!allUsers)
                         {
-                            var gitHubRelease = new GitHubRelease();
-                            expectedVersion = gitHubRelease.GetLatestVersionTagName(false);
+                            // This requires -AllUsers.
+                            throw;
                         }
 
-                        this.DownloadAndInstall(expectedVersion, false);
+                        this.Install(expectedVersion, allUsers);
                         break;
                     case IntegrityCategory.AppExecutionAliasDisabled:
                         // Sorry, but the user has to manually enabled it.
@@ -127,36 +128,47 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                         throw new NotSupportedException();
                 }
 
-                this.RepairStateMachine(expectedVersion, seenCategories);
+                this.RepairStateMachine(expectedVersion, allUsers, seenCategories);
             }
         }
 
-        private void InstallDifferentVersion(WinGetVersion toInstallVersion)
+        private void InstallDifferentVersion(WinGetVersion toInstallVersion, bool allUsers)
         {
             var installedVersion = WinGetVersion.InstalledWinGetVersion;
 
             this.PsCmdlet.WriteDebug($"Installed WinGet version {installedVersion.TagVersion}");
             this.PsCmdlet.WriteDebug($"Installing WinGet version {toInstallVersion.TagVersion}");
 
-            bool downgrade = false;
+            var appxModule = new AppxModuleHelper(this.PsCmdlet);
             if (installedVersion.CompareAsDeployment(toInstallVersion) > 0)
             {
-                downgrade = true;
+                appxModule.InstallDowngrade(toInstallVersion.TagVersion, allUsers);
             }
-
-            this.DownloadAndInstall(toInstallVersion.TagVersion, downgrade);
+            else
+            {
+                appxModule.Install(toInstallVersion.TagVersion, allUsers);
+            }
         }
 
-        private void DownloadAndInstall(string versionTag, bool downgrade)
+        private void Install(string expectedVersion, bool allUsers)
         {
-            using var tempFile = new TempFile();
-
-            // Download and install.
-            var gitHubRelease = new GitHubRelease();
-            gitHubRelease.DownloadRelease(versionTag, tempFile.FullPath);
+            // If we are here and expectedVersion is empty, it means that they just ran Repair-WinGetPackageManager.
+            // When there is not version specified, we don't want to assume an empty version means latest, but in
+            // this particular case we need to.
+            if (string.IsNullOrEmpty(expectedVersion))
+            {
+                var gitHubRelease = new GitHubRelease();
+                expectedVersion = gitHubRelease.GetLatestVersionTagName(false);
+            }
 
             var appxModule = new AppxModuleHelper(this.PsCmdlet);
-            appxModule.AddAppInstallerBundle(tempFile.FullPath, downgrade);
+            appxModule.Install(expectedVersion, allUsers);
+        }
+
+        private void Register()
+        {
+            var appxModule = new AppxModuleHelper(this.PsCmdlet);
+            appxModule.RegisterAppInstaller();
         }
 
         private void RepairEnvPath()

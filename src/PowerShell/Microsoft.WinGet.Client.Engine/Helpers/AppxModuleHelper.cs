@@ -100,42 +100,35 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         }
 
         /// <summary>
-        /// Calls Add-AppxPackage with the specified path.
+        /// Installs AppInstaller froma GitHub release.
+        /// If allUsers is true uses Add-AppxProvisionedPackage otherwise Add-AppxPacakge.
         /// </summary>
-        /// <param name="localPath">The path of the package to add.</param>
-        /// <param name="downgrade">If the package version is lower than the installed one.</param>
-        public void AddAppInstallerBundle(string localPath, bool downgrade = false)
+        /// <param name="versionTag">Version tag of GitHub release.</param>
+        /// <param name="allUsers">If install for all users is needed.</param>
+        public void Install(string versionTag, bool allUsers)
         {
-            // A better implementation would use Add-AppxPackage with -DependencyPath, but
-            // the Appx module needs to be remoted into Windows PowerShell. When the string[] parameter
-            // gets deserialized from Core the result is a single string which breaks Add-AppxPackage.
-            // Here we should: if we are in Windows Powershell then run Add-AppxPackage with -DependencyPath
-            // if we are in Core, then start powershell.exe and run the same command. Right now, we just
-            // do Add-AppxPackage for each one.
-            this.InstallVCLibsDependencies();
-            this.InstallUiXaml();
-
-            var options = new List<string>();
-            if (downgrade)
+            if (allUsers)
             {
-                options.Add(ForceUpdateFromAnyVersion);
+                this.AddProvisionPackage(versionTag);
             }
-
-            try
+            else
             {
-                _ = this.ExecuteAppxCmdlet(
-                AddAppxPackage,
-                new Dictionary<string, object>
-                {
-                    { Path, localPath },
-                    { ErrorAction, Stop },
-                },
-                options);
+                this.AddAppInstallerBundle(versionTag, false);
             }
-            catch (RuntimeException e)
+        }
+
+        /// <summary>
+        /// Downgrades app installer.
+        /// </summary>
+        /// <param name="versionTag">Version tag of GitHub release.</param>
+        /// <param name="allUsers">If install for all users is needed.</param>
+        public void InstallDowngrade(string versionTag, bool allUsers)
+        {
+            this.AddAppInstallerBundle(versionTag, true);
+
+            if (allUsers)
             {
-                this.psCmdlet.WriteError(e.ErrorRecord);
-                throw e;
+                // TODO: what happen in add-provisioned with downgrade?
             }
         }
 
@@ -161,6 +154,86 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                     Register,
                     DisableDevelopmentMode,
                 });
+        }
+
+        private void AddProvisionPackage(string versionTag)
+        {
+            // TODO: verify system.
+            if (!Utilities.ExecutingAsAdministrator)
+            {
+                // Add-AppxProvisionedPackage
+                throw new System.Exception("Admin bro");
+            }
+
+            using var bundle = new TempFile();
+            using var licenseFile = new TempFile();
+
+            var gitHubRelease = new GitHubRelease();
+            gitHubRelease.DownloadRelease(versionTag, bundle.FullPath);
+            gitHubRelease.DownloadLicense(versionTag, licenseFile.FullPath);
+
+            this.VerifyDependencies();
+
+            try
+            {
+                var ps = PowerShell.Create(RunspaceMode.CurrentRunspace);
+                ps.AddCommand("Add-AppxProvisionedPackage")
+                  .AddParameter("Online")
+                  .AddParameter("PackagePath", bundle.FullPath)
+                  .AddParameter("LicensePath", licenseFile.FullPath)
+                  .AddParameter(ErrorAction, Stop)
+                  .Invoke();
+            }
+            catch (RuntimeException e)
+            {
+                this.psCmdlet.WriteError(e.ErrorRecord);
+                throw e;
+            }
+        }
+
+        private void AddAppInstallerBundle(string versionTag, bool downgrade = false)
+        {
+            using var bundle = new TempFile();
+
+            var gitHubRelease = new GitHubRelease();
+            gitHubRelease.DownloadRelease(versionTag, bundle.FullPath);
+
+            this.VerifyDependencies();
+
+            var options = new List<string>();
+            if (downgrade)
+            {
+                options.Add(ForceUpdateFromAnyVersion);
+            }
+
+            try
+            {
+                _ = this.ExecuteAppxCmdlet(
+                    AddAppxPackage,
+                    new Dictionary<string, object>
+                    {
+                        { Path, bundle.FullPath },
+                        { ErrorAction, Stop },
+                    },
+                    options);
+            }
+            catch (RuntimeException e)
+            {
+                this.psCmdlet.WriteError(e.ErrorRecord);
+                throw e;
+            }
+        }
+
+        private void VerifyDependencies()
+        {
+            // A better implementation would use Add-AppxPackage with -DependencyPath, but
+            // the Appx module needs to be remoted into Windows PowerShell. When the string[] parameter
+            // gets deserialized from Core the result is a single string which breaks Add-AppxPackage.
+            // Here we should: if we are in Windows Powershell then run Add-AppxPackage with -DependencyPath
+            // if we are in Core, then start powershell.exe and run the same command. Right now, we just
+            // do Add-AppxPackage for each one.
+            this.InstallVCLibsDependencies();
+            this.InstallUiXaml();
         }
 
         private PSObject GetAppxObject(string packageName)

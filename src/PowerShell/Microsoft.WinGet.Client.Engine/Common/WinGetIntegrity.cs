@@ -10,7 +10,6 @@ namespace Microsoft.WinGet.Client.Engine.Common
     using System.ComponentModel;
     using System.IO;
     using System.Management.Automation;
-    using System.Runtime.CompilerServices;
     using Microsoft.WinGet.Client.Engine.Exceptions;
     using Microsoft.WinGet.Client.Engine.Helpers;
     using Microsoft.WinGet.Client.Engine.Properties;
@@ -85,6 +84,25 @@ namespace Microsoft.WinGet.Client.Engine.Common
         {
             // Ok, so you are here because calling winget --version failed. Lets try to figure out why.
 
+            // When running winget.exe on PowerShell the message of the Win32Exception will distinguish between
+            // The system cannot find the file specified and No applicable app licenses found but of course
+            // the HRESULT is the same (E_FAIL).
+            // To not compare strings let Powershell handle it. If calling winget throws an
+            // ApplicationFailedException then is most likely that the license is not there.
+            try
+            {
+                var ps = PowerShell.Create(RunspaceMode.CurrentRunspace);
+                ps.AddCommand("winget").Invoke();
+            }
+            catch (ApplicationFailedException e)
+            {
+                psCmdlet.WriteDebug(e.Message);
+                return IntegrityCategory.AppInstallerNoLicense;
+            }
+            catch (Exception)
+            {
+            }
+
             // First lets check if the file is there, which means it is installed or someone is taking our place.
             if (File.Exists(WingetCLIWrapper.WinGetFullPath))
             {
@@ -132,18 +150,6 @@ namespace Microsoft.WinGet.Client.Engine.Common
             if (appInstallerVersion.CompareTo(minAppInstallerVersion) < 0)
             {
                 return IntegrityCategory.AppInstallerNotSupported;
-            }
-
-            // PowerShell is nice enough to tell us about the license.
-            try
-            {
-                var ps = PowerShell.Create(RunspaceMode.CurrentRunspace);
-                ps.AddCommand("winget").Invoke();
-            }
-            catch (ApplicationFailedException e)
-            {
-                psCmdlet.WriteDebug(e.Message);
-                return IntegrityCategory.AppInstallerNoLicense;
             }
 
             // If we get here, we know the package is in the machine but not registered for the user.

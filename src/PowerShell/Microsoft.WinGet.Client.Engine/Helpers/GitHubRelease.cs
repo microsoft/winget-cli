@@ -24,6 +24,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         private const string UserAgent = "winget-powershell";
         private const string MsixBundleName = "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle";
         private const string ContentType = "application/octet-stream";
+        private const string License = "License1.xml";
 
         private readonly IGitHubClient gitHubClient;
 
@@ -36,13 +37,23 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         }
 
         /// <summary>
-        /// Download a release from winget-cli.
+        /// Download a release msixbundle from winget-cli.
         /// </summary>
         /// <param name="releaseTag">Optional release name. If null, gets latest.</param>
         /// <param name="outputFile">Output file.</param>
         public void DownloadRelease(string releaseTag, string outputFile)
         {
             this.DownloadReleaseAsync(releaseTag, outputFile).GetAwaiter().GetResult();
+        }
+
+        /// <summary>
+        /// Download a release license file from winget-cli.
+        /// </summary>
+        /// <param name="releaseTag">Optional release name. If null, gets latest.</param>
+        /// <param name="outputFile">Output file.</param>
+        public void DownloadLicense(string releaseTag, string outputFile)
+        {
+            this.DownloadLicenseAsync(releaseTag, outputFile).GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -79,6 +90,22 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             var msixBundleAsset = release.Assets.Where(a => a.Name == MsixBundleName).First();
 
             await this.DownloadUrlAsync(msixBundleAsset.Url, outputFile);
+        }
+
+        /// <summary>
+        /// Downloads the license xml file from the release.
+        /// </summary>
+        /// <param name="releaseTag">Release tag.</param>
+        /// <param name="outputFile">Output file.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task DownloadLicenseAsync(string releaseTag, string outputFile)
+        {
+            Release release = await this.gitHubClient.Repository.Release.Get(Owner, Repo, releaseTag);
+
+            // Get asset and download.
+            var licenseAsset = release.Assets.Where(a => a.Name.EndsWith(License)).First();
+
+            await this.DownloadUrlAsync(licenseAsset.Url, outputFile);
         }
 
         /// <summary>
