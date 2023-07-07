@@ -108,7 +108,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitSkipped);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationWaitingOnAnother);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationWarning);
-        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationWarningPrompt);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationWarningPromptApply);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationWarningPromptTest);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureShowCommandLongDescription);

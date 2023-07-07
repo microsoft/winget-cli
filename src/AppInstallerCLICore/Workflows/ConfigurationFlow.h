@@ -33,7 +33,15 @@ namespace AppInstaller::CLI::Workflow
     // Required Args: None
     // Inputs: None
     // Outputs: None
-    void ConfirmConfigurationProcessing(Execution::Context& context);
+    struct ConfirmConfigurationProcessing : public WorkflowTask
+    {
+        ConfirmConfigurationProcessing(bool isApply) : WorkflowTask("ConfirmConfigurationProcessing"), m_isApply(isApply) {}
+
+        void operator()(Execution::Context& context) const override;
+
+    private:
+        bool m_isApply;
+    };
 
     // Applies the configuration set, showing progress as it proceeds.
     // Required Args: None

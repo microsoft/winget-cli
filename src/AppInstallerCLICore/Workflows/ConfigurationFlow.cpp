@@ -730,16 +730,16 @@ namespace AppInstaller::CLI::Workflow
                     OutputUnitRunFailure(m_context, unit, resultInformation);
                     break;
                 case ConfigurationTestResult::Negative:
-                    m_context.Reporter.Warn() << Resource::String::ConfigurationNotInDesiredState << std::endl;
+                    m_context.Reporter.Warn() << "  "_liv << Resource::String::ConfigurationNotInDesiredState << std::endl;
                     break;
                 case ConfigurationTestResult::NotRun:
-                    m_context.Reporter.Warn() << Resource::String::ConfigurationNoTestRun << std::endl;
+                    m_context.Reporter.Warn() << "  "_liv << Resource::String::ConfigurationNoTestRun << std::endl;
                     break;
                 case ConfigurationTestResult::Positive:
-                    m_context.Reporter.Info() << Resource::String::ConfigurationInDesiredState << std::endl;
+                    m_context.Reporter.Info() << "  "_liv << Resource::String::ConfigurationInDesiredState << std::endl;
                     break;
                 default: // ConfigurationTestResult::Unknown
-                    m_context.Reporter.Error() << Resource::String::ConfigurationUnexpectedTestResult(ToIntegral(testResult)) << std::endl;
+                    m_context.Reporter.Error() << "  "_liv << Resource::String::ConfigurationUnexpectedTestResult(ToIntegral(testResult)) << std::endl;
                     break;
                 }
 
@@ -946,7 +946,7 @@ namespace AppInstaller::CLI::Workflow
         UNREFERENCED_PARAMETER(context);
     }
 
-    void ConfirmConfigurationProcessing(Execution::Context& context)
+    void ConfirmConfigurationProcessing::operator()(Execution::Context& context) const
     {
         context.Reporter.Warn() << Resource::String::ConfigurationWarning << std::endl;
 
@@ -958,7 +958,8 @@ namespace AppInstaller::CLI::Workflow
                 return;
             }
 
-            if (!context.Reporter.PromptForBoolResponse(Resource::String::ConfigurationWarningPrompt, Reporter::Level::Warning))
+            auto promptString = m_isApply ? Resource::String::ConfigurationWarningPromptApply : Resource::String::ConfigurationWarningPromptTest;
+            if (!context.Reporter.PromptForBoolResponse(promptString, Reporter::Level::Warning))
             {
                 AICLI_TERMINATE_CONTEXT(WINGET_CONFIG_ERROR_WARNING_NOT_ACCEPTED);
             }
