@@ -185,7 +185,7 @@ namespace Microsoft.Management.Deployment
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 7)]
     runtimeclass DownloadResult
     {
-        /// Used by a caller to correlate the install with a caller's data.
+        /// Used by a caller to correlate the download with a caller's data.
         String CorrelationData { get; };
 
         /// Batched error code.
@@ -945,8 +945,8 @@ namespace Microsoft.Management.Deployment
         }
     }
 
-    /// Options when uninstalling a package.
-    /// Intended to allow full compatibility with the "winget uninstall" command line interface.
+    /// Options when downloading a package.
+    /// Intended to allow full compatibility with the "winget download" command line interface.
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 7)]
     runtimeclass DownloadOptions
     {
@@ -974,14 +974,11 @@ namespace Microsoft.Management.Deployment
         /// Continues the download even if the hash in the catalog does not match the linked installer.
         Boolean AllowHashMismatch;
 
-        /// Skip installing the dependencies for the package.
+        /// Skip downloading the dependencies for the package.
         Boolean SkipDependencies;
 
         /// Accept the package agreements required for download.
         Boolean AcceptPackageAgreements;
-
-        /// Directs the logging to a log file. If provided, the installer must have write access to the file 
-        String LogOutputPath;
 
         /// Used by a caller to correlate the install with a caller's data.
         /// The string must be JSON encoded.

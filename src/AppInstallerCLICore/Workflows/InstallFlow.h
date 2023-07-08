@@ -146,35 +146,13 @@ namespace AppInstaller::CLI::Workflow
     // Required Args: None
     // Inputs: InstallerPath, Manifest, Installer, PackageVersion, InstalledPackageVersion?
     // Outputs: None
-    struct InstallDependencies : public WorkflowTask
-    {
-        InstallDependencies(
-            bool createDependencySubContexts) :
-            WorkflowTask("InstallDependencies"),
-            m_createDependencySubContexts(createDependencySubContexts) {}
+    void InstallDependencies(Execution::Context& context);
 
-        void operator()(Execution::Context& context) const override;
-
-    private:
-        bool m_createDependencySubContexts = false;
-    };
-
-    // Downloads all of the package dependencies of a specific package.
+    // Downloads all of the package dependencies of a specific package. Only used in the 'winget download' and COM download flows.
     // Required Args: none
     // Inputs: Manifest, Installer
     // Outputs: None
-    struct DownloadPackageDependencies : public WorkflowTask
-    {
-        DownloadPackageDependencies(
-            bool includeInstalledPackages):
-            WorkflowTask("DownloadPackageDependencies"),
-            m_includeInstalledPackages(includeInstalledPackages) {}
-
-        void operator()(Execution::Context& context) const override;
-
-    private:
-        bool m_includeInstalledPackages = false;
-    };
+    void DownloadPackageDependencies(Execution::Context& context);
 
     // Installs a single package. This also does the reporting, user interaction, and installer download
     // for single-package installation.
@@ -196,9 +174,7 @@ namespace AppInstaller::CLI::Workflow
             bool ensurePackageAgreements = true,
             bool ignoreDependencies = false,
             bool stopOnFailure = false,
-            bool refreshPathVariable = false,
-            bool includeInstalledPackages = false,
-            bool downloadInstallerOnly = false) :
+            bool refreshPathVariable = false):
             WorkflowTask("ProcessMultiplePackages"),
             m_dependenciesReportMessage(dependenciesReportMessage),
             m_resultOnFailure(resultOnFailure),
@@ -206,9 +182,7 @@ namespace AppInstaller::CLI::Workflow
             m_ignorePackageDependencies(ignoreDependencies),
             m_ensurePackageAgreements(ensurePackageAgreements),
             m_stopOnFailure(stopOnFailure),
-            m_refreshPathVariable(refreshPathVariable),
-            m_includeInstalledPackages(includeInstalledPackages),
-            m_downloadInstallerOnly(downloadInstallerOnly){}
+            m_refreshPathVariable(refreshPathVariable){}
 
         void operator()(Execution::Context& context) const override;
 
@@ -220,8 +194,6 @@ namespace AppInstaller::CLI::Workflow
         bool m_ensurePackageAgreements;
         bool m_stopOnFailure;
         bool m_refreshPathVariable;
-        bool m_includeInstalledPackages;
-        bool m_downloadInstallerOnly;
     };
 
     // Stores the existing set of packages in ARP.

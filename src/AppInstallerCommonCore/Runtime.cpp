@@ -40,7 +40,6 @@ namespace AppInstaller::Runtime
 
         constexpr std::string_view s_UserProfileEnvironmentVariable = "%USERPROFILE%";
         constexpr std::string_view s_LocalAppDataEnvironmentVariable = "%LOCALAPPDATA%";
-        constexpr std::string_view s_DownloadsDirectory = "Downloads"sv;
 
         static std::optional<std::string> s_runtimePathStateName;
         static wil::srwlock s_runtimePathStateNameLock;
@@ -384,9 +383,8 @@ namespace AppInstaller::Runtime
             result.Path /= s_LinksDirectory;
             break;
         case PathName::UserProfileDownloads:
-            result.Path = (forDisplay && Settings::User().Get<Setting::AnonymizePathForDisplay>()) ? s_UserProfileEnvironmentVariable : GetKnownFolderPath(FOLDERID_Profile);
-            result.Path /= s_DownloadsDirectory;
-            result.Create = false;
+            result.Path = GetKnownFolderPath(FOLDERID_Downloads);
+            mayBeInProfilePath = true;
             break;
         default:
             THROW_HR(E_UNEXPECTED);

@@ -29,8 +29,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         void SkipDependencies(bool value);
         bool AcceptPackageAgreements();
         void AcceptPackageAgreements(bool value);
-        hstring LogOutputPath();
-        void LogOutputPath(hstring const& value);
         hstring CorrelationData();
         void CorrelationData(hstring const& value);
 
@@ -42,12 +40,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         winrt::Windows::System::ProcessorArchitecture m_architecture = winrt::Windows::System::ProcessorArchitecture::Unknown;
         std::wstring m_locale = L"";
         std::wstring m_downloadDirectory = L"";
-        std::wstring m_logOutputPath = L"";
         bool m_allowHashMismatch = false;
         bool m_skipDependencies = false;
         bool m_acceptPackageAgreements = true;
         std::wstring m_correlationData = L"";
-        bool m_force = false;
 #endif
     };
 }

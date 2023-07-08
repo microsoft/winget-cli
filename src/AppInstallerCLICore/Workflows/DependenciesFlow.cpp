@@ -123,14 +123,18 @@ namespace AppInstaller::CLI::Workflow
         {
             const auto& packageVersion = context.Get<Execution::Data::PackageVersion>();
             context.Add<Execution::Data::DependencySource>(packageVersion->GetSource());
-            context <<
-                Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed, true, Repository::CompositeSearchBehavior::AvailablePackages);
         }
         else
         {
             // install from manifest requires --dependency-source to be set
             context <<
-                Workflow::OpenSource(true) <<
+                Workflow::OpenSource(true);
+        }
+
+        if (WI_IsFlagClear(context.GetFlags(), Execution::ContextFlag::InstallerDownloadOnly))
+        {
+            // Installed source is not needed when only downloading the installer.
+            context <<
                 Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed, true, Repository::CompositeSearchBehavior::AvailablePackages);
         }
     }
@@ -269,7 +273,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 DependencyNodeProcessor nodeProcessor(context);
 
-                auto result = nodeProcessor.EvaluateDependencies(node, m_includeInstalledPackages);
+                auto result = nodeProcessor.EvaluateDependencies(node);
                 DependencyList list = nodeProcessor.GetDependencyList();
                 foundError = foundError || (result == DependencyNodeProcessorResult::Error);
 
@@ -333,10 +337,8 @@ namespace AppInstaller::CLI::Workflow
                 dependencyContext.Add<Execution::Data::InstalledPackageVersion>(itr->second.InstalledPackageVersion);
                 dependencyContext.Add<Execution::Data::Installer>(itr->second.Installer);
 
-                // Set flag for download behavior and append dependencies folder to download directory.
                 if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerDownloadOnly))
                 {
-                    dependencyContext.SetFlags(Execution::ContextFlag::InstallerDownloadOnly);
                     dependencyContext.Add<Execution::Data::DownloadDirectory>(context.Get<Execution::Data::DownloadDirectory>() / "Dependencies");
                 }
 

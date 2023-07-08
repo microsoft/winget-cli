@@ -136,8 +136,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(Done);
         WINGET_DEFINE_RESOURCE_STRINGID(DownloadCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(DownloadCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(DownloadDirectoryArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(Downloading);
-        WINGET_DEFINE_RESOURCE_STRINGID(Downloads);
         WINGET_DEFINE_RESOURCE_STRINGID(EnableAdminSettingFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(EnablingWindowsFeature);
         WINGET_DEFINE_RESOURCE_STRINGID(ExactArgumentDescription);
@@ -213,6 +213,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerAbortsTerminal);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerBlockedByPolicy);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerDownloaded);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallerDownloads);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerElevationExpected);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerFailedSecurityCheck);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerFailedVirusScan);
@@ -315,7 +316,6 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(OpenSourceFailedNoMatchHelp);
         WINGET_DEFINE_RESOURCE_STRINGID(OpenSourceFailedNoSourceDefined);
         WINGET_DEFINE_RESOURCE_STRINGID(Options);
-        WINGET_DEFINE_RESOURCE_STRINGID(DownloadDirectoryArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(OutputFileArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(OverrideArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(OverwritingExistingFileAtMessage);

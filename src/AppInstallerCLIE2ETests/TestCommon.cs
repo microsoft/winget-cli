@@ -9,7 +9,6 @@ namespace AppInstallerCLIE2ETests
     using System;
     using System.Diagnostics;
     using System.IO;
-    using System.Runtime.InteropServices;
     using System.Threading;
     using Microsoft.Management.Deployment;
     using Microsoft.Win32;
@@ -26,6 +25,11 @@ namespace AppInstallerCLIE2ETests
         /// </summary>
         public enum Scope
         {
+            /// <summary>
+            /// None.
+            /// </summary>
+            None,
+
             /// <summary>
             /// User.
             /// </summary>
@@ -606,7 +610,7 @@ namespace AppInstallerCLIE2ETests
         /// Verify installer downloaded correctly and cleanup.
         /// </summary>
         /// <param name="downloadDir">Download directory.</param>
-        /// <param name="id">Package identifier.</param>
+        /// <param name="name">Package name.</param>
         /// <param name="version">Package version.</param>
         /// <param name="arch">Installer architecture.</param>
         /// <param name="scope">Installer scope.</param>
@@ -617,7 +621,7 @@ namespace AppInstallerCLIE2ETests
         /// <returns>True if success.</returns>
         public static bool VerifyInstallerDownload(
             string downloadDir,
-            string id,
+            string name,
             string version,
             ProcessorArchitecture arch,
             Scope scope,
@@ -626,7 +630,14 @@ namespace AppInstallerCLIE2ETests
             bool isArchive = false,
             bool cleanup = true)
         {
-            string expectedFileName = $"{id}_{version}_{arch}_{scope}_{installerType}";
+            string expectedFileName = $"{name}_{version}";
+
+            if (scope != Scope.None)
+            {
+                expectedFileName += $"_{scope}";
+            }
+
+            expectedFileName += $"_{arch}_{installerType}";
 
             if (!string.IsNullOrEmpty(locale))
             {

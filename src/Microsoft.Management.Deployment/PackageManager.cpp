@@ -240,27 +240,10 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             // We already reported queued progress up front.
             break;
         case ::Workflow::ExecutionStage::Download:
-            if constexpr (std::is_same_v<TProgress, winrt::Microsoft::Management::Deployment::InstallProgress>)
+            if constexpr (std::is_same_v<TProgress, winrt::Microsoft::Management::Deployment::InstallProgress> ||
+                std::is_same_v<TProgress, winrt::Microsoft::Management::Deployment::PackageDownloadProgress>)
             {
-                progressState = PackageInstallProgressState::Downloading;
-                if (reportType == ReportType::BeginProgress)
-                {
-                    reportProgress = true;
-                }
-                else if (progressType == ::AppInstaller::ProgressType::Bytes)
-                {
-                    downloadBytesDownloaded = current;
-                    downloadBytesRequired = maximum;
-                    if (maximum > 0 && maximum >= current)
-                    {
-                        reportProgress = true;
-                        downloadProgress = static_cast<double>(current) / static_cast<double>(maximum);
-                    }
-                }
-            }
-            else if constexpr (std::is_same_v<TProgress, winrt::Microsoft::Management::Deployment::PackageDownloadProgress>)
-            {
-                progressState = PackageDownloadProgressState::Downloading;
+                progressState = TState::Downloading;
                 if (reportType == ReportType::BeginProgress)
                 {
                     reportProgress = true;
@@ -490,11 +473,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         if (options)
         {
-            if (!options.LogOutputPath().empty())
-            {
-                context->Args.AddArg(Execution::Args::Type::Log, ::AppInstaller::Utility::ConvertToUTF8(options.LogOutputPath()));
-                context->Args.AddArg(Execution::Args::Type::VerboseLogs);
-            }
             if (!options.DownloadDirectory().empty())
             {
                 context->Args.AddArg(Execution::Args::Type::DownloadDirectory, ::AppInstaller::Utility::ConvertToUTF8(options.DownloadDirectory()));
@@ -1009,6 +987,12 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
     winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::DownloadResult, winrt::Microsoft::Management::Deployment::PackageDownloadProgress> PackageManager::DownloadPackageAsync(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::DownloadOptions options)
     {
+        // TODO: Remove once 'download' experimental feature is stable.
+        if (!AppInstaller::Settings::ExperimentalFeature::IsEnabled(AppInstaller::Settings::ExperimentalFeature::Feature::Dependencies))
+        {
+            THROW_HR(APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED);
+        }
+
         hstring correlationData = (options) ? options.CorrelationData() : L"";
 
         // options and catalog can both be null, package must be set.
@@ -1046,11 +1030,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             // This must be done before any co_awaits since it requires info from the rpc caller thread.
             auto [hrGetCallerId, callerProcessId] = GetCallerProcessId();
             WINGET_RETURN_DOWNLOAD_RESULT_HR_IF_FAILED(hrGetCallerId);
-            canCancelQueueItem = SUCCEEDED(EnsureProcessHasCapability(Capability::PackageManagement, callerProcessId));
-            if (!canCancelQueueItem)
-            {
-                WINGET_RETURN_DOWNLOAD_RESULT_HR_IF_FAILED(EnsureProcessHasCapability(Capability::PackageQuery, callerProcessId));
-            }
+            WINGET_RETURN_DOWNLOAD_RESULT_HR_IF_FAILED(EnsureProcessHasCapability(Capability::PackageQuery, callerProcessId));
 
             // Get the queueItem synchronously.
             queueItem = GetExistingQueueItemForPackage(package, catalogInfo);

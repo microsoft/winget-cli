@@ -247,15 +247,26 @@ namespace AppInstaller::CLI::Workflow
 
         struct InstallerTypeComparator : public details::ComparisonField
         {
-            InstallerTypeComparator(Manifest::InstallerTypeEnum installerType) :
-                details::ComparisonField("Installer Type"), m_installerType(installerType) {}
+            InstallerTypeComparator(std::vector<InstallerTypeEnum> requirement) :
+                details::ComparisonField("Installer Type"), m_requirement(std::move(requirement))
+            {
+                m_requirementAsString = Utility::ConvertContainerToString(m_requirement, InstallerTypeToString);
+                AICLI_LOG(CLI, Verbose,
+                    << "InstallerType Comparator created with Required InstallerTypes: " << m_requirementAsString);
+            }
 
             static std::unique_ptr<InstallerTypeComparator> Create(const Execution::Args& args)
             {
+                std::vector<InstallerTypeEnum> requirement;
+
                 if (args.Contains(Execution::Args::Type::InstallerType))
                 {
-                    Manifest::InstallerTypeEnum installerType = Manifest::ConvertToInstallerTypeEnum(std::string(args.GetArg(Execution::Args::Type::InstallerType)));
-                    return std::make_unique<InstallerTypeComparator>(installerType);
+                    requirement.emplace_back(Manifest::ConvertToInstallerTypeEnum(std::string(args.GetArg(Execution::Args::Type::InstallerType))));
+                }
+
+                if (!requirement.empty())
+                {
+                    return std::make_unique<InstallerTypeComparator>(requirement);
                 }
                 else
                 {
@@ -265,49 +276,46 @@ namespace AppInstaller::CLI::Workflow
 
             InapplicabilityFlags IsApplicable(const Manifest::ManifestInstaller& installer) override
             {
-                // The installer is applicable if the installer type or nested installer type matches. (User should be allowed to specify 'zip')
-                if (Manifest::IsInstallerTypeCompatible(installer.EffectiveInstallerType(), m_installerType) ||
-                    Manifest::IsInstallerTypeCompatible(installer.BaseInstallerType, m_installerType))
+                if (!m_requirement.empty())
+                {
+                    for (auto const& requiredInstallerType : m_requirement)
+                    {
+                        // The installer is applicable if the installer type or nested installer type matches. (User should be allowed to specify 'zip')
+                        if (installer.EffectiveInstallerType() == requiredInstallerType || installer.BaseInstallerType == requiredInstallerType)
+                        {
+                            return InapplicabilityFlags::None;
+                        }
+                    }
+
+                    return InapplicabilityFlags::InstallerType;
+                }
+                else
                 {
                     return InapplicabilityFlags::None;
                 }
-
-                return InapplicabilityFlags::InstallerType;
             }
 
             std::string ExplainInapplicable(const Manifest::ManifestInstaller& installer) override
             {
-                std::string result = "Installer type does not match required type: ";
-
-                if (IsArchiveType(m_installerType))
-                {
-                    result += Manifest::InstallerTypeToString(installer.BaseInstallerType);
-                }
-                else
-                {
-                    result += Manifest::InstallerTypeToString(installer.EffectiveInstallerType());
-                }
-
-                result += " != ";
-                result += Manifest::InstallerTypeToString(m_installerType);
+                std::string result = "InstallerType does not match required type: ";
+                result += InstallerTypeToString(installer.EffectiveInstallerType());
+                result += "Required InstallerTypes: ";
+                result += m_requirementAsString;
                 return result;
             }
 
             bool IsFirstBetter(const Manifest::ManifestInstaller& first, const Manifest::ManifestInstaller& second) override
             {
-                if (IsArchiveType(m_installerType))
-                {
-                    // If the selected installer type is an archive type, only compare the base installer types.
-                    return (first.BaseInstallerType == m_installerType && second.BaseInstallerType != m_installerType);
-                }
-                else
-                {
-                    return (first.EffectiveInstallerType() == m_installerType && second.EffectiveInstallerType() != m_installerType);
-                }
+                // TODO: Current implementation assumes there is only a single installer type requirement. This needs to be updated
+                // once multiple installerType requirements and preferences are accepted.
+                UNREFERENCED_PARAMETER(first);
+                UNREFERENCED_PARAMETER(second);
+                return true;
             }
 
         private:
-            Manifest::InstallerTypeEnum m_installerType;
+            std::vector<InstallerTypeEnum> m_requirement;
+            std::string m_requirementAsString;
         };
 
         struct InstalledTypeComparator : public details::ComparisonField

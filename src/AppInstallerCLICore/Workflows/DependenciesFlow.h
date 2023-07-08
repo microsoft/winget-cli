@@ -46,17 +46,14 @@ namespace AppInstaller::CLI::Workflow
     struct CreateDependencySubContexts : public WorkflowTask
     {
         CreateDependencySubContexts(
-            AppInstaller::StringResource::StringId dependencyReportMessage,
-            bool includeInstalledPackages = false) :
-            WorkflowTask("ReportDependencies"),
-            m_dependencyReportMessage(dependencyReportMessage),
-            m_includeInstalledPackages(includeInstalledPackages) {}
+            AppInstaller::StringResource::StringId dependencyReportMessage) :
+            WorkflowTask("CreateDependencySubContexts"),
+            m_dependencyReportMessage(dependencyReportMessage) {}
 
         void operator()(Execution::Context& context) const override;
 
         private:
             AppInstaller::StringResource::StringId m_dependencyReportMessage;
-            bool m_includeInstalledPackages;
     };
 
     // Sets up the source used to get the dependencies.

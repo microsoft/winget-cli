@@ -136,7 +136,18 @@
         "purgePortablePackage": {
           "description": "Controls whether the default behavior for uninstall removes all files and directories relevant to this package. Only applies to the portable installerType.",
           "type": "boolean",
-          "default":  false
+          "default": false
+        }
+      }
+    },
+    "DownloadBehavior": {
+      "description": "Download settings",
+      "type": "object",
+      "properties": {
+        "defaultDownloadDirectory": {
+          "description": "The default directory where installers are downloaded to.",
+          "type": "string",
+          "default": "%USERPROFILE%/Downloads/"
         }
       }
     },

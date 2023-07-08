@@ -4,8 +4,6 @@
 #include "DownloadCommand.h"
 #include "Workflows/DownloadFlow.h"
 #include "Workflows/InstallFlow.h"
-#include "Workflows/MultiQueryFlow.h"
-#include "Workflows/PromptFlow.h"
 #include "Resources.h"
 #include <AppInstallerRuntime.h>
 
@@ -32,7 +30,6 @@ namespace AppInstaller::CLI
             Argument::ForType(Args::Type::InstallerType),
             Argument::ForType(Args::Type::Exact),
             Argument::ForType(Args::Type::Locale),
-            Argument::ForType(Args::Type::Log),
             Argument::ForType(Args::Type::HashOverride),
             Argument::ForType(Args::Type::SkipDependencies),
             Argument::ForType(Execution::Args::Type::AcceptPackageAgreements),
@@ -74,15 +71,7 @@ namespace AppInstaller::CLI
         {
             context <<
                 Workflow::ReportExecutionStage(ExecutionStage::Discovery) <<
-                Workflow::OpenSource();
-
-            if (!context.Args.Contains(Execution::Args::Type::Force))
-            {
-                context <<
-                    Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed, false, Repository::CompositeSearchBehavior::AvailablePackages);
-            }
-
-            context <<
+                Workflow::OpenSource() <<
                 Workflow::SearchSourceForSingle <<
                 Workflow::HandleSearchResultFailures <<
                 Workflow::EnsureOneMatchFromSearchResult(OperationType::Download) <<
@@ -97,10 +86,8 @@ namespace AppInstaller::CLI
         context <<
             Workflow::SetDownloadDirectory <<
             Workflow::SelectInstaller <<
-            Workflow::EnsureApplicableInstaller <<
             Workflow::ReportIdentityAndInstallationDisclaimer <<
-            Workflow::ShowPromptsForSinglePackage(/* ensureAcceptance */ true) <<
-            Workflow::DownloadPackageDependencies(/* includeInstalledPackages */ true) <<
+            Workflow::DownloadPackageDependencies <<
             Workflow::DownloadInstaller;
     }
 }

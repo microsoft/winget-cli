@@ -26,7 +26,7 @@ namespace AppInstaller::CLI
             Workflow::ReportIdentityAndInstallationDisclaimer <<
             Workflow::ShowPromptsForSinglePackage(/* ensureAcceptance */ true) <<
             Workflow::SetDownloadDirectory <<
-            Workflow::DownloadPackageDependencies(/* includeInstalledPackages */ WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerDownloadOnly)) <<
+            Workflow::DownloadPackageDependencies <<
             Workflow::DownloadInstaller;
     }
 
@@ -34,7 +34,7 @@ namespace AppInstaller::CLI
     void COMInstallCommand::ExecuteInternal(Context& context) const
     {
         context <<
-            Workflow::InstallDependencies(/* createDependencySubContexts */ false) <<
+            Workflow::InstallDependencies <<
             Workflow::ReverifyInstallerHash << 
             Workflow::InstallPackageInstaller;
     }

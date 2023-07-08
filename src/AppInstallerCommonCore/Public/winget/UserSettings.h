@@ -96,6 +96,8 @@ namespace AppInstaller::Settings
         LoggingLevelPreference,
         // Uninstall behavior
         UninstallPurgePortablePackage,
+        // Download behavior
+        DownloadDefaultDirectory,
         // Interactivity
         InteractivityDisable,
         // Debug
@@ -162,6 +164,9 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::InstallDefaultRoot, std::string, std::filesystem::path, {}, ".installBehavior.defaultInstallRoot"sv);
         // Uninstall behavior
         SETTINGMAPPING_SPECIALIZATION(Setting::UninstallPurgePortablePackage, bool, bool, false, ".uninstallBehavior.purgePortablePackage"sv);
+        // Download behavior
+        SETTINGMAPPING_SPECIALIZATION(Setting::DownloadDefaultDirectory, std::string, std::filesystem::path, {}, ".downloadBehavior.defaultDownloadDirectory"sv);
+
         // Network
         SETTINGMAPPING_SPECIALIZATION(Setting::NetworkDownloader, std::string, InstallerDownloader, InstallerDownloader::Default, ".network.downloader"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::NetworkDOProgressTimeoutInSeconds, uint32_t, std::chrono::seconds, 60s, ".network.doProgressTimeoutInSeconds"sv);

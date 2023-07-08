@@ -241,6 +241,8 @@ namespace AppInstallerCLIE2ETests
             public const int ERROR_MULTIPLE_UNINSTALL_FAILED = unchecked((int)0x8A150066);
             public const int ERROR_NOT_ALL_QUERIES_FOUND_SINGLE = unchecked((int)0x8A150067);
             public const int ERROR_PACKAGE_IS_PINNED = unchecked((int)0x8A150068);
+            public const int ERROR_PACKAGE_IS_STUB = unchecked((int)0x8A150069);
+            public const int ERROR_DOWNLOAD_DEPENDENCIES = unchecked((int)0x8A15006A);
 
             public const int ERROR_INSTALL_PACKAGE_IN_USE = unchecked((int)0x8A150101);
             public const int ERROR_INSTALL_INSTALL_IN_PROGRESS = unchecked((int)0x8A150102);

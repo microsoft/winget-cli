@@ -9,7 +9,6 @@
 #include "DownloadOptions.h"
 #pragma warning( pop )
 #include "DownloadOptions.g.cpp"
-#include "Converters.h"
 #include "Helpers.h"
 
 #include <AppInstallerArchitecture.h>
@@ -66,14 +65,6 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     void DownloadOptions::DownloadDirectory(hstring const& value)
     {
         m_downloadDirectory = value;
-    }
-    hstring DownloadOptions::LogOutputPath()
-    {
-        return hstring(m_logOutputPath);
-    }
-    void DownloadOptions::LogOutputPath(hstring const& value)
-    {
-        m_logOutputPath = value;
     }
     bool DownloadOptions::AllowHashMismatch()
     {
