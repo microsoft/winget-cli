@@ -37,7 +37,7 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
-        /// Ensures that a failure to 
+        /// Checks for a resource not in the desired state.
         /// </summary>
         [Test]
         public void ConfigureTest_NotInDesiredState()
@@ -51,7 +51,7 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
-        /// Simple test to confirm that a resource with a module specified can be discovered in a local repository that doesn't support resource discovery.
+        /// Checks for a resource in a desired state.
         /// </summary>
         [Test]
         public void ConfigureTest_InDesiredState()
