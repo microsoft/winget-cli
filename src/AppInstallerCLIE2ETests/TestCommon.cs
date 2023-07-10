@@ -623,7 +623,7 @@ namespace AppInstallerCLIE2ETests
             string downloadDir,
             string name,
             string version,
-            ProcessorArchitecture arch,
+            Windows.System.ProcessorArchitecture arch,
             Scope scope,
             PackageInstallerType installerType,
             string locale = null,
