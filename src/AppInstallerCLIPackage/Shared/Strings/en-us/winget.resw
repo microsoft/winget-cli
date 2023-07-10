@@ -1999,4 +1999,8 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="ConfigurationWarningPromptTest" xml:space="preserve">
     <value>Have you reviewed the configuration and would you like to proceed verifying it against the system?</value>
   </data>
+  <data name="ConfigurationFileInvalidYAML" xml:space="preserve">
+    <value>The configuration file is not a valid YAML file.</value>
+    <comment>{Locked="YAML"} YAML is a file format name.</comment>
+  </data>
 </root>

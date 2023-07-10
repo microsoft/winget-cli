@@ -60,4 +60,16 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: None
     // Outputs: None
     void VerifyIsFullPackage(Execution::Context& context);
+
+    // Validates the configuration set semantically.
+    // Required Args: None
+    // Inputs: ConfigurationProcessor, ConfigurationSet
+    // Outputs: None
+    void ValidateConfigurationSetSemantics(Execution::Context& context);
+
+    // Validates that the unit processors referenced by the set are valid/available/etc.
+    // Required Args: None
+    // Inputs: ConfigurationProcessor, ConfigurationSet
+    // Outputs: None
+    void ValidateConfigurationSetUnitProcessors(Execution::Context& context);
 }

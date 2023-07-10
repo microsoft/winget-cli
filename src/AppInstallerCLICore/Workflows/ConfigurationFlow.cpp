@@ -806,6 +806,8 @@ namespace AppInstaller::CLI::Workflow
             openResult = openAction.get();
         }
 
+        progressScope.reset();
+
         if (FAILED_LOG(static_cast<HRESULT>(openResult.ResultCode().value)))
         {
             AICLI_LOG(Config, Error, << "Failed to open configuration set at " << absolutePath.u8string() << " with error 0x" << Logging::SetHRFormat << static_cast<HRESULT>(openResult.ResultCode().value));
@@ -827,7 +829,7 @@ namespace AppInstaller::CLI::Workflow
             case WINGET_CONFIG_ERROR_INVALID_CONFIGURATION_FILE:
             case WINGET_CONFIG_ERROR_INVALID_YAML:
             default:
-                context.Reporter.Error() << Resource::String::ConfigurationFileInvalid << std::endl;
+                context.Reporter.Error() << Resource::String::ConfigurationFileInvalidYAML << std::endl;
                 break;
             }
 
@@ -1037,5 +1039,19 @@ namespace AppInstaller::CLI::Workflow
             context.Reporter.Error() << Resource::String::ConfigurationNotEnabledMessage << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PACKAGE_IS_STUB);
         }
+    }
+
+    void ValidateConfigurationSetSemantics(Execution::Context& context)
+    {
+        UNREFERENCED_PARAMETER(context);
+        // Extract mechanism for pre-validation that apply does
+    }
+
+    void ValidateConfigurationSetUnitProcessors(Execution::Context& context)
+    {
+        UNREFERENCED_PARAMETER(context);
+        // If module is local, see if it can be found in remote repo
+        // If found in remote, warn if not public
+        // If not found in remote, try with prerelease == true and warn if found
     }
 }

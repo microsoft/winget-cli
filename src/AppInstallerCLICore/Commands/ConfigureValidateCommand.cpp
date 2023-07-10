@@ -2,12 +2,17 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "ConfigureValidateCommand.h"
+#include "Workflows/ConfigurationFlow.h"
+
+using namespace AppInstaller::CLI::Workflow;
 
 namespace AppInstaller::CLI
 {
     std::vector<Argument> ConfigureValidateCommand::GetArguments() const
     {
-        return {};
+        return {
+            Argument{ Execution::Args::Type::ConfigurationFile, Resource::String::ConfigurationFileArgumentDescription, ArgumentType::Positional, true },
+        };
     }
 
     Resource::LocString ConfigureValidateCommand::ShortDescription() const
@@ -28,6 +33,12 @@ namespace AppInstaller::CLI
 
     void ConfigureValidateCommand::ExecuteInternal(Execution::Context& context) const
     {
-        Command::ExecuteInternal(context);
+        context <<
+            VerifyIsFullPackage <<
+            VerifyFile(Execution::Args::Type::ConfigurationFile) <<
+            CreateConfigurationProcessor <<
+            OpenConfigurationSet <<
+            ValidateConfigurationSetSemantics <<
+            ValidateConfigurationSetUnitProcessors;
     }
 }
