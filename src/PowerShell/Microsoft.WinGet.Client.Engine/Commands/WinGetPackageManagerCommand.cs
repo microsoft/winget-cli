@@ -14,6 +14,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
     using Microsoft.WinGet.Client.Engine.Exceptions;
     using Microsoft.WinGet.Client.Engine.Helpers;
     using Microsoft.WinGet.Client.Engine.Properties;
+    using static Microsoft.WinGet.Client.Engine.Common.Constants;
 
     /// <summary>
     /// Used by Repair-WinGetPackageManager and Assert-WinGetPackageManager.
@@ -39,8 +40,8 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="preRelease">Use prerelease version on GitHub.</param>
         public void AssertUsingLatest(bool preRelease)
         {
-            var gitHubRelease = new GitHubRelease();
-            string expectedVersion = gitHubRelease.GetLatestVersionTagName(preRelease);
+            var gitHubClient = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli);
+            string expectedVersion = gitHubClient.GetLatestVersionTagName(preRelease);
             this.Assert(expectedVersion);
         }
 
@@ -60,8 +61,8 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="allUsers">Install for all users. Requires admin.</param>
         public void RepairUsingLatest(bool preRelease, bool allUsers)
         {
-            var gitHubRelease = new GitHubRelease();
-            string expectedVersion = gitHubRelease.GetLatestVersionTagName(preRelease);
+            var gitHubClient = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli);
+            string expectedVersion = gitHubClient.GetLatestVersionTagName(preRelease);
             this.Repair(expectedVersion, allUsers);
         }
 
@@ -151,8 +152,8 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             // this particular case we need to.
             if (string.IsNullOrEmpty(toInstallVersion))
             {
-                var gitHubRelease = new GitHubRelease();
-                toInstallVersion = gitHubRelease.GetLatestVersionTagName(false);
+                var gitHubClient = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli);
+                toInstallVersion = gitHubClient.GetLatestVersionTagName(false);
             }
 
             var appxModule = new AppxModuleHelper(this.PsCmdlet);

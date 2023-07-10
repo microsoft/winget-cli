@@ -8,12 +8,11 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
 {
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
-    using System.IO.Compression;
     using System.Linq;
     using System.Management.Automation;
     using System.Runtime.InteropServices;
     using Microsoft.WinGet.Client.Engine.Common;
-    using Microsoft.WinGet.Client.Engine.Properties;
+    using static Microsoft.WinGet.Client.Engine.Common.Constants;
 
     /// <summary>
     /// Helper to make calls to the Appx module.
@@ -46,7 +45,12 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         private const string AppxManifest = "AppxManifest.xml";
         private const string PackageFullName = "PackageFullName";
 
+        // Assets
+        private const string MsixBundleName = "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle";
+        private const string License = "License1.xml";
+
         // Dependencies
+        // VCLibs
         private const string VCLibsUWPDesktop = "Microsoft.VCLibs.140.00.UWPDesktop";
         private const string VCLibsUWPDesktopVersion = "14.0.30704.0";
         private const string VCLibsUWPDesktopX64 = "https://aka.ms/Microsoft.VCLibs.x64.14.00.Desktop.appx";
@@ -54,9 +58,13 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         private const string VCLibsUWPDesktopArm = "https://aka.ms/Microsoft.VCLibs.arm.14.00.Desktop.appx";
         private const string VCLibsUWPDesktopArm64 = "https://aka.ms/Microsoft.VCLibs.arm64.14.00.Desktop.appx";
 
-        private const string UiXaml27 = "Microsoft.UI.Xaml.2.7";
-        private const string UiXamlNuget = "https://globalcdn.nuget.org/packages/microsoft.ui.xaml.2.7.3.nupkg";
-        private const string UiXamlNugetAppxPathFormat = @"{0}\tools\AppX\{1}\Release\Microsoft.UI.Xaml.2.7.appx";
+        // Xaml
+        private const string XamlPackage27 = "Microsoft.UI.Xaml.2.7";
+        private const string XamlReleaseTag273 = "v2.7.3";
+        private const string XamlAssetX64 = "Microsoft.UI.Xaml.2.7.x64.appx";
+        private const string XamlAssetX86 = "Microsoft.UI.Xaml.2.7.x86.appx";
+        private const string XamlAssetArm = "Microsoft.UI.Xaml.2.7.arm.appx";
+        private const string XamlAssetArm64 = "Microsoft.UI.Xaml.2.7.arm64.appx";
 
         private readonly PSCmdlet psCmdlet;
 
@@ -126,40 +134,36 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// <summary>
         /// Install AppInstaller bundle from GitHub release.
         /// </summary>
-        /// <param name="versionTag">Version tag of GitHub release.</param>
+        /// <param name="releaseTag">Release tag of GitHub release.</param>
         /// <param name="allUsers">If install for all users is needed.</param>
         /// <param name="isDowngrade">Is downgrade.</param>
-        public void InstallFromGitHubRelease(string versionTag, bool allUsers, bool isDowngrade)
+        public void InstallFromGitHubRelease(string releaseTag, bool allUsers, bool isDowngrade)
         {
-            using var bundle = new TempFile();
-            var gitHubRelease = new GitHubRelease();
-            gitHubRelease.DownloadRelease(versionTag, bundle.FullPath);
-
             this.VerifyDependencies();
 
             if (isDowngrade)
             {
-                this.AddAppInstallerBundle(bundle.FullPath, true);
+                this.AddAppInstallerBundle(releaseTag, true);
 
                 if (allUsers)
                 {
-                    this.AddProvisionPackage(bundle.FullPath, versionTag);
+                    this.AddProvisionPackage(releaseTag);
                 }
             }
             else
             {
                 if (allUsers)
                 {
-                    this.AddProvisionPackage(bundle.FullPath, versionTag);
+                    this.AddProvisionPackage(releaseTag);
                 }
                 else
                 {
-                    this.AddAppInstallerBundle(bundle.FullPath, false);
+                    this.AddAppInstallerBundle(releaseTag, false);
                 }
             }
         }
 
-        private void AddProvisionPackage(string bundlePath, string versionTag)
+        private void AddProvisionPackage(string releaseTag)
         {
             // TODO: verify system.
             if (!Utilities.ExecutingAsAdministrator)
@@ -168,16 +172,23 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 throw new System.Exception("Admin bro");
             }
 
+            var githubClient = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli);
+            var release = githubClient.GetRelease(releaseTag);
+
+            using var bundleFile = new TempFile();
+            var bundleAsset = release.Assets.Where(a => a.Name == MsixBundleName).First();
+            githubClient.DownloadUrl(bundleAsset.Url, bundleFile.FullPath);
+
             using var licenseFile = new TempFile();
-            var gitHubRelease = new GitHubRelease();
-            gitHubRelease.DownloadLicense(versionTag, licenseFile.FullPath);
+            var licenseAsset = release.Assets.Where(a => a.Name.EndsWith(License)).First();
+            githubClient.DownloadUrl(licenseAsset.Url, licenseFile.FullPath);
 
             try
             {
                 var ps = PowerShell.Create(RunspaceMode.CurrentRunspace);
                 ps.AddCommand("Add-AppxProvisionedPackage")
                   .AddParameter("Online")
-                  .AddParameter("PackagePath", bundlePath)
+                  .AddParameter("PackagePath", bundleFile.FullPath)
                   .AddParameter("LicensePath", licenseFile.FullPath)
                   .AddParameter(ErrorAction, Stop)
                   .Invoke();
@@ -189,7 +200,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             }
         }
 
-        private void AddAppInstallerBundle(string bundlePath, bool downgrade)
+        private void AddAppInstallerBundle(string releaseTag, bool downgrade)
         {
             var options = new List<string>();
             if (downgrade)
@@ -199,20 +210,29 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
 
             try
             {
-                _ = this.ExecuteAppxCmdlet(
-                    AddAppxPackage,
-                    new Dictionary<string, object>
-                    {
-                        { Path, bundlePath },
-                        { ErrorAction, Stop },
-                    },
-                    options);
+                var githubClient = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli);
+                var release = githubClient.GetRelease(releaseTag);
+
+                using var bundleFile = new TempFile();
+                var bundleAsset = release.Assets.Where(a => a.Name == MsixBundleName).First();
+                this.AddAppxPackageAsUri(bundleAsset.BrowserDownloadUrl, options);
             }
             catch (RuntimeException e)
             {
                 this.psCmdlet.WriteDebug($"Failed installing bundle via Add-AppxPackage {e}");
                 throw e;
             }
+        }
+
+        private PSObject GetAppxObject(string packageName)
+        {
+            return this.ExecuteAppxCmdlet(
+                GetAppxPackage,
+                new Dictionary<string, object>
+                {
+                    { Name, packageName },
+                })
+                .FirstOrDefault();
         }
 
         private void VerifyDependencies()
@@ -227,21 +247,8 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             this.InstallUiXaml();
         }
 
-        private PSObject GetAppxObject(string packageName)
+        private void InstallVCLibsDependencies()
         {
-            return this.ExecuteAppxCmdlet(
-                GetAppxPackage,
-                new Dictionary<string, object>
-                {
-                    { Name, packageName },
-                })
-                .FirstOrDefault();
-        }
-
-        private IReadOnlyList<string> GetVCLibsDependencies()
-        {
-            var vcLibsDependencies = new List<string>();
-
             var result = this.ExecuteAppxCmdlet(
                 GetAppxPackage,
                 new Dictionary<string, object>
@@ -267,6 +274,8 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             if (!isInstalled)
             {
                 this.psCmdlet.WriteDebug("Couldn't find required VCLibs package");
+
+                var vcLibsDependencies = new List<string>();
                 var arch = RuntimeInformation.OSArchitecture;
                 if (arch == Architecture.X64)
                 {
@@ -288,54 +297,44 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 {
                     throw new PSNotSupportedException(arch.ToString());
                 }
+
+                foreach (var vclib in vcLibsDependencies)
+                {
+                    this.AddAppxPackageAsUri(vclib);
+                }
             }
             else
             {
                 this.psCmdlet.WriteDebug($"VCLibs are updated.");
             }
-
-            return vcLibsDependencies;
-        }
-
-        private void InstallVCLibsDependencies()
-        {
-            var packages = this.GetVCLibsDependencies();
-            foreach (var package in packages)
-            {
-                this.AddAppxPackageAsUri(package);
-            }
         }
 
         private void InstallUiXaml()
         {
-            // TODO: We need to follow up for Microsoft.UI.Xaml.2.7
-            // downloading the nuget and extracting it doesn't sound like the right thing to do.
-            var uiXamlObjs = this.GetAppxObject(UiXaml27);
+            var uiXamlObjs = this.GetAppxObject(XamlPackage27);
             if (uiXamlObjs is null)
             {
-                // Download xaml nuget, extract and install.
-                this.psCmdlet.WriteDebug("Downloading and installing Microsoft.UI.Xaml.2.7");
-                using var tempFile = new TempFile();
-                var githubRelease = new GitHubRelease();
-                githubRelease.DownloadUrl(UiXamlNuget, tempFile.FullPath);
+                var githubRelease = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.UiXaml);
 
-                using var tempDir = new TempDirectory();
-                ZipFile.ExtractToDirectory(tempFile.FullPath, tempDir.FullDirectoryPath);
+                var xamlRelease = githubRelease.GetRelease(XamlReleaseTag273);
 
                 var packagesToInstall = new List<string>();
-
                 var arch = RuntimeInformation.OSArchitecture;
-                if (arch == Architecture.X64 ||
-                    arch == Architecture.X86)
+                if (arch == Architecture.X64)
                 {
-                    packagesToInstall.Add(string.Format(UiXamlNugetAppxPathFormat, tempDir.FullDirectoryPath, arch));
+                    packagesToInstall.Add(xamlRelease.Assets.Where(a => a.Name == XamlAssetX64).First().BrowserDownloadUrl);
+                }
+                else if (arch == Architecture.X86)
+                {
+                    packagesToInstall.Add(xamlRelease.Assets.Where(a => a.Name == XamlAssetX86).First().BrowserDownloadUrl);
                 }
                 else if (arch == Architecture.Arm64)
                 {
-                    packagesToInstall.Add(string.Format(UiXamlNugetAppxPathFormat, tempDir.FullDirectoryPath, Architecture.X64));
-                    packagesToInstall.Add(string.Format(UiXamlNugetAppxPathFormat, tempDir.FullDirectoryPath, Architecture.X86));
-                    packagesToInstall.Add(string.Format(UiXamlNugetAppxPathFormat, tempDir.FullDirectoryPath, Architecture.Arm));
-                    packagesToInstall.Add(string.Format(UiXamlNugetAppxPathFormat, tempDir.FullDirectoryPath, arch));
+                    // Deployment please figure out for me.
+                    packagesToInstall.Add(xamlRelease.Assets.Where(a => a.Name == XamlAssetX64).First().BrowserDownloadUrl);
+                    packagesToInstall.Add(xamlRelease.Assets.Where(a => a.Name == XamlAssetX86).First().BrowserDownloadUrl);
+                    packagesToInstall.Add(xamlRelease.Assets.Where(a => a.Name == XamlAssetArm).First().BrowserDownloadUrl);
+                    packagesToInstall.Add(xamlRelease.Assets.Where(a => a.Name == XamlAssetArm64).First().BrowserDownloadUrl);
                 }
                 else
                 {
@@ -344,28 +343,23 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
 
                 foreach (var package in packagesToInstall)
                 {
-                    _ = this.ExecuteAppxCmdlet(
-                        AddAppxPackage,
-                        new Dictionary<string, object>
-                        {
-                            { Path, package },
-                            { ErrorAction, Stop },
-                        });
+                    this.AddAppxPackageAsUri(package);
                 }
             }
         }
 
-        private void AddAppxPackageAsUri(string packageUri)
+        private void AddAppxPackageAsUri(string packageUri, IList<string> options = null)
         {
             try
             {
                 _ = this.ExecuteAppxCmdlet(
-                    AddAppxPackage,
-                    new Dictionary<string, object>
-                    {
-                        { Path, packageUri },
-                        { ErrorAction, Stop },
-                    });
+                        AddAppxPackage,
+                        new Dictionary<string, object>
+                        {
+                            { Path, packageUri },
+                            { ErrorAction, Stop },
+                        },
+                        options);
             }
             catch (RuntimeException e)
             {
@@ -373,7 +367,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 if (e.ErrorRecord.CategoryInfo.Category == ErrorCategory.OpenError)
                 {
                     this.psCmdlet.WriteDebug($"Failed adding package [{packageUri}]. Retrying downloading it.");
-                    this.DownloadPackageAndAdd(packageUri);
+                    this.DownloadPackageAndAdd(packageUri, options);
                 }
                 else
                 {
@@ -383,21 +377,22 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             }
         }
 
-        private void DownloadPackageAndAdd(string packageUrl)
+        private void DownloadPackageAndAdd(string packageUrl, IList<string> options)
         {
             using var tempFile = new TempFile();
 
             // This is weird but easy.
-            var githubRelease = new GitHubRelease();
+            var githubRelease = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli);
             githubRelease.DownloadUrl(packageUrl, tempFile.FullPath);
 
             _ = this.ExecuteAppxCmdlet(
-                AddAppxPackage,
-                new Dictionary<string, object>
-                {
-                    { Path, tempFile.FullPath },
-                    { ErrorAction, Stop },
-                });
+                    AddAppxPackage,
+                    new Dictionary<string, object>
+                    {
+                        { Path, tempFile.FullPath },
+                        { ErrorAction, Stop },
+                    },
+                    options);
         }
 
         private Collection<PSObject> ExecuteAppxCmdlet(string cmdlet, Dictionary<string, object> parameters = null, IList<string> options = null)

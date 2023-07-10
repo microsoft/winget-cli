@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------------
-// <copyright file="GitHubRelease.cs" company="Microsoft Corporation">
+// <copyright file="GitHubClient.cs" company="Microsoft Corporation">
 //     Copyright (c) Microsoft Corporation. Licensed under the MIT License.
 // </copyright>
 // -----------------------------------------------------------------------------
@@ -9,51 +9,53 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Linq;
     using System.Threading.Tasks;
     using Octokit;
     using FileMode = System.IO.FileMode;
 
     /// <summary>
-    /// Handles WinGet's releases in GitHub.
+    /// Handles GitHub interactions.
     /// </summary>
-    internal class GitHubRelease
+    internal class GitHubClient
     {
-        private const string Owner = "microsoft";
-        private const string Repo = "winget-cli";
         private const string UserAgent = "winget-powershell";
-        private const string MsixBundleName = "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle";
         private const string ContentType = "application/octet-stream";
-        private const string License = "License1.xml";
+
+        private readonly string owner;
+        private readonly string repo;
 
         private readonly IGitHubClient gitHubClient;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="GitHubRelease"/> class.
+        /// Initializes a new instance of the <see cref="GitHubClient"/> class.
         /// </summary>
-        public GitHubRelease()
+        /// <param name="owner">Owner.</param>
+        /// <param name="repo">Repository.</param>
+        public GitHubClient(string owner, string repo)
         {
-            this.gitHubClient = new GitHubClient(new ProductHeaderValue(UserAgent));
+            this.gitHubClient = new Octokit.GitHubClient(new ProductHeaderValue(UserAgent));
+            this.owner = owner;
+            this.repo = repo;
         }
 
         /// <summary>
-        /// Download a release msixbundle from winget-cli.
+        /// Get a release.
         /// </summary>
-        /// <param name="releaseTag">Optional release name. If null, gets latest.</param>
-        /// <param name="outputFile">Output file.</param>
-        public void DownloadRelease(string releaseTag, string outputFile)
+        /// <param name="releaseTag">Release tag.</param>
+        /// <returns>The Release.</returns>
+        public Release GetRelease(string releaseTag)
         {
-            this.DownloadReleaseAsync(releaseTag, outputFile).GetAwaiter().GetResult();
+            return this.GetReleaseAsync(releaseTag).GetAwaiter().GetResult();
         }
 
         /// <summary>
-        /// Download a release license file from winget-cli.
+        /// Get a release.
         /// </summary>
-        /// <param name="releaseTag">Optional release name. If null, gets latest.</param>
-        /// <param name="outputFile">Output file.</param>
-        public void DownloadLicense(string releaseTag, string outputFile)
+        /// <param name="releaseTag">Release tag.</param>
+        /// <returns>The Release.</returns>
+        public async Task<Release> GetReleaseAsync(string releaseTag)
         {
-            this.DownloadLicenseAsync(releaseTag, outputFile).GetAwaiter().GetResult();
+            return await this.gitHubClient.Repository.Release.Get(this.owner, this.repo, releaseTag);
         }
 
         /// <summary>
@@ -74,38 +76,6 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         public void DownloadUrl(string url, string fileName)
         {
             this.DownloadUrlAsync(url, fileName).GetAwaiter().GetResult();
-        }
-
-        /// <summary>
-        /// Download asynchronously a release from winget-cli.
-        /// </summary>
-        /// <param name="releaseTag">Optional release name. If null, gets latest.</param>
-        /// <param name="outputFile">Output file.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public async Task DownloadReleaseAsync(string releaseTag, string outputFile)
-        {
-            Release release = await this.gitHubClient.Repository.Release.Get(Owner, Repo, releaseTag);
-
-            // Get asset and download.
-            var msixBundleAsset = release.Assets.Where(a => a.Name == MsixBundleName).First();
-
-            await this.DownloadUrlAsync(msixBundleAsset.Url, outputFile);
-        }
-
-        /// <summary>
-        /// Downloads the license xml file from the release.
-        /// </summary>
-        /// <param name="releaseTag">Release tag.</param>
-        /// <param name="outputFile">Output file.</param>
-        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-        public async Task DownloadLicenseAsync(string releaseTag, string outputFile)
-        {
-            Release release = await this.gitHubClient.Repository.Release.Get(Owner, Repo, releaseTag);
-
-            // Get asset and download.
-            var licenseAsset = release.Assets.Where(a => a.Name.EndsWith(License)).First();
-
-            await this.DownloadUrlAsync(licenseAsset.Url, outputFile);
         }
 
         /// <summary>
@@ -140,11 +110,11 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
             if (includePreRelease)
             {
                 // GetAll orders by newest and includes pre releases.
-                release = (await this.gitHubClient.Repository.Release.GetAll(Owner, Repo))[0];
+                release = (await this.gitHubClient.Repository.Release.GetAll(this.owner, this.repo))[0];
             }
             else
             {
-                release = await this.gitHubClient.Repository.Release.GetLatest(Owner, Repo);
+                release = await this.gitHubClient.Repository.Release.GetLatest(this.owner, this.repo);
             }
 
             return release;
