@@ -632,11 +632,7 @@ namespace AppInstaller::CLI::Workflow
             }
 
             context.Add<Execution::Data::Dependencies>(allDependencies);
-
-            if (!m_ignorePackageDependencies)
-            {
-                context << Workflow::ReportDependencies(m_dependenciesReportMessage);
-            }
+            context << Workflow::ReportDependencies(m_dependenciesReportMessage);
         }
 
         bool allSucceeded = true;
