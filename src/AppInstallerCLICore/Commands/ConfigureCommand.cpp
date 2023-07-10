@@ -74,7 +74,7 @@ namespace AppInstaller::CLI
                 OpenConfigurationSet <<
                 ShowConfigurationSet <<
                 ShowConfigurationSetConflicts <<
-                ConfirmConfigurationProcessing <<
+                ConfirmConfigurationProcessing(true) <<
                 ApplyConfigurationSet;
         }
     }

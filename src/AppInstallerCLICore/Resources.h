@@ -61,6 +61,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationEnabledMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationEnablingMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFailedToApply);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFailedToTest);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFailedToGetDetails);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFieldInvalidType);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFieldInvalidValue);
@@ -70,15 +71,19 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFileInvalid);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationFileVersionUnknown);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationGettingDetails);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationInDesiredState);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationInform);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationInitializing);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationLocal);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationModuleNameOnly);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationModuleWithDetails);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationNotEnabledMessage);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationNoTestRun);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationNotInDesiredState);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationReadingConfigFile);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationSettings);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationSuccessfullyApplied);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnexpectedTestResult);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitAssertHadNegativeResult);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitFailedConfigSet);
@@ -103,7 +108,8 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitSkipped);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationWaitingOnAnother);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationWarning);
-        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationWarningPrompt);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationWarningPromptApply);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationWarningPromptTest);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureCommandShortDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigureShowCommandLongDescription);

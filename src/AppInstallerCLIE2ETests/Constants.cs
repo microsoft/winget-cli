@@ -126,6 +126,7 @@ namespace AppInstallerCLIE2ETests
         public class ErrorCode
         {
             public const int S_OK = 0;
+            public const int S_FALSE = 1;
             public const int ERROR_FILE_NOT_FOUND = unchecked((int)0x80070002);
             public const int ERROR_PATH_NOT_FOUND = unchecked((int)0x80070003);
             public const int ERROR_NO_RANGES_PROCESSED = unchecked((int)0x80070138);
@@ -281,6 +282,8 @@ namespace AppInstallerCLIE2ETests
             public const int CONFIG_ERROR_SET_DEPENDENCY_CYCLE = unchecked((int)0x8A15C00C);
             public const int CONFIG_ERROR_INVALID_FIELD_VALUE = unchecked((int)0x8A15C00D);
             public const int CONFIG_ERROR_MISSING_FIELD = unchecked((int)0x8A15C00E);
+            public const int CONFIG_ERROR_TEST_FAILED = unchecked((int)0x8A15C00F);
+            public const int CONFIG_ERROR_TEST_NOT_RUN = unchecked((int)0x8A15C010);
 
             public const int CONFIG_ERROR_UNIT_NOT_INSTALLED = unchecked((int)0x8A15C101);
             public const int CONFIG_ERROR_UNIT_NOT_FOUND_REPOSITORY = unchecked((int)0x8A15C102);
