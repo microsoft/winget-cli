@@ -39,7 +39,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         }
 
         /// <summary>
-        /// Get a release.
+        /// Gets a release.
         /// </summary>
         /// <param name="releaseTag">Release tag.</param>
         /// <returns>The Release.</returns>
@@ -49,7 +49,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         }
 
         /// <summary>
-        /// Get a release.
+        /// Gets a release.
         /// </summary>
         /// <param name="releaseTag">Release tag.</param>
         /// <returns>The Release.</returns>

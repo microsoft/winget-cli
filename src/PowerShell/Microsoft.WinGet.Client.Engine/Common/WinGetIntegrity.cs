@@ -85,7 +85,7 @@ namespace Microsoft.WinGet.Client.Engine.Common
             // Ok, so you are here because calling winget --version failed. Lets try to figure out why.
 
             // When running winget.exe on PowerShell the message of the Win32Exception will distinguish between
-            // The system cannot find the file specified and No applicable app licenses found but of course
+            // 'The system cannot find the file specified' and 'No applicable app licenses found' but of course
             // the HRESULT is the same (E_FAIL).
             // To not compare strings let Powershell handle it. If calling winget throws an
             // ApplicationFailedException then is most likely that the license is not there.

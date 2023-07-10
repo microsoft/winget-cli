@@ -23,17 +23,21 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         private const string ImportModule = "Import-Module";
         private const string GetAppxPackage = "Get-AppxPackage";
         private const string AddAppxPackage = "Add-AppxPackage";
+        private const string AddAppxProvisionedPackage = "Add-AppxProvisionedPackage";
 
         // Parameters name
         private const string Name = "Name";
         private const string Path = "Path";
         private const string ErrorAction = "ErrorAction";
         private const string WarningAction = "WarningAction";
+        private const string PackagePath = "PackagePath";
+        private const string LicensePath = "LicensePath";
 
         // Parameter Values
         private const string Appx = "Appx";
         private const string Stop = "Stop";
         private const string SilentlyContinue = "SilentlyContinue";
+        private const string Online = "Online";
 
         // Options
         private const string UseWindowsPowerShell = "UseWindowsPowerShell";
@@ -132,17 +136,18 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         }
 
         /// <summary>
-        /// Install AppInstaller bundle from GitHub release.
+        /// Install AppInstaller's bundle from a GitHub release.
         /// </summary>
         /// <param name="releaseTag">Release tag of GitHub release.</param>
         /// <param name="allUsers">If install for all users is needed.</param>
         /// <param name="isDowngrade">Is downgrade.</param>
         public void InstallFromGitHubRelease(string releaseTag, bool allUsers, bool isDowngrade)
         {
-            this.VerifyDependencies();
+            this.InstallDependencies();
 
             if (isDowngrade)
             {
+                // Add-AppxProvisionedPackage doesn't support downgrade.
                 this.AddAppInstallerBundle(releaseTag, true);
 
                 if (allUsers)
@@ -165,31 +170,24 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
 
         private void AddProvisionPackage(string releaseTag)
         {
-            // TODO: verify system.
-            if (!Utilities.ExecutingAsAdministrator)
-            {
-                // Add-AppxProvisionedPackage
-                throw new System.Exception("Admin bro");
-            }
-
             var githubClient = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli);
             var release = githubClient.GetRelease(releaseTag);
 
             using var bundleFile = new TempFile();
             var bundleAsset = release.Assets.Where(a => a.Name == MsixBundleName).First();
-            githubClient.DownloadUrl(bundleAsset.Url, bundleFile.FullPath);
+            githubClient.DownloadUrl(bundleAsset.BrowserDownloadUrl, bundleFile.FullPath);
 
             using var licenseFile = new TempFile();
             var licenseAsset = release.Assets.Where(a => a.Name.EndsWith(License)).First();
-            githubClient.DownloadUrl(licenseAsset.Url, licenseFile.FullPath);
+            githubClient.DownloadUrl(licenseAsset.BrowserDownloadUrl, licenseFile.FullPath);
 
             try
             {
                 var ps = PowerShell.Create(RunspaceMode.CurrentRunspace);
-                ps.AddCommand("Add-AppxProvisionedPackage")
-                  .AddParameter("Online")
-                  .AddParameter("PackagePath", bundleFile.FullPath)
-                  .AddParameter("LicensePath", licenseFile.FullPath)
+                ps.AddCommand(AddAppxProvisionedPackage)
+                  .AddParameter(Online)
+                  .AddParameter(PackagePath, bundleFile.FullPath)
+                  .AddParameter(LicensePath, licenseFile.FullPath)
                   .AddParameter(ErrorAction, Stop)
                   .Invoke();
             }
@@ -235,7 +233,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
                 .FirstOrDefault();
         }
 
-        private void VerifyDependencies()
+        private void InstallDependencies()
         {
             // A better implementation would use Add-AppxPackage with -DependencyPath, but
             // the Appx module needs to be remoted into Windows PowerShell. When the string[] parameter

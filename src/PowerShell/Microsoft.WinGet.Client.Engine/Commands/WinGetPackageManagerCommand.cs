@@ -23,8 +23,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands
     {
         private const string EnvPath = "env:PATH";
 
-        private static readonly string[] WriteInformationTags = new string[] { "PSHOST" };
-
         /// <summary>
         /// Initializes a new instance of the <see cref="WinGetPackageManagerCommand"/> class.
         /// </summary>
@@ -73,6 +71,19 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="allUsers">Install for all users. Requires admin.</param>
         public void Repair(string expectedVersion, bool allUsers)
         {
+            if (allUsers)
+            {
+                if (Utilities.ExecutingAsSystem)
+                {
+                    throw new NotSupportedException();
+                }
+
+                if (!Utilities.ExecutingAsAdministrator)
+                {
+                    throw new WinGetRepairException(Resources.RepairAllUsersMessage);
+                }
+            }
+
             this.RepairStateMachine(expectedVersion, allUsers, new HashSet<IntegrityCategory>());
         }
 
@@ -111,20 +122,20 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                         this.Install(expectedVersion, allUsers);
                         break;
                     case IntegrityCategory.AppInstallerNoLicense:
-                        if (!allUsers)
+                        // This requires -AllUsers in admin mode.
+                        if (allUsers && Utilities.ExecutingAsAdministrator)
                         {
-                            // This requires -AllUsers.
-                            throw;
+                            this.Install(expectedVersion, allUsers);
+                        }
+                        else
+                        {
+                            throw new WinGetRepairException(e);
                         }
 
-                        this.Install(expectedVersion, allUsers);
                         break;
                     case IntegrityCategory.AppExecutionAliasDisabled:
-                        // Sorry, but the user has to manually enabled it.
-                        this.PsCmdlet.WriteInformation(Resources.AppExecutionAliasDisabledHelpMessage, WriteInformationTags);
-                        throw;
                     case IntegrityCategory.Unknown:
-                        throw;
+                        throw new WinGetRepairException(e);
                     default:
                         throw new NotSupportedException();
                 }
