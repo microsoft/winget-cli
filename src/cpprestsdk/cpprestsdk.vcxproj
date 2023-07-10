@@ -241,6 +241,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>$(ProjectDir)cpprestsdk\Release\src\pch;$(ProjectDir)cpprestsdk\Release\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
     </ClCompile>
     <Link>
       <TargetMachine>MachineX86</TargetMachine>
@@ -255,6 +256,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>$(ProjectDir)cpprestsdk\Release\src\pch;$(ProjectDir)cpprestsdk\Release\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
     </ClCompile>
     <Link>
       <TargetMachine>MachineX86</TargetMachine>
@@ -272,6 +274,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalIncludeDirectories>$(ProjectDir)cpprestsdk\Release\src\pch;$(ProjectDir)cpprestsdk\Release\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
     </ClCompile>
     <Link>
       <TargetMachine>MachineX86</TargetMachine>
@@ -288,6 +291,7 @@
       <PreprocessorDefinitions>_NO_ASYNCRTIMP;NDEBUG;CPPREST_EXCLUDE_WEBSOCKETS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <AdditionalIncludeDirectories>$(ProjectDir)cpprestsdk\Release\src\pch;$(ProjectDir)cpprestsdk\Release\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
     </ClCompile>
     <Lib>
       <AdditionalDependencies> crypt32.lib;winhttp.lib; </AdditionalDependencies>
@@ -301,6 +305,7 @@
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <AdditionalIncludeDirectories>$(ProjectDir)cpprestsdk\Release\src\pch;$(ProjectDir)cpprestsdk\Release\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
     </ClCompile>
     <Lib>
       <AdditionalDependencies> crypt32.lib;winhttp.lib; </AdditionalDependencies>
@@ -313,6 +318,7 @@
       <PreprocessorDefinitions>_NO_ASYNCRTIMP;NDEBUG;CPPREST_EXCLUDE_WEBSOCKETS;%(PreprocessorDefinitions)%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <AdditionalIncludeDirectories>$(ProjectDir)cpprestsdk\Release\src\pch;$(ProjectDir)cpprestsdk\Release\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|ARM'">
@@ -323,6 +329,7 @@
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <AdditionalIncludeDirectories>$(ProjectDir)cpprestsdk\Release\src\pch;$(ProjectDir)cpprestsdk\Release\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
@@ -332,6 +339,7 @@
       <PreprocessorDefinitions>_NO_ASYNCRTIMP;NDEBUG;CPPREST_EXCLUDE_WEBSOCKETS;%(PreprocessorDefinitions)%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <AdditionalIncludeDirectories>$(ProjectDir)cpprestsdk\Release\src\pch;$(ProjectDir)cpprestsdk\Release\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseStatic|ARM64'">
@@ -342,6 +350,7 @@
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <AdditionalIncludeDirectories>$(ProjectDir)cpprestsdk\Release\src\pch;$(ProjectDir)cpprestsdk\Release\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
@@ -351,6 +360,7 @@
       <PreprocessorDefinitions>_NO_ASYNCRTIMP;_DEBUG;CPPREST_EXCLUDE_WEBSOCKETS;%(PreprocessorDefinitions)%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <AdditionalIncludeDirectories>$(ProjectDir)cpprestsdk\Release\src\pch;$(ProjectDir)cpprestsdk\Release\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
@@ -360,6 +370,7 @@
       <PreprocessorDefinitions>_NO_ASYNCRTIMP;_DEBUG;CPPREST_EXCLUDE_WEBSOCKETS;%(PreprocessorDefinitions)%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <AdditionalIncludeDirectories>$(ProjectDir)cpprestsdk\Release\src\pch;$(ProjectDir)cpprestsdk\Release\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -369,6 +380,7 @@
       <PreprocessorDefinitions>_NO_ASYNCRTIMP;_DEBUG;CPPREST_EXCLUDE_WEBSOCKETS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <AdditionalIncludeDirectories>$(ProjectDir)cpprestsdk\Release\src\pch;$(ProjectDir)cpprestsdk\Release\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
     </ClCompile>
     <Lib>
       <AdditionalDependencies> crypt32.lib;winhttp.lib; </AdditionalDependencies>

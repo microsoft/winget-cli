@@ -65,6 +65,8 @@ namespace AppInstaller::Repository::Microsoft
         // The configurable source itself.
         struct ConfigurableTestSource : public ISource
         {
+            static constexpr ISourceType SourceType = ISourceType::ConfigurableTestSource;
+
             ConfigurableTestSource(const SourceDetails& details, const TestSourceConfiguration& config) :
                 m_details(details), m_config(config) {}
 
@@ -76,6 +78,16 @@ namespace AppInstaller::Repository::Microsoft
             {
                 THROW_IF_FAILED(m_config.SearchHR);
                 return {};
+            }
+
+            void* CastTo(ISourceType type) override
+            {
+                if (type == SourceType)
+                {
+                    return this;
+                }
+
+                return nullptr;
             }
 
         private:

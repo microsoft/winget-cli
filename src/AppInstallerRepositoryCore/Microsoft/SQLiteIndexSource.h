@@ -13,6 +13,8 @@ namespace AppInstaller::Repository::Microsoft
     // A source that holds a SQLiteIndex and lock.
     struct SQLiteIndexSource : public std::enable_shared_from_this<SQLiteIndexSource>, public ISource
     {
+        static constexpr ISourceType SourceType = ISourceType::SQLiteIndexSource;
+
         SQLiteIndexSource(
             const SourceDetails& details,
             SQLiteIndex&& index,
@@ -38,6 +40,9 @@ namespace AppInstaller::Repository::Microsoft
 
         // Execute a search on the source.
         SearchResult Search(const SearchRequest& request) const override;
+
+        // Casts to the requested type.
+        void* CastTo(ISourceType type) override;
 
         // Gets the index.
         SQLiteIndex& GetIndex() { return m_index; }
@@ -68,6 +73,9 @@ namespace AppInstaller::Repository::Microsoft
             SQLiteIndex&& index,
             Synchronization::CrossProcessReaderWriteLock&& lock = {},
             bool isInstalledSource = false);
+
+        // Casts to the requested type.
+        void* CastTo(ISourceType type) override;
 
         // Adds a package version to the source.
         void AddPackageVersion(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath);

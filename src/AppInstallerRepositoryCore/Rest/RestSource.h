@@ -9,6 +9,8 @@ namespace AppInstaller::Repository::Rest
     // A source that holds a RestSource.
     struct RestSource : public std::enable_shared_from_this<RestSource>, public ISource
     {
+        static constexpr ISourceType SourceType = ISourceType::RestSource;
+
         RestSource(const SourceDetails& details, SourceInformation information, RestClient&& restClient);
 
         RestSource(const RestSource&) = delete;
@@ -31,6 +33,9 @@ namespace AppInstaller::Repository::Rest
 
         // Execute a search on the source.
         SearchResult Search(const SearchRequest& request) const override;
+
+        // Casts to the requested type.
+        void* CastTo(ISourceType type) override;
 
         // Gets the rest client.
         const RestClient& GetRestClient() const;
