@@ -59,7 +59,7 @@ namespace AppInstaller::Msix
 
                 UINT64 totalBytesRead = 0;
 
-                while (!progress.IsCancelled())
+                while (!progress.IsCancelledBy(CancelReason::Any))
                 {
                     ULONG bytesRead = 0;
                     HRESULT hr = stream->Read(buffer.get(), bufferSize, &bytesRead);
@@ -134,7 +134,7 @@ namespace AppInstaller::Msix
 
             UINT64 totalBytesRead = 0;
 
-            while (!progress.IsCancelled())
+            while (!progress.IsCancelledBy(CancelReason::Any))
             {
                 ULONG bytesRead = 0;
                 HRESULT hr = stream->Read(buffer.get(), bufferSize, &bytesRead);

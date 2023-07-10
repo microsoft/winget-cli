@@ -63,7 +63,6 @@ namespace AppInstaller::CLI
 
         Execution::Context context{ std::cout, std::cin };
         auto previousThreadGlobals = context.SetForCurrentThread();
-        context.EnableCtrlHandler();
 
         // Enable all logging for this phase; we will update once we have the arguments
         Logging::Log().EnableChannel(Logging::Channel::All);
@@ -84,6 +83,8 @@ namespace AppInstaller::CLI
             // Initiate the background cleanup of the log file location.
             Logging::FileLogger::BeginCleanup();
         }
+
+        context.EnableSignalTerminationHandler();
 
         context << Workflow::ReportExecutionStage(Workflow::ExecutionStage::ParseArgs);
 

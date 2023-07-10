@@ -115,7 +115,7 @@ namespace AppInstaller::CLI::Execution
     void ContextOrchestrator::CancelQueueItem(const OrchestratorQueueItem& item)
     {
         // Always cancel the item, even if it isn't running yet, to get the terminationHR set correctly.
-        item.GetContext().Cancel(false, true);
+        item.GetContext().Cancel(CancelReason::Abort, true);
 
         RemoveItemInState(item, OrchestratorQueueItemState::Queued);
     }
@@ -271,7 +271,7 @@ namespace AppInstaller::CLI::Execution
 
                 command->ValidateArguments(item->GetContext().Args);
 
-                item->GetContext().EnableCtrlHandler();
+                item->GetContext().EnableSignalTerminationHandler();
 
                 ::AppInstaller::CLI::ExecuteWithoutLoggingSuccess(item->GetContext(), command.get());
             }
@@ -284,7 +284,7 @@ namespace AppInstaller::CLI::Execution
                 item->GetContext().SetTerminationHR(exceptionHR);
             }
 
-            item->GetContext().EnableCtrlHandler(false);
+            item->GetContext().EnableSignalTerminationHandler(false);
 
             if (FAILED(item->GetContext().GetTerminationHR()) || item->IsComplete())
             {

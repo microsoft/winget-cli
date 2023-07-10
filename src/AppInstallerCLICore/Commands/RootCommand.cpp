@@ -22,6 +22,7 @@
 #include "PinCommand.h"
 #include "ConfigureCommand.h"
 #include "DebugCommand.h"
+#include "TestCommand.h"
 
 #include "Resources.h"
 #include "TableOutput.h"
@@ -178,6 +179,9 @@ namespace AppInstaller::CLI
             std::make_unique<ConfigureCommand>(FullName()),
 #if _DEBUG
             std::make_unique<DebugCommand>(FullName()),
+#endif
+#ifndef AICLI_DISABLE_TEST_HOOKS
+            std::make_unique<TestCommand>(FullName()),
 #endif
         });
     }
