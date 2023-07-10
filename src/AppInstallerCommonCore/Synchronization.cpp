@@ -112,7 +112,7 @@ namespace AppInstaller::Synchronization
         auto lock = controlMutex.acquire(&status, static_cast<DWORD>(timeout.count()));
         THROW_LAST_ERROR_IF(status == WAIT_FAILED);
 
-        if (status == WAIT_TIMEOUT || (progress && progress->IsCancelled()))
+        if (status == WAIT_TIMEOUT || (progress && progress->IsCancelledBy(CancelReason::Any)))
         {
             return result;
         }
@@ -165,7 +165,7 @@ namespace AppInstaller::Synchronization
 
         // Wait for one/all of the mutexes (or cancellation)
         bool waitAgain = true;
-        while (waitAgain && (!progress || !progress->IsCancelled()))
+        while (waitAgain && (!progress || !progress->IsCancelledBy(CancelReason::Any)))
         {
             DWORD millisecondsToWait = 0;
             if (progress)
@@ -231,7 +231,7 @@ namespace AppInstaller::Synchronization
             }
         }
 
-        if (status == WAIT_TIMEOUT || (progress && progress->IsCancelled()))
+        if (status == WAIT_TIMEOUT || (progress && progress->IsCancelledBy(CancelReason::Any)))
         {
             return result;
         }
@@ -270,7 +270,7 @@ namespace AppInstaller::Synchronization
 
     bool CrossProcessInstallLock::Acquire(IProgressCallback& progress)
     {
-        while (!progress.IsCancelled())
+        while (!progress.IsCancelledBy(CancelReason::Any))
         {
             auto lock = m_mutex.acquire(nullptr, static_cast<DWORD>(std::chrono::duration_cast<std::chrono::milliseconds>(s_CrossProcessInstallLock_WaitLoopTime).count()));
 

@@ -980,7 +980,7 @@ namespace Microsoft.Management.Deployment
         /// Accept the package agreements required for download.
         Boolean AcceptPackageAgreements;
 
-        /// Used by a caller to correlate the install with a caller's data.
+        /// Used by a caller to correlate the download with a caller's data.
         /// The string must be JSON encoded.
         String CorrelationData;
     }

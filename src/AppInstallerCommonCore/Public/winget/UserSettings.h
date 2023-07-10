@@ -102,6 +102,7 @@ namespace AppInstaller::Settings
         InteractivityDisable,
         // Debug
         EnableSelfInitiatedMinidump,
+        KeepAllLogFiles,
         Max
     };
 
@@ -171,8 +172,11 @@ namespace AppInstaller::Settings
         SETTINGMAPPING_SPECIALIZATION(Setting::NetworkDownloader, std::string, InstallerDownloader, InstallerDownloader::Default, ".network.downloader"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::NetworkDOProgressTimeoutInSeconds, uint32_t, std::chrono::seconds, 60s, ".network.doProgressTimeoutInSeconds"sv);
         SETTINGMAPPING_SPECIALIZATION(Setting::NetworkWingetAlternateSourceURL, bool, bool, true, ".network.enableWingetAlternateSourceURL"sv);
+#ifndef AICLI_DISABLE_TEST_HOOKS
         // Debug
         SETTINGMAPPING_SPECIALIZATION(Setting::EnableSelfInitiatedMinidump, bool, bool, false, ".debugging.enableSelfInitiatedMinidump"sv);
+        SETTINGMAPPING_SPECIALIZATION(Setting::KeepAllLogFiles, bool, bool, false, ".debugging.keepAllLogFiles"sv);
+#endif
         // Logging
         SETTINGMAPPING_SPECIALIZATION(Setting::LoggingLevelPreference, std::string, Logging::Level, Logging::Level::Info, ".logging.level"sv);
         // Interactivity

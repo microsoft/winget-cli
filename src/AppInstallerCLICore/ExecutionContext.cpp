@@ -12,12 +12,12 @@ namespace AppInstaller::CLI::Execution
 
     namespace
     {
-        // Type to contain the CTRL signal handler.
-        struct CtrlHandler
+        // Type to contain the CTRL signal and window messages handler.
+        struct SignalTerminationHandler
         {
-            static CtrlHandler& Instance()
+            static SignalTerminationHandler& Instance()
             {
-                static CtrlHandler s_instance;
+                static SignalTerminationHandler s_instance;
                 return s_instance;
             }
 
@@ -39,10 +39,53 @@ namespace AppInstaller::CLI::Execution
                 m_contexts.erase(itr);
             }
 
-        private:
-            CtrlHandler()
+            void StartAppShutdown()
             {
+                // Lifetime manager sends CTRL-C after the WM_QUERYENDSESSION is processed.
+                // If we disable the CTRL-C handler, the default handler will kill us.
+                TerminateContexts(CancelReason::AppShutdown, true);
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+                m_appShutdownEvent.SetEvent();
+#endif
+            }
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+            HWND GetWindowHandle() { return m_windowHandle.get(); }
+
+            bool WaitForAppShutdownEvent()
+            {
+                return m_appShutdownEvent.wait(60000);
+            }
+#endif
+
+        private:
+            SignalTerminationHandler()
+            {
+                // Create message only window.
+                m_messageQueueReady.create();
+                m_windowThread = std::thread(&SignalTerminationHandler::CreateWindowAndStartMessageLoop, this);
+                if (!m_messageQueueReady.wait(100))
+                {
+                    AICLI_LOG(CLI, Warning, << "Timeout creating winget window");
+                }
+
+                // Set up ctrl-c handler.
                 LOG_IF_WIN32_BOOL_FALSE(SetConsoleCtrlHandler(StaticCtrlHandlerFunction, TRUE));
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+                m_appShutdownEvent.create();
+#endif
+            }
+
+            ~SignalTerminationHandler()
+            {
+                // At this point the thread is gone, but it will get angry
+                // if there's no call to join.
+                if (m_windowThread.joinable())
+                {
+                    m_windowThread.join();
+                }
             }
 
             static BOOL WINAPI StaticCtrlHandlerFunction(DWORD ctrlType)
@@ -50,19 +93,43 @@ namespace AppInstaller::CLI::Execution
                 return Instance().CtrlHandlerFunction(ctrlType);
             }
 
+            static LRESULT WINAPI WindowMessageProcedure(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+            {
+                AICLI_LOG(CLI, Verbose, << "Received window message type: " << uMsg);
+                switch (uMsg)
+                {
+                case WM_QUERYENDSESSION:
+                    SignalTerminationHandler::Instance().StartAppShutdown();
+                    return TRUE;
+                case WM_ENDSESSION:
+                case WM_CLOSE:
+                    DestroyWindow(hWnd);
+                    break;
+                case WM_DESTROY:
+                    PostQuitMessage(0);
+                    break;
+                default:
+                    return DefWindowProc(hWnd, uMsg, wParam, lParam);
+                }
+                return FALSE;
+            }
+
             BOOL CtrlHandlerFunction(DWORD ctrlType)
             {
+                // TODO: Move this to be logged per active context when we have thread static globals
+                AICLI_LOG(CLI, Info, << "Got CTRL type: " << ctrlType);
+
                 switch (ctrlType)
                 {
                 case CTRL_C_EVENT:
                 case CTRL_BREAK_EVENT:
-                    return TerminateContexts(ctrlType, false);
+                    return TerminateContexts(CancelReason::CtrlCSignal, false);
                     // According to MSDN, we should never receive these due to having gdi32/user32 loaded in our process.
                     // But handle them as a force terminate anyway.
                 case CTRL_CLOSE_EVENT:
                 case CTRL_LOGOFF_EVENT:
                 case CTRL_SHUTDOWN_EVENT:
-                    return TerminateContexts(ctrlType, true);
+                    return TerminateContexts(CancelReason::CtrlCSignal, true);
                 default:
                     return FALSE;
                 }
@@ -70,7 +137,7 @@ namespace AppInstaller::CLI::Execution
 
             // Terminates the currently attached contexts.
             // Returns FALSE if no contexts attached; TRUE otherwise.
-            BOOL TerminateContexts(DWORD ctrlType, bool force)
+            BOOL TerminateContexts(CancelReason reason, bool force)
             {
                 if (m_contexts.empty())
                 {
@@ -79,43 +146,113 @@ namespace AppInstaller::CLI::Execution
 
                 {
                     std::lock_guard<std::mutex> lock{ m_contextsLock };
-
-                    // TODO: Move this to be logged per active context when we have thread static globals
-                    AICLI_LOG(CLI, Info, << "Got CTRL type: " << ctrlType);
-
                     for (auto& context : m_contexts)
                     {
-                        context->Cancel(true, force);
+                        context->Cancel(reason, force);
                     }
                 }
 
                 return TRUE;
             }
 
+            void CreateWindowAndStartMessageLoop()
+            {
+                PCWSTR windowClass = L"wingetWindow";
+                HINSTANCE hInstance = GetModuleHandle(NULL);
+                if (hInstance == NULL)
+                {
+                    LOG_LAST_ERROR_MSG("Failed getting module handle");
+                    return;
+                }
+
+                WNDCLASSEX wcex = {};
+                wcex.cbSize = sizeof(wcex);
+
+                wcex.style = CS_NOCLOSE;
+                wcex.lpfnWndProc = SignalTerminationHandler::WindowMessageProcedure;
+                wcex.cbClsExtra = 0;
+                wcex.cbWndExtra = 0;
+                wcex.hInstance = hInstance;
+                wcex.lpszClassName = windowClass;
+
+                if (!RegisterClassEx(&wcex))
+                {
+                    LOG_LAST_ERROR_MSG("Failed registering window class");
+                    return;
+                }
+
+                m_windowHandle = wil::unique_hwnd(CreateWindow(
+                    windowClass,
+                    L"WingetMessageOnlyWindow",
+                    WS_OVERLAPPEDWINDOW,
+                    0, /* x */
+                    0, /* y */
+                    0, /* nWidth */
+                    0, /* nHeight */
+                    NULL, /* hWndParent */
+                    NULL, /* hMenu */
+                    hInstance,
+                    NULL)); /* lpParam */
+
+                if (m_windowHandle == nullptr)
+                {
+                    LOG_LAST_ERROR_MSG("Failed creating window");
+                    return;
+                }
+
+                ShowWindow(m_windowHandle.get(), SW_HIDE);
+
+                // Force message queue to be created.
+                MSG msg;
+                PeekMessage(&msg, NULL, WM_USER, WM_USER, PM_NOREMOVE);
+                m_messageQueueReady.SetEvent();
+
+                // Message loop
+                BOOL getMessageResult;
+                while ((getMessageResult = GetMessage(&msg, m_windowHandle.get(), 0, 0)) != 0)
+                {
+                    if (getMessageResult == -1)
+                    {
+                        LOG_LAST_ERROR();
+                    }
+                    else
+                    {
+                        DispatchMessage(&msg);
+                    }
+                }
+            }
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+            wil::unique_event m_appShutdownEvent;
+#endif
+
             std::mutex m_contextsLock;
             std::vector<Context*> m_contexts;
+            wil::unique_event m_messageQueueReady;
+            wil::unique_hwnd m_windowHandle;
+            std::thread m_windowThread;
         };
 
-        void SetCtrlHandlerContext(bool add, Context* context)
+        void SetSignalTerminationHandlerContext(bool add, Context* context)
         {
             THROW_HR_IF(E_POINTER, context == nullptr);
 
             if (add)
             {
-                CtrlHandler::Instance().AddContext(context);
+                SignalTerminationHandler::Instance().AddContext(context);
             }
             else
             {
-                CtrlHandler::Instance().RemoveContext(context);
+                SignalTerminationHandler::Instance().RemoveContext(context);
             }
         }
     }
 
     Context::~Context()
     {
-        if (m_disableCtrlHandlerOnExit)
+        if (m_disableSignalTerminationHandlerOnExit)
         {
-            EnableCtrlHandler(false);
+            EnableSignalTerminationHandler(false);
         }
     }
 
@@ -125,9 +262,9 @@ namespace AppInstaller::CLI::Execution
         clone->m_flags = m_flags;
         clone->m_executingCommand = m_executingCommand;
         // If the parent is hooked up to the CTRL signal, have the clone be as well
-        if (m_disableCtrlHandlerOnExit)
+        if (m_disableSignalTerminationHandlerOnExit)
         {
-            clone->EnableCtrlHandler();
+            clone->EnableSignalTerminationHandler();
         }
         CopyArgsToSubContext(clone.get());
         return clone;
@@ -149,10 +286,10 @@ namespace AppInstaller::CLI::Execution
         }
     }
 
-    void Context::EnableCtrlHandler(bool enabled)
+    void Context::EnableSignalTerminationHandler(bool enabled)
     {
-        SetCtrlHandlerContext(enabled, this);
-        m_disableCtrlHandlerOnExit = enabled;
+        SetSignalTerminationHandlerContext(enabled, this);
+        m_disableSignalTerminationHandlerOnExit = enabled;
     }
 
     void Context::UpdateForArgs()
@@ -193,11 +330,18 @@ namespace AppInstaller::CLI::Execution
                 std::exit(hr);
             }
         }
+        else if (hr == APPINSTALLER_CLI_ERROR_APPTERMINATION_RECEIVED)
+        {
+            AICLI_LOG(CLI, Info, << "Got app termination signal");
+            hr = E_ABORT;
+        }
 
         Logging::Telemetry().LogCommandTermination(hr, file, line);
 
-        m_isTerminated = true;
-        m_terminationHR = hr;
+        if (!m_isTerminated)
+        {
+            SetTerminationHR(hr);
+        }
     }
 
     void Context::SetTerminationHR(HRESULT hr)
@@ -206,10 +350,20 @@ namespace AppInstaller::CLI::Execution
         m_isTerminated = true;
     }
 
-    void Context::Cancel(bool exitIfStuck, bool bypassUser)
+    void Context::Cancel(CancelReason reason, bool bypassUser)
     {
-        Terminate(exitIfStuck ? APPINSTALLER_CLI_ERROR_CTRL_SIGNAL_RECEIVED : E_ABORT);
-        Reporter.CancelInProgressTask(bypassUser);
+        HRESULT hr = E_ABORT;
+        if (reason == CancelReason::CtrlCSignal)
+        {
+            hr = APPINSTALLER_CLI_ERROR_CTRL_SIGNAL_RECEIVED;
+        }
+        else if (reason == CancelReason::AppShutdown)
+        {
+            hr = APPINSTALLER_CLI_ERROR_APPTERMINATION_RECEIVED;
+        }
+
+        Terminate(hr);
+        Reporter.CancelInProgressTask(bypassUser, reason);
     }
 
     void Context::SetExecutionStage(Workflow::ExecutionStage stage)
@@ -241,6 +395,16 @@ namespace AppInstaller::CLI::Execution
     bool Context::ShouldExecuteWorkflowTask(const Workflow::WorkflowTask& task)
     {
         return (m_shouldExecuteWorkflowTask ? m_shouldExecuteWorkflowTask(task) : true);
+    }
+
+    HWND GetWindowHandle()
+    {
+        return SignalTerminationHandler::Instance().GetWindowHandle();
+    }
+
+    bool WaitForAppShutdownEvent()
+    {
+        return SignalTerminationHandler::Instance().WaitForAppShutdownEvent();
     }
 #endif
 }

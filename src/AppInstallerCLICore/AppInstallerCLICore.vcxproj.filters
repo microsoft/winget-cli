@@ -221,6 +221,9 @@
     <ClInclude Include="Commands\DebugCommand.h">
       <Filter>Commands</Filter>
     </ClInclude>
+    <ClInclude Include="Commands\TestCommand.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
     <ClInclude Include="Commands\DownloadCommand.h">
       <Filter>Commands</Filter>
     </ClInclude>
@@ -410,6 +413,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Commands\DebugCommand.cpp">
+      <Filter>Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\TestCommand.cpp">
       <Filter>Commands</Filter>
     </ClCompile>
     <ClInclude Include="Commands\DownloadCommand.cpp">

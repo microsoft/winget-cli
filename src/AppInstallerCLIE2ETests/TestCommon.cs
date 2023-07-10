@@ -9,6 +9,7 @@ namespace AppInstallerCLIE2ETests
     using System;
     using System.Diagnostics;
     using System.IO;
+    using System.Reflection;
     using System.Threading;
     using Microsoft.Management.Deployment;
     using Microsoft.Win32;
@@ -209,8 +210,9 @@ namespace AppInstallerCLIE2ETests
         /// <param name="parameters">Parameters.</param>
         /// <param name="stdIn">Optional std in.</param>
         /// <param name="timeOut">Optional timeout.</param>
+        /// <param name="throwOnTimeout">Throw on timeout.</param>
         /// <returns>The result of the command.</returns>
-        public static RunCommandResult RunAICLICommandViaInvokeCommandInDesktopPackage(string command, string parameters, string stdIn = null, int timeOut = 60000)
+        public static RunCommandResult RunAICLICommandViaInvokeCommandInDesktopPackage(string command, string parameters, string stdIn = null, int timeOut = 60000, bool throwOnTimeout = true)
         {
             string cmdCommandPiped = string.Empty;
             if (!string.IsNullOrEmpty(stdIn))
@@ -246,7 +248,7 @@ namespace AppInstallerCLIE2ETests
                 waitedTime += 1000;
             }
 
-            if (waitedTime >= timeOut)
+            if (waitedTime >= timeOut && throwOnTimeout)
             {
                 throw new TimeoutException($"Packaged winget command run timed out: {command} {parameters}");
             }
@@ -426,11 +428,20 @@ namespace AppInstallerCLIE2ETests
         /// Install and register msix package via appx manifest.
         /// </summary>
         /// <param name="packagePath">Path to package.</param>
+        /// <param name="forceShutdown">Force shutdown.</param>
+        /// <param name="throwOnFailure">Throw on failure.</param>
         /// <returns>True if installed correctly.</returns>
-        public static bool InstallMsixRegister(string packagePath)
+        public static bool InstallMsixRegister(string packagePath, bool forceShutdown = false, bool throwOnFailure = true)
         {
             string manifestFile = Path.Combine(packagePath, "AppxManifest.xml");
-            return RunCommand("powershell", $"Add-AppxPackage -Register \"{manifestFile}\"", throwOnFailure: true);
+
+            var command = $"Add-AppxPackage -Register \"{manifestFile}\"";
+            if (forceShutdown)
+            {
+                command += " -ForceTargetApplicationShutdown";
+            }
+
+            return RunCommand("powershell", command, throwOnFailure: throwOnFailure);
         }
 
         /// <summary>
@@ -553,12 +564,6 @@ namespace AppInstallerCLIE2ETests
             string testLogsDestPath = Path.Combine(tempPath, "E2ETestLogs");
             string testLogsPackagedDestPath = Path.Combine(testLogsDestPath, "Packaged");
             string testLogsUnpackagedDestPath = Path.Combine(testLogsDestPath, "Unpackaged");
-
-            if (Directory.Exists(testLogsDestPath))
-            {
-                TestIndexSetup.DeleteDirectoryContents(new DirectoryInfo(testLogsDestPath));
-                Directory.Delete(testLogsDestPath);
-            }
 
             if (Directory.Exists(testLogsPackagedSourcePath))
             {
@@ -789,8 +794,7 @@ namespace AppInstallerCLIE2ETests
         /// <param name="value">Value.</param>
         public static void ModifyPortableARPEntryValue(string productCode, string name, string value)
         {
-            const string uninstallSubKey = @"Software\Microsoft\Windows\CurrentVersion\Uninstall";
-            using (RegistryKey uninstallRegistryKey = Registry.CurrentUser.OpenSubKey(uninstallSubKey, true))
+            using (RegistryKey uninstallRegistryKey = Registry.CurrentUser.OpenSubKey(Constants.UninstallSubKey, true))
             {
                 RegistryKey entry = uninstallRegistryKey.OpenSubKey(productCode, true);
                 entry.SetValue(name, value);
@@ -883,6 +887,45 @@ namespace AppInstallerCLIE2ETests
                 {
                     RunCommand("pwsh", $"-Command \"Install-Module {moduleName} -Repository {repository} -Force\"");
                 }
+            }
+        }
+
+        /// <summary>
+        /// Creates an ARP entry from the given values.
+        /// </summary>
+        /// <param name="productCode">Product code of the entry.</param>
+        /// <param name="properties">The properties to set in the entry.</param>
+        /// <param name="scope">Scope of the entry.</param>
+        public static void CreateARPEntry(
+            string productCode,
+            object properties,
+            Scope scope = Scope.User)
+        {
+            RegistryKey baseKey = (scope == Scope.User) ? Registry.CurrentUser : Registry.LocalMachine;
+            using (RegistryKey uninstallRegistryKey = baseKey.OpenSubKey(Constants.UninstallSubKey, true))
+            {
+                RegistryKey entry = uninstallRegistryKey.CreateSubKey(productCode, true);
+
+                foreach (PropertyInfo property in properties.GetType().GetProperties())
+                {
+                    entry.SetValue(property.Name, property.GetValue(properties));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Removes an ARP entry.
+        /// </summary>
+        /// <param name="productCode">Product code of the entry.</param>
+        /// <param name="scope">Scope of the entry.</param>
+        public static void RemoveARPEntry(
+            string productCode,
+            Scope scope = Scope.User)
+        {
+            RegistryKey baseKey = (scope == Scope.User) ? Registry.CurrentUser : Registry.LocalMachine;
+            using (RegistryKey uninstallRegistryKey = baseKey.OpenSubKey(Constants.UninstallSubKey, true))
+            {
+                uninstallRegistryKey.DeleteSubKey(productCode);
             }
         }
 

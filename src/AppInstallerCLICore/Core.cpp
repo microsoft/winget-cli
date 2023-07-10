@@ -63,7 +63,6 @@ namespace AppInstaller::CLI
 
         Execution::Context context{ std::cout, std::cin };
         auto previousThreadGlobals = context.SetForCurrentThread();
-        context.EnableCtrlHandler();
 
         // Enable all logging for this phase; we will update once we have the arguments
         Logging::Log().EnableChannel(Logging::Channel::All);
@@ -77,8 +76,15 @@ namespace AppInstaller::CLI
         Logging::Telemetry().SetCaller("winget-cli");
         Logging::Telemetry().LogStartup();
 
-        // Initiate the background cleanup of the log file location.
-        Logging::FileLogger::BeginCleanup();
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (!Settings::User().Get<Settings::Setting::KeepAllLogFiles>())
+#endif
+        {
+            // Initiate the background cleanup of the log file location.
+            Logging::FileLogger::BeginCleanup();
+        }
+
+        context.EnableSignalTerminationHandler();
 
         context << Workflow::ReportExecutionStage(Workflow::ExecutionStage::ParseArgs);
 
@@ -152,6 +158,13 @@ namespace AppInstaller::CLI
 
     void ServerInitialize()
     {
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (Settings::User().Get<Settings::Setting::EnableSelfInitiatedMinidump>())
+        {
+            Debugging::EnableSelfInitiatedMinidump();
+        }
+#endif
+
         AppInstaller::CLI::Execution::COMContext::SetLoggers();
     }
 }

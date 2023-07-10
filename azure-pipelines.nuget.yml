@@ -10,15 +10,23 @@ pool:
 
 variables:
   solution: "src/AppInstallerCLI.sln"
-  buildConfiguration: "Release"
   packageName: Microsoft.WindowsPackageManager.Utils
+  buildVer: $[counter(${{ parameters.version }}, 1)]
+  version: ${{ parameters.version }}.$(buildVer)
 
 jobs:
   - job: "Build"
     timeoutInMinutes: 120
+    strategy:
+      matrix:
+        x86_release:
+          buildConfiguration: 'Release'
+          buildPlatform: 'x86'
+        x64_release:
+          buildConfiguration: 'Release'
+          buildPlatform: 'x64'
     variables:
-      BuildVer: $[counter(${{ parameters.version }}, 1)]
-      version: ${{ parameters.version }}.$(BuildVer)
+      artifactsDir: $(Build.ArtifactStagingDirectory)\$(buildPlatform)
     steps:
       - script: echo $(version)
 
@@ -55,24 +63,17 @@ jobs:
         condition: not(eq(variables['Build.Reason'], 'PullRequest'))
         inputs:
           filePath: 'src\binver\Update-BinVer.ps1'
-          arguments: '-TargetFile binver\binver\version.h -BuildVersion $(BuildVer) -MajorMinorOverride ${{ parameters.version }}'
+          arguments: '-TargetFile binver\binver\version.h -BuildVersion $(buildVer) -MajorMinorOverride ${{ parameters.version }}'
           workingDirectory: "src"
 
       - task: VSBuild@1
-        displayName: Build Solution x86
+        displayName: Build Solution
         inputs:
-          platform: "x86"
+          platform: "$(buildPlatform)"
           solution: "$(solution)"
           configuration: "$(buildConfiguration)"
 
-      - task: VSBuild@1
-        displayName: Build Solution x64
-        inputs:
-          platform: "x64"
-          solution: "$(solution)"
-          configuration: "$(buildConfiguration)"
-
-      - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+      - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@2
         displayName: "ESRP CodeSigning - Package contents"
         inputs:
           ConnectedServiceName: "WindowsPackageManager ESRP CodeSigning"
@@ -106,16 +107,53 @@ jobs:
               }
             ]
 
+      - task: CopyFiles@2
+        displayName: 'Copy nuget pack files to artifacts folder'
+        inputs:
+          Contents: |
+              WinGetUtil.nuspec
+              src\$(buildPlatform)\$(buildConfiguration)\WinGetUtil\WinGetUtil.dll
+              src\$(buildPlatform)\$(buildConfiguration)\WinGetUtil\WinGetUtil.pdb
+              src\WinGetUtilInterop\bin\$(buildConfiguration)\netstandard2.0\WinGetUtilInterop.dll
+              src\WinGetUtilInterop\bin\$(buildConfiguration)\netstandard2.0\WinGetUtilInterop.pdb
+              src\WinGetUtilInterop\build\Microsoft.WindowsPackageManager.Utils.targets
+              schemas\JSON\manifests\**
+          TargetFolder: '$(artifactsDir)'
+
+      - task: PublishPipelineArtifact@1
+        displayName: Publish Pipeline Artifacts
+        inputs:
+          targetPath: '$(artifactsDir)'
+
+  - job: "Nuget"
+    timeoutInMinutes: 60
+    dependsOn: 'Build'
+    steps:
+      - checkout: none
+
+      - task: DownloadPipelineArtifact@2
+        displayName: 'Download Build.x64release artifacts'
+        inputs:
+          artifactName: Build.x64release
+          targetPath: '$(Pipeline.Workspace)\Build.x64release'
+
+      - task: DownloadPipelineArtifact@2
+        displayName: 'Download Build.x86release artifacts'
+        inputs:
+          artifactName: Build.x86release
+          targetPath: '$(Pipeline.Workspace)\Build.x86release'
+
       - task: NuGetCommand@2
         displayName: Pack WingetUtil nuget package
         inputs:
           command: pack
-          packagesToPack: WinGetUtil.nuspec
+          packagesToPack: '$(Pipeline.Workspace)\Build.x64release\WinGetUtil.nuspec'
           versioningScheme: byEnvVar
           versionEnvVar: version
-          packDestination: "$(Build.ArtifactStagingDirectory)"
+          packDestination: '$(Build.ArtifactStagingDirectory)'
+          basePath: $(Pipeline.Workspace)
 
-      - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+      - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@2
         displayName: "ESRP CodeSigning - NuGet package"
         inputs:
           ConnectedServiceName: "WindowsPackageManager ESRP CodeSigning"

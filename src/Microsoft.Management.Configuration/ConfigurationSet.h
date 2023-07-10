@@ -10,7 +10,7 @@
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
-    struct ConfigurationSet : ConfigurationSetT<ConfigurationSet, AppInstaller::WinRT::ILifetimeWatcher>, AppInstaller::WinRT::LifetimeWatcherBase
+    struct ConfigurationSet : ConfigurationSetT<ConfigurationSet, winrt::cloaked<AppInstaller::WinRT::ILifetimeWatcher>>, AppInstaller::WinRT::LifetimeWatcherBase
     {
         using WinRT_Self = ::winrt::Microsoft::Management::Configuration::ConfigurationSet;
         using ConfigurationUnit = ::winrt::Microsoft::Management::Configuration::ConfigurationUnit;

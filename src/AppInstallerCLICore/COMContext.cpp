@@ -82,7 +82,14 @@ namespace AppInstaller::CLI::Execution
 
         // TODO: Log to file for COM API calls only when debugging in visual studio
         Logging::FileLogger::Add(s_comLogFileNamePrefix);
-        Logging::FileLogger::BeginCleanup();
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        if (!Settings::User().Get<Settings::Setting::KeepAllLogFiles>())
+#endif
+        {
+            // Initiate the background cleanup of the log file location.
+            Logging::FileLogger::BeginCleanup();
+        }
 
         Logging::TraceLogger::Add();
 

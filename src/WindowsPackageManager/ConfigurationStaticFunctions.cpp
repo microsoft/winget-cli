@@ -44,6 +44,7 @@ namespace ConfigurationShim
 
         winrt::Windows::Foundation::IAsyncOperation<winrt::Microsoft::Management::Configuration::IConfigurationSetProcessorFactory> CreateConfigurationSetProcessorFactoryAsync(winrt::hstring const& handler)
         {
+            auto strong_this{ get_strong() };
             std::wstring lowerHandler = AppInstaller::Utility::ToLower(handler);
 
             co_await winrt::resume_background();
