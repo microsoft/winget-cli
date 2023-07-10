@@ -1285,6 +1285,16 @@ namespace AppInstaller::Repository
         }
     }
 
+    void* CompositeSource::CastTo(ISourceType type)
+    {
+        if (type == SourceType)
+        {
+            return this;
+        }
+
+        return nullptr;
+    }
+
     void CompositeSource::AddAvailableSource(const Source& source)
     {
         m_availableSources.emplace_back(source);

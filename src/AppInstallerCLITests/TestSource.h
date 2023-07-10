@@ -80,11 +80,14 @@ namespace TestCommon
     // An ISource implementation for use across the test code.
     struct TestSource : public AppInstaller::Repository::ISource, public std::enable_shared_from_this<TestSource>
     {
+        static constexpr AppInstaller::Repository::ISourceType SourceType = AppInstaller::Repository::ISourceType::TestSource;
+
         const AppInstaller::Repository::SourceDetails& GetDetails() const override;
         const std::string& GetIdentifier() const override;
         AppInstaller::Repository::SourceInformation GetInformation() const override;
 
         AppInstaller::Repository::SearchResult Search(const AppInstaller::Repository::SearchRequest& request) const override;
+        void* CastTo(AppInstaller::Repository::ISourceType type) override;
 
         AppInstaller::Repository::SourceDetails Details = { "TestSource", "Microsoft.TestSource", "//arg", "", "*TestSource" };
         AppInstaller::Repository::SourceInformation Information;

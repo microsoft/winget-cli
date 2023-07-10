@@ -457,6 +457,16 @@ namespace AppInstaller::Repository::Rest
         return searchResult;
     }
 
+    void* RestSource::CastTo(ISourceType type)
+    {
+        if (type == SourceType)
+        {
+            return this;
+        }
+
+        return nullptr;
+    }
+
     const RestClient& RestSource::GetRestClient() const
     {
         return m_restClient;

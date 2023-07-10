@@ -273,6 +273,16 @@ namespace TestCommon
         }
     }
 
+    void* TestSource::CastTo(AppInstaller::Repository::ISourceType type)
+    {
+        if (type == SourceType)
+        {
+            return this;
+        }
+
+        return nullptr;
+    }
+
     std::string_view TestSourceFactory::TypeName() const
     {
         return "*TestSource"sv;

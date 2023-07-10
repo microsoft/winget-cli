@@ -438,6 +438,16 @@ namespace AppInstaller::Repository::Microsoft
         return result;
     }
 
+    void* SQLiteIndexSource::CastTo(ISourceType type)
+    {
+        if (type == SourceType)
+        {
+            return this;
+        }
+
+        return nullptr;
+    }
+
     bool SQLiteIndexSource::IsSame(const SQLiteIndexSource* other) const
     {
         return (other && GetIdentifier() == other->GetIdentifier());
@@ -451,6 +461,16 @@ namespace AppInstaller::Repository::Microsoft
     SQLiteIndexWriteableSource::SQLiteIndexWriteableSource(const SourceDetails& details, SQLiteIndex&& index, Synchronization::CrossProcessReaderWriteLock&& lock, bool isInstalledSource) :
         SQLiteIndexSource(details, std::move(index), std::move(lock), isInstalledSource)
     {
+    }
+
+    void* SQLiteIndexWriteableSource::CastTo(ISourceType type)
+    {
+        if (type == ISourceType::IMutablePackageSource)
+        {
+            return static_cast<IMutablePackageSource*>(this);
+        }
+
+        return SQLiteIndexSource::CastTo(type);
     }
 
     void SQLiteIndexWriteableSource::AddPackageVersion(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
