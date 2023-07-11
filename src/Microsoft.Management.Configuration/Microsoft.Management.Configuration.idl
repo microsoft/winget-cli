@@ -540,12 +540,15 @@ namespace Microsoft.Management.Configuration
 
     // Flags to control how a configuration set should be applied to the system.
     [contract(Microsoft.Management.Configuration.Contract, 1)]
+    [flags]
     enum ApplyConfigurationSetFlags
     {
         None = 0x0,
         // Forces a new configuration set instance to be recorded when the set being applied matches a previous set's origin.
         // The default behavior is to assume that the incoming set is an update to the existing set and overwrite it.
         DoNotOverwriteMatchingOriginSet = 0x1,
+        // Does not apply the configuration set, instead check the configuration set for internal consistency.
+        PerformConsistencyCheckOnly = 0x2,
     };
 
     // The result of applying the settings for a configuration unit.

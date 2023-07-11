@@ -1043,15 +1043,144 @@ namespace AppInstaller::CLI::Workflow
 
     void ValidateConfigurationSetSemantics(Execution::Context& context)
     {
-        UNREFERENCED_PARAMETER(context);
-        // Extract mechanism for pre-validation that apply does
+        ConfigurationContext& configContext = context.Get<Data::ConfigurationContext>();
+
+        if (configContext.Set().ConfigurationUnits().Size() == 0)
+        {
+            context.Reporter.Warn() << Resource::String::ConfigurationFileEmpty << std::endl;
+            // This isn't an error termination, but there is no reason to proceed.
+            AICLI_TERMINATE_CONTEXT(S_FALSE);
+        }
+
+        ApplyConfigurationSetResult result = configContext.Processor().ApplySet(configContext.Set(), ApplyConfigurationSetFlags::PerformConsistencyCheckOnly);
+
+        if (FAILED(result.ResultCode()))
+        {
+            for (const auto& unitResult : result.UnitResults())
+            {
+                IConfigurationUnitResultInformation resultInformation = unitResult.ResultInformation();
+                winrt::hresult resultCode = resultInformation.ResultCode();
+
+                if (FAILED(resultCode))
+                {
+                    ConfigurationUnit unit = unitResult.Unit();
+
+                    auto out = context.Reporter.Info();
+                    OutputConfigurationUnitHeader(out, unit, unit.UnitName());
+
+                    switch (resultCode)
+                    {
+                    case WINGET_CONFIG_ERROR_DUPLICATE_IDENTIFIER:
+                        context.Reporter.Error() << "  "_liv << Resource::String::ConfigurationUnitHasDuplicateIdentifier(Utility::LocIndString{ Utility::ConvertToUTF8(unit.Identifier()) }) << std::endl;
+                        break;
+                    case WINGET_CONFIG_ERROR_MISSING_DEPENDENCY:
+                        context.Reporter.Error() << "  "_liv << Resource::String::ConfigurationUnitHasMissingDependency(Utility::LocIndString{ Utility::ConvertToUTF8(resultInformation.Details()) }) << std::endl;
+                        break;
+                    case WINGET_CONFIG_ERROR_DEPENDENCY_UNSATISFIED:
+                        context.Reporter.Error() << "  "_liv << Resource::String::ConfigurationUnitIsPartOfDependencyCycle << std::endl;
+                        break;
+                    default:
+                        context.Reporter.Error() << "  "_liv << Resource::String::ConfigurationUnitFailed(static_cast<int32_t>(resultCode)) << std::endl;
+                        break;
+                    }
+                }
+            }
+
+            AICLI_TERMINATE_CONTEXT(WINGET_CONFIG_ERROR_INVALID_CONFIGURATION_FILE);
+        }
     }
 
+    // If module is local, see if it can be found in remote repo
+    // If found in remote, warn if not public
+    // If not found in remote, try with prerelease == true and warn if found
     void ValidateConfigurationSetUnitProcessors(Execution::Context& context)
     {
-        UNREFERENCED_PARAMETER(context);
-        // If module is local, see if it can be found in remote repo
-        // If found in remote, warn if not public
-        // If not found in remote, try with prerelease == true and warn if found
+        // TODO: Adapt this to handle the above steps
+
+        ConfigurationContext& configContext = context.Get<Data::ConfigurationContext>();
+
+        auto gettingDetailString = Resource::String::ConfigurationGettingDetails();
+        auto progressScope = context.Reporter.BeginAsyncProgress(true);
+        progressScope->Callback().SetProgressMessage(gettingDetailString);
+
+        auto getDetailsOperation = configContext.Processor().GetSetDetailsAsync(configContext.Set(), ConfigurationUnitDetailLevel::Catalog);
+        auto unification = CreateProgressCancellationUnification(std::move(progressScope), getDetailsOperation);
+
+        OutputStream out = context.Reporter.Info();
+        uint32_t unitsShown = 0;
+
+        getDetailsOperation.Progress([&](const IAsyncOperationWithProgress<GetConfigurationSetDetailsResult, GetConfigurationUnitDetailsResult>& operation, const GetConfigurationUnitDetailsResult&)
+            {
+                auto threadContext = context.SetForCurrentThread();
+
+                unification.Reset();
+
+                auto unitResults = operation.GetResults().UnitResults();
+                for (unitsShown; unitsShown < unitResults.Size(); ++unitsShown)
+                {
+                    GetConfigurationUnitDetailsResult unitResult = unitResults.GetAt(unitsShown);
+                    LogFailedGetConfigurationUnitDetails(unitResult.Unit(), unitResult.ResultInformation());
+                    OutputConfigurationUnitInformation(out, unitResult.Unit());
+                }
+
+                progressScope = context.Reporter.BeginAsyncProgress(true);
+                progressScope->Callback().SetProgressMessage(gettingDetailString);
+                unification.Progress(std::move(progressScope));
+            });
+
+        HRESULT hr = S_OK;
+        GetConfigurationSetDetailsResult result = nullptr;
+
+        try
+        {
+            result = getDetailsOperation.get();
+        }
+        catch (...)
+        {
+            hr = LOG_CAUGHT_EXCEPTION();
+        }
+
+        unification.Reset();
+
+        if (context.IsTerminated())
+        {
+            // The context should only be terminated on us due to cancellation
+            context.Reporter.Error() << Resource::String::Cancelled << std::endl;
+            return;
+        }
+
+        if (FAILED(hr))
+        {
+            // Failing to get details might not be fatal, warn about it but proceed
+            context.Reporter.Warn() << Resource::String::ConfigurationFailedToGetDetails << std::endl;
+        }
+
+        // Handle any missing progress callbacks that are in the results
+        if (result)
+        {
+            auto unitResults = result.UnitResults();
+            if (unitResults)
+            {
+                for (unitsShown; unitsShown < unitResults.Size(); ++unitsShown)
+                {
+                    GetConfigurationUnitDetailsResult unitResult = unitResults.GetAt(unitsShown);
+                    LogFailedGetConfigurationUnitDetails(unitResult.Unit(), unitResult.ResultInformation());
+                    OutputConfigurationUnitInformation(out, unitResult.Unit());
+                }
+            }
+        }
+
+        // Handle any units that are NOT in the results (due to an exception part of the way through)
+        auto allUnits = configContext.Set().ConfigurationUnits();
+        for (unitsShown; unitsShown < allUnits.Size(); ++unitsShown)
+        {
+            ConfigurationUnit unit = allUnits.GetAt(unitsShown);
+            OutputConfigurationUnitInformation(out, unit);
+        }
+    }
+
+    void ValidateAllGoodMessage(Execution::Context& context)
+    {
+        context.Reporter.Info() << Resource::String::ConfigurationValidationFoundNoIssues << std::endl;
     }
 }

@@ -97,6 +97,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitFailedUnitProcessing);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitHasDuplicateIdentifier);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitHasMissingDependency);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitIsPartOfDependencyCycle);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitManuallySkipped);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitModuleConflict);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitModuleImportFailed);
@@ -107,6 +108,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitNotRunDueToFailedAssert);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitReturnedInvalidResult);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitSkipped);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationValidationFoundNoIssues);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationWaitingOnAnother);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationWarning);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationWarningPromptApply);

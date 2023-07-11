@@ -2003,4 +2003,10 @@ Please specify one of them using the --source option to proceed.</value>
     <value>The configuration file is not a valid YAML file.</value>
     <comment>{Locked="YAML"} YAML is a file format name.</comment>
   </data>
+  <data name="ConfigurationUnitIsPartOfDependencyCycle" xml:space="preserve">
+    <value>This configuration unit is part of a dependency cycle.</value>
+  </data>
+  <data name="ConfigurationValidationFoundNoIssues" xml:space="preserve">
+    <value>Validation found no issues.</value>
+  </data>
 </root>

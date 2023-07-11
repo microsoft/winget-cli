@@ -72,4 +72,10 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: ConfigurationProcessor, ConfigurationSet
     // Outputs: None
     void ValidateConfigurationSetUnitProcessors(Execution::Context& context);
+
+    // Outputs the final message stating that no issues were found.
+    // Required Args: None
+    // Inputs: None
+    // Outputs: None
+    void ValidateAllGoodMessage(Execution::Context& context);
 }

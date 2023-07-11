@@ -419,13 +419,18 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         ApplyConfigurationSetFlags flags,
         AppInstaller::WinRT::AsyncProgress<ApplyConfigurationSetResult, ConfigurationSetChangeData> progress)
     {
-        // TODO: Not needed until we have history implemented
-        UNREFERENCED_PARAMETER(flags);
-
         auto threadGlobals = m_threadGlobals.SetForCurrentThread();
 
-        ConfigurationSetApplyProcessor applyProcessor{ configurationSet, m_threadGlobals.GetTelemetryLogger(), m_factory.CreateSetProcessor(configurationSet), std::move(progress) };
-        applyProcessor.Process();
+        bool consistencyCheckOnly = WI_IsFlagSet(flags, ApplyConfigurationSetFlags::PerformConsistencyCheckOnly);
+        IConfigurationSetProcessor setProcessor;
+
+        if (!consistencyCheckOnly)
+        {
+            setProcessor = m_factory.CreateSetProcessor(configurationSet);
+        }
+
+        ConfigurationSetApplyProcessor applyProcessor{ configurationSet, m_threadGlobals.GetTelemetryLogger(), std::move(setProcessor), std::move(progress) };
+        applyProcessor.Process(consistencyCheckOnly);
 
         return applyProcessor.Result();
     }

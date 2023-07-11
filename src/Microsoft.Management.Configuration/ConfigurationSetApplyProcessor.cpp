@@ -46,19 +46,21 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_progress.Result(*m_result);
     }
 
-    void ConfigurationSetApplyProcessor::Process()
+    void ConfigurationSetApplyProcessor::Process(bool preProcessOnly)
     {
+        if (!PreProcess() || preProcessOnly)
+        {
+            return;
+        }
+
         try
         {
-            if (PreProcess())
-            {
-                // TODO: Send pending when blocked by another configuration run
-                //SendProgress(ConfigurationSetState::Pending);
+            // TODO: Send pending when blocked by another configuration run
+            //SendProgress(ConfigurationSetState::Pending);
 
-                SendProgress(ConfigurationSetState::InProgress);
+            SendProgress(ConfigurationSetState::InProgress);
 
-                ProcessInternal(HasProcessedSuccessfully, &ConfigurationSetApplyProcessor::ProcessUnit, true);
-            }
+            ProcessInternal(HasProcessedSuccessfully, &ConfigurationSetApplyProcessor::ProcessUnit, true);
 
             SendProgress(ConfigurationSetState::Completed);
 
