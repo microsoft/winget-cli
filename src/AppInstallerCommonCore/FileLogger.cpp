@@ -37,6 +37,9 @@ namespace AppInstaller::Logging
     FileLogger::~FileLogger()
     {
         m_stream.flush();
+        // When std::ofstream is constructed from an existing File handle, it does not call fclose on destruction
+        // Only calling close() explicitly will close the file handle.
+        m_stream.close();
     }
 
     std::string FileLogger::GetNameForPath(const std::filesystem::path& filePath)
