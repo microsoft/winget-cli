@@ -35,18 +35,23 @@ namespace Microsoft.Management.Configuration
         Skipped,
     };
 
-    // Defines the level of detail probing that is allowed about a configuration unit.
+    // Defines the type of detail probing that is allowed about a configuration unit.
     [contract(Microsoft.Management.Configuration.Contract, 1)]
-    enum ConfigurationUnitDetailLevel
+    [flags]
+    enum ConfigurationUnitDetailFlags
     {
+        // For completeness.
+        None = 0,
         // Only reads details from local data.
-        Local,
-        // Will query the catalog information for details, but will not download any modules.
-        Catalog,
-        // Will download modules, but not load them.
-        Download,
-        // Will download and load modules for details.
-        Load,
+        Local = 0x1,
+        // Can query the catalog information for details, but will not download any modules.
+        Catalog = 0x2,
+        // Can only read data, not write or execute.
+        ReadOnly = Local | Catalog,
+        // Can download modules, but not load them.
+        Download = 0x4,
+        // Can load modules for details.
+        Load = 0x8,
     };
 
     // The source of a result; for instance, the part of the system that generated a failure.
@@ -374,7 +379,7 @@ namespace Microsoft.Management.Configuration
     interface IConfigurationSetProcessor
     {
         // Gets the configuration unit processor details for the given unit.
-        IConfigurationUnitProcessorDetails GetUnitProcessorDetails(ConfigurationUnit unit, ConfigurationUnitDetailLevel detailLevel);
+        IConfigurationUnitProcessorDetails GetUnitProcessorDetails(ConfigurationUnit unit, ConfigurationUnitDetailFlags detailFlags);
 
         // Creates a configuration unit processor for the given unit.
         // The optional `directivesOverlay` parameter allows for the `ConfigurationProcessor` to alter behavior without needing to change the unit itself.
@@ -526,6 +531,9 @@ namespace Microsoft.Management.Configuration
         // The configuration unit whose details were retrieved.
         ConfigurationUnit Unit{ get; };
 
+        // The details, if they were able to be acquired successfully.
+        IConfigurationUnitProcessorDetails Details{ get; };
+
         // The result of getting the configuration unit details.
         IConfigurationUnitResultInformation ResultInformation{ get; };
     }
@@ -663,12 +671,12 @@ namespace Microsoft.Management.Configuration
         Windows.Foundation.IAsyncOperation< Windows.Foundation.Collections.IVector<ConfigurationConflict> > CheckForConflictsAsync(Windows.Foundation.Collections.IVectorView<ConfigurationSet> configurationSets, Boolean includeConfigurationHistory);
 
         // Gets the details for all configuration units in a set.
-        GetConfigurationSetDetailsResult GetSetDetails(ConfigurationSet configurationSet, ConfigurationUnitDetailLevel detailLevel);
-        Windows.Foundation.IAsyncOperationWithProgress<GetConfigurationSetDetailsResult, GetConfigurationUnitDetailsResult> GetSetDetailsAsync(ConfigurationSet configurationSet, ConfigurationUnitDetailLevel detailLevel);
+        GetConfigurationSetDetailsResult GetSetDetails(ConfigurationSet configurationSet, ConfigurationUnitDetailFlags detailFlags);
+        Windows.Foundation.IAsyncOperationWithProgress<GetConfigurationSetDetailsResult, GetConfigurationUnitDetailsResult> GetSetDetailsAsync(ConfigurationSet configurationSet, ConfigurationUnitDetailFlags detailFlags);
 
         // Gets the details for a configuration unit.
-        void GetUnitDetails(ConfigurationUnit unit, ConfigurationUnitDetailLevel detailLevel);
-        Windows.Foundation.IAsyncAction GetUnitDetailsAsync(ConfigurationUnit unit, ConfigurationUnitDetailLevel detailLevel);
+        GetConfigurationUnitDetailsResult GetUnitDetails(ConfigurationUnit unit, ConfigurationUnitDetailFlags detailFlags);
+        Windows.Foundation.IAsyncOperation<GetConfigurationUnitDetailsResult> GetUnitDetailsAsync(ConfigurationUnit unit, ConfigurationUnitDetailFlags detailFlags);
 
         // Applies the configuration set state.
         ApplyConfigurationSetResult ApplySet(ConfigurationSet configurationSet, ApplyConfigurationSetFlags flags);

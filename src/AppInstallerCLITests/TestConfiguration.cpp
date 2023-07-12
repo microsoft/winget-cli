@@ -40,11 +40,11 @@ namespace TestCommon
     {
     }
 
-    IConfigurationUnitProcessorDetails TestConfigurationSetProcessor::GetUnitProcessorDetails(const ConfigurationUnit& unit, ConfigurationUnitDetailLevel detailLevel)
+    IConfigurationUnitProcessorDetails TestConfigurationSetProcessor::GetUnitProcessorDetails(const ConfigurationUnit& unit, ConfigurationUnitDetailFlags detailFlags)
     {
         if (GetUnitProcessorDetailsFunc)
         {
-            return GetUnitProcessorDetailsFunc(unit, detailLevel);
+            return GetUnitProcessorDetailsFunc(unit, detailFlags);
         }
         else
         {

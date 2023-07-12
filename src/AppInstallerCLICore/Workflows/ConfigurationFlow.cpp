@@ -31,6 +31,7 @@ namespace AppInstaller::CLI::Workflow
     {
         constexpr std::wstring_view s_Directive_Description = L"description";
         constexpr std::wstring_view s_Directive_Module = L"module";
+        constexpr std::wstring_view s_Directive_AllowPrerelease = L"allowPrerelease";
 
         Logging::Level ConvertLevel(DiagnosticLevel level)
         {
@@ -93,6 +94,21 @@ namespace AppInstaller::CLI::Workflow
                 if (property && property.Type() == PropertyType::String)
                 {
                     return Utility::LocIndString{ Utility::ConvertToUTF8(property.GetString()) };
+                }
+            }
+
+            return {};
+        }
+
+        std::optional<bool> GetValueSetBool(const ValueSet& valueSet, std::wstring_view value)
+        {
+            if (valueSet.HasKey(value))
+            {
+                auto object = valueSet.Lookup(value);
+                IPropertyValue property = object.try_as<IPropertyValue>();
+                if (property && property.Type() == PropertyType::Boolean)
+                {
+                    return property.GetBoolean();
                 }
             }
 
@@ -867,7 +883,7 @@ namespace AppInstaller::CLI::Workflow
         auto progressScope = context.Reporter.BeginAsyncProgress(true);
         progressScope->Callback().SetProgressMessage(gettingDetailString);
 
-        auto getDetailsOperation = configContext.Processor().GetSetDetailsAsync(configContext.Set(), ConfigurationUnitDetailLevel::Catalog);
+        auto getDetailsOperation = configContext.Processor().GetSetDetailsAsync(configContext.Set(), ConfigurationUnitDetailFlags::ReadOnly);
         auto unification = CreateProgressCancellationUnification(std::move(progressScope), getDetailsOperation);
 
         OutputStream out = context.Reporter.Info();
@@ -1090,54 +1106,30 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    // If module is local, see if it can be found in remote repo
-    // If found in remote, warn if not public
-    // If not found in remote, try with prerelease == true and warn if found
     void ValidateConfigurationSetUnitProcessors(Execution::Context& context)
     {
-        // TODO: Adapt this to handle the above steps
-
         ConfigurationContext& configContext = context.Get<Data::ConfigurationContext>();
 
+        // TODO: We could optimize this by creating a set with unique resource units
+
+        // First get the local details
         auto gettingDetailString = Resource::String::ConfigurationGettingDetails();
         auto progressScope = context.Reporter.BeginAsyncProgress(true);
         progressScope->Callback().SetProgressMessage(gettingDetailString);
 
-        auto getDetailsOperation = configContext.Processor().GetSetDetailsAsync(configContext.Set(), ConfigurationUnitDetailLevel::Catalog);
-        auto unification = CreateProgressCancellationUnification(std::move(progressScope), getDetailsOperation);
+        auto getLocalDetailsOperation = configContext.Processor().GetSetDetailsAsync(configContext.Set(), ConfigurationUnitDetailFlags::Local);
+        auto unification = CreateProgressCancellationUnification(std::move(progressScope), getLocalDetailsOperation);
 
-        OutputStream out = context.Reporter.Info();
-        uint32_t unitsShown = 0;
-
-        getDetailsOperation.Progress([&](const IAsyncOperationWithProgress<GetConfigurationSetDetailsResult, GetConfigurationUnitDetailsResult>& operation, const GetConfigurationUnitDetailsResult&)
-            {
-                auto threadContext = context.SetForCurrentThread();
-
-                unification.Reset();
-
-                auto unitResults = operation.GetResults().UnitResults();
-                for (unitsShown; unitsShown < unitResults.Size(); ++unitsShown)
-                {
-                    GetConfigurationUnitDetailsResult unitResult = unitResults.GetAt(unitsShown);
-                    LogFailedGetConfigurationUnitDetails(unitResult.Unit(), unitResult.ResultInformation());
-                    OutputConfigurationUnitInformation(out, unitResult.Unit());
-                }
-
-                progressScope = context.Reporter.BeginAsyncProgress(true);
-                progressScope->Callback().SetProgressMessage(gettingDetailString);
-                unification.Progress(std::move(progressScope));
-            });
-
-        HRESULT hr = S_OK;
-        GetConfigurationSetDetailsResult result = nullptr;
+        HRESULT getLocalHR = S_OK;
+        GetConfigurationSetDetailsResult getLocalResult = nullptr;
 
         try
         {
-            result = getDetailsOperation.get();
+            getLocalResult = getLocalDetailsOperation.get();
         }
         catch (...)
         {
-            hr = LOG_CAUGHT_EXCEPTION();
+            getLocalHR = LOG_CAUGHT_EXCEPTION();
         }
 
         unification.Reset();
@@ -1149,33 +1141,143 @@ namespace AppInstaller::CLI::Workflow
             return;
         }
 
-        if (FAILED(hr))
+        if (FAILED(getLocalHR))
         {
             // Failing to get details might not be fatal, warn about it but proceed
             context.Reporter.Warn() << Resource::String::ConfigurationFailedToGetDetails << std::endl;
         }
 
-        // Handle any missing progress callbacks that are in the results
-        if (result)
+        // Next get the details from the catalog
+        progressScope = context.Reporter.BeginAsyncProgress(true);
+        progressScope->Callback().SetProgressMessage(gettingDetailString);
+
+        auto getCatalogDetailsOperation = configContext.Processor().GetSetDetailsAsync(configContext.Set(), ConfigurationUnitDetailFlags::Catalog);
+        unification = CreateProgressCancellationUnification(std::move(progressScope), getCatalogDetailsOperation);
+
+        HRESULT getCatalogHR = S_OK;
+        GetConfigurationSetDetailsResult getCatalogResult = nullptr;
+
+        try
         {
-            auto unitResults = result.UnitResults();
-            if (unitResults)
-            {
-                for (unitsShown; unitsShown < unitResults.Size(); ++unitsShown)
-                {
-                    GetConfigurationUnitDetailsResult unitResult = unitResults.GetAt(unitsShown);
-                    LogFailedGetConfigurationUnitDetails(unitResult.Unit(), unitResult.ResultInformation());
-                    OutputConfigurationUnitInformation(out, unitResult.Unit());
-                }
-            }
+            getCatalogResult = getCatalogDetailsOperation.get();
+        }
+        catch (...)
+        {
+            getCatalogHR = LOG_CAUGHT_EXCEPTION();
         }
 
-        // Handle any units that are NOT in the results (due to an exception part of the way through)
-        auto allUnits = configContext.Set().ConfigurationUnits();
-        for (unitsShown; unitsShown < allUnits.Size(); ++unitsShown)
+        unification.Reset();
+
+        if (context.IsTerminated())
         {
-            ConfigurationUnit unit = allUnits.GetAt(unitsShown);
-            OutputConfigurationUnitInformation(out, unit);
+            // The context should only be terminated on us due to cancellation
+            context.Reporter.Error() << Resource::String::Cancelled << std::endl;
+            return;
+        }
+
+        if (FAILED(getCatalogHR))
+        {
+            // Failing to get the catalog details means that we can't really get give much of a meaningful response.
+            context.Reporter.Error() << Resource::String::ConfigurationFailedToGetDetails << std::endl;
+            AICLI_TERMINATE_CONTEXT(getCatalogHR);
+        }
+
+        auto units = configContext.Set().ConfigurationUnits();
+        auto localUnitResults = getLocalResult ? getLocalResult.UnitResults() : nullptr;
+        if (localUnitResults && units.Size() != localUnitResults.Size())
+        {
+            AICLI_LOG(Config, Error, << "The details result size did not match the set size: Set[" << units.Size() << "], Local[" << localUnitResults.Size() << "]");
+            THROW_HR(WINGET_CONFIG_ERROR_ASSERTION_FAILED);
+        }
+
+        auto catalogUnitResults = getCatalogResult.UnitResults();
+        if (units.Size() != catalogUnitResults.Size())
+        {
+            AICLI_LOG(Config, Error, << "The details result sizes did not match the set size: Set[" << units.Size() << "], Catalog[" << catalogUnitResults.Size() << "]");
+            THROW_HR(WINGET_CONFIG_ERROR_ASSERTION_FAILED);
+        }
+
+        // Now that we have the entire set of local and catalog details, process each unit
+        for (uint32_t i = 0; i < units.Size(); ++i)
+        {
+            const ConfigurationUnit& unit = units.GetAt(i);
+            GetConfigurationUnitDetailsResult localUnitResult = localUnitResults ? localUnitResults.GetAt(i) : nullptr;
+            GetConfigurationUnitDetailsResult catalogUnitResult = catalogUnitResults.GetAt(i);
+            IConfigurationUnitProcessorDetails catalogDetails = catalogUnitResult.Details();
+
+            bool needsHeader = true;
+            auto outputHeaderIfNeeded = [&]()
+            {
+                if (needsHeader)
+                {
+                    auto out = context.Reporter.Info();
+                    OutputConfigurationUnitHeader(out, unit, unit.UnitName());
+                    needsHeader = false;
+                }
+            };
+
+            if (catalogDetails)
+            {
+                // Warn if unit is not public
+                if (!catalogDetails.IsPublic())
+                {
+                    outputHeaderIfNeeded();
+                    context.Reporter.Warn() << Resource::String::ConfigurationUnitNotPublicWarning << std::endl;
+                }
+
+                // Since it is available, no more checks are needed
+                continue;
+            }
+            // Everything below here is due to not finding in the catalog search
+
+            if (FAILED(catalogUnitResult.ResultInformation().ResultCode()))
+            {
+                outputHeaderIfNeeded();
+                OutputUnitRunFailure(context, unit, catalogUnitResult.ResultInformation());
+                continue;
+            }
+
+            // If not already prerelease, try with prerelease and warn if found
+            std::optional<bool> allowPrereleaseDirective = GetValueSetBool(unit.Directives(), s_Directive_AllowPrerelease);
+            if (!allowPrereleaseDirective || !allowPrereleaseDirective.value())
+            {
+                // Check if the configuration unit is prerelease but the author forgot it
+                ConfigurationUnit clone = CloneConfigurationUnit(unit);
+                clone.Directives().Insert(s_Directive_AllowPrerelease, PropertyValue::CreateBoolean(true));
+
+                progressScope = context.Reporter.BeginAsyncProgress(true);
+                progressScope->Callback().SetProgressMessage(gettingDetailString);
+
+                auto getUnitDetailsOperation = configContext.Processor().GetUnitDetailsAsync(clone, ConfigurationUnitDetailFlags::Catalog);
+                auto unitUnification = CreateProgressCancellationUnification(std::move(progressScope), getUnitDetailsOperation);
+
+                try
+                {
+                    getCatalogDetailsOperation.get();
+                }
+                CATCH_LOG();
+
+                unification.Reset();
+
+                if (clone.Details())
+                {
+                    outputHeaderIfNeeded();
+                    context.Reporter.Warn() << Resource::String::ConfigurationUnitNeedsPrereleaseWarning << std::endl;
+                    continue;
+                }
+            }
+
+            // If module is local, warn that we couldn't find it in the catalog
+            if (localUnitResult && localUnitResult.Details())
+            {
+                outputHeaderIfNeeded();
+                context.Reporter.Warn() << Resource::String::ConfigurationUnitNotInCatalogWarning << std::endl;
+                continue;
+            }
+
+            // Finally, error that we couldn't find it at all
+            outputHeaderIfNeeded();
+            context.Reporter.Error() << Resource::String::ConfigurationUnitNotFound << std::endl;
         }
     }
 

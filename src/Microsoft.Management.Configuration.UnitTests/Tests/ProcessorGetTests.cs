@@ -45,7 +45,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics(factory);
 
-            Assert.Throws<FileNotFoundException>(() => processor.GetUnitDetails(configurationUnitThrows, ConfigurationUnitDetailLevel.Local));
+            Assert.Throws<FileNotFoundException>(() => processor.GetUnitDetails(configurationUnitThrows, ConfigurationUnitDetailFlags.Local));
         }
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics(factory);
 
             Assert.Null(configurationUnit.Details);
-            processor.GetUnitDetails(configurationUnit, ConfigurationUnitDetailLevel.Local);
+            processor.GetUnitDetails(configurationUnit, ConfigurationUnitDetailFlags.Local);
             Assert.NotNull(configurationUnit.Details);
         }
 
@@ -82,7 +82,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics(factory);
 
-            GetConfigurationSetDetailsResult result = processor.GetSetDetails(configurationSet, ConfigurationUnitDetailLevel.Local);
+            GetConfigurationSetDetailsResult result = processor.GetSetDetails(configurationSet, ConfigurationUnitDetailFlags.Local);
             var unitResults = result.UnitResults;
             Assert.Equal(2, unitResults.Count);
 
@@ -111,7 +111,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics(factory);
 
-            processor.GetSetDetails(configurationSet, ConfigurationUnitDetailLevel.Local);
+            processor.GetSetDetails(configurationSet, ConfigurationUnitDetailFlags.Local);
             Assert.NotNull(configurationUnit1.Details);
             Assert.NotNull(configurationUnit2.Details);
         }

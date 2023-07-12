@@ -344,7 +344,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var configurationUnitProcessorDetails = configurationSetProcessor.GetUnitProcessorDetails(
                 unit,
-                ConfigurationUnitDetailLevel.Local);
+                ConfigurationUnitDetailFlags.Local);
 
             Assert.Null(configurationUnitProcessorDetails);
 
@@ -385,7 +385,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var configurationUnitProcessorDetails = configurationSetProcessor.GetUnitProcessorDetails(
                 unit,
-                ConfigurationUnitDetailLevel.Local);
+                ConfigurationUnitDetailFlags.Local);
 
             Assert.NotNull(configurationUnitProcessorDetails);
             Assert.Equal(dscResourceInfo.Name, configurationUnitProcessorDetails.UnitName);
@@ -396,12 +396,12 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
         /// <summary>
         /// Test GetUnitProcessorDetails locally found. Do not include Load.
         /// </summary>
-        /// <param name="detailLevel">Detail level.</param>
+        /// <param name="detailFlags">Detail flags.</param>
         [Theory]
-        [InlineData(ConfigurationUnitDetailLevel.Local)]
-        [InlineData(ConfigurationUnitDetailLevel.Catalog)]
-        [InlineData(ConfigurationUnitDetailLevel.Download)]
-        public void GetUnitProcessorDetails_Local(ConfigurationUnitDetailLevel detailLevel)
+        [InlineData(ConfigurationUnitDetailFlags.Local)]
+        [InlineData(ConfigurationUnitDetailFlags.Catalog)]
+        [InlineData(ConfigurationUnitDetailFlags.Download)]
+        public void GetUnitProcessorDetails_Local(ConfigurationUnitDetailFlags detailFlags)
         {
             var unit = this.CreteConfigurationUnit();
             var (dscResourceInfo, psModuleInfo) = this.GetResourceAndModuleInfo(unit);
@@ -431,7 +431,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var configurationUnitProcessorDetails = configurationSetProcessor.GetUnitProcessorDetails(
                 unit,
-                detailLevel);
+                detailFlags);
 
             Assert.NotNull(configurationUnitProcessorDetails);
             Assert.Equal(dscResourceInfo.Name, configurationUnitProcessorDetails.UnitName);
@@ -478,7 +478,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var configurationUnitProcessorDetails = configurationSetProcessor.GetUnitProcessorDetails(
                 unit,
-                ConfigurationUnitDetailLevel.Load);
+                ConfigurationUnitDetailFlags.Load);
 
             Assert.NotNull(configurationUnitProcessorDetails);
             Assert.Equal(dscResourceInfo.Name, configurationUnitProcessorDetails.UnitName);
@@ -513,7 +513,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var configurationUnitProcessorDetails = configurationSetProcessor.GetUnitProcessorDetails(
                 unit,
-                ConfigurationUnitDetailLevel.Catalog);
+                ConfigurationUnitDetailFlags.Catalog);
 
             Assert.Null(configurationUnitProcessorDetails);
 
@@ -546,7 +546,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var configurationUnitProcessorDetails = configurationSetProcessor.GetUnitProcessorDetails(
                 unit,
-                ConfigurationUnitDetailLevel.Catalog);
+                ConfigurationUnitDetailFlags.Catalog);
 
             Assert.NotNull(configurationUnitProcessorDetails);
             Assert.Equal("SimpleFileResource", configurationUnitProcessorDetails.UnitName);
@@ -592,7 +592,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var configurationUnitProcessorDetails = configurationSetProcessor.GetUnitProcessorDetails(
                 unit,
-                ConfigurationUnitDetailLevel.Download);
+                ConfigurationUnitDetailFlags.Download);
 
             Assert.NotNull(configurationUnitProcessorDetails);
             Assert.Equal("SimpleFileResource", configurationUnitProcessorDetails.UnitName);
@@ -632,7 +632,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             Assert.Throws<InstallDscResourceException>(() => configurationSetProcessor.GetUnitProcessorDetails(
                 unit,
-                ConfigurationUnitDetailLevel.Load));
+                ConfigurationUnitDetailFlags.Load));
 
             processorEnvMock.Verify();
             processorEnvMock.Verify(
@@ -677,7 +677,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             var configurationUnitProcessorDetails = configurationSetProcessor.GetUnitProcessorDetails(
                 unit,
-                ConfigurationUnitDetailLevel.Load);
+                ConfigurationUnitDetailFlags.Load);
 
             Assert.NotNull(configurationUnitProcessorDetails);
             Assert.Equal(dscResourceInfo.Name, configurationUnitProcessorDetails.UnitName);

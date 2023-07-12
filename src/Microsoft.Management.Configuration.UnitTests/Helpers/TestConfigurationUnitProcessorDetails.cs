@@ -16,17 +16,17 @@ namespace Microsoft.Management.Configuration.UnitTests.Helpers
     internal class TestConfigurationUnitProcessorDetails : IConfigurationUnitProcessorDetails
     {
         private ConfigurationUnit unit;
-        private ConfigurationUnitDetailLevel detailLevel;
+        private ConfigurationUnitDetailFlags detailFlags;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TestConfigurationUnitProcessorDetails"/> class.
         /// </summary>
         /// <param name="unit">The unit.</param>
-        /// <param name="detailLevel">The level of the details.</param>
-        internal TestConfigurationUnitProcessorDetails(ConfigurationUnit unit, ConfigurationUnitDetailLevel detailLevel)
+        /// <param name="detailFlags">The flags of the details.</param>
+        internal TestConfigurationUnitProcessorDetails(ConfigurationUnit unit, ConfigurationUnitDetailFlags detailFlags)
         {
             this.unit = unit;
-            this.detailLevel = detailLevel;
+            this.detailFlags = detailFlags;
         }
 
 #pragma warning disable SA1600 // Elements should be documented
