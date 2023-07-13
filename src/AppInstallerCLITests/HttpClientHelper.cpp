@@ -65,11 +65,11 @@ TEST_CASE("HttpClientHelper_PinningConfiguration", "[RestSource]")
     // Create the Store chain config
     PinningChain chain;
     auto chainElement = chain.Root();
-    chainElement->LoadCertificate(IDX_CERTIFICATE_STORE_ROOT_1).SetPinning(PinningVerificationType::PublicKey);
+    chainElement->LoadCertificate(IDX_CERTIFICATE_STORE_ROOT_2).SetPinning(PinningVerificationType::PublicKey);
     chainElement = chainElement.Next();
-    chainElement->LoadCertificate(IDX_CERTIFICATE_STORE_INTERMEDIATE_1).SetPinning(PinningVerificationType::Subject | PinningVerificationType::Issuer);
+    chainElement->LoadCertificate(IDX_CERTIFICATE_STORE_INTERMEDIATE_2).SetPinning(PinningVerificationType::Subject | PinningVerificationType::Issuer);
     chainElement = chainElement.Next();
-    chainElement->LoadCertificate(IDX_CERTIFICATE_STORE_LEAF_1).SetPinning(PinningVerificationType::Subject | PinningVerificationType::Issuer);
+    chainElement->LoadCertificate(IDX_CERTIFICATE_STORE_LEAF_2).SetPinning(PinningVerificationType::Subject | PinningVerificationType::Issuer);
 
     PinningConfiguration config;
     config.AddChain(chain);
