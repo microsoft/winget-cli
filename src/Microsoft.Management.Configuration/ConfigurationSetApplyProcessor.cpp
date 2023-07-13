@@ -48,36 +48,41 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
     void ConfigurationSetApplyProcessor::Process(bool preProcessOnly)
     {
-        if (!PreProcess() || preProcessOnly)
-        {
-            return;
-        }
-
         try
         {
-            // TODO: Send pending when blocked by another configuration run
-            //SendProgress(ConfigurationSetState::Pending);
+            if (PreProcess() && !preProcessOnly)
+            {
+                // TODO: Send pending when blocked by another configuration run
+                //SendProgress(ConfigurationSetState::Pending);
 
-            SendProgress(ConfigurationSetState::InProgress);
+                SendProgress(ConfigurationSetState::InProgress);
 
-            ProcessInternal(HasProcessedSuccessfully, &ConfigurationSetApplyProcessor::ProcessUnit, true);
+                ProcessInternal(HasProcessedSuccessfully, &ConfigurationSetApplyProcessor::ProcessUnit, true);
+            }
 
             SendProgress(ConfigurationSetState::Completed);
 
-            m_telemetry.LogConfigProcessingSummaryForApply(*winrt::get_self<implementation::ConfigurationSet>(m_configurationSet), *m_result);
+            if (!preProcessOnly)
+            {
+                m_telemetry.LogConfigProcessingSummaryForApply(*winrt::get_self<implementation::ConfigurationSet>(m_configurationSet), *m_result);
+            }
         }
         catch (...)
         {
-            const auto& configurationSet = *winrt::get_self<implementation::ConfigurationSet>(m_configurationSet);
-            m_telemetry.LogConfigProcessingSummary(
-                configurationSet.InstanceIdentifier(),
-                configurationSet.IsFromHistory(),
-                ConfigurationUnitIntent::Apply,
-                LOG_CAUGHT_EXCEPTION(),
-                ConfigurationUnitResultSource::Internal,
-                GetProcessingSummaryFor(ConfigurationUnitIntent::Assert),
-                GetProcessingSummaryFor(ConfigurationUnitIntent::Inform),
-                GetProcessingSummaryFor(ConfigurationUnitIntent::Apply));
+            if (!preProcessOnly)
+            {
+                const auto& configurationSet = *winrt::get_self<implementation::ConfigurationSet>(m_configurationSet);
+                m_telemetry.LogConfigProcessingSummary(
+                    configurationSet.InstanceIdentifier(),
+                    configurationSet.IsFromHistory(),
+                    ConfigurationUnitIntent::Apply,
+                    LOG_CAUGHT_EXCEPTION(),
+                    ConfigurationUnitResultSource::Internal,
+                    GetProcessingSummaryFor(ConfigurationUnitIntent::Assert),
+                    GetProcessingSummaryFor(ConfigurationUnitIntent::Inform),
+                    GetProcessingSummaryFor(ConfigurationUnitIntent::Apply));
+            }
+
             throw;
         }
     }

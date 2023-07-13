@@ -1197,6 +1197,8 @@ namespace AppInstaller::CLI::Workflow
             THROW_HR(WINGET_CONFIG_ERROR_ASSERTION_FAILED);
         }
 
+        bool foundIssue = false;
+
         // Now that we have the entire set of local and catalog details, process each unit
         for (uint32_t i = 0; i < units.Size(); ++i)
         {
@@ -1213,6 +1215,7 @@ namespace AppInstaller::CLI::Workflow
                     auto out = context.Reporter.Info();
                     OutputConfigurationUnitHeader(out, unit, unit.UnitName());
                     needsHeader = false;
+                    foundIssue = true;
                 }
             };
 
@@ -1222,7 +1225,7 @@ namespace AppInstaller::CLI::Workflow
                 if (!catalogDetails.IsPublic())
                 {
                     outputHeaderIfNeeded();
-                    context.Reporter.Warn() << Resource::String::ConfigurationUnitNotPublicWarning << std::endl;
+                    context.Reporter.Warn() << "  "_liv << Resource::String::ConfigurationUnitNotPublicWarning << std::endl;
                 }
 
                 // Since it is available, no more checks are needed
@@ -1242,7 +1245,7 @@ namespace AppInstaller::CLI::Workflow
             if (!allowPrereleaseDirective || !allowPrereleaseDirective.value())
             {
                 // Check if the configuration unit is prerelease but the author forgot it
-                ConfigurationUnit clone = CloneConfigurationUnit(unit);
+                ConfigurationUnit clone = unit.Copy();
                 clone.Directives().Insert(s_Directive_AllowPrerelease, PropertyValue::CreateBoolean(true));
 
                 progressScope = context.Reporter.BeginAsyncProgress(true);
@@ -1251,18 +1254,20 @@ namespace AppInstaller::CLI::Workflow
                 auto getUnitDetailsOperation = configContext.Processor().GetUnitDetailsAsync(clone, ConfigurationUnitDetailFlags::Catalog);
                 auto unitUnification = CreateProgressCancellationUnification(std::move(progressScope), getUnitDetailsOperation);
 
+                IConfigurationUnitProcessorDetails prereleaseDetails;
+
                 try
                 {
-                    getCatalogDetailsOperation.get();
+                    prereleaseDetails = getUnitDetailsOperation.get().Details();
                 }
                 CATCH_LOG();
 
                 unification.Reset();
 
-                if (clone.Details())
+                if (prereleaseDetails)
                 {
                     outputHeaderIfNeeded();
-                    context.Reporter.Warn() << Resource::String::ConfigurationUnitNeedsPrereleaseWarning << std::endl;
+                    context.Reporter.Warn() << "  "_liv << Resource::String::ConfigurationUnitNeedsPrereleaseWarning << std::endl;
                     continue;
                 }
             }
@@ -1271,13 +1276,19 @@ namespace AppInstaller::CLI::Workflow
             if (localUnitResult && localUnitResult.Details())
             {
                 outputHeaderIfNeeded();
-                context.Reporter.Warn() << Resource::String::ConfigurationUnitNotInCatalogWarning << std::endl;
+                context.Reporter.Warn() << "  "_liv << Resource::String::ConfigurationUnitNotInCatalogWarning << std::endl;
                 continue;
             }
 
             // Finally, error that we couldn't find it at all
             outputHeaderIfNeeded();
-            context.Reporter.Error() << Resource::String::ConfigurationUnitNotFound << std::endl;
+            context.Reporter.Error() << "  "_liv << Resource::String::ConfigurationUnitNotFound << std::endl;
+        }
+
+        if (foundIssue)
+        {
+            // Indicate that it was not a total success
+            AICLI_TERMINATE_CONTEXT(S_FALSE);
         }
     }
 

@@ -2009,4 +2009,14 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="ConfigurationValidationFoundNoIssues" xml:space="preserve">
     <value>Validation found no issues.</value>
   </data>
+  <data name="ConfigurationUnitNeedsPrereleaseWarning" xml:space="preserve">
+    <value>The configuration unit is only available as a prerelease, but it is not marked that way in the configuration. Add `allowPrerelease: true` to the `directives`.</value>
+    <comment>{Locked="allowPrerelease: true","directives"} These are values in the configuration file that are not localized.</comment>
+  </data>
+  <data name="ConfigurationUnitNotInCatalogWarning" xml:space="preserve">
+    <value>The configuration unit was found locally, but could not be found in any configured catalog. Ensure that it is present on any system before applying the configuration.</value>
+  </data>
+  <data name="ConfigurationUnitNotPublicWarning" xml:space="preserve">
+    <value>The configuration unit is not available publicly; ensure that anyone who will use this configuration has access to it.</value>
+  </data>
 </root>

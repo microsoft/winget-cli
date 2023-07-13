@@ -221,6 +221,15 @@ namespace Microsoft.Management.Configuration
         // The schema version to use for the unit.
         // Will be set to the schema version when read in, and default to the latest if created manually.
         String SchemaVersion;
+
+        // Creates a copy of this configuration unit, with the following notes:
+        //  InstanceIdentifier will be a new value
+        //  Identifier will be empty
+        //  Dependencies, Directives, and Settings will by new containers with identical values inside
+        //  Details will be the same value (not a copy, just another reference)
+        //  State, ResultInformation, and ShouldApply will be their default constructed state
+        //  The returned value will be in a writable state
+        ConfigurationUnit Copy();
     }
 
     // The change event type that has occurred for a configuration set change.

@@ -13,6 +13,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
     using Microsoft.VisualBasic;
     using Xunit;
     using Xunit.Abstractions;
+    using Xunit.Sdk;
 
     /// <summary>
     /// Unit tests for getting details on processors.
@@ -41,11 +42,17 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
 
             TestConfigurationProcessorFactory factory = new TestConfigurationProcessorFactory();
             factory.NullProcessor = new TestConfigurationSetProcessor(null);
-            factory.NullProcessor.Exceptions.Add(configurationUnitThrows, new FileNotFoundException());
+            var thrownException = new FileNotFoundException();
+            factory.NullProcessor.Exceptions.Add(configurationUnitThrows, thrownException);
 
             ConfigurationProcessor processor = this.CreateConfigurationProcessorWithDiagnostics(factory);
 
-            Assert.Throws<FileNotFoundException>(() => processor.GetUnitDetails(configurationUnitThrows, ConfigurationUnitDetailFlags.Local));
+            GetConfigurationUnitDetailsResult result = processor.GetUnitDetails(configurationUnitThrows, ConfigurationUnitDetailFlags.Local);
+
+            Assert.Null(result.Details);
+            Assert.Equal(configurationUnitThrows, result.Unit);
+            Assert.Equal(thrownException.HResult, result.ResultInformation.ResultCode.HResult);
+            Assert.Equal(ConfigurationUnitResultSource.Internal, result.ResultInformation.ResultSource);
         }
 
         /// <summary>

@@ -102,8 +102,11 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitModuleConflict);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitModuleImportFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitMultipleMatches);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitNeedsPrereleaseWarning);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitNotFound);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitNotFoundInModule);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitNotInCatalogWarning);
+        WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitNotPublicWarning);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitNotRunDueToDependency);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitNotRunDueToFailedAssert);
         WINGET_DEFINE_RESOURCE_STRINGID(ConfigurationUnitReturnedInvalidResult);

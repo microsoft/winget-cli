@@ -93,7 +93,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
 
                 // (Local | Download | Load) will all work off of local files, so if any one is an option just use the local module info if found.
                 DscResourceInfoInternal? dscResourceInfo = null;
-                if (detailFlags.HasFlag(ConfigurationUnitDetailFlags.Local | ConfigurationUnitDetailFlags.Download | ConfigurationUnitDetailFlags.Load))
+                if (detailFlags.HasFlag(ConfigurationUnitDetailFlags.Local) || detailFlags.HasFlag(ConfigurationUnitDetailFlags.Download) || detailFlags.HasFlag(ConfigurationUnitDetailFlags.Load))
                 {
                     dscResourceInfo = this.ProcessorEnvironment.GetDscResource(unitInternal);
                 }
@@ -106,7 +106,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
                         detailFlags.HasFlag(ConfigurationUnitDetailFlags.Load));
                 }
 
-                if (!detailFlags.HasFlag(ConfigurationUnitDetailFlags.Catalog | ConfigurationUnitDetailFlags.Download | ConfigurationUnitDetailFlags.Load))
+                if (!(detailFlags.HasFlag(ConfigurationUnitDetailFlags.Catalog) || detailFlags.HasFlag(ConfigurationUnitDetailFlags.Download) || detailFlags.HasFlag(ConfigurationUnitDetailFlags.Load)))
                 {
                     // Not found locally.
                     return null;
