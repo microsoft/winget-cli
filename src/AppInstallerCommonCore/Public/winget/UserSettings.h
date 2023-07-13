@@ -97,9 +97,11 @@ namespace AppInstaller::Settings
         UninstallPurgePortablePackage,
         // Interactivity
         InteractivityDisable,
+#ifndef AICLI_DISABLE_TEST_HOOKS
         // Debug
         EnableSelfInitiatedMinidump,
         KeepAllLogFiles,
+#endif
         Max
     };
 
