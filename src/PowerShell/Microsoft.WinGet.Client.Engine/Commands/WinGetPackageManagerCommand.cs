@@ -84,63 +84,70 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                 }
             }
 
-            this.RepairStateMachine(expectedVersion, allUsers, new HashSet<IntegrityCategory>());
+            this.RepairStateMachine(expectedVersion, allUsers);
         }
 
-        private void RepairStateMachine(string expectedVersion, bool allUsers, HashSet<IntegrityCategory> seenCategories)
+        private void RepairStateMachine(string expectedVersion, bool allUsers)
         {
-            try
+            var seenCategories = new HashSet<IntegrityCategory>();
+
+            var currentCategory = IntegrityCategory.Unknown;
+            while (currentCategory != IntegrityCategory.Installed)
             {
-                WinGetIntegrity.AssertWinGet(this.PsCmdlet, expectedVersion);
-                this.PsCmdlet.WriteDebug($"WinGet is in a good state.");
-            }
-            catch (WinGetIntegrityException e)
-            {
-                if (seenCategories.Contains(e.Category))
+                try
                 {
-                    this.PsCmdlet.WriteDebug($"{e.Category} encountered previously");
-                    throw;
+                    WinGetIntegrity.AssertWinGet(this.PsCmdlet, expectedVersion);
+                    this.PsCmdlet.WriteDebug($"WinGet is in a good state.");
+                    currentCategory = IntegrityCategory.Installed;
                 }
-
-                this.PsCmdlet.WriteDebug($"Integrity category type: {e.Category}");
-                seenCategories.Add(e.Category);
-
-                switch (e.Category)
+                catch (WinGetIntegrityException e)
                 {
-                    case IntegrityCategory.UnexpectedVersion:
-                        this.InstallDifferentVersion(new WinGetVersion(expectedVersion), allUsers);
-                        break;
-                    case IntegrityCategory.NotInPath:
-                        this.RepairEnvPath();
-                        break;
-                    case IntegrityCategory.AppInstallerNotRegistered:
-                        this.Register();
-                        break;
-                    case IntegrityCategory.AppInstallerNotInstalled:
-                    case IntegrityCategory.AppInstallerNotSupported:
-                    case IntegrityCategory.Failure:
-                        this.Install(expectedVersion, allUsers);
-                        break;
-                    case IntegrityCategory.AppInstallerNoLicense:
-                        // This requires -AllUsers in admin mode.
-                        if (allUsers && Utilities.ExecutingAsAdministrator)
-                        {
+                    currentCategory = e.Category;
+
+                    if (seenCategories.Contains(currentCategory))
+                    {
+                        this.PsCmdlet.WriteDebug($"{currentCategory} encountered previously");
+                        throw;
+                    }
+
+                    this.PsCmdlet.WriteDebug($"Integrity category type: {currentCategory}");
+                    seenCategories.Add(currentCategory);
+
+                    switch (currentCategory)
+                    {
+                        case IntegrityCategory.UnexpectedVersion:
+                            this.InstallDifferentVersion(new WinGetVersion(expectedVersion), allUsers);
+                            break;
+                        case IntegrityCategory.NotInPath:
+                            this.RepairEnvPath();
+                            break;
+                        case IntegrityCategory.AppInstallerNotRegistered:
+                            this.Register();
+                            break;
+                        case IntegrityCategory.AppInstallerNotInstalled:
+                        case IntegrityCategory.AppInstallerNotSupported:
+                        case IntegrityCategory.Failure:
                             this.Install(expectedVersion, allUsers);
-                        }
-                        else
-                        {
+                            break;
+                        case IntegrityCategory.AppInstallerNoLicense:
+                            // This requires -AllUsers in admin mode.
+                            if (allUsers && Utilities.ExecutingAsAdministrator)
+                            {
+                                this.Install(expectedVersion, allUsers);
+                            }
+                            else
+                            {
+                                throw new WinGetRepairException(e);
+                            }
+
+                            break;
+                        case IntegrityCategory.AppExecutionAliasDisabled:
+                        case IntegrityCategory.Unknown:
                             throw new WinGetRepairException(e);
-                        }
-
-                        break;
-                    case IntegrityCategory.AppExecutionAliasDisabled:
-                    case IntegrityCategory.Unknown:
-                        throw new WinGetRepairException(e);
-                    default:
-                        throw new NotSupportedException();
+                        default:
+                            throw new NotSupportedException();
+                    }
                 }
-
-                this.RepairStateMachine(expectedVersion, allUsers, seenCategories);
             }
         }
 
