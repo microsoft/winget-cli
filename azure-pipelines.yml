@@ -385,7 +385,13 @@ jobs:
         "$(buildOutDir)\Microsoft.Management.Deployment.InProc\Microsoft.Management.Deployment.InProc.dll"
         "$(Build.SourcesDirectory)\src\WinGetUtilInterop\bin\WinGetUtil*Interop.dll"
         "$(buildOutDir)\UndockedRegFreeWinRT\winrtact.dll"
-        "$(buildOutDir)\Microsoft.WinGet.Client\Microsoft.WinGet.*Client.dll" --config default --recurse'
+        "$(buildOutDir)\Microsoft.WinGet.Client.Cmdlets\Microsoft.WinGet.Client*.dll"
+        "$(buildOutDir)\ConfigurationRemotingServer\ConfigurationRemoting*Server.dll"
+        "$(buildOutDir)\ConfigurationRemotingServer\ConfigurationRemoting*Server.exe"
+        "$(buildOutDir)\ConfigurationRemotingServer\Microsoft.Management.Configuration*.dll"
+        "$(buildOutDir)\Microsoft.Management.Configuration\Microsoft.Management.Configuration*.dll"
+        "$(buildOutDir)\Microsoft.Management.Configuration.OutOfProc\Microsoft.Management.Configuration*.dll"
+        --config default --recurse'
 
   - task: securedevelopmentteam.vss-secure-development-tools.build-task-publishsecurityanalysislogs.PublishSecurityAnalysisLogs@2
     displayName: 'Publish Security Analysis Logs'
