@@ -19,6 +19,7 @@ namespace AppInstaller::CLI
         Utility::LocIndView HelpLink() const override;
 
     protected:
+        void Checkpoint(Execution::Context& context, CheckpointFlags checkpointFlag) const override;
         void ValidateArgumentsInternal(Execution::Args& execArgs) const override;
         void ExecuteInternal(Execution::Context& context) const override;
     };

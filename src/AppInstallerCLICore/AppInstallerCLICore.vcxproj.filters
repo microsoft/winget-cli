@@ -224,6 +224,9 @@
     <ClInclude Include="Commands\TestCommand.h">
       <Filter>Commands</Filter>
     </ClInclude>
+    <ClInclude Include="Commands\ResumeCommand.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -413,6 +416,9 @@
       <Filter>Commands</Filter>
     </ClCompile>
     <ClCompile Include="Commands\TestCommand.cpp">
+      <Filter>Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="Commands\ResumeCommand.cpp">
       <Filter>Commands</Filter>
     </ClCompile>
   </ItemGroup>

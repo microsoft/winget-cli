@@ -9,7 +9,6 @@
 #include "Workflows/WorkflowBase.h"
 #include "Resources.h"
 
-
 namespace AppInstaller::CLI
 {
     using namespace AppInstaller::CLI::Execution;
@@ -101,8 +100,24 @@ namespace AppInstaller::CLI
         Argument::ValidateCommonArguments(execArgs);
     }
 
+    void InstallCommand::Checkpoint(Context& context, CheckpointFlags checkpoint) const
+    {
+        if (!Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Resume))
+        {
+            return;
+        }
+
+        if (checkpoint == CheckpointFlags::ArgumentsProcessed)
+        {
+            //m_checkpoint
+            context.Reporter.Info() << "hello" << std::endl;
+        }
+    }
+
     void InstallCommand::ExecuteInternal(Context& context) const
     {
+        Checkpoint(context, CheckpointFlags::ArgumentsProcessed);
+
         context.SetFlags(ContextFlag::ShowSearchResultsOnPartialFailure);
 
         if (context.Args.Contains(Execution::Args::Type::Manifest))

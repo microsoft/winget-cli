@@ -164,7 +164,6 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::Upgrade:
             return { type, "upgrade-available"_liv};
 
-
         // Pin command
         case Execution::Args::Type::GatedVersion:
             return { type, "version"_liv, 'v', ArgTypeCategory::None, ArgTypeExclusiveSet::PinType };
@@ -172,6 +171,9 @@ namespace AppInstaller::CLI
             return { type, "blocking"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::PinType };
         case Execution::Args::Type::PinInstalled:
             return { type, "installed"_liv, ArgTypeCategory::None };
+
+        case Execution::Args::Type::ResumeGuid:
+            return { type, "resume-guid"_liv, 'g', ArgTypeCategory::None };
 
         // Configuration commands
         case Execution::Args::Type::ConfigurationFile:

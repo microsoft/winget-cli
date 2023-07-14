@@ -101,6 +101,9 @@ namespace AppInstaller::CLI::Execution
             BlockingPin,
             PinInstalled,
 
+            // Resume Command
+            ResumeGuid,
+
             // Configuration
             ConfigurationFile,
             ConfigurationAcceptWarning,

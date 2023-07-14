@@ -867,6 +867,30 @@ namespace AppInstaller::CLI
         }
     }
 
+    // This function is responsible for initializing the savepoint index.
+    void Command::InitializeCheckpoints(Execution::Context& context)
+    {
+        UNREFERENCED_PARAMETER(context);
+        std::ignore = CoCreateGuid(&m_checkpointId);
+        AICLI_LOG(CLI, Info, << "Creating checkpoint index with the corresponding guid: " << m_checkpointId);
+
+        //auto openDisposition = m_readOnly ? SQLiteStorageBase::OpenDisposition::Read : SQLiteStorageBase::OpenDisposition::ReadWrite;
+        auto openDisposition = AppInstaller::Repository::Microsoft::SQLiteStorageBase::OpenDisposition::ReadWrite;
+        auto checkpointIndex = AppInstaller::Repository::Microsoft::CheckpointIndex::OpenOrCreateDefault(m_checkpointId, openDisposition);
+        if (!checkpointIndex)
+        {
+            AICLI_LOG(CLI, Error, << "Unable to open savepoint index.");
+        }
+        m_checkpointIndex = std::move(checkpointIndex);
+    }
+    
+    void Command::Checkpoint(Execution::Context& context, CheckpointFlags checkpointFlag) const
+    {
+        UNREFERENCED_PARAMETER(checkpointFlag);
+        context.Reporter.Error() << Resource::String::PendingWorkError << std::endl;
+        THROW_HR(E_NOTIMPL);
+    }
+
     void Command::SelectCurrentCommandIfUnrecognizedSubcommandFound(bool value)
     {
         m_selectCurrentCommandIfUnrecognizedSubcommandFound = value;

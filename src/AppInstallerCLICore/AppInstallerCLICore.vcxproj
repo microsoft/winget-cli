@@ -369,6 +369,7 @@
     <ClInclude Include="Commands\ShowCommand.h" />
     <ClInclude Include="Commands\InstallCommand.h" />
     <ClInclude Include="Commands\RootCommand.h" />
+    <ClInclude Include="Commands\ResumeCommand.h" />
     <ClInclude Include="Commands\SourceCommand.h" />
     <ClInclude Include="Commands\TestCommand.h" />
     <ClInclude Include="Commands\UninstallCommand.h" />
@@ -447,6 +448,7 @@
     <ClCompile Include="Commands\ShowCommand.cpp" />
     <ClCompile Include="Commands\InstallCommand.cpp" />
     <ClCompile Include="Commands\RootCommand.cpp" />
+    <ClCompile Include="Commands\ResumeCommand.cpp" />
     <ClCompile Include="Commands\SourceCommand.cpp" />
     <ClCompile Include="Commands\UninstallCommand.cpp" />
     <ClCompile Include="Commands\UpgradeCommand.cpp" />
