@@ -2019,4 +2019,7 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="ConfigurationUnitNotPublicWarning" xml:space="preserve">
     <value>The configuration unit is not available publicly; ensure that anyone who will use this configuration has access to it.</value>
   </data>
+  <data name="ConfigurationUnitModuleNotProvidedWarning" xml:space="preserve">
+    <value>The module was not provided. Specifying the module improves performance and prevents future name collisions.</value>
+  </data>
 </root>

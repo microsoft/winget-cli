@@ -1102,7 +1102,7 @@ namespace AppInstaller::CLI::Workflow
                 }
             }
 
-            AICLI_TERMINATE_CONTEXT(WINGET_CONFIG_ERROR_INVALID_CONFIGURATION_FILE);
+            AICLI_TERMINATE_CONTEXT(result.ResultCode());
         }
     }
 
@@ -1218,6 +1218,12 @@ namespace AppInstaller::CLI::Workflow
                     foundIssue = true;
                 }
             };
+
+            if (GetValueSetString(unit.Directives(), s_Directive_Module).value_or(Utility::LocIndString{}).empty())
+            {
+                outputHeaderIfNeeded();
+                context.Reporter.Warn() << "  "_liv << Resource::String::ConfigurationUnitModuleNotProvidedWarning << std::endl;
+            }
 
             if (catalogDetails)
             {

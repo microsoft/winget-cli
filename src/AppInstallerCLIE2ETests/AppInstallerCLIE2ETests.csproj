@@ -57,6 +57,8 @@
     <None Remove="testdata\configuration\modules\NoVersion.yml" />
     <None Remove="testdata\configuration\NoResourceName.yml" />
     <None Remove="testdata\configuration\NotConfig.yml" />
+    <None Remove="TestData\Configuration\PSGallery_NoSettings.yml" />
+    <None Remove="testdata\configuration\ResourceNotFound.yml" />
     <None Remove="testdata\configuration\ResourcesNotASequence.yml" />
     <None Remove="testdata\configuration\UnitNotAMap.yml" />
     <None Remove="testdata\configuration\UnknownVersion.yml" />
