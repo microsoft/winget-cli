@@ -22,7 +22,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(UseProdCLSIDs)' == 'true'">
-    <DefineConstants>USE_PROD_CLSIDS</DefineConstants>
+    <DefineConstants>$(DefineConstants);USE_PROD_CLSIDS</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
@@ -118,7 +118,7 @@
   </ItemGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)' == '$(DesktopFramework)'">
-    <DefineConstants>POWERSHELL_WINDOWS</DefineConstants>
+    <DefineConstants>$(DefineConstants);POWERSHELL_WINDOWS</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

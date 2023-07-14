@@ -61,15 +61,6 @@ namespace Microsoft.WinGet.Client.Engine.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The App Execution Alias for the Windows Package Manager is disabled. You should enable the App Execution Alias for the Windows Package Manager. Go to App execution aliases option in Apps &amp; features Settings to enable it..
-        /// </summary>
-        internal static string AppExecutionAliasDisabledHelpMessage {
-            get {
-                return ResourceManager.GetString("AppExecutionAliasDisabledHelpMessage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to An error occurred while connecting to the catalog..
         /// </summary>
         internal static string CatalogConnectExceptionMessage {
@@ -93,6 +84,15 @@ namespace Microsoft.WinGet.Client.Engine.Properties {
         internal static string IntegrityAppExecutionAliasDisabledMessage {
             get {
                 return ResourceManager.GetString("IntegrityAppExecutionAliasDisabledMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No applicable license found..
+        /// </summary>
+        internal static string IntegrityAppInstallerLicense {
+            get {
+                return ResourceManager.GetString("IntegrityAppInstallerLicense", resourceCulture);
             }
         }
         
@@ -232,6 +232,42 @@ namespace Microsoft.WinGet.Client.Engine.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Try running with -AllUsers in administrator mode..
+        /// </summary>
+        internal static string RepairAllUsersHelpMessage {
+            get {
+                return ResourceManager.GetString("RepairAllUsersHelpMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to -AllUsers requires administrator mode..
+        /// </summary>
+        internal static string RepairAllUsersMessage {
+            get {
+                return ResourceManager.GetString("RepairAllUsersMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The App Execution Alias for the Windows Package Manager is disabled. You should enable the App Execution Alias for the Windows Package Manager. Go to App execution aliases option in Apps &amp; features Settings to enable it..
+        /// </summary>
+        internal static string RepairAppExecutionAliasMessage {
+            get {
+                return ResourceManager.GetString("RepairAppExecutionAliasMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to repair winget..
+        /// </summary>
+        internal static string RepairFailureMessage {
+            get {
+                return ResourceManager.GetString("RepairFailureMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Single threaded apartment (STA) is not currently supported in this context; run PowerShell in Multi-threaded apartment mode (MTA)..
         /// </summary>
         internal static string SingleThreadedApartmentNotSupportedMessage {
@@ -259,7 +295,7 @@ namespace Microsoft.WinGet.Client.Engine.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to This cmdlet is no supported in Windows PowerShell.
+        ///   Looks up a localized string similar to This cmdlet is not supported in Windows PowerShell..
         /// </summary>
         internal static string WindowsPowerShellNotSupported {
             get {
