@@ -293,11 +293,6 @@ namespace AppInstaller::CLI::Workflow
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_APPLICABLE_INSTALLER);
         }
 
-        if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerDownloadOnly))
-        {
-            return;
-        }
-
         context << EnsureSupportForInstall;
     }
 
@@ -582,6 +577,11 @@ namespace AppInstaller::CLI::Workflow
 
     void EnsureSupportForInstall(Execution::Context& context)
     {
+        if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerDownloadOnly))
+        {
+            return;
+        }
+
         const auto& installer = context.Get<Execution::Data::Installer>();
 
         // This installer cannot be run elevated, but we are running elevated.
