@@ -314,6 +314,10 @@ namespace AppInstaller
                 return "The configuration has an invalid field value.";
             case WINGET_CONFIG_ERROR_MISSING_FIELD:
                 return "The configuration is missing a field.";
+            case WINGET_CONFIG_ERROR_TEST_FAILED:
+                return "Some of the configuration units failed while testing their state.";
+            case WINGET_CONFIG_ERROR_TEST_NOT_RUN:
+                return "Configuration state was not tested.";
 
             // Configuration Processor Errors
             case WINGET_CONFIG_ERROR_UNIT_NOT_INSTALLED:

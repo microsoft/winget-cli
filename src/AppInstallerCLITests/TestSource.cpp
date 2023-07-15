@@ -216,7 +216,7 @@ namespace TestCommon
             return IsSameOverride(this, other);
         }
 
-        const TestPackage* otherAvailable = dynamic_cast<const TestPackage*>(other);
+        const TestPackage* otherAvailable = PackageCast<const TestPackage*>(other);
 
         if (!otherAvailable ||
             InstalledVersion.get() != otherAvailable->InstalledVersion.get() ||
@@ -234,6 +234,16 @@ namespace TestCommon
         }
 
         return true;
+    }
+
+    const void* TestPackage::CastTo(IPackageType type) const
+    {
+        if (type == PackageType)
+        {
+            return this;
+        }
+
+        return nullptr;
     }
 
     const SourceDetails& TestSource::GetDetails() const
@@ -261,6 +271,16 @@ namespace TestCommon
         {
             return {};
         }
+    }
+
+    void* TestSource::CastTo(AppInstaller::Repository::ISourceType type)
+    {
+        if (type == SourceType)
+        {
+            return this;
+        }
+
+        return nullptr;
     }
 
     std::string_view TestSourceFactory::TypeName() const

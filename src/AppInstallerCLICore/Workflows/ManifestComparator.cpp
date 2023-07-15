@@ -278,7 +278,7 @@ namespace AppInstaller::CLI::Workflow
             {
                 if (!m_requirement.empty())
                 {
-                    for (auto const& requiredInstallerType : m_requirement)
+                    for (auto requiredInstallerType : m_requirement)
                     {
                         // The installer is applicable if the installer type or nested installer type matches. (User should be allowed to specify 'zip')
                         if (installer.EffectiveInstallerType() == requiredInstallerType || installer.BaseInstallerType == requiredInstallerType)

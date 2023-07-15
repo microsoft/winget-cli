@@ -2,9 +2,22 @@
 // Licensed under the MIT License.
 #pragma once
 #include "Public/winget/RepositorySource.h"
+#include <memory>
 
 namespace AppInstaller::Repository
 {
+    // To allow for runtime casting from ISource to the specific types, this enum contains all of the ISource implementations.
+    enum class ISourceType
+    {
+        TestSource,
+        ConfigurableTestSource,
+        RestSource,
+        SQLiteIndexSource,
+        CompositeSource,
+        IMutablePackageSource,
+        OpenExceptionProxy,
+    };
+
     // Internal interface for interacting with a source from outside of the repository lib.
     struct ISource
     {
@@ -24,7 +37,29 @@ namespace AppInstaller::Repository
 
         // Execute a search on the source.
         virtual SearchResult Search(const SearchRequest& request) const = 0;
+
+        // Gets this object as the requested type, or null if it is not the requested type.
+        virtual void* CastTo(ISourceType type) = 0;
     };
+
+    // Does the equivalent of a dynamic_pointer_cast, but without it to allow RTTI to be disabled.
+    template <typename SourceType>
+    std::shared_ptr<SourceType> SourceCast(const std::shared_ptr<ISource>& source)
+    {
+        if (!source)
+        {
+            return {};
+        }
+
+        void* castResult = source->CastTo(SourceType::SourceType);
+
+        if (!castResult)
+        {
+            return {};
+        }
+
+        return std::shared_ptr<SourceType>(source, reinterpret_cast<SourceType*>(castResult));
+    }
 
     // Internal interface to represents source information; basically SourceDetails but with methods to enable differential behaviors.
     struct ISourceReference
@@ -54,6 +89,8 @@ namespace AppInstaller::Repository
     // Internal interface extension to ISource for databases that can be updated after creation, like InstallingPackages
     struct IMutablePackageSource
     {
+        static constexpr AppInstaller::Repository::ISourceType SourceType = AppInstaller::Repository::ISourceType::IMutablePackageSource;
+
         virtual ~IMutablePackageSource() = default;
 
         // Adds a package version to the source.

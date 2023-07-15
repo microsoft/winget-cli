@@ -329,6 +329,17 @@ namespace AppInstaller::Repository
         ConsiderPins,
     };
 
+    // To allow for runtime casting from IPackage to the specific types, this enum contains all of the IPackage implementations.
+    enum class IPackageType
+    {
+        TestPackage,
+        RestAvailablePackage,
+        SQLiteAvailablePackage,
+        SQLiteInstalledPackage,
+        PinnablePackage,
+        CompositePackage,
+    };
+
     // A package, potentially containing information about it's local state and the available versions.
     struct IPackage
     {
@@ -367,7 +378,29 @@ namespace AppInstaller::Repository
 
         // Determines if the given IPackage refers to the same package as this one.
         virtual bool IsSame(const IPackage*) const = 0;
+
+        // Gets this object as the requested type, or null if it is not the requested type.
+        virtual const void* CastTo(IPackageType type) const = 0;
     };
+
+    // Does the equivalent of a dynamic_cast, but without it to allow RTTI to be disabled.
+    // Example usage:
+    //  bool IsSame(const IPackage* other) const override
+    //  {
+    //      const MyPackage* otherAsMyType = PackageCast<const MyPackage*>(other);
+    //      ...
+    //  }
+    template <typename PackageType>
+    PackageType PackageCast(const IPackage* package)
+    {
+        static_assert(std::is_pointer_v<PackageType>, "The target type of the PackageCast must be a pointer; use the same type as if this were a dynamic_cast.");
+        if (!package)
+        {
+            return nullptr;
+        }
+        using ActualPackageType = std::remove_pointer_t<std::remove_cv_t<PackageType>>;
+        return reinterpret_cast<PackageType>(package->CastTo(ActualPackageType::PackageType));
+    }
 
     // A single result from the search.
     struct ResultMatch

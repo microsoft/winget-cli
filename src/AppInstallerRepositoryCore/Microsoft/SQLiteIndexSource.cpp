@@ -252,6 +252,8 @@ namespace AppInstaller::Repository::Microsoft
         {
             using PackageBase::PackageBase;
 
+            static constexpr IPackageType PackageType = IPackageType::SQLiteAvailablePackage;
+
             // Inherited via IPackage
             Utility::LocIndString GetProperty(PackageProperty property) const override
             {
@@ -308,7 +310,7 @@ namespace AppInstaller::Repository::Microsoft
 
             bool IsSame(const IPackage* other) const override
             {
-                const AvailablePackage* otherAvailable = dynamic_cast<const AvailablePackage*>(other);
+                const AvailablePackage* otherAvailable = PackageCast<const AvailablePackage*>(other);
 
                 if (otherAvailable)
                 {
@@ -317,12 +319,24 @@ namespace AppInstaller::Repository::Microsoft
 
                 return false;
             }
+
+            const void* CastTo(IPackageType type) const override
+            {
+                if (type == PackageType)
+                {
+                    return this;
+                }
+
+                return nullptr;
+            }
         };
 
         // The IPackage impl for SQLiteIndexSource of Installed packages.
         struct InstalledPackage : public PackageBase, public IPackage
         {
             using PackageBase::PackageBase;
+
+            static constexpr IPackageType PackageType = IPackageType::SQLiteInstalledPackage;
 
             // Inherited via IPackage
             Utility::LocIndString GetProperty(PackageProperty property) const override
@@ -357,7 +371,7 @@ namespace AppInstaller::Repository::Microsoft
 
             bool IsSame(const IPackage* other) const override
             {
-                const InstalledPackage* otherInstalled = dynamic_cast<const InstalledPackage*>(other);
+                const InstalledPackage* otherInstalled = PackageCast<const InstalledPackage*>(other);
 
                 if (otherInstalled)
                 {
@@ -365,6 +379,16 @@ namespace AppInstaller::Repository::Microsoft
                 }
 
                 return false;
+            }
+
+            const void* CastTo(IPackageType type) const override
+            {
+                if (type == PackageType)
+                {
+                    return this;
+                }
+
+                return nullptr;
             }
         };
     }
@@ -414,6 +438,16 @@ namespace AppInstaller::Repository::Microsoft
         return result;
     }
 
+    void* SQLiteIndexSource::CastTo(ISourceType type)
+    {
+        if (type == SourceType)
+        {
+            return this;
+        }
+
+        return nullptr;
+    }
+
     bool SQLiteIndexSource::IsSame(const SQLiteIndexSource* other) const
     {
         return (other && GetIdentifier() == other->GetIdentifier());
@@ -427,6 +461,16 @@ namespace AppInstaller::Repository::Microsoft
     SQLiteIndexWriteableSource::SQLiteIndexWriteableSource(const SourceDetails& details, SQLiteIndex&& index, Synchronization::CrossProcessReaderWriteLock&& lock, bool isInstalledSource) :
         SQLiteIndexSource(details, std::move(index), std::move(lock), isInstalledSource)
     {
+    }
+
+    void* SQLiteIndexWriteableSource::CastTo(ISourceType type)
+    {
+        if (type == ISourceType::IMutablePackageSource)
+        {
+            return static_cast<IMutablePackageSource*>(this);
+        }
+
+        return SQLiteIndexSource::CastTo(type);
     }
 
     void SQLiteIndexWriteableSource::AddPackageVersion(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)

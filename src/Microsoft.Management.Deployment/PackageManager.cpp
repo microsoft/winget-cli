@@ -987,8 +987,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
     winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::DownloadResult, winrt::Microsoft::Management::Deployment::PackageDownloadProgress> PackageManager::DownloadPackageAsync(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::DownloadOptions options)
     {
-        // TODO: Remove once 'download' experimental feature is stable.
-        if (!AppInstaller::Settings::ExperimentalFeature::IsEnabled(AppInstaller::Settings::ExperimentalFeature::Feature::Dependencies))
+        // TODO: Remove once 'download' experimental feature is stable. Dependencies experimental feature is also required to handle multiple package downloads.
+        if (!AppInstaller::Settings::ExperimentalFeature::IsEnabled(AppInstaller::Settings::ExperimentalFeature::Feature::Download))
         {
             THROW_HR(APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED);
         }
@@ -1006,7 +1006,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
             // This must be done before any co_awaits since it requires info from the rpc caller thread.
             auto [hrGetCallerId, callerProcessId] = GetCallerProcessId();
             WINGET_RETURN_DOWNLOAD_RESULT_HR_IF_FAILED(hrGetCallerId);
-            WINGET_RETURN_DOWNLOAD_RESULT_HR_IF_FAILED(EnsureProcessHasCapability(Capability::PackageManagement, callerProcessId));
+            WINGET_RETURN_DOWNLOAD_RESULT_HR_IF_FAILED(EnsureComCallerHasCapability(Capability::PackageQuery));
             callerProcessInfoString = TryGetCallerProcessInfo(callerProcessId);
         }
         WINGET_CATCH_STORE(hr, APPINSTALLER_CLI_ERROR_COMMAND_FAILED);
@@ -1018,19 +1018,20 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
     winrt::Windows::Foundation::IAsyncOperationWithProgress<winrt::Microsoft::Management::Deployment::DownloadResult, winrt::Microsoft::Management::Deployment::PackageDownloadProgress> PackageManager::GetDownloadProgress(winrt::Microsoft::Management::Deployment::CatalogPackage package, winrt::Microsoft::Management::Deployment::PackageCatalogInfo catalogInfo)
     {
+        // TODO: Remove once 'download' experimental feature is stable.
+        if (!AppInstaller::Settings::ExperimentalFeature::IsEnabled(AppInstaller::Settings::ExperimentalFeature::Feature::Download))
+        {
+            THROW_HR(APPINSTALLER_CLI_ERROR_EXPERIMENTAL_FEATURE_DISABLED);
+        }
+
         hstring correlationData;
         WINGET_RETURN_DOWNLOAD_RESULT_HR_IF(APPINSTALLER_CLI_ERROR_INVALID_CL_ARGUMENTS, !package);
 
         HRESULT hr = S_OK;
         std::shared_ptr<Execution::OrchestratorQueueItem> queueItem = nullptr;
-        bool canCancelQueueItem = false;
         try
         {
-            // Check for permissions
-            // This must be done before any co_awaits since it requires info from the rpc caller thread.
-            auto [hrGetCallerId, callerProcessId] = GetCallerProcessId();
-            WINGET_RETURN_DOWNLOAD_RESULT_HR_IF_FAILED(hrGetCallerId);
-            WINGET_RETURN_DOWNLOAD_RESULT_HR_IF_FAILED(EnsureProcessHasCapability(Capability::PackageQuery, callerProcessId));
+            WINGET_RETURN_DOWNLOAD_RESULT_HR_IF_FAILED(EnsureComCallerHasCapability(Capability::PackageQuery));
 
             // Get the queueItem synchronously.
             queueItem = GetExistingQueueItemForPackage(package, catalogInfo);
@@ -1043,8 +1044,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         WINGET_CATCH_STORE(hr, APPINSTALLER_CLI_ERROR_COMMAND_FAILED);
         WINGET_RETURN_DOWNLOAD_RESULT_HR_IF_FAILED(hr);
 
-        return GetPackageOperation<Deployment::DownloadResult, Deployment::PackageDownloadProgress, Deployment::DownloadOptions, Deployment::PackageDownloadProgressState>(
-            canCancelQueueItem, std::move(queueItem));
+        return GetPackageOperation<Deployment::DownloadResult, Deployment::PackageDownloadProgress, Deployment::DownloadOptions, Deployment::PackageDownloadProgressState>(true, std::move(queueItem));
     }
 
     CoCreatableMicrosoftManagementDeploymentClass(PackageManager);

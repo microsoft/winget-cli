@@ -160,6 +160,8 @@ namespace AppInstaller::Repository
         // Carries the exception from an OpenSource call and presents it back at search time.
         struct OpenExceptionProxy : public ISource, std::enable_shared_from_this<OpenExceptionProxy>
         {
+            static constexpr ISourceType SourceType = ISourceType::OpenExceptionProxy;
+
             OpenExceptionProxy(const SourceDetails& details, std::exception_ptr exception) :
                 m_details(details), m_exception(std::move(exception)) {}
 
@@ -172,6 +174,16 @@ namespace AppInstaller::Repository
                 SearchResult result;
                 result.Failures.emplace_back(SearchResult::Failure{ GetDetails().Name, m_exception });
                 return result;
+            }
+
+            void* CastTo(ISourceType type) override
+            {
+                if (type == SourceType)
+                {
+                    return this;
+                }
+
+                return nullptr;
             }
 
         private:
@@ -304,7 +316,7 @@ namespace AppInstaller::Repository
     {
         THROW_HR_IF(E_INVALIDARG, !installedSource.m_source || installedSource.m_isComposite || !availableSource.m_source);
 
-        std::shared_ptr<CompositeSource> compositeSource = std::dynamic_pointer_cast<CompositeSource>(availableSource.m_source);
+        std::shared_ptr<CompositeSource> compositeSource = SourceCast<CompositeSource>(availableSource.m_source);
 
         if (!compositeSource)
         {
@@ -486,7 +498,7 @@ namespace AppInstaller::Repository
     {
         THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !m_source || !m_isComposite);
 
-        auto compositeSource = std::dynamic_pointer_cast<CompositeSource>(m_source);
+        auto compositeSource = SourceCast<CompositeSource>(m_source);
         THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !compositeSource);
 
         return compositeSource->GetAvailableSources();
@@ -495,7 +507,7 @@ namespace AppInstaller::Repository
     void Source::AddPackageVersion(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
     {
         THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !m_source);
-        auto writableSource = std::dynamic_pointer_cast<IMutablePackageSource>(m_source);
+        auto writableSource = SourceCast<IMutablePackageSource>(m_source);
         THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !writableSource);
         writableSource->AddPackageVersion(manifest, relativePath);
     }
@@ -503,7 +515,7 @@ namespace AppInstaller::Repository
     void Source::RemovePackageVersion(const Manifest::Manifest& manifest, const std::filesystem::path& relativePath)
     {
         THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !m_source);
-        auto writableSource = std::dynamic_pointer_cast<IMutablePackageSource>(m_source);
+        auto writableSource = SourceCast<IMutablePackageSource>(m_source);
         THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_INVALID_STATE), !writableSource);
         writableSource->RemovePackageVersion(manifest, relativePath);
     }

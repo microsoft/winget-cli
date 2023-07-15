@@ -32,6 +32,8 @@ namespace AppInstaller::Repository::Rest
         // The IPackage implementation for Available packages from RestSource.
         struct AvailablePackage : public std::enable_shared_from_this<AvailablePackage>, public SourceReference, public IPackage
         {
+            static constexpr IPackageType PackageType = IPackageType::RestAvailablePackage;
+
             AvailablePackage(const std::shared_ptr<RestSource>& source, IRestClient::Package&& package) :
                 SourceReference(source), m_package(std::move(package))
             {
@@ -87,7 +89,7 @@ namespace AppInstaller::Repository::Rest
 
             bool IsSame(const IPackage* other) const override
             {
-                const AvailablePackage* otherAvailablePackage = dynamic_cast<const AvailablePackage*>(other);
+                const AvailablePackage* otherAvailablePackage = PackageCast<const AvailablePackage*>(other);
 
                 if (otherAvailablePackage)
                 {
@@ -96,6 +98,16 @@ namespace AppInstaller::Repository::Rest
                 }
 
                 return false;
+            }
+
+            const void* CastTo(IPackageType type) const override
+            {
+                if (type == PackageType)
+                {
+                    return this;
+                }
+
+                return nullptr;
             }
 
             // Helpers for PackageVersion interop
@@ -443,6 +455,16 @@ namespace AppInstaller::Repository::Rest
         searchResult.Truncated = results.Truncated;
 
         return searchResult;
+    }
+
+    void* RestSource::CastTo(ISourceType type)
+    {
+        if (type == SourceType)
+        {
+            return this;
+        }
+
+        return nullptr;
     }
 
     const RestClient& RestSource::GetRestClient() const

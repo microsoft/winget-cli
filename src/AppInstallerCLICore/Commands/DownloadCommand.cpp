@@ -4,6 +4,7 @@
 #include "DownloadCommand.h"
 #include "Workflows/DownloadFlow.h"
 #include "Workflows/InstallFlow.h"
+#include "Workflows/PromptFlow.h"
 #include "Resources.h"
 #include <AppInstallerRuntime.h>
 
@@ -78,15 +79,12 @@ namespace AppInstaller::CLI
                 Workflow::GetManifestFromPackage(false);
         }
 
-        if (context.IsTerminated())
-        {
-            return;
-        }
-
         context <<
             Workflow::SetDownloadDirectory <<
             Workflow::SelectInstaller <<
+            Workflow::EnsureApplicableInstaller <<
             Workflow::ReportIdentityAndInstallationDisclaimer <<
+            Workflow::ShowPromptsForSinglePackage(/* ensureAcceptance */ true) <<
             Workflow::DownloadPackageDependencies <<
             Workflow::DownloadInstaller;
     }

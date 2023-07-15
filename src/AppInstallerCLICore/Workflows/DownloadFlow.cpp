@@ -101,7 +101,7 @@ namespace AppInstaller::CLI::Workflow
 
             std::string fileName = packageName;
 
-            if (!manifest.Version.empty())
+            if (!Version(manifest.Version).IsUnknown())
             {
                 fileName += '_' + manifest.Version;
             }
@@ -496,10 +496,13 @@ namespace AppInstaller::CLI::Workflow
 
             std::filesystem::path downloadDirectory = context.Get<Execution::Data::DownloadDirectory>();
 
-            if (!std::filesystem::is_directory(downloadDirectory))
+            if (!std::filesystem::exists(downloadDirectory))
             {
-                THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_CANNOT_MAKE), std::filesystem::exists(downloadDirectory));
                 std::filesystem::create_directories(downloadDirectory);
+            }
+            else
+            {
+                THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_CANNOT_MAKE), !std::filesystem::is_directory(downloadDirectory));
             }
 
             renamedDownloadedInstaller = downloadDirectory / GetInstallerDownloadOnlyFileName(context);

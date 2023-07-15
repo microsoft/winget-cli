@@ -29,7 +29,7 @@ namespace AppInstallerCLIE2ETests
             /// <summary>
             /// None.
             /// </summary>
-            None,
+            Unknown,
 
             /// <summary>
             /// User.
@@ -637,7 +637,7 @@ namespace AppInstallerCLIE2ETests
         {
             string expectedFileName = $"{name}_{version}";
 
-            if (scope != Scope.None)
+            if (scope != Scope.Unknown)
             {
                 expectedFileName += $"_{scope}";
             }

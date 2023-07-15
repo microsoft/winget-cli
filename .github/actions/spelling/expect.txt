@@ -384,6 +384,7 @@ rowids
 roy
 RRF
 rrr
+RTTI
 runspace
 runtimeclass
 ryfu
