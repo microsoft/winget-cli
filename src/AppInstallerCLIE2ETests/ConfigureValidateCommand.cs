@@ -184,7 +184,7 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void ModuleNotProvided()
         {
-            var result = TestCommon.RunAICLICommand(Command, TestCommon.GetTestDataFile("Configuration\\PSGallery_NoModule_NoSettings.yml"));
+            var result = TestCommon.RunAICLICommand(Command, TestCommon.GetTestDataFile("Configuration\\PSGallery_NoModule_NoSettings.yml"), timeOut: 120000);
             Assert.AreEqual(Constants.ErrorCode.S_FALSE, result.ExitCode);
             Assert.True(result.StdOut.Contains("The module was not provided."));
         }
@@ -195,7 +195,7 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void NoIssuesDetected()
         {
-            var result = TestCommon.RunAICLICommand(Command, TestCommon.GetTestDataFile("Configuration\\PSGallery_NoSettings.yml"));
+            var result = TestCommon.RunAICLICommand(Command, TestCommon.GetTestDataFile("Configuration\\PSGallery_NoSettings.yml"), timeOut: 120000);
             Assert.AreEqual(Constants.ErrorCode.S_OK, result.ExitCode);
             Assert.True(result.StdOut.Contains("Validation found no issues."));
         }
