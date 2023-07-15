@@ -22,6 +22,12 @@ namespace Microsoft.WinGet.Client.Commands
     public class RepairWinGetPackageManagerCmdlet : WinGetPackageManagerCmdlet
     {
         /// <summary>
+        /// Gets or sets a value indicating whether to repair for all users. Requires admin.
+        /// </summary>
+        [Parameter(ValueFromPipelineByPropertyName = true)]
+        public SwitchParameter AllUsers { get; set; }
+
+        /// <summary>
         /// Attempts to repair winget.
         /// TODO: consider WhatIf and Confirm options.
         /// </summary>
@@ -30,11 +36,11 @@ namespace Microsoft.WinGet.Client.Commands
             var command = new WinGetPackageManagerCommand(this);
             if (this.ParameterSetName == Constants.IntegrityLatestSet)
             {
-                command.RepairUsingLatest(this.IncludePreRelease.ToBool());
+                command.RepairUsingLatest(this.IncludePreRelease.ToBool(), this.AllUsers.ToBool());
             }
             else
             {
-                command.Repair(this.Version);
+                command.Repair(this.Version, this.AllUsers.ToBool());
             }
         }
     }

@@ -136,17 +136,23 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void ReportIdentityAndInstallationDisclaimer(Execution::Context& context);
 
-    // Installs a specific package installer. See also InstallSinglePackage & InstallMultiplePackages.
+    // Installs a specific package installer. See also InstallSinglePackage & ProcessMultiplePackages
     // Required Args: None
     // Inputs: InstallerPath, Manifest, Installer, PackageVersion, InstalledPackageVersion?
     // Outputs: None
     void InstallPackageInstaller(Execution::Context& context);
-
-    // Manages the dependencies for a single package.
+    
+    // Installs the dependencies for a specific package.
     // Required Args: None
+    // Inputs: InstallerPath, Manifest, Installer, PackageVersion, InstalledPackageVersion?
+    // Outputs: None
+    void InstallDependencies(Execution::Context& context);
+
+    // Downloads all of the package dependencies of a specific package. Only used in the 'winget download' and COM download flows.
+    // Required Args: none
     // Inputs: Manifest, Installer
-    // Outputs: InstallerPath
-    void ManageDependencies(Execution::Context& context);
+    // Outputs: None
+    void DownloadPackageDependencies(Execution::Context& context);
 
     // Installs a single package. This also does the reporting, user interaction, and installer download
     // for single-package installation.
@@ -155,21 +161,21 @@ namespace AppInstaller::CLI::Workflow
     // Outputs: None
     void InstallSinglePackage(Execution::Context& context);
 
-    // Installs multiple packages. This also does the reporting and user interaction needed.
+    // Processes multiple packages by handling download and/or install. This also does the reporting and user interaction needed.
     // Required Args: None
     // Inputs: PackageSubContexts
     // Outputs: None
-    struct InstallMultiplePackages : public WorkflowTask
+    struct ProcessMultiplePackages : public WorkflowTask
     {
-        InstallMultiplePackages(
+        ProcessMultiplePackages(
             StringResource::StringId dependenciesReportMessage,
             HRESULT resultOnFailure,
             std::vector<HRESULT>&& ignorableInstallResults = {},
             bool ensurePackageAgreements = true,
             bool ignoreDependencies = false,
             bool stopOnFailure = false,
-            bool refreshPathVariable = false) :
-            WorkflowTask("InstallMultiplePackages"),
+            bool refreshPathVariable = false):
+            WorkflowTask("ProcessMultiplePackages"),
             m_dependenciesReportMessage(dependenciesReportMessage),
             m_resultOnFailure(resultOnFailure),
             m_ignorableInstallResults(std::move(ignorableInstallResults)),

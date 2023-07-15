@@ -28,6 +28,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(AdminSettingEnabled);
         WINGET_DEFINE_RESOURCE_STRINGID(AdminSettingEnableDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(AdminSettingHeader);
+        WINGET_DEFINE_RESOURCE_STRINGID(ArchitectureArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ArchiveFailedMalwareScan);
         WINGET_DEFINE_RESOURCE_STRINGID(ArchiveFailedMalwareScanOverridden);
         WINGET_DEFINE_RESOURCE_STRINGID(ArgumentForSinglePackageProvidedWithMultipleQueries);
@@ -129,6 +130,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(CountArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(CountOutOfBoundsError);
         WINGET_DEFINE_RESOURCE_STRINGID(CustomSwitchesArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(DependenciesFlowDownload);
         WINGET_DEFINE_RESOURCE_STRINGID(DependenciesFlowInstall);
         WINGET_DEFINE_RESOURCE_STRINGID(DependenciesFlowSourceNotFound);
         WINGET_DEFINE_RESOURCE_STRINGID(DependenciesFlowSourceTooManyMatches);
@@ -145,6 +147,9 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(DisableAdminSettingFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(DisableInteractivityArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(Done);
+        WINGET_DEFINE_RESOURCE_STRINGID(DownloadCommandLongDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(DownloadCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(DownloadDirectoryArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(Downloading);
         WINGET_DEFINE_RESOURCE_STRINGID(EnableAdminSettingFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(EnablingWindowsFeature);
@@ -209,8 +214,6 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(IncludePinnedArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(IncludeUnknownArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(IncompatibleArgumentsProvided);
-        WINGET_DEFINE_RESOURCE_STRINGID(InstallAndUpgradeCommandsReportDependencies);
-        WINGET_DEFINE_RESOURCE_STRINGID(InstallArchitectureArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallationAbandoned);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallationDisclaimer1);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallationDisclaimer2);
@@ -221,8 +224,10 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(InstalledPackageVersionNotAvailable);
         WINGET_DEFINE_RESOURCE_STRINGID(InstalledScopeArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerAbortsTerminal);
-        WINGET_DEFINE_RESOURCE_STRINGID(InstallerElevationExpected);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerBlockedByPolicy);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallerDownloaded);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallerDownloads);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallerElevationExpected);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerFailedSecurityCheck);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerFailedVirusScan);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerFailedWithCode);
@@ -234,6 +239,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerLogAvailable);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerProhibitsElevation);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallerRequiresInstallLocation);
+        WINGET_DEFINE_RESOURCE_STRINGID(InstallerTypeArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallersAbortTerminal);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallersRequireInstallLocation);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallFlowInstallSuccess);
@@ -332,6 +338,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(PackageAlreadyInstalled);
         WINGET_DEFINE_RESOURCE_STRINGID(PackageDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(PackageIsPinned);
+        WINGET_DEFINE_RESOURCE_STRINGID(PackageRequiresDependencies);
         WINGET_DEFINE_RESOURCE_STRINGID(PendingWorkError);
         WINGET_DEFINE_RESOURCE_STRINGID(PinAddBlockingArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(PinAddCommandLongDescription);

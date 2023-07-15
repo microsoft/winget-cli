@@ -60,5 +60,10 @@ namespace Microsoft.WinGet.Client.Engine.Common
         /// Installed App Installer package is not supported.
         /// </summary>
         AppInstallerNotSupported,
+
+        /// <summary>
+        /// No applicable license found.
+        /// </summary>
+        AppInstallerNoLicense,
     }
 }

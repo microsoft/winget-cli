@@ -510,6 +510,21 @@ TEST_CASE("SettingsPortablePackageMachineRoot", "[settings]")
     }
 }
 
+TEST_CASE("SettingsDownloadDefaultDirectory", "[settings]")
+{
+    auto again = DeleteUserSettingsFiles();
+
+    SECTION("Valid path")
+    {
+        std::string_view json = R"({ "downloadBehavior": { "defaultDownloadDirectory": "C:/Foo/Bar" } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::DownloadDefaultDirectory>() == "C:/Foo/Bar");
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+}
+
 TEST_CASE("SettingsInstallScope", "[settings]")
 {
     auto again = DeleteUserSettingsFiles();

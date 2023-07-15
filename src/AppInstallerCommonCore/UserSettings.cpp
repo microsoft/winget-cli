@@ -262,6 +262,7 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_PASS_THROUGH(EFDirectMSI)
         WINGET_VALIDATE_PASS_THROUGH(EFConfiguration)
         WINGET_VALIDATE_PASS_THROUGH(EFWindowsFeature)
+        WINGET_VALIDATE_PASS_THROUGH(EFDownload)
         WINGET_VALIDATE_PASS_THROUGH(AnonymizePathForDisplay)
         WINGET_VALIDATE_PASS_THROUGH(TelemetryDisable)
         WINGET_VALIDATE_PASS_THROUGH(InteractivityDisable)
@@ -345,6 +346,11 @@ namespace AppInstaller::Settings
         }
 
         WINGET_VALIDATE_SIGNATURE(InstallDefaultRoot)
+        {
+            return ValidatePathValue(value);
+        }
+
+        WINGET_VALIDATE_SIGNATURE(DownloadDefaultDirectory)
         {
             return ValidatePathValue(value);
         }

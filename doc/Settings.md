@@ -282,3 +282,14 @@ You can enable the feature as shown below.
        "windowsFeature": true
    },
 ```
+
+### download
+
+This feature enables the download command. This command allows users to download the installers of a specified package.
+You can enable the feature as shown below.
+
+```json
+   "experimentalFeatures": {
+       "download": true
+   },
+```

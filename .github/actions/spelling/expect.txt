@@ -475,6 +475,7 @@ UWP
 VALUENAMECASE
 VERSI
 VERSIE
+vclib
 vns
 vsconfig
 vstest

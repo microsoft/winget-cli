@@ -293,14 +293,6 @@ namespace AppInstaller::CLI::Workflow
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_APPLICABLE_INSTALLER);
         }
 
-        // This installer cannot be run elevated, but we are running elevated.
-        // Implementation of de-elevation is complex; simply block for now.
-        if (installer->ElevationRequirement == ElevationRequirementEnum::ElevationProhibited && Runtime::IsRunningAsAdmin())
-        {
-            context.Reporter.Error() << Resource::String::InstallerProhibitsElevation << std::endl;
-            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALLER_PROHIBITS_ELEVATION);
-        }
-
         context << EnsureSupportForInstall;
     }
 
@@ -541,7 +533,7 @@ namespace AppInstaller::CLI::Workflow
             Workflow::DisplayInstallationNotes;
     }
 
-    void ManageDependencies(Execution::Context& context)
+    void InstallDependencies(Execution::Context& context)
     {
         if (Settings::User().Get<Settings::Setting::InstallSkipDependencies>() || context.Args.Contains(Execution::Args::Type::SkipDependencies))
         {
@@ -551,9 +543,24 @@ namespace AppInstaller::CLI::Workflow
 
         context <<
             Workflow::GetDependenciesFromInstaller <<
-            Workflow::ReportDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies) <<
+            Workflow::ReportDependencies(Resource::String::PackageRequiresDependencies) <<
             Workflow::EnableWindowsFeaturesDependencies <<
-            Workflow::ManagePackageDependencies(Resource::String::InstallAndUpgradeCommandsReportDependencies);
+            Workflow::ProcessMultiplePackages(Resource::String::PackageRequiresDependencies, APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES, {}, false, true, true, true);
+    }
+
+    void DownloadPackageDependencies(Execution::Context& context)
+    {
+        if (Settings::User().Get<Settings::Setting::InstallSkipDependencies>() || context.Args.Contains(Execution::Args::Type::SkipDependencies))
+        {
+            context.Reporter.Warn() << Resource::String::DependenciesSkippedMessage << std::endl;
+            return;
+        }
+
+        context <<
+            Workflow::GetDependenciesFromInstaller <<
+            Workflow::ReportDependencies(Resource::String::PackageRequiresDependencies) <<
+            Workflow::CreateDependencySubContexts(Resource::String::PackageRequiresDependencies) <<
+            Workflow::ProcessMultiplePackages(Resource::String::PackageRequiresDependencies, APPINSTALLER_CLI_ERROR_DOWNLOAD_DEPENDENCIES, {}, true, true, true, false);
     }
 
     void InstallSinglePackage(Execution::Context& context)
@@ -562,21 +569,42 @@ namespace AppInstaller::CLI::Workflow
             Workflow::CheckForUnsupportedArgs <<
             Workflow::ReportIdentityAndInstallationDisclaimer <<
             Workflow::ShowPromptsForSinglePackage(/* ensureAcceptance */ true) <<
-            Workflow::ManageDependencies <<
+            Workflow::CreateDependencySubContexts(Resource::String::PackageRequiresDependencies) <<
+            Workflow::InstallDependencies <<
             Workflow::DownloadInstaller <<
             Workflow::InstallPackageInstaller;
     }
 
     void EnsureSupportForInstall(Execution::Context& context)
     {
+        if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerDownloadOnly))
+        {
+            return;
+        }
+
+        const auto& installer = context.Get<Execution::Data::Installer>();
+
+        // This installer cannot be run elevated, but we are running elevated.
+        // Implementation of de-elevation is complex; simply block for now.
+        if (installer->ElevationRequirement == ElevationRequirementEnum::ElevationProhibited && Runtime::IsRunningAsAdmin())
+        {
+            context.Reporter.Error() << Resource::String::InstallerProhibitsElevation << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_INSTALLER_PROHIBITS_ELEVATION);
+        }
+
         context <<
             Workflow::EnsureRunningAsAdminForMachineScopeInstall <<
             Workflow::EnsureSupportForPortableInstall <<
             Workflow::EnsureValidNestedInstallerMetadataForArchiveInstall;
     }
 
-    void InstallMultiplePackages::operator()(Execution::Context& context) const
+    void ProcessMultiplePackages::operator()(Execution::Context& context) const
     {
+        if (!context.Contains(Execution::Data::PackageSubContexts))
+        {
+            return;
+        }
+
         // Show all prompts needed for every package before installing anything
         context << Workflow::ShowPromptsForMultiplePackages(m_ensurePackageAgreements);
 
@@ -585,11 +613,27 @@ namespace AppInstaller::CLI::Workflow
             return;
         }
 
+        bool downloadInstallerOnly = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerDownloadOnly);
+
         // Report dependencies
         if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
         {
+            auto& packageSubContexts = context.Get<Execution::Data::PackageSubContexts>();
+            if (!packageSubContexts.empty())
+            {
+                if (downloadInstallerOnly)
+                {
+                    context.Reporter.Info() << Resource::String::DependenciesFlowDownload << std::endl;
+                }
+                else
+                {
+                    context.Reporter.Info() << Resource::String::DependenciesFlowInstall << std::endl;
+                }
+            }
+
             DependencyList allDependencies;
-            for (auto& packageContext : context.Get<Execution::Data::PackageSubContexts>())
+
+            for (auto& packageContext : packageSubContexts)
             {
                 allDependencies.Add(packageContext->Get<Execution::Data::Installer>().value().Dependencies);
             }
@@ -608,25 +652,36 @@ namespace AppInstaller::CLI::Workflow
             context.Reporter.Info() << '(' << packagesProgress << '/' << packagesCount << ") "_liv;
 
             // We want to do best effort to install all packages regardless of previous failures
-            Execution::Context& installContext = *packageContext;
-            auto previousThreadGlobals = installContext.SetForCurrentThread();
+            Execution::Context& currentContext = *packageContext;
+            auto previousThreadGlobals = currentContext.SetForCurrentThread();
 
-            installContext << Workflow::ReportIdentityAndInstallationDisclaimer;
+            currentContext << Workflow::ReportIdentityAndInstallationDisclaimer;
 
             // Prevent individual exceptions from breaking out of the loop
             try
             {
                 if (!m_ignorePackageDependencies)
                 {
-                    installContext << Workflow::ManagePackageDependencies(m_dependenciesReportMessage);
+                    if (!downloadInstallerOnly)
+                    {
+                        currentContext << Workflow::EnableWindowsFeaturesDependencies;
+                    }
+
+                    currentContext <<
+                        Workflow::CreateDependencySubContexts(m_dependenciesReportMessage) <<
+                        Workflow::ProcessMultiplePackages(m_dependenciesReportMessage, APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES, {}, true, true, true, true);
                 }
-                installContext <<
-                    Workflow::DownloadInstaller <<
-                    Workflow::InstallPackageInstaller;
+
+                currentContext << Workflow::DownloadInstaller;
+
+                if (!downloadInstallerOnly)
+                {
+                    currentContext << Workflow::InstallPackageInstaller;
+                }
             }
             catch (...)
             {
-                installContext.SetTerminationHR(Workflow::HandleException(installContext, std::current_exception()));
+                currentContext.SetTerminationHR(Workflow::HandleException(currentContext, std::current_exception()));
             }
 
             if (m_refreshPathVariable)
@@ -642,9 +697,9 @@ namespace AppInstaller::CLI::Workflow
                 }
             }
 
-            installContext.Reporter.Info() << std::endl;
+            currentContext.Reporter.Info() << std::endl;
 
-            if (installContext.IsTerminated())
+            if (currentContext.IsTerminated())
             {
                 if (context.IsTerminated() && context.GetTerminationHR() == E_ABORT)
                 {
@@ -653,7 +708,7 @@ namespace AppInstaller::CLI::Workflow
                     return;
                 }
 
-                if (m_ignorableInstallResults.end() == std::find(m_ignorableInstallResults.begin(), m_ignorableInstallResults.end(), installContext.GetTerminationHR()))
+                if (m_ignorableInstallResults.end() == std::find(m_ignorableInstallResults.begin(), m_ignorableInstallResults.end(), currentContext.GetTerminationHR()))
                 {
                     allSucceeded = false;
                     if (m_stopOnFailure)

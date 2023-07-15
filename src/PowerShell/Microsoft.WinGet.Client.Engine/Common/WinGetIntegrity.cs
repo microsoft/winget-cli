@@ -74,35 +74,34 @@ namespace Microsoft.WinGet.Client.Engine.Common
                         IntegrityCategory.UnexpectedVersion,
                         string.Format(
                             Resources.IntegrityUnexpectedVersionMessage,
-                            installedVersion,
+                            installedVersion.TagVersion,
                             expectedVersion));
                 }
             }
         }
 
-        /// <summary>
-        /// Verifies winget runs correctly.
-        /// </summary>
-        /// <param name="psCmdlet">The calling cmdlet.</param>
-        /// <param name="expectedVersion">Expected version.</param>
-        /// <returns>Integrity category.</returns>
-        public static IntegrityCategory GetIntegrityCategory(PSCmdlet psCmdlet, string expectedVersion)
-        {
-            try
-            {
-                AssertWinGet(psCmdlet, expectedVersion);
-            }
-            catch (WinGetIntegrityException e)
-            {
-                return e.Category;
-            }
-
-            return IntegrityCategory.Installed;
-        }
-
         private static IntegrityCategory GetReason(PSCmdlet psCmdlet)
         {
             // Ok, so you are here because calling winget --version failed. Lets try to figure out why.
+
+            // When running winget.exe on PowerShell the message of the Win32Exception will distinguish between
+            // 'The system cannot find the file specified' and 'No applicable app licenses found' but of course
+            // the HRESULT is the same (E_FAIL).
+            // To not compare strings let Powershell handle it. If calling winget throws an
+            // ApplicationFailedException then is most likely that the license is not there.
+            try
+            {
+                var ps = PowerShell.Create(RunspaceMode.CurrentRunspace);
+                ps.AddCommand("winget").Invoke();
+            }
+            catch (ApplicationFailedException e)
+            {
+                psCmdlet.WriteDebug(e.Message);
+                return IntegrityCategory.AppInstallerNoLicense;
+            }
+            catch (Exception)
+            {
+            }
 
             // First lets check if the file is there, which means it is installed or someone is taking our place.
             if (File.Exists(WingetCLIWrapper.WinGetFullPath))

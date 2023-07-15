@@ -70,6 +70,18 @@ namespace Microsoft.Management.Deployment.Projection
                 }
             },
 
+            [typeof(DownloadOptions)] = new()
+            {
+                ProjectedClassType = typeof(DownloadOptions),
+                InterfaceType = typeof(IDownloadOptions),
+                Clsids = new Dictionary<ClsidContext, Guid>()
+                {
+                    [ClsidContext.InProc] = new Guid("4288DF96-FDC9-4B68-B403-193DBBF56A24"),
+                    [ClsidContext.OutOfProc] = new Guid("4CBABE76-7322-4BE4-9CEA-2589A80682DC"),
+                    [ClsidContext.OutOfProcDev] = new Guid("8EF324ED-367C-4880-83E5-BB2ABD0B72F6"),
+                }
+            },
+
             [typeof(PackageMatchFilter)] = new()
             {
                 ProjectedClassType = typeof(PackageMatchFilter),
