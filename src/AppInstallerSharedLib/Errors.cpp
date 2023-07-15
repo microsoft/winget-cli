@@ -226,6 +226,8 @@ namespace AppInstaller
                 return "The package currently installed is the stub package";
             case APPINSTALLER_CLI_ERROR_APPTERMINATION_RECEIVED:
                 return "Application shutdown signal received";
+            case APPINSTALLER_CLI_ERROR_DOWNLOAD_DEPENDENCIES:
+                return "Failed to download package dependencies.";
 
             // Install errors
             case APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE:

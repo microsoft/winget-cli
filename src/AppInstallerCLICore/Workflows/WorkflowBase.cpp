@@ -909,6 +909,7 @@ namespace AppInstaller::CLI::Workflow
                 case OperationType::Install:
                 case OperationType::Search:
                 case OperationType::Show:
+                case OperationType::Download:
                 default:
                     context.Reporter.Info() << Resource::String::NoPackageFound << std::endl;
                     break;
@@ -1142,7 +1143,6 @@ namespace AppInstaller::CLI::Workflow
         {
             installationMetadata = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata();
         }
-
 
         ManifestComparator manifestComparator(context, installationMetadata);
         auto [installer, inapplicabilities] = manifestComparator.GetPreferredInstaller(context.Get<Execution::Data::Manifest>());

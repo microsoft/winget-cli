@@ -151,6 +151,69 @@ namespace Microsoft.Management.Deployment
         UInt32 UninstallerErrorCode { get; };
     }
 
+    /// State of the download
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 7)]
+    enum PackageDownloadProgressState
+    {
+        /// The download is queued but not yet active. Cancellation of the IAsyncOperationWithProgress in this 
+        /// state will prevent the package from downloading.
+        Queued,
+        /// The installer is downloading. Cancellation of the IAsyncOperationWithProgress in this state will 
+        /// end the download.
+        Downloading,
+        /// The operation has completed.
+        Finished,
+    };
+
+    /// Status of the download call
+    /// Implementation Note: Errors mapped from AppInstallerErrors.h
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 7)]
+    enum DownloadResultStatus
+    {
+        Ok,
+        BlockedByPolicy,
+        CatalogError,
+        InternalError,
+        InvalidOptions,
+        DownloadError,
+        ManifestError,
+        NoApplicableInstallers,
+        PackageAgreementsNotAccepted,
+    };
+
+    /// Result of the download
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 7)]
+    runtimeclass DownloadResult
+    {
+        /// Used by a caller to correlate the download with a caller's data.
+        String CorrelationData { get; };
+
+        /// Batched error code.
+        DownloadResultStatus Status { get; };
+
+        /// The error code of the overall operation.
+        HRESULT ExtendedErrorCode { get; };
+    };
+
+    /// Progress object for the uninstall
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 7)]
+    struct PackageDownloadProgress
+    {
+        /// State of the download
+        PackageDownloadProgressState State;
+
+        /// DESIGN NOTE: BytesDownloaded may only be available for downloads done by Windows Package Manager itself.
+        /// Number of bytes downloaded if known
+        UInt64 BytesDownloaded;
+
+        /// DESIGN NOTE: BytesRequired may only be available for downloads done by Windows Package Manager itself.
+        /// Number of bytes required if known
+        UInt64 BytesRequired;
+
+        /// Download percentage completed
+        Double DownloadProgress;
+    };
+
     /// IMPLEMENTATION NOTE: SourceOrigin from winget/RepositorySource.h
     /// Defines the origin of the package catalog details.
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 1)]
@@ -882,6 +945,46 @@ namespace Microsoft.Management.Deployment
         }
     }
 
+    /// Options when downloading a package.
+    /// Intended to allow full compatibility with the "winget download" command line interface.
+    [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 7)]
+    runtimeclass DownloadOptions
+    {
+        DownloadOptions();
+
+        /// Optionally specifies the version from the package to download. If unspecified the version matching 
+        /// CatalogPackage.GetLatestVersion() is used.
+        PackageVersionId PackageVersionId;
+
+        /// The package installer type.
+        PackageInstallerType InstallerType;
+
+        /// The package installer scope.
+        PackageInstallScope Scope;
+
+        /// The package installer architecture.
+        Windows.System.ProcessorArchitecture Architecture;
+
+        /// The package installer locale.
+        String Locale;
+
+        /// The directory where the installers are downloaded to.
+        String DownloadDirectory;
+
+        /// Continues the download even if the hash in the catalog does not match the linked installer.
+        Boolean AllowHashMismatch;
+
+        /// Skip downloading the dependencies for the package.
+        Boolean SkipDependencies;
+
+        /// Accept the package agreements required for download.
+        Boolean AcceptPackageAgreements;
+
+        /// Used by a caller to correlate the download with a caller's data.
+        /// The string must be JSON encoded.
+        String CorrelationData;
+    }
+
     /// IMPLEMENTATION NOTE: Documentation from AppInstaller::Manifest::Documentation
     [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 6)]
     runtimeclass Documentation
@@ -1058,6 +1161,15 @@ namespace Microsoft.Management.Deployment
             /// Get uninstall progress
             Windows.Foundation.IAsyncOperationWithProgress<UninstallResult, UninstallProgress> GetUninstallProgress(CatalogPackage package, PackageCatalogInfo catalogInfo);
         }
+
+        [contract(Microsoft.Management.Deployment.WindowsPackageManagerContract, 7)]
+        {
+            // Download the specified package
+            Windows.Foundation.IAsyncOperationWithProgress<DownloadResult, PackageDownloadProgress> DownloadPackageAsync(CatalogPackage package, DownloadOptions options);
+
+            // Get download progress
+            Windows.Foundation.IAsyncOperationWithProgress<DownloadResult, PackageDownloadProgress> GetDownloadProgress(CatalogPackage package, PackageCatalogInfo catalogInfo);
+        }
     }
 
     /// Global settings for PackageManager operations.
@@ -1111,6 +1223,10 @@ namespace Microsoft.Management.Deployment
         interface Windows.Foundation.Collections.IVectorView<UninstallOptions>;
         interface Windows.Foundation.Collections.IVector<UninstallResult>;
         interface Windows.Foundation.Collections.IVectorView<UninstallResult>;
+        interface Windows.Foundation.Collections.IVector<DownloadOptions>;
+        interface Windows.Foundation.Collections.IVectorView<DownloadOptions>;
+        interface Windows.Foundation.Collections.IVector<DownloadResult>;
+        interface Windows.Foundation.Collections.IVectorView<DownloadResult>;
         interface Windows.Foundation.Collections.IVector<MatchResult>;
         interface Windows.Foundation.Collections.IVectorView<MatchResult>;
         interface Windows.Foundation.Collections.IVector<PackageMatchFilter>;

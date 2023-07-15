@@ -382,6 +382,10 @@ namespace AppInstaller::Runtime
             result.Path /= s_PortablePackageRoot;
             result.Path /= s_LinksDirectory;
             break;
+        case PathName::UserProfileDownloads:
+            result.Path = GetKnownFolderPath(FOLDERID_Downloads);
+            mayBeInProfilePath = true;
+            break;
         default:
             THROW_HR(E_UNEXPECTED);
         }
@@ -448,10 +452,9 @@ namespace AppInstaller::Runtime
         case PathName::PortablePackageMachineRoot:
         case PathName::PortablePackageMachineRootX86:
         case PathName::PortableLinksMachineLocation:
-            result = GetPathDetailsCommon(path, forDisplay);
-            break;
         case PathName::PortableLinksUserLocation:
         case PathName::PortablePackageUserRoot:
+        case PathName::UserProfileDownloads:
             result = GetPathDetailsCommon(path, forDisplay);
             break;
         case PathName::SelfPackageRoot:
@@ -526,10 +529,9 @@ namespace AppInstaller::Runtime
         case PathName::PortablePackageMachineRoot:
         case PathName::PortablePackageMachineRootX86:
         case PathName::PortableLinksMachineLocation:
-            result = GetPathDetailsCommon(path, forDisplay);
-            break;
         case PathName::PortableLinksUserLocation:
         case PathName::PortablePackageUserRoot:
+        case PathName::UserProfileDownloads:
             result = GetPathDetailsCommon(path, forDisplay);
             break;
         case PathName::SelfPackageRoot:

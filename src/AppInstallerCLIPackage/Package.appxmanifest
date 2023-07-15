@@ -64,6 +64,8 @@
               </com:Class>
               <com:Class Id ="C9ED7917-66AB-4E31-A92A-F65F18EF7933" DisplayName="Configuration Statics Server">
               </com:Class>
+              <com:Class Id ="8EF324ED-367C-4880-83E5-BB2ABD0B72F6" DisplayName="DownloadOptions Server">
+              </com:Class> 
             </com:ExeServer>
           </com:ComServer>
         </com:Extension>

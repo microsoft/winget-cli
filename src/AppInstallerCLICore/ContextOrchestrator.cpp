@@ -362,6 +362,7 @@ namespace AppInstaller::CLI::Execution
         case PackageOperationType::Install: return "root:install"sv;
         case PackageOperationType::Upgrade: return "root:upgrade"sv;
         case PackageOperationType::Uninstall: return "root:uninstall"sv;
+        case PackageOperationType::Download: return "root:download"sv;
         default: return "unknown";
         }
     }
@@ -384,6 +385,13 @@ namespace AppInstaller::CLI::Execution
     std::unique_ptr<OrchestratorQueueItem> OrchestratorQueueItemFactory::CreateItemForSearch(std::wstring packageId, std::wstring sourceId, std::unique_ptr<COMContext> context)
     {
         std::unique_ptr<OrchestratorQueueItem> item = std::make_unique<OrchestratorQueueItem>(OrchestratorQueueItemId(std::move(packageId), std::move(sourceId)), std::move(context), PackageOperationType::Search);
+        return item;
+    }
+
+    std::unique_ptr<OrchestratorQueueItem> OrchestratorQueueItemFactory::CreateItemForDownload(std::wstring packageId, std::wstring sourceId, std::unique_ptr<COMContext> context)
+    {
+        std::unique_ptr<OrchestratorQueueItem> item = std::make_unique<OrchestratorQueueItem>(OrchestratorQueueItemId(std::move(packageId), std::move(sourceId)), std::move(context), PackageOperationType::Download);
+        item->AddCommand(std::make_unique<::AppInstaller::CLI::COMDownloadCommand>(RootCommand::CommandName));
         return item;
     }
 }
