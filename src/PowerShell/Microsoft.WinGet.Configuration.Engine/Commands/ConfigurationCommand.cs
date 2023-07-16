@@ -13,9 +13,13 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
     using Microsoft.Management.Configuration;
     using Microsoft.Management.Configuration.Processor;
     using Microsoft.PowerShell;
+    using Microsoft.WinGet.Configuration.Engine.Exceptions;
+    using Microsoft.WinGet.Configuration.Engine.Helpers;
     using Microsoft.WinGet.Configuration.Engine.PSObjects;
+    using Microsoft.WinGet.Configuration.Engine.Resources;
     using Windows.Storage;
     using Windows.Storage.Streams;
+    using WinRT;
 
     /// <summary>
     /// Class that deals configuration commands.
@@ -26,10 +30,44 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         /// Initializes a new instance of the <see cref="ConfigurationCommand"/> class.
         /// </summary>
         /// <param name="psCmdlet">PSCmdlet.</param>
-        /// <param name="canWriteToStream">If the command can write to stream.</param>
-        public ConfigurationCommand(PSCmdlet psCmdlet, bool canWriteToStream = true)
-            : base(psCmdlet, canWriteToStream)
+        public ConfigurationCommand(PSCmdlet psCmdlet)
+            : base(psCmdlet)
         {
+        }
+
+        /// <summary>
+        /// Verify user accept agreements.
+        /// </summary>
+        /// <param name="psCmdlet">PSCmdlet.</param>
+        /// <param name="hasAccepted">Has already accepted.</param>
+        /// <returns>If accepted.</returns>
+        public static bool ConfirmConfigurationProcessing(PSCmdlet psCmdlet, bool hasAccepted)
+        {
+            bool result = false;
+            if (!hasAccepted)
+            {
+                bool yesToAll = false;
+                bool noToAll = false;
+                result = psCmdlet.ShouldContinue(Resources.ConfigurationWarningPrompt, Resources.ConfigurationWarning, true, ref yesToAll, ref noToAll);
+
+                if (yesToAll)
+                {
+                    result = true;
+                }
+                else if (noToAll)
+                {
+                    result = false;
+                }
+            }
+            else
+            {
+                // This way even if they set WarningActionPreference.Ignore we will still print the
+                // warning message if the agreements didn't get accepted.
+                psCmdlet.WriteWarning(Resources.ConfigurationWarning);
+                result = true;
+            }
+
+            return result;
         }
 
         /// <summary>
@@ -40,25 +78,24 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         /// <param name="canUseTelemetry">If telemetry can be used.</param>
         public void Get(string configFile, ExecutionPolicy executionPolicy, bool canUseTelemetry)
         {
-            if (!Path.IsPathRooted(configFile))
-            {
-                configFile = Path.GetFullPath(
-                    Path.Combine(
-                        this.PsCmdlet.SessionState.Path.CurrentFileSystemLocation.Path,
-                        configFile));
-            }
-
-            if (!File.Exists(configFile))
-            {
-                throw new FileNotFoundException(configFile);
-            }
+            configFile = this.VerifyFile(configFile);
 
             // Start task.
             var runningTask = this.RunOnMTA<PSConfigurationSet>(
-                async () => await this.OpenConfigurationSetAsync(configFile, executionPolicy, canUseTelemetry));
+                async () =>
+                {
+                    try
+                    {
+                        return await this.OpenConfigurationSetAsync(configFile, executionPolicy, canUseTelemetry);
+                    }
+                    finally
+                    {
+                        this.Complete();
+                    }
+                });
 
             this.Wait(runningTask);
-            this.WriteObject(runningTask.Result);
+            this.Write(StreamType.Object, runningTask.Result);
         }
 
         /// <summary>
@@ -86,6 +123,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                     }
                     finally
                     {
+                        this.Complete();
                         psConfigurationSet.DoneProcessing();
                     }
 
@@ -97,10 +135,10 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             }
             else
             {
-                this.WriteWarning("Details already obtained for this set");
+                this.Write(StreamType.Warning, "Details already obtained for this set");
             }
 
-            this.WriteObject(psConfigurationSet);
+            this.Write(StreamType.Object, psConfigurationSet);
         }
 
         /// <summary>
@@ -111,7 +149,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         {
             if (psConfigurationSet.Set.State == ConfigurationSetState.Completed)
             {
-                this.WriteWarning("Processing this set is completed");
+                this.Write(StreamType.Warning, "Processing this set is completed");
                 return;
             }
 
@@ -122,7 +160,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             }
 
             var configurationJob = this.StartApplyInternal(psConfigurationSet);
-            this.WriteObject(configurationJob);
+            this.Write(StreamType.Object, configurationJob);
         }
 
         /// <summary>
@@ -140,18 +178,18 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             if (psConfigurationJob.ConfigurationTask.IsCompleted)
             {
                 // It is safe to print all output.
-                psConfigurationJob.StartCommand.Flush();
+                psConfigurationJob.StartCommand.ConsumeAndWriteStreams(this);
 
-                this.WriteDebug("The task was completed before waiting");
+                this.Write(StreamType.Verbose, "The task was completed before waiting");
                 if (psConfigurationJob.ConfigurationTask.IsCompletedSuccessfully)
                 {
-                    this.WriteDebug("Completed successfully");
-                    this.WriteObject(psConfigurationJob.ConfigurationTask.Result);
+                    this.Write(StreamType.Verbose, "Completed successfully");
+                    this.Write(StreamType.Object, psConfigurationJob.ConfigurationTask.Result);
                     return;
                 }
                 else if (psConfigurationJob.ConfigurationTask.IsFaulted)
                 {
-                    this.WriteDebug("Completed faulted before waiting");
+                    this.Write(StreamType.Verbose, "Completed faulted before waiting");
 
                     // Maybe just write error?
                     throw psConfigurationJob.ConfigurationTask.Exception!;
@@ -161,21 +199,46 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             this.ContinueHelper(psConfigurationJob);
         }
 
+        /// <summary>
+        /// Verifies file exists and return the full path, if not already.
+        /// </summary>
+        /// <param name="filePath">File path.</param>
+        /// <returns>Full path.</returns>
+        private string VerifyFile(string filePath)
+        {
+            if (!Path.IsPathRooted(filePath))
+            {
+                filePath = Path.GetFullPath(
+                    Path.Combine(
+                        this.PsCmdlet.SessionState.Path.CurrentFileSystemLocation.Path,
+                        filePath));
+            }
+
+            if (!File.Exists(filePath))
+            {
+                throw new FileNotFoundException(filePath);
+            }
+
+            return filePath;
+        }
+
         private void ContinueHelper(PSConfigurationJob psConfigurationJob)
         {
             // Signal the command that it can write to streams and wait for task.
-            this.WriteDebug("Waiting for task to complete");
-            psConfigurationJob.StartCommand.Wait(psConfigurationJob.ConfigurationTask);
-            this.WriteObject(psConfigurationJob.ConfigurationTask.Result);
+            this.Write(StreamType.Verbose, "Waiting for task to complete");
+            psConfigurationJob.StartCommand.Wait(psConfigurationJob.ConfigurationTask, this);
+            this.Write(StreamType.Object, psConfigurationJob.ConfigurationTask.Result);
         }
 
         private PSConfigurationProcessor CreateConfigurationProcessor(ExecutionPolicy executionPolicy, bool canUseTelemetry)
         {
-            var properties = new ConfigurationProcessorFactoryProperties();
-            properties.Policy = this.GetConfigurationProcessorPolicy(executionPolicy);
+            this.Write(StreamType.Information, Resources.ConfigurationInitializing);
 
-            var factory = new ConfigurationSetProcessorFactory(
-                ConfigurationProcessorType.Default, properties);
+            var factory = new PowerShellConfigurationSetProcessorFactory();
+
+            var properties = factory.As<IPowerShellConfigurationProcessorFactoryProperties>();
+            properties.Policy = this.GetConfigurationProcessorPolicy(executionPolicy);
+            properties.ProcessorType = PowerShellConfigurationProcessorType.Default;
 
             return new PSConfigurationProcessor(factory, this, canUseTelemetry);
         }
@@ -184,12 +247,13 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         {
             var psProcessor = this.CreateConfigurationProcessor(executionPolicy, canUseTelemetry);
 
+            this.Write(StreamType.Information, Resources.ConfigurationReadingConfigFile);
             var stream = await FileRandomAccessStream.OpenAsync(configFile, FileAccessMode.Read);
+
             OpenConfigurationSetResult openResult = await psProcessor.Processor.OpenConfigurationSetAsync(stream);
-            if (openResult.Set is null)
+            if (openResult.ResultCode != null)
             {
-                // TODO: throw better exception.
-                throw new Exception($"Failed opening configuration set. Result 0x{openResult.ResultCode} at {openResult.Field}");
+                throw new OpenConfigurationSetException(openResult, configFile);
             }
 
             var set = openResult.Set;
@@ -216,6 +280,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                     }
                     finally
                     {
+                        this.Complete();
                         psConfigurationSet.DoneProcessing();
                     }
 
@@ -229,15 +294,33 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         {
             if (!psConfigurationSet.HasDetails)
             {
-                this.WriteDebug("Getting details for configuration set");
+                this.Write(StreamType.Verbose, "Getting details for configuration set");
                 await this.GetSetDetailsAsync(psConfigurationSet);
             }
 
             var processor = psConfigurationSet.PsProcessor.Processor;
             var set = psConfigurationSet.Set;
 
-            // TODO: implement progress
-            _ = await processor.ApplySetAsync(set, ApplyConfigurationSetFlags.None);
+            var applyProgressOutput = new ApplyConfigurationSetProgressOutput(
+                this,
+                this.GetNewProgressActivityId(),
+                Resources.ConfigurationApply,
+                Resources.OperationInProgress,
+                Resources.OperationCompleted,
+                set.ConfigurationUnits.Count);
+
+            var applyTask = processor.ApplySetAsync(set, ApplyConfigurationSetFlags.None);
+            applyTask.Progress = applyProgressOutput.Progress;
+
+            try
+            {
+                var result = await applyTask;
+                applyProgressOutput.HandleUnreportedProgress(result);
+            }
+            finally
+            {
+                applyProgressOutput.CompleteProgress();
+            }
 
             return psConfigurationSet;
         }
@@ -246,28 +329,81 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         {
             var processor = psConfigurationSet.PsProcessor.Processor;
             var set = psConfigurationSet.Set;
+            var totalUnitsCount = set.ConfigurationUnits.Count;
 
-            if (set.ConfigurationUnits.Count == 0)
+            if (totalUnitsCount == 0)
             {
-                this.WriteWarning("Configuration File Empty");
+                this.Write(StreamType.Warning, Resources.ConfigurationFileEmpty);
+                return psConfigurationSet;
             }
 
-            // TODO: implement progress
-            _ = await processor.GetSetDetailsAsync(set, ConfigurationUnitDetailLevel.Catalog);
+            var detailsProgressOutput = new GetConfigurationSetDetailsProgressOutput(
+                this,
+                this.GetNewProgressActivityId(),
+                Resources.ConfigurationGettingDetails,
+                Resources.OperationInProgress,
+                Resources.OperationCompleted,
+                totalUnitsCount);
 
-            psConfigurationSet.HasDetails = true;
+            var detailsTask = processor.GetSetDetailsAsync(set, ConfigurationUnitDetailLevel.Catalog);
+            detailsTask.Progress = detailsProgressOutput.Progress;
+
+            try
+            {
+                var result = await detailsTask;
+                detailsProgressOutput.HandleUnits(result.UnitResults);
+            }
+            catch (Exception e)
+            {
+                this.WriteError(
+                    ErrorRecordErrorId.ConfigurationDetailsError,
+                    e);
+            }
+            finally
+            {
+                detailsProgressOutput.CompleteProgress();
+            }
+
+            if (detailsProgressOutput.UnitsShown == 0)
+            {
+                this.Write(StreamType.Warning, Resources.ConfigurationFailedToGetDetails);
+                foreach (var unit in set.ConfigurationUnits)
+                {
+                    var information = new ConfigurationUnitInformation(unit);
+                    this.Write(StreamType.Information, information.GetHeader());
+                    this.Write(StreamType.Information, information.GetInformation());
+                }
+            }
+            else
+            {
+                psConfigurationSet.HasDetails = true;
+            }
+
             return psConfigurationSet;
         }
 
-        private ConfigurationProcessorPolicy GetConfigurationProcessorPolicy(ExecutionPolicy policy)
+        private void LogFailedGetConfigurationUnitDetails(ConfigurationUnit unit, IConfigurationUnitResultInformation resultInformation)
+        {
+            if (resultInformation.ResultCode != null)
+            {
+                string errorMessage = $"Failed to get unit details for {unit.UnitName} 0x{resultInformation.ResultCode.HResult:X}" +
+                    $"{Environment.NewLine}Description: '{resultInformation.Description}'{Environment.NewLine}Details: '{resultInformation.Details}'";
+                this.WriteError(
+                    ErrorRecordErrorId.ConfigurationDetailsError,
+                    errorMessage,
+                    resultInformation.ResultCode);
+            }
+        }
+
+        private PowerShellConfigurationProcessorPolicy GetConfigurationProcessorPolicy(ExecutionPolicy policy)
         {
             return policy switch
             {
-                ExecutionPolicy.Unrestricted => ConfigurationProcessorPolicy.Unrestricted,
-                ExecutionPolicy.RemoteSigned => ConfigurationProcessorPolicy.RemoteSigned,
-                ExecutionPolicy.AllSigned => ConfigurationProcessorPolicy.AllSigned,
-                ExecutionPolicy.Restricted => ConfigurationProcessorPolicy.Restricted,
-                ExecutionPolicy.Bypass => ConfigurationProcessorPolicy.Bypass,
+                ExecutionPolicy.Unrestricted => PowerShellConfigurationProcessorPolicy.Unrestricted,
+                ExecutionPolicy.RemoteSigned => PowerShellConfigurationProcessorPolicy.RemoteSigned,
+                ExecutionPolicy.AllSigned => PowerShellConfigurationProcessorPolicy.AllSigned,
+                ExecutionPolicy.Restricted => PowerShellConfigurationProcessorPolicy.Restricted,
+                ExecutionPolicy.Bypass => PowerShellConfigurationProcessorPolicy.Bypass,
                 _ => throw new InvalidOperationException(),
             };
         }

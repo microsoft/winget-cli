@@ -221,12 +221,12 @@ namespace AppInstaller::CLI::Execution
     {
         if (m_spinner)
         {
-            m_spinner->SetMessage(message);
+            m_spinner->Message(message);
         }
 
         if (m_progressBar)
         {
-            m_progressBar->SetMessage(message);
+            m_progressBar->Message(message);
         }
     }
 
@@ -294,7 +294,7 @@ namespace AppInstaller::CLI::Execution
         m_progressCallback = callback;
     }
 
-    void Reporter::CancelInProgressTask(bool force)
+    void Reporter::CancelInProgressTask(bool force, CancelReason reason)
     {
         // TODO: Maybe ask the user if they really want to cancel?
         UNREFERENCED_PARAMETER(force);
@@ -302,7 +302,11 @@ namespace AppInstaller::CLI::Execution
         ProgressCallback* callback = m_progressCallback.load();
         if (callback)
         {
-            callback->Cancel();
+            if (!callback->IsCancelledBy(CancelReason::Any))
+            {
+                callback->SetProgressMessage(Resource::String::CancellingOperation());
+                callback->Cancel(reason);
+            }
         }
     }
 

@@ -43,13 +43,15 @@ namespace AppInstallerCLIE2ETests
                         { "experimentalCmd", false },
                         { "dependencies", false },
                         { "directMSI", false },
+                        { "download", false },
                     }
                 },
                 {
                     "debugging",
                     new Hashtable()
                     {
-                        { "enableSelfInitiatedMinidump", false },
+                        { "enableSelfInitiatedMinidump", true },
+                        { "keepAllLogFiles", true },
                     }
                 },
                 {
@@ -192,6 +194,7 @@ namespace AppInstallerCLIE2ETests
             ConfigureFeature("pinning", status);
             ConfigureFeature("configuration", status);
             ConfigureFeature("windowsFeature", status);
+            ConfigureFeature("download", status);
         }
     }
 }

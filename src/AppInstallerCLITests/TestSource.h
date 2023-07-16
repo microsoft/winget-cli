@@ -44,6 +44,8 @@ namespace TestCommon
     // IPackage for TestSource
     struct TestPackage : public AppInstaller::Repository::IPackage
     {
+        static constexpr AppInstaller::Repository::IPackageType PackageType = AppInstaller::Repository::IPackageType::TestPackage;
+
         using Manifest = AppInstaller::Manifest::Manifest;
         using ISource = AppInstaller::Repository::ISource;
         using LocIndString = AppInstaller::Utility::LocIndString;
@@ -68,6 +70,7 @@ namespace TestCommon
         std::shared_ptr<AppInstaller::Repository::IPackageVersion> GetAvailableVersion(const AppInstaller::Repository::PackageVersionKey& versionKey) const override;
         bool IsUpdateAvailable(AppInstaller::Repository::PinBehavior) const override;
         bool IsSame(const IPackage* other) const override;
+        const void* CastTo(AppInstaller::Repository::IPackageType type) const override;
 
         std::shared_ptr<AppInstaller::Repository::IPackageVersion> InstalledVersion;
         std::vector<std::shared_ptr<AppInstaller::Repository::IPackageVersion>> AvailableVersions;
@@ -77,11 +80,14 @@ namespace TestCommon
     // An ISource implementation for use across the test code.
     struct TestSource : public AppInstaller::Repository::ISource, public std::enable_shared_from_this<TestSource>
     {
+        static constexpr AppInstaller::Repository::ISourceType SourceType = AppInstaller::Repository::ISourceType::TestSource;
+
         const AppInstaller::Repository::SourceDetails& GetDetails() const override;
         const std::string& GetIdentifier() const override;
         AppInstaller::Repository::SourceInformation GetInformation() const override;
 
         AppInstaller::Repository::SearchResult Search(const AppInstaller::Repository::SearchRequest& request) const override;
+        void* CastTo(AppInstaller::Repository::ISourceType type) override;
 
         AppInstaller::Repository::SourceDetails Details = { "TestSource", "Microsoft.TestSource", "//arg", "", "*TestSource" };
         AppInstaller::Repository::SourceInformation Information;
@@ -137,6 +143,7 @@ namespace TestCommon
         TestSourceFactory(OpenFunctorWithCustomHeader open) : OnOpenWithCustomHeader(std::move(open)) {}
 
         // ISourceFactory
+        std::string_view TypeName() const override;
         std::shared_ptr<AppInstaller::Repository::ISourceReference> Create(const AppInstaller::Repository::SourceDetails& details) override;
         bool Add(AppInstaller::Repository::SourceDetails& details, AppInstaller::IProgressCallback&) override;
         bool Update(const AppInstaller::Repository::SourceDetails& details, AppInstaller::IProgressCallback&) override;

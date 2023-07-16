@@ -204,6 +204,46 @@ TEST_CASE("SettingProgressBar", "[settings]")
     }
 }
 
+TEST_CASE("SettingsAnonymizePathForDisplay", "[settings]")
+{
+    auto again = DeleteUserSettingsFiles();
+
+    SECTION("Default")
+    {
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::AnonymizePathForDisplay>() == true);
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("True")
+    {
+        std::string_view json = R"({ "visual": { "anonymizeDisplayedPaths": true } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::AnonymizePathForDisplay>() == true);
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("False")
+    {
+        std::string_view json = R"({ "visual": { "anonymizeDisplayedPaths": false } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::AnonymizePathForDisplay>() == false);
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+    SECTION("Invalid Value")
+    {
+        std::string_view json = R"({ "visual": { "anonymizeDisplayedPaths": "notBoolean" } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::AnonymizePathForDisplay>() == true);
+        REQUIRE(userSettingTest.GetWarnings().size() == 1);
+    }
+}
+
 TEST_CASE("SettingLoggingLevelPreference", "[settings]")
 {
     auto again = DeleteUserSettingsFiles();
@@ -466,6 +506,21 @@ TEST_CASE("SettingsPortablePackageMachineRoot", "[settings]")
         UserSettingsTest userSettingTest;
 
         REQUIRE(userSettingTest.Get<Setting::PortablePackageMachineRoot>() == "C:/Foo/Bar");
+        REQUIRE(userSettingTest.GetWarnings().size() == 0);
+    }
+}
+
+TEST_CASE("SettingsDownloadDefaultDirectory", "[settings]")
+{
+    auto again = DeleteUserSettingsFiles();
+
+    SECTION("Valid path")
+    {
+        std::string_view json = R"({ "downloadBehavior": { "defaultDownloadDirectory": "C:/Foo/Bar" } })";
+        SetSetting(Stream::PrimaryUserSettings, json);
+        UserSettingsTest userSettingTest;
+
+        REQUIRE(userSettingTest.Get<Setting::DownloadDefaultDirectory>() == "C:/Foo/Bar");
         REQUIRE(userSettingTest.GetWarnings().size() == 0);
     }
 }

@@ -60,7 +60,6 @@ namespace AppInstaller::CLI::Workflow
             // as we won't keep searching for dependencies for installed packages
             return DependencyNodeProcessorResult::Skipped;
         }
-
         
         if (!m_nodePackageLatestVersion)
         {

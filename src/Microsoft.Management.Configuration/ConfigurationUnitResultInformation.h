@@ -1,16 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #pragma once
-#include "ConfigurationUnitResultInformation.g.h"
+#include "winrt/Microsoft.Management.Configuration.h"
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
-    struct ConfigurationUnitResultInformation : ConfigurationUnitResultInformationT<ConfigurationUnitResultInformation>
+    struct ConfigurationUnitResultInformation : winrt::implements<ConfigurationUnitResultInformation, IConfigurationUnitResultInformation>
     {
         ConfigurationUnitResultInformation() = default;
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
-        void Initialize(const Configuration::ConfigurationUnitResultInformation& other);
+        void Initialize(const Configuration::IConfigurationUnitResultInformation& other);
         void Initialize(hresult resultCode, std::wstring_view description);
         void Initialize(hresult resultCode, hstring description);
         void Initialize(hresult resultCode, ConfigurationUnitResultSource resultSource);

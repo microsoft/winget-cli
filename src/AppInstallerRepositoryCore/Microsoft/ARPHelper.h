@@ -51,10 +51,16 @@ namespace AppInstaller::Repository::Microsoft
         const std::wstring WindowsInstaller{ L"WindowsInstaller" };
         // REG_DWORD (bool)
         const std::wstring SystemComponent{ L"SystemComponent" };
+        // REG_SZ
+        const std::wstring DisplayIcon{ L"DisplayIcon" };
 
         // Gets the registry key associated with the given scope and architecture on this platform.
         // May return an empty key if there is no valid location (bad combination or not found).
         Registry::Key GetARPKey(Manifest::ScopeEnum scope, Utility::Architecture architecture) const;
+
+        // Gets the arp registry key associated with the given scope and product code.
+        // May return an empty key if not found.
+        Registry::Key FindARPEntry(const std::string& productCode, AppInstaller::Manifest::ScopeEnum scope = AppInstaller::Manifest::ScopeEnum::Unknown) const;
 
         // Returns true IFF the value exists and contains a non-zero DWORD.
         static bool GetBoolValue(const Registry::Key& arpKey, const std::wstring& name);

@@ -6,6 +6,7 @@
 #include <Windows.h>
 #include <appmodel.h>
 #include <icu.h>
+#include <sddl.h>
 
 #define YAML_DECLARE_STATIC
 #include <yaml.h>
@@ -41,7 +42,7 @@
 #include <vector>
 
 #pragma warning( push )
-#pragma warning ( disable : 6001 6285 6287 6340 6387 6388 28196 )
+#pragma warning ( disable : 6001 6285 6287 6340 6387 6388 26495 28196 )
 #include <wil/resource.h>
 #include <wil/result.h>
 #include <wil/result_macros.h>

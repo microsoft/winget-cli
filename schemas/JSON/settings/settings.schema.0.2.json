@@ -28,6 +28,11 @@
             "rainbow",
             "retro"
           ]
+        },
+        "anonymizeDisplayedPaths": {
+          "description": "Replaces some known folder paths with their respective environment variable",
+          "type": "boolean",
+          "default": true
         }
       }
     },
@@ -97,15 +102,15 @@
       "properties": {
         "preferences": { "$ref": "#/definitions/InstallPrefReq" },
         "requirements": { "$ref": "#/definitions/InstallPrefReq" },
-        "ignoreWarnings": {
-          "description": "Controls whether blocking warning messages shown to the user during an install or upgrade are ignored",
+        "skipDependencies": {
+          "description": "Controls whether package dependencies and Windows Features are skipped during installation",
           "type": "boolean",
           "default": false
         },
         "disableInstallNotes": {
           "description": "Controls whether installation notes are shown after a successful install",
           "type": "boolean",
-          "default":  false
+          "default": false
         },
         "portablePackageUserRoot": {
           "description": "The default root directory where packages are installed to under User scope. Applies to the portable installer type.",
@@ -131,7 +136,18 @@
         "purgePortablePackage": {
           "description": "Controls whether the default behavior for uninstall removes all files and directories relevant to this package. Only applies to the portable installerType.",
           "type": "boolean",
-          "default":  false
+          "default": false
+        }
+      }
+    },
+    "DownloadBehavior": {
+      "description": "Download settings",
+      "type": "object",
+      "properties": {
+        "defaultDownloadDirectory": {
+          "description": "The default directory where installers are downloaded to.",
+          "type": "string",
+          "default": "%USERPROFILE%/Downloads/"
         }
       }
     },
@@ -204,18 +220,13 @@
           "type": "boolean",
           "default": false
         },
-        "uninstallPreviousArgument": {
-          "description": "Enable argument to override upgrade behavior to UninstallPrevious",
-          "type": "boolean",
-          "default": false
-        },
-        "pinning": {
-          "description": "Enable support for package pinning",
-          "type": "boolean",
-          "default": false
-        },
         "configuration": {
           "description": "Enable support for configuration",
+          "type": "boolean",
+          "default": false
+        },
+        "download": {
+          "description": "Enable support for the download command",
           "type": "boolean",
           "default": false
         }

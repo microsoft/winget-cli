@@ -76,8 +76,16 @@
   <PropertyGroup>
     <PowerShellModuleOutputDirectory>$(BuildOutputDirectory)PowerShell\Microsoft.WinGet.Client</PowerShellModuleOutputDirectory>
     <PowerShellModuleRuntimesDir>$(PowerShellModuleOutputDirectory)\runtimes\win10-$(Platform)\lib\$(TargetFramework)</PowerShellModuleRuntimesDir>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == '$(CoreFramework)'">
     <PowerShellModuleSharedDependencies>$(PowerShellModuleRuntimesDir)\SharedDependencies</PowerShellModuleSharedDependencies>
     <PowerShellModuleDirectDependencies>$(PowerShellModuleRuntimesDir)\DirectDependencies</PowerShellModuleDirectDependencies>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)' == '$(DesktopFramework)'">
+    <PowerShellModuleSharedDependencies>$(PowerShellModuleRuntimesDir)</PowerShellModuleSharedDependencies>
+    <PowerShellModuleDirectDependencies>$(PowerShellModuleRuntimesDir)</PowerShellModuleDirectDependencies>
   </PropertyGroup>
 
   <!-- psm1, psd1 and ps1xml-->

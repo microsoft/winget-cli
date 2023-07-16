@@ -433,6 +433,16 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
         REQUIRE(manifest.DefaultLocalization.Get<Localization::Documentations>().at(0).DocumentUrl == "https://DefaultDocumentUrl.com");
     }
 
+    if (manifestVer >= ManifestVer{ s_ManifestVersionV1_5 })
+    {
+        REQUIRE(manifest.DefaultLocalization.Get<Localization::Icons>().size() == 1);
+        REQUIRE(manifest.DefaultLocalization.Get<Localization::Icons>().at(0).Url == "https://testIcon");
+        REQUIRE(manifest.DefaultLocalization.Get<Localization::Icons>().at(0).FileType == IconFileTypeEnum::Ico);
+        REQUIRE(manifest.DefaultLocalization.Get<Localization::Icons>().at(0).Resolution == IconResolutionEnum::Custom);
+        REQUIRE(manifest.DefaultLocalization.Get<Localization::Icons>().at(0).Theme == IconThemeEnum::Default);
+        REQUIRE(manifest.DefaultLocalization.Get<Localization::Icons>().at(0).Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8123"));
+    }
+
     REQUIRE(manifest.DefaultInstallerInfo.Locale == "en-US");
     REQUIRE(manifest.DefaultInstallerInfo.Platform == std::vector<PlatformEnum>{ PlatformEnum::Desktop, PlatformEnum::Universal });
     REQUIRE(manifest.DefaultInstallerInfo.MinOSVersion == "10.0.0.0");
@@ -714,6 +724,16 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
             REQUIRE(localization1.Get<Localization::Documentations>().at(0).DocumentLabel == "Default document label");
             REQUIRE(localization1.Get<Localization::Documentations>().at(0).DocumentUrl == "https://DefaultDocumentUrl.com");
         }
+
+        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_5 })
+        {
+            REQUIRE(localization1.Get<Localization::Icons>().size() == 1);
+            REQUIRE(localization1.Get<Localization::Icons>().at(0).Url == "https://localeTestIcon");
+            REQUIRE(localization1.Get<Localization::Icons>().at(0).FileType == IconFileTypeEnum::Png);
+            REQUIRE(localization1.Get<Localization::Icons>().at(0).Resolution == IconResolutionEnum::Square32);
+            REQUIRE(localization1.Get<Localization::Icons>().at(0).Theme == IconThemeEnum::Light);
+            REQUIRE(localization1.Get<Localization::Icons>().at(0).Sha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8321"));
+        }
     }
 }
 
@@ -815,6 +835,31 @@ TEST_CASE("ValidateV1_4GoodManifestAndVerifyContents", "[ManifestValidation]")
     // Read from merged manifest should have the same content as multi file manifest
     Manifest mergedManifest = YamlParser::CreateFromPath(mergedManifestFile);
     VerifyV1ManifestContent(mergedManifest, false, ManifestVer{ s_ManifestVersionV1_4 });
+}
+
+TEST_CASE("ValidateV1_5GoodManifestAndVerifyContents", "[ManifestValidation]")
+{
+    ManifestValidateOption validateOption;
+    validateOption.FullValidation = true;
+    TempDirectory singletonDirectory{ "SingletonManifest" };
+    CopyTestDataFilesToFolder({ "ManifestV1_5-Singleton.yaml" }, singletonDirectory);
+    Manifest singletonManifest = YamlParser::CreateFromPath(singletonDirectory, validateOption);
+    VerifyV1ManifestContent(singletonManifest, true, ManifestVer{ s_ManifestVersionV1_5 });
+
+    TempDirectory multiFileDirectory{ "MultiFileManifest" };
+    CopyTestDataFilesToFolder({
+        "ManifestV1_5-MultiFile-Version.yaml",
+        "ManifestV1_5-MultiFile-Installer.yaml",
+        "ManifestV1_5-MultiFile-DefaultLocale.yaml",
+        "ManifestV1_5-MultiFile-Locale.yaml" }, multiFileDirectory);
+
+    TempFile mergedManifestFile{ "merged.yaml" };
+    Manifest multiFileManifest = YamlParser::CreateFromPath(multiFileDirectory, validateOption, mergedManifestFile);
+    VerifyV1ManifestContent(multiFileManifest, false, ManifestVer{ s_ManifestVersionV1_5 });
+
+    // Read from merged manifest should have the same content as multi file manifest
+    Manifest mergedManifest = YamlParser::CreateFromPath(mergedManifestFile);
+    VerifyV1ManifestContent(mergedManifest, false, ManifestVer{ s_ManifestVersionV1_5 });
 }
 
 YamlManifestInfo CreateYamlManifestInfo(std::string testDataFile)

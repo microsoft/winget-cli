@@ -41,7 +41,9 @@ namespace AppInstaller::CLI::Execution
             InstallLocation,
             InstallScope,
             InstallArchitecture,
+            InstallerType,
             HashOverride, // Ignore hash mismatches
+            SkipDependencies, // Skip dependencies
             IgnoreLocalArchiveMalwareScan, // Ignore the local malware scan on archive files
             AcceptPackageAgreements, // Accept all license agreements for packages
             Rename, // Renames the file of the executable. Only applies to the portable installerType
@@ -79,6 +81,9 @@ namespace AppInstaller::CLI::Execution
             IgnoreUnavailable,
             IgnoreVersions,
 
+            // Download Command
+            DownloadDirectory,
+
             // Setting Command
             AdminSettingEnable,
             AdminSettingDisable,
@@ -103,6 +108,8 @@ namespace AppInstaller::CLI::Execution
             // Configuration
             ConfigurationFile,
             ConfigurationAcceptWarning,
+            ConfigurationEnable,
+            ConfigurationDisable,
 
             // Common arguments
             NoVT, // Disable VirtualTerminal outputs

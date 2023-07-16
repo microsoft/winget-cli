@@ -62,12 +62,38 @@
               </com:Class>
               <com:Class Id ="AA2A5C04-1AD9-46C4-B74F-6B334AD7EB8C" DisplayName="UninstallOptions Server">
               </com:Class>
+              <com:Class Id ="C9ED7917-66AB-4E31-A92A-F65F18EF7933" DisplayName="Configuration Statics Server">
+              </com:Class>
+              <com:Class Id ="8EF324ED-367C-4880-83E5-BB2ABD0B72F6" DisplayName="DownloadOptions Server">
+              </com:Class> 
             </com:ExeServer>
           </com:ComServer>
         </com:Extension>
       </Extensions>
     </Application>
   </Applications>
+  <Extensions>
+    <Extension Category="windows.activatableClass.proxyStub">
+      <ProxyStub ClassId="00000355-0000-0000-C000-000000000046">
+        <Path>Microsoft.Management.Configuration.winmd</Path>
+        <Interface Name="Windows.Foundation.Collections.IIterable`1&lt;Microsoft.Management.Configuration.ConfigurationConflict&gt;" InterfaceId="41A1F29F-518B-5776-BCF2-E42FC9DDE32A" />
+        <Interface Name="Windows.Foundation.Collections.IIterable`1&lt;Microsoft.Management.Configuration.ApplyConfigurationUnitResult&gt;" InterfaceId="0E2334B9-8431-5A9D-B3AA-62D4FB5B5749" />
+        <Interface Name="Windows.Foundation.Collections.IIterable`1&lt;Microsoft.Management.Configuration.ConfigurationConflictSetting&gt;" InterfaceId="EB1E5A3C-A444-5394-B7B3-F1593937E31E" />
+        <Interface Name="Windows.Foundation.Collections.IIterable`1&lt;Microsoft.Management.Configuration.ConfigurationSet&gt;" InterfaceId="070C1D82-67BC-5F8E-BE2F-F0F66E70E2CE" />
+        <Interface Name="Windows.Foundation.Collections.IIterable`1&lt;Microsoft.Management.Configuration.ConfigurationUnit&gt;" InterfaceId="DB35BA1B-3DE5-50B7-80CE-BE149DF0540C" />
+        <Interface Name="Windows.Foundation.Collections.IIterable`1&lt;Microsoft.Management.Configuration.GetConfigurationUnitDetailsResult&gt;" InterfaceId="DCF7323D-3E1E-5B22-A331-C6A29CBB6D33" />
+        <Interface Name="Windows.Foundation.Collections.IIterable`1&lt;Microsoft.Management.Configuration.IConfigurationUnitSettingDetails&gt;" InterfaceId="9901CFD7-A9E3-5D2A-A79C-72FE20513823" />
+        <Interface Name="Windows.Foundation.Collections.IIterable`1&lt;Microsoft.Management.Configuration.TestConfigurationUnitResult&gt;" InterfaceId="73848262-86D4-5FFC-8353-8408C4E649DE" />
+      </ProxyStub>
+    </Extension>
+    <!-- This entry forces the package registration to process the windows.activatableClass.proxyStub extension above. -->
+    <Extension Category="windows.activatableClass.inProcessServer">
+      <InProcessServer>
+        <Path>WindowsPackageManager.dll</Path>
+        <ActivatableClass ActivatableClassId="Placeholder.Activatable.Class.Do.Not.Use" ThreadingModel="STA" />
+      </InProcessServer>
+    </Extension>
+  </Extensions>
   <Capabilities>
     <rescap:Capability Name="runFullTrust" />
     <rescap:Capability Name="packageManagement" />

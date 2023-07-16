@@ -312,4 +312,14 @@ namespace AppInstaller::Deployment
             RemovePackage(packageFullName, RemovalOptions::RemoveForAllUsers, progress);
         }
     }
+
+    bool IsRegistered(std::string_view packageFamilyName)
+    {
+        std::wstring wideFamilyName = Utility::ConvertToUTF16(packageFamilyName);
+
+        PackageManager packageManager;
+        auto packages = packageManager.FindPackagesForUser({}, wideFamilyName);
+
+        return packages.begin() != packages.end();
+    }
 }

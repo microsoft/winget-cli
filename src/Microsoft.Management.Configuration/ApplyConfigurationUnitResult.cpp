@@ -47,12 +47,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_rebootRequired = value;
     }
 
-    Configuration::ConfigurationUnitResultInformation ApplyConfigurationUnitResult::ResultInformation()
+    IConfigurationUnitResultInformation ApplyConfigurationUnitResult::ResultInformation()
     {
         return m_resultInformation;
     }
 
-    void ApplyConfigurationUnitResult::ResultInformation(ConfigurationUnitResultInformation value)
+    void ApplyConfigurationUnitResult::ResultInformation(IConfigurationUnitResultInformation value)
     {
         m_resultInformation = std::move(value);
     }

@@ -421,6 +421,8 @@ namespace AppInstaller::Repository
         // we deal with composite packages on CompositePackage.
         struct PinnablePackage : public IPackage
         {
+            static constexpr IPackageType PackageType = IPackageType::PinnablePackage;
+
             PinnablePackage() {}
             PinnablePackage(std::shared_ptr<IPackage> package, std::optional<Pinning::Pin> pin = {})
                 : m_package(package), m_pin(pin)
@@ -466,7 +468,7 @@ namespace AppInstaller::Repository
             std::vector<PackageVersionKey> GetAvailableVersionKeys(PinBehavior pinBehavior) const override
             {
                 auto result = m_package->GetAvailableVersionKeys();
-                if (ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Pinning) && m_pin.has_value())
+                if (m_pin.has_value())
                 {
                     // Add pin information to all version keys
                     for (auto& pvk : result)
@@ -499,7 +501,7 @@ namespace AppInstaller::Repository
             {
                 Pinning::PinType pinType = Pinning::PinType::Unknown;
 
-                if (ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Pinning) && m_pin.has_value())
+                if (m_pin.has_value())
                 {
                     pinType = GetPinnedStateForVersion(versionKey, m_pin.value(), PinBehavior::ConsiderPins);
                 }
@@ -514,7 +516,7 @@ namespace AppInstaller::Repository
 
             bool IsSame(const IPackage* other) const override
             {
-                const PinnablePackage* otherAvailable = dynamic_cast<const PinnablePackage*>(other);
+                const PinnablePackage* otherAvailable = PackageCast<const PinnablePackage*>(other);
 
                 if (otherAvailable)
                 {
@@ -527,6 +529,16 @@ namespace AppInstaller::Repository
                 return false;
             }
 
+            const void* CastTo(IPackageType type) const override
+            {
+                if (type == PackageType)
+                {
+                    return this;
+                }
+
+                return nullptr;
+            }
+
         private:
             std::string m_sourceId;
             std::shared_ptr<IPackage> m_package;
@@ -536,6 +548,8 @@ namespace AppInstaller::Repository
         // A composite package for the CompositeSource.
         struct CompositePackage : public IPackage
         {
+            static constexpr IPackageType PackageType = IPackageType::CompositePackage;
+
             CompositePackage(std::shared_ptr<IPackage> installedPackage, std::shared_ptr<IPackage> availablePackage = {})
             {
                 // Grab the installed version's channel to allow for filtering in calls to get available info.
@@ -684,7 +698,7 @@ namespace AppInstaller::Repository
 
             bool IsSame(const IPackage* other) const override
             {
-                const CompositePackage* otherComposite = dynamic_cast<const CompositePackage*>(other);
+                const CompositePackage* otherComposite = PackageCast<const CompositePackage*>(other);
 
                 if (!otherComposite ||
                     static_cast<bool>(m_installedPackage) != static_cast<bool>(otherComposite->m_installedPackage) ||
@@ -708,6 +722,16 @@ namespace AppInstaller::Repository
                 }
 
                 return true;
+            }
+
+            const void* CastTo(IPackageType type) const override
+            {
+                if (type == PackageType)
+                {
+                    return this;
+                }
+
+                return nullptr;
             }
 
             bool IsSameAsAnyAvailable(const IPackage* other) const
@@ -770,6 +794,12 @@ namespace AppInstaller::Repository
             {
                 for (auto& availablePackage : m_availablePackages)
                 {
+                    // Safeguard in case a package with no available sneaks in as we intentionally do in tests
+                    if (availablePackage.GetPackage()->GetAvailableVersionKeys().empty())
+                    {
+                        continue;
+                    }
+
                     Pinning::PinKey pinKey = GetPinKeyForAvailable(availablePackage.GetPackage().get());
 
                     auto pin = pinningIndex.GetPin(pinKey);
@@ -813,9 +843,7 @@ namespace AppInstaller::Repository
 
             std::optional<Pinning::Pin> GetInstalledPin() const
             {
-                return (ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Pinning) && m_installedPackage)
-                    ? m_installedPackage->GetPin()
-                    : std::nullopt;
+                return m_installedPackage ? m_installedPackage->GetPin() : std::nullopt;
             }
 
             std::optional<PinnablePackage> m_installedPackage;
@@ -872,10 +900,10 @@ namespace AppInstaller::Repository
             struct SystemReferenceString
             {
                 SystemReferenceString(PackageMatchField field, Utility::LocIndString string) :
-                    Field(field), String1(string) {}
+                    Field(field), String1(Utility::FoldCase(string)) {}
 
                 SystemReferenceString(PackageMatchField field, Utility::LocIndString string1, Utility::LocIndString string2) :
-                    Field(field), String1(string1), String2(string2) {}
+                    Field(field), String1(Utility::FoldCase(string1)), String2(Utility::FoldCase(string2)) {}
 
                 bool operator<(const SystemReferenceString& other) const
                 {
@@ -953,11 +981,12 @@ namespace AppInstaller::Repository
             // Check for a package already in the result that should have been correlated already.
             // If we find one, see if we should upgrade it's match criteria.
             // If we don't, return package data for further use.
-            std::optional<PackageData> CheckForExistingResultFromAvailablePackageMatch(const ResultMatch& availableMatch)
+            //     downloadManifests: when creating system reference strings, also download manifests to get more data.
+            std::optional<PackageData> CheckForExistingResultFromAvailablePackageMatch(const ResultMatch& availableMatch, bool downloadManifests)
             {
                 for (auto& match : Matches)
                 {
-                    const CompositePackage* compositeMatch = dynamic_cast<const CompositePackage*>(match.Package.get());
+                    const CompositePackage* compositeMatch = PackageCast<const CompositePackage*>(match.Package.get());
                     if (compositeMatch && compositeMatch->IsSameAsAnyAvailable(availableMatch.Package.get()))
                     {
                         if (ResultMatchComparator{}(availableMatch, match))
@@ -970,10 +999,19 @@ namespace AppInstaller::Repository
                 }
 
                 PackageData result;
+                constexpr int c_downloadManifestsLimit = 3;
+                int manifestsDownloaded = 0;
                 for (auto const& versionKey : availableMatch.Package->GetAvailableVersionKeys())
                 {
                     auto packageVersion = availableMatch.Package->GetAvailableVersion(versionKey);
                     AddSystemReferenceStrings(packageVersion.get(), result);
+
+                    if (downloadManifests && manifestsDownloaded < c_downloadManifestsLimit)
+                    {
+                        auto manifest = packageVersion->GetManifest();
+                        AddSystemReferenceStringsFromManifest(manifest, result);
+                        manifestsDownloaded++;
+                    }
                 }
                 return result;
             }
@@ -1111,6 +1149,32 @@ namespace AppInstaller::Repository
                     data);
             }
 
+            void AddSystemReferenceStringsFromManifest(const Manifest::Manifest& manifest, PackageData& data)
+            {
+                for (const auto& pfn : manifest.GetPackageFamilyNames())
+                {
+                    data.AddIfNotPresent(SystemReferenceString{ PackageMatchField::PackageFamilyName, Utility::LocIndString{ pfn } });
+                }
+                for (const auto& productCode : manifest.GetProductCodes())
+                {
+                    data.AddIfNotPresent(SystemReferenceString{ PackageMatchField::ProductCode, Utility::LocIndString{ productCode } });
+                }
+                for (const auto& upgradeCode : manifest.GetUpgradeCodes())
+                {
+                    data.AddIfNotPresent(SystemReferenceString{ PackageMatchField::UpgradeCode, Utility::LocIndString{ upgradeCode } });
+                }
+                for (const auto& name : manifest.GetPackageNames())
+                {
+                    for (const auto& publisher : manifest.GetPublishers())
+                    {
+                        data.AddIfNotPresent(SystemReferenceString{
+                            PackageMatchField::NormalizedNameAndPublisher,
+                            Utility::LocIndString{ name },
+                            Utility::LocIndString{ publisher } });
+                    }
+                }
+            }
+
             void GetSystemReferenceStrings(
                 IPackageVersion* installedVersion,
                 PackageVersionMultiProperty prop,
@@ -1172,7 +1236,7 @@ namespace AppInstaller::Repository
         // Adds all the pin information to the results from a search to a CompositeSource.
         void AddPinInfoToCompositeSearchResult(CompositeResult& result)
         {
-            if (ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Pinning) && !result.Matches.empty())
+            if (!result.Matches.empty())
             {
                 // Look up any pins for the packages found
                 auto pinningIndex = PinningIndex::OpenOrCreateDefault();
@@ -1219,6 +1283,16 @@ namespace AppInstaller::Repository
         {
             return SearchAvailable(request);
         }
+    }
+
+    void* CompositeSource::CastTo(ISourceType type)
+    {
+        if (type == SourceType)
+        {
+            return this;
+        }
+
+        return nullptr;
     }
 
     void CompositeSource::AddAvailableSource(const Source& source)
@@ -1355,13 +1429,6 @@ namespace AppInstaller::Repository
                     // Search sources and add to result
                     for (const auto& source : m_availableSources)
                     {
-                        if (addedAvailablePackage && !ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Pinning))
-                        {
-                            // Having multiple available packages is a new behavior introduced for package pinning,
-                            // so we gate it with the same feature in case it causes problems.
-                            break;
-                        }
-
                         // Do not attempt to correlate local packages against this source
                         if (!source.GetDetails().SupportInstalledSearchCorrelation)
                         {
@@ -1460,7 +1527,9 @@ namespace AppInstaller::Repository
             for (auto&& match : availableResult.Matches)
             {
                 // Check for a package already in the result that should have been correlated already.
-                auto packageData = result.CheckForExistingResultFromAvailablePackageMatch(match);
+                // In cases that PackageData will be created, also download manifests for system reference strings
+                // when search result is small (currently limiting to 1).
+                auto packageData = result.CheckForExistingResultFromAvailablePackageMatch(match, availableResult.Matches.size() == 1);
 
                 // If found existing package in the result, continue
                 if (!packageData)

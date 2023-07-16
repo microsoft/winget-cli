@@ -77,7 +77,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             }
             else
             {
-                var unit = this.CreteConfigurationUnit();
+                var unit = this.CreateConfigurationUnit();
                 var (dscResourceInfo, psModuleInfo) = this.GetResourceAndModuleInfo(unit);
 
                 DscResourceInfoInternal? dscResourceInfoInput = null;
@@ -174,7 +174,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             }
         }
 
-        private ConfigurationUnit CreteConfigurationUnit()
+        private ConfigurationUnit CreateConfigurationUnit()
         {
             var unit = new ConfigurationUnit();
             unit.UnitName = "SimpleFileResource";
@@ -189,7 +189,7 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             // This is easier than trying to mock sealed class from external code...
             var testEnv = this.fixture.PrepareTestProcessorEnvironment(true);
 
-            var dscResourceInfo = testEnv.GetDscResource(new ConfigurationUnitInternal(unit, null));
+            var dscResourceInfo = testEnv.GetDscResource(new ConfigurationUnitInternal(unit, string.Empty, null));
             var psModuleInfo = testEnv.GetAvailableModule(PowerShellHelpers.CreateModuleSpecification("xSimpleTestResource", "0.0.0.1"));
 
             if (dscResourceInfo is null || psModuleInfo is null)

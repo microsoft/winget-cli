@@ -6,6 +6,7 @@
 
 namespace AppInstallerCLIE2ETests.Interop
 {
+    using System;
     using Microsoft.Management.Deployment;
     using Microsoft.Management.Deployment.Projection;
     using NUnit.Framework;
@@ -117,6 +118,16 @@ namespace AppInstallerCLIE2ETests.Interop
             var documentation = documentations[0];
             Assert.AreEqual("testDocumentLabel", documentation.DocumentLabel);
             Assert.AreEqual("https://testDocumentUrl.com", documentation.DocumentUrl);
+
+            var icons = catalogPackageMetadata.Icons;
+            Assert.AreEqual(1, icons.Count);
+
+            var icon = icons[0];
+            Assert.AreEqual("https://testIcon", icon.Url);
+            Assert.AreEqual(IconFileType.Ico, icon.FileType);
+            Assert.AreEqual(IconTheme.Default, icon.Theme);
+            Assert.AreEqual(IconResolution.Custom, icon.Resolution);
+            Assert.AreEqual(Convert.FromHexString("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8123"), icon.Sha256);
         }
 
         /// <summary>
@@ -173,6 +184,16 @@ namespace AppInstallerCLIE2ETests.Interop
             var documentation = documentations[0];
             Assert.AreEqual("localeDocumentLabel", documentation.DocumentLabel);
             Assert.AreEqual("https://localeDocumentUrl.com", documentation.DocumentUrl);
+
+            var icons = catalogPackageMetadata.Icons;
+            Assert.AreEqual(1, icons.Count);
+
+            var icon = icons[0];
+            Assert.AreEqual("https://localeTestIcon", icon.Url);
+            Assert.AreEqual(IconFileType.Png, icon.FileType);
+            Assert.AreEqual(IconTheme.Light, icon.Theme);
+            Assert.AreEqual(IconResolution.Square32, icon.Resolution);
+            Assert.AreEqual(Convert.FromHexString("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8321"), icon.Sha256);
         }
 
         /// <summary>

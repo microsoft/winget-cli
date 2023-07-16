@@ -14,11 +14,17 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <!-- Workaround for MSB3271 error on processor architecture mismatch -->
     <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
-    <!-- Disable warning for CS1591 for cswinrt auto-generated files -->
-    <NoWarn>1591</NoWarn>
+    <!-- Disable warning CS1591 for cswinrt auto-generated files and CS8785 for SourceGenerator compilation errors -->
+    <NoWarn>1591,8785</NoWarn>
+    <Configurations>Debug;Release;ReleaseStatic</Configurations>
+    <CsWinRTEnableLogging>true</CsWinRTEnableLogging>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='ReleaseStatic'">
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
@@ -40,6 +46,8 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="6.0.3" />
+    <PackageReference Include="Microsoft.Windows.Compatibility" Version="6.0.6" />
   </ItemGroup>
 
   <ItemGroup>
@@ -50,14 +58,17 @@
     </ProjectReference>
   </ItemGroup>
 
-  <PropertyGroup>
-    <MicrosoftManagementConfigurationPath>$(OutputPath)..\..\..\x64\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd</MicrosoftManagementConfigurationPath>
-    <MicrosoftManagementConfigurationPath Condition="!Exists('$(MicrosoftManagementConfigurationPath)')">$(OutputPath)..\..\..\x86\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd</MicrosoftManagementConfigurationPath>
-    <MicrosoftManagementConfigurationPath Condition="!Exists('$(MicrosoftManagementConfigurationPath)')">$(OutputPath)..\..\..\arm64\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd</MicrosoftManagementConfigurationPath>
-  </PropertyGroup>
-
   <Target Name="MicrosoftManagementConfigurationPathTarget" BeforeTargets="CsWinRTSetAuthoringWinMDs">
+    <PropertyGroup>
+      <MicrosoftManagementConfigurationPath>$(OutputPath)..\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd</MicrosoftManagementConfigurationPath>
+      <MicrosoftManagementConfigurationPath Condition="!Exists('$(MicrosoftManagementConfigurationPath)')">$(SolutionDir)x64\$(Configuration)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd</MicrosoftManagementConfigurationPath>
+      <MicrosoftManagementConfigurationPath Condition="!Exists('$(MicrosoftManagementConfigurationPath)')">$(SolutionDir)x86\$(Configuration)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd</MicrosoftManagementConfigurationPath>
+      <MicrosoftManagementConfigurationPath Condition="!Exists('$(MicrosoftManagementConfigurationPath)')">$(SolutionDir)arm\$(Configuration)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd</MicrosoftManagementConfigurationPath>
+      <MicrosoftManagementConfigurationPath Condition="!Exists('$(MicrosoftManagementConfigurationPath)')">$(SolutionDir)arm64\$(Configuration)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd</MicrosoftManagementConfigurationPath>
+    </PropertyGroup>
+
     <Message Importance="normal" Text="Microsoft.Management.Configuration.winmd -&gt; $(MicrosoftManagementConfigurationPath)" />
+    <Error Condition="!Exists('$(MicrosoftManagementConfigurationPath)')" Text="Microsoft.Management.Configuration.winmd was not found" />
     <ItemGroup Condition="Exists('$(MicrosoftManagementConfigurationPath)')">
       <CsWinRTAuthoringWinMDs Include="$(MicrosoftManagementConfigurationPath)" />
     </ItemGroup>

@@ -260,17 +260,21 @@ namespace AppInstaller::Settings
         WINGET_VALIDATE_PASS_THROUGH(EFExperimentalArg)
         WINGET_VALIDATE_PASS_THROUGH(EFDependencies)
         WINGET_VALIDATE_PASS_THROUGH(EFDirectMSI)
-        WINGET_VALIDATE_PASS_THROUGH(EFPinning)
-        WINGET_VALIDATE_PASS_THROUGH(EFUninstallPreviousArgument)
         WINGET_VALIDATE_PASS_THROUGH(EFConfiguration)
         WINGET_VALIDATE_PASS_THROUGH(EFWindowsFeature)
+        WINGET_VALIDATE_PASS_THROUGH(EFDownload)
+        WINGET_VALIDATE_PASS_THROUGH(AnonymizePathForDisplay)
         WINGET_VALIDATE_PASS_THROUGH(TelemetryDisable)
         WINGET_VALIDATE_PASS_THROUGH(InteractivityDisable)
-        WINGET_VALIDATE_PASS_THROUGH(EnableSelfInitiatedMinidump)
-        WINGET_VALIDATE_PASS_THROUGH(InstallIgnoreWarnings)
+        WINGET_VALIDATE_PASS_THROUGH(InstallSkipDependencies)
         WINGET_VALIDATE_PASS_THROUGH(DisableInstallNotes)
         WINGET_VALIDATE_PASS_THROUGH(UninstallPurgePortablePackage)
         WINGET_VALIDATE_PASS_THROUGH(NetworkWingetAlternateSourceURL)
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+        WINGET_VALIDATE_PASS_THROUGH(EnableSelfInitiatedMinidump)
+        WINGET_VALIDATE_PASS_THROUGH(KeepAllLogFiles)
+#endif
 
         WINGET_VALIDATE_SIGNATURE(PortablePackageUserRoot)
         {
@@ -342,6 +346,11 @@ namespace AppInstaller::Settings
         }
 
         WINGET_VALIDATE_SIGNATURE(InstallDefaultRoot)
+        {
+            return ValidatePathValue(value);
+        }
+
+        WINGET_VALIDATE_SIGNATURE(DownloadDefaultDirectory)
         {
             return ValidatePathValue(value);
         }
@@ -572,7 +581,7 @@ namespace AppInstaller::Settings
     {
         auto path = Stream{ Stream::PrimaryUserSettings }.GetPath();
 
-        if (forDisplay)
+        if (forDisplay && Settings::User().Get<Setting::AnonymizePathForDisplay>())
         {
             ReplaceCommonPathPrefix(path, GetKnownFolderPath(FOLDERID_LocalAppData), "%LOCALAPPDATA%");
         }

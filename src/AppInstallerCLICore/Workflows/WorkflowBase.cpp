@@ -770,7 +770,7 @@ namespace AppInstaller::CLI::Workflow
                     continue;
                 }
 
-                if (m_onlyShowUpgrades && !updateAvailable && ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Pinning))
+                if (m_onlyShowUpgrades && !updateAvailable)
                 {
                     bool updateAvailableWithoutPins = match.Package->IsUpdateAvailable(PinBehavior::IgnorePins);
                     if (updateAvailableWithoutPins)
@@ -909,6 +909,7 @@ namespace AppInstaller::CLI::Workflow
                 case OperationType::Install:
                 case OperationType::Search:
                 case OperationType::Show:
+                case OperationType::Download:
                 default:
                     context.Reporter.Info() << Resource::String::NoPackageFound << std::endl;
                     break;
@@ -959,7 +960,7 @@ namespace AppInstaller::CLI::Workflow
         std::shared_ptr<IPackage> package = context.Get<Execution::Data::Package>();
         std::shared_ptr<IPackageVersion> requestedVersion;
 
-        if (m_considerPins && ExperimentalFeature::IsEnabled(ExperimentalFeature::Feature::Pinning))
+        if (m_considerPins)
         {
             bool isPinned = false;
 
@@ -1142,7 +1143,6 @@ namespace AppInstaller::CLI::Workflow
         {
             installationMetadata = context.Get<Execution::Data::InstalledPackageVersion>()->GetMetadata();
         }
-
 
         ManifestComparator manifestComparator(context, installationMetadata);
         auto [installer, inapplicabilities] = manifestComparator.GetPreferredInstaller(context.Get<Execution::Data::Manifest>());

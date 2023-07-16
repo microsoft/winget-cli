@@ -80,6 +80,11 @@ namespace AppInstaller::Repository
 
         struct PackageTrackingCatalogSourceFactoryImpl : public ISourceFactory
         {
+            std::string_view TypeName() const override final
+            {
+                return PackageTrackingCatalogSourceFactory::Type();
+            }
+
             std::shared_ptr<ISourceReference> Create(const SourceDetails& details) override final
             {
                 THROW_HR_IF(E_INVALIDARG, !Utility::CaseInsensitiveEquals(details.Type, PackageTrackingCatalogSourceFactory::Type()));
@@ -156,7 +161,7 @@ namespace AppInstaller::Repository
 
         PackageTrackingCatalog result;
         result.m_implementation = std::make_shared<PackageTrackingCatalog::implementation>();
-        result.m_implementation->Source = std::dynamic_pointer_cast<SQLiteIndexSource>(ISourceFactory::GetForType(details.Type)->Create(details)->Open(dummyProgress));
+        result.m_implementation->Source = SourceCast<SQLiteIndexSource>(ISourceFactory::GetForType(details.Type)->Create(details)->Open(dummyProgress));
 
         return result;
     }

@@ -70,7 +70,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
             const Configuration::ConfigurationUnit& unit,
             ConfigurationUnitIntent runIntent,
             std::string_view action,
-            const Configuration::ConfigurationUnitResultInformation& resultInformation) const noexcept;
+            const IConfigurationUnitResultInformation& resultInformation) const noexcept;
 
         // The summary information for a specific unit intent.
         struct ProcessingSummaryForIntent
@@ -95,6 +95,12 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         // Logs a processing summary event for a configuration set test run.
         void LogConfigProcessingSummaryForTest(
             const ConfigurationSet& configurationSet,
+            const TestConfigurationSetResult& result) const noexcept;
+
+        // Logs a processing summary event for a configuration set test run exception.
+        void LogConfigProcessingSummaryForTestException(
+            const ConfigurationSet& configurationSet,
+            hresult error,
             const TestConfigurationSetResult& result) const noexcept;
 
         // Logs a processing summary event for a configuration set apply run.

@@ -5,11 +5,7 @@
 #include "Rest/Schema/IRestClient.h"
 #include "Rest/Schema/HttpClientHelper.h"
 #include "Rest/Schema/CommonRestConstants.h"
-#include "Rest/Schema/1_4/Json/ManifestDeserializer.h"
 #include <winget/JsonUtil.h>
-
-using namespace std::string_view_literals;
-using namespace AppInstaller::Repository::Rest::Schema::V1_4::Json;
 
 namespace AppInstaller::Repository::Rest::Schema::V1_4
 {

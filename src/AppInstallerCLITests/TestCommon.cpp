@@ -176,7 +176,7 @@ namespace TestCommon
     {
     }
 
-    bool TestProgress::IsCancelled()
+    bool TestProgress::IsCancelledBy(AppInstaller::CancelReason)
     {
         return false;
     }

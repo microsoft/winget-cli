@@ -65,9 +65,16 @@ namespace AppInstaller::CLI::Execution
         ShowSearchResultsOnPartialFailure = 0x10,
         DisableInteractivity = 0x40,
         BypassIsStoreClientBlockedPolicyCheck = 0x80,
+        InstallerDownloadOnly = 0x100,
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(ContextFlag);
+
+#ifndef AICLI_DISABLE_TEST_HOOKS
+    HWND GetWindowHandle();
+
+    bool WaitForAppShutdownEvent();
+#endif
 
     // The context within which all commands execute.
     // Contains input/output via Execution::Reporter and
@@ -92,8 +99,8 @@ namespace AppInstaller::CLI::Execution
         // Creates a child of this context.
         virtual std::unique_ptr<Context> CreateSubContext();
 
-        // Enables reception of CTRL signals.
-        void EnableCtrlHandler(bool enabled = true);
+        // Enables reception of CTRL signals and window messages.
+        void EnableSignalTerminationHandler(bool enabled = true);
 
         // Applies changes based on the parsed args.
         void UpdateForArgs();
@@ -114,9 +121,9 @@ namespace AppInstaller::CLI::Execution
         void SetTerminationHR(HRESULT hr);
 
         // Cancel the context; this terminates it as well as informing any in progress task to stop cooperatively.
-        // Multiple attempts with exitIfStuck == true may cause the process to simply exit.
+        // Multiple attempts with CancelReason::CancelSignal may cause the process to simply exit.
         // The bypassUser indicates whether the user should be asked for cancellation (does not currently have any effect).
-        void Cancel(bool exitIfStuck = false, bool bypassUser = false);
+        void Cancel(CancelReason reason, bool bypassUser = false);
 
         // Gets context flags
         ContextFlag GetFlags() const
@@ -164,7 +171,7 @@ namespace AppInstaller::CLI::Execution
         std::function<bool(const Workflow::WorkflowTask&)> m_shouldExecuteWorkflowTask;
 
     private:
-        DestructionToken m_disableCtrlHandlerOnExit = false;
+        DestructionToken m_disableSignalTerminationHandlerOnExit = false;
         bool m_isTerminated = false;
         HRESULT m_terminationHR = S_OK;
         size_t m_CtrlSignalCount = 0;

@@ -245,6 +245,79 @@ namespace AppInstaller::CLI::Workflow
             std::vector<Utility::Architecture> m_allowedArchitectures;
         };
 
+        struct InstallerTypeComparator : public details::ComparisonField
+        {
+            InstallerTypeComparator(std::vector<InstallerTypeEnum> requirement) :
+                details::ComparisonField("Installer Type"), m_requirement(std::move(requirement))
+            {
+                m_requirementAsString = Utility::ConvertContainerToString(m_requirement, InstallerTypeToString);
+                AICLI_LOG(CLI, Verbose,
+                    << "InstallerType Comparator created with Required InstallerTypes: " << m_requirementAsString);
+            }
+
+            static std::unique_ptr<InstallerTypeComparator> Create(const Execution::Args& args)
+            {
+                std::vector<InstallerTypeEnum> requirement;
+
+                if (args.Contains(Execution::Args::Type::InstallerType))
+                {
+                    requirement.emplace_back(Manifest::ConvertToInstallerTypeEnum(std::string(args.GetArg(Execution::Args::Type::InstallerType))));
+                }
+
+                if (!requirement.empty())
+                {
+                    return std::make_unique<InstallerTypeComparator>(requirement);
+                }
+                else
+                {
+                    return {};
+                }
+            }
+
+            InapplicabilityFlags IsApplicable(const Manifest::ManifestInstaller& installer) override
+            {
+                if (!m_requirement.empty())
+                {
+                    for (auto requiredInstallerType : m_requirement)
+                    {
+                        // The installer is applicable if the installer type or nested installer type matches. (User should be allowed to specify 'zip')
+                        if (installer.EffectiveInstallerType() == requiredInstallerType || installer.BaseInstallerType == requiredInstallerType)
+                        {
+                            return InapplicabilityFlags::None;
+                        }
+                    }
+
+                    return InapplicabilityFlags::InstallerType;
+                }
+                else
+                {
+                    return InapplicabilityFlags::None;
+                }
+            }
+
+            std::string ExplainInapplicable(const Manifest::ManifestInstaller& installer) override
+            {
+                std::string result = "InstallerType does not match required type: ";
+                result += InstallerTypeToString(installer.EffectiveInstallerType());
+                result += "Required InstallerTypes: ";
+                result += m_requirementAsString;
+                return result;
+            }
+
+            bool IsFirstBetter(const Manifest::ManifestInstaller& first, const Manifest::ManifestInstaller& second) override
+            {
+                // TODO: Current implementation assumes there is only a single installer type requirement. This needs to be updated
+                // once multiple installerType requirements and preferences are accepted.
+                UNREFERENCED_PARAMETER(first);
+                UNREFERENCED_PARAMETER(second);
+                return true;
+            }
+
+        private:
+            std::vector<InstallerTypeEnum> m_requirement;
+            std::string m_requirementAsString;
+        };
+
         struct InstalledTypeComparator : public details::ComparisonField
         {
             InstalledTypeComparator(Manifest::InstallerTypeEnum installedType) :
@@ -655,6 +728,7 @@ namespace AppInstaller::CLI::Workflow
 
         // Filter order is not important, but comparison order determines priority.
         // TODO: There are improvements to be made here around ordering, especially in the context of implicit vs explicit vs command line preferences.
+        AddComparator(InstallerTypeComparator::Create(context.Args));
         AddComparator(InstalledTypeComparator::Create(installationMetadata));
         AddComparator(LocaleComparator::Create(context.Args, installationMetadata));
         AddComparator(ScopeComparator::Create(context));

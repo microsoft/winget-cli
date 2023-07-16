@@ -9,27 +9,6 @@ using namespace AppInstaller::Repository;
 
 namespace TestCommon
 {
-    namespace
-    {
-        template<AppInstaller::Manifest::Localization Field>
-        void BuildPackageVersionMultiPropertyWithFallback(std::vector<Utility::LocIndString>& result, const Manifest::Manifest& VersionManifest)
-        {
-            result.emplace_back(VersionManifest.DefaultLocalization.Get<Field>());
-            for (const auto& loc : VersionManifest.Localizations)
-            {
-                auto f = loc.Get<Field>();
-                if (f.empty())
-                {
-                    result.emplace_back(loc.Get<Field>());
-                }
-                else
-                {
-                    result.emplace_back(std::move(f));
-                }
-            }
-        }
-    }
-
     TestPackageVersion::TestPackageVersion(const Manifest& manifest, MetadataMap installationMetadata, std::weak_ptr<const ISource> source) :
         VersionManifest(manifest), Metadata(std::move(installationMetadata)), Source(source) {}
 
@@ -81,10 +60,16 @@ namespace TestCommon
             }
             break;
         case PackageVersionMultiProperty::Name:
-            BuildPackageVersionMultiPropertyWithFallback<AppInstaller::Manifest::Localization::PackageName>(result, VersionManifest);
+            for (auto name : VersionManifest.GetPackageNames())
+            {
+                result.emplace_back(std::move(name));
+            }
             break;
         case PackageVersionMultiProperty::Publisher:
-            BuildPackageVersionMultiPropertyWithFallback<AppInstaller::Manifest::Localization::Publisher>(result, VersionManifest);
+            for (auto publisher : VersionManifest.GetPublishers())
+            {
+                result.emplace_back(std::move(publisher));
+            }
             break;
         case PackageVersionMultiProperty::Locale:
             result.emplace_back(VersionManifest.DefaultLocalization.Locale);
@@ -231,7 +216,7 @@ namespace TestCommon
             return IsSameOverride(this, other);
         }
 
-        const TestPackage* otherAvailable = dynamic_cast<const TestPackage*>(other);
+        const TestPackage* otherAvailable = PackageCast<const TestPackage*>(other);
 
         if (!otherAvailable ||
             InstalledVersion.get() != otherAvailable->InstalledVersion.get() ||
@@ -249,6 +234,16 @@ namespace TestCommon
         }
 
         return true;
+    }
+
+    const void* TestPackage::CastTo(IPackageType type) const
+    {
+        if (type == PackageType)
+        {
+            return this;
+        }
+
+        return nullptr;
     }
 
     const SourceDetails& TestSource::GetDetails() const
@@ -276,6 +271,21 @@ namespace TestCommon
         {
             return {};
         }
+    }
+
+    void* TestSource::CastTo(AppInstaller::Repository::ISourceType type)
+    {
+        if (type == SourceType)
+        {
+            return this;
+        }
+
+        return nullptr;
+    }
+
+    std::string_view TestSourceFactory::TypeName() const
+    {
+        return "*TestSource"sv;
     }
 
     std::shared_ptr<ISourceReference> TestSourceFactory::Create(const SourceDetails& details)

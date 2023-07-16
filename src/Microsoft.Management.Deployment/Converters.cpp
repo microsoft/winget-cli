@@ -293,6 +293,37 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         return Microsoft::Management::Deployment::PackageInstallerType::Unknown;
     }
 
+    ::AppInstaller::Manifest::InstallerTypeEnum GetManifestInstallerType(winrt::Microsoft::Management::Deployment::PackageInstallerType installerType)
+    {
+        switch (installerType)
+        {
+        case Microsoft::Management::Deployment::PackageInstallerType::Burn:
+            return ::AppInstaller::Manifest::InstallerTypeEnum::Burn;
+        case Microsoft::Management::Deployment::PackageInstallerType::Exe:
+            return ::AppInstaller::Manifest::InstallerTypeEnum::Exe;
+        case Microsoft::Management::Deployment::PackageInstallerType::Inno:
+            return ::AppInstaller::Manifest::InstallerTypeEnum::Inno;
+        case Microsoft::Management::Deployment::PackageInstallerType::Msi:
+            return ::AppInstaller::Manifest::InstallerTypeEnum::Msi;
+        case Microsoft::Management::Deployment::PackageInstallerType::Msix:
+            return ::AppInstaller::Manifest::InstallerTypeEnum::Msix;
+        case Microsoft::Management::Deployment::PackageInstallerType::MSStore:
+            return ::AppInstaller::Manifest::InstallerTypeEnum::MSStore;
+        case Microsoft::Management::Deployment::PackageInstallerType::Nullsoft:
+            return ::AppInstaller::Manifest::InstallerTypeEnum::Nullsoft;
+        case Microsoft::Management::Deployment::PackageInstallerType::Portable:
+            return ::AppInstaller::Manifest::InstallerTypeEnum::Portable;
+        case Microsoft::Management::Deployment::PackageInstallerType::Wix:
+            return ::AppInstaller::Manifest::InstallerTypeEnum::Wix;
+        case Microsoft::Management::Deployment::PackageInstallerType::Zip:
+            return ::AppInstaller::Manifest::InstallerTypeEnum::Zip;
+        case Microsoft::Management::Deployment::PackageInstallerType::Unknown:
+            return ::AppInstaller::Manifest::InstallerTypeEnum::Unknown;
+        }
+
+        return ::AppInstaller::Manifest::InstallerTypeEnum::Unknown;
+    }
+
     winrt::Microsoft::Management::Deployment::PackageInstallerScope GetDeploymentInstallerScope(::AppInstaller::Manifest::ScopeEnum installerScope)
     {
         switch (installerScope)
@@ -312,11 +343,11 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         switch (scope)
         {
-        case winrt::Microsoft::Management::Deployment::PackageInstallScope::Any:
+        case winrt::Microsoft::Management::Deployment::PackageUninstallScope::Any:
             return ::AppInstaller::Manifest::ScopeEnum::Unknown;
-        case winrt::Microsoft::Management::Deployment::PackageInstallScope::User:
+        case winrt::Microsoft::Management::Deployment::PackageUninstallScope::User:
             return ::AppInstaller::Manifest::ScopeEnum::User;
-        case winrt::Microsoft::Management::Deployment::PackageInstallScope::System:
+        case winrt::Microsoft::Management::Deployment::PackageUninstallScope::System:
             return ::AppInstaller::Manifest::ScopeEnum::Machine;
         }
 
@@ -338,5 +369,76 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         }
 
         return Microsoft::Management::Deployment::ElevationRequirement::Unknown;
+    }
+
+    winrt::Microsoft::Management::Deployment::IconFileType GetDeploymentIconFileType(::AppInstaller::Manifest::IconFileTypeEnum iconFileType)
+    {
+        switch (iconFileType)
+        {
+        case ::AppInstaller::Manifest::IconFileTypeEnum::Ico:
+            return Microsoft::Management::Deployment::IconFileType::Ico;
+        case ::AppInstaller::Manifest::IconFileTypeEnum::Jpeg:
+            return Microsoft::Management::Deployment::IconFileType::Jpeg;
+        case ::AppInstaller::Manifest::IconFileTypeEnum::Png:
+            return Microsoft::Management::Deployment::IconFileType::Png;
+        }
+
+        return Microsoft::Management::Deployment::IconFileType::Unknown;
+    }
+
+    winrt::Microsoft::Management::Deployment::IconResolution GetDeploymentIconResolution(::AppInstaller::Manifest::IconResolutionEnum iconResolution)
+    {
+        switch (iconResolution)
+        {
+        case ::AppInstaller::Manifest::IconResolutionEnum::Custom:
+            return Microsoft::Management::Deployment::IconResolution::Custom;
+        case ::AppInstaller::Manifest::IconResolutionEnum::Square16:
+            return Microsoft::Management::Deployment::IconResolution::Square16;
+        case ::AppInstaller::Manifest::IconResolutionEnum::Square20:
+            return Microsoft::Management::Deployment::IconResolution::Square20;
+        case ::AppInstaller::Manifest::IconResolutionEnum::Square24:
+            return Microsoft::Management::Deployment::IconResolution::Square24;
+        case ::AppInstaller::Manifest::IconResolutionEnum::Square30:
+            return Microsoft::Management::Deployment::IconResolution::Square30;
+        case ::AppInstaller::Manifest::IconResolutionEnum::Square32:
+            return Microsoft::Management::Deployment::IconResolution::Square32;
+        case ::AppInstaller::Manifest::IconResolutionEnum::Square36:
+            return Microsoft::Management::Deployment::IconResolution::Square36;
+        case ::AppInstaller::Manifest::IconResolutionEnum::Square40:
+            return Microsoft::Management::Deployment::IconResolution::Square40;
+        case ::AppInstaller::Manifest::IconResolutionEnum::Square48:
+            return Microsoft::Management::Deployment::IconResolution::Square48;
+        case ::AppInstaller::Manifest::IconResolutionEnum::Square60:
+            return Microsoft::Management::Deployment::IconResolution::Square60;
+        case ::AppInstaller::Manifest::IconResolutionEnum::Square64:
+            return Microsoft::Management::Deployment::IconResolution::Square64;
+        case ::AppInstaller::Manifest::IconResolutionEnum::Square72:
+            return Microsoft::Management::Deployment::IconResolution::Square72;
+        case ::AppInstaller::Manifest::IconResolutionEnum::Square80:
+            return Microsoft::Management::Deployment::IconResolution::Square80;
+        case ::AppInstaller::Manifest::IconResolutionEnum::Square96:
+            return Microsoft::Management::Deployment::IconResolution::Square96;
+        case ::AppInstaller::Manifest::IconResolutionEnum::Square256:
+            return Microsoft::Management::Deployment::IconResolution::Square256;
+        }
+
+        return Microsoft::Management::Deployment::IconResolution::Custom;
+    }
+
+    winrt::Microsoft::Management::Deployment::IconTheme GetDeploymentIconTheme(::AppInstaller::Manifest::IconThemeEnum iconTheme)
+    {
+        switch (iconTheme)
+        {
+        case ::AppInstaller::Manifest::IconThemeEnum::Default:
+            return Microsoft::Management::Deployment::IconTheme::Default;
+        case ::AppInstaller::Manifest::IconThemeEnum::Light:
+            return Microsoft::Management::Deployment::IconTheme::Light;
+        case ::AppInstaller::Manifest::IconThemeEnum::Dark:
+            return Microsoft::Management::Deployment::IconTheme::Dark;
+        case ::AppInstaller::Manifest::IconThemeEnum::HighContrast:
+            return Microsoft::Management::Deployment::IconTheme::HighContrast;
+        }
+
+        return Microsoft::Management::Deployment::IconTheme::Unknown;
     }
 }

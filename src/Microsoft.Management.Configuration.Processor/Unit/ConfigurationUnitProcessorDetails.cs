@@ -246,7 +246,18 @@ namespace Microsoft.Management.Configuration.Processor.Unit
                 var moduleProperty = getModuleInfo.Properties[getModuleInfoProperty];
                 if (moduleProperty is not null)
                 {
-                    propertyInfo.SetValue(this, new DateTimeOffset((DateTime)moduleProperty.Value));
+                    DateTime propertyAsDateTime;
+
+                    try
+                    {
+                        propertyAsDateTime = (DateTime)moduleProperty.Value;
+                    }
+                    catch
+                    {
+                        return;
+                    }
+
+                    propertyInfo.SetValue(this, new DateTimeOffset(propertyAsDateTime));
                 }
             }
         }

@@ -12,6 +12,7 @@
 #include "UninstallOptions.h"
 #include "PackageMatchFilter.h"
 #include "PackageManagerSettings.h"
+#include "DownloadOptions.h"
 #pragma warning( pop )
 
 namespace winrt::Microsoft::Management::Deployment
@@ -37,6 +38,10 @@ namespace winrt::Microsoft::Management::Deployment
         else if (IsEqualCLSID(clsid, WINGET_INPROC_COM_CLSID_UninstallOptions))
         {
             return __uuidof(winrt::Microsoft::Management::Deployment::implementation::UninstallOptions);
+        }
+        else if (IsEqualCLSID(clsid, WINGET_INPROC_COM_CLSID_DownloadOptions))
+        {
+            return __uuidof(winrt::Microsoft::Management::Deployment::implementation::DownloadOptions);
         }
         else if (IsEqualCLSID(clsid, WINGET_INPROC_COM_CLSID_PackageMatchFilter))
         {

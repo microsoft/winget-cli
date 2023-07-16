@@ -59,6 +59,8 @@ namespace Microsoft.Management.Configuration.UnitTests.Fixtures
             {
                 throw new DirectoryNotFoundException(this.ExternalModulesPath);
             }
+
+            this.ConfigurationStatics = new ConfigurationStaticFunctions();
         }
 
         /// <summary>
@@ -82,12 +84,18 @@ namespace Microsoft.Management.Configuration.UnitTests.Fixtures
         public string ExternalModulesPath { get; }
 
         /// <summary>
+        /// Gets the configuration statics object to use.
+        /// </summary>
+        public IConfigurationStatics ConfigurationStatics { get; private init; }
+
+        /// <summary>
         /// Creates a runspace adding the test module path.
         /// </summary>
+        /// <param name="validate">Validate runspace.</param>
         /// <returns>PowerShellRunspace.</returns>
         internal IProcessorEnvironment PrepareTestProcessorEnvironment(bool validate = false)
         {
-            var processorEnv = new ProcessorEnvironmentFactory(ConfigurationProcessorType.Hosted).CreateEnvironment(null, ConfigurationProcessorPolicy.Unrestricted);
+            var processorEnv = new ProcessorEnvironmentFactory(PowerShellConfigurationProcessorType.Hosted).CreateEnvironment(null, PowerShellConfigurationProcessorPolicy.Unrestricted);
             processorEnv.PrependPSModulePath(this.ExternalModulesPath);
             processorEnv.PrependPSModulePath(this.TestModulesPath);
 

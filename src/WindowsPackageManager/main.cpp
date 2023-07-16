@@ -23,8 +23,12 @@ CoCreatableClassWrlCreatorMapInclude(FindPackagesOptions);
 CoCreatableClassWrlCreatorMapInclude(CreateCompositePackageCatalogOptions);
 CoCreatableClassWrlCreatorMapInclude(InstallOptions);
 CoCreatableClassWrlCreatorMapInclude(UninstallOptions);
+CoCreatableClassWrlCreatorMapInclude(DownloadOptions);
 CoCreatableClassWrlCreatorMapInclude(PackageMatchFilter);
 CoCreatableClassWrlCreatorMapInclude(PackageManagerSettings);
+
+// Shim for configuration static functions
+CoCreatableClassWrlCreatorMapInclude(ConfigurationStaticFunctionsShim);
 
 extern "C"
 {

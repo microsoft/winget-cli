@@ -6,9 +6,13 @@
 
 namespace Microsoft.Management.Configuration.Processor.Helpers
 {
+    using System;
     using System.Collections.Generic;
+    using System.IO;
     using Microsoft.Management.Configuration.Processor.Constants;
+    using Microsoft.Management.Configuration.Processor.Exceptions;
     using Microsoft.PowerShell.Commands;
+    using Windows.Foundation.Collections;
 
     /// <summary>
     /// Wrapper around Configuration units and its directives. Creates a normalized directives map
@@ -16,15 +20,20 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
     /// </summary>
     internal class ConfigurationUnitInternal
     {
+        private const string ConfigRootVar = "${WinGetConfigRoot}";
+
+        private readonly string? configurationFileRootPath = null;
         private readonly Dictionary<string, object> normalizedDirectives = new ();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ConfigurationUnitInternal"/> class.
         /// </summary>
         /// <param name="unit">Configuration unit.</param>
+        /// <param name="configurationFilePath">The configuration file path.</param>
         /// <param name="directivesOverlay">Directives overlay.</param>
         public ConfigurationUnitInternal(
             ConfigurationUnit unit,
+            string configurationFilePath,
             IReadOnlyDictionary<string, object>? directivesOverlay = null)
         {
             this.Unit = unit;
@@ -44,6 +53,16 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
                     this.GetDirective<string>(DirectiveConstants.MinVersion),
                     this.GetDirective<string>(DirectiveConstants.MaxVersion),
                     this.GetDirective<string>(DirectiveConstants.ModuleGuid));
+            }
+
+            if (!string.IsNullOrEmpty(configurationFilePath))
+            {
+                if (!File.Exists(configurationFilePath))
+                {
+                    throw new FileNotFoundException(configurationFilePath);
+                }
+
+                this.configurationFileRootPath = Path.GetDirectoryName(configurationFilePath);
             }
         }
 
@@ -148,6 +167,57 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// TODO: Implement for more variables.
+        /// I am so sad because rs.SessionStateProxy.InvokeCommand.ExpandString doesn't work as I wanted.
+        /// PowerShell assumes all code passed to ExpandString is trusted and we cannot assume that.
+        /// </summary>
+        /// <returns>ValueSet with settings.</returns>
+        public ValueSet GetExpandedSettings()
+        {
+            var valueSet = new ValueSet();
+            foreach (var value in this.Unit.Settings)
+            {
+                if (value.Value is string)
+                {
+                    // For now, we just expand config root.
+                    valueSet.Add(value.Key, this.ExpandConfigRoot(value.Value as string, value.Key));
+                }
+                else
+                {
+                    valueSet.Add(value);
+                }
+            }
+
+            return valueSet;
+        }
+
+        private string? ExpandConfigRoot(string? value, string settingName)
+        {
+            if (!string.IsNullOrEmpty(value))
+            {
+                // TODO: since we only support one variable, this only finds and replace
+                // ${WingetConfigRoot} if found in the string when the work of expanding
+                // string is done it should take into account other operators like the subexpression operator $()
+                if (value.Contains(ConfigRootVar, StringComparison.OrdinalIgnoreCase))
+                {
+                    if (string.IsNullOrEmpty(this.configurationFileRootPath))
+                    {
+                        throw new UnitSettingConfigRootException(this.Unit.UnitName, settingName);
+                    }
+
+                    if (this.configurationFileRootPath == null)
+                    {
+                        throw new ArgumentException();
+                    }
+
+                    return value.Replace(ConfigRootVar, this.configurationFileRootPath, StringComparison.OrdinalIgnoreCase);
+                }
+            }
+
+            return value;
         }
 
         private void InitializeDirectives()

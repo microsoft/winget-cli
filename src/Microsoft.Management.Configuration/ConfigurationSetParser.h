@@ -15,9 +15,6 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     // Interface for parsing a configuration set stream.
     struct ConfigurationSetParser
     {
-        // Create a parser from the given stream.
-        static std::unique_ptr<ConfigurationSetParser> Create(const Windows::Storage::Streams::IInputStream& stream);
-
         // Create a parser from the given bytes (the encoding is detected).
         static std::unique_ptr<ConfigurationSetParser> Create(std::string_view input);
 

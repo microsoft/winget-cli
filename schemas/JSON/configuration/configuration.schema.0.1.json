@@ -1,5 +1,5 @@
 {
-    "$id": "https://aka.ms/schemas/dsc/configuration.schema.0.1.yaml",
+    "$id": "https://aka.ms/schemas/dsc/configuration.schema.0.1.json",
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "description": "A representation of a configuration used by an orchestrator for WinDSC.",
     "type": "object",

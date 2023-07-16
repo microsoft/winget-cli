@@ -6,14 +6,13 @@
 
 namespace Microsoft.WinGet.Client.Engine.Commands
 {
+    using System;
     using System.Management.Automation;
     using Microsoft.Management.Deployment;
     using Microsoft.WinGet.Client.Engine.Commands.Common;
-    using Microsoft.WinGet.Client.Engine.Extensions;
     using Microsoft.WinGet.Client.Engine.Helpers;
     using Microsoft.WinGet.Client.Engine.Properties;
     using Microsoft.WinGet.Client.Engine.PSObjects;
-    using Windows.System;
 
     /// <summary>
     /// Installs or updates a package from the pipeline or from a configured source.
@@ -60,6 +59,9 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             string matchOption)
             : base(psCmdlet)
         {
+#if POWERSHELL_WINDOWS
+            throw new NotSupportedException(Resources.WindowsPowerShellNotSupported);
+#else
             // InstallCommand.
             this.Mode = PSEnumHelpers.ToPackageInstallMode(psInstallMode);
             this.Override = @override;
@@ -85,6 +87,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             this.Source = source;
             this.Query = query;
             this.MatchOption = PSEnumHelpers.ToPackageFieldMatchOption(matchOption);
+#endif
         }
 
         /// <summary>

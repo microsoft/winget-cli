@@ -65,6 +65,7 @@
 \.xlsx?$
 \.zip$
 ^\.github/actions/spelling/
+^\.github/policies/
 ^\.github/workflows/spelling\d*\.yml$
 ^\Qsrc/PureLib/pure/AUTHORS\E$
 ^cgmanifest\.json$
@@ -88,4 +89,5 @@
 ^src/YamlCppLib/
 # Because it doesn't handle argument -Words well
 ^tools/CorrelationTestbed/.*\.ps1$
+^tools/COMTrace/ComTrace.wprp$
 ignore$

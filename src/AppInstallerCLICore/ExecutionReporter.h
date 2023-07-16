@@ -156,7 +156,7 @@ namespace AppInstaller::CLI::Execution
         void SetProgressCallback(ProgressCallback* callback);
 
         // Cancels the in progress task.
-        void CancelInProgressTask(bool force);
+        void CancelInProgressTask(bool force, CancelReason reason);
 
         void CloseOutputStream(bool forceDisable = false);
 

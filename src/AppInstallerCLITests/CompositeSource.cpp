@@ -589,7 +589,6 @@ TEST_CASE("CompositePackage_AvailableVersions_NoChannelFilteredOut", "[Composite
 TEST_CASE("CompositeSource_MultipleAvailableSources_MatchAll", "[CompositeSource]")
 {
     TestCommon::TestUserSettings testSettings;
-    testSettings.Set<Settings::Setting::EFPinning>(true);
 
     std::string pfn = "sortof_apfn";
     std::string firstName = "Name1";
@@ -1102,8 +1101,6 @@ TEST_CASE("CompositeSource_Pinning_AvailableVersionPinned", "[CompositeSource][P
     TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
 
     TestUserSettings userSettings;
-    userSettings.Set<Settings::Setting::EFPinning>(true);
-
     CompositeTestSetup setup;
 
     auto installedPackage = TestPackage::Make(MakeDefaultManifest("1.0.1"sv), TestPackage::MetadataMap{});
@@ -1215,8 +1212,6 @@ TEST_CASE("CompositeSource_Pinning_OneSourcePinned", "[CompositeSource][PinFlow]
     TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
 
     TestUserSettings userSettings;
-    userSettings.Set<Settings::Setting::EFPinning>(true);
-
     CompositeTestSetup setup;
 
     auto installedPackage = TestPackage::Make(MakeDefaultManifest("1.0"sv), TestPackage::MetadataMap{});
@@ -1273,8 +1268,6 @@ TEST_CASE("CompositeSource_Pinning_OneSourceGated", "[CompositeSource][PinFlow]"
     TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
 
     TestUserSettings userSettings;
-    userSettings.Set<Settings::Setting::EFPinning>(true);
-
     CompositeTestSetup setup;
 
     auto installedPackage = TestPackage::Make(MakeDefaultManifest("1.0"sv), TestPackage::MetadataMap{});
@@ -1338,8 +1331,7 @@ TEST_CASE("CompositeSource_Pinning_MultipleInstalled", "[CompositeSource][PinFlo
     TestHook::SetPinningIndex_Override pinningIndexOverride(indexFile.GetPath());
 
     TestUserSettings userSettings;
-    userSettings.Set<Settings::Setting::EFPinning>(true);
-
+    
     std::string packageId = "packageId";
     std::string productCode1 = "product-code1";
     std::string productCode2 = "product-code2";
@@ -1447,4 +1439,39 @@ TEST_CASE("CompositeSource_Pinning_MultipleInstalled", "[CompositeSource][PinFlo
 
     RequireExpectedResultsWithPin(package1, expectedResult1);
     RequireExpectedResultsWithPin(package2, expectedResult2);
+}
+
+TEST_CASE("CompositeSource_CorrelateToInstalledContainsManifestData", "[CompositeSource]")
+{
+    CompositeTestSetup setup;
+    setup.Installed->SearchFunction = [&](const SearchRequest& request)
+    {
+        if (request.Purpose == SearchPurpose::CorrelationToInstalled)
+        {
+            bool expectedSearchFound = false;
+            for (const auto& inclusion : request.Inclusions)
+            {
+                if (inclusion.Field == PackageMatchField::ProductCode && inclusion.Value == "hello")
+                {
+                    expectedSearchFound = true;
+                    break;
+                }
+            }
+
+            REQUIRE(expectedSearchFound);
+        }
+
+        SearchResult result;
+        return result;
+    };
+    setup.Available->SearchFunction = [&](const SearchRequest&)
+    {
+        SearchResult result;
+        result.Matches.emplace_back(MakeAvailable(setup.Available).WithPC("hello"), Criteria());
+        return result;
+    };
+
+    SearchRequest request;
+    request.Query = RequestMatch(MatchType::Exact, "NotForEverything");
+    SearchResult result = setup.Composite.Search(request);
 }

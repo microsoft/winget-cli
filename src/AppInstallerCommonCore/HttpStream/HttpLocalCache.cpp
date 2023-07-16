@@ -217,6 +217,9 @@ namespace AppInstaller::Utility::HttpStream
         UINT32 trimStartIndex,
         UINT32 size)
     {
+        uint32_t bufferLength = originalBuffer.Length();
+        THROW_HR_IF(E_INVALIDARG, trimStartIndex > bufferLength);
+
         originalBuffer.as<::IInspectable>();
 
         // Get the byte array from the IBuffer object
@@ -228,7 +231,7 @@ namespace AppInstaller::Utility::HttpStream
 
         // Create the array of bytes holding the trimmed bytes
         IBuffer trimmedBuffer = CryptographicBuffer::CreateFromByteArray(
-            { byteBuffer + trimStartIndex, byteBuffer + trimStartIndex + size });
+            { byteBuffer + trimStartIndex, std::min(size, bufferLength - trimStartIndex) });
 
         return trimmedBuffer;
     }

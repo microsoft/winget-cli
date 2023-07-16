@@ -369,12 +369,21 @@ namespace AppInstaller::CLI::Workflow
         };
 
         // Gets all the prompts that may be displayed, in order of appearance
-        std::vector<std::unique_ptr<PackagePrompt>> GetPackagePrompts(bool ensureAgreementsAcceptance  = true)
+        std::vector<std::unique_ptr<PackagePrompt>> GetPackagePrompts(bool ensureAgreementsAcceptance = true, bool installerDownloadOnly = false)
         {
             std::vector<std::unique_ptr<PackagePrompt>> result;
-            result.push_back(std::make_unique<PackageAgreementsPrompt>(ensureAgreementsAcceptance));
-            result.push_back(std::make_unique<InstallRootPrompt>());
-            result.push_back(std::make_unique<InstallerAbortsTerminalPrompt>());
+
+            if (installerDownloadOnly)
+            {
+                result.push_back(std::make_unique<PackageAgreementsPrompt>(ensureAgreementsAcceptance));
+            }
+            else
+            {
+                result.push_back(std::make_unique<PackageAgreementsPrompt>(ensureAgreementsAcceptance));
+                result.push_back(std::make_unique<InstallRootPrompt>());
+                result.push_back(std::make_unique<InstallerAbortsTerminalPrompt>());
+            }
+
             return result;
         }
     }
@@ -407,7 +416,9 @@ namespace AppInstaller::CLI::Workflow
 
     void ShowPromptsForSinglePackage::operator()(Execution::Context& context) const
     {
-        for (auto& prompt : GetPackagePrompts())
+        bool installerDownloadOnly = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerDownloadOnly);
+
+        for (auto& prompt : GetPackagePrompts(true, installerDownloadOnly))
         {
             // Show the prompt if needed
             if (prompt->PackageNeedsPrompt(context))

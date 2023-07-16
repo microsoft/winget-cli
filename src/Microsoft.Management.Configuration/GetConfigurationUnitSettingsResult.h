@@ -8,21 +8,19 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 {
     struct GetConfigurationUnitSettingsResult : GetConfigurationUnitSettingsResultT<GetConfigurationUnitSettingsResult>
     {
-        using ConfigurationUnitResultInformation = Configuration::ConfigurationUnitResultInformation;
-
         GetConfigurationUnitSettingsResult();
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
-        void ResultInformation(const ConfigurationUnitResultInformation& resultInformation);
+        void ResultInformation(const IConfigurationUnitResultInformation& resultInformation);
         void Settings(Windows::Foundation::Collections::ValueSet&& value);
 #endif
 
-        ConfigurationUnitResultInformation ResultInformation() const;
+        IConfigurationUnitResultInformation ResultInformation() const;
         Windows::Foundation::Collections::ValueSet Settings();
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
-        ConfigurationUnitResultInformation m_resultInformation;
+        IConfigurationUnitResultInformation m_resultInformation;
         Windows::Foundation::Collections::ValueSet m_settings;
 #endif
     };

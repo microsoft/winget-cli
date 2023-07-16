@@ -11,6 +11,8 @@ namespace Microsoft.WinGet.Configuration.Engine.PSObjects
     using Microsoft.Management.Configuration;
     using Microsoft.PowerShell.Commands;
     using Microsoft.WinGet.Configuration.Engine.Commands;
+    using Microsoft.WinGet.Configuration.Engine.Exceptions;
+    using static Microsoft.WinGet.Configuration.Engine.Commands.AsyncCommand;
 
     /// <summary>
     /// Creates configuration processor and set up diagnostic logging.
@@ -59,33 +61,17 @@ namespace Microsoft.WinGet.Configuration.Engine.PSObjects
             }
         }
 
-        private void LogConfigurationDiagnostics(DiagnosticInformation diagnosticInformation)
+        private void LogConfigurationDiagnostics(IDiagnosticInformation diagnosticInformation)
         {
             try
             {
-                // This is expensive.
                 AsyncCommand asyncCommand = this.diagnosticCommand;
-                switch (diagnosticInformation.Level)
+                if (asyncCommand != null)
                 {
-                    // PowerShell doesn't have critical and critical isn't an error.
-                    case DiagnosticLevel.Critical:
-                    case DiagnosticLevel.Warning:
-                        asyncCommand.WriteWarning(diagnosticInformation.Message);
-                        return;
-                    case DiagnosticLevel.Error:
-                        // TODO: The error record requires a exception that can't be null, but there's no requirement
-                        // that it was thrown.
-                        asyncCommand.WriteError(new ErrorRecord(
-                            new WriteErrorException(),
-                            "ConfigurationDiagnosticError",
-                            ErrorCategory.WriteError,
-                            diagnosticInformation.Message));
-                        return;
-                    case DiagnosticLevel.Verbose:
-                    case DiagnosticLevel.Informational:
-                    default:
-                        asyncCommand.WriteDebug(diagnosticInformation.Message);
-                        return;
+                    // Printing each diagnostic error in their own equivalent stream is too noisy.
+                    // If users want them they have to specify -Verbose.
+                    string tag = $"[Diagnostic{diagnosticInformation.Level}] ";
+                    asyncCommand.Write(StreamType.Verbose, $"{tag}{diagnosticInformation.Message}");
                 }
             }
             catch (Exception)

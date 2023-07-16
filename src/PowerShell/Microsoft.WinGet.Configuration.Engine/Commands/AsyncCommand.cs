@@ -11,6 +11,9 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
     using System.Management.Automation;
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.PowerShell.Commands;
+    using Microsoft.WinGet.Configuration.Engine.Exceptions;
+    using Microsoft.WinGet.Configuration.Engine.Resources;
 
     /// <summary>
     /// This is the base class for any command that performs async operations.
@@ -18,31 +21,18 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
     /// If the thread is already running on an MTA it will executed it, otherwise
     /// it will create a new MTA thread.
     ///
-    /// Calling PSCmdlet functions to write into their stream from not the main thread will
-    /// throw an exception.
-    /// This class contains wrappers around those methods with synchronization mechanisms
-    /// to output the messages.
-    ///
     /// Wait must be used to synchronously wait con the task.
     /// </summary>
     public abstract class AsyncCommand
     {
-        private static readonly object CmdletLock = new ();
+        private static readonly string[] WriteInformationTags = new string[] { "PSHOST" };
 
         private readonly Thread originalThread;
 
-        private readonly SemaphoreSlim semaphore = new (1, 1);
-        private readonly ManualResetEventSlim mainThreadActionReady = new (false);
-        private readonly ManualResetEventSlim mainThreadActionCompleted = new (false);
-
         private readonly CancellationTokenSource source = new ();
 
-        private readonly bool isDebugBounded;
-
-        private Action? mainThreadAction = null;
-        private bool canWriteToStream;
         private CancellationToken cancellationToken;
-        private ConcurrentQueue<QueuedOutputStream> queuedOutputStreams = new ();
+        private BlockingCollection<QueuedStream> queuedStreams = new ();
 
         private int progressActivityId = 0;
         private ConcurrentDictionary<int, ProgressRecordType> progressRecords = new ();
@@ -51,23 +41,61 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         /// Initializes a new instance of the <see cref="AsyncCommand"/> class.
         /// </summary>
         /// <param name="psCmdlet">PSCmdlet.</param>
-        /// <param name="canWriteToStream">If the command can write to stream.</param>
-        public AsyncCommand(PSCmdlet psCmdlet, bool canWriteToStream)
+        public AsyncCommand(PSCmdlet psCmdlet)
         {
+            // Passing Debug will make all the message actions to be Inquire. For async operations
+            // and the current queue message implementation this doesn't make sense.
+            // PowerShell will inquire for any message giving the impression that the task is
+            // paused, but the async operation is still running.
+            if (psCmdlet.MyInvocation.BoundParameters.ContainsKey("Debug"))
+            {
+                throw new NotSupportedException(Resources.DebugNotSupported);
+            }
+
             this.PsCmdlet = psCmdlet;
             this.originalThread = Thread.CurrentThread;
-            this.isDebugBounded = this.PsCmdlet.MyInvocation.BoundParameters.ContainsKey("Debug");
-            this.canWriteToStream = canWriteToStream;
             this.cancellationToken = this.source.Token;
         }
 
-        private enum OutputStreamType
+        /// <summary>
+        /// The write stream type.
+        /// </summary>
+        public enum StreamType
         {
+            /// <summary>
+            /// Debug.
+            /// </summary>
             Debug,
+
+            /// <summary>
+            /// Verbose.
+            /// </summary>
             Verbose,
+
+            /// <summary>
+            /// Warning.
+            /// </summary>
             Warning,
+
+            /// <summary>
+            /// Error.
+            /// </summary>
             Error,
+
+            /// <summary>
+            /// Progress.
+            /// </summary>
             Progress,
+
+            /// <summary>
+            /// Object.
+            /// </summary>
+            Object,
+
+            /// <summary>
+            /// Information.
+            /// </summary>
+            Information,
         }
 
         /// <summary>
@@ -76,37 +104,11 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         protected PSCmdlet PsCmdlet { get; private set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether if writing to stream is blocked.
-        /// Writing to streams must be blocked for Start-* cmdlets. The Complete-* cmdlet counterpart
-        /// will enable writing to the stream when executed.
-        /// TODO: For now any messages before the Complete-* call get lost. We can add a ConcurrentQueue
-        /// to store message and flush them in or before the Wait call.
+        /// Complete this operation.
         /// </summary>
-        private bool CanWriteToStream
+        public virtual void Complete()
         {
-            get
-            {
-                lock (CmdletLock)
-                {
-                    return this.canWriteToStream;
-                }
-            }
-
-            set
-            {
-                lock (CmdletLock)
-                {
-                    this.canWriteToStream = value;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Cancel this operation.
-        /// </summary>
-        public virtual void Cancel()
-        {
-            this.source.Cancel();
+            this.queuedStreams.CompleteAdding();
         }
 
         /// <summary>
@@ -124,11 +126,11 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
 
             if (Thread.CurrentThread.GetApartmentState() == ApartmentState.MTA)
             {
-                this.WriteDebug("Already running on MTA");
+                this.Write(StreamType.Verbose, "Already running on MTA");
                 return func();
             }
 
-            this.WriteDebug("Creating MTA thread");
+            this.Write(StreamType.Verbose, "Creating MTA thread");
             var tcs = new TaskCompletionSource();
             var thread = new Thread(() =>
             {
@@ -164,11 +166,11 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
 
             if (Thread.CurrentThread.GetApartmentState() == ApartmentState.MTA)
             {
-                this.WriteDebug("Already running on MTA");
+                this.Write(StreamType.Verbose, "Already running on MTA");
                 return func();
             }
 
-            this.WriteDebug("Creating MTA thread");
+            this.Write(StreamType.Verbose, "Creating MTA thread");
             var tcs = new TaskCompletionSource<TResult>();
             var thread = new Thread(() =>
             {
@@ -192,41 +194,22 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         /// Waits for the task to be completed. This MUST be called from the main thread.
         /// </summary>
         /// <param name="runningTask">Task to wait for.</param>
-        internal void Wait(Task runningTask)
+        /// <param name="writeCommand">The command that can write to PowerShell.</param>
+        internal void Wait(Task runningTask, AsyncCommand? writeCommand = null)
         {
+            writeCommand ??= this;
+
             // This must be called in the main thread.
             if (this.originalThread != Thread.CurrentThread)
             {
                 throw new InvalidOperationException();
             }
 
-            this.Flush();
-
             do
             {
-                // Wait for the running task to be completed or if there's
-                // an action that needs to be executed in the main thread.
-                WaitHandle.WaitAny(new[]
-                {
-                    this.mainThreadActionReady.WaitHandle,
-                    ((IAsyncResult)runningTask).AsyncWaitHandle,
-                });
-
-                if (this.mainThreadActionReady.IsSet)
-                {
-                    // Someone needs the main thread.
-                    this.mainThreadActionReady.Reset();
-
-                    if (this.mainThreadAction != null)
-                    {
-                        this.mainThreadAction();
-                    }
-
-                    // Done.
-                    this.mainThreadActionCompleted.Set();
-                }
+                this.ConsumeAndWriteStreams(writeCommand);
             }
-            while (!runningTask.IsCompleted);
+            while (!(runningTask.IsCompleted && this.queuedStreams.IsCompleted));
 
             if (runningTask.IsFaulted)
             {
@@ -237,216 +220,110 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
         }
 
         /// <summary>
-        /// Calls cmdlet WriteDebug.
-        /// If its executed on the main thread calls it directly. Otherwise
-        /// sets it to the main thread action and wait for it to be executed.
+        /// Writes into the corresponding stream if running on the main thread.
+        /// Otherwise queue the message.
+        /// Is the caller responsibility to use the correct types.
         /// </summary>
-        /// <param name="text">Debug text.</param>
-        internal void WriteDebug(string text)
+        /// <param name="type">Stream type.</param>
+        /// <param name="data">Data.</param>
+        internal void Write(StreamType type, object data)
         {
-            // Don't do context switch if no need.
-            if (!this.isDebugBounded)
+            if (type == StreamType.Progress)
             {
-                return;
-            }
-
-            if (!this.CanWriteToStream)
-            {
-                this.queuedOutputStreams.Enqueue(
-                    new QueuedOutputStream(OutputStreamType.Debug, text));
-                return;
+                // Keep track of all progress activity.
+                ProgressRecord progressRecord = (ProgressRecord)data;
+                if (!this.progressRecords.TryAdd(progressRecord.ActivityId, progressRecord.RecordType))
+                {
+                    _ = this.progressRecords.TryUpdate(progressRecord.ActivityId, progressRecord.RecordType, ProgressRecordType.Completed);
+                }
             }
 
             if (this.originalThread == Thread.CurrentThread)
             {
-                this.PsCmdlet.WriteDebug(text);
+                this.CmdletWrite(type, data, this);
                 return;
             }
 
-            try
-            {
-                this.WaitForOurTurn();
-                this.mainThreadAction = () => this.PsCmdlet.WriteDebug(text);
-                this.mainThreadActionReady.Set();
-                this.WaitMainThreadActionCompletion();
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+            this.queuedStreams.Add(new QueuedStream(type, data));
         }
 
         /// <summary>
-        /// Calls cmdlet WriteVerbose.
-        /// If its executed on the main thread calls it directly. Otherwise
-        /// sets it to the main thread action and wait for it to be executed.
+        /// Write error with an exception.
         /// </summary>
-        /// <param name="text">Verbose text.</param>
-        internal void WriteVerbose(string text)
+        /// <param name="errorId">Error id.</param>
+        /// <param name="e">Exception.</param>
+        internal void WriteError(ErrorRecordErrorId errorId, Exception e)
         {
-            if (!this.CanWriteToStream)
-            {
-                this.queuedOutputStreams.Enqueue(
-                    new QueuedOutputStream(OutputStreamType.Verbose, text));
-                return;
-            }
-
-            if (this.originalThread == Thread.CurrentThread)
-            {
-                this.PsCmdlet.WriteVerbose(text);
-                return;
-            }
-
-            try
-            {
-                this.WaitForOurTurn();
-                this.mainThreadAction = () => this.PsCmdlet.WriteVerbose(text);
-                this.mainThreadActionReady.Set();
-                this.WaitMainThreadActionCompletion();
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+            this.Write(
+                StreamType.Error,
+                new ErrorRecord(
+                    e,
+                    errorId.ToString(),
+                    ErrorCategory.WriteError,
+                    null));
         }
 
         /// <summary>
-        /// Calls cmdlet WriteWarning.
-        /// If its executed on the main thread calls it directly. Otherwise
-        /// sets it to the main thread action and wait for it to be executed.
+        /// Write error with a message. Create WriteErrorException.
         /// </summary>
-        /// <param name="text">Warning text.</param>
-        internal void WriteWarning(string text)
+        /// <param name="errorId">Error id.</param>
+        /// <param name="message">Message.</param>
+        /// <param name="e">Inner exception.</param>
+        internal void WriteError(ErrorRecordErrorId errorId, string message, Exception? e = null)
         {
-            if (!this.CanWriteToStream)
-            {
-                this.queuedOutputStreams.Enqueue(
-                    new QueuedOutputStream(OutputStreamType.Warning, text));
-                return;
-            }
-
-            if (this.originalThread == Thread.CurrentThread)
-            {
-                this.PsCmdlet.WriteWarning(text);
-                return;
-            }
-
-            try
-            {
-                this.WaitForOurTurn();
-                this.mainThreadAction = () => this.PsCmdlet.WriteWarning(text);
-                this.mainThreadActionReady.Set();
-                this.WaitMainThreadActionCompletion();
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+            // The error record requires a exception that can't be null, but there's no requirement that it was thrown.
+            // If not specified use WriteErrorException.
+            this.Write(
+                StreamType.Error,
+                new ErrorRecord(
+                    new WriteErrorException(message, e),
+                    errorId.ToString(),
+                    ErrorCategory.WriteError,
+                    null));
         }
 
         /// <summary>
-        /// Calls cmdlet WriteError.
-        /// If its executed on the main thread calls it directly. Otherwise
-        /// sets it to the main thread action and wait for it to be executed.
+        /// Helper to compute percentage and write progress for processing activities.
         /// </summary>
-        /// <param name="errorRecord">Error record.</param>
-        internal void WriteError(ErrorRecord errorRecord)
+        /// <param name="activityId">Activity id.</param>
+        /// <param name="activity">The activity in progress.</param>
+        /// <param name="status">The status of the activity.</param>
+        /// <param name="completed">Number of completed actions.</param>
+        /// <param name="total">The expected total.</param>
+        internal void WriteProgressWithPercentage(int activityId, string activity, string status, int completed, int total)
         {
-            if (!this.CanWriteToStream)
+            double percentComplete = (double)completed / total;
+            var record = new ProgressRecord(activityId, activity, status)
             {
-                this.queuedOutputStreams.Enqueue(
-                    new QueuedOutputStream(OutputStreamType.Error, errorRecord));
-                return;
-            }
-
-            if (this.originalThread == Thread.CurrentThread)
-            {
-                this.PsCmdlet.WriteError(errorRecord);
-                return;
-            }
-
-            try
-            {
-                this.WaitForOurTurn();
-                this.mainThreadAction = () => this.PsCmdlet.WriteError(errorRecord);
-                this.mainThreadActionReady.Set();
-                this.WaitMainThreadActionCompletion();
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+                RecordType = ProgressRecordType.Processing,
+                PercentComplete = (int)(100.0 * percentComplete),
+            };
+            this.Write(StreamType.Progress, record);
         }
 
         /// <summary>
-        /// Calls cmdlet WriteProgress.
+        /// Helper to complete progress records.
         /// </summary>
-        /// <param name="progressRecord">Progress record.</param>
-        internal void WriteProgress(ProgressRecord progressRecord)
+        /// <param name="activityId">Activity id.</param>
+        /// <param name="activity">The activity in progress.</param>
+        /// <param name="status">The status of the activity.</param>
+        internal void CompleteProgress(int activityId, string activity, string status)
         {
-            // Keep track of all progress activity.
-            if (!this.progressRecords.TryAdd(progressRecord.ActivityId, progressRecord.RecordType))
+            var record = new ProgressRecord(activityId, activity, status)
             {
-                _ = this.progressRecords.TryUpdate(progressRecord.ActivityId, progressRecord.RecordType, ProgressRecordType.Completed);
-            }
-
-            if (!this.CanWriteToStream)
-            {
-                this.queuedOutputStreams.Enqueue(
-                    new QueuedOutputStream(OutputStreamType.Progress, progressRecord));
-                return;
-            }
-
-            if (this.originalThread == Thread.CurrentThread)
-            {
-                this.PsCmdlet.WriteProgress(progressRecord);
-                return;
-            }
-
-            try
-            {
-                this.WaitForOurTurn();
-                this.mainThreadAction = () => this.PsCmdlet.WriteProgress(progressRecord);
-                this.mainThreadActionReady.Set();
-                this.WaitMainThreadActionCompletion();
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+                RecordType = ProgressRecordType.Completed,
+                PercentComplete = 100,
+            };
+            this.Write(StreamType.Progress, record);
         }
 
         /// <summary>
-        /// Calls cmdlet WriteObject.
-        /// </summary>
-        /// <param name="obj">Object to write.</param>
-        internal void WriteObject(object obj)
-        {
-            if (this.originalThread == Thread.CurrentThread)
-            {
-                this.PsCmdlet.WriteObject(obj);
-                return;
-            }
-
-            try
-            {
-                this.WaitForOurTurn();
-                this.mainThreadAction = () => this.PsCmdlet.WriteObject(obj);
-                this.mainThreadActionReady.Set();
-                this.WaitMainThreadActionCompletion();
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
-
-        /// <summary>
-        /// Enable writing to pwsh streams and flush all the queued stream.
+        /// Writes to PowerShell streams.
         /// This method must be called in the original thread.
         /// WARNING: You must only call this when the task is completed or in Wait.
         /// </summary>
-        internal void Flush()
+        /// <param name="writeCommand">The command that can write to PowerShell.</param>
+        internal void ConsumeAndWriteStreams(AsyncCommand writeCommand)
         {
             // This must be called in the main thread.
             if (this.originalThread != Thread.CurrentThread)
@@ -454,47 +331,22 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                 throw new InvalidOperationException();
             }
 
-            this.canWriteToStream = true;
-
-            // At this point, no new messages should be added to the queue and we are in the main thread.
-            // Any non completed async operation will now wait for the main thread, so be sure to cancel
-            // if anything goes wrong.
+            // Take from the blocking collection until is completed.
             try
             {
-                while (this.queuedOutputStreams.TryDequeue(out var queuedOutput))
+                while (true)
                 {
+                    var queuedOutput = this.queuedStreams.Take();
                     if (queuedOutput != null)
                     {
-                        switch (queuedOutput.Type)
-                        {
-                            case OutputStreamType.Debug:
-                                this.WriteDebug((string)queuedOutput.Data);
-                                break;
-                            case OutputStreamType.Verbose:
-                                this.WriteVerbose((string)queuedOutput.Data);
-                                break;
-                            case OutputStreamType.Warning:
-                                this.WriteWarning((string)queuedOutput.Data);
-                                break;
-                            case OutputStreamType.Error:
-                                this.WriteError((ErrorRecord)queuedOutput.Data);
-                                break;
-                            case OutputStreamType.Progress:
-                                // If the activity is already completed don't write progress.
-                                var progressRecord = (ProgressRecord)queuedOutput.Data;
-                                if (this.progressRecords[progressRecord.ActivityId] == ProgressRecordType.Processing)
-                                {
-                                    this.WriteProgress(progressRecord);
-                                }
-
-                                break;
-                        }
+                        this.CmdletWrite(queuedOutput.Type, queuedOutput.Data, writeCommand);
                     }
                 }
             }
-            catch (Exception)
+            catch (InvalidOperationException)
             {
-                this.Cancel();
+                // We are done.
+                // An InvalidOperationException means that Take() was called on a completed collection.
             }
         }
 
@@ -507,32 +359,49 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
             return Interlocked.Increment(ref this.progressActivityId);
         }
 
-        private void WaitForOurTurn()
+        private void CmdletWrite(StreamType streamType, object data, AsyncCommand writeCommand)
         {
-            this.semaphore.Wait(this.cancellationToken);
-            this.mainThreadActionCompleted.Reset();
-        }
-
-        private void WaitMainThreadActionCompletion()
-        {
-            WaitHandle.WaitAny(new[]
+            switch (streamType)
             {
-                this.cancellationToken.WaitHandle,
-                this.mainThreadActionCompleted.WaitHandle,
-            });
+                case StreamType.Debug:
+                    writeCommand.PsCmdlet.WriteDebug((string)data);
+                    break;
+                case StreamType.Verbose:
+                    writeCommand.PsCmdlet.WriteVerbose((string)data);
+                    break;
+                case StreamType.Warning:
+                    writeCommand.PsCmdlet.WriteWarning((string)data);
+                    break;
+                case StreamType.Error:
+                    writeCommand.PsCmdlet.WriteError((ErrorRecord)data);
+                    break;
+                case StreamType.Progress:
+                    // If the activity is already completed don't write progress.
+                    var progressRecord = (ProgressRecord)data;
+                    if (this.progressRecords[progressRecord.ActivityId] == ProgressRecordType.Processing)
+                    {
+                        writeCommand.PsCmdlet.WriteProgress(progressRecord);
+                    }
 
-            this.semaphore.Release();
+                    break;
+                case StreamType.Object:
+                    writeCommand.PsCmdlet.WriteObject(data);
+                    break;
+                case StreamType.Information:
+                    writeCommand.PsCmdlet.WriteInformation(data, WriteInformationTags);
+                    break;
+            }
         }
 
-        private class QueuedOutputStream
+        private class QueuedStream
         {
-            public QueuedOutputStream(OutputStreamType type, object data)
+            public QueuedStream(StreamType type, object data)
             {
                 this.Type = type;
                 this.Data = data;
             }
 
-            public OutputStreamType Type { get; }
+            public StreamType Type { get; }
 
             public object Data { get; }
         }

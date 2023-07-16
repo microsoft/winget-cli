@@ -144,5 +144,13 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     {
         return m_acceptPackageAgreements;
     }
+    void InstallOptions::SkipDependencies(bool value)
+    {
+        m_skipDependencies = value;
+    }
+    bool InstallOptions::SkipDependencies()
+    {
+        return m_skipDependencies;
+    }
     CoCreatableMicrosoftManagementDeploymentClass(InstallOptions);
 }

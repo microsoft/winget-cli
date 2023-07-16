@@ -99,14 +99,12 @@ namespace Microsoft.Management.Configuration.Processor.Helpers
         }
 
         /// <summary>
-        /// TODO: Implement.
-        /// I am so sad because rs.SessionStateProxy.InvokeCommand.ExpandString doesn't work as I wanted.
-        /// PowerShell assumes all code passed to ExpandString is trusted and we cannot assume that.
+        /// Gets the settings of the unit.
         /// </summary>
         /// <returns>ValueSet with settings.</returns>
-        public ValueSet GetExpandedSettings()
+        public ValueSet GetSettings()
         {
-            return this.Unit.Settings;
+            return this.UnitInternal.GetExpandedSettings();
         }
     }
 }

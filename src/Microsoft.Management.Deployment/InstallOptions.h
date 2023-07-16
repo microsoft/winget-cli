@@ -40,6 +40,8 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         void Force(bool value);
         bool AcceptPackageAgreements();
         void AcceptPackageAgreements(bool value);
+        bool SkipDependencies();
+        void SkipDependencies(bool value);
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)
     private:
@@ -59,6 +61,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         bool m_allowUpgradeToUnknownVersion = false;
         bool m_force = false;
         bool m_acceptPackageAgreements = true;
+        bool m_skipDependencies = false;
 #endif
     };
 }

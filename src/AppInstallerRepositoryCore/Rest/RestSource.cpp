@@ -32,6 +32,8 @@ namespace AppInstaller::Repository::Rest
         // The IPackage implementation for Available packages from RestSource.
         struct AvailablePackage : public std::enable_shared_from_this<AvailablePackage>, public SourceReference, public IPackage
         {
+            static constexpr IPackageType PackageType = IPackageType::RestAvailablePackage;
+
             AvailablePackage(const std::shared_ptr<RestSource>& source, IRestClient::Package&& package) :
                 SourceReference(source), m_package(std::move(package))
             {
@@ -87,7 +89,7 @@ namespace AppInstaller::Repository::Rest
 
             bool IsSame(const IPackage* other) const override
             {
-                const AvailablePackage* otherAvailablePackage = dynamic_cast<const AvailablePackage*>(other);
+                const AvailablePackage* otherAvailablePackage = PackageCast<const AvailablePackage*>(other);
 
                 if (otherAvailablePackage)
                 {
@@ -96,6 +98,16 @@ namespace AppInstaller::Repository::Rest
                 }
 
                 return false;
+            }
+
+            const void* CastTo(IPackageType type) const override
+            {
+                if (type == PackageType)
+                {
+                    return this;
+                }
+
+                return nullptr;
             }
 
             // Helpers for PackageVersion interop
@@ -262,7 +274,10 @@ namespace AppInstaller::Repository::Rest
                 case PackageVersionMultiProperty::Name:
                     if (m_versionInfo.Manifest)
                     {
-                        BuildPackageVersionMultiPropertyWithFallback<AppInstaller::Manifest::Localization::PackageName>(result);
+                        for (auto name : m_versionInfo.Manifest->GetPackageNames())
+                        {
+                            result.emplace_back(std::move(name));
+                        }
                     }
                     else
                     {
@@ -272,7 +287,10 @@ namespace AppInstaller::Repository::Rest
                 case PackageVersionMultiProperty::Publisher:
                     if (m_versionInfo.Manifest)
                     {
-                        BuildPackageVersionMultiPropertyWithFallback<AppInstaller::Manifest::Localization::Publisher>(result);
+                        for (auto publisher : m_versionInfo.Manifest->GetPublishers())
+                        {
+                            result.emplace_back(std::move(publisher));
+                        }
                     }
                     else
                     {
@@ -334,24 +352,6 @@ namespace AppInstaller::Repository::Rest
             }
 
         private:
-            template<AppInstaller::Manifest::Localization Field>
-            void BuildPackageVersionMultiPropertyWithFallback(std::vector<Utility::LocIndString>& result) const
-            {
-                result.emplace_back(m_versionInfo.Manifest->DefaultLocalization.Get<Field>());
-                for (const auto& loc : m_versionInfo.Manifest->Localizations)
-                {
-                    auto f = loc.Get<Field>();
-                    if (f.empty())
-                    {
-                        result.emplace_back(loc.Get<Field>());
-                    }
-                    else
-                    {
-                        result.emplace_back(std::move(f));
-                    }
-                }
-            }
-
             std::shared_ptr<AvailablePackage> m_package;
             IRestClient::VersionInfo m_versionInfo;
         };
@@ -455,6 +455,16 @@ namespace AppInstaller::Repository::Rest
         searchResult.Truncated = results.Truncated;
 
         return searchResult;
+    }
+
+    void* RestSource::CastTo(ISourceType type)
+    {
+        if (type == SourceType)
+        {
+            return this;
+        }
+
+        return nullptr;
     }
 
     const RestClient& RestSource::GetRestClient() const

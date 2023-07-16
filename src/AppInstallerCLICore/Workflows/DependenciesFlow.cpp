@@ -123,14 +123,18 @@ namespace AppInstaller::CLI::Workflow
         {
             const auto& packageVersion = context.Get<Execution::Data::PackageVersion>();
             context.Add<Execution::Data::DependencySource>(packageVersion->GetSource());
-            context <<
-                Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed, true, Repository::CompositeSearchBehavior::AvailablePackages);
         }
         else
         {
             // install from manifest requires --dependency-source to be set
             context <<
-                Workflow::OpenSource(true) <<
+                Workflow::OpenSource(true);
+        }
+
+        if (WI_IsFlagClear(context.GetFlags(), Execution::ContextFlag::InstallerDownloadOnly))
+        {
+            // Installed source is not needed when only downloading the installer.
+            context <<
                 Workflow::OpenCompositeSource(Repository::PredefinedSource::Installed, true, Repository::CompositeSearchBehavior::AvailablePackages);
         }
     }
@@ -233,7 +237,7 @@ namespace AppInstaller::CLI::Workflow
         }
     }
 
-    void ManagePackageDependencies::operator()(Execution::Context& context) const
+    void CreateDependencySubContexts::operator()(Execution::Context& context) const
     {
         if (!Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Dependencies))
         {
@@ -280,6 +284,7 @@ namespace AppInstaller::CLI::Workflow
                         std::move(nodeProcessor.GetPackageInstalledVersion()),
                         std::move(nodeProcessor.GetManifest()),
                         std::move(nodeProcessor.GetPreferredInstaller()) };
+
                     idToPackageMap.emplace(node.Id(), std::move(dependencyPackageCandidate));
                 };
 
@@ -332,17 +337,15 @@ namespace AppInstaller::CLI::Workflow
                 dependencyContext.Add<Execution::Data::InstalledPackageVersion>(itr->second.InstalledPackageVersion);
                 dependencyContext.Add<Execution::Data::Installer>(itr->second.Installer);
 
+                if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerDownloadOnly))
+                {
+                    dependencyContext.Add<Execution::Data::DownloadDirectory>(context.Get<Execution::Data::DownloadDirectory>() / "Dependencies");
+                }
+
                 dependencyPackageContexts.emplace_back(std::move(dependencyContextPtr));
             }
         }
 
-        if (!dependencyPackageContexts.empty())
-        {
-            info << Resource::String::DependenciesFlowInstall << std::endl;
-        }
-
-        // Install dependencies in the correct order
         context.Add<Execution::Data::PackageSubContexts>(std::move(dependencyPackageContexts));
-        context << Workflow::InstallMultiplePackages(m_dependencyReportMessage, APPINSTALLER_CLI_ERROR_INSTALL_DEPENDENCIES, {}, false, true, true);
     }
 }

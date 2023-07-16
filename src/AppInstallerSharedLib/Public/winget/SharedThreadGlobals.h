@@ -30,9 +30,10 @@ namespace AppInstaller::ThreadLocalStorage
     {
         ~PreviousThreadGlobals();
 
-        PreviousThreadGlobals(ThreadGlobals* previous) : m_previous(previous) {};
+        PreviousThreadGlobals(ThreadGlobals* previous);
 
     private:
         ThreadGlobals* m_previous;
+        DWORD m_threadId;
     };
 }
