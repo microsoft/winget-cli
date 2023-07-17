@@ -10,6 +10,11 @@
   <ItemGroup>
     <ProjectReference Include="..\WinGetSourceCreator\WinGetSourceCreator.csproj" />
     <ProjectReference Include="..\WinGetUtilInterop\WinGetUtilInterop.csproj" />
+    <ProjectReference Include="..\WinGetUtil\WinGetUtil.vcxproj" >
+      <OutputItemType>Content</OutputItemType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ReferenceOutputAssembly>True</ReferenceOutputAssembly>
+    </ProjectReference>
   </ItemGroup>
 
 </Project>

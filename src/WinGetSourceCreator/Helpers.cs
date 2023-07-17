@@ -98,7 +98,7 @@ namespace Microsoft.WinGetSourceCreator
 
             string pathToSDK = SDKDetector.Instance.LatestSDKBinPath;
             string makeappxExecutable = Path.Combine(pathToSDK, "makeappx.exe");
-            string args = $"pack /o /f {mappingFile} /d {outputPackage}";
+            string args = $"pack /o /nv /f {mappingFile} /p {outputPackage}";
             RunCommand(makeappxExecutable, args);
         }
 
