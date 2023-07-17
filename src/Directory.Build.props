@@ -175,6 +175,14 @@
           <AdditionalOptions>%(AdditionalOptions) /fsanitize-coverage=inline-8bit-counters /fsanitize-coverage=edge /fsanitize-coverage=trace-cmp /fsanitize-coverage=trace-div</AdditionalOptions>
         </ClCompile>
       </ItemDefinitionGroup>
+
     </Otherwise>
   </Choose>
+
+  <!-- When building in Azure Pipelines, delete all intermediate files since the disk space is limited.
+       In particular, the pch.pch files take up GBs in total.
+       We don't do this locally to avoid full re-builds each time. -->
+  <Target Name="DeleteIntermediateFiles" AfterTargets="PostBuildEvent" Condition=" '$(Agent_BuildDirectory)' != '' ">
+    <RemoveDir Directories="$(IntDir)" />
+  </Target>
 </Project>
