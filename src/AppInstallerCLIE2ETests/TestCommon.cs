@@ -11,8 +11,10 @@ namespace AppInstallerCLIE2ETests
     using System.IO;
     using System.Reflection;
     using System.Threading;
+    using Microsoft.Management.Deployment;
     using Microsoft.Win32;
     using NUnit.Framework;
+    using Windows.System;
 
     /// <summary>
     /// Test common.
@@ -24,6 +26,11 @@ namespace AppInstallerCLIE2ETests
         /// </summary>
         public enum Scope
         {
+            /// <summary>
+            /// None.
+            /// </summary>
+            Unknown,
+
             /// <summary>
             /// User.
             /// </summary>
@@ -203,8 +210,9 @@ namespace AppInstallerCLIE2ETests
         /// <param name="parameters">Parameters.</param>
         /// <param name="stdIn">Optional std in.</param>
         /// <param name="timeOut">Optional timeout.</param>
+        /// <param name="throwOnTimeout">Throw on timeout.</param>
         /// <returns>The result of the command.</returns>
-        public static RunCommandResult RunAICLICommandViaInvokeCommandInDesktopPackage(string command, string parameters, string stdIn = null, int timeOut = 60000)
+        public static RunCommandResult RunAICLICommandViaInvokeCommandInDesktopPackage(string command, string parameters, string stdIn = null, int timeOut = 60000, bool throwOnTimeout = true)
         {
             string cmdCommandPiped = string.Empty;
             if (!string.IsNullOrEmpty(stdIn))
@@ -240,7 +248,7 @@ namespace AppInstallerCLIE2ETests
                 waitedTime += 1000;
             }
 
-            if (waitedTime >= timeOut)
+            if (waitedTime >= timeOut && throwOnTimeout)
             {
                 throw new TimeoutException($"Packaged winget command run timed out: {command} {parameters}");
             }
@@ -420,11 +428,20 @@ namespace AppInstallerCLIE2ETests
         /// Install and register msix package via appx manifest.
         /// </summary>
         /// <param name="packagePath">Path to package.</param>
+        /// <param name="forceShutdown">Force shutdown.</param>
+        /// <param name="throwOnFailure">Throw on failure.</param>
         /// <returns>True if installed correctly.</returns>
-        public static bool InstallMsixRegister(string packagePath)
+        public static bool InstallMsixRegister(string packagePath, bool forceShutdown = false, bool throwOnFailure = true)
         {
             string manifestFile = Path.Combine(packagePath, "AppxManifest.xml");
-            return RunCommand("powershell", $"Add-AppxPackage -Register \"{manifestFile}\"", throwOnFailure: true);
+
+            var command = $"Add-AppxPackage -Register \"{manifestFile}\"";
+            if (forceShutdown)
+            {
+                command += " -ForceTargetApplicationShutdown";
+            }
+
+            return RunCommand("powershell", command, throwOnFailure: throwOnFailure);
         }
 
         /// <summary>
@@ -447,7 +464,7 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
-        /// Get portable symlink dir.
+        /// Gets the portable symlink directory.
         /// </summary>
         /// <param name="scope">Scope.</param>
         /// <returns>The path of the symlinks.</returns>
@@ -464,12 +481,21 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
-        /// Get portable package directory.
+        /// Gets the portable package directory.
         /// </summary>
         /// <returns>The portable package directory.</returns>
         public static string GetPortablePackagesDirectory()
         {
             return Path.Combine(Environment.GetEnvironmentVariable("LocalAppData"), "Microsoft", "WinGet", "Packages");
+        }
+
+        /// <summary>
+        /// Gets the default download directory for the download command.
+        /// </summary>
+        /// <returns>The default download directory.</returns>
+        public static string GetDefaultDownloadDirectory()
+        {
+            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
         }
 
         /// <summary>
@@ -583,6 +609,78 @@ namespace AppInstallerCLIE2ETests
             }
 
             return verifyInstallSuccess;
+        }
+
+        /// <summary>
+        /// Verify installer downloaded correctly and cleanup.
+        /// </summary>
+        /// <param name="downloadDir">Download directory.</param>
+        /// <param name="name">Package name.</param>
+        /// <param name="version">Package version.</param>
+        /// <param name="arch">Installer architecture.</param>
+        /// <param name="scope">Installer scope.</param>
+        /// <param name="installerType">Installer type.</param>
+        /// <param name="locale">Installer locale.</param>
+        /// <param name="isArchive">Boolean value indicating whether the installer is an archive.</param>
+        /// <param name="cleanup">Boolean value indicating whether to remove the installer file and directory.</param>
+        /// <returns>True if success.</returns>
+        public static bool VerifyInstallerDownload(
+            string downloadDir,
+            string name,
+            string version,
+            Windows.System.ProcessorArchitecture arch,
+            Scope scope,
+            PackageInstallerType installerType,
+            string locale = null,
+            bool isArchive = false,
+            bool cleanup = true)
+        {
+            string expectedFileName = $"{name}_{version}";
+
+            if (scope != Scope.Unknown)
+            {
+                expectedFileName += $"_{scope}";
+            }
+
+            expectedFileName += $"_{arch}_{installerType}";
+
+            if (!string.IsNullOrEmpty(locale))
+            {
+                expectedFileName += $"_{locale}";
+            }
+
+            string extension;
+            if (isArchive)
+            {
+                extension = ".zip";
+            }
+            else
+            {
+                extension = installerType switch
+                {
+                    PackageInstallerType.Msi => ".msi",
+                    PackageInstallerType.Msix => ".msix",
+                    _ => ".exe"
+                };
+            }
+
+            expectedFileName += extension;
+            string installerDownloadPath = Path.Combine(downloadDir, expectedFileName);
+
+            bool downloadResult = false;
+
+            if (Directory.Exists(downloadDir) && File.Exists(installerDownloadPath))
+            {
+                downloadResult = true;
+
+                if (cleanup)
+                {
+                    File.Delete(installerDownloadPath);
+                    Directory.Delete(downloadDir, true);
+                }
+            }
+
+            return downloadResult;
         }
 
         /// <summary>

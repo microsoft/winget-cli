@@ -30,6 +30,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         private static readonly Guid InstallOptionsClsid = Guid.Parse("1095F097-EB96-453B-B4E6-1613637F3B14");
         private static readonly Guid UninstallOptionsClsid = Guid.Parse("E1D9A11E-9F85-4D87-9C17-2B93143ADB8D");
         private static readonly Guid PackageMatchFilterClsid = Guid.Parse("D02C9DAF-99DC-429C-B503-4E504E4AB000");
+        private static readonly Guid DownloadOptionsClsid = Guid.Parse("4CBABE76-7322-4BE4-9CEA-2589A80682DC");
 #else
         private static readonly Guid PackageManagerClsid = Guid.Parse("74CB3139-B7C5-4B9E-9388-E6616DEA288C");
         private static readonly Guid FindPackagesOptionsClsid = Guid.Parse("1BD8FF3A-EC50-4F69-AEEE-DF4C9D3BAA96");
@@ -37,6 +38,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         private static readonly Guid InstallOptionsClsid = Guid.Parse("44FE0580-62F7-44D4-9E91-AA9614AB3E86");
         private static readonly Guid UninstallOptionsClsid = Guid.Parse("AA2A5C04-1AD9-46C4-B74F-6B334AD7EB8C");
         private static readonly Guid PackageMatchFilterClsid = Guid.Parse("3F85B9F4-487A-4C48-9035-2903F8A6D9E8");
+        private static readonly Guid DownloadOptionsClsid = Guid.Parse("8EF324ED-367C-4880-83E5-BB2ABD0B72F6");
 #endif
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "COM only usage.")]
         private static readonly Type PackageManagerType = Type.GetTypeFromCLSID(PackageManagerClsid);
@@ -50,6 +52,8 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         private static readonly Type UninstallOptionsType = Type.GetTypeFromCLSID(UninstallOptionsClsid);
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "COM only usage.")]
         private static readonly Type PackageMatchFilterType = Type.GetTypeFromCLSID(PackageMatchFilterClsid);
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "COM only usage.")]
+        private static readonly Type DownloadOptionsType = Type.GetTypeFromCLSID(DownloadOptionsClsid);
 
         private static readonly Guid PackageManagerIid = Guid.Parse("B375E3B9-F2E0-5C93-87A7-B67497F7E593");
         private static readonly Guid FindPackagesOptionsIid = Guid.Parse("A5270EDD-7DA7-57A3-BACE-F2593553561F");
@@ -57,6 +61,7 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         private static readonly Guid InstallOptionsIid = Guid.Parse("6EE9DB69-AB48-5E72-A474-33A924CD23B3");
         private static readonly Guid UninstallOptionsIid = Guid.Parse("3EBC67F0-8339-594B-8A42-F90B69D02BBE");
         private static readonly Guid PackageMatchFilterIid = Guid.Parse("D981ECA3-4DE5-5AD7-967A-698C7D60FC3B");
+        private static readonly Guid DownloadOptionsIid = Guid.Parse("B4D72A63-40FF-597D-A7DA-43580268DC96");
 
         /// <summary>
         /// Initializes static members of the <see cref="ComObjectFactory"/> class.
@@ -113,6 +118,15 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         public virtual UninstallOptions CreateUninstallOptions()
         {
             return Create<UninstallOptions>(UninstallOptionsType, UninstallOptionsIid);
+        }
+
+        /// <summary>
+        /// Creates an instance of the <see cref="DownloadOptions" /> class.
+        /// </summary>
+        /// <returns>A <see cref="DownloadOptions" /> instance.</returns>
+        public virtual DownloadOptions CreateDownloadOptions()
+        {
+            return Create<DownloadOptions>(DownloadOptionsType, DownloadOptionsIid);
         }
 
         /// <summary>

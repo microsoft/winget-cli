@@ -221,6 +221,12 @@
     <ClInclude Include="Commands\DebugCommand.h">
       <Filter>Commands</Filter>
     </ClInclude>
+    <ClInclude Include="Commands\TestCommand.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="Commands\DownloadCommand.h">
+      <Filter>Commands</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -409,6 +415,12 @@
     <ClCompile Include="Commands\DebugCommand.cpp">
       <Filter>Commands</Filter>
     </ClCompile>
+    <ClCompile Include="Commands\TestCommand.cpp">
+      <Filter>Commands</Filter>
+    </ClCompile>
+    <ClInclude Include="Commands\DownloadCommand.cpp">
+      <Filter>Commands</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />

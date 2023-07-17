@@ -7,8 +7,13 @@
 #include <winrt/Windows.Foundation.Collections.h>
 #include <winrt/Windows.ApplicationModel.Store.Preview.InstallControl.h>
 
+#include <string>
+
 namespace AppInstaller::MSStore
 {
+    using namespace std::string_view_literals;
+    static constexpr std::wstring_view s_AppInstallerProductId = L"9NBLGGH4NNS1"sv;
+
     enum class MSStoreOperationType
     {
         Install,

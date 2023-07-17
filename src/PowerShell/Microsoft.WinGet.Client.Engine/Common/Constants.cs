@@ -33,5 +33,32 @@ namespace Microsoft.WinGet.Client.Engine.Common
         /// Name of PATH environment variable.
         /// </summary>
         public const string PathEnvVar = "PATH";
+
+        /// <summary>
+        /// Repository owners.
+        /// </summary>
+        public class RepositoryOwner
+        {
+            /// <summary>
+            /// Microsoft org.
+            /// </summary>
+            public const string Microsoft = "microsoft";
+        }
+
+        /// <summary>
+        /// Repository names.
+        /// </summary>
+        public class RepositoryName
+        {
+            /// <summary>
+            /// https://github.com/microsoft/winget-cli .
+            /// </summary>
+            public const string WinGetCli = "winget-cli";
+
+            /// <summary>
+            /// https://github.com/microsoft/microsoft-ui-xaml .
+            /// </summary>
+            public const string UiXaml = "microsoft-ui-xaml";
+        }
     }
 }

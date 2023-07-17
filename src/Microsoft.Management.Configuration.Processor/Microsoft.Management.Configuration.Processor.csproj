@@ -60,7 +60,8 @@
 
   <Target Name="MicrosoftManagementConfigurationPathTarget" BeforeTargets="CsWinRTSetAuthoringWinMDs">
     <PropertyGroup>
-      <MicrosoftManagementConfigurationPath>$(SolutionDir)x64\$(Configuration)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd</MicrosoftManagementConfigurationPath>
+      <MicrosoftManagementConfigurationPath>$(OutputPath)..\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd</MicrosoftManagementConfigurationPath>
+      <MicrosoftManagementConfigurationPath Condition="!Exists('$(MicrosoftManagementConfigurationPath)')">$(SolutionDir)x64\$(Configuration)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd</MicrosoftManagementConfigurationPath>
       <MicrosoftManagementConfigurationPath Condition="!Exists('$(MicrosoftManagementConfigurationPath)')">$(SolutionDir)x86\$(Configuration)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd</MicrosoftManagementConfigurationPath>
       <MicrosoftManagementConfigurationPath Condition="!Exists('$(MicrosoftManagementConfigurationPath)')">$(SolutionDir)arm\$(Configuration)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd</MicrosoftManagementConfigurationPath>
       <MicrosoftManagementConfigurationPath Condition="!Exists('$(MicrosoftManagementConfigurationPath)')">$(SolutionDir)arm64\$(Configuration)\Microsoft.Management.Configuration\Microsoft.Management.Configuration.winmd</MicrosoftManagementConfigurationPath>

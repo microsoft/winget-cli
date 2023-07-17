@@ -7,6 +7,7 @@
 #include "Workflows/PromptFlow.h"
 #include "Workflows/UninstallFlow.h"
 #include "Workflows/WorkflowBase.h"
+#include "Workflows/DependenciesFlow.h"
 
 namespace AppInstaller::CLI
 {
@@ -24,7 +25,8 @@ namespace AppInstaller::CLI
             Workflow::EnsureApplicableInstaller <<
             Workflow::ReportIdentityAndInstallationDisclaimer <<
             Workflow::ShowPromptsForSinglePackage(/* ensureAcceptance */ true) <<
-            Workflow::ManageDependencies << // TODO: Separate handling dependencies from download flow.
+            Workflow::SetDownloadDirectory <<
+            Workflow::DownloadPackageDependencies <<
             Workflow::DownloadInstaller;
     }
 
@@ -32,7 +34,8 @@ namespace AppInstaller::CLI
     void COMInstallCommand::ExecuteInternal(Context& context) const
     {
         context <<
-            Workflow::ReverifyInstallerHash <<
+            Workflow::InstallDependencies <<
+            Workflow::ReverifyInstallerHash << 
             Workflow::InstallPackageInstaller;
     }
 

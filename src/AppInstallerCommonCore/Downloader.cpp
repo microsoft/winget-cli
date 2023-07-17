@@ -93,7 +93,7 @@ namespace AppInstaller::Utility
 
         do
         {
-            if (progress.IsCancelled())
+            if (progress.IsCancelledBy(CancelReason::Any))
             {
                 AICLI_LOG(Core, Info, << "Download cancelled.");
                 return {};

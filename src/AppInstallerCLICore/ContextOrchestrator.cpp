@@ -115,7 +115,7 @@ namespace AppInstaller::CLI::Execution
     void ContextOrchestrator::CancelQueueItem(const OrchestratorQueueItem& item)
     {
         // Always cancel the item, even if it isn't running yet, to get the terminationHR set correctly.
-        item.GetContext().Cancel(false, true);
+        item.GetContext().Cancel(CancelReason::Abort, true);
 
         RemoveItemInState(item, OrchestratorQueueItemState::Queued);
     }
@@ -271,7 +271,7 @@ namespace AppInstaller::CLI::Execution
 
                 command->ValidateArguments(item->GetContext().Args);
 
-                item->GetContext().EnableCtrlHandler();
+                item->GetContext().EnableSignalTerminationHandler();
 
                 ::AppInstaller::CLI::ExecuteWithoutLoggingSuccess(item->GetContext(), command.get());
             }
@@ -284,7 +284,7 @@ namespace AppInstaller::CLI::Execution
                 item->GetContext().SetTerminationHR(exceptionHR);
             }
 
-            item->GetContext().EnableCtrlHandler(false);
+            item->GetContext().EnableSignalTerminationHandler(false);
 
             if (FAILED(item->GetContext().GetTerminationHR()) || item->IsComplete())
             {
@@ -362,6 +362,7 @@ namespace AppInstaller::CLI::Execution
         case PackageOperationType::Install: return "root:install"sv;
         case PackageOperationType::Upgrade: return "root:upgrade"sv;
         case PackageOperationType::Uninstall: return "root:uninstall"sv;
+        case PackageOperationType::Download: return "root:download"sv;
         default: return "unknown";
         }
     }
@@ -384,6 +385,13 @@ namespace AppInstaller::CLI::Execution
     std::unique_ptr<OrchestratorQueueItem> OrchestratorQueueItemFactory::CreateItemForSearch(std::wstring packageId, std::wstring sourceId, std::unique_ptr<COMContext> context)
     {
         std::unique_ptr<OrchestratorQueueItem> item = std::make_unique<OrchestratorQueueItem>(OrchestratorQueueItemId(std::move(packageId), std::move(sourceId)), std::move(context), PackageOperationType::Search);
+        return item;
+    }
+
+    std::unique_ptr<OrchestratorQueueItem> OrchestratorQueueItemFactory::CreateItemForDownload(std::wstring packageId, std::wstring sourceId, std::unique_ptr<COMContext> context)
+    {
+        std::unique_ptr<OrchestratorQueueItem> item = std::make_unique<OrchestratorQueueItem>(OrchestratorQueueItemId(std::move(packageId), std::move(sourceId)), std::move(context), PackageOperationType::Download);
+        item->AddCommand(std::make_unique<::AppInstaller::CLI::COMDownloadCommand>(RootCommand::CommandName));
         return item;
     }
 }

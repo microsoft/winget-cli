@@ -220,7 +220,7 @@ namespace AppInstaller::Repository::Microsoft
                 THROW_HR_IF(APPINSTALLER_CLI_ERROR_SOURCE_DATA_INTEGRITY_FAILURE,
                     GetPackageFamilyNameFromDetails(details) != Msix::GetPackageFamilyNameFromFullName(packageInfo.MsixInfo().GetPackageFullName()));
 
-                if (progress.IsCancelled())
+                if (progress.IsCancelledBy(CancelReason::Any))
                 {
                     AICLI_LOG(Repo, Info, << "Cancelling update upon request");
                     return false;
@@ -315,7 +315,7 @@ namespace AppInstaller::Repository::Microsoft
                     }
                 }
 
-                if (progress.IsCancelled())
+                if (progress.IsCancelledBy(CancelReason::Any))
                 {
                     AICLI_LOG(Repo, Info, << "Cancelling update upon request");
                     return false;
@@ -450,7 +450,7 @@ namespace AppInstaller::Repository::Microsoft
                 Msix::MsixInfo packageInfo(packageLocation);
                 packageInfo.WriteToFileHandle(s_PreIndexedPackageSourceFactory_IndexFilePath, tempIndexFile.GetFileHandle(), progress);
 
-                if (progress.IsCancelled())
+                if (progress.IsCancelledBy(CancelReason::Any))
                 {
                     AICLI_LOG(Repo, Info, << "Cancelling open upon request");
                     return {};
@@ -508,7 +508,7 @@ namespace AppInstaller::Repository::Microsoft
                 }
 
                 bool updateSuccess = false;
-                if (progress.IsCancelled())
+                if (progress.IsCancelledBy(CancelReason::Any))
                 {
                     AICLI_LOG(Repo, Info, << "Cancelling update upon request");
                 }

@@ -224,6 +224,10 @@ namespace AppInstaller
                 return "The package has a pin that prevents upgrade.";
             case APPINSTALLER_CLI_ERROR_PACKAGE_IS_STUB:
                 return "The package currently installed is the stub package";
+            case APPINSTALLER_CLI_ERROR_APPTERMINATION_RECEIVED:
+                return "Application shutdown signal received";
+            case APPINSTALLER_CLI_ERROR_DOWNLOAD_DEPENDENCIES:
+                return "Failed to download package dependencies.";
 
             // Install errors
             case APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE:
@@ -310,6 +314,10 @@ namespace AppInstaller
                 return "The configuration has an invalid field value.";
             case WINGET_CONFIG_ERROR_MISSING_FIELD:
                 return "The configuration is missing a field.";
+            case WINGET_CONFIG_ERROR_TEST_FAILED:
+                return "Some of the configuration units failed while testing their state.";
+            case WINGET_CONFIG_ERROR_TEST_NOT_RUN:
+                return "Configuration state was not tested.";
 
             // Configuration Processor Errors
             case WINGET_CONFIG_ERROR_UNIT_NOT_INSTALLED:
