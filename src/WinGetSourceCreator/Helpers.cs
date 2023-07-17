@@ -3,6 +3,7 @@
 
 namespace Microsoft.WinGetSourceCreator
 {
+    using global::WinGetSourceCreator.Model;
     using Microsoft.Msix.Utils.ProcessRunner;
     using System.Diagnostics;
     using System.Xml;

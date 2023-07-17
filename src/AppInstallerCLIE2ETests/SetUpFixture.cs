@@ -126,7 +126,7 @@ namespace AppInstallerCLIE2ETests
 
             this.ReadTestInstallerPaths();
 
-            TestIndexSetup.GenerateTestDirectory();
+            TestIndexSetup.GenerateE2ESource();
 
             TestCommon.SettingsJsonFilePath = WinGetSettingsHelper.GetUserSettingsPath();
 

@@ -3,6 +3,7 @@
 
 namespace Microsoft.WinGetSourceCreator
 {
+    using global::WinGetSourceCreator.Model;
     using WinGetUtilInterop.Helpers;
 
     public class WinGetLocalSource

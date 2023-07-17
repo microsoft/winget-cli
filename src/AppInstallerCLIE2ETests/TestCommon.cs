@@ -567,12 +567,12 @@ namespace AppInstallerCLIE2ETests
 
             if (Directory.Exists(testLogsPackagedSourcePath))
             {
-                TestIndexSetup.CopyDirectory(testLogsPackagedSourcePath, testLogsPackagedDestPath);
+                CopyDirectory(testLogsPackagedSourcePath, testLogsPackagedDestPath);
             }
 
             if (Directory.Exists(testLogsUnpackagedSourcePath))
             {
-                TestIndexSetup.CopyDirectory(testLogsUnpackagedSourcePath, testLogsUnpackagedDestPath);
+                CopyDirectory(testLogsUnpackagedSourcePath, testLogsUnpackagedDestPath);
             }
         }
 
@@ -926,6 +926,35 @@ namespace AppInstallerCLIE2ETests
             using (RegistryKey uninstallRegistryKey = baseKey.OpenSubKey(Constants.UninstallSubKey, true))
             {
                 uninstallRegistryKey.DeleteSubKey(productCode);
+            }
+        }
+
+        /// <summary>
+        /// Copies the contents of a given directory from a source path to a destination path.
+        /// </summary>
+        /// <param name="sourceDirName">Source directory name.</param>
+        /// <param name="destDirName">Destination directory name.</param>
+        public static void CopyDirectory(string sourceDirName, string destDirName)
+        {
+            DirectoryInfo dir = new DirectoryInfo(sourceDirName);
+            DirectoryInfo[] dirs = dir.GetDirectories();
+
+            if (!Directory.Exists(destDirName))
+            {
+                Directory.CreateDirectory(destDirName);
+            }
+
+            FileInfo[] files = dir.GetFiles();
+            foreach (FileInfo file in files)
+            {
+                string temppath = Path.Combine(destDirName, file.Name);
+                file.CopyTo(temppath, false);
+            }
+
+            foreach (DirectoryInfo subdir in dirs)
+            {
+                string temppath = Path.Combine(destDirName, subdir.Name);
+                CopyDirectory(subdir.FullName, temppath);
             }
         }
 

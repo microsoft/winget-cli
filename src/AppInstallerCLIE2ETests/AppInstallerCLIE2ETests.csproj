@@ -64,6 +64,7 @@
     <ProjectReference Include="..\WindowsPackageManager\WindowsPackageManager.vcxproj">
       <ReferenceOutputAssembly>False</ReferenceOutputAssembly>
     </ProjectReference>
+    <ProjectReference Include="..\WinGetSourceCreator\WinGetSourceCreator.csproj" />
     <ProjectReference Include="..\WinGetUtil\WinGetUtil.vcxproj">
       <ReferenceOutputAssembly>False</ReferenceOutputAssembly>
     </ProjectReference>
