@@ -361,6 +361,14 @@ jobs:
       TargetFolder: '$(artifactsDir)\AppxPackages'
     condition: succeededOrFailed()
 
+    # TMP TASK.
+  - task: CopyFiles@2
+    displayName: 'Copy Dev Packages'
+    inputs:
+      SourceFolder: '$(Agent.TempDirectory)\TestLocalIndex'
+      TargetFolder: '$(artifactsDir)\TestLocalIndex'
+    condition: succeededOrFailed()
+
   - task: PublishPipelineArtifact@1
     displayName: Publish Pipeline Artifacts
     inputs:
