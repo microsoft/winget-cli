@@ -129,19 +129,36 @@ namespace Microsoft.WinGetSourceCreator
         {
             string fullPath = Path.Combine(this.workingDirectory, indexName);
             using var indexHelper = WinGetUtilIndex.CreateLatestVersion(fullPath);
-            foreach (var file in Directory.EnumerateFiles(this.workingDirectory, "*.yaml", SearchOption.AllDirectories))
+
+            Queue<string> filesQueue = new(Directory.EnumerateFiles(this.workingDirectory, "*.yaml", SearchOption.AllDirectories));
+            while (filesQueue.Count > 0)
             {
-                try
+                int currentCount = filesQueue.Count;
+
+                for (int i = 0; i < currentCount; i++)
                 {
-                    var rel = Path.GetRelativePath(this.workingDirectory, file);
-                    Console.WriteLine(rel);
-                    indexHelper.AddManifest(file, Path.GetRelativePath(this.workingDirectory, file));
+                    string file = filesQueue.Dequeue();
+                    try
+                    {
+                        var rel = Path.GetRelativePath(this.workingDirectory, file);
+                        Console.WriteLine($"Adding manifest: {rel}");
+                        indexHelper.AddManifest(file, rel);
+                    }
+                    catch
+                    {
+                        // If adding manifest to index fails, add to queue and try again.
+                        // This can occur if there is a package dependency that has not yet been added to the index.
+                        filesQueue.Enqueue(file);
+                    }
                 }
-                catch (Exception e)
+
+                if (filesQueue.Count == currentCount)
                 {
-                    throw new InvalidOperationException($"Failed adding {file} to index", e);
+                    Console.WriteLine("Failed to add all manifests in directory to index.");
+                    Environment.Exit(-1);
                 }
             }
+
             indexHelper.PrepareForPackaging();
 
             return fullPath;

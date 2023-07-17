@@ -1,4 +1,4 @@
-﻿﻿// Copyright (c) Microsoft Corporation.
+﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 namespace IndexCreationTool
@@ -51,7 +51,6 @@ namespace IndexCreationTool
             {
                 var localSource = ParseArguments(args);
                 WinGetLocalSource.CreateLocalSource(localSource);
-
             }
             catch (Exception e)
             {
@@ -62,6 +61,5 @@ namespace IndexCreationTool
 
             return 0;
         }
-
     }
 }
