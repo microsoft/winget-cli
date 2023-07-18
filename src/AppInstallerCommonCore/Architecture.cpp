@@ -192,15 +192,15 @@ namespace AppInstaller::Utility
         switch (architecture)
         {
         case Architecture::Neutral:
-            return "neutral"_liv;
+            return "Neutral"_liv;
         case Architecture::X86:
-            return "x86"_liv;
+            return "X86"_liv;
         case Architecture::X64:
-            return "x64"_liv;
+            return "X64"_liv;
         case Architecture::Arm:
-            return "arm"_liv;
+            return "Arm"_liv;
         case Architecture::Arm64:
-            return "arm64"_liv;
+            return "Arm64"_liv;
         }
 
         return "Unknown"_liv;

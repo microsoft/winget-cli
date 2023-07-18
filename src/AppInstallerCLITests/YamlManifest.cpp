@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "TestCommon.h"
+#include "TestHooks.h"
 #include <AppInstallerSHA256.h>
 #include <winget/ManifestYamlParser.h>
 #include <winget/ManifestYamlWriter.h>
@@ -571,7 +572,7 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
     auto installer1Dependencies = installer1.Dependencies;
     REQUIRE(installer1Dependencies.HasExactDependency(DependencyType::WindowsFeature, "PreviewIIS"));
     REQUIRE(installer1Dependencies.HasExactDependency(DependencyType::WindowsLibrary, "Preview VC Runtime"));
-    REQUIRE(installer1Dependencies.HasExactDependency(DependencyType::Package, "Microsoft.MsixSdkDepPreview"));
+    REQUIRE(installer1Dependencies.HasExactDependency(DependencyType::Package, "Microsoft.MsixSdkDepPreview", "1.0.0"));
     REQUIRE(installer1Dependencies.HasExactDependency(DependencyType::External, "Preview Outside dependencies"));
     REQUIRE(installer1Dependencies.Size() == 4);
 
@@ -864,7 +865,7 @@ TEST_CASE("ValidateV1_5GoodManifestAndVerifyContents", "[ManifestValidation]")
     VerifyV1ManifestContent(mergedManifest, false, ManifestVer{ s_ManifestVersionV1_5 });
 }
 
-TEST_CASE("WriteV1_5ManifestAndVerifyContents", "[ManifestCreation]")
+TEST_CASE("WriteV1_5SingletonManifestAndVerifyContents", "[ManifestCreation]")
 {
     ManifestValidateOption validateOption;
     validateOption.FullValidation = true;
@@ -872,14 +873,18 @@ TEST_CASE("WriteV1_5ManifestAndVerifyContents", "[ManifestCreation]")
     CopyTestDataFilesToFolder({ "ManifestV1_5-Singleton.yaml" }, singletonDirectory);
     Manifest singletonManifest = YamlParser::CreateFromPath(singletonDirectory, validateOption);
 
-    // Write out yaml manifest to the new directory.
-    std::string result = ManifestYamlDepopulator::DepopulateManifest(singletonManifest);
-    // Need to convert this into 
+    // Override the exported manifest type to 'singleton' since validation does not accept 'merged' manifests.
+    auto setExportedManifestType = TestHook::SetExportedManifestTypeResult_Override(ManifestTypeEnum::Singleton);
 
-    TempDirectory mergedDirectory{ "MergedManifest" };
-    Manifest mergedManifest = YamlParser::CreateFromPath(mergedDirectory, validateOption);
-    VerifyV1ManifestContent(mergedManifest, true, ManifestVer{ s_ManifestVersionV1_5 });
+    TempDirectory downloadDirectory{ "downloadDirectory" };
+    std::filesystem::path testManifestPath = downloadDirectory.GetPath() / "testManifest.yaml";
+    const auto& manifestYamlContent = YamlWriter::ManifestToYamlString(singletonManifest, singletonManifest.Installers[0]);
+    YamlWriter::OutputYamlFile(manifestYamlContent, testManifestPath);
 
+    REQUIRE(std::filesystem::exists(testManifestPath));
+
+    Manifest generatedManifest = YamlParser::CreateFromPath(downloadDirectory, validateOption);
+    VerifyV1ManifestContent(generatedManifest, true, ManifestVer{ s_ManifestVersionV1_5 });
 }
 
 YamlManifestInfo CreateYamlManifestInfo(std::string testDataFile)

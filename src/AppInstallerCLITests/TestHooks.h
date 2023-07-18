@@ -9,6 +9,7 @@
 
 #include <AppInstallerTelemetry.h>
 #include <AppInstallerRuntime.h>
+#include <winget/ManifestCommon.h>
 #include <winget/UserSettings.h>
 #include <winget/Filesystem.h>
 #include <winget/WindowsFeature.h>
@@ -70,6 +71,11 @@ namespace AppInstaller
         void TestHook_SetDoesWindowsFeatureExistResult_Override(bool* status);
         void TestHook_SetWindowsFeatureGetDisplayNameResult_Override(Utility::LocIndString* displayName);
         void TestHook_SetWindowsFeatureGetRestartStatusResult_Override(AppInstaller::WindowsFeature::DismRestartType* restartType);
+    }
+
+    namespace Manifest::YamlWriter
+    {
+        void TestHook_SetExportedManifestTypeResult_Override(ManifestTypeEnum* manifestType);
     }
 }
 
@@ -227,5 +233,20 @@ namespace TestHook
 
     private:
         std::vector<AppInstaller::Repository::ExtractedIconInfo> m_extractedIcons;
+    };
+
+    struct SetExportedManifestTypeResult_Override
+    {
+        SetExportedManifestTypeResult_Override(AppInstaller::Manifest::ManifestTypeEnum manifestType) : m_manifestType(manifestType)
+        {
+            AppInstaller::Manifest::YamlWriter::TestHook_SetExportedManifestTypeResult_Override(&m_manifestType);
+        };
+
+        ~SetExportedManifestTypeResult_Override()
+        {
+            AppInstaller::Manifest::YamlWriter::TestHook_SetExportedManifestTypeResult_Override(nullptr);
+        }
+    private:
+        AppInstaller::Manifest::ManifestTypeEnum m_manifestType;
     };
 }

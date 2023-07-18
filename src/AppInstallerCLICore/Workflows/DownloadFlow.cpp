@@ -3,10 +3,11 @@
 #include "pch.h"
 #include "DownloadFlow.h"
 #include <winget/Filesystem.h>
+#include <AppInstallerDownloader.h>
 #include <AppInstallerRuntime.h>
 #include <AppInstallerMsixInfo.h>
 #include <winget/AdminSettings.h>
-#include <AppInstallerDownloader.h>
+#include <winget/ManifestYamlWriter.h>
 
 namespace AppInstaller::CLI::Workflow
 {
@@ -90,7 +91,7 @@ namespace AppInstaller::CLI::Workflow
         }
 
         // Gets the file name for the downloaded installer in the format of {id}_{version}_{architecture}_{scope}_{installerType}_{locale}.
-        std::filesystem::path GetInstallerDownloadOnlyFileName(Execution::Context& context)
+        std::filesystem::path GetInstallerDownloadOnlyFileName(Execution::Context& context, const std::wstring_view& extension = {})
         {
             const auto& manifest = context.Get<Execution::Data::Manifest>();
             const auto& installer = context.Get<Execution::Data::Installer>().value();
@@ -120,7 +121,15 @@ namespace AppInstaller::CLI::Workflow
             }
 
             std::filesystem::path fileNamePath = Utility::ConvertToUTF16(fileName);
-            fileNamePath += GetInstallerFileExtension(context);
+
+            if (!extension.empty())
+            {
+                fileNamePath += extension;
+            }
+            else
+            {
+                fileNamePath += GetInstallerFileExtension(context);
+            }
 
             // Make file name suitable for file system path
             fileNamePath = Utility::ConvertToUTF16(Utility::MakeSuitablePathPart(fileNamePath.u8string()));
@@ -562,5 +571,21 @@ namespace AppInstaller::CLI::Workflow
             std::string packageDownloadFolderName = manifest.Id + '_' + manifest.Version;
             context.Add<Execution::Data::DownloadDirectory>(downloadsDirectory / packageDownloadFolderName);
         }
+    }
+
+    void ExportManifest(Execution::Context& context)
+    {
+        const auto& downloadDirectory = context.Get<Execution::Data::DownloadDirectory>();
+        const auto& manifest = context.Get<Execution::Data::Manifest>();
+        const auto& installer = context.Get<Execution::Data::Installer>();
+
+        std::filesystem::path manifestFileName = GetInstallerDownloadOnlyFileName(context, L".yaml");
+        const auto& manifestDownloadPath = downloadDirectory / manifestFileName;
+
+        THROW_HR_IF(E_UNEXPECTED, !installer.has_value());
+
+        const auto& manifestYamlContent = YamlWriter::ManifestToYamlString(manifest, installer.value());
+        YamlWriter::OutputYamlFile(manifestYamlContent, manifestDownloadPath);
+        AICLI_LOG(CLI, Info, << "Successfully generated manifest yaml. Path: " << manifestDownloadPath);
     }
 }

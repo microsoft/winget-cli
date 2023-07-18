@@ -236,7 +236,7 @@ namespace AppInstaller::Manifest
 
     ElevationRequirementEnum ConvertToElevationRequirementEnum(const std::string& in)
     {
-         ElevationRequirementEnum result = ElevationRequirementEnum::Unknown;
+        ElevationRequirementEnum result = ElevationRequirementEnum::Unknown;
 
         if (Utility::CaseInsensitiveEquals(in, "elevationRequired"))
         {
@@ -574,7 +574,7 @@ namespace AppInstaller::Manifest
             return "Upgrade"sv;
         }
 
-        return "unknown"sv;
+        return "Unknown"sv;
     }
 
 
@@ -652,12 +652,12 @@ namespace AppInstaller::Manifest
         switch (scope)
         {
         case ScopeEnum::User:
-            return "user"sv;
+            return "User"sv;
         case ScopeEnum::Machine:
-            return "machine"sv;
+            return "Machine"sv;
         }
 
-        return "unknown"sv;
+        return "Unknown"sv;
     }
 
     std::string_view InstalledFileTypeToString(InstalledFileTypeEnum installedFileType)
@@ -672,7 +672,7 @@ namespace AppInstaller::Manifest
             return "other"sv;
         }
 
-        return "unknown";
+        return "unknown"sv;
     }
 
     std::string_view IconFileTypeToString(IconFileTypeEnum iconFileType)
@@ -687,7 +687,7 @@ namespace AppInstaller::Manifest
             return "png"sv;
         }
 
-        return "unknown";
+        return "unknown"sv;
     }
 
     std::string_view IconThemeToString(IconThemeEnum iconTheme)
@@ -704,7 +704,7 @@ namespace AppInstaller::Manifest
             return "highContrast"sv;
         }
 
-        return "unknown";
+        return "unknown"sv;
     }
 
     std::string_view IconResolutionToString(IconResolutionEnum iconResolution)
@@ -743,7 +743,7 @@ namespace AppInstaller::Manifest
             return "256x256"sv;
         }
 
-        return "unknown";
+        return "unknown"sv;
     }
 
     std::string_view ExpectedReturnCodeToString(ExpectedReturnCodeEnum expectedReturnCode)
@@ -790,12 +790,33 @@ namespace AppInstaller::Manifest
             return "custom"sv;
         }
 
-        return "unknown";
+        return "unknown"sv;
     }
 
     std::string_view BoolToString(bool value)
     {
-        return value ? "true" : "false";
+        return value ? "true"sv : "false"sv;
+    }
+
+    std::string_view ManifestTypeToString(ManifestTypeEnum manifestType)
+    {
+        switch (manifestType)
+        {
+        case ManifestTypeEnum::DefaultLocale:
+            return "defaultLocale"sv;
+        case ManifestTypeEnum::Installer:
+            return "installer"sv;
+        case ManifestTypeEnum::Locale:
+            return "locale"sv;
+        case ManifestTypeEnum::Merged:
+            return "merged"sv;
+        case ManifestTypeEnum::Singleton:
+            return "singleton"sv;
+        case ManifestTypeEnum::Version:
+            return "version"sv;
+        }
+
+        return "unknown"sv;
     }
 
     bool DoesInstallerTypeUsePackageFamilyName(InstallerTypeEnum installerType)

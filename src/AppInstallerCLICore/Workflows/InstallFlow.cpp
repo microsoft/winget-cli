@@ -674,7 +674,11 @@ namespace AppInstaller::CLI::Workflow
 
                 currentContext << Workflow::DownloadInstaller;
 
-                if (!downloadInstallerOnly)
+                if (downloadInstallerOnly)
+                {
+                    currentContext << Workflow::ExportManifest;
+                }
+                else
                 {
                     currentContext << Workflow::InstallPackageInstaller;
                 }

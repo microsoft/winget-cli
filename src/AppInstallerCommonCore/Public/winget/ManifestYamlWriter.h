@@ -6,12 +6,18 @@
 
 namespace AppInstaller::Manifest::YamlWriter
 {
-    // Converts a Manifest object to a Yaml node for writing to a yaml file.
-    struct ManifestYamlDepopulator
-    {
-        static std::string DepopulateManifest(const Manifest& manifest);
+    /// <summary>
+    /// Converts the manifest and a single installer to a yaml string.
+    /// </summary>
+    /// <param name="manifest">Manifest object.</param>
+    /// <param name="installer">Manifest installer object.</param>
+    /// <returns>Yaml string.</returns>
+    std::string ManifestToYamlString(const Manifest& manifest, const ManifestInstaller& installer);
 
-    private:
-        std::ofstream m_outputStream;
-    };
+    /// <summary>
+    /// Exports the manifest yaml string to a file.
+    /// </summary>
+    /// <param name="content">Manifest yaml string.</param>
+    /// <param name="out">Path of the yaml file.</param>
+    void OutputYamlFile(const std::string& content, const std::filesystem::path& out);
 }
