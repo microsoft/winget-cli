@@ -29,7 +29,6 @@ namespace AppInstaller::Manifest::YamlWriter
         constexpr Utility::LocIndView Architecture = "Architecture"_liv;
         constexpr Utility::LocIndView InstallerLocale = "InstallerLocale"_liv;
         constexpr Utility::LocIndView Platform = "Platform"_liv;
-        constexpr Utility::LocIndView MinimumO_liversion = "MinimumO_liversion"_liv;
         constexpr Utility::LocIndView InstallerType = "InstallerType"_liv;
         constexpr Utility::LocIndView Scope = "Scope"_liv;
         constexpr Utility::LocIndView SignatureSha256 = "SignatureSha256"_liv;
