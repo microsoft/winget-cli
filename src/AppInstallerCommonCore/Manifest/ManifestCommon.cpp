@@ -577,7 +577,6 @@ namespace AppInstaller::Manifest
         return "Unknown"sv;
     }
 
-
     std::string_view ElevationRequirementToString(ElevationRequirementEnum elevationRequirement)
     {
         switch (elevationRequirement)
