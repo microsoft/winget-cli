@@ -17,19 +17,33 @@ namespace WinGetSourceCreator.Model
             base.Validate();
         }
 
-        public void Create(string outputFile)
+        public string Create(string workingDirectory)
         {
+            string outputFile = this.Name;
+            if (!Path.IsPathFullyQualified(outputFile))
+            {
+                outputFile = Path.Combine(workingDirectory, outputFile);
+            }
+
+            var parent = Path.GetDirectoryName(outputFile);
+            if (!string.IsNullOrEmpty(parent))
+            {
+                Directory.CreateDirectory(parent);
+            }
+
             if (this.Type == InstallerType.Zip)
             {
-                CreateZipInstaller(outputFile);
+                CreateZipInstaller(outputFile, workingDirectory);
             }
             else
             {
                 throw new NotImplementedException();
             }
+
+            return outputFile;
         }
 
-        private void CreateZipInstaller(string outputFile)
+        private void CreateZipInstaller(string outputFile, string workingDirectory)
         {
             var tmpPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
             if (Directory.Exists(tmpPath))
@@ -38,19 +52,26 @@ namespace WinGetSourceCreator.Model
             }
             Directory.CreateDirectory(tmpPath);
 
-            foreach (var i in this.Input)
+            foreach (var input in this.Input)
             {
-                if (File.Exists(i))
+                string fullPath = input;
+                if (!Path.IsPathFullyQualified(fullPath))
                 {
-                    File.Copy(i, Path.Combine(tmpPath, Path.GetFileName(i)), true);
+                    fullPath = Path.Combine(workingDirectory, fullPath);
                 }
-                else if (Directory.Exists(i))
+
+                if (File.Exists(fullPath))
                 {
-                    Helpers.CopyDirectory(i, tmpPath);
+                    // TODO: maybe we want to preserve the dir?
+                    File.Copy(fullPath, Path.Combine(tmpPath, Path.GetFileName(fullPath)), true);
+                }
+                else if (Directory.Exists(fullPath))
+                {
+                    Helpers.CopyDirectory(fullPath, tmpPath);
                 }
                 else
                 {
-                    throw new InvalidOperationException(i);
+                    throw new InvalidOperationException(fullPath);
                 }
             }
 
