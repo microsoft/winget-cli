@@ -68,11 +68,6 @@ namespace WinGetSourceCreator.Model
             if (this.Signature != null)
             {
                 this.Signature.Validate();
-
-                if (this.Signature.Publisher == null)
-                {
-                    throw new ArgumentNullException(nameof(this.Signature.Publisher));
-                }
             }
         }
 

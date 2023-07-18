@@ -137,7 +137,7 @@ namespace Microsoft.WinGetSourceCreator
             string appxManifestFile = Path.Combine(this.workingDirectory, "AppxManifest.xml");
             File.Copy(inputAppxManifestFile, appxManifestFile);
 
-            if (signature != null)
+            if (signature != null && signature.Publisher != null)
             {
                 Helpers.ModifyAppxManifestIdentity(appxManifestFile, signature.Publisher);
             }
