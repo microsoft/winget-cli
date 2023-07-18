@@ -33,7 +33,7 @@ namespace WinGetSourceCreator.Model
 
             if (this.Type == InstallerType.Zip)
             {
-                CreateZipInstaller(outputFile, workingDirectory);
+                CreateZipInstaller(outputFile);
             }
             else
             {
@@ -43,7 +43,7 @@ namespace WinGetSourceCreator.Model
             return outputFile;
         }
 
-        private void CreateZipInstaller(string outputFile, string workingDirectory)
+        private void CreateZipInstaller(string outputFile)
         {
             var tmpPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
             if (Directory.Exists(tmpPath))
@@ -54,24 +54,23 @@ namespace WinGetSourceCreator.Model
 
             foreach (var input in this.Input)
             {
-                string fullPath = input;
-                if (!Path.IsPathFullyQualified(fullPath))
+                if (!Path.IsPathFullyQualified(input))
                 {
-                    fullPath = Path.Combine(workingDirectory, fullPath);
+                    throw new InvalidOperationException($"Must be a fully qualified name {input}");
                 }
 
-                if (File.Exists(fullPath))
+                if (File.Exists(input))
                 {
                     // TODO: maybe we want to preserve the dir?
-                    File.Copy(fullPath, Path.Combine(tmpPath, Path.GetFileName(fullPath)), true);
+                    File.Copy(input, Path.Combine(tmpPath, Path.GetFileName(input)), true);
                 }
-                else if (Directory.Exists(fullPath))
+                else if (Directory.Exists(input))
                 {
-                    Helpers.CopyDirectory(fullPath, tmpPath);
+                    Helpers.CopyDirectory(input, tmpPath);
                 }
                 else
                 {
-                    throw new InvalidOperationException(fullPath);
+                    throw new InvalidOperationException(input);
                 }
             }
 

@@ -60,21 +60,14 @@ namespace Microsoft.WinGetSourceCreator
 
         public void PrepareDynamicInstaller(DynamicInstaller installer)
         {
-            string installerFile = installer.Create(this.workingDirectory);
-            PrepareInstaller(installer, installerFile);
+            var sourceInstaller = new SourceInstaller(this.workingDirectory, installer);
+            PrepareInstaller(sourceInstaller);
         }
 
         public void PrepareLocalInstaller(LocalInstaller installer)
         {
-            string installerFile = Path.Combine(this.workingDirectory, installer.Name);
-            var parent = Path.GetDirectoryName(installerFile);
-            if (!string.IsNullOrEmpty(parent))
-            {
-                Directory.CreateDirectory(parent);
-            }
-
-            File.Copy(installer.Input, installerFile, true);
-            PrepareInstaller(installer, installerFile);
+            var sourceInstaller = new SourceInstaller(this.workingDirectory, installer);
+            PrepareInstaller(sourceInstaller);
         }
 
         public void PrepareManifest(string input)
@@ -209,7 +202,7 @@ namespace Microsoft.WinGetSourceCreator
             File.WriteAllText(destinationFile, content);
         }
 
-        private void PrepareInstaller(Installer installer, string installerFile)
+        private void PrepareInstaller(SourceInstaller installer)
         {
             // Sign installer if needed.
             if (!installer.SkipSignature)
@@ -217,14 +210,14 @@ namespace Microsoft.WinGetSourceCreator
                 var sig = this.GetSignature(installer);
                 if (sig != null)
                 {
-                    Helpers.SignInstaller(installer, installerFile, sig);
+                    Helpers.SignInstaller(installer, sig);
                 }
             }
 
             // Process hash token if needed.
             if (!string.IsNullOrEmpty(installer.HashToken))
             {
-                this.tokens.AddHashToken(installerFile, installer.HashToken);
+                this.tokens.AddHashToken(installer.InstallerFile, installer.HashToken);
             }
 
             // Extra steps.
@@ -233,7 +226,7 @@ namespace Microsoft.WinGetSourceCreator
             {
                 if (!string.IsNullOrEmpty(installer.SignatureToken))
                 {
-                    var signatureFilePath = Helpers.GetSignatureFileFromMsix(installerFile);
+                    var signatureFilePath = Helpers.GetSignatureFileFromMsix(installer.InstallerFile);
                     this.tokens.AddHashToken(signatureFilePath, installer.SignatureToken);
 
                     try

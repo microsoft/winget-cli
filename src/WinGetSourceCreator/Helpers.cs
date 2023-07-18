@@ -10,15 +10,15 @@ namespace Microsoft.WinGetSourceCreator
 
     internal static class Helpers
     {
-        public static void SignInstaller(Installer installer, string path, Signature signature)
+        public static void SignInstaller(SourceInstaller installer, Signature signature)
         {
             if (installer.Type == InstallerType.Msix)
             {
-                SignMsixFile(path, signature);
+                SignMsixFile(installer.InstallerFile, signature);
             }
             else
             {
-                SignFile(path, signature);
+                SignFile(installer.InstallerFile, signature);
             }
         }
 
