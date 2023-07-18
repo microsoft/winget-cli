@@ -63,9 +63,9 @@ namespace AppInstallerCLIE2ETests
                         Name = Path.Combine(Constants.ZipInstaller, Constants.ZipInstallerFileName),
                         Input = new ()
                         {
-                            TestCommon.ExeInstallerPath,
-                            TestCommon.MsiInstallerPath,
-                            TestCommon.MsixInstallerPath,
+                            Path.Combine(TestCommon.StaticFileRootPath, Constants.ExeInstaller, Constants.ExeInstallerFileName),
+                            Path.Combine(TestCommon.StaticFileRootPath, Constants.MsiInstaller, Constants.MsiInstallerFileName),
+                            Path.Combine(TestCommon.StaticFileRootPath, Constants.MsixInstaller, Constants.MsixInstallerFileName),
                         },
                         HashToken = "<ZIPHASH>",
                     },
