@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-	<OutDir>$(SolutionDir)$(Platform)\$(Configuration)\LocalhostWebServer\</OutDir>
-	<Platforms>x64;x86</Platforms>
+    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\LocalhostWebServer\</OutDir>
+    <Platforms>x64;x86</Platforms>
   </PropertyGroup>
 
 </Project>

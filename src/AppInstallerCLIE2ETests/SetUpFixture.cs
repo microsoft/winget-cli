@@ -114,6 +114,11 @@ namespace AppInstallerCLIE2ETests
                 TestCommon.StaticFileRootPath = Path.GetTempPath();
             }
 
+            if (TestContext.Parameters.Exists(Constants.LocalServerCertPathParameter))
+            {
+                TestCommon.LocalServerCertPath = TestContext.Parameters.Get(Constants.LocalServerCertPathParameter);
+            }
+
             if (TestContext.Parameters.Exists(Constants.PackageCertificatePathParameter))
             {
                 TestCommon.PackageCertificatePath = TestContext.Parameters.Get(Constants.PackageCertificatePathParameter);

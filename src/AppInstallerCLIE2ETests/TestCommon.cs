@@ -78,6 +78,11 @@ namespace AppInstallerCLIE2ETests
         public static string StaticFileRootPath { get; set; }
 
         /// <summary>
+        /// Gets or sets the local server cert path.
+        /// </summary>
+        public static string LocalServerCertPath { get; set; }
+
+        /// <summary>
         /// Gets or sets the exe installer path.
         /// </summary>
         public static string ExeInstallerPath { get; set; }
@@ -582,7 +587,17 @@ namespace AppInstallerCLIE2ETests
         /// <returns>Hex string.</returns>
         public static string GetTestServerCertificateHexString()
         {
-            return Convert.ToHexString(File.ReadAllBytes(Path.Combine(StaticFileRootPath, Constants.TestSourceServerCertificateFileName)));
+            if (string.IsNullOrEmpty(TestCommon.LocalServerCertPath))
+            {
+                throw new Exception($"{Constants.LocalServerCertPathParameter} not set.");
+            }
+
+            if (!File.Exists(TestCommon.LocalServerCertPath))
+            {
+                throw new FileNotFoundException(TestCommon.LocalServerCertPath);
+            }
+
+            return Convert.ToHexString(File.ReadAllBytes(TestCommon.LocalServerCertPath));
         }
 
         /// <summary>

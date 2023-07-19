@@ -31,13 +31,13 @@ The executable can most likely be found in this path: **\src\x86\Release\Localho
 
 The command line call to run the executable needs to follow the format:
 
-	LocalhostWebServer.exe StaticFileRoot=<Path to Serve Static Root Directory> CertPath=<Path to HTTPS Developer Certificate> CertPassword=<Certificate Password> <Port=Port Number>
+    LocalhostWebServer.exe StaticFileRoot=<Path to Serve Static Root Directory> CertPath=<Path to HTTPS Developer Certificate> CertPassword=<Certificate Password> <Port=Port Number>
 
 Therefore to run the executable in the command line, simply change into the directory that contains **LocalhostWebServer.exe** and run the executable with the corresponding parameter values. Here is an example: (Don't forget to modify the path to match your own local computer)
 
-	cd C:\Users\MSFT\source\repos\winget-cli\src\AnyCPU\Debug\LocalhostWebServer
+    cd C:\Users\MSFT\source\repos\winget-cli\src\AnyCPU\Debug\LocalhostWebServer
 
-	LocalhostWebServer.exe StaticFileRoot=C:\Users\MSFT\AppData\Local\Temp\TestLocalIndex CertPath=C:\Users\MSFT\Temp\HTTPSDevCert.pfx CertPassword=password
+    LocalhostWebServer.exe StaticFileRoot=C:\Users\MSFT\AppData\Local\Temp\TestLocalIndex CertPath=C:\Users\MSFT\Temp\HTTPSDevCert.pfx CertPassword=password
 
 
 ## 2. Prepare Test.runsettings file
@@ -61,40 +61,42 @@ Therefore to run the executable in the command line, simply change into the dire
 
 #### Example of Test.runsettings format:
 
-	<RunSettings>
-		<TestRunParameters>
-			<Parameter name="PackagedContext" value="true" />
-			<Parameter name="VerboseLogging" value="false" />
-			<Parameter name="AICLIPath" value="AppInst.exe" />
-			<Parameter name="AICLIPackagePath" value="AppInstallerCLIPackage.appxbundle" />
-			<Parameter name="LooseFileRegistration" value="false" />
-			<Parameter name="InvokeCommandInDesktopPackage" value="false" />
-			<Parameter name="StaticFileRootPath" value="\TestLocalIndex" />
-			<Parameter name="MsixTestInstallerPath" value="MsixTestInstaller.msix" />
-			<Parameter name="ExeTestInstallerPath" value="ExeTestInstaller.exe" />
-			<Parameter name="PackageCertificatePath" value="certificate.pfx"/>
-			<Parameter name="PowerShellModulePath" value="TestPowerShellModule.psd1" />
-		</TestRunParameters>
-	</RunSettings>
+    <RunSettings>
+        <TestRunParameters>
+            <Parameter name="PackagedContext" value="true" />
+            <Parameter name="VerboseLogging" value="false" />
+            <Parameter name="AICLIPath" value="AppInst.exe" />
+            <Parameter name="AICLIPackagePath" value="AppInstallerCLIPackage.appxbundle" />
+            <Parameter name="LooseFileRegistration" value="false" />
+            <Parameter name="InvokeCommandInDesktopPackage" value="false" />
+            <Parameter name="StaticFileRootPath" value="\TestLocalIndex" />
+            <Parameter name="MsixTestInstallerPath" value="MsixTestInstaller.msix" />
+            <Parameter name="ExeTestInstallerPath" value="ExeTestInstaller.exe" />
+            <Parameter name="PackageCertificatePath" value="certificate.pfx"/>
+            <Parameter name="PowerShellModulePath" value="TestPowerShellModule.psd1" />
+            <Parameter name="LocalServerCertPath" value="servercert.cer" />
+        </TestRunParameters>
+    </RunSettings>
   
 #### Example of Test.runsettings with completed parameters:
 Make sure to replace **MSFT** with your own user name. Modifying this example with the correct path to each test run parameter for your own local computer should be sufficient to successfully run the E2E tests  once all steps are completed.
-   
-	<RunSettings>
-		<TestRunParameters>
-			<Parameter name="PackagedContext" value="false" />
-			<Parameter name="VerboseLogging" value="false" />
-			<Parameter name="AICLIPath" value="C:\Users\<user>\source\repos\winget-cli\src\x64\Debug\AppInstallerCLI\AppInstallerCLI.exe" />
-			<Parameter name="AICLIPackagePath" value="AppInstallerCLIPackage.appxbundle" />
-			<Parameter name="LooseFileRegistration" value="false" />
-			<Parameter name="InvokeCommandInDesktopPackage" value="false" />
-			<Parameter name="StaticFileRootPath" value="C:\Users\MSFT\AppData\Local\Temp\TestLocalIndex" />
-			<Parameter name="MsixTestInstallerPath" value="C:\Users\MSFT\Temp\MsixTestInstaller.msix" />
-			<Parameter name="ExeTestInstallerPath" value="C:\Users\MSFT\source\repos\winget-cli\src\x64\Debug\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe" />
-			<Parameter name="PackageCertificatePath" value="C:\Users\MSFT\Temp\packageCertificate.pfx"/>
-			<Parameter name="PowerShellModulePath" value="C:\Users\MSFT\source\repos\winget-cli\src\x64\Debug\PowerShell\Microsoft.WinGet.Client.psd1" />
-		</TestRunParameters>
-	</RunSettings>
+
+    <RunSettings>
+        <TestRunParameters>
+            <Parameter name="PackagedContext" value="false" />
+            <Parameter name="VerboseLogging" value="false" />
+            <Parameter name="AICLIPath" value="C:\Users\<user>\source\repos\winget-cli\src\x64\Debug\AppInstallerCLI\AppInstallerCLI.exe" />
+            <Parameter name="AICLIPackagePath" value="AppInstallerCLIPackage.appxbundle" />
+            <Parameter name="LooseFileRegistration" value="false" />
+            <Parameter name="InvokeCommandInDesktopPackage" value="false" />
+            <Parameter name="StaticFileRootPath" value="C:\Users\MSFT\AppData\Local\Temp\TestLocalIndex" />
+            <Parameter name="MsixTestInstallerPath" value="C:\Users\MSFT\Temp\MsixTestInstaller.msix" />
+            <Parameter name="ExeTestInstallerPath" value="C:\Users\MSFT\source\repos\winget-cli\src\x64\Debug\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe" />
+            <Parameter name="PackageCertificatePath" value="C:\Users\MSFT\Temp\packageCertificate.pfx"/>
+            <Parameter name="PowerShellModulePath" value="C:\Users\MSFT\source\repos\winget-cli\src\x64\Debug\PowerShell\Microsoft.WinGet.Client.psd1" />
+            <Parameter name="LocalServerCertPath" value="C:\Users\MSFT\AppData\Local\Temp\servercert.cer" />
+        </TestRunParameters>
+    </RunSettings>
 
 
 #### Log Files

@@ -22,6 +22,7 @@ namespace AppInstallerCLIE2ETests
         public const string LooseFileRegistrationParameter = "LooseFileRegistration";
         public const string InvokeCommandInDesktopPackageParameter = "InvokeCommandInDesktopPackage";
         public const string StaticFileRootPathParameter = "StaticFileRootPath";
+        public const string LocalServerCertPathParameter = "LocalServerCertPath";
         public const string ExeInstallerPathParameter = "ExeTestInstallerPath";
         public const string MsiInstallerPathParameter = "MsiTestInstallerPath";
         public const string MsixInstallerPathParameter = "MsixTestInstallerPath";
@@ -42,7 +43,6 @@ namespace AppInstallerCLIE2ETests
         public const string TestSourceUrl = @"https://localhost:5001/TestKit";
         public const string TestSourceType = "Microsoft.PreIndexed.Package";
         public const string TestSourceIdentifier = @"WingetE2E.Tests_8wekyb3d8bbwe";
-        public const string TestSourceServerCertificateFileName = "servercert.cer";
 
         public const string AICLIPackageFamilyName = "WinGetDevCLI_8wekyb3d8bbwe";
         public const string AICLIPackageName = "WinGetDevCLI";

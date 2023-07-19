@@ -76,6 +76,12 @@ namespace AppInstallerCLIE2ETests
             };
 
             WinGetLocalSource.CreateLocalSource(e2eSource);
+
+            // If everything goes right, modify the paths to the signed and final installers.
+            TestCommon.ExeInstallerPath = Path.Combine(TestCommon.StaticFileRootPath, Constants.ExeInstaller, Constants.ExeInstallerFileName);
+            TestCommon.MsiInstallerPath = Path.Combine(TestCommon.StaticFileRootPath, Constants.MsiInstaller, Constants.MsiInstallerFileName);
+            TestCommon.MsixInstallerPath = Path.Combine(TestCommon.StaticFileRootPath, Constants.MsixInstaller, Constants.MsixInstallerFileName);
+            TestCommon.ZipInstallerPath = Path.Combine(TestCommon.StaticFileRootPath, Constants.ZipInstaller, Constants.ZipInstallerFileName);
         }
     }
 }

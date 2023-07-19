@@ -35,7 +35,8 @@ steps:
                                       -MsixTestInstallerPath $(Build.ArtifactStagingDirectory)\AppInstallerTestMsixInstaller.msix
                                       -ExeTestInstallerPath $(buildOutDir)\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe
                                       -PackageCertificatePath $(AppInstallerTest.secureFilePath)
-                                      -PowerShellModulePath $(buildOutDir)\PowerShell\Microsoft.WinGet.Client\Microsoft.WinGet.Client.psd1'
+                                      -PowerShellModulePath $(buildOutDir)\PowerShell\Microsoft.WinGet.Client\Microsoft.WinGet.Client.psd1
+                                      -LocalServerCertPath $(Agent.TempDirectory)\servercert.cer'
       ${{ else }}:
           overrideTestrunParameters: '-PackagedContext false
                                       -AICLIPath $(packageLayoutDir)\AppInstallerCLI\winget.exe
@@ -45,7 +46,8 @@ steps:
                                       -MsixTestInstallerPath $(Build.ArtifactStagingDirectory)\AppInstallerTestMsixInstaller.msix
                                       -ExeTestInstallerPath $(buildOutDir)\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe
                                       -PackageCertificatePath $(AppInstallerTest.secureFilePath)
-                                      -PowerShellModulePath $(buildOutDir)\PowerShell\Microsoft.WinGet.Client\Microsoft.WinGet.Client.psd1'
+                                      -PowerShellModulePath $(buildOutDir)\PowerShell\Microsoft.WinGet.Client\Microsoft.WinGet.Client.psd1
+                                      -LocalServerCertPath $(Agent.TempDirectory)\servercert.cer'
 
   - task: CmdLine@2
     displayName: Complete COM trace for ${{ parameters.title }}
