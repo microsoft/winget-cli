@@ -24,6 +24,7 @@
       </PropertyGroup>
       <ItemDefinitionGroup>
         <ClCompile>
+          <PreprocessorDefinitions>_CRT_NONSTDC_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
           <WarningLevel>TurnOffAllWarnings</WarningLevel>
           <TreatWarningAsError>false</TreatWarningAsError>
         </ClCompile>
@@ -185,4 +186,5 @@
   <Target Name="DeleteIntermediateFiles" AfterTargets="PostBuildEvent" Condition=" '$(Agent_BuildDirectory)' != '' ">
     <RemoveDir Directories="$(IntDir)" />
   </Target>
+
 </Project>
