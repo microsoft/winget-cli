@@ -86,7 +86,6 @@ namespace AppInstaller::CLI
             Workflow::ReportIdentityAndInstallationDisclaimer <<
             Workflow::ShowPromptsForSinglePackage(/* ensureAcceptance */ true) <<
             Workflow::DownloadPackageDependencies <<
-            Workflow::DownloadInstaller <<
-            Workflow::ExportManifest;
+            Workflow::DownloadInstaller;
     }
 }

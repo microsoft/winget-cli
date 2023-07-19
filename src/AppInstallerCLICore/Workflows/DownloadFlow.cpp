@@ -239,6 +239,11 @@ namespace AppInstaller::CLI::Workflow
             VerifyInstallerHash <<
             UpdateInstallerFileMotwIfApplicable <<
             RenameDownloadedInstaller;
+
+        if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerDownloadOnly))
+        {
+            context << ExportManifest;
+        }
     }
 
     void CheckForExistingInstaller(Execution::Context& context)
@@ -581,9 +586,6 @@ namespace AppInstaller::CLI::Workflow
 
         std::filesystem::path manifestFileName = GetInstallerDownloadOnlyFileName(context, L".yaml");
         const auto& manifestDownloadPath = downloadDirectory / manifestFileName;
-
-        THROW_HR_IF(E_UNEXPECTED, !installer.has_value());
-
         const auto& manifestYamlContent = YamlWriter::ManifestToYamlString(manifest, installer.value());
         YamlWriter::OutputYamlFile(manifestYamlContent, manifestDownloadPath);
         AICLI_LOG(CLI, Info, << "Successfully generated manifest yaml. Path: " << manifestDownloadPath);
