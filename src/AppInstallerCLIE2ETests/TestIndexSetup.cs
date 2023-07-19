@@ -23,7 +23,6 @@ namespace AppInstallerCLIE2ETests
         {
             LocalSource e2eSource = new ()
             {
-                Name = "e2eSource",
                 AppxManifest = Path.Combine(Environment.CurrentDirectory, "TestData", "Package", "AppxManifest.xml"),
                 WorkingDirectory = TestCommon.StaticFileRootPath,
                 LocalManifests = new ()

@@ -5,10 +5,6 @@ namespace WinGetSourceCreator.Model
 {
     public class LocalSource
     {
-        // The name of the local source.
-        // Output msix package and index are are named by this.
-        public string Name { get; set; } = string.Empty;
-
         // Full path of the input appx manifest.
         // Will be used to generate the package.
         public string AppxManifest { get; set; } = string.Empty;
@@ -29,11 +25,6 @@ namespace WinGetSourceCreator.Model
 
         public void Validate()
         {
-            if (string.IsNullOrEmpty(this.Name))
-            {
-                throw new ArgumentNullException(nameof(this.Name));
-            }
-
             if (string.IsNullOrEmpty(this.AppxManifest))
             {
                 throw new ArgumentNullException(nameof(this.AppxManifest));
@@ -73,12 +64,12 @@ namespace WinGetSourceCreator.Model
 
         public string GetIndexName()
         {
-            return $"{this.Name}.db";
+            return $"index.db";
         }
 
         public string GetSourceName()
         {
-            return $"{this.Name}.msix";
+            return "source.msix";
         }
     }
 }
