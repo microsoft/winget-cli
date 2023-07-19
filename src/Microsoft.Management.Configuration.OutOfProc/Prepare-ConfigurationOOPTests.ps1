@@ -20,13 +20,16 @@ $Local:dllTargetPath = Join-Path $BuildOutputPath "Microsoft.Management.Configur
 Copy-Item $Local:dllSourcePath $Local:dllTargetPath -Force
 
 # Register the package
-$Local:packageManifestPath = Join-Path $PackageLayoutPath "AppxManifest.xml"
+if (-not [System.String]::IsNullOrEmpty($PackageLayoutPath))
+{
+    $Local:packageManifestPath = Join-Path $PackageLayoutPath "AppxManifest.xml"
 
-Add-AppxPackage -Register $Local:packageManifestPath
+    Add-AppxPackage -Register $Local:packageManifestPath
 
-# Configure crash dump and log file settings
-$Local:settingsExport = ConvertFrom-Json (wingetdev.exe settings export)
-$Local:settingsFilePath = $Local:settingsExport.userSettingsFile
-$Local:settingsFileContent = ConvertTo-Json @{ debugging= @{ enableSelfInitiatedMinidump=$true ; keepAllLogFiles=$true } }
+    # Configure crash dump and log file settings
+    $Local:settingsExport = ConvertFrom-Json (wingetdev.exe settings export)
+    $Local:settingsFilePath = $Local:settingsExport.userSettingsFile
+    $Local:settingsFileContent = ConvertTo-Json @{ debugging= @{ enableSelfInitiatedMinidump=$true ; keepAllLogFiles=$true } }
 
-Set-Content -Path $Local:settingsFilePath -Value $Local:settingsFileContent
+    Set-Content -Path $Local:settingsFilePath -Value $Local:settingsFileContent
+}

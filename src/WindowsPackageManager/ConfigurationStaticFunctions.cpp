@@ -5,6 +5,7 @@
 #include <winrt/Microsoft.Management.Configuration.h>
 #include <ComClsids.h>
 #include <AppInstallerErrors.h>
+#include <AppInstallerFileLogger.h>
 #include <AppInstallerStrings.h>
 #include <winget/ConfigurationSetProcessorHandlers.h>
 #include <ConfigurationSetProcessorFactoryRemoting.h>
@@ -21,6 +22,20 @@ namespace ConfigurationShim
     ConfigurationObjectLifetimeWatcher : winrt::implements<ConfigurationObjectLifetimeWatcher, IUnknown>
     {
     };
+
+    AppInstaller::Logging::Level ConvertLevel(winrt::Microsoft::Management::Configuration::DiagnosticLevel level)
+    {
+        switch (level)
+        {
+        case winrt::Microsoft::Management::Configuration::DiagnosticLevel::Verbose: return AppInstaller::Logging::Level::Verbose;
+        case winrt::Microsoft::Management::Configuration::DiagnosticLevel::Informational: return AppInstaller::Logging::Level::Info;
+        case winrt::Microsoft::Management::Configuration::DiagnosticLevel::Warning: return AppInstaller::Logging::Level::Warning;
+        case winrt::Microsoft::Management::Configuration::DiagnosticLevel::Error: return AppInstaller::Logging::Level::Error;
+        case winrt::Microsoft::Management::Configuration::DiagnosticLevel::Critical: return AppInstaller::Logging::Level::Crit;
+        }
+
+        return AppInstaller::Logging::Level::Info;
+    }
 
     struct
     DECLSPEC_UUID(WINGET_OUTOFPROC_COM_CLSID_ConfigurationStaticFunctions)
@@ -73,6 +88,17 @@ namespace ConfigurationShim
         {
             auto result = m_statics.CreateConfigurationProcessor(factory);
             result.as<AppInstaller::WinRT::ILifetimeWatcher>()->SetLifetimeWatcher(CreateLifetimeWatcher());
+
+            // Attach a file logger to the diagnostics
+            AppInstaller::Logging::FileLogger fileLogger{ "Config"sv };
+            result.Diagnostics([logger = std::move(fileLogger)](const winrt::Windows::Foundation::IInspectable&, const winrt::Microsoft::Management::Configuration::IDiagnosticInformation& diagnostics)
+                {
+                    const_cast<AppInstaller::Logging::FileLogger*>(&logger)->Write(
+                        AppInstaller::Logging::Channel::Config,
+                        ConvertLevel(diagnostics.Level()),
+                        AppInstaller::Utility::ConvertToUTF8(diagnostics.Message()));
+                });
+
             return result;
         }
 
