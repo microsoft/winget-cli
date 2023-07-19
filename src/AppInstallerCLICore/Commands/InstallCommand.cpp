@@ -116,7 +116,10 @@ namespace AppInstaller::CLI
 
     void InstallCommand::ExecuteInternal(Context& context) const
     {
-        Checkpoint(context, CheckpointFlags::ArgumentsProcessed);
+        //if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Resume))
+        //{
+        //    Checkpoint(context, CheckpointFlags::ArgumentsProcessed);
+        //}
 
         context.SetFlags(ContextFlag::ShowSearchResultsOnPartialFailure);
 

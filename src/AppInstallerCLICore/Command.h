@@ -8,7 +8,6 @@
 #include <winget/UserSettings.h>
 #include <winget/ExperimentalFeature.h>
 #include <winget/GroupPolicy.h>
-#include <Microsoft/CheckpointIndex.h>
 
 #include <initializer_list>
 #include <memory>
@@ -18,6 +17,11 @@
 #include <string_view>
 #include <type_traits>
 #include <vector>
+
+namespace AppInstaller::Repository::Microsoft
+{
+    struct CheckpointIndex;
+}
 
 namespace AppInstaller::CLI
 {

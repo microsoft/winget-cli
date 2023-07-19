@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 #pragma once
 #include "Microsoft/Schema/ICheckpointIndex.h"
-#include "Microsoft/Schema/Checkpoint_1_0/CheckpointTable.h"
 
 namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
 {

@@ -3,7 +3,7 @@
 #include "pch.h"
 #include "CheckpointIndex.h"
 #include "SQLiteStorageBase.h"
-#include "Schema/Checkpoint_1_0/CheckpointIndexInterface_1_0.h"
+#include "Schema/Checkpoint_1_0/CheckpointIndexInterface.h"
 
 namespace AppInstaller::Repository::Microsoft
 {

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
-#include "Microsoft/Schema/Checkpoint_1_0/CheckpointIndexInterface_1_0.h"
+#include "Microsoft/Schema/Checkpoint_1_0/CheckpointIndexInterface.h"
 #include "Microsoft/Schema/Checkpoint_1_0/CheckpointTable.h"
 
 namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
