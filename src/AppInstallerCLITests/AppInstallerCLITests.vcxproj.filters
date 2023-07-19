@@ -31,6 +31,9 @@
     <Filter Include="TestData\MultiFileManifestV1_5">
       <UniqueIdentifier>{488e9b7a-d72e-470c-b73a-5abcb83ca2c6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="TestData\MultiFileManifestV1_6">
+      <UniqueIdentifier>{82dd5390-16ce-4a4c-a61a-148013890cc4}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source Files\CLI">
       <UniqueIdentifier>{b35e1a8b-1961-46d5-98e5-adc8e52c54a9}</UniqueIdentifier>
     </Filter>
@@ -738,6 +741,9 @@
     <CopyFileToFolders Include="TestData\ManifestV1_5-Singleton.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\ManifestV1_6-Singleton.yaml">
+      <Filter>TestData</Filter>
+    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\MultiFileManifestV1\ManifestV1-MultiFile-DefaultLocale.yaml">
       <Filter>TestData\MultiFileManifestV1</Filter>
     </CopyFileToFolders>
@@ -797,6 +803,18 @@
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\MultiFileManifestV1_5\ManifestV1_5-MultiFile-Version.yaml">
       <Filter>TestData\MultiFileManifestV1_5</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_6\ManifestV1_6-MultiFile-DefaultLocale.yaml">
+      <Filter>TestData\MultiFileManifestV1_6</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_6\ManifestV1_6-MultiFile-Installer.yaml">
+      <Filter>TestData\MultiFileManifestV1_6</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_6\ManifestV1_6-MultiFile-Locale.yaml">
+      <Filter>TestData\MultiFileManifestV1_6</Filter>
+    </CopyFileToFolders>
+    <CopyFileToFolders Include="TestData\MultiFileManifestV1_6\ManifestV1_6-MultiFile-Version.yaml">
+      <Filter>TestData\MultiFileManifestV1_6</Filter>
     </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Installer_Exe_Dependencies.yaml">
       <Filter>TestData</Filter>
