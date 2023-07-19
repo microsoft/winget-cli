@@ -31,6 +31,7 @@ namespace AppInstaller::CLI::Workflow
     {
         constexpr std::wstring_view s_Directive_Description = L"description";
         constexpr std::wstring_view s_Directive_Module = L"module";
+        constexpr std::wstring_view s_Directive_AllowPrerelease = L"allowPrerelease";
 
         Logging::Level ConvertLevel(DiagnosticLevel level)
         {
@@ -93,6 +94,21 @@ namespace AppInstaller::CLI::Workflow
                 if (property && property.Type() == PropertyType::String)
                 {
                     return Utility::LocIndString{ Utility::ConvertToUTF8(property.GetString()) };
+                }
+            }
+
+            return {};
+        }
+
+        std::optional<bool> GetValueSetBool(const ValueSet& valueSet, std::wstring_view value)
+        {
+            if (valueSet.HasKey(value))
+            {
+                auto object = valueSet.Lookup(value);
+                IPropertyValue property = object.try_as<IPropertyValue>();
+                if (property && property.Type() == PropertyType::Boolean)
+                {
+                    return property.GetBoolean();
                 }
             }
 
@@ -806,6 +822,8 @@ namespace AppInstaller::CLI::Workflow
             openResult = openAction.get();
         }
 
+        progressScope.reset();
+
         if (FAILED_LOG(static_cast<HRESULT>(openResult.ResultCode().value)))
         {
             AICLI_LOG(Config, Error, << "Failed to open configuration set at " << absolutePath.u8string() << " with error 0x" << Logging::SetHRFormat << static_cast<HRESULT>(openResult.ResultCode().value));
@@ -827,7 +845,7 @@ namespace AppInstaller::CLI::Workflow
             case WINGET_CONFIG_ERROR_INVALID_CONFIGURATION_FILE:
             case WINGET_CONFIG_ERROR_INVALID_YAML:
             default:
-                context.Reporter.Error() << Resource::String::ConfigurationFileInvalid << std::endl;
+                context.Reporter.Error() << Resource::String::ConfigurationFileInvalidYAML << std::endl;
                 break;
             }
 
@@ -865,7 +883,7 @@ namespace AppInstaller::CLI::Workflow
         auto progressScope = context.Reporter.BeginAsyncProgress(true);
         progressScope->Callback().SetProgressMessage(gettingDetailString);
 
-        auto getDetailsOperation = configContext.Processor().GetSetDetailsAsync(configContext.Set(), ConfigurationUnitDetailLevel::Catalog);
+        auto getDetailsOperation = configContext.Processor().GetSetDetailsAsync(configContext.Set(), ConfigurationUnitDetailFlags::ReadOnly);
         auto unification = CreateProgressCancellationUnification(std::move(progressScope), getDetailsOperation);
 
         OutputStream out = context.Reporter.Info();
@@ -1037,5 +1055,251 @@ namespace AppInstaller::CLI::Workflow
             context.Reporter.Error() << Resource::String::ConfigurationNotEnabledMessage << std::endl;
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_PACKAGE_IS_STUB);
         }
+    }
+
+    void ValidateConfigurationSetSemantics(Execution::Context& context)
+    {
+        ConfigurationContext& configContext = context.Get<Data::ConfigurationContext>();
+
+        if (configContext.Set().ConfigurationUnits().Size() == 0)
+        {
+            context.Reporter.Warn() << Resource::String::ConfigurationFileEmpty << std::endl;
+            // This isn't an error termination, but there is no reason to proceed.
+            AICLI_TERMINATE_CONTEXT(S_FALSE);
+        }
+
+        ApplyConfigurationSetResult result = configContext.Processor().ApplySet(configContext.Set(), ApplyConfigurationSetFlags::PerformConsistencyCheckOnly);
+
+        if (FAILED(result.ResultCode()))
+        {
+            for (const auto& unitResult : result.UnitResults())
+            {
+                IConfigurationUnitResultInformation resultInformation = unitResult.ResultInformation();
+                winrt::hresult resultCode = resultInformation.ResultCode();
+
+                if (FAILED(resultCode))
+                {
+                    ConfigurationUnit unit = unitResult.Unit();
+
+                    auto out = context.Reporter.Info();
+                    OutputConfigurationUnitHeader(out, unit, unit.UnitName());
+
+                    switch (resultCode)
+                    {
+                    case WINGET_CONFIG_ERROR_DUPLICATE_IDENTIFIER:
+                        context.Reporter.Error() << "  "_liv << Resource::String::ConfigurationUnitHasDuplicateIdentifier(Utility::LocIndString{ Utility::ConvertToUTF8(unit.Identifier()) }) << std::endl;
+                        break;
+                    case WINGET_CONFIG_ERROR_MISSING_DEPENDENCY:
+                        context.Reporter.Error() << "  "_liv << Resource::String::ConfigurationUnitHasMissingDependency(Utility::LocIndString{ Utility::ConvertToUTF8(resultInformation.Details()) }) << std::endl;
+                        break;
+                    case WINGET_CONFIG_ERROR_DEPENDENCY_UNSATISFIED:
+                        context.Reporter.Error() << "  "_liv << Resource::String::ConfigurationUnitIsPartOfDependencyCycle << std::endl;
+                        break;
+                    default:
+                        context.Reporter.Error() << "  "_liv << Resource::String::ConfigurationUnitFailed(static_cast<int32_t>(resultCode)) << std::endl;
+                        break;
+                    }
+                }
+            }
+
+            AICLI_TERMINATE_CONTEXT(result.ResultCode());
+        }
+    }
+
+    void ValidateConfigurationSetUnitProcessors(Execution::Context& context)
+    {
+        ConfigurationContext& configContext = context.Get<Data::ConfigurationContext>();
+
+        // TODO: We could optimize this by creating a set with unique resource units
+
+        // First get the local details
+        auto gettingDetailString = Resource::String::ConfigurationGettingDetails();
+        auto progressScope = context.Reporter.BeginAsyncProgress(true);
+        progressScope->Callback().SetProgressMessage(gettingDetailString);
+
+        auto getLocalDetailsOperation = configContext.Processor().GetSetDetailsAsync(configContext.Set(), ConfigurationUnitDetailFlags::Local);
+        auto unification = CreateProgressCancellationUnification(std::move(progressScope), getLocalDetailsOperation);
+
+        HRESULT getLocalHR = S_OK;
+        GetConfigurationSetDetailsResult getLocalResult = nullptr;
+
+        try
+        {
+            getLocalResult = getLocalDetailsOperation.get();
+        }
+        catch (...)
+        {
+            getLocalHR = LOG_CAUGHT_EXCEPTION();
+        }
+
+        unification.Reset();
+
+        if (context.IsTerminated())
+        {
+            // The context should only be terminated on us due to cancellation
+            context.Reporter.Error() << Resource::String::Cancelled << std::endl;
+            return;
+        }
+
+        if (FAILED(getLocalHR))
+        {
+            // Failing to get details might not be fatal, warn about it but proceed
+            context.Reporter.Warn() << Resource::String::ConfigurationFailedToGetDetails << std::endl;
+        }
+
+        // Next get the details from the catalog
+        progressScope = context.Reporter.BeginAsyncProgress(true);
+        progressScope->Callback().SetProgressMessage(gettingDetailString);
+
+        auto getCatalogDetailsOperation = configContext.Processor().GetSetDetailsAsync(configContext.Set(), ConfigurationUnitDetailFlags::Catalog);
+        unification = CreateProgressCancellationUnification(std::move(progressScope), getCatalogDetailsOperation);
+
+        HRESULT getCatalogHR = S_OK;
+        GetConfigurationSetDetailsResult getCatalogResult = nullptr;
+
+        try
+        {
+            getCatalogResult = getCatalogDetailsOperation.get();
+        }
+        catch (...)
+        {
+            getCatalogHR = LOG_CAUGHT_EXCEPTION();
+        }
+
+        unification.Reset();
+
+        if (context.IsTerminated())
+        {
+            // The context should only be terminated on us due to cancellation
+            context.Reporter.Error() << Resource::String::Cancelled << std::endl;
+            return;
+        }
+
+        if (FAILED(getCatalogHR))
+        {
+            // Failing to get the catalog details means that we can't really get give much of a meaningful response.
+            context.Reporter.Error() << Resource::String::ConfigurationFailedToGetDetails << std::endl;
+            AICLI_TERMINATE_CONTEXT(getCatalogHR);
+        }
+
+        auto units = configContext.Set().ConfigurationUnits();
+        auto localUnitResults = getLocalResult ? getLocalResult.UnitResults() : nullptr;
+        if (localUnitResults && units.Size() != localUnitResults.Size())
+        {
+            AICLI_LOG(Config, Error, << "The details result size did not match the set size: Set[" << units.Size() << "], Local[" << localUnitResults.Size() << "]");
+            THROW_HR(WINGET_CONFIG_ERROR_ASSERTION_FAILED);
+        }
+
+        auto catalogUnitResults = getCatalogResult.UnitResults();
+        if (units.Size() != catalogUnitResults.Size())
+        {
+            AICLI_LOG(Config, Error, << "The details result sizes did not match the set size: Set[" << units.Size() << "], Catalog[" << catalogUnitResults.Size() << "]");
+            THROW_HR(WINGET_CONFIG_ERROR_ASSERTION_FAILED);
+        }
+
+        bool foundIssue = false;
+
+        // Now that we have the entire set of local and catalog details, process each unit
+        for (uint32_t i = 0; i < units.Size(); ++i)
+        {
+            const ConfigurationUnit& unit = units.GetAt(i);
+            GetConfigurationUnitDetailsResult localUnitResult = localUnitResults ? localUnitResults.GetAt(i) : nullptr;
+            GetConfigurationUnitDetailsResult catalogUnitResult = catalogUnitResults.GetAt(i);
+            IConfigurationUnitProcessorDetails catalogDetails = catalogUnitResult.Details();
+
+            bool needsHeader = true;
+            auto outputHeaderIfNeeded = [&]()
+            {
+                if (needsHeader)
+                {
+                    auto out = context.Reporter.Info();
+                    OutputConfigurationUnitHeader(out, unit, unit.UnitName());
+                    needsHeader = false;
+                    foundIssue = true;
+                }
+            };
+
+            if (GetValueSetString(unit.Directives(), s_Directive_Module).value_or(Utility::LocIndString{}).empty())
+            {
+                outputHeaderIfNeeded();
+                context.Reporter.Warn() << "  "_liv << Resource::String::ConfigurationUnitModuleNotProvidedWarning << std::endl;
+            }
+
+            if (catalogDetails)
+            {
+                // Warn if unit is not public
+                if (!catalogDetails.IsPublic())
+                {
+                    outputHeaderIfNeeded();
+                    context.Reporter.Warn() << "  "_liv << Resource::String::ConfigurationUnitNotPublicWarning << std::endl;
+                }
+
+                // Since it is available, no more checks are needed
+                continue;
+            }
+            // Everything below here is due to not finding in the catalog search
+
+            if (FAILED(catalogUnitResult.ResultInformation().ResultCode()))
+            {
+                outputHeaderIfNeeded();
+                OutputUnitRunFailure(context, unit, catalogUnitResult.ResultInformation());
+                continue;
+            }
+
+            // If not already prerelease, try with prerelease and warn if found
+            std::optional<bool> allowPrereleaseDirective = GetValueSetBool(unit.Directives(), s_Directive_AllowPrerelease);
+            if (!allowPrereleaseDirective || !allowPrereleaseDirective.value())
+            {
+                // Check if the configuration unit is prerelease but the author forgot it
+                ConfigurationUnit clone = unit.Copy();
+                clone.Directives().Insert(s_Directive_AllowPrerelease, PropertyValue::CreateBoolean(true));
+
+                progressScope = context.Reporter.BeginAsyncProgress(true);
+                progressScope->Callback().SetProgressMessage(gettingDetailString);
+
+                auto getUnitDetailsOperation = configContext.Processor().GetUnitDetailsAsync(clone, ConfigurationUnitDetailFlags::Catalog);
+                auto unitUnification = CreateProgressCancellationUnification(std::move(progressScope), getUnitDetailsOperation);
+
+                IConfigurationUnitProcessorDetails prereleaseDetails;
+
+                try
+                {
+                    prereleaseDetails = getUnitDetailsOperation.get().Details();
+                }
+                CATCH_LOG();
+
+                unification.Reset();
+
+                if (prereleaseDetails)
+                {
+                    outputHeaderIfNeeded();
+                    context.Reporter.Warn() << "  "_liv << Resource::String::ConfigurationUnitNeedsPrereleaseWarning << std::endl;
+                    continue;
+                }
+            }
+
+            // If module is local, warn that we couldn't find it in the catalog
+            if (localUnitResult && localUnitResult.Details())
+            {
+                outputHeaderIfNeeded();
+                context.Reporter.Warn() << "  "_liv << Resource::String::ConfigurationUnitNotInCatalogWarning << std::endl;
+                continue;
+            }
+
+            // Finally, error that we couldn't find it at all
+            outputHeaderIfNeeded();
+            context.Reporter.Error() << "  "_liv << Resource::String::ConfigurationUnitNotFound << std::endl;
+        }
+
+        if (foundIssue)
+        {
+            // Indicate that it was not a total success
+            AICLI_TERMINATE_CONTEXT(S_FALSE);
+        }
+    }
+
+    void ValidateAllGoodMessage(Execution::Context& context)
+    {
+        context.Reporter.Info() << Resource::String::ConfigurationValidationFoundNoIssues << std::endl;
     }
 }

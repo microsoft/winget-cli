@@ -29,11 +29,11 @@ namespace TestCommon
     {
         winrt::Microsoft::Management::Configuration::IConfigurationUnitProcessorDetails GetUnitProcessorDetails(
             const winrt::Microsoft::Management::Configuration::ConfigurationUnit& unit,
-            winrt::Microsoft::Management::Configuration::ConfigurationUnitDetailLevel detailLevel);
+            winrt::Microsoft::Management::Configuration::ConfigurationUnitDetailFlags detailFlags);
 
         std::function<winrt::Microsoft::Management::Configuration::IConfigurationUnitProcessorDetails(
             const winrt::Microsoft::Management::Configuration::ConfigurationUnit&,
-            winrt::Microsoft::Management::Configuration::ConfigurationUnitDetailLevel)> GetUnitProcessorDetailsFunc;
+            winrt::Microsoft::Management::Configuration::ConfigurationUnitDetailFlags)> GetUnitProcessorDetailsFunc;
 
         winrt::Microsoft::Management::Configuration::IConfigurationUnitProcessor CreateUnitProcessor(
             const winrt::Microsoft::Management::Configuration::ConfigurationUnit& unit,
@@ -84,7 +84,7 @@ namespace TestCommon
         winrt::Windows::Foundation::DateTime PublishedDateValue;
         winrt::Windows::Foundation::DateTime PublishedDate() const { return PublishedDateValue; }
 
-        bool IsLocalValue;
+        bool IsLocalValue = false;
         bool IsLocal() const { return IsLocalValue; }
 
         winrt::hstring AuthorValue;
@@ -99,7 +99,7 @@ namespace TestCommon
         winrt::Windows::Foundation::Collections::IVector<winrt::Microsoft::Management::Configuration::IConfigurationUnitSettingDetails> SettingsValue;
         winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Management::Configuration::IConfigurationUnitSettingDetails> Settings() const { return (SettingsValue ? SettingsValue.GetView() : nullptr); }
 
-        bool IsPublicValue;
+        bool IsPublicValue = false;
         bool IsPublic() const { return IsPublicValue; }
     };
 
