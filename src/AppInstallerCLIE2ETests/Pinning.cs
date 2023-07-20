@@ -4,11 +4,10 @@
 // </copyright>
 // -----------------------------------------------------------------------------
 
-using AppInstallerCLIE2ETests.Helpers;
-
 namespace AppInstallerCLIE2ETests
 {
     using System.IO;
+    using AppInstallerCLIE2ETests.Helpers;
     using NUnit.Framework;
     using static AppInstallerCLIE2ETests.Helpers.TestCommon;
 

@@ -11,7 +11,7 @@ namespace AppInstallerCLIE2ETests.Helpers
     using NUnit.Framework;
 
     /// <summary>
-    /// Singleton class with test paramters.
+    /// Singleton class with test parameters.
     /// </summary>
     internal class TestSetup
     {
@@ -27,27 +27,28 @@ namespace AppInstallerCLIE2ETests.Helpers
             this.SettingsJsonFilePath = WinGetSettingsHelper.GetUserSettingsPath();
 
             // Read TestParameters and set runtime variables
-            this.PackagedContext = this.Initialize(Constants.PackagedContextParameter, true);
-            this.VerboseLogging = this.Initialize(Constants.VerboseLoggingParameter, true);
-            this.LooseFileRegistration = this.Initialize(Constants.LooseFileRegistrationParameter, false);
-            this.InvokeCommandInDesktopPackage = this.Initialize(Constants.InvokeCommandInDesktopPackageParameter, false);
+            this.PackagedContext = this.InitializeBoolParam(Constants.PackagedContextParameter, true);
+            this.VerboseLogging = this.InitializeBoolParam(Constants.VerboseLoggingParameter, true);
+            this.LooseFileRegistration = this.InitializeBoolParam(Constants.LooseFileRegistrationParameter);
+            this.InvokeCommandInDesktopPackage = this.InitializeBoolParam(Constants.InvokeCommandInDesktopPackageParameter);
 
             // For packaged context, default to AppExecutionAlias
-            this.AICLIPath = this.Initialize(Constants.AICLIPathParameter, this.PackagedContext ? "WinGetDev.exe" : TestCommon.GetTestFile("winget.exe"));
-            this.AICLIPackagePath = this.Initialize(Constants.AICLIPackagePathParameter, TestCommon.GetTestFile("AppInstallerCLIPackage.appxbundle"));
+            this.AICLIPath = this.InitializeStringParam(Constants.AICLIPathParameter, this.PackagedContext ? "WinGetDev.exe" : TestCommon.GetTestFile("winget.exe"));
+            this.AICLIPackagePath = this.InitializeStringParam(Constants.AICLIPackagePathParameter, TestCommon.GetTestFile("AppInstallerCLIPackage.appxbundle"));
 
             if (this.LooseFileRegistration && this.InvokeCommandInDesktopPackage)
             {
                 this.AICLIPath = Path.Combine(this.AICLIPackagePath, this.AICLIPath);
             }
 
-            this.StaticFileRootPath = this.Initialize(Constants.StaticFileRootPathParameter, Path.GetTempPath());
-            this.LocalServerCertPath = this.Initialize(Constants.LocalServerCertPathParameter, string.Empty);
-            this.PackageCertificatePath = this.Initialize(Constants.PackageCertificatePathParameter, string.Empty);
-            this.PowerShellModulePath = this.Initialize(Constants.PowerShellModulePathParameter, string.Empty);
-            this.ExeInstallerPath = this.Initialize(Constants.ExeInstallerPathParameter, string.Empty);
-            this.MsiInstallerPath = this.Initialize(Constants.MsiInstallerPathParameter, string.Empty);
-            this.MsixInstallerPath = this.Initialize(Constants.MsixInstallerPathParameter, string.Empty);
+            this.StaticFileRootPath = this.InitializeDirectoryParam(Constants.StaticFileRootPathParameter, Path.GetTempPath());
+            this.PowerShellModulePath = this.InitializeDirectoryParam(Constants.PowerShellModulePathParameter);
+
+            this.LocalServerCertPath = this.InitializeFileParam(Constants.LocalServerCertPathParameter);
+            this.PackageCertificatePath = this.InitializeFileParam(Constants.PackageCertificatePathParameter);
+            this.ExeInstallerPath = this.InitializeFileParam(Constants.ExeInstallerPathParameter);
+            this.MsiInstallerPath = this.InitializeFileParam(Constants.MsiInstallerPathParameter);
+            this.MsixInstallerPath = this.InitializeFileParam(Constants.MsixInstallerPathParameter);
         }
 
         /// <summary>
@@ -141,7 +142,7 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// </summary>
         public bool IsDefault { get; set; }
 
-        private bool Initialize(string paramName, bool defaultValue)
+        private bool InitializeBoolParam(string paramName, bool defaultValue = false)
         {
             if (this.IsDefault || !TestContext.Parameters.Exists(paramName))
             {
@@ -151,7 +152,7 @@ namespace AppInstallerCLIE2ETests.Helpers
             return TestContext.Parameters.Get(paramName).Equals("true", StringComparison.OrdinalIgnoreCase);
         }
 
-        private string Initialize(string paramName, string defaultVaule)
+        private string InitializeStringParam(string paramName, string defaultVaule = null)
         {
             if (this.IsDefault || !TestContext.Parameters.Exists(paramName))
             {
@@ -159,6 +160,40 @@ namespace AppInstallerCLIE2ETests.Helpers
             }
 
             return TestContext.Parameters.Get(paramName);
+        }
+
+        private string InitializeFileParam(string paramName, string defaultValue = null)
+        {
+            if (!TestContext.Parameters.Exists(paramName))
+            {
+                return defaultValue;
+            }
+
+            var value = TestContext.Parameters.Get(paramName);
+
+            if (!File.Exists(value))
+            {
+                throw new FileNotFoundException($"{paramName}: {value}");
+            }
+
+            return value;
+        }
+
+        private string InitializeDirectoryParam(string paramName, string defaultValue = null)
+        {
+            if (!TestContext.Parameters.Exists(paramName))
+            {
+                return defaultValue;
+            }
+
+            var value = TestContext.Parameters.Get(paramName);
+
+            if (!Directory.Exists(value))
+            {
+                throw new DirectoryNotFoundException($"{paramName}: {value}");
+            }
+
+            return value;
         }
     }
 }

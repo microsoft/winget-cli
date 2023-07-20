@@ -45,11 +45,11 @@ namespace AppInstallerCLIE2ETests.Helpers
 
             LocalSource e2eSource = new ()
             {
-                AppxManifest = Path.Combine(Environment.CurrentDirectory, "TestData", "Package", "AppxManifest.xml"),
+                AppxManifest = TestCommon.GetTestDataFile(Path.Combine("Package", "AppxManifest.xml")),
                 WorkingDirectory = testParams.StaticFileRootPath,
                 LocalManifests = new ()
                 {
-                    Path.Combine(Environment.CurrentDirectory, "TestData", "Manifests"),
+                    TestCommon.GetTestDataFile("Manifests"),
                 },
                 LocalInstallers = new ()
                 {

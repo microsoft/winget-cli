@@ -4,11 +4,10 @@
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace AppInstallerCLIE2ETests
+namespace AppInstallerCLIE2ETests.Helpers
 {
     using System.Collections;
     using System.IO;
-    using AppInstallerCLIE2ETests.Helpers;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
 
@@ -85,7 +84,7 @@ namespace AppInstallerCLIE2ETests
         /// <param name="settings">Settings as string.</param>
         public static void SetWingetSettings(string settings)
         {
-            File.WriteAllText(TestCommon.SettingsJsonFilePath, settings);
+            File.WriteAllText(TestSetup.Parameters.SettingsJsonFilePath, settings);
         }
 
         /// <summary>
@@ -95,7 +94,7 @@ namespace AppInstallerCLIE2ETests
         /// <param name="status">Status.</param>
         public static void ConfigureFeature(string featureName, bool status)
         {
-            JObject settingsJson = JObject.Parse(File.ReadAllText(TestCommon.SettingsJsonFilePath));
+            JObject settingsJson = JObject.Parse(File.ReadAllText(TestSetup.Parameters.SettingsJsonFilePath));
 
             if (!settingsJson.ContainsKey("experimentalFeatures"))
             {
@@ -105,7 +104,7 @@ namespace AppInstallerCLIE2ETests
             var experimentalFeatures = settingsJson["experimentalFeatures"];
             experimentalFeatures[featureName] = status;
 
-            File.WriteAllText(TestCommon.SettingsJsonFilePath, settingsJson.ToString());
+            File.WriteAllText(TestSetup.Parameters.SettingsJsonFilePath, settingsJson.ToString());
         }
 
         /// <summary>
@@ -115,7 +114,7 @@ namespace AppInstallerCLIE2ETests
         /// <param name="value">Setting value.</param>
         public static void ConfigureInstallBehavior(string settingName, string value)
         {
-            JObject settingsJson = JObject.Parse(File.ReadAllText(TestCommon.SettingsJsonFilePath));
+            JObject settingsJson = JObject.Parse(File.ReadAllText(TestSetup.Parameters.SettingsJsonFilePath));
 
             if (!settingsJson.ContainsKey("installBehavior"))
             {
@@ -125,7 +124,7 @@ namespace AppInstallerCLIE2ETests
             var installBehavior = settingsJson["installBehavior"];
             installBehavior[settingName] = value;
 
-            File.WriteAllText(TestCommon.SettingsJsonFilePath, settingsJson.ToString());
+            File.WriteAllText(TestSetup.Parameters.SettingsJsonFilePath, settingsJson.ToString());
         }
 
         /// <summary>
@@ -135,7 +134,7 @@ namespace AppInstallerCLIE2ETests
         /// <param name="value">Setting value.</param>
         public static void ConfigureInstallBehaviorPreferences(string settingName, string value)
         {
-            JObject settingsJson = JObject.Parse(File.ReadAllText(TestCommon.SettingsJsonFilePath));
+            JObject settingsJson = JObject.Parse(File.ReadAllText(TestSetup.Parameters.SettingsJsonFilePath));
 
             if (!settingsJson.ContainsKey("installBehavior"))
             {
@@ -152,7 +151,7 @@ namespace AppInstallerCLIE2ETests
             var preferences = installBehavior["preferences"];
             preferences[settingName] = value;
 
-            File.WriteAllText(TestCommon.SettingsJsonFilePath, settingsJson.ToString());
+            File.WriteAllText(TestSetup.Parameters.SettingsJsonFilePath, settingsJson.ToString());
         }
 
         /// <summary>
@@ -162,7 +161,7 @@ namespace AppInstallerCLIE2ETests
         /// <param name="value">Setting value.</param>
         public static void ConfigureInstallBehaviorRequirements(string settingName, string value)
         {
-            JObject settingsJson = JObject.Parse(File.ReadAllText(TestCommon.SettingsJsonFilePath));
+            JObject settingsJson = JObject.Parse(File.ReadAllText(TestSetup.Parameters.SettingsJsonFilePath));
 
             if (!settingsJson.ContainsKey("installBehavior"))
             {
@@ -179,7 +178,7 @@ namespace AppInstallerCLIE2ETests
             var requirements = installBehavior["requirements"];
             requirements[settingName] = value;
 
-            File.WriteAllText(TestCommon.SettingsJsonFilePath, settingsJson.ToString());
+            File.WriteAllText(TestSetup.Parameters.SettingsJsonFilePath, settingsJson.ToString());
         }
 
         /// <summary>
