@@ -29,35 +29,36 @@ namespace AppInstallerCLIE2ETests
         {
             var testParams = TestSetup.Parameters;
 
-            WinGetSettingsHelper.InitializeWingetSettings();
-
             if (testParams.IsDefault)
             {
                 // If no parameters are provided, use defaults that work locally.
                 // This allows the user to assume responsibility for setup.
                 shouldDoAnyTeardown = false;
-                return;
             }
-
-            shouldDisableDevModeOnExit = this.EnableDevMode(true);
-
-            shouldRevertDefaultFileTypeRiskOnExit = this.DecreaseFileTypeRisk(".exe;.msi", false);
-
-            Assert.True(TestCommon.RunCommand("certutil.exe", "-addstore -f \"TRUSTEDPEOPLE\" " + TestCommon.GetTestDataFile(Constants.AppInstallerTestCert)), "Add AppInstallerTestCert");
-
-            if (testParams.PackagedContext)
+            else
             {
-                if (testParams.LooseFileRegistration)
+                shouldDisableDevModeOnExit = this.EnableDevMode(true);
+
+                shouldRevertDefaultFileTypeRiskOnExit = this.DecreaseFileTypeRisk(".exe;.msi", false);
+
+                Assert.True(TestCommon.RunCommand("certutil.exe", "-addstore -f \"TRUSTEDPEOPLE\" " + TestCommon.GetTestDataFile(Constants.AppInstallerTestCert)), "Add AppInstallerTestCert");
+
+                if (testParams.PackagedContext)
                 {
-                    Assert.True(TestCommon.InstallMsixRegister(testParams.AICLIPackagePath), $"InstallMsixRegister : {testParams.AICLIPackagePath}");
+                    if (testParams.LooseFileRegistration)
+                    {
+                        Assert.True(TestCommon.InstallMsixRegister(testParams.AICLIPackagePath), $"InstallMsixRegister : {testParams.AICLIPackagePath}");
+                    }
+                    else
+                    {
+                        Assert.True(TestCommon.InstallMsix(testParams.AICLIPackagePath), $"InstallMsix : {testParams.AICLIPackagePath}");
+                    }
                 }
-                else
-                {
-                    Assert.True(TestCommon.InstallMsix(testParams.AICLIPackagePath), $"InstallMsix : {testParams.AICLIPackagePath}");
-                }
+
+                TestIndex.GenerateE2ESource();
             }
 
-            TestIndex.GenerateE2ESource();
+            WinGetSettingsHelper.InitializeWingetSettings();
         }
 
         /// <summary>

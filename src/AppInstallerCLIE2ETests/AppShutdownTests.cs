@@ -17,7 +17,7 @@ namespace AppInstallerCLIE2ETests
     /// <summary>
     /// `test appshutdown` command tests.
     /// </summary>
-    public class AppShutdownTests : BaseCommand
+    public class AppShutdownTests
     {
         /// <summary>
         /// Runs winget test appshutdown and register the application to force a WM_QUERYENDSESSION message.
