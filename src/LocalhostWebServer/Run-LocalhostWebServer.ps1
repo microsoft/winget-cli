@@ -29,7 +29,7 @@ param(
     [Parameter()]
     [string]$OutCertFile,
 
-    [Paramter()]
+    [Parameter()]
     [string]$LocalSourceJson
 )
 
