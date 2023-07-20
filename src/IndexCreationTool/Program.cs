@@ -19,7 +19,6 @@ namespace IndexCreationTool
 
         private static LocalSource ParseArguments(string[] args)
         {
-            // TODO: add other arguments and contruct json file.
             string inputFile = string.Empty;
             for (int i = 0; i < args.Length; i++)
             {
@@ -35,6 +34,9 @@ namespace IndexCreationTool
                 throw new ArgumentException("Missing input file");
             }
 
+            var content = File.ReadAllText(inputFile);
+            content = Environment.ExpandEnvironmentVariables(content);
+
             var options = new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true,
@@ -43,7 +45,8 @@ namespace IndexCreationTool
                     new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
                 }
             };
-            return JsonSerializer.Deserialize<LocalSource>(File.ReadAllText(inputFile), options);
+
+            return JsonSerializer.Deserialize<LocalSource>(content, options);
         }
 
         static int Main(string[] args)

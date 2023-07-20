@@ -25,6 +25,8 @@ namespace LocalhostWebServer
 
         public static int Port { get; set; }
 
+        public static string LocalSourceJson { get; set; }
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;

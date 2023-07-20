@@ -1,0 +1,43 @@
+{
+  "AppxManifest": "%BUILD_SOURCESDIRECTORY%\\src\\AppInstallerCLIE2ETests\\TestData\\Package\\AppxManifest.xml",
+  "WorkingDirectory": "%AGENT_TEMPDIRECTORY%\\TestLocalIndex",
+  "LocalManifests": [
+    "%BUILD_SOURCESDIRECTORY%\\src\\AppInstallerCLIE2ETests\\TestData\\Manifests"
+  ],
+  "LocalInstallers": [
+    {
+      "Type": "Exe",
+      "Name": "%BUILDOUTDIR%\\AppInstallerTestExeInstaller\\AppInstallerTestExeInstaller.exe",
+      "Input": "%BUILD_ARTIFACTSTAGINGDIRECTORY%\\AppInstallerTestMsixInstaller.msix",
+      "HashToken": "<EXEHASH>"
+    },
+    {
+      "Type": "Msi",
+      "Name": "AppInstallerTestMsiInstaller\\AppInstallerTestMsiInstaller.msi",
+      "Input": "%BUILD_SOURCESDIRECTORY%\\src\\AppInstallerCLIE2ETests\\TestData\\AppInstallerTestMsiInstaller.msi",
+      "HashToken": "<MSIHASH>"
+    },
+    {
+      "Type": "Msix",
+      "Name": "AppInstallerTestMsixInstaller\\AppInstallerTestMsixInstaller.msix",
+      "Input": "%BUILD_ARTIFACTSTAGINGDIRECTORY%\\AppInstallerTestMsixInstaller.msix",
+      "HashToken": "<MSIXHASH>",
+      "SignatureToken": "<SIGNATUREHASH>"
+    }
+  ],
+  "DynamicInstallers": [
+    {
+      "Type": 3,
+      "Name": "AppInstallerTestZipInstaller\\AppInstallerTestZipInstaller.zip",
+      "Input": [
+        "%AGENT_TEMPDIRECTORY%\\AppInstallerTestExeInstaller\\AppInstallerTestExeInstaller.exe",
+        "%AGENT_TEMPDIRECTORY%\\AppInstallerTestMsiInstaller\\AppInstallerTestMsiInstaller.msi",
+        "%AGENT_TEMPDIRECTORY%\\AppInstallerTestMsixInstaller\\AppInstallerTestMsixInstaller.msix"
+      ],
+      "HashToken": "<ZIPHASH>"
+    }
+  ],
+  "Signature": {
+    "CertFile": "%AGENT_TEMPDIRECTORY%\\servercert.cer"
+  }
+}

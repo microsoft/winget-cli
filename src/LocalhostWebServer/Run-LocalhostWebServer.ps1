@@ -27,10 +27,12 @@ param(
     [string]$CertPassword,
 
     [Parameter()]
-    [string]$OutCertFile
+    [string]$OutCertFile,
+
+    [Paramter()]
+    [string]$LocalSourceJson
 )
 
 cd $BuildRoot
 
-Start-Process -FilePath "LocalhostWebServer.exe" -ArgumentList "StaticFileRoot=$StaticFileRoot CertPath=$CertPath CertPassword=$CertPassword OutCertFile=$OutCertFile"
-
+Start-Process -FilePath "LocalhostWebServer.exe" -ArgumentList "StaticFileRoot=$StaticFileRoot CertPath=$CertPath CertPassword=$CertPassword OutCertFile=$OutCertFile LocalSourceJson=$LocalSourceJson"

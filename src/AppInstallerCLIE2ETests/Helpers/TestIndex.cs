@@ -6,8 +6,8 @@
 
 namespace AppInstallerCLIE2ETests.Helpers
 {
-    using System;
     using System.IO;
+    using System.Text.Json;
     using Microsoft.WinGetSourceCreator;
     using WinGetSourceCreator.Model;
 
@@ -16,6 +16,15 @@ namespace AppInstallerCLIE2ETests.Helpers
     /// </summary>
     public static class TestIndex
     {
+        static TestIndex()
+        {
+            // Expected path for the installers.
+            TestIndex.ExeInstaller = Path.Combine(TestSetup.Parameters.StaticFileRootPath, Constants.ExeInstaller, Constants.ExeInstallerFileName);
+            TestIndex.MsiInstaller = Path.Combine(TestSetup.Parameters.StaticFileRootPath, Constants.MsiInstaller, Constants.MsiInstallerFileName);
+            TestIndex.MsixInstaller = Path.Combine(TestSetup.Parameters.StaticFileRootPath, Constants.MsixInstaller, Constants.MsixInstallerFileName);
+            TestIndex.ZipInstaller = Path.Combine(TestSetup.Parameters.StaticFileRootPath, Constants.ZipInstaller, Constants.ZipInstallerFileName);
+        }
+
         /// <summary>
         /// Gets the signed exe installer path used by the manifests in the E2E test.
         /// </summary>
@@ -84,9 +93,9 @@ namespace AppInstallerCLIE2ETests.Helpers
                         Name = Path.Combine(Constants.ZipInstaller, Constants.ZipInstallerFileName),
                         Input = new ()
                         {
-                            Path.Combine(testParams.StaticFileRootPath, Constants.ExeInstaller, Constants.ExeInstallerFileName),
-                            Path.Combine(testParams.StaticFileRootPath, Constants.MsiInstaller, Constants.MsiInstallerFileName),
-                            Path.Combine(testParams.StaticFileRootPath, Constants.MsixInstaller, Constants.MsixInstallerFileName),
+                            ExeInstaller,
+                            MsiInstaller,
+                            MsixInstaller,
                         },
                         HashToken = "<ZIPHASH>",
                     },
@@ -97,13 +106,10 @@ namespace AppInstallerCLIE2ETests.Helpers
                 },
             };
 
-            WinGetLocalSource.CreateLocalSource(e2eSource);
+            string s = JsonSerializer.Serialize<LocalSource>(e2eSource, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(Path.Combine(TestSetup.Parameters.StaticFileRootPath, "e2e.json"), s);
 
-            // If everything goes right, modify the paths to the signed and final installers.
-            TestIndex.ExeInstaller = Path.Combine(testParams.StaticFileRootPath, Constants.ExeInstaller, Constants.ExeInstallerFileName);
-            TestIndex.MsiInstaller = Path.Combine(testParams.StaticFileRootPath, Constants.MsiInstaller, Constants.MsiInstallerFileName);
-            TestIndex.MsixInstaller = Path.Combine(testParams.StaticFileRootPath, Constants.MsixInstaller, Constants.MsixInstallerFileName);
-            TestIndex.ZipInstaller = Path.Combine(testParams.StaticFileRootPath, Constants.ZipInstaller, Constants.ZipInstallerFileName);
+            WinGetLocalSource.CreateLocalSource(e2eSource);
         }
     }
 }

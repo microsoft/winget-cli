@@ -10,6 +10,11 @@ namespace LocalhostWebServer
     using System.IO;
     using Microsoft.Extensions.Configuration;
     using System.Security.Cryptography.X509Certificates;
+    using Microsoft.AspNetCore.Components.Forms;
+    using System.Text.Json.Serialization;
+    using System.Text.Json;
+    using WinGetSourceCreator.Model;
+    using Microsoft.WinGetSourceCreator;
 
     public class Program
     {    
@@ -24,6 +29,7 @@ namespace LocalhostWebServer
             Startup.CertPassword = config.GetValue<string>("CertPassword");
             Startup.OutCertFile = config.GetValue<string>("OutCertFile");
             Startup.Port = config.GetValue<Int32>("Port", 5001);
+            Startup.LocalSourceJson = config.GetValue<string>("LocalSourceJson");
             
             if (string.IsNullOrEmpty(Startup.StaticFileRoot) || 
                 string.IsNullOrEmpty(Startup.CertPath))
@@ -45,6 +51,29 @@ namespace LocalhostWebServer
 
                 X509Certificate2 serverCertificate = new X509Certificate2(Startup.CertPath, Startup.CertPassword, X509KeyStorageFlags.EphemeralKeySet);
                 File.WriteAllBytes(Startup.OutCertFile, serverCertificate.Export(X509ContentType.Cert));
+            }
+
+            if (!string.IsNullOrEmpty(Startup.LocalSourceJson))
+            {
+                if (!File.Exists(Startup.LocalSourceJson))
+                {
+                    throw new FileNotFoundException(Startup.LocalSourceJson);
+                }
+
+                var content = File.ReadAllText(Startup.LocalSourceJson);
+                content = Environment.ExpandEnvironmentVariables(content);
+
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                    Converters =
+                    {
+                        new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
+                    }
+                };
+
+                Console.WriteLine(content);
+                //WinGetLocalSource.CreateLocalSource(JsonSerializer.Deserialize<LocalSource>(content, options));
             }
 
             CreateHostBuilder(args).Build().Run();

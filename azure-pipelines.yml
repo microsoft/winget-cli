@@ -211,7 +211,7 @@ jobs:
     displayName: Launch LocalhostWebServer
     inputs:
       filePath: 'src\LocalhostWebServer\Run-LocalhostWebServer.ps1'
-      arguments: '-BuildRoot $(buildOutDir)\LocalhostWebServer -StaticFileRoot $(Agent.TempDirectory)\TestLocalIndex -CertPath $(HTTPSDevCert.secureFilePath) -CertPassword microsoft -OutCertFile $(Agent.TempDirectory)\servercert.cer'
+      arguments: '-BuildRoot $(buildOutDir)\LocalhostWebServer -StaticFileRoot $(Agent.TempDirectory)\TestLocalIndex -CertPath $(HTTPSDevCert.secureFilePath) -CertPassword microsoft -OutCertFile $(Agent.TempDirectory)\servercert.cer -LocalSourceJson $(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\localsource.json'
 
   - task: PowerShell@2
     displayName: 'Set program files directory'
