@@ -42,8 +42,8 @@ namespace AppInstallerCLIE2ETests.Helpers
             }
 
             this.StaticFileRootPath = this.InitializeDirectoryParam(Constants.StaticFileRootPathParameter, Path.GetTempPath());
-            this.PowerShellModulePath = this.InitializeDirectoryParam(Constants.PowerShellModulePathParameter);
 
+            this.PowerShellModuleManifestPath = this.InitializeFileParam(Constants.PowerShellModulePathParameter);
             this.LocalServerCertPath = this.InitializeFileParam(Constants.LocalServerCertPathParameter);
             this.PackageCertificatePath = this.InitializeFileParam(Constants.PackageCertificatePathParameter);
             this.ExeInstallerPath = this.InitializeFileParam(Constants.ExeInstallerPathParameter);
@@ -130,7 +130,7 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// <summary>
         /// Gets the PowerShell module path.
         /// </summary>
-        public string PowerShellModulePath { get; }
+        public string PowerShellModuleManifestPath { get; }
 
         /// <summary>
         /// Gets the settings json path.

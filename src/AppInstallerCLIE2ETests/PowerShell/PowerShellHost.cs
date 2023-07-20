@@ -32,7 +32,7 @@ namespace AppInstallerCLIE2ETests.PowerShell
             initialSessionState.ExecutionPolicy = ExecutionPolicy.Unrestricted;
             initialSessionState.ImportPSModule(new string[]
             {
-                TestSetup.Parameters.PowerShellModulePath,
+                TestSetup.Parameters.PowerShellModuleManifestPath,
             });
 
             this.runspace = RunspaceFactory.CreateRunspace(initialSessionState);

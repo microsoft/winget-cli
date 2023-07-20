@@ -289,7 +289,7 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// <returns>Command result.</returns>
         public static RunCommandResult RunPowerShellCoreCommandWithResult(string cmdlet, string args, int timeOut = 60000)
         {
-            return RunCommandWithResult("pwsh.exe", $"-Command ipmo {TestSetup.Parameters.PowerShellModulePath}; {cmdlet} {args}", timeOut);
+            return RunCommandWithResult("pwsh.exe", $"-Command ipmo {TestSetup.Parameters.PowerShellModuleManifestPath}; {cmdlet} {args}", timeOut);
         }
 
         /// <summary>
