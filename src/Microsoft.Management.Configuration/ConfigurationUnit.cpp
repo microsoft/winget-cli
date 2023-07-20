@@ -7,6 +7,32 @@
 
 namespace winrt::Microsoft::Management::Configuration::implementation
 {
+    namespace
+    {
+        using ValueSet = Windows::Foundation::Collections::ValueSet;
+
+        ValueSet Clone(const ValueSet& source)
+        {
+            ValueSet result;
+
+            for (const auto& entry : source)
+            {
+                ValueSet child = entry.Value().try_as<ValueSet>();
+
+                if (child)
+                {
+                    result.Insert(entry.Key(), Clone(child));
+                }
+                else
+                {
+                    result.Insert(entry.Key(), entry.Value());
+                }
+            }
+
+            return result;
+        }
+    }
+
     ConfigurationUnit::ConfigurationUnit()
     {
         GUID instanceIdentifier;
@@ -131,5 +157,20 @@ namespace winrt::Microsoft::Management::Configuration::implementation
     HRESULT STDMETHODCALLTYPE ConfigurationUnit::SetLifetimeWatcher(IUnknown* watcher)
     {
         return AppInstaller::WinRT::LifetimeWatcherBase::SetLifetimeWatcher(watcher);
+    }
+
+    Configuration::ConfigurationUnit ConfigurationUnit::Copy()
+    {
+        auto result = make_self<wil::details::module_count_wrapper<ConfigurationUnit>>();
+
+        result->m_unitName = m_unitName;
+        result->m_intent = m_intent;
+        result->Dependencies(m_dependencies.GetView());
+        result->m_directives = Clone(m_directives);
+        result->m_settings = Clone(m_settings);
+        result->m_details = m_details;
+        result->m_schemaVersion = m_schemaVersion;
+
+        return *result;
     }
 }

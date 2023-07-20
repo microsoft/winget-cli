@@ -9,6 +9,7 @@ agg
 aicli
 AICLIC
 alreadyinstalled
+AMap
 amrutha
 ansistring
 APARTMENTTHREADED
@@ -25,6 +26,7 @@ ARMNT
 arp
 arphelper
 ASAN
+ASequence
 ashpatil
 Ashwini
 ASwitch
@@ -434,6 +436,7 @@ TCpp
 tcs
 Templating
 temppath
+testdata
 testexampleinstaller
 thiscouldbeapc
 threehundred

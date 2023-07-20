@@ -80,8 +80,8 @@
         <Interface Name="Windows.Foundation.Collections.IIterable`1&lt;Microsoft.Management.Configuration.ApplyConfigurationUnitResult&gt;" InterfaceId="0E2334B9-8431-5A9D-B3AA-62D4FB5B5749" />
         <Interface Name="Windows.Foundation.Collections.IIterable`1&lt;Microsoft.Management.Configuration.ConfigurationConflictSetting&gt;" InterfaceId="EB1E5A3C-A444-5394-B7B3-F1593937E31E" />
         <Interface Name="Windows.Foundation.Collections.IIterable`1&lt;Microsoft.Management.Configuration.ConfigurationSet&gt;" InterfaceId="070C1D82-67BC-5F8E-BE2F-F0F66E70E2CE" />
-        <Interface Name="Windows.Foundation.Collections.IIterable`1&lt;Microsoft.Management.Configuration.ConfigurationUnit&gt;" InterfaceId="DB35BA1B-3DE5-50B7-80CE-BE149DF0540C" />
-        <Interface Name="Windows.Foundation.Collections.IIterable`1&lt;Microsoft.Management.Configuration.GetConfigurationUnitDetailsResult&gt;" InterfaceId="DCF7323D-3E1E-5B22-A331-C6A29CBB6D33" />
+        <Interface Name="Windows.Foundation.Collections.IIterable`1&lt;Microsoft.Management.Configuration.ConfigurationUnit&gt;" InterfaceId="1E33B829-D292-55A6-A7DB-2903566A0BA0" />
+        <Interface Name="Windows.Foundation.Collections.IIterable`1&lt;Microsoft.Management.Configuration.GetConfigurationUnitDetailsResult&gt;" InterfaceId="3A034399-0F2B-51C2-A9C5-4BC6E9940068" />
         <Interface Name="Windows.Foundation.Collections.IIterable`1&lt;Microsoft.Management.Configuration.IConfigurationUnitSettingDetails&gt;" InterfaceId="9901CFD7-A9E3-5D2A-A79C-72FE20513823" />
         <Interface Name="Windows.Foundation.Collections.IIterable`1&lt;Microsoft.Management.Configuration.TestConfigurationUnitResult&gt;" InterfaceId="73848262-86D4-5FFC-8353-8408C4E649DE" />
       </ProxyStub>
