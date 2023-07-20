@@ -17,14 +17,14 @@ namespace AppInstallerCLIE2ETests.Helpers
     {
         private static readonly Lazy<TestSetup> Lazy = new (() => new TestSetup());
 
+        private string settingFilePath = null;
+
         private TestSetup()
         {
             if (TestContext.Parameters.Count == 0)
             {
                 this.IsDefault = true;
             }
-
-            this.SettingsJsonFilePath = WinGetSettingsHelper.GetUserSettingsPath();
 
             // Read TestParameters and set runtime variables
             this.PackagedContext = this.InitializeBoolParam(Constants.PackagedContextParameter, true);
@@ -63,84 +63,95 @@ namespace AppInstallerCLIE2ETests.Helpers
         }
 
         /// <summary>
-        /// Gets or sets the cli path.
+        /// Gets the cli path.
         /// </summary>
-        public string AICLIPath { get; set; }
+        public string AICLIPath { get; }
 
         /// <summary>
-        /// Gets or sets the package path.
+        /// Gets the package path.
         /// </summary>
-        public string AICLIPackagePath { get; set; }
+        public string AICLIPackagePath { get; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the test runs in package context.
+        /// Gets a value indicating whether the test runs in package context.
         /// </summary>
-        public bool PackagedContext { get; set; }
+        public bool PackagedContext { get; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the test uses verbose logging.
+        /// Gets a value indicating whether the test uses verbose logging.
         /// </summary>
-        public bool VerboseLogging { get; set; }
+        public bool VerboseLogging { get; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether to use loose file registration.
+        /// Gets a value indicating whether to use loose file registration.
         /// </summary>
-        public bool LooseFileRegistration { get; set; }
+        public bool LooseFileRegistration { get; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether to invoke command in desktop package.
+        /// Gets a value indicating whether to invoke command in desktop package.
         /// </summary>
-        public bool InvokeCommandInDesktopPackage { get; set; }
+        public bool InvokeCommandInDesktopPackage { get; }
 
         /// <summary>
-        /// Gets or sets the static file root path.
+        /// Gets the static file root path.
         /// </summary>
-        public string StaticFileRootPath { get; set; }
+        public string StaticFileRootPath { get; }
 
         /// <summary>
-        /// Gets or sets the local server cert path.
+        /// Gets the local server cert path.
         /// </summary>
-        public string LocalServerCertPath { get; set; }
+        public string LocalServerCertPath { get; }
 
         /// <summary>
-        /// Gets or sets the exe installer path.
+        /// Gets the exe installer path.
         /// </summary>
-        public string ExeInstallerPath { get; set; }
+        public string ExeInstallerPath { get; }
 
         /// <summary>
-        /// Gets or sets the msi installer path.
+        /// Gets the msi installer path.
         /// </summary>
-        public string MsiInstallerPath { get; set; }
+        public string MsiInstallerPath { get; }
 
         /// <summary>
-        /// Gets or sets the msix installer path.
+        /// Gets the msix installer path.
         /// </summary>
-        public string MsixInstallerPath { get; set; }
+        public string MsixInstallerPath { get; }
 
         /// <summary>
-        /// Gets or sets the zip installer path.
+        /// Gets the zip installer path.
         /// </summary>
-        public string ZipInstallerPath { get; set; }
+        public string ZipInstallerPath { get; }
 
         /// <summary>
-        /// Gets or sets the package cert path.
+        /// Gets the package cert path.
         /// </summary>
-        public string PackageCertificatePath { get; set; }
+        public string PackageCertificatePath { get; }
 
         /// <summary>
-        /// Gets or sets the PowerShell module path.
+        /// Gets the PowerShell module path.
         /// </summary>
-        public string PowerShellModulePath { get; set; }
+        public string PowerShellModulePath { get; }
 
         /// <summary>
-        /// Gets or sets the settings json path.
+        /// Gets the settings json path.
         /// </summary>
-        public string SettingsJsonFilePath { get; set; }
+        public string SettingsJsonFilePath
+        {
+            get
+            {
+                if (this.settingFilePath == null)
+                {
+                    this.settingFilePath = WinGetSettingsHelper.GetUserSettingsPath();
+                }
+
+                return this.settingFilePath;
+            }
+        }
 
         /// <summary>
-        /// Gets or sets a value indicating whether is the default parameters.
+        /// Gets a value indicating whether is the default parameters.
         /// </summary>
-        public bool IsDefault { get; set; }
+        public bool IsDefault { get; }
 
         private bool InitializeBoolParam(string paramName, bool defaultValue = false)
         {
