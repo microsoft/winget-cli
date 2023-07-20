@@ -24,20 +24,6 @@ namespace ConfigurationShim
     {
     };
 
-    AppInstaller::Logging::Level ConvertLevel(winrt::Microsoft::Management::Configuration::DiagnosticLevel level)
-    {
-        switch (level)
-        {
-        case winrt::Microsoft::Management::Configuration::DiagnosticLevel::Verbose: return AppInstaller::Logging::Level::Verbose;
-        case winrt::Microsoft::Management::Configuration::DiagnosticLevel::Informational: return AppInstaller::Logging::Level::Info;
-        case winrt::Microsoft::Management::Configuration::DiagnosticLevel::Warning: return AppInstaller::Logging::Level::Warning;
-        case winrt::Microsoft::Management::Configuration::DiagnosticLevel::Error: return AppInstaller::Logging::Level::Error;
-        case winrt::Microsoft::Management::Configuration::DiagnosticLevel::Critical: return AppInstaller::Logging::Level::Crit;
-        }
-
-        return AppInstaller::Logging::Level::Info;
-    }
-
     struct
     DECLSPEC_UUID(WINGET_OUTOFPROC_COM_CLSID_ConfigurationStaticFunctions)
     ConfigurationStaticFunctionsShim : winrt::implements<ConfigurationStaticFunctionsShim, winrt::Microsoft::Management::Configuration::IConfigurationStatics>
