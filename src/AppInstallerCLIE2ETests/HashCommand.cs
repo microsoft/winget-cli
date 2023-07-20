@@ -6,6 +6,7 @@
 
 namespace AppInstallerCLIE2ETests
 {
+    using AppInstallerCLIE2ETests.Helpers;
     using NUnit.Framework;
     using NUnit.Framework.Internal;
 

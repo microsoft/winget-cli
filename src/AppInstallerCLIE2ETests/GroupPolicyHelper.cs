@@ -11,6 +11,7 @@ namespace AppInstallerCLIE2ETests
     using System.IO;
     using System.Linq;
     using System.Xml.Linq;
+    using AppInstallerCLIE2ETests.Helpers;
     using Microsoft.Win32;
     using Newtonsoft.Json;
     using NUnit.Framework;

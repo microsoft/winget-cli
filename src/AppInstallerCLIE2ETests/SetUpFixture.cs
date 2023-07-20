@@ -6,8 +6,7 @@
 
 namespace AppInstallerCLIE2ETests
 {
-    using System;
-    using System.IO;
+    using AppInstallerCLIE2ETests.Helpers;
     using Microsoft.Win32;
     using NUnit.Framework;
 
@@ -28,63 +27,16 @@ namespace AppInstallerCLIE2ETests
         [OneTimeSetUp]
         public void Setup()
         {
-            if (TestContext.Parameters.Count == 0)
+            var testParams = TestSetup.Parameters;
+
+            WinGetSettingsHelper.InitializeWingetSettings();
+
+            if (testParams.IsDefault)
             {
                 // If no parameters are provided, use defaults that work locally.
                 // This allows the user to assume responsibility for setup.
-                TestCommon.PackagedContext = true;
-                TestCommon.VerboseLogging = true;
-                TestCommon.AICLIPath = "WinGetDev.exe";
-                TestCommon.StaticFileRootPath = Path.GetTempPath();
-                TestCommon.SettingsJsonFilePath = WinGetSettingsHelper.GetUserSettingsPath();
-                WinGetSettingsHelper.InitializeWingetSettings();
                 shouldDoAnyTeardown = false;
-
                 return;
-            }
-
-            // Read TestParameters and set runtime variables
-            TestCommon.PackagedContext = TestContext.Parameters.Exists(Constants.PackagedContextParameter) &&
-                TestContext.Parameters.Get(Constants.PackagedContextParameter).Equals("true", StringComparison.OrdinalIgnoreCase);
-
-            TestCommon.VerboseLogging = TestContext.Parameters.Exists(Constants.VerboseLoggingParameter) &&
-                TestContext.Parameters.Get(Constants.VerboseLoggingParameter).Equals("true", StringComparison.OrdinalIgnoreCase);
-
-            TestCommon.LooseFileRegistration = TestContext.Parameters.Exists(Constants.LooseFileRegistrationParameter) &&
-                    TestContext.Parameters.Get(Constants.LooseFileRegistrationParameter).Equals("true", StringComparison.OrdinalIgnoreCase);
-
-            TestCommon.InvokeCommandInDesktopPackage = TestContext.Parameters.Exists(Constants.InvokeCommandInDesktopPackageParameter) &&
-                TestContext.Parameters.Get(Constants.InvokeCommandInDesktopPackageParameter).Equals("true", StringComparison.OrdinalIgnoreCase);
-
-            if (TestContext.Parameters.Exists(Constants.AICLIPathParameter))
-            {
-                TestCommon.AICLIPath = TestContext.Parameters.Get(Constants.AICLIPathParameter);
-            }
-            else
-            {
-                if (TestCommon.PackagedContext)
-                {
-                    // For packaged context, default to AppExecutionAlias
-                    TestCommon.AICLIPath = "WinGetDev.exe";
-                }
-                else
-                {
-                    TestCommon.AICLIPath = TestCommon.GetTestFile("winget.exe");
-                }
-            }
-
-            if (TestContext.Parameters.Exists(Constants.AICLIPackagePathParameter))
-            {
-                TestCommon.AICLIPackagePath = TestContext.Parameters.Get(Constants.AICLIPackagePathParameter);
-            }
-            else
-            {
-                TestCommon.AICLIPackagePath = TestCommon.GetTestFile("AppInstallerCLIPackage.appxbundle");
-            }
-
-            if (TestCommon.LooseFileRegistration && TestCommon.InvokeCommandInDesktopPackage)
-            {
-                TestCommon.AICLIPath = Path.Combine(TestCommon.AICLIPackagePath, TestCommon.AICLIPath);
             }
 
             shouldDisableDevModeOnExit = this.EnableDevMode(true);
@@ -93,49 +45,19 @@ namespace AppInstallerCLIE2ETests
 
             Assert.True(TestCommon.RunCommand("certutil.exe", "-addstore -f \"TRUSTEDPEOPLE\" " + TestCommon.GetTestDataFile(Constants.AppInstallerTestCert)), "Add AppInstallerTestCert");
 
-            if (TestCommon.PackagedContext)
+            if (testParams.PackagedContext)
             {
-                if (TestCommon.LooseFileRegistration)
+                if (testParams.LooseFileRegistration)
                 {
-                    Assert.True(TestCommon.InstallMsixRegister(TestCommon.AICLIPackagePath), $"InstallMsixRegister : {TestCommon.AICLIPackagePath}");
+                    Assert.True(TestCommon.InstallMsixRegister(testParams.AICLIPackagePath), $"InstallMsixRegister : {testParams.AICLIPackagePath}");
                 }
                 else
                 {
-                    Assert.True(TestCommon.InstallMsix(TestCommon.AICLIPackagePath), $"InstallMsix : {TestCommon.AICLIPackagePath}");
+                    Assert.True(TestCommon.InstallMsix(testParams.AICLIPackagePath), $"InstallMsix : {testParams.AICLIPackagePath}");
                 }
             }
 
-            if (TestContext.Parameters.Exists(Constants.StaticFileRootPathParameter))
-            {
-                TestCommon.StaticFileRootPath = TestContext.Parameters.Get(Constants.StaticFileRootPathParameter);
-            }
-            else
-            {
-                TestCommon.StaticFileRootPath = Path.GetTempPath();
-            }
-
-            if (TestContext.Parameters.Exists(Constants.LocalServerCertPathParameter))
-            {
-                TestCommon.LocalServerCertPath = TestContext.Parameters.Get(Constants.LocalServerCertPathParameter);
-            }
-
-            if (TestContext.Parameters.Exists(Constants.PackageCertificatePathParameter))
-            {
-                TestCommon.PackageCertificatePath = TestContext.Parameters.Get(Constants.PackageCertificatePathParameter);
-            }
-
-            if (TestContext.Parameters.Exists(Constants.PowerShellModulePathParameter))
-            {
-                TestCommon.PowerShellModulePath = TestContext.Parameters.Get(Constants.PowerShellModulePathParameter);
-            }
-
-            this.ReadTestInstallerPaths();
-
-            TestIndexSetup.GenerateE2ESource();
-
-            TestCommon.SettingsJsonFilePath = WinGetSettingsHelper.GetUserSettingsPath();
-
-            WinGetSettingsHelper.InitializeWingetSettings();
+            TestIndex.GenerateE2ESource();
         }
 
         /// <summary>
@@ -160,7 +82,7 @@ namespace AppInstallerCLIE2ETests
 
                 TestCommon.PublishE2ETestLogs();
 
-                if (TestCommon.PackagedContext)
+                if (TestSetup.Parameters.PackagedContext)
                 {
                     TestCommon.RemoveMsix(Constants.AICLIPackageName);
                 }
@@ -218,27 +140,6 @@ namespace AppInstallerCLIE2ETests
                 }
 
                 return true;
-            }
-        }
-
-        private void ReadTestInstallerPaths()
-        {
-            if (TestContext.Parameters.Exists(Constants.ExeInstallerPathParameter)
-                && File.Exists(TestContext.Parameters.Get(Constants.ExeInstallerPathParameter)))
-            {
-                TestCommon.ExeInstallerPath = TestContext.Parameters.Get(Constants.ExeInstallerPathParameter);
-            }
-
-            if (TestContext.Parameters.Exists(Constants.MsiInstallerPathParameter)
-                && File.Exists(TestContext.Parameters.Get(Constants.MsiInstallerPathParameter)))
-            {
-                TestCommon.MsiInstallerPath = TestContext.Parameters.Get(Constants.MsiInstallerPathParameter);
-            }
-
-            if (TestContext.Parameters.Exists(Constants.MsixInstallerPathParameter)
-                && File.Exists(TestContext.Parameters.Get(Constants.MsixInstallerPathParameter)))
-            {
-                TestCommon.MsixInstallerPath = TestContext.Parameters.Get(Constants.MsixInstallerPathParameter);
             }
         }
     }

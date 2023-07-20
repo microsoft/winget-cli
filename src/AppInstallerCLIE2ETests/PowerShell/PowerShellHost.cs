@@ -10,6 +10,7 @@ namespace AppInstallerCLIE2ETests.PowerShell
     using System.Collections;
     using System.Management.Automation;
     using System.Management.Automation.Runspaces;
+    using AppInstallerCLIE2ETests.Helpers;
     using Microsoft.PowerShell;
     using NUnit.Framework;
 

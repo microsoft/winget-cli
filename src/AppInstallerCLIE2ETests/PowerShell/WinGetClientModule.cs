@@ -11,6 +11,7 @@ namespace AppInstallerCLIE2ETests.PowerShell
     using System.Diagnostics;
     using System.Linq;
     using System.Management.Automation;
+    using AppInstallerCLIE2ETests.Helpers;
     using NUnit.Framework;
 
     /// <summary>
