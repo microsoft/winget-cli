@@ -59,20 +59,7 @@ namespace LocalhostWebServer
                     throw new FileNotFoundException(Startup.LocalSourceJson);
                 }
 
-                var content = File.ReadAllText(Startup.LocalSourceJson);
-                content = Environment.ExpandEnvironmentVariables(content);
-
-                var options = new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true,
-                    Converters =
-                    {
-                        new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
-                    }
-                };
-
-                File.WriteAllText(Path.Combine(Path.GetDirectoryName(Startup.LocalSourceJson), "localserver_e2e.json"), content);
-                WinGetLocalSource.CreateLocalSource(JsonSerializer.Deserialize<LocalSource>(content, options));
+                WinGetLocalSource.CreateFromLocalSourceFile(Startup.LocalSourceJson);
             }
 
             CreateHostBuilder(args).Build().Run();

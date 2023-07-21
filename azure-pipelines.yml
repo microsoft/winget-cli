@@ -243,7 +243,21 @@ jobs:
     displayName: 'Copy E2E Tests Package Log to artifacts folder'
     inputs:
       SourceFolder: '$(temp)\E2ETestLogs'
-      TargetFolder: '$(artifactsDir)\E2ETestsPackagedLog'
+      TargetFolder: '$(artifactsDir)\E2ETests\PackagedLog'
+    condition: succeededOrFailed()
+
+  - task: CopyFiles@2
+    displayName: 'Copy E2E Test Source'
+    inputs:
+      SourceFolder: '$(Agent.TempDirectory)\TestLocalIndex'
+      TargetFolder: '$(artifactsDir)\E2ETests\TestLocalIndex'
+    condition: succeededOrFailed()
+
+  - task: CopyFiles@2
+    displayName: 'Copy TestData'
+    inputs:
+      SourceFolder: '$(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\'
+      TargetFolder: '$(artifactsDir)\E2ETests\TestData'
     condition: succeededOrFailed()
 
   - task: CopyFiles@2
@@ -333,22 +347,6 @@ jobs:
     inputs:
       SourceFolder: '$(appxPackageDir)'
       TargetFolder: '$(artifactsDir)\AppxPackages'
-    condition: succeededOrFailed()
-
-  - task: CopyFiles@2
-    displayName: 'Copy Dev Packages'
-    inputs:
-      SourceFolder: '$(Agent.TempDirectory)\TestLocalIndex'
-      TargetFolder: '$(artifactsDir)\E2ETestData\TestLocalIndex'
-    #condition: and(succeededOrFailed(), eq(variables['System.debug'], true))
-    condition: succeededOrFailed()
-
-  - task: CopyFiles@2
-    displayName: 'Copy TestData'
-    inputs:
-      SourceFolder: '$(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\'
-      TargetFolder: '$(artifactsDir)\E2ETestData\TestData'
-    #condition: and(succeededOrFailed(), eq(variables['System.debug'], true))
     condition: succeededOrFailed()
 
   - task: PublishPipelineArtifact@1

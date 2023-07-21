@@ -4,6 +4,8 @@
 namespace Microsoft.WinGetSourceCreator
 {
     using global::WinGetSourceCreator.Model;
+    using System.Text.Json.Serialization;
+    using System.Text.Json;
     using WinGetUtilInterop.Helpers;
 
     public class WinGetLocalSource
@@ -11,6 +13,40 @@ namespace Microsoft.WinGetSourceCreator
         private readonly string workingDirectory;
         private readonly ManifestTokens tokens;
         private readonly Signature? signature;
+
+        public static void CreateFromLocalSourceFile(string localSourceFile)
+        {
+            var content = File.ReadAllText(localSourceFile);
+            content = Environment.ExpandEnvironmentVariables(content);
+
+            var options = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true,
+                Converters =
+                {
+                    new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
+                }
+            };
+
+            content = content.Replace("\\", "/");
+
+            File.WriteAllText(Path.Combine(Path.GetDirectoryName(localSourceFile)!, "localserver_e2e.json"), content);
+
+            try
+            {
+                var localSource = JsonSerializer.Deserialize<LocalSource>(content, options);
+                if (localSource == null)
+                {
+                    throw new Exception("Failed deserializing");
+                }
+
+                CreateLocalSource(localSource);
+            }
+            catch(Exception ex)
+            {
+                File.WriteAllText(Path.Combine(Path.GetDirectoryName(localSourceFile)!, "exception.txt"), ex.ToString());
+            }
+        }
 
         public static void CreateLocalSource(LocalSource localSource)
         {
