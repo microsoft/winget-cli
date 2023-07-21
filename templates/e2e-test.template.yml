@@ -32,16 +32,16 @@ steps:
                                       -InvokeCommandInDesktopPackage true
                                       -StaticFileRootPath $(Agent.TempDirectory)\TestLocalIndex
                                       -PowerShellModulePath $(buildOutDir)\PowerShell\Microsoft.WinGet.Client\Microsoft.WinGet.Client.psd1
-                                      -LocalServerCertPath $(Agent.TempDirectory)\servercert.cer'
-                                      -SkipTestSource true
+                                      -LocalServerCertPath $(Agent.TempDirectory)\servercert.cer
+                                      -SkipTestSource true'
       ${{ else }}:
           overrideTestrunParameters: '-PackagedContext false
                                       -AICLIPath $(packageLayoutDir)\AppInstallerCLI\winget.exe
                                       -InvokeCommandInDesktopPackage false
                                       -StaticFileRootPath $(Agent.TempDirectory)\TestLocalIndex
                                       -PowerShellModulePath $(buildOutDir)\PowerShell\Microsoft.WinGet.Client\Microsoft.WinGet.Client.psd1
-                                      -LocalServerCertPath $(Agent.TempDirectory)\servercert.cer'
-                                      -SkipTestSource true
+                                      -LocalServerCertPath $(Agent.TempDirectory)\servercert.cer
+                                      -SkipTestSource true'
 
   - task: CmdLine@2
     displayName: Complete COM trace for ${{ parameters.title }}
