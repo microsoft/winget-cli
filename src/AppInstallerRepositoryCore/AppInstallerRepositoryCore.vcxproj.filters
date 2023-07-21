@@ -378,6 +378,9 @@
     <ClInclude Include="Microsoft\Schema\Checkpoint_1_0\CheckpointTable.h">
       <Filter>Microsoft\Schema\Checkpoint_1_0</Filter>
     </ClInclude>
+    <ClInclude Include="Microsoft\Schema\Checkpoint_1_0\CheckpointMetadataTable.h">
+      <Filter>Microsoft\Schema\Checkpoint_1_0</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -602,6 +605,9 @@
     <ClCompile Include="Microsoft\Schema\Checkpoint_1_0\CheckpointTable.cpp">
       <Filter>Microsoft\Schema\Checkpoint_1_0</Filter>
     </ClCompile>
+    <ClInclude Include="Microsoft\Schema\Checkpoint_1_0\CheckpointMetadataTable.cpp">
+      <Filter>Microsoft\Schema\Checkpoint_1_0</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="PropertySheet.props" />

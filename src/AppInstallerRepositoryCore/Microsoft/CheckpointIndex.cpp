@@ -17,7 +17,7 @@ namespace AppInstaller::Repository::Microsoft
         // Use calculated version, as incoming version could be 'latest'
         result.m_version.SetSchemaVersion(result.m_dbconn);
 
-        result.m_interface->CreateTable(result.m_dbconn);
+        result.m_interface->CreateTables(result.m_dbconn);
 
         result.SetLastWriteTime();
 
@@ -61,6 +61,64 @@ namespace AppInstaller::Repository::Microsoft
         CATCH_LOG();
 
         return {};
+    }
+
+    CheckpointIndex::IdType CheckpointIndex::AddCommandArgument(int type, const std::string_view& argValue)
+    {
+        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
+        AICLI_LOG(Repo, Verbose, << "Adding argument for [" << type << "]");
+
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "checkpointindex_addargument");
+
+        IdType result = m_interface->AddCommandArgument(m_dbconn, type, argValue);
+
+        SetLastWriteTime();
+
+        savepoint.Commit();
+
+        return result;
+    }
+
+    CheckpointIndex::IdType CheckpointIndex::SetClientVersion(std::string_view clientVersion)
+    {
+        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
+        AICLI_LOG(Repo, Verbose, << "Setting client version [" << clientVersion << "]");
+
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "checkpointindex_setclientversion");
+
+        IdType result = m_interface->SetClientVersion(m_dbconn, clientVersion);
+
+        SetLastWriteTime();
+
+        savepoint.Commit();
+
+        return result;
+    }
+
+    std::string CheckpointIndex::GetClientVersion()
+    {
+        return m_interface->GetClientVersion(m_dbconn);
+    }
+
+    CheckpointIndex::IdType CheckpointIndex::SetCommandName(std::string_view commandName)
+    {
+        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
+        AICLI_LOG(Repo, Verbose, << "Setting command name [" << commandName << "]");
+
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "checkpointindex_setcommandname");
+
+        IdType result = m_interface->SetCommandName(m_dbconn, commandName);
+
+        SetLastWriteTime();
+
+        savepoint.Commit();
+
+        return result;
+    }
+
+    std::string CheckpointIndex::GetCommandName()
+    {
+        return m_interface->GetCommandName(m_dbconn);
     }
 
     std::unique_ptr<Schema::ICheckpointIndex> CheckpointIndex::CreateICheckpointIndex() const

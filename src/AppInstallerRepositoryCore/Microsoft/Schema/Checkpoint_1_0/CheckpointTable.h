@@ -25,7 +25,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
         // Gets a value indicating whether the table is empty.
         static bool IsEmpty(SQLite::Connection& connection);
 
-        // Removes the Checkpoint from the table by id.
-        //static void RemoveCheckpointById(SQLite::Connection& connection, SQLite::rowid_t id);
+        // Selects the command argument by type from the table, returning the rowid if it exists.
+        static std::optional<SQLite::rowid_t> SelectByArgumentType(const SQLite::Connection& connection, int type);
+
+        // Adds the command argument and value to the table.
+        static SQLite::rowid_t AddCommandArgument(SQLite::Connection& connection, int type, const std::string_view& value);
     };
 }

@@ -34,6 +34,33 @@ namespace AppInstaller::CLI
 
     void ResumeCommand::ExecuteInternal(Execution::Context& context) const
     {
-        UNREFERENCED_PARAMETER(context);
+        // Convert guid argument and load checkpoint file.
+        const auto& resumeGuid = Utility::ConvertToUTF16(context.Args.GetArg(Execution::Args::Type::ResumeGuid));
+
+        GUID checkpointId;
+        THROW_IF_FAILED(CLSIDFromString(resumeGuid.c_str(), &checkpointId));
+        context.LoadCheckpointIndex(checkpointId);
+
+        std::string_view commandName = "install"sv;
+        std::unique_ptr<Command> commandToResume;
+
+        // Use the root command to obtain all of the available commands.
+        std::unique_ptr<Command> rootCommand = std::make_unique<RootCommand>();
+        auto commands = rootCommand->GetCommands();
+
+        for (auto& command : commands)
+        {
+            if (
+                Utility::CaseInsensitiveEquals(commandName, command->Name()) ||
+                Utility::CaseInsensitiveContains(command->Aliases(), commandName)
+                )
+            {
+                AICLI_LOG(CLI, Info, << "Resuming command: " << commandName);
+                commandToResume = std::move(command);
+            }
+        }
+
+        context.SetExecutingCommand(commandToResume.get());
+        commandToResume->Execute(context);
     }
 }

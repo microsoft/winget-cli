@@ -5,6 +5,8 @@
 #include "COMContext.h"
 #include "Argument.h"
 #include "winget/UserSettings.h"
+#include "Microsoft/CheckpointIndex.h"
+#include "Microsoft/SQLiteStorageBase.h"
 
 namespace AppInstaller::CLI::Execution
 {
@@ -407,4 +409,53 @@ namespace AppInstaller::CLI::Execution
         return SignalTerminationHandler::Instance().WaitForAppShutdownEvent();
     }
 #endif
+
+    void Context::LoadCheckpointIndex(GUID guid)
+    {
+        m_checkpointId = guid;
+        auto openDisposition = AppInstaller::Repository::Microsoft::SQLiteStorageBase::OpenDisposition::ReadWrite;
+        auto checkpointIndex = AppInstaller::Repository::Microsoft::CheckpointIndex::OpenOrCreateDefault(m_checkpointId, openDisposition);
+        if (!checkpointIndex)
+        {
+            AICLI_LOG(CLI, Error, << "Unable to open checkpoint index.");
+            THROW_HR_MSG(HRESULT_FROM_WIN32(ERROR_NOT_FOUND), "The saved state could not be found.");
+        }
+
+        m_checkpointIndex = std::move(checkpointIndex);
+    }
+
+    void Context::InitializeCheckpoints(std::string_view clientVersion, std::string_view commandName)
+    {
+        std::ignore = CoCreateGuid(&m_checkpointId);
+        AICLI_LOG(CLI, Info, << "Creating checkpoint index with the corresponding guid: " << m_checkpointId);
+
+        //auto openDisposition = m_readOnly ? SQLiteStorageBase::OpenDisposition::Read : SQLiteStorageBase::OpenDisposition::ReadWrite;
+        auto openDisposition = AppInstaller::Repository::Microsoft::SQLiteStorageBase::OpenDisposition::ReadWrite;
+        auto checkpointIndex = AppInstaller::Repository::Microsoft::CheckpointIndex::OpenOrCreateDefault(m_checkpointId, openDisposition);
+        if (!checkpointIndex)
+        {
+            AICLI_LOG(CLI, Error, << "Unable to open savepoint index.");
+        }
+        m_checkpointIndex = std::move(checkpointIndex);
+
+        m_checkpointIndex->SetClientVersion(clientVersion);
+        m_checkpointIndex->SetCommandName(commandName);
+    }
+
+    void Context::Checkpoint(CheckpointFlags flag)
+    {
+        if (flag == CheckpointFlags::ArgumentsProcessed)
+        {
+            // Get all args and write them to the index.
+            const std::vector<Args::Type>& arguments = this->Args.GetTypes();
+
+            for (auto argument : arguments)
+            {
+                const auto& argumentValue = this->Args.GetArg(argument);
+                
+                // Write current arg to table.
+                m_checkpointIndex->AddCommandArgument(static_cast<int>(argument), argumentValue);
+            }
+        }
+    }
 }

@@ -2005,4 +2005,7 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="ResumeCommandShortDescription" xml:space="preserve">
     <value>Resumes execution of a previously saved command.</value>
   </data>
+  <data name="ResumeGuidArgumentDescription" xml:space="preserve">
+    <value>The unique guid identifier of the saved state to resume</value>
+  </data>
 </root>

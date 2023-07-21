@@ -50,6 +50,11 @@ namespace AppInstaller::CLI::Workflow
     enum class ExecutionStage : uint32_t;
 }
 
+namespace AppInstaller::Repository::Microsoft
+{
+    struct CheckpointIndex;
+}
+
 namespace AppInstaller::CLI::Execution
 {
     // bit masks used as Context flags
@@ -65,6 +70,11 @@ namespace AppInstaller::CLI::Execution
         ShowSearchResultsOnPartialFailure = 0x10,
         DisableInteractivity = 0x40,
         BypassIsStoreClientBlockedPolicyCheck = 0x80,
+    };
+
+    enum class CheckpointFlags
+    {
+        ArgumentsProcessed,
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(ContextFlag);
@@ -159,6 +169,14 @@ namespace AppInstaller::CLI::Execution
         // Enable tests to override behavior
         bool ShouldExecuteWorkflowTask(const Workflow::WorkflowTask& task);
 #endif
+        // Loads the checkpoint index with the stored state of the context.
+        void LoadCheckpointIndex(GUID guid);
+
+        // Creates the checkpoint index for saving the state of the context
+        void InitializeCheckpoints(std::string_view clientVersion, std::string_view commandName);
+
+        // Sets the checkpoint flag and handles saving/reading the state to/from the checkpoint index.
+        void Checkpoint(CheckpointFlags flag);
 
     protected:
         // Copies the args that are also needed in a sub-context. E.g., silent
@@ -178,5 +196,7 @@ namespace AppInstaller::CLI::Execution
         Workflow::ExecutionStage m_executionStage = Workflow::ExecutionStage::Initial;
         AppInstaller::ThreadLocalStorage::WingetThreadGlobals m_threadGlobals;
         AppInstaller::CLI::Command* m_executingCommand = nullptr;
+        GUID m_checkpointId = {};
+        std::shared_ptr<AppInstaller::Repository::Microsoft::CheckpointIndex> m_checkpointIndex = nullptr;
     };
 }

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include "AppInstallerRuntime.h"
 #include "InstallCommand.h"
 #include "Workflows/CompletionFlow.h"
 #include "Workflows/InstallFlow.h"
@@ -100,26 +101,16 @@ namespace AppInstaller::CLI
         Argument::ValidateCommonArguments(execArgs);
     }
 
-    void InstallCommand::Checkpoint(Context& context, CheckpointFlags checkpoint) const
-    {
-        if (!Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Resume))
-        {
-            return;
-        }
-
-        if (checkpoint == CheckpointFlags::ArgumentsProcessed)
-        {
-            //m_checkpoint
-            context.Reporter.Info() << "hello" << std::endl;
-        }
-    }
-
     void InstallCommand::ExecuteInternal(Context& context) const
     {
-        //if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Resume))
-        //{
-        //    Checkpoint(context, CheckpointFlags::ArgumentsProcessed);
-        //}
+        if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Resume))
+        {
+            context.InitializeCheckpoints(AppInstaller::Runtime::GetClientVersion(), this->Name());
+
+            // Record the initial arguments.
+            context.Checkpoint(CheckpointFlags::ArgumentsProcessed);
+        }
+
 
         context.SetFlags(ContextFlag::ShowSearchResultsOnPartialFailure);
 

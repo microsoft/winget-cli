@@ -388,6 +388,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ReservedFilenameError);
         WINGET_DEFINE_RESOURCE_STRINGID(ResumeCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(ResumeCommandShortDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(ResumeGuidArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(RetroArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SearchCommandLongDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(SearchCommandShortDescription);

@@ -172,6 +172,7 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::PinInstalled:
             return { type, "installed"_liv, ArgTypeCategory::None };
 
+        // Resume command
         case Execution::Args::Type::ResumeGuid:
             return { type, "resume-guid"_liv, 'g', ArgTypeCategory::None };
 
@@ -338,6 +339,8 @@ namespace AppInstaller::CLI
             return Argument{ type, Resource::String::UninstallPreviousArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help };
         case Args::Type::Force:
             return Argument{ type, Resource::String::ForceArgumentDescription, ArgumentType::Flag, false };
+        case Args::Type::ResumeGuid:
+            return Argument{ type, Resource::String::ResumeGuidArgumentDescription, ArgumentType::Standard, true };
         default:
             THROW_HR(E_UNEXPECTED);
         }

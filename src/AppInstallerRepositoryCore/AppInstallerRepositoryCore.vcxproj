@@ -396,6 +396,7 @@
     <ClInclude Include="Microsoft\Schema\Portable_1_0\PortableTable.h" />
     <ClInclude Include="Microsoft\Schema\MetadataTable.h" />
     <ClInclude Include="Microsoft\Schema\Checkpoint_1_0\CheckpointIndexInterface.h" />
+    <ClInclude Include="Microsoft\Schema\Checkpoint_1_0\CheckpointMetadataTable.h" />
     <ClInclude Include="Microsoft\Schema\Checkpoint_1_0\CheckpointTable.h" />
     <ClInclude Include="Microsoft\Schema\Version.h" />
     <ClInclude Include="Microsoft\SQLiteIndex.h" />
@@ -497,6 +498,7 @@
     <ClCompile Include="Microsoft\Schema\Portable_1_0\PortableIndexInterface_1_0.cpp" />
     <ClCompile Include="Microsoft\Schema\Portable_1_0\PortableTable.cpp" />
     <ClCompile Include="Microsoft\Schema\Checkpoint_1_0\CheckpointIndexInterface_1_0.cpp" />
+    <ClCompile Include="Microsoft\Schema\Checkpoint_1_0\CheckpointMetadataTable.cpp" />
     <ClCompile Include="Microsoft\Schema\Checkpoint_1_0\CheckpointTable.cpp" />
     <ClCompile Include="Microsoft\Schema\Version.cpp" />
     <ClCompile Include="Microsoft\SQLiteIndex.cpp" />

@@ -32,6 +32,20 @@ namespace AppInstaller::Repository::Microsoft
         // Opens or creates a CheckpointIndex database on the default path.
         static std::shared_ptr<CheckpointIndex> OpenOrCreateDefault(GUID guid, OpenDisposition openDisposition = OpenDisposition::ReadWrite);
 
+        // Adds a command argument to the index.
+        IdType AddCommandArgument(int type, const std::string_view& argValue);
+
+        // Removes a command argument from the index.
+        //IdType RemoveCommandArgument(const uint32_t& type, const std::string_view& argValue);
+
+        IdType SetClientVersion(std::string_view clientVersion);
+
+        std::string GetClientVersion();
+
+        IdType SetCommandName(std::string_view commandName);
+
+        std::string GetCommandName();
+
     private:
         // Constructor used to open an existing index.
         CheckpointIndex(const std::string& target, SQLiteStorageBase::OpenDisposition disposition, Utility::ManagedFile&& indexFile);

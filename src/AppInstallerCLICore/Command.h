@@ -18,11 +18,6 @@
 #include <type_traits>
 #include <vector>
 
-namespace AppInstaller::Repository::Microsoft
-{
-    struct CheckpointIndex;
-}
-
 namespace AppInstaller::CLI
 {
     struct CommandException
@@ -39,11 +34,6 @@ namespace AppInstaller::CLI
     {
         None = 0x0,
         IgnoreSettingsWarnings = 0x1,
-    };
-
-    enum class CheckpointFlags
-    {
-        ArgumentsProcessed,
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(CommandOutputFlags);
@@ -123,10 +113,7 @@ namespace AppInstaller::CLI
         virtual void Execute(Execution::Context& context) const;
 
     protected:
-        void InitializeCheckpoints(Execution::Context& context);
         void SelectCurrentCommandIfUnrecognizedSubcommandFound(bool value);
-
-        virtual void Checkpoint(Execution::Context& context, CheckpointFlags checkpointFlag) const;
 
         virtual void ValidateArgumentsInternal(Execution::Args& execArgs) const;
         virtual void ExecuteInternal(Execution::Context& context) const;
@@ -140,8 +127,6 @@ namespace AppInstaller::CLI
         Settings::TogglePolicy::Policy m_groupPolicy;
         CommandOutputFlags m_outputFlags;
         bool m_selectCurrentCommandIfUnrecognizedSubcommandFound = false;
-        GUID m_checkpointId;
-        std::shared_ptr<AppInstaller::Repository::Microsoft::CheckpointIndex> m_checkpointIndex;
     };
 
     template <typename Container>
