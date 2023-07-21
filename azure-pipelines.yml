@@ -178,18 +178,6 @@ jobs:
       testResultsFiles: '$(artifactsDir)\TEST-*.xml'
       failTaskOnFailedTests: true
 
-  - task: DownloadSecureFile@1
-    name: AppInstallerTest
-    displayName: 'Download Source Package Certificate'
-    inputs:
-      secureFile: 'AppInstallerTest.pfx'
-
-  - task: DownloadSecureFile@1
-    name: HTTPSDevCert
-    displayName: 'Download Kestrel Certificate'
-    inputs:
-      secureFile: 'HTTPSDevCertV2.pfx'
-
   - task: MSBuild@1
     displayName: Build MSIX Test Installer File
     inputs:
