@@ -169,13 +169,6 @@ namespace AppInstaller::Manifest
                 resultErrors.emplace_back(ManifestError::InvalidFieldValue, "UpdateBehavior");
             }
 
-            // Validate system reference strings if they are set at the installer level
-            // Allow PackageFamilyName to be declared with non msix installers to support nested installer scenarios after manifest version 1.1
-            if (manifest.ManifestVersion <= ManifestVer{ s_ManifestVersionV1_1 } && !installer.PackageFamilyName.empty() && !DoesInstallerTypeUsePackageFamilyName(installer.EffectiveInstallerType()))
-            {
-                resultErrors.emplace_back(ManifestError::InstallerTypeDoesNotSupportPackageFamilyName, "InstallerType", InstallerTypeToString(installer.EffectiveInstallerType()));
-            }
-
             if (!installer.ProductCode.empty() && !DoesInstallerTypeUseProductCode(installer.EffectiveInstallerType()))
             {
                 resultErrors.emplace_back(ManifestError::InstallerTypeDoesNotSupportProductCode, "InstallerType", InstallerTypeToString(installer.EffectiveInstallerType()));
