@@ -7,8 +7,8 @@
   "LocalInstallers": [
     {
       "Type": "exe",
-      "Name": "%BUILDOUTDIR%\\AppInstallerTestExeInstaller\\AppInstallerTestExeInstaller.exe",
-      "Input": "%BUILD_ARTIFACTSTAGINGDIRECTORY%\\AppInstallerTestMsixInstaller.msix",
+      "Name": "AppInstallerTestExeInstaller\\AppInstallerTestExeInstaller.exe",
+      "Input": "%BUILDOUTDIR%\\AppInstallerTestExeInstaller\\AppInstallerTestExeInstaller.exe",
       "HashToken": "<EXEHASH>"
     },
     {
@@ -27,12 +27,12 @@
   ],
   "DynamicInstallers": [
     {
-      "Type": 3,
+      "Type": "zip",
       "Name": "AppInstallerTestZipInstaller\\AppInstallerTestZipInstaller.zip",
       "Input": [
-        "%AGENT_TEMPDIRECTORY%\\AppInstallerTestExeInstaller\\AppInstallerTestExeInstaller.exe",
-        "%AGENT_TEMPDIRECTORY%\\AppInstallerTestMsiInstaller\\AppInstallerTestMsiInstaller.msi",
-        "%AGENT_TEMPDIRECTORY%\\AppInstallerTestMsixInstaller\\AppInstallerTestMsixInstaller.msix"
+        "%AGENT_TEMPDIRECTORY%\\TestLocalIndex\\AppInstallerTestExeInstaller\\AppInstallerTestExeInstaller.exe",
+        "%AGENT_TEMPDIRECTORY%\\TestLocalIndex\\AppInstallerTestMsiInstaller\\AppInstallerTestMsiInstaller.msi",
+        "%AGENT_TEMPDIRECTORY%\\TestLocalIndex\\AppInstallerTestMsixInstaller\\AppInstallerTestMsixInstaller.msix"
       ],
       "HashToken": "<ZIPHASH>"
     }

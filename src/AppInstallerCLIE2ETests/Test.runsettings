@@ -36,7 +36,7 @@
     <Parameter name="ExeTestInstallerPath" value="ExeTestInstaller.exe" />
     <Parameter name="PackageCertificatePath" value="certificate.pfx"/>
     <Parameter name="PowerShellModulePath" value="TestPowerShellModule.psd1" />
-    <Parameter name="LocalServerCertPathParameter" value="TestPowerShellModule.psd1" />
-    <Parameter name="SkipTestSource" value="servercert.cer" />
+    <Parameter name="LocalServerCertPathParameter" value="servercert.cer" />
+    <Parameter name="SkipTestSource" value="false" />
   </TestRunParameters>
 </RunSettings>

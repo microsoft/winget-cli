@@ -335,19 +335,20 @@ jobs:
       TargetFolder: '$(artifactsDir)\AppxPackages'
     condition: succeededOrFailed()
 
-    # TMP TASK.
   - task: CopyFiles@2
     displayName: 'Copy Dev Packages'
     inputs:
       SourceFolder: '$(Agent.TempDirectory)\TestLocalIndex'
-      TargetFolder: '$(artifactsDir)\TestLocalIndex'
+      TargetFolder: '$(artifactsDir)\E2ETestData\TestLocalIndex'
+    #condition: and(succeededOrFailed(), eq(variables['System.debug'], true))
     condition: succeededOrFailed()
 
   - task: CopyFiles@2
     displayName: 'Copy TestData'
     inputs:
       SourceFolder: '$(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\'
-      TargetFolder: '$(artifactsDir)\TestData'
+      TargetFolder: '$(artifactsDir)\E2ETestData\TestData'
+    #condition: and(succeededOrFailed(), eq(variables['System.debug'], true))
     condition: succeededOrFailed()
 
   - task: PublishPipelineArtifact@1

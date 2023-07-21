@@ -26,8 +26,8 @@ namespace LocalhostWebServer
             Startup.StaticFileRoot = config.GetValue<string>("StaticFileRoot");
             Startup.CertPath = config.GetValue<string>("CertPath");
             Startup.CertPassword = config.GetValue<string>("CertPassword");
-            Startup.OutCertFile = config.GetValue<string>("OutCertFile");
             Startup.Port = config.GetValue<Int32>("Port", 5001);
+            Startup.OutCertFile = config.GetValue<string>("OutCertFile");
             Startup.LocalSourceJson = config.GetValue<string>("LocalSourceJson");
             
             if (string.IsNullOrEmpty(Startup.StaticFileRoot) || 

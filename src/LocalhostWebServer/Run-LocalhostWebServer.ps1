@@ -11,6 +11,8 @@
     Secure Password for HTTPS Certificate
 .PARAMETER OutCertFile
     Export cert location.
+.PARAMETER LocalSourceJson
+    Local source json definition
 #>
 
 param(

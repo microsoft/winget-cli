@@ -5,14 +5,11 @@ parameters:
   type: boolean
 - name: filter
   type: string
-- name: comTrace
-  type: boolean
-  default: false
 
 steps:
   - task: CmdLine@2
     displayName: Start COM trace for ${{ parameters.title }}
-    condition: and(succeededOrFailed(), ${{ parameters.comTrace }})
+    condition: and(succeededOrFailed(), eq(variables['System.debug'], true))
     inputs:
       script: 'wpr -start $(Build.SourcesDirectory)\tools\COMTrace\ComTrace.wprp -filemode'
 
@@ -23,7 +20,6 @@ steps:
       testSelector: 'testAssemblies'
       testAssemblyVer2: '$(buildOutDir)\AppInstallerCLIE2ETests\AppInstallerCLIE2ETests.dll'
       testFiltercriteria: ${{ parameters.filter }}
-      runSettingsFile: '$(buildOutDir)\AppInstallerCLIE2ETests\Test.runsettings'
       ${{ if eq(parameters.isPackaged, true) }}:
           overrideTestrunParameters: '-PackagedContext true
                                       -AICLIPackagePath $(packageLayoutDir)
@@ -45,6 +41,6 @@ steps:
 
   - task: CmdLine@2
     displayName: Complete COM trace for ${{ parameters.title }}
-    condition: and(succeededOrFailed(), ${{ parameters.comTrace }})
+    condition: and(succeededOrFailed(), eq(variables['System.debug'], true))
     inputs:
       script: 'wpr -stop "$(artifactsDir)\ComTrace - ${{ parameters.title }}.etl"'

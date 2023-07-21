@@ -1,18 +1,23 @@
 ﻿# How to Run End-To-End Tests for Windows Package Manager Client
 
+Most of the tests require having the local test source added into winget. The local test source must be hosted in a localhost web server.
 
-## Step 1: Launch Localhost Web Server
-In order to run any of the E2E tests, you will need to first launch the LocalhostWebServer executable.  This program serves static test files from a given directory path through a HTTPS local loopback server in order to maintain a closed and controlled repository for resources used for testing purposes. 
+## LocalhostWebServer
+The src\Tool\LocalhostWebServer project generates and executable that serves static test files from a given directory path through a HTTPS local loopback server in order to maintain a closed and controlled repository for resources used for testing purposes.
 
-### Parameters
+### Start localhost web server
 
-The executable has 3 mandatory parameters and 1 optional parameter:
-|Parameter Name	| Mandatory/Optional | Description |
+The localhost web server needs to be running for the duration of the tests. The easiest way to run it is to use src\Tool\LocalhostWebServer\Run-LocalhostWebServer.ps1 in a different PowerShell session.
+
+|Parameter | Type | Description |
 |--|--|--|
+| **BuildRoot** | Mandatory | The output path of the LocalhostWebServer project. Normally something like <winget repo root>\src\<arch>\<configuration>\LocalhostWebServer
 | **StaticFileRoot** | Mandatory | Path to serve static root directory. If the directory path does not exist, a new directory will be created for you. |
 | **CertPath** | Mandatory | Path to HTTPS Developer Certificate. A self signed developer certificate will need to be created in order to  verify localhost https. |
 | **CertPassword** | Mandatory | HTTPS Developer Certificate Password |
 | **Port** | Optional | Port number [Default Port Number: 5001] |
+| **OutCertFile** | Optional | The exported certificate used |
+| **LocalSourceJson** | Optional | The local source definition. If set generates the source. |
 
 ### How to create and trust an ASP.NET Core HTTPS Development Certificate
 Windows Package Manager Client (WinGet.exe) requires new sources added to the WinGet repositories be securely accessed through HTTPS. Therefore, in order to verify the LocalhostWebServer, you will need to create a self-signed development certificate to verify the localhost address. 
@@ -26,18 +31,7 @@ Windows Package Manager Client (WinGet.exe) requires new sources added to the Wi
 - Export file using Personal Information Exchange (.pfx) file format
 - Create and confirm password using SHA256 encryption (any password will work, just make sure to remember it for later)
 - Save HTTPS development certificate and refer its certificate path and password when launching the Localhost Webserver
-### How to run LocalhostWebServer.exe
-The executable can most likely be found in this path: **\src\x86\Release\LocalhostWebServer**
 
-The command line call to run the executable needs to follow the format:
-
-    LocalhostWebServer.exe StaticFileRoot=<Path to Serve Static Root Directory> CertPath=<Path to HTTPS Developer Certificate> CertPassword=<Certificate Password> <Port=Port Number>
-
-Therefore to run the executable in the command line, simply change into the directory that contains **LocalhostWebServer.exe** and run the executable with the corresponding parameter values. Here is an example: (Don't forget to modify the path to match your own local computer)
-
-    cd C:\Users\MSFT\source\repos\winget-cli\src\AnyCPU\Debug\LocalhostWebServer
-
-    LocalhostWebServer.exe StaticFileRoot=C:\Users\MSFT\AppData\Local\Temp\TestLocalIndex CertPath=C:\Users\MSFT\Temp\HTTPSDevCert.pfx CertPassword=password
 
 
 ## 2. Prepare Test.runsettings file
