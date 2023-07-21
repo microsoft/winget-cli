@@ -106,10 +106,10 @@ namespace AppInstallerCLIE2ETests.Helpers
                 },
             };
 
+            WinGetLocalSource.CreateLocalSource(e2eSource);
+
             string s = JsonSerializer.Serialize<LocalSource>(e2eSource, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(Path.Combine(TestSetup.Parameters.StaticFileRootPath, "e2e.json"), s);
-
-            WinGetLocalSource.CreateLocalSource(e2eSource);
         }
     }
 }

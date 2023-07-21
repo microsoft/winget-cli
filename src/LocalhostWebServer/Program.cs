@@ -10,7 +10,6 @@ namespace LocalhostWebServer
     using System.IO;
     using Microsoft.Extensions.Configuration;
     using System.Security.Cryptography.X509Certificates;
-    using Microsoft.AspNetCore.Components.Forms;
     using System.Text.Json.Serialization;
     using System.Text.Json;
     using WinGetSourceCreator.Model;
@@ -72,7 +71,7 @@ namespace LocalhostWebServer
                     }
                 };
 
-                Console.WriteLine(content);
+                File.WriteAllText(Path.Combine(Path.GetDirectoryName(Startup.LocalSourceJson), "localservere2e.json"), content);
                 //WinGetLocalSource.CreateLocalSource(JsonSerializer.Deserialize<LocalSource>(content, options));
             }
 

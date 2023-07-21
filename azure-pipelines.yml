@@ -369,6 +369,13 @@ jobs:
       TargetFolder: '$(artifactsDir)\TestLocalIndex'
     condition: succeededOrFailed()
 
+  - task: CopyFiles@2
+    displayName: 'Copy TestData'
+    inputs:
+      SourceFolder: '$(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\'
+      TargetFolder: '$(artifactsDir)\TestData'
+    condition: succeededOrFailed()
+
   - task: PublishPipelineArtifact@1
     displayName: Publish Pipeline Artifacts
     inputs:
