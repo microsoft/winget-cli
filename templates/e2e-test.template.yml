@@ -31,23 +31,17 @@ steps:
                                       -LooseFileRegistration true
                                       -InvokeCommandInDesktopPackage true
                                       -StaticFileRootPath $(Agent.TempDirectory)\TestLocalIndex
-                                      -MsiTestInstallerPath $(System.DefaultWorkingDirectory)\src\AppInstallerCLIE2ETests\TestData\AppInstallerTestMsiInstaller.msi
-                                      -MsixTestInstallerPath $(Build.ArtifactStagingDirectory)\AppInstallerTestMsixInstaller.msix
-                                      -ExeTestInstallerPath $(buildOutDir)\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe
-                                      -PackageCertificatePath $(AppInstallerTest.secureFilePath)
                                       -PowerShellModulePath $(buildOutDir)\PowerShell\Microsoft.WinGet.Client\Microsoft.WinGet.Client.psd1
                                       -LocalServerCertPath $(Agent.TempDirectory)\servercert.cer'
+                                      -SkipTestSource true
       ${{ else }}:
           overrideTestrunParameters: '-PackagedContext false
                                       -AICLIPath $(packageLayoutDir)\AppInstallerCLI\winget.exe
                                       -InvokeCommandInDesktopPackage false
                                       -StaticFileRootPath $(Agent.TempDirectory)\TestLocalIndex
-                                      -MsiTestInstallerPath $(System.DefaultWorkingDirectory)\src\AppInstallerCLIE2ETests\TestData\AppInstallerTestMsiInstaller.msi
-                                      -MsixTestInstallerPath $(Build.ArtifactStagingDirectory)\AppInstallerTestMsixInstaller.msix
-                                      -ExeTestInstallerPath $(buildOutDir)\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe
-                                      -PackageCertificatePath $(AppInstallerTest.secureFilePath)
                                       -PowerShellModulePath $(buildOutDir)\PowerShell\Microsoft.WinGet.Client\Microsoft.WinGet.Client.psd1
                                       -LocalServerCertPath $(Agent.TempDirectory)\servercert.cer'
+                                      -SkipTestSource true
 
   - task: CmdLine@2
     displayName: Complete COM trace for ${{ parameters.title }}

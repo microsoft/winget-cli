@@ -54,7 +54,10 @@ namespace AppInstallerCLIE2ETests
                         Assert.True(TestCommon.InstallMsix(testParams.AICLIPackagePath), $"InstallMsix : {testParams.AICLIPackagePath}");
                     }
                 }
+            }
 
+            if (!testParams.SkipTestSource)
+            {
                 TestIndex.GenerateE2ESource();
             }
 

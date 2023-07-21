@@ -31,6 +31,7 @@ namespace AppInstallerCLIE2ETests.Helpers
             this.VerboseLogging = this.InitializeBoolParam(Constants.VerboseLoggingParameter, true);
             this.LooseFileRegistration = this.InitializeBoolParam(Constants.LooseFileRegistrationParameter);
             this.InvokeCommandInDesktopPackage = this.InitializeBoolParam(Constants.InvokeCommandInDesktopPackageParameter);
+            this.SkipTestSource = this.InitializeBoolParam(Constants.SkipTestSourceParameter, this.IsDefault);
 
             // For packaged context, default to AppExecutionAlias
             this.AICLIPath = this.InitializeStringParam(Constants.AICLIPathParameter, this.PackagedContext ? "WinGetDev.exe" : TestCommon.GetTestFile("winget.exe"));
@@ -131,6 +132,11 @@ namespace AppInstallerCLIE2ETests.Helpers
         /// Gets the PowerShell module path.
         /// </summary>
         public string PowerShellModuleManifestPath { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether to skip creating test source.
+        /// </summary>
+        public bool SkipTestSource { get; }
 
         /// <summary>
         /// Gets the settings json path.

@@ -6,19 +6,19 @@
   ],
   "LocalInstallers": [
     {
-      "Type": "Exe",
+      "Type": "exe",
       "Name": "%BUILDOUTDIR%\\AppInstallerTestExeInstaller\\AppInstallerTestExeInstaller.exe",
       "Input": "%BUILD_ARTIFACTSTAGINGDIRECTORY%\\AppInstallerTestMsixInstaller.msix",
       "HashToken": "<EXEHASH>"
     },
     {
-      "Type": "Msi",
+      "Type": "msi",
       "Name": "AppInstallerTestMsiInstaller\\AppInstallerTestMsiInstaller.msi",
       "Input": "%BUILD_SOURCESDIRECTORY%\\src\\AppInstallerCLIE2ETests\\TestData\\AppInstallerTestMsiInstaller.msi",
       "HashToken": "<MSIHASH>"
     },
     {
-      "Type": "Msix",
+      "Type": "msix",
       "Name": "AppInstallerTestMsixInstaller\\AppInstallerTestMsixInstaller.msix",
       "Input": "%BUILD_ARTIFACTSTAGINGDIRECTORY%\\AppInstallerTestMsixInstaller.msix",
       "HashToken": "<MSIXHASH>",
@@ -38,6 +38,6 @@
     }
   ],
   "Signature": {
-    "CertFile": "%AGENT_TEMPDIRECTORY%\\servercert.cer"
+    "CertFile": "%APPINSTALLERTEST_SECUREFILEPATH%"
   }
 }

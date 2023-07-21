@@ -6,6 +6,7 @@
 
 namespace AppInstallerCLIE2ETests.Helpers
 {
+    using System;
     using System.IO;
     using System.Text.Json;
     using Microsoft.WinGetSourceCreator;
@@ -51,6 +52,46 @@ namespace AppInstallerCLIE2ETests.Helpers
         public static void GenerateE2ESource()
         {
             var testParams = TestSetup.Parameters;
+
+            if (string.IsNullOrEmpty(testParams.ExeInstallerPath))
+            {
+                throw new ArgumentNullException($"{Constants.ExeInstallerPathParameter} is required");
+            }
+
+            if (!File.Exists(testParams.ExeInstallerPath))
+            {
+                throw new FileNotFoundException(testParams.ExeInstallerPath);
+            }
+
+            if (string.IsNullOrEmpty(testParams.MsiInstallerPath))
+            {
+                throw new ArgumentNullException($"{Constants.MsiInstallerPathParameter} is required");
+            }
+
+            if (!File.Exists(testParams.MsiInstallerPath))
+            {
+                throw new FileNotFoundException(testParams.MsiInstallerPath);
+            }
+
+            if (string.IsNullOrEmpty(testParams.MsixInstallerPath))
+            {
+                throw new ArgumentNullException($"{Constants.MsixInstallerPathParameter} is required");
+            }
+
+            if (!File.Exists(testParams.MsixInstallerPath))
+            {
+                throw new FileNotFoundException(testParams.MsixInstallerPath);
+            }
+
+            if (string.IsNullOrEmpty(testParams.PackageCertificatePath))
+            {
+                throw new ArgumentNullException($"{Constants.PackageCertificatePathParameter} is required");
+            }
+
+            if (!File.Exists(testParams.PackageCertificatePath))
+            {
+                throw new FileNotFoundException(testParams.PackageCertificatePath);
+            }
 
             LocalSource e2eSource = new ()
             {
@@ -107,9 +148,6 @@ namespace AppInstallerCLIE2ETests.Helpers
             };
 
             WinGetLocalSource.CreateLocalSource(e2eSource);
-
-            string s = JsonSerializer.Serialize<LocalSource>(e2eSource, new JsonSerializerOptions { WriteIndented = true });
-            File.WriteAllText(Path.Combine(TestSetup.Parameters.StaticFileRootPath, "e2e.json"), s);
         }
     }
 }

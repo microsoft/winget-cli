@@ -71,8 +71,8 @@ namespace LocalhostWebServer
                     }
                 };
 
-                File.WriteAllText(Path.Combine(Path.GetDirectoryName(Startup.LocalSourceJson), "localservere2e.json"), content);
-                //WinGetLocalSource.CreateLocalSource(JsonSerializer.Deserialize<LocalSource>(content, options));
+                File.WriteAllText(Path.Combine(Path.GetDirectoryName(Startup.LocalSourceJson), "localserver_e2e.json"), content);
+                WinGetLocalSource.CreateLocalSource(JsonSerializer.Deserialize<LocalSource>(content, options));
             }
 
             CreateHostBuilder(args).Build().Run();
