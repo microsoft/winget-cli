@@ -45,5 +45,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         virtual Manifest::InstallerTypeEnum ConvertToInstallerType(std::string_view in) const;
 
         std::vector<Manifest::string_t> ConvertToManifestStringArray(const std::vector<std::string>& values) const;
+
+        virtual Manifest::ManifestVer GetManifestVersion() const;
     };
 }

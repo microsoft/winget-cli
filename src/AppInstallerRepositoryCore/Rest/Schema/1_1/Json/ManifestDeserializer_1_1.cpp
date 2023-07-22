@@ -287,4 +287,9 @@ namespace AppInstaller::Repository::Rest::Schema::V1_1::Json
 
         return result;
     }
+
+    Manifest::ManifestVer ManifestDeserializer::GetManifestVersion() const
+    {
+        return Manifest::s_ManifestVersionV1_1;
+    }
 }
