@@ -41,7 +41,7 @@ namespace Microsoft.WinGetUtil.Interfaces
         /// Checks the index for consistency, ensuring that at a minimum all referenced rows actually exist.
         /// </summary>
         /// <returns>Is index consistent.</returns>
-        bool IsIndexConsitent();
+        bool IsIndexConsistent();
 
         /// <summary>
         /// Gets the managed index handle. It is used in additional manifest validation that requires an index.

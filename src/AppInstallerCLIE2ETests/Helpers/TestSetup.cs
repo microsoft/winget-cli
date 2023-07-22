@@ -169,11 +169,11 @@ namespace AppInstallerCLIE2ETests.Helpers
             return TestContext.Parameters.Get(paramName).Equals("true", StringComparison.OrdinalIgnoreCase);
         }
 
-        private string InitializeStringParam(string paramName, string defaultVaule = null)
+        private string InitializeStringParam(string paramName, string defaultValue = null)
         {
             if (this.IsDefault || !TestContext.Parameters.Exists(paramName))
             {
-                return defaultVaule;
+                return defaultValue;
             }
 
             return TestContext.Parameters.Get(paramName);

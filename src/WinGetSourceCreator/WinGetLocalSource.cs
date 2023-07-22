@@ -30,22 +30,13 @@ namespace Microsoft.WinGetSourceCreator
 
             content = content.Replace("\\", "/");
 
-            File.WriteAllText(Path.Combine(Path.GetDirectoryName(localSourceFile)!, "localserver_e2e.json"), content);
-
-            try
+            var localSource = JsonSerializer.Deserialize<LocalSource>(content, options);
+            if (localSource == null)
             {
-                var localSource = JsonSerializer.Deserialize<LocalSource>(content, options);
-                if (localSource == null)
-                {
-                    throw new Exception("Failed deserializing");
-                }
+                throw new Exception("Failed deserializing");
+            }
 
-                CreateLocalSource(localSource);
-            }
-            catch(Exception ex)
-            {
-                File.WriteAllText(Path.Combine(Path.GetDirectoryName(localSourceFile)!, "exception.txt"), ex.ToString());
-            }
+            CreateLocalSource(localSource);
         }
 
         public static void CreateLocalSource(LocalSource localSource)

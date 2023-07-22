@@ -156,12 +156,12 @@ namespace Microsoft.WinGetSourceCreator
 
             if (!string.IsNullOrEmpty(identityPublisher))
             {
-                var atr = identityNode.Attributes?["Publisher"];
-                if (atr == null)
+                var attr = identityNode.Attributes?["Publisher"];
+                if (attr == null)
                 {
                     throw new NullReferenceException("Publisher attribute");
                 }
-                atr.Value = identityPublisher;
+                attr.Value = identityPublisher;
             }
 
             xmlDoc.Save(manifestFile);
