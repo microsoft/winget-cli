@@ -94,14 +94,14 @@ Example:
 ```
 {
   # If running E2E this is must be the StaticFileRoot used for the localhost web server
-  "WorkingDirectory": "c:\\dev\\temp\\TestLocalIndex",
+  "WorkingDirectory": "c:/dev/temp/TestLocalIndex",
 
   # The appx manifest to generate the source.msix file.
-  "AppxManifest": "c:\\dev\\winget-cli\\src\\AppInstallerCLIE2ETests\\TestData\\Package\\AppxManifest.xml",
+  "AppxManifest": "c:/dev/winget-cli/src/AppInstallerCLIE2ETests/TestData/Package/AppxManifest.xml",
 
   # A list of directories or files to copy. If a directory, it copies all the *.yaml files preserving subdirectories.
   "LocalManifests": [
-    "c:\\dev\\winget-cli\\src\\x86\\Release\\AppInstallerCLIE2ETests\\TestData\\Manifests"
+    "c:/dev/winget-cli/src/x86/Release/AppInstallerCLIE2ETests/TestData/Manifests"
   ],
 
   # The signature to use.
@@ -118,10 +118,10 @@ Example:
   "LocalInstallers": [
     {
       "Type": "exe",
-      "Input": "c:\\dev\\winget-cli\\src\\x64\\Debug\\AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe",
+      "Input": "c:/dev/winget-cli/src/x64/Debug/AppInstallerTestExeInstaller\AppInstallerTestExeInstaller.exe",
 
       # Name of the installer to be copied and signed if needed.
-      "Name": "AppInstallerTestExeInstaller\\AppInstallerTestExeInstaller.exe",
+      "Name": "AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe",
 
       # The token in the manifests for this installer. This will be replaces at copy manifests time.
       "HashToken": "<EXEHASH>"
@@ -134,8 +134,8 @@ Example:
     },
     {
       "Type": "msi",
-      "Input": "c:\\dev\\winget-cli\\src\\AppInstallerCLIE2ETests\\TestData\\AppInstallerTestMsiInstaller.msi",
-      "Name": "AppInstallerTestMsiInstaller\\AppInstallerTestMsiInstaller.msi",
+      "Input": "c:/dev/winget-cli/src/AppInstallerCLIE2ETests/TestData/AppInstallerTestMsiInstaller.msi",
+      "Name": "AppInstallerTestMsiInstaller/AppInstallerTestMsiInstaller.msi",
       "HashToken": "<MSIHASH>"
 
       # Don't sign this.
@@ -143,8 +143,8 @@ Example:
     },
     {
       "Type": "msix",
-      "Input": "D:\\dev\\temp\\AppInstallerTestMsixInstaller.msix",
-      "Name": "AppInstallerTestMsixInstaller\\AppInstallerTestMsixInstaller.msix",
+      "Input": "D:/dev/temp/AppInstallerTestMsixInstaller.msix",
+      "Name": "AppInstallerTestMsixInstaller/AppInstallerTestMsixInstaller.msix",
       "HashToken": "<MSIXHASH>",
 
       # Only supported by where type is msix. Package must be signed, either already signed or signed when copied.
@@ -160,12 +160,12 @@ Example:
 
       # List of files to zip. Does not preserve subdirectories.
       "Input": [
-        "D:\\dev\\temp\\TestLocalIndex\\AppInstallerTestExeInstaller\\AppInstallerTestExeInstaller.exe",
-        "D:\\dev\\temp\\TestLocalIndex\\AppInstallerTestMsiInstaller\\AppInstallerTestMsiInstaller.msi",
-        "D:\\dev\\temp\\TestLocalIndex\\AppInstallerTestMsixInstaller\\AppInstallerTestMsixInstaller.msix"
+        "D:/dev/temp/TestLocalIndex/AppInstallerTestExeInstaller/AppInstallerTestExeInstaller.exe",
+        "D:/dev/temp/TestLocalIndex/AppInstallerTestMsiInstaller/AppInstallerTestMsiInstaller.msi",
+        "D:/dev/temp/TestLocalIndex/AppInstallerTestMsixInstaller/AppInstallerTestMsixInstaller.msix"
       ],
 
-      "Name": "AppInstallerTestZipInstaller\\AppInstallerTestZipInstaller.zip",
+      "Name": "AppInstallerTestZipInstaller/AppInstallerTestZipInstaller.zip",
 
       "HashToken": "<ZIPHASH>"
     }
