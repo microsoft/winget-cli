@@ -166,7 +166,14 @@ namespace AppInstaller::Manifest
 
             if (installer.UpdateBehavior == UpdateBehaviorEnum::Unknown)
             {
-                resultErrors.emplace_back(ManifestError::InvalidFieldValue, "UpdateBehavior");
+                resultErrors.emplace_back(ManifestError::InvalidFieldValue, "UpgradeBehavior");
+            }
+
+            // Validate system reference strings if they are set at the installer level
+            // Allow PackageFamilyName to be declared with non msix installers to support nested installer scenarios. But still report as warning to notify user of this uncommon case.
+            if (!installer.PackageFamilyName.empty() && !DoesInstallerTypeUsePackageFamilyName(installer.EffectiveInstallerType()))
+            {
+                resultErrors.emplace_back(ManifestError::InstallerTypeDoesNotSupportPackageFamilyName, "InstallerType", InstallerTypeToString(installer.EffectiveInstallerType()), ValidationError::Level::Warning);
             }
 
             if (!installer.ProductCode.empty() && !DoesInstallerTypeUseProductCode(installer.EffectiveInstallerType()))
