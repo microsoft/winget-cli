@@ -173,7 +173,7 @@ namespace AppInstaller::Manifest
             // Allow PackageFamilyName to be declared with non msix installers to support nested installer scenarios. But still report as warning to notify user of this uncommon case.
             if (!installer.PackageFamilyName.empty() && !DoesInstallerTypeUsePackageFamilyName(installer.EffectiveInstallerType()))
             {
-                resultErrors.emplace_back(ManifestError::InstallerTypeDoesNotSupportPackageFamilyName, "InstallerType", InstallerTypeToString(installer.EffectiveInstallerType()), ValidationError::Level::Warning);
+                resultErrors.emplace_back(ManifestError::InstallerTypeDoesNotSupportPackageFamilyName, "InstallerType", std::string{ InstallerTypeToString(installer.EffectiveInstallerType()) }, ValidationError::Level::Warning);
             }
 
             if (!installer.ProductCode.empty() && !DoesInstallerTypeUseProductCode(installer.EffectiveInstallerType()))
