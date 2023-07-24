@@ -691,7 +691,7 @@ namespace AppInstaller::Msix
     std::vector<MsixPackageManifest> MsixInfo::GetAppPackageManifests(bool includeStub) const
     {
         std::vector<MsixPackageManifest> manifests;
-        auto packages = GetAppPackages();
+        auto packages = GetAppPackages(includeStub);
         for (const auto& package : packages)
         {
             ComPtr<IAppxManifestReader> manifestReader;
