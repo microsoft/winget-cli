@@ -166,14 +166,14 @@ namespace AppInstaller::Manifest
 
             if (installer.UpdateBehavior == UpdateBehaviorEnum::Unknown)
             {
-                resultErrors.emplace_back(ManifestError::InvalidFieldValue, "UpdateBehavior");
+                resultErrors.emplace_back(ManifestError::InvalidFieldValue, "UpgradeBehavior");
             }
 
             // Validate system reference strings if they are set at the installer level
-            // Allow PackageFamilyName to be declared with non msix installers to support nested installer scenarios after manifest version 1.1
-            if (manifest.ManifestVersion <= ManifestVer{ s_ManifestVersionV1_1 } && !installer.PackageFamilyName.empty() && !DoesInstallerTypeUsePackageFamilyName(installer.EffectiveInstallerType()))
+            // Allow PackageFamilyName to be declared with non msix installers to support nested installer scenarios. But still report as warning to notify user of this uncommon case.
+            if (!installer.PackageFamilyName.empty() && !DoesInstallerTypeUsePackageFamilyName(installer.EffectiveInstallerType()))
             {
-                resultErrors.emplace_back(ManifestError::InstallerTypeDoesNotSupportPackageFamilyName, "InstallerType", InstallerTypeToString(installer.EffectiveInstallerType()));
+                resultErrors.emplace_back(ManifestError::InstallerTypeDoesNotSupportPackageFamilyName, "InstallerType", std::string{ InstallerTypeToString(installer.EffectiveInstallerType()) }, ValidationError::Level::Warning);
             }
 
             if (!installer.ProductCode.empty() && !DoesInstallerTypeUseProductCode(installer.EffectiveInstallerType()))

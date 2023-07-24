@@ -76,6 +76,12 @@
     <Filter Include="Rest\Schema\1_4\Json">
       <UniqueIdentifier>{d9d70cf5-ce04-4db2-a0ec-970dd0ad22b6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Rest\Schema\1_5">
+      <UniqueIdentifier>{f131c993-1136-4f4c-85a9-8606c6d297a8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rest\Schema\1_5\Json">
+      <UniqueIdentifier>{78cf34a8-b868-4393-ad9c-630940569186}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Microsoft\Schema\Pinning_1_0">
       <UniqueIdentifier>{f05e19bb-2161-4ab0-9d04-2dfa2d3eb3c6}</UniqueIdentifier>
     </Filter>
@@ -336,6 +342,12 @@
     <ClInclude Include="Rest\Schema\1_4\Json\SearchResponseDeserializer.h">
       <Filter>Rest\Schema\1_4\Json</Filter>
     </ClInclude>
+    <ClInclude Include="Rest\Schema\1_5\Json\ManifestDeserializer.h">
+      <Filter>Rest\Schema\1_5\Json</Filter>
+    </ClInclude>
+    <ClInclude Include="Rest\Schema\1_5\Interface.h">
+      <Filter>Rest\Schema\1_5</Filter>
+    </ClInclude>
     <ClInclude Include="Rest\Schema\SearchRequestComposer.h">
       <Filter>Rest\Schema</Filter>
     </ClInclude>
@@ -553,6 +565,12 @@
     </ClCompile>
     <ClCompile Include="Rest\Schema\1_4\Json\SearchResponseDeserializer_1_4.cpp">
       <Filter>Rest\Schema\1_4\Json</Filter>
+    </ClCompile>
+    <ClCompile Include="Rest\Schema\1_5\Json\ManifestDeserializer_1_5.cpp">
+      <Filter>Rest\Schema\1_5\Json</Filter>
+    </ClCompile>
+    <ClCompile Include="Rest\Schema\1_5\RestInterface_1_5.cpp">
+      <Filter>Rest\Schema\1_5</Filter>
     </ClCompile>
     <ClCompile Include="Rest\Schema\SearchRequestComposer.cpp">
       <Filter>Rest\Schema</Filter>

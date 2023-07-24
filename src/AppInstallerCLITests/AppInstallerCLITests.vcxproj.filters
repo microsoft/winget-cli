@@ -543,9 +543,6 @@
     <CopyFileToFolders Include="TestData\Manifest-Good-NoArpVersionDeclared.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>
-    <CopyFileToFolders Include="TestData\Manifest-Good-PackageFamilyNameOnExe-Ver1_2.yaml">
-      <Filter>TestData</Filter>
-    </CopyFileToFolders>
     <CopyFileToFolders Include="TestData\Manifest-Good-SingleArpVersionDeclared.yaml">
       <Filter>TestData</Filter>
     </CopyFileToFolders>

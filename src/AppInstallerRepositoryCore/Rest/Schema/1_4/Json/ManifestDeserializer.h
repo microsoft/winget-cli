@@ -20,5 +20,7 @@ namespace AppInstaller::Repository::Rest::Schema::V1_4::Json
         Manifest::ExpectedReturnCodeEnum ConvertToExpectedReturnCodeEnum(std::string_view in) const override;
 
         Manifest::ManifestInstaller::ExpectedReturnCodeInfo DeserializeExpectedReturnCodeInfo(const web::json::value& expectedReturnCodeJsonObject) const override;
+
+        Manifest::ManifestVer GetManifestVersion() const override;
     };
 }
