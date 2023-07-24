@@ -94,4 +94,21 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
         builder.Execute(connection);
         return connection.GetLastInsertRowID();
     }
+
+    std::vector<std::pair<int, std::string>> CheckpointTable::GetArguments(SQLite::Connection& connection)
+    {
+        SQLite::Builder::StatementBuilder builder;
+        builder.Select({ s_CheckpointTable_ArgumentType_Column, s_CheckpointTable_ArgumentValue_Column})
+            .From(s_CheckpointTable_Table_Name);
+
+        SQLite::Statement select = builder.Prepare(connection);
+        std::vector<std::pair<int, std::string>> result;
+        while (select.Step())
+        {
+            auto [argumentType, argumentValue] = select.GetRow<int, std::string>();
+            result.emplace_back(std::pair{argumentType, argumentValue});
+        }
+
+        return result;
+    }
 }

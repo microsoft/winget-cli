@@ -121,6 +121,11 @@ namespace AppInstaller::Repository::Microsoft
         return m_interface->GetCommandName(m_dbconn);
     }
 
+    std::vector<std::pair<int, std::string>> CheckpointIndex::GetArguments()
+    {
+        return m_interface->GetArguments(m_dbconn);
+    }
+
     std::unique_ptr<Schema::ICheckpointIndex> CheckpointIndex::CreateICheckpointIndex() const
     {
         if (m_version == Schema::Version{ 1, 0 } ||

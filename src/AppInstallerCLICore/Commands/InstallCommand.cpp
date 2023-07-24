@@ -105,10 +105,10 @@ namespace AppInstaller::CLI
     {
         if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Resume))
         {
-            context.InitializeCheckpoints(AppInstaller::Runtime::GetClientVersion(), this->Name());
+            //context.InitializeCheckpoints(AppInstaller::Runtime::GetClientVersion(), this->Name());
 
             // Record the initial arguments.
-            context.Checkpoint(CheckpointFlags::ArgumentsProcessed);
+            //context.Checkpoint(CheckpointFlags::ArgumentsProcessed);
         }
 
 

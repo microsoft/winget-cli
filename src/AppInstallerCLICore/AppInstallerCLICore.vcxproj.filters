@@ -227,6 +227,9 @@
     <ClInclude Include="Commands\ResumeCommand.h">
       <Filter>Commands</Filter>
     </ClInclude>
+    <ClInclude Include="CheckpointManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -420,6 +423,9 @@
     </ClCompile>
     <ClCompile Include="Commands\ResumeCommand.cpp">
       <Filter>Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="PortableInstaller.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

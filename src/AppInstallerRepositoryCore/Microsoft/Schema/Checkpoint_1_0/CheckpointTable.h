@@ -30,5 +30,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
 
         // Adds the command argument and value to the table.
         static SQLite::rowid_t AddCommandArgument(SQLite::Connection& connection, int type, const std::string_view& value);
+
+        static std::vector<std::pair<int, std::string>> GetArguments(SQLite::Connection& connection);
     };
 }

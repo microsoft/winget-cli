@@ -31,6 +31,8 @@ namespace AppInstaller::Repository::Microsoft::Schema
 
         virtual std::string GetCommandName(SQLite::Connection& connection) = 0;
 
+        virtual std::vector<std::pair<int, std::string>> GetArguments(SQLite::Connection& connection) = 0;
+
         // Returns a bool value indicating whether the index is empty.
         virtual bool IsEmpty(SQLite::Connection& connection) = 0;
     };

@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include "AppInstallerRuntime.h"
+#include "CheckpointManager.h"
 #include "ResumeCommand.h"
 #include "RootCommand.h"
 #include "Resources.h"
@@ -9,6 +11,7 @@ namespace AppInstaller::CLI
 {
     using namespace std::string_view_literals;
     using namespace Execution;
+    using namespace Checkpoint;
 
     std::vector<Argument> ResumeCommand::GetArguments() const
     {
@@ -39,9 +42,14 @@ namespace AppInstaller::CLI
 
         GUID checkpointId;
         THROW_IF_FAILED(CLSIDFromString(resumeGuid.c_str(), &checkpointId));
-        context.LoadCheckpointIndex(checkpointId);
+        CheckpointManager checkpointManager{ checkpointId };
 
-        std::string_view commandName = "install"sv;
+        if (AppInstaller::Runtime::GetClientVersion().get() != checkpointManager.GetClientVersion())
+        {
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_CLIENTVERSION_MISMATCH);
+        }
+
+        std::string commandName = checkpointManager.GetCommandName();
         std::unique_ptr<Command> commandToResume;
 
         // Use the root command to obtain all of the available commands.
@@ -60,7 +68,8 @@ namespace AppInstaller::CLI
             }
         }
 
-        context.SetExecutingCommand(commandToResume.get());
-        commandToResume->Execute(context);
+        auto checkpointContext = checkpointManager.CreateContextFromCheckpointIndex();
+        checkpointContext->SetExecutingCommand(commandToResume.get());
+        commandToResume->Execute(*(checkpointContext.get()));
     }
 }

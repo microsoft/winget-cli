@@ -80,4 +80,9 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
     {
         return CheckpointTable::IsEmpty(connection);
     }
+
+    std::vector<std::pair<int, std::string>> CheckpointIndexInterface::GetArguments(SQLite::Connection& connection)
+    {
+        return CheckpointTable::GetArguments(connection);
+    }
 }

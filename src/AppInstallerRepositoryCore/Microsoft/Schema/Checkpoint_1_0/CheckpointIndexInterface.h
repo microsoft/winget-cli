@@ -22,6 +22,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
 
         std::string GetCommandName(SQLite::Connection& connection) override;
 
+        std::vector<std::pair<int, std::string>> GetArguments(SQLite::Connection& connection) override;
+
     private:
         bool IsEmpty(SQLite::Connection& connection) override;
     };

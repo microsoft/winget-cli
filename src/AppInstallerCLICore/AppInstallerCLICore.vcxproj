@@ -350,6 +350,7 @@
   <ItemGroup>
     <ClInclude Include="Argument.h" />
     <ClInclude Include="ChannelStreams.h" />
+    <ClInclude Include="CheckpointManager.h" />
     <ClInclude Include="Command.h" />
     <ClInclude Include="Commands\COMCommand.h" />
     <ClInclude Include="Commands\CompleteCommand.h" />
@@ -420,6 +421,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="COMContext.cpp" />
+    <ClCompile Include="CheckpointManager.cpp" />
     <ClCompile Include="Commands\COMCommand.cpp" />
     <ClCompile Include="Commands\ConfigureCommand.cpp" />
     <ClCompile Include="Commands\ConfigureShowCommand.cpp" />

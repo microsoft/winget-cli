@@ -46,6 +46,8 @@ namespace AppInstaller::Repository::Microsoft
 
         std::string GetCommandName();
 
+        std::vector<std::pair<int, std::string>> GetArguments();
+
     private:
         // Constructor used to open an existing index.
         CheckpointIndex(const std::string& target, SQLiteStorageBase::OpenDisposition disposition, Utility::ManagedFile&& indexFile);
