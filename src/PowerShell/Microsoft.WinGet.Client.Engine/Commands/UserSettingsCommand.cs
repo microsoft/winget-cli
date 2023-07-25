@@ -13,6 +13,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
     using System.Linq;
     using System.Management.Automation;
     using Microsoft.WinGet.Client.Engine.Commands.Common;
+    using Microsoft.WinGet.Client.Engine.Common;
     using Microsoft.WinGet.Client.Engine.Exceptions;
     using Microsoft.WinGet.Client.Engine.Helpers;
     using Newtonsoft.Json;
@@ -34,8 +35,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
             var settingsResult = wingetCliWrapper.RunCommand("settings", "export");
 
             // Read the user settings file property.
-            var serialized = JObject.Parse(settingsResult.StdOut);
-            WinGetSettingsFilePath = (string)serialized.GetValue("userSettingsFile");
+            WinGetSettingsFilePath = (string)Utilities.ConvertToHashtable(settingsResult.StdOut)["userSettingsFile"];
         }
 
         /// <summary>
@@ -103,7 +103,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                 WinGetSettingsFilePath,
                 settingsJson);
 
-            this.PsCmdlet.WriteObject(this.ConvertToHashtable(settingsJson));
+            this.PsCmdlet.WriteObject(Utilities.ConvertToHashtable(settingsJson));
         }
 
         private static JObject HashtableToJObject(Hashtable hashtable)
@@ -117,7 +117,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                 File.ReadAllText(WinGetSettingsFilePath) :
                 string.Empty;
 
-            return this.ConvertToHashtable(content);
+            return Utilities.ConvertToHashtable(content);
         }
 
         private JObject LocalSettingsFileToJObject()
@@ -133,111 +133,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands
                 this.PsCmdlet.WriteDebug(e.Message);
                 throw new UserSettingsReadException(e);
             }
-        }
-
-        private Hashtable ConvertToHashtable(string content)
-        {
-            if (string.IsNullOrEmpty(content))
-            {
-                return new Hashtable();
-            }
-
-            // This is based of https://github.com/PowerShell/PowerShell/blob/master/src/Microsoft.PowerShell.Commands.Utility/commands/utility/WebCmdlet/JsonObject.cs.
-            // So we can convert JSON to Hashtable for Windows PowerShell and PowerShell Core.
-            try
-            {
-                var obj = JsonConvert.DeserializeObject(
-                    content,
-                    new JsonSerializerSettings
-                    {
-                        // This TypeNameHandling setting is required to be secure.
-                        TypeNameHandling = TypeNameHandling.None,
-                        MetadataPropertyHandling = MetadataPropertyHandling.Ignore,
-                        MaxDepth = 1024,
-                    });
-
-                // It only makes sense that the deserialized object is a dictionary to start.
-                return obj switch
-                {
-                    JObject dictionary => this.PopulateHashTableFromJDictionary(dictionary),
-                    _ => throw new UserSettingsReadException()
-                };
-            }
-            catch (Exception e)
-            {
-                throw new UserSettingsReadException(e);
-            }
-        }
-
-        private Hashtable PopulateHashTableFromJDictionary(JObject entries)
-        {
-            Hashtable result = new (entries.Count);
-            foreach (var entry in entries)
-            {
-                switch (entry.Value)
-                {
-                    case JArray list:
-                        {
-                            // Array
-                            var listResult = this.PopulateHashTableFromJArray(list);
-                            result.Add(entry.Key, listResult);
-                            break;
-                        }
-
-                    case JObject dic:
-                        {
-                            // Dictionary
-                            var dicResult = this.PopulateHashTableFromJDictionary(dic);
-                            result.Add(entry.Key, dicResult);
-                            break;
-                        }
-
-                    case JValue value:
-                        {
-                            result.Add(entry.Key, value.Value);
-                            break;
-                        }
-                }
-            }
-
-            return result;
-        }
-
-        private ICollection<object> PopulateHashTableFromJArray(JArray list)
-        {
-            var result = new object[list.Count];
-
-            for (var index = 0; index < list.Count; index++)
-            {
-                var element = list[index];
-
-                switch (element)
-                {
-                    case JArray array:
-                        {
-                            // Array
-                            var listResult = this.PopulateHashTableFromJArray(array);
-                            result[index] = listResult;
-                            break;
-                        }
-
-                    case JObject dic:
-                        {
-                            // Dictionary
-                            var dicResult = this.PopulateHashTableFromJDictionary(dic);
-                            result[index] = dicResult;
-                            break;
-                        }
-
-                    case JValue value:
-                        {
-                            result[index] = value.Value;
-                            break;
-                        }
-                }
-            }
-
-            return result;
         }
 
         private bool CompareUserSettings(Hashtable userSettings, bool ignoreNotSet)
