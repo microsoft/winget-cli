@@ -411,6 +411,16 @@ namespace AppInstaller::CLI
         }
     }
 
+    void Argument::ValidateArgumentDependency(const Execution::Args& args, Execution::Args::Type type, Execution::Args::Type dependencyArgType)
+    {
+        if (args.Contains(type) && !args.Contains(dependencyArgType))
+        {
+            throw CommandException(Resource::String::DependencyArgumentMissing(
+                Utility::LocIndString{ ArgumentCommon::ForType(type).Name },
+                Utility::LocIndString{ ArgumentCommon::ForType(dependencyArgType).Name }));
+        }
+    }
+
     ArgTypeCategory Argument::GetCategoriesPresent(const Execution::Args& args)
     {
         auto argProperties = ArgumentCommon::GetFromExecArgs(args);

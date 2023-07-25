@@ -183,6 +183,9 @@ namespace AppInstaller::CLI
         // Requires that at most one argument from the list is present.
         static void ValidateExclusiveArguments(const Execution::Args& args);
 
+        // Requires that if an argument depends on another one, it is not present without the dependency.
+        static void ValidateArgumentDependency(const Execution::Args& args, Execution::Args::Type type, Execution::Args::Type dependencyArgType);
+
         static ArgTypeCategory GetCategoriesPresent(const Execution::Args& arg);
 
         // Requires that arguments meet common requirements
