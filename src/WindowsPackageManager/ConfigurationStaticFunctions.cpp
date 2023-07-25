@@ -5,12 +5,14 @@
 #include <winrt/Microsoft.Management.Configuration.h>
 #include <ComClsids.h>
 #include <AppInstallerErrors.h>
+#include <AppInstallerFileLogger.h>
 #include <AppInstallerStrings.h>
 #include <winget/ConfigurationSetProcessorHandlers.h>
 #include <ConfigurationSetProcessorFactoryRemoting.h>
 #include <winget/ILifetimeWatcher.h>
 #include <winget/GroupPolicy.h>
 #include <winget/Security.h>
+#include <winget/ThreadGlobals.h>
 
 namespace ConfigurationShim
 {
@@ -26,7 +28,14 @@ namespace ConfigurationShim
     DECLSPEC_UUID(WINGET_OUTOFPROC_COM_CLSID_ConfigurationStaticFunctions)
     ConfigurationStaticFunctionsShim : winrt::implements<ConfigurationStaticFunctionsShim, winrt::Microsoft::Management::Configuration::IConfigurationStatics>
     {
-        ConfigurationStaticFunctionsShim() = default;
+        ConfigurationStaticFunctionsShim()
+        {
+            auto threadGlobalsRestore = m_threadGlobals.SetForCurrentThread();
+            auto& diagnosticsLogger = m_threadGlobals.GetDiagnosticLogger();
+            diagnosticsLogger.EnableChannel(AppInstaller::Logging::Channel::All);
+            diagnosticsLogger.SetLevel(AppInstaller::Logging::Level::Verbose);
+            diagnosticsLogger.AddLogger(std::make_unique<AppInstaller::Logging::FileLogger>("ConfigStatics"sv));
+        }
 
         winrt::Microsoft::Management::Configuration::ConfigurationUnit CreateConfigurationUnit()
         {
@@ -49,6 +58,7 @@ namespace ConfigurationShim
 
             co_await winrt::resume_background();
 
+            auto threadGlobalsRestore = m_threadGlobals.SetForCurrentThread();
             winrt::Microsoft::Management::Configuration::IConfigurationSetProcessorFactory result;
 
             if (lowerHandler == AppInstaller::Configuration::PowerShellHandlerIdentifier)
@@ -88,6 +98,7 @@ namespace ConfigurationShim
         }
 
         winrt::Microsoft::Management::Configuration::ConfigurationStaticFunctions m_statics;
+        AppInstaller::ThreadLocalStorage::WingetThreadGlobals m_threadGlobals;
     };
 
     // Enable custom code to run before creating any object through the factory.
