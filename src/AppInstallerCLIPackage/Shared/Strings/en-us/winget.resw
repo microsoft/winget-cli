@@ -1328,7 +1328,7 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="IncludeUnknownArgumentDescription" xml:space="preserve">
     <value>Upgrade packages even if their current version cannot be determined</value>
   </data>
-  <data name="IncludeUnknownArgumentInListDescription" xml:space="preserve">
+  <data name="IncludeUnknownInListArgumentDescription" xml:space="preserve">
     <value>List packages even if their current version cannot be determined. Can only be used with the --upgrade argument</value>
     <comment>{Locked="--upgrade"}</comment>
   </data>
@@ -1697,7 +1697,7 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="IncludePinnedArgumentDescription" xml:space="preserve">
     <value>Upgrade packages even if they have a non-blocking pin</value>
   </data>
-  <data name="IncludePinnedArgumentInListDescription" xml:space="preserve">
+  <data name="IncludePinnedInListArgumentDescription" xml:space="preserve">
     <value>List packages even if they have a pin that prevents upgrade. Can only be used with the --upgrade argument</value>
     <comment>{Locked="--upgrade"}</comment>
   </data>
