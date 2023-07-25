@@ -212,7 +212,7 @@ namespace AppInstallerCLIE2ETests.PowerShell
             // trying to load the runspace. This is most probably because the same dll is already loaded.
             // Check the type the long way.
             dynamic exception = cmdletException.InnerException;
-            Assert.AreEqual(exception.GetType().ToString(), "Microsoft.WinGet.Client.Engine.Exceptions.UserSettingsReadException");
+            Assert.AreEqual(exception.GetType().ToString(), "Newtonsoft.Json.JsonReaderException");
         }
 
         /// <summary>

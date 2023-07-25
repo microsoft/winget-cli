@@ -36,7 +36,7 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         }
 
         /// <summary>
-        /// Disables adming setting.
+        /// Disables admin setting.
         /// </summary>
         /// <param name="name">Setting name.</param>
         public void DisableSetting(string name)
