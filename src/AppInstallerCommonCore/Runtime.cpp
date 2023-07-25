@@ -500,12 +500,16 @@ namespace AppInstaller::Runtime
             result.Path = GetPathToAppDataDir(s_AppDataDir_State, forDisplay);
             result.Path /= GetRuntimePathStateName();
             result.SetOwner(ACEPrincipal::CurrentUser);
+            result.ACL[ACEPrincipal::System] = ACEPermissions::All;
+            result.ACL[ACEPrincipal::Admins] = ACEPermissions::All;
             break;
         case PathName::StandardSettings:
         case PathName::UserFileSettings:
             result.Path = GetPathToAppDataDir(s_AppDataDir_Settings, forDisplay);
             result.Path /= GetRuntimePathStateName();
             result.SetOwner(ACEPrincipal::CurrentUser);
+            result.ACL[ACEPrincipal::System] = ACEPermissions::All;
+            result.ACL[ACEPrincipal::Admins] = ACEPermissions::All;
             break;
         case PathName::SecureSettingsForRead:
         case PathName::SecureSettingsForWrite:
@@ -519,6 +523,7 @@ namespace AppInstaller::Runtime
             {
                 result.SetOwner(ACEPrincipal::Admins);
                 result.ACL[ACEPrincipal::CurrentUser] = ACEPermissions::ReadExecute;
+                result.ACL[ACEPrincipal::System] = ACEPermissions::All;
             }
             else
             {
