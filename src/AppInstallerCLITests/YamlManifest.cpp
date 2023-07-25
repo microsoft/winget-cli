@@ -1150,6 +1150,20 @@ TEST_CASE("ReadManifestAndValidateMsixBundleInstallers_Success", "[ManifestValid
     REQUIRE(0 == errors.size());
 }
 
+TEST_CASE("ReadManifestAndValidateMsixBundleInstallers_WithStub_Success", "[ManifestValidation]")
+{
+    TestDataFile testFile("Manifest-Good-MsixBundleInstaller-WithStub.yaml");
+    Manifest manifest = YamlParser::CreateFromPath(testFile);
+
+    // Update the installer path for testing
+    REQUIRE(1 == manifest.Installers.size());
+    TestDataFile msixFile(manifest.Installers[0].Url.c_str());
+    manifest.Installers[0].Url = msixFile.GetPath().u8string();
+
+    auto errors = ValidateManifestInstallers(manifest);
+    REQUIRE(0 == errors.size());
+}
+
 TEST_CASE("ReadManifestAndValidateMsixBundleInstallers_InconsistentFields", "[ManifestValidation]")
 {
     TestDataFile testFile("Manifest-Bad-InconsistentMsixBundleInstallerFields.yaml");
