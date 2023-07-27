@@ -173,6 +173,12 @@ namespace AppInstaller::CLI::Workflow
         if (std::filesystem::is_directory(installerPath))
         {
             portableInstaller.RecordToIndex = true;
+            const std::vector<Manifest::NestedInstallerFile>& nestedInstallerFiles = context.Get<Execution::Data::Installer>()->NestedInstallerFiles;
+            std::vector<Manifest::NestedInstallerFile> aliasedInstallerFiles;
+
+            std::copy_if(nestedInstallerFiles.begin(), nestedInstallerFiles.end(), std::back_inserter(aliasedInstallerFiles), [](NestedInstallerFile fileEntry) {
+                return fileEntry.PortableCommandAlias.empty();
+            });
 
             for (const auto& entry : std::filesystem::directory_iterator(installerPath))
             {
@@ -187,28 +193,22 @@ namespace AppInstaller::CLI::Workflow
                 }
                 else
                 {
+                    for (const auto& nestedInstallerFile : nestedInstallerFiles)
+                    {
+                        std::filesystem::path relativeNestedPath = Utility::ConvertToUTF16(nestedInstallerFile.RelativeFilePath);
+                        relativeNestedPath = relativeNestedPath.lexically_normal();
+                        if (relativeNestedPath.compare(relativePath.lexically_normal()) == 0)
+                        {
+                            if (!nestedInstallerFile.PortableCommandAlias.empty())
+                            { 
+                                targetPath.replace_filename(Utility::ConvertToUTF16(nestedInstallerFile.PortableCommandAlias));
+                                Filesystem::AppendExtension(targetPath, ".exe");
+                            }
+                            entries.emplace_back(std::move(PortableFileEntry::CreateSymlinkEntry(symlinkDirectory / targetPath.stem(), targetPath)));
+                        }
+                    }
                     entries.emplace_back(std::move(PortableFileEntry::CreateFileEntry(entryPath, targetPath, {})));
                 }
-            }
-
-            const std::vector<Manifest::NestedInstallerFile>& nestedInstallerFiles = context.Get<Execution::Data::Installer>()->NestedInstallerFiles;
-
-            for (const auto& nestedInstallerFile : nestedInstallerFiles)
-            {
-                const std::filesystem::path& targetPath = targetInstallDirectory / ConvertToUTF16(nestedInstallerFile.RelativeFilePath);
-
-                std::filesystem::path commandAlias;
-                if (nestedInstallerFile.PortableCommandAlias.empty())
-                {
-                    commandAlias = targetPath.filename();
-                }
-                else
-                {
-                    commandAlias = ConvertToUTF16(nestedInstallerFile.PortableCommandAlias);
-                }
-
-                Filesystem::AppendExtension(commandAlias, ".exe");
-                entries.emplace_back(std::move(PortableFileEntry::CreateSymlinkEntry(symlinkDirectory / commandAlias, targetPath)));
             }
         }
         else
