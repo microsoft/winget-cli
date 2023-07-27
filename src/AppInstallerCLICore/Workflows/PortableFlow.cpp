@@ -204,7 +204,7 @@ namespace AppInstaller::CLI::Workflow
                                 targetPath.replace_filename(Utility::ConvertToUTF16(nestedInstallerFile.PortableCommandAlias));
                                 Filesystem::AppendExtension(targetPath, ".exe");
                             }
-                            entries.emplace_back(std::move(PortableFileEntry::CreateSymlinkEntry(symlinkDirectory / targetPath.stem(), targetPath)));
+                            entries.emplace_back(std::move(PortableFileEntry::CreateSymlinkEntry(symlinkDirectory / targetPath.filename(), targetPath)));
                         }
                     }
                     entries.emplace_back(std::move(PortableFileEntry::CreateFileEntry(entryPath, targetPath, {})));
