@@ -110,17 +110,17 @@
       ]
     },
     "InstallNote": {
-      "type": [ "object" ],
+      "type": [ "object", "null" ],
       "minProperties": 1,
       "properties": {
         "Before": {
-          "type": [ "string" ],
+          "type": [ "string", "null" ],
           "minLength": 1,
           "maxLength": 10000,
           "description": "The notes displayed to the user before winget performs the requested action."
         },
         "After": {
-          "type": [ "string" ],
+          "type": [ "string", "null" ],
           "minLength": 1,
           "maxLength": 10000,
           "description": "The notes displayed to the user after winget performs the requested action."
