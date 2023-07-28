@@ -249,31 +249,8 @@
       "description": "The purchase url for acquiring entitlement for the package."
     },
     "InstallationNotes": {
-      "oneOf": [
-        {
-          "type": [ "string", "null" ],
-          "minLength": 1,
-          "maxLength": 10000,
-          "description": "The notes displayed to the user upon completion of a package installation."
-        },
-        {
-          "type": [ "object", "null" ],
-          "properties": {
-            "Install": {
-              "$ref": "#/$defs/InstallNote",
-              "description": "The notes to be shown before or after install"
-            },
-            "Uninstall": {
-              "$ref": "#/$defs/InstallNote",
-              "description": "The notes to be shown before or after uninstall"
-            },
-            "Upgrade": {
-              "$ref": "#/$defs/InstallNote",
-              "description": "The notes to be shown before or after upgrade"
-            }
-          }
-        }
-      ]
+      "$ref": "#/$defs/InstallNote",
+      "description": "The notes to be shown before or after install"
     },
     "Documentations": {
       "type": [ "array", "null" ],
