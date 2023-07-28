@@ -111,7 +111,6 @@
     },
     "InstallNote": {
       "type": [ "object", "null" ],
-      "minProperties": 1,
       "properties": {
         "Before": {
           "type": [ "string", "null" ],
@@ -259,7 +258,6 @@
         },
         {
           "type": [ "object", "null" ],
-          "minProperties": 1,
           "properties": {
             "Install": {
               "$ref": "#/$defs/InstallNote",
