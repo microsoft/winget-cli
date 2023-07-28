@@ -248,7 +248,7 @@
       "$ref": "#/$defs/Url",
       "description": "The purchase url for acquiring entitlement for the package."
     },
-    "InstallationNotes": {
+    "InstallerNotes": {
       "type": "object",
       "properties": {
         "Before": {
