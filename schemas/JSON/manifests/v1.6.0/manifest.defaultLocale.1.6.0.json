@@ -249,8 +249,21 @@
       "description": "The purchase url for acquiring entitlement for the package."
     },
     "InstallationNotes": {
-      "$ref": "#/$defs/InstallNote",
-      "description": "The notes to be shown before or after install"
+      "type": "object",
+      "properties": {
+        "Before": {
+          "type": [ "string", "null" ],
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "Silent is the value that should be passed to the installer when user chooses a silent or quiet install"
+        },
+        "After": {
+          "type": [ "string", "null" ],
+          "minLength": 1,
+          "maxLength": 512,
+          "description": "Silent is the value that should be passed to the installer when user chooses a silent or quiet install"
+        }
+      }
     },
     "Documentations": {
       "type": [ "array", "null" ],
