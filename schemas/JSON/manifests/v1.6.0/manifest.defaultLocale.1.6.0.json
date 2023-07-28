@@ -108,6 +108,24 @@
         "IconUrl",
         "IconFileType"
       ]
+    },
+    "InstallNote": {
+      "type": [ "object" ],
+      "minProperties": 1,
+      "properties": {
+        "Before": {
+          "type": [ "string" ],
+          "minLength": 1,
+          "maxLength": 10000,
+          "description": "The notes displayed to the user before winget performs the requested action."
+        },
+        "After": {
+          "type": [ "string" ],
+          "minLength": 1,
+          "maxLength": 10000,
+          "description": "The notes displayed to the user after winget performs the requested action."
+        }
+      }
     }
   },
   "type": "object",
@@ -232,10 +250,32 @@
       "description": "The purchase url for acquiring entitlement for the package."
     },
     "InstallationNotes": {
-      "type": [ "string", "null" ],
-      "minLength": 1,
-      "maxLength": 10000,
-      "description": "The notes displayed to the user upon completion of a package installation."
+      "oneOf": [
+        {
+          "type": [ "string" ],
+          "minLength": 1,
+          "maxLength": 10000,
+          "description": "The notes displayed to the user upon completion of a package installation."
+        },
+        {
+          "type": [ "object" ],
+          "minProperties": 1,
+          "properties": {
+            "Install": {
+              "$ref": "#/$defs/InstallNote",
+              "description": "The notes to be shown before or after install"
+            },
+            "Uninstall": {
+              "$ref": "#/$defs/InstallNote",
+              "description": "The notes to be shown before or after uninstall"
+            },
+            "Upgrade": {
+              "$ref": "#/$defs/InstallNote",
+              "description": "The notes to be shown before or after upgrade"
+            }
+          }
+        }
+      ]
     },
     "Documentations": {
       "type": [ "array", "null" ],
