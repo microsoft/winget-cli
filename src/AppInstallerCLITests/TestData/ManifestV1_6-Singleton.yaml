@@ -121,6 +121,7 @@ InstallationMetadata:
       FileType: launch
       InvocationParameter: "/arg"
       DisplayName: "DisplayName"
+DownloadCommandProhibited: true
 
 Installers:
   - Architecture: x86
@@ -188,5 +189,6 @@ Installers:
       - InstallerReturnCode: 3
         ReturnResponse: custom
         ReturnResponseUrl: https://defaultReturnResponseUrl.com
+    DownloadCommandProhibited: false
 ManifestType: singleton
 ManifestVersion: 1.6.0

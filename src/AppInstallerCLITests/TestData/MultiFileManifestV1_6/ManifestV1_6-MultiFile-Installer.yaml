@@ -86,6 +86,7 @@ InstallationMetadata:
       FileType: launch
       InvocationParameter: "/arg"
       DisplayName: "DisplayName"
+DownloadCommandProhibited: true
 
 Installers:
   - Architecture: x86
@@ -153,6 +154,7 @@ Installers:
         ReturnResponseUrl: https://defaultReturnResponseUrl.com
     UnsupportedArguments:
       - location
+    DownloadCommandProhibited: false
   - Architecture: x64
     InstallerType: exe
     InstallerUrl: https://www.microsoft.com/msixsdk/msixsdkx64.exe

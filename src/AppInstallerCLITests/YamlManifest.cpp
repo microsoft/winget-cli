@@ -519,6 +519,11 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
         REQUIRE(manifest.DefaultInstallerInfo.InstallationMetadata.Files.at(0).InvocationParameter == "/arg");
     }
 
+    if (manifestVer >= ManifestVer{ s_ManifestVersionV1_6 })
+    {
+        REQUIRE(manifest.DefaultInstallerInfo.DownloadCommandProhibited);
+    }
+
     if (isSingleton)
     {
         REQUIRE(manifest.Installers.size() == 1);
@@ -616,6 +621,11 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
         REQUIRE(installer1.InstallationMetadata.Files.at(0).DisplayName == "DisplayName");
     }
 
+    if (manifestVer >= ManifestVer{ s_ManifestVersionV1_6 })
+    {
+        REQUIRE_FALSE(installer1.DownloadCommandProhibited);
+    }
+
     if (!isSingleton)
     {
         ManifestInstaller installer2 = manifest.Installers.at(1);
@@ -684,6 +694,11 @@ void VerifyV1ManifestContent(const Manifest& manifest, bool isSingleton, Manifes
             REQUIRE(installer4.InstallationMetadata.Files.at(0).FileSha256 == SHA256::ConvertToBytes("69D84CA8899800A5575CE31798293CD4FEBAB1D734A07C2E51E56A28E0DF8C82"));
             REQUIRE(installer4.InstallationMetadata.Files.at(0).InvocationParameter == "/arg2");
             REQUIRE(installer4.InstallationMetadata.Files.at(0).DisplayName == "DisplayName2");
+        }
+
+        if (manifestVer >= ManifestVer{ s_ManifestVersionV1_6 })
+        {
+            REQUIRE(installer2.DownloadCommandProhibited);
         }
 
         // Localization

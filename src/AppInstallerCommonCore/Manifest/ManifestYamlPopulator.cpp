@@ -319,6 +319,16 @@ namespace AppInstaller::Manifest
 
                 std::move(fields_v1_4.begin(), fields_v1_4.end(), std::inserter(result, result.end()));
             }
+
+            if (manifestVersion >= ManifestVer{ s_ManifestVersionV1_6 })
+            {
+                std::vector<FieldProcessInfo> fields_v1_6 =
+                {
+                    { "DownloadCommandProhibited", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->DownloadCommandProhibited = value.as<bool>(); return {}; } },
+                };
+
+                std::move(fields_v1_6.begin(), fields_v1_6.end(), std::inserter(result, result.end()));
+            }
         }
 
         return result;
