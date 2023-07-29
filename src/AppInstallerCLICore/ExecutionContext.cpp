@@ -248,6 +248,8 @@ namespace AppInstaller::CLI::Execution
         }
     }
 
+    int Context::s_contextCount = 0;
+
     Context::~Context()
     {
         if (m_disableSignalTerminationHandlerOnExit)

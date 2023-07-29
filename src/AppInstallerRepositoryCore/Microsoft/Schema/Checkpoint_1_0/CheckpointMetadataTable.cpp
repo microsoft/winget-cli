@@ -8,7 +8,7 @@
 namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
 {
     using namespace std::string_view_literals;
-    static constexpr std::string_view s_CheckpointMetadataTable_Table_Name = "CheckpointMetadataTable"sv;
+    static constexpr std::string_view s_CheckpointMetadataTable_Table_Name = "CheckpointMetadata"sv;
     static constexpr std::string_view s_CheckpointMetadataTable_Name_Column = "Name"sv;
     static constexpr std::string_view s_CheckpointMetadataTable_Value_Column = "Value"sv;
 

@@ -12,8 +12,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
 
         void CreateTables(SQLite::Connection& connection) override;
 
-        SQLite::rowid_t AddCommandArgument(SQLite::Connection& connection, int type, const std::string_view& argValue) override;
-
         SQLite::rowid_t SetClientVersion(SQLite::Connection& connection, std::string_view clientVersion) override;
 
         std::string GetClientVersion(SQLite::Connection& connection) override;
@@ -22,7 +20,21 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
 
         std::string GetCommandName(SQLite::Connection& connection) override;
 
-        std::vector<std::pair<int, std::string>> GetArguments(SQLite::Connection& connection) override;
+        SQLite::rowid_t AddContextToArgumentTable(SQLite::Connection& connection, int contextId) override;
+
+        void RemoveContextFromArgumentTable(SQLite::Connection& connection, int contextId) override;
+
+        bool UpdateArgumentByContextId(SQLite::Connection& connection, int contextId, std::string_view name, std::string_view value) override;
+
+        bool UpdateArgumentByContextId(SQLite::Connection& connection, int contextId, std::string_view name, bool value) override;
+
+        std::vector<std::string> GetAvailableArguments(SQLite::Connection& connection, int contextId) override;
+
+        bool ContainsArgument(SQLite::Connection& connection, int contextId, std::string_view name) override;
+
+        std::string GetStringArgumentByContextId(SQLite::Connection& connection, int contextId, std::string_view name) override;
+
+        bool GetBoolArgumentByContextId(SQLite::Connection& connection, int contextId, std::string_view name) override;
 
     private:
         bool IsEmpty(SQLite::Connection& connection) override;

@@ -855,4 +855,23 @@ namespace AppInstaller::Utility
         result.push_back(input.substr(startIndex));
         return result;
     }
+
+    GUID ConvertToGuid(const std::string& value)
+    {
+        std::string guidString = value;
+
+        if (value.front() != '{')
+        {
+            guidString.insert(0, 1, '{');
+        }
+
+        if (value.back() != '}')
+        {
+            guidString.push_back('}');
+        }
+
+        GUID result;
+        THROW_IF_FAILED_MSG(CLSIDFromString(ConvertToUTF16(guidString).c_str(), &result), "ConvertToGuid: Invalid guid string");
+        return result;
+    }
 }

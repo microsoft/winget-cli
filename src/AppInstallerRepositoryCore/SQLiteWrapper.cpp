@@ -294,6 +294,13 @@ namespace AppInstaller::Repository::SQLite
         return type == SQLITE_NULL;
     }
 
+    std::string Statement::GetColumnName(int column)
+    {
+        THROW_HR_IF(E_BOUNDS, m_state != State::HasRow);
+        const char* columnName = sqlite3_column_name(m_stmt.get(), column);
+        return std::string{ columnName };
+    }
+
     void Statement::Reset()
     {
         AICLI_LOG(SQL, Verbose, << "Reset statement #" << m_connectionId << '-' << m_id);

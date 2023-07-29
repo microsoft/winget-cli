@@ -279,3 +279,18 @@ TEST_CASE("SplitWithSeparator", "[string]")
     REQUIRE(test3.size() == 1);
     REQUIRE(test3[0] == "test");
 }
+
+TEST_CASE("ConvertToGuid", "[string]")
+{
+    std::string validGuidString1 = "{4d1e55b2-f16f-11cf-88cb-001111000030}";
+    std::string validGuidString2 = "4d1e55b2-f16f-11cf-88cb-001111000030";
+    std::string invalidGuidString1 = "4d1e55b2-f16f-11cf-001111000030";
+    std::string invalidGuidString2 = "4d1e55b2f16f11cf88cb001111000030";
+
+    GUID guid = { 0x4d1e55b2, 0xf16f, 0x11cf, 0x88, 0xcb, 0x00, 0x11, 0x11, 0x00, 0x00, 0x30 };
+
+    REQUIRE(ConvertToGuid(validGuidString1) == guid);
+    REQUIRE(ConvertToGuid(validGuidString2) == guid);
+    REQUIRE_THROWS(ConvertToGuid(invalidGuidString1));
+    REQUIRE_THROWS(ConvertToGuid(invalidGuidString2));
+}

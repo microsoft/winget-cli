@@ -1,14 +1,42 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 #include "pch.h"
+#include "AppInstallerRuntime.h"
 #include "CheckpointManager.h"
 #include "Microsoft/CheckpointIndex.h"
 #include "Microsoft/SQLiteStorageBase.h"
+#include <Argument.h>
+#include <Command.h>
 
 namespace AppInstaller::CLI::Checkpoint
 {
-    CheckpointManager::CheckpointManager(GUID checkpointId) : m_checkpointId(checkpointId)
+    void CheckpointManager::Initialize()
     {
+        // Initialize should not be called more than once.
+        THROW_HR_IF(E_UNEXPECTED, m_checkpointId != GUID_NULL);
+
+        std::ignore = CoCreateGuid(&m_checkpointId);
+        AICLI_LOG(CLI, Info, << "Creating checkpoint index with the corresponding guid: " << m_checkpointId);
+
+        //auto openDisposition = m_readOnly ? SQLiteStorageBase::OpenDisposition::Read : SQLiteStorageBase::OpenDisposition::ReadWrite;
+        auto openDisposition = AppInstaller::Repository::Microsoft::SQLiteStorageBase::OpenDisposition::ReadWrite;
+        auto checkpointIndex = AppInstaller::Repository::Microsoft::CheckpointIndex::OpenOrCreateDefault(m_checkpointId, openDisposition);
+        if (!checkpointIndex)
+        {
+            AICLI_LOG(CLI, Error, << "Unable to open checkpoint index.");
+        }
+
+        m_checkpointIndex = std::move(checkpointIndex);
+        m_checkpointIndex->SetClientVersion(AppInstaller::Runtime::GetClientVersion());
+        //m_checkpointIndex->SetCommandName(commandName);
+    }
+
+    void CheckpointManager::InitializeFromGuid(GUID checkpointId)
+    {
+        // Initialize should not be called more than once.
+        THROW_HR_IF(E_UNEXPECTED, m_checkpointId != GUID_NULL);
+
+        m_checkpointId = checkpointId;
         auto openDisposition = AppInstaller::Repository::Microsoft::SQLiteStorageBase::OpenDisposition::ReadWrite;
         auto checkpointIndex = AppInstaller::Repository::Microsoft::CheckpointIndex::OpenOrCreateDefault(m_checkpointId, openDisposition);
         if (!checkpointIndex)
@@ -27,53 +55,90 @@ namespace AppInstaller::CLI::Checkpoint
 
         checkpointContext->EnableSignalTerminationHandler();
         
-        // Change to loading in context from checkpoint.
-        PopulateContextArgsFromCheckpointIndex(*(checkpointContext.get()));
+        PopulateContextArgsFromIndex(*checkpointContext);
         return checkpointContext;
     }
 
-    void CheckpointManager::PopulateContextArgsFromCheckpointIndex(Execution::Context& context)
+    void CheckpointManager::PopulateContextArgsFromIndex(Execution::Context& context)
     {
-        std::vector<std::pair<int, std::string>> args = m_checkpointIndex->GetArguments();
+        int contextId = context.GetContextId();
 
-        for (auto arg : args)
+        const auto& executingCommand = context.GetExecutingCommand();
+        if (executingCommand != nullptr)
         {
-            context.Args.AddArg(static_cast<Execution::Args::Type>(arg.first), arg.second);
+            const auto& commandArguments = executingCommand->GetArguments();
+            for (const auto& argument : commandArguments)
+            {
+                if (m_checkpointIndex->ContainsArgument(contextId, argument.Name()))
+                {
+                    Execution::Args::Type executionArgsType = argument.ExecArgType();
+                    if (argument.Type() == ArgumentType::Flag)
+                    {
+                        if (m_checkpointIndex->GetBoolArgumentByContextId(contextId, argument.Name()))
+                        {
+                            context.Args.AddArg(executionArgsType);
+                        }
+                    }
+                    else
+                    {
+                        context.Args.AddArg(executionArgsType, m_checkpointIndex->GetStringArgumentByContextId(contextId, argument.Name()));
+                    }
+                }
+            }
         }
     }
 
-    void CheckpointManager::InitializeCheckpoint(std::string_view clientVersion, std::string_view commandName)
+    void CheckpointManager::RecordContextArgsToIndex(Execution::Context& context)
     {
-        std::ignore = CoCreateGuid(&m_checkpointId);
-        AICLI_LOG(CLI, Info, << "Creating checkpoint index with the corresponding guid: " << m_checkpointId);
+        int contextId = context.GetContextId();
 
-        //auto openDisposition = m_readOnly ? SQLiteStorageBase::OpenDisposition::Read : SQLiteStorageBase::OpenDisposition::ReadWrite;
-        auto openDisposition = AppInstaller::Repository::Microsoft::SQLiteStorageBase::OpenDisposition::ReadWrite;
-        auto checkpointIndex = AppInstaller::Repository::Microsoft::CheckpointIndex::OpenOrCreateDefault(m_checkpointId, openDisposition);
-        if (!checkpointIndex)
+        // Figure out if there is a better place to add the context when it is first initialized.
+        m_checkpointIndex->AddContextToArgumentTable(contextId);
+
+        const auto& executingCommand = context.GetExecutingCommand();
+        if (executingCommand != nullptr)
         {
-            AICLI_LOG(CLI, Error, << "Unable to open savepoint index.");
+            const auto& commandArguments = executingCommand->GetArguments();
+            for (const auto& argument : commandArguments)
+            {
+                Execution::Args::Type type = argument.ExecArgType();
+                if (context.Args.Contains(type))
+                {
+                    if (argument.Type() == ArgumentType::Flag)
+                    {
+                        m_checkpointIndex->UpdateArgumentByContextId(contextId, argument.Name(), true);
+                    }
+                    else
+                    {
+                        const auto& argumentValue = context.Args.GetArg(type);
+                        m_checkpointIndex->UpdateArgumentByContextId(contextId, argument.Name(), argumentValue);
+                    }
+                }
+            }
         }
-        m_checkpointIndex = std::move(checkpointIndex);
-
-        m_checkpointIndex->SetClientVersion(clientVersion);
-        m_checkpointIndex->SetCommandName(commandName);
     }
 
     void CheckpointManager::SaveCheckpoint(Execution::Context& context, Execution::CheckpointFlags flag)
     {
-        if (flag == Execution::CheckpointFlags::ArgumentsProcessed)
+        switch (flag)
         {
-            // Get all args and write them to the index.
-            const std::vector<Execution::Args::Type>& arguments = context.Args.GetTypes();
+        case Execution::CheckpointFlags::ArgumentsProcessed:
+            RecordContextArgsToIndex(context);
+            break;
+        default:
+            THROW_HR(E_UNEXPECTED);
+        }
+    }
 
-            for (auto argument : arguments)
-            {
-                const auto& argumentValue = context.Args.GetArg(argument);
-
-                // Write current arg to table.
-                m_checkpointIndex->AddCommandArgument(static_cast<int>(argument), argumentValue);
-            }
+    void CheckpointManager::LoadCheckpoint(Execution::Context& context, Execution::CheckpointFlags flag)
+    {
+        switch (flag)
+        {
+        case Execution::CheckpointFlags::ArgumentsProcessed:
+            PopulateContextArgsFromIndex(context);
+            break;
+        default:
+            THROW_HR(E_UNEXPECTED);
         }
     }
 

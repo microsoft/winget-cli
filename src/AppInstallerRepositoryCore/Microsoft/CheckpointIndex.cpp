@@ -63,22 +63,6 @@ namespace AppInstaller::Repository::Microsoft
         return {};
     }
 
-    CheckpointIndex::IdType CheckpointIndex::AddCommandArgument(int type, const std::string_view& argValue)
-    {
-        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
-        AICLI_LOG(Repo, Verbose, << "Adding argument for [" << type << "]");
-
-        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "checkpointindex_addargument");
-
-        IdType result = m_interface->AddCommandArgument(m_dbconn, type, argValue);
-
-        SetLastWriteTime();
-
-        savepoint.Commit();
-
-        return result;
-    }
-
     CheckpointIndex::IdType CheckpointIndex::SetClientVersion(std::string_view clientVersion)
     {
         std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
@@ -121,9 +105,86 @@ namespace AppInstaller::Repository::Microsoft
         return m_interface->GetCommandName(m_dbconn);
     }
 
-    std::vector<std::pair<int, std::string>> CheckpointIndex::GetArguments()
+    CheckpointIndex::IdType CheckpointIndex::AddContextToArgumentTable(int contextId)
     {
-        return m_interface->GetArguments(m_dbconn);
+        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
+        AICLI_LOG(Repo, Verbose, << "Adding context [" << contextId << "] to arguments table");
+
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "checkpointindex_addcontexttoargumentstable");
+
+        IdType result = m_interface->AddContextToArgumentTable(m_dbconn, contextId);
+
+        SetLastWriteTime();
+
+        savepoint.Commit();
+
+        return result;
+    }
+
+    void CheckpointIndex::RemoveContextFromArgumentTable(int contextId)
+    {
+        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
+        AICLI_LOG(Repo, Verbose, << "Removing context [" << contextId << "] to arguments table");
+
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "checkpointindex_removecontextfromargumentstable");
+
+        m_interface->RemoveContextFromArgumentTable(m_dbconn, contextId);
+
+        SetLastWriteTime();
+
+        savepoint.Commit();
+    }
+
+    bool CheckpointIndex::UpdateArgumentByContextId(int contextId, std::string_view name, std::string_view value)
+    {
+        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
+        AICLI_LOG(Repo, Verbose, << "Updating argument column for [" << name << "] with value [" << value << "]");
+
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "checkpointindex_updatestringargument");
+
+        IdType result = m_interface->UpdateArgumentByContextId(m_dbconn, contextId, name, value);
+
+        SetLastWriteTime();
+
+        savepoint.Commit();
+
+        return result;
+    }
+
+    bool CheckpointIndex::UpdateArgumentByContextId(int contextId, std::string_view name, bool value)
+    {
+        std::lock_guard<std::mutex> lockInterface{ *m_interfaceLock };
+        AICLI_LOG(Repo, Verbose, << "Updating argument column for [" << name << "] with value [" << value << "]");
+
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(m_dbconn, "checkpointindex_updateboolargument");
+
+        IdType result = m_interface->UpdateArgumentByContextId(m_dbconn, contextId, name, value);
+
+        SetLastWriteTime();
+
+        savepoint.Commit();
+
+        return result;
+    }
+
+    std::vector<std::string> CheckpointIndex::GetAvailableColumns(int contextId)
+    {
+        return m_interface->GetAvailableArguments(m_dbconn, contextId);
+    }
+
+    bool CheckpointIndex::ContainsArgument(int contextId, std::string_view name)
+    {
+        return m_interface->ContainsArgument(m_dbconn, contextId, name);
+    }
+
+    std::string CheckpointIndex::GetStringArgumentByContextId(int contextId, std::string_view name)
+    {
+        return m_interface->GetStringArgumentByContextId(m_dbconn, contextId, name);
+    }
+
+    bool CheckpointIndex::GetBoolArgumentByContextId(int contextId, std::string_view name)
+    {
+        return m_interface->GetBoolArgumentByContextId(m_dbconn, contextId, name);
     }
 
     std::unique_ptr<Schema::ICheckpointIndex> CheckpointIndex::CreateICheckpointIndex() const

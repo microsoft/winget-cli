@@ -243,6 +243,9 @@ namespace AppInstaller::Repository::SQLite
         // The index is 0 based.
         bool GetColumnIsNull(int column);
 
+        // Gets the name of the specified column from the current row.
+        std::string GetColumnName(int column);
+
         // Gets the value of the specified column from the current row.
         // The index is 0 based.
         template <typename Value>

@@ -346,6 +346,53 @@ namespace AppInstaller::CLI
         }
     }
 
+    std::string_view Argument::GetName(Execution::Args::Type type)
+    {
+        switch (type)
+        {
+        case Args::Type::Query:
+            return "Query"sv;
+        case Args::Type::MultiQuery:
+            return "MultiQuery"sv;
+        case Args::Type::Manifest:
+            return "Manifest"sv;
+        case Args::Type::Id:
+            return "Id"sv;
+        case Args::Type::Name:
+            return "Name"sv;
+        case Args::Type::Moniker:
+            return "Moniker"sv;
+        case Args::Type::Tag:
+            return "Tag"sv;
+        case Args::Type::Command:
+            return "Command"sv;
+        case Args::Type::Source:
+            return "Source"sv;
+        case Args::Type::DependencySource:
+            return "DependencySource"sv;
+        case Args::Type::Count:
+            return "Count"sv;
+        case Args::Type::Exact:
+            return "Exact"sv;
+        case Args::Type::Version:
+            return "Version"sv;
+        case Args::Type::Channel:
+            return "Channel"sv;
+        case Args::Type::Interactive:
+            return "Interactive"sv;
+        case Args::Type::Silent:
+            return "Silent"sv;
+        case Args::Type::Locale:
+            return "Locale"sv;
+        case Args::Type::InstallArchitecture:
+            return "InstallArchitecture"sv;
+        case Args::Type::InstallScope:
+            return "InstallScope"sv;
+        default:
+            THROW_HR(E_UNEXPECTED);
+        }
+    }
+
     void Argument::GetCommon(std::vector<Argument>& args)
     {
         args.push_back(ForType(Args::Type::Help));

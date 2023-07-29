@@ -262,4 +262,6 @@ namespace AppInstaller::Utility
         (FindAndReplace(inputStr, "{" + std::to_string(index++) + "}", (std::ostringstream() << args).str()),...);
         return inputStr;
     }
+
+    GUID ConvertToGuid(const std::string& value);
 }

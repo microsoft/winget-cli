@@ -37,12 +37,10 @@ namespace AppInstaller::CLI
 
     void ResumeCommand::ExecuteInternal(Execution::Context& context) const
     {
-        // Convert guid argument and load checkpoint file.
-        const auto& resumeGuid = Utility::ConvertToUTF16(context.Args.GetArg(Execution::Args::Type::ResumeGuid));
+        GUID checkpointId = Utility::ConvertToGuid(std::string{ context.Args.GetArg(Execution::Args::Type::ResumeGuid) });
 
-        GUID checkpointId;
-        THROW_IF_FAILED(CLSIDFromString(resumeGuid.c_str(), &checkpointId));
-        CheckpointManager checkpointManager{ checkpointId };
+        CheckpointManager checkpointManager = CheckpointManager::Instance();
+        checkpointManager.InitializeFromGuid(checkpointId);
 
         if (AppInstaller::Runtime::GetClientVersion().get() != checkpointManager.GetClientVersion())
         {
@@ -65,11 +63,14 @@ namespace AppInstaller::CLI
             {
                 AICLI_LOG(CLI, Info, << "Resuming command: " << commandName);
                 commandToResume = std::move(command);
+                break;
             }
         }
 
+        // Create a new context and load from checkpoint
         auto checkpointContext = checkpointManager.CreateContextFromCheckpointIndex();
         checkpointContext->SetExecutingCommand(commandToResume.get());
-        commandToResume->Execute(*(checkpointContext.get()));
+        checkpointManager.LoadCheckpoint(*checkpointContext, Execution::CheckpointFlags::ArgumentsProcessed);
+        commandToResume->Execute(*checkpointContext);
     }
 }

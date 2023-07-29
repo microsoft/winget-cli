@@ -3,7 +3,7 @@
 #pragma once
 #include "SQLiteWrapper.h"
 #include "Microsoft/Schema/ICheckpointIndex.h"
-#include "Microsoft/Schema/Checkpoint_1_0/CheckpointTable.h"
+#include "Microsoft/Schema/Checkpoint_1_0/CheckpointArgumentsTable.h"
 #include "Microsoft/SQLiteStorageBase.h"
 #include <winget/ManagedFile.h>
 
@@ -32,12 +32,6 @@ namespace AppInstaller::Repository::Microsoft
         // Opens or creates a CheckpointIndex database on the default path.
         static std::shared_ptr<CheckpointIndex> OpenOrCreateDefault(GUID guid, OpenDisposition openDisposition = OpenDisposition::ReadWrite);
 
-        // Adds a command argument to the index.
-        IdType AddCommandArgument(int type, const std::string_view& argValue);
-
-        // Removes a command argument from the index.
-        //IdType RemoveCommandArgument(const uint32_t& type, const std::string_view& argValue);
-
         IdType SetClientVersion(std::string_view clientVersion);
 
         std::string GetClientVersion();
@@ -46,7 +40,21 @@ namespace AppInstaller::Repository::Microsoft
 
         std::string GetCommandName();
 
-        std::vector<std::pair<int, std::string>> GetArguments();
+        IdType AddContextToArgumentTable(int contextId);
+
+        void RemoveContextFromArgumentTable(int contextId);
+
+        bool UpdateArgumentByContextId(int contextId, std::string_view name, std::string_view value);
+
+        bool UpdateArgumentByContextId(int contextId, std::string_view name, bool value);
+
+        std::vector<std::string> GetAvailableColumns(int contextId);
+
+        bool ContainsArgument(int contextId, std::string_view name);
+
+        std::string GetStringArgumentByContextId(int contextId, std::string_view name);
+
+        bool GetBoolArgumentByContextId(int contextId, std::string_view name);
 
     private:
         // Constructor used to open an existing index.

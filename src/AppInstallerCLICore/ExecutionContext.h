@@ -86,12 +86,12 @@ namespace AppInstaller::CLI::Execution
     // arguments via Execution::Args.
     struct Context : EnumBasedVariantMap<Data, details::DataMapping>
     {
-        Context(std::ostream& out, std::istream& in) : Reporter(out, in) {}
+        Context(std::ostream& out, std::istream& in) : Reporter(out, in) { s_contextCount++; }
 
         // Constructor for creating a sub-context.
         Context(Execution::Reporter& reporter, ThreadLocalStorage::WingetThreadGlobals& threadGlobals) :
             Reporter(reporter, Execution::Reporter::clone_t{}),
-            m_threadGlobals(threadGlobals, ThreadLocalStorage::WingetThreadGlobals::create_sub_thread_globals_t{}) {}
+            m_threadGlobals(threadGlobals, ThreadLocalStorage::WingetThreadGlobals::create_sub_thread_globals_t{}) { s_contextCount++; }
 
         virtual ~Context();
 
@@ -174,6 +174,8 @@ namespace AppInstaller::CLI::Execution
         // Gets the target checkpoint of the context.
         CheckpointFlags GetTargetCheckpoint() { return m_targetCheckpoint; };
 
+        int GetContextId() { return m_contextId; };
+
     protected:
         // Copies the args that are also needed in a sub-context. E.g., silent
         void CopyArgsToSubContext(Context* subContext);
@@ -194,5 +196,7 @@ namespace AppInstaller::CLI::Execution
         AppInstaller::CLI::Command* m_executingCommand = nullptr;
         CheckpointFlags m_currentCheckpoint = CheckpointFlags::None;
         CheckpointFlags m_targetCheckpoint = CheckpointFlags::None;
+        static int s_contextCount;
+        int m_contextId = s_contextCount;
     };
 }

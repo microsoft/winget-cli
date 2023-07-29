@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 #include "pch.h"
 #include "AppInstallerRuntime.h"
+#include "CheckpointManager.h"
 #include "InstallCommand.h"
 #include "Workflows/CompletionFlow.h"
 #include "Workflows/InstallFlow.h"
@@ -12,6 +13,7 @@
 
 namespace AppInstaller::CLI
 {
+    using namespace AppInstaller::CLI::Checkpoint;
     using namespace AppInstaller::CLI::Execution;
     using namespace AppInstaller::CLI::Workflow;
     using namespace AppInstaller::Manifest;
@@ -105,12 +107,10 @@ namespace AppInstaller::CLI
     {
         if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Resume))
         {
-            //context.InitializeCheckpoints(AppInstaller::Runtime::GetClientVersion(), this->Name());
-
-            // Record the initial arguments.
-            //context.Checkpoint(CheckpointFlags::ArgumentsProcessed);
+            CheckpointManager checkpointManager = CheckpointManager::Instance();
+            checkpointManager.Initialize();
+            checkpointManager.SaveCheckpoint(context, Execution::CheckpointFlags::ArgumentsProcessed);
         }
-
 
         context.SetFlags(ContextFlag::ShowSearchResultsOnPartialFailure);
 

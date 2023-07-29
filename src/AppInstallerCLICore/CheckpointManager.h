@@ -14,11 +14,21 @@ namespace AppInstaller::CLI::Checkpoint
 {
     struct CheckpointManager
     {
-        CheckpointManager(GUID checkpointId);
+        static CheckpointManager& Instance()
+        {
+            static CheckpointManager s_Instance;
+            return s_Instance;
+        }
 
-        void InitializeCheckpoint(std::string_view clientVersion, std::string_view commandName);
+        void Initialize(); // checks if guid is already defined, this means that it has already been loaded.
+
+        void InitializeFromGuid(GUID checkpointId);
+
+        void RemoveContext(Execution::Context& context);
 
         void SaveCheckpoint(Execution::Context& context, Execution::CheckpointFlags flag);
+
+        void LoadCheckpoint(Execution::Context& context, Execution::CheckpointFlags flag);
 
         std::unique_ptr<Execution::Context> CreateContextFromCheckpointIndex();
 
@@ -27,8 +37,12 @@ namespace AppInstaller::CLI::Checkpoint
         std::string GetCommandName();
 
     private:
-        GUID m_checkpointId;
+        CheckpointManager() = default;
+        GUID m_checkpointId = {};
         std::shared_ptr<AppInstaller::Repository::Microsoft::CheckpointIndex> m_checkpointIndex = nullptr;
-        void PopulateContextArgsFromCheckpointIndex(Execution::Context& context);
+
+        void PopulateContextArgsFromIndex(Execution::Context& context);
+        void RecordContextArgsToIndex(Execution::Context& context);
     };
 }
+// 
