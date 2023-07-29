@@ -675,6 +675,10 @@
       },
       "description": "Details about the installation. Used for deeper installation detection."
     },
+    "DownloadCommandProhibited": {
+      "type": [ "boolean", "null" ],
+      "description": "Indicates whether the installer is prohibited from being downloaded for offline installation."
+    },
     "Installer": {
       "type": "object",
       "properties": {
@@ -789,6 +793,9 @@
         },
         "InstallationMetadata": {
           "$ref": "#/$defs/InstallationMetadata"
+        },
+        "DownloadCommandProhibited": {
+          "$ref": "#/$defs/DownloadCommandProhibited"
         }
       },
       "required": [
@@ -1024,6 +1031,9 @@
     },
     "InstallationMetadata": {
       "$ref": "#/$defs/InstallationMetadata"
+    },
+    "DownloadCommandProhibited": {
+      "$ref": "#/$defs/DownloadCommandProhibited"
     },
     "Installers": {
       "type": "array",
