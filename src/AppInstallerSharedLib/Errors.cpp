@@ -228,6 +228,8 @@ namespace AppInstaller
                 return "Application shutdown signal received";
             case APPINSTALLER_CLI_ERROR_DOWNLOAD_DEPENDENCIES:
                 return "Failed to download package dependencies.";
+            case APPINSTALLER_CLI_ERROR_DOWNLOAD_COMMAND_PROHIBITED:
+                return "Failed to download package. Download for offline installation is prohibited.";
 
             // Install errors
             case APPINSTALLER_CLI_ERROR_INSTALL_PACKAGE_IN_USE:
