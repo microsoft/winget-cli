@@ -385,9 +385,9 @@ namespace AppInstaller::CLI
         case Args::Type::Locale:
             return "Locale"sv;
         case Args::Type::InstallArchitecture:
-            return "InstallArchitecture"sv;
+            return "Architecture"sv;
         case Args::Type::InstallScope:
-            return "InstallScope"sv;
+            return "Scope"sv;
         default:
             THROW_HR(E_UNEXPECTED);
         }

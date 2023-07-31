@@ -272,6 +272,19 @@ namespace AppInstaller::CLI::Execution
         return clone;
     }
 
+    std::unique_ptr<Context> Context::CreateEmptyContext(int contextId)
+    {
+        auto emptyContext = std::make_unique<Context>(Reporter, m_threadGlobals);
+        // If the parent is hooked up to the CTRL signal, have the clone be as well
+        if (m_disableSignalTerminationHandlerOnExit)
+        {
+            emptyContext->EnableSignalTerminationHandler();
+        }
+
+        emptyContext->SetContextId(contextId);
+        return emptyContext;
+    }
+
     void Context::CopyArgsToSubContext(Context* subContext)
     {
         auto argProperties = ArgumentCommon::GetFromExecArgs(Args);

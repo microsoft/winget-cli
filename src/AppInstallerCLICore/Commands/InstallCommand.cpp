@@ -107,11 +107,11 @@ namespace AppInstaller::CLI
     {
         if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Resume))
         {
-            CheckpointManager checkpointManager = CheckpointManager::Instance();
-            checkpointManager.Initialize();
-            checkpointManager.SaveCheckpoint(context, Execution::CheckpointFlags::ArgumentsProcessed);
+            CheckpointManager::Instance().Initialize();
+            CheckpointManager::Instance().AddContext(context.GetContextId());
+            CheckpointManager::Instance().Checkpoint(context, Execution::CheckpointFlags::CommandArguments);
         }
-
+        
         context.SetFlags(ContextFlag::ShowSearchResultsOnPartialFailure);
 
         if (context.Args.Contains(Execution::Args::Type::Manifest))
@@ -148,6 +148,14 @@ namespace AppInstaller::CLI
             else
             {
                 context << Workflow::InstallOrUpgradeSinglePackage(OperationType::Install);
+            }
+        }
+
+        if (Settings::ExperimentalFeature::IsEnabled(Settings::ExperimentalFeature::Feature::Resume))
+        {
+            if (context.IsTerminated())
+            {
+                CheckpointManager::Instance().RemoveContext(context.GetContextId());
             }
         }
     }

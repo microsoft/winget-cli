@@ -21,13 +21,17 @@ namespace AppInstaller::Repository::Microsoft::Schema
 
         virtual std::string GetClientVersion(SQLite::Connection& connection) = 0;
 
-        virtual SQLite::rowid_t SetCommandName(SQLite::Connection& connection, std::string_view commandName) = 0;
+        virtual SQLite::rowid_t SetCommandName(SQLite::Connection& connection, int contextId, std::string_view commandName) = 0;
 
-        virtual std::string GetCommandName(SQLite::Connection& connection) = 0;
+        virtual std::string GetCommandName(SQLite::Connection& connection, int contextId) = 0;
 
         virtual bool IsEmpty(SQLite::Connection& connection) = 0;
 
         virtual SQLite::rowid_t AddContextToArgumentTable(SQLite::Connection& connection, int contextId) = 0;
+
+        virtual SQLite::rowid_t AddContextToContextTable(SQLite::Connection& connection, int contextId) = 0;
+
+        virtual void RemoveContextFromContextTable(SQLite::Connection& connection, int contextId) = 0;
 
         virtual void RemoveContextFromArgumentTable(SQLite::Connection& connection, int contextId) = 0;
 
@@ -42,5 +46,7 @@ namespace AppInstaller::Repository::Microsoft::Schema
         virtual std::string GetStringArgumentByContextId(SQLite::Connection& connection, int contextId, std::string_view name) = 0;
 
         virtual bool GetBoolArgumentByContextId(SQLite::Connection& connection, int contextId, std::string_view name) = 0;
+
+        virtual int GetFirstContextId(SQLite::Connection& connection) = 0;
     };
 }

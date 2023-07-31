@@ -39,15 +39,15 @@ namespace AppInstaller::CLI
     {
         GUID checkpointId = Utility::ConvertToGuid(std::string{ context.Args.GetArg(Execution::Args::Type::ResumeGuid) });
 
-        CheckpointManager checkpointManager = CheckpointManager::Instance();
-        checkpointManager.InitializeFromGuid(checkpointId);
+        CheckpointManager::Instance().InitializeFromGuid(checkpointId);
 
-        if (AppInstaller::Runtime::GetClientVersion().get() != checkpointManager.GetClientVersion())
+        if (AppInstaller::Runtime::GetClientVersion().get() != CheckpointManager::Instance().GetClientVersion())
         {
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_CLIENTVERSION_MISMATCH);
         }
 
-        std::string commandName = checkpointManager.GetCommandName();
+        int rootContextId = CheckpointManager::Instance().GetFirstContextId();
+        std::string commandName = CheckpointManager::Instance().GetCommandName(rootContextId);
         std::unique_ptr<Command> commandToResume;
 
         // Use the root command to obtain all of the available commands.
@@ -68,9 +68,10 @@ namespace AppInstaller::CLI
         }
 
         // Create a new context and load from checkpoint
-        auto checkpointContext = checkpointManager.CreateContextFromCheckpointIndex();
-        checkpointContext->SetExecutingCommand(commandToResume.get());
-        checkpointManager.LoadCheckpoint(*checkpointContext, Execution::CheckpointFlags::ArgumentsProcessed);
-        commandToResume->Execute(*checkpointContext);
+        auto resumeContext = context.CreateEmptyContext(rootContextId);
+        resumeContext->SetExecutingCommand(commandToResume.get());
+
+        CheckpointManager::Instance().Checkpoint(*resumeContext, Execution::CheckpointFlags::CommandArguments);
+        commandToResume->Execute(*resumeContext);
     }
 }

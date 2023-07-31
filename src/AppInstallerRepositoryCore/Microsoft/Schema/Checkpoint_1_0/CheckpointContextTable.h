@@ -8,7 +8,7 @@
 
 namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
 {
-    struct CheckpointArgumentsTable
+    struct CheckpointContextTable
     {
         // Get the table name.
         static std::string_view TableName();
@@ -33,25 +33,5 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
 
         // Removes a context row.
         static void RemoveContext(SQLite::Connection& connection, int contextId);
-
-        // Updates an argument for a given context id.
-        static bool UpdateArgumentByContextId(SQLite::Connection& connection, int contextId, std::string_view name, std::string_view value);
-
-        static bool UpdateArgumentByContextId(SQLite::Connection& connection, int contextId, std::string_view name, bool value);
-
-        static bool ContainsArgument(SQLite::Connection& connection, int contextId, std::string_view name);
-
-        static std::string GetStringArgumentByContextId(SQLite::Connection& connection, int contextId, std::string_view name);
-
-        static bool GetBoolArgumentByContextId(SQLite::Connection& connection, int contextId, std::string_view name);
-
-        static bool SetCommandName(SQLite::Connection& connection, int contextId, std::string_view commandName);
-
-        static std::string GetCommandName(SQLite::Connection& connection, int contextId);
-
-        static int GetFirstContextId(SQLite::Connection& connection);
-
-        // Gets all arguments with an available value.
-        static std::vector<std::string> GetAvailableArguments(SQLite::Connection& connection, int contextId);
     };
 }

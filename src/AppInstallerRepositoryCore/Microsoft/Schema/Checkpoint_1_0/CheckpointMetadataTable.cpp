@@ -13,7 +13,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
     static constexpr std::string_view s_CheckpointMetadataTable_Value_Column = "Value"sv;
 
     static constexpr std::string_view s_CheckpointMetadataTable_ClientVersion = "ClientVersion"sv;
-    static constexpr std::string_view s_CheckpointMetadataTable_CommandName = "CommandName"sv;
 
     namespace
     {
@@ -71,15 +70,5 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
     std::string CheckpointMetadataTable::GetClientVersion(SQLite::Connection& connection)
     {
         return GetNamedValue(connection, s_CheckpointMetadataTable_ClientVersion);
-    }
-
-    SQLite::rowid_t CheckpointMetadataTable::SetCommandName(SQLite::Connection& connection, std::string_view commandName)
-    {
-        return SetNamedValue(connection, s_CheckpointMetadataTable_CommandName, commandName);
-    }
-
-    std::string CheckpointMetadataTable::GetCommandName(SQLite::Connection& connection)
-    {
-        return GetNamedValue(connection, s_CheckpointMetadataTable_CommandName);
     }
 }

@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "Microsoft/Schema/Checkpoint_1_0/CheckpointIndexInterface.h"
 #include "Microsoft/Schema/Checkpoint_1_0/CheckpointArgumentsTable.h"
+#include "Microsoft/Schema/Checkpoint_1_0/CheckpointContextTable.h"
 #include "Microsoft/Schema/Checkpoint_1_0/CheckpointMetadataTable.h"
 
 namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
@@ -31,6 +32,7 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
     {
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "createCheckpointTable_v1_0");
         Checkpoint_V1_0::CheckpointArgumentsTable::Create(connection);
+        Checkpoint_V1_0::CheckpointContextTable::Create(connection);
         Checkpoint_V1_0::CheckpointMetadataTable::Create(connection);
         savepoint.Commit();
     }
@@ -49,18 +51,18 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
         return CheckpointMetadataTable::GetClientVersion(connection);
     }
 
-    SQLite::rowid_t CheckpointIndexInterface::SetCommandName(SQLite::Connection& connection, std::string_view commandName)
+    SQLite::rowid_t CheckpointIndexInterface::SetCommandName(SQLite::Connection& connection, int contextId, std::string_view commandName)
     {
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "setCommandName_v1_0");
-        SQLite::rowid_t argumentId = CheckpointMetadataTable::SetCommandName(connection, commandName);
+        SQLite::rowid_t argumentId = CheckpointArgumentsTable::SetCommandName(connection, contextId, commandName);
 
         savepoint.Commit();
         return argumentId;
     }
 
-    std::string CheckpointIndexInterface::GetCommandName(SQLite::Connection& connection)
+    std::string CheckpointIndexInterface::GetCommandName(SQLite::Connection& connection, int contextId)
     {
-        return CheckpointMetadataTable::GetCommandName(connection);
+        return CheckpointArgumentsTable::GetCommandName(connection, contextId);
     }
 
     bool CheckpointIndexInterface::IsEmpty(SQLite::Connection& connection)
@@ -80,6 +82,21 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
     {
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "removeContextFromArgTable_v1_0");
         CheckpointArgumentsTable::RemoveContext(connection, contextId);
+        savepoint.Commit();
+    }
+
+    SQLite::rowid_t CheckpointIndexInterface::AddContextToContextTable(SQLite::Connection& connection, int contextId)
+    {
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "addContextToContextTable_v1_0");
+        SQLite::rowid_t rowId = CheckpointContextTable::AddContext(connection, contextId);
+        savepoint.Commit();
+        return rowId;
+    }
+
+    void CheckpointIndexInterface::RemoveContextFromContextTable(SQLite::Connection& connection, int contextId)
+    {
+        SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "removeContextFromContextTable_v1_0");
+        CheckpointContextTable::RemoveContext(connection, contextId);
         savepoint.Commit();
     }
 
@@ -117,5 +134,10 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
     bool CheckpointIndexInterface::GetBoolArgumentByContextId(SQLite::Connection& connection, int contextId, std::string_view name)
     {
         return CheckpointArgumentsTable::GetBoolArgumentByContextId(connection, contextId, name);
+    }
+
+    int CheckpointIndexInterface::GetFirstContextId(SQLite::Connection& connection)
+    {
+        return CheckpointArgumentsTable::GetFirstContextId(connection);
     }
 }

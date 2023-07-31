@@ -10,10 +10,29 @@
 
 namespace AppInstaller::CLI::Checkpoint
 {
+    bool CheckpointManager::CleanUpIndex()
+    {
+        // Check if index is empty, if so, remove file and return status.
+        if (m_checkpointIndex->IsEmpty())
+        {
+            // Remove file here if it is empty.
+        }
+
+        return true;
+    }
+
+    CheckpointManager::~CheckpointManager()
+    {
+        CleanUpIndex();
+    }
+
     void CheckpointManager::Initialize()
     {
         // Initialize should not be called more than once.
-        THROW_HR_IF(E_UNEXPECTED, m_checkpointId != GUID_NULL);
+        if (m_checkpointId != GUID_NULL)
+        {
+            return;
+        }
 
         std::ignore = CoCreateGuid(&m_checkpointId);
         AICLI_LOG(CLI, Info, << "Creating checkpoint index with the corresponding guid: " << m_checkpointId);
@@ -28,13 +47,16 @@ namespace AppInstaller::CLI::Checkpoint
 
         m_checkpointIndex = std::move(checkpointIndex);
         m_checkpointIndex->SetClientVersion(AppInstaller::Runtime::GetClientVersion());
-        //m_checkpointIndex->SetCommandName(commandName);
     }
 
     void CheckpointManager::InitializeFromGuid(GUID checkpointId)
     {
         // Initialize should not be called more than once.
-        THROW_HR_IF(E_UNEXPECTED, m_checkpointId != GUID_NULL);
+        if (m_checkpointId != GUID_NULL)
+        {
+            return;
+        }
+        // THROW_HR_IF(E_UNEXPECTED, m_checkpointId != GUID_NULL);
 
         m_checkpointId = checkpointId;
         auto openDisposition = AppInstaller::Repository::Microsoft::SQLiteStorageBase::OpenDisposition::ReadWrite;
@@ -48,14 +70,21 @@ namespace AppInstaller::CLI::Checkpoint
         m_checkpointIndex = std::move(checkpointIndex);
     }
 
+    void CheckpointManager::AddContext(int contextId)
+    {
+        m_checkpointIndex->AddContext(contextId);
+    }
+
+    void CheckpointManager::RemoveContext(int contextId)
+    {
+        m_checkpointIndex->RemoveContext(contextId);
+    }
+
     std::unique_ptr<Execution::Context> CheckpointManager::CreateContextFromCheckpointIndex()
     {
         auto checkpointContext = std::make_unique<Execution::Context>(std::cout, std::cin);
         auto previousthreadGlobals = checkpointContext->SetForCurrentThread();
-
         checkpointContext->EnableSignalTerminationHandler();
-        
-        PopulateContextArgsFromIndex(*checkpointContext);
         return checkpointContext;
     }
 
@@ -92,12 +121,11 @@ namespace AppInstaller::CLI::Checkpoint
     {
         int contextId = context.GetContextId();
 
-        // Figure out if there is a better place to add the context when it is first initialized.
-        m_checkpointIndex->AddContextToArgumentTable(contextId);
-
         const auto& executingCommand = context.GetExecutingCommand();
         if (executingCommand != nullptr)
         {
+            m_checkpointIndex->SetCommandName(contextId, executingCommand->Name());
+
             const auto& commandArguments = executingCommand->GetArguments();
             for (const auto& argument : commandArguments)
             {
@@ -118,28 +146,54 @@ namespace AppInstaller::CLI::Checkpoint
         }
     }
 
+    void CheckpointManager::Checkpoint(Execution::Context& context, Execution::CheckpointFlags targetCheckpointFlag)
+    {
+        Execution::CheckpointFlags currentCheckpointFlag = context.GetCurrentCheckpoint();
+
+        // If the current checkpoint is behind the target checkpoint, load the checkpoint state from the index.
+        // If the current checkpoint is ahead of the target checkpoint, save the checkpoint state to the index.
+        // If the states are equal, do nothing.
+        if (currentCheckpointFlag > targetCheckpointFlag)
+        {
+            // If the current checkpoint is ahead of the target, this means we have already previously passed this state, load.
+            LoadCheckpoint(context, targetCheckpointFlag);
+        }
+        else if (currentCheckpointFlag < targetCheckpointFlag)
+        {
+            // If the current checkpoint is behind the target checkpoint, we are still working our way up to the target, 
+            // save the state.
+            SaveCheckpoint(context, targetCheckpointFlag);
+        }
+
+        // If the current checkpoint is equal, do nothing as it has already been performed.
+    }
+
     void CheckpointManager::SaveCheckpoint(Execution::Context& context, Execution::CheckpointFlags flag)
     {
         switch (flag)
         {
-        case Execution::CheckpointFlags::ArgumentsProcessed:
+        case Execution::CheckpointFlags::CommandArguments:
             RecordContextArgsToIndex(context);
             break;
         default:
             THROW_HR(E_UNEXPECTED);
         }
+
+        context.SetCurrentCheckpoint(flag);
     }
 
     void CheckpointManager::LoadCheckpoint(Execution::Context& context, Execution::CheckpointFlags flag)
     {
         switch (flag)
         {
-        case Execution::CheckpointFlags::ArgumentsProcessed:
+        case Execution::CheckpointFlags::CommandArguments:
             PopulateContextArgsFromIndex(context);
             break;
         default:
             THROW_HR(E_UNEXPECTED);
         }
+
+        context.SetCurrentCheckpoint(flag);
     }
 
     std::string CheckpointManager::GetClientVersion()
@@ -148,8 +202,13 @@ namespace AppInstaller::CLI::Checkpoint
         return m_checkpointIndex->GetClientVersion();
     }
 
-    std::string CheckpointManager::GetCommandName()
+    std::string CheckpointManager::GetCommandName(int contextId)
     {
-        return m_checkpointIndex->GetCommandName();
+        return m_checkpointIndex->GetCommandName(contextId);
+    }
+
+    int CheckpointManager::GetFirstContextId()
+    {
+        return m_checkpointIndex->GetFirstContextId();
     }
 }

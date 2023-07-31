@@ -21,11 +21,5 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
 
         // Sets the client version of the saved state.
         static SQLite::rowid_t SetClientVersion(SQLite::Connection& connection, std::string_view clientVersion);
-
-        // Gets the command name of the saved state.
-        static std::string GetCommandName(SQLite::Connection& connection);
-
-        // Sets the command name of the saved state.
-        static SQLite::rowid_t SetCommandName(SQLite::Connection& connection, std::string_view commandName);
     };
 }

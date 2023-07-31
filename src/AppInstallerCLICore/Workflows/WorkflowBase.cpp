@@ -1275,11 +1275,11 @@ AppInstaller::CLI::Execution::Context& operator<<(AppInstaller::CLI::Execution::
 
 AppInstaller::CLI::Execution::Context& operator<<(AppInstaller::CLI::Execution::Context& context, const AppInstaller::CLI::Workflow::WorkflowTask& task)
 {
-    // Maybe add a should we execute workflow check using checkpoint.
-    if (context.GetCurrentCheckpoint() != context.GetTargetCheckpoint())
-    {
-        return context;
-    }
+    //// Maybe add a should we execute workflow check using checkpoint.
+    //if (context.GetCurrentCheckpoint() != context.GetTargetCheckpoint())
+    //{
+    //    return context;
+    //}
 
     if (!context.IsTerminated())
     {

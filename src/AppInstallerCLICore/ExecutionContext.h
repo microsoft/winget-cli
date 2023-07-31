@@ -55,7 +55,7 @@ namespace AppInstaller::CLI::Execution
     enum class CheckpointFlags : uint32_t
     {
         None,
-        ArgumentsProcessed,
+        CommandArguments,
     };
 
     // bit masks used as Context flags
@@ -103,6 +103,9 @@ namespace AppInstaller::CLI::Execution
 
         // Creates a child of this context.
         virtual std::unique_ptr<Context> CreateSubContext();
+
+        // Creates an empty context.
+        virtual std::unique_ptr<Context> CreateEmptyContext(int contextId = 0);
 
         // Enables reception of CTRL signals and window messages.
         void EnableSignalTerminationHandler(bool enabled = true);
@@ -174,6 +177,13 @@ namespace AppInstaller::CLI::Execution
         // Gets the target checkpoint of the context.
         CheckpointFlags GetTargetCheckpoint() { return m_targetCheckpoint; };
 
+        // Sets the current checkpoint flag of the context.
+        void SetCurrentCheckpoint(Execution::CheckpointFlags flag)
+        {
+            m_currentCheckpoint = flag;
+        }
+
+        // Gets the id of the context.
         int GetContextId() { return m_contextId; };
 
     protected:
@@ -184,6 +194,9 @@ namespace AppInstaller::CLI::Execution
         // or we could have ODR violations that lead to nasty bugs. So we will simply never
         // use this if AICLI_DISABLE_TEST_HOOKS is defined.
         std::function<bool(const Workflow::WorkflowTask&)> m_shouldExecuteWorkflowTask;
+
+        // Sets the id of the context.
+        void SetContextId(int contextId) { m_contextId = contextId; };
 
     private:
         DestructionToken m_disableSignalTerminationHandlerOnExit = false;

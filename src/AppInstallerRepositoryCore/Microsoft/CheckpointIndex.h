@@ -36,13 +36,13 @@ namespace AppInstaller::Repository::Microsoft
 
         std::string GetClientVersion();
 
-        IdType SetCommandName(std::string_view commandName);
+        IdType SetCommandName(int contextId, std::string_view commandName);
 
-        std::string GetCommandName();
+        std::string GetCommandName(int contextId);
 
-        IdType AddContextToArgumentTable(int contextId);
+        void AddContext(int contextId);
 
-        void RemoveContextFromArgumentTable(int contextId);
+        void RemoveContext(int contextId);
 
         bool UpdateArgumentByContextId(int contextId, std::string_view name, std::string_view value);
 
@@ -55,6 +55,10 @@ namespace AppInstaller::Repository::Microsoft
         std::string GetStringArgumentByContextId(int contextId, std::string_view name);
 
         bool GetBoolArgumentByContextId(int contextId, std::string_view name);
+
+        int GetFirstContextId();
+
+        bool IsEmpty();
 
     private:
         // Constructor used to open an existing index.
