@@ -28,7 +28,7 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         ConfigurationSetApplyProcessor(const ConfigurationSet& configurationSet, const TelemetryTraceLogger& telemetry, IConfigurationSetProcessor&& setProcessor, AppInstaller::WinRT::AsyncProgress<ApplyConfigurationSetResult, ConfigurationSetChangeData>&& progress);
 
         // Processes the apply for the configuration set.
-        void Process();
+        void Process(bool preProcessOnly = false);
 
         // Gets the result object.
         ApplyConfigurationSetResult Result() const;

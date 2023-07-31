@@ -35,18 +35,23 @@ namespace Microsoft.Management.Configuration
         Skipped,
     };
 
-    // Defines the level of detail probing that is allowed about a configuration unit.
+    // Defines the type of detail probing that is allowed about a configuration unit.
     [contract(Microsoft.Management.Configuration.Contract, 1)]
-    enum ConfigurationUnitDetailLevel
+    [flags]
+    enum ConfigurationUnitDetailFlags
     {
+        // For completeness.
+        None = 0,
         // Only reads details from local data.
-        Local,
-        // Will query the catalog information for details, but will not download any modules.
-        Catalog,
-        // Will download modules, but not load them.
-        Download,
-        // Will download and load modules for details.
-        Load,
+        Local = 0x1,
+        // Can query the catalog information for details, but will not download any modules.
+        Catalog = 0x2,
+        // Can only read data, not write or execute.
+        ReadOnly = Local | Catalog,
+        // Can download modules, but not load them.
+        Download = 0x4,
+        // Can load modules for details.
+        Load = 0x8,
     };
 
     // The source of a result; for instance, the part of the system that generated a failure.
@@ -216,6 +221,15 @@ namespace Microsoft.Management.Configuration
         // The schema version to use for the unit.
         // Will be set to the schema version when read in, and default to the latest if created manually.
         String SchemaVersion;
+
+        // Creates a copy of this configuration unit, with the following notes:
+        //  InstanceIdentifier will be a new value
+        //  Identifier will be empty
+        //  Dependencies, Directives, and Settings will by new containers with identical values inside
+        //  Details will be the same value (not a copy, just another reference)
+        //  State, ResultInformation, and ShouldApply will be their default constructed state
+        //  The returned value will be in a writable state
+        ConfigurationUnit Copy();
     }
 
     // The change event type that has occurred for a configuration set change.
@@ -374,7 +388,7 @@ namespace Microsoft.Management.Configuration
     interface IConfigurationSetProcessor
     {
         // Gets the configuration unit processor details for the given unit.
-        IConfigurationUnitProcessorDetails GetUnitProcessorDetails(ConfigurationUnit unit, ConfigurationUnitDetailLevel detailLevel);
+        IConfigurationUnitProcessorDetails GetUnitProcessorDetails(ConfigurationUnit unit, ConfigurationUnitDetailFlags detailFlags);
 
         // Creates a configuration unit processor for the given unit.
         // The optional `directivesOverlay` parameter allows for the `ConfigurationProcessor` to alter behavior without needing to change the unit itself.
@@ -526,6 +540,9 @@ namespace Microsoft.Management.Configuration
         // The configuration unit whose details were retrieved.
         ConfigurationUnit Unit{ get; };
 
+        // The details, if they were able to be acquired successfully.
+        IConfigurationUnitProcessorDetails Details{ get; };
+
         // The result of getting the configuration unit details.
         IConfigurationUnitResultInformation ResultInformation{ get; };
     }
@@ -540,12 +557,15 @@ namespace Microsoft.Management.Configuration
 
     // Flags to control how a configuration set should be applied to the system.
     [contract(Microsoft.Management.Configuration.Contract, 1)]
+    [flags]
     enum ApplyConfigurationSetFlags
     {
         None = 0x0,
         // Forces a new configuration set instance to be recorded when the set being applied matches a previous set's origin.
         // The default behavior is to assume that the incoming set is an update to the existing set and overwrite it.
         DoNotOverwriteMatchingOriginSet = 0x1,
+        // Does not apply the configuration set, instead check the configuration set for internal consistency.
+        PerformConsistencyCheckOnly = 0x2,
     };
 
     // The result of applying the settings for a configuration unit.
@@ -660,12 +680,12 @@ namespace Microsoft.Management.Configuration
         Windows.Foundation.IAsyncOperation< Windows.Foundation.Collections.IVector<ConfigurationConflict> > CheckForConflictsAsync(Windows.Foundation.Collections.IVectorView<ConfigurationSet> configurationSets, Boolean includeConfigurationHistory);
 
         // Gets the details for all configuration units in a set.
-        GetConfigurationSetDetailsResult GetSetDetails(ConfigurationSet configurationSet, ConfigurationUnitDetailLevel detailLevel);
-        Windows.Foundation.IAsyncOperationWithProgress<GetConfigurationSetDetailsResult, GetConfigurationUnitDetailsResult> GetSetDetailsAsync(ConfigurationSet configurationSet, ConfigurationUnitDetailLevel detailLevel);
+        GetConfigurationSetDetailsResult GetSetDetails(ConfigurationSet configurationSet, ConfigurationUnitDetailFlags detailFlags);
+        Windows.Foundation.IAsyncOperationWithProgress<GetConfigurationSetDetailsResult, GetConfigurationUnitDetailsResult> GetSetDetailsAsync(ConfigurationSet configurationSet, ConfigurationUnitDetailFlags detailFlags);
 
         // Gets the details for a configuration unit.
-        void GetUnitDetails(ConfigurationUnit unit, ConfigurationUnitDetailLevel detailLevel);
-        Windows.Foundation.IAsyncAction GetUnitDetailsAsync(ConfigurationUnit unit, ConfigurationUnitDetailLevel detailLevel);
+        GetConfigurationUnitDetailsResult GetUnitDetails(ConfigurationUnit unit, ConfigurationUnitDetailFlags detailFlags);
+        Windows.Foundation.IAsyncOperation<GetConfigurationUnitDetailsResult> GetUnitDetailsAsync(ConfigurationUnit unit, ConfigurationUnitDetailFlags detailFlags);
 
         // Applies the configuration set state.
         ApplyConfigurationSetResult ApplySet(ConfigurationSet configurationSet, ApplyConfigurationSetFlags flags);

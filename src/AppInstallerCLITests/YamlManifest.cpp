@@ -242,7 +242,6 @@ TEST_CASE("ReadGoodManifests", "[ManifestValidation]")
         { "Manifest-Good-Minimum-InstallerType.yaml" },
         { "Manifest-Good-Switches.yaml" },
         { "Manifest-Good-DefaultExpectedReturnCodeInInstallerSuccessCodes.yaml" },
-        { "Manifest-Good-PackageFamilyNameOnExe-Ver1_2.yaml" },
     };
 
     for (auto const& testCase : TestCases)
@@ -303,9 +302,9 @@ TEST_CASE("ReadBadManifests", "[ManifestValidation]")
         { "Manifest-Bad-VersionMissing.yaml", "Missing required property 'Version'" },
         { "Manifest-Bad-InvalidManifestVersionValue.yaml", "Failed to validate against schema associated with property name 'ManifestVersion'" },
         { "InstallFlowTest_MSStore.yaml", "Field value is not supported. [InstallerType] Value: msstore" },
-        { "Manifest-Bad-PackageFamilyNameOnMSI.yaml", "The specified installer type does not support PackageFamilyName. [InstallerType] Value: msi" },
+        { "Manifest-Bad-PackageFamilyNameOnMSI.yaml", "The specified installer type does not support PackageFamilyName. [InstallerType] Value: msi", true },
         { "Manifest-Bad-ProductCodeOnMSIX.yaml", "The specified installer type does not support ProductCode. [InstallerType] Value: msix" },
-        { "Manifest-Bad-InvalidUpdateBehavior.yaml", "Invalid field value. [UpdateBehavior]" },
+        { "Manifest-Bad-InvalidUpdateBehavior.yaml", "Invalid field value. [UpgradeBehavior]" },
         { "Manifest-Bad-InvalidLocale.yaml", "The locale value is not a well formed bcp47 language tag." },
         { "Manifest-Bad-AppsAndFeaturesEntriesOnMSIX.yaml", "The specified installer type does not write to Apps and Features entry." },
         { "InstallFlowTest_LicenseAgreement.yaml", "Field usage requires verified publishers.", true },
@@ -865,6 +864,31 @@ TEST_CASE("ValidateV1_5GoodManifestAndVerifyContents", "[ManifestValidation]")
     VerifyV1ManifestContent(mergedManifest, false, ManifestVer{ s_ManifestVersionV1_5 });
 }
 
+TEST_CASE("ValidateV1_6GoodManifestAndVerifyContents", "[ManifestValidation]")
+{
+    ManifestValidateOption validateOption;
+    validateOption.FullValidation = true;
+    TempDirectory singletonDirectory{ "SingletonManifest" };
+    CopyTestDataFilesToFolder({ "ManifestV1_6-Singleton.yaml" }, singletonDirectory);
+    Manifest singletonManifest = YamlParser::CreateFromPath(singletonDirectory, validateOption);
+    VerifyV1ManifestContent(singletonManifest, true, ManifestVer{ s_ManifestVersionV1_6 });
+
+    TempDirectory multiFileDirectory{ "MultiFileManifest" };
+    CopyTestDataFilesToFolder({
+        "ManifestV1_6-MultiFile-Version.yaml",
+        "ManifestV1_6-MultiFile-Installer.yaml",
+        "ManifestV1_6-MultiFile-DefaultLocale.yaml",
+        "ManifestV1_6-MultiFile-Locale.yaml" }, multiFileDirectory);
+
+    TempFile mergedManifestFile{ "merged.yaml" };
+    Manifest multiFileManifest = YamlParser::CreateFromPath(multiFileDirectory, validateOption, mergedManifestFile);
+    VerifyV1ManifestContent(multiFileManifest, false, ManifestVer{ s_ManifestVersionV1_6 });
+
+    // Read from merged manifest should have the same content as multi file manifest
+    Manifest mergedManifest = YamlParser::CreateFromPath(mergedManifestFile);
+    VerifyV1ManifestContent(mergedManifest, false, ManifestVer{ s_ManifestVersionV1_6 });
+}
+
 TEST_CASE("WriteV1SingletonManifestAndVerifyContents", "[ManifestCreation]")
 {
     ManifestValidateOption validateOption;
@@ -1023,6 +1047,38 @@ TEST_CASE("WriteV1_5SingletonManifestAndVerifyContents", "[ManifestCreation]")
     REQUIRE(std::filesystem::exists(generatedMultifileManifestPath));
     Manifest generatedMultifileManifest = YamlParser::CreateFromPath(exportedMultifileDirectory, validateOption);
     VerifyV1ManifestContent(generatedMultifileManifest, true, ManifestVer{ s_ManifestVersionV1_5 });
+}
+
+TEST_CASE("WriteV1_6SingletonManifestAndVerifyContents", "[ManifestCreation]")
+{
+    ManifestValidateOption validateOption;
+    TempDirectory singletonDirectory{ "SingletonManifest" };
+    CopyTestDataFilesToFolder({ "ManifestV1_6-Singleton.yaml" }, singletonDirectory);
+    Manifest singletonManifest = YamlParser::CreateFromPath(singletonDirectory, validateOption);
+
+    TempDirectory exportedSingletonDirectory{ "exportedSingleton" };
+    std::filesystem::path generatedSingletonManifestPath = exportedSingletonDirectory.GetPath() / "testSingletonManifest.yaml";
+    YamlWriter::OutputYamlFile(singletonManifest, singletonManifest.Installers[0], generatedSingletonManifestPath);
+
+    REQUIRE(std::filesystem::exists(generatedSingletonManifestPath));
+    Manifest generatedSingletonManifest = YamlParser::CreateFromPath(exportedSingletonDirectory, validateOption);
+    VerifyV1ManifestContent(generatedSingletonManifest, true, ManifestVer{ s_ManifestVersionV1_6 });
+
+    TempDirectory multiFileDirectory{ "MultiFileManifest" };
+    CopyTestDataFilesToFolder({
+        "ManifestV1_6-MultiFile-Version.yaml",
+        "ManifestV1_6-MultiFile-Installer.yaml",
+        "ManifestV1_6-MultiFile-DefaultLocale.yaml",
+        "ManifestV1_6-MultiFile-Locale.yaml" }, multiFileDirectory);
+
+    Manifest multifileManifest = YamlParser::CreateFromPath(multiFileDirectory, validateOption);
+    TempDirectory exportedMultifileDirectory{ "exportedMultifile" };
+    std::filesystem::path generatedMultifileManifestPath = exportedMultifileDirectory.GetPath() / "testMultifileManifest.yaml";
+    YamlWriter::OutputYamlFile(multifileManifest, multifileManifest.Installers[0], generatedMultifileManifestPath);
+
+    REQUIRE(std::filesystem::exists(generatedMultifileManifestPath));
+    Manifest generatedMultifileManifest = YamlParser::CreateFromPath(exportedMultifileDirectory, validateOption);
+    VerifyV1ManifestContent(generatedMultifileManifest, true, ManifestVer{ s_ManifestVersionV1_6 });
 }
 
 YamlManifestInfo CreateYamlManifestInfo(std::string testDataFile)
@@ -1278,6 +1334,20 @@ TEST_CASE("ReadManifestAndValidateMsixInstallers_Signed_InconsistentFields", "[M
 TEST_CASE("ReadManifestAndValidateMsixBundleInstallers_Success", "[ManifestValidation]")
 {
     TestDataFile testFile("Manifest-Good-MsixBundleInstaller.yaml");
+    Manifest manifest = YamlParser::CreateFromPath(testFile);
+
+    // Update the installer path for testing
+    REQUIRE(1 == manifest.Installers.size());
+    TestDataFile msixFile(manifest.Installers[0].Url.c_str());
+    manifest.Installers[0].Url = msixFile.GetPath().u8string();
+
+    auto errors = ValidateManifestInstallers(manifest);
+    REQUIRE(0 == errors.size());
+}
+
+TEST_CASE("ReadManifestAndValidateMsixBundleInstallers_WithStub_Success", "[ManifestValidation]")
+{
+    TestDataFile testFile("Manifest-Good-MsixBundleInstaller-WithStub.yaml");
     Manifest manifest = YamlParser::CreateFromPath(testFile);
 
     // Update the installer path for testing

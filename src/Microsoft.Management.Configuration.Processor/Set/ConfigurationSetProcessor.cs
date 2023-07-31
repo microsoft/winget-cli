@@ -80,27 +80,33 @@ namespace Microsoft.Management.Configuration.Processor.Set
         /// Gets the configuration unit processor details for the given unit.
         /// </summary>
         /// <param name="unit">Configuration unit.</param>
-        /// <param name="detailLevel">Detail level.</param>
+        /// <param name="detailFlags">Detail flags.</param>
         /// <returns>Configuration unit processor details.</returns>
         public IConfigurationUnitProcessorDetails? GetUnitProcessorDetails(
             ConfigurationUnit unit,
-            ConfigurationUnitDetailLevel detailLevel)
+            ConfigurationUnitDetailFlags detailFlags)
         {
             try
             {
                 var unitInternal = new ConfigurationUnitInternal(unit, this.configurationSet.Path);
-                this.OnDiagnostics(DiagnosticLevel.Verbose, $"Getting unit details [{detailLevel}] for: {unitInternal.ToIdentifyingString()}");
-                var dscResourceInfo = this.ProcessorEnvironment.GetDscResource(unitInternal);
+                this.OnDiagnostics(DiagnosticLevel.Verbose, $"Getting unit details [{detailFlags}] for: {unitInternal.ToIdentifyingString()}");
+
+                // (Local | Download | Load) will all work off of local files, so if any one is an option just use the local module info if found.
+                DscResourceInfoInternal? dscResourceInfo = null;
+                if (detailFlags.HasFlag(ConfigurationUnitDetailFlags.Local) || detailFlags.HasFlag(ConfigurationUnitDetailFlags.Download) || detailFlags.HasFlag(ConfigurationUnitDetailFlags.Load))
+                {
+                    dscResourceInfo = this.ProcessorEnvironment.GetDscResource(unitInternal);
+                }
 
                 if (dscResourceInfo is not null)
                 {
                     return this.GetUnitProcessorDetailsLocal(
                         dscResourceInfo.Name,
                         dscResourceInfo,
-                        detailLevel == ConfigurationUnitDetailLevel.Load);
+                        detailFlags.HasFlag(ConfigurationUnitDetailFlags.Load));
                 }
 
-                if (detailLevel == ConfigurationUnitDetailLevel.Local)
+                if (!(detailFlags.HasFlag(ConfigurationUnitDetailFlags.Catalog) || detailFlags.HasFlag(ConfigurationUnitDetailFlags.Download) || detailFlags.HasFlag(ConfigurationUnitDetailFlags.Load)))
                 {
                     // Not found locally.
                     return null;
@@ -118,7 +124,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
 
                 dynamic foundModuleInfo = foundModule;
 
-                if (detailLevel == ConfigurationUnitDetailLevel.Catalog)
+                if (detailFlags.HasFlag(ConfigurationUnitDetailFlags.Catalog))
                 {
                     return new ConfigurationUnitProcessorDetails(
                         resourceName,
@@ -128,7 +134,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
                         null);
                 }
 
-                if (detailLevel == ConfigurationUnitDetailLevel.Download)
+                if (detailFlags.HasFlag(ConfigurationUnitDetailFlags.Download))
                 {
                     var tempSavePath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
                     Directory.CreateDirectory(tempSavePath);
@@ -145,7 +151,7 @@ namespace Microsoft.Management.Configuration.Processor.Set
                         this.GetCertificates(moduleInfo));
                 }
 
-                if (detailLevel == ConfigurationUnitDetailLevel.Load)
+                if (detailFlags.HasFlag(ConfigurationUnitDetailFlags.Load))
                 {
                     this.ProcessorEnvironment.InstallModule(foundModule);
 

@@ -226,11 +226,11 @@ namespace Microsoft.Management.Configuration.UnitTests.Tests
             public void CreateDetails(bool isPublic = true)
             {
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
-                this.UnitDetails = this.Factory.NullProcessor.CreateUnitDetails(this.Unit, ConfigurationUnitDetailLevel.Catalog);
+                this.UnitDetails = this.Factory.NullProcessor.CreateUnitDetails(this.Unit, ConfigurationUnitDetailFlags.ReadOnly);
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
                 this.UnitDetails.IsPublic = isPublic;
 
-                this.Processor?.GetUnitDetails(this.Unit, ConfigurationUnitDetailLevel.Catalog);
+                this.Processor?.GetUnitDetails(this.Unit, ConfigurationUnitDetailFlags.ReadOnly);
             }
         }
     }
