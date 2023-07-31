@@ -15,9 +15,10 @@ namespace AppInstaller::Manifest::YamlWriter
     std::string ManifestToYamlString(const Manifest& manifest, const ManifestInstaller& installer);
 
     /// <summary>
-    /// Exports the manifest yaml string to a file.
+    /// Exports the manifest and single manifest installer to a yaml file.
     /// </summary>
-    /// <param name="content">Manifest yaml string.</param>
+    /// <param name="manifest">Manifest object.</param>
+    /// <param name="installer">Manifest installer object.</param>
     /// <param name="out">Path of the yaml file.</param>
-    void OutputYamlFile(const std::string& content, const std::filesystem::path& out);
+    void OutputYamlFile(const Manifest& manifest, const ManifestInstaller& installer, const std::filesystem::path& out);
 }

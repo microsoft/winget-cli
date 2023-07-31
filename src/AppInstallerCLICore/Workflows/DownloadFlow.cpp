@@ -192,6 +192,8 @@ namespace AppInstaller::CLI::Workflow
             return;
         }
 
+        bool installerDownloadOnly = WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerDownloadOnly);
+
         // CheckForExistingInstaller will set the InstallerPath if found
         if (!context.Contains(Execution::Data::InstallerPath))
         {
@@ -209,7 +211,7 @@ namespace AppInstaller::CLI::Workflow
                 context << DownloadInstallerFile;
                 break;
             case InstallerTypeEnum::Msix:
-                if (installer.SignatureSha256.empty() || WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerDownloadOnly))
+                if (installer.SignatureSha256.empty() || installerDownloadOnly)
                 {
                     // If InstallerDownloadOnly flag is set, always download the installer file.
                     context << DownloadInstallerFile;
@@ -221,7 +223,7 @@ namespace AppInstaller::CLI::Workflow
                 }
                 break;
             case InstallerTypeEnum::MSStore:
-                if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerDownloadOnly))
+                if (installerDownloadOnly)
                 {
                     THROW_HR(HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED));
                 }
@@ -240,7 +242,7 @@ namespace AppInstaller::CLI::Workflow
             UpdateInstallerFileMotwIfApplicable <<
             RenameDownloadedInstaller;
 
-        if (WI_IsFlagSet(context.GetFlags(), Execution::ContextFlag::InstallerDownloadOnly))
+        if (installerDownloadOnly)
         {
             context << ExportManifest;
         }
@@ -585,9 +587,8 @@ namespace AppInstaller::CLI::Workflow
         const auto& installer = context.Get<Execution::Data::Installer>();
 
         std::filesystem::path manifestFileName = GetInstallerDownloadOnlyFileName(context, L".yaml");
-        const auto& manifestDownloadPath = downloadDirectory / manifestFileName;
-        const auto& manifestYamlContent = YamlWriter::ManifestToYamlString(manifest, installer.value());
-        YamlWriter::OutputYamlFile(manifestYamlContent, manifestDownloadPath);
+        auto manifestDownloadPath = downloadDirectory / manifestFileName;
+        YamlWriter::OutputYamlFile(manifest, installer.value(), manifestDownloadPath);
         AICLI_LOG(CLI, Info, << "Successfully generated manifest yaml. Path: " << manifestDownloadPath);
     }
 }

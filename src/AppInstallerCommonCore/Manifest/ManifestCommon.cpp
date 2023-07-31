@@ -792,11 +792,6 @@ namespace AppInstaller::Manifest
         return "unknown"sv;
     }
 
-    std::string_view BoolToString(bool value)
-    {
-        return value ? "true"sv : "false"sv;
-    }
-
     std::string_view ManifestTypeToString(ManifestTypeEnum manifestType)
     {
         switch (manifestType)
@@ -1088,13 +1083,12 @@ namespace AppInstaller::Manifest
         {
             if (dependency.Type == type && Utility::ICUCaseInsensitiveEquals(dependency.Id(), id))
             {
-                if (dependency.MinVersion) {
-                    if (dependency.MinVersion.value() == minVersion)
-                    {
-                        return true;
-                    }
+                if (!minVersion.empty())
+                {
+                    return dependency.MinVersion.value() == minVersion;
                 }
-                else {
+                else
+                {
                     return true;
                 }
             }

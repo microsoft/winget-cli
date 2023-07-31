@@ -865,26 +865,164 @@ TEST_CASE("ValidateV1_5GoodManifestAndVerifyContents", "[ManifestValidation]")
     VerifyV1ManifestContent(mergedManifest, false, ManifestVer{ s_ManifestVersionV1_5 });
 }
 
+TEST_CASE("WriteV1SingletonManifestAndVerifyContents", "[ManifestCreation]")
+{
+    ManifestValidateOption validateOption;
+    TempDirectory singletonDirectory{ "SingletonManifest" };
+    CopyTestDataFilesToFolder({ "ManifestV1_1-Singleton.yaml" }, singletonDirectory);
+    Manifest singletonManifest = YamlParser::CreateFromPath(singletonDirectory, validateOption);
+
+    TempDirectory exportedSingletonDirectory{ "exportedSingleton" };
+    std::filesystem::path generatedSingletonManifestPath = exportedSingletonDirectory.GetPath() / "testSingletonManifest.yaml";
+    YamlWriter::OutputYamlFile(singletonManifest, singletonManifest.Installers[0], generatedSingletonManifestPath);
+
+    REQUIRE(std::filesystem::exists(generatedSingletonManifestPath));
+    Manifest generatedSingletonManifest = YamlParser::CreateFromPath(exportedSingletonDirectory, validateOption);
+    VerifyV1ManifestContent(generatedSingletonManifest, true);
+
+    TempDirectory multiFileDirectory{ "MultiFileManifest" };
+    CopyTestDataFilesToFolder({
+        "ManifestV1-MultiFile-Version.yaml",
+        "ManifestV1-MultiFile-Installer.yaml",
+        "ManifestV1-MultiFile-DefaultLocale.yaml",
+        "ManifestV1-MultiFile-Locale.yaml" }, multiFileDirectory);
+
+    Manifest multifileManifest = YamlParser::CreateFromPath(multiFileDirectory, validateOption);
+    TempDirectory exportedMultifileDirectory{ "exportedMultifile" };
+    std::filesystem::path generatedMultifileManifestPath = exportedMultifileDirectory.GetPath() / "testMultifileManifest.yaml";
+    YamlWriter::OutputYamlFile(multifileManifest, multifileManifest.Installers[0], generatedMultifileManifestPath);
+
+    REQUIRE(std::filesystem::exists(generatedMultifileManifestPath));
+    Manifest generatedMultifileManifest = YamlParser::CreateFromPath(exportedMultifileDirectory, validateOption);
+    VerifyV1ManifestContent(generatedMultifileManifest, true);
+}
+
+TEST_CASE("WriteV1_1SingletonManifestAndVerifyContents", "[ManifestCreation]")
+{
+    ManifestValidateOption validateOption;
+    TempDirectory singletonDirectory{ "SingletonManifest" };
+    CopyTestDataFilesToFolder({ "ManifestV1_1-Singleton.yaml" }, singletonDirectory);
+    Manifest singletonManifest = YamlParser::CreateFromPath(singletonDirectory, validateOption);
+
+    TempDirectory exportedSingletonDirectory{ "exportedSingleton" };
+    std::filesystem::path generatedSingletonManifestPath = exportedSingletonDirectory.GetPath() / "testSingletonManifest.yaml";
+    YamlWriter::OutputYamlFile(singletonManifest, singletonManifest.Installers[0], generatedSingletonManifestPath);
+
+    REQUIRE(std::filesystem::exists(generatedSingletonManifestPath));
+    Manifest generatedSingletonManifest = YamlParser::CreateFromPath(exportedSingletonDirectory, validateOption);
+    VerifyV1ManifestContent(generatedSingletonManifest, true, ManifestVer{ s_ManifestVersionV1_1 });
+
+    TempDirectory multiFileDirectory{ "MultiFileManifest" };
+    CopyTestDataFilesToFolder({
+        "ManifestV1_1-MultiFile-Version.yaml",
+        "ManifestV1_1-MultiFile-Installer.yaml",
+        "ManifestV1_1-MultiFile-DefaultLocale.yaml",
+        "ManifestV1_1-MultiFile-Locale.yaml" }, multiFileDirectory);
+
+    Manifest multifileManifest = YamlParser::CreateFromPath(multiFileDirectory, validateOption);
+    TempDirectory exportedMultifileDirectory{ "exportedMultifile" };
+    std::filesystem::path generatedMultifileManifestPath = exportedMultifileDirectory.GetPath() / "testMultifileManifest.yaml";
+    YamlWriter::OutputYamlFile(multifileManifest, multifileManifest.Installers[0], generatedMultifileManifestPath);
+
+    REQUIRE(std::filesystem::exists(generatedMultifileManifestPath));
+    Manifest generatedMultifileManifest = YamlParser::CreateFromPath(exportedMultifileDirectory, validateOption);
+    VerifyV1ManifestContent(generatedMultifileManifest, true, ManifestVer{ s_ManifestVersionV1_1 });
+}
+
+TEST_CASE("WriteV1_2SingletonManifestAndVerifyContents", "[ManifestCreation]")
+{
+    ManifestValidateOption validateOption;
+    TempDirectory singletonDirectory{ "SingletonManifest" };
+    CopyTestDataFilesToFolder({ "ManifestV1_2-Singleton.yaml" }, singletonDirectory);
+    Manifest singletonManifest = YamlParser::CreateFromPath(singletonDirectory, validateOption);
+
+    TempDirectory exportedSingletonDirectory{ "exportedSingleton" };
+    std::filesystem::path generatedSingletonManifestPath = exportedSingletonDirectory.GetPath() / "testSingletonManifest.yaml";
+    YamlWriter::OutputYamlFile(singletonManifest, singletonManifest.Installers[0], generatedSingletonManifestPath);
+
+    REQUIRE(std::filesystem::exists(generatedSingletonManifestPath));
+    Manifest generatedSingletonManifest = YamlParser::CreateFromPath(exportedSingletonDirectory, validateOption);
+    VerifyV1ManifestContent(generatedSingletonManifest, true, ManifestVer{ s_ManifestVersionV1_2 });
+
+    TempDirectory multiFileDirectory{ "MultiFileManifest" };
+    CopyTestDataFilesToFolder({
+        "ManifestV1_2-MultiFile-Version.yaml",
+        "ManifestV1_2-MultiFile-Installer.yaml",
+        "ManifestV1_2-MultiFile-DefaultLocale.yaml",
+        "ManifestV1_2-MultiFile-Locale.yaml" }, multiFileDirectory);
+
+    Manifest multifileManifest = YamlParser::CreateFromPath(multiFileDirectory, validateOption);
+    TempDirectory exportedMultifileDirectory{ "exportedMultifile" };
+    std::filesystem::path generatedMultifileManifestPath = exportedMultifileDirectory.GetPath() / "testMultifileManifest.yaml";
+    YamlWriter::OutputYamlFile(multifileManifest, multifileManifest.Installers[0], generatedMultifileManifestPath);
+
+    REQUIRE(std::filesystem::exists(generatedMultifileManifestPath));
+    Manifest generatedMultifileManifest = YamlParser::CreateFromPath(exportedMultifileDirectory, validateOption);
+    VerifyV1ManifestContent(generatedMultifileManifest, true, ManifestVer{ s_ManifestVersionV1_2 });
+}
+
+TEST_CASE("WriteV1_4SingletonManifestAndVerifyContents", "[ManifestCreation]")
+{
+    ManifestValidateOption validateOption;
+    TempDirectory singletonDirectory{ "SingletonManifest" };
+    CopyTestDataFilesToFolder({ "ManifestV1_4-Singleton.yaml" }, singletonDirectory);
+    Manifest singletonManifest = YamlParser::CreateFromPath(singletonDirectory, validateOption);
+
+    TempDirectory exportedSingletonDirectory{ "exportedSingleton" };
+    std::filesystem::path generatedSingletonManifestPath = exportedSingletonDirectory.GetPath() / "testSingletonManifest.yaml";
+    YamlWriter::OutputYamlFile(singletonManifest, singletonManifest.Installers[0], generatedSingletonManifestPath);
+
+    REQUIRE(std::filesystem::exists(generatedSingletonManifestPath));
+    Manifest generatedSingletonManifest = YamlParser::CreateFromPath(exportedSingletonDirectory, validateOption);
+    VerifyV1ManifestContent(generatedSingletonManifest, true, ManifestVer{ s_ManifestVersionV1_4 });
+
+    TempDirectory multiFileDirectory{ "MultiFileManifest" };
+    CopyTestDataFilesToFolder({
+        "ManifestV1_4-MultiFile-Version.yaml",
+        "ManifestV1_4-MultiFile-Installer.yaml",
+        "ManifestV1_4-MultiFile-DefaultLocale.yaml",
+        "ManifestV1_4-MultiFile-Locale.yaml" }, multiFileDirectory);
+
+    Manifest multifileManifest = YamlParser::CreateFromPath(multiFileDirectory, validateOption);
+    TempDirectory exportedMultifileDirectory{ "exportedMultifile" };
+    std::filesystem::path generatedMultifileManifestPath = exportedMultifileDirectory.GetPath() / "testMultifileManifest.yaml";
+    YamlWriter::OutputYamlFile(multifileManifest, multifileManifest.Installers[0], generatedMultifileManifestPath);
+
+    REQUIRE(std::filesystem::exists(generatedMultifileManifestPath));
+    Manifest generatedMultifileManifest = YamlParser::CreateFromPath(exportedMultifileDirectory, validateOption);
+    VerifyV1ManifestContent(generatedMultifileManifest, true, ManifestVer{ s_ManifestVersionV1_4 });
+}
+
 TEST_CASE("WriteV1_5SingletonManifestAndVerifyContents", "[ManifestCreation]")
 {
     ManifestValidateOption validateOption;
-    validateOption.FullValidation = true;
     TempDirectory singletonDirectory{ "SingletonManifest" };
     CopyTestDataFilesToFolder({ "ManifestV1_5-Singleton.yaml" }, singletonDirectory);
     Manifest singletonManifest = YamlParser::CreateFromPath(singletonDirectory, validateOption);
 
-    // Override the exported manifest type to 'singleton' since validation does not accept 'merged' manifests.
-    auto setExportedManifestType = TestHook::SetExportedManifestTypeResult_Override(ManifestTypeEnum::Singleton);
+    TempDirectory exportedSingletonDirectory{ "exportedSingleton" };
+    std::filesystem::path generatedSingletonManifestPath = exportedSingletonDirectory.GetPath() / "testSingletonManifest.yaml";
+    YamlWriter::OutputYamlFile(singletonManifest, singletonManifest.Installers[0], generatedSingletonManifestPath);
 
-    TempDirectory downloadDirectory{ "downloadDirectory" };
-    std::filesystem::path testManifestPath = downloadDirectory.GetPath() / "testManifest.yaml";
-    const auto& manifestYamlContent = YamlWriter::ManifestToYamlString(singletonManifest, singletonManifest.Installers[0]);
-    YamlWriter::OutputYamlFile(manifestYamlContent, testManifestPath);
+    REQUIRE(std::filesystem::exists(generatedSingletonManifestPath));
+    Manifest generatedSingletonManifest = YamlParser::CreateFromPath(exportedSingletonDirectory, validateOption);
+    VerifyV1ManifestContent(generatedSingletonManifest, true, ManifestVer{ s_ManifestVersionV1_5 });
 
-    REQUIRE(std::filesystem::exists(testManifestPath));
+    TempDirectory multiFileDirectory{ "MultiFileManifest" };
+    CopyTestDataFilesToFolder({
+        "ManifestV1_5-MultiFile-Version.yaml",
+        "ManifestV1_5-MultiFile-Installer.yaml",
+        "ManifestV1_5-MultiFile-DefaultLocale.yaml",
+        "ManifestV1_5-MultiFile-Locale.yaml" }, multiFileDirectory);
 
-    Manifest generatedManifest = YamlParser::CreateFromPath(downloadDirectory, validateOption);
-    VerifyV1ManifestContent(generatedManifest, true, ManifestVer{ s_ManifestVersionV1_5 });
+    Manifest multifileManifest = YamlParser::CreateFromPath(multiFileDirectory, validateOption);
+    TempDirectory exportedMultifileDirectory{ "exportedMultifile" };
+    std::filesystem::path generatedMultifileManifestPath = exportedMultifileDirectory.GetPath() / "testMultifileManifest.yaml";
+    YamlWriter::OutputYamlFile(multifileManifest, multifileManifest.Installers[0], generatedMultifileManifestPath);
+
+    REQUIRE(std::filesystem::exists(generatedMultifileManifestPath));
+    Manifest generatedMultifileManifest = YamlParser::CreateFromPath(exportedMultifileDirectory, validateOption);
+    VerifyV1ManifestContent(generatedMultifileManifest, true, ManifestVer{ s_ManifestVersionV1_5 });
 }
 
 YamlManifestInfo CreateYamlManifestInfo(std::string testDataFile)

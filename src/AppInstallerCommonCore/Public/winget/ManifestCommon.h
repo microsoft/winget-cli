@@ -387,8 +387,6 @@ namespace AppInstaller::Manifest
 
     std::string_view IconResolutionToString(IconResolutionEnum iconResolution);
 
-    std::string_view BoolToString(bool value);
-
     std::string_view ManifestTypeToString(ManifestTypeEnum manifestType);
 
     std::string_view ExpectedReturnCodeToString(ExpectedReturnCodeEnum expectedReturnCode);

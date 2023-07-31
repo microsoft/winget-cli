@@ -12,122 +12,123 @@ namespace AppInstaller::Manifest::YamlWriter
 
     namespace
     {
-        constexpr Utility::LocIndView PackageIdentifier = "PackageIdentifier"_liv;
-        constexpr Utility::LocIndView PackageFamilyName = "PackageFamilyName"_liv;
-        constexpr Utility::LocIndView ProductCode = "ProductCode"_liv;
-        constexpr Utility::LocIndView Versions = "Versions"_liv;
-        constexpr Utility::LocIndView PackageVersion = "PackageVersion"_liv;
-        constexpr Utility::LocIndView Channel = "Channel"_liv;
-        constexpr Utility::LocIndView ManifestVersion = "ManifestVersion"_liv;
-        constexpr Utility::LocIndView ManifestType = "ManifestType"_liv;
+        constexpr std::string_view PackageIdentifier = "PackageIdentifier"sv;
+        constexpr std::string_view PackageFamilyName = "PackageFamilyName"sv;
+        constexpr std::string_view ProductCode = "ProductCode"sv;
+        constexpr std::string_view Versions = "Versions"sv;
+        constexpr std::string_view PackageVersion = "PackageVersion"sv;
+        constexpr std::string_view Channel = "Channel"sv;
+        constexpr std::string_view ManifestVersion = "ManifestVersion"sv;
+        constexpr std::string_view ManifestType = "ManifestType"sv;
 
         // Installer
-        constexpr Utility::LocIndView Installers = "Installers"_liv;
-        constexpr Utility::LocIndView InstallerIdentifier = "InstallerIdentifier"_liv;
-        constexpr Utility::LocIndView InstallerSha256 = "InstallerSha256"_liv;
-        constexpr Utility::LocIndView InstallerUrl = "InstallerUrl"_liv;
-        constexpr Utility::LocIndView Architecture = "Architecture"_liv;
-        constexpr Utility::LocIndView InstallerLocale = "InstallerLocale"_liv;
-        constexpr Utility::LocIndView Platform = "Platform"_liv;
-        constexpr Utility::LocIndView InstallerType = "InstallerType"_liv;
-        constexpr Utility::LocIndView Scope = "Scope"_liv;
-        constexpr Utility::LocIndView SignatureSha256 = "SignatureSha256"_liv;
-        constexpr Utility::LocIndView InstallModes = "InstallModes"_liv;
-        constexpr Utility::LocIndView MSStoreProductIdentifier = "MSStoreProductIdentifier"_liv;
-        constexpr Utility::LocIndView ReleaseDate = "ReleaseDate"_liv;
-        constexpr Utility::LocIndView InstallerAbortsTerminal = "InstallerAbortsTerminal"_liv;
-        constexpr Utility::LocIndView InstallLocationRequired = "InstallLocationRequired"_liv;
-        constexpr Utility::LocIndView RequireExplicitUpgrade = "RequireExplicitUpgrade"_liv;
-        constexpr Utility::LocIndView UnsupportedOSArchitectures = "UnsupportedOSArchitectures"_liv;
-        constexpr Utility::LocIndView AppsAndFeaturesEntries = "AppsAndFeaturesEntries"_liv;
-        constexpr Utility::LocIndView DisplayVersion = "DisplayVersion"_liv;
-        constexpr Utility::LocIndView UpgradeCode = "UpgradeCode"_liv;
-        constexpr Utility::LocIndView Markets = "Markets"_liv;
-        constexpr Utility::LocIndView AllowedMarkets = "AllowedMarkets"_liv;
-        constexpr Utility::LocIndView ExcludedMarkets = "ExcludedMarkets"_liv;
-        constexpr Utility::LocIndView ElevationRequirement = "ElevationRequirement"_liv;
-        constexpr Utility::LocIndView ExpectedReturnCodes = "ExpectedReturnCodes"_liv;
-        constexpr Utility::LocIndView InstallerReturnCode = "InstallerReturnCode"_liv;
-        constexpr Utility::LocIndView ReturnResponse = "ReturnResponse"_liv;
-        constexpr Utility::LocIndView ReturnResponseUrl = "ReturnResponseUrl"_liv;
-        constexpr Utility::LocIndView NestedInstallerType = "NestedInstallerType"_liv;
-        constexpr Utility::LocIndView DisplayInstallWarnings = "DisplayInstallWarnings"_liv;
-        constexpr Utility::LocIndView UnsupportedArguments = "UnsupportedArguments"_liv;
-        constexpr Utility::LocIndView NestedInstallerFiles = "NestedInstallerFiles"_liv;
-        constexpr Utility::LocIndView NestedInstallerFileRelativeFilePath = "RelativeFilePath"_liv;
-        constexpr Utility::LocIndView PortableCommandAlias = "PortableCommandAlias"_liv;
-        constexpr Utility::LocIndView InstallationMetadata = "InstallationMetadata"_liv;
-        constexpr Utility::LocIndView DefaultInstallLocation = "DefaultInstallLocation"_liv;
-        constexpr Utility::LocIndView InstallationMetadataFiles = "Files"_liv;
-        constexpr Utility::LocIndView InstallationMetadataRelativeFilePath = "RelativeFilePath"_liv;
-        constexpr Utility::LocIndView FileSha256 = "FileSha256"_liv;
-        constexpr Utility::LocIndView FileType = "FileType"_liv;
-        constexpr Utility::LocIndView InvocationParameter = "InvocationParameter"_liv;
-        constexpr Utility::LocIndView DisplayName = "DisplayName"_liv;
-        constexpr Utility::LocIndView MinimumOSVersion = "MinimumOSVersion"_liv;
+        constexpr std::string_view Installers = "Installers"sv;
+        constexpr std::string_view InstallerIdentifier = "InstallerIdentifier"sv;
+        constexpr std::string_view InstallerSha256 = "InstallerSha256"sv;
+        constexpr std::string_view InstallerUrl = "InstallerUrl"sv;
+        constexpr std::string_view Architecture = "Architecture"sv;
+        constexpr std::string_view InstallerLocale = "InstallerLocale"sv;
+        constexpr std::string_view Platform = "Platform"sv;
+        constexpr std::string_view InstallerType = "InstallerType"sv;
+        constexpr std::string_view Scope = "Scope"sv;
+        constexpr std::string_view SignatureSha256 = "SignatureSha256"sv;
+        constexpr std::string_view InstallModes = "InstallModes"sv;
+        constexpr std::string_view MSStoreProductIdentifier = "MSStoreProductIdentifier"sv;
+        constexpr std::string_view ReleaseDate = "ReleaseDate"sv;
+        constexpr std::string_view InstallerAbortsTerminal = "InstallerAbortsTerminal"sv;
+        constexpr std::string_view InstallLocationRequired = "InstallLocationRequired"sv;
+        constexpr std::string_view RequireExplicitUpgrade = "RequireExplicitUpgrade"sv;
+        constexpr std::string_view UnsupportedOSArchitectures = "UnsupportedOSArchitectures"sv;
+        constexpr std::string_view AppsAndFeaturesEntries = "AppsAndFeaturesEntries"sv;
+        constexpr std::string_view DisplayVersion = "DisplayVersion"sv;
+        constexpr std::string_view UpgradeCode = "UpgradeCode"sv;
+        constexpr std::string_view Markets = "Markets"sv;
+        constexpr std::string_view AllowedMarkets = "AllowedMarkets"sv;
+        constexpr std::string_view ExcludedMarkets = "ExcludedMarkets"sv;
+        constexpr std::string_view ElevationRequirement = "ElevationRequirement"sv;
+        constexpr std::string_view ExpectedReturnCodes = "ExpectedReturnCodes"sv;
+        constexpr std::string_view InstallerReturnCode = "InstallerReturnCode"sv;
+        constexpr std::string_view ReturnResponse = "ReturnResponse"sv;
+        constexpr std::string_view ReturnResponseUrl = "ReturnResponseUrl"sv;
+        constexpr std::string_view NestedInstallerType = "NestedInstallerType"sv;
+        constexpr std::string_view DisplayInstallWarnings = "DisplayInstallWarnings"sv;
+        constexpr std::string_view UnsupportedArguments = "UnsupportedArguments"sv;
+        constexpr std::string_view NestedInstallerFiles = "NestedInstallerFiles"sv;
+        constexpr std::string_view NestedInstallerFileRelativeFilePath = "RelativeFilePath"sv;
+        constexpr std::string_view PortableCommandAlias = "PortableCommandAlias"sv;
+        constexpr std::string_view InstallationMetadata = "InstallationMetadata"sv;
+        constexpr std::string_view DefaultInstallLocation = "DefaultInstallLocation"sv;
+        constexpr std::string_view InstallationMetadataFiles = "Files"sv;
+        constexpr std::string_view InstallationMetadataRelativeFilePath = "RelativeFilePath"sv;
+        constexpr std::string_view FileSha256 = "FileSha256"sv;
+        constexpr std::string_view FileType = "FileType"sv;
+        constexpr std::string_view InvocationParameter = "InvocationParameter"sv;
+        constexpr std::string_view DisplayName = "DisplayName"sv;
+        constexpr std::string_view MinimumOSVersion = "MinimumOSVersion"sv;
 
         // Installer switches
-        constexpr Utility::LocIndView InstallerSwitches = "InstallerSwitches"_liv;
-        constexpr Utility::LocIndView Silent = "Silent"_liv;
-        constexpr Utility::LocIndView SilentWithProgress = "SilentWithProgress"_liv;
-        constexpr Utility::LocIndView Interactive = "Interactive"_liv;
-        constexpr Utility::LocIndView InstallLocation = "InstallLocation"_liv;
-        constexpr Utility::LocIndView Log = "Log"_liv;
-        constexpr Utility::LocIndView Upgrade = "Upgrade"_liv;
-        constexpr Utility::LocIndView Custom = "Custom"_liv;
+        constexpr std::string_view InstallerSwitches = "InstallerSwitches"sv;
+        constexpr std::string_view Silent = "Silent"sv;
+        constexpr std::string_view SilentWithProgress = "SilentWithProgress"sv;
+        constexpr std::string_view Interactive = "Interactive"sv;
+        constexpr std::string_view InstallLocation = "InstallLocation"sv;
+        constexpr std::string_view Log = "Log"sv;
+        constexpr std::string_view Upgrade = "Upgrade"sv;
+        constexpr std::string_view Custom = "Custom"sv;
 
-        constexpr Utility::LocIndView InstallerSuccessCodes = "InstallerSuccessCodes"_liv;
-        constexpr Utility::LocIndView UpgradeBehavior = "UpgradeBehavior"_liv;
-        constexpr Utility::LocIndView Commands = "Commands"_liv;
-        constexpr Utility::LocIndView Protocols = "Protocols"_liv;
-        constexpr Utility::LocIndView FileExtensions = "FileExtensions"_liv;
+        constexpr std::string_view InstallerSuccessCodes = "InstallerSuccessCodes"sv;
+        constexpr std::string_view UpgradeBehavior = "UpgradeBehavior"sv;
+        constexpr std::string_view Commands = "Commands"sv;
+        constexpr std::string_view Protocols = "Protocols"sv;
+        constexpr std::string_view FileExtensions = "FileExtensions"sv;
 
         // Dependencies
-        constexpr Utility::LocIndView Dependencies = "Dependencies"_liv;
-        constexpr Utility::LocIndView WindowsFeatures = "WindowsFeatures"_liv;
-        constexpr Utility::LocIndView WindowsLibraries = "WindowsLibraries"_liv;
-        constexpr Utility::LocIndView PackageDependencies = "PackageDependencies"_liv;
-        constexpr Utility::LocIndView MinimumVersion = "MinimumVersion"_liv;
-        constexpr Utility::LocIndView ExternalDependencies = "ExternalDependencies"_liv;
-        constexpr Utility::LocIndView Capabilities = "Capabilities"_liv;
-        constexpr Utility::LocIndView RestrictedCapabilities = "RestrictedCapabilities"_liv;
+        constexpr std::string_view Dependencies = "Dependencies"sv;
+        constexpr std::string_view WindowsFeatures = "WindowsFeatures"sv;
+        constexpr std::string_view WindowsLibraries = "WindowsLibraries"sv;
+        constexpr std::string_view PackageDependencies = "PackageDependencies"sv;
+        constexpr std::string_view MinimumVersion = "MinimumVersion"sv;
+        constexpr std::string_view ExternalDependencies = "ExternalDependencies"sv;
+        constexpr std::string_view Capabilities = "Capabilities"sv;
+        constexpr std::string_view RestrictedCapabilities = "RestrictedCapabilities"sv;
 
         // Locale
-        constexpr Utility::LocIndView InstallationNotes = "InstallationNotes"_liv;
-        constexpr Utility::LocIndView PurchaseUrl = "PurchaseUrl"_liv;
-        constexpr Utility::LocIndView Documentations = "Documentations"_liv;
-        constexpr Utility::LocIndView DocumentLabel = "DocumentLabel"_liv;
-        constexpr Utility::LocIndView DocumentUrl = "DocumentUrl"_liv;
-        constexpr Utility::LocIndView Icons = "Icons"_liv;
-        constexpr Utility::LocIndView IconUrl = "IconUrl"_liv;
-        constexpr Utility::LocIndView IconFileType = "IconFileType"_liv;
-        constexpr Utility::LocIndView IconResolution = "IconResolution"_liv;
-        constexpr Utility::LocIndView IconTheme = "IconTheme"_liv;
-        constexpr Utility::LocIndView IconSha256 = "IconSha256"_liv;
-        constexpr Utility::LocIndView ReleaseNotes = "ReleaseNotes"_liv;
-        constexpr Utility::LocIndView ReleaseNotesUrl = "ReleaseNotesUrl"_liv;
-        constexpr Utility::LocIndView Agreements = "Agreements"_liv;
-        constexpr Utility::LocIndView AgreementLabel = "AgreementLabel"_liv;
-        constexpr Utility::LocIndView Agreement = "Agreement"_liv;
-        constexpr Utility::LocIndView AgreementUrl = "AgreementUrl"_liv;
-        constexpr Utility::LocIndView DefaultLocale = "DefaultLocale"_liv;
-        constexpr Utility::LocIndView Locales = "Locales"_liv;
-        constexpr Utility::LocIndView PackageLocale = "PackageLocale"_liv;
-        constexpr Utility::LocIndView Publisher = "Publisher"_liv;
-        constexpr Utility::LocIndView PublisherUrl = "PublisherUrl"_liv;
-        constexpr Utility::LocIndView PublisherSupportUrl = "PublisherSupportUrl"_liv;
-        constexpr Utility::LocIndView PrivacyUrl = "PrivacyUrl"_liv;
-        constexpr Utility::LocIndView Author = "Author"_liv;
-        constexpr Utility::LocIndView PackageName = "PackageName"_liv;
-        constexpr Utility::LocIndView PackageUrl = "PackageUrl"_liv;
-        constexpr Utility::LocIndView License = "License"_liv;
-        constexpr Utility::LocIndView LicenseUrl = "LicenseUrl"_liv;
-        constexpr Utility::LocIndView Copyright = "Copyright"_liv;
-        constexpr Utility::LocIndView CopyrightUrl = "CopyrightUrl"_liv;
-        constexpr Utility::LocIndView ShortDescription = "ShortDescription"_liv;
-        constexpr Utility::LocIndView Description = "Description"_liv;
-        constexpr Utility::LocIndView Tags = "Tags"_liv;
-        constexpr Utility::LocIndView Moniker = "Moniker"_liv;
+        constexpr std::string_view Localization = "Localization"sv;
+        constexpr std::string_view InstallationNotes = "InstallationNotes"sv;
+        constexpr std::string_view PurchaseUrl = "PurchaseUrl"sv;
+        constexpr std::string_view Documentations = "Documentations"sv;
+        constexpr std::string_view DocumentLabel = "DocumentLabel"sv;
+        constexpr std::string_view DocumentUrl = "DocumentUrl"sv;
+        constexpr std::string_view Icons = "Icons"sv;
+        constexpr std::string_view IconUrl = "IconUrl"sv;
+        constexpr std::string_view IconFileType = "IconFileType"sv;
+        constexpr std::string_view IconResolution = "IconResolution"sv;
+        constexpr std::string_view IconTheme = "IconTheme"sv;
+        constexpr std::string_view IconSha256 = "IconSha256"sv;
+        constexpr std::string_view ReleaseNotes = "ReleaseNotes"sv;
+        constexpr std::string_view ReleaseNotesUrl = "ReleaseNotesUrl"sv;
+        constexpr std::string_view Agreements = "Agreements"sv;
+        constexpr std::string_view AgreementLabel = "AgreementLabel"sv;
+        constexpr std::string_view Agreement = "Agreement"sv;
+        constexpr std::string_view AgreementUrl = "AgreementUrl"sv;
+        constexpr std::string_view DefaultLocale = "DefaultLocale"sv;
+        constexpr std::string_view Locales = "Locales"sv;
+        constexpr std::string_view PackageLocale = "PackageLocale"sv;
+        constexpr std::string_view Publisher = "Publisher"sv;
+        constexpr std::string_view PublisherUrl = "PublisherUrl"sv;
+        constexpr std::string_view PublisherSupportUrl = "PublisherSupportUrl"sv;
+        constexpr std::string_view PrivacyUrl = "PrivacyUrl"sv;
+        constexpr std::string_view Author = "Author"sv;
+        constexpr std::string_view PackageName = "PackageName"sv;
+        constexpr std::string_view PackageUrl = "PackageUrl"sv;
+        constexpr std::string_view License = "License"sv;
+        constexpr std::string_view LicenseUrl = "LicenseUrl"sv;
+        constexpr std::string_view Copyright = "Copyright"sv;
+        constexpr std::string_view CopyrightUrl = "CopyrightUrl"sv;
+        constexpr std::string_view ShortDescription = "ShortDescription"sv;
+        constexpr std::string_view Description = "Description"sv;
+        constexpr std::string_view Tags = "Tags"sv;
+        constexpr std::string_view Moniker = "Moniker"sv;
 
 #define WRITE_PROPERTY(emitter, key, value) \
         { \
@@ -136,14 +137,14 @@ namespace AppInstaller::Manifest::YamlWriter
 
 #define WRITE_BOOL_PROPERTY(emitter, key, value) \
         { \
-            emitter << YAML::Key << key << YAML::Value << BoolToString(value); \
+            emitter << YAML::Key << key << YAML::Value << Utility::ConvertBoolToString(value); \
         }
 
 #define WRITE_PROPERTY_IF_EXISTS(emitter, key, value) \
         { \
             if (!value.empty()) \
             { \
-                emitter << YAML::Key << key << YAML::Value << value; \
+                WRITE_PROPERTY(emitter, key, value) \
             } \
         }
 
@@ -209,7 +210,7 @@ namespace AppInstaller::Manifest::YamlWriter
         }
 
         // Generic method for handling a list of strings (i.e. tags)
-        void ProcessSequence(YAML::Emitter& out, AppInstaller::Utility::LocIndView name, std::vector<AppInstaller::Manifest::string_t> items)
+        void ProcessSequence(YAML::Emitter& out, std::string_view name, std::vector<AppInstaller::Manifest::string_t> items)
         {
             if (items.empty())
             {
@@ -232,7 +233,7 @@ namespace AppInstaller::Manifest::YamlWriter
             ProcessIcons(out, manifest.Get<Localization::Icons>());
             ProcessSequence(out, Tags, manifest.Get<Localization::Tags>());
 
-            WRITE_PROPERTY_IF_EXISTS(out, PackageLocale, manifest.Locale);
+            WRITE_PROPERTY(out, PackageLocale, manifest.Locale);
             WRITE_PROPERTY_IF_EXISTS(out, Author, manifest.Get<Localization::Author>());
             WRITE_PROPERTY_IF_EXISTS(out, Copyright, manifest.Get<Localization::Copyright>());
             WRITE_PROPERTY_IF_EXISTS(out, CopyrightUrl, manifest.Get<Localization::CopyrightUrl>());
@@ -532,12 +533,8 @@ namespace AppInstaller::Manifest::YamlWriter
 
         void ProcessInstallerFields(YAML::Emitter& out, const ManifestInstaller& installer)
         {
-            if (installer.Arch != Utility::Architecture::Unknown)
-            {
-                WRITE_PROPERTY(out, Architecture, Utility::ToLower(ToString(installer.Arch)));
-            }
-
-            WRITE_PROPERTY_IF_EXISTS(out, InstallerType, InstallerTypeToString(installer.BaseInstallerType));
+            WRITE_PROPERTY(out, Architecture, Utility::ToLower(ToString(installer.Arch)));
+            WRITE_PROPERTY(out, InstallerType, InstallerTypeToString(installer.BaseInstallerType));
 
             if (installer.NestedInstallerType != InstallerTypeEnum::Unknown)
             {
@@ -601,47 +598,54 @@ namespace AppInstaller::Manifest::YamlWriter
             out << YAML::EndMap;
             out << YAML::EndSeq;
         }
-    }
 
-#ifndef AICLI_DISABLE_TEST_HOOKS
-    static ManifestTypeEnum* s_ExportedManifestTypeResult_TestHook_Override = nullptr;
+        void ProcessLocalizations(YAML::Emitter& out, const std::vector<ManifestLocalization>& localizations)
+        {
+            if (!localizations.empty())
+            {
+                out << YAML::Key << Localization;
+                out << YAML::BeginSeq;
+                out << YAML::BeginMap;
 
-    void TestHook_SetExportedManifestTypeResult_Override(ManifestTypeEnum* manifestType)
-    {
-        s_ExportedManifestTypeResult_TestHook_Override = manifestType;
+                for (const auto& localization : localizations)
+                {
+                    ProcessLocaleFields(out, localization);
+                }
+
+                out << YAML::EndMap;
+                out << YAML::EndSeq;
+            }
+        }
+
+        void PopulateManifestYamlEmitter(YAML::Emitter& out, const Manifest& manifest, const ManifestInstaller& installer)
+        {
+            out << YAML::BeginMap;
+            WRITE_PROPERTY(out, PackageIdentifier, manifest.Id);
+            WRITE_PROPERTY(out, PackageVersion, manifest.Version);
+            WRITE_PROPERTY_IF_EXISTS(out, Channel, manifest.Channel);
+            WRITE_PROPERTY_IF_EXISTS(out, Moniker, manifest.Moniker);
+            ProcessLocaleFields(out, manifest.DefaultLocalization);
+            ProcessLocalizations(out, manifest.Localizations);
+
+            // Handles default installer fields in the root node.
+            ProcessInstallerFields(out, manifest.DefaultInstallerInfo);
+            ProcessInstaller(out, installer);
+            WRITE_PROPERTY(out, ManifestVersion, manifest.ManifestVersion.ToString());
+
+            ManifestTypeEnum manifestType = ManifestTypeEnum::Merged;
+            WRITE_PROPERTY(out, ManifestType, ManifestTypeToString(manifestType));
+            out << YAML::EndMap;
+        }
     }
-#endif
 
     std::string YamlWriter::ManifestToYamlString(const Manifest& manifest, const ManifestInstaller& installer)
     {
         YAML::Emitter out;
-        out << YAML::BeginMap;
-        WRITE_PROPERTY_IF_EXISTS(out, PackageIdentifier, manifest.Id);
-        WRITE_PROPERTY_IF_EXISTS(out, PackageVersion, manifest.Version);
-        WRITE_PROPERTY_IF_EXISTS(out, Channel, manifest.Channel);
-        WRITE_PROPERTY_IF_EXISTS(out, Moniker, manifest.Moniker);
-        ProcessLocaleFields(out, manifest.DefaultLocalization);
-
-        // Handles default installer fields in the root node.
-        ProcessInstallerFields(out, manifest.DefaultInstallerInfo);
-        ProcessInstaller(out, installer);
-        WRITE_PROPERTY_IF_EXISTS(out, ManifestVersion, manifest.ManifestVersion.ToString());
-
-        ManifestTypeEnum manifestType = ManifestTypeEnum::Merged;
-        
-#ifndef AICLI_DISABLE_TEST_HOOKS
-        if (s_ExportedManifestTypeResult_TestHook_Override)
-        {
-            manifestType = *s_ExportedManifestTypeResult_TestHook_Override;
-        }
-#endif
-
-        WRITE_PROPERTY_IF_EXISTS(out, ManifestType, ManifestTypeToString(manifestType));
-        out << YAML::EndMap;
+        PopulateManifestYamlEmitter(out, manifest, installer);
         return out.str();
     }
 
-    void YamlWriter::OutputYamlFile(const std::string& yamlContent, const std::filesystem::path& out)
+    void YamlWriter::OutputYamlFile(const Manifest& manifest, const ManifestInstaller& installer, const std::filesystem::path& out)
     {
         const std::filesystem::path& parentDirectory = out.parent_path();
 
@@ -654,8 +658,11 @@ namespace AppInstaller::Manifest::YamlWriter
             THROW_HR_IF(HRESULT_FROM_WIN32(ERROR_CANNOT_MAKE), !std::filesystem::is_directory(parentDirectory));
         }
 
+        YAML::Emitter emitter;
+        PopulateManifestYamlEmitter(emitter, manifest, installer);
+
         std::ofstream outFileStream(out);
-        outFileStream << yamlContent;
+        outFileStream << emitter.str();
         outFileStream.close();
     }
 }
