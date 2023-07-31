@@ -72,4 +72,10 @@ namespace AppInstaller::CLI::Workflow
     // Inputs: Manifest
     // Outputs: None
     void SetDownloadDirectory(Execution::Context& context);
+
+    // This method ensures requirements of dowload for later offline installation.
+    // Required Args: None
+    // Inputs: Installer
+    // Outputs: None
+    void EnsureSupportForDownload(Execution::Context& context);
 }

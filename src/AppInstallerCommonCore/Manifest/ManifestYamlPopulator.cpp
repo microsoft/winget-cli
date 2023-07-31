@@ -324,7 +324,7 @@ namespace AppInstaller::Manifest
             {
                 std::vector<FieldProcessInfo> fields_v1_6 =
                 {
-                    { "DownloadCommandProhibited", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->DownloadCommandProhibited = value.as<bool>(); return {}; } },
+                    { "DownloadCommandProhibited", [this](const YAML::Node& value)->ValidationErrors { m_p_installer->DownloadCommandProhibited = value.as<bool>(); return {}; }, true },
                 };
 
                 std::move(fields_v1_6.begin(), fields_v1_6.end(), std::inserter(result, result.end()));

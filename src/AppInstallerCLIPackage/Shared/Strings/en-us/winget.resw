@@ -2044,4 +2044,7 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="InstallerDownloads" xml:space="preserve">
     <value>Installer Downloads</value>
   </data>
+  <data name="InstallerDownloadCommandProhibited" xml:space="preserve">
+    <value>Installer is prohibited from being downloaded for later offline installation. </value>
+  </data>
 </root>
