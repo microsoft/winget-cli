@@ -222,9 +222,9 @@ namespace
                         "FileType": "launch",
                         "InvocationParameter": "/parameter",
                         "DisplayName": "test"
-                      }],
+                      }]
+                    },
                     "DownloadCommandProhibited": true
-                    }
                   }
                 ]
               }
