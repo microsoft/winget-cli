@@ -14,6 +14,7 @@ namespace AppInstallerCLIE2ETests
     using AppInstallerCLIE2ETests.Helpers;
     using Microsoft.Win32;
     using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
     using NUnit.Framework;
 
     /// <summary>
@@ -62,6 +63,22 @@ namespace AppInstallerCLIE2ETests
         /// Gets the Enable winget policy.
         /// </summary>
         public static GroupPolicyHelper EnableWinget { get; private set; } = new GroupPolicyHelper("EnableAppInstaller");
+
+        /// <summary>
+        /// Gets the EnableWinGetCLI policy.
+        /// </summary>
+        public static GroupPolicyHelper EnableWingetPackageManagerCLI { get; private set; } = new GroupPolicyHelper("EnableWindowsPackageManager", "EnableWinGetCLI");
+
+        /// <summary>
+        /// Gets the EnableWinGetInProcessCOM policy.
+        /// </summary>
+        public static GroupPolicyHelper EnableWingetPackageManagerInProcessCOM { get; private set; } = new GroupPolicyHelper("EnableWindowsPackageManager", "EnableWinGetInProcessCOM");
+
+        /// <summary>
+        /// Gets the EnableWinGetOutOfProcessCOM policy.
+        /// </summary>
+        public static GroupPolicyHelper EnableWingetPackageManagerOutOfProcessCOM { get; private set; } = new GroupPolicyHelper("EnableWindowsPackageManager", "EnableWinGetOutOfProcessCOM");
+
 
         /// <summary>
         /// Gets the Enable settings policy.
@@ -126,6 +143,9 @@ namespace AppInstallerCLIE2ETests
             EnableAdditionalSources,
             EnableAllowedSources,
             SourceAutoUpdateInterval,
+            EnableWingetPackageManagerCLI,
+            EnableWingetPackageManagerInProcessCOM,
+            EnableWingetPackageManagerOutOfProcessCOM,
         };
 
         /// <summary>
@@ -196,10 +216,36 @@ namespace AppInstallerCLIE2ETests
             //   <decimal value="1" />
             // </enabledValue>
             // We expect the value to always be 1, but still parse it to catch errors in the ADMX.
-            int enabledValue = GetDecimalValue(this.PolicyElement.Element(XmlNames.EnabledValue));
-            using (RegistryKey key = this.GetKey())
+            if (this.ValueName != null)
             {
-                key.SetValue(this.ValueName, enabledValue);
+                int enabledValue = GetDecimalValue(this.PolicyElement.Element(XmlNames.EnabledValue));
+                using (RegistryKey key = this.GetKey())
+                {
+                    key.SetValue(this.ValueName, enabledValue);
+                }
+            }
+            else if (this.elementId != null)
+            {
+                // The expected format
+                // <elements>
+                //  <boolean id="EnableWinGetCLI" valueName="EnableWinGetCLI">
+                //      <trueValue>
+                //          <decimal value="1"></decimal>
+                //       </trueValue>
+                //      <falseValue>
+                //          <decimal value="0"></decimal>
+                //      </falseValue>
+                //  </boolean>
+                // </elements>
+                if (this.ValueElement.Name == XmlNames.Boolean)
+                {
+                    int trueValue = GetDecimalValue(this.ValueElement.Element(XmlNames.TrueValue));
+
+                    using (RegistryKey key = this.GetKey())
+                    {
+                        key.SetValue(this.ValueElement.Attribute(XmlNames.Attributes.ValueName).Value, trueValue);
+                    }
+                }
             }
         }
 
@@ -214,10 +260,36 @@ namespace AppInstallerCLIE2ETests
             //   <decimal value="0" />
             // </enabledValue>
             // We expect the value to always be 0, but still parse it to catch errors in the ADMX.
-            int disabledValue = GetDecimalValue(this.PolicyElement.Element(XmlNames.DisabledValue));
-            using (RegistryKey key = this.GetKey())
+            if (this.ValueName != null)
             {
-                key.SetValue(this.ValueName, disabledValue);
+                int disabledValue = GetDecimalValue(this.PolicyElement.Element(XmlNames.DisabledValue));
+                using (RegistryKey key = this.GetKey())
+                {
+                    key.SetValue(this.ValueName, disabledValue);
+                }
+            }
+            else if (this.elementId != null)
+            {
+                // The expected format
+                // <elements>
+                //  <boolean id="EnableWinGetCLI" valueName="EnableWinGetCLI">
+                //      <trueValue>
+                //          <decimal value="1"></decimal>
+                //       </trueValue>
+                //      <falseValue>
+                //          <decimal value="0"></decimal>
+                //      </falseValue>
+                //  </boolean>
+                // </elements>
+                if (this.ValueElement.Name == XmlNames.Boolean)
+                {
+                    int flaseValue = GetDecimalValue(this.ValueElement.Element(XmlNames.FalseValue));
+
+                    using (RegistryKey key = this.GetKey())
+                    {
+                        key.SetValue(this.ValueElement.Attribute(XmlNames.Attributes.ValueName).Value, flaseValue);
+                    }
+                }
             }
         }
 
@@ -244,7 +316,8 @@ namespace AppInstallerCLIE2ETests
                     // Lists are stored in separate keys.
                     Registry.LocalMachine.DeleteSubKeyTree(this.ValueElement.Attribute(XmlNames.Attributes.Key).Value, throwOnMissingSubKey: false);
                 }
-                else if (this.ValueElement.Name == XmlNames.Decimal)
+                else if (this.ValueElement.Name == XmlNames.Decimal
+                         || this.ValueElement.Name == XmlNames.Boolean)
                 {
                     // Decimals are stored in single values
                     using (RegistryKey key = this.GetKey())
@@ -420,10 +493,13 @@ namespace AppInstallerCLIE2ETests
 
             public static readonly XName EnabledValue = XName.Get("enabledValue", Namespace);
             public static readonly XName DisabledValue = XName.Get("disabledValue", Namespace);
+            public static readonly XName TrueValue = XName.Get("trueValue", Namespace);
+            public static readonly XName FalseValue = XName.Get("falseValue", Namespace);
             public static readonly XName Elements = XName.Get("elements", Namespace);
 
             public static readonly XName Decimal = XName.Get("decimal", Namespace);
             public static readonly XName List = XName.Get("list", Namespace);
+            public static readonly XName Boolean = XName.Get("boolean", Namespace);
 
             private const string Namespace = "http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions";
 

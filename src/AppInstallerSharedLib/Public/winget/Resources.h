@@ -45,6 +45,9 @@ namespace AppInstaller
         struct String
         {
             WINGET_DEFINE_RESOURCE_STRINGID(PolicyEnableWinGet);
+            WINGET_DEFINE_RESOURCE_STRINGID(PolicyEnableWinGetPackageManagerCLI);
+            WINGET_DEFINE_RESOURCE_STRINGID(PolicyEnableWinGetPackageManagerInProcess);
+            WINGET_DEFINE_RESOURCE_STRINGID(PolicyEnableWinGetPackageManagerOutOfProcess);
             WINGET_DEFINE_RESOURCE_STRINGID(PolicyEnableWingetSettings);
             WINGET_DEFINE_RESOURCE_STRINGID(PolicyEnableExperimentalFeatures);
             WINGET_DEFINE_RESOURCE_STRINGID(PolicyEnableLocalManifests);

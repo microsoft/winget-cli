@@ -903,6 +903,15 @@ They can be configured through the settings file 'winget settings'.</value>
   <data name="PolicyEnableWinGet" xml:space="preserve">
     <value>Enable Windows Package Manager</value>
   </data>
+    <data name="PolicyWinGetCLI" xml:space="preserve">
+    <value>Enable Windows Package Manager CLI</value>
+  </data>
+  <data name="PolicyWinGetInProcess" xml:space="preserve">
+    <value>Enable Windows Package Manager In Process</value>
+  </data>
+  <data name="PolicyWinGetOutOfProcess" xml:space="preserve">
+    <value>Enable Windows Package Manager Out Of Process</value>
+  </data>
   <data name="PolicySourceAutoUpdateInterval" xml:space="preserve">
     <value>Set Windows Package Manager Source Auto Update Interval In Minutes</value>
   </data>

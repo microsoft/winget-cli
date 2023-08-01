@@ -95,6 +95,22 @@ If you disable this policy, no additional sources can be configured for the Wind
 If you enable this setting, users will be able to install packages from websites that use this protocol.
 
 If you disable or do not configure this setting, users will not be able to install packages from websites that use this protocol.</string>
+      <string id="EnableWindowsPackageManager">Enable Windows Package Manager</string>
+      <string id="EnableWindowsPackageManagerExplanation">This policy determines the access level of apps and services to the Windows Package Manager COM APIs and WinGet CLI, which can be used to install or configure apps on your device.
+
+By disabling this policy, you prevent any app or service from using the Windows Package Manager COM APIs and WinGet CLI to install or configure apps on your device.
+
+By enabling this policy, you allow any app or service to use the Windows Package Manager COM APIs and WinGet CLI to install apps on your device. You can enable this policy to only allow specific types of calls to the Windows Package Manager, including:
+
+WinGet CLI – Enables the use of the “winget” command.
+
+WinGet InProcess COM – enables other applications and services to load and execute winget libraries (Example: MDM app installations). Supports elevated, non-elevated user-context executions, and system-context installs.
+
+WinGet OutOfProcess COM – enables other application and services to execute winget libraries remotely (Example: WinGet PowerShell cmdlets). Supports elevated and non-elevated user-context executions.
+
+By leaving this policy as not configured, you allow any app or service to use the Windows Package Manager COM APIs to install apps on your device.
+
+This policy will override the "Enable App Installer" policy.</string>
     </stringTable>
     <presentationTable>
       <presentation id="SourceAutoUpdateInterval">
@@ -105,6 +121,11 @@ If you disable or do not configure this setting, users will not be able to insta
       </presentation>
       <presentation id="AllowedSources">
         <listBox refId="AllowedSources" required="false">Allowed Sources: </listBox>
+      </presentation>
+      <presentation id="EnableWindowsPackageManagerExplanation">
+        <checkBox refId="EnableWinGetCLI" defaultChecked="true">WinGet CLI</checkBox>
+        <checkBox refId="EnableWinGetInProcessCOM" defaultChecked="true">WinGet InProcess COM</checkBox>
+        <checkBox refId="EnableWinGetOutOfProcessCOM" defaultChecked="true">WinGet OutOfProcess COM</checkBox>
       </presentation>
     </presentationTable>
   </resources>

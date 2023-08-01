@@ -285,6 +285,12 @@ namespace AppInstaller::Settings
             return TogglePolicy(policy, "EnableAllowedSources"sv, String::PolicyAllowedSources);
         case TogglePolicy::Policy::BypassCertificatePinningForMicrosoftStore:
             return TogglePolicy(policy, "EnableBypassCertificatePinningForMicrosoftStore"sv, String::PolicyEnableBypassCertificatePinningForMicrosoftStore);
+        case TogglePolicy::Policy::WinGetCLI:
+            return TogglePolicy(policy, "EnableWinGetCLI"sv, String::PolicyEnableWinGetPackageManagerCLI);
+        case TogglePolicy::Policy::WinGetInProcessCOM:
+            return TogglePolicy(policy, "EnableWinGetInProcessCOM"sv, String::PolicyEnableWinGetPackageManagerInProcess);
+        case TogglePolicy::Policy::WinGetOutOfProcessCOM:
+            return TogglePolicy(policy, "EnableWinGetOutOfProcessCOM"sv, String::PolicyEnableWinGetPackageManagerOutOfProcess);
         default:
             THROW_HR(E_UNEXPECTED);
         }

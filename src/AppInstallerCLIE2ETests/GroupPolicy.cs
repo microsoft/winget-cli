@@ -8,6 +8,7 @@ namespace AppInstallerCLIE2ETests
 {
     using AppInstallerCLIE2ETests.Helpers;
     using NUnit.Framework;
+    using static AppInstallerCLIE2ETests.Helpers.TestCommon;
 
     /// <summary>
     /// Tests for enforcement of Group Policy.
@@ -41,9 +42,37 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void PolicyEnableWinget()
         {
+            RunCommandResult result;
+
+            // Senario 1 : EnableWinGet = Disabled, EnableWingetPackageManagerCLI = NotConfigured
             GroupPolicyHelper.EnableWinget.Disable();
-            var result = TestCommon.RunAICLICommand("search", "foo");
+            GroupPolicyHelper.EnableWingetPackageManagerCLI.SetNotConfigured();
+            result = TestCommon.RunAICLICommand("search", "foo");
             Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
+
+            // Senario 2 : EnableWingetPackageManagerCLI = Disabled, EnableWinGet = Enabled
+            GroupPolicyHelper.EnableWingetPackageManagerCLI.Disable();
+            GroupPolicyHelper.EnableWinget.Enable();
+            result = TestCommon.RunAICLICommand("search", "foo");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
+
+            // Senario 3 : EnableWingetPackageManagerCLI = Disabled, EnableWinGet = NotConfigured
+            GroupPolicyHelper.EnableWingetPackageManagerCLI.Disable();
+            GroupPolicyHelper.EnableWinget.SetNotConfigured();
+            result = TestCommon.RunAICLICommand("search", "foo");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
+
+            // Scenario 4 : EnableWingetPackageManagerCLI = Enabled , EnableWinGet = Disabled
+            GroupPolicyHelper.EnableWingetPackageManagerCLI.Enable();
+            GroupPolicyHelper.EnableWinget.Disable();
+            result = TestCommon.RunAICLICommand("search", "foo");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_NO_SOURCES_DEFINED, result.ExitCode);
+
+            // Scenario 5 : EnableWingetPackageManagerCLI = NotConfigured , EnableWinGet = NotConfigured
+            GroupPolicyHelper.EnableWingetPackageManagerCLI.SetNotConfigured();
+            GroupPolicyHelper.EnableWinget.SetNotConfigured();
+            result = TestCommon.RunAICLICommand("search", "foo");
+            Assert.AreEqual(Constants.ErrorCode.ERROR_NO_SOURCES_DEFINED, result.ExitCode);
         }
 
         /// <summary>

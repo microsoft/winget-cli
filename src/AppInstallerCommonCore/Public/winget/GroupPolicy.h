@@ -43,6 +43,9 @@ namespace AppInstaller::Settings
             AdditionalSources,
             AllowedSources,
             BypassCertificatePinningForMicrosoftStore,
+            WinGetCLI,
+            WinGetInProcessCOM,
+            WinGetOutOfProcessCOM,
             Max,
         };
 

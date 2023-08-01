@@ -7,6 +7,7 @@
 #include <winrt/Windows.Security.Authorization.AppCapabilityAccess.h>
 #include <appmodel.h>
 #include <Helpers.h>
+#include <winget/Runtime.h>
 
 using namespace std::string_literals;
 using namespace std::string_view_literals;
@@ -117,5 +118,26 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         }
 
         return {};
+    }
+
+    bool IsCOMServerRunningInPackagedContext()
+    {
+        std::wstring packageFamilyName = AppInstaller::Runtime::GetPackageFamilyName();
+
+#if USE_PROD_CLSIDS 
+        if (_wcsicmp(packageFamilyName.c_str(), L"Microsoft.DesktopAppInstaller_8wekyb3d8bbwe") == 0)
+#else 
+        if (_wcsicmp(packageFamilyName.c_str(), L"WinGetDevCLI_8wekyb3d8bbwe") == 0)
+#endif
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    bool IsOutOfProcCOMInvocation()
+    {
+        return IsCOMServerRunningInPackagedContext();
     }
 }

@@ -162,7 +162,7 @@ namespace AppInstaller::CLI
         if (!commandAliases.empty())
         {
             infoOut << Resource::String::AvailableCommandAliases << std::endl;
-            
+
             for (const auto& commandAlias : commandAliases)
             {
                 infoOut << "  "_liv << Execution::HelpCommandEmphasis << commandAlias << std::endl;
@@ -281,7 +281,7 @@ namespace AppInstaller::CLI
             if (
                 Utility::CaseInsensitiveEquals(*itr, command->Name()) ||
                 Utility::CaseInsensitiveContains(command->Aliases(), *itr)
-            )
+                )
             {
                 if (!ExperimentalFeature::IsEnabled(command->Feature()))
                 {
@@ -553,7 +553,7 @@ namespace AppInstaller::CLI
                 if (
                     Utility::CaseInsensitiveEquals(argName, arg.Name()) ||
                     Utility::CaseInsensitiveEquals(argName, arg.AlternateName())
-                   )
+                    )
                 {
                     if (arg.Type() == ArgumentType::Flag)
                     {
@@ -666,7 +666,7 @@ namespace AppInstaller::CLI
         }
 
         if (execArgs.Contains(Execution::Args::Type::CustomHeader) && !execArgs.Contains(Execution::Args::Type::Source) &&
-           !execArgs.Contains(Execution::Args::Type::SourceName))
+            !execArgs.Contains(Execution::Args::Type::SourceName))
         {
             throw CommandException(Resource::String::HeaderArgumentNotApplicableWithoutSource(Argument::ForType(Execution::Args::Type::CustomHeader).Name()));
         }
@@ -845,9 +845,19 @@ namespace AppInstaller::CLI
 
     void Command::Execute(Execution::Context& context) const
     {
-        // Block any execution if winget is disabled by policy.
+        PolicyState enableWinGetCLIPolicyState = Settings::GroupPolicies().GetState(Settings::TogglePolicy::Policy::WinGetCLI);
+
+        // Block any CLI execution if WinGetPackageManager - EnableWinGetCLI Policy is disabled.
+        if (enableWinGetCLIPolicyState == PolicyState::Disabled)
+        {
+            AICLI_LOG(CLI, Error, << "WinGet is disabled by group policy");
+            throw GroupPolicyException(Settings::TogglePolicy::Policy::WinGetCLI);
+        }
+
+        // Block any execution if winget (EnableAppInstaller) is disabled by policy & the new policy WinGetPackageManager isn't configured.
         // Override the function to bypass this.
-        if (!Settings::GroupPolicies().IsEnabled(Settings::TogglePolicy::Policy::WinGet))
+        if (enableWinGetCLIPolicyState == PolicyState::NotConfigured
+            && (!Settings::GroupPolicies().IsEnabled(Settings::TogglePolicy::Policy::WinGet)))
         {
             AICLI_LOG(CLI, Error, << "WinGet is disabled by group policy");
             throw GroupPolicyException(Settings::TogglePolicy::Policy::WinGet);
@@ -864,7 +874,7 @@ namespace AppInstaller::CLI
         }
 
         if (context.Args.Contains(Execution::Args::Type::OpenLogs))
-        {   
+        {
             // TODO: Consider possibly adding functionality that if the context contains 'Execution::Args::Type::Log' to open the path provided for the log
             // The above was omitted initially as a security precaution to ensure that user input to '--log' wouldn't be passed directly to ShellExecute
             ShellExecute(NULL, NULL, Runtime::GetPathTo(Runtime::PathName::DefaultLogLocation).wstring().c_str(), NULL, NULL, SW_SHOWNORMAL);

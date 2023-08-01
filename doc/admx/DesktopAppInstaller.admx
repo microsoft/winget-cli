@@ -146,5 +146,35 @@
         <decimal value="0" />
       </disabledValue>
     </policy>
+    <policy name="EnableWindowsPackageManager" class="Machine" displayName="$(string.EnableWindowsPackageManager)" explainText="$(string.EnableWindowsPackageManagerExplanation)" presentation="$(presentation.EnableWindowsPackageManagerExplanation)" key="Software\Policies\Microsoft\Windows\AppInstaller">
+      <parentCategory ref="AppInstaller" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0_RS5" />
+      <elements>
+        <boolean id="EnableWinGetCLI" valueName="EnableWinGetCLI">
+          <trueValue>
+            <decimal value="1"></decimal>
+          </trueValue>
+          <falseValue>
+            <decimal value="0"></decimal>
+          </falseValue>
+        </boolean>
+        <boolean id="EnableWinGetInProcessCOM" valueName="EnableWinGetInProcessCOM">
+          <trueValue>
+            <decimal value="1"></decimal>
+          </trueValue>
+          <falseValue>
+            <decimal value="0"></decimal>
+          </falseValue>
+        </boolean>
+        <boolean id="EnableWinGetOutOfProcessCOM" valueName="EnableWinGetOutOfProcessCOM">
+          <trueValue>
+            <decimal value="1"></decimal>
+          </trueValue>
+          <falseValue>
+            <decimal value="0"></decimal>
+          </falseValue>
+        </boolean>
+      </elements>
+    </policy>
   </policies>
 </policyDefinitions>
