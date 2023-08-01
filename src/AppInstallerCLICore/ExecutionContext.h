@@ -52,7 +52,7 @@ namespace AppInstaller::CLI::Workflow
 
 namespace AppInstaller::CLI::Execution
 {
-    enum class CheckpointFlags : uint32_t
+    enum class CheckpointFlag : uint32_t
     {
         None,
         CommandArguments,
@@ -169,16 +169,16 @@ namespace AppInstaller::CLI::Execution
         bool ShouldExecuteWorkflowTask(const Workflow::WorkflowTask& task);
 #endif
         // Sets the target checkpoint of the context.
-        void SetTargetCheckpoint(CheckpointFlags flag) { m_targetCheckpoint = flag; };
+        void SetTargetCheckpoint(CheckpointFlag flag) { m_targetCheckpoint = flag; };
 
         // Gets the current checkpoint of the context.
-        CheckpointFlags GetCurrentCheckpoint() { return m_currentCheckpoint; };
+        CheckpointFlag GetCurrentCheckpoint() { return m_currentCheckpoint; };
 
         // Gets the target checkpoint of the context.
-        CheckpointFlags GetTargetCheckpoint() { return m_targetCheckpoint; };
+        CheckpointFlag GetTargetCheckpoint() { return m_targetCheckpoint; };
 
         // Sets the current checkpoint flag of the context.
-        void SetCurrentCheckpoint(Execution::CheckpointFlags flag)
+        void SetCurrentCheckpoint(Execution::CheckpointFlag flag)
         {
             m_currentCheckpoint = flag;
         }
@@ -207,8 +207,8 @@ namespace AppInstaller::CLI::Execution
         Workflow::ExecutionStage m_executionStage = Workflow::ExecutionStage::Initial;
         AppInstaller::ThreadLocalStorage::WingetThreadGlobals m_threadGlobals;
         AppInstaller::CLI::Command* m_executingCommand = nullptr;
-        CheckpointFlags m_currentCheckpoint = CheckpointFlags::None;
-        CheckpointFlags m_targetCheckpoint = CheckpointFlags::None;
+        CheckpointFlag m_currentCheckpoint = CheckpointFlag::None;
+        CheckpointFlag m_targetCheckpoint = CheckpointFlag::None;
         static int s_contextCount;
         int m_contextId = s_contextCount;
     };

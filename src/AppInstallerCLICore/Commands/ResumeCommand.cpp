@@ -46,15 +46,14 @@ namespace AppInstaller::CLI
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_CLIENTVERSION_MISMATCH);
         }
 
+        // Get the root context id from the index.
         int rootContextId = CheckpointManager::Instance().GetFirstContextId();
+
+        // Determine the command to execute.
         std::string commandName = CheckpointManager::Instance().GetCommandName(rootContextId);
         std::unique_ptr<Command> commandToResume;
 
-        // Use the root command to obtain all of the available commands.
-        std::unique_ptr<Command> rootCommand = std::make_unique<RootCommand>();
-        auto commands = rootCommand->GetCommands();
-
-        for (auto& command : commands)
+        for (auto& command : std::make_unique<RootCommand>()->GetCommands())
         {
             if (
                 Utility::CaseInsensitiveEquals(commandName, command->Name()) ||
@@ -67,11 +66,15 @@ namespace AppInstaller::CLI
             }
         }
 
-        // Create a new context and load from checkpoint
+        // Create a new context, set the executing command and current checkpoint.
         auto resumeContext = context.CreateEmptyContext(rootContextId);
         resumeContext->SetExecutingCommand(commandToResume.get());
 
-        CheckpointManager::Instance().Checkpoint(*resumeContext, Execution::CheckpointFlags::CommandArguments);
+        // Set the current checkpoint of the root context.
+        resumeContext->SetCurrentCheckpoint(CheckpointManager::Instance().GetLastCheckpoint(rootContextId));
+
+        // Load the arguments from the checkpoint index prior to executing the command.
+        CheckpointManager::Instance().Checkpoint(*resumeContext, Execution::CheckpointFlag::CommandArguments);
         commandToResume->Execute(*resumeContext);
     }
 }

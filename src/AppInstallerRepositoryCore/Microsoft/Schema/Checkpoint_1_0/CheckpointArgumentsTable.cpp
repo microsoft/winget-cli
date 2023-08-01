@@ -55,9 +55,8 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
         SQLite::Savepoint savepoint = SQLite::Savepoint::Create(connection, "createCheckpointArgumentsTable_v1_0");
 
         StatementBuilder createTableBuilder;
-
         createTableBuilder.CreateTable(s_CheckpointArgumentsTable_Table_Name).BeginColumns();
-        createTableBuilder.Column(ColumnBuilder(s_CheckpointArgumentsTable_ContextId_Column, Type::Int).PrimaryKey().NotNull());
+        createTableBuilder.Column(ColumnBuilder(s_CheckpointArgumentsTable_ContextId_Column, Type::Int).Unique().NotNull());
         createTableBuilder.Column(ColumnBuilder(s_CheckpointArgumentsTable_CommandName_Column, Type::Text));
         createTableBuilder.Column(ColumnBuilder(s_CheckpointArgumentsTable_Query_Column, Type::Text));
         createTableBuilder.Column(ColumnBuilder(s_CheckpointArgumentsTable_MultiQuery_Column, Type::Text));
@@ -94,6 +93,24 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
         savepoint.Commit();
     }
 
+    std::optional<SQLite::rowid_t> CheckpointArgumentsTable::SelectByContextId(const SQLite::Connection& connection, int contextId)
+    {
+        SQLite::Builder::StatementBuilder builder;
+        builder.Select(SQLite::RowIDName).From(s_CheckpointArgumentsTable_Table_Name).Where(s_CheckpointArgumentsTable_ContextId_Column);
+        builder.Equals(contextId);
+
+        SQLite::Statement select = builder.Prepare(connection);
+
+        if (select.Step())
+        {
+            return select.GetColumn<SQLite::rowid_t>(0);
+        }
+        else
+        {
+            return {};
+        }
+    }
+
     bool CheckpointArgumentsTable::ExistsById(const SQLite::Connection& connection, SQLite::rowid_t id)
     {
         SQLite::Builder::StatementBuilder builder;
@@ -126,46 +143,6 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
         return (countStatement.GetColumn<int>(0) == 0);
     }
 
-    std::optional<SQLite::rowid_t> CheckpointArgumentsTable::SelectByArgumentType(const SQLite::Connection& connection, int type)
-    {
-        SQLite::Builder::StatementBuilder builder;
-        builder.Select(SQLite::RowIDName).From(s_CheckpointArgumentsTable_Table_Name).Where("id");
-        builder.Equals(type);
-
-        SQLite::Statement select = builder.Prepare(connection);
-
-        if (select.Step())
-        {
-            return select.GetColumn<SQLite::rowid_t>(0);
-        }
-        else
-        {
-            return {};
-        }
-    }
-
-    bool CheckpointArgumentsTable::UpdateArgumentByContextId(SQLite::Connection& connection, int contextId, std::string_view name, std::string_view value)
-    {
-        SQLite::Builder::StatementBuilder builder;
-        builder.Update(s_CheckpointArgumentsTable_Table_Name).Set()
-            .Column(name).Equals(value)
-            .Where(s_CheckpointArgumentsTable_ContextId_Column).Equals(contextId);
-
-        builder.Execute(connection);
-        return connection.GetChanges() != 0;
-    }
-
-    bool CheckpointArgumentsTable::UpdateArgumentByContextId(SQLite::Connection& connection, int contextId, std::string_view name, bool value)
-    {
-        SQLite::Builder::StatementBuilder builder;
-        builder.Update(s_CheckpointArgumentsTable_Table_Name).Set()
-            .Column(name).Equals(value)
-            .Where(s_CheckpointArgumentsTable_ContextId_Column).Equals(contextId);
-
-        builder.Execute(connection);
-        return connection.GetChanges() != 0;
-    }
-
     SQLite::rowid_t CheckpointArgumentsTable::AddContext(SQLite::Connection& connection, int contextId)
     {
         SQLite::Builder::StatementBuilder builder;
@@ -177,33 +154,54 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
         return connection.GetLastInsertRowID();
     }
 
-    void CheckpointArgumentsTable::RemoveContext(SQLite::Connection& connection, int contextId)
+    void CheckpointArgumentsTable::RemoveContextById(SQLite::Connection& connection, SQLite::rowid_t id)
     {
         SQLite::Builder::StatementBuilder builder;
-        builder.DeleteFrom(s_CheckpointArgumentsTable_Table_Name).Where(s_CheckpointArgumentsTable_ContextId_Column).Equals(contextId);
+        builder.DeleteFrom(s_CheckpointArgumentsTable_Table_Name).Where(SQLite::RowIDName).Equals(id);
         builder.Execute(connection);
     }
 
-    bool CheckpointArgumentsTable::ContainsArgument(SQLite::Connection& connection, int contextId, std::string_view name)
+    bool CheckpointArgumentsTable::UpdateArgumentById(SQLite::Connection& connection, SQLite::rowid_t id, std::string_view name, std::string_view value)
+    {
+        SQLite::Builder::StatementBuilder builder;
+        builder.Update(s_CheckpointArgumentsTable_Table_Name).Set()
+            .Column(name).Equals(value)
+            .Where(SQLite::RowIDName).Equals(id);
+
+        builder.Execute(connection);
+        return connection.GetChanges() != 0;
+    }
+
+    bool CheckpointArgumentsTable::UpdateArgumentById(SQLite::Connection& connection, SQLite::rowid_t id, std::string_view name, bool value)
+    {
+        SQLite::Builder::StatementBuilder builder;
+        builder.Update(s_CheckpointArgumentsTable_Table_Name).Set()
+            .Column(name).Equals(value)
+            .Where(SQLite::RowIDName).Equals(id);
+
+        builder.Execute(connection);
+        return connection.GetChanges() != 0;
+    }
+
+
+    bool CheckpointArgumentsTable::ContainsArgument(SQLite::Connection& connection, SQLite::rowid_t id, std::string_view name)
     {
         SQLite::Builder::StatementBuilder builder;
         builder.Select(SQLite::Builder::RowCount).From(s_CheckpointArgumentsTable_Table_Name)
-            .Where(s_CheckpointArgumentsTable_ContextId_Column).Equals(contextId).And(name).IsNotNull();
+            .Where(SQLite::RowIDName).Equals(id).And(name).IsNotNull();
 
         SQLite::Statement statement = builder.Prepare(connection);
         THROW_HR_IF(E_UNEXPECTED, !statement.Step());
         return statement.GetColumn<int64_t>(0) != 0;
     }
 
-    std::string CheckpointArgumentsTable::GetStringArgumentByContextId(SQLite::Connection& connection, int contextId, std::string_view name)
+    std::string CheckpointArgumentsTable::GetStringArgumentById(SQLite::Connection& connection, SQLite::rowid_t id, std::string_view name)
     {
-        using namespace Builder;
-
-        StatementBuilder builder;
+        SQLite::Builder::StatementBuilder builder;
         builder.Select(name).From(s_CheckpointArgumentsTable_Table_Name).
-            Where(s_CheckpointArgumentsTable_ContextId_Column).Equals(contextId);
+            Where(SQLite::RowIDName).Equals(id);
 
-        Statement statement = builder.Prepare(connection);
+        SQLite::Statement statement = builder.Prepare(connection);
         if (statement.Step())
         {
             return statement.GetColumn<std::string>(0);
@@ -214,15 +212,13 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
         }
     }
 
-    bool CheckpointArgumentsTable::GetBoolArgumentByContextId(SQLite::Connection& connection, int contextId, std::string_view name)
+    bool CheckpointArgumentsTable::GetBoolArgumentById(SQLite::Connection& connection, SQLite::rowid_t id, std::string_view name)
     {
-        using namespace Builder;
-
-        StatementBuilder builder;
+        SQLite::Builder::StatementBuilder builder;
         builder.Select(name).From(s_CheckpointArgumentsTable_Table_Name).
-            Where(s_CheckpointArgumentsTable_ContextId_Column).Equals(contextId);
+            Where(SQLite::RowIDName).Equals(id);
 
-        Statement statement = builder.Prepare(connection);
+        SQLite::Statement statement = builder.Prepare(connection);
         if (statement.Step())
         {
             return statement.GetColumn<bool>(0);
@@ -235,53 +231,22 @@ namespace AppInstaller::Repository::Microsoft::Schema::Checkpoint_V1_0
 
     int CheckpointArgumentsTable::GetFirstContextId(SQLite::Connection& connection)
     {
-        using namespace Builder;
-        StatementBuilder builder;
+        SQLite::Builder::StatementBuilder builder;
         builder.Select(s_CheckpointArgumentsTable_ContextId_Column).From(s_CheckpointArgumentsTable_Table_Name)
             .OrderBy(s_CheckpointArgumentsTable_ContextId_Column);
         
-        Statement statement = builder.Prepare(connection);
+        SQLite::Statement statement = builder.Prepare(connection);
         THROW_HR_IF(E_UNEXPECTED, !statement.Step());
         return statement.GetColumn<int>(0);
     }
 
-    bool CheckpointArgumentsTable::SetCommandName(SQLite::Connection& connection, int contextId, std::string_view commandName)
+    bool CheckpointArgumentsTable::SetCommandNameById(SQLite::Connection& connection, SQLite::rowid_t id, std::string_view commandName)
     {
-        return UpdateArgumentByContextId(connection, contextId, s_CheckpointArgumentsTable_CommandName_Column, commandName);
+        return UpdateArgumentById(connection, id, s_CheckpointArgumentsTable_CommandName_Column, commandName);
     }
 
-    std::string CheckpointArgumentsTable::GetCommandName(SQLite::Connection& connection, int contextId)
+    std::string CheckpointArgumentsTable::GetCommandNameById(SQLite::Connection& connection, SQLite::rowid_t id)
     {
-        return GetStringArgumentByContextId(connection, contextId, s_CheckpointArgumentsTable_CommandName_Column);
-    }
-
-    // This probably doesn't work...
-    std::vector<std::string> CheckpointArgumentsTable::GetAvailableArguments(SQLite::Connection& connection, int contextId)
-    {
-        SQLite::Builder::StatementBuilder builder;
-        builder.Select().From(s_CheckpointArgumentsTable_Table_Name).Where(s_CheckpointArgumentsTable_ContextId_Column).Equals(contextId);
-
-        SQLite::Statement select = builder.Prepare(connection);
-
-        std::vector<std::string> availableColumnNames;
-
-        if (select.Step())
-        {
-            const std::tuple row = select.GetRow();
-            int size = static_cast<int>(std::tuple_size<decltype(row)>{});
-
-            // Start at column index 1 to skip 'rowid'
-            for (int i = 1; i < size; i++)
-            {
-                availableColumnNames.emplace_back(select.GetColumnName(i));
-            }
-
-            return availableColumnNames;
-        }
-        else
-        {
-            return {};
-        }
-
+        return GetStringArgumentById(connection, id, s_CheckpointArgumentsTable_CommandName_Column);
     }
 }

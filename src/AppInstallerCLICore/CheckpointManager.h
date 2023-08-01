@@ -33,7 +33,7 @@ namespace AppInstaller::CLI::Checkpoint
 
         void RemoveContext(int contextId);
 
-        void Checkpoint(Execution::Context& context, Execution::CheckpointFlags flag);
+        void Checkpoint(Execution::Context& context, Execution::CheckpointFlag flag);
 
         std::unique_ptr<Execution::Context> CreateContextFromCheckpointIndex();
 
@@ -43,6 +43,8 @@ namespace AppInstaller::CLI::Checkpoint
 
         int GetFirstContextId();
 
+        Execution::CheckpointFlag GetLastCheckpoint(int contextId);
+
     private:
         CheckpointManager() = default;
         ~CheckpointManager();
@@ -51,8 +53,8 @@ namespace AppInstaller::CLI::Checkpoint
 
         bool CleanUpIndex();
 
-        void SaveCheckpoint(Execution::Context& context, Execution::CheckpointFlags flag);
-        void LoadCheckpoint(Execution::Context& context, Execution::CheckpointFlags flag);
+        void SaveCheckpoint(Execution::Context& context, Execution::CheckpointFlag flag);
+        void LoadCheckpoint(Execution::Context& context, Execution::CheckpointFlag flag);
 
         void PopulateContextArgsFromIndex(Execution::Context& context);
         void RecordContextArgsToIndex(Execution::Context& context);

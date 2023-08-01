@@ -32,33 +32,35 @@ namespace AppInstaller::Repository::Microsoft
         // Opens or creates a CheckpointIndex database on the default path.
         static std::shared_ptr<CheckpointIndex> OpenOrCreateDefault(GUID guid, OpenDisposition openDisposition = OpenDisposition::ReadWrite);
 
+        bool IsEmpty();
+
         IdType SetClientVersion(std::string_view clientVersion);
 
         std::string GetClientVersion();
-
-        IdType SetCommandName(int contextId, std::string_view commandName);
-
-        std::string GetCommandName(int contextId);
 
         void AddContext(int contextId);
 
         void RemoveContext(int contextId);
 
-        bool UpdateArgumentByContextId(int contextId, std::string_view name, std::string_view value);
+        IdType SetCommandName(int contextId, std::string_view commandName);
 
-        bool UpdateArgumentByContextId(int contextId, std::string_view name, bool value);
-
-        std::vector<std::string> GetAvailableColumns(int contextId);
+        std::string GetCommandName(int contextId);
 
         bool ContainsArgument(int contextId, std::string_view name);
 
-        std::string GetStringArgumentByContextId(int contextId, std::string_view name);
+        bool UpdateArgument(int contextId, std::string_view name, std::string_view value);
 
-        bool GetBoolArgumentByContextId(int contextId, std::string_view name);
+        bool UpdateArgument(int contextId, std::string_view name, bool value);
+
+        std::string GetStringArgument(int contextId, std::string_view name);
+
+        bool GetBoolArgument(int contextId, std::string_view name);
 
         int GetFirstContextId();
 
-        bool IsEmpty();
+        bool SetLastCheckpoint(int contextId, int checkpointFlag);
+
+        int GetLastCheckpoint(int contextId);
 
     private:
         // Constructor used to open an existing index.

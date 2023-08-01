@@ -103,14 +103,14 @@ namespace AppInstaller::CLI::Checkpoint
                     Execution::Args::Type executionArgsType = argument.ExecArgType();
                     if (argument.Type() == ArgumentType::Flag)
                     {
-                        if (m_checkpointIndex->GetBoolArgumentByContextId(contextId, argument.Name()))
+                        if (m_checkpointIndex->GetBoolArgument(contextId, argument.Name()))
                         {
                             context.Args.AddArg(executionArgsType);
                         }
                     }
                     else
                     {
-                        context.Args.AddArg(executionArgsType, m_checkpointIndex->GetStringArgumentByContextId(contextId, argument.Name()));
+                        context.Args.AddArg(executionArgsType, m_checkpointIndex->GetStringArgument(contextId, argument.Name()));
                     }
                 }
             }
@@ -134,59 +134,55 @@ namespace AppInstaller::CLI::Checkpoint
                 {
                     if (argument.Type() == ArgumentType::Flag)
                     {
-                        m_checkpointIndex->UpdateArgumentByContextId(contextId, argument.Name(), true);
+                        m_checkpointIndex->UpdateArgument(contextId, argument.Name(), true);
                     }
                     else
                     {
                         const auto& argumentValue = context.Args.GetArg(type);
-                        m_checkpointIndex->UpdateArgumentByContextId(contextId, argument.Name(), argumentValue);
+                        m_checkpointIndex->UpdateArgument(contextId, argument.Name(), argumentValue);
                     }
                 }
             }
         }
     }
 
-    void CheckpointManager::Checkpoint(Execution::Context& context, Execution::CheckpointFlags targetCheckpointFlag)
+    void CheckpointManager::Checkpoint(Execution::Context& context, Execution::CheckpointFlag checkpointFlag)
     {
-        Execution::CheckpointFlags currentCheckpointFlag = context.GetCurrentCheckpoint();
+        Execution::CheckpointFlag contextCheckpointFlag = context.GetCurrentCheckpoint();
 
-        // If the current checkpoint is behind the target checkpoint, load the checkpoint state from the index.
-        // If the current checkpoint is ahead of the target checkpoint, save the checkpoint state to the index.
-        // If the states are equal, do nothing.
-        if (currentCheckpointFlag > targetCheckpointFlag)
+        // If the context is ahead of the current checkpoint, we have previously executed this state, load checkpoint state from index.
+        // If the context is behind the current checkpoint, we have not yet processed this state, save checkpoint state to index.
+        // If the checkpoints are equal, do nothing.
+        if (contextCheckpointFlag > checkpointFlag)
         {
-            // If the current checkpoint is ahead of the target, this means we have already previously passed this state, load.
-            LoadCheckpoint(context, targetCheckpointFlag);
+            LoadCheckpoint(context, checkpointFlag);
         }
-        else if (currentCheckpointFlag < targetCheckpointFlag)
+        else if (contextCheckpointFlag < checkpointFlag)
         {
-            // If the current checkpoint is behind the target checkpoint, we are still working our way up to the target, 
-            // save the state.
-            SaveCheckpoint(context, targetCheckpointFlag);
+            SaveCheckpoint(context, checkpointFlag);
         }
-
-        // If the current checkpoint is equal, do nothing as it has already been performed.
     }
 
-    void CheckpointManager::SaveCheckpoint(Execution::Context& context, Execution::CheckpointFlags flag)
+    void CheckpointManager::SaveCheckpoint(Execution::Context& context, Execution::CheckpointFlag flag)
     {
         switch (flag)
         {
-        case Execution::CheckpointFlags::CommandArguments:
+        case Execution::CheckpointFlag::CommandArguments:
             RecordContextArgsToIndex(context);
             break;
         default:
             THROW_HR(E_UNEXPECTED);
         }
 
+        m_checkpointIndex->SetLastCheckpoint(context.GetContextId(), static_cast<int>(flag));
         context.SetCurrentCheckpoint(flag);
     }
 
-    void CheckpointManager::LoadCheckpoint(Execution::Context& context, Execution::CheckpointFlags flag)
+    void CheckpointManager::LoadCheckpoint(Execution::Context& context, Execution::CheckpointFlag flag)
     {
         switch (flag)
         {
-        case Execution::CheckpointFlags::CommandArguments:
+        case Execution::CheckpointFlag::CommandArguments:
             PopulateContextArgsFromIndex(context);
             break;
         default:
@@ -210,5 +206,10 @@ namespace AppInstaller::CLI::Checkpoint
     int CheckpointManager::GetFirstContextId()
     {
         return m_checkpointIndex->GetFirstContextId();
+    }
+
+    Execution::CheckpointFlag CheckpointManager::GetLastCheckpoint(int contextId)
+    {
+        return static_cast<Execution::CheckpointFlag>(m_checkpointIndex->GetLastCheckpoint(contextId));
     }
 }

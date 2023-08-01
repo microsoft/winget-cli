@@ -109,7 +109,7 @@ namespace AppInstaller::CLI
         {
             CheckpointManager::Instance().Initialize();
             CheckpointManager::Instance().AddContext(context.GetContextId());
-            CheckpointManager::Instance().Checkpoint(context, Execution::CheckpointFlags::CommandArguments);
+            CheckpointManager::Instance().Checkpoint(context, Execution::CheckpointFlag::CommandArguments);
         }
         
         context.SetFlags(ContextFlag::ShowSearchResultsOnPartialFailure);
