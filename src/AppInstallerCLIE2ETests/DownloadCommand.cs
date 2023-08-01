@@ -7,6 +7,7 @@
 namespace AppInstallerCLIE2ETests
 {
     using System.IO;
+    using AppInstallerCLIE2ETests.Helpers;
     using Microsoft.Management.Deployment;
     using NUnit.Framework;
     using Windows.System;

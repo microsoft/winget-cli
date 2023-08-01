@@ -4,22 +4,22 @@
 // </copyright>
 // -----------------------------------------------------------------------------
 
-namespace AppInstallerCLIE2ETests
+namespace AppInstallerCLIE2ETests.Helpers
 {
     using System;
     using System.Diagnostics;
     using System.IO;
     using System.Reflection;
     using System.Threading;
+    using AppInstallerCLIE2ETests;
     using Microsoft.Management.Deployment;
     using Microsoft.Win32;
     using NUnit.Framework;
-    using Windows.System;
 
     /// <summary>
     /// Test common.
     /// </summary>
-    public class TestCommon
+    public static class TestCommon
     {
         /// <summary>
         /// Scope.
@@ -43,76 +43,6 @@ namespace AppInstallerCLIE2ETests
         }
 
         /// <summary>
-        /// Gets or sets the cli path.
-        /// </summary>
-        public static string AICLIPath { get; set; }
-
-        /// <summary>
-        /// Gets or sets the package path.
-        /// </summary>
-        public static string AICLIPackagePath { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the test runs in package context.
-        /// </summary>
-        public static bool PackagedContext { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the test uses verbose logging.
-        /// </summary>
-        public static bool VerboseLogging { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether to use loose file registration.
-        /// </summary>
-        public static bool LooseFileRegistration { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether to invoke command in desktop package.
-        /// </summary>
-        public static bool InvokeCommandInDesktopPackage { get; set; }
-
-        /// <summary>
-        /// Gets or sets the static file root path.
-        /// </summary>
-        public static string StaticFileRootPath { get; set; }
-
-        /// <summary>
-        /// Gets or sets the exe installer path.
-        /// </summary>
-        public static string ExeInstallerPath { get; set; }
-
-        /// <summary>
-        /// Gets or sets the msi installer path.
-        /// </summary>
-        public static string MsiInstallerPath { get; set; }
-
-        /// <summary>
-        /// Gets or sets the msix installer path.
-        /// </summary>
-        public static string MsixInstallerPath { get; set; }
-
-        /// <summary>
-        /// Gets or sets the zip installer path.
-        /// </summary>
-        public static string ZipInstallerPath { get; set; }
-
-        /// <summary>
-        /// Gets or sets the package cert path.
-        /// </summary>
-        public static string PackageCertificatePath { get; set; }
-
-        /// <summary>
-        /// Gets or sets the PowerShell module path.
-        /// </summary>
-        public static string PowerShellModulePath { get; set; }
-
-        /// <summary>
-        /// Gets or sets the settings json path.
-        /// </summary>
-        public static string SettingsJsonFilePath { get; set; }
-
-        /// <summary>
         /// Run winget command.
         /// </summary>
         /// <param name="command">Command to run.</param>
@@ -123,15 +53,15 @@ namespace AppInstallerCLIE2ETests
         public static RunCommandResult RunAICLICommand(string command, string parameters, string stdIn = null, int timeOut = 60000)
         {
             string inputMsg =
-                    "AICLI path: " + AICLIPath +
+                    "AICLI path: " + TestSetup.Parameters.AICLIPath +
                     " Command: " + command +
                     " Parameters: " + parameters +
                     (string.IsNullOrEmpty(stdIn) ? string.Empty : " StdIn: " + stdIn) +
                     " Timeout: " + timeOut;
 
-            TestContext.Out.WriteLine($"Starting command run. {inputMsg} InvokeCommandInDesktopPackage: {InvokeCommandInDesktopPackage}");
+            TestContext.Out.WriteLine($"Starting command run. {inputMsg} InvokeCommandInDesktopPackage: {TestSetup.Parameters.InvokeCommandInDesktopPackage}");
 
-            if (InvokeCommandInDesktopPackage)
+            if (TestSetup.Parameters.InvokeCommandInDesktopPackage)
             {
                 return RunAICLICommandViaInvokeCommandInDesktopPackage(command, parameters, stdIn, timeOut);
             }
@@ -153,7 +83,7 @@ namespace AppInstallerCLIE2ETests
         {
             RunCommandResult result = new ();
             Process p = new Process();
-            p.StartInfo = new ProcessStartInfo(AICLIPath, command + ' ' + parameters);
+            p.StartInfo = new ProcessStartInfo(TestSetup.Parameters.AICLIPath, command + ' ' + parameters);
             p.StartInfo.UseShellExecute = false;
             p.StartInfo.RedirectStandardOutput = true;
             p.StartInfo.RedirectStandardError = true;
@@ -183,7 +113,7 @@ namespace AppInstallerCLIE2ETests
                     TestContext.Error.WriteLine("Command run error. Error: " + result.StdErr);
                 }
 
-                if (VerboseLogging && !string.IsNullOrEmpty(result.StdOut))
+                if (TestSetup.Parameters.VerboseLogging && !string.IsNullOrEmpty(result.StdOut))
                 {
                     TestContext.Out.WriteLine("Command run output. Output: " + result.StdOut);
                 }
@@ -227,7 +157,7 @@ namespace AppInstallerCLIE2ETests
             string stdErrFile = Path.Combine(workDirectory, "StdErr.txt");
 
             // First change the codepage so that the rest of the batch file works
-            cmdCommandPiped += $"chcp 65001\n{AICLIPath} {command} {parameters} > {stdOutFile} 2> {stdErrFile}\necho %ERRORLEVEL% > {exitCodeFile}";
+            cmdCommandPiped += $"chcp 65001\n{TestSetup.Parameters.AICLIPath} {command} {parameters} > {stdOutFile} 2> {stdErrFile}\necho %ERRORLEVEL% > {exitCodeFile}";
             File.WriteAllText(tempBatchFile, cmdCommandPiped, new System.Text.UTF8Encoding(false));
 
             string psCommand = $"Invoke-CommandInDesktopPackage -PackageFamilyName {Constants.AICLIPackageFamilyName} -AppId {Constants.AICLIAppId} -PreventBreakaway -Command cmd.exe -Args '/c \"{tempBatchFile}\"'";
@@ -337,7 +267,7 @@ namespace AppInstallerCLIE2ETests
                 result.StdOut = p.StandardOutput.ReadToEnd();
                 result.StdErr = p.StandardError.ReadToEnd();
 
-                if (VerboseLogging)
+                if (TestSetup.Parameters.VerboseLogging)
                 {
                     TestContext.Out.WriteLine($"Command run finished. {fileName} {args} {timeOut}. Output: {result.StdOut} Error: {result.StdErr}");
                 }
@@ -359,7 +289,7 @@ namespace AppInstallerCLIE2ETests
         /// <returns>Command result.</returns>
         public static RunCommandResult RunPowerShellCoreCommandWithResult(string cmdlet, string args, int timeOut = 60000)
         {
-            return RunCommandWithResult("pwsh.exe", $"-Command ipmo {PowerShellModulePath}; {cmdlet} {args}", timeOut);
+            return RunCommandWithResult("pwsh.exe", $"-Command ipmo {TestSetup.Parameters.PowerShellModuleManifestPath}; {cmdlet} {args}", timeOut);
         }
 
         /// <summary>
@@ -523,7 +453,7 @@ namespace AppInstallerCLIE2ETests
             bool symlinkExists = File.Exists(symlinkPath);
 
             bool portableEntryExists;
-            RegistryKey baseKey = (scope == Scope.User) ? Registry.CurrentUser : Registry.LocalMachine;
+            RegistryKey baseKey = scope == Scope.User ? Registry.CurrentUser : Registry.LocalMachine;
             string uninstallSubKey = Constants.UninstallSubKey;
             using (RegistryKey uninstallRegistryKey = baseKey.OpenSubKey(uninstallSubKey, true))
             {
@@ -532,7 +462,7 @@ namespace AppInstallerCLIE2ETests
             }
 
             bool isAddedToPath;
-            string pathSubKey = (scope == Scope.User) ? Constants.PathSubKey_User : Constants.PathSubKey_Machine;
+            string pathSubKey = scope == Scope.User ? Constants.PathSubKey_User : Constants.PathSubKey_Machine;
             using (RegistryKey environmentRegistryKey = baseKey.OpenSubKey(pathSubKey, true))
             {
                 string pathName = "Path";
@@ -567,12 +497,12 @@ namespace AppInstallerCLIE2ETests
 
             if (Directory.Exists(testLogsPackagedSourcePath))
             {
-                TestIndexSetup.CopyDirectory(testLogsPackagedSourcePath, testLogsPackagedDestPath);
+                CopyDirectory(testLogsPackagedSourcePath, testLogsPackagedDestPath);
             }
 
             if (Directory.Exists(testLogsUnpackagedSourcePath))
             {
-                TestIndexSetup.CopyDirectory(testLogsUnpackagedSourcePath, testLogsUnpackagedDestPath);
+                CopyDirectory(testLogsUnpackagedSourcePath, testLogsUnpackagedDestPath);
             }
         }
 
@@ -582,7 +512,17 @@ namespace AppInstallerCLIE2ETests
         /// <returns>Hex string.</returns>
         public static string GetTestServerCertificateHexString()
         {
-            return Convert.ToHexString(File.ReadAllBytes(Path.Combine(StaticFileRootPath, Constants.TestSourceServerCertificateFileName)));
+            if (string.IsNullOrEmpty(TestSetup.Parameters.LocalServerCertPath))
+            {
+                throw new Exception($"{Constants.LocalServerCertPathParameter} not set.");
+            }
+
+            if (!File.Exists(TestSetup.Parameters.LocalServerCertPath))
+            {
+                throw new FileNotFoundException(TestSetup.Parameters.LocalServerCertPath);
+            }
+
+            return Convert.ToHexString(File.ReadAllBytes(TestSetup.Parameters.LocalServerCertPath));
         }
 
         /// <summary>
@@ -807,9 +747,9 @@ namespace AppInstallerCLIE2ETests
         /// <param name="useGroupPolicyForTestSource">Use group policy.</param>
         public static void SetupTestSource(bool useGroupPolicyForTestSource = false)
         {
-            TestCommon.RunAICLICommand("source reset", "--force");
-            TestCommon.RunAICLICommand("source remove", Constants.DefaultWingetSourceName);
-            TestCommon.RunAICLICommand("source remove", Constants.DefaultMSStoreSourceName);
+            RunAICLICommand("source reset", "--force");
+            RunAICLICommand("source remove", Constants.DefaultWingetSourceName);
+            RunAICLICommand("source remove", Constants.DefaultMSStoreSourceName);
 
             // TODO: If/when cert pinning is implemented on the packaged index source, useGroupPolicyForTestSource should be set to default true
             //       to enable testing it by default.  Until then, leaving this here...
@@ -835,7 +775,7 @@ namespace AppInstallerCLIE2ETests
                                         new GroupPolicyHelper.GroupPolicyCertificatePinningDetails
                                         {
                                             Validation = new string[] { "publickey" },
-                                            EmbeddedCertificate = TestCommon.GetTestServerCertificateHexString(),
+                                            EmbeddedCertificate = GetTestServerCertificateHexString(),
                                         },
                                     },
                                 },
@@ -847,7 +787,7 @@ namespace AppInstallerCLIE2ETests
             else
             {
                 GroupPolicyHelper.EnableAdditionalSources.SetNotConfigured();
-                TestCommon.RunAICLICommand("source add", $"{Constants.TestSourceName} {Constants.TestSourceUrl}");
+                RunAICLICommand("source add", $"{Constants.TestSourceName} {Constants.TestSourceUrl}");
             }
 
             Thread.Sleep(2000);
@@ -901,7 +841,7 @@ namespace AppInstallerCLIE2ETests
             object properties,
             Scope scope = Scope.User)
         {
-            RegistryKey baseKey = (scope == Scope.User) ? Registry.CurrentUser : Registry.LocalMachine;
+            RegistryKey baseKey = scope == Scope.User ? Registry.CurrentUser : Registry.LocalMachine;
             using (RegistryKey uninstallRegistryKey = baseKey.OpenSubKey(Constants.UninstallSubKey, true))
             {
                 RegistryKey entry = uninstallRegistryKey.CreateSubKey(productCode, true);
@@ -922,10 +862,39 @@ namespace AppInstallerCLIE2ETests
             string productCode,
             Scope scope = Scope.User)
         {
-            RegistryKey baseKey = (scope == Scope.User) ? Registry.CurrentUser : Registry.LocalMachine;
+            RegistryKey baseKey = scope == Scope.User ? Registry.CurrentUser : Registry.LocalMachine;
             using (RegistryKey uninstallRegistryKey = baseKey.OpenSubKey(Constants.UninstallSubKey, true))
             {
                 uninstallRegistryKey.DeleteSubKey(productCode);
+            }
+        }
+
+        /// <summary>
+        /// Copies the contents of a given directory from a source path to a destination path.
+        /// </summary>
+        /// <param name="sourceDirName">Source directory name.</param>
+        /// <param name="destDirName">Destination directory name.</param>
+        public static void CopyDirectory(string sourceDirName, string destDirName)
+        {
+            DirectoryInfo dir = new DirectoryInfo(sourceDirName);
+            DirectoryInfo[] dirs = dir.GetDirectories();
+
+            if (!Directory.Exists(destDirName))
+            {
+                Directory.CreateDirectory(destDirName);
+            }
+
+            FileInfo[] files = dir.GetFiles();
+            foreach (FileInfo file in files)
+            {
+                string temppath = Path.Combine(destDirName, file.Name);
+                file.CopyTo(temppath, false);
+            }
+
+            foreach (DirectoryInfo subdir in dirs)
+            {
+                string temppath = Path.Combine(destDirName, subdir.Name);
+                CopyDirectory(subdir.FullName, temppath);
             }
         }
 

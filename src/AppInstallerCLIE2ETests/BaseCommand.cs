@@ -8,6 +8,7 @@ namespace AppInstallerCLIE2ETests
 {
     using System;
     using System.IO;
+    using AppInstallerCLIE2ETests.Helpers;
     using Newtonsoft.Json.Linq;
     using NUnit.Framework;
 

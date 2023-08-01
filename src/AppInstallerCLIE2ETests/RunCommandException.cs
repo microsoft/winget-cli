@@ -7,7 +7,7 @@
 namespace AppInstallerCLIE2ETests
 {
     using System;
-    using static AppInstallerCLIE2ETests.TestCommon;
+    using static AppInstallerCLIE2ETests.Helpers.TestCommon;
 
     /// <summary>
     /// An exception that occurred when running a command.
