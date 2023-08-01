@@ -345,7 +345,7 @@ namespace Microsoft.WinGet.Configuration.Engine.Commands
                 Resources.OperationCompleted,
                 totalUnitsCount);
 
-            var detailsTask = processor.GetSetDetailsAsync(set, ConfigurationUnitDetailLevel.Catalog);
+            var detailsTask = processor.GetSetDetailsAsync(set, ConfigurationUnitDetailFlags.ReadOnly);
             detailsTask.Progress = detailsProgressOutput.Progress;
 
             try

@@ -9,6 +9,7 @@ agg
 aicli
 AICLIC
 alreadyinstalled
+AMap
 amrutha
 ansistring
 APARTMENTTHREADED
@@ -25,12 +26,14 @@ ARMNT
 arp
 arphelper
 ASAN
+ASequence
 ashpatil
 Ashwini
 ASwitch
 ASYNCRTIMP
 Atest
 ATL
+attr
 AType
 AUrl
 Authenticode
@@ -54,6 +57,7 @@ boundparms
 bpp
 Browsable
 BSODs
+BUILDOUTDIR
 buildtransitive
 BUILTINS
 cancelledbyuser
@@ -119,6 +123,7 @@ ENDSESSION
 EQU
 errmsg
 ERRORONEXIT
+ESource
 ESRB
 etest
 etl
@@ -222,6 +227,7 @@ Linq
 liv
 liwpx
 localizationpriority
+localsource
 LOWORD
 LPARAM
 LPBYTE
@@ -392,6 +398,7 @@ rzkzqaqjwj
 SARL
 schematab
 sddl
+SECUREFILEPATH
 seof
 servercert
 servercertificate
@@ -408,6 +415,7 @@ SLAPI
 SMTO
 sortof
 sourceforge
+SOURCESDIRECTORY
 spamming
 SPAPI
 Srinivasan
@@ -432,8 +440,10 @@ systemnotsupported
 Tagit
 TCpp
 tcs
+TEMPDIRECTORY
 Templating
 temppath
+testdata
 testexampleinstaller
 thiscouldbeapc
 threehundred
@@ -473,6 +483,7 @@ userfilesetting
 userprofile
 UWP
 VALUENAMECASE
+vclib
 VERSI
 VERSIE
 vns

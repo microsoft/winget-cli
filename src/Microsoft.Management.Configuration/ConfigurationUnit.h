@@ -47,6 +47,8 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         hstring SchemaVersion();
         void SchemaVersion(const hstring& value);
 
+        Configuration::ConfigurationUnit Copy();
+
         HRESULT STDMETHODCALLTYPE SetLifetimeWatcher(IUnknown* watcher);
 
 #if !defined(INCLUDE_ONLY_INTERFACE_METHODS)

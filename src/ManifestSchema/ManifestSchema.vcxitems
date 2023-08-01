@@ -47,5 +47,10 @@
     <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.5.0\manifest.locale.1.5.0.json" />
     <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.5.0\manifest.singleton.1.5.0.json" />
     <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.5.0\manifest.version.1.5.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.6.0\manifest.defaultLocale.1.6.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.6.0\manifest.installer.1.6.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.6.0\manifest.locale.1.6.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.6.0\manifest.singleton.1.6.0.json" />
+    <None Include="$(MSBuildThisFileDirectory)..\..\schemas\JSON\manifests\v1.6.0\manifest.version.1.6.0.json" />
   </ItemGroup>
 </Project>

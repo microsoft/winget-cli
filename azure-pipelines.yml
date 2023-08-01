@@ -178,18 +178,6 @@ jobs:
       testResultsFiles: '$(artifactsDir)\TEST-*.xml'
       failTaskOnFailedTests: true
 
-  - task: DownloadSecureFile@1
-    name: AppInstallerTest
-    displayName: 'Download Source Package Certificate'
-    inputs:
-      secureFile: 'AppInstallerTest.pfx'
-
-  - task: DownloadSecureFile@1
-    name: HTTPSDevCert
-    displayName: 'Download Kestrel Certificate'
-    inputs:
-      secureFile: 'HTTPSDevCertV2.pfx'
-
   - task: MSBuild@1
     displayName: Build MSIX Test Installer File
     inputs:
@@ -200,18 +188,6 @@ jobs:
                          /p:AppxBundle=Never
                          /p:UapAppxPackageBuildMode=SideLoadOnly
                          /p:AppxPackageSigningEnabled=false'
-
-  - task: PowerShell@2
-    displayName: Install Root Certificate
-    inputs:
-      filePath: 'src\LocalhostWebServer\InstallDevCert.ps1'
-      arguments: '-pfxpath $(HTTPSDevCert.secureFilePath) -password microsoft'
-
-  - task: PowerShell@2
-    displayName: Launch LocalhostWebServer
-    inputs:
-      filePath: 'src\LocalhostWebServer\Run-LocalhostWebServer.ps1'
-      arguments: '-BuildRoot $(buildOutDir)\LocalhostWebServer -StaticFileRoot $(Agent.TempDirectory)\TestLocalIndex -CertPath $(HTTPSDevCert.secureFilePath) -CertPassword microsoft'
 
   - task: PowerShell@2
     displayName: 'Set program files directory'
@@ -240,12 +216,10 @@ jobs:
       TargetFolder: '$(platformProgramFiles)\dotnet'
       Contents: Microsoft.Management.Deployment.winmd
 
-  - task: PowerShell@2
-    displayName: Setup Local PS Repository
-    inputs:
-      filePath: 'src\AppInstallerCLIE2ETests\TestData\Configuration\Init-TestRepository.ps1'
-      arguments: '-Force'
-      pwsh: true
+  - template: templates/e2e-setup.yml
+    parameters:
+      source: $(Build.SourcesDirectory)
+      buildOutDir: $(buildOutDir)
 
   - template: templates/e2e-test.template.yml
     parameters:
@@ -269,7 +243,21 @@ jobs:
     displayName: 'Copy E2E Tests Package Log to artifacts folder'
     inputs:
       SourceFolder: '$(temp)\E2ETestLogs'
-      TargetFolder: '$(artifactsDir)\E2ETestsPackagedLog'
+      TargetFolder: '$(artifactsDir)\E2ETests\PackagedLog'
+    condition: succeededOrFailed()
+
+  - task: CopyFiles@2
+    displayName: 'Copy E2E Test Source'
+    inputs:
+      SourceFolder: '$(Agent.TempDirectory)\TestLocalIndex'
+      TargetFolder: '$(artifactsDir)\E2ETests\TestLocalIndex'
+    condition: succeededOrFailed()
+
+  - task: CopyFiles@2
+    displayName: 'Copy TestData'
+    inputs:
+      SourceFolder: '$(Build.SourcesDirectory)\src\AppInstallerCLIE2ETests\TestData\'
+      TargetFolder: '$(artifactsDir)\E2ETests\TestData'
     condition: succeededOrFailed()
 
   - task: CopyFiles@2

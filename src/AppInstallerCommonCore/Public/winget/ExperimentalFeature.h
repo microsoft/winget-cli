@@ -26,7 +26,8 @@ namespace AppInstaller::Settings
             DirectMSI = 0x2,
             Configuration = 0x4,
             WindowsFeature = 0x8,
-            Resume = 0x10,
+            Download = 0x10,
+            Resume = 0x20,
             Max, // This MUST always be after all experimental features
 
             // Features listed after Max will not be shown with the features command

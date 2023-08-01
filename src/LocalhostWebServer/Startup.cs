@@ -21,9 +21,11 @@ namespace LocalhostWebServer
 
         public static string CertPassword { get; set; }
 
-        public static bool PutCertInRoot { get; set; }
+        public static string OutCertFile { get; set; }
 
         public static int Port { get; set; }
+
+        public static string LocalSourceJson { get; set; }
 
         public Startup(IConfiguration configuration)
         {

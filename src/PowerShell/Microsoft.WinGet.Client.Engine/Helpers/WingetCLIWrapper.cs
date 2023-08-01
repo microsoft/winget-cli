@@ -6,6 +6,7 @@
 
 namespace Microsoft.WinGet.Client.Engine.Helpers
 {
+    using System;
     using System.Diagnostics;
     using System.IO;
     using Microsoft.WinGet.Client.Engine.Common;
@@ -32,6 +33,11 @@ namespace Microsoft.WinGet.Client.Engine.Helpers
         /// <param name="fullPath">Use full path or not.</param>
         public WingetCLIWrapper(bool fullPath = true)
         {
+            if (Utilities.ExecutingAsSystem)
+            {
+                throw new NotSupportedException();
+            }
+
             if (fullPath)
             {
                 this.wingetPath = WinGetFullPath;

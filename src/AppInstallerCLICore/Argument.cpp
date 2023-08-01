@@ -77,6 +77,8 @@ namespace AppInstaller::CLI
             return { type, "scope"_liv, ArgTypeCategory::InstallerSelection | ArgTypeCategory::CopyValueToSubContext };
         case Execution::Args::Type::InstallArchitecture:
             return { type, "architecture"_liv, 'a', ArgTypeCategory::InstallerSelection | ArgTypeCategory::CopyValueToSubContext };
+        case Execution::Args::Type::InstallerType:
+            return { type, "installer-type"_liv, ArgTypeCategory::InstallerSelection };
         case Execution::Args::Type::HashOverride:
             return { type, "ignore-security-hash"_liv, ArgTypeCategory::InstallerBehavior | ArgTypeCategory::CopyFlagToSubContext };
         case Execution::Args::Type::IgnoreLocalArchiveMalwareScan:
@@ -186,6 +188,10 @@ namespace AppInstaller::CLI
         case Execution::Args::Type::ConfigurationDisable:
             return { type, "disable"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::StubType };
 
+        // Download command
+        case Execution::Args::Type::DownloadDirectory:
+            return { type, "download-directory"_liv, 'd', ArgTypeCategory::None };
+
         // Common arguments
         case Execution::Args::Type::NoVT:
             return { type, "no-vt"_liv, ArgTypeCategory::None, ArgTypeExclusiveSet::ProgressBarOption };
@@ -274,7 +280,7 @@ namespace AppInstaller::CLI
         case Args::Type::Locale:
             return Argument{ type, Resource::String::LocaleArgumentDescription, ArgumentType::Standard };
         case Args::Type::InstallArchitecture:
-            return Argument{ type, Resource::String::InstallArchitectureArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
+            return Argument{ type, Resource::String::ArchitectureArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help };
         case Args::Type::Log:
             return Argument{ type, Resource::String::LogArgumentDescription, ArgumentType::Standard };
         case Args::Type::CustomSwitches:
@@ -339,6 +345,10 @@ namespace AppInstaller::CLI
             return Argument{ type, Resource::String::UninstallPreviousArgumentDescription, ArgumentType::Flag, Argument::Visibility::Help };
         case Args::Type::Force:
             return Argument{ type, Resource::String::ForceArgumentDescription, ArgumentType::Flag, false };
+        case Args::Type::DownloadDirectory:
+            return Argument{ type, Resource::String::DownloadDirectoryArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help, false };
+        case Args::Type::InstallerType:
+            return Argument{ type, Resource::String::InstallerTypeArgumentDescription, ArgumentType::Standard, Argument::Visibility::Help, false };
         case Args::Type::ResumeGuid:
             return Argument{ type, Resource::String::ResumeGuidArgumentDescription, ArgumentType::Standard, true };
         default:
@@ -451,6 +461,16 @@ namespace AppInstaller::CLI
 
                 throw CommandException(Resource::String::MultipleExclusiveArgumentsProvided(Utility::LocIndString{ argsString }));
             }
+        }
+    }
+
+    void Argument::ValidateArgumentDependency(const Execution::Args& args, Execution::Args::Type type, Execution::Args::Type dependencyArgType)
+    {
+        if (args.Contains(type) && !args.Contains(dependencyArgType))
+        {
+            throw CommandException(Resource::String::DependencyArgumentMissing(
+                Utility::LocIndString{ ArgumentCommon::ForType(type).Name },
+                Utility::LocIndString{ ArgumentCommon::ForType(dependencyArgType).Name }));
         }
     }
 

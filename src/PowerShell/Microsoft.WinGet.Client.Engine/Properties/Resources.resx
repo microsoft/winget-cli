@@ -155,8 +155,8 @@
     <value>Unable to execute winget command.</value>
   </data>
   <data name="WinGetCLIExceptionMessage" xml:space="preserve">
-    <value>Command {0} failed with exit code {1}</value>
-    <comment>{Locked="{0}","{1}"} {0} - The winget command executed. {1} - The exit code.</comment>
+    <value>Winget command '{0}' with parameters '{1}' failed with exit code '{2}'.</value>
+    <comment>{Locked="{0}","{1}","{2}"} {0} - The winget command executed. {1} - The parameters of the command. {2} - The exit code.</comment>
   </data>
   <data name="UserSettingsReadException" xml:space="preserve">
     <value>User settings file is invalid.</value>
@@ -180,13 +180,13 @@
     <value>The Windows Package Manager requires Windows Version 1809 (October 2018 Update) or later.</value>
   </data>
   <data name="WinGetCLITimeoutExceptionMessage" xml:space="preserve">
-    <value>Winget command run timed out: {0} {1}</value>
+    <value>Winget command timed out: {0} {1}</value>
     <comment>{Locked="{0}","{1}"} {0} - The winget command executed. {1} - The parameters of the command.</comment>
   </data>
   <data name="IntegrityAppInstallerNotRegisteredMessage" xml:space="preserve">
     <value>The App Installer is not registered.</value>
   </data>
-  <data name="AppExecutionAliasDisabledHelpMessage" xml:space="preserve">
+  <data name="RepairAppExecutionAliasMessage" xml:space="preserve">
     <value>The App Execution Alias for the Windows Package Manager is disabled. You should enable the App Execution Alias for the Windows Package Manager. Go to App execution aliases option in Apps &amp; features Settings to enable it.</value>
   </data>
   <data name="MicrosoftUIXaml27Message" xml:space="preserve">
@@ -206,5 +206,22 @@
   </data>
   <data name="WindowsPowerShellNotSupported" xml:space="preserve">
     <value>This cmdlet is not supported in Windows PowerShell.</value>
+  </data>
+  <data name="IntegrityAppInstallerLicense" xml:space="preserve">
+    <value>No applicable license found.</value>
+  </data>
+  <data name="RepairAllUsersHelpMessage" xml:space="preserve">
+    <value>Try running with -AllUsers in administrator mode.</value>
+    <comment>{Locked="-AllUsers"}</comment>
+  </data>
+  <data name="RepairAllUsersMessage" xml:space="preserve">
+    <value>-AllUsers requires administrator mode.</value>
+    <comment>{Locked="-AllUsers"}</comment>
+  </data>
+  <data name="RepairFailureMessage" xml:space="preserve">
+    <value>Failed to repair winget.</value>
+  </data>
+  <data name="RequiresAdminMessage" xml:space="preserve">
+    <value>This cmdlet requires administrator privileges to execute.</value>
   </data>
 </root>

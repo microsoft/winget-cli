@@ -293,6 +293,37 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         return Microsoft::Management::Deployment::PackageInstallerType::Unknown;
     }
 
+    ::AppInstaller::Manifest::InstallerTypeEnum GetManifestInstallerType(winrt::Microsoft::Management::Deployment::PackageInstallerType installerType)
+    {
+        switch (installerType)
+        {
+        case Microsoft::Management::Deployment::PackageInstallerType::Burn:
+            return ::AppInstaller::Manifest::InstallerTypeEnum::Burn;
+        case Microsoft::Management::Deployment::PackageInstallerType::Exe:
+            return ::AppInstaller::Manifest::InstallerTypeEnum::Exe;
+        case Microsoft::Management::Deployment::PackageInstallerType::Inno:
+            return ::AppInstaller::Manifest::InstallerTypeEnum::Inno;
+        case Microsoft::Management::Deployment::PackageInstallerType::Msi:
+            return ::AppInstaller::Manifest::InstallerTypeEnum::Msi;
+        case Microsoft::Management::Deployment::PackageInstallerType::Msix:
+            return ::AppInstaller::Manifest::InstallerTypeEnum::Msix;
+        case Microsoft::Management::Deployment::PackageInstallerType::MSStore:
+            return ::AppInstaller::Manifest::InstallerTypeEnum::MSStore;
+        case Microsoft::Management::Deployment::PackageInstallerType::Nullsoft:
+            return ::AppInstaller::Manifest::InstallerTypeEnum::Nullsoft;
+        case Microsoft::Management::Deployment::PackageInstallerType::Portable:
+            return ::AppInstaller::Manifest::InstallerTypeEnum::Portable;
+        case Microsoft::Management::Deployment::PackageInstallerType::Wix:
+            return ::AppInstaller::Manifest::InstallerTypeEnum::Wix;
+        case Microsoft::Management::Deployment::PackageInstallerType::Zip:
+            return ::AppInstaller::Manifest::InstallerTypeEnum::Zip;
+        case Microsoft::Management::Deployment::PackageInstallerType::Unknown:
+            return ::AppInstaller::Manifest::InstallerTypeEnum::Unknown;
+        }
+
+        return ::AppInstaller::Manifest::InstallerTypeEnum::Unknown;
+    }
+
     winrt::Microsoft::Management::Deployment::PackageInstallerScope GetDeploymentInstallerScope(::AppInstaller::Manifest::ScopeEnum installerScope)
     {
         switch (installerScope)

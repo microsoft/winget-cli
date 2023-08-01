@@ -160,6 +160,9 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         for (auto& versionItem : versions.value().get())
         {
             Manifest::Manifest manifest;
+
+            manifest.ManifestVersion = GetManifestVersion();
+
             manifest.Id = id.value();
 
             std::optional<std::string> packageVersion = JSON::GetRawStringValueFromJsonNode(versionItem, JSON::GetUtilityString(PackageVersion));
@@ -524,5 +527,10 @@ namespace AppInstaller::Repository::Rest::Schema::V1_0::Json
         }
 
         return result;
+    }
+
+    Manifest::ManifestVer ManifestDeserializer::GetManifestVersion() const
+    {
+        return Manifest::s_ManifestVersionV1;
     }
 }

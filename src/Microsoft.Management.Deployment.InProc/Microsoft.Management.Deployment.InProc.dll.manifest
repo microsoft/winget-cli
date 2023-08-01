@@ -28,6 +28,10 @@
         threadingModel="Both"
         description="UninstallOptions"/>
     <comClass
+        clsid="{4288DF96-FDC9-4B68-B403-193DBBF56A24}"
+        threadingModel="Both"
+        description="DownloadOptions"/>
+    <comClass
         clsid="{57DC8962-7343-42CD-B91C-04F6A25DB1D0}"
         threadingModel="Both"
         description="PackageMatchFilter"/>

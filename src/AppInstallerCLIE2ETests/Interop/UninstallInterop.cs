@@ -9,6 +9,7 @@ namespace AppInstallerCLIE2ETests.Interop
     using System;
     using System.IO;
     using System.Threading.Tasks;
+    using AppInstallerCLIE2ETests.Helpers;
     using Microsoft.Management.Deployment;
     using Microsoft.Management.Deployment.Projection;
     using NUnit.Framework;
@@ -87,7 +88,7 @@ namespace AppInstallerCLIE2ETests.Interop
         [Test]
         public async Task UninstallTestMsi()
         {
-            if (string.IsNullOrEmpty(TestCommon.MsiInstallerPath))
+            if (string.IsNullOrEmpty(TestIndex.MsiInstaller))
             {
                 Assert.Ignore("MSI installer not available");
             }

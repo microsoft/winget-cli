@@ -7,11 +7,14 @@
 namespace Microsoft.WinGet.Client.Engine.Commands
 {
     using System;
+    using System.Collections.Generic;
     using System.Management.Automation;
     using Microsoft.WinGet.Client.Engine.Commands.Common;
     using Microsoft.WinGet.Client.Engine.Common;
+    using Microsoft.WinGet.Client.Engine.Exceptions;
     using Microsoft.WinGet.Client.Engine.Helpers;
     using Microsoft.WinGet.Client.Engine.Properties;
+    using static Microsoft.WinGet.Client.Engine.Common.Constants;
 
     /// <summary>
     /// Used by Repair-WinGetPackageManager and Assert-WinGetPackageManager.
@@ -19,10 +22,6 @@ namespace Microsoft.WinGet.Client.Engine.Commands
     public sealed class WinGetPackageManagerCommand : BaseCommand
     {
         private const string EnvPath = "env:PATH";
-        private const int Succeeded = 0;
-        private const int Failed = -1;
-
-        private static readonly string[] WriteInformationTags = new string[] { "PSHOST" };
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WinGetPackageManagerCommand"/> class.
@@ -39,8 +38,8 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// <param name="preRelease">Use prerelease version on GitHub.</param>
         public void AssertUsingLatest(bool preRelease)
         {
-            var gitHubRelease = new GitHubRelease();
-            string expectedVersion = gitHubRelease.GetLatestVersionTagName(preRelease);
+            var gitHubClient = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli);
+            string expectedVersion = gitHubClient.GetLatestVersionTagName(preRelease);
             this.Assert(expectedVersion);
         }
 
@@ -57,144 +56,132 @@ namespace Microsoft.WinGet.Client.Engine.Commands
         /// Repairs winget using the latest version on winget-cli.
         /// </summary>
         /// <param name="preRelease">Use prerelease version on GitHub.</param>
-        public void RepairUsingLatest(bool preRelease)
+        /// <param name="allUsers">Install for all users. Requires admin.</param>
+        public void RepairUsingLatest(bool preRelease, bool allUsers)
         {
-            var gitHubRelease = new GitHubRelease();
-            string expectedVersion = gitHubRelease.GetLatestVersionTagName(preRelease);
-            this.Repair(expectedVersion);
+            var gitHubClient = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli);
+            string expectedVersion = gitHubClient.GetLatestVersionTagName(preRelease);
+            this.Repair(expectedVersion, allUsers);
         }
 
         /// <summary>
         /// Repairs winget if needed.
         /// </summary>
         /// <param name="expectedVersion">The expected version, if any.</param>
-        public void Repair(string expectedVersion)
+        /// <param name="allUsers">Install for all users. Requires admin.</param>
+        public void Repair(string expectedVersion, bool allUsers)
         {
-            int result = Failed;
-
-            var integrityCategory = WinGetIntegrity.GetIntegrityCategory(this.PsCmdlet, expectedVersion);
-            this.PsCmdlet.WriteDebug($"Integrity category type: {integrityCategory}");
-
-            if (integrityCategory == IntegrityCategory.Installed ||
-                integrityCategory == IntegrityCategory.UnexpectedVersion)
+            if (allUsers)
             {
-                result = this.VerifyWinGetInstall(integrityCategory, expectedVersion);
-            }
-            else if (integrityCategory == IntegrityCategory.NotInPath)
-            {
-                this.RepairEnvPath();
-
-                // Now try again and get the desired winget version if needed.
-                var newIntegrityCategory = WinGetIntegrity.GetIntegrityCategory(this.PsCmdlet, expectedVersion);
-                this.PsCmdlet.WriteDebug($"Integrity category after fixing PATH {newIntegrityCategory}");
-                result = this.VerifyWinGetInstall(newIntegrityCategory, expectedVersion);
-            }
-            else if (integrityCategory == IntegrityCategory.AppInstallerNotRegistered)
-            {
-                var appxModule = new AppxModuleHelper(this.PsCmdlet);
-                appxModule.RegisterAppInstaller();
-
-                // Now try again and get the desired winget version if needed.
-                var newIntegrityCategory = WinGetIntegrity.GetIntegrityCategory(this.PsCmdlet, expectedVersion);
-                this.PsCmdlet.WriteDebug($"Integrity category after registering {newIntegrityCategory}");
-                result = this.VerifyWinGetInstall(newIntegrityCategory, expectedVersion);
-            }
-            else if (integrityCategory == IntegrityCategory.AppInstallerNotInstalled ||
-                     integrityCategory == IntegrityCategory.AppInstallerNotSupported ||
-                     integrityCategory == IntegrityCategory.Failure)
-            {
-                // If we are here and expectedVersion is empty, it means that they just ran Repair-WinGetPackageManager.
-                // When there is not version specified, we don't want to assume an empty version means latest, but in
-                // this particular case we need to.
-                if (string.IsNullOrEmpty(expectedVersion))
+                if (Utilities.ExecutingAsSystem)
                 {
-                    var gitHubRelease = new GitHubRelease();
-                    expectedVersion = gitHubRelease.GetLatestVersionTagName(false);
+                    throw new NotSupportedException();
                 }
 
-                if (this.DownloadAndInstall(expectedVersion, false))
+                if (!Utilities.ExecutingAsAdministrator)
                 {
-                    result = Succeeded;
+                    throw new WinGetRepairException(Resources.RepairAllUsersMessage);
                 }
-                else
-                {
-                    this.PsCmdlet.WriteDebug($"Failed installing {expectedVersion}");
-                }
-            }
-            else if (integrityCategory == IntegrityCategory.AppExecutionAliasDisabled)
-            {
-                // Sorry, but the user has to manually enabled it.
-                this.PsCmdlet.WriteInformation(Resources.AppExecutionAliasDisabledHelpMessage, WriteInformationTags);
-            }
-            else
-            {
-                this.PsCmdlet.WriteInformation(Resources.WinGetNotSupportedMessage, WriteInformationTags);
             }
 
-            this.PsCmdlet.WriteObject(result);
+            this.RepairStateMachine(expectedVersion, allUsers);
         }
 
-        private int VerifyWinGetInstall(IntegrityCategory integrityCategory, string expectedVersion)
+        private void RepairStateMachine(string expectedVersion, bool allUsers)
         {
-            if (integrityCategory == IntegrityCategory.Installed)
-            {
-                // Nothing to do
-                this.PsCmdlet.WriteDebug($"WinGet is in a good state.");
-                return Succeeded;
-            }
-            else if (integrityCategory == IntegrityCategory.UnexpectedVersion)
-            {
-                // The versions are different, download and install.
-                if (!this.InstallDifferentVersion(new WinGetVersion(expectedVersion)))
-                {
-                    this.PsCmdlet.WriteDebug($"Failed installing {expectedVersion}");
-                }
-                else
-                {
-                    return Succeeded;
-                }
-            }
+            var seenCategories = new HashSet<IntegrityCategory>();
 
-            return Failed;
+            var currentCategory = IntegrityCategory.Unknown;
+            while (currentCategory != IntegrityCategory.Installed)
+            {
+                try
+                {
+                    WinGetIntegrity.AssertWinGet(this.PsCmdlet, expectedVersion);
+                    this.PsCmdlet.WriteDebug($"WinGet is in a good state.");
+                    currentCategory = IntegrityCategory.Installed;
+                }
+                catch (WinGetIntegrityException e)
+                {
+                    currentCategory = e.Category;
+
+                    if (seenCategories.Contains(currentCategory))
+                    {
+                        this.PsCmdlet.WriteDebug($"{currentCategory} encountered previously");
+                        throw;
+                    }
+
+                    this.PsCmdlet.WriteDebug($"Integrity category type: {currentCategory}");
+                    seenCategories.Add(currentCategory);
+
+                    switch (currentCategory)
+                    {
+                        case IntegrityCategory.UnexpectedVersion:
+                            this.InstallDifferentVersion(new WinGetVersion(expectedVersion), allUsers);
+                            break;
+                        case IntegrityCategory.NotInPath:
+                            this.RepairEnvPath();
+                            break;
+                        case IntegrityCategory.AppInstallerNotRegistered:
+                            this.Register();
+                            break;
+                        case IntegrityCategory.AppInstallerNotInstalled:
+                        case IntegrityCategory.AppInstallerNotSupported:
+                        case IntegrityCategory.Failure:
+                            this.Install(expectedVersion, allUsers);
+                            break;
+                        case IntegrityCategory.AppInstallerNoLicense:
+                            // This requires -AllUsers in admin mode.
+                            if (allUsers && Utilities.ExecutingAsAdministrator)
+                            {
+                                this.Install(expectedVersion, allUsers);
+                            }
+                            else
+                            {
+                                throw new WinGetRepairException(e);
+                            }
+
+                            break;
+                        case IntegrityCategory.AppExecutionAliasDisabled:
+                        case IntegrityCategory.Unknown:
+                            throw new WinGetRepairException(e);
+                        default:
+                            throw new NotSupportedException();
+                    }
+                }
+            }
         }
 
-        private bool InstallDifferentVersion(WinGetVersion toInstallVersion)
+        private void InstallDifferentVersion(WinGetVersion toInstallVersion, bool allUsers)
         {
             var installedVersion = WinGetVersion.InstalledWinGetVersion;
+            bool isDowngrade = installedVersion.CompareAsDeployment(toInstallVersion) > 0;
 
-            this.PsCmdlet.WriteDebug($"Installed WinGet version {installedVersion.TagVersion}");
-            this.PsCmdlet.WriteDebug($"Installing WinGet version {toInstallVersion.TagVersion}");
-
-            bool downgrade = false;
-            if (installedVersion.CompareAsDeployment(toInstallVersion) > 0)
-            {
-                downgrade = true;
-            }
-
-            return this.DownloadAndInstall(toInstallVersion.TagVersion, downgrade);
+            this.PsCmdlet.WriteDebug($"Installed WinGet version '{installedVersion.TagVersion}' " +
+                $"Installing WinGet version '{toInstallVersion.TagVersion}' " +
+                $"Is downgrade {isDowngrade}");
+            var appxModule = new AppxModuleHelper(this.PsCmdlet);
+            appxModule.InstallFromGitHubRelease(toInstallVersion.TagVersion, allUsers, isDowngrade);
         }
 
-        private bool DownloadAndInstall(string versionTag, bool downgrade)
+        private void Install(string toInstallVersion, bool allUsers)
         {
-            using var tempFile = new TempFile();
-
-            // Download and install.
-            var gitHubRelease = new GitHubRelease();
-            gitHubRelease.DownloadRelease(versionTag, tempFile.FullPath);
-
-            var appxModule = new AppxModuleHelper(this.PsCmdlet);
-            appxModule.AddAppInstallerBundle(tempFile.FullPath, downgrade);
-
-            // Verify that is installed
-            var integrityCategory = WinGetIntegrity.GetIntegrityCategory(this.PsCmdlet, versionTag);
-            if (integrityCategory != IntegrityCategory.Installed)
+            // If we are here and toInstallVersion is empty, it means that they just ran Repair-WinGetPackageManager.
+            // When there is not version specified, we don't want to assume an empty version means latest, but in
+            // this particular case we need to.
+            if (string.IsNullOrEmpty(toInstallVersion))
             {
-                this.PsCmdlet.WriteDebug($"Failed installing {versionTag}. IntegrityCategory after attempt: '{integrityCategory}'");
-                return false;
+                var gitHubClient = new GitHubClient(RepositoryOwner.Microsoft, RepositoryName.WinGetCli);
+                toInstallVersion = gitHubClient.GetLatestVersionTagName(false);
             }
 
-            this.PsCmdlet.WriteDebug($"Installed WinGet version {versionTag}");
-            return true;
+            var appxModule = new AppxModuleHelper(this.PsCmdlet);
+            appxModule.InstallFromGitHubRelease(toInstallVersion, allUsers, false);
+        }
+
+        private void Register()
+        {
+            var appxModule = new AppxModuleHelper(this.PsCmdlet);
+            appxModule.RegisterAppInstaller();
         }
 
         private void RepairEnvPath()

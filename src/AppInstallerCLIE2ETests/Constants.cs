@@ -22,13 +22,13 @@ namespace AppInstallerCLIE2ETests
         public const string LooseFileRegistrationParameter = "LooseFileRegistration";
         public const string InvokeCommandInDesktopPackageParameter = "InvokeCommandInDesktopPackage";
         public const string StaticFileRootPathParameter = "StaticFileRootPath";
+        public const string LocalServerCertPathParameter = "LocalServerCertPath";
         public const string ExeInstallerPathParameter = "ExeTestInstallerPath";
         public const string MsiInstallerPathParameter = "MsiTestInstallerPath";
         public const string MsixInstallerPathParameter = "MsixTestInstallerPath";
         public const string PackageCertificatePathParameter = "PackageCertificatePath";
         public const string PowerShellModulePathParameter = "PowerShellModulePath";
-        public const string AppInstallerTestCert = "AppInstallerTest.cer";
-        public const string AppInstallerTestCertThumbprint = "d03e7a688b388b1edde8476a627531c49db88017";
+        public const string SkipTestSourceParameter = "SkipTestSource";
 
         // Test Sources
         public const string DefaultWingetSourceName = @"winget";
@@ -42,7 +42,9 @@ namespace AppInstallerCLIE2ETests
         public const string TestSourceUrl = @"https://localhost:5001/TestKit";
         public const string TestSourceType = "Microsoft.PreIndexed.Package";
         public const string TestSourceIdentifier = @"WingetE2E.Tests_8wekyb3d8bbwe";
-        public const string TestSourceServerCertificateFileName = "servercert.cer";
+
+        public const string AppInstallerTestCert = "AppInstallerTest.cer";
+        public const string AppInstallerTestCertThumbprint = "d03e7a688b388b1edde8476a627531c49db88017";
 
         public const string AICLIPackageFamilyName = "WinGetDevCLI_8wekyb3d8bbwe";
         public const string AICLIPackageName = "WinGetDevCLI";
@@ -68,6 +70,8 @@ namespace AppInstallerCLIE2ETests
         // Installer filename
         public const string TestCommandExe = "testCommand.exe";
         public const string AppInstallerTestExeInstallerExe = "AppInstallerTestExeInstaller.exe";
+        public const string AppInstallerTestMsiInstallerMsi = "AppInstallerTestMsiInstaller.msi";
+        public const string AppInstallerTestZipInstallerZip = "AppInstallerTestZipInstaller.zip";
 
         // Test installers' package IDs
         public const string ExeInstallerPackageId = "AppInstallerTest.TestExeInstaller";
@@ -96,6 +100,7 @@ namespace AppInstallerCLIE2ETests
 
         // Locations
         public const string LocalAppData = "LocalAppData";
+        public const string Dependencies = "Dependencies";
 
         // Package dir
         public const string PortableExePackageDirName = $"{PortableExePackageId}_{TestSourceIdentifier}";
@@ -239,6 +244,8 @@ namespace AppInstallerCLIE2ETests
             public const int ERROR_MULTIPLE_UNINSTALL_FAILED = unchecked((int)0x8A150066);
             public const int ERROR_NOT_ALL_QUERIES_FOUND_SINGLE = unchecked((int)0x8A150067);
             public const int ERROR_PACKAGE_IS_PINNED = unchecked((int)0x8A150068);
+            public const int ERROR_PACKAGE_IS_STUB = unchecked((int)0x8A150069);
+            public const int ERROR_DOWNLOAD_DEPENDENCIES = unchecked((int)0x8A15006A);
 
             public const int ERROR_INSTALL_PACKAGE_IN_USE = unchecked((int)0x8A150101);
             public const int ERROR_INSTALL_INSTALL_IN_PROGRESS = unchecked((int)0x8A150102);

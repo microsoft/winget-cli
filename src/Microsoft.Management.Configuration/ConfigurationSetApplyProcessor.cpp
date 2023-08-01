@@ -46,11 +46,11 @@ namespace winrt::Microsoft::Management::Configuration::implementation
         m_progress.Result(*m_result);
     }
 
-    void ConfigurationSetApplyProcessor::Process()
+    void ConfigurationSetApplyProcessor::Process(bool preProcessOnly)
     {
         try
         {
-            if (PreProcess())
+            if (PreProcess() && !preProcessOnly)
             {
                 // TODO: Send pending when blocked by another configuration run
                 //SendProgress(ConfigurationSetState::Pending);
@@ -62,20 +62,27 @@ namespace winrt::Microsoft::Management::Configuration::implementation
 
             SendProgress(ConfigurationSetState::Completed);
 
-            m_telemetry.LogConfigProcessingSummaryForApply(*winrt::get_self<implementation::ConfigurationSet>(m_configurationSet), *m_result);
+            if (!preProcessOnly)
+            {
+                m_telemetry.LogConfigProcessingSummaryForApply(*winrt::get_self<implementation::ConfigurationSet>(m_configurationSet), *m_result);
+            }
         }
         catch (...)
         {
-            const auto& configurationSet = *winrt::get_self<implementation::ConfigurationSet>(m_configurationSet);
-            m_telemetry.LogConfigProcessingSummary(
-                configurationSet.InstanceIdentifier(),
-                configurationSet.IsFromHistory(),
-                ConfigurationUnitIntent::Apply,
-                LOG_CAUGHT_EXCEPTION(),
-                ConfigurationUnitResultSource::Internal,
-                GetProcessingSummaryFor(ConfigurationUnitIntent::Assert),
-                GetProcessingSummaryFor(ConfigurationUnitIntent::Inform),
-                GetProcessingSummaryFor(ConfigurationUnitIntent::Apply));
+            if (!preProcessOnly)
+            {
+                const auto& configurationSet = *winrt::get_self<implementation::ConfigurationSet>(m_configurationSet);
+                m_telemetry.LogConfigProcessingSummary(
+                    configurationSet.InstanceIdentifier(),
+                    configurationSet.IsFromHistory(),
+                    ConfigurationUnitIntent::Apply,
+                    LOG_CAUGHT_EXCEPTION(),
+                    ConfigurationUnitResultSource::Internal,
+                    GetProcessingSummaryFor(ConfigurationUnitIntent::Assert),
+                    GetProcessingSummaryFor(ConfigurationUnitIntent::Inform),
+                    GetProcessingSummaryFor(ConfigurationUnitIntent::Apply));
+            }
+
             throw;
         }
     }

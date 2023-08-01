@@ -26,6 +26,7 @@ namespace AppInstaller::CLI::Workflow
         Scope = 0x20,
         MachineArchitecture = 0x40,
         Market = 0x80,
+        InstallerType = 0x100,
     };
 
     DEFINE_ENUM_FLAG_OPERATORS(InapplicabilityFlags);

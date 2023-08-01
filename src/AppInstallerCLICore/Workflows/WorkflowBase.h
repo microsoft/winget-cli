@@ -40,6 +40,7 @@ namespace AppInstaller::CLI::Workflow
         Show,
         Uninstall,
         Upgrade,
+        Download,
     };
 
     // A task in the workflow.
