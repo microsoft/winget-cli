@@ -5,18 +5,27 @@
 .Synopsis
    Pester tests related to the Microsoft.WinGet.Client PowerShell module.
    The tests require the localhost web server to be running and serving the test data.
-   'Invoke-Pester' should be called in an admin powershell window with the 'Microsoft.WinGet.Client' PowerShell module already imported.
+   'Invoke-Pester' should be called in an admin PowerShell window.
 #>
 
 BeforeAll {
     # Source Add requires admin privileges, this will only execute successfully in an elevated PowerShell.
     wingetdev source add 'TestSource' 'https://localhost:5001/TestKit/'
+    Import-Module Microsoft.WinGet.Client
+
+    # TODO:
+    # wingetdev settings export, parse to get settings file.
+    # Function that modified the file (just check in json files)
+    # test that calls Get-WinGetSettings and compares.
+    # Investigate server not released?
 }
 
 Describe 'Get-WinGetSource' {
-    
+
     It 'Get Test Source' {
         $source = Get-WinGetSource -Name 'TestSource'
+
+        $source | Should -Not -BeNullOrEmpty -ErrorAction Stop
         $source.Name | Should -Be 'TestSource'
         $source.Argument | Should -Be 'https://localhost:5001/TestKit/'
         $source.Type | Should -Be 'Microsoft.PreIndexed.Package'
@@ -30,12 +39,12 @@ Describe 'Find-WinGetPackage' {
     }
 
     It 'Find by Id' {
-        $package = Find-WinGetPackage -Source 'TestSource' -Id 'AppInstallerTest.TestExeInstaller'
+        $package = Find-WinGetPackage -Source 'TestSource' -Id 'AppInstallerTest.TestExampleInstaller'
 
         $package | Should -Not -BeNullOrEmpty -ErrorAction Stop
-        $package.Name | Should -Be 'TestExeInstaller'
-        $package.Id | Should -Be 'AppInstallerTest.TestExeInstaller'
-        $package.Version | Should -Be '2.0.0.0'
+        $package.Name | Should -Be 'TestExampleInstaller'
+        $package.Id | Should -Be 'AppInstallerTest.TestExampleInstaller'
+        $package.Version | Should -Be '1.2.3.4'
         $package.Source | Should -Be 'TestSource'
     }
 
@@ -56,7 +65,7 @@ Describe 'Find-WinGetPackage' {
     }
 
     It 'Find package and verify PackageVersionInfo' {
-        $package = Find-WinGetPackage -Source 'TestSource' -Id 'AppInstallerTest.TestPortableExe' -Exact   
+        $package = Find-WinGetPackage -Source 'TestSource' -Id 'AppInstallerTest.TestPortableExe' -MatchOption Equals
 
         $package | Should -Not -BeNullOrEmpty -ErrorAction Stop
         $package.AvailableVersions[0] | Should -Be '3.0.0.0'
@@ -76,14 +85,16 @@ Describe 'Install|Update|Uninstall-WinGetPackage' {
     It 'Install by Id' {
         $result = Install-WinGetPackage -Id AppInstallerTest.TestExeInstaller -Version '1.0.0.0'
 
+        $result | Should -Not -BeNullOrEmpty -ErrorAction Stop
         $result.InstallerErrorCode | Should -Be 0
         $result.Status | Should -Be 'Ok'
         $result.RebootRequired | Should -Be 'False'
     }
 
     It 'Install by exact Name and Version' {
-        $result = Install-WinGetPackage -Name TestPortableExe -Version '2.0.0.0' -Exact
+        $result = Install-WinGetPackage -Name TestPortableExe -Version '2.0.0.0' -MatchOption Equals
 
+        $result | Should -Not -BeNullOrEmpty -ErrorAction Stop
         $result.InstallerErrorCode | Should -Be 0
         $result.Status | Should -Be 'Ok'
         $result.RebootRequired | Should -Be 'False'
@@ -92,14 +103,16 @@ Describe 'Install|Update|Uninstall-WinGetPackage' {
     It 'Update by Id' {
         $result = Update-WinGetPackage -Id AppInstallerTest.TestExeInstaller
 
+        $result | Should -Not -BeNullOrEmpty -ErrorAction Stop
         $result.InstallerErrorCode | Should -Be 0
         $result.Status | Should -Be 'Ok'
         $result.RebootRequired | Should -Be 'False'
     }
 
-    It 'Update by Name and Version' {
+    It 'Update by Name' {
         $result = Update-WinGetPackage -Name TestPortableExe
 
+        $result | Should -Not -BeNullOrEmpty -ErrorAction Stop
         $result.InstallerErrorCode | Should -Be 0
         $result.Status | Should -Be 'Ok'
         $result.RebootRequired | Should -Be 'False'
@@ -108,6 +121,7 @@ Describe 'Install|Update|Uninstall-WinGetPackage' {
     It 'Uninstall by Id' {
         $result = Uninstall-WinGetPackage -Id AppInstallerTest.TestExeInstaller
 
+        $result | Should -Not -BeNullOrEmpty -ErrorAction Stop
         $result.UninstallerErrorCode | Should -Be 0
         $result.Status | Should -Be 'Ok'
         $result.RebootRequired | Should -Be 'False'
@@ -116,6 +130,7 @@ Describe 'Install|Update|Uninstall-WinGetPackage' {
     It 'Uninstall by Name' {
         $result = Uninstall-WinGetPackage -Name TestPortableExe
 
+        $result | Should -Not -BeNullOrEmpty -ErrorAction Stop
         $result.UninstallerErrorCode | Should -Be 0
         $result.Status | Should -Be 'Ok'
         $result.RebootRequired | Should -Be 'False'
@@ -142,6 +157,7 @@ Describe 'Get-WinGetPackage' {
     It 'Install by Id' {
         $result = Install-WinGetPackage -Id AppInstallerTest.TestExeInstaller -Version '1.0.0.0'
 
+        $result | Should -Not -BeNullOrEmpty -ErrorAction Stop
         $result.InstallerErrorCode | Should -Be 0
         $result.Status | Should -Be 'Ok'
         $result.RebootRequired | Should -Be 'False'
@@ -153,7 +169,7 @@ Describe 'Get-WinGetPackage' {
         $result | Should -Not -BeNullOrEmpty -ErrorAction Stop
         $result.Name | Should -Be 'TestExeInstaller'
         $result.Id | Should -Be 'AppInstallerTest.TestExeInstaller'
-        $result.Version | Should -Be '1.0.0.0'
+        $result.InstalledVersion | Should -Be '1.0.0.0'
         $result.Source | Should -Be 'TestSource'
         $result.AvailableVersions[0] | Should -Be '2.0.0.0'
     }
@@ -164,7 +180,7 @@ Describe 'Get-WinGetPackage' {
         $result | Should -Not -BeNullOrEmpty -ErrorAction Stop
         $result.Name | Should -Be 'TestExeInstaller'
         $result.Id | Should -Be 'AppInstallerTest.TestExeInstaller'
-        $result.Version | Should -Be '1.0.0.0'
+        $result.InstalledVersion | Should -Be '1.0.0.0'
         $result.Source | Should -Be 'TestSource'
         $result.AvailableVersions[0] | Should -Be '2.0.0.0'
     }
@@ -180,6 +196,6 @@ Describe 'Get-WinGetPackage' {
 }
 
 AfterAll {
-     # Source Remove requires admin privileges, this will only execute successfully in an elevated PowerShell.
-     wingetdev source remove 'TestSource'   
+    # Source Remove requires admin privileges, this will only execute successfully in an elevated PowerShell.
+    Start-Process wingetdev source remove 'TestSource'
 }
