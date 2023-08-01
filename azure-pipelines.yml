@@ -261,6 +261,13 @@ jobs:
     condition: succeededOrFailed()
 
   - task: CopyFiles@2
+    displayName: 'Copy LocalhostWebServer'
+    inputs:
+      SourceFolder: '$(buildOutDir)\LocalhostWebServer'
+      TargetFolder: '$(artifactsDir)\E2ETests\LocalhostWebServer'
+    condition: succeededOrFailed()
+
+  - task: CopyFiles@2
     displayName: 'Copy Files: WinGetUtilInterop.UnitTests'
     inputs:
       SourceFolder: '$(Build.SourcesDirectory)\src\WinGetUtilInterop.UnitTests\bin\$(BuildConfiguration)\net6.0'
@@ -390,6 +397,18 @@ jobs:
   condition: always()
 
   steps:
+  - task: DownloadSecureFile@1
+    name: AppInstallerTest
+    displayName: 'Download Source Package Certificate'
+    inputs:
+      secureFile: 'AppInstallerTest.pfx'
+
+  - task: DownloadSecureFile@1
+    name: HTTPSDevCert
+    displayName: 'Download Kestrel Certificate'
+    inputs:
+      secureFile: 'HTTPSDevCertV2.pfx'
+
   - task: DownloadPipelineArtifact@2
     displayName: 'Download Build Artifacts'
   
@@ -406,6 +425,18 @@ jobs:
       SourceFolder: '$(Pipeline.Workspace)\Build.x86release\PowerShell'
       Contents: '**\*'
       TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+  - task: PowerShell@2
+    displayName: Install Root Certificate
+    inputs:
+      filePath: '$(Build.SourcesDirectory)\src\LocalhostWebServer\InstallDevCert.ps1'
+      arguments: '-pfxpath $(HTTPSDevCert.secureFilePath) -password microsoft'
+
+  - task: PowerShell@2
+    displayName: Launch LocalhostWebServer
+    inputs:
+      filePath: '$(Build.SourcesDirectory)\src\LocalhostWebServer\Run-LocalhostWebServer.ps1'
+      arguments: '-BuildRoot $(Pipeline.Workspace)\Build.x64release\E2ETests\LocalhostWebServer -StaticFileRoot $(Pipeline.Workspace)\Build.x64release\E2ETests\TestLocalIndex -CertPath $(HTTPSDevCert.secureFilePath) -CertPassword microsoft'
 
   - task: PublishPipelineArtifact@1
     displayName: Publish PowerShell Module Artifacts
