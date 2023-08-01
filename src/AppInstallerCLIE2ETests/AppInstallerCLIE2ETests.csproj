@@ -62,6 +62,7 @@
     <None Remove="testdata\configuration\ResourcesNotASequence.yml" />
     <None Remove="testdata\configuration\UnitNotAMap.yml" />
     <None Remove="testdata\configuration\UnknownVersion.yml" />
+    <None Remove="TestData\localsource.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -80,6 +81,7 @@
     <ProjectReference Include="..\WindowsPackageManager\WindowsPackageManager.vcxproj">
       <ReferenceOutputAssembly>False</ReferenceOutputAssembly>
     </ProjectReference>
+    <ProjectReference Include="..\WinGetSourceCreator\WinGetSourceCreator.csproj" />
     <ProjectReference Include="..\WinGetUtil\WinGetUtil.vcxproj">
       <ReferenceOutputAssembly>False</ReferenceOutputAssembly>
     </ProjectReference>

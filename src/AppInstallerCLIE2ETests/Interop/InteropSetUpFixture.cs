@@ -7,6 +7,7 @@
 namespace AppInstallerCLIE2ETests.Interop
 {
     using System;
+    using AppInstallerCLIE2ETests.Helpers;
     using NUnit.Framework;
 
     /// <summary>

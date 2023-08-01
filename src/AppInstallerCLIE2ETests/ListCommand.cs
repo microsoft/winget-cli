@@ -7,6 +7,7 @@
 namespace AppInstallerCLIE2ETests
 {
     using System.IO;
+    using AppInstallerCLIE2ETests.Helpers;
     using NUnit.Framework;
 
     /// <summary>
@@ -84,7 +85,7 @@ namespace AppInstallerCLIE2ETests
             // Installs the MSI installer using the TestMsiInstaller package.
             // Then tries listing the TestMsiInstallerUpgradeCode package, which should
             // be correlated to it by the UpgradeCode.
-            if (string.IsNullOrEmpty(TestCommon.MsiInstallerPath))
+            if (string.IsNullOrEmpty(TestIndex.MsiInstaller))
             {
                 Assert.Ignore("MSI installer not available");
             }
