@@ -262,4 +262,8 @@ namespace AppInstaller::Utility
         (FindAndReplace(inputStr, "{" + std::to_string(index++) + "}", (std::ostringstream() << args).str()),...);
         return inputStr;
     }
+
+    // Converts the given boolean value to a string.
+    std::string_view ConvertBoolToString(bool value);
+
 }

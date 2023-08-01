@@ -19,7 +19,7 @@ namespace Microsoft.WinGet.Client.Commands
     public sealed class GetUserSettingsCmdlet : PSCmdlet
     {
         /// <summary>
-        /// Writes the settings file contents.
+        /// Gets the settings file contents.
         /// </summary>
         protected override void ProcessRecord()
         {

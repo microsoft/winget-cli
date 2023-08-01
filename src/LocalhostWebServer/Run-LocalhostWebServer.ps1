@@ -9,6 +9,10 @@
     Path to HTTPS Development Certificate File (pfx)
 .PARAMETER CertPassword
     Secure Password for HTTPS Certificate
+.PARAMETER OutCertFile
+    Export cert location.
+.PARAMETER LocalSourceJson
+    Local source json definition
 #>
 
 param(
@@ -22,10 +26,15 @@ param(
     [string]$CertPath,
 
     [Parameter(Mandatory=$true)]
-    [string]$CertPassword
+    [string]$CertPassword,
+
+    [Parameter()]
+    [string]$OutCertFile,
+
+    [Parameter()]
+    [string]$LocalSourceJson
 )
 
 cd $BuildRoot
 
-Start-Process -FilePath "LocalhostWebServer.exe" -ArgumentList "StaticFileRoot=$StaticFileRoot CertPath=$CertPath CertPassword=$CertPassword PutCertInRoot=True" 
-
+Start-Process -FilePath "LocalhostWebServer.exe" -ArgumentList "StaticFileRoot=$StaticFileRoot CertPath=$CertPath CertPassword=$CertPassword OutCertFile=$OutCertFile LocalSourceJson=$LocalSourceJson"

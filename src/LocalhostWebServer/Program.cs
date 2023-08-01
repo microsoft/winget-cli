@@ -10,6 +10,10 @@ namespace LocalhostWebServer
     using System.IO;
     using Microsoft.Extensions.Configuration;
     using System.Security.Cryptography.X509Certificates;
+    using System.Text.Json.Serialization;
+    using System.Text.Json;
+    using WinGetSourceCreator.Model;
+    using Microsoft.WinGetSourceCreator;
 
     public class Program
     {    
@@ -22,8 +26,9 @@ namespace LocalhostWebServer
             Startup.StaticFileRoot = config.GetValue<string>("StaticFileRoot");
             Startup.CertPath = config.GetValue<string>("CertPath");
             Startup.CertPassword = config.GetValue<string>("CertPassword");
-            Startup.PutCertInRoot = config.GetValue<bool>("PutCertInRoot", false);
             Startup.Port = config.GetValue<Int32>("Port", 5001);
+            Startup.OutCertFile = config.GetValue<string>("OutCertFile");
+            Startup.LocalSourceJson = config.GetValue<string>("LocalSourceJson");
             
             if (string.IsNullOrEmpty(Startup.StaticFileRoot) || 
                 string.IsNullOrEmpty(Startup.CertPath))
@@ -35,10 +40,26 @@ namespace LocalhostWebServer
 
             Directory.CreateDirectory(Startup.StaticFileRoot);
 
-            if (Startup.PutCertInRoot)
+            if (!string.IsNullOrEmpty(Startup.OutCertFile))
             {
+                string parent = Path.GetDirectoryName(Startup.OutCertFile);
+                if (!string.IsNullOrEmpty(parent))
+                {
+                    Directory.CreateDirectory(parent);
+                }
+
                 X509Certificate2 serverCertificate = new X509Certificate2(Startup.CertPath, Startup.CertPassword, X509KeyStorageFlags.EphemeralKeySet);
-                File.WriteAllBytes(Path.Combine(Startup.StaticFileRoot, "servercert.cer"), serverCertificate.Export(X509ContentType.Cert));
+                File.WriteAllBytes(Startup.OutCertFile, serverCertificate.Export(X509ContentType.Cert));
+            }
+
+            if (!string.IsNullOrEmpty(Startup.LocalSourceJson))
+            {
+                if (!File.Exists(Startup.LocalSourceJson))
+                {
+                    throw new FileNotFoundException(Startup.LocalSourceJson);
+                }
+
+                WinGetLocalSource.CreateFromLocalSourceFile(Startup.LocalSourceJson);
             }
 
             CreateHostBuilder(args).Build().Run();

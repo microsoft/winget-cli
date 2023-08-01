@@ -6,7 +6,6 @@
 
 namespace Microsoft.WinGet.Client.Engine.Exceptions
 {
-    using System;
     using System.Management.Automation;
     using Microsoft.WinGet.Client.Engine.Properties;
 
@@ -24,7 +23,7 @@ namespace Microsoft.WinGet.Client.Engine.Exceptions
         /// <param name="stdOut">Standard output.</param>
         /// <param name="stdErr">Standard error.</param>
         public WinGetCLIException(string command, string parameters, int exitCode, string stdOut, string stdErr)
-            : base(string.Format(Resources.WinGetCLIExceptionMessage, command, exitCode))
+            : base(string.Format(Resources.WinGetCLIExceptionMessage, command, parameters, exitCode))
         {
             this.Command = command;
             this.Parameters = parameters;

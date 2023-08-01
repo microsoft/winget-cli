@@ -7,8 +7,9 @@
 namespace AppInstallerCLIE2ETests
 {
     using System.IO;
+    using AppInstallerCLIE2ETests.Helpers;
     using NUnit.Framework;
-    using static AppInstallerCLIE2ETests.TestCommon;
+    using static AppInstallerCLIE2ETests.Helpers.TestCommon;
 
     /// <summary>
     /// Test upgrading pinned packages.

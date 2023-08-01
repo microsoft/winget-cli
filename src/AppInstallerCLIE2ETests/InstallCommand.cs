@@ -7,6 +7,7 @@
 namespace AppInstallerCLIE2ETests
 {
     using System.IO;
+    using AppInstallerCLIE2ETests.Helpers;
     using NUnit.Framework;
 
     /// <summary>
@@ -698,7 +699,7 @@ namespace AppInstallerCLIE2ETests
             Assert.AreEqual(Constants.ErrorCode.ERROR_NO_APPLICATIONS_FOUND, result.ExitCode);
 
             // Add the MSIX to simulate an installer doing it
-            TestCommon.InstallMsix(TestCommon.MsixInstallerPath);
+            TestCommon.InstallMsix(TestIndex.MsixInstaller);
 
             // Install our exe that "installs" the MSIX
             result = TestCommon.RunAICLICommand("install", $"{targetPackageIdentifier} --force");

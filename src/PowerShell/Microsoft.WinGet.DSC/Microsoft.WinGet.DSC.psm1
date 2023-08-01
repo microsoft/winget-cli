@@ -135,7 +135,7 @@ class WinGetAdminSettings
     [WinGetAdminSettings] Get()
     {
         Assert-WinGetCommand "Get-WinGetSettings"
-        $settingsJson = Get-WinGetSettings | ConvertFrom-Json -AsHashtable
+        $settingsJson = Get-WinGetSettings
         # Get admin setting values.
 
         $result = @{

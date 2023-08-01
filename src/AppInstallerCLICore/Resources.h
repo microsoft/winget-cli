@@ -143,6 +143,7 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(DependenciesSkippedMessage);
         WINGET_DEFINE_RESOURCE_STRINGID(DependenciesManagementError);
         WINGET_DEFINE_RESOURCE_STRINGID(DependenciesManagementExitMessage);
+        WINGET_DEFINE_RESOURCE_STRINGID(DependencyArgumentMissing);
         WINGET_DEFINE_RESOURCE_STRINGID(DisabledByGroupPolicy);
         WINGET_DEFINE_RESOURCE_STRINGID(DisableAdminSettingFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(DisableInteractivityArgumentDescription);
@@ -212,7 +213,9 @@ namespace AppInstaller::CLI::Resource
         WINGET_DEFINE_RESOURCE_STRINGID(ImportInstallFailed);
         WINGET_DEFINE_RESOURCE_STRINGID(ImportSourceNotInstalled);
         WINGET_DEFINE_RESOURCE_STRINGID(IncludePinnedArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(IncludePinnedInListArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(IncludeUnknownArgumentDescription);
+        WINGET_DEFINE_RESOURCE_STRINGID(IncludeUnknownInListArgumentDescription);
         WINGET_DEFINE_RESOURCE_STRINGID(IncompatibleArgumentsProvided);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallationAbandoned);
         WINGET_DEFINE_RESOURCE_STRINGID(InstallationDisclaimer1);

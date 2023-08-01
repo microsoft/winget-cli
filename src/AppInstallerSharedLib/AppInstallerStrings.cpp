@@ -855,4 +855,9 @@ namespace AppInstaller::Utility
         result.push_back(input.substr(startIndex));
         return result;
     }
+
+    std::string_view ConvertBoolToString(bool value)
+    {
+        return value ? "true"sv : "false"sv;
+    }
 }

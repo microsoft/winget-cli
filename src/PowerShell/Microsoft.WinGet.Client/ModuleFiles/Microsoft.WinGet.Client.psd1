@@ -9,7 +9,28 @@
 @{
 
 # Script module or binary module file associated with this manifest.
-RootModule = 'Microsoft.WinGet.Client.psm1'
+RootModule = if ($env:PROCESSOR_ARCHITECTURE -like 'x86')
+{
+    if ($PSEdition -eq 'Core')
+    {
+        "runtimes\win10-x86\lib\net6.0-windows10.0.22000.0\Microsoft.WinGet.Client.Cmdlets.dll"
+    }
+    else
+    {
+        "runtimes\win10-x86\lib\net48\Microsoft.WinGet.Client.Cmdlets.dll"
+    }
+}
+else
+{
+    if ($PSEdition -eq 'Core')
+    {
+        "runtimes\win10-x64\lib\net6.0-windows10.0.22000.0\Microsoft.WinGet.Client.Cmdlets.dll"
+    }
+    else
+    {
+        "runtimes\win10-x64\lib\net48\Microsoft.WinGet.Client.Cmdlets.dll"
+    }
+}
 
 # Version number of this module.
 ModuleVersion = '0.1.0'
@@ -65,54 +86,29 @@ PowerShellVersion = '5.1.0'
 # Format files (.ps1xml) to be loaded when importing this module
 FormatsToProcess = 'Format.ps1xml'
 
-# Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
-NestedModules = if ($env:PROCESSOR_ARCHITECTURE -like 'x86')
-{
-    if ($PSEdition -eq 'Core')
-    {
-        "runtimes\win10-x86\lib\net6.0-windows10.0.22000.0\Microsoft.WinGet.Client.Cmdlets.dll"
-    }
-    else
-    {
-        "runtimes\win10-x86\lib\net48\Microsoft.WinGet.Client.Cmdlets.dll"
-    }
-}
-else
-{
-    if ($PSEdition -eq 'Core')
-    {
-        "runtimes\win10-x64\lib\net6.0-windows10.0.22000.0\Microsoft.WinGet.Client.Cmdlets.dll"
-    }
-    else
-    {
-        "runtimes\win10-x64\lib\net48\Microsoft.WinGet.Client.Cmdlets.dll"
-    }
-}
-
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = @(
-    'Enable-WinGetSetting',
-    'Disable-WinGetSetting',
-    'Add-WinGetSource',
-    'Remove-WinGetSource',
-    'Reset-WinGetSource',
-    'Get-WinGetSettings'
-)
+FunctionsToExport = @()
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @(
     'Get-WinGetVersion'
-    'Find-WinGetPackage',
-    'Get-WinGetPackage',
-    'Get-WinGetSource',
-    'Install-WinGetPackage',
-    'Uninstall-WinGetPackage',
-    'Update-WinGetPackage',
-    'Get-WinGetUserSettings',
-    'Set-WinGetUserSettings',
-    'Test-WinGetUserSettings',
-    'Assert-WinGetPackageManager',
+    'Find-WinGetPackage'
+    'Get-WinGetPackage'
+    'Get-WinGetSource'
+    'Install-WinGetPackage'
+    'Uninstall-WinGetPackage'
+    'Update-WinGetPackage'
+    'Get-WinGetUserSettings'
+    'Set-WinGetUserSettings'
+    'Test-WinGetUserSettings'
+    'Assert-WinGetPackageManager'
     'Repair-WinGetPackageManager'
+    'Enable-WinGetSetting'
+    'Disable-WinGetSetting'
+    'Get-WinGetSettings'
+    'Add-WinGetSource'
+    'Remove-WinGetSource'
+    'Reset-WinGetSource'
 )
 
 # Variables to export from this module

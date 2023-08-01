@@ -1328,6 +1328,10 @@ Please specify one of them using the --source option to proceed.</value>
   <data name="IncludeUnknownArgumentDescription" xml:space="preserve">
     <value>Upgrade packages even if their current version cannot be determined</value>
   </data>
+  <data name="IncludeUnknownInListArgumentDescription" xml:space="preserve">
+    <value>List packages even if their current version cannot be determined. Can only be used with the --upgrade-available argument</value>
+    <comment>{Locked="--upgrade-available"}</comment>
+  </data>
   <data name="UpgradeUnknownVersionExplanation" xml:space="preserve">
     <value>This package's version number cannot be determined. To upgrade it anyway, add the argument --include-unknown to your previous command.</value>
     <comment>{Locked="--include-unknown"}</comment>
@@ -1655,6 +1659,10 @@ Please specify one of them using the --source option to proceed.</value>
     <value>Multiple mutually exclusive arguments provided: {0}</value>
     <comment>{Locked="{0}"} Error message shown when mutually incompatible command line arguments are used. {0} is a placeholder replaced by the arguments that cannot be specified together</comment>
   </data>
+  <data name="DependencyArgumentMissing" xml:space="preserve">
+    <value>Argument {0} can only be used with {1}</value>
+    <comment>{Locked="{0}","{1}"} Error message shown when having an argument needs another to be present, but that is missing. {0} and {1} are replaced by the arguments. For example "Argument --include-unknown can only be used with --upgrade"</comment>
+  </data>
   <data name="StateDisabled" xml:space="preserve">
     <value>Disabled</value>
     <comment>As in enabled/disabled</comment>
@@ -1688,6 +1696,10 @@ Please specify one of them using the --source option to proceed.</value>
   </data>
   <data name="IncludePinnedArgumentDescription" xml:space="preserve">
     <value>Upgrade packages even if they have a non-blocking pin</value>
+  </data>
+  <data name="IncludePinnedInListArgumentDescription" xml:space="preserve">
+    <value>List packages even if they have a pin that prevents upgrade. Can only be used with the --upgrade-available argument</value>
+    <comment>{Locked="--upgrade-available"}</comment>
   </data>
   <data name="PinRemovedSuccessfully" xml:space="preserve">
     <value>Pin removed successfully</value>

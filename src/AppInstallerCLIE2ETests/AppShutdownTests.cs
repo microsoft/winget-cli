@@ -11,12 +11,13 @@ namespace AppInstallerCLIE2ETests
     using System.Threading;
     using System.Threading.Tasks;
     using System.Xml;
+    using AppInstallerCLIE2ETests.Helpers;
     using NUnit.Framework;
 
     /// <summary>
     /// `test appshutdown` command tests.
     /// </summary>
-    public class AppShutdownTests : BaseCommand
+    public class AppShutdownTests
     {
         /// <summary>
         /// Runs winget test appshutdown and register the application to force a WM_QUERYENDSESSION message.
@@ -25,17 +26,17 @@ namespace AppInstallerCLIE2ETests
         [Ignore("This test won't work on Window Server")]
         public void RegisterApplicationTest()
         {
-            if (!TestCommon.PackagedContext)
+            if (!TestSetup.Parameters.PackagedContext)
             {
-                return;
+                Assert.Ignore("Not packaged context.");
             }
 
-            if (string.IsNullOrEmpty(TestCommon.AICLIPackagePath))
+            if (string.IsNullOrEmpty(TestSetup.Parameters.AICLIPackagePath))
             {
                 throw new NullReferenceException("AICLIPackagePath");
             }
 
-            var appxManifest = Path.Combine(TestCommon.AICLIPackagePath, "AppxManifest.xml");
+            var appxManifest = Path.Combine(TestSetup.Parameters.AICLIPackagePath, "AppxManifest.xml");
             if (!File.Exists(appxManifest))
             {
                 throw new FileNotFoundException(appxManifest);
@@ -73,7 +74,7 @@ namespace AppInstallerCLIE2ETests
             // Register the app with the updated version.
             var registerTask = new Task<bool>(() =>
             {
-                return TestCommon.InstallMsixRegister(TestCommon.AICLIPackagePath, true, false);
+                return TestCommon.InstallMsixRegister(TestSetup.Parameters.AICLIPackagePath, true, false);
             });
 
             // Give it a little time.
@@ -97,12 +98,12 @@ namespace AppInstallerCLIE2ETests
         [Test]
         public void RegisterApplicationTest_Force()
         {
-            if (!TestCommon.PackagedContext)
+            if (!TestSetup.Parameters.PackagedContext)
             {
-                return;
+                Assert.Ignore("Not packaged context.");
             }
 
-            if (string.IsNullOrEmpty(TestCommon.AICLIPackagePath))
+            if (string.IsNullOrEmpty(TestSetup.Parameters.AICLIPackagePath))
             {
                 throw new NullReferenceException("AICLIPackagePath");
             }

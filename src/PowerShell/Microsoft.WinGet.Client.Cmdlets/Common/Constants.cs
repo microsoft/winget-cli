@@ -71,6 +71,16 @@ namespace Microsoft.WinGet.Client.Common
             /// The noun for winget version.
             /// </summary>
             public const string Version = "WinGetVersion";
+
+            /// <summary>
+            /// The noun for enable/disable winget admin settings.
+            /// </summary>
+            public const string Setting = "WinGetSetting";
+
+            /// <summary>
+            /// The noun to get the winget settings.
+            /// </summary>
+            public const string Settings = "WinGetSettings";
         }
     }
 }

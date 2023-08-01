@@ -423,6 +423,7 @@
     <ClInclude Include="Public\winget\ManifestValidation.h" />
     <ClInclude Include="Public\winget\ManifestYamlParser.h" />
     <ClInclude Include="Public\winget\ManifestYamlPopulator.h" />
+    <ClInclude Include="Public\winget\ManifestYamlWriter.h" />
     <ClInclude Include="Public\winget\MsiExecArguments.h" />
     <ClInclude Include="Public\winget\MsixManifestValidation.h" />
     <ClInclude Include="Public\winget\MSStore.h" />
@@ -483,6 +484,7 @@
     <ClCompile Include="Manifest\ManifestYamlPopulator.cpp" />
     <ClCompile Include="Manifest\MsixManifestValidation.cpp" />
     <ClCompile Include="Manifest\YamlParser.cpp" />
+    <ClCompile Include="Manifest\YamlWriter.cpp" />
     <ClCompile Include="MsiExecArguments.cpp" />
     <ClCompile Include="MsixInfo.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)'=='Fuzzing'">true</ExcludedFromBuild>
