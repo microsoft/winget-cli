@@ -619,6 +619,8 @@ namespace AppInstaller::Manifest::YamlWriter
 
         void PopulateManifestYamlEmitter(YAML::Emitter& out, const Manifest& manifest, const ManifestInstaller& installer)
         {
+            // Currently, exporting the yaml only supports outputting a single installer.
+            // TODO: If no single installer is provided, output all installers.
             out << YAML::BeginMap;
             WRITE_PROPERTY(out, PackageIdentifier, manifest.Id);
             WRITE_PROPERTY(out, PackageVersion, manifest.Version);
@@ -626,9 +628,6 @@ namespace AppInstaller::Manifest::YamlWriter
             WRITE_PROPERTY_IF_EXISTS(out, Moniker, manifest.Moniker);
             ProcessLocaleFields(out, manifest.DefaultLocalization);
             ProcessLocalizations(out, manifest.Localizations);
-
-            // Handles default installer fields in the root node.
-            ProcessInstallerFields(out, manifest.DefaultInstallerInfo);
             ProcessInstaller(out, installer);
             WRITE_PROPERTY(out, ManifestVersion, manifest.ManifestVersion.ToString());
 
@@ -662,7 +661,7 @@ namespace AppInstaller::Manifest::YamlWriter
         PopulateManifestYamlEmitter(emitter, manifest, installer);
 
         std::ofstream outFileStream(out);
-        outFileStream << emitter.str();
+        emitter.Emit(outFileStream);
         outFileStream.close();
     }
 }
