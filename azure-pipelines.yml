@@ -426,19 +426,27 @@ jobs:
       Contents: '**\*'
       TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
-  - task: PowerShell@2
+  - pwsh: .\InstallDevCert.ps1 -pfxpath $(HTTPSDevCert.secureFilePath) -password microsoft
+    workingDirectory: $(Build.SourcesDirectory)\src\LocalhostWebServer
     displayName: Install Root Certificate
-    inputs:
-      filePath: '$(Build.SourcesDirectory)\src\LocalhostWebServer\InstallDevCert.ps1'
-      arguments: '-pfxpath $(HTTPSDevCert.secureFilePath) -password microsoft'
 
-  - task: PowerShell@2
+  - pwsh: .\Run-LocalhostWebServer.ps1 -BuildRoot $(Pipeline.Workspace)\Build.x64release\E2ETests\LocalhostWebServer -StaticFileRoot $(Pipeline.Workspace)\Build.x64release\E2ETests\TestLocalIndex -CertPath $(HTTPSDevCert.secureFilePath) -CertPassword microsoft
+    workingDirectory: $(Build.SourcesDirectory)\src\LocalhostWebServer
     displayName: Launch LocalhostWebServer
+
+  - pwsh: .\RunTests.ps1 -testModulesPath $(Build.ArtifactStagingDirectory) -outputPath $(Pipeline.Workspace)\PesterTest -packageLayoutPath $(Pipeline.Workspace)\Build.x64release\DevPackage
+    workingDirectory: $(Build.SourcesDirectory)\Tools\
+    displayName: Run Tests
+
+  - task: PublishTestResults@2
+    displayName: Publish Pester Test Results
     inputs:
-      filePath: '$(Build.SourcesDirectory)\src\LocalhostWebServer\Run-LocalhostWebServer.ps1'
-      arguments: '-BuildRoot $(Pipeline.Workspace)\Build.x64release\E2ETests\LocalhostWebServer -StaticFileRoot $(Pipeline.Workspace)\Build.x64release\E2ETests\TestLocalIndex -CertPath $(HTTPSDevCert.secureFilePath) -CertPassword microsoft'
+      testResultsFormat: 'NUnit'
+      testResultsFiles: '$(Pipeline.Workspace)\PesterTest\TestsPester*.xml'
+      failTaskOnFailedTests: true
 
   - task: PublishPipelineArtifact@1
     displayName: Publish PowerShell Module Artifacts
     inputs:
       targetPath: '$(Build.ArtifactStagingDirectory)'
+    condition: succeededOrFailed()
