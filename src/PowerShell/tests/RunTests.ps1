@@ -4,7 +4,7 @@
 param(
     [string]$testModulesPath,
     [string]$outputPath,
-    [string]$packageLayoutPath,
+    [string]$packageLayoutPath
 )
 
 # This updates pester not always necessary but worth noting
@@ -13,9 +13,13 @@ Import-Module Pester
 
 $env:PSModulePath += ";$testModulesPath"
 
-if (-not Test-Path $outputPath)
+if (-not (Test-Path $outputPath))
 {
     New-Item -Path $outputPath -ItemType Directory
+}
+else
+{
+    Remove-Item $outputPath\* -Recurse -Force
 }
 
 # Register the package
@@ -33,4 +37,4 @@ if (-not [System.String]::IsNullOrEmpty($packageLayoutPath))
     Set-Content -Path $local:settingsFilePath -Value $local:settingsFileContent
 }
 
-Invoke-Pester -Script $PSScriptRoot\Microsoft.WinGet.Client.Tests.ps1 -OutputFile $outputPath\TestsPester.WinGetClient.XML -OutputFormat NUnitXML
+Invoke-Pester -Script $PSScriptRoot\Microsoft.WinGet.Client.Tests.ps1 -OutputFile $outputPath\Tests-WinGetClient.XML -OutputFormat NUnitXML

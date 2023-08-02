@@ -56,6 +56,7 @@ jobs:
   variables:
     BuildVer: $[counter(dependencies.GetReleaseTag.outputs['GetTag.tag'], 1)]
     buildOutDir: $(Build.SourcesDirectory)\src\$(buildPlatform)\$(buildConfiguration)
+    buildOutDirAnyCpu: $(Build.SourcesDirectory)\src\AnyCPU\$(buildConfiguration)
     artifactsDir: $(Build.ArtifactStagingDirectory)\$(buildPlatform)
     packageLayoutDir: $(Build.BinariesDirectory)\WingetPackageLayout
 
@@ -343,6 +344,13 @@ jobs:
     condition: succeededOrFailed()
 
   - task: CopyFiles@2
+    displayName: 'Copy PowerShell AnCPU Module Files'
+    inputs:
+      SourceFolder: '$(buildOutDirAnyCpu)\PowerShell'
+      TargetFolder: '$(artifactsDir)\PowerShell'
+    condition: succeededOrFailed()
+
+  - task: CopyFiles@2
     displayName: 'Copy Dev Package (Loose Files)'
     inputs:
       SourceFolder: '$(packageLayoutDir)'
@@ -442,7 +450,7 @@ jobs:
     displayName: Publish Pester Test Results
     inputs:
       testResultsFormat: 'NUnit'
-      testResultsFiles: '$(Pipeline.Workspace)\PesterTest\TestsPester*.xml'
+      testResultsFiles: '$(Pipeline.Workspace)\PesterTest\Test*.xml'
       failTaskOnFailedTests: true
 
   - task: PublishPipelineArtifact@1

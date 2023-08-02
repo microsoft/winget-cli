@@ -138,13 +138,13 @@ Describe 'Install|Update|Uninstall-WinGetPackage' {
 
     AfterAll {
         # Uninstall all test packages after each  for proper cleanup.
-        $testExe = Get-WinGetPackage -Id AppInstallerTest.TestExeInstaller
+        $testExe = Get-WinGetPackage -Id AppInstallerTest.TestExeInstaller -MatchOption Equals
         if ($testExe.Count -gt 0)
         {
             Uninstall-WinGetPackage -Id AppInstallerTest.TestExeInstaller 
-        } 
+        }
 
-        $testPortable = Get-WinGetPackage -Id AppInstallerTest.TestPortableExe
+        $testPortable = Get-WinGetPackage -Id AppInstallerTest.TestPortableExe -MatchOption Equals
         if ($testPortable.Count -gt 0)
         {
             Uninstall-WinGetPackage -Id AppInstallerTest.TestPortableExe
@@ -197,5 +197,5 @@ Describe 'Get-WinGetPackage' {
 
 AfterAll {
     # Source Remove requires admin privileges, this will only execute successfully in an elevated PowerShell.
-    Start-Process wingetdev source remove 'TestSource'
+    Start-Process -FilePath "wingetdev" -ArgumentList "source remove TestSource"
 }
