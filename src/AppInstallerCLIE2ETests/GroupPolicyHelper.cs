@@ -79,7 +79,6 @@ namespace AppInstallerCLIE2ETests
         /// </summary>
         public static GroupPolicyHelper EnableWingetPackageManagerOutOfProcessCOM { get; private set; } = new GroupPolicyHelper("EnableWindowsPackageManager", "EnableWinGetOutOfProcessCOM");
 
-
         /// <summary>
         /// Gets the Enable settings policy.
         /// </summary>
