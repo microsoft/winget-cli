@@ -1085,7 +1085,7 @@ namespace AppInstaller::Manifest
             {
                 if (!minVersion.empty())
                 {
-                    return dependency.MinVersion.value() == minVersion;
+                    return dependency.MinVersion.has_value() && dependency.MinVersion.value() == Utility::Version{ minVersion };
                 }
                 else
                 {

@@ -591,4 +591,21 @@ namespace AppInstaller::CLI::Workflow
         YamlWriter::OutputYamlFile(manifest, installer.value(), manifestDownloadPath);
         AICLI_LOG(CLI, Info, << "Successfully generated manifest yaml. Path: " << manifestDownloadPath);
     }
+
+    void EnsureSupportForDownload(Execution::Context& context)
+    {
+        // No checks needed if not download installer only.
+        if (WI_IsFlagClear(context.GetFlags(), Execution::ContextFlag::InstallerDownloadOnly))
+        {
+            return;
+        }
+
+        const auto& installer = context.Get<Execution::Data::Installer>();
+
+        if (installer->DownloadCommandProhibited)
+        {
+            context.Reporter.Error() << Resource::String::InstallerDownloadCommandProhibited << std::endl;
+            AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_DOWNLOAD_COMMAND_PROHIBITED);
+        }
+    }
 }

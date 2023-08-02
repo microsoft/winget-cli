@@ -111,5 +111,7 @@ namespace AppInstaller::Manifest
         MarketsInfo Markets;
 
         InstallationMetadataInfo InstallationMetadata;
+
+        bool DownloadCommandProhibited = false;
     };
 }

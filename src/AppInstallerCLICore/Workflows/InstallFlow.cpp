@@ -293,7 +293,9 @@ namespace AppInstaller::CLI::Workflow
             AICLI_TERMINATE_CONTEXT(APPINSTALLER_CLI_ERROR_NO_APPLICABLE_INSTALLER);
         }
 
-        context << EnsureSupportForInstall;
+        context <<
+            EnsureSupportForDownload <<
+            EnsureSupportForInstall;
     }
 
     void CheckForUnsupportedArgs(Execution::Context& context)

@@ -85,6 +85,12 @@
     <Filter Include="Microsoft\Schema\Pinning_1_0">
       <UniqueIdentifier>{f05e19bb-2161-4ab0-9d04-2dfa2d3eb3c6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Rest\Schema\1_6">
+      <UniqueIdentifier>{21da32f5-b918-436e-96a9-465525f90259}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Rest\Schema\1_6\Json">
+      <UniqueIdentifier>{b2e78f3d-931e-432c-8485-255b1dbc9db7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -375,6 +381,12 @@
     <ClInclude Include="Public\winget\IconExtraction.h">
       <Filter>Public\winget</Filter>
     </ClInclude>
+    <ClInclude Include="Rest\Schema\1_6\Json\ManifestDeserializer.h">
+      <Filter>Rest\Schema\1_6\Json</Filter>
+    </ClInclude>
+    <ClInclude Include="Rest\Schema\1_6\Interface.h">
+      <Filter>Rest\Schema\1_6</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -595,6 +607,12 @@
     </ClCompile>
     <ClCompile Include="IconExtraction.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Rest\Schema\1_6\Json\ManifestDeserializer_1_6.cpp">
+      <Filter>Rest\Schema\1_6\Json</Filter>
+    </ClCompile>
+    <ClCompile Include="Rest\Schema\1_6\RestInterface_1_6.cpp">
+      <Filter>Rest\Schema\1_6</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

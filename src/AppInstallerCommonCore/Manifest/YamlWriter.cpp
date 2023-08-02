@@ -65,6 +65,7 @@ namespace AppInstaller::Manifest::YamlWriter
         constexpr std::string_view InvocationParameter = "InvocationParameter"sv;
         constexpr std::string_view DisplayName = "DisplayName"sv;
         constexpr std::string_view MinimumOSVersion = "MinimumOSVersion"sv;
+        constexpr std::string_view DownloadCommandProhibited = "DownloadCommandProhibited"sv;
 
         // Installer switches
         constexpr std::string_view InstallerSwitches = "InstallerSwitches"sv;
@@ -565,6 +566,7 @@ namespace AppInstaller::Manifest::YamlWriter
             WRITE_BOOL_PROPERTY(out, InstallLocationRequired, installer.InstallLocationRequired);
             WRITE_BOOL_PROPERTY(out, RequireExplicitUpgrade, installer.RequireExplicitUpgrade);
             WRITE_BOOL_PROPERTY(out, DisplayInstallWarnings, installer.DisplayInstallWarnings);
+            WRITE_BOOL_PROPERTY(out, DownloadCommandProhibited, installer.DownloadCommandProhibited);
             WRITE_PROPERTY_IF_EXISTS(out, MinimumOSVersion, installer.MinOSVersion);
             WRITE_PROPERTY_IF_EXISTS(out, ProductCode, installer.ProductCode);
             WRITE_PROPERTY_IF_EXISTS(out, UpgradeBehavior, UpdateBehaviorToString(installer.UpdateBehavior));
