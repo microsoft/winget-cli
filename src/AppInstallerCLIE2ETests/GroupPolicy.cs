@@ -44,19 +44,19 @@ namespace AppInstallerCLIE2ETests
         {
             RunCommandResult result;
 
-            // Senario 1 : EnableWinGet = Disabled, EnableWingetPackageManagerCLI = NotConfigured
+            // Scenario 1 : EnableWinGet = Disabled, EnableWingetPackageManagerCLI = NotConfigured
             GroupPolicyHelper.EnableWinget.Disable();
             GroupPolicyHelper.EnableWingetPackageManagerCLI.SetNotConfigured();
             result = TestCommon.RunAICLICommand("search", "foo");
             Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
 
-            // Senario 2 : EnableWingetPackageManagerCLI = Disabled, EnableWinGet = Enabled
+            // Scenario 2 : EnableWingetPackageManagerCLI = Disabled, EnableWinGet = Enabled
             GroupPolicyHelper.EnableWingetPackageManagerCLI.Disable();
             GroupPolicyHelper.EnableWinget.Enable();
             result = TestCommon.RunAICLICommand("search", "foo");
             Assert.AreEqual(Constants.ErrorCode.ERROR_BLOCKED_BY_POLICY, result.ExitCode);
 
-            // Senario 3 : EnableWingetPackageManagerCLI = Disabled, EnableWinGet = NotConfigured
+            // Scenario 3 : EnableWingetPackageManagerCLI = Disabled, EnableWinGet = NotConfigured
             GroupPolicyHelper.EnableWingetPackageManagerCLI.Disable();
             GroupPolicyHelper.EnableWinget.SetNotConfigured();
             result = TestCommon.RunAICLICommand("search", "foo");

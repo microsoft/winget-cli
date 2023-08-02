@@ -20,7 +20,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
 
             AppInstaller::Settings::PolicyState wingetCOMInProcOrOutOfProcPolicyState = AppInstaller::Settings::PolicyState::NotConfigured;
 
-            if (IsOutOfProcCOMInvocation())
+            if (IsOutOfProcCOMCall())
             {
                 wingetCOMInProcOrOutOfProcPolicyState =  AppInstaller::Settings::GroupPolicies().GetState(::AppInstaller::Settings::TogglePolicy::Policy::WinGetOutOfProcessCOM);
             }

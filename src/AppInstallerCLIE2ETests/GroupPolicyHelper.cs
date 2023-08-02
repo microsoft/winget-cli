@@ -283,11 +283,11 @@ namespace AppInstallerCLIE2ETests
                 // </elements>
                 if (this.ValueElement.Name == XmlNames.Boolean)
                 {
-                    int flaseValue = GetDecimalValue(this.ValueElement.Element(XmlNames.FalseValue));
+                    int falseValue = GetDecimalValue(this.ValueElement.Element(XmlNames.FalseValue));
 
                     using (RegistryKey key = this.GetKey())
                     {
-                        key.SetValue(this.ValueElement.Attribute(XmlNames.Attributes.ValueName).Value, flaseValue);
+                        key.SetValue(this.ValueElement.Attribute(XmlNames.Attributes.ValueName).Value, falseValue);
                     }
                 }
             }

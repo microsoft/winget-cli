@@ -19,5 +19,5 @@ namespace winrt::Microsoft::Management::Deployment::implementation
     std::pair<HRESULT, DWORD> GetCallerProcessId();
     std::wstring TryGetCallerProcessInfo(DWORD callerProcessId);
     bool IsCOMServerRunningInPackagedContext();
-    bool IsOutOfProcCOMInvocation();
+    bool IsOutOfProcCOMCall();
 }

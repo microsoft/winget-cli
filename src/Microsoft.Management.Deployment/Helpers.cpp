@@ -136,7 +136,7 @@ namespace winrt::Microsoft::Management::Deployment::implementation
         return false;
     }
 
-    bool IsOutOfProcCOMInvocation()
+    bool IsOutOfProcCOMCall()
     {
         return IsCOMServerRunningInPackagedContext();
     }
